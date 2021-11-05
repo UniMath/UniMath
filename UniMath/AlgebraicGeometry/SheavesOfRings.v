@@ -34,7 +34,7 @@ Section sheaf_commring_prop.
 
   Definition restriction {U V : Open} (H : U ⊆ V) : ringfun (F V) (F U) := #F' H.
 
-  Definition restrict {A : hsubtype Open} (f : F (⋃ A)) (U : A) : F (pr1 U) :=
+  Definition restrict (A : hsubtype Open) (f : F (⋃ A)) (U : A) : F (pr1 U) :=
     restriction (contained_in_union_open U) f.
 
   Definition agree_on_intersections {A : hsubtype Open}
@@ -43,10 +43,10 @@ Section sheaf_commring_prop.
                restriction (intersection_contained2 _ _) (g V).
 
   Definition locality : hProp := ∀ (A : hsubtype Open) (f g : F (⋃ A)),
-      restrict f ~ restrict g ⇒ f = g.
+      restrict A f ~ restrict A g ⇒ f = g.
 
   Definition gluing : hProp := ∀ (A : hsubtype Open) (g : ∏ U : A, F (pr1 U)),
-      agree_on_intersections g ⇒ ∃ f, restrict f ~ g.
+      agree_on_intersections g ⇒ ∃ f, restrict A f ~ g.
 End sheaf_commring_prop.
 
 

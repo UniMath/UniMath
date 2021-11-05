@@ -378,7 +378,7 @@ Proof.
   apply isaset_total2.
   - apply isasethsubtype.
   - intro P. apply isasetaprop, isapropissubmonoid.
-Qed.
+Defined.
 
 Definition totalsubmonoid (X : monoid) : submonoid X.
 Proof.

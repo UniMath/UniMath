@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.commrings.
 Require Import UniMath.AlgebraicGeometry.Topology.
-Require Import UniMath.AlgebraicGeometry.Sheaf.
+Require Import UniMath.AlgebraicGeometry.SheavesOfRings.
 
 Local Open Scope cat.
 Local Open Scope ring.
@@ -113,7 +113,7 @@ Section spec.
           apply (ideal_isl p a b), Hpb.
   Defined.
 
-  Definition spec : TopologicalSpace :=
+  Definition Spec : TopologicalSpace :=
     mkTopologicalSpace (make_hSet (prime_ideal R) isaset_prime_ideal)
                        zariski_topology
                        zariski_topology_union
@@ -121,7 +121,7 @@ Section spec.
                        zariski_topology_and.
 End spec.
 
-Arguments spec _ : clear implicits.
+Arguments Spec _ : clear implicits.
 
 
 (** ** Structure sheaf *)
@@ -135,7 +135,7 @@ Arguments spec _ : clear implicits.
     q, and s q = f/g. *)
 
 Section section.
-  Context {R : commring} {U : @Open (spec R)}.
+  Context {R : commring} {U : @Open (Spec R)}.
 
   Definition is_quotient_on (V : Open)
                             (s : ∏ q : carrier U, localization_at (pr1 q)) : hProp :=
@@ -166,7 +166,7 @@ Arguments section {_} _.
 (* [section U] is a commutative ring. *)
 
 Section section_commring.
-  Context {R : commring} {U : @Open (spec R)}.
+  Context {R : commring} {U : @Open (Spec R)}.
 
   Lemma isaset_section : isaset (section U).
   Proof.
@@ -415,7 +415,7 @@ Arguments section_commring {_} _.
 (** *** Restriction of a section *)
 
 Section restriction.
-  Context {R : commring} {U V : @Open (spec R)} (H : V ⊆ U).
+  Context {R : commring} {U V : @Open (Spec R)} (H : V ⊆ U).
 
   Definition restriction_section_map : (∏ p : carrier U, localization_at (pr1 p)) ->
                                        (∏ p : carrier V, localization_at (pr1 p)) :=
@@ -479,9 +479,9 @@ End restriction.
 
 
 Section restriction_facts.
-  Context {R : commring} {U V : @Open (spec R)}.
+  Context {R : commring} {U V : @Open (Spec R)}.
 
-  Lemma restriction_paths (H : V ⊆ U) (s : section U) {p : spec R} (HUp : U p) (HVp : V p) :
+  Lemma restriction_paths (H : V ⊆ U) (s : section U) {p : Spec R} (HUp : U p) (HVp : V p) :
     restriction_section H s (p ,, HVp) = s (p ,, HUp).
   Proof.
     induction (proofirrelevance_hProp _ (H _ HVp) HUp). apply idpath.
@@ -522,7 +522,7 @@ Section structure_sheaf.
   (* presheaf *)
 
   Definition structure_presheaf_data :
-    functor_data (open_category (spec R))^op commring_precategory.
+    functor_data (open_category (Spec R))^op commring_precategory.
   Proof.
     use make_functor_data.
     - exact section_commring.
@@ -538,7 +538,7 @@ Section structure_sheaf.
       apply rigfun_paths, funextsec. intro s. apply subtypePath_prop, idpath.
   Qed.
 
-  Definition structure_presheaf : (open_category (spec R))^op ⟶ commring_precategory :=
+  Definition structure_presheaf : (open_category (Spec R))^op ⟶ commring_precategory :=
     make_functor structure_presheaf_data is_functor_structure_presheaf_data.
 
   (* locality *)
@@ -553,12 +553,12 @@ Section structure_sheaf.
 
   (* gluing *)
 
-  Definition agree_on_intersections_section {A : hsubtype (@Open (spec R))}
+  Definition agree_on_intersections_section {A : hsubtype (@Open (Spec R))}
                                             (g : ∏ U : A, section_commring (pr1 U)) : UU :=
     ∏ U V : A, restriction_section (intersection_contained1 _ _) (g U) =
                restriction_section (intersection_contained2 _ _) (g V).
 
-  Definition glue_sections {A : hsubtype (@Open (spec R))}
+  Definition glue_sections {A : hsubtype (@Open (Spec R))}
                            (g : ∏ U : A, section_commring (pr1 U))
                            (Hg : agree_on_intersections_section g)
                            (H : ∏ p : carrier (⋃ A), ∑ U : A, pr1 U (pr1 p)) :
@@ -596,7 +596,7 @@ Section structure_sheaf.
 
   (* structure sheaf *)
 
-  Definition structure_sheaf (ac : AxiomOfChoice) : sheaf_commring (spec R) :=
+  Definition structure_sheaf (ac : AxiomOfChoice) : sheaf_commring (Spec R) :=
     make_sheaf_commring structure_presheaf
                         locality_structure_presheaf
                         (gluing_structure_presheaf ac).

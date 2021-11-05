@@ -70,7 +70,7 @@ Section Definitions.
     apply isaset_total2.
     - apply isaset_submonoid.
     - intro S. apply isasetaprop, propproperty.
-  Qed.
+  Defined.
 End Definitions.
 
 Arguments lideal _ : clear implicits.
