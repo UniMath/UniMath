@@ -252,9 +252,6 @@ Section DomainArrow.
         apply B.
   Qed.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Definition dom_invertible_2cell_to_disp_adj_equiv
              {c : B}
              {t₁ t₂ : dom_disp_bicat c}
@@ -263,15 +260,48 @@ Section DomainArrow.
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) t₁ t₂.
   Proof.
     intros α.
-    simple refine (_ ,, ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _)))) ; cbn.
+    simple refine (_ ,, ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _)))).
     - exact (pr1 α • linvunitor _).
     - exact (α^-1 • linvunitor _).
-    - apply TODO.
-    - apply TODO.
+    - abstract
+        (cbn ;
+         rewrite linvunitor_natural ;
+         rewrite !vassocl ;
+         apply maponpaths ;
+         rewrite <- lwhisker_hcomp ;
+         rewrite !vassocr ;
+         rewrite lwhisker_vcomp ;
+         rewrite vassocr ;
+         rewrite vcomp_rinv ;
+         rewrite id2_left ;
+         rewrite lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- rwhisker_hcomp ;
+         apply maponpaths ;
+         apply lunitor_V_id_is_left_unit_V_id).
+    - abstract
+        (cbn ;
+         rewrite linvunitor_natural ;
+         rewrite <- lwhisker_hcomp ;
+         rewrite !vassocl ;
+         refine (_ @ id2_right _) ;
+         apply maponpaths ;
+         rewrite !vassocr ;
+         rewrite lwhisker_vcomp ;
+         rewrite !vassocr ;
+         rewrite vcomp_linv ;
+         rewrite id2_left ;
+         rewrite lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- rwhisker_hcomp ;
+         rewrite rwhisker_vcomp ;
+         rewrite lunitor_runitor_identity ;
+         rewrite rinvunitor_runitor ;
+         apply id2_rwhisker).
     - apply dom_disp_2cells_isaprop.
     - apply dom_disp_2cells_isaprop.
-    - apply TODO.
-    - apply TODO.
+    - apply dom_disp_locally_groupoid.
+    - apply dom_disp_locally_groupoid.
   Defined.
 
   Definition dom_disp_adj_equiv_to_invertible_2cell
