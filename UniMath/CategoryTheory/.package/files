@@ -91,6 +91,7 @@ HorizontalComposition.v
 CATAsInstanceOfBicat.v
 PointedFunctorsComposition.v
 CommaCategories.v
+IsoCommaCategory.v
 ArrowCategory.v
 RightKanExtension.v
 slicecat.v

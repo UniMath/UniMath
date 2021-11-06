@@ -221,6 +221,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [CATAsInstanceOfBicat.v](CategoryTheory/CATAsInstanceOfBicat.v)
    - [PointedFunctorsComposition.v](CategoryTheory/PointedFunctorsComposition.v)
    - [CommaCategories.v](CategoryTheory/CommaCategories.v)
+   - [IsoCommaCategory.v](CategoryTheory/IsoCommaCategory.v)
    - [ArrowCategory.v](CategoryTheory/ArrowCategory.v)
    - [RightKanExtension.v](CategoryTheory/RightKanExtension.v)
    - [slicecat.v](CategoryTheory/slicecat.v)
