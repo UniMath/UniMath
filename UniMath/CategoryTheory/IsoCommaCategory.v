@@ -2,8 +2,6 @@
 
  Iso comma categories
 
- Author: Niels van der Weide
-
  Given functors `F : C₁ ⟶ C₃` and `G : C₂ ⟶ C₃`.
  Then the iso-comma category of `F` and `G` is defined as follows:
  - Objects: pairs `(x, y) : C₁ × C₂` with an iso  `F x --> G y`
@@ -37,7 +35,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Section IsoCommaCategory.
   Context {C₁ C₂ C₃ : category}
@@ -324,7 +322,7 @@ Section IsoCommaCategory.
       rewrite id_right.
       apply idpath.
     Qed.
-    
+
     (** Now we look at the second universal mapping property *)
     Context (Φ₁ Φ₂ : D ⟶ iso_comma)
             (τ₁ : nat_iso (Φ₁ ∙ iso_comma_pr1) P)
