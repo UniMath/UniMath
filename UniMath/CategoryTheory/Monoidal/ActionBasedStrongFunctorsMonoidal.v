@@ -39,6 +39,46 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
+Section UpstreamMoreFoundations.
+
+  Context { T: UU } ( P: T -> UU ).
+
+  Lemma sigbeta1 (t: T)(p: P t): pr1 (t,,p) = t.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma sigbeta2 (t: T)(p: P t): pr2 (t,,p) = p.
+  Proof.
+    apply idpath.
+  Defined.
+
+End UpstreamMoreFoundations.
+
+Section UpstreamBinproduct.
+
+  Context {C D : category} (X : C) (Y : D).
+
+  Lemma catbinprodbeta1: pr1 (X,Y) = X.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma catbinprodbeta2: pr2 (X,Y) = Y.
+  Proof.
+    apply idpath.
+  Defined.
+
+End UpstreamBinproduct.
+
+
+Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
+Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
+Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
+Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
+
+
+
 Section UpstreamAux.
   (** this section presents auxiliary results that are even more abstracted from the situation at hand *)
 
@@ -122,13 +162,13 @@ Section Upstream.
   Proof.
     split.
     - intros c α.
-      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. reducesigbeta.
       do 2 rewrite functor_id.
       rewrite id_left. apply id_right.
     - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
       red. red in Hypf, Hypg.
       unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
+      reducesigbeta. reducesigbetahyp Hypf. reducesigbetahyp Hypg.
       do 2 rewrite functor_comp.
       rewrite assoc.
       rewrite Hypf.
@@ -184,7 +224,7 @@ Section Upstream.
           exact (c ,, η c).
         + intros c c' f.
           exists f.
-          red. unfold trafotarget_disp. hnf.
+          red. unfold trafotarget_disp. (* reducesigbeta. does nothing here *) hnf. reducesigbeta.
           apply pathsinv0, nat_trans_ax.
       - split; red.
         + intro c.
@@ -557,13 +597,13 @@ Context (H H' : C0 ⟶ hom a a').
   Proof.
     split.
     - intros c α.
-      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. reducesigbeta.
       do 2 rewrite functor_id.
       rewrite id_left. apply id_right.
     - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
       red. red in Hypf, Hypg.
       unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
+      reducesigbeta. reducesigbetahyp Hypf. reducesigbetahyp Hypg.
       do 2 rewrite functor_comp.
       rewrite assoc.
       rewrite Hypf.
@@ -771,6 +811,7 @@ Proof.
   match goal with | [ |- ?Hσ'1 · ?Hσ'2 · _  = _ · ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
   apply (maponpaths (# (post_composition_functor A A' A' ((FA' w'): [A', A'])))) in Hyp.
   do 2 rewrite functor_comp in Hyp.
+  (* reducecatbinprodbetahyp σ'1. does nothing *)
   apply pathsinv0 in Hyp.
   assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' (FA' w')) η
                        · # (post_composition_functor A A' A' (FA' w')) (# H' f)).
@@ -814,10 +855,12 @@ Proof.
   change ν' with ν'better.
   clear ν'.
   unfold σ. rewrite functorial_composition_pre_post.
+  (* reducecatbinprodbeta. does nothing *)
   clear σ.
   rewrite functor_comp.
   rewrite assoc.
   match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
+  (* reducecatbinprodbetahyp σ1. reducecatbinprodbetahyp σ2. do nothing *)
   apply (maponpaths (# (pre_composition_functor A A A' ((FA v): [A, A])))) in Hyp'.
   do 2 rewrite functor_comp in Hyp'.
   assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' (FA v)) (# H g)
@@ -890,7 +933,7 @@ Proof.
       exists (v,,w). exact (η,,π).
     + intros [[v η] [w π]] [[v' η'] [w' π']] [[f Hyp] [g Hyp']].
       apply (# montrafotarget_tensor_aux).
-      exists (f,,g). exact (Hyp,,Hyp').
+      exists (f,,g). reducesigbeta. (* reducesigbetahyp Hyp. does nothing *) exact (Hyp,,Hyp').
   - split.
     + intros [[v η] [w π]].
       use total2_paths_f.
@@ -919,9 +962,9 @@ Proof.
   + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
     induction fgHyps as [[f Hyp] [g Hyp']].
     use tpair.
-    * exact (# tensor (f #, g)).
+    * reducesigbeta. exact (# tensor (f #, g)).
     * cbv beta in |- *.
-      unfold pr2.
+      unfold pr2. (* reducesigbeta. does nothing *)
       apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
 Defined.
 
@@ -1288,7 +1331,7 @@ Lemma lmf_from_param_distr_ε_aux:
     -->[ id pr1 (MonoidalFunctors.I_D montrafotarget_moncat)]
     pr2 (lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V)).
 Proof.
-  unfold mor_disp. unfold trafotarget_disp. hnf.
+  unfold mor_disp. unfold trafotarget_disp. (* reducesigbeta. does nothing *) hnf.
   do 2 rewrite functor_id.
   rewrite id_right. rewrite id_left.
   simpl. (* not cbn! *)
@@ -1311,7 +1354,7 @@ Lemma lmf_from_param_distr_μ_aux (vw : Mon_V ⊠ Mon_V):
       -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr_functor vw)]
   pr2 (monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr_functor vw).
 Proof.
-  unfold mor_disp. unfold trafotarget_disp. hnf.
+  unfold mor_disp. unfold trafotarget_disp. (* reducesigbeta. does nothing *) hnf.
   red in δpe_eq.
   do 2 rewrite functor_id.
   rewrite id_left, id_right.
