@@ -113,3 +113,5 @@ PseudoFunctors/Examples/Strictify.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
 Discreteness.v
+
+DisplayedBicats/FibrationOfBicat.v

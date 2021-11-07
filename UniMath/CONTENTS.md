@@ -457,6 +457,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [BicategoryOfBicat.v](Bicategories/BicategoryOfBicat.v)
    - [BicatOfBicategory.v](Bicategories/BicatOfBicategory.v)
    - [Discreteness.v](Bicategories/Discreteness.v)
+   - [DisplayedBicats/FibrationOfBicat.v](Bicategories/DisplayedBicats/FibrationOfBicat.v)
    - [All.v](Bicategories/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [GrothendieckGroup.v](Ktheory/GrothendieckGroup.v)
