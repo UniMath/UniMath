@@ -17,395 +17,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 
 Local Open Scope cat.
 
-(** MOVE *)
-Definition rwhisker_of_invertible_2cell
-           {B : bicat}
-           {x y z : B}
-           {f₁ f₂ : x --> y}
-           (g : y --> z)
-           (α : invertible_2cell f₁ f₂)
-  : invertible_2cell (f₁ · g) (f₂ · g).
-Proof.
-  use make_invertible_2cell.
-  - exact (α ▹ g).
-  - is_iso.
-    apply α.
-Defined.
-(** END MOVE *)
-
-(** MOVE *)
-Definition is_cartesian_id_disp
-           {C : category}
-           {D : disp_cat C}
-           {x : C}
-           (xx : D x)
-  : is_cartesian (id_disp xx).
-Proof.
-  intros z g zz hh.
-  use iscontraprop1.
-  - use invproofirrelevance.
-    intros f₁ f₂.
-    use subtypePath.
-    {
-      intro ; intros.
-      apply D.
-    }
-    refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)).
-    rewrite (pr2 f₁), (pr2 f₂).
-    apply idpath.
-  - use tpair.
-    + exact (transportf _ (id_right _) hh).
-    + simpl.
-      rewrite id_right_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      rewrite pathsinv0r.
-      apply idpath.
-Qed.
-
-Definition is_cartesian_comp_disp
-           {C : category}
-           {D : disp_cat C}
-           {x : C}
-           {xx : D x}
-           {y : C}
-           {yy : D y}
-           {z : C}
-           {zz : D z}
-           {f : x --> y} {g : y --> z}
-           {ff : xx -->[ f ] yy} {gg : yy -->[ g ] zz}
-           (Hff : is_cartesian ff) (Hgg : is_cartesian gg)
-  : is_cartesian (ff ;; gg)%mor_disp.
-Proof.
-  intros w h ww hh'.
-  use iscontraprop1.
-  - use invproofirrelevance.
-    intros f₁ f₂.
-    use subtypePath.
-    {
-      intro ; intros.
-      apply D.
-    }
-    pose (hh'' := transportf _ (assoc _ _ _) hh').
-    specialize (Hgg _ _ _ hh'').
-    pose (pr1 Hgg) as t.
-    specialize (Hff w h ww (pr1 t)).
-    pose (isapropifcontr Hff) as i.
-    refine (maponpaths pr1 (proofirrelevance _ i (_ ,, _) (_ ,, _))).
-    + pose (isapropifcontr Hgg) as j.
-      refine (maponpaths pr1 (proofirrelevance _ j (_ ,, _) (_ ,, _))).
-      etrans.
-      {
-        apply assoc_disp_var.
-      }
-      unfold hh''.
-      apply maponpaths.
-      exact (pr2 f₁).
-    + pose (isapropifcontr Hgg) as j.
-      refine (maponpaths pr1 (proofirrelevance _ j (_ ,, _) (_ ,, _))).
-      etrans.
-      {
-        apply assoc_disp_var.
-      }
-      unfold hh''.
-      apply maponpaths.
-      exact (pr2 f₂).
-  - pose (transportf _ (assoc _ _ _) hh') as hh''.
-    pose (Hgg _ _ _ hh'') as φ.
-    pose (pr1 φ) as φar.
-    pose (Hff _ _ _ (pr1 φar)) as ψ.
-    use tpair.
-    + exact (pr11 ψ).
-    + simpl.
-      rewrite assoc_disp.
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        exact (pr21 ψ).
-      }
-      etrans.
-      {
-        apply maponpaths.
-        exact (pr21 φ).
-      }
-      unfold hh''.
-      etrans.
-      {
-        apply transport_f_f.
-      }
-      rewrite pathsinv0r.
-      apply idpath.
-Qed.
-
-Definition is_cartesian_disp_iso
-           {C : category}
-           {D : disp_cat C}
-           {x : C}
-           {xx : D x}
-           {y : C}
-           {yy : D y}
-           {f : x --> y}
-           {Hf : is_iso f}
-           {ff : xx -->[ f ] yy}
-           (Hff : is_iso_disp (make_iso f Hf) ff)
-  : is_cartesian ff.
-Proof.
-  intros z g zz gf.
-  use iscontraprop1.
-  - abstract
-      (apply invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply D | ] ;
-       pose (pr2 φ₁ @ !(pr2 φ₂)) as r ;
-       refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)) ;
-       pose (transportf_transpose_left (inv_mor_after_iso_disp Hff)) as r' ;
-       rewrite <- !r' ; clear r' ;
-       rewrite !mor_disp_transportf_prewhisker ;
-       rewrite !assoc_disp ;
-       unfold transportb ;
-       rewrite !transport_f_f ;
-       apply maponpaths ;
-       apply maponpaths_2 ;
-       exact r).
-  - simple refine (_ ,, _).
-    + refine (transportf
-                (λ z, _ -->[ z ] _)
-                _
-                (gf ;; inv_mor_disp_from_iso Hff)%mor_disp).
-      abstract
-        (rewrite assoc' ;
-         refine (_ @ id_right _) ;
-         apply maponpaths ;
-         apply (iso_inv_after_iso (make_iso f Hf))).
-    + abstract
-        (simpl ;
-         rewrite mor_disp_transportf_postwhisker ;
-         rewrite assoc_disp_var ;
-         rewrite transport_f_f ;
-         etrans ;
-           [ do 2 apply maponpaths ;
-             apply (iso_disp_after_inv_mor Hff)
-           | ] ;
-         unfold transportb ;
-         rewrite mor_disp_transportf_prewhisker ;
-         rewrite transport_f_f ;
-         rewrite id_right_disp ;
-         unfold transportb ;
-         rewrite transport_f_f ;
-         apply transportf_set ;
-         apply homset_property ;
-         rewrite disp_id_right).
-Defined.
-
-(** MOVE *)
-Definition disp_hom_ob_mor
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           (xx : D x)
-           (yy : D y)
-  : disp_cat_ob_mor (hom x y).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ f, xx -->[ f ] yy).
-  - exact (λ f g ff gg α, ff ==>[ α ] gg).
-Defined.
-
-Definition disp_hom_id_comp
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           (xx : D x)
-           (yy : D y)
-  : disp_cat_id_comp _ (disp_hom_ob_mor xx yy).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ f ff, disp_id2 ff).
-  - exact (λ f g h α β ff gg hh αα ββ, αα •• ββ).
-Defined.
-
-Definition disp_hom_data
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           (xx : D x)
-           (yy : D y)
-  : disp_cat_data (hom x y).
-Proof.
-  simple refine (_ ,, _).
-  - exact (disp_hom_ob_mor xx yy).
-  - exact (disp_hom_id_comp xx yy).
-Defined.
-
-Definition disp_hom_laws
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           (xx : D x)
-           (yy : D y)
-  : disp_cat_axioms _ (disp_hom_data xx yy).
-Proof.
-  repeat split ; intro ; intros ; cbn.
-  - rewrite disp_id2_left.
-    apply maponpaths_2.
-    apply cellset_property.
-  - rewrite disp_id2_right.
-    apply maponpaths_2.
-    apply cellset_property.
-  - rewrite disp_vassocr.
-    apply maponpaths_2.
-    apply cellset_property.
-  - apply D.
-Qed.
-
-Definition disp_hom
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           (xx : D x)
-           (yy : D y)
-  : disp_cat (hom x y).
-Proof.
-  simple refine (_ ,, _).
-  - exact (disp_hom_data xx yy).
-  - exact (disp_hom_laws xx yy).
-Defined.
-
-Definition disp_hom_disp_iso_to_invertible_2cell
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           {f g : x --> y}
-           {α : f ==> g}
-           {Hα : is_invertible_2cell α}
-           {xx : D x}
-           {yy : D y}
-           {ff : disp_hom xx yy f}
-           {gg : disp_hom xx yy g}
-           (αα : ff -->[ α ] gg)
-           (Hαα : @is_iso_disp
-                    _
-                    (disp_hom xx yy)
-                    _ _
-                    (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
-                    _ _
-                    αα)
-  : is_disp_invertible_2cell Hα αα.
-Proof.
-  simple refine (_ ,, (_ ,, _)).
-  - exact (transportf
-             (λ z, _ ==>[ z ] _)
-             (id2_right _ )
-             (inv_mor_disp_from_iso Hαα)).
-  - abstract
-      (cbn ;
-       rewrite disp_mor_transportf_prewhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         exact (inv_mor_after_iso_disp Hαα)
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply cellset_property).
-  - abstract
-      (cbn ;
-       rewrite disp_mor_transportf_postwhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         exact (iso_disp_after_inv_mor Hαα)
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply cellset_property).
-Defined.
-
-Definition disp_hom_disp_invertible_2cell_to_iso
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           {f g : x --> y}
-           {α : f ==> g}
-           {Hα : is_invertible_2cell α}
-           {xx : D x}
-           {yy : D y}
-           {ff : disp_hom xx yy f}
-           {gg : disp_hom xx yy g}
-           (αα : ff -->[ α ] gg)
-           (Hαα : is_disp_invertible_2cell Hα αα)
-  : @is_iso_disp
-      _
-      (disp_hom xx yy)
-      _ _
-      (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
-      _ _
-      αα.
-Proof.
-  pose (d := (αα ,, Hαα) : disp_invertible_2cell (α ,, Hα) ff gg).
-  simple refine (_ ,, (_ ,, _)).
-  - exact (transportb
-             (λ z, _ ==>[ z ] _)
-             (id2_right _)
-             (disp_inv_cell d)).
-  - abstract
-      (cbn ;
-       unfold transportb ;
-       rewrite disp_mor_transportf_postwhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         exact (disp_vcomp_linv d)
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply cellset_property).
-  - abstract
-      (cbn ;
-       unfold transportb ;
-       rewrite disp_mor_transportf_prewhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         exact (disp_vcomp_rinv d)
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply cellset_property).
-Defined.
-
-Definition disp_hom_disp_iso_weq_invertible_2cell
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           {f g : x --> y}
-           {α : f ==> g}
-           {Hα : is_invertible_2cell α}
-           {xx : D x}
-           {yy : D y}
-           {ff : disp_hom xx yy f}
-           {gg : disp_hom xx yy g}
-           (αα : ff -->[ α ] gg)
-  : (@is_iso_disp
-       _
-       (disp_hom xx yy)
-       _ _
-       (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
-       _ _
-       αα)
-    ≃
-    is_disp_invertible_2cell Hα αα.
-Proof.
-  use weqimplimpl.
-  - apply disp_hom_disp_iso_to_invertible_2cell.
-  - apply disp_hom_disp_invertible_2cell_to_iso.
-  - apply isaprop_is_iso_disp.
-  - apply (@isaprop_is_disp_invertible_2cell _ D _ _ _ _ (α ,, Hα)).
-Qed.
-
-(** END MOVE *)
-
 Section BicatFibration.
   Context {B : bicat}.
   Variable (D : disp_bicat B).
@@ -447,25 +58,6 @@ Section BicatFibration.
       : disp_invertible_2cell _ (disp_mor_lift_1cell Lh;; ff) gg
       := pr2 Lh.
 
-    Definition lift_2cell_type
-               {c : B}
-               {cc : D c}
-               {h h' : c --> a}
-               {gg : cc -->[h · f ] bb}
-               {gg' : cc -->[h' · f ] bb}
-               {δ : h ==> h'}
-               (σσ : gg ==>[ δ ▹ f] gg')
-               (Lh : lift_1cell gg)
-               (Lh' : lift_1cell gg')
-      : UU
-      := ∑ (δδ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'),
-         transportf
-           (λ z, _ ==>[ z ] _)
-           (id2_right _ @ ! id2_left _ )
-           (δδ ▹▹ ff •• disp_cell_lift_1cell Lh')
-         =
-         disp_cell_lift_1cell Lh •• σσ.
-
     Definition lift_2cell
                {c : B}
                {cc : D c}
@@ -477,27 +69,96 @@ Section BicatFibration.
                (Lh : lift_1cell gg)
                (Lh' : lift_1cell gg')
       : UU
-      := iscontr (lift_2cell_type σσ Lh Lh').
+      := ∃! (δδ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'),
+         transportf
+           (λ z, _ ==>[ z ] _)
+           (id2_right _ @ ! id2_left _ )
+           (δδ ▹▹ ff •• disp_cell_lift_1cell Lh')
+         =
+         disp_cell_lift_1cell Lh •• σσ.
+
+    Definition disp_cell_lift_2cell
+               {c : B}
+               {cc : D c}
+               {h h' : c --> a}
+               {gg : cc -->[h · f ] bb}
+               {gg' : cc -->[h' · f ] bb}
+               {δ : h ==> h'}
+               {σσ : gg ==>[ δ ▹ f] gg'}
+               {Lh : lift_1cell gg}
+               {Lh' : lift_1cell gg'}
+               (Hσσ : lift_2cell σσ Lh Lh')
+      : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'
+      := pr11 Hσσ.
+
+    Definition eq_lift_2cell
+               {c : B}
+               {cc : D c}
+               {h h' : c --> a}
+               {gg : cc -->[h · f ] bb}
+               {gg' : cc -->[h' · f ] bb}
+               {δ : h ==> h'}
+               {σσ : gg ==>[ δ ▹ f] gg'}
+               {Lh : lift_1cell gg}
+               {Lh' : lift_1cell gg'}
+               (Hσσ : lift_2cell σσ Lh Lh')
+      : transportf
+          (λ z, _ ==>[ z ] _)
+          (id2_right _ @ ! id2_left _ )
+          (disp_cell_lift_2cell Hσσ ▹▹ ff •• disp_cell_lift_1cell Lh')
+        =
+        disp_cell_lift_1cell Lh •• σσ
+      := pr21 Hσσ.
+
+    Definition isaprop_lift_of_lift_2cell
+               {c : B}
+               {cc : D c}
+               {h h' : c --> a}
+               {gg : cc -->[h · f ] bb}
+               {gg' : cc -->[h' · f ] bb}
+               {δ : h ==> h'}
+               {σσ : gg ==>[ δ ▹ f] gg'}
+               {Lh : lift_1cell gg}
+               {Lh' : lift_1cell gg'}
+               (Hσσ : lift_2cell σσ Lh Lh')
+               (δδ₁ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh')
+               (δδ₂ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh')
+               (Pδδ₁ : transportf
+                         (λ z, _ ==>[ z ] _)
+                         (id2_right _ @ ! id2_left _ )
+                         (δδ₁ ▹▹ ff •• disp_cell_lift_1cell Lh')
+                       =
+                       disp_cell_lift_1cell Lh •• σσ)
+               (Pδδ₂ : transportf
+                         (λ z, _ ==>[ z ] _)
+                         (id2_right _ @ ! id2_left _ )
+                         (δδ₂ ▹▹ ff •• disp_cell_lift_1cell Lh')
+                       =
+                       disp_cell_lift_1cell Lh •• σσ)
+      : δδ₁ = δδ₂.
+    Proof.
+      pose (proofirrelevance _ (isapropifcontr Hσσ) (δδ₁ ,, Pδδ₁) (δδ₂ ,, Pδδ₂)) as p.
+      exact (maponpaths pr1 p).
+    Qed.
 
     Definition cartesian_1cell
       : UU
-      :=
-        ∑ (Lh : ∏ (c : B)
-                 (cc : D c)
-                 (h : c --> a)
-                 (gg : cc -->[ h · f ] bb),
-                lift_1cell gg),
-        ∏ (c : B)
-          (cc : D c)
-          (h h' : c --> a)
-          (gg : cc -->[h · f ] bb)
-          (gg' : cc -->[h' · f ] bb)
-          (δ : h ==> h')
-          (σσ : gg ==>[ δ ▹ f] gg'),
-        lift_2cell
-          σσ
-          (Lh _ _ _ gg)
-          (Lh _ _ _ gg').
+      := ∑ (Lh : ∏ (c : B)
+                   (cc : D c)
+                   (h : c --> a)
+                   (gg : cc -->[ h · f ] bb),
+                 lift_1cell gg),
+         ∏ (c : B)
+           (cc : D c)
+           (h h' : c --> a)
+           (gg : cc -->[h · f ] bb)
+           (gg' : cc -->[h' · f ] bb)
+           (δ : h ==> h')
+           (σσ : gg ==>[ δ ▹ f] gg'),
+         lift_2cell
+           σσ
+           (Lh _ _ _ gg)
+           (Lh _ _ _ gg').
   End Cartesian1cell.
 
   Definition is_cartesian_2cell
@@ -573,6 +234,83 @@ Section BicatFibration.
        × lwhisker_cartesian
        × rwhisker_cartesian.
 End BicatFibration.
+
+(** Lemmas on cartesian 1-cells *)
+(*
+Definition isaprop_cartesian_1cell
+           {B : bicat}
+           (D : disp_bicat B)
+           {a b : B}
+           {f : a --> b}
+           {aa : D a}
+           {bb : D b}
+           (ff : aa -->[ f ] bb)
+  : isaprop (cartesian_1cell D ff).
+Proof.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    apply isapropiscontr.
+  }
+  use funextsec ; intro c.
+  use funextsec ; intro cc.
+  use funextsec ; intro h.
+  use funextsec ; intro gg.
+  use total2_paths_f.
+  - pose (pr2 φ₁ c cc h h gg gg (id2 _)).
+    unfold lift_2cell in l.
+    cbn in l.
+
+  pose (pr1 φ₁) as p.
+  unfold lift_1cell in p.
+  pose (pr1 φ₂) as q.
+  unfold lift_1cell in q.
+  cbn in p.
+ *)
+
+Definition TODO {A : UU} : A.
+Admitted.
+
+(*
+Definition id_cartesian_1cell
+           {B : bicat}
+           (D : disp_bicat B)
+           {a : B}
+           (aa : D a)
+  : cartesian_1cell D (id_disp aa).
+Proof.
+  simple refine (_ ,, _).
+  - intros c cc h gg.
+    simple refine (_ ,, _).
+    + refine (transportf (λ z, _ -->[ z ] _) _ gg).
+      apply TODO.
+    + simple refine (_ ,, _ ,, _ ,, _).
+      * cbn.
+        simple refine (transportf
+                         (λ z, _ ==>[ z ] _)
+                         _
+                         (_ •• disp_runitor gg)).
+        apply rinvunitor_runitor.
+        refine (transportf
+                  (λ z, _ ==>[ z ] _)
+                  _
+                  (_ ▹▹ id_disp aa)).
+        refine (!_).
+        Search (rinvunitor (_ · _)).
+        refine (_ •• disp_runitor gg).
+        refine (disp_runitor _
+        rewrite id_disp_right.
+        rewrite mor_disp_transportf_postwhisker.
+        Search "transport" "pre".
+        cbn.
+    unfold lift_1cell.
+    cbn.c
+ *)
+
+
 
 Definition local_fib
            {B : bicat}

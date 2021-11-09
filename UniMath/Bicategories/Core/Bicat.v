@@ -532,6 +532,25 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------------- *)
+(* Locally groupoidal                                                        *)
+(* ------------------------------------------------------------------------- *)
+Definition locally_groupoid
+           (B : bicat)
+  : UU
+  := ∏ (x y : B)
+       (f g : x --> y)
+       (α : f ==> g),
+     is_invertible_2cell α.
+
+Definition isaprop_locally_groupoid
+           (B : bicat)
+  : isaprop (locally_groupoid B).
+Proof.
+  repeat (use impred ; intro).
+  apply isaprop_is_invertible_2cell.
+Qed.
+
+(* ------------------------------------------------------------------------- *)
 (* invertible_2cell                                                          *)
 (* ------------------------------------------------------------------------- *)
 

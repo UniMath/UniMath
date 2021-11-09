@@ -896,3 +896,238 @@ End fiber_functor_from_cleaving.
 
 
 (* *)
+
+(** Some standard cartesian cells *)
+Definition is_cartesian_id_disp
+           {C : category}
+           {D : disp_cat C}
+           {x : C}
+           (xx : D x)
+  : is_cartesian (id_disp xx).
+Proof.
+  intros z g zz hh.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    intros f₁ f₂.
+    use subtypePath.
+    {
+      intro ; intros.
+      apply D.
+    }
+    refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)).
+    rewrite (pr2 f₁), (pr2 f₂).
+    apply idpath.
+  - use tpair.
+    + exact (transportf _ (id_right _) hh).
+    + simpl.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite pathsinv0r.
+      apply idpath.
+Qed.
+
+Definition is_cartesian_comp_disp
+           {C : category}
+           {D : disp_cat C}
+           {x : C}
+           {xx : D x}
+           {y : C}
+           {yy : D y}
+           {z : C}
+           {zz : D z}
+           {f : x --> y} {g : y --> z}
+           {ff : xx -->[ f ] yy} {gg : yy -->[ g ] zz}
+           (Hff : is_cartesian ff) (Hgg : is_cartesian gg)
+  : is_cartesian (ff ;; gg)%mor_disp.
+Proof.
+  intros w h ww hh'.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros f₁ f₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (cartesian_factorisation_unique Hff) ;
+       use (cartesian_factorisation_unique Hgg) ;
+       rewrite !assoc_disp_var ;
+       rewrite (pr2 f₁), (pr2 f₂) ;
+       apply idpath).
+  - simple refine (_ ,, _).
+    + exact (cartesian_factorisation
+               Hff
+               h
+               (cartesian_factorisation
+                  Hgg
+                  (h · f)
+                  (transportf
+                     (λ z, _ -->[ z ] _)
+                     (assoc _ _ _)
+                     hh'))).
+    + abstract
+        (simpl ;
+         rewrite assoc_disp ;
+         rewrite !cartesian_factorisation_commutes ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Defined.
+
+Definition is_cartesian_disp_iso
+           {C : category}
+           {D : disp_cat C}
+           {x : C}
+           {xx : D x}
+           {y : C}
+           {yy : D y}
+           {f : x --> y}
+           {Hf : is_iso f}
+           {ff : xx -->[ f ] yy}
+           (Hff : is_iso_disp (make_iso f Hf) ff)
+  : is_cartesian ff.
+Proof.
+  intros z g zz gf.
+  use iscontraprop1.
+  - abstract
+      (apply invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       pose (pr2 φ₁ @ !(pr2 φ₂)) as r ;
+       refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)) ;
+       pose (transportf_transpose_left (inv_mor_after_iso_disp Hff)) as r' ;
+       rewrite <- !r' ; clear r' ;
+       rewrite !mor_disp_transportf_prewhisker ;
+       rewrite !assoc_disp ;
+       unfold transportb ;
+       rewrite !transport_f_f ;
+       apply maponpaths ;
+       apply maponpaths_2 ;
+       exact r).
+  - simple refine (_ ,, _).
+    + refine (transportf
+                (λ z, _ -->[ z ] _)
+                _
+                (gf ;; inv_mor_disp_from_iso Hff)%mor_disp).
+      abstract
+        (rewrite assoc' ;
+         refine (_ @ id_right _) ;
+         apply maponpaths ;
+         apply (iso_inv_after_iso (make_iso f Hf))).
+    + abstract
+        (simpl ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite assoc_disp_var ;
+         rewrite transport_f_f ;
+         etrans ;
+           [ do 2 apply maponpaths ;
+             apply (iso_disp_after_inv_mor Hff)
+           | ] ;
+         unfold transportb ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite transport_f_f ;
+         rewrite id_right_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply transportf_set ;
+         apply homset_property ;
+         rewrite disp_id_right).
+Defined.
+
+Definition is_cartesian_transportf
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           {f f' : x --> y}
+           (p : f = f')
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           (Hff : is_cartesian ff)
+  : is_cartesian (transportf (λ z, _ -->[ z ] _) p ff).
+Proof.
+  intros c g cc gg.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (cartesian_factorisation_unique Hff) ;
+       pose (p₁ := pr2 φ₁) ;
+       pose (p₂ := pr2 φ₂) ;
+       cbn in p₁, p₂ ;
+       rewrite mor_disp_transportf_prewhisker in p₁ ;
+       rewrite mor_disp_transportf_prewhisker in p₂ ;
+       pose (transportb_transpose_right p₁) as r₁ ;
+       pose (transportb_transpose_right p₂) as r₂ ;
+       exact (r₁ @ !r₂)).
+  - simple refine (_ ,, _).
+    + exact (cartesian_factorisation
+               Hff
+               g
+               (transportb
+                  (λ z, _ -->[ z ] _)
+                  (maponpaths (λ z, g · z) p)
+                  gg)).
+    + abstract
+        (cbn ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite cartesian_factorisation_commutes ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Qed.
+
+Definition is_cartesian_precomp
+           {C : category}
+           {D : disp_cat C}
+           {x y z : C}
+           {f : x --> y}
+           {g : y --> z}
+           {h : x --> z}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff : xx -->[ f ] yy}
+           {gg : yy -->[ g ] zz}
+           {hh : xx -->[ h ] zz}
+           (p : h = f · g)
+           (pp : (ff ;; gg = transportf (λ z, _ -->[ z ] _) p hh)%mor_disp)
+           (Hgg : is_cartesian gg)
+           (Hhh : is_cartesian hh)
+  : is_cartesian ff.
+Proof.
+  intros w φ ww φφ.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros ψ₁ ψ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (cartesian_factorisation_unique Hhh) ;
+       rewrite <- (transportb_transpose_left pp) ;
+       unfold transportb ;
+       rewrite !mor_disp_transportf_prewhisker ;
+       rewrite !assoc_disp ;
+       rewrite (pr2 ψ₁), (pr2 ψ₂) ;
+       apply idpath).
+  - simple refine (_ ,, _).
+    + refine (cartesian_factorisation
+                Hhh
+                φ
+                (transportf (λ z, _ -->[ z ] _) _ (φφ ;; gg)%mor_disp)).
+      abstract
+        (rewrite p ;
+         rewrite assoc ;
+         apply idpath).
+    + abstract
+        (simpl ;
+         use (cartesian_factorisation_unique Hgg) ;
+         rewrite assoc_disp_var ;
+         rewrite pp ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite transport_f_f ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Qed.

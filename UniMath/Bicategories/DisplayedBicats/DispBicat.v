@@ -1383,6 +1383,77 @@ Proof.
   exact HD.
 Defined.
 
+Section HomDisplayedCategory.
+  Context {B : bicat}
+          {D : disp_bicat B}.
+
+  Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+
+  Definition disp_hom_ob_mor
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+  : disp_cat_ob_mor (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ f, xx -->[ f ] yy).
+    - exact (λ f g ff gg α, ff ==>[ α ] gg).
+  Defined.
+
+  Definition disp_hom_id_comp
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_id_comp _ (disp_hom_ob_mor xx yy).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ f ff, disp_id2 ff).
+    - exact (λ f g h α β ff gg hh αα ββ, αα •• ββ).
+  Defined.
+
+  Definition disp_hom_data
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_data (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_hom_ob_mor xx yy).
+    - exact (disp_hom_id_comp xx yy).
+  Defined.
+
+  Definition disp_hom_laws
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_axioms _ (disp_hom_data xx yy).
+  Proof.
+    repeat split ; intro ; intros ; cbn.
+    - rewrite disp_id2_left.
+      apply maponpaths_2.
+      apply cellset_property.
+    - rewrite disp_id2_right.
+      apply maponpaths_2.
+      apply cellset_property.
+    - rewrite disp_vassocr.
+      apply maponpaths_2.
+      apply cellset_property.
+    - apply D.
+  Qed.
+
+  Definition disp_hom
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_hom_data xx yy).
+    - exact (disp_hom_laws xx yy).
+  Defined.
+End HomDisplayedCategory.
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Notations.                                                                      *)
 (* ----------------------------------------------------------------------------------- *)

@@ -328,6 +328,157 @@ Section Pullback.
       : has_pb_ump
       := H₁ ,, H₂ ,, Heq.
 
+    Definition pb_ump_1_1cell
+               (H : has_pb_ump)
+               (q : B)
+               (π₁ : q --> b₁)
+               (π₂ : q --> b₂)
+               (comm : invertible_2cell (π₁ · f) (π₂ · g))
+      : q --> p
+      := has_pb_ump_1 H (make_pb_cone q π₁ π₂ comm).
+
+    Definition pb_ump_1_1cell_pr1
+               (H : has_pb_ump)
+               (q : B)
+               (π₁ : q --> b₁)
+               (π₂ : q --> b₂)
+               (comm : invertible_2cell (π₁ · f) (π₂ · g))
+      : invertible_2cell
+          (pb_ump_1_1cell H q π₁ π₂ comm · pb_cone_pr1 p)
+          π₁
+      := pb_1cell_pr1 (has_pb_ump_1 H (make_pb_cone q π₁ π₂ comm)).
+
+    Definition pb_ump_1_1cell_pr2
+               (H : has_pb_ump)
+               (q : B)
+               (π₁ : q --> b₁)
+               (π₂ : q --> b₂)
+               (comm : invertible_2cell (π₁ · f) (π₂ · g))
+      : invertible_2cell
+          (pb_ump_1_1cell H q π₁ π₂ comm · pb_cone_pr2 p)
+          π₂
+      := pb_1cell_pr2 (has_pb_ump_1 H (make_pb_cone q π₁ π₂ comm)).
+
+    Definition pb_ump_1_1cell_eq
+               (H : has_pb_ump)
+               (q : B)
+               (π₁ : q --> b₁)
+               (π₂ : q --> b₂)
+               (comm : invertible_2cell (π₁ · f) (π₂ · g))
+      : has_pb_ump_1 H (make_pb_cone q π₁ π₂ comm) ◃ pb_cone_cell p
+        =
+        lassociator _ _ _
+        • (pb_ump_1_1cell_pr1 H q π₁ π₂ comm ▹ f)
+        • comm
+        • ((pb_ump_1_1cell_pr2 H q π₁ π₂ comm)^-1 ▹ g)
+        • rassociator _ _ _
+      := pb_1cell_eq (has_pb_ump_1 H (make_pb_cone q π₁ π₂ comm)).
+
+    Definition pb_ump_2_cell
+               (H : has_pb_ump)
+               {q : B}
+               {π₁ : q --> b₁}
+               {π₂ : q --> b₂}
+               {comm : invertible_2cell (π₁ · f) (π₂ · g)}
+               {f₁ f₂ : q --> p}
+               {f₁π₁ : invertible_2cell (f₁ · pb_cone_pr1 p) π₁}
+               {f₁π₂ : invertible_2cell (f₁ · pb_cone_pr2 p) π₂}
+               {f₂π₁ : invertible_2cell (f₂ · pb_cone_pr1 p) π₁}
+               {f₂π₂ : invertible_2cell (f₂ · pb_cone_pr2 p) π₂}
+               (f₁comm : f₁ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₁π₁ ▹ f)
+                         • comm
+                         • (f₁π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (f₂comm : f₂ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₂π₁ ▹ f)
+                         • comm
+                         • (f₂π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (q_cone := make_pb_cone q π₁ π₂ comm)
+      : f₁ ==> f₂
+      := has_pb_ump_2
+           H
+           q_cone
+           (@make_pb_1cell q_cone _ f₁ f₁π₁ f₁π₂ f₁comm)
+           (@make_pb_1cell q_cone _ f₂ f₂π₁ f₂π₂ f₂comm).
+
+    Definition pb_ump_2_cell_pr1
+               (H : has_pb_ump)
+               {q : B}
+               {π₁ : q --> b₁}
+               {π₂ : q --> b₂}
+               {comm : invertible_2cell (π₁ · f) (π₂ · g)}
+               (f₁ f₂ : q --> p)
+               (f₁π₁ : invertible_2cell (f₁ · pb_cone_pr1 p) π₁)
+               (f₁π₂ : invertible_2cell (f₁ · pb_cone_pr2 p) π₂)
+               (f₂π₁ : invertible_2cell (f₂ · pb_cone_pr1 p) π₁)
+               (f₂π₂ : invertible_2cell (f₂ · pb_cone_pr2 p) π₂)
+               (f₁comm : f₁ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₁π₁ ▹ f)
+                         • comm
+                         • (f₁π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (f₂comm : f₂ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₂π₁ ▹ f)
+                         • comm
+                         • (f₂π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (q_cone := make_pb_cone q π₁ π₂ comm)
+      : (pb_ump_2_cell H f₁comm f₂comm ▹ pb_cone_pr1 p) • f₂π₁
+        =
+        f₁π₁
+      := pb_2cell_pr1
+           (has_pb_ump_2
+              H
+              q_cone
+              (@make_pb_1cell q_cone _ f₁ f₁π₁ f₁π₂ f₁comm)
+              (@make_pb_1cell q_cone _ f₂ f₂π₁ f₂π₂ f₂comm)).
+
+    Definition pb_ump_2_cell_pr2
+               (H : has_pb_ump)
+               {q : B}
+               {π₁ : q --> b₁}
+               {π₂ : q --> b₂}
+               {comm : invertible_2cell (π₁ · f) (π₂ · g)}
+               (f₁ f₂ : q --> p)
+               (f₁π₁ : invertible_2cell (f₁ · pb_cone_pr1 p) π₁)
+               (f₁π₂ : invertible_2cell (f₁ · pb_cone_pr2 p) π₂)
+               (f₂π₁ : invertible_2cell (f₂ · pb_cone_pr1 p) π₁)
+               (f₂π₂ : invertible_2cell (f₂ · pb_cone_pr2 p) π₂)
+               (f₁comm : f₁ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₁π₁ ▹ f)
+                         • comm
+                         • (f₁π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (f₂comm : f₂ ◃ pb_cone_cell p
+                         =
+                         lassociator _ _ _
+                         • (f₂π₁ ▹ f)
+                         • comm
+                         • (f₂π₂ ^-1 ▹ g)
+                         • rassociator _ _ _)
+               (q_cone := make_pb_cone q π₁ π₂ comm)
+      : (pb_ump_2_cell H f₁comm f₂comm ▹ pb_cone_pr2 p) • f₂π₂
+        =
+        f₁π₂
+      := pb_2cell_pr2
+           (has_pb_ump_2
+              H
+              q_cone
+              (@make_pb_1cell q_cone _ f₁ f₁π₁ f₁π₂ f₁comm)
+              (@make_pb_1cell q_cone _ f₂ f₂π₁ f₂π₂ f₂comm)).
+
     (** In locally univalent bicateogires, being a pullback is a proposition *)
     Definition isaprop_has_pb_ump
                (HB_2_1 : is_univalent_2_1 B)
