@@ -604,9 +604,7 @@ Section CodomainFibration.
                apply idpath).*)
             apply TODO.
         + use is_disp_invertible_2cell_cod.
-          simpl.
-          (*exact (pr2 (pb_1cell_pr2 mor)).*)
-          apply TODO.
+          apply (pb_ump_1_1cell_pr2 pb).
     Defined.
 
     Definition is_pb_to_cartesian_1cell
@@ -619,8 +617,33 @@ Section CodomainFibration.
         + apply TODO.
         + simple refine (_ ,, _).
           * simple refine (_ ,, _).
-            ** cbn.
-               use (pb_ump_2_cell pb pb_sqr).
+            ** use (pb_ump_2_cell pb pb_sqr) ; cbn in *.
+               *** exact (pr2 hz · g₁).
+               *** exact (pr1 hg₁).
+               *** exact (comp_of_invertible_2cell
+                            (rassociator_invertible_2cell _ _ _)
+                            (pr2 hg₁)).
+               *** apply (pb_ump_1_1cell_pr1 pb pb_sqr).
+               *** apply (pb_ump_1_1cell_pr2 pb pb_sqr).
+               *** refine (comp_of_invertible_2cell
+                             (pb_ump_1_1cell_pr1 pb pb_sqr _ _ _ _)
+                             (lwhisker_of_invertible_2cell _ _)).
+                   use inv_of_invertible_2cell.
+                   use make_invertible_2cell.
+                   **** exact α.
+                   **** apply inv_B.
+               *** refine (comp_of_invertible_2cell
+                             (pb_ump_1_1cell_pr2 pb pb_sqr _ _ _ _)
+                             _).
+                   use inv_of_invertible_2cell.
+                   use make_invertible_2cell.
+                   **** exact (pr1 αα).
+                   **** apply inv_B.
+               *** apply TODO.
+               *** apply TODO.
+            ** apply TODO.
+          * cbn.
+            apply TODO.
                (*
                use (has_pb_ump_2
                       pb pb_sqr
@@ -657,51 +680,6 @@ Section CodomainFibration.
                    exact (inv_of_invertible_2cell
                             (make_invertible_2cell (inv_B _ _ _ _ (pr1 αα)))).
                 *)
-               all:apply TODO.
-            ** simpl.
-               apply TODO.
-          * apply TODO.
-    Defined.
-      (*
-      simple refine (_ ,, _).
-      - intros z hz g hg.
-        assert (pb_cone f (pr2 hy)).
-        {
-          refine (pr1 hz ,, pr2 hz · g ,, pr1 hg ,, _).
-          use (comp_of_invertible_2cell (make_invertible_2cell _) (pr2 hg)).
-          - apply rassociator.
-          - is_iso.
-        }
-
-
-        pose (X := pr1 hz ,, pr2 hz · g ,, pr1 hg ,, _ : pb_cone f (pr2 hy)).
-
-        (*
-        simple refine (_ ,, (_ ,, _)) ; cbn.
-        + pose (has_pb_ump_1 pb pb_sqr).
-          pose (X := pr1 hz ,, pr2 hz · g ,, pr1 hg ,, TODO : pb_cone f (pr2 hy)).
-          pose (p0 X).
-          unfold pb_1cell in p1.
-          unfold X in p1.
-          cbn in p1.
-          cbn in p1.
-            pose (pr2 hg).
-            cbn in m.
-            exact m.
-            cbn in hg.
-            cbn in hz.
-          unfold pb_ump_1 in p0.
-          cbn in p0.
-
-          Search "has" "pb" "ump".
-          apply TODO.
-        + apply TODO.
-        + apply TODO.
-         *)
-        apply TODO.
-      - apply TODO.
-       *)
-      apply TODO.
     Defined.
   End PullbackToCartesian.
 
@@ -717,9 +695,8 @@ Section CodomainFibration.
     - exact (pb_cone_pr1 pb₁).
     - exact (pb_cone_pr2 pb₁).
     - exact (pb_cone_cell pb₁).
-    - (*refine (is_pb_to_cartesian_1cell _ _ _).
-      exact pb₂.*)
-      apply TODO.
+    - refine (is_pb_to_cartesian_1cell _ _ _).
+      exact pb₂.
   Defined.
 
   Definition cod_fibration_of_bicats
