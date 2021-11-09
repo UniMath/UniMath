@@ -1575,6 +1575,90 @@ Definition rassociator_transf' (a b c d : C)
 End Associators_Unitors_Natural_bicat.
 
 (* -----------------------------------------------------------------------------------*)
+(** ** Precomposition functor                                                         *)
+(* -----------------------------------------------------------------------------------*)
+Definition pre_comp_data
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : functor_data (hom b z) (hom a z).
+Proof.
+  use make_functor_data.
+  - exact (λ g, f · g).
+  - exact (λ g₁ g₂ α, f ◃ α).
+Defined.
+
+Definition pre_comp_is_functor
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : is_functor (pre_comp_data z f).
+Proof.
+  split.
+  - intro ; cbn.
+    apply lwhisker_id2.
+  - intro ; intros ; cbn.
+    refine (!_).
+    apply lwhisker_vcomp.
+Qed.
+
+Definition pre_comp
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : hom b z ⟶ hom a z.
+Proof.
+  use make_functor.
+  - exact (pre_comp_data z f).
+  - exact (pre_comp_is_functor z f).
+Defined.
+
+(* -----------------------------------------------------------------------------------*)
+(** ** Postcomposition functor                                                        *)
+(* -----------------------------------------------------------------------------------*)
+Definition post_comp_data
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : functor_data (hom z a) (hom z b).
+Proof.
+  use make_functor_data.
+  - exact (λ g, g · f).
+  - exact (λ g₁ g₂ α, α ▹ f).
+Defined.
+
+Definition post_comp_is_functor
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : is_functor (post_comp_data z f).
+Proof.
+  split.
+  - intro ; cbn.
+    apply id2_rwhisker.
+  - intro ; intros ; cbn.
+    refine (!_).
+    apply rwhisker_vcomp.
+Qed.
+
+Definition post_comp
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : hom z a ⟶ hom z b.
+Proof.
+  use make_functor.
+  - exact (post_comp_data z f).
+  - exact (post_comp_is_functor z f).
+Defined.
+
+(* -----------------------------------------------------------------------------------*)
 (** ** Notations.                                                                     *)
 (* -----------------------------------------------------------------------------------*)
 
