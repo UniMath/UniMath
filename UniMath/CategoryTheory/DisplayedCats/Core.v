@@ -754,7 +754,17 @@ Section Univalent_Categories.
 
 Definition is_univalent_disp {C} (D : disp_cat C)
   := ∏ x x' (e : x = x') (xx : D x) (xx' : D x'),
-       isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
+     isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
+
+Definition isaprop_is_univalent_disp
+           {C : category}
+           (D : disp_cat C)
+  : isaprop (is_univalent_disp D).
+Proof.
+  unfold is_univalent_disp.
+  do 5 (use impred ; intro).
+  apply isapropisweq.
+Defined.
 
 Definition is_univalent_in_fibers {C} (D : disp_cat C) : UU
   := ∏ x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e).

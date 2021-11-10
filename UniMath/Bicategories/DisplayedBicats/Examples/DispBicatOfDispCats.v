@@ -448,27 +448,6 @@ Definition is_fibration
   : UU
   := is_univalent_disp D × cleaving D.
 
-Definition isaprop_cleaving
-           {C : univalent_category}
-           (D : disp_cat C)
-           (HD : is_univalent_disp D)
-  : isaprop (cleaving D).
-Proof.
-  repeat (use impred ; intro).
-  apply isaprop_cartesian_lifts.
-  exact HD.
-Defined.
-
-Definition isaprop_is_univalent_disp
-           {C : category}
-           (D : disp_cat C)
-  : isaprop (is_univalent_disp D).
-Proof.
-  unfold is_univalent_disp.
-  do 5 (use impred ; intro).
-  apply isapropisweq.
-Defined.
-
 Definition isaprop_is_fibration
            {C : univalent_category}
            (D : disp_cat C)
