@@ -10,7 +10,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.prebicategory.
 Require Import UniMath.Bicategories.WkCatEnrichment.whiskering.
 Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 
-(*
+
 Definition inv {C:precategory} {a b : C}
  (f : iso a b)
  := iso_inv_from_iso f.
@@ -161,4 +161,3 @@ Proof.
   induction p.
   exact (identity_adj_int_equivalence a).
 Defined.
- *)
