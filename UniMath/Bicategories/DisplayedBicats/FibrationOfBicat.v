@@ -143,22 +143,25 @@ Section BicatFibration.
 
     Definition cartesian_1cell
       : UU
-      := ∑ (Lh : ∏ (c : B)
-                   (cc : D c)
-                   (h : c --> a)
-                   (gg : cc -->[ h · f ] bb),
-                 lift_1cell gg),
+      := (∏ (c : B)
+            (cc : D c)
+            (h : c --> a)
+            (gg : cc -->[ h · f ] bb),
+          lift_1cell gg)
+         ×
          ∏ (c : B)
            (cc : D c)
            (h h' : c --> a)
            (gg : cc -->[h · f ] bb)
            (gg' : cc -->[h' · f ] bb)
            (δ : h ==> h')
-           (σσ : gg ==>[ δ ▹ f] gg'),
+           (σσ : gg ==>[ δ ▹ f] gg')
+           (Lh : lift_1cell gg)
+           (Lh' : lift_1cell gg'),
          lift_2cell
            σσ
-           (Lh _ _ _ gg)
-           (Lh _ _ _ gg').
+           Lh
+           Lh'.
   End Cartesian1cell.
 
   Definition is_cartesian_2cell
