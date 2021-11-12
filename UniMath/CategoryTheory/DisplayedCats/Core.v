@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
 
@@ -1981,4 +1982,61 @@ End Disp_Nat_Trans.
 - add lemmas connecting with products of cats (as required for displayed bicats)
 - add more applications of the displayed arrow category: slices; equalisers, inserters; hence groups etc.
 
-*)
+ *)
+
+Definition pre_whisker_disp_nat_trans
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G₁ G₂ : C₂ ⟶ C₃}
+           {n : G₁ ⟹ G₂}
+           {D₁ : disp_precat C₁}
+           {D₂ : disp_precat C₂}
+           {D₃ : disp_precat C₃}
+           (FF : disp_functor F D₁ D₂)
+           {GG₁ : disp_functor G₁ D₂ D₃}
+           {GG₂ : disp_functor G₂ D₂ D₃}
+           (nn : disp_nat_trans n GG₁ GG₂)
+  : disp_nat_trans
+      (pre_whisker F n)
+      (disp_functor_composite FF GG₁)
+      (disp_functor_composite FF GG₂).
+Proof.
+  use tpair.
+  - exact (λ x xx, nn (F x) (FF x xx)).
+  - abstract
+      (intros x y f xx yy ff ; cbn ;
+       rewrite (disp_nat_trans_ax nn) ;
+       apply maponpaths_2 ;
+       apply C₃).
+Defined.
+
+Definition post_whisker_disp_nat_trans
+           {C₁ C₂ C₃ : category}
+           {F₁ F₂ : C₁ ⟶ C₂}
+           {n : F₁ ⟹ F₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_precat C₁}
+           {D₂ : disp_precat C₂}
+           {D₃ : disp_precat C₃}
+           {FF₁ : disp_functor F₁ D₁ D₂}
+           {FF₂ : disp_functor F₂ D₁ D₂}
+           (nn : disp_nat_trans n FF₁ FF₂)
+           (GG : disp_functor G D₂ D₃)
+  : disp_nat_trans
+      (post_whisker n G)
+      (disp_functor_composite FF₁ GG)
+      (disp_functor_composite FF₂ GG).
+Proof.
+  use tpair.
+  - exact (λ x xx, # GG (nn x xx)).
+  - abstract
+      (intros x y f xx yy ff ; cbn ;
+       rewrite <- !(disp_functor_comp_var GG) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       rewrite (disp_nat_trans_ax_var nn) ;
+       rewrite disp_functor_transportf ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply C₃).
+Defined.
