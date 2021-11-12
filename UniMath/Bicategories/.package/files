@@ -78,6 +78,8 @@ DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CwF.v
+DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
