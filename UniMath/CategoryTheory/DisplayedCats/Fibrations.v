@@ -1076,7 +1076,7 @@ Proof.
          rewrite transport_f_f ;
          apply transportf_set ;
          apply homset_property).
-Qed.
+Defined.
 
 Definition is_cartesian_precomp
            {C : category}
@@ -1130,4 +1130,4 @@ Proof.
          rewrite transport_f_f ;
          apply transportf_set ;
          apply homset_property).
-Qed.
+Defined.
