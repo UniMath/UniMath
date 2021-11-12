@@ -94,6 +94,7 @@ Core/YonedaLemma.v
 
 Colimits/Initial.v
 Colimits/Final.v
+Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v
 DisplayedBicats/DispBiadjunction.v

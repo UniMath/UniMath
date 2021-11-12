@@ -37,10 +37,12 @@
 *)
 
 
-Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -872,3 +874,64 @@ Section Coevaluation.
   Defined.
 
 End Coevaluation.
+
+Section CategoryBinproductIsoWeq.
+  Context {C D : category}
+          (x y : category_binproduct C D).
+
+  Definition category_binproduct_iso_map
+    : iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y) → iso x y.
+  Proof.
+    intros i.
+    simple refine ((pr11 i ,, pr12 i) ,, _).
+    apply is_iso_binprod_iso.
+    - exact (pr21 i).
+    - exact (pr22 i).
+  Defined.
+
+  Definition category_binproduct_iso_inv
+    : iso x y → iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y)
+    := λ i, functor_on_iso (pr1_functor C D) i ,, functor_on_iso (pr2_functor C D) i.
+
+  Definition category_binproduct_iso_weq
+    : iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y) ≃ iso x y.
+  Proof.
+    use make_weq.
+    - exact category_binproduct_iso_map.
+    - use gradth.
+      + exact category_binproduct_iso_inv.
+      + abstract
+          (intros i ;
+           use pathsdirprod ;
+           (use subtypePath ; [ intro ; apply isaprop_is_iso | ]) ;
+           apply idpath).
+      + abstract
+          (intros i ;
+           use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+           apply idpath).
+  Defined.
+End CategoryBinproductIsoWeq.
+
+Section Univalence.
+  Context {C D : category}
+          (HC : is_univalent C)
+          (HD : is_univalent D).
+
+  Definition is_unvialent_category_binproduct
+    : is_univalent (category_binproduct C D).
+  Proof.
+    intros x y.
+    use weqhomot.
+    - exact (category_binproduct_iso_weq x y
+             ∘ weqdirprodf
+                 (make_weq _ (HC _ _))
+                 (make_weq _ (HD _ _))
+             ∘ pathsdirprodweq)%weq.
+    - abstract
+        (intro p ;
+         induction p ;
+         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         cbn ;
+         apply idpath).
+  Defined.
+End Univalence.
