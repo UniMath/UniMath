@@ -397,228 +397,6 @@ Definition has_pb
      ∑ (p : pb_cone f g),
      has_pb_ump p.
 
-
-(** MOVE ??!??!???!??? *)
-Definition pb_type
-           {X Y Z : UU}
-           (f : X → Z)
-           (g : Y → Z)
-  : UU
-  := ∑ (x : X × Y), f (pr1 x) = g (pr2 x).
-
-Definition pb_type_pr1
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-  : pb_type f g → X
-  := λ x, pr11 x.
-
-Definition pb_type_pr2
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-  : pb_type f g → Y
-  := λ x, pr21 x.
-
-Definition pb_type_eq
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-           (x : pb_type f g)
-  : f (pb_type_pr1 x) = g (pb_type_pr2 x)
-  := pr2 x.
-
-Definition path_pb_type
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-           {x y : pb_type f g}
-           (p₁ : pb_type_pr1 x = pb_type_pr1 y)
-           (p₂ : pb_type_pr2 x = pb_type_pr2 y)
-           (p₃ : pb_type_eq x @ maponpaths g p₂
-                 =
-                 maponpaths f p₁ @ pb_type_eq y)
-  : x = y.
-Proof.
-  induction x as [ [ x₁ x₂ ] px ].
-  induction y as [ [ y₁ y₂ ] py ].
-  cbn in p₁, p₂.
-  induction p₁, p₂.
-  cbn in p₃.
-  apply maponpaths.
-  exact (!(pathscomp0rid _) @ p₃).
-Defined.
-
-Definition maponpaths_pr1_path_pb_type
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-           {x y : pb_type f g}
-           (p₁ : pb_type_pr1 x = pb_type_pr1 y)
-           (p₂ : pb_type_pr2 x = pb_type_pr2 y)
-           (p₃ : pb_type_eq x @ maponpaths g p₂
-                 =
-                 maponpaths f p₁ @ pb_type_eq y)
-  : maponpaths
-      pb_type_pr1
-      (path_pb_type p₁ p₂ p₃)
-    =
-    p₁.
-Proof.
-  induction x as [ [ x₁ x₂ ] px ].
-  induction y as [ [ y₁ y₂ ] py ].
-  cbn in p₁, p₂.
-  induction p₁, p₂.
-  cbn in p₃.
-  induction p₃ ; cbn.
-  etrans.
-  {
-    apply (maponpathscomp
-             (tpair (λ x : X × Y, f (pr1 x) = g (pr2 x)) (x₁,, x₂))
-             pb_type_pr1).
-  }
-  apply maponpaths_for_constant_function.
-Qed.
-
-Definition maponpaths_pr2_path_pb_type
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-           {x y : pb_type f g}
-           (p₁ : pb_type_pr1 x = pb_type_pr1 y)
-           (p₂ : pb_type_pr2 x = pb_type_pr2 y)
-           (p₃ : pb_type_eq x @ maponpaths g p₂
-                 =
-                 maponpaths f p₁ @ pb_type_eq y)
-  : maponpaths
-      pb_type_pr2
-      (path_pb_type p₁ p₂ p₃)
-    =
-    p₂.
-Proof.
-  induction x as [ [ x₁ x₂ ] px ].
-  induction y as [ [ y₁ y₂ ] py ].
-  cbn in p₁, p₂.
-  induction p₁, p₂.
-  cbn in p₃.
-  induction p₃ ; cbn.
-  etrans.
-  {
-    apply (maponpathscomp
-             (tpair (λ x : X × Y, f (pr1 x) = g (pr2 x)) (x₁,, x₂))
-             pb_type_pr2).
-  }
-  apply maponpaths_for_constant_function.
-Qed.
-
-Definition homot_pb_type_eta
-           {X Y Z : UU}
-           {f : X → Z}
-           {g : Y → Z}
-           {x y : pb_type f g}
-           (p : x = y)
-  : p
-    =
-    path_pb_type
-      (maponpaths pb_type_pr1 p)
-      (maponpaths pb_type_pr2 p)
-      (maponpaths (λ z, _ @ z) (maponpathscomp pb_type_pr2 g p)
-       @ !(homotsec_natural pb_type_eq p)
-       @ maponpaths (λ z, z @ _) (!(maponpathscomp pb_type_pr1 f p))).
-Proof.
-  induction p.
-  cbn -[path_pb_type].
-  rewrite pathscomp0rid.
-  simpl.
-  rewrite pathsinv0r.
-  apply idpath.
-Qed.
-
-Definition homot_pb
-           {X Y Z : UU}
-           {f : X → Z} {g : Y → Z}
-           {x y : pb_type f g}
-           {h₁ h₁' : pb_type_pr1 x = pb_type_pr1 y} (e₁ : h₁ = h₁')
-           {h₂ h₂' : pb_type_pr2 x = pb_type_pr2 y} (e₂ : h₂ = h₂')
-           (h₃ : pb_type_eq x @ maponpaths g h₂ = maponpaths f h₁ @ pb_type_eq y)
-  : path_pb_type h₁ h₂ h₃
-    =
-    path_pb_type
-      h₁' h₂'
-      (maponpaths
-         (λ z, _ @ maponpaths g z)
-         (!e₂)
-       @ h₃
-       @ maponpaths
-           (λ z, maponpaths f z @ _)
-           e₁).
-Proof.
-  induction e₁ ; induction e₂.
-  simpl.
-  apply maponpaths.
-  exact (!(pathscomp0rid _)).
-Qed.
-
-Definition homot_pb_one_type
-           {X Y Z : UU}
-           (HZ : isofhlevel 3 Z)
-           {f : X → Z}
-           {g : Y → Z}
-           {x y : pb_type f g}
-           (p q : x = y)
-           (r₁ : maponpaths pb_type_pr1 p
-                 =
-                 maponpaths pb_type_pr1 q)
-           (r₂ : maponpaths pb_type_pr2 p
-                 =
-                 maponpaths pb_type_pr2 q)
-  : p = q.
-Proof.
-  refine (homot_pb_type_eta p @ _ @ !(homot_pb_type_eta q)).
-  etrans.
-  {
-    exact (homot_pb r₁ r₂ _).
-  }
-  apply maponpaths.
-  apply HZ.
-Qed.
-
-Definition pb_is_of_hlevel
-           (n : nat)
-           {X Y Z : UU}
-           (HX : isofhlevel n X)
-           (HY : isofhlevel n Y)
-           (HZ : isofhlevel n Z)
-           (f : X → Z)
-           (g : Y → Z)
-  : isofhlevel n (pb_type f g).
-Proof.
-  use isofhleveltotal2.
-  - use isofhleveldirprod.
-    + exact HX.
-    + exact HY.
-  - simpl.
-    intro x.
-    apply (hlevelntosn n _ HZ).
-Qed.
-
-Definition pb_HLevel
-           (n : nat)
-           {X Y Z : HLevel n}
-           (f : pr1 X → pr1 Z)
-           (g : pr1 Y → pr1 Z)
-  : HLevel n.
-Proof.
-  simple refine (pb_type f g ,, _).
-  apply pb_is_of_hlevel.
-  - exact (pr2 X).
-  - exact (pr2 Y).
-  - exact (pr2 Z).
-Defined.
-
-(** END MOVE ??!??!???!??? *)
-
-
 (** Pullbacks of 1-types *)
 Definition one_types_pb_cone
            {X Y Z : one_types}
@@ -627,11 +405,11 @@ Definition one_types_pb_cone
   : pb_cone f g.
 Proof.
   use make_pb_cone.
-  - exact (pb_HLevel 3 f g).
-  - exact pb_type_pr1.
-  - exact pb_type_pr2.
+  - exact (hfp_HLevel 3 f g).
+  - exact (hfpg f g).
+  - exact (hfpg' f g).
   - use make_invertible_2cell.
-    + exact pb_type_eq.
+    + exact (λ x, !(commhfp f g x)).
     + apply one_type_2cell_iso.
 Defined.
 
@@ -645,7 +423,7 @@ Section OneTypesPullbackUMP.
   Proof.
     intro q.
     use make_pb_1cell.
-    - exact (λ x, (pb_cone_pr1 q x ,, pb_cone_pr2 q x) ,, pr1 (pb_cone_cell q) x).
+    - exact (λ x, (pb_cone_pr1 q x ,, pb_cone_pr2 q x) ,, !(pr1 (pb_cone_cell q) x)).
     - use make_invertible_2cell.
       + intro x ; cbn.
         apply idpath.
@@ -660,7 +438,7 @@ Section OneTypesPullbackUMP.
          unfold homotcomp, homotfun, invhomot ;
          cbn ;
          rewrite !pathscomp0rid ;
-         apply idpath).
+         apply pathsinv0inv0).
   Defined.
 
   Definition pb_ump_2_one_types
@@ -669,55 +447,73 @@ Section OneTypesPullbackUMP.
     intros q φ ψ.
     use make_pb_2cell.
     - intro x.
-      use path_pb_type.
+      use path_hfp.
       + exact (pr1 (pb_1cell_pr1 φ) x @ !(pr1 (pb_1cell_pr1 ψ) x)).
       + exact (pr1 (pb_1cell_pr2 φ) x @ !(pr1 (pb_1cell_pr2 ψ) x)).
       + abstract
           (pose (eqtohomot (pb_1cell_eq φ) x) as p ;
            cbn in p ; unfold homotcomp, homotfun in p ; cbn in p ;
            rewrite pathscomp0rid in p ;
-           rewrite p ; clear p ;
-           rewrite !maponpathscomp0 ;
+           pose (invrot p) as p' ;
+           refine (maponpaths (λ z, z @ _) p' @ _) ;
+           clear p p' ;
+           rewrite !pathscomp_inv ;
+           rewrite maponpathscomp0 ;
            rewrite <- !path_assoc ;
-           apply maponpaths ;
+           etrans ;
+           [ do 2 apply maponpaths ;
+             rewrite !path_assoc ;
+             rewrite pathsinv0l ;
+             cbn ;
+             apply idpath
+           | ] ;
            pose (eqtohomot (pb_1cell_eq ψ) x) as p ;
            cbn in p ; unfold homotcomp, homotfun in p ; cbn in p ;
            rewrite pathscomp0rid in p ;
-           rewrite p ; clear p ;
+           pose (invrot p) as p' ;
+           refine (!_) ;
+           refine (maponpaths (λ z, _ @ z) p' @ _) ;
+           clear p p' ;
+           rewrite !maponpathscomp0 ;
+           rewrite !pathscomp_inv ;
+           rewrite !maponpathsinv0 ;
            rewrite !path_assoc ;
-           rewrite <- !maponpathscomp0 ;
-           rewrite pathsinv0l ;
-           cbn ;
+           do 2 apply maponpaths_2 ;
            rewrite <- !path_assoc ;
-           apply maponpaths ;
-           rewrite <- !maponpathscomp0 ;
-           apply maponpaths ;
-           rewrite !path_assoc ;
+           rewrite <- pathscomp_inv ;
+           rewrite <- maponpathscomp0 ;
            refine (maponpaths
-                     (λ z, z @ _)
+                     (λ z, _ @ !(maponpaths g z))
+                     (eqtohomot
+                        (vcomp_linv
+                           (pb_1cell_pr2 ψ))
+                        x)
+                     @ _) ;
+           cbn ;
+           rewrite pathscomp0rid ;
+           refine (!_) ;
+           use pathsinv0_to_right' ;
+           refine (!_) ;
+           rewrite <- maponpathscomp0 ;
+           refine (maponpaths
+                     (λ z, maponpaths g z)
                      (eqtohomot
                         (vcomp_linv
                            (pb_1cell_pr2 φ))
                         x)
-                   @ _) ;
-           cbn ;
-           use pathsinv0_to_right' ;
-           refine (!_) ;
-           exact (eqtohomot
-                    (vcomp_rinv
-                       (pb_1cell_pr2 ψ))
-                    x)).
+                     @ _) ;
+           apply idpath).
     - abstract
         (use funextsec ;
          intro x ; cbn ; unfold homotcomp, homotfun ;
-         refine (maponpaths (λ z, z @ _) (maponpaths_pr1_path_pb_type _ _ _) @ _) ;
+         refine (maponpaths (λ z, z @ _) (maponpaths_hfpg_path_hfp _ _ _) @ _) ;
          rewrite <- path_assoc ;
          rewrite pathsinv0l ;
          apply pathscomp0rid).
     - abstract
         (use funextsec ;
          intro x ; cbn ; unfold homotcomp, homotfun ;
-         refine (maponpaths (λ z, z @ _) (maponpaths_pr2_path_pb_type _ _ _) @ _) ;
+         refine (maponpaths (λ z, z @ _) (maponpaths_hfpg'_path_hfp _ _ _) @ _) ;
          rewrite <- path_assoc ;
          rewrite pathsinv0l ;
          apply pathscomp0rid).
@@ -732,7 +528,7 @@ Section OneTypesPullbackUMP.
       intro ; apply isapropdirprod ; apply cellset_property.
     }
     use funextsec ; intro x.
-    use homot_pb_one_type.
+    use homot_hfp_one_type.
     - apply Z.
     - pose (eqtohomot (pb_2cell_pr1 η₁) x) as m.
       cbn in m.
