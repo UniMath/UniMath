@@ -9,7 +9,6 @@ Require Import UniMath.Bicategories.WkCatEnrichment.prebicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.Strictness.
 
 Local Open Scope cat.
 
