@@ -41,7 +41,7 @@ Local Definition α' : associator tensor := monoidal_cat_associator Mon_V.
 Local Definition λ' : left_unitor tensor I := monoidal_cat_left_unitor Mon_V.
 Local Definition ρ' : right_unitor tensor I := monoidal_cat_right_unitor Mon_V.
 
-Let CAT : bicategory := bicat_of_cats.
+Let CAT : bicat := bicat_of_cats.
 
 Definition actions_disp_cat_ob_mor : disp_cat_ob_mor CAT.
 Proof.
