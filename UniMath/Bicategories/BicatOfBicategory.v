@@ -9,6 +9,8 @@
 (* (pre)bicategory of UniMath.Bicategories.Bicat.             *)
 (* ========================================================================= *)
 
+(* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -73,11 +75,11 @@ Variable C : prebicategory.
 
 Definition bcat_precategory_ob_mor : precategory_ob_mor.
 Proof.
-  exists C. exact (λ a b, homprecat a b).
+  exists C. exact (λ a b, homcat a b).
 Defined.
 
 Definition bcat_cell_struct : prebicat_2cell_struct bcat_precategory_ob_mor
-  := λ (a b : C) (f g : homprecat a b), (homprecat a b) ⟦ f, g ⟧.
+  := λ (a b : C) (f g : homcat a b), (homcat a b) ⟦ f, g ⟧.
 
 Definition bcat_ob_mor_cells : ∑ (C : precategory_ob_mor), prebicat_2cell_struct C.
 Proof.
@@ -113,11 +115,11 @@ Proof.
   - (* right unitor *)
     intros. exact (right_unitor f).
   - (* left inverse unitor *)
-    intros. exact (inv_from_iso (left_unitor f)).
+    intros. exact (inv_from_z_iso (left_unitor f)).
   - (* right inverse unitor *)
-    intros. exact (inv_from_iso (right_unitor f)).
+    intros. exact (inv_from_z_iso (right_unitor f)).
   - (* right associator *)
-    intros. exact (inv_from_iso (associator f g h)).
+    intros. exact (inv_from_z_iso (associator f g h)).
   - (* left associator *)
     intros. exact (associator_2mor f g h).
   - (* vertical composition *)
@@ -171,17 +173,17 @@ Proof.
   - (* 11 vcomp_whisker *)
     apply twomor_naturality.
   - (* 12a lunitor_linvunitor *)
-    apply (iso_inv_after_iso (left_unitor f)).
+    apply (z_iso_inv_after_z_iso (left_unitor f)).
   - (* 12b linvunitor_lunitor *)
-    apply (iso_after_iso_inv (left_unitor f)).
+    apply (z_iso_after_z_iso_inv (left_unitor f)).
   - (* 13a runitor_rinvunitor *)
-    apply (iso_inv_after_iso (right_unitor f)).
+    apply (z_iso_inv_after_z_iso (right_unitor f)).
   - (* 13b rinvunitor_runitor *)
-    apply (iso_after_iso_inv (right_unitor f)).
+    apply (z_iso_after_z_iso_inv (right_unitor f)).
   - (* 14a lassociator_rassociator *)
-    apply (iso_inv_after_iso (associator f g h)).
+    apply (z_iso_inv_after_z_iso (associator f g h)).
   - (* 14b rassociator_lassociator *)
-    apply (iso_after_iso_inv (associator f g h)).
+    apply (z_iso_after_z_iso_inv (associator f g h)).
   - (* 15 runitor_rwhisker *)
     apply pathsinv0, (triangle_axiom f g).
   - (* 16  lassociator_lassociator *)

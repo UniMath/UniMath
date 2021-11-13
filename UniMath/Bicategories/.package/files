@@ -109,7 +109,8 @@ WkCatEnrichment/whiskering.v
 WkCatEnrichment/Cat.v
 WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
+WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
+Discreteness.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
-Discreteness.v

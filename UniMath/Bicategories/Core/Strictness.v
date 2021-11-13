@@ -875,16 +875,6 @@ Proof.
   - exact (two_cat_is_strict_bicat C).
 Defined.
 
-Lemma isaprop_prebicat_laws
-           (B : prebicat_data)
-           (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
-  : isaprop (prebicat_laws B).
-Proof.
-  repeat (apply isapropdirprod)
-  ; repeat (apply impred ; intro)
-  ; apply H.
-Qed.
-
 Lemma strict_bicat_to_two_cat_to_strict_bicat
            (C : strict_bicat)
   : two_cat_to_strict_bicat (strict_bicat_to_two_cat C) = C.

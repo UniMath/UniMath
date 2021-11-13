@@ -9,11 +9,9 @@ Require Import UniMath.Bicategories.WkCatEnrichment.prebicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.Strictness.
 
 Local Open Scope cat.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 Definition hcomp_bicat_data
   : UU
@@ -286,6 +284,18 @@ Definition hcomp_bicat_laws
           hb_vcomp
             (hb_rassoc f (hb_id1 b) g)
             (hb_hcomp (hb_runit f) (hb_id2 g))).
+
+Lemma isaprop_hcomp_prebicat_laws
+      (B : hcomp_bicat_data)
+      (H : ∏ (a b : B) (f g : hb_mor a b), isaset (hb_cell f g))
+  : isaprop (hcomp_bicat_laws B).
+Proof.
+  repeat (apply isapropdirprod)
+  ; try (repeat (apply impred ; intro)
+         ; apply H).
+  do 4 (apply impred ; intro).
+  apply isapropisaset.
+Qed.
 
 Definition hcomp_bicat
   : UU
@@ -591,7 +601,77 @@ Definition hcomp_bicat_to_prebicat_laws
            (B : hcomp_bicat)
   : prebicat_laws (hcomp_bicat_to_prebicat_data B).
 Proof.
-  apply TODO.
+  repeat split ; try (intros ; apply (pr2 B)).
+  - intros ; cbn.
+    etrans.
+    {
+      refine (!_).
+      apply (pr12 (pr222 (pr222 B))).
+    }
+    apply maponpaths_2.
+    apply B.
+  - intros ; cbn.
+    etrans.
+    {
+      refine (!_).
+      apply (pr12 (pr222 (pr222 B))).
+    }
+    apply maponpaths.
+    apply B.
+  - intros ; cbn.
+    etrans.
+    {
+      apply (pr122 (pr222 ((pr222 B)))).
+    }
+    apply maponpaths.
+    apply maponpaths_2.
+    apply B.
+  - intros a b c d f₁ f₂ g h α ; cbn.
+    pose (pr122 (pr222 ((pr222 B))) a b c d f₁ f₂ g g h h α (hb_id2 _) (hb_id2 _)) as p.
+    cbn in p.
+    etrans.
+    {
+      exact (!p).
+    }
+    apply maponpaths_2.
+    apply maponpaths.
+    apply B.
+  - intros a b c f₁ f₂ g h α β ; cbn.
+    etrans.
+    {
+      refine (!_).
+      apply (pr12 (pr222 (pr222 B))).
+    }
+    refine (!_).
+    etrans.
+    {
+      refine (!_).
+      apply (pr12 (pr222 (pr222 B))).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      apply B.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      apply B.
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply B.
+    }
+    apply maponpaths_2.
+    apply B.
+  - intros ; cbn.
+    refine (!_).
+    apply B.
+  - intros ; cbn.
+    refine (!_).
+    apply B.
 Qed.
 
 Definition hcomp_bicat_to_prebicat
@@ -639,7 +719,32 @@ Definition bicat_to_hcomp_bicat_laws
            (B : bicat)
   : hcomp_bicat_laws (bicat_to_hcomp_bicat_data B).
 Proof.
-  apply TODO.
+  repeat split ; cbn ; intros.
+  - apply id2_left.
+  - apply id2_right.
+  - apply vassocr.
+  - apply vassocl.
+  - apply cellset_property.
+  - apply hcomp_identity.
+  - apply interchange.
+  - apply hcomp_lassoc.
+  - apply lunitor_natural.
+  - apply runitor_natural.
+  - apply lassociator_rassociator.
+  - apply rassociator_lassociator.
+  - apply lunitor_linvunitor.
+  - apply linvunitor_lunitor.
+  - apply runitor_rinvunitor.
+  - apply rinvunitor_runitor.
+  - rewrite <- lwhisker_hcomp, <- rwhisker_hcomp.
+    refine (!_).
+    apply lassociator_lassociator.
+  - rewrite <- lwhisker_hcomp, <- rwhisker_hcomp.
+    rewrite <- lunitor_lwhisker.
+    rewrite !vassocr.
+    rewrite lassociator_rassociator.
+    rewrite id2_left.
+    apply idpath.
 Qed.
 
 Definition bicat_to_hcomp_bicat
@@ -659,37 +764,36 @@ Proof.
   - use gradth.
     + exact bicat_to_hcomp_bicat.
     + intros B.
-      use subtypePath.
-      {
-        intro ; apply TODO.
-      }
-      do 13 (use total2_paths_f ; [ apply idpath | ] ; cbn).
-      use funextsec ; intro x.
-      use funextsec ; intro y.
-      use funextsec ; intro z.
-      use funextsec ; intro f₁.
-      use funextsec ; intro f₂.
-      use funextsec ; intro g₁.
-      use funextsec ; intro g₂.
-      use funextsec ; intro α.
-      use funextsec ; intro β.
-      cbn.
-      etrans.
-      {
-        refine (!_).
-        apply (pr12 (pr222 (pr222 B))).
-      }
-      etrans.
-      {
-        apply maponpaths.
-        apply (pr12 B).
-      }
-      etrans.
-      {
-        apply maponpaths_2.
-        apply (pr122 B).
-      }
-      apply idpath.
+      use total2_paths_f.
+      * do 13 (use total2_paths_f ; [ apply idpath | ] ; cbn).
+        use funextsec ; intro x.
+        use funextsec ; intro y.
+        use funextsec ; intro z.
+        use funextsec ; intro f₁.
+        use funextsec ; intro f₂.
+        use funextsec ; intro g₁.
+        use funextsec ; intro g₂.
+        use funextsec ; intro α.
+        use funextsec ; intro β.
+        cbn.
+        etrans.
+        {
+          refine (!_).
+          apply (pr12 (pr222 (pr222 B))).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply (pr12 B).
+        }
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (pr122 B).
+        }
+        apply idpath.
+      * apply isaprop_hcomp_prebicat_laws.
+        apply B.
     + intros b.
       use subtypePath.
       {
@@ -697,27 +801,25 @@ Proof.
         do 4 (use impred ; intro).
         apply isapropisaset.
       }
-      use subtypePath.
-      {
-        intro.
-        apply TODO.
-      }
-      cbn.
       use total2_paths_f.
-      * apply idpath.
-      * repeat (use pathsdirprod) ; cbn.
+      * use total2_paths_f.
         ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** apply idpath.
-        ** repeat (use funextsec ; intro).
-           rewrite <- lwhisker_hcomp.
-           apply idpath.
-        ** repeat (use funextsec ; intro).
-           rewrite <- rwhisker_hcomp.
-           apply idpath.
+        ** repeat (use pathsdirprod) ; cbn.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** apply idpath.
+           *** repeat (use funextsec ; intro).
+               rewrite <- lwhisker_hcomp.
+               apply idpath.
+           *** repeat (use funextsec ; intro).
+               rewrite <- rwhisker_hcomp.
+               apply idpath.
+      * apply isaprop_prebicat_laws.
+        intros.
+        apply cellset_property.
 Defined.

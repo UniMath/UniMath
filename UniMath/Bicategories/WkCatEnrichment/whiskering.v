@@ -27,7 +27,7 @@ Definition whisker_left {C : prebicategory} {a b c : C}
 Lemma whisker_left_id_1mor {C : prebicategory} {b c : C}
            {g h : b -1-> c} (alpha : g -2-> h)
   : whisker_left (identity1 _) alpha =
-    left_unitor _ ;v; alpha ;v; inv_from_iso (left_unitor _).
+    left_unitor _ ;v; alpha ;v; inv_from_z_iso (left_unitor _).
 Proof.
   unfold whisker_left.
   apply id_2mor_left.
@@ -53,26 +53,29 @@ Proof.
 Defined.
 
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
-           (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
-  : iso (f ;1; g) (f ;1; h).
+           (f : a -1-> b) {g h : b -1-> c} (alpha : z_iso g h)
+  : z_iso (f ;1; g) (f ;1; h).
 Proof.
   exists (whisker_left f alpha).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (precatbinprodiso (identity_iso f) alpha)).
+  apply functor_on_is_z_isomorphism.
+  apply is_z_iso_binprod_z_iso.
+  - apply identity_is_z_iso.
+  - apply alpha.
 Defined.
 
 Lemma whisker_left_inv {C : prebicategory} {a b c : C}
-           (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
-  : whisker_left f (iso_inv_from_iso alpha)
-  = inv_from_iso (whisker_left_iso f alpha).
+           (f : a -1-> b) {g h : b -1-> c} (alpha : z_iso g h)
+  : whisker_left f (z_iso_inv_from_z_iso alpha)
+  = inv_from_z_iso (whisker_left_iso f alpha).
 Proof.
   unfold whisker_left.
-  intermediate_path (inv_from_iso (identity_iso f);h;inv_from_iso alpha).
+  intermediate_path (inv_from_z_iso (identity_z_iso f);h;inv_from_z_iso alpha).
     set (W := maponpaths pr1 (iso_inv_of_iso_id f)).
     simpl in W.
     rewrite <- W.
     reflexivity.
 
-  apply (maponpaths pr1 (inv_horizontal_comp (identity_iso f) alpha)).
+  apply (maponpaths pr1 (inv_horizontal_comp (identity_z_iso f) alpha)).
 Defined.
 
 Lemma whisker_left_id_inj {C : prebicategory} {b c : C}
@@ -81,25 +84,24 @@ Lemma whisker_left_id_inj {C : prebicategory} {b c : C}
     -> alpha = alpha'.
 Proof.
   intros w.
-
-  intermediate_path (iso_inv_from_iso (left_unitor _)
+  intermediate_path (inv_from_z_iso (left_unitor _)
            ;v; whisker_left (identity1 _) alpha
            ;v; left_unitor _ ).
     apply pathsinv0.
-    apply iso_inv_to_right.
-    apply iso_inv_on_right.
+    apply z_iso_inv_to_right.
+    apply z_iso_inv_on_right.
     rewrite assoc.
     apply whisker_left_id_1mor.
 
-  intermediate_path (iso_inv_from_iso (left_unitor _)
+  intermediate_path (inv_from_z_iso (left_unitor _)
            ;v; whisker_left (identity1 _) alpha'
            ;v; left_unitor _ ).
     apply cancel_postcomposition.
     apply cancel_precomposition.
     assumption.
 
-  apply iso_inv_to_right.
-  apply iso_inv_on_right.
+  apply z_iso_inv_to_right.
+  apply z_iso_inv_on_right.
   rewrite assoc.
   apply whisker_left_id_1mor.
 Defined.
@@ -125,7 +127,7 @@ Definition whisker_right {C : prebicategory} {a b c : C}
 Lemma whisker_right_id_1mor {C : prebicategory} {a b : C}
            {f g : a -1-> b} (alpha : f -2-> g)
   : whisker_right alpha (identity1 _) =
-    right_unitor _ ;v; alpha ;v; inv_from_iso (right_unitor _).
+    right_unitor _ ;v; alpha ;v; inv_from_z_iso (right_unitor _).
 Proof.
   unfold whisker_right.
   apply id_2mor_right.
@@ -150,26 +152,29 @@ Proof.
 Defined.
 
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
-           {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
-  : iso (f ;1; h) (g ;1; h).
+           {f g : a -1-> b} (alpha : z_iso f g) (h : b -1-> c)
+  : z_iso (f ;1; h) (g ;1; h).
 Proof.
   exists (whisker_right alpha h).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (precatbinprodiso alpha (identity_iso h))).
+  apply functor_on_is_z_isomorphism.
+  apply is_z_iso_binprod_z_iso.
+  - apply alpha.
+  - apply identity_is_z_iso.
 Defined.
 
 Lemma whisker_right_inv {C : prebicategory} {a b c : C}
-           {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
-  : whisker_right (iso_inv_from_iso alpha) h
-  = inv_from_iso (whisker_right_iso alpha h).
+           {f g : a -1-> b} (alpha : z_iso f g) (h : b -1-> c)
+  : whisker_right (inv_from_z_iso alpha) h
+    =
+    inv_from_z_iso (whisker_right_iso alpha h).
 Proof.
   unfold whisker_right.
-  intermediate_path (inv_from_iso alpha ;h; inv_from_iso (identity_iso h)).
+  intermediate_path (inv_from_z_iso alpha ;h; inv_from_iso (identity_iso h)).
     set (W := maponpaths pr1 (iso_inv_of_iso_id h)).
     simpl in W.
     rewrite <- W.
     reflexivity.
-
-  apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_iso h))).
+  apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_z_iso h))).
 Defined.
 
 Lemma whisker_right_id_inj {C : prebicategory} {a b : C}
@@ -179,24 +184,24 @@ Lemma whisker_right_id_inj {C : prebicategory} {a b : C}
 Proof.
   intros w.
 
-  intermediate_path (iso_inv_from_iso (right_unitor _)
+  intermediate_path (inv_from_z_iso (right_unitor _)
            ;v; whisker_right alpha (identity1 _)
            ;v; right_unitor _ ).
     apply pathsinv0.
-    apply iso_inv_to_right.
-    apply iso_inv_on_right.
+    apply z_iso_inv_to_right.
+    apply z_iso_inv_on_right.
     rewrite assoc.
     apply whisker_right_id_1mor.
 
-  intermediate_path (iso_inv_from_iso (right_unitor _)
+  intermediate_path (inv_from_z_iso (right_unitor _)
            ;v; whisker_right alpha' (identity1 _)
            ;v; right_unitor _ ).
     apply cancel_postcomposition.
     apply cancel_precomposition.
     assumption.
 
-  apply iso_inv_to_right.
-  apply iso_inv_on_right.
+  apply z_iso_inv_to_right.
+  apply z_iso_inv_on_right.
   rewrite assoc.
   apply whisker_right_id_1mor.
 Defined.
@@ -356,7 +361,7 @@ Local Lemma kelly_left_region_12 :
   =   whisker_left f (associator (identity1 b) g h)
   ;v; whisker_left f (whisker_right (left_unitor g) h).
 Proof.
-  apply (post_comp_with_iso_is_inj _ _ (associator f g h) (pr2 (associator f g h))).
+  use (post_comp_with_z_iso_is_inj (associator f g h)).
   unfold whisker_right at 1.
   rewrite <- horizontal_comp_id.
   rewrite <- assoc.
@@ -380,7 +385,8 @@ End kelly_left_pieces.
 Lemma kelly_left {C : prebicategory} {b c d : C}
   {g : b -1-> c} {h : c -1-> d}
   : left_unitor_2mor (g ;1; h)
-  = associator (identity1 b) g h ;v; whisker_right_iso (left_unitor g) h.
+    =
+    associator (identity1 b) g h ;v; whisker_right (left_unitor g) h.
 Proof.
   apply whisker_left_id_inj.
   rewrite whisker_left_on_comp.
@@ -397,8 +403,7 @@ Lemma left_unitor_on_id {C : prebicategory} {a : C}
   : whisker_left (identity1 a) (left_unitor (identity1 a))
   = left_unitor (identity1 a ;1; identity1 a).
 Proof.
-  apply (post_comp_with_iso_is_inj _ _ (left_unitor (identity1 a))).
-    apply (pr2 (left_unitor (identity1 a))).
+  use (post_comp_with_z_iso_is_inj (left_unitor (identity1 a))).
   apply left_unitor_naturality.
 Defined.
 
@@ -407,7 +412,7 @@ Lemma left_unitor_id_is_right_unitor_id {C : prebicategory} {a : C}
   = right_unitor_2mor (identity1 a).
 Proof.
   apply whisker_right_id_inj.
-  apply (pre_comp_with_iso_is_inj _ _ _ (associator _ _ _) (pr2 (associator _ _ _))).
+  use (pre_comp_with_z_iso_is_inj (associator _ _ _)).
   intermediate_path (left_unitor_2mor ((identity1 a) ;1; (identity1 a))).
     apply pathsinv0.
     apply kelly_left.

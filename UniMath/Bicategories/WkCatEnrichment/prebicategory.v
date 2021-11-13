@@ -102,11 +102,14 @@ Local Notation "alpha  ';h;'  beta" := (compose2h alpha beta) (at level 50, left
 Definition compose2h_iso {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
            {g g' : b -1-> c}
-           (alpha : iso f f')
-           (beta : iso g g')
-  : iso (f ;1; g) (f' ;1; g').
+           (alpha : z_iso f f')
+           (beta : z_iso g g')
+  : z_iso (f ;1; g) (f' ;1; g').
 Proof.
-  apply functor_on_iso. exact (precatbinprodiso alpha beta).
+  apply functor_on_z_iso.
+  apply precatbinprod_z_iso.
+  - exact alpha.
+  - exact beta.
 Defined.
 
 Local Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50, left associativity).
@@ -302,13 +305,16 @@ Defined.
 
 Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
     {f f' : a -1-> b} {g g' : b -1-> c}
-    (alpha : iso f f') (beta : iso g g')
-  : (iso_inv_from_iso alpha) ;hi; (iso_inv_from_iso beta)
-  = iso_inv_from_iso (alpha ;hi; beta).
+    (alpha : z_iso f f') (beta : z_iso g g')
+  : (z_iso_inv_from_z_iso alpha) ;hi; (z_iso_inv_from_z_iso beta)
+  = z_iso_inv_from_z_iso (alpha ;hi; beta).
 Proof.
   unfold compose2h_iso.
-  rewrite precatbinprodiso_inv.
-  apply functor_on_iso_inv.
+  use subtypePath.
+  {
+    intro ; apply isaprop_is_z_isomorphism.
+  }
+  apply idpath.
 Defined.
 
 (******************************************************************************)
