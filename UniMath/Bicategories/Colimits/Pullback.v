@@ -22,13 +22,13 @@ Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -573,7 +573,7 @@ Defined.
     Here, we use the iso-comma category.
  *)
 Definition iso_comma_pb_cone
-           {C₁ C₂ C₃ : bicat_of_cats}
+           {C₁ C₂ C₃ : bicat_of_univ_cats}
            (F : C₁ --> C₃)
            (G : C₂ --> C₃)
   : pb_cone F G.
@@ -592,7 +592,7 @@ Proof.
 Defined.
 
 Section IsoCommaUMP.
-  Context {C₁ C₂ C₃ : bicat_of_cats}
+  Context {C₁ C₂ C₃ : bicat_of_univ_cats}
           (F : C₁ --> C₃)
           (G : C₂ --> C₃).
 
@@ -746,8 +746,8 @@ Section IsoCommaUMP.
   Defined.
 End IsoCommaUMP.
 
-Definition has_pb_bicat_of_cats
-  : has_pb bicat_of_cats.
+Definition has_pb_bicat_of_univ_cats
+  : has_pb bicat_of_univ_cats.
 Proof.
   intros C₁ C₂ C₃ F G.
   simple refine (_ ,, _).

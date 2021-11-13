@@ -14,13 +14,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
@@ -213,7 +212,7 @@ Proof.
 Qed.
 
 Definition kleisli_triple_disp_cat_data
-  : disp_cat_data bicat_of_cats.
+  : disp_cat_data bicat_of_univ_cats.
 Proof.
   use tpair.
   - use tpair ; cbn.
@@ -260,7 +259,7 @@ Definition kleisli_triple_nat_trans
      #(functor_data_of_kleisli_triple MC₂) (n X) · pr1 MF₂ X.
 
 Definition kleisli_triple_disp_prebicat_1_id_comp_cells
-  : disp_prebicat_1_id_comp_cells bicat_of_cats.
+  : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
 Proof.
   use tpair.
   - exact kleisli_triple_disp_cat_data.
@@ -349,7 +348,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition kleisli_triple_disp_prebicat_data: disp_prebicat_data bicat_of_cats.
+Definition kleisli_triple_disp_prebicat_data: disp_prebicat_data bicat_of_univ_cats.
 Proof.
   use tpair.
   - exact kleisli_triple_disp_prebicat_1_id_comp_cells.
@@ -357,7 +356,7 @@ Proof.
 Defined.
 
 Definition disp_2cellsisaprop
-           {a b : bicat_of_cats}
+           {a b : bicat_of_univ_cats}
            {f g : a --> b}
            (η : f ==> g)
            {aa : kleisli_triple_disp_prebicat_data a}
@@ -377,14 +376,14 @@ Proof.
   repeat split ; intro ; intros ; apply disp_2cellsisaprop.
 Qed.
 
-Definition kleisli_triple_disp_prebicat : disp_prebicat bicat_of_cats.
+Definition kleisli_triple_disp_prebicat : disp_prebicat bicat_of_univ_cats.
 Proof.
   use tpair.
   - exact kleisli_triple_disp_prebicat_data.
   - exact kleisli_triple_disp_laws.
 Defined.
 
-Definition kleisli_triple_disp_bicat : disp_bicat bicat_of_cats.
+Definition kleisli_triple_disp_bicat : disp_bicat bicat_of_univ_cats.
 Proof.
   use tpair.
   - exact kleisli_triple_disp_prebicat.
@@ -405,7 +404,7 @@ Qed.
 
 Definition disp_locally_groupoid_kleisli_help
            (a b : univalent_category)
-           (f g : bicat_of_cats ⟦ a , b ⟧)
+           (f g : bicat_of_univ_cats ⟦ a , b ⟧)
            (x : invertible_2cell f g)
            (aa : kleisli_triple a)
            (bb : kleisli_triple b)

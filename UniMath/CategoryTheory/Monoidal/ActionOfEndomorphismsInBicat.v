@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import Bicat.Notations.
 
@@ -102,9 +102,9 @@ Section Instantiation_To_Bicategory_Of_Categories.
 
   Context (C D : category).
 
-  Local Definition actfromprecomp : action (Mon_endo(C:=bicat_of_cats_nouniv) C)
-                                           (homcat(C:=bicat_of_cats_nouniv) C D)
-    := action_from_precomp(C:=bicat_of_cats_nouniv) C D.
+  Local Definition actfromprecomp : action (Mon_endo(C:=bicat_of_cats) C)
+                                           (homcat(C:=bicat_of_cats) C D)
+    := action_from_precomp(C:=bicat_of_cats) C D.
 
 
   (* the following is not possible since the notions for functor the functor are not precise instances of the bicategorical ones:

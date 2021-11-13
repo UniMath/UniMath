@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
@@ -28,7 +28,7 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Local Definition CAT : bicat := bicat_of_cats_nouniv.
+Local Definition CAT : bicat := bicat_of_cats.
 
 Section ThePseudoFunctors.
 

@@ -13,8 +13,8 @@ Core/UnivalenceOp.v
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
+Core/Examples/BicatOfUnivCats.v
 Core/Examples/BicatOfCats.v
-Core/Examples/BicatOfCatsWithoutUnivalence.v
 Core/Strictness.v
 Core/Examples/StrictCats.v
 Core/Examples/Initial.v
@@ -96,7 +96,7 @@ Colimits/Initial.v
 Colimits/Final.v
 Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
-PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v
+PseudoFunctors/Examples/CurryingInBicatOfCats.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v

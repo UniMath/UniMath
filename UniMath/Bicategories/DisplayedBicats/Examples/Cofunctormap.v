@@ -22,7 +22,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
@@ -41,10 +41,10 @@ Section Cofunctormaps.
 
   Variable (K : univalent_category).
 
-  Definition disp_presheaf : disp_bicat bicat_of_cats
+  Definition disp_presheaf : disp_bicat bicat_of_univ_cats
     := disp_presheaf_bicat K.
 
-  Definition disp_two_presheaves : disp_bicat bicat_of_cats
+  Definition disp_two_presheaves : disp_bicat bicat_of_univ_cats
     := disp_dirprod_bicat disp_presheaf disp_presheaf.
 
   Definition disp_two_presheaves_is_univalent_2_1
@@ -125,7 +125,7 @@ Section Cofunctormaps.
     : disp_bicat (total_bicat disp_two_presheaves)
     := disp_cell_unit_bicat disp_cofunctormaps_cat_data.
 
-  Definition morphisms_of_presheaves_display : disp_bicat bicat_of_cats.
+  Definition morphisms_of_presheaves_display : disp_bicat bicat_of_univ_cats.
   Proof.
     use sigma_bicat.
     apply disp_two_presheaves.

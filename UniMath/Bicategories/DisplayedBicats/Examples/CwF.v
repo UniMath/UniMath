@@ -38,7 +38,7 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Cofunctormap.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
@@ -346,7 +346,7 @@ Section CwF.
     exact (@cwf_representation C _ _ pp).
   Defined.
 
-  Definition disp_cwf : disp_bicat bicat_of_cats
+  Definition disp_cwf : disp_bicat bicat_of_univ_cats
     := sigma_bicat _ _ disp_cwf'.
 
   Definition disp_2cells_isaprop_disp_cwf

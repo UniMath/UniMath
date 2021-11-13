@@ -10,7 +10,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -24,7 +23,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
@@ -33,7 +32,7 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Definition disp_bicat_of_univ_disp_cats_disp_cat_data
-  : disp_cat_data bicat_of_cats.
+  : disp_cat_data bicat_of_univ_cats.
 Proof.
   use tpair.
   - use tpair.
@@ -48,14 +47,14 @@ Proof.
 Defined.
 
 Definition disp_bicat_of_univ_disp_cats_1_id_comp_cells
-  : disp_prebicat_1_id_comp_cells bicat_of_cats.
+  : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
 Proof.
   exists disp_bicat_of_univ_disp_cats_disp_cat_data.
   cbn. intros C C' F F' a D D' G G'. cbn in *.
   apply (disp_nat_trans a G G').
 Defined.
 
-Definition disp_prebicat_of_univ_disp_cats_data : disp_prebicat_data bicat_of_cats.
+Definition disp_prebicat_of_univ_disp_cats_data : disp_prebicat_data bicat_of_univ_cats.
 Proof.
   exists disp_bicat_of_univ_disp_cats_1_id_comp_cells.
   repeat split.
@@ -211,10 +210,10 @@ Qed.
 
 
 Definition disp_prebicat_of_univ_disp_cats
-  : disp_prebicat bicat_of_cats
+  : disp_prebicat bicat_of_univ_cats
   := _ ,, disp_prebicat_of_univ_disp_cats_laws.
 
-Definition disp_bicat_of_univ_disp_cats : disp_bicat bicat_of_cats.
+Definition disp_bicat_of_univ_disp_cats : disp_bicat bicat_of_univ_cats.
 Proof.
   use tpair.
   - exact disp_prebicat_of_univ_disp_cats.
@@ -338,7 +337,7 @@ Proof.
 Qed.
 
 Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
-           {C C' : bicat_of_cats}
+           {C C' : bicat_of_univ_cats}
            {F : C --> C'}
            {D : disp_bicat_of_univ_disp_cats C}
            {D' : disp_bicat_of_univ_disp_cats C'}
@@ -368,7 +367,7 @@ Proof.
          refine (disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
-                   (!(@id2_left bicat_of_cats _ _ _ _ (nat_trans_id F)))
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
                    _ _ _ _ _
                    @ _) ;
          apply transportf_paths ;
@@ -383,7 +382,7 @@ Proof.
          refine (disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
-                   (!(@id2_left bicat_of_cats _ _ _ _ (nat_trans_id F)))
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
                    _ _ _ _ _
                    @ _) ;
          apply transportf_paths ;
@@ -426,14 +425,14 @@ Proof.
 Defined.
 
 Definition disp_bicat_of_fibs
-  : disp_bicat bicat_of_cats
+  : disp_bicat bicat_of_univ_cats
   := sigma_bicat
-       bicat_of_cats
+       bicat_of_univ_cats
        disp_bicat_of_univ_disp_cats
        disp_bicat_of_fibs_help.
 
 Definition disp_bicat_of_fibs_is_disp_invertible_2cell
-           {C C' : bicat_of_cats}
+           {C C' : bicat_of_univ_cats}
            {F : C --> C'}
            {D : disp_bicat_of_fibs C} {D' : disp_bicat_of_fibs C'}
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
@@ -466,7 +465,7 @@ Proof.
          refine (disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
-                   (!(@id2_left bicat_of_cats _ _ _ _ (nat_trans_id F)))
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
                    _ _ _ _ _
                    @ _) ;
          apply transportf_paths ;
@@ -484,7 +483,7 @@ Proof.
          refine (disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
-                   (!(@id2_left bicat_of_cats _ _ _ _ (nat_trans_id F)))
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
                    _ _ _ _ _
                    @ _) ;
          apply transportf_paths ;
