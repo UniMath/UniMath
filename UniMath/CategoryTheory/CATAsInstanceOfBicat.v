@@ -23,7 +23,7 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Local Definition CAT := bicat_of_cats.
+Local Definition CAT : bicat := bicat_of_cats.
 
 Local Definition lwhisker := @lwhisker CAT.
 
