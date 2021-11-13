@@ -509,16 +509,8 @@ Proof.
   - use gradth.
     + exact prebicategory_to_hcomp_bicat.
     + intros b.
-      use subtypePath.
-      {
-        intro ; apply TODO.
-      }
       apply idpath.
     + intros b.
-      use subtypePath.
-      {
-        intro ; apply TODO.
-      }
       apply idpath.
 Defined.
 
