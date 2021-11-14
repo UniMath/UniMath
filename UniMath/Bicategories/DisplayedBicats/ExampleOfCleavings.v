@@ -12,15 +12,16 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
+Require Import UniMath.Bicategories.Core.Faithful.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.FibrationOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Domain.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
@@ -33,11 +34,12 @@ Definition TODO {A : UU} : A.
 Admitted.
 
 (**
-The trivial bicategory is a fibration
+The trivial bicategory has a cleaving
  *)
-Section ConstantFibration.
+Section ConstantCleaving.
   Variable (B₁ B₂ : bicat).
 
+  (** Characterisation of cartesian 2-cells *)
   Definition trivial_invertible_is_cartesian_2cell
              {x₁ x₂ : B₁}
              {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
@@ -133,101 +135,131 @@ Section ConstantFibration.
           apply (left_equivalence_counit_iso Hg).
     Defined.
 
+    Definition trivial_lift_2cell
+               {w : B₁}
+               {z : B₂}
+               {h h' : w --> x₁}
+               {k k' : z --> y₂}
+               (γ : h ==> h')
+               (δ : k ==> k')
+               (Lh : lift_1cell (trivial_displayed_bicat B₁ B₂) g k)
+               (Lh' : lift_1cell (trivial_displayed_bicat B₁ B₂) g k')
+      : lift_2cell (trivial_displayed_bicat B₁ B₂) g (δ := γ) δ Lh Lh'.
+    Proof.
+      use iscontraprop1.
+      - abstract
+          (use invproofirrelevance ;
+           intros φ₁ φ₂ ;
+           induction φ₁ as [ φ₁ ψ₁ ] ;
+           induction φ₂ as [ φ₂ ψ₂ ] ;
+           use subtypePath ; [ intro ; apply cellset_property | ] ;
+           cbn in * ;
+           rewrite transportf_const in ψ₁, ψ₂ ;
+           cbn in * ;
+           apply (fully_faithful_1cell_faithful (adj_equiv_fully_faithful Hg)) ;
+           pose (p₂ := trivial_disp_invertible_to_invertible_2cell (pr2 Lh')) ;
+           use (vcomp_rcancel p₂) ; [ apply p₂ | ] ;
+           exact (ψ₁ @ !ψ₂)).
+      - simple refine (_ ,, _) ; cbn.
+        + exact (fully_faithful_1cell_inv_map
+                   (adj_equiv_fully_faithful Hg)
+                   (pr12 Lh
+                    • δ
+                    • trivial_disp_invertible_to_invertible_2cell (pr2 Lh')^-1)).
+        + abstract
+            (rewrite transportf_const ; cbn ;
+             etrans ;
+             [ apply maponpaths_2 ;
+               apply (fully_faithful_1cell_inv_map_eq (adj_equiv_fully_faithful Hg))
+             | ] ;
+             cbn in * ;
+             rewrite !vassocl ;
+             apply maponpaths ;
+             refine (_ @ id2_right _) ;
+             apply maponpaths ;
+             apply (vcomp_linv
+                      (trivial_disp_invertible_to_invertible_2cell (pr2 Lh')))).
+    Defined.
+
     Definition trivial_cartesian_1cell
       : cartesian_1cell (trivial_displayed_bicat B₁ B₂) g.
     Proof.
       simple refine (_ ,, _).
       - exact @trivial_lift_1cell.
-      - cbn.
-        intros w z h h' k k' γ δ.
-        use iscontraprop1.
-        + use invproofirrelevance.
-          intros φ₁ φ₂.
-          use subtypePath ; [ intro ; apply trivial_displayed_bicat | ].
-          cbn in *.
-          pose (pr2 φ₁) as p₁.
-          pose (pr2 φ₂) as p₂.
-          cbn in p₁, p₂.
-          rewrite transportf_const in p₁.
-          rewrite transportf_const in p₂.
-          cbn in p₁, p₂.
-          pose (p₁ @ !p₂) as r.
-          rewrite !vassocr in r.
-          pose (vcomp_rcancel _ (is_invertible_2cell_runitor _) r) as r'.
-          assert (is_invertible_2cell (k' ◃ left_adjoint_counit (pr1 Hg))).
-          {
-            is_iso.
-            apply Hg.
-          }
-          pose (vcomp_rcancel _ X r') as r''.
-          pose (vcomp_rcancel _ (is_invertible_2cell_rassociator _ _ _) r'') as r'''.
-          admit.
-        + simple refine (_ ,, _) ; cbn.
-          * exact (δ ▹ _).
-          * abstract
-              (rewrite transportf_const ;
-               cbn ;
-               rewrite !vassocr ;
-               rewrite rwhisker_rwhisker_alt ;
-               rewrite !vassocl ;
-               apply maponpaths ;
-               rewrite !vassocr ;
-               rewrite vcomp_whisker ;
-               rewrite !vassocl ;
-               apply maponpaths ;
-               rewrite vcomp_runitor ;
-               apply idpath).
-    Admitted.
+      - exact @trivial_lift_2cell.
+    Defined.
   End TrivialCartesianOneCell.
 
-  Definition trivial_cartesian_1cell_is_adj_equiv
-             {x₁ x₂ : B₁}
-             {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
-             {y₂ : trivial_displayed_bicat B₁ B₂ x₂}
-             (f : x₁ --> x₂)
-             (g : y₁ -->[ f ] y₂)
-             (Hg : cartesian_1cell (trivial_displayed_bicat B₁ B₂) g)
-    : left_adjoint_equivalence g.
-  Proof.
-    (*
-    use equiv_to_adjequiv.
-    cbn in *.
-    pose (pr1 Hg x₁ y₂ (id₁ x₁) (id₁ y₂)) as inv_help.
-    pose (inv := pr1 inv_help).
-    pose (trivial_disp_invertible_to_invertible_2cell (pr2 inv_help)) as counit.
+  Section Cartesian1CellToAdjEquiv.
+    Context {x₁ x₂ : B₁}
+            {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
+            {y₂ : trivial_displayed_bicat B₁ B₂ x₂}
+            (f : x₁ --> x₂)
+            (g : y₁ -->[ f ] y₂)
+            (Hg : cartesian_1cell (trivial_displayed_bicat B₁ B₂) g).
 
+    Let inv : y₂ --> y₁ := pr1 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _)).
+    Let ε : inv · g ==> id₁ y₂ := pr12 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _)).
+    Let εinv
+      : is_invertible_2cell ε
+      := trivial_disp_invertible_to_invertible_2cell
+           (pr2 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _))).
 
-    pose (pr2 Hg x₁ y₁ (id₁ _) (id₁ _) g (g · inv · g) (id2 _) (rinvunitor g • (g ◃ counit^-1) • lassociator _ _ _)) as unit.
-    cbn in unit.
-    pose (disp_cell_lift_2cell _ _ unit).
-    cbn in d.
-    unfold disp_mor_lift_1cell in d.
-    cbn in counit.
-    pose .
-    unfold inv in unit.
-    specialize (unit p).
-    cbn in p.
+    Local Definition unit_help_lift₁
+      : lift_1cell (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+    Proof.
+      simple refine (_ ,, _ ,, _) ; cbn.
+      - apply id₁.
+      - apply lunitor.
+      - use trivial_is_invertible_2cell_to_is_disp_invertible.
+        is_iso.
+    Defined.
 
-    disp_cell_lift_2cell
-      eq_lift_2cell
-      isaprop_lift_of_lift_2cell
-    fdsafadfda
-    (*
-    unfold lift_1cell in inv.
-    unfold lift_2cell in unit.
-    unfold lift_2cell_type in unit.
-    cbn in unit.
-     *)
-    simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
-    - exact inv.
-    - admit.
-    - exact counit.
-    - admit.
-    - cbn.
-      apply counit.
-     *)
-    admit.
-  Admitted.
+    Local Definition unit_help_lift₂
+      : lift_1cell (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+    Proof.
+      simple refine (_ ,, _ ,, _) ; cbn.
+      - exact (g · inv).
+      - exact (rassociator _ _ _ • (g ◃ ε) • runitor _).
+      - use trivial_is_invertible_2cell_to_is_disp_invertible.
+        is_iso.
+    Defined.
+
+    Local Definition unit
+      : id₁ y₁ ==> g · inv
+      := cartesian_1cell_lift_2cell
+           _ _
+           Hg
+           (δ := id2 _) (id2 _)
+           unit_help_lift₁ unit_help_lift₂.
+
+    Definition trivial_cartesian_1cell_left_adj_data
+      : left_adjoint_data g
+      := (inv ,, unit ,, ε).
+
+    Definition trivial_cartesian_1cell_left_equiv_axioms
+      : left_equivalence_axioms trivial_cartesian_1cell_left_adj_data.
+    Proof.
+      split.
+      - use (trivial_is_disp_invertible_to_is_invertible_2cell (α := id2 (id₁ _))).
+        + is_iso.
+        + refine (cartesian_1cell_lift_2cell_invertible
+                    _ _ Hg _ _
+                    unit_help_lift₁ unit_help_lift₂).
+          use trivial_is_invertible_2cell_to_is_disp_invertible.
+          is_iso.
+      - exact εinv.
+    Defined.
+
+    Definition trivial_cartesian_1cell_is_adj_equiv
+      : left_adjoint_equivalence g.
+    Proof.
+      use equiv_to_adjequiv.
+      simple refine (_ ,, _).
+      - exact trivial_cartesian_1cell_left_adj_data.
+      - exact trivial_cartesian_1cell_left_equiv_axioms.
+    Defined.
+  End Cartesian1CellToAdjEquiv.
 
   Definition trivial_global_cleaving
     : global_cleaving (trivial_displayed_bicat B₁ B₂).
@@ -236,34 +268,6 @@ Section ConstantFibration.
     simple refine (y₁ ,, id₁ _ ,, _) ; cbn.
     apply trivial_cartesian_1cell.
     apply (internal_adjoint_equivalence_identity y₁).
-    (*
-    use tpair.
-    - unfold lift_1cell ; cbn.
-      intros c cc h gg.
-      simple refine (gg ,, _) ; cbn.
-      simple refine (runitor _ ,, _).
-      use trivial_is_invertible_2cell_to_is_disp_invertible.
-      is_iso.
-    - cbn ; unfold lift_2cell, lift_2cell_type ; cbn -[iscontr].
-      intros.
-      rewrite transportf_const.
-      unfold idfun.
-      use iscontraprop1.
-      + use invproofirrelevance.
-        intros φ₁ φ₂.
-        use subtypePath ; [ intro ; apply cellset_property | ].
-        pose (pr2 φ₁) as p₁.
-        pose (pr2 φ₂) as p₂.
-        cbn in p₁, p₂.
-        rewrite vcomp_runitor in p₁, p₂.
-        pose (p₁ @ !p₂) as r.
-        use (vcomp_lcancel _ _ r).
-        is_iso.
-      + simple refine (σσ ,, _).
-        cbn.
-        rewrite vcomp_runitor.
-        apply idpath.
-        *)
   Defined.
 
   Definition trivial_lwhisker_cartesian
@@ -288,8 +292,8 @@ Section ConstantFibration.
     apply Hαα.
   Qed.
 
-  Definition trivial_fibration_of_bicats
-    : fibration_of_bicats (trivial_displayed_bicat B₁ B₂).
+  Definition trivial_cleaving_of_bicats
+    : cleaving_of_bicats (trivial_displayed_bicat B₁ B₂).
   Proof.
     repeat split.
     - exact trivial_local_cleaving.
@@ -297,15 +301,16 @@ Section ConstantFibration.
     - exact trivial_lwhisker_cartesian.
     - exact trivial_rwhisker_cartesian.
   Defined.
-End ConstantFibration.
+End ConstantCleaving.
 
 (**
-The domain displayed bicategory is a fibration
+The domain displayed bicategory has a cleaving
  *)
-Section DomainFibration.
+Section DomainCleaving.
   Context {B : bicat}
           (a : B).
 
+  (** Every 2-cell is cartesian *)
   Definition dom_is_cartesian_2cell
              {c₁ c₂ : B}
              {s₁ s₂ : c₁ --> c₂}
@@ -343,6 +348,7 @@ Section DomainFibration.
       apply dom_is_cartesian_2cell.
   Defined.
 
+  (** Characterizations of cartesian 1-cells *)
   Definition dom_invertible_2cell_is_cartesian_1cell
              {c₁ c₂ : B}
              {s : c₁ --> c₂}
@@ -363,17 +369,17 @@ Section DomainFibration.
              apply maponpaths_2 ;
              rewrite id2_rwhisker ;
              etrans ;
-               [ apply maponpaths_2 ;
-                 rewrite !vassocl ;
-                 rewrite lwhisker_vcomp ;
-                 rewrite vcomp_rinv ;
-                 rewrite lwhisker_id2 ;
-                 apply id2_right
-               | ] ;
+             [ apply maponpaths_2 ;
+               rewrite !vassocl ;
+               rewrite lwhisker_vcomp ;
+               rewrite vcomp_rinv ;
+               rewrite lwhisker_id2 ;
+               apply id2_right
+             | ] ;
              apply rassociator_lassociator).
         * apply dom_disp_locally_groupoid.
     - cbn.
-      intros c₃ t₃ s₁ s₂ α αα β ββ ; cbn in *.
+      intros c₃ t₃ s₁ s₂ α αα β ββ Lh Lh' ; cbn in *.
       use iscontraprop1.
       + abstract
           (use invproofirrelevance ;
@@ -383,13 +389,23 @@ Section DomainFibration.
       + cbn.
         simple  refine (_ ,, _).
         * abstract
-            (rewrite ββ ;
+            (use (vcomp_lcancel (s₁ ◃ ss)) ; [ is_iso ; apply Hss | ] ;
+             use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ] ;
+             unfold disp_mor_lift_1cell ;
+             rewrite !vassocr ;
+             refine (pr12 Lh @ _) ;
+             cbn ;
+             rewrite id2_rwhisker, id2_left ;
+             rewrite ββ ;
+             pose (p := pr12 Lh') ;
+             cbn in p ;
+             rewrite id2_rwhisker, id2_left in p ;
+             rewrite <- p ;
              rewrite !vassocr ;
              apply maponpaths_2 ;
-             rewrite vcomp_whisker ;
+             rewrite rwhisker_rwhisker_alt ;
              rewrite !vassocl ;
-             apply maponpaths ;
-             rewrite rwhisker_rwhisker ;
+             rewrite vcomp_whisker ;
              apply idpath).
         * apply cellset_property.
   Defined.
@@ -423,10 +439,38 @@ Section DomainFibration.
       rewrite d.
       rewrite linvunitor_lunitor.
       apply idpath.
-    - pose (pr2 Hss).
-      unfold lift_2cell in l.
-      cbn in l.
-      apply TODO.
+    - pose (@cartesian_1cell_lift_2cell
+              _ _ _ _ _ _ _ _ Hss
+              c₁
+              t₁
+              (id₁ _) (id₁ _)
+              (rassociator _ _ _ • lunitor _ • ss)
+              (rassociator _ _ _ • lunitor _ • ss)
+              (id2 _)) as lift2.
+      cbn in lift2.
+      rewrite !id2_rwhisker, !id2_left in lift2.
+      pose (lift2 (idpath _)) as l'.
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+      rewrite id2_right.
+      refine (_ @ id2_left _).
+      use (l' (pr1 p • ss ,, _) (lunitor _ ,, _)) ; cbn.
+      + simple refine (_ ,, _).
+        * cbn.
+          rewrite id2_rwhisker, id2_left.
+          rewrite !vassocl.
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite d.
+          apply idpath.
+        * apply dom_disp_locally_groupoid.
+      + simple refine (_ ,, _).
+        * cbn.
+          rewrite id2_rwhisker, id2_left.
+          rewrite !vassocl.
+          rewrite vcomp_lunitor.
+          apply idpath.
+        * apply dom_disp_locally_groupoid.
   Qed.
 
   Definition dom_global_cleaving
@@ -438,8 +482,8 @@ Section DomainFibration.
     is_iso.
   Defined.
 
-  Definition dom_fibration_of_bicats
-    : fibration_of_bicats (dom_disp_bicat B a).
+  Definition dom_cleaving_of_bicats
+    : cleaving_of_bicats (dom_disp_bicat B a).
   Proof.
     repeat split.
     - exact dom_local_cleaving.
@@ -449,13 +493,13 @@ Section DomainFibration.
     - intro ; intros.
       apply dom_is_cartesian_2cell.
   Defined.
-End DomainFibration.
+End DomainCleaving.
 
 (**
-The codomain displayed bicategory is a fibration
+The codomain displayed bicategory has a cleaving
 Here we assume that every 2-cell is invertible
  *)
-Section CodomainFibration.
+Section CodomainCleaving.
   Context (B : bicat).
 
   Definition cod_invertible_is_cartesian_2cell
@@ -535,6 +579,7 @@ Section CodomainFibration.
         is_iso.
   Defined.
 
+  (** Characterization of cartesian 1-cells *)
   Section PullbackToCartesian.
     Context {x y : B}
             {f : x --> y}
@@ -610,9 +655,10 @@ Section CodomainFibration.
     Definition is_pb_to_cartesian_1cell
       : cartesian_1cell (cod_disp_bicat B) (π ,, p).
     Proof.
+      (*
       simple refine (_ ,, _).
       - exact @is_pb_to_cartesian_lift_1cell.
-      - intros z hz g₁ g₂ hg₁ hg₂ α αα.
+      - intros z hz g₁ g₂ hg₁ hg₂ α αα Lh Lh'.
         use iscontraprop1.
         + apply TODO.
         + simple refine (_ ,, _).
@@ -680,6 +726,8 @@ Section CodomainFibration.
                    exact (inv_of_invertible_2cell
                             (make_invertible_2cell (inv_B _ _ _ _ (pr1 αα)))).
                 *)
+                *)
+      apply TODO.
     Defined.
   End PullbackToCartesian.
 
@@ -695,12 +743,12 @@ Section CodomainFibration.
     - exact (pb_cone_pr1 pb₁).
     - exact (pb_cone_pr2 pb₁).
     - exact (pb_cone_cell pb₁).
-    - refine (is_pb_to_cartesian_1cell _ _ _).
-      exact pb₂.
+    - apply is_pb_to_cartesian_1cell.
+      (*exact pb₂.*)
   Defined.
 
-  Definition cod_fibration_of_bicats
-    : fibration_of_bicats (cod_disp_bicat B).
+  Definition cod_cleaving_of_bicats
+    : cleaving_of_bicats (cod_disp_bicat B).
   Proof.
     repeat split.
     - exact cod_local_cleaving.
@@ -712,12 +760,12 @@ Section CodomainFibration.
       apply cod_invertible_is_cartesian_2cell.
       apply inv_B.
   Defined.
-End CodomainFibration.
+End CodomainCleaving.
 
 Definition cod_fibration_one_types
-  : fibration_of_bicats (cod_disp_bicat one_types).
+  : cleaving_of_bicats (cod_disp_bicat one_types).
 Proof.
-  use cod_fibration_of_bicats.
+  use cod_cleaving_of_bicats.
   - exact @one_type_2cell_iso.
   - exact has_pb_one_types.
 Defined.
@@ -1505,26 +1553,26 @@ Defined.
 
 
 
-Definition fib_of_fibs_is_cartesian_2cell
-           {C₁ C₂ : bicat_of_cats}
+Definition cleaving_of_fibs_is_cartesian_2cell
+           {C₁ C₂ : bicat_of_univ_cats}
            {F₁ F₂ : C₁ --> C₂}
            {α : F₁ ==> F₂}
-           {D₁ : DispBicatOfFibs C₁}
-           {D₂ : DispBicatOfFibs C₂}
+           {D₁ : disp_bicat_of_fibs C₁}
+           {D₂ : disp_bicat_of_fibs C₂}
            {FF₁ : D₁ -->[ F₁ ] D₂}
            {FF₂ : D₁ -->[ F₂ ] D₂}
            (αα : FF₁ ==>[ α ] FF₂)
            (Hαα : ∏ (x : (C₁ : univalent_category))
-                    (xx : (pr1 D₁ : disp_cat _) x),
+                    (xx : (pr1 D₁ : disp_univalent_category _) x),
                   is_cartesian (pr11 αα x xx))
-  : is_cartesian_2cell DispBicatOfFibs αα.
+  : is_cartesian_2cell disp_bicat_of_fibs αα.
 Proof.
   intros G GG β βα.
   use iscontraprop1.
   - abstract
       (use invproofirrelevance ;
        intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply DispBicatOfFibs | ] ;
+       use subtypePath ; [ intro ; apply disp_bicat_of_fibs | ] ;
        use subtypePath ; [ intro ; apply isapropunit | ] ;
        use disp_nat_trans_eq ;
        intros x xx ;
@@ -1544,18 +1592,18 @@ Proof.
          apply cartesian_factorisation_commutes).
 Defined.
 
-Definition fib_of_fibs_cartesian_2cell_is_pointwise_cartesian
-           {C₁ C₂ : bicat_of_cats}
+Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
+           {C₁ C₂ : bicat_of_univ_cats}
            {F₁ F₂ : C₁ --> C₂}
            {α : F₁ ==> F₂}
-           {D₁ : DispBicatOfFibs C₁}
-           {D₂ : DispBicatOfFibs C₂}
+           {D₁ : disp_bicat_of_fibs C₁}
+           {D₂ : disp_bicat_of_fibs C₂}
            {FF₁ : D₁ -->[ F₁ ] D₂}
            {FF₂ : D₁ -->[ F₂ ] D₂}
            (αα : FF₁ ==>[ α ] FF₂)
-           (Hαα : is_cartesian_2cell DispBicatOfFibs αα)
+           (Hαα : is_cartesian_2cell disp_bicat_of_fibs αα)
            (x : (C₁ : univalent_category))
-           (xx : (pr1 D₁ : disp_cat _) x)
+           (xx : (pr1 D₁ : disp_univalent_category _) x)
   : is_cartesian (pr11 αα x xx).
 Proof.
   intros z g zz gg.
@@ -1579,74 +1627,75 @@ Proof.
   apply TODO.
 Defined.
 
-Definition fib_of_fibs_local_cleaving
-  : local_cleaving DispBicatOfFibs.
+Definition cleaving_of_fibs_local_cleaving
+  : local_cleaving disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ D₁ D₂ F G GG α.
   cbn in *.
   simple refine (_ ,, _).
   - simple refine (_ ,, _).
-    + exact (cartesian_factorisation_disp_functor (pr22 D₂) (pr1 GG) α).
+    + exact (cartesian_factorisation_disp_functor (pr2 D₂) (pr1 GG) α).
     + apply cartesian_factorisation_disp_functor_is_cartesian.
       exact (pr2 GG).
   - simpl.
     simple refine ((_ ,, tt) ,, _).
-    + exact (cartesian_factorisation_disp_functor_cell (pr22 D₂) (pr1 GG) α).
-    + apply fib_of_fibs_is_cartesian_2cell.
+    + exact (cartesian_factorisation_disp_functor_cell (pr2 D₂) (pr1 GG) α).
+    + apply cleaving_of_fibs_is_cartesian_2cell.
       apply cartesian_factorisation_disp_functor_cell_is_cartesian.
 Defined.
 
-Definition fib_of_fibs_lwhisker_cartesian
-  : lwhisker_cartesian DispBicatOfFibs.
+Definition cleaving_of_fibs_lwhisker_cartesian
+  : lwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  apply fib_of_fibs_is_cartesian_2cell.
+  apply cleaving_of_fibs_is_cartesian_2cell.
   intros x xx ; cbn.
-  apply (fib_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
+  apply (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
 Defined.
 
-Definition fib_of_fibs_rwhisker_cartesian
-  : rwhisker_cartesian DispBicatOfFibs.
+Definition cleaving_of_fibs_rwhisker_cartesian
+  : rwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  apply fib_of_fibs_is_cartesian_2cell.
+  apply cleaving_of_fibs_is_cartesian_2cell.
   intros x xx ; cbn.
   pose (pr2 GG) as m.
   cbn in m.
   apply m.
-  apply (fib_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
+  apply (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
 Defined.
 
-Definition fib_of_fibs_lift_obj
-           {C₁ C₂ : bicat_of_cats}
-           (D₂ : DispBicatOfFibs C₂)
+Definition cleaving_of_fibs_lift_obj
+           {C₁ C₂ : bicat_of_univ_cats}
+           (D₂ : disp_bicat_of_fibs C₂)
            (F : C₁ --> C₂)
-  : DispBicatOfFibs C₁.
+  : disp_bicat_of_fibs C₁.
 Proof.
-  simple refine (reindex_disp_cat F (pr1 D₂) ,, _ ,, _) ; cbn.
-  - exact (is_univalent_reindex_disp_cat F _ (pr12 D₂)).
-  - exact (cleaving_reindex_disp_cat F (pr1 D₂) (pr22 D₂)).
+  simple refine ((_ ,, _) ,, _).
+  - exact (reindex_disp_cat F (pr11 D₂)).
+  - exact (is_univalent_reindex_disp_cat F _ (pr21 D₂)).
+  - exact (cleaving_reindex_disp_cat F _ (pr2 D₂)).
 Defined.
 
-Definition fib_of_fibs_lift_mor
-           {C₁ C₂ : bicat_of_cats}
-           (D₂ : DispBicatOfFibs C₂)
+Definition cleaving_of_fibs_lift_mor
+           {C₁ C₂ : bicat_of_univ_cats}
+           (D₂ : disp_bicat_of_fibs C₂)
            (F : C₁ --> C₂)
-  : fib_of_fibs_lift_obj D₂ F -->[ F ] D₂.
+  : cleaving_of_fibs_lift_obj D₂ F -->[ F ] D₂.
 Proof.
   simple refine (_ ,, _).
-  - exact (reindex_disp_cat_disp_functor F (pr1 D₂)).
-  - exact (is_cartesian_reindex_disp_cat_disp_functor F (pr1 D₂)).
+  - exact (reindex_disp_cat_disp_functor F (pr11 D₂)).
+  - exact (is_cartesian_reindex_disp_cat_disp_functor F (pr11 D₂)).
 Defined.
 
-Definition fib_of_fibs_lift_mor_lift_1cell
-           {C₁ C₂ C₃ : bicat_of_cats}
-           {D₂ : DispBicatOfFibs C₂}
-           {D₃ : DispBicatOfFibs C₃}
+Definition cleaving_of_fibs_lift_mor_lift_1cell
+           {C₁ C₂ C₃ : bicat_of_univ_cats}
+           {D₂ : disp_bicat_of_fibs C₂}
+           {D₃ : disp_bicat_of_fibs C₃}
            {F : C₁ --> C₂}
            {H : C₃ --> C₁}
            (HH : D₃ -->[ H · F] D₂)
-  : lift_1cell DispBicatOfFibs (fib_of_fibs_lift_mor D₂ F) HH.
+  : lift_1cell disp_bicat_of_fibs (cleaving_of_fibs_lift_mor D₂ F) HH.
 Proof.
   simple refine (_ ,, _).
   - simple refine (_ ,, _).
@@ -1654,27 +1703,27 @@ Proof.
     + exact (is_cartesian_lift_functor_into_reindex (pr2 HH)).
   - simple refine ((_ ,, tt) ,, _).
     + exact (lift_functor_into_reindex_commute (pr1 HH)).
-    + apply DispBicatOfFibs_is_disp_invertible_2cell.
+    + apply disp_bicat_of_fibs_is_disp_invertible_2cell.
       intros x xx.
       apply id_is_iso_disp.
 Defined.
 
-Definition fib_of_fibs_lift_mor_lift_2cell
-           {C₁ C₂ C₃ : bicat_of_cats}
+Definition cleaving_of_fibs_lift_mor_lift_2cell
+           {C₁ C₂ C₃ : bicat_of_univ_cats}
            {F : C₁ --> C₂}
            {H₁ H₂ : C₃ --> C₁}
            {α : H₁ ==> H₂}
-           {D₂ : DispBicatOfFibs C₂}
-           {D₃ : DispBicatOfFibs C₃}
+           {D₂ : disp_bicat_of_fibs C₂}
+           {D₃ : disp_bicat_of_fibs C₃}
            {HH₁ : D₃ -->[ H₁ · F] D₂}
            {HH₂ : D₃ -->[ H₂ · F] D₂}
            (αα : HH₁ ==>[ α ▹ F] HH₂)
   : lift_2cell
-      DispBicatOfFibs
-      (fib_of_fibs_lift_mor D₂ F)
+      disp_bicat_of_fibs
+      (cleaving_of_fibs_lift_mor D₂ F)
       αα
-      (fib_of_fibs_lift_mor_lift_1cell HH₁)
-      (fib_of_fibs_lift_mor_lift_1cell HH₂).
+      (cleaving_of_fibs_lift_mor_lift_1cell HH₁)
+      (cleaving_of_fibs_lift_mor_lift_1cell HH₂).
 Proof.
   use iscontraprop1.
   - apply TODO.
@@ -1692,35 +1741,38 @@ Proof.
       apply TODO.
 Defined.
 
-Definition fib_of_fibs_lift_mor_cartesian
-           {C₁ C₂ : bicat_of_cats}
-           (D₂ : DispBicatOfFibs C₂)
+Definition cleaving_of_fibs_lift_mor_cartesian
+           {C₁ C₂ : bicat_of_univ_cats}
+           (D₂ : disp_bicat_of_fibs C₂)
            (F : C₁ --> C₂)
-  : cartesian_1cell DispBicatOfFibs (fib_of_fibs_lift_mor D₂ F).
+  : cartesian_1cell disp_bicat_of_fibs (cleaving_of_fibs_lift_mor D₂ F).
 Proof.
   simple refine (_ ,, _).
   - intros C₃ D₃ H HH.
-    exact (fib_of_fibs_lift_mor_lift_1cell HH).
-  - intros C₃ D₃ H₁ H₂ HH₁ HH₂ α αα.
-    exact (fib_of_fibs_lift_mor_lift_2cell αα).
+    exact (cleaving_of_fibs_lift_mor_lift_1cell HH).
+  - intros C₃ D₃ H₁ H₂ HH₁ HH₂ α αα Lh Lh'.
+    apply TODO.
+    (*
+    exact (cleaving_of_fibs_lift_mor_lift_2cell αα).
+     *)
 Defined.
 
-Definition fib_of_fibs_global_cleaving
-  : global_cleaving DispBicatOfFibs.
+Definition cleaving_of_fibs_global_cleaving
+  : global_cleaving disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ D₂ F.
   simple refine (_ ,, _ ,, _).
-  - exact (fib_of_fibs_lift_obj D₂ F).
-  - exact (fib_of_fibs_lift_mor D₂ F).
-  - exact (fib_of_fibs_lift_mor_cartesian D₂ F).
+  - exact (cleaving_of_fibs_lift_obj D₂ F).
+  - exact (cleaving_of_fibs_lift_mor D₂ F).
+  - exact (cleaving_of_fibs_lift_mor_cartesian D₂ F).
 Defined.
 
-Definition fib_of_fibs
-  : fibration_of_bicats DispBicatOfFibs.
+Definition cleaving_of_fibs
+  : cleaving_of_bicats disp_bicat_of_fibs.
 Proof.
   repeat split.
-  - exact fib_of_fibs_local_cleaving.
-  - exact fib_of_fibs_global_cleaving.
-  - exact fib_of_fibs_lwhisker_cartesian.
-  - exact fib_of_fibs_rwhisker_cartesian.
+  - exact cleaving_of_fibs_local_cleaving.
+  - exact cleaving_of_fibs_global_cleaving.
+  - exact cleaving_of_fibs_lwhisker_cartesian.
+  - exact cleaving_of_fibs_rwhisker_cartesian.
 Defined.
