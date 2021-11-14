@@ -204,6 +204,16 @@ Definition prebicat_laws (C : prebicat_data)
         (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
         lassociator f g _  • lassociator _ _ _).
 
+Lemma isaprop_prebicat_laws
+           (B : prebicat_data)
+           (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
+  : isaprop (prebicat_laws B).
+Proof.
+  repeat (apply isapropdirprod)
+  ; repeat (apply impred ; intro)
+  ; apply H.
+Qed.
+
 Definition prebicat : UU := ∑ C : prebicat_data, prebicat_laws C.
 
 Coercion prebicat_data_from_bicat (C : prebicat) : prebicat_data := pr1 C.

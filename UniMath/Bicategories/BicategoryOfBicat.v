@@ -9,6 +9,8 @@
 (* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                          *)
 (* =================================================================================== *)
 
+(* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -103,9 +105,9 @@ Lemma prebicat_associator_and_unitors_are_iso
   : associator_and_unitors_are_iso bicate_data.
 Proof.
   repeat split; cbn; intros.
-  - apply is_iso_lassociator.
-  - apply is_iso_lunitor.
-  - apply is_iso_runitor.
+  - apply is_z_iso_lassociator.
+  - apply is_z_iso_lunitor.
+  - apply is_z_iso_runitor.
 Defined.
 
 Lemma triangle_identity {a b c : C} (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧)
@@ -152,10 +154,8 @@ Hypothesis sc : isaset_cells C.
 Lemma is_prebicategory_bicate : is_prebicategory bicate_data.
 Proof.
   split.
-  - apply sc.
-  - split.
-    + exact prebicat_associator_and_unitors_are_iso.
-    + exact prebicat_prebicategory_coherence.
+  - exact prebicat_associator_and_unitors_are_iso.
+  - exact prebicat_prebicategory_coherence.
 Qed.
 
 Definition prebicategory_of_prebicat : prebicategory.
