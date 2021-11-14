@@ -17,13 +17,13 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Local Definition CAT := bicat_of_cats_nouniv.
+Local Definition CAT : bicat := bicat_of_cats.
 
 Local Definition lwhisker := @lwhisker CAT.
 

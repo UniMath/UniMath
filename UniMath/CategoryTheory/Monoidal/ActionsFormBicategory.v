@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
@@ -41,7 +41,7 @@ Local Definition α' : associator tensor := monoidal_cat_associator Mon_V.
 Local Definition λ' : left_unitor tensor I := monoidal_cat_left_unitor Mon_V.
 Local Definition ρ' : right_unitor tensor I := monoidal_cat_right_unitor Mon_V.
 
-Let CAT := bicat_of_cats_nouniv.
+Let CAT : bicat := bicat_of_cats.
 
 Definition actions_disp_cat_ob_mor : disp_cat_ob_mor CAT.
 Proof.

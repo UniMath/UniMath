@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -258,7 +258,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
   Definition functor_ptd_forget_alt
     : category_Ptd C
       ⟶
-      category_from_bicat_and_ob(C:=bicat_of_cats_nouniv) C.
+      category_from_bicat_and_ob(C:=bicat_of_cats) C.
   Proof.
     use make_functor.
     - exists (λ a, pr1 a).
@@ -267,7 +267,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
   Defined.
 
   Local Definition aux : monoidal_functor_map (monoidal_cat_of_pointedfunctors _)
-                                              (monoidal_cat_from_bicat_and_ob(C:=bicat_of_cats_nouniv) C) functor_ptd_forget_alt.
+                                              (monoidal_cat_from_bicat_and_ob(C:=bicat_of_cats) C) functor_ptd_forget_alt.
   Proof.
     red.
     use make_nat_trans.
@@ -278,11 +278,11 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
 
   Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt
    : strong_monoidal_functor (monoidal_cat_of_pointedfunctors C)
-                                              (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats_nouniv) C).
+                                              (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C).
   Proof.
     use tpair.
     - apply (mk_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
-                       (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats_nouniv) C)
+                       (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C)
                        functor_ptd_forget_alt (nat_trans_id _) aux).
       + abstract
           (intros PF1 PF2 PF3 ;
@@ -321,7 +321,7 @@ Local Definition forget := swapping_of_strong_monoidal_functor(forgetful_functor
 
 (* the following in order to understand why [forgetful_functor_from_ptd_as_strong_monoidal_functor_alt] is needed here *)
 Local Definition monprecat1 : monoidal_cat := swapping_of_monoidal_cat (EndofunctorsMonoidal.monoidal_cat_of_endofunctors C).
-Local Definition monprecat2 := Mon_endo (C:=bicat_of_cats_nouniv) C.
+Local Definition monprecat2 := Mon_endo (C:=bicat_of_cats) C.
 
 (*
 Lemma same_precategory : pr1 monprecat1 = pr1 monprecat2.
@@ -359,10 +359,10 @@ Lemma same_I : pr222 monprecat1 = pr222 monprecat2.
  *)
 
 Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
-Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) C D')
-    := ab_strength_domain_action(C:=bicat_of_cats_nouniv) C D' forget.
-Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) C D)
-    := ab_strength_target_action(C:=bicat_of_cats_nouniv) C D forget.
+Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats) C D')
+    := ab_strength_domain_action(C:=bicat_of_cats) C D' forget.
+Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats) C D)
+    := ab_strength_target_action(C:=bicat_of_cats) C D forget.
 
 
 Section Signature_From_ActionBased_Strength.
@@ -373,13 +373,13 @@ Section IndividualFunctorsWithABStrength.
 
 
   Definition ab_strength_for_functors_and_pointed_functors : UU
-    := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) C D D' forget H.
+    := ab_strength_on_homs_in_bicat(C:=bicat_of_cats) C D D' forget H.
 
   Definition ab_strength_for_functors_and_pointed_functors_to_actionbased_strength
              (ab_str : ab_strength_for_functors_and_pointed_functors) :
     actionbased_strength (swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C))
-                         (ab_strength_domain_action(C:=bicat_of_cats_nouniv) C D' forget)
-                         (ab_strength_target_action(C:=bicat_of_cats_nouniv) C D forget) H
+                         (ab_strength_domain_action(C:=bicat_of_cats) C D' forget)
+                         (ab_strength_target_action(C:=bicat_of_cats) C D forget) H
     := ab_str.
   Coercion ab_strength_for_functors_and_pointed_functors_to_actionbased_strength :
     ab_strength_for_functors_and_pointed_functors >-> actionbased_strength.
@@ -610,7 +610,7 @@ Section IndividualSignatures.
   Context (sig : Signature C D D').
 
   Local Lemma aux0 ( x : [C, D'] ⊠ Mon_endo') :
-    hom(C:=bicat_of_cats_nouniv) C D
+    hom(C:=bicat_of_cats) C D
        ⟦ actionbased_strength_dom Mon_endo' target_action sig x,
          actionbased_strength_codom Mon_endo' domain_action sig x ⟧
     = functor_composite_data (pr12 x) (pr1 (sig (pr1 x))) ⟹  pr1 (sig (pr12 x ∙ pr1 x)).
@@ -791,7 +791,7 @@ Section Morphisms.
   Defined.
 
   Lemma ab_strength_mor_from_signature_mor_diagram
-        (a : hom(C:=bicat_of_cats_nouniv) C D')
+        (a : hom(C:=bicat_of_cats) C D')
         (v : Mon_endo') :
    Strong_Functor_Category_mor_diagram Mon_endo' domain_action target_action
     (ab_strong_functor_from_signature sig1)
@@ -1090,14 +1090,14 @@ Proof.
     + intro sig.
       apply Strong_Functor_Category_Mor_eq.
       cbn.
-      apply nat_trans_eq; [ apply (has_homsets_hom_data(C:=bicat_of_cats_nouniv)) |].
+      apply nat_trans_eq; [ apply (has_homsets_hom_data(C:=bicat_of_cats)) |].
       intro X.
       cbn.
       apply (id_left(C:=[C, D])).
     + intro FF.
       apply SignatureMor_eq.
       cbn.
-      apply nat_trans_eq; [ apply (has_homsets_hom_data(C:=bicat_of_cats_nouniv)) |].
+      apply nat_trans_eq; [ apply (has_homsets_hom_data(C:=bicat_of_cats)) |].
       intro X.
       cbn.
       apply (id_left(C:=[C, D])).
@@ -1130,7 +1130,7 @@ Proof.
   change (is_univalent
               (Strong_Functor_category Mon_endo' domain_action target_action (homset_property univalentA'))).
   assert (target_action' := target_action).
-  change (action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
+  change (action Mon_endo' (hom(C:=bicat_of_cats) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
 
 (*
     exact (is_univalent_Strong_Functor_precategory Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').
@@ -1139,7 +1139,7 @@ Proof.
 
  (* the following lemma can only come from univalence of the involved categories *)
 Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
-  is_inverse_in_precat(C:=bicat_of_cats_nouniv)
+  is_inverse_in_precat(C:=bicat_of_cats)
                       (a:=Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
                       (b:=Strong_Functor_category Mon_endo' domain_action target_action
                                                   (functor_category_has_homsets _ _ hsD))
@@ -1149,7 +1149,7 @@ Proof.
 
 (*
 Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :
-  z_iso(C:=bicat_of_cats_nouniv) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
+  z_iso(C:=bicat_of_cats) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
                       (Strong_Functor_category Mon_endo' domain_action target_action
                                                (functor_category_has_homsets _ _ hsD)).
 Proof.
@@ -1184,14 +1184,14 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
       (* for checking purposes: *)
       assert (target := target_action C (homset_property C) D (homset_property D)).
       (* the following works but does not help in the sequel:
-      change (action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats_nouniv) C (univalent_category_to_category D))) in target. *)
+      change (action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats) C (univalent_category_to_category D))) in target. *)
       assert (test1 : pr1 univalentA' = [C, D, homset_property D]).
       { apply idpath. }
       clear test1.
       set (test2 := pr22 univalentA').
       cbn in test2. unfold functor_category_has_homsets in test2.
-      set (test3 := pr2 bicat_of_cats_nouniv C (univalent_category_to_category D)).
-      cbn in test3. unfold isaset_cells_prebicat_of_cats_nouniv in test3.
+      set (test3 := pr2 bicat_of_cats C (univalent_category_to_category D)).
+      cbn in test3. unfold isaset_cells_prebicat_of_cats in test3.
       assert (test4 : test3 = test2).
       { apply idpath. } (* okay thanks to changes in UniMath/Bicategories/Core/Examples/BicatOfCatsWithoutUnivalence.v
        and UniMath/CategoryTheory/FunctorCategory.v  *)
@@ -1200,7 +1200,7 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
       change (action (Mon_endo' C (homset_property C)) (univalentA')) in target. *)
 
       (*
-      assert (Hyp: action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats_nouniv) C (univalent_category_to_category D)) <->
+      assert (Hyp: action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats) C (univalent_category_to_category D)) <->
                    action (Mon_endo' C (homset_property C)) (univalentA')).
       { split.
         intro act.
@@ -1211,7 +1211,7 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
       }
 *)
       set (what_we_want_without_last_argument := is_univalent_Strong_Functor_precategory (Mon_endo' C (homset_property C))
-                                                     (hom(C:=bicat_of_cats_nouniv) C D')
+                                                     (hom(C:=bicat_of_cats) C D')
                                                      univalentA'
                                                      (domain_action C (homset_property C) D' (homset_property D'))).
       (* does not terminate

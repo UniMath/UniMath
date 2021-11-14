@@ -539,6 +539,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [CohomologyComplex.v](HomologicalAlgebra/CohomologyComplex.v)
    - [All.v](HomologicalAlgebra/All.v)
 ## Package [AlgebraicGeometry](AlgebraicGeometry/README.md)
+   - [Topology.v](AlgebraicGeometry/Topology.v)
+   - [Sheaf.v](AlgebraicGeometry/Sheaf.v)
    - [Spec.v](AlgebraicGeometry/Spec.v)
    - [All.v](AlgebraicGeometry/All.v)
 ## Package [Paradoxes](Paradoxes/README.md)

@@ -27,7 +27,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 
 Local Open Scope cat.
 
-(*
+
 (* ------------------------------------------------------------------------- *)
 (* Missing lemmas.                                                           *)
 (* ------------------------------------------------------------------------- *)
@@ -191,4 +191,3 @@ Defined.
 Definition bcat : prebicat := (bcat_data,, bcat_laws).
 
 End unfold_data.
- *)

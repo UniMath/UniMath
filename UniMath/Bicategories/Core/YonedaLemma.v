@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Adjunctions.
@@ -41,7 +41,7 @@ Opaque psfunctor.
 Section YonedaLemma.
   Context {B : bicat}.
   Variable (B_is_univalent_2_1 : is_univalent_2_1 B)
-           (F : psfunctor (op1_bicat B) bicat_of_cats)
+           (F : psfunctor (op1_bicat B) bicat_of_univ_cats)
            (X : B).
 
   (** First, we construct a functor from the yoneda to the presheaf *)
@@ -66,7 +66,7 @@ Section YonedaLemma.
     : functor_data
         (univ_hom
            (psfunctor_bicat_is_univalent_2_1
-              (op1_bicat B) bicat_of_cats
+              (op1_bicat B) bicat_of_univ_cats
               univalent_cat_is_univalent_2_1)
            (y B_is_univalent_2_1 X) F)
         (F X : univalent_category).
@@ -88,7 +88,7 @@ Section YonedaLemma.
 
 
   Definition yoneda_to_presheaf
-    : bicat_of_cats
+    : bicat_of_univ_cats
         ⟦ univ_hom
             (psfunctor_bicat_is_univalent_2_1
                _ _ univalent_cat_is_univalent_2_1)
@@ -143,7 +143,7 @@ Section YonedaLemma.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor
                (Y : op1_bicat B)
-      : bicat_of_cats ⟦ @univ_hom B B_is_univalent_2_1 Y X , F Y ⟧.
+      : bicat_of_univ_cats ⟦ @univ_hom B B_is_univalent_2_1 Y X , F Y ⟧.
     Proof.
       use make_functor.
       - exact (presheaf_to_yoneda_ob_pstrans_functor_data Y).
@@ -357,7 +357,7 @@ Section YonedaLemma.
         (F X : univalent_category)
         (univ_hom
            (psfunctor_bicat_is_univalent_2_1
-              (op1_bicat B) bicat_of_cats
+              (op1_bicat B) bicat_of_univ_cats
               univalent_cat_is_univalent_2_1) ((y B_is_univalent_2_1) X) F).
   Proof.
     use make_functor_data.
@@ -392,7 +392,7 @@ Section YonedaLemma.
   Qed.
 
   Definition presheaf_to_yoneda
-    : bicat_of_cats
+    : bicat_of_univ_cats
         ⟦ F X ,
           univ_hom
             (psfunctor_bicat_is_univalent_2_1
@@ -805,7 +805,7 @@ Section YonedaLocalEquivalence.
 
   Definition yoneda_to_presheaf_representable_is_iso
     : @is_invertible_2cell
-        bicat_of_cats
+        bicat_of_univ_cats
         _ _
         (Fmor_univ (y B_is_univalent_2_1) X Y _ _ : _ ⟶ _)
         _ (yoneda_to_presheaf_representable).
@@ -825,7 +825,7 @@ Section YonedaLocalEquivalence.
 
   Definition yoneda_mor_is_equivalence
     : @left_adjoint_equivalence
-        bicat_of_cats
+        bicat_of_univ_cats
         _ _
         (Fmor_univ
            (y B_is_univalent_2_1)
@@ -837,7 +837,7 @@ Section YonedaLocalEquivalence.
   Proof.
     apply equiv_to_isadjequiv.
     exact (@iso_equiv
-            bicat_of_cats
+            bicat_of_univ_cats
             _
             _
             _

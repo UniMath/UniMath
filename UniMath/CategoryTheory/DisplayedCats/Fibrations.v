@@ -336,6 +336,17 @@ Defined.
 
 End Fibrations.
 
+Definition isaprop_cleaving
+           {C : univalent_category}
+           (D : disp_cat C)
+           (HD : is_univalent_disp D)
+  : isaprop (cleaving D).
+Proof.
+  repeat (use impred ; intro).
+  apply isaprop_cartesian_lifts.
+  exact HD.
+Defined.
+
 Section Discrete_Fibrations.
 
 Definition is_discrete_fibration {C : category} (D : disp_cat C) : UU
