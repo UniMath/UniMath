@@ -32,7 +32,7 @@ Require Import UniMath.Bicategories.Transformations.Examples.Associativity.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.Groupoids.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 
 Local Open Scope cat.
 

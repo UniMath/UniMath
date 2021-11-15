@@ -13,8 +13,8 @@ Core/UnivalenceOp.v
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
+Core/Examples/BicatOfUnivCats.v
 Core/Examples/BicatOfCats.v
-Core/Examples/BicatOfCatsWithoutUnivalence.v
 Core/Strictness.v
 Core/Examples/StrictCats.v
 Core/Examples/Initial.v
@@ -78,6 +78,8 @@ DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CwF.v
+DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
@@ -92,8 +94,9 @@ Core/YonedaLemma.v
 
 Colimits/Initial.v
 Colimits/Final.v
+Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
-PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v
+PseudoFunctors/Examples/CurryingInBicatOfCats.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v
@@ -106,7 +109,8 @@ WkCatEnrichment/whiskering.v
 WkCatEnrichment/Cat.v
 WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
+WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
+Discreteness.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
-Discreteness.v

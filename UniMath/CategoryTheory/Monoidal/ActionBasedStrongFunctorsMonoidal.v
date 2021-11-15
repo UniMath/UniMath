@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import Bicat.Notations.
 

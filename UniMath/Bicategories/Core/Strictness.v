@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Adjunctions.
@@ -435,7 +435,7 @@ Proof.
 Defined.
 
 Lemma cat_not_a_two_cat
-  : ¬ (is_strict_bicat bicat_of_cats).
+  : ¬ (is_strict_bicat bicat_of_univ_cats).
 Proof.
   intro H.
   pose (maponpaths
@@ -447,7 +447,7 @@ Proof.
                    (proofirrelevance
                       _
                       (@univalent_two_cat_2cells_are_prop
-                         (bicat_of_cats ,, H)
+                         (bicat_of_univ_cats ,, H)
                          univalent_cat_is_univalent_2_1
                          HSET_univalent_category
                          HSET_univalent_category
@@ -874,16 +874,6 @@ Proof.
   - exact (two_cat_to_bicat C).
   - exact (two_cat_is_strict_bicat C).
 Defined.
-
-Lemma isaprop_prebicat_laws
-           (B : prebicat_data)
-           (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
-  : isaprop (prebicat_laws B).
-Proof.
-  repeat (apply isapropdirprod)
-  ; repeat (apply impred ; intro)
-  ; apply H.
-Qed.
 
 Lemma strict_bicat_to_two_cat_to_strict_bicat
            (C : strict_bicat)

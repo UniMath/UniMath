@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -91,7 +91,7 @@ Section RestrictImage.
 
     Definition restrict_full_image_local_equivalence_right_adj
                (x y : B₁)
-      : bicat_of_cats
+      : bicat_of_univ_cats
           ⟦ univ_hom
               FI_is_univalent_2_1
               (restrict_full_image x)
