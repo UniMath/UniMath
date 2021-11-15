@@ -24,6 +24,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.TransportLaws.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -108,6 +109,25 @@ Section BicatCleaving.
       : disp_invertible_2cell _ (disp_mor_lift_1cell Lh;; ff) gg
       := pr2 Lh.
 
+    Definition lift_2cell_type
+               {c : B}
+               {cc : D c}
+               {h h' : c --> a}
+               {gg : cc -->[h · f ] bb}
+               {gg' : cc -->[h' · f ] bb}
+               {δ : h ==> h'}
+               (σσ : gg ==>[ δ ▹ f] gg')
+               (Lh : lift_1cell gg)
+               (Lh' : lift_1cell gg')
+      : UU
+      := ∑ (δδ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'),
+         transportf
+           (λ z, _ ==>[ z ] _)
+           (id2_right _ @ ! id2_left _ )
+           (δδ ▹▹ ff •• disp_cell_lift_1cell Lh')
+         =
+         disp_cell_lift_1cell Lh •• σσ.
+
     Definition lift_2cell
                {c : B}
                {cc : D c}
@@ -119,13 +139,7 @@ Section BicatCleaving.
                (Lh : lift_1cell gg)
                (Lh' : lift_1cell gg')
       : UU
-      := ∃! (δδ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'),
-         transportf
-           (λ z, _ ==>[ z ] _)
-           (id2_right _ @ ! id2_left _ )
-           (δδ ▹▹ ff •• disp_cell_lift_1cell Lh')
-         =
-         disp_cell_lift_1cell Lh •• σσ.
+      := iscontr (lift_2cell_type σσ Lh Lh').
 
     Definition disp_cell_lift_2cell
                {c : B}
@@ -475,18 +489,105 @@ Section Cartesian1CellViaPb.
   Defined.
 End Cartesian1CellViaPb.
 
+Definition test
+           {B : bicat}
+           {D : disp_bicat B}
+           {b₁ b₂ : B}
+           {f₁ f₂ g : b₁ --> b₂}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           (ff : bb₁ -->[ f₁ ] bb₂)
+           (gg : bb₁ -->[ g] bb₂)
+           (p : f₁ = f₂)
+           (α : f₂ ==> g)
+           (αα : ff ==>[ idtoiso_2_1 _ _ p • α ] gg)
+  : transportf
+      (λ z, _ -->[ z ] _)
+      p
+      ff
+    ==>[ α ]
+    gg.
+Proof.
+  induction p.
+  cbn in *.
+  refine (transportf (λ z, _ ==>[ z ] _) _ αα).
+  apply id2_left.
+Defined.
+
+Definition test'
+           {B : bicat}
+           {D : disp_bicat B}
+           {b₁ b₂ b₃ : B}
+           {f₁ f₂ : b₁ --> b₂}
+           {g : b₂ --> b₃}
+           {h : b₁ --> b₃}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {bb₃ : D b₃}
+           (ff : bb₁ -->[ f₁ ] bb₂)
+           (gg : bb₂ -->[ g ] bb₃)
+           (hh : bb₁ -->[ h ] bb₃)
+           (p : f₁ = f₂)
+           (α : f₂ · g ==> h)
+           (αα : transportf
+                   (λ z, _ -->[ z ] _)
+                   (maponpaths (λ z, z · g) p)
+                   (ff ;; gg)%mor_disp
+                 ==>[ α ]
+                 hh)
+  : transportf
+      (λ z, _ -->[ z ] _)
+      p
+      ff
+    ;; gg
+    ==>[ α ]
+    hh.
+Proof.
+  induction p ; cbn in *.
+  exact αα.
+Defined.
+
 Definition id1_is_cartesian_1cell
            {B : bicat}
            {D : disp_bicat B}
+           (HB_2_1 : is_univalent_2_1 B)
            {a : B}
            (aa : D a)
   : cartesian_1cell D (id_disp aa).
 Proof.
-  apply TODO.
+  split.
+  - intros b bb h hh.
+    simple refine (_ ,, _).
+    + refine (transportf
+                (λ z, _ -->[ z ] _)
+                (isotoid_2_1
+                   HB_2_1
+                   (@make_invertible_2cell
+                      _ _ _ _ _
+                      (runitor _)
+                      _))
+                hh).
+      is_iso.
+    + cbn.
+      simple refine (_ ,, _).
+      * apply test'.
+        apply test.
+        cbn.
+        simple refine (transportf
+                         (λ z, _ ==>[ z ] _)
+                         _
+                         (disp_runitor _)).
+        rewrite isotoid_2_1_rwhisker.
+        rewrite idtoiso_2_1_isotoid_2_1.
+        cbn.
+        apply TODO.
+      * apply TODO.
+  - apply TODO.
 Defined.
 
 Definition comp_is_cartesian_1cell
            {B : bicat}
+           (HB_2_1 : is_univalent_2_1 B)
            {D : disp_bicat B}
            {b₁ b₂ b₃ : B}
            {f : b₁ --> b₂}
@@ -500,7 +601,16 @@ Definition comp_is_cartesian_1cell
            (Hgg : cartesian_1cell D gg)
   : cartesian_1cell D (ff ;; gg).
 Proof.
-  apply TODO.
+  split.
+  - intros c cc h hh.
+    simple refine (_ ,, _).
+    + use (cartesian_1cell_lift_1cell D _ Hff).
+      use (cartesian_1cell_lift_1cell D _ Hgg).
+      refine (transportf (λ z, _ -->[ z ] _) _ hh).
+      refine (isotoid_2_1 HB_2_1 (lassociator _ _ _ ,, _)).
+      is_iso.
+    + apply TODO.
+  - apply TODO.
 Defined.
 
 (** 3. Properties of cartesian 2-cells *)

@@ -328,6 +328,34 @@ Section Pullback.
       : has_pb_ump
       := H₁ ,, H₂ ,, Heq.
 
+    Definition pb_2cell_contr
+               (H : has_pb_ump)
+               {q : pb_cone}
+               (φ ψ : pb_1cell q p)
+      : iscontr (pb_2cell φ ψ).
+    Proof.
+      use iscontraprop1.
+      - use invproofirrelevance.
+        intros r₁ r₂.
+        apply H.
+      - apply H.
+    Defined.
+
+    Definition pb_2cell_contr_to_ump_2_eq
+               (Hp : ∏ (q : pb_cone)
+                       (φ ψ : pb_1cell q p),
+                     iscontr (pb_2cell φ ψ))
+      : pb_ump_2 × pb_ump_eq.
+    Proof.
+      split.
+      - intros q φ ψ.
+        apply (Hp q φ ψ).
+      - intros q φ ψ η₁ η₂.
+        exact (proofirrelevance
+                 _ (isapropifcontr (Hp q φ ψ))
+                 η₁ η₂).
+    Defined.
+
     Definition pb_ump_1_1cell
                (H : has_pb_ump)
                (q : B)
