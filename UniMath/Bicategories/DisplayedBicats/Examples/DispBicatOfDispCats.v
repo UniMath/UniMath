@@ -489,3 +489,65 @@ Proof.
          apply transportf_paths ;
          apply homset_property).
 Defined.
+
+Definition TODO { A : UU } : A .
+Admitted.
+
+Definition disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+           {C C' : bicat_of_univ_cats}
+           {F G : C --> C'}
+           {α : F ==> G}
+           (Hα : is_invertible_2cell α)
+           {D : disp_bicat_of_fibs C} {D' : disp_bicat_of_fibs C'}
+           {FF : D -->[ F ] D'} {GG : D -->[ G ] D'}
+           (αα : FF ==>[ α ] GG)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+           {x : (C : univalent_category)}
+           (xx : (pr1 D : disp_univalent_category _) x)
+  : is_iso_disp
+      (make_iso
+         (pr1 α x)
+         (is_invertible_2cell_to_is_nat_iso _ Hα x))
+      (pr11 αα x xx).
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - exact (transportf
+             (λ z, _ -->[ z ] _)
+             (!(id_right _))
+             (pr111 Hαα x xx)).
+  - (*unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    pose (p := maponpaths (λ z, pr11 z x xx) (pr22 Hαα)).
+    cbn in p.
+    cbn.
+    refine (maponpaths (λ z, transportf _ _ z) p @ _) ; clear p.
+    unfold transportb.*)
+    apply TODO.
+  - apply TODO.
+    Time Defined.
+(*  -
+      (unfold transportb ;
+       rewrite mor_disp_transportf_postwhisker ;
+       pose (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) as p ;
+       simpl in p ;
+       unfold transportb in p ;
+       rewrite pr1_transportf in p ;
+       rewrite disp_nat_trans_transportf in p ;
+       refine (maponpaths _ p @ _) ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  -
+      (unfold transportb ;
+       rewrite mor_disp_transportf_prewhisker ;
+       pose (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) as p ;
+       simpl in p ;
+       unfold transportb in p ;
+       rewrite pr1_transportf in p ;
+       rewrite disp_nat_trans_transportf in p ;
+       refine (maponpaths _ p @ _) ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+Defined.
+ *)

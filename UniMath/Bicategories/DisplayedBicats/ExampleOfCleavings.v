@@ -1873,6 +1873,10 @@ Proof.
   - exact (lift_functor_into_reindex_disp_nat_trans_axioms αα).
 Defined.
 
+
+
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
 (*********************************************************************
  *********************************************************************
  *********************************************************************
@@ -2041,38 +2045,300 @@ Proof.
       apply id_is_iso_disp.
 Defined.
 
-Definition cleaving_of_fibs_lift_mor_lift_2cell
-           {C₁ C₂ C₃ : bicat_of_univ_cats}
-           {F : C₁ --> C₂}
-           {H₁ H₂ : C₃ --> C₁}
-           {α : H₁ ==> H₂}
-           {D₂ : disp_bicat_of_fibs C₂}
-           {D₃ : disp_bicat_of_fibs C₃}
-           {HH₁ : D₃ -->[ H₁ · F] D₂}
-           {HH₂ : D₃ -->[ H₂ · F] D₂}
-           (αα : HH₁ ==>[ α ▹ F] HH₂)
-  : lift_2cell
-      disp_bicat_of_fibs
-      (cleaving_of_fibs_lift_mor D₂ F)
-      αα
-      (cleaving_of_fibs_lift_mor_lift_1cell HH₁)
-      (cleaving_of_fibs_lift_mor_lift_1cell HH₂).
-Proof.
-  use iscontraprop1.
-  - apply TODO.
-  - simple refine ((_ ,, tt) ,, _).
-    + exact (lift_functor_into_reindex_disp_nat_trans (pr1 αα)).
-    + (*cbn.
-      use subtypePath ; [ intro ; apply isapropunit | ].
+Section Lift2CellFibs.
+  Context {C₁ C₂ C₃ : bicat_of_univ_cats}
+          {F : C₁ --> C₂}
+          {H₁ H₂ : C₃ --> C₁}
+          {α : H₁ ==> H₂}
+          {D₂ : disp_bicat_of_fibs C₂}
+          {D₃ : disp_bicat_of_fibs C₃}
+          {HH₁ : D₃ -->[ H₁ · F] D₂}
+          {HH₂ : D₃ -->[ H₂ · F] D₂}
+          (αα : HH₁ ==>[ α ▹ F] HH₂)
+          (Lh : lift_1cell disp_bicat_of_fibs (cleaving_of_fibs_lift_mor D₂ F) HH₁)
+          (Lh' : lift_1cell disp_bicat_of_fibs (cleaving_of_fibs_lift_mor D₂ F) HH₂).
+
+  Definition cleaving_of_fibs_lift_2cell_data
+    : disp_nat_trans_data
+        (pr1 α)
+        (pr11 Lh : disp_functor _ _ _)
+        (pr11 Lh' : disp_functor _ _ _).
+  Proof.
+    intros x xx.
+    simple refine (transportf
+                     (λ z, _ -->[ z ] _)
+                     _
+                     (pr1 (pr112 Lh) x xx
+                      ;; pr11 αα x xx
+                      ;; inv_mor_disp_from_iso
+                           (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+                              _
+                              (pr2 Lh')
+                              (pr22 Lh')
+                              xx))%mor_disp).
+    abstract
+      (cbn ; unfold precomp_with ; cbn ;
+       rewrite !id_left, id_right ;
+       apply idpath).
+  Defined.
+
+  Definition cleaving_of_fibs_axioms
+    : disp_nat_trans_axioms cleaving_of_fibs_lift_2cell_data.
+  Proof.
+    intros x y f xx yy ff.
+    unfold cleaving_of_fibs_lift_2cell_data.
+    cbn.
+    unfold transportb.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      pose (disp_nat_trans_ax (pr112 Lh) ff) as d.
+      cbn in d.
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        do 2 apply maponpaths_2.
+        exact d.
+      }
+      clear d.
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite !assoc_disp_var.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite assoc_disp.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          exact (disp_nat_trans_ax (pr1 αα) ff).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite assoc_disp_var.
+        rewrite transport_f_f.
+        do 2 apply maponpaths.
+        apply idpath.
+      }
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      do 3 apply maponpaths.
+      exact (disp_nat_trans_ax (pr11 (pr22 Lh')) ff).
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    cbn.
+    refine (!_).
+    etrans.
+    {
+      apply transportf_reindex.
+    }
+    rewrite transport_f_f.
+    refine (!_).
+    rewrite !assoc_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition cleaving_of_fibs_lift_2cell
+    : disp_nat_trans
+        α
+        (pr11 Lh : disp_functor _ _ _)
+        (pr11 Lh' : disp_functor _ _ _).
+  Proof.
+    simple refine (_ ,, _).
+    - exact cleaving_of_fibs_lift_2cell_data.
+    - exact cleaving_of_fibs_axioms.
+  Defined.
+
+  Definition cleaving_of_fibs_unique_2_lifts
+             (φ₁ φ₂ : lift_2cell_type _ _ αα Lh Lh')
+    : φ₁ = φ₂.
+  Proof.
+      use subtypePath.
+      {
+        intro.
+        apply disp_bicat_of_fibs.
+      }
+      use subtypePath.
+      {
+        intro.
+        apply isapropunit.
+      }
       use disp_nat_trans_eq.
       intros x xx.
+      pose (maponpaths (λ d, pr11 d x xx) (pr2 φ₁)) as p₁.
+      cbn in p₁.
+      rewrite pr1_transportf in p₁.
+      unfold disp_cell_lift_1cell in p₁.
+      pose (disp_nat_trans_transportf
+              _ _
+              _ _
+              (H₁ ∙ F) (H₂ ∙ F)
+              _ _
+              (id2_right (α ▹ F) @ ! id2_left (α ▹ F))
+              (disp_functor_composite
+                 (pr11 Lh)
+                 (reindex_disp_cat_disp_functor F (pr11 D₂)))
+              (pr1 HH₂)
+              (disp_nat_trans_comp
+                 (post_whisker_disp_nat_trans
+                    (pr11 φ₁)
+                    (reindex_disp_cat_disp_functor F (pr11 D₂)))
+                 (pr112 Lh'))
+              x
+              xx) as p₁'.
+      pose (!p₁' @ p₁) as r₁.
+      pose (maponpaths (λ d, pr11 d x xx) (pr2 φ₂)) as p₂.
+      cbn in p₂.
+      rewrite pr1_transportf in p₂.
+      unfold disp_cell_lift_1cell in p₂.
+      pose (disp_nat_trans_transportf
+              _ _
+              _ _
+              (H₁ ∙ F) (H₂ ∙ F)
+              _ _
+              (id2_right (α ▹ F) @ ! id2_left (α ▹ F))
+              (disp_functor_composite
+                 (pr11 Lh)
+                 (reindex_disp_cat_disp_functor F (pr11 D₂)))
+              (pr1 HH₂)
+              (disp_nat_trans_comp
+                 (post_whisker_disp_nat_trans
+                    (pr11 φ₂)
+                    (reindex_disp_cat_disp_functor F (pr11 D₂)))
+                 (pr112 Lh'))
+              x
+              xx) as p₂'.
+      pose (!p₂' @ p₂) as r₂.
+      cbn in r₂.
+      assert (r := r₁ @ !r₂).
+      clear p₁ p₂ p₁' p₂' r₁ r₂.
+      cbn in r.
+      assert (r' := maponpaths
+                      (λ z₁, transportb
+                               (λ z₂, _ -->[ z₂ ] _)
+                               (nat_trans_eq_pointwise
+                                  (id2_right (α ▹ F)
+                                   @ ! id2_left (α ▹ F)) x)
+                               z₁)
+                      r).
+      clear r ; cbn in r'.
+      rewrite !transportbfinv in r'.
+      assert (p := transportf_transpose_left
+                     (inv_mor_after_iso_disp
+                        (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+                           _
+                           (pr2 Lh')
+                           (pr22 Lh')
+                           xx))).
+      simpl in p.
       cbn.
-      rewrite pr1_transportf.
+      refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)).
       cbn.
-      unfold lift_functor_into_reindex_commute_data, lift_functor_into_reindex_commute.
-      cbn.*)
-      apply TODO.
-Defined.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        exact (!p).
+      }
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        exact (!p).
+      }
+      clear p.
+      refine (!_).
+      cbn.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        exact r'.
+      }
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition cleaving_of_fibs_lift_mor_lift_2cell
+    : lift_2cell _ _ αα Lh Lh'.
+  Proof.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      exact (cleaving_of_fibs_unique_2_lifts φ₁ φ₂).
+    - simple refine ((_ ,, tt) ,, _).
+      + exact cleaving_of_fibs_lift_2cell.
+      + abstract
+          (cbn ;
+           use subtypePath ; [ intro ; apply isapropunit | ] ;
+           use disp_nat_trans_eq ;
+           intros x xx ;
+           cbn ;
+           rewrite pr1_transportf ;
+           unfold disp_cell_lift_1cell ;
+           refine (disp_nat_trans_transportf
+                     _ _
+                     _ _
+                     (H₁ ∙ F) (H₂ ∙ F)
+                     _ _
+                     (id2_right (α ▹ F) @ ! id2_left (α ▹ F))
+                     (disp_functor_composite
+                        (pr11 Lh)
+                        (reindex_disp_cat_disp_functor F (pr11 D₂)))
+                     (pr1 HH₂)
+                     (disp_nat_trans_comp
+                        (post_whisker_disp_nat_trans
+                           cleaving_of_fibs_lift_2cell
+                           (reindex_disp_cat_disp_functor F (pr11 D₂)))
+                        (pr112 Lh'))
+                     x
+                     xx
+                     @ _) ;
+           cbn ;
+           unfold cleaving_of_fibs_lift_2cell_data ;
+           rewrite !mor_disp_transportf_postwhisker ;
+           rewrite !transport_f_f ;
+           rewrite !assoc_disp_var ;
+           rewrite !transport_f_f ;
+           etrans ;
+           [ do 3 apply maponpaths ;
+             apply (iso_disp_after_inv_mor
+                      (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+                         (id2_invertible_2cell (H₂ · F))
+                         (pr2 Lh') (pr22 Lh') xx))
+           | ] ;
+           unfold transportb ;
+           rewrite !mor_disp_transportf_prewhisker ;
+           rewrite transport_f_f ;
+           rewrite id_right_disp ;
+           unfold transportb ;
+           rewrite mor_disp_transportf_prewhisker ;
+           rewrite transport_f_f ;
+           apply transportf_set ;
+           apply homset_property).
+  Defined.
+End Lift2CellFibs.
 
 Definition cleaving_of_fibs_lift_mor_cartesian
            {C₁ C₂ : bicat_of_univ_cats}
@@ -2084,10 +2350,7 @@ Proof.
   - intros C₃ D₃ H HH.
     exact (cleaving_of_fibs_lift_mor_lift_1cell HH).
   - intros C₃ D₃ H₁ H₂ HH₁ HH₂ α αα Lh Lh'.
-    apply TODO.
-    (*
-    exact (cleaving_of_fibs_lift_mor_lift_2cell αα).
-     *)
+    exact (cleaving_of_fibs_lift_mor_lift_2cell αα Lh Lh').
 Defined.
 
 Definition cleaving_of_fibs_global_cleaving
