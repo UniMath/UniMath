@@ -835,3 +835,10 @@ Proof.
     + exact hcomp_bicat_to_bicat_to_hcomp_bicat.
     + exact bicat_to_hcomp_bicat_to_bicat.
 Defined.
+
+Definition weq_bicat_prebicategory : bicat ≃ prebicategory.
+Proof.
+  eapply weqcomp.
+  apply (invweq hcomp_bicat_weq_bicat).
+  apply hcomp_bicat_weq_prebicategory.
+Defined.
