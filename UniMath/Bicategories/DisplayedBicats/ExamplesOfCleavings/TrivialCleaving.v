@@ -114,7 +114,7 @@ Section ConstantCleaving.
                {y₃ : trivial_displayed_bicat B₁ B₂ x₃}
                (h : x₃ --> x₁)
                (k : y₃ -->[ h · f] y₂)
-      : lift_1cell (trivial_displayed_bicat B₁ B₂) g k.
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k.
     Proof.
       simple refine (_ ,, _) ; cbn in *.
       - exact (k · left_adjoint_right_adjoint Hg).
@@ -134,9 +134,9 @@ Section ConstantCleaving.
                {k k' : z --> y₂}
                (γ : h ==> h')
                (δ : k ==> k')
-               (Lh : lift_1cell (trivial_displayed_bicat B₁ B₂) g k)
-               (Lh' : lift_1cell (trivial_displayed_bicat B₁ B₂) g k')
-      : lift_2cell (trivial_displayed_bicat B₁ B₂) g (δ := γ) δ Lh Lh'.
+               (Lh : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k)
+               (Lh' : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k')
+      : lift_2cell_factor (trivial_displayed_bicat B₁ B₂) g (δ := γ) δ Lh Lh'.
     Proof.
       use iscontraprop1.
       - abstract
@@ -198,7 +198,7 @@ Section ConstantCleaving.
            (pr2 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _))).
 
     Local Definition unit_help_lift₁
-      : lift_1cell (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
     Proof.
       simple refine (_ ,, _ ,, _) ; cbn.
       - apply id₁.
@@ -208,7 +208,7 @@ Section ConstantCleaving.
     Defined.
 
     Local Definition unit_help_lift₂
-      : lift_1cell (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
     Proof.
       simple refine (_ ,, _ ,, _) ; cbn.
       - exact (g · inv).

@@ -42,92 +42,6 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
-
-Definition disp_vcomp_runitor_alt
-           {C : bicat}
-           {D : disp_bicat C}
-           {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
-           {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
-           (ηη : ff ==>[η] gg)
-  : disp_runitor ff •• ηη
-    =
-    transportf
-      (λ α, _ ==>[α] _)
-      (vcomp_runitor _ _ _)
-      ((ηη ▹▹ id_disp _) •• disp_runitor gg).
-Proof.
-  refine (!_).
-  etrans.
-  {
-    apply maponpaths.
-    apply disp_vcomp_runitor.
-  }
-  apply (transportfbinv (λ z, _ ==>[ z ] _) _ _).
-Qed.
-
-Definition disp_vcomp_rcancel
-           {B : bicat}
-           {D : disp_bicat B}
-           {b₁ b₂ : B}
-           {f g h : b₁ --> b₂}
-           {α : f ==> g}
-           {β : g ==> h}
-           (Hβ : is_invertible_2cell β)
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           {ff : bb₁ -->[ f ] bb₂}
-           {gg : bb₁ -->[ g ] bb₂}
-           {hh : bb₁ -->[ h ] bb₂}
-           {αα₁ : ff ==>[ α ] gg}
-           {αα₂ : ff ==>[ α ] gg}
-           {ββ : gg ==>[ β ] hh}
-           (Hββ : is_disp_invertible_2cell Hβ ββ)
-           (p : αα₁ •• ββ = αα₂ •• ββ)
-  : αα₁ = αα₂.
-Proof.
-  assert (q := maponpaths (λ z, z •• pr1 Hββ) p).
-  cbn in q.
-  rewrite !disp_vassocl in q.
-  rewrite !(pr12 Hββ) in q.
-  unfold transportb in q.
-  rewrite !disp_mor_transportf_prewhisker in q.
-  rewrite !transport_f_f in q.
-  rewrite !disp_id2_right in q.
-  unfold transportb in q.
-  rewrite !transport_f_f in q.
-  pose (q' := @transportb_transpose_right
-                _
-                (λ z, _ ==>[ z ] _)
-                _ _ _ _ _
-                q).
-  rewrite transportbfinv in q'.
-  exact q'.
-Qed.
-
-Definition disp_hcomp
-           {B : bicat}
-           {D : disp_bicat B}
-           {b₁ b₂ b₃ : B}
-           {f₁ f₂ : b₁ --> b₂}
-           {g₁ g₂ : b₂ --> b₃}
-           {α : f₁ ==> f₂}
-           {β : g₁ ==> g₂}
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           {bb₃ : D b₃}
-           {ff₁ : bb₁ -->[ f₁ ] bb₂}
-           {ff₂ : bb₁ -->[ f₂ ] bb₂}
-           {gg₁ : bb₂ -->[ g₁ ] bb₃}
-           {gg₂ : bb₂ -->[ g₂ ] bb₃}
-           (αα : ff₁ ==>[ α ] ff₂)
-           (ββ : gg₁ ==>[ β ] gg₂)
-  : ff₁ ;; gg₁ ==>[ β ⋆⋆ α ] ff₂ ;; gg₂
-  := (αα ▹▹ gg₁) •• (ff₂ ◃◃ ββ).
-
-
 (** 1. Definition of cleaving *)
 
 Section BicatCleaving.
@@ -141,11 +55,7 @@ Section BicatCleaving.
             {bb : D b}
             (ff : aa -->[ f ] bb).
 
-    (* Better name: something with factorization
-       lift_1cell_factor
-       lift_factor
-     *)
-    Definition lift_1cell
+    Definition lift_1cell_factor
                {c : B}
                {cc : D c}
                {h : c --> a}
@@ -157,46 +67,26 @@ Section BicatCleaving.
            (hh ;; ff)
            gg.
 
-    (*
-           cc  -------------
-                           | gg
-                           v
-                   aa ---> bb
-                       ff
-
-            c --->  a ----> b
-               h
-
-
-
-           aa -->  bb
-
-
-           a ----> b
-              f
-     *)
-
-
-    Coercion disp_mor_lift_1cell
+    Coercion disp_mor_lift_1cell_factor
              {c : B}
              {cc : D c}
              {h : c --> a}
              {gg : cc -->[ h · f ] bb}
-             (Lh : lift_1cell gg)
+             (Lh : lift_1cell_factor gg)
       : cc -->[ h ] aa
       := pr1 Lh.
 
-    Definition disp_cell_lift_1cell
+    Definition disp_cell_lift_1cell_factor
                {c : B}
                {cc : D c}
                {h : c --> a}
                {gg : cc -->[ h · f ] bb}
-               (Lh : lift_1cell gg)
-      : disp_invertible_2cell _ (disp_mor_lift_1cell Lh;; ff) gg
+               (Lh : lift_1cell_factor gg)
+      : disp_invertible_2cell _ (Lh ;; ff) gg
       := pr2 Lh.
 
     (** change name *)
-    Definition lift_2cell_type
+    Definition lift_2cell_factor_type
                {c : B}
                {cc : D c}
                {h h' : c --> a}
@@ -204,18 +94,18 @@ Section BicatCleaving.
                {gg' : cc -->[ h' · f ] bb}
                {δ : h ==> h'}
                (σσ : gg ==>[ δ ▹ f] gg')
-               (Lh : lift_1cell gg)
-               (Lh' : lift_1cell gg')
+               (Lh : lift_1cell_factor gg)
+               (Lh' : lift_1cell_factor gg')
       : UU
-      := ∑ (δδ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'),
+      := ∑ (δδ : Lh ==>[ δ ] Lh'),
          transportf
            (λ z, _ ==>[ z ] _)
            (id2_right _ @ ! id2_left _ )
-           (δδ ▹▹ ff •• disp_cell_lift_1cell Lh')
+           (δδ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
          =
-         disp_cell_lift_1cell Lh •• σσ.
+         disp_cell_lift_1cell_factor Lh •• σσ.
 
-    Definition lift_2cell
+    Definition lift_2cell_factor
                {c : B}
                {cc : D c}
                {h h' : c --> a}
@@ -223,23 +113,23 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                (σσ : gg ==>[ δ ▹ f] gg')
-               (Lh : lift_1cell gg)
-               (Lh' : lift_1cell gg')
+               (Lh : lift_1cell_factor gg)
+               (Lh' : lift_1cell_factor gg')
       : UU
-      := iscontr (lift_2cell_type σσ Lh Lh').
+      := iscontr (lift_2cell_factor_type σσ Lh Lh').
 
-    Definition disp_cell_lift_2cell
-               {c : B}
-               {cc : D c}
-               {h h' : c --> a}
-               {gg : cc -->[h · f ] bb}
-               {gg' : cc -->[h' · f ] bb}
-               {δ : h ==> h'}
-               {σσ : gg ==>[ δ ▹ f] gg'}
-               {Lh : lift_1cell gg}
-               {Lh' : lift_1cell gg'}
-               (Hσσ : lift_2cell σσ Lh Lh')
-      : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'
+    Coercion disp_cell_lift_2cell_factor
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[h · f ] bb}
+             {gg' : cc -->[h' · f ] bb}
+             {δ : h ==> h'}
+             {σσ : gg ==>[ δ ▹ f] gg'}
+             {Lh : lift_1cell_factor gg}
+             {Lh' : lift_1cell_factor gg'}
+             (Hσσ : lift_2cell_factor σσ Lh Lh')
+      : Lh ==>[ δ ] Lh'
       := pr11 Hσσ.
 
     Definition eq_lift_2cell
@@ -250,15 +140,15 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                {σσ : gg ==>[ δ ▹ f] gg'}
-               {Lh : lift_1cell gg}
-               {Lh' : lift_1cell gg'}
-               (Hσσ : lift_2cell σσ Lh Lh')
+               {Lh : lift_1cell_factor gg}
+               {Lh' : lift_1cell_factor gg'}
+               (Hσσ : lift_2cell_factor σσ Lh Lh')
       : transportf
           (λ z, _ ==>[ z ] _)
           (id2_right _ @ ! id2_left _ )
-          (disp_cell_lift_2cell Hσσ ▹▹ ff •• disp_cell_lift_1cell Lh')
+          (Hσσ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
         =
-        disp_cell_lift_1cell Lh •• σσ
+        disp_cell_lift_1cell_factor Lh •• σσ
       := pr21 Hσσ.
 
     Definition eq_lift_2cell_alt
@@ -269,15 +159,15 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                {σσ : gg ==>[ δ ▹ f] gg'}
-               {Lh : lift_1cell gg}
-               {Lh' : lift_1cell gg'}
-               (Hσσ : lift_2cell σσ Lh Lh')
-      : disp_cell_lift_2cell Hσσ ▹▹ ff •• disp_cell_lift_1cell Lh'
+               {Lh : lift_1cell_factor gg}
+               {Lh' : lift_1cell_factor gg'}
+               (Hσσ : lift_2cell_factor σσ Lh Lh')
+      : Hσσ ▹▹ ff •• disp_cell_lift_1cell_factor Lh'
         =
         transportb
           (λ z, _ ==>[ z ] _)
           (id2_right _ @ ! id2_left _ )
-          (disp_cell_lift_1cell Lh •• σσ).
+          (disp_cell_lift_1cell_factor Lh •• σσ).
     Proof.
       rewrite <- (eq_lift_2cell Hσσ).
       rewrite transportbfinv.
@@ -292,23 +182,23 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                {σσ : gg ==>[ δ ▹ f] gg'}
-               {Lh : lift_1cell gg}
-               {Lh' : lift_1cell gg'}
-               (Hσσ : lift_2cell σσ Lh Lh')
-               (δδ₁ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh')
-               (δδ₂ : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh')
+               {Lh : lift_1cell_factor gg}
+               {Lh' : lift_1cell_factor gg'}
+               (Hσσ : lift_2cell_factor σσ Lh Lh')
+               (δδ₁ : Lh ==>[ δ ] Lh')
+               (δδ₂ : Lh ==>[ δ ] Lh')
                (Pδδ₁ : transportf
                          (λ z, _ ==>[ z ] _)
                          (id2_right _ @ ! id2_left _ )
-                         (δδ₁ ▹▹ ff •• disp_cell_lift_1cell Lh')
+                         (δδ₁ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
                        =
-                       disp_cell_lift_1cell Lh •• σσ)
+                       disp_cell_lift_1cell_factor Lh •• σσ)
                (Pδδ₂ : transportf
                          (λ z, _ ==>[ z ] _)
                          (id2_right _ @ ! id2_left _ )
-                         (δδ₂ ▹▹ ff •• disp_cell_lift_1cell Lh')
+                         (δδ₂ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
                        =
-                       disp_cell_lift_1cell Lh •• σσ)
+                       disp_cell_lift_1cell_factor Lh •• σσ)
       : δδ₁ = δδ₂.
     Proof.
       pose (proofirrelevance _ (isapropifcontr Hσσ) (δδ₁ ,, Pδδ₁) (δδ₂ ,, Pδδ₂)) as p.
@@ -321,7 +211,7 @@ Section BicatCleaving.
             (cc : D c)
             (h : c --> a)
             (gg : cc -->[ h · f ] bb),
-          lift_1cell gg)
+          lift_1cell_factor gg)
          ×
          ∏ (c : B)
            (cc : D c)
@@ -330,12 +220,9 @@ Section BicatCleaving.
            (gg' : cc -->[h' · f ] bb)
            (δ : h ==> h')
            (σσ : gg ==>[ δ ▹ f] gg')
-           (Lh : lift_1cell gg)
-           (Lh' : lift_1cell gg'),
-         lift_2cell
-           σσ
-           Lh
-           Lh'.
+           (Lh : lift_1cell_factor gg)
+           (Lh' : lift_1cell_factor gg'),
+         lift_2cell_factor σσ Lh Lh'.
 
     Definition cartesian_1cell_lift_1cell
                (Hff : cartesian_1cell)
@@ -343,7 +230,7 @@ Section BicatCleaving.
                {cc : D c}
                {h : c --> a}
                (gg : cc -->[ h · f ] bb)
-      : lift_1cell gg
+      : lift_1cell_factor gg
       := pr1 Hff c cc h gg.
 
     Definition cartesian_1cell_lift_2cell
@@ -355,10 +242,10 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                (σσ : gg ==>[ δ ▹ f] gg')
-               (Lh : lift_1cell gg)
-               (Lh' : lift_1cell gg')
-      : disp_mor_lift_1cell Lh ==>[ δ ] disp_mor_lift_1cell Lh'
-      := disp_cell_lift_2cell (pr2 Hff c cc h h' gg gg' δ σσ Lh Lh').
+               (Lh : lift_1cell_factor gg)
+               (Lh' : lift_1cell_factor gg')
+      : Lh ==>[ δ ] Lh'
+      := pr2 Hff c cc h h' gg gg' δ σσ Lh Lh'.
 
     Definition cartesian_1cell_lift_2cell_commutes
                (Hff : cartesian_1cell)
@@ -369,14 +256,16 @@ Section BicatCleaving.
                {gg' : cc -->[h' · f ] bb}
                {δ : h ==> h'}
                (σσ : gg ==>[ δ ▹ f] gg')
-               (Lh : lift_1cell gg)
-               (Lh' : lift_1cell gg')
+               (Lh : lift_1cell_factor gg)
+               (Lh' : lift_1cell_factor gg')
       : transportf
           (λ z, _ ==>[ z ] _)
           (id2_right _ @ ! id2_left _ )
-          (cartesian_1cell_lift_2cell Hff σσ Lh Lh' ▹▹ ff •• disp_cell_lift_1cell Lh')
+          (cartesian_1cell_lift_2cell Hff σσ Lh Lh' ▹▹ ff
+           ••
+           disp_cell_lift_1cell_factor Lh')
         =
-        disp_cell_lift_1cell Lh •• σσ
+        disp_cell_lift_1cell_factor Lh •• σσ
       := eq_lift_2cell (pr2 Hff c cc h h' gg gg' δ σσ Lh Lh').
   End Cartesian1cell.
 
@@ -493,8 +382,8 @@ Section Lift2CellInvertible.
           (Hδ : is_invertible_2cell δ)
           {σσ : gg ==>[ δ ▹ f] gg'}
           (Hσσ : is_disp_invertible_2cell (is_invertible_2cell_rwhisker f Hδ) σσ)
-          (Lh : lift_1cell _ ff gg)
-          (Lh' : lift_1cell _ ff gg').
+          (Lh : lift_1cell_factor _ ff gg)
+          (Lh' : lift_1cell_factor _ ff gg').
 
   Let inv : Lh' ==>[ Hδ ^-1] Lh := cartesian_1cell_lift_2cell _ _ Hff (pr1 Hσσ) Lh' Lh.
 
@@ -524,7 +413,6 @@ Section Lift2CellInvertible.
         unfold transportb in *.
         rewrite transport_f_f in p₁, p₂.
         assert (r := p₁ @ !p₂).
-        unfold disp_cell_lift_1cell in r.
         assert (r' : φ₁ ▹▹ ff = φ₂ ▹▹ ff).
         {
           use (disp_vcomp_rcancel _ (pr22 Lh)).
@@ -541,7 +429,7 @@ Section Lift2CellInvertible.
                    ,,
                    disp_id2_invertible_2cell
                      (pr1 Lh ;; ff)
-                 : lift_1cell _ _ (Lh ;; ff)).
+                 : lift_1cell_factor _ _ (Lh ;; ff)).
         apply (isaprop_lift_of_lift_2cell
                  _
                  _
@@ -670,7 +558,6 @@ Section Lift2CellInvertible.
         unfold transportb in *.
         rewrite transport_f_f in p₁, p₂.
         assert (r := p₁ @ !p₂).
-        unfold disp_cell_lift_1cell in r.
         assert (r' : φ₁ ▹▹ ff = φ₂ ▹▹ ff).
         {
           use (disp_vcomp_rcancel _ (pr22 Lh')).
@@ -687,7 +574,7 @@ Section Lift2CellInvertible.
                        ,,
                        disp_id2_invertible_2cell
                        (pr1 Lh' ;; ff)
-                   : lift_1cell _ _ (Lh' ;; ff)).
+                   : lift_1cell_factor _ _ (Lh' ;; ff)).
         apply (isaprop_lift_of_lift_2cell
                  _
                  _
@@ -800,127 +687,6 @@ Section Lift2CellInvertible.
   Defined.
 End Lift2CellInvertible.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Definition disp_1cell_transport_rwhisker
-           {B : bicat}
-           {D : disp_bicat B}
-           {b₁ b₂ b₃ : B}
-           {h : b₁ --> b₂}
-           {f : b₂ --> b₃}
-           {g : b₁ --> b₃}
-           {α : h · f ==> g}
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           {bb₃ : D b₃}
-           (ff : bb₂ -->[ f ] bb₃)
-           (gg : bb₁ -->[ g ] bb₃)
-           {hh₁ hh₂ : bb₁ -->[ h] bb₂}
-           (p : hh₁ = hh₂)
-           (αα : hh₁ ;; ff ==>[ α] gg)
-  : transportf
-      (λ (z : bb₁ -->[ h ] bb₂), z ;; ff ==>[ α ] gg)
-      p
-      αα
-    =
-    transportf
-      (λ z, _ ==>[ z ] _)
-      (maponpaths (λ z, z • _) (id2_rwhisker _ _) @ id2_left _)
-      ((disp_idtoiso_2_1 _ (idpath _) _ _ (!p) ▹▹ ff) •• αα).
-Proof.
-  induction p ; cbn.
-  cbn.
-  rewrite disp_id2_rwhisker.
-  unfold transportb.
-  rewrite disp_mor_transportf_postwhisker.
-  rewrite disp_id2_left.
-  unfold transportb.
-  rewrite !transport_f_f.
-  refine (!_).
-  use (transportf_set (λ z : h · f ==> g, hh₁ ;; ff ==>[ z ] gg)).
-  apply cellset_property.
-Qed.
-
-Definition disp_idtoiso_2_1_inv
-           {B : bicat}
-           {D : disp_bicat B}
-           {b₁ b₂ : B}
-           {f : b₁ --> b₂}
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           (ff₁ ff₂ : bb₁ -->[ f ] bb₂)
-           (p : ff₁ = ff₂)
-  : pr1 (disp_idtoiso_2_1 _ (idpath _) _ _ (!p))
-    =
-    disp_inv_cell (disp_idtoiso_2_1 _ (idpath _) _ _ p).
-Proof.
-  induction p.
-  apply idpath.
-Qed.
-
-Definition disp_idtoiso_isotoid_2_1
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD_2_1 : disp_univalent_2_1 D)
-           {b₁ b₂ : B}
-           {f g : b₁ --> b₂}
-           (p : f = g)
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           {ff : bb₁ -->[ f ] bb₂}
-           {gg : bb₁ -->[ g ] bb₂}
-           (α : disp_invertible_2cell (idtoiso_2_1 f g p) ff gg)
-  : disp_idtoiso_2_1
-      _ p ff gg
-      (disp_isotoid_2_1
-         _ HD_2_1
-         p ff gg
-         α)
-    =
-    α.
-Proof.
-  exact (homotweqinvweq
-           (make_weq _ (HD_2_1 b₁ b₂ f g p bb₁ bb₂ ff gg))
-           α).
-Qed.
-
-Definition disp_isotoid_idtoiso_2_1
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD_2_1 : disp_univalent_2_1 D)
-           {b₁ b₂ : B}
-           {f g : b₁ --> b₂}
-           (p : f = g)
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           {ff : bb₁ -->[ f ] bb₂}
-           {gg : bb₁ -->[ g ] bb₂}
-           (pp : transportf (λ z, bb₁ -->[ z] bb₂) p ff = gg)
-  : disp_isotoid_2_1
-      _ HD_2_1
-      p ff gg
-      (disp_idtoiso_2_1
-         _ p ff gg
-         pp)
-    =
-    pp.
-Proof.
-  exact (homotinvweqweq
-           (make_weq _ (HD_2_1 b₁ b₂ f g p bb₁ bb₂ ff gg))
-           pp).
-Qed.
-
 Definition isaprop_cartesian_1cell
            {B : bicat}
            {D : disp_bicat B}
@@ -1005,11 +771,11 @@ Proof.
     rewrite disp_id2_right.
     unfold transportb.
     rewrite transport_f_f.
-    unfold disp_cell_lift_1cell.
     use (transportf_set (λ α, pr1 φ₂ c cc h gg ;; ff ==>[ α] gg)).
     apply cellset_property.
 Qed.
 
+(** KEEP???
 Section Cartesian1CellViaPb.
   Context {B : bicat}
           (HB : is_univalent_2_1 B)
@@ -1280,6 +1046,7 @@ Proof.
     + apply TODO.
   - apply TODO.
 Defined.
+ *)
 
 (** 3. Properties of cartesian 2-cells *)
 

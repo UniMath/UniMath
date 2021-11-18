@@ -136,7 +136,7 @@ Section CodomainCleaving.
                 (pr2 hg)).
 
       Definition lift_1cell_to_pb_1cell
-                 (Hg : lift_1cell (cod_disp_bicat B) (π,, p) hg)
+                 (Hg : lift_1cell_factor (cod_disp_bicat B) (π,, p) hg)
         : pb_1cell other_cone pb.
       Proof.
         use make_pb_1cell.
@@ -160,7 +160,7 @@ Section CodomainCleaving.
 
       Definition pb_1cell_to_lift_1cell
                  (Hg : pb_1cell other_cone pb)
-        : lift_1cell (cod_disp_bicat B) (π,, p) hg.
+        : lift_1cell_factor (cod_disp_bicat B) (π,, p) hg.
       Proof.
         simple refine ((_ ,, _) ,, ((_ ,, _) ,, _)).
         - exact (pb_1cell_1cell Hg).
@@ -193,7 +193,7 @@ Section CodomainCleaving.
                {hz : cod_disp_bicat B z}
                {g : B ⟦ z, x ⟧}
                (hg : hz -->[ g · f] hy)
-      : lift_1cell (cod_disp_bicat B) (π,, p) hg.
+      : lift_1cell_factor (cod_disp_bicat B) (π,, p) hg.
     Proof.
       apply pb_1cell_to_lift_1cell.
       apply (has_pb_ump_1 pb pb_sqr).
@@ -207,8 +207,8 @@ Section CodomainCleaving.
               {gg' : cc -->[ h' · f] hy}
               {δ : h ==> h'}
               (σσ : gg ==>[ δ ▹ f] gg')
-              (Lh : lift_1cell (cod_disp_bicat B) (π,, p) gg)
-              (Lh' : lift_1cell (cod_disp_bicat B) (π,, p) gg').
+              (Lh : lift_1cell_factor (cod_disp_bicat B) (π,, p) gg)
+              (Lh' : lift_1cell_factor (cod_disp_bicat B) (π,, p) gg').
 
       Definition lift_2cell_cone
         : UU
@@ -221,7 +221,7 @@ Section CodomainCleaving.
                  (α : pr11 Lh ==> pr11 Lh')
                  (α_pr1 : pr121 Lh • (α ▹ pr2 hx) = (pr2 cc ◃ δ) • pr121 Lh')
                  (α_pr2 : (α ▹ π) • pr112 Lh' = pr112 Lh • pr1 σσ)
-        : lift_2cell_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
+        : lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
       Proof.
         simple refine ((α ,, α_pr1) ,, _).
         use subtypePath ; [ intro ; apply cellset_property | ].
@@ -233,7 +233,7 @@ Section CodomainCleaving.
       Defined.
 
       Definition lift_2cell_to_cone_cell
-                 (α : lift_2cell_type (cod_disp_bicat B) (π,, p) σσ Lh Lh')
+                 (α : lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh')
         : lift_2cell_cone.
       Proof.
         simple refine (_ ,, _ ,, _).
@@ -251,7 +251,7 @@ Section CodomainCleaving.
       Definition cone_cell_weq_lift_2cell
         : lift_2cell_cone
           ≃
-          lift_2cell_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
+          lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
       Proof.
         use make_weq.
         - exact (λ z, cone_cell_to_lift_2cell (pr1 z) (pr12 z) (pr22 z)).
@@ -373,7 +373,7 @@ Section CodomainCleaving.
       Defined.
 
       Definition is_pb_to_cartesian_lift_2cell
-        : lift_2cell (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
+        : lift_2cell_factor (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
       Proof.
         use (iscontrweqf cone_cell_weq_lift_2cell).
         use (iscontrweqf pb_2cell_weq_cone_cell).
@@ -458,7 +458,7 @@ Section CodomainCleaving.
 
       Local Definition lift_1cell_of_pb_1cell
             (ζ : pb_1cell q pb)
-        : lift_1cell (cod_disp_bicat B) (π,, p) χ.
+        : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ.
       Proof.
         simple refine ((_ ,, _) ,, ((_ ,, _) ,, _)).
         - exact (pr1 ζ).
@@ -497,9 +497,9 @@ Section CodomainCleaving.
           apply (pb_1cell_pr2 ζ).
       Defined.
 
-      Let lift_φ : lift_1cell (cod_disp_bicat B) (π,, p) χ
+      Let lift_φ : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ
         := lift_1cell_of_pb_1cell φ.
-      Let lift_ψ : lift_1cell (cod_disp_bicat B) (π,, p) χ
+      Let lift_ψ : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ
         := lift_1cell_of_pb_1cell ψ.
 
       Definition cartesian_ump_2
@@ -534,7 +534,7 @@ Section CodomainCleaving.
 
       Definition pb_2cell_to_lift
                  (r : pb_2cell φ ψ)
-        : lift_2cell_type
+        : lift_2cell_factor_type
             (cod_disp_bicat B)
             (π ,, p)
             pχ
@@ -629,6 +629,6 @@ Definition cod_fibration_one_types
   : cleaving_of_bicats (cod_disp_bicat one_types).
 Proof.
   use cod_cleaving_of_bicats.
-  - exact @one_type_2cell_iso.
+  - exact one_type_2cell_iso.
   - exact has_pb_one_types.
 Defined.

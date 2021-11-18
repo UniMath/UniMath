@@ -113,7 +113,6 @@ Section DomainCleaving.
         * abstract
             (use (vcomp_lcancel (s₁ ◃ ss)) ; [ is_iso ; apply Hss | ] ;
              use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ] ;
-             unfold disp_mor_lift_1cell ;
              rewrite !vassocr ;
              refine (pr12 Lh @ _) ;
              cbn ;
@@ -122,7 +121,7 @@ Section DomainCleaving.
              pose (p := pr12 Lh') ;
              cbn in p ;
              rewrite id2_rwhisker, id2_left in p ;
-             rewrite <- p ;
+              etrans ; [apply maponpaths ; exact (!p) |] ;
              rewrite !vassocr ;
              apply maponpaths_2 ;
              rewrite rwhisker_rwhisker_alt ;
@@ -143,7 +142,7 @@ Section DomainCleaving.
   Proof.
     cbn in *.
     pose (pr1 Hss c₁ (s · t₂) (id₁ _) (rassociator _ _ _ • lunitor _)) as p.
-    unfold lift_1cell in p.
+    unfold lift_1cell_factor in p.
     cbn in p.
     pose (maponpaths (λ z, lassociator _ _ _ • z) (pr12 p)) as d.
     cbn in d.

@@ -490,9 +490,6 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition TODO { A : UU } : A .
-Admitted.
-
 Definition disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
            {C C' : bicat_of_univ_cats}
            {F G : C --> C'}
@@ -510,44 +507,58 @@ Definition disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
          (is_invertible_2cell_to_is_nat_iso _ Hα x))
       (pr11 αα x xx).
 Proof.
-  simple refine (_ ,, _ ,, _).
+  simple refine (_ ,, _).
   - exact (transportf
              (λ z, _ -->[ z ] _)
              (!(id_right _))
              (pr111 Hαα x xx)).
-  - (*unfold transportb.
-    rewrite mor_disp_transportf_postwhisker.
-    pose (p := maponpaths (λ z, pr11 z x xx) (pr22 Hαα)).
-    cbn in p.
-    cbn.
-    refine (maponpaths (λ z, transportf _ _ z) p @ _) ; clear p.
-    unfold transportb.*)
-    apply TODO.
-  - apply TODO.
-    Time Defined.
-(*  -
-      (unfold transportb ;
-       rewrite mor_disp_transportf_postwhisker ;
-       pose (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) as p ;
-       simpl in p ;
-       unfold transportb in p ;
-       rewrite pr1_transportf in p ;
-       rewrite disp_nat_trans_transportf in p ;
-       refine (maponpaths _ p @ _) ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply homset_property).
-  -
-      (unfold transportb ;
-       rewrite mor_disp_transportf_prewhisker ;
-       pose (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) as p ;
-       simpl in p ;
-       unfold transportb in p ;
-       rewrite pr1_transportf in p ;
-       rewrite disp_nat_trans_transportf in p ;
-       refine (maponpaths _ p @ _) ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply homset_property).
+  - split.
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_linv Hα))
+                    (disp_nat_trans_id (pr11 GG),, tt))
+         | ];
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_linv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 GG))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
+         apply homset_property).
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_rinv Hα))
+                    (disp_nat_trans_id (pr11 FF),, tt))
+         | ] ;
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_rinv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 FF))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
+         apply homset_property).
 Defined.
- *)
