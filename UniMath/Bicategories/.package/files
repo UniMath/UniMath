@@ -119,3 +119,6 @@ BicategoryOfBicat.v
 BicatOfBicategory.v
 
 DisplayedBicats/CleavingOfBicat.v
+DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
+DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
