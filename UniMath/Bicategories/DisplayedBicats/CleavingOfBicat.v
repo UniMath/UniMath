@@ -31,6 +31,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.Colimits.Pullback.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
@@ -38,6 +39,8 @@ Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -1282,4 +1285,67 @@ Proof.
     exact Hαα.
   - apply CD.
     exact Hββ.
+Defined.
+
+(** Cartesian pseudofunctor *)
+Definition cartesian_disp_psfunctor
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+  : UU
+  := (∏ (b₁ b₂ : B₁)
+        (f : b₁ --> b₂)
+        (bb₁ : D₁ b₁)
+        (bb₂ : D₁ b₂)
+        (ff : bb₁ -->[ f ] bb₂)
+        (Hff : cartesian_1cell D₁ ff),
+      cartesian_1cell D₂ (disp_psfunctor_mor _ _ _ FF ff))
+     ×
+     (∏ (b₁ b₂ : B₁)
+        (f g : b₁ --> b₂)
+        (α : f ==> g)
+        (bb₁ : D₁ b₁)
+        (bb₂ : D₁ b₂)
+        (ff : bb₁ -->[ f ] bb₂)
+        (gg : bb₁ -->[ g ] bb₂)
+        (αα : ff ==>[ α ] gg)
+        (Hαα : is_cartesian_2cell D₁ αα),
+      is_cartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα)).
+
+Definition cartesian_id_psfunctor
+           {B : bicat}
+           (D : disp_bicat B)
+  : cartesian_disp_psfunctor (disp_pseudo_id D).
+Proof.
+  split.
+  - intros ? ? ? ? ? ? H.
+    exact H.
+  - intros ? ? ? ? ? ? ? ? ? ? H.
+    exact H.
+Defined.
+
+Definition cartesian_comp_psfunctor
+           {B₁ B₂ B₃ : bicat}
+           {F : psfunctor B₁ B₂}
+           {G : psfunctor B₂ B₃}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           {D₃ : disp_bicat B₃}
+           {FF : disp_psfunctor D₁ D₂ F}
+           {GG : disp_psfunctor D₂ D₃ G}
+           (HFF : cartesian_disp_psfunctor FF)
+           (HGG : cartesian_disp_psfunctor GG)
+  : cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+Proof.
+  split.
+  - intros ? ? ? ? ? ? H.
+    apply HGG.
+    apply HFF.
+    exact H.
+  - intros ? ? ? ? ? ? ? ? ? ? H.
+    apply HGG.
+    apply HFF.
+    exact H.
 Defined.
