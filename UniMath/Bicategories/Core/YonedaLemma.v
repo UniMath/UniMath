@@ -31,7 +31,7 @@ Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.PseudoFunctors.Yoneda.
 Require Import UniMath.Bicategories.PseudoFunctors.Representable.
 Require Import UniMath.Bicategories.Core.Examples.Image.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.RestrictImage.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.CorestrictImage.
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
@@ -876,12 +876,12 @@ Definition rezk_completion_2_0
     weak_equivalence HB (pr2 HGC) CB.
 Proof.
   refine (full_image (y HB) ,, _).
-  refine (restrict_full_image (y HB) ,, _).
+  refine (corestrict_full_image (y HB) ,, _).
   use tpair.
   - apply is_univalent_2_full_image.
     apply psfunctor_bicat_is_univalent_2.
     exact univalent_cat_is_univalent_2.
-  - exact (restrict_full_image_weak_equivalence
+  - exact (corestrict_full_image_weak_equivalence
              (y HB)
              HB
              _
