@@ -122,3 +122,4 @@ DisplayedBicats/CleavingOfBicat.v
 DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
 DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v

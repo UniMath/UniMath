@@ -1,7 +1,7 @@
 (** Definitions of various kinds of _fibraitions_, using displayed categories. *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -1142,3 +1142,293 @@ Proof.
          apply transportf_set ;
          apply homset_property).
 Defined.
+
+Definition disp_iso_to_is_cartesian
+           {C : category}
+           {D : disp_cat C}
+           {x y z : C}
+           {f : x --> z}
+           {g : y --> z}
+           {h : y --> x}
+           (Hh : is_iso h)
+           {p : h · f = g}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff : xx -->[ f ] zz}
+           {gg : yy -->[ g ] zz}
+           {hh : yy -->[ h ] xx}
+           (Hff : is_cartesian ff)
+           (Hhh : is_iso_disp (make_iso h Hh) hh)
+           (pp : (hh ;; ff = transportb _ p gg)%mor_disp)
+  : is_cartesian gg.
+Proof.
+  intros q k qq kg.
+  assert (f = inv_from_iso (make_iso h Hh) · g) as r.
+  {
+    abstract
+      (refine (!_) ;
+       use iso_inv_on_right ;
+       exact (!p)).
+  }
+  assert (transportf (λ z, _ -->[ z ] _) r ff
+          =
+          inv_mor_disp_from_iso Hhh ;; gg)%mor_disp as rr.
+  {
+    abstract
+      (rewrite <- (transportb_transpose_left pp) ;
+       unfold transportb ;
+       rewrite mor_disp_transportf_prewhisker ;
+       rewrite assoc_disp ;
+       refine (!_) ;
+       etrans ;
+       [ do 2 apply maponpaths ;
+         apply maponpaths_2 ;
+         exact (iso_disp_after_inv_mor Hhh)
+       | ] ;
+       unfold transportb ;
+       rewrite mor_disp_transportf_postwhisker ;
+       rewrite id_left_disp ;
+       unfold transportb ;
+       rewrite !transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  }
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (postcomp_with_iso_disp_is_inj Hh (idpath _) Hhh) ; cbn ;
+       use (cartesian_factorisation_unique Hff) ;
+       rewrite !assoc_disp_var ;
+       rewrite pp ;
+       unfold transportb ;
+       rewrite !mor_disp_transportf_prewhisker ;
+       rewrite !transport_f_f ;
+       apply maponpaths ;
+       exact (pr2 φ₁ @ !(pr2 φ₂))).
+  - simple refine (_ ,, _).
+    + refine (transportf
+                (λ z, _ -->[ z ] _)
+                _
+                (cartesian_factorisation
+                   Hff
+                   (k · h)
+                   (transportf
+                      (λ z, _ -->[ z ] _)
+                      _
+                      kg)
+                 ;; inv_mor_disp_from_iso Hhh)%mor_disp).
+      * abstract
+          (rewrite assoc' ;
+           etrans ; [ apply maponpaths ; apply (iso_inv_after_iso (make_iso h Hh)) | ] ;
+           apply id_right).
+      * abstract
+          (rewrite assoc' ;
+           rewrite p ;
+           apply idpath).
+    + abstract
+        (simpl ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite assoc_disp_var ;
+         etrans ; [ do 3 apply maponpaths ; exact (!rr) | ] ;
+         rewrite transport_f_f ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite !transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Defined.
+
+(**
+Factorisation of disp nat trans and functor
+ *)
+Section CartesianFactorisationDispNatTrans.
+  Context {C₁ C₂ : category}
+          {F₁ F₂ F₃ : C₁ ⟶ C₂}
+          {α : F₂ ⟹ F₃}
+          {β : F₁ ⟹ F₂}
+          {D₁ : disp_cat C₁}
+          {D₂ : disp_cat C₂}
+          (HD₂ : cleaving D₂)
+          {FF₁ : disp_functor F₁ D₁ D₂}
+          {FF₂ : disp_functor F₂ D₁ D₂}
+          {FF₃ : disp_functor F₃ D₁ D₂}
+          (αα : disp_nat_trans α FF₂ FF₃)
+          (ββ : disp_nat_trans (nat_trans_comp _ _ _ β α) FF₁ FF₃)
+          (Hαα : ∏ (x : C₁) (xx : D₁ x), is_cartesian (αα x xx)).
+
+  Definition cartesian_factorisation_disp_nat_trans_data
+    : disp_nat_trans_data β FF₁ FF₂
+    := λ x xx, cartesian_factorisation (Hαα x xx) (β x) (ββ x xx).
+
+  Definition cartesian_factorisation_disp_nat_trans_axioms
+    : disp_nat_trans_axioms cartesian_factorisation_disp_nat_trans_data.
+  Proof.
+    intros x y f xx yy ff ; cbn in *.
+    unfold cartesian_factorisation_disp_nat_trans_data.
+    use (cartesian_factorisation_unique (Hαα y yy)).
+    rewrite assoc_disp_var.
+    rewrite cartesian_factorisation_commutes.
+    refine (maponpaths _ (disp_nat_trans_ax ββ ff) @ _).
+    unfold transportb.
+    rewrite !transport_f_f.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite assoc_disp_var.
+    rewrite transport_f_f.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (disp_nat_trans_ax αα ff).
+    }
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition cartesian_factorisation_disp_nat_trans
+    : disp_nat_trans β FF₁ FF₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact cartesian_factorisation_disp_nat_trans_data.
+    - exact cartesian_factorisation_disp_nat_trans_axioms.
+  Defined.
+End CartesianFactorisationDispNatTrans.
+
+Section CartesianFactorisationDispFunctor.
+  Context {C₁ C₂ : category}
+          {D₁ : disp_cat C₁}
+          {D₂ : disp_cat C₂}
+          (HD₁ : cleaving D₂)
+          {F G : C₁ ⟶ C₂}
+          (GG : disp_functor G D₁ D₂)
+          (α : F ⟹ G).
+
+  Definition cartesian_factorisation_disp_functor_data
+    : disp_functor_data F D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x xx, pr1 (HD₁ (G x) (F x) (α x) (GG x xx))).
+    - exact (λ x y xx yy f ff,
+             cartesian_factorisation
+               (pr22 (HD₁ (G y) (F y) (α y) (GG y yy)))
+               _
+               (transportb
+                  (λ z, _ -->[ z ] _)
+                  (nat_trans_ax α _ _ f)
+                  (pr12 (HD₁ (G x) (F x) (α x) (GG x xx)) ;; #GG ff)%mor_disp)).
+  Defined.
+
+  Definition cartesian_factorisation_disp_functor_axioms
+    : disp_functor_axioms cartesian_factorisation_disp_functor_data.
+  Proof.
+    repeat split.
+    - intros x xx ; cbn.
+      use (cartesian_factorisation_unique
+             (pr22 (HD₁ (G x) (F x) (α x) (GG x xx)))).
+      rewrite cartesian_factorisation_commutes.
+      rewrite disp_functor_id.
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite id_left_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    - intros x y z xx yy zz f g ff hh ; cbn.
+      use (cartesian_factorisation_unique
+             (pr22 (HD₁ (G z) (F z) (α z) (GG z zz)))).
+      unfold transportb.
+      rewrite cartesian_factorisation_commutes.
+      rewrite disp_functor_comp.
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition cartesian_factorisation_disp_functor
+    : disp_functor F D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact cartesian_factorisation_disp_functor_data.
+    - exact cartesian_factorisation_disp_functor_axioms.
+  Defined.
+
+  Definition cartesian_factorisation_disp_functor_is_cartesian
+             (HGG : is_cartesian_disp_functor GG)
+    : is_cartesian_disp_functor cartesian_factorisation_disp_functor.
+  Proof.
+    intros x y f xx yy ff Hff ; cbn.
+    pose (HGff := HGG _ _ _ _ _ _ Hff).
+    refine (is_cartesian_precomp
+              (idpath _)
+              _
+              (pr22 (HD₁ (G x) (F x) (α x) (GG x xx)))
+              (is_cartesian_transportf
+                 (!(nat_trans_ax α _ _ f))
+                 (is_cartesian_comp_disp
+                    (pr22 (HD₁ (G y) (F y) (α y) (GG y yy)))
+                    HGff))).
+    rewrite cartesian_factorisation_commutes.
+    apply idpath.
+  Qed.
+
+  Definition cartesian_factorisation_disp_functor_cell_data
+    : disp_nat_trans_data α cartesian_factorisation_disp_functor_data GG
+    := λ x xx, pr12 (HD₁ (G x) (F x) (α x) (GG x xx)).
+
+  Definition cartesian_factorisation_disp_functor_cell_axioms
+    : disp_nat_trans_axioms cartesian_factorisation_disp_functor_cell_data.
+  Proof.
+    intros x y f xx yy ff ; cbn ; unfold cartesian_factorisation_disp_functor_cell_data.
+    unfold transportb.
+    rewrite cartesian_factorisation_commutes.
+    apply idpath.
+  Qed.
+
+  Definition cartesian_factorisation_disp_functor_cell
+    : disp_nat_trans
+        α
+        cartesian_factorisation_disp_functor_data
+        GG.
+  Proof.
+    simple refine (_ ,, _).
+    - exact cartesian_factorisation_disp_functor_cell_data.
+    - exact cartesian_factorisation_disp_functor_cell_axioms.
+  Defined.
+
+  Definition cartesian_factorisation_disp_functor_cell_is_cartesian
+             {x : C₁}
+             (xx : D₁ x)
+    : is_cartesian (cartesian_factorisation_disp_functor_cell x xx).
+  Proof.
+    exact (pr22 (HD₁ (G x) (F x) (α x) (GG x xx))).
+  Defined.
+End CartesianFactorisationDispFunctor.
