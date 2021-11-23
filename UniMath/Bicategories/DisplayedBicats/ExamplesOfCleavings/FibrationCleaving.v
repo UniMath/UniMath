@@ -29,6 +29,130 @@ Local Open Scope cat.
 Definition TODO {A : UU} : A.
 Admitted.
 
+Definition disp_iso_eq_postcomp
+           {C : category}
+           {D : disp_cat C}
+           {x y z : C}
+           {f : x --> y}
+           {g : x --> y}
+           {h : y --> z}
+           (Hh : is_iso h)
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {hh : yy -->[ h ] zz}
+           (Hhh : is_iso_disp (make_iso h Hh) hh)
+           (pp : (ff ;; hh
+                  =
+                  transportb
+                    (λ z, _ -->[ z ] _)
+                    (maponpaths (λ z, _ · h) p)
+                    (gg ;; hh))%mor_disp)
+  : ff = transportb _ p gg.
+Proof.
+Admitted.
+
+Definition disp_iso_to_is_cartesian
+           {C : category}
+           {D : disp_cat C}
+           {x y z : C}
+           {f : x --> z}
+           {g : y --> z}
+           {h : y --> x}
+           (Hh : is_iso h)
+           {p : h · f = g}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff : xx -->[ f ] zz}
+           {gg : yy -->[ g ] zz}
+           {hh : yy -->[ h ] xx}
+           (Hff : is_cartesian ff)
+           (Hhh : is_iso_disp (make_iso h Hh) hh)
+           (pp : (hh ;; ff = transportb _ p gg)%mor_disp)
+  : is_cartesian gg.
+Proof.
+  intros q k qq kg.
+  assert (f = inv_from_iso (make_iso h Hh) · g) as r.
+  {
+    abstract
+      (refine (!_) ;
+       use iso_inv_on_right ;
+       exact (!p)).
+  }
+  assert (transportf (λ z, _ -->[ z ] _) r ff
+          =
+          inv_mor_disp_from_iso Hhh ;; gg)%mor_disp as rr.
+  {
+    rewrite <- (transportb_transpose_left pp).
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite assoc_disp.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      exact (iso_disp_after_inv_mor Hhh).
+    }
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  }
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (disp_iso_eq_postcomp Hh (idpath _) Hhh) ; cbn ;
+       use (cartesian_factorisation_unique Hff) ;
+       rewrite !assoc_disp_var ;
+       rewrite pp ;
+       unfold transportb ;
+       rewrite !mor_disp_transportf_prewhisker ;
+       rewrite !transport_f_f ;
+       apply maponpaths ;
+       exact (pr2 φ₁ @ !(pr2 φ₂))).
+  - simple refine (_ ,, _).
+    + refine (transportf
+                (λ z, _ -->[ z ] _)
+                _
+                (cartesian_factorisation
+                   Hff
+                   (k · h)
+                   (transportf
+                      (λ z, _ -->[ z ] _)
+                      _
+                      kg)
+                 ;; inv_mor_disp_from_iso Hhh)%mor_disp).
+      * abstract
+          (rewrite assoc' ;
+           etrans ; [ apply maponpaths ; apply (iso_inv_after_iso (make_iso h Hh)) | ] ;
+           apply id_right).
+      * abstract
+          (rewrite assoc' ;
+           rewrite p ;
+           apply idpath).
+    + abstract
+        (simpl ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite assoc_disp_var ;
+         etrans ; [ do 3 apply maponpaths ; exact (!rr) | ] ;
+         rewrite transport_f_f ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite !transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Qed.
+
 (**
 Fibration of fibrations over categories
  *)
@@ -485,11 +609,11 @@ Proof.
          apply homset_property).
 Defined.
 
-(*
 Definition is_cartesian_from_reindex_disp_cat
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
            (D : disp_cat C₂)
+           (HD : cleaving D)
            {x y : C₁}
            {f : x --> y}
            {xx : D (F x)}
@@ -498,39 +622,149 @@ Definition is_cartesian_from_reindex_disp_cat
            (Hff : @is_cartesian _ (reindex_disp_cat F D) y x f yy xx ff)
   : is_cartesian ff.
 Proof.
-  intros z g zz gg ; cbn in *.
-  use iscontraprop1.
-  - apply TODO.
-    (*abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply D | ] ;
-       use (cartesian_factorisation_unique Hff) ;
-       rewrite (transportf_transpose_right (pr2 φ₁)) ;
-       rewrite (transportf_transpose_right (pr2 φ₂)) ;
-       apply idpath).
-     *)
-  - simple refine (_ ,, _).
-    + cbn in *.
-      pose (@cartesian_factorisation _ _ _ _ _ _ _ _ Hff).
+  pose (HD (F y) (F x) (#F f) yy) as ℓ.
+  pose (cartesian_factorisation
+           ℓ
+           (identity _)
+           (transportb
+              (λ z, _ -->[ z ] _)
+              (id_left _)
+              ff))
+    as m₁.
+  use (disp_iso_to_is_cartesian _ ℓ).
+  - apply identity.
+  - apply identity_is_iso.
+  - apply id_left.
+  - exact m₁.
+  - simple refine (_ ,, _ ,, _).
+    + cbn.
+      pose (@cartesian_factorisation
+              _ _ _ _ _ _ _ _
+              Hff
+              _
+              (identity _)
+              ℓ)
+        as m.
       cbn in m.
-      cbn.
-      refine (cartesian_factorisation
-                Hff
-                (#F g)
-                (transportf (λ z, _ -->[ z ] _) _ gg)).
-      abstract
-        (apply functor_comp).
-    + abstract
-        (cbn ;
-         rewrite cartesian_factorisation_commutes ;
-         unfold transportb ;
-         rewrite transport_f_f ;
-         apply transportf_set ;
-         apply homset_property).
-  apply TODO.
+      refine (transportf
+                _
+                (functor_id _ _)
+                (m _)).
+      refine (transportb
+                _
+                (maponpaths (λ z, #F z) (id_left _))
+                (pr12 ℓ)).
+    + cbn.
+      unfold transportb.
+      use (cartesian_factorisation_unique ℓ).
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite id_left_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      unfold m₁.
+      rewrite assoc_disp_var.
+      rewrite cartesian_factorisation_commutes.
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        pose (cartesian_factorisation_commutes
+                 Hff
+                 (identity x)
+                 (transportb
+                    (mor_disp (pr1 ℓ) yy)
+                    (maponpaths (λ z, _) (id_left f))
+                    (pr12 ℓ))).
+        cbn in p.
+        apply (transportf_transpose_right p).
+      }
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    + cbn.
+      unfold m₁.
+      rewrite mor_disp_transportf_prewhisker.
+      Check @mor_disp.
+      Arguments mor_disp {_} _ {_ _} _ _.
+      Show.
+      pose ((cartesian_factorisation
+               ℓ
+               (id₁ (F x))
+               (transportb
+                  (λ z, xx -->[ z] yy)
+                  (id_left ((# F)%Cat f))
+                  ff)
+             ;;
+             cartesian_factorisation
+               Hff
+               (id₁ x)
+               (transportb
+                  (mor_disp D (pr1 ℓ) yy)
+                  (maponpaths (λ z, (# F)%Cat z) (id_left f))
+                  (pr12 ℓ)))%mor_disp)
+        as m.
+      pose (@cartesian_factorisation_unique
+              _ _ _ _ _ _ _ _
+              Hff
+              _
+              (identity _)
+              xx
+              (transportf
+                 _
+                 (id_left _)
+                 m)
+              (id_disp _))
+        as p.
+      cbn in p ; unfold transportb in p.
+      simple refine (_
+                     @ maponpaths
+                         (transportf (λ z, _ -->[ z ] _) (functor_id _ _ @ !(id_left _)))
+                         (p _)
+                     @ _).
+      * rewrite transport_f_f.
+        apply maponpaths_2.
+        apply homset_property.
+      * cbn.
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        unfold m.
+        rewrite assoc_disp_var.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          pose (cartesian_factorisation_commutes
+                   Hff
+                   (identity _)
+                   (transportb
+                      (mor_disp D (pr1 ℓ) yy)
+                      (maponpaths (λ z : C₁ ⟦ x, y ⟧, (# F)%Cat z) (id_left f))
+                      (pr12 ℓ)))
+            as q.
+          cbn in q.
+          exact (transportb_transpose_right q).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite cartesian_factorisation_commutes.
+        rewrite transport_f_f.
+        rewrite id_left_disp.
+        unfold transportb.
+        rewrite !transport_f_f.
+        apply maponpaths_2.
+        apply homset_property.
+      * unfold transportb.
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply homset_property.
+  - apply cartesian_factorisation_commutes.
 Defined.
- *)
 
 
 Definition cleaving_reindex_disp_cat
@@ -590,17 +824,9 @@ Definition is_cartesian_reindex_disp_cat_disp_functor
   : is_cartesian_disp_functor (reindex_disp_cat_disp_functor F D).
 Proof.
   intros x y f xx yy ff Hff.
-  cbn.
-  intros z g zz hh.
-  unfold is_cartesian in Hff.
-  cbn in *.
-
-  (*
   apply is_cartesian_from_reindex_disp_cat.
-  exact Hff.
-   *)
-
-  apply TODO.
+  - exact HD.
+  - exact Hff.
 Defined.
 
 Definition lift_functor_into_reindex_data
