@@ -89,7 +89,7 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
 Core/Examples/Image.v
-PseudoFunctors/Examples/RestrictImage.v
+PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
 
 Colimits/Initial.v
