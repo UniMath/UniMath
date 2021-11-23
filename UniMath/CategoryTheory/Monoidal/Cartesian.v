@@ -6,8 +6,10 @@
  *)
 
 Require Import UniMath.Foundations.PartA.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -15,20 +17,19 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 
 Section CartesianMonoidal.
-  Context {C : precategory}.
+  Context {C : category}.
   Context (T : Terminal C).
   Context (BC : BinProducts C).
-  Context (hsC : has_homsets C).
 
   Definition cartesian_left_unitor :
-    nat_iso (I_pretensor (binproduct_functor BC) T) (functor_identity C).
+    left_unitor (binproduct_functor BC) T.
   Proof.
     use tpair.
     - (** left unitor natural transformation *)
-      use mk_nat_trans.
+      use make_nat_trans.
       + (** [nat_trans_data] *)
         intros x; cbn.
-        use mk_iso; [|apply terminal_binprod_unit_l].
+        use make_iso; [|apply terminal_binprod_unit_l].
       + (** [is_nat_trans] *)
         (** The diagram:
             <<
@@ -43,24 +44,26 @@ Section CartesianMonoidal.
         apply BinProductOfArrowsPr2.
     - (** left unitor is a natural isomorphism *)
       intro x; unfold is_nat_iso; cbn.
+      apply is_z_iso_from_is_iso.
       apply terminal_binprod_unit_l.
   Defined.
 
   Definition cartesian_right_unitor :
-    nat_iso (I_posttensor (binproduct_functor BC) T) (functor_identity C).
+    right_unitor (binproduct_functor BC) T.
   Proof.
     use tpair.
     - (** right unitor natural transformation *)
-      use mk_nat_trans.
+      use make_nat_trans.
       + (** [nat_trans_data] *)
         intros x; cbn.
-        use mk_iso; [|apply terminal_binprod_unit_r].
+        use make_iso; [|apply terminal_binprod_unit_r].
       + (** [is_nat_trans] *)
         intros x y f.
         unfold terminal_binprod_unit_r; cbn.
         apply BinProductOfArrowsPr1.
     - (** right unitor is a natural isomorphism *)
       intro x; unfold is_nat_iso; cbn.
+      apply is_z_iso_from_is_iso.
       apply terminal_binprod_unit_r.
   Defined.
 
@@ -89,9 +92,10 @@ Section CartesianMonoidal.
     abstract (rewrite eq1; rewrite eq2; auto).
   Defined.
 
-  Lemma cartesian_monoidal : monoidal_precat_structure C.
+  Lemma cartesian_monoidal : monoidal_cat.
   Proof.
-    use mk_monoidal_precat_structure.
+    use mk_monoidal_cat.
+    - exact C.
     - (** Tensor functor [C ⊠ C ⟶ C] *)
       apply binproduct_functor; assumption.
     - (** Identity object [I : C] *)
@@ -103,7 +107,7 @@ Section CartesianMonoidal.
     - (** [associator] *)
       unfold associator.
       use tpair.
-      + use mk_nat_trans.
+      + use make_nat_trans.
         * intros x.
           unfold assoc_left; cbn.
           apply binprod_assoc_l.
@@ -120,7 +124,7 @@ Section CartesianMonoidal.
                     do 2 rewrite assoc;
                     reflexivity).
       + intros bp.
-        use is_iso_qinv.
+        use make_is_z_isomorphism.
         * apply binprod_assoc_r.
         * apply assoc_l_qinv_assoc_r.
    - unfold triangle_eq; intros a b; cbn.

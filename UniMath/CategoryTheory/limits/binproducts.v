@@ -757,20 +757,20 @@ Defined.
 (** Copied from section "CoproductsBool" *)
 
 Section ProductsBool.
-  Context  {C : precategory} (hsC : has_homsets C).
+  Context  {C : category}.
 
   Lemma BinproductsToProductsBool (BPC : BinProducts C) : Products bool C.
   Proof.
     intros H.
-    use mk_Product.
+    use make_Product.
     - apply (BPC (H true) (H false)).
     - induction i; apply (pr1 (BPC (H true) (H false))).
-    - use (mk_isProduct _ _ hsC); intros c f.
+    - use (make_isProduct _ _ (homset_property _)); intros c f.
       induction (pr2 (BPC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
       use unique_exists.
       + apply x1.
       + cbn; induction i; assumption.
-      + intros x; apply impred; intros; apply hsC.
+      + intros x; apply impred; intros; apply homset_property.
       + intros h1 h2.
         apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
   Defined.
@@ -780,15 +780,15 @@ Section ProductsBool.
     intros x y.
     (** The indexing function *)
     pose (index := bool_rec (fun _ => C) x y).
-    use mk_BinProduct.
+    use make_BinProduct.
     - eapply ProductObject.
       apply (PBC index).
     - replace x with (index true) by reflexivity.
       apply ProductPr.
     - replace y with (index false) by reflexivity.
       apply ProductPr.
-    - use mk_isBinProduct; [assumption|]; cbn.
-      intros z f g; use iscontrpair.
+    - use make_isBinProduct; cbn.
+      intros z f g; use make_iscontr.
       pose (indexz := bool_rec (fun b => C⟦ z, index b ⟧) f g).
       use tpair.
       + apply ProductArrow; exact indexz.
@@ -801,7 +801,7 @@ Section ProductsBool.
           abstract
             (intros i; case i; [exact (pr1 (pr2 prod'))|exact (pr2 (pr2 prod'))]).
         * apply proofirrelevance.
-          apply isapropdirprod; apply hsC.
+          apply isapropdirprod; apply homset_property.
   Defined.
 
   (** In a poset, the two notions are related by a weak equivalence.
@@ -838,7 +838,7 @@ End ProductsBool.
 (** *** Direct proof *)
 
 Section Assoc.
-  Context {C : precategory}.
+  Context {C : category}.
   Context (BC : BinProducts C).
 
   Hint Resolve BinProductArrow : binprod.
@@ -899,7 +899,7 @@ End Assoc.
     are isomorphic. *)
 
 Section Assoc3.
-  Context {C : precategory}.
+  Context {C : category}.
   Context (BPC : BinProducts C).
   Context (hsC : has_homsets C).
 
@@ -944,7 +944,7 @@ Section Assoc3.
     intros a b c.
     unfold isProduct.
     intros d f.
-    use iscontrpair.
+    use make_iscontr.
     - use tpair.
       + apply BinProductArrow; [apply BinProductArrow|].
         * apply (f (inl tt)).
@@ -987,7 +987,7 @@ Section Assoc3.
     intros a b c.
     unfold isProduct.
     intros d f.
-    use iscontrpair.
+    use make_iscontr.
     - use tpair.
       + apply BinProductArrow; [|apply BinProductArrow].
         * apply (f (inl tt)).
@@ -1021,13 +1021,13 @@ Section Assoc3.
   Lemma binproduct_assoc_iso : ∏ a b c : C, iso (a ⊠ (b ⊠ c)) ((a ⊠ b) ⊠ c).
   Proof.
     intros.
-    pose (p1 := mk_Product _ _ _ (a ⊠ (b ⊠ c)) _
+    pose (p1 := make_Product _ _ _ (a ⊠ (b ⊠ c)) _
                              ltac:(apply right_assoc_ternary_product)).
-    pose (p2 := mk_Product _ _ _ ((a ⊠ b) ⊠ c) _
+    pose (p2 := make_Product _ _ _ ((a ⊠ b) ⊠ c) _
                              ltac:(apply left_assoc_ternary_product)).
     replace (a ⊠ (b ⊠ c)) with (ProductObject _ _ p1) by reflexivity.
     replace ((a ⊠ b) ⊠ c) with (ProductObject _ _ p2) by reflexivity.
-    eapply mk_iso.
+    eapply make_iso.
     eapply product_unique.
   Defined.
 
