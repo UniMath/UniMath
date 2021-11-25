@@ -639,17 +639,252 @@ Definition H' : functor Mon_V (hom a0 a0') :=
   functor_compose (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
 
 Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
-Definition montrafotargetbicat_precat: precategory := trafotargetbicat_cat a0 a0' H H'.
+Definition montrafotargetbicat_cat: category := trafotargetbicat_cat a0 a0' H H'.
 
-(*
-Definition montrafotargetbicat_unit: montrafotargetbicat_precat.
+Definition param_distr_bicat_triangle_eq_variant0_RHS : trafotargetbicat_disp a0 a0' H H' I.
 Proof.
-  exists I.
   set (t1 := lwhisker G (strong_monoidal_functor_ϵ_inv FA')).
   set (t2 := rwhisker G (lax_monoidal_functor_ϵ FA)).
-  exact (vcomp2 t1 t2). -- not type-correct, needs correcting terms
+  refine (vcomp2 t1 _).
+  refine (vcomp2 _ t2).
+  apply (vcomp2(g:=G)).
+  - unfold MonoidalFunctors.I_D. cbn. apply runitor.
+  - unfold MonoidalFunctors.I_D. cbn. apply linvunitor.
 Defined.
+
+Definition montrafotargetbicat_unit: montrafotargetbicat_cat.
+Proof.
+  exists I.
+  exact param_distr_bicat_triangle_eq_variant0_RHS.
+Defined.
+
+Definition param_distr_bicat_pentagon_eq_body_RHS (v w : Mon_V)
+           (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : H v · FA' w ==> FA (v ⊗ w) · G.
+Proof.
+  set (aux1 := rwhisker (FA' w) dv).
+  set (aux2 := lwhisker (FA v) dw).
+  transparent assert (auxr : (H v · FA' w ==> FA v · H' w)).
+  { refine (vcomp2 aux1 _).
+    refine (vcomp2 _ aux2).
+    cbn.
+    apply rassociator.
+  }
+  set (aux3 := rwhisker G (lax_monoidal_functor_μ FA (v,,w))).
+  refine (vcomp2 auxr _).
+  refine (vcomp2 _ aux3).
+  cbn.
+  apply lassociator.
+Defined.
+
+Definition param_distr_bicat_pentagon_eq_body_variant_RHS (v w : Mon_V)
+           (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : montrafotargetbicat_disp (v ⊗ w).
+Proof.
+  set (aux1inv := lwhisker G (strong_monoidal_functor_μ_inv FA' (v,,w))).
+  refine (vcomp2 aux1inv _).
+  refine (vcomp2 _ (param_distr_bicat_pentagon_eq_body_RHS v w dv dw)).
+  cbn.
+  apply lassociator.
+Defined.
+
+Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
+      (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
+      (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
+      (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
+  param_distr_bicat_pentagon_eq_body_variant_RHS v w η π
+  -->[# tensor (f,, g: pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
+  param_distr_bicat_pentagon_eq_body_variant_RHS v' w' η' π'.
+Proof.
+  unfold mor_disp in Hyp, Hyp' |- *.
+  hnf in Hyp, Hyp' |- *.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  (*
+  match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
+     set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
+  match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
+           set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
+  set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V _ _ FA' G v w).
+  rewrite <- assoc.
+  apply pathsinv0.
+  apply (z_iso_inv_to_left _ _ _ αinviso).
+  unfold inv_from_z_iso.
+  set (α := # precompG (lax_monoidal_functor_μ FA' (v,, w))).
+  change (pr12 αinviso) with α.
+  set (fg := (f #, g)).
+  assert (μFA'natinst := nat_trans_ax (lax_monoidal_functor_μ FA') _ _ fg).
+  simpl in μFA'natinst.
+  assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
+  simpl in μFAnatinst.
+  change (# (functorial_composition _ _ _) (# FA f #, # FA g) · lax_monoidal_functor_μ FA (v',, w') =
+          lax_monoidal_functor_μ FA (v,, w) · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
+  change (# (functorial_composition _ _ _) (# FA' f #, # FA' g) · lax_monoidal_functor_μ FA' (v',, w') =
+            lax_monoidal_functor_μ FA' (v,, w) · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
+  set (ε2better := # precompG (# (functor_composite tensor FA') fg)).
+  transparent assert (ε2betterok : (ε2 = ε2better)).
+  { apply idpath. }
+  rewrite ε2betterok.
+  rewrite assoc.
+  apply (maponpaths (# precompG)) in μFA'natinst.
+  apply pathsinv0 in μFA'natinst.
+  do 2 rewrite functor_comp in μFA'natinst.
+  etrans.
+  { apply cancel_postcomposition.
+    exact μFA'natinst. }
+  clear ε2 μFA'natinst ε2better ε2betterok.
+  rewrite <- assoc.
+  etrans.
+  { apply maponpaths.
+    rewrite assoc.
+    apply cancel_postcomposition.
+    unfold αinv'.
+    apply pathsinv0.
+    apply (functor_comp precompG). }
+  etrans.
+  { apply maponpaths.
+    apply cancel_postcomposition.
+    apply maponpaths.
+    set (μFA'pointwise := nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ FA') (v',, w')).
+    apply (z_iso_inv_after_z_iso μFA'pointwise). }
+  clear αinv αinv' αinviso α.
+  rewrite functor_id.
+  rewrite id_left.
+  match goal with | [ |- ?Hσ · _ = _ ] => set (σ' := Hσ) end.
+  etrans.
+  2: { (* Fail apply assoc. *)
+    use assoc. }
+  set (ε1better := # postcompG (# (functor_composite tensor FA) fg)).
+  transparent assert (ε1betterok : (ε1 = ε1better)).
+  { apply idpath. }
+  rewrite ε1betterok.
+  apply (maponpaths (# postcompG)) in μFAnatinst.
+  do 2 rewrite functor_comp in μFAnatinst.
+  etrans.
+  2: { apply maponpaths.
+       unfold β, ε1better.
+       exact μFAnatinst. }
+  clear β μFAnatinst ε1 ε1better ε1betterok.
+  match goal with | [ |- _ = _ · (_ · ?Hβ'twin) ] => set (β'twin := Hβ'twin) end.
+  change β'twin with β'.
+  clear β'twin.
+  etrans.
+  2: { apply pathsinv0. (* Fail apply assoc. *) use assoc. }
+  etrans.
+  { (* Fail apply assoc. *) use assoc. }
+  (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
+  clear β'.
+  unfold σ'.
+  rewrite functorial_composition_pre_post.
+  clear σ'.
+  rewrite functor_comp.
+  match goal with | [ |- ?Hσ'1 · ?Hσ'2 · _  = _ · ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
+  apply (maponpaths (# (post_composition_functor A A' A' ((FA' w'): [A', A'])))) in Hyp.
+  do 2 rewrite functor_comp in Hyp.
+  apply pathsinv0 in Hyp.
+  assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' (FA' w')) η
+                       · # (post_composition_functor A A' A' (FA' w')) (# H' f)).
+  { etrans.
+    2: { exact Hyp. }
+    (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
+    apply exchange_postcomp_precomp_mor_special. }
+  clear Hyp.
+  intermediate_path (σ'1 · (σ'2 · γ') · δ').
+  { repeat rewrite <- assoc.
+    apply idpath. }
+  rewrite Hypvariant.
+  clear σ'2 γ' Hypvariant.
+  unfold H', param_distributivity_codom.
+  change (ActionBasedStrength.postcompF A A' G) with (postcompG(C:=A)).
+  match goal with | [ |- _ · (?Hγw' · ?Hι') · _ = _ ] => set (γw' := Hγw'); set (ι' := Hι')  end.
+  intermediate_path (((σ'1 · γw') · ι') · δ').
+  { repeat rewrite <- assoc.
+    apply maponpaths.
+    apply pathsinv0.
+    (* Fail apply assoc. *) use assoc. }
+  etrans.
+  { do 2 apply cancel_postcomposition.
+    apply pathsinv0.
+    assert (auxhorcomp := functorial_composition_pre_post _ _ _ _ _ _ _ η (# FA' g)).
+    assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' (H v)) (# FA' g)).
+    { apply assoc_precomp_precomp_mor. }
+    rewrite σ'1ok. unfold γw'. apply auxhorcomp. }
+  rewrite functorial_composition_post_pre.
+  clear σ'1 γw'.
+  change (# (post_composition_functor A A' A' (FA' w)) η) with γ.
+  rewrite <- assoc.
+  match goal with | [ |- _ · ?Hν' · _ = _ ] => set (ν' := Hν')  end.
+  intermediate_path (γ · (ν' · (ι' · δ'))).
+  { apply pathsinv0.
+    (* Fail apply assoc. *) use assoc. }
+  intermediate_path (γ · (δ · σ)).
+  2: { (* Fail apply assoc. *) use assoc. }
+  apply maponpaths.
+  set (ν'better := # (pre_composition_functor A A' A' (H' v)) (# FA' g)).
+  change ν' with ν'better.
+  clear ν'.
+  unfold σ. rewrite functorial_composition_pre_post.
+  clear σ.
+  rewrite functor_comp.
+  rewrite assoc.
+  match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
+  apply (maponpaths (# (pre_composition_functor A A A' ((FA v): [A, A])))) in Hyp'.
+  do 2 rewrite functor_comp in Hyp'.
+  assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' (FA v)) (# H g)
+       · # (pre_composition_functor A A A' (FA v)) π').
+  { etrans.
+    2: { exact Hyp'. }
+    apply maponpaths.
+    change (σ1 = # (pre_composition_functor A A A' (FA v))
+                   (# (post_composition_functor A A A' G) (# FA g))).
+    apply exchange_postcomp_precomp_mor. }
+  clear Hyp'.
+  intermediate_path (δ · σ1 · σ2).
+  2: { apply pathsinv0. (* Fail apply assoc. *) use assoc. }
+  rewrite Hypvariant.
+  clear δ σ1 Hypvariant.
+  match goal with | [ |- _ = ?Hν'variant · ?Hδ'π' · _] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
+  assert (ν'variantok: ν'variant = ν'better).
+  { change (# (pre_composition_functor A A A' (FA v)) (# (pre_composition_functor A A' A' G) (# FA' g)) =
+           # (pre_composition_functor A A' A' (pre_composition_functor A A A' (FA v) G)) (# FA' g)).
+    apply assoc_precomp_precomp_mor.
+  }
+  rewrite ν'variantok.
+  clear ν'variant ν'variantok.
+  rewrite <- assoc.
+  intermediate_path (ν'better · (δ'π' · σ2)).
+  2: { (* Fail apply assoc. *) use assoc. }
+  apply maponpaths.
+  clear ν'better.
+  assert (auxhorcomp' := functorial_composition_pre_post _ _ _ _ _ _ _ (# FA f) π').
+  rewrite functorial_composition_post_pre in auxhorcomp'.
+  change (# (pre_composition_functor A A A' (FA v')) π') with δ' in auxhorcomp'.
+  change (# (pre_composition_functor A A A' (FA v)) π') with δ'π' in auxhorcomp'.
+  assert (ι'ok: ι' = # (post_composition_functor A A A' (H w')) (# FA f)).
+  { change (# (post_composition_functor A A' A' (FA' w'))
+              (# (post_composition_functor A A A' G) (# FA f)) =
+              # (post_composition_functor A A A'
+                       (post_composition_functor A A' A' (FA' w') G)) (# FA f)).
+    apply assoc_postcomp_postcomp_mor.
+  }
+  assert (σ2ok: σ2 = # (post_composition_functor A A A' (H' w')) (# FA f)).
+  { change (σ2 = # (post_composition_functor A A A' (post_comp_functor G (FA w'))) (# FA f)).
+    apply assoc_postcomp_postcomp_mor. }
+  rewrite ι'ok, σ2ok.
+  clear ι' σ2 ι'ok σ2ok.
+  exact auxhorcomp'.
 *)
+Admitted.
+
+
+Definition montrafotargetbicat_disp_tensor: displayed_tensor tensor montrafotargetbicat_disp.
+Proof.
+  use tpair.
+  - use tpair.
+    + intros [v w] [η π].
+      exact (param_distr_bicat_pentagon_eq_body_variant_RHS v w η π).
+    + intros [v w] [v' w'] [η π] [η' π'] [f g] [Hyp Hyp'].
+      apply montrafotargetbicat_tensor_comp_aux; [exact Hyp | exact Hyp'].
+  - cbv beta in |- *.
+    split; intros; apply trafotargetbicat_disp_cells_isaprop.
+Defined.
 
 End FunctorViaBicat.
 
