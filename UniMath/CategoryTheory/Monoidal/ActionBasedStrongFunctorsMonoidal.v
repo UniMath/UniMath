@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import Bicat.Notations.
@@ -638,6 +639,26 @@ Definition H : functor Mon_V (hom a0 a0') :=
 Definition H' : functor Mon_V (hom a0 a0') :=
   functor_compose (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
 
+Lemma Hok (v: Mon_V) : H v = G · (pr11 FA') v.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma Hmorok (v v': Mon_V) (f: v --> v'): # H f = G ◃ # (pr11 FA') f.
+Proof.
+  cbn. apply hcomp_identity_left.
+Qed.
+
+Lemma H'ok (v: Mon_V) : H' v = (pr11 FA) v · G.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma H'morok (v v': Mon_V) (f: v --> v'): # H' f = # (pr11 FA) f ▹ G.
+Proof.
+  cbn. apply hcomp_identity_right.
+Qed.
+
 Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
 Definition montrafotargetbicat_cat: category := trafotargetbicat_cat a0 a0' H H'.
 
@@ -686,6 +707,15 @@ Proof.
   apply lassociator.
 Defined.
 
+Definition lwhisker_with_μ_inv_inv2cell (v w : Mon_V): invertible_2cell (G · FA' (v ⊗ w)) (G · (FA' v · FA' w)).
+Proof.
+  use make_invertible_2cell.
+  - exact (lwhisker G (strong_monoidal_functor_μ_inv FA' (v,,w))).
+  - apply is_invertible_2cell_lwhisker.
+    change (is_z_isomorphism (strong_monoidal_functor_μ_inv FA' (v,, w))). (* is this change really needed? *)
+    apply is_z_isomorphism_inv.
+Defined.
+
 Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
       (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
@@ -697,95 +727,122 @@ Proof.
   unfold mor_disp in Hyp, Hyp' |- *.
   hnf in Hyp, Hyp' |- *.
   unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
-  (*
-  match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
-     set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
-  match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
-           set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
-  set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V _ _ FA' G v w).
-  rewrite <- assoc.
+  match goal with | [ |- (?Hαinv • (?Hassoc1 • ((?Hγ • (?Hassoc2 • ?Hδ)) • (?Hassoc3 • ?Hβ)))) · ?Hε = _ ] =>
+                      set (αinv := Hαinv); set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
+  cbn in αinv, β.
+  match goal with | [ |- _ = ?Hε · (?Hαinv • (?Hassoc4 • ((?Hγ • (?Hassoc5 • ?Hδ) • (?Hassoc6 • ?Hβ))))) ] =>
+                      set (αinv' := Hαinv); set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
+  cbn in αinv', β'.
+  (* cbn. shows that the cdot expands to bullet *)
+  change ((αinv • (lassociator G ((pr11 FA') v) (FA' w)
+      • ((γ • (rassociator (FA v) G ((pr11 FA') w) • δ))
+         • (lassociator (FA v) (FA w) G • β)))) • ε1 =
+  ε2 • (αinv'
+     • (lassociator G ((pr11 FA') v') (FA' w')
+        • ((γ' • (rassociator (FA v') G ((pr11 FA') w') • δ'))
+           • (lassociator (FA v') (FA w') G • β'))))).
+  set (αinviso := lwhisker_with_μ_inv_inv2cell v w).
+  cbn in αinviso.
+  etrans.
+  { apply pathsinv0. apply vassocr. }
+  apply (lhs_left_invert_cell _ _ _ αinviso).
   apply pathsinv0.
-  apply (z_iso_inv_to_left _ _ _ αinviso).
-  unfold inv_from_z_iso.
-  set (α := # precompG (lax_monoidal_functor_μ FA' (v,, w))).
-  change (pr12 αinviso) with α.
+  unfold inv_cell.
+  set (α := lwhisker G (lax_monoidal_functor_μ FA' (v,, w))).
+  cbn in α.
+  match goal with | [ |- ?Hαcand • _ = _ ] => set (αcand := Hαcand) end.
+  change αcand with α.
+  clear αcand.
   set (fg := (f #, g)).
   assert (μFA'natinst := nat_trans_ax (lax_monoidal_functor_μ FA') _ _ fg).
   simpl in μFA'natinst.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
-  change (# (functorial_composition _ _ _) (# FA f #, # FA g) · lax_monoidal_functor_μ FA (v',, w') =
-          lax_monoidal_functor_μ FA (v,, w) · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
-  change (# (functorial_composition _ _ _) (# FA' f #, # FA' g) · lax_monoidal_functor_μ FA' (v',, w') =
-            lax_monoidal_functor_μ FA' (v,, w) · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
-  set (ε2better := # precompG (# (functor_composite tensor FA') fg)).
+  set (ε2better := lwhisker G (# (functor_composite tensor FA') fg)).
   transparent assert (ε2betterok : (ε2 = ε2better)).
-  { apply idpath. }
+  { cbn. apply hcomp_identity_left. }
   rewrite ε2betterok.
-  rewrite assoc.
-  apply (maponpaths (# precompG)) in μFA'natinst.
-  apply pathsinv0 in μFA'natinst.
-  do 2 rewrite functor_comp in μFA'natinst.
   etrans.
-  { apply cancel_postcomposition.
+  { apply vassocr. }
+  apply (maponpaths (lwhisker G)) in μFA'natinst.
+  apply pathsinv0 in μFA'natinst.
+  etrans.
+  { apply maponpaths_2.
+    apply lwhisker_vcomp. }
+  etrans.
+  { apply maponpaths_2.
     exact μFA'natinst. }
   clear ε2 μFA'natinst ε2better ε2betterok.
-  rewrite <- assoc.
   etrans.
-  { apply maponpaths.
-    rewrite assoc.
-    apply cancel_postcomposition.
-    unfold αinv'.
+  { apply maponpaths_2.
     apply pathsinv0.
-    apply (functor_comp precompG). }
+    apply lwhisker_vcomp. }
+  etrans.
+  { apply pathsinv0. apply vassocr. }
   etrans.
   { apply maponpaths.
-    apply cancel_postcomposition.
+    rewrite vassocr.
+    apply maponpaths_2.
+    unfold αinv'.
+    apply lwhisker_vcomp.
+  }
+  etrans.
+  { apply maponpaths.
+    apply maponpaths_2.
     apply maponpaths.
     set (μFA'pointwise := nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ FA') (v',, w')).
     apply (z_iso_inv_after_z_iso μFA'pointwise). }
   clear αinv αinv' αinviso α.
-  rewrite functor_id.
-  rewrite id_left.
-  match goal with | [ |- ?Hσ · _ = _ ] => set (σ' := Hσ) end.
-  etrans.
-  2: { (* Fail apply assoc. *)
-    use assoc. }
-  set (ε1better := # postcompG (# (functor_composite tensor FA) fg)).
+  set (ε1better := rwhisker G (# (functor_composite tensor FA) fg)).
   transparent assert (ε1betterok : (ε1 = ε1better)).
-  { apply idpath. }
+  { cbn. apply hcomp_identity_right. }
   rewrite ε1betterok.
-  apply (maponpaths (# postcompG)) in μFAnatinst.
-  do 2 rewrite functor_comp in μFAnatinst.
+  cbn.
+  rewrite lwhisker_id2.
+  rewrite id2_left.
+  match goal with | [ |- ?Hσ • _ = _ ] => set (σ' := Hσ) end.
   etrans.
-  2: { apply maponpaths.
-       unfold β, ε1better.
+  2: { repeat rewrite <- vassocr. apply idpath. }
+  apply (maponpaths (rwhisker G)) in μFAnatinst.
+  etrans.
+  2: { do 5 apply maponpaths.
+       apply pathsinv0. apply rwhisker_vcomp. }
+  etrans.
+  2: { do 5 apply maponpaths.
        exact μFAnatinst. }
   clear β μFAnatinst ε1 ε1better ε1betterok.
-  match goal with | [ |- _ = _ · (_ · ?Hβ'twin) ] => set (β'twin := Hβ'twin) end.
+  etrans.
+  2: { do 5 apply maponpaths.
+       apply rwhisker_vcomp. }
+  match goal with | [ |- _ =  _ • (_ • (_ • (_ • (_ • (_ • ?Hβ'twin))))) ] => set (β'twin := Hβ'twin) end.
   change β'twin with β'.
   clear β'twin.
-  etrans.
-  2: { apply pathsinv0. (* Fail apply assoc. *) use assoc. }
-  etrans.
-  { (* Fail apply assoc. *) use assoc. }
-  (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
+  repeat rewrite vassocr.
+  apply maponpaths_2.
   clear β'.
   unfold σ'.
-  rewrite functorial_composition_pre_post.
+  rewrite hcomp_hcomp'.
+  unfold hcomp'.
   clear σ'.
-  rewrite functor_comp.
-  match goal with | [ |- ?Hσ'1 · ?Hσ'2 · _  = _ · ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
-  apply (maponpaths (# (post_composition_functor A A' A' ((FA' w'): [A', A'])))) in Hyp.
-  do 2 rewrite functor_comp in Hyp.
+  rewrite <- lwhisker_vcomp.
+  match goal with | [ |- (((((?Hσ'1 • ?Hσ'2) • _) • _) • _) • _) • _  = _ • ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
+  change (η • # H' f = # H f • η') in Hyp.
+  apply (maponpaths (rwhisker (FA' w'))) in Hyp.
+  do 2 rewrite <- rwhisker_vcomp in Hyp.
   apply pathsinv0 in Hyp.
-  assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' (FA' w')) η
-                       · # (post_composition_functor A A' A' (FA' w')) (# H' f)).
-  { etrans.
+  assert (Hypvariant: σ'2 • lassociator G ((pr11 FA') v') (FA' w') • γ' =
+              lassociator G ((pr11 FA') v) (FA' w') • (rwhisker (FA' w') η • rwhisker (FA' w') (# H' f))).
+  { apply (maponpaths (vcomp2 (lassociator G ((pr11 FA') v) (FA' w')))) in Hyp.
+    etrans.
     2: { exact Hyp. }
-    (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
-    apply exchange_postcomp_precomp_mor_special. }
+    rewrite vassocr.
+    apply maponpaths_2.
+    rewrite Hmorok.
+    apply rwhisker_lwhisker.
+  }
   clear Hyp.
+
+(*
   intermediate_path (σ'1 · (σ'2 · γ') · δ').
   { repeat rewrite <- assoc.
     apply idpath. }
