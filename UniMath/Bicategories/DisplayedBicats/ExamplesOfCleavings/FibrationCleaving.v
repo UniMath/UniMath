@@ -27,9 +27,6 @@ Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 (** Characterization of cartesian 2-cells *)
 Definition cleaving_of_fibs_is_cartesian_2cell
            {C₁ C₂ : bicat_of_univ_cats}
@@ -87,23 +84,7 @@ Proof.
   intros z g zz gg.
   unfold is_cartesian_2cell in Hαα.
   cbn in Hαα.
-  (*
-  cbn in *.
-  pose (Hαα (constant_functor C₁ C₂ z)) as i.
-  cbn in i.
-  assert (disp_functor (constant_functor C₁ C₂ z) (pr1 D₁) (pr1 D₂)).
-  {
-    use tpair.
-    - simple refine ((λ _ _, zz) ,, (λ _ _ _ _ _ _, _)).
-      exact (id_disp zz).
-    - apply TODO.
-  }
-  specialize (i (X ,, TODO)).
-  cbn.
-  cbn in i.
-   *)
-  apply TODO.
-Defined.
+Abort.
 
 Definition cleaving_of_fibs_local_cleaving
   : local_cleaving disp_bicat_of_fibs.
@@ -126,22 +107,15 @@ Definition cleaving_of_fibs_lwhisker_cartesian
   : lwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  apply cleaving_of_fibs_is_cartesian_2cell.
-  intros x xx ; cbn.
-  apply (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
-Defined.
+  unfold is_cartesian_2cell.
+  intros h hh γ ββ.
+Abort.
 
 Definition cleaving_of_fibs_rwhisker_cartesian
   : rwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  apply cleaving_of_fibs_is_cartesian_2cell.
-  intros x xx ; cbn.
-  pose (pr2 GG) as m.
-  cbn in m.
-  apply m.
-  apply (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα).
-Defined.
+Abort.
 
 (** Global cleaving *)
 Definition cleaving_of_fibs_lift_obj
@@ -551,268 +525,6 @@ Proof.
     apply isapropunit.
 Defined.
 
-(*
-Section Cartesian1Cell.
-  Context {C₁ C₂ : bicat_of_univ_cats}
-          {F : C₁ --> C₂}
-          {D₁ : disp_bicat_of_fibs C₁}
-          {D₂ : disp_bicat_of_fibs C₂}
-          {FF : D₁ -->[ F ] D₂}
-          (HFF : cartesian_1cell _ FF).
-
-  Let totD₁ : bicat_of_univ_cats := total_univalent_category (pr1 D₁).
-  Let totD₂ : bicat_of_univ_cats := total_univalent_category (pr1 D₂).
-  Let π₁ : pr1 totD₁ ⟶ pr1 C₁ := pr1_category (pr11 D₁).
-  Let π₂ : pr1 totD₂ ⟶ pr1 C₂ := pr1_category (pr11 D₂).
-  Let totF : pr1 totD₁ ⟶ pr1 totD₂ := total_functor (pr1 FF).
-
-  Local Definition cone_commutes_nat_trans
-    : π₁ ∙ F ⟹ totF ∙ π₂.
-  Proof.
-    use make_nat_trans.
-    - exact (λ x, identity _).
-    - abstract
-        (intros x y f ;
-         cbn ;
-         rewrite id_left, id_right ;
-         apply idpath).
-  Defined.
-
-  Local Definition cone_commutes
-    : nat_iso (π₁ ∙ F) (totF ∙ π₂).
-  Proof.
-    use make_nat_iso.
-    - exact cone_commutes_nat_trans.
-    - intros x.
-      apply identity_is_iso.
-  Defined.
-
-  Definition cartesian_to_cone
-    : pb_cone F π₂
-    := make_pb_cone
-         totD₁
-         π₁
-         totF
-         (nat_iso_to_invertible_2cell
-            _ _
-            cone_commutes).
-
-  Section UMP1.
-    Variable (q : pb_cone F π₂).
-
-    Let υ : disp_bicat_of_fibs q
-      := (unit_univalent_disp_cat (pr11 q) ,, cleaving_unit_disp_cat _).
-    Let qπ₁ : pr11 q ⟶ pr1 C₁ := pb_cone_pr1 q.
-    Let qπ₂ : pr11 q ⟶ pr1 totD₂ := pb_cone_pr2 q.
-    Let qc : nat_iso (pb_cone_pr1 q ∙ F) (pb_cone_pr2 q ∙ π₂)
-      := invertible_2cell_to_nat_iso _ _ (pb_cone_cell q).
-
-    Definition test_data
-      : disp_functor_data (qπ₁ ∙ F) (pr11 υ) (pr11 D₂).
-    Proof.
-      simple refine (_ ,, _).
-      - exact (λ x _, transportf
-                        _
-                        (isotoid
-                           _
-                           (pr2 C₂)
-                           (iso_inv_from_iso (nat_iso_pointwise_iso qc x)))
-                        (pr2 (qπ₂ x))).
-      - cbn.
-        refine (λ x y _ _ f _, _).
-        cbn.
-        pose (pr2 (#qπ₂ f)) as m.
-        cbn in m.
-    Admitted.
-
-    Definition test
-      : disp_functor (qπ₁ ∙ F) (pr11 υ) (pr11 D₂).
-    Proof.
-      simple refine (_ ,, _).
-      - simple refine (_ ,, _).
-        + cbn.
-          refine (λ x _, _).
-          Check qπ₂ x.
-          pose (qπ₂).
-    Admitted.
-  End UMP1.
-
-  Definition cartesian_to_pb_ump_1
-    : pb_ump_1 cartesian_to_cone.
-  Proof.
-    (*
-    intro q.
-    use make_pb_1cell.
-    - pose (@cartesian_1cell_lift_1cell
-              _ _ _ _ _ _ _ _
-              HFF
-              q
-              (υ q)
-              (pb_cone_pr1 q)).
-      cbn in l.
-
-      pose (pb_cone_pr2 q) as m.
-      cbn in m.
-      cbn.
-
-      assert (disp_functor (pb_cone_pr1 q ∙ F) (unit_disp_cat (pr11 q)) (pr11 D₂)).
-      {
-        simple refine (_ ,, _).
-        - simple refine (_ ,, _).
-          + cbn.
-            intros x y.
-            refine (transportf
-                      (pr11 D₂)
-                      _
-                      (pr2 (pr1 (pb_cone_pr2 q) x))).
-            (*
-            pose (pr11 (pb_cone_cell q) x) as i.
-            cbn in i.
-             *)
-            apply TODO.
-          + cbn.
-            intros x y ? ? f ?.
-            pose (#(pr1 (pb_cone_pr2 q)) f).
-            cbn in p.
-            apply TODO.
-        - split ; apply TODO.
-      }
-
-      cbn.
-      Check (pr12 q).
-      destruct q as [q₁ [q₂ [q₃ q₄]]].
-      cbn in q₁, q₂, q₃, q₄.
-      cbn in l.
-      cbn.
-      use make_functor.
-      + use make_functor_data.
-        * refine (λ x, q₂ x ,, _).
-          apply TODO.
-        * simpl.
-          refine (λ x y f, # q₂ f ,, _).
-          apply TODO.
-      + split.
-        * intro x.
-          cbn.
-          apply TODO.
-        * apply TODO.
-    - cbn.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
-      + use make_nat_trans.
-        * intro x ; cbn.
-          apply identity.
-        * cbn.
-          intros x y f ; cbn.
-          rewrite id_left, id_right.
-          apply idpath.
-      + apply TODO.
-    - cbn.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
-      + use make_nat_trans.
-        * intro x ; cbn.
-          simple refine (_ ,, _).
-          ** exact (pr11 (pr222 q) x).
-          ** cbn.
-             apply TODO.
-        * intros x y f.
-          cbn.
-          use total2_paths_f.
-          ** exact (nat_trans_ax (pr1 (pr222 q)) x y f).
-          ** cbn.
-             apply TODO.
-      + apply TODO.
-    - use nat_trans_eq.
-      {
-        apply homset_property.
-      }
-      intro x.
-      simpl.
-      rewrite !id_left, !id_right.
-      rewrite (functor_id F).
-      rewrite id_left.
-      cbn.
-      apply TODO.
-     *)
-    apply TODO.
-  Defined.
-
-  Definition cartesian_to_pb_ump_2
-    : pb_ump_2 cartesian_to_cone.
-  Proof.
-    (*
-    intros q φ ψ.
-    use make_pb_2cell.
-    - use make_nat_trans.
-      + intros x.
-        (*
-        simple refine (_ ,, _).
-        * pose (pr11 (pb_1cell_pr1 φ) x) as p.
-          refine (pr11 (pb_1cell_pr1 φ) x · _).
-          apply TODO.
-        * cbn.
-          apply TODO.
-         *)
-        apply TODO.
-      + apply TODO.
-    - use nat_trans_eq ; [ apply homset_property | ].
-      intro x ; cbn.
-      apply TODO.
-    - use nat_trans_eq ; [ apply homset_property | ].
-      intro x ; cbn.
-      use total2_paths_f.
-      + cbn.
-        apply TODO.
-      + apply TODO.
-     *)
-    apply TODO.
-  Defined.
-
-  Definition cartesian_to_pb_ump_eq
-    : pb_ump_eq cartesian_to_cone.
-  Proof.
-    intros q φ ψ η₁ η₂.
-    use subtypePath.
-    {
-      intro.
-      use isapropdirprod ; apply cellset_property.
-    }
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
-    intro x.
-    pose (nat_trans_eq_pointwise (pr12 η₁) x) as p₁.
-    pose (nat_trans_eq_pointwise (pr22 η₁) x) as q₁.
-    pose (nat_trans_eq_pointwise (pr12 η₂) x) as p₂.
-    pose (nat_trans_eq_pointwise (pr22 η₂) x) as q₂.
-    pose (r := p₁ @ !p₂).
-    pose (r' := q₁ @ !q₂).
-    cbn in p₁, q₁, p₂, q₂, r, r'.
-
-    Check (isaprop_lift_of_lift_2cell
-             disp_bicat_of_fibs).
-             HFF).
-    use total2_paths_f.
-
-    - pose (base_paths _ _ r') as p.
-      cbn in p.
-      apply TODO.
-    - apply TODO.
-  Qed.
-
-  Definition cartesian_to_pb_ump
-    : has_pb_ump cartesian_to_cone.
-  Proof.
-    use make_has_pb_ump.
-    - exact cartesian_to_pb_ump_1.
-    - exact cartesian_to_pb_ump_2.
-    - exact cartesian_to_pb_ump_eq.
-  Defined.
-                 End Cartesian1Cell.
-                 *)
-
 Definition cleaving_of_fibs_lift_mor_cartesian
            {C₁ C₂ : bicat_of_univ_cats}
            (D₂ : disp_bicat_of_fibs C₂)
@@ -837,11 +549,13 @@ Proof.
 Defined.
 
 Definition cleaving_of_fibs
+           (H₁ : lwhisker_cartesian disp_bicat_of_fibs)
+           (H₂ : rwhisker_cartesian disp_bicat_of_fibs)
   : cleaving_of_bicats disp_bicat_of_fibs.
 Proof.
   repeat split.
   - exact cleaving_of_fibs_local_cleaving.
   - exact cleaving_of_fibs_global_cleaving.
-  - exact cleaving_of_fibs_lwhisker_cartesian.
-  - exact cleaving_of_fibs_rwhisker_cartesian.
+  - exact H₁.
+  - exact H₂.
 Defined.

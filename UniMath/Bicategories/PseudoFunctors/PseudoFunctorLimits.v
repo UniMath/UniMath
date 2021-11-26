@@ -219,8 +219,8 @@ Section FixAnInitial.
   Defined.
 End FixAnInitial.
 
-Definition TODO {A : UU} : A.
-Admitted.
+(*
+This is WIP. It is commented out, because it needs refactoring
 
 Section FixProducts.
   Context (B₁ : bicat)
@@ -1393,3 +1393,4 @@ Section FixProducts.
     - exact (psfunctor_binprod_ump F G).
   Defined.
 End FixProducts.
+ *)
