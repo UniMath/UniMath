@@ -3480,7 +3480,7 @@ Section Gauss.
      -> is_leading_entry (mat i_2) j_2
      -> i_1 < i_2
      -> j_1 < j_2)
-   × ((mat i_1 != const_vec 0%hq) -> (mat i_2 = const_vec 0%hq) -> i_1 < i_2).
+   × ((mat i_1 = const_vec 0%hq) -> (i_1 < i_2) -> (mat i_2 = const_vec 0%hq)).
 
   Definition is_row_echelon_partial_1
     {m n : nat} (mat : Matrix F m n) (iter : ⟦ S n ⟧%stn) :=
