@@ -123,3 +123,7 @@ DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
 DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
+
+Core/InternalStreetFibration.v
+DisplayedBicats/Examples/CodomainFibs.v
+DisplayedBicats/DispMapBicat.v

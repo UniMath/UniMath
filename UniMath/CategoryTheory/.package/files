@@ -198,6 +198,7 @@ DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/StreetFibration.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
