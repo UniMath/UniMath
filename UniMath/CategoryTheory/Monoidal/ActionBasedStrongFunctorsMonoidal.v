@@ -604,6 +604,28 @@ Context (H H' : C0 ⟶ hom a a').
 
   Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
+(** a "pedestrian" definition *)
+  Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat.
+    Proof.
+      use make_functor.
+      - use make_functor_data.
+        + intro c.
+          exact (c ,, η c).
+        + intros c c' f.
+          exists f.
+          red. unfold trafotargetbicat_disp. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split; red.
+        + intro c.
+          use total2_paths_f.
+          * cbn. apply idpath.
+          * apply trafotargetbicat_disp_cells_isaprop.
+        + intros c1 c2 c3 f f'.
+          use total2_paths_f.
+          * cbn. apply idpath.
+          * apply trafotargetbicat_disp_cells_isaprop.
+    Defined.
+
   End SameInBicat.
 
 Section Main.
@@ -1211,6 +1233,211 @@ Definition montrafotargetbicat_moncat: monoidal_cat := mk_monoidal_cat montrafot
                montrafotargetbicat_tensor montrafotargetbicat_unit montrafotargetbicat_left_unitor
                montrafotargetbicat_right_unitor montrafotargetbicat_associator
                montrafotargetbicat_triangle_eq montrafotargetbicat_pentagon_eq.
+
+Section IntoMonoidalFunctorBicat.
+
+  Definition parameterized_distributivity_bicat_nat : UU := H ⟹ H'.
+  Definition parameterized_distributivity_bicat_nat_funclass (δ : parameterized_distributivity_bicat_nat):
+      ∏ v : ob (Mon_V), H v --> H' v
+      := pr1 δ.
+  Coercion parameterized_distributivity_bicat_nat_funclass : parameterized_distributivity_bicat_nat >-> Funclass.
+
+  Context (δ: parameterized_distributivity_bicat_nat).
+
+  Definition param_distr_bicat_triangle_eq_variant0: UU := δ I = param_distr_bicat_triangle_eq_variant0_RHS.
+
+  Definition param_distr_bicat_pentagon_eq_variant: UU := ∏ (v w : Mon_V),
+      δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+  Context (δtr_eq: param_distr_bicat_triangle_eq_variant0)
+          (δpe_eq: param_distr_bicat_pentagon_eq_variant).
+
+Definition lmf_from_param_distr_bicat_functor: Mon_V ⟶ montrafotargetbicat_moncat.
+Proof.
+  apply (nat_trafo_to_functor_bicat _ _ H H' δ).
+Defined.
+
+(** we come to an important element of the whole construction - the triangle law enters here *)
+Lemma lmf_from_param_distr_bicat_ε_aux:
+    pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat)
+    -->[ id pr1 (MonoidalFunctors.I_D montrafotargetbicat_moncat)]
+    pr2 (lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V)).
+Proof.
+  unfold mor_disp. unfold trafotargetbicat_disp. hnf.
+  do 2 rewrite functor_id.
+  rewrite id_right. rewrite id_left.
+  apply pathsinv0.
+  exact δtr_eq.
+Qed.
+
+Definition lmf_from_param_distr_bicat_ε:
+    pr1 montrafotargetbicat_moncat ⟦ MonoidalFunctors.I_D montrafotargetbicat_moncat,
+                       lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V) ⟧ :=
+  (identity _),, lmf_from_param_distr_bicat_ε_aux.
+
+(** we come to the crucial element of the whole construction - the pentagon law enters here *)
+Lemma lmf_from_param_distr_bicat_μ_aux (vw : Mon_V ⊠ Mon_V):
+  pr2 (monoidal_functor_map_dom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor vw)
+      -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor vw)]
+  pr2 (monoidal_functor_map_codom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor vw).
+Proof.
+  unfold mor_disp. unfold trafotargetbicat_disp. hnf.
+  red in δpe_eq.
+  do 2 rewrite functor_id.
+  rewrite id_left, id_right.
+  assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
+  apply pathsinv0. exact δpe_eqinst.
+Qed.
+
+Definition lmf_from_param_distr_bicat_μ_data: nat_trans_data
+    (monoidal_functor_map_dom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor)
+    (monoidal_functor_map_codom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor).
+Proof.
+  intro vw.
+  exists (identity _).
+  apply lmf_from_param_distr_bicat_μ_aux.
+Defined.
+
+Lemma lmf_from_param_distr_bicat_μ_data_is_nat: is_nat_trans _ _ lmf_from_param_distr_bicat_μ_data.
+Proof.
+  intros vw vw' fg.
+  use total2_paths_f.
+  - cbn. rewrite id_left. apply id_right.
+  - apply trafotargetbicat_disp_cells_isaprop.
+Qed.
+
+Definition lmf_from_param_distr_bicat_μ: monoidal_functor_map Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor :=
+  lmf_from_param_distr_bicat_μ_data ,, lmf_from_param_distr_bicat_μ_data_is_nat.
+
+Lemma lmf_from_param_distr_bicat_assoc: monoidal_functor_associativity Mon_V
+                              montrafotargetbicat_moncat lmf_from_param_distr_bicat_functor lmf_from_param_distr_bicat_μ.
+Proof.
+  intros u v w.
+  use total2_paths_f.
+  * cbn. do 2 rewrite id_right.
+    etrans.
+    { apply cancel_postcomposition. apply maponpaths.
+      exact (binprod_id (u ⊗ v) w). }
+    rewrite (functor_id tensor).
+    etrans.
+    2: { do 2 apply maponpaths. apply pathsinv0, binprod_id. }
+    rewrite (functor_id tensor).
+    rewrite id_right. apply id_left.
+  * apply trafotargetbicat_disp_cells_isaprop.
+Qed.
+
+Lemma lmf_from_param_distr_bicat_unital: monoidal_functor_unitality Mon_V montrafotargetbicat_moncat
+              lmf_from_param_distr_bicat_functor lmf_from_param_distr_bicat_ε lmf_from_param_distr_bicat_μ.
+Proof.
+  intro v. split.
+  - use total2_paths_f.
+    + cbn.
+      rewrite id_right.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
+      rewrite (functor_id tensor).
+      apply pathsinv0, id_left.
+    + apply trafotargetbicat_disp_cells_isaprop.
+  - use total2_paths_f.
+    + cbn.
+      rewrite id_right.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
+      rewrite (functor_id tensor).
+      apply pathsinv0, id_left.
+    + apply trafotargetbicat_disp_cells_isaprop.
+Qed.
+
+Definition lmf_from_param_distr_bicat: lax_monoidal_functor Mon_V montrafotargetbicat_moncat :=
+  mk_lax_monoidal_functor _ _ lmf_from_param_distr_bicat_functor lmf_from_param_distr_bicat_ε lmf_from_param_distr_bicat_μ
+                          lmf_from_param_distr_bicat_assoc lmf_from_param_distr_bicat_unital.
+
+(* now similar but not identical code to above for triangle *)
+Lemma smf_from_param_distr_bicat_is_strong1_aux: pr2 (lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V)) -->[id I]
+                                           pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat).
+Proof.
+  unfold mor_disp. unfold trafotargetbicat_disp. hnf.
+  do 2 rewrite functor_id.
+  rewrite id_right. rewrite id_left.
+  exact δtr_eq.
+Qed.
+
+Definition smf_from_param_distr_bicat_is_strong1_inv: pr1 montrafotargetbicat_moncat
+   ⟦ lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V), MonoidalFunctors.I_D montrafotargetbicat_moncat ⟧.
+Proof.
+  exists (identity I).
+  apply smf_from_param_distr_bicat_is_strong1_aux.
+Defined.
+
+Lemma smf_from_param_distr_bicat_is_strong1_inv_ok: is_inverse_in_precat (lax_monoidal_functor_ϵ lmf_from_param_distr_bicat)
+                                                                        smf_from_param_distr_bicat_is_strong1_inv.
+Proof.
+  split.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + apply trafotargetbicat_disp_cells_isaprop.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + apply trafotargetbicat_disp_cells_isaprop.
+Qed.
+
+Definition smf_from_param_distr_bicat_is_strong1: is_z_isomorphism (lax_monoidal_functor_ϵ lmf_from_param_distr_bicat) :=
+  smf_from_param_distr_bicat_is_strong1_inv ,, smf_from_param_distr_bicat_is_strong1_inv_ok.
+
+
+(* now similar but not identical code to above for pentagon *)
+Lemma smf_from_param_distr_bicat_is_strong2_aux (vw : Mon_V ⊠ Mon_V):
+  pr2 (monoidal_functor_map_codom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat vw)
+      -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat vw)]
+  pr2 (monoidal_functor_map_dom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat vw).
+Proof.
+  unfold mor_disp. unfold trafotargetbicat_disp. hnf.
+  red in δpe_eq.
+  do 2 rewrite functor_id.
+  rewrite id_left, id_right.
+  cbn.
+  assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
+  exact δpe_eqinst.
+Qed.
+
+Definition smf_from_param_distr_bicat_is_strong2_inv (vw : Mon_V ⊠ Mon_V): montrafotargetbicat_moncat
+   ⟦ monoidal_functor_map_codom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat vw,
+     monoidal_functor_map_dom Mon_V montrafotargetbicat_moncat lmf_from_param_distr_bicat vw ⟧.
+Proof.
+  exists (identity _).
+  apply smf_from_param_distr_bicat_is_strong2_aux.
+Defined.
+
+Lemma smf_from_param_distr_bicat_is_strong2_inv_ok (vw : Mon_V ⊠ Mon_V): is_inverse_in_precat
+   (lax_monoidal_functor_μ lmf_from_param_distr_bicat vw) (smf_from_param_distr_bicat_is_strong2_inv vw).
+Proof.
+  split.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + apply trafotargetbicat_disp_cells_isaprop.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + apply trafotargetbicat_disp_cells_isaprop.
+Qed.
+
+
+Definition smf_from_param_distr_bicat_is_strong2: is_nat_z_iso (lax_monoidal_functor_μ lmf_from_param_distr_bicat) :=
+  fun vw => (smf_from_param_distr_bicat_is_strong2_inv vw ,, smf_from_param_distr_bicat_is_strong2_inv_ok vw).
+
+Definition smf_from_param_distr_bicat_parts: strong_monoidal_functor Mon_V montrafotargetbicat_moncat :=
+  lmf_from_param_distr_bicat,, (smf_from_param_distr_bicat_is_strong1 ,, smf_from_param_distr_bicat_is_strong2).
+
+End IntoMonoidalFunctorBicat.
+
+(* parameterized_distributivity_bicat not yet defined (taking into account the variants!)
+Definition smf_from_param_distr_bicat:
+  parameterized_distributivity_bicat -> strong_monoidal_functor Mon_V montrafotargetbicat_moncat.
+Proof.
+  intro δs.
+  induction δs as [δ [δtr_eq δpe_eq]].
+  exact (smf_from_param_distr_parts_bicat δ δtr_eq δpe_eq).
+Defined.
+*)
 
 End FunctorViaBicat.
 
