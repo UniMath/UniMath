@@ -1,3 +1,17 @@
+(*******************************************************************
+
+ Comprehension bicategories
+
+ In this file we define comprehension bicategories and we
+ construct examples of them.
+
+ 1. Comprehension bicategories
+ 2. The trivial comprehension bicategory
+ 3. Locally groupoidal bicategories with pullbacks
+ 4. The comprehension bicategory from aDisplay map bicategory
+ 5. The comprehension bicategory of fibrations
+
+ *******************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -22,13 +36,17 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.CodomainFibs.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.TrivialCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FibrationCleaving.
+Require Import UniMath.Bicategories.Colimits.Products.
+Import Products.Notations.
 Require Import UniMath.Bicategories.Colimits.Pullback.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
@@ -36,6 +54,9 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 
 Local Open Scope cat.
 
+(**
+ 1. Comprehension bicategories
+ *)
 Definition comprehension_bicat
   : UU
   := ∑ (B : bicat)
@@ -52,6 +73,171 @@ Definition make_comprehension_bicat
   : comprehension_bicat
   := B ,, D ,, χ ,, HD ,, Hχ.
 
+(**
+ 2. The trivial comprehension bicategory
+ *)
+Definition trivial_comprehension_data
+           (B : bicat_with_binprod)
+  : disp_psfunctor_data
+      (trivial_displayed_bicat B B)
+      (cod_sfibs B)
+      (id_psfunctor B).
+Proof.
+  simple refine (_ ,, _ ,, _ ,, _ ,, _).
+  - intros x y.
+    cbn in *.
+    refine (x ⊗ y ,, π₁ ,, _).
+    apply TODO.
+  - simpl.
+    intros x₁ x₂ f y₁ y₂ g.
+    use make_mor_of_internal_sfib_over.
+    + exact (f ⊗₁ g).
+    + apply TODO.
+    + apply inv_of_invertible_2cell.
+      apply pair_1cell_pr1.
+  - simpl.
+    intros x₁ x₂ f₁ f₂ α y₁ y₂ g₁ g₂ β.
+    use make_cell_of_internal_sfib_over.
+    + exact (α ⊗₂ β).
+    + abstract
+        (unfold cell_of_internal_sfib_over_homot ;
+         cbn ;
+         use vcomp_move_R_pM ; [ is_iso | ] ;
+         cbn ;
+         rewrite !vassocr ;
+         use vcomp_move_L_Mp ; [ is_iso | ] ;
+         cbn ;
+         apply prod_2cell_pr1_alt).
+  - intro ; intros ; simpl.
+    use make_cod_sfibs_disp_invertible_2cell.
+    + use make_cell_of_internal_sfib_over.
+      * exact ((pair_1cell_id_id_invertible _ _ _)^-1).
+      * abstract
+          (unfold cell_of_internal_sfib_over_homot ;
+           cbn ;
+           refine (maponpaths _ (binprod_ump_2cell_pr1 _ _ _) @ _) ;
+           rewrite !vassocr ;
+           apply maponpaths_2 ;
+           rewrite lwhisker_id2 ;
+           rewrite !vassocl ;
+           rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+           rewrite linvunitor_lunitor ;
+           rewrite id2_left ;
+           apply runitor_rinvunitor).
+    + cbn.
+      apply binprod_ump_2cell_invertible ; is_iso.
+  - intro ; intros ; simpl.
+    use make_cod_sfibs_disp_invertible_2cell.
+    + use make_cell_of_internal_sfib_over.
+      * apply pair_1cell_comp.
+      * abstract
+          (unfold cell_of_internal_sfib_over_homot ;
+           cbn ;
+           rewrite !vassocl ;
+           etrans ; [ do 5 apply maponpaths ; apply binprod_ump_2cell_pr1 | ] ;
+           rewrite !vassocr ;
+           apply maponpaths_2 ;
+           rewrite !vassocl ;
+           etrans ;
+             [ do 4 apply maponpaths ;
+               rewrite !vassocr ;
+               rewrite lassociator_rassociator ;
+               rewrite id2_left ;
+               apply idpath
+             | ] ;
+           etrans ;
+             [ do 3 apply maponpaths ;
+               rewrite !vassocr ;
+               rewrite lwhisker_vcomp ;
+               rewrite vcomp_linv ;
+               rewrite lwhisker_id2 ;
+               rewrite id2_left ;
+               apply idpath
+             | ] ;
+           etrans ;
+             [ do 2 apply maponpaths ;
+               rewrite !vassocr ;
+               rewrite rassociator_lassociator ;
+               rewrite id2_left ;
+               apply idpath
+             | ] ;
+           etrans ;
+             [ apply maponpaths ;
+               rewrite !vassocr ;
+               rewrite rwhisker_vcomp ;
+               rewrite vcomp_linv ;
+               rewrite id2_rwhisker ;
+               rewrite id2_left ;
+               apply idpath
+             | ] ;
+           rewrite lassociator_rassociator ;
+           rewrite lwhisker_id2 ;
+           apply idpath).
+    + apply pair_1cell_comp_invertible.
+Defined.
+
+Definition trivial_comprehension_is_disp_psfunctor
+           (B : bicat_with_binprod)
+  : is_disp_psfunctor
+      (trivial_displayed_bicat B B)
+      (cod_sfibs B)
+      (id_psfunctor B)
+      (trivial_comprehension_data B).
+Proof.
+  repeat split ; intro ; intros ;
+    (use subtypePath ; [ intro ; apply cellset_property | ]) ;
+    refine (_ @ !(transportb_cell_of_internal_sfib_over _ _ _)) ;
+    cbn.
+  - rewrite pair_2cell_id_id.
+    apply idpath.
+  - rewrite pair_2cell_comp.
+    apply idpath.
+  - use binprod_ump_2cell_unique_alt.
+    + apply (pr2 B).
+    + rewrite <- !rwhisker_vcomp.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocl.
+      apply TODO.
+    + apply TODO.
+  - apply TODO.
+  - apply TODO.
+  - apply TODO.
+  - apply TODO.
+Qed.
+
+Definition trivial_comprehension
+           (B : bicat_with_binprod)
+  : disp_psfunctor
+      (trivial_displayed_bicat B B)
+      (cod_sfibs B)
+      (id_psfunctor B).
+Proof.
+  simple refine (_ ,, _).
+  - exact (trivial_comprehension_data B).
+  - exact (trivial_comprehension_is_disp_psfunctor B).
+Defined.
+
+Definition trivial_comprehension_bicat
+           (B : bicat_with_binprod)
+  : comprehension_bicat.
+Proof.
+  use make_comprehension_bicat.
+  - exact B.
+  - exact (trivial_displayed_bicat B B).
+  - exact (trivial_comprehension B).
+  - exact (trivial_cleaving_of_bicats B B).
+  - apply TODO.
+Defined.
+
+(**
+ 3. Locally groupoidal bicategories with pullbacks
+ *)
 Definition cod_to_sfibs_data
            (B : bicat)
            (HB : locally_groupoid B)
@@ -149,6 +335,9 @@ Proof.
   - apply TODO.
 Defined.
 
+(**
+ 4. The comprehension bicategory from aDisplay map bicategory
+ *)
 Definition disp_map_bicat_to_comprehension_bicat
            (B : bicat)
            (P : disp_map_bicat B)
@@ -162,6 +351,9 @@ Proof.
   - apply TODO.
 Defined.
 
+(**
+ 5. The comprehension bicategory of fibrations
+ *)
 Definition fibration_comprehension_data
   : disp_psfunctor_data
       disp_bicat_of_fibs
