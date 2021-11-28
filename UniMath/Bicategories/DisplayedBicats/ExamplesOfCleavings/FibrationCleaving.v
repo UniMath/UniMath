@@ -107,7 +107,7 @@ Definition cleaving_of_fibs_lwhisker_cartesian
   : lwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  unfold is_cartesian_2cell.
+  unfold is_cartesian_2cell in *.
   intros h hh γ ββ.
 Abort.
 
@@ -115,6 +115,8 @@ Definition cleaving_of_fibs_rwhisker_cartesian
   : rwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
+  unfold is_cartesian_2cell in *.
+  intros h hh γ ββ.
 Abort.
 
 (** Global cleaving *)
@@ -455,8 +457,6 @@ Section Lift2CellFibs.
            apply homset_property).
   Defined.
 End Lift2CellFibs.
-
-
 
 Definition total_univalent_category
            {C : univalent_category}
