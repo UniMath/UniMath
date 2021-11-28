@@ -738,6 +738,16 @@ Proof.
     apply is_z_isomorphism_inv.
 Defined.
 
+Definition lwhisker_rwhisker_with_ϵ_inv_inv2cell (v : Mon_V): invertible_2cell (G · FA' I · FA' v) (G · id₁ a0' · FA' v).
+Proof.
+  use make_invertible_2cell.
+  - exact ((G ◃ strong_monoidal_functor_ϵ_inv FA') ▹ FA' v).
+  - apply is_invertible_2cell_rwhisker.
+    apply is_invertible_2cell_lwhisker.
+    change (is_z_isomorphism (strong_monoidal_functor_ϵ_inv FA')).
+    apply is_z_isomorphism_inv.
+Defined.
+
 Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
       (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
@@ -1009,6 +1019,66 @@ Proof.
   do 3 rewrite <- rwhisker_vcomp.
   repeat rewrite <- vassocr.
   match goal with | [ |- ?Hl1 • (_ • (?Hl2 • (_ • (_ • (?Hl3 • (_ • (?Hl4 • (_ • (?Hl5 • ?Hl6)))))))))  = ?Hr1 • _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
+  change (H v ==> H' v) in η.
+  set (l1iso := lwhisker_with_μ_inv_inv2cell I v).
+  apply (lhs_left_invert_cell _ _ _ l1iso).
+  cbn.
+  apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+  cbn.
+  set (l2iso := lwhisker_rwhisker_with_ϵ_inv_inv2cell v).
+  apply (lhs_left_invert_cell _ _ _ l2iso).
+  cbn.
+  etrans.
+  2: { repeat rewrite vassocr.
+       rewrite <- rwhisker_lwhisker_rassociator.
+       apply maponpaths_2.
+       repeat rewrite <- vassocr.
+       apply maponpaths.
+       unfold r1.
+       do 2 rewrite lwhisker_vcomp.
+       apply maponpaths.
+       rewrite vassocr.
+       assert (lax_monoidal_functor_unital_inst := pr1 (lax_monoidal_functor_unital FA' v)).
+       cbn in lax_monoidal_functor_unital_inst.
+       rewrite hcomp_identity_right in lax_monoidal_functor_unital_inst.
+       exact lax_monoidal_functor_unital_inst.
+  }
+  clear l1 l2 l1iso l2iso r1.
+  etrans.
+  { do 2 apply maponpaths.
+    rewrite vassocr.
+    apply maponpaths_2.
+    apply rwhisker_rwhisker_alt. }
+  clear l3.
+  cbn.
+  etrans.
+  { do 2 apply maponpaths.
+    repeat rewrite vassocr.
+    do 3 apply maponpaths_2.
+    rewrite <- vassocr.
+    apply maponpaths.
+    apply hcomp_hcomp'. }
+  clear l4.
+  unfold hcomp'.
+  etrans.
+  { repeat rewrite <- vassocr.
+    do 4 apply maponpaths.
+    rewrite vassocr.
+    rewrite <- rwhisker_rwhisker.
+    repeat rewrite <- vassocr.
+    apply maponpaths.
+    unfold l5, l6.
+    do 2 rewrite rwhisker_vcomp.
+    apply maponpaths.
+    apply pathsinv0.
+    rewrite vassocr.
+    assert (lax_monoidal_functor_unital_inst := pr1 (lax_monoidal_functor_unital FA v)).
+    cbn in lax_monoidal_functor_unital_inst.
+    rewrite hcomp_identity_right in lax_monoidal_functor_unital_inst.
+    exact lax_monoidal_functor_unital_inst.
+  }
+  clear l5 l6.
+(* the goal is deprived of any true contents and should ideally be resolved with some automatic tactic *)
 Abort.
 
 Definition montrafotargetbicat_left_unitor_aux2_statement: UU :=
