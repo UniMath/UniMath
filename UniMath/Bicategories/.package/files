@@ -20,7 +20,7 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
-Core/Faithful.v
+Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -90,7 +90,7 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
 Core/Examples/Image.v
-PseudoFunctors/Examples/RestrictImage.v
+PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
 
 Colimits/Initial.v
@@ -99,6 +99,7 @@ Colimits/Products.v
 Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
+PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v
