@@ -759,25 +759,35 @@ Defined.
 
 Definition lwhisker_with_invlunitor_inv2cell (v : Mon_V):
   invertible_2cell (G · (pr11 FA') v) (G · (pr11 FA') (tensor (I,, v))).
-  Proof.
+Proof.
   use make_invertible_2cell.
   - exact (G ◃ # (pr11 FA') (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v))).
   - apply is_invertible_2cell_lwhisker.
     change (is_z_isomorphism (# (pr11 FA') (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v)))).
     apply functor_on_is_z_isomorphism.
     apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
-  Defined.
+Defined.
 
 Definition rwhisker_with_invlunitor_inv2cell (v : Mon_V):
   invertible_2cell ((pr11 FA) v · G) ((pr11 FA) (tensor (I,, v)) · G).
-  Proof.
+Proof.
   use make_invertible_2cell.
   - exact (# (pr11 FA) (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v)) ▹ G).
   - apply is_invertible_2cell_rwhisker.
     change (is_z_isomorphism (# (pr11 FA) (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v)))).
     apply functor_on_is_z_isomorphism.
     apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
-  Defined.
+Defined.
+
+Definition lwhisker_with_ϵ_inv2cell (v : Mon_V):
+  invertible_2cell (FA' v · id₁ a0') (FA' v · FA' (MonoidalFunctors.I_C Mon_V)).
+Proof.
+  use make_invertible_2cell.
+  - exact (FA' v ◃ lax_monoidal_functor_ϵ FA').
+  - apply is_invertible_2cell_lwhisker.
+    change (is_z_isomorphism (lax_monoidal_functor_ϵ FA')).
+    apply (pr2 (strong_monoidal_functor_ϵ FA')).
+Defined.
 
 Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
@@ -1245,7 +1255,108 @@ Proof.
   do 3 rewrite <- lwhisker_vcomp.
   repeat rewrite <- vassocr.
   match goal with | [ |- ?Hl1 • (_ • (?Hl2 • (_ • (?Hl3 • (_ • (_ • (?Hl4 • (_ • (?Hl5 • ?Hl6))))))))) = ?Hr1 • _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
-Abort.
+  change (H v ==> H' v) in η.
+  set (l1iso := lwhisker_with_μ_inv_inv2cell v I).
+  apply (lhs_left_invert_cell _ _ _ l1iso).
+  cbn.
+  clear l1 l1iso.
+  apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+  cbn.
+  etrans.
+  2: { repeat rewrite <- vassocr.
+       apply maponpaths.
+       rewrite vassocr.
+       apply maponpaths_2.
+       unfold r1.
+       rewrite lwhisker_vcomp.
+       apply maponpaths.
+       assert (lax_monoidal_functor_unital_inst := pr2 (lax_monoidal_functor_unital FA' v)).
+       cbn in lax_monoidal_functor_unital_inst.
+       rewrite hcomp_identity_left in lax_monoidal_functor_unital_inst.
+       set (aux1iso := lwhisker_with_ϵ_inv2cell v).
+       rewrite <- vassocr in lax_monoidal_functor_unital_inst.
+       apply pathsinv0 in lax_monoidal_functor_unital_inst.
+       apply (rhs_left_inv_cell _ _ _ aux1iso) in lax_monoidal_functor_unital_inst.
+       unfold inv_cell in lax_monoidal_functor_unital_inst.
+       apply pathsinv0.
+       exact lax_monoidal_functor_unital_inst.
+  }
+  cbn.
+  clear r1.
+  etrans.
+  2: { rewrite vassocr.
+       apply maponpaths_2.
+       rewrite <- lwhisker_vcomp.
+       rewrite vassocr.
+       apply maponpaths_2.
+       apply pathsinv0.
+       apply lwhisker_lwhisker_rassociator. }
+  etrans.
+  2: { repeat rewrite <- vassocr.
+       apply maponpaths.
+       rewrite vassocr.
+       apply maponpaths_2.
+       apply pathsinv0, runitor_triangle. }
+  rewrite <- vcomp_runitor.
+  etrans.
+  2: { rewrite vassocr.
+       apply maponpaths_2.
+       apply hcomp_hcomp'. }
+  unfold hcomp.
+  etrans.
+  2: { repeat rewrite <- vassocr. apply idpath. }
+  apply maponpaths.
+  clear l2.
+  etrans.
+  { repeat rewrite vassocr.
+    do 6 apply maponpaths_2.
+    apply lwhisker_lwhisker_rassociator. }
+  repeat rewrite <- vassocr.
+  apply maponpaths.
+  clear l3.
+  cbn.
+  etrans.
+  { repeat rewrite vassocr.
+    do 5 apply maponpaths_2.
+    apply runitor_triangle. }
+  etrans.
+  2: { apply id2_right. }
+  repeat rewrite <- vassocr.
+  apply maponpaths.
+  etrans.
+  { apply maponpaths.
+    rewrite vassocr.
+    apply maponpaths_2.
+    apply rwhisker_lwhisker. }
+  cbn.
+  clear l4.
+  etrans.
+  { apply maponpaths.
+    rewrite <- vassocr.
+    apply maponpaths.
+    unfold l5, l6.
+    do 2 rewrite rwhisker_vcomp.
+    apply maponpaths.
+    assert (lax_monoidal_functor_unital_inst := pr2 (lax_monoidal_functor_unital FA v)).
+    cbn in lax_monoidal_functor_unital_inst.
+    rewrite hcomp_identity_left in lax_monoidal_functor_unital_inst.
+    rewrite vassocr.
+    apply pathsinv0.
+    exact lax_monoidal_functor_unital_inst.
+  }
+  clear l5 l6. (* now only pure bicategory reasoning *)
+  transparent assert (auxiso : (invertible_2cell (FA v · G) (FA v · (id₁ a0 · G)))).
+  { use make_invertible_2cell.
+    - exact (FA v ◃ linvunitor G).
+    - apply is_invertible_2cell_lwhisker.
+      apply is_invertible_2cell_linvunitor.
+  }
+  apply (lhs_left_invert_cell _ _ _ auxiso).
+  cbn.
+  rewrite id2_right.
+  clear auxiso.
+  apply runitor_rwhisker.
+Qed.
 
 Definition montrafotargetbicat_right_unitor_aux2_statement: UU :=
   ∏ (vη : montrafotargetbicat_cat),
@@ -1312,12 +1423,11 @@ Proof.
 Abort.
 
 (** the following assumptions are mathematically justified, and a detailed proof for
-    montrafotargetbicat_associator_aux1_statement exists on paper for CAT, and the three
+    montrafotargetbicat_associator_aux1_statement exists on paper for CAT, and the two
     other statements are closely related to the already formalized or manually proven ones;
     the bicategorical generalization of the approach seems to be needed to make the formalization
     tractable *)
-Context (Ax3 : montrafotargetbicat_right_unitor_aux1_statement)
-        (Ax4 : montrafotargetbicat_right_unitor_aux2_statement)
+Context (Ax4 : montrafotargetbicat_right_unitor_aux2_statement)
         (Ax5 : montrafotargetbicat_associator_aux1_statement)
         (Ax6 : montrafotargetbicat_associator_aux2_statement).
 
@@ -1352,8 +1462,7 @@ Proof.
   + use make_nat_trans.
     * intro vη.
       exists (monoidal_cat_right_unitor Mon_V (pr1 vη)).
-      (* another reasoning in functorial calculus needed *)
-      apply Ax3.
+      apply montrafotargetbicat_right_unitor_aux1.
     * intros vη vη' fg.
       use total2_paths_f.
       -- cbn. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
