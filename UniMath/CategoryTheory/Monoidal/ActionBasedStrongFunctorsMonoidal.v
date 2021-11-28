@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
@@ -748,6 +749,14 @@ Proof.
     apply is_z_isomorphism_inv.
 Defined.
 
+Definition rwhisker_with_linvunitor_inv2cell (v : Mon_V): invertible_2cell (G · FA' v) (id₁ a0 · G · FA' v).
+Proof.
+  use make_invertible_2cell.
+  - exact (linvunitor G ▹ FA' v).
+  - apply is_invertible_2cell_rwhisker.
+    apply is_invertible_2cell_linvunitor.
+Defined.
+
 Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
       (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
@@ -1078,8 +1087,18 @@ Proof.
     exact lax_monoidal_functor_unital_inst.
   }
   clear l5 l6.
-(* the goal is deprived of any true contents and should ideally be resolved with some automatic tactic *)
-Abort.
+  rewrite lunitor_lwhisker.
+  apply maponpaths.
+  apply (lhs_left_invert_cell _ _ _ (rwhisker_with_linvunitor_inv2cell v)).
+  cbn.
+  rewrite lunitor_triangle.
+  rewrite vcomp_lunitor.
+  rewrite vassocr.
+  apply maponpaths_2.
+  apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
+  cbn.
+  apply pathsinv0, lunitor_triangle.
+Qed.
 
 Definition montrafotargetbicat_left_unitor_aux2_statement: UU :=
   ∏ (vη : montrafotargetbicat_cat),
@@ -1193,8 +1212,7 @@ Abort.
     representatives of the pairs of closely related statements exist on paper for CAT, however the
     bicategorical generalization of the approach seems to be needed to make the formalization
     tractable *)
-Context (Ax1 : montrafotargetbicat_left_unitor_aux1_statement)
-        (Ax2 : montrafotargetbicat_left_unitor_aux2_statement)
+Context (Ax2 : montrafotargetbicat_left_unitor_aux2_statement)
         (Ax3 : montrafotargetbicat_right_unitor_aux1_statement)
         (Ax4 : montrafotargetbicat_right_unitor_aux2_statement)
         (Ax5 : montrafotargetbicat_associator_aux1_statement)
@@ -1206,8 +1224,7 @@ Proof.
   + use make_nat_trans.
     * intro vη.
       exists (monoidal_cat_left_unitor Mon_V (pr1 vη)).
-      (* another reasoning in functorial calculus needed *)
-      apply Ax1.
+      apply montrafotargetbicat_left_unitor_aux1.
     * intros vη vη' fg.
       use total2_paths_f.
       -- cbn. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
