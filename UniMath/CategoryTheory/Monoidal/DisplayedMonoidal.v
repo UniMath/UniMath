@@ -237,10 +237,161 @@ Section DispAssocFunctors.
       exact ( (pr1 g,,pr12 g) ,, pr22 g).
   Defined.
 
-  (* Type error - due to precategory vs category?
+  (* Make a general lemma that encompasses the two parts here *)
   Lemma disp_assoc_axioms : disp_functor_axioms disp_assoc_data.
-  Abort.
-   *)
+  Proof.
+    split.
+    - intros x xx.
+      cbn.
+      apply dirprod_paths.
+      + cbn.
+        apply dirprod_paths.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr1 (DA ⊠⊠ DB) DC). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr1 DA DB). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply A.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr1 (DA ⊠⊠ DB) DC). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr2 DA DB). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply B.
+      + cbn.
+        etrans.
+        2 : { apply (disp_binprod_transportf_pr2 (DA ⊠⊠ DB) DC). }
+        apply pathsinv0.
+        apply transportf_set.
+        apply C.
+    - intros.
+      cbn.
+      apply dirprod_paths.
+      + cbn.
+        apply dirprod_paths.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr1 (DA ⊠⊠ DB) DC). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr1 DA DB). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply A.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr1 (DA ⊠⊠ DB) DC). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr2 DA DB). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply B.
+      + cbn.
+        etrans.
+        2 : { apply (disp_binprod_transportf_pr2 (DA ⊠⊠ DB) DC). }
+        apply pathsinv0.
+        apply transportf_set.
+        apply C.
+  Qed.
+
+  Definition disp_assoc
+    : disp_functor (precategory_binproduct_assoc A B C)
+                   (DA ⊠⊠ (DB ⊠⊠ DC)) ((DA ⊠⊠ DB) ⊠⊠ DC)
+    := _ ,, disp_assoc_axioms.
+
+
+  Definition disp_unassoc_data :
+    disp_functor_data (precategory_binproduct_unassoc A B C)
+                      ((DA ⊠⊠ DB) ⊠⊠ DC)
+                      (DA ⊠⊠ (DB ⊠⊠ DC)).
+  Proof.
+    use tpair.
+    - intros abc dabc.
+      exact ( pr11 dabc,, (pr21 dabc ,, pr2 dabc)).
+    - intros abc abc' xx yy f g.
+      exact ( pr11 g,, (pr21 g ,, pr2 g)).
+  Defined.
+
+  (* Make a general lemma that encompasses the two parts here *)
+  Lemma disp_unassoc_axioms : disp_functor_axioms disp_unassoc_data.
+  Proof.
+    split.
+    - intros x xx.
+      cbn.
+      apply dirprod_paths.
+      + cbn.
+        etrans.
+        2 : { apply (disp_binprod_transportf_pr1 DA (DB ⊠⊠ DC)). }
+        apply pathsinv0.
+        apply transportf_set.
+        apply A.
+      + cbn.
+        apply dirprod_paths.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr2 DA (DB ⊠⊠ DC) ). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr1 DB DC). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply B.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr2 DA (DB ⊠⊠ DC)). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr2 DB DC). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply C.
+    - intros.
+      cbn.
+      apply dirprod_paths.
+      + cbn.
+        etrans.
+        2 : { apply (disp_binprod_transportf_pr1 DA (DB ⊠⊠ DC)). }
+        apply pathsinv0.
+        apply transportf_set.
+        apply A.
+      + cbn.
+        apply dirprod_paths.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr2 DA (DB ⊠⊠ DC) ). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr1 DB DC). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply B.
+        * cbn.
+          etrans.
+          2 : { apply maponpaths.
+                apply (disp_binprod_transportf_pr2 DA (DB ⊠⊠ DC)). }
+          etrans.
+          2 : { apply (disp_binprod_transportf_pr2 DB DC). }
+          apply pathsinv0.
+          apply transportf_set.
+          apply C.
+  Qed.
+
+  Definition disp_unassoc
+    : disp_functor (precategory_binproduct_assoc A B C)
+                   (DA ⊠⊠ (DB ⊠⊠ DC)) ((DA ⊠⊠ DB) ⊠⊠ DC)
+    := _ ,, disp_assoc_axioms.
+
+
+End DispAssocFunctors.
+
+
 
 Definition displayed_tensor {C : category}
            (tensor : C ⊠ C ⟶ C)
@@ -248,7 +399,6 @@ Definition displayed_tensor {C : category}
   : UU
   := disp_functor tensor (disp_binprod D D) D.
 
-End DispAssocFunctors.
 
 Section FixDispTensor.
 
@@ -272,7 +422,7 @@ Section FixDispTensor.
 
 
 
-  (* Should work modulo changes in proof once [ar] is correct.
+  (* TODO
   Definition disp_assoc_right : @disp_functor (C ⊠ (C ⊠ C)) C ar  (D ⊠⊠ (D ⊠⊠ D)) D .
   Proof.
     use disp_functor_composite.
