@@ -20,6 +20,7 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -94,9 +95,11 @@ Core/YonedaLemma.v
 
 Colimits/Initial.v
 Colimits/Final.v
+Colimits/Products.v
 Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
+PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v
@@ -112,5 +115,12 @@ WkCatEnrichment/bicategory.v
 WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
 Discreteness.v
+
 BicategoryOfBicat.v
 BicatOfBicategory.v
+
+DisplayedBicats/CleavingOfBicat.v
+DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
+DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v

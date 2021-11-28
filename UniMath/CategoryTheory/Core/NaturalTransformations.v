@@ -447,5 +447,23 @@ Defined.
 
 End nat_trans.
 
+Definition constant_nat_trans
+           (C₁ : category)
+           {C₂ : category}
+           {x y : C₂}
+           (f : x --> y)
+  : nat_trans
+      (constant_functor C₁ C₂ x)
+      (constant_functor C₁ C₂ y).
+Proof.
+  use make_nat_trans.
+  - exact (λ _, f).
+  - abstract
+      (intros ? ? ? ;
+       cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
