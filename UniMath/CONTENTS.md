@@ -368,7 +368,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Core/Examples/Initial.v](Bicategories/Core/Examples/Initial.v)
    - [Core/Examples/Final.v](Bicategories/Core/Examples/Final.v)
    - [Core/Examples/BicategoryFromMonoidal.v](Bicategories/Core/Examples/BicategoryFromMonoidal.v)
-   - [Core/Faithful.v](Bicategories/Core/Faithful.v)
+   - [Core/FullyFaithful.v](Bicategories/Core/FullyFaithful.v)
    - [DisplayedBicats/DispBicat.v](Bicategories/DisplayedBicats/DispBicat.v)
    - [DisplayedBicats/DispInvertibles.v](Bicategories/DisplayedBicats/DispInvertibles.v)
    - [DisplayedBicats/DispAdjunctions.v](Bicategories/DisplayedBicats/DispAdjunctions.v)

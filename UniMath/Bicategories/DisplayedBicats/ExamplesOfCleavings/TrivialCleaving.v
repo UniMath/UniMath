@@ -12,7 +12,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.Faithful.
+Require Import UniMath.Bicategories.Core.FullyFaithful.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.

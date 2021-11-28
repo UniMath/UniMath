@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Faithful.
+Require Import UniMath.Bicategories.Core.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.

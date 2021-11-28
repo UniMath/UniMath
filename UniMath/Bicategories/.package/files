@@ -20,7 +20,7 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
-Core/Faithful.v
+Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v

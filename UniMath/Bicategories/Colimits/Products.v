@@ -35,42 +35,6 @@ Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 
-Definition maponpaths_pr1_pathsdirprod
-           {X Y : UU}
-           {x₁ x₂ : X}
-           {y₁ y₂ : Y}
-           (p : x₁ = x₂)
-           (q : y₁ = y₂)
-  : maponpaths dirprod_pr1 (pathsdirprod p q) = p.
-Proof.
-  induction p, q.
-  apply idpath.
-Defined.
-
-Definition maponpaths_pr2_pathsdirprod
-           {X Y : UU}
-           {x₁ x₂ : X}
-           {y₁ y₂ : Y}
-           (p : x₁ = x₂)
-           (q : y₁ = y₂)
-  : maponpaths dirprod_pr2 (pathsdirprod p q) = q.
-Proof.
-  induction p, q.
-  apply idpath.
-Defined.
-
-Definition pathsdirprod_eta
-           {X Y : UU}
-           {x y : X × Y}
-           (p : x = y)
-  : p
-    =
-    pathsdirprod (maponpaths dirprod_pr1 p) (maponpaths dirprod_pr2 p).
-Proof.
-  induction p.
-  apply idpath.
-Defined.
-
 Section Product.
   Context {B : bicat}
           {b₁ b₂ : B}.
@@ -667,7 +631,7 @@ Section StandardFunctions.
     : a₁ ⊗ a₂ --> b₁ ⊗ b₂
     := ⟨ π₁ · f , π₂ · g ⟩.
 
-  Local Notation "f '⊗₁' g" := (pair_1cell f g) (at level 40).
+  Local Notation "f '⊗₁' g" := (pair_1cell f g).
 
   Definition pair_1cell_pr1
              {a₁ a₂ b₁ b₂ : B}
@@ -780,7 +744,7 @@ Section StandardFunctions.
     : f₁ ⊗₁ g₁ ==> f₂ ⊗₁ g₂
     := prod_2cell (π₁ ◃ α) (π₂ ◃ β).
 
-  Local Notation "α '⊗₂' β" := (pair_2cell α β) (at level 40).
+  Local Notation "α '⊗₂' β" := (pair_2cell α β).
 
   Definition pair_2cell_pr1
              {a₁ a₂ b₁ b₂ : B}
@@ -1221,7 +1185,7 @@ Module Notations.
   Notation "'π₁'" := (binprod_pr1 _ _ _).
   Notation "'π₂'" := (binprod_pr2 _ _ _).
   Notation "⟨ f , g ⟩" := (prod_1cell _ f g).
-  Notation "f '⊗₁' g" := (pair_1cell _ f g) (at level 40).
+  Notation "f '⊗₁' g" := (pair_1cell _ f g).
   Notation "⟪ α , β ⟫" := (prod_2cell _ α β).
-  Notation "α '⊗₂' β" := (pair_2cell _ α β) (at level 40).
+  Notation "α '⊗₂' β" := (pair_2cell _ α β).
 End Notations.
