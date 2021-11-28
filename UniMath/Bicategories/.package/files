@@ -99,6 +99,7 @@ Colimits/Products.v
 Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
+PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v
