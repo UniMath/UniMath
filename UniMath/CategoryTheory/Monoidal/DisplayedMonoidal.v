@@ -19,7 +19,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
-
 Local Notation "C ⊠ C'" := (category_binproduct C C').
 
 Section DispCartProdOfCats.
@@ -158,6 +157,22 @@ Proof.
   induction e.
   apply idpath.
 Qed.
+
+(*
+Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
+      (a b : C) (a' b' : C') (f g : a --> b) (f' g' : a' --> b')
+      (x : D a) (y : D b) (x' : D' a') (y' : D' b')
+      (ff : x -->[f] y) (ff' : x' -->[f'] y')
+      (e : (f,,f') = (g,, g'))
+  : transportf (@mor_disp (C ⊠ C') (disp_binprod D D') (a,,a') (b,,b') (x,,x') (y,,y')) e (ff,, ff')  =
+      transportf (mor_disp _ _ ) (maponpaths pr1 e) ff ,, transportf (mor_disp _ _ )  (maponpaths (dirprod_pr2) e) ff'.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+*)
+
 
 Section DispCartProdOfFunctors.
 
@@ -390,6 +405,143 @@ Section DispAssocFunctors.
 
 
 End DispAssocFunctors.
+
+
+
+Lemma transportf_fst_arg_type
+        {A B C : category}
+        {DA : disp_cat A}
+        {DB : disp_cat B}
+        {DC : disp_cat C}
+        {F : A ⊠ B ⟶ C}
+        (FF : disp_functor F (DA ⊠⊠ DB) DC)
+        {a₁ a₂ : A}
+        {da₁ : DA a₁}
+        {da₂ : DA a₂}
+        {f f' : a₁ --> a₂}
+        (e : f = f')
+        (ff : da₁ -->[f] da₂)
+        {b₁ b₂ : B}
+        {db₁ : DB b₁}
+        {db₂ : DB b₂}
+        {g : b₁ --> b₂}
+        (gg : db₁ -->[g] db₂)
+
+  : UU.
+Proof.
+  refine
+    (@disp_functor_on_morphisms  _ _ _ _ _ FF (a₁,,b₁) (a₂,,b₂) (da₁,,db₁) (da₂,,db₂) (f',,g) (make_dirprod (transportf (mor_disp da₁ da₂) e ff)
+                                                                                                            gg) = _ ).
+  set (X := @disp_functor_on_morphisms  _ _ _ _ _ FF (a₁,,b₁) (a₂,,b₂) (da₁,,db₁) (da₂,,db₂) (f,,g) (ff,,gg)).
+  refine (transportf _ _ X).
+  apply maponpaths.
+  apply maponpaths_2.
+  apply e.
+Defined.
+
+Lemma  transportf_fst_arg
+        {A B C : category}
+        {DA : disp_cat A}
+        {DB : disp_cat B}
+        {DC : disp_cat C}
+        {F : A ⊠ B ⟶ C}
+        (FF : disp_functor F (DA ⊠⊠ DB) DC)
+        {a₁ a₂ : A}
+        {da₁ : DA a₁}
+        {da₂ : DA a₂}
+        {f f' : a₁ --> a₂}
+        (e : f = f')
+        (ff : da₁ -->[f] da₂)
+        {b₁ b₂ : B}
+        {db₁ : DB b₁}
+        {db₂ : DB b₂}
+        {g : b₁ --> b₂}
+        (gg : db₁ -->[g] db₂)
+  : transportf_fst_arg_type FF e ff gg.
+Proof.
+  unfold transportf_fst_arg_type.
+  induction e.
+  cbn.
+  apply idpath.
+Qed.
+
+
+Section disp_fix_fst_arg.
+
+  Local Notation "( f #, g )" := (catbinprodmor f g).
+
+  Context {A B C : category}
+          {DA : disp_cat A}
+          {DB : disp_cat B}
+          {DC : disp_cat C}
+          (F : functor (A ⊠ B) C)
+          (FF : disp_functor F (DA ⊠⊠ DB) DC)
+          (a : A)
+          (da : DA a).
+
+
+  Definition disp_functor_fix_fst_arg_ob {b : B} (db : DB b) : DC (F _) := FF (a,,b) (da,, db).
+  Definition disp_functor_fix_fst_arg_mor {b₁ b₂ : B} {f : b₁ --> b₂} {db₁ : DB b₁} {db₂ : DB b₂} (ff : db₁ -->[f] db₂)
+    : FF (a,,b₁) (da,,db₁) -->[ (# F (identity _ #,f))%cat ] FF (a,,b₂) (da,,db₂).
+  Proof.
+    apply #FF.
+    apply (id_disp _ ,, ff).
+  Defined.
+
+  Definition disp_functor_fix_fst_arg_data
+    : disp_functor_data (functor_fix_fst_arg _ _ _ F a) DB DC.
+  Proof.
+    exists @disp_functor_fix_fst_arg_ob.
+    intros x y xx yy f ff.
+    apply disp_functor_fix_fst_arg_mor.
+    apply ff.
+  Defined.
+
+
+  Definition disp_functor_fix_fst_arg_axioms
+    : disp_functor_axioms disp_functor_fix_fst_arg_data.
+  Proof.
+    split.
+    - intros.
+      cbn.
+      unfold disp_functor_fix_fst_arg_mor.
+      rewrite (@disp_functor_id _ _ _ _ _ FF).
+      apply transportf_transpose_right.
+      etrans. { apply transport_f_f. }
+      apply transportf_set.
+      apply C.
+    - intros.
+      cbn.
+      unfold disp_functor_fix_fst_arg_mor.
+      apply transportf_transpose_right.
+      set (X := @disp_functor_comp_var _ _ _ _ _ FF).
+      etrans.
+      2 : { apply X. }
+      cbn.
+      apply transportf_transpose_right.
+      etrans. 2 : { apply maponpaths.
+                    apply maponpaths_2.
+                    Search ( id_disp _ ;; _ = _ ).
+                    eapply pathsinv0.
+                    apply id_left_disp. }
+            etrans. { apply transport_f_f. }
+      apply pathsinv0.
+      etrans.
+      apply  transportf_fst_arg.
+      cbn.
+      apply  transportf_transpose_right.
+      etrans. apply transport_f_f.
+      apply transportf_set.
+      apply C.
+  Qed.
+
+  Definition disp_functor_fix_fst_arg
+    : disp_functor (functor_fix_fst_arg _ _ _ F a) DB DC
+    := _ ,, disp_functor_fix_fst_arg_axioms.
+
+End disp_fix_fst_arg.
+
+
 
 
 
