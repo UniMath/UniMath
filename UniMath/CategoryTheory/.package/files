@@ -202,6 +202,7 @@ Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
 Monoidal/PointedFunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
+Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
