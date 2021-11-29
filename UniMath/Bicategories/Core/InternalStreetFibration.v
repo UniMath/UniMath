@@ -32,7 +32,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.Faithful.
+Require Import UniMath.Bicategories.Core.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Colimits.Products.
 Import Products.Notations.
@@ -181,10 +181,10 @@ Section InternalStreetFibration.
     - intros x f g α.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
-             ,, pr12 lift
-             ,, iso_to_inv2cell _ _ (pr122 lift)
-             ,, pr2 (pr222 lift)
-             ,, pr1 (pr222 lift)).
+             ,, pr112 lift
+             ,, iso_to_inv2cell _ _ (pr212 lift)
+             ,, pr222 lift
+             ,, pr122 lift).
     - exact (pr2 H).
   Defined.
 
@@ -196,8 +196,7 @@ Section InternalStreetFibration.
     - intros x f g α.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
-             ,, pr12 lift
-             ,, inv2cell_to_iso _ _ (pr122 lift)
+             ,, (pr12 lift ,, inv2cell_to_iso _ _ (pr122 lift))
              ,, pr2 (pr222 lift)
              ,, pr1 (pr222 lift)).
     - exact (pr2 H).
@@ -216,14 +215,16 @@ Section InternalStreetFibration.
     use funextsec ; intro g.
     use funextsec ; intro α.
     simpl.
-    refine (maponpaths (λ z, _ ,, _ ,, z) _).
+    refine (maponpaths (λ z, _ ,, z) _).
     use subtypePath.
     {
       intro.
-      apply isapropdirprod.
+      use isapropdirprod.
       - apply cellset_property.
       - apply isaprop_is_cartesian_2cell_sfib.
     }
+    simpl.
+    refine (maponpaths (λ z, _ ,, z) _).
     use subtypePath.
     {
       intro ; apply isaprop_is_iso.
@@ -271,6 +272,27 @@ Section InternalStreetFibration.
       + exact internal_sfib_to_rep_to_sfib.
       + exact rep_sfib_to_internal_to_rep.
   Defined.
+
+  Definition isaprop_rep_internal_sfib
+             (HB_2_1 : is_univalent_2_1 B)
+    : isaprop rep_internal_sfib.
+  Proof.
+    use isapropdirprod.
+    - use impred ; intro.
+      apply isaprop_street_fib.
+      apply is_univ_hom.
+      exact HB_2_1.
+    - do 7 (use impred ; intro).
+      apply isaprop_is_cartesian_sfib.
+  Qed.
+
+  Definition isaprop_internal_sfib
+             (HB_2_1 : is_univalent_2_1 B)
+    : isaprop internal_sfib.
+  Proof.
+    use (isofhlevelweqf _ rep_internal_sfib_weq_internal_sfib).
+    exact (isaprop_rep_internal_sfib HB_2_1).
+  Qed.
 End InternalStreetFibration.
 
 (**
@@ -904,7 +926,7 @@ Section InternalSFibIsStreetFib.
                       (constant_functor _ _ b)
                       (constant_functor _ _ x)
                       (help_trans f)).
-    refine (pr1 (pr1 lift) tt
+    (*refine (pr1 (pr1 lift) tt
             ,,
             pr1 (pr12 lift) tt
             ,,
@@ -913,7 +935,8 @@ Section InternalSFibIsStreetFib.
             _).
     split.
     - exact (nat_trans_eq_pointwise (pr2 (pr222 lift)) tt).
-    - admit.
+    - admit.*)
+
   Admitted.
 End InternalSFibIsStreetFib.
 

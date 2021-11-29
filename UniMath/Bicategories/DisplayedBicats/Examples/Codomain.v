@@ -37,10 +37,42 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Definition cod_1cell_path_help
+           {B : bicat}
+           {b c : B}
+           (f₁ f₂ : B ⟦ b , c ⟧)
+  : invertible_2cell f₁ f₂ ≃ invertible_2cell f₁ (id₁ _ · f₂).
+Proof.
+  use make_weq.
+  - intro α.
+    refine (α • linvunitor _ ,, _).
+    is_iso.
+    apply α.
+  - use gradth.
+    + intro α.
+      use make_invertible_2cell.
+      * exact (α • lunitor _).
+      * is_iso.
+        apply property_from_invertible_2cell.
+    + abstract
+        (intro p ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         cbn ;
+         rewrite vassocl ;
+         rewrite linvunitor_lunitor ;
+         apply id2_right).
+    + abstract
+        (intros α ; cbn ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         cbn ;
+         rewrite vassocl ;
+         rewrite lunitor_linvunitor ;
+         apply id2_right).
+Defined.
+
 (**
  1. Definition of the displayed bicategory
  *)
-
 Section CodomainArrow.
   Variable (B : bicat).
 
@@ -674,37 +706,6 @@ Section UnivalenceOfCodomain.
       apply idpath.
   Defined.
 
-  Definition cod_1cell_path_help
-             {b c : B}
-             (f₁ f₂ : B ⟦ b , c ⟧)
-    : invertible_2cell f₁ f₂ ≃ invertible_2cell f₁ (id₁ _ · f₂).
-  Proof.
-    use make_weq.
-    - intro α.
-      refine (α • linvunitor _ ,, _).
-      is_iso.
-      apply α.
-    - use gradth.
-      + intro α.
-        use make_invertible_2cell.
-        * exact (α • lunitor _).
-        * apply inv_B.
-      + abstract
-          (intro p ;
-           use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-           cbn ;
-           rewrite vassocl ;
-           rewrite linvunitor_lunitor ;
-           apply id2_right).
-      + abstract
-          (intros α ; cbn ;
-           use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-           cbn ;
-           rewrite vassocl ;
-           rewrite lunitor_linvunitor ;
-           apply id2_right).
-  Defined.
-
   Definition cod_1cell_path
              (HB_2_1 : is_univalent_2_1 B)
              {c : B}
@@ -827,7 +828,6 @@ Section UnivalenceOfCodomain.
       }
       cbn.
       refine (!_).
-
       rewrite linvunitor_assoc.
       rewrite !vassocl.
       rewrite <- rwhisker_rwhisker_alt.

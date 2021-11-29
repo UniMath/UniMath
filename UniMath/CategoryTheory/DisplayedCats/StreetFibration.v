@@ -10,6 +10,44 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
 
+Lemma idtoiso_functor_precompose
+      {C₁ C₂ : category}
+      (F : C₁ ⟶ C₂)
+      {y : C₂}
+      {x₁ x₂ : C₁}
+      (p : x₁ = x₂)
+      (f : F x₁ --> y)
+  : idtoiso (maponpaths (λ z, F z) (!p)) · f
+    =
+    transportf (λ z, F z --> y) p f.
+Proof.
+  induction p.
+  cbn.
+  apply id_left.
+Qed.
+
+Definition transportf_functor_isotoid
+           {C₁ C₂ : category}
+           (HC₁ : is_univalent C₁)
+           (F : C₁ ⟶ C₂)
+           {y : C₂}
+           {x₁ x₂ : C₁}
+           (i : iso x₁ x₂)
+           (f : F x₁ --> y)
+  : transportf
+      (λ z, F z --> y)
+      (isotoid _ HC₁ i)
+      f
+    =
+    #F (inv_from_iso i) · f.
+Proof.
+  rewrite <- idtoiso_functor_precompose.
+  rewrite maponpaths_idtoiso.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
 (**
 The definition of a Street fibration of categories
  *)
@@ -39,18 +77,190 @@ Section StreetFibration.
     apply isapropiscontr.
   Qed.
 
+  Definition cartesian_factorization_sfib
+             {e₁ e₂ : E}
+             {f : e₁--> e₂}
+             (Hf : is_cartesian_sfib f)
+             {z : E}
+             (g : z --> e₂)
+             (h : F z --> F e₁)
+             (p : #F g = h · #F f)
+    : z --> e₁
+    := pr11 (Hf z g h p).
+
+  Definition cartesian_factorization_sfib_over
+             {e₁ e₂ : E}
+             {f : e₁--> e₂}
+             (Hf : is_cartesian_sfib f)
+             {z : E}
+             (g : z --> e₂)
+             (h : F z --> F e₁)
+             (p : #F g = h · #F f)
+    : #F (cartesian_factorization_sfib Hf g h p) = h
+    := pr121 (Hf z g h p).
+
+  Definition cartesian_factorization_sfib_commute
+             {e₁ e₂ : E}
+             {f : e₁--> e₂}
+             (Hf : is_cartesian_sfib f)
+             {z : E}
+             (g : z --> e₂)
+             (h : F z --> F e₁)
+             (p : #F g = h · #F f)
+    : cartesian_factorization_sfib Hf g h p · f = g
+    := pr221 (Hf z g h p).
+
+  Definition cartesian_factorization_sfib_unique
+             {e₁ e₂ : E}
+             {f : e₁--> e₂}
+             (Hf : is_cartesian_sfib f)
+             {z : E}
+             (g : z --> e₂)
+             (h : F z --> F e₁)
+             {p : #F g = h · #F f}
+             (φ₁ φ₂ : z --> e₁)
+             (p₁ : #F φ₁ = h)
+             (p₂ : #F φ₂ = h)
+             (q₁ : φ₁ · f = g)
+             (q₂ : φ₂ · f = g)
+    : φ₁ = φ₂.
+  Proof.
+    exact (maponpaths
+             pr1
+             (proofirrelevance
+                _
+                (isapropifcontr (Hf z g h p))
+                (φ₁ ,, p₁ ,, q₁)
+                (φ₂ ,, p₂ ,, q₂))).
+  Defined.
+
   Definition street_fib
     : UU
     := ∏ (e : E)
          (b : B)
          (f : b --> F e),
        ∑ (bb : E)
-         (ff : bb --> e)
-         (i : iso (F bb) b),
-       # F ff = i · f
+         (ff_i : bb --> e × iso (F bb) b),
+       # F (pr1 ff_i) = pr2 ff_i · f
        ×
-       is_cartesian_sfib ff.
+       is_cartesian_sfib (pr1 ff_i).
 End StreetFibration.
+
+(**
+ *)
+Definition lift_unique_sfib_map
+           {E B : category}
+           (F : E ⟶ B)
+           {e : E}
+           {b : B}
+           (f : b --> F e)
+           (bb₁ bb₂ : E)
+           (ff₁ : bb₁ --> e)
+           (β₁ : iso (F bb₁) b)
+           (ff₂ : bb₂ --> e)
+           (β₂ : iso (F bb₂) b)
+           (over₁ : # F (ff₁) = β₁ · f)
+           (over₂ : # F (ff₂) = β₂ · f)
+           (cart₁ : is_cartesian_sfib F ff₁)
+           (cart₂ : is_cartesian_sfib F ff₂)
+  : bb₁ --> bb₂.
+Proof.
+  refine (cartesian_factorization_sfib F cart₂ ff₁ (β₁ · inv_from_iso β₂) _).
+  abstract
+    (rewrite over₁, over₂ ;
+     rewrite !assoc' ;
+     apply maponpaths ;
+     rewrite !assoc ;
+     rewrite iso_after_iso_inv ;
+     rewrite id_left ;
+     apply idpath).
+Defined.
+
+Section UniqueLifts.
+  Context {E B : category}
+          (F : E ⟶ B)
+          {e : E}
+          {b : B}
+          (f : b --> F e)
+          (bb₁ bb₂ : E)
+          (ff₁ : bb₁ --> e)
+          (β₁ : iso (F bb₁) b)
+          (ff₂ : bb₂ --> e)
+          (β₂ : iso (F bb₂) b)
+          (over₁ : # F (ff₁) = β₁ · f)
+          (over₂ : # F (ff₂) = β₂ · f)
+          (cart₁ : is_cartesian_sfib F ff₁)
+          (cart₂ : is_cartesian_sfib F ff₂).
+
+  Let ζ : bb₁ --> bb₂
+    := lift_unique_sfib_map F f bb₁ bb₂ ff₁ β₁ ff₂ β₂ over₁ over₂ cart₁ cart₂.
+  Let ζinv : bb₂ --> bb₁
+    := lift_unique_sfib_map F f bb₂ bb₁ ff₂ β₂ ff₁ β₁ over₂ over₁ cart₂ cart₁.
+
+  Local Lemma lift_unique_sfib_inv₁
+    : ζ · ζinv = identity bb₁.
+  Proof.
+    unfold ζ, ζinv, lift_unique_sfib_map.
+    use (cartesian_factorization_sfib_unique
+           F
+           cart₁
+           ff₁
+           (identity _)).
+    - rewrite id_left.
+      apply idpath.
+    - rewrite functor_comp.
+      rewrite !cartesian_factorization_sfib_over.
+      rewrite !assoc'.
+      rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
+      rewrite iso_after_iso_inv.
+      rewrite id_left.
+      rewrite iso_inv_after_iso.
+      apply idpath.
+    - apply functor_id.
+    - rewrite !assoc'.
+      rewrite !cartesian_factorization_sfib_commute.
+      apply idpath.
+    - apply id_left.
+  Qed.
+
+  Local Lemma lift_unique_sfib_inv₂
+    : ζinv · ζ = identity bb₂.
+  Proof.
+    unfold ζ, ζinv, lift_unique_sfib_map.
+    use (cartesian_factorization_sfib_unique
+           F
+           cart₂
+           ff₂
+           (identity _)).
+    - rewrite id_left.
+      apply idpath.
+    - rewrite functor_comp.
+      rewrite !cartesian_factorization_sfib_over.
+      rewrite !assoc'.
+      rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
+      rewrite iso_after_iso_inv.
+      rewrite id_left.
+      rewrite iso_inv_after_iso.
+      apply idpath.
+    - apply functor_id.
+    - rewrite !assoc'.
+      rewrite !cartesian_factorization_sfib_commute.
+      apply idpath.
+    - apply id_left.
+  Qed.
+
+  Definition lift_unique_sfib
+    : iso bb₁ bb₂.
+  Proof.
+    use make_iso.
+    - exact ζ.
+    - use is_iso_qinv.
+      + exact ζinv.
+      + split.
+        * exact lift_unique_sfib_inv₁.
+        * exact lift_unique_sfib_inv₂.
+  Defined.
+End UniqueLifts.
 
 (**
 The projection of a fibration is a Street fibration
@@ -233,7 +443,7 @@ Section CleavingToStreetFib.
   Proof.
     intros e b f.
     pose (HD (pr1 e) b f (pr2 e)) as c.
-    simple refine ((b ,, pr1 c) ,, (f ,, pr12 c) ,, identity_iso b ,, _).
+    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_iso b) ,, _).
     simpl.
     split.
     - apply (!(id_left _)).
@@ -444,3 +654,64 @@ Definition comp_mor_of_street_fib
        (mor_of_street_fib_preserves_cartesian F₂)
      ,,
      comp_mor_of_street_fib_nat_iso F₁ F₂.
+
+(** The type of Street fibrations is a proposition *)
+Definition isaprop_street_fib
+           {B E : category}
+           (HE : is_univalent E)
+           (F : E ⟶ B)
+  : isaprop (street_fib F).
+Proof.
+  use impred ; intro e.
+  use impred ; intro b.
+  use impred ; intro f.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use total2_paths_f.
+  - apply (isotoid _ HE).
+    exact (lift_unique_sfib
+             F f
+             (pr1 φ₁) (pr1 φ₂)
+             (pr112 φ₁) (pr212 φ₁)
+             (pr112 φ₂) (pr212 φ₂)
+             (pr122 φ₁) (pr122 φ₂)
+             (pr222 φ₁) (pr222 φ₂)).
+  - use subtypePath.
+    {
+      intro.
+      apply isapropdirprod ;
+        [ apply homset_property
+        | apply isaprop_is_cartesian_sfib ].
+    }
+    rewrite pr1_transportf.
+    use dirprod_paths.
+    + etrans.
+      {
+        apply (@pr1_transportf E (λ x, x --> e) (λ x _, iso (F x) b)).
+      }
+      rewrite transportf_isotoid.
+      cbn.
+      unfold precomp_with.
+      rewrite id_right.
+      apply cartesian_factorization_sfib_commute.
+    + rewrite pr2_transportf.
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_is_iso.
+      }
+      unfold iso.
+      rewrite pr1_transportf.
+      rewrite transportf_functor_isotoid.
+      cbn.
+      unfold precomp_with.
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cartesian_factorization_sfib_over.
+      }
+      rewrite !assoc'.
+      rewrite iso_after_iso_inv.
+      apply id_right.
+Qed.
