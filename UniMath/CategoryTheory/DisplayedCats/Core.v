@@ -748,6 +748,67 @@ Qed.
 
 (* TODO: add dual [postcomp_with_iso_disp_is_inj]. *)
 
+Definition postcomp_with_iso_disp_is_inj
+           {C : category}
+           {D : disp_cat C}
+           {x y z : C}
+           {f : x --> y}
+           {g : x --> y}
+           {h : y --> z}
+           (Hh : is_iso h)
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {hh : yy -->[ h ] zz}
+           (Hhh : is_iso_disp (make_iso h Hh) hh)
+           (pp : (ff ;; hh
+                  =
+                  transportb
+                    (λ z, _ -->[ z ] _)
+                    (maponpaths (λ z, _ · h) p)
+                    (gg ;; hh))%mor_disp)
+  : ff = transportb _ p gg.
+Proof.
+  refine (id_right_disp_var _ @ _).
+  pose (transportb_transpose_left (inv_mor_after_iso_disp Hhh)) as q.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (!q).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    exact pp.
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_mor_after_iso_disp Hhh).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite !transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
 End Utilities.
 
 (** ** Saturation: displayed univalent categories *)

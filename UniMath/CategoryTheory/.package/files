@@ -197,6 +197,7 @@ DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
+DisplayedCats/Examples/Reindexing.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
