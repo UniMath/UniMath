@@ -558,6 +558,94 @@ Proof.
   apply is_functor_bindelta_pair_functor_data.
 Defined.
 
+(** Projections of `bindelta_pair_functor` *)
+Definition bindelta_pair_pr1_data
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : nat_trans_data (bindelta_pair_functor F G ∙ pr1_functor _ _) F
+  := λ _, identity _.
+
+Definition bindelta_pair_pr1_is_nat_trans
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : is_nat_trans _ _ (bindelta_pair_pr1_data F G).
+Proof.
+  intros x y f ; cbn ; unfold bindelta_pair_pr1_data.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition bindelta_pair_pr1
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : bindelta_pair_functor F G ∙ pr1_functor _ _ ⟹ F.
+Proof.
+  use make_nat_trans.
+  - exact (bindelta_pair_pr1_data F G).
+  - exact (bindelta_pair_pr1_is_nat_trans F G).
+Defined.
+
+Definition bindelta_pair_pr1_iso
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : nat_iso
+      (bindelta_pair_functor F G ∙ pr1_functor _ _)
+      F.
+Proof.
+  use make_nat_iso.
+  - exact (bindelta_pair_pr1 F G).
+  - intro.
+    apply identity_is_iso.
+Defined.
+
+Definition bindelta_pair_pr2_data
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : nat_trans_data (bindelta_pair_functor F G ∙ pr2_functor _ _) G
+  := λ _, identity _.
+
+Definition bindelta_pair_pr2_is_nat_trans
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : is_nat_trans _ _ (bindelta_pair_pr2_data F G).
+Proof.
+  intros x y f ; cbn ; unfold bindelta_pair_pr1_data.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition bindelta_pair_pr2
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : bindelta_pair_functor F G ∙ pr2_functor _ _ ⟹ G.
+Proof.
+  use make_nat_trans.
+  - exact (bindelta_pair_pr2_data F G).
+  - exact (bindelta_pair_pr2_is_nat_trans F G).
+Defined.
+
+Definition bindelta_pair_pr2_iso
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₁ ⟶ C₃)
+  : nat_iso
+      (bindelta_pair_functor F G ∙ pr2_functor _ _)
+      G.
+Proof.
+  use make_nat_iso.
+  - exact (bindelta_pair_pr2 F G).
+  - intro.
+    apply identity_is_iso.
+Defined.
+
+
 (* A swapping functor σ : C × D → D × C. *)
 Definition binswap_pair_functor {C D : category} : (C × D) ⟶ (D × C) :=
   pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (C × D).
@@ -935,3 +1023,14 @@ Section Univalence.
          apply idpath).
   Defined.
 End Univalence.
+
+Definition univalent_category_binproduct
+           (C₁ C₂ : univalent_category)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (category_binproduct C₁ C₂).
+  - use is_unvialent_category_binproduct.
+    + exact (pr2 C₁).
+    + exact (pr2 C₂).
+Defined.

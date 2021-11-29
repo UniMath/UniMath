@@ -1,3 +1,13 @@
+(**************************************************************
+
+ The codomain displayed bicategory
+
+ We look at the codomain displayed bicategory in this file.
+ We restrict ourselves to locally groupoidal bicategories.
+ 1. The definition
+ 2. Displayed univalence
+
+ ***************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -28,6 +38,10 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+(**
+ 1. Definition of the displayed bicategory
+ *)
+
 Section CodomainArrow.
   Variable (B : bicat).
 
@@ -38,19 +52,24 @@ Section CodomainArrow.
     - use tpair.
       + use tpair.
         * exact (λ X, pr2 X --> pr1 X).
-        * exact (λ X Y fX fY f, fX · pr1 f ==> pr2 f · fY).
+        * exact (λ X Y fX fY f, invertible_2cell (fX · pr1 f) (pr2 f · fY)).
       + use tpair.
-        * exact (λ X fX, runitor _ • linvunitor _).
-        * exact (λ X Y Z f g fX fY fZ ff fg,
-                 lassociator _ _ _
-                 • (ff ▹ _)
-                 • rassociator _ _ _
-                 • (_ ◃ fg)
-                 • lassociator _ _ _).
+        * refine (λ X fX, (runitor _ • linvunitor _ ,, _)).
+          is_iso.
+        * refine (λ X Y Z f g fX fY fZ ff fg,
+                 (lassociator _ _ _
+                  • (pr1 ff ▹ _)
+                  • rassociator _ _ _
+                  • (_ ◃ pr1 fg)
+                  • lassociator _ _ _
+                  ,, _)).
+          cbn ; is_iso.
+          ** exact (pr2 ff).
+          ** exact (pr2 fg).
     - exact (λ X Y f g α fX fY ff fg,
-             ff • (pr2 α ▹ _)
+             pr1 ff • (pr2 α ▹ _)
              =
-             (_ ◃ pr1 α) • fg).
+             (_ ◃ pr1 α) • pr1 fg).
   Defined.
 
   Definition cod_disp_prebicat_ops
@@ -393,7 +412,7 @@ Definition make_disp_1cell_cod
            {dX : cod_disp_bicat B X}
            {dY : cod_disp_bicat B Y}
            (h : dom dX --> dom dY)
-           (p : pr2 dX · f ==> h · pr2 dY)
+           (p : invertible_2cell (pr2 dX · f) (h · pr2 dY))
   : dX -->[ f ] dY
   := h ,, p.
 
@@ -408,9 +427,9 @@ Definition coherent_homot
            {dg : dX -->[ g ] dY}
            (h : pr1 df ==> pr1 dg)
   : UU
-  := pr2 df • (h ▹ pr2 dY)
+  := pr12 df • (h ▹ pr2 dY)
      =
-     (pr2 dX ◃ α) • pr2 dg.
+     (pr2 dX ◃ α) • pr12 dg.
 
 Definition make_disp_2cell_cod
            {B : bicat}
@@ -472,8 +491,7 @@ Defined.
 
 Definition disp_locally_groupoid_cod
            (B : bicat)
-           (inv_B : ∏ (a b : B) (f g : a --> b) (x : f ==> g),
-                    is_invertible_2cell x)
+           (inv_B : locally_groupoid B)
   : disp_locally_groupoid (cod_disp_bicat B).
 Proof.
   intro ; intros.
@@ -491,6 +509,7 @@ Defined.
 
 
 (** MOVE ??? *)
+(** Move this to MoreFoundations? *)
 Definition transportf_total2_paths_f
            {A : UU}
            {B : A → UU}
@@ -521,6 +540,9 @@ Proof.
 Defined.
 
 
+(**
+ 2. The univalence
+*)
 Section UnivalenceOfCodomain.
   Context (B : bicat)
           (inv_B : ∏ (a b : B) (f g : a --> b) (x : f ==> g),
@@ -611,7 +633,7 @@ Section UnivalenceOfCodomain.
              {φ₂ : cod_disp_bicat B c₂}
              {ψ₁ ψ₂ : φ₁ -->[ f ] φ₂}
              (p : pr1 ψ₁ = pr1 ψ₂)
-    : (transportf (λ x, pr2 φ₁ · f ==> x · pr2 φ₂) p (pr2 ψ₁) = pr2 ψ₂)
+    : (transportf (λ x, invertible_2cell (pr2 φ₁ · f) (x · pr2 φ₂)) p (pr2 ψ₁) = pr2 ψ₂)
       ≃
       coherent_homot (id₂ f) (pr1 (idtoiso_2_1 (pr1 ψ₁) (pr1 ψ₂) p)).
   Proof.
@@ -626,7 +648,8 @@ Section UnivalenceOfCodomain.
     rewrite id2_right.
     rewrite lwhisker_id2.
     rewrite id2_left.
-    apply idweq.
+    apply path_sigma_hprop.
+    apply isaprop_is_invertible_2cell.
   Qed.
 
   Definition cod_disp_univalent_2_1
@@ -655,11 +678,13 @@ Section UnivalenceOfCodomain.
   Definition cod_1cell_path_help
              {b c : B}
              (f₁ f₂ : B ⟦ b , c ⟧)
-    : invertible_2cell f₁ f₂ ≃ f₁ ==> id₁ _ · f₂.
+    : invertible_2cell f₁ f₂ ≃ invertible_2cell f₁ (id₁ _ · f₂).
   Proof.
     use make_weq.
     - intro α.
-      exact (α • linvunitor _).
+      refine (α • linvunitor _ ,, _).
+      is_iso.
+      apply α.
     - use gradth.
       + intro α.
         use make_invertible_2cell.
@@ -674,6 +699,8 @@ Section UnivalenceOfCodomain.
            apply id2_right).
       + abstract
           (intros α ; cbn ;
+           use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+           cbn ;
            rewrite vassocl ;
            rewrite lunitor_linvunitor ;
            apply id2_right).
@@ -686,7 +713,7 @@ Section UnivalenceOfCodomain.
              (p : pr1 f₁ = pr1 f₂)
     : (transportf (λ b, B ⟦ b, c ⟧) p (pr2 f₁) = pr2 f₂)
       ≃
-      pr2 f₁ ==> idtoiso_2_0 _ _ p · pr2 f₂.
+      invertible_2cell (pr2 f₁) (idtoiso_2_0 _ _ p · pr2 f₂).
   Proof.
     induction f₁ as [ c₁ f₁ ].
     induction f₂ as [ c₂ f₂ ].
@@ -699,14 +726,16 @@ Section UnivalenceOfCodomain.
     Context {c : B}
             {f₁ f₂ : cod_disp_bicat B c}
             (e : adjoint_equivalence (pr1 f₁) (pr1 f₂))
-            (α : pr2 f₁ ==> pr1 e · pr2 f₂).
+            (α : invertible_2cell (pr2 f₁) (pr1 e · pr2 f₂)).
 
     Definition cod_adj_equiv_to_disp_adj_equiv_map
       : f₁ -->[ internal_adjoint_equivalence_identity c] f₂.
     Proof.
       use make_disp_1cell_cod.
       - exact (pr1 e).
-      - exact (runitor _ • α).
+      - refine (runitor _ • α ,, _).
+        is_iso.
+        apply α.
     Defined.
 
     Definition cod_adj_equiv_to_disp_adj_equiv_right_adj
@@ -715,10 +744,12 @@ Section UnivalenceOfCodomain.
       use make_disp_1cell_cod.
       - exact (pr112 e).
       - simpl.
-        refine (_ • (_ ◃ (inv_B _ _ _ _ α)^-1)).
-        refine (_ • rassociator _ _ _).
-        refine (_ • ((inv_B _ _ _ _ (pr2 (pr212 e)))^-1 ▹ _)).
-        exact (runitor _ • linvunitor _).
+        refine (runitor _
+                • linvunitor _
+                • ((inv_B _ _ _ _ (pr2 (pr212 e)))^-1 ▹ _)
+                • rassociator _ _ _
+                • (_ ◃ (inv_B _ _ _ _ α)^-1) ,, _).
+        is_iso.
     Defined.
 
     Definition cod_adj_equiv_to_disp_adj_equiv_unit
@@ -1023,7 +1054,8 @@ Section UnivalenceOfCodomain.
   Definition cod_adj_equiv_to_disp_adj_equiv
              {c : B}
              {f₁ f₂ : cod_disp_bicat B c}
-    : (∑ (y : adjoint_equivalence (pr1 f₁) (pr1 f₂)), pr2 f₁ ==> pr1 y · pr2 f₂)
+    : (∑ (y : adjoint_equivalence (pr1 f₁) (pr1 f₂)),
+       invertible_2cell (pr2 f₁) (pr1 y · pr2 f₂))
       →
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) f₁ f₂.
   Proof.
@@ -1036,7 +1068,8 @@ Section UnivalenceOfCodomain.
              {f₁ f₂ : cod_disp_bicat B c}
     : disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) f₁ f₂
       →
-      ∑ (y : adjoint_equivalence (pr1 f₁) (pr1 f₂)), pr2 f₁ ==> pr1 y · pr2 f₂.
+      ∑ (y : adjoint_equivalence (pr1 f₁) (pr1 f₂)),
+      invertible_2cell (pr2 f₁) (pr1 y · pr2 f₂).
   Proof.
     intro e.
     simple refine (_ ,, _).
@@ -1064,7 +1097,9 @@ Section UnivalenceOfCodomain.
                 rewrite transportf_const ;
                 apply idpath).
         * split ; apply inv_B.
-    - exact (rinvunitor _ • pr21 e).
+    - refine (rinvunitor _ • pr121 e ,, _).
+      is_iso.
+      exact (pr221 e).
   Defined.
 
   Definition cod_adj_equiv_to_disp_to_adj
@@ -1072,7 +1107,7 @@ Section UnivalenceOfCodomain.
              {c : B}
              {f₁ f₂ : cod_disp_bicat B c}
              (e : ∑ (y : adjoint_equivalence (pr1 f₁) (pr1 f₂)),
-                  pr2 f₁ ==> pr1 y · pr2 f₂)
+                  invertible_2cell (pr2 f₁) (pr1 y · pr2 f₂))
     : cod_disp_adj_equiv_to_adj_equiv
         (cod_adj_equiv_to_disp_adj_equiv e)
       =
@@ -1089,7 +1124,12 @@ Section UnivalenceOfCodomain.
     - unfold subtypePath.
       etrans.
       {
-        apply (transportf_total2_paths_f (λ x, pr2 f₁ ==> x · pr2 f₂)).
+        apply (transportf_total2_paths_f (λ x, invertible_2cell (pr2 f₁) (x · pr2 f₂))).
+      }
+      cbn.
+      use subtypePath.
+      {
+        intro ; apply isaprop_is_invertible_2cell.
       }
       cbn.
       rewrite vassocr.
@@ -1120,6 +1160,11 @@ Section UnivalenceOfCodomain.
     cbn.
     unfold cod_adj_equiv_to_disp_adj_equiv_map, make_disp_1cell_cod.
     use maponpaths.
+    use subtypePath.
+    {
+      intro ; apply isaprop_is_invertible_2cell.
+    }
+    cbn.
     rewrite vassocr.
     rewrite runitor_rinvunitor.
     apply id2_left.
@@ -1129,7 +1174,8 @@ Section UnivalenceOfCodomain.
              (HB_2_1 : is_univalent_2_1 B)
              {c : B}
              (f₁ f₂ : cod_disp_bicat B c)
-    : (∑ y : adjoint_equivalence (pr1 f₁) (pr1 f₂), pr2 f₁ ==> pr1 y · pr2 f₂)
+    : (∑ y : adjoint_equivalence (pr1 f₁) (pr1 f₂),
+             invertible_2cell (pr2 f₁) (pr1 y · pr2 f₂))
       ≃
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) f₁ f₂.
   Proof.
@@ -1149,7 +1195,7 @@ Section UnivalenceOfCodomain.
     use fiberwise_univalent_2_0_to_disp_univalent_2_0.
     intros c f₁ f₂.
     use weqhomot.
-    - refine (cod_adj_equiv_weq_disp_adj_equiv HB_2_1 f₁ f₂
+    - exact (cod_adj_equiv_weq_disp_adj_equiv HB_2_1 f₁ f₂
              ∘ weqtotal2 (make_weq _ (HB_2_0 _ _)) (cod_1cell_path HB_2_1 f₁ f₂)
              ∘ total2_paths_equiv _ _ _)%weq.
     - intro p.
@@ -1163,8 +1209,13 @@ Section UnivalenceOfCodomain.
         - apply cod_disp_univalent_2_1.
           exact HB_2_1.
       }
+      cbn ; unfold cod_adj_equiv_to_disp_adj_equiv_map, make_disp_1cell_cod ; cbn.
+      apply maponpaths.
+      use subtypePath.
+      {
+        intro ; apply isaprop_is_invertible_2cell.
+      }
       cbn.
-      unfold make_disp_1cell_cod.
       rewrite id2_left.
       apply idpath.
   Qed.

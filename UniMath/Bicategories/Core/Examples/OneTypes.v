@@ -130,11 +130,9 @@ Defined.
 
 (** Each 2-cell is an iso *)
 Definition one_type_2cell_iso
-           {X Y : one_types}
-           {f g : one_types⟦X,Y⟧}
-           (α : f ==> g)
-  : is_invertible_2cell α.
+  : locally_groupoid one_types.
 Proof.
+  intros X Y f g α.
   refine (invhomot α ,, _).
   split ; cbn.
   - apply funextsec. intro x. apply pathsinv0r.

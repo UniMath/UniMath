@@ -333,3 +333,101 @@ Proof.
     + apply α.
     + apply β.
 Defined.
+
+Definition lwhisker_of_invertible_2cell
+           {B : bicat}
+           {x y z : B}
+           (f : x --> y)
+           {g₁ g₂ : y --> z}
+           (α : invertible_2cell g₁ g₂)
+  : invertible_2cell (f · g₁) (f · g₂).
+Proof.
+  use make_invertible_2cell.
+  - exact (f ◃ α).
+  - is_iso.
+    apply α.
+Defined.
+
+Definition rwhisker_of_invertible_2cell
+           {B : bicat}
+           {x y z : B}
+           {f₁ f₂ : x --> y}
+           (g : y --> z)
+           (α : invertible_2cell f₁ f₂)
+  : invertible_2cell (f₁ · g) (f₂ · g).
+Proof.
+  use make_invertible_2cell.
+  - exact (α ▹ g).
+  - is_iso.
+    apply α.
+Defined.
+
+Definition lunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell (id₁ a · f) f.
+Proof.
+  use make_invertible_2cell.
+  - exact (lunitor f).
+  - is_iso.
+Defined.
+
+Definition linvunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell f (id₁ a · f).
+Proof.
+  use make_invertible_2cell.
+  - exact (linvunitor f).
+  - is_iso.
+Defined.
+
+Definition runitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell (f · id₁ b) f.
+Proof.
+  use make_invertible_2cell.
+  - exact (runitor f).
+  - is_iso.
+Defined.
+
+Definition rinvunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell f (f · id₁ b).
+Proof.
+  use make_invertible_2cell.
+  - exact (rinvunitor f).
+  - is_iso.
+Defined.
+
+Definition lassociator_invertible_2cell
+           {B : bicat}
+           {a b c d : B}
+           (f : a --> b)
+           (g : b --> c)
+           (h : c --> d)
+  : invertible_2cell (f · (g · h)) (f · g · h).
+Proof.
+  use make_invertible_2cell.
+  - exact (lassociator f g h).
+  - is_iso.
+Defined.
+
+Definition rassociator_invertible_2cell
+           {B : bicat}
+           {a b c d : B}
+           (f : a --> b)
+           (g : b --> c)
+           (h : c --> d)
+  : invertible_2cell (f · g · h) (f · (g · h)).
+Proof.
+  use make_invertible_2cell.
+  - exact (rassociator f g h).
+  - is_iso.
+Defined.
