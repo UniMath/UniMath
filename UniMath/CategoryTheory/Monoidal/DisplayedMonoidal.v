@@ -158,9 +158,9 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
          (D' : disp_cat C').
 
  Let T : category := total_category (D ⊠⊠ D').
- Let T' : category := category_binproduct (total_category D) (total_category D').
+ Let T' : category := total_category D ⊠ total_category D'.
 
- Definition reord_functor_data : functor_data T T'.
+ Definition reord1_functor_data : functor_data T T'.
  Proof.
    use tpair.
    - intros [[c c'] [d d']].
@@ -171,7 +171,7 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
 
 
 
- Definition reord_functor_axioms : is_functor reord_functor_data.
+ Definition reord1_functor_axioms : is_functor reord1_functor_data.
  Proof.
    split.
    - intros a.
@@ -180,10 +180,10 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
      apply idpath.
  Qed.
 
- Definition reord_functor : functor T T' := reord_functor_data ,, reord_functor_axioms.
+ Definition reord1_functor : functor T T' := reord1_functor_data ,, reord1_functor_axioms.
 
- Definition reord_hom_inverse (a b : T)
-   : T' ⟦ reord_functor a, reord_functor b ⟧ → T ⟦ a, b ⟧.
+ Definition reord1_hom_inverse (a b : T)
+   : T' ⟦ reord1_functor a, reord1_functor b ⟧ → T ⟦ a, b ⟧.
  Proof.
    intros [[c d] [c' d']].
    cbn in *.
@@ -192,16 +192,16 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
    - cbn. exact (make_dirprod d d').
  Defined.
 
- Definition fully_faithful_reord_functor : fully_faithful reord_functor.
+ Definition fully_faithful_reord1_functor : fully_faithful reord1_functor.
  Proof.
    intros a b.
    use gradth.
-   - exact (reord_hom_inverse a b).
+   - exact (reord1_hom_inverse a b).
    - intros. apply idpath.
    - intros; apply idpath.
  Defined.
 
- Definition reord_ob_inverse : T' → T.
+ Definition reord1_ob_inverse : T' → T.
  Proof.
    intros [[c d] [c' d']].
    use tpair.
@@ -209,20 +209,30 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
    - exact (make_dirprod d d').
  Defined.
 
- Definition is_iso_reord_functor : is_catiso reord_functor.
+ Definition is_catiso_reord_functor : is_catiso reord1_functor.
  Proof.
    split.
-   - exact fully_faithful_reord_functor.
+   - exact fully_faithful_reord1_functor.
    - use gradth.
-     + exact reord_ob_inverse.
+     + exact reord1_ob_inverse.
      + intro; apply idpath.
      + intro; apply idpath.
  Defined.
 
+ Definition catiso_reord : catiso T T' := _ ,, is_catiso_reord_functor .
 
 End TotalDispProd.
 
 
+Definition total_bifunctor
+           {C D E : category}
+           (F : C ⊠ D ⟶ E)
+           {DC : disp_cat C}
+           {DD : disp_cat D}
+           {DE : disp_cat E}
+           (FF : disp_functor F (DC ⊠⊠ DD) DE)
+  : total_category DC ⊠ total_category DD ⟶ total_category DE
+  := inv_catiso (catiso_reord DC DD) ∙ total_functor FF.
 
 
 Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
@@ -236,21 +246,6 @@ Proof.
   induction e.
   apply idpath.
 Qed.
-
-(*
-Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
-      (a b : C) (a' b' : C') (f g : a --> b) (f' g' : a' --> b')
-      (x : D a) (y : D b) (x' : D' a') (y' : D' b')
-      (ff : x -->[f] y) (ff' : x' -->[f'] y')
-      (e : (f,,f') = (g,, g'))
-  : transportf (@mor_disp (C ⊠ C') (disp_binprod D D') (a,,a') (b,,b') (x,,x') (y,,y')) e (ff,, ff')  =
-      transportf (mor_disp _ _ ) (maponpaths pr1 e) ff ,, transportf (mor_disp _ _ )  (maponpaths (dirprod_pr2) e) ff'.
-Proof.
-  induction e.
-  apply idpath.
-Qed.
-
-*)
 
 
 Section DispCartProdOfFunctors.
@@ -560,6 +555,7 @@ Section disp_fix_fst_arg.
 
 
   Definition disp_functor_fix_fst_arg_ob {b : B} (db : DB b) : DC (F _) := FF (a,,b) (da,, db).
+
   Definition disp_functor_fix_fst_arg_mor {b₁ b₂ : B} {f : b₁ --> b₂} {db₁ : DB b₁} {db₂ : DB b₂} (ff : db₁ -->[f] db₂)
     : FF (a,,b₁) (da,,db₁) -->[ (# F (identity _ #,f))%cat ] FF (a,,b₂) (da,,db₂).
   Proof.
@@ -624,11 +620,61 @@ End disp_fix_fst_arg.
 
 
 
-Definition displayed_tensor {C : category}
+Definition displayed_tensor
+           {C : category}
            (tensor : C ⊠ C ⟶ C)
            (D : disp_cat C)
   : UU
   := disp_functor tensor (disp_binprod D D) D.
+
+
+Definition total_tensor
+           {C : category}
+           (T : C ⊠ C ⟶ C)
+           {D : disp_cat C}
+           (TT : displayed_tensor T D)
+  : total_category D ⊠ total_category D ⟶ total_category D
+  := total_bifunctor T TT.
+
+
+Section section_tensor.
+
+  Context {C : category}
+          {D : disp_cat C}
+          (T : C ⊠ C ⟶ C)
+          (TT : displayed_tensor T D)
+          (S : section_disp D).
+
+  Definition section_functor_pair : functor (C ⊠ C) (total_category D ⊠ total_category D).
+  Proof.
+    use pair_functor.
+    - use section_functor.
+      exact S.
+    - use section_functor.
+      exact S.
+  Defined.
+
+  (* This does not hold, but hints at what we want to ask for
+  Lemma foobar : functor_composite T (section_functor S) = functor_composite section_functor_pair (total_tensor T TT).
+  Proof.
+    apply functor_eq.
+    - apply homset_property.
+    - cbn.
+      use total2_paths_f.
+      + cbn.
+        apply funextsec.
+        intros [c c'].
+        cbn.
+        use total2_paths_f.
+        * apply idpath.
+        * cbn.
+ *)
+
+  Hypothesis foo : ∏ (c c' : C),
+      iso_disp (identity_iso (T (c,,c'))) (S (T (c,,c'))) (disp_functor_on_objects (TT : disp_functor _ _ _) ((S c,, S c') : (D ⊠⊠ D)(c,,c'))).
+
+
+End section_tensor.
 
 
 Section FixDispTensor.
