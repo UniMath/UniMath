@@ -537,40 +537,6 @@ Proof.
   exact @one_type_2cell_iso.
 Defined.
 
-
-
-(** MOVE ??? *)
-(** Move this to MoreFoundations? *)
-Definition transportf_total2_paths_f
-           {A : UU}
-           {B : A → UU}
-           (C : A → UU)
-           {a₁ a₂ : A}
-           {b₁ : B a₁}
-           {b₂ : B a₂}
-           (p : a₁ = a₂)
-           (q : transportf B p b₁ = b₂)
-           (c₁ : C a₁)
-  : transportf
-      (λ z, C (pr1 z))
-      (@total2_paths_f
-         A B
-         (a₁ ,, b₁) (a₂ ,, b₂)
-         p
-         q)
-      c₁
-    =
-    transportf
-      C
-      p
-      c₁.
-Proof.
-  induction p.
-  induction q.
-  apply idpath.
-Defined.
-
-
 (**
  2. The univalence
 *)

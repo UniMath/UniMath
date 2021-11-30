@@ -32,6 +32,7 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.FullyFaithful.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.InternalStreetFibration.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
@@ -664,11 +665,9 @@ Section CodomainStreetFibs.
   (**
    4. Adjoint equivalences
    *)
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Section AdjEquivToDispAdjEquiv.
-    Context (HB_2_1 : is_univalent_2_1 B)
+    Context (HB_2_0 : is_univalent_2_0 B)
+            (HB_2_1 : is_univalent_2_1 B)
             {x : B}
             {hx hy : cod_sfibs x}
             (e : adjoint_equivalence (pr1 hx) (pr1 hy))
@@ -679,7 +678,14 @@ Section CodomainStreetFibs.
     Proof.
       use make_mor_of_internal_sfib_over.
       - exact e.
-      - apply TODO.
+      - exact (equivalence_preserves_cartesian
+                 (pr12 hx)
+                 (pr12 hy)
+                 e
+                 com
+                 (pr2 e)
+                 HB_2_0
+                 HB_2_1).
       - exact (comp_of_invertible_2cell
                  (runitor_invertible_2cell _)
                  com).
@@ -692,7 +698,26 @@ Section CodomainStreetFibs.
     Proof.
       use make_mor_of_internal_sfib_over.
       - exact (left_adjoint_right_adjoint e).
-      - apply TODO.
+      - pose (einv := inv_adjequiv e).
+        use (equivalence_preserves_cartesian
+               (pr12 hy)
+               (pr12 hx)
+               einv
+               _
+               (pr2 einv)
+               HB_2_0
+               HB_2_1).
+        exact (comp_of_invertible_2cell
+                 (linvunitor_invertible_2cell _)
+                 (comp_of_invertible_2cell
+                    (rwhisker_of_invertible_2cell
+                       _
+                       (left_equivalence_unit_iso einv))
+                    (comp_of_invertible_2cell
+                       (rassociator_invertible_2cell _ _ _)
+                       (lwhisker_of_invertible_2cell
+                          _
+                          (inv_of_invertible_2cell com))))).
       - refine (runitor _
                 • linvunitor _
                 • ((left_equivalence_counit_iso e)^-1 ▹ _)
@@ -1064,6 +1089,7 @@ Section CodomainStreetFibs.
   End DispAdjEquivToAdjEquiv.
 
   Definition adj_equiv_to_disp_adj_equiv_to_adj_equiv
+             (HB_2_0 : is_univalent_2_0 B)
              (HB_2_1 : is_univalent_2_1 B)
              {x : B}
              {hx hy : cod_sfibs x}
@@ -1071,7 +1097,7 @@ Section CodomainStreetFibs.
                   invertible_2cell (pr12 hx) (pr1 e · pr12 hy))
     : disp_adj_equiv_to_adj_equiv_pair
         (adj_equiv_to_disp_adj_equiv
-           (pr1 z) (pr2 z))
+           HB_2_0 HB_2_1 (pr1 z) (pr2 z))
       =
       z.
   Proof.
@@ -1105,6 +1131,7 @@ Section CodomainStreetFibs.
   Qed.
 
   Definition disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv
+             (HB_2_0 : is_univalent_2_0 B)
              (HB_2_1 : is_univalent_2_1 B)
              {x : B}
              {hx hy : cod_sfibs x}
@@ -1112,6 +1139,7 @@ Section CodomainStreetFibs.
                     (internal_adjoint_equivalence_identity x)
                     hx hy)
     : adj_equiv_to_disp_adj_equiv
+        HB_2_0 HB_2_1
         (disp_adj_equiv_to_adj_equiv z)
         (disp_adj_equiv_to_adj_equiv_comm z)
       =
@@ -1140,6 +1168,7 @@ Section CodomainStreetFibs.
   Qed.
 
   Definition adj_equiv_weq_disp_adj_equiv
+             (HB_2_0 : is_univalent_2_0 B)
              (HB_2_1 : is_univalent_2_1 B)
              {x : B}
              (hx hy : cod_sfibs x)
@@ -1149,11 +1178,11 @@ Section CodomainStreetFibs.
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) hx hy.
   Proof.
     use make_weq.
-    - exact (λ e, adj_equiv_to_disp_adj_equiv (*HB_2_1*) (pr1 e) (pr2 e)).
+    - exact (λ e, adj_equiv_to_disp_adj_equiv HB_2_0 HB_2_1 (pr1 e) (pr2 e)).
     - use gradth.
       + exact disp_adj_equiv_to_adj_equiv_pair.
-      + exact (adj_equiv_to_disp_adj_equiv_to_adj_equiv HB_2_1).
-      + exact (disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv HB_2_1).
+      + exact (adj_equiv_to_disp_adj_equiv_to_adj_equiv HB_2_0 HB_2_1).
+      + exact (disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv HB_2_0 HB_2_1).
   Defined.
 
   (**
@@ -1194,7 +1223,7 @@ Section CodomainStreetFibs.
     intros x y p hx hy.
     induction p.
     use weqhomot.
-    - exact (adj_equiv_weq_disp_adj_equiv HB_2_1 hx hy
+    - exact (adj_equiv_weq_disp_adj_equiv HB_2_0 HB_2_1 hx hy
              ∘ weqtotal2
                  (make_weq _ (HB_2_0 _ _))
                  (weq_fam_global HB_2_1 hx hy)

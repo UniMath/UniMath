@@ -13,6 +13,7 @@
  6. Internal Street fibrations of categories
  7. Morphisms of internal Street fibrations
  8. Cells of internal Street fibrations
+ 9. Equivalences preserve cartesian cells
 
  ********************************************************)
 Require Import UniMath.Foundations.All.
@@ -33,6 +34,7 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.FullyFaithful.
+Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Colimits.Products.
 Import Products.Notations.
@@ -915,6 +917,23 @@ Section InternalSFibIsStreetFib.
          apply idpath).
   Defined.
 
+  (*
+  Definition test
+             {X : bicat_of_univ_cats}
+             {G₁ G₂ : X --> E}
+             (α : G₁ ==> G₂)
+             (x : pr1 X)
+             (H : is_cartesian_2cell_sfib F α)
+    : is_cartesian_sfib F (pr1 α x).
+  Proof.
+    intros z g h p.
+    use iscontraprop1.
+    - admit.
+    - pose (H (constant_functor _ _ z)).
+    unfold is_cartesian_sfib.
+  Admitted.
+   *)
+
   Definition internal_sfib_is_street_fib
     : street_fib F.
   Proof.
@@ -926,7 +945,24 @@ Section InternalSFibIsStreetFib.
                       (constant_functor _ _ b)
                       (constant_functor _ _ x)
                       (help_trans f)).
-    (*refine (pr1 (pr1 lift) tt
+    refine (pr11 lift tt
+            ,,
+            (pr112 lift tt
+            ,,
+            nat_iso_pointwise_iso (invertible_2cell_to_nat_iso _ _ (pr122 lift)) tt)
+            ,,
+            _).
+    pose (nat_trans_eq_pointwise (pr2 (pr222 lift)) tt) as p.
+    refine (p ,, _).
+    simpl.
+    (*
+    apply (test (pr12 lift)).
+    apply (pr1 (pr222 lift)).
+  Defined.
+     *)
+  Admitted.
+
+  (*refine (pr1 (pr1 lift) tt
             ,,
             pr1 (pr12 lift) tt
             ,,
@@ -936,8 +972,6 @@ Section InternalSFibIsStreetFib.
     split.
     - exact (nat_trans_eq_pointwise (pr2 (pr222 lift)) tt).
     - admit.*)
-
-  Admitted.
 End InternalSFibIsStreetFib.
 
 Section StreetFib.
@@ -948,6 +982,7 @@ Section StreetFib.
   Definition street_fib_is_internal_sfib
     : internal_sfib F.
   Proof.
+    split.
   Admitted.
 End StreetFib.
 
@@ -1248,3 +1283,45 @@ Proof.
   }
   exact p.
 Qed.
+
+(**
+ 9. Equivalences preserve cartesian cells
+ *)
+Definition equivalence_preserves_cartesian
+           {B : bicat}
+           {b e₁ e₂ : B}
+           (p₁ : e₁ --> b)
+           (p₂ : e₂ --> b)
+           (L : e₁ --> e₂)
+           (com : invertible_2cell p₁ (L · p₂))
+           (HL : left_adjoint_equivalence L)
+           (HB_2_0 : is_univalent_2_0 B)
+           (HB_2_1 : is_univalent_2_1 B)
+  : mor_preserves_cartesian p₁ p₂ L.
+Proof.
+  refine (J_2_0
+            HB_2_0
+            (λ (x₁ x₂ : B) (L : adjoint_equivalence x₁ x₂),
+             ∏ (p₁ : x₁ --> b)
+               (p₂ : x₂ --> b)
+               (c : invertible_2cell p₁ (L · p₂)),
+             mor_preserves_cartesian p₁ p₂ L)
+            _
+            (L ,, HL)
+            p₁
+            p₂
+            com).
+  clear e₁ e₂ L HL p₁ p₂ com HB_2_0.
+  cbn ; intros e p₁ p₂ com.
+  pose (c := comp_of_invertible_2cell com (lunitor_invertible_2cell _)).
+  refine (J_2_1
+            HB_2_1
+            (λ (x₁ x₂ : B)
+               (f g : x₁ --> x₂)
+               _,
+             mor_preserves_cartesian f g (id₁ _))
+            _
+            c).
+  intros.
+  apply id_mor_preserves_cartesian.
+Defined.
