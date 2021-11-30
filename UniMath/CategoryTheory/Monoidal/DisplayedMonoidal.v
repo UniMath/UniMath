@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
@@ -144,6 +145,84 @@ Section DispCartProdOfCats.
 End DispCartProdOfCats.
 
 Notation "D ⊠⊠ D'" := (disp_binprod D D') (at level 60).
+
+
+Section TotalDispProd.
+
+(**
+We can build the total category of a [disp_binprod D D'], or we can take the cartesian product of two total categories.
+ *)
+
+ Context {C C' : category}
+         (D : disp_cat C)
+         (D' : disp_cat C').
+
+ Let T : category := total_category (D ⊠⊠ D').
+ Let T' : category := category_binproduct (total_category D) (total_category D').
+
+ Definition reord_functor_data : functor_data T T'.
+ Proof.
+   use tpair.
+   - intros [[c c'] [d d']].
+     exact (make_dirprod (c,,d) (c',,d')).
+   - cbn. intros [[a a'] [d d']] [[b b'] [e e']] [[f f'] [g g']].
+     exact (make_dirprod (f,,g) (f',,g')).
+ Defined.
+
+
+
+ Definition reord_functor_axioms : is_functor reord_functor_data.
+ Proof.
+   split.
+   - intros a.
+     apply idpath.
+   - intros a b c f g.
+     apply idpath.
+ Qed.
+
+ Definition reord_functor : functor T T' := reord_functor_data ,, reord_functor_axioms.
+
+ Definition reord_hom_inverse (a b : T)
+   : T' ⟦ reord_functor a, reord_functor b ⟧ → T ⟦ a, b ⟧.
+ Proof.
+   intros [[c d] [c' d']].
+   cbn in *.
+   use tpair.
+   - exact (make_dirprod c c').
+   - cbn. exact (make_dirprod d d').
+ Defined.
+
+ Definition fully_faithful_reord_functor : fully_faithful reord_functor.
+ Proof.
+   intros a b.
+   use gradth.
+   - exact (reord_hom_inverse a b).
+   - intros. apply idpath.
+   - intros; apply idpath.
+ Defined.
+
+ Definition reord_ob_inverse : T' → T.
+ Proof.
+   intros [[c d] [c' d']].
+   use tpair.
+   - exact (make_dirprod c c').
+   - exact (make_dirprod d d').
+ Defined.
+
+ Definition is_iso_reord_functor : is_catiso reord_functor.
+ Proof.
+   split.
+   - exact fully_faithful_reord_functor.
+   - use gradth.
+     + exact reord_ob_inverse.
+     + intro; apply idpath.
+     + intro; apply idpath.
+ Defined.
+
+
+End TotalDispProd.
+
+
 
 
 Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
