@@ -67,24 +67,110 @@ Proof.
          apply cartesian_factorisation_commutes).
 Defined.
 
-Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
-           {C₁ C₂ : bicat_of_univ_cats}
-           {F₁ F₂ : C₁ --> C₂}
-           {α : F₁ ==> F₂}
-           {D₁ : disp_bicat_of_fibs C₁}
-           {D₂ : disp_bicat_of_fibs C₂}
-           {FF₁ : D₁ -->[ F₁ ] D₂}
-           {FF₂ : D₁ -->[ F₂ ] D₂}
-           (αα : FF₁ ==>[ α ] FF₂)
-           (Hαα : is_cartesian_2cell disp_bicat_of_fibs αα)
-           (x : (C₁ : univalent_category))
-           (xx : (pr1 D₁ : disp_univalent_category _) x)
-  : is_cartesian (pr11 αα x xx).
-Proof.
-  intros z g zz gg.
-  unfold is_cartesian_2cell in Hαα.
-  cbn in Hαα.
-Abort.
+Section CleavingOfFibsPointwiseCartesian.
+  Context {C₁ C₂ : bicat_of_univ_cats}
+          {F₁ F₂ : C₁ --> C₂}
+          {α : F₁ ==> F₂}
+          {D₁ : disp_bicat_of_fibs C₁}
+          {D₂ : disp_bicat_of_fibs C₂}
+          {FF₁ : D₁ -->[ F₁ ] D₂}
+          {FF₂ : D₁ -->[ F₂ ] D₂}
+          (αα : FF₁ ==>[ α ] FF₂)
+          (Hαα : is_cartesian_2cell disp_bicat_of_fibs αα).
+
+  Let lift_FF₂
+    : disp_functor F₁ (pr11 D₁) (pr11 D₂)
+    := cartesian_factorisation_disp_functor
+           (pr2 D₂)
+           (pr1 FF₂)
+           α.
+  Let lift_FF₂_fib
+    : D₁ -->[ F₁ ] D₂.
+  Proof.
+    refine (lift_FF₂ ,, _).
+    apply cartesian_factorisation_disp_functor_is_cartesian.
+    apply (pr2 FF₂).
+  Defined.
+
+  Definition pointwise_cartesian_lift_data
+    : disp_nat_trans_data
+        (pr1 α)
+        lift_FF₂
+        (pr11 FF₂)
+    := λ x xx, cleaving_mor (pr2 D₂) (pr1 α x) (pr11 FF₂ x xx).
+
+  Definition pointwise_cartesian_lift_axioms
+    : disp_nat_trans_axioms pointwise_cartesian_lift_data.
+  Proof.
+    intros x y f xx yy ff.
+    apply cartesian_factorisation_commutes.
+  Qed.
+
+  Definition pointwise_cartesian_lift
+    : disp_nat_trans
+        α
+        (cartesian_factorisation_disp_functor
+           (pr2 D₂)
+           (pr1 FF₂)
+           α)
+        (pr11 FF₂)
+    := (pointwise_cartesian_lift_data ,, pointwise_cartesian_lift_axioms).
+
+  Definition pointwise_cartesian_lift_fib
+    : lift_FF₂_fib ==>[ α ] FF₂
+    := (pointwise_cartesian_lift ,, tt).
+
+  Definition pointwise_cartesian_lift_data_pointwise_cartesian
+    : ∏ (x : (C₁ : univalent_category))
+        (xx : (pr1 D₁ : disp_univalent_category _) x),
+      is_cartesian (pointwise_cartesian_lift x xx).
+  Proof.
+    intros x xx.
+    apply cartesian_lift_is_cartesian.
+  Qed.
+
+  Definition pointwise_cartesian_lift_data_is_cartesian
+    : is_cartesian_2cell
+        disp_bicat_of_fibs
+        pointwise_cartesian_lift_fib.
+  Proof.
+    apply cleaving_of_fibs_is_cartesian_2cell.
+    exact pointwise_cartesian_lift_data_pointwise_cartesian.
+  Defined.
+
+  Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
+             (x : (C₁ : univalent_category))
+             (xx : (pr1 D₁ : disp_univalent_category _) x)
+    : is_cartesian (pr11 αα x xx).
+  Proof.
+    pose (maponpaths
+            (λ z, pr11 z x xx)
+            (is_cartesian_2cell_unique_iso_com
+               Hαα
+               pointwise_cartesian_lift_data_is_cartesian))
+      as p.
+    cbn in p.
+    rewrite pr1_transportf in p.
+    cbn in p.
+    pose (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _) as q.
+    cbn in q.
+    refine (transportb
+              is_cartesian
+              q
+              _).
+    apply is_cartesian_transportf.
+    use is_cartesian_comp_disp.
+    - exact (is_cartesian_disp_iso
+               (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+                  _
+                  _
+                  (pr2 (is_cartesian_2cell_unique_iso
+                          Hαα
+                          pointwise_cartesian_lift_data_is_cartesian))
+                  xx)).
+    - apply pointwise_cartesian_lift_data_pointwise_cartesian.
+  Qed.
+End CleavingOfFibsPointwiseCartesian.
 
 Definition cleaving_of_fibs_local_cleaving
   : local_cleaving disp_bicat_of_fibs.
@@ -107,17 +193,25 @@ Definition cleaving_of_fibs_lwhisker_cartesian
   : lwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  unfold is_cartesian_2cell in *.
-  intros h hh γ ββ.
-Abort.
+  apply cleaving_of_fibs_is_cartesian_2cell.
+  intros x xx.
+  cbn.
+  apply cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian.
+  exact Hαα.
+Defined.
 
 Definition cleaving_of_fibs_rwhisker_cartesian
   : rwhisker_cartesian disp_bicat_of_fibs.
 Proof.
   intros C₁ C₂ C₃ D₁ D₂ D₃ H F G HH FF GG α αα Hαα.
-  unfold is_cartesian_2cell in *.
-  intros h hh γ ββ.
-Abort.
+  apply cleaving_of_fibs_is_cartesian_2cell.
+  intros x xx.
+  pose (pr2 GG) as pr2GG.
+  cbn ; cbn in pr2GG.
+  apply pr2GG.
+  apply cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian.
+  exact Hαα.
+Defined.
 
 (** Global cleaving *)
 Definition cleaving_of_fibs_lift_obj
@@ -549,13 +643,11 @@ Proof.
 Defined.
 
 Definition cleaving_of_fibs
-           (H₁ : lwhisker_cartesian disp_bicat_of_fibs)
-           (H₂ : rwhisker_cartesian disp_bicat_of_fibs)
   : cleaving_of_bicats disp_bicat_of_fibs.
 Proof.
   repeat split.
   - exact cleaving_of_fibs_local_cleaving.
   - exact cleaving_of_fibs_global_cleaving.
-  - exact H₁.
-  - exact H₂.
+  - exact cleaving_of_fibs_lwhisker_cartesian.
+  - exact cleaving_of_fibs_rwhisker_cartesian.
 Defined.
