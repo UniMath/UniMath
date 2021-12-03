@@ -765,12 +765,93 @@ Section section_tensor.
     : monoidal_tensor_section_data
     := pr1 α.
 
+  Definition monoidal_tensor_ax
+             (α : monoidal_tensor_section)
+             (c₁ c₁' c₂ c₂' : C)
+             (f : c₁ --> c₂)
+             (f' : c₁' --> c₂')
+    :
+    transportf
+        (mor_disp _ _ )
+        (id_right _ )
+        (section_disp_on_morphisms S ((#T ( f ⊠' f')) %cat) ;; pr1 α _ _)
+      =
+        transportf
+          (mor_disp _ _ )
+          (id_left _ )
+          (pr1 α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))
+    := pr2 α _ _ _ _ f f'.
+
+  Definition monoidal_tensor_ax'
+             (α : monoidal_tensor_section)
+             (c₁ c₁' c₂ c₂' : C)
+             (f : c₁ --> c₂)
+             (f' : c₁' --> c₂')
+    :
+        (section_disp_on_morphisms S ((#T ( f ⊠' f')) %cat) ;; pr1 α _ _)
+      =
+        transportb
+          (mor_disp _ _ )
+          (id_right _ )
+          (
+            transportf
+              (mor_disp _ _ )
+              (id_left _ )
+              (pr1 α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))).
+  Proof.
+    apply transportf_transpose_right.
+    etrans. 2 : { apply monoidal_tensor_ax. }
+    apply transportf_paths.
+    apply C.
+  Qed.
+
+
+
+  (* Sanity check looks ok, but is cumbersome to prove *)
 
   Local Definition sanity_check (α : monoidal_tensor_section)
-    : nat_trans
+    : nat_iso
         (functor_composite T (section_functor S))
         (functor_composite section_functor_pair (total_tensor T TT)).
   Proof.
+    Search (nat_iso).
+    use make_nat_iso.
+    - use make_nat_trans.
+      + intro a.
+        cbn.
+        use tpair.
+        * exact (identity_iso _ ).
+        * cbn. apply α.
+      + cbn.
+        intros [a a'] [b b'] [f f'].
+        cbn in *.
+        use total2_paths_f.
+        * (* we can prove this in an ugly way, since in the next goal
+             we are transporting along equality between elements of
+             a set anyway
+             For getting a clean display, it would even be good to
+             prove this equality separately and make it `Qed.`.
+           *)
+          (*cbn.
+          etrans.
+          apply id_right.
+          etrans.
+          2 : { eapply pathsinv0. apply id_left. }
+          apply maponpaths.
+
+          repeat rewrite id_left.
+          repeat rewrite id_right.
+          apply idpath.
+           *)
+          admit.
+        * cbn.
+          etrans.
+          apply maponpaths.
+          apply monoidal_tensor_ax'.
+          etrans. { apply transport_f_f. }
+          etrans. { apply transport_f_f. }
+          admit.
+    - cbn.
   Abort.
 
 End section_tensor.
