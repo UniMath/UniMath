@@ -627,6 +627,7 @@ Definition displayed_tensor
   : UU
   := disp_functor tensor (disp_binprod D D) D.
 
+Identity Coercion displayed_tensor_to_disp_functor : displayed_tensor >-> disp_functor.
 
 Definition total_tensor
            {C : category}
@@ -639,12 +640,50 @@ Definition total_tensor
 
 Section section_tensor.
 
+
+  (**
+              TT
+    D × D ------------> D
+    ∧   ∧               ∧
+   S|   |S              |S
+    C × C ------------> C
+               T
+   *)
+
   Context {C : category}
           {D : disp_cat C}
           (T : C ⊠ C ⟶ C)
           (TT : displayed_tensor T D)
           (S : section_disp D).
 
+
+  Local Definition make_prodmor
+        {a₁ a₂ b₁ b₂ : C}
+        (f₁ : a₁ --> b₁)
+        (f₂ : a₂ --> b₂)
+    : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
+    := (f₁ ,, f₂).
+
+  Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 10).
+
+
+  Local Definition make_dispprodmor
+        {a₁ a₂ b₁ b₂ : C}
+        {f₁ : a₁ --> b₁}
+        {f₂ : a₂ --> b₂}
+        {d₁ : D a₁}
+        {d₂ : D a₂}
+        {e₁ : D b₁}
+        {e₂ : D b₂}
+        (ff₁ : d₁ -->[f₁] e₁)
+        (ff₂ : d₂ -->[f₂] e₂)
+    : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
+    := ff₁ ,, ff₂.
+
+  Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 10).
+
+
+  (** This is leaving the displayed world, so is only useful for validation *)
   Definition section_functor_pair : functor (C ⊠ C) (total_category D ⊠ total_category D).
   Proof.
     use pair_functor.
@@ -654,7 +693,7 @@ Section section_tensor.
       exact S.
   Defined.
 
-  (* This does not hold, but hints at what we want to ask for
+  (*  This does not hold, but hints at what we want to ask for
   Lemma foobar : functor_composite T (section_functor S) = functor_composite section_functor_pair (total_tensor T TT).
   Proof.
     apply functor_eq.
@@ -670,9 +709,69 @@ Section section_tensor.
         * cbn.
  *)
 
-  Hypothesis foo : ∏ (c c' : C),
-      iso_disp (identity_iso (T (c,,c'))) (S (T (c,,c'))) (disp_functor_on_objects (TT : disp_functor _ _ _) ((S c,, S c') : (D ⊠⊠ D)(c,,c'))).
 
+  (**
+        For a strict monoidal functor, the square above should commute
+        up to a displayed natural isomorphism in the D that is the identity in C
+   *)
+
+  Definition monoidal_tensor_section_data : UU
+    := ∏ (c c' : C),
+      iso_disp
+        (identity_iso (T (c,,c')))
+        (S (T (c,,c')))
+        (TT _ ((S c,, S c') : (D ⊠⊠ D)(c,,c'))).
+
+  (*
+     Without the identity coercerion [displayed_tensor_to_disp_functor] above,
+     we would need to write
+     disp_functor_on_objects (TT : disp_functor _ _ _) ((S c,, S c') : (D ⊠⊠ D)(c,,c'))
+     instead of
+     TT _ ((S c,, S c') : (D ⊠⊠ D)(c,,c'))
+   *)
+
+  (** Naturality for [monoidal_tensor_section_data]
+
+     S(T(c₁ c₁')) ---α(c₁ c₁')---> TT(Sc₁, Sc₁')
+                |                  |
+    S(T(f₁ f₂)  |                  | TT(Sf₁,Sf₂)
+                v                  v
+     S(T(c₂ c₂')) ---α(c₂ c₂')---> TT(Sc₂, c₂')
+
+    Note that this equation is ill-typed:
+    the down-then-horizontal lives over T(f₁,f₂) · id_iso,
+    the horizontal-then-down lives over id_iso · T(f₁,f₂)
+    We transport them both to live over T(f₁,f₂)
+   *)
+
+  Definition monoidal_tensor_section_natural (α : monoidal_tensor_section_data)
+    : UU
+    :=
+    ∏ (c₁ c₁' c₂ c₂' : C) (f : c₁ --> c₂) (f' : c₁' --> c₂'),
+      transportf
+        (mor_disp _ _ )
+        (id_right _ )
+        (section_disp_on_morphisms S ((#T ( f ⊠' f')) %cat) ;; α _ _)
+      =
+        transportf
+          (mor_disp _ _ )
+          (id_left _ )
+          (α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f'))).
+
+  Definition monoidal_tensor_section : UU
+    := ∑ (α : monoidal_tensor_section_data), monoidal_tensor_section_natural α.
+
+  Coercion monoidal_tensor_section_data_from_monoidal_tensor_section (α : monoidal_tensor_section)
+    : monoidal_tensor_section_data
+    := pr1 α.
+
+
+  Local Definition sanity_check (α : monoidal_tensor_section)
+    : nat_trans
+        (functor_composite T (section_functor S))
+        (functor_composite section_functor_pair (total_tensor T TT)).
+  Proof.
+  Abort.
 
 End section_tensor.
 
