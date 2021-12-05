@@ -664,7 +664,7 @@ Section section_tensor.
     : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
     := (f₁ ,, f₂).
 
-  Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 10).
+  Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 30).
 
 
   Local Definition make_dispprodmor
@@ -680,7 +680,7 @@ Section section_tensor.
     : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
     := ff₁ ,, ff₂.
 
-  Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 10).
+  Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 30).
 
 
   (** This is leaving the displayed world, so is only useful for validation *)
@@ -850,8 +850,113 @@ Section section_tensor.
           apply monoidal_tensor_ax'.
           etrans. { apply transport_f_f. }
           etrans. { apply transport_f_f. }
-          admit.
-    - cbn.
+          apply pathsinv0.
+          set (X := @disp_functor_comp _ _ _ _ _ TT).
+          etrans. {
+                  apply maponpaths.
+                  set (X':= @X (a,,a') (b,,b') (b,,b') (S a,, S a') (S b,,S b') (S b,,S b')).
+                  set (X'' := @X'
+                                ((id _ · f) ⊠' (id _ · f')) (identity b ⊠' id b')).
+                  set (X3 := X'' ((id_disp (S a) ;; section_disp_on_morphisms S f) ⊠⊠'(id_disp (S a') ;; section_disp_on_morphisms S f') )).
+                  set (X4 := X3 (id_disp (S b) ⊠⊠' (id_disp (S b')))).
+                  apply X4.
+                }
+                cbn.
+          etrans.
+          { apply mor_disp_transportf_prewhisker. }
+          etrans.
+          { apply maponpaths.
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              set (X' := @disp_functor_id _ _ _ _ _ TT).
+              apply (X' (b,,b')).
+            }
+            apply mor_disp_transportf_prewhisker.
+          }
+          etrans.
+          { apply maponpaths.
+            apply mor_disp_transportf_prewhisker. }
+          etrans.
+          {
+            apply maponpaths.
+            apply maponpaths.
+            apply maponpaths.
+            apply id_right_disp.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            apply maponpaths.
+            apply mor_disp_transportf_prewhisker.
+          }
+          etrans.
+          { apply transport_f_f. }
+          etrans.
+          { apply transport_f_f. }
+          etrans.
+          {
+            apply maponpaths.
+            apply maponpaths.
+            set (X':= @X (a,,a') (a,,a') (b,,b') (S a,, S a') (S a,,S a') (S b,,S b')).
+            set (X'' := @X'
+                          (identity a ⊠' id a') (f ⊠' f') ).
+            set (X3 := X'' (id_disp _ ⊠⊠' (id_disp _ ))
+                           (section_disp_on_morphisms S f ⊠⊠' section_disp_on_morphisms S f')
+                ).
+            apply X3.
+          }
+          etrans.
+          { apply maponpaths.
+            apply mor_disp_transportf_prewhisker.
+          }
+          etrans.
+          { apply transport_f_f. }
+          etrans.
+
+          { apply maponpaths.
+            apply maponpaths.
+            apply maponpaths_2.
+            set (X' := @disp_functor_id _ _ _ _ _ TT).
+            apply (X' (a,,a')).
+          }
+          etrans.
+          { apply maponpaths.
+            apply assoc_disp.
+          }
+          etrans.
+          { apply transport_f_f.
+          }
+          etrans.
+          { apply maponpaths.
+            apply maponpaths_2.
+            apply mor_disp_transportf_prewhisker.
+          }
+          etrans.
+          { apply maponpaths.
+            apply mor_disp_transportf_postwhisker.
+          }
+          etrans.
+          { apply transport_f_f.
+          }
+          etrans.
+          { apply maponpaths.
+            apply maponpaths_2.
+            apply id_right_disp.
+          }
+          etrans.
+          { apply maponpaths.
+            apply  mor_disp_transportf_postwhisker.
+          }
+          etrans.
+          { apply transport_f_f. }
+          Search ( ?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y' ).
+          apply two_arg_paths.
+          -- apply C.
+          -- apply idpath.
+    - intros a b f. cbn.
+      admit.
   Abort.
 
 End section_tensor.
