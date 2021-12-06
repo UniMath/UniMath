@@ -984,3 +984,135 @@ Definition disp_invertible_2cell_rwhisker
            (αα : disp_invertible_2cell α ff₁ ff₂)
   : disp_invertible_2cell (_ ,, is_invertible_2cell_rwhisker g (pr2 α)) _ _
   := disp_rwhisker gg αα,, is_disp_invertible_2cell_rwhisker gg αα.
+
+Definition disp_hom_disp_iso_to_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {Hα : is_invertible_2cell α}
+           {xx : D x}
+           {yy : D y}
+           {ff : disp_hom xx yy f}
+           {gg : disp_hom xx yy g}
+           (αα : ff -->[ α ] gg)
+           (Hαα : @is_iso_disp
+                    _
+                    (disp_hom xx yy)
+                    _ _
+                    (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+                    _ _
+                    αα)
+  : is_disp_invertible_2cell Hα αα.
+Proof.
+  simple refine (_ ,, (_ ,, _)).
+  - exact (transportf
+             (λ z, _ ==>[ z ] _)
+             (id2_right _ )
+             (inv_mor_disp_from_iso Hαα)).
+  - abstract
+      (cbn ;
+       rewrite disp_mor_transportf_prewhisker ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (inv_mor_after_iso_disp Hαα)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+  - abstract
+      (cbn ;
+       rewrite disp_mor_transportf_postwhisker ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (iso_disp_after_inv_mor Hαα)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+Defined.
+
+Definition disp_hom_disp_invertible_2cell_to_iso
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {Hα : is_invertible_2cell α}
+           {xx : D x}
+           {yy : D y}
+           {ff : disp_hom xx yy f}
+           {gg : disp_hom xx yy g}
+           (αα : ff -->[ α ] gg)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+  : @is_iso_disp
+      _
+      (disp_hom xx yy)
+      _ _
+      (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+      _ _
+      αα.
+Proof.
+  pose (d := (αα ,, Hαα) : disp_invertible_2cell (α ,, Hα) ff gg).
+  simple refine (_ ,, (_ ,, _)).
+  - exact (transportb
+             (λ z, _ ==>[ z ] _)
+             (id2_right _)
+             (disp_inv_cell d)).
+  - abstract
+      (cbn ;
+       unfold transportb ;
+       rewrite disp_mor_transportf_postwhisker ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (disp_vcomp_linv d)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+  - abstract
+      (cbn ;
+       unfold transportb ;
+       rewrite disp_mor_transportf_prewhisker ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (disp_vcomp_rinv d)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+Defined.
+
+Definition disp_hom_disp_iso_weq_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {Hα : is_invertible_2cell α}
+           {xx : D x}
+           {yy : D y}
+           {ff : disp_hom xx yy f}
+           {gg : disp_hom xx yy g}
+           (αα : ff -->[ α ] gg)
+  : (@is_iso_disp
+       _
+       (disp_hom xx yy)
+       _ _
+       (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+       _ _
+       αα)
+      ≃
+      is_disp_invertible_2cell Hα αα.
+Proof.
+  use weqimplimpl.
+  - apply disp_hom_disp_iso_to_invertible_2cell.
+  - apply disp_hom_disp_invertible_2cell_to_iso.
+  - apply isaprop_is_iso_disp.
+  - apply (@isaprop_is_disp_invertible_2cell _ D _ _ _ _ (α ,, Hα)).
+Qed.

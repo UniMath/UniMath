@@ -1099,3 +1099,71 @@ Proof.
   - exact (pr2 Y).
   - exact (pr2 Z).
 Defined.
+
+(** Transport along a path of total2 *)
+Definition transportf_total2_paths_f
+           {A : UU}
+           {B : A → UU}
+           (C : A → UU)
+           {a₁ a₂ : A}
+           {b₁ : B a₁}
+           {b₂ : B a₂}
+           (p : a₁ = a₂)
+           (q : transportf B p b₁ = b₂)
+           (c₁ : C a₁)
+  : transportf
+      (λ z, C (pr1 z))
+      (@total2_paths_f
+         A B
+         (a₁ ,, b₁) (a₂ ,, b₂)
+         p
+         q)
+      c₁
+    =
+    transportf
+      C
+      p
+      c₁.
+Proof.
+  induction p.
+  induction q.
+  apply idpath.
+Defined.
+
+
+(** Paths of products *)
+Definition maponpaths_pr1_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           (p : x₁ = x₂)
+           (q : y₁ = y₂)
+  : maponpaths dirprod_pr1 (pathsdirprod p q) = p.
+Proof.
+  induction p, q.
+  apply idpath.
+Defined.
+
+Definition maponpaths_pr2_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           (p : x₁ = x₂)
+           (q : y₁ = y₂)
+  : maponpaths dirprod_pr2 (pathsdirprod p q) = q.
+Proof.
+  induction p, q.
+  apply idpath.
+Defined.
+
+Definition pathsdirprod_eta
+           {X Y : UU}
+           {x y : X × Y}
+           (p : x = y)
+  : p
+    =
+    pathsdirprod (maponpaths dirprod_pr1 p) (maponpaths dirprod_pr2 p).
+Proof.
+  induction p.
+  apply idpath.
+Defined.
