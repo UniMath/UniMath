@@ -179,7 +179,7 @@ Section Alternative_Definition.
     - exact auxρ.
     - use make_nat_z_iso.
       + exact ϵ_inv.
-      + apply nat_trafo_pointwise_z_iso_if_z_iso.
+      + use nat_trafo_pointwise_z_iso_if_z_iso; [apply A |].
         apply is_z_isomorphism_inv.
   Defined.
 
@@ -225,7 +225,7 @@ Section Alternative_Definition.
     - exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (uncurry_nattrans _ _ _ μ)).
     - intro auv. induction auv as [[a u] v].
       unfold pre_whisker. cbn.
-      exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ (μ_is_nat_z_iso (u,,v)) a).
+      exact (nat_trafo_pointwise_z_iso_if_z_iso A _ (μ_is_nat_z_iso (u,,v)) a).
   Defined.
 
   Lemma action_triangle_eq_from_alt: action_triangle_eq odot ϱ χ.
@@ -248,7 +248,7 @@ Section Alternative_Definition.
     transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
     { apply functor_on_is_z_isomorphism.
       transparent assert (aux1: (is_nat_z_iso ϵ_inv)).
-      { apply nat_trafo_pointwise_z_iso_if_z_iso.
+      { use nat_trafo_pointwise_z_iso_if_z_iso; [apply A |].
         apply is_z_iso_inv_from_z_iso. }
       apply aux1.
     }

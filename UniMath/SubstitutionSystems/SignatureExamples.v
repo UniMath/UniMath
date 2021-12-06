@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -154,11 +155,11 @@ Definition θ_from_δ_mor (XZe : [C, C] ⊠ Ptd) :
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
   set (F1 := α_functors G Z X).
-  set (F1' := pr1 (associator_of_endofunctors _) ((G,, Z),, X)).
+  set (F1' := pr1 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G,, Z),, X)).
   set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
   set (F2' := # (post_comp_functor X) (δ G DL (pr2 XZe))).
   set (F3 := α_functors_inv Z G X).
-  set (F3' := pr1 (pr2 (associator_of_endofunctors _) ((Z,, G),, X))).
+  set (F3' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((Z,, G),, X))).
   set (obsolete := nat_trans_comp F3 (nat_trans_comp F2 F1)).
   exact (F3' · (F2' · F1')).
 Defined.
@@ -226,15 +227,15 @@ Section δ_mul.
 Proof.
   set (Z := pr1 Ze).
   set (F1 := α_functors_inv Z G1 G2).
-  set (F1' := pr1 (pr2 (associator_of_endofunctors _) ((Z,, G1),, G2))).
+  set (F1' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((Z,, G1),, G2))).
   set (F2 := post_whisker (δ G1 DL1 Ze) G2).
   set (F2' := # (post_comp_functor G2) (δ G1 DL1 Ze)).
   set (F3 := α_functors G1 Z G2).
-  set (F3' := pr1 (associator_of_endofunctors _) ((G1,, Z),, G2)).
+  set (F3' := pr1 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G1,, Z),, G2)).
   set (F4 := pre_whisker (pr1 G1) (δ G2 DL2 Ze)).
   set (F4' := # (pre_comp_functor G1) (δ G2 DL2 Ze)).
   set (F5 := α_functors_inv G1 G2 Z).
-  set (F5' := pr1 (pr2 (associator_of_endofunctors _) ((G1,, G2),, Z))).
+  set (F5' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G1,, G2),, Z))).
   set (obsolete := nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
   exact (F1' · (F2' · (F3' · (F4' · F5')))).
 Defined.

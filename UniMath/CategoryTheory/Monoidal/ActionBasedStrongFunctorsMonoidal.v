@@ -2264,14 +2264,23 @@ Local Definition postcompG {C: category} := post_composition_functor C A A' G.
 Let H := param_distributivity_dom Mon_V _ _ FA' G.
 Let H' := param_distributivity_codom Mon_V _ _ FA G.
 
+
+Definition montrafotarget_disp: disp_precat Mon_V := trafotargetbicat_disp(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
+Definition montrafotarget_cat: category := trafotargetbicat_cat(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
+(* previously:
 Definition montrafotarget_disp: disp_precat Mon_V := trafotarget_disp H H'.
 Definition montrafotarget_cat: category := trafotarget_cat H H'.
+ *)
 
+Definition montrafotarget_unit: montrafotarget_cat := montrafotargetbicat_unit(C:=bicat_of_cats) FA FA' G.
+
+(* previously:
 Definition montrafotarget_unit: montrafotarget_cat.
 Proof.
   exists I.
   exact (param_distr_triangle_eq_variant0_RHS Mon_V _ _ FA FA' G).
 Defined.
+*)
 
 Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : trafotarget_disp H H' v) (π : trafotarget_disp H H' w)
@@ -2287,6 +2296,11 @@ Proof.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_pentagon_eq_body_RHS.
   change (ActionBasedStrength.precompF _ _ G) with precompG.
   change (ActionBasedStrength.postcompF A A' G) with (postcompG(C:=A)).
+  set (montrafotargetbicat_tensor_comp_aux_inst := montrafotargetbicat_tensor_comp_aux(C:=bicat_of_cats)(a0:=A)(a0':=A') FA FA' G v w v' w' f g η π η' π').
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS in montrafotargetbicat_tensor_comp_aux_inst.
+  (* the differences are in particular the associators that are all pointwise the identity *)
+
+(*
   match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
      set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
   match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
@@ -2460,6 +2474,8 @@ Proof.
   clear ι' σ2 ι'ok σ2ok.
   exact auxhorcomp'.
 Qed.
+ *)
+  Admitted.
 
 
 Definition montrafotarget_disp_tensor: displayed_tensor tensor montrafotarget_disp.
@@ -2564,9 +2580,11 @@ Proof.
   2: { apply maponpaths. cbn. apply idpath. }
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  (*
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · ?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
   (* repeat rewrite <- assoc. still cannot incorporate l6 *)
+*)
 Abort.
 
 Definition montrafotarget_monprecat_left_unitor_aux2_statement: UU :=
@@ -2585,10 +2603,12 @@ Proof.
   { apply cancel_postcomposition. cbn. apply idpath. }
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  (*
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5 · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
   (* repeat rewrite assoc. yields  l1 · (l2 · (l3 · l4 · l5 · l6)) to the left *)
+*)
 Abort.
 
 
@@ -2608,9 +2628,11 @@ Proof.
   2: { apply maponpaths. cbn. apply idpath. }
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  (*
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4) · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
   (* repeat rewrite assoc. and repeat rewrite <- assoc. work incompletely *)
+*)
 Abort.
 
 Definition montrafotarget_monprecat_right_unitor_aux2_statement: UU :=
@@ -2629,10 +2651,12 @@ Proof.
   { apply cancel_postcomposition. cbn. apply idpath. }
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  (*
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5) · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
   (* same comment on assoc as before *)
+*)
 Abort.
 
 Definition montrafotarget_monprecat_associator_aux1_statement: UU :=
