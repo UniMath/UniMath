@@ -1067,8 +1067,11 @@ Defined.
 
 Definition montrafotargetbicat_tensor_aux := total_functor montrafotargetbicat_disp_tensor.
 
-(** unfortunately, the data has to be reorganized, but this is independent of the concrete situation *)
-Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat.
+Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat
+  := total_tensor tensor  montrafotargetbicat_disp_tensor.
+
+(** earlier construction for the specific situation only *)
+Definition montrafotargetbicat_tensor_manual: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -2076,7 +2079,7 @@ Proof.
       apply montrafotargetbicat_left_unitor_aux1.
     * intros vη vη' fg.
       use total2_paths_f.
-      -- cbn. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
+      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
       -- apply trafotargetbicat_disp_cells_isaprop.
   + intro vη.
     use make_is_z_isomorphism.
@@ -2101,7 +2104,7 @@ Proof.
       apply montrafotargetbicat_right_unitor_aux1.
     * intros vη vη' fg.
       use total2_paths_f.
-      -- cbn. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
+      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
       -- apply trafotargetbicat_disp_cells_isaprop.
   + intro vη.
     use make_is_z_isomorphism.
@@ -2125,7 +2128,7 @@ Proof.
        apply montrafotargetbicat_associator_aux1.
     * intros vηs vηs' fgs.
       use total2_paths_f.
-      -- cbn. exact (pr21 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
+      -- cbn. repeat rewrite id_left. repeat rewrite id_right. exact (pr21 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
                          ((pr111 vηs',, pr121 vηs'),, pr12 vηs') ((pr111 fgs,, pr121 fgs),, pr12 fgs)).
       -- apply trafotargetbicat_disp_cells_isaprop.
   + intro vηs.
@@ -2146,7 +2149,7 @@ Lemma montrafotargetbicat_triangle_eq: triangle_eq montrafotargetbicat_tensor mo
 Proof.
   intros vη wη'.
   use total2_paths_f.
-  + cbn. assert (triangleinst := pr1 (monoidal_cat_eq Mon_V) (pr1 vη) (pr1 wη')).
+  + cbn. repeat rewrite id_left. repeat rewrite id_right. assert (triangleinst := pr1 (monoidal_cat_eq Mon_V) (pr1 vη) (pr1 wη')).
     exact triangleinst.
   + apply trafotargetbicat_disp_cells_isaprop.
 Qed.
@@ -2155,7 +2158,7 @@ Lemma montrafotargetbicat_pentagon_eq: pentagon_eq montrafotargetbicat_tensor mo
 Proof.
   intros vη1 vη2 vη3 vη4.
   use total2_paths_f.
-  + cbn. assert (pentagoninst := pr2 (monoidal_cat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
+  + cbn. repeat rewrite id_left. repeat rewrite id_right. assert (pentagoninst := pr2 (monoidal_cat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
     exact pentagoninst.
   + apply trafotargetbicat_disp_cells_isaprop.
 Qed.
@@ -2233,7 +2236,7 @@ Lemma lmf_from_param_distr_bicat_μ_data_is_nat: is_nat_trans _ _ lmf_from_param
 Proof.
   intros vw vw' fg.
   use total2_paths_f.
-  - cbn. rewrite id_left. apply id_right.
+  - cbn. repeat rewrite id_left. repeat rewrite id_right. apply idpath.
   - apply trafotargetbicat_disp_cells_isaprop.
 Qed.
 
@@ -2245,7 +2248,7 @@ Lemma lmf_from_param_distr_bicat_assoc: monoidal_functor_associativity Mon_V
 Proof.
   intros u v w.
   use total2_paths_f.
-  * cbn. do 2 rewrite id_right.
+  * cbn. repeat rewrite id_right.
     etrans.
     { apply cancel_postcomposition. apply maponpaths.
       exact (binprod_id (u ⊗ v) w). }
@@ -2263,7 +2266,7 @@ Proof.
   intro v. split.
   - use total2_paths_f.
     + cbn.
-      rewrite id_right.
+      repeat rewrite id_right.
       etrans.
       2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
       rewrite (functor_id tensor).
@@ -2271,7 +2274,7 @@ Proof.
     + apply trafotargetbicat_disp_cells_isaprop.
   - use total2_paths_f.
     + cbn.
-      rewrite id_right.
+      repeat rewrite id_right.
       etrans.
       2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
       rewrite (functor_id tensor).
