@@ -697,11 +697,9 @@ Proof.
   - unfold MonoidalFunctors.I_D. cbn. apply linvunitor.
 Defined.
 
-Definition montrafotargetbicat_unit: montrafotargetbicat_cat.
-Proof.
-  exists I.
-  exact param_distr_bicat_triangle_eq_variant0_RHS.
-Defined.
+Definition montrafotargetbicat_disp_unit: montrafotargetbicat_disp I := param_distr_bicat_triangle_eq_variant0_RHS.
+
+Definition montrafotargetbicat_unit: montrafotargetbicat_cat := I,, montrafotargetbicat_disp_unit.
 
 Definition param_distr_bicat_pentagon_eq_body_RHS (v w : Mon_V)
            (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : H v · FA' w ==> FA (v ⊗ w) · G.
@@ -731,6 +729,8 @@ Proof.
   apply lassociator.
 Defined.
 
+
+(** a number of auxiliary isomorphisms to ease the lemmas on arrow reversion *)
 Definition lwhisker_with_μ_inv_inv2cell (v w : Mon_V): invertible_2cell (G · FA' (v ⊗ w)) (G · (FA' v · FA' w)).
 Proof.
   use make_invertible_2cell.
@@ -842,7 +842,9 @@ Proof.
     apply functor_on_is_z_isomorphism.
     apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))).
 Defined.
+(** end of auxiliary definitions of isomorphisms *)
 
+(** the main lemma for the construction of the tensor *)
 Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
       (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
@@ -1070,49 +1072,18 @@ Definition montrafotargetbicat_tensor_aux := total_functor montrafotargetbicat_d
 Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat
   := total_tensor tensor  montrafotargetbicat_disp_tensor.
 
-(** earlier construction for the specific situation only *)
-Definition montrafotargetbicat_tensor_manual: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + intros [[v η] [w π]].
-      apply montrafotargetbicat_tensor_aux.
-      exists (v,,w). exact (η,,π).
-    + intros [[v η] [w π]] [[v' η'] [w' π']] [[f Hyp] [g Hyp']].
-      apply (# montrafotargetbicat_tensor_aux).
-      exists (f,,g). exact (Hyp,,Hyp').
-  - split.
-    + intros [[v η] [w π]].
-      use total2_paths_f.
-      * cbn.
-        etrans.
-        { apply maponpaths. apply binprod_id. }
-        apply functor_id.
-      * apply trafotargetbicat_disp_cells_isaprop. (** cheating: this depends on the precise situation *)
-    + intros [[v1 η1] [w1 π1]] [[v2 η2] [w2 π2]] [[v3 η3] [w3 π3]] [[f Hyp1] [g Hyp2]] [[f' Hyp1'] [g' Hyp2']].
-      use total2_paths_f.
-      * cbn.
-        etrans.
-        { apply maponpaths. apply binprod_comp. }
-        apply functor_comp.
-      * apply trafotargetbicat_disp_cells_isaprop. (** cheating: this depends on the precise situation *)
-Defined.
 
-Definition montrafotargetbicat_left_unitor_aux1_statement: UU :=
-  ∏ (vη : montrafotargetbicat_cat),
+Lemma montrafotargetbicat_left_unitor_aux1 (vη : montrafotargetbicat_cat):
   pr2 (I_pretensor montrafotargetbicat_tensor montrafotargetbicat_unit vη)
       -->[monoidal_cat_left_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotargetbicat_cat vη).
-
-Lemma montrafotargetbicat_left_unitor_aux1: montrafotargetbicat_left_unitor_aux1_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vη as [v η].
   etrans.
   2: { apply maponpaths. cbn. apply idpath. }
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 3 rewrite <- rwhisker_vcomp.
   repeat rewrite <- vassocr.
@@ -1189,21 +1160,17 @@ Proof.
   apply pathsinv0, lunitor_triangle.
 Qed.
 
-Definition montrafotargetbicat_left_unitor_aux2_statement: UU :=
-  ∏ (vη : montrafotargetbicat_cat),
+Lemma montrafotargetbicat_left_unitor_aux2 (vη : montrafotargetbicat_cat):
   pr2 (functor_identity montrafotargetbicat_cat vη)
       -->[pr1 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))]
       pr2 (I_pretensor montrafotargetbicat_tensor montrafotargetbicat_unit vη).
-
-Lemma montrafotargetbicat_left_unitor_aux2: montrafotargetbicat_left_unitor_aux2_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vη as [v η].
   etrans.
   { apply maponpaths_2. cbn. apply idpath. }
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 3 rewrite <- rwhisker_vcomp.
   repeat rewrite <- vassocr.
@@ -1293,21 +1260,42 @@ Proof.
   apply pathsinv0, lunitor_triangle.
 Qed.
 
-Definition montrafotargetbicat_right_unitor_aux1_statement: UU :=
-  ∏ (vη : montrafotargetbicat_cat),
+Definition montrafotargetbicat_left_unitor: left_unitor montrafotargetbicat_tensor montrafotargetbicat_unit.
+Proof.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * intro vη.
+      exists (monoidal_cat_left_unitor Mon_V (pr1 vη)).
+      apply montrafotargetbicat_left_unitor_aux1.
+    * intros vη vη' fg.
+      use total2_paths_f.
+      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
+      -- apply trafotargetbicat_disp_cells_isaprop.
+  + intro vη.
+    use make_is_z_isomorphism.
+    * exists (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
+      apply montrafotargetbicat_left_unitor_aux2.
+    * split.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
+         ++ apply trafotargetbicat_disp_cells_isaprop.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
+         ++ apply trafotargetbicat_disp_cells_isaprop.
+Defined.
+
+
+Lemma montrafotargetbicat_right_unitor_aux1 (vη : montrafotargetbicat_cat):
   pr2 (I_posttensor montrafotargetbicat_tensor montrafotargetbicat_unit vη)
       -->[monoidal_cat_right_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotargetbicat_cat vη).
-
-Lemma montrafotargetbicat_right_unitor_aux1: montrafotargetbicat_right_unitor_aux1_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vη as [v η].
   etrans.
   2: { apply maponpaths. cbn. apply idpath. }
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 3 rewrite <- lwhisker_vcomp.
   repeat rewrite <- vassocr.
@@ -1410,22 +1398,18 @@ Proof.
   apply runitor_rwhisker.
 Qed.
 
-Definition montrafotargetbicat_right_unitor_aux2_statement: UU :=
-  ∏ (vη : montrafotargetbicat_cat),
+Lemma montrafotargetbicat_right_unitor_aux2 (vη : montrafotargetbicat_cat):
   pr2 (functor_identity montrafotargetbicat_cat vη)
       -->[pr1 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))]
       pr2 (I_posttensor montrafotargetbicat_tensor montrafotargetbicat_unit vη).
-
-Lemma montrafotargetbicat_right_unitor_aux2: montrafotargetbicat_right_unitor_aux2_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vη as [v η].
   etrans.
   { apply maponpaths_2. cbn. apply idpath. }
   apply pathsinv0.
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 3 rewrite <- lwhisker_vcomp.
   repeat rewrite <- vassocr.
@@ -1542,19 +1526,40 @@ Proof.
   apply runitor_rwhisker.
 Qed.
 
-Definition montrafotargetbicat_associator_aux1_statement: UU :=
-  ∏ (vηs : (montrafotargetbicat_cat ⊠ montrafotargetbicat_cat) ⊠ montrafotargetbicat_cat),
+Definition montrafotargetbicat_right_unitor: right_unitor montrafotargetbicat_tensor montrafotargetbicat_unit.
+Proof.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * intro vη.
+      exists (monoidal_cat_right_unitor Mon_V (pr1 vη)).
+      apply montrafotargetbicat_right_unitor_aux1.
+    * intros vη vη' fg.
+      use total2_paths_f.
+      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
+      -- apply trafotargetbicat_disp_cells_isaprop.
+  + intro vη.
+    use make_is_z_isomorphism.
+    * exists (pr1 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
+      apply montrafotargetbicat_right_unitor_aux2.
+    * split.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
+         ++ apply trafotargetbicat_disp_cells_isaprop.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
+         ++ apply trafotargetbicat_disp_cells_isaprop.
+Defined.
+
+
+Lemma montrafotargetbicat_associator_aux1 (vηs : (montrafotargetbicat_cat ⊠ montrafotargetbicat_cat) ⊠ montrafotargetbicat_cat):
   pr2 (assoc_left montrafotargetbicat_tensor vηs)
       -->[monoidal_cat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
       pr2 (assoc_right montrafotargetbicat_tensor vηs).
-
-Lemma montrafotargetbicat_associator_aux1: montrafotargetbicat_associator_aux1_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit, param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 6 rewrite <- lwhisker_vcomp.
   do 6 rewrite <- rwhisker_vcomp.
@@ -1809,19 +1814,15 @@ r6 starts with FA v1 · (FA v2 · H v3)
   exact pentagon_inst.
 Qed.
 
-Definition montrafotargetbicat_associator_aux2_statement: UU :=
-  ∏ (vηs : (montrafotargetbicat_cat ⊠ montrafotargetbicat_cat) ⊠ montrafotargetbicat_cat),
+Lemma montrafotargetbicat_associator_aux2 (vηs : (montrafotargetbicat_cat ⊠ montrafotargetbicat_cat) ⊠ montrafotargetbicat_cat):
   pr2 (assoc_right montrafotargetbicat_tensor vηs)
       -->[pr1 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
       pr2 (assoc_left montrafotargetbicat_tensor vηs).
-
-Lemma montrafotargetbicat_associator_aux2: montrafotargetbicat_associator_aux2_statement.
 Proof.
-  intros ?.
   unfold mor_disp. unfold trafotargetbicat_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
   cbn.
-  unfold param_distr_bicat_pentagon_eq_body_variant_RHS,
+  unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
     param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
   rewrite hcomp_identity_left. rewrite hcomp_identity_right.
   do 6 rewrite <- lwhisker_vcomp.
@@ -2070,55 +2071,6 @@ Proof.
   exact lax_monoidal_functor_assoc_inst.
 Qed.
 
-Definition montrafotargetbicat_left_unitor: left_unitor montrafotargetbicat_tensor montrafotargetbicat_unit.
-Proof.
-  use make_nat_z_iso.
-  + use make_nat_trans.
-    * intro vη.
-      exists (monoidal_cat_left_unitor Mon_V (pr1 vη)).
-      apply montrafotargetbicat_left_unitor_aux1.
-    * intros vη vη' fg.
-      use total2_paths_f.
-      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
-      -- apply trafotargetbicat_disp_cells_isaprop.
-  + intro vη.
-    use make_is_z_isomorphism.
-    * exists (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
-      apply montrafotargetbicat_left_unitor_aux2.
-    * split.
-      -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
-         ++ apply trafotargetbicat_disp_cells_isaprop.
-      -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
-         ++ apply trafotargetbicat_disp_cells_isaprop.
-Defined.
-
-(* the right unitor is analogous *)
-Definition montrafotargetbicat_right_unitor: right_unitor montrafotargetbicat_tensor montrafotargetbicat_unit.
-Proof.
-  use make_nat_z_iso.
-  + use make_nat_trans.
-    * intro vη.
-      exists (monoidal_cat_right_unitor Mon_V (pr1 vη)).
-      apply montrafotargetbicat_right_unitor_aux1.
-    * intros vη vη' fg.
-      use total2_paths_f.
-      -- cbn. do 3 rewrite id_left. rewrite id_right. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
-      -- apply trafotargetbicat_disp_cells_isaprop.
-  + intro vη.
-    use make_is_z_isomorphism.
-    * exists (pr1 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
-      apply montrafotargetbicat_right_unitor_aux2.
-    * split.
-      -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
-         ++ apply trafotargetbicat_disp_cells_isaprop.
-      -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
-         ++ apply trafotargetbicat_disp_cells_isaprop.
-Defined.
-
 Definition montrafotargetbicat_associator: associator montrafotargetbicat_tensor.
 Proof.
   use make_nat_z_iso.
@@ -2143,6 +2095,7 @@ Proof.
           ++ cbn. apply (pr2 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
           ++ apply trafotargetbicat_disp_cells_isaprop.
 Defined.
+
 
 Lemma montrafotargetbicat_triangle_eq: triangle_eq montrafotargetbicat_tensor montrafotargetbicat_unit
    montrafotargetbicat_left_unitor montrafotargetbicat_right_unitor montrafotargetbicat_associator.
