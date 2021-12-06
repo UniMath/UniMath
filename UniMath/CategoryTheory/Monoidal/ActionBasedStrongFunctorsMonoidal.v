@@ -3,11 +3,11 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures.
 
-Work in progress: the characterization in the non-monoidal case seems to need more 2-categorical knowledge
-(instead of bicategorical one), and the monoidal case will only extend this problem, which is why there is now only
-a construction of a strong monoidal functor from a parameterized distributivity and no construction in the
-other direction; also that construction depends on 6 unproven equations between natural transformations
-(all in the construction of the unitors and associator of the monoidal target category)
+Work in progress: the characterization in the monoidal case will need a full development of
+displayed monoidal categories and their sections, which is why there is now only a construction
+of a strong monoidal functor from a parameterized distributivity and no construction in the
+other direction (currently, six axioms are needed in specialized results, but they are supposed
+to be instantiations of lemmas proven for the general case)
 
 Author: Ralph Matthes 2021
 
@@ -173,7 +173,7 @@ Section Upstream.
 
   Section TheEquivalence.
 
-    (** a naive specification of the target of the bijection *)
+    (** a naive specification of the target of the bijection - we need to limit the equality to [functor_data] for the elementary definition *)
     Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_cat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
         functor_data_from_functor _ _ (functor_identity C).
@@ -208,22 +208,6 @@ Section Upstream.
     Defined.
 
     (** we can also use the infrastructure of displayed categories *)
-    Definition nat_trafo_to_section_v1 (η: H ⟹ H'):
-      @functor_lifting C C trafotarget_disp (functor_identity C).
-    Proof.
-      use tpair.
-      - use tpair.
-        + intro c. exact (η c).
-        + intros c c' f.
-          red. unfold reindex_disp_cat, trafotarget_disp. hnf.
-          apply pathsinv0, nat_trans_ax.
-      - split.
-        + intro c.
-          apply (functor_category_has_homsets _ _).
-        + intros c1 c2 c3 f f'.
-          apply (functor_category_has_homsets _ _).
-    Defined.
-
     Definition nat_trafo_to_section (η: H ⟹ H'):
       @section_disp C trafotarget_disp.
     Proof.
@@ -240,62 +224,24 @@ Section Upstream.
           apply (functor_category_has_homsets _ _).
     Defined.
 
-    Definition nat_trafo_to_functor_through_section_v1 (η: H ⟹ H'): C ⟶ trafotarget_precat :=
-      @lifted_functor C C trafotarget_disp (functor_identity C) (nat_trafo_to_section_v1 η).
-
     Definition nat_trafo_to_functor_through_section (η: H ⟹ H'): C ⟶ trafotarget_precat :=
       @section_functor C trafotarget_disp (nat_trafo_to_section η).
 
-    (** the analogous immediate consequence *)
+    Definition nat_trafo_to_functor_through_section_cor (η: H ⟹ H'):
+      functor_composite (nat_trafo_to_functor_through_section η) forget_from_trafotarget = functor_identity C.
+    Proof.
+      apply from_section_functor.
+    Defined.
+
+    (** the immediate consequence needs to weaken this strong information *)
     Definition nat_trafo_to_functor_through_section_with_eq (η: H ⟹ H'): trafotarget_with_eq.
     Proof.
       exists (nat_trafo_to_functor_through_section η).
-      apply idpath.
+      (* show_id_type. *)
+      apply (maponpaths pr1 (nat_trafo_to_functor_through_section_cor η)).
     Defined.
 
-    (** the other direction in naive form *)
-    Definition functor_to_nat_trafo_aux (N: C ⟶ trafotarget_precat):
-      (functor_composite (functor_composite N forget_from_trafotarget) H) ⟹
-      (functor_composite (functor_composite N forget_from_trafotarget) H').
-  Proof.
-    use make_nat_trans.
-    - intro c. exact (pr2 (N c)).
-    - intros c c' f.
-      cbn.
-      assert (Ninst := pr2 (# N f)).
-      cbn in Ninst.
-      apply pathsinv0, Ninst.
-  Defined.
-
-    (** correct the typing by rewriting *)
-  Definition functor_to_nat_trafo_with_eq (Ne: trafotarget_with_eq): H ⟹ H'.
-  Proof.
-    induction Ne as [N HypN].
-    set (aux := functor_to_nat_trafo_aux N).
-    change (functor_composite (functor_identity C) H ⟹ functor_composite (functor_identity C) H').
-    cbn.
-    cbn in HypN.
-    rewrite <- HypN.
-    exact aux.
-  Defined.
-
-    Local Lemma roundtrip1_with_eq (η: H ⟹ H'):
-      functor_to_nat_trafo_with_eq (nat_trafo_to_functor_with_eq η) = η.
-  Proof.
-    apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
-    intro c.
-    apply nat_trans_eq_alt.
-    intro a.
-    cbn.
-    apply idpath.
-  Qed.
-
-    (** what we do NOT get:
-    Local Lemma roundtrip2_with_eq (hsC: has_homsets C) (hs'C: isaset C) (Ne: trafotarget_with_eq):
-      nat_trafo_to_functor_with_eq (functor_to_nat_trafo_with_eq Ne) = Ne.
-*)
-
-    (** *** using sections in the framework display categories *)
+    (** the backwards direction essentially uses the sections - already for the statements *)
     Definition section_to_nat_trafo:
       @section_disp C trafotarget_disp -> H ⟹ H'.
     Proof.
@@ -343,198 +289,6 @@ Section Upstream.
           apply hlevelntosn.
           apply (functor_category_has_homsets _ _).
     Qed.
-
-    (** *** a "pedestrian" variant of the whole approach without type-level rewriting *)
-    Definition trafotarget_with_iso: UU := ∑ N: C ⟶ trafotarget_precat,
-          nat_z_iso (functor_composite N forget_from_trafotarget) (functor_identity C).
-
-    Definition nat_trafo_to_functor_with_iso (η: H ⟹ H'): trafotarget_with_iso.
-    Proof.
-      exists (nat_trafo_to_functor η).
-      use tpair.
-      - use make_nat_trans.
-        + intro c. apply identity.
-        + intros c c' f. cbn. rewrite id_left. apply id_right.
-      - intro c.
-        apply is_z_isomorphism_identity.
-    Defined.
-
-    (** and the other direction *)
-    Definition functor_to_nat_trafo_with_iso_data (N : C ⟶ trafotarget_precat)
-               (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)): nat_trans_data H H'.
-    Proof.
-      intro c.
-      set (trans := pr2 (N c)).
-      induction HypN as [τ Hτ].
-      set (Hτinst := Hτ c).
-      set (τinst := τ c).
-      cbn in trans.
-      cbn in τinst.
-      induction Hτinst as [τ'c [H1 H2]].
-      cbn in τ'c.
-      refine (nat_trans_comp _ _ _ _ (nat_trans_comp _ _ _ trans _)).
-      - exact (# H τ'c).
-      - exact (# H' τinst).
-    Defined.
-
-    Lemma functor_to_nat_trafo_with_iso_data_is_nat_trans (N : C ⟶ trafotarget_precat)
-          (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)):
-      is_nat_trans _ _ (functor_to_nat_trafo_with_iso_data N HypN).
-    Proof.
-      intros c c' f.
-      cbn.
-      unfold nat_trans_comp. cbn.
-      apply nat_trans_eq_alt.
-      intro a.
-      cbn.
-      assert (aux : # H f · (# H (pr1 (pr2 HypN c')) ·
-               ((pr2 (N c') : [A, A'] ⟦ H (pr1 (N c')), H' (pr1 (N c'))⟧) · # H' (pr1 HypN c'))) =
-                    # H (pr1 (pr2 HypN c)) ·
-               ((pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · # H' (pr1 HypN c)) · # H' f).
-      2: { apply (maponpaths pr1) in aux. apply toforallpaths in aux. apply aux. }
-      set (α1 := # H f); set (F2 := pr1 (pr2 HypN c')); set (α2 := # H F2); set (α3 := pr2 (N c')); set (F4 := pr1 HypN c'); set (α4 := # H' F4).
-      set (F5 := pr1 (pr2 HypN c)); set (α5 := # H F5); set (α6 := pr2 (N c)); set (F7 := pr1 HypN c); set (α7 := # H' F7); set (α8 := # H' f).
-      set (F7iso := F7 ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
-      set (α7iso := functor_on_z_iso H' F7iso).
-      set (F4iso := F4 ,, pr2 HypN c': z_iso ((N ∙ forget_from_trafotarget) c') (functor_identity C c')).
-      set (α4iso := functor_on_z_iso H' F4iso).
-      etrans.
-      { rewrite assoc. apply cancel_postcomposition. apply pathsinv0, functor_comp. }
-      etrans.
-      2: { rewrite <- assoc. apply maponpaths. rewrite <- assoc. apply maponpaths.
-           apply functor_comp. }
-      set (F2iso := z_iso_inv F4iso).
-      rewrite assoc.
-      apply (z_iso_inv_to_right _ _ _ _ α4iso).
-      change (inv_from_z_iso α4iso) with (# H' F2).
-      set (F5iso := z_iso_inv F7iso).
-      set (α5iso := functor_on_z_iso H F5iso).
-      rewrite <- assoc.
-      apply (z_iso_inv_to_left _ _ _ α5iso).
-      change (inv_from_z_iso α5iso) with (# H F7).
-      etrans.
-      { rewrite assoc. apply cancel_postcomposition.
-        apply pathsinv0, functor_comp. }
-      etrans.
-      2: { rewrite <- assoc. apply maponpaths, functor_comp. }
-      rewrite assoc.
-      assert (HypNnatinst := nat_trans_ax (pr1 HypN) c c' f).
-      cbn in HypNnatinst.
-      assert (aux : F7 · f · F2 = pr1 (# N f)).
-      { apply (z_iso_inv_to_right _ _ _ _ F2iso).
-        apply pathsinv0. exact HypNnatinst. }
-      etrans.
-      { apply cancel_postcomposition.
-        apply maponpaths.
-        exact aux. }
-      etrans.
-      2: { do 2 apply maponpaths.
-           apply pathsinv0. exact aux. }
-      assert (Nnatinst := pr2 (# N f)).
-      apply pathsinv0.
-      exact Nnatinst.
-  Qed.
-
-  Definition functor_to_nat_trafo_with_iso (Ne: trafotarget_with_iso): H ⟹ H'.
-  Proof.
-    induction Ne as [N HypN].
-    exact (functor_to_nat_trafo_with_iso_data N HypN,,
-                                              functor_to_nat_trafo_with_iso_data_is_nat_trans N HypN).
-  Defined.
-
-  Local Lemma roundtrip1 (η: H ⟹ H'): functor_to_nat_trafo_with_iso (nat_trafo_to_functor_with_iso η) = η.
-  Proof.
-    apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
-    intro c.
-    apply nat_trans_eq_alt.
-    intro a.
-    cbn.
-    rewrite (functor_id H).
-    rewrite (functor_id H').
-     rewrite id_right. apply id_left.
-  Qed.
-
-  (* the following lemma cannot hold with the weak assumption of having an iso only, we should rather watch out
-     for an equivalence
-  Local Lemma roundtrip2_naive (hsC: has_homsets C) (Ne: trafotarget_with_iso): nat_trafo_to_functor_with_iso (functor_to_nat_trafo_with_iso Ne) = Ne.
-  Proof.
-    induction Ne as [N HypN].
-    use total2_paths_f.
-    - cbn.
-      apply functor_eq; try apply (has_homsets_trafotarget_precat hsC).
-      use functor_data_eq.
-      + intro c.
-        cbn.
-        show_id_type.
-        use total2_paths_f.
-        * cbn.
-          apply pathsinv0.
-          (* we only have iso, not equality *)
-   *)
-
-  (** the object mapping of both functors is pointwise z_isomorphic *)
-  Definition roundtrip2_on_ob (Ne: trafotarget_with_iso) (c: C) : z_iso (pr111 (nat_trafo_to_functor_with_iso (functor_to_nat_trafo_with_iso Ne)) c) (pr111 Ne c).
-  Proof.
-    induction Ne as [N HypN].
-    use make_z_iso.
-    - cbn.
-      use tpair.
-      + exact (pr1 (pr2 HypN c)).
-      + cbn.
-        apply nat_trans_eq_alt.
-        intro a.
-        cbn.
-        do 2 rewrite <- assoc.
-        apply maponpaths.
-        assert (aux: (pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · (# H' (pr1 HypN c) · # H' (pr1 (pr2 HypN c))) = pr2 ((pr11 N) c)).
-        2: { apply (maponpaths pr1) in aux. apply toforallpaths in aux. apply aux. }
-        etrans.
-        { apply maponpaths. apply pathsinv0, functor_comp. }
-        etrans.
-        { do 2 apply maponpaths.
-          set (theiso := pr1 HypN c ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
-          apply (z_iso_inv_after_z_iso theiso). }
-        rewrite functor_id.
-        apply id_right.
-    - cbn.
-      use tpair.
-      + exact (pr1 HypN c).
-      + cbn.
-        apply nat_trans_eq_alt.
-        intro a.
-        cbn.
-        do 2 rewrite assoc.
-        apply cancel_postcomposition.
-        assert (aux: pr2 ((pr11 N) c) = # H (pr1 HypN c) · # H (pr1 (pr2 HypN c)) · pr2 (N c)).
-        2: { apply (maponpaths pr1) in aux. apply toforallpaths in aux. apply aux. }
-        rewrite <- (functor_comp H).
-        set (theiso := pr1 HypN c ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
-        match goal with | [ |- _ = ?f1 · _ ] => set (aux := f1) end.
-        assert (Hyp: aux = # H (identity _)).
-        { unfold aux. apply maponpaths.
-          apply (z_iso_inv_after_z_iso theiso). }
-        rewrite functor_id in Hyp.
-        rewrite Hyp.
-        apply pathsinv0.
-        apply (id_left (pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧)).
-    - split.
-      + (* show_id_type. *)
-        use total2_paths_f.
-        * cbn.
-          set (theiso := pr1 HypN c ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
-          apply (z_iso_after_z_iso_inv theiso).
-        * cbn.
-          (* show_id_type. *)
-          apply (functor_category_has_homsets _ _).
-      + use total2_paths_f.
-        * cbn.
-          set (theiso := pr1 HypN c ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
-          apply (z_iso_inv_after_z_iso theiso).
-        * cbn.
-          apply (functor_category_has_homsets _ _).
-  Defined.
-
-  (** roundtrip_on_mor will have to adapt everything by the iso given through roundtrip_on_mor *)
 
   End TheEquivalence.
 
@@ -645,10 +399,16 @@ Context (H H' : C0 ⟶ hom a a').
           apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
-    Definition nat_trafo_to_functor_bicat_through_section (η: H ⟹ H'): C0 ⟶ trafotargetbicat_precat :=
+    Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_precat :=
       @section_functor C0 trafotargetbicat_disp (nat_trafo_to_section_bicat η).
 
-(** the other direction *)
+    Definition nat_trafo_to_functor_bicat_cor (η: H ⟹ H'):
+      functor_composite (nat_trafo_to_functor_bicat η) forget_from_trafotargetbicat = functor_identity C0.
+    Proof.
+      apply from_section_functor.
+    Defined.
+
+(** the other direction, essentially dependent on sections *)
     Definition section_to_nat_trafo_bicat:
       @section_disp C0 trafotargetbicat_disp -> H ⟹ H'.
     Proof.
@@ -713,6 +473,8 @@ Context {C : bicat}.
 Context (a0 : ob C).
 
 Context (FA: strong_monoidal_functor Mon_V (monoidal_cat_from_bicat_and_ob a0)).
+
+(** currently no developement on the abstract level *)
 
 End ActionViaBicat.
 
