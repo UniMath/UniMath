@@ -583,7 +583,7 @@ Context (H H' : C0 ⟶ hom a a').
     isaprop (xx -->[ f] yy).
   Proof.
     intros Hyp Hyp'.
-    apply (homset_property (hom a a')).
+    apply (hom a a').
   Qed.
 
   Lemma trafotargetbicat_disp_cat_axioms: disp_cat_axioms C0 trafotargetbicat_disp_cat_data.
@@ -607,7 +607,7 @@ Context (H H' : C0 ⟶ hom a a').
   Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
 (** a "pedestrian" definition *)
-  Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat.
+  Definition nat_trafo_to_functor_bicat_elementary (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat.
     Proof.
       use make_functor.
       - use make_functor_data.
@@ -627,6 +627,75 @@ Context (H H' : C0 ⟶ hom a a').
           * cbn. apply idpath.
           * apply trafotargetbicat_disp_cells_isaprop.
     Defined.
+
+(** using sections *)
+   Definition nat_trafo_to_section_bicat (η: H ⟹ H'):
+      @section_disp C0 trafotargetbicat_disp.
+    Proof.
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold trafotargetbicat_disp. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split.
+        + intro c.
+          apply trafotargetbicat_disp_cells_isaprop.
+        + intros c1 c2 c3 f f'.
+          apply trafotargetbicat_disp_cells_isaprop.
+    Defined.
+
+    Definition nat_trafo_to_functor_bicat_through_section (η: H ⟹ H'): C0 ⟶ trafotargetbicat_precat :=
+      @section_functor C0 trafotargetbicat_disp (nat_trafo_to_section_bicat η).
+
+(** the other direction *)
+    Definition section_to_nat_trafo_bicat:
+      @section_disp C0 trafotargetbicat_disp -> H ⟹ H'.
+    Proof.
+      intro sd.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - intro c. exact (sdob c).
+      - intros c c' f.
+        assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
+    Defined.
+
+    Local Lemma roundtrip1_with_sections_bicat (η: H ⟹ H'):
+      section_to_nat_trafo_bicat (nat_trafo_to_section_bicat η) = η.
+    Proof.
+      apply nat_trans_eq; [ apply (hom a a') |].
+      intro c.
+      apply idpath.
+    Qed.
+
+    Local Lemma roundtrip2_with_sections_bicat (sd: @section_disp C0 trafotargetbicat_disp):
+      nat_trafo_to_section_bicat (section_to_nat_trafo_bicat sd) = sd.
+    Proof.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      unfold nat_trafo_to_section_bicat, section_to_nat_trafo_bicat.
+      cbn.
+      use total2_paths_f; simpl.
+      - use total2_paths_f; simpl.
+        + apply idpath.
+        + (* a bit of an overkill: a real proof of equality *)
+          cbn.
+          do 3 (apply funextsec; intro).
+          (* show_id_type. *)
+          apply pathsinv0inv0.
+      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+        assert (Hprop: isaprop goaltype).
+        2: { apply Hprop. }
+        apply isapropdirprod.
+        + apply impred. intro c.
+          (* assert (aux := sdmor c c (id c)).
+          cbn in aux.
+          match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
+          apply hlevelntosn.
+          apply (hom a a').
+        + do 5 (apply impred; intro).
+          apply hlevelntosn.
+          apply (hom a a').
+    Qed.
 
   End SameInBicat.
 
