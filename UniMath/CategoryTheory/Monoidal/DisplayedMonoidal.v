@@ -596,7 +596,6 @@ Section disp_fix_fst_arg.
       apply transportf_transpose_right.
       etrans. 2 : { apply maponpaths.
                     apply maponpaths_2.
-                    Search ( id_disp _ ;; _ = _ ).
                     eapply pathsinv0.
                     apply id_left_disp. }
             etrans. { apply transport_f_f. }
@@ -814,7 +813,6 @@ Section section_tensor.
         (functor_composite T (section_functor S))
         (functor_composite section_functor_pair (total_tensor T TT)).
   Proof.
-    Search (nat_iso).
     use make_nat_iso.
     - use make_nat_trans.
       + intro a.
@@ -951,7 +949,6 @@ Section section_tensor.
           }
           etrans.
           { apply transport_f_f. }
-          Search ( ?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y' ).
           apply two_arg_paths.
           -- apply C.
           -- apply idpath.
