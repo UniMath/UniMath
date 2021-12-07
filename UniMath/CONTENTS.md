@@ -436,7 +436,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/DispModification.v](Bicategories/DisplayedBicats/DispModification.v)
    - [DisplayedBicats/DispBiequivalence.v](Bicategories/DisplayedBicats/DispBiequivalence.v)
    - [Core/Examples/Image.v](Bicategories/Core/Examples/Image.v)
-   - [PseudoFunctors/Examples/RestrictImage.v](Bicategories/PseudoFunctors/Examples/RestrictImage.v)
+   - [PseudoFunctors/Examples/CorestrictImage.v](Bicategories/PseudoFunctors/Examples/CorestrictImage.v)
    - [Core/YonedaLemma.v](Bicategories/Core/YonedaLemma.v)
    - [Colimits/Initial.v](Bicategories/Colimits/Initial.v)
    - [Colimits/Final.v](Bicategories/Colimits/Final.v)
