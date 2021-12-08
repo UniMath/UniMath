@@ -320,29 +320,29 @@ Local Definition forget := swapping_of_strong_monoidal_functor(forgetful_functor
 
 
 (* the following in order to understand why [forgetful_functor_from_ptd_as_strong_monoidal_functor_alt] is needed here *)
-Local Definition monprecat1 : monoidal_cat := swapping_of_monoidal_cat (EndofunctorsMonoidal.monoidal_cat_of_endofunctors C).
-Local Definition monprecat2 := Mon_endo (C:=bicat_of_cats) C.
+Local Definition moncat1 : monoidal_cat := swapping_of_monoidal_cat (EndofunctorsMonoidal.monoidal_cat_of_endofunctors C).
+Local Definition moncat2 := Mon_endo (C:=bicat_of_cats) C.
 
 (*
-Lemma same_precategory : pr1 monprecat1 = pr1 monprecat2.
+Lemma same_precategory : pr1 moncat1 = pr1 moncat2.
 Proof.
   UniMath.MoreFoundations.Tactics.show_id_type.
-  unfold monprecat1, monprecat2.
+  unfold moncat1, moncat2.
   unfold EndofunctorsMonoidal.monoidal_cat_of_endofunctors, Mon_endo.
   cbn.
 The unachievable goal is then:
-                  [C, C, hs] = precategory_from_prebicat_and_ob (C,, hs)
+                  [C, C, hs] = category_from_bicat_and_ob (C,, hs)
 *)
 
-Lemma same_precategory_data : pr111 monprecat1 = pr111 monprecat2.
+Lemma same_precategory_data : pr111 moncat1 = pr111 moncat2.
 Proof.
   apply idpath.
 Qed.
 
-Lemma same_tensor_data : pr112 monprecat1 = pr112 monprecat2.
+Lemma same_tensor_data : pr112 moncat1 = pr112 moncat2.
 Proof.
   (* show_id_type. *)
-  unfold monprecat1, monprecat2.
+  unfold moncat1, moncat2.
   unfold EndofunctorsMonoidal.monoidal_cat_of_endofunctors, Mon_endo.
   cbn.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
@@ -355,7 +355,7 @@ Proof.
 Qed.
 
 (* cannot be typechecked any longer
-Lemma same_I : pr222 monprecat1 = pr222 monprecat2.
+Lemma same_I : pr222 moncat1 = pr222 moncat2.
  *)
 
 Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
@@ -567,8 +567,8 @@ Section Morphisms.
 End Morphisms.
 
 Definition ActionBasedStrongFunctorCategoryToSignatureCategory_data : functor_data
-   (Strong_Functor_precategory Mon_endo' domain_action target_action)
-   (Signature_precategory C D D').
+   (Strong_Functor_category Mon_endo' domain_action target_action)
+   (Signature_category C D D').
 Proof.
   use make_functor_data.
   - exact signature_from_strong_functor.
@@ -596,8 +596,8 @@ Proof.
 Qed.
 
 Definition ActionBasedStrongFunctorCategoryToSignatureCategory : functor
-   (Strong_Functor_precategory Mon_endo' domain_action target_action)
-   (Signature_precategory C D D')
+   (Strong_Functor_category Mon_endo' domain_action target_action)
+   (Signature_category C D D')
   := (_,,ActionBasedStrongFunctorCategoryToSignatureCategory_is_functor).
 
 End Signature_From_ActionBased_Strength.
@@ -821,8 +821,8 @@ Section Morphisms.
 End Morphisms.
 
 Definition SignatureCategoryToActionBasedStrongFunctorCategory_data :
-  functor_data (Signature_precategory C D D')
-               (Strong_Functor_precategory Mon_endo' domain_action target_action).
+  functor_data (Signature_category C D D')
+               (Strong_Functor_category Mon_endo' domain_action target_action).
 Proof.
   use make_functor_data.
   - intro sig. exact (ab_strong_functor_from_signature sig).
@@ -850,14 +850,14 @@ Proof.
 Qed.
 
 Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
-  (Signature_precategory C D D')
-  (Strong_Functor_precategory Mon_endo' domain_action target_action)
+  (Signature_category C D D')
+  (Strong_Functor_category Mon_endo' domain_action target_action)
   := (_,,SignatureCategoryToActionBasedStrongFunctorCategory_is_functor).
 
 
 End ActionBased_Strength_From_Signature.
 
-(* the following lemma cannot be used in the construction of the equivalence of precategories *)
+(* the following lemma cannot be used in the construction of the equivalence of categories *)
 Lemma roundtrip1_ob_as_equality (sig : Signature C D D') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
 Proof.
   use total2_paths_f.
@@ -872,7 +872,7 @@ Proof.
 Defined.
 
 Definition roundtrip1_ob_nat_trans_data : nat_trans_data
-  (functor_identity (Signature_precategory C D D'))
+  (functor_identity (Signature_category C D D'))
   (SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory).
 Proof.
   intro sig. cbn.
@@ -905,7 +905,7 @@ Proof.
     apply id_left.
 Defined.
 
-Definition roundtrip1_ob_nat_trans_data_pointwise_inv (sig : Signature_precategory C D D') :
+Definition roundtrip1_ob_nat_trans_data_pointwise_inv (sig : Signature_category C D D') :
   SignatureMor C D D' (signature_from_strong_functor (ab_strong_functor_from_signature sig)) sig.
 Proof.
   use tpair.
@@ -962,12 +962,12 @@ Proof.
 Qed.
 
 Definition roundtrip1_ob_nat_trans :
-  (functor_identity (Signature_precategory C D D')) ⟹
+  (functor_identity (Signature_category C D D')) ⟹
   SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory
   := (roundtrip1_ob_nat_trans_data,,roundtrip1_ob_data_is_nat_trans).
 
 
-(* the following lemma cannot be used in the construction of the equivalence of precategories *)
+(* the following lemma cannot be used in the construction of the equivalence of categories *)
 Lemma roundtrip2_ob_as_equality (FF : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
 Proof.
   use total2_paths_f.
@@ -983,7 +983,7 @@ Qed.
 
 Definition roundtrip2_ob_nat_trans_data : nat_trans_data
   (ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory)
-  (functor_identity (Strong_Functor_precategory Mon_endo' domain_action target_action)).
+  (functor_identity (Strong_Functor_category Mon_endo' domain_action target_action)).
 Proof.
   intro FF. cbn.
   use tpair.
@@ -1016,7 +1016,7 @@ Proof.
 Defined.
 
 Definition roundtrip2_ob_nat_trans_data_pointwise_inv
-           (FF : Strong_Functor_precategory Mon_endo' domain_action target_action) :
+           (FF : Strong_Functor_category Mon_endo' domain_action target_action) :
   Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF
                               (ab_strong_functor_from_signature (signature_from_strong_functor FF)).
 Proof.
@@ -1076,13 +1076,13 @@ Qed.
 Definition roundtrip2_ob_nat_trans :
   ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory
   ⟹ functor_identity
-  (Strong_Functor_precategory Mon_endo' domain_action target_action)
+  (Strong_Functor_category Mon_endo' domain_action target_action)
   := (roundtrip2_ob_nat_trans_data,,roundtrip2_ob_data_is_nat_trans).
 
 Definition EquivalenceSignaturesABStrongFunctors:
-  adj_equivalence_of_precats SignatureCategoryToActionBasedStrongFunctorCategory.
+  adj_equivalence_of_cats SignatureCategoryToActionBasedStrongFunctorCategory.
 Proof.
-  use make_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_cats.
   - exact ActionBasedStrongFunctorCategoryToSignatureCategory.
   - exact roundtrip1_ob_nat_trans.
   - exact roundtrip2_ob_nat_trans.
@@ -1133,7 +1133,7 @@ Proof.
   change (action Mon_endo' (hom(C:=bicat_of_cats) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
 
 (*
-    exact (is_univalent_Strong_Functor_precategory Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').
+    exact (is_univalent_Strong_Functor_category Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').
 *)
 
 
@@ -1174,7 +1174,7 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
                                                      (functor_category_has_homsets _ _ (homset_property D))).
   Proof.
     split.
-    - exact (is_univalent_Signature_precategory C D D').
+    - exact (is_univalent_Signature_category C D D').
     - set (univalentA' := make_univalent_category [C, D, homset_property D]
                            (is_univalent_functor_category C D (univalent_category_is_univalent D))).
       change (is_univalent (Strong_Functor_category (Mon_endo' C (homset_property C))
@@ -1210,7 +1210,7 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
         (* does not terminate: exists χ. *)
       }
 *)
-      set (what_we_want_without_last_argument := is_univalent_Strong_Functor_precategory (Mon_endo' C (homset_property C))
+      set (what_we_want_without_last_argument := is_univalent_Strong_Functor_category (Mon_endo' C (homset_property C))
                                                      (hom(C:=bicat_of_cats) C D')
                                                      univalentA'
                                                      (domain_action C (homset_property C) D' (homset_property D'))).

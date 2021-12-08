@@ -513,7 +513,7 @@ Section Product.
   Proof.
     intro x.
     use equiv_cat_to_adj_equiv.
-    use rad_equivalence_of_precats.
+    use rad_equivalence_of_cats.
     - apply is_univ_hom.
       exact HB_2_1.
     - use full_and_faithful_implies_fully_faithful.

@@ -47,7 +47,7 @@ Definition actions_disp_cat_ob_mor : disp_cat_ob_mor CAT.
 Proof.
   exists (fun A => action Mon_V A).
   intros A A' actn actn' F.
-  exact (ob_disp (Strong_Functor_precategory_displayed Mon_V actn actn') F).
+  exact (ob_disp (Strong_Functor_category_displayed Mon_V actn actn') F).
 Defined.
 
 Goal ∏ A A' actn actn' F, pr2 actions_disp_cat_ob_mor A A' actn actn' F =
@@ -73,7 +73,7 @@ Definition actions_disp_2cell_struct : disp_2cell_struct actions_disp_cat_data.
 Proof.
   red.
   intros A A' F F' η actn actn' ζ ζ'.
-  exact (mor_disp(D:=Strong_Functor_precategory_displayed Mon_V actn actn') ζ ζ' η).
+  exact (mor_disp(D:=Strong_Functor_category_displayed Mon_V actn actn') ζ ζ' η).
 Defined.
 
 Goal ∏ A A' F F' η actn actn' ζ ζ', actions_disp_2cell_struct A A' F F' η actn actn' ζ ζ' =

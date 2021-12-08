@@ -225,7 +225,7 @@ Section set_slice_fam_equiv.
   Definition are_adjoints_slice_fam : are_adjoints _ _ :=
     (fam_unit ,, slice_counit) ,, slice_fam_form_adj.
 
-  Definition set_slice_fam_equiv : adj_equivalence_of_precats fam_to_slice :=
+  Definition set_slice_fam_equiv : adj_equivalence_of_cats fam_to_slice :=
     (slice_to_fam ,, are_adjoints_slice_fam) ,, (fam_all_iso ,, slice_all_iso) .
 
 End set_slice_fam_equiv.

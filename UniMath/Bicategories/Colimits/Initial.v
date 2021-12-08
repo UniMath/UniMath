@@ -32,7 +32,7 @@ Definition unique_maps
            (X : C)
   : UU
     := ∏ (Y : C),
-       adj_equivalence_of_precats
+       adj_equivalence_of_cats
          (functor_to_unit (hom X Y)).
 
 Local Open Scope bicategory_scope.

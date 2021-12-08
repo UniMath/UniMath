@@ -93,16 +93,9 @@ Section Upstream.
     apply trafotarget_disp_cells_isaprop.
   Qed.
 
-  Definition trafotarget_disp: disp_precat C := trafotarget_disp_cat_data ,, trafotarget_disp_cat_axioms.
+  Definition trafotarget_disp: disp_cat C := trafotarget_disp_cat_data ,, trafotarget_disp_cat_axioms.
 
-  Definition trafotarget_precat: precategory := total_precategory trafotarget_disp.
-
-  Definition has_homsets_trafotarget_precat: has_homsets trafotarget_precat.
-  Proof.
-    apply (total_category_has_homsets(C:=C) trafotarget_disp).
-  Defined.
-
-  Definition trafotarget_cat: category := trafotarget_precat ,, has_homsets_trafotarget_precat.
+  Definition trafotarget_cat: category := total_category trafotarget_disp.
 
   Definition forget_from_trafotarget: trafotarget_cat ⟶ C := pr1_category trafotarget_disp.
 
@@ -159,7 +152,7 @@ Section Upstream.
           apply (functor_category_has_homsets _ _).
     Defined.
 
-    Definition nat_trafo_to_functor_through_section (η: H ⟹ H'): C ⟶ trafotarget_precat :=
+    Definition nat_trafo_to_functor_through_section (η: H ⟹ H'): C ⟶ trafotarget_cat :=
       @section_functor C trafotarget_disp (nat_trafo_to_section η).
 
     Definition nat_trafo_to_functor_through_section_cor (η: H ⟹ H'):
@@ -286,16 +279,9 @@ Section UpstreamInBicat.
     apply trafotargetbicat_disp_cells_isaprop.
   Qed.
 
-  Definition trafotargetbicat_disp: disp_precat C0 := trafotargetbicat_disp_cat_data ,, trafotargetbicat_disp_cat_axioms.
+  Definition trafotargetbicat_disp: disp_cat C0 := trafotargetbicat_disp_cat_data ,, trafotargetbicat_disp_cat_axioms.
 
-  Definition trafotargetbicat_precat: precategory := total_precategory trafotargetbicat_disp.
-
-  Definition has_homsets_trafotargetbicat_precat: has_homsets trafotargetbicat_precat.
-  Proof.
-    apply (total_category_has_homsets(C:=C0) trafotargetbicat_disp).
-  Defined.
-
-  Definition trafotargetbicat_cat: category := trafotargetbicat_precat ,, has_homsets_trafotargetbicat_precat.
+  Definition trafotargetbicat_cat: category := total_category trafotargetbicat_disp.
 
   Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
@@ -340,7 +326,7 @@ Section UpstreamInBicat.
           apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
-    Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_precat :=
+    Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat :=
       @section_functor C0 trafotargetbicat_disp (nat_trafo_to_section_bicat η).
 
     Definition nat_trafo_to_functor_bicat_cor (η: H ⟹ H'):
@@ -457,7 +443,7 @@ Section Main.
       cbn. apply hcomp_identity_right.
     Qed.
 
-    Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
+    Definition montrafotargetbicat_disp: disp_cat Mon_V := trafotargetbicat_disp a0 a0' H H'.
     Definition montrafotargetbicat_cat: category := trafotargetbicat_cat a0 a0' H H'.
 
     Definition param_distr_bicat_triangle_eq_variant0_RHS : trafotargetbicat_disp a0 a0' H H' I.
@@ -2198,7 +2184,7 @@ Defined.
     Let H := param_distributivity_dom Mon_V _ _ FA' G.
     Let H' := param_distributivity_codom Mon_V _ _ FA G.
 
-    Definition montrafotarget_disp: disp_precat Mon_V :=
+    Definition montrafotarget_disp: disp_cat Mon_V :=
       trafotargetbicat_disp(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
     Definition montrafotarget_cat: category :=
       trafotargetbicat_cat(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.

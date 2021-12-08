@@ -158,22 +158,22 @@ Section def_grothendiecktopos.
   Definition GrothendieckTopos : UU :=
     ∑ D' : (∑ D : category × (GrothendieckTopology C),
                   functor (pr1 D) (categoryOfSheaves C (pr2 D))),
-           (adj_equivalence_of_precats (pr2 D')).
+           (adj_equivalence_of_cats (pr2 D')).
 
   (** Accessor functions *)
-  Definition GrothendieckTopos_precategory (GT : GrothendieckTopos) : category :=
+  Definition GrothendieckTopos_category (GT : GrothendieckTopos) : category :=
     pr1 (pr1 (pr1 GT)).
-  Coercion GrothendieckTopos_precategory : GrothendieckTopos >-> category.
+  Coercion GrothendieckTopos_category : GrothendieckTopos >-> category.
 
   Definition GrothendieckTopos_GrothendieckTopology (GT : GrothendieckTopos) :
     GrothendieckTopology C := pr2 (pr1 (pr1 GT)).
 
   Definition GrothendieckTopos_functor (GT : GrothendieckTopos) :
-    functor (GrothendieckTopos_precategory GT)
+    functor (GrothendieckTopos_category GT)
             (categoryOfSheaves C (GrothendieckTopos_GrothendieckTopology GT)) :=
     pr2 (pr1 GT).
 
   Definition GrothendieckTopos_equivalence (GT : GrothendieckTopos) :
-    adj_equivalence_of_precats (GrothendieckTopos_functor GT) := pr2 GT.
+    adj_equivalence_of_cats (GrothendieckTopos_functor GT) := pr2 GT.
 
 End def_grothendiecktopos.
