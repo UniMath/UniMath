@@ -732,7 +732,7 @@ Proof.
       intros. apply idpath.
 Qed.
 
-Definition adj_equivalence_disc_fib : adj_equivalence_of_precats _ :=
+Definition adj_equivalence_disc_fib : adj_equivalence_of_cats _ :=
   adjointificiation (_ ,, forms_equivalence_disc_fib).
 
 End Equivalence_disc_fibs_presheaves.

@@ -393,10 +393,10 @@ Section elems_slice_equiv.
     nat_trans_inv_from_pointwise_inv _ _ (pr2 (PreShv ∫P)) _ _ PreShv_unit PreShv_all_iso.
 
   (** ** The equivalence of the categories PreShv ∫P and PreShv C / P *)
-  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_precats (PreShv ∫P) (PreShv C / P) :=
+  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_cats (PreShv ∫P) (PreShv C / P) :=
     (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_iso).
 
-  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_precats PreShv_to_slice :=
+  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_cats PreShv_to_slice :=
     @adjointificiation (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
 
 End elems_slice_equiv.

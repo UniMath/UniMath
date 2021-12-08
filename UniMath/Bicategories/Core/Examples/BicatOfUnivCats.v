@@ -235,10 +235,10 @@ Defined.
 Definition adj_equiv_to_equiv_cat
            {C D : bicat_of_univ_cats}
            (F : C --> D)
-  : left_adjoint_equivalence F → adj_equivalence_of_precats F.
+  : left_adjoint_equivalence F → adj_equivalence_of_cats F.
 Proof.
   intros A.
-  use make_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_cats.
   - exact (left_adjoint_right_adjoint A).
   - exact (left_adjoint_unit A).
   - exact (left_adjoint_counit A).
@@ -265,7 +265,7 @@ Defined.
 Definition equiv_cat_to_adj_equiv
            {C D : bicat_of_univ_cats}
            (F : C --> D)
-  : adj_equivalence_of_precats F → left_adjoint_equivalence F.
+  : adj_equivalence_of_cats F → left_adjoint_equivalence F.
 Proof.
   intros A.
   use tpair.
@@ -296,7 +296,7 @@ Defined.
 Definition adj_equiv_is_equiv_cat
            {C D : bicat_of_univ_cats}
            (F : C --> D)
-  : left_adjoint_equivalence F ≃ adj_equivalence_of_precats F.
+  : left_adjoint_equivalence F ≃ adj_equivalence_of_cats F.
 Proof.
   use make_weq.
   - exact (adj_equiv_to_equiv_cat F).
@@ -637,15 +637,15 @@ Defined.
 Definition adj_equivalence_to_left_equivalence
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
-           (A : adj_equivalence_of_precats F)
+           (A : adj_equivalence_of_cats F)
   : @left_equivalence bicat_of_univ_cats _ _ F.
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
   - exact (adj_equivalence_inv A).
-  - exact (pr1 (unit_nat_iso_from_adj_equivalence_of_precats A)).
-  - exact (pr1 (counit_nat_iso_from_adj_equivalence_of_precats A)).
+  - exact (pr1 (unit_nat_iso_from_adj_equivalence_of_cats A)).
+  - exact (pr1 (counit_nat_iso_from_adj_equivalence_of_cats A)).
   - apply is_nat_iso_to_is_invertible_2cell.
-    exact (pr2 (unit_nat_iso_from_adj_equivalence_of_precats A)).
+    exact (pr2 (unit_nat_iso_from_adj_equivalence_of_cats A)).
   - apply is_nat_iso_to_is_invertible_2cell.
-    exact (pr2 (counit_nat_iso_from_adj_equivalence_of_precats A)).
+    exact (pr2 (counit_nat_iso_from_adj_equivalence_of_cats A)).
 Defined.

@@ -37,26 +37,26 @@ Definition forms_equivalence {A B : category} (X : adjunction_data A B)
   (η := adjunit X) (ε := adjcounit X) : UU
   := (∏ a, is_iso (η a)) × (∏ b, is_iso (ε b)).
 
-Definition equivalence_of_precats (A B : category) : UU
+Definition equivalence_of_cats (A B : category) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
 
-Coercion adjunction_data_from_equivalence_of_precats {A B}
-         (X : equivalence_of_precats A B) : adjunction_data A B := pr1 X.
+Coercion adjunction_data_from_equivalence_of_cats {A B}
+         (X : equivalence_of_cats A B) : adjunction_data A B := pr1 X.
 
 (** * Equivalence of (pre)categories *)
 
-Definition adj_equivalence_of_precats {A B : category} (F : functor A B) : UU :=
+Definition adj_equivalence_of_cats {A B : category} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
 Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_precats F → is_left_adjoint F := λ x, pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+    adj_equivalence_of_cats F → is_left_adjoint F := λ x, pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
-Definition make_adj_equivalence_of_precats {A B : category} (F : functor A B)
+Definition make_adj_equivalence_of_cats {A B : category} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
-  : adj_equivalence_of_precats F.
+  : adj_equivalence_of_cats F.
 Proof.
   use tpair.
   - exists G. exists (η,,ε). apply H1.
@@ -64,13 +64,13 @@ Proof.
 Defined.
 
 Definition adj_equivalence_inv {A B : category}
-  {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=
+  {F : functor A B} (HF : adj_equivalence_of_cats F) : functor B A :=
     right_adjoint (pr1 HF).
 
 Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 
 Section Accessors.
-  Context {A B : category} {F : functor A B} (HF : adj_equivalence_of_precats F).
+  Context {A B : category} {F : functor A B} (HF : adj_equivalence_of_cats F).
 
   Definition unit_pointwise_iso_from_adj_equivalence :
       ∏ a, iso a (HF^^-1 (F a)).
@@ -88,22 +88,22 @@ Section Accessors.
     exact (pr2 (pr2 HF) b).
   Defined.
 
-  Definition unit_nat_iso_from_adj_equivalence_of_precats  :
+  Definition unit_nat_iso_from_adj_equivalence_of_cats  :
     nat_iso (functor_identity A) (functor_composite F (right_adjoint  (pr1 HF))).
   Proof.
     exists (unit_from_left_adjoint (pr1 HF)).
     exact (dirprod_pr1 (pr2 HF)).
   Defined.
 
-  Definition counit_nat_iso_from_adj_equivalence_of_precats :
+  Definition counit_nat_iso_from_adj_equivalence_of_cats :
     nat_iso (functor_composite  (right_adjoint (pr1 HF)) F) (functor_identity B).
   Proof.
     exists (counit_from_left_adjoint (pr1 HF)).
     exact (dirprod_pr2 (pr2 HF)).
   Defined.
 
-  Definition unit_iso_from_adj_equivalence_of_precats (hsA: has_homsets A) :
-    iso (C:=[A, A, hsA]) (functor_identity A)
+  Definition unit_iso_from_adj_equivalence_of_cats :
+    iso (C:=[A, A]) (functor_identity A)
         (functor_composite F (right_adjoint  (pr1 HF))).
   Proof.
     exists (unit_from_left_adjoint (pr1 HF)).
@@ -111,8 +111,8 @@ Section Accessors.
     apply (pr1 (pr2 HF)).
   Defined.
 
-  Definition counit_iso_from_adj_equivalence_of_precats (hsB: has_homsets B) :
-    iso (C:=[B, B, hsB]) (functor_composite  (right_adjoint (pr1 HF)) F)
+  Definition counit_iso_from_adj_equivalence_of_cats :
+    iso (C:=[B, B]) (functor_composite  (right_adjoint (pr1 HF)) F)
         (functor_identity B).
   Proof.
     exists (counit_from_left_adjoint (pr1 HF)).
@@ -191,18 +191,18 @@ Defined.
 
 Section adjointification.
 
-Context {C D : category} (E : equivalence_of_precats C D).
+Context {C D : category} (E : equivalence_of_cats C D).
 Let F : functor C D := left_functor E.
 Let G : functor D C := right_functor E.
 
-Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
+Let ηntiso : iso (C:= [C,C]) (functor_identity _ ) (F ∙ G).
 Proof.
   use functor_iso_from_pointwise_iso.
   use (adjunit E). intro c.
   apply (pr1 (pr2 E)).
 Defined.
 
-Let εntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Let εntiso : iso (C:= [D,D]) (G ∙ F) (functor_identity _ ).
 Proof.
   use functor_iso_from_pointwise_iso.
   use (adjcounit E). intro c.
@@ -271,9 +271,9 @@ Proof.
   - apply adjointification_triangle_1.
 Qed.
 
-Definition adjointificiation : adj_equivalence_of_precats F.
+Definition adjointificiation : adj_equivalence_of_cats F.
 Proof.
-  use make_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_cats.
   - exact G.
   - apply ηntiso.
   - apply ε'ntiso.
@@ -287,7 +287,7 @@ End adjointification.
 (** * Identity functor is an adjoint equivalence *)
 
 Lemma identity_functor_is_adj_equivalence {A : category} :
-  adj_equivalence_of_precats (functor_identity A).
+  adj_equivalence_of_cats (functor_identity A).
 Proof.
   use tpair.
   - exact is_left_adjoint_functor_identity.
@@ -299,11 +299,11 @@ Defined.
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : category)
    (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, B ])
-   (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
+   (HF : adj_equivalence_of_cats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
-  set (et := unit_iso_from_adj_equivalence_of_precats HF A).
-  set (ep := counit_iso_from_adj_equivalence_of_precats HF B).
+  set (et := unit_iso_from_adj_equivalence_of_cats HF).
+  set (ep := counit_iso_from_adj_equivalence_of_cats HF).
   set (AAcat := is_univalent_functor_category A _ HA).
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
@@ -315,7 +315,7 @@ Defined.
 
 Definition weq_on_objects_from_adj_equiv_of_cats (A B : category)
    (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, B])
-   (HF : adj_equivalence_of_precats F) : weq
+   (HF : adj_equivalence_of_cats F) : weq
           (ob A) (ob B).
 Proof.
   exists (pr1 (pr1 F)).
@@ -580,7 +580,7 @@ Defined.
     remains to show that [eta], [eps] are isos
 *)
 
-Lemma rad_equivalence_of_precats : adj_equivalence_of_precats F.
+Lemma rad_equivalence_of_cats : adj_equivalence_of_cats F.
 Proof.
   exists rad_is_left_adjoint.
   split; simpl.

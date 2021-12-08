@@ -112,14 +112,14 @@ Proof.
 Defined.
 
 (* TODO: upstream *)
-Definition adjunitiso {A B : category} (X : equivalence_of_precats A B)
+Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
            (a : A) : iso a (right_functor X (left_functor X a)).
 Proof.
   use make_iso.
   - exact (adjunit X a).
   - exact (pr1 (pr2 X) a).
 Defined.
-Definition adjcounitiso {A B : category} (X : equivalence_of_precats A B)
+Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
            (b : B) : iso (left_functor X (right_functor X b)) b.
 Proof.
   use make_iso.
@@ -154,7 +154,7 @@ Definition disp_adjunction {C C' : category} (A : adjunction C C') D D' : UU
 Coercion adj_over_data_from_adj_over (C C' : category) (A : adjunction C C')
          D D' (X : disp_adjunction A D D') : disp_adjunction_data _ _ _ := pr1 X.
 
-Definition form_equiv {C C' : category} (A : equivalence_of_precats C C') {D D'}
+Definition form_equiv {C C' : category} (A : equivalence_of_cats C C') {D D'}
            (X : disp_adjunction_data A D D') : UU
   := ∏ x xx, is_iso_disp (adjunitiso A x) (unit_over X x xx)
      ×
@@ -1040,7 +1040,7 @@ Definition fiber_equiv {D D' : disp_cat C}
   {FF : disp_functor (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
   (c : C)
-: adj_equivalence_of_precats (fiber_functor FF c).
+: adj_equivalence_of_cats (fiber_functor FF c).
 Proof.
   exists (fiber_is_left_adj EFF c).
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.
