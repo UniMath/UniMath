@@ -107,7 +107,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   is changed.  Name all variables introduced by `assert`, if they are used by
   name later, with `as` or to the left of a colon.
 * Avoid ending proofs with `Qed`, because that may prevent future computation. If you decide to make a proof opaque,
-  then make sure that its type is a proposition and that you only write one such proof in the library.
+  then make sure that its type is a proposition. It is undesirable to write multiple opaque proofs of properties, for then proofs of equality of objects containing them cannot be accomplished by reflexivity.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
