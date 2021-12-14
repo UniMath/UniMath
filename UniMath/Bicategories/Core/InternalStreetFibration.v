@@ -48,7 +48,9 @@ Local Open Scope cat.
 (**
 1. Definition of an internal Street fibration
 
-We also show it is equivalent to the usual definition of internal Street fibrations
+We define internal Street fibrations using an unfolded definition.
+We also show that it is equivalent to the usual definition of internal Street
+fibrations, which is formulated using hom-categories.
  *)
 Section InternalStreetFibration.
   Context {B : bicat}

@@ -1220,8 +1220,8 @@ Section CodomainStreetFibs.
              (HB_2_0 : is_univalent_2_0 B)
     : disp_univalent_2_0 cod_sfibs.
   Proof.
-    intros x y p hx hy.
-    induction p.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros x hx hy.
     use weqhomot.
     - exact (adj_equiv_weq_disp_adj_equiv HB_2_0 HB_2_1 hx hy
              ∘ weqtotal2

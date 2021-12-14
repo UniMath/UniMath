@@ -138,38 +138,59 @@ Section CleavingOfFibsPointwiseCartesian.
     exact pointwise_cartesian_lift_data_pointwise_cartesian.
   Defined.
 
-  Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
-             (x : (C₁ : univalent_category))
-             (xx : (pr1 D₁ : disp_univalent_category _) x)
-    : is_cartesian (pr11 αα x xx).
-  Proof.
-    pose (maponpaths
+  Section PointwiseCartesian.
+    Context (x : (C₁ : univalent_category))
+            (xx : (pr1 D₁ : disp_univalent_category _) x).
+
+    Local Lemma cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian_path
+      : (pr11 αα) x xx
+        =
+        transportf
+          (λ z, _ -->[ z ] _)
+          (nat_trans_eq_pointwise (id2_left α) x)
+          (cartesian_factorisation_disp_nat_trans_data
+             pointwise_cartesian_lift
+             (pr1
+                (transportb
+                   (λ z, ∑ _ : disp_nat_trans z (pr11 FF₁) (pr11 FF₂), unit)
+                   (id2_left α) αα))
+             pointwise_cartesian_lift_data_pointwise_cartesian
+             x
+             xx
+           ;;
+           pointwise_cartesian_lift_data x xx)%mor_disp.
+    Proof.
+      pose (maponpaths
             (λ z, pr11 z x xx)
             (is_cartesian_2cell_unique_iso_com
                Hαα
                pointwise_cartesian_lift_data_is_cartesian))
-      as p.
-    cbn in p.
-    rewrite pr1_transportf in p.
-    cbn in p.
-    pose (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _) as q.
-    cbn in q.
-    refine (transportb
-              is_cartesian
-              q
-              _).
-    apply is_cartesian_transportf.
-    use is_cartesian_comp_disp.
-    - exact (is_cartesian_disp_iso
-               (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
-                  _
-                  _
-                  (pr2 (is_cartesian_2cell_unique_iso
-                          Hαα
-                          pointwise_cartesian_lift_data_is_cartesian))
-                  xx)).
-    - apply pointwise_cartesian_lift_data_pointwise_cartesian.
-  Qed.
+        as p.
+      cbn in p.
+      rewrite pr1_transportf in p.
+      exact (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    Qed.
+
+    Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
+      : is_cartesian (pr11 αα x xx).
+    Proof.
+      refine (transportb
+                is_cartesian
+                cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian_path
+                _).
+      apply is_cartesian_transportf.
+      use is_cartesian_comp_disp.
+      - exact (is_cartesian_disp_iso
+                 (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+                    _
+                    _
+                    (pr2 (is_cartesian_2cell_unique_iso
+                            Hαα
+                            pointwise_cartesian_lift_data_is_cartesian))
+                    xx)).
+      - apply pointwise_cartesian_lift_data_pointwise_cartesian.
+    Defined.
+  End PointwiseCartesian.
 End CleavingOfFibsPointwiseCartesian.
 
 Definition cleaving_of_fibs_local_cleaving
