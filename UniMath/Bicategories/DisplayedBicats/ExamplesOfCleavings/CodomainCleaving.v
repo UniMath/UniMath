@@ -196,7 +196,7 @@ Section CodomainCleaving.
       : lift_1cell_factor (cod_disp_bicat B) (π,, p) hg.
     Proof.
       apply pb_1cell_to_lift_1cell.
-      exact (has_pb_ump_1 pb_sqr _).
+      apply (has_pb_ump_1 pb pb_sqr).
     Defined.
 
     Section Lift2CellConeCell.
@@ -372,101 +372,13 @@ Section CodomainCleaving.
                apply idpath).
       Defined.
 
-      Local Lemma is_pb_to_cartesian_lift_2cell_equality
-        : (cell₁ ◃ pb_cone_cell pb)
-          • lassociator _ _ _
-          • ((pb_1cell_pr2 cell₁ • (pb_1cell_pr2 cell₂) ^-1) ▹ pr2 hy)
-          • rassociator _ _ _
-          =
-          lassociator _ _ _
-          • ((pb_1cell_pr1 cell₁ • (pb_1cell_pr1 cell₂) ^-1) ▹ f)
-          • rassociator _ _ _
-          • (cell₂ ◃ pb_cone_cell pb).
-      Proof.
-        cbn.
-        rewrite <- !rwhisker_vcomp.
-        rewrite !vassocr.
-        do 2 (use vcomp_move_R_Mp ; [ is_iso | ]).
-        cbn.
-        rewrite !vassocl.
-        do 2 (use vcomp_move_L_pM ; [ is_iso | ]).
-        cbn.
-        pose (pr212 Lh) as m.
-        cbn in m.
-        use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
-        rewrite !vassocr.
-        etrans.
-        {
-          apply maponpaths_2.
-          exact m.
-        }
-        clear m.
-        rewrite !vassocl.
-        rewrite lwhisker_id2, id2_left.
-        etrans.
-        {
-          exact (pr2 σσ).
-        }
-        cbn.
-        pose (pr212 Lh') as m.
-        cbn in m.
-        rewrite !vassocr.
-        rewrite lwhisker_id2, id2_left in m.
-        etrans.
-        {
-          apply maponpaths.
-          exact (!m).
-        }
-        clear m.
-        rewrite !vassocr.
-        rewrite rwhisker_lwhisker.
-        apply idpath.
-      Qed.
-
-      Definition is_pb_to_cartesian_lift_2cell_unique
-        : isaprop (pb_2cell cell₁ cell₂).
-      Proof.
-        use invproofirrelevance.
-        intros φ₁ φ₂.
-        use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ].
-        use (pb_ump_eq pb_sqr).
-        - exact (pb_1cell_pr1 cell₁ • (pb_1cell_pr1 cell₂)^-1).
-        - exact (pb_1cell_pr2 cell₁ • (pb_1cell_pr2 cell₂)^-1).
-        - exact is_pb_to_cartesian_lift_2cell_equality.
-        - use vcomp_move_L_Mp ; [ is_iso | ].
-          exact (pb_2cell_pr1 φ₁).
-        - use vcomp_move_L_Mp ; [ is_iso | ].
-          exact (pb_2cell_pr2 φ₁).
-        - use vcomp_move_L_Mp ; [ is_iso | ].
-          exact (pb_2cell_pr1 φ₂).
-        - use vcomp_move_L_Mp ; [ is_iso | ].
-          exact (pb_2cell_pr2 φ₂).
-      Qed.
-
       Definition is_pb_to_cartesian_lift_2cell
         : lift_2cell_factor (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
       Proof.
         use (iscontrweqf cone_cell_weq_lift_2cell).
         use (iscontrweqf pb_2cell_weq_cone_cell).
-        use iscontraprop1.
-        - exact is_pb_to_cartesian_lift_2cell_unique.
-        - use make_pb_2cell.
-          + use (pb_ump_cell
-                   pb_sqr
-                   _ _
-                   (pb_1cell_pr1 cell₁ • (pb_1cell_pr1 cell₂)^-1)
-                   (pb_1cell_pr2 cell₁ • (pb_1cell_pr2 cell₂)^-1)).
-            exact is_pb_to_cartesian_lift_2cell_equality.
-          + abstract
-              (refine (maponpaths (λ z, z • _) (pb_ump_cell_pr1 _ _ _ _ _ _) @ _) ;
-               rewrite !vassocl ;
-               rewrite vcomp_linv ;
-               apply id2_right).
-          + abstract
-              (refine (maponpaths (λ z, z • _) (pb_ump_cell_pr2 _ _ _ _ _ _) @ _) ;
-               rewrite !vassocl ;
-               rewrite vcomp_linv ;
-               apply id2_right).
+        apply pb_2cell_contr.
+        apply pb_sqr.
       Defined.
     End Lift2CellConeCell.
 
@@ -500,246 +412,185 @@ Section CodomainCleaving.
                                 _
                                 (lunitor_invertible_2cell _))
                              (pb_cone_cell q))) as w.
-      pose (lift_1cell_to_pb_1cell π p _ w) as r.
+      pose (lift_1cell_to_pb_1cell π p _ w).
+      cbn in p0.
       use make_pb_1cell.
-      - exact r.
-      - exact (comp_of_invertible_2cell
-                  (pb_1cell_pr1 r)
-                  (runitor_invertible_2cell _)).
-      - exact (pb_1cell_pr2 r).
-      - abstract
-          (refine (pb_1cell_eq r @ _) ; cbn ;
-           rewrite <- !rwhisker_vcomp ;
-           rewrite !vassocl ;
-           do 2 apply maponpaths ;
-           rewrite !vassocr ;
-           do 3 apply maponpaths_2 ;
-           apply lunitor_lwhisker).
+      - exact p0.
+      - pose (pb_1cell_pr1 p0).
+        cbn.
+        cbn in i.
+        refine (comp_of_invertible_2cell i (runitor_invertible_2cell _)).
+      - exact (pb_1cell_pr2 p0).
+      - refine (pb_1cell_eq p0 @ _) ; cbn.
+        rewrite <- !rwhisker_vcomp.
+        rewrite !vassocl.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        do 3 apply maponpaths_2.
+        apply lunitor_lwhisker.
     Defined.
 
-    Section PullbackUMP2.
-      Context {q : B}
-              {φ ψ : q --> pb}
-              {α : φ · pb_cone_pr1 pb ==> ψ · pb_cone_pr1 pb}
-              {β : φ · pb_cone_pr2 pb ==> ψ · pb_cone_pr2 pb}
-              (r : (φ ◃ pb_cone_cell pb)
-                   • lassociator φ (pb_cone_pr2 pb) (pr2 hy)
-                   • (β ▹ pr2 hy)
-                   • rassociator ψ (pb_cone_pr2 pb) (pr2 hy)
-                   =
-                   lassociator φ (pb_cone_pr1 pb) f
-                   • (α ▹ f)
-                   • rassociator ψ (pb_cone_pr1 pb) f
-                   • (ψ ◃ pb_cone_cell pb)).
+    Section PbUMP2AndEq.
+      Context {q : pb_cone f (pr2 hy)}
+              (φ ψ : pb_1cell q pb).
 
-      Let φ_disp
-        : make_ar φ -->[ pr2 hx · f] hy.
-      Proof.
-        use make_disp_1cell_cod.
-        - exact (φ · π).
-        - exact (comp_of_invertible_2cell
-                   (lwhisker_of_invertible_2cell φ p)
-                   (lassociator_invertible_2cell _ _ _)).
-      Defined.
-
-      Let φ_cone : pb_cone f (pr2 hy)
-        := make_pb_cone
-             q
-             (φ · pr2 hx)
-             (φ · π)
+      Let g : cod_disp_bicat B x := (make_ar (pb_cone_pr1 q)).
+      Let χ : g -->[ id₁ x · f] hy
+        := make_disp_1cell_cod
+             (dX := g) (dY := hy)
+             (pb_cone_pr2 q)
              (comp_of_invertible_2cell
-                (rassociator_invertible_2cell _ _ _)
-                (pr2 φ_disp)).
+                (lwhisker_of_invertible_2cell
+                   _
+                   (lunitor_invertible_2cell _))
+                (pb_cone_cell q)).
 
-      Let φ_cell : pb_1cell φ_cone pb.
-      Proof.
-        use make_pb_1cell.
-        - exact φ.
-        - apply id2_invertible_2cell.
-        - apply id2_invertible_2cell.
-        - abstract
-            (cbn ;
-             rewrite !id2_rwhisker, !id2_right ;
-             rewrite !vassocr ;
-             rewrite lassociator_rassociator ;
-             rewrite id2_left ;
-             rewrite !vassocl ;
-             rewrite lassociator_rassociator ;
-             rewrite id2_right ;
-             apply idpath).
-      Defined.
-
-      Let ψ_disp
-        : make_ar φ -->[ pr2 hx · f] hy.
-      Proof.
-        use make_disp_1cell_cod.
-        - exact (ψ · π).
-        - use make_invertible_2cell.
-          + exact (lassociator _ _ _
-                   • (α ▹ f)
-                   • rassociator _ _ _
-                   • (ψ ◃ p)
-                   • lassociator _ _ _).
-          + apply inv_B.
-      Defined.
-
-      Let σσ : φ_disp ==>[ id₂ (pr2 hx) ▹ f] ψ_disp.
+      Local Definition pχ
+        : χ ==>[ id₂ (id₁ x) ▹ f] χ.
       Proof.
         use make_disp_2cell_cod.
-        - exact β.
+        - apply id2.
         - abstract
-            (unfold coherent_homot ;
-             cbn ;
-             rewrite id2_rwhisker, lwhisker_id2, id2_left ;
-             use vcomp_move_L_Mp ; [ is_iso | ] ;
-             exact r).
-      Defined.
-
-      Let ψ_cone : pb_cone f (pr2 hy)
-        := make_pb_cone
-             q
-             (φ · pr2 hx)
-             (ψ · π)
-             (comp_of_invertible_2cell
-                (rassociator_invertible_2cell φ (pr2 hx) f)
-                (pr2 ψ_disp)).
-
-      Let ψ_cell : pb_1cell ψ_cone pb.
-      Proof.
-        use make_pb_1cell.
-        - exact ψ.
-        - refine (inv_of_invertible_2cell _).
-          use make_invertible_2cell.
-          + exact α.
-          + apply inv_B.
-        - apply id2_invertible_2cell.
-        - abstract
-            (cbn ;
-             rewrite id2_rwhisker, id2_right ;
-             rewrite !vassocl ;
-             rewrite lassociator_rassociator ;
-             rewrite id2_right ;
-             do 3 (use vcomp_move_L_pM ; [ is_iso | ]) ;
-             cbn ;
-             rewrite !vassocr ;
+            (unfold coherent_homot ; cbn ;
+             rewrite !id2_rwhisker, lwhisker_id2, id2_left, id2_right ;
              apply idpath).
       Defined.
 
-      Let φ_lift : lift_1cell_factor (cod_disp_bicat B) (π,, p) φ_disp
-        := pb_1cell_to_lift_1cell π p φ_disp φ_cell.
-
-      Let ψ_lift : lift_1cell_factor (cod_disp_bicat B) (π,, p) ψ_disp
-        := pb_1cell_to_lift_1cell π p ψ_disp ψ_cell.
-
-      Definition cartesian_1cell_pb_2cell
-        : φ ==> ψ
-        := pr1 (cartesian_1cell_lift_2cell _ _ Hp σσ φ_lift ψ_lift).
-
-      Definition cartesian_1cell_pb_2cell_pr1
-        : cartesian_1cell_pb_2cell ▹ pb_cone_pr1 pb = α.
+      Local Definition lift_1cell_of_pb_1cell
+            (ζ : pb_1cell q pb)
+        : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ.
       Proof.
-        pose (pr2 (cartesian_1cell_lift_2cell _ _ Hp σσ φ_lift ψ_lift)) as d.
-        cbn in d.
-        rewrite lwhisker_id2, !id2_left in d.
-        exact d.
-      Qed.
+        simple refine ((_ ,, _) ,, ((_ ,, _) ,, _)).
+        - exact (pr1 ζ).
+        - exact (comp_of_invertible_2cell
+                   (runitor_invertible_2cell _)
+                   (inv_of_invertible_2cell (pb_1cell_pr1 ζ))).
+        - exact (pr1 (pb_1cell_pr2 ζ)).
+        - abstract
+            (cbn ;
+             pose (pb_1cell_eq ζ) as r ;
+             cbn in r ;
+             rewrite lwhisker_id2, id2_left ;
+             rewrite !vassocl ;
+             do 3 (use vcomp_move_R_pM ; [ is_iso | ]) ;
+             cbn ;
+             refine (maponpaths (λ z, z • _) r @ _) ;
+             rewrite <- !rwhisker_vcomp ;
+             rewrite !vassocl ;
+             do 2 apply maponpaths ;
+             rewrite (maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+             rewrite rassociator_lassociator ;
+             rewrite id2_left ;
+             rewrite rwhisker_vcomp ;
+             rewrite vcomp_linv ;
+             rewrite id2_rwhisker ;
+             rewrite id2_right ;
+             rewrite (maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+             rewrite lunitor_lwhisker ;
+             rewrite !vassocr ;
+             rewrite rwhisker_vcomp ;
+             rewrite rinvunitor_runitor ;
+             rewrite id2_rwhisker ;
+             rewrite id2_left ;
+             apply idpath).
+        - apply is_disp_invertible_2cell_cod.
+          apply (pb_1cell_pr2 ζ).
+      Defined.
 
-      Definition cartesian_1cell_pb_2cell_pr2
-        : cartesian_1cell_pb_2cell ▹ pb_cone_pr2 pb = β.
+      Let lift_φ : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ
+        := lift_1cell_of_pb_1cell φ.
+      Let lift_ψ : lift_1cell_factor (cod_disp_bicat B) (π,, p) χ
+        := lift_1cell_of_pb_1cell ψ.
+
+      Definition cartesian_ump_2
+        : pb_2cell φ ψ.
       Proof.
-        pose (maponpaths
-                pr1
-                (cartesian_1cell_lift_2cell_commutes
-                   _ _
-                   Hp σσ
-                   φ_lift ψ_lift))
-          as d.
-        cbn in d.
-        rewrite pr1_transportf, transportf_const in d.
-        cbn in d.
-        rewrite id2_right, id2_left in d.
-        exact d.
+        pose (pr2 Hp _ g (id₁ _) (id₁ _) χ χ (id2 _) pχ lift_φ lift_ψ) as l.
+        use make_pb_2cell.
+        - exact (pr111 l).
+        - abstract
+            (cbn ;
+             pose (pr211 l) as d ;
+             cbn in d ;
+             rewrite lwhisker_id2, id2_left in d ;
+             rewrite !vassocl in d ;
+             pose (maponpaths (λ z, rinvunitor _ • z) d) as d' ;
+             cbn in d' ;
+             rewrite !vassocr in d' ;
+             rewrite !rinvunitor_runitor, !id2_left in d' ;
+             use vcomp_move_R_Mp ; [ apply (pb_1cell_pr1 ψ) | ] ; cbn ;
+             use vcomp_move_L_pM ; [ apply (pb_1cell_pr1 φ) | ] ; cbn ;
+             exact d').
+        - abstract
+            (pose (maponpaths pr1 (pr21 l)) as d ;
+             simpl in d ;
+             rewrite pr1_transportf in d ;
+             rewrite transportf_const in d ;
+             cbn in d ;
+             rewrite id2_right in d ;
+             exact d).
+      Defined.
+
+
+      Definition pb_2cell_to_lift
+                 (r : pb_2cell φ ψ)
+        : lift_2cell_factor_type
+            (cod_disp_bicat B)
+            (π ,, p)
+            pχ
+            lift_φ lift_ψ.
+      Proof.
+        simple refine ((_ ,, _) ,, _) ; cbn.
+        - exact r.
+        - abstract
+            (pose (pb_2cell_pr1 r) as w ;
+             cbn in w ;
+             rewrite !vassocr ;
+             use vcomp_move_L_Mp ; [ is_iso | ] ;
+             cbn ;
+             rewrite !vassocl ;
+             refine (maponpaths (λ z, _ • (_ • z)) w @ _) ;
+             rewrite vcomp_linv ;
+             rewrite id2_right ;
+             rewrite lwhisker_id2 ;
+             rewrite id2_left ;
+             apply idpath).
+        - abstract
+            (use subtypePath ; [ intro ; apply cellset_property | ] ;
+             simpl ;
+             rewrite pr1_transportf ;
+             rewrite transportf_const ;
+             cbn ;
+             rewrite id2_right ;
+             exact (pb_2cell_pr2 r)).
+      Defined.
+
+      Context (r₁ r₂ : pb_2cell φ ψ).
+
+      Definition cartesian_ump_eq
+        : r₁ = r₂.
+      Proof.
+        pose (pr2 Hp _ g (id₁ _) (id₁ _) χ χ (id2 _) pχ lift_φ lift_ψ) as l.
+        pose (proofirrelevance
+                _
+                (isapropifcontr l)
+                (pb_2cell_to_lift r₁)
+                (pb_2cell_to_lift r₂)) as eq.
+        use subtypePath.
+        {
+          intro ; apply isapropdirprod ; apply cellset_property.
+        }
+        exact (maponpaths (λ z, pr11 z) eq).
       Qed.
-
-      Section Uniqueness.
-        Context (τ₁ τ₂ : φ ==> ψ)
-                (pr1τ₁ : τ₁ ▹ pb_cone_pr1 pb = α)
-                (pr2τ₁ : τ₁ ▹ pb_cone_pr2 pb = β)
-                (pr1τ₂ : τ₂ ▹ pb_cone_pr1 pb = α)
-                (pr2τ₂ : τ₂ ▹ pb_cone_pr2 pb = β).
-
-        Let lift_τ₁ : φ_lift ==>[ id₂ (pr2 hx)] ψ_lift.
-        Proof.
-          use make_disp_2cell_cod.
-          - exact τ₁.
-          - abstract
-              (unfold coherent_homot ;
-               cbn ;
-               rewrite lwhisker_id2, !id2_left ;
-               exact pr1τ₁).
-        Defined.
-
-        Let lift_τ₂ : φ_lift ==>[ id₂ (pr2 hx)] ψ_lift.
-        Proof.
-          use make_disp_2cell_cod.
-          - exact τ₂.
-          - abstract
-              (unfold coherent_homot ;
-               cbn ;
-               rewrite lwhisker_id2, !id2_left ;
-               exact pr1τ₂).
-        Defined.
-
-        Definition cartesian_1cell_pb_2cell_unique
-          : τ₁ = τ₂.
-        Proof.
-          refine (maponpaths
-                    pr1
-                    (isaprop_lift_of_lift_2cell
-                       _ _
-                       (pr2 Hp _ _ _ _ _ _ _ σσ φ_lift ψ_lift)
-                       lift_τ₁ lift_τ₂
-                       _
-                       _)) ;
-            (use subtypePath ; [ intro ; apply cellset_property | ]) ;
-            cbn ;
-            rewrite pr1_transportf, transportf_const ;
-            cbn.
-          - rewrite id2_left, id2_right.
-            exact pr2τ₁.
-          - rewrite id2_left, id2_right.
-            exact pr2τ₂.
-        Qed.
-      End Uniqueness.
-    End PullbackUMP2.
-
-    Definition cartesian_1cell_pb_ump_2
-      : pb_ump_2 pb.
-    Proof.
-      intros q φ ψ α β r.
-      apply iscontraprop1.
-      - abstract
-          (use invproofirrelevance ;
-           intros τ₁ τ₂ ;
-           use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-           exact (cartesian_1cell_pb_2cell_unique
-                    r
-                    _ _
-                    (pr12 τ₁) (pr22 τ₁)
-                    (pr12 τ₂) (pr22 τ₂))).
-      - exact (cartesian_1cell_pb_2cell r
-               ,,
-               cartesian_1cell_pb_2cell_pr1 r
-               ,,
-               cartesian_1cell_pb_2cell_pr2 r).
-    Defined.
+    End PbUMP2AndEq.
 
     Definition cartesian_1cell_to_is_pb
       : has_pb_ump pb.
     Proof.
-      split.
+      use make_has_pb_ump.
       - exact cartesian_1cell_pb_ump_1.
-      - exact cartesian_1cell_pb_ump_2.
+      - exact @cartesian_ump_2.
+      - exact @cartesian_ump_eq.
     Defined.
   End CartesianToPullback.
 
@@ -779,5 +630,5 @@ Definition cod_fibration_one_types
 Proof.
   use cod_cleaving_of_bicats.
   - exact one_type_2cell_iso.
-  - exact one_types_has_pb.
+  - exact has_pb_one_types.
 Defined.

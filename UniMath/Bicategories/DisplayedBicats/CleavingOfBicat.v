@@ -388,88 +388,27 @@ Section BicatCleaving.
        × global_cleaving
        × lwhisker_cartesian
        × rwhisker_cartesian.
+
+  Coercion cleaving_of_bicats_local_cleaving
+           (CD : cleaving_of_bicats)
+    : local_cleaving
+    := pr1 CD.
+
+  Coercion cleaving_of_bicats_global_cleaving
+           (CD : cleaving_of_bicats)
+    : global_cleaving
+    := pr12 CD.
+
+  Coercion cleaving_of_bicats_lwhisker_cartesian
+           (CD : cleaving_of_bicats)
+    : lwhisker_cartesian
+    := pr122 CD.
+
+  Coercion cleaving_of_bicats_rwhisker_cartesian
+           (CD : cleaving_of_bicats)
+    : rwhisker_cartesian
+    := pr222 CD.
 End BicatCleaving.
-
-Section OperationsOnCleaving.
-  Context {B : bicat}
-          {D : disp_bicat B}
-          (HD : cleaving_of_bicats D).
-
-  Definition local_lift
-             {x y : B}
-             {xx : D x} {yy : D y}
-             {f g : x --> y}
-             (gg : xx -->[ g ] yy)
-             (α : f ==> g)
-    : xx -->[ f ] yy
-    := pr1 (pr1 HD x y xx yy f g gg α).
-
-  Definition local_lift_cell
-             {x y : B}
-             {xx : D x} {yy : D y}
-             {f g : x --> y}
-             (gg : xx -->[ g ] yy)
-             (α : f ==> g)
-    : local_lift gg α ==>[ α ] gg
-    := pr12 (pr1 HD x y xx yy f g gg α).
-
-  Definition local_lift_is_cartesian_2cell
-             {x y : B}
-             {xx : D x} {yy : D y}
-             {f g : x --> y}
-             (gg : xx -->[ g ] yy)
-             (α : f ==> g)
-    : is_cartesian_2cell D (local_lift_cell gg α)
-    := pr22 (pr1 HD x y xx yy f g gg α).
-
-  Definition global_lift
-             {x y : B}
-             (yy : D y)
-             (f : x --> y)
-    : D x
-    := pr1 (pr12 HD x y yy f).
-
-  Definition global_lift_mor
-             {x y : B}
-             (yy : D y)
-             (f : x --> y)
-    : global_lift yy f -->[ f ] yy
-    := pr12 (pr12 HD x y yy f).
-
-  Definition global_lift_cartesian_1cell
-             {x y : B}
-             (yy : D y)
-             (f : x --> y)
-    : cartesian_1cell D (global_lift_mor yy f)
-    := pr22 (pr12 HD x y yy f).
-
-  Definition cleaving_lwhisker_cartesian
-             {w x y : B}
-             {ww : D w} {xx : D x} {yy : D y}
-             {h : w --> x}
-             {f g : x --> y}
-             (hh : ww -->[ h ] xx)
-             {ff : xx -->[ f ] yy}
-             {gg : xx -->[ g ] yy}
-             {α : f ==> g}
-             {αα : ff ==>[ α ] gg}
-             (Hαα : is_cartesian_2cell D αα)
-    : is_cartesian_2cell D (hh ◃◃ αα)
-    := pr122 HD w x y ww xx yy h f g hh ff gg α αα Hαα.
-
-  Definition cleaving_rwhisker_cartesian
-             {x y z : B}
-             {xx : D x} {yy : D y} {zz : D z}
-             {f g : x --> y} {h : y --> z}
-             {ff : xx -->[ f ] yy}
-             {gg : xx -->[ g ] yy}
-             {α : f ==> g}
-             {αα : ff ==>[ α ] gg}
-             (Hαα : is_cartesian_2cell D αα)
-             (hh : yy -->[ h ] zz)
-    : is_cartesian_2cell D (αα ▹▹ hh)
-    := pr222 HD x y z xx yy zz f g h ff gg hh α αα Hαα.
-End OperationsOnCleaving.
 
 (** 2. Properties of cartesian 1-cells *)
 Section Lift2CellInvertible.
