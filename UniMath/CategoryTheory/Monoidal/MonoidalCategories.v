@@ -311,3 +311,106 @@ Proof.
 Defined.
 
 End swapped_tensor.
+
+Section lemmas.
+
+Context {Mon_V : monoidal_cat}.
+
+Let I        : Mon_V                  := monoidal_cat_unit Mon_V.
+Let tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
+Let α        : associator tensor      := monoidal_cat_associator Mon_V.
+Let l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
+Let r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
+
+Local Notation "X ⊗ Y" := (tensor (X, Y)).
+Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
+
+Let triangle_eq : ∏ (a b : Mon_V), r_unitor a #⊗ id b = α ((a, I), b) · id a #⊗ l_unitor b := pr1 (monoidal_cat_eq Mon_V).
+Let pentagon_eq : ∏ (a b c d : Mon_V), α ((a ⊗ b, c), d) · α ((a, b), c ⊗ d) = α ((a, b), c) #⊗ id d · α ((a, b ⊗ c), d) · id a #⊗ α ((b, c), d) := pr2 (monoidal_cat_eq Mon_V).
+
+Let I_posttensor_comp {X Y Z : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id I) = (f #⊗ id I) · (g #⊗ id I) := functor_comp (I_posttensor tensor I) f g.
+Let I_pretensor_comp {X Y Z : Mon_V} (f : X --> Y) (g : Y --> Z) : (id I #⊗ (f · g)) = (id I #⊗ f) · (id I #⊗ g) := functor_comp (I_pretensor tensor I) f g.
+
+Lemma I_posttensor_faithful {X Y : Mon_V} {f g : X --> Y} : (f #⊗ id I) = (g #⊗ id I) -> f = g.
+Proof.
+  intro H.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+  use (pathscomp0 (! (nat_trans_ax r_unitor _ _ f))).
+  use (pathscomp0 _ (nat_trans_ax r_unitor _ _ g)).
+  apply cancel_postcomposition.
+  assumption.
+Defined.
+
+Lemma r_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
+Proof.
+  apply I_posttensor_faithful.
+  rewrite I_posttensor_comp.
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α (_, _)))).
+  rewrite assoc'.
+  apply (transportb (λ h, _ = _ · h) (nat_trans_ax α _ _ ((_#, _)#, _))).
+  simpl.
+  rewrite assoc.
+  apply (transportb (λ h, _ = _ · #tensor (id _ #, h)) (triangle_eq _ _)).
+  apply (transportf (λ k, _ = _ · #tensor (k #, _)) (id_left (id X))).
+  change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite (functor_comp tensor).
+  apply (transportb (λ h, h · _ = _) (triangle_eq _ _)).
+  apply (transportf (λ h, _ · #tensor (h #, _) · _ = _) (functor_id tensor (X, Y))).
+  rewrite assoc'.
+  apply (transportb (λ h, _ · h = _) (nat_trans_ax α _ _ ((_#, _)#, _))).
+  rewrite !assoc.
+  apply cancel_postcomposition.
+  apply pentagon_eq.
+Defined.
+
+Lemma I_pretensor_faithful {X Y : Mon_V} {f g : X --> Y} : (id I #⊗ f) = (id I #⊗ g) -> f = g.
+Proof.
+  intro H.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
+  use (pathscomp0 (! (nat_trans_ax l_unitor _ _ f))).
+  use (pathscomp0 _ (nat_trans_ax l_unitor _ _ g)).
+  apply cancel_postcomposition.
+  assumption.
+Defined.
+
+Lemma l_unitor_r_unitor : l_unitor I = r_unitor I.
+Proof.
+  apply I_pretensor_faithful.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α ((_, _), _)))).
+  apply (pathscomp0 (! (pr1 (monoidal_cat_eq Mon_V) I I))).
+  use (pathscomp0 _ (r_unitor_of_tensor I I)).
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+  apply (nat_trans_ax r_unitor).
+Defined.
+
+Lemma l_unitor_of_tensor (X Y : Mon_V) : α ((I, X), Y) · l_unitor (X ⊗ Y) = l_unitor X #⊗ id Y.
+Proof.
+  apply I_pretensor_faithful.
+  rewrite I_pretensor_comp.
+  apply (pre_comp_with_z_iso_is_inj (pr2 α ((I, (I ⊗ X)), Y))).
+  use (pathscomp0 _ (nat_trans_ax α _ _ ((_ #, _) #, _))).
+  simpl.
+  apply (pre_comp_with_z_iso_is_inj (functor_on_is_z_isomorphism (functor_fix_snd_arg _ _ _ tensor Y) (pr2 α ((I, I), X)))).
+  simpl.
+  unfold functor_fix_snd_arg_mor.
+  change (make_dirprod ?x ?y) with (x #, y).
+  rewrite !assoc.
+  apply (transportf (λ h, _ = h · _) (functor_comp tensor _ _)).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  apply (transportf (λ h, h · _ = _) (pentagon_eq I I X Y)).
+  rewrite assoc'.
+  apply (transportf (λ h, _ · h = _) (triangle_eq _ _)).
+  simpl.
+  apply (transportf (λ h, _ · #tensor (_ #, h) = _) (functor_id tensor (X, Y))).
+  apply (pathscomp0 (! (nat_trans_ax α _ _ ((_ #, _) #, _)))).
+  simpl.
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  apply maponpaths.
+  apply dirprod_paths; simpl; [|apply id_left].
+  apply pathsinv0.
+  apply triangle_eq.
+Defined.
+
+End lemmas.
+
