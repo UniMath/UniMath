@@ -144,6 +144,46 @@ Section StreetFibration.
        # F (pr1 ff_i) = pr2 ff_i · f
        ×
        is_cartesian_sfib (pr1 ff_i).
+
+  Definition street_fib_lift
+             (H : street_fib)
+             {e : E}
+             {b : B}
+             (f : b --> F e)
+    : E
+    := pr1 (H e b f).
+
+  Definition street_fib_mor
+             (H : street_fib)
+             {e : E}
+             {b : B}
+             (f : b --> F e)
+    : street_fib_lift H f --> e
+    := pr112 (H e b f).
+
+  Definition street_fib_iso
+             (H : street_fib)
+             {e : E}
+             {b : B}
+             (f : b --> F e)
+    : iso (F (street_fib_lift H f)) b
+    := pr212 (H e b f).
+
+  Definition street_fib_over
+             (H : street_fib)
+             {e : E}
+             {b : B}
+             (f : b --> F e)
+    : # F (street_fib_mor H f) = street_fib_iso H f · f
+    := pr122 (H e b f).
+
+  Definition street_fib_mor_is_cartesian
+             (H : street_fib)
+             {e : E}
+             {b : B}
+             (f : b --> F e)
+    : is_cartesian_sfib (street_fib_mor H f)
+    := pr222 (H e b f).
 End StreetFibration.
 
 (**
