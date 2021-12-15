@@ -11,24 +11,10 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Nat.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.FiniteSequences.
-Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Maybe.
 
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.IteratedBinaryOperations.
-Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Matrix.
-
-Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.NumberSystems.RationalNumbers.
-Require Import UniMath.Tactics.Nat_Tactics.
-
-Require Import UniMath.PAdics.z_mod_p.
-Require Import UniMath.PAdics.lemmas.
-
-Require Import UniMath.RealNumbers.Prelim.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
