@@ -40,4 +40,4 @@ Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
 Universal.v
-Elimination.v
+Elimination/Elimination.v
