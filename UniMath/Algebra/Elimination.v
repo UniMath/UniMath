@@ -6,30 +6,29 @@ Author: @Skantz (April 2021)
 *)
 
 Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Nat.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.FiniteSequences.
+Require Import UniMath.Combinatorics.WellOrderedSets.
+Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.Combinatorics.Maybe.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
-
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.NumberSystems.RationalNumbers.
-
-Require Import UniMath.Combinatorics.WellOrderedSets.
-
-Require Import UniMath.Combinatorics.Vectors.
-
-Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Tactics.Nat_Tactics.
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.MoreFoundations.Nat.
 
 Require Import UniMath.PAdics.z_mod_p.
+Require Import UniMath.PAdics.lemmas.
 
+Require Import UniMath.RealNumbers.Prelim.
 
 (* Which of these contextual definitions and notations if any should be included here? *)
 (*Local Definition R := pr1hSet natcommrig.*)
@@ -128,7 +127,8 @@ Section Misc.
     - reflexivity.
   Defined.
 
-  (* Used to be in PAdics *)
+  (* Used to be in PAdics
+   TODO: perhaps rename to avoid clash with current [PAdics.Lemmas.minussn1]? *)
   Lemma minussn1 ( n : nat ) : n ≤ ( S n ) - 1.
   Proof.
     intros. destruct n. apply idpath.
@@ -751,7 +751,6 @@ Section Vectors.
 
 End Vectors.
 
-
 Section Matrices.
 
   Context {R : rig}.
@@ -1269,7 +1268,6 @@ Section Vectorshq.
   Defined.
 
   Definition max_el { n : nat } (vec: Vector F n) := max_el' vec 0%hq.
-
 
 End Vectorshq.
 
@@ -1903,8 +1901,6 @@ Section Gauss.
   Local Notation Σ := (iterop_fun hqzero op1).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
-
-  Require Import UniMath.Combinatorics.Maybe.
 
   Definition maybe_choice {X : UU} (e : maybe X)
     : coprod (e != nothing) (e = nothing).
@@ -2972,10 +2968,6 @@ Section Gauss.
     - assumption.
     - exact (natgthsnn n).
   Defined.
-
-
-  (* TODO move up *)
-  Require Import UniMath.NumberSystems.Integers.
 
   (* The clear column step operation does clear the target entry (mat (k j)) *)
   Lemma gauss_clear_column_step_inv1 (n : nat) (k_i k_j : (⟦ n ⟧%stn))
@@ -4949,8 +4941,6 @@ Section Gauss.
     - exact ((hqmultinv (mat i i)) * (vec i))%hq.
   Defined.
 
-
-  Require Import UniMath.PAdics.lemmas.
   (* TODO moderately large cleanup needed - rename temp variables *)
   Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
         (b : Vector F n) (vec : Vector F n)
@@ -5437,7 +5427,7 @@ Section Gauss.
         apply natgthtogehsn in h.
         rewrite pathssminus in h.
         2: { rewrite pathssminus.
-             - rewrite minussn1.
+             - rewrite PAdics.lemmas.minussn1.
                exact p.
              - simpl; apply h1. }
         assert (e : n = S (n - 1)).
@@ -5480,8 +5470,6 @@ Section Gauss.
      rewrite hqpluscomm.
      reflexivity.
   Defined.
-
-  Require Import UniMath.RealNumbers.Prelim.
 
   Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix F n n)
         (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
