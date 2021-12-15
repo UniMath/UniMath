@@ -21,7 +21,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Display.Identitor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Compositor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -37,13 +37,13 @@ Section RepresentableFunctor.
 Context {C : bicat}.
 Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
 
-Definition pspsh := psfunctor (op1_bicat C) bicat_of_cats.
+Definition pspsh := psfunctor (op1_bicat C) bicat_of_univ_cats.
 
 Definition representable_data_cat (X Y : C) : univalent_category
   := univ_hom C_is_univalent_2_1 Y X.
 
 Definition representable_data_fun (X Y Z : C) (f : op1_bicat C ⟦ Y, Z ⟧)
-  : bicat_of_cats ⟦ representable_data_cat X Y, representable_data_cat X Z ⟧.
+  : bicat_of_univ_cats ⟦ representable_data_cat X Y, representable_data_cat X Z ⟧.
 Proof.
   simpl in f.
   use make_functor.
@@ -69,7 +69,7 @@ Proof.
     exact (! (@vcomp_whisker C Z Y X f g h k η φ)).
 Defined.
 
-Definition representable_data (X : C) : psfunctor_data (op1_bicat C) bicat_of_cats.
+Definition representable_data (X : C) : psfunctor_data (op1_bicat C) bicat_of_univ_cats.
 Proof.
   use make_psfunctor_data.
   - exact (representable_data_cat X).

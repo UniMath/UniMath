@@ -54,16 +54,12 @@ Proof.
   apply (pr2 (hset_id_weq_iso A B)).
 Defined.
 
-Lemma is_univalent_HSET : is_univalent HSET.
+Definition category_HSET : category := make_category HSET has_homsets_HSET.
+
+Lemma is_univalent_HSET : is_univalent category_HSET.
 Proof.
-  split.
-  - apply is_weq_precat_paths_to_iso_hset.
-  - apply has_homsets_HSET.
+  intros a b.
+  apply (is_weq_precat_paths_to_iso_hset a b).
 Defined.
 
-Definition HSET_univalent_category : univalent_category.
-Proof.
-  exists HSET; split.
-  - apply is_univalent_HSET.
-  - apply has_homsets_HSET.
-Defined.
+Definition HSET_univalent_category : univalent_category := _ ,, is_univalent_HSET.

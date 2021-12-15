@@ -221,8 +221,8 @@ End MorphismPair_opp.
 (** * ShortShortExactData *)
 Section def_shortshortexactdata.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   (** ** Data for [ShortShortExact]
@@ -251,24 +251,24 @@ Arguments ShortShortExactData_Eq [C] _ _.
 (** * ShortShortExactData and opposite categories *)
 Section shortshortexactdata_opp.
 
-  Lemma opp_ShortShortExactData_Eq {C : precategory} {Z : Zero C}
-             (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) :
+  Lemma opp_ShortShortExactData_Eq {C : category} {Z : Zero C}
+             (SSED : ShortShortExactData (op_category C) (Zero_opp C Z)) :
     Mor1 (opp_MorphismPair SSED) · Mor2 (opp_MorphismPair SSED) =
     ZeroArrow Z (Ob1 (opp_MorphismPair SSED)) (Ob3 (opp_MorphismPair SSED)).
   Proof.
-    use (pathscomp0 (@ShortShortExactData_Eq (opp_precat C) (Zero_opp C Z) SSED)).
+    use (pathscomp0 (@ShortShortExactData_Eq (op_category C) (Zero_opp C Z) SSED)).
     rewrite <- ZeroArrow_opp. apply idpath.
   Qed.
 
-  Definition opp_ShortShortExactData {C : precategory} {Z : Zero C}
-             (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) : ShortShortExactData C Z.
+  Definition opp_ShortShortExactData {C : category} {Z : Zero C}
+             (SSED : ShortShortExactData (op_category C) (Zero_opp C Z)) : ShortShortExactData C Z.
   Proof.
     use make_ShortShortExactData.
     - exact (opp_MorphismPair SSED).
     - exact (opp_ShortShortExactData_Eq SSED).
   Defined.
 
-  Lemma ShortShortExactData_opp_Eq {C : precategory} {Z : Zero C}
+  Lemma ShortShortExactData_opp_Eq {C : category} {Z : Zero C}
         (SSED : ShortShortExactData C Z) :
     Mor1 (MorphismPair_opp SSED) · Mor2 (MorphismPair_opp SSED) =
     ZeroArrow (Zero_opp C Z) (Ob1 (MorphismPair_opp SSED)) (Ob3 (MorphismPair_opp SSED)).
@@ -277,8 +277,8 @@ Section shortshortexactdata_opp.
     rewrite <- ZeroArrow_opp. apply idpath.
   Qed.
 
-  Definition ShortShortExactData_opp {C : precategory} {Z : Zero C}
-             (SSED : ShortShortExactData C Z) : ShortShortExactData (opp_precat C) (Zero_opp C Z).
+  Definition ShortShortExactData_opp {C : category} {Z : Zero C}
+             (SSED : ShortShortExactData C Z) : ShortShortExactData (op_category C) (Zero_opp C Z).
   Proof.
     use make_ShortShortExactData.
     - exact (MorphismPair_opp SSED).

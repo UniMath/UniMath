@@ -30,14 +30,14 @@ Proof.
   exact (λ _ _, empty).
 Defined.
 
-Definition bincoproduct_diagram {C : precategory} (a b : C) : diagram two_graph C.
+Definition bincoproduct_diagram {C : category} (a b : C) : diagram two_graph C.
 Proof.
   exists (λ x : bool, if x then a else b).
   intros u v F.
   induction F.
 Defined.
 
-Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a --> c) (bc : b --> c) :
+Definition CopCocone {C : category} {a b : C} {c : C} (ac : a --> c) (bc : b --> c) :
    cocone (bincoproduct_diagram a b) c.
 Proof.
   use tpair.
@@ -50,7 +50,7 @@ Defined.
 
 Section bincoproduct_def.
 
-Variable C : precategory.
+Variable C : category.
 
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (bincoproduct_diagram a b) co (CopCocone ia ib).
@@ -200,11 +200,20 @@ Proof.
      apply idpath.
 Qed.
 
+End bincoproduct_def.
+
+Arguments BinCoproductCocone [_] _ _.
+Arguments BinCoproductObject [_ _ _] _ .
+Arguments BinCoproductArrow [_ _ _] _ [_] _ _.
+Arguments BinCoproductIn1 [_ _ _] _.
+Arguments BinCoproductIn2 [_ _ _] _.
+
 
 (** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
 Section coproduct_unique.
 
+Variable C : category.
 Hypothesis H : is_univalent C.
 
 Variables a b : C.
@@ -291,14 +300,13 @@ Qed.
 *)
 
 End coproduct_unique.
-End bincoproduct_def.
 
-Definition limits_isBinCoproductCocone_from_isBinCoproduct {C : precategory}(hsC : has_homsets C) { a b c}
+Definition limits_isBinCoproductCocone_from_isBinCoproduct (C : category) {a b c}
            (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
   limits.bincoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
-  make_isBinCoproductCocone _ hsC _ _ _ _ _.
+  make_isBinCoproductCocone _ C _ _ _ _ _.
 
-Lemma limits_isBinCoproduct_from_isBinCoproductCocone {C : precategory}(hsC : has_homsets C) { a b c}
+Lemma limits_isBinCoproduct_from_isBinCoproductCocone (C : category) {a b c}
       (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
   isBinCoproductCocone _ _ _ _ u v -> limits.bincoproducts.isBinCoproduct C a b c u v.
 Proof.
@@ -307,18 +315,18 @@ Proof.
   intros x f g.
   (* set (CCfg := (bincoproducts.BinCoproductArrow C CC f g)). *)
   use unique_exists; simpl.
-  - apply (bincoproducts.BinCoproductArrow C CC f g).
+  - apply (bincoproducts.BinCoproductArrow CC f g).
   - abstract (split;
               [ apply (bincoproducts.BinCoproductIn1Commutes  _ _ _ CC)
               | apply (bincoproducts.BinCoproductIn2Commutes  _ _ _ CC)]).
-  - abstract (intros h'; apply isapropdirprod; apply hsC).
+  - abstract (intros h'; apply isapropdirprod; apply C).
   - intros h' [H1 H2].
     eapply (bincoproducts.BinCoproductArrowUnique _ _ _ CC).
     + exact H1.
     + exact H2.
 Defined.
 
-Lemma BinCoproducts_from_Colims (C : precategory) :
+Lemma BinCoproducts_from_Colims (C : category) :
   Colims_of_shape two_graph C -> BinCoproducts C.
 Proof.
 now intros H a b; apply H.
@@ -326,7 +334,7 @@ Defined.
 
 (** Post-composing a bincoproduct diagram with a functor yields a
      bincoproduct diagram. *)
-Lemma mapdiagram_bincoproduct_eq_diag {C : precategory}{D : category}
+Lemma mapdiagram_bincoproduct_eq_diag {C : category}{D : category}
       (F : functor C D)(a b : C)  :
   eq_diag (C := D)
           (mapdiagram F (bincoproducts.bincoproduct_diagram a b))

@@ -174,14 +174,14 @@ Section def_commring_category.
   Defined.
   Opaque commring_precategory_isweq.
 
-  Definition commring_precategory_is_univalent : is_univalent commring_precategory.
+  Definition commring_category : category := make_category _ has_homsets_commring_precategory.
+
+  Definition commring_category_is_univalent : is_univalent commring_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (commring_precategory_isweq X Y).
-    - exact has_homsets_commring_precategory.
+    intros X Y. exact (commring_precategory_isweq X Y).
   Defined.
 
-  Definition commring_category : univalent_category :=
-    make_univalent_category commring_precategory commring_precategory_is_univalent.
+  Definition commring_univalent_category : univalent_category :=
+    make_univalent_category commring_category commring_category_is_univalent.
 
 End def_commring_category.

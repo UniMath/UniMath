@@ -13,6 +13,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 (******************************************************************************)
 (* Definition of bicategory *)
 
+
 Definition is_bicategory (C : prebicategory) : UU
   := (has_homcats C) × (∏ (a b : C), isweq (path_to_adj_int_equivalence a b)).
 
@@ -28,5 +29,5 @@ Proof.
   intro a.
   apply impred.
   intro b.
-  apply (isaprop_is_univalent (a -1-> b)).
+  apply isaprop_is_univalent.
 Qed.

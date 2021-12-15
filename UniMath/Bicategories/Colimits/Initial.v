@@ -16,12 +16,12 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -32,7 +32,7 @@ Definition unique_maps
            (X : C)
   : UU
     := ∏ (Y : C),
-       adj_equivalence_of_precats
+       adj_equivalence_of_cats
          (functor_to_unit (hom X Y)).
 
 Local Open Scope bicategory_scope.
@@ -45,7 +45,7 @@ Section Initial.
   Definition is_biinitial (X : C) : UU
     := ∏ (Y : C),
        @left_adjoint_equivalence
-         bicat_of_cats
+         bicat_of_univ_cats
          _ _
          (functor_to_unit (univ_hom C_is_univalent_2_1 X Y)).
 
@@ -141,7 +141,7 @@ Section Initial.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso _ (HX Y))) as HL.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso
                  _
-                 (@inv_adjequiv bicat_of_cats _ _ (_ ,, HX Y))))
+                 (@inv_adjequiv bicat_of_univ_cats _ _ (_ ,, HX Y))))
       as HR.
     refine (invmaponpathsincl _ (HL _ _) _ _ _).
     refine (invmaponpathsincl _ (HR _ _) _ _ _).
@@ -383,6 +383,18 @@ Section Initial.
     apply (isotoid_2_1 C_is_univalent_2_1).
     apply Hf.
   Qed.
+
+  Definition biinitial_weq_biinitial'
+             (X : C)
+    : is_biinitial X ≃ is_biinitial' X.
+  Proof.
+    use weqiff.
+    - split.
+      + exact (is_biinitial_to_is_biinitial' X).
+      + exact (is_biinitial'_to_is_biinitial X).
+    - apply isaprop_is_biinitial.
+    - apply isaprop_is_biinitial'.
+  Defined.
 End Initial.
 
 Definition make_is_biinitial

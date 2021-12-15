@@ -170,14 +170,14 @@ Section def_ring_category.
   Defined.
   Opaque ring_precategory_isweq.
 
-  Definition ring_precategory_is_univalent : is_univalent ring_precategory.
+  Definition ring_category : category := make_category _ has_homsets_ring_precategory.
+
+  Definition ring_category_is_univalent : is_univalent ring_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (ring_precategory_isweq X Y).
-    - exact has_homsets_ring_precategory.
+    intros X Y. exact (ring_precategory_isweq X Y).
   Defined.
 
-  Definition ring_category : univalent_category :=
-    make_univalent_category ring_precategory ring_precategory_is_univalent.
+  Definition ring_univalent_category : univalent_category :=
+    make_univalent_category ring_category ring_category_is_univalent.
 
 End def_ring_category.

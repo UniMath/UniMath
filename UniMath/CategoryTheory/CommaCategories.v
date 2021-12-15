@@ -15,7 +15,7 @@ Contents :
         - forgetful functor [cComma_pr1]
         - morphism [f : C ⟦c, c'⟧] induces
           [functor_cComma_mor : functor (c' ↓ K) (c ↓ K)]
-        - general comma precategories [comma_precategory]
+        - general comma categories [comma_category]
           - projection functors ([comma_pr1], [comma_pr2])
 
 ************************************************************)
@@ -31,11 +31,7 @@ Local Open Scope cat.
 
 Section const_comma_category_definition.
 
-Context {M C : precategory}.
-Variable hsC : has_homsets C.
-Variable hsM : has_homsets M.
-Variable K : functor M C.
-Variable c : C.
+Context (M C : category) (K : functor M C) (c : C).
 
 Definition ccomma_object : UU := ∑ m, C⟦c, K m⟧.
 Definition ccomma_morphism (a b : ccomma_object) : UU
@@ -44,10 +40,10 @@ Definition ccomma_morphism (a b : ccomma_object) : UU
 Definition isaset_ccomma_morphism a b : isaset (ccomma_morphism a b).
 Proof.
   apply (isofhleveltotal2 2).
-  - apply hsM.
+  - apply homset_property.
   - intro.
     apply hlevelntosn.
-    apply hsC.
+    apply homset_property.
 Qed.
 
 Definition cComma_mor_eq a b (f f' : ccomma_morphism a b)
@@ -55,7 +51,7 @@ Definition cComma_mor_eq a b (f f' : ccomma_morphism a b)
 Proof.
   intro H.
   apply subtypePath.
-  intro. apply hsC.
+  intro. apply homset_property.
   exact H.
 Qed.
 
@@ -110,11 +106,24 @@ Proof.
     simpl. apply assoc'.
 Qed.
 
-Definition cComma : precategory.
+Definition cComma_precat : precategory.
 Proof.
   exists ccomma_precategory_data.
   exact is_precategory_ccomma_precategory_data.
 Defined.
+
+Lemma has_homsets_cComma_precat: has_homsets cComma_precat.
+Proof.
+  red.
+  intros a b.
+  apply isaset_total2.
+  - apply homset_property.
+  - intro.
+    apply hlevelntosn.
+    apply homset_property.
+Qed.
+
+Definition cComma : category := cComma_precat ,, has_homsets_cComma_precat.
 
 
 Definition ccomma_pr1_functor_data : functor_data cComma M.
@@ -138,15 +147,13 @@ End const_comma_category_definition.
 Section lemmas_on_const_comma_cats.
 
 
-Context {M C : precategory}.
-Variable hsC : has_homsets C.
-Variable hsM : has_homsets M.
+Context (M C : category).
 
-Local Notation "c ↓ K" := (cComma hsC K c) (at level 3).
+Local Notation "c ↓ K" := (cComma _ _ K c) (at level 3).
 
-Variable K : functor M C.
+Context (K : functor M C).
 Context {c c' : C}.
-Variable h : _ ⟦c, c'⟧.
+Context (h : C ⟦c, c'⟧).
 
 
 Definition cComma_mor_ob : c' ↓ K → c ↓ K.
@@ -156,8 +163,8 @@ Proof.
   exact (h · pr2 af).
 Defined.
 
-Definition cComma_mor_mor (af af' : c' ↓ K) (g : _ ⟦af, af'⟧)
-  : _ ⟦cComma_mor_ob af, cComma_mor_ob af'⟧.
+Definition cComma_mor_mor (af af' : c' ↓ K) (g : c' ↓ K ⟦af, af'⟧)
+  : c ↓ K ⟦cComma_mor_ob af, cComma_mor_ob af'⟧.
 Proof.
   exists (pr1 g).
   abstract (
@@ -177,9 +184,9 @@ Defined.
 Lemma is_functor_cComma_mor_functor_data : is_functor cComma_mor_functor_data.
 Proof.
   split.
-  - intro. apply cComma_mor_eq. { apply hsC. }
+  - intro. apply cComma_mor_eq.
     apply idpath.
-  - intros ? ? ? ? ?. apply cComma_mor_eq. { apply hsC. }
+  - intros ? ? ? ? ?. apply cComma_mor_eq.
     apply idpath.
 Qed.
 
@@ -188,16 +195,13 @@ Definition functor_cComma_mor : c' ↓ K ⟶ c ↓ K := tpair _ _ is_functor_cCo
 End lemmas_on_const_comma_cats.
 
 
-(** * The general comma precategories *)
+(** * The general comma categories *)
 
-Section general_comma_precategories.
+Section general_comma_categories.
 
 Local Open Scope cat.
 
-(* We require that the target category C below has homsets *)
-
-Context {C : category}.
-Context {D E : precategory}.
+Context {C D E: category}.
 Variable S : D ⟶ C.
 Variable T : E ⟶ C.
 
@@ -292,25 +296,24 @@ Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
 
 Definition comma_precategory : precategory := make_precategory comma_cat_data is_precategory_comma_cat_data.
 
-(** When all the precategories involved have homsets, so does the comma category. *)
-Lemma has_homsets_comma_precat {hsE : has_homsets E} {hsD : has_homsets D} :
-  has_homsets comma_precategory.
+Lemma has_homsets_comma_precat : has_homsets comma_precategory.
 Proof.
   unfold has_homsets, comma_precategory.
   cbn; unfold comma_cat_ob, comma_cat_mor; cbn.
   intros ? ?.
   apply isaset_total2.
-  - apply isaset_dirprod.
-    + apply hsE.
-    + apply hsD.
+  - apply isaset_dirprod; apply homset_property.
   - intro.
     apply hlevelntosn.
     apply homset_property.
 Qed.
 
+Definition comma_category : category := comma_precategory ,, has_homsets_comma_precat.
+
+
 (** ** Projection functors *)
 
-Definition comma_domain : comma_precategory ⟶ E.
+Definition comma_domain : comma_category ⟶ E.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -319,7 +322,7 @@ Proof.
   - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
-Definition comma_codomain : comma_precategory ⟶ D.
+Definition comma_codomain : comma_category ⟶ D.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -328,12 +331,4 @@ Proof.
   - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
-End general_comma_precategories.
-
-Lemma comma_category {C D E : category} (S : functor D C) (T : functor E C) :
-  category.
-Proof.
-  use make_category.
-  - exact (comma_precategory S T).
-  - apply has_homsets_comma_precat; apply homset_property.
-Defined.
+End general_comma_categories.

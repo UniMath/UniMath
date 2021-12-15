@@ -18,7 +18,7 @@ Local Open Scope cat.
 (** Definition of finite ordered products. *)
 Section def_FinOrdProducts.
 
-  Variable C : precategory.
+  Variable C : category.
 
   Definition FinOrdProducts : UU :=
     ∏ (n : nat) (a : stn n -> C), Product (stn n) C a.
@@ -31,8 +31,7 @@ End def_FinOrdProducts.
 (** Construction of FinOrdProducts from Terminal and BinProducts. *)
 Section FinOrdProduct_criteria.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   (** Case n = 0 of the theorem. *)
   Lemma TerminalToProduct (T : Terminal C):
@@ -41,12 +40,12 @@ Section FinOrdProduct_criteria.
     intros a.
     use (make_Product _ _ _ T
                         (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (make_isProduct _ _ hs).
+    use (make_isProduct _ _ C).
     intros c g. use unique_exists.
 
     apply (TerminalArrow _ c).
     intros i. apply (fromempty (weqstn0toempty i)).
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
     intros y X. apply TerminalArrowEq.
   Defined.
 
@@ -60,7 +59,7 @@ Section FinOrdProduct_criteria.
     use (make_Product _ _ _ (a stn1ob)).
     intros i. exact (idtoiso ((maponpaths a (isconnectedstn1 stn1ob i)))).
 
-    use (make_isProduct _ _ hs).
+    use (make_isProduct _ _ C).
     intros c g.
     use (unique_exists).
     exact (g stn1ob).
@@ -69,7 +68,7 @@ Section FinOrdProduct_criteria.
     intros i. rewrite <- (isconnectedstn1 stn1ob i). apply id_right.
 
     (* Equality of equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
 
     (* Uniqueness. *)
     intros y X. rewrite <- (X stn1ob). apply pathsinv0. apply id_right.
@@ -111,7 +110,7 @@ Section FinOrdProduct_criteria.
               idtoiso (! maponpaths a (lastelement_eq n i b))).
 
     (* Construction of isProduct. *)
-    use (make_isProduct _ _ hs).
+    use (make_isProduct _ _ C).
     intros c g.
 
     set (g1 := λ i : stn n, g(dni_lastelement i)).
@@ -150,7 +149,7 @@ Section FinOrdProduct_criteria.
 
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
 
     (* Uniqueness *)
     unfold coprod_rect. intros k X.

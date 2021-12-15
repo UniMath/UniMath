@@ -77,6 +77,18 @@ Definition functor_precategory (C : precategory_data) (C' : precategory)
 
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 
+Lemma functor_category_has_homsets (C : precategory_data) (D : precategory) (hs: has_homsets D):
+  has_homsets [C, D, hs].
+Proof.
+  intros F G.
+  apply isaset_nat_trans.
+  apply hs.
+Defined.
+
+Definition functor_category (C : precategory_data) (D : category)
+  : category
+  := make_category (functor_precategory C D D) (functor_category_has_homsets C D D).
+
 Definition functor_identity_as_ob (C : precategory) (hsC : has_homsets C)
   : [C, C, hsC]
   := (functor_identity C).
@@ -240,9 +252,8 @@ Proof.
   apply (nat_trans_eq_pointwise TA).
 Qed.
 
-Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
-  (hs: has_homsets D)
-    (H : is_univalent D) (F G : ob [C , D, hs]) :
+Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
+    (H : is_univalent D) (F G : functor_category C D) :
    iso F G -> pr1 (pr1 F) = pr1 (pr1 G).
 Proof.
   intro A.
@@ -282,12 +293,12 @@ Proof.
   apply idpath.
 Qed.
 
-Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)(hs: has_homsets D)
-    (H : is_univalent D) (F G : ob [C , D, hs]) :
+Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
+    (H : is_univalent D) (F G : ob [C , D, D]) :
    iso F G -> pr1 F = pr1 G.
 Proof.
   intro A.
-  apply (total2_paths_f (pr1_pr1_functor_eq_from_functor_iso C D _ H F G A)).
+  apply (total2_paths_f (pr1_pr1_functor_eq_from_functor_iso C D H F G A)).
   unfold pr1_pr1_functor_eq_from_functor_iso.
   apply funextsec; intro a.
   apply funextsec; intro b.
@@ -313,12 +324,11 @@ Proof.
   apply TA''.
 Defined.
 
-Definition functor_eq_from_functor_iso {C : precategory_data} {D : precategory}
-  (hs: has_homsets D)
-    (H : is_univalent D) (F G : ob [C , D, hs])
+Definition functor_eq_from_functor_iso {C : precategory_data} {D : category}
+           (H : is_univalent D) (F G : ob [C , D, D])
     (H' : iso F G) : F = G.
 Proof.
-  apply (functor_eq _ _ hs F G).
+  apply (functor_eq _ _ D F G).
   apply pr1_functor_eq_from_functor_iso;
   assumption.
 Defined.
@@ -337,13 +347,12 @@ Proof.
 Qed.
 
 
-Lemma functor_eq_from_functor_iso_idtoiso (C : precategory_data) (D : precategory)
-  (hs: has_homsets D)
+Lemma functor_eq_from_functor_iso_idtoiso (C : precategory_data) (D : category)
     (H : is_univalent D)
-    (F G : ob [C, D, hs]) (p : F = G) :
-  functor_eq_from_functor_iso _ H F G (idtoiso p) = p.
+    (F G : ob [C, D, D]) (p : F = G) :
+  functor_eq_from_functor_iso  H F G (idtoiso p) = p.
 Proof.
-  simpl; apply functor_eq_eq_from_functor_ob_eq. apply hs.
+  simpl; apply functor_eq_eq_from_functor_ob_eq. apply D.
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
   rewrite base_total2_paths.
@@ -358,15 +367,14 @@ Proof.
   apply isotoid_idtoiso.
 Qed.
 
-Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
-  (hs: has_homsets D)
-    (H : is_univalent D)
-    (F G : ob [C, D, hs]) (gamma : iso F G) :
-        idtoiso (functor_eq_from_functor_iso _ H F G gamma) = gamma.
+Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : category)
+      (H : is_univalent D)
+      (F G : ob [C, D, D]) (gamma : iso F G) :
+  idtoiso (functor_eq_from_functor_iso H F G gamma) = gamma.
 Proof.
   apply eq_iso.
-  simpl; apply nat_trans_eq; intro a. apply hs.
-  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
+  simpl; apply nat_trans_eq; intro a. apply D.
+  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_iso H F G gamma) a).
   simpl in *.
   assert (H2 := maponpaths (@pr1 _ _ ) H'). simpl in H2.
   etrans.
@@ -378,7 +386,7 @@ Proof.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total2_paths.
   intermediate_path (pr1 (idtoiso
-     (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
+     (isotoid D H (functor_iso_pointwise_if_iso C D D F G gamma (pr2 gamma) a)))).
   2: { rewrite idtoiso_isotoid.
        apply idpath.
   }
@@ -389,41 +397,26 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : precategory) (H : is_univalent D)
-    (F G : ob [C, D, (pr2 H)]) :
+Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : category) (H : is_univalent D)
+    (F G : ob [C, D, D]) :
    isweq (@idtoiso _ F G).
 Proof.
-  apply (isweq_iso _ (functor_eq_from_functor_iso _ H F G)).
+  apply (isweq_iso _ (functor_eq_from_functor_iso H F G)).
   apply functor_eq_from_functor_iso_idtoiso.
   apply idtoiso_functor_eq_from_functor_iso.
 Defined.
 
-Lemma is_univalent_functor_category (C : precategory_data) (D : precategory) (H : is_univalent D) :
-   is_univalent [C, D, (pr2 H)].
-Proof.
-  split.
-  - intros F G.
-    apply isweq_idtoiso_functorcat.
-  - intros a b.
-    apply isaset_nat_trans.
-    apply (pr2 H).
-Defined.
 
 
-Lemma functor_category_has_homsets (C D : precategory) (hs: has_homsets D):
-  has_homsets [C, D, hs].
+
+Lemma is_univalent_functor_category (C : precategory_data) (D : category) (H : is_univalent D) :
+   is_univalent (functor_category C D).
 Proof.
   intros F G.
-  apply isaset_nat_trans.
-  apply hs.
-Qed.
-
-
-Definition functor_category (C : precategory) (D : category) : category.
-Proof.
-  exists (functor_precategory C D (homset_property D)).
-  apply functor_category_has_homsets.
+  apply isweq_idtoiso_functorcat.
+  apply H.
 Defined.
+
 
 Definition iso_to_nat_iso
            {C D : category}
@@ -486,22 +479,51 @@ Proof.
 Qed.
 
 
-(** a small diversion on [z_iso] for functors *)
+(** a small diversion on [z_iso] for natural transformations *)
 
-Lemma functor_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C')
- (F G : ob [C, C', hs]) (A : F --> G) :
-    is_nat_z_iso A -> is_z_isomorphism A .
+Lemma nat_trafo_z_iso_if_pointwise_z_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : F --> G) :
+    is_nat_z_iso (pr1 α) -> is_z_isomorphism α .
 Proof.
   intro H.
   red.
-  set (Ainv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ A H)).
-  exists Ainv.
+  set (αinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ α H)).
+  exists αinv.
   split; apply (nat_trans_eq hs); intro c; cbn.
   - exact (pr1 (pr2 (H c))).
   - exact (pr2 (pr2 (H c))).
 Defined.
 
+Definition z_iso_from_z_nat_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : nat_z_iso F G) : z_iso F G
+  := pr1 α ,, nat_trafo_z_iso_if_pointwise_z_iso hs (pr1 α) (pr2 α).
+
+
+(** the other direction is even more basic since the homset requirement is not used in the proof *)
+Lemma nat_trafo_pointwise_z_iso_if_z_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : F --> G) :
+    is_z_isomorphism α -> is_nat_z_iso (pr1 α).
+Proof.
+  intro H.
+  red.
+  intro c.
+  set (αcinv := pr1 (z_iso_inv_mor (α,,H)) c).
+  use make_is_z_isomorphism.
+  - exact αcinv.
+  - assert (HH := is_z_isomorphism_is_inverse_in_precat H).
+    induction HH as [HH1 HH2].
+    apply (maponpaths pr1) in HH1.
+    apply toforallpaths in HH1.
+    apply (maponpaths pr1) in HH2.
+    apply toforallpaths in HH2.
+    split.
+    + apply HH1.
+    + apply HH2.
+Defined.
+
+Definition z_nat_iso_from_z_iso  {C : precategory_data} {C' : precategory}
+           (hs: has_homsets C') {F G : ob [C, C', hs]} (α : z_iso F G) : nat_z_iso F G
+  := pr1 α ,, nat_trafo_pointwise_z_iso_if_z_iso hs (pr1 α) (pr2 α).
 
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 

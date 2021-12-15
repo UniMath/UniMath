@@ -36,41 +36,41 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 (** ** Definition *)
 
 (** A profunctor (or distributor) [C ↛ D] is a functor [D^op × C → HSET]. *)
-Definition profunctor (C D : precategory) : UU :=
-  functor (precategory_binproduct (opp_precat D) C) HSET_univalent_category.
+Definition profunctor (C D : category) : UU :=
+  functor (category_binproduct (op_category D) C) HSET_univalent_category.
 
 Identity Coercion profunctor_coercion : profunctor >-> functor.
 
 Infix "↛" := profunctor (at level 99, only parsing) : cat. (* \nrightarrow *)
 
-Local Notation "A ⊗ B" := (make_precatbinprod A B).
+Local Notation "A ⊗ B" := (make_catbinprod A B).
 
 Local Open Scope cat.
 
 (** Map over the first argument contravariantly.
     Inspired by Data.Profunctor in Haskell. *)
-Definition lmap {C D : precategory} (F : C ↛ D) {a : ob C} {b b' : ob D} (g : b' --> b) :
-  F (opp_ob b ⊗ a)  --> F (opp_ob b' ⊗ a).
+Definition lmap {C D : category} (F : C ↛ D) {a : ob C} {b b' : ob D} (g : b' --> b) :
+  F (op_ob b ⊗ a)  --> F (op_ob b' ⊗ a).
 Proof.
   refine (# F _ · _).
-  - use precatbinprodmor.
-    + exact (opp_ob b').
+  - use catbinprodmor.
+    + exact (op_ob b').
     + exact a.
-    + assumption.
+    + exact g.
     + apply identity.
   - apply identity.
 Defined.
 
 (** Map over the second argument covariantly.
     Inspired by Data.Profunctor in Haskell. *)
-Definition rmap {C D : precategory} (F : C ↛ D) {a a' : ob C} {b : ob D} (f : a --> a') :
-  F (opp_ob b ⊗ a)  --> F (opp_ob b ⊗ a').
+Definition rmap {C D : category} (F : C ↛ D) {a a' : ob C} {b : ob D} (f : a --> a') :
+  F (op_ob b ⊗ a)  --> F (op_ob b ⊗ a').
 Proof.
   refine (_ · # F _).
   - apply identity.
-  - use precatbinprodmor.
+  - use catbinprodmor.
     * apply identity.
-    * assumption.
+    * exact f.
 Defined.
 
 
@@ -78,7 +78,7 @@ Defined.
 
 Section Dinatural.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   Definition dinatural_transformation_data (f : C ↛ C) (g : C ↛ C) : UU :=
     ∏ a : C, f (a ⊗ a) --> g (a ⊗ a).
@@ -177,7 +177,7 @@ Notation "F ⇏ G" := (dinatural_transformation F G) (at level 39) : cat.
 
 Section Ends.
 
-  Context {C : precategory} (F : C ↛ C).
+  Context {C : category} (F : C ↛ C).
 
   (** *** Wedges *)
 

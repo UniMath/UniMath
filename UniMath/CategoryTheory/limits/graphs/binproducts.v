@@ -14,7 +14,7 @@ Local Open Scope cat.
 
 Section binproduct_def.
 
-Variable (C : precategory).
+Variable (C : category).
 
 Definition two_graph : graph.
 Proof.
@@ -167,7 +167,7 @@ Qed.
 
 End binproduct_def.
 
-Lemma BinProducts_from_Lims (C : precategory) :
+Lemma BinProducts_from_Lims (C : category) :
   Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 now intros H a b; apply H.

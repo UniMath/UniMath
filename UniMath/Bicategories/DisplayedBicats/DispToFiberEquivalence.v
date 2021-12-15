@@ -290,7 +290,7 @@ Section FiberOfBiequiv.
     := (_ ,, fiber_counit_nat_iso).
 
   Definition fiber_equivalence
-    : equivalence_of_precats
+    : equivalence_of_cats
         (discrete_fiber_category D₁ HD₁ HD₁_2_1 h₁ c)
         (discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c).
   Proof.

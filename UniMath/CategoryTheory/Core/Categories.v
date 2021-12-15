@@ -63,7 +63,8 @@ Definition precategory_id_comp (C : precategory_ob_mor) : UU
       ×
     (∏ a b c : C, a --> b -> b --> c -> a --> c). (* composition *)
 
-Definition precategory_data : UU := ∑ X, precategory_id_comp X.
+Definition precategory_data : UU
+  := ∑ C : precategory_ob_mor, precategory_id_comp C.
 
 Definition make_precategory_data (C : precategory_ob_mor)
     (id : ∏ c : C, c --> c)
@@ -86,7 +87,7 @@ Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
   := pr2 (pr2 C) a b c.
 
-Notation "f ;; g" := (compose f g) : cat_deprecated.
+Notation "f ;; g" := (compose f g) (at level 50, left associativity, format "f  ;;  g") : cat_deprecated.
 
 Notation "f · g" := (compose f g) : cat.
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
@@ -167,7 +168,7 @@ Definition category := ∑ C:precategory, has_homsets C.
 Definition make_category C h : category := C,,h.
 Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
-Definition homset_property (C : category) : has_homsets C := pr2 C.
+Coercion homset_property (C : category) : has_homsets C := pr2 C.
 
 Definition makecategory
     (obj : UU)

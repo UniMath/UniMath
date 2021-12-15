@@ -21,7 +21,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Display.Identitor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Compositor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -160,7 +160,7 @@ Proof.
   - exact (representable_comp_is_mod f g).
 Defined.
 
-Definition y_data : psfunctor_data C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
+Definition y_data : psfunctor_data C (psfunctor_bicat (op1_bicat C) bicat_of_univ_cats).
 Proof.
   use make_psfunctor_data.
   - exact (representable C_is_univalent_2_1).
@@ -258,7 +258,7 @@ Proof.
     apply (representable_comp_invmod f g).
 Defined.
 
-Definition y : psfunctor C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
+Definition y : psfunctor C (psfunctor_bicat (op1_bicat C) bicat_of_univ_cats).
 Proof.
   use make_psfunctor.
   - exact y_data.

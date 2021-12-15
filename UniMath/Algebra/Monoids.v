@@ -373,6 +373,13 @@ Definition make_submonoid {X : monoid} :
 
 Definition pr1submonoid (X : monoid) : submonoid X -> hsubtype X := @pr1 _ _.
 
+Lemma isaset_submonoid (A : monoid) : isaset (submonoid A).
+Proof.
+  apply isaset_total2.
+  - apply isasethsubtype.
+  - intro P. apply isasetaprop, isapropissubmonoid.
+Defined.
+
 Definition totalsubmonoid (X : monoid) : submonoid X.
 Proof.
   split with (totalsubtype X). split.

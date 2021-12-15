@@ -29,6 +29,8 @@ Proof.
   exact iscontrfunfromempty.
 Defined.
 
+
+(*
 (** ** Binary coproducts ([BinCoproductsType]) *)
 
 (** The precategory of types has binary coproducts. *)
@@ -40,3 +42,4 @@ Proof.
   - apply isBinCoproduct'_to_isBinCoproduct.
     intro Z; apply (weqfunfromcoprodtoprod X Y Z).
 Defined.
+*)

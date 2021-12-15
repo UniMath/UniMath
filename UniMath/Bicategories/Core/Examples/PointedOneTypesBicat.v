@@ -25,11 +25,11 @@ Proof.
   - refine (λ X Y Z f g h p, (maponpaths (λ φ x, φ (pr1 f x)) (pr1 p)) ,, _) ; cbn in *.
     induction g as [g1 g2], h as [h1 h2], p as [p1 p2] ; cbn in *.
     induction p1, p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - refine (λ X Y Z f g h p, (maponpaths (λ φ x, pr1 h (φ x)) (pr1 p)) ,, _) ; cbn in *.
     induction g as [g1 g2], h as [h1 h2], p as [p1 p2] ; cbn in *.
     induction p1, p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - exact (λ X Y f, idpath _ ,, idpath _).
   - exact (λ X Y f, idpath _ ,, idpath _).
   - refine (λ X Y f, idpath _ ,, _) ; cbn in *.
@@ -50,89 +50,89 @@ Proof.
     exact (!(maponpathscomp _ _ _)).
 Defined.
 
-Definition pointed_one_type_bicat_laws
+Lemma pointed_one_type_bicat_laws
   : prebicat_laws pointed_one_type_bicat_data.
 Proof.
   repeat (use tpair).
   - intros X Y f g p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], p as [p1 p2] ; cbn in *.
     induction p1 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y f g p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], p as [p1 p2] ; cbn in *.
     induction p1, p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y f g h k p q r ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], k as [k1 k2].
     induction p as [p1 p2], q as [q1 q2], r as [r1 r2] ; cbn in *.
     induction p1, p2, q1, q2, r1, r2.
-    reflexivity.
-  - reflexivity.
-  - reflexivity.
+    apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
   - intros X Y Z f g h i p q ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2], q as [q1 q2] ; cbn in *.
     induction p1, p2, q1, q2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y Z f g h i p q ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2], q as [q1 q2] ; cbn in *.
     induction p1, p2, q1, q2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y f g p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], p as [p1 p2] ; cbn in *.
     induction p1, p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y f g p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], p as [p1 p2] ; cbn in *.
     induction p1, p2, f2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros W X Y Z f g h i p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2] ; cbn in *.
     induction p1, p2, f2, g2, h2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros W X Y Z f g h i p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2] ; cbn in *.
     induction p1, p2, f2, g2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros W X Y Z f g h i p ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2] ; cbn in *.
     induction p1, p2, f2, h2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y Z f g h i p q ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2].
     induction p as [p1 p2], q as [q1 q2] ; cbn in *.
     induction p1, p2, q1, q2, f2, h2 ; cbn.
-    reflexivity.
-  - reflexivity.
-  - reflexivity.
+    apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
   - intros X Y p ; cbn in *.
     induction p as [p1 p2].
     induction p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y p ; cbn in *.
     induction p as [p1 p2].
     induction p2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros W X Y Z f g h ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2] ; cbn in *.
     induction f2, g2, h2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros W X Y Z f g h ; cbn in *.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2] ; cbn in *.
     induction f2, g2, h2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros X Y Z f g ; cbn in *.
     induction f as [f1 f2], g as [g1 g2] ; cbn in *.
     induction f2, g2 ; cbn.
-    reflexivity.
+    apply idpath.
   - intros V W X Y Z f g h i.
     induction f as [f1 f2], g as [g1 g2], h as [h1 h2], i as [i1 i2] ; cbn in *.
     induction f2, g2, h2, i2 ; cbn.
-    reflexivity.
+    apply idpath.
 Qed.
 
 Definition pointed_one_types

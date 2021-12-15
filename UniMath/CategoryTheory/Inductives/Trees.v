@@ -45,9 +45,9 @@ Let treeFunctor : functor HSET HSET := pr1 treeOmegaFunctor.
 Let is_omega_cocont_treeFunctor : is_omega_cocont treeFunctor := pr2 treeOmegaFunctor.
 
 Lemma treeFunctor_Initial :
-  Initial (precategory_FunctorAlg treeFunctor has_homsets_HSET).
+  Initial (category_FunctorAlg treeFunctor).
 Proof.
-apply (colimAlgInitial _ InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 (** The type of binary trees *)
@@ -107,7 +107,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -116,7 +116,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _)· x)
+assert (F := maponpaths (λ x, BinCoproductIn2 (BinCoproductsHSET _ _)· x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.

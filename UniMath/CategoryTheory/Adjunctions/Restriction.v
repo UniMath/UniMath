@@ -178,7 +178,7 @@ Section Restriction.
   Defined.
 
   Lemma restricted_adjunction_equivalence :
-    equivalence_of_precats (full_subcat_nat_trans_is_iso η)
+    equivalence_of_cats (full_subcat_nat_trans_is_iso η)
                            (full_subcat_nat_trans_is_iso ε).
   Proof.
     exists (adjunction_data_from_is_left_adjoint

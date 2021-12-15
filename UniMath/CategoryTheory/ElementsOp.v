@@ -30,7 +30,7 @@ Local Open Scope cat.
 
 Section cat_of_elems_def.
 
-Context {C : precategory} (X : C^op ⟶ HSET).
+Context {C : category} (X : C^op ⟶ HSET).
 
 Definition cat_of_elems_ob_mor : precategory_ob_mor.
 Proof.
@@ -72,27 +72,32 @@ split; [split|split]; intros; apply cat_of_elems_mor_eq.
 + apply assoc'.
 Defined.
 
-Definition cat_of_elems : precategory :=
+Definition precat_of_elems : precategory :=
   (cat_of_elems_data,,is_precategory_cat_of_elems_data).
 
-Lemma has_homsets_cat_of_elems (hsC : has_homsets C) : has_homsets cat_of_elems.
-Proof.
-intros a b.
-apply isaset_total2.
-- apply hsC.
-- intro f. apply isasetaprop, setproperty.
-Qed.
 
 End cat_of_elems_def.
 
 Arguments get_mor {_ _ _ _} _.
+
+Lemma has_homsets_cat_of_elems {C : category} (X : C^op ⟶ HSET)
+  : has_homsets (precat_of_elems X).
+Proof.
+intros a b.
+apply isaset_total2.
+- apply C.
+- intro f. apply isasetaprop, setproperty.
+Qed.
+
+Definition cat_of_elems {C : category} (X : C^op ⟶ HSET) : category
+  := make_category _ (has_homsets_cat_of_elems X).
 
 (** Type as \int in Agda mode *)
 Notation "∫ X" := (cat_of_elems X) (at level 3) : cat.
 
 Section cat_of_elems_theory.
 
-Context {C : precategory} {X Y : C^op ⟶ HSET}.
+Context {C : category} {X Y : C^op ⟶ HSET}.
 
 Definition get_ob (x : ∫ X) : C := pr1 x.
 Definition get_el (x : ∫ X) : X (get_ob x) : hSet := pr2 x.

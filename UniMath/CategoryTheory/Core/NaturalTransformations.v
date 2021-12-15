@@ -91,6 +91,12 @@ Proof.
   apply (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
+Lemma nat_trans_eq_alt {C C' : category} (F F' : functor C C') (a a' : nat_trans F F'):
+  (∏ x, a x = a' x) -> a = a'.
+Proof.
+  apply nat_trans_eq.
+  apply homset_property.
+Qed.
 
 Section nat_trans_eq.
 
@@ -175,8 +181,7 @@ Context {A B C D : precategory}.
 Definition nat_trans_functor_id_right (F : functor A B) :
   nat_trans (functor_composite F (functor_identity B)) F.
 Proof.
-exists (λ x, identity _).
-abstract (now intros a b f; rewrite id_left, id_right).
+  apply nat_trans_id.
 Defined.
 
 Definition nat_trans_functor_id_right_inv (F : functor A B) :
@@ -195,8 +200,7 @@ Definition nat_trans_functor_assoc (F1 : functor A B) (F2 : functor B C) (F3 : f
   nat_trans (functor_composite (functor_composite F1 F2) F3)
             (functor_composite F1 (functor_composite F2 F3)).
 Proof.
-exists (λ x, identity _).
-abstract (now intros a b f; rewrite id_right, id_left).
+  apply nat_trans_id.
 Defined.
 
 Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
@@ -205,6 +209,50 @@ Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3
     nat_trans_functor_assoc F1 F2 F3.
 
 End nat_trans_functor.
+
+(** Reasoning about composition of natural transformations *)
+Section nat_trans_comp_laws.
+
+  Context {A B: precategory} (hs: has_homsets B).
+
+Definition nat_trans_comp_id_right (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ α (nat_trans_id G) = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_right.
+Qed.
+
+Definition nat_trans_comp_id_left (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ (nat_trans_id F) α = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_left.
+Qed.
+
+Definition nat_trans_comp_assoc (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ) = nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply assoc.
+Qed.
+
+(** analogously to [assoc'], for convenience *)
+Definition nat_trans_comp_assoc' (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ = nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ).
+Proof.
+  apply pathsinv0, nat_trans_comp_assoc.
+Qed.
+
+End nat_trans_comp_laws.
+
 
 (** ** Natural isomorphisms *)
 
@@ -233,6 +281,9 @@ Proof.
   exists μ.
   exact is_iso.
 Defined.
+
+Definition nat_iso_pointwise_iso {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) (c: C): iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+
 
 Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
 Proof.
@@ -307,13 +358,13 @@ Defined.
 
 (* ** analogous development for [z_iso] *)
 
-Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=
+Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : nat_trans_data F G) : UU :=
 ∏ (c : C), is_z_isomorphism (μ c).
 
 Definition isaprop_is_nat_z_iso
            {C D : category}
            {F G : C ⟶ D}
-           (α : F ⟹ G)
+           (α : nat_trans_data F G)
   : isaprop (is_nat_z_iso α).
 Proof.
   apply impred.
@@ -366,10 +417,53 @@ Proof.
   - apply (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
 Defined.
 
+Definition is_nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D} {μ : F ⟹ G} {ν : G ⟹ H}
+           (isμ: is_nat_z_iso μ) (isν: is_nat_z_iso ν) : is_nat_z_iso (nat_trans_comp F G H μ ν).
+Proof.
+  intro c.
+  use make_is_z_isomorphism.
+  - exact (is_z_isomorphism_mor (isν c) · is_z_isomorphism_mor (isμ c)).
+  - exact (is_inverse_in_precat_comp (pr2 (isμ c)) (pr2 (isν c))).
+Defined.
+
+Definition nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D}
+           (μ: nat_z_iso F G) (ν: nat_z_iso  G H) : nat_z_iso F H.
+Proof.
+  use make_nat_z_iso.
+  - exact (nat_trans_comp F G H μ ν).
+  - exact (is_nat_z_iso_comp (pr2 μ) (pr2 ν)).
+Defined.
+
 Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
 
+
+Lemma is_nat_z_iso_nat_trans_id {C D : precategory} (F : C ⟶ D): is_nat_z_iso (nat_trans_id F).
+Proof.
+  intro c.
+  exists (identity (F c)).
+  split; apply id_right.
+Defined.
+
 End nat_trans.
+
+Definition constant_nat_trans
+           (C₁ : category)
+           {C₂ : category}
+           {x y : C₂}
+           (f : x --> y)
+  : nat_trans
+      (constant_functor C₁ C₂ x)
+      (constant_functor C₁ C₂ y).
+Proof.
+  use make_nat_trans.
+  - exact (λ _, f).
+  - abstract
+      (intros ? ? ? ;
+       cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)

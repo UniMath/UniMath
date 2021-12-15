@@ -18,9 +18,9 @@ Local Open Scope cat.
 
 Local Notation "'id' X" := (identity X) (at level 30).
 
-Local Notation "C ⊠ D" := (precategory_binproduct C D) (at level 38).
-Local Notation "( c , d )" := (make_precatbinprod c d).
-Local Notation "( f #, g )" := (precatbinprodmor f g).
+Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
+Local Notation "( c , d )" := (make_catbinprod c d).
+Local Notation "( f #, g )" := (catbinprodmor f g).
 
 
 
@@ -32,14 +32,14 @@ Local Infix "×" := pair_functor  : functor_scope .
 Delimit Scope functor_scope with F.
 
 Definition skewmonoidal_data : UU :=
-  ∑ (V : precategory)(tensor : V ⊠ V ⟶ V) (I : V),
+  ∑ (V : category)(tensor : V ⊠ V ⟶ V) (I : V),
         (* left unitor *) φ₁ tensor I   ⟹ functor_identity V ×
         (* right unitor *) functor_identity V ⟹ φ₂ tensor I ×
         (* associator *) (tensor × (functor_identity _))%F ∙ tensor ⟹
                              (precategory_binproduct_unassoc _ _ _)
                              ∙ (functor_identity V × tensor)%F ∙ tensor .
 
-Coercion precat_from_skewmonoidal (V : skewmonoidal_data) : precategory := pr1 V.
+Coercion cat_from_skewmonoidal (V : skewmonoidal_data) : category := pr1 V.
 
 Definition skewmonoidal_tensor (V : skewmonoidal_data) :
    V ⊠ V ⟶ V := pr1 (pr2 V).
@@ -103,7 +103,7 @@ Definition skewmonoidal_assoc_ax (V : skewmonoidal_data)
   := nat_trans_ax (skewmonoidal_assoc_nt V) _ _ ((f #, g) #, h).
 
 
-Definition skewmonoidal_precategory : UU :=
+Definition skewmonoidal_category : UU :=
   ∑ (V : skewmonoidal_data),
   ρ' I · λ' I = identity (C := V) I ×
    (∏ (a b : V), ρ' a #⊗ id b  · α' a I b · id a #⊗  λ' b = id (a ⊗ b)) ×
@@ -113,27 +113,27 @@ Definition skewmonoidal_precategory : UU :=
                      α' a b c #⊗ id d · α' a (b ⊗ c)  d ·
                          id a #⊗ α' b c d).
 
-Coercion data_from_skewmonoidal (V : skewmonoidal_precategory) : skewmonoidal_data := pr1 V.
+Coercion data_from_skewmonoidal (V : skewmonoidal_category) : skewmonoidal_data := pr1 V.
 
-Local Notation eq := (pr2 (_ : skewmonoidal_precategory)).
+Local Notation eq := (pr2 (_ : skewmonoidal_category)).
 
-Definition skewmonoidal_rho_lambda_eq (V : skewmonoidal_precategory) : ρ' I · λ' I = identity (C := V) I :=
+Definition skewmonoidal_rho_lambda_eq (V : skewmonoidal_category) : ρ' I · λ' I = identity (C := V) I :=
    pr1 eq.
-Definition skewmonoidal_triangle_eq (V : skewmonoidal_precategory) :
+Definition skewmonoidal_triangle_eq (V : skewmonoidal_category) :
   ∏ (a b : V), ρ' a #⊗ id b  · α' a I b · id a #⊗  λ' b = id (a ⊗ b)
   := pr1 (pr2 eq).
-Definition skewmonoidal_alpha_lambda_eq (V : skewmonoidal_precategory) :
+Definition skewmonoidal_alpha_lambda_eq (V : skewmonoidal_category) :
   ∏ (a b : V), α' I a b · λ' (a ⊗ b) = λ' a #⊗ id b := pr1 (pr2 (pr2 eq)).
 
-Definition skewmonoidal_rho_alpha_eq (V : skewmonoidal_precategory) :
+Definition skewmonoidal_rho_alpha_eq (V : skewmonoidal_category) :
   ∏ (a b : V), ρ' (a⊗b) · α' a b I = id a #⊗ ρ' b := pr1 (pr2 (pr2 (pr2 eq))).
-Definition skewmonoidal_pentagon_eq (V : skewmonoidal_precategory) :
+Definition skewmonoidal_pentagon_eq (V : skewmonoidal_category) :
   ∏ (a b c d : V), α' (a ⊗ b) c d · α' a b (c ⊗ d) =
                      α' a b c #⊗ id d · α' a (b ⊗ c)  d ·
                          id a #⊗ α' b c d
   :=  (pr2 (pr2 (pr2 (pr2 eq)))).
 
-Lemma I_mult_laws (V : skewmonoidal_precategory) (X : V) : α' I I X · identity (C := V) I #⊗ λ' X · λ' X = λ' I #⊗ identity X · λ' X.
+Lemma I_mult_laws (V : skewmonoidal_category) (X : V) : α' I I X · identity (C := V) I #⊗ λ' X · λ' X = λ' I #⊗ identity X · λ' X.
 Proof.
    etrans.
     {

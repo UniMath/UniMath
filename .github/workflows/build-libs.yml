@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: CI-Build-Satellites
 
 # Controls when the action will run. 
 on:
@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 
       # Change into UniMath directory and build UniMath
-      - name: Build UniMath and libraries TypeTheory and Largecatmodules
+      - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
         run: |
           pushd $GITHUB_WORKSPACE
           make build-coq

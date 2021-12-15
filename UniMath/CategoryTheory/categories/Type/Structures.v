@@ -50,6 +50,7 @@ Section ExponentialFunctor.
     make_functor exp_functor_data exp_functor_is_functor.
 End ExponentialFunctor.
 
+(*
 Lemma ExponentialsType : Exponentials BinProductsType.
 Proof.
   intro X.
@@ -71,3 +72,4 @@ Proof.
       * intros ? ? ?; reflexivity.
   - use make_form_adjunction; reflexivity.
 Defined.
+*)

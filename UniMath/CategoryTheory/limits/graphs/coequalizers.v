@@ -24,8 +24,7 @@ Local Open Scope cat.
 (** * Definition of coequalizers in terms of colimits *)
 Section def_coequalizers.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
   Local Open Scope stn.
   Definition One : two := ● 0.
@@ -96,7 +95,7 @@ Section def_coequalizers.
         apply cancel_precomposition, (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
     - abstract (intro t; apply subtypePath;
-               [intros y; apply impred; intros t0; apply hs
+               [intros y; apply impred; intros t0; apply C
                |induction t as [t p]; apply path_to_ctr, (p Two)]).
   Defined.
 
@@ -169,7 +168,7 @@ Section def_coequalizers.
     (* Commutativity *)
     - exact (CoequalizerArrowComm E e h H).
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y t. cbn in t.
       use CoequalizerOutUnique.
@@ -296,8 +295,7 @@ End def_coequalizers.
     direct definition. *)
 Section coequalizers_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
 
   (** ** isCoequalizers *)
@@ -307,13 +305,13 @@ Section coequalizers_coincide.
   Proof.
     intros X.
     set (E := limits.coequalizers.make_Coequalizer f g h H X).
-    use (make_isCoequalizer C hs).
+    use (make_isCoequalizer C).
     intros e' h' H'.
     use (unique_exists (limits.coequalizers.CoequalizerOut E e' h' H')).
     (* Commutativity *)
     - exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (limits.coequalizers.CoequalizerOutsEq E).
@@ -331,7 +329,7 @@ Section coequalizers_coincide.
     (* Commutativity *)
     - exact (CoequalizerArrowComm C E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (CoequalizerOutUnique C E).
@@ -365,14 +363,14 @@ Section coequalizers_coincide.
                 a b f g (CoequalizerObject C E)
                 (CoequalizerArrow C E)
                 (CoequalizerArrowEq C E)
-                (isCoequalizer_Coequalizer C hs E))).
+                (isCoequalizer_Coequalizer C E))).
   Defined.
 
 End coequalizers_coincide.
 
 (** Post-composing a coequalizer diagram with a functor yields a
      coequalizer diagram. *)
-Lemma mapdiagram_coequalizer_eq_diag {C : precategory}{D : category}
+Lemma mapdiagram_coequalizer_eq_diag {C : category}{D : category}
       (F : functor C D){a b : C}(f g : a --> b)  :
   eq_diag (C := D)
           (mapdiagram F (Coequalizer_diagram _ f g))

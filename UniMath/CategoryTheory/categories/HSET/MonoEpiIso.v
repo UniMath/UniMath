@@ -23,6 +23,8 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Local Open Scope cat.
 
+Local Notation "'HSET'" := hset_category.
+
 (** ** Points as global elements *)
 
 (** See https://ncatlab.org/nlab/show/global+element *)
@@ -73,7 +75,7 @@ Proof.
     apply (invweq (Injectivity _ isI _ _)).
     apply toforallpaths in eq.
     apply eq.
-  - apply isapropisMonic, has_homsets_HSET.
+  - apply isapropisMonic.
   - apply isaprop_isInjective.
 Qed.
 

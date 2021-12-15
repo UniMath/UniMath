@@ -351,7 +351,7 @@ End comp_def.
 (** * Definition of the "Maybe" monad (coproduct with a fixed object) *)
 Section maybe_def.
 
-Context {C : precategory} (o : C) (co : BinCoproducts C).
+Context {C : category} (o : C) (co : BinCoproducts C).
 
 Definition maybe_functor : functor C C :=
   constcoprod_functor1 co o.
@@ -374,8 +374,8 @@ Definition maybe_monad_data : Monad_data C := (maybe_functor,, maybe_mu),, maybe
     near the beginning of the file *)
 
 Local Lemma maybe_monad_law1 : ∏ c : C,
-BinCoproductIn2 C (co o (co o c)) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
+BinCoproductIn2 (co o (co o c)) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
 identity (co o c).
 Proof.
   intro c.
@@ -384,22 +384,22 @@ Defined.
 
 Local Lemma maybe_monad_law2 : ∏ c : C,
 BinCoproductOfArrows C (co o c) (co o (co o c))
-  (identity o) (BinCoproductIn2 C (co o c)) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
+  (identity o) (BinCoproductIn2 (co o c)) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
 identity (co o c).
 Proof.
   intro c.
   now rewrite precompWithBinCoproductArrow, id_left,
-              <- (id_right (BinCoproductIn1 C (co o c))), <- BinCoproductArrowEta.
+              <- (id_right (BinCoproductIn1 (co o c))), <- BinCoproductArrowEta.
 Defined.
 
 Local Lemma maybe_monad_law3 : ∏ c : C,
 BinCoproductOfArrows C (co o (co o (co o c))) (co o (co o c))
  (identity o)
- (BinCoproductArrow C (co o (co o c)) (BinCoproductIn1 C (co o c)) (identity (co o c))) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
-BinCoproductArrow C _ (BinCoproductIn1 C (co o (co o c))) (identity (co o (co o c))) ·
- BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)).
+ (BinCoproductArrow (co o (co o c)) (BinCoproductIn1 (co o c)) (identity (co o c))) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
+BinCoproductArrow _ (BinCoproductIn1 (co o (co o c))) (identity (co o (co o c))) ·
+ BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)).
 Proof.
   intro c.
   now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
@@ -433,9 +433,9 @@ Definition deriv_dist (T : Monad C) : (T ∙ maybe_monad) ⟹ (maybe_monad ∙ T
     near the beginning of the file *)
 
 Local Lemma deriv_dist_law1 (T : Monad C) : ∏ x : C,
-  BinCoproductIn2 C (co o (T x)) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T _) (#T (BinCoproductIn2 C _)) =
-  #T (BinCoproductIn2 C (co o x)).
+  BinCoproductIn2 (co o (T x)) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T _) (#T (BinCoproductIn2 _)) =
+  #T (BinCoproductIn2 (co o x)).
 Proof.
   intro x.
   now rewrite BinCoproductIn2Commutes.
@@ -443,7 +443,7 @@ Defined.
 
 Local Lemma deriv_dist_law2 (T : Monad C) : ∏ x : C,
   BinCoproductOfArrows C (co o x) (co o (T x)) (identity o) (η T x) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _)) =
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _)) =
   η T (co o x).
 Proof.
   intro x.
@@ -457,19 +457,19 @@ Proof.
 Defined.
 
 Local Lemma deriv_dist_law3 (T : Monad C) : ∏ x : C,
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o (T x))) (#T (BinCoproductIn2 C _)) ·
-  #T (BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _))) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o (T x))) (#T (BinCoproductIn2 _)) ·
+  #T (BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _))) ·
   μ T (co o x) =
   BinCoproductOfArrows C (co o (T (T x))) (co o (T x)) (identity o) (μ T x) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _)).
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _)).
 Proof.
   intro x.
   do 2 rewrite postcompWithBinCoproductArrow.
   rewrite <- functor_comp.
   rewrite BinCoproductIn2Commutes.
-  rewrite <- (assoc (BinCoproductIn1 C (co o (T x)))).
+  rewrite <- (assoc (BinCoproductIn1 (co o (T x)))).
   rewrite <- (nat_trans_ax (η T) (co o (T x))).
-  rewrite (assoc (BinCoproductIn1 C (co o (T x)))).
+  rewrite (assoc (BinCoproductIn1 (co o (T x)))).
   rewrite <- (assoc _ ((η T) (T (co o x)))).
   rewrite Monad_law1.
   simpl.
@@ -482,18 +482,18 @@ Defined.
 
 Local Lemma deriv_dist_law4 (T : Monad C) : ∏ x : C,
   BinCoproductOfArrows C (co o (co o (T x))) (co o (T (co o x))) (identity o)
-                         (BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x))
-                                                (#T (BinCoproductIn2 C _))) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o (co o x))) (#T (BinCoproductIn2 C _)) ·
-  #T (BinCoproductArrow C _ (BinCoproductIn1 C _) (identity _)) =
-  BinCoproductArrow C (co o (co o (T x))) (BinCoproductIn1 C _) (identity (co o (T x))) ·
-  BinCoproductArrow C (co o (T x)) (BinCoproductIn1 C (co o x) · η T (co o x))
-                                   (#T (BinCoproductIn2 C _)).
+                         (BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x))
+                                                (#T (BinCoproductIn2 _))) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o (co o x))) (#T (BinCoproductIn2 _)) ·
+  #T (BinCoproductArrow _ (BinCoproductIn1 _) (identity _)) =
+  BinCoproductArrow (co o (co o (T x))) (BinCoproductIn1 _) (identity (co o (T x))) ·
+  BinCoproductArrow (co o (T x)) (BinCoproductIn1 (co o x) · η T (co o x))
+                                   (#T (BinCoproductIn2 _)).
 Proof.
   intro x.
   rewrite precompWithBinCoproductArrow.
   rewrite postcompWithBinCoproductArrow.
-  rewrite <- (assoc _ (# T (BinCoproductIn2 C (co o (co o x))))).
+  rewrite <- (assoc _ (# T (BinCoproductIn2 (co o (co o x))))).
   rewrite <- functor_comp.
   rewrite BinCoproductIn2Commutes.
   rewrite functor_id.
@@ -572,7 +572,7 @@ Derivation on modules commutes with the pullback: if m is a monad morphism, then
  is isomorphic to m*(M)'
  *)
 Section pullback_deriv.
-  Context {C : precategory}
+  Context {C : category}
           (o : C) (* derivation X ↦ X + o *)
           (bcpC : limits.bincoproducts.BinCoproducts C )
           {D : category}.
@@ -591,11 +591,11 @@ Section pullback_deriv.
   Lemma pb_LModule_deriv_eq_mult c :
     # M (BinCoproductOfArrows C (bcpC o (R c)) (bcpC o (S c)) (identity o) (pr1 f c)) ·
       (# (pr1 M)
-         (BinCoproductArrow C (bcpC o (S c)) (BinCoproductIn1 C (bcpC o c) · pr1 (η S) (bcpC o c))
-                            (# (pr1 S) (BinCoproductIn2 C (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
+         (BinCoproductArrow (bcpC o (S c)) (BinCoproductIn1 (bcpC o c) · pr1 (η S) (bcpC o c))
+                            (# (pr1 S) (BinCoproductIn2 (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
     # (pr1 M)
-      (BinCoproductArrow C (bcpC o (R c)) (BinCoproductIn1 C (bcpC o c) · pr1 (η R) (bcpC o c))
-                         (# (pr1 R) (BinCoproductIn2 C (bcpC o c)))) · (# (pr1 M) (pr1 f (bcpC o c)) ·
+      (BinCoproductArrow (bcpC o (R c)) (BinCoproductIn1 (bcpC o c) · pr1 (η R) (bcpC o c))
+                         (# (pr1 R) (BinCoproductIn2 (bcpC o c)))) · (# (pr1 M) (pr1 f (bcpC o c)) ·
                                                                           (lm_mult S M) (bcpC o c)).
   Proof.
     repeat rewrite assoc.

@@ -21,6 +21,7 @@ Local Open Scope cat.
 Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
    tpair _ _ (univalenceAxiom X X').
 
+(*
 Definition type_id_weq_iso (A B : ob type_precat) :
   (A = B) ≃ (iso A B) :=
   weqcomp (univalence _ _) (type_equiv_weq_iso A B).
@@ -41,3 +42,4 @@ Proof.
   rewrite type_id_weq_iso_is.
   apply (pr2 (type_id_weq_iso A B)).
 Defined.
+*)

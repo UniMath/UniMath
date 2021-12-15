@@ -38,10 +38,10 @@ Proof.
       assumption.
 Defined.
 
-Definition top_disp_cat_axioms : disp_cat_axioms SET top_disp_cat_data.
+Definition top_disp_cat_axioms : disp_cat_axioms HSET top_disp_cat_data.
 Proof.
   repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
   apply isasetaprop. apply isaprop_continuous.
 Defined.
 
-Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
+Definition disp_top : disp_cat HSET := _ ,, top_disp_cat_axioms.

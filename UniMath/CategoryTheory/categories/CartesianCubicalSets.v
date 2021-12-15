@@ -93,7 +93,6 @@ Proof.
   - exact (λ i : ⟦m⟧, inl (stn_left _ _ i)).
   - exact (λ i : ⟦n⟧, inl (stn_right _ _ i)).
   - use make_isBinProduct.
-    + apply homset_property.
     + intros l f g.
       use unique_exists.
       * intro i.
@@ -134,7 +133,7 @@ Definition cartesian_cubical_sets : category :=
   PreShv cartesian_cube_category.
 
 Local Definition I : cartesian_cubical_sets :=
-  yoneda cartesian_cube_category (homset_property cartesian_cube_category) 1.
+  yoneda cartesian_cube_category 1.
 
 (** The interval in cartesian cubical sets has two distinct elements *)
 Lemma interval_cartesian_cubical_sets_two_elements :
@@ -168,8 +167,6 @@ Defined.
 Definition cartesian_cubical_sets_exponentials : Exponentials (@BinProducts_PreShv cartesian_cube_category).
 Proof.
   apply Exponentials_functor_HSET.
-  apply has_homsets_opp.
-  apply homset_property.
 Defined.
 
 Local Definition exp_I : cartesian_cubical_sets ⟶ cartesian_cubical_sets :=

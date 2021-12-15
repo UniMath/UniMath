@@ -17,12 +17,12 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -38,7 +38,7 @@ Section Final.
   Definition is_bifinal (X : C) : UU
     := ∏ (Y : C),
        @left_adjoint_equivalence
-         bicat_of_cats
+         bicat_of_univ_cats
          _ _
          (functor_to_unit (univ_hom C_is_univalent_2_1 Y X)).
 
@@ -113,7 +113,7 @@ Section Final.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso _ (HX Y))) as HL.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso
                  _
-                 (@inv_adjequiv bicat_of_cats _ _ (_ ,, HX Y))))
+                 (@inv_adjequiv bicat_of_univ_cats _ _ (_ ,, HX Y))))
       as HR.
     refine (invmaponpathsincl _ (HL _ _) _ _ _).
     refine (invmaponpathsincl _ (HR _ _) _ _ _).
@@ -409,7 +409,7 @@ Proof.
     apply functor_to_unit.
   - intro Y.
     change (∏ f g : (Y:univalent_category) ⟶ unit_category,
-                    invertible_2cell (C := bicat_of_cats) f g).
+                    invertible_2cell (C := bicat_of_univ_cats) f g).
     intros F G.
     use make_invertible_2cell.
     + use make_nat_trans.

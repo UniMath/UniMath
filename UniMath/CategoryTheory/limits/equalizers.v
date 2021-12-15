@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Monics.
 (** ** Definition *)
 Section def_equalizers.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   (** Definition and construction of isEqualizer. *)
   Definition isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
@@ -255,7 +255,7 @@ Arguments Equalizers : clear implicits.
 
 Section Equalizers'.
 
-  Context {C : precategory} {c d : ob C} (f g : C⟦c, d⟧).
+  Context {C : category} {c d : ob C} (f g : C⟦c, d⟧).
   Context (E : ob C) (h : E --> c) (H : h · f = h · g).
 
   (** A map into an equalizer can be turned into a map into [c]
@@ -288,7 +288,7 @@ Section Equalizers'.
 
       Compare to [isBinProduct'_to_isBinProduct].
    *)
-  Lemma isEqualizer'_to_isEqualizer (hsC : has_homsets C) :
+  Lemma isEqualizer'_to_isEqualizer :
     isEqualizer' -> isEqualizer f g h H.
   Proof.
     intros isEq' E' h' H'.
@@ -297,11 +297,11 @@ Section Equalizers'.
       use weqfibtototal; intros j; cbn.
       unfold postcomp_with_equalizer_mor.
       apply subtypeInjectivity.
-      intro; apply hsC.
+      intro; apply C.
     - apply weqproperty.
   Defined.
 
-  Lemma isEqualizer_to_isEqualizer' (hsC : has_homsets C) :
+  Lemma isEqualizer_to_isEqualizer' :
     isEqualizer f g h H -> isEqualizer'.
   Proof.
     intros isEq E'.
@@ -312,11 +312,11 @@ Section Equalizers'.
     - use weqfibtototal; intro; cbn.
       apply invweq.
       use subtypeInjectivity.
-      intro; apply hsC.
+      intro; apply C.
     - exact (isEq E' (pr1 hH') (pr2 hH')).
   Defined.
 
-  Lemma isEqualizer'_weq_isEqualizer (hsC : has_homsets C) :
+  Lemma isEqualizer'_weq_isEqualizer :
     isEqualizer f g h H ≃ isEqualizer'.
   Proof.
     apply weqimplimpl.

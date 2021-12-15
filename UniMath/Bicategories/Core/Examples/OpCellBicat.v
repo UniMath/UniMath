@@ -48,7 +48,7 @@ Section op2.
 
 Variable C : prebicat.
 
-Definition op2_prebicat_laws : prebicat_laws (op2_prebicat_data C).
+Lemma op2_prebicat_laws : prebicat_laws (op2_prebicat_data C).
 Proof.
   repeat split; intros; cbn.
   - apply id2_right.
@@ -279,12 +279,12 @@ Proof.
       use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
     + intros x.
       use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
 Defined.
 
 Definition bicat_adjoint_equivalence_is_op2_bicat_adjoint_equivalence

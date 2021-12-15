@@ -9,6 +9,8 @@
 (* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                          *)
 (* =================================================================================== *)
 
+(* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -25,12 +27,13 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
 
+
 Local Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity).
 
 Section Build_Bicategory.
 
-Variable C : prebicat.
+Variable C : bicat.
 
 Definition bicate_ob_hom : prebicategory_ob_hom.
 Proof.
@@ -56,12 +59,15 @@ Definition bicate_lassociator_fun {a b c d : bicate_id_comp}
 Lemma bicate_lassociator_fun_natural {a b c d : bicate_id_comp}
   : is_nat_trans
       (functor_composite
-         (pair_functor (functor_identity (hom a b)) (compose_functor b c d))
+         (pair_functor (functor_identity _) (compose_functor b c d))
          hcomp_functor)
       (functor_composite
-         (precategory_binproduct_assoc (hom a b) (hom b c) (hom c d))
+         (precategory_binproduct_assoc
+            (hom a b)
+            (hom b c)
+            (hom c d))
          (functor_composite
-            (pair_functor (compose_functor a b c) (functor_identity (hom c d)))
+            (pair_functor (compose_functor a b c) (functor_identity _))
             hcomp_functor)) bicate_lassociator_fun.
 Proof.
   red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
@@ -99,9 +105,9 @@ Lemma prebicat_associator_and_unitors_are_iso
   : associator_and_unitors_are_iso bicate_data.
 Proof.
   repeat split; cbn; intros.
-  - apply is_iso_lassociator.
-  - apply is_iso_lunitor.
-  - apply is_iso_runitor.
+  - apply is_z_iso_lassociator.
+  - apply is_z_iso_lunitor.
+  - apply is_z_iso_runitor.
 Defined.
 
 Lemma triangle_identity {a b c : C} (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧)
@@ -148,10 +154,8 @@ Hypothesis sc : isaset_cells C.
 Lemma is_prebicategory_bicate : is_prebicategory bicate_data.
 Proof.
   split.
-  - apply sc.
-  - split.
-    + exact prebicat_associator_and_unitors_are_iso.
-    + exact prebicat_prebicategory_coherence.
+  - exact prebicat_associator_and_unitors_are_iso.
+  - exact prebicat_prebicategory_coherence.
 Qed.
 
 Definition prebicategory_of_prebicat : prebicategory.

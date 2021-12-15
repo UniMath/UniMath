@@ -31,9 +31,9 @@ Local Open Scope cat.
 
 Section from_equiv_to_fully_faithful.
 
-Variables A B : precategory.
+Variables A B : category.
 Variable F : A ⟶ B.
-Variable H : adj_equivalence_of_precats F.
+Variable H : adj_equivalence_of_cats F.
 
 Local Definition G : B ⟶ A := adj_equivalence_inv H.
 
@@ -120,7 +120,7 @@ End from_equiv_to_fully_faithful.
 
 Section HomtypeProperties.
 
-  Context {C D : precategory} (F : functor C D).
+  Context {C D : category} (F : functor C D).
 
   (** For every hom-type in D, there merely exists a hom-type in C to which
       it is equivalent. For split essentially surjective functors, this
@@ -167,7 +167,7 @@ Section HomtypeProperties.
   Defined.
 
   (** Corollary: Equivalences preserve [hProp]s on hom-types. *)
-  Corollary equivalence_homtype_property (E : adj_equivalence_of_precats F)
+  Corollary equivalence_homtype_property (E : adj_equivalence_of_cats F)
             (P : UU → hProp) (prop : ∏ a b : ob C, P (C⟦a, b⟧)) :
     (∏ a b : ob D, P (D⟦a, b⟧)).
   Proof.

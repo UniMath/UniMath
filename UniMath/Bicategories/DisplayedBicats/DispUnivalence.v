@@ -61,6 +61,115 @@ Section Displayed_Local_Univalence.
     := invmap (make_weq _ (HD a b f g p aa bb ff gg)) pp.
 End Displayed_Local_Univalence.
 
+(** Some laws of `disp_idtoiso_2_1` *)
+Definition disp_1cell_transport_rwhisker
+           {B : bicat}
+           {D : disp_bicat B}
+           {b₁ b₂ b₃ : B}
+           {h : b₁ --> b₂}
+           {f : b₂ --> b₃}
+           {g : b₁ --> b₃}
+           {α : h · f ==> g}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {bb₃ : D b₃}
+           (ff : bb₂ -->[ f ] bb₃)
+           (gg : bb₁ -->[ g ] bb₃)
+           {hh₁ hh₂ : bb₁ -->[ h] bb₂}
+           (p : hh₁ = hh₂)
+           (αα : hh₁ ;; ff ==>[ α] gg)
+  : transportf
+      (λ (z : bb₁ -->[ h ] bb₂), z ;; ff ==>[ α ] gg)
+      p
+      αα
+    =
+    transportf
+      (λ z, _ ==>[ z ] _)
+      (maponpaths (λ z, z • _) (id2_rwhisker _ _) @ id2_left _)
+      ((disp_idtoiso_2_1 _ (idpath _) _ _ (!p) ▹▹ ff) •• αα).
+Proof.
+  induction p ; cbn.
+  cbn.
+  rewrite disp_id2_rwhisker.
+  unfold transportb.
+  rewrite disp_mor_transportf_postwhisker.
+  rewrite disp_id2_left.
+  unfold transportb.
+  rewrite !transport_f_f.
+  refine (!_).
+  use (transportf_set (λ z : h · f ==> g, hh₁ ;; ff ==>[ z ] gg)).
+  apply cellset_property.
+Qed.
+
+Definition disp_idtoiso_2_1_inv
+           {B : bicat}
+           {D : disp_bicat B}
+           {b₁ b₂ : B}
+           {f : b₁ --> b₂}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           (ff₁ ff₂ : bb₁ -->[ f ] bb₂)
+           (p : ff₁ = ff₂)
+  : pr1 (disp_idtoiso_2_1 _ (idpath _) _ _ (!p))
+    =
+    disp_inv_cell (disp_idtoiso_2_1 _ (idpath _) _ _ p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Definition disp_idtoiso_isotoid_2_1
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_1 : disp_univalent_2_1 D)
+           {b₁ b₂ : B}
+           {f g : b₁ --> b₂}
+           (p : f = g)
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {ff : bb₁ -->[ f ] bb₂}
+           {gg : bb₁ -->[ g ] bb₂}
+           (α : disp_invertible_2cell (idtoiso_2_1 f g p) ff gg)
+  : disp_idtoiso_2_1
+      _ p ff gg
+      (disp_isotoid_2_1
+         _ HD_2_1
+         p ff gg
+         α)
+    =
+    α.
+Proof.
+  exact (homotweqinvweq
+           (make_weq _ (HD_2_1 b₁ b₂ f g p bb₁ bb₂ ff gg))
+           α).
+Qed.
+
+Definition disp_isotoid_idtoiso_2_1
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_1 : disp_univalent_2_1 D)
+           {b₁ b₂ : B}
+           {f g : b₁ --> b₂}
+           (p : f = g)
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {ff : bb₁ -->[ f ] bb₂}
+           {gg : bb₁ -->[ g ] bb₂}
+           (pp : transportf (λ z, bb₁ -->[ z] bb₂) p ff = gg)
+  : disp_isotoid_2_1
+      _ HD_2_1
+      p ff gg
+      (disp_idtoiso_2_1
+         _ p ff gg
+         pp)
+    =
+    pp.
+Proof.
+  exact (homotinvweqweq
+           (make_weq _ (HD_2_1 b₁ b₂ f g p bb₁ bb₂ ff gg))
+           pp).
+Qed.
+
 Section Total_Category_Univalent_2_1.
   Context {C : bicat}.
   Variable (D : disp_bicat C)

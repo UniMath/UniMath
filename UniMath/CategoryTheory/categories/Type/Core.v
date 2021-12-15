@@ -52,7 +52,7 @@ Section HomFunctors.
   (** ** As a bifunctor [hom_functor] *)
 
   Definition hom_functor_data :
-    functor_data (precategory_binproduct C^op C) type_precat.
+    functor_data (precategory_binproduct (opp_precat C) C) type_precat.
   Proof.
     use make_functor_data.
     - intros pair; exact (C ⟦ pr1 pair, pr2 pair ⟧).
@@ -74,7 +74,7 @@ Section HomFunctors.
       abstract (do 3 rewrite assoc; reflexivity).
   Defined.
 
-  Definition hom_functor : functor (precategory_binproduct C^op C) type_precat :=
+  Definition hom_functor : functor (precategory_binproduct (opp_precat C) C) type_precat :=
     make_functor _ is_functor_hom_functor_type.
 
   Context (c : C).
@@ -82,11 +82,7 @@ Section HomFunctors.
   (** ** Covariant [cov_hom_functor] *)
 
   Definition cov_hom_functor : functor C type_precat :=
-    functor_fix_fst_arg (C^op) _ _ hom_functor c.
+    functor_fix_fst_arg (opp_precat C) _ _ hom_functor c.
 
-  (** ** Contravariant [contra_hom_functor] *)
-
-  Definition contra_hom_functor : functor (C^op) type_precat :=
-    functor_fix_snd_arg (C^op) _ _ hom_functor c.
 
 End HomFunctors.

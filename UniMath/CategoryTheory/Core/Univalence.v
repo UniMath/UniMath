@@ -31,11 +31,13 @@ Proof.
 Defined.
 
 (* use eta expanded version to force printing of object arguments *)
-Definition is_univalent (C : precategory) :=
-  (∏ (a b : ob C), isweq (fun p : a = b => idtoiso p)) × (has_homsets C).
+Definition is_univalent (C : category) :=
+  ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
 
+(*
 Definition make_is_univalent {C : precategory} (H1 : ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p))
            (H2 : has_homsets C) : is_univalent C := make_dirprod H1 H2.
+ *)
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -43,34 +45,25 @@ Proof.
   destruct e; reflexivity.
 Defined.
 
-Lemma isaprop_is_univalent (C : precategory) : isaprop (is_univalent C).
+Lemma isaprop_is_univalent (C : category) : isaprop (is_univalent C).
 Proof.
-  apply isapropdirprod.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisweq.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisaset.
+  apply impred.
+  intro a.
+  apply impred.
+  intro b.
+  apply isapropisweq.
 Qed.
 
-Definition univalent_category : UU := total2 (λ C : precategory, is_univalent C).
+Definition univalent_category : UU := ∑ C : category, is_univalent C.
 
-Definition make_univalent_category (C : precategory) (H : is_univalent C) : univalent_category
+Definition make_univalent_category (C : category) (H : is_univalent C) : univalent_category
   := tpair _ C H.
 
-Definition univalent_category_to_category (C : univalent_category) : category.
-Proof.
-  exists (pr1 C).
-  exact (pr2 (pr2 C)).
-Defined.
-Coercion univalent_category_to_category : univalent_category >-> category.
+Coercion univalent_category_to_category (C : univalent_category) : category := pr1 C.
 
-Definition univalent_category_has_homsets (C : univalent_category) := pr2 (pr2 C).
+Coercion univalent_category_has_homsets (C : univalent_category)
+  : has_homsets C
+  := pr2 (pr1 C).
 
 Definition univalent_category_is_univalent (C : univalent_category) : is_univalent C := pr2 C.
 
@@ -79,30 +72,30 @@ Proof.
   change (isofhlevel 3 C) with
         (∏ a b : C, isofhlevel 2 (a = b)).
   intros a b.
-  apply (isofhlevelweqb _ (tpair _ _ (pr1 (pr2 C) a b))).
+  apply (isofhlevelweqb _ (tpair _ _ (pr2 C a b))).
   apply isaset_iso.
-  apply (pr2 (pr2 C)).
+  apply (pr1 C).
 Qed.
 
 (** ** Definition of [isotoid] *)
 
-Definition isotoid (C : precategory) (H : is_univalent C) {a b : ob C}:
-      iso a b -> a = b := invmap (make_weq _ (pr1 H a b)).
+Definition isotoid (C : category) (H : is_univalent C) {a b : ob C}:
+      iso a b -> a = b := invmap (make_weq _ (H a b)).
 
-Lemma idtoiso_isotoid (C : precategory) (H : is_univalent C) (a b : ob C)
+Lemma idtoiso_isotoid (C : category) (H : is_univalent C) (a b : ob C)
     (f : iso a b) : idtoiso (isotoid _ H f) = f.
 Proof.
   unfold isotoid.
-  set (Hw := homotweqinvweq (make_weq idtoiso (pr1 H a b))).
+  set (Hw := homotweqinvweq (make_weq idtoiso (H a b))).
   simpl in Hw.
   apply Hw.
 Qed.
 
-Lemma isotoid_idtoiso (C : precategory) (H : is_univalent C) (a b : ob C)
+Lemma isotoid_idtoiso (C : category) (H : is_univalent C) (a b : ob C)
     (p : a = b) : isotoid _ H (idtoiso p) = p.
 Proof.
   unfold isotoid.
-  set (Hw := homotinvweqweq (make_weq idtoiso (pr1 H a b))).
+  set (Hw := homotinvweqweq (make_weq idtoiso (H a b))).
   simpl in Hw.
   apply Hw.
 Qed.
@@ -176,7 +169,7 @@ Proof.
   simpl; apply pathsinv0, id_left.
 Qed.
 
-Lemma idtoiso_inj (C : precategory) (H : is_univalent C) (a a' : ob C)
+Lemma idtoiso_inj (C : category) (H : is_univalent C) (a a' : ob C)
    (p p' : a = a') : idtoiso p = idtoiso p' -> p = p'.
 Proof.
   apply invmaponpathsincl.
@@ -184,7 +177,7 @@ Proof.
   apply H.
 Qed.
 
-Lemma isotoid_inj (C : precategory) (H : is_univalent C) (a a' : ob C)
+Lemma isotoid_inj (C : category) (H : is_univalent C) (a a' : ob C)
    (f f' : iso a a') : isotoid _ H f = isotoid _ H f' -> f = f'.
 Proof.
   apply invmaponpathsincl.
@@ -192,7 +185,7 @@ Proof.
   apply isweqinvmap.
 Qed.
 
-Lemma isotoid_comp (C : precategory) (H : is_univalent C) (a b c : ob C)
+Lemma isotoid_comp (C : category) (H : is_univalent C) (a b c : ob C)
   (e : iso a b) (f : iso b c) :
   isotoid _ H (iso_comp e f) = isotoid _ H e @ isotoid _ H f.
 Proof.
@@ -203,7 +196,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma isotoid_identity_iso (C : precategory) (H : is_univalent C) (a : C) :
+Lemma isotoid_identity_iso (C : category) (H : is_univalent C) (a : C) :
   isotoid _ H (identity_iso a) = idpath _ .
 Proof.
   apply idtoiso_inj; try assumption.
@@ -211,7 +204,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma inv_isotoid (C : precategory) (H : is_univalent C) (a b : C)
+Lemma inv_isotoid (C : category) (H : is_univalent C) (a b : C)
     (f : iso a b) : ! isotoid _ H f = isotoid _ H (iso_inv_from_iso f).
 Proof.
   apply idtoiso_inj; try assumption.
@@ -221,7 +214,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid (C : precategory) (H : is_univalent C)
+Lemma transportf_isotoid (C : category) (H : is_univalent C)
    (a a' b : ob C) (p : iso a a') (f : a --> b) :
  transportf (λ a0 : C, a0 --> b) (isotoid C H p) f = inv_from_iso p · f.
 Proof.
@@ -231,7 +224,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid' (C : precategory) (H : is_univalent C)
+Lemma transportf_isotoid' (C : category) (H : is_univalent C)
    (a b b' : ob C) (p : iso b b') (f : a --> b) :
  transportf (λ a0 : C, a --> a0) (isotoid C H p) f = f · p.
 Proof.
@@ -253,7 +246,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma forall_isotoid (A : precategory) (a_is : is_univalent A)
+Lemma forall_isotoid (A : category) (a_is : is_univalent A)
       (a a' : A) (P : iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.

@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Section nno.
 
-Context {C : precategory} (TC : Terminal C).
+Context {C : category} (TC : Terminal C).
 
 Local Notation "1" := TC.
 

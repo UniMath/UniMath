@@ -23,26 +23,28 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.Bicategories.WkCatEnrichment.prebicategory.
 
+
+
 (******************************************************************************)
 (* Lemmas for use in PreCat and Cat *)
 
-Definition Catlike_associator ( a b c d : precategory )
-   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
+Definition Catlike_associator ( a b c d : category )
+  :
    nat_trans
      (functor_composite
         (pair_functor
-           (functor_identity (functor_precategory a b hsB))
-           (functorial_composition b c d hsC hsD))
-        (functorial_composition a b d hsB hsD))
+           (functor_identity (functor_category a b))
+           (functorial_composition b c d ))
+        (functorial_composition a b d ))
      (functor_composite
-        (precategory_binproduct_assoc (functor_precategory a b hsB)
-           (functor_precategory b c hsC)
-           (functor_precategory c d hsD))
+        (precategory_binproduct_assoc (functor_category a b )
+           (functor_category b c)
+           (functor_category c d ))
         (functor_composite
            (pair_functor
-              (functorial_composition a b c hsB hsC)
-              (functor_identity (functor_precategory c d hsD)))
-           (functorial_composition a c d hsC hsD))).
+              (functorial_composition a b c )
+              (functor_identity (functor_category c d)))
+           (functorial_composition a c d ))).
 Proof.
   use tpair.
   - (* Step 1: Give the components of the natural transformation *)
@@ -74,25 +76,24 @@ Proof.
 
     (* To show two natural transformations are equal, suffices to
        check components *)
-    apply nat_trans_eq. exact hsD.
+    apply (nat_trans_eq_alt).
     intros oba.
 
-    simpl.
+    simpl. do 2 (unfold horcomp_data; simpl).
 
     (* Now assoc is just identity *)
     rewrite id_right.
     rewrite id_left.
 
     (* And the order we do f, g, h doesn't matter *)
-    rewrite functor_comp.
+    rewrite (functor_comp H).
     rewrite assoc.
-    reflexivity.
+    apply idpath.
 Defined.
 
-Definition Catlike_associator_is_iso ( a b c d : precategory )
-  (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
-  ∏ f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
-                    (make_precatbinprod f (make_precatbinprod g h))).
+Definition Catlike_associator_is_iso ( a b c d : category )
+  : ∏ f g h, is_iso (Catlike_associator a b c d
+                    (make_catbinprod f (make_catbinprod g h))).
 Proof.
   intros f g h.
   (* The components are all the identity, so this is easy *)
@@ -101,15 +102,16 @@ Proof.
   apply (identity_is_iso d).
 Defined.
 
-Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : has_homsets b) :
+Definition Catlike_left_unitor (a b : category)
+  :
   nat_trans
      (functor_composite
         (bindelta_pair_functor
-           (functor_composite (functor_to_unit (functor_precategory a b hsB))
-              (constant_functor unit_category (functor_precategory a a hsA) (functor_identity a)))
-           (functor_identity (functor_precategory a b hsB)))
-        (functorial_composition a a b hsA hsB))
-     (functor_identity (functor_precategory a b hsB)).
+           (functor_composite (functor_to_unit (functor_category a b))
+              (constant_functor unit_category (functor_category a a) (functor_identity a)))
+           (functor_identity (functor_category a b)))
+        (functorial_composition a a b))
+     (functor_identity (functor_category a b)).
 Proof.
   use tpair.
   - (* Step 1: Give components.
@@ -126,20 +128,18 @@ Proof.
        as natural transformations. *)
 
     (* Again just check components *)
-    apply nat_trans_eq. exact hsB.
+    apply (nat_trans_eq_alt).
     intros oba.
 
-    simpl.
+    simpl. unfold horcomp_data; simpl.
     rewrite id_right.
     rewrite id_left.
-    rewrite functor_id.
-    rewrite id_right.
-    reflexivity.
+    rewrite (functor_id F).
+    apply id_left.
 Defined.
 
-Definition Catlike_left_unitor_is_iso (a b : precategory)
-  (hsA : has_homsets a) (hsB : has_homsets b) :
-  ∏ f, is_iso (Catlike_left_unitor a b hsA hsB f).
+Definition Catlike_left_unitor_is_iso (a b : category)
+  : ∏ f, is_iso (Catlike_left_unitor a b f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -147,14 +147,15 @@ Proof.
   apply (identity_is_iso b).
 Defined.
 
-Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
+Definition Catlike_right_unitor (a b : category)
+  :
   nat_trans
      (functor_composite
-        (bindelta_pair_functor (functor_identity (functor_precategory a b hsB))
-           (functor_composite (functor_to_unit (functor_precategory a b hsB))
-              (constant_functor unit_category (functor_precategory b b hsB) (functor_identity b))))
-        (functorial_composition a b b hsB hsB))
-     (functor_identity (functor_precategory a b hsB)).
+        (bindelta_pair_functor (functor_identity (functor_category a b))
+           (functor_composite (functor_to_unit (functor_category a b))
+              (constant_functor unit_category (functor_category b b) (functor_identity b))))
+        (functorial_composition a b b))
+     (functor_identity (functor_category a b)).
 Proof.
   use tpair. (* Same as above *)
   - intros x.
@@ -163,17 +164,17 @@ Proof.
     exact (id_right _ @ !(id_left _)).
 
   - intros F F' f.
-    apply nat_trans_eq. exact hsB.
+    apply (nat_trans_eq_alt).
     intros oba.
 
-    simpl.
+    simpl. unfold horcomp_data; simpl.
     rewrite (id_right _).
     rewrite (id_left _).
-    reflexivity.
+    apply id_right.
 Defined.
 
-Definition Catlike_right_unitor_is_iso (a b : precategory) (hsB : has_homsets b) :
-  ∏ f, is_iso (Catlike_right_unitor a b hsB f).
+Definition Catlike_right_unitor_is_iso (a b : category) :
+  ∏ f, is_iso (Catlike_right_unitor a b f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -182,56 +183,56 @@ Proof.
 Defined.
 
 (* What a mess! *)
-Definition Catlike_pentagon ( a b c d e : precategory )
+Definition Catlike_pentagon ( a b c d e : category )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d)
   (hsE : has_homsets e) :
   ∏ k h g f,
-  (Catlike_associator a b c e _ _ _)
-     (make_precatbinprod k
-        (make_precatbinprod h ((functorial_composition c d e hsD _) (make_dirprod g f)))) ·
-   (Catlike_associator a c d e _ _ _)
-     (make_precatbinprod ((functorial_composition a b c hsB hsC) (make_dirprod k h))
-        (make_precatbinprod g f))
-  = (functor_on_morphisms (functorial_composition a b e hsB hsE)
-      (precatbinprodmor (identity k)
-         ((Catlike_associator b c d e _ _ _) (make_precatbinprod h (make_precatbinprod g f)))) ·
-    (Catlike_associator a b d e _ _ _)
-      (make_precatbinprod k
-         (make_precatbinprod ((functorial_composition b c d _ _) (make_dirprod h g)) f))) ·
-   functor_on_morphisms (functorial_composition a d e _ _)
-     (precatbinprodmor
-        ((Catlike_associator a b c d _ _ _) (make_precatbinprod k (make_precatbinprod h g)))
+  (Catlike_associator a b c e )
+     (make_catbinprod k
+        (make_catbinprod h ((functorial_composition c d e ) (make_dirprod g f)))) ·
+   (Catlike_associator a c d e )
+     (make_catbinprod ((functorial_composition_legacy a b c) (make_dirprod k h))
+        (make_catbinprod g f))
+  = (functor_on_morphisms (functorial_composition_legacy a b e)
+      (catbinprodmor (identity k)
+         ((Catlike_associator b c d e) (make_catbinprod h (make_catbinprod g f)))) ·
+    (Catlike_associator a b d e )
+      (make_catbinprod k
+         (make_catbinprod ((functorial_composition_legacy b c d ) (make_dirprod h g)) f))) ·
+   functor_on_morphisms (functorial_composition_legacy a d e )
+     (catbinprodmor
+        ((Catlike_associator a b c d ) (make_catbinprod k (make_catbinprod h g)))
         (identity f)).
 Proof.
   intros k h g f.
-  apply nat_trans_eq. exact hsE.
+  apply (nat_trans_eq hsE).
 
   intros oba.
-  simpl.
+  simpl. unfold horcomp_data; simpl.
 
   (* Everything boils down to the identity *)
   repeat rewrite functor_id.
   repeat rewrite (id_left _).
-  reflexivity.
+  apply idpath.
 Defined.
 
-Definition Catlike_triangle ( a b c : precategory )
-  (hsB : has_homsets b) (hsC : has_homsets c) :
-   ∏ f g, functor_on_morphisms (functorial_composition a b c _ _)
-                               (precatbinprodmor (identity f) (Catlike_left_unitor b c _ hsC g))
+Definition Catlike_triangle ( a b c : category )
+  :
+   ∏ f g, functor_on_morphisms (functorial_composition_legacy a b c)
+                               (catbinprodmor (identity f) (Catlike_left_unitor b c g))
    =
-      (Catlike_associator a b b c hsB _ _
-        (make_precatbinprod f (make_precatbinprod (functor_identity_as_ob b hsB) g)))
-   · functor_on_morphisms (functorial_composition a b c _ _)
-                           (precatbinprodmor (Catlike_right_unitor a b _ f) (identity g)).
+      (Catlike_associator a b b c
+        (make_catbinprod f (make_catbinprod (functor_identity b : [ _, _] ) g)))
+   · functor_on_morphisms (functorial_composition_legacy a b c)
+                           (catbinprodmor (Catlike_right_unitor a b f) (identity g)).
 Proof.
   intros f g.
-  apply nat_trans_eq. exact hsC.
+  apply (nat_trans_eq c).
   intros oba.
-  simpl.
+  simpl. unfold horcomp_data; simpl.
   repeat rewrite functor_id.
   repeat rewrite (id_left _).
-  reflexivity.
+  apply idpath.
 Defined.
 
 (******************************************************************************)
@@ -241,7 +242,7 @@ Definition PreCat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists category.
   intros a b.
-  exact (functor_precategory a b (homset_property b)).
+  exact (functor_category a b).
 Defined.
 
 Definition PreCat_id_comp : prebicategory_id_comp.
@@ -252,10 +253,11 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (homset_property b)
-                                        (homset_property c)).
+    exact (functorial_composition_legacy a b c).
 Defined.
 
+
+(*
 Definition PreCat_data : prebicategory_data.
 Proof.
   unfold prebicategory_data.
@@ -263,9 +265,7 @@ Proof.
   repeat split.
   - intros.
     simpl in a,b,c,d.
-    exact (Catlike_associator a b c d (homset_property b)
-                                      (homset_property c)
-                                      (homset_property d)).
+    exact (Catlike_associator a b c d ).
   - intros.
     simpl in a, b.
     exact (Catlike_left_unitor a b (homset_property a)
@@ -333,7 +333,7 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (univalent_category_has_homsets b)
+    exact (functorial_composition_legacy a b c (univalent_category_has_homsets b)
                                         (univalent_category_has_homsets c)).
 Defined.
 
@@ -401,6 +401,7 @@ Proof.
   unfold has_homcats.
   intros a b.
   apply is_univalent_functor_category.
+  apply b.
 Defined.
 
 (* TODO: "Should be easy" *)
@@ -416,3 +417,5 @@ Defined.
 (*   - exact Cat_has_homcats. *)
 (*   - exact Cat_is_lt2saturated. *)
 (* Defined. *)
+
+ *)

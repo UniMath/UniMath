@@ -52,7 +52,8 @@ Section precomp_w_ess_surj_ff_is_ess_surj.
 
 (** ** Section variables *)
 
-Variables A B C : precategory.
+  Variables A B : category.
+  Variable C : category.
 Hypothesis Ccat : is_univalent C.
 Variable H : functor A B.
 Hypothesis p : essentially_surjective H.
@@ -177,7 +178,7 @@ Proof.
   apply proofirrelevance.
 
   repeat (apply impred; intro).
-  apply (pr2 Ccat).
+  apply C.
 Qed.
 
 
@@ -388,7 +389,7 @@ Proof.
   apply (total2_paths_f Hpr).
   apply proofirrelevance.
   repeat (apply impred; intro).
-  apply (pr2 Ccat).
+  apply C.
 Qed.
 
 (** The type [Y b b' f] is contractible. *)
@@ -453,7 +454,7 @@ Proof.
 
   assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
                         pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f')))).
-    apply (pr2 Ccat).
+    apply C.
   apply (p b (tpair (λ x, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0 h0]; simpl.
@@ -742,7 +743,7 @@ Qed.
 
 (** We call the functor [GG] ... *)
 
-Definition GG : [B, C, pr2 Ccat] := tpair _ preimage_functor_data
+Definition GG : [B, C, C] := tpair _ preimage_functor_data
                     is_functor_preimage_functor_data.
 
 (** ** [G] is the preimage of [F] under [ _ O H] *)
@@ -799,7 +800,7 @@ Defined.
 
 Lemma is_preimage_for_pre_composition : functor_composite H GG = F.
 Proof.
-  apply (functor_eq _ _  (pr2 Ccat) (functor_composite H GG) F).
+  apply (functor_eq _ _  C (functor_composite H GG) F).
   apply (total2_paths_f extphi).
   apply funextsec; intro a0;
   apply funextsec; intro a0';
@@ -864,8 +865,8 @@ End essentially_surjective.
 (** Abstracting from [F] by closing the previous section,
     we can prove essential surjectivity of [_ O H]. *)
 
-Lemma pre_composition_essentially_surjective (hsB: has_homsets B) :
-       essentially_surjective (pre_composition_functor A B C hsB (pr2 Ccat) H).
+Lemma pre_composition_essentially_surjective :
+       essentially_surjective (pre_composition_functor A B C H).
 Proof.
   intros F p' f.
   apply f.

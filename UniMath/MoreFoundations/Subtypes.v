@@ -132,13 +132,34 @@ Defined.
 
 Ltac hsubtype_induction f e := generalize f; apply hsubtype_rect; intro e; clear f.
 
+Lemma subtype_containment_istrans X : istrans (@subtype_containedIn X).
+Proof.
+  intros S T U i j x. exact (j x ∘ i x).
+Defined.
+
+Lemma subtype_containment_isrefl X : isrefl (@subtype_containedIn X).
+Proof.
+  intros S x s. exact s.
+Defined.
+
+Lemma subtype_containment_ispreorder X : ispreorder (@subtype_containedIn X).
+Proof.
+  use make_dirprod.
+  - apply subtype_containment_istrans.
+  - apply subtype_containment_isrefl.
+Defined.
+
+Lemma subtype_containment_isantisymm X : isantisymm (@subtype_containedIn X).
+Proof.
+  intros S T i j. apply (invmap (hsubtype_univalence S T)). apply subtype_equal_cond.
+  split; assumption.
+Defined.
+
 Lemma subtype_containment_isPartialOrder X : isPartialOrder (@subtype_containedIn X).
 Proof.
-  repeat split.
-  - intros S T U i j x. exact (j x ∘ i x).
-  - intros S x s. exact s.
-  - intros S T i j. apply (invmap (hsubtype_univalence S T)). apply subtype_equal_cond.
-    split; assumption.
+  use make_dirprod.
+  - apply subtype_containment_ispreorder.
+  - apply subtype_containment_isantisymm.
 Defined.
 
 Lemma subtype_inc_comp {X:UU} {S T U : hsubtype X} (i:S⊆T) (j:T⊆U) (s:S) :

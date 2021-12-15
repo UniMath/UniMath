@@ -45,7 +45,7 @@ Ltac unf := unfold identity,
 
 (** ** On objects *)
 
-Definition covyoneda_objects_ob (C : precategory) (c : C^op)
+Definition covyoneda_objects_ob (C : category) (c : C^op)
           (d : C) := C⟦c,d⟧.
 
 (* Definition covyoneda_objects_mor (C : precategory) (c : C^op) *)
@@ -53,56 +53,56 @@ Definition covyoneda_objects_ob (C : precategory) (c : C^op)
 (*    covyoneda_objects_ob C c d -> covyoneda_objects_ob C c d' := *)
 (*     λ g, g · f. *)
 
-Definition covyoneda_ob_functor_data (C : precategory) (hs : has_homsets C) (c : C^op) :
+Definition covyoneda_ob_functor_data (C : category) (c : C^op) :
     functor_data C HSET.
 Proof.
-exists (λ c', make_hSet (covyoneda_objects_ob C c c') (hs c c')) .
+exists (λ c', make_hSet (covyoneda_objects_ob C c c') (homset_property C c c')) .
 intros a b f g. unfold covyoneda_objects_ob in *. simpl in *.
 exact (g · f).
 Defined.
 
-Lemma is_functor_covyoneda_functor_data (C : precategory) (hs: has_homsets C) (c : C^op) :
-  is_functor (covyoneda_ob_functor_data C hs c).
+Lemma is_functor_covyoneda_functor_data (C : category) (c : C^op) :
+  is_functor (covyoneda_ob_functor_data C c).
 Proof.
 split.
 - intros c'; apply funextfun; intro x; apply id_right.
 - intros a b d f g; apply funextfun; intro h; apply assoc.
 Qed.
 
-Definition covyoneda_objects (C : precategory) (hs: has_homsets C) (c : C^op) :
+Definition covyoneda_objects (C : category) (c : C^op) :
              functor C HSET :=
-    tpair _ _ (is_functor_covyoneda_functor_data C hs c).
+    tpair _ _ (is_functor_covyoneda_functor_data C c).
 
 (** ** On morphisms *)
 
-Definition covyoneda_morphisms_data (C : precategory) (hs: has_homsets C) (c c' : C^op)
+Definition covyoneda_morphisms_data (C : category) (c c' : C^op)
     (f : C^op⟦c,c'⟧) : ∏ a : C,
-         HSET⟦covyoneda_objects C hs c a,covyoneda_objects C hs c' a⟧.
+         HSET⟦covyoneda_objects C  c a,covyoneda_objects C  c' a⟧.
 Proof.
 simpl in f; intros a g.
 apply (f · g).
 Defined.
 
-Lemma is_nat_trans_covyoneda_morphisms_data (C : precategory) (hs: has_homsets C)
+Lemma is_nat_trans_covyoneda_morphisms_data (C : category)
      (c c' : C^op) (f : C^op⟦c,c'⟧) :
-  is_nat_trans (covyoneda_objects C hs c) (covyoneda_objects C hs c')
-               (covyoneda_morphisms_data C hs c c' f).
+  is_nat_trans (covyoneda_objects C c) (covyoneda_objects C c')
+               (covyoneda_morphisms_data C c c' f).
 Proof.
 intros d d' g; apply funextsec; intro h; apply assoc.
 Qed.
 
-Definition covyoneda_morphisms (C : precategory) (hs: has_homsets C) (c c' : C^op)
-   (f : C^op⟦c,c'⟧) : nat_trans (covyoneda_objects C hs c) (covyoneda_objects C hs c') :=
-   tpair _ _ (is_nat_trans_covyoneda_morphisms_data C hs c c' f).
+Definition covyoneda_morphisms (C : category) (c c' : C^op)
+   (f : C^op⟦c,c'⟧) : nat_trans (covyoneda_objects C c) (covyoneda_objects C c') :=
+   tpair _ _ (is_nat_trans_covyoneda_morphisms_data C c c' f).
 
-Definition covyoneda_functor_data (C : precategory) (hs : has_homsets C) :
+Definition covyoneda_functor_data (C : category) :
    functor_data C^op [C,HSET,has_homsets_HSET] :=
-   tpair _ (covyoneda_objects C hs) (covyoneda_morphisms C hs).
+   tpair _ (covyoneda_objects C) (covyoneda_morphisms C).
 
 (** ** Functorial properties of the yoneda assignments *)
 
-Lemma is_functor_covyoneda (C : precategory) (hs: has_homsets C):
-  is_functor (covyoneda_functor_data C hs).
+Lemma is_functor_covyoneda (C : category) :
+  is_functor (covyoneda_functor_data C).
 Proof.
 split.
 - intro a.
@@ -114,9 +114,9 @@ split.
   simpl; intro d; apply funextsec; intro h; apply pathsinv0, assoc.
 Qed.
 
-Definition covyoneda (C : precategory) (hs: has_homsets C) :
+Definition covyoneda (C : category) :
   functor C^op [C, HSET, has_homsets_HSET] :=
-   tpair _ _ (is_functor_covyoneda C hs).
+   tpair _ _ (is_functor_covyoneda C).
 
 
 (** TODO: adapt the rest? *)

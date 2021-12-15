@@ -78,31 +78,35 @@ Defined.
 Definition cat_precat_subtype : hsubtype precat_precat :=
   λ C : precategory, make_hProp _ (isaprop_has_homsets C).
 
+(*
 (** A subcategory can be coerced to a precategory, see [carrier_of_sub_precategory]. *)
 Definition cat_precat : sub_precategories precat_precat :=
   full_sub_precategory cat_precat_subtype.
-
+*)
 (** It's not the case that [cat_precat] has homsets. *)
 
 (** *** The precategory of 𝒰-small univalent categories ([univalent_cat_precat]) *)
 
+(*
 Definition univalent_cat_precat_subtype : hsubtype precat_precat :=
   λ C : precategory, make_hProp _ (isaprop_is_univalent C).
-
+*)
+(*
 Definition univalent_cat_precat : sub_precategories precat_precat :=
   full_sub_precategory univalent_cat_precat_subtype.
-
+*)
 (** This can also be seen as a subcategory of [cat_precat].
     An isommorphism between them would be useful because it is easier to prove
     e.g. that [cat_precat] has products, and then inherit them in
     [univalent_cat_precat]. *)
-
+(*
 Definition univalent_cat_precat_subtype' : hsubtype cat_precat :=
   λ C : category, make_hProp _ (isaprop_is_univalent C).
-
+ *)
+(*
 Definition univalent_cat_precat' : sub_precategories cat_precat :=
   full_sub_precategory univalent_cat_precat_subtype'.
-
+*)
 (** Two copies of a proposition are as good as one.
     This is like the structural rule of contraction. *)
 Local Lemma dirprod_with_prop (A : UU) (isa : isaprop A) : A × A ≃ A.
@@ -126,6 +130,7 @@ Proof.
   - apply weqdirprodcomm.
 Defined.
 
+(*
 Lemma univalent_cat_precat_subcat_weq :
   univalent_cat_precat ≃ univalent_cat_precat'.
 Proof.
@@ -143,6 +148,7 @@ Proof.
     apply dirprod_with_prop'.
     apply isaprop_has_homsets.
 Defined.
+ *)
 
 (** *** The category of 𝒰-small set categories ([setcat_cat]) *)
 
@@ -152,13 +158,17 @@ Defined.
 Definition hlevel_precat_subtype : nat → nat → hsubtype precat_precat :=
   object_homtype_hlevel.
 
+(*
 Definition hlevel_precat (n m : nat) : sub_precategories precat_precat :=
   full_sub_precategory (hlevel_precat_subtype n m).
-
+*)
 (** **** Setcategories, the case where n = m = 2. *)
 
+(*
 Definition setcat_precat : sub_precategories precat_precat := hlevel_precat 2 2.
+ *)
 
+(*
 Lemma has_homsets_setcat_precat : has_homsets setcat_precat.
 Proof.
   intros X Y; apply isaset_total2.
@@ -169,9 +179,13 @@ Proof.
     change isaset with (isofhlevel 2).
     apply isofhlevelcontr, iscontrunit.
 Defined.
-
+ *)
+(*
 Definition setcat_cat : category := make_category _ has_homsets_setcat_precat.
+ *)
 
+
+(*
 (** ** Colimits *)
 
 (** *** Initial objects *)
@@ -301,5 +315,5 @@ Proof.
         }
   + apply weqproperty.
 Defined.
-
+*)
 (** *)

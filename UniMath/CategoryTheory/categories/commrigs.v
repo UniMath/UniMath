@@ -173,14 +173,14 @@ Section def_commrig_category.
   Defined.
   Opaque commrig_precategory_isweq.
 
-  Definition commrig_precategory_is_univalent : is_univalent commrig_precategory.
+  Definition commrig_category : category := make_category _ has_homsets_commrig_precategory.
+
+  Definition commrig_category_is_univalent : is_univalent commrig_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (commrig_precategory_isweq X Y).
-    - exact has_homsets_commrig_precategory.
+    intros X Y. exact (commrig_precategory_isweq X Y).
   Defined.
 
-  Definition commrig_category : univalent_category :=
-    make_univalent_category commrig_precategory commrig_precategory_is_univalent.
+  Definition commrig_univalent_category : univalent_category :=
+    make_univalent_category commrig_category commrig_category_is_univalent.
 
 End def_commrig_category.

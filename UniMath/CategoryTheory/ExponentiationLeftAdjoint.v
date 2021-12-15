@@ -65,14 +65,13 @@ Context {C : category} (PC : BinProducts C) (c : C).
 
 Let prod_functor_c : functor C C := constprod_functor1 PC c.
 
-Let Yon {C : category} : C ⟶ PreShv C := yoneda C (homset_property C).
+Let Yon {C : category} : C ⟶ PreShv C := yoneda C.
 
 Definition precomp_prod_functor : functor (PreShv C) (PreShv C).
 Proof.
   use pre_composition_functor.
-  - apply has_homsets_opp, homset_property.
-  - apply functor_opp.
-    exact prod_functor_c.
+  apply functor_opp.
+  exact prod_functor_c.
 Defined.
 
 Lemma precomp_prod_functor_has_right_adjoint : is_left_adjoint precomp_prod_functor.
@@ -84,8 +83,6 @@ Defined.
 Definition PreShv_exponentials : Exponentials (@BinProducts_PreShv C).
 Proof.
   apply Exponentials_functor_HSET.
-  apply has_homsets_opp.
-  apply homset_property.
 Defined.
 
 Definition exp (F : PreShv C) : functor (PreShv C) (PreShv C) :=
@@ -102,7 +99,7 @@ Proof.
     + exact (PreShv C)^op.
     + use functor_opp.
       exact Yon.
-    + exact (yoneda _ (homset_property _) ((exp (Yon c)) F)).
+    + exact (yoneda _ ((exp (Yon c)) F)).
   - intros F G α.
     use make_nat_trans.
     + intros X f.
@@ -331,7 +328,7 @@ Lemma fourth_iso_nat_in_x (F : PreShv C) :
   is_nat_trans (pr1 (Fun3 F)) _ (λ x, fourth_iso_on_sets F x).
 Proof.
   intros X Y f.
-  use (is_natural_yoneda_iso _ _ _ _ _ (BinProduct_of_functors_mor _ _ PC _ _ _ _ _)).
+  use (is_natural_yoneda_iso _ _ _ _  (BinProduct_of_functors_mor _ _ PC _ _ _ _ _)).
 Qed.
 
 Lemma fourth_iso_nat_in_F:
@@ -368,7 +365,6 @@ Defined.
 Theorem is_left_adjoint_exp_yoneda : is_left_adjoint (exp (Yon c)).
 Proof.
   use is_left_adjoint_iso.
-  - apply homset_property.
   - exact precomp_prod_functor.
   - use iso_exp_precomp_prod_functor.
   - use precomp_prod_functor_has_right_adjoint.

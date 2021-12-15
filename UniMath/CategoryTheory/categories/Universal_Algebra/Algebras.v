@@ -87,7 +87,7 @@ Section Algebras.
   following the example of the proof of univalence of the functor category.
   *)
 
-  Lemma shSet_iso_fiber {A B : shSet_category} (i : iso A B): ∏ s, @iso SET (A s) (B s).
+  Lemma shSet_iso_fiber {A B : shSet_category} (i : iso A B): ∏ s, @iso HSET (A s) (B s).
   Proof.
     intro s.
     apply z_iso_to_iso.
@@ -157,8 +157,6 @@ Section Algebras.
 
   Definition is_univalent_shSet_category : is_univalent shSet_category.
   Proof.
-    split.
-    2: apply has_homsets_shSet_precategory.
     intros F G.
     apply (isweq_iso _ (shSet_eq_from_shSet_iso F G)).
     - apply shSet_eq_from_shSet_iso_idtoiso.
