@@ -34,13 +34,6 @@ Require Import UniMath.Algebra.Elimination.Auxiliary.
 Require Import UniMath.Algebra.Elimination.Vectors.
 Require Import UniMath.Algebra.Elimination.Matrices.
 
-(* Which of these contextual definitions and notations if any should be included here? *)
-(*Local Definition R := pr1hSet natcommrig.*)
-(* Context { R : rig }. *)
-Local Definition F := hq. (* TODO we probably don't want this and presumably not here at top level - remove *)
-Opaque F.
-
-
 
 Section GaussOps.
   (* Gaussian elimination over the field of rationals *)
@@ -50,11 +43,10 @@ Section GaussOps.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
 
-  Context { R : hq }.
   (* Gaussian elimination over the field of rationals *)
 
-  Definition gauss_add_row { m n : nat } ( mat : Matrix F m n )
-    ( r1 r2 : ⟦ m ⟧%stn )  ( s : F ) : ( Matrix F m n ).
+  Definition gauss_add_row { m n : nat } ( mat : Matrix hq m n )
+    ( r1 r2 : ⟦ m ⟧%stn )  ( s : hq ) : ( Matrix hq m n ).
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r2).
@@ -62,7 +54,7 @@ Section GaussOps.
     - exact ( mat i j ).
   Defined.
 
-  Definition add_row_op { n : nat } (mat : Matrix F n n) (r1 r2 : ⟦ n ⟧ %stn) (s : F) : Matrix F n n.
+  Definition add_row_op { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧ %stn) (s : hq) : Matrix hq n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
@@ -71,7 +63,7 @@ Section GaussOps.
   Defined.
 
   (* TODO rename *)
-  Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : F)  : Matrix F n n.
+  Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : hq)  : Matrix hq n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
@@ -79,8 +71,8 @@ Section GaussOps.
     - exact (@identity_matrix hq n i).
   Defined.
 
-  Definition gauss_scalar_mult_row { m n : nat} (mat : Matrix F m n)
-    (s : F) (r : ⟦ m ⟧%stn): Matrix F m n.
+  Definition gauss_scalar_mult_row { m n : nat} (mat : Matrix hq m n)
+    (s : hq) (r : ⟦ m ⟧%stn): Matrix hq m n.
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r).
@@ -90,7 +82,7 @@ Section GaussOps.
 
   (* TODO  generalize to m x n whereever possible*)
   Definition make_scalar_mult_row_matrix { n : nat}
-    (s : F) (r : ⟦ n ⟧%stn): Matrix F n n.
+    (s : hq) (r : ⟦ n ⟧%stn): Matrix hq n n.
   Proof.
     intros i j.
     induction (stn_eq_or_neq i j).
@@ -100,8 +92,8 @@ Section GaussOps.
       - exact 0%hq.
   Defined.
 
-  Definition gauss_switch_row {m n : nat} (mat : Matrix F m n)
-             (r1 r2 : ⟦ m ⟧%stn) : Matrix F m n.
+  Definition gauss_switch_row {m n : nat} (mat : Matrix hq m n)
+             (r1 r2 : ⟦ m ⟧%stn) : Matrix hq m n.
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r1).
@@ -151,7 +143,7 @@ Section GaussOps.
         try rewrite m_eq; try reflexivity.
   Defined.
 
-  Definition make_gauss_switch_row_matrix (n : nat)  (r1 r2 : ⟦ n ⟧ %stn) : Matrix F n n.
+  Definition make_gauss_switch_row_matrix (n : nat)  (r1 r2 : ⟦ n ⟧ %stn) : Matrix hq n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r1).
@@ -161,7 +153,7 @@ Section GaussOps.
       + exact (@identity_matrix hq n i).
   Defined.
 
-  Definition test_row_switch {m n : nat} (mat : Matrix F m n)
+  Definition test_row_switch {m n : nat} (mat : Matrix hq m n)
     (r1 r2 : ⟦ m ⟧%stn) : (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
   Proof.
     use funextfun; intros i.
@@ -185,7 +177,7 @@ Section GaussOps.
 
   (* The following three lemmata test the equivalence of multiplication by elementary matrices
      to swaps of indices. *)
-  Lemma scalar_mult_mat_elementary {n : nat} (mat : Matrix F n n) (s : hq) (r : ⟦ n ⟧%stn) :
+  Lemma scalar_mult_mat_elementary {n : nat} (mat : Matrix hq n n) (s : hq) (r : ⟦ n ⟧%stn) :
     ((make_scalar_mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
   Proof.
     use funextfun. intros i.
@@ -195,28 +187,28 @@ Section GaussOps.
     assert (p : n > 0). { apply (stn_implies_ngt0 r). }
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' F n _ p i ).
+      rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
       + rewrite stn_neq_or_neq_refl.
         simpl.
         apply idpath.
       + intros k i_neq_k.
         rewrite (stn_eq_or_neq_right i_neq_k).
         simpl.
-        apply (@rigmult0x F).
+        apply (@rigmult0x hq).
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' F n _ p i ).
+      rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
       + rewrite stn_neq_or_neq_refl.
         simpl.
-        rewrite (@riglunax2 F).
+        rewrite (@riglunax2 hq).
         reflexivity.
       + intros k i_neq_k.
         rewrite (stn_eq_or_neq_right i_neq_k).
         simpl.
-        apply (@rigmult0x F).
+        apply (@rigmult0x hq).
   Defined.
 
   (* TODO should certainly be over R *)
-  Lemma switch_row_mat_elementary { n : nat } (mat : Matrix F n n) (r1 r2 : ⟦ n ⟧%stn) :
+  Lemma switch_row_mat_elementary { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧%stn) :
     ((make_gauss_switch_row_matrix n r1 r2) ** mat)  = gauss_switch_row mat r1 r2.
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
@@ -226,14 +218,14 @@ Section GaussOps.
     assert (p: n > 0).  { apply ( stn_implies_ngt0 r1).  }
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' F n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n r2 i * _)%ring p r2).
+      rewrite (@pulse_function_sums_to_point_rig'' hq n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n r2 i * _)%ring p r2).
       + unfold identity_matrix.
         rewrite stn_neq_or_neq_refl.
         simpl.
-        apply (@riglunax2 F).
+        apply (@riglunax2 hq).
       + intros k r2_neq_k.
         rewrite (@id_mat_ij hq n r2 k r2_neq_k).
-        apply (@rigmult0x F).
+        apply (@rigmult0x hq).
     - simpl.
       destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
       + simpl.
@@ -249,7 +241,7 @@ Section GaussOps.
 
 
   (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
-  Lemma add_row_mat_elementary { n : nat } (mat : Matrix F n n) (r1 r2 : ⟦ n ⟧%stn) (p : r1 ≠ r2) (s : F) :
+  Lemma add_row_mat_elementary { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧%stn) (p : r1 ≠ r2) (s : hq) :
     ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
@@ -268,17 +260,17 @@ Section GaussOps.
         apply isirrefl_natneq in p.
         contradiction.
       + simpl.
-        rewrite (@pulse_function_sums_to_point_rig'' F n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n k i * _)%ring p' k).
+        rewrite (@pulse_function_sums_to_point_rig'' hq n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n k i * _)%ring p' k).
         * rewrite k_eq_r1 in *.
           rewrite id_mat_ii.
-          rewrite (@riglunax2 F).
+          rewrite (@riglunax2 hq).
           apply idpath.
         * intros j k_neq_j.
           rewrite (id_mat_ij k j k_neq_j).
-          apply (@rigmult0x F).
+          apply (@rigmult0x hq).
     - destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
       + simpl.
-        rewrite (@two_pulse_function_sums_to_point_rig F n (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
+        rewrite (@two_pulse_function_sums_to_point_rig hq n (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
         * unfold const_vec, identity_matrix.
           rewrite stn_neq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
@@ -286,11 +278,11 @@ Section GaussOps.
           rewrite stn_neq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
           rewrite (stn_eq_or_neq_right k_neq_r1). simpl.
-          rewrite (@rigmultx0 F).
-          rewrite (@rigrunax1 F).
-          rewrite (@riglunax1 F (s * _))%hq.
-          rewrite (@rigrunax2 F).
-          rewrite (@riglunax2 F).
+          rewrite (@rigmultx0 hq).
+          rewrite (@rigrunax1 hq).
+          rewrite (@riglunax1 hq (s * _))%hq.
+          rewrite (@rigrunax2 hq).
+          rewrite (@riglunax2 hq).
           rewrite k_eq_r2.
           apply idpath.
         * exact k_neq_r1.
@@ -299,13 +291,13 @@ Section GaussOps.
           apply issymm_natneq in q_neq_k.
           rewrite (stn_eq_or_neq_right q_neq_k).
           simpl.
-          rewrite (@riglunax1 F).
+          rewrite (@riglunax1 hq).
           unfold const_vec.
           apply issymm_natneq in q_neq_k'.
           rewrite (stn_eq_or_neq_right q_neq_k').
           simpl.
-          rewrite (@rigmultx0 F).
-          rewrite (@rigmult0x F).
+          rewrite (@rigmultx0 hq).
+          rewrite (@rigmult0x hq).
           apply idpath.
       + simpl.
         rewrite (@sum_id_pointwise_prod_unf hq).
@@ -313,7 +305,7 @@ Section GaussOps.
   Defined.
 
   (* For hq at least *)
-  Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F ) :
+  Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) :
       ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r))
     = ((make_scalar_mult_row_matrix s2 r ) ** (make_scalar_mult_row_matrix s1 r)).
   Proof.
@@ -334,7 +326,7 @@ Section GaussOps.
   Defined.
 
   Lemma scalar_mult_matrix_multiplicative { n : nat }
-        ( r : ⟦ n ⟧%stn ) ( s1 s2 : F ) (*( ne : hqneq s 0%hq )*) :
+        ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (*( ne : hqneq s 0%hq )*) :
     ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r ))
    = (make_scalar_mult_row_matrix (s1 * s2)%hq r ).
   Proof.
@@ -359,10 +351,10 @@ Section GaussOps.
   Defined.
 
 
-  (* TODO : F should also be a general field, not short-hand for rationals specifically.
+  (* TODO : hq should also be a general field, not short-hand for rationals specifically.
             This does not mandate any real change in any proofs ?*)
-  Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : hqneq s 0%hq ) :
-    @matrix_inverse F n (make_scalar_mult_row_matrix s i ).
+  Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : hq ) ( ne : hqneq s 0%hq ) :
+    @matrix_inverse hq n (make_scalar_mult_row_matrix s i ).
   Proof.
     set (B :=  (make_scalar_mult_row_matrix (hqmultinv s ) i)).
     use tpair.
@@ -422,7 +414,7 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_additive { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : F ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
+        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
     ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
    = (make_add_row_matrix r1 r2 (s1 + s2)%hq ).
   Proof.
@@ -445,7 +437,7 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_commutes { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : F ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
+        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
      ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
      = ((make_add_row_matrix r1 r2 s2 ) ** (make_add_row_matrix r1 r2 s1 )).
   Proof.
@@ -461,9 +453,9 @@ Section GaussOps.
     reflexivity.
   Defined.
 
-  Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : F )
+  Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : hq )
     (*(p : (s != 0)%hq)*) (p' : n > 0):
-    @matrix_inverse F n (make_add_row_matrix r1 r2 s ).
+    @matrix_inverse hq n (make_add_row_matrix r1 r2 s ).
   Proof.
     use tpair.
     {
@@ -486,18 +478,18 @@ Section GaussOps.
       + simpl.
         destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2]
         ; destruct (stn_eq_or_neq k l) as [k_eq_l | k_neq_l]; simpl.
-        * rewrite (@two_pulse_function_sums_to_point_rig F n _ p' k r1).
+        * rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
           -- do 2 rewrite stn_neq_or_neq_refl. simpl.
              rewrite (stn_eq_or_neq_right r1_neq_r2).
              rewrite k_eq_l in *.
              rewrite k_eq_r2 in *.
              rewrite (stn_eq_or_neq_right r1_neq_r2'). simpl.
-             rewrite (@rigmultx0 F); rewrite (@rigrunax1 F); rewrite (@riglunax2 F).
+             rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq).
              rewrite stn_neq_or_neq_refl; simpl.
              rewrite stn_neq_or_neq_refl; simpl.
              rewrite (stn_eq_or_neq_right r1_neq_r2').
-             rewrite (@rigmultx0 F); simpl; rewrite (@rigmultx0 F).
-             do 2 rewrite (@rigrunax1 F).
+             rewrite (@rigmultx0 hq); simpl; rewrite (@rigmultx0 hq).
+             do 2 rewrite (@rigrunax1 hq).
              apply idpath.
           -- rewrite k_eq_r2.
              apply issymm_natneq in r1_neq_r2'.
@@ -510,9 +502,9 @@ Section GaussOps.
              rewrite (stn_eq_or_neq_right q_neq_k).
              apply issymm_natneq in q_neq_r1.
              rewrite (stn_eq_or_neq_right q_neq_r1).
-             rewrite (@rigmultx0 F).
+             rewrite (@rigmultx0 hq).
              apply idpath.
-        *  rewrite (@two_pulse_function_sums_to_point_rig F n _ p' k r1).
+        *  rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
            -- rewrite (stn_eq_or_neq_right r1_neq_r2); simpl.
               rewrite stn_neq_or_neq_refl. simpl.
               rewrite k_eq_r2 in *.
@@ -520,20 +512,20 @@ Section GaussOps.
               rewrite stn_neq_or_neq_refl.
               simpl.
               rewrite (stn_eq_or_neq_right k_neq_l).
-              rewrite (@rigmultx0 F); rewrite (@rigrunax1 F); rewrite (@riglunax2 F); rewrite (@riglunax1 F).
+              rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq); rewrite (@riglunax1 hq).
               unfold const_vec.
               rewrite stn_neq_or_neq_refl.
               apply issymm_natneq in r1_neq_r2'.
               rewrite (stn_eq_or_neq_right r1_neq_r2').
               destruct (stn_eq_or_neq r1 l) as [r1_eq_l | r1_neq_l].
               ++ simpl.
-                 do 3 rewrite (@rigrunax2 F).
+                 do 3 rewrite (@rigrunax2 hq).
                  rewrite (hqpluscomm _ s) . (* Only place we mention hq ? TODO don't? *)
                  rewrite hqplusr0.
                  rewrite hqlminus.
                  apply idpath.
-              ++ repeat rewrite (@rigmultx0 F).
-                 rewrite (@rigrunax1 F).
+              ++ repeat rewrite (@rigmultx0 hq).
+                 rewrite (@rigrunax1 hq).
                  apply idpath.
            -- rewrite k_eq_r2.
               apply issymm_natneq.
@@ -545,9 +537,9 @@ Section GaussOps.
               unfold const_vec.
               apply issymm_natneq in q_neq_r1.
               rewrite (stn_eq_or_neq_right q_neq_r1).
-              rewrite (@riglunax1 F).
-              rewrite (@rigmultx0 F).
-              rewrite (@rigmult0x F).
+              rewrite (@riglunax1 hq).
+              rewrite (@rigmultx0 hq).
+              rewrite (@rigmult0x hq).
               apply idpath.
         * rewrite k_eq_l in *.
           set (cl := setquot _ ).
@@ -646,8 +638,8 @@ Section GaussOps.
       apply idpath.
   Defined.
 
-  Lemma switch_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (*( s : F )*) (*( ne : hqneq s 0%hq )*) :
-    @matrix_inverse F n (make_gauss_switch_row_matrix n r1 r2).
+  Lemma switch_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (*( s : hq )*) (*( ne : hqneq s 0%hq )*) :
+    @matrix_inverse hq n (make_gauss_switch_row_matrix n r1 r2).
   Proof.
     (* intros. *)
     use tpair.
@@ -1274,7 +1266,7 @@ Section Gauss.
 
   (* Refactored to include induction on natgthorleh j k*)
   Definition gauss_clear_column_step (n : nat) (ki kj : (⟦ n ⟧%stn))
-             (i : (⟦ n ⟧%stn)) (mat : Matrix F n n) : Matrix F n n.
+             (i : (⟦ n ⟧%stn)) (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     destruct (stn_eq_or_neq i ki) as [? | ?].
     - exact mat.
@@ -1283,7 +1275,7 @@ Section Gauss.
   Defined.
 
   Definition gauss_clear_column_step' (n : nat) (ki kj : (⟦ n ⟧%stn))
-             (i : (⟦ n ⟧%stn)) (mat : Matrix F n n) : Matrix F n n.
+             (i : (⟦ n ⟧%stn)) (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     destruct (stn_eq_or_neq i ki) as [? | ?].
     - exact mat.
@@ -1292,7 +1284,7 @@ Section Gauss.
 
 
   Lemma gauss_clear_column_step_eq (n : nat) (ki kj : (⟦ n ⟧%stn))
-             (i : (⟦ n ⟧%stn)) (mat : Matrix F n n):
+             (i : (⟦ n ⟧%stn)) (mat : Matrix hq n n):
     gauss_clear_column_step n ki kj i mat = gauss_clear_column_step' n ki kj i mat.
   Proof.
     unfold gauss_clear_column_step.
@@ -1314,9 +1306,9 @@ Section Gauss.
   (* TODO: rename to [gauss_clear_column_segment]
      TODO: refactor to use a chosen/given pivot, not always diagonal *)
   (* Temporarily renamed to old ! To try to make all lemmas work on this one. *)
-  Definition gauss_clear_column_old { n : nat } (mat : Matrix F n n)
+  Definition gauss_clear_column_old { n : nat } (mat : Matrix hq n n)
       (k_i k_j : (⟦ n ⟧%stn)) (p : ⟦ S n ⟧%stn)
-    : Matrix F n n.
+    : Matrix hq n n.
   Proof.
     destruct p as [p lt_p].
     induction p as [ | p gauss_clear_column_IH ].
@@ -1330,7 +1322,7 @@ Section Gauss.
   (* A third version that more closely follows the matrix construction -
      we break at iter ≤ k. This however is already done in gauss_clear_column_step. *)
   Definition gauss_clear_column'' { n : nat }
-    (mat : Matrix F n n) (k_i k_j : (⟦ n ⟧%stn))  (iter : ⟦ S n ⟧%stn) : Matrix F n n.
+    (mat : Matrix hq n n) (k_i k_j : (⟦ n ⟧%stn))  (iter : ⟦ S n ⟧%stn) : Matrix hq n n.
   Proof.
     (*revert mat.*)
     destruct iter as [pr1_ pr2_].
@@ -1516,7 +1508,7 @@ Section Gauss.
   (* Move all invs up here ? *)
   Lemma gauss_clear_column_step_inv4
      (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-         (j : (⟦ n ⟧%stn)) (mat : Matrix F n n)
+         (j : (⟦ n ⟧%stn)) (mat : Matrix hq n n)
          (p : j = k_i) : (gauss_clear_column_step n k_i k_j j mat) = mat.
   Proof.
     unfold gauss_clear_column_step.
@@ -1538,7 +1530,7 @@ Section Gauss.
 
   Definition gauss_clear_row
              { n : nat }
-             (mat : Matrix F n n)
+             (mat : Matrix hq n n)
              (row : (⟦ n ⟧%stn))
     : Matrix hq n n.
   Proof.
@@ -1551,7 +1543,7 @@ Section Gauss.
 
   Definition gauss_clear_row_as_left_matrix
              { n : nat }
-             (mat : Matrix F n n)
+             (mat : Matrix hq n n)
              (row : (⟦ n ⟧%stn))
     : Matrix hq n n.
   Proof.
@@ -1579,10 +1571,10 @@ Section Gauss.
   Defined.
 
   Definition gauss_clear_rows_up_to_internal { n : nat }
-             (mat : Matrix F n n)
+             (mat : Matrix hq n n)
              (p : n > 0) (* Remove p when gcc is refactored *)
              (row_sep : (⟦ S n ⟧%stn))
-    : (Matrix F n n).
+    : (Matrix hq n n).
   Proof.
     destruct row_sep as [row_sep row_sep_lt_n].
     induction row_sep as [ | row_sep gauss_clear_earlier_rows].
@@ -1593,7 +1585,7 @@ Section Gauss.
   Defined.
 
   Definition gauss_clear_rows_up_to { n : nat }
-             (mat : Matrix F n n)
+             (mat : Matrix hq n n)
              (p : n > 0) (* Remove p when gcc is refactored *)
              (row_sep : (⟦ S n ⟧%stn))
     := gauss_clear_rows_up_to_internal mat p row_sep.
@@ -1602,10 +1594,10 @@ Section Gauss.
      corresponds to [gauss_clear_columns_up_to]  *)
   Lemma clear_rows_up_to_as_left_matrix_internal
       { n : nat }
-      (mat : Matrix F n n)
+      (mat : Matrix hq n n)
       (p : n > 0) (* Remove p when gcc is refactored *)
       (row_sep : (⟦ S n ⟧%stn))
-    : (Matrix F n n).
+    : (Matrix hq n n).
   Proof.
     destruct row_sep as [row_sep row_sep_lt_n].
     induction row_sep as [ | row_sep gauss_clear_earlier_rows].
@@ -1616,8 +1608,8 @@ Section Gauss.
     exact (gauss_clear_earlier_rows lt).
   Defined.
 
-  Lemma clear_rows_up_to_as_left_matrix  { n : nat } (mat : Matrix F n n) (p : n > 0) (* Remove p when gcc is refactored *)
-        (k : (⟦ S n ⟧%stn)) : Matrix F n n.
+  Lemma clear_rows_up_to_as_left_matrix  { n : nat } (mat : Matrix hq n n) (p : n > 0) (* Remove p when gcc is refactored *)
+        (k : (⟦ S n ⟧%stn)) : Matrix hq n n.
   Proof.
     exact (clear_rows_up_to_as_left_matrix_internal mat p k).
   Defined.
@@ -1625,7 +1617,7 @@ Section Gauss.
   (* the deining property of [clear_columns_up_to_as_left_matrix]
      - proven later, after the equivalence of clear columns procedure - TODO remove / move  *)
   (*Lemma clear_columns_up_to_as_left_matrix_eq {n : nat} (p : ⟦ S n ⟧%stn) (* Remove p when gcc is refactored *)
-        (H : n > 0) (*TODO remove *) (k : (⟦ n ⟧%stn)) (mat : Matrix F n n)
+        (H : n > 0) (*TODO remove *) (k : (⟦ n ⟧%stn)) (mat : Matrix hq n n)
     : ((clear_columns_up_to_as_left_matrix mat H p) ** mat) = (pr1 (gauss_clear_columns_up_to mat H p )).
   Proof.
     intros.
@@ -1638,7 +1630,7 @@ Section Gauss.
   Abort. (* We need gcc as matrix = gcc here, but it's stated below. *)*)
 
   Lemma clear_rows_up_to_matrix_invertible {n : nat} (p : ⟦ S n ⟧%stn)
-    (H : n > 0) (k : (⟦ n ⟧%stn)) (mat : Matrix F n n)
+    (H : n > 0) (k : (⟦ n ⟧%stn)) (mat : Matrix hq n n)
     : @matrix_inverse hq _  (clear_rows_up_to_as_left_matrix mat H p).
   Proof.
     unfold clear_rows_up_to_as_left_matrix.
@@ -1659,7 +1651,7 @@ Section Gauss.
      This will be used to find a witness to non-invertibility for lower triangular input matrices.  *)
   Definition gauss_clear_columns_up_to_no_switch { n : nat } (p : n > 0) (* Remove p when gcc is refactored *)
              (k : (⟦ S n ⟧%stn))
-             (mat : Matrix F n n) : Matrix F n n.
+             (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     destruct k as [k lt_k_n].
     induction k as [ | k' gauss_clear_earlier_columns].
@@ -1676,7 +1668,7 @@ Section Gauss.
 
 
   Lemma clear_columns_up_to_no_switch_as_left_matrix_internal { n : nat } (p : n > 0) (* Remove p when gcc is refactored *)
-    (k : (⟦ S n ⟧%stn)) (mat : Matrix F n n) :  Matrix F n n.
+    (k : (⟦ S n ⟧%stn)) (mat : Matrix hq n n) :  Matrix hq n n.
   Proof.
     destruct k as [k lt_k_n].
     induction k as [ | k' gauss_clear_earlier_columns].
@@ -1694,13 +1686,13 @@ Section Gauss.
   Defined.
 
   Lemma clear_columns_up_to_no_switch_as_left_matrix  { n : nat } (p : n > 0)
-    (k : (⟦ S n ⟧%stn)) (mat : Matrix F n n) : Matrix F n n.
+    (k : (⟦ S n ⟧%stn)) (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     exact ((clear_columns_up_to_no_switch_as_left_matrix_internal p k mat)).
   Defined.
 
   Lemma clear_columns_up_to_matrix_no_switch_invertible {n : nat} (p : ⟦ S n ⟧%stn) (* Remove p when gcc is refactored *)
-    (H : n > 0) (k : (⟦ n ⟧%stn)) (mat : Matrix F n n)
+    (H : n > 0) (k : (⟦ n ⟧%stn)) (mat : Matrix hq n n)
     : (* (@matrix_inverse hq _ mat) -> *)
        @matrix_inverse hq _  (clear_columns_up_to_no_switch_as_left_matrix H p mat).
   Proof.
@@ -1722,7 +1714,7 @@ Section Gauss.
 
   (* Inputting a matrix and transforming it into an upper-triangular matrix by
      elementary matrix operations or equivalent *)
-  Definition gauss_clear_all_row_segments { n : nat } (mat : Matrix F n n) : Matrix F n n.
+  Definition gauss_clear_all_row_segments { n : nat } (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     destruct (natchoice0 n). {exact mat. }
     refine ((gauss_clear_rows_up_to  mat _ (n,,_))).
@@ -1730,7 +1722,7 @@ Section Gauss.
     - exact (natgthsnn n).
   Defined.
 
-  Definition gauss_clear_all_column_segments_by_left_mult { n : nat } (mat : Matrix F n n) : Matrix F n n.
+  Definition gauss_clear_all_column_segments_by_left_mult { n : nat } (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
     destruct (natchoice0 n). {exact mat. }
     refine (clear_rows_up_to_as_left_matrix mat  _ (n,,_) ).
@@ -1740,7 +1732,7 @@ Section Gauss.
 
   (* The clear column step operation does clear the target entry (mat (k j)) *)
   Lemma gauss_clear_column_step_inv1 (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-        (j : (⟦ n ⟧%stn)) (mat : Matrix F n n)  (p_1 : mat k_i k_j != 0%hq)
+        (j : (⟦ n ⟧%stn)) (mat : Matrix hq n n)  (p_1 : mat k_i k_j != 0%hq)
         (p_2 : j ≠ k_i) :
     (gauss_clear_column_step n k_i k_j j mat) j k_j = 0%hq.
   Proof.
@@ -1752,7 +1744,7 @@ Section Gauss.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     assert (p_3 : n > 0). { apply (stn_implies_ngt0 k_i). }
     set (f := λ i, _).
-    rewrite (@two_pulse_function_sums_to_points_rig' F n _ p_3 k_i j). (*TODO fix ugly signature *)
+    rewrite (@two_pulse_function_sums_to_points_rig' hq n _ p_3 k_i j). (*TODO fix ugly signature *)
     - destruct (stn_eq_or_neq k_i j) as [k_eq_j | k_neq_j].
       + rewrite k_eq_j.
         replace (f j) with 0%hq.
@@ -1762,7 +1754,7 @@ Section Gauss.
         rewrite stn_neq_or_neq_refl; rewrite coprod_rect_compute_1.
         rewrite k_eq_j.
         rewrite stn_neq_or_neq_refl; rewrite coprod_rect_compute_1.
-        rewrite (@rigrunax2 F).
+        rewrite (@rigrunax2 hq).
         rewrite <- k_eq_j.
         rewrite (hqisrinvmultinv (mat k_i k_j)). 2 : {exact p_1. }
         rewrite (@ringrinvax1 hq).
@@ -1783,15 +1775,15 @@ Section Gauss.
                    2: { apply issymm_natneq. exact (k_neq_j). } apply idpath. }
         etrans. {do 3 apply maponpaths_2. rewrite id_mat_ij; try assumption; apply idpath. }
         etrans. {do 2 apply maponpaths_2.
-                 rewrite (@rigrunax2 F), (@riglunax1 F).
+                 rewrite (@rigrunax2 hq), (@riglunax1 hq).
                  reflexivity. }
         apply issymm_natneq in k_neq_j.
         unfold const_vec.
         etrans. { apply maponpaths.  reflexivity. }
-        rewrite (@rigmultx0 F).
+        rewrite (@rigmultx0 hq).
         etrans.
-          {apply maponpaths. rewrite (@rigrunax1 F).
-          rewrite (@riglunax2 F). reflexivity. }
+          {apply maponpaths. rewrite (@rigrunax1 hq).
+          rewrite (@riglunax2 hq). reflexivity. }
         etrans.
           { apply maponpaths_2.
             rewrite <- (@ringrmultminus hq).
@@ -1814,14 +1806,14 @@ Section Gauss.
       rewrite (stn_eq_or_neq_right i_neq_k), coprod_rect_compute_2.
       rewrite (stn_eq_or_neq_right i_neq_j), coprod_rect_compute_2.
       etrans. {apply maponpaths_2. rewrite hqplusl0. reflexivity. }
-      rewrite (rigmultx0 F (_)%hq).
+      rewrite (rigmultx0 hq (_)%hq).
       apply rigmult0x.
   Admitted.
   (*Defined.*) (* TOOD really slow proof! Replace admitted by defined when sped up. *)
 
     (* The clear column step operation only changes the target row*)
   Lemma gauss_clear_column_step_inv2 (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-         (r : (⟦ n ⟧%stn)) (mat : Matrix F n n) (j : ⟦ n ⟧%stn)
+         (r : (⟦ n ⟧%stn)) (mat : Matrix hq n n) (j : ⟦ n ⟧%stn)
         (p : r ≠ j)  : (gauss_clear_column_step n k_i k_j j mat) r = mat r.
   Proof.
     intros.
@@ -1835,9 +1827,9 @@ Section Gauss.
     destruct (stn_eq_or_neq r j ) as [r_eq_j | r_neq_j].
     { simpl. rewrite r_eq_j in p. apply isirrefl_natneq in p; contradiction. }
     simpl.
-    rewrite (@pulse_function_sums_to_point_rig'' F n _ (stn_implies_ngt0 j ) r ).
+    rewrite (@pulse_function_sums_to_point_rig'' hq n _ (stn_implies_ngt0 j ) r ).
     - rewrite (id_mat_ii).
-      apply (@riglunax2 F).
+      apply (@riglunax2 hq).
     - unfold is_pulse_function. (* TODO use just one of these pulse defs *)
       intros x r_neq_x.
       set (lft := identity_matrix r x).
@@ -1847,7 +1839,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_column_step_inv2' (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-         (r : (⟦ n ⟧%stn)) (mat : Matrix F n n) (j j' : ⟦ n ⟧%stn)
+         (r : (⟦ n ⟧%stn)) (mat : Matrix hq n n) (j j' : ⟦ n ⟧%stn)
         (p : r ≠ j) : (gauss_clear_column_step n k_i k_j j mat) r j' = mat r j'.
   Proof.
     intros.
@@ -1860,7 +1852,7 @@ Section Gauss.
     set (f := λ i : (⟦ n ⟧%stn), _).
     (*TODO proof would be tightened up without this inline assert *)
     assert (b : (*Σ f*)   iterop_fun 0%rig op1  f = f r ). {
-      apply (@pulse_function_sums_to_point_rig'' F n _ (stn_implies_ngt0 j) r).
+      apply (@pulse_function_sums_to_point_rig'' hq n _ (stn_implies_ngt0 j) r).
       unfold is_pulse_function.
       intros q r_neq_k.
       unfold f.
@@ -1879,12 +1871,12 @@ Section Gauss.
     rewrite (stn_eq_or_neq_right p), coprod_rect_compute_2.
     unfold identity_matrix.
     rewrite (stn_neq_or_neq_refl), coprod_rect_compute_1.
-    apply (@riglunax2 F).
+    apply (@riglunax2 hq).
   Defined.
 
   Lemma gauss_clear_column_step_inv3
      (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-         (r : (⟦ n ⟧%stn)) (mat : Matrix F n n) (j j' : ⟦ n ⟧%stn)
+         (r : (⟦ n ⟧%stn)) (mat : Matrix hq n n) (j j' : ⟦ n ⟧%stn)
          (p : r < j) : (gauss_clear_column_step n k_i k_j j mat) r j' = mat r j'.
   Proof.
     assert (p': r ≠ j). {apply issymm_natneq.  apply natgthtoneq. assumption. }
@@ -1897,7 +1889,7 @@ Section Gauss.
   (* Proving mat r  is unchanged after column clearance   if r > n'. *)
   Lemma gauss_clear_column_inv0'
         { n : nat } (k_i k_j : (⟦ n ⟧%stn))
-        (iter : ⟦ S n ⟧%stn)  (mat : Matrix F n n) (r : ⟦ n ⟧%stn)
+        (iter : ⟦ S n ⟧%stn)  (mat : Matrix hq n n) (r : ⟦ n ⟧%stn)
     (r_gt_n' : r ≥ iter) : (gauss_clear_column_old  mat k_i k_j iter) r = mat r.
   Proof.
     destruct iter as [n' p].
@@ -1933,7 +1925,7 @@ Section Gauss.
   Lemma gauss_clear_column_inv3
         { n : nat } (k_i k_j r : (⟦ n ⟧%stn))
         (iter : ⟦ S n ⟧%stn)  (p' : r ≤ k_i)
-        (mat : Matrix F n n) (*(kk_ne_0 : mat k k != 0%hq)*) :
+        (mat : Matrix hq n n) (*(kk_ne_0 : mat k k != 0%hq)*) :
     ((gauss_clear_column_old mat k_i k_j iter) r = mat r).
   Proof.
     destruct iter as [n' p].
@@ -1955,7 +1947,7 @@ Section Gauss.
   (* Proving the column clearing procedure works on one row at a time *)
   Lemma gauss_clear_column_inv0
         { n : nat } (k_i k_j : (⟦ n ⟧%stn))
-        (iter : ⟦ S n ⟧%stn) (mat : Matrix F n n) (*(p' : mat k k != 0%hq)*) : ∏ r : (⟦ n ⟧%stn),
+        (iter : ⟦ S n ⟧%stn) (mat : Matrix hq n n) (*(p' : mat k k != 0%hq)*) : ∏ r : (⟦ n ⟧%stn),
         r < iter ->
         k_i < r ->
        ((gauss_clear_column_old  mat k_i k_j iter) r = (gauss_clear_column_step' n k_i k_j r mat) r).
@@ -2090,7 +2082,7 @@ Section Gauss.
   (* Proving mat r  is unchanged after column clearance   if r > n'. *)
   Lemma gauss_clear_column_inv0''
         { n : nat } (k_i k_j : (⟦ n ⟧%stn))
-        (iter : ⟦ S n ⟧%stn)  (mat : Matrix F n n) (r : ⟦ n ⟧%stn)
+        (iter : ⟦ S n ⟧%stn)  (mat : Matrix hq n n) (r : ⟦ n ⟧%stn)
     (r_gt_n' : r ≥ iter) : (gauss_clear_column_old mat k_i k_j iter) r = mat r.
   Proof.
     destruct iter as [n' p].
@@ -2114,7 +2106,7 @@ Section Gauss.
   (* Invariant stating that the clearing procedure does clear all the target entries (r, k) for r > k. *)
   Lemma gauss_clear_column_inv1
         { n : nat } (k_i k_j : (⟦ n ⟧%stn))
-        (iter : ⟦ S n ⟧%stn)  (mat : Matrix F n n) (p' : mat k_i k_j != 0%hq) :  ∏ r : (⟦ n ⟧%stn),
+        (iter : ⟦ S n ⟧%stn)  (mat : Matrix hq n n) (p' : mat k_i k_j != 0%hq) :  ∏ r : (⟦ n ⟧%stn),
     r < iter -> r > k_i -> ((gauss_clear_column_old mat k_i k_j iter) r k_j = 0%hq).
   Proof.
     destruct iter as [n' p].
@@ -2132,7 +2124,7 @@ Section Gauss.
   Lemma gauss_clear_column_inv2
         { n : nat } (k_i k_j : (⟦ n ⟧%stn))
         (iter : ⟦ S n ⟧%stn) (p' : S iter ≤ k_i)
-        (mat : Matrix F n n) (kk_ne_0 : mat k_i k_j != 0%hq) :
+        (mat : Matrix hq n n) (kk_ne_0 : mat k_i k_j != 0%hq) :
     ((gauss_clear_column_old mat k_i k_j iter) = mat ).
   Proof.
     intros.
@@ -2169,13 +2161,13 @@ Section Gauss.
     Additionally expresses the property that any entry i j with i > k_i is 0.
 
   TODO maybe not uiseful anymore. *)
-  Definition gauss_columns_cleared { n : nat } (mat : Matrix F n n)
+  Definition gauss_columns_cleared { n : nat } (mat : Matrix hq n n)
              (k_i k_j : ⟦ n ⟧%stn) := ∏ i j : ⟦ n ⟧%stn,
               j < k_j ->
               k_i < i ->
               mat i j = 0%hq.
 
-  Definition diagonal_filled { n : nat } (mat : Matrix F n n) :=
+  Definition diagonal_filled { n : nat } (mat : Matrix hq n n) :=
     ∏ i : ⟦ n ⟧%stn, mat i i != 0%hq.
 
 
@@ -2200,7 +2192,7 @@ Section Gauss.
 
   (* Proving that if the input matrix is _lower triangular_, it will remain so after gcc. *)
   Lemma gauss_clear_column_inv5
-    { n : nat }  (mat : Matrix F n n) (k_i k_j  : (⟦ n ⟧%stn)) (iter : ⟦ S n ⟧%stn)
+    { n : nat }  (mat : Matrix hq n n) (k_i k_j  : (⟦ n ⟧%stn)) (iter : ⟦ S n ⟧%stn)
     (lt : @is_lower_triangular hq n n mat)
     :
     @is_lower_triangular hq n n  (gauss_clear_column_old mat k_i k_j iter).
@@ -2247,7 +2239,7 @@ Section Gauss.
 
   (* 0 in pivot row -> corresponding col is unchanged after gcc *)
   Lemma gauss_clear_column_inv6
-    { n : nat }  (mat : Matrix F n n) ( k_i k_j  : (⟦ n ⟧%stn)) (iter : ⟦ S n ⟧%stn)
+    { n : nat }  (mat : Matrix hq n n) ( k_i k_j  : (⟦ n ⟧%stn)) (iter : ⟦ S n ⟧%stn)
     (j : ⟦ n ⟧%stn) (p : mat k_i j = 0%hq)
     :
     ∏ i : ⟦ n ⟧%stn, gauss_clear_column_old mat k_i k_j iter i j = mat i j.
@@ -2334,7 +2326,7 @@ Section Gauss.
 
   (* 1 : any leading entry is strictly to the right of a previous leading entry
      2 : any zero row is below any non-zero row *)
-  Definition is_row_echelon {m n : nat} (mat : Matrix F m n) :=
+  Definition is_row_echelon {m n : nat} (mat : Matrix hq m n) :=
    ∏ (i_1 i_2 : ⟦ m ⟧%stn) (j_1 j_2 : ⟦ n ⟧%stn),
      (is_leading_entry (mat i_1) j_1
      -> is_leading_entry (mat i_2) j_2
@@ -2343,7 +2335,7 @@ Section Gauss.
    × ((mat i_1 = const_vec 0%hq) -> (i_1 < i_2) -> (mat i_2 = const_vec 0%hq)).
 
   Definition is_row_echelon_partial_1
-    {m n : nat} (mat : Matrix F m n) (p : n > 0) (row_sep : ⟦ S n ⟧%stn) :=
+    {m n : nat} (mat : Matrix hq m n) (p : n > 0) (row_sep : ⟦ S n ⟧%stn) :=
     ∏ i_1 i_2 : ⟦ m ⟧%stn,
     ∏ j_1 j_2 : ⟦ n ⟧%stn,
      i_1 < row_sep
@@ -2353,18 +2345,18 @@ Section Gauss.
     -> mat i_2 j_1 = 0%hq.
 
   Definition is_row_echelon_partial_2
-    {m n : nat} (mat : Matrix F m n) (iter : ⟦ S n ⟧%stn) :=
+    {m n : nat} (mat : Matrix hq m n) (iter : ⟦ S n ⟧%stn) :=
     ∏ (i_1 i_2 : ⟦ m ⟧%stn) (j_1 j_2 : ⟦ n ⟧%stn),
     i_1 < iter
     -> (mat i_1 = const_vec 0%hq)
     -> i_1 < i_2
     -> mat i_2 = const_vec 0%hq.
 
-  Definition is_row_echelon_partial {m n : nat} (mat : Matrix F m n) (p : n > 0) (iter : ⟦ S n ⟧%stn)
+  Definition is_row_echelon_partial {m n : nat} (mat : Matrix hq m n) (p : n > 0) (iter : ⟦ S n ⟧%stn)
     := is_row_echelon_partial_1 mat p iter × is_row_echelon_partial_2 mat iter.
 
   Lemma is_row_echelon_from_partial
-    {m n : nat} (mat : Matrix F m n) (p : n > 0)
+    {m n : nat} (mat : Matrix hq m n) (p : n > 0)
     : is_row_echelon mat <-> (is_row_echelon_partial mat p (n,, natgthsnn n)).
   Proof.
   Abort.
@@ -2430,7 +2422,7 @@ Section Gauss.
 
   (*Lemma gauss_clear_row_internal_inv3
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0)
     (row_sep : (⟦ S n ⟧%stn))
     (p' : row_sep < n)
@@ -2461,7 +2453,7 @@ Section Gauss.
 
   Lemma gauss_clear_row_internal_inv4
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0) (* Remove p when gcc is refactored *)
     (row_sep : (⟦ S n ⟧%stn))
     (p' : row_sep < n)
@@ -2796,7 +2788,7 @@ Section Gauss.
 
   Lemma gauss_clear_rows_up_to_internal_inv0
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0) (* Remove p when gcc is refactored *)
     (row_sep : (⟦ S n ⟧%stn))
    : ∏ i_1 : ⟦ n ⟧%stn,
@@ -2942,7 +2934,7 @@ Section Gauss.
 
   Lemma gauss_clear_rows_up_to_inv1
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0)
     (row_sep : (⟦ S n ⟧%stn))
     : is_row_echelon_partial_1
@@ -2973,7 +2965,7 @@ Section Gauss.
 
   Lemma is_row_echelon_1_eq
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0)
     : is_row_echelon_partial_1
         (gauss_clear_rows_up_to mat p (n,, natgthsnn n)) p (n,, natgthsnn n)
@@ -3006,7 +2998,7 @@ Section Gauss.
 
   Lemma row_echelon_partial_to_upper_triangular_partial
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0)
     (iter : ⟦ S n ⟧%stn)
     : @is_row_echelon_partial n n mat p iter
@@ -3075,7 +3067,7 @@ Section Gauss.
 
   Lemma row_echelon_to_upper_triangular
     { n : nat }
-    (mat : Matrix F n n)
+    (mat : Matrix hq n n)
     (p : n > 0)
     (iter : ⟦ S n ⟧%stn)
     : @is_row_echelon n n mat
@@ -3085,8 +3077,8 @@ Section Gauss.
     try unfold row_echelon_partial_to_upper_triangular_partial in H.
   Abort.
 
-  Lemma gauss_inv_upper_triangular {n : nat} (mat : Matrix F n n) :
-    @is_upper_triangular F n n (gauss_clear_all_row_segments mat ).
+  Lemma gauss_inv_upper_triangular {n : nat} (mat : Matrix hq n n) :
+    @is_upper_triangular hq n n (gauss_clear_all_row_segments mat ).
   Proof.
     intros i j i_gt_j.
     unfold gauss_clear_all_row_segments.
@@ -3112,7 +3104,7 @@ Section Gauss.
   Admitted.
 
   Lemma gauss_clear_columns_up_to_no_switch_inv0
-        ( n : nat ) (mat : Matrix F n n) (p' : n > 0)
+        ( n : nat ) (mat : Matrix hq n n) (p' : n > 0)
         (iter1 iter2 : ⟦ S n ⟧%stn)  :
         iter1 ≤ iter2 ->
            @is_lower_triangular hq n n (@gauss_clear_columns_up_to_no_switch n p' iter1 mat)
@@ -3172,7 +3164,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_columns_up_to_no_switch_inv4
-      ( n : nat ) (mat : Matrix F n n) (p : n > 0)
+      ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
       (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
       (k : ⟦ n ⟧%stn) :
       (@gauss_clear_columns_up_to_no_switch n p iter mat) k k = mat k k.
@@ -3226,7 +3218,7 @@ Section Gauss.
 
 
   Lemma gauss_clear_columns_up_to_no_switch_inv3
-      ( n : nat ) (mat : Matrix F n n) (p : n > 0)
+      ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
       (iter1 iter2 : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
       (i j : ⟦ n ⟧%stn)  (le' : i ≤ j)  (* (p'' : (mat k) = (const_vec 0%hq))*)
       :
@@ -3308,7 +3300,7 @@ Section Gauss.
      we can use elementary row operations to attain a matrix A' with a constant 0 row,
      a witness to non-invertibility. *)
   Lemma gauss_clear_columns_up_to_no_switch_inv2
-      ( n : nat ) (mat : Matrix F n n) (p : n > 0)
+      ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
       (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
       (*(k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq)*)
     : coprod
@@ -3465,7 +3457,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_columns_up_to_no_switch_inv5
-      ( n : nat ) (mat : Matrix F n n) (p : n > 0)
+      ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
       (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
       (k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq) :
       k < iter ->
@@ -3632,7 +3624,7 @@ Section Gauss.
   Defined.
 
   Lemma upper_triangular_iff_transpose_lower_triangular
-    { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
+    { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
     :
     (@is_upper_triangular hq n n mat)
     <->
@@ -3647,7 +3639,7 @@ Section Gauss.
   Defined.
 
   Lemma matrix_product_transpose
-    { n : nat } (A B : Matrix F n n)
+    { n : nat } (A B : Matrix hq n n)
     :
     (transpose (A ** B)) = ((transpose B) ** (transpose A)).
   Proof.
@@ -3662,7 +3654,7 @@ Section Gauss.
   Defined.
 
   Lemma invertible_to_transpose_invertible
-    { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
+    { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
     :
     (@matrix_inverse hq n mat)
     (*<*)->
@@ -3699,7 +3691,7 @@ Section Gauss.
   Defined.
 
   (* Updating vec/b "in place"  *)
-  Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n) (b : Vector F n) (vec : Vector F n) : Vector F n.
+  Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros i.
     set ( m := pr1 i ).
@@ -3711,9 +3703,9 @@ Section Gauss.
   Defined.
 
   (* TODO moderately large cleanup needed - rename temp variables *)
-  Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
-        (b : Vector F n) (vec : Vector F n)
-        (p: @is_upper_triangular F n n mat)
+  Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+        (b : Vector hq n) (vec : Vector hq n)
+        (p: @is_upper_triangular hq n n mat)
         (p' : diagonal_filled mat):
     (((mat ** (col_vec (back_sub_step iter mat b (*vec*) vec))) iter  = (col_vec vec) iter )).
   Proof.
@@ -3734,7 +3726,7 @@ Section Gauss.
     rewrite pr2_ in *.
     intros iter' mat' vec' filled' is_upper_t' b'.
     apply funextfun. intros x.
-    rewrite (@rigsum_dni F (pr1_)  _ iter').
+    rewrite (@rigsum_dni hq (pr1_)  _ iter').
     rewrite nat_neq_or_neq_refl.
     destruct (natlehchoice (S (Preamble.pr1 iter')) (S pr1_)).
     -   etrans. { apply maponpaths_2; apply maponpaths; reflexivity. }
@@ -3746,7 +3738,7 @@ Section Gauss.
           rewrite (nat_eq_or_neq_right (dni_neq_i iter' q)).
           reflexivity.
         }
-        rewrite (@rigsum_dni F ( pr1_)  _ iter').
+        rewrite (@rigsum_dni hq ( pr1_)  _ iter').
         (* simpl. unfold dni. unfold di. simpl. *)
         set (f := λ q : (⟦ pr1_ ⟧%stn), _).
         set (a := mat' iter' iter').
@@ -3804,7 +3796,7 @@ Section Gauss.
           rewrite eq.
           reflexivity.
         }
-        rewrite (@rigcomm1 F).
+        rewrite (@rigcomm1 hq).
         rewrite (@rigassoc1 hq).
         unfold funcomp.
         rewrite hqlminus.
@@ -3839,8 +3831,8 @@ Section Gauss.
         reflexivity.
   Defined.
 
-  Lemma back_sub_step_inv1 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
-        (b : Vector F n) (vec : Vector F n) (p: @is_upper_triangular F n n mat)
+  Lemma back_sub_step_inv1 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
         (p' : diagonal_filled mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
     (col_vec (back_sub_step iter mat b vec) i  = ( (col_vec  (*vec*) b)) i).
   Proof.
@@ -3859,8 +3851,8 @@ Section Gauss.
   Definition transpose_vector {X : UU} {n : nat} (vec : Vector X n)
     := (λ i : (⟦ n ⟧)%stn, vec (dualelement i)).
 
-  Lemma back_sub_step_inv2 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
-        (b : Vector F n) (vec : Vector F n) (p: @is_upper_triangular F n n mat)
+  Lemma back_sub_step_inv2 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
         (p' : diagonal_filled mat):
      ∏ i : ⟦ n ⟧%stn, (*i > iter*) i ≥ iter ->
        (mat ** (col_vec b )) i  = (( (col_vec  vec)))  i
@@ -3906,8 +3898,8 @@ Section Gauss.
 
   Defined.
 
-  Lemma back_sub_step_inv3 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
-        (b : Vector F n) (vec : Vector F n) (p: @is_upper_triangular F n n mat)
+  Lemma back_sub_step_inv3 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
         (p' : diagonal_filled mat):
      ∏ i : ⟦ n ⟧%stn, i > iter ->
        (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
@@ -3945,8 +3937,8 @@ Section Gauss.
   (* TODO: document what this is meant to do? *)
   (* TODO fix signature *)
   Definition back_sub_internal
-    { n : nat }  (mat : Matrix F n n) (b : Vector F n) (vec : Vector F n) (iter : ⟦ S n ⟧%stn)
-    : Vector F n.
+    { n : nat }  (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) (iter : ⟦ S n ⟧%stn)
+    : Vector hq n.
   Proof.
     destruct iter as [iter p].
     induction iter as [ | m IHn] .
@@ -3960,8 +3952,8 @@ Section Gauss.
 
   (* TODO  H not even used here ??? *)
   Lemma back_sub_internal_inv0
-        { n : nat } (mat : Matrix F n n) (b : Vector F n)
-        (vec : Vector F n) (ut : @is_upper_triangular F _ _ mat)
+        { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
+        (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
         (df : diagonal_filled mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i < (dualelement iter)(* i < iter *)
     -> (((col_vec (back_sub_internal mat b vec iter)))) i = ((col_vec b) i).
@@ -4023,8 +4015,8 @@ Section Gauss.
   Defined.
 
   Lemma back_sub_internal_inv1
-        { n : nat } (mat : Matrix F n n) (b : Vector F n)
-        (vec : Vector F n) (ut : @is_upper_triangular F _ _ mat)
+        { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
+        (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
         (df : diagonal_filled mat) (iter : ⟦ S n ⟧%stn)
     : ∏ i : ⟦ n ⟧%stn,
       i ≥ (dualelement iter)
@@ -4127,8 +4119,8 @@ Section Gauss.
 
 
   Lemma back_sub_internal_inv2
-        { n : nat } (mat : Matrix F n n) (b : Vector F n)
-        (vec : Vector F n) (ut : @is_upper_triangular F _ _ mat)
+        { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
+        (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
         (df : diagonal_filled mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i ≥  (dualelement iter)
     -> ((mat ** (col_vec (back_sub_internal mat b vec iter)))) i = ( ( (col_vec vec))) i.
@@ -4240,7 +4232,7 @@ Section Gauss.
      reflexivity.
   Defined.
 
-  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix F n n)
+  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
         (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
     (@matrix_inverse hq n A) -> empty.
   Proof.
@@ -4298,7 +4290,7 @@ Section Gauss.
 
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
-    { n : nat } (A : Matrix F n n)
+    { n : nat } (A : Matrix hq n n)
     :
     diagonal_filled A
     <->
@@ -4308,18 +4300,18 @@ Section Gauss.
   Defined.
 
   Lemma upper_triangular_transpose_is_lower_triangular
-    { n : nat } (A : Matrix F n n)
-    (H: @is_upper_triangular F n n A)
+    { n : nat } (A : Matrix hq n n)
+    (H: @is_upper_triangular hq n n A)
     :
-    (@is_lower_triangular F n n (transpose A)).
+    (@is_lower_triangular hq n n (transpose A)).
   Proof.
     intros i j lt; unfold is_upper_triangular; apply H; assumption.
   Defined.
 
   (* TODO realize this better using the elimination procedure invariants *)
-  Lemma invertible_upper_triangular_to_diag_filled { n : nat } (A : Matrix F n n)
-        (p : @is_upper_triangular F n n A)
-        (p': @matrix_inverse F n A)
+  Lemma invertible_upper_triangular_to_diag_filled { n : nat } (A : Matrix hq n n)
+        (p : @is_upper_triangular hq n n A)
+        (p': @matrix_inverse hq n A)
         (B : (@matrix_inverse hq n A))
     : (@diagonal_filled n A).
   Proof.
@@ -4352,7 +4344,7 @@ Section Gauss.
 
   (* TODO do this one for clear_column (no prime ?) *)
   Lemma clear_column_eq_matrix_def { n : nat } (iter : ⟦ S n ⟧%stn)
-     (k_i k_j : (⟦ n ⟧%stn)) (mat : Matrix F n n) :
+     (k_i k_j : (⟦ n ⟧%stn)) (mat : Matrix hq n n) :
      ((gauss_clear_column_as_left_matrix iter mat k_i k_j) ** mat )
    =  gauss_clear_column_old mat k_i k_j iter.
   Proof.
@@ -4462,7 +4454,7 @@ Section Gauss.
   Defined.
 
   Lemma clear_row_eq_matrix_def { n : nat }
-     (mat : Matrix F n n) (r : ⟦ n ⟧%stn) :
+     (mat : Matrix hq n n) (r : ⟦ n ⟧%stn) :
      ((gauss_clear_row_as_left_matrix mat r) ** mat )
    =  gauss_clear_row mat r.
   Proof.
@@ -4478,7 +4470,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_rows_up_to_as_matrix_eq  { n : nat } (iter : ⟦ S n ⟧%stn)
-    (mat : Matrix F n n) (p : n > 0) :
+    (mat : Matrix hq n n) (p : n > 0) :
     ((@clear_rows_up_to_as_left_matrix_internal _ mat p iter) ** mat)
       = (gauss_clear_rows_up_to_internal  mat p iter).
   Proof.
@@ -4498,7 +4490,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_columns_up_to_no_switch_as_matrix_eq  { n : nat } (iter : ⟦ S n ⟧%stn)
-    (mat : Matrix F n n) (p : n > 0) :
+    (mat : Matrix hq n n) (p : n > 0) :
     ((@clear_columns_up_to_no_switch_as_left_matrix _ p iter mat) ** mat)
     = (gauss_clear_columns_up_to_no_switch p iter mat).
   Proof.
@@ -4522,7 +4514,7 @@ Section Gauss.
 
   (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
   (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
-  Definition back_sub { n : nat } (mat : Matrix F n n) (vec : Vector F n) : Vector F n.
+  Definition back_sub { n : nat } (mat : Matrix hq n n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros.
     destruct (natchoice0 n) as [n_eq_0 | n_gt_0].
@@ -4530,8 +4522,8 @@ Section Gauss.
     - exact (back_sub_internal mat vec vec (n,, natgthsnn n)).
   Defined.
 
-  Lemma back_sub_inv0 { n : nat } (mat : Matrix F n n) (b vec : Vector F n)
-        (ut : @is_upper_triangular F _ _ mat)
+  Lemma back_sub_inv0 { n : nat } (mat : Matrix hq n n) (b vec : Vector hq n)
+        (ut : @is_upper_triangular hq _ _ mat)
     (df: diagonal_filled mat) : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
   Proof.
     intros.
@@ -4551,7 +4543,7 @@ Section Gauss.
 
   (* Construct the inverse, if additionally mat is upper triangular with non-zero diagonal *)
   Definition upper_triangular_inverse_construction
-    { n : nat } (mat : Matrix F n n) (vec : Vector F n)
+    { n : nat } (mat : Matrix hq n n) (vec : Vector hq n)
     : Matrix hq n n.
   Proof.
     destruct (natchoice0 n).  { unfold Matrix, Vector. intros i. apply fromstn0. rewrite p. assumption. }
@@ -4575,8 +4567,8 @@ Section Gauss.
   Admitted.
 
   Definition upper_triangular_inverse_is_inverse
-    { n : nat } (mat : Matrix F n n) (vec : Vector F n)
-    (ut : @is_upper_triangular F _ _ mat)
+    { n : nat } (mat : Matrix hq n n) (vec : Vector hq n)
+    (ut : @is_upper_triangular hq _ _ mat)
     (df: diagonal_filled mat)
     :
     (mat ** (upper_triangular_inverse_construction mat vec (*ut df*))) = (@identity_matrix hq n).
@@ -4594,8 +4586,8 @@ Section Gauss.
   Abort.
 
   Definition upper_triangular_inverse
-    { n : nat } (mat : Matrix F n n) (b vec : Vector F n) (ut : @is_upper_triangular F _ _ mat)
-    (df: diagonal_filled mat) : Matrix F n n.
+    { n : nat } (mat : Matrix hq n n) (b vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
+    (df: diagonal_filled mat) : Matrix hq n n.
   Proof.
   Abort.
 
@@ -4624,8 +4616,8 @@ Section Gauss.
              ,, gaussian_elimination_2 A b).
   Defined.
 
-  Lemma gauss_inv_upper_triangular' {n : nat} (mat : Matrix F n n) (*(p : diagonal_filled mat)*):
-    @is_upper_triangular F n n (gauss_clear_all_row_segments mat ).
+  Lemma gauss_inv_upper_triangular' {n : nat} (mat : Matrix hq n n) (*(p : diagonal_filled mat)*):
+    @is_upper_triangular hq n n (gauss_clear_all_row_segments mat ).
   Proof.
     intros i j i_gt_j.
     unfold gauss_clear_all_row_segments.
@@ -4634,7 +4626,7 @@ Section Gauss.
     simpl.
   Abort.
 
-  (*Lemma gauss_clear_all_column_segments_eq { n : nat } (mat : Matrix F n n):
+  (*Lemma gauss_clear_all_column_segments_eq { n : nat } (mat : Matrix hq n n):
     (gauss_clear_all_row_segments_as_left_matrix mat ** mat)
     = gauss_clear_all_row_segments mat.
   Proof.
@@ -4650,7 +4642,7 @@ Section Gauss.
   (* The full procedure returns invertible L s.t. L ** A is upper triangular *)
   (*Lemma gaussian_elimination_inv0 {n : nat} (A : Matrix hq n n) (b : Vector hq n)
     : @is_upper_triangular hq n n ( (gaussian_elimination_1 A b) ** A)
-        × (@matrix_inverse F n (gaussian_elimination_1 A b)).
+        × (@matrix_inverse hq n (gaussian_elimination_1 A b)).
   Proof.
     unfold gaussian_elimination_1.
     intros.
