@@ -40,4 +40,7 @@ Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
 Universal.v
+Elimination/Auxiliary.v
+Elimination/Vectors.v
+Elimination/Matrices.v
 Elimination/Elimination.v
