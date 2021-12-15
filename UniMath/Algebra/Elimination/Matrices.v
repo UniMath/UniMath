@@ -1,6 +1,6 @@
  (** * Matrices
 
-Gaussian Elimination over integers.
+Some matrix background material for [Algebra.Elimination]
 
 Author: @Skantz (April 2021)
 *)

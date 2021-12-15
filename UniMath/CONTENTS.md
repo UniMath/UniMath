@@ -109,6 +109,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Elimination/Auxiliary.v](Algebra/Elimination/Auxiliary.v)
    - [Elimination/Vectors.v](Algebra/Elimination/Vectors.v)
    - [Elimination/Matrices.v](Algebra/Elimination/Matrices.v)
+   - [Elimination/RowOps.v](Algebra/Elimination/RowOps.v)
    - [Elimination/Elimination.v](Algebra/Elimination/Elimination.v)
    - [All.v](Algebra/All.v)
 ## Package NumberSystems

@@ -43,4 +43,5 @@ Universal.v
 Elimination/Auxiliary.v
 Elimination/Vectors.v
 Elimination/Matrices.v
+Elimination/RowOps.v
 Elimination/Elimination.v
