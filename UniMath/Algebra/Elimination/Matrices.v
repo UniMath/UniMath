@@ -17,13 +17,6 @@ Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 Require Import UniMath.Algebra.Elimination.Vectors.
 
-(* Which of these contextual definitions and notations if any should be included here? *)
-(*Local Definition R := pr1hSet natcommrig.*)
-(* Context { R : rig }. *)
-Local Definition F := hq. (* TODO we probably don't want this and presumably not here at top level - remove *)
-Opaque F.
-
-
 Section Matrices.
 
   Context {R : rig}.

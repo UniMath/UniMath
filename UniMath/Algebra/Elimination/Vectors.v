@@ -18,9 +18,6 @@ Require Import UniMath.NumberSystems.RationalNumbers.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
-Local Definition F := hq. (* TODO we probably don't want this and presumably not here at top level - remove *)
-Opaque F.
-
 Section Vectors.
 
   Context { R : rig }.
@@ -382,20 +379,20 @@ Section Vectors.
   Defined.
 
   (* TODO prove over rigs *)
-  Lemma id_pointwise_prod { n : nat } (v : Vector F n) (i : ⟦ n ⟧%stn) :
-    (@identity_matrix hq n i) ^ v = (@scalar_lmult_vec F (v i) n (identity_matrix i)).
+  Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
+    (@identity_matrix R n i) ^ v = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
   Proof.
     unfold identity_matrix, scalar_lmult_vec, pointwise.
     apply funextfun. intros k.
     destruct (stn_eq_or_neq i k) as [eq | neq].
     - simpl.
-      rewrite (@riglunax2 F).
-      rewrite (@rigrunax2 F).
+      rewrite riglunax2.
+      rewrite rigrunax2.
       rewrite eq.
       reflexivity.
     - simpl.
-      rewrite (@rigmultx0 F).
-      rewrite (@rigmult0x F).
+      rewrite rigmultx0.
+      rewrite rigmult0x.
       apply idpath.
   Defined.
 
@@ -453,19 +450,17 @@ Section Vectors.
 End Vectors.
 
 
-
-
-
 Section Vectorshq.
+(* NOTE: much of this section could be generalised to e.g. decidable ordered fields *)
 
-  Definition abs_hq (e: F) : F.
+  Definition abs_hq (e: hq) : hq.
   Proof.
     destruct (hqgthorleh e 0%hq) as [? | ?].
     - exact e.
     - exact (- e)%hq.
   Defined.
 
-  Lemma abs_ge_0_hq : ∏ (e : F), (hqgeh (abs_hq e) 0)%hq.
+  Lemma abs_ge_0_hq : ∏ (e : hq), (hqgeh (abs_hq e) 0)%hq.
   Proof.
     intros e.
     unfold abs_hq.
@@ -476,7 +471,7 @@ Section Vectorshq.
 
   (* We can generalize this. And TODO fix or remove - does not look correct. *)
   Definition max_and_index_vec_hq' { n : nat } (f : ⟦ n ⟧%stn -> hq) (max_el: hq) (max_idx: ⟦ n ⟧%stn)
-    (pr1iter : nat) (pr2iter : pr1iter < n)  : F × ⟦ n ⟧%stn.
+    (pr1iter : nat) (pr2iter : pr1iter < n)  : hq × ⟦ n ⟧%stn.
   Proof.
     induction (pr1iter) as [| m IHn].
     - set (idx := (make_stn n 0 pr2iter)).
@@ -491,7 +486,7 @@ Section Vectorshq.
       + exact (IHn (pr2 nextidx)).
   Defined.
 
-  Definition max_and_index_vec_hq { n : nat } (f : ⟦ n ⟧%stn -> F) (p : n > 0) : F × ⟦ n ⟧%stn.
+  Definition max_and_index_vec_hq { n : nat } (f : ⟦ n ⟧%stn -> hq) (p : n > 0) : hq × ⟦ n ⟧%stn.
   Proof.
     set (zeroidx := make_stn n 0 p).
     set (eq := stn_inhabited_implies_succ zeroidx).
@@ -516,13 +511,13 @@ Section Vectorshq.
   Defined.
 
   Definition max_and_index_vec_hq_works
-    { n : nat } (f : ⟦ n ⟧%stn -> F) (p : n > 0) :
+    { n : nat } (f : ⟦ n ⟧%stn -> hq) (p : n > 0) :
     ∏ j : ⟦ n ⟧%stn, (hqleh (f j) (pr1 (max_and_index_vec_hq f p)))
                   × (hqleh (f j) (f (pr2 (max_and_index_vec_hq f p)))).
   Proof.
   Abort.
 
-  Definition max_hq_index_bounded { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> F)
+  Definition max_hq_index_bounded { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> hq)
              (ei ei' : hq × (⟦ n ⟧%stn)): hq × (⟦ n ⟧%stn).
   Proof.
     set (hq_index := max_hq_index ei ei').
@@ -536,7 +531,7 @@ Section Vectorshq.
 
   Defined.
 
-  Lemma max_hq_index_bounded_geq_k { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> F)
+  Lemma max_hq_index_bounded_geq_k { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> hq)
     (ei ei' : hq × (⟦ n ⟧%stn)): k ≤ (pr2 (max_hq_index_bounded k f ei ei')).
   Proof.
     unfold max_hq_index_bounded.
@@ -559,17 +554,17 @@ Section Vectorshq.
   Defined.
 
   (* TODO: indicate absolute value in naming *)
-  Definition max_argmax_stnhq_bounded { n : nat } (vec : Vector F n) (pn : n > 0 ) (k : ⟦ n ⟧%stn) :=
+  Definition max_argmax_stnhq_bounded { n : nat } (vec : Vector hq n) (pn : n > 0 ) (k : ⟦ n ⟧%stn) :=
   foldleft (0%hq,, (0,, pn)) (max_hq_index_bounded k vec) (λ i : (⟦ n ⟧)%stn, abs_hq (vec i),, i).
 
 
-  Definition max_el' { n : nat } (v : Vector F n) (max' : F) : F.
+  Definition max_el' { n : nat } (v : Vector hq n) (max' : hq) : hq.
   Proof.
     induction n as [ | m IH]. (* TODO naming *)
     {exact max'. }
-    exact (max_hq max' (IH (@drop_el_vector F m v lastelement))). (* todo this or DNI ? *)
+    exact (max_hq max' (IH (@drop_el_vector hq m v lastelement))). (* todo this or DNI ? *)
   Defined.
 
-  Definition max_el { n : nat } (vec: Vector F n) := max_el' vec 0%hq.
+  Definition max_el { n : nat } (vec: Vector hq n) := max_el' vec 0%hq.
 
 End Vectorshq.
