@@ -38,7 +38,6 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 
 Section Gauss.
 
-  Context {R : hq}.
   Local Notation Σ := (iterop_fun hqzero op1).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
