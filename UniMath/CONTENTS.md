@@ -324,6 +324,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/EndofunctorsMonoidal.v](CategoryTheory/Monoidal/EndofunctorsMonoidal.v)
    - [Monoidal/PointedFunctorsMonoidal.v](CategoryTheory/Monoidal/PointedFunctorsMonoidal.v)
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
+   - [Monoidal/AugmentedSimplexCategory.v](CategoryTheory/Monoidal/AugmentedSimplexCategory.v)
    - [Monoidal/DisplayedMonoidal.v](CategoryTheory/Monoidal/DisplayedMonoidal.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Actions.v](CategoryTheory/Monoidal/Actions.v)
