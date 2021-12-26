@@ -603,7 +603,7 @@ Section Gauss.
          (∏ i : ⟦ n ⟧%stn, row_sep ≤ i -> (∏ j : ⟦ n ⟧%stn, j < col_iter -> mat i j = 0%hq )).
   Proof.
     destruct col_iter as [col_iter lt].
-    induction col_iter as [? | col_iter IH].
+    induction col_iter as [| col_iter IH].
     - use tpair. { exact (0,, p). }
       right.
       intros ? ? ? contr.
@@ -2158,14 +2158,14 @@ Section Gauss.
     (*intros i_1 i1_lt_rowsep le_nought.*)
     unfold gauss_clear_rows_up_to in *.
     destruct row_sep as [row_sep lt].
-    induction row_sep as [? | row_sep IH]. {simpl. contradiction (negnatgth0n i_1 i1_lt_rowsep). }
+    induction row_sep as [| row_sep IH]. {simpl. contradiction (negnatgth0n i_1 i1_lt_rowsep). }
     rename  i1_lt_rowsep into i1_lt_srowsep.
     set (lt' := (istransnatlth row_sep (S row_sep) (S n) (natgthsnn row_sep) lt)).
     unfold gauss_clear_rows_up_to_internal in *.
     rewrite nat_rect_step in *.
     unfold gauss_clear_row in *.
     destruct (natchoice0 n) as [contr_eq | ?]. { apply fromstn0. rewrite contr_eq; assumption. }
-    revert (*le_nought*)le_nought.
+    revert le_nought.
     destruct (natlehchoice i_1 row_sep) as [i1_lt_rowsep | eq]. {apply natlthsntoleh. assumption. }
     - destruct (select_uncleared_column _ _) as [opt_col H].
       destruct H as [some | none].
@@ -2243,7 +2243,6 @@ Section Gauss.
         }
         set (inner := nat_rect _ _ _ _).
         rewrite <- eq' in *; clear eq'.
-        About leading_entry_compute_eq.
         try rewrite leading_entry_compute_eq in le_nought.
         unfold leading_entry_compute in le_nought.
         unfold leading_entry_compute_internal in le_nought.
@@ -2295,7 +2294,6 @@ Section Gauss.
     : is_row_echelon_partial_1
         (gauss_clear_rows_up_to_internal mat p row_sep) p row_sep.
   Proof.
-    About gauss_clear_row_internal_inv4.
     pose ( H:= @gauss_clear_row_internal_inv4).
     unfold gauss_clear_rows_up_to_internal.
     destruct row_sep as [row_sep p''].
@@ -2303,7 +2301,6 @@ Section Gauss.
     { simpl. intros ? ? ? ? contr.
       contradiction (negnatlthn0 n contr). }
     rewrite nat_rect_step.
-    About gauss_clear_row_internal_inv4.
     set (inner := nat_rect _ _ _ _).
     set (inner' := inner ( (istransnatlth row_sep (S row_sep) (S n) (natgthsnn row_sep) p''))).
     set (rowstn := make_stn n row_sep p'').
@@ -2528,7 +2525,6 @@ Section Gauss.
       pose (H' := @leading_entry_compute_internal_correct1 n
                      (gauss_clear_rows_up_to mat n_gt_0 (n,, natgthsnn n) j) (n,, natgthsnn n) _ eq ).
       contradiction (pr1 H').
-      About gauss_clear_rows_up_to_inv1.
       rewrite (gauss_clear_rows_up_to_inv1 _ _  _ j j t t); try reflexivity.
       (* Want a simple helper lemma that shows that the leading entry always ≥ diagonal *)
   Admitted.
@@ -2913,7 +2909,6 @@ Section Gauss.
       destruct (isdeceqhq (mat (iter,, lt) (iter,, lt)) 0%hq).
       { apply IH_p. }
       apply funextfun. intros j.
-      About gauss_clear_column_inv5. (* Should be ≤ not < *)
       destruct (natgthorleh IH_idx j).
       + (*rewrite <- IH_p.*)
         set (iter_stn := (make_stn (S n) iter  (istransnatlth iter (n) (S n) lt (natgthsnn n)))).
@@ -3505,7 +3500,6 @@ Section Gauss.
       reflexivity.
     }
     rewrite nat_rect_step.
-    About back_sub_step_inv2. (* Retains a solution *)
     destruct (natlehchoice (dualelement (S iter,, p')) (i)). {assumption. }
     - set (iter_stn := (make_stn (S n) iter (istransnatlth iter (S iter) (S n) (natgthsnn iter) p'))).
       change ((istransnatlth iter (S iter) (S n) (natgthsnn iter) p')) with (pr2 iter_stn).
@@ -3568,7 +3562,7 @@ Section Gauss.
     intros i i_le_iter.
     unfold back_sub_internal.
     destruct iter as [iter p].
-    induction iter as [eq | ?].
+    induction iter as [| ? ?].
     { apply fromempty.
       unfold dualelement in i_le_iter.
       destruct (natchoice0 (S n)) in i_le_iter.
@@ -3748,6 +3742,7 @@ Section Gauss.
   Defined.
 
   (* TODO realize this better using the elimination procedure invariants *)
+  (*
   Lemma invertible_upper_triangular_to_diag_filled { n : nat } (A : Matrix hq n n)
         (p : @is_upper_triangular hq n n A)
         (p': @matrix_inverse hq n A)
@@ -3775,10 +3770,12 @@ Section Gauss.
     destruct contr' as [idx contr'].
     set ( At' := gauss_clear_columns_up_to_no_switch gt (n,, natgthsnn n) At).
     pose (noninv := @zero_row_to_non_invertibility n At' idx contr').
-    pose (is_inv_at' := @inv_matrix_prod_is_inv).
-    pose (@clear_columns_up_to_no_switch_as_left_matrix).
-    try contradiction.
-  Admitted.
+    apply noninv. 
+    unfold At'.
+    rewrite gauss_clear_columns_up_to_no_switch_as_matrix_eq.
+    pose (HH := @clear_columns_up_to_matrix_no_switch_invertible).
+    apply clear_columns_up_to_matrix_no_switch_invertible.
+  Defined. *)
 
 
   (* TODO do this one for clear_column (no prime ?) *)
@@ -3951,6 +3948,43 @@ Section Gauss.
       reflexivity.
   Defined.
 
+  
+  (* TODO realize this better using the elimination procedure invariants *)
+  Lemma invertible_upper_triangular_to_diag_filled { n : nat } (A : Matrix hq n n)
+        (p : @is_upper_triangular hq n n A)
+        (p': @matrix_inverse hq n A)
+        (B : (@matrix_inverse hq n A))
+    : (@diagonal_filled n A).
+  Proof.
+    apply diagonal_nonzero_iff_transpose_nonzero.
+    set (At := (λ y x : (⟦ n ⟧)%stn, A x y)).
+    assert (@is_lower_triangular hq n n At).
+    { apply upper_triangular_transpose_is_lower_triangular. assumption. }
+    unfold diagonal_filled.
+    intros i.
+    destruct (isdeceqhq (At i i) 0%hq) as [contr | ne].
+    2: { assumption. }
+    apply fromempty.
+    destruct (natchoice0 n) as [contr' | gt]. {apply fromstn0. rewrite contr'; exact i. }
+    set (M :=  @clear_columns_up_to_no_switch_as_left_matrix n gt (n,, natgthsnn n) A).
+    assert (invertible : matrix_inverse (M ** A)).
+    { apply inv_matrix_prod_is_inv; try assumption.
+      apply clear_columns_up_to_matrix_no_switch_invertible.
+      apply i. (* TODO remove unnecessary argument *)
+    }
+    pose (inv := gauss_clear_columns_up_to_no_switch_inv5).
+    pose (contr' := inv n At gt (n,, natgthsnn n) X i contr (pr2 i)).
+    destruct contr' as [idx contr'].
+    set ( At' := gauss_clear_columns_up_to_no_switch gt (n,, natgthsnn n) At).
+    pose (noninv := @zero_row_to_non_invertibility n At' idx contr').
+    apply noninv. 
+    unfold At'.
+    rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq.
+    apply inv_matrix_prod_is_inv.
+    2: {apply inverse_iff_transpose_inverse; try assumption. }
+    apply clear_columns_up_to_matrix_no_switch_invertible; try assumption. (* TODO remove unused argument *)
+  Defined.
+
   (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
   (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
   Definition back_sub { n : nat } (mat : Matrix hq n n) (vec : Vector hq n) : Vector hq n.
@@ -3994,23 +4028,23 @@ Section Gauss.
     : col_vec v1 = col_vec v2 -> v1 = v2.
   Proof.
     intros H.
-    unfold col_vec in H.
-    pose (H' := @isinclfromstn1).
-    pose (@weqbfun).
-    pose (hmm := @isweqinvmap).
-  Admitted.
+    apply (invmaponpathsweq (@weq_colwec X n)  _ _ H). (* TODO typo *)
+  Defined.
 
-  Lemma col_vec_mult_eq { X : rig } { m n : nat } (mat : Matrix X m n) (v : Vector X n)
+  (* TODO did we need this ? *)
+  (*Lemma col_vec_mult_eq { X : rig } { m n : nat } (mat : Matrix X m n) (v : Vector X n)
     : matrix_mult mat (col_vec v) = (col_vec (λ i : ⟦ m ⟧%stn, (iterop_fun 0%rig op1 ( (mat i) ^ (v ))))).
   Proof.
-  Admitted.
+    rewrite matrix_mult_eq in *.
+    unfold matrix_mult_unf.
+  Admitted.*)
 
   Definition upper_triangular_inverse_is_inverse
     { n : nat } (mat : Matrix hq n n) (vec : Vector hq n)
     (ut : @is_upper_triangular hq _ _ mat)
     (df: diagonal_filled mat)
     :
-    (mat ** (upper_triangular_inverse_construction mat vec (*ut df*))) = (@identity_matrix hq n).
+    (mat ** (upper_triangular_inverse_construction mat vec)) = (@identity_matrix hq n).
   Proof.
     apply funextfun; intros i.
     unfold upper_triangular_inverse_construction.
@@ -4115,6 +4149,7 @@ Section Gauss.
   Abort.
 
 
+  (* TODO this phrasing appears misguided? ? *)
   (* A invertible =>  We can solve A ** x = b   *)
   Lemma gaussian_elimination_inv2 {n : nat} (A : Matrix hq n n) (b : Vector hq n)
     : (@matrix_inverse hq n A) ->
@@ -4122,13 +4157,13 @@ Section Gauss.
   Proof.
     intros H1.
     unfold gaussian_elimination_1, gaussian_elimination_2.
+    try set (prop := @gaussian_elimination_inv0 n A b).
+    unfold back_sub.
     destruct natchoice0.
     { admit. }
-    try set (prop := @gaussian_elimination_inv0 n A b).
-    pose (@back_sub_inv0).
-    (* apply invertible_upper_triangular_to_diag_filled. *)
-    (* apply inv_matrix_prod_is_inv; assumption. *)
-  Admitted.
+    pose (@back_sub_internal_inv2).
+    apply funextfun; intros ?.
+  Abort.
 
 
   (*Lemma gaussian_elimination_inv3 {n : nat} (A : Matrix hq n n) (b : Vector hq n) :

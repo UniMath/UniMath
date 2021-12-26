@@ -239,34 +239,13 @@ Section Vectors.
     assumption.
   Defined.
 
+  (* TODO resolve this situation with multiple aliases for essentially the same lemma *)
   Lemma sum_pointwise_op1 { n : nat } (v1 v2 : Vector R n)
     : Σ (pointwise n op1 v1 v2) = (Σ v1 + Σ v2)%rig.
   Proof.
     unfold pointwise.
-    induction n.
-    - rewrite zero_function_sums_to_zero.
-      + assert (p1: Σ v1 = 0%rig). { apply (empty_sum_eq_0 v1). }
-        assert (p2: Σ v2 = 0%rig). { apply (empty_sum_eq_0 v2). }
-        rewrite p1, p2.
-        rewrite riglunax1. apply idpath.
-      + unfold const_vec.
-        apply funextfun. intros i.
-        apply fromempty. apply weqstn0toempty in i.
-        assumption.
-    - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      unfold funcomp. rewrite replace_dni_last.
-      rewrite <- rigassoc1.
-      rewrite eqlen_vec_sums_mergeable. (* todo not the best name*)
-      rewrite (rigassoc1 R _ _  (v1 _) ).
-      rewrite <- (rigcomm1 _ (v1 _)).
-      rewrite (rigassoc1 R _ _ (v2 _)).
-      rewrite  (rigassoc1 R (v1 _ ) _ _).
-      rewrite <- (rigassoc1 R _ (v1 _) _).
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      unfold funcomp.
-      rewrite replace_dni_last.
-      reflexivity.
+    apply pathsinv0.
+    apply rigsum_add.
   Defined.
 
   Definition stdb_vector { n : nat } (i : ⟦ n ⟧%stn) : Vector R n.
@@ -301,6 +280,7 @@ Section Vectors.
       apply idpath.
   Defined.
 
+  (* TODO sums to point_s_ *)
   Lemma two_pulse_function_sums_to_point_rig { n : nat }
       (f : ⟦ n ⟧%stn -> R) (p : n > 0)
       (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
@@ -439,6 +419,7 @@ Section Vectors.
     apply weq_vector_1.
   Defined.
 
+  (* TODO typo *)
   Lemma weq_colwec
     : ∏ X : UU, ∏ n : nat,  weq (Vector X n) (Matrix X n 1).
   Proof.

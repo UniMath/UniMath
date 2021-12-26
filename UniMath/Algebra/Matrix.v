@@ -368,31 +368,6 @@ Section Applications.
     reflexivity.
   Defined.
 
-  Definition matrix_equal
-  {n m : nat}  (mat1 mat2: Matrix R m n) : UU
-  :=  ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn),
-      (mat1 i) j = (mat2 i) j.
-
-  Definition vector_equal
-  {n : nat}  (vec1 vec2: Vector R n) : UU
-  :=  ∏ (i : ⟦ n ⟧%stn),
-      vec1 i = vec2 i.
-
-  Definition sum_rows
-  {m n : nat}
-  (mat : Matrix R m n): Vector R m
-  :=  λ (i : (⟦ m ⟧)%stn),
-      Σ (row mat i).
-
-  Definition sum_cols
-  {m n : nat}
-  (mat : Matrix R m n): Vector R n
-  := λ (i : (⟦ n ⟧)%stn),
-     Σ (col mat i).
-
-  Definition is_square
-  {m n: nat} (_ : Matrix R m n) : UU := m = n.
-
   (* TODO: make this definition more similar to matrix_mult? *)
   Definition matrix_add
   {m n : nat}
@@ -509,7 +484,7 @@ Section Applications.
       + reflexivity.
   Defined.
 
-  Lemma eqlen_sums_mergeable : (* there is a better, existing name for a corresponding lemma *)
+  Lemma rigsum_add :
     ∏ (n : nat) (f1 f2 : (⟦ n ⟧)%stn -> R),
     op1 (Σ (λ i: (⟦ n ⟧)%stn, f1 i))  (Σ (λ i : (⟦ n ⟧)%stn, f2 i))
     = Σ (λ i: (⟦ n ⟧)%stn, op1 (f1 i) (f2 i)).
@@ -540,19 +515,20 @@ Section Applications.
     Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
     = Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, f j i)).
   Proof.
-    intros. induction n. induction m.
-    { reflexivity. }
-    assert (x :
+    intros. induction n. 
+    - induction m.
+      { reflexivity. }
+      assert (x :
         (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) ))) = 0%rig).
-    { reflexivity. }
-    - change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
+      { reflexivity. }
+      change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
         with (@rigunel1 R).
       apply zero_function_sums_to_zero.
       reflexivity.
     - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       unfold  "∘".
       rewrite <- IHn.
-      rewrite eqlen_sums_mergeable.
+      rewrite rigsum_add.
       apply maponpaths, funextfun. intros i.
       rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       reflexivity.
@@ -583,30 +559,6 @@ Section Applications.
 
   Local Notation "A ++' B" := (matrix_add A B) (at level 80).
 
-  (* Can we prove this one easier using the lemmas for scalars ? *)
-  Lemma eqlen_vec_sums_mergeable :
-    ∏ (n : nat) (vec1 vec2 : Vector R n),
-     (Σ (λ i : (⟦ n ⟧)%stn, (op1 (vec1 i)  (vec2 i))))
-  =  (op1 (Σ (λ i : (⟦ n ⟧)%stn, (vec1 i)))  (Σ ( λ i : (⟦ n ⟧)%stn, vec2 i))).
-  Proof.
-    intros.
-    induction n.
-    - rewrite zero_function_sums_to_zero.
-      + rewrite riglunax1. apply idpath.
-      + apply funextfun; intros i.
-        apply fromempty; use weqstn0toempty.
-        assumption.
-    - do 3 try rewrite iterop_fun_step; try apply riglunax1.
-      do 3 unfold funcomp; rewrite replace_dni_last.
-      + do 2 rewrite <- rigassoc1;
-        do 2 rewrite <- (rigcomm1 _ (vec2 lastelement)).
-        do 2 rewrite <- (rigcomm1 _ (vec1 lastelement)).
-        rewrite <- rigassoc1.
-        rewrite IHn.
-        do 2 rewrite rigassoc1.
-        reflexivity.
-  Defined.
-
   Lemma matrix_mult_ldistr :
     ∏ (m n : nat) (mat1 : Matrix R m n)
       (p : nat) (mat2 : Matrix R n p)
@@ -623,9 +575,9 @@ Section Applications.
       rewrite rigldistr.
       reflexivity.
     }
-    apply eqlen_vec_sums_mergeable.
+    apply pathsinv0.
+    apply rigsum_add.
   Defined.
-
 
   Lemma matrix_mult_rdistr :
     ∏ (m n p: nat) (mat1 : Matrix R n p)
@@ -643,7 +595,8 @@ Section Applications.
       rewrite rigrdistr.
       reflexivity.
     }
-    apply eqlen_vec_sums_mergeable.
+    apply pathsinv0.
+    apply rigsum_add.
   Defined.
 
 End Applications.
