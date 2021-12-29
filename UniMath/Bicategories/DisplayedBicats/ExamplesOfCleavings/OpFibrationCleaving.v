@@ -23,12 +23,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
-Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 (** Characterization of opcartesian 2-cells *)
 Definition opcleaving_of_opfibs_is_opcartesian_2cell
@@ -168,20 +164,16 @@ Section OpCleavingOfOpFibsPointwiseCartesian.
              x
              xx)%mor_disp.
     Proof.
-      (*Check is_cartesian_2cell_unique_iso_com.
-      Check pointwise_opcartesian_lift_data_is_opcartesian.
       pose (maponpaths
-            (λ z, pr11 z x xx)
-            (is_cartesian_2cell_unique_iso_com
-               Hαα
-               pointwise_opcartesian_lift_data_is_opcartesian))
+              (λ z, pr11 z x xx)
+              (is_opcartesian_2cell_unique_iso_com
+                 Hαα
+                 pointwise_opcartesian_lift_data_is_opcartesian))
         as p.
       cbn in p.
       rewrite pr1_transportf in p.
       exact (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _).
     Qed.
-       *)
-    Admitted.
 
     Definition opcleaving_of_opfibs_opcartesian_2cell_is_pointwise_opcartesian
       : is_opcartesian (pr11 αα x xx).
@@ -193,17 +185,15 @@ Section OpCleavingOfOpFibsPointwiseCartesian.
       use is_opcartesian_transportf.
       use is_opcartesian_comp_disp.
       - apply pointwise_opcartesian_lift_data_pointwise_opcartesian.
-      -(*exact (is_cartesian_disp_iso
-                 (disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+      - exact (is_opcartesian_iso_disp
+                 (disp_bicat_of_opfibs_disp_invertible_2cell_pointwise_inv
                     _
                     _
-                    (pr2 (is_cartesian_2cell_unique_iso
+                    (pr2 (is_opcartesian_2cell_unique_iso
                             Hαα
                             pointwise_opcartesian_lift_data_is_opcartesian))
                     xx)).
     Defined.
-       *)
-    Admitted.
   End PointwiseOpCartesian.
 End OpCleavingOfOpFibsPointwiseCartesian.
 

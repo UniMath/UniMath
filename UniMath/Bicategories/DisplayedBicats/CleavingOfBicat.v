@@ -1064,12 +1064,13 @@ Section Cartesian2CellUnique.
              ββ).
   Defined.
 
-  Let m_i : m •• i
-            =
-            transportb
-              (λ z, ff₁ ==>[ z ] ff₁)
-              (id2_left (id₂ f))
-              (disp_id2 ff₁).
+  Local Lemma is_cartesian_2cell_unique_iso_inv₁
+    : m •• i
+      =
+      transportb
+        (λ z, ff₁ ==>[ z ] ff₁)
+        (id2_left (id₂ f))
+        (disp_id2 ff₁).
   Proof.
     use (is_cartesian_2cell_unique _ Hαα).
     - refine (transportb
@@ -1101,12 +1102,13 @@ Section Cartesian2CellUnique.
       apply cellset_property.
   Qed.
 
-  Let i_m : i •• m
-            =
-            transportb
-              (λ z, ff₂ ==>[ z ] ff₂)
-              (id2_left (id₂ f))
-              (disp_id2 ff₂).
+  Local Lemma is_cartesian_2cell_unique_iso_inv₂
+    : i •• m
+      =
+      transportb
+        (λ z, ff₂ ==>[ z ] ff₂)
+        (id2_left (id₂ f))
+        (disp_id2 ff₂).
   Proof.
     use (is_cartesian_2cell_unique _ Hββ).
     - refine (transportb
@@ -1140,7 +1142,10 @@ Section Cartesian2CellUnique.
 
   Definition is_cartesian_2cell_unique_iso
     : disp_invertible_2cell (id2_invertible_2cell _) ff₁ ff₂
-    := (m ,, i ,, m_i ,, i_m).
+    := (m
+        ,, i
+        ,, is_cartesian_2cell_unique_iso_inv₁
+        ,, is_cartesian_2cell_unique_iso_inv₂).
 
   Definition is_cartesian_2cell_unique_iso_com
     : αα
@@ -1500,8 +1505,7 @@ Definition rwhisker_opcartesian
        (αα : ff ==>[ α ] gg),
      is_opcartesian_2cell _ αα → is_opcartesian_2cell _ (αα ▹▹ hh).
 
-(*
-Section Cartesian2CellUnique.
+Section OpCartesian2CellUnique.
   Context {B : bicat}
           {D : disp_bicat B}
           {x y : B}
@@ -1509,126 +1513,127 @@ Section Cartesian2CellUnique.
           {α : f ==> g}
           {xx : D x}
           {yy : D y}
-          {ff₁ ff₂ : xx -->[ f ] yy}
-          {gg : xx -->[ g ] yy}
-          {αα : ff₁ ==>[ α ] gg}
-          {ββ : ff₂ ==>[ α ] gg}
+          {ff : xx -->[ f ] yy}
+          {gg₁ gg₂ : xx -->[ g ] yy}
+          {αα : ff ==>[ α ] gg₁}
+          {ββ : ff ==>[ α ] gg₂}
           (Hαα : is_opcartesian_2cell D αα)
           (Hββ : is_opcartesian_2cell D ββ).
 
-  Let m : ff₁ ==>[ id₂ f] ff₂.
+  Let m : gg₁ ==>[ id₂ g ] gg₂.
   Proof.
-    use (is_cartesian_2cell_factor _ Hββ).
+    use (is_opcartesian_2cell_factor _ Hαα).
     exact (transportb
              (λ z, _ ==>[ z ] _)
-             (id2_left _)
-             αα).
-  Defined.
-
-  Let i : ff₂ ==>[ id₂ f] ff₁.
-  Proof.
-    use (is_cartesian_2cell_factor _ Hαα).
-    exact (transportb
-             (λ z, _ ==>[ z ] _)
-             (id2_left _)
+             (id2_right _)
              ββ).
   Defined.
 
-  Let m_i : m •• i
-            =
-            transportb
-              (λ z, ff₁ ==>[ z ] ff₁)
-              (id2_left (id₂ f))
-              (disp_id2 ff₁).
+  Let i : gg₂ ==>[ id₂ g ] gg₁.
   Proof.
-    use (is_cartesian_2cell_unique _ Hαα).
-    - refine (transportb
-                (λ z, _ ==>[ z ] _)
-                _
-                αα).
-      abstract
-        (rewrite !vassocl ;
-         rewrite !id2_left ;
-         apply idpath).
-    - rewrite disp_vassocl.
-      unfold i.
-      rewrite is_cartesian_2cell_comm.
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      unfold m.
-      rewrite is_cartesian_2cell_comm.
-      unfold transportb.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-    - unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite disp_id2_left.
-      unfold transportb.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-  Qed.
+    use (is_opcartesian_2cell_factor _ Hββ).
+    exact (transportb
+             (λ z, _ ==>[ z ] _)
+             (id2_right _)
+             αα).
+  Defined.
 
-  Let i_m : i •• m
-            =
-            transportb
-              (λ z, ff₂ ==>[ z ] ff₂)
-              (id2_left (id₂ f))
-              (disp_id2 ff₂).
+  Local Lemma is_opcartesian_2cell_unique_iso_inv₁
+    : i •• m
+      =
+      transportb
+        (λ z, _ ==>[ z ] _)
+        (id2_left _)
+        (disp_id2 _).
   Proof.
-    use (is_cartesian_2cell_unique _ Hββ).
+    use (is_opcartesian_2cell_unique _ Hββ).
     - refine (transportb
                 (λ z, _ ==>[ z ] _)
                 _
                 ββ).
       abstract
-        (rewrite !vassocl ;
-         rewrite !id2_left ;
+        (rewrite !id2_right ;
          apply idpath).
-    - rewrite disp_vassocl.
-      unfold m.
-      rewrite is_cartesian_2cell_comm.
+    - unfold i, m.
+      rewrite disp_vassocr.
+      rewrite is_opcartesian_2cell_comm.
       unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
+      rewrite disp_mor_transportf_postwhisker.
       rewrite transport_f_f.
-      unfold i.
-      rewrite is_cartesian_2cell_comm.
+      rewrite is_opcartesian_2cell_comm.
       unfold transportb.
       rewrite transport_f_f.
       apply maponpaths_2.
       apply cellset_property.
     - unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite disp_id2_left.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite disp_id2_right.
       unfold transportb.
       rewrite transport_f_f.
       apply maponpaths_2.
       apply cellset_property.
   Qed.
 
-  Definition is_cartesian_2cell_unique_iso
-    : disp_invertible_2cell (id2_invertible_2cell _) ff₁ ff₂
-    := (m ,, i ,, m_i ,, i_m).
+  Local Lemma is_opcartesian_2cell_unique_iso_inv₂
+    : m •• i
+      =
+      transportb
+        (λ z, _ ==>[ z ] _)
+        (id2_left _)
+        (disp_id2 gg₁).
+  Proof.
+    use (is_opcartesian_2cell_unique _ Hαα).
+    - refine (transportb
+                (λ z, _ ==>[ z ] _)
+                _
+                αα).
+      abstract
+        (rewrite !id2_right ;
+         apply idpath).
+    - unfold i, m.
+      rewrite disp_vassocr.
+      rewrite is_opcartesian_2cell_comm.
+      unfold transportb.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite is_opcartesian_2cell_comm.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    - unfold transportb.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite disp_id2_right.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+  Qed.
 
-  Definition is_cartesian_2cell_unique_iso_com
+
+  Definition is_opcartesian_2cell_unique_iso
+    : disp_invertible_2cell (id2_invertible_2cell _) gg₂ gg₁
+    := (i
+          ,, m
+        ,, is_opcartesian_2cell_unique_iso_inv₁
+        ,, is_opcartesian_2cell_unique_iso_inv₂).
+
+  Definition is_opcartesian_2cell_unique_iso_com
     : αα
       =
       transportf
         (λ z, _ ==>[ z ] _)
-        (id2_left _)
-        (is_cartesian_2cell_unique_iso •• ββ).
+        (id2_right _)
+        (ββ •• is_opcartesian_2cell_unique_iso).
   Proof.
-    cbn ; unfold m.
-    rewrite is_cartesian_2cell_comm.
+    cbn ; unfold i.
+    rewrite is_opcartesian_2cell_comm.
     unfold transportb.
     rewrite transport_f_f.
     rewrite pathsinv0l.
     apply idpath.
   Qed.
-End Cartesian2CellUnique.
-*)
+End OpCartesian2CellUnique.
 
 Definition disp_hcomp_is_opcartesian_2cell
            {B : bicat}
