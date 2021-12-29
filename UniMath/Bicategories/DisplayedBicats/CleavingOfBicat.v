@@ -8,6 +8,9 @@
  1. Definition of cleaving
  2. Properties of cartesian 1-cells
  3. Properties of cartesian 2-cells
+ 4. Local opcleavings
+ 5. Properties of opcartesian 2-cells
+ 6. Cartesian pseudofunctors
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -823,7 +826,6 @@ Proof.
 Qed.
 
 (** 3. Properties of cartesian 2-cells *)
-
 Definition local_fib
            {B : bicat}
            (D : disp_bicat B)
@@ -1026,7 +1028,7 @@ Definition invertible_is_cartesian_2cell
   : is_cartesian_2cell D αα.
 Proof.
   apply cartesian_to_cartesian_2cell.
-  apply (is_cartesian_disp_iso (disp_hom_disp_invertible_2cell_to_iso _ Hαα)).
+  apply (is_cartesian_iso_disp (disp_hom_disp_invertible_2cell_to_iso _ Hαα)).
 Defined.
 
 Section Cartesian2CellUnique.
@@ -1186,7 +1188,479 @@ Proof.
     exact Hββ.
 Defined.
 
-(** Cartesian pseudofunctor *)
+(** 4. Local Opcleavings *)
+Section LocalOpcleaving.
+  Context {B : bicat}
+          (D : disp_bicat B).
+
+  Definition is_opcartesian_2cell
+             {x y : B}
+             {xx : D x} {yy : D y}
+             {f g : x --> y}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             {α : f ==> g}
+             (αα : ff ==>[ α ] gg)
+    : UU
+    := ∏ (h : x --> y)
+         (hh : xx -->[ h ] yy)
+         (γ : g ==> h)
+         (ββ : ff ==>[ α • γ ] hh),
+       ∃! (γγ : gg ==>[ γ ] hh), (αα •• γγ) = ββ.
+
+  Section OpCartesian2Cell.
+    Context {x y : B}
+            {xx : D x} {yy : D y}
+            {f g : x --> y}
+            {ff : xx -->[ f ] yy}
+            {gg : xx -->[ g ] yy}
+            {α : f ==> g}
+            {αα : ff ==>[ α ] gg}
+            (Hαα : is_opcartesian_2cell αα).
+
+    Definition is_opcartesian_2cell_factor
+               {h : x --> y}
+               (hh : xx -->[ h ] yy)
+               (γ : g ==> h)
+               (ββ : ff ==>[ α • γ ] hh)
+      : gg ==>[ γ ] hh
+      := pr11 (Hαα h hh γ ββ).
+
+    Definition is_opcartesian_2cell_comm
+               {h : x --> y}
+               (hh : xx -->[ h ] yy)
+               (γ : g ==> h)
+               (ββ : ff ==>[ α • γ ] hh)
+      : (αα •• is_opcartesian_2cell_factor hh γ ββ) = ββ
+      := pr21 (Hαα h hh γ ββ).
+
+    Definition is_opcartesian_2cell_unique
+               {h : x --> y}
+               (hh : xx -->[ h ] yy)
+               (γ : g ==> h)
+               (ββ : ff ==>[ α • γ ] hh)
+               {γγ₁ γγ₂ : gg ==>[ γ ] hh}
+               (pγγ₁ : (αα •• γγ₁) = ββ)
+               (pγγ₂ : (αα •• γγ₂) = ββ)
+      : γγ₁ = γγ₂.
+    Proof.
+      exact (maponpaths
+               pr1
+               (proofirrelevance
+                  _
+                  (isapropifcontr (Hαα h hh γ ββ))
+                  (γγ₁ ,, pγγ₁) (γγ₂ ,, pγγ₂))).
+    Qed.
+  End OpCartesian2Cell.
+
+  Definition opcartesian_lift_2cell
+             {x y : B}
+             {xx : D x}
+             {yy : D y}
+             {f g : x --> y}
+             (ff : xx -->[ f ] yy)
+             (α : f ==> g)
+    : UU
+    := ∑ (gg : xx -->[ g ] yy) (αα : ff ==>[ α ] gg), is_opcartesian_2cell αα.
+
+  Definition local_opcleaving
+    : UU
+    := ∏ (x y : B)
+         (xx : D x) (yy : D y)
+         (f g : x --> y)
+         (ff : xx -->[ f ] yy)
+         (α : f ==> g),
+       opcartesian_lift_2cell ff α.
+End LocalOpcleaving.
+
+(** 5. Properties of opcartesian 2-cells *)
+Definition local_opfib
+           {B : bicat}
+           (D : disp_bicat B)
+  : UU
+  := ∏ (x y : B)
+       (xx : D x)
+       (yy : D y),
+     opcleaving (disp_hom xx yy).
+
+(** Being a cartesian 2-cell is a proposition *)
+Definition isaprop_is_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : ff ==>[ α ] gg)
+  : isaprop (is_opcartesian_2cell D αα).
+Proof.
+  repeat (use impred ; intro).
+  apply isapropiscontr.
+Qed.
+
+(** The two definitions of local cleavings coincide *)
+Definition opcartesian_2cell_to_opcartesian
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : ff ==>[ α ] gg)
+           (Hαα : is_opcartesian_2cell D αα)
+  : @is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα.
+Proof.
+  intros h γ hh γα.
+  apply Hαα.
+Qed.
+
+Definition opcartesian_to_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : ff ==>[ α ] gg)
+           (Hαα : @is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+  : is_opcartesian_2cell D αα.
+Proof.
+  intros h hh γ γα.
+  apply Hαα.
+Qed.
+
+Definition opcartesian_2cell_weq_opcartesian
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : ff ==>[ α ] gg)
+  : (@is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+    ≃
+    is_opcartesian_2cell D αα.
+Proof.
+  use weqimplimpl.
+  - apply opcartesian_to_opcartesian_2cell.
+  - apply opcartesian_2cell_to_opcartesian.
+  - apply isaprop_is_opcartesian.
+  - apply isaprop_is_opcartesian_2cell.
+Qed.
+
+Definition local_opcleaving_to_local_opfib
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD : local_opcleaving D)
+  : local_opfib D.
+Proof.
+  intros x y xx yy f g ff α ; cbn in *.
+  pose (HD x y xx yy f g ff α) as lift.
+  refine (pr1 lift ,, pr12 lift ,, _).
+  apply opcartesian_2cell_to_opcartesian.
+  exact (pr22 lift).
+Defined.
+
+Definition local_opfib_to_local_opcleaving
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD : local_opfib D)
+  : local_opcleaving D.
+Proof.
+  intros x y xx yy f g ff α ; cbn in *.
+  pose (HD x y xx yy f g ff α) as lift.
+  refine (pr1 lift ,, pr12 lift ,, _).
+  apply opcartesian_to_opcartesian_2cell.
+  exact (pr22 lift).
+Defined.
+
+Definition local_opfib_weq_local_opcleaving
+           {B : bicat}
+           (D : disp_bicat B)
+  : local_opcleaving D ≃ local_opfib D.
+Proof.
+  use make_weq.
+  - exact local_opcleaving_to_local_opfib.
+  - use gradth.
+    + exact local_opfib_to_local_opcleaving.
+    + abstract
+        (intro HD ;
+         repeat (use funextsec ; intro) ;
+         use total2_paths_f ; [ apply idpath | ] ; cbn ;
+         use total2_paths_f ; [ apply idpath | ] ; cbn ;
+         apply isaprop_is_opcartesian_2cell).
+    + abstract
+        (intro HD ;
+         repeat (use funextsec ; intro) ;
+         use total2_paths_f ; [ apply idpath | ] ; cbn ;
+         use total2_paths_f ; [ apply idpath | ] ; cbn ;
+         apply isaprop_is_opcartesian).
+Defined.
+
+Definition identity_is_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f : x --> y}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : is_opcartesian_2cell D (disp_id2 ff).
+Proof.
+  apply opcartesian_to_opcartesian_2cell.
+  exact (@is_opcartesian_id_disp _ (disp_hom xx yy) f ff).
+Defined.
+
+Definition vcomp_is_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g h : x --> y}
+           {α : f ==> g} {β : g ==> h}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {hh : xx -->[ h ] yy}
+           {αα : ff ==>[ α ] gg}
+           {ββ : gg ==>[ β ] hh}
+           (Hαα : is_opcartesian_2cell D αα)
+           (Hββ : is_opcartesian_2cell D ββ)
+  : is_opcartesian_2cell D (αα •• ββ).
+Proof.
+  apply opcartesian_to_opcartesian_2cell.
+  exact (@is_opcartesian_comp_disp
+           _ (disp_hom xx yy)
+           f ff
+           g gg
+           h hh
+           α β
+           αα ββ
+           (opcartesian_2cell_to_opcartesian _ Hαα)
+           (opcartesian_2cell_to_opcartesian _ Hββ)).
+Defined.
+
+Definition invertible_is_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : f ==> g}
+           {Hα : is_invertible_2cell α}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (Hαα : is_disp_invertible_2cell Hα αα)
+  : is_opcartesian_2cell D αα.
+Proof.
+  apply opcartesian_to_opcartesian_2cell.
+  apply (is_opcartesian_iso_disp (disp_hom_disp_invertible_2cell_to_iso _ Hαα)).
+Defined.
+
+Definition lwhisker_opcartesian
+           {B : bicat}
+           (D : disp_bicat B)
+  : UU
+  := ∏ (w x y : B)
+       (ww : D w) (xx : D x) (yy : D y)
+       (h : w --> x)
+       (f g : x --> y)
+       (hh : ww -->[ h ] xx)
+       (ff : xx -->[ f ] yy)
+       (gg : xx -->[ g ] yy)
+       (α : f ==> g)
+       (αα : ff ==>[ α ] gg),
+     is_opcartesian_2cell _ αα → is_opcartesian_2cell _ (hh ◃◃ αα).
+
+Definition rwhisker_opcartesian
+           {B : bicat}
+           (D : disp_bicat B)
+  : UU
+  := ∏ (x y z : B)
+       (xx : D x) (yy : D y) (zz : D z)
+       (f g : x --> y) (h : y --> z)
+       (ff : xx -->[ f ] yy)
+       (gg : xx -->[ g ] yy)
+       (hh : yy -->[ h ] zz)
+       (α : f ==> g)
+       (αα : ff ==>[ α ] gg),
+     is_opcartesian_2cell _ αα → is_opcartesian_2cell _ (αα ▹▹ hh).
+
+(*
+Section Cartesian2CellUnique.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          {x y : B}
+          {f g : x --> y}
+          {α : f ==> g}
+          {xx : D x}
+          {yy : D y}
+          {ff₁ ff₂ : xx -->[ f ] yy}
+          {gg : xx -->[ g ] yy}
+          {αα : ff₁ ==>[ α ] gg}
+          {ββ : ff₂ ==>[ α ] gg}
+          (Hαα : is_opcartesian_2cell D αα)
+          (Hββ : is_opcartesian_2cell D ββ).
+
+  Let m : ff₁ ==>[ id₂ f] ff₂.
+  Proof.
+    use (is_cartesian_2cell_factor _ Hββ).
+    exact (transportb
+             (λ z, _ ==>[ z ] _)
+             (id2_left _)
+             αα).
+  Defined.
+
+  Let i : ff₂ ==>[ id₂ f] ff₁.
+  Proof.
+    use (is_cartesian_2cell_factor _ Hαα).
+    exact (transportb
+             (λ z, _ ==>[ z ] _)
+             (id2_left _)
+             ββ).
+  Defined.
+
+  Let m_i : m •• i
+            =
+            transportb
+              (λ z, ff₁ ==>[ z ] ff₁)
+              (id2_left (id₂ f))
+              (disp_id2 ff₁).
+  Proof.
+    use (is_cartesian_2cell_unique _ Hαα).
+    - refine (transportb
+                (λ z, _ ==>[ z ] _)
+                _
+                αα).
+      abstract
+        (rewrite !vassocl ;
+         rewrite !id2_left ;
+         apply idpath).
+    - rewrite disp_vassocl.
+      unfold i.
+      rewrite is_cartesian_2cell_comm.
+      unfold transportb.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite transport_f_f.
+      unfold m.
+      rewrite is_cartesian_2cell_comm.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    - unfold transportb.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite disp_id2_left.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+  Qed.
+
+  Let i_m : i •• m
+            =
+            transportb
+              (λ z, ff₂ ==>[ z ] ff₂)
+              (id2_left (id₂ f))
+              (disp_id2 ff₂).
+  Proof.
+    use (is_cartesian_2cell_unique _ Hββ).
+    - refine (transportb
+                (λ z, _ ==>[ z ] _)
+                _
+                ββ).
+      abstract
+        (rewrite !vassocl ;
+         rewrite !id2_left ;
+         apply idpath).
+    - rewrite disp_vassocl.
+      unfold m.
+      rewrite is_cartesian_2cell_comm.
+      unfold transportb.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite transport_f_f.
+      unfold i.
+      rewrite is_cartesian_2cell_comm.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    - unfold transportb.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite disp_id2_left.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+  Qed.
+
+  Definition is_cartesian_2cell_unique_iso
+    : disp_invertible_2cell (id2_invertible_2cell _) ff₁ ff₂
+    := (m ,, i ,, m_i ,, i_m).
+
+  Definition is_cartesian_2cell_unique_iso_com
+    : αα
+      =
+      transportf
+        (λ z, _ ==>[ z ] _)
+        (id2_left _)
+        (is_cartesian_2cell_unique_iso •• ββ).
+  Proof.
+    cbn ; unfold m.
+    rewrite is_cartesian_2cell_comm.
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite pathsinv0l.
+    apply idpath.
+  Qed.
+End Cartesian2CellUnique.
+*)
+
+Definition disp_hcomp_is_opcartesian_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_l : lwhisker_opcartesian D)
+           (HD_r : rwhisker_opcartesian D)
+           {b₁ b₂ b₃ : B}
+           {f₁ f₂ : b₁ --> b₂}
+           {g₁ g₂ : b₂ --> b₃}
+           {α : f₁ ==> f₂}
+           {β : g₁ ==> g₂}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {bb₃ : D b₃}
+           {ff₁ : bb₁ -->[ f₁ ] bb₂}
+           {ff₂ : bb₁ -->[ f₂ ] bb₂}
+           {gg₁ : bb₂ -->[ g₁ ] bb₃}
+           {gg₂ : bb₂ -->[ g₂ ] bb₃}
+           {αα : ff₁ ==>[ α ] ff₂}
+           {ββ : gg₁ ==>[ β ] gg₂}
+           (Hαα : is_opcartesian_2cell D αα)
+           (Hββ : is_opcartesian_2cell D ββ)
+  : is_opcartesian_2cell D (disp_hcomp αα ββ).
+Proof.
+  use vcomp_is_opcartesian_2cell.
+  - apply HD_r.
+    exact Hαα.
+  - apply HD_l.
+    exact Hββ.
+Defined.
+
+(** 6. Cartesian pseudofunctors *)
 Definition cartesian_disp_psfunctor
            {B₁ B₂ : bicat}
            {F : psfunctor B₁ B₂}

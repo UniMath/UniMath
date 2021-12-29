@@ -1165,6 +1165,16 @@ End Total_Category.
 
 Arguments pr1_category [C] D.
 
+Definition total_univalent_category
+           {C : univalent_category}
+           (D : disp_univalent_category C)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (total_category D).
+  - exact (is_univalent_total_category (pr2 C) (pr2 D)).
+Defined.
+
 (** * Functors
 
 - Reindexing of displayed cats along functors: [reindex_disp_cat]
