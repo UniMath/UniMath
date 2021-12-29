@@ -319,6 +319,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
+   - [DisplayedCats/Examples/Opposite.v](CategoryTheory/DisplayedCats/Examples/Opposite.v)
    - [DisplayedCats/StreetFibration.v](CategoryTheory/DisplayedCats/StreetFibration.v)
    - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
    - [Monoidal/EndofunctorsMonoidal.v](CategoryTheory/Monoidal/EndofunctorsMonoidal.v)
