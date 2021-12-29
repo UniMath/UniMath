@@ -1081,6 +1081,12 @@ End ProjectionSFib.
 (**
  6. Composition of Street fibrations
  *)
+
+(**
+
+MARKED
+
+ *)
 Section CompositionSFib.
   Context {B : bicat}
           {x y z : B}
@@ -1817,6 +1823,9 @@ Section PullbackOfSFib.
         + exact (to_pb_cartesian_comm Hα q).
     Defined.
 
+    Definition TODO {A : UU} : A.
+    Admitted.
+
     Definition from_pb_cartesian
                (Hα : is_cartesian_2cell_sfib p₁ α)
       : is_cartesian_2cell_sfib p₂ (α ▹ fe).
@@ -1835,9 +1844,54 @@ Section PullbackOfSFib.
              rewrite id2_left ;
              apply idpath).
       - use make_is_invertible_2cell.
-        + admit.
-        + admit.
-        + admit.
+        + refine (internal_sfib_cleaving_lift_cell _ _ _ • _).
+          refine (_ ▹ fe).
+          apply TODO.
+        + rewrite !vassocr.
+          rewrite is_cartesian_2cell_sfib_factor_comm.
+          rewrite rwhisker_vcomp.
+          rewrite <- id2_rwhisker.
+          apply maponpaths.
+          admit.
+        + use (is_cartesian_2cell_sfib_factor_unique
+                 _
+                 (internal_sfib_cleaving_is_cartesian p₂ Hf ((α ▹ fe) ▹ p₂))).
+          * apply internal_sfib_cleaving_lift_cell.
+          * apply id2.
+          * rewrite id2_left.
+            apply idpath.
+          * rewrite <- rwhisker_vcomp.
+            etrans.
+            {
+              apply maponpaths.
+              apply is_cartesian_2cell_sfib_factor_over.
+            }
+            use vcomp_move_R_Mp ; [ is_iso | ].
+            cbn.
+            rewrite id2_left.
+            rewrite <- rwhisker_vcomp.
+            rewrite internal_sfib_cleaving_over.
+            rewrite !vassocl.
+            refine (_ @ id2_right _).
+            apply maponpaths.
+            rewrite rwhisker_vcomp.
+            rewrite <- id2_rwhisker.
+            apply maponpaths.
+            admit.
+          * apply id2_rwhisker.
+          * rewrite !vassocl.
+            etrans.
+            {
+              do 2 apply maponpaths.
+              apply is_cartesian_2cell_sfib_factor_comm.
+            }
+            refine (_ @ id2_right _).
+            apply maponpaths.
+            rewrite rwhisker_vcomp.
+            rewrite <- id2_rwhisker.
+            apply maponpaths.
+            admit.
+          * apply id2_left.
       - exact (internal_sfib_cleaving_lift_cell p₂ Hf ((α ▹ fe) ▹ p₂)).
       - exact (internal_sfib_cleaving_is_cartesian p₂ Hf ((α ▹ fe) ▹ p₂)).
       - refine (!_).
@@ -2124,8 +2178,10 @@ Section Cartesians.
   Definition cartesian_2cell_sfib_to_is_cartesian_sfib
              (Hα : is_cartesian_2cell_sfib P α)
              (x : X)
+             (HP : street_fib P)
     : is_cartesian_sfib P (pr1 α x).
   Proof.
+    pose (street_fib_mor _ HP (# (pr1 P) (pr1 α x))).
   Admitted.
 End Cartesians.
 
@@ -2338,7 +2394,7 @@ Section StreetFibIsInternalStreetFib.
     intros X Y H F G γ Hγ.
     apply is_cartesian_sfib_to_cartesian_2cell_sfib.
     intros x.
-    exact (cartesian_2cell_sfib_to_is_cartesian_sfib _ _ Hγ (pr1 H x)).
+    exact (cartesian_2cell_sfib_to_is_cartesian_sfib _ _ Hγ (pr1 H x) HP).
   Defined.
 
   Definition street_fib_is_internal_sfib
@@ -2350,6 +2406,12 @@ Section StreetFibIsInternalStreetFib.
   Defined.
 End StreetFibIsInternalStreetFib.
 
+
+(**
+
+MARKED
+
+ *)
 Section InternalSFibIsStreetFib.
   Context {E B : univalent_category}
           (F : bicat_of_univ_cats ⟦ E , B ⟧)
@@ -2390,12 +2452,7 @@ Section InternalSFibIsStreetFib.
               tt
             ,,
             _) ; simpl.
-    refine (cartesian_2cell_sfib_to_is_cartesian_sfib
-              F
-              (internal_sfib_cleaving_lift_cell F HF n)
-              _
-              tt).
-    apply internal_sfib_cleaving_is_cartesian.
+    intros z g h q.
   Defined.
 End InternalSFibIsStreetFib.
 
