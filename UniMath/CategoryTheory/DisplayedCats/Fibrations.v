@@ -739,11 +739,289 @@ End Equivalence_disc_fibs_presheaves.
 
 End Discrete_Fibrations.
 
-Section Opfibrations.
 
-(* TODO: add definitions analogous to in [Fibrations].  For constructions/theorems: think about whether it’s possible to recover them by duality, instead of repeating all proofs?? *)
+(*******************************
+ MOVE
+ *******************************)
+Section OpDispCat.
+  Context {C : category}
+          (D : disp_cat C).
 
-End Opfibrations.
+  Definition op_disp_cat_ob_mor
+    : disp_cat_ob_mor (op_cat C).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x, D x).
+    - exact (λ x y xx yy f, yy -->[ f ] xx).
+  Defined.
+
+  Definition op_disp_cat_id_comp
+    : disp_cat_id_comp (op_cat C) op_disp_cat_ob_mor.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x xx, id_disp _).
+    - refine (λ x y z f g xx yy zz ff gg, _) ; cbn in *.
+      exact (gg ;; ff).
+  Defined.
+
+  Definition op_disp_cat_data
+    : disp_cat_data (op_cat C).
+  Proof.
+    simple refine (_ ,, _).
+    - exact op_disp_cat_ob_mor.
+    - exact op_disp_cat_id_comp.
+  Defined.
+
+  Definition op_disp_cat_axioms
+    : disp_cat_axioms (op_cat C) op_disp_cat_data.
+  Proof.
+    repeat split ; cbn ; intros.
+    - apply id_right_disp.
+    - apply id_left_disp.
+    - rewrite assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      refine (!_).
+      apply transportf_set.
+      apply C.
+    - apply D.
+  Qed.
+
+  Definition op_disp_cat
+    : disp_cat (op_cat C).
+  Proof.
+    simple refine (_ ,, _).
+    - exact op_disp_cat_data.
+    - exact op_disp_cat_axioms.
+  Defined.
+End OpDispCat.
+(*******************************
+ END MOVE
+ *******************************)
+
+(**
+ The notion of an opcartesian morphism
+ *)
+Section Opcartesian.
+  Context {C : category}
+          {D : disp_cat C}.
+
+  Definition is_opcartesian
+             {c₁ c₂ : C}
+             {f : c₁ --> c₂}
+             {cc₁ : D c₁}
+             {cc₂ : D c₂}
+             (ff : cc₁ -->[ f ] cc₂)
+    : UU
+    := ∏ (c₃ : C)
+         (cc₃ : D c₃)
+         (g : c₂ --> c₃)
+         (hh : cc₁ -->[ f · g ] cc₃),
+       ∃! (gg : cc₂ -->[ g ] cc₃),
+       ff ;; gg = hh.
+
+  Section ProjectionsOpcartesian.
+    Context {c₁ c₂ : C}
+            {f : c₁ --> c₂}
+            {cc₁ : D c₁}
+            {cc₂ : D c₂}
+            {ff : cc₁ -->[ f ] cc₂}
+            (Hff : is_opcartesian ff)
+            {c₃ : C}
+            {cc₃ : D c₃}
+            (g : c₂ --> c₃)
+            (hh : cc₁ -->[ f · g ] cc₃).
+
+    Definition opcartesian_factorisation
+      : cc₂ -->[ g ] cc₃
+      := pr11 (Hff c₃ cc₃ g hh).
+
+    Definition opcartesian_factorisation_commutes
+      : ff ;; opcartesian_factorisation = hh
+      := pr21 (Hff c₃ cc₃ g hh).
+
+    Definition opcartesian_factorisation_unique
+               (gg₁ gg₂ : cc₂ -->[ g ] cc₃)
+               (H : ff ;; gg₁ = ff ;; gg₂)
+      : gg₁ = gg₂.
+    Proof.
+      exact (maponpaths
+               pr1
+               (proofirrelevance
+               _
+               (isapropifcontr
+                  (Hff c₃ cc₃ g (ff ;; gg₁)))
+               (gg₁ ,, idpath _)
+               (gg₂ ,, !H))).
+    Qed.
+  End ProjectionsOpcartesian.
+End Opcartesian.
+
+(**
+ Opcartesian morphism
+ *)
+Definition is_cartesian_weq_is_opcartesian
+           {C : category}
+           {D : disp_cat C}
+           {c₁ c₂ : C}
+           {f : c₁ --> c₂}
+           {cc₁ : D c₁}
+           {cc₂ : D c₂}
+           (ff : cc₁ -->[ f ] cc₂)
+  : is_cartesian ff ≃ @is_opcartesian _ (op_disp_cat D) _ _ _ _ _ ff.
+Proof.
+  use make_weq.
+  - exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
+  - use gradth.
+    + exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
+    + intro ; apply idpath.
+    + intro ; apply idpath.
+Defined.
+
+Definition is_opcartesian_weq_is_cartesian
+           {C : category}
+           {D : disp_cat C}
+           {c₁ c₂ : C}
+           {f : c₁ --> c₂}
+           {cc₁ : D c₁}
+           {cc₂ : D c₂}
+           (ff : cc₁ -->[ f ] cc₂)
+  : is_opcartesian ff ≃ @is_cartesian _ (op_disp_cat D) _ _ _ _ _ ff.
+Proof.
+  use make_weq.
+  - exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
+  - use gradth.
+    + exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
+    + intro ; apply idpath.
+    + intro ; apply idpath.
+Defined.
+
+Definition isaprop_is_opcartesian
+           {C : category}
+           {D : disp_cat C}
+           {c₁ c₂ : C}
+           {f : c₁ --> c₂}
+           {cc₁ : D c₁}
+           {cc₂ : D c₂}
+           (ff : cc₁ -->[ f ] cc₂)
+  : isaprop (is_opcartesian ff).
+Proof.
+  apply (isofhlevelweqb 1 (is_opcartesian_weq_is_cartesian ff)).
+  apply isaprop_is_cartesian.
+Qed.
+
+(** Opcleavings *)
+Section Opcleaving.
+  Context {C : category}
+          (D : disp_cat C).
+
+  Definition opcartesian_lift
+             {c₁ c₂ : C}
+             (cc₁ : D c₁)
+             (f : c₁ --> c₂)
+    : UU
+    := ∑ (cc₂ : D c₂) (ff : cc₁ -->[ f ] cc₂), is_opcartesian ff.
+
+  Definition ob_of_opcartesian_lift
+             {c₁ c₂ : C}
+             {cc₁ : D c₁}
+             {f : c₁ --> c₂}
+             (ℓ : opcartesian_lift cc₁ f)
+    : D c₂
+    := pr1 ℓ.
+
+  Definition mor_of_opcartesian_lift
+             {c₁ c₂ : C}
+             {cc₁ : D c₁}
+             {f : c₁ --> c₂}
+             (ℓ : opcartesian_lift cc₁ f)
+    : cc₁ -->[ f ] ob_of_opcartesian_lift ℓ
+    := pr12 ℓ.
+
+  Definition mor_of_opcartesian_lift_is_opcartesian
+             {c₁ c₂ : C}
+             {cc₁ : D c₁}
+             {f : c₁ --> c₂}
+             (ℓ : opcartesian_lift cc₁ f)
+    : is_opcartesian (mor_of_opcartesian_lift ℓ)
+    := pr22 ℓ.
+
+  Definition opcleaving
+    : UU
+    := ∏ (c₁ c₂ : C)
+         (cc₁ : D c₁)
+         (f : c₁ --> c₂),
+       opcartesian_lift cc₁ f.
+
+  Definition is_opcleaving
+    : UU
+    := ∏ (c₁ c₂ : C)
+         (cc₁ : D c₁)
+         (f : c₁ --> c₂),
+       ∥ opcartesian_lift cc₁ f ∥.
+End Opcleaving.
+
+Definition cleaving_weq_opcleaving
+           {C : category}
+           (D : disp_cat C)
+  : cleaving D ≃ @opcleaving _ (op_disp_cat D).
+Proof.
+  use make_weq.
+  - exact (λ HD c₁ c₂ cc₁ f,
+           let ℓ := HD c₁ c₂ f cc₁ in
+           pr1 ℓ ,, pr12 ℓ ,, is_cartesian_weq_is_opcartesian _ ℓ).
+  - use gradth.
+    + refine (λ HD c₁ c₂ cc₁ f,
+              let ℓ := HD c₁ c₂ f cc₁ in
+              pr1 ℓ ,, pr12 ℓ ,, _).
+      exact (invmap (is_cartesian_weq_is_opcartesian _) (pr22 ℓ)).
+    + intro ; apply idpath.
+    + intro ; apply idpath.
+Defined.
+
+Definition opcleaving_weq_cleaving
+           {C : category}
+           (D : disp_cat C)
+  : opcleaving D ≃ @cleaving _ (op_disp_cat D).
+Proof.
+  use make_weq.
+  - exact (λ HD c₁ c₂ cc₁ f,
+           let ℓ := HD c₁ c₂ f cc₁ in
+           pr1 ℓ ,, pr12 ℓ ,, is_opcartesian_weq_is_cartesian _ (pr22 ℓ)).
+  - use gradth.
+    + refine (λ HD c₁ c₂ cc₁ f,
+              let ℓ := HD c₁ c₂ f cc₁ in
+              pr1 ℓ ,, pr12 ℓ ,, _).
+      exact (invmap (is_opcartesian_weq_is_cartesian _) (pr22 ℓ)).
+    + intro ; apply idpath.
+    + intro ; apply idpath.
+Defined.
+
+(** Cloven opfibration *)
+Definition opfibration
+           (C : category)
+  : UU
+  := ∑ (D : disp_cat C), opcleaving D.
+
+(** Weak opfibration *)
+Definition weak_opfibration
+           (C : category)
+  : UU
+  := ∑ (D : disp_cat C), is_opcleaving D.
+
+Definition is_opcartesian_disp_functor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D : disp_cat C₁}
+           {D' : disp_cat C₂}
+           (FF : disp_functor F D D')
+  : UU
+  := ∏  (c c' : C₁)
+        (f : c' --> c)
+        (d : D c)
+        (d' : D c')
+        (ff : d' -->[f] d),
+     is_opcartesian ff -> is_opcartesian (#FF ff).
 
 Section isofibration_from_disp_over_univalent.
 
