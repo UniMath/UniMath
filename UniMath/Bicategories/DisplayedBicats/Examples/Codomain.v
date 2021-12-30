@@ -537,6 +537,30 @@ Proof.
   exact @one_type_2cell_iso.
 Defined.
 
+Definition transportb_cell_of_cod_over
+           {B : bicat}
+           {b₁ b₂ : B}
+           {f₁ f₂ : b₁ --> b₂}
+           {α β : f₁ ==> f₂}
+           {h₁ : cod_disp_bicat B b₁}
+           {h₂ : cod_disp_bicat B b₂}
+           {ff₁ : h₁ -->[ f₁ ] h₂}
+           {ff₂ : h₁ -->[ f₂ ] h₂}
+           (p : α = β)
+           (ββ : ff₁ ==>[ β ] ff₂)
+  : pr1 (transportb
+           (λ z, ff₁ ==>[ z ] ff₂)
+           p
+           ββ)
+    =
+    pr1 ββ.
+Proof.
+  cbn.
+  unfold transportb.
+  rewrite pr1_transportf, transportf_const.
+  apply idpath.
+Qed.
+
 (**
  2. The univalence
 *)
