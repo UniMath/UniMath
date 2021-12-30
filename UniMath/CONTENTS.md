@@ -473,6 +473,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v](Bicategories/DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v)
    - [Core/InternalStreetFibration.v](Bicategories/Core/InternalStreetFibration.v)
    - [DisplayedBicats/Examples/CodomainFibs.v](Bicategories/DisplayedBicats/Examples/CodomainFibs.v)
+   - [ComprehensionBicat.v](Bicategories/ComprehensionBicat.v)
    - [All.v](Bicategories/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [GrothendieckGroup.v](Ktheory/GrothendieckGroup.v)

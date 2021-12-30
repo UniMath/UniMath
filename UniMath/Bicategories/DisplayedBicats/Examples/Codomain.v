@@ -541,9 +541,7 @@ Defined.
  2. The univalence
 *)
 Section UnivalenceOfCodomain.
-  Context (B : bicat)
-          (inv_B : ∏ (a b : B) (f g : a --> b) (x : f ==> g),
-                   is_invertible_2cell x).
+  Context (B : bicat).
 
   Definition cod_invertible_2_cell_to_disp_invertible_help
              {c₁ c₂ : B}
@@ -559,8 +557,8 @@ Section UnivalenceOfCodomain.
     - use make_disp_2cell_cod.
       + exact (pr1 α).
       + exact Hα.
-    - apply disp_locally_groupoid_cod.
-      exact inv_B.
+    - apply is_disp_invertible_2cell_cod.
+      exact (pr2 α).
   Defined.
 
   Definition cod_invertible_2_cell_to_disp_invertible
@@ -592,7 +590,21 @@ Section UnivalenceOfCodomain.
     intro α.
     simple refine ((_ ,, _) ,, _).
     - exact (pr11 α).
-    - apply inv_B.
+    - simpl.
+      use make_is_invertible_2cell.
+      + exact (pr1 (disp_inv_cell α)).
+      + abstract
+          (pose (maponpaths pr1 (disp_vcomp_rinv α)) as p ;
+           cbn in p ;
+           unfold transportb in p ;
+           rewrite pr1_transportf, transportf_const in p ;
+           exact p).
+      + abstract
+          (pose (maponpaths pr1 (disp_vcomp_linv α)) as p ;
+           cbn in p ;
+           unfold transportb in p ;
+           rewrite pr1_transportf, transportf_const in p ;
+           exact p).
     - exact (pr21 α).
   Defined.
 
@@ -687,6 +699,8 @@ Section UnivalenceOfCodomain.
     induction p.
     exact (cod_1cell_path_help f₁ f₂ ∘ make_weq _ (HB_2_1 _ _ _ _))%weq.
   Defined.
+
+  Context (inv_B : locally_groupoid B).
 
   Section AdjEquivToDispAdjEquiv.
     Context {c : B}
