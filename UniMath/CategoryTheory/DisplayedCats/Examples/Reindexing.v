@@ -9,7 +9,7 @@
  1. Transport lemma
  2. Characterization of displayed isomorphisms
  3. Univalence
- 4. Characterization of cartesian morphisms
+ 4. Characterization of cartesian and opcartesian morphisms
  5. Cleaving
  6. Functor from reindexing
  7. Mapping property
@@ -252,6 +252,9 @@ Proof.
        apply idpath).
 Defined.
 
+(**
+ 4. Characterization of cartesian and opcartesian morphisms
+ *)
 Definition is_cartesian_in_reindex_disp_cat
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -450,7 +453,7 @@ Section IsCartesianFromReindexDispCat.
   Definition is_cartesian_from_reindex_disp_cat
     : is_cartesian ff.
   Proof.
-    use (disp_iso_to_is_cartesian _ ℓ).
+    use (iso_disp_to_is_cartesian _ ℓ).
     - apply identity.
     - apply identity_is_iso.
     - apply id_left.
@@ -462,6 +465,213 @@ Section IsCartesianFromReindexDispCat.
     - apply cartesian_factorisation_commutes.
   Defined.
 End IsCartesianFromReindexDispCat.
+
+Definition is_opcartesian_in_reindex_disp_cat
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D : disp_cat C₂)
+           {x y : C₁}
+           {f : x --> y}
+           {xx : D (F x)}
+           {yy : D (F y)}
+           (ff : xx -->[ #F f ] yy)
+           (Hff : is_opcartesian ff)
+  : @is_opcartesian _ (reindex_disp_cat F D) x y f xx yy ff.
+Proof.
+  intros z zz g gg ; cbn in *.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply D | ] ;
+       use (opcartesian_factorisation_unique Hff) ;
+       rewrite (transportf_transpose_right (pr2 φ₁)) ;
+       rewrite (transportf_transpose_right (pr2 φ₂)) ;
+       apply idpath).
+  - simple refine (_ ,, _).
+    + refine (opcartesian_factorisation
+                Hff
+                (#F g)
+                (transportf (λ z, _ -->[ z ] _) _ gg)).
+      abstract
+        (apply functor_comp).
+    + abstract
+        (cbn ;
+         rewrite opcartesian_factorisation_commutes ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply transportf_set ;
+         apply homset_property).
+Defined.
+
+Section IsOpCartesianFromReindexDispCat.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          (D : disp_cat C₂)
+          (HD : opcleaving D)
+          {x y : C₁}
+          {f : x --> y}
+          {xx : D (F x)}
+          {yy : D (F y)}
+          (ff : xx -->[ #F f ] yy)
+          (Hff : @is_opcartesian _ (reindex_disp_cat F D) x y f xx yy ff).
+
+  Let ℓ : opcartesian_lift _ xx (# F f) := HD (F x) (F y) xx (#F f).
+  Let m : pr1 ℓ -->[ identity (F y)] yy
+    := opcartesian_factorisation
+         (mor_of_opcartesian_lift_is_opcartesian _ ℓ)
+         (identity _)
+         (transportb
+            (λ z, _ -->[ z ] _)
+            (id_right _)
+            ff).
+  Let minv' : xx -->[ # F (f · identity y) ] pr1 ℓ
+    := transportb
+         _
+         (maponpaths (λ z, #F z) (id_right _))
+         (pr12 ℓ).
+  Let minv : yy -->[ identity (F y)] pr1 ℓ
+    := transportf
+         _
+         (functor_id _ _)
+         (opcartesian_factorisation Hff _ minv').
+
+  Local Lemma op_minv_m
+    : (minv ;; m)%mor_disp
+      =
+      transportb
+        (λ z, _ -->[ z ] _)
+        (iso_after_iso_inv (make_iso _ (identity_is_iso C₂ _)))
+        (id_disp _).
+  Proof.
+    pose (p := @opcartesian_factorisation_unique
+                 _ _ _ _ _ _ _ _
+                 Hff
+                 _
+                 yy
+                 (identity _)
+                 (transportf
+                    (λ z, _ -->[ z ] _)
+                    (id_left _ @ !(functor_id _ _))
+                    (minv ;; m)%mor_disp)
+                 (id_disp _)).
+    simple refine (_
+            @ maponpaths
+                (transportf (λ z, _ -->[ z ] _) (functor_id _ _ @ !(id_left _)))
+                (p _)
+            @ _) ; clear p.
+    - rewrite transport_f_f.
+      refine (!_).
+      apply transportf_set.
+      apply homset_property.
+    - rewrite id_right_disp.
+      cbn.
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      unfold minv.
+      rewrite assoc_disp.
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        pose (opcartesian_factorisation_commutes Hff (identity _) minv') as p.
+        cbn in p.
+        exact (transportf_transpose_right p).
+      }
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      unfold minv', m.
+      unfold transportb.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite opcartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      refine (_ @ !(transportf_reindex _ ff)).
+      apply maponpaths_2.
+      apply homset_property.
+    - cbn.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Local Lemma op_m_minv
+    : (m ;; minv)%mor_disp
+      =
+      transportb
+        (λ z, _ -->[ z ] _)
+        (iso_inv_after_iso (make_iso _ (identity_is_iso C₂ _)))
+        (id_disp _).
+  Proof.
+    cbn.
+    unfold m, minv.
+    use (opcartesian_factorisation_unique
+           (mor_of_opcartesian_lift_is_opcartesian _ ℓ)).
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite assoc_disp.
+    rewrite opcartesian_factorisation_commutes.
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    rewrite id_right_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      pose (opcartesian_factorisation_commutes Hff (identity _) minv') as p.
+      cbn in p.
+      apply (transportf_transpose_right p).
+    }
+    rewrite transport_f_f.
+    unfold minv'.
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Local Lemma is_opcartesian_from_reindex_disp_cat_help
+    : ff
+      =
+      transportf
+        (λ z, _ -->[ z ] _)
+        (id_right _)
+        (opcleaving_mor HD _ _ ;; m)%mor_disp.
+  Proof.
+    unfold m.
+    rewrite opcartesian_factorisation_commutes.
+    rewrite transportfbinv.
+    apply idpath.
+  Qed.
+
+  Definition is_opcartesian_from_reindex_disp_cat
+    : is_opcartesian ff.
+  Proof.
+
+    refine (transportb
+              is_opcartesian
+              is_opcartesian_from_reindex_disp_cat_help
+              _).
+    apply is_opcartesian_transportf.
+    use is_opcartesian_comp_disp.
+    - apply mor_of_opcartesian_lift_is_opcartesian.
+    - use is_opcartesian_iso_disp.
+      + apply identity_is_iso.
+      + simple refine (_ ,, _ ,, _).
+        * exact minv.
+        * apply op_minv_m.
+        * apply op_m_minv.
+  Defined.
+End IsOpCartesianFromReindexDispCat.
 
 (**
  5. Cleaving
@@ -480,6 +690,23 @@ Proof.
   - exact (pr12 lift).
   - simpl.
     apply is_cartesian_in_reindex_disp_cat.
+    exact (pr22 lift).
+Defined.
+
+Definition opcleaving_reindex_disp_cat
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D : disp_cat C₂)
+           (HD : opcleaving D)
+  : opcleaving (reindex_disp_cat F D).
+Proof.
+  intros x y d f.
+  pose (HD (F x) (F y) d (#F f)) as lift.
+  simple refine (_ ,, (_ ,, _)).
+  - exact (pr1 lift).
+  - exact (pr12 lift).
+  - simpl.
+    apply is_opcartesian_in_reindex_disp_cat.
     exact (pr22 lift).
 Defined.
 
@@ -526,6 +753,19 @@ Definition is_cartesian_reindex_disp_cat_disp_functor
 Proof.
   intros x y f xx yy ff Hff.
   apply is_cartesian_from_reindex_disp_cat.
+  - exact HD.
+  - exact Hff.
+Defined.
+
+Definition is_opcartesian_reindex_disp_cat_disp_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D : disp_cat C₂)
+           (HD : opcleaving D)
+  : is_opcartesian_disp_functor (reindex_disp_cat_disp_functor F D).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply is_opcartesian_from_reindex_disp_cat.
   - exact HD.
   - exact Hff.
 Defined.
@@ -610,6 +850,22 @@ Definition is_cartesian_lift_functor_into_reindex
 Proof.
   intros x y f xx yy ff Hff.
   apply is_cartesian_in_reindex_disp_cat.
+  apply HFF.
+  exact Hff.
+Defined.
+
+Definition is_opcartesian_lift_functor_into_reindex
+           {C₁ C₂ C₃ : category}
+           {D₁ : disp_cat C₁}
+           {D₃ : disp_cat C₃}
+           {F₁ : C₁ ⟶ C₂}
+           {F₂ : C₂ ⟶ C₃}
+           {FF : disp_functor (F₁ ∙ F₂) D₁ D₃}
+           (HFF : is_opcartesian_disp_functor FF)
+  : is_opcartesian_disp_functor (lift_functor_into_reindex FF).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply is_opcartesian_in_reindex_disp_cat.
   apply HFF.
   exact Hff.
 Defined.

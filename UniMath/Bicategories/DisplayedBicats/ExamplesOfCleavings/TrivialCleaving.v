@@ -92,12 +92,82 @@ Section ConstantCleaving.
         (exact (pr2 inv)).
   Defined.
 
+    (** Characterisation of cartesian 2-cells *)
+  Definition trivial_invertible_is_opcartesian_2cell
+             {x₁ x₂ : B₁}
+             {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
+             {y₂ : trivial_displayed_bicat B₁ B₂ x₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ : y₁ -->[ f₁ ] y₂}
+             {g₂ : y₁ -->[ f₂ ] y₂}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==>[ α ] g₂)
+             (Hβ : is_invertible_2cell β)
+    : is_opcartesian_2cell (trivial_displayed_bicat B₁ B₂) β.
+  Proof.
+    intros h h' γ ββ ; cbn in *.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply cellset_property | ] ;
+         use (vcomp_lcancel _ Hβ) ;
+         exact (pr2 τ₁ @ !(pr2 τ₂))).
+    - refine (Hβ^-1 • ββ,, _).
+      abstract
+        (rewrite !vassocr ;
+         rewrite vcomp_rinv ;
+         apply id2_left).
+  Defined.
+
+  Definition trivial_opcartesian_2cell_is_invertible
+             {x₁ x₂ : B₁}
+             {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
+             {y₂ : trivial_displayed_bicat B₁ B₂ x₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ : y₁ -->[ f₁ ] y₂}
+             {g₂ : y₁ -->[ f₂ ] y₂}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==>[ α ] g₂)
+             (Hβ : is_opcartesian_2cell (trivial_displayed_bicat B₁ B₂) β)
+    : is_invertible_2cell β.
+  Proof.
+    cbn in *.
+    unfold is_cartesian_2cell in Hβ.
+    pose (Hβ f₂ g₁ (id2 _) (id2 _)) as lift.
+    pose (inv := iscontrpr1 lift).
+    cbn in lift, inv.
+    use make_is_invertible_2cell.
+    - exact (pr1 inv).
+    - abstract
+        (exact (pr2 inv)).
+    - abstract
+        (pose (Hβ f₂ g₂ (id2 _) β) as m ;
+         cbn in m ;
+         pose (proofirrelevance _ (isapropifcontr m)) as i ;
+         simple refine (maponpaths pr1 (i (pr1 inv • β,, _) (id₂ g₂ ,, _))) ; cbn ;
+         [ cbn ;
+           rewrite vassocr ;
+           rewrite (pr2 inv) ;
+           apply id2_left
+         | apply id2_right ]).
+  Defined.
+
   Definition trivial_local_cleaving
     : local_cleaving (trivial_displayed_bicat B₁ B₂).
   Proof.
     intros x₁ x₂ y₁ y₂ f₁ f₂ f α.
     simple refine (f ,, id2 _ ,, _) ; cbn.
     apply trivial_invertible_is_cartesian_2cell.
+    is_iso.
+  Defined.
+
+  Definition trivial_local_opcleaving
+    : local_opcleaving (trivial_displayed_bicat B₁ B₂).
+  Proof.
+    intros x₁ x₂ y₁ y₂ f₁ f₂ f α.
+    simple refine (f ,, id2 _ ,, _) ; cbn.
+    apply trivial_invertible_is_opcartesian_2cell.
     is_iso.
   Defined.
 
