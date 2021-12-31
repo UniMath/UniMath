@@ -26,7 +26,6 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
@@ -38,10 +37,42 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Definition cod_1cell_path_help
+           {B : bicat}
+           {b c : B}
+           (f₁ f₂ : B ⟦ b , c ⟧)
+  : invertible_2cell f₁ f₂ ≃ invertible_2cell f₁ (id₁ _ · f₂).
+Proof.
+  use make_weq.
+  - intro α.
+    refine (α • linvunitor _ ,, _).
+    is_iso.
+    apply α.
+  - use gradth.
+    + intro α.
+      use make_invertible_2cell.
+      * exact (α • lunitor _).
+      * is_iso.
+        apply property_from_invertible_2cell.
+    + abstract
+        (intro p ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         cbn ;
+         rewrite vassocl ;
+         rewrite linvunitor_lunitor ;
+         apply id2_right).
+    + abstract
+        (intros α ; cbn ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         cbn ;
+         rewrite vassocl ;
+         rewrite lunitor_linvunitor ;
+         apply id2_right).
+Defined.
+
 (**
  1. Definition of the displayed bicategory
  *)
-
 Section CodomainArrow.
   Variable (B : bicat).
 
@@ -506,40 +537,6 @@ Proof.
   exact @one_type_2cell_iso.
 Defined.
 
-
-
-(** MOVE ??? *)
-(** Move this to MoreFoundations? *)
-Definition transportf_total2_paths_f
-           {A : UU}
-           {B : A → UU}
-           (C : A → UU)
-           {a₁ a₂ : A}
-           {b₁ : B a₁}
-           {b₂ : B a₂}
-           (p : a₁ = a₂)
-           (q : transportf B p b₁ = b₂)
-           (c₁ : C a₁)
-  : transportf
-      (λ z, C (pr1 z))
-      (@total2_paths_f
-         A B
-         (a₁ ,, b₁) (a₂ ,, b₂)
-         p
-         q)
-      c₁
-    =
-    transportf
-      C
-      p
-      c₁.
-Proof.
-  induction p.
-  induction q.
-  apply idpath.
-Defined.
-
-
 (**
  2. The univalence
 *)
@@ -675,37 +672,6 @@ Section UnivalenceOfCodomain.
       apply idpath.
   Defined.
 
-  Definition cod_1cell_path_help
-             {b c : B}
-             (f₁ f₂ : B ⟦ b , c ⟧)
-    : invertible_2cell f₁ f₂ ≃ invertible_2cell f₁ (id₁ _ · f₂).
-  Proof.
-    use make_weq.
-    - intro α.
-      refine (α • linvunitor _ ,, _).
-      is_iso.
-      apply α.
-    - use gradth.
-      + intro α.
-        use make_invertible_2cell.
-        * exact (α • lunitor _).
-        * apply inv_B.
-      + abstract
-          (intro p ;
-           use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-           cbn ;
-           rewrite vassocl ;
-           rewrite linvunitor_lunitor ;
-           apply id2_right).
-      + abstract
-          (intros α ; cbn ;
-           use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-           cbn ;
-           rewrite vassocl ;
-           rewrite lunitor_linvunitor ;
-           apply id2_right).
-  Defined.
-
   Definition cod_1cell_path
              (HB_2_1 : is_univalent_2_1 B)
              {c : B}
@@ -828,7 +794,6 @@ Section UnivalenceOfCodomain.
       }
       cbn.
       refine (!_).
-
       rewrite linvunitor_assoc.
       rewrite !vassocl.
       rewrite <- rwhisker_rwhisker_alt.

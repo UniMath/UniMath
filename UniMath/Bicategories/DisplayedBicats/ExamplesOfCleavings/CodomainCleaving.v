@@ -84,6 +84,56 @@ Section CodomainCleaving.
            apply id2_right).
   Defined.
 
+  Definition cod_invertible_is_opcartesian_2cell
+             {c₁ c₂ : B}
+             {s₁ s₂ : c₁ --> c₂}
+             {α : s₁ ==> s₂}
+             (Hα : is_invertible_2cell α)
+             {t₁ : cod_disp_bicat B c₁}
+             {t₂ : cod_disp_bicat B c₂}
+             {ss₁ : t₁ -->[ s₁ ] t₂}
+             {ss₂ : t₁ -->[ s₂ ] t₂}
+             (αα : ss₁ ==>[ α ] ss₂)
+             (Hαα : is_invertible_2cell (pr1 αα))
+    : is_opcartesian_2cell (cod_disp_bicat B) αα.
+  Proof.
+    intros h hh γ γα.
+    cbn in *.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply (cod_disp_bicat B) | ] ;
+         use subtypePath ; [ intro ; apply cellset_property | ] ;
+         pose (maponpaths pr1 (pr2 φ₁)) as p₁ ;
+         cbn in p₁ ;
+         pose (maponpaths pr1 (pr2 φ₂)) as p₂ ;
+         cbn in p₂ ;
+         pose (r := p₁ @ !p₂) ;
+         use (vcomp_lcancel _ Hαα) ;
+         exact r).
+    - simple refine ((_ ,, _) ,, _).
+      + exact (Hαα^-1 • pr1 γα).
+      + abstract
+          (cbn ;
+           use (vcomp_lcancel (pr2 t₁ ◃ α)) ; [ is_iso ; apply Hα | ] ;
+           rewrite !vassocr ;
+           rewrite lwhisker_vcomp ;
+           rewrite <- (pr2 γα) ;
+           rewrite <- rwhisker_vcomp ;
+           rewrite !vassocr ;
+           apply maponpaths_2 ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ;
+           cbn ;
+           exact (!(pr2 αα))).
+      + abstract
+          (use subtypePath ; [ intro ; apply cellset_property | ] ;
+           cbn ;
+           rewrite !vassocr ;
+           rewrite vcomp_rinv ;
+           apply id2_left).
+  Defined.
+
   Context (inv_B : locally_groupoid B)
           (pb_B : has_pb B).
 
@@ -107,6 +157,35 @@ Section CodomainCleaving.
       + simpl.
         apply cod_invertible_is_cartesian_2cell ; cbn.
         is_iso.
+  Defined.
+
+  Definition cod_local_opcleaving
+    : local_opcleaving (cod_disp_bicat B).
+  Proof.
+    intros x y hx hy f g hf hg.
+    simple refine (_ ,, _).
+    - cbn.
+      simple refine (pr1 hf ,, (pr2 hx ◃ _^-1) • pr12 hf ,, _) ; cbn.
+      + exact hg.
+      + apply inv_B.
+      + is_iso.
+        apply (pr22 hf).
+    - simple refine (_ ,, _).
+      + simple refine (id2 _ ,, _).
+        abstract
+          (cbn ;
+           rewrite id2_rwhisker ;
+           rewrite id2_right ;
+           rewrite !vassocr ;
+           rewrite lwhisker_vcomp ;
+           rewrite vcomp_rinv ;
+           rewrite lwhisker_id2 ;
+           rewrite id2_left ;
+           apply idpath).
+      + simpl.
+        apply cod_invertible_is_opcartesian_2cell ; cbn.
+        * apply inv_B.
+        * is_iso.
   Defined.
 
   (** Characterization of cartesian 1-cells *)

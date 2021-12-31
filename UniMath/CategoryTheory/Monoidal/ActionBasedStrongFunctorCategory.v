@@ -1,4 +1,4 @@
-(** organizes the (action-based) strong functors between two fixed precategories into a (pre-)category
+(** organizes the (action-based) strong functors between two fixed categories into a category
 
 Author: Ralph Matthes 2021
  *)
@@ -80,7 +80,7 @@ Qed.
 
 Section AsDisplayedCategory.
 
-  Definition Strong_Functor_precategory_displayed : disp_cat (functor_category A A').
+  Definition Strong_Functor_category_displayed : disp_cat (functor_category A A').
   Proof.
     use disp_cat_from_SIP_data.
     - intro F.
@@ -96,10 +96,10 @@ Section AsDisplayedCategory.
       exact (Strong_Functor_Category_Mor_comp_subproof (F,,FF) (G,,GG) (H,,HH) η η' ηmor η'mor a v).
   Defined.
 
-  Definition Strong_Functor_precategory : precategory := total_category Strong_Functor_precategory_displayed.
+  Definition Strong_Functor_category : category := total_category Strong_Functor_category_displayed.
 
-  Lemma Strong_Functor_precategory_ob_ok :
-    ob Strong_Functor_precategory = actionbased_strong_functor Mon_V actn actn'.
+  Lemma Strong_Functor_category_ob_ok :
+    ob Strong_Functor_category = actionbased_strong_functor Mon_V actn actn'.
   Proof.
     apply idpath.
   Qed.
@@ -107,7 +107,7 @@ Section AsDisplayedCategory.
   Definition Strong_Functor_Category_Mor :
     actionbased_strong_functor Mon_V actn actn' -> actionbased_strong_functor Mon_V actn actn' -> UU.
   Proof.
-    exact (pr2 (precategory_ob_mor_from_precategory_data Strong_Functor_precategory)).
+    exact (pr2 (precategory_ob_mor_from_precategory_data Strong_Functor_category)).
   Defined.
 
   Lemma Strong_Functor_Category_Mor_ok (FF GG: actionbased_strong_functor Mon_V actn actn') :
@@ -133,23 +133,8 @@ Section AsDisplayedCategory.
     now intros α; repeat (apply impred; intro); apply homset_property.
   Qed.
 
-  (* a "manual proof" - should this not follow later from the general method to obtain univalence? *)
-  Lemma has_homsets_Strong_Functor_precategory: has_homsets Strong_Functor_precategory.
-  Proof.
-  intros FF GG.
-  apply (isofhleveltotal2 2).
-  * apply isaset_nat_trans, homset_property.
-  * intros η.
-    apply isasetaprop.
-    apply impred; intros a; apply impred; intros v.
-    apply homset_property.
-  Qed.
-
-  Definition Strong_Functor_category : category :=
-  (Strong_Functor_precategory,, has_homsets_Strong_Functor_precategory).
-
   Definition Strong_FunctorForgetfulFunctor:
-    functor Strong_Functor_precategory (functor_category A A').
+    functor Strong_Functor_category (functor_category A A').
   Proof.
     use tpair.
     - use tpair.
@@ -163,14 +148,14 @@ Section AsDisplayedCategory.
   Proof.
     intros FF GG.
     apply isinclbetweensets.
-    + apply has_homsets_Strong_Functor_precategory.
+    + apply Strong_Functor_category.
     + apply functor_category_has_homsets.
     + apply Strong_Functor_Category_Mor_eq.
   Qed.
 
 (** towards univalence *)
 
-  Lemma Strong_Functor_precategory_Pisset (F : [A, A']) : isaset (actionbased_strength Mon_V actn actn' F).
+  Lemma Strong_Functor_category_Pisset (F : [A, A']) : isaset (actionbased_strength Mon_V actn actn' F).
   Proof.
     change isaset with (isofhlevel 2).
     apply isofhleveltotal2.
@@ -182,7 +167,7 @@ Section AsDisplayedCategory.
       + apply isaprop_actionbased_strength_pentagon_eq.
   Qed.
 
-  Lemma Strong_Functor_precategory_Hstandard (F : [A, A']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
+  Lemma Strong_Functor_category_Hstandard (F : [A, A']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
     (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη) (F,,sη') (id F) a v)
   → (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη') (F,,sη) (id F) a v) → sη = sη'.
   Proof.
@@ -208,23 +193,23 @@ Section AsDisplayedCategory.
     apply idpath.
   Qed.
 
-  Definition is_univalent_Strong_Functor_precategory_displayed : is_univalent_disp Strong_Functor_precategory_displayed.
+  Definition is_univalent_Strong_Functor_category_displayed : is_univalent_disp Strong_Functor_category_displayed.
   Proof.
     use is_univalent_disp_from_SIP_data.
-    - exact Strong_Functor_precategory_Pisset.
-    - exact Strong_Functor_precategory_Hstandard.
+    - exact Strong_Functor_category_Pisset.
+    - exact Strong_Functor_category_Hstandard.
   Defined.
 
 End AsDisplayedCategory.
 
 End Strong_Functor_Category.
 
-Definition is_univalent_Strong_Functor_precategory (Mon_V : monoidal_cat) (A : category)
+Definition is_univalent_Strong_Functor_category (Mon_V : monoidal_cat) (A : category)
            (A' : univalent_category) (actn : action Mon_V A) (actn' : action Mon_V A') :
   is_univalent (Strong_Functor_category Mon_V actn actn').
 Proof.
   apply SIP.
   - exact (is_univalent_functor_category A _ (pr2 A')).
-  - apply Strong_Functor_precategory_Pisset.
-  - apply Strong_Functor_precategory_Hstandard.
+  - apply Strong_Functor_category_Pisset.
+  - apply Strong_Functor_category_Hstandard.
 Defined.

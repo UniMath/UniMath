@@ -42,7 +42,7 @@ Proof.
 Defined.
 
 Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
-         (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
+         (HK : adj_equivalence_of_cats K) : is_left_adjoint K := pr1 HK.
 
 (** ** Equivalences *)
 
@@ -50,7 +50,7 @@ Section A.
 
 Variables D1 D2 : category.
 Variable F : functor D1 D2.
-Variable GG : adj_equivalence_of_precats F.
+Variable GG : adj_equivalence_of_cats F.
 
 Let G : functor D2 D1 := right_adjoint GG.
 Let η := unit_from_left_adjoint GG.
@@ -120,11 +120,11 @@ Section eqv_comp.
           {F : functor A B}
           {F' : functor B C}.
 
-  Hypothesis HF : adj_equivalence_of_precats F.
-  Hypothesis HF' : adj_equivalence_of_precats F'.
+  Hypothesis HF : adj_equivalence_of_cats F.
+  Hypothesis HF' : adj_equivalence_of_cats F'.
 
-  Definition comp_adj_equivalence_of_precats
-    : adj_equivalence_of_precats (functor_composite F F').
+  Definition comp_adj_equivalence_of_cats
+    : adj_equivalence_of_cats (functor_composite F F').
   Proof.
     exists (is_left_adjoint_functor_composite HF HF').
     use tpair.
@@ -161,14 +161,14 @@ Section eqv_inv.
   Qed.
 
   Context {A B : category} {F : functor A B}
-          (adEquivF : adj_equivalence_of_precats F).
+          (adEquivF : adj_equivalence_of_cats F).
 
   Local Notation η := (unit_from_left_adjoint adEquivF).
   Local Notation ε := (counit_from_left_adjoint adEquivF).
   Local Notation G := (right_adjoint (pr1 adEquivF)).
 
-  Local Notation ηiso := (unit_nat_iso_from_adj_equivalence_of_precats adEquivF).
-  Local Notation εiso := (counit_nat_iso_from_adj_equivalence_of_precats adEquivF).
+  Local Notation ηiso := (unit_nat_iso_from_adj_equivalence_of_cats adEquivF).
+  Local Notation εiso := (counit_nat_iso_from_adj_equivalence_of_cats adEquivF).
 
   Lemma form_adjunction_inv :
     form_adjunction _ F (nat_iso_inv εiso) (nat_iso_inv ηiso).
@@ -245,8 +245,8 @@ Section eqv_inv.
       apply form_adjunction_inv.
   Defined.
 
-  Definition adj_equivalence_of_precats_inv
-    : adj_equivalence_of_precats G.
+  Definition adj_equivalence_of_cats_inv
+    : adj_equivalence_of_cats G.
   Proof.
     exists is_left_adjoint_inv.
     split; intro; apply is_iso_inv_from_iso.
