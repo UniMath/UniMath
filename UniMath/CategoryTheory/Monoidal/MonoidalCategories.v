@@ -312,7 +312,7 @@ Defined.
 
 End swapped_tensor.
 
-Section lemmas.
+Section coherence_lemmas.
 
 Context {Mon_V : monoidal_cat}.
 
@@ -341,7 +341,17 @@ Proof.
   assumption.
 Defined.
 
-Lemma r_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
+Lemma I_pretensor_faithful {X Y : Mon_V} {f g : X --> Y} : (id I #⊗ f) = (id I #⊗ g) -> f = g.
+Proof.
+  intro H.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
+  use (pathscomp0 (! (nat_trans_ax l_unitor _ _ f))).
+  use (pathscomp0 _ (nat_trans_ax l_unitor _ _ g)).
+  apply cancel_postcomposition.
+  assumption.
+Defined.
+
+Lemma right_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
 Proof.
   apply I_posttensor_faithful.
   rewrite I_posttensor_comp.
@@ -363,27 +373,17 @@ Proof.
   apply pentagon_eq.
 Defined.
 
-Lemma I_pretensor_faithful {X Y : Mon_V} {f g : X --> Y} : (id I #⊗ f) = (id I #⊗ g) -> f = g.
-Proof.
-  intro H.
-  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
-  use (pathscomp0 (! (nat_trans_ax l_unitor _ _ f))).
-  use (pathscomp0 _ (nat_trans_ax l_unitor _ _ g)).
-  apply cancel_postcomposition.
-  assumption.
-Defined.
-
-Lemma l_unitor_r_unitor : l_unitor I = r_unitor I.
+Lemma left_unitor_right_unitor_of_unit : l_unitor I = r_unitor I.
 Proof.
   apply I_pretensor_faithful.
   apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α ((_, _), _)))).
   apply (pathscomp0 (! (pr1 (monoidal_cat_eq Mon_V) I I))).
-  use (pathscomp0 _ (r_unitor_of_tensor I I)).
+  use (pathscomp0 _ (right_unitor_of_tensor I I)).
   apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
   apply (nat_trans_ax r_unitor).
 Defined.
 
-Lemma l_unitor_of_tensor (X Y : Mon_V) : α ((I, X), Y) · l_unitor (X ⊗ Y) = l_unitor X #⊗ id Y.
+Lemma left_unitor_of_tensor (X Y : Mon_V) : α ((I, X), Y) · l_unitor (X ⊗ Y) = l_unitor X #⊗ id Y.
 Proof.
   apply I_pretensor_faithful.
   rewrite I_pretensor_comp.
@@ -412,5 +412,5 @@ Proof.
   apply triangle_eq.
 Defined.
 
-End lemmas.
+End coherence_lemmas.
 
