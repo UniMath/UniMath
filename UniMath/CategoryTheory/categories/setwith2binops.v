@@ -127,7 +127,7 @@ Section def_setwith2binop_category.
     use isweq_iso.
     - exact (setwith2binop_equiv_iso X Y).
     - intros x. use eq_iso. use twobinopfun_paths. use idpath.
-    - intros y. use twobinopiso_paths. use subtypeEquality.
+    - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -146,7 +146,7 @@ Section def_setwith2binop_category.
   Proof.
     use isweq_iso.
     - exact (setwith2binop_iso_equiv X Y).
-    - intros y. use twobinopiso_paths. use subtypeEquality.
+    - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use twobinopfun_paths. use idpath.
@@ -180,14 +180,15 @@ Section def_setwith2binop_category.
   Defined.
   Opaque setwith2binop_precategory_isweq.
 
-  Definition setwith2binop_precategory_is_univalent : is_univalent setwith2binop_precategory.
+  Definition setwith2binop_category : category
+    := make_category _ has_homsets_setwith2binop_precategory.
+
+  Definition setwith2binop_precategory_is_univalent : is_univalent setwith2binop_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (setwith2binop_precategory_isweq X Y).
-    - exact has_homsets_setwith2binop_precategory.
+    intros X Y. exact (setwith2binop_precategory_isweq X Y).
   Defined.
 
-  Definition setwith2binop_category : univalent_category :=
-    make_univalent_category setwith2binop_precategory setwith2binop_precategory_is_univalent.
+  Definition setwith2binop_univalent_category : univalent_category :=
+    make_univalent_category setwith2binop_category setwith2binop_precategory_is_univalent.
 
 End def_setwith2binop_category.

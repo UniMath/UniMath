@@ -110,11 +110,11 @@ Definition folds_ax_id (C : folds_3_id_comp_eq) :=
 (** ** The axioms for composition *)
 
 Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
-     (∏ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
                                                         (* there is a composite *)
- × ( (∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c}, T f g h → T f g k → E h k )
+ × ( (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c), T f g h → T f g k → E h k )
                                                         (* composite is unique mod E *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) (fg : a ⇒ c)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) (fg : a ⇒ c)
                       (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
        T f g fg → T g h gh → T fg h fg_h → T f gh f_gh → E f_gh fg_h)).
                                                         (* composition is assoc mod E *)
@@ -296,9 +296,9 @@ Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
 
 Definition is_folds_precategory (C : folds_pre_2_cat) : UU :=
      (∏ a b : C, isaset (a ⇒ b))
- ×  ((∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
                   T f g h → T f g k → h = k )       (* T is unique mod identity *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
                T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* T is assoc mod identity *)

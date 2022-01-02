@@ -811,26 +811,26 @@ Proof.
   intros. apply Injectivity. apply isweqonpathsincl. apply isinclpr1. exact X.
 Defined.
 
-Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
+Corollary subtypePath {A : UU} {B : A -> UU} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   intros e. apply (total2_paths_f e). apply is.
 Defined.
 
-Corollary subtypeEquality' {A : UU} {B : A -> UU}
+Corollary subtypePath' {A : UU} {B : A -> UU}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
 Proof.
   intros e is. apply (total2_paths_f e). apply is.
 Defined.
 
-(* This corollary of subtypeEquality is used for categories. *)
+(* This corollary of subtypePath is used for categories. *)
 Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
           (h : ∏ y, isaprop (B y)) (H : ∏ y, B y -> y = x) :
   iscontr (total2 (λ t : A, B t)).
 Proof.
   use make_iscontr.
   - exact (x,,b).
-  - intros t. apply subtypeEquality.
+  - intros t. apply subtypePath.
     + exact h.
     + apply (H (pr1 t)). exact (pr2 t).
 Defined.

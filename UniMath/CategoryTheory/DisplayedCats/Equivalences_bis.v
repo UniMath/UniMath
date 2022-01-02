@@ -75,7 +75,7 @@ End Essential_Surjectivity.
 (* TODO: upstream the whole section to UniMath/UniMath *)
 Section adjunction.
 
-Definition adjunction (A B : precategory) : UU
+Definition adjunction (A B : category) : UU
   := ∑ X : adjunction_data A B, form_adjunction' X.
 Coercion data_from_adjunction {A B} (X : adjunction A B)
   : adjunction_data _ _ := pr1 X.
@@ -87,14 +87,14 @@ Proof.
   exact (pr2 (pr2 X)).
 Defined.
 
-Definition adjunitiso {A B : precategory} (X : equivalence_of_precats A B)
+Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
            (a : A) : iso a (right_functor X (left_functor X a)).
 Proof.
   use make_iso.
   - exact (adjunit X a).
   - exact (pr1 (pr2 X) a).
 Defined.
-Definition adjcounitiso {A B : precategory} (X : equivalence_of_precats A B)
+Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
            (b : B) : iso (left_functor X (right_functor X b)) b.
 Proof.
   use make_iso.
@@ -102,14 +102,14 @@ Proof.
   - exact (pr2 (pr2 X) b).
 Defined.
 
-Definition adj_equiv (A B : precategory) : UU
- := ∑ F : functor A B, adj_equivalence_of_precats F.
+Definition adj_equiv (A B : category) : UU
+ := ∑ F : functor A B, adj_equivalence_of_cats F.
 
-Coercion left_adjequiv (A B : precategory) (F : adj_equiv A B)
+Coercion left_adjequiv (A B : category) (F : adj_equiv A B)
 : functor A B := pr1 F.
 
-Coercion adj_equiv_of_precats_from_adj {A B : precategory} (E : adj_equiv A B)
-  : adj_equivalence_of_precats E := pr2 E.
+Coercion adj_equiv_of_precats_from_adj {A B : category} (E : adj_equiv A B)
+  : adj_equivalence_of_cats E := pr2 E.
 
 
 Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
@@ -124,7 +124,7 @@ Proof.
     exact (triangle_id_right_ad (pr2 (pr1 (pr2 F)))).
 Defined.
 
-Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_precats A B.
+Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_cats A B.
 Proof.
   use tpair.
   - exact F.
@@ -301,7 +301,7 @@ Section Equivalences.
 (** ** Equivalences (adjoint and quasi) *)
 
 
-Definition form_equiv_over {C C' : category} {E : equivalence_of_precats C C'}
+Definition form_equiv_over {C C' : category} {E : equivalence_of_cats C C'}
            {D : disp_cat C} {D' : disp_cat C'}
            (AA : disp_adjunction_data E D D') : UU
   := (∏ x xx, is_iso_disp (adjunitiso E x) (unit_over AA x xx))
@@ -310,14 +310,14 @@ Definition form_equiv_over {C C' : category} {E : equivalence_of_precats C C'}
 
 
 Definition is_iso_unit_over
-           {C C' : category} (E : equivalence_of_precats C C') {D D'}
+           {C C' : category} (E : equivalence_of_cats C C') {D D'}
            (AA : disp_adjunction_data E D D')
            (EE : form_equiv_over AA)
 : ∏ (x : C) (xx : D x), is_iso_disp (adjunitiso E x) ((unit_over AA) x xx)
 := pr1 EE.
 
 Definition is_iso_counit_over
-           {C C' : category} (E : equivalence_of_precats C C') {D D'}
+           {C C' : category} (E : equivalence_of_cats C C') {D D'}
            (AA : disp_adjunction_data E D D')
            (EE : form_equiv_over AA)
 :  ∏ (x0 : C') (xx : D' x0), is_iso_disp (adjcounitiso E x0) ((counit_over AA) x0 xx)
@@ -409,7 +409,7 @@ Proof.
   etrans. apply id_left_disp_var.
   etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
-    etrans. eapply transportf_transpose. apply @pathsinv0.
+    etrans. eapply transportf_transpose_right. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       refine (disp_functor_on_is_iso_disp GG _).
       apply Hε. (*1a*)
@@ -418,7 +418,7 @@ Proof.
     etrans. apply id_right_disp_var.
     eapply transportf_bind.
     etrans. eapply cancel_precomposition_disp.
-    eapply transportf_transpose. apply @pathsinv0.
+    eapply transportf_transpose_right. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       apply (Hη). (*1b*)
     eapply transportf_bind, assoc_disp.
@@ -438,7 +438,7 @@ Proof.
       eapply transportf_bind.
       eapply cancel_precomposition_disp.
       cbn.
-      etrans. eapply transportf_transpose.
+      etrans. eapply transportf_transpose_right.
         apply @pathsinv0, (disp_functor_comp GG).
       eapply transportf_bind.
       etrans. apply maponpaths.
@@ -460,7 +460,7 @@ Proof.
     etrans. apply assoc_disp.
     eapply transportf_bind.
     etrans. eapply cancel_postcomposition_disp.
-      etrans. eapply transportf_transpose.
+      etrans. eapply transportf_transpose_right.
         apply @pathsinv0, (disp_functor_comp GG). (*5*)
       eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
@@ -1040,7 +1040,7 @@ Section Displayed_Equiv_Compose.
 End Displayed_Equiv_Compose.
 *)
 
-(** ** Induced adjunctions/equivalences of fiber precats *)
+(** ** Induced adjunctions/equivalences of fiber cats *)
 Section Equiv_Fibers.
 
 Context {C C' : category}.
@@ -1081,7 +1081,7 @@ Definition fiber_equiv {D D' : disp_cat C}
   {FF : disp_functor (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
   (c : C)
-: adj_equivalence_of_precats (fiber_functor FF c).
+: adj_equivalence_of_cats (fiber_functor FF c).
 Proof.
   exists (fiber_is_left_adj EFF c).
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.

@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Section def_terminal.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition empty_graph : graph.
 Proof.
@@ -46,7 +46,7 @@ intros a ca.
 use tpair.
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [ intro f; apply impred; intro v; induction v|].
   apply (pr2 (H a)).
 Defined.
@@ -173,7 +173,7 @@ End def_terminal.
 Arguments Terminal : clear implicits.
 Arguments isTerminal : clear implicits.
 
-Lemma Terminal_from_Lims (C : precategory) :
+Lemma Terminal_from_Lims (C : category) :
   Lims_of_shape empty_graph  C -> Terminal C.
 Proof.
 now intros H; apply H.

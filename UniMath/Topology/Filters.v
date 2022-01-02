@@ -245,7 +245,7 @@ Lemma isantisymm_filter_le {X : UU} :
   ∏ F G : PreFilter X, filter_le F G → filter_le G F → F = G.
 Proof.
   intros F G Hle Hge.
-  simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isaprop_isfilter_imply.
   apply isaprop_isfilter_finite_intersection.
@@ -1457,7 +1457,7 @@ Defined.
 Lemma PreFilterBase_Generated {X : UU} (base : BaseOfPreFilter X) :
   PreFilterBase base = PreFilterGenerated base.
 Proof.
-  simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isaprop_isfilter_imply.
   apply isaprop_isfilter_finite_intersection.
@@ -1471,7 +1471,7 @@ Qed.
 Lemma FilterBase_Generated {X : UU} (base : BaseOfFilter X) Hbase :
   FilterBase base = FilterGenerated base Hbase.
 Proof.
-  simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isapropdirprod.
   apply isaprop_isfilter_imply.

@@ -121,7 +121,7 @@ Section def_intdom_category.
     use isweq_iso.
     - exact (intdom_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -140,7 +140,7 @@ Section def_intdom_category.
   Proof.
     use isweq_iso.
     - exact (intdom_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use rigfun_paths. use idpath.
@@ -173,14 +173,14 @@ Section def_intdom_category.
   Defined.
   Opaque intdom_precategory_isweq.
 
-  Definition intdom_precategory_is_univalent : is_univalent intdom_precategory.
+  Definition intdom_category : category := make_category _ has_homsets_intdom_precategory.
+
+  Definition intdom_category_is_univalent : is_univalent intdom_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (intdom_precategory_isweq X Y).
-    - exact has_homsets_intdom_precategory.
+    intros X Y. exact (intdom_precategory_isweq X Y).
   Defined.
 
-  Definition intdom_category : univalent_category :=
-    make_univalent_category intdom_precategory intdom_precategory_is_univalent.
+  Definition intdom_univalent_category : univalent_category :=
+    make_univalent_category intdom_category intdom_category_is_univalent.
 
 End def_intdom_category.

@@ -58,11 +58,11 @@ Notation "G • F" := (functor_composite F G).
 (** Lemma 8 *)
 
 Definition GenMendlerIteration :
-   ∏ (C : precategory) (hsC : has_homsets C) (F : functor C C)
-   (μF_Initial : Initial (FunctorAlg F hsC)) (C' : precategory)
-   (hsC' : has_homsets C') (X : C') (L : functor C C'),
+   ∏ (C : category) (F : functor C C)
+   (μF_Initial : Initial (FunctorAlg F)) (C' : category)
+   (X : C') (L : functor C C'),
    is_left_adjoint L
-   → ∏ ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L,
+   → ∏ ψ : ψ_source C C' X L ⟹ ψ_target C F C' X L,
      ∃! h : C' ⟦ L ` (InitialObject μF_Initial), X ⟧,
      # L (alg_map F (InitialObject μF_Initial)) · h =
      ψ ` (InitialObject μF_Initial) h.
@@ -71,29 +71,29 @@ Proof.
   apply GenMendlerIteration.
 Defined.
 
-Arguments It {_ _ _} _ {_} _ _ _ _ _ .
+Arguments It {_ _} _ {_} _ _ _ _.
 
 (** Lemma 9 *)
 
 Theorem fusion_law
-     : ∏ (C : precategory) (hsC : has_homsets C)
+     : ∏ (C : category)
        (F : functor C C)
-       (μF_Initial : Initial (precategory_FunctorAlg F hsC))
-       (C' : precategory) (hsC' : has_homsets C')
+       (μF_Initial : Initial (category_FunctorAlg F))
+       (C' : category)
        (X X' : C') (L : functor C C')
        (is_left_adj_L : is_left_adjoint L)
-       (ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L)
+       (ψ : ψ_source C C' X L ⟹ ψ_target C F C' X L)
        (L' : functor C C')
        (is_left_adj_L' : is_left_adjoint L')
-       (ψ' : ψ_source C C' hsC' X' L' ⟹ ψ_target C F C' hsC' X' L')
-       (Φ : yoneda_objects C' hsC' X • functor_opp L
+       (ψ' : ψ_source C C' X' L' ⟹ ψ_target C F C' X' L')
+       (Φ : yoneda_objects C' X • functor_opp L
               ⟹
-            yoneda_objects C' hsC' X' • functor_opp L'),
+            yoneda_objects C' X' • functor_opp L'),
        let T:= (` (InitialObject μF_Initial)) in
        ψ T · Φ (F T) = Φ T · ψ' T
        →
-       Φ T (It μF_Initial hsC' X L is_left_adj_L ψ) =
-       It μF_Initial hsC' X' L' is_left_adj_L' ψ'.
+       Φ T (It μF_Initial X L is_left_adj_L ψ) =
+       It μF_Initial X' L' is_left_adj_L' ψ'.
 Proof.
   apply fusion_law.
 Qed.
@@ -104,20 +104,20 @@ Qed.
 (** Lemma 15 *)
 
 Lemma fbracket_natural
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs) (T : hss CP H) (Z Z' : precategory_Ptd C hs)
-       (f : precategory_Ptd C hs ⟦ Z, Z' ⟧)
-       (g : precategory_Ptd C hs ⟦ Z', ptd_from_alg T ⟧),
-       (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄ .
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (H : Presignature C C C) (T : hss CP H) (Z Z' : category_Ptd C)
+       (f : category_Ptd C ⟦ Z, Z' ⟧)
+       (g : category_Ptd C ⟦ Z', ptd_from_alg T ⟧),
+       (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄ .
 Proof.
   apply fbracket_natural.
 Qed.
 
 Lemma compute_fbracket
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs) (T : hss CP H) (Z : precategory_Ptd C hs)
-       (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg T ⟧),
-       ⦃ f ⦄ = (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (H : Presignature C C C) (T : hss CP H) (Z : category_Ptd C)
+       (f : category_Ptd C ⟦ Z, ptd_from_alg T ⟧),
+       ⦃ f ⦄ = (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
 Proof.
   apply compute_fbracket.
 Qed.
@@ -128,8 +128,8 @@ Qed.
 (** Theorem 24 *)
 
 Definition Monad_from_hss
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs), hss CP H → Monad C.
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (H : Signature C C C), hss CP H → Monad C.
 Proof.
   apply Monad_from_hss.
 Defined.
@@ -137,9 +137,9 @@ Defined.
 (** Theorem 25 *)
 
 Definition hss_to_monad_functor
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs),
-       functor (hss_precategory CP H) (precategory_Monad C hs).
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (H : Signature C C C),
+       functor (hss_precategory CP H) (category_Monad C).
 Proof.
   apply hss_to_monad_functor.
 Defined.
@@ -147,8 +147,8 @@ Defined.
 (** Lemma 26 *)
 
 Lemma faithful_hss_to_monad
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs), faithful (hss_to_monad_functor C hs CP H).
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (H : Signature C C C), faithful (hss_to_monad_functor C CP H).
 Proof.
   apply faithful_hss_to_monad.
 Defined.
@@ -163,46 +163,46 @@ Defined.
 *)
 
 Definition bracket_for_initial_algebra
- : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
-     (∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
-       → ∏ (H : Signature C hs C hs C hs)
-           (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
-           (Z : precategory_Ptd C hs),
-           precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧
+ : ∏ (C : category) (CP : BinCoproducts C),
+     (∏ Z : category_Ptd C, GlobalRightKanExtensionExists C C (U Z) C)
+       → ∏ (H : Presignature C C C)
+           (IA : Initial (FunctorAlg (Id_H C CP H)))
+           (Z : category_Ptd C),
+           category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA) ⟧
            →
-           [C, C, hs] ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C hs CP H IA) ⟧.
+           [C, C] ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C CP H IA) ⟧.
 Proof.
   apply bracket_Thm15.
 Defined.
 
 Lemma bracket_Thm15_ok_η
-     : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (KanExt : ∏ Z : precategory_Ptd C hs,
-                 GlobalRightKanExtensionExists C C (U Z) C hs hs)
-       (H : Signature C hs C hs C hs)
-       (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
-       (Z : precategory_Ptd C hs)
-       (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA)⟧),
+     : ∏ (C : category) (CP : BinCoproducts C)
+       (KanExt : ∏ Z : category_Ptd C,
+                 GlobalRightKanExtensionExists C C (U Z) C)
+       (H : Presignature C C C)
+       (IA : Initial (FunctorAlg (Id_H C CP H)))
+       (Z : category_Ptd C)
+       (f : category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA)⟧),
        # U f =
-       # (pr1 (ℓ (U Z))) (η (InitAlg C hs CP H IA)) ·
-       bracket_Thm15 C hs CP KanExt H IA Z f.
+       # (pr1 (ℓ (U Z))) (η (InitAlg C CP H IA)) ·
+       bracket_Thm15 C CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part1.
 Qed.
 
 Lemma bracket_Thm15_ok_τ
-  : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-      (KanExt : ∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
-      (H : Signature C hs C hs C hs)
-      (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
-      (Z : precategory_Ptd C hs)
-      (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧),
-    (theta H) (` (InitAlg C hs CP H IA) ⊗ Z) ·
-    # H (bracket_Thm15 C hs CP KanExt H IA Z f) ·
-    τ (InitAlg C hs CP H IA)
+  : ∏ (C : category) (CP : BinCoproducts C)
+      (KanExt : ∏ Z : category_Ptd C, GlobalRightKanExtensionExists C C (U Z) C)
+      (H : Presignature C C C)
+      (IA : Initial (FunctorAlg (Id_H C CP H)))
+      (Z : category_Ptd C)
+      (f : category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA) ⟧),
+    (theta H) (` (InitAlg C CP H IA) ⊗ Z) ·
+    # H (bracket_Thm15 C CP KanExt H IA Z f) ·
+    τ (InitAlg C CP H IA)
     =
-    # (pr1 (ℓ (U Z))) (τ (InitAlg C hs CP H IA)) ·
-      bracket_Thm15 C hs CP KanExt H IA Z f.
+    # (pr1 (ℓ (U Z))) (τ (InitAlg C CP H IA)) ·
+      bracket_Thm15 C CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part2.
 Qed.
@@ -210,12 +210,12 @@ Qed.
 (** Theorem 29 *)
 
 Definition Initial_HSS :
-   ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
-     (∏ Z : precategory_Ptd C hs,
-         GlobalRightKanExtensionExists C C (U Z) C hs hs)
-     → ∏ H : Signature C hs C hs C hs,
-       Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs))
-       → Initial (hss_precategory CP H).
+   ∏ (C : category) (CP : BinCoproducts C),
+     (∏ Z : category_Ptd C,
+         GlobalRightKanExtensionExists C C (U Z) C)
+     → ∏ H : Presignature C C C,
+       Initial (FunctorAlg (Id_H C CP H))
+       → Initial (hss_category CP H).
 Proof.
   apply InitialHSS.
 Defined.
@@ -226,8 +226,8 @@ Defined.
 (** Lemma 30 *)
 
 Definition Sum_of_Signatures
-  : ∏ (C : precategory) (hsC : has_homsets C)(D : precategory) (hs : has_homsets D)(D' : precategory) (hs' : has_homsets D'),
-       BinCoproducts D → Signature C hsC D hs D' hs' → Signature C hsC D hs D' hs' → Signature C hsC D hs D' hs' .
+  : ∏ (C D D': category),
+       BinCoproducts D → Signature C D D' → Signature C D D' → Signature C D D'.
 Proof.
   apply BinSum_of_Signatures.
 Defined.
@@ -238,7 +238,7 @@ Defined.
 (** Definition 31 *)
 
 Definition App_Sig
-  : ∏ (C : precategory) (hs : has_homsets C), BinProducts C → Signature C hs C hs C hs.
+  : ∏ (C : category), BinProducts C → Signature C C C.
 Proof.
   apply App_Sig.
 Defined.
@@ -246,8 +246,8 @@ Defined.
 (** Definition 32 *)
 
 Definition Lam_Sig
-  : ∏ (C : precategory) (hs : has_homsets C),
-    Terminal C → BinCoproducts C → BinProducts C → Signature C hs C hs C hs.
+  : ∏ (C : category),
+    Terminal C → BinCoproducts C → BinProducts C → Signature C C C.
 Proof.
   apply Lam_Sig.
 Defined.
@@ -255,7 +255,7 @@ Defined.
 (** Definition 33 *)
 
 Definition Flat_Sig
-  : ∏ (C : precategory) (hs : has_homsets C), Signature C hs C hs C hs.
+  : ∏ (C : category), Signature C C C.
 Proof.
   apply Flat_Sig.
 Defined.
@@ -265,14 +265,12 @@ Defined.
 (** Definition 36 *)
 
 Definition Lam_Flatten
-  :  ∏ (C : precategory) (hs : has_homsets C)
-       (terminal : Terminal C)
+  :  ∏ (C : category) (terminal : Terminal C)
        (CC : BinCoproducts C) (CP : BinProducts C),
-    (∏ Z : precategory_Ptd C hs,
-        GlobalRightKanExtensionExists C C (U Z) C hs hs)
-    → ∏ Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
-                                          (functor_category_has_homsets C C hs)),
-  [C, C, hs] ⟦ (Flat_H C hs) ` (InitialObject Lam_Initial), ` (InitialObject Lam_Initial) ⟧.
+    (∏ Z : category_Ptd C,
+        GlobalRightKanExtensionExists C C (U Z) C)
+    → ∏ Lam_Initial : Initial (FunctorAlg (Id_H C CC (Lam_Sig C terminal CC CP))),
+  [C, C] ⟦ (Flat_H C) ` (InitialObject Lam_Initial), ` (InitialObject Lam_Initial) ⟧.
 Proof.
   apply Lam_Flatten.
 Defined.
@@ -280,19 +278,18 @@ Defined.
 (** Lemma 37, construction of the bracket *)
 
 Definition fbracket_for_LamE_algebra_on_Lam
-  : ∏ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
+  : ∏ (C : category) (terminal : Terminal C)
       (CC : BinCoproducts C) (CP : BinProducts C)
-      (KanExt : ∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
-      (Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
-                                         (functor_category_has_homsets C C hs)))
-      (Z : precategory_Ptd C hs),
-    precategory_Ptd C hs ⟦ Z ,
-                           (ptd_from_alg_functor CC (LamE_Sig C hs terminal CC CP))
-                             (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial) ⟧
-    → [C, C, hs]
+      (KanExt : ∏ Z : category_Ptd C, GlobalRightKanExtensionExists C C (U Z) C)
+      (Lam_Initial : Initial (FunctorAlg (Id_H C CC (Lam_Sig C terminal CC CP))))
+      (Z : category_Ptd C),
+    category_Ptd C ⟦ Z ,
+                           (ptd_from_alg_functor CC (LamE_Sig C terminal CC CP))
+                             (LamE_algebra_on_Lam C terminal CC CP KanExt Lam_Initial) ⟧
+    → [C, C]
              ⟦ functor_composite (U Z)
-                                 ` (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial),
-               ` (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial) ⟧.
+                                 ` (LamE_algebra_on_Lam C terminal CC CP KanExt Lam_Initial),
+               ` (LamE_algebra_on_Lam C terminal CC CP KanExt Lam_Initial) ⟧.
 Proof.
   apply fbracket_for_LamE_algebra_on_Lam.
 Defined.
@@ -300,22 +297,20 @@ Defined.
 (** Morphism from initial hss to construed hss, consequence of Lemma 37 *)
 
 Definition EVAL
-  : ∏ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
+  : ∏ (C : category) (terminal : Terminal C)
       (CC : BinCoproducts C) (CP : BinProducts C)
-      (KanExt : ∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
+      (KanExt : ∏ Z : category_Ptd C, GlobalRightKanExtensionExists C C (U Z) C)
        (Lam_Initial : Initial
                         (FunctorAlg
-                           (Id_H C hs CC
-                              (LamSignature.Lam_Sig C hs terminal CC CP))
-                           (functor_category_has_homsets C C hs)))
+                           (Id_H C CC
+                              (LamSignature.Lam_Sig C terminal CC CP))))
        (LamE_Initial : Initial
                          (FunctorAlg
-                            (Id_H C hs CC (LamE_Sig C hs terminal CC CP))
-                            (functor_category_has_homsets C C hs))),
-       hss_precategory CC (LamE_Sig C hs terminal CC CP)
+                            (Id_H C CC (LamE_Sig C terminal CC CP)))),
+       hss_category CC (LamE_Sig C terminal CC CP)
                        ⟦ InitialObject
-                           (LamEHSS_Initial C hs terminal CC CP KanExt LamE_Initial),
-                         LamE_model_on_Lam C hs terminal CC CP KanExt Lam_Initial ⟧.
+                           (LamEHSS_Initial C terminal CC CP KanExt LamE_Initial),
+                         LamE_model_on_Lam C terminal CC CP KanExt Lam_Initial ⟧.
 Proof.
   apply FLATTEN.
 Defined.

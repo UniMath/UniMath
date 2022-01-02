@@ -69,16 +69,16 @@ Section Defn.
       split; [split|].
       + intros a b f.
         unfold arrow_precategory_data in *; cbn in *.
-        apply subtypeEquality.
+        apply subtypePath.
         * intro; apply homset_property.
         * apply pathsdirprod; apply id_left.
       + intros a b f.
         unfold arrow_precategory_data in *; cbn in *.
-        apply subtypeEquality.
+        apply subtypePath.
         * intro; apply homset_property.
         * apply pathsdirprod; apply id_right.
       + intros a b c d f g h.
-        apply subtypeEquality; [intro; apply homset_property|].
+        apply subtypePath; [intro; apply homset_property|].
         apply pathsdirprod; apply assoc.
     - intros a b.
       apply isaset_total2.
@@ -95,7 +95,7 @@ Definition arrow_category_eq_comma_category (C : category) :
   comma_category (functor_identity C) (functor_identity C)
   = arrow_category C.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro.
     do 2 (apply impred; intro).
     apply isapropisaset.

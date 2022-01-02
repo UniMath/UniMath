@@ -119,7 +119,7 @@ Section def_gr_category.
     use isweq_iso.
     - exact (gr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -137,7 +137,7 @@ Section def_gr_category.
   Proof.
     use isweq_iso.
     - exact (gr_iso_equiv X Y).
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
@@ -169,14 +169,14 @@ Section def_gr_category.
   Defined.
   Opaque gr_precategory_isweq.
 
-  Definition gr_precategory_is_univalent : is_univalent gr_precategory.
+  Definition gr_category : category := make_category _ has_homsets_gr_precategory.
+
+  Definition gr_category_is_univalent : is_univalent gr_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (gr_precategory_isweq X Y).
-    - exact has_homsets_gr_precategory.
+    intros X Y. exact (gr_precategory_isweq X Y).
   Defined.
 
-  Definition gr_category : univalent_category
-    := make_univalent_category gr_precategory gr_precategory_is_univalent.
+  Definition gr_univalent_category : univalent_category
+    := make_univalent_category gr_category gr_category_is_univalent.
 
 End def_gr_category.

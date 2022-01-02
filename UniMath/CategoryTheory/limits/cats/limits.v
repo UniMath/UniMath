@@ -277,14 +277,14 @@ Lemma isaprop_Lims: isaprop (Lims C).
 Proof.
 apply impred; intro J; apply impred; intro F.
 apply invproofirrelevance; intros Hccx Hccy.
-apply subtypeEquality.
+apply subtypePath.
 - intro; apply isaprop_isLimCone.
 - apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,F v⟧).
   set (C' (c : C) f := ∏ u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
   rewrite (@transportf_total2 _ B C').
-  apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply (pr2 H).
+  apply subtypePath.
+  + intro; repeat (apply impred; intro). apply (homset_property C).
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
@@ -377,7 +377,7 @@ use tpair.
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
-            apply subtypeEquality; simpl;
+            apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply limArrowUnique; intro u;

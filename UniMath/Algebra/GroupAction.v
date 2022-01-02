@@ -3,10 +3,15 @@
 (** * Group actions *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.OrderedSets.
+
+Import UniMath.MoreFoundations.PartA.
 
 (** ** Definitions *)
 
@@ -46,6 +51,7 @@ Coercion ac_set : Action >-> hSet.
 Definition ac_type {G:gr} (X:Action G) := pr1hSet (ac_set X).
 Definition ac_str {G:gr} (X:Action G) := pr2 X : ActionStructure G (ac_set X).
 Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
+Declare Scope action_scope.
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Local Open Scope action_scope.
@@ -55,7 +61,7 @@ Definition right_mult {G:gr} {X:Action G} (x:X) := λ g, g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := λ x:X, g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) : hProp :=
-  (∀ g x, f (g*x) = g*(f x))%set.
+  (∀ g x, f (g*x) = g*(f x))%logic.
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
@@ -77,7 +83,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
 Proof.
   revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
-  simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
+  simpl in p. destruct p; simpl. unfold transportf; simpl.
   simple refine (make_weq _ _).
   { intros p g x. simpl in x. simpl.
     exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }
@@ -174,18 +180,18 @@ Defined.
 
 Lemma composeActionIsoId {G:gr} {X Y:Action G} (f : ActionIso X Y) : composeActionIso (idActionIso X) f = f.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply propproperty. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply isapropisweq. }
   reflexivity.
 Defined.
 
 Lemma composeActionIsoId' {G:gr} {X Y:Action G} (f : ActionIso X Y) : composeActionIso f (idActionIso Y) = f.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply propproperty. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply isapropisweq. }
   reflexivity.
 Defined.
@@ -490,8 +496,8 @@ Defined.
 Lemma triviality_isomorphism_compute (G:gr) :
   triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
 Proof.
-  apply subtypeEquality_prop.
-  apply subtypeEquality.
+  apply subtypePath_prop.
+  apply subtypePath.
   { intros X. apply isapropisweq. }
   apply funextsec; intros g.
   change (op g (unel _) = g).
@@ -542,9 +548,9 @@ Defined.
 Lemma trivialTorsorAuto_unit (G:gr) :
   trivialTorsorAuto G (unel _) = idActionIso _.
 Proof.
-  intros. simple refine (subtypeEquality _ _).
+  intros. simple refine (subtypePath _ _).
   { intro k. apply is_equivariant_isaprop. }
-  { simple refine (subtypeEquality _ _).
+  { simple refine (subtypePath _ _).
     { intro; apply isapropisweq. }
     { apply funextsec; intro x; simpl. exact (runax G x). } }
 Defined.
@@ -553,9 +559,9 @@ Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h)
   = (trivialTorsorAuto G (op g h)).
 Proof.
-  intros. simple refine (subtypeEquality _ _).
+  intros. simple refine (subtypePath _ _).
   { intro; apply is_equivariant_isaprop. }
-  { simple refine (subtypeEquality _ _).
+  { simple refine (subtypePath _ _).
     { intro; apply isapropisweq. }
     { apply funextsec; intro x; simpl. exact (assocax _ x g h). } }
 Defined.

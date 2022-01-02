@@ -16,6 +16,7 @@ PACKAGES += NumberSystems
 PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
 PACKAGES += CategoryTheory
+PACKAGES += Bicategories
 PACKAGES += Ktheory
 PACKAGES += Topology
 PACKAGES += RealNumbers
@@ -23,6 +24,7 @@ PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
+PACKAGES += AlgebraicGeometry
 PACKAGES += Paradoxes
 PACKAGES += Induction
 ############################################
@@ -31,9 +33,13 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= no
 COQBIN ?=
+MEMORY_LIMIT ?= 2500000
+LIMIT_MEMORY ?= no
 ############################################
 SHOW := $(if $(VERBOSE),@true "",@echo "")
 HIDE := $(if $(VERBOSE),,@)
+############################################
+export COQBIN
 ############################################
 
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
@@ -41,7 +47,6 @@ all: make-summary-files
 everything: TAGS all html install
 sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files	\
-		check-travis			\
 		check-for-change-to-Foundations	\
 		check-for-submodule-changes
 other-checks:   check-max-line-length
@@ -77,7 +82,14 @@ ifeq ($(BUILD_COQ),yes)
 $(VOFILES) : $(COQBIN)coqc
 endif
 
-all html install uninstall $(VOFILES): build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
+ifeq ($(LIMIT_MEMORY),yes)
+EFFECTIVE_MEMORY_LIMIT = $(MEMORY_LIMIT)
+else
+EFFECTIVE_MEMORY_LIMIT = unlimited
+endif
+
+all html install uninstall $(VOFILES): build/CoqMakefile.make
+	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
 clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
@@ -130,23 +142,30 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none																			\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)/\4/'							\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:][:nonascii:]'\''_]+\)'/\1/"													\
-	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:][:nonascii:]'\''_]+\)"[[:space:]]/\1/'								\
-	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:][:nonascii:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)[[:space:]]*\./\1/'
+COQDEFS := --language=none											\
+	-r '/^[ \t]*\(\($(MODIFIERS)\)[ \t]+\)?\($(DEFINERS)\)[ \t]+\([0-9A-Za-z'\''_]+\)/\4/'			\
+	-r "/^[ \t]*Notation.* \"'\([0-9A-Za-z'\''_]+\)'/\1/"							\
+	-r '/^[ \t]*Tactic[ \t]+Notation.*[ \t]"\([0-9A-Za-z'\''_]+\)"[ \t]/\1/'				\
+	-r '/^[ \t]*Delimit[ \t]+Scope[ \t]+[0-9A-Za-z'\''_]+[ \t]+with[ \t]+\([0-9A-Za-z'\''_]+\)[ \t]*\./\1/'
+
+# this function reverses the order of items in a list
+reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
 	$(SHOW)ETAGS
 	$(HIDE)etags $(COQDEFS) $(VFILES)
-FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
-FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
+FILES_FILTER := grep -vE '^[ \t]*(\#.*)?$$'
+FILES_FILTER_2 := grep -vE '^[ \t]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: make-summary-files build/CoqMakefile.make;									\
-		+$(MAKE) -f build/CoqMakefile.make									\
+	$(eval $P: make-summary-files build/CoqMakefile.make;								\
+		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ;									\
+		  $(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
+
+$(foreach v,$(VFILES), $(eval $v.vo:; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
+
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
@@ -207,7 +226,7 @@ distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -local -no-custom
-BUILD_TARGETS := coqbinaries tools states
+BUILD_TARGETS := coqbinaries tools states ltac
 ifeq ($(DEBUG_COQ),yes)
 CONFIGURE_OPTIONS += -annot
 BUILD_TARGETS += byte
@@ -297,11 +316,11 @@ clean::; rm -f .check-prescribed-ordering.okay
 # So we have to distinguish the versions somehow; here we do that.
 # We expect the file build/CoqMakefile.make to exist now, because we have an include command above for the file .coq_makefile_output.conf,
 # and the same rule that make it makes build/CoqMakefile.make.
-VDFILE := .coqdeps
-clean::; rm -f $(VDFILE).d
+VDFILE := ..coq_makefile_output.d
+clean::; rm -f $(VDFILE)
 ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
-DEPFILES := $(VDFILE).d
+DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e ;														    \
@@ -314,7 +333,7 @@ DEPFILES := $(VDFILE).d
 	     for i in $(VFILES:.v=.vo);												    \
 	     do grep "^$$i" $(DEPFILES) ;											    \
 	     done														    \
-	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'					    \
+	     | sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'	    \
 	     | while read line ;												    \
 	       do for i in $$line ; do echo $$i ; done										    \
 		  | ( read target ;												    \
@@ -415,17 +434,17 @@ check-listing-of-proof-files:
 
 # Here we check for changes to UniMath/Foundations, which normally does not change.
 # One step of the travis job will fail, if a change is made, see .travis.yml
-# Note: the following test depends on the master branch being up to date,
-#  which it will be when travis is running.
 check-for-change-to-Foundations:
 	@echo --- checking for changes to the Foundations package ---
-	test -z "`git diff --stat master -- UniMath/Foundations`"
+	git fetch origin
+	test -z "`git diff --stat origin/master -- UniMath/Foundations`"
 
-# note: the following test depends on the master branch being up to date,
-# which it will be when travis is running
+# Here we check for changes to sub/coq, which normally does not change.
+# One step of the travis job will fail, if a change is made, see .travis.yml
 check-for-submodule-changes:
 	@echo "--- checking for submodule changes ---"
-	test -z "`git diff master sub`"
+	git fetch origin
+	test -z "`git diff origin/master sub`"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.

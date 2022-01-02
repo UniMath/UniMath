@@ -120,7 +120,7 @@ Section def_rig_category.
     use isweq_iso.
     - exact (rig_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -138,7 +138,7 @@ Section def_rig_category.
   Proof.
     use isweq_iso.
     - exact (rig_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use rigfun_paths. use idpath.
@@ -171,14 +171,14 @@ Section def_rig_category.
   Defined.
   Opaque rig_precategory_isweq.
 
-  Definition rig_precategory_is_univalent : is_univalent rig_precategory.
+  Definition rig_category : category := make_category _ has_homsets_rig_precategory.
+
+  Definition rig_category_is_univalent : is_univalent rig_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (rig_precategory_isweq X Y).
-    - exact has_homsets_rig_precategory.
+    intros X Y. exact (rig_precategory_isweq X Y).
   Defined.
 
-  Definition rig_category : univalent_category :=
-    make_univalent_category rig_precategory rig_precategory_is_univalent.
+  Definition rig_univalent_category : univalent_category :=
+    make_univalent_category rig_category rig_category_is_univalent.
 
 End def_rig_category.

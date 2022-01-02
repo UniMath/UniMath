@@ -70,15 +70,15 @@ Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
+Definition disp_full_sub_axioms (C : category) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub (C : precategory) (P : C → UU)
-  : disp_precat C := _ ,, disp_full_sub_axioms C P.
+Definition disp_full_sub (C : category) (P : C → UU)
+  : disp_cat C := _ ,, disp_full_sub_axioms C P.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
@@ -176,13 +176,13 @@ Definition dirprod_disp_cat_axioms
   : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
 Proof.
   repeat apply make_dirprod.
-  - intros. apply dirprod_paths; use (id_left_disp @ !_).
+  - intros. apply dirprod_paths; use (id_left_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (id_right_disp @ !_).
+  - intros. apply dirprod_paths; use (id_right_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (assoc_disp @ !_).
+  - intros. apply dirprod_paths; use (assoc_disp _ _ _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
   - intros. apply isaset_dirprod; apply homsets_disp.
@@ -363,7 +363,7 @@ Definition dirprodpr2_disp_functor
 
 End Dirprod.
 
-(* Declare Scope disp_cat_scope. *)
+Declare Scope disp_cat_scope.
 Notation "D1 × D2" := (dirprod_disp_cat D1 D2) : disp_cat_scope.
 Delimit Scope disp_cat_scope with disp_cat.
 Bind Scope disp_cat_scope with disp_cat.
@@ -403,18 +403,16 @@ Proof.
   repeat apply tpair.
   - intros. use total2_reassoc_paths'.
     + apply id_left_disp.
-    + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_left_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply id_right_disp.
-    + etrans. exact (@id_right_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_right_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply assoc_disp.
     + etrans.
-        exact (@assoc_disp _ _
-                 _ _ _ _  _ _ _
-                 _ _ _ _  (pr2 ff) (pr2 gg) (pr2 hh)).
+        exact (assoc_disp (pr2 ff) (pr2 gg) (pr2 hh)).
       apply maponpaths_2, homset_property.
   - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
@@ -461,7 +459,7 @@ Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
 Proof.
   destruct e. apply pathsinv0.
   etrans. apply maponpaths_2, maponpaths, maponpaths.
-  apply (homsets_disp _ _ _ (idpath _)).
+  apply (homsets_disp _ _ _ _ _ _ (idpath _)).
   apply idpath.
 Qed.
 
@@ -671,7 +669,7 @@ Lemma disp_nat_trans_id_left
               (id_left (a : FunctorsC'C ⟦ _ , _ ⟧))
               b.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -695,7 +693,7 @@ Lemma disp_nat_trans_id_right
               (id_right (a : FunctorsC'C ⟦ _ , _ ⟧))
               b.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -725,7 +723,7 @@ Lemma disp_nat_trans_assoc
      (assoc (f : FunctorsC'C⟦_,_⟧) g h)
      (disp_nat_trans_comp (disp_nat_trans_comp ff gg) hh).
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -968,7 +966,7 @@ Proof.
   use tpair.
   - apply (inv_disp_from_pointwise_iso _ _ _ _ _ FF H).
   - split.
-    + apply subtypeEquality.
+    + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
@@ -980,7 +978,7 @@ Proof.
       etrans. apply maponpaths. apply (iso_disp_after_inv_mor (H c' xx')).
       etrans. apply transport_f_f.
       apply maponpaths_2, homset_property.
-    + apply subtypeEquality.
+    + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
@@ -1158,9 +1156,8 @@ Defined.
 
 Lemma is_univalent_fiber : is_univalent fiber_category.
 Proof.
-  split.
-  - apply is_univalent_fiber_cat.
-  - apply has_homsets_fiber_category.
+  intros a b.
+  apply is_univalent_fiber_cat.
 Defined.
 
 End Fiber.
@@ -1179,7 +1176,7 @@ Proof.
   apply is_univalent_disp_from_fibers.
   intros c xx xx'.
   specialize (H c).
-  set (w := make_weq _ (pr1 H xx xx')).
+  set (w := make_weq _ (H xx xx')).
   set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
   apply (weqhomot _ w').
   intro e. induction e.

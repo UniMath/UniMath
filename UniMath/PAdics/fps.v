@@ -25,13 +25,6 @@ Proof.
   - intros. exact ( IHupper f + f ( S upper ) ).
 Defined.
 
-Lemma natsummationpaths { R : commring } { upper upper' : nat }
-  ( u : upper = upper' ) ( f : nat -> R ) :
-  natsummation0 upper f = natsummation0 upper' f.
-Proof.
-  intros. destruct u. auto.
-Defined.
-
 Lemma natsummationpathsupperfixed { R : commring } { upper : nat }
   ( f f' : nat -> R ) ( p : forall x : nat, natleh x upper -> f x = f' x ):
   natsummation0 upper f = natsummation0 upper f'.
@@ -123,8 +116,7 @@ Proof.
   revert f i p. induction upper.
   - intros f i p.
     destruct i.
-    + unfold funcomp. simpl.
-      unfold natcoface. simpl.
+    + unfold natcoface. simpl.
       set (H:=pr2 R). simpl in H.
       set (H1:=pr1 H).
       set (H2:=pr1 H1).
@@ -140,7 +132,7 @@ Proof.
       * change ( natsummation0 ( S upper ) f + f ( S ( S upper ) ) =
                  natsummation0 ( S upper ) ( funcomp ( natcoface ( S i ) ) f ) + f ( S i ) ).
         rewrite ( IHupper f ( S i ) ).
-        -- simpl. unfold funcomp at 3. unfold natcoface at 3.
+        -- simpl. unfold natcoface at 3.
            rewrite 2! ( ringassoc1 R ).
            rewrite ( ringcomm1 R _ ( f ( S i ) ) ).
            simpl.
@@ -152,16 +144,16 @@ Proof.
         assert ( natsummation0 upper ( funcomp ( natcoface ( S i ) ) f ) =
                  natsummation0 upper f ) as h.
         { apply natsummationpathsupperfixed.
-          intros m q. unfold funcomp. unfold natcoface.
+          intros m q. unfold natcoface.
           assert ( natlth m ( S i ) ) as q'.
           { apply ( natlehlthtrans _ upper ).
             -- assumption.
             -- rewrite k. apply natlthnsn.
           }
           unfold natlth in q'.
-          rewrite q'. apply idpath.
+          unfold funcomp. rewrite q'. apply idpath.
         }
-        rewrite <- h. unfold funcomp, natcoface at 3. simpl.
+        rewrite <- h. unfold natcoface at 3. simpl.
         rewrite ( natgehimplnatgtbfalse i upper ).
         -- rewrite 2! ( ringassoc1 R ).
            rewrite ( ringcomm1 R ( f ( S ( S upper ) ) ) ).
@@ -827,7 +819,7 @@ Proof.
               }
               change ( idfun _ m'' = idfun _ n ).
               rewrite <- ( natcofaceretractisretract v ).
-              unfold funcomp.
+              simpl.
               rewrite g.
               apply idpath.
       * apply fromempty.
@@ -844,7 +836,6 @@ Proof.
            assumption.
         -- apply natlthnsn.
   - intros x X.
-    unfold funcomp.
     assert ( natleh ( i ( natcoface v x ) ) ( S upper ) ) as a0.
     { apply (pr2 p).
       apply natcofaceleh.
@@ -896,12 +887,12 @@ Proof.
     split.
     + apply ( nattruncautopreimageineq p' ).
     + split.
-      * unfold funcomp.
+      * simpl.
         rewrite ( nattruncautopreimagepath p' _ ).
         rewrite ( nattruncautopreimagepath p _ ).
         apply idpath.
       * intros x X y.
-        unfold funcomp in y.
+        simpl in y.
         apply ( nattruncautoisinj p' ).
         -- apply nattruncautopreimageineq.
         -- assumption.
@@ -914,7 +905,6 @@ Proof.
               rewrite y.
               apply idpath.
   - intros x X.
-    unfold funcomp.
     apply (pr2 p).
     apply (pr2 p').
     assumption.
@@ -1094,13 +1084,13 @@ Proof.
                  ( natlthtoleh m ( S upper ) ( natlehlthtrans m upper ( S upper ) q
                    ( natlthnsn upper ) ) ) ) ).
       * split.
-        -- unfold funcomp.
+        -- simpl.
            rewrite pathssminus.
            ++ rewrite minussn1.
               apply nattruncautopreimagepath.
            ++ assumption.
         -- intros n uu k.
-           unfold funcomp in k.
+           simpl in k.
            rewrite <- ( minussn1 n ).
            assert ( v = S n ) as f.
            { apply ( nattruncautopreimagecanon p _ ); assumption. }
@@ -1140,7 +1130,7 @@ Lemma natsummationreindexing { R : commring } { upper : nat }
 Proof.
   revert i p f.
   induction upper.
-  - intros. simpl. unfold funcomp.
+  - intros. simpl.
     assert ( 0%nat = i 0%nat ) as f0.
     { destruct ( natlehchoice ( i 0%nat ) 0%nat ( pr2 p 0%nat ( isreflnatleh 0%nat ) ) )
         as [ h | k ].
@@ -1163,7 +1153,7 @@ Proof.
         -- change ( funcomp ( funcomp ( natcoface v ) i ) f ) with
                ( funcomp ( natcoface v ) ( funcomp i f ) ).
            assert ( f ( S upper ) = ( funcomp i f ) v ) as f0.
-           { unfold funcomp. rewrite j. apply idpath. }
+           { simpl. rewrite j. apply idpath. }
            rewrite f0.
            assert ( natleh v upper ) as aux.
            { apply natlthsntoleh. assumption. }
@@ -1175,7 +1165,7 @@ Proof.
          -- assert ( natsummation0 upper ( funcomp ( funcomp ( natcoface v ) i) f ) =
                     natsummation0 upper ( funcomp i f ) ) as f0.
             { apply natsummationpathsupperfixed.
-              intros x X. unfold funcomp. unfold natcoface.
+              intros x X. simpl. unfold natcoface.
               assert ( natlth x v ) as a0.
               { apply ( natlehlthtrans _ upper ).
                 ++ assumption.
@@ -1187,7 +1177,7 @@ Proof.
             }
             rewrite f0.
             assert ( f ( S upper ) = funcomp i f ( S upper ) ) as f1.
-            { unfold funcomp.
+            { simpl.
               rewrite <- r.
               rewrite j.
               rewrite <- r.
@@ -1198,7 +1188,7 @@ Proof.
          -- apply precompwithnatcofaceisauto.
             assumption.
     + rewrite natsummationshift0.
-      unfold funcomp at 2.
+      simpl.
       rewrite p0.
       rewrite j.
       assert ( i 0%nat = S upper ) as j'.

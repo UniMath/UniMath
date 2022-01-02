@@ -125,7 +125,7 @@ Section def_abmonoid_category.
     use isweq_iso.
     - exact (abmonoid_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -144,7 +144,7 @@ Section def_abmonoid_category.
   Proof.
     use isweq_iso.
     - exact (abmonoid_iso_equiv X Y).
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
@@ -177,14 +177,14 @@ Section def_abmonoid_category.
   Defined.
   Opaque abmonoid_precategory_isweq.
 
-  Definition abmonoid_precategory_is_univalent : is_univalent abmonoid_precategory.
+  Definition abmonoid_category : category := make_category _ has_homsets_abmonoid_precategory.
+
+  Definition abmonoid_category_is_univalent : is_univalent abmonoid_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (abmonoid_precategory_isweq X Y).
-    - exact has_homsets_abmonoid_precategory.
+    intros X Y. exact (abmonoid_precategory_isweq X Y).
   Defined.
 
-  Definition abmonoid_category : univalent_category :=
-    make_univalent_category abmonoid_precategory abmonoid_precategory_is_univalent.
+  Definition abmonoid_univalent_category : univalent_category :=
+    make_univalent_category abmonoid_category abmonoid_category_is_univalent.
 
 End def_abmonoid_category.

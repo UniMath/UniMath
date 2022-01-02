@@ -123,7 +123,7 @@ Section def_commrig_category.
     use isweq_iso.
     - exact (commrig_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -141,7 +141,7 @@ Section def_commrig_category.
   Proof.
     use isweq_iso.
     - exact (commrig_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use rigfun_paths. use idpath.
@@ -173,14 +173,14 @@ Section def_commrig_category.
   Defined.
   Opaque commrig_precategory_isweq.
 
-  Definition commrig_precategory_is_univalent : is_univalent commrig_precategory.
+  Definition commrig_category : category := make_category _ has_homsets_commrig_precategory.
+
+  Definition commrig_category_is_univalent : is_univalent commrig_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (commrig_precategory_isweq X Y).
-    - exact has_homsets_commrig_precategory.
+    intros X Y. exact (commrig_precategory_isweq X Y).
   Defined.
 
-  Definition commrig_category : univalent_category :=
-    make_univalent_category commrig_precategory commrig_precategory_is_univalent.
+  Definition commrig_univalent_category : univalent_category :=
+    make_univalent_category commrig_category commrig_category_is_univalent.
 
 End def_commrig_category.

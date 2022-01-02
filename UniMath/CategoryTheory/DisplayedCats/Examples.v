@@ -216,14 +216,14 @@ A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (p
 
 Section Elements_Disp.
 
-Definition elements_ob_mor : disp_cat_ob_mor SET.
+Definition elements_ob_mor : disp_cat_ob_mor HSET.
 Proof.
   use tpair.
   - simpl. exact (λ X, X).
   - simpl. intros X Y x y f. exact (f x = y).
 Defined.
 
-Lemma elements_id_comp : disp_cat_id_comp SET elements_ob_mor.
+Lemma elements_id_comp : disp_cat_id_comp HSET elements_ob_mor.
 Proof.
   apply tpair; simpl.
   - intros X x. apply idpath.
@@ -231,23 +231,23 @@ Proof.
     eapply pathscomp0. apply maponpaths, e_fx_y. apply e_gy_z.
 Qed.
 
-Definition elements_data : disp_cat_data SET
+Definition elements_data : disp_cat_data HSET
   := (_ ,, elements_id_comp).
 
-Lemma elements_axioms : disp_cat_axioms SET elements_data.
+Lemma elements_axioms : disp_cat_axioms HSET elements_data.
 Proof.
   repeat split; intros; try apply setproperty.
   apply isasetaprop; apply setproperty.
 Qed.
 
-Definition elements_universal : disp_cat SET
+Definition elements_universal : disp_cat HSET
   := (_ ,, elements_axioms).
 
-Definition disp_cat_of_elements {C : category} (P : functor C SET)
+Definition disp_cat_of_elements {C : category} (P : functor C HSET)
   := reindex_disp_cat P elements_universal.
 
 (* TODO: compare to other definitions of this in the library! *)
-Definition precat_of_elements {C : category} (P : functor C SET)
+Definition precat_of_elements {C : category} (P : functor C HSET)
   := total_category (disp_cat_of_elements P).
 
 End Elements_Disp.
@@ -366,7 +366,7 @@ Proof.
       apply ((#F)%cat (coneOut L j )).
       cbn. exact (pr2 (dob D j)).
     - abstract (
-      intros; cbn;
+      red; intros; cbn;
       assert (XR := pr2 (dmor D e)); cbn in XR;
       etrans; [eapply pathsinv0; apply assoc |];
       etrans; [apply maponpaths, (!XR) |];
@@ -390,7 +390,7 @@ Proof.
             set (XR := limArrowCommutes LL _ FC); cbn in XR;
             apply pathsinv0; apply XR
           | cbn; intros i j e;
-            apply subtypeEquality;
+            apply subtypePath;
             [ intro; apply homset_property |];
             cbn; apply (coneOutCommutes L)
           ]).
@@ -456,14 +456,14 @@ Proof.
         }
     + simpl.
       intro j.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro. apply homset_property. }
       cbn. apply (limArrowCommutes LL).
     + intros.
       apply impred_isaprop. intro t. (apply (homset_property (total_category _ ))).
     + simpl.
       intros.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro. apply homset_property. }
       apply (limArrowUnique LL).
       intro u.

@@ -7,7 +7,7 @@
 	     (make-local-variable 'coq-prog-args)
 	     (setq coq-prog-args
 		   ;; these options should match what's used in ../Makefile
-		   `("-emacs" "-noinit" "-indices-matter" "-type-in-type" "-w" "-notation-overridden" "-Q" ,(concat unimath-topdir "UniMath") "UniMath" )
+		   `("-quiet" "-emacs" "-noinit" "-indices-matter" "-type-in-type" "-w" "-notation-overridden" "-Q" ,(concat unimath-topdir "UniMath") "UniMath" )
 		   )
 	     (make-local-variable 'coq-prog-name)
 	     (setq coq-prog-name (concat unimath-topdir "sub/coq/bin/coqtop"))

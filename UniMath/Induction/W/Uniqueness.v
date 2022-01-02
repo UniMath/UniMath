@@ -138,7 +138,7 @@ Section Uniqueness.
   Lemma isaprop_W : isaprop (W B).
     apply invproofirrelevance.
     intros X Y.
-    apply subtypeEquality.
+    apply subtypePath.
     - exact isaprop_is_initial.
     - exact (W_alg_eq X Y).
   Defined.

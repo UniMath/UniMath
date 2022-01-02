@@ -50,8 +50,6 @@ Defined.
 
 Local Open Scope logic.
 
-Local Open Scope set.
-
 (** We write these axioms as types rather than as axioms, which would assert them to be true, to
     force them to be mentioned as explicit hypotheses whenever they are used. *)
 

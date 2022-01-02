@@ -31,7 +31,7 @@ Ltac rewrite_cbn_inv x := let H := fresh in (set (H := x); cbn in H; rewrite <- 
 
 Section Algebras.
 
-Context {C : precategory} (T : Monad C).
+Context {C : category} (T : Monad C).
 
 
 (** Definition of an algebra of a monad T *)
@@ -145,9 +145,9 @@ Proof.
   - apply assoc'.
 Qed.
 
-Definition MonadAlg : precategory := ( _,, is_precategory_precategory_Alg_data).
+Definition MonadAlg_precat : precategory := ( _,, is_precategory_precategory_Alg_data).
 
-Lemma has_homsets_MonadAlg : has_homsets MonadAlg.
+Lemma has_homsets_MonadAlg : has_homsets MonadAlg_precat.
 Proof.
   intros X Y.
   apply (isofhleveltotal2 2).
@@ -156,6 +156,8 @@ Proof.
     apply isasetaprop.
     apply homset_property.
 Qed.
+
+Definition MonadAlg: category := MonadAlg_precat ,, has_homsets_MonadAlg.
 
 End Algebra_category.
 
@@ -233,8 +235,7 @@ Defined.
 Definition Alg_adjunction_monad_eq : Monad_from_adjunction free_forgetful_are_adjoints = T.
 Proof.
   apply Monad_eq_raw_data.
-  - apply homset_property.
-  - apply idpath.
+  apply idpath.
 Defined.
 
 End Algebra_adjunction.
@@ -352,10 +353,9 @@ Proof.
                 rewrite_cbn (monad_dist_law2 l X);
                 apply (nat_trans_ax (η T))).
     - abstract (intros X Y f;
-                apply subtypeEquality';
+                apply subtypePath;
                 cbn;
-                [ apply (nat_trans_ax (η T)) |
-                  apply homset_property]).
+                [ intro; apply homset_property | apply (nat_trans_ax (η T))]).
 Defined.
 
 Definition lift_μ : lift_functor ∙ lift_functor ⟹ lift_functor.
@@ -372,10 +372,9 @@ Proof.
                 rewrite_cbn (nat_trans_ax (μ T) _ _ (Alg_map S X));
                 apply assoc).
      - abstract (intros X Y f;
-                 apply subtypeEquality';
+                 apply subtypePath;
                  cbn;
-                 [ apply (nat_trans_ax (μ T)) |
-                   apply homset_property]).
+                 [ intro; apply homset_property | apply (nat_trans_ax (μ T))]).
 Defined.
 
 Definition lift_monad : Monad (MonadAlg S).
@@ -383,14 +382,14 @@ Proof.
   exists ((lift_functor ,, lift_μ) ,, lift_η).
   abstract (split;
             [ split; intro X;
-              apply subtypeEquality';
-              [ apply Monad_law1 |
-                apply homset_property |
-                apply Monad_law2 |
-                apply homset_property] |
-              intro X; apply subtypeEquality';
-              [ apply Monad_law3 |
-                apply homset_property] ]).
+              apply subtypePath;
+              [ intro; apply homset_property |
+                apply Monad_law1 |
+                intro; apply homset_property |
+                apply Monad_law2] |
+              intro X; apply subtypePath;
+              [ intro; apply homset_property |
+                apply Monad_law3 ] ]).
 Defined.
 
 Definition lifting_from_dist_law : lifting.
