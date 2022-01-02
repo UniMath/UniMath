@@ -318,7 +318,7 @@ clean::; rm -f .check-prescribed-ordering.okay
 # and the same rule that make it makes build/CoqMakefile.make.
 VDFILE := ..coq_makefile_output.d
 clean::; rm -f $(VDFILE)
-ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
+ifeq ($(shell test -f build/CoqMakefile.make && grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
 DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
