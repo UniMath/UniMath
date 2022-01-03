@@ -368,15 +368,13 @@ Section Applications.
     reflexivity.
   Defined.
 
-  (* TODO: make this definition more similar to matrix_mult? *)
   Definition matrix_add
   {m n : nat}
   (mat1 : Matrix R m n)
   (mat2 : Matrix R m n)
   : (Matrix R m n) :=
-    λ i j,
-      op1 ((row mat1 i) j) ((row mat2 i) j).
-
+    entrywise _ _ op1 mat1 mat2.
+  
   Lemma matrix_add_comm:
   ∏ {m n : nat} (mat1 : Matrix R m n)
                 (mat2 : Matrix R m n),
@@ -505,7 +503,7 @@ Section Applications.
       rewrite iterop_fun_step. 2: {apply riglunax1. }
       rewrite <- rigassoc1.
       rewrite rigcomm1.
-      rewrite (rigcomm1 R (f2 lastelement)  (f1 lastelement)).
+      rewrite (rigcomm1 R (f2 lastelement) (f1 lastelement)).
       reflexivity.
   Defined.
 
@@ -526,7 +524,7 @@ Section Applications.
       apply zero_function_sums_to_zero.
       reflexivity.
     - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
-      unfold  "∘".
+      unfold funcomp.
       rewrite <- IHn.
       rewrite rigsum_add.
       apply maponpaths, funextfun. intros i.
@@ -568,6 +566,7 @@ Section Applications.
     intros.
     rewrite matrix_mult_eq.
     unfold matrix_mult_unf, matrix_add.
+    unfold entrywise, pointwise.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {
@@ -588,6 +587,7 @@ Section Applications.
     intros.
     rewrite matrix_mult_eq.
     unfold matrix_mult_unf, matrix_add.
+    unfold entrywise, pointwise.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {

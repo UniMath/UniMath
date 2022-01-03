@@ -358,7 +358,6 @@ Section Vectors.
       reflexivity.
   Defined.
 
-  (* TODO prove over rigs *)
   Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
     (@identity_matrix R n i) ^ v = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
   Proof.
@@ -377,9 +376,9 @@ Section Vectors.
   Defined.
 
   Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
-    Σ ((identity_matrix i) ^ v) =  (v i).
+    Σ ((identity_matrix i) ^ v) = (v i).
   Proof.
-    unfold identity_matrix, pointwise, Matrix.identity_matrix.
+    unfold identity_matrix, pointwise.
     assert (p: n > 0). {apply (stn_implies_ngt0 i). } (*TODO this should be gt0 *)
     rewrite (pulse_function_sums_to_point_rig'' _  (stn_implies_ngt0 i)  i ).
     - rewrite stn_neq_or_neq_refl.
@@ -413,7 +412,7 @@ Section Vectors.
   Defined.
 
   Lemma weq_rowvec
-    : ∏ X : UU, ∏ n : nat,  Vector X n ≃ Matrix X 1 n.
+    : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
   Proof.
     intros.
     apply weq_vector_1.
@@ -421,7 +420,7 @@ Section Vectors.
 
   (* TODO typo *)
   Lemma weq_colwec
-    : ∏ X : UU, ∏ n : nat,  weq (Vector X n) (Matrix X n 1).
+    : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n 1).
   Proof.
     intros.
     apply weqffun.

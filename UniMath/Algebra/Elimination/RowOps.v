@@ -438,8 +438,8 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : hq )
-    (*(p : (s != 0)%hq)*) (p' : n > 0):
-    @matrix_inverse hq n (make_add_row_matrix r1 r2 s ).
+    (p' : n > 0):
+    @matrix_inverse hq n (make_add_row_matrix r1 r2 s).
   Proof.
     use tpair.
     {
