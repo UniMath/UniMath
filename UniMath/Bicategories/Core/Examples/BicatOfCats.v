@@ -155,9 +155,10 @@ Proof.
   intros Hη X.
   use is_iso_qinv.
   - apply (Hη^-1).
-  - split ; cbn.
-    + exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X).
-    + exact (nat_trans_eq_pointwise (vcomp_linv Hη) X).
+  - abstract
+      (split ; cbn ;
+       [ exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X)
+       | exact (nat_trans_eq_pointwise (vcomp_linv Hη) X) ]).
 Defined.
 
 Definition invertible_2cell_to_nat_iso
@@ -181,15 +182,14 @@ Proof.
   intros Hη.
   use tpair.
   - apply (nat_iso_inv (η ,, Hη)).
-  - split.
-    + apply nat_trans_eq.
-      { apply D. }
-      intros X ; cbn.
-      exact (iso_inv_after_iso (pr1 η X ,, _)).
-    + apply nat_trans_eq.
-      { apply D. }
-      intros X ; cbn.
-      exact (iso_after_iso_inv (pr1 η X ,, _)).
+  - abstract
+      (split ;
+       [ apply nat_trans_eq ; [ apply homset_property | ] ;
+         intros x ; cbn ;
+         exact (iso_inv_after_iso (pr1 η x ,, _))
+       | apply nat_trans_eq ; [ apply homset_property | ] ;
+         intros x ; cbn ;
+         exact (iso_after_iso_inv (pr1 η x ,, _)) ]).
 Defined.
 
 Definition nat_iso_to_invertible_2cell

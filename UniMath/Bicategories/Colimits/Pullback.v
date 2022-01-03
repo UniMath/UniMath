@@ -3,6 +3,7 @@
  In this file we define the notion of pullback square in arbitrary
  bicategories. This definition is expressed using universal
  properties.
+
  Content
  1. Cones
  2. 1-cells and 2-cells of cones
@@ -11,6 +12,7 @@
  5. Bicategories with pullbacks
  6. 1-Types has pullbacks
  7. The bicategory of univalent categories has pullbacks
+ 8. The bicategory of univalent groupoids has pullbacks
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -18,10 +20,12 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -31,10 +35,8 @@ Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.Bicategories.Core.Examples.Groupoids.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 
@@ -702,16 +704,11 @@ Definition iso_comma_pb_cone
   : pb_cone F G.
 Proof.
   use make_pb_cone.
-  - use make_univalent_category.
-    + exact (iso_comma F G).
-    + apply is_univalent_iso_comma.
-      * apply C₁.
-      * apply C₂.
-      * apply C₃.
-  - apply iso_comma_pr1.
-  - apply iso_comma_pr2.
+  - exact (univalent_iso_comma F G).
+  - exact (iso_comma_pr1 F G).
+  - exact (iso_comma_pr2 F G).
   - apply nat_iso_to_invertible_2cell.
-    apply iso_comma_commute.
+    exact (iso_comma_commute F G).
 Defined.
 
 Section IsoCommaUMP.
@@ -758,56 +755,29 @@ Section IsoCommaUMP.
                  • rassociator _ _ _
                  • (ψ ◃ pb_cone_cell p)).
 
-    Definition pb_ump_2_nat_trans_data
-      : nat_trans_data (pr1 φ) (pr1 ψ).
-    Proof.
-      intro x.
-      simple refine ((pr1 α x ,, pr1 β x) ,, _) ; cbn.
-      abstract
-        (pose (nat_trans_eq_pointwise r x) as ρ ;
-         cbn in ρ ;
-         rewrite !id_left, !id_right in ρ ;
-         exact (!ρ)).
-    Defined.
-
-    Definition pb_ump_2_is_nat_trans
-      : is_nat_trans _ _ pb_ump_2_nat_trans_data.
-    Proof.
-      intros x y f.
-      use subtypePath ; [ intro ; apply homset_property | ].
-      use pathsdirprod.
-      - exact (nat_trans_ax α _ _ f).
-      - exact (nat_trans_ax β _ _ f).
-    Qed.
-
     Definition pb_ump_2_nat_trans
       : φ ==> ψ.
     Proof.
-      use make_nat_trans.
-      - exact pb_ump_2_nat_trans_data.
-      - exact pb_ump_2_is_nat_trans.
+      use (iso_comma_ump2 _ _ _ _ α β).
+      abstract
+        (intros x ;
+         pose (nat_trans_eq_pointwise r x) as z ;
+         cbn in z ;
+         unfold iso_comma_commute_nat_trans_data in z ;
+         rewrite !id_left, !id_right in z ;
+         exact z).
     Defined.
 
     Definition pb_ump_2_nat_trans_pr1
       : pb_ump_2_nat_trans ▹ pb_cone_pr1 (iso_comma_pb_cone F G) = α.
     Proof.
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
-      intro x.
-      apply idpath.
+      apply iso_comma_ump2_pr1.
     Qed.
 
     Definition pb_ump_2_nat_trans_pr2
       : pb_ump_2_nat_trans ▹ pb_cone_pr2 (iso_comma_pb_cone F G) = β.
     Proof.
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
-      intro x.
-      apply idpath.
+      apply iso_comma_ump2_pr2.
     Qed.
   End CellUMP.
 
@@ -820,12 +790,7 @@ Section IsoCommaUMP.
         (use invproofirrelevance ;
          intros τ₁ τ₂ ;
          use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-         use nat_trans_eq ; [ apply homset_property | ] ;
-         intro x ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         use pathsdirprod ;
-         [ exact (nat_trans_eq_pointwise (pr12 τ₁ @ !(pr12 τ₂)) x)
-         | exact (nat_trans_eq_pointwise (pr22 τ₁ @ !(pr22 τ₂)) x) ]).
+         exact (iso_comma_ump_eq _ _ _ _ α β (pr12 τ₁) (pr22 τ₁) (pr12 τ₂) (pr22 τ₂))).
     - simple refine (_ ,, _).
       + exact (pb_ump_2_nat_trans φ ψ α β r).
       + split.
@@ -849,4 +814,153 @@ Proof.
   simple refine (_ ,, _).
   - exact (iso_comma_pb_cone F G).
   - exact (iso_comma_has_pb_ump F G).
+Defined.
+
+(** 8. The bicategory of univalent groupoids has pullbacks *)
+Require Import UniMath.CategoryTheory.Groupoids.
+
+Definition grpds_iso_comma_pb_cone
+           {C₁ C₂ C₃ : grpds}
+           (F : C₁ --> C₃)
+           (G : C₂ --> C₃)
+  : pb_cone F G.
+Proof.
+  use make_pb_cone.
+  - exact (univalent_iso_comma (pr1 F) (pr1 G)
+           ,,
+           is_pregroupoid_iso_comma _ _ (pr2 C₁) (pr2 C₂)).
+  - refine (_ ,, tt).
+    apply iso_comma_pr1.
+  - refine (_ ,, tt).
+    apply iso_comma_pr2.
+  - use make_invertible_2cell.
+    + refine (_ ,, tt).
+      apply iso_comma_commute.
+    + apply locally_groupoid_grpds.
+Defined.
+
+Section IsoCommaUMP.
+  Context {C₁ C₂ C₃ : grpds}
+          (F : C₁ --> C₃)
+          (G : C₂ --> C₃).
+
+  Definition pb_ump_1_grpds_iso_comma
+    : pb_ump_1 (grpds_iso_comma_pb_cone F G).
+  Proof.
+    intro q.
+    use make_pb_1cell.
+    - refine (_ ,, tt).
+      use iso_comma_ump1.
+      + exact (pr1 (pb_cone_pr1 q)).
+      + exact (pr1 (pb_cone_pr2 q)).
+      + exact (grpds_2cell_to_nat_iso (pr1 (pb_cone_cell q))).
+    - use make_invertible_2cell.
+      + refine (_ ,, tt).
+        apply iso_comma_ump1_pr1.
+      + apply locally_groupoid_grpds.
+    - use make_invertible_2cell.
+      + refine (_ ,, tt).
+        apply iso_comma_ump1_pr2.
+      + apply locally_groupoid_grpds.
+    - abstract
+        (use subtypePath ; [ intro ; apply isapropunit | ] ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intros x ; cbn ; unfold pb_cone_cell ;
+         rewrite (functor_on_inv_from_iso (pr1 G)) ;
+         rewrite (functor_id (pr1 F)) ;
+         rewrite !id_left, id_right ;
+         refine (!(id_right _) @ _) ;
+         apply maponpaths ;
+         use inv_iso_unique' ;
+         unfold precomp_with ;
+         cbn ;
+         rewrite id_right ;
+         apply functor_id).
+  Defined.
+
+  Section CellUMP.
+    Let p := grpds_iso_comma_pb_cone F G.
+
+    Context {q : grpds}
+            (φ ψ : q --> p)
+            (α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p)
+            (β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p)
+            (r : (φ ◃ pb_cone_cell p)
+                 • lassociator _ _ _
+                 • (β ▹ G)
+                 • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                 • (α ▹ F)
+                 • rassociator _ _ _
+                 • (ψ ◃ pb_cone_cell p)).
+
+    Definition pb_ump_2_grpds_nat_trans
+      : φ ==> ψ.
+    Proof.
+      refine (_ ,, tt).
+      use (iso_comma_ump2 _ _ _ _ (pr1 α) (pr1 β)).
+      abstract
+        (intros x ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 r) x) as z ;
+         cbn in z ;
+         unfold iso_comma_commute_nat_trans_data in z ;
+         rewrite !id_left, !id_right in z ;
+         exact z).
+    Defined.
+
+    Definition pb_ump_2_grpds_nat_trans_pr1
+      : pb_ump_2_grpds_nat_trans ▹ pb_cone_pr1 _ = α.
+    Proof.
+      use subtypePath ; [ intro ; apply isapropunit | ].
+      apply iso_comma_ump2_pr1.
+    Qed.
+
+    Definition pb_ump_2_grpds_nat_trans_pr2
+      : pb_ump_2_grpds_nat_trans ▹ _ = β.
+    Proof.
+      use subtypePath ; [ intro ; apply isapropunit | ].
+      apply iso_comma_ump2_pr2.
+    Qed.
+  End CellUMP.
+
+  Definition pb_ump_2_grpds_iso_comma
+    : pb_ump_2 (grpds_iso_comma_pb_cone F G).
+  Proof.
+    intros C φ ψ α β r.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         use subtypePath ; [ intro ; apply isapropunit | ] ;
+         exact (iso_comma_ump_eq
+                  _ _ _ _ _ _
+                  (maponpaths pr1 (pr12 τ₁))
+                  (maponpaths pr1 (pr22 τ₁))
+                  (maponpaths pr1 (pr12 τ₂))
+                  (maponpaths pr1 (pr22 τ₂)))).
+    - simple refine (_ ,, _).
+      + exact (pb_ump_2_grpds_nat_trans φ ψ α β r).
+      + split.
+        * exact (pb_ump_2_grpds_nat_trans_pr1 φ ψ α β r).
+        * exact (pb_ump_2_grpds_nat_trans_pr2 φ ψ α β r).
+  Defined.
+
+  Definition grpds_iso_comma_has_pb_ump
+    : has_pb_ump (grpds_iso_comma_pb_cone F G).
+  Proof.
+    split.
+    - exact pb_ump_1_grpds_iso_comma.
+    - exact pb_ump_2_grpds_iso_comma.
+  Defined.
+End IsoCommaUMP.
+
+Definition has_pb_grpds
+  : has_pb grpds.
+Proof.
+  intros C₁ C₂ C₃ F G.
+  simple refine (_ ,, _).
+  - exact (grpds_iso_comma_pb_cone F G).
+  - exact (grpds_iso_comma_has_pb_ump F G).
 Defined.
