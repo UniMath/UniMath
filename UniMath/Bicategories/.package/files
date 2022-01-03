@@ -127,4 +127,7 @@ DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
 Core/InternalStreetFibration.v
+Core/InternalStreetOpFibration.v
 DisplayedBicats/Examples/CodomainFibs.v
+
+ComprehensionBicat.v

@@ -1667,6 +1667,57 @@ Proof.
 Defined.
 
 (** 6. Cartesian pseudofunctors *)
+Definition global_cartesian_disp_psfunctor
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f : b₁ --> b₂)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ -->[ f ] bb₂)
+       (Hff : cartesian_1cell D₁ ff),
+     cartesian_1cell D₂ (disp_psfunctor_mor _ _ _ FF ff).
+
+Definition local_cartesian_disp_psfunctor
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f g : b₁ --> b₂)
+       (α : f ==> g)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ -->[ f ] bb₂)
+       (gg : bb₁ -->[ g ] bb₂)
+       (αα : ff ==>[ α ] gg)
+       (Hαα : is_cartesian_2cell D₁ αα),
+     is_cartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+
+Definition local_opcartesian_disp_psfunctor
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f g : b₁ --> b₂)
+       (α : f ==> g)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ -->[ f ] bb₂)
+       (gg : bb₁ -->[ g ] bb₂)
+       (αα : ff ==>[ α ] gg)
+       (Hαα : is_opcartesian_2cell D₁ αα),
+     is_opcartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+
 Definition cartesian_disp_psfunctor
            {B₁ B₂ : bicat}
            {F : psfunctor B₁ B₂}
@@ -1674,24 +1725,92 @@ Definition cartesian_disp_psfunctor
            {D₂ : disp_bicat B₂}
            (FF : disp_psfunctor D₁ D₂ F)
   : UU
-  := (∏ (b₁ b₂ : B₁)
-        (f : b₁ --> b₂)
-        (bb₁ : D₁ b₁)
-        (bb₂ : D₁ b₂)
-        (ff : bb₁ -->[ f ] bb₂)
-        (Hff : cartesian_1cell D₁ ff),
-      cartesian_1cell D₂ (disp_psfunctor_mor _ _ _ FF ff))
-     ×
-     (∏ (b₁ b₂ : B₁)
-        (f g : b₁ --> b₂)
-        (α : f ==> g)
-        (bb₁ : D₁ b₁)
-        (bb₂ : D₁ b₂)
-        (ff : bb₁ -->[ f ] bb₂)
-        (gg : bb₁ -->[ g ] bb₂)
-        (αα : ff ==>[ α ] gg)
-        (Hαα : is_cartesian_2cell D₁ αα),
-      is_cartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα)).
+  := global_cartesian_disp_psfunctor FF × local_cartesian_disp_psfunctor FF.
+
+(** Lmmas on cartesian pseudofunctors *)
+Definition global_cartesian_id_psfunctor
+           {B : bicat}
+           (D : disp_bicat B)
+  : global_cartesian_disp_psfunctor (disp_pseudo_id D).
+Proof.
+  intros ? ? ? ? ? ? H.
+  exact H.
+Defined.
+
+Definition global_cartesian_comp_psfunctor
+           {B₁ B₂ B₃ : bicat}
+           {F : psfunctor B₁ B₂}
+           {G : psfunctor B₂ B₃}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           {D₃ : disp_bicat B₃}
+           {FF : disp_psfunctor D₁ D₂ F}
+           {GG : disp_psfunctor D₂ D₃ G}
+           (HFF : global_cartesian_disp_psfunctor FF)
+           (HGG : global_cartesian_disp_psfunctor GG)
+  : global_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+Proof.
+  intros ? ? ? ? ? ? H.
+  apply HGG.
+  apply HFF.
+  exact H.
+Defined.
+
+Definition local_cartesian_id_psfunctor
+           {B : bicat}
+           (D : disp_bicat B)
+  : local_cartesian_disp_psfunctor (disp_pseudo_id D).
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? H.
+  exact H.
+Defined.
+
+Definition local_cartesian_comp_psfunctor
+           {B₁ B₂ B₃ : bicat}
+           {F : psfunctor B₁ B₂}
+           {G : psfunctor B₂ B₃}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           {D₃ : disp_bicat B₃}
+           {FF : disp_psfunctor D₁ D₂ F}
+           {GG : disp_psfunctor D₂ D₃ G}
+           (HFF : local_cartesian_disp_psfunctor FF)
+           (HGG : local_cartesian_disp_psfunctor GG)
+  : local_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? H.
+  apply HGG.
+  apply HFF.
+  exact H.
+Defined.
+
+Definition local_opcartesian_id_psfunctor
+           {B : bicat}
+           (D : disp_bicat B)
+  : local_opcartesian_disp_psfunctor (disp_pseudo_id D).
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? H.
+  exact H.
+Defined.
+
+Definition local_opcartesian_comp_psfunctor
+           {B₁ B₂ B₃ : bicat}
+           {F : psfunctor B₁ B₂}
+           {G : psfunctor B₂ B₃}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           {D₃ : disp_bicat B₃}
+           {FF : disp_psfunctor D₁ D₂ F}
+           {GG : disp_psfunctor D₂ D₃ G}
+           (HFF : local_opcartesian_disp_psfunctor FF)
+           (HGG : local_opcartesian_disp_psfunctor GG)
+  : local_opcartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? H.
+  apply HGG.
+  apply HFF.
+  exact H.
+Defined.
 
 Definition cartesian_id_psfunctor
            {B : bicat}
@@ -1699,10 +1818,8 @@ Definition cartesian_id_psfunctor
   : cartesian_disp_psfunctor (disp_pseudo_id D).
 Proof.
   split.
-  - intros ? ? ? ? ? ? H.
-    exact H.
-  - intros ? ? ? ? ? ? ? ? ? ? H.
-    exact H.
+  - apply global_cartesian_id_psfunctor.
+  - apply local_cartesian_id_psfunctor.
 Defined.
 
 Definition cartesian_comp_psfunctor
@@ -1719,12 +1836,10 @@ Definition cartesian_comp_psfunctor
   : cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
 Proof.
   split.
-  - intros ? ? ? ? ? ? H.
-    apply HGG.
-    apply HFF.
-    exact H.
-  - intros ? ? ? ? ? ? ? ? ? ? H.
-    apply HGG.
-    apply HFF.
-    exact H.
+  - apply global_cartesian_comp_psfunctor.
+    + exact (pr1 HFF).
+    + exact (pr1 HGG).
+  - apply local_cartesian_comp_psfunctor.
+    + exact (pr2 HFF).
+    + exact (pr2 HGG).
 Defined.
