@@ -700,88 +700,6 @@ End IdentityInternalSFib.
 (**
 5. Projection Street fibration
  *)
-Definition prod_1cell_eta_map
-           {B : bicat_with_binprod}
-           {a b₁ b₂ : B}
-           (g : a --> b₁ ⊗ b₂)
-  : ⟨ g · π₁ , g · π₂ ⟩ ==> g.
-Proof.
-  use binprod_ump_2cell.
-  - apply (pr2 B).
-  - exact (prod_1cell_pr1 _ _ _).
-  - exact (prod_1cell_pr2 _ _ _).
-Defined.
-
-Definition prod_1cell_eta_inv
-           {B : bicat_with_binprod}
-           {a b₁ b₂ : B}
-           (g : a --> b₁ ⊗ b₂)
-  : g ==> ⟨ g · π₁ , g · π₂ ⟩.
-Proof.
-  use binprod_ump_2cell.
-  - apply (pr2 B).
-  - exact ((prod_1cell_pr1 _ _ _)^-1).
-  - exact ((prod_1cell_pr2 _ _ _)^-1).
-Defined.
-
-Definition prod_1cell_eta_map_inv
-           {B : bicat_with_binprod}
-           {a b₁ b₂ : B}
-           (g : a --> b₁ ⊗ b₂)
-  : prod_1cell_eta_map g • prod_1cell_eta_inv g = id₂ _.
-Proof.
-  use binprod_ump_2cell_unique_alt.
-  - apply (pr2 B).
-  - rewrite <- rwhisker_vcomp.
-    unfold prod_1cell_eta_map, prod_1cell_eta_inv.
-    rewrite !binprod_ump_2cell_pr1.
-    rewrite vcomp_rinv.
-    rewrite id2_rwhisker.
-    apply idpath.
-  - rewrite <- rwhisker_vcomp.
-    unfold prod_1cell_eta_map, prod_1cell_eta_inv.
-    rewrite !binprod_ump_2cell_pr2.
-    rewrite vcomp_rinv.
-    rewrite id2_rwhisker.
-    apply idpath.
-Qed.
-
-Definition prod_1cell_eta_inv_map
-           {B : bicat_with_binprod}
-           {a b₁ b₂ : B}
-           (g : a --> b₁ ⊗ b₂)
-  : prod_1cell_eta_inv g • prod_1cell_eta_map g = id₂ _.
-Proof.
-  use binprod_ump_2cell_unique_alt.
-  - apply (pr2 B).
-  - rewrite <- rwhisker_vcomp.
-    unfold prod_1cell_eta_map, prod_1cell_eta_inv.
-    rewrite !binprod_ump_2cell_pr1.
-    rewrite vcomp_linv.
-    rewrite id2_rwhisker.
-    apply idpath.
-  - rewrite <- rwhisker_vcomp.
-    unfold prod_1cell_eta_map, prod_1cell_eta_inv.
-    rewrite !binprod_ump_2cell_pr2.
-    rewrite vcomp_linv.
-    rewrite id2_rwhisker.
-    apply idpath.
-Qed.
-
-Definition prod_1cell_eta
-           {B : bicat_with_binprod}
-           {a b₁ b₂ : B}
-           (g : a --> b₁ ⊗ b₂)
-  : invertible_2cell ⟨ g · π₁ , g · π₂ ⟩ g.
-Proof.
-  use make_invertible_2cell.
-  - exact (prod_1cell_eta_map g).
-  - use make_is_invertible_2cell.
-    + exact (prod_1cell_eta_inv g).
-    + exact (prod_1cell_eta_map_inv g).
-    + exact (prod_1cell_eta_inv_map g).
-Defined.
-
 Section ProjectionSFib.
   Context {B : bicat_with_binprod}
           (b₁ b₂ : B).
@@ -952,7 +870,7 @@ Section ProjectionSFib.
   Proof.
     intros a f g α.
     simple refine (⟨ f , g · π₂ ⟩
-                     ,, ⟪ α , id2 _ ⟫ • prod_1cell_eta g
+                     ,, ⟪ α , id2 _ ⟫ • prod_1cell_eta _ g
                      ,, prod_1cell_pr1 _ f _
                      ,, _
                      ,, _) ; simpl.

@@ -12,6 +12,8 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.Core.InternalStreetFibration.
+Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -32,6 +34,103 @@ Here we assume that every 2-cell is invertible
 Section CodomainCleaving.
   Context (B : bicat).
 
+  Section CartesianOfSFibToCartesian.
+    Context {c₁ c₂ : B}
+            {s₁ s₂ : c₁ --> c₂}
+            {α : s₁ ==> s₂}
+            {t₁ : cod_disp_bicat B c₁}
+            {t₂ : cod_disp_bicat B c₂}
+            {ss₁ : t₁ -->[ s₁ ] t₂}
+            {ss₂ : t₁ -->[ s₂ ] t₂}
+            (αα : ss₁ ==>[ α ] ss₂)
+            (Hαα : is_cartesian_2cell_sfib (pr2 t₂) (pr1 αα)).
+
+    Section FixSome.
+      Context {h : c₁ --> c₂}
+              {hh : t₁ -->[ h] t₂}
+              {γ : h ==> s₁}
+              (γα : hh ==>[ γ • α] ss₂).
+
+      Definition is_cartesian_2cell_sfib_to_is_cartesian_2cell_unique
+        : isaprop (∑ γγ : hh ==>[ γ] ss₁, γγ •• αα = γα).
+      Proof.
+        cbn in *.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath ; [ intro ; apply cod_disp_bicat | ].
+        use subtypePath ; [ intro ; apply cellset_property | ].
+        use (is_cartesian_2cell_sfib_factor_unique _ Hαα).
+        - exact (pr1 γα).
+        - exact ((pr2 hh)^-1 • (_ ◃ γ) • pr2 ss₁).
+        - abstract
+            (rewrite !vassocl ;
+             use vcomp_move_L_pM ; [ is_iso | ] ;
+             refine (pr2 γα @ _) ;
+             rewrite <- lwhisker_vcomp ;
+             rewrite !vassocl ;
+             apply maponpaths ;
+             exact (!(pr2 αα))).
+        - abstract
+            (rewrite !vassocl ;
+             use vcomp_move_L_pM ; [ is_iso | ] ;
+             exact (pr21 φ₁)).
+        - abstract
+            (rewrite !vassocl ;
+             use vcomp_move_L_pM ; [ is_iso | ] ;
+             exact (pr21 φ₂)).
+        - exact (maponpaths pr1 (pr2 φ₁)).
+        - exact (maponpaths pr1 (pr2 φ₂)).
+      Qed.
+
+      Definition is_cartesian_2cell_sfib_to_is_cartesian_2cell_cell
+        : hh ==>[ γ ] ss₁.
+      Proof.
+        cbn in *.
+        use make_disp_2cell_cod.
+        - use (is_cartesian_2cell_sfib_factor _ Hαα (pr1 γα)).
+          + exact ((pr2 hh)^-1 • (_ ◃ γ) • pr2 ss₁).
+          + abstract
+              (rewrite !vassocl ;
+               use vcomp_move_L_pM ; [ is_iso | ] ;
+               refine (pr2 γα @ _) ;
+               rewrite <- lwhisker_vcomp ;
+               rewrite !vassocl ;
+               apply maponpaths ;
+               exact (!(pr2 αα))).
+        - abstract
+            (unfold coherent_homot ;
+             rewrite is_cartesian_2cell_sfib_factor_over ;
+             rewrite !vassocr ;
+             rewrite vcomp_rinv ;
+             rewrite id2_left ;
+             apply idpath).
+      Defined.
+
+      Definition is_cartesian_2cell_sfib_to_is_cartesian_2cell_comm
+        : is_cartesian_2cell_sfib_to_is_cartesian_2cell_cell •• αα = γα.
+      Proof.
+        cbn.
+        use subtypePath.
+        {
+          intro.
+          apply cellset_property.
+        }
+        apply is_cartesian_2cell_sfib_factor_comm.
+      Qed.
+    End FixSome.
+
+    Definition is_cartesian_2cell_sfib_to_is_cartesian_2cell
+      : is_cartesian_2cell (cod_disp_bicat B) αα.
+    Proof.
+      intros h hh γ γα.
+      use iscontraprop1.
+      - exact (is_cartesian_2cell_sfib_to_is_cartesian_2cell_unique γα).
+      - simple refine (_ ,, _).
+        + exact (is_cartesian_2cell_sfib_to_is_cartesian_2cell_cell γα).
+        + exact (is_cartesian_2cell_sfib_to_is_cartesian_2cell_comm γα).
+    Defined.
+  End CartesianOfSFibToCartesian.
+
   Definition cod_invertible_is_cartesian_2cell
              {c₁ c₂ : B}
              {s₁ s₂ : c₁ --> c₂}
@@ -44,51 +143,120 @@ Section CodomainCleaving.
              (Hαα : is_invertible_2cell (pr1 αα))
     : is_cartesian_2cell (cod_disp_bicat B) αα.
   Proof.
-    intros h hh γ γα.
-    cbn in *.
-    use iscontraprop1.
-    - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ; [ intro ; apply (cod_disp_bicat B) | ] ;
-         use subtypePath ; [ intro ; apply cellset_property | ] ;
-         pose (maponpaths pr1 (pr2 φ₁)) as p₁ ;
-         cbn in p₁ ;
-         pose (maponpaths pr1 (pr2 φ₂)) as p₂ ;
-         cbn in p₂ ;
-         pose (r := p₁ @ !p₂) ;
-         use (vcomp_rcancel _ Hαα) ;
-         exact r).
-    - simple refine ((_ ,, _) ,, _).
-      + exact (pr1 γα • Hαα^-1).
-      + abstract
-          (cbn ;
-           rewrite <- !rwhisker_vcomp ;
-           rewrite !vassocr ;
-           rewrite (pr2 γα) ;
-           rewrite <- lwhisker_vcomp ;
-           rewrite !vassocl ;
-           apply maponpaths ;
-           rewrite !vassocr ;
-           rewrite <- (pr2 αα) ;
-           rewrite !vassocl ;
-           rewrite rwhisker_vcomp ;
-           rewrite vcomp_rinv ;
-           rewrite id2_rwhisker ;
-           apply id2_right).
-      + abstract
-          (use subtypePath ; [ intro ; apply cellset_property | ] ;
-           cbn ;
-           rewrite !vassocl ;
-           rewrite vcomp_linv ;
-           apply id2_right).
+    apply is_cartesian_2cell_sfib_to_is_cartesian_2cell.
+    apply invertible_is_cartesian_2cell_sfib.
+    exact Hαα.
   Defined.
+
+  Section OpCartesianOfSOpFibToOpCartesian.
+    Context {c₁ c₂ : B}
+            {s₁ s₂ : c₁ --> c₂}
+            {α : s₁ ==> s₂}
+            {t₁ : cod_disp_bicat B c₁}
+            {t₂ : cod_disp_bicat B c₂}
+            {ss₁ : t₁ -->[ s₁ ] t₂}
+            {ss₂ : t₁ -->[ s₂ ] t₂}
+            (αα : ss₁ ==>[ α ] ss₂)
+            (Hαα : is_opcartesian_2cell_sopfib (pr2 t₂) (pr1 αα)).
+
+    Section FixSome.
+      Context {h : c₁ --> c₂}
+              {hh : t₁ -->[ h ] t₂}
+              {γ : s₂ ==> h}
+              (γα : ss₁ ==>[ α • γ ] hh).
+
+      Definition is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_unique
+        : isaprop (∑ γγ : ss₂ ==>[ γ ] hh, αα •• γγ = γα).
+      Proof.
+        cbn in *.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath ; [ intro ; apply cod_disp_bicat | ].
+        use subtypePath ; [ intro ; apply cellset_property | ].
+        use (is_opcartesian_2cell_sopfib_factor_unique _ Hαα).
+        - exact (pr1 γα).
+        - exact ((pr2 ss₂)^-1 • (_ ◃ γ) • pr2 hh).
+        - abstract
+              (use (vcomp_lcancel (pr12 ss₁)) ; [ apply (pr2 ss₁) | ] ;
+               rewrite !vassocr ;
+               rewrite !(pr2 γα) ;
+               apply maponpaths_2 ;
+               rewrite <- lwhisker_vcomp ;
+               apply maponpaths_2 ;
+               rewrite (pr2 αα) ;
+               rewrite !vassocl ;
+               rewrite vcomp_rinv ;
+               rewrite id2_right ;
+               apply idpath).
+        - abstract
+            (rewrite !vassocl ;
+             use vcomp_move_L_pM ; [ is_iso | ] ;
+             exact (pr21 φ₁)).
+        - abstract
+            (rewrite !vassocl ;
+             use vcomp_move_L_pM ; [ is_iso | ] ;
+             exact (pr21 φ₂)).
+        - exact (maponpaths pr1 (pr2 φ₁)).
+        - exact (maponpaths pr1 (pr2 φ₂)).
+      Qed.
+
+      Definition is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_cell
+        : ss₂ ==>[ γ ] hh.
+      Proof.
+        cbn in *.
+        use make_disp_2cell_cod.
+        - use (is_opcartesian_2cell_sopfib_factor _ Hαα (pr1 γα)).
+          + exact ((pr2 ss₂)^-1 • (_ ◃ γ) • pr2 hh).
+          + abstract
+              (use (vcomp_lcancel (pr12 ss₁)) ; [ apply (pr2 ss₁) | ] ;
+               rewrite !vassocr ;
+               rewrite !(pr2 γα) ;
+               apply maponpaths_2 ;
+               rewrite <- lwhisker_vcomp ;
+               apply maponpaths_2 ;
+               rewrite (pr2 αα) ;
+               rewrite !vassocl ;
+               rewrite vcomp_rinv ;
+               rewrite id2_right ;
+               apply idpath).
+        - abstract
+            (unfold coherent_homot ;
+             rewrite is_opcartesian_2cell_sopfib_factor_over ;
+             rewrite !vassocr ;
+             rewrite vcomp_rinv ;
+             rewrite id2_left ;
+             apply idpath).
+      Defined.
+
+      Definition is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_comm
+        : αα •• is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_cell = γα.
+      Proof.
+        cbn.
+        use subtypePath.
+        {
+          intro.
+          apply cellset_property.
+        }
+        apply is_opcartesian_2cell_sopfib_factor_comm.
+      Qed.
+    End FixSome.
+
+    Definition is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell
+      : is_opcartesian_2cell (cod_disp_bicat B) αα.
+    Proof.
+      intros h hh γ γα.
+      use iscontraprop1.
+      - exact (is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_unique γα).
+      - simple refine (_ ,, _).
+        + exact (is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_cell γα).
+        + exact (is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell_comm γα).
+    Defined.
+  End OpCartesianOfSOpFibToOpCartesian.
 
   Definition cod_invertible_is_opcartesian_2cell
              {c₁ c₂ : B}
              {s₁ s₂ : c₁ --> c₂}
              {α : s₁ ==> s₂}
-             (Hα : is_invertible_2cell α)
              {t₁ : cod_disp_bicat B c₁}
              {t₂ : cod_disp_bicat B c₂}
              {ss₁ : t₁ -->[ s₁ ] t₂}
@@ -97,41 +265,9 @@ Section CodomainCleaving.
              (Hαα : is_invertible_2cell (pr1 αα))
     : is_opcartesian_2cell (cod_disp_bicat B) αα.
   Proof.
-    intros h hh γ γα.
-    cbn in *.
-    use iscontraprop1.
-    - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ; [ intro ; apply (cod_disp_bicat B) | ] ;
-         use subtypePath ; [ intro ; apply cellset_property | ] ;
-         pose (maponpaths pr1 (pr2 φ₁)) as p₁ ;
-         cbn in p₁ ;
-         pose (maponpaths pr1 (pr2 φ₂)) as p₂ ;
-         cbn in p₂ ;
-         pose (r := p₁ @ !p₂) ;
-         use (vcomp_lcancel _ Hαα) ;
-         exact r).
-    - simple refine ((_ ,, _) ,, _).
-      + exact (Hαα^-1 • pr1 γα).
-      + abstract
-          (cbn ;
-           use (vcomp_lcancel (pr2 t₁ ◃ α)) ; [ is_iso ; apply Hα | ] ;
-           rewrite !vassocr ;
-           rewrite lwhisker_vcomp ;
-           rewrite <- (pr2 γα) ;
-           rewrite <- rwhisker_vcomp ;
-           rewrite !vassocr ;
-           apply maponpaths_2 ;
-           use vcomp_move_R_Mp ; [ is_iso | ] ;
-           cbn ;
-           exact (!(pr2 αα))).
-      + abstract
-          (use subtypePath ; [ intro ; apply cellset_property | ] ;
-           cbn ;
-           rewrite !vassocr ;
-           rewrite vcomp_rinv ;
-           apply id2_left).
+    apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
+    apply invertible_is_opcartesian_2cell_sopfib.
+    exact Hαα.
   Defined.
 
   (** Characterization of cartesian 1-cells *)
@@ -252,202 +388,150 @@ Section CodomainCleaving.
               (Lh : lift_1cell_factor (cod_disp_bicat B) (π,, p) gg)
               (Lh' : lift_1cell_factor (cod_disp_bicat B) (π,, p) gg').
 
-      (*
-      Definition lift_2cell_cone
-        : UU
-        := ∑ (α : pr11 Lh ==> pr11 Lh'),
-           (pr121 Lh • (α ▹ pr2 hx) = (pr2 cc ◃ δ) • pr121 Lh')
-           ×
-           ((α ▹ π) • pr112 Lh' = pr112 Lh • pr1 σσ).
+      Let ℓ : pr1 cc --> pr1 hx := pr11 Lh.
+      Let ℓhx : invertible_2cell (pr2 cc · h) (ℓ · pr2 hx) := pr21 Lh.
+      Let ℓπ
+        : invertible_2cell (ℓ · π) (pr1 gg)
+        := pr1 (cod_disp_invertible_invertible_2_cell _ (pr2 Lh)).
+      Let ℓ' : pr1 cc --> pr1 hx := pr11 Lh'.
+      Let ℓhx' : invertible_2cell (pr2 cc · h') (ℓ' · pr2 hx) := pr21 Lh'.
+      Let ℓπ'
+        : invertible_2cell (ℓ' · π) (pr1 gg')
+        := pr1 (cod_disp_invertible_invertible_2_cell _ (pr2 Lh')).
 
-      Definition cone_cell_to_lift_2cell
-                 (α : pr11 Lh ==> pr11 Lh')
-                 (α_pr1 : pr121 Lh • (α ▹ pr2 hx) = (pr2 cc ◃ δ) • pr121 Lh')
-                 (α_pr2 : (α ▹ π) • pr112 Lh' = pr112 Lh • pr1 σσ)
-        : lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
+      Definition is_pb_to_cartesian_lift_2cell_cell_eq
+        : (ℓ ◃ p)
+          • lassociator ℓ π (pr2 hy)
+          • ((pr112 Lh • pr1 σσ • pr1 (disp_inv_cell (pr2 Lh'))) ▹ pr2 hy)
+          • rassociator ℓ' π (pr2 hy)
+          =
+          lassociator ℓ (pr2 hx) f
+          • ((ℓhx ^-1 • (pr2 cc ◃ δ) • ℓhx') ▹ f)
+          • rassociator ℓ' (pr2 hx) f
+          • (ℓ' ◃ p).
       Proof.
-        simple refine ((α ,, α_pr1) ,, _).
-        use subtypePath ; [ intro ; apply cellset_property | ].
-        simpl.
-        rewrite pr1_transportf.
-        rewrite transportf_const.
+        pose (pr212 Lh) as d.
+        pose (pr212 Lh') as d'.
+        cbn in d, d'.
+        rewrite lwhisker_id2, id2_left in d.
+        rewrite lwhisker_id2, id2_left in d'.
+        rewrite <- !rwhisker_vcomp.
+        rewrite !vassocl.
+        use vcomp_move_L_pM ; [ is_iso | ].
+        use vcomp_move_L_pM ; [ is_iso | ].
         cbn.
-        exact α_pr2.
-      Defined.
+        use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
+        rewrite !vassocr.
+        etrans.
+        {
+          do 3 apply maponpaths_2.
+          exact d.
+        }
+        clear d.
+        rewrite <- rwhisker_lwhisker.
+        use vcomp_move_R_Mp ; [ is_iso | ].
+        cbn.
+        use vcomp_move_R_Mp.
+        {
+          is_iso.
+          apply (is_invertible_2cell_inv (pr2 ℓπ')).
+        }
+        cbn.
+        rewrite !vassocl.
+        rewrite !vassocl in d'.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          exact d'.
+        }
+        refine (!_).
+        exact (pr2 σσ).
+      Qed.
 
-      Definition lift_2cell_to_cone_cell
-                 (α : lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh')
-        : lift_2cell_cone.
+      Definition is_pb_to_cartesian_lift_2cell_cell
+        : ℓ ==> ℓ'.
       Proof.
-        simple refine (_ ,, _ ,, _).
-        - exact (pr11 α).
-        - exact (pr21 α).
-        - abstract
-            (pose (maponpaths pr1 (pr2 α)) as q ;
-             cbn ;
-             simpl in q ;
-             rewrite pr1_transportf in q ;
-             rewrite transportf_const in q ;
-             exact q).
+        use (pb_ump_cell pb_sqr) ; cbn.
+        - exact (ℓhx^-1 • (_ ◃ δ) • ℓhx').
+        - exact (ℓπ • pr1 σσ • (ℓπ')^-1).
+        - exact is_pb_to_cartesian_lift_2cell_cell_eq.
       Defined.
 
-      Definition cone_cell_weq_lift_2cell
-        : lift_2cell_cone
-          ≃
-          lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
+      Definition is_pb_to_cartesian_lift_2cell_cell_homot
+        : coherent_homot δ is_pb_to_cartesian_lift_2cell_cell.
       Proof.
-        use make_weq.
-        - exact (λ z, cone_cell_to_lift_2cell (pr1 z) (pr12 z) (pr22 z)).
-        - use gradth.
-          + exact lift_2cell_to_cone_cell.
-          + abstract
-              (intro ;
-               use subtypePath ;
-               [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-               apply idpath).
-          + abstract
-              (intro ;
-               use subtypePath ;
-               [ intro ; apply (cod_disp_bicat B) | ] ;
-               use subtypePath ;
-               [ intro ; apply cellset_property | ] ;
-               apply idpath).
-      Defined.
+        unfold coherent_homot.
+        etrans.
+        {
+          apply maponpaths.
+          apply (pb_ump_cell_pr1 pb_sqr).
+        }
+        rewrite !vassocr.
+        rewrite vcomp_rinv, id2_left.
+        apply idpath.
+      Qed.
 
-      Let cone : pb_cone f (pr2 hy)
-        := make_pb_cone
-             (pr1 cc) (pr2 cc · h') (pr1 gg')
-             (comp_of_invertible_2cell
-                (rassociator_invertible_2cell (pr2 cc) h' f)
-                (pr2 gg')).
-
-      Let cell₂ : pb_1cell cone pb := lift_1cell_to_pb_1cell _ Lh'.
-
-      Local Definition cell₁ : pb_1cell cone pb.
+      Definition is_pb_to_cartesian_lift_2cell_disp_cell
+        : Lh ==>[ δ ] Lh'.
       Proof.
-        pose (lift_1cell_to_pb_1cell _ Lh) as lift.
-        use make_pb_1cell.
-        - exact lift.
-        - refine (comp_of_invertible_2cell
-                   (pb_1cell_pr1 lift)
-                   (lwhisker_of_invertible_2cell
-                      _
-                      (δ ,, _))).
-          admit.
-        - refine (comp_of_invertible_2cell
-                   (pb_1cell_pr2 lift)
-                   (pr1 σσ ,, _)).
-        - abstract
-            (cbn ;
-             pose (pb_1cell_eq lift) as q ;
-             cbn in q ;
-             rewrite q ;
-             rewrite <- !rwhisker_vcomp ;
-             rewrite !vassocl ;
-             do 2 apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite <- rwhisker_lwhisker_rassociator ;
-             do 2 apply maponpaths_2 ;
-             rewrite !vassocl ;
-             apply maponpaths ;
-             rewrite !vassocr ;
-             use vcomp_move_L_Mp ; [ is_iso | ] ; cbn ;
-             exact (pr2 σσ)).
+        use make_disp_2cell_cod.
+        - exact is_pb_to_cartesian_lift_2cell_cell.
+        - exact is_pb_to_cartesian_lift_2cell_cell_homot.
       Defined.
 
-      Definition pb_2cell_to_cone_cell
-                 (α : pb_2cell cell₁ cell₂)
-        : lift_2cell_cone.
+      Definition is_pb_to_cartesian_lift_2cell_unique
+        : isaprop (lift_2cell_factor_type (cod_disp_bicat B) (π,, p) σσ Lh Lh').
       Proof.
-        simple refine (_ ,, _ ,, _).
-        - exact α.
-        - abstract
-            (pose (pb_2cell_pr1 α) as q ;
-             cbn in q ;
-             refine (!(id2_right _) @ _) ;
-             etrans ;
-               [ apply maponpaths ;
-                 refine (!_) ;
-                 exact (vcomp_linv (pr221 Lh'))
-               | ] ;
-             rewrite !vassocr ;
-             apply maponpaths_2 ;
-             rewrite !vassocl ;
-             refine (maponpaths (λ z, _ • z) q @ _) ;
-             rewrite !vassocr ;
-             rewrite vcomp_rinv ;
-             apply id2_left).
-        - exact (pb_2cell_pr2 α).
-      Defined.
-
-      Definition cone_cell_to_pb_2cell
-                 (α : lift_2cell_cone)
-        : pb_2cell cell₁ cell₂.
-      Proof.
-        use make_pb_2cell.
-        - exact (pr1 α).
-        - abstract
-            (pose (pr12 α) as q ;
-             cbn ;
-             use vcomp_move_R_Mp ; [ is_iso | ] ;
-             rewrite !vassocl ;
-             use vcomp_move_L_pM ; [ is_iso | ] ;
-             cbn ;
-             exact q).
-        - exact (pr22 α).
-      Defined.
-
-      Definition pb_2cell_weq_cone_cell
-        : pb_2cell cell₁ cell₂ ≃ lift_2cell_cone.
-      Proof.
-        use make_weq.
-        - exact pb_2cell_to_cone_cell.
-        - use gradth.
-          + exact cone_cell_to_pb_2cell.
-          + abstract
-              (intro ;
-               use subtypePath ;
-               [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-               apply idpath).
-          + abstract
-              (intro ;
-               use subtypePath ;
-               [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-               apply idpath).
-      Defined.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply disp_cellset_property.
+        }
+        use subtypePath.
+        {
+          intro ; apply cellset_property.
+        }
+        use (pb_ump_eq pb_sqr).
+        - exact (ℓhx^-1 • (_ ◃ δ) • ℓhx').
+        - exact (ℓπ • pr1 σσ • (ℓπ')^-1).
+        - apply is_pb_to_cartesian_lift_2cell_cell_eq.
+        - rewrite !vassocl.
+          use vcomp_move_L_pM ; [ is_iso | ].
+          exact (pr21 φ₁).
+        - pose (!(transportf_cell_of_cod_over (id2_right (δ ▹ f) @ ! id2_left (δ ▹ f)) _)
+                @ maponpaths pr1 (pr2 φ₁)) as d.
+          use vcomp_move_L_Mp ; [ is_iso | ].
+          exact d.
+        - rewrite !vassocl.
+          use vcomp_move_L_pM ; [ is_iso | ].
+          exact (pr21 φ₂).
+        - pose (!(transportf_cell_of_cod_over (id2_right (δ ▹ f) @ ! id2_left (δ ▹ f)) _)
+                @ maponpaths pr1 (pr2 φ₂)) as d.
+          use vcomp_move_L_Mp ; [ is_iso | ].
+          exact d.
+      Qed.
 
       Definition is_pb_to_cartesian_lift_2cell
         : lift_2cell_factor (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
       Proof.
-        use (iscontrweqf cone_cell_weq_lift_2cell).
-        use (iscontrweqf pb_2cell_weq_cone_cell).
-        apply pb_2cell_contr.
-        apply pb_sqr.
-      Defined.
-       *)
-      Definition is_pb_to_cartesian_lift_2cell
-        : lift_2cell_factor (cod_disp_bicat B) (π,, p) σσ Lh Lh'.
-      Proof.
-        (*
         use iscontraprop1.
-        - admit.
+        - exact is_pb_to_cartesian_lift_2cell_unique.
         - simple refine (_ ,, _).
-          + use make_disp_2cell_cod.
-            * use pb_ump_2.
-              admit.
-            * unfold coherent_homot.
-              admit.
-          + cbn.
-            use subtypePath ; [ intro ; apply cellset_property | ].
-            rewrite pr1_transportf, transportf_const.
-            cbn.
-            unfold disp_cell_lift_1cell_factor.
-            cbn.
-
-          unfold lift_2cell_factor_type.
-        unfold lift_2cell_factor.
-         *)
-      Admitted.
+          + exact is_pb_to_cartesian_lift_2cell_disp_cell.
+          + abstract
+              (use subtypePath ; [ intro ; apply cellset_property | ] ;
+               etrans ; [ exact (transportf_cell_of_cod_over _ _) | ] ;
+               simpl ;
+               etrans ; [ apply maponpaths_2 ; apply (pb_ump_cell_pr2 pb_sqr) | ] ;
+               do 2 refine (vassocl _ _ _ @ _) ;
+               apply maponpaths ;
+               refine (_ @ id2_right _) ;
+               apply maponpaths ;
+               apply (pr2 ℓπ')).
+      Defined.
     End Lift2CellConeCell.
 
     Definition is_pb_to_cartesian_1cell
@@ -794,8 +878,7 @@ Section CodomainCleaving.
            apply idpath).
       + simpl.
         apply cod_invertible_is_opcartesian_2cell ; cbn.
-        * apply inv_B.
-        * is_iso.
+        is_iso.
   Defined.
 
   Definition cod_cleaving_lwhisker_cartesian

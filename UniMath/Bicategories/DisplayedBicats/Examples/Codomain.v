@@ -520,22 +520,28 @@ Proof.
          apply vcomp_linv).
 Defined.
 
-Definition disp_locally_groupoid_cod
-           (B : bicat)
-           (inv_B : locally_groupoid B)
-  : disp_locally_groupoid (cod_disp_bicat B).
+Definition transportf_cell_of_cod_over
+           {B : bicat}
+           {b₁ b₂ : B}
+           {f₁ f₂ : b₁ --> b₂}
+           {α β : f₁ ==> f₂}
+           {h₁ : cod_disp_bicat B b₁}
+           {h₂ : cod_disp_bicat B b₂}
+           {ff₁ : h₁ -->[ f₁ ] h₂}
+           {ff₂ : h₁ -->[ f₂ ] h₂}
+           (p : α = β)
+           (αα : ff₁ ==>[ α ] ff₂)
+  : pr1 (transportf
+           (λ z, ff₁ ==>[ z ] ff₂)
+           p
+           αα)
+    =
+    pr1 αα.
 Proof.
-  intro ; intros.
-  apply is_disp_invertible_2cell_cod.
-  apply inv_B.
-Defined.
-
-Definition disp_locally_groupoid_cod_one_types
-  : disp_locally_groupoid (cod_disp_bicat one_types).
-Proof.
-  use disp_locally_groupoid_cod.
-  exact @one_type_2cell_iso.
-Defined.
+  cbn.
+  rewrite pr1_transportf, transportf_const.
+  apply idpath.
+Qed.
 
 Definition transportb_cell_of_cod_over
            {B : bicat}
@@ -555,11 +561,46 @@ Definition transportb_cell_of_cod_over
     =
     pr1 ββ.
 Proof.
-  cbn.
-  unfold transportb.
-  rewrite pr1_transportf, transportf_const.
-  apply idpath.
+  apply transportf_cell_of_cod_over.
 Qed.
+
+Definition from_is_disp_invertible_2cell_cod
+           {B : bicat}
+           {X Y : B}
+           {f g : X --> Y}
+           {α : invertible_2cell f g}
+           {dX : cod_disp_bicat B X}
+           {dY : cod_disp_bicat B Y}
+           {ff : dX -->[ f ] dY}
+           {gg : dX -->[ g ] dY}
+           (αα : ff ==>[ α ] gg)
+           (Hαα : is_disp_invertible_2cell α αα)
+  : is_invertible_2cell (pr1 αα).
+Proof.
+  use make_is_invertible_2cell.
+  - exact (pr11 Hαα).
+  - abstract
+      (exact (maponpaths pr1 (pr12 Hαα) @ transportb_cell_of_cod_over _ _)).
+  - abstract
+      (exact (maponpaths pr1 (pr22 Hαα) @ transportb_cell_of_cod_over _ _)).
+Defined.
+
+Definition disp_locally_groupoid_cod
+           (B : bicat)
+           (inv_B : locally_groupoid B)
+  : disp_locally_groupoid (cod_disp_bicat B).
+Proof.
+  intro ; intros.
+  apply is_disp_invertible_2cell_cod.
+  apply inv_B.
+Defined.
+
+Definition disp_locally_groupoid_cod_one_types
+  : disp_locally_groupoid (cod_disp_bicat one_types).
+Proof.
+  use disp_locally_groupoid_cod.
+  exact @one_type_2cell_iso.
+Defined.
 
 (**
  2. The univalence
@@ -724,19 +765,22 @@ Section UnivalenceOfCodomain.
     exact (cod_1cell_path_help f₁ f₂ ∘ make_weq _ (HB_2_1 _ _ _ _))%weq.
   Defined.
 
-  Context (inv_B : locally_groupoid B).
-
   Section AdjEquivToDispAdjEquiv.
     Context {c : B}
             {f₁ f₂ : cod_disp_bicat B c}
             (e : adjoint_equivalence (pr1 f₁) (pr1 f₂))
             (α : invertible_2cell (pr2 f₁) (pr1 e · pr2 f₂)).
 
+    Let l : pr1 f₁ --> pr1 f₂ := pr1 e.
+    Let r : pr1 f₂ --> pr1 f₁ := left_adjoint_right_adjoint e.
+    Let η : invertible_2cell (id₁ _) (l · r) := left_equivalence_unit_iso e.
+    Let ε : invertible_2cell (r · l) (id₁ _) := left_equivalence_counit_iso e.
+
     Definition cod_adj_equiv_to_disp_adj_equiv_map
       : f₁ -->[ internal_adjoint_equivalence_identity c] f₂.
     Proof.
       use make_disp_1cell_cod.
-      - exact (pr1 e).
+      - exact l.
       - refine (runitor _ • α ,, _).
         is_iso.
         apply α.
@@ -746,14 +790,15 @@ Section UnivalenceOfCodomain.
       : f₂ -->[ internal_adjoint_equivalence_identity c] f₁.
     Proof.
       use make_disp_1cell_cod.
-      - exact (pr112 e).
+      - exact r.
       - simpl.
-        refine (runitor _
-                • linvunitor _
-                • ((inv_B _ _ _ _ (pr2 (pr212 e)))^-1 ▹ _)
-                • rassociator _ _ _
-                • (_ ◃ (inv_B _ _ _ _ α)^-1) ,, _).
-        is_iso.
+        use make_invertible_2cell.
+        + refine (runitor _
+                  • linvunitor _
+                  • (ε^-1 ▹ _)
+                  • rassociator _ _ _
+                  • (_ ◃ α^-1)).
+        + is_iso.
     Defined.
 
     Definition cod_adj_equiv_to_disp_adj_equiv_unit
@@ -762,7 +807,7 @@ Section UnivalenceOfCodomain.
         pr1 (cod_adj_equiv_to_disp_adj_equiv_map
         ;;
         cod_adj_equiv_to_disp_adj_equiv_right_adj)
-      := pr1 (pr212 e).
+      := η.
 
     Definition cod_adj_equiv_to_disp_adj_equiv_unit_homot
       : coherent_homot
@@ -1040,9 +1085,11 @@ Section UnivalenceOfCodomain.
           refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _).
           rewrite transportf_const.
           apply idpath.
-      - simple refine (_ ,, _) ;
-        apply disp_locally_groupoid_cod ;
-        exact inv_B.
+      - split.
+        + apply is_disp_invertible_2cell_cod ; cbn.
+          apply η.
+        + apply is_disp_invertible_2cell_cod ; cbn.
+          apply ε.
     Qed.
 
     Definition cod_adj_equiv_to_disp_adj_equiv_help
@@ -1099,7 +1146,9 @@ Section UnivalenceOfCodomain.
                 refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _) ;
                 rewrite transportf_const ;
                 apply idpath).
-        * split ; apply inv_B.
+        * split.
+          ** exact (from_is_disp_invertible_2cell_cod _ (pr12 (pr22 e))).
+          ** exact (from_is_disp_invertible_2cell_cod _ (pr22 (pr22 e))).
     - refine (rinvunitor _ • pr121 e ,, _).
       is_iso.
       exact (pr221 e).

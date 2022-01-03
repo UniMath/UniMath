@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
@@ -31,6 +32,8 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Core.InternalStreetFibration.
+Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
@@ -234,39 +237,21 @@ Section TrivialCompBicat.
   Proof.
   repeat split ; intro ; intros ;
     (use subtypePath ; [ intro ; apply cellset_property | ]).
-  - refine (_ @ !(transportb_cell_of_cod_over _ _)) ; cbn.
+  - refine (_ @ !(transportb_cell_of_cod_over _ _)).
     apply pair_2cell_id_id.
-  - refine (_ @ !(transportb_cell_of_cod_over _ _)) ; cbn.
+  - refine (_ @ !(transportb_cell_of_cod_over _ _)).
     apply pair_2cell_comp.
-  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)) ; cbn.
-    (*use binprod_ump_2cell_unique_alt.
-    + apply (pr2 B).
-    + refine (!_).
-      rewrite <- !rwhisker_vcomp.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply maponpaths.
-        apply binprod_ump_2cell_pr1.
-      }
-      rewrite !vassocl.
-      Locate "⊗₂".
-      Search pair_2cell.
-        apply maponpaths_2.
-        apply binprod_ump_2cell_pr1.
-      cbn.
-      rewrite binprod_ump_2cell_pr1.
-      cbn.*)
-    admit.
-  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)) ; cbn.
-    admit.
-  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lassociator _ _ _ _) _)) ; cbn.
-    admit.
-  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lwhisker _ _ _) _)) ; cbn.
-    admit.
-  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_rwhisker _ _ _) _)) ; cbn.
-    admit.
-  Admitted.
+  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)).
+    apply binprod_lunitor.
+  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)).
+    apply binprod_runitor.
+  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lassociator _ _ _ _) _)).
+    apply binprod_lassociator.
+  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lwhisker _ _ _) _)).
+    apply binprod_lwhisker.
+  - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_rwhisker _ _ _) _)).
+    apply binprod_rwhisker.
+  Qed.
 
   Definition trivial_comprehension
     : disp_psfunctor
@@ -303,39 +288,126 @@ Section TrivialCompBicat.
     Section AdjEquivToUMP1.
       Context (q : pb_cone f (π₁ : b₂ ⊗ c₂ --> b₂)).
 
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_map
+        : q --> b₁ ⊗ c₁
+        := ⟨ pb_cone_pr1 q , pb_cone_pr2 q · π₂ · r ⟩.
+
+      Local Notation "'φ'" := adj_equiv_to_pb_ump_1_pb_1cell_map.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_π₁
+        : invertible_2cell (φ · π₁) (pb_cone_pr1 q)
+        := prod_1cell_pr1 _ _ _.
+
+      Local Notation "'φπ₁'" := adj_equiv_to_pb_ump_1_pb_1cell_π₁.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_cell_π₁
+        : φ · (f ⊗₁ l) · π₁ ==> pb_cone_pr2 q · π₁
+        := rassociator _ _ _
+           • (_ ◃ pair_1cell_pr1 _ _ _)
+           • lassociator _ _ _
+           • (prod_1cell_pr1 _ _ _ ▹ _)
+           • pb_cone_cell _.
+
+      Local Notation "'φπ₂_cell_π₁'" := adj_equiv_to_pb_ump_1_pb_1cell_cell_π₁.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_cell_π₂
+        : φ · (f ⊗₁ l) · π₂ ==> pb_cone_pr2 q · π₂
+        := rassociator _ _ _
+           • (_ ◃ pair_1cell_pr2 _ _ _)
+           • lassociator _ _ _
+           • (prod_1cell_pr2 _ _ _ ▹ _)
+           • rassociator _ _ _
+           • (_ ◃ ε)
+           • runitor _.
+
+      Local Notation "'φπ₂_cell_π₂'" := adj_equiv_to_pb_ump_1_pb_1cell_cell_π₂.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_cell
+        : φ · (f ⊗₁ l) ==> pb_cone_pr2 q.
+      Proof.
+        use binprod_ump_2cell.
+        - exact (pr2 (binprod_of B b₂ c₂)).
+        - exact φπ₂_cell_π₁.
+        - exact φπ₂_cell_π₂.
+      Defined.
+
+      Local Notation "'φπ₂_cell'" := adj_equiv_to_pb_ump_1_pb_1cell_cell.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_invcell
+        : invertible_2cell (φ · (f ⊗₁ l)) (pb_cone_pr2 q).
+      Proof.
+        use make_invertible_2cell.
+        - exact φπ₂_cell.
+        - use binprod_ump_2cell_invertible ;
+          unfold adj_equiv_to_pb_ump_1_pb_1cell_cell_π₁ ;
+          unfold adj_equiv_to_pb_ump_1_pb_1cell_cell_π₂.
+          + is_iso.
+            * apply pair_1cell_pr1.
+            * apply prod_1cell_pr1.
+            * apply pb_cone_cell.
+          + is_iso.
+            * apply pair_1cell_pr2.
+            * apply prod_1cell_pr2.
+            * apply ε.
+      Defined.
+
+      Local Notation "'φπ₂'" := adj_equiv_to_pb_ump_1_pb_1cell_invcell.
+
+      Local Definition adj_equiv_to_pb_ump_1_pb_1cell_eq
+        : φ ◃ pb_cone_cell cone
+          =
+          lassociator φ (pb_cone_pr1 cone) f
+          • (φπ₁ ▹ f)
+          • pb_cone_cell q
+          • (φπ₂ ^-1 ▹ π₁)
+          • rassociator φ (pb_cone_pr2 cone) π₁.
+      Proof.
+        cbn.
+        rewrite !vassocl.
+        refine (!_).
+        etrans.
+        {
+          do 3 apply maponpaths.
+          apply maponpaths_2.
+          apply binprod_ump_2cell_pr1.
+        }
+        rewrite !vassocl.
+        rewrite lassociator_rassociator.
+        rewrite id2_right.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite !vassocr.
+          rewrite vcomp_rinv.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocl.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite rwhisker_vcomp.
+          rewrite vcomp_rinv.
+          rewrite id2_rwhisker.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        rewrite id2_left.
+        apply idpath.
+      Qed.
+
       Definition adj_equiv_to_pb_ump_1_pb_1cell
         : pb_1cell q cone.
       Proof.
         use make_pb_1cell.
-        - exact ⟨ pb_cone_pr1 q , pb_cone_pr2 q · π₂ · r ⟩.
-        - apply prod_1cell_pr1.
-        - use make_invertible_2cell.
-          + use binprod_ump_2cell.
-            * exact (pr2 (binprod_of B b₂ c₂)).
-            * exact (rassociator _ _ _
-                     • (_ ◃ pair_1cell_pr1 _ _ _)
-                     • lassociator _ _ _
-                     • (prod_1cell_pr1 _ _ _ ▹ _)
-                     • pb_cone_cell _).
-            * exact (rassociator _ _ _
-                     • (_ ◃ pair_1cell_pr2 _ _ _)
-                     • lassociator _ _ _
-                     • (prod_1cell_pr2 _ _ _ ▹ _)
-                     • rassociator _ _ _
-                     • (_ ◃ ε)
-                     • runitor _).
-          + use binprod_ump_2cell_invertible.
-            * is_iso.
-              ** apply pair_1cell_pr1.
-              ** apply prod_1cell_pr1.
-              ** apply pb_cone_cell.
-            * is_iso.
-              ** apply pair_1cell_pr2.
-              ** apply prod_1cell_pr2.
-              ** apply ε.
-        - cbn.
-          admit.
-      Admitted.
+        - exact φ.
+        - exact φπ₁.
+        - exact φπ₂.
+        - exact adj_equiv_to_pb_ump_1_pb_1cell_eq.
+      Defined.
     End AdjEquivToUMP1.
 
     Definition adj_equiv_to_pb_ump_1
@@ -361,20 +433,15 @@ Section TrivialCompBicat.
                    • (ψ ◃ pb_cone_cell cone)).
 
       Let φπ₂ : φ · π₂ ==> ψ · π₂
-        := rinvunitor _
-           • (_ ◃ η)
-           • rassociator _ _ _
-           • (_ ◃ (lassociator _ _ _
-                   • ((pair_1cell_pr2 B f l)^-1 ▹ _)))
-           • lassociator _ _ _
-           • (lassociator _ _ _ • (β ▹ _) ▹ _)
-           • rassociator _ _ _
-           • rassociator _ _ _
-           • (_ ◃ (lassociator _ _ _
-                   • (pair_1cell_pr2 B f l ▹ r)
-                   • rassociator _ _ _
-                   • (_ ◃ η^-1)
-                   • runitor _)).
+        := fully_faithful_1cell_inv_map
+             (adj_equiv_fully_faithful Hl)
+             (rassociator φ π₂ l
+              • (φ ◃ (pair_1cell_pr2 B f l) ^-1)
+              • lassociator φ (f ⊗₁ l) π₂
+              • (β ▹ π₂)
+              • rassociator ψ (f ⊗₁ l) π₂
+              • (ψ ◃ pair_1cell_pr2 B f l)
+              • lassociator ψ π₂ l).
 
       Definition adj_equiv_to_pb_ump_2_unique
         : isaprop (∑ (γ : φ ==> ψ),
@@ -394,12 +461,54 @@ Section TrivialCompBicat.
         - exact α.
         - exact φπ₂.
         - exact (pr12 ζ₁).
-        - unfold φπ₂.
+        - use (fully_faithful_1cell_eq (adj_equiv_fully_faithful Hl)).
+          refine (!_).
+          etrans.
+          {
+            apply fully_faithful_1cell_inv_map_eq.
+          }
+          cbn -[η].
           rewrite !vassocl.
-          admit.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite rwhisker_rwhisker.
+          rewrite !vassocr.
+          apply maponpaths_2.
+          rewrite !vassocl.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite <- vcomp_whisker.
+          rewrite !vassocr.
+          apply maponpaths_2.
+          rewrite !vassocl.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite <- rwhisker_rwhisker_alt.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (!(pr22 ζ₁)).
         - exact (pr12 ζ₂).
-        - admit.
-      Admitted.
+        - use (fully_faithful_1cell_eq (adj_equiv_fully_faithful Hl)).
+          refine (!_).
+          etrans.
+          {
+            apply fully_faithful_1cell_inv_map_eq.
+          }
+          cbn -[η].
+          rewrite !vassocl.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite rwhisker_rwhisker.
+          rewrite !vassocr.
+          apply maponpaths_2.
+          rewrite !vassocl.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite <- vcomp_whisker.
+          rewrite !vassocr.
+          apply maponpaths_2.
+          rewrite !vassocl.
+          use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+          rewrite <- rwhisker_rwhisker_alt.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (!(pr22 ζ₂)).
+      Qed.
 
       Definition adj_equiv_to_pb_ump_2_cell
         : φ ==> ψ.
@@ -462,7 +571,8 @@ Section TrivialCompBicat.
             apply maponpaths.
             apply binprod_ump_2cell_pr2.
           }
-          admit.
+          do 3 (use vcomp_move_R_Mp ; [ is_iso | ]).
+          apply fully_faithful_1cell_inv_map_eq.
         - rewrite !vassocl.
           use vcomp_move_L_pM ; [ is_iso | ].
           cbn.
@@ -473,7 +583,7 @@ Section TrivialCompBicat.
           cbn.
           exact p.
         - apply idpath.
-      Admitted.
+      Qed.
     End AdjEquivToUMP2.
 
     Definition adj_equiv_to_pb_ump_2
@@ -481,7 +591,7 @@ Section TrivialCompBicat.
     Proof.
       intros q φ ψ α β p.
       use iscontraprop1.
-      - exact (adj_equiv_to_pb_ump_2_unique α β p).
+      - exact (adj_equiv_to_pb_ump_2_unique α β).
       - exact (adj_equiv_to_pb_ump_2_cell α β
                ,,
                adj_equiv_to_pb_ump_2_cell_pr1 α β
@@ -511,13 +621,31 @@ Section TrivialCompBicat.
     : local_cartesian_disp_psfunctor trivial_comprehension.
   Proof.
     intros b₁ b₂ f₁ f₂ α c₁ c₂ g₁ g₂ β Hβ ; cbn in *.
-  Admitted.
+    apply is_cartesian_2cell_sfib_to_is_cartesian_2cell ; cbn.
+    apply invertible_to_cartesian.
+    refine (transportb
+              is_invertible_2cell
+              (pair_2cell_pr2 _ _ _)
+              _).
+    is_iso.
+    - apply prod_1cell_pr2.
+    - exact (trivial_cartesian_2cell_is_invertible _ _ _ _ Hβ).
+  Defined.
 
   Definition local_opcartesian_trivial_comprehension
     : local_opcartesian_disp_psfunctor trivial_comprehension.
   Proof.
     intros b₁ b₂ f₁ f₂ α c₁ c₂ g₁ g₂ β Hβ ; cbn in *.
-  Admitted.
+    apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell ; cbn.
+    apply invertible_to_opcartesian.
+    refine (transportb
+              is_invertible_2cell
+              (pair_2cell_pr2 _ _ _)
+              _).
+    is_iso.
+    - apply prod_1cell_pr2.
+    - exact (trivial_opcartesian_2cell_is_invertible _ _ _ _ Hβ).
+  Defined.
 
   Definition trivial_comprehension_bicat
     : comprehension_bicat B.
@@ -593,107 +721,6 @@ End PullbackComprehension.
 (**
  4. The comprehension bicategory of fibrations
  *)
-
-(**********************************************************
- **********************************************************
- MOVE
- **********************************************************
- **********************************************************)
-Definition total_functor_commute
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : disp_cat C₁}
-           {D₂ : disp_cat C₂}
-           (FF : disp_functor F D₁ D₂)
-  : pr1_category D₁ ∙ F ⟹ total_functor FF ∙ pr1_category D₂.
-Proof.
-  use make_nat_trans.
-  - exact (λ _, identity _).
-  - abstract
-      (intros ? ? ? ;
-       cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition total_functor_commute_iso
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : disp_cat C₁}
-           {D₂ : disp_cat C₂}
-           (FF : disp_functor F D₁ D₂)
-  : nat_iso
-      (pr1_category D₁ ∙ F)
-      (total_functor FF ∙ pr1_category D₂).
-Proof.
-  use make_nat_iso.
-  * exact (total_functor_commute FF).
-  * intro.
-    apply identity_is_iso.
-Defined.
-
-Definition total_nat_trans
-           {C₁ C₂ : category}
-           {F G : C₁ ⟶ C₂}
-           {τ : F ⟹ G}
-           {D₁ : disp_cat C₁}
-           {D₂ : disp_cat C₂}
-           {FF : disp_functor F D₁ D₂}
-           {GG : disp_functor G D₁ D₂}
-           (ττ : disp_nat_trans τ FF GG)
-  : nat_trans (total_functor FF) (total_functor GG).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, τ (pr1 x) ,, ττ (pr1 x) (pr2 x)).
-  - abstract
-      (intros x y f ; cbn ;
-       use total2_paths_b ;
-       [ exact (nat_trans_ax τ _ _ (pr1 f))
-       | exact (disp_nat_trans_ax ττ (pr2 f))]).
-Defined.
-
-Definition total_functor_identity
-           {C : category}
-           (D : disp_cat C)
-  : functor_identity (total_category D)
-    ⟹
-    total_functor (disp_functor_identity D).
-Proof.
-  use make_nat_trans.
-  - exact (λ _, identity _).
-  - abstract
-      (intros ? ? ? ; simpl ;
-       refine (@id_right (total_category _) _ _ _ @ _) ;
-       exact (!(@id_left (total_category _) _ _ _))).
-Defined.
-
-Definition total_functor_comp
-           {C₁ C₂ C₃ : category}
-           {F : C₁ ⟶ C₂}
-           {G : C₂ ⟶ C₃}
-           {D₁ : disp_cat C₁}
-           {D₂ : disp_cat C₂}
-           {D₃ : disp_cat C₃}
-           (FF : disp_functor F D₁ D₂)
-           (GG : disp_functor G D₂ D₃)
-  : total_functor FF ∙ total_functor GG
-    ⟹
-    total_functor (disp_functor_composite FF GG).
-Proof.
-  use make_nat_trans.
-  - exact (λ _, identity _).
-  - abstract
-      (intros x y f ;
-       refine (@id_right (total_category _) _ _ _ @ _) ;
-       exact (!(@id_left (total_category _) _ _ _))).
-Defined.
-
-(**********************************************************
- **********************************************************
- END MOVE
- **********************************************************
- **********************************************************)
-
 Definition fibration_comprehension_data
   : disp_psfunctor_data
       disp_bicat_of_fibs
@@ -845,10 +872,177 @@ Definition global_cartesian_fibration_comprehension
 Proof.
 Admitted.
 
+Section LocalCartesianFibration.
+  Context {C₁ C₂ : bicat_of_univ_cats}
+          {F₁ F₂ : C₁ --> C₂}
+          (α : F₁ ==> F₂)
+          {D₁ : disp_bicat_of_fibs C₁}
+          {D₂ : disp_bicat_of_fibs C₂}
+          {FF₁ : D₁ -->[ F₁ ] D₂}
+          {FF₂ : D₁ -->[ F₂ ] D₂}
+          (αα : disp_2cells α FF₁ FF₂)
+          (Hαα : ∏ (x : C₁ : univalent_category)
+                   (xx : (pr1 D₁ : disp_univalent_category _) x),
+                 is_cartesian ((pr11 αα) x xx))
+          (G : bicat_of_univ_cats
+                 ⟦ total_univalent_category (pr1 D₁)
+                   ,
+                   total_univalent_category (pr1 D₂) ⟧)
+          (γ : G ==> total_functor (pr1 FF₂))
+          (δp : (G ∙ pr1_category (pr11 D₂) : bicat_of_univ_cats ⟦ _ , _ ⟧)
+                ==>
+                total_functor (pr1 FF₁) ∙ pr1_category (pr11 D₂))
+          (q : post_whisker γ (pr1_category (pr11 D₂))
+               =
+               nat_trans_comp
+                 _ _ _
+                 δp
+                 (post_whisker (total_nat_trans (pr1 αα)) (pr1_category _))).
+
+  Definition local_cartesian_fibration_lift_data
+    : nat_trans_data
+        (pr1 G)
+        (total_functor (pr1 FF₁)).
+  Proof.
+    refine (λ x, pr1 δp x ,, _) ; cbn.
+    refine (cartesian_factorisation (Hαα (pr1 x) (pr2 x)) _ _).
+    exact (transportf
+             (λ z, _ -->[ z ] _)
+             (nat_trans_eq_pointwise q x)
+             (pr2 (pr1 γ x))).
+  Defined.
+
+  Definition local_cartesian_fibration_lift_is_nat_trans
+    : is_nat_trans _ _ local_cartesian_fibration_lift_data.
+  Proof.
+    intros x y f ; cbn.
+    use total2_paths_f.
+    - exact (nat_trans_ax δp x y f).
+    - use (cartesian_factorisation_unique (Hαα (pr1 y) (pr2 y))).
+      cbn.
+      rewrite assoc_disp_var.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths.
+        apply disp_nat_trans_ax.
+      }
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite assoc_disp.
+      rewrite cartesian_factorisation_commutes.
+      unfold transportb.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        exact (fiber_paths (nat_trans_ax γ _ _ f)).
+      }
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition local_cartesian_fibration_lift
+    : G ==> total_functor (pr1 FF₁).
+  Proof.
+    use make_nat_trans.
+    - exact local_cartesian_fibration_lift_data.
+    - exact local_cartesian_fibration_lift_is_nat_trans.
+  Defined.
+
+  Definition local_cartesian_fibration_lift_over
+    : local_cartesian_fibration_lift ▹ _ = δp.
+  Proof.
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro x.
+    apply idpath.
+  Qed.
+
+  Definition local_cartesian_fibration_lift_comm
+    : local_cartesian_fibration_lift • total_nat_trans (pr1 αα)
+      =
+      γ.
+  Proof.
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro x.
+    cbn.
+    use total2_paths_f.
+    - exact (!(nat_trans_eq_pointwise q x)).
+    - cbn.
+      rewrite cartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      apply transportf_set.
+      apply homset_property.
+  Qed.
+
+  Definition local_cartesian_fibration_lift_unique
+    : isaprop
+        (∑ δ,
+         δ ▹ _ = δp
+         ×
+         δ • total_nat_trans (pr1 αα) = γ).
+  Proof.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply isapropdirprod ; apply cellset_property.
+    }
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use total2_paths_f.
+    - exact (nat_trans_eq_pointwise (pr12 φ₁) x
+             @ !(nat_trans_eq_pointwise (pr12 φ₂) x)).
+    - use (cartesian_factorisation_unique (Hαα (pr1 x) (pr2 x))).
+      rewrite mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₁) x))).
+      }
+      refine (!_).
+      etrans.
+      {
+        exact (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₂) x))).
+      }
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+End LocalCartesianFibration.
+
 Definition local_cartesian_fibration_comprehension
   : local_cartesian_disp_psfunctor fibration_comprehension.
 Proof.
-Admitted.
+  intros C₁ C₂ F₁ F₂ α D₁ D₂ FF₁ FF₂ αα Hαα.
+  apply is_cartesian_2cell_sfib_to_is_cartesian_2cell ; cbn.
+  pose (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα) as p.
+  intros G γ δp q.
+  use iscontraprop1.
+  - exact (local_cartesian_fibration_lift_unique α αα p G γ δp).
+  - simple refine (_ ,, _ ,, _).
+    + exact (local_cartesian_fibration_lift α αα p G γ δp q).
+    + exact (local_cartesian_fibration_lift_over α αα p G γ δp q).
+    + exact (local_cartesian_fibration_lift_comm α αα p G γ δp q).
+Defined.
 
 Definition fibration_comprehension_bicat
   : comprehension_bicat bicat_of_univ_cats.
@@ -1024,10 +1218,183 @@ Definition global_cartesian_opfibration_comprehension
 Proof.
 Admitted.
 
+Section LocalOpCartesianOpFibration.
+  Context {C₁ C₂ : bicat_of_univ_cats}
+          {F₁ F₂ : C₁ --> C₂}
+          (α : F₁ ==> F₂)
+          {D₁ : disp_bicat_of_opfibs C₁}
+          {D₂ : disp_bicat_of_opfibs C₂}
+          {FF₁ : D₁ -->[ F₁ ] D₂}
+          {FF₂ : D₁ -->[ F₂ ] D₂}
+          (αα : disp_2cells α FF₁ FF₂)
+          (Hαα : ∏ (x : C₁ : univalent_category)
+                   (xx : (pr1 D₁ : disp_univalent_category _) x),
+                 is_opcartesian ((pr11 αα) x xx))
+          (G : bicat_of_univ_cats
+                 ⟦ total_univalent_category (pr1 D₁)
+                   ,
+                   total_univalent_category (pr1 D₂) ⟧)
+          (tot_FF₁ := (total_functor (pr1 FF₁)
+                       : bicat_of_univ_cats
+                           ⟦ total_univalent_category (pr1 D₁)
+                             ,
+                             total_univalent_category (pr1 D₂) ⟧))
+          (tot_FF₂ := (total_functor (pr1 FF₂)
+                       : bicat_of_univ_cats
+                           ⟦ total_univalent_category (pr1 D₁)
+                             ,
+                             total_univalent_category (pr1 D₂) ⟧))
+          (tot_αα := total_nat_trans (pr1 αα) : tot_FF₁ ==> tot_FF₂)
+          (γ : tot_FF₁ ==> G)
+          (δp : tot_FF₂ · pr1_category _ ==> G · pr1_category _)
+          (q : post_whisker γ (pr1_category (pr11 D₂))
+               =
+               nat_trans_comp
+                 _ _ _
+                 (post_whisker (total_nat_trans (pr1 αα)) (pr1_category _))
+                 δp).
+
+  Definition local_opcartesian_opfibration_lift_data
+    : nat_trans_data (pr1 tot_FF₂) (pr1 G).
+  Proof.
+    refine (λ x, pr1 δp x ,, _) ; cbn.
+    refine (opcartesian_factorisation (Hαα (pr1 x) (pr2 x)) _ _).
+    exact (transportf
+             (λ z, _ -->[ z ] _)
+             (nat_trans_eq_pointwise q x)
+             (pr2 (pr1 γ x))).
+  Defined.
+
+  Definition local_opcartesian_opfibration_lift_is_nat_trans
+    : is_nat_trans _ _ local_opcartesian_opfibration_lift_data.
+  Proof.
+    intros x y f ; cbn.
+    use total2_paths_f.
+    - exact (nat_trans_ax δp x y f).
+    - use (opcartesian_factorisation_unique (Hαα (pr1 x) (pr2 x))).
+      cbn.
+      rewrite assoc_disp.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite opcartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        refine (!_).
+        exact (transportf_transpose_left (disp_nat_trans_ax (pr1 αα) (pr2 f))).
+      }
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite assoc_disp_var.
+      rewrite opcartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right (fiber_paths (nat_trans_ax γ _ _ f))).
+      }
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition local_opcartesian_opfibration_lift
+    : tot_FF₂ ==> G.
+  Proof.
+    use make_nat_trans.
+    - exact local_opcartesian_opfibration_lift_data.
+    - exact local_opcartesian_opfibration_lift_is_nat_trans.
+  Defined.
+
+  Definition local_opcartesian_opfibration_lift_over
+    : local_opcartesian_opfibration_lift ▹ _ = δp.
+  Proof.
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro x.
+    apply idpath.
+  Qed.
+
+  Definition local_opcartesian_opfibration_lift_comm
+    : tot_αα • local_opcartesian_opfibration_lift
+      =
+      γ.
+  Proof.
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro x.
+    cbn.
+    use total2_paths_f.
+    - exact (!(nat_trans_eq_pointwise q x)).
+    - cbn.
+      rewrite opcartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      apply transportf_set.
+      apply homset_property.
+  Qed.
+
+  Definition local_opcartesian_opfibration_lift_unique
+    : isaprop
+        (∑ δ,
+         δ ▹ _ = δp
+         ×
+         tot_αα • δ = γ).
+  Proof.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply isapropdirprod ; apply cellset_property.
+    }
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use total2_paths_f.
+    - exact (nat_trans_eq_pointwise (pr12 φ₁) x
+             @ !(nat_trans_eq_pointwise (pr12 φ₂) x)).
+    - use (opcartesian_factorisation_unique (Hαα (pr1 x) (pr2 x))).
+      rewrite mor_disp_transportf_prewhisker.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₁) x))).
+      }
+      refine (!_).
+      etrans.
+      {
+        exact (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₂) x))).
+      }
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+End LocalOpCartesianOpFibration.
+
 Definition local_opcartesian_opfibration_comprehension
   : local_opcartesian_disp_psfunctor opfibration_comprehension.
 Proof.
-Admitted.
+  intros C₁ C₂ F₁ F₂ α D₁ D₂ FF₁ FF₂ αα Hαα.
+  apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell ; cbn.
+  pose (opcleaving_of_opfibs_opcartesian_2cell_is_pointwise_opcartesian _ Hαα) as p.
+  intros G γ δp q.
+  use iscontraprop1.
+  - exact (local_opcartesian_opfibration_lift_unique α αα p G γ δp).
+  - simple refine (_ ,, _ ,, _).
+    + exact (local_opcartesian_opfibration_lift α αα p G γ δp q).
+    + exact (local_opcartesian_opfibration_lift_over α αα p G γ δp q).
+    + exact (local_opcartesian_opfibration_lift_comm α αα p G γ δp q).
+Defined.
 
 Definition opfibration_comprehension_bicat
   : comprehension_bicat bicat_of_univ_cats.

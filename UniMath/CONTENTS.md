@@ -472,6 +472,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v](Bicategories/DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v)
    - [DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v](Bicategories/DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v)
    - [Core/InternalStreetFibration.v](Bicategories/Core/InternalStreetFibration.v)
+   - [Core/InternalStreetOpFibration.v](Bicategories/Core/InternalStreetOpFibration.v)
    - [DisplayedBicats/Examples/CodomainFibs.v](Bicategories/DisplayedBicats/Examples/CodomainFibs.v)
    - [ComprehensionBicat.v](Bicategories/ComprehensionBicat.v)
    - [All.v](Bicategories/All.v)
