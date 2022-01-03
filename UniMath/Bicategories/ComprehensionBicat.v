@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -870,7 +871,16 @@ Defined.
 Definition global_cartesian_fibration_comprehension
   : global_cartesian_disp_psfunctor fibration_comprehension.
 Proof.
-Admitted.
+  use (preserves_global_lifts_to_cartesian).
+  {
+    exact cleaving_of_fibs.
+  }
+  intros C₁ C₂ F D₁.
+  use is_pb_to_cartesian_1cell.
+  apply reindexing_has_pb_ump.
+  apply is_isofibration_from_is_fibration.
+  exact (pr2 D₁).
+Defined.
 
 Section LocalCartesianFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
@@ -1216,7 +1226,16 @@ Defined.
 Definition global_cartesian_opfibration_comprehension
   : global_cartesian_disp_psfunctor opfibration_comprehension.
 Proof.
-Admitted.
+  use (preserves_global_lifts_to_cartesian).
+  {
+    exact opfibs_global_cleaving.
+  }
+  intros C₁ C₂ F D₁.
+  use is_pb_to_cartesian_1cell.
+  apply reindexing_has_pb_ump.
+  apply iso_cleaving_from_opcleaving.
+  exact (pr2 D₁).
+Defined.
 
 Section LocalOpCartesianOpFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}

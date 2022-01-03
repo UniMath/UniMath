@@ -11,6 +11,7 @@
  4. Local opcleavings
  5. Properties of opcartesian 2-cells
  6. Cartesian pseudofunctors
+ 7. Cartesian pseudofunctors from global cleavings
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -36,7 +37,6 @@ Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-Require Import UniMath.Bicategories.Colimits.Pullback.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
@@ -825,6 +825,109 @@ Proof.
     use (transportf_set (λ α, pr1 φ₂ c cc h gg ;; ff ==>[ α] gg)).
     apply cellset_property.
 Qed.
+
+(** Constructing cartesian 1-cells with lifts up to iso *)
+
+
+
+(** Examples of cartesian 1-cells *)
+Section ExamplesOfCartesian1Cells.
+  Context {B : bicat}
+          {D : disp_bicat B}.
+
+  Definition cartesian_1cell_id
+             {x : B}
+             (xx : D x)
+    : cartesian_1cell D (id_disp xx).
+  Proof.
+  Admitted.
+
+  Definition comp_cartesian_1cell
+             {x y z : B}
+             {f : x --> y} {g : y --> z}
+             {xx : D x}
+             {yy : D y}
+             {zz : D z}
+             {ff : xx -->[ f ] yy}
+             {gg : yy -->[ g ] zz}
+             (Hff : cartesian_1cell D ff)
+             (Hgg : cartesian_1cell D gg)
+    : cartesian_1cell D (ff ;; gg).
+  Proof.
+  Admitted.
+
+  Definition cartesian_1cell_disp_adj_equiv
+             {x y : B}
+             {f : x --> y}
+             {Hf : left_adjoint_equivalence f}
+             {xx : D x}
+             {yy : D y}
+             {ff : xx -->[ f ] yy}
+             (Hff : disp_left_adjoint_equivalence Hf ff)
+    : cartesian_1cell D ff.
+  Proof.
+  Admitted.
+
+  Definition invertible_2cell_from_cartesian
+             {x y : B}
+             {f g : x --> y}
+             {α : f ==> g}
+             {Hα : is_invertible_2cell α}
+             {xx : D x}
+             {yy : D y}
+             {ff : xx -->[ f ] yy}
+             (Hff : cartesian_1cell D ff)
+             {gg : xx -->[ g ] yy}
+             {αα : ff ==>[ α ] gg}
+             (Hαα : is_disp_invertible_2cell Hα αα)
+    : cartesian_1cell D gg.
+  Proof.
+  Admitted.
+
+  Definition map_between_cartesian_1cell
+             {x y : B}
+             {f : x --> y}
+             {xx₁ xx₂ : D x}
+             {yy : D y}
+             {ff₁ : xx₁ -->[ f ] yy}
+             (Hff₁ : cartesian_1cell D ff₁)
+             {ff₂ : xx₂ -->[ f ] yy}
+             (Hff₂ : cartesian_1cell D ff₂)
+    : xx₁ -->[ id₁ _ ] xx₂.
+  Proof.
+  Admitted.
+
+  Definition map_between_cartesian_1cell_commute
+             {x y : B}
+             {f : x --> y}
+             {xx₁ xx₂ : D x}
+             {yy : D y}
+             {ff₁ : xx₁ -->[ f ] yy}
+             (Hff₁ : cartesian_1cell D ff₁)
+             {ff₂ : xx₂ -->[ f ] yy}
+             (Hff₂ : cartesian_1cell D ff₂)
+    : disp_invertible_2cell
+        (lunitor_invertible_2cell _)
+        (map_between_cartesian_1cell Hff₁ Hff₂ ;; ff₂)
+        ff₁.
+  Proof.
+  Admitted.
+
+  Definition disp_adj_equiv_between_cartesian_1cell
+             {x y : B}
+             {f : x --> y}
+             {xx₁ xx₂ : D x}
+             {yy : D y}
+             {ff₁ : xx₁ -->[ f ] yy}
+             (Hff₁ : cartesian_1cell D ff₁)
+             {ff₂ : xx₂ -->[ f ] yy}
+             (Hff₂ : cartesian_1cell D ff₂)
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity _)
+        (map_between_cartesian_1cell Hff₁ Hff₂).
+  Proof.
+  Admitted.
+End ExamplesOfCartesian1Cells.
 
 (** 3. Properties of cartesian 2-cells *)
 Definition local_fib
@@ -1843,3 +1946,47 @@ Proof.
     + exact (pr2 HFF).
     + exact (pr2 HGG).
 Defined.
+
+(**
+ 7. Cartesian pseudofunctors from global cleavings
+ *)
+Definition preserves_global_lifts
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (HD₁ : global_cleaving D₁)
+           (FF : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f : b₁ --> b₂)
+       (bb₂ : D₁ b₂),
+     cartesian_1cell
+       D₂
+       (disp_psfunctor_mor _ _ _ FF (pr12 (HD₁ b₁ b₂ bb₂ f))).
+
+Definition preserves_global_lifts_to_cartesian
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (HD₁ : global_cleaving D₁)
+           {FF : disp_psfunctor D₁ D₂ F}
+           (HFF : preserves_global_lifts HD₁ FF)
+  : global_cartesian_disp_psfunctor FF.
+Proof.
+  intros b₁ b₂ f bb₁ bb₂ ff Hff.
+  refine (invertible_2cell_from_cartesian
+            _
+            (pr2 (disp_psfunctor_invertible_2cell
+                    FF
+                    (map_between_cartesian_1cell_commute Hff (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
+  use (invertible_2cell_from_cartesian
+         _
+         (pr2 (disp_psfunctor_comp _ _ _ _ _ _))).
+  use comp_cartesian_1cell.
+  - use cartesian_1cell_disp_adj_equiv.
+    + admit.
+    + admit.
+  - apply HFF.
+Admitted.

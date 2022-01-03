@@ -996,6 +996,75 @@ Definition is_opcartesian_disp_functor
         (ff : d' -->[f] d),
      is_opcartesian ff -> is_opcartesian (#FF ff).
 
+(** Opfibrations are isofibrations *)
+Section IsoCleavingFromOpcleaving.
+  Context {C : category}
+          (D : disp_cat C)
+          (HD : opcleaving D).
+
+  Section Lift.
+    Context {x y : C}
+            (f : iso x y)
+            (d : D y).
+
+    Definition iso_cleaving_from_opcleaving_ob
+      : D x
+      := opcleaving_ob HD (inv_from_iso f) d.
+
+    Let ℓ : d -->[ inv_from_iso f ] iso_cleaving_from_opcleaving_ob
+      := opcleaving_mor HD (inv_from_iso f) d.
+    Let ℓ_opcart : is_opcartesian (pr12 (HD y x d (inv_from_iso f)))
+      := pr22 (HD _ _ d (inv_from_iso f)).
+
+    Definition iso_cleaving_from_opcleaving_ob_disp_iso_map
+      : iso_cleaving_from_opcleaving_ob -->[ f ] d.
+    Proof.
+      use (opcartesian_factorisation ℓ_opcart).
+      refine (transportb
+                (λ z, _ -->[ z ] _)
+                _
+                (id_disp d)).
+      apply iso_after_iso_inv.
+    Defined.
+
+    Definition iso_cleaving_from_opcleaving_ob_disp_iso
+      : iso_disp f iso_cleaving_from_opcleaving_ob d.
+    Proof.
+      use make_iso_disp.
+      - exact iso_cleaving_from_opcleaving_ob_disp_iso_map.
+      - simple refine (_ ,, _ ,, _).
+        + exact ℓ.
+        + abstract
+            (apply opcartesian_factorisation_commutes).
+        + abstract
+            (apply (opcartesian_factorisation_unique ℓ_opcart) ;
+             unfold transportb ;
+             rewrite mor_disp_transportf_prewhisker ;
+             rewrite assoc_disp ;
+             unfold transportb ;
+             etrans ;
+               [ apply maponpaths ;
+                 apply maponpaths_2 ;
+                 apply (opcartesian_factorisation_commutes ℓ_opcart)
+               | ] ;
+             unfold transportb ;
+             rewrite mor_disp_transportf_postwhisker ;
+             rewrite id_left_disp, id_right_disp ;
+             unfold transportb ;
+             rewrite !transport_f_f ;
+             apply maponpaths_2 ;
+             apply homset_property).
+    Defined.
+  End Lift.
+
+  Definition iso_cleaving_from_opcleaving
+    : iso_cleaving D
+    := λ x y f d,
+       iso_cleaving_from_opcleaving_ob f d
+       ,,
+       iso_cleaving_from_opcleaving_ob_disp_iso f d.
+End IsoCleavingFromOpcleaving.
+
 Section isofibration_from_disp_over_univalent.
 
 Context (C : category)
