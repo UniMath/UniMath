@@ -801,7 +801,7 @@ Proof.
   - apply idpath.
   - simpl. apply (maponpaths S IH).
 Defined.
-Hint Resolve natplusr0: natarith.
+#[export] Hint Resolve natplusr0: natarith.
 
 Lemma natplusnsm (n m : nat) : n + S m = S n + m.
 Proof.
@@ -810,8 +810,8 @@ Proof.
   - auto with natarith.
   - simpl. intro. apply (maponpaths S (IHn m)).
 Defined.
-Hint Resolve natplusnsm : natarith.
-Hint Resolve pathsinv0 : natarith.
+#[export] Hint Resolve natplusnsm : natarith.
+#[export] Hint Resolve pathsinv0 : natarith.
 
 Lemma natpluscomm (n m : nat) : n + m = m + n.
 Proof.
@@ -826,7 +826,7 @@ Proof.
     set (int4 := pathscomp0 int2 int).
     apply (pathscomp0 int4 int3).
 Defined.
-Hint Resolve natpluscomm : natarith.
+#[export] Hint Resolve natpluscomm : natarith.
 
 Lemma natplusassoc (n m k : nat) : ((n + m) + k) = (n + (m + k)).
 Proof.
@@ -834,7 +834,7 @@ Proof.
   - auto with natarith.
   - intros. simpl. apply (maponpaths S (IHn m k)).
 Defined.
-Hint Resolve natplusassoc : natarith.
+#[export] Hint Resolve natplusassoc : natarith.
 
 
 (** *** Addition and comparisons  *)
@@ -1622,7 +1622,7 @@ Lemma natmult0n (n : nat) : (0 * n) = 0.
 Proof.
   apply idpath.
 Defined.
-Hint Resolve natmult0n : natarith.
+#[export] Hint Resolve natmult0n : natarith.
 
 Lemma natmultn0 (n : nat) : n * 0 = 0.
 Proof.
@@ -1630,13 +1630,13 @@ Proof.
   - apply idpath.
   - simpl. exact (natplusr0 _ @ IHn).
 Defined.
-Hint Resolve natmultn0 : natarith.
+#[export] Hint Resolve natmultn0 : natarith.
 
 Lemma multsnm (n m : nat) : S n * m = m + n * m.
 Proof.
   intros. simpl. apply natpluscomm.
 Defined.
-Hint Resolve multsnm : natarith.
+#[export] Hint Resolve multsnm : natarith.
 
 Lemma multnsm (n m : nat) : n * S m = n + n * m.
 Proof.
@@ -1652,7 +1652,7 @@ Proof.
     apply (maponpaths (λ x, x + S m)).
     apply IHn.
 Defined.
-Hint Resolve multnsm : natarith.
+#[export] Hint Resolve multnsm : natarith.
 
 Lemma natmultcomm (n m : nat) : (n * m) = (m * n).
 Proof.
@@ -1696,13 +1696,13 @@ Lemma natmultl1 (n : nat) : (1 * n) = n.
 Proof.
   simpl. auto with natarith.
 Defined.
-Hint Resolve natmultl1 : natarith.
+#[export] Hint Resolve natmultl1 : natarith.
 
 Lemma natmultr1 (n : nat) : (n * 1) = n.
 Proof.
   rewrite (natmultcomm n 1). auto with natarith.
 Defined.
-Hint Resolve natmultr1 : natarith.
+#[export] Hint Resolve natmultr1 : natarith.
 
 (** *** Cancellation properties of [mul] on [nat] *)
 

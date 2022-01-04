@@ -138,7 +138,7 @@ Notation "1000" := (10 * 100) : nat_scope.
 (** Identity Types *)
 
 Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
-Hint Resolve paths_refl : core .
+#[export] Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) : type_scope.
 Notation idpath := paths_refl .
 

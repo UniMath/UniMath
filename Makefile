@@ -29,7 +29,7 @@ PACKAGES += Paradoxes
 PACKAGES += Induction
 ############################################
 # other user options; see also build/Makefile-configuration-template
-BUILD_COQ ?= yes
+BUILD_COQ ?= no
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= no
 COQBIN ?=
