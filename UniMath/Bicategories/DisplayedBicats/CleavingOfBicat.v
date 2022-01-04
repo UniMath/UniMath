@@ -28,6 +28,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.TransportLaws.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -48,6 +49,246 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
+
+(********************** REMOVE *****************)
+Definition TODO { A : UU } : A.
+Admitted.
+(********************** END REMOVE *****************)
+
+(************************************************
+ MOVE
+ ***********************************************)
+Definition disp_isotoid_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (ee : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : xx = yy
+  := invmap
+       (make_weq _ (HD_2_0 x x (idpath _) xx yy))
+       ee.
+
+Definition disp_idtoiso_2_0_isotoid_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (ee : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : disp_idtoiso_2_0 D (idpath _) xx yy (disp_isotoid_2_0 HD_2_0 ee)
+    =
+    ee.
+Proof.
+  exact (homotweqinvweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) ee).
+Defined.
+
+Definition disp_isotoid_2_0_idtoiso_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (p : xx = yy)
+  : disp_isotoid_2_0 HD_2_0 (disp_idtoiso_2_0 _ (idpath _) xx yy p) = p.
+Proof.
+  exact (homotinvweqweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) p).
+Defined.
+
+Definition transportf_is_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α β : f ==> g}
+           (Hα : is_invertible_2cell α)
+           (Hβ : is_invertible_2cell β)
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (p : α = β)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+  : is_disp_invertible_2cell
+      Hβ
+      (transportf
+         (λ z, _ ==>[ z ] _)
+         p
+         αα).
+Proof.
+  induction p ; cbn.
+  refine (transportf
+            (λ z, is_disp_invertible_2cell z αα)
+            _
+            Hαα).
+  apply isaprop_is_invertible_2cell.
+Defined.
+
+Definition disp_J_2_0_help_on_paths
+           {B : bicat}
+           {D : disp_bicat B}
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x : B}
+           {xx : D x} {yy : D x}
+           (p : xx = yy)
+  : P x x
+      (internal_adjoint_equivalence_identity x)
+      xx yy
+      (disp_idtoiso_2_0 D (idpath x) xx yy p).
+Proof.
+  induction p.
+  apply P_id.
+Defined.
+
+Definition disp_J_2_0_help
+           {B : bicat}
+           (HB_2_0 : is_univalent_2_0 B)
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x : B}
+           {xx : D x} {yy : D x}
+           (ff : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : P x x (internal_adjoint_equivalence_identity x) xx yy ff.
+Proof.
+  pose (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff)).
+  refine (transportf
+            (P x x _ xx yy)
+            _
+            (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff))).
+  apply disp_idtoiso_2_0_isotoid_2_0.
+Defined.
+
+Definition disp_J_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HB_2_0 : is_univalent_2_0 B)
+           (HD_2_0 : disp_univalent_2_0 D)
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x y : B}
+           {f : adjoint_equivalence x y}
+           {xx : D x} {yy : D y}
+           (ff : disp_adjoint_equivalence f xx yy)
+  : P x y f xx yy ff.
+Proof.
+  revert x y f xx yy ff.
+  use (J_2_0 HB_2_0).
+  intros x xx yy ff.
+  exact (disp_J_2_0_help HD_2_0 P P_id ff).
+Defined.
+
+(************************************************
+ END MOVE
+ ***********************************************)
+
+Definition transport_1cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transportf (λ z, _ -->[ z ] _) p ff.
+
+Definition transport_1cell_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell (idtoiso_2_1 _ _ p))
+      (transport_1cell p ff)
+      ff.
+Proof.
+  induction p.
+  exact (disp_id2_invertible_2cell ff).
+Defined.
+
+Definition transport_along_inv_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transport_1cell (isotoid_2_1 HB α) ff.
+
+Definition transport_along_inv_2cell_disp_invertible_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell α)
+      (transport_along_inv_2cell HB α ff)
+      ff.
+Proof.
+  refine (transportf
+            (λ z, disp_invertible_2cell z _ _)
+            _
+            (transport_1cell_disp_invertible_2cell
+               (isotoid_2_1 HB α)
+               ff)).
+  abstract
+    (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+     cbn ;
+     rewrite idtoiso_2_1_isotoid_2_1 ;
+     apply idpath).
+Defined.
 
 (** 1. Definition of cleaving *)
 
@@ -827,20 +1068,607 @@ Proof.
 Qed.
 
 (** Constructing cartesian 1-cells with lifts up to iso *)
+Section WeakCartesians.
+  Context {B : bicat}
+          (D : disp_bicat B)
+          {a b : B}
+          {f : a --> b}
+          {aa : D a}
+          {bb : D b}
+          (ff : aa -->[ f ] bb).
 
+  Definition wk_lift_1cell_factor
+             {c : B}
+             {cc : D c}
+             {h : c --> a}
+             (gg : cc -->[ h · f ] bb)
+    : UU
+    := ∑ (h' : c --> a)
+         (β : invertible_2cell h' h)
+         (hh : cc -->[ h' ] aa),
+       disp_invertible_2cell
+         (rwhisker_of_invertible_2cell f β)
+         (hh ;; ff)
+         gg.
 
+  Definition wk_lift_1cell_factor_over
+             {c : B}
+             {cc : D c}
+             {h : c --> a}
+             {gg : cc -->[ h · f ] bb}
+             (Lh : wk_lift_1cell_factor gg)
+    : c --> a
+    := pr1 Lh.
+
+  Definition wk_lift_1cell_factor_over_iso
+             {c : B}
+             {cc : D c}
+             {h : c --> a}
+             {gg : cc -->[ h · f ] bb}
+             (Lh : wk_lift_1cell_factor gg)
+    : invertible_2cell (wk_lift_1cell_factor_over Lh) h
+    := pr12 Lh.
+
+  Coercion disp_mor_wk_lift_1cell_factor
+           {c : B}
+           {cc : D c}
+           {h : c --> a}
+           {gg : cc -->[ h · f ] bb}
+           (Lh : wk_lift_1cell_factor gg)
+    : cc -->[ wk_lift_1cell_factor_over Lh ] aa
+    := pr122 Lh.
+
+  Definition disp_cell_wk_lift_1cell_factor
+             {c : B}
+             {cc : D c}
+             {h : c --> a}
+             {gg : cc -->[ h · f ] bb}
+             (Lh : wk_lift_1cell_factor gg)
+    : disp_invertible_2cell
+        (rwhisker_of_invertible_2cell
+           f
+           (wk_lift_1cell_factor_over_iso Lh))
+        (Lh ;; ff)
+        gg
+    := pr222 Lh.
+
+  Definition wk_lift_2cell_factor_type_path
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[ h · f ] bb}
+             {gg' : cc -->[ h' · f ] bb}
+             {δ : h ==> h'}
+             (σσ : gg ==>[ δ ▹ f] gg')
+             (Lh : wk_lift_1cell_factor gg)
+             (Lh' : wk_lift_1cell_factor gg')
+    : (((pr12 Lh • δ) • (pr12 Lh')^-1) ▹ f)
+        • (wk_lift_1cell_factor_over_iso Lh' ▹ f)
+      =
+      (wk_lift_1cell_factor_over_iso Lh ▹ f) • (δ ▹ f).
+  Proof.
+    rewrite !rwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite vcomp_linv.
+    rewrite id2_right.
+    apply idpath.
+  Qed.
+
+  Definition wk_lift_2cell_factor_type
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[ h · f ] bb}
+             {gg' : cc -->[ h' · f ] bb}
+             {δ : h ==> h'}
+             (σσ : gg ==>[ δ ▹ f] gg')
+             (Lh : wk_lift_1cell_factor gg)
+             (Lh' : wk_lift_1cell_factor gg')
+    : UU
+    := ∑ (δδ : Lh ==>[ pr12 Lh • δ • (pr12 Lh')^-1 ] Lh'),
+       transportf
+         (λ z, _ ==>[ z ] _)
+         (wk_lift_2cell_factor_type_path σσ Lh Lh')
+         (δδ ▹▹ ff •• disp_cell_wk_lift_1cell_factor Lh')
+       =
+       disp_cell_wk_lift_1cell_factor Lh •• σσ.
+
+  Definition wk_lift_2cell_factor
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[h · f ] bb}
+             {gg' : cc -->[h' · f ] bb}
+             {δ : h ==> h'}
+             (σσ : gg ==>[ δ ▹ f] gg')
+             (Lh : wk_lift_1cell_factor gg)
+             (Lh' : wk_lift_1cell_factor gg')
+    : UU
+    := iscontr (wk_lift_2cell_factor_type σσ Lh Lh').
+
+  Coercion disp_cell_wk_lift_2cell_factor
+           {c : B}
+           {cc : D c}
+           {h h' : c --> a}
+           {gg : cc -->[h · f ] bb}
+           {gg' : cc -->[h' · f ] bb}
+           {δ : h ==> h'}
+           {σσ : gg ==>[ δ ▹ f] gg'}
+           {Lh : wk_lift_1cell_factor gg}
+           {Lh' : wk_lift_1cell_factor gg'}
+           (Hσσ : wk_lift_2cell_factor σσ Lh Lh')
+    : Lh ==>[ pr12 Lh • δ • (pr12 Lh')^-1 ] Lh'
+    := pr11 Hσσ.
+
+  Definition eq_wk_lift_2cell
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[h · f ] bb}
+             {gg' : cc -->[h' · f ] bb}
+             {δ : h ==> h'}
+             {σσ : gg ==>[ δ ▹ f] gg'}
+             {Lh : wk_lift_1cell_factor gg}
+             {Lh' : wk_lift_1cell_factor gg'}
+             (Hσσ : wk_lift_2cell_factor σσ Lh Lh')
+    : transportf
+        (λ z, _ ==>[ z ] _)
+        (wk_lift_2cell_factor_type_path σσ Lh Lh')
+        (Hσσ ▹▹ ff •• disp_cell_wk_lift_1cell_factor Lh')
+      =
+      disp_cell_wk_lift_1cell_factor Lh •• σσ
+    := pr21 Hσσ.
+
+  Definition isaprop_wk_lift_of_lift_2cell
+             {c : B}
+             {cc : D c}
+             {h h' : c --> a}
+             {gg : cc -->[h · f ] bb}
+             {gg' : cc -->[h' · f ] bb}
+             {δ : h ==> h'}
+             {σσ : gg ==>[ δ ▹ f] gg'}
+             {Lh : wk_lift_1cell_factor gg}
+             {Lh' : wk_lift_1cell_factor gg'}
+             (Hσσ : wk_lift_2cell_factor σσ Lh Lh')
+             (δδ₁ : Lh ==>[ pr12 Lh • δ • (pr12 Lh')^-1 ] Lh')
+             (δδ₂ : Lh ==>[ pr12 Lh • δ • (pr12 Lh')^-1 ] Lh')
+             (Pδδ₁ : transportf
+                       (λ z, _ ==>[ z ] _)
+                       (wk_lift_2cell_factor_type_path σσ Lh Lh')
+                       (δδ₁ ▹▹ ff •• disp_cell_wk_lift_1cell_factor Lh')
+                     =
+                     disp_cell_wk_lift_1cell_factor Lh •• σσ)
+             (Pδδ₂ : transportf
+                       (λ z, _ ==>[ z ] _)
+                       (wk_lift_2cell_factor_type_path σσ Lh Lh')
+                       (δδ₂ ▹▹ ff •• disp_cell_wk_lift_1cell_factor Lh')
+                     =
+                     disp_cell_wk_lift_1cell_factor Lh •• σσ)
+    : δδ₁ = δδ₂.
+  Proof.
+    pose (proofirrelevance _ (isapropifcontr Hσσ) (δδ₁ ,, Pδδ₁) (δδ₂ ,, Pδδ₂)) as p.
+    exact (maponpaths pr1 p).
+  Qed.
+
+  Definition wk_cartesian_1cell
+    : UU
+    := (∏ (c : B)
+          (cc : D c)
+          (h : c --> a)
+          (gg : cc -->[ h · f ] bb),
+        wk_lift_1cell_factor gg)
+       ×
+       ∏ (c : B)
+         (cc : D c)
+         (h h' : c --> a)
+         (gg : cc -->[h · f ] bb)
+         (gg' : cc -->[h' · f ] bb)
+         (δ : h ==> h')
+         (σσ : gg ==>[ δ ▹ f] gg')
+         (Lh : wk_lift_1cell_factor gg)
+         (Lh' : wk_lift_1cell_factor gg'),
+       wk_lift_2cell_factor σσ Lh Lh'.
+End WeakCartesians.
+
+(** Weak cartesian 1-cells and cartesian 1-cells *)
+Definition lift_1cell_factor_to_wk_lift_1cell_factor
+           {B : bicat}
+           {D : disp_bicat B}
+           {a b : B}
+           {f : a --> b}
+           {aa : D a}
+           {bb : D b}
+           {ff : aa -->[ f ] bb}
+           {c : B}
+           {cc : D c}
+           {h : B ⟦ c, a ⟧}
+           {gg : cc -->[ h · f] bb}
+           (ℓ : lift_1cell_factor D ff gg)
+  : wk_lift_1cell_factor D ff gg.
+Proof.
+  refine (h ,, id2_invertible_2cell _ ,, disp_mor_lift_1cell_factor D _ ℓ ,, _).
+  refine (transportf
+            (λ z, disp_invertible_2cell z _ _)
+            _
+            (disp_cell_lift_1cell_factor D _ ℓ)).
+  abstract
+    (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+     exact (!(id2_rwhisker _ _))).
+Defined.
+
+Section WkLiftToLift.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          (HB : is_univalent_2_1 B)
+          {a b : B}
+          {f : a --> b}
+          {aa : D a}
+          {bb : D b}
+          {ff : aa -->[ f ] bb}
+          {c : B}
+          {cc : D c}
+          {h : B ⟦ c, a ⟧}
+          {gg : cc -->[ h · f] bb}
+          (ℓ : wk_lift_1cell_factor D ff gg).
+
+  Local Definition wk_lift_1cell_factor_to_lift_1cell_factor_lift : cc -->[ h] aa
+    := transport_along_inv_2cell
+         HB
+         (wk_lift_1cell_factor_over_iso D _ ℓ)
+         (disp_mor_wk_lift_1cell_factor D _ ℓ).
+
+  Local Definition wk_lift_1cell_factor_to_lift_1cell_factor_cell
+    : wk_lift_1cell_factor_to_lift_1cell_factor_lift ;; ff
+      ==>[ id₂ _ ]
+      gg.
+  Proof.
+    refine (transportf
+              (λ z, _ ==>[ z ] _)
+              _
+              ((transport_along_inv_2cell_disp_invertible_2cell HB _ _ ▹▹ ff)
+                 •• disp_cell_wk_lift_1cell_factor D _ ℓ)).
+    abstract
+      (cbn ;
+       rewrite rwhisker_vcomp ;
+       rewrite vcomp_linv ;
+       rewrite id2_rwhisker ;
+       apply idpath).
+  Defined.
+
+  Definition wk_lift_1cell_factor_to_lift_1cell_factor_invertible
+    : is_disp_invertible_2cell
+        (is_invertible_2cell_id₂ (h · f))
+        wk_lift_1cell_factor_to_lift_1cell_factor_cell.
+  Proof.
+    unfold wk_lift_1cell_factor_to_lift_1cell_factor_cell.
+    use transportf_is_disp_invertible_2cell.
+    - cbn.
+      is_iso.
+      apply property_from_invertible_2cell.
+    - apply (vcomp_disp_is_invertible
+               (disp_invertible_2cell_rwhisker
+                  ff
+                  (transport_along_inv_2cell_disp_invertible_2cell
+                     HB
+                     (wk_lift_1cell_factor_over_iso D ff ℓ) ℓ))
+               (disp_cell_wk_lift_1cell_factor D ff ℓ)).
+  Defined.
+
+  Definition wk_lift_1cell_factor_to_lift_1cell_factor
+    : lift_1cell_factor D ff gg.
+  Proof.
+    refine (wk_lift_1cell_factor_to_lift_1cell_factor_lift ,, _).
+    simple refine (_ ,, _) ; cbn.
+    - exact wk_lift_1cell_factor_to_lift_1cell_factor_cell.
+    - exact wk_lift_1cell_factor_to_lift_1cell_factor_invertible.
+  Defined.
+End WkLiftToLift.
+
+Section CartesianToWkCartesianTwoLift.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          (HB : is_univalent_2_1 B)
+          {a b : B}
+          {f : a --> b}
+          {aa : D a}
+          {bb : D b}
+          {ff : aa -->[ f ] bb}
+          (Hff : cartesian_1cell D ff)
+          {c : B}
+          {cc : D c}
+          {h h' : c --> a}
+          {gg : cc -->[ h · f ] bb}
+          {gg' : cc -->[ h' · f ] bb}
+          {δ : h ==> h'}
+          (σσ : gg ==>[ δ ▹ f ] gg')
+          (Lh : wk_lift_1cell_factor D ff gg)
+          (Lh' : wk_lift_1cell_factor D ff gg').
+
+  Let ℓ : lift_1cell_factor D ff gg
+    := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh.
+  Let ℓ' : lift_1cell_factor D ff gg'
+    := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh'.
+
+  Definition cartesian_1cell_to_wk_cartesian_1cell_unique
+    : isaprop (wk_lift_2cell_factor_type D ff σσ Lh Lh').
+  Proof.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply disp_cellset_property.
+    }
+  Admitted.
+
+  Definition cartesian_1cell_to_wk_cartesian_1cell_lift_2cell
+    : Lh ==>[ (pr12 Lh • δ) • (pr12 Lh')^-1 ] Lh'.
+  Proof.
+    pose (cartesian_1cell_lift_2cell _ _ Hff σσ ℓ ℓ').
+    refine (transportf
+              (λ z, _ ==>[ z ] _)
+              _
+              _).
+  Admitted.
+End CartesianToWkCartesianTwoLift.
+
+Definition cartesian_1cell_to_wk_cartesian_1cell
+           {B : bicat}
+           {D : disp_bicat B}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           {f : a --> b}
+           {aa : D a}
+           {bb : D b}
+           {ff : aa -->[ f ] bb}
+           (Hff : cartesian_1cell D ff)
+  : wk_cartesian_1cell D ff.
+Proof.
+  split.
+  - intros c cc h gg.
+    exact (lift_1cell_factor_to_wk_lift_1cell_factor
+             (cartesian_1cell_lift_1cell D _ Hff gg)).
+  - intros c cc h h' gg gg' δ σσ Lh Lh'.
+    pose (ℓ := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh).
+    pose (ℓ' := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh').
+    pose (pr2 Hff c cc h h' gg gg' δ σσ ℓ ℓ').
+    use iscontraprop1.
+    + admit.
+    + simple refine (_ ,, _).
+      ** exact (cartesian_1cell_to_wk_cartesian_1cell_lift_2cell HB Hff σσ Lh Lh').
+      ** cbn.
+         admit.
+Admitted.
+
+Definition wk_cartesian_1cell_to_cartesian_1cell
+           {B : bicat}
+           {D : disp_bicat B}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           {f : a --> b}
+           {aa : D a}
+           {bb : D b}
+           {ff : aa -->[ f ] bb}
+           (Hff : wk_cartesian_1cell D ff)
+  : cartesian_1cell D ff.
+Proof.
+  split.
+  - intros c cc h gg.
+    exact (wk_lift_1cell_factor_to_lift_1cell_factor HB (pr1 Hff _ _ _ gg)).
+  - intros c cc h h' gg gg' δ σσ Lh Lh'.
+    pose (ℓ := lift_1cell_factor_to_wk_lift_1cell_factor Lh).
+    pose (ℓ' := lift_1cell_factor_to_wk_lift_1cell_factor Lh').
+    pose (pr2 Hff c cc h h' gg gg' δ σσ ℓ ℓ') as w.
+    use iscontraprop1.
+    + admit.
+    + simple refine (_ ,, _).
+      ** refine (transportf
+                   (λ z, _ ==>[ z ] _)
+                   _
+                   (pr11 w)).
+         abstract
+           (cbn ;
+            rewrite id2_left, id2_right ;
+            apply idpath).
+      ** cbn.
+         rewrite disp_rwhisker_transport_left_new.
+         rewrite disp_mor_transportf_postwhisker.
+         rewrite transport_f_f.
+         pose (pr21 w) as p.
+         cbn in p.
+         unfold invertible_2cell in p.
+         admit.
+Admitted.
 
 (** Examples of cartesian 1-cells *)
 Section ExamplesOfCartesian1Cells.
   Context {B : bicat}
-          {D : disp_bicat B}.
+          {D : disp_bicat B}
+          (HB : is_univalent_2 B).
 
-  Definition cartesian_1cell_id
-             {x : B}
-             (xx : D x)
-    : cartesian_1cell D (id_disp xx).
-  Proof.
-  Admitted.
+  Section IdCartesian.
+    Context {x : B}
+            (xx : D x).
+
+    Section IdCartesianOneLift.
+      Context {c : B}
+              {cc : D c}
+              {h : c --> x}
+              (gg : cc -->[ h · id₁ _ ] xx).
+
+      Definition cartesian_1cell_id_wk_1cell_lift
+        : wk_lift_1cell_factor D (id_disp xx) gg.
+      Proof.
+        refine (h · id₁ _
+                ,,
+                runitor_invertible_2cell _
+                ,,
+                gg
+                ,,
+                _).
+        simple refine (_ ,, _).
+        - refine (transportf
+                    (λ z, _ ==>[ z ] _)
+                    _
+                    (disp_runitor gg)).
+          abstract
+            (cbn ;
+             rewrite <- runitor_triangle ;
+             use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
+             rewrite runitor_rwhisker ;
+             apply maponpaths ;
+             apply runitor_lunitor_identity).
+        - cbn.
+          use transportf_is_disp_invertible_2cell.
+          + is_iso.
+          + apply is_disp_invertible_2cell_runitor.
+      Defined.
+    End IdCartesianOneLift.
+
+    Section IdCartesianTwoLift.
+      Context {c : B}
+              {cc : D c}
+              (h h' : B ⟦ c, x ⟧)
+              {gg : cc -->[ h · id₁ _ ] xx}
+              {gg' : cc -->[ h' · id₁ _ ] xx}
+              {δ : h ==> h'}
+              (σσ : gg ==>[ δ ▹ id₁ _ ] gg')
+              (Lh : wk_lift_1cell_factor D (id_disp xx) gg)
+              (Lh' : wk_lift_1cell_factor D (id_disp xx) gg').
+
+      Local Definition cartesian_1cell_id_wk_2cell_lift_cell
+        : Lh ==>[ (pr12 Lh • δ) • (pr12 Lh')^-1 ] Lh'.
+      Proof.
+        refine (transportf
+                  (λ z, _ ==>[ z ] _)
+                  _
+                  (disp_rinvunitor _
+                   •• disp_cell_wk_lift_1cell_factor D _ Lh
+                   •• σσ
+                   •• disp_inv_cell (disp_cell_wk_lift_1cell_factor D _ Lh')
+                   •• disp_runitor _)).
+        abstract
+          (cbn ;
+           rewrite !vassocl ;
+           rewrite vcomp_runitor ;
+           rewrite !vassocr ;
+           apply maponpaths_2 ;
+           rewrite !vassocl ;
+           rewrite vcomp_runitor ;
+           rewrite !vassocr ;
+           apply maponpaths_2 ;
+           rewrite !vassocl ;
+           rewrite vcomp_runitor ;
+           rewrite !vassocr ;
+           rewrite rinvunitor_runitor ;
+           apply id2_left).
+      Defined.
+
+      Local Definition cartesian_1cell_id_wk_2cell_lift_comm
+        : transportf
+            (λ z, Lh ;; id_disp xx ==>[ z] gg')
+            (wk_lift_2cell_factor_type_path D (id_disp xx) σσ Lh Lh')
+            ((cartesian_1cell_id_wk_2cell_lift_cell ▹▹ id_disp xx)
+             •• disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')
+          =
+          disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh •• σσ.
+      Proof.
+        unfold cartesian_1cell_id_wk_2cell_lift_cell.
+        rewrite disp_rwhisker_transport_left_new.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite transport_f_f ; cbn.
+      Admitted.
+
+      Local Definition cartesian_1cell_id_wk_2cell_lift_unique
+        : isaprop (wk_lift_2cell_factor_type D (id_disp xx) σσ Lh Lh').
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply disp_cellset_property.
+        }
+        pose (p₁ := maponpaths
+                      (transportb
+                         (λ z, _ ==>[ z ] _)
+                         (wk_lift_2cell_factor_type_path D (id_disp xx) σσ Lh Lh'))
+                      (pr2 φ₁ @ !(pr2 φ₂))).
+        rewrite !transportbfinv in p₁.
+        pose (maponpaths
+                (λ z, z •• disp_inv_cell (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh'))
+                p₁) as p₂.
+        cbn in p₂.
+        rewrite !disp_vassocl in p₂.
+        pose (p₃ := maponpaths
+                      (transportf
+                         (λ z, _ ==>[ z ] _)
+                         (vassocl _ _ _))
+                      p₂).
+        rewrite !transportfbinv in p₃.
+        pose (p₄ := maponpaths
+                      (λ z, _ •• z)
+                      (!disp_vcomp_rinv
+                        (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh'))
+                    @ p₃
+                    @ maponpaths
+                        (λ z, _ •• z)
+                        (disp_vcomp_rinv
+                           (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh'))).
+        cbn in p₄.
+        unfold transportb in p₄.
+        rewrite !disp_mor_transportf_prewhisker in p₄.
+        pose (p₅ := !(transportbfinv _ _ _)
+                    @ maponpaths _ p₄
+                    @ transportbfinv _ _ _).
+        rewrite !disp_id2_right in p₅.
+        pose (p₆ := maponpaths
+                      (transportf (λ z, _ ==>[ z ] _) (id2_right _))
+                      p₅).
+        rewrite !transportfbinv in p₆.
+        pose (p₇ := maponpaths
+                      (λ z, disp_rinvunitor _ •• (z •• disp_runitor _))
+                      p₆).
+        cbn in p₇.
+        rewrite !disp_vcomp_runitor in p₇.
+        unfold transportb in p₇.
+        rewrite !disp_mor_transportf_prewhisker in p₇.
+        rewrite !disp_vassocr in p₇.
+        unfold transportb in p₇.
+        rewrite !transport_f_f in p₇.
+        rewrite !disp_rinvunitor_runitor in p₇.
+        unfold transportb in p₇.
+        rewrite !disp_mor_transportf_postwhisker in p₇.
+        rewrite transport_f_f in p₇.
+        rewrite !disp_id2_left in p₇.
+        unfold transportb in p₇.
+        rewrite !transport_f_f in p₇.
+        pose (p := !(transportbfinv _ _ _)
+                    @ maponpaths _ p₇
+                    @ transportbfinv _ _ _).
+        exact p.
+      Qed.
+
+      Definition cartesian_1cell_id_wk_2cell_lift
+        : wk_lift_2cell_factor D (id_disp xx) σσ Lh Lh'.
+      Proof.
+        use iscontraprop1.
+        - exact cartesian_1cell_id_wk_2cell_lift_unique.
+        - exact (cartesian_1cell_id_wk_2cell_lift_cell
+                 ,,
+                 cartesian_1cell_id_wk_2cell_lift_comm).
+      Defined.
+    End IdCartesianTwoLift.
+
+    Definition cartesian_1cell_id
+      : cartesian_1cell D (id_disp xx).
+    Proof.
+      apply (wk_cartesian_1cell_to_cartesian_1cell (pr2 HB)).
+      split.
+      - exact @cartesian_1cell_id_wk_1cell_lift.
+      - exact @cartesian_1cell_id_wk_2cell_lift.
+    Defined.
+  End IdCartesian.
 
   Definition comp_cartesian_1cell
              {x y z : B}
@@ -857,6 +1685,7 @@ Section ExamplesOfCartesian1Cells.
   Admitted.
 
   Definition cartesian_1cell_disp_adj_equiv
+             (HD : disp_univalent_2_0 D)
              {x y : B}
              {f : x --> y}
              {Hf : left_adjoint_equivalence f}
@@ -866,9 +1695,33 @@ Section ExamplesOfCartesian1Cells.
              (Hff : disp_left_adjoint_equivalence Hf ff)
     : cartesian_1cell D ff.
   Proof.
-  Admitted.
+    use (disp_J_2_0
+           (pr1 HB) HD
+           (λ x y f xx yy ff, cartesian_1cell D (pr1 ff))
+           _
+           ((ff ,, Hff) : disp_adjoint_equivalence (f ,, Hf) xx yy)) ; cbn.
+    intros.
+    apply cartesian_1cell_id.
+  Defined.
+
+  Definition invertible_2cell_from_cartesian_help
+             {x y : B}
+             {f g : x --> y}
+             {p : f = g}
+             {xx : D x}
+             {yy : D y}
+             {ff : xx -->[ f ] yy}
+             (Hff : cartesian_1cell D ff)
+             {gg : xx -->[ g ] yy}
+             (pp : transportf (λ z, _ -->[ z ] _) p ff = gg)
+    : cartesian_1cell D gg.
+  Proof.
+    induction p, pp.
+    exact Hff.
+  Defined.
 
   Definition invertible_2cell_from_cartesian
+             (HD : disp_univalent_2_1 D)
              {x y : B}
              {f g : x --> y}
              {α : f ==> g}
@@ -882,7 +1735,27 @@ Section ExamplesOfCartesian1Cells.
              (Hαα : is_disp_invertible_2cell Hα αα)
     : cartesian_1cell D gg.
   Proof.
-  Admitted.
+    use (invertible_2cell_from_cartesian_help Hff).
+    - exact (isotoid_2_1 (pr2 HB) (make_invertible_2cell Hα)).
+    - refine (disp_isotoid_2_1
+                _
+                HD
+                (isotoid_2_1 (pr2 HB) (make_invertible_2cell Hα))
+                ff gg
+                _).
+      simple refine (transportb
+                       (λ z, disp_invertible_2cell z ff gg)
+                       (idtoiso_2_1_isotoid_2_1 _ _)
+                       (_ ,, _)).
+      + exact αα.
+      + exact Hαα.
+  Defined.
+End ExamplesOfCartesian1Cells.
+
+Section AdjEquivBetweenCartesian.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          (HB_2_1 : is_univalent_2_1 B).
 
   Definition map_between_cartesian_1cell
              {x y : B}
@@ -895,6 +1768,10 @@ Section ExamplesOfCartesian1Cells.
              (Hff₂ : cartesian_1cell D ff₂)
     : xx₁ -->[ id₁ _ ] xx₂.
   Proof.
+    Check pr1 Hff₂ x xx₁ (id₁ _) (transport_along_inv_2cell
+                                    HB_2_1
+                                    _
+                                    ff₁).
   Admitted.
 
   Definition map_between_cartesian_1cell_commute
@@ -927,7 +1804,7 @@ Section ExamplesOfCartesian1Cells.
         (map_between_cartesian_1cell Hff₁ Hff₂).
   Proof.
   Admitted.
-End ExamplesOfCartesian1Cells.
+End AdjEquivBetweenCartesian.
 
 (** 3. Properties of cartesian 2-cells *)
 Definition local_fib
@@ -1966,27 +2843,33 @@ Definition preserves_global_lifts
        (disp_psfunctor_mor _ _ _ FF (pr12 (HD₁ b₁ b₂ bb₂ f))).
 
 Definition preserves_global_lifts_to_cartesian
-           {B₁ B₂ : bicat}
-           {F : psfunctor B₁ B₂}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
+           {B : bicat}
+           {D₁ : disp_bicat B}
+           {D₂ : disp_bicat B}
+           (HB : is_univalent_2 B)
+           (HD₂ : disp_univalent_2 D₂)
            (HD₁ : global_cleaving D₁)
-           {FF : disp_psfunctor D₁ D₂ F}
+           {FF : disp_psfunctor D₁ D₂ (id_psfunctor _)}
            (HFF : preserves_global_lifts HD₁ FF)
   : global_cartesian_disp_psfunctor FF.
 Proof.
   intros b₁ b₂ f bb₁ bb₂ ff Hff.
   refine (invertible_2cell_from_cartesian
+            HB (pr2 HD₂)
             _
             (pr2 (disp_psfunctor_invertible_2cell
                     FF
-                    (map_between_cartesian_1cell_commute Hff (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
+                    (map_between_cartesian_1cell_commute
+                       (pr2 HB) Hff
+                       (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
   use (invertible_2cell_from_cartesian
+         HB (pr2 HD₂)
          _
          (pr2 (disp_psfunctor_comp _ _ _ _ _ _))).
-  use comp_cartesian_1cell.
-  - use cartesian_1cell_disp_adj_equiv.
-    + admit.
-    + admit.
+  use (comp_cartesian_1cell HB).
+  - use (cartesian_1cell_disp_adj_equiv HB (pr1 HD₂)).
+    + apply internal_adjoint_equivalence_identity.
+    + cbn.
+      admit.
   - apply HFF.
 Admitted.

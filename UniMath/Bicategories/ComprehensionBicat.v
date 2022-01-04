@@ -38,6 +38,7 @@ Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
@@ -872,14 +873,14 @@ Definition global_cartesian_fibration_comprehension
   : global_cartesian_disp_psfunctor fibration_comprehension.
 Proof.
   use (preserves_global_lifts_to_cartesian).
-  {
-    exact cleaving_of_fibs.
-  }
-  intros C₁ C₂ F D₁.
-  use is_pb_to_cartesian_1cell.
-  apply reindexing_has_pb_ump.
-  apply is_isofibration_from_is_fibration.
-  exact (pr2 D₁).
+  - exact univalent_cat_is_univalent_2.
+  - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
+  - exact cleaving_of_fibs.
+  - intros C₁ C₂ F D₁.
+    use is_pb_to_cartesian_1cell.
+    apply reindexing_has_pb_ump.
+    apply is_isofibration_from_is_fibration.
+    exact (pr2 D₁).
 Defined.
 
 Section LocalCartesianFibration.
@@ -1227,14 +1228,14 @@ Definition global_cartesian_opfibration_comprehension
   : global_cartesian_disp_psfunctor opfibration_comprehension.
 Proof.
   use (preserves_global_lifts_to_cartesian).
-  {
-    exact opfibs_global_cleaving.
-  }
-  intros C₁ C₂ F D₁.
-  use is_pb_to_cartesian_1cell.
-  apply reindexing_has_pb_ump.
-  apply iso_cleaving_from_opcleaving.
-  exact (pr2 D₁).
+  - exact univalent_cat_is_univalent_2.
+  - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
+  - exact opfibs_global_cleaving.
+  - intros C₁ C₂ F D₁.
+    use is_pb_to_cartesian_1cell.
+    apply reindexing_has_pb_ump.
+    apply iso_cleaving_from_opcleaving.
+    exact (pr2 D₁).
 Defined.
 
 Section LocalOpCartesianOpFibration.
