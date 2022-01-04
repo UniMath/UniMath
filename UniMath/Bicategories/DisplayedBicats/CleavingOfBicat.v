@@ -41,6 +41,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
 Require Import UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
@@ -50,174 +51,9 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-(********************** REMOVE *****************)
-Definition TODO { A : UU } : A.
-Admitted.
-(********************** END REMOVE *****************)
+(** MOVE *)
 
-(************************************************
- MOVE
- ***********************************************)
-Definition disp_isotoid_2_0
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD_2_0 : disp_univalent_2_0 D)
-           {x : B}
-           {xx yy : D x}
-           (ee : disp_adjoint_equivalence
-                   (internal_adjoint_equivalence_identity x)
-                   xx
-                   yy)
-  : xx = yy
-  := invmap
-       (make_weq _ (HD_2_0 x x (idpath _) xx yy))
-       ee.
-
-Definition disp_idtoiso_2_0_isotoid_2_0
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD_2_0 : disp_univalent_2_0 D)
-           {x : B}
-           {xx yy : D x}
-           (ee : disp_adjoint_equivalence
-                   (internal_adjoint_equivalence_identity x)
-                   xx
-                   yy)
-  : disp_idtoiso_2_0 D (idpath _) xx yy (disp_isotoid_2_0 HD_2_0 ee)
-    =
-    ee.
-Proof.
-  exact (homotweqinvweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) ee).
-Defined.
-
-Definition disp_isotoid_2_0_idtoiso_2_0
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD_2_0 : disp_univalent_2_0 D)
-           {x : B}
-           {xx yy : D x}
-           (p : xx = yy)
-  : disp_isotoid_2_0 HD_2_0 (disp_idtoiso_2_0 _ (idpath _) xx yy p) = p.
-Proof.
-  exact (homotinvweqweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) p).
-Defined.
-
-Definition transportf_is_disp_invertible_2cell
-           {B : bicat}
-           {D : disp_bicat B}
-           {x y : B}
-           {f g : x --> y}
-           {α β : f ==> g}
-           (Hα : is_invertible_2cell α)
-           (Hβ : is_invertible_2cell β)
-           {xx : D x}
-           {yy : D y}
-           {ff : xx -->[ f ] yy}
-           {gg : xx -->[ g ] yy}
-           {αα : ff ==>[ α ] gg}
-           (p : α = β)
-           (Hαα : is_disp_invertible_2cell Hα αα)
-  : is_disp_invertible_2cell
-      Hβ
-      (transportf
-         (λ z, _ ==>[ z ] _)
-         p
-         αα).
-Proof.
-  induction p ; cbn.
-  refine (transportf
-            (λ z, is_disp_invertible_2cell z αα)
-            _
-            Hαα).
-  apply isaprop_is_invertible_2cell.
-Defined.
-
-Definition disp_J_2_0_help_on_paths
-           {B : bicat}
-           {D : disp_bicat B}
-           (P : ∏ (x y : B)
-                  (f : adjoint_equivalence x y)
-                  (xx : D x) (yy : D y),
-                disp_adjoint_equivalence f xx yy → UU)
-           (P_id : ∏ (x : B)
-                     (xx : D x),
-                   P x x
-                     (internal_adjoint_equivalence_identity x)
-                     xx xx
-                     (disp_identity_adjoint_equivalence xx))
-           {x : B}
-           {xx : D x} {yy : D x}
-           (p : xx = yy)
-  : P x x
-      (internal_adjoint_equivalence_identity x)
-      xx yy
-      (disp_idtoiso_2_0 D (idpath x) xx yy p).
-Proof.
-  induction p.
-  apply P_id.
-Defined.
-
-Definition disp_J_2_0_help
-           {B : bicat}
-           (HB_2_0 : is_univalent_2_0 B)
-           {D : disp_bicat B}
-           (HD_2_0 : disp_univalent_2_0 D)
-           (P : ∏ (x y : B)
-                  (f : adjoint_equivalence x y)
-                  (xx : D x) (yy : D y),
-                disp_adjoint_equivalence f xx yy → UU)
-           (P_id : ∏ (x : B)
-                     (xx : D x),
-                   P x x
-                     (internal_adjoint_equivalence_identity x)
-                     xx xx
-                     (disp_identity_adjoint_equivalence xx))
-           {x : B}
-           {xx : D x} {yy : D x}
-           (ff : disp_adjoint_equivalence
-                   (internal_adjoint_equivalence_identity x)
-                   xx
-                   yy)
-  : P x x (internal_adjoint_equivalence_identity x) xx yy ff.
-Proof.
-  pose (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff)).
-  refine (transportf
-            (P x x _ xx yy)
-            _
-            (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff))).
-  apply disp_idtoiso_2_0_isotoid_2_0.
-Defined.
-
-Definition disp_J_2_0
-           {B : bicat}
-           {D : disp_bicat B}
-           (HB_2_0 : is_univalent_2_0 B)
-           (HD_2_0 : disp_univalent_2_0 D)
-           (P : ∏ (x y : B)
-                  (f : adjoint_equivalence x y)
-                  (xx : D x) (yy : D y),
-                disp_adjoint_equivalence f xx yy → UU)
-           (P_id : ∏ (x : B)
-                     (xx : D x),
-                   P x x
-                     (internal_adjoint_equivalence_identity x)
-                     xx xx
-                     (disp_identity_adjoint_equivalence xx))
-           {x y : B}
-           {f : adjoint_equivalence x y}
-           {xx : D x} {yy : D y}
-           (ff : disp_adjoint_equivalence f xx yy)
-  : P x y f xx yy ff.
-Proof.
-  revert x y f xx yy ff.
-  use (J_2_0 HB_2_0).
-  intros x xx yy ff.
-  exact (disp_J_2_0_help HD_2_0 P P_id ff).
-Defined.
-
-(************************************************
- END MOVE
- ***********************************************)
+(** END MOVE *)
 
 Definition transport_1cell
            {B : bicat}
@@ -1577,6 +1413,33 @@ Section ExamplesOfCartesian1Cells.
         rewrite disp_rwhisker_transport_left_new.
         rewrite disp_mor_transportf_postwhisker.
         rewrite transport_f_f ; cbn.
+        assert (∑ p,
+                disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh
+                •• σσ
+                =
+                transportf
+                  (λ z, _ ==>[ z ] _)
+                  p
+                  (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh
+                   •• σσ
+                   •• disp_inv_cell (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')
+                   •• disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')).
+        {
+          eexists.
+          rewrite !disp_vassocl.
+          rewrite disp_vcomp_linv.
+          unfold transportb.
+          rewrite !disp_mor_transportf_prewhisker.
+          rewrite !transport_f_f.
+          rewrite disp_id2_right.
+          unfold transportb.
+          rewrite disp_mor_transportf_prewhisker.
+          rewrite transport_f_f.
+          refine (!_).
+          cbn.
+          admit.
+        }
+        refine (_ @ !(pr2 X)).
       Admitted.
 
       Local Definition cartesian_1cell_id_wk_2cell_lift_unique
@@ -2860,16 +2723,22 @@ Proof.
             (pr2 (disp_psfunctor_invertible_2cell
                     FF
                     (map_between_cartesian_1cell_commute
-                       (pr2 HB) Hff
+                       (pr2 HB)
+                       Hff
                        (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
   use (invertible_2cell_from_cartesian
          HB (pr2 HD₂)
          _
          (pr2 (disp_psfunctor_comp _ _ _ _ _ _))).
   use (comp_cartesian_1cell HB).
-  - use (cartesian_1cell_disp_adj_equiv HB (pr1 HD₂)).
-    + apply internal_adjoint_equivalence_identity.
-    + cbn.
-      admit.
+  - exact (cartesian_1cell_disp_adj_equiv
+             HB
+             (pr1 HD₂)
+             (disp_psfunctor_id_on_disp_adjequiv
+                FF
+                (disp_adj_equiv_between_cartesian_1cell
+                   (pr2 HB)
+                   Hff
+                   (pr22 (HD₁ b₁ b₂ bb₂ f))))).
   - apply HFF.
-Admitted.
+Defined.

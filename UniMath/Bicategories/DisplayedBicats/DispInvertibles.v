@@ -985,6 +985,36 @@ Definition disp_invertible_2cell_rwhisker
   : disp_invertible_2cell (_ ,, is_invertible_2cell_rwhisker g (pr2 α)) _ _
   := disp_rwhisker gg αα,, is_disp_invertible_2cell_rwhisker gg αα.
 
+Definition transportf_is_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α β : f ==> g}
+           (Hα : is_invertible_2cell α)
+           (Hβ : is_invertible_2cell β)
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (p : α = β)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+  : is_disp_invertible_2cell
+      Hβ
+      (transportf
+         (λ z, _ ==>[ z ] _)
+         p
+         αα).
+Proof.
+  induction p ; cbn.
+  refine (transportf
+            (λ z, is_disp_invertible_2cell z αα)
+            _
+            Hαα).
+  apply isaprop_is_invertible_2cell.
+Defined.
+
 Definition disp_hom_disp_iso_to_invertible_2cell
            {B : bicat}
            {D : disp_bicat B}

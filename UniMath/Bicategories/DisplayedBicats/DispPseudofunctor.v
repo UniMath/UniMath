@@ -616,3 +616,20 @@ Section FiberOfFunctor.
     - exact (fiber_is_functor c).
   Defined.
 End FiberOfFunctor.
+
+Definition disp_psfunctor_id_on_disp_adjequiv
+           {B : bicat}
+           {D₁ D₂ : disp_bicat B}
+           (FF : disp_psfunctor D₁ D₂ (id_psfunctor _))
+           {x y : B}
+           {f : adjoint_equivalence x y}
+           {xx : D₁ x}
+           {yy : D₁ y}
+           {ff : xx -->[ f ] yy}
+           (Hff : disp_left_adjoint_equivalence f ff)
+  : disp_left_adjoint_equivalence _ (disp_psfunctor_mor _ _ _ FF ff)
+  := pr2 (left_adjoint_equivalence_total_disp_weq
+            _ _
+            (psfunctor_preserves_adjequiv'
+               (total_psfunctor _ _ _ FF)
+               (invmap (left_adjoint_equivalence_total_disp_weq f ff) (pr2 f ,, Hff)))).
