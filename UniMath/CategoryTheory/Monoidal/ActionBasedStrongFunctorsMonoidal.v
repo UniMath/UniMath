@@ -73,14 +73,13 @@ Section UpstreamBinproduct.
 
 End UpstreamBinproduct.
 
-
-Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
-Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
-Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
-Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
-
 Section Upstream.
   (** this section has nothing to do with monoidal categories but is dictated by the aims of this file *)
+
+    Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
+    Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
+    Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
+    Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
 
   Context {C A A' : category}.
 
@@ -139,6 +138,7 @@ Section Upstream.
 
   Section TheEquivalence.
 
+
     (** a naive specification of the target of the bijection - we need to limit the equality to [functor_data] for the elementary definition *)
     Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_cat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
@@ -153,7 +153,9 @@ Section Upstream.
           exact (c ,, η c).
         + intros c c' f.
           exists f.
-          red. unfold trafotarget_disp. (* reducesigbeta. does nothing here *) hnf. reducesigbeta.
+          red. unfold trafotarget_disp.
+          (* reducesigbeta. does nothing here *)
+          hnf. reducesigbeta.
           apply pathsinv0, nat_trans_ax.
       - split; red.
         + intro c.
