@@ -516,12 +516,9 @@ Section Applications.
     intros. induction n. 
     - induction m.
       { reflexivity. }
-      assert (x :
-        (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) ))) = 0%rig).
-      { reflexivity. }
       change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
         with (@rigunel1 R).
-      apply zero_function_sums_to_zero.
+      apply zero_function_sums_to_zero. 
       reflexivity.
     - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       unfold funcomp.

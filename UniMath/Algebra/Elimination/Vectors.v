@@ -408,7 +408,8 @@ Section Vectors.
 
   Definition vectorize_1 ( X : UU ) : X -> Vector X 1.
   Proof.
-    apply weq_vector_1.
+    intros e.
+    exact (λ i : (stn 1), e).
   Defined.
 
   Lemma weq_rowvec
