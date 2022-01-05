@@ -328,8 +328,21 @@ Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 Let triangle_eq : ∏ (a b : Mon_V), r_unitor a #⊗ id b = α ((a, I), b) · id a #⊗ l_unitor b := pr1 (monoidal_cat_eq Mon_V).
 Let pentagon_eq : ∏ (a b c d : Mon_V), α ((a ⊗ b, c), d) · α ((a, b), c ⊗ d) = α ((a, b), c) #⊗ id d · α ((a, b ⊗ c), d) · id a #⊗ α ((b, c), d) := pr2 (monoidal_cat_eq Mon_V).
 
-Let I_posttensor_comp {X Y Z : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id I) = (f #⊗ id I) · (g #⊗ id I) := functor_comp (I_posttensor tensor I) f g.
-Let I_pretensor_comp {X Y Z : Mon_V} (f : X --> Y) (g : Y --> Z) : (id I #⊗ (f · g)) = (id I #⊗ f) · (id I #⊗ g) := functor_comp (I_pretensor tensor I) f g.
+Lemma tensor_comp_left {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id W) = (f #⊗ id W) · (g #⊗ id W).
+Proof.
+  rewrite <-(functor_comp tensor).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  rewrite id_left.
+  reflexivity.
+Defined.
+
+Lemma tensor_comp_right {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : (id W #⊗ (f · g)) = (id W #⊗ f) · (id W #⊗ g).
+Proof.
+  rewrite <-(functor_comp tensor).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  rewrite id_left.
+  reflexivity.
+Defined.
 
 Lemma I_posttensor_faithful {X Y : Mon_V} {f g : X --> Y} : (f #⊗ id I) = (g #⊗ id I) -> f = g.
 Proof.
@@ -354,7 +367,7 @@ Defined.
 Lemma right_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
 Proof.
   apply I_posttensor_faithful.
-  rewrite I_posttensor_comp.
+  rewrite tensor_comp_left.
   apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α (_, _)))).
   rewrite assoc'.
   apply (transportb (λ h, _ = _ · h) (nat_trans_ax α _ _ ((_#, _)#, _))).
@@ -386,7 +399,7 @@ Defined.
 Lemma left_unitor_of_tensor (X Y : Mon_V) : α ((I, X), Y) · l_unitor (X ⊗ Y) = l_unitor X #⊗ id Y.
 Proof.
   apply I_pretensor_faithful.
-  rewrite I_pretensor_comp.
+  rewrite tensor_comp_right.
   apply (pre_comp_with_z_iso_is_inj (pr2 α ((I, (I ⊗ X)), Y))).
   use (pathscomp0 _ (nat_trans_ax α _ _ ((_ #, _) #, _))).
   simpl.
