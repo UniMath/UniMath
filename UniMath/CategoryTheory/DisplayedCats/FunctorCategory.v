@@ -34,7 +34,7 @@ Definition base_precategory_data (C D:precategory_data) : precategory_data
 
 Section FunctorsDisplayed.
 
-Context (C D:category).
+Context (C D : category).
 
 (** ** Base category.
 
@@ -269,7 +269,7 @@ Lemma base_category_univalent
   : is_univalent D → is_univalent base_category.
 Proof.
   intros HD.
-  unfold is_univalent. split; [ | apply base_category ].
+  unfold is_univalent.
   unfold base_category. simpl.
   intros F₀ G₀.
   use isweqhomot.

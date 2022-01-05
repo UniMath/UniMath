@@ -204,6 +204,16 @@ Definition prebicat_laws (C : prebicat_data)
         (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
         lassociator f g _  • lassociator _ _ _).
 
+Lemma isaprop_prebicat_laws
+           (B : prebicat_data)
+           (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
+  : isaprop (prebicat_laws B).
+Proof.
+  repeat (apply isapropdirprod)
+  ; repeat (apply impred ; intro)
+  ; apply H.
+Qed.
+
 Definition prebicat : UU := ∑ C : prebicat_data, prebicat_laws C.
 
 Coercion prebicat_data_from_bicat (C : prebicat) : prebicat_data := pr1 C.
@@ -529,6 +539,25 @@ Proof.
   apply (vcomp_rcancel _ (is_invertible_2cell_inv inv_x)).
   rewrite vcomp_rinv, p.
   apply (!vcomp_rinv _).
+Qed.
+
+(* ------------------------------------------------------------------------- *)
+(* Locally groupoidal                                                        *)
+(* ------------------------------------------------------------------------- *)
+Definition locally_groupoid
+           (B : bicat)
+  : UU
+  := ∏ (x y : B)
+       (f g : x --> y)
+       (α : f ==> g),
+     is_invertible_2cell α.
+
+Definition isaprop_locally_groupoid
+           (B : bicat)
+  : isaprop (locally_groupoid B).
+Proof.
+  repeat (use impred ; intro).
+  apply isaprop_is_invertible_2cell.
 Qed.
 
 (* ------------------------------------------------------------------------- *)
@@ -1008,11 +1037,19 @@ Proof.
   - intros f g h i. apply vassocr.
 Qed.
 
-Definition hom
+Definition hom_precategory
   : precategory
   := make_precategory hom_data is_precategory_hom.
 
 End Hom_Spaces.
+
+Lemma has_homsets_hom_data {C : bicat} (a b : C): has_homsets (hom_data a b).
+Proof.
+  exact (@cellset_property C a b).
+Qed.
+
+Definition hom {C : bicat} (a b : C) : category
+  := hom_precategory a b ,, @cellset_property C a b.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Functor structure on horizontal composition.                                    *)
@@ -1020,10 +1057,12 @@ End Hom_Spaces.
 
 Section hcomp_functor.
 
-Context {C : prebicat} {a b c : C}.
+Context {C : bicat} {a b c : C}.
 
 Definition hcomp_functor_data
-  : functor_data (precategory_binproduct (hom a b) (hom b c)) (hom a c).
+  : functor_data
+      (category_binproduct (hom a b) (hom b c))
+      (hom a c).
 Proof.
   exists (λ p : (a-->b) × (b-->c), pr1 p · pr2 p).
   unfold hom_ob_mor. simpl. intros (f1, f2) (g1, g2).
@@ -1041,7 +1080,10 @@ Proof.
 Qed.
 
 Definition hcomp_functor
-  : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c
+  : category_binproduct
+      (hom a b) (hom b c)
+    ⟶
+    hom a c
   := make_functor hcomp_functor_data is_functor_hcomp.
 
 End hcomp_functor.
@@ -1165,8 +1207,12 @@ Section Associators_Unitors_Iso.
 
 Context {C : prebicat}.
 
-Lemma is_z_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_z_isomorphism (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
+Lemma is_z_iso_lassociator
+      {a b c d : C}
+      (f : hom_precategory a b)
+      (g : hom_precategory b c)
+      (h : hom_precategory c d)
+  : is_z_isomorphism (lassociator f g h : (hom_precategory a d) ⟦ f · (g · h), (f · g) · h ⟧).
 Proof.
   exists (rassociator f g h).
   split.
@@ -1174,15 +1220,23 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
-Lemma is_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_iso (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
+Lemma is_iso_lassociator
+      {a b c d : C}
+      (f : hom_precategory a b)
+      (g : hom_precategory b c)
+      (h : hom_precategory c d)
+  : is_iso (lassociator f g h : (hom_precategory a d) ⟦ f · (g · h), (f · g) · h ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
   apply is_z_iso_lassociator.
 Defined.
 
-Lemma is_z_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_z_isomorphism (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Lemma is_z_iso_rassociator
+      {a b c d : C}
+      (f : hom_precategory a b)
+      (g : hom_precategory b c)
+      (h : hom_precategory c d)
+  : is_z_isomorphism (rassociator f g h : (hom_precategory a d) ⟦ (f · g) · h, f · (g · h) ⟧).
 Proof.
   exists (lassociator f g h).
   split.
@@ -1190,15 +1244,19 @@ Proof.
   - apply lassociator_rassociator.
 Defined.
 
-Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Lemma is_iso_rassociator
+      {a b c d : C}
+      (f : hom_precategory a b)
+      (g : hom_precategory b c)
+      (h : hom_precategory c d)
+  : is_iso (rassociator f g h : (hom_precategory a d) ⟦ (f · g) · h, f · (g · h) ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
   apply is_z_iso_rassociator.
 Defined.
 
-Lemma is_z_iso_lunitor {a b : C} (f : hom a b)
-  : is_z_isomorphism (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
+Lemma is_z_iso_lunitor {a b : C} (f : hom_precategory a b)
+  : is_z_isomorphism (lunitor f : (hom_precategory a b) ⟦ identity a · f, f ⟧).
 Proof.
   exists (linvunitor f).
   split.
@@ -1206,15 +1264,15 @@ Proof.
   - apply linvunitor_lunitor.
 Defined.
 
-Lemma is_iso_lunitor {a b : C} (f : hom a b)
-  : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
+Lemma is_iso_lunitor {a b : C} (f : hom_precategory a b)
+  : is_iso (lunitor f : (hom_precategory a b) ⟦ identity a · f, f ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
   apply is_z_iso_lunitor.
 Defined.
 
-Lemma is_z_iso_runitor {a b : C} (f : hom a b)
-  : is_z_isomorphism (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
+Lemma is_z_iso_runitor {a b : C} (f : hom_precategory a b)
+  : is_z_isomorphism (runitor f : (hom_precategory a b) ⟦ f · identity b, f ⟧).
 Proof.
   exists (rinvunitor f).
   split.
@@ -1222,8 +1280,8 @@ Proof.
   - apply rinvunitor_runitor.
 Defined.
 
-Lemma is_iso_runitor {a b : C} (f : hom a b)
-  : is_iso (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
+Lemma is_iso_runitor {a b : C} (f : hom_precategory a b)
+  : is_iso (runitor f : (hom_precategory a b) ⟦ f · identity b, f ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
   apply is_z_iso_runitor.
@@ -1252,14 +1310,17 @@ Proof.
   rewrite id2_rwhisker. apply id2_left.
 Qed.
 
+(*
+
 Definition lunitor_transf (a b : C)
   : bindelta_pair_functor
-      (constant_functor (hom a b) (hom a a) (identity a))
-      (functor_identity (hom a b)) ∙
+      (constant_functor (hom_precategory a b) (hom_precategory a a) (identity a))
+      (functor_identity (hom_precategory a b)) ∙
     hcomp_functor
     ⟹
-    functor_identity (hom a b)
+    functor_identity (hom_precategory a b)
   := lunitor,, lunitor_natural a b.
+ *)
 
 (* -----------------------------------------------------------------------------------*)
 (** Right unitor                                                                      *)
@@ -1277,16 +1338,18 @@ Proof.
   rewrite lwhisker_id2. apply id2_left.
 Qed.
 
+(*
 Definition runitor_transf (a b : C)
   : bindelta_pair_functor
-       (functor_identity (hom a b))
-       (constant_functor (hom a b) (hom b b) (identity b)) ∙
+       (functor_identity (hom_precategory a b))
+       (constant_functor (hom_precategory a b) (hom_precategory b b) (identity b)) ∙
     hcomp_functor
     ⟹
-    functor_identity (hom a b).
+    functor_identity (hom_precategory a b).
 Proof.
   exists runitor. red. apply runitor_natural.
 Defined.
+ *)
 
 (* -----------------------------------------------------------------------------------*)
 (** Left associator.                                                                  *)
@@ -1297,11 +1360,147 @@ Definition lassociator_fun {a b c d : C}
   :  pr1 x · (pr12 x · pr22 x) ==> (pr1 x · pr12 x) · pr22 x
   := lassociator (pr1 x) (pr12 x) (pr22 x).
 
+(*
+Lemma lassociator_fun_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor (functor_identity (hom_precategory a b)) hcomp_functor ∙ hcomp_functor)
+      (precategory_binproduct_assoc
+         (hom_precategory a b)
+         (hom_precategory b c)
+         (hom_precategory c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      lassociator_fun.
+Proof.
+  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold lassociator_fun. cbn.
+  apply hcomp_lassoc.
+Qed.
+
+Definition lassociator_transf (a b c d : C)
+  : pair_functor (functor_identity (hom_precategory a b)) hcomp_functor ∙ hcomp_functor
+    ⟹
+    precategory_binproduct_assoc
+      (hom_precategory a b)
+      (hom_precategory b c)
+      (hom_precategory c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+  := lassociator_fun,, lassociator_fun_natural.
+ *)
+(* -----------------------------------------------------------------------------------*)
+(** Right associator.                                                                 *)
+(* -----------------------------------------------------------------------------------*)
+
+Definition rassociator_fun {a b c d : C}
+           (x : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
+  : (pr1 x · pr12 x) · pr22 x ==> pr1 x · (pr12 x · pr22 x)
+  := rassociator (pr1 x) (pr12 x) (pr22 x).
+
+(*
+Lemma rassociator_fun_natural {a b c d : C}
+  : is_nat_trans
+      (precategory_binproduct_assoc
+         (hom_precategory a b)
+         (hom_precategory b c)
+         (hom_precategory c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      (pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun.
+Proof.
+  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf (a b c d : C)
+  : precategory_binproduct_assoc
+      (hom_precategory a b)
+      (hom_precategory b c)
+      (hom_precategory c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun,, rassociator_fun_natural.
+ *)
+
+Definition rassociator_fun' {a b c d : C}
+           (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
+  : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
+  := rassociator (pr11 x) (pr21 x) (pr2 x).
+
+(*
+Lemma rassociator_fun'_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc
+         (hom_precategory a b)
+         (hom_precategory b c)
+         (hom_precategory c d) ∙
+       pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+Proof.
+  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros ((x1, x2), x3). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf' (a b c d : C)
+  : pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc
+      (hom_precategory a b)
+      (hom_precategory b c)
+      (hom_precategory c d) ∙
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
+ *)
+End Associators_Unitors_Natural.
+
+Section Associators_Unitors_Natural_bicat.
+
+  Context {C : bicat}.
+
+  Definition lunitor_transf (a b : C)
+  : bindelta_pair_functor
+      (constant_functor (hom a b) (hom a a) (identity a))
+      (functor_identity (hom a b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b)
+  := lunitor,, lunitor_natural a b.
+
+  Definition runitor_transf (a b : C)
+  : bindelta_pair_functor
+       (functor_identity (hom a b))
+       (constant_functor (hom a b) (hom b b) (identity b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b).
+Proof.
+  exists runitor. red. apply runitor_natural.
+Defined.
+
 Lemma lassociator_fun_natural {a b c d : C}
   : is_nat_trans
       (pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
-      (precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
-       pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
        hcomp_functor)
       lassociator_fun.
 Proof.
@@ -1316,26 +1515,23 @@ Qed.
 Definition lassociator_transf (a b c d : C)
   : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
     ⟹
-    precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
-    pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+    precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
     hcomp_functor
   := lassociator_fun,, lassociator_fun_natural.
 
-(* -----------------------------------------------------------------------------------*)
-(** Right associator.                                                                 *)
-(* -----------------------------------------------------------------------------------*)
-
-Definition rassociator_fun {a b c d : C}
-           (x : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
-  : (pr1 x · pr12 x) · pr22 x ==> pr1 x · (pr12 x · pr22 x)
-  := rassociator (pr1 x) (pr12 x) (pr22 x).
-
-Lemma rassociator_fun_natural {a b c d : C}
+  Lemma rassociator_fun_natural {a b c d : C}
   : is_nat_trans
-      (precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
-       pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
        hcomp_functor)
-      (pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      (pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
       rassociator_fun.
 Proof.
   red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
@@ -1347,23 +1543,24 @@ Proof.
 Qed.
 
 Definition rassociator_transf (a b c d : C)
-  : precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
-    pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+  : precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
     hcomp_functor
     ⟹
-    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
   := rassociator_fun,, rassociator_fun_natural.
-
-Definition rassociator_fun' {a b c d : C}
-           (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
-  : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
-  := rassociator (pr11 x) (pr21 x) (pr2 x).
 
 Lemma rassociator_fun'_natural {a b c d : C}
   : is_nat_trans
-      (pair_functor hcomp_functor (functor_identity (hom c d)) ∙ hcomp_functor)
-      (precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
-       pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
       rassociator_fun'.
 Proof.
   red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
@@ -1375,14 +1572,101 @@ Proof.
 Qed.
 
 Definition rassociator_transf' (a b c d : C)
-  : pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+  : pair_functor hcomp_functor (functor_identity _) ∙
     hcomp_functor
     ⟹
-    precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
-    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+    precategory_binproduct_unassoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
   := rassociator_fun',, rassociator_fun'_natural.
 
-End Associators_Unitors_Natural.
+End Associators_Unitors_Natural_bicat.
+
+(* -----------------------------------------------------------------------------------*)
+(** ** Precomposition functor                                                         *)
+(* -----------------------------------------------------------------------------------*)
+Definition pre_comp_data
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : functor_data (hom b z) (hom a z).
+Proof.
+  use make_functor_data.
+  - exact (λ g, f · g).
+  - exact (λ g₁ g₂ α, f ◃ α).
+Defined.
+
+Definition pre_comp_is_functor
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : is_functor (pre_comp_data z f).
+Proof.
+  split.
+  - intro ; cbn.
+    apply lwhisker_id2.
+  - intro ; intros ; cbn.
+    refine (!_).
+    apply lwhisker_vcomp.
+Qed.
+
+Definition pre_comp
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : hom b z ⟶ hom a z.
+Proof.
+  use make_functor.
+  - exact (pre_comp_data z f).
+  - exact (pre_comp_is_functor z f).
+Defined.
+
+(* -----------------------------------------------------------------------------------*)
+(** ** Postcomposition functor                                                        *)
+(* -----------------------------------------------------------------------------------*)
+Definition post_comp_data
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : functor_data (hom z a) (hom z b).
+Proof.
+  use make_functor_data.
+  - exact (λ g, g · f).
+  - exact (λ g₁ g₂ α, α ▹ f).
+Defined.
+
+Definition post_comp_is_functor
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : is_functor (post_comp_data z f).
+Proof.
+  split.
+  - intro ; cbn.
+    apply id2_rwhisker.
+  - intro ; intros ; cbn.
+    refine (!_).
+    apply rwhisker_vcomp.
+Qed.
+
+Definition post_comp
+           {B : bicat}
+           (z : B)
+           {a b : B}
+           (f : a --> b)
+  : hom z a ⟶ hom z b.
+Proof.
+  use make_functor.
+  - exact (post_comp_data z f).
+  - exact (post_comp_is_functor z f).
+Defined.
 
 (* -----------------------------------------------------------------------------------*)
 (** ** Notations.                                                                     *)

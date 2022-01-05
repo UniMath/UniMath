@@ -896,3 +896,274 @@ Lemma transportf_sec_constant
 Proof.
  induction p; reflexivity.
 Qed.
+
+(** More facts on fiber products *)
+Definition path_hfp
+           {X Y Z : UU}
+           {f : X → Z}
+           {g : Y → Z}
+           {x y : hfp f g}
+           (p₁ : hfpg f g x = hfpg f g y)
+           (p₂ : hfpg' f g x = hfpg' f g y)
+           (p₃ : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : x = y.
+Proof.
+  induction x as [ [ x₁ x₂ ] px ].
+  induction y as [ [ y₁ y₂ ] py ].
+  cbn in p₁, p₂.
+  induction p₁, p₂.
+  cbn in p₃.
+  apply maponpaths.
+  exact (!(pathscomp0rid _) @ p₃).
+Defined.
+
+Definition maponpaths_hfpg_path_hfp
+           {X Y Z : UU}
+           {f : X → Z}
+           {g : Y → Z}
+           {x y : hfp f g}
+           (p₁ : hfpg f g x = hfpg f g y)
+           (p₂ : hfpg' f g x = hfpg' f g y)
+           (p₃ : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : maponpaths
+      (hfpg f g)
+      (path_hfp p₁ p₂ p₃)
+    =
+    p₁.
+Proof.
+  induction x as [ [ x₁ x₂ ] px ].
+  induction y as [ [ y₁ y₂ ] py ].
+  cbn in p₁, p₂.
+  induction p₁, p₂.
+  cbn in p₃.
+  induction p₃ ; cbn.
+  etrans.
+  {
+    apply (maponpathscomp
+             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (hfpg f g)).
+  }
+  apply maponpaths_for_constant_function.
+Qed.
+
+Definition maponpaths_hfpg'_path_hfp
+           {X Y Z : UU}
+           {f : X → Z}
+           {g : Y → Z}
+           {x y : hfp f g}
+           (p₁ : hfpg f g x = hfpg f g y)
+           (p₂ : hfpg' f g x = hfpg' f g y)
+           (p₃ : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : maponpaths
+      (hfpg' f g)
+      (path_hfp p₁ p₂ p₃)
+    =
+    p₂.
+Proof.
+  induction x as [ [ x₁ x₂ ] px ].
+  induction y as [ [ y₁ y₂ ] py ].
+  cbn in p₁, p₂.
+  induction p₁, p₂.
+  cbn in p₃.
+  induction p₃ ; cbn.
+  etrans.
+  {
+    apply (maponpathscomp
+             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (hfpg' f g)).
+  }
+  apply maponpaths_for_constant_function.
+Qed.
+
+Definition path_hfp_eta
+           {X Y Z : UU}
+           {f : X → Z}
+           {g : Y → Z}
+           {x y : hfp f g}
+           (p : x = y)
+  : p
+    =
+    path_hfp
+      (maponpaths (hfpg f g) p)
+      (maponpaths (hfpg' f g) p)
+      (maponpaths (λ z, _ @ z) (maponpathscomp (hfpg f g) f p)
+       @ !(homotsec_natural (commhfp f g) p)
+       @ maponpaths (λ z, z @ _) (!(maponpathscomp (hfpg' f g) g p))).
+Proof.
+  induction p.
+  cbn.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply pathscomp0rid.
+      }
+      apply pathsinv0inv0.
+    }
+    apply pathsinv0l.
+  }
+  apply idpath.
+Qed.
+
+Definition homot_hfp
+           {X Y Z : UU}
+           {f : X → Z} {g : Y → Z}
+           {x y : hfp f g}
+           {h₁ h₁' : hfpg f g x = hfpg f g y}
+           (e₁ : h₁ = h₁')
+           {h₂ h₂' : hfpg' f g x = hfpg' f g y}
+           (e₂ : h₂ = h₂')
+           (h₃ : commhfp f g x @ maponpaths f h₁ = maponpaths g h₂ @ commhfp f g y)
+  : path_hfp h₁ h₂ h₃
+    =
+    path_hfp
+      h₁' h₂'
+      (maponpaths
+         (λ z, _ @ maponpaths f z)
+         (!e₁)
+       @ h₃
+       @ maponpaths
+           (λ z, maponpaths g z @ _)
+           e₂).
+Proof.
+  induction e₁ ; induction e₂.
+  simpl.
+  apply maponpaths.
+  exact (!(pathscomp0rid _)).
+Qed.
+
+Definition homot_hfp_one_type
+           {X Y Z : UU}
+           (HZ : isofhlevel 3 Z)
+           {f : X → Z}
+           {g : Y → Z}
+           {x y : hfp f g}
+           (p q : x = y)
+           (r₁ : maponpaths (hfpg f g) p
+                 =
+                 maponpaths (hfpg f g) q)
+           (r₂ : maponpaths (hfpg' f g) p
+                 =
+                 maponpaths (hfpg' f g) q)
+  : p = q.
+Proof.
+  refine (path_hfp_eta p @ _ @ !(path_hfp_eta q)).
+  etrans.
+  {
+    exact (homot_hfp r₁ r₂ _).
+  }
+  apply maponpaths.
+  apply HZ.
+Qed.
+
+Definition hfp_is_of_hlevel
+           (n : nat)
+           {X Y Z : UU}
+           (HX : isofhlevel n X)
+           (HY : isofhlevel n Y)
+           (HZ : isofhlevel n Z)
+           (f : X → Z)
+           (g : Y → Z)
+  : isofhlevel n (hfp f g).
+Proof.
+  use isofhleveltotal2.
+  - use isofhleveldirprod.
+    + exact HX.
+    + exact HY.
+  - simpl.
+    intro x.
+    apply (hlevelntosn n _ HZ).
+Qed.
+
+Definition hfp_HLevel
+           (n : nat)
+           {X Y Z : HLevel n}
+           (f : pr1 X → pr1 Z)
+           (g : pr1 Y → pr1 Z)
+  : HLevel n.
+Proof.
+  simple refine (hfp f g ,, _).
+  apply hfp_is_of_hlevel.
+  - exact (pr2 X).
+  - exact (pr2 Y).
+  - exact (pr2 Z).
+Defined.
+
+(** Transport along a path of total2 *)
+Definition transportf_total2_paths_f
+           {A : UU}
+           {B : A → UU}
+           (C : A → UU)
+           {a₁ a₂ : A}
+           {b₁ : B a₁}
+           {b₂ : B a₂}
+           (p : a₁ = a₂)
+           (q : transportf B p b₁ = b₂)
+           (c₁ : C a₁)
+  : transportf
+      (λ z, C (pr1 z))
+      (@total2_paths_f
+         A B
+         (a₁ ,, b₁) (a₂ ,, b₂)
+         p
+         q)
+      c₁
+    =
+    transportf
+      C
+      p
+      c₁.
+Proof.
+  induction p.
+  induction q.
+  apply idpath.
+Defined.
+
+
+(** Paths of products *)
+Definition maponpaths_pr1_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           (p : x₁ = x₂)
+           (q : y₁ = y₂)
+  : maponpaths dirprod_pr1 (pathsdirprod p q) = p.
+Proof.
+  induction p, q.
+  apply idpath.
+Defined.
+
+Definition maponpaths_pr2_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           (p : x₁ = x₂)
+           (q : y₁ = y₂)
+  : maponpaths dirprod_pr2 (pathsdirprod p q) = q.
+Proof.
+  induction p, q.
+  apply idpath.
+Defined.
+
+Definition pathsdirprod_eta
+           {X Y : UU}
+           {x y : X × Y}
+           (p : x = y)
+  : p
+    =
+    pathsdirprod (maponpaths dirprod_pr1 p) (maponpaths dirprod_pr2 p).
+Proof.
+  induction p.
+  apply idpath.
+Defined.

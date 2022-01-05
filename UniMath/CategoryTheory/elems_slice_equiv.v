@@ -29,17 +29,17 @@ Section elems_slice_equiv.
 
   Local Open Scope cat.
 
-  Local Notation "C / X" := (slice_precat C X (pr2 C)).
-  Local Definition ap_PreShv {X : precategory} := fun (P : PreShv X) (x : X) => pr1hSet ((pr1 P) x).
+  Local Notation "C / X" := (slice_cat C X).
+  Local Definition ap_PreShv {X : category} := fun (P : PreShv X) (x : X) => pr1hSet ((pr1 P) x).
   Local Notation "##" := ap_PreShv.
 
-  Variable (C : precategory) (P : PreShv C).
+  Variable (C : category) (P : PreShv C).
 
   (** ** Construction of the functor from PreShv ∫P to PreShv C / P *)
   Local Definition make_ob := @make_ob C P.
   Local Definition make_mor := @make_mor C P.
 
-  Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → SET :=
+  Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → HSET :=
     λ X, total2_hSet (fun p : ##P X => (pr1 F) (make_ob X p)).
 
   Definition PreShv_to_slice_ob_funct_mor (F : PreShv ∫P) {X Y : C^op} (f : X --> Y) :
@@ -47,7 +47,7 @@ Section elems_slice_equiv.
     λ p, # (pr1 P) f (pr1 p) ,, # (pr1 F) (mor_to_el_mor (C:=C) f (pr1 p)) (pr2 p).
 
 
-  Definition PreShv_to_slice_ob_funct_data (F : PreShv ∫P) : functor_data C^op SET :=
+  Definition PreShv_to_slice_ob_funct_data (F : PreShv ∫P) : functor_data C^op HSET :=
     PreShv_to_slice_ob_funct_fun F ,, @PreShv_to_slice_ob_funct_mor F.
 
   (* Proof from Anders:
@@ -171,7 +171,7 @@ Section elems_slice_equiv.
     PreShv_to_slice_data ,, PreShv_to_slice_is_funct.
 
   (** ** Construction of the functor from PreShv C / P to PreShv ∫P *)
-  Definition slice_to_PreShv_ob_ob (Q : PreShv C / P) : (∫P)^op → SET :=
+  Definition slice_to_PreShv_ob_ob (Q : PreShv C / P) : (∫P)^op → HSET :=
     λ p,
       hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
              isaset_hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) (pr2 (((pr1 (pr1 Q)) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
@@ -189,7 +189,7 @@ Section elems_slice_equiv.
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
-  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) SET :=
+  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) HSET :=
     slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
 
   Definition slice_to_PreShv_ob_is_funct (Q : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).
@@ -318,7 +318,7 @@ Section elems_slice_equiv.
 
   Definition slice_unit : functor_identity (PreShv C / P) ⟹ slice_to_PreShv ∙ PreShv_to_slice :=
     nat_trans_inv_from_pointwise_inv _ _
-                                     (has_homsets_slice_precat (pr2 (PreShv C)) P)
+                                     (has_homsets_slice_precat ((PreShv C)) P)
                                      (slice_to_PreShv ∙ PreShv_to_slice) (functor_identity (PreShv C / P))
                                      slice_counit slice_all_iso.
 
@@ -393,10 +393,10 @@ Section elems_slice_equiv.
     nat_trans_inv_from_pointwise_inv _ _ (pr2 (PreShv ∫P)) _ _ PreShv_unit PreShv_all_iso.
 
   (** ** The equivalence of the categories PreShv ∫P and PreShv C / P *)
-  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_precats (PreShv ∫P) (PreShv C / P) :=
+  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_cats (PreShv ∫P) (PreShv C / P) :=
     (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_iso).
 
-  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_precats PreShv_to_slice :=
-    @adjointificiation (PreShv ∫P) (PreShv C / P ,, has_homsets_slice_precat (pr2 (PreShv C)) P) PreShv_of_elems_slice_of_PreShv_equiv.
+  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_cats PreShv_to_slice :=
+    @adjointificiation (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
 
 End elems_slice_equiv.

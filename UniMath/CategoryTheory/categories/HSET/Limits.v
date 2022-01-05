@@ -142,7 +142,7 @@ Proof.
 now intros g d; apply cats_LimConeHSET.
 Defined.
 
-Lemma cats_LimsHSET_of_shape (g : precategory) : cats.limits.Lims_of_shape g HSET.
+Lemma cats_LimsHSET_of_shape (g : category) : cats.limits.Lims_of_shape g HSET.
 Proof.
 now intros d; apply cats_LimConeHSET.
 Defined.
@@ -156,7 +156,7 @@ use make_BinProduct.
 - apply (A × B)%set.
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (make_isBinProduct _ has_homsets_HSET).
+- apply make_isBinProduct.
   intros C f g; use tpair.
   * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
   * abstract (intros [t [ht1 ht2]]; apply subtypePath;
@@ -181,7 +181,7 @@ intros A.
 use make_Product.
 - exists (∏ i, pr1 (A i)); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (make_isProduct _ _ has_homsets_HSET).
+- apply make_isProduct; try apply homset_property.
   intros C f; simpl in *.
   use tpair.
   * exists (λ c i, f i c); intro i; apply idpath.
@@ -290,7 +290,7 @@ Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
 
 Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
-  ∑ H, isPullback f y' (hfiber_hSet_pr1 f y)
+  ∑ H, @isPullback _ _ _ _ _ f y' (hfiber_hSet_pr1 f y)
                        (TerminalArrow TerminalHSET _) H.
 Proof.
   use tpair.
@@ -322,7 +322,7 @@ Proof.
            specialize (pbH pb0); cbn in pbH.
            refine (pbH @ _).
            apply tosecoverunit_compute.
-        -- apply funextfun; intro; reflexivity.
+        -- apply funextfun; intro; apply idpath.
       * intros t.
         apply subtypePath.
         -- intro; apply has_homsets_HSET.
@@ -346,9 +346,9 @@ Defined.
 Section HSET_Structures.
 
   Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
-    equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET_from_Lims.
+    equiv_Pullbacks_2 HSET PullbacksHSET_from_Lims.
 
   Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
-    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET_from_Lims.
+    equiv_Equalizers2 HSET EqualizersHSET_from_Lims.
 
 End HSET_Structures.

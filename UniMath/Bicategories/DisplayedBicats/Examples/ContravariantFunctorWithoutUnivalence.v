@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
@@ -33,7 +33,7 @@ Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Section fix_a_category.
-  Local Notation "∁" := bicat_of_cats_nouniv.
+  Local Notation "∁" := bicat_of_cats.
 
   Variable (K : category).
 
@@ -56,18 +56,18 @@ Section fix_a_category.
       intros x y.
       set (T1 := x).
       set (T2 := @pre_whisker
-                   ((pr1 c)^op) ((pr1 d)^op) K
+                   (c^op) (d^op) K
                    (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
-      exact (@nat_trans_comp ((pr1 c)^op) K _ _ _ T1 T2 ).
+      exact (@nat_trans_comp (c^op) K _ _ _ T1 T2 ).
   Defined.
 
-  Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats_nouniv.
+  Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
   Proof.
     exists disp_presheaf_cat_data.
     intros c d f g a.
     intros p p'.
     intros x y.
-    exact (x = @nat_trans_comp ((pr1 c)^op) K _  _ _ y (post_whisker (op_nt a) p')).
+    exact (x = @nat_trans_comp (c^op) K _  _ _ y (post_whisker (op_nt a) p')).
   Defined.
 
   Definition disp_presheaf_prebicat_ops : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
@@ -196,7 +196,7 @@ Section fix_a_category.
   Definition disp_presheaves_adjequiv
              {C : ∁}
              (FC FC' : disp_presheaf_bicat C)
-    : @invertible_2cell bicat_of_cats_nouniv (op_cat C) K FC FC'
+    : @invertible_2cell bicat_of_cats (op_cat C) K FC FC'
       -> disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
   Proof.
     intros α.
@@ -223,7 +223,7 @@ Section fix_a_category.
              {C : ∁}
              (FC FC' : disp_presheaf_bicat C)
     : disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
-      → @invertible_2cell bicat_of_cats_nouniv (op_cat C) K FC FC'.
+      → @invertible_2cell bicat_of_cats (op_cat C) K FC FC'.
   Proof.
     intros α.
     use tpair.

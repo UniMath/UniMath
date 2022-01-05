@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -412,7 +412,7 @@ Section BiadjunctionHom.
   Defined.
 
   Definition biadj_hom_equivalence
-    : equivalence_of_precats (hom X (R Y)) (hom (L X) Y).
+    : equivalence_of_cats (hom X (R Y)) (hom (L X) Y).
   Proof.
     use tpair.
     - use tpair.
@@ -436,16 +436,9 @@ Section BiadjunctionHom.
   Defined.
 
   Definition biadj_hom_equiv
-    : adj_equivalence_of_precats biadj_left_hom.
+    : adj_equivalence_of_cats biadj_left_hom.
   Proof.
-    refine (@adjointificiation
-              (make_category (hom X (R Y)) _)
-              (make_category (hom (L X) Y) _)
-              biadj_hom_equivalence).
-    - intros x y.
-      apply B₁.
-    - intros x y.
-      apply B₂.
+    exact (adjointificiation biadj_hom_equivalence).
   Defined.
 End BiadjunctionHom.
 
@@ -466,8 +459,8 @@ Section BiadjunctionUniqueMaps.
     use iso_equiv.
     - exact ((pr11 (biadj_hom_equiv R X Y))
                ∙ functor_to_unit (hom X (R Y))).
-    - pose (comp_adj_equivalence_of_precats
-              (adj_equivalence_of_precats_inv (biadj_hom_equiv R X Y))
+    - pose (comp_adj_equivalence_of_cats
+              (adj_equivalence_of_cats_inv (biadj_hom_equiv R X Y))
               (HX (R Y))) as A.
       exact (@adj_equivalence_to_left_equivalence
                (univ_hom H₂ (L X) Y)

@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
@@ -28,7 +28,7 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Local Definition CAT : bicat := bicat_of_cats_nouniv.
+Local Definition CAT : bicat := bicat_of_cats.
 
 Section ThePseudoFunctors.
 
@@ -36,7 +36,7 @@ Section ProductWithFixedSecondArgument.
 
   Context (B0 : ob CAT).
 
-  Local Definition productwithfixedelement (A: ob CAT) : ob CAT := category_binproduct (pr1 A) (pr1 B0) (homset_property A) (homset_property B0).
+  Local Definition productwithfixedelement (A: ob CAT) : ob CAT := category_binproduct A B0.
 
 
 Definition binproductleft_map_data: psfunctor_data CAT CAT.
@@ -154,7 +154,7 @@ Proof.
   - exact (fun B => functor_category (pr1 A0) B).
   - intros B B' F.
     cbn.
-    exact (post_composition_functor (pr1 A0) (pr1 B) (pr1 B') (homset_property B) (homset_property B') F).
+    exact (post_composition_functor A0 B B' F).
   - intros B1 B2 F F' β.
     use make_nat_trans.
     + intro G. cbn.
@@ -419,7 +419,7 @@ Section Currying.
       apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
       intro ab. cbn.
       apply pathsdirprod.
-      + do 2 rewrite functor_id. repeat rewrite id_left. apply idpath.
+      + rewrite functor_id. repeat rewrite id_left. apply idpath.
       + repeat rewrite id_left. apply idpath.
   Defined.
 

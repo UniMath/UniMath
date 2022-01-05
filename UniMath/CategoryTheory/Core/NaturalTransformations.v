@@ -91,6 +91,12 @@ Proof.
   apply (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
+Lemma nat_trans_eq_alt {C C' : category} (F F' : functor C C') (a a' : nat_trans F F'):
+  (∏ x, a x = a' x) -> a = a'.
+Proof.
+  apply nat_trans_eq.
+  apply homset_property.
+Qed.
 
 Section nat_trans_eq.
 
@@ -203,6 +209,50 @@ Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3
     nat_trans_functor_assoc F1 F2 F3.
 
 End nat_trans_functor.
+
+(** Reasoning about composition of natural transformations *)
+Section nat_trans_comp_laws.
+
+  Context {A B: precategory} (hs: has_homsets B).
+
+Definition nat_trans_comp_id_right (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ α (nat_trans_id G) = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_right.
+Qed.
+
+Definition nat_trans_comp_id_left (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ (nat_trans_id F) α = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_left.
+Qed.
+
+Definition nat_trans_comp_assoc (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ) = nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply assoc.
+Qed.
+
+(** analogously to [assoc'], for convenience *)
+Definition nat_trans_comp_assoc' (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ = nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ).
+Proof.
+  apply pathsinv0, nat_trans_comp_assoc.
+Qed.
+
+End nat_trans_comp_laws.
+
 
 (** ** Natural isomorphisms *)
 
@@ -396,6 +446,24 @@ Proof.
 Defined.
 
 End nat_trans.
+
+Definition constant_nat_trans
+           (C₁ : category)
+           {C₂ : category}
+           {x y : C₂}
+           (f : x --> y)
+  : nat_trans
+      (constant_functor C₁ C₂ x)
+      (constant_functor C₁ C₂ y).
+Proof.
+  use make_nat_trans.
+  - exact (λ _, f).
+  - abstract
+      (intros ? ? ? ;
+       cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)

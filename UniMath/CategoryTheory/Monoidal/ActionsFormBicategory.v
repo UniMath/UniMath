@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
@@ -31,23 +31,23 @@ Local Open Scope cat.
 
 Section FixAMonoidalCategory.
 
-  Context (Mon_V : monoidal_precat).
+  Context (Mon_V : monoidal_cat).
 
-Local Definition I : Mon_V := monoidal_precat_unit Mon_V.
-Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_precat_tensor Mon_V.
+Local Definition I : Mon_V := monoidal_cat_unit Mon_V.
+Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Local Definition α' : associator tensor := monoidal_precat_associator Mon_V.
-Local Definition λ' : left_unitor tensor I := monoidal_precat_left_unitor Mon_V.
-Local Definition ρ' : right_unitor tensor I := monoidal_precat_right_unitor Mon_V.
+Local Definition α' : associator tensor := monoidal_cat_associator Mon_V.
+Local Definition λ' : left_unitor tensor I := monoidal_cat_left_unitor Mon_V.
+Local Definition ρ' : right_unitor tensor I := monoidal_cat_right_unitor Mon_V.
 
-Let CAT := bicat_of_cats_nouniv.
+Let CAT : bicat := bicat_of_cats.
 
 Definition actions_disp_cat_ob_mor : disp_cat_ob_mor CAT.
 Proof.
-  exists (fun A => action Mon_V (pr1 A)).
+  exists (fun A => action Mon_V A).
   intros A A' actn actn' F.
-  exact (ob_disp (Strong_Functor_precategory_displayed Mon_V actn actn' (homset_property A')) F).
+  exact (ob_disp (Strong_Functor_category_displayed Mon_V actn actn') F).
 Defined.
 
 Goal ∏ A A' actn actn' F, pr2 actions_disp_cat_ob_mor A A' actn actn' F =
@@ -73,7 +73,7 @@ Definition actions_disp_2cell_struct : disp_2cell_struct actions_disp_cat_data.
 Proof.
   red.
   intros A A' F F' η actn actn' ζ ζ'.
-  exact (mor_disp(D:=Strong_Functor_precategory_displayed Mon_V actn actn' (homset_property A')) ζ ζ' η).
+  exact (mor_disp(D:=Strong_Functor_category_displayed Mon_V actn actn') ζ ζ' η).
 Defined.
 
 Goal ∏ A A' F F' η actn actn' ζ ζ', actions_disp_2cell_struct A A' F F' η actn actn' ζ ζ' =

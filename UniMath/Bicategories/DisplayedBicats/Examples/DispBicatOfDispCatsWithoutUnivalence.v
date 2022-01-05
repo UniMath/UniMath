@@ -18,12 +18,12 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Definition disp_prebicat_of_disp_cats_cat_data : disp_cat_data bicat_of_cats_nouniv.
+Definition disp_prebicat_of_disp_cats_cat_data : disp_cat_data bicat_of_cats.
 Proof.
   use tpair.
   - use tpair.
@@ -38,14 +38,14 @@ Proof.
 Defined.
 
 Definition disp_prebicat_of_disp_cats_1_id_comp_cells
-  : disp_prebicat_1_id_comp_cells bicat_of_cats_nouniv.
+  : disp_prebicat_1_id_comp_cells bicat_of_cats.
 Proof.
   exists disp_prebicat_of_disp_cats_cat_data.
   cbn. intros C C' F F' a D D' G G'. cbn in *.
   apply (disp_nat_trans a G G').
 Defined.
 
-Definition disp_prebicat_of_disp_cats_data : disp_prebicat_data bicat_of_cats_nouniv.
+Definition disp_prebicat_of_disp_cats_data : disp_prebicat_data bicat_of_cats.
 Proof.
   exists disp_prebicat_of_disp_cats_1_id_comp_cells.
   repeat split.
@@ -302,4 +302,4 @@ Proof.
 Qed.
 
 
-Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats_nouniv := _ ,, DispBicatOfDispCats_laws.
+Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats := _ ,, DispBicatOfDispCats_laws.

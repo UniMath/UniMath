@@ -142,18 +142,21 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none																			\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\).?.?.?.?/\4/'						\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:][:nonascii:]'\''_]+\)'/\1/"													\
-	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:][:nonascii:]'\''_]+\)"[[:space:]]/\1/'								\
-	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:][:nonascii:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)[[:space:]]*\./\1/'
+COQDEFS := --language=none											\
+	-r '/^[ \t]*\(\($(MODIFIERS)\)[ \t]+\)?\($(DEFINERS)\)[ \t]+\([0-9A-Za-z'\''_]+\)/\4/'			\
+	-r "/^[ \t]*Notation.* \"'\([0-9A-Za-z'\''_]+\)'/\1/"							\
+	-r '/^[ \t]*Tactic[ \t]+Notation.*[ \t]"\([0-9A-Za-z'\''_]+\)"[ \t]/\1/'				\
+	-r '/^[ \t]*Delimit[ \t]+Scope[ \t]+[0-9A-Za-z'\''_]+[ \t]+with[ \t]+\([0-9A-Za-z'\''_]+\)[ \t]*\./\1/'
+
+# this function reverses the order of items in a list
+reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
 	$(SHOW)ETAGS
 	$(HIDE)etags $(COQDEFS) $(VFILES)
-FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
-FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
+FILES_FILTER := grep -vE '^[ \t]*(\#.*)?$$'
+FILES_FILTER_2 := grep -vE '^[ \t]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
 	$(eval $P: make-summary-files build/CoqMakefile.make;								\
 		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ;									\
@@ -315,7 +318,7 @@ clean::; rm -f .check-prescribed-ordering.okay
 # and the same rule that make it makes build/CoqMakefile.make.
 VDFILE := ..coq_makefile_output.d
 clean::; rm -f $(VDFILE)
-ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
+ifeq ($(shell test -f build/CoqMakefile.make && grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
 DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)

@@ -28,15 +28,15 @@ Local Open Scope cat.
 
 Section A.
 
-Context (Mon_V : monoidal_precat).
+Context (Mon_V : monoidal_cat).
 
-Local Definition I := monoidal_precat_unit Mon_V.
-Local Definition tensor := monoidal_precat_tensor Mon_V.
+Local Definition I := monoidal_cat_unit Mon_V.
+Local Definition tensor := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Section ActionBasedStrengths_Definition.
 
-Context {A A': precategory}.
+Context {A A': category}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
 Local Definition ϱ := act_ϱ actn.
@@ -83,7 +83,7 @@ Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU 
   (χ' ((F a, v), w)) · ϛ (a, v ⊗ w) =
   (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
 
-(** the original notion in Fiore's LICS'08 paper *)
+(** the notion in Fiore's LICS'08 paper *)
 Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
   ϛ (a, v ⊗ w) =
   (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
@@ -157,18 +157,18 @@ Proof.
   apply (functor_on_inv_from_z_iso' _ (pr2 χ ((a, v), w))).
 Qed.
 
-Lemma isaprop_actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) (hsA' : has_homsets A') : isaprop (actionbased_strength_triangle_eq ϛ).
+Lemma isaprop_actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) : isaprop (actionbased_strength_triangle_eq ϛ).
 Proof.
   apply impred; intros a.
-  apply hsA'.
+  apply homset_property.
 Qed.
 
-Lemma isaprop_actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat) (hsA' : has_homsets A') : isaprop (actionbased_strength_pentagon_eq ϛ).
+Lemma isaprop_actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat) : isaprop (actionbased_strength_pentagon_eq ϛ).
 Proof.
   apply impred; intros a.
   apply impred; intros v.
   apply impred; intros w.
-  apply hsA'.
+  apply homset_property.
 Qed.
 
 End ActionBasedStrengths_Natural_Transformation.
@@ -176,14 +176,14 @@ End ActionBasedStrengths_Natural_Transformation.
 Definition actionbased_strength (F : A ⟶ A') : UU := ∑ (ϛ : actionbased_strength_nat F),
    (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
 
-Lemma actionbased_strength_eq (hsA' : has_homsets A') {F : A ⟶ A'} (sη sη': actionbased_strength F) :
+Lemma actionbased_strength_eq {F : A ⟶ A'} (sη sη': actionbased_strength F) :
   pr1 sη = pr1 sη' -> sη = sη'.
 Proof.
   intro Heq.
   apply subtypePath; trivial.
   intro ϛ. apply isapropdirprod.
-  + apply isaprop_actionbased_strength_triangle_eq, hsA'.
-  + apply isaprop_actionbased_strength_pentagon_eq, hsA'.
+  + apply isaprop_actionbased_strength_triangle_eq.
+  + apply isaprop_actionbased_strength_pentagon_eq.
 Qed.
 
 Definition actionbased_strength_to_nat {F : A ⟶ A'} (FF : actionbased_strength F) :
@@ -209,7 +209,7 @@ Definition ab_strength_pentagon {F : A ⟶ A'} (FF : actionbased_strength F) :
 
 End ActionBasedStrengths_Definition.
 
-Definition ab_strength_identity_functor {A : precategory} (actn : action Mon_V A) :
+Definition ab_strength_identity_functor {A : category} (actn : action Mon_V A) :
   actionbased_strength actn actn (functor_identity A).
 Proof.
   use tpair.
@@ -225,7 +225,7 @@ Proof.
       apply pathsinv0, id_left.
 Defined.
 
-Definition ab_strength_composition {A1 A2 A3 : precategory}
+Definition ab_strength_composition {A1 A2 A3 : category}
            {actn1 : action Mon_V A1} {actn2 : action Mon_V A2} {actn3 : action Mon_V A3}
            {F : A1 ⟶ A2} {F' : A2 ⟶ A3} :
   actionbased_strength actn1 actn2 F -> actionbased_strength actn2 actn3 F' ->
@@ -293,13 +293,13 @@ Proof.
       apply idpath.
 Defined.
 
-Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
+Definition actionbased_strong_functor {A A' : category} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
   := ∑ (F : A ⟶ A'), actionbased_strength actn actn' F.
 
-Definition actionbased_strong_functor_to_functor (A A' : precategory) (actn : action Mon_V A)(actn' : action Mon_V A') (FF : actionbased_strong_functor actn actn') : A ⟶ A' := pr1 FF.
+Definition actionbased_strong_functor_to_functor (A A' : category) (actn : action Mon_V A)(actn' : action Mon_V A') (FF : actionbased_strong_functor actn actn') : A ⟶ A' := pr1 FF.
 Coercion actionbased_strong_functor_to_functor : actionbased_strong_functor >-> functor.
 
-Definition ab_strong_functor_strength {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A')
+Definition ab_strong_functor_strength {A A' : category} (actn : action Mon_V A)(actn' : action Mon_V A')
            (FF : actionbased_strong_functor actn actn') : actionbased_strength_nat actn actn' FF
   := pr1 (pr2 FF).
 
@@ -313,76 +313,39 @@ Section Alternative_Definition.
 (** we continue in the spirit of the definition of actions given by Janelidze and Kelly, however we are not aware
     of this definition in the literature *)
 
-  Context {A A' : precategory} (hsA: has_homsets A) (hsA' : has_homsets A').
+  Context (A A' : category).
 
-  Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
-  Let Mon_EndA' : monoidal_precat := monoidal_precat_of_endofunctors hsA'.
-  Let hsMon_EndA : has_homsets Mon_EndA := functor_category_has_homsets _ _ hsA.
-  Let hsMon_EndA' : has_homsets Mon_EndA' := functor_category_has_homsets _ _ hsA'.
+  Let Mon_EndA : monoidal_cat := monoidal_cat_of_endofunctors A.
+  Let Mon_EndA' : monoidal_cat := monoidal_cat_of_endofunctors A'.
 
   Context (FA: strong_monoidal_functor Mon_V Mon_EndA).
   Context (FA': strong_monoidal_functor Mon_V Mon_EndA').
 
 Section Param_Distr.
 
-  Context (F : functor A A').
+  Context (F : [A, A']).
+
+  Local Definition precompF := pre_composition_functor _ A' A' F.
+  Local Definition postcompF {C: category} := post_composition_functor C A A' F.
 
   (** a parameterized form of distributivity as strength *)
-  Definition param_distributivity_dom : functor Mon_V [A, A', hsA'].
-  Proof.
-    use make_functor.
-    - use make_functor_data.
-      + intro v. exact (functor_composite F (FA' v)).
-      + intros v v' f.
-        exact (pre_whisker F (# FA' f)).
-    - split.
-      + intro v.
-        (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_id FA' v).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply idpath.
-      + intros v1 v2 v3 f g.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_comp FA' f g).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        apply aux.
-  Defined.
+  Definition param_distributivity_dom : functor Mon_V [A, A'] :=
+    functor_compose (pr11 FA') precompF.
 
-  Definition param_distributivity_codom : functor Mon_V [A, A', hsA'].
-    Proof.
-    use make_functor.
-    - use make_functor_data.
-      + intro v. exact (functor_composite (FA v) F).
-      + intros v v' f.
-        exact (post_whisker (# FA f) F).
-    - split.
-      + intro v.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_id FA v).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply functor_id.
-      + intros v1 v2 v3 f g.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_comp FA f g).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply functor_comp.
-    Defined.
+  Goal ∏ v, param_distributivity_dom v = functor_compose F (FA' v).
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
+
+  Definition param_distributivity_codom : functor Mon_V [A, A'] :=
+    functor_compose (pr11 FA) postcompF.
+
+  Goal ∏ v, param_distributivity_codom v = functor_compose (FA v) F.
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
 
     Definition parameterized_distributivity_nat : UU := param_distributivity_dom ⟹ param_distributivity_codom.
 
@@ -393,54 +356,74 @@ Section Param_Distr.
 
 Section The_Laws.
 
-    Context (δ : parameterized_distributivity_nat).
+  Context (δ : parameterized_distributivity_nat).
 
-    Definition param_distr_triangle_eq : UU :=
-      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_ϵ FA')) (δ I) =
-      post_whisker (lax_monoidal_functor_ϵ FA) F.
+  Definition param_distr_triangle_eq : UU :=
+      # precompF (lax_monoidal_functor_ϵ FA') · (δ I) = # postcompF (lax_monoidal_functor_ϵ FA).
+
+    (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
+        directly afterwards *)
+  Definition param_distr_triangle_eq_variant0_RHS :
+    [A, A'] ⟦ precompF (FA' (MonoidalFunctors.I_C Mon_V)), postcompF (FA (MonoidalFunctors.I_C Mon_V)) ⟧ :=
+    # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
+
+    Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
 
     Definition param_distr_triangle_eq_variant : UU :=
-      nat_trans_comp _ _ _ (δ I) (post_whisker (strong_monoidal_functor_ϵ_inv FA) F)  =
-      pre_whisker F (strong_monoidal_functor_ϵ_inv FA').
+      (δ I) · (# postcompF (strong_monoidal_functor_ϵ_inv FA))  =
+      # precompF (strong_monoidal_functor_ϵ_inv FA').
 
-
-    Definition aux1_param_distr_triangle_eq_variant : z_iso (functor_compose hsA hsA' (FA I: functor A A) F)(functor_composite (MonoidalFunctors.I_D Mon_EndA) F).
+    Definition postwhisker_with_ϵ_inv_z_iso :
+      z_iso (postcompF (FA (MonoidalFunctors.I_C Mon_V))) (postcompF (MonoidalFunctors.I_D Mon_EndA)).
     Proof.
+      apply functor_on_z_iso.
       use tpair.
-      - exact (post_whisker (strong_monoidal_functor_ϵ_inv FA) F).
-      - cbn.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        apply post_whisker_z_iso_is_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA))).
+      - exact (strong_monoidal_functor_ϵ_inv FA).
+      - cbn beta in |- *.
         apply is_z_isomorphism_inv.
     Defined.
 
-    Definition aux2_param_distr_triangle_eq_variant : z_iso (functor_compose hsA' hsA' F (FA' (MonoidalFunctors.I_C Mon_V)))(functor_composite F (MonoidalFunctors.I_D Mon_EndA')).
+    Definition prewhisker_with_ϵ_inv_z_iso :
+      z_iso (precompF (FA' (MonoidalFunctors.I_C Mon_V))) (precompF (MonoidalFunctors.I_D Mon_EndA')).
     Proof.
+      apply functor_on_z_iso.
       use tpair.
-      - exact (pre_whisker F (strong_monoidal_functor_ϵ_inv FA')).
-      - cbn.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        apply pre_whisker_on_nat_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA'))).
+      - exact (strong_monoidal_functor_ϵ_inv FA').
+      - cbn beta in |- *.
         apply is_z_isomorphism_inv.
     Defined.
+
+    Lemma param_distr_triangle_eq_variant0_follows :
+      param_distr_triangle_eq -> param_distr_triangle_eq_variant0.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_triangle_eq_variant0_RHS.
+      apply pathsinv0 in Hyp.
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      apply pathsinv0.
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr_triangle_eq_variant0_implies :
+      param_distr_triangle_eq_variant0 -> param_distr_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_triangle_eq_variant0_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
+      red.
+      exact Hyp.
+    Qed.
 
     Lemma param_distr_triangle_eq_variant_follows :
       param_distr_triangle_eq -> param_distr_triangle_eq_variant.
     Proof.
       intro Hyp.
       red.
-      apply (z_iso_inv_to_right _ _ _ _ aux1_param_distr_triangle_eq_variant).
-      apply (z_iso_inv_to_left _ _ _ aux2_param_distr_triangle_eq_variant).
-      cbn.
-      apply nat_trans_eq; try exact hsA'.
-      intro a.
-      cbn.
-      red in Hyp.
-      apply (maponpaths pr1) in Hyp.
-      apply toforallpaths in Hyp.
-      apply Hyp.
+      apply (z_iso_inv_to_right _ _ _ _ postwhisker_with_ϵ_inv_z_iso).
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      exact Hyp.
     Qed.
 
     Lemma param_distr_triangle_eq_variant_implies :
@@ -449,40 +432,81 @@ Section The_Laws.
       intro Hyp.
       red in Hyp.
       apply pathsinv0 in Hyp.
-      apply (z_iso_inv_on_left _ _ _ _ aux1_param_distr_triangle_eq_variant) in Hyp.
-      apply (z_iso_inv_on_right _ _ _ aux2_param_distr_triangle_eq_variant) in Hyp.
-      red.
-      apply nat_trans_eq; try exact hsA'.
-      intro a.
-      cbn.
-      apply (maponpaths pr1) in Hyp.
-      apply toforallpaths in Hyp.
-      apply Hyp.
+      apply (z_iso_inv_on_left _ _ _ _ postwhisker_with_ϵ_inv_z_iso) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
+      exact Hyp.
     Qed.
 
+    (** we also abstract over the constituent distributivities *)
+    Definition param_distr_pentagon_eq_body_RHS (v w : Mon_V)
+               (dv: [A, A'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A']
+        ⟦ precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+          postcompF (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w))⟧.
+    Proof.
+      set (aux1 := # (post_comp_functor (FA' w)) dv).
+      set (aux2 := # (pre_comp_functor (FA v)) dw).
+      set (aux3 := # postcompF (lax_monoidal_functor_μ FA (v,,w))).
+      set (auxr := aux1 · aux2).
+      exact (auxr · aux3).
+    Defined.
 
-    Definition param_distr_pentagon_eq_body (v w : Mon_V) : UU :=
-      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))) (δ (v ⊗ w)) =
-      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
-                                           (pre_whisker (FA v: functor A A) (δ w)))
-                     (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-
-(*
-      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))).
-      set (aux2 := δ (v ⊗ w)).
-      set (auxl := nat_trans_comp _ _ _ aux1 aux2).
-      set (aux3 := post_whisker (δ v) (FA' w)).
-      set (aux4 := pre_whisker (FA v: functor A A) (δ w)).
-      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-      set (auxr1 := nat_trans_comp _ _ _ aux3 aux4).
-      set (auxr := nat_trans_comp _ _ _ auxr1 aux5).
-*)
+    Definition param_distr_pentagon_eq_body (v w : Mon_V) : UU.
+    Proof.
+      set (aux := # precompF (lax_monoidal_functor_μ FA' (v,,w))).
+      exact (aux · δ (v ⊗ w) = param_distr_pentagon_eq_body_RHS v w (δ v) (δ w)).
+    Defined.
 
     Definition param_distr_pentagon_eq : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
 
+    Definition param_distr_pentagon_eq_body_variant_RHS (v w : Mon_V)
+               (dv: [A, A'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A'] ⟦ param_distributivity_dom (v ⊗ w), param_distributivity_codom (v ⊗ w) ⟧.
+    Proof.
+      set (aux1inv := # precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      exact (aux1inv · (param_distr_pentagon_eq_body_RHS v w dv dw)).
+    Defined.
+
+    Definition param_distr_pentagon_eq_body_variant (v w : Mon_V): UU :=
+      δ (v ⊗ w) = param_distr_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    Definition prewhisker_with_μ_inv_z_iso (v w : Mon_V):
+      z_iso (precompF (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w)))
+            (precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w))).
+    Proof.
+      use tpair.
+      - exact (# precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      - cbn beta in |- *.
+        apply functor_on_is_z_isomorphism.
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Lemma param_distr_pentagon_eq_body_variant_follows (v w : Mon_V):
+      param_distr_pentagon_eq_body v w -> param_distr_pentagon_eq_body_variant v w.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_pentagon_eq_body_variant_RHS.
+      apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso v w)).
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr_pentagon_eq_body_variant_implies (v w : Mon_V):
+      param_distr_pentagon_eq_body_variant v w -> param_distr_pentagon_eq_body v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_pentagon_eq_body_variant_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso v w)) in Hyp.
+      exact Hyp.
+    Qed.
+
+
     Lemma isaprop_param_distr_triangle_eq : isaprop param_distr_triangle_eq.
     Proof.
-      apply (functor_category_has_homsets _ _ hsA').
+      apply homset_property.
     Qed.
 
     Lemma isaprop_param_distr_pentagon_eq : isaprop param_distr_pentagon_eq.
@@ -490,7 +514,7 @@ Section The_Laws.
       red.
       apply impred; intros v.
       apply impred; intros w.
-      apply isaset_nat_trans; exact hsA'.
+      apply isaset_nat_trans, homset_property.
     Qed.
 
 End The_Laws.
@@ -520,11 +544,11 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
 
    Let δ_triangle_eq := pr1 (pr2 sδ).
    Let δ_pentagon_eq := pr2 (pr2 sδ).
-   Let actionA := action_from_alt Mon_V A hsA FA.
-   Let actionA' := action_from_alt Mon_V A' hsA' FA'.
+   Let actionA := action_from_alt Mon_V A FA.
+   Let actionA' := action_from_alt Mon_V A' FA'.
 
    Definition strength_nat_from_alt_aux_dom :
-     actionbased_strength_dom actionA' F ⟹ uncurry_functor hsA' param_distributivity_dom.
+     actionbased_strength_dom actionA' F ⟹ uncurry_functor _ _ _ param_distributivity_dom.
    Proof.
      use make_nat_trans.
      - intro av.
@@ -536,7 +560,7 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
    Defined.
 
    Definition strength_nat_from_alt_aux_codom :
-     uncurry_functor hsA' param_distributivity_codom ⟹ actionbased_strength_codom actionA F.
+     uncurry_functor _ _ _ param_distributivity_codom ⟹ actionbased_strength_codom actionA F.
    Proof.
      use make_nat_trans.
      - intro av.
@@ -553,7 +577,7 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
      red.
      refine (nat_trans_comp _ _ _ strength_nat_from_alt_aux_dom _).
      refine (nat_trans_comp _ _ _ _ strength_nat_from_alt_aux_codom).
-     exact (uncurry_nattrans hsA' sδ).
+     exact (uncurry_nattrans _ _ _ sδ).
    Defined.
 
    Lemma triangle_eq_from_alt : actionbased_strength_triangle_eq actionA actionA' F strength_nat_from_alt.
@@ -615,13 +639,13 @@ End A.
 Section B.
 (** following the TYPES'15 post-proceedings paper by Ahrens and Matthes - will be identified as an instance of the previous *)
 
-  Context {Mon_W Mon_V : monoidal_precat}.
+  Context {Mon_W Mon_V : monoidal_cat}.
 
-  Local Definition timesV := monoidal_precat_tensor Mon_V.
-  Local Definition lambda := monoidal_precat_left_unitor Mon_V.
-  Local Definition alpha := monoidal_precat_associator Mon_V.
+  Local Definition timesV := monoidal_cat_tensor Mon_V.
+  Local Definition lambda := monoidal_cat_left_unitor Mon_V.
+  Local Definition alpha := monoidal_cat_associator Mon_V.
 
-  Local Definition timesW := monoidal_precat_tensor Mon_W.
+  Local Definition timesW := monoidal_cat_tensor Mon_W.
 
   Context (U : strong_monoidal_functor Mon_W Mon_V).
 
@@ -659,7 +683,7 @@ Section RelativeStrengths_Natural_Transformation.
 
   (** the following looks like a pentagon but is of the nature of a triangle equation *)
   Definition rel_strength_pentagon_eq (ϛ : rel_strength_nat) :=
-    ∏ (v : Mon_V), ϛ (monoidal_precat_unit Mon_W, v) · #F (strong_monoidal_functor_ϵ_inv U #⊗V identity v) · #F (lambda v)  =
+    ∏ (v : Mon_V), ϛ (monoidal_cat_unit Mon_W, v) · #F (strong_monoidal_functor_ϵ_inv U #⊗V identity v) · #F (lambda v)  =
                strong_monoidal_functor_ϵ_inv U #⊗V identity (F v) · lambda (F v).
 
   (** the following looks like a rectangle in the paper but is of the nature of a pentagon equation *)
@@ -701,10 +725,10 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
   Local Definition pentagon := rel_strength_pentagon str.
   Local Definition rectangle := rel_strength_rectangle str.
 
-  Local Definition Mon_W' := swapping_of_monoidal_precat Mon_W.
-  Local Definition timesW' := monoidal_precat_tensor Mon_W'.
-  Local Definition Mon_V' := swapping_of_monoidal_precat Mon_V.
-  Local Definition timesV' := monoidal_precat_tensor Mon_V'.
+  Local Definition Mon_W' := swapping_of_monoidal_cat Mon_W.
+  Local Definition timesW' := monoidal_cat_tensor Mon_W'.
+  Local Definition Mon_V' := swapping_of_monoidal_cat Mon_V.
+  Local Definition timesV' := monoidal_cat_tensor Mon_V'.
 
   Local Definition U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
   Local Definition phiinv' := pre_whisker binswap_pair_functor (strong_monoidal_functor_μ_inv U).
@@ -720,7 +744,7 @@ Proof.
   - red.
     cbn.
     intro v.
-    change (str (monoidal_precat_unit Mon_W, v) · # F (# timesV (strong_monoidal_functor_ϵ_inv U #, id v) · lambda v) =
+    change (str (monoidal_cat_unit Mon_W, v) · # F (# timesV (strong_monoidal_functor_ϵ_inv U #, id v) · lambda v) =
             # timesV (strong_monoidal_functor_ϵ_inv U #, id F v) · lambda (F v)).
     rewrite <- pentagon.
     rewrite assoc'. rewrite functor_comp.

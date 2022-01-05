@@ -48,7 +48,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Local Infix "::" := (@cons nat).
 Local Notation "[]" := (@nil nat) (at level 0, format "[]").
-Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
+Local Notation "'HSET2'":= [HSET, HSET].
 
 Section preamble.
 
@@ -60,11 +60,6 @@ induction n as [|n _]; [apply b|].
 induction n as [|n _]; [apply c|].
 induction n as [|n _]; [apply d|].
 induction (nopathsfalsetotrue p).
-Defined.
-
-Local Lemma has_homsets_HSET2 : has_homsets HSET2.
-Proof.
-apply functor_category_has_homsets.
 Defined.
 
 End preamble.
@@ -191,7 +186,7 @@ Definition WSig : BindingSig :=
 
 Definition USig : BindingSig := mkBindingSig isasetnat (λ _, []).
 
-Let SigHSET := Signature HSET has_homsets_HSET HSET has_homsets_HSET HSET has_homsets_HSET.
+Let SigHSET := Signature HSET HSET HSET.
 
 (** The binding signature of MLTT79 *)
 Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
@@ -201,14 +196,14 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 Definition MLTT79Signature : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
 
-Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.
+Let Id_H := Id_H _ BinCoproductsHSET.
 
 Definition MLTT79Functor : functor HSET2 HSET2 := Id_H (Presignature_Signature MLTT79Signature).
 
 Definition MLTT79Monad : Monad HSET := BindingSigToMonadHSET MLTT79Sig.
 
 Lemma MLTT79Functor_Initial :
-   Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
+   Initial (FunctorAlg MLTT79Functor).
 Proof.
 apply SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
 Defined.
@@ -223,7 +218,7 @@ Let MLTT79_alg : algebra_ob MLTT79Functor :=
   InitialObject MLTT79Functor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,MLTT79⟧ :=
-  BinCoproductIn1 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) · MLTT79_mor.
+  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · MLTT79_mor.
 
 (* TODO: define the rest of the constructors and computation rules? *)
 

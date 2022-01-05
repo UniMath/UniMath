@@ -261,7 +261,7 @@ Qed.
 
 Section functors_and_idtoiso.
 
-Variables C D : precategory.
+Variables C D : category.
 Variable F : functor C D.
 
 Lemma maponpaths_idtoiso (a b : C) (e : a = b)
@@ -282,7 +282,7 @@ Lemma maponpaths_isotoid (a b : C) (i : iso a b)
   =
   isotoid _ HD (functor_on_iso F i).
 Proof.
-  apply (invmaponpathsweq (make_weq (idtoiso) (pr1 HD _ _ ))).
+  apply (invmaponpathsweq (make_weq (idtoiso) (HD _ _ ))).
   simpl.
   rewrite maponpaths_idtoiso.
   repeat rewrite idtoiso_isotoid.
@@ -292,6 +292,44 @@ Qed.
 End functors_and_idtoiso.
 
 Notation "# F" := (functor_on_morphisms F)(at level 3) : cat. (* Notations do not survive the end of sections.  *)
+
+Lemma idtoiso_functor_precompose
+      {C₁ C₂ : category}
+      (F : C₁ ⟶ C₂)
+      {y : C₂}
+      {x₁ x₂ : C₁}
+      (p : x₁ = x₂)
+      (f : F x₁ --> y)
+  : idtoiso (maponpaths (λ z, F z) (!p)) · f
+    =
+    transportf (λ z, F z --> y) p f.
+Proof.
+  induction p.
+  cbn.
+  apply id_left.
+Qed.
+
+Definition transportf_functor_isotoid
+           {C₁ C₂ : category}
+           (HC₁ : is_univalent C₁)
+           (F : C₁ ⟶ C₂)
+           {y : C₂}
+           {x₁ x₂ : C₁}
+           (i : iso x₁ x₂)
+           (f : F x₁ --> y)
+  : transportf
+      (λ z, F z --> y)
+      (isotoid _ HC₁ i)
+      f
+    =
+    #F (inv_from_iso i) · f.
+Proof.
+  rewrite <- idtoiso_functor_precompose.
+  rewrite maponpaths_idtoiso.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
 
 (** ** Functors preserve inverses *)
 
@@ -309,14 +347,14 @@ Qed.
 
 (** The generic property of "reflecting" a property of a morphism. *)
 
-Definition reflects_morphism {C D : precategory} (F : functor C D)
-           (P : ∏ (C : precategory) (a b : ob C), C⟦a, b⟧ → UU) : UU :=
+Definition reflects_morphism {C D : category} (F : functor C D)
+           (P : ∏ (C : category) (a b : ob C), C⟦a, b⟧ → UU) : UU :=
   ∏ a b f, P D (F a) (F b) (# F f) → P C a b f.
 
 (** These are functors that reflect isomorphisms. F : C ⟶ D is conservative
     if whenever # F f is an iso, so is f. *)
 
-Definition conservative {C D : precategory} (F : functor C D) : UU :=
+Definition conservative {C D : category} (F : functor C D) : UU :=
   reflects_morphism F (@is_iso).
 
 (** ** Composition of functors, identity functors *)
@@ -518,7 +556,7 @@ Proof.
 Defined.
 
 (** A slight restatement of the above: fully faithful functors are conservative. *)
-Lemma fully_faithful_conservative {C D : precategory} (F : functor C D)
+Lemma fully_faithful_conservative {C D : category} (F : functor C D)
       (FF : fully_faithful F) : conservative F.
 Proof.
   unfold conservative.
@@ -641,7 +679,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma ff_is_inclusion_on_objects {C D : precategory}
+Lemma ff_is_inclusion_on_objects {C D : category}
       (HC : is_univalent C) (HD : is_univalent D)
       (F : functor C D) (HF : fully_faithful F)
       : isofhlevelf 1 (functor_on_objects F).

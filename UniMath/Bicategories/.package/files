@@ -13,13 +13,14 @@ Core/UnivalenceOp.v
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
+Core/Examples/BicatOfUnivCats.v
 Core/Examples/BicatOfCats.v
-Core/Examples/BicatOfCatsWithoutUnivalence.v
 Core/Strictness.v
 Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -83,6 +84,8 @@ DisplayedBicats/Examples/ContravariantFunctorWithoutUnivalence.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CofunctormapWithoutUnivalence.v
 DisplayedBicats/Examples/CwF.v
+DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
@@ -94,13 +97,16 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
 Core/Examples/Image.v
-PseudoFunctors/Examples/RestrictImage.v
+PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
 
 Colimits/Initial.v
 Colimits/Final.v
+Colimits/Products.v
+Colimits/Pullback.v
 PseudoFunctors/Biadjunction.v
-PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v
+PseudoFunctors/Examples/CurryingInBicatOfCats.v
+PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
 DisplayedBicats/DispToFiberEquivalence.v
@@ -113,7 +119,22 @@ WkCatEnrichment/whiskering.v
 WkCatEnrichment/Cat.v
 WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
+WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
+Discreteness.v
+
 BicategoryOfBicat.v
 BicatOfBicategory.v
-Discreteness.v
+
+DisplayedBicats/CleavingOfBicat.v
+DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
+DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
+DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
+
+Core/InternalStreetFibration.v
+Core/InternalStreetOpFibration.v
+DisplayedBicats/Examples/CodomainFibs.v
+
+ComprehensionBicat.v

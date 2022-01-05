@@ -11,16 +11,16 @@ Require Import UniMath.Bicategories.Core.Bicat.
 
 Local Open Scope cat.
 
-(* Defines a prebicategory from a monoidal precategory. *)
-Section Prebicat_From_Monoidal_Precat.
+(* Defines a bicategory from a monoidal category. *)
+Section Bicat_From_Monoidal_Cat.
 
-Context (M : monoidal_precat).
-Let pM := monoidal_precat_precat M.
-Let I := monoidal_precat_unit M.
-Let tensor := monoidal_precat_tensor M.
-Let α := monoidal_precat_associator M.
-Let l := monoidal_precat_left_unitor M.
-Let ρ := monoidal_precat_right_unitor M.
+Context (M : monoidal_cat).
+Let pM := monoidal_cat_cat M.
+Let I := monoidal_cat_unit M.
+Let tensor := monoidal_cat_tensor M.
+Let α := monoidal_cat_associator M.
+Let l := monoidal_cat_left_unitor M.
+Let ρ := monoidal_cat_right_unitor M.
 Let triangle_equality := pr1 (pr222 (pr222 M)).
 Let pentagon_equation := pr2 (pr222 (pr222 M)).
 
@@ -193,11 +193,11 @@ Qed.
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
 
-Definition bicat_from_monoidal (hs : has_homsets pM) : bicat.
+Definition bicat_from_monoidal : bicat.
   use build_bicategory.
   - exact prebicat_data_from_monoidal.
   - exact prebicat_laws_from_monoidal.
-  - red. intros. apply hs.
+  - red. intros. apply homset_property.
 Defined.
 
-End Prebicat_From_Monoidal_Precat.
+End Bicat_From_Monoidal_Cat.

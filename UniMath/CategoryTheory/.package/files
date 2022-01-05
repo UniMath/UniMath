@@ -88,8 +88,10 @@ UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
+CATAsInstanceOfBicat.v
 PointedFunctorsComposition.v
 CommaCategories.v
+IsoCommaCategory.v
 ArrowCategory.v
 RightKanExtension.v
 slicecat.v
@@ -140,6 +142,7 @@ categories/modules.v
 categories/StandardCategories.v
 categories/Cats.v
 categories/preorder_categories.v
+
 categories/Type/Colimits.v
 categories/Type/Limits.v
 categories/Type/Structures.v
@@ -190,19 +193,24 @@ DisplayedCats/Projection.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
-DisplayedCats/Examples/HLevel.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Examples/Opposite.v
+DisplayedCats/StreetFibration.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
 Monoidal/PointedFunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
+Monoidal/AugmentedSimplexCategory.v
+Monoidal/DisplayedMonoidal.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/ConstructionOfActions.v
+Monoidal/ActionBasedStrongFunctorsMonoidal.v
 Monoidal/MonoidalFromBicategory.v
 Monoidal/ActionOfEndomorphismsInBicat.v
 Monoidal/ActionBasedStrength.v

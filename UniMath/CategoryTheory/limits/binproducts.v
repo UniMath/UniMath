@@ -43,7 +43,7 @@ Local Open Scope cat.
 (** ** Definition of binary products *)
 Section binproduct_def.
 
-Variable C : precategory.
+Variable C : category.
 
 Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) : UU :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
@@ -135,7 +135,7 @@ Proof.
   - exact X.
 Defined.
 
-Definition make_isBinProduct (hsC : has_homsets C) (a b p : C)
+Definition make_isBinProduct (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
   (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
@@ -210,7 +210,7 @@ End binproduct_def.
 
 Section BinProducts.
 
-Variable C : precategory.
+Variable C : category.
 Variable CC : BinProducts C.
 Variables a b c d x y : C.
 
@@ -239,7 +239,7 @@ End BinProducts.
 
 Section BinProduct_unique.
 
-Variable C : precategory.
+Variable C : category.
 Variable CC : BinProducts C.
 Variables a b : C.
 
@@ -264,7 +264,7 @@ End BinProduct_unique.
 
 Section BinProducts_from_Lims.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Variables (C : category).
 
 Definition two_graph : graph := (bool,,λ _ _,empty).
 
@@ -290,13 +290,13 @@ use make_BinProduct.
 + apply (lim LC).
 + apply (limOut LC true).
 + apply (limOut LC false).
-+ apply (make_isBinProduct _ hsC); simpl; intros c f g.
++ apply (make_isBinProduct C); simpl; intros c f g.
   use unique_exists; simpl.
   - apply limArrow, (Binproduct f g).
   - abstract (split;
       [ apply (limArrowCommutes LC c (Binproduct f g) true)
       | apply (limArrowCommutes LC c (Binproduct f g) false) ]).
-  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (intros h; apply isapropdirprod; apply C).
   - abstract (now intros h [H1 H2]; apply limArrowUnique; intro x; induction x).
 Defined.
 
@@ -304,7 +304,7 @@ End BinProducts_from_Lims.
 
 Section test.
 
-Variable C : precategory.
+Variable C : category.
 Variable H : BinProducts C.
 Arguments BinProductObject [C] c d {_}.
 Local Notation "c 'x' d" := (BinProductObject  c d )(at level 5).
@@ -317,10 +317,10 @@ End test.
 
 Section binproduct_functor.
 
-Context {C : precategory} (PC : BinProducts C).
+Context {C : category} (PC : BinProducts C).
 
 Definition binproduct_functor_data :
-  functor_data (precategory_binproduct C C) C.
+  functor_data (category_binproduct C C) C.
 Proof.
 use tpair.
 - intros p.
@@ -330,7 +330,7 @@ use tpair.
                            (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
 Defined.
 
-Definition binproduct_functor : functor (precategory_binproduct C C) C.
+Definition binproduct_functor : functor (category_binproduct C C) C.
 Proof.
 apply (tpair _ binproduct_functor_data).
 abstract (split;
@@ -348,7 +348,7 @@ End binproduct_functor.
   For a direct definition see FunctorsPointwiseBinProduct.v
 
 *)
-Definition BinProduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
+Definition BinProduct_of_functors_alt {C D : category} (HD : BinProducts D)
   (F G : functor C D) : functor C D :=
   functor_composite (bindelta_functor C)
      (functor_composite (pair_functor F G) (binproduct_functor HD)).
@@ -359,7 +359,7 @@ Definition BinProduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
     zero morphism. *)
 Section BinProduct_zeroarrow.
 
-  Variable C : precategory.
+  Variable C : category.
   Variable Z : Zero C.
 
   Lemma BinProductArrowZero {x y z: C} {BP : BinProduct C x y} (f : z --> x) (g : z --> y) :
@@ -378,9 +378,8 @@ End BinProduct_zeroarrow.
 (** Goal: lift binary products from the target (pre)category to the functor (pre)category *)
 Section def_functor_pointwise_binprod.
 
-Variable C D : precategory.
+Variable C D : category.
 Variable HD : BinProducts D.
-Variable hsD : has_homsets D.
 
 Section BinProduct_of_functors.
 
@@ -427,7 +426,7 @@ Definition BinProduct_of_functors : functor C D :=
 Lemma BinProduct_of_functors_alt_eq_BinProduct_of_functors :
   BinProduct_of_functors_alt HD F G = BinProduct_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Definition binproduct_nat_trans_pr1_data : ∏ c, BinProduct_of_functors c --> F c
@@ -508,7 +507,7 @@ Lemma binproduct_nat_trans_Pr1Commutes :
   nat_trans_comp _ _ _ binproduct_nat_trans binproduct_nat_trans_pr1  = f.
 Proof.
   apply nat_trans_eq.
-  - apply hsD.
+  - apply D.
   - intro c; simpl.
     apply BinProductPr1Commutes.
 Qed.
@@ -517,26 +516,26 @@ Lemma binproduct_nat_trans_Pr2Commutes :
   nat_trans_comp _ _ _ binproduct_nat_trans binproduct_nat_trans_pr2  = g.
 Proof.
   apply nat_trans_eq.
-  - apply hsD.
+  - apply D.
   - intro c; simpl.
     apply BinProductPr2Commutes.
 Qed.
 
 End vertex.
 
-Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
-  (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
+Lemma binproduct_nat_trans_univ_prop (A : [C, D])
+  (f : (A --> (F:[C,D]))) (g : A --> (G:[C,D])) :
    ∏
-   t : ∑ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
-       fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
+   t : ∑ fg : A --> (BinProduct_of_functors:[C,D]),
+       fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D]) --> F) = f
       ×
-       fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g,
+       fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D]) --> G) = g,
    t =
    tpair
-     (λ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
-      fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
+     (λ fg : A --> (BinProduct_of_functors:[C,D]),
+      fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D]) --> F) = f
    ×
-      fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g)
+      fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D]) --> G) = g)
      (binproduct_nat_trans A f g)
      (make_dirprod (binproduct_nat_trans_Pr1Commutes A f g)
         (binproduct_nat_trans_Pr2Commutes A f g)).
@@ -550,10 +549,10 @@ Proof.
     simpl.
     apply isapropdirprod;
     apply isaset_nat_trans;
-    apply hsD.
+    apply D.
   - simpl.
     apply nat_trans_eq.
-    + apply hsD.
+    + apply D.
     + intro c.
       unfold binproduct_nat_trans.
       simpl.
@@ -564,14 +563,13 @@ Proof.
 Qed.
 
 Definition functor_precat_binproduct_cone
-  : BinProduct [C, D, hsD] F G.
+  : BinProduct [C, D] F G.
 Proof.
 use make_BinProduct.
 - apply BinProduct_of_functors.
 - apply binproduct_nat_trans_pr1.
 - apply binproduct_nat_trans_pr2.
 - use make_isBinProduct.
-  + apply functor_category_has_homsets.
   + intros A f g.
     exists (tpair _ (binproduct_nat_trans A f g)
              (make_dirprod (binproduct_nat_trans_Pr1Commutes _ _ _ )
@@ -582,7 +580,7 @@ Defined.
 
 End BinProduct_of_functors.
 
-Definition BinProducts_functor_precat : BinProducts [C, D, hsD].
+Definition BinProducts_functor_precat : BinProducts [C, D].
 Proof.
   intros F G.
   apply functor_precat_binproduct_cone.
@@ -595,8 +593,7 @@ End def_functor_pointwise_binprod.
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
 Section BinProduct_from_iso.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   Local Lemma iso_to_isBinProduct_comm {x y z : C} (BP : BinProduct C x y)
         (i : iso z (BinProductObject C BP)) (w : C) (f : w --> x) (g : w --> y) :
@@ -635,7 +632,7 @@ Section BinProduct_from_iso.
     (* Commutativity *)
     - exact (iso_to_isBinProduct_comm BP i w f g).
     (* Equality of equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    - intros y0. apply isapropdirprod. apply C. apply C.
     (* Uniqueness *)
     - intros y0 T. exact (iso_to_isBinProduct_unique BP i w f g y0 T).
   Defined.
@@ -656,7 +653,7 @@ End BinProduct_from_iso.
  *)
 
 Section EquivalentDefinition.
-  Context {C : precategory} {c d p : ob C} (p1 : p --> c) (p2 : p --> d).
+  Context {C : category} {c d p : ob C} (p1 : p --> c) (p2 : p --> d).
 
   Definition postcomp_with_projections (a : ob C) (f : a --> p) :
     (a --> c) × (a --> d) := make_dirprod (f · p1)  (f · p2).
@@ -700,7 +697,7 @@ Arguments isBinProduct' _ _ _ _ _ : clear implicits.
 (** ** Terminal object as the unit (up to isomorphism) of binary products *)
 
 (** [T × x ≅ x]*)
-Lemma terminal_binprod_unit_l {C : precategory}
+Lemma terminal_binprod_unit_l {C : category}
       (T : Terminal C) (BC : BinProducts C) :
   ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
 Proof.
@@ -722,7 +719,7 @@ Defined.
 
 (** [x × T ≅ x]*)
 
-Lemma terminal_binprod_unit_r {C : precategory}
+Lemma terminal_binprod_unit_r {C : category}
       (T : Terminal C) (BC : BinProducts C) :
   ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
 Proof.

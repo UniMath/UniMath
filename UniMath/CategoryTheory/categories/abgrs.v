@@ -197,9 +197,8 @@ Section def_abgr_category.
 
   Definition abgr_category_is_univalent : is_univalent abgr_category.
   Proof.
-    use make_dirprod.
-    - intros a b. exact (abgr_category_isweq a b).
-    - exact has_homsets_abgr.
+    intros a b. exact (abgr_category_isweq a b).
+
   Defined.
 
   Definition abgr_univalent_category : univalent_category :=
@@ -302,7 +301,6 @@ Section abgr_preadditive.
   Proof.
     use make_categoryWithAbgrops.
     - exact abgr_WithBinOps.
-    - use homset_property.
     - use make_categoryWithAbgropsData.
       intros X Y. exact (@abgrshomabgr_isabgrop X Y).
   Defined.
@@ -558,7 +556,6 @@ Section abgr_kernels_and_cokernels.
     isKernel abgr_Zero (abgr_Kernel_monoidfun f) f (abgr_Kernel_eq f).
   Proof.
     use make_isKernel.
-    - use homset_property.
     - intros w h H'.
       use make_iscontr.
       + exact (abgr_Kernel_isKernel_KernelArrrow f h H').
@@ -760,7 +757,6 @@ Section abgr_kernels_and_cokernels.
     isCokernel abgr_Zero f (abgr_CokernelArrow f) (abgr_Cokernel_eq f).
   Proof.
     use make_isCokernel.
-    - use homset_property.
     - intros C h H. use make_iscontr.
       + exact (make_abgr_CokernelOut f h H).
       + intros t. exact (abgr_isCokernel_uniquenss f h H t).
@@ -1063,7 +1059,6 @@ Section abgr_monic_kernels_epi_cokernels.
              (CokernelCompZero abgr_Zero (abgr_Cokernel f)).
   Proof.
     use make_isKernel.
-    - use homset_property.
     - intros w h H.
       use make_iscontr.
       + exact (make_abgr_monic_Kernel_isKernel f isM h H).
@@ -1268,7 +1263,6 @@ Section abgr_monic_kernels_epi_cokernels.
     isCokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f (abgr_epi_cokernel_eq f isE).
   Proof.
     use make_isCokernel.
-    - use homset_property.
     - intros w h H. use make_iscontr.
       + exact (make_abgr_epi_cokernel_isCokernel f isE h H).
       + intros t. exact (abgr_epi_cokernel_isCokernel_uniqueness f isE h H t).
@@ -1545,7 +1539,6 @@ Section abgr_corollaries.
              (isM : @isMonic abgr_category _ _ f) : isKernel (to_Zero abgr_Abelian) f g ZA.
   Proof.
     use make_isKernel.
-    - use homset_property.
     - intros w h H'. use make_iscontr.
       + exact (make_abgr_isKernel_Criteria f g ZA H isM h H').
       + intros t. exact (abgr_isKernel_Criteria_uniqueness f g ZA H isM h H' t).

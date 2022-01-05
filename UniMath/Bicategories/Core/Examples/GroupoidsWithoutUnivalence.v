@@ -14,13 +14,13 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 
 Local Open Scope cat.
 
 Definition grpds : bicat
-  := fullsubbicat bicat_of_cats_nouniv (λ X, is_pregroupoid (pr1 X)).
+  := fullsubbicat bicat_of_cats (λ X, is_pregroupoid X).
 
 (*
 Definition grpds_univalent
