@@ -18,12 +18,16 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
+(* Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.HorizontalComposition. *)
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+
 
 Local Open Scope cat.
 
@@ -31,6 +35,7 @@ Section Endofunctors_as_monoidal_category.
 
   Context (C : category).
 
+  (*
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
@@ -122,7 +127,9 @@ Proof.
   - exact triangle_eq_of_endofunctors.
   - exact pentagon_eq_of_endofunctors.
 Defined.
+   *)
 
-(* an alternative definition should instantiate the bicategory of categories with the given category [C] by means of [monoidal_cat_from_bicat_and_ob] in [BicategoryFromMonoidal]. *)
+  Definition monoidal_cat_of_endofunctors: monoidal_cat := monoidal_cat_from_bicat_and_ob(C:=bicat_of_cats) C.
+  (** we need this high-level view in order to be able to instantiate [montrafotargetbicat_moncat] in [ActionBasedStrongFunctorsMonoidal] *)
 
 End Endofunctors_as_monoidal_category.

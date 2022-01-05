@@ -389,6 +389,7 @@ Proof.
          apply homset_property).
 Defined.
 
+(** Displayed bicategory of fibrations *)
 Definition disp_bicat_of_fibs_ob_mor
   : disp_cat_ob_mor (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
@@ -487,5 +488,253 @@ Proof.
                    _ _ _ _ _
                    @ _) ;
          apply transportf_paths ;
+         apply homset_property).
+Defined.
+
+Definition disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+           {C C' : bicat_of_univ_cats}
+           {F G : C --> C'}
+           {α : F ==> G}
+           (Hα : is_invertible_2cell α)
+           {D : disp_bicat_of_fibs C} {D' : disp_bicat_of_fibs C'}
+           {FF : D -->[ F ] D'} {GG : D -->[ G ] D'}
+           (αα : FF ==>[ α ] GG)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+           {x : (C : univalent_category)}
+           (xx : (pr1 D : disp_univalent_category _) x)
+  : is_iso_disp
+      (make_iso
+         (pr1 α x)
+         (is_invertible_2cell_to_is_nat_iso _ Hα x))
+      (pr11 αα x xx).
+Proof.
+  simple refine (_ ,, _).
+  - exact (transportf
+             (λ z, _ -->[ z ] _)
+             (!(id_right _))
+             (pr111 Hαα x xx)).
+  - split.
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_linv Hα))
+                    (disp_nat_trans_id (pr11 GG),, tt))
+         | ];
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_linv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 GG))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
+         apply homset_property).
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_rinv Hα))
+                    (disp_nat_trans_id (pr11 FF),, tt))
+         | ] ;
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_rinv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 FF))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
+         apply homset_property).
+Defined.
+
+(** Displayed bicategory of opfibrations *)
+Definition disp_bicat_of_opfibs_ob_mor
+  : disp_cat_ob_mor (total_bicat disp_bicat_of_univ_disp_cats).
+Proof.
+  use tpair.
+  - exact (λ X, opcleaving (pr12 X)).
+  - exact (λ X Y fibX fibY F, is_opcartesian_disp_functor (pr2 F)).
+Defined.
+
+Definition disp_bicat_of_opfibs_id_comp
+  : disp_cat_id_comp (total_bicat disp_bicat_of_univ_disp_cats) disp_bicat_of_opfibs_ob_mor.
+Proof.
+  use tpair.
+  - intros X fibX x y f xx yy ff p.
+    exact p.
+  - intros X Y Z F G fibX fibY fibZ cartF cartG x y f xx yy ff p ; simpl.
+    apply cartG.
+    apply cartF.
+    exact p.
+Qed.
+
+Definition disp_bicat_of_opfibs_cat_data
+  : disp_cat_data (total_bicat disp_bicat_of_univ_disp_cats).
+Proof.
+  use tpair.
+  - exact disp_bicat_of_opfibs_ob_mor.
+  - exact disp_bicat_of_opfibs_id_comp.
+Defined.
+
+Definition disp_bicat_of_opfibs_help
+  : disp_bicat (total_bicat disp_bicat_of_univ_disp_cats).
+Proof.
+  use disp_cell_unit_bicat.
+  exact disp_bicat_of_opfibs_cat_data.
+Defined.
+
+Definition disp_bicat_of_opfibs
+  : disp_bicat bicat_of_univ_cats
+  := sigma_bicat
+       bicat_of_univ_cats
+       disp_bicat_of_univ_disp_cats
+       disp_bicat_of_opfibs_help.
+
+Definition disp_bicat_of_opfibs_is_disp_invertible_2cell
+           {C C' : bicat_of_univ_cats}
+           {F : C --> C'}
+           {D : disp_bicat_of_opfibs C} {D' : disp_bicat_of_opfibs C'}
+           {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
+           (αα : FF ==>[ id₂ F ] GG)
+           (Hαα : ∏ (x : (C : univalent_category)) (xx : pr11 D x),
+                  is_iso_disp
+                    (identity_iso (pr1 F x))
+                    (pr11 αα x xx))
+  : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
+Proof.
+  use tpair.
+  - refine (_ ,, tt).
+    use tpair.
+    + intros x xx ; cbn.
+      exact (inv_mor_disp_from_iso (Hαα x xx)).
+    + intros x xx y yy f ff ; cbn in *.
+      apply (@disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_natural
+               C C').
+  - split.
+    + abstract
+        (cbn ;
+         simpl in * ;
+         use subtypePath ; [intro ; apply isapropunit | ];
+         use (@disp_nat_trans_eq C C') ;
+         intros x xx ; cbn ;
+         refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
+         refine (!_) ;
+         unfold transportb ;
+         rewrite pr1_transportf ;
+         refine (disp_nat_trans_transportf
+                   _ _ _ _ _ _
+                   _ _
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
+                   _ _ _ _ _
+                   @ _) ;
+         apply transportf_paths ;
+         apply homset_property).
+    + abstract
+        (cbn ;
+         simpl in * ;
+         use subtypePath ; [intro ; apply isapropunit | ];
+         use (@disp_nat_trans_eq C C') ;
+         intros x xx ; cbn ;
+         refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
+         refine (!_) ;
+         unfold transportb ;
+         rewrite pr1_transportf ;
+         refine (disp_nat_trans_transportf
+                   _ _ _ _ _ _
+                   _ _
+                   (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
+                   _ _ _ _ _
+                   @ _) ;
+         apply transportf_paths ;
+         apply homset_property).
+Defined.
+
+Definition disp_bicat_of_opfibs_disp_invertible_2cell_pointwise_inv
+           {C C' : bicat_of_univ_cats}
+           {F G : C --> C'}
+           {α : F ==> G}
+           (Hα : is_invertible_2cell α)
+           {D : disp_bicat_of_opfibs C} {D' : disp_bicat_of_opfibs C'}
+           {FF : D -->[ F ] D'} {GG : D -->[ G ] D'}
+           (αα : FF ==>[ α ] GG)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+           {x : (C : univalent_category)}
+           (xx : (pr1 D : disp_univalent_category _) x)
+  : is_iso_disp
+      (make_iso
+         (pr1 α x)
+         (is_invertible_2cell_to_is_nat_iso _ Hα x))
+      (pr11 αα x xx).
+Proof.
+  simple refine (_ ,, _).
+  - exact (transportf
+             (λ z, _ -->[ z ] _)
+             (!(id_right _))
+             (pr111 Hαα x xx)).
+  - split.
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_linv Hα))
+                    (disp_nat_trans_id (pr11 GG),, tt))
+         | ];
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_linv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 GG))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
+         apply homset_property).
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
+         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         unfold transportb ;
+         etrans ;
+         [ apply maponpaths ;
+           refine (maponpaths (λ z, pr1 z x xx) _) ;
+           exact (pr1_transportf
+                    (!(vcomp_rinv Hα))
+                    (disp_nat_trans_id (pr11 FF),, tt))
+         | ] ;
+         etrans ;
+         [ apply maponpaths ;
+           exact (disp_nat_trans_transportf
+                    _ _ _ _ _ _ _ _
+                    (!(vcomp_rinv Hα))
+                    _ _
+                    (disp_nat_trans_id (pr11 FF))
+                    x xx)
+         | ] ;
+         etrans ; [ apply transport_f_f | ] ;
+         apply maponpaths_2 ;
          apply homset_property).
 Defined.

@@ -1,14 +1,18 @@
 (****************************************************************
-
  Pullbacks in bicategories
-
  In this file we define the notion of pullback square in arbitrary
- bicategories. For this definition, there are 2 possibilities. One
- could either write universal properties, which expresses the
- existence of a morphism up to a unique 2-cell. Alternatively, one
- could define the universal property via the hom-categories.
- Here, we choose the first approach.
+ bicategories. This definition is expressed using universal
+ properties.
 
+ Content
+ 1. Cones
+ 2. 1-cells and 2-cells of cones
+ 3. Statements of universal mapping properties of pullbacks
+ 4. Being a pullback is a property (requires local univalence)
+ 5. Bicategories with pullbacks
+ 6. 1-Types has pullbacks
+ 7. The bicategory of univalent categories has pullbacks
+ 8. The bicategory of univalent groupoids has pullbacks
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -16,10 +20,12 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -29,10 +35,8 @@ Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.Bicategories.Core.Examples.Groupoids.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 
@@ -42,7 +46,9 @@ Section Pullback.
           {f : b₁ --> b₃}
           {g : b₂ --> b₃}.
 
-  (** Cones on the diagram *)
+  (**
+    1. Cones
+   *)
   Definition pb_cone
     : UU
     := ∑ (p : B)
@@ -80,7 +86,9 @@ Section Pullback.
     : pb_cone
     := (p ,, π₁ ,, π₂ ,, η).
 
-  (** 1-cells between cones *)
+  (**
+   2. 1-cells and 2-cells of cones
+   *)
   Definition pb_1cell
              (p q : pb_cone)
     : UU
@@ -194,7 +202,6 @@ Section Pullback.
     exact r₃.
   Qed.
 
-  (** 2-cells of cones *)
   Definition pb_2cell
              {p q : pb_cone}
              (φ ψ : pb_1cell p q)
@@ -281,7 +288,9 @@ Section Pullback.
          apply idpath).
   Defined.
 
-  (** Statements of universal mapping properties of pullbacks *)
+  (**
+   3. Statements of universal mapping properties of pullbacks
+   *)
   Section UniversalMappingPropertyStatements.
     Variable (p : pb_cone).
 
@@ -291,103 +300,284 @@ Section Pullback.
 
     Definition pb_ump_2
       : UU
-      := ∏ (q : pb_cone)
-           (φ ψ : pb_1cell q p),
-         pb_2cell φ ψ.
-
-    Definition pb_ump_eq
-      : UU
-      := ∏ (q : pb_cone)
-           (φ ψ : pb_1cell q p)
-           (η₁ η₂ : pb_2cell φ ψ),
-         η₁ = η₂.
+      := ∏ (q : B)
+           (φ ψ : q --> p)
+           (α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p)
+           (β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p)
+           (r : (φ ◃ pb_cone_cell p)
+                • lassociator _ _ _
+                • (β ▹ g)
+                • rassociator _ _ _
+                =
+                lassociator _ _ _
+                • (α ▹ f)
+                • rassociator _ _ _
+                • (ψ ◃ pb_cone_cell p)),
+         ∃! (γ : φ ==> ψ),
+         (γ ▹ pb_cone_pr1 p = α)
+         ×
+         (γ ▹ pb_cone_pr2 p = β).
 
     Definition has_pb_ump
       : UU
-      := pb_ump_1 × pb_ump_2 × pb_ump_eq.
-
-    Definition has_pb_ump_1
-               (H : has_pb_ump)
-      : pb_ump_1
-      := pr1 H.
-
-    Definition has_pb_ump_2
-               (H : has_pb_ump)
-      : pb_ump_2
-      := pr12 H.
-
-    Definition has_pb_ump_eq
-               (H : has_pb_ump)
-      : pb_ump_eq
-      := pr22 H.
-
-    Definition make_has_pb_ump
-               (H₁ : pb_ump_1)
-               (H₂ : pb_ump_2)
-               (Heq : pb_ump_eq)
-      : has_pb_ump
-      := H₁ ,, H₂ ,, Heq.
-
-    (** In locally univalent bicateogires, being a pullback is a proposition *)
-    Definition isaprop_has_pb_ump
-               (HB_2_1 : is_univalent_2_1 B)
-      : isaprop has_pb_ump.
-    Proof.
-      use invproofirrelevance.
-      intros χ₁ χ₂.
-      repeat use pathsdirprod.
-      - use funextsec ; intro q.
-        use eq_pb_1cell ; cbn.
-        + use (isotoid_2_1 HB_2_1).
-          use make_invertible_2cell.
-          * apply (has_pb_ump_2 χ₁).
-          * use make_is_invertible_2cell.
-            ** apply (has_pb_ump_2 χ₁).
-            ** abstract
-                 (exact (maponpaths
-                           pr1
-                           (has_pb_ump_eq
-                              χ₁
-                              _
-                              (pr1 χ₁ q)
-                              (pr1 χ₁ q)
-                              (comp_pb_2cell
-                                 (has_pb_ump_2 χ₁ q (pr1 χ₁ q) (pr1 χ₂ q))
-                                 (has_pb_ump_2 χ₁ q (pr1 χ₂ q) (pr1 χ₁ q)))
-                              (id2_pb_2cell _)))).
-            ** abstract
-                 (exact (maponpaths
-                           pr1
-                           (has_pb_ump_eq
-                              χ₁
-                              _
-                              (pr1 χ₂ q)
-                              (pr1 χ₂ q)
-                              (comp_pb_2cell
-                                 (has_pb_ump_2 χ₁ q (pr1 χ₂ q) (pr1 χ₁ q))
-                                 (has_pb_ump_2 χ₁ q (pr1 χ₁ q) (pr1 χ₂ q)))
-                              (id2_pb_2cell _)))).
-        + rewrite idtoiso_2_1_isotoid_2_1 ; cbn.
-          refine (!_).
-          apply pb_2cell_pr1.
-        + rewrite idtoiso_2_1_isotoid_2_1.
-          refine (!_).
-          apply pb_2cell_pr2.
-      - use funextsec ; intro q.
-        use funextsec ; intro φ.
-        use funextsec ; intro ψ.
-        exact (has_pb_ump_eq
-                 χ₁ q φ ψ
-                 (has_pb_ump_2 χ₁ q φ ψ)
-                 (has_pb_ump_2 χ₂ q φ ψ)).
-      - repeat (use funextsec ; intro).
-        apply isaset_pb_2cell.
-    Qed.
+      := pb_ump_1 × pb_ump_2.
   End UniversalMappingPropertyStatements.
+
+  Definition has_pb_ump_1
+             {p : pb_cone}
+             (H : has_pb_ump p)
+    : pb_ump_1 p
+    := pr1 H.
+
+  Definition has_pb_ump_2
+             {p : pb_cone}
+             (H : has_pb_ump p)
+    : pb_ump_2 p
+    := pr2 H.
+
+  Section Projections.
+    Context {p : pb_cone}
+            (Hp : has_pb_ump p).
+
+    Definition pb_ump_mor
+               (q : pb_cone)
+      : q --> p
+      := pr1 Hp q.
+
+    Definition pb_ump_mor_pr1
+               (q : pb_cone)
+      : invertible_2cell
+          (pb_ump_mor q · pb_cone_pr1 p)
+          (pb_cone_pr1 q)
+      := pb_1cell_pr1 (pr1 Hp q).
+
+    Definition pb_ump_mor_pr2
+               (q : pb_cone)
+      : invertible_2cell
+          (pb_ump_mor q · pb_cone_pr2 p)
+          (pb_cone_pr2 q)
+      := pb_1cell_pr2 (pr1 Hp q).
+
+    Definition pb_ump_mor_cell
+               (q : pb_cone)
+      : pr1 Hp q ◃ pb_cone_cell p
+        =
+        lassociator (pr1 Hp q) (pb_cone_pr1 p) f
+        • (pb_1cell_pr1 (pr1 Hp q) ▹ f)
+        • pb_cone_cell q
+        • ((pb_1cell_pr2 (pr1 Hp q)) ^-1 ▹ g)
+        • rassociator (pr1 Hp q) (pb_cone_pr2 p) g
+      := pb_1cell_eq (pr1 Hp q).
+
+    Section CellProperty.
+      Context {q : B}
+              (φ ψ : q --> p)
+              (α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p)
+              (β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p)
+              (r : (φ ◃ pb_cone_cell p)
+                   • lassociator _ _ _
+                   • (β ▹ g)
+                   • rassociator _ _ _
+                   =
+                   lassociator _ _ _
+                   • (α ▹ f)
+                   • rassociator _ _ _
+                   • (ψ ◃ pb_cone_cell p)).
+
+      Definition pb_ump_cell
+        : φ ==> ψ
+        := pr11 (pr2 Hp q φ ψ α β r).
+
+      Definition pb_ump_cell_pr1
+        : pb_ump_cell ▹ pb_cone_pr1 p = α
+        := pr121 (pr2 Hp q φ ψ α β r).
+
+      Definition pb_ump_cell_pr2
+        : pb_ump_cell ▹ pb_cone_pr2 p = β
+        := pr221 (pr2 Hp q φ ψ α β r).
+
+      Definition pb_ump_eq
+                 (τ₁ τ₂ : φ ==> ψ)
+                 (τ₁_pr1 : τ₁ ▹ pb_cone_pr1 p = α)
+                 (τ₁_pr2 : τ₁ ▹ pb_cone_pr2 p = β)
+                 (τ₂_pr1 : τ₂ ▹ pb_cone_pr1 p = α)
+                 (τ₂_pr2 : τ₂ ▹ pb_cone_pr2 p = β)
+        : τ₁ = τ₂
+        := maponpaths
+             pr1
+             (proofirrelevance
+                _
+                (isapropifcontr (pr2 Hp q φ ψ α β r))
+                (τ₁ ,, τ₁_pr1 ,, τ₁_pr2)
+                (τ₂ ,, τ₂_pr1 ,, τ₂_pr2)).
+      End CellProperty.
+  End Projections.
+
+  (**
+   4. Being a pullback is a property (requires local univalence)
+   *)
+  Definition isaprop_has_pb_ump
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : pb_cone)
+    : isaprop (has_pb_ump p).
+  Proof.
+    use invproofirrelevance.
+    intros χ₁ χ₂.
+    use subtypePath.
+    {
+      intro.
+      do 6 (use impred ; intro).
+      apply isapropiscontr.
+    }
+    use funextsec ; intro q.
+    use eq_pb_1cell ; cbn.
+    - use (isotoid_2_1 HB_2_1).
+      use make_invertible_2cell.
+      + use (pb_ump_cell χ₁).
+        * exact (pb_ump_mor_pr1 χ₁ q • (pb_ump_mor_pr1 χ₂ q)^-1).
+        * exact (pb_ump_mor_pr2 χ₁ q • (pb_ump_mor_pr2 χ₂ q)^-1).
+        * abstract
+            (refine (!_) ;
+             refine (maponpaths (λ z, _ • z) (pb_ump_mor_cell χ₂ q) @ _) ;
+             rewrite !vassocl ;
+             refine (!_) ;
+             refine (maponpaths (λ z, z • _) (pb_ump_mor_cell χ₁ q) @ _) ;
+             rewrite <- !rwhisker_vcomp ;
+             rewrite !vassocl ;
+             do 2 apply maponpaths ;
+             rewrite !vassocr ;
+             do 2 apply maponpaths_2 ;
+             rewrite !vassocl ;
+             rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+             rewrite rassociator_lassociator ;
+             rewrite id2_left ;
+             rewrite rwhisker_vcomp ;
+             rewrite vcomp_linv ;
+             rewrite id2_rwhisker ;
+             rewrite id2_right ;
+             rewrite !vassocl ;
+             rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+             rewrite rassociator_lassociator ;
+             rewrite id2_left ;
+             rewrite !vassocr ;
+             rewrite rwhisker_vcomp ;
+             rewrite vcomp_linv ;
+             rewrite id2_rwhisker ;
+             rewrite id2_left ;
+             apply idpath).
+      + use make_is_invertible_2cell.
+        * use (pb_ump_cell χ₁).
+          ** exact (pb_ump_mor_pr1 χ₂ q • (pb_ump_mor_pr1 χ₁ q)^-1).
+          ** exact (pb_ump_mor_pr2 χ₂ q • (pb_ump_mor_pr2 χ₁ q)^-1).
+          ** abstract
+               (refine (!_) ;
+                refine (maponpaths (λ z, _ • z) (pb_ump_mor_cell χ₁ q) @ _) ;
+                rewrite !vassocl ;
+                refine (!_) ;
+                refine (maponpaths (λ z, z • _) (pb_ump_mor_cell χ₂ q) @ _) ;
+                rewrite <- !rwhisker_vcomp ;
+                rewrite !vassocl ;
+                do 2 apply maponpaths ;
+                rewrite !vassocr ;
+                do 2 apply maponpaths_2 ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+                rewrite rassociator_lassociator ;
+                rewrite id2_left ;
+                rewrite rwhisker_vcomp ;
+                rewrite vcomp_linv ;
+                rewrite id2_rwhisker ;
+                rewrite id2_right ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+                rewrite rassociator_lassociator ;
+                rewrite id2_left ;
+                rewrite !vassocr ;
+                rewrite rwhisker_vcomp ;
+                rewrite vcomp_linv ;
+                rewrite id2_rwhisker ;
+                rewrite id2_left ;
+                apply idpath).
+        * use (pb_ump_eq χ₁ _ _ (id₂ _) (id₂ _)).
+          ** abstract
+               (rewrite !id2_rwhisker ;
+                rewrite !id2_right ;
+                rewrite lassociator_rassociator ;
+                rewrite !vassocl ;
+                rewrite lassociator_rassociator ;
+                rewrite id2_left, id2_right ;
+                apply idpath).
+          ** abstract
+               (rewrite <- rwhisker_vcomp ;
+                rewrite !pb_ump_cell_pr1 ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+                rewrite vcomp_linv ;
+                rewrite id2_left ;
+                rewrite vcomp_rinv ;
+                apply idpath).
+          ** abstract
+               (rewrite <- rwhisker_vcomp ;
+                rewrite !pb_ump_cell_pr2 ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+                rewrite vcomp_linv ;
+                rewrite id2_left ;
+                rewrite vcomp_rinv ;
+                apply idpath).
+          ** apply id2_rwhisker.
+          ** apply id2_rwhisker.
+        * use (pb_ump_eq χ₁ _ _ (id₂ _) (id₂ _)).
+          ** abstract
+               (rewrite !id2_rwhisker ;
+                rewrite !id2_right ;
+                rewrite lassociator_rassociator ;
+                rewrite !vassocl ;
+                rewrite lassociator_rassociator ;
+                rewrite id2_left, id2_right ;
+                apply idpath).
+          ** abstract
+               (rewrite <- rwhisker_vcomp ;
+                rewrite !pb_ump_cell_pr1 ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+                rewrite vcomp_linv ;
+                rewrite id2_left ;
+                rewrite vcomp_rinv ;
+                apply idpath).
+          ** abstract
+               (rewrite <- rwhisker_vcomp ;
+                rewrite !pb_ump_cell_pr2 ;
+                rewrite !vassocl ;
+                rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
+                rewrite vcomp_linv ;
+                rewrite id2_left ;
+                rewrite vcomp_rinv ;
+                apply idpath).
+          ** apply id2_rwhisker.
+          ** apply id2_rwhisker.
+    - abstract
+        (rewrite idtoiso_2_1_isotoid_2_1 ; cbn ;
+         refine (!_) ;
+         rewrite pb_ump_cell_pr1 ;
+         rewrite !vassocl ;
+         rewrite vcomp_linv ;
+         apply id2_right).
+    - abstract
+        (rewrite idtoiso_2_1_isotoid_2_1 ; cbn ;
+         refine (!_) ;
+         rewrite pb_ump_cell_pr2 ;
+         rewrite !vassocl ;
+         rewrite vcomp_linv ;
+         apply id2_right).
+    Qed.
 End Pullback.
 
 Arguments pb_cone {_ _ _ _} _ _.
 
+(**
+ 5. Bicategories with pullbacks
+ *)
 Definition has_pb
            (B : bicat)
   : UU
@@ -397,7 +587,18 @@ Definition has_pb
      ∑ (p : pb_cone f g),
      has_pb_ump p.
 
-(** Pullbacks of 1-types *)
+Definition bicat_with_pb
+  : UU
+  := ∑ (B : bicat), has_pb B.
+
+Coercion bicat_with_pb_to_bicat
+         (B : bicat_with_pb)
+  : bicat
+  := pr1 B.
+
+(**
+ 6. 1-Types has pullbacks
+ *)
 Definition one_types_pb_cone
            {X Y Z : one_types}
            (f : X --> Z)
@@ -413,12 +614,12 @@ Proof.
     + apply one_type_2cell_iso.
 Defined.
 
-Section OneTypesPullbackUMP.
+Section OneTypesPb.
   Context {X Y Z : one_types}
           (f : X --> Z)
           (g : Y --> Z).
 
-  Definition pb_ump_1_one_types
+  Definition one_types_pb_ump_1
     : pb_ump_1 (one_types_pb_cone f g).
   Proof.
     intro q.
@@ -441,136 +642,60 @@ Section OneTypesPullbackUMP.
          apply pathsinv0inv0).
   Defined.
 
-  Definition pb_ump_2_one_types
+  Definition one_types_pb_ump_2
     : pb_ump_2 (one_types_pb_cone f g).
   Proof.
-    intros q φ ψ.
-    use make_pb_2cell.
-    - intro x.
-      use path_hfp.
-      + exact (pr1 (pb_1cell_pr1 φ) x @ !(pr1 (pb_1cell_pr1 ψ) x)).
-      + exact (pr1 (pb_1cell_pr2 φ) x @ !(pr1 (pb_1cell_pr2 ψ) x)).
-      + abstract
-          (pose (eqtohomot (pb_1cell_eq φ) x) as p ;
-           cbn in p ; unfold homotcomp, homotfun in p ; cbn in p ;
-           rewrite pathscomp0rid in p ;
-           pose (invrot p) as p' ;
-           refine (maponpaths (λ z, z @ _) p' @ _) ;
-           clear p p' ;
-           rewrite !pathscomp_inv ;
-           rewrite maponpathscomp0 ;
-           rewrite <- !path_assoc ;
-           etrans ;
-           [ do 2 apply maponpaths ;
+    intros W φ ψ α β r.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         use funextsec ; intro x ;
+         use homot_hfp_one_type ;
+         [ apply Z
+         | exact (eqtohomot (pr12 τ₁) x @ !(eqtohomot (pr12 τ₂) x))
+         | exact (eqtohomot (pr22 τ₁) x @ !(eqtohomot (pr22 τ₂) x)) ]).
+    - simple refine (_ ,, _).
+      + intro x.
+        use path_hfp.
+        * exact (α x).
+        * exact (β x).
+        * abstract
+            (pose (eqtohomot r x) as p ;
+             cbn in p ;
+             unfold homotcomp, funhomotsec, homotfun in p ;
+             cbn in p ;
+             rewrite !pathscomp0rid in p ;
+             use hornRotation_lr ;
              rewrite !path_assoc ;
+             refine (_ @ maponpaths (λ z, z @ _) (!p)) ;
+             rewrite <- !path_assoc ;
              rewrite pathsinv0l ;
-             cbn ;
-             apply idpath
-           | ] ;
-           pose (eqtohomot (pb_1cell_eq ψ) x) as p ;
-           cbn in p ; unfold homotcomp, homotfun in p ; cbn in p ;
-           rewrite pathscomp0rid in p ;
-           pose (invrot p) as p' ;
-           refine (!_) ;
-           refine (maponpaths (λ z, _ @ z) p' @ _) ;
-           clear p p' ;
-           rewrite !maponpathscomp0 ;
-           rewrite !pathscomp_inv ;
-           rewrite !maponpathsinv0 ;
-           rewrite !path_assoc ;
-           do 2 apply maponpaths_2 ;
-           rewrite <- !path_assoc ;
-           rewrite <- pathscomp_inv ;
-           rewrite <- maponpathscomp0 ;
-           refine (maponpaths
-                     (λ z, _ @ !(maponpaths g z))
-                     (eqtohomot
-                        (vcomp_linv
-                           (pb_1cell_pr2 ψ))
-                        x)
-                     @ _) ;
-           cbn ;
-           rewrite pathscomp0rid ;
-           refine (!_) ;
-           use pathsinv0_to_right' ;
-           refine (!_) ;
-           rewrite <- maponpathscomp0 ;
-           refine (maponpaths
-                     (λ z, maponpaths g z)
-                     (eqtohomot
-                        (vcomp_linv
-                           (pb_1cell_pr2 φ))
-                        x)
-                     @ _) ;
-           apply idpath).
-    - abstract
-        (use funextsec ;
-         intro x ; cbn ; unfold homotcomp, homotfun ;
-         refine (maponpaths (λ z, z @ _) (maponpaths_hfpg_path_hfp _ _ _) @ _) ;
-         rewrite <- path_assoc ;
-         rewrite pathsinv0l ;
-         apply pathscomp0rid).
-    - abstract
-        (use funextsec ;
-         intro x ; cbn ; unfold homotcomp, homotfun ;
-         refine (maponpaths (λ z, z @ _) (maponpaths_hfpg'_path_hfp _ _ _) @ _) ;
-         rewrite <- path_assoc ;
-         rewrite pathsinv0l ;
-         apply pathscomp0rid).
+             rewrite pathscomp0rid ;
+             apply idpath).
+      + split.
+        * abstract
+            (use funextsec ; intro x ;
+             apply maponpaths_hfpg_path_hfp).
+        * abstract
+            (use funextsec ; intro x ;
+             apply maponpaths_hfpg'_path_hfp).
   Defined.
+End OneTypesPb.
 
-  Definition pb_ump_eq_one_types
-    : pb_ump_eq (one_types_pb_cone f g).
-  Proof.
-    intros q φ ψ η₁ η₂.
-    use subtypePath.
-    {
-      intro ; apply isapropdirprod ; apply cellset_property.
-    }
-    use funextsec ; intro x.
-    use homot_hfp_one_type.
-    - apply Z.
-    - pose (eqtohomot (pb_2cell_pr1 η₁) x) as m.
-      cbn in m.
-      unfold homotcomp, homotfun in m.
-      pose (eqtohomot (pb_2cell_pr1 η₂) x) as n.
-      cbn in n.
-      unfold homotcomp, homotfun in n.
-      pose (r := m @ !n).
-      apply (pathscomp_cancel_right _ _ (pr1 (pb_1cell_pr1 ψ) x)).
-      exact r.
-    - pose (eqtohomot (pb_2cell_pr2 η₁) x) as m.
-      cbn in m.
-      unfold homotcomp, homotfun in m.
-      pose (eqtohomot (pb_2cell_pr2 η₂) x) as n.
-      cbn in n.
-      unfold homotcomp, homotfun in n.
-      pose (r := m @ !n).
-      apply (pathscomp_cancel_right _ _ (pr1 (pb_1cell_pr2 ψ) x)).
-      exact r.
-  Qed.
-
-  Definition has_pb_ump_one_types
-    : has_pb_ump (one_types_pb_cone f g).
-  Proof.
-    use make_has_pb_ump.
-    - exact pb_ump_1_one_types.
-    - exact pb_ump_2_one_types.
-    - exact pb_ump_eq_one_types.
-  Defined.
-End OneTypesPullbackUMP.
-
-Definition has_pb_one_types
+Definition one_types_has_pb
   : has_pb one_types.
 Proof.
-  intros X Y Z f g ; cbn in *.
-  simple refine (_ ,, _).
+  intros X Y Z f g.
+  simple refine (_ ,, _ ,, _).
   - exact (one_types_pb_cone f g).
-  - exact (has_pb_ump_one_types f g).
+  - exact (one_types_pb_ump_1 f g).
+  - exact (one_types_pb_ump_2 f g).
 Defined.
 
-(** Pullbacks in the bicategory of univalent categories.
-    Here, we use the iso-comma category.
+(**
+ 7. The bicategory of univalent categories has pullbacks
  *)
 Definition iso_comma_pb_cone
            {C₁ C₂ C₃ : bicat_of_univ_cats}
@@ -579,16 +704,11 @@ Definition iso_comma_pb_cone
   : pb_cone F G.
 Proof.
   use make_pb_cone.
-  - use make_univalent_category.
-    + exact (iso_comma F G).
-    + apply is_univalent_iso_comma.
-      * apply C₁.
-      * apply C₂.
-      * apply C₃.
-  - apply iso_comma_pr1.
-  - apply iso_comma_pr2.
+  - exact (univalent_iso_comma F G).
+  - exact (iso_comma_pr1 F G).
+  - exact (iso_comma_pr2 F G).
   - apply nat_iso_to_invertible_2cell.
-    apply iso_comma_commute.
+    exact (iso_comma_commute F G).
 Defined.
 
 Section IsoCommaUMP.
@@ -618,131 +738,72 @@ Section IsoCommaUMP.
          apply idpath).
   Defined.
 
+  Section CellUMP.
+    Let p := iso_comma_pb_cone F G.
+
+    Context {q : bicat_of_univ_cats}
+            (φ ψ : q --> p)
+            (α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p)
+            (β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p)
+            (r : (φ ◃ pb_cone_cell p)
+                 • lassociator _ _ _
+                 • (β ▹ G)
+                 • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                 • (α ▹ F)
+                 • rassociator _ _ _
+                 • (ψ ◃ pb_cone_cell p)).
+
+    Definition pb_ump_2_nat_trans
+      : φ ==> ψ.
+    Proof.
+      use (iso_comma_ump2 _ _ _ _ α β).
+      abstract
+        (intros x ;
+         pose (nat_trans_eq_pointwise r x) as z ;
+         cbn in z ;
+         unfold iso_comma_commute_nat_trans_data in z ;
+         rewrite !id_left, !id_right in z ;
+         exact z).
+    Defined.
+
+    Definition pb_ump_2_nat_trans_pr1
+      : pb_ump_2_nat_trans ▹ pb_cone_pr1 (iso_comma_pb_cone F G) = α.
+    Proof.
+      apply iso_comma_ump2_pr1.
+    Qed.
+
+    Definition pb_ump_2_nat_trans_pr2
+      : pb_ump_2_nat_trans ▹ pb_cone_pr2 (iso_comma_pb_cone F G) = β.
+    Proof.
+      apply iso_comma_ump2_pr2.
+    Qed.
+  End CellUMP.
+
   Definition pb_ump_2_iso_comma
     : pb_ump_2 (iso_comma_pb_cone F G).
   Proof.
-    intros q φ ψ.
-    use make_pb_2cell.
-    - use (iso_comma_ump2).
-      + exact (pb_cone_pr1 q).
-      + exact (pb_cone_pr2 q).
-      + apply invertible_2cell_to_nat_iso.
-        exact (pb_cone_cell q).
-      + apply invertible_2cell_to_nat_iso.
-        exact (pb_1cell_pr1 φ).
-      + apply invertible_2cell_to_nat_iso.
-        exact (pb_1cell_pr1 ψ).
-      + apply invertible_2cell_to_nat_iso.
-        exact (pb_1cell_pr2 φ).
-      + apply invertible_2cell_to_nat_iso.
-        exact (pb_1cell_pr2 ψ).
-      + abstract
-          (use nat_trans_eq ; [ apply homset_property | ] ;
-           intro x ; cbn ;
-           pose (nat_trans_eq_pointwise (pb_1cell_eq φ) x) as m ;
-           cbn in m ;
-           rewrite m ;
-           rewrite !assoc ;
-           unfold precomp_with ;
-           rewrite !id_left, !id_right ;
-           apply idpath).
-      + abstract
-          (use nat_trans_eq ; [ apply homset_property | ] ;
-           intro x ; cbn ;
-           pose (nat_trans_eq_pointwise (pb_1cell_eq ψ) x) as m ;
-           cbn in m ;
-           rewrite m ;
-           rewrite !assoc ;
-           unfold precomp_with ;
-           rewrite !id_left, !id_right ;
-           apply idpath).
+    intros C φ ψ α β r.
+    use iscontraprop1.
     - abstract
-        (use nat_trans_eq ; [ apply homset_property | ] ;
-         intro x ; cbn ; unfold precomp_with ;
-         rewrite id_right ;
-         refine (_ @ id_right _) ;
-         rewrite !assoc' ;
-         apply maponpaths ;
-         exact (nat_trans_eq_pointwise
-                  (vcomp_linv (pr2 (pb_1cell_pr1 ψ)))
-                  x)).
-    - abstract
-        (use nat_trans_eq ; [ apply homset_property | ] ;
-         intro x ; cbn ; unfold precomp_with ;
-         rewrite id_right ;
-         refine (_ @ id_right _) ;
-         rewrite !assoc' ;
-         apply maponpaths ;
-         exact (nat_trans_eq_pointwise
-                  (vcomp_linv (pr2 (pb_1cell_pr2 ψ)))
-                  x)).
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         exact (iso_comma_ump_eq _ _ _ _ α β (pr12 τ₁) (pr22 τ₁) (pr12 τ₂) (pr22 τ₂))).
+    - simple refine (_ ,, _).
+      + exact (pb_ump_2_nat_trans φ ψ α β r).
+      + split.
+        * exact (pb_ump_2_nat_trans_pr1 φ ψ α β r).
+        * exact (pb_ump_2_nat_trans_pr2 φ ψ α β r).
   Defined.
 
-  Definition pb_ump_eq_iso_comma
-    : pb_ump_eq (iso_comma_pb_cone F G).
-  Proof.
-    intros q φ ψ η₁ η₂.
-    use subtypePath.
-    {
-      intro.
-      apply isapropdirprod ; apply cellset_property.
-    }
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
-    intro x.
-    use subtypePath.
-    {
-      intro.
-      apply homset_property.
-    }
-    use pathsdirprod.
-    - pose (nat_trans_eq_pointwise
-              (pb_2cell_pr1 η₁)
-              x)
-        as m.
-      pose (nat_trans_eq_pointwise
-              (pb_2cell_pr1 η₂)
-              x)
-        as n.
-      pose (r := m @ !n).
-      cbn in r.
-      exact (cancel_postcomposition_iso
-               (nat_iso_pointwise_iso
-                  (invertible_2cell_to_nat_iso
-                     _ _
-                     (pb_1cell_pr1 ψ))
-                  x)
-               _ _
-               r).
-    - pose (nat_trans_eq_pointwise
-              (pb_2cell_pr2 η₁)
-              x)
-        as m.
-      pose (nat_trans_eq_pointwise
-              (pb_2cell_pr2 η₂)
-              x)
-        as n.
-      pose (r := m @ !n).
-      cbn in r.
-      exact (cancel_postcomposition_iso
-               (nat_iso_pointwise_iso
-                  (invertible_2cell_to_nat_iso
-                     _ _
-                     (pb_1cell_pr2 ψ))
-                  x)
-               _ _
-               r).
-  Qed.
-
-  Definition has_pb_ump_iso_comma
+  Definition iso_comma_has_pb_ump
     : has_pb_ump (iso_comma_pb_cone F G).
   Proof.
-    use make_has_pb_ump.
+    split.
     - exact pb_ump_1_iso_comma.
     - exact pb_ump_2_iso_comma.
-    - exact pb_ump_eq_iso_comma.
   Defined.
 End IsoCommaUMP.
 
@@ -752,5 +813,154 @@ Proof.
   intros C₁ C₂ C₃ F G.
   simple refine (_ ,, _).
   - exact (iso_comma_pb_cone F G).
-  - exact (has_pb_ump_iso_comma F G).
+  - exact (iso_comma_has_pb_ump F G).
+Defined.
+
+(** 8. The bicategory of univalent groupoids has pullbacks *)
+Require Import UniMath.CategoryTheory.Groupoids.
+
+Definition grpds_iso_comma_pb_cone
+           {C₁ C₂ C₃ : grpds}
+           (F : C₁ --> C₃)
+           (G : C₂ --> C₃)
+  : pb_cone F G.
+Proof.
+  use make_pb_cone.
+  - exact (univalent_iso_comma (pr1 F) (pr1 G)
+           ,,
+           is_pregroupoid_iso_comma _ _ (pr2 C₁) (pr2 C₂)).
+  - refine (_ ,, tt).
+    apply iso_comma_pr1.
+  - refine (_ ,, tt).
+    apply iso_comma_pr2.
+  - use make_invertible_2cell.
+    + refine (_ ,, tt).
+      apply iso_comma_commute.
+    + apply locally_groupoid_grpds.
+Defined.
+
+Section IsoCommaUMP.
+  Context {C₁ C₂ C₃ : grpds}
+          (F : C₁ --> C₃)
+          (G : C₂ --> C₃).
+
+  Definition pb_ump_1_grpds_iso_comma
+    : pb_ump_1 (grpds_iso_comma_pb_cone F G).
+  Proof.
+    intro q.
+    use make_pb_1cell.
+    - refine (_ ,, tt).
+      use iso_comma_ump1.
+      + exact (pr1 (pb_cone_pr1 q)).
+      + exact (pr1 (pb_cone_pr2 q)).
+      + exact (grpds_2cell_to_nat_iso (pr1 (pb_cone_cell q))).
+    - use make_invertible_2cell.
+      + refine (_ ,, tt).
+        apply iso_comma_ump1_pr1.
+      + apply locally_groupoid_grpds.
+    - use make_invertible_2cell.
+      + refine (_ ,, tt).
+        apply iso_comma_ump1_pr2.
+      + apply locally_groupoid_grpds.
+    - abstract
+        (use subtypePath ; [ intro ; apply isapropunit | ] ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intros x ; cbn ; unfold pb_cone_cell ;
+         rewrite (functor_on_inv_from_iso (pr1 G)) ;
+         rewrite (functor_id (pr1 F)) ;
+         rewrite !id_left, id_right ;
+         refine (!(id_right _) @ _) ;
+         apply maponpaths ;
+         use inv_iso_unique' ;
+         unfold precomp_with ;
+         cbn ;
+         rewrite id_right ;
+         apply functor_id).
+  Defined.
+
+  Section CellUMP.
+    Let p := grpds_iso_comma_pb_cone F G.
+
+    Context {q : grpds}
+            (φ ψ : q --> p)
+            (α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p)
+            (β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p)
+            (r : (φ ◃ pb_cone_cell p)
+                 • lassociator _ _ _
+                 • (β ▹ G)
+                 • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                 • (α ▹ F)
+                 • rassociator _ _ _
+                 • (ψ ◃ pb_cone_cell p)).
+
+    Definition pb_ump_2_grpds_nat_trans
+      : φ ==> ψ.
+    Proof.
+      refine (_ ,, tt).
+      use (iso_comma_ump2 _ _ _ _ (pr1 α) (pr1 β)).
+      abstract
+        (intros x ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 r) x) as z ;
+         cbn in z ;
+         unfold iso_comma_commute_nat_trans_data in z ;
+         rewrite !id_left, !id_right in z ;
+         exact z).
+    Defined.
+
+    Definition pb_ump_2_grpds_nat_trans_pr1
+      : pb_ump_2_grpds_nat_trans ▹ pb_cone_pr1 _ = α.
+    Proof.
+      use subtypePath ; [ intro ; apply isapropunit | ].
+      apply iso_comma_ump2_pr1.
+    Qed.
+
+    Definition pb_ump_2_grpds_nat_trans_pr2
+      : pb_ump_2_grpds_nat_trans ▹ _ = β.
+    Proof.
+      use subtypePath ; [ intro ; apply isapropunit | ].
+      apply iso_comma_ump2_pr2.
+    Qed.
+  End CellUMP.
+
+  Definition pb_ump_2_grpds_iso_comma
+    : pb_ump_2 (grpds_iso_comma_pb_cone F G).
+  Proof.
+    intros C φ ψ α β r.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         use subtypePath ; [ intro ; apply isapropunit | ] ;
+         exact (iso_comma_ump_eq
+                  _ _ _ _ _ _
+                  (maponpaths pr1 (pr12 τ₁))
+                  (maponpaths pr1 (pr22 τ₁))
+                  (maponpaths pr1 (pr12 τ₂))
+                  (maponpaths pr1 (pr22 τ₂)))).
+    - simple refine (_ ,, _).
+      + exact (pb_ump_2_grpds_nat_trans φ ψ α β r).
+      + split.
+        * exact (pb_ump_2_grpds_nat_trans_pr1 φ ψ α β r).
+        * exact (pb_ump_2_grpds_nat_trans_pr2 φ ψ α β r).
+  Defined.
+
+  Definition grpds_iso_comma_has_pb_ump
+    : has_pb_ump (grpds_iso_comma_pb_cone F G).
+  Proof.
+    split.
+    - exact pb_ump_1_grpds_iso_comma.
+    - exact pb_ump_2_grpds_iso_comma.
+  Defined.
+End IsoCommaUMP.
+
+Definition has_pb_grpds
+  : has_pb grpds.
+Proof.
+  intros C₁ C₂ C₃ F G.
+  simple refine (_ ,, _).
+  - exact (grpds_iso_comma_pb_cone F G).
+  - exact (grpds_iso_comma_has_pb_ump F G).
 Defined.

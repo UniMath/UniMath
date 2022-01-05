@@ -363,8 +363,9 @@ Section The_Laws.
 
     (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
         directly afterwards *)
-    Definition param_distr_triangle_eq_variant0_RHS :=
-      # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
+  Definition param_distr_triangle_eq_variant0_RHS :
+    [A, A'] ⟦ precompF (FA' (MonoidalFunctors.I_C Mon_V)), postcompF (FA (MonoidalFunctors.I_C Mon_V)) ⟧ :=
+    # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
 
     Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
 

@@ -115,6 +115,9 @@ Reserved Notation "F ∙ G" (at level 35).
 Reserved Notation "X ⊗ Y"  (at level 40, left associativity).
 (* to input: type "\ox" or "\otimes" with Agda input method *)
 
+Reserved Notation "f '⊗₁' g" (at level 40, left associativity).
+Reserved Notation "α '⊗₂' β" (at level 40, left associativity).
+
 Reserved Notation "F ◾ b"  (at level 36, left associativity).
 (* to input: type "\sqb" or "\sq" with Agda input method *)
 

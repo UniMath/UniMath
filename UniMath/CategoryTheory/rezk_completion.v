@@ -120,10 +120,10 @@ Proof.
   - apply Rezk_eta_fully_faithful.
 Defined.
 
-Definition Rezk_adj_equiv : adj_equivalence_of_precats
+Definition Rezk_adj_equiv : adj_equivalence_of_cats
   (@pre_comp_functor A (Rezk_completion A) C (Rezk_eta A)).
 Proof.
-  apply (@rad_equivalence_of_precats
+  apply (@rad_equivalence_of_cats
            (functor_category (Rezk_completion A) C)
            (functor_category A C)
            (is_univalent_functor_category _ _ Ccat )
@@ -219,11 +219,11 @@ Proof.
 Defined.
 
 Definition Rezk_op_adj_equiv :
- adj_equivalence_of_precats
+ adj_equivalence_of_cats
      (@pre_comp_functor (op_category A) (op_category (Rezk_completion A)) C
         (functor_opp (Rezk_eta A))).
 Proof.
-  apply (@rad_equivalence_of_precats
+  apply (@rad_equivalence_of_cats
            [(op_category (Rezk_completion A)), C]
            [A^op, C]
            (is_univalent_functor_category _ _ Ccat )

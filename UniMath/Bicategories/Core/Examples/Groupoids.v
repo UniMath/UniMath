@@ -6,6 +6,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Groupoids.
@@ -31,25 +32,22 @@ Proof.
     apply isaprop_is_pregroupoid.
 Defined.
 
-Definition grpd_bicat_is_invertible_2cell
-           {G₁ G₂ : grpds}
-           {F₁ F₂ : G₁ --> G₂}
-           (α : F₁ ==> F₂)
-  : is_invertible_2cell α.
+Definition locally_groupoid_grpds
+  : locally_groupoid grpds.
 Proof.
+  intros G₁ G₂ F₁ F₂ α.
   use make_is_invertible_2cell.
   - refine (_ ,, tt).
     use make_nat_trans.
-    + intros X.
-      exact (inv_from_iso (_ ,, pr2 G₂ _ _ (pr11 α X))).
+    + exact (λ x, inv_from_iso (_ ,, pr2 G₂ _ _ (pr11 α x))).
     + abstract
-        (intros X Y f ; cbn ;
+        (intros x y f ; cbn ;
          refine (!_) ;
          apply iso_inv_on_right ;
          rewrite !assoc ;
          apply iso_inv_on_left ;
          simpl ;
-         exact (!(pr21 α X Y f))).
+         exact (!(pr21 α x y f))).
   - abstract
       (apply subtypePath ; try (intro ; apply isapropunit)
        ; apply nat_trans_eq ; try apply homset_property ;
@@ -60,4 +58,16 @@ Proof.
        ; apply nat_trans_eq ; try apply homset_property ;
        intro x ; cbn ;
        exact (iso_after_iso_inv (_ ,, _))).
+Defined.
+
+Definition grpds_2cell_to_nat_iso
+           {G₁ G₂ : grpds}
+           {F₁ F₂ : G₁ --> G₂}
+           (α : F₁ ==> F₂)
+  : nat_iso (pr1 F₁) (pr1 F₂).
+Proof.
+  use make_nat_iso.
+  - exact (pr1 α).
+  - intros x.
+    exact (pr2 G₂ (pr11 F₁ x) (pr11 F₂ x) (pr11 α x)).
 Defined.

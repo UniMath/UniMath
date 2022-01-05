@@ -293,6 +293,44 @@ End functors_and_idtoiso.
 
 Notation "# F" := (functor_on_morphisms F)(at level 3) : cat. (* Notations do not survive the end of sections.  *)
 
+Lemma idtoiso_functor_precompose
+      {C₁ C₂ : category}
+      (F : C₁ ⟶ C₂)
+      {y : C₂}
+      {x₁ x₂ : C₁}
+      (p : x₁ = x₂)
+      (f : F x₁ --> y)
+  : idtoiso (maponpaths (λ z, F z) (!p)) · f
+    =
+    transportf (λ z, F z --> y) p f.
+Proof.
+  induction p.
+  cbn.
+  apply id_left.
+Qed.
+
+Definition transportf_functor_isotoid
+           {C₁ C₂ : category}
+           (HC₁ : is_univalent C₁)
+           (F : C₁ ⟶ C₂)
+           {y : C₂}
+           {x₁ x₂ : C₁}
+           (i : iso x₁ x₂)
+           (f : F x₁ --> y)
+  : transportf
+      (λ z, F z --> y)
+      (isotoid _ HC₁ i)
+      f
+    =
+    #F (inv_from_iso i) · f.
+Proof.
+  rewrite <- idtoiso_functor_precompose.
+  rewrite maponpaths_idtoiso.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
 (** ** Functors preserve inverses *)
 
 Lemma functor_on_inv_from_iso {C C' : precategory} (F : functor C C')

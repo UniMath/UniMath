@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: CI-Build-UniMath
 
 # Controls when the action will run. 
 on:
@@ -17,6 +17,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    # Need a name for the job, see https://stackoverflow.com/questions/68554735/github-action-status-check-missing-from-the-list-of-checks-in-protected-branch-s
+    name: Build-UniMath-and-Sanity-Checks
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 

@@ -78,7 +78,7 @@ Proof.
 Qed.
 
 Definition disp_full_sub (C : category) (P : C → UU)
-  : disp_precat C := _ ,, disp_full_sub_axioms C P.
+  : disp_cat C := _ ,, disp_full_sub_axioms C P.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
