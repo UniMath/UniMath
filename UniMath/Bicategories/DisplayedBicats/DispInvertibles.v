@@ -1213,3 +1213,75 @@ Proof.
   induction p ; cbn.
   apply idpath.
 Qed.
+
+(** Transporting along displayed invertible 2-cells *)
+Definition transport_1cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transportf (λ z, _ -->[ z ] _) p ff.
+
+Definition transport_1cell_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell (idtoiso_2_1 _ _ p))
+      (transport_1cell p ff)
+      ff.
+Proof.
+  induction p.
+  exact (disp_id2_invertible_2cell ff).
+Defined.
+
+Definition transport_along_inv_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transport_1cell (isotoid_2_1 HB α) ff.
+
+Definition transport_along_inv_2cell_disp_invertible_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell α)
+      (transport_along_inv_2cell HB α ff)
+      ff.
+Proof.
+  refine (transportf
+            (λ z, disp_invertible_2cell z _ _)
+            _
+            (transport_1cell_disp_invertible_2cell
+               (isotoid_2_1 HB α)
+               ff)).
+  abstract
+    (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+     cbn ;
+     rewrite idtoiso_2_1_isotoid_2_1 ;
+     apply idpath).
+Defined.
