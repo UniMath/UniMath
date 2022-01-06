@@ -969,9 +969,6 @@ Defined.
 (**
   9. Pullbacks from reindexing
  *)
-Definition TODO { A : UU } : A.
-Admitted.
-
 Section ReindexingPullback.
   Context {C₁ C₂ : bicat_of_univ_cats}
           (F : C₁ --> C₂)
