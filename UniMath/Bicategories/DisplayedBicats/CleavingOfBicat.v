@@ -2413,37 +2413,58 @@ Section AdjEquivBetweenCartesian.
               (lassociator_invertible_2cell _ _ _))
            ff₂.
 
+    Local Lemma first_lift_path
+      : comp_of_invertible_2cell
+          (lunitor_invertible_2cell f)
+          (inv_of_invertible_2cell
+             (inv_of_invertible_2cell
+                (linvunitor_invertible_2cell f)))
+        =
+        id2_invertible_2cell (id₁ x · f).
+    Proof.
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_is_invertible_2cell.
+      }
+      cbn.
+      apply lunitor_linvunitor.
+    Qed.
+
     Local Definition first_lift
       : lift_1cell_factor D ff₂ gg₁.
     Proof.
       refine (id_disp _ ,, _).
-      refine (transportf
-                (λ z, disp_invertible_2cell z _ _)
-                _
-                (vcomp_disp_invertible
-                   (disp_invertible_2cell_lunitor _)
-                   (inverse_of_disp_invertible_2cell γ₁))).
-      abstract
-        (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-         cbn ;
-         apply lunitor_linvunitor).
+      exact (transportf
+               (λ z, disp_invertible_2cell z _ _)
+               first_lift_path
+               (vcomp_disp_invertible
+                  (disp_invertible_2cell_lunitor _)
+                  (inverse_of_disp_invertible_2cell γ₁))).
     Defined.
 
-    Local Definition second_lift
-      : lift_1cell_factor D ff₂ gg₂.
+    Local Lemma second_lift_path
+      : comp_of_invertible_2cell
+          (rassociator_invertible_2cell _ _ _)
+          (comp_of_invertible_2cell
+             (lwhisker_of_invertible_2cell _ (lunitor_invertible_2cell _))
+             (comp_of_invertible_2cell
+                (lunitor_invertible_2cell f)
+                (inv_of_invertible_2cell
+                   (inv_of_invertible_2cell
+                      (comp_of_invertible_2cell
+                         (comp_of_invertible_2cell
+                            (linvunitor_invertible_2cell _)
+                            (linvunitor_invertible_2cell _))
+                         (lassociator_invertible_2cell (id₁ x) (id₁ x) f))))))
+        =
+        id2_invertible_2cell (id₁ x · id₁ x · f).
     Proof.
-      refine (r ;; l ,, _).
-      refine (transportf
-                (λ z, disp_invertible_2cell z _ _)
-                _
-                (vcomp_disp_invertible
-                   (disp_invertible_2cell_rassociator _ _ _)
-                   (vcomp_disp_invertible
-                      (disp_invertible_2cell_lwhisker r δl)
-                      (vcomp_disp_invertible
-                         δr
-                         (inverse_of_disp_invertible_2cell γ₂))))).
-      use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ].
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_is_invertible_2cell.
+      }
       cbn.
       etrans.
       {
@@ -2464,6 +2485,22 @@ Section AdjEquivBetweenCartesian.
       rewrite rwhisker_vcomp.
       rewrite lunitor_linvunitor.
       apply id2_rwhisker.
+    Qed.
+
+    Local Definition second_lift
+      : lift_1cell_factor D ff₂ gg₂.
+    Proof.
+      refine (r ;; l ,, _).
+      exact (transportf
+               (λ z, disp_invertible_2cell z _ _)
+               second_lift_path
+               (vcomp_disp_invertible
+                  (disp_invertible_2cell_rassociator _ _ _)
+                  (vcomp_disp_invertible
+                     (disp_invertible_2cell_lwhisker r δl)
+                     (vcomp_disp_invertible
+                        δr
+                        (inverse_of_disp_invertible_2cell γ₂))))).
     Defined.
 
     Local Definition help_cell₁
@@ -2604,17 +2641,30 @@ Section AdjEquivBetweenCartesian.
         unfold transportb.
         rewrite !disp_mor_transportf_prewhisker.
         rewrite !transport_f_f.
-        rewrite disp_vcomp_rinv.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply disp_vcomp_rinv.
+        }
         unfold transportb.
         rewrite disp_mor_transportf_prewhisker.
         rewrite transport_f_f.
-        rewrite disp_id2_right.
+        etrans.
+        {
+          apply maponpaths.
+          apply disp_id2_right.
+        }
         unfold transportb.
         rewrite transport_f_f.
         unfold help_inv_cell₁.
         unfold transportb.
         rewrite disp_mor_transportf_prewhisker.
-        rewrite disp_id2_right.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          apply disp_id2_right.
+        }
         unfold transportb.
         rewrite transport_f_f.
         apply maponpaths_2.
@@ -2660,12 +2710,145 @@ Section AdjEquivBetweenCartesian.
         etrans.
         {
           do 2 apply maponpaths.
-          exact (transportf_disp_invertible_2cell
-                   first_lift_subproof
-                   _).
+          exact (transportf_disp_invertible_2cell first_lift_path _).
         }
         cbn.
-        admit.
+        rewrite disp_rwhisker_transport_left_new.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite disp_rwhisker_vcomp_alt.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          exact (transportf_disp_invertible_2cell first_lift_path _).
+        }
+        cbn.
+        rewrite disp_mor_transportf_postwhisker.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          refine (disp_vassocl _ _ _ @ _) ; apply maponpaths.
+          apply maponpaths.
+          pose (maponpaths
+                  (λ z, _ •• z)
+                  (!(transportf_disp_invertible_2cell first_lift_path _))
+                @ eq_lift_2cell_alt _ _ w₁) as p.
+          cbn in p.
+          rewrite disp_mor_transportf_prewhisker in p.
+          pose (p' := @transportb_transpose_right
+                        _ (λ z, _ ==>[ z ] _)
+                        _ _ _ _ _
+                        p).
+          exact p'.
+        }
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply maponpaths_2.
+          exact (transportf_disp_invertible_2cell second_lift_path _).
+        }
+        cbn.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _) ; apply maponpaths.
+          apply maponpaths_2.
+          pose (maponpaths
+                  (λ z, _ •• z)
+                  (!(transportf_disp_invertible_2cell second_lift_path _))
+                @ eq_lift_2cell_alt _ _ w₂) as p.
+          cbn in p.
+          rewrite disp_mor_transportf_prewhisker in p.
+          pose (p' := @transportb_transpose_right
+                        _ (λ z, _ ==>[ z ] _)
+                        _ _ _ _ _
+                        p).
+          exact p'.
+        }
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 2 apply maponpaths_2.
+          exact (transportf_disp_invertible_2cell first_lift_path _).
+        }
+        cbn.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        unfold help_cell₂, help_cell₁.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite !disp_vassocl.
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          refine (disp_vassocl _ _ _ @ _) ; apply maponpaths.
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (disp_vassocr _ _ _ @ _) ; apply maponpaths.
+            apply maponpaths_2.
+            exact (disp_vcomp_linv γ₁).
+          }
+          unfold transportb.
+          rewrite !disp_mor_transportf_postwhisker.
+          rewrite transport_f_f.
+          etrans.
+          {
+            apply maponpaths.
+            apply maponpaths_2.
+            apply disp_id2_left.
+          }
+          unfold transportb.
+          rewrite disp_mor_transportf_postwhisker.
+          rewrite transport_f_f.
+          apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _) ; apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            exact (disp_vcomp_linv γ₂).
+          }
+          unfold transportb.
+          rewrite disp_mor_transportf_postwhisker.
+          apply maponpaths.
+          apply disp_id2_left.
+        }
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        unfold help_inv_cell₂.
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply disp_id2_right.
+        }
+        unfold transportb.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply cellset_property.
       - unfold help_inv_cell₂.
         unfold transportb.
         rewrite !disp_rwhisker_transport_left_new.
@@ -2681,7 +2864,7 @@ Section AdjEquivBetweenCartesian.
         rewrite !transport_f_f.
         apply maponpaths_2.
         apply cellset_property.
-    Admitted.
+    Qed.
 
     Definition disp_adj_equiv_between_cartesian_1cell_inv_is_invertible
       : is_disp_invertible_2cell (is_invertible_2cell_lunitor _) ζ
