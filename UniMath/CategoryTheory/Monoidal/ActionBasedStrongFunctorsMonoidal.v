@@ -41,8 +41,45 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
+Section UpstreamMoreFoundations.
+
+  Context { T: UU } ( P: T -> UU ).
+
+  Lemma sigbeta1 (t: T)(p: P t): pr1 (t,,p) = t.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma sigbeta2 (t: T)(p: P t): pr2 (t,,p) = p.
+  Proof.
+    apply idpath.
+  Defined.
+
+End UpstreamMoreFoundations.
+
+Section UpstreamBinproduct.
+
+  Context {C D : category} (X : C) (Y : D).
+
+  Lemma catbinprodbeta1: pr1 (X,Y) = X.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma catbinprodbeta2: pr2 (X,Y) = Y.
+  Proof.
+    apply idpath.
+  Defined.
+
+End UpstreamBinproduct.
+
 Section Upstream.
   (** this section has nothing to do with monoidal categories but is dictated by the aims of this file *)
+
+    Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
+    Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
+    Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
+    Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
 
   Context {C A A' : category}.
 
@@ -60,13 +97,13 @@ Section Upstream.
   Proof.
     split.
     - intros c α.
-      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. reducesigbeta.
       do 2 rewrite functor_id.
       rewrite id_left. apply id_right.
     - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
       red. red in Hypf, Hypg.
       unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
+      reducesigbeta. reducesigbetahyp Hypf. reducesigbetahyp Hypg.
       do 2 rewrite functor_comp.
       rewrite assoc.
       rewrite Hypf.
@@ -101,6 +138,7 @@ Section Upstream.
 
   Section TheEquivalence.
 
+
     (** a naive specification of the target of the bijection - we need to limit the equality to [functor_data] for the elementary definition *)
     Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_cat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
@@ -115,7 +153,9 @@ Section Upstream.
           exact (c ,, η c).
         + intros c c' f.
           exists f.
-          red. unfold trafotarget_disp. hnf.
+          red. unfold trafotarget_disp.
+          (* reducesigbeta. does nothing here *)
+          hnf. reducesigbeta.
           apply pathsinv0, nat_trans_ax.
       - split; red.
         + intro c.
@@ -228,6 +268,11 @@ End Upstream.
 
 Section UpstreamInBicat.
 
+    Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
+    Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
+    Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
+    Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
+
   Context {C0 : category}. (** an "ordinary" category for the source *)
   Context {C : bicat}.
   Context (a a' : ob C).
@@ -246,13 +291,13 @@ Section UpstreamInBicat.
   Proof.
     split.
     - intros c α.
-      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. reducesigbeta.
       do 2 rewrite functor_id.
       rewrite id_left. apply id_right.
     - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
       red. red in Hypf, Hypg.
       unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
+      reducesigbeta. reducesigbetahyp Hypf. reducesigbetahyp Hypg.
       do 2 rewrite functor_comp.
       rewrite assoc.
       rewrite Hypf.
@@ -432,11 +477,6 @@ Section Main.
     Proof.
       cbn. apply hcomp_identity_left.
     Qed.
-
-    Lemma H'ok (v: Mon_V) : H' v = (pr11 FA) v · G.
-    Proof.
-      apply idpath.
-    Defined.
 
     Lemma H'morok (v v': Mon_V) (f: v --> v'): # H' f = # (pr11 FA) f ▹ G.
     Proof.
@@ -839,6 +879,7 @@ Section Main.
     Defined.
 
     Definition montrafotargetbicat_tensor_aux := total_functor montrafotargetbicat_disp_tensor.
+
 
     Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat
       := total_tensor tensor  montrafotargetbicat_disp_tensor.
