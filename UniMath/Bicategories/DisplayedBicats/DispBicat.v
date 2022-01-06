@@ -1167,6 +1167,45 @@ Proof.
   apply (transportfbinv (λ z, _ ==>[ z ] _) _ _).
 Qed.
 
+Definition disp_vcomp_lcancel
+           {b₁ b₂ : C}
+           {f g h : b₁ --> b₂}
+           {α : f ==> g}
+           {β : g ==> h}
+           (Hα : is_invertible_2cell α)
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {ff : bb₁ -->[ f ] bb₂}
+           {gg : bb₁ -->[ g ] bb₂}
+           {hh : bb₁ -->[ h ] bb₂}
+           {αα : ff ==>[ α ] gg}
+           {ββ₁ ββ₂ : gg ==>[ β ] hh}
+           (Hαα : is_disp_invertible_2cell Hα αα)
+           (p : αα •• ββ₁ = αα •• ββ₂)
+  : ββ₁ = ββ₂.
+Proof.
+  pose (αα_cell := (αα ,, Hαα) : disp_invertible_2cell (make_invertible_2cell Hα) ff gg).
+  assert (q := maponpaths (λ z, disp_inv_cell αα_cell •• z) p).
+  cbn in q.
+  rewrite !disp_vassocr in q.
+  pose (disp_vcomp_linv αα_cell) as z.
+  cbn in z.
+  rewrite !z in q.
+  unfold transportb in q.
+  rewrite !disp_mor_transportf_postwhisker in q.
+  rewrite !transport_f_f in q.
+  rewrite !disp_id2_left in q.
+  unfold transportb in q.
+  rewrite !transport_f_f in q.
+  pose (q' := @transportb_transpose_right
+                _
+                (λ z, _ ==>[ z ] _)
+                _ _ _ _ _
+                q).
+  rewrite transportbfinv in q'.
+  exact q'.
+Qed.
+
 Definition disp_vcomp_rcancel
            {b₁ b₂ : C}
            {f g h : b₁ --> b₂}

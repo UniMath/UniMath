@@ -1503,34 +1503,92 @@ Section ExamplesOfCartesian1Cells.
         rewrite disp_rwhisker_transport_left_new.
         rewrite disp_mor_transportf_postwhisker.
         rewrite transport_f_f ; cbn.
-        assert (∑ p,
-                disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh
-                •• σσ
-                =
-                transportf
-                  (λ z, _ ==>[ z ] _)
-                  p
-                  (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh
-                   •• σσ
-                   •• disp_inv_cell (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')
-                   •• disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')).
+        etrans.
         {
-          eexists.
-          rewrite !disp_vassocl.
-          rewrite disp_vcomp_linv.
-          unfold transportb.
-          rewrite !disp_mor_transportf_prewhisker.
-          rewrite !transport_f_f.
-          rewrite disp_id2_right.
-          unfold transportb.
-          rewrite disp_mor_transportf_prewhisker.
-          rewrite transport_f_f.
-          refine (!_).
-          cbn.
-          admit.
+          do 2 apply maponpaths.
+          apply disp_id2_left_alt.
         }
-        refine (_ @ !(pr2 X)).
-      Admitted.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply maponpaths_2.
+          exact (!(@transportf_transpose_left
+                     _
+                     (λ z, _ ==>[ z ] _)
+                     _ _ _ _ _
+                     (disp_runitor_rinvunitor Lh'))).
+        }
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite !disp_vassocr.
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        rewrite disp_vcomp_runitor.
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite !disp_vassocr.
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite disp_runitor_rinvunitor.
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 5 apply maponpaths_2.
+          apply disp_id2_left.
+        }
+        unfold transportb.
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 3 (refine (disp_vassocl _ _ _ @ _) ; apply maponpaths).
+          do 2 apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _).
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            apply disp_runitor_rinvunitor.
+          }
+          unfold transportb.
+          etrans.
+          {
+            apply disp_mor_transportf_postwhisker.
+          }
+          apply maponpaths.
+          apply disp_id2_left.
+        }
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (disp_vcomp_linv (disp_cell_wk_lift_1cell_factor D (id_disp xx) Lh')).
+        }
+        unfold transportb.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply disp_id2_right.
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        apply (transportf_set (λ z, _ ==>[ z ] _)).
+        apply cellset_property.
+      Qed.
 
       Local Definition cartesian_1cell_id_wk_2cell_lift_unique
         : isaprop (wk_lift_2cell_factor_type D (id_disp xx) σσ Lh Lh').
@@ -2019,15 +2077,151 @@ Section ExamplesOfCartesian1Cells.
           =
           disp_cell_lift_1cell_factor D (ff ;; gg) Lh •• σσ.
       Proof.
-        pose (p₁ := cartesian_1cell_lift_2cell_commutes _ _ Hff ℓ₁ Lq₁ Lq₂).
-        pose (p₂ := cartesian_1cell_lift_2cell_commutes _ _ Hgg σσ' Lκ₁ Lκ₂).
-        cbn in p₁, p₂.
-        rewrite disp_id2_left in p₁.
-        rewrite disp_id2_right in p₁.
-        unfold transportb in p₁.
-        rewrite transport_f_f in p₁.
-        unfold σσ' in p₂.
-      Admitted.
+        use (disp_vcomp_rcancel _ (pr2 (inverse_of_disp_invertible_2cell γ₂))).
+        use (disp_vcomp_lcancel _ (is_disp_invertible_2cell_rassociator _ _ _)).
+        rewrite !disp_mor_transportf_postwhisker.
+        rewrite !disp_mor_transportf_prewhisker.
+        etrans.
+        {
+          rewrite !disp_vassocr.
+          unfold transportb.
+          rewrite disp_mor_transportf_postwhisker.
+          rewrite !transport_f_f.
+          rewrite (@transportf_transpose_right
+                     _
+                     (λ z, _ ==>[ z ] _)
+                     _ _ _ _ _
+                     (disp_rwhisker_rwhisker_rassociator ℓ₂ ff gg)).
+          rewrite !disp_mor_transportf_postwhisker.
+          rewrite transport_f_f.
+          apply idpath.
+        }
+        assert (q₁ : cartesian_1cell_lift_2cell D ff Hff ℓ₁ Lq₁ Lq₂ ▹▹ ff
+                     =
+                     ℓ₁).
+        {
+          pose (p := cartesian_1cell_lift_2cell_commutes _ _ Hff ℓ₁ Lq₁ Lq₂).
+          cbn in p.
+          rewrite disp_id2_left in p.
+          rewrite disp_id2_right in p.
+          unfold transportb in p.
+          rewrite transport_f_f in p.
+          etrans.
+          {
+            exact (@transportb_transpose_right
+                     _ (λ z, _ ==>[ z ] _)
+                     _ _ _ _ _
+                     p).
+          }
+          unfold transportb.
+          rewrite !transport_f_f.
+          apply (transportf_set (λ z, _ ==>[ z ] _)).
+          apply cellset_property.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          do 3 apply maponpaths_2.
+          apply maponpaths.
+          exact q₁.
+        }
+        assert (q₂ : ∑ w,
+                     ℓ₁ ▹▹ gg
+                     •• disp_rassociator _ _ _
+                     •• pr2 Lh'
+                     •• disp_inv_cell γ₂
+                     =
+                     transportf
+                       (λ z, _ ==>[ z ] _)
+                       w
+                       (disp_rassociator _ _ _
+                        •• pr2 Lh
+                        •• disp_inv_cell γ₁
+                        •• σσ')).
+        {
+          pose (p := cartesian_1cell_lift_2cell_commutes _ _ Hgg σσ' Lκ₁ Lκ₂).
+          cbn in p.
+          pose (p' := p @ maponpaths
+                            (λ z, z •• _)
+                            (transportf_disp_invertible_2cell
+                               (help_path h)
+                               _)).
+          cbn in p'.
+          rewrite !disp_vassocr in p'.
+          unfold transportb in p'.
+          rewrite transport_f_f in p'.
+          rewrite disp_mor_transportf_postwhisker in p'.
+          pose (p'' := @transportb_transpose_left
+                         _ (λ z, _ ==>[ z ] _)
+                         _ _ _ _ _
+                         p').
+          unfold transportb in p''.
+          rewrite transport_f_f in p''.
+          simple refine (_ ,, _).
+          {
+            abstract
+              (cbn ;
+               rewrite !id2_right ;
+               rewrite rassociator_lassociator, id2_left ;
+               rewrite !vassocl ;
+               rewrite rassociator_lassociator, id2_right ;
+               apply idpath).
+          }
+          cbn.
+          refine (_ @ maponpaths _ p'').
+          rewrite !transport_f_f.
+          refine (!_).
+          etrans.
+          {
+            do 2 apply maponpaths.
+            apply (transportf_disp_invertible_2cell (help_path h')).
+          }
+          rewrite disp_mor_transportf_prewhisker.
+          rewrite transport_f_f.
+          cbn.
+          rewrite !disp_vassocr.
+          unfold transportb.
+          rewrite !transport_f_f.
+          apply (transportf_set (λ z, _ ==>[ z ] _)).
+          apply cellset_property.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          exact (pr2 q₂).
+        }
+        rewrite transport_f_f.
+        unfold σσ'.
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite !disp_vassocl.
+        unfold transportb.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _) ; apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            apply disp_vcomp_linv.
+          }
+          unfold transportb.
+          rewrite disp_mor_transportf_postwhisker.
+          rewrite disp_id2_left.
+          unfold transportb.
+          rewrite transport_f_f.
+          apply idpath.
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite !disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        apply maponpaths_2.
+        apply cellset_property.
+      Qed.
 
       Definition comp_cartesian_1cell_lift_2cell_factor
         : lift_2cell_factor D (ff ;; gg) σσ Lh Lh'.
