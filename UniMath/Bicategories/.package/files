@@ -120,6 +120,9 @@ BicategoryOfBicat.v
 BicatOfBicategory.v
 
 DisplayedBicats/CleavingOfBicat.v
+DisplayedBicats/Cartesians.v
+DisplayedBicats/EquivalenceBetweenCartesians.v
+DisplayedBicats/CartesianPseudoFunctor.v
 DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
 DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v

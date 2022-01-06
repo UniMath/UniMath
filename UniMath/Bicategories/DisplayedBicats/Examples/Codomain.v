@@ -1240,15 +1240,14 @@ Section UnivalenceOfCodomain.
   Defined.
 
   Definition cod_disp_univalent_2_0
-             (HB_2_0 : is_univalent_2_0 B)
-             (HB_2_1 : is_univalent_2_1 B)
+             (HB_2 : is_univalent_2 B)
     : disp_univalent_2_0 (cod_disp_bicat B).
   Proof.
     use fiberwise_univalent_2_0_to_disp_univalent_2_0.
     intros c f₁ f₂.
     use weqhomot.
-    - exact (cod_adj_equiv_weq_disp_adj_equiv HB_2_1 f₁ f₂
-             ∘ weqtotal2 (make_weq _ (HB_2_0 _ _)) (cod_1cell_path HB_2_1 f₁ f₂)
+    - exact (cod_adj_equiv_weq_disp_adj_equiv (pr2 HB_2) f₁ f₂
+             ∘ weqtotal2 (make_weq _ (pr1 HB_2 _ _)) (cod_1cell_path (pr2 HB_2) f₁ f₂)
              ∘ total2_paths_equiv _ _ _)%weq.
     - intro p.
       cbn in p.
@@ -1257,9 +1256,9 @@ Section UnivalenceOfCodomain.
       {
         intro.
         use isaprop_disp_left_adjoint_equivalence.
-        - exact HB_2_1.
+        - exact (pr2 HB_2).
         - apply cod_disp_univalent_2_1.
-          exact HB_2_1.
+          exact (pr2 HB_2).
       }
       cbn ; unfold cod_adj_equiv_to_disp_adj_equiv_map, make_disp_1cell_cod ; cbn.
       apply maponpaths.
@@ -1271,4 +1270,13 @@ Section UnivalenceOfCodomain.
       rewrite id2_left.
       apply idpath.
   Qed.
+
+  Definition cod_disp_univalent_2
+             (HB_2 : is_univalent_2 B)
+    : disp_univalent_2 (cod_disp_bicat B).
+  Proof.
+    split.
+    - exact (cod_disp_univalent_2_0 HB_2).
+    - exact (cod_disp_univalent_2_1 (pr2 HB_2)).
+  Defined.
 End UnivalenceOfCodomain.

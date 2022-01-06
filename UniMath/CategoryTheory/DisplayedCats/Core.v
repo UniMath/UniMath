@@ -1041,6 +1041,43 @@ Proof.
     apply transportfbinv.
 Qed.
 
+Definition inv_from_iso_in_total
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           {f : x --> y}
+           (Hf : is_iso f)
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           (Hff : is_iso_disp (make_iso f Hf) ff)
+  : pr1 (inv_from_iso
+           (make_iso
+              _
+              (@is_iso_total
+                 C D
+                 (x ,, xx) (y ,, yy)
+                 (f ,, ff)
+                 Hf
+                 Hff)))
+    =
+    inv_from_iso (make_iso _ Hf).
+Proof.
+  use inv_iso_unique'.
+  unfold precomp_with ; cbn.
+  exact (maponpaths
+           pr1
+           (iso_inv_after_iso
+              (make_iso
+                 _
+                 (@is_iso_total
+                    C D
+                    (x ,, xx) (y ,, yy)
+                    (f ,, ff)
+                    Hf
+                    Hff)))).
+Qed.
+
 Definition is_iso_base_from_total {C : category} {D : disp_cat C}
            {xx yy : total_category D} {ff : xx --> yy} (i : is_iso ff)
   : is_iso (pr1 ff).

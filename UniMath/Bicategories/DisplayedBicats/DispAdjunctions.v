@@ -10,6 +10,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Export UniMath.Bicategories.Core.Adjunctions.
@@ -153,7 +154,19 @@ Definition disp_left_equivalence_axioms
   := is_disp_invertible_2cell (left_equivalence_unit_iso _)
        (disp_left_adjoint_unit αe ααd)
    × is_disp_invertible_2cell (left_equivalence_counit_iso _)
-       (disp_left_adjoint_counit αe ααd).
+   (disp_left_adjoint_counit αe ααd).
+
+Definition disp_left_equivalence
+           {x y : C}
+           {f : x --> y}
+           (Hf : left_equivalence f)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : UU
+  := ∑ (d : disp_left_adjoint_data Hf ff),
+     disp_left_equivalence_axioms Hf d.
+
 
 Definition disp_left_adjoint_equivalence
          {a b : C}
@@ -874,3 +887,38 @@ Defined.
 (* Defined. *)
 
 End Total_Internal_Adjunction.
+
+Definition disp_left_equivalence_to_total
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f : x --> y}
+           {Hf : left_equivalence f}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           (Hff : disp_left_equivalence Hf ff)
+  : @left_equivalence (total_bicat D) (x ,, xx) (y ,, yy) (f ,, ff).
+Proof.
+  simple refine (_ ,, _).
+  - exact (left_adjoint_data_disp_to_total ff (pr1 Hf ,, pr1 Hff)).
+  - use (left_equivalence_axioms_disp_to_total _ (_ ,, _)).
+    + exact (pr2 Hf).
+    + exact (pr2 Hff).
+Defined.
+
+Definition disp_left_equivalence_to_left_adjoint_equivalence
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f : x --> y}
+           {Hf : left_equivalence f}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           (Hff : disp_left_equivalence Hf ff)
+  : ∑ (Hf' : left_adjoint_equivalence f),
+    disp_left_adjoint_equivalence Hf' ff
+  := left_adjoint_equivalence_total_disp_weq
+       f ff
+       (pr2 (equiv_to_adjequiv _ (disp_left_equivalence_to_total Hff))).

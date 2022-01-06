@@ -13,6 +13,7 @@
  6. 1-Types has pullbacks
  7. The bicategory of univalent categories has pullbacks
  8. The bicategory of univalent groupoids has pullbacks
+ 9. Pullbacks from reindexing
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -26,17 +27,19 @@ Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Groupoids.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.Groupoids.
-Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.
 
@@ -817,8 +820,6 @@ Proof.
 Defined.
 
 (** 8. The bicategory of univalent groupoids has pullbacks *)
-Require Import UniMath.CategoryTheory.Groupoids.
-
 Definition grpds_iso_comma_pb_cone
            {C₁ C₂ C₃ : grpds}
            (F : C₁ --> C₃)
@@ -964,3 +965,171 @@ Proof.
   - exact (grpds_iso_comma_pb_cone F G).
   - exact (grpds_iso_comma_has_pb_ump F G).
 Defined.
+
+(**
+  9. Pullbacks from reindexing
+ *)
+Section ReindexingPullback.
+  Context {C₁ C₂ : bicat_of_univ_cats}
+          (F : C₁ --> C₂)
+          (D₂ : disp_univalent_category (pr1 C₂))
+          (HD₂ : iso_cleaving (pr1 D₂)).
+
+  Let tot_D₂ : bicat_of_univ_cats
+    := total_univalent_category D₂.
+  Let pb : bicat_of_univ_cats
+    := univalent_reindex_cat F D₂.
+  Let π₁ : pb --> _
+    := pr1_category _.
+  Let π₂ : pb --> tot_D₂
+    := total_functor (reindex_disp_cat_disp_functor F D₂).
+  Let γ : invertible_2cell (π₁ · F) (π₂ · pr1_category D₂)
+    := nat_iso_to_invertible_2cell
+         (π₁ · F)
+         (π₂ · pr1_category D₂)
+         (total_functor_commute_iso (reindex_disp_cat_disp_functor F (pr1 D₂))).
+  Let cone : pb_cone F (pr1_category _ : tot_D₂ --> C₂)
+    := make_pb_cone pb π₁ π₂ γ.
+
+  Definition reindexing_has_pb_ump_1_cell
+             (q : pb_cone F (pr1_category _ : tot_D₂ --> C₂))
+    : q --> cone.
+  Proof.
+    use reindex_pb_ump_1.
+    - exact HD₂.
+    - exact (pb_cone_pr2 q).
+    - exact (pb_cone_pr1 q).
+    - apply invertible_2cell_to_nat_iso.
+      exact (pb_cone_cell q).
+  Defined.
+
+  Definition reindexing_has_pb_ump_1_pr1
+             (q : pb_cone F (pr1_category _ : tot_D₂ --> C₂))
+    : invertible_2cell
+        (reindexing_has_pb_ump_1_cell q · pb_cone_pr1 cone)
+        (pb_cone_pr1 q).
+  Proof.
+    use nat_iso_to_invertible_2cell.
+    exact (reindex_pb_ump_1_pr1_nat_iso
+             F D₂ HD₂
+             (pb_cone_pr2 q)
+             (pb_cone_pr1 q)
+             (invertible_2cell_to_nat_iso
+                _ _
+                (pb_cone_cell q))).
+  Defined.
+
+  Definition reindexing_has_pb_ump_1_pr2
+             (q : pb_cone F (pr1_category _ : tot_D₂ --> C₂))
+    : invertible_2cell
+        (reindexing_has_pb_ump_1_cell q · pb_cone_pr2 cone)
+        (pb_cone_pr2 q).
+  Proof.
+    use nat_iso_to_invertible_2cell.
+    exact (reindex_pb_ump_1_pr2_nat_iso
+             F D₂ HD₂
+             (pb_cone_pr2 q)
+             (pb_cone_pr1 q)
+             (invertible_2cell_to_nat_iso
+                _ _
+                (pb_cone_cell q))).
+  Defined.
+
+  Definition reindexing_has_pb_ump_1_pb_cell
+             (q : pb_cone F (pr1_category _ : tot_D₂ --> C₂))
+    : reindexing_has_pb_ump_1_cell q ◃ pb_cone_cell cone
+      =
+      lassociator _ _ _
+      • (reindexing_has_pb_ump_1_pr1 q ▹ F)
+      • pb_cone_cell q
+      • ((reindexing_has_pb_ump_1_pr2 q)^-1 ▹ _)
+      • rassociator _ _ _.
+  Proof.
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro x.
+    refine (!_).
+    refine (id_right _ @ _).
+    etrans.
+    {
+      do 2 refine (maponpaths (λ z, z · _) _).
+      apply id_left.
+    }
+    etrans.
+    {
+      do 2 refine (maponpaths (λ z, z · _) _).
+      exact (functor_id F _).
+    }
+    etrans.
+    {
+      refine (maponpaths (λ z, z · _) _).
+      apply id_left.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      exact (inv_from_iso_in_total
+               (is_invertible_2cell_to_is_nat_iso _ (pr2 (pb_cone_cell q)) x)
+               _).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      apply id_right.
+    }
+    exact (nat_trans_eq_pointwise
+             (vcomp_rinv
+                (pb_cone_cell q))
+             x).
+  Qed.
+
+  Definition reindexing_has_pb_ump_1
+    : pb_ump_1 cone.
+  Proof.
+    intro q.
+    use make_pb_1cell.
+    - exact (reindexing_has_pb_ump_1_cell q).
+    - exact (reindexing_has_pb_ump_1_pr1 q).
+    - exact (reindexing_has_pb_ump_1_pr2 q).
+    - exact (reindexing_has_pb_ump_1_pb_cell q).
+  Defined.
+
+  Definition reindexing_has_pb_ump_2
+    : pb_ump_2 cone.
+  Proof.
+    intros C₀ G₁ G₂ τ₁ τ₂ p.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ;
+         [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         exact (reindex_pb_ump_eq
+                  _ _ _ _
+                  τ₁ τ₂
+                  _ _
+                  (pr12 φ₁)
+                  (pr22 φ₁)
+                  (pr12 φ₂)
+                  (pr22 φ₂))).
+    - simple refine (_ ,, _ ,, _).
+      + use reindex_pb_ump_2.
+        * exact τ₁.
+        * exact τ₂.
+        * abstract
+            (intro x ;
+             pose (nat_trans_eq_pointwise p x) as q ;
+             cbn in q ;
+             rewrite !id_left, !id_right in q ;
+             exact q).
+      + apply reindex_pb_ump_2_pr1.
+      + apply reindex_pb_ump_2_pr2.
+  Defined.
+
+  Definition reindexing_has_pb_ump
+    : has_pb_ump cone.
+  Proof.
+    split.
+    - exact reindexing_has_pb_ump_1.
+    - exact reindexing_has_pb_ump_2.
+  Defined.
+End ReindexingPullback.
