@@ -268,6 +268,11 @@ End Upstream.
 
 Section UpstreamInBicat.
 
+    Ltac reducesigbeta := repeat (rewrite sigbeta1 || rewrite sigbeta2).
+    Ltac reducesigbetahyp H := repeat (rewrite sigbeta1 in H || rewrite sigbeta2 in H).
+    Ltac reducecatbinprodbeta := repeat (rewrite catbinprodbeta1 || rewrite catbinprodbeta2).
+    Ltac reducecatbinprodbetahyp H := repeat (rewrite catbinprodbeta1 in H || rewrite catbinprodbeta2 in H).
+
   Context {C0 : category}. (** an "ordinary" category for the source *)
   Context {C : bicat}.
   Context (a a' : ob C).
