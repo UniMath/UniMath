@@ -1204,6 +1204,92 @@ Proof.
   exact q'.
 Qed.
 
+Definition disp_id2_left_alt
+           {x y : C}
+           {f g : x --> y}
+           {η : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (ηη : ff ==>[ η ] gg)
+  : ηη
+    =
+    transportf (λ z, ff ==>[ z ] gg) (id2_left η) (disp_id2 ff •• ηη).
+Proof.
+  exact (!(@transportf_transpose_left
+             _
+             (λ z, _ ==>[ z ] _)
+             _ _
+             _
+             _ _
+             (disp_id2_left ηη))).
+Qed.
+
+Definition disp_rwhisker_rwhisker_rassociator
+           {w x y z : C}
+           {f₁ f₂ : w --> x}
+           {α : f₁ ==> f₂}
+           {g : x --> y}
+           {h : y --> z}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff₁ : ww -->[ f₁ ] xx}
+           {ff₂ : ww -->[ f₂ ] xx}
+           (αα : ff₁ ==>[ α ] ff₂)
+           (gg : xx -->[ g ] yy)
+           (hh : yy -->[ h ] zz)
+  : transportb
+      (λ z, _ ==>[ z ] _)
+      (rwhisker_rwhisker_alt h g α)
+      (disp_rassociator ff₁ gg hh •• (αα ▹▹ (gg ;; hh)))
+    =
+    (αα ▹▹ gg ▹▹ hh) •• disp_rassociator ff₂ gg hh.
+Proof.
+  refine (!_).
+  refine (disp_id2_left_alt _ @ _).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    exact (!(@transportf_transpose_left
+               _
+               (λ z, _ ==>[ z ] _)
+               _ _
+               _
+               _ _
+               (disp_rassociator_lassociator _ ff₁ gg hh))).
+  }
+  rewrite disp_mor_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite !disp_vassocl.
+  unfold transportb.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    rewrite disp_rwhisker_rwhisker.
+    unfold transportb.
+    rewrite disp_mor_transportf_postwhisker.
+    rewrite transport_f_f.
+    rewrite !disp_vassocl.
+    rewrite disp_lassociator_rassociator.
+    unfold transportb.
+    rewrite disp_mor_transportf_prewhisker.
+    rewrite disp_id2_right.
+    unfold transportb.
+    rewrite !transport_f_f.
+    apply idpath.
+  }
+  rewrite disp_mor_transportf_prewhisker.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply cellset_property.
+Qed.
+
 
 End Derived_Laws.
 

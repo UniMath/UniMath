@@ -551,6 +551,46 @@ Section Total_invertible_2cells.
 
 End Total_invertible_2cells.
 
+(** Examples of invertible 2-cells *)
+Definition disp_inv_cell_is_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : invertible_2cell f g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (Hαα : is_disp_invertible_2cell α αα)
+  : is_disp_invertible_2cell
+      (is_invertible_2cell_inv α)
+      (disp_inv_cell (αα ,, Hαα)).
+Proof.
+  refine (αα ,, _ ,, _).
+  - exact (disp_vcomp_linv (αα ,, Hαα)).
+  - exact (disp_vcomp_rinv (αα ,, Hαα)).
+Defined.
+
+Definition inverse_of_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : invertible_2cell f g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : disp_invertible_2cell α ff gg)
+  : disp_invertible_2cell (inv_of_invertible_2cell α) gg ff.
+Proof.
+  simple refine (_ ,, _).
+  - exact (disp_inv_cell αα).
+  - exact (disp_inv_cell_is_disp_invertible_2cell (pr2 αα)).
+Defined.
+
 Section VCompDispIsInvertible.
 
 Context {B : bicat}
@@ -1145,4 +1185,31 @@ Proof.
   - apply disp_hom_disp_invertible_2cell_to_iso.
   - apply isaprop_is_iso_disp.
   - apply (@isaprop_is_disp_invertible_2cell _ D _ _ _ _ (α ,, Hα)).
+Qed.
+
+Definition transportf_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {α β : invertible_2cell f g}
+           (p : α = β)
+           (αα : disp_invertible_2cell α ff gg)
+  : pr1 (transportf
+           (λ (z : invertible_2cell f g),
+            disp_invertible_2cell z ff gg)
+           p
+           αα)
+    =
+    transportf
+      (λ z, ff ==>[ z ] gg)
+      (maponpaths pr1 p)
+      αα.
+Proof.
+  induction p ; cbn.
+  apply idpath.
 Qed.

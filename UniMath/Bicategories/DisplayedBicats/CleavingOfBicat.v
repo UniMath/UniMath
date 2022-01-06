@@ -1107,6 +1107,24 @@ Section WeakCartesians.
 End WeakCartesians.
 
 (** Weak cartesian 1-cells and cartesian 1-cells *)
+Lemma lift_1cell_factor_to_wk_lift_1cell_factor_path
+      {B : bicat}
+      {a b : B}
+      (f : a --> b)
+      {c : B}
+      (h : c --> a)
+  : id2_invertible_2cell (h · f)
+    =
+    rwhisker_of_invertible_2cell f (id2_invertible_2cell h).
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_invertible_2cell.
+  }
+  exact (!(id2_rwhisker _ _)).
+Qed.
+
 Definition lift_1cell_factor_to_wk_lift_1cell_factor
            {B : bicat}
            {D : disp_bicat B}
@@ -1117,19 +1135,16 @@ Definition lift_1cell_factor_to_wk_lift_1cell_factor
            {ff : aa -->[ f ] bb}
            {c : B}
            {cc : D c}
-           {h : B ⟦ c, a ⟧}
+           {h : c --> a}
            {gg : cc -->[ h · f] bb}
            (ℓ : lift_1cell_factor D ff gg)
   : wk_lift_1cell_factor D ff gg.
 Proof.
   refine (h ,, id2_invertible_2cell _ ,, disp_mor_lift_1cell_factor D _ ℓ ,, _).
-  refine (transportf
-            (λ z, disp_invertible_2cell z _ _)
-            _
-            (disp_cell_lift_1cell_factor D _ ℓ)).
-  abstract
-    (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
-     exact (!(id2_rwhisker _ _))).
+  exact (transportf
+           (λ z, disp_invertible_2cell z _ _)
+           (lift_1cell_factor_to_wk_lift_1cell_factor_path f h)
+           (disp_cell_lift_1cell_factor D _ ℓ)).
 Defined.
 
 Section WkLiftToLift.
@@ -1200,7 +1215,7 @@ Section WkLiftToLift.
   Defined.
 End WkLiftToLift.
 
-Section CartesianToWkCartesianTwoLift.
+Section WkCartesianToCartesian.
   Context {B : bicat}
           {D : disp_bicat B}
           (HB : is_univalent_2_1 B)
@@ -1209,112 +1224,187 @@ Section CartesianToWkCartesianTwoLift.
           {aa : D a}
           {bb : D b}
           {ff : aa -->[ f ] bb}
-          (Hff : cartesian_1cell D ff)
-          {c : B}
-          {cc : D c}
-          {h h' : c --> a}
-          {gg : cc -->[ h · f ] bb}
-          {gg' : cc -->[ h' · f ] bb}
-          {δ : h ==> h'}
-          (σσ : gg ==>[ δ ▹ f ] gg')
-          (Lh : wk_lift_1cell_factor D ff gg)
-          (Lh' : wk_lift_1cell_factor D ff gg').
+          (Hff : wk_cartesian_1cell D ff).
 
-  Let ℓ : lift_1cell_factor D ff gg
-    := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh.
-  Let ℓ' : lift_1cell_factor D ff gg'
-    := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh'.
+  Section WkCartesianToCartesianTwoCell.
+    Context {c : B}
+            {cc : D c}
+            {h h' : c --> a}
+            {gg : cc -->[ h · f ] bb}
+            {gg' : cc -->[ h' · f ] bb}
+            {δ : h ==> h'}
+            (σσ : gg ==>[ δ ▹ f ] gg')
+            (Lh : lift_1cell_factor D ff gg)
+            (Lh' : lift_1cell_factor D ff gg').
 
-  Definition cartesian_1cell_to_wk_cartesian_1cell_unique
-    : isaprop (wk_lift_2cell_factor_type D ff σσ Lh Lh').
+    Let ℓ : wk_lift_1cell_factor D ff gg
+      := lift_1cell_factor_to_wk_lift_1cell_factor Lh.
+    Let ℓ' : wk_lift_1cell_factor D ff gg'
+      := lift_1cell_factor_to_wk_lift_1cell_factor Lh'.
+    Let w : wk_lift_2cell_factor D ff σσ ℓ ℓ'
+      := pr2 Hff c cc h h' gg gg' δ σσ ℓ ℓ'.
+
+    Local Lemma help_path_wk_cartesian
+      : (pr12 ℓ • δ) • (pr12 ℓ') ^-1 = δ.
+    Proof.
+      cbn.
+      rewrite id2_left, id2_right.
+      apply idpath.
+    Qed.
+
+    Local Definition wk_cartesian_1cell_to_cartesian_1cell_2cell
+      : Lh ==>[ δ ] Lh'
+      := transportf
+           (λ z, _ ==>[ z ] _)
+           help_path_wk_cartesian
+           (pr11 w).
+
+    Local Lemma wk_cartesian_1cell_to_cartesian_1cell_comm
+      : transportf
+          (λ z, _ ==>[ z] _)
+          (id2_right (δ ▹ f) @ ! id2_left (δ ▹ f))
+          ((wk_cartesian_1cell_to_cartesian_1cell_2cell ▹▹ ff)
+           •• disp_cell_lift_1cell_factor D ff Lh')
+        = disp_cell_lift_1cell_factor D ff Lh •• σσ.
+    Proof.
+      unfold wk_cartesian_1cell_to_cartesian_1cell_2cell.
+      rewrite disp_rwhisker_transport_left_new.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite transport_f_f.
+      pose (pr21 w) as p₁.
+      cbn in p₁.
+      pose (q₁ := transportf_disp_invertible_2cell
+                    (lift_1cell_factor_to_wk_lift_1cell_factor_path f h)
+                    (disp_cell_lift_1cell_factor D ff Lh)).
+      pose (p₂ := p₁ @ maponpaths (λ z, z •• _) q₁).
+      rewrite disp_mor_transportf_postwhisker in p₂.
+      pose (p₃ := @transportb_transpose_left
+                    _
+                    (λ z, _ ==>[ z ] _)
+                    _ _ _ _ _
+                    p₂).
+      refine (_ @ p₃).
+      clear p₁ q₁ p₂ p₃.
+      unfold transportb.
+      rewrite transport_f_f.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        exact (transportf_disp_invertible_2cell
+                 (lift_1cell_factor_to_wk_lift_1cell_factor_path f h')
+                 (disp_cell_lift_1cell_factor D ff Lh')).
+      }
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    Qed.
+
+    Local Lemma wk_cartesian_1cell_to_cartesian_1cell_unique
+      : isaprop (lift_2cell_factor_type D ff σσ Lh Lh').
+    Proof.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply disp_cellset_property.
+      }
+      pose (p₁ := pr2 φ₁).
+      pose (p₂ := pr2 φ₂).
+      cbn in p₁, p₂.
+      assert (path : δ = (id₂ h • δ) • id₂ h').
+      {
+        rewrite id2_left, id2_right.
+        apply idpath.
+      }
+      pose (δδ₁ := transportf
+                     (λ z, _ ==>[ z ] _)
+                     path
+                     (pr1 φ₁)).
+      pose (δδ₂ := transportf
+                     (λ z, _ ==>[ z ] _)
+                     path
+                     (pr1 φ₂)).
+      enough (δδ₁ = δδ₂) as H.
+      {
+        pose (r := maponpaths (transportb (λ z, _ ==>[ z ] _) path) H).
+        unfold δδ₁, δδ₂ in r.
+        rewrite !transportbfinv in r.
+        exact r.
+      }
+      use (isaprop_wk_lift_of_lift_2cell D ff w δδ₁ δδ₂) ;
+        cbn ;
+        unfold δδ₁, δδ₂.
+      - etrans.
+        {
+          do 2 apply maponpaths.
+          apply (transportf_disp_invertible_2cell
+                   (lift_1cell_factor_to_wk_lift_1cell_factor_path f h')).
+        }
+        rewrite disp_rwhisker_transport_left_new.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (transportf_disp_invertible_2cell
+                   (lift_1cell_factor_to_wk_lift_1cell_factor_path f h)).
+        }
+        rewrite disp_mor_transportf_postwhisker.
+        etrans.
+        {
+          apply maponpaths.
+          exact (!p₁).
+        }
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply cellset_property.
+      - etrans.
+        {
+          do 2 apply maponpaths.
+          apply (transportf_disp_invertible_2cell
+                   (lift_1cell_factor_to_wk_lift_1cell_factor_path f h')).
+        }
+        rewrite disp_rwhisker_transport_left_new.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (transportf_disp_invertible_2cell
+                   (lift_1cell_factor_to_wk_lift_1cell_factor_path f h)).
+        }
+        rewrite disp_mor_transportf_postwhisker.
+        etrans.
+        {
+          apply maponpaths.
+          exact (!p₂).
+        }
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply cellset_property.
+    Qed.
+  End WkCartesianToCartesianTwoCell.
+
+  Definition wk_cartesian_1cell_to_cartesian_1cell
+    : cartesian_1cell D ff.
   Proof.
-    use invproofirrelevance.
-    intros φ₁ φ₂.
-    use subtypePath.
-    {
-      intro.
-      apply disp_cellset_property.
-    }
-  Admitted.
-
-  Definition cartesian_1cell_to_wk_cartesian_1cell_lift_2cell
-    : Lh ==>[ (pr12 Lh • δ) • (pr12 Lh')^-1 ] Lh'.
-  Proof.
-    pose (cartesian_1cell_lift_2cell _ _ Hff σσ ℓ ℓ').
-    refine (transportf
-              (λ z, _ ==>[ z ] _)
-              _
-              _).
-  Admitted.
-End CartesianToWkCartesianTwoLift.
-
-Definition cartesian_1cell_to_wk_cartesian_1cell
-           {B : bicat}
-           {D : disp_bicat B}
-           (HB : is_univalent_2_1 B)
-           {a b : B}
-           {f : a --> b}
-           {aa : D a}
-           {bb : D b}
-           {ff : aa -->[ f ] bb}
-           (Hff : cartesian_1cell D ff)
-  : wk_cartesian_1cell D ff.
-Proof.
-  split.
-  - intros c cc h gg.
-    exact (lift_1cell_factor_to_wk_lift_1cell_factor
-             (cartesian_1cell_lift_1cell D _ Hff gg)).
-  - intros c cc h h' gg gg' δ σσ Lh Lh'.
-    pose (ℓ := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh).
-    pose (ℓ' := wk_lift_1cell_factor_to_lift_1cell_factor HB Lh').
-    pose (pr2 Hff c cc h h' gg gg' δ σσ ℓ ℓ').
-    use iscontraprop1.
-    + admit.
-    + simple refine (_ ,, _).
-      ** exact (cartesian_1cell_to_wk_cartesian_1cell_lift_2cell HB Hff σσ Lh Lh').
-      ** cbn.
-         admit.
-Admitted.
-
-Definition wk_cartesian_1cell_to_cartesian_1cell
-           {B : bicat}
-           {D : disp_bicat B}
-           (HB : is_univalent_2_1 B)
-           {a b : B}
-           {f : a --> b}
-           {aa : D a}
-           {bb : D b}
-           {ff : aa -->[ f ] bb}
-           (Hff : wk_cartesian_1cell D ff)
-  : cartesian_1cell D ff.
-Proof.
-  split.
-  - intros c cc h gg.
-    exact (wk_lift_1cell_factor_to_lift_1cell_factor HB (pr1 Hff _ _ _ gg)).
-  - intros c cc h h' gg gg' δ σσ Lh Lh'.
-    pose (ℓ := lift_1cell_factor_to_wk_lift_1cell_factor Lh).
-    pose (ℓ' := lift_1cell_factor_to_wk_lift_1cell_factor Lh').
-    pose (pr2 Hff c cc h h' gg gg' δ σσ ℓ ℓ') as w.
-    use iscontraprop1.
-    + admit.
-    + simple refine (_ ,, _).
-      ** refine (transportf
-                   (λ z, _ ==>[ z ] _)
-                   _
-                   (pr11 w)).
-         abstract
-           (cbn ;
-            rewrite id2_left, id2_right ;
-            apply idpath).
-      ** cbn.
-         rewrite disp_rwhisker_transport_left_new.
-         rewrite disp_mor_transportf_postwhisker.
-         rewrite transport_f_f.
-         pose (pr21 w) as p.
-         cbn in p.
-         unfold invertible_2cell in p.
-         admit.
-Admitted.
+    split.
+    - exact (λ c cc h gg, wk_lift_1cell_factor_to_lift_1cell_factor HB (pr1 Hff _ _ _ gg)).
+    - intros c cc h h' gg gg' δ σσ Lh Lh'.
+      use iscontraprop1.
+      + exact (wk_cartesian_1cell_to_cartesian_1cell_unique σσ Lh Lh').
+      + simple refine (_ ,, _).
+        ** exact (wk_cartesian_1cell_to_cartesian_1cell_2cell σσ Lh Lh').
+        ** exact (wk_cartesian_1cell_to_cartesian_1cell_comm σσ Lh Lh').
+  Defined.
+End WkCartesianToCartesian.
 
 (** Examples of cartesian 1-cells *)
 Section ExamplesOfCartesian1Cells.
@@ -1533,19 +1623,429 @@ Section ExamplesOfCartesian1Cells.
     Defined.
   End IdCartesian.
 
-  Definition comp_cartesian_1cell
-             {x y z : B}
-             {f : x --> y} {g : y --> z}
-             {xx : D x}
-             {yy : D y}
-             {zz : D z}
-             {ff : xx -->[ f ] yy}
-             {gg : yy -->[ g ] zz}
-             (Hff : cartesian_1cell D ff)
-             (Hgg : cartesian_1cell D gg)
-    : cartesian_1cell D (ff ;; gg).
-  Proof.
-  Admitted.
+  Section CompCartesian.
+    Context {x y z : B}
+            {f : x --> y} {g : y --> z}
+            {xx : D x}
+            {yy : D y}
+            {zz : D z}
+            {ff : xx -->[ f ] yy}
+            {gg : yy -->[ g ] zz}
+            (Hff : cartesian_1cell D ff)
+            (Hgg : cartesian_1cell D gg).
+
+    Section CompCartesianLiftOneCell.
+      Context {c : B}
+              {cc : D c}
+              {h : c --> x}
+              (kk : cc -->[ h · (f · g) ] zz).
+
+      Let kk' : cc -->[ (h · f) · g ] zz
+        := transport_along_inv_2cell
+             (pr2 HB)
+             (lassociator_invertible_2cell _ _ _)
+             kk.
+      Let ℓ₁ : cc -->[ h · f ] yy
+        := pr1 (cartesian_1cell_lift_1cell _ _ Hgg kk').
+      Let ℓ₂ : cc -->[ h ] xx
+        := pr1 (cartesian_1cell_lift_1cell _ _ Hff ℓ₁).
+      Let γ₁ : disp_invertible_2cell
+                 (id2_invertible_2cell _)
+                 (ℓ₁ ;; gg)
+                 kk'
+        := pr2 (cartesian_1cell_lift_1cell _ _ Hgg kk').
+      Let γ₂ : disp_invertible_2cell
+                 (id2_invertible_2cell _)
+                 (ℓ₂ ;; ff)
+                 ℓ₁
+        := pr2 (cartesian_1cell_lift_1cell _ _ Hff ℓ₁).
+      Let γ₃ : disp_invertible_2cell
+                 (rassociator_invertible_2cell h f g)
+                 kk'
+                 kk
+        := transport_along_inv_2cell_disp_invertible_2cell
+             (pr2 HB)
+             (lassociator_invertible_2cell _ _ _)
+             kk.
+
+      Definition comp_cartesian_1cell_lift_1cell_factor
+        : lift_1cell_factor D (ff ;; gg) kk.
+      Proof.
+        refine (ℓ₂ ,, _).
+        refine (transportf
+                  (λ z, disp_invertible_2cell z _ _)
+                  _
+                  (vcomp_disp_invertible
+                     (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (disp_invertible_2cell_lassociator ℓ₂ ff gg)
+                           (disp_invertible_2cell_rwhisker gg γ₂))
+                        γ₁)
+                     γ₃)).
+        abstract
+          (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+           cbn ;
+           rewrite id2_rwhisker, !id2_right ;
+           apply lassociator_rassociator).
+      Defined.
+    End CompCartesianLiftOneCell.
+
+    Section CompCartesianLiftTwoCell.
+      Context {c : B}
+              {cc : D c}
+              {h h' : c --> x}
+              {kk₁ : cc -->[ h · (f · g) ] zz}
+              {kk₂ : cc -->[ h' · (f · g) ] zz}
+              {δ : h ==> h'}
+              (σσ : kk₁ ==>[ δ ▹ f · g] kk₂)
+              (Lh : lift_1cell_factor D (ff ;; gg) kk₁)
+              (Lh' : lift_1cell_factor D (ff ;; gg) kk₂).
+
+      Let κκ₁ : cc -->[ h · f · g] zz
+        := transport_along_inv_2cell
+             (pr2 HB)
+             (lassociator_invertible_2cell h f g)
+             kk₁.
+      Let γ₁ : disp_invertible_2cell
+                 (rassociator_invertible_2cell h f g)
+                 κκ₁
+                 kk₁
+        := transport_along_inv_2cell_disp_invertible_2cell
+              (pr2 HB)
+              (lassociator_invertible_2cell h f g)
+              kk₁.
+      Let κκ₂ : cc -->[ h' · f · g] zz
+        := transport_along_inv_2cell
+             (pr2 HB)
+             (lassociator_invertible_2cell h' f g)
+             kk₂.
+      Let γ₂ : disp_invertible_2cell
+                 (rassociator_invertible_2cell h' f g)
+                 κκ₂
+                 kk₂
+        := transport_along_inv_2cell_disp_invertible_2cell
+              (pr2 HB)
+              (lassociator_invertible_2cell h' f g)
+              kk₂.
+
+      Local Lemma help_path
+            {w : B}
+            (q : w --> x)
+        : comp_of_invertible_2cell
+            (rassociator_invertible_2cell q f g)
+            (comp_of_invertible_2cell
+               (id2_invertible_2cell (q · (f · g)))
+               (lassociator_invertible_2cell q f g))
+          =
+          id2_invertible_2cell (q · f · g).
+      Proof.
+        use subtypePath.
+        {
+          intro.
+          apply isaprop_is_invertible_2cell.
+        }
+        cbn.
+        rewrite id2_left.
+        apply rassociator_lassociator.
+      Qed.
+
+      Let Lκ₁ : lift_1cell_factor D gg κκ₁.
+      Proof.
+        refine (pr1 Lh ;; ff ,, _).
+        exact (transportf
+                 (λ z, disp_invertible_2cell z _ _)
+                 (help_path h)
+                 (vcomp_disp_invertible
+                    (disp_invertible_2cell_rassociator (pr1 Lh) ff gg)
+                    (vcomp_disp_invertible
+                       (pr2 Lh)
+                       (inverse_of_disp_invertible_2cell γ₁)))).
+      Defined.
+
+      Let Lκ₂ : lift_1cell_factor D gg κκ₂.
+      Proof.
+        refine (pr1 Lh' ;; ff ,, _).
+        exact (transportf
+                 (λ z, disp_invertible_2cell z _ _)
+                 (help_path h')
+                 (vcomp_disp_invertible
+                    (disp_invertible_2cell_rassociator (pr1 Lh') ff gg)
+                    (vcomp_disp_invertible
+                       (pr2 Lh')
+                       (inverse_of_disp_invertible_2cell γ₂)))).
+      Defined.
+
+      Let Lq₁ : lift_1cell_factor D ff Lκ₁.
+      Proof.
+        simple refine (_ ,, _).
+        - exact (pr1 Lh).
+        - apply disp_id2_invertible_2cell.
+      Defined.
+
+      Let Lq₂ : lift_1cell_factor D ff Lκ₂.
+      Proof.
+        simple refine (_ ,, _).
+        - exact (pr1 Lh').
+        - apply disp_id2_invertible_2cell.
+      Defined.
+
+      Let σσ' : κκ₁ ==>[ δ ▹ f ▹ g ] κκ₂.
+      Proof.
+        refine (transportb
+                  (λ z, _ ==>[ z ] _)
+                  _
+                  (γ₁ •• σσ •• disp_inv_cell γ₂)).
+        abstract
+          (cbn ;
+           rewrite <- rwhisker_rwhisker_alt ;
+           rewrite !vassocl ;
+           rewrite rassociator_lassociator ;
+           rewrite id2_right ;
+           apply idpath).
+      Defined.
+
+      Definition comp_cartesian_1cell_lift_2cell_factor_unique
+        : isaprop (lift_2cell_factor_type D (ff ;; gg) σσ Lh Lh').
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply disp_cellset_property.
+        }
+        use (isaprop_lift_of_lift_2cell
+                 _ _
+                 (pr2 Hff c cc h h' _ _ δ _ Lq₁ Lq₂)).
+        - exact (pr2 Hgg c cc (h · f) (h' · f) κκ₁ κκ₂ (δ ▹ f) σσ' Lκ₁ Lκ₂).
+        - unfold disp_cell_lift_1cell_factor.
+          unfold Lq₂ ; cbn.
+          rewrite disp_id2_right.
+          unfold transportb.
+          rewrite transport_f_f.
+          rewrite disp_id2_left.
+          unfold transportb.
+          enough (pr1 φ₁ ▹▹ ff
+                  =
+                  pr11 (pr2 Hgg c cc (h · f) (h' · f) κκ₁ κκ₂ (δ ▹ f) σσ' Lκ₁ Lκ₂))
+            as H.
+          {
+            etrans.
+            {
+              apply maponpaths.
+              exact H.
+            }
+            apply maponpaths_2.
+            apply cellset_property.
+          }
+          use (isaprop_lift_of_lift_2cell
+                 _ _
+                 (pr2 Hgg c cc (h · f) (h' · f) κκ₁ κκ₂ (δ ▹ f) σσ' Lκ₁ Lκ₂)).
+          + unfold σσ' ; cbn.
+            etrans.
+            {
+              do 2 apply maponpaths.
+              exact (transportf_disp_invertible_2cell (help_path _) _).
+            }
+            cbn.
+            rewrite disp_mor_transportf_prewhisker.
+            rewrite transport_f_f.
+            refine (!_).
+            etrans.
+            {
+              apply maponpaths_2.
+              exact (transportf_disp_invertible_2cell (help_path _) _).
+            }
+            cbn.
+            unfold transportb.
+            rewrite disp_mor_transportf_prewhisker.
+            rewrite disp_mor_transportf_postwhisker.
+            rewrite transport_f_f.
+            etrans.
+            {
+              rewrite !disp_vassocl.
+              unfold transportb.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !transport_f_f.
+              etrans.
+              {
+                do 3 apply maponpaths.
+                rewrite !disp_vassocr.
+                unfold transportb.
+                rewrite transport_f_f.
+                apply maponpaths.
+                do 2 apply maponpaths_2.
+                exact (disp_vcomp_linv γ₁).
+              }
+              unfold transportb.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !disp_mor_transportf_postwhisker.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite disp_id2_left.
+              unfold transportb.
+              rewrite !disp_mor_transportf_postwhisker.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !transport_f_f.
+              apply idpath.
+            }
+            etrans.
+            {
+              do 2 apply maponpaths.
+              rewrite disp_vassocr.
+              apply maponpaths.
+              apply maponpaths_2.
+              exact (!(pr2 φ₁)).
+            }
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !disp_mor_transportf_prewhisker.
+            rewrite !transport_f_f.
+            rewrite !disp_vassocr.
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !transport_f_f.
+            rewrite <- disp_rwhisker_rwhisker_rassociator.
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !transport_f_f.
+            apply maponpaths_2.
+            apply cellset_property.
+          + apply eq_lift_2cell.
+        - unfold disp_cell_lift_1cell_factor.
+          unfold Lq₂ ; cbn.
+          rewrite disp_id2_right.
+          unfold transportb.
+          rewrite transport_f_f.
+          rewrite disp_id2_left.
+          unfold transportb.
+          enough (pr1 φ₂ ▹▹ ff
+                  =
+                  pr11 (pr2 Hgg c cc (h · f) (h' · f) κκ₁ κκ₂ (δ ▹ f) σσ' Lκ₁ Lκ₂))
+            as H.
+          {
+            etrans.
+            {
+              apply maponpaths.
+              exact H.
+            }
+            apply maponpaths_2.
+            apply cellset_property.
+          }
+          use (isaprop_lift_of_lift_2cell
+                 _ _
+                 (pr2 Hgg c cc (h · f) (h' · f) κκ₁ κκ₂ (δ ▹ f) σσ' Lκ₁ Lκ₂)).
+          + unfold σσ' ; cbn.
+            etrans.
+            {
+              do 2 apply maponpaths.
+              exact (transportf_disp_invertible_2cell (help_path _) _).
+            }
+            cbn.
+            rewrite disp_mor_transportf_prewhisker.
+            rewrite transport_f_f.
+            refine (!_).
+            etrans.
+            {
+              apply maponpaths_2.
+              exact (transportf_disp_invertible_2cell (help_path _) _).
+            }
+            cbn.
+            unfold transportb.
+            rewrite disp_mor_transportf_prewhisker.
+            rewrite disp_mor_transportf_postwhisker.
+            rewrite transport_f_f.
+            etrans.
+            {
+              rewrite !disp_vassocl.
+              unfold transportb.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !transport_f_f.
+              etrans.
+              {
+                do 3 apply maponpaths.
+                rewrite !disp_vassocr.
+                unfold transportb.
+                rewrite transport_f_f.
+                apply maponpaths.
+                do 2 apply maponpaths_2.
+                exact (disp_vcomp_linv γ₁).
+              }
+              unfold transportb.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !disp_mor_transportf_postwhisker.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite disp_id2_left.
+              unfold transportb.
+              rewrite !disp_mor_transportf_postwhisker.
+              rewrite !disp_mor_transportf_prewhisker.
+              rewrite !transport_f_f.
+              apply idpath.
+            }
+            etrans.
+            {
+              do 2 apply maponpaths.
+              rewrite disp_vassocr.
+              apply maponpaths.
+              apply maponpaths_2.
+              exact (!(pr2 φ₂)).
+            }
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !disp_mor_transportf_prewhisker.
+            rewrite !transport_f_f.
+            rewrite !disp_vassocr.
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !transport_f_f.
+            rewrite <- disp_rwhisker_rwhisker_rassociator.
+            unfold transportb.
+            rewrite !disp_mor_transportf_postwhisker.
+            rewrite !transport_f_f.
+            apply maponpaths_2.
+            apply cellset_property.
+        + apply eq_lift_2cell.
+      Qed.
+
+      Let ℓ₁ : Lκ₁ ==>[ δ ▹ f] Lκ₂
+        := cartesian_1cell_lift_2cell _ _ Hgg σσ' Lκ₁ Lκ₂.
+      Let ℓ₂ : Lh ==>[ δ] Lh'
+        := cartesian_1cell_lift_2cell _ _ Hff ℓ₁ Lq₁ Lq₂.
+
+      Local Lemma comp_cartesian_1cell_lift_2cell_factor_commute
+        : transportf
+            (λ q, _ ==>[ q ] _)
+            (id2_right (δ ▹ f · g) @ ! id2_left (δ ▹ f · g))
+            ((ℓ₂ ▹▹ ff ;; gg) •• disp_cell_lift_1cell_factor D (ff ;; gg) Lh')
+          =
+          disp_cell_lift_1cell_factor D (ff ;; gg) Lh •• σσ.
+      Proof.
+        pose (p₁ := cartesian_1cell_lift_2cell_commutes _ _ Hff ℓ₁ Lq₁ Lq₂).
+        pose (p₂ := cartesian_1cell_lift_2cell_commutes _ _ Hgg σσ' Lκ₁ Lκ₂).
+        cbn in p₁, p₂.
+        rewrite disp_id2_left in p₁.
+        rewrite disp_id2_right in p₁.
+        unfold transportb in p₁.
+        rewrite transport_f_f in p₁.
+        unfold σσ' in p₂.
+      Admitted.
+
+      Definition comp_cartesian_1cell_lift_2cell_factor
+        : lift_2cell_factor D (ff ;; gg) σσ Lh Lh'.
+      Proof.
+        use iscontraprop1.
+        - exact comp_cartesian_1cell_lift_2cell_factor_unique.
+        - exact (ℓ₂ ,, comp_cartesian_1cell_lift_2cell_factor_commute).
+      Defined.
+    End CompCartesianLiftTwoCell.
+
+    Definition comp_cartesian_1cell
+      : cartesian_1cell D (ff ;; gg).
+    Proof.
+      split.
+      - exact @comp_cartesian_1cell_lift_1cell_factor.
+      - exact @comp_cartesian_1cell_lift_2cell_factor.
+    Defined.
+  End CompCartesian.
 
   Definition cartesian_1cell_disp_adj_equiv
              (HD : disp_univalent_2_0 D)
@@ -2458,7 +2958,7 @@ Section OpCartesian2CellUnique.
   Definition is_opcartesian_2cell_unique_iso
     : disp_invertible_2cell (id2_invertible_2cell _) gg₂ gg₁
     := (i
-          ,, m
+        ,, m
         ,, is_opcartesian_2cell_unique_iso_inv₁
         ,, is_opcartesian_2cell_unique_iso_inv₂).
 
