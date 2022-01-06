@@ -390,7 +390,7 @@ Lemma left_unitor_right_unitor_of_unit : l_unitor I = r_unitor I.
 Proof.
   apply I_pretensor_faithful.
   apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α ((_, _), _)))).
-  apply (pathscomp0 (! (pr1 (monoidal_cat_eq Mon_V) I I))).
+  apply (pathscomp0 (! (triangle_eq I I))).
   use (pathscomp0 _ (right_unitor_of_tensor I I)).
   apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
   apply (nat_trans_ax r_unitor).
