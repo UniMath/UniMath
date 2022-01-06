@@ -316,32 +316,32 @@ Section coherence_lemmas.
 
 Context {Mon_V : monoidal_cat}.
 
-Let I        : Mon_V                  := monoidal_cat_unit Mon_V.
-Let tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
-Let α        : associator tensor      := monoidal_cat_associator Mon_V.
-Let l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
-Let r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
+Local Definition I        : Mon_V                  := monoidal_cat_unit Mon_V.
+Local Definition tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
+Local Definition α        : associator tensor      := monoidal_cat_associator Mon_V.
+Local Definition l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
+Local Definition r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
 
 Local Notation "X ⊗ Y" := (tensor (X, Y)).
 Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
-Let triangle_eq : ∏ (a b : Mon_V), r_unitor a #⊗ id b = α ((a, I), b) · id a #⊗ l_unitor b := pr1 (monoidal_cat_eq Mon_V).
-Let pentagon_eq : ∏ (a b c d : Mon_V), α ((a ⊗ b, c), d) · α ((a, b), c ⊗ d) = α ((a, b), c) #⊗ id d · α ((a, b ⊗ c), d) · id a #⊗ α ((b, c), d) := pr2 (monoidal_cat_eq Mon_V).
+Local Definition triangle_eq : ∏ (a b : Mon_V), r_unitor a #⊗ id b = α ((a, I), b) · id a #⊗ l_unitor b := pr1 (monoidal_cat_eq Mon_V).
+Local Definition pentagon_eq : ∏ (a b c d : Mon_V), α ((a ⊗ b, c), d) · α ((a, b), c ⊗ d) = α ((a, b), c) #⊗ id d · α ((a, b ⊗ c), d) · id a #⊗ α ((b, c), d) := pr2 (monoidal_cat_eq Mon_V).
 
 Lemma tensor_comp_left {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id W) = (f #⊗ id W) · (g #⊗ id W).
 Proof.
-  rewrite <-(functor_comp tensor).
+  rewrite <- (functor_comp tensor).
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
   rewrite id_left.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma tensor_comp_right {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : (id W #⊗ (f · g)) = (id W #⊗ f) · (id W #⊗ g).
 Proof.
-  rewrite <-(functor_comp tensor).
+  rewrite <- (functor_comp tensor).
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
   rewrite id_left.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma I_posttensor_faithful {X Y : Mon_V} {f g : X --> Y} : (f #⊗ id I) = (g #⊗ id I) -> f = g.
@@ -364,6 +364,15 @@ Proof.
   assumption.
 Defined.
 
+(*
+  The following three lemmas are from [Kelly, 1964].
+  https://doi.org/10.1016/0021-8693(64)90018-3
+  triangle_eq <-> diagram (6) in [Kelly, 1964]
+  pentagon_eq <-> diagram (1)
+  right_unitor_of_tensor <-> diagram (7)
+  left_unitor_right_unitor_of_unit <-> diagram (4)
+  left_unitor_of_tensor <-> diagram (5)
+*)
 Lemma right_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
 Proof.
   apply I_posttensor_faithful.
