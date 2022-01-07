@@ -8,7 +8,13 @@ Author: @Skantz (April 2021)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+Require Import UniMath.Combinatorics.FiniteSequences.
+Require Import UniMath.Combinatorics.Maybe.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+
+Require Import UniMath.PAdics.lemmas.
+
+Require Import UniMath.NumberSystems.RationalNumbers.
 
 (* The first few sections contain Definitions and Lemmas that
    should be moved further up the project tree *)
@@ -110,21 +116,22 @@ Section Misc.
     apply natgthtogehm1 in e. assumption.
   Defined.
 
-End Misc.
-
-
-Section PrelStn.
-
-  Lemma nat_neq_or_neq_refl (i : nat) : nat_eq_or_neq i i = inl (idpath i).
+  Lemma prev_nat (n : nat) (p : n > 0): ∑ m, S m = n.
   Proof.
-    intros.
-    destruct (nat_eq_or_neq i i) as [ ? | cnt].
-    2 : { remember cnt as cnt'. clear Heqcnt'.
-          apply isirrefl_natneq in cnt. contradiction. }
-    apply maponpaths.
-    apply proofirrelevance.
-    apply isaproppathsfromisolated.
-    apply isisolatedn.
+    destruct n as [| n]. {contradiction (negnatlthn0 _ p). }
+    use tpair; try apply n; reflexivity.
+  Defined.
+
+  Lemma hqplusminus (a b : hq) : (a + b - b)%hq = a.
+  Proof.
+    replace (a + b - b)%hq with (a + b + (- b))%hq.
+    - rewrite hqplusassoc.
+      replace (b + - b)%hq with (b  - b)%hq.
+      + rewrite hqrminus; apply (@rigrunax1 hq).
+      + reflexivity.
+   - symmetry.
+     rewrite hqpluscomm.
+     reflexivity.
   Defined.
 
   Lemma fromnatcontr {X : UU} (m n : nat) : (m = n) -> (m ≠ n) -> X.
@@ -136,34 +143,20 @@ Section PrelStn.
     exact (m_neq_n). (* Do we prefer to rename this premise before applying it? *)
   Defined.
 
-
-  (* TODO refactor the three-step contradiction since it's used everywhere  *)
-  (* Also, can we simply use  *)
-  Lemma nat_eq_or_neq_left: ∏ {i j: nat} (p : (i = j)),
-                            nat_eq_or_neq i j = inl p.
+  Lemma nat_eq_or_neq_refl (i : nat) : nat_eq_or_neq i i = inl (idpath i).
   Proof.
-    intros i j i_eq_j.
-    rewrite i_eq_j.
-    apply nat_neq_or_neq_refl.
-  Defined.
-
-  Lemma nat_eq_or_neq_right: ∏ {i j: nat} (p : (i ≠ j)),
-                            nat_eq_or_neq i j = inr p.
-  Proof.
-    intros i j i_neq_j.
-    destruct (nat_eq_or_neq i j) as [i_eq_j | ?].
-    - apply (fromnatcontr i j i_eq_j i_neq_j).
-    - apply proofirrelevance.
-      apply isapropcoprod.
-      + apply isaproppathsfromisolated.
-        apply isisolatedn.
-      + apply propproperty.
-      + intros i_eq_j.
-        apply (fromnatcontr i j i_eq_j i_neq_j).
+    intros.
+    destruct (nat_eq_or_neq i i) as [ ? | cnt].
+    2 : { remember cnt as cnt'. clear Heqcnt'.
+          apply isirrefl_natneq in cnt. contradiction. }
+    apply maponpaths.
+    apply proofirrelevance.
+    apply isaproppathsfromisolated.
+    apply isisolatedn.
   Defined.
 
       (* TODO: look for other places this can simplify proofs! and upstream? *)
-  Lemma stn_neq_or_neq_refl {n} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
+  Lemma stn_eq_or_neq_refl {n} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
     intros.
     unfold stn_eq_or_neq.
@@ -181,12 +174,52 @@ Section PrelStn.
     apply isisolatedinstn.
   Defined.
 
+  (* TODO refactor the three-step contradiction since it's used everywhere  *)
+  (* Also, can we simply use  *)
+  Lemma nat_eq_or_neq_left: ∏ {i j: nat} (p : (i = j)),
+                            nat_eq_or_neq i j = inl p.
+  Proof.
+    intros i j i_eq_j.
+    rewrite i_eq_j.
+    apply nat_eq_or_neq_refl.
+  Defined.
+
+  Lemma nat_eq_or_neq_right: ∏ {i j: nat} (p : (i ≠ j)),
+                            nat_eq_or_neq i j = inr p.
+  Proof.
+    intros i j i_neq_j.
+    destruct (nat_eq_or_neq i j) as [i_eq_j | ?].
+    - apply (fromnatcontr i j i_eq_j i_neq_j).
+    - apply proofirrelevance.
+      apply isapropcoprod.
+      + apply isaproppathsfromisolated.
+        apply isisolatedn.
+      + apply propproperty.
+      + intros i_eq_j.
+        apply (fromnatcontr i j i_eq_j i_neq_j).
+  Defined.
+
+End Misc.
+
+
+Section PrelStn.
+
+
+  Lemma stn_inhabited_implies_succ {n:nat} (i : ⟦ n ⟧%stn)
+  : ∑ m, n = S m.
+  Proof.
+    destruct n as [ | m].
+    - destruct i as [i le_i_0].
+      destruct (nopathsfalsetotrue le_i_0).
+    - exists m. apply idpath.
+  Defined.
+
 
    (* TODO: naming ? upstream?  Certainly rename p, p0. *)
   Lemma stn_eq_or_neq_left : ∏ {n : nat} {i j: (⟦ n ⟧)%stn} (p : (i = j)),
                               stn_eq_or_neq i j = inl p.
   Proof.
-    intros ? ? ? p. rewrite p. apply stn_neq_or_neq_refl.
+    intros ? ? ? p. rewrite p. apply stn_eq_or_neq_refl.
   Defined.
 
   Lemma stn_eq_or_neq_right : ∏ {n : nat} {i j : (⟦ n ⟧)%stn} (p : (i ≠ j)),
@@ -290,4 +323,118 @@ Section PrelStn.
       destruct i, j.
   Abort.
 
+  Lemma prev_stn {n : nat} (i : ⟦ n ⟧%stn) (p : i > 0): ∑ j : ⟦ n ⟧%stn, S j = i.
+  Proof.
+    pose (m := prev_nat i p).
+    destruct m as [m eq].
+    use tpair.
+    - use tpair. {exact m. } simpl. refine (istransnatlth _ _ _ (natgthsnn m) _ ).
+      rewrite eq. apply (pr2 i).
+    - exact eq.
+  Defined.
+
 End PrelStn.
+
+Section Maybe.
+
+  Definition maybe_choice {X : UU} (e : maybe X)
+  : coprod (e != nothing) (e = nothing).
+  Proof.
+  destruct e as [? | u].
+  - apply ii1. apply negpathsii1ii2.
+  - apply ii2. rewrite u. exists.
+  Defined.
+
+  Definition maybe_stn_choice
+    {X : UU} { n : nat }
+    (e : maybe (⟦ n ⟧)%stn)
+  : coprod (∑ i : ⟦ n ⟧%stn, e = just i) (e = nothing).
+  Proof.
+  destruct e as [i | u].
+  - apply ii1. use tpair. {exact i. } simpl. reflexivity.
+  - apply ii2. rewrite u. exists.
+  Defined.
+
+  Definition from_just {X : UU} (m : maybe X) (p : m != nothing) : X.
+  Proof.
+    unfold nothing in p.
+     destruct m as [x | u].
+     - exact x.
+     - contradiction p.
+       rewrite u; reflexivity.
+  Defined.
+
+End Maybe.
+
+Section Dual.
+
+  Lemma dualelement_2x {n : nat} (i : ⟦ n ⟧%stn) : dualelement (dualelement i) = i.
+  Proof.
+    unfold dualelement.
+    destruct (natchoice0 n) as [contr_eq | gt].
+    { simpl. apply fromstn0. rewrite <- contr_eq in i. assumption. }
+    simpl.
+    set (m := n - 1).
+    Search (?a - (?a - _)).
+    try rewrite natdoubleminus.
+    unfold make_stn.
+    apply subtypePath_prop.
+    simpl.
+    rewrite (doubleminuslehpaths m i); try reflexivity.
+    unfold m.
+    apply minusnleh1.
+    apply (pr2 i).
+  Defined.
+
+  Lemma dualelement_eq {n : nat} (i j : ⟦ n ⟧%stn)
+  : dualelement i = j -> i = dualelement j.
+  Proof.
+    unfold dualelement.
+    destruct (natchoice0 n) as [contr_eq | ?].
+    {apply fromstn0. apply fromstn0. rewrite <- contr_eq in i. assumption. }
+    intros H; apply subtypePath_prop; revert H; simpl.
+    intros eq; rewrite <- eq; simpl.
+    set (m := n - 1).
+    rewrite minusminusmmn; try reflexivity.
+    apply (natlthsntoleh); unfold m.
+    rewrite lemmas.minussn1non0; try assumption; exact (pr2 i).  (*TODO lemmas ? *)
+  Defined.
+
+  Lemma dualelement_lt_comp {n : nat} (i j : ⟦ n ⟧%stn)
+  : i < j -> (dualelement i) > (dualelement j).
+  Proof.
+    intros lt.
+    unfold dualelement.
+    destruct (natchoice0 n) as [contr_eq | ?].
+    { simpl. apply fromstn0. rewrite contr_eq. assumption.  }
+    simpl.
+    set (m := (n - 1)).
+    apply minusgth0inv.
+    rewrite natminusminusassoc.
+    rewrite natpluscomm.
+    rewrite <- natminusminusassoc.
+    rewrite minusminusmmn.
+    2: {unfold m. apply (natgthtogehm1 _ _ (pr2 j)). }
+    apply (minusgth0 _ _ lt).
+  Defined.
+
+  Lemma dualelement_le_comp {n : nat} (i j : ⟦ n ⟧%stn)
+  : i ≤ j -> (dualelement i) ≥ (dualelement j).
+  Proof.
+    intros le.
+    destruct (natlehchoice i j) as [lt | eq]; try assumption.
+    { apply natlthtoleh. apply (dualelement_lt_comp _ _ lt). }
+    unfold dualelement.
+    destruct (natchoice0 n) as [contr_eq | ?].
+    { simpl; apply fromstn0. rewrite contr_eq. assumption.  }
+    rewrite eq.
+    apply isreflnatgeh.
+  Defined.
+
+  Lemma dualvalue_eq {X : UU} {n : nat} (v : ⟦ n ⟧%stn -> X) (i : ⟦ n ⟧%stn)
+  : (v i) = (λ i' : ⟦ n ⟧%stn, v (dualelement i')) (dualelement i).
+  Proof.
+    simpl; rewrite dualelement_2x; reflexivity.
+  Defined.
+
+End Dual.

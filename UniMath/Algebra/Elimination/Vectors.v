@@ -18,6 +18,7 @@ Require Import UniMath.NumberSystems.RationalNumbers.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
+
 Section Vectors.
 
   Context { R : rig }.
@@ -155,14 +156,6 @@ Section Vectors.
   Defined.
 
 
-  Lemma stn_inhabited_implies_succ {n:nat} (i : ⟦ n ⟧%stn)
-    : ∑ m, n = S m.
-  Proof.
-    destruct n as [ | m].
-    - destruct i as [i le_i_0].
-      destruct (nopathsfalsetotrue le_i_0).
-    - exists m. apply idpath.
-  Defined.
 
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
    ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
@@ -189,47 +182,6 @@ Section Vectors.
         + apply j. exact neq.
   Defined.
 
-  Definition drop_el_vector { n : nat } (f : ⟦ S n ⟧%stn -> R) (i : ⟦ S n ⟧%stn) :
-    ⟦ n ⟧%stn -> R.
-  Proof.
-    intros X.
-    induction (natlthorgeh X i) as [X_le_i | X_geq_i].
-    - assert (e : X < S n ).
-      { set (p := pr2 X).
-        apply (istransnatgth (S n) n X (natgthsnn n) (pr2 X)).
-      }
-      exact (f ((pr1  X),, e)).
-
-    - assert (e :S ( X ) < S n ).
-      { set (p := pr2 X).
-        apply p. }
-      exact (f (S X,, e)).
-  Defined.
-
-  Lemma dnisum_dropsum : ∏ (n : nat) (f : (⟦ S n ⟧)%stn → R) (j : (⟦ S n ⟧)%stn),
-                         Σ ((drop_el_vector f j)) = Σ ((f ∘ (dni j) )).
-  Proof.
-    intros.
-    apply maponpaths.
-    unfold funcomp, dni, di.  unfold drop_el_vector.
-    apply funextfun. intros k.
-    destruct (natlthorgeh k j).
-    - do 2 rewrite coprod_rect_compute_1.
-      unfold natgthtogths.
-      apply maponpaths.
-      reflexivity.
-    - do 2 rewrite coprod_rect_compute_2.
-      apply idpath.
-  Defined.
-
-  Lemma rigsum_drop_el : ∏ (n : nat) (f : (⟦ S n ⟧)%stn → R) (j : (⟦ S n ⟧)%stn),
-    Σ f = (Σ ((drop_el_vector f j)) + f j)%ring.
-  Proof.
-    intros.
-    rewrite (rigsum_dni f j).
-    rewrite dnisum_dropsum.
-    apply idpath.
-  Defined.
 
   Lemma empty_sum_eq_0  (v1 : Vector R 0) : Σ v1 = 0%rig.
   Proof.
@@ -258,7 +210,7 @@ Section Vectors.
 
   Definition idvec_i_i {n : nat} (i : ⟦ n ⟧%stn) : (stdb_vector i) i = rigunel2.
   Proof.
-    unfold stdb_vector. rewrite (stn_neq_or_neq_refl). apply idpath.
+    unfold stdb_vector. rewrite (stn_eq_or_neq_refl). apply idpath.
   Defined.
 
   Definition idvec_i_j {n : nat} (i j : ⟦ n ⟧%stn) : i ≠ j ->  (stdb_vector i) j = rigunel1.
@@ -272,7 +224,7 @@ Section Vectors.
     rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
     (*TODO less versions of this, remove rig in name *) (* and p should be obtained inside pf sums... *)
     - unfold identity_matrix.
-      rewrite stn_neq_or_neq_refl, coprod_rect_compute_1.
+      rewrite stn_eq_or_neq_refl, coprod_rect_compute_1.
       apply idpath.
     - unfold identity_matrix.
       intros ? i_neq_j.
@@ -325,7 +277,7 @@ Section Vectors.
                                some lemma(s) should be stated using
                                const_vec etc *)
     unfold stdb_vector.
-    do 2 rewrite stn_neq_or_neq_refl.
+    do 2 rewrite stn_eq_or_neq_refl.
     apply issymm_natneq in  ne_i_j.
     rewrite (stn_eq_or_neq_right ne_i_j).
     apply issymm_natneq in ne_i_j.
@@ -381,7 +333,7 @@ Section Vectors.
     unfold identity_matrix, pointwise.
     assert (p: n > 0). {apply (stn_implies_ngt0 i). } (*TODO this should be gt0 *)
     rewrite (pulse_function_sums_to_point_rig'' _  (stn_implies_ngt0 i)  i ).
-    - rewrite stn_neq_or_neq_refl.
+    - rewrite stn_eq_or_neq_refl.
       simpl.
       apply (riglunax2).
     - intros j i_neq_j.
@@ -427,6 +379,41 @@ Section Vectors.
     apply weqffun.
     apply weq_vector_1.
   Defined.
+
+  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
+    : v = const_vec e -> v i = e.
+    Proof. intros eq. rewrite eq. reflexivity.
+  Defined.
+
+
+  Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : col_vec v1 = col_vec v2 -> v1 = v2.
+  Proof.
+    intros H.
+    apply (invmaponpathsweq (@weq_colwec X n)  _ _ H). (* TODO typo *)
+  Defined.
+
+  Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : row_vec v1 = row_vec v2 -> v1 = v2.
+  Proof.
+    intros H.
+    apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H). (* TODO typo *)
+  Defined.
+
+  Lemma vectorize_inj { X : rig } { e1 e2 : X }
+    : vectorize_1 _ e1 = vectorize_1 _ e2 -> e1 = e2.
+  Proof.
+    intros H. 
+    apply (invmaponpathsweq (@weq_vector_1 X)  _ _ H).
+  Defined.
+
+  Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
+  : forall i : (stn 1), v = col (col_vec v) i.
+  Proof.
+    reflexivity.
+  Defined.
+
+
 
 End Vectors.
 
@@ -539,13 +526,5 @@ Section Vectorshq.
   foldleft (0%hq,, (0,, pn)) (max_hq_index_bounded k vec) (λ i : (⟦ n ⟧)%stn, abs_hq (vec i),, i).
 
 
-  Definition max_el' { n : nat } (v : Vector hq n) (max' : hq) : hq.
-  Proof.
-    induction n as [ | m IH]. (* TODO naming *)
-    {exact max'. }
-    exact (max_hq max' (IH (@drop_el_vector hq m v lastelement))). (* todo this or DNI ? *)
-  Defined.
-
-  Definition max_el { n : nat } (vec: Vector hq n) := max_el' vec 0%hq.
 
 End Vectorshq.

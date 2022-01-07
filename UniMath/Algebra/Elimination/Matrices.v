@@ -17,6 +17,8 @@ Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 Require Import UniMath.Algebra.Elimination.Vectors.
 
+Require Import UniMath.RealNumbers.Prelim.
+
 Section Matrices.
 
   Context {R : rig}.
@@ -60,6 +62,26 @@ Section Matrices.
         apply fromempty. assumption.
   Defined.
 
+  Lemma col_vec_mult_eq
+    { n : nat } (mat : Matrix R n n) (v1 v2 : Vector R n)
+    : 
+    (mat ** (col_vec v1)) = (col_vec v2)
+    -> forall i : (stn n),
+    @iterop_fun R (@rigunel1 R) op1 n ((mat i) ^ v1) = v2 i.
+  Proof.
+    rewrite matrix_mult_eq; unfold matrix_mult_unf.
+    unfold pointwise.
+    intros eq.
+    intros i.
+    unfold col_vec in eq.
+    pose (H := @col_vec_inj).
+    unfold vectorize_1 in H.
+    unfold col_vec in H.
+    pose (H' := H R _ _ _ eq).
+    rewrite <- H'.
+    reflexivity.
+  Defined.
+
 
   Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n) := mat = transpose mat.
 
@@ -79,7 +101,7 @@ Section Matrices.
     destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
     - simpl.
       rewrite i_eq_j.
-      rewrite stn_neq_or_neq_refl.
+      rewrite stn_eq_or_neq_refl.
       simpl.
       apply idpath.
     - rewrite coprod_rect_compute_2.
@@ -116,7 +138,7 @@ Section Matrices.
   Lemma id_mat_ii {n : nat} (i : ⟦ n ⟧%stn) : (@identity_matrix R n) i i = rigunel2.
   Proof.
     unfold identity_matrix.
-    rewrite (stn_neq_or_neq_refl); simpl; apply idpath.
+    rewrite (stn_eq_or_neq_refl); simpl; apply idpath.
   Defined.
 
   Lemma id_mat_ij {n : nat} (i j : ⟦ n ⟧%stn) : i ≠ j -> (@identity_matrix R n) i j = rigunel1.
@@ -148,7 +170,7 @@ Section Matrices.
   Proof.
     rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
     - unfold identity_matrix.
-      rewrite stn_neq_or_neq_refl, coprod_rect_compute_1.
+      rewrite stn_eq_or_neq_refl, coprod_rect_compute_1.
       apply idpath.
     - unfold identity_matrix.
       intros ? i_neq_j.
@@ -166,7 +188,6 @@ Section Matrices.
 
   Definition matrix_left_inverse {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n), ((B ** A) = identity_matrix).
-
 
   (* The product of two invertible matrices being invertible *)
   Lemma inv_matrix_prod_is_inv {n : nat} (A : Matrix R n n)
@@ -203,12 +224,18 @@ Section Matrices.
       reflexivity.
   Defined.
 
-
   Lemma identity_matrix_is_inv { n : nat } : matrix_inverse (@identity_matrix _ n).
   Proof.
     use tpair. { exact identity_matrix. }
     use tpair; apply matrunax2.
   Defined.
+
+  Lemma transpose_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X n n):
+    transpose mat1 = transpose mat2 -> mat1 = mat2.
+  Proof.
+    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
+  Defined.
+
 
   Definition is_diagonal { m n : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn), (stntonat _ i ≠ (stntonat _ j)) -> (mat i j) = 0%rig.
@@ -221,6 +248,10 @@ Section Matrices.
 
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
+
+  (* TODO rename to something sensible ? diagonal_all_nonzero ? *)
+  Definition diagonal_all_nonzero { n : nat } (mat : Matrix hq n n) :=
+    ∏ i : ⟦ n ⟧%stn, mat i i != 0%hq.
 
 
   Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn )  (mat : Matrix X (S n) (S n)) : Matrix X n n.
@@ -238,13 +269,146 @@ Section Matrices.
              - (lastValue (firstValue mat))  * (firstValue(lastValue (mat))))%hq. }
     set (mp := λ i : ⟦ S n ⟧%stn, iterop_fun 0%hq op2 (λ j : ⟦ (S n) + i ⟧%stn, (- 1%hq)%hq)).
     set (q := (λ i : ⟦ S n ⟧%stn, (IHn ((@ij_minor hq _ i (0,, natgthsn0 n) mat))))).
-    (* destruct (nat_eq_or_neq (pr2 (natdivrem n 2)) 0%nat). *)
     exact ( (iterop_fun 0%hq op1 (λ i : ⟦ S n ⟧%stn, (mp i) * q i)))%hq.
   Defined.
 
-
 End Matrices.
 
+
+  (* Things that are not really specific to hq but used in later in hq
+     - TODO either generalize elimination procedures or state below
+       in terms of commrings and prove hq is one. *)
+Section MatricesHq.
+
+  Local Notation Σ := (iterop_fun hqzero op1).
+  Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
+  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+
+  Lemma upper_triangular_iff_transpose_lower_triangular
+  { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+  : (@is_upper_triangular hq n n mat)
+  <-> (@is_lower_triangular hq n n (transpose mat)).
+  Proof.
+    unfold  is_upper_triangular,  is_lower_triangular, transpose, flip.
+    split.
+    - intros inv i j i_lt_j.
+      rewrite inv; try assumption; reflexivity.
+    - intros inv i j i_gt_j.
+      rewrite inv; try assumption; reflexivity.
+  Defined.
+
+  Lemma matrix_product_transpose
+  { n : nat } (A B : Matrix hq n n)
+  : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
+  Proof.
+    intros.
+    unfold transpose, flip.
+    rewrite matrix_mult_eq; unfold matrix_mult_unf.
+    symmetry; rewrite matrix_mult_eq; unfold matrix_mult_unf.
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+    etrans. {apply maponpaths. apply funextfun. intros ?. rewrite hqmultcomm. reflexivity. }
+    reflexivity.
+  Defined.
+
+  Lemma invertible_to_transpose_invertible
+  { n : nat } (mat : Matrix hq n n)
+  :
+  (@matrix_inverse hq n mat)
+  ->
+  (@matrix_inverse hq n (transpose mat)).
+  Proof.
+    assert (eq : transpose (@identity_matrix hq n) = @identity_matrix hq n).
+    { unfold transpose. unfold flip.
+      apply funextfun; intros ?. apply funextfun; intros ?.
+      unfold identity_matrix.
+      destruct (stn_eq_or_neq _) as [eq' | neq]; try simpl.
+      - symmetry in eq'.
+        rewrite (stn_eq_or_neq_left eq'); simpl.
+        reflexivity.
+      - destruct (stn_eq_or_neq _ _) as [contr | ?].
+        2: {simpl. reflexivity. }
+        simpl.
+        rewrite contr in neq.
+        apply isirrefl_natneq in neq.
+        contradiction.
+    }
+    try split.
+    - intros inv1.
+      destruct inv1 as [inv1 isinv1].
+      destruct isinv1 as [isrightinv1 isleftinv1].
+      use tpair.
+      {exact (transpose inv1). }
+      split.
+      + rewrite <- matrix_product_transpose in *.
+        rewrite isleftinv1.
+        assumption.
+      + rewrite <- matrix_product_transpose in *.
+        rewrite isrightinv1.
+        assumption.
+  Defined.
+
+  Lemma transpose_invertible_to_invertible
+  { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+  :
+  (@matrix_inverse hq n (transpose mat)) 
+  -> (@matrix_inverse hq n mat).
+  Proof.
+    intros.
+    assert (eq : mat = (transpose (transpose mat))). {reflexivity. }
+    rewrite eq.
+    apply invertible_to_transpose_invertible; assumption.
+  Defined.
+
+  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
+      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
+  (@matrix_inverse hq n A) -> empty.
+  Proof.
+    intros invA.
+    destruct invA as [inv isinv].
+    destruct isinv as [isrightinv isleftinv]. (* TODO fix order *)
+    assert (∏ i j : ⟦ n ⟧%stn, (A ** inv) i j = identity_matrix i j).
+    { intros.  rewrite isrightinv. reflexivity. }
+    destruct (natchoice0 n) as [eq | gt].
+    { apply fromstn0. clear zero_row. rewrite <- eq in i. assumption. }
+    assert (contr : (A ** inv) i i = 0%hq).
+    { rewrite matrix_mult_eq. unfold matrix_mult_unf.
+      rewrite zero_function_sums_to_zero. {reflexivity. }
+      apply funextfun. intros k.
+      replace (A i k) with 0%hq.
+      { apply (@rigmult0x hq). }
+      rewrite zero_row. reflexivity.
+    }
+    pose (id_ii := (@id_mat_ii hq n)).
+    rewrite isrightinv in contr.
+    rewrite id_ii in contr.
+    change 1%rig with 1%hq in contr.
+    pose (t1 := intpart 1%hq).
+    pose (t2 := intpart 0%hq).
+    assert (contr' : t1 != t2).
+    {apply hzone_neg_hzzero. }
+    unfold t1, t2 in contr'.
+    rewrite contr in contr'.
+    contradiction.
+  Defined.
+
+  Lemma diagonal_nonzero_iff_transpose_nonzero
+    { n : nat } (A : Matrix hq n n)
+    : diagonal_all_nonzero A
+    <-> (diagonal_all_nonzero (transpose A)).
+  Proof.
+    split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
+  Defined.
+
+  Lemma upper_triangular_transpose_is_lower_triangular
+    { n : nat } (A : Matrix hq n n)
+    (H: @is_upper_triangular hq n n A)
+    : (@is_lower_triangular hq n n (transpose A)).
+  Proof.
+    intros i j lt; unfold is_upper_triangular; apply H; assumption. 
+  Defined.
+
+End MatricesHq.
 
 
 Section Transpositions.
@@ -291,7 +455,7 @@ Section Transpositions.
              ++ apply isirrefl_natneq in i_neq.
                 contradiction.
         * destruct (stn_eq_or_neq i k).
-          -- rewrite stn_neq_or_neq_refl.
+          -- rewrite stn_eq_or_neq_refl.
              assumption.
           -- rewrite (stn_eq_or_neq_right j_neq).
              apply idpath.
@@ -301,7 +465,7 @@ Section Transpositions.
       destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
       + rewrite  i_eq_k in *.
         symmetry; assumption.
-      + rewrite stn_neq_or_neq_refl.
+      + rewrite stn_eq_or_neq_refl.
         assumption.
       + assert (j_neq_k : j ≠ k).
         { rewrite i_eq_j in i_neq_k.
@@ -312,7 +476,7 @@ Section Transpositions.
         rewrite (stn_eq_or_neq_right j_neq_k).
         apply idpath.
       + destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
-        * rewrite stn_neq_or_neq_refl.
+        * rewrite stn_eq_or_neq_refl.
           assumption.
         * rewrite (stn_eq_or_neq_right i_neq_k).
           rewrite (stn_eq_or_neq_right j_neq_k).

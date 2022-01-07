@@ -172,7 +172,7 @@ Section GaussOps.
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl.
       rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
-      + rewrite stn_neq_or_neq_refl.
+      + rewrite stn_eq_or_neq_refl.
         simpl.
         apply idpath.
       + intros k i_neq_k.
@@ -181,7 +181,7 @@ Section GaussOps.
         apply (@rigmult0x hq).
     - simpl.
       rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
-      + rewrite stn_neq_or_neq_refl.
+      + rewrite stn_eq_or_neq_refl.
         simpl.
         rewrite (@riglunax2 hq).
         reflexivity.
@@ -204,7 +204,7 @@ Section GaussOps.
     - simpl.
       rewrite (@pulse_function_sums_to_point_rig'' hq n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n r2 i * _)%ring p r2).
       + unfold identity_matrix.
-        rewrite stn_neq_or_neq_refl.
+        rewrite stn_eq_or_neq_refl.
         simpl.
         apply (@riglunax2 hq).
       + intros k r2_neq_k.
@@ -256,10 +256,10 @@ Section GaussOps.
       + simpl.
         rewrite (@two_pulse_function_sums_to_point_rig hq n (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
         * unfold const_vec, identity_matrix.
-          rewrite stn_neq_or_neq_refl. simpl.
+          rewrite stn_eq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
           rewrite (stn_eq_or_neq_right k_neq_r1). simpl.
-          rewrite stn_neq_or_neq_refl. simpl.
+          rewrite stn_eq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
           rewrite (stn_eq_or_neq_right k_neq_r1). simpl.
           rewrite (@rigmultx0 hq).
@@ -408,7 +408,7 @@ Section GaussOps.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: {apply idpath. }
     simpl.
-    rewrite stn_neq_or_neq_refl.
+    rewrite stn_eq_or_neq_refl.
     rewrite (stn_eq_or_neq_right ne).
     simpl.
     unfold pointwise.
@@ -463,14 +463,14 @@ Section GaussOps.
         destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2]
         ; destruct (stn_eq_or_neq k l) as [k_eq_l | k_neq_l]; simpl.
         * rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
-          -- do 2 rewrite stn_neq_or_neq_refl. simpl.
+          -- do 2 rewrite stn_eq_or_neq_refl. simpl.
              rewrite (stn_eq_or_neq_right r1_neq_r2).
              rewrite k_eq_l in *.
              rewrite k_eq_r2 in *.
              rewrite (stn_eq_or_neq_right r1_neq_r2'). simpl.
              rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq).
-             rewrite stn_neq_or_neq_refl; simpl.
-             rewrite stn_neq_or_neq_refl; simpl.
+             rewrite stn_eq_or_neq_refl; simpl.
+             rewrite stn_eq_or_neq_refl; simpl.
              rewrite (stn_eq_or_neq_right r1_neq_r2').
              rewrite (@rigmultx0 hq); simpl; rewrite (@rigmultx0 hq).
              do 2 rewrite (@rigrunax1 hq).
@@ -490,15 +490,15 @@ Section GaussOps.
              apply idpath.
         *  rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
            -- rewrite (stn_eq_or_neq_right r1_neq_r2); simpl.
-              rewrite stn_neq_or_neq_refl. simpl.
+              rewrite stn_eq_or_neq_refl. simpl.
               rewrite k_eq_r2 in *.
               rewrite (stn_eq_or_neq_right r1_neq_r2').
-              rewrite stn_neq_or_neq_refl.
+              rewrite stn_eq_or_neq_refl.
               simpl.
               rewrite (stn_eq_or_neq_right k_neq_l).
               rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq); rewrite (@riglunax1 hq).
               unfold const_vec.
-              rewrite stn_neq_or_neq_refl.
+              rewrite stn_eq_or_neq_refl.
               apply issymm_natneq in r1_neq_r2'.
               rewrite (stn_eq_or_neq_right r1_neq_r2').
               destruct (stn_eq_or_neq r1 l) as [r1_eq_l | r1_neq_l].
@@ -528,10 +528,10 @@ Section GaussOps.
         * rewrite k_eq_l in *.
           set (cl := setquot _ ).
           rewrite (@pulse_function_sums_to_point_rig''  hq n _  p' l).
-          -- rewrite (stn_neq_or_neq_refl); simpl.
+          -- rewrite (stn_eq_or_neq_refl); simpl.
              rewrite (stn_eq_or_neq_right k_neq_r2); simpl.
              rewrite (@riglunax2 hq).
-             rewrite (stn_neq_or_neq_refl); simpl.
+             rewrite (stn_eq_or_neq_refl); simpl.
              apply idpath.
           -- intros q l_neq_q; simpl.
              rewrite (stn_eq_or_neq_right l_neq_q); simpl.
@@ -572,18 +572,18 @@ Section GaussOps.
     - rewrite eq; simpl.
       destruct (stn_eq_or_neq r1 r2) as [r1_eq_r2 | r1_neq_r2].
       + simpl.
-        rewrite stn_neq_or_neq_refl; simpl.
+        rewrite stn_eq_or_neq_refl; simpl.
         rewrite r1_eq_r2 in *.
         destruct (stn_eq_or_neq j r2) as [j_eq_r2 | j_neq_r2].
         { simpl.
           rewrite j_eq_r2.
-          rewrite stn_neq_or_neq_refl; simpl.
+          rewrite stn_eq_or_neq_refl; simpl.
           reflexivity. }
         simpl.
         apply idpath.
       + simpl.
-        rewrite stn_neq_or_neq_refl; simpl.
-        rewrite stn_neq_or_neq_refl; simpl.
+        rewrite stn_eq_or_neq_refl; simpl.
+        rewrite stn_eq_or_neq_refl; simpl.
         destruct (stn_eq_or_neq j r1) as [j_eq_r1 | j_neq_r1].
         { simpl.
           rewrite j_eq_r1.
@@ -597,7 +597,7 @@ Section GaussOps.
           apply idpath. }
         simpl.
         apply idpath.
-    - rewrite stn_neq_or_neq_refl; simpl.
+    - rewrite stn_eq_or_neq_refl; simpl.
       destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
       { simpl.
         rewrite i_eq_r1.
@@ -613,7 +613,7 @@ Section GaussOps.
       { simpl.
         rewrite i_eq_r2.
         simpl.
-        rewrite stn_neq_or_neq_refl; simpl.
+        rewrite stn_eq_or_neq_refl; simpl.
         rewrite <- i_eq_r2.
         apply issymm_natneq in i_neq_r1.
         reflexivity.
