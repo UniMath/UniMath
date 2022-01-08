@@ -45,3 +45,5 @@ Elimination/Vectors.v
 Elimination/Matrices.v
 Elimination/RowOps.v
 Elimination/Elimination.v
+Elimination/EliminationAlts.v
+Elimination/Corollaries.v

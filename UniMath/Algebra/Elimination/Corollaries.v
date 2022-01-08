@@ -1,8 +1,44 @@
 
+Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Nat.
+
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.FiniteSequences.
+Require Import UniMath.Combinatorics.WellOrderedSets.
+Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.Combinatorics.Maybe.
+
+Require Import UniMath.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.Matrix.
+
+Require Import UniMath.NumberSystems.Integers.
+Require Import UniMath.NumberSystems.RationalNumbers.
+Require Import UniMath.Tactics.Nat_Tactics.
+
+Require Import UniMath.PAdics.z_mod_p.
+Require Import UniMath.PAdics.lemmas.
+
+Require Import UniMath.RealNumbers.Prelim.
+
+Require Import UniMath.Algebra.Elimination.Auxiliary.
+Require Import UniMath.Algebra.Elimination.Vectors.
+Require Import UniMath.Algebra.Elimination.Matrices.
+Require Import UniMath.Algebra.Elimination.RowOps.
+Require Import UniMath.Algebra.Elimination.Elimination.
+Require Import UniMath.Algebra.Elimination.EliminationAlts.
+
+
+Local Notation Σ := (iterop_fun hqzero op1).
+Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
+Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
   (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
-  Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) 
+  Definition back_sub_step { n : nat } ( iter : (⟦ n ⟧)%stn ) 
   (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros i.
@@ -19,7 +55,7 @@
   Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (x : Vector hq n) (b : Vector hq n)
         (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_filled mat):
+        (p' : diagonal_all_nonzero mat):
     ((mat ** (col_vec (back_sub_step iter mat x b))) iter  = (col_vec b) iter).
   Proof.
     intros.
@@ -40,7 +76,7 @@
     intros iter' mat' vec' filled' is_upper_t' b'.
     apply funextfun;  intros ?.
     rewrite (@rigsum_dni hq (pr1_)  _ iter').
-    rewrite nat_neq_or_neq_refl.
+    rewrite nat_eq_or_neq_refl.
     destruct (natlehchoice (S (Preamble.pr1 iter')) (S pr1_)) as [lt | eq]. (* TODO why is this S _ < S _ ? **)
     - etrans. { apply maponpaths_2; apply maponpaths; reflexivity. }
       etrans.
@@ -145,7 +181,7 @@
 
   Lemma back_sub_step_inv1 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_filled mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
+        (p' : diagonal_all_nonzero mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
     (col_vec (back_sub_step iter mat b vec) i  = ( (col_vec  (*vec*) b)) i).
   Proof.
     intros i ne.
@@ -163,7 +199,7 @@
 
   Lemma back_sub_step_inv2 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_filled mat):
+        (p' : diagonal_all_nonzero mat):
      ∏ i : ⟦ n ⟧%stn, i ≥ iter ->
        (mat ** (col_vec b )) i = (col_vec  vec) i
     -> (mat ** (col_vec (back_sub_step iter mat b vec))) i = ((col_vec vec) i).
@@ -211,7 +247,7 @@
 
   Lemma back_sub_step_inv3 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_filled mat):
+        (p' : diagonal_all_nonzero mat):
      ∏ i : ⟦ n ⟧%stn, i > iter ->
        (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
   Proof.
@@ -248,7 +284,7 @@
   (* TODO: document what this is meant to do? *)
   (* TODO fix signature *)
   Definition back_sub_internal
-    { n : nat }  (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) (iter : ⟦ S n ⟧%stn)
+    { n : nat } (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) (iter : ⟦ S n ⟧%stn)
     : Vector hq n.
   Proof.
     destruct iter as [iter p].
@@ -260,12 +296,14 @@
       exact (back_sub_step (m') mat (IHn (p')) vec).
   Defined.
 
+  Definition back_sub {n : nat} (mat : Matrix hq n n) (vec : Vector hq n)
+    := back_sub_internal mat vec vec (n,, natgthsnn n).
 
   (* TODO  H not even used here ??? *)
   Lemma back_sub_internal_inv0
         { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
         (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_filled mat) (iter : ⟦ S n ⟧%stn)
+        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i < (dualelement iter)(* i < iter *)
     -> (((col_vec (back_sub_internal mat b vec iter)))) i = ((col_vec b) i).
   Proof.
@@ -330,7 +368,7 @@
   Lemma back_sub_internal_inv2
         { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
         (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_filled mat) (iter : ⟦ S n ⟧%stn)
+        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement iter)
     -> (mat ** (col_vec (back_sub_internal mat b vec iter))) i = (col_vec vec) i.
   Proof. 
@@ -422,8 +460,24 @@
       rewrite back_sub_step_inv0; try reflexivity; try assumption.
   Defined.
 
-
-
+  Lemma back_sub_inv0 { n : nat } (mat : Matrix hq n n) (b vec : Vector hq n)
+        (ut : @is_upper_triangular hq _ _ mat)
+    (df: diagonal_all_nonzero mat) : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
+  Proof.
+    intros.
+    unfold back_sub.
+    destruct (natchoice0 n) as [p | ?].
+    { apply funextfun. intros i. apply fromstn0. rewrite p. simpl. assumption. }
+    apply funextfun; intros i.
+    try apply back_sub_internal_inv0; try assumption.
+    apply back_sub_internal_inv2; try assumption.
+    unfold dualelement.
+    destruct (natchoice0 (S n)). { apply fromempty. apply negpaths0sx in p. assumption. }
+    simpl.
+    rewrite minus0r.
+    rewrite minusnn0.
+    reflexivity.
+  Defined.
 
   (* Construct the inverse, if additionally mat is upper triangular with non-zero diagonal *)
   Definition upper_triangular_inverse_construction
@@ -444,13 +498,13 @@
         (p : @is_upper_triangular hq n n A)
         (p': @matrix_inverse hq n A)
         (B : (@matrix_inverse hq n A))
-    : (@diagonal_filled n A).
+    : (@diagonal_all_nonzero n A).
   Proof.
     apply diagonal_nonzero_iff_transpose_nonzero.
     set (At := (λ y x : (⟦ n ⟧)%stn, A x y)).
     assert (@is_lower_triangular hq n n At).
     { apply upper_triangular_transpose_is_lower_triangular. assumption. }
-    unfold diagonal_filled.
+    unfold diagonal_all_nonzero.
     intros i.
     destruct (isdeceqhq (At i i) 0%hq) as [contr | ne].
     2: { assumption. }
@@ -471,14 +525,14 @@
     unfold At'.
     rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq.
     apply inv_matrix_prod_is_inv.
-    2: {apply inverse_iff_transpose_inverse; try assumption. }
+    2: {apply transpose_invertible_to_invertible; try assumption. }
     apply clear_columns_up_to_matrix_no_switch_invertible; try assumption. (* TODO remove unused argument *)
   Defined.
 
   Definition upper_triangular_inverse_is_inverse
   { n : nat } (mat : Matrix hq n n)
   (ut : @is_upper_triangular hq _ _ mat)
-  (df: diagonal_filled mat)
+  (df: diagonal_all_nonzero mat)
   :
   (mat ** (transpose (upper_triangular_inverse_construction mat)))
   = (@identity_matrix hq n).
@@ -488,13 +542,14 @@ Proof.
   unfold matrix_mult, row.
   unfold col, transpose, flip.
   apply funextfun; intros ?.
-  rewrite (col_vec_mult_eq mat (λ y : (⟦ n ⟧)%stn, upper_triangular_inverse_construction mat x y) (@identity_matrix hq n x)).
+  rewrite (@col_vec_mult_eq hq n mat (λ y : (⟦ n ⟧)%stn, upper_triangular_inverse_construction mat x y) (@identity_matrix hq n x)).
   - destruct (stn_eq_or_neq i x) as [eq | neq].
     {rewrite eq; reflexivity. }
     rewrite id_mat_ij; try rewrite id_mat_ij; try reflexivity; try assumption.
     apply (issymm_natneq _ _ neq).
   - unfold upper_triangular_inverse_construction. 
     pose (H2 := @back_sub_inv0).
+    unfold back_sub.
     destruct (natchoice0 n) as [eq | ?]. {apply fromstn0. rewrite eq. assumption. }
     apply H2; try assumption.
     apply (mat (0,, h0)). (* TODO remove superfluous argument in sig. *)

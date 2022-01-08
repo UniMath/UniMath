@@ -1,7 +1,44 @@
-  (* A variant of gccut that does not switch rows
-     This will be used to find a witness to non-invertibility for lower triangular input matrices.  *)
-Definition gauss_clear_columns_up_to_no_switch { n : nat } (p : n > 0) (* Remove p when gcc is refactored *)
-  (k : (⟦ S n ⟧%stn))
+Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Nat.
+
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.FiniteSequences.
+Require Import UniMath.Combinatorics.WellOrderedSets.
+Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.Combinatorics.Maybe.
+
+Require Import UniMath.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.Matrix.
+
+Require Import UniMath.NumberSystems.Integers.
+Require Import UniMath.NumberSystems.RationalNumbers.
+Require Import UniMath.Tactics.Nat_Tactics.
+
+Require Import UniMath.PAdics.z_mod_p.
+Require Import UniMath.PAdics.lemmas.
+
+Require Import UniMath.RealNumbers.Prelim.
+
+Require Import UniMath.Algebra.Elimination.Auxiliary.
+Require Import UniMath.Algebra.Elimination.Vectors.
+Require Import UniMath.Algebra.Elimination.Matrices.
+Require Import UniMath.Algebra.Elimination.RowOps.
+Require Import UniMath.Algebra.Elimination.Elimination.
+
+
+
+Local Notation Σ := (iterop_fun hqzero op1).
+Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
+Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+
+(* A variant of gccut that does not switch rows
+ This will be used to find a witness to non-invertibility for lower triangular input matrices.  *)
+Definition gauss_clear_columns_up_to_no_switch
+  { n : nat } (p : n > 0) (k : (⟦ S n ⟧%stn))
   (mat : Matrix hq n n) : Matrix hq n n.
 Proof.
   destruct k as [k lt_k_n].
@@ -30,7 +67,7 @@ Lemma clear_columns_up_to_no_switch_as_left_matrix_internal
    set (piv :=  make_stn n k' lt_k_n).
    destruct (isdeceqhq (mat (k',, lt_k_n) (k',, lt_k_n)) 0%hq).
    - refine ( ( (gauss_clear_earlier_columns _ ))).
-   exact lt.
+     exact lt.
    - refine ((gauss_clear_column_as_left_matrix  (n,, natlthnsn n) _ (k' ,, lt_k_n) (k' ,, lt_k_n)) ** _ ).
    + exact ( mat_by_normal_op ).
    + refine ( (gauss_clear_earlier_columns _)).
@@ -145,7 +182,7 @@ Proof.
   2: {assumption. }
   set (f := nat_rect _ _ _ _).
   set (s := (istransnatlth iter (S iter) (S n) (natgthsnn iter) p'')).
-  unfold gauss_add_row; rewrite stn_neq_or_neq_refl; simpl.
+  unfold gauss_add_row; rewrite stn_eq_or_neq_refl; simpl.
   etrans.
   { apply maponpaths.
   destruct (natgthorleh k iter).
@@ -397,7 +434,7 @@ Proof.
   set (s' := istransnatlth _ _ _ _).
   set (f' := f (s' lt_n'_n)).
   unfold gauss_add_row.
-  rewrite (stn_neq_or_neq_refl).
+  rewrite (stn_eq_or_neq_refl).
   rewrite coprod_rect_compute_1.
   replace (f' (inv,, rw) j) with 0%hq.
   2: { unfold f', f. change n' with (pr1 n'_stn) in IH2p.
@@ -476,7 +513,7 @@ Proof.
   }
   unfold gauss_add_row.
   set (f := nat_rect _ _ _).
-  rewrite (stn_neq_or_neq_refl); rewrite coprod_rect_compute_1.
+  rewrite (stn_eq_or_neq_refl); rewrite coprod_rect_compute_1.
   set (f' := f _ _).
   replace (f' IH_idx j) with 0%hq.
   2: { unfold f', f.
@@ -529,7 +566,7 @@ Proof.
     set (f := nat_rect _ _ _).
     destruct (stn_eq_or_neq _ _).
     { rewrite <- IH_p. unfold f. reflexivity. }
-    rewrite (stn_neq_or_neq_refl); rewrite coprod_rect_compute_1.
+    rewrite (stn_eq_or_neq_refl); rewrite coprod_rect_compute_1.
     set (f' := f _ _).
     replace (f' IH_idx (iter,, lt)) with 0%hq. 2: {unfold f'. unfold f. rewrite  IH_p. reflexivity. }
     replace (f' IH_idx IH_idx) with 0%hq. 2: {unfold f'. unfold f. rewrite  IH_p. reflexivity. }
