@@ -8,7 +8,14 @@
  1. Definition of an internal Street opfibration
  2. Street opfibrations in [B] are the same as Street fibrations in [op2_bicat B]
  3. Properties of opcartesian cells
- 4. Projection is an opfibration
+ 4. Identity opfibration
+ 5. Projection is an opfibration
+ 6. Composition of Street opfibrations
+ 7. Internal Street opfibrations of categories
+ 8. Morphisms of internal Street opfibrations
+ 9. Cells of internal Street opfibrations
+ 10. Equivalences preserve cartesian cells
+ 11. Pullbacks of Street opfibrations
 
  ********************************************************)
 Require Import UniMath.Foundations.All.
@@ -26,6 +33,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.UnivalenceOp.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.FullyFaithful.
@@ -35,6 +43,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Colimits.Products.
 Import Products.Notations.
+Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
 
@@ -415,6 +424,19 @@ Proof.
     + exact internal_sopfib_weq_internal_sfib_inv_right.
 Defined.
 
+Definition isaprop_internal_sopfib
+           {B : bicat}
+           (HB_2_1 : is_univalent_2_1 B)
+           {e b : B}
+           (p : e --> b)
+  : isaprop (internal_sopfib p).
+Proof.
+  use (isofhlevelweqf _ (internal_sopfib_weq_internal_sfib p)).
+  apply isaprop_internal_sfib.
+  apply op2_bicat_is_univalent_2_1.
+  exact HB_2_1.
+Qed.
+
 (**
  3. Properties of opcartesian cells
  *)
@@ -466,8 +488,60 @@ Proof.
   exact Hα.
 Defined.
 
+Definition locally_grpd_opcartesian
+           {B : bicat}
+           (HB : locally_groupoid B)
+           {e b : B}
+           (p : e --> b)
+           {x : B}
+           {f g : x --> e}
+           (γ : f ==> g)
+  : is_opcartesian_2cell_sopfib p γ.
+Proof.
+  apply invertible_is_opcartesian_2cell_sopfib.
+  apply HB.
+Defined.
+
+Definition is_opcartesian_2cell_sopfib_precomp
+           {B : bicat}
+           {e b : B}
+           (p : e --> b)
+           {x : B}
+           {f g h : x --> e}
+           (α : f ==> g) {β : g ==> h}
+           {γ : f ==> h}
+           (Hα : is_opcartesian_2cell_sopfib p α)
+           (Hγ : is_opcartesian_2cell_sopfib p γ)
+           (q : α • β = γ)
+  : is_opcartesian_2cell_sopfib p β.
+Proof.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  refine (@is_cartesian_2cell_sfib_postcomp
+           (op2_bicat B)
+           _ _ _ _ _ _ _
+           β α γ
+           _ _ _).
+  - apply is_opcartesian_to_is_cartesian_sfib.
+    exact Hα.
+  - apply is_opcartesian_to_is_cartesian_sfib.
+    exact Hγ.
+  - exact q.
+Defined.
+
 (**
- 4. Projection is an opfibration
+ 4. Identity opfibration
+ *)
+Definition identity_internal_sopfib
+           {B : bicat}
+           (b : B)
+  : internal_sopfib (id₁ b).
+Proof.
+  apply internal_sfib_is_internal_sopfib.
+  exact (@identity_internal_sfib (op2_bicat B) b).
+Defined.
+
+(**
+ 5. Projection is an opfibration
  *)
 Section ProjectionSOpFib.
   Context {B : bicat_with_binprod}
@@ -703,3 +777,479 @@ Section ProjectionSOpFib.
   Defined.
    *)
 End ProjectionSOpFib.
+
+(**
+ 8. Morphisms of internal Street opfibrations
+ *)
+Definition mor_preserves_opcartesian
+           {B : bicat}
+           {e₁ b₁ : B}
+           (p₁ : e₁ --> b₁)
+           {e₂ b₂ : B}
+           (p₂ : e₂ --> b₂)
+           (fe : e₁ --> e₂)
+  : UU
+  := ∏ (x : B)
+       (f g : x --> e₁)
+       (γ : f ==> g)
+       (Hγ : is_opcartesian_2cell_sopfib p₁ γ),
+     is_opcartesian_2cell_sopfib p₂ (γ ▹ fe).
+
+Definition mor_preserves_cartesian_to_mor_preserves_opcartesian
+           {B : bicat}
+           {e₁ b₁ : B}
+           {p₁ : e₁ --> b₁}
+           {e₂ b₂ : B}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           (H : @mor_preserves_cartesian
+                  (op2_bicat B)
+                  e₁ b₁ p₁
+                  e₂ b₂ p₂
+                  fe)
+  : mor_preserves_opcartesian p₁ p₂ fe.
+Proof.
+  intros x f g γ Hγ.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  apply H.
+  apply is_opcartesian_to_is_cartesian_sfib.
+  exact Hγ.
+Defined.
+
+Definition mor_preserves_opcartesian_to_mor_preserves_cartesian
+           {B : bicat}
+           {e₁ b₁ : B}
+           {p₁ : e₁ --> b₁}
+           {e₂ b₂ : B}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           (H : mor_preserves_opcartesian p₁ p₂ fe)
+  : @mor_preserves_cartesian
+      (op2_bicat B)
+      e₁ b₁ p₁
+      e₂ b₂ p₂
+      fe.
+Proof.
+  intros x f g γ Hγ.
+  apply is_opcartesian_to_is_cartesian_sfib.
+  apply H.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  exact Hγ.
+Defined.
+
+Definition id_mor_preserves_opcartesian
+           {B : bicat}
+           {e b : B}
+           (p : e --> b)
+  : mor_preserves_opcartesian p p (id₁ e).
+Proof.
+  intros ? ? ? ? H.
+  assert (γ ▹ id₁ e = runitor _ • γ • rinvunitor _) as q.
+  {
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    cbn.
+    rewrite !vcomp_runitor.
+    apply idpath.
+  }
+  rewrite q.
+  use vcomp_is_opcartesian_2cell_sopfib.
+  - use vcomp_is_opcartesian_2cell_sopfib.
+    + use invertible_is_opcartesian_2cell_sopfib.
+      is_iso.
+    + exact H.
+  - use invertible_is_opcartesian_2cell_sopfib.
+    is_iso.
+Qed.
+
+Definition comp_preserves_opcartesian
+           {B : bicat}
+           {e₁ b₁ e₂ b₂ e₃ b₃ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {p₃ : e₃ --> b₃}
+           {fe₁ : e₁ --> e₂}
+           {fe₂ : e₂ --> e₃}
+           (H₁ : mor_preserves_opcartesian p₁ p₂ fe₁)
+           (H₂ : mor_preserves_opcartesian p₂ p₃ fe₂)
+  : mor_preserves_opcartesian p₁ p₃ (fe₁ · fe₂).
+Proof.
+  intros x f g γ Hγ.
+  specialize (H₁ x _ _ γ Hγ).
+  specialize (H₂ x _ _ _ H₁).
+  assert (γ ▹ fe₁ · fe₂
+          =
+          lassociator _ _ _
+          • ((γ ▹ fe₁) ▹ fe₂)
+          • rassociator _ _ _)
+    as q.
+  {
+    use vcomp_move_L_Mp ; [ is_iso | ] ; cbn.
+    rewrite rwhisker_rwhisker.
+    apply idpath.
+  }
+  rewrite q.
+  use vcomp_is_opcartesian_2cell_sopfib.
+  - use vcomp_is_opcartesian_2cell_sopfib.
+    + use invertible_is_opcartesian_2cell_sopfib.
+      is_iso.
+    + exact H₂.
+  - use invertible_is_opcartesian_2cell_sopfib.
+    is_iso.
+Qed.
+
+Definition locally_grpd_preserves_opcartesian
+           {B : bicat}
+           (HB : locally_groupoid B)
+           {e₁ b₁ e₂ b₂ : B}
+           (p₁ : e₁ --> b₁)
+           (p₂ : e₂ --> b₂)
+           (fe : e₁ --> e₂)
+  : mor_preserves_opcartesian p₁ p₂ fe.
+Proof.
+  intro ; intros.
+  apply (locally_grpd_opcartesian HB).
+Defined.
+
+Definition isaprop_mor_preserves_opcartesian
+           {B : bicat}
+           {e₁ b₁ : B}
+           (p₁ : e₁ --> b₁)
+           {e₂ b₂ : B}
+           (p₂ : e₂ --> b₂)
+           (fe : e₁ --> e₂)
+  : isaprop (mor_preserves_opcartesian p₁ p₂ fe).
+Proof.
+  do 5 (use impred ; intro).
+  exact (isaprop_is_opcartesian_2cell_sopfib _ _).
+Qed.
+
+Definition mor_of_internal_sopfib_over
+           {B : bicat}
+           {e₁ b₁ : B}
+           (p₁ : e₁ --> b₁)
+           {e₂ b₂ : B}
+           (p₂ : e₂ --> b₂)
+           (fb : b₁ --> b₂)
+  : UU
+  := ∑ (fe : e₁ --> e₂),
+     mor_preserves_opcartesian p₁ p₂ fe
+     ×
+     invertible_2cell (p₁ · fb) (fe · p₂).
+
+Definition make_mor_of_internal_sopfib_over
+           {B : bicat}
+           {e₁ b₁ : B}
+           {p₁ : e₁ --> b₁}
+           {e₂ b₂ : B}
+           {p₂ : e₂ --> b₂}
+           {fb : b₁ --> b₂}
+           (fe : e₁ --> e₂)
+           (fc : mor_preserves_opcartesian p₁ p₂ fe)
+           (f_com : invertible_2cell (p₁ · fb) (fe · p₂))
+  : mor_of_internal_sopfib_over p₁ p₂ fb
+  := (fe ,, fc ,, f_com).
+
+Coercion mor_of_internal_sopfib_over_to_mor
+         {B : bicat}
+         {e₁ b₁ : B}
+         {p₁ : e₁ --> b₁}
+         {e₂ b₂ : B}
+         {p₂ : e₂ --> b₂}
+         {fb : b₁ --> b₂}
+         (fe : mor_of_internal_sopfib_over p₁ p₂ fb)
+  : e₁ --> e₂
+  := pr1 fe.
+
+Definition mor_of_internal_sopfib_over_preserves
+           {B : bicat}
+           {e₁ b₁ : B}
+           {p₁ : e₁ --> b₁}
+           {e₂ b₂ : B}
+           {p₂ : e₂ --> b₂}
+           {fb : b₁ --> b₂}
+           (fe : mor_of_internal_sopfib_over p₁ p₂ fb)
+  : mor_preserves_opcartesian p₁ p₂ fe
+  := pr12 fe.
+
+Definition mor_of_internal_sopfib_over_com
+           {B : bicat}
+           {e₁ b₁ : B}
+           {p₁ : e₁ --> b₁}
+           {e₂ b₂ : B}
+           {p₂ : e₂ --> b₂}
+           {fb : b₁ --> b₂}
+           (fe : mor_of_internal_sopfib_over p₁ p₂ fb)
+  : invertible_2cell (p₁ · fb) (fe · p₂)
+  := pr22 fe.
+
+Definition id_mor_of_internal_sopfib_over
+           {B : bicat}
+           {e b : B}
+           (p : e --> b)
+  : mor_of_internal_sopfib_over p p (id₁ _).
+Proof.
+  use make_mor_of_internal_sopfib_over.
+  - exact (id₁ e).
+  - apply id_mor_preserves_opcartesian.
+  - use make_invertible_2cell.
+    + refine (runitor _ • linvunitor _).
+    + is_iso.
+Defined.
+
+Definition comp_mor_of_internal_sopfib_over
+           {B : bicat}
+           {e₁ e₂ e₃ b₁ b₂ b₃ : B}
+           {fb₁ : b₁ --> b₂}
+           {fb₂ : b₂ --> b₃}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {p₃ : e₃ --> b₃}
+           (fe₁ : mor_of_internal_sopfib_over p₁ p₂ fb₁)
+           (fe₂ : mor_of_internal_sopfib_over p₂ p₃ fb₂)
+  : mor_of_internal_sopfib_over p₁ p₃ (fb₁ · fb₂).
+Proof.
+  use make_mor_of_internal_sopfib_over.
+  - exact (fe₁ · fe₂).
+  - exact (comp_preserves_opcartesian
+             (mor_of_internal_sopfib_over_preserves fe₁)
+             (mor_of_internal_sopfib_over_preserves fe₂)).
+  - use make_invertible_2cell.
+    + exact (lassociator _ _ _
+             • (mor_of_internal_sopfib_over_com fe₁ ▹ _)
+             • rassociator _ _ _
+             • (_ ◃ mor_of_internal_sopfib_over_com fe₂)
+             • lassociator _ _ _).
+    + is_iso.
+      * apply property_from_invertible_2cell.
+      * apply property_from_invertible_2cell.
+Defined.
+
+(**
+ 9. Cells of internal Street opfibrations
+ *)
+Definition cell_of_internal_sopfib_over_homot
+           {B : bicat}
+           {b₁ b₂ e₁ e₂ : B}
+           {fb gb : b₁ --> b₂}
+           (γ : fb ==> gb)
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : mor_of_internal_sopfib_over p₁ p₂ fb}
+           {ge : mor_of_internal_sopfib_over p₁ p₂ gb}
+           (γe : fe ==> ge)
+  : UU
+  := mor_of_internal_sopfib_over_com fe • (γe ▹ _)
+     =
+     (_ ◃ γ) • mor_of_internal_sopfib_over_com ge.
+
+
+Definition cell_of_internal_sopfib_over
+           {B : bicat}
+           {b₁ b₂ e₁ e₂ : B}
+           {fb gb : b₁ --> b₂}
+           (γ : fb ==> gb)
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           (fe : mor_of_internal_sopfib_over p₁ p₂ fb)
+           (ge : mor_of_internal_sopfib_over p₁ p₂ gb)
+  : UU
+  := ∑ (γe : fe ==> ge), cell_of_internal_sopfib_over_homot γ γe.
+
+Definition make_cell_of_internal_sopfib_over
+           {B : bicat}
+           {b₁ b₂ e₁ e₂ : B}
+           {fb gb : b₁ --> b₂}
+           {γ : fb ==> gb}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : mor_of_internal_sopfib_over p₁ p₂ fb}
+           {ge : mor_of_internal_sopfib_over p₁ p₂ gb}
+           (γe : fe ==> ge)
+           (p : cell_of_internal_sopfib_over_homot γ γe)
+  : cell_of_internal_sopfib_over γ fe ge
+  := (γe ,, p).
+
+Coercion cell_of_cell_of_internal_sopfib_over
+         {B : bicat}
+         {b₁ b₂ e₁ e₂ : B}
+         {fb gb : b₁ --> b₂}
+         {γ : fb ==> gb}
+         {p₁ : e₁ --> b₁}
+         {p₂ : e₂ --> b₂}
+         {fe : mor_of_internal_sopfib_over p₁ p₂ fb}
+         {ge : mor_of_internal_sopfib_over p₁ p₂ gb}
+         (γe : cell_of_internal_sopfib_over γ fe ge)
+  : fe ==> ge
+  := pr1 γe.
+
+Definition cell_of_internal_sopfib_over_eq
+           {B : bicat}
+           {b₁ b₂ e₁ e₂ : B}
+           {fb gb : b₁ --> b₂}
+           {γ : fb ==> gb}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : mor_of_internal_sopfib_over p₁ p₂ fb}
+           {ge : mor_of_internal_sopfib_over p₁ p₂ gb}
+           (γe : cell_of_internal_sopfib_over γ fe ge)
+  : mor_of_internal_sopfib_over_com fe • (γe ▹ _)
+     =
+     (_ ◃ γ) • mor_of_internal_sopfib_over_com ge
+  := pr2 γe.
+
+Definition eq_cell_of_internal_sopfib_over
+           {B : bicat}
+           {b₁ b₂ e₁ e₂ : B}
+           {fb gb : b₁ --> b₂}
+           {γ : fb ==> gb}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : mor_of_internal_sopfib_over p₁ p₂ fb}
+           {ge : mor_of_internal_sopfib_over p₁ p₂ gb}
+           (γe₁ γe₂ : cell_of_internal_sopfib_over γ fe ge)
+           (p : pr1 γe₁ = γe₂)
+  : γe₁ = γe₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply cellset_property.
+  }
+  exact p.
+Qed.
+
+(**
+ 10. Equivalences preserve cartesian cells
+ *)
+Definition equivalence_preserves_opcartesian
+           {B : bicat}
+           {b e₁ e₂ : B}
+           (p₁ : e₁ --> b)
+           (p₂ : e₂ --> b)
+           (L : e₁ --> e₂)
+           (com : invertible_2cell p₁ (L · p₂))
+           (HL : left_adjoint_equivalence L)
+           (HB_2_0 : is_univalent_2_0 B)
+           (HB_2_1 : is_univalent_2_1 B)
+  : mor_preserves_opcartesian p₁ p₂ L.
+Proof.
+  refine (J_2_0
+            HB_2_0
+            (λ (x₁ x₂ : B) (L : adjoint_equivalence x₁ x₂),
+             ∏ (p₁ : x₁ --> b)
+               (p₂ : x₂ --> b)
+               (c : invertible_2cell p₁ (L · p₂)),
+             mor_preserves_opcartesian p₁ p₂ L)
+            _
+            (L ,, HL)
+            p₁
+            p₂
+            com).
+  clear e₁ e₂ L HL p₁ p₂ com HB_2_0.
+  cbn ; intros e p₁ p₂ com.
+  pose (c := comp_of_invertible_2cell com (lunitor_invertible_2cell _)).
+  refine (J_2_1
+            HB_2_1
+            (λ (x₁ x₂ : B)
+               (f g : x₁ --> x₂)
+               _,
+             mor_preserves_opcartesian f g (id₁ _))
+            _
+            c).
+  intros.
+  apply id_mor_preserves_opcartesian.
+Defined.
+
+(**
+ 11. Pullbacks of Street opfibrations
+ *)
+Definition pb_of_sopfib
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (pb := make_pb_cone e₁ fe p₁ γ)
+           (H : has_pb_ump pb)
+           (Hf : internal_sopfib p₂)
+  : internal_sopfib p₁.
+Proof.
+  apply internal_sfib_is_internal_sopfib.
+  use (@pb_of_sfib
+         (op2_bicat B)
+         e₁ e₂ b₁ b₂
+         p₁ p₂ fe fb).
+  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+    exact (inv_of_invertible_2cell γ).
+  - apply to_op2_has_pb_ump.
+    exact H.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hf.
+Defined.
+
+Definition mor_preserves_opcartesian_pb_pr1
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (pb := make_pb_cone e₁ fe p₁ γ)
+           (H : has_pb_ump pb)
+           (Hf : internal_sopfib p₂)
+  : mor_preserves_opcartesian p₁ p₂ fe.
+Proof.
+  apply mor_preserves_cartesian_to_mor_preserves_opcartesian.
+  use (@mor_preserves_cartesian_pb_pr1
+         (op2_bicat B)
+         e₁ e₂ b₁ b₂
+         p₁ p₂ fe fb).
+  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+    exact (inv_of_invertible_2cell γ).
+  - apply to_op2_has_pb_ump.
+    exact H.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hf.
+Defined.
+
+Definition mor_preserves_opcartesian_pb_ump_mor
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (pb := make_pb_cone e₁ fe p₁ γ)
+           (H : has_pb_ump pb)
+           {e₀ b₀ : B}
+           (p₀ : e₀ --> b₀)
+           (h₁ : e₀ --> e₂)
+           (h₂ : b₀ --> b₁)
+           (δ : invertible_2cell (h₁ · p₂) (p₀ · h₂ · fb))
+           (cone := make_pb_cone e₀ h₁ (p₀ · h₂) δ)
+           (Hh₁ : mor_preserves_opcartesian p₀ p₂ h₁)
+  : mor_preserves_opcartesian
+      p₀
+      p₁
+      (pb_ump_mor H cone).
+Proof.
+  apply mor_preserves_cartesian_to_mor_preserves_opcartesian.
+  exact (@mor_preserves_cartesian_pb_ump_mor
+           (op2_bicat B)
+           e₁ e₂ b₁ b₂
+           p₁ p₂ fe fb
+           _
+           (to_op2_has_pb_ump _ H)
+           e₀ b₀ p₀
+           h₁ h₂
+           (inv_of_invertible_2cell
+              (bicat_invertible_2cell_is_op2_bicat_invertible_2cell
+                 _ _
+                 δ))
+           (mor_preserves_opcartesian_to_mor_preserves_cartesian
+              Hh₁)).
+Defined.
