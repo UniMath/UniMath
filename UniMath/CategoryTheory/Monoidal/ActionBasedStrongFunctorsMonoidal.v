@@ -1922,7 +1922,7 @@ Section Main.
       intros vη wη'.
       use total2_paths_f.
       + cbn. repeat rewrite id_left. repeat rewrite id_right.
-        assert (triangleinst := pr1 (monoidal_cat_eq Mon_V) (pr1 vη) (pr1 wη')).
+        assert (triangleinst := monoidal_cat_triangle_eq Mon_V (pr1 vη) (pr1 wη')).
         exact triangleinst.
       + apply trafotargetbicat_disp_cells_isaprop.
     Qed.
@@ -1933,7 +1933,7 @@ Section Main.
       intros vη1 vη2 vη3 vη4.
       use total2_paths_f.
       + cbn. repeat rewrite id_left. repeat rewrite id_right.
-        assert (pentagoninst := pr2 (monoidal_cat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
+        assert (pentagoninst := monoidal_cat_pentagon_eq Mon_V (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
         exact pentagoninst.
       + apply trafotargetbicat_disp_cells_isaprop.
     Qed.
