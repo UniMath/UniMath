@@ -1041,6 +1041,43 @@ Proof.
     apply transportfbinv.
 Qed.
 
+Definition inv_from_iso_in_total
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           {f : x --> y}
+           (Hf : is_iso f)
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           (Hff : is_iso_disp (make_iso f Hf) ff)
+  : pr1 (inv_from_iso
+           (make_iso
+              _
+              (@is_iso_total
+                 C D
+                 (x ,, xx) (y ,, yy)
+                 (f ,, ff)
+                 Hf
+                 Hff)))
+    =
+    inv_from_iso (make_iso _ Hf).
+Proof.
+  use inv_iso_unique'.
+  unfold precomp_with ; cbn.
+  exact (maponpaths
+           pr1
+           (iso_inv_after_iso
+              (make_iso
+                 _
+                 (@is_iso_total
+                    C D
+                    (x ,, xx) (y ,, yy)
+                    (f ,, ff)
+                    Hf
+                    Hff)))).
+Qed.
+
 Definition is_iso_base_from_total {C : category} {D : disp_cat C}
            {xx yy : total_category D} {ff : xx --> yy} (i : is_iso ff)
   : is_iso (pr1 ff).
@@ -1777,6 +1814,76 @@ End Total_Functors.
 
 End Disp_Functor.
 
+(** Laws for total fucntors *)
+Definition total_functor_commute
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : disp_functor F D₁ D₂)
+  : pr1_category D₁ ∙ F ⟹ total_functor FF ∙ pr1_category D₂.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros ? ? ? ;
+       cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition total_functor_commute_iso
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : disp_functor F D₁ D₂)
+  : nat_iso
+      (pr1_category D₁ ∙ F)
+      (total_functor FF ∙ pr1_category D₂).
+Proof.
+  use make_nat_iso.
+  * exact (total_functor_commute FF).
+  * intro.
+    apply identity_is_iso.
+Defined.
+
+Definition total_functor_identity
+           {C : category}
+           (D : disp_cat C)
+  : functor_identity (total_category D)
+    ⟹
+    total_functor (disp_functor_identity D).
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros ? ? ? ; simpl ;
+       refine (@id_right (total_category _) _ _ _ @ _) ;
+       exact (!(@id_left (total_category _) _ _ _))).
+Defined.
+
+Definition total_functor_comp
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : disp_functor F D₁ D₂)
+           (GG : disp_functor G D₂ D₃)
+  : total_functor FF ∙ total_functor GG
+    ⟹
+    total_functor (disp_functor_composite FF GG).
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros x y f ;
+       refine (@id_right (total_category _) _ _ _ @ _) ;
+       exact (!(@id_left (total_category _) _ _ _))).
+Defined.
+
 (* Redeclare notations globally: *)
 
 Notation "# F" := (disp_functor_on_morphisms F)
@@ -2104,4 +2211,25 @@ Proof.
        rewrite transport_f_f ;
        apply maponpaths_2 ;
        apply C₃).
+Defined.
+
+(** Total natural transformation *)
+Definition total_nat_trans
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           {τ : F ⟹ G}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {FF : disp_functor F D₁ D₂}
+           {GG : disp_functor G D₁ D₂}
+           (ττ : disp_nat_trans τ FF GG)
+  : nat_trans (total_functor FF) (total_functor GG).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, τ (pr1 x) ,, ττ (pr1 x) (pr2 x)).
+  - abstract
+      (intros x y f ; cbn ;
+       use total2_paths_b ;
+       [ exact (nat_trans_ax τ _ _ (pr1 f))
+       | exact (disp_nat_trans_ax ττ (pr2 f))]).
 Defined.

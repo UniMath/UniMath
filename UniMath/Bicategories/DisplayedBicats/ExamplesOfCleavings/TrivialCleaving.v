@@ -20,8 +20,8 @@ Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.Cartesians.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
-Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
 
@@ -352,6 +352,28 @@ Section ConstantCleaving.
     cbn.
     is_iso.
     apply trivial_cartesian_2cell_is_invertible.
+    apply Hαα.
+  Qed.
+
+  Definition trivial_lwhisker_opcartesian
+    : lwhisker_opcartesian (trivial_displayed_bicat B₁ B₂).
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    apply trivial_invertible_is_opcartesian_2cell.
+    cbn.
+    is_iso.
+    apply trivial_opcartesian_2cell_is_invertible.
+    apply Hαα.
+  Qed.
+
+  Definition trivial_rwhisker_opcartesian
+    : rwhisker_opcartesian (trivial_displayed_bicat B₁ B₂).
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    apply trivial_invertible_is_opcartesian_2cell.
+    cbn.
+    is_iso.
+    apply trivial_opcartesian_2cell_is_invertible.
     apply Hαα.
   Qed.
 

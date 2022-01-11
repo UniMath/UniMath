@@ -310,7 +310,7 @@ Proof.
   exists tensor.
   exists ρ'.
   exists α'.
-  exact (monoidal_cat_eq Mon_V).
+  exact (monoidal_cat_triangle_eq Mon_V,, monoidal_cat_pentagon_eq Mon_V).
 Defined.
 
 (* The action induced by a strong monoidal functor U. *)
@@ -325,8 +325,8 @@ Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
 Local Definition α_A : associator tensor_A := monoidal_cat_associator Mon_A.
 Local Definition λ_A : left_unitor tensor_A I_A := monoidal_cat_left_unitor Mon_A.
 Local Definition ρ_A : right_unitor tensor_A I_A := monoidal_cat_right_unitor Mon_A.
-Local Definition triangle_eq_A : triangle_eq tensor_A I_A λ_A ρ_A α_A := pr1 (monoidal_cat_eq Mon_A).
-Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_cat_eq Mon_A).
+Local Definition triangle_eq_A : triangle_eq tensor_A I_A λ_A ρ_A α_A := monoidal_cat_triangle_eq Mon_A.
+Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := monoidal_cat_pentagon_eq Mon_A.
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).

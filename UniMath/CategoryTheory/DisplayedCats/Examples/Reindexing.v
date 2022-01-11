@@ -13,6 +13,7 @@
  5. Cleaving
  6. Functor from reindexing
  7. Mapping property
+ 8. Reindexing along opfibrations gives pullbacks
 
  ********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -250,6 +251,19 @@ Proof.
        induction p ;
        use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
        apply idpath).
+Defined.
+
+Definition univalent_reindex_cat
+           {C₁ C₂ : univalent_category}
+           (F : C₁ ⟶ C₂)
+           (D : disp_univalent_category C₂)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (total_category (reindex_disp_cat F (pr1 D))).
+  - use is_univalent_total_category.
+    + exact (pr2 C₁).
+    + exact (is_univalent_reindex_disp_cat F _ (pr2 D)).
 Defined.
 
 (**
@@ -979,10 +993,361 @@ Definition lift_functor_into_reindex_disp_nat_trans
            (αα : disp_nat_trans (post_whisker α _) FF₁ FF₂)
   : disp_nat_trans
       α
-      (lift_functor_into_reindex_data FF₁)
-      (lift_functor_into_reindex_data FF₂).
+      (lift_functor_into_reindex FF₁)
+      (lift_functor_into_reindex FF₂).
 Proof.
   simple refine (_ ,, _).
   - exact (lift_functor_into_reindex_disp_nat_trans_data αα).
   - exact (lift_functor_into_reindex_disp_nat_trans_axioms αα).
 Defined.
+
+(**
+ 8. Reindexing along opfibrations gives pullbacks
+ *)
+Section ReindexIsPB.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          (D₂ : disp_cat C₂)
+          (HD₂ : iso_cleaving D₂).
+
+  (** Universal property for functors *)
+  Context {C₀ : category}
+          (G : C₀ ⟶ total_category D₂)
+          (H : C₀ ⟶ C₁)
+          (α : nat_iso (H ∙ F) (G ∙ pr1_category D₂)).
+
+  Definition reindex_pb_ump_1_data
+    : functor_data
+        C₀
+        (total_category (reindex_disp_cat F D₂)).
+  Proof.
+    use make_functor_data.
+    - exact (λ x, H x
+                    ,,
+                    pr1 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))).
+    - refine (λ x y f, # H f ,, _).
+      refine (transportb
+                (λ z, _ -->[ z ] _)
+                _
+                (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))
+                 ;;
+                 (pr2 (#G f))%Cat
+                 ;;
+                 inv_mor_disp_from_iso
+                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y)))))%mor_disp).
+      abstract
+        (cbn ;
+         use iso_inv_on_left ;
+         refine (!_) ;
+         exact (nat_trans_ax α _ _ f)).
+  Defined.
+
+  Definition reindex_pb_ump_1_is_functor
+    : is_functor reindex_pb_ump_1_data.
+  Proof.
+    split.
+    - intros x.
+      use total2_paths_f ; cbn.
+      + apply functor_id.
+      + unfold transportb.
+        etrans.
+        {
+          apply transportf_reindex.
+        }
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (transportb_transpose_right (fiber_paths (functor_id G x))).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply id_right_disp.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          exact (inv_mor_after_iso_disp
+                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x))))).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply homset_property.
+    - intros x y z f g.
+      use total2_paths_f ; cbn.
+      + apply functor_comp.
+      + unfold transportb.
+        etrans.
+        {
+          apply transportf_reindex.
+        }
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (transportb_transpose_right
+                   (fiber_paths (functor_comp G f g))).
+        }
+        unfold transportb ; cbn.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite !assoc_disp_var.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          do 3 apply maponpaths.
+          rewrite !assoc_disp.
+          unfold transportb.
+          rewrite transport_f_f.
+          apply maponpaths.
+          do 2 apply maponpaths_2.
+          exact (iso_disp_after_inv_mor
+                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y))))).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite id_left_disp.
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        apply maponpaths_2.
+        apply homset_property.
+  Qed.
+
+  Definition reindex_pb_ump_1
+    : C₀ ⟶ total_category (reindex_disp_cat F D₂).
+  Proof.
+    use make_functor.
+    - exact reindex_pb_ump_1_data.
+    - exact reindex_pb_ump_1_is_functor.
+  Defined.
+
+  Definition reindex_pb_ump_1_pr1
+    : reindex_pb_ump_1 ∙ pr1_category _ ⟹ H.
+  Proof.
+    use make_nat_trans.
+    - exact (λ _, identity _).
+    - abstract
+        (intros x y f ; cbn ;
+         rewrite id_left, id_right ;
+         apply idpath).
+  Defined.
+
+  Definition reindex_pb_ump_1_pr1_nat_iso
+    : nat_iso
+        (reindex_pb_ump_1 ∙ pr1_category _)
+        H.
+  Proof.
+    use make_nat_iso.
+    - exact reindex_pb_ump_1_pr1.
+    - intro.
+      apply identity_is_iso.
+  Defined.
+
+  Definition reindex_pb_ump_1_pr2_nat_iso_data
+    : nat_trans_data
+        (reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂))
+        G
+    := λ x, α x ,, pr12 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x))).
+
+  Definition reindex_pb_ump_1_pr2_is_nat_trans
+    : is_nat_trans
+        _ _
+        reindex_pb_ump_1_pr2_nat_iso_data.
+  Proof.
+    intros x y f.
+    use total2_paths_f ; cbn.
+    - exact (nat_trans_ax α _ _ f).
+    - unfold transportb.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite !assoc_disp_var.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        exact (iso_disp_after_inv_mor
+                 (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y))))).
+      }
+      unfold transportb.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      apply transportf_set.
+      apply homset_property.
+  Qed.
+
+  Definition reindex_pb_ump_1_pr2
+    : reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂) ⟹ G.
+  Proof.
+    use make_nat_trans.
+    - exact reindex_pb_ump_1_pr2_nat_iso_data.
+    - exact reindex_pb_ump_1_pr2_is_nat_trans.
+  Defined.
+
+  Definition reindex_pb_ump_1_pr2_nat_iso
+    : nat_iso
+        (reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂))
+        G.
+  Proof.
+    use make_nat_iso.
+    - exact reindex_pb_ump_1_pr2.
+    - intros x.
+      use is_iso_total.
+      + exact (pr2 (nat_iso_pointwise_iso α x)).
+      + exact (pr22 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))).
+  Defined.
+
+  (** Universal property for natural transformations *)
+  Context (Φ₁ Φ₂ : C₀ ⟶ total_category (reindex_disp_cat F D₂))
+          (τ₁ : Φ₁ ∙ pr1_category _ ⟹ Φ₂ ∙ pr1_category _)
+          (τ₂ : Φ₁ ∙ total_functor (reindex_disp_cat_disp_functor F D₂)
+                ⟹
+                Φ₂ ∙ total_functor (reindex_disp_cat_disp_functor F D₂))
+          (p : ∏ (x : C₀), pr1 (τ₂ x) = # F (τ₁ x)).
+
+  Definition reindex_pb_ump_2_data
+    : nat_trans_data Φ₁ Φ₂.
+  Proof.
+    refine (λ x, τ₁ x ,, _).
+    exact (transportf
+             (λ z, _ -->[ z ] _)
+             (p x)
+             (pr2 (τ₂ x))).
+  Defined.
+
+  Definition reindex_pb_ump_2_is_nat_trans
+    : is_nat_trans Φ₁ Φ₂ reindex_pb_ump_2_data.
+  Proof.
+    intros x y f.
+    use total2_paths_f ; cbn.
+    - exact (nat_trans_ax τ₁ _ _ f).
+    - unfold transportb.
+      etrans.
+      {
+        apply transportf_reindex.
+      }
+      rewrite transport_f_f.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right (fiber_paths (nat_trans_ax τ₂ _ _ f))).
+      }
+      unfold transportb.
+      rewrite transport_f_f.
+      cbn.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition reindex_pb_ump_2
+    : Φ₁ ⟹ Φ₂.
+  Proof.
+    use make_nat_trans.
+    - exact reindex_pb_ump_2_data.
+    - exact reindex_pb_ump_2_is_nat_trans.
+  Defined.
+
+  Definition reindex_pb_ump_2_pr1
+    : post_whisker
+        reindex_pb_ump_2
+        (pr1_category _)
+      =
+      τ₁.
+  Proof.
+    use nat_trans_eq.
+    {
+      intro ; apply homset_property.
+    }
+    intro x ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition reindex_pb_ump_2_pr2
+    : post_whisker
+        reindex_pb_ump_2
+        (total_functor (reindex_disp_cat_disp_functor F D₂))
+      =
+      τ₂.
+  Proof.
+    use nat_trans_eq.
+    {
+      intro ; apply homset_property.
+    }
+    intro x ; cbn.
+    use total2_paths_f ; cbn.
+    - exact (!(p x)).
+    - rewrite transport_f_f.
+      apply transportf_set.
+      apply homset_property.
+  Qed.
+
+  (** Universal property for equalities *)
+  Context (n₁ n₂ : Φ₁ ⟹ Φ₂)
+          (n₁_pr1 : post_whisker n₁ (pr1_category _) = τ₁)
+          (n₁_pr2 : post_whisker
+                      n₁
+                      (total_functor (reindex_disp_cat_disp_functor F D₂))
+                    =
+                    τ₂)
+          (n₂_pr1 : post_whisker n₂ (pr1_category _) = τ₁)
+          (n₂_pr2 : post_whisker
+                      n₂
+                      (total_functor (reindex_disp_cat_disp_functor F D₂))
+                    =
+                    τ₂).
+
+  Definition reindex_pb_ump_eq
+    : n₁ = n₂.
+  Proof.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use total2_paths_f.
+    - pose (nat_trans_eq_pointwise n₁_pr1 x) as q₁.
+      pose (nat_trans_eq_pointwise n₂_pr1 x) as q₂.
+      cbn in q₁, q₂.
+      exact (q₁ @ !q₂).
+    - cbn.
+      pose (nat_trans_eq_pointwise n₁_pr2 x) as q₁.
+      pose (nat_trans_eq_pointwise n₂_pr2 x) as q₂.
+      cbn in q₁, q₂.
+      refine (_ @ fiber_paths (q₁ @ !q₂)).
+      cbn.
+      etrans.
+      {
+        apply transportf_reindex.
+      }
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+End ReindexIsPB.

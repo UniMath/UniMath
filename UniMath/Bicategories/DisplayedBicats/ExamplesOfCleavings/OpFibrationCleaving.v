@@ -593,7 +593,7 @@ Proof.
     exact (cleaving_of_opfibs_lift_mor_lift_2cell αα Lh Lh').
 Defined.
 
-Definition cleaving_of_opfibs_global_cleaving
+Definition opfibs_global_cleaving
   : global_cleaving disp_bicat_of_opfibs.
 Proof.
   intros C₁ C₂ D₂ F.

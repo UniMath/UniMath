@@ -22,6 +22,8 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Adjunctions.
@@ -973,6 +975,1097 @@ Section StandardFunctions.
       rewrite <- !lwhisker_vcomp.
       rewrite !vassocl.
       do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_linv.
+      rewrite id2_left.
+      apply idpath.
+  Qed.
+
+  (** Eta for binary products *)
+  Definition prod_1cell_eta_map
+             {a b₁ b₂ : B}
+             (g : a --> b₁ ⊗ b₂)
+    : ⟨ g · π₁ , g · π₂ ⟩ ==> g.
+  Proof.
+    use binprod_ump_2cell.
+    - apply (pr2 B).
+    - exact (prod_1cell_pr1 _ _).
+    - exact (prod_1cell_pr2 _ _).
+  Defined.
+
+  Definition prod_1cell_eta_inv
+             {a b₁ b₂ : B}
+             (g : a --> b₁ ⊗ b₂)
+    : g ==> ⟨ g · π₁ , g · π₂ ⟩.
+  Proof.
+    use binprod_ump_2cell.
+    - apply (pr2 B).
+    - exact ((prod_1cell_pr1 _ _)^-1).
+    - exact ((prod_1cell_pr2 _ _)^-1).
+  Defined.
+
+  Definition prod_1cell_eta_map_inv
+             {a b₁ b₂ : B}
+             (g : a --> b₁ ⊗ b₂)
+    : prod_1cell_eta_map g • prod_1cell_eta_inv g = id₂ _.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- rwhisker_vcomp.
+      unfold prod_1cell_eta_map, prod_1cell_eta_inv.
+      rewrite !binprod_ump_2cell_pr1.
+      rewrite vcomp_rinv.
+      rewrite id2_rwhisker.
+      apply idpath.
+    - rewrite <- rwhisker_vcomp.
+      unfold prod_1cell_eta_map, prod_1cell_eta_inv.
+      rewrite !binprod_ump_2cell_pr2.
+      rewrite vcomp_rinv.
+      rewrite id2_rwhisker.
+      apply idpath.
+  Qed.
+
+  Definition prod_1cell_eta_inv_map
+             {a b₁ b₂ : B}
+             (g : a --> b₁ ⊗ b₂)
+    : prod_1cell_eta_inv g • prod_1cell_eta_map g = id₂ _.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- rwhisker_vcomp.
+      unfold prod_1cell_eta_map, prod_1cell_eta_inv.
+      rewrite !binprod_ump_2cell_pr1.
+      rewrite vcomp_linv.
+      rewrite id2_rwhisker.
+      apply idpath.
+    - rewrite <- rwhisker_vcomp.
+      unfold prod_1cell_eta_map, prod_1cell_eta_inv.
+      rewrite !binprod_ump_2cell_pr2.
+      rewrite vcomp_linv.
+      rewrite id2_rwhisker.
+      apply idpath.
+  Qed.
+
+  Definition prod_1cell_eta
+             {a b₁ b₂ : B}
+             (g : a --> b₁ ⊗ b₂)
+    : invertible_2cell ⟨ g · π₁ , g · π₂ ⟩ g.
+  Proof.
+    use make_invertible_2cell.
+    - exact (prod_1cell_eta_map g).
+    - use make_is_invertible_2cell.
+      + exact (prod_1cell_eta_inv g).
+      + exact (prod_1cell_eta_map_inv g).
+      + exact (prod_1cell_eta_inv_map g).
+  Defined.
+
+  (** Standard lemmas *)
+  Lemma binprod_lunitor
+        {a₁ a₂ b₁ b₂ : B}
+        (f : a₁ --> a₂)
+        (g : b₁ --> b₂)
+    : lunitor (f ⊗₁ g)
+      =
+      ((pair_1cell_id_id_invertible _ _)^-1 ▹ f ⊗₁ g)
+      • pair_1cell_comp (id₁ _) f (id₁ _) g
+      • lunitor f ⊗₂ lunitor g.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply pair_2cell_pr1.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocr.
+      rewrite rwhisker_rwhisker_alt.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr1.
+        }
+        cbn.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite <- rwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite lunitor_triangle.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_l_inv.
+        rewrite <- lwhisker_hcomp.
+        rewrite !vassocl.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite !vassocr.
+          rewrite lassociator_rassociator.
+          rewrite id2_left.
+          apply idpath.
+        }
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite linvunitor_lunitor.
+        rewrite lwhisker_id2.
+        apply id2_left.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_lunitor.
+        rewrite !vassocl.
+        rewrite vcomp_rinv.
+        apply id2_right.
+      }
+      rewrite <- lunitor_triangle.
+      rewrite !vassocr.
+      rewrite rassociator_lassociator.
+      apply id2_left.
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply pair_2cell_pr2.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocr.
+      rewrite rwhisker_rwhisker_alt.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr2.
+        }
+        cbn.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite <- rwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite lunitor_triangle.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_l_inv.
+        rewrite <- lwhisker_hcomp.
+        rewrite !vassocl.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite !vassocr.
+          rewrite lassociator_rassociator.
+          rewrite id2_left.
+          apply idpath.
+        }
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite linvunitor_lunitor.
+        rewrite lwhisker_id2.
+        apply id2_left.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_lunitor.
+        rewrite !vassocl.
+        rewrite vcomp_rinv.
+        apply id2_right.
+      }
+      rewrite <- lunitor_triangle.
+      rewrite !vassocr.
+      rewrite rassociator_lassociator.
+      apply id2_left.
+  Qed.
+
+  Lemma binprod_runitor
+        {a₁ a₂ b₁ b₂ : B}
+        (f : a₁ --> a₂)
+        (g : b₁ --> b₂)
+    : runitor (f ⊗₁ g)
+      =
+      (f ⊗₁ g ◃ (pair_1cell_id_id_invertible _ _)^-1)
+      • pair_1cell_comp f (id₁ _) g (id₁ _)
+      • runitor f ⊗₂ runitor g.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr1.
+        }
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 6 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      cbn.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        rewrite <- lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_hcomp.
+      rewrite triangle_l.
+      rewrite <- rwhisker_hcomp.
+      rewrite !vassocl.
+      refine (_ @ id2_right _).
+      apply maponpaths.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite runitor_triangle.
+          rewrite <- vcomp_runitor.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_rinv.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      rewrite <- runitor_triangle.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        apply id2_left.
+      }
+      rewrite lwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      apply lwhisker_id2.
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr2.
+        }
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 6 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr2.
+      }
+      cbn.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        rewrite <- lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_hcomp.
+      rewrite triangle_l.
+      rewrite <- rwhisker_hcomp.
+      rewrite !vassocl.
+      refine (_ @ id2_right _).
+      apply maponpaths.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite runitor_triangle.
+          rewrite <- vcomp_runitor.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_rinv.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      rewrite <- runitor_triangle.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        apply id2_left.
+      }
+      rewrite lwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      apply lwhisker_id2.
+  Qed.
+
+  Lemma binprod_lassociator
+        {a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ : B}
+        (f₁ : a₁ --> a₂)
+        (g₁ : b₁ --> b₂)
+        (f₂ : a₂ --> a₃)
+        (g₂ : b₂ --> b₃)
+        (f₃ : a₃ --> a₄)
+        (g₃ : b₃ --> b₄)
+    : f₁ ⊗₁ g₁ ◃ pair_1cell_comp f₂ f₃ g₂ g₃
+         • pair_1cell_comp f₁ (f₂ · f₃) g₁ (g₂ · g₃)
+         • lassociator f₁ f₂ f₃ ⊗₂ lassociator g₁ g₂ g₃
+      =
+      lassociator (f₁ ⊗₁ g₁) (f₂ ⊗₁ g₂) (f₃ ⊗₁ g₃)
+                  • (pair_1cell_comp f₁ f₂ g₁ g₂ ▹ f₃ ⊗₁ g₃)
+                  • pair_1cell_comp (f₁ · f₂) f₃ (g₁ · g₂) g₃.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr1.
+        }
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 6 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr1.
+        }
+        rewrite <- !rwhisker_vcomp.
+        rewrite !vassocl.
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr1.
+        }
+        rewrite <- !lwhisker_vcomp.
+        rewrite !vassocl.
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rassociator_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite lwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rassociator_rassociator.
+        rewrite !vassocl.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite rassociator_lassociator.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rassociator_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rassociator_lassociator.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      rewrite !vassocr.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
+      refine (!_).
+      apply rassociator_rassociator.
+    - rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr2.
+        }
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 6 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr2.
+        }
+        rewrite <- !rwhisker_vcomp.
+        rewrite !vassocl.
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply maponpaths.
+          apply binprod_ump_2cell_pr2.
+        }
+        rewrite <- !lwhisker_vcomp.
+        rewrite !vassocl.
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rassociator_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite lwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rassociator_rassociator.
+        rewrite !vassocl.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite rassociator_lassociator.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rassociator_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rassociator_lassociator.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      rewrite !vassocr.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
+      refine (!_).
+      apply rassociator_rassociator.
+  Qed.
+
+  Lemma binprod_lwhisker
+        {a₁ a₂ a₃ b₁ b₂ b₃ : B}
+        (f₁ : a₁ --> a₂)
+        (f₂ : b₁ --> b₂)
+        {g₁ h₁ : a₂ --> a₃}
+        {g₂ h₂ : b₂ --> b₃}
+        (τ₁ : g₁ ==> h₁)
+        (τ₂ : g₂ ==> h₂)
+    : pair_1cell_comp f₁ g₁ f₂ g₂
+      • ((f₁ ◃ τ₁) ⊗₂ (f₂ ◃ τ₂))
+      =
+      ((f₁ ⊗₁ f₂) ◃ (τ₁ ⊗₂ τ₂))
+      • pair_1cell_comp f₁ h₁ f₂ h₂.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- !rwhisker_vcomp.
+      etrans.
+      {
+        apply maponpaths.
+        apply pair_2cell_pr1.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr1.
+        }
+        rewrite <- !lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      refine (!_).
+      etrans.
+      {
+        do 3 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite lwhisker_lwhisker_rassociator.
+      apply idpath.
+    - rewrite <- !rwhisker_vcomp.
+      etrans.
+      {
+        apply maponpaths.
+        apply pair_2cell_pr2.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths.
+          apply pair_2cell_pr2.
+        }
+        rewrite <- !lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      refine (!_).
+      etrans.
+      {
+        do 3 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_linv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply binprod_ump_2cell_pr2.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite lwhisker_lwhisker_rassociator.
+      apply idpath.
+  Qed.
+
+  Lemma binprod_rwhisker
+        {a₁ a₂ a₃ b₁ b₂ b₃ : B}
+        (f₁ g₁ : a₁ --> a₂)
+        (f₂ g₂ : b₁ --> b₂)
+        {h₁ : a₂ --> a₃}
+        {h₂ : b₂ --> b₃}
+        (τ₁ : f₁ ==> g₁)
+        (τ₂ : f₂ ==> g₂)
+    : pair_1cell_comp f₁ h₁ f₂ h₂
+      • ((τ₁ ▹ h₁) ⊗₂ (τ₂ ▹ h₂))
+      =
+      ((τ₁ ⊗₂ τ₂) ▹ (h₁ ⊗₁ h₂))
+      • pair_1cell_comp g₁ h₁ g₂ h₂.
+  Proof.
+    use binprod_ump_2cell_unique_alt.
+    - apply (pr2 B).
+    - rewrite <- !rwhisker_vcomp.
+      etrans.
+      {
+        apply maponpaths.
+        apply pair_2cell_pr1.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr1.
+      }
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_linv.
+      rewrite id2_left.
+      apply idpath.
+    - rewrite <- !rwhisker_vcomp.
+      etrans.
+      {
+        apply maponpaths.
+        apply pair_2cell_pr2.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply binprod_ump_2cell_pr2.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        apply binprod_ump_2cell_pr2.
+      }
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
       rewrite !vassocr.
       rewrite vcomp_linv.
       rewrite id2_left.

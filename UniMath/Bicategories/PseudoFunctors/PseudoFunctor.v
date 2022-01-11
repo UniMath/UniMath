@@ -23,6 +23,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
@@ -411,10 +412,39 @@ Definition psfunctor_preserves_adjequiv
   := J_2_0 HC
            (λ a b f, left_adjoint_equivalence (#F (pr1 f)))
            (λ a0,
-            left_adjequiv_invertible_2cell HD _ _
-                                           (psfunctor_id F a0)
-                                           (pr2 (internal_adjoint_equivalence_identity (F a0))))
+            left_adjequiv_invertible_2cell
+              HD _ _
+              (psfunctor_id F a0)
+              (pr2 (internal_adjoint_equivalence_identity (F a0))))
            f.
+
+Definition psfunctor_preserves_adjequiv'
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f : a --> b}
+           (Hf : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (#F f).
+Proof.
+  use equiv_to_adjequiv.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (#F (left_adjoint_right_adjoint Hf)).
+  - exact (psfunctor_id F _
+           • ##F (left_equivalence_unit_iso Hf)
+           • (psfunctor_comp F _ _)^-1).
+  - exact (psfunctor_comp F _ _
+           • ##F (left_adjoint_counit Hf)
+           • (psfunctor_id F _)^-1).
+  - cbn.
+    is_iso.
+    + apply psfunctor_id.
+    + exact (psfunctor_is_iso F (left_equivalence_unit_iso Hf)).
+  - cbn.
+    is_iso.
+    + apply psfunctor_comp.
+    + exact (psfunctor_is_iso F (left_equivalence_counit_iso Hf)).
+Defined.
+
 
 Definition local_equivalence
            {B₁ B₂ : bicat}

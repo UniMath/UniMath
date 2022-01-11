@@ -191,12 +191,9 @@ Definition monoidal_cat_right_unitor : right_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2
 
 Definition monoidal_cat_associator : associator (pr1 (pr2 M)) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-Definition monoidal_cat_eq :
-  (λ α' : associator (pr1 (pr2 M)),
-          triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) α'
-                      × pentagon_eq (pr1 (pr2 M)) α')
-    (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_cat_triangle_eq : triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+
+Definition monoidal_cat_pentagon_eq : pentagon_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
 
 End Monoidal_Cat_Accessors.
 
@@ -234,7 +231,7 @@ Lemma triangle_eq_swapping_of_tensor: triangle_eq swapping_of_tensor (monoidal_c
   (monoidal_cat_right_unitor M) (monoidal_cat_left_unitor M) associator_swapping_of_tensor.
 Proof.
   red. intros a b. cbn.
-  set (H := pr1 (monoidal_cat_eq M)).
+  set (H := monoidal_cat_triangle_eq M).
   unfold triangle_eq in H.
   etrans.
   2: { apply cancel_precomposition.
@@ -254,7 +251,7 @@ Qed.
 Lemma pentagon_eq_swapping_of_tensor: pentagon_eq swapping_of_tensor associator_swapping_of_tensor.
 Proof.
   red. intros a b c d. cbn.
-  set (H := pr2 (monoidal_cat_eq M)).
+  set (H := monoidal_cat_pentagon_eq M).
   unfold pentagon_eq in H.
   set (f := nat_z_iso_pointwise_z_iso (monoidal_cat_associator M) ((d, c), monoidal_cat_tensor M (b, a))).
   apply (z_iso_inv_on_right _ _ _ f).

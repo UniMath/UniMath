@@ -41,7 +41,7 @@ Proof.
   exists tensor.
   exists ρ'.
   exists α'.
-  apply monoidal_cat_eq.
+  split; [apply monoidal_cat_triangle_eq | apply monoidal_cat_pentagon_eq].
 Defined.
 
 Section Action_Lifting_Through_Strong_Monoidal_Functor.
@@ -56,8 +56,8 @@ Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
 Local Definition α_A := monoidal_cat_associator Mon_A.
 Local Definition λ_A := monoidal_cat_left_unitor Mon_A.
 Local Definition ρ_A := monoidal_cat_right_unitor Mon_A.
-Local Definition triangle_eq_A := pr1 (monoidal_cat_eq Mon_A).
-Local Definition pentagon_eq_A := pr2 (monoidal_cat_eq Mon_A).
+Local Definition triangle_eq_A := monoidal_cat_triangle_eq Mon_A.
+Local Definition pentagon_eq_A := monoidal_cat_pentagon_eq Mon_A.
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
