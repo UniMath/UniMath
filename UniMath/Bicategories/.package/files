@@ -133,4 +133,8 @@ Core/InternalStreetFibration.v
 Core/InternalStreetOpFibration.v
 DisplayedBicats/Examples/CodomainFibs.v
 
+DisplayMapBicat.v
+DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
+DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
+
 ComprehensionBicat.v

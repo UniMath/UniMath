@@ -23,7 +23,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
-Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
 
