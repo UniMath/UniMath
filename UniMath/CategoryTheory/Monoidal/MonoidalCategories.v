@@ -322,9 +322,6 @@ Local Definition r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor 
 Local Notation "X ⊗ Y" := (tensor (X, Y)).
 Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
-Local Definition triangle_eq : ∏ (a b : Mon_V), r_unitor a #⊗ id b = α ((a, I), b) · id a #⊗ l_unitor b := pr1 (monoidal_cat_eq Mon_V).
-Local Definition pentagon_eq : ∏ (a b c d : Mon_V), α ((a ⊗ b, c), d) · α ((a, b), c ⊗ d) = α ((a, b), c) #⊗ id d · α ((a, b ⊗ c), d) · id a #⊗ α ((b, c), d) := pr2 (monoidal_cat_eq Mon_V).
-
 Lemma tensor_comp_left {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id W) = (f #⊗ id W) · (g #⊗ id W).
 Proof.
   rewrite <- (functor_comp tensor).
@@ -364,8 +361,8 @@ Defined.
 (*
   The following three lemmas are from [Kelly, 1964].
   https://doi.org/10.1016/0021-8693(64)90018-3
-  triangle_eq <-> diagram (6) in [Kelly, 1964]
-  pentagon_eq <-> diagram (1)
+  monoidal_cat_triangle_eq <-> diagram (6) in [Kelly, 1964]
+  monoidal_cat_pentagon_eq <-> diagram (1)
   right_unitor_of_tensor <-> diagram (7)
   left_unitor_right_unitor_of_unit <-> diagram (4)
   left_unitor_of_tensor <-> diagram (5)
@@ -379,24 +376,24 @@ Proof.
   apply (transportb (λ h, _ = _ · h) (nat_trans_ax α _ _ ((_#, _)#, _))).
   simpl.
   rewrite assoc.
-  apply (transportb (λ h, _ = _ · #tensor (id _ #, h)) (triangle_eq _ _)).
+  apply (transportb (λ h, _ = _ · #tensor (id _ #, h)) (monoidal_cat_triangle_eq Mon_V _ _)).
   apply (transportf (λ k, _ = _ · #tensor (k #, _)) (id_left (id X))).
   change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
   rewrite (functor_comp tensor).
-  apply (transportb (λ h, h · _ = _) (triangle_eq _ _)).
+  apply (transportb (λ h, h · _ = _) (monoidal_cat_triangle_eq Mon_V _ _)).
   apply (transportf (λ h, _ · #tensor (h #, _) · _ = _) (functor_id tensor (X, Y))).
   rewrite assoc'.
   apply (transportb (λ h, _ · h = _) (nat_trans_ax α _ _ ((_#, _)#, _))).
   rewrite !assoc.
   apply cancel_postcomposition.
-  apply pentagon_eq.
+  apply monoidal_cat_pentagon_eq.
 Defined.
 
 Lemma left_unitor_right_unitor_of_unit : l_unitor I = r_unitor I.
 Proof.
   apply I_pretensor_faithful.
   apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α ((_, _), _)))).
-  apply (pathscomp0 (! (triangle_eq I I))).
+  apply (pathscomp0 (! (monoidal_cat_triangle_eq Mon_V I I))).
   use (pathscomp0 _ (right_unitor_of_tensor I I)).
   apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
   apply (nat_trans_ax r_unitor).
@@ -416,9 +413,9 @@ Proof.
   rewrite !assoc.
   apply (transportf (λ h, _ = h · _) (functor_comp tensor _ _)).
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
-  apply (transportf (λ h, h · _ = _) (pentagon_eq I I X Y)).
+  apply (transportf (λ h, h · _ = _) (monoidal_cat_pentagon_eq Mon_V I I X Y)).
   rewrite assoc'.
-  apply (transportf (λ h, _ · h = _) (triangle_eq _ _)).
+  apply (transportf (λ h, _ · h = _) (monoidal_cat_triangle_eq Mon_V _ _)).
   simpl.
   apply (transportf (λ h, _ · #tensor (_ #, h) = _) (functor_id tensor (X, Y))).
   apply (pathscomp0 (! (nat_trans_ax α _ _ ((_ #, _) #, _)))).
@@ -428,7 +425,7 @@ Proof.
   apply maponpaths.
   apply dirprod_paths; simpl; [|apply id_left].
   apply pathsinv0.
-  apply triangle_eq.
+  apply monoidal_cat_triangle_eq.
 Defined.
 
 End coherence_lemmas.
