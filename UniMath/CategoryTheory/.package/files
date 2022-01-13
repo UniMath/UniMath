@@ -202,21 +202,10 @@ DisplayedCats/Examples/Opposite.v
 DisplayedCats/StreetFibration.v
 
 Monoidal/MonoidalCategories.v
-Monoidal/EndofunctorsMonoidal.v
-Monoidal/PointedFunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v
 Monoidal/CategoriesOfMonoids.v
-Monoidal/Actions.v
-Monoidal/ConstructionOfActions.v
-Monoidal/ActionBasedStrongFunctorsMonoidal.v
-Monoidal/MonoidalFromBicategory.v
-Monoidal/ActionOfEndomorphismsInBicat.v
-Monoidal/ActionBasedStrength.v
-Monoidal/ActionBasedStrongFunctorCategory.v
-Monoidal/ActionsFormBicategory.v
-Monoidal/ActionBasedStrengthOnHomsInBicat.v
 Monoidal/BraidedMonoidalCategories.v
 
 SkewMonoidal/SkewMonoidalCategories.v
