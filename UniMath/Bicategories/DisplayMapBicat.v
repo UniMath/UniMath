@@ -77,6 +77,18 @@ Section Subbicat.
        P₁ p₂ p₃ ge
        →
        P₁ p₁ p₃ (fe · ge).
+
+  Definition contains_equiv_over_id
+    : UU
+    := ∏ (e₁ e₂ b : B)
+         (p₁ : e₁ --> b)
+         (p₂ : e₂ --> b)
+         (fe : e₁ --> e₂),
+       left_adjoint_equivalence fe
+       →
+       invertible_2cell p₁ (fe · p₂)
+       →
+       P₁ p₁ p₂ fe.
 End Subbicat.
 
 Definition arrow_subbicat
@@ -141,6 +153,41 @@ Definition make_arrow_subbicat
            (Hcomp : closed_under_comp P₁)
   : arrow_subbicat B
   := (P₀ ,, P₁ ,, Hid ,, Hcomp).
+
+Definition arrow_subbicat_contains_equiv_over_id
+           {B : bicat}
+           (HB : is_univalent_2 B)
+           (D : arrow_subbicat B)
+  : contains_equiv_over_id (λ e₁ e₂ b₁ b₂ p₁ p₂ fe, pred_mor D p₁ p₂ fe).
+Proof.
+  intros e₁ e₂ b p₁ p₂ fe Hfe γ.
+  refine (J_2_0
+            (pr1 HB)
+            (λ (x₁ x₂ : B) (L : adjoint_equivalence x₁ x₂),
+             ∏ (p₁ : x₁ --> b)
+               (p₂ : x₂ --> b)
+               (γ : invertible_2cell p₁ (pr1 L · p₂)),
+             pred_mor D p₁ p₂ (pr1 L))
+            _
+            (fe ,, Hfe)
+            p₁
+            p₂
+            γ).
+  cbn.
+  clear e₁ e₂ p₁ p₂ fe Hfe γ.
+  intros e p₁ p₂ γ.
+  pose (c := comp_of_invertible_2cell γ (lunitor_invertible_2cell _)).
+  use (J_2_1
+         (pr2 HB)
+         (λ (x₁ x₂ : B)
+            (f g : x₁ --> x₂)
+            (γ : invertible_2cell f g),
+          pred_mor D f g (id₁ _))
+         _
+         c).
+  cbn ; intros.
+  apply (id_pred_mor D).
+Defined.
 
 Definition arrow_subbicat_props
            {B : bicat}

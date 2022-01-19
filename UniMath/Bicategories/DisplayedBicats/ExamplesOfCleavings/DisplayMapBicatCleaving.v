@@ -13,6 +13,7 @@
  4. Characterization of opcartesian cells
  5. Local cleaving
  6. Local opcleaving
+ 7. Specialized to internal Street (op)fibrations
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -1015,3 +1016,54 @@ Section DispMapBicatCleaving.
     - exact H.
   Qed.
 End DispMapBicatCleaving.
+
+(**
+ 7. Specialized to internal Street (op)fibrations
+ *)
+Section StreetFibs.
+  Context (B : bicat_with_pb).
+
+  Definition global_cleaving_sfib
+    : global_cleaving (cod_sfibs B)
+    := global_cleaving_of_disp_map_bicat (sfib_disp_map_bicat B).
+
+  Definition local_cleaving_sfib
+    : local_cleaving (cod_sfibs B)
+    := local_cleaving_of_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition lwhisker_cartesian_sfib
+    : lwhisker_cartesian (cod_sfibs B)
+    := lwhisker_cartesian_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition rwhisker_cartesian_sfib
+    : rwhisker_cartesian (cod_sfibs B)
+    := rwhisker_cartesian_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition global_cleaving_sopfib
+    : global_cleaving (cod_sfibs B)
+    := global_cleaving_of_disp_map_bicat (sfib_disp_map_bicat B).
+
+  Definition local_opcleaving_sopfib
+    : local_opcleaving (cod_sopfibs B)
+    := local_opcleaving_of_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+
+  Definition lwhisker_opcartesian_sopfib
+    : lwhisker_opcartesian (cod_sopfibs B)
+    := lwhisker_opcartesian_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+
+  Definition rwhisker_opcartesian_sopfib
+    : rwhisker_opcartesian (cod_sopfibs B)
+    := rwhisker_opcartesian_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+End StreetFibs.
