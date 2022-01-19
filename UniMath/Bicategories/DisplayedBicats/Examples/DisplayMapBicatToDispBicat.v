@@ -1324,3 +1324,13 @@ Section ArrowSubBicatToDispBicat.
       + exact (pr2 HB).
   Defined.
 End ArrowSubBicatToDispBicat.
+
+Definition cod_sfibs
+           (B : bicat)
+  : disp_bicat B
+  := disp_map_bicat_to_disp_bicat (sfib_subbicat B).
+
+Definition cod_sopfibs
+           (B : bicat)
+  : disp_bicat B
+  := disp_map_bicat_to_disp_bicat (sopfib_subbicat B).
