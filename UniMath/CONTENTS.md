@@ -218,7 +218,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [CategoricalRecursionSchemes.v](CategoryTheory/CategoricalRecursionSchemes.v)
    - [PointedFunctors.v](CategoryTheory/PointedFunctors.v)
    - [HorizontalComposition.v](CategoryTheory/HorizontalComposition.v)
-   - [CATAsInstanceOfBicat.v](CategoryTheory/CATAsInstanceOfBicat.v)
    - [PointedFunctorsComposition.v](CategoryTheory/PointedFunctorsComposition.v)
    - [CommaCategories.v](CategoryTheory/CommaCategories.v)
    - [IsoCommaCategory.v](CategoryTheory/IsoCommaCategory.v)
