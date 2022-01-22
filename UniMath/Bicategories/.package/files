@@ -50,7 +50,6 @@ MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
-MonoidalCategories/ActionBasedStrengthOnHomsInBicat.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
