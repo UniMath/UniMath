@@ -112,6 +112,20 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
     exact HH.
   Defined.
 
+  Definition adjunction (A B : category) : UU
+    := ∑ X : adjunction_data A B, form_adjunction' X.
+
+  Coercion data_from_adjunction {A B} (X : adjunction A B)
+    : adjunction_data _ _ := pr1 X.
+
+  Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
+    : are_adjoints (left_functor X) (right_functor X).
+  Proof.
+    exists (adjunit X,,adjcounit X).
+    exists (pr1 (pr2 X)).
+    exact (pr2 (pr2 X)).
+  Defined.
+
   Definition unit_from_are_adjoints {A B : category}
              {F : functor A B} {G : functor B A} (H : are_adjoints F G) :
     nat_trans (functor_identity A) (functor_composite F G) := pr1 (pr1 H).

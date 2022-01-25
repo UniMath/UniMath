@@ -98,37 +98,6 @@ Definition counit_over : disp_nat_trans _ _ _ := pr2 (pr2 (pr2 X)).
 
 End notation.
 
-(* TODO: upstream *)
-Definition adjunction (A B : category) : UU
-  := ∑ X : adjunction_data A B, form_adjunction' X.
-Coercion data_from_adjunction {A B} (X : adjunction A B)
-  : adjunction_data _ _ := pr1 X.
-Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
-  : are_adjoints (left_functor X) (right_functor X).
-Proof.
-  exists (adjunit X,,adjcounit X).
-  exists (pr1 (pr2 X)).
-  exact (pr2 (pr2 X)).
-Defined.
-
-(* TODO: upstream *)
-Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
-           (a : A) : iso a (right_functor X (left_functor X a)).
-Proof.
-  use make_iso.
-  - exact (adjunit X a).
-  - exact (pr1 (pr2 X) a).
-Defined.
-Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
-           (b : B) : iso (left_functor X (right_functor X b)) b.
-Proof.
-  use make_iso.
-  - exact (adjcounit X b).
-  - exact (pr2 (pr2 X) b).
-Defined.
-
-
-
 Definition triangle_1_over_statement
            {C C' : category} {A : adjunction C C'}
            {D D'} (X : disp_adjunction_data A D D')

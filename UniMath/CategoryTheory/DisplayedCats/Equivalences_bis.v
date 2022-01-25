@@ -20,10 +20,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-Section Auxiliary.
-
-End Auxiliary.
-
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
 
@@ -74,33 +70,6 @@ End Essential_Surjectivity.
 
 (* TODO: upstream the whole section to UniMath/UniMath *)
 Section adjunction.
-
-Definition adjunction (A B : category) : UU
-  := ∑ X : adjunction_data A B, form_adjunction' X.
-Coercion data_from_adjunction {A B} (X : adjunction A B)
-  : adjunction_data _ _ := pr1 X.
-Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
-  : are_adjoints (left_functor X) (right_functor X).
-Proof.
-  exists (adjunit X,,adjcounit X).
-  exists (pr1 (pr2 X)).
-  exact (pr2 (pr2 X)).
-Defined.
-
-Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
-           (a : A) : iso a (right_functor X (left_functor X a)).
-Proof.
-  use make_iso.
-  - exact (adjunit X a).
-  - exact (pr1 (pr2 X) a).
-Defined.
-Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
-           (b : B) : iso (left_functor X (right_functor X b)) b.
-Proof.
-  use make_iso.
-  - exact (adjcounit X b).
-  - exact (pr2 (pr2 X) b).
-Defined.
 
 Definition adj_equiv (A B : category) : UU
  := ∑ F : functor A B, adj_equivalence_of_cats F.

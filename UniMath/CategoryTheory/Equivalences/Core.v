@@ -43,6 +43,22 @@ Definition equivalence_of_cats (A B : category) : UU
 Coercion adjunction_data_from_equivalence_of_cats {A B}
          (X : equivalence_of_cats A B) : adjunction_data A B := pr1 X.
 
+Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
+           (a : A) : iso a (right_functor X (left_functor X a)).
+Proof.
+  use make_iso.
+  - exact (adjunit X a).
+  - exact (pr1 (pr2 X) a).
+Defined.
+
+Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
+           (b : B) : iso (left_functor X (right_functor X b)) b.
+Proof.
+  use make_iso.
+  - exact (adjcounit X b).
+  - exact (pr2 (pr2 X) b).
+Defined.
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_cats {A B : category} (F : functor A B) : UU :=
