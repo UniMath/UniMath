@@ -67,44 +67,6 @@ End Essential_Surjectivity.
 
 (** * General definition of displayed adjunctions and equivalences *)
 
-
-(* TODO: upstream the whole section to UniMath/UniMath *)
-Section adjunction.
-
-Definition adj_equiv (A B : category) : UU
- := ∑ F : functor A B, adj_equivalence_of_cats F.
-
-Coercion left_adjequiv (A B : category) (F : adj_equiv A B)
-: functor A B := pr1 F.
-
-Coercion adj_equiv_of_precats_from_adj {A B : category} (E : adj_equiv A B)
-  : adj_equivalence_of_cats E := pr2 E.
-
-
-Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
-Proof.
-  use tpair.
-  - use tpair.
-    + exact (pr1 F).
-    + exists (right_adjoint F).
-      exists (adjunit F).
-      exact (adjcounit F).
-  - exists (triangle_id_left_ad (pr2 (pr1 (pr2 F)))).
-    exact (triangle_id_right_ad (pr2 (pr1 (pr2 F)))).
-Defined.
-
-Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_cats A B.
-Proof.
-  use tpair.
-  - exact F.
-  - exists (pr1 (pr2 (pr2 F))).
-    exact (pr2 (pr2 (pr2 F))).
-Defined.
-End adjunction.
-
-
-
-
 (** * Main definitions *)
 
 (** ** Adjunctions *)
