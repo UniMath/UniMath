@@ -847,37 +847,13 @@ Proof.
   destruct e. apply idpath.
 Qed.
 
-(* TODO: once more general [disp_functor_ff_reflects_isos] is done, kill this and replace it with that. *)
 Definition disp_functor_id_ff_reflects_isos
   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
   (ff : xx -->[ f ] yy) (isiso: is_iso_disp f (# FF ff))
   : is_iso_disp _ ff.
 Proof.
-  set (FFffinv := inv_mor_disp_from_iso isiso).
-  set (ffinv := FFinv FFffinv).
-  exists ffinv.
-  split.
-  - unfold ffinv. unfold FFffinv.
-    apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
-    etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-    etrans. apply maponpaths. apply iso_disp_after_inv_mor.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply (disp_functor_transportf _ FF).
-    etrans. apply maponpaths. apply disp_functor_id.
-    etrans. apply transport_f_f.
-    apply maponpaths_2. apply homset_property.
-  - apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
-    etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-    etrans. apply maponpaths. apply inv_mor_after_iso_disp.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply (disp_functor_transportf _ FF).
-    etrans. apply maponpaths. apply disp_functor_id.
-    etrans. apply transport_f_f.
-    apply maponpaths_2. apply homset_property.
+  use(disp_functor_ff_reflects_isos FF FF_ff).
+  exact(disp_functor_on_is_iso_disp (disp_functor_identity _) isiso).
 Qed.
 
 Definition FFinv_over_id_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
