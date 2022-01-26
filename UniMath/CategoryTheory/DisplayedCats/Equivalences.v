@@ -32,10 +32,6 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Local Open Scope cat.
 
-(*
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
-*)
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -43,10 +39,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
-
-Section Auxiliary.
-
-End Auxiliary.
 
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
@@ -1376,5 +1368,3 @@ Proof.
 Defined.
 
 End Equiv_Fibers.
-
-(* *)
