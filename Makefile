@@ -330,7 +330,6 @@ DEPFILES := $(VDFILE)
 	     for i in $(VOFILES) ;												    \
 	     do n=$$(( $$n + 1 )) ;												    \
 		seqnum[$$i]=$$n ;												    \
-		echo "$$n: $$i" ;	\
 	     done ;														    \
 	     for i in $(VFILES:.v=.vo);												    \
 	     do grep "^$$i" $(DEPFILES) ;											    \
@@ -355,7 +354,7 @@ DEPFILES := $(VDFILE)
 		 do haderror=$$(($$haderror+1)) ;								    \
 		    echo "$$line" ;												    \
 		 done ;														    \
-		 [ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false))					    \
+		 [ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false))	;		\
 	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
 	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;			    \
 	fi
