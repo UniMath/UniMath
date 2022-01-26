@@ -349,6 +349,7 @@ DEPFILES := $(VDFILE)
 		    echo "$$line" ;												    \
 		 done ;														    \
 		 [ ! "$$haderror" ] ) ;												    \
+	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
 	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;			    \
 	fi
 	touch $@
@@ -382,6 +383,7 @@ DEPFILES := $(VFILES:.v=.v.d)
 		    echo "$$line" ;													\
 		 done ;															\
 		 [ ! "$$haderror" ] ) ;													\
+	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
 	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;				\
 	fi
 	touch $@
@@ -428,6 +430,7 @@ check-listing-of-proof-files:
 	       if [ $$m != 0 ] ;											\
 	       then echo "error: *** $$m unlisted proof files encountered" >&2 ;					\
 		    exit 1 ;												\
+	       else echo "check succeeded: all proof files listed in packages" ;						\
 	       fi ;													\
 	  else echo "make: *** skipping checking the listing of proof files, because 'bash' is too old" ;		\
 	  fi
@@ -438,6 +441,7 @@ check-for-change-to-Foundations:
 	@echo --- checking for changes to the Foundations package ---
 	git fetch origin
 	test -z "`git diff --stat origin/master -- UniMath/Foundations`"
+	@echo "check succeeded: no changes to Foundations"
 
 # Here we check for changes to sub/coq, which normally does not change.
 # One step of the travis job will fail, if a change is made, see .travis.yml
@@ -445,6 +449,7 @@ check-for-submodule-changes:
 	@echo "--- checking for submodule changes ---"
 	git fetch origin
 	test -z "`git diff origin/master sub`"
+	@echo "check succeeded: no changes to submodules"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
