@@ -352,10 +352,10 @@ DEPFILES := $(VDFILE)
 		done ) \
 	     | ( haderror= ;													    \
 		 while read line ;												    \
-		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;								    \
+		 do haderror=$$(($$haderror+1)) ;								    \
 		    echo "$$line" ;												    \
 		 done ;														    \
-		 [ ! "$$haderror" ] ) ;												    \
+		 [ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false))					    \
 	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
 	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;			    \
 	fi
