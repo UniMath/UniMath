@@ -33,6 +33,7 @@ DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
+DisplayedBicats/Examples/DispBicatOfDispCatsWithoutUnivalence.v
 DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/Prod.v
@@ -40,6 +41,7 @@ DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/FullSub.v
 DisplayedBicats/Examples/Trivial.v
 Core/Examples/Groupoids.v
+Core/Examples/GroupoidsWithoutUnivalence.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
 PseudoFunctors/Display/Map2Cells.v
@@ -56,6 +58,7 @@ PseudoFunctors/Examples/Composition.v
 PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
+PseudoFunctors/Examples/OpFunctorWithoutUnivalence.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
@@ -77,14 +80,18 @@ DisplayedBicats/Examples/Displayed2Inserter.v
 DisplayedBicats/Examples/Algebras.v
 DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v
+DisplayedBicats/Examples/ContravariantFunctorWithoutUnivalence.v
 DisplayedBicats/Examples/Cofunctormap.v
+DisplayedBicats/Examples/CofunctormapWithoutUnivalence.v
 DisplayedBicats/Examples/CwF.v
 DisplayedBicats/Examples/Domain.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
+DisplayedBicats/Examples/MonadsWithoutUnivalence.v
 DisplayedBicats/Examples/KleisliTriple.v
+DisplayedBicats/Examples/KleisliTripleWithoutUnivalence.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v

@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -470,7 +470,7 @@ Section BiadjunctionUniqueMaps.
       + exact (λ _, idpath _).
       + intros f g α.
         apply isapropunit.
-    - apply is_nat_iso_to_is_invertible_2cell.
+    - use is_nat_iso_to_is_invertible_2cell.
       intros f.
       use is_iso_qinv ; cbn.
       + apply idpath.

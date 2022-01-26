@@ -35,7 +35,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
 Local Open Scope cat.
@@ -483,18 +483,18 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------------- *)
-(* C = bicat_of_univ_cats.                                                        *)
+(* C = bicat_of_cats.                                                        *)
 (* ------------------------------------------------------------------------- *)
 
 Definition make_cat_monad
-           (C : univalent_category)
+           (C : category)
            (M : C ⟶ C)
            (η : functor_identity C ⟹ M)
            (μ : M ∙ M ⟹ M)
            (lid : ∏ (X : C), #M (η X) · μ X = id₁ (M X))
            (rid : ∏ (X : C), η (M X) · μ X = id₁ (M X))
            (massoc :  ∏ (X : C), μ (M X) · μ X = #M (μ X) · μ X)
-  : monad bicat_of_univ_cats C.
+  : monad bicat_of_cats C.
 Proof.
   use make_monad.
   - exact M.
@@ -515,7 +515,7 @@ Proof.
        apply massoc).
 Defined.
 
-Definition cat_monad_ημ {C : univalent_category} (M : monad bicat_of_univ_cats C)
+Definition cat_monad_ημ {C : category} (M : monad bicat_of_cats C)
   : ∏ (X : C), #(pr1(monad_endo M)) (pr1(monad_unit M) X) · pr1(monad_mu M) X = id₁ _.
 Proof.
   intros X.
@@ -525,7 +525,7 @@ Proof.
   exact p.
 Qed.
 
-Definition cat_monad_μη {C : univalent_category} (M : monad bicat_of_univ_cats C)
+Definition cat_monad_μη {C : category} (M : monad bicat_of_cats C)
   : ∏ (X : C), pr1(monad_unit M) (pr1(monad_endo M) X) · pr1(monad_mu M) X = id₁ _.
 Proof.
   intros X.
@@ -535,7 +535,7 @@ Proof.
   exact p.
 Qed.
 
-Definition cat_monad_μμ {C : univalent_category} (M : monad bicat_of_univ_cats C)
+Definition cat_monad_μμ {C : category} (M : monad bicat_of_cats C)
   : ∏ (X : C),
     pr1(monad_mu M) (pr1(monad_endo M) X) · pr1(monad_mu M) X
     =
@@ -554,8 +554,8 @@ Qed.
 
 Section Bind.
 
-Context {C : univalent_category}
-        (M : monad bicat_of_univ_cats C).
+Context {C : category}
+        (M : monad bicat_of_cats C).
 
 Definition monad_bind
            {A B : C}
@@ -643,12 +643,12 @@ End Bind.
 
 
 (* ------------------------------------------------------------------------- *)
-(* Monad morphism on C = bicat_of_cats.                                      *)
+(* Monad morphism on C = bicat_of_cats_nouniv.                                      *)
 (* ------------------------------------------------------------------------- *)
 
 Definition make_cat_monad_mor
-           {C D : univalent_category}
-           {mx : monad bicat_of_univ_cats C} {my : monad bicat_of_univ_cats D}
+           {C D : category}
+           {mx : monad bicat_of_cats C} {my : monad bicat_of_cats D}
            {F : C ⟶ D}
            (mf_nat : nat_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
            (mfη : ∏ (X : C), # F (pr1 (monad_unit mx) X) · mf_nat X
@@ -678,9 +678,9 @@ Proof.
 Defined.
 
 Definition make_cat_monad_cell
-           {C D : univalent_category}
-           {mx : monad bicat_of_univ_cats C}
-           {my : monad bicat_of_univ_cats D}
+           {C D : category}
+           {mx : monad bicat_of_cats C}
+           {my : monad bicat_of_cats D}
            {f g : C ⟶ D}
            {α : f ⟹ g}
            {mf : mx -->[f] my}
@@ -689,7 +689,7 @@ Definition make_cat_monad_cell
                 α (pr1 (monad_endo mx) X) · (pr11 (monad_mor_natural mg)) X
                 =
                 (pr11 (monad_mor_natural mf)) X · # (pr1 (monad_endo my)) (pr1 α X))
-  : mf ==>[α: prebicat_cells bicat_of_univ_cats _ _] mg.
+  : mf ==>[α: prebicat_cells bicat_of_cats _ _] mg.
 Proof.
   apply make_monad_cell.
   use nat_trans_eq; try apply homset_property.
@@ -698,19 +698,19 @@ Proof.
 Qed.
 
 Definition monad_mor_nat_iso
-           {C₁ C₂ : univalent_category}
+           {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_univ_cats C₁}
-           {M₂ : monad bicat_of_univ_cats C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
            (FF : M₁ -->[F] M₂)
   : nat_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
   := invertible_2cell_to_nat_iso _ _ (monad_mor_natural FF).
 
 Definition monad_mor_natural_pointwise
-           {C₁ C₂ : univalent_category}
+           {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_univ_cats C₁}
-           {M₂ : monad bicat_of_univ_cats C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
            (FF : M₁ -->[F] M₂)
            (X : C₁)
   : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
@@ -718,19 +718,19 @@ Definition monad_mor_natural_pointwise
        (nat_iso_inv (monad_mor_nat_iso FF)) X.
 
 Definition monad_mor_iso
-           {C₁ C₂ : univalent_category}
+           {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_univ_cats C₁}
-           {M₂ : monad bicat_of_univ_cats C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
            (FF : M₁ -->[F] M₂)
   : ∏ X : C₁, iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
   := CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF).
 
 Lemma monad_mor_bind
-      {C₁ C₂ : univalent_category}
+      {C₁ C₂ : category}
       {F : C₁ ⟶ C₂}
-      {M₁ : monad bicat_of_univ_cats C₁}
-      {M₂ : monad bicat_of_univ_cats C₂}
+      {M₁ : monad bicat_of_cats C₁}
+      {M₂ : monad bicat_of_cats C₂}
       (FF : M₁ -->[F] M₂)
       {A B : C₁}
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)
@@ -765,10 +765,10 @@ Proof.
 Qed.
 
 Lemma monad_mor_bind_alt
-      {C₁ C₂ : univalent_category}
+      {C₁ C₂ : category}
       {F : C₁ ⟶ C₂}
-      {M₁ : monad bicat_of_univ_cats C₁}
-      {M₂ : monad bicat_of_univ_cats C₂}
+      {M₁ : monad bicat_of_cats C₁}
+      {M₂ : monad bicat_of_cats C₂}
       (FF : M₁ -->[F] M₂)
       {A B : C₁}
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)
