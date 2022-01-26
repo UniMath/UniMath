@@ -326,16 +326,42 @@ DEPFILES := $(VDFILE)
 	@set -e ;														    \
 	if declare -A seqnum 2>/dev/null ;											    \
 	then n=0 ;														    \
+	     echo "assigning file sequence" ; \
 	     for i in $(VOFILES) ;												    \
 	     do n=$$(( $$n + 1 )) ;												    \
 		seqnum[$$i]=$$n ;												    \
+		echo "$$n: $$i" ;	\
 	     done ;														    \
+	     echo "DEBUGGING RUN" ; \
+	     for i in $(VFILES:.v=.vo);												    \
+	     do grep "^$$i" $(DEPFILES) ;											    \
+	     done														    \
+	     | sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'	    \
+	     | awk NF \
+	     | ( while read line ; \
+	 	do \
+		  for i in $$line ; do echo $$i ; done										    \
+		  | ( read target ; 								    \
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;				    \
+		      echo "  target $${seqnum[$$target]}: $$target" >&2 ; \
+		      while read prereq ;											    \
+		      do \
+			[ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;		    \
+			echo "    prereq $${seqnum[$$prereq]}: $$prereq" >&2 ; \
+			(if [ "$${seqnum[$$prereq]}" -gt "$${seqnum[$$target]}" ] ; \
+			 then echo "error: *** $$target should not require $$prereq" ; \
+			 fi) ;\
+		      done ) ;													    \
+		done ) \
+	     | while read line ; do echo "$$line" ; done ; \
+	     echo "REAL RUN" ; \
 	     for i in $(VFILES:.v=.vo);												    \
 	     do grep "^$$i" $(DEPFILES) ;											    \
 	     done														    \
 	     | sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'	    \
 	     | while read line ;												    \
-	       do for i in $$line ; do echo $$i ; done										    \
+	       do echo "checking line: $$line" >&2 ; \
+		  for i in $$line ; do echo $$i ; done										    \
 		  | ( read target ;												    \
 		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;				    \
 		      while read prereq ;											    \
