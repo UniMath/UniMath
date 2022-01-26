@@ -1,6 +1,26 @@
-(**
-“Displayed equivalences” of displayed (pre)categories
-*)
+
+(**  “Displayed equivalences” of displayed categories. *)
+
+(** ** Contents:
+
+    - Displayed adjunctions and equivalences
+      - Displayed Adjunctions: [disp_adjunction]
+      - Displayed Equivalences: [equiv_over]
+    - Constructions
+      - Equivalence from ess. split and ff
+        (incomplete)
+
+    - Adjunctions and equivalences displayed over an identity functor
+      - Displayed Adjunctions over identity: [disp_adjunction_id]
+      - Displayed Equivalences over identity: [equiv_over_id]
+    - Constructions
+      - Equivalence from ess. split and ff over identity
+        [is_equiv_from_ff_ess_over_id]
+      - Inverses and composition of displayed adjunctions/equivalences over identity
+      - Induced adjunctions/equivalences of fiber categories over identity
+        [fiber_equiv]
+ *)
+
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
