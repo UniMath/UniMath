@@ -310,12 +310,7 @@ SHELL = bash
 check-prescribed-ordering: .check-prescribed-ordering.okay
 clean::; rm -f .check-prescribed-ordering.okay
 
-# We arrange for the *.d files to be made, because we need to read them to enforce the prescribed ordering, by listing them as dependencies here.
-# Up to coq version 8.7, each *.v file had a corresponding *.v.d file.
-# After that, there is just one *.d file, its name is .coqdeps.d, and it sits in this top-level directory.
-# So we have to distinguish the versions somehow; here we do that.
-# We expect the file build/CoqMakefile.make to exist now, because we have an include command above for the file .coq_makefile_output.conf,
-# and the same rule that make it makes build/CoqMakefile.make.
+# The ordering check assumes Coq version ≥8.8, and gives up otherwise.  (Prior to 8.8, dependency files *.d were handled differently.)
 VDFILE := ..coq_makefile_output.d
 clean::; rm -f $(VDFILE)
 ifeq ($(shell test -f build/CoqMakefile.make && grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
@@ -361,37 +356,7 @@ DEPFILES := $(VDFILE)
 else
 DEPFILES := $(VFILES:.v=.v.d)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
-	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
-	@set -e ;															\
-	if declare -A seqnum 2>/dev/null ;												\
-	then n=0 ;															\
-	     for i in $(VOFILES) ;													\
-	     do n=$$(( $$n + 1 )) ;													\
-		seqnum[$$i]=$$n ;													\
-	     done ;															\
-	     for i in $(DEPFILES);													\
-	     do head -1 $$i ;														\
-	     done															\
-	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'						\
-	     | while read line ;													\
-	       do for i in $$line ; do echo $$i ; done											\
-		  | ( read target ;													\
-		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;					\
-		      while read prereq ;												\
-		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;			\
-			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;	\
-		      done ) ;														\
-	       done | grep ^0 | sed 's/^0 //' |												\
-	       ( haderror= ;														\
-		 while read line ;													\
-		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;									\
-		    echo "$$line" ;													\
-		 done ;															\
-		 [ ! "$$haderror" ] ) ;													\
-	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
-	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;				\
-	fi
-	touch $@
+	@echo "make: *** skipping checking the linear ordering of packages, because Coq version is <8.8"
 endif
 
 # DEPFILES is defined above
