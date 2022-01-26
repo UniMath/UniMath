@@ -326,7 +326,6 @@ DEPFILES := $(VDFILE)
 	@set -e ;														    \
 	if declare -A seqnum 2>/dev/null ;											    \
 	then n=0 ;														    \
-	     echo "assigning file sequence" ; \
 	     for i in $(VOFILES) ;												    \
 	     do n=$$(( $$n + 1 )) ;												    \
 		seqnum[$$i]=$$n ;												    \
@@ -355,10 +354,10 @@ DEPFILES := $(VDFILE)
 		    echo "$$line" ;												    \
 		 done ;														    \
 		 [ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false))	;		\
-	     echo "check succeeded: dependencies follow prescribed ordering" ;						    \
+	     touch $@ ;														\
+	     echo "check succeeded: file dependency order follows package listings" ;						    \
 	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;			    \
 	fi
-	touch $@
 else
 DEPFILES := $(VFILES:.v=.v.d)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
