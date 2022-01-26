@@ -20,6 +20,8 @@ Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
 
@@ -1292,80 +1294,6 @@ Proof.
   - apply isaset_fiber_discrete_fibration.
 Defined.
 
-
-Section fiber_functor_from_cleaving.
-
-Context {C : category} (D : disp_cat C) (F : cleaving D).
-Context {c c' : C} (f : C⟦c', c⟧).
-
-Let lift_f :  ∏ d : D c, cartesian_lift d f := F _ _ f.
-
-Definition fiber_functor_from_cleaving_data : functor_data (D [{c}]) (D [{c'}]).
-Proof.
-  use tpair.
-  + intro d. exact (object_of_cartesian_lift _ _ (lift_f d)).
-  + intros d' d ff. cbn.
-
-    set (XR' := @cartesian_factorisation C D _ _ f).
-    specialize (XR' _ _ _ (lift_f d)).
-    use XR'.
-    * use (transportf (mor_disp _ _ )
-                      _
-                      (mor_disp_of_cartesian_lift _ _ (lift_f d') ;; ff)).
-      etrans; [ apply id_right |]; apply pathsinv0; apply id_left.
-Defined.
-
-Lemma is_functor_from_cleaving_data : is_functor fiber_functor_from_cleaving_data.
-Proof.
-  split.
-  - intro d; cbn.
-    apply pathsinv0.
-    apply path_to_ctr.
-    etrans; [apply id_left_disp |].
-    apply pathsinv0.
-    etrans. { apply maponpaths. apply id_right_disp. }
-    etrans; [ apply transport_f_f |].
-    unfold transportb.
-    apply maponpaths_2.
-    apply homset_property.
-  - intros d'' d' d ff' ff; cbn.
-    apply pathsinv0.
-    apply path_to_ctr.
-    etrans; [apply mor_disp_transportf_postwhisker |].
-    apply pathsinv0.
-    etrans. { apply maponpaths; apply mor_disp_transportf_prewhisker. }
-    etrans; [apply transport_f_f |].
-    apply transportf_comp_lemma.
-    apply pathsinv0.
-    etrans; [apply assoc_disp_var |].
-    apply pathsinv0.
-    apply transportf_comp_lemma.
-    apply pathsinv0.
-    etrans ; [ apply maponpaths, cartesian_factorisation_commutes |].
-    etrans ; [ apply mor_disp_transportf_prewhisker |].
-    apply pathsinv0.
-    apply transportf_comp_lemma.
-    apply pathsinv0.
-    etrans; [ apply assoc_disp |].
-    apply pathsinv0.
-    apply transportf_comp_lemma.
-    apply pathsinv0.
-    etrans; [ apply maponpaths_2, cartesian_factorisation_commutes |].
-    etrans; [ apply mor_disp_transportf_postwhisker |].
-    etrans. { apply maponpaths. apply assoc_disp_var. }
-    etrans. { apply transport_f_f. }
-    apply maponpaths_2, homset_property.
-Qed.
-
-Definition fiber_functor_from_cleaving : D [{c}] ⟶ D [{c'}]
-  := make_functor _  is_functor_from_cleaving_data.
-
-
-End fiber_functor_from_cleaving.
-
-
-(* *)
-
 (** Some standard cartesian cells *)
 Definition is_cartesian_id_disp
            {C : category}
@@ -2188,3 +2116,115 @@ Section OpCartesianFactorisationDispFunctor.
     exact (pr22 (HD₁ (F x) (G x) (FF x xx) (α x))).
   Defined.
 End OpCartesianFactorisationDispFunctor.
+
+Section fiber_functor_from_cleaving.
+
+  Context {C : category} (D : disp_cat C) (F : cleaving D).
+  Context {c c' : C} (f : C⟦c', c⟧).
+
+  Let lift_f :  ∏ d : D c, cartesian_lift d f := F _ _ f.
+
+  Definition fiber_functor_from_cleaving_data : functor_data (D [{c}]) (D [{c'}]).
+  Proof.
+    use tpair.
+    + intro d. exact (object_of_cartesian_lift _ _ (lift_f d)).
+    + intros d' d ff. cbn.
+
+      set (XR' := @cartesian_factorisation C D _ _ f).
+      specialize (XR' _ _ _ (lift_f d)).
+      use XR'.
+      * use (transportf (mor_disp _ _ )
+                        _
+                        (mor_disp_of_cartesian_lift _ _ (lift_f d') ;; ff)).
+        etrans; [ apply id_right |]; apply pathsinv0; apply id_left.
+  Defined.
+
+  Lemma is_functor_from_cleaving_data : is_functor fiber_functor_from_cleaving_data.
+  Proof.
+    split.
+    - intro d; cbn.
+      apply pathsinv0.
+      apply path_to_ctr.
+      etrans; [apply id_left_disp |].
+      apply pathsinv0.
+      etrans. { apply maponpaths. apply id_right_disp. }
+      etrans; [ apply transport_f_f |].
+      unfold transportb.
+      apply maponpaths_2.
+      apply homset_property.
+    - intros d'' d' d ff' ff; cbn.
+      apply pathsinv0.
+      apply path_to_ctr.
+      etrans; [apply mor_disp_transportf_postwhisker |].
+      apply pathsinv0.
+      etrans. { apply maponpaths; apply mor_disp_transportf_prewhisker. }
+      etrans; [apply transport_f_f |].
+      apply transportf_comp_lemma.
+      apply pathsinv0.
+      etrans; [apply assoc_disp_var |].
+      apply pathsinv0.
+      apply transportf_comp_lemma.
+      apply pathsinv0.
+      etrans ; [ apply maponpaths, cartesian_factorisation_commutes |].
+      etrans ; [ apply mor_disp_transportf_prewhisker |].
+      apply pathsinv0.
+      apply transportf_comp_lemma.
+      apply pathsinv0.
+      etrans; [ apply assoc_disp |].
+      apply pathsinv0.
+      apply transportf_comp_lemma.
+      apply pathsinv0.
+      etrans; [ apply maponpaths_2, cartesian_factorisation_commutes |].
+      etrans; [ apply mor_disp_transportf_postwhisker |].
+      etrans. { apply maponpaths. apply assoc_disp_var. }
+      etrans. { apply transport_f_f. }
+      apply maponpaths_2, homset_property.
+  Qed.
+
+  Definition fiber_functor_from_cleaving : D [{c}] ⟶ D [{c'}]
+    := make_functor _  is_functor_from_cleaving_data.
+
+End fiber_functor_from_cleaving.
+
+Section Essential_Surjectivity.
+
+  Definition fiber_functor_ess_split_surj
+             {C C' : category} {D} {D'}
+             {F : functor C C'} (FF : disp_functor F D D')
+             (H : disp_functor_ff FF)
+             {X : disp_functor_ess_split_surj FF}
+             {Y : is_op_isofibration D}
+             (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
+             (x : C)
+    : ∏ yy : D'[{F x}], ∑ xx : D[{x}],
+          iso (fiber_functor FF _ xx) yy.
+  Proof.
+    intro yy.
+    set (XR := X _ yy).
+    destruct XR as [c'' [i [xx' ii]]].
+    set (YY := Y _ _ i xx').
+    destruct YY as [ dd pe ].
+    use tpair.
+    - apply dd.
+    - (* now need disp_functor_on_iso_disp *)
+      set (XR := disp_functor_on_iso_disp FF pe).
+      set (XR' := iso_inv_from_iso_disp XR).
+      (* now need composition of iso_disps *)
+      apply  (invweq (iso_disp_iso_fiber _ _ _ _)).
+      set (XRt := iso_disp_comp XR' ii).
+      transparent assert (XH :
+                           (iso_comp (iso_inv_from_iso (functor_on_iso F i))
+                                     (functor_on_iso F i) = identity_iso _ )).
+      { apply eq_iso. cbn. simpl. unfold precomp_with.
+        etrans. apply maponpaths_2. apply id_right.
+        etrans. eapply pathsinv0. apply functor_comp.
+        etrans. 2: apply functor_id.
+        apply maponpaths. apply iso_after_iso_inv.
+      }
+      set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
+                             XH).
+      apply XRT.
+      assumption.
+  Defined.
+
+End Essential_Surjectivity.

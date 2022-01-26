@@ -34,56 +34,11 @@ Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-(* TODO: move somewhere.  Not sure where? [Constructions]? *)
-Section Essential_Surjectivity.
-
-Definition fiber_functor_ess_split_surj
-    {C C' : category} {D} {D'}
-    {F : functor C C'} (FF : disp_functor F D D')
-    (H : disp_functor_ff FF)
-    {X : disp_functor_ess_split_surj FF}
-    {Y : is_op_isofibration D}
-  (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
-    (x : C)
-  : ∏ yy : D'[{F x}], ∑ xx : D[{x}],
-                iso (fiber_functor FF _ xx) yy.
-Proof.
-  intro yy.
-  set (XR := X _ yy).
-  destruct XR as [c'' [i [xx' ii]]].
-  set (YY := Y _ _ i xx').
-  destruct YY as [ dd pe ].
-  use tpair.
-  - apply dd.
-  -
-    (* now need disp_functor_on_iso_disp *)
-    set (XR := disp_functor_on_iso_disp FF pe).
-    set (XR' := iso_inv_from_iso_disp XR).
-    (* now need composition of iso_disps *)
-    apply  (invweq (iso_disp_iso_fiber _ _ _ _)).
-    set (XRt := iso_disp_comp XR' ii).
-    transparent assert (XH :
-           (iso_comp (iso_inv_from_iso (functor_on_iso F i))
-             (functor_on_iso F i) = identity_iso _ )).
-    { apply eq_iso. cbn. simpl. unfold precomp_with.
-      etrans. apply maponpaths_2. apply id_right.
-      etrans. eapply pathsinv0. apply functor_comp.
-      etrans. 2: apply functor_id.
-      apply maponpaths. apply iso_after_iso_inv.
-   }
-    set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
-                           XH).
-    apply XRT.
-    assumption.
-Defined.
-
-End Essential_Surjectivity.
 
 (** * General definition of displayed adjunctions and equivalences *)
 

@@ -183,6 +183,7 @@ DisplayedCats/Core.v
 DisplayedCats/Constructions.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
+DisplayedCats/Fiber.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
