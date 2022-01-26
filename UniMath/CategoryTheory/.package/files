@@ -184,7 +184,6 @@ DisplayedCats/Constructions.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Equivalences.v
-DisplayedCats/Equivalences_bis.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
