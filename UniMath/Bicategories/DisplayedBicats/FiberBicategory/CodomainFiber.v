@@ -1585,7 +1585,7 @@ Section FiberOfCodomain.
   (**
    7. The biequivalence
    *)
-    Definition to_fiber_cod_is_biequivalence
+  Definition to_fiber_cod_is_biequivalence
     : is_biequivalence to_fiber_cod.
   Proof.
     use make_is_biequivalence.
