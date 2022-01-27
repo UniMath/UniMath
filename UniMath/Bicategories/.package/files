@@ -20,19 +20,21 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/Examples/FibSlice.v
 Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
 DisplayedBicats/DispAdjunctions.v
 DisplayedBicats/DispUnivalence.v
-DisplayedBicats/Fibration.v
+DisplayedBicats/CleavingOfBicat.v
 DisplayedBicats/FiberCategory.v
 DisplayedBicats/FiberBicategory/FiberBicategory1.v
 DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
+DisplayedBicats/Examples/Slice.v
 DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/Prod.v
@@ -97,6 +99,7 @@ Colimits/Initial.v
 Colimits/Final.v
 Colimits/Products.v
 Colimits/Pullback.v
+Colimits/PullbackFunctions.v
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
@@ -119,7 +122,6 @@ Discreteness.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
 
-DisplayedBicats/CleavingOfBicat.v
 DisplayedBicats/Cartesians.v
 DisplayedBicats/EquivalenceBetweenCartesians.v
 DisplayedBicats/CartesianPseudoFunctor.v
@@ -129,11 +131,19 @@ DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
+PseudoFunctors/Examples/Reindexing.v
+
 Core/InternalStreetFibration.v
 Core/InternalStreetOpFibration.v
 
 DisplayMapBicat.v
 DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
+DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
+
+PseudoFunctors/Examples/PullbackFunctor.v
+
+DisplayedBicats/FiberBicategory/TrivialFiber.v
+DisplayedBicats/FiberBicategory/CodomainFiber.v
 
 ComprehensionBicat.v

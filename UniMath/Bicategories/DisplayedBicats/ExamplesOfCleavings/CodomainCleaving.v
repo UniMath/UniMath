@@ -34,6 +34,26 @@ Here we assume that every 2-cell is invertible
 Section CodomainCleaving.
   Context (B : bicat).
 
+  Definition cod_local_iso_cleaving
+    : local_iso_cleaving (cod_disp_bicat B).
+  Proof.
+    intros x y f g hx hy hf α.
+    simple refine (_ ,, _).
+    - refine (pr1 hf ,, _) ; cbn.
+      exact (comp_of_invertible_2cell
+               (lwhisker_of_invertible_2cell
+                  _
+                  α)
+               (pr2 hf)).
+    - simple refine ((id2 _ ,, _) ,, _) ; cbn.
+      + abstract
+          (rewrite id2_rwhisker, id2_right ;
+           apply idpath).
+      + use is_disp_invertible_2cell_cod.
+        cbn.
+        is_iso.
+  Defined.
+
   Section CartesianOfSFibToCartesian.
     Context {c₁ c₂ : B}
             {s₁ s₂ : c₁ --> c₂}

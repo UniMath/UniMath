@@ -421,6 +421,97 @@ Section Pullback.
       End CellProperty.
   End Projections.
 
+  Section InvertiblePBUmpCell.
+    Context {p : pb_cone}
+            (Hp : has_pb_ump p)
+            {q : B}
+            {φ ψ : q --> p}
+            {α : φ · pb_cone_pr1 p ==> ψ · pb_cone_pr1 p}
+            {β : φ · pb_cone_pr2 p ==> ψ · pb_cone_pr2 p}
+            (r : (φ ◃ pb_cone_cell p)
+                   • lassociator _ _ _
+                   • (β ▹ g)
+                   • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                             • (α ▹ f)
+                             • rassociator _ _ _
+                             • (ψ ◃ pb_cone_cell p))
+            (Hα : is_invertible_2cell α)
+            (Hβ : is_invertible_2cell β).
+
+    Definition is_invertible_2cell_pb_ump_cell_inv : ψ ==> φ.
+    Proof.
+      use (pb_ump_cell Hp _ _ (Hα^-1) (Hβ^-1)).
+      abstract
+        (do 3 (use vcomp_move_R_Mp ; [ is_iso | ]) ;
+         rewrite !vassocl ;
+         do 3 (use vcomp_move_L_pM ; [ is_iso | ]) ;
+         cbn ;
+         rewrite !vassocr ;
+         exact (!r)).
+    Defined.
+
+    Lemma is_invertible_2cell_pb_ump_cell_left
+      : pb_ump_cell Hp φ ψ α β r • is_invertible_2cell_pb_ump_cell_inv
+        =
+        id₂ φ.
+    Proof.
+      use (pb_ump_eq Hp).
+      - apply id2.
+      - apply id2.
+      - rewrite !id2_rwhisker, !id2_right.
+        rewrite lassociator_rassociator, id2_left.
+        rewrite vassocl.
+        rewrite lassociator_rassociator.
+        apply id2_right.
+      - unfold is_invertible_2cell_pb_ump_cell_inv.
+        rewrite <- rwhisker_vcomp.
+        rewrite !pb_ump_cell_pr1.
+        apply vcomp_rinv.
+      - unfold is_invertible_2cell_pb_ump_cell_inv.
+        rewrite <- rwhisker_vcomp.
+        rewrite !pb_ump_cell_pr2.
+        apply vcomp_rinv.
+      - apply id2_rwhisker.
+      - apply id2_rwhisker.
+    Qed.
+
+    Lemma is_invertible_2cell_pb_ump_cell_right
+      : is_invertible_2cell_pb_ump_cell_inv • pb_ump_cell Hp φ ψ α β r
+        =
+        id₂ _.
+    Proof.
+      use (pb_ump_eq Hp).
+      - apply id2.
+      - apply id2.
+      - rewrite !id2_rwhisker, !id2_right.
+        rewrite lassociator_rassociator, id2_left.
+        rewrite vassocl.
+        rewrite lassociator_rassociator.
+        apply id2_right.
+      - unfold is_invertible_2cell_pb_ump_cell_inv.
+        rewrite <- rwhisker_vcomp.
+        rewrite !pb_ump_cell_pr1.
+        apply vcomp_linv.
+      - unfold is_invertible_2cell_pb_ump_cell_inv.
+        rewrite <- rwhisker_vcomp.
+        rewrite !pb_ump_cell_pr2.
+        apply vcomp_linv.
+      - apply id2_rwhisker.
+      - apply id2_rwhisker.
+    Qed.
+
+    Definition is_invertible_2cell_pb_ump_cell
+      : is_invertible_2cell (pb_ump_cell Hp φ ψ α β r).
+    Proof.
+      use make_is_invertible_2cell.
+      - exact is_invertible_2cell_pb_ump_cell_inv.
+      - exact is_invertible_2cell_pb_ump_cell_left.
+      - exact is_invertible_2cell_pb_ump_cell_right.
+    Defined.
+  End InvertiblePBUmpCell.
+
   (**
    4. Being a pullback is a property (requires local univalence)
    *)

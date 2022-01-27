@@ -980,9 +980,6 @@ Section DisplayedInserter.
       cbn -[psfunctor_id psfunctor_comp].
       rewrite !vassocl.
       rewrite id2_left.
-
-
-
       pose (pr1 (pr212 α)) as p.
       cbn -[psfunctor_id psfunctor_comp] in p.
       unfold disp_inserter_disp_cat_2cell in p.
@@ -1014,7 +1011,6 @@ Section DisplayedInserter.
       rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) in p'.
       rewrite <- rwhisker_rwhisker in p'.
       rewrite !vassocl in p'.
-
       use (vcomp_rcancel (fx ◃ (linvunitor (# G (id₁ x)) • (psfunctor_id G x ▹ # G (id₁ x))))).
       {
         is_iso.
@@ -1109,7 +1105,6 @@ Section DisplayedInserter.
       apply maponpaths.
       rewrite !lwhisker_vcomp.
       apply maponpaths.
-
       rewrite psfunctor_runitor.
       rewrite !vassocl.
       refine (_  @ id2_right _).

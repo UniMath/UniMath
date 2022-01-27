@@ -209,6 +209,13 @@ Proof.
       apply cartesian_factorisation_disp_functor_cell_is_cartesian.
 Defined.
 
+Definition cleaving_of_fibs_local_iso_cleaving
+  : local_iso_cleaving disp_bicat_of_fibs.
+Proof.
+  apply local_cleaving_to_local_iso_cleaving.
+  exact cleaving_of_fibs_local_cleaving.
+Defined.
+
 Definition cleaving_of_fibs_lwhisker_cartesian
   : lwhisker_cartesian disp_bicat_of_fibs.
 Proof.

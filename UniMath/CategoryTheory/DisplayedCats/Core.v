@@ -2233,3 +2233,369 @@ Proof.
        [ exact (nat_trans_ax τ _ _ (pr1 f))
        | exact (disp_nat_trans_ax ττ (pr2 f))]).
 Defined.
+
+(** Operations on displayed functors/transformations over the identity *)
+Section CompDispFunctorOverIdentity.
+  Context {C : category}
+          {D₁ D₂ D₃ : disp_cat C}
+          (FF : disp_functor (functor_identity C) D₁ D₂)
+          (GG : disp_functor (functor_identity C) D₂ D₃).
+
+  Definition disp_functor_over_id_composite_data
+    : disp_functor_data (functor_identity C) D₁ D₃.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x xx, GG x (FF x xx)).
+    - exact (λ x y xx yy f ff, (#GG (#FF ff))%mor_disp).
+  Defined.
+
+  Definition disp_functor_over_id_composite_axioms
+    : disp_functor_axioms disp_functor_over_id_composite_data.
+  Proof.
+    split.
+    - intros x xx ; cbn.
+      rewrite (disp_functor_id FF) ; cbn.
+      rewrite (disp_functor_id GG) ; cbn.
+      apply idpath.
+    - intros x y z xx yy zz f g ff gg ; cbn.
+      etrans.
+      {
+        apply maponpaths.
+        exact (disp_functor_comp FF ff gg).
+      }
+      cbn.
+      exact (disp_functor_comp GG (#FF ff) (#FF gg)).
+  Qed.
+
+  Definition disp_functor_over_id_composite
+    : disp_functor (functor_identity C) D₁ D₃.
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_functor_over_id_composite_data.
+    - exact disp_functor_over_id_composite_axioms.
+  Defined.
+End CompDispFunctorOverIdentity.
+
+Section CompDispNatTransOverId.
+  Context {C : category}
+          {D₁ D₂ : disp_cat C}
+          {FF GG HH : disp_functor (functor_identity C) D₁ D₂}
+          (α : disp_nat_trans (nat_trans_id _) FF GG)
+          (β : disp_nat_trans (nat_trans_id _) GG HH).
+
+  Let disp_nat_trans_over_id_comp_data
+    : disp_nat_trans_data (nat_trans_id _) FF HH.
+  Proof.
+    refine (λ x xx,
+            transportf
+              (λ z, _ -->[ z ] _)
+              _
+              (α x xx ;; β x xx)%mor_disp).
+    abstract
+      (cbn ;
+       apply id_left).
+  Defined.
+
+  Definition disp_nat_trans_over_id_comp_axioms
+    : disp_nat_trans_axioms disp_nat_trans_over_id_comp_data.
+  Proof.
+    intros x y f xx yy ff ; unfold disp_nat_trans_over_id_comp_data ; cbn.
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      exact (disp_nat_trans_ax α ff).
+    }
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    rewrite assoc_disp_var.
+    rewrite transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (disp_nat_trans_ax β ff).
+    }
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition disp_nat_trans_over_id_comp
+    : disp_nat_trans (nat_trans_id _) FF HH.
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_nat_trans_over_id_comp_data.
+    - exact disp_nat_trans_over_id_comp_axioms.
+  Defined.
+End CompDispNatTransOverId.
+
+Section PreWhiskDispNatTransOverId.
+  Context {C : category}
+          {D₁ D₂ D₃ : disp_cat C}
+          (FF : disp_functor (functor_identity C) D₁ D₂)
+          {GG₁ GG₂ : disp_functor (functor_identity C) D₂ D₃}
+          (α : disp_nat_trans (nat_trans_id _) GG₁ GG₂).
+
+  Let disp_nat_trans_over_id_prewhisker_data
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_composite FF GG₁)
+        (disp_functor_composite FF GG₂)
+    := λ x xx, α x (FF x xx).
+
+  Definition disp_nat_trans_over_id_prewhisker_axioms
+    : disp_nat_trans_axioms disp_nat_trans_over_id_prewhisker_data.
+  Proof.
+    intros x y f xx yy ff ; cbn.
+    exact (disp_nat_trans_ax α (#FF ff)%mor_disp).
+  Qed.
+
+  Definition disp_nat_trans_over_id_prewhisker
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_composite FF GG₁)
+        (disp_functor_composite FF GG₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_nat_trans_over_id_prewhisker_data.
+    - exact disp_nat_trans_over_id_prewhisker_axioms.
+  Defined.
+End PreWhiskDispNatTransOverId.
+
+Section PreWhiskDispNatTransOverId.
+  Context {C : category}
+          {D₁ D₂ D₃ : disp_cat C}
+          {FF₁ FF₂ : disp_functor (functor_identity C) D₁ D₂}
+          (GG : disp_functor (functor_identity C) D₂ D₃)
+          (α : disp_nat_trans (nat_trans_id _) FF₁ FF₂).
+
+  Let disp_nat_trans_over_id_postwhisker_data
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_composite FF₁ GG)
+        (disp_functor_composite FF₂ GG)
+    := λ x xx, (#GG (α x xx))%mor_disp.
+
+  Definition disp_nat_trans_over_id_postwhisker_axioms
+    : disp_nat_trans_axioms disp_nat_trans_over_id_postwhisker_data.
+  Proof.
+    intros x y f xx yy ff ; unfold disp_nat_trans_over_id_postwhisker_data ; cbn.
+    etrans.
+    {
+      refine (!_).
+      exact (disp_functor_comp_var GG (# FF₁ ff) (α y yy)).
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (disp_nat_trans_ax α ff).
+    }
+    unfold transportb.
+    rewrite disp_functor_transportf.
+    rewrite transport_f_f.
+    rewrite disp_functor_comp.
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition disp_nat_trans_over_id_postwhisker
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_composite FF₁ GG)
+        (disp_functor_composite FF₂ GG).
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_nat_trans_over_id_postwhisker_data.
+    - exact disp_nat_trans_over_id_postwhisker_axioms.
+  Defined.
+End PreWhiskDispNatTransOverId.
+
+(** Pointwise inverse of displayed natural transformation *)
+Section PointwiseInverse.
+  Context {C C' : category}
+          {F : C ⟶ C'}
+          {D : disp_cat C} {D' : disp_cat C'}
+          {FF : disp_functor F D D'} {GG : disp_functor F D D'}
+          (αα : disp_nat_trans (nat_trans_id F) FF GG)
+          (Hαα : ∏ (x : C) (xx : D x),
+                 is_iso_disp
+                   (identity_iso (pr1 F x))
+                   (pr1 αα x xx)).
+
+  Let pointwise_inverse_disp_nat_trans_data
+    : disp_nat_trans_data (nat_trans_id F) GG FF
+    := λ x xx, inv_mor_disp_from_iso (Hαα x xx).
+
+  Definition pointwise_inverse_disp_nat_trans_axioms
+    : disp_nat_trans_axioms pointwise_inverse_disp_nat_trans_data.
+  Proof.
+    intros x y f xx yy ff.
+    use (precomp_with_iso_disp_is_inj (make_iso_disp _ (Hαα x xx))).
+    simpl.
+    refine (assoc_disp _ _ _ @ _).
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite assoc_disp.
+    refine (!_).
+    refine (transport_f_f _ _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply (inv_mor_after_iso_disp (Hαα x xx)).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply mor_disp_transportf_postwhisker.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply id_left_disp.
+      }
+      apply transport_f_f.
+    }
+    etrans.
+    {
+      apply transport_f_f.
+    }
+    assert (transportf
+              (mor_disp (FF x xx) (GG y yy)) (nat_trans_ax (nat_trans_id F) x y f)
+              (# FF ff;; pr1 αα y yy) =
+            pr1 αα x xx;; # GG ff)
+      as X.
+    {
+      apply transportf_transpose_left.
+      exact (pr2 αα x y f xx yy ff).
+    }
+    refine (!_).
+    apply transportf_transpose_left.
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (!X).
+    }
+    rewrite mor_disp_transportf_postwhisker.
+    etrans.
+    {
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply assoc_disp_var.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            apply (inv_mor_after_iso_disp (Hαα y yy)).
+          }
+          etrans.
+          {
+            apply mor_disp_transportf_prewhisker.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            apply id_right_disp.
+          }
+          apply transport_f_f.
+        }
+        apply transport_f_f.
+      }
+      apply transport_f_f.
+    }
+    refine (!_).
+    etrans.
+    {
+      apply transport_f_f.
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition pointwise_inverse_disp_nat_trans
+    : disp_nat_trans (nat_trans_id F) GG FF.
+  Proof.
+    simple refine (_ ,, _).
+    - exact pointwise_inverse_disp_nat_trans_data.
+    - exact pointwise_inverse_disp_nat_trans_axioms.
+  Defined.
+End PointwiseInverse.
+
+Lemma pointwise_inverse_disp_nat_trans_over_id_left
+      {C : category}
+      {D : disp_cat C} {D' : disp_cat C}
+      {FF GG : disp_functor (functor_identity _) D D'}
+      (αα : disp_nat_trans (nat_trans_id _) FF GG)
+      (Hαα : ∏ (x : C) (xx : D x),
+             is_iso_disp
+               (identity_iso x)
+               (pr1 αα x xx))
+  : disp_nat_trans_over_id_comp
+      αα
+      (pointwise_inverse_disp_nat_trans αα Hαα)
+    =
+    disp_nat_trans_id _.
+Proof.
+  use disp_nat_trans_eq.
+  intros x xx ; cbn.
+  etrans.
+  {
+    apply maponpaths.
+    apply (inv_mor_after_iso_disp (Hαα x xx)).
+  }
+  unfold transportb.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
+Lemma pointwise_inverse_disp_nat_trans_over_id_right
+      {C : category}
+      {D : disp_cat C} {D' : disp_cat C}
+      {FF GG : disp_functor (functor_identity _) D D'}
+      (αα : disp_nat_trans (nat_trans_id _) FF GG)
+      (Hαα : ∏ (x : C) (xx : D x),
+             is_iso_disp
+               (identity_iso x)
+               (pr1 αα x xx))
+  : disp_nat_trans_over_id_comp
+      (pointwise_inverse_disp_nat_trans αα Hαα)
+      αα
+    =
+    disp_nat_trans_id _.
+Proof.
+  use disp_nat_trans_eq.
+  intros x xx ; cbn.
+  etrans.
+  {
+    apply maponpaths.
+    apply (iso_disp_after_inv_mor (Hαα x xx)).
+  }
+  unfold transportb.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply homset_property.
+Qed.
