@@ -21,8 +21,8 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Actions.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 
 Local Open Scope cat.
 

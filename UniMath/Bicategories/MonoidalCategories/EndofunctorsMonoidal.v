@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.HorizontalComposition. *)
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
+Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 
