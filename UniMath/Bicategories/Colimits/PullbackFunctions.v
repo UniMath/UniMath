@@ -266,12 +266,12 @@ Section Functions.
     : f /≃₁ β ◃ pb_cell f g₂
       =
       lassociator _ _ _
-                  • (pb_on_1cell_pr1 f β ▹ f)
-                  • pb_cell f g₁
-                  • (π₂ ◃ β)
-                  • lassociator _ _ _
-                  • ((pb_on_1cell_pr2 f β)^-1 ▹ g₂)
-                  • rassociator _ _ _.
+      • (pb_on_1cell_pr1 f β ▹ f)
+      • pb_cell f g₁
+      • (π₂ ◃ β)
+      • lassociator _ _ _
+      • ((pb_on_1cell_pr2 f β)^-1 ▹ g₂)
+      • rassociator _ _ _.
   Proof.
     pose (mor_to_pb_obj_cell
             π₁ (π₂ · h)
