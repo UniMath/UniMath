@@ -15,7 +15,9 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope cat.

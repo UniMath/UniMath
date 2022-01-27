@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.limits.initial.
 

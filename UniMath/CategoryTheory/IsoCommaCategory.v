@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
 

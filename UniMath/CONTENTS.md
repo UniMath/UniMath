@@ -302,6 +302,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Auxiliary.v](CategoryTheory/DisplayedCats/Auxiliary.v)
    - [DisplayedCats/Core.v](CategoryTheory/DisplayedCats/Core.v)
    - [DisplayedCats/NaturalTransformations.v](CategoryTheory/DisplayedCats/NaturalTransformations.v)
+   - [DisplayedCats/Total.v](CategoryTheory/DisplayedCats/Total.v)
    - [DisplayedCats/Constructions.v](CategoryTheory/DisplayedCats/Constructions.v)
    - [DisplayedCats/Examples/Opposite.v](CategoryTheory/DisplayedCats/Examples/Opposite.v)
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)

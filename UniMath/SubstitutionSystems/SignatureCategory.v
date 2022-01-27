@@ -33,6 +33,7 @@ Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 

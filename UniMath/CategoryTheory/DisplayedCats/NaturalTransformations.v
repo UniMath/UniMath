@@ -440,26 +440,6 @@ Section Utilities.
          apply C₃).
   Defined.
 
-  (** Total natural transformation *)
-  Definition total_nat_trans
-             {C₁ C₂ : category}
-             {F G : C₁ ⟶ C₂}
-             {τ : F ⟹ G}
-             {D₁ : disp_cat C₁}
-             {D₂ : disp_cat C₂}
-             {FF : disp_functor F D₁ D₂}
-             {GG : disp_functor G D₁ D₂}
-             (ττ : disp_nat_trans τ FF GG)
-    : nat_trans (total_functor FF) (total_functor GG).
-  Proof.
-    use make_nat_trans.
-    - exact (λ x, τ (pr1 x) ,, ττ (pr1 x) (pr2 x)).
-    - abstract
-        (intros x y f ; cbn ;
-         use total2_paths_b ;
-         [ exact (nat_trans_ax τ _ _ (pr1 f))
-         | exact (disp_nat_trans_ax ττ (pr2 f))]).
-  Defined.
 End Utilities.
 
 Section CompDispNatTransOverId.

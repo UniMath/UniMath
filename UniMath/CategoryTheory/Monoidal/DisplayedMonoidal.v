@@ -15,8 +15,10 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.

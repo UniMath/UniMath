@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
