@@ -180,6 +180,7 @@ Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
+DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
 DisplayedCats/Total.v
 DisplayedCats/Constructions.v

@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -27,14 +28,6 @@ Section Disp_Nat_Trans.
              (R : disp_functor_data F D' D) :=
     forall (x : C')  (xx : D' x),
       R' x  xx -->[ a x ] R x xx .
-  (*
-Check @nat_trans_ax.
-
-@nat_trans_ax
-     : ∏ (C C' : precategory_data) (F F' : functor_data C C')
-       (a : nat_trans F F') (x x' : C) (f : x --> x'),
-       (# F f ;; a x')%mor = (a x ;; # F' f)%mor
-   *)
 
   Definition disp_nat_trans_axioms
              {C' C : precategory_data}
