@@ -545,8 +545,6 @@ Section GaussOps.
               rewrite (stn_eq_or_neq_right k_neq_l); simpl.
               apply (@rigmultx0 hq).
            -- apply (@rigmult0x hq).
-   (* Part two, which is identical except for using riglunax1 instead of rigrunax1.
-      Can we reduce verbosity? *)
     }
     destruct (stn_eq_or_neq r1 r2) as [absurd | ?].
     { rewrite absurd in r1_neq_r2. apply isirrefl_natneq in r1_neq_r2.
@@ -622,7 +620,7 @@ Section GaussOps.
       apply idpath.
   Defined.
 
-  Lemma switch_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (*( s : hq )*) (*( ne : hqneq s 0%hq )*) :
+  Lemma switch_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ):
     @matrix_inverse hq n (make_gauss_switch_row_matrix n r1 r2).
   Proof.
     (* intros. *)

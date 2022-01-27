@@ -7,7 +7,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.FiniteSequences.
 Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Maybe.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
@@ -16,11 +15,6 @@ Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.NumberSystems.RationalNumbers.
-Require Import UniMath.Tactics.Nat_Tactics.
-
-Require Import UniMath.PAdics.z_mod_p.
-Require Import UniMath.PAdics.lemmas.
-
 Require Import UniMath.RealNumbers.Prelim.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
@@ -30,6 +24,14 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 Require Import UniMath.Algebra.Elimination.Elimination.
 
 
+(** The purpose of this file is to store a left-over elimination procedure iterating over 
+    columns instead of rows in the outer loop - 
+    this alternative procedure allows us to show
+    gauss_clear_columns_up_to_no_switch_inv6
+    -> a lower triangular matrix with a zero entry in the diagonal
+       is non-invertible.
+    
+    Note that there are more elementary and perhaps principled proofs of this. *)
 
 Local Notation Σ := (iterop_fun hqzero op1).
 Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
@@ -644,4 +646,79 @@ Proof.
   - rewrite matrix_mult_assoc.
     rewrite IHiter.
     reflexivity.
+Defined.
+
+Lemma clear_columns_up_to_no_switch_matrix_invertible {n : nat} (p : ⟦ S n ⟧%stn)
+  (H : n > 0) (mat : Matrix hq n n)
+  : @matrix_inverse hq _  (clear_columns_up_to_no_switch_as_left_matrix H p mat).
+Proof.
+  unfold clear_columns_up_to_no_switch_as_left_matrix,
+    clear_columns_up_to_no_switch_as_left_matrix.
+  (*set (pre := gauss_clear_column_as_left_matrix p mat k).
+  unfold gauss_clear_column_as_left_matrix in pre.*)
+  destruct p as [pr1_ pr2_].
+  induction pr1_ as [| pr1_ IH].
+  - simpl. apply identity_matrix_is_inv.
+  - unfold clear_columns_up_to_no_switch_as_left_matrix,
+      clear_columns_up_to_no_switch_as_left_matrix_internal.
+    rewrite nat_rect_step.
+    destruct (isdeceqhq _ _).
+    + apply IH.
+    + apply inv_matrix_prod_is_inv; try assumption.
+      * apply clear_column_matrix_invertible.
+      * apply IH.
+  Defined.
+
+Lemma gauss_clear_columns_up_to_no_switch_inv6
+  ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
+  (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
+  (k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq) :
+  k < iter ->
+  (@matrix_inverse hq n mat) -> empty.
+Proof.
+  intros lt contr_inv1.
+  assert (forall m' : Matrix hq n n,
+    (@matrix_inverse hq n m') -> matrix_inverse (mat ** m')).
+  { intros. apply inv_matrix_prod_is_inv; try assumption. }
+  pose (C := @clear_columns_up_to_no_switch_as_left_matrix n p (n,, natgthsnn n) mat).
+  assert (contr_inv2 : @matrix_inverse hq n C).
+  {apply clear_columns_up_to_no_switch_matrix_invertible.  }
+  assert (contr_inv3 : @matrix_inverse hq n (C ** mat)).
+  {apply inv_matrix_prod_is_inv; assumption. }
+  pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n mat p (n,, natgthsnn n) 
+    p' k p'' (pr2 k)).
+  rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq in H2.
+  apply (zero_row_to_non_invertibility (C ** mat) (pr1 H2)); try assumption.
+  unfold C.
+  destruct H2 as [H2 H3].
+  apply H3.
+Defined.
+
+Lemma gauss_clear_columns_up_to_no_switch_inv7
+  ( n : nat ) (mat : Matrix hq n n) (p : n > 0)
+  (iter : ⟦ S n ⟧%stn) (p' : @is_upper_triangular hq n n mat)
+  (k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq) :
+  k < iter ->
+  (@matrix_inverse hq n mat) -> empty.
+Proof.
+  intros lt contr_inv1.
+  apply transpose_invertible_to_invertible in contr_inv1; try assumption.
+  pose (tmat := (transpose mat)).
+  assert (forall m' : Matrix hq n n,
+    (@matrix_inverse hq n m') -> matrix_inverse (tmat ** m')).
+  { intros. apply inv_matrix_prod_is_inv; try assumption. }
+  pose (C := @clear_columns_up_to_no_switch_as_left_matrix n p (n,, natgthsnn n) tmat).
+  assert (contr_inv2 : @matrix_inverse hq n C).
+  {apply clear_columns_up_to_no_switch_matrix_invertible.  }
+  assert (contr_inv3 : @matrix_inverse hq n (C ** tmat)).
+  {apply inv_matrix_prod_is_inv; assumption. }
+  assert (eq : @is_lower_triangular hq n n (@transpose hq n n mat)).
+  { apply upper_triangular_transpose_is_lower_triangular; assumption. }
+  pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n (tmat) p (n,, natgthsnn n) 
+    eq k p'' (pr2 k)).
+  rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq in H2.
+  apply (zero_row_to_non_invertibility (C ** tmat) (pr1 H2)); try assumption.
+  unfold C.
+  destruct H2 as [H2 H3].
+  apply H3.
 Defined.

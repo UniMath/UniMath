@@ -40,26 +40,19 @@ Section Vectors.
 
   Lemma rigsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g ->  Σ f =  Σ g.
   Proof.
-    intros h.
-    induction n as [|n IH].
-    - apply idpath.
-    - rewrite 2? iterop_fun_step. 2: { apply riglunax1. }
-                                  2: { apply riglunax1. }
-      induction (h lastelement).
+    intros H.
+    induction n as [|n IH]; try apply idpath.
+    rewrite 2 iterop_fun_step; try apply riglunax1.
+      induction (H lastelement).
       apply (maponpaths (λ i, op1 i (f lastelement))).
-      apply IH.
-      intro x.
-      apply h.
+      apply IH; intro x; apply H.
   Defined.
 
   Lemma rigsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
     Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
   Proof.
-    intros.
-    apply iterop_fun_step.
-    apply riglunax1.
+    intros; apply iterop_fun_step; apply riglunax1.
   Defined.
-
 
   Lemma rigsum_left_right :
   ∏ (m n : nat) (f : (⟦ m + n ⟧)%stn → R),
@@ -155,8 +148,6 @@ Section Vectors.
       apply idpath.
   Defined.
 
-
-
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
    ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
@@ -191,7 +182,8 @@ Section Vectors.
     assumption.
   Defined.
 
-  (* TODO resolve this situation with multiple aliases for essentially the same lemma *)
+  (* TODO resolve this situation with multiple aliases for essentially the same lemma
+    - this is just rigsum_add. *)
   Lemma sum_pointwise_op1 { n : nat } (v1 v2 : Vector R n)
     : Σ (pointwise n op1 v1 v2) = (Σ v1 + Σ v2)%rig.
   Proof.
@@ -413,118 +405,23 @@ Section Vectors.
     reflexivity.
   Defined.
 
+  (* Definition all_nonzero {n : nat} (v : Vector R n)
+    := forall i : (stn n), v i != 0%rig.
 
+  Definition all_nonzero_compute_internal
+    {n : nat} (v : Vector hq n)
+    (iter : (stn (S n)))
+    : Prop.
+  Proof.
+    intros.
+    destruct iter as [iter p].
+    induction iter as [| iter IH]. {exact True. }
+    assert (obv : iter < S n). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
+    destruct (isdeceqhq 0%hq (v (iter,, p))).
+    { exact False. }
+    exact (IH obv).
+  Defined.
 
+  Definition all_nonzero_compute {n : nat} (v : Vector hq n)
+    := all_nonzero_compute_internal v (n,, natgthsnn n). *)
 End Vectors.
-
-
-Section Vectorshq.
-(* NOTE: much of this section could be generalised to e.g. decidable ordered fields *)
-
-  Definition abs_hq (e: hq) : hq.
-  Proof.
-    destruct (hqgthorleh e 0%hq) as [? | ?].
-    - exact e.
-    - exact (- e)%hq.
-  Defined.
-
-  Lemma abs_ge_0_hq : ∏ (e : hq), (hqgeh (abs_hq e) 0)%hq.
-  Proof.
-    intros e.
-    unfold abs_hq.
-    destruct (hqgthorleh e 0%hq).
-    - apply hqgthtogeh in h. assumption.
-    - apply hqleh0andminus in h. assumption.
-  Defined.
-
-  (* We can generalize this. And TODO fix or remove - does not look correct. *)
-  Definition max_and_index_vec_hq' { n : nat } (f : ⟦ n ⟧%stn -> hq) (max_el: hq) (max_idx: ⟦ n ⟧%stn)
-    (pr1iter : nat) (pr2iter : pr1iter < n)  : hq × ⟦ n ⟧%stn.
-  Proof.
-    induction (pr1iter) as [| m IHn].
-    - set (idx := (make_stn n 0 pr2iter)).
-      destruct (hqgthorleh (f idx) max_el).
-      + exact ((f idx) ,, idx).
-      + exact (max_el ,, max_idx).
-    - set (idx := (make_stn n (S m) pr2iter)).
-      set (nextidx := (make_stn n m  ((istransnatlth m (S m) n) (natgthsnn m ) pr2iter))).
-      set (f' := IHn ( pr2 nextidx)).
-      destruct (hqgthorleh (f idx) (pr1 f')).
-      + exact ((f idx) ,, idx).
-      + exact (IHn (pr2 nextidx)).
-  Defined.
-
-  Definition max_and_index_vec_hq { n : nat } (f : ⟦ n ⟧%stn -> hq) (p : n > 0) : hq × ⟦ n ⟧%stn.
-  Proof.
-    set (zeroidx := make_stn n 0 p).
-    set (eq := stn_inhabited_implies_succ zeroidx).
-    destruct eq as [ m eq' ].
-    rewrite eq' in *.
-    set (v := lastValue f).
-    set (i := @lastelement m).
-    exact (max_and_index_vec_hq' f v i (pr1 i) (pr2 i)).
-  Defined.
-
-  Definition max_hq (a b : hq) : hq.
-    induction (hqgthorleh a b).
-    - exact a.
-    - exact b.
-  Defined.
-
-  (* We can generalize this to just ordered sets *)
-  Definition max_hq_index { n : nat } (ei ei' : hq × ⟦ n ⟧%stn) : hq × ⟦ n ⟧%stn.
-    induction (hqgthorleh (pr1 ei) (pr1 ei')).
-    - exact ei.
-    - exact ei'.
-  Defined.
-
-  Definition max_and_index_vec_hq_works
-    { n : nat } (f : ⟦ n ⟧%stn -> hq) (p : n > 0) :
-    ∏ j : ⟦ n ⟧%stn, (hqleh (f j) (pr1 (max_and_index_vec_hq f p)))
-                  × (hqleh (f j) (f (pr2 (max_and_index_vec_hq f p)))).
-  Proof.
-  Abort.
-
-  Definition max_hq_index_bounded { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> hq)
-             (ei ei' : hq × (⟦ n ⟧%stn)): hq × (⟦ n ⟧%stn).
-  Proof.
-    set (hq_index := max_hq_index ei ei').
-    induction (natlthorgeh (pr2 ei') k).
-    - induction (natlthorgeh (pr2 ei) k ).
-      + exact (f k,, k).
-      + exact ei. (* This case should not occur in our use *)
-    - induction (natlthorgeh (pr2 ei) k).
-      + exact ei'.
-      + exact (max_hq_index ei ei').
-
-  Defined.
-
-  Lemma max_hq_index_bounded_geq_k { n : nat } (k : ⟦ n ⟧%stn) (f : ⟦ n ⟧%stn -> hq)
-    (ei ei' : hq × (⟦ n ⟧%stn)): k ≤ (pr2 (max_hq_index_bounded k f ei ei')).
-  Proof.
-    unfold max_hq_index_bounded.
-    destruct (natlthorgeh (pr2 ei') k).
-    - rewrite coprod_rect_compute_1.
-      destruct (natlthorgeh (pr2 ei) k).
-      + rewrite coprod_rect_compute_1. apply isreflnatleh.
-      + rewrite coprod_rect_compute_2. assumption.
-    - rewrite coprod_rect_compute_2.
-      unfold max_hq_index.
-      destruct (natlthorgeh (pr2 ei) k).
-      + rewrite coprod_rect_compute_1.
-        assumption.
-      + rewrite coprod_rect_compute_2.
-        destruct (hqgthorleh (pr1 ei) (pr1 ei')).
-        * rewrite coprod_rect_compute_1.
-          assumption.
-        * rewrite coprod_rect_compute_2.
-          assumption.
-  Defined.
-
-  (* TODO: indicate absolute value in naming *)
-  Definition max_argmax_stnhq_bounded { n : nat } (vec : Vector hq n) (pn : n > 0 ) (k : ⟦ n ⟧%stn) :=
-  foldleft (0%hq,, (0,, pn)) (max_hq_index_bounded k vec) (λ i : (⟦ n ⟧)%stn, abs_hq (vec i),, i).
-
-
-
-End Vectorshq.

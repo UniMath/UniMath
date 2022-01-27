@@ -75,7 +75,6 @@ Section Matrices.
     intros i.
     unfold col_vec in eq.
     pose (H := @col_vec_inj).
-    unfold vectorize_1 in H.
     unfold col_vec in H.
     pose (H' := H R _ _ _ eq).
     rewrite <- H'.
@@ -189,6 +188,16 @@ Section Matrices.
   Definition matrix_left_inverse {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n), ((B ** A) = identity_matrix).
 
+  Lemma matrix_inverse_unique {n : nat} (A : Matrix R n n)
+    (B C : matrix_inverse A) : pr1 B = pr1 C.
+  Proof.
+    revert B C.
+    unfold matrix_inverse.
+    intros.
+    apply funextfun; intros i.
+    apply funextfun; intros j.
+  Abort.
+
   (* The product of two invertible matrices being invertible *)
   Lemma inv_matrix_prod_is_inv {n : nat} (A : Matrix R n n)
     (A' : Matrix R n n) (pa : matrix_inverse A) (pb : matrix_inverse A') :
@@ -230,12 +239,44 @@ Section Matrices.
     use tpair; apply matrunax2.
   Defined.
 
+  Lemma nil_matrix_is_inv {n : nat} (A : Matrix R n n) (eq : n = 0): matrix_inverse A.
+  Proof.
+    simpl.
+    unfold matrix_inverse.
+    use tpair; try assumption; simpl.
+    use tpair; simpl.
+    - apply funextfun; intros i. apply fromstn0. rewrite eq in i. assumption.
+    - apply funextfun; intros i. apply fromstn0. rewrite eq in i. assumption.
+  Defined.
+
+  Lemma square_inverse_left_right_eq 
+    {n : nat} (A B : Matrix R n n)
+    (e1 : (A ** B) = identity_matrix) (e2 : (B ** A) = identity_matrix)
+    : A = B.
+  Proof.
+  Abort.
+
+  Lemma nil_matrix_eq1 {X : UU} {m n : nat} (A B: Matrix X m n) (eq0 : m = 0)
+    : A = B.
+  Proof.
+    apply funextfun; intros i; apply fromstn0. rewrite eq0 in i. assumption.
+  Defined.
+
+  Lemma nil_matrix_eq2 {X : UU} {m n : nat} (A B: Matrix X m n) (eq0 : n = 0)
+    : A = B.
+  Proof.
+    apply funextfun; intros ?; apply funextfun; intros j.
+    apply fromstn0. rewrite eq0 in j. assumption.
+  Defined.
+
   Lemma transpose_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X n n):
     transpose mat1 = transpose mat2 -> mat1 = mat2.
   Proof.
     intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
   Defined.
 
+  Definition diagonal_sq { n : nat } (mat : Matrix R n n) :=
+    λ i : (stn n), mat i i.
 
   Definition is_diagonal { m n : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn), (stntonat _ i ≠ (stntonat _ j)) -> (mat i j) = 0%rig.
@@ -249,12 +290,10 @@ Section Matrices.
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
 
-  (* TODO rename to something sensible ? diagonal_all_nonzero ? *)
   Definition diagonal_all_nonzero { n : nat } (mat : Matrix hq n n) :=
     ∏ i : ⟦ n ⟧%stn, mat i i != 0%hq.
 
-
-  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn )  (mat : Matrix X (S n) (S n)) : Matrix X n n.
+  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
   Proof.
     intros i' j'.
     exact (mat (dni i i') (dni j j')).
@@ -349,7 +388,7 @@ Section MatricesHq.
   Defined.
 
   Lemma transpose_invertible_to_invertible
-  { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
+  { n : nat } (mat : Matrix hq n n)
   :
   (@matrix_inverse hq n (transpose mat)) 
   -> (@matrix_inverse hq n mat).
@@ -407,6 +446,7 @@ Section MatricesHq.
   Proof.
     intros i j lt; unfold is_upper_triangular; apply H; assumption. 
   Defined.
+
 
 End MatricesHq.
 
