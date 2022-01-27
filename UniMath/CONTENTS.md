@@ -484,6 +484,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Examples/PullbackFunctor.v](Bicategories/PseudoFunctors/Examples/PullbackFunctor.v)
    - [DisplayedBicats/FiberBicategory/TrivialFiber.v](Bicategories/DisplayedBicats/FiberBicategory/TrivialFiber.v)
    - [DisplayedBicats/FiberBicategory/CodomainFiber.v](Bicategories/DisplayedBicats/FiberBicategory/CodomainFiber.v)
+   - [DisplayedBicats/FiberBicategory/DisplayMapFiber.v](Bicategories/DisplayedBicats/FiberBicategory/DisplayMapFiber.v)
    - [ComprehensionBicat.v](Bicategories/ComprehensionBicat.v)
    - [All.v](Bicategories/All.v)
 ## Package [Ktheory](Ktheory/README.md)

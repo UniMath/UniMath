@@ -157,5 +157,6 @@ PseudoFunctors/Examples/PullbackFunctor.v
 
 DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
+DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 ComprehensionBicat.v

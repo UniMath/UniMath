@@ -1,7 +1,7 @@
 (*******************************************************************
- Fibers of the arrow bicategory
+ Fibers of a display map bicategory
 
- In this file, we calculate the fibers of the arrow bicategory
+ In this file, we calculate the fibers of a display map bicategory
 
  1. To the fiber
  2. From the fiber
@@ -18,14 +18,16 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Slice.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
 Require Import UniMath.Bicategories.DisplayedBicats.FiberBicategory.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
@@ -36,78 +38,86 @@ Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
+Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.DisplayMapBicatCleaving.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
-Section FiberOfCodomain.
+Section FiberOfDisplayMap.
   Context {B : bicat}
+          (D : arrow_subbicat B)
           (b : B).
+
+  Let DD : disp_bicat B := disp_map_bicat_to_disp_bicat D.
+
+  Let slice : bicat := disp_map_slice_bicat D b.
+
+  Let fiber : bicat
+    := strict_fiber_bicat DD (arrow_subbicat_local_iso_cleaving D) b.
 
   (**
    1. Calculation of operations in fiber
    *)
-  Definition comp_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition comp_disp_map_fiber
+             {x y : fiber}
              {f g h : x --> y}
              (α : f ==> g)
              (β : g ==> h)
     : pr1 (α • β) = pr1 α • pr1 β.
   Proof.
-    apply transportf_cell_of_cod_over.
+    apply transportf_disp_map_bicat_cell.
   Qed.
 
-  Definition lunitor_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition lunitor_disp_map_fiber
+             {x y : fiber}
              (f : x --> y)
     : pr1 (lunitor f) = lunitor (pr1 f).
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     apply id2_left.
   Qed.
 
-  Definition linvunitor_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition linvunitor_disp_map_fiber
+             {x y : fiber}
              (f : x --> y)
     : pr1 (linvunitor f) = linvunitor (pr1 f).
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     apply id2_right.
   Qed.
 
-  Definition runitor_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition runitor_disp_map_fiber
+             {x y : fiber}
              (f : x --> y)
     : pr1 (runitor f) = runitor (pr1 f).
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     apply id2_left.
   Qed.
 
-  Definition rinvunitor_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition rinvunitor_disp_map_fiber
+             {x y : fiber}
              (f : x --> y)
     : pr1 (rinvunitor f) = rinvunitor (pr1 f).
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     apply id2_right.
   Qed.
 
-  Definition lassociator_cod_fiber
-             {w x y z : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition lassociator_disp_map_fiber
+             {w x y z : fiber}
              (f : w --> x)
              (g : x --> y)
              (h : y --> z)
@@ -115,15 +125,15 @@ Section FiberOfCodomain.
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     cbn.
     rewrite lwhisker_id2, id2_rwhisker, !id2_left, !id2_right.
     apply idpath.
   Qed.
 
-  Definition rassociator_cod_fiber
-             {w x y z : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition rassociator_disp_map_fiber
+             {w x y z : fiber}
              (f : w --> x)
              (g : x --> y)
              (h : y --> z)
@@ -131,15 +141,15 @@ Section FiberOfCodomain.
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     cbn.
     rewrite lwhisker_id2, id2_rwhisker, !id2_left, !id2_right.
     apply idpath.
   Qed.
 
-  Definition lwhisker_cod_fiber
-             {x y z : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition lwhisker_disp_map_fiber
+             {x y z : fiber}
              (f : x --> y)
              {g h : y --> z}
              (α : g ==> h)
@@ -147,15 +157,15 @@ Section FiberOfCodomain.
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     cbn.
     rewrite id2_left, id2_right.
     apply idpath.
   Qed.
 
-  Definition rwhisker_cod_fiber
-             {x y z : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition rwhisker_disp_map_fiber
+             {x y z : fiber}
              {f g : x --> y}
              (α : f ==> g)
              (h : y --> z)
@@ -163,15 +173,15 @@ Section FiberOfCodomain.
   Proof.
     etrans.
     {
-      apply transportf_cell_of_cod_over.
+      apply transportf_disp_map_bicat_cell.
     }
     cbn.
     rewrite id2_left, id2_right.
     apply idpath.
   Qed.
 
-  Definition path_2cell_cod_fiber
-             {x y : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+  Definition path_2cell_disp_map_fiber
+             {x y : fiber}
              {f g : x --> y}
              (α β : f ==> g)
              (p : pr1 α = pr1 β)
@@ -188,26 +198,23 @@ Section FiberOfCodomain.
   (**
    2. To the fiber
    *)
-  Definition to_fiber_cod_data
-    : psfunctor_data
-        (slice_bicat b)
-        (strict_fiber_bicat
-           (cod_disp_bicat B)
-           (cod_local_iso_cleaving B)
-           b).
+  Definition to_fiber_disp_map_data
+    : psfunctor_data slice fiber.
   Proof.
     use make_psfunctor_data.
     - exact (λ f, f).
     - exact (λ a₁ a₂ g,
              pr1 g
              ,,
+             pr12 g
+             ,,
              comp_of_invertible_2cell
                (runitor_invertible_2cell _)
-               (pr2 g)).
-    - cbn.
-      refine (λ a₁ a₂ g₁ g₂ β, pr1 β ,, _).
+               (pr22 g)).
+    - refine (λ a₁ a₂ g₁ g₂ β, pr1 β ,, _).
       abstract
-        (rewrite lwhisker_id2, id2_left ;
+        (cbn ;
+         rewrite lwhisker_id2, id2_left ;
          rewrite !vassocl ;
          apply maponpaths ;
          exact (pr2 β)).
@@ -217,10 +224,10 @@ Section FiberOfCodomain.
          rewrite id2_rwhisker, id2_right ;
          rewrite lwhisker_id2, id2_left ;
          apply idpath).
-    - cbn.
-      refine (λ a₁ a₂ a₃ g₁ g₂, id2 _ ,, _).
+    - refine (λ a₁ a₂ a₃ g₁ g₂, id2 _ ,, _).
       abstract
-        (rewrite lwhisker_id2, id2_left ;
+        (cbn ;
+         rewrite lwhisker_id2, id2_left ;
          rewrite id2_rwhisker, id2_right ;
          rewrite <- !lwhisker_vcomp, <- !rwhisker_vcomp ;
          rewrite !vassocr ;
@@ -242,87 +249,80 @@ Section FiberOfCodomain.
          apply idpath).
   Defined.
 
-  Definition to_fiber_cod_laws
-    : psfunctor_laws to_fiber_cod_data.
+  Definition to_fiber_disp_map_laws
+    : psfunctor_laws to_fiber_disp_map_data.
   Proof.
-    refine (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _) ; intro ; intros ; use path_2cell_cod_fiber.
+    refine (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _) ;
+    intro ; intros ;
+    use path_2cell_disp_map_fiber.
     - apply idpath.
-    - rewrite comp_cod_fiber.
+    - rewrite comp_disp_map_fiber.
       apply idpath.
-    - rewrite !comp_cod_fiber.
-      rewrite lunitor_cod_fiber.
-      rewrite rwhisker_cod_fiber.
+    - rewrite !comp_disp_map_fiber.
+      rewrite lunitor_disp_map_fiber.
+      rewrite rwhisker_disp_map_fiber.
       cbn.
       rewrite id2_rwhisker, !id2_left.
       apply idpath.
-    - rewrite !comp_cod_fiber.
-      rewrite runitor_cod_fiber.
-      rewrite lwhisker_cod_fiber.
+    - rewrite !comp_disp_map_fiber.
+      rewrite runitor_disp_map_fiber.
+      rewrite lwhisker_disp_map_fiber.
       cbn.
       rewrite lwhisker_id2, !id2_left.
       apply idpath.
-    - rewrite !comp_cod_fiber.
-      rewrite lwhisker_cod_fiber, rwhisker_cod_fiber.
-      rewrite lassociator_cod_fiber.
+    - rewrite !comp_disp_map_fiber.
+      rewrite lwhisker_disp_map_fiber, rwhisker_disp_map_fiber.
+      rewrite lassociator_disp_map_fiber.
       cbn.
       rewrite lwhisker_id2, id2_rwhisker.
       rewrite !id2_left, !id2_right.
       apply idpath.
-    - rewrite !comp_cod_fiber.
-      rewrite lwhisker_cod_fiber.
+    - rewrite !comp_disp_map_fiber.
+      rewrite lwhisker_disp_map_fiber.
       cbn.
       rewrite id2_left, id2_right.
       apply idpath.
-    - rewrite !comp_cod_fiber.
-      rewrite rwhisker_cod_fiber.
+    - rewrite !comp_disp_map_fiber.
+      rewrite rwhisker_disp_map_fiber.
       cbn.
       rewrite id2_left, id2_right.
       apply idpath.
   Qed.
 
-  Definition to_fiber_cod
-    : psfunctor
-        (slice_bicat b)
-        (strict_fiber_bicat
-           (cod_disp_bicat B)
-           (cod_local_iso_cleaving B)
-           b).
+  Definition to_fiber_disp_map
+    : psfunctor slice fiber.
   Proof.
     use make_psfunctor.
-    - exact to_fiber_cod_data.
-    - exact to_fiber_cod_laws.
+    - exact to_fiber_disp_map_data.
+    - exact to_fiber_disp_map_laws.
     - split.
       + intros.
         use strict_fiber_bicat_invertible_2cell.
-        use is_disp_invertible_2cell_cod ; cbn.
+        use is_invertible_to_is_disp_invertible ; cbn.
         is_iso.
       + intros.
         use strict_fiber_bicat_invertible_2cell.
-        use is_disp_invertible_2cell_cod ; cbn.
+        use is_invertible_to_is_disp_invertible ; cbn.
         is_iso.
   Defined.
 
   (**
    3. From the fiber
    *)
-  Definition from_fiber_cod_data
-    : psfunctor_data
-        (strict_fiber_bicat
-           (cod_disp_bicat B)
-           (cod_local_iso_cleaving B)
-           b)
-        (slice_bicat b).
+  Definition from_fiber_disp_map_data
+    : psfunctor_data fiber slice.
   Proof.
     use make_psfunctor_data.
     - exact (λ f, f).
     - exact (λ a₁ a₂ g,
              pr1 g
              ,,
+             pr12 g
+             ,,
              comp_of_invertible_2cell
                (rinvunitor_invertible_2cell _)
-               (pr2 g)).
-    - cbn.
-      refine (λ a₁ a₂ g₁ g₂ β, pr1 β ,, _).
+               (pr22 g)).
+    - refine (λ a₁ a₂ g₁ g₂ β, pr1 β ,, _).
       abstract
         (cbn ;
          rewrite !vassocl ;
@@ -330,8 +330,7 @@ Section FiberOfCodomain.
          rewrite lwhisker_id2 ;
          rewrite id2_left ;
          apply idpath).
-    - cbn.
-      refine (λ a, id2 _ ,, _).
+    - refine (λ a, id2 _ ,, _).
       abstract
         (cbn ;
          rewrite id2_rwhisker ;
@@ -340,8 +339,7 @@ Section FiberOfCodomain.
          rewrite rinvunitor_runitor ;
          rewrite id2_left ;
          apply idpath).
-    - cbn.
-      refine (λ a₁ a₂ a₃ g₁ g₂, id2 _ ,, _).
+    - refine (λ a₁ a₂ a₃ g₁ g₂, id2 _ ,, _).
       abstract
         (cbn ;
          rewrite id2_rwhisker ;
@@ -376,73 +374,67 @@ Section FiberOfCodomain.
          apply idpath).
   Defined.
 
-  Definition from_fiber_cod_laws
-    : psfunctor_laws from_fiber_cod_data.
+  Definition from_fiber_disp_map_laws
+    : psfunctor_laws from_fiber_disp_map_data.
   Proof.
     repeat split ;
     intro ; intros ;
-    use eq_2cell_slice.
+    use eq_2cell_disp_map_slice.
     - apply idpath.
     - cbn -[vcomp2].
-      rewrite comp_cod_fiber.
+      rewrite comp_disp_map_fiber.
       cbn.
       apply idpath.
     - cbn -[lunitor].
-      rewrite lunitor_cod_fiber.
+      rewrite lunitor_disp_map_fiber.
       cbn.
       rewrite id2_rwhisker, !id2_left.
       apply idpath.
     - cbn -[runitor].
-      rewrite runitor_cod_fiber.
+      rewrite runitor_disp_map_fiber.
       cbn.
       rewrite lwhisker_id2, !id2_left.
       apply idpath.
     - cbn -[lassociator].
-      rewrite lassociator_cod_fiber.
+      rewrite lassociator_disp_map_fiber.
       cbn.
       rewrite id2_rwhisker, lwhisker_id2, !id2_left, !id2_right.
       apply idpath.
     - cbn -[lwhisker].
-      rewrite lwhisker_cod_fiber.
+      rewrite lwhisker_disp_map_fiber.
       cbn.
       rewrite id2_left, id2_right.
       apply idpath.
     - cbn -[rwhisker].
-      rewrite rwhisker_cod_fiber.
+      rewrite rwhisker_disp_map_fiber.
       cbn.
       rewrite id2_left, id2_right.
       apply idpath.
   Qed.
 
-  Definition from_fiber_cod
-    : psfunctor
-        (strict_fiber_bicat
-           (cod_disp_bicat B)
-           (cod_local_iso_cleaving B)
-           b)
-        (slice_bicat b).
+  Definition from_fiber_disp_map
+    : psfunctor fiber slice.
   Proof.
     use make_psfunctor.
-    - exact from_fiber_cod_data.
-    - exact from_fiber_cod_laws.
+    - exact from_fiber_disp_map_data.
+    - exact from_fiber_disp_map_laws.
     - split ; intros.
-      + use invertible_2cell_in_slice_bicat ; cbn.
+      + use invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
-      + use invertible_2cell_in_slice_bicat ; cbn.
+      + use invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
   (**
    4. The unit
    *)
-  Definition to_fiber_cod_unit_data
+  Definition to_fiber_disp_map_unit_data
     : pstrans_data
         (id_psfunctor _)
-        (comp_psfunctor from_fiber_cod to_fiber_cod).
+        (comp_psfunctor from_fiber_disp_map to_fiber_disp_map).
   Proof.
     use make_pstrans_data.
-    - cbn.
-      exact (λ f, id₁ _ ,, linvunitor_invertible_2cell _).
+    - exact (λ f, id₁ _ ,, id_pred_mor D _ ,, linvunitor_invertible_2cell _).
     - cbn.
       refine (λ f₁ f₂ g, _).
       use make_invertible_2cell.
@@ -476,16 +468,16 @@ Section FiberOfCodomain.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_slice_bicat ; cbn.
+      + apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
-  Definition to_fiber_cod_unit_is_pstrans
-    : is_pstrans to_fiber_cod_unit_data.
+  Definition to_fiber_disp_map_unit_is_pstrans
+    : is_pstrans to_fiber_disp_map_unit_data.
   Proof.
     repeat split.
     - intros x y f g α.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite !vassocr.
       rewrite vcomp_lunitor.
@@ -494,7 +486,7 @@ Section FiberOfCodomain.
       rewrite <- rwhisker_hcomp.
       apply idpath.
     - intros x.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite id2_left.
       rewrite lwhisker_id2, id2_rwhisker.
@@ -503,7 +495,7 @@ Section FiberOfCodomain.
       rewrite runitor_lunitor_identity, lunitor_linvunitor.
       apply idpath.
     - intros x y z f g.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite id2_left.
       rewrite lwhisker_id2, id2_rwhisker.
@@ -528,24 +520,23 @@ Section FiberOfCodomain.
       apply idpath.
   Qed.
 
-  Definition to_fiber_cod_unit
+  Definition to_fiber_disp_map_unit
     : pstrans
         (id_psfunctor _)
-        (comp_psfunctor from_fiber_cod to_fiber_cod).
+        (comp_psfunctor from_fiber_disp_map to_fiber_disp_map).
   Proof.
     use make_pstrans.
-    - exact to_fiber_cod_unit_data.
-    - exact to_fiber_cod_unit_is_pstrans.
+    - exact to_fiber_disp_map_unit_data.
+    - exact to_fiber_disp_map_unit_is_pstrans.
   Defined.
 
-  Definition to_fiber_cod_unit_inv_data
+  Definition to_fiber_disp_map_unit_inv_data
     : pstrans_data
-        (comp_psfunctor from_fiber_cod to_fiber_cod)
+        (comp_psfunctor from_fiber_disp_map to_fiber_disp_map)
         (id_psfunctor _).
   Proof.
     use make_pstrans_data.
-    - cbn.
-      exact (λ x, id₁ _ ,, linvunitor_invertible_2cell _).
+    - exact (λ x, id₁ _ ,, id_pred_mor D _ ,, linvunitor_invertible_2cell _).
     - cbn.
       refine (λ x y f, _).
       use make_invertible_2cell.
@@ -579,16 +570,16 @@ Section FiberOfCodomain.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_slice_bicat ; cbn.
+      + apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
-  Definition to_fiber_cod_unit_inv_is_pstrans
-    : is_pstrans to_fiber_cod_unit_inv_data.
+  Definition to_fiber_disp_map_unit_inv_is_pstrans
+    : is_pstrans to_fiber_disp_map_unit_inv_data.
   Proof.
     repeat split.
     - intros x y f g α.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite !vassocr.
       rewrite vcomp_lunitor.
@@ -597,7 +588,7 @@ Section FiberOfCodomain.
       rewrite <- rwhisker_hcomp.
       apply idpath.
     - intros x.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite lwhisker_id2, !id2_left.
       rewrite id2_rwhisker, id2_right.
@@ -605,7 +596,7 @@ Section FiberOfCodomain.
       rewrite lunitor_runitor_identity, runitor_rinvunitor.
       apply idpath.
     - intros x y z f g.
-      use eq_2cell_slice.
+      use eq_2cell_disp_map_slice.
       cbn.
       rewrite lwhisker_id2, !id2_left.
       rewrite id2_rwhisker, id2_right.
@@ -631,27 +622,27 @@ Section FiberOfCodomain.
       apply idpath.
   Qed.
 
-  Definition to_fiber_cod_unit_inv
+  Definition to_fiber_disp_map_unit_inv
     : pstrans
-        (comp_psfunctor from_fiber_cod to_fiber_cod)
+        (comp_psfunctor from_fiber_disp_map to_fiber_disp_map)
         (id_psfunctor _).
   Proof.
     use make_pstrans.
-    - exact to_fiber_cod_unit_inv_data.
-    - exact to_fiber_cod_unit_inv_is_pstrans.
+    - exact to_fiber_disp_map_unit_inv_data.
+    - exact to_fiber_disp_map_unit_inv_is_pstrans.
   Defined.
 
   (**
    5. The counit
    *)
-  Definition to_fiber_cod_counit_data
+  Definition to_fiber_disp_map_counit_data
     : pstrans_data
-        (comp_psfunctor to_fiber_cod from_fiber_cod)
+        (comp_psfunctor to_fiber_disp_map from_fiber_disp_map)
         (id_psfunctor _).
   Proof.
     use make_pstrans_data.
     - cbn.
-      refine (λ f, id₁ _ ,, _).
+      refine (λ f, id₁ _ ,, id_pred_mor D _ ,, _).
       exact (comp_of_invertible_2cell
                (runitor_invertible_2cell _)
                (linvunitor_invertible_2cell _)).
@@ -698,20 +689,22 @@ Section FiberOfCodomain.
              rewrite runitor_lunitor_identity ;
              apply lunitor_lwhisker).
       + apply strict_fiber_bicat_invertible_2cell.
-        use is_disp_invertible_2cell_cod.
+        use is_invertible_to_is_disp_invertible.
         cbn.
         is_iso.
   Defined.
 
-  Definition to_fiber_cod_counit_is_pstrans
-    : is_pstrans to_fiber_cod_counit_data.
+  Opaque comp_psfunctor.
+
+  Definition to_fiber_disp_map_counit_is_pstrans
+    : is_pstrans to_fiber_disp_map_counit_data.
   Proof.
     refine (_ ,, _ ,, _).
     - intros x y f g α.
-      use path_2cell_cod_fiber.
-      rewrite !comp_cod_fiber.
-      rewrite lwhisker_cod_fiber.
-      rewrite rwhisker_cod_fiber.
+      use path_2cell_disp_map_fiber.
+      rewrite !comp_disp_map_fiber.
+      rewrite lwhisker_disp_map_fiber.
+      rewrite rwhisker_disp_map_fiber.
       cbn.
       rewrite !vassocr.
       rewrite vcomp_lunitor.
@@ -720,36 +713,36 @@ Section FiberOfCodomain.
       rewrite <- rwhisker_hcomp.
       apply idpath.
     - intros x.
-      use path_2cell_cod_fiber.
-      refine (comp_cod_fiber _ _ @ _).
+      use path_2cell_disp_map_fiber.
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths_2.
-        apply lwhisker_cod_fiber.
+        apply lwhisker_disp_map_fiber.
       }
       refine (!_).
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths_2.
-        refine (comp_cod_fiber _ _ @ _).
+        refine (comp_disp_map_fiber _ _ @ _).
         etrans.
         {
           apply maponpaths_2.
-          apply runitor_cod_fiber.
+          apply runitor_disp_map_fiber.
         }
         apply maponpaths.
-        apply linvunitor_cod_fiber.
+        apply linvunitor_disp_map_fiber.
       }
       etrans.
       {
         apply maponpaths.
         etrans.
         {
-          apply rwhisker_cod_fiber.
+          apply rwhisker_disp_map_fiber.
         }
         apply maponpaths.
-        apply comp_cod_fiber.
+        apply comp_disp_map_fiber.
       }
       cbn.
       rewrite lwhisker_id2, !id2_left.
@@ -758,22 +751,44 @@ Section FiberOfCodomain.
       rewrite runitor_lunitor_identity, lunitor_linvunitor.
       apply idpath.
     - intros x y z f g.
-      use path_2cell_cod_fiber.
-      refine (comp_cod_fiber _ _ @ _).
-      refine (maponpaths (λ z, z • _) (lwhisker_cod_fiber _ _) @ _).
+      use path_2cell_disp_map_fiber.
+      refine (comp_disp_map_fiber _ _ @ _).
+      refine (maponpaths (λ z, z • _) (lwhisker_disp_map_fiber _ _) @ _).
       refine (!_).
-      refine (comp_cod_fiber _ _ @ _).
-      refine (maponpaths (λ z, z • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, (z • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((z • _) • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, (((z • _) • _) • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((z • _) • _) • _) • _) • _) (lassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • z) • _) • _) • _) • _) (rwhisker_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • z) • _) • _) • _) (rassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • z) • _) • _) (lwhisker_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • _) • z) • _) (lassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • _) • _) • z) (rwhisker_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • _) • _) • (z ▹ _)) (comp_cod_fiber _ _) @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
+      refine (maponpaths
+                (λ z, z • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, (z • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((z • _) • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, (((z • _) • _) • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((z • _) • _) • _) • _) • _)
+                (lassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • z) • _) • _) • _) • _)
+                (rwhisker_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • z) • _) • _) • _)
+                (rassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • z) • _) • _)
+                (lwhisker_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • _) • z) • _)
+                (lassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • _) • _) • z)
+                (rwhisker_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • _) • _) • (z ▹ _))
+                (comp_disp_map_fiber _ _) @ _).
       cbn.
       rewrite lwhisker_id2, !id2_left.
       rewrite id2_rwhisker, id2_right.
@@ -793,29 +808,27 @@ Section FiberOfCodomain.
       rewrite rinvunitor_runitor.
       rewrite id2_rwhisker.
       apply idpath.
-      Opaque comp_psfunctor.
   Qed.
 
   Transparent comp_psfunctor.
 
-  Definition to_fiber_cod_counit
+  Definition to_fiber_disp_map_counit
     : pstrans
-        (comp_psfunctor to_fiber_cod from_fiber_cod)
+        (comp_psfunctor to_fiber_disp_map from_fiber_disp_map)
         (id_psfunctor _).
   Proof.
     use make_pstrans.
-    - exact to_fiber_cod_counit_data.
-    - exact to_fiber_cod_counit_is_pstrans.
+    - exact to_fiber_disp_map_counit_data.
+    - exact to_fiber_disp_map_counit_is_pstrans.
   Defined.
 
-  Definition to_fiber_cod_counit_inv_data
+  Definition to_fiber_disp_map_counit_inv_data
     : pstrans_data
         (id_psfunctor _)
-        (comp_psfunctor to_fiber_cod from_fiber_cod).
+        (comp_psfunctor to_fiber_disp_map from_fiber_disp_map).
   Proof.
     use make_pstrans_data.
-    - cbn.
-      refine (λ x, id₁ _ ,, _).
+    - refine (λ x, id₁ _ ,, id_pred_mor D _ ,, _).
       exact (comp_of_invertible_2cell
                (runitor_invertible_2cell _)
                (linvunitor_invertible_2cell _)).
@@ -860,30 +873,30 @@ Section FiberOfCodomain.
              rewrite lunitor_lwhisker ;
              apply idpath).
       + apply strict_fiber_bicat_invertible_2cell.
-        use is_disp_invertible_2cell_cod.
+        use is_invertible_to_is_disp_invertible.
         cbn.
         is_iso.
   Defined.
 
-  Opaque strict_fiber_bicat.
+  Opaque strict_fiber_bicat comp_psfunctor.
 
-  Definition to_fiber_cod_counit_inv_is_pstrans
-    : is_pstrans to_fiber_cod_counit_inv_data.
+  Definition to_fiber_disp_map_counit_inv_is_pstrans
+    : is_pstrans to_fiber_disp_map_counit_inv_data.
   Proof.
     repeat split.
     - intros x y f g  α.
-      use path_2cell_cod_fiber.
-      refine (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+      use path_2cell_disp_map_fiber.
+      refine (comp_disp_map_fiber _ _ @ _ @ !(comp_disp_map_fiber _ _)).
       etrans.
       {
         apply maponpaths_2.
-        apply lwhisker_cod_fiber.
+        apply lwhisker_disp_map_fiber.
       }
       refine (!_).
       etrans.
       {
         apply maponpaths.
-        apply rwhisker_cod_fiber.
+        apply rwhisker_disp_map_fiber.
       }
       cbn.
       refine (!_).
@@ -903,38 +916,38 @@ Section FiberOfCodomain.
       refine (!_).
       apply rwhisker_hcomp.
     - intros x.
-      use path_2cell_cod_fiber.
-      refine (comp_cod_fiber _ _ @ _).
+      use path_2cell_disp_map_fiber.
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths_2.
         etrans.
         {
-          apply lwhisker_cod_fiber.
+          apply lwhisker_disp_map_fiber.
         }
         apply maponpaths.
-        exact (comp_cod_fiber
-                 (psfunctor_id to_fiber_cod x)
-                 (##to_fiber_cod (psfunctor_id from_fiber_cod x))).
+        exact (comp_disp_map_fiber
+                 (psfunctor_id to_fiber_disp_map x)
+                 (##to_fiber_disp_map (psfunctor_id from_fiber_disp_map x))).
       }
       refine (!_).
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths_2.
-        refine (comp_cod_fiber _ _ @ _).
+        refine (comp_disp_map_fiber _ _ @ _).
         etrans.
         {
           apply maponpaths_2.
-          apply runitor_cod_fiber.
+          apply runitor_disp_map_fiber.
         }
         apply maponpaths.
-        apply linvunitor_cod_fiber.
+        apply linvunitor_disp_map_fiber.
       }
       etrans.
       {
         apply maponpaths.
-        apply rwhisker_cod_fiber.
+        apply rwhisker_disp_map_fiber.
       }
       cbn.
       etrans.
@@ -969,32 +982,52 @@ Section FiberOfCodomain.
       }
       apply lunitor_linvunitor.
     - intros x y z f g.
-      use path_2cell_cod_fiber.
-      refine (comp_cod_fiber _ _ @ _).
-      refine (maponpaths (λ z, z • _) (lwhisker_cod_fiber _ _) @ _).
+      use path_2cell_disp_map_fiber.
+      refine (comp_disp_map_fiber _ _ @ _).
+      refine (maponpaths (λ z, z • _) (lwhisker_disp_map_fiber _ _) @ _).
       refine (!_).
-      refine (comp_cod_fiber _ _ @ _).
-      refine (maponpaths (λ z, z • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, (z • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((z • _) • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, (((z • _) • _) • _) • _) (comp_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((z • _) • _) • _) • _) • _) (lassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • z) • _) • _) • _) • _) (rwhisker_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • z) • _) • _) • _) (rassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • z) • _) • _) (lwhisker_cod_fiber _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • _) • z) • _) (lassociator_cod_fiber _ _ _) @ _).
-      refine (maponpaths (λ z, ((((_ • _) • _) • _) • _) • z) (rwhisker_cod_fiber _ _) @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
+      refine (maponpaths
+                (λ z, z • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, (z • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((z • _) • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, (((z • _) • _) • _) • _)
+                (comp_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((z • _) • _) • _) • _) • _)
+                (lassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • z) • _) • _) • _) • _)
+                (rwhisker_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • z) • _) • _) • _)
+                (rassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • z) • _) • _)
+                (lwhisker_disp_map_fiber _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • _) • z) • _)
+                (lassociator_disp_map_fiber _ _ _) @ _).
+      refine (maponpaths
+                (λ z, ((((_ • _) • _) • _) • _) • z)
+                (rwhisker_disp_map_fiber _ _) @ _).
       refine (!_).
       etrans.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (comp_cod_fiber
+        exact (comp_disp_map_fiber
                  (psfunctor_comp
-                    to_fiber_cod
-                    (# from_fiber_cod f)
-                    (# from_fiber_cod g))
-                 (## to_fiber_cod (psfunctor_comp from_fiber_cod f g))).
+                    to_fiber_disp_map
+                    (# from_fiber_disp_map f)
+                    (# from_fiber_disp_map g))
+                 (## to_fiber_disp_map (psfunctor_comp from_fiber_disp_map f g))).
       }
       cbn.
       etrans.
@@ -1074,28 +1107,27 @@ Section FiberOfCodomain.
         apply id2_rwhisker.
       }
       apply id2_left.
-      Opaque comp_psfunctor.
   Qed.
 
   Transparent strict_fiber_bicat comp_psfunctor.
 
-  Definition to_fiber_cod_counit_inv
+  Definition to_fiber_disp_map_counit_inv
     : pstrans
         (id_psfunctor _)
-        (comp_psfunctor to_fiber_cod from_fiber_cod).
+        (comp_psfunctor to_fiber_disp_map from_fiber_disp_map).
   Proof.
     use make_pstrans.
-    - exact to_fiber_cod_counit_inv_data.
-    - exact to_fiber_cod_counit_inv_is_pstrans.
+    - exact to_fiber_disp_map_counit_inv_data.
+    - exact to_fiber_disp_map_counit_inv_is_pstrans.
   Defined.
 
   (**
    6. The modifications
    *)
-  Definition cod_unit_inv_left_data
+  Definition disp_map_unit_inv_left_data
     : invertible_modification_data
         (id_pstrans _)
-        (comp_pstrans to_fiber_cod_unit_inv to_fiber_cod_unit).
+        (comp_pstrans to_fiber_disp_map_unit_inv to_fiber_disp_map_unit).
   Proof.
     intros x.
     use make_invertible_2cell.
@@ -1109,16 +1141,16 @@ Section FiberOfCodomain.
            rewrite lunitor_runitor_identity ;
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            apply triangle_r).
-    - apply invertible_2cell_in_slice_bicat.
+    - apply invertible_2cell_in_disp_map_slice_bicat.
       cbn.
       is_iso.
   Defined.
 
-  Definition cod_unit_inv_left_is_modification
-    : is_modification cod_unit_inv_left_data.
+  Definition disp_map_unit_inv_left_is_modification
+    : is_modification disp_map_unit_inv_left_data.
   Proof.
     intros x y f.
-    use eq_2cell_slice.
+    use eq_2cell_disp_map_slice.
     cbn.
     rewrite !vassocr.
     use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
@@ -1149,19 +1181,19 @@ Section FiberOfCodomain.
     apply idpath.
   Qed.
 
-  Definition cod_unit_inv_left
+  Definition disp_map_unit_inv_left
     : invertible_modification
         (id_pstrans _)
-        (comp_pstrans to_fiber_cod_unit_inv to_fiber_cod_unit).
+        (comp_pstrans to_fiber_disp_map_unit_inv to_fiber_disp_map_unit).
   Proof.
     use make_invertible_modification.
-    - exact cod_unit_inv_left_data.
-    - exact cod_unit_inv_left_is_modification.
+    - exact disp_map_unit_inv_left_data.
+    - exact disp_map_unit_inv_left_is_modification.
   Defined.
 
-  Definition cod_unit_inv_right_data
+  Definition disp_map_unit_inv_right_data
     : invertible_modification_data
-        (comp_pstrans to_fiber_cod_unit to_fiber_cod_unit_inv)
+        (comp_pstrans to_fiber_disp_map_unit to_fiber_disp_map_unit_inv)
         (id_pstrans _).
   Proof.
     intros x.
@@ -1179,16 +1211,16 @@ Section FiberOfCodomain.
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            refine (!_) ;
            apply triangle_r).
-    - apply invertible_2cell_in_slice_bicat.
+    - apply invertible_2cell_in_disp_map_slice_bicat.
       cbn.
       is_iso.
   Defined.
 
-  Definition cod_unit_inv_right_is_modification
-    : is_modification cod_unit_inv_right_data.
+  Definition disp_map_unit_inv_right_is_modification
+    : is_modification disp_map_unit_inv_right_data.
   Proof.
     intros x y f.
-    use eq_2cell_slice.
+    use eq_2cell_disp_map_slice.
     cbn.
     rewrite !vassocl.
     rewrite lunitor_lwhisker.
@@ -1207,20 +1239,20 @@ Section FiberOfCodomain.
     apply idpath.
   Qed.
 
-  Definition cod_unit_inv_right
+  Definition disp_map_unit_inv_right
     : invertible_modification
-        (comp_pstrans to_fiber_cod_unit to_fiber_cod_unit_inv)
+        (comp_pstrans to_fiber_disp_map_unit to_fiber_disp_map_unit_inv)
         (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact cod_unit_inv_right_data.
-    - exact cod_unit_inv_right_is_modification.
+    - exact disp_map_unit_inv_right_data.
+    - exact disp_map_unit_inv_right_is_modification.
   Defined.
 
-  Definition cod_counit_inv_right_data
+  Definition disp_map_counit_inv_right_data
     : invertible_modification_data
         (id_pstrans _)
-        (comp_pstrans to_fiber_cod_counit to_fiber_cod_counit_inv).
+        (comp_pstrans to_fiber_disp_map_counit to_fiber_disp_map_counit_inv).
   Proof.
     intros x.
     use make_invertible_2cell.
@@ -1256,29 +1288,29 @@ Section FiberOfCodomain.
            rewrite vcomp_runitor ;
            apply idpath).
     - use strict_fiber_bicat_invertible_2cell.
-      use is_disp_invertible_2cell_cod.
+      use is_invertible_to_is_disp_invertible.
       cbn.
       is_iso.
   Defined.
 
   Opaque comp_psfunctor strict_fiber_bicat.
 
-  Definition cod_counit_inv_right_is_modification
-    : is_modification cod_counit_inv_right_data.
+  Definition disp_map_counit_inv_right_is_modification
+    : is_modification disp_map_counit_inv_right_data.
   Proof.
     intros x y f.
-    use path_2cell_cod_fiber.
-    refine (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+    use path_2cell_disp_map_fiber.
+    refine (comp_disp_map_fiber _ _ @ _ @ !(comp_disp_map_fiber _ _)).
     etrans.
     {
       apply maponpaths.
-      apply lwhisker_cod_fiber.
+      apply lwhisker_disp_map_fiber.
     }
     etrans.
     {
       apply maponpaths_2.
       cbn.
-      apply comp_cod_fiber.
+      apply comp_disp_map_fiber.
     }
     etrans.
     {
@@ -1286,49 +1318,49 @@ Section FiberOfCodomain.
       etrans.
       {
         apply maponpaths_2.
-        apply lunitor_cod_fiber.
+        apply lunitor_disp_map_fiber.
       }
       apply maponpaths.
-      apply rinvunitor_cod_fiber.
+      apply rinvunitor_disp_map_fiber.
     }
     refine (!_).
     etrans.
     {
       apply maponpaths_2.
-      apply rwhisker_cod_fiber.
+      apply rwhisker_disp_map_fiber.
     }
     etrans.
     {
       apply maponpaths.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply rassociator_cod_fiber.
+        apply rassociator_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply rwhisker_cod_fiber.
+        apply rwhisker_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply lassociator_cod_fiber.
+        apply lassociator_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply lwhisker_cod_fiber.
+        apply lwhisker_disp_map_fiber.
       }
       apply maponpaths_2.
-      apply rassociator_cod_fiber.
+      apply rassociator_disp_map_fiber.
     }
     cbn.
     rewrite !vassocl.
@@ -1405,19 +1437,19 @@ Section FiberOfCodomain.
 
   Transparent comp_psfunctor strict_fiber_bicat.
 
-  Definition cod_counit_inv_right
+  Definition disp_map_counit_inv_right
     : invertible_modification
         (id_pstrans _)
-        (comp_pstrans to_fiber_cod_counit to_fiber_cod_counit_inv).
+        (comp_pstrans to_fiber_disp_map_counit to_fiber_disp_map_counit_inv).
   Proof.
     use make_invertible_modification.
-    - exact cod_counit_inv_right_data.
-    - exact cod_counit_inv_right_is_modification.
+    - exact disp_map_counit_inv_right_data.
+    - exact disp_map_counit_inv_right_is_modification.
   Defined.
 
-  Definition cod_counit_inv_left_data
+  Definition disp_map_counit_inv_left_data
     : invertible_modification_data
-        (comp_pstrans to_fiber_cod_counit_inv to_fiber_cod_counit)
+        (comp_pstrans to_fiber_disp_map_counit_inv to_fiber_disp_map_counit)
         (id_pstrans _).
   Proof.
     intros x.
@@ -1452,75 +1484,75 @@ Section FiberOfCodomain.
            rewrite vcomp_runitor ;
            apply idpath).
     - use strict_fiber_bicat_invertible_2cell.
-      use is_disp_invertible_2cell_cod.
+      use is_invertible_to_is_disp_invertible.
       cbn.
       is_iso.
   Defined.
 
   Opaque comp_psfunctor strict_fiber_bicat.
 
-  Definition cod_counit_inv_left_is_modification
-    : is_modification cod_counit_inv_left_data.
+  Definition disp_map_counit_inv_left_is_modification
+    : is_modification disp_map_counit_inv_left_data.
   Proof.
     intros x y f.
-    use path_2cell_cod_fiber.
-    refine (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+    use path_2cell_disp_map_fiber.
+    refine (comp_disp_map_fiber _ _ @ _ @ !(comp_disp_map_fiber _ _)).
     refine (!_).
     etrans.
     {
       apply maponpaths_2.
-      apply rwhisker_cod_fiber.
+      apply rwhisker_disp_map_fiber.
     }
     etrans.
     {
       apply maponpaths.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths_2.
-        apply lunitor_cod_fiber.
+        apply lunitor_disp_map_fiber.
       }
       apply maponpaths.
-      apply rinvunitor_cod_fiber.
+      apply rinvunitor_disp_map_fiber.
     }
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply lwhisker_cod_fiber.
+      apply lwhisker_disp_map_fiber.
     }
     etrans.
     {
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply rassociator_cod_fiber.
+        apply rassociator_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply rwhisker_cod_fiber.
+        apply rwhisker_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply lassociator_cod_fiber.
+        apply lassociator_disp_map_fiber.
       }
       apply maponpaths_2.
-      refine (comp_cod_fiber _ _ @ _).
+      refine (comp_disp_map_fiber _ _ @ _).
       etrans.
       {
         apply maponpaths.
-        apply lwhisker_cod_fiber.
+        apply lwhisker_disp_map_fiber.
       }
       apply maponpaths_2.
-      apply rassociator_cod_fiber.
+      apply rassociator_disp_map_fiber.
     }
     cbn.
     etrans.
@@ -1572,31 +1604,31 @@ Section FiberOfCodomain.
 
   Transparent comp_psfunctor strict_fiber_bicat.
 
-  Definition cod_counit_inv_left
+  Definition disp_map_counit_inv_left
     : invertible_modification
-        (comp_pstrans to_fiber_cod_counit_inv to_fiber_cod_counit)
+        (comp_pstrans to_fiber_disp_map_counit_inv to_fiber_disp_map_counit)
         (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact cod_counit_inv_left_data.
-    - exact cod_counit_inv_left_is_modification.
+    - exact disp_map_counit_inv_left_data.
+    - exact disp_map_counit_inv_left_is_modification.
   Defined.
 
   (**
    7. The biequivalence
    *)
-    Definition to_fiber_cod_is_biequivalence
-    : is_biequivalence to_fiber_cod.
+    Definition to_fiber_disp_map_is_biequivalence
+    : is_biequivalence to_fiber_disp_map.
   Proof.
     use make_is_biequivalence.
-    - exact from_fiber_cod.
-    - exact to_fiber_cod_unit.
-    - exact to_fiber_cod_unit_inv.
-    - exact to_fiber_cod_counit.
-    - exact to_fiber_cod_counit_inv.
-    - exact cod_unit_inv_left.
-    - exact cod_unit_inv_right.
-    - exact cod_counit_inv_right.
-    - exact cod_counit_inv_left.
+    - exact from_fiber_disp_map.
+    - exact to_fiber_disp_map_unit.
+    - exact to_fiber_disp_map_unit_inv.
+    - exact to_fiber_disp_map_counit.
+    - exact to_fiber_disp_map_counit_inv.
+    - exact disp_map_unit_inv_left.
+    - exact disp_map_unit_inv_right.
+    - exact disp_map_counit_inv_right.
+    - exact disp_map_counit_inv_left.
   Defined.
-End FiberOfCodomain.
+End FiberOfDisplayMap.

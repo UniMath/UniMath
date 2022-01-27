@@ -39,31 +39,33 @@ Require Import UniMath.Bicategories.Colimits.Pullback.
 
 Local Open Scope cat.
 
+Definition arrow_subbicat_local_iso_cleaving
+           {B : bicat}
+           (D : arrow_subbicat B)
+  : local_iso_cleaving (disp_map_bicat_to_disp_bicat D).
+Proof.
+  intros x y f g hx hy hf α.
+  simple refine (_ ,, _).
+  - refine (pr1 hf ,, pr12 hf ,, _) ; cbn.
+    exact (comp_of_invertible_2cell
+             (lwhisker_of_invertible_2cell
+                _
+                α)
+             (pr22 hf)).
+  - simple refine ((id2 _ ,, _) ,, _) ; cbn.
+    + abstract
+        (rewrite id2_rwhisker, id2_right ;
+         apply idpath).
+    + use is_invertible_to_is_disp_invertible.
+      cbn.
+      is_iso.
+Defined.
+
 Section DispMapBicatCleaving.
   Context {B : bicat}
           (D : disp_map_bicat B).
 
   Let DD : disp_bicat B := disp_map_bicat_to_disp_bicat D.
-
-  Definition disp_map_bicat_local_iso_cleaving
-    : local_iso_cleaving DD.
-  Proof.
-    intros x y f g hx hy hf α.
-    simple refine (_ ,, _).
-    - refine (pr1 hf ,, pr12 hf ,, _) ; cbn.
-      exact (comp_of_invertible_2cell
-               (lwhisker_of_invertible_2cell
-                  _
-                  α)
-               (pr22 hf)).
-    - simple refine ((id2 _ ,, _) ,, _) ; cbn.
-      + abstract
-          (rewrite id2_rwhisker, id2_right ;
-           apply idpath).
-      + use is_invertible_to_is_disp_invertible.
-        cbn.
-        is_iso.
-  Defined.
 
   (**
    1. Pullback squares are cartesian 1-cells
