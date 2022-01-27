@@ -23,6 +23,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.

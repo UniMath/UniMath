@@ -8,7 +8,10 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.CategoryTheory.whiskering.

@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 

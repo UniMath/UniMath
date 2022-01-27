@@ -11,6 +11,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 (* Constructions is only needed for transportf_pathsinv0_var *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 

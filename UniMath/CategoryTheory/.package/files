@@ -182,6 +182,8 @@ DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
+DisplayedCats/Isos.v
+DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Constructions.v
 DisplayedCats/Examples/Opposite.v

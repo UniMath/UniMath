@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

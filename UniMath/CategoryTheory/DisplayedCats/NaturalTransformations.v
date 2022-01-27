@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

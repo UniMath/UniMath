@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
