@@ -1,4 +1,4 @@
-(** Constructs instance of action-based strength for the actions of the endomorphisms by precomposition on fixed hom-categories of a bicategory
+(** Constructs instance of action-based strength for the actions of the endomorphisms by precomposition on fixed hom-categories of a bicategory, and from this, a signature.
 
 Author: Ralph Matthes 2021
 
@@ -17,15 +17,15 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Actions.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActions.
-Require Import UniMath.CategoryTheory.Monoidal.ActionOfEndomorphismsInBicat.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.Actions.
+Require Import UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicat.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.SubstitutionSystems.Signatures.
