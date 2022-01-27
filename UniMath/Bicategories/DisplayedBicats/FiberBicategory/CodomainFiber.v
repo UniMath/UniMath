@@ -758,6 +758,7 @@ Section FiberOfCodomain.
       rewrite runitor_lunitor_identity, lunitor_linvunitor.
       apply idpath.
     - intros x y z f g.
+      Opaque comp_psfunctor.
       use path_2cell_cod_fiber.
       refine (comp_cod_fiber _ _ @ _).
       refine (maponpaths (λ z, z • _) (lwhisker_cod_fiber _ _) @ _).
@@ -774,6 +775,7 @@ Section FiberOfCodomain.
       refine (maponpaths (λ z, ((((_ • _) • _) • _) • z) • _) (lassociator_cod_fiber _ _ _) @ _).
       refine (maponpaths (λ z, ((((_ • _) • _) • _) • _) • z) (rwhisker_cod_fiber _ _) @ _).
       refine (maponpaths (λ z, ((((_ • _) • _) • _) • _) • (z ▹ _)) (comp_cod_fiber _ _) @ _).
+      Transparent comp_psfunctor.
       cbn.
       rewrite lwhisker_id2, !id2_left.
       rewrite id2_rwhisker, id2_right.
@@ -969,6 +971,7 @@ Section FiberOfCodomain.
       }
       apply lunitor_linvunitor.
     - intros x y z f g.
+      Opaque comp_psfunctor.
       use path_2cell_cod_fiber.
       refine (comp_cod_fiber _ _ @ _).
       refine (maponpaths (λ z, z • _) (lwhisker_cod_fiber _ _) @ _).
@@ -996,6 +999,7 @@ Section FiberOfCodomain.
                     (# from_fiber_cod g))
                  (## to_fiber_cod (psfunctor_comp from_fiber_cod f g))).
       }
+      Transparent comp_psfunctor.
       cbn.
       etrans.
       {

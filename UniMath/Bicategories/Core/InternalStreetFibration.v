@@ -1272,6 +1272,31 @@ Proof.
     is_iso.
 Qed.
 
+Definition invertible_2cell_between_preserves_cartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe₁ fe₂ : e₁ --> e₂}
+           (α : invertible_2cell fe₁ fe₂)
+           (H : mor_preserves_cartesian p₁ p₂ fe₁)
+  : mor_preserves_cartesian p₁ p₂ fe₂.
+Proof.
+  intros x f g γ Hγ.
+  assert (γ ▹ fe₂ • (_ ◃ α^-1) = (f ◃ α^-1) • (γ ▹ fe₁)) as p.
+  {
+    rewrite vcomp_whisker.
+    apply idpath.
+  }
+  use (is_cartesian_2cell_sfib_postcomp _ _ _ _ p).
+  - use invertible_is_cartesian_2cell_sfib.
+    is_iso.
+  - use vcomp_is_cartesian_2cell_sfib.
+    + use invertible_is_cartesian_2cell_sfib.
+      is_iso.
+    + exact (H x f g γ Hγ).
+Defined.
+
 Definition locally_grpd_preserves_cartesian
            {B : bicat}
            (HB : locally_groupoid B)

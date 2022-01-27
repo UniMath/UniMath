@@ -89,6 +89,16 @@ Section Subbicat.
        invertible_2cell p₁ (fe · p₂)
        →
        P₁ p₁ p₂ fe.
+
+  Definition closed_under_invertible_2cell
+    : UU
+    := ∏ (e₁ e₂ b₁ b₂ : B)
+         (p₁ : e₁ --> b₁)
+         (p₂ : e₂ --> b₂)
+         (fe₁ fe₂ : e₁ --> e₂)
+         (α : invertible_2cell fe₁ fe₂)
+         (H : P₁ p₁ p₂ fe₁),
+       P₁ p₁ p₂ fe₂.
 End Subbicat.
 
 Definition arrow_subbicat
@@ -102,7 +112,9 @@ Definition arrow_subbicat
              UU),
      contains_id P₁
      ×
-     closed_under_comp P₁.
+     closed_under_comp P₁
+     ×
+     closed_under_invertible_2cell P₁.
 
 Section Projections.
   Context {B : bicat}
@@ -138,7 +150,17 @@ Section Projections.
              (Hfe : pred_mor p₁ p₂ fe)
              (Hge : pred_mor p₂ p₃ ge)
     : pred_mor p₁ p₃ (fe · ge)
-    := pr222 D _ _ _ _ _ _ _ _ _ _ _ Hfe Hge.
+    := pr1 (pr222 D) _ _ _ _ _ _ _ _ _ _ _ Hfe Hge.
+
+  Definition invertible_pred_mor
+             {e₁ e₂ b₁ b₂ : B}
+             {p₁ : e₁ --> b₁}
+             {p₂ : e₂ --> b₂}
+             {fe₁ fe₂ : e₁ --> e₂}
+             (α : invertible_2cell fe₁ fe₂)
+             (H : pred_mor p₁ p₂ fe₁)
+    : pred_mor p₁ p₂ fe₂
+    := pr2 (pr222 D) _ _ _ _ _ _ _ _ α H.
 End Projections.
 
 Definition make_arrow_subbicat
@@ -151,8 +173,9 @@ Definition make_arrow_subbicat
                  UU)
            (Hid : contains_id P₁)
            (Hcomp : closed_under_comp P₁)
+           (Hinv : closed_under_invertible_2cell P₁)
   : arrow_subbicat B
-  := (P₀ ,, P₁ ,, Hid ,, Hcomp).
+  := (P₀ ,, P₁ ,, Hid ,, Hcomp ,, Hinv).
 
 Definition arrow_subbicat_contains_equiv_over_id
            {B : bicat}
@@ -214,6 +237,7 @@ Proof.
   - exact (λ _ _ _ _ _ _ _, unit).
   - exact (λ _ _ _, tt).
   - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _, tt).
+  - exact (λ _ _ _ _ _ _ _ _ _ _, tt).
 Defined.
 
 Definition full_arrow_subbicat_props
@@ -250,6 +274,10 @@ Proof.
     + exact (comp_pred_mor
                D₂
                (pr2 H₁) (pr2 H₂)).
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
+    split.
+    + exact (invertible_pred_mor D₁ α (pr1 H)).
+    + exact (invertible_pred_mor D₂ α (pr2 H)).
 Defined.
 
 Definition intersection_arrow_subbicat_props
@@ -281,6 +309,8 @@ Proof.
     apply id_mor_preserves_cartesian.
   - intros e₁ e₂ e₃ b₁ b₂ b₃ p₁ p₂ p₃ fe ge Hf Hg.
     exact (comp_preserves_cartesian Hf Hg).
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
+    exact (invertible_2cell_between_preserves_cartesian α H).
 Defined.
 
 Definition sfib_subbicat_props
@@ -307,6 +337,8 @@ Proof.
     apply id_mor_preserves_opcartesian.
   - intros e₁ e₂ e₃ b₁ b₂ b₃ p₁ p₂ p₃ fe ge Hf Hg.
     exact (comp_preserves_opcartesian Hf Hg).
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
+    exact (invertible_2cell_between_preserves_opcartesian α H).
 Defined.
 
 Definition sopfib_subbicat_props

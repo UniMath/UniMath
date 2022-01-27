@@ -1,3 +1,14 @@
+(*************************************************************
+
+ Pullback functors
+
+ In this file, we look at the change of base functors arising
+ from pullbacks. We look at two version:
+
+ 1. Change of base for slice bicategories
+ 2. Change of base for slices of display map bicategories
+
+ *************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -22,6 +33,9 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlic
 
 Local Open Scope cat.
 
+(**
+ 1. Change of base for slice bicategories
+ *)
 Section PullbackFunctor.
   Context (B : bicat_with_pb)
           {b₁ b₂ : B}
@@ -110,14 +124,156 @@ Section PullbackFunctor.
   Defined.
 End PullbackFunctor.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
+(**
+ 2. Change of base for slices of display map bicategories
+ *)
 Section DispMapPullbackFunctor.
   Context (B : bicat_with_pb)
           (D : disp_map_bicat B)
           {b₁ b₂ : B}
           (f : b₁ --> b₂).
+
+  Section PredMor_for_PB_Mor.
+    Context {g₁ g₂ : disp_map_slice_bicat D b₂}
+            (α : g₁ --> g₂).
+
+    Let γ : invertible_2cell
+              ((π₂ : f /≃ pr12 g₁ --> pr1 g₁) · pr1 α · pr12 g₂)
+              (π₁ · id₁ b₁ · f)
+      := comp_of_invertible_2cell
+           (rassociator_invertible_2cell _ _ _)
+           (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (pr22 α)))
+              (comp_of_invertible_2cell
+                 (inv_of_invertible_2cell (pb_cell f (pr12 g₁)))
+                 (rwhisker_of_invertible_2cell
+                    _
+                    (rinvunitor_invertible_2cell _)))).
+
+    Definition help_pred_mor_pb_on_1cell
+      : pb_ump_mor
+          (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂)))
+          (make_pb_cone
+             (f /≃ pr12 g₁)
+             ((π₂ : B ⟦ f /≃ pr12 g₁, pr1 g₁ ⟧) · pr1 α)
+             (π₁ · id₁ b₁)
+             γ)
+        ==>
+        f /≃₁ pr22 α.
+    Proof.
+      use pb_ump_cell.
+      - apply (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂))).
+      - exact (pb_ump_mor_pr2
+                 (pb_obj_has_pb_ump f (pr12 g₂))
+                 (mirror_cone (make_pb_cone (f /≃ pr12 g₁) (π₂ · pr1 α) (π₁ · id₁ b₁) γ))
+               • (pb_on_1cell_pr2 _ _)^-1).
+      - exact (pb_ump_mor_pr1
+                 (pb_obj_has_pb_ump f (pr12 g₂))
+                 (mirror_cone (make_pb_cone (f /≃ pr12 g₁) (π₂ · pr1 α) (π₁ · id₁ b₁) γ))
+               • runitor _
+               • (pb_on_1cell_pr1 _ _)^-1).
+      - abstract
+          (cbn ;
+           rewrite <- !rwhisker_vcomp ;
+           rewrite !vassocl ;
+           use vcomp_move_R_pM ; [ is_iso | ] ;
+           cbn ;
+           refine (!_) ;
+           etrans ;
+           [ apply maponpaths_2 ;
+             exact (pb_ump_mor_cell
+                      (pb_obj_has_pb_ump f (pr12 g₂))
+                      (mirror_cone
+                         (make_pb_cone
+                            (f /≃ pr12 g₁)
+                            (π₂ · pr1 α)
+                            (π₁ · id₁ b₁)
+                            γ)))
+           | ] ;
+           rewrite !vassocl ;
+           apply maponpaths ;
+           etrans ;
+           [ do 3 apply maponpaths ;
+             rewrite !vassocr ;
+             rewrite rassociator_lassociator ;
+             rewrite id2_left ;
+             rewrite !vassocl ;
+             apply idpath
+           | ] ;
+           etrans ;
+           [ do 2 apply maponpaths ;
+             rewrite !vassocr ;
+             rewrite rwhisker_vcomp ;
+             rewrite vcomp_linv ;
+             rewrite id2_rwhisker ;
+             rewrite id2_left ;
+             rewrite !vassocl ;
+             apply idpath
+           | ] ;
+           rewrite !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ;
+           cbn ;
+           rewrite pb_on_1cell_cell ;
+           rewrite !vassocl ;
+           refine (!_) ;
+           etrans ;
+           [ do 3 apply maponpaths ;
+             rewrite !vassocr ;
+             rewrite rassociator_lassociator ;
+             rewrite id2_left ;
+             rewrite !vassocl ;
+             apply idpath
+           | ] ;
+           etrans ;
+           [ do 2 apply maponpaths ;
+             rewrite !vassocr ;
+             rewrite rwhisker_vcomp ;
+             rewrite vcomp_linv ;
+             rewrite id2_rwhisker ;
+             rewrite id2_left ;
+             rewrite !vassocl ;
+             apply idpath
+           | ];
+           apply idpath).
+    Defined.
+
+    Definition pred_mor_pb_on_1cell
+      : pred_mor D π₁ π₁ (f /≃₁ pr22 α).
+    Proof.
+      pose (pred_mor_closed_under_pb_ump_mor
+              D
+              _ _ _ _ _ _ _ _ _
+              (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂)))
+              _
+              _
+              _ _
+              (id₁ _)
+              γ
+              (pr22 g₂)
+              (mor_of_pb_preserves_pred_ob
+                 D
+                 (pr22 g₂)
+                 (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂))))
+              (comp_pred_mor
+                 D
+                 (mor_of_pb_preserves_pred_ob
+                    D
+                    (pr22 g₁)
+                    (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₁))))
+                 (pr12 α)))
+        as c.
+      use (invertible_pred_mor _ _ c).
+      use make_invertible_2cell.
+      - apply help_pred_mor_pb_on_1cell.
+      - use is_invertible_2cell_pb_ump_cell.
+        + is_iso.
+          apply property_from_invertible_2cell.
+        + is_iso.
+          apply property_from_invertible_2cell.
+    Qed.
+  End PredMor_for_PB_Mor.
 
   Definition disp_map_pb_psfunctor_data
     : psfunctor_data
@@ -136,36 +292,7 @@ Section DispMapPullbackFunctor.
                (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g)))).
     - simple refine (λ g₁ g₂ α, _ ,, _ ,, _).
       + exact (f /≃₁ pr22 α).
-      + (*
-          - pred_mor should be closed under invertible_2cells
-          - invertible_2cells of pb_ump_mor
-         *)
-        cbn.
-        unfold pb_on_1cell, mor_to_pb_obj.
-        pose (pred_mor_closed_under_pb_ump_mor
-                D
-                _ _ _ _ _ _ _ _ _
-                (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂)))
-                _
-                _
-                _ _
-                (id₁ _)
-                TODO
-                (pr22 g₂)
-                (mor_of_pb_preserves_pred_ob
-                   D
-                   (pr22 g₂)
-                   (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂))))
-                (comp_pred_mor
-                   D
-                   (mor_of_pb_preserves_pred_ob
-                      D
-                      (pr22 g₁)
-                      (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₁))))
-                   (pr12 α)))
-          as c.
-        cbn in c.
-        apply TODO.
+      + apply pred_mor_pb_on_1cell.
       + exact (inv_of_invertible_2cell (pb_on_1cell_pr1 f (pr22 α))).
     - intros g₁ g₂ α β p.
       simple refine (_ ,, _).
