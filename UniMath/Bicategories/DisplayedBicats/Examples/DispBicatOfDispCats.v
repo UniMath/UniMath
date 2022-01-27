@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -221,7 +222,7 @@ Proof.
       (intros C₁ C₂ F₁ F₂ n D₁ D₂ FF₁ FF₂ ;
        simpl in * ;
        cbn ;
-       exact (isaset_disp_nat_trans C₁ C₂ D₁ D₂ F₁ F₂ n FF₁ FF₂)).
+       exact (@isaset_disp_nat_trans C₁ C₂ D₁ D₂ F₁ F₂ n FF₁ FF₂)).
 Defined.
 
 (** Condition for displayed invertible 2-cells in this bicategory *)
@@ -248,7 +249,7 @@ Proof.
          intros x xx ; cbn ;
          refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
          refine (!_) ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -263,7 +264,7 @@ Proof.
          intros x xx ; cbn ;
          refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
          refine (!_) ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -341,7 +342,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -359,7 +360,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -406,7 +407,7 @@ Proof.
          | ];
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
@@ -430,7 +431,7 @@ Proof.
          | ] ;
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
@@ -510,7 +511,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -528,7 +529,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -575,7 +576,7 @@ Proof.
          | ];
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
@@ -599,7 +600,7 @@ Proof.
          | ] ;
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _

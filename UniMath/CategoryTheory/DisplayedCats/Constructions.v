@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -635,122 +636,6 @@ Variable D : disp_cat C.
 
 Let FunctorsC'C := functor_category C' C.
 
-Lemma disp_nat_trans_transportf
-  (F' F : functor C' C)
-  (a' a : nat_trans F' F)
-  (p : a' = a )
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a' FF' FF)
-  (c' : C')
-  (xx' : D' c')
-  :
-  pr1 (transportf (λ x, disp_nat_trans x FF' FF) p b) c' xx' =
-      transportf (mor_disp (FF' c' xx') (FF c' xx'))
-           (nat_trans_eq_pointwise p _ )  (b c' xx').
-Proof.
-  induction p.
-  assert (XR : nat_trans_eq_pointwise (idpath a') c' = idpath _ ).
-  { apply homset_property. }
-  rewrite XR.
-  apply idpath.
-Qed.
-
-Lemma disp_nat_trans_id_left
-  (F' F : functor C' C)
-  (a : nat_trans F' F)
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a FF' FF)
-  :
-   disp_nat_trans_comp (disp_nat_trans_id FF') b =
-   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF)
-              (id_left (a : FunctorsC'C ⟦ _ , _ ⟧))
-              b.
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply id_left_disp.
-  unfold transportb.
-  apply maponpaths_2, homset_property.
-Qed.
-
-Lemma disp_nat_trans_id_right
-  (F' F : functor C' C)
-  (a : nat_trans F' F)
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a FF' FF)
-  :
-   disp_nat_trans_comp b (disp_nat_trans_id FF) =
-   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF)
-              (id_right (a : FunctorsC'C ⟦ _ , _ ⟧))
-              b.
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply id_right_disp.
-  unfold transportb.
-  apply maponpaths_2, homset_property.
-Qed.
-
-Lemma disp_nat_trans_assoc
-  (x y z w : functor C' C)
-  (f : nat_trans x y)
-  (g : nat_trans y z)
-  (h : nat_trans z w)
-  (xx : disp_functor x D' D)
-  (yy : disp_functor y D' D)
-  (zz : disp_functor z D' D)
-  (ww : disp_functor w D' D)
-  (ff : disp_nat_trans f xx yy)
-  (gg : disp_nat_trans g yy zz)
-  (hh : disp_nat_trans h zz ww)
-  :
-   disp_nat_trans_comp ff (disp_nat_trans_comp gg hh) =
-   transportb (λ f0 : nat_trans x w, disp_nat_trans f0 xx ww)
-     (assoc (f : FunctorsC'C⟦_,_⟧) g h)
-     (disp_nat_trans_comp (disp_nat_trans_comp ff gg) hh).
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply assoc_disp.
-  unfold transportb.
-  apply maponpaths_2.
-  apply homset_property.
-Qed.
-
-Lemma isaset_disp_nat_trans
-  (x y : functor C' C)
-  (f : nat_trans x y)
-  (xx : disp_functor x D' D)
-  (yy : disp_functor y D' D)
-  :
-   isaset (disp_nat_trans f xx yy).
-Proof.
-  intros. simpl in *.
-  apply (isofhleveltotal2 2).
-  * do 2 (apply impred; intro).
-    apply homsets_disp.
-  * intro d.
-    do 6 (apply impred; intro).
-    apply hlevelntosn. apply homsets_disp.
-Qed.
 
 Definition disp_functor_cat :
   disp_cat (FunctorsC'C).
@@ -827,7 +712,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := disp_nat_trans_transportf).
+      assert (XR := @disp_nat_trans_transportf C' C D' D).
       specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -840,7 +725,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := disp_nat_trans_transportf).
+      assert (XR := @disp_nat_trans_transportf C' C D' D).
       specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -949,8 +834,6 @@ Proof.
   + intros x' x0 f0 xx' xx0 ff.
     apply is_disp_nat_trans_pointwise_inv.
 Defined.
-
-
 
 Definition is_disp_functor_cat_iso_if_pointwise_iso
   (x y : FunctorsC'C)

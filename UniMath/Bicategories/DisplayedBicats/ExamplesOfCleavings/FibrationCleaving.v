@@ -14,6 +14,7 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
@@ -167,7 +168,7 @@ Section CleavingOfFibsPointwiseCartesian.
         as p.
       cbn in p.
       rewrite pr1_transportf in p.
-      exact (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+      exact (p @ (@disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
     Qed.
 
     Definition cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian
@@ -425,7 +426,7 @@ Section Lift2CellFibs.
       cbn in p₁.
       rewrite pr1_transportf in p₁.
       unfold disp_cell_lift_1cell_factor in p₁.
-      pose (disp_nat_trans_transportf
+      pose (@disp_nat_trans_transportf
               _ _
               _ _
               (H₁ ∙ F) (H₂ ∙ F)
@@ -447,7 +448,7 @@ Section Lift2CellFibs.
       cbn in p₂.
       rewrite pr1_transportf in p₂.
       unfold disp_cell_lift_1cell_factor in p₂.
-      pose (disp_nat_trans_transportf
+      pose (@disp_nat_trans_transportf
               _ _
               _ _
               (H₁ ∙ F) (H₂ ∙ F)
@@ -536,7 +537,7 @@ Section Lift2CellFibs.
            cbn ;
            rewrite pr1_transportf ;
            unfold disp_cell_lift_1cell_factor ;
-           refine (disp_nat_trans_transportf
+           refine (@disp_nat_trans_transportf
                      _ _
                      _ _
                      (H₁ ∙ F) (H₂ ∙ F)
