@@ -313,11 +313,11 @@ Section coherence_lemmas.
 
 Context {Mon_V : monoidal_cat}.
 
-Local Definition I        : Mon_V                  := monoidal_cat_unit Mon_V.
-Local Definition tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
-Local Definition α        : associator tensor      := monoidal_cat_associator Mon_V.
-Local Definition l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
-Local Definition r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
+Let I        : Mon_V                  := monoidal_cat_unit Mon_V.
+Let tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
+Let α        : associator tensor      := monoidal_cat_associator Mon_V.
+Let l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
+Let r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
 
 Local Notation "X ⊗ Y" := (tensor (X, Y)).
 Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
@@ -426,6 +426,59 @@ Proof.
   apply dirprod_paths; simpl; [|apply id_left].
   apply pathsinv0.
   apply monoidal_cat_triangle_eq.
+Defined.
+
+(* Corollaries for the inverses of left and right unitors. *)
+
+Lemma tensor_z_isomorphism_left : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : is_z_isomorphism f), # tensor (is_z_isomorphism_mor f_z_iso #, id z) = is_z_isomorphism_mor (functor_on_is_z_isomorphism (functor_fix_snd_arg _ _ _ tensor z) f_z_iso).
+Proof.
+  intros.
+  reflexivity.
+Defined.
+
+Lemma tensor_z_isomorphism_right : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : is_z_isomorphism f), # tensor (id z #, is_z_isomorphism_mor f_z_iso) = is_z_isomorphism_mor (functor_on_is_z_isomorphism (functor_fix_fst_arg _ _ _ tensor z) f_z_iso).
+Proof.
+  intros.
+  reflexivity.
+Defined.
+
+Lemma monoidal_cat_triangle_eq_inv (X Y : Mon_V) : (nat_z_iso_to_trans_inv r_unitor X #⊗ id Y) · α ((X, I), Y) = (id X #⊗ nat_z_iso_to_trans_inv l_unitor Y).
+Proof.
+  cbn.
+  rewrite (tensor_z_isomorphism_right _ _ _ _ _ : #tensor _ = _).
+  rewrite (tensor_z_isomorphism_left _ _ _ _ _ : #tensor _ = _).
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply monoidal_cat_triangle_eq.
+Defined.
+
+Corollary left_unitor_inv_right_unitor_inv_of_unit : nat_z_iso_to_trans_inv l_unitor I = nat_z_iso_to_trans_inv r_unitor _.
+Proof.
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
+  apply (pathscomp0 (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _)))).
+  apply (transportb (λ f, id _ = is_z_isomorphism_mor _ · f) left_unitor_right_unitor_of_unit).
+  apply pathsinv0.
+  apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+Defined.
+
+Corollary left_unitor_inv_of_tensor (X Y : Mon_V) : (nat_z_iso_to_trans_inv l_unitor _ #⊗ id _) · α ((_, _), _) = nat_z_iso_to_trans_inv l_unitor (X ⊗ Y).
+Proof.
+  simpl.
+  rewrite tensor_z_isomorphism_left.
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply pathsinv0.
+  apply left_unitor_of_tensor.
+Defined.
+
+Corollary right_unitor_inv_of_tensor (X Y : Mon_V) : (id _ #⊗ nat_z_iso_to_trans_inv r_unitor _) = nat_z_iso_to_trans_inv r_unitor (X ⊗ Y)  · α ((_, _), _).
+Proof.
+  simpl.
+  rewrite tensor_z_isomorphism_right.
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply pathsinv0.
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply right_unitor_of_tensor.
 Defined.
 
 End coherence_lemmas.
