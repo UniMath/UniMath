@@ -33,13 +33,13 @@ DisplayedBicats/FiberBicategory/FiberBicategory1.v
 DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
+DisplayedBicats/Examples/DisplayedCatToBicat.v
+DisplayedBicats/Examples/FullSub.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Slice.v
 DisplayedBicats/Examples/Sub1Cell.v
-DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
-DisplayedBicats/Examples/FullSub.v
 DisplayedBicats/Examples/Trivial.v
 
 MonoidalCategories/MonoidalFromBicategory.v
@@ -47,9 +47,9 @@ MonoidalCategories/EndofunctorsMonoidal.v
 MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
+MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
-MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 
@@ -85,6 +85,7 @@ PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
+
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
 DisplayedBicats/Examples/Displayed2Inserter.v
@@ -134,6 +135,9 @@ Discreteness.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
 
+Core/InternalStreetFibration.v
+Core/InternalStreetOpFibration.v
+
 DisplayedBicats/Cartesians.v
 DisplayedBicats/EquivalenceBetweenCartesians.v
 DisplayedBicats/CartesianPseudoFunctor.v
@@ -144,9 +148,6 @@ DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
 PseudoFunctors/Examples/Reindexing.v
-
-Core/InternalStreetFibration.v
-Core/InternalStreetOpFibration.v
 
 DisplayMapBicat.v
 DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
