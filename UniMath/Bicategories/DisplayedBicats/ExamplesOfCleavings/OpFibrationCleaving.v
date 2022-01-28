@@ -215,6 +215,13 @@ Proof.
       apply opcartesian_factorisation_disp_functor_cell_is_opcartesian.
 Defined.
 
+Definition cleaving_of_opfibs_local_iso_cleaving
+  : local_iso_cleaving disp_bicat_of_opfibs.
+Proof.
+  apply local_opcleaving_to_local_iso_cleaving.
+  exact cleaving_of_opfibs_local_opcleaving.
+Defined.
+
 Definition cleaving_of_opfibs_lwhisker_opcartesian
   : lwhisker_opcartesian disp_bicat_of_opfibs.
 Proof.

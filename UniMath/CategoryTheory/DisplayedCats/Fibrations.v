@@ -185,6 +185,75 @@ Definition is_cartesian_disp_functor
       (d : D c) (d' : D c') (ff : d' -->[f] d),
    is_cartesian ff -> is_cartesian (#FF ff).
 
+Definition disp_functor_identity_is_cartesian_disp_functor
+           {C : category}
+           (D : disp_cat C)
+  : is_cartesian_disp_functor (disp_functor_identity D).
+Proof.
+  intros x y f xx yy ff Hff.
+  exact Hff.
+Defined.
+
+Definition disp_functor_composite_is_cartesian_disp_functor
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           {FF : disp_functor F D₁ D₂}
+           {GG : disp_functor G D₂ D₃}
+           (HFF : is_cartesian_disp_functor FF)
+           (HGG : is_cartesian_disp_functor GG)
+  : is_cartesian_disp_functor (disp_functor_composite FF GG).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply HGG.
+  apply HFF.
+  exact Hff.
+Defined.
+
+Definition disp_functor_over_id_composite_is_cartesian
+           {C : category}
+           {D₁ D₂ D₃ : disp_cat C}
+           {FF : disp_functor (functor_identity C) D₁ D₂}
+           {GG : disp_functor (functor_identity C) D₂ D₃}
+           (HFF : is_cartesian_disp_functor FF)
+           (HGG : is_cartesian_disp_functor GG)
+  : is_cartesian_disp_functor (disp_functor_over_id_composite FF GG).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply HGG.
+  apply HFF.
+  exact Hff.
+Defined.
+
+Definition cartesian_disp_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D₁ : disp_cat C₁)
+           (D₂ : disp_cat C₂)
+  : UU
+  := ∑ (FF : disp_functor F D₁ D₂), is_cartesian_disp_functor FF.
+
+Coercion disp_functor_of_cartesian_disp_functor
+         {C₁ C₂ : category}
+         {F : C₁ ⟶ C₂}
+         {D₁ : disp_cat C₁}
+         {D₂ : disp_cat C₂}
+         (FF : cartesian_disp_functor F D₁ D₂)
+  : disp_functor F D₁ D₂
+  := pr1 FF.
+
+Definition cartesian_disp_functor_is_cartesian
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : cartesian_disp_functor F D₁ D₂)
+  : is_cartesian_disp_functor FF
+  := pr2 FF.
+
 Lemma isaprop_is_cartesian
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
@@ -995,6 +1064,75 @@ Definition is_opcartesian_disp_functor
         (d' : D c')
         (ff : d' -->[f] d),
      is_opcartesian ff -> is_opcartesian (#FF ff).
+
+Definition disp_functor_identity_is_opcartesian_disp_functor
+           {C : category}
+           (D : disp_cat C)
+  : is_opcartesian_disp_functor (disp_functor_identity D).
+Proof.
+  intros x y f xx yy ff Hff.
+  exact Hff.
+Defined.
+
+Definition disp_functor_composite_is_opcartesian_disp_functor
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           {FF : disp_functor F D₁ D₂}
+           {GG : disp_functor G D₂ D₃}
+           (HFF : is_opcartesian_disp_functor FF)
+           (HGG : is_opcartesian_disp_functor GG)
+  : is_opcartesian_disp_functor (disp_functor_composite FF GG).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply HGG.
+  apply HFF.
+  exact Hff.
+Defined.
+
+Definition disp_functor_over_id_composite_is_opcartesian
+           {C : category}
+           {D₁ D₂ D₃ : disp_cat C}
+           {FF : disp_functor (functor_identity C) D₁ D₂}
+           {GG : disp_functor (functor_identity C) D₂ D₃}
+           (HFF : is_opcartesian_disp_functor FF)
+           (HGG : is_opcartesian_disp_functor GG)
+  : is_opcartesian_disp_functor (disp_functor_over_id_composite FF GG).
+Proof.
+  intros x y f xx yy ff Hff.
+  apply HGG.
+  apply HFF.
+  exact Hff.
+Defined.
+
+Definition opcartesian_disp_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D₁ : disp_cat C₁)
+           (D₂ : disp_cat C₂)
+  : UU
+  := ∑ (FF : disp_functor F D₁ D₂), is_opcartesian_disp_functor FF.
+
+Coercion disp_functor_of_opcartesian_disp_functor
+         {C₁ C₂ : category}
+         {F : C₁ ⟶ C₂}
+         {D₁ : disp_cat C₁}
+         {D₂ : disp_cat C₂}
+         (FF : opcartesian_disp_functor F D₁ D₂)
+  : disp_functor F D₁ D₂
+  := pr1 FF.
+
+Definition opcartesian_disp_functor_is_opcartesian
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : opcartesian_disp_functor F D₁ D₂)
+  : is_opcartesian_disp_functor FF
+  := pr2 FF.
 
 (** Opfibrations are isofibrations *)
 Section IsoCleavingFromOpcleaving.

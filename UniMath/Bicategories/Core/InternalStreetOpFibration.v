@@ -897,6 +897,33 @@ Proof.
     is_iso.
 Qed.
 
+Definition invertible_2cell_between_preserves_opcartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe₁ fe₂ : e₁ --> e₂}
+           (α : invertible_2cell fe₁ fe₂)
+           (H : mor_preserves_opcartesian p₁ p₂ fe₁)
+  : mor_preserves_opcartesian p₁ p₂ fe₂.
+Proof.
+  intros x f g γ Hγ.
+  assert ((_ ◃ α) • (γ ▹ fe₂) = (γ ▹ fe₁) • (_ ◃ α)) as p.
+  {
+    rewrite vcomp_whisker.
+    apply idpath.
+  }
+  use (is_opcartesian_2cell_sopfib_precomp _ _ _ _ p).
+  - use invertible_is_opcartesian_2cell_sopfib.
+    is_iso.
+    apply property_from_invertible_2cell.
+  - use vcomp_is_opcartesian_2cell_sopfib.
+    + exact (H x f g γ Hγ).
+    + use invertible_is_opcartesian_2cell_sopfib.
+      is_iso.
+      apply property_from_invertible_2cell.
+Defined.
+
 Definition locally_grpd_preserves_opcartesian
            {B : bicat}
            (HB : locally_groupoid B)

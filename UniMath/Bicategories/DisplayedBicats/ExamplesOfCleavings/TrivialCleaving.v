@@ -92,7 +92,7 @@ Section ConstantCleaving.
         (exact (pr2 inv)).
   Defined.
 
-    (** Characterisation of cartesian 2-cells *)
+  (** Characterisation of cartesian 2-cells *)
   Definition trivial_invertible_is_opcartesian_2cell
              {x₁ x₂ : B₁}
              {y₁ : trivial_displayed_bicat B₁ B₂ x₁}
@@ -168,6 +168,15 @@ Section ConstantCleaving.
     intros x₁ x₂ y₁ y₂ f₁ f₂ f α.
     simple refine (f ,, id2 _ ,, _) ; cbn.
     apply trivial_invertible_is_opcartesian_2cell.
+    is_iso.
+  Defined.
+
+  Definition trivial_local_isocleaving
+    : local_iso_cleaving (trivial_displayed_bicat B₁ B₂).
+  Proof.
+    intros x₁ x₂ y₁ y₂ f₁ f₂ f α.
+    refine (f ,, id2 _ ,, _).
+    apply trivial_is_invertible_2cell_to_is_disp_invertible.
     is_iso.
   Defined.
 
