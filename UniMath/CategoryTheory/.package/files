@@ -180,15 +180,15 @@ Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
+DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
-DisplayedCats/Isos.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Constructions.v
 DisplayedCats/Examples/Opposite.v
-DisplayedCats/Fibrations.v
 DisplayedCats/Fiber.v
+DisplayedCats/Fibrations.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
