@@ -5,7 +5,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
 

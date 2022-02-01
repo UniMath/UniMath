@@ -35,7 +35,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
 

@@ -34,7 +34,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.

@@ -55,9 +55,11 @@ Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.Codomain
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FibrationCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrationCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.DisplayMapBicatCleaving.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
