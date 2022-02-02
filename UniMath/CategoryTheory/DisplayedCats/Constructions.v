@@ -29,6 +29,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+(* Needed for [functor_lifting]. *)
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -47,7 +49,6 @@ Proof.
 Defined.
 
 End Auxiliary.
-
 
 (** * Full subcategories *)
 

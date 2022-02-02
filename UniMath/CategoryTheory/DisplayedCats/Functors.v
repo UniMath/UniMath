@@ -425,24 +425,3 @@ Section CompDispFunctorOverIdentity.
     - exact disp_functor_over_id_composite_axioms.
   Defined.
 End CompDispFunctorOverIdentity.
-
-(** ** A functor of displayed categories from reindexing *)
-
-Section reindexing_disp_functor.
-
-  Context {C C' : category} (F : functor C C') (D' : disp_cat C').
-
-  Definition reindex_disp_functor : disp_functor F (reindex_disp_cat F D') D'.
-  Proof.
-    use tpair.
-    - use tpair.
-      + cbn. intro x. exact (idfun _ ).
-      + cbn. intros x x' d d' f.  exact (idfun _ ).
-    - abstract (
-          split;
-          [intros; apply idpath |];
-          intros; apply idpath
-        ).
-  Defined.
-
-End reindexing_disp_functor.

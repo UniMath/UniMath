@@ -185,10 +185,11 @@ DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
-DisplayedCats/Constructions.v
-DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fiber.v
+DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
@@ -199,7 +200,6 @@ DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
-DisplayedCats/Examples/Reindexing.v
 DisplayedCats/StreetFibration.v
 
 IsoCommaCategory.v
