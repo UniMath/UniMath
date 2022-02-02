@@ -46,14 +46,6 @@ Proof.
   - apply HY.
 Defined.
 
-
-Lemma transportf_pathsinv0_var :
-∏ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x}
-{v : P y}, transportf P p u = v → transportf P (!p) v = u.
-Proof.
-  intros. induction p. apply (!X0).
-Defined.
-
 End Auxiliary.
 
 

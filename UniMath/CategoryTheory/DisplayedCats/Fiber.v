@@ -13,8 +13,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-(* Constructions is only needed for transportf_pathsinv0_var *)
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -83,13 +81,13 @@ Section Fiber.
       * abstract (  split;
                     [ assert (XR := iso_after_iso_inv i);
                       cbn in *;
-                      assert (XR' := transportf_pathsinv0_var XR);
+                      assert (XR' := transportf_pathsinv0' _ _ _ _ XR);
                       etrans; [ apply (!XR') |];
                       unfold transportb;
                       apply maponpaths_2; apply homset_property
                     |assert (XR := iso_inv_after_iso i);
                      cbn in *;
-                     assert (XR' := transportf_pathsinv0_var XR);
+                     assert (XR' := transportf_pathsinv0' _ _ _ _ XR);
                      etrans; [ apply (!XR') | ];
                      unfold transportb;
                      apply maponpaths_2; apply homset_property ] ).
