@@ -34,14 +34,43 @@ Local Open Scope cat.
 (** * Sloppy equivalence of (pre)categories *)
 
 Definition forms_equivalence {A B : category} (X : adjunction_data A B)
-  (η := adjunit X) (ε := adjcounit X) : UU
+           (η := adjunit X) (ε := adjcounit X) : UU
   := (∏ a, is_iso (η a)) × (∏ b, is_iso (ε b)).
+
+Definition make_forms_equivalence {A B : category}
+           (adjData : adjunction_data A B)
+           (η := adjunit adjData)
+           (ε := adjcounit adjData)
+           (η_iso : ∏(a : A), is_iso (η a))
+           (ε_iso : ∏(b : B), is_iso (ε b)) : forms_equivalence adjData
+    := (η_iso ,, ε_iso).
 
 Definition equivalence_of_cats (A B : category) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
 
 Coercion adjunction_data_from_equivalence_of_cats {A B}
          (X : equivalence_of_cats A B) : adjunction_data A B := pr1 X.
+
+Definition make_equivalence_of_cats {A B : category}
+           (adjData : adjunction_data A B)
+           (eqvProp : forms_equivalence adjData) : equivalence_of_cats A B
+  := (adjData ,, eqvProp).
+
+Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
+           (a : A) : iso a (right_functor X (left_functor X a)).
+Proof.
+  use make_iso.
+  - exact (adjunit X a).
+  - exact (pr1 (pr2 X) a).
+Defined.
+
+Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
+           (b : B) : iso (left_functor X (right_functor X b)) b.
+Proof.
+  use make_iso.
+  - exact (adjcounit X b).
+  - exact (pr2 (pr2 X) b).
+Defined.
 
 (** * Equivalence of (pre)categories *)
 
@@ -120,6 +149,43 @@ Section Accessors.
     apply (pr2 (pr2 HF)).
   Defined.
 End Accessors.
+
+Section AdjEquiv.
+  Definition adj_equiv (A B : category) : UU
+    := ∑ F : functor A B,
+        adj_equivalence_of_cats F.
+
+  Coercion left_adjequiv (A B : category)
+           (F : adj_equiv A B) : functor A B := pr1 F.
+
+  Coercion adj_equiv_of_precats_from_adj {A B : category}
+           (E : adj_equiv A B) : adj_equivalence_of_cats E
+    := pr2 E.
+
+  Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
+  Proof.
+    use make_adjunction.
+    use(make_adjunction_data F).
+    - exact(right_adjoint F).
+    - exact(adjunit F).
+    - exact(adjcounit F).
+    - use make_form_adjunction.
+      + apply triangle_id_left_ad.
+      + apply triangle_id_right_ad.
+  Defined.
+
+  Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_cats A B.
+  Proof.
+    use make_equivalence_of_cats.
+    use(make_adjunction_data F).
+    - exact(right_adjoint F).
+    - exact(adjunit F).
+    - exact(adjcounit F).
+    - use make_forms_equivalence.
+      + apply unit_pointwise_iso_from_adj_equivalence.
+      + apply counit_pointwise_iso_from_adj_equivalence.
+  Defined.
+End AdjEquiv.
 
 (** * Adjointification of a sloppy equivalence *)
 
