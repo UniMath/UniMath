@@ -361,7 +361,7 @@ Section Utilities.
         {C' C : category}
         {D' : disp_cat C'}
         {D : disp_cat C}
-        (x y : functor C' C)
+        {x y : functor C' C}
         (f : nat_trans x y)
         (xx : disp_functor x D' D)
         (yy : disp_functor y D' D)

@@ -784,7 +784,7 @@ Proof.
     + apply disp_nat_trans_id_left.
     + apply disp_nat_trans_id_right.
     + apply disp_nat_trans_assoc.
-    + apply isaset_disp_nat_trans.
+    + intros ; apply isaset_disp_nat_trans.
 Defined.
 
 (** TODO : characterize isos in the displayed functor cat *)
