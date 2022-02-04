@@ -158,7 +158,7 @@ Section AdjEquiv.
   Coercion left_adjequiv (A B : category)
            (F : adj_equiv A B) : functor A B := pr1 F.
 
-  Coercion adj_equiv_of_precats_from_adj {A B : category}
+  Coercion adj_equiv_of_cats_from_adj {A B : category}
            (E : adj_equiv A B) : adj_equivalence_of_cats E
     := pr2 E.
 
