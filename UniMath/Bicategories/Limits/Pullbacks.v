@@ -409,9 +409,9 @@ Section Pullback.
                    • rassociator _ _ _
                  =
                  lassociator _ _ _
-                             • (α ▹ f)
-                             • rassociator _ _ _
-                             • (ψ ◃ pb_cone_cell p))
+                 • (α ▹ f)
+                 • rassociator _ _ _
+                 • (ψ ◃ pb_cone_cell p))
             (Hα : is_invertible_2cell α)
             (Hβ : is_invertible_2cell β).
 

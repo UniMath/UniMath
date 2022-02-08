@@ -91,7 +91,6 @@ CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
-CommaCategories.v
 ArrowCategory.v
 RightKanExtension.v
 slicecat.v
@@ -181,11 +180,17 @@ Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
-DisplayedCats/Constructions.v
+DisplayedCats/Isos.v
+DisplayedCats/Functors.v
+DisplayedCats/NaturalTransformations.v
+DisplayedCats/Univalence.v
+DisplayedCats/Total.v
+DisplayedCats/Fiber.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions.v
 DisplayedCats/Equivalences.v
-DisplayedCats/Equivalences_bis.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
@@ -195,10 +200,10 @@ DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
-DisplayedCats/Examples/Reindexing.v
 DisplayedCats/StreetFibration.v
 
 IsoCommaCategory.v
+CommaCategories.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v

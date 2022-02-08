@@ -20,6 +20,9 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.CommaCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
