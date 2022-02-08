@@ -471,22 +471,109 @@ Section CommaObject.
           (F : C₁ --> C₃)
           (G : C₂ --> C₃).
 
-  Definition comma_category_comma_cone
+  Definition comma_comma_cone
     : comma_cone F G.
   Proof.
     use make_comma_cone.
+    - exact (univalent_comma F G).
+    - exact (comma_pr1 F G).
+    - exact (comma_pr2 F G).
+    - exact (comma_commute F G).
+  Defined.
+
+  Definition comma_ump_1_comma
+    : comma_ump_1 comma_comma_cone.
+  Proof.
+    intro q.
+    use make_comma_1cell.
+    - use comma_ump1.
+      + exact (comma_cone_pr1 q).
+      + exact (comma_cone_pr2 q).
+      + exact (comma_cone_cell q).
+    - apply nat_iso_to_invertible_2cell.
+      apply comma_ump1_pr1.
+    - apply nat_iso_to_invertible_2cell.
+      apply comma_ump1_pr2.
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ; unfold pb_cone_cell ;
+         rewrite (functor_id F), (functor_id G) ;
+         rewrite !id_left, !id_right ;
+         apply idpath).
+  Defined.
+
+  Section CellUMP.
+    Let p := comma_comma_cone.
+
+    Context {q : bicat_of_univ_cats}
+            (φ ψ : q --> p)
+            (α : φ · comma_cone_pr1 p ==> ψ · comma_cone_pr1 p)
+            (β : φ · comma_cone_pr2 p ==> ψ · comma_cone_pr2 p)
+            (r : (φ ◃ comma_cone_cell p)
+                 • lassociator _ _ _
+                 • (β ▹ G)
+                 • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                 • (α ▹ F)
+                 • rassociator _ _ _
+                 • (ψ ◃ comma_cone_cell p)).
+
+    Definition comma_ump_2_nat_trans
+      : φ ==> ψ.
+    Proof.
+      use (comma_ump2 _ _ _ _ α β).
+      abstract
+        (intros x ;
+         pose (nat_trans_eq_pointwise r x) as z ;
+         cbn in z ;
+         unfold iso_comma_commute_nat_trans_data in z ;
+         rewrite !id_left, !id_right in z ;
+         exact z).
+    Defined.
+
+    Definition comma_ump_2_nat_trans_pr1
+      : comma_ump_2_nat_trans ▹ comma_cone_pr1 comma_comma_cone = α.
+    Proof.
+      apply comma_ump2_pr1.
+    Qed.
+
+    Definition comma_ump_2_nat_trans_pr2
+      : comma_ump_2_nat_trans ▹ comma_cone_pr2 comma_comma_cone = β.
+    Proof.
+      apply comma_ump2_pr2.
+    Qed.
+  End CellUMP.
+
+  Definition comma_ump_2_comma
+    : comma_ump_2 comma_comma_cone.
+  Proof.
+    intros C φ ψ α β r.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros τ₁ τ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         exact (comma_ump_eq_nat_trans
+                  _ _ _ _
+                  α β
+                  (pr12 τ₁) (pr22 τ₁) (pr12 τ₂) (pr22 τ₂))).
     - simple refine (_ ,, _).
-      + exact (comma_category F G).
-      + admit.
-    - exact (comma_codomain F G).
-    - exact (comma_domain F G).
-    -
-  Admitted.
+      + exact (comma_ump_2_nat_trans φ ψ α β r).
+      + split.
+        * exact (comma_ump_2_nat_trans_pr1 φ ψ α β r).
+        * exact (comma_ump_2_nat_trans_pr2 φ ψ α β r).
+  Defined.
+
+  Definition comma_has_ump
+    : has_comma_ump comma_comma_cone.
+  Proof.
+    split.
+    - exact comma_ump_1_comma.
+    - exact comma_ump_2_comma.
+  Defined.
 End CommaObject.
 
 Definition has_comma_bicat_of_univ_cats
-  : has_comma bicat_of_univ_cats.
-Proof.
-  intros C₁ C₂ C₃ F G.
-  simple refine (_ ,, _).
-Admitted.
+  : has_comma bicat_of_univ_cats
+  := λ C₁ C₂ C₃ F G, comma_comma_cone F G ,, comma_has_ump F G.

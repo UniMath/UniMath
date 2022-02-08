@@ -144,6 +144,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [opp_precat.v](CategoryTheory/opp_precat.v)
    - [Groupoids.v](CategoryTheory/Groupoids.v)
    - [PrecategoryBinProduct.v](CategoryTheory/PrecategoryBinProduct.v)
+   - [CategorySum.v](CategoryTheory/CategorySum.v)
    - [ProductCategory.v](CategoryTheory/ProductCategory.v)
    - [whiskering.v](CategoryTheory/whiskering.v)
    - [Subcategory/Core.v](CategoryTheory/Subcategory/Core.v)

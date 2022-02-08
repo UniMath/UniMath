@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.CategorySum.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -101,181 +101,6 @@ Defined.
 (**
  2. Coproducts
  *)
-Definition bincoprod_of_precategory_ob_mor
-           (C₁ C₂ : category)
-  : precategory_ob_mor.
-Proof.
-  use make_precategory_ob_mor.
-  - exact (C₁ ⨿ C₂).
-  - intros z₁ z₂.
-    induction z₁ as [ x₁ | y₁ ], z₂ as [ x₂ | y₂ ].
-    + exact (x₁ --> x₂).
-    + exact ∅.
-    + exact ∅.
-    + exact (y₁ --> y₂).
-Defined.
-
-Definition bincoprod_of_precategory_data
-           (C₁ C₂ : category)
-  : precategory_data.
-Proof.
-  use make_precategory_data.
-  - exact (bincoprod_of_precategory_ob_mor C₁ C₂).
-  - intro z ; induction z as [ x | y ].
-    + exact (identity x).
-    + exact (identity y).
-  - intros z₁ z₂ z₃ f g ;
-    induction z₁ as [ x₁ | y₁ ] ;
-    induction z₂ as [ x₂ | y₂ ] ;
-    induction z₃ as [ x₃ | y₃ ] ; cbn in *.
-    + exact (f · g).
-    + exact (fromempty g).
-    + exact (fromempty g).
-    + exact (fromempty f).
-    + exact (fromempty f).
-    + exact (fromempty f).
-    + exact (fromempty g).
-    + exact (f · g).
-Defined.
-
-Definition bincoprod_of_is_precategory
-           (C₁ C₂ : category)
-  : is_precategory (bincoprod_of_precategory_data C₁ C₂).
-Proof.
-  use make_is_precategory.
-  - intros z₁ z₂ f.
-    induction z₁ as [ x₁ | y₁ ] ; induction z₂ as [ x₂ | y₂ ] ; cbn.
-    + apply id_left.
-    + exact (fromempty f).
-    + exact (fromempty f).
-    + apply id_left.
-  - intros z₁ z₂ f.
-    induction z₁ as [ x₁ | y₁ ] ; induction z₂ as [ x₂ | y₂ ] ; cbn.
-    + apply id_right.
-    + exact (fromempty f).
-    + exact (fromempty f).
-    + apply id_right.
-  - intros z₁ z₂ z₃ z₄ f g h ;
-    induction z₁ as [ x₁ | y₁ ] ;
-    induction z₂ as [ x₂ | y₂ ] ;
-    induction z₃ as [ x₃ | y₃ ] ;
-    induction z₄ as [ x₄ | y₄ ] ; cbn in * ;
-    try (apply (fromempty f)) ; try (apply (fromempty g)) ; try (apply (fromempty h)).
-    + apply assoc.
-    + apply assoc.
-  - intros z₁ z₂ z₃ z₄ f g h ;
-    induction z₁ as [ x₁ | y₁ ] ;
-    induction z₂ as [ x₂ | y₂ ] ;
-    induction z₃ as [ x₃ | y₃ ] ;
-    induction z₄ as [ x₄ | y₄ ] ; cbn in * ;
-    try (apply (fromempty f)) ; try (apply (fromempty g)) ; try (apply (fromempty h)).
-    + apply assoc'.
-    + apply assoc'.
-Qed.
-
-Definition bincoprod_of_precategory
-           (C₁ C₂ : category)
-  : precategory.
-Proof.
-  use make_precategory.
-  - exact (bincoprod_of_precategory_data C₁ C₂).
-  - exact (bincoprod_of_is_precategory C₁ C₂).
-Defined.
-
-Definition bincoprod_of_category_has_homsets
-           (C₁ C₂ : category)
-  : has_homsets (bincoprod_of_precategory_ob_mor C₁ C₂).
-Proof.
-  intros z₁ z₂.
-  induction z₁ as [ x₁ | y₁ ] ; induction z₂ as [ x₂ | y₂ ] ; cbn.
-  - apply homset_property.
-  - apply isasetempty.
-  - apply isasetempty.
-  - apply homset_property.
-Defined.
-
-Definition bincoprod_of_category
-           (C₁ C₂ : category)
-  : category.
-Proof.
-  use make_category.
-  - exact (bincoprod_of_precategory C₁ C₂).
-  - exact (bincoprod_of_category_has_homsets C₁ C₂).
-Defined.
-
-Definition is_univalent_bincoprod_of_category
-           {C₁ C₂ : category}
-           (HC₁ : is_univalent C₁)
-           (HC₂ : is_univalent C₂)
-  : is_univalent (bincoprod_of_category C₁ C₂).
-Proof.
-Admitted.
-
-Definition bincoprod_of_univalent_category
-           (C₁ C₂ : univalent_category)
-  : univalent_category.
-Proof.
-  use make_univalent_category.
-  - exact (bincoprod_of_category C₁ C₂).
-  - use is_univalent_bincoprod_of_category.
-    + apply C₁.
-    + apply C₂.
-Defined.
-
-Definition inl_functor_data
-           (C₁ C₂ : category)
-  : functor_data C₁ (bincoprod_of_category C₁ C₂).
-Proof.
-  use make_functor_data.
-  - exact (λ x, inl x).
-  - exact (λ _ _ f, f).
-Defined.
-
-Definition inl_is_functor
-           (C₁ C₂ : category)
-  : is_functor (inl_functor_data C₁ C₂).
-Proof.
-  split ; intro ; intros ; cbn.
-  - apply idpath.
-  - apply idpath.
-Qed.
-
-Definition inl_functor
-           (C₁ C₂ : category)
-  : C₁ ⟶ bincoprod_of_category C₁ C₂.
-Proof.
-  use make_functor.
-  - exact (inl_functor_data C₁ C₂).
-  - exact (inl_is_functor C₁ C₂).
-Defined.
-
-Definition inr_functor_data
-           (C₁ C₂ : category)
-  : functor_data C₂ (bincoprod_of_category C₁ C₂).
-Proof.
-  use make_functor_data.
-  - exact (λ x, inr x).
-  - exact (λ _ _ f, f).
-Defined.
-
-Definition inr_is_functor
-           (C₁ C₂ : category)
-  : is_functor (inr_functor_data C₁ C₂).
-Proof.
-  split ; intro ; intros ; cbn.
-  - apply idpath.
-  - apply idpath.
-Qed.
-
-Definition inr_functor
-           (C₁ C₂ : category)
-  : C₂ ⟶ bincoprod_of_category C₁ C₂.
-Proof.
-  use make_functor.
-  - exact (inr_functor_data C₁ C₂).
-  - exact (inr_is_functor C₁ C₂).
-Defined.
-
 Definition bincoprod_cocone_bicat_of_univ_cats
            (C₁ C₂ : bicat_of_univ_cats)
   : bincoprod_cocone C₁ C₂.
@@ -284,128 +109,6 @@ Proof.
   - exact (bincoprod_of_univalent_category C₁ C₂).
   - exact (inl_functor (pr1 C₁) (pr1 C₂)).
   - exact (inr_functor (pr1 C₁) (pr1 C₂)).
-Defined.
-
-Definition sum_of_functors_data
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : functor_data (bincoprod_of_category C₁ C₂) Q.
-Proof.
-  use make_functor_data.
-  - intro z.
-    induction z as [ x | y ].
-    + exact (F x).
-    + exact (G y).
-  - intros z₁ z₂ f.
-    induction z₁ as [ x₁ | y₁ ] ; induction z₂ as [ x₂ | y₂ ] ; cbn.
-    + exact (#F f).
-    + exact (fromempty f).
-    + exact (fromempty f).
-    + exact (#G f).
-Defined.
-
-Definition sum_of_functors_is_functor
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : is_functor (sum_of_functors_data F G).
-Proof.
-  split.
-  - intro z.
-    induction z as [ x | y ] ; cbn.
-    + apply functor_id.
-    + apply functor_id.
-  - intros z₁ z₂ z₃ f g.
-    induction z₁ as [ x₁ | y₁ ] ;
-    induction z₂ as [ x₂ | y₂ ] ;
-    induction z₃ as [ x₃ | y₃ ] ; cbn ;
-    try (apply (fromempty f)) ; try (apply (fromempty g)).
-    + apply functor_comp.
-    + apply functor_comp.
-Qed.
-
-Definition sum_of_functors
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : bincoprod_of_category C₁ C₂ ⟶ Q.
-Proof.
-  use make_functor.
-  - exact (sum_of_functors_data F G).
-  - exact (sum_of_functors_is_functor F G).
-Defined.
-
-Definition sum_of_functor_inl
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : inl_functor C₁ C₂ ∙ sum_of_functors F G ⟹ F.
-Proof.
-  use make_nat_trans.
-  - exact (λ z, identity _).
-  - abstract
-      (intros x₁ x₂ f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition sum_of_functor_inl_is_nat_iso
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inl F G).
-Proof.
-  intro.
-Admitted.
-
-Definition sum_of_functor_inl_nat_iso
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : nat_iso
-      (inl_functor C₁ C₂ ∙ sum_of_functors F G)
-      F.
-Proof.
-  use make_nat_iso.
-  - exact (sum_of_functor_inl F G).
-  - exact (sum_of_functor_inl_is_nat_iso F G).
-Defined.
-
-Definition sum_of_functor_inr
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : inr_functor C₁ C₂ ∙ sum_of_functors F G ⟹ G.
-Proof.
-  use make_nat_trans.
-  - exact (λ z, identity _).
-  - abstract
-      (intros x₁ x₂ f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition sum_of_functor_inr_is_nat_iso
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inr F G).
-Proof.
-  intro.
-Admitted.
-
-Definition sum_of_functor_inr_nat_iso
-           {Q C₁ C₂ : category}
-           (F : C₁ ⟶ Q)
-           (G : C₂ ⟶ Q)
-  : nat_iso
-      (inr_functor C₁ C₂ ∙ sum_of_functors F G)
-      G.
-Proof.
-  use make_nat_iso.
-  - exact (sum_of_functor_inr F G).
-  - exact (sum_of_functor_inr_is_nat_iso F G).
 Defined.
 
 Section BincoprodUMP.
@@ -429,21 +132,41 @@ Section BincoprodUMP.
                (bincoprod_cocone_inr Q)).
   Defined.
 
+  Definition has_bincoprod_ump_2_bicat_of_univ_cats_unique
+             {Q : bicat_of_univ_cats}
+             {F G : bincoprod_cocone_bicat_of_univ_cats C₁ C₂ --> Q}
+             (α : bincoprod_cocone_inl (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) · F
+                  ==>
+                  bincoprod_cocone_inl (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) · G)
+             (β : bincoprod_cocone_inr (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) · F
+                  ==>
+                  bincoprod_cocone_inr (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) · G)
+    : isaprop
+        (∑ γ,
+         bincoprod_cocone_inl (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) ◃ γ = α
+         ×
+         bincoprod_cocone_inr (bincoprod_cocone_bicat_of_univ_cats C₁ C₂) ◃ γ = β).
+  Proof.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ].
+    use nat_trans_eq ; [ apply homset_property | ].
+    intro z ; induction z as [ x | y ].
+    - exact (nat_trans_eq_pointwise (pr12 φ₁) x @ !(nat_trans_eq_pointwise (pr12 φ₂) x)).
+    - exact (nat_trans_eq_pointwise (pr22 φ₁) y @ !(nat_trans_eq_pointwise (pr22 φ₂) y)).
+  Qed.
+
   Definition has_bincoprod_ump_2_bicat_of_univ_cats
     : bincoprod_ump_2 (bincoprod_cocone_bicat_of_univ_cats C₁ C₂).
   Proof.
     intros Q F G α β.
     use iscontraprop1.
-    - use invproofirrelevance.
-      intros φ₁ φ₂.
-      use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ].
-      use nat_trans_eq ; [ apply homset_property | ].
-      intro z ; induction z as [ x | y ].
-      + exact (nat_trans_eq_pointwise (pr12 φ₁) x @ !(nat_trans_eq_pointwise (pr12 φ₂) x)).
-      + exact (nat_trans_eq_pointwise (pr22 φ₁) y @ !(nat_trans_eq_pointwise (pr22 φ₂) y)).
-    - simple refine (_ ,, _).
-      + cbn in *.
-  Admitted.
+    - exact (has_bincoprod_ump_2_bicat_of_univ_cats_unique α β).
+    - simple refine (_ ,, _ ,, _).
+      + exact (sum_of_nat_trans α β).
+      + exact (sum_of_nat_trans_inl α β).
+      + exact (sum_of_nat_trans_inr α β).
+  Defined.
 
   Definition has_bincoprod_ump_bicat_of_univ_cats
     : has_bincoprod_ump (bincoprod_cocone_bicat_of_univ_cats C₁ C₂).

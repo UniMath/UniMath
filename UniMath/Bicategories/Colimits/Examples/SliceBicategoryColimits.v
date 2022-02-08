@@ -1,10 +1,9 @@
 (*********************************************************************************
 
- Limits in slice bicategory
+ Colimits in slice bicategory
 
  Contents:
- 1. Final object
- 2. Products
+ 1. Initial object
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
