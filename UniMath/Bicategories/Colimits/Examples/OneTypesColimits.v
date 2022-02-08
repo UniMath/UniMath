@@ -137,7 +137,7 @@ Section CoprodUMP.
   Defined.
 End CoprodUMP.
 
-Definition coprod_one_types
+Definition has_bincoprod_one_types
   : has_bincoprod one_types
   := λ X Y,
      bincoprod_cocone_one_types X Y
