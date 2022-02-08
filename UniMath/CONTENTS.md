@@ -449,6 +449,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Core/YonedaLemma.v](Bicategories/Core/YonedaLemma.v)
    - [Colimits/Initial.v](Bicategories/Colimits/Initial.v)
    - [Colimits/Coproducts.v](Bicategories/Colimits/Coproducts.v)
+   - [Colimits/Extensive.v](Bicategories/Colimits/Extensive.v)
    - [Colimits/Examples/OneTypesColimits.v](Bicategories/Colimits/Examples/OneTypesColimits.v)
    - [Colimits/Examples/BicatOfUnivCatsColimits.v](Bicategories/Colimits/Examples/BicatOfUnivCatsColimits.v)
    - [Colimits/Examples/SliceBicategoryColimits.v](Bicategories/Colimits/Examples/SliceBicategoryColimits.v)
