@@ -16,24 +16,18 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 
@@ -2072,206 +2066,6 @@ Section StandardFunctions.
       apply idpath.
   Qed.
 End StandardFunctions.
-
-(** Products of 1-types *)
-Definition one_types_binprod_cone
-           (X Y : one_types)
-  : binprod_cone X Y.
-Proof.
-  use make_binprod_cone.
-  - use make_one_type.
-    + exact (pr1 X × pr1 Y).
-    + apply isofhleveldirprod.
-      * exact (pr2 X).
-      * exact (pr2 Y).
-  - exact pr1.
-  - exact pr2.
-Defined.
-
-Section OneTypesBinprodUMP.
-  Context (X Y : one_types).
-
-  Definition binprod_ump_1_one_types
-    : binprod_ump_1 (one_types_binprod_cone X Y).
-  Proof.
-    intro q.
-    use make_binprod_1cell.
-    - exact (λ x, binprod_cone_pr1 q x ,, binprod_cone_pr2 q x).
-    - use make_invertible_2cell.
-      + intro x ; cbn.
-        apply idpath.
-      + apply one_type_2cell_iso.
-    - use make_invertible_2cell.
-      + intro x ; cbn.
-        apply idpath.
-      + apply one_type_2cell_iso.
-  Defined.
-
-  Definition binprod_ump_2_cell_one_types
-    : has_binprod_ump_2_cell (one_types_binprod_cone X Y)
-    := λ q f g p₁ p₂ x, pathsdirprod (p₁ x) (p₂ x).
-
-  Definition binprod_ump_2_cell_pr1_one_types
-    : has_binprod_ump_2_cell_pr1
-        (one_types_binprod_cone X Y)
-        binprod_ump_2_cell_one_types.
-  Proof.
-    intros q f g p₁ p₂.
-    use funextsec.
-    intro x.
-    apply maponpaths_pr1_pathsdirprod.
-  Qed.
-
-  Definition binprod_ump_2_cell_pr2_one_types
-    : has_binprod_ump_2_cell_pr2
-        (one_types_binprod_cone X Y)
-        binprod_ump_2_cell_one_types.
-  Proof.
-    intros q f g p₁ p₂.
-    use funextsec.
-    intro x.
-    apply maponpaths_pr2_pathsdirprod.
-  Qed.
-
-  Definition binprod_ump_2_cell_unique_one_types
-    : has_binprod_ump_2_cell_unique (one_types_binprod_cone X Y).
-  Proof.
-    intros q f g p₁ p₂ φ₁ φ₂ φ₁pr1 φ₁pr2 φ₂pr1 φ₂pr2.
-    use funextsec.
-    intro x.
-    refine (pathsdirprod_eta _ @ _ @ !(pathsdirprod_eta _)).
-    pose (eqtohomot φ₁pr1 x @ !(eqtohomot φ₂pr1 x)) as r₁.
-    pose (eqtohomot φ₁pr2 x @ !(eqtohomot φ₂pr2 x)) as r₂.
-    cbn in r₁, r₂ ; unfold homotfun in *.
-    etrans.
-    {
-      apply maponpaths.
-      exact r₂.
-    }
-    apply maponpaths_2.
-    exact r₁.
-  Qed.
-
-  Definition has_binprod_ump_one_types
-    : has_binprod_ump (one_types_binprod_cone X Y).
-  Proof.
-    use make_binprod_ump.
-    - exact binprod_ump_1_one_types.
-    - exact binprod_ump_2_cell_one_types.
-    - exact binprod_ump_2_cell_pr1_one_types.
-    - exact binprod_ump_2_cell_pr2_one_types.
-    - exact binprod_ump_2_cell_unique_one_types.
-  Defined.
-End OneTypesBinprodUMP.
-
-Definition has_binprod_one_types
-  : has_binprod one_types.
-Proof.
-  intros X Y ; cbn in *.
-  simple refine (_ ,, _).
-  - exact (one_types_binprod_cone X Y).
-  - exact (has_binprod_ump_one_types X Y).
-Defined.
-
-Definition univ_cat_binprod_cone
-           (C₁ C₂ : bicat_of_univ_cats)
-  : binprod_cone C₁ C₂.
-Proof.
-  use make_binprod_cone.
-  - exact (univalent_category_binproduct C₁ C₂).
-  - apply pr1_functor.
-  - apply pr2_functor.
-Defined.
-
-Section CatsBinprodUMP.
-  Context (C₁ C₂ : bicat_of_univ_cats).
-
-  Definition binprod_ump_1_univ_cat
-    : binprod_ump_1 (univ_cat_binprod_cone C₁ C₂).
-  Proof.
-    intro q.
-    use make_binprod_1cell.
-    - exact (bindelta_pair_functor (binprod_cone_pr1 q) (binprod_cone_pr2 q)).
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr1_iso.
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr2_iso.
-  Defined.
-
-  Definition binprod_ump_2_cell_univ_cat
-    : has_binprod_ump_2_cell (univ_cat_binprod_cone C₁ C₂).
-  Proof.
-    intros q F₁ F₂ α β ; cbn -[functor_composite] in *.
-    use make_nat_trans.
-    - exact (λ x, α x ,, β x).
-    - intros x y f.
-      use pathsdirprod.
-      + apply (nat_trans_ax α).
-      + apply (nat_trans_ax β).
-  Defined.
-
-  Definition binprod_ump_2_cell_pr1_univ_cat
-    : has_binprod_ump_2_cell_pr1
-        (univ_cat_binprod_cone C₁ C₂)
-        binprod_ump_2_cell_univ_cat.
-  Proof.
-    intros q F₁ F₂ α β.
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
-    intro x ; cbn.
-    apply idpath.
-  Qed.
-
-  Definition binprod_ump_2_cell_pr2_univ_cat
-    : has_binprod_ump_2_cell_pr2
-        (univ_cat_binprod_cone C₁ C₂)
-        binprod_ump_2_cell_univ_cat.
-  Proof.
-    intros q F₁ F₂ α β.
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
-    intro x ; cbn.
-    apply idpath.
-  Qed.
-
-  Definition binprod_ump_2_cell_unique_univ_cat
-    : has_binprod_ump_2_cell_unique (univ_cat_binprod_cone C₁ C₂).
-  Proof.
-    intros q F₁ F₂ α β γ δ p₁ p₂ p₃ p₄.
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
-    intro x.
-    use pathsdirprod.
-    - exact (nat_trans_eq_pointwise p₁ x @ !(nat_trans_eq_pointwise p₃ x)).
-    - exact (nat_trans_eq_pointwise p₂ x @ !(nat_trans_eq_pointwise p₄ x)).
-  Qed.
-
-  Definition has_binprod_ump_univ_cats
-    : has_binprod_ump (univ_cat_binprod_cone C₁ C₂).
-  Proof.
-    use make_binprod_ump.
-    - exact binprod_ump_1_univ_cat.
-    - exact binprod_ump_2_cell_univ_cat.
-    - exact binprod_ump_2_cell_pr1_univ_cat.
-    - exact binprod_ump_2_cell_pr2_univ_cat.
-    - exact binprod_ump_2_cell_unique_univ_cat.
-  Defined.
-End CatsBinprodUMP.
-
-Definition has_pb_bicat_of_univ_cats
-  : has_binprod bicat_of_univ_cats.
-Proof.
-  intros C₁ C₂.
-  simple refine (_ ,, _).
-  - exact (univ_cat_binprod_cone C₁ C₂).
-  - exact (has_binprod_ump_univ_cats C₁ C₂).
-Defined.
 
 Module Notations.
   Notation "b₁ ⊗ b₂" := (binprod _ b₁ b₂).

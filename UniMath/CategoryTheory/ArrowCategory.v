@@ -6,11 +6,13 @@
   - As a comma category
 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.PartB.
-Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.CommaCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
@@ -87,30 +89,261 @@ Section Defn.
         apply hlevelntosn.
         apply homset_property.
   Defined.
+
+  Section IsIsoArrow.
+    Context {C : category}
+            {x y : arrow_category C}
+            (f : x --> y)
+            (Hf1 : is_iso (pr11 f))
+            (Hf2 : is_iso (pr21 f)).
+
+    Definition inv_arrow
+      : y --> x.
+    Proof.
+      refine ((inv_from_iso (make_iso _ Hf1) ,, inv_from_iso (make_iso _ Hf2)) ,, _).
+      abstract
+        (cbn ;
+         refine (!_) ;
+         use iso_inv_on_left ;
+         rewrite assoc' ;
+         refine (!_) ;
+         use iso_inv_on_right ;
+         cbn ;
+         exact (pr2 f)).
+    Defined.
+
+    Lemma is_iso_arrow_left_inv
+      : f · inv_arrow = identity x.
+    Proof.
+      use subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      use pathsdirprod ; cbn.
+      - exact (iso_inv_after_iso (make_iso _ Hf1)).
+      - exact (iso_inv_after_iso (make_iso _ Hf2)).
+    Qed.
+
+    Lemma is_iso_arrow_right_inv
+      : inv_arrow · f = identity y.
+    Proof.
+      use subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      use pathsdirprod ; cbn.
+      - exact (iso_after_iso_inv (make_iso _ Hf1)).
+      - exact (iso_after_iso_inv (make_iso _ Hf2)).
+    Qed.
+
+    Definition is_iso_arrow
+      : is_iso f.
+    Proof.
+      use is_iso_qinv.
+      - exact inv_arrow.
+      - split.
+        + exact is_iso_arrow_left_inv.
+        + exact is_iso_arrow_right_inv.
+    Defined.
+  End IsIsoArrow.
 End Defn.
 
 (** ** As a comma category *)
+Section ArrowCategoryEquivCommaCategory.
+  Context (C : category).
 
-Definition arrow_category_eq_comma_category (C : category) :
-  comma_category (functor_identity C) (functor_identity C)
-  = arrow_category C.
-Proof.
-  apply subtypePath.
-  - intro.
-    do 2 (apply impred; intro).
-    apply isapropisaset.
-  - use total2_paths_f.
-    + cbn.
-      use total2_paths_f.
-      * reflexivity.
-      * apply pathsdirprod.
-        -- apply funextsec; intro.
-           use total2_paths_f; [reflexivity|].
-           apply proofirrelevance, homset_property.
-        -- do 5 (apply funextsec; intro).
-           use total2_paths_f; [reflexivity|].
-           apply proofirrelevance, homset_property.
-    + apply proofirrelevance.
-      apply isaprop_is_precategory.
-      apply (pr2 (arrow_category C)).
-Qed.
+  Definition arrow_category_to_comma_category_data
+    : functor_data
+        (arrow_category C)
+        (comma (functor_identity C) (functor_identity C)).
+  Proof.
+    use make_functor_data.
+    - exact (λ f, f).
+    - cbn.
+      exact (λ f g p, pr1 p ,, !(pr2 p)).
+  Defined.
+
+  Definition arrow_category_to_comma_category_is_functor
+    : is_functor arrow_category_to_comma_category_data.
+  Proof.
+    split.
+    - intros f.
+      cbn.
+      refine (maponpaths (λ z, _ ,, z) _).
+      apply homset_property.
+    - intros f g h p q.
+      cbn.
+      refine (maponpaths (λ z, _ ,, z) _).
+      apply homset_property.
+  Qed.
+
+  Definition arrow_category_to_comma_category
+    : arrow_category C ⟶ comma (functor_identity C) (functor_identity C).
+  Proof.
+    use make_functor.
+    - exact arrow_category_to_comma_category_data.
+    - exact arrow_category_to_comma_category_is_functor.
+  Defined.
+
+  Definition comma_category_to_arrow_category_data
+    : functor_data (comma (functor_identity C) (functor_identity C)) (arrow_category C).
+  Proof.
+    use make_functor_data.
+    - exact (λ f, f).
+    - cbn.
+      exact (λ f g p, pr1 p ,, !(pr2 p)).
+  Defined.
+
+  Definition comma_category_to_arrow_category_is_functor
+    : is_functor comma_category_to_arrow_category_data.
+  Proof.
+    split.
+    - intros f.
+      cbn.
+      refine (maponpaths (λ z, _ ,, z) _).
+      apply homset_property.
+    - intros f g h p q.
+      cbn.
+      refine (maponpaths (λ z, _ ,, z) _).
+      apply homset_property.
+  Qed.
+
+  Definition comma_category_to_arrow_category
+    : comma (functor_identity C) (functor_identity C) ⟶ arrow_category C.
+  Proof.
+    use make_functor.
+    - exact comma_category_to_arrow_category_data.
+    - exact comma_category_to_arrow_category_is_functor.
+  Defined.
+
+  Definition arrow_category_equiv_comma_category_unit_data
+    : nat_trans_data
+        (functor_identity (arrow_category C))
+        (arrow_category_to_comma_category ∙ comma_category_to_arrow_category).
+  Proof.
+    cbn.
+    refine (λ x, (identity _ ,, identity _) ,, _).
+    abstract
+      (cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+  Defined.
+
+  Definition arrow_category_equiv_comma_category_unit_is_nat_trans
+    : is_nat_trans
+        _ _
+        arrow_category_equiv_comma_category_unit_data.
+  Proof.
+    intros f g p.
+    use subtypePath.
+    {
+      intro ; apply homset_property.
+    }
+    cbn.
+    use pathsdirprod.
+    - rewrite id_left, id_right.
+      apply idpath.
+    - rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition arrow_category_equiv_comma_category_unit
+    : functor_identity _
+      ⟹
+      arrow_category_to_comma_category ∙ comma_category_to_arrow_category.
+  Proof.
+    use make_nat_trans.
+    - exact arrow_category_equiv_comma_category_unit_data.
+    - exact arrow_category_equiv_comma_category_unit_is_nat_trans.
+  Defined.
+
+  Definition arrow_category_equiv_comma_category_counit_data
+    : nat_trans_data
+        (comma_category_to_arrow_category ∙ arrow_category_to_comma_category)
+        (functor_identity (comma (functor_identity C) (functor_identity C))).
+  Proof.
+    cbn.
+    refine (λ x, (identity _ ,, identity _) ,, _).
+    abstract
+      (cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+  Defined.
+
+  Definition arrow_category_equiv_comma_category_counit_is_nat_trans
+    : is_nat_trans
+        _ _
+        arrow_category_equiv_comma_category_counit_data.
+  Proof.
+    intros f g p.
+    use subtypePath.
+    {
+      intro ; apply homset_property.
+    }
+    cbn.
+    use pathsdirprod.
+    - rewrite id_left, id_right.
+      apply idpath.
+    - rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition arrow_category_equiv_comma_category_counit
+    : comma_category_to_arrow_category ∙ arrow_category_to_comma_category
+      ⟹
+      functor_identity (comma (functor_identity C) (functor_identity C)).
+  Proof.
+    use make_nat_trans.
+    - exact arrow_category_equiv_comma_category_counit_data.
+    - exact arrow_category_equiv_comma_category_counit_is_nat_trans.
+  Defined.
+
+  Definition arrow_category_comma_category_adjunction
+    : form_adjunction
+        arrow_category_to_comma_category
+        comma_category_to_arrow_category
+        arrow_category_equiv_comma_category_unit
+        arrow_category_equiv_comma_category_counit.
+  Proof.
+    use make_form_adjunction.
+    - intro x.
+      use subtypePath.
+      {
+        intro ; apply homset_property.
+      }
+      cbn.
+      use pathsdirprod.
+      + apply id_right.
+      + apply id_right.
+    - intro x.
+      use subtypePath.
+      {
+        intro ; apply homset_property.
+      }
+      cbn.
+      use pathsdirprod.
+      + apply id_right.
+      + apply id_right.
+  Qed.
+
+  Definition arrow_category_equiv_comma_category
+    : adj_equivalence_of_cats arrow_category_to_comma_category.
+  Proof.
+    use make_adj_equivalence_of_cats.
+    - exact comma_category_to_arrow_category.
+    - exact arrow_category_equiv_comma_category_unit.
+    - exact arrow_category_equiv_comma_category_counit.
+    - exact arrow_category_comma_category_adjunction.
+    - split.
+      + intro ; cbn.
+        use is_iso_arrow.
+        * apply identity_is_iso.
+        * apply identity_is_iso.
+      + intro ; cbn.
+        use is_iso_comma.
+        * apply identity_is_iso.
+        * apply identity_is_iso.
+  Defined.
+End ArrowCategoryEquivCommaCategory.

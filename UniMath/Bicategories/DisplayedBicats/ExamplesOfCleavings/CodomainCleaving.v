@@ -6,6 +6,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -15,15 +16,14 @@ Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.InternalStreetFibration.
 Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.OneTypesLimits.
 
 Local Open Scope cat.
 

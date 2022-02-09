@@ -41,9 +41,10 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.InternalStreetFibration.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
 
 Local Open Scope cat.
 

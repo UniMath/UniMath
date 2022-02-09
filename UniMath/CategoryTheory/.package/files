@@ -10,12 +10,23 @@ Core/NaturalTransformations.v
 Core/Prelude.v
 
 FunctorCategory.v
+whiskering.v
+
+DisplayedCats/Auxiliary.v
+DisplayedCats/Core.v
+DisplayedCats/Isos.v
+DisplayedCats/Functors.v
+DisplayedCats/NaturalTransformations.v
+DisplayedCats/Univalence.v
+DisplayedCats/Total.v
+DisplayedCats/Fiber.v
+
 categories/HSET/Core.v
 opp_precat.v
 Groupoids.v
-PrecategoryBinProduct.v
 ProductCategory.v
-whiskering.v
+PrecategoryBinProduct.v
+CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
 Monics.v
@@ -68,6 +79,9 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 
+IsoCommaCategory.v
+CommaCategories.v
+
 SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
@@ -90,7 +104,6 @@ CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
-CommaCategories.v
 ArrowCategory.v
 RightKanExtension.v
 slicecat.v
@@ -178,14 +191,6 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
 
-DisplayedCats/Auxiliary.v
-DisplayedCats/Core.v
-DisplayedCats/Isos.v
-DisplayedCats/Functors.v
-DisplayedCats/NaturalTransformations.v
-DisplayedCats/Univalence.v
-DisplayedCats/Total.v
-DisplayedCats/Fiber.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
@@ -201,8 +206,6 @@ DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
-
-IsoCommaCategory.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
