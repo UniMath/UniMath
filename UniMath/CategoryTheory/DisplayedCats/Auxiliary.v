@@ -20,7 +20,6 @@ Contents:
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Local Open Scope cat.
 
