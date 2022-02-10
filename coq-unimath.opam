@@ -3,7 +3,7 @@ maintainer: "The UniMath Development Team"
 homepage: "https://github.com/UniMath/UniMath"
 dev-repo: "git+https://github.com/UniMath/UniMath.git"
 bug-reports: "https://github.com/UniMath/UniMath/issues"
-license: "Kind of MIT"
+license: "Similar to MIT license"
 authors: ["The UniMath Development Team"]
 build: [make "BUILD_COQ=no" "-j%{jobs}%"]
 install: [make "BUILD_COQ=no" "install"]
