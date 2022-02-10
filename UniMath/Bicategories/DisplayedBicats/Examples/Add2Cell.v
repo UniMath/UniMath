@@ -41,8 +41,8 @@ Section Add2Cell.
 
   Variable (S T : psfunctor C C)
            (l r : pstrans
-                    (@ps_comp E C C S F)
-                    (@ps_comp E C C T F)).
+                    (@comp_psfunctor E C C S F)
+                    (@comp_psfunctor E C C T F)).
 
   Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
   Proof.
@@ -173,7 +173,7 @@ Section Add2Cell.
         (intros x xx yy;
          intros p;
          induction p as [p q];
-         cbn ; unfold idfun;
+         cbn;
          cbn in p, q;
          pose (pstrans_id_alt l) as pl;
          cbn in pl ; rewrite pl in p ; clear pl;

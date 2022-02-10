@@ -18,10 +18,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
@@ -173,7 +175,7 @@ Proof.
   - split ; cbn
     ; rewrite <- psfunctor_vcomp, <- psfunctor_id2 ; apply maponpaths.
     + apply vcomp_rinv.
-    + apply vcomp_lid.
+    + apply vcomp_linv.
 Defined.
 
 Section PseudoFunctorDerivedLaws.
@@ -398,6 +400,84 @@ Section ExtendPseudoFunctor.
   Defined.
 
 End ExtendPseudoFunctor.
+
+Definition psfunctor_preserves_adjequiv
+           {C D : bicat}
+           (HC : is_univalent_2_0 C)
+           (HD : is_univalent_2_1 D)
+           (F : psfunctor C D)
+           (a b : C)
+           (f : adjoint_equivalence a b)
+  : left_adjoint_equivalence (#F f)
+  := J_2_0 HC
+           (λ a b f, left_adjoint_equivalence (#F (pr1 f)))
+           (λ a0,
+            left_adjequiv_invertible_2cell
+              HD _ _
+              (psfunctor_id F a0)
+              (pr2 (internal_adjoint_equivalence_identity (F a0))))
+           f.
+
+Definition psfunctor_preserves_adjequiv'
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f : a --> b}
+           (Hf : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (#F f).
+Proof.
+  use equiv_to_adjequiv.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (#F (left_adjoint_right_adjoint Hf)).
+  - exact (psfunctor_id F _
+           • ##F (left_equivalence_unit_iso Hf)
+           • (psfunctor_comp F _ _)^-1).
+  - exact (psfunctor_comp F _ _
+           • ##F (left_adjoint_counit Hf)
+           • (psfunctor_id F _)^-1).
+  - cbn.
+    is_iso.
+    + apply psfunctor_id.
+    + exact (psfunctor_is_iso F (left_equivalence_unit_iso Hf)).
+  - cbn.
+    is_iso.
+    + apply psfunctor_comp.
+    + exact (psfunctor_is_iso F (left_equivalence_counit_iso Hf)).
+Defined.
+
+
+Definition local_equivalence
+           {B₁ B₂ : bicat}
+           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
+           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
+           (F : psfunctor B₁ B₂)
+  : UU
+  := ∏ (x y : B₁),
+     @left_adjoint_equivalence
+       bicat_of_univ_cats
+       _ _
+       (Fmor_univ
+          F x y
+          B₁_is_univalent_2_1
+          B₂_is_univalent_2_1).
+
+Definition essentially_surjective
+           {B₁ B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+  : hProp
+  := ∀ (y : B₂), ∃ (x : B₁), adjoint_equivalence (F x) y.
+
+Definition weak_equivalence
+           {B₁ B₂ : bicat}
+           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
+           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
+           (F : psfunctor B₁ B₂)
+  : UU
+  := local_equivalence
+       B₁_is_univalent_2_1
+       B₂_is_univalent_2_1
+       F
+     × essentially_surjective F.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).

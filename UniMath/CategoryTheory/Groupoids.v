@@ -33,24 +33,24 @@ Local Open Scope cat.
 (** ** Definitions *)
 
 (** A precategory is a pregroupoid when all of its arrows are [iso]s. *)
-Definition is_pregroupoid (C : precategory) :=
+Definition is_pregroupoid (C : category) :=
   ∏ (x y : C) (f : x --> y), is_iso f.
 
-Lemma isaprop_is_pregroupoid (C : precategory) : isaprop (is_pregroupoid C).
+Lemma isaprop_is_pregroupoid (C : category) : isaprop (is_pregroupoid C).
 Proof.
   do 3 (apply impred; intro).
   apply isaprop_is_iso.
 Defined.
 
-Definition pregroupoid : UU := ∑ C : precategory, is_pregroupoid C.
+Definition pregroupoid : UU := ∑ C : category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition make_pregroupoid (C : precategory) (is : is_pregroupoid C) : pregroupoid :=
+Definition make_pregroupoid (C : category) (is : is_pregroupoid C) : pregroupoid :=
   (C,, is).
-Definition pregroupoid_to_precategory : pregroupoid -> precategory := pr1.
+Definition pregroupoid_to_precategory : pregroupoid -> category := pr1.
 Definition pregroupoid_is_pregroupoid :
   ∏ gpd : pregroupoid, is_pregroupoid (pr1 gpd) := pr2.
-Coercion pregroupoid_to_precategory : pregroupoid >-> precategory.
+Coercion pregroupoid_to_precategory : pregroupoid >-> category.
 
 (** A category is a groupoid when all of its arrows are [iso]s. *)
 Definition groupoid : UU := ∑ C : category, is_pregroupoid C.
@@ -99,18 +99,16 @@ Qed.
 (** The alternative characterization implies the normal one.
     Note that the other implication is missing, it should be completed
     if possible. *)
-Lemma is_univalent_pregroupoid_is_univalent {pgpd : pregroupoid} :
+Lemma is_univalent_pregroupoid_is_univalent {pgpd : groupoid} :
   is_univalent_pregroupoid pgpd -> is_univalent pgpd.
 Proof.
   intros ig.
-  split.
-  - intros a b.
-    use (isofhlevelff 0 idtoiso morphism_from_iso).
-    + use (isweqhomot (idtomor _ _)).
-      * intro p; destruct p; reflexivity.
-      * apply ig.
-    + apply (morphism_from_iso_is_incl (pr1 pgpd,, pr2 ig)).
-  - exact (pr2 ig).
+  intros a b.
+  use (isofhlevelff 0 idtoiso morphism_from_iso).
+  + use (isweqhomot (idtomor _ _)).
+    * intro p; destruct p; reflexivity.
+    * apply ig.
+  + apply (morphism_from_iso_is_incl pgpd).
 Qed.
 
 (** ** Lemmas *)
@@ -162,25 +160,27 @@ Defined.
 (** ** Subgroupoids *)
 
 (** Every category has a subgroupoid of all the objects and only the [iso]s. *)
-Definition maximal_subgroupoid {C : precategory} : pregroupoid.
+Definition maximal_subgroupoid {C : category} : pregroupoid.
 Proof.
   use make_pregroupoid.
-  - use make_precategory; use tpair.
-    + use tpair.
-      * exact (ob C).
-      * exact (λ a b, ∑ f : a --> b, is_iso f).
-    + unfold precategory_id_comp; cbn.
-      use make_dirprod.
-      * exact (λ a, identity a,, identity_is_iso _ _).
-      * intros ? ? ? f g; exact (pr1 g ∘ pr1 f,, is_iso_comp_of_isos f g).
-    + use make_dirprod;
+  - use make_category.
+    + use make_precategory; use tpair.
+      * use tpair.
+        -- exact (ob C).
+        -- exact (λ a b, ∑ f : a --> b, is_iso f).
+      * unfold precategory_id_comp; cbn.
+        use make_dirprod.
+        -- exact (λ a, identity a,, identity_is_iso _ _).
+        -- intros ? ? ? f g; exact (pr1 g ∘ pr1 f,, is_iso_comp_of_isos f g).
+      * use make_dirprod;
         intros;
         apply eq_iso.
-      * apply id_left.
-      * apply id_right.
-    + use make_dirprod; intros; apply eq_iso.
-      * apply assoc.
-      * apply assoc'.
+        -- apply id_left.
+        -- apply id_right.
+      * use make_dirprod; intros; apply eq_iso.
+        -- apply assoc.
+        -- apply assoc'.
+    + cbn. intros a b. cbn. apply isaset_iso. apply C.
   - intros ? ? f; use (is_iso_qinv f).
     + exact (iso_inv_from_iso f).
     + use make_dirprod; apply eq_iso.
@@ -188,18 +188,18 @@ Proof.
       * apply iso_after_iso_inv.
 Defined.
 
-Goal ∏ C:precategory, pregroupoid_to_precategory (@maximal_subgroupoid (C^op))
+Goal ∏ C:category, pregroupoid_to_precategory (@maximal_subgroupoid (C^op))
                       = (@maximal_subgroupoid C)^op.
 Proof.
   Fail reflexivity.
 Abort.
 (* The first thing preventing the proof above is this: *)
-Goal ∏ (C:precategory) (a b:C) (f : C ⟦ b, a ⟧), @is_iso C^op a b f = @is_iso C b a f.
+Goal ∏ (C:category) (a b:C) (f : C ⟦ b, a ⟧), @is_iso C^op a b f = @is_iso C b a f.
 Proof.
   Fail reflexivity.
 Abort.
 (* And this wouldn't help: *)
-Goal ∏ (C:precategory) (a b:C) (f : C ⟦ b, a ⟧),
+Goal ∏ (C:category) (a b:C) (f : C ⟦ b, a ⟧),
       @is_z_isomorphism C^op a b f = @is_z_isomorphism C b a f.
 Proof.
   Fail reflexivity.
@@ -214,12 +214,12 @@ Abort.
     Why? In this case, all arrows must be identities: every arrow has an inverse,
     and isos induce equality (by univalence).
  *)
-Definition is_discrete (C : precategory) :=
+Definition is_discrete (C : category) :=
   (is_setcategory C × is_pregroupoid C × is_univalent C).
 
-Definition discrete_category : UU := ∑ C : precategory, is_discrete C.
+Definition discrete_category : UU := ∑ C : category, is_discrete C.
 Definition make_discrete_category :
-  ∏ C : precategory, is_discrete C → discrete_category := tpair is_discrete.
+  ∏ C : category, is_discrete C → discrete_category := tpair is_discrete.
 Definition discrete_category_to_univalent_groupoid :
   discrete_category -> univalent_groupoid :=
   λ disc, make_univalent_groupoid
@@ -232,7 +232,7 @@ Definition discrete_category_is_discrete :
 Definition discrete_category_is_setcategory :
   ∏ C : discrete_category, is_setcategory C := λ C, dirprod_pr1 (pr2 C).
 
-Lemma isaprop_is_discrete (C : precategory) : isaprop (is_discrete C).
+Lemma isaprop_is_discrete (C : category) : isaprop (is_discrete C).
 Proof.
   apply isapropdirprod; [|apply isapropdirprod].
   - apply isaprop_is_setcategory.

@@ -44,7 +44,7 @@ Defined.
 
 Lemma TerminalEndo_is_identity {T : Terminal} (f : T --> T) : f = identity T.
 Proof.
-now apply proofirrelevance, isapropifcontr, (pr2 T T).
+apply proofirrelevancecontr, (pr2 T T).
 Qed.
 
 Lemma TerminalArrowEq {T : Terminal} {a : C} (f g : a --> T) : f = g.
@@ -75,11 +75,23 @@ Definition iso_Terminals (T T' : Terminal) : iso T T' :=
 
 Definition hasTerminal := ishinh Terminal.
 
+End def_terminal.
+
+Arguments Terminal : clear implicits.
+Arguments isTerminal : clear implicits.
+Arguments TerminalObject {_} _.
+Arguments TerminalArrow {_} _ _.
+Arguments TerminalArrowUnique {_} _ _ _.
+Arguments make_isTerminal {_} _ _ _.
+Arguments make_Terminal {_} _ _.
+
+
 Section Terminal_Unique.
 
+Variable C : category.
 Hypothesis H : is_univalent C.
 
-Lemma isaprop_Terminal : isaprop Terminal.
+Lemma isaprop_Terminal : isaprop (Terminal C).
 Proof.
   apply invproofirrelevance.
   intros T T'.
@@ -92,20 +104,11 @@ Qed.
 
 End Terminal_Unique.
 
-End def_terminal.
-
-Arguments Terminal : clear implicits.
-Arguments isTerminal : clear implicits.
-Arguments TerminalObject {_} _.
-Arguments TerminalArrow {_} _ _.
-Arguments TerminalArrowUnique {_} _ _ _.
-Arguments make_isTerminal {_} _ _ _.
-Arguments make_Terminal {_} _ _.
 
 Section Terminal_and_EmptyProd.
 
   (** Construct Terminal from empty arbitrary product. *)
-  Definition terminal_from_empty_product (C : precategory) :
+  Definition terminal_from_empty_product (C : category) :
     Product empty C fromempty -> Terminal C.
   Proof.
     intros X.
@@ -165,9 +168,9 @@ End Terminal_and_EmptyProd.
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
-Variables (C D : precategory) (ID : Terminal D) (hsD : has_homsets D).
+Variables (C D : category) (ID : Terminal D).
 
-Definition Terminal_functor_precat : Terminal [C,D,hsD].
+Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
 - use make_functor.
@@ -184,7 +187,7 @@ use make_Terminal.
     * intros a b f; simpl.
       rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
       apply TerminalArrowUnique.
-  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply TerminalArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
 End TerminalFunctorCat.
@@ -192,7 +195,7 @@ End TerminalFunctorCat.
 (** Morphisms from the terminal object are monic *)
 Section monics_terminal.
 
-Context {C : precategory} (TC : Terminal C).
+Context {C : category} (TC : Terminal C).
 
 Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
 Proof.

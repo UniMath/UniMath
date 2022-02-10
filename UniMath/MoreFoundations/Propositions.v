@@ -4,6 +4,7 @@ Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
+Local Open Scope type.
 
 Lemma ishinh_irrel {X:UU} (x:X) (x':∥X∥) : hinhpr x = x'.
 Proof.
@@ -100,6 +101,7 @@ Proof.
   apply idpath.
 Defined.
 
+(* this is the dependent eliminator for propositional truncation *)
 Lemma squash_rec {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
 Proof.
   intros xp x'. simple refine (hinhuniv _ x'). intro x.
@@ -107,6 +109,23 @@ Proof.
   { apply propproperty. }
   induction q. exact (xp x).
 Defined.
+
+(* here we show that the dependent eliminator does not compute judgmentally *)
+Goal ∏ {X:UU} {P:∥X∥ -> hProp} (h : ∏ x, P (hinhpr x)) (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+Proof.
+  Fail reflexivity.             (* too bad! *)
+Abort.
+
+(* here's another version *)
+Goal ∏ (X:Type)
+     (P := λ x':∥X∥, ∃ x, (x' = hinhpr x))
+     (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
+     (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+Proof.
+  Fail reflexivity.             (* too bad! *)
+Abort.
 
 Lemma logeq_if_both_true (P Q : hProp) : P -> Q -> ( P ⇔ Q ).
 Proof.
@@ -305,42 +324,11 @@ Proof.
   intro x. induction e. apply idpath.
 Qed.
 
-Definition squash_section_to_hProp {X:UU} {P:∥X∥ -> hProp} :
-  (∏ x, P (hinhpr x)) -> (∏ x', P x').
-Proof.
-  intros f.
-  assert (i := isaprop_total2 _ P).
-  assert (h := λ x, tpair (λ x', P x') (hinhpr x) (f x)).
-  intros x'.
-  assert (q := squash_to_prop x' i h).
-  assert (e := iscontrpr1 (propproperty (∥X∥) (pr1 q) x')).
-  assert (w := make_hfiber pr1 q e).
-  assert (g := invweq (ezweqpr1 P x')).
-  exact (g w).
-Defined.
-
-Goal ∏ {X:UU} {P:∥X∥ -> hProp} (h : ∏ x, P (hinhpr x)) (x:X),
-  squash_section_to_hProp h (hinhpr x) = h x.
-Proof.
-  Fail reflexivity.             (* too bad! *)
-Abort.
-
-Goal ∏ (X:Type)
-     (P := λ x':∥X∥, ∃ x, x' = hinhpr x)
-     (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
-     (x:X),
-  squash_section_to_hProp h (hinhpr x) = h x.
-Proof.
-  Fail reflexivity.             (* too bad! *)
-Abort.
-
-(**  *)
-
 Lemma uniqueExists {A : UU} {P : A -> UU} {a b : A}
   (Hexists : ∃! a, P a) (Ha : P a) (Hb : P b) : a = b.
 Proof.
   assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  { now apply proofirrelevance, isapropifcontr. }
+  { now apply proofirrelevancecontr. }
   exact (base_paths _ _ H).
 Defined.
 

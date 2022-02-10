@@ -1,5 +1,5 @@
 (**
-The identity pseudo functor on a bicategoy.
+The identity pseudo functor on a bicategory.
 
 Authors: Dan Frumin, Niels van der Weide
 
@@ -53,7 +53,7 @@ Section IdentityFunctor.
       reflexivity.
   Qed.
 
-  Definition ps_id_functor : psfunctor C C.
+  Definition id_psfunctor : psfunctor C C.
   Proof.
     use make_psfunctor.
     - exact id_functor_d.

@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.limits.cokernels.
 (** * Definition of cokernels in terms of colimits *)
 Section def_cokernels.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition Cokernel {a b : C} (f : C⟦a, b⟧) := Coequalizer C f (ZeroArrow Z a b).
@@ -37,7 +37,7 @@ Section def_cokernels.
         (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel1_eq f CK).
   Proof.
-    use (make_isCoequalizer _ hs).
+    use (make_isCoequalizer _).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)
@@ -80,7 +80,7 @@ Section def_cokernels.
         (CK : cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel2_eq f CK).
   Proof.
-    use (make_isCoequalizer _ hs).
+    use (make_isCoequalizer _ ).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)

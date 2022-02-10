@@ -213,10 +213,10 @@ Section Disp_Dirprod.
                                      (λ α, _ ==>[α] _)
                                      (_ ,, (_ ,, _))
                                      (_ ,, (_ ,, _))
-                                     (vcomp_lid x)
+                                     (vcomp_linv x)
                )).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pair_disp_invertible_2cell
@@ -294,10 +294,10 @@ Section Disp_Dirprod.
                                (λ α, _ ==>[α] _)
                                (_ ,, (_ ,, _))
                                (_ ,, (_ ,, _))
-                               (vcomp_lid x)
+                               (vcomp_linv x)
                ))).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pr1_disp_invertible_2cell
@@ -370,10 +370,10 @@ Section Disp_Dirprod.
                                (λ α, _ ==>[α] _)
                                (_ ,, (_ ,, _))
                                (_ ,, (_ ,, _))
-                               (vcomp_lid x)
+                               (vcomp_linv x)
                ))).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pr2_disp_invertible_2cell
@@ -450,7 +450,7 @@ Section Disp_Dirprod.
               (_ ,, HD1 a b f g p (pr1 aa) (pr1 bb) (pr1 ff) (pr1 gg))
               (_ ,, HD2 a b f g p (pr2 aa) (pr2 bb) (pr2 ff) (pr2 gg))
               ∘ _)%weq.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     apply WeakEquivalences.pathsdirprodweq.
   Defined.
 
@@ -740,7 +740,7 @@ Section Disp_Dirprod.
               (_ ,, pr1 HD1 a b p (pr1 aa) (pr1 bb))
               (_ ,, pr1 HD2 a b p (pr2 aa) (pr2 bb))
               ∘ _)%weq.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     apply WeakEquivalences.pathsdirprodweq.
   Defined.
 

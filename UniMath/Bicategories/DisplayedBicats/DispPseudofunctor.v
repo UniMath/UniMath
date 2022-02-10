@@ -24,7 +24,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
@@ -370,7 +370,7 @@ Section DispPseudofunctor_identity.
 
 Context {B : bicat} (D : disp_bicat B).
 
-Definition disp_pseudo_id_data : disp_psfunctor_data D D (ps_id_functor B).
+Definition disp_pseudo_id_data : disp_psfunctor_data D D (id_psfunctor B).
 Proof.
   use make_disp_psfunctor_data; cbn.
   - exact (λ _ y, y).
@@ -383,10 +383,10 @@ Defined.
 Lemma disp_pseudo_id_laws : is_disp_psfunctor D D _ disp_pseudo_id_data.
 Proof.
   apply is_disp_psfunctor_from_total.
-  apply ps_id_functor.
+  apply id_psfunctor.
 Qed.
 
-Definition disp_pseudo_id : disp_psfunctor D D (ps_id_functor B)
+Definition disp_pseudo_id : disp_psfunctor D D (id_psfunctor B)
   := disp_pseudo_id_data,, disp_pseudo_id_laws.
 
 End DispPseudofunctor_identity.
@@ -485,7 +485,7 @@ Context {B₁ B₂ B₃ : bicat}
         (FF₁ : disp_psfunctor D₁ D₂ F₁)
         (FF₂ : disp_psfunctor D₂ D₃ F₂).
 
-Definition disp_pseudo_comp_data : disp_psfunctor_data D₁ D₃ (ps_comp F₂ F₁).
+Definition disp_pseudo_comp_data : disp_psfunctor_data D₁ D₃ (comp_psfunctor F₂ F₁).
 Proof.
   use make_disp_psfunctor_data; cbn.
   - exact (λ x xx, FF₂ _ (FF₁ _ xx)).
@@ -506,10 +506,10 @@ Defined.
 Lemma disp_pseudo_comp_laws : is_disp_psfunctor _ _ _ disp_pseudo_comp_data.
 Proof.
   apply is_disp_psfunctor_from_total.
-  apply (ps_comp (total_psfunctor _ _ _ FF₂) (total_psfunctor _ _ _ FF₁)).
+  apply (comp_psfunctor (total_psfunctor _ _ _ FF₂) (total_psfunctor _ _ _ FF₁)).
 Qed.
 
-Definition disp_pseudo_comp : disp_psfunctor _ _ (ps_comp F₂ F₁)
+Definition disp_pseudo_comp : disp_psfunctor _ _ (comp_psfunctor F₂ F₁)
   := disp_pseudo_comp_data,, disp_pseudo_comp_laws.
 
 End DispPseudofunctor_comp.
@@ -522,7 +522,7 @@ Definition transportb_disp_psfunctor
            (HC : is_univalent_2_1 C)
            (D₁ : disp_bicat C)
            (D₂ : disp_bicat C)
-           (F : disp_psfunctor D₁ D₂ (ps_id_functor C))
+           (F : disp_psfunctor D₁ D₂ (id_psfunctor C))
            {x y : C}
            {f g : x --> y}
            {xx : D₁ x} {yy : D₁ y}
@@ -551,7 +551,7 @@ Section FiberOfFunctor.
           (HD₂ : disp_2cells_isaprop D₂)
           (HD₂_2_1 : disp_univalent_2_1 D₂)
           (h₂ : local_iso_cleaving D₂)
-          (F : disp_psfunctor D₁ D₂ (ps_id_functor C)).
+          (F : disp_psfunctor D₁ D₂ (id_psfunctor C)).
 
   Definition fiber_functor_data
              (c : C)
@@ -577,7 +577,7 @@ Section FiberOfFunctor.
                HD₂_2_1 (idpath _)
                _ _
                (pr22 (pr221 F) c c c (id₁ c) (id₁ c) x y z f g))) as p.
-      cbn in p ; unfold idfun in p.
+      cbn in p.
       rewrite p ; clear p.
       pose (disp_local_iso_cleaving_invertible_2cell
               h₂
@@ -616,3 +616,20 @@ Section FiberOfFunctor.
     - exact (fiber_is_functor c).
   Defined.
 End FiberOfFunctor.
+
+Definition disp_psfunctor_id_on_disp_adjequiv
+           {B : bicat}
+           {D₁ D₂ : disp_bicat B}
+           (FF : disp_psfunctor D₁ D₂ (id_psfunctor _))
+           {x y : B}
+           {f : adjoint_equivalence x y}
+           {xx : D₁ x}
+           {yy : D₁ y}
+           {ff : xx -->[ f ] yy}
+           (Hff : disp_left_adjoint_equivalence f ff)
+  : disp_left_adjoint_equivalence _ (disp_psfunctor_mor _ _ _ FF ff)
+  := pr2 (left_adjoint_equivalence_total_disp_weq
+            _ _
+            (psfunctor_preserves_adjequiv'
+               (total_psfunctor _ _ _ FF)
+               (invmap (left_adjoint_equivalence_total_disp_weq f ff) (pr2 f ,, Hff)))).

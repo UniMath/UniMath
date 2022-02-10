@@ -35,21 +35,21 @@ Section Biequivalence.
 Definition is_biequivalence_unit_counit {C D : bicat}
            (F : psfunctor C D) (G : psfunctor D C)
   : UU
-  := pstrans (ps_comp G F) (ps_id_functor C) ×
-     pstrans (ps_comp F G) (ps_id_functor D).
+  := pstrans (comp_psfunctor G F) (id_psfunctor C) ×
+     pstrans (comp_psfunctor F G) (id_psfunctor D).
 
 Definition unit_of_is_biequivalence {C D : bicat}
            {F : psfunctor C D}
            {G : psfunctor D C}
            (e : is_biequivalence_unit_counit F G)
-  : pstrans (ps_comp G F) (ps_id_functor C)
+  : pstrans (comp_psfunctor G F) (id_psfunctor C)
   := pr1 e.
 
 Definition counit_of_is_biequivalence {C D : bicat}
            {F : psfunctor C D}
            {G : psfunctor D C}
            (e : is_biequivalence_unit_counit F G)
-  : pstrans (ps_comp F G) (ps_id_functor D)
+  : pstrans (comp_psfunctor F G) (id_psfunctor D)
   := pr2 e.
 
 Definition is_biequivalence_adjoints {C D : bicat}
@@ -81,7 +81,7 @@ Definition invunit_of_is_biequivalence {C D : bicat}
            {G : psfunctor D C}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
-  : pstrans (ps_id_functor C) (ps_comp G F)
+  : pstrans (id_psfunctor C) (comp_psfunctor G F)
   := left_adjoint_right_adjoint (is_biequivalence_adjoint_unit a).
 
 Definition invcounit_of_is_biequivalence {C D : bicat}
@@ -89,7 +89,7 @@ Definition invcounit_of_is_biequivalence {C D : bicat}
            {G : psfunctor D C}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
-  : pstrans (ps_id_functor D) (ps_comp F G)
+  : pstrans (id_psfunctor D) (comp_psfunctor F G)
   := left_adjoint_right_adjoint (is_biequivalence_adjoint_counit a).
 
 Definition unitcounit_of_is_biequivalence {C D : bicat}
@@ -98,9 +98,9 @@ Definition unitcounit_of_is_biequivalence {C D : bicat}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
   : invertible_modification
-      (comp_trans (invunit_of_is_biequivalence a)
+      (comp_pstrans (invunit_of_is_biequivalence a)
                   (unit_of_is_biequivalence e))
-      (id_trans _).
+      (id_pstrans _).
 Proof.
   refine (left_adjoint_counit (is_biequivalence_adjoint_unit a) ,, _).
   exact (left_equivalence_counit_iso (is_biequivalence_adjoint_unit a)).
@@ -112,9 +112,9 @@ Definition unitunit_of_is_biequivalence {C D : bicat}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
   : invertible_modification
-      (comp_trans (unit_of_is_biequivalence e)
+      (comp_pstrans (unit_of_is_biequivalence e)
                   (invunit_of_is_biequivalence a))
-      (id_trans _).
+      (id_pstrans _).
 Proof.
   refine (inv_of_invertible_2cell _).
   refine (left_adjoint_unit (is_biequivalence_adjoint_unit a) ,, _).
@@ -127,9 +127,9 @@ Definition counitunit_of_is_biequivalence {C D : bicat}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
   : invertible_modification
-      (comp_trans (counit_of_is_biequivalence e)
+      (comp_pstrans (counit_of_is_biequivalence e)
                   (invcounit_of_is_biequivalence a))
-      (id_trans _).
+      (id_pstrans _).
 Proof.
   refine (inv_of_invertible_2cell _).
   refine (left_adjoint_unit (is_biequivalence_adjoint_counit a) ,, _).
@@ -142,9 +142,9 @@ Definition counitcounit_of_is_biequivalence {C D : bicat}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
   : invertible_modification
-      (comp_trans (invcounit_of_is_biequivalence a)
+      (comp_pstrans (invcounit_of_is_biequivalence a)
                   (counit_of_is_biequivalence e))
-      (id_trans _).
+      (id_pstrans _).
 Proof.
   refine (left_adjoint_counit (is_biequivalence_adjoint_counit a) ,, _).
   exact (left_equivalence_counit_iso (is_biequivalence_adjoint_counit a)).
@@ -190,22 +190,22 @@ End Biequivalence.
 Section Builder.
 
 Context {C D : bicat} (F : psfunctor C D) (G : psfunctor D C)
-        (η : pstrans (ps_id_functor C) (ps_comp G F))
-        (ηinv : pstrans (ps_comp G F) (ps_id_functor C))
-        (ε : pstrans (ps_comp F G) (ps_id_functor D))
-        (εinv : pstrans (ps_id_functor D) (ps_comp F G))
+        (η : pstrans (id_psfunctor C) (comp_psfunctor G F))
+        (ηinv : pstrans (comp_psfunctor G F) (id_psfunctor C))
+        (ε : pstrans (comp_psfunctor F G) (id_psfunctor D))
+        (εinv : pstrans (id_psfunctor D) (comp_psfunctor F G))
         (pη : invertible_modification
-               (id_trans (ps_comp G F))
-               (comp_trans ηinv η))
+               (id_pstrans (comp_psfunctor G F))
+               (comp_pstrans ηinv η))
         (qη : invertible_modification
-               (comp_trans η ηinv)
-               (id_trans (ps_id_functor C)))
+               (comp_pstrans η ηinv)
+               (id_pstrans (id_psfunctor C)))
         (pε : invertible_modification
-               (id_trans (ps_comp F G))
-               (comp_trans ε εinv))
+               (id_pstrans (comp_psfunctor F G))
+               (comp_pstrans ε εinv))
         (qε : invertible_modification
-               (comp_trans εinv ε)
-               (id_trans (ps_id_functor D))).
+               (comp_pstrans εinv ε)
+               (id_pstrans (id_psfunctor D))).
 
 Definition make_is_biequivalence : is_biequivalence F.
 Proof.
@@ -240,24 +240,24 @@ Section Builder_From_Unit_Counit.
 
 Context {C D : bicat} (F : psfunctor C D) (G : psfunctor D C)
         (a : is_biequivalence_unit_counit F G)
-        (η : pstrans (ps_id_functor C) (ps_comp G F))
-        (εinv : pstrans (ps_id_functor D) (ps_comp F G)).
+        (η : pstrans (id_psfunctor C) (comp_psfunctor G F))
+        (εinv : pstrans (id_psfunctor D) (comp_psfunctor F G)).
 
 Local Notation "'ηinv'" := (unit_of_is_biequivalence a).
 Local Notation "'ε'" := (counit_of_is_biequivalence a).
 
 Context (pη : invertible_modification
-                (comp_trans ηinv η)
-                (id_trans (ps_comp G F)))
+                (comp_pstrans ηinv η)
+                (id_pstrans (comp_psfunctor G F)))
         (qη : invertible_modification
-                (comp_trans η ηinv)
-                (id_trans (ps_id_functor C)))
+                (comp_pstrans η ηinv)
+                (id_pstrans (id_psfunctor C)))
         (pε : invertible_modification
-                (comp_trans ε εinv)
-                (id_trans (ps_comp F G)))
+                (comp_pstrans ε εinv)
+                (id_pstrans (comp_psfunctor F G)))
         (qε : invertible_modification
-                (comp_trans εinv ε)
-                (id_trans (ps_id_functor D))).
+                (comp_pstrans εinv ε)
+                (id_pstrans (id_psfunctor D))).
 
 Definition make_is_biequivalence_from_unit_counit : is_biequivalence F.
 Proof.
@@ -314,17 +314,17 @@ Defined.
 
 End Pointwise.
 
-Definition id_is_biequivalence (B : bicat) : is_biequivalence (ps_id_functor B).
+Definition id_is_biequivalence (B : bicat) : is_biequivalence (id_psfunctor B).
 Proof.
   use make_is_biequivalence_from_unit_counit.
-  - exact (ps_id_functor B).
+  - exact (id_psfunctor B).
   - use tpair.
-    + apply pstrans_lunitor.
-    + apply pstrans_lunitor.
-  - apply pstrans_linvunitor.
-  - apply pstrans_linvunitor.
-  - apply pstrans_lunitor_linvunitor.
-  - apply pstrans_linvunitor_lunitor.
-  - apply pstrans_lunitor_linvunitor.
-  - apply pstrans_linvunitor_lunitor.
+    + apply lunitor_pstrans.
+    + apply lunitor_pstrans.
+  - apply linvunitor_pstrans.
+  - apply linvunitor_pstrans.
+  - apply lunitor_linvunitor_pstrans.
+  - apply linvunitor_lunitor_pstrans.
+  - apply lunitor_linvunitor_pstrans.
+  - apply linvunitor_lunitor_pstrans.
 Defined.

@@ -21,7 +21,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Display.Identitor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Compositor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -42,7 +42,7 @@ Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
 
 
 Definition representable_id_inv2cell (X : C)
-  : invertible_modification_data (id_trans (representable C_is_univalent_2_1 X))
+  : invertible_modification_data (id_pstrans (representable C_is_univalent_2_1 X))
                                  (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
   intro Y.
@@ -89,7 +89,7 @@ Qed.
 
 
 Definition representable_id_invmod (X : C)
-  : invertible_modification (id_trans _) (representable1 C_is_univalent_2_1 (id₁ X)).
+  : invertible_modification (id_pstrans _) (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
   use make_invertible_modification.
   - exact (representable_id_inv2cell X).
@@ -98,7 +98,7 @@ Defined.
 
 Definition representable_comp_inv2cell {X Y Z: C} (f : X --> Y) (g : Y --> Z)
   : invertible_modification_data
-      (comp_trans (representable1 C_is_univalent_2_1 f)
+      (comp_pstrans (representable1 C_is_univalent_2_1 f)
                   (representable1 C_is_univalent_2_1 g))
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.
@@ -151,7 +151,7 @@ Qed.
 
 Definition representable_comp_invmod {X Y Z: C} (f : X --> Y) (g : Y --> Z)
   : invertible_modification
-      (comp_trans (representable1 C_is_univalent_2_1 f)
+      (comp_pstrans (representable1 C_is_univalent_2_1 f)
                   (representable1 C_is_univalent_2_1 g))
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.
@@ -160,7 +160,7 @@ Proof.
   - exact (representable_comp_is_mod f g).
 Defined.
 
-Definition y_data : psfunctor_data C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
+Definition y_data : psfunctor_data C (psfunctor_bicat (op1_bicat C) bicat_of_univ_cats).
 Proof.
   use make_psfunctor_data.
   - exact (representable C_is_univalent_2_1).
@@ -258,7 +258,7 @@ Proof.
     apply (representable_comp_invmod f g).
 Defined.
 
-Definition y : psfunctor C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
+Definition y : psfunctor C (psfunctor_bicat (op1_bicat C) bicat_of_univ_cats).
 Proof.
   use make_psfunctor.
   - exact y_data.

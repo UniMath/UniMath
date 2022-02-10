@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Adjunctions.
@@ -30,6 +30,8 @@ Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.PseudoFunctors.Yoneda.
 Require Import UniMath.Bicategories.PseudoFunctors.Representable.
+Require Import UniMath.Bicategories.Core.Examples.Image.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.CorestrictImage.
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
@@ -39,7 +41,7 @@ Opaque psfunctor.
 Section YonedaLemma.
   Context {B : bicat}.
   Variable (B_is_univalent_2_1 : is_univalent_2_1 B)
-           (F : psfunctor (op1_bicat B) bicat_of_cats)
+           (F : psfunctor (op1_bicat B) bicat_of_univ_cats)
            (X : B).
 
   (** First, we construct a functor from the yoneda to the presheaf *)
@@ -64,7 +66,7 @@ Section YonedaLemma.
     : functor_data
         (univ_hom
            (psfunctor_bicat_is_univalent_2_1
-              (op1_bicat B) bicat_of_cats
+              (op1_bicat B) bicat_of_univ_cats
               univalent_cat_is_univalent_2_1)
            (y B_is_univalent_2_1 X) F)
         (F X : univalent_category).
@@ -74,7 +76,7 @@ Section YonedaLemma.
     - exact yoneda_to_presheaf_data_mor.
   Defined.
 
-  Definition yoneda_to_presheaf_is_functor
+  Lemma yoneda_to_presheaf_is_functor
     : is_functor yoneda_to_presheaf_data.
   Proof.
     split.
@@ -86,7 +88,7 @@ Section YonedaLemma.
 
 
   Definition yoneda_to_presheaf
-    : bicat_of_cats
+    : bicat_of_univ_cats
         ⟦ univ_hom
             (psfunctor_bicat_is_univalent_2_1
                _ _ univalent_cat_is_univalent_2_1)
@@ -125,7 +127,7 @@ Section YonedaLemma.
       - exact (presheaf_to_yoneda_ob_pstrans_functor_mor Y).
     Defined.
 
-    Definition presheaf_to_yoneda_ob_pstrans_is_functor
+    Lemma presheaf_to_yoneda_ob_pstrans_is_functor
                (Y : op1_bicat B)
       : is_functor (presheaf_to_yoneda_ob_pstrans_functor_data Y).
     Proof.
@@ -141,7 +143,7 @@ Section YonedaLemma.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor
                (Y : op1_bicat B)
-      : bicat_of_cats ⟦ @univ_hom B B_is_univalent_2_1 Y X , F Y ⟧.
+      : bicat_of_univ_cats ⟦ @univ_hom B B_is_univalent_2_1 Y X , F Y ⟧.
     Proof.
       use make_functor.
       - exact (presheaf_to_yoneda_ob_pstrans_functor_data Y).
@@ -162,7 +164,7 @@ Section YonedaLemma.
       exact (p x).
     Defined.
 
-    Definition presheaf_to_yoneda_ob_pstrans_is_nat_trans
+    Lemma presheaf_to_yoneda_ob_pstrans_is_nat_trans
                (Y₁ Y₂ : op1_bicat B)
                (f : B ⟦ Y₂ , Y₁ ⟧)
       : is_nat_trans _ _ (presheaf_to_yoneda_ob_pstrans_nat_trans_data Y₁ Y₂ f).
@@ -215,7 +217,7 @@ Section YonedaLemma.
           exact (presheaf_to_yoneda_ob_pstrans_is_nat_iso Y₁ Y₂ f).
     Defined.
 
-    Definition presheaf_to_yoneda_ob_pstrans_is_pstrans
+    Lemma presheaf_to_yoneda_ob_pstrans_is_pstrans
       : is_pstrans presheaf_to_yoneda_ob_pstrans_data.
     Proof.
       repeat split.
@@ -281,7 +283,7 @@ Section YonedaLemma.
           apply maponpaths_2.
           apply id_left.
         }
-        reflexivity.
+        apply idpath.
     Qed.
 
     Definition presheaf_to_yoneda_ob
@@ -291,6 +293,7 @@ Section YonedaLemma.
       - exact presheaf_to_yoneda_ob_pstrans_data.
       - exact presheaf_to_yoneda_ob_pstrans_is_pstrans.
     Defined.
+
   End PresheafToYonedaOb.
 
   Section PresheafToYonedaMor.
@@ -304,7 +307,7 @@ Section YonedaLemma.
           ((presheaf_to_yoneda_ob b) Y : _ ⟶ _)
       := λ h, #(#F h : _ ⟶ _) f.
 
-    Definition presheaf_to_yoneda_mor_modification_is_nat_trans
+    Lemma presheaf_to_yoneda_mor_modification_is_nat_trans
                (Y : op1_bicat B)
       : is_nat_trans
           _ _
@@ -326,7 +329,7 @@ Section YonedaLemma.
       - exact (presheaf_to_yoneda_mor_modification_is_nat_trans Y).
     Defined.
 
-    Definition presheaf_to_yoneda_mor_is_modification
+    Lemma presheaf_to_yoneda_mor_is_modification
       : is_modification presheaf_to_yoneda_mor_modification_data.
     Proof.
       intros Y₁ Y₂ g.
@@ -346,6 +349,7 @@ Section YonedaLemma.
       - exact presheaf_to_yoneda_mor_modification_data.
       - exact presheaf_to_yoneda_mor_is_modification.
     Defined.
+
   End PresheafToYonedaMor.
 
   Definition presheaf_to_yoneda_data
@@ -353,7 +357,7 @@ Section YonedaLemma.
         (F X : univalent_category)
         (univ_hom
            (psfunctor_bicat_is_univalent_2_1
-              (op1_bicat B) bicat_of_cats
+              (op1_bicat B) bicat_of_univ_cats
               univalent_cat_is_univalent_2_1) ((y B_is_univalent_2_1) X) F).
   Proof.
     use make_functor_data.
@@ -361,7 +365,7 @@ Section YonedaLemma.
     - exact presheaf_to_yoneda_mor_modification.
   Defined.
 
-  Definition presheaf_to_yoneda_is_functor
+  Lemma presheaf_to_yoneda_is_functor
     : is_functor presheaf_to_yoneda_data.
   Proof.
     split.
@@ -388,7 +392,7 @@ Section YonedaLemma.
   Qed.
 
   Definition presheaf_to_yoneda
-    : bicat_of_cats
+    : bicat_of_univ_cats
         ⟦ F X ,
           univ_hom
             (psfunctor_bicat_is_univalent_2_1
@@ -410,7 +414,7 @@ Section YonedaLemma.
     := #(η Z : _ ⟶ _) (rinvunitor f)
         · pr1 ((psnaturality_of η f)^-1) (id₁ X).
 
-  Definition yoneda_unit_component_mod_component_is_nat_trans
+  Lemma yoneda_unit_component_mod_component_is_nat_trans
              (η : pstrans (representable B_is_univalent_2_1 X) F)
              (Z : op1_bicat B)
              (f₁ f₂ : B ⟦ Z , X ⟧)
@@ -455,7 +459,7 @@ Section YonedaLemma.
     - exact (yoneda_unit_component_mod_component_is_nat_trans η Z).
   Defined.
 
-  Definition yoneda_unit_component_is_modification
+  Lemma yoneda_unit_component_is_modification
              (η : pstrans (representable B_is_univalent_2_1 X) F)
     : is_modification (yoneda_unit_component_mod_component_nat η).
   Proof.
@@ -541,7 +545,7 @@ Section YonedaLemma.
     - exact (yoneda_unit_component_is_modification η).
   Defined.
 
-  Definition yoneda_unit_is_nat_trans
+  Lemma yoneda_unit_is_nat_trans
     : is_nat_trans
         (functor_identity (hom_data (representable B_is_univalent_2_1 X) F))
         (yoneda_to_presheaf ∙ presheaf_to_yoneda)
@@ -578,7 +582,7 @@ Section YonedaLemma.
     - exact yoneda_unit_is_nat_trans.
   Defined.
 
-  Definition yoneda_unit_is_inverses
+  Lemma yoneda_unit_is_inverses
              (g : pstrans (representable B_is_univalent_2_1 X) F)
              (Z : B)
              (Y : Z --> X)
@@ -595,7 +599,7 @@ Section YonedaLemma.
         {
           rewrite assoc.
           apply maponpaths_2.
-          exact (nat_trans_eq_pointwise (vcomp_lid (psnaturality_of g Y)) (id₁ X)).
+          exact (nat_trans_eq_pointwise (vcomp_linv (psnaturality_of g Y)) (id₁ X)).
         }
         apply id_left.
       }
@@ -635,7 +639,7 @@ Section YonedaLemma.
     : pr1 (F X) ⟦ (# F (id₁ X) : _ ⟶ _) Z, Z ⟧
     := pr1 ((psfunctor_id F X)^-1) Z.
 
-  Definition yoneda_counit_is_natural
+  Lemma yoneda_counit_is_natural
     : is_nat_trans
         _
         (functor_identity _)
@@ -682,7 +686,7 @@ Section YonedaLemma.
         * exact (pr1 (pr1 (psfunctor_id F X)) Z).
         * split.
           ** abstract (exact (nat_trans_eq_pointwise
-                                (vcomp_lid (psfunctor_id F X)) Z)).
+                                (vcomp_linv (psfunctor_id F X)) Z)).
           ** abstract (exact (nat_trans_eq_pointwise
                                 (vcomp_rinv (psfunctor_id F X)) Z)).
   Defined.
@@ -690,6 +694,7 @@ Section YonedaLemma.
   Definition bicategorical_yoneda_lemma_inv
     : left_adjoint_equivalence presheaf_to_yoneda
     := inv_adjequiv (_ ,, bicategorical_yoneda_lemma).
+
 End YonedaLemma.
 
 Section YonedaLocalEquivalence.
@@ -704,7 +709,7 @@ Section YonedaLocalEquivalence.
     : g · f ==> g · f
     := id₂ (g · f).
 
-  Definition yoneda_to_presheaf_representable_component_mod_is_nat_trans
+  Lemma yoneda_to_presheaf_representable_component_mod_is_nat_trans
              (f : X --> Y)
              (Z : B)
     : is_nat_trans
@@ -737,7 +742,7 @@ Section YonedaLocalEquivalence.
     - exact (yoneda_to_presheaf_representable_component_mod_is_nat_trans f Z).
   Defined.
 
-  Definition yoneda_to_presheaf_representable_is_modification
+  Lemma yoneda_to_presheaf_representable_is_modification
              (f : X --> Y)
     : is_modification (yoneda_to_presheaf_representable_component_mod_component f).
   Proof.
@@ -766,7 +771,7 @@ Section YonedaLocalEquivalence.
     - exact (yoneda_to_presheaf_representable_is_modification f).
   Defined.
 
-  Definition yoneda_to_presheaf_representable_is_natural
+  Lemma yoneda_to_presheaf_representable_is_natural
     : is_nat_trans
         (Fmor_data (y B_is_univalent_2_1) X Y)
         _
@@ -800,7 +805,7 @@ Section YonedaLocalEquivalence.
 
   Definition yoneda_to_presheaf_representable_is_iso
     : @is_invertible_2cell
-        bicat_of_cats
+        bicat_of_univ_cats
         _ _
         (Fmor_univ (y B_is_univalent_2_1) X Y _ _ : _ ⟶ _)
         _ (yoneda_to_presheaf_representable).
@@ -820,7 +825,7 @@ Section YonedaLocalEquivalence.
 
   Definition yoneda_mor_is_equivalence
     : @left_adjoint_equivalence
-        bicat_of_cats
+        bicat_of_univ_cats
         _ _
         (Fmor_univ
            (y B_is_univalent_2_1)
@@ -832,7 +837,7 @@ Section YonedaLocalEquivalence.
   Proof.
     apply equiv_to_isadjequiv.
     exact (@iso_equiv
-            bicat_of_cats
+            bicat_of_univ_cats
             _
             _
             _
@@ -845,4 +850,41 @@ Section YonedaLocalEquivalence.
             _
             yoneda_to_presheaf_representable_is_iso).
   Defined.
+
 End YonedaLocalEquivalence.
+
+Definition yoneda_local_equivalence
+           {B : bicat}
+           (B_is_univalent_2_1 : is_univalent_2_1 B)
+  : local_equivalence
+      B_is_univalent_2_1
+      (psfunctor_bicat_is_univalent_2_1
+         (op1_bicat B) _
+         univalent_cat_is_univalent_2_1)
+      (y B_is_univalent_2_1).
+Proof.
+  intros x y.
+  apply yoneda_mor_is_equivalence.
+Defined.
+
+Definition rezk_completion_2_0
+           (B : bicat)
+           (HB : is_univalent_2_1 B)
+  : ∑ (GC : bicat)
+      (CB : psfunctor B GC)
+      (HGC : is_univalent_2 GC),
+    weak_equivalence HB (pr2 HGC) CB.
+Proof.
+  refine (full_image (y HB) ,, _).
+  refine (corestrict_full_image (y HB) ,, _).
+  use tpair.
+  - apply is_univalent_2_full_image.
+    apply psfunctor_bicat_is_univalent_2.
+    exact univalent_cat_is_univalent_2.
+  - exact (corestrict_full_image_weak_equivalence
+             (y HB)
+             HB
+             _
+             _
+             (yoneda_local_equivalence HB)).
+Defined.

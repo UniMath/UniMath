@@ -29,8 +29,8 @@ Section LeftUnitality.
   Context {B₁ B₂ : bicat}.
   Variable (F : psfunctor B₁ B₂).
 
-  Definition pstrans_lunitor_data
-    : pstrans_data (ps_comp (ps_id_functor B₂) F) F.
+  Definition lunitor_pstrans_data
+    : pstrans_data (comp_psfunctor (id_psfunctor B₂) F) F.
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -40,8 +40,8 @@ Section LeftUnitality.
       + is_iso.
   Defined.
 
-  Definition pstrans_lunitor_is_pstrans
-    : is_pstrans pstrans_lunitor_data.
+  Definition lunitor_pstrans_is_pstrans
+    : is_pstrans lunitor_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -86,16 +86,16 @@ Section LeftUnitality.
       apply idpath.
   Qed.
 
-  Definition pstrans_lunitor
-    : pstrans (ps_comp (ps_id_functor B₂) F) F.
+  Definition lunitor_pstrans
+    : pstrans (comp_psfunctor (id_psfunctor B₂) F) F.
   Proof.
     use make_pstrans.
-    - exact pstrans_lunitor_data.
-    - exact pstrans_lunitor_is_pstrans.
+    - exact lunitor_pstrans_data.
+    - exact lunitor_pstrans_is_pstrans.
   Defined.
 
-  Definition pstrans_linvunitor_data
-    : pstrans_data F (ps_comp (ps_id_functor B₂) F).
+  Definition linvunitor_pstrans_data
+    : pstrans_data F (comp_psfunctor (id_psfunctor B₂) F).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -105,8 +105,8 @@ Section LeftUnitality.
       + is_iso.
   Defined.
 
-  Definition pstrans_linvunitor_is_pstrans
-    : is_pstrans pstrans_linvunitor_data.
+  Definition linvunitor_pstrans_is_pstrans
+    : is_pstrans linvunitor_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -151,12 +151,12 @@ Section LeftUnitality.
       apply idpath.
   Qed.
 
-  Definition pstrans_linvunitor
-    : pstrans F (ps_comp (ps_id_functor B₂) F).
+  Definition linvunitor_pstrans
+    : pstrans F (comp_psfunctor (id_psfunctor B₂) F).
   Proof.
     use make_pstrans.
-    - exact pstrans_linvunitor_data.
-    - exact pstrans_linvunitor_is_pstrans.
+    - exact linvunitor_pstrans_data.
+    - exact linvunitor_pstrans_is_pstrans.
   Defined.
 End LeftUnitality.
 
@@ -164,8 +164,8 @@ Section RightUnitality.
   Context {B₁ B₂ : bicat}.
   Variable (F : psfunctor B₁ B₂).
 
-  Definition pstrans_runitor_data
-    : pstrans_data (ps_comp F (ps_id_functor B₁)) F.
+  Definition runitor_pstrans_data
+    : pstrans_data (comp_psfunctor F (id_psfunctor B₁)) F.
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -175,8 +175,8 @@ Section RightUnitality.
       + is_iso.
   Defined.
 
-  Definition pstrans_runitor_is_pstrans
-    : is_pstrans pstrans_runitor_data.
+  Definition runitor_pstrans_is_pstrans
+    : is_pstrans runitor_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -221,16 +221,16 @@ Section RightUnitality.
       apply idpath.
   Qed.
 
-  Definition pstrans_runitor
-    : pstrans (ps_comp F (ps_id_functor B₁)) F.
+  Definition runitor_pstrans
+    : pstrans (comp_psfunctor F (id_psfunctor B₁)) F.
   Proof.
     use make_pstrans.
-    - exact pstrans_runitor_data.
-    - exact pstrans_runitor_is_pstrans.
+    - exact runitor_pstrans_data.
+    - exact runitor_pstrans_is_pstrans.
   Defined.
 
-  Definition pstrans_rinvunitor_data
-    : pstrans_data F (ps_comp F (ps_id_functor B₁)).
+  Definition rinvunitor_pstrans_data
+    : pstrans_data F (comp_psfunctor F (id_psfunctor B₁)).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -240,8 +240,8 @@ Section RightUnitality.
       + is_iso.
   Defined.
 
-  Definition pstrans_rinvunitor_is_pstrans
-    : is_pstrans pstrans_rinvunitor_data.
+  Definition rinvunitor_pstrans_is_pstrans
+    : is_pstrans rinvunitor_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -286,11 +286,11 @@ Section RightUnitality.
       apply idpath.
   Qed.
 
-  Definition pstrans_rinvunitor
-    : pstrans F (ps_comp F (ps_id_functor B₁)).
+  Definition rinvunitor_pstrans
+    : pstrans F (comp_psfunctor F (id_psfunctor B₁)).
   Proof.
     use make_pstrans.
-    - exact pstrans_rinvunitor_data.
-    - exact pstrans_rinvunitor_is_pstrans.
+    - exact rinvunitor_pstrans_data.
+    - exact rinvunitor_pstrans_is_pstrans.
   Defined.
 End RightUnitality.

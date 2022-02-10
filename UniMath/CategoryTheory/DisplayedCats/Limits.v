@@ -12,25 +12,12 @@ Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
-
-Section Auxiliary.
-
-(* TODO: upstream into definition of cone in UniMath. *)
-Definition forms_cone
-    {C : precategory} {g : graph} (d : diagram g C)
-    (c : C) (f : ∏ (v : vertex g), C⟦c, dob d v⟧)
-  : UU
-:= ∏ (u v : vertex g) (e : edge u v),
-     f u · dmor d e = f v.
-
-Coercion coneOut : cone >-> Funclass.
-
-End Auxiliary.
 
 Section Creates_Limits.
 
@@ -44,14 +31,14 @@ Definition creates_limit
 :=
   ∑ (CC : iscontr
       ( ∑ (d : D x)
-          (δ : ∏ j : vertex J, d -->[L j] (pr2 (dob F j))),
-          forms_cone F (x,,d)  (λ j, (L j ,, δ j))))
+          (δ : ∏ j : vertex J, d -->[coneOut L j] (pr2 (dob F j))),
+          forms_cone(c:=(x,,d)) F (λ j, (coneOut L j ,, δ j))))
   , isLimCone _ _ (make_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
 
 Definition creates_limits {C : category} (D : disp_cat C) : UU
 :=
   ∏ (J : graph) (F : diagram J (total_category D))
-    {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
+    (x : C) (L : cone (mapdiagram (pr1_category D) F)  x)
     (isL : isLimCone _ x L),
   creates_limit _ _ _ isL.
 
@@ -87,7 +74,6 @@ Proof.
   intro H1.
   set (XR := X (mapdiagram π d)).
   use is_iso_isLim.
-  - apply homset_property.
   - apply X.
   - match goal with |[ |- is_iso ?foo ] => set (T:= foo) end.
     destruct X as [[a L] isL]. cbn in isL.

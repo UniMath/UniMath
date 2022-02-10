@@ -14,7 +14,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.Groupoids.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.PathGroupoid.
@@ -110,28 +110,7 @@ Qed.
 Definition pgrpds_prebicat_laws
   : disp_prebicat_laws (pgrpds_disp_prebicat_1_id_comp_cells,, pgrpds_disp_prebicat_ops).
 Proof.
-  cbn. repeat split; intro; intros.
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 c).
-  - apply (pr1 c).
-  - apply (pr1 c).
-  - apply (pr1 c).
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 d).
-  - apply (pr1 d).
-  - apply (pr1 d).
-  - apply (pr1 c).
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 b).
-  - apply (pr1 d).
-  - apply (pr1 d).
-  - apply (pr1 c).
-  - apply (pr1 e).
+  cbn. repeat split; intro; intros ; apply homset_property.
 Qed.
 
 Definition pgrpds_prebicat : disp_prebicat grpds.
@@ -147,7 +126,7 @@ Proof.
   use tpair.
   - apply pgrpds_prebicat.
   - repeat intro. apply hlevelntosn.
-    apply (pr1 b).
+    apply homset_property.
 Defined.
 
 Definition pgrpds : bicat := total_bicat pgrpds_disp.
@@ -159,7 +138,7 @@ The bicategory of pointed groupoids is biequivalent to the bicategory of pointed
 Definition pgrpds_disp_2cells_isaprop : disp_2cells_isaprop pgrpds_disp.
 Proof.
   intros G₁ G₂; intros.
-  apply (pr1 G₂).
+  apply homset_property.
 Qed.
 
 Definition pgrpds_disp_locally_groupoid : disp_locally_groupoid pgrpds_disp.
@@ -172,7 +151,7 @@ Proof.
     etrans.
     {
       apply maponpaths_2.
-      apply (nat_trans_eq_pointwise (maponpaths pr1 (vcomp_lid (pr2 n)))).
+      apply (nat_trans_eq_pointwise (maponpaths pr1 (vcomp_linv (pr2 n)))).
     }
     apply id_left.
   - exact pgrpds_disp_2cells_isaprop.
@@ -189,11 +168,24 @@ Proof.
   use make_disp_locally_groupoid.
   - intros G₁ G₂ F₁ F₂ n pG₁ pG₂ pF₁ pF₂ pn.
     cbn in *.
-    rewrite <- pn.
-    rewrite transport_f_f.
-    refine (transportb (λ z, transportf _ z _ = _) _ _).
-    { exact (maponpaths (λ z, z pG₁) (vcomp_rinv n)). }
-    apply idpath.
+    refine (!_).
+    apply hornRotation_rr.
+    refine (!_).
+    refine (maponpaths (λ z, _ @ ! z) pn @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply pathscomp_inv.
+    }
+    refine (path_assoc _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths_2.
+      apply pathsinv0r.
+    }
+    simpl.
+    apply pathsinv0_to_right'.
+    exact (!(maponpaths (λ z, z pG₁) (vcomp_rinv n))).
   - exact p1types_disp_2cells_isaprop.
 Qed.
 
@@ -208,8 +200,6 @@ Proof.
   - abstract
       (intros G1 G2 F1 F2 α x y i1 i2 p ;
        cbn in * ;
-       rewrite transportf_id2 ;
-       apply path_inv_rotate_ll ;
        rewrite <- isotoid_comp ;
        apply maponpaths ;
        apply eq_iso ;
@@ -235,12 +225,12 @@ Proof.
   - exact pgrpds_disp_locally_groupoid.
   - exact (λ X x, x).
   - intros X Y f x y p.
+    simpl in *.
     exact (p ,, pr2 (path_groupoid Y) _ _ p).
   - abstract
       (intros X Y f g α x y p q αα ;
        cbn in * ;
-       induction (α x) ;
-       exact (! αα)).
+       exact (!αα)).
   - abstract
       (intros X x ;
        apply idpath).
@@ -343,8 +333,8 @@ Defined.
 
 Definition disp_path_pgroupoid_unit_unit_inv :
   disp_invmodification _ _ _ _
-    (disp_ps_comp _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_unit disp_path_pgroupoid_unit_inv)
-    (disp_id_trans _)
+    (disp_comp_pstrans disp_path_pgroupoid_unit disp_path_pgroupoid_unit_inv)
+    (disp_id_pstrans _)
     (unitcounit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -357,8 +347,8 @@ Defined.
 
 Definition disp_path_pgroupoid_unit_inv_unit :
   disp_invmodification _ _ _ _
-    (disp_ps_comp _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_unit_inv disp_path_pgroupoid_unit)
-    (disp_id_trans _)
+    (disp_comp_pstrans disp_path_pgroupoid_unit_inv disp_path_pgroupoid_unit)
+    (disp_id_pstrans _)
     (unitunit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -371,8 +361,8 @@ Defined.
 
 Definition disp_path_pgroupoid_counit_inv_counit :
   disp_invmodification _ _ _ _
-    (disp_ps_comp _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_counit_inv disp_path_pgroupoid_counit)
-    (disp_id_trans _)
+    (disp_comp_pstrans disp_path_pgroupoid_counit_inv disp_path_pgroupoid_counit)
+    (disp_id_pstrans _)
     (counitcounit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -387,8 +377,8 @@ Defined.
 
 Definition disp_path_pgroupoid_counit_counit_inv :
   disp_invmodification _ _ _ _
-    (disp_ps_comp _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_counit disp_path_pgroupoid_counit_inv)
-    (disp_id_trans _)
+    (disp_comp_pstrans disp_path_pgroupoid_counit disp_path_pgroupoid_counit_inv)
+    (disp_id_pstrans _)
     (counitunit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.

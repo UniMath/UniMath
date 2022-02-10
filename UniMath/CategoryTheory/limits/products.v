@@ -33,7 +33,7 @@ Local Open Scope cat.
 (** * Definition of indexed products of objects in a precategory *)
 Section product_def.
 
-Variable (I : UU) (C : precategory).
+Variable (I : UU) (C : category).
 
 Definition isProduct (c : ∏ (i : I), C) (p : C)
   (pi : ∏ i, p --> c i) :=
@@ -143,7 +143,7 @@ End product_def.
 
 Section Products.
 
-Variables (I : UU) (C : precategory) (CC : Products I C).
+Variables (I : UU) (C : category) (CC : Products I C).
 
 Definition ProductOfArrows_comp (a b c : ∏ (i : I), C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i)
@@ -155,20 +155,11 @@ rewrite <- assoc, ProductOfArrowsPr.
 now rewrite assoc, ProductOfArrowsPr, assoc.
 Qed.
 
-(* Definition ProductOfArrows_eq (f f' : a --> c) (g g' : b --> d) *)
-(*   : f = f' → g = g' → *)
-(*       ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'. *)
-(* Proof. *)
-(*   induction 1. *)
-(*   induction 1. *)
-(*   apply idpath. *)
-(* Qed. *)
-
 End Products.
 
 Section Product_unique.
 
-Variables (I : UU) (C : precategory).
+Variables (I : UU) (C : category).
 Variable CC : Products I C.
 Variables a : ∏ (i : I), C.
 
@@ -190,10 +181,10 @@ End Product_unique.
 (** * The product functor: C^I -> C *)
 Section product_functor.
 
-Context (I : UU) {C : precategory} (PC : Products I C).
+Context (I : UU) {C : category} (PC : Products I C).
 
 Definition product_functor_data :
-  functor_data (power_precategory I C) C.
+  functor_data (power_category I C) C.
 Proof.
 use tpair.
 - intros p.
@@ -202,7 +193,7 @@ use tpair.
   exact (ProductOfArrows _ _ _ _ f).
 Defined.
 
-Definition product_functor : functor (power_precategory I C) C.
+Definition product_functor : functor (power_category I C) C.
 Proof.
 apply (tpair _ product_functor_data).
 abstract (split;
@@ -215,7 +206,7 @@ End product_functor.
 
 (* The product of a family of functors *)
 Definition product_of_functors_alt
-  (I : UU) {C D : precategory} (HD : Products I D)
+  (I : UU) {C D : category} (HD : Products I D)
   (F : ∏ (i : I), functor C D) : functor C D :=
    functor_composite (delta_functor I C)
      (functor_composite (family_functor _ F) (product_functor _ HD)).
@@ -223,9 +214,8 @@ Definition product_of_functors_alt
 (** * Products lift to functor categories *)
 Section def_functor_pointwise_prod.
 
-Variables (I : UU) (C D : precategory).
+Variables (I : UU) (C D : category).
 Variable HD : Products I D.
-Variable hsD : has_homsets D.
 
 Section product_of_functors.
 
@@ -268,7 +258,7 @@ Definition product_of_functors : functor C D :=
 Lemma product_of_functors_alt_eq_product_of_functors :
   product_of_functors_alt _ HD F = product_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Definition product_nat_trans_pr_data i (c : C) :
@@ -313,7 +303,7 @@ Definition product_nat_trans : nat_trans A product_of_functors
 End vertex.
 
 Definition functor_precat_product_cone
-  : Product I [C, D, hsD] F.
+  : Product I [C, D] F.
 Proof.
 use make_Product.
 - apply product_of_functors.
@@ -323,19 +313,19 @@ use make_Product.
   + intros A f.
     use tpair.
     * apply (tpair _ (product_nat_trans A f)).
-      abstract (intro i; apply (nat_trans_eq hsD); intro c;
+      abstract (intro i; apply (nat_trans_eq D); intro c;
                 apply (ProductPrCommutes I D _ (HD (λ j, (F j) c)))).
     * abstract (
         intro t; apply subtypePath; simpl;
-          [intro; apply impred; intro; apply (isaset_nat_trans hsD)|];
-        apply (nat_trans_eq hsD); intro c;
+          [intro; apply impred; intro; apply (isaset_nat_trans D)|];
+        apply (nat_trans_eq D); intro c;
         apply ProductArrowUnique; intro i;
         apply (nat_trans_eq_pointwise (pr2 t i))).
 Defined.
 
 End product_of_functors.
 
-Definition Products_functor_precat : Products I [C, D, hsD].
+Definition Products_functor_precat : Products I [C, D].
 Proof.
 intros F; apply functor_precat_product_cone.
 Defined.
@@ -345,7 +335,7 @@ End def_functor_pointwise_prod.
 (** * Products from limits *)
 Section products_from_limits.
 
-Variables (I : UU) (C : precategory) (hsC : has_homsets C).
+Variables (I : UU) (C : category).
 
 Definition I_graph : graph := (I,,λ _ _,empty).
 
@@ -370,14 +360,14 @@ set (HF := H (products_diagram F)).
 use make_Product.
 + apply (lim HF).
 + intros i; apply (limOut HF).
-+ apply (make_isProduct _ _ hsC); intros c Fic.
++ apply (make_isProduct _ _ C); intros c Fic.
   use unique_exists.
   - apply limArrow.
     use make_cone.
     * simpl; intro i; apply Fic.
     * abstract (simpl; intros u v e; induction e).
   - abstract (simpl; intro i; apply (limArrowCommutes HF)).
-  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros y; apply impred; intro i; apply C).
   - abstract (intros f Hf; apply limArrowUnique; simpl in *; intros i; apply Hf).
 Defined.
 

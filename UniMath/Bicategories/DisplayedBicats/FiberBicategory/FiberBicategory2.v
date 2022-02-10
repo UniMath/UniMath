@@ -14,7 +14,8 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.Bicategories.DisplayedBicats.FiberBicategory.FiberBicategory1.
 
 Local Open Scope cat.
@@ -23,7 +24,7 @@ Local Open Scope mor_disp_scope.
 Section LocalIsoFibration.
   Context {C : bicat}.
 
-  Variable (D : disp_prebicat C) (h : local_iso_cleaving D) (c : C).
+  Variable (D : disp_bicat C) (h : local_iso_cleaving D) (c : C).
 
   Local Arguments transportf {_} {_} {_} {_} {_} _.
   Local Arguments transportb {_} {_} {_} {_} {_} _.
@@ -2190,10 +2191,50 @@ Section LocalIsoFibration.
     - exact strict_fiber_bicat_data_laws_lassociator_lassociator.
   Qed.
 
-  Definition strict_fiber_bicat : prebicat.
+  Definition strict_fiber_prebicat : prebicat.
   Proof.
     use tpair.
     - exact (strict_fiber_bicat_data D h c).
     - exact strict_fiber_bicat_data_laws.
   Defined.
+
+  Definition strict_fiber_bicat : bicat.
+  Proof.
+    use tpair.
+    - exact strict_fiber_prebicat.
+    - intros x y f g.
+      apply disp_cellset_property.
+  Defined.
 End LocalIsoFibration.
+
+Definition strict_fiber_bicat_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {HD : local_iso_cleaving D}
+           {b : B}
+           {x y : strict_fiber_bicat D HD b}
+           {f g : x --> y}
+           {α : f ==> g}
+           (Hα : is_disp_invertible_2cell (id2_invertible_2cell _) α)
+  : is_invertible_2cell α.
+Proof.
+  pose (αcell := (α ,, Hα) : disp_invertible_2cell (id2_invertible_2cell _) f g).
+  use make_is_invertible_2cell.
+  - exact (disp_inv_cell αcell).
+  - abstract
+      (cbn ;
+       refine (maponpaths _ (disp_vcomp_rinv αcell) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       refine (_ @ idpath_transportf (λ z, _ ==>[ z ] _) _) ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+  - abstract
+      (cbn ;
+       refine (maponpaths _ (disp_vcomp_linv αcell) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       refine (_ @ idpath_transportf (λ z, _ ==>[ z ] _) _) ;
+       apply maponpaths_2 ;
+       apply cellset_property).
+Defined.

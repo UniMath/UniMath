@@ -11,8 +11,8 @@ Require Import UniMath.Bicategories.WkCatEnrichment.whiskering.
 Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 
 Definition inv {C:precategory} {a b : C}
- (f : iso a b)
- := iso_inv_from_iso f.
+ (f : z_iso a b)
+ := z_iso_inv_from_z_iso f.
 
 (******************************************************************************)
 (* Internal Equivalence *)
@@ -20,8 +20,8 @@ Definition inv {C:precategory} {a b : C}
 Definition is_int_equivalence {C : prebicategory} {a b : C}
            (f : a -1-> b) : UU
   := ∑ g : b -1-> a,
-           (iso (identity1 a) (f ;1; g)) ×
-           (iso (g ;1; f) (identity1 b)).
+           (z_iso (identity1 a) (f ;1; g)) ×
+           (z_iso (g ;1; f) (identity1 b)).
 
 Definition int_equivalence {C : prebicategory} (a b : C) : UU
   := ∑ f : a -1-> b, is_int_equivalence f.
@@ -50,8 +50,8 @@ Defined.
 Definition is_adj_int_equivalence {C : prebicategory} { a b : C }
   (f : a -1-> b)
   := ∑ (g : b -1-> a)
-       (etaeps : (iso (identity1 a) (f ;1; g)) ×
-                 (iso (g ;1; f) (identity1 b))),
+       (etaeps : (z_iso (identity1 a) (f ;1; g)) ×
+                 (z_iso (g ;1; f) (identity1 b))),
        let eta := pr1 etaeps in
        let eps := pr2 etaeps in
        (
@@ -80,15 +80,17 @@ Local Definition identity_triangle1 {C : prebicategory} (a : C)
   ;v; (right_unitor _)
     = identity (identity1 a).
 Proof.
-  apply iso_inv_to_right.
+  apply z_iso_inv_to_right.
   rewrite id_left.
   rewrite <- !assoc.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
 
   intermediate_path (identity (identity1 a ;1; identity1 a)).
+  {
+    unfold inv ; cbn.
     rewrite whisker_right_inv.
-    apply iso_inv_on_right.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
+    apply z_iso_inv_on_right.
     rewrite id_right.
     simpl.
     unfold whisker_left.
@@ -97,12 +99,13 @@ Proof.
     rewrite (triangle_axiom (identity1 a) (identity1 a)).
     rewrite <- left_unitor_id_is_right_unitor_id.
     reflexivity.
+  }
 
   simpl.
   apply pathsinv0.
   rewrite left_unitor_id_is_right_unitor_id.
 
-  apply (iso_inv_after_iso (right_unitor _)).
+  apply (z_iso_inv_after_z_iso (right_unitor _)).
 Defined.
 
 Local Definition identity_triangle2 {C : prebicategory}
@@ -122,7 +125,7 @@ Proof.
   rewrite <- (assoc _ _ (whisker_left _ _)).
   rewrite <- whisker_left_on_comp.
 
-  set (W := iso_after_iso_inv (left_unitor (identity1 a))).
+  set (W := z_iso_after_z_iso_inv (left_unitor (identity1 a))).
   simpl in W.
   rewrite W.
   clear W.
@@ -133,7 +136,7 @@ Proof.
 
   rewrite left_unitor_id_is_right_unitor_id.
 
-  set (W := iso_after_iso_inv (right_unitor (identity1 a))).
+  set (W := z_iso_after_z_iso_inv (right_unitor (identity1 a))).
   simpl in W.
   rewrite W.
   reflexivity.

@@ -33,9 +33,9 @@ Proof.
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (vcomp_lid inv_x) |];
+                  apply (vcomp_linv inv_x) |];
         rewrite id2_right;
-        apply  (vcomp_lid inv_y)
+        apply  (vcomp_linv inv_y)
       ).
 Defined.
 
@@ -52,7 +52,7 @@ Proof.
         apply lwhisker_id2).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (vcomp_lid inv_x) |];
+        etrans; [ apply maponpaths; apply (vcomp_linv inv_x) |];
         apply lwhisker_id2).
 Defined.
 
@@ -68,13 +68,13 @@ Proof.
         apply id2_rwhisker).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (vcomp_lid inv_x) |];
+        etrans; [ apply maponpaths; apply (vcomp_linv inv_x) |];
         apply id2_rwhisker).
 Defined.
 
 (** ** Two-cells that are isomorphisms **)
 
-Definition pentagon
+Lemma pentagon
            {C : bicat}
            {V W X Y Z : C}
            (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧) (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -106,7 +106,7 @@ Proof.
   use make_is_invertible_2cell.
   - exact (inv_η₁^-1 ⋆⋆ inv_η₂^-1).
   - abstract (rewrite <- hcomp_vcomp, !vcomp_rinv; apply hcomp_identity).
-  - abstract (rewrite <- hcomp_vcomp, !vcomp_lid; apply hcomp_identity).
+  - abstract (rewrite <- hcomp_vcomp, !vcomp_linv; apply hcomp_identity).
 Defined.
 
 Definition bc_whisker_l
@@ -120,7 +120,7 @@ Definition bc_whisker_l
 
 (* Notation "g '◅' α" := (bc_whisker_l g α) (at level 40) : bicategory_scope. *)
 
-Definition bc_whisker_l_id₂
+Lemma bc_whisker_l_id₂
            {C : bicat}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
@@ -141,7 +141,7 @@ Definition bc_whisker_r
 
 (* Notation "β '▻' f" := (bc_whisker_r β f) (at level 40) : bicategory_scope. *)
 
-Definition bc_whisker_r_id₂
+Lemma bc_whisker_r_id₂
            {C : bicat}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
@@ -151,7 +151,7 @@ Proof.
   apply lwhisker_id2.
 Qed.
 
-Definition inverse_of_assoc
+Lemma inverse_of_assoc
            {C : bicat}
            {W X Y Z : C}
            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
@@ -162,7 +162,7 @@ Qed.
 
 (**** Properties of isomorphisms ***)
 
-Definition vcomp_move_L_Vp
+Lemma vcomp_move_L_Vp
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -178,7 +178,7 @@ Proof.
   assumption.
 Qed.
 
-Definition vcomp_move_L_pV
+Lemma vcomp_move_L_pV
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -188,13 +188,13 @@ Definition vcomp_move_L_pV
 Proof.
   intros Hη.
   rewrite <- (id2_left η₁).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite <- vassocr.
-  rewrite Hη.
-  reflexivity.
+  apply maponpaths.
+  exact Hη.
 Qed.
 
-Definition vcomp_move_R_Mp
+Lemma vcomp_move_R_Mp
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -204,13 +204,13 @@ Definition vcomp_move_R_Mp
 Proof.
   intros ?.
   rewrite <- (id2_right η₂).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite vassocr.
   apply maponpaths_2.
   assumption.
 Qed.
 
-Definition vcomp_move_R_pM
+Lemma vcomp_move_R_pM
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -222,11 +222,11 @@ Proof.
   rewrite <- (id2_left η₂).
   rewrite <- (vcomp_rinv Hε).
   rewrite <- vassocr.
-  rewrite Hη.
-  reflexivity.
+  apply maponpaths.
+  apply Hη.
 Qed.
 
-Definition vcomp_move_L_Mp
+Lemma vcomp_move_L_Mp
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -236,13 +236,13 @@ Definition vcomp_move_L_Mp
 Proof.
   intros ?.
   rewrite <- (id2_right η₁).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite vassocr.
   apply maponpaths_2.
   assumption.
 Qed.
 
-Definition vcomp_move_L_pM
+Lemma vcomp_move_L_pM
            {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
@@ -254,11 +254,11 @@ Proof.
   rewrite <- (id2_left η₁).
   rewrite <- (vcomp_rinv Hε).
   rewrite <- vassocr.
-  rewrite Hη.
-  reflexivity.
+  apply maponpaths.
+  apply Hη.
 Qed.
 
-Definition path_inverse_2cell
+Lemma path_inverse_2cell
            {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
@@ -270,14 +270,14 @@ Proof.
   intros p.
   rewrite <- (id2_left (inv_η₁^-1)).
   rewrite <- (id2_right (inv_η₂^-1)).
-  rewrite <- (vcomp_lid inv_η₂).
+  rewrite <- (vcomp_linv inv_η₂).
   rewrite <- vassocr.
   apply maponpaths.
   rewrite <- p.
   apply vcomp_rinv.
-Defined.
+Qed.
 
-Definition isaset_invertible_2cell
+Lemma isaset_invertible_2cell
            {C : bicat}
            {X Y : C}
            (f g : X --> Y)
@@ -288,7 +288,7 @@ Proof.
   - intro.
     apply isasetaprop.
     apply isaprop_is_invertible_2cell.
-Defined.
+Qed.
 
 Ltac is_iso :=
   match goal with
@@ -332,4 +332,102 @@ Proof.
   - is_iso.
     + apply α.
     + apply β.
+Defined.
+
+Definition lwhisker_of_invertible_2cell
+           {B : bicat}
+           {x y z : B}
+           (f : x --> y)
+           {g₁ g₂ : y --> z}
+           (α : invertible_2cell g₁ g₂)
+  : invertible_2cell (f · g₁) (f · g₂).
+Proof.
+  use make_invertible_2cell.
+  - exact (f ◃ α).
+  - is_iso.
+    apply α.
+Defined.
+
+Definition rwhisker_of_invertible_2cell
+           {B : bicat}
+           {x y z : B}
+           {f₁ f₂ : x --> y}
+           (g : y --> z)
+           (α : invertible_2cell f₁ f₂)
+  : invertible_2cell (f₁ · g) (f₂ · g).
+Proof.
+  use make_invertible_2cell.
+  - exact (α ▹ g).
+  - is_iso.
+    apply α.
+Defined.
+
+Definition lunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell (id₁ a · f) f.
+Proof.
+  use make_invertible_2cell.
+  - exact (lunitor f).
+  - is_iso.
+Defined.
+
+Definition linvunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell f (id₁ a · f).
+Proof.
+  use make_invertible_2cell.
+  - exact (linvunitor f).
+  - is_iso.
+Defined.
+
+Definition runitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell (f · id₁ b) f.
+Proof.
+  use make_invertible_2cell.
+  - exact (runitor f).
+  - is_iso.
+Defined.
+
+Definition rinvunitor_invertible_2cell
+           {B : bicat}
+           {a b : B}
+           (f : a --> b)
+  : invertible_2cell f (f · id₁ b).
+Proof.
+  use make_invertible_2cell.
+  - exact (rinvunitor f).
+  - is_iso.
+Defined.
+
+Definition lassociator_invertible_2cell
+           {B : bicat}
+           {a b c d : B}
+           (f : a --> b)
+           (g : b --> c)
+           (h : c --> d)
+  : invertible_2cell (f · (g · h)) (f · g · h).
+Proof.
+  use make_invertible_2cell.
+  - exact (lassociator f g h).
+  - is_iso.
+Defined.
+
+Definition rassociator_invertible_2cell
+           {B : bicat}
+           {a b c d : B}
+           (f : a --> b)
+           (g : b --> c)
+           (h : c --> d)
+  : invertible_2cell (f · g · h) (f · (g · h)).
+Proof.
+  use make_invertible_2cell.
+  - exact (rassociator f g h).
+  - is_iso.
 Defined.

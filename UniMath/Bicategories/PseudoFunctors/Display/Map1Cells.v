@@ -346,7 +346,7 @@ Section Map1Cells.
     apply fiberwise_local_univalent_is_univalent_2_1.
     intros F G η F₁ G₁ η₁ η₁'.
     use isweqimplimpl.
-    - intro m ; cbn in * ; unfold idfun.
+    - intro m ; cbn in *.
       apply funextsec ; intro X.
       apply funextsec ; intro Y.
       apply funextsec ; intro f.
@@ -491,7 +491,7 @@ Section Map1Cells.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
       rewrite lwhisker_vcomp.
-      rewrite vcomp_lid, lwhisker_id2, id2_left.
+      rewrite vcomp_linv, lwhisker_id2, id2_left.
       rewrite !vassocl.
       rewrite lunitor_runitor_identity.
       rewrite runitor_triangle.
@@ -625,7 +625,7 @@ Section Map1Cells.
       apply funextsec ; intro f.
       apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
-      cbn ; unfold idfun.
+      cbn.
       rewrite id2_right.
       reflexivity.
   Defined.

@@ -241,13 +241,13 @@ Proof.
   reflexivity.
 Qed.
 
-Definition id_trans
+Definition id_pstrans
            {C D : bicat}
            (F : psfunctor C D)
   : pstrans F F
   := id₁ F.
 
-Definition comp_trans
+Definition comp_pstrans
            {C D : bicat}
            {F₁ F₂ F₃ : psfunctor C D}
            (σ₁ : pstrans F₁ F₂) (σ₂ : pstrans F₂ F₃)

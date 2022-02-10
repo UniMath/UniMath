@@ -48,7 +48,7 @@ Definition hzzero : hz := unel hzaddabgr .
 Definition hzmult : hz -> hz -> hz := @op2 hz .
 Definition hzone : hz := unel hzmultabmonoid .
 
-(* Declare Scope hz_scope. *)
+Declare Scope hz_scope.
 Bind Scope hz_scope with hz .
 Notation " x + y " := ( hzplus x y ) : hz_scope .
 Notation " 0 " := hzzero : hz_scope .
@@ -129,12 +129,6 @@ Proof . intros . apply ( @grlcan hzaddabgr a b c is ) .  Defined .
 
 Lemma hzplusrcan ( a b c : hz ) ( is : ( a + c ) = ( b + c ) ) : a = b .
 Proof . intros . apply ( @grrcan hzaddabgr a b c is ) .  Defined .
-
-Lemma hzplusradd (a b c : hz) (is : a = b) : (a + c) = (b + c).
-Proof. intros. induction is. apply idpath. Defined.
-
-Lemma hzplusladd (a b c : hz) (is : a = b) : (c + a) = (c + b).
-Proof. intros. apply maponpaths. apply is. Defined.
 
 Definition hzinvmaponpathsminus { a b : hz } ( e : ( - a ) = ( - b ) ) : a = b := grinvmaponpathsinv hzaddabgr e .
 
@@ -980,7 +974,7 @@ Qed.
 
 Lemma hzeqnmplusr {n m i : hz} (e : n = m) (e' : ¬ (n + i = m + i)) : empty.
 Proof.
-  apply e'. exact (hzplusradd _ _ i e).
+  apply e'. exact (maponpaths_2 _ e _).
 Qed.
 
 Lemma hzeqnmplusr' {n m i : hz} (e : ¬ (n = m)) (e' : n + i = m + i) : empty.

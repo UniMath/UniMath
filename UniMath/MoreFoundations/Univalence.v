@@ -1,8 +1,8 @@
 (** * Additional results about univalence *)
 
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.PartA.
 
 (** Funextsec and toforallpaths are mutually inverses *)
 Lemma funextsec_toforallpaths {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :
@@ -20,7 +20,7 @@ Defined.
 Definition toforallpaths_funextsec_comp {T : UU} {P : T -> UU} (f g : ∏ t, P t) :
   toforallpaths P f g ∘ funextsec P f g = idfun _.
 Proof.
-  apply funextsec; intro; unfold funcomp.
+  apply funextsec; intro. simpl.
   apply toforallpaths_funextsec.
 Defined.
 
@@ -131,5 +131,5 @@ Proof.
     { unfold weqonsecbase; simpl. exact g. } }
   { intros [f h]. simpl. unfold maponsec1; simpl.
     induction k, l; simpl. unfold transportf; simpl.
-    unfold idfun; simpl. apply idweq. }
+    apply idweq. }
 Defined.

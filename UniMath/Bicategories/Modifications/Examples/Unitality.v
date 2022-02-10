@@ -31,10 +31,10 @@ Section LeftUnitality.
   Context {B₁ B₂ : bicat}.
   Variable (F : psfunctor B₁ B₂).
 
-  Definition pstrans_lunitor_linvunitor_data
+  Definition lunitor_linvunitor_pstrans_data
     : invertible_modification_data
-        (comp_trans (pstrans_lunitor F) (pstrans_linvunitor F))
-        (id_trans _).
+        (comp_pstrans (lunitor_pstrans F) (linvunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     intro X.
     use make_invertible_2cell.
@@ -42,8 +42,8 @@ Section LeftUnitality.
     - is_iso.
   Defined.
 
-  Definition pstrans_lunitor_linvunitor_is_modification
-    : is_modification pstrans_lunitor_linvunitor_data.
+  Definition lunitor_linvunitor_pstrans_is_modification
+    : is_modification lunitor_linvunitor_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -71,20 +71,20 @@ Section LeftUnitality.
     apply idpath.
   Qed.
 
-  Definition pstrans_lunitor_linvunitor
+  Definition lunitor_linvunitor_pstrans
     : invertible_modification
-        (comp_trans (pstrans_lunitor F) (pstrans_linvunitor F))
-        (id_trans _).
+        (comp_pstrans (lunitor_pstrans F) (linvunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_lunitor_linvunitor_data.
-    - exact pstrans_lunitor_linvunitor_is_modification.
+    - exact lunitor_linvunitor_pstrans_data.
+    - exact lunitor_linvunitor_pstrans_is_modification.
   Defined.
 
-  Definition pstrans_linvunitor_lunitor_data
+  Definition linvunitor_lunitor_pstrans_data
     : invertible_modification_data
-        (comp_trans (pstrans_linvunitor F) (pstrans_lunitor F))
-        (id_trans _).
+        (comp_pstrans (linvunitor_pstrans F) (lunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     intro X.
     use make_invertible_2cell.
@@ -92,8 +92,8 @@ Section LeftUnitality.
     - is_iso.
   Defined.
 
-  Definition pstrans_linvunitor_lunitor_is_modification
-    : is_modification pstrans_linvunitor_lunitor_data.
+  Definition linvunitor_lunitor_pstrans_is_modification
+    : is_modification linvunitor_lunitor_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -121,14 +121,14 @@ Section LeftUnitality.
     apply idpath.
   Qed.
 
-  Definition pstrans_linvunitor_lunitor
+  Definition linvunitor_lunitor_pstrans
     : invertible_modification
-        (comp_trans (pstrans_linvunitor F) (pstrans_lunitor F))
-        (id_trans _).
+        (comp_pstrans (linvunitor_pstrans F) (lunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_linvunitor_lunitor_data.
-    - exact pstrans_linvunitor_lunitor_is_modification.
+    - exact linvunitor_lunitor_pstrans_data.
+    - exact linvunitor_lunitor_pstrans_is_modification.
   Defined.
 End LeftUnitality.
 
@@ -136,10 +136,10 @@ Section RightUnitality.
   Context {B₁ B₂ : bicat}.
   Variable (F : psfunctor B₁ B₂).
 
-  Definition pstrans_runitor_rinvunitor_data
+  Definition runitor_rinvunitor_pstrans_data
     : invertible_modification_data
-        (comp_trans (pstrans_runitor F) (pstrans_rinvunitor F))
-        (id_trans _).
+        (comp_pstrans (runitor_pstrans F) (rinvunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     intro X.
     use make_invertible_2cell.
@@ -147,8 +147,8 @@ Section RightUnitality.
     - is_iso.
   Defined.
 
-  Definition pstrans_runitor_rinvunitor_is_modification
-    : is_modification pstrans_runitor_rinvunitor_data.
+  Definition runitor_rinvunitor_pstrans_is_modification
+    : is_modification runitor_rinvunitor_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -176,20 +176,20 @@ Section RightUnitality.
     apply idpath.
   Qed.
 
-  Definition pstrans_runitor_rinvunitor
+  Definition runitor_rinvunitor_pstrans
     : invertible_modification
-        (comp_trans (pstrans_runitor F) (pstrans_rinvunitor F))
-        (id_trans _).
+        (comp_pstrans (runitor_pstrans F) (rinvunitor_pstrans F))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_runitor_rinvunitor_data.
-    - exact pstrans_runitor_rinvunitor_is_modification.
+    - exact runitor_rinvunitor_pstrans_data.
+    - exact runitor_rinvunitor_pstrans_is_modification.
   Defined.
 
-  Definition pstrans_rinvunitor_runitor_data
+  Definition rinvunitor_runitor_pstrans_data
     : invertible_modification_data
-        (comp_trans (pstrans_rinvunitor F) (pstrans_runitor F))
-        (id_trans _).
+        (comp_pstrans (rinvunitor_pstrans F) (runitor_pstrans F))
+        (id_pstrans _).
   Proof.
     intro X.
     use make_invertible_2cell.
@@ -197,8 +197,8 @@ Section RightUnitality.
     - is_iso.
   Defined.
 
-  Definition pstrans_rinvunitor_runitor_is_modification
-    : is_modification pstrans_rinvunitor_runitor_data.
+  Definition rinvunitor_runitor_pstrans_is_modification
+    : is_modification rinvunitor_runitor_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -226,13 +226,13 @@ Section RightUnitality.
     apply idpath.
   Qed.
 
-  Definition pstrans_rinvunitor_runitor
+  Definition rinvunitor_runitor_pstrans
     : invertible_modification
-        (comp_trans (pstrans_rinvunitor F) (pstrans_runitor F))
-        (id_trans _).
+        (comp_pstrans (rinvunitor_pstrans F) (runitor_pstrans F))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_rinvunitor_runitor_data.
-    - exact pstrans_rinvunitor_runitor_is_modification.
+    - exact rinvunitor_runitor_pstrans_data.
+    - exact rinvunitor_runitor_pstrans_is_modification.
   Defined.
 End RightUnitality.

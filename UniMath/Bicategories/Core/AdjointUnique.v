@@ -37,7 +37,7 @@ Section AdjointUniqueMapCompose.
   Context {C : bicat}
           {X Y : C}.
 
-  Definition help₁
+  Lemma help₁
              (f : C⟦X,Y⟧) (g g' : C⟦Y,X⟧)
              (η : id₁ X ==> g ∘ f)
              (η' : id₁ X ==> g' ∘ f)
@@ -64,7 +64,7 @@ Section AdjointUniqueMapCompose.
     reflexivity.
   Qed.
 
-  Definition help₂
+  Lemma help₂
              (f : C⟦X,Y⟧) (g g' : C⟦Y,X⟧)
              (η : id₁ X ==> g ∘ f)
              (η' : id₁ X ==> g' ∘ f)
@@ -129,7 +129,7 @@ Section AdjointUniqueMapCompose.
                     o linvunitor l) o η₁) ▻ r₁
          o rinvunitor r₁.
 
-  Local Definition composition_of_triangles_is_identity
+  Local Lemma composition_of_triangles_is_identity
     : composition_of_triangles = id₂ r₁.
   Proof.
     unfold composition_of_triangles.
@@ -139,7 +139,7 @@ Section AdjointUniqueMapCompose.
     exact (internal_triangle2 A₁).
   Qed.
 
-  Local Definition ε₁_natural
+  Local Lemma ε₁_natural
     : ε₁ o (runitor l o ε₂ ⋆⋆ id₂ l) ⋆⋆ id₂ r₁
       =
       ε₂ o l ◅ (lunitor r₂ o r₂ ◅ ε₁) o lassociator (l ∘ r₁) r₂ l o lassociator r₁ l (l ∘ r₂).
@@ -179,10 +179,10 @@ Section AdjointUniqueMapCompose.
     rewrite <- runitor_triangle.
     rewrite !vassocr.
     rewrite lassociator_rassociator, id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition composition_of_maps : r₂_to_r₁ o r₁_to_r₂ = composition_of_triangles.
+  Lemma composition_of_maps : r₂_to_r₁ o r₁_to_r₂ = composition_of_triangles.
   Proof.
     unfold r₁_to_r₂, r₂_to_r₁, composition_of_triangles.
     rewrite !vassocr.
@@ -259,9 +259,9 @@ Section AdjointUniqueMapCompose.
     rewrite !vassocr.
     rewrite !id2_right, !id2_left.
     apply (maponpaths (λ z, z • _)).
-    rewrite rinvunitor_natural.
-    reflexivity.
+    apply rinvunitor_natural.
   Qed.
+
 End AdjointUniqueMapCompose.
 
 Section UniquenessAdjoint.
@@ -290,14 +290,12 @@ Section UniquenessAdjoint.
     - cbn.
       split.
       + rewrite (composition_of_maps l A₁ A₂).
-        rewrite composition_of_triangles_is_identity.
-        reflexivity.
+        apply composition_of_triangles_is_identity.
       + rewrite (composition_of_maps l A₂ A₁).
-        rewrite composition_of_triangles_is_identity.
-        reflexivity.
+        apply composition_of_triangles_is_identity.
   Defined.
 
-  Definition remove_η₂
+  Lemma remove_η₂
     : r₂ ◅ (runitor l o ε₁ ▻ l o rassociator l r₁ l o l ◅ η₁)
          o lassociator (id₁ X) l r₂
          o linvunitor (r₂ ∘ l)
@@ -314,11 +312,12 @@ Section UniquenessAdjoint.
     rewrite <- !vassocr.
     apply maponpaths.
     rewrite !vassocr.
-    rewrite rassociator_lassociator, id2_left.
-    reflexivity.
+    rewrite rassociator_lassociator.
+    apply (maponpaths (fun z => ((z • _) • _) • _)).
+    apply id2_left.
   Qed.
 
-  Definition help_triangle_η
+  Lemma help_triangle_η
     : (η₂ ▻ r₁) ▻ l o (rinvunitor r₁ ▻ l o η₁)
       =
       (rassociator l r₁ (r₂ ∘ l))
@@ -351,11 +350,10 @@ Section UniquenessAdjoint.
     rewrite <- !vassocr.
     apply maponpaths.
     rewrite <- interchange.
-    rewrite !id2_right, id2_left.
-    reflexivity.
+    rewrite !id2_right. apply (maponpaths (fun z => (z ⋆⋆ _))), id2_left.
   Qed.
 
-  Definition transport_unit
+  Lemma transport_unit
     : r₁_to_r₂ ▻ l o η₁ = η₂.
   Proof.
     rewrite <- remove_η₂.
@@ -396,7 +394,7 @@ Section UniquenessAdjoint.
     apply triangle_l.
   Qed.
 
-  Definition help_triangle_ε
+  Lemma help_triangle_ε
     : ε₂ o l ◅ (lunitor r₂ o r₂ ◅ ε₁)
       = ε₁ o runitor (l ∘ r₁)
            o lassociator _ _ _
@@ -436,11 +434,11 @@ Section UniquenessAdjoint.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite hcomp_identity.
     rewrite <- interchange.
-    rewrite !id2_right, !id2_left.
-    reflexivity.
+    rewrite !id2_right.
+    apply (maponpaths (fun z => (z ⋆⋆ _))), id2_left.
   Qed.
 
-  Definition remove_ε₁
+  Lemma remove_ε₁
     : ε₁ o runitor (l ∘ r₁)
          o lassociator r₁ l (id₁ Y)
          o (ε₂ ▻ l o rassociator l r₂ l o l ◅ η₂ o linvunitor l) ▻ r₁
@@ -463,7 +461,7 @@ Section UniquenessAdjoint.
     apply id2_left.
   Qed.
 
-  Definition transport_counit
+  Lemma transport_counit
     : ε₂ o l ◅ r₁_to_r₂ = ε₁.
   Proof.
     rewrite <- remove_ε₁.
@@ -498,9 +496,10 @@ Section UniquenessAdjoint.
     apply maponpaths.
     apply hcomp_rassoc.
   Qed.
+
 End UniquenessAdjoint.
 
-Definition unique_internal_adjoint_equivalence
+Lemma unique_internal_adjoint_equivalence
            {C : bicat}
            {X Y : C}
            (l : C⟦X,Y⟧)
@@ -549,9 +548,9 @@ Proof.
         cbn.
         symmetry.
         exact (transport_counit l A₁ A₂).
-Defined.
+Qed.
 
-Definition path_internal_adjoint_equivalence
+Lemma path_internal_adjoint_equivalence
            {C : bicat}
            {X Y : C}
            (HC : is_univalent_2_1 C)
@@ -563,7 +562,7 @@ Proof.
   - exact H.
   - apply unique_internal_adjoint_equivalence.
     apply HC.
-Defined.
+Qed.
 
 Lemma isaprop_left_adjoint_equivalence
       {C : bicat}
@@ -576,7 +575,7 @@ Proof.
   intros A1 A2.
   apply unique_internal_adjoint_equivalence.
   assumption.
-Defined.
+Qed.
 
 (** As a corollary, in a univalent bicategory 0-cells are 2-types. *)
 Lemma univalent_bicategory_0_cell_hlevel_4
@@ -596,9 +595,9 @@ Section AdjointEquivUniqueCompInv.
   Context {B : bicat}
           (HB : is_univalent_2 B).
 
-  Definition unique_adjoint_equivalence_inv
+  Lemma unique_adjoint_equivalence_inv
              {a b : B}
-    : ∏ (f : adjoint_equivalence a b), inv_adjequiv f = inv_adjoint_equivalence (pr1 HB) f.
+    : ∏ (f : adjoint_equivalence a b), inv_adjequiv f = inv_adjoint_equivalence (pr1 HB) a b f.
   Proof.
     use (J_2_0 (pr1 HB) (λ a b f, _)).
     intro x; simpl.
@@ -610,12 +609,12 @@ Section AdjointEquivUniqueCompInv.
       exact (isaprop_left_adjoint_equivalence _ (pr2 HB)).
     }
     apply idpath.
-  Defined.
+  Qed.
 
-  Definition unique_adjoint_equivalence_comp
+  Lemma unique_adjoint_equivalence_comp
              {a b c : B}
     : ∏ (f : adjoint_equivalence a b) (g : adjoint_equivalence b c),
-      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) f g.
+      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) a b c f g.
   Proof.
     use (J_2_0 (pr1 HB) (λ a b f, _)).
     intros x g; simpl.
@@ -631,5 +630,6 @@ Section AdjointEquivUniqueCompInv.
     use make_invertible_2cell.
     - exact (lunitor (pr1 g)).
     - is_iso.
-  Defined.
+  Qed.
+
 End AdjointEquivUniqueCompInv.

@@ -14,13 +14,13 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Section Strict_Fiber_Bicat.
-
   Context {C : bicat}
           (D : disp_prebicat C)
           (h : local_iso_cleaving D)

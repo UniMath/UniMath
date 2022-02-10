@@ -10,7 +10,7 @@
 
    - braidings
    - hexagon equations
-   - braided monoidal precategories
+   - braided monoidal categories
      - accessors
 *)
 
@@ -27,32 +27,32 @@ Local Open Scope cat.
 Section Braiding.
 
 (** In this section, fix a monoidal category. *)
-Context (MonM : monoidal_precat).
-Let M        := monoidal_precat_precat MonM.
-Let tensor   := monoidal_precat_tensor MonM.
-Let α        := monoidal_precat_associator MonM.
+Context (MonM : monoidal_cat).
+
+Local Definition tensor   := monoidal_cat_tensor MonM.
+Local Definition α        := monoidal_cat_associator MonM.
 
 Notation "X ⊗ Y" := (tensor (X, Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
 (* A braiding is a natural isomorphism from (- ⊗ =) to (= ⊗ -). *)
-Definition braiding : UU := nat_iso tensor (tensor □ binswap_pair_functor).
+Definition braiding : UU := nat_z_iso tensor (tensor □ binswap_pair_functor).
 
 (** * Hexagon equations. *)
 Section HexagonEquations.
 
 Context (braid : braiding).
-Let γ := pr1 braid.
-Let α₁ := pr1 α.
-Let α₂ := pr1 (nat_iso_inv α).
+Local Definition γ := pr1 braid.
+Local Definition α₁ := pr1 α.
+Local Definition α₂ := pr1 (nat_z_iso_inv α).
 
 Definition first_hexagon_eq : UU :=
-  ∏ (a b c : M) ,
+  ∏ (a b c : MonM) ,
   (α₁ ((a , b) , c)) · (γ (a , (b ⊗ c))) · (α₁ ((b , c) , a))  =
   (γ (a , b) #⊗ (id c)) · (α₁ ((b , a) , c)) · ((id b) #⊗ γ (a , c)).
 
 Definition second_hexagon_eq : UU :=
-  ∏ (a b c : M) ,
+  ∏ (a b c : MonM) ,
   α₂ ((a , b) , c) · (γ (a ⊗ b , c)) · α₂ ((c , a) , b)  =
   ((id a) #⊗ γ (b , c)) · α₂ ((a , c) , b) · (γ (a , c) #⊗ (id b)).
 
@@ -60,22 +60,22 @@ End HexagonEquations.
 
 End Braiding.
 
-(** * Braided monoidal precategories *)
-Definition braided_monoidal_precat : UU :=
-  ∑ M : monoidal_precat ,
+(** * Braided monoidal categories *)
+Definition braided_monoidal_cat : UU :=
+  ∑ M : monoidal_cat ,
   ∑ γ : braiding M ,
   (first_hexagon_eq M γ) × (second_hexagon_eq M γ).
 
 (** ** Accessors *)
-Section Braided_Monoidal_Precat_Acessors.
+Section Braided_Monoidal_Cat_Acessors.
 
-Context (M : braided_monoidal_precat).
+Context (M : braided_monoidal_cat).
 
-Definition braided_monoidal_precat_monoidal_precat := pr1 M.
-Definition braided_monoidal_precat_braiding := pr1 (pr2 M).
-Definition braided_monoidal_precat_first_hexagon_eq := pr1 (pr2 (pr2 M)).
-Definition braided_monoidal_precat_second_hexagon_eq := pr2 (pr2 (pr2 M)).
+Definition braided_monoidal_cat_monoidal_cat := pr1 M.
+Definition braided_monoidal_cat_braiding := pr1 (pr2 M).
+Definition braided_monoidal_cat_first_hexagon_eq := pr1 (pr2 (pr2 M)).
+Definition braided_monoidal_cat_second_hexagon_eq := pr2 (pr2 (pr2 M)).
 
-End Braided_Monoidal_Precat_Acessors.
+End Braided_Monoidal_Cat_Acessors.
 
-Coercion braided_monoidal_precat_monoidal_precat : braided_monoidal_precat >-> monoidal_precat.
+Coercion braided_monoidal_cat_monoidal_cat : braided_monoidal_cat >-> monoidal_cat.

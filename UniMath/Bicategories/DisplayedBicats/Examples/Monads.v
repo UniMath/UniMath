@@ -35,14 +35,14 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
 Local Open Scope cat.
 
 Definition monad_support (C : bicat)
   : bicat
-  := bicat_algebra (ps_id_functor C).
+  := bicat_algebra (id_psfunctor C).
 
 Definition monad_support_is_univalent_2_1 {C : bicat}
            (HC_1 : is_univalent_2_1 C)
@@ -74,8 +74,8 @@ Definition add_unit (C : bicat)
   : disp_bicat (monad_support C).
 Proof.
   use add_cell_disp_cat.
-  - exact (ps_id_functor _).
-  - exact (ps_id_functor _).
+  - exact (id_psfunctor _).
+  - exact (id_psfunctor _).
   - exact (var _ _).
   - exact (alg_map _).
 Defined.
@@ -84,8 +84,8 @@ Definition add_mu (C : bicat)
   : disp_bicat (monad_support C).
 Proof.
   use add_cell_disp_cat.
-  - exact (ps_id_functor _).
-  - exact (ps_id_functor _).
+  - exact (id_psfunctor _).
+  - exact (id_psfunctor _).
   - exact ((alg_map _) · (alg_map _)).
   - exact (alg_map _).
 Defined.
@@ -163,17 +163,15 @@ Section BigProjections.
     := λ m, pr222 m.
 
   Definition bigmonad_laws (m : lawless_monad C) : UU
-    := ((linvunitor (bigmonad_map m))
-          • (bigmonad_unit m ▹ bigmonad_map m)
+    := ((bigmonad_unit m ▹ bigmonad_map m)
           • bigmonad_mu m
         =
-        id₂ (bigmonad_map m))
+        lunitor (bigmonad_map m))
          ×
-       (rinvunitor (bigmonad_map m)
-          • (bigmonad_map m ◃ bigmonad_unit m)
+       ((bigmonad_map m ◃ bigmonad_unit m)
           • bigmonad_mu m
         =
-        id₂ (bigmonad_map m))
+        runitor (bigmonad_map m))
          ×
        ((bigmonad_map m ◃ bigmonad_mu m)
           • bigmonad_mu m
@@ -202,12 +200,20 @@ Definition monad_mu : monad_endo · monad_endo ==> monad_endo
   := pr221 m.
 
 Definition monad_ημ
-  : linvunitor monad_endo • (monad_unit ▹ monad_endo) • monad_mu = id₂ monad_endo
-  := pr12 m.
+  : linvunitor monad_endo • (monad_unit ▹ monad_endo) • monad_mu = id₂ monad_endo.
+Proof.
+  refine (vassocl _ _ _ @ _ @ linvunitor_lunitor _ ).
+  refine (maponpaths _ _).
+  exact (pr12 m).
+Defined.
 
 Definition monad_μη
-  : rinvunitor monad_endo • (monad_endo ◃ monad_unit) • monad_mu = id₂ monad_endo
-  := pr122 m.
+  : rinvunitor monad_endo • (monad_endo ◃ monad_unit) • monad_mu = id₂ monad_endo.
+Proof.
+  refine (vassocl _ _ _ @ _ @ rinvunitor_runitor _ ).
+  refine (maponpaths _ _).
+  exact (pr122 m).
+Defined.
 
 Definition monad_μμ
   : (monad_endo ◃ monad_mu) • monad_mu
@@ -266,12 +272,12 @@ Definition make_monad {C : bicat}
            (f : C⟦X,X⟧)
            (η : id₁ X ==> f)
            (μ : f · f ==> f)
-           (ημ : linvunitor f • (η ▹ f) • μ
+           (ημ : (η ▹ f) • μ
                  =
-                 id₂ f)
-           (μη : rinvunitor f • (f ◃ η) • μ
+                 lunitor f)
+           (μη : (f ◃ η) • μ
                  =
-                 id₂ f)
+                 runitor f)
            (μμ : (f ◃ μ) • μ
                  =
                  lassociator f f f • (μ ▹ f) • μ)
@@ -335,12 +341,12 @@ Definition make_bigmonad {C : bicat}
            (f : C⟦X,X⟧)
            (η : id₁ X ==> f)
            (μ : f · f ==> f)
-           (ημ : linvunitor f • (η ▹ f) • μ
+           (ημ : (η ▹ f) • μ
                  =
-                 id₂ f)
-           (μη : rinvunitor f • (f ◃ η) • μ
+                 lunitor f)
+           (μη : (f ◃ η) • μ
                  =
-                 id₂ f)
+                 runitor f)
            (μμ : (f ◃ μ) • μ
                  =
                  lassociator f f f • (μ ▹ f) • μ)
@@ -477,7 +483,7 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------------- *)
-(* C = bicat_of_cats.                                                        *)
+(* C = bicat_of_univ_cats.                                                        *)
 (* ------------------------------------------------------------------------- *)
 
 Definition make_cat_monad
@@ -488,7 +494,7 @@ Definition make_cat_monad
            (lid : ∏ (X : C), #M (η X) · μ X = id₁ (M X))
            (rid : ∏ (X : C), η (M X) · μ X = id₁ (M X))
            (massoc :  ∏ (X : C), μ (M X) · μ X = #M (μ X) · μ X)
-  : monad bicat_of_cats C.
+  : monad bicat_of_univ_cats C.
 Proof.
   use make_monad.
   - exact M.
@@ -497,12 +503,10 @@ Proof.
   - abstract
       (use nat_trans_eq; try apply homset_property;
        intros X ; cbn;
-       rewrite id_left;
        apply lid).
   - abstract
       (use nat_trans_eq; try apply homset_property;
        intros X ; cbn;
-       rewrite id_left;
        apply rid).
   - abstract
       (use nat_trans_eq; try apply homset_property;
@@ -511,7 +515,7 @@ Proof.
        apply massoc).
 Defined.
 
-Definition cat_monad_ημ {C : univalent_category} (M : monad bicat_of_cats C)
+Definition cat_monad_ημ {C : univalent_category} (M : monad bicat_of_univ_cats C)
   : ∏ (X : C), #(pr1(monad_endo M)) (pr1(monad_unit M) X) · pr1(monad_mu M) X = id₁ _.
 Proof.
   intros X.
@@ -521,7 +525,7 @@ Proof.
   exact p.
 Qed.
 
-Definition cat_monad_μη {C : univalent_category} (M : monad bicat_of_cats C)
+Definition cat_monad_μη {C : univalent_category} (M : monad bicat_of_univ_cats C)
   : ∏ (X : C), pr1(monad_unit M) (pr1(monad_endo M) X) · pr1(monad_mu M) X = id₁ _.
 Proof.
   intros X.
@@ -531,7 +535,7 @@ Proof.
   exact p.
 Qed.
 
-Definition cat_monad_μμ {C : univalent_category} (M : monad bicat_of_cats C)
+Definition cat_monad_μμ {C : univalent_category} (M : monad bicat_of_univ_cats C)
   : ∏ (X : C),
     pr1(monad_mu M) (pr1(monad_endo M) X) · pr1(monad_mu M) X
     =
@@ -551,7 +555,7 @@ Qed.
 Section Bind.
 
 Context {C : univalent_category}
-        (M : monad bicat_of_cats C).
+        (M : monad bicat_of_univ_cats C).
 
 Definition monad_bind
            {A B : C}
@@ -644,10 +648,10 @@ End Bind.
 
 Definition make_cat_monad_mor
            {C D : univalent_category}
-           {mx : monad bicat_of_cats C} {my : monad bicat_of_cats D}
+           {mx : monad bicat_of_univ_cats C} {my : monad bicat_of_univ_cats D}
            {F : C ⟶ D}
            (mf_nat : nat_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
-           (mfη : ∏ (X : C), #F (pr1 (monad_unit mx) X) · mf_nat X
+           (mfη : ∏ (X : C), # F (pr1 (monad_unit mx) X) · mf_nat X
                              =
                              pr1 (monad_unit my) (F X))
            (mfμ : ∏ (X : C),
@@ -675,8 +679,8 @@ Defined.
 
 Definition make_cat_monad_cell
            {C D : univalent_category}
-           {mx : monad bicat_of_cats C}
-           {my : monad bicat_of_cats D}
+           {mx : monad bicat_of_univ_cats C}
+           {my : monad bicat_of_univ_cats D}
            {f g : C ⟶ D}
            {α : f ⟹ g}
            {mf : mx -->[f] my}
@@ -685,7 +689,7 @@ Definition make_cat_monad_cell
                 α (pr1 (monad_endo mx) X) · (pr11 (monad_mor_natural mg)) X
                 =
                 (pr11 (monad_mor_natural mf)) X · # (pr1 (monad_endo my)) (pr1 α X))
-  : mf ==>[α: prebicat_cells bicat_of_cats _ _] mg.
+  : mf ==>[α: prebicat_cells bicat_of_univ_cats _ _] mg.
 Proof.
   apply make_monad_cell.
   use nat_trans_eq; try apply homset_property.
@@ -696,8 +700,8 @@ Qed.
 Definition monad_mor_nat_iso
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_cats C₁}
-           {M₂ : monad bicat_of_cats C₂}
+           {M₁ : monad bicat_of_univ_cats C₁}
+           {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
   : nat_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
   := invertible_2cell_to_nat_iso _ _ (monad_mor_natural FF).
@@ -705,8 +709,8 @@ Definition monad_mor_nat_iso
 Definition monad_mor_natural_pointwise
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_cats C₁}
-           {M₂ : monad bicat_of_cats C₂}
+           {M₁ : monad bicat_of_univ_cats C₁}
+           {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
            (X : C₁)
   : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
@@ -716,8 +720,8 @@ Definition monad_mor_natural_pointwise
 Definition monad_mor_iso
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
-           {M₁ : monad bicat_of_cats C₁}
-           {M₂ : monad bicat_of_cats C₂}
+           {M₁ : monad bicat_of_univ_cats C₁}
+           {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
   : ∏ X : C₁, iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
   := CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF).
@@ -725,8 +729,8 @@ Definition monad_mor_iso
 Lemma monad_mor_bind
       {C₁ C₂ : univalent_category}
       {F : C₁ ⟶ C₂}
-      {M₁ : monad bicat_of_cats C₁}
-      {M₂ : monad bicat_of_cats C₂}
+      {M₁ : monad bicat_of_univ_cats C₁}
+      {M₂ : monad bicat_of_univ_cats C₂}
       (FF : M₁ -->[F] M₂)
       {A B : C₁}
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)
@@ -763,8 +767,8 @@ Qed.
 Lemma monad_mor_bind_alt
       {C₁ C₂ : univalent_category}
       {F : C₁ ⟶ C₂}
-      {M₁ : monad bicat_of_cats C₁}
-      {M₂ : monad bicat_of_cats C₂}
+      {M₁ : monad bicat_of_univ_cats C₁}
+      {M₂ : monad bicat_of_univ_cats C₂}
       (FF : M₁ -->[F] M₂)
       {A B : C₁}
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)

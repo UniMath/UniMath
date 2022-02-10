@@ -32,8 +32,8 @@ Section BINOPS_precategory.
     binopfuncomp (idbinopfun A) f = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
 
@@ -41,8 +41,8 @@ Section BINOPS_precategory.
     binopfuncomp f (idbinopfun B) = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
   Definition binopfuncomp_assoc (A B C D : setwithbinop) (f : binopfun A B)
@@ -212,11 +212,11 @@ Section BINOP_category.
   Defined.
   Opaque binop_precategory_isweq.
 
-  Definition binop_precategory_is_univalent : is_univalent binop_precategory.
+  Definition binop_category : category := make_category _ has_homsets_BINOP.
+
+  Definition binop_precategory_is_univalent : is_univalent binop_category.
   Proof.
-    use make_dirprod.
-    - intros a b. exact (binop_precategory_isweq a b).
-    - exact has_homsets_BINOP.
+    intros a b. exact (binop_precategory_isweq a b).
   Defined.
 
 End BINOP_category.
