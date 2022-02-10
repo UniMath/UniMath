@@ -110,6 +110,7 @@ Core/YonedaLemma.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v
+Colimits/Extensive.v
 Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
