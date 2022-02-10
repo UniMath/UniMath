@@ -524,31 +524,6 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     apply (transpose H).
   Defined.
 
-  (* Showing that the constructed inverse is upper triangular if input matrix is *)
-  Definition upper_triangular_right_inverse_construction_inv0
-    { n : nat } (mat : Matrix hq n n) (v : Vector hq n)
-    (ut : @is_upper_triangular hq n n mat)
-    : forall (i : stn n),
-    (mat ** (col_vec v)) = (col_vec (@stdb_vector hq n i))
-  -> forall (j : stn n), i < j -> v j = 0%hq.
-  Proof.
-    intros i H j lt.
-    destruct i as [i lt'].
-    induction i.
-    - simpl.
-      simpl in H.
-      pose (H2 := @col_vec_mult_eq hq n mat _ _ H (0,, lt')).
-      destruct (isdeceqhq (v j) 0%hq). {assumption. }
-      change 0%rig with 0%hq in H2.
-
-      assert (eq: (@stdb_vector hq n (0,, lt') (0,, lt')) = (@rigunel2 hq)).
-      { unfold stdb_vector.  destruct (stn_eq_or_neq _ _). {reflexivity. } contradiction. }
-      assert (pwise : @is_pulse_function hq n (0,, lt') (mat (0,, lt'))).
-      { unfold is_pulse_function. intros k.
-        rewrite ut; intros. {reflexivity. } 
-          }
-  Abort.
-
 
   (* actually only needs right invertibility ? *)
   Lemma invertible_upper_triangular_to_diag_filled { n : nat } (A : Matrix hq n n)
