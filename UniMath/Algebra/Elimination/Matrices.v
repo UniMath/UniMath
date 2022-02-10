@@ -19,6 +19,7 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 
 Require Import UniMath.RealNumbers.Prelim.
 
+
 Section Matrices.
 
   Context {R : rig}.
@@ -26,11 +27,18 @@ Section Matrices.
   Local Notation "A ** B" := (matrix_mult A B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
+
+  Lemma matrix_eq_to_product_eq 
+  { m n k : nat } (A B : Matrix R m n) (C : Matrix R k m)
+  : A = B -> (C ** A) = (C ** B).
+  Proof.
+    intros eq; rewrite eq; reflexivity.
+  Defined.
+
   Definition matlunel2 (n : nat) := @identity_matrix R n.
   Definition matrunel2 (n : nat) := @identity_matrix R n.
 
-
-  Lemma matlunax2 : ∏ (n : nat) (mat : Matrix R n n),
+  Lemma matlunax2 : ∏ (m n: nat) (mat : Matrix R n m),
     (identity_matrix ** mat) = mat.
   Proof.
     intros.
@@ -56,8 +64,7 @@ Section Matrices.
       destruct (stn_eq_or_neq i i).
       + rewrite coprod_rect_compute_1.
         apply riglunax2.
-      + (*apply isirrefl_natneq in h. *)
-        rewrite coprod_rect_compute_2.
+      + rewrite coprod_rect_compute_2.
         apply isirrefl_natneq in h.
         apply fromempty. assumption.
   Defined.
@@ -80,7 +87,6 @@ Section Matrices.
     rewrite <- H'.
     reflexivity.
   Defined.
-
 
   Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n) := mat = transpose mat.
 
@@ -105,7 +111,7 @@ Section Matrices.
       apply idpath.
     - rewrite coprod_rect_compute_2.
       destruct (stn_eq_or_neq j i) as [cnt | ?].
-      + rewrite cnt in i_neq_j. (* TODO have a lemma for (i = j) (i ≠ j) too - pattern is used often*)
+      + rewrite cnt in i_neq_j.
         apply issymm_natneq in i_neq_j.
         apply isirrefl_natneq in i_neq_j.
         contradiction.
@@ -164,6 +170,28 @@ Section Matrices.
       apply idpath.
   Defined.
 
+  Lemma identity_matrix_unique_left {m : nat}
+    (Z : Matrix R m m)
+    : (forall n : nat, forall A : (Matrix R m n),
+      (Z ** A) = A)
+    -> Z = identity_matrix.
+  Proof.
+    intros impl.
+    pose (ex := impl m (@identity_matrix R m)).
+    rewrite matrunax2 in ex; assumption.
+  Defined.
+
+  Lemma identity_matrix_unique_right {n : nat}
+    (Z : Matrix R n n)
+    : (forall m : nat, forall A : (Matrix R m n),
+      (A ** Z) = A)
+    -> Z = identity_matrix.
+  Proof.
+    intros impl.
+    pose (ex := impl n (@identity_matrix R n)).
+    rewrite matlunax2 in ex; assumption.
+  Defined.
+
   Lemma idrow_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn) :
     Σ ((@identity_matrix R n ) i) = 1%rig.
   Proof.
@@ -177,62 +205,128 @@ Section Matrices.
       apply idpath.
   Defined.
 
-  (* Should be renamed isinvertible_matrix or something close to that *)
-  Definition matrix_inverse {n : nat} (A : Matrix R n n) :=
-    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).
-
   (* TODO: name as e.g. [matrix_right_inverse] since gives choice of inverse? and similar vice versa below. *)
-  Definition matrix_right_inverse {n : nat} (A : Matrix R n n) :=
-    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix).
+  Definition matrix_right_inverse {m n : nat} (A : Matrix R m n) :=
+    ∑ (B : Matrix R n m), ((A ** B) = identity_matrix).
 
-  Definition matrix_left_inverse {n : nat} (A : Matrix R n n) :=
-    ∑ (B : Matrix R n n), ((B ** A) = identity_matrix).
+  Definition matrix_left_inverse {m n : nat} (A : Matrix R m n) :=
+    ∑ (B : Matrix R n m), ((B ** A) = identity_matrix).
+
+  Definition matrix_inverse {n : nat} (A : Matrix R n n) :=
+    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).  
+
+  Lemma matrix_inverse_to_right_and_left_inverse 
+    {n : nat} (A : Matrix R n n) 
+    : (matrix_inverse A) -> matrix_left_inverse A × matrix_right_inverse A.
+  Proof.
+    intros inv.
+    destruct inv as [inv isinv].
+    use tpair.
+    - unfold matrix_left_inverse.
+      use tpair. {exact inv. }
+      simpl.
+      exact (pr2 isinv).
+    - unfold matrix_right_inverse.
+      use tpair. {exact inv. }
+      simpl.
+      exact (pr1 isinv).
+  Defined.
+
+  Lemma matrix_left_inverse_equals_right_inverse
+  {m n k: nat} (A : Matrix R n n) (lft : matrix_left_inverse A) (rght : matrix_right_inverse A)
+  : pr1 lft = pr1 rght.
+  Proof.
+    destruct lft as [lft islft].
+    destruct rght as [rght isrght].
+    simpl.
+    pose (H0 := matlunax2 n n rght).
+    rewrite <- islft in H0.
+    rewrite matrix_mult_assoc in H0.
+    rewrite isrght in H0.
+    rewrite matrunax2 in H0.
+    exact H0.
+  Defined.
+
+  Lemma matrix_right_left_inverse_to_inverse
+    {n : nat} (A : Matrix R n n) 
+    : matrix_left_inverse A -> matrix_right_inverse A -> (matrix_inverse A).
+  Proof.
+    intros lft rght.
+    use tpair. {apply lft. }
+    simpl.
+    use tpair. 2: {apply lft. }
+    pose (H0 := @matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
+    rewrite H0.
+    apply rght.
+  Defined.
 
   Lemma matrix_inverse_unique {n : nat} (A : Matrix R n n)
     (B C : matrix_inverse A) : pr1 B = pr1 C.
   Proof.
-    revert B C.
-    unfold matrix_inverse.
+    assert (eq : pr1 B = ((pr1 B) ** (A ** (pr1 C)))).
+    { rewrite (pr1 (pr2 C)).
+      rewrite matrunax2; apply idpath. }
+    rewrite eq.
+    rewrite <- matrix_mult_assoc.
+    rewrite (pr2 (pr2 B)).
+    rewrite matlunax2; apply idpath.
+  Defined.
+
+  Lemma left_inv_matrix_prod_is_left_inv {n : nat} (A : Matrix R n n)
+    (A' : Matrix R n n) (pa : matrix_left_inverse A) (pb : matrix_left_inverse A') :
+    (matrix_left_inverse (A ** A')).
+  Proof.
     intros.
-    apply funextfun; intros i.
-    apply funextfun; intros j.
-  Abort.
+    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
+    simpl.
+    rewrite matrix_mult_assoc.
+    rewrite <- (matrix_mult_assoc _ A _).
+    rewrite (pr2 pa).
+    rewrite matlunax2.
+    rewrite (pr2 pb).
+    reflexivity.
+  Defined.
+
+  Lemma right_inv_matrix_prod_is_right_inv {n : nat} (A : Matrix R n n)
+    (A' : Matrix R n n) (pa : matrix_right_inverse A) (pb : matrix_right_inverse A') :
+    (matrix_right_inverse (A ** A')).
+  Proof.
+    intros.
+    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
+    simpl.
+    rewrite matrix_mult_assoc.
+    rewrite <- (matrix_mult_assoc _ (pr1 pb) _).
+    rewrite (pr2 pb).
+    rewrite matlunax2.
+    rewrite (pr2 pa).
+    reflexivity.
+  Defined.
 
   (* The product of two invertible matrices being invertible *)
+  (* TODO Rewrite this in terms of above instead of copying. *)
   Lemma inv_matrix_prod_is_inv {n : nat} (A : Matrix R n n)
     (A' : Matrix R n n) (pa : matrix_inverse A) (pb : matrix_inverse A') :
     (matrix_inverse (A ** A')).
   Proof.
-    intros.
     use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
+    simpl.
     use tpair.
     - rewrite matrix_mult_assoc.
-      rewrite <- (matrix_mult_assoc A' _ _).
-      replace (A' ** pr1 pb) with (@identity_matrix R n).
-      + rewrite matlunax2.
-        replace (A ** pr1 pa) with (@identity_matrix R n).
-        2 : { symmetry.
-              set (p := (pr1 (pr2 pa))). rewrite p.
-              reflexivity.
-        }
-        reflexivity.
-      + rewrite <- matrunax2.
-        replace (A' ** pr1 pb) with (@identity_matrix R n).
-        { rewrite matrunax2.
-          reflexivity. }
-        set (p := pr1 (pr2 pb)). rewrite p.
-        reflexivity.
+      rewrite <- (matrix_mult_assoc _ (pr1 pb) _).
+      rewrite (pr1 (pr2 pb)).
+      rewrite matlunax2.
+      rewrite (pr1 (pr2 pa)).
+      reflexivity.
     - simpl.
-      rewrite <- matrix_mult_assoc.
-      rewrite  (matrix_mult_assoc (pr1 pb) _ _).
-      replace (pr1 pa ** A) with (@identity_matrix R n).
-      2 : { symmetry. rewrite (pr2 (pr2 pa)). reflexivity. }
-      replace (pr1 pb ** identity_matrix) with (pr1 pb).
-      2 : { rewrite matrunax2. reflexivity. }
+      rewrite matrix_mult_assoc.
+      rewrite <- (matrix_mult_assoc _ A _).
+      rewrite (pr2 (pr2 pa)).
+      rewrite matlunax2.
       rewrite (pr2 (pr2 pb)).
       reflexivity.
   Defined.
 
+  (* TODO rename identity_matrix_inv *)
   Lemma identity_matrix_is_inv { n : nat } : matrix_inverse (@identity_matrix _ n).
   Proof.
     use tpair. { exact identity_matrix. }
@@ -249,13 +343,6 @@ Section Matrices.
     - apply funextfun; intros i. apply fromstn0. rewrite eq in i. assumption.
   Defined.
 
-  Lemma square_inverse_left_right_eq 
-    {n : nat} (A B : Matrix R n n)
-    (e1 : (A ** B) = identity_matrix) (e2 : (B ** A) = identity_matrix)
-    : A = B.
-  Proof.
-  Abort.
-
   Lemma nil_matrix_eq1 {X : UU} {m n : nat} (A B: Matrix X m n) (eq0 : m = 0)
     : A = B.
   Proof.
@@ -269,10 +356,25 @@ Section Matrices.
     apply fromstn0. rewrite eq0 in j. assumption.
   Defined.
 
-  Lemma transpose_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X n n):
+  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
     transpose mat1 = transpose mat2 -> mat1 = mat2.
   Proof.
     intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
+  Defined.
+
+  Lemma transpose_inj_pointwise {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
+    (forall i : (stn n), transpose mat1 i = transpose mat2 i) -> mat1 = mat2.
+  Proof.
+    intros H.
+    apply @transpose_inj; try assumption.
+    apply funextfun; intros ?.
+    rewrite H; apply idpath.
+  Defined.
+
+  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
+  (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
+  Proof.
+    apply transpose_inj_pointwise; assumption.
   Defined.
 
   Definition diagonal_sq { n : nat } (mat : Matrix R n n) :=
@@ -299,24 +401,14 @@ Section Matrices.
     exact (mat (dni i i') (dni j j')).
   Defined.
 
-  Definition determinant_cofactor { n : nat } (mat : Matrix hq (n) (n)) : hq.
-  Proof.
-    induction n. {  exact (@rigunel2 hq). }
-    destruct (nat_eq_or_neq n 1 ). { exact (firstValue (firstValue mat)). }
-    destruct (nat_eq_or_neq n 2 ).
-    { exact (firstValue (firstValue mat) * (lastValue (lastValue (mat)))
-             - (lastValue (firstValue mat))  * (firstValue(lastValue (mat))))%hq. }
-    set (mp := λ i : ⟦ S n ⟧%stn, iterop_fun 0%hq op2 (λ j : ⟦ (S n) + i ⟧%stn, (- 1%hq)%hq)).
-    set (q := (λ i : ⟦ S n ⟧%stn, (IHn ((@ij_minor hq _ i (0,, natgthsn0 n) mat))))).
-    exact ( (iterop_fun 0%hq op1 (λ i : ⟦ S n ⟧%stn, (mp i) * q i)))%hq.
-  Defined.
-
 End Matrices.
 
 
   (* Things that are not really specific to hq but used in later in hq
      - TODO either generalize elimination procedures or state below
-       in terms of commrings and prove hq is one. *)
+       in terms of commrings and prove hq is one. 
+       
+    Some material can be moved to semirings section above *)
 Section MatricesHq.
 
   Local Notation Σ := (iterop_fun hqzero op1).
@@ -337,7 +429,7 @@ Section MatricesHq.
   Defined.
 
   Lemma matrix_product_transpose
-  { n : nat } (A B : Matrix hq n n)
+  { m n k : nat } (A : Matrix hq m n) (B : Matrix hq n k)
   : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
   Proof.
     intros.
@@ -351,11 +443,9 @@ Section MatricesHq.
   Defined.
 
   Lemma invertible_to_transpose_invertible
-  { n : nat } (mat : Matrix hq n n)
-  :
-  (@matrix_inverse hq n mat)
-  ->
-  (@matrix_inverse hq n (transpose mat)).
+    { n : nat } (mat : Matrix hq n n)
+    : (@matrix_inverse hq n mat)
+    -> (@matrix_inverse hq n (transpose mat)).
   Proof.
     assert (eq : transpose (@identity_matrix hq n) = @identity_matrix hq n).
     { unfold transpose. unfold flip.
@@ -399,15 +489,31 @@ Section MatricesHq.
     apply invertible_to_transpose_invertible; assumption.
   Defined.
 
-  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
+  Lemma matrix_left_inverse_to_transpose_right_inverse
+    {m n : nat} (A : Matrix hq m n)
+    (inv: @matrix_left_inverse hq m n A)
+    : (@matrix_right_inverse hq n m (@transpose hq n m A)).
+  Proof.
+    destruct inv as [inv isinv].
+    pose (prod_eq := @matrix_product_transpose n m n inv A).
+    pose (id_eq := @identity_matrix_symmetric hq n).
+    unfold is_symmetric_mat in id_eq.
+    rewrite isinv in prod_eq.
+    use tpair. {exact (transpose inv). }
+    simpl.
+    rewrite <- id_eq in prod_eq.
+    apply pathsinv0.
+    apply prod_eq.
+  Defined.
+
+  Lemma zero_row_to_non_right_invertibility { n : nat } (A : Matrix hq n n)
       (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
-  (@matrix_inverse hq n A) -> empty.
+  (@matrix_right_inverse hq n n A) -> empty.
   Proof.
     intros invA.
-    destruct invA as [inv isinv].
-    destruct isinv as [isrightinv isleftinv]. (* TODO fix order *)
+    destruct invA as [inv isrightinv].
     assert (∏ i j : ⟦ n ⟧%stn, (A ** inv) i j = identity_matrix i j).
-    { intros.  rewrite isrightinv. reflexivity. }
+    { intros. rewrite isrightinv. reflexivity. }
     destruct (natchoice0 n) as [eq | gt].
     { apply fromstn0. clear zero_row. rewrite <- eq in i. assumption. }
     assert (contr : (A ** inv) i i = 0%hq).
@@ -431,6 +537,16 @@ Section MatricesHq.
     contradiction.
   Defined.
 
+  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
+      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
+  (@matrix_inverse hq n A) -> empty.
+  Proof.
+    intros invA.
+    apply matrix_inverse_to_right_and_left_inverse in invA.
+    destruct invA as [? rinvA].
+    apply (zero_row_to_non_right_invertibility A i); assumption.
+  Defined.
+
   Lemma diagonal_nonzero_iff_transpose_nonzero
     { n : nat } (A : Matrix hq n n)
     : diagonal_all_nonzero A
@@ -444,12 +560,11 @@ Section MatricesHq.
     (H: @is_upper_triangular hq n n A)
     : (@is_lower_triangular hq n n (transpose A)).
   Proof.
-    intros i j lt; unfold is_upper_triangular; apply H; assumption. 
+    intros i j lt; unfold is_upper_triangular; apply H; assumption.
   Defined.
 
 
 End MatricesHq.
-
 
 Section Transpositions.
 

@@ -363,8 +363,7 @@ Section Vectors.
     apply weq_vector_1.
   Defined.
 
-  (* TODO typo *)
-  Lemma weq_colwec
+  Lemma weq_colvec
     : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n 1).
   Proof.
     intros.
@@ -377,12 +376,11 @@ Section Vectors.
     Proof. intros eq. rewrite eq. reflexivity.
   Defined.
 
-
   Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
     : col_vec v1 = col_vec v2 -> v1 = v2.
   Proof.
     intros H.
-    apply (invmaponpathsweq (@weq_colwec X n)  _ _ H). (* TODO typo *)
+    apply (invmaponpathsweq (@weq_colvec X n)  _ _ H). (* TODO typo *)
   Defined.
 
   Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)

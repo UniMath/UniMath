@@ -674,21 +674,24 @@ Lemma gauss_clear_columns_up_to_no_switch_inv6
   (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular hq n n mat)
   (k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq) :
   k < iter ->
-  (@matrix_inverse hq n mat) -> empty.
+  (@matrix_right_inverse hq n n mat) -> empty.
 Proof.
   intros lt contr_inv1.
   assert (forall m' : Matrix hq n n,
-    (@matrix_inverse hq n m') -> matrix_inverse (mat ** m')).
-  { intros. apply inv_matrix_prod_is_inv; try assumption. }
+    (@matrix_right_inverse hq n n m') -> matrix_right_inverse (mat ** m')).
+  { intros. apply right_inv_matrix_prod_is_right_inv; try assumption. }
   pose (C := @clear_columns_up_to_no_switch_as_left_matrix n p (n,, natgthsnn n) mat).
-  assert (contr_inv2 : @matrix_inverse hq n C).
-  {apply clear_columns_up_to_no_switch_matrix_invertible.  }
-  assert (contr_inv3 : @matrix_inverse hq n (C ** mat)).
-  {apply inv_matrix_prod_is_inv; assumption. }
+  assert (contr_inv2 : @matrix_right_inverse hq n n C).
+  { pose (H:= @clear_columns_up_to_no_switch_matrix_invertible n (n,, natgthsnn n) p mat).
+    apply matrix_inverse_to_right_and_left_inverse in H.
+    apply H.
+  }
+  assert (contr_inv3 : @matrix_right_inverse hq n n (C ** mat)).
+  {apply right_inv_matrix_prod_is_right_inv; assumption. }
   pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n mat p (n,, natgthsnn n) 
     p' k p'' (pr2 k)).
   rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq in H2.
-  apply (zero_row_to_non_invertibility (C ** mat) (pr1 H2)); try assumption.
+  apply (zero_row_to_non_right_invertibility (C ** mat) (pr1 H2)); try assumption.
   unfold C.
   destruct H2 as [H2 H3].
   apply H3.
@@ -699,26 +702,10 @@ Lemma gauss_clear_columns_up_to_no_switch_inv7
   (iter : ⟦ S n ⟧%stn) (p' : @is_upper_triangular hq n n mat)
   (k : ⟦ n ⟧%stn) (p'' : mat k k = 0%hq) :
   k < iter ->
-  (@matrix_inverse hq n mat) -> empty.
+  (@matrix_left_inverse hq n n mat) -> empty.
 Proof.
   intros lt contr_inv1.
-  apply transpose_invertible_to_invertible in contr_inv1; try assumption.
-  pose (tmat := (transpose mat)).
-  assert (forall m' : Matrix hq n n,
-    (@matrix_inverse hq n m') -> matrix_inverse (tmat ** m')).
-  { intros. apply inv_matrix_prod_is_inv; try assumption. }
-  pose (C := @clear_columns_up_to_no_switch_as_left_matrix n p (n,, natgthsnn n) tmat).
-  assert (contr_inv2 : @matrix_inverse hq n C).
-  {apply clear_columns_up_to_no_switch_matrix_invertible.  }
-  assert (contr_inv3 : @matrix_inverse hq n (C ** tmat)).
-  {apply inv_matrix_prod_is_inv; assumption. }
-  assert (eq : @is_lower_triangular hq n n (@transpose hq n n mat)).
-  { apply upper_triangular_transpose_is_lower_triangular; assumption. }
-  pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n (tmat) p (n,, natgthsnn n) 
-    eq k p'' (pr2 k)).
-  rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq in H2.
-  apply (zero_row_to_non_invertibility (C ** tmat) (pr1 H2)); try assumption.
-  unfold C.
-  destruct H2 as [H2 H3].
-  apply H3.
+  apply (gauss_clear_columns_up_to_no_switch_inv6 n (transpose mat)
+    p iter (upper_triangular_transpose_is_lower_triangular mat p') k); try assumption.
+  apply (matrix_left_inverse_to_transpose_right_inverse _ contr_inv1).
 Defined.
