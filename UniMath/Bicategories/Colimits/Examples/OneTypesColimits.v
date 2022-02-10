@@ -30,20 +30,9 @@ Local Open Scope cat.
 (**
  1. Initial object
  *)
-
-(** MOVE ??? *)
-Definition empty_hlevel
-           (n : nat)
-  : isofhlevel (n + 1) ∅.
-Proof.
-  induction n.
-  - exact isapropempty.
-  - exact (λ x, fromempty x).
-Defined.
-
 Definition empty_one_type
   : one_types
-  := (∅ ,, empty_hlevel 2).
+  := empty_HLevel 2.
 
 Definition empty_is_biinitial_one_types
   : is_biinitial empty_one_type.
