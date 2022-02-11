@@ -24,9 +24,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Notations.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Colimits.Initial.
 Require Import UniMath.Bicategories.Colimits.Coproducts.

@@ -15,7 +15,7 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.

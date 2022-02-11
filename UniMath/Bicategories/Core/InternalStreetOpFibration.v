@@ -36,8 +36,8 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.UnivalenceOp.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.InternalStreetFibration.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.

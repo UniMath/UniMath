@@ -1,6 +1,10 @@
 Core/Bicat.v
 Core/Invertible_2cells.v
-Core/Adjunctions.v
+
+Morphisms/Adjunctions.v
+Morphisms/FullyFaithful.v
+Morphisms/DiscreteMorphisms.v
+
 Core/Examples/OpMorBicat.v
 Core/Examples/OpCellBicat.v
 Core/Unitors.v
@@ -10,6 +14,15 @@ Core/TransportLaws.v
 Core/EquivToAdjequiv.v
 Core/AdjointUnique.v
 Core/UnivalenceOp.v
+
+Morphisms/InternalStreetFibration.v
+Morphisms/InternalStreetOpFibration.v
+
+Morphisms/Properties/ContainsAdjEquiv.v
+Morphisms/Properties/Composition.v
+Morphisms/Properties/ClosedUnderInvertibles.v
+Morphisms/Properties.v
+
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
@@ -21,7 +34,9 @@ Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
 Core/Examples/FibSlice.v
-Core/FullyFaithful.v
+
+Morphisms/Examples/MorphismsInOneTypes.v
+Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -119,6 +134,9 @@ Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
 Limits/PullbackFunctions.v
 
+Morphisms/Properties/Projections.v
+Morphisms/Properties/ClosedUnderPullback.v
+
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
@@ -147,9 +165,6 @@ Discreteness.v
 
 BicategoryOfBicat.v
 BicatOfBicategory.v
-
-Core/InternalStreetFibration.v
-Core/InternalStreetOpFibration.v
 
 DisplayedBicats/Cartesians.v
 DisplayedBicats/EquivalenceBetweenCartesians.v

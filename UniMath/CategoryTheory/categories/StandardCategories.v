@@ -267,6 +267,87 @@ Section FunctorToUnit.
   Qed.
 End FunctorToUnit.
 
+(**
+ Functors from the unit category
+ *)
+Definition functor_from_unit_data
+           {C : category}
+           (x : C)
+  : functor_data unit_category C.
+Proof.
+  use make_functor_data.
+  - exact (λ _, x).
+  - exact (λ _ _ _, identity _).
+Defined.
+
+Definition functor_from_unit_is_functor
+           {C : category}
+           (x : C)
+  : is_functor (functor_from_unit_data x).
+Proof.
+  split.
+  - intro ; apply idpath.
+  - intro ; intros ; cbn.
+    rewrite id_left.
+    apply idpath.
+Qed.
+
+Definition functor_from_unit
+           {C : category}
+           (x : C)
+  : unit_category ⟶ C.
+Proof.
+  use make_functor.
+  - exact (functor_from_unit_data x).
+  - exact (functor_from_unit_is_functor x).
+Defined.
+
+Definition nat_trans_from_unit_is_nat_trans
+           {C : category}
+           {x y : C}
+           (f : x --> y)
+  : is_nat_trans
+      (functor_from_unit x)
+      (functor_from_unit y)
+      (λ _, f).
+Proof.
+  intro ; intros ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition nat_trans_from_unit
+           {C : category}
+           {x y : C}
+           (f : x --> y)
+  : functor_from_unit x ⟹ functor_from_unit y.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, f).
+  - exact (nat_trans_from_unit_is_nat_trans f).
+Defined.
+
+(** Morphisms are the same as certain natural transformations *)
+Definition nat_trans_from_unit_weq_morphisms
+           {C : category}
+           (x y : C)
+  : x --> y ≃ (functor_from_unit x ⟹ functor_from_unit y).
+Proof.
+  use make_weq.
+  - exact nat_trans_from_unit.
+  - use gradth.
+    + exact (λ n, n tt).
+    + abstract
+        (intro f ;
+         apply idpath).
+    + abstract
+        (intros n ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro z ; cbn ;
+         induction z ;
+         apply idpath).
+Defined.
+
 (** ** The category with no objects ([empty_category]) *)
 
 Definition empty_category : univalent_category.
