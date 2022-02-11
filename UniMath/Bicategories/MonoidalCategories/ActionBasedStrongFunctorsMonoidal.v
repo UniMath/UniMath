@@ -22,15 +22,17 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Actions.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.Actions.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.

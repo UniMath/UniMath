@@ -14,6 +14,9 @@
  6. Functor from reindexing
  7. Mapping property
  8. Reindexing along opfibrations gives pullbacks
+ 9. Reindexing of functors
+ 10. Reindexing of natural transformations
+ 11. Pseudofunctoriality of reindexing
 
  ********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -24,11 +27,96 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope cat.
+
+(** ** Reindexing *)
+
+Section Reindexing.
+  Local Open Scope mor_disp.
+  Local Open Scope cat.
+
+  Context {C' C : category}
+          (F : functor C' C)
+          (D : disp_cat C).
+
+  Definition reindex_disp_cat_ob_mor : disp_cat_ob_mor C'.
+  Proof.
+    exists (λ c, D (F c)).
+    intros x y xx yy f. exact (xx -->[# F f] yy).
+  Defined.
+
+  Definition reindex_disp_cat_id_comp : disp_cat_id_comp C' reindex_disp_cat_ob_mor.
+  Proof.
+    apply tpair.
+    - simpl; intros x xx.
+      refine (transportb _ _ _).
+      apply functor_id. apply id_disp.
+    - simpl; intros x y z f g xx yy zz ff gg.
+      refine (transportb _ _ _).
+      apply functor_comp. exact (ff ;; gg).
+  Defined.
+
+  Definition reindex_disp_cat_data : disp_cat_data C'
+    := (_ ,, reindex_disp_cat_id_comp).
+
+  Definition reindex_disp_cat_axioms : disp_cat_axioms C' reindex_disp_cat_data.
+  Proof.
+    repeat apply tpair; cbn.
+    - intros x y f xx yy ff.
+      eapply pathscomp0. apply maponpaths, mor_disp_transportf_postwhisker.
+      eapply pathscomp0. apply transport_b_f.
+      eapply pathscomp0. apply maponpaths, id_left_disp.
+      eapply pathscomp0. apply transport_f_b.
+      eapply pathscomp0. 2: apply @pathsinv0, (functtransportb (# F)).
+      unfold transportb; apply maponpaths_2, homset_property.
+    - intros x y f xx yy ff.
+      eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
+      eapply pathscomp0. apply transport_b_f.
+      eapply pathscomp0. apply maponpaths, id_right_disp.
+      eapply pathscomp0. apply transport_f_b.
+      eapply pathscomp0. 2: apply @pathsinv0, (functtransportb (# F)).
+      unfold transportb; apply maponpaths_2, homset_property.
+    - intros x y z w f g h xx yy zz ww ff gg hh.
+      eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
+      eapply pathscomp0. apply transport_b_f.
+      eapply pathscomp0. apply maponpaths, assoc_disp.
+      eapply pathscomp0. apply transport_f_b.
+      apply pathsinv0.
+      eapply pathscomp0. apply (functtransportb (# F)).
+      eapply pathscomp0. apply transport_b_b.
+      eapply pathscomp0. apply maponpaths, mor_disp_transportf_postwhisker.
+      eapply pathscomp0. apply transport_b_f.
+      unfold transportb; apply maponpaths_2, homset_property.
+    - intros; apply homsets_disp.
+  Qed.
+
+  Definition reindex_disp_cat : disp_cat C'
+    := (_ ,, reindex_disp_cat_axioms).
+
+  (** ** A functor of displayed categories from reindexing *)
+
+  Definition reindex_disp_functor : disp_functor F reindex_disp_cat D.
+  Proof.
+    use tpair.
+    - use tpair.
+      + cbn. intro x. exact (idfun _ ).
+      + cbn. intros x x' d d' f.  exact (idfun _ ).
+    - abstract (
+          split;
+          [intros; apply idpath |];
+          intros; apply idpath
+        ).
+  Defined.
+End Reindexing.
 
 (**
  1. Transport lemma
@@ -1351,3 +1439,281 @@ Section ReindexIsPB.
       apply homset_property.
   Qed.
 End ReindexIsPB.
+
+(**
+ 9. Reindexing of functors
+ *)
+Section ReindexOfDispFunctor.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          {D₁ D₂ : disp_cat C₂}
+          (G : disp_functor (functor_identity _) D₁ D₂).
+
+  Local Open Scope mor_disp.
+
+  Definition reindex_of_disp_functor_data
+    : disp_functor_data
+        (functor_identity _)
+        (reindex_disp_cat F D₁)
+        (reindex_disp_cat F D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x xx, G (F x) xx).
+    - exact (λ x y xx yy f ff, #G ff).
+  Defined.
+
+  Definition reindex_of_disp_functor_axioms
+    : disp_functor_axioms reindex_of_disp_functor_data.
+  Proof.
+    split.
+    - intros x xx ; cbn.
+      unfold transportb.
+      rewrite (disp_functor_transportf _ G).
+      rewrite disp_functor_id.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    - intros x y z xx yy zz f g ff gg ; cbn.
+      unfold transportb.
+      rewrite (disp_functor_transportf _ G).
+      rewrite disp_functor_comp.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition reindex_of_disp_functor
+    : disp_functor
+        (functor_identity _)
+        (reindex_disp_cat F D₁)
+        (reindex_disp_cat F D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact reindex_of_disp_functor_data.
+    - exact reindex_of_disp_functor_axioms.
+  Defined.
+
+  Definition reindex_of_disp_functor_is_cartesian_disp_functor
+             (HD₁ : cleaving D₁)
+             (HG : is_cartesian_disp_functor G)
+    : is_cartesian_disp_functor reindex_of_disp_functor.
+  Proof.
+    intros x y f xx yy ff Hff.
+    apply is_cartesian_in_reindex_disp_cat ; cbn.
+    apply HG.
+    use is_cartesian_from_reindex_disp_cat.
+    - exact HD₁.
+    - exact Hff.
+  Defined.
+
+  Definition reindex_of_disp_functor_is_opcartesian_disp_functor
+             (HD₁ : opcleaving D₁)
+             (HG : is_opcartesian_disp_functor G)
+    : is_opcartesian_disp_functor reindex_of_disp_functor.
+  Proof.
+    intros x y f xx yy ff Hff.
+    apply is_opcartesian_in_reindex_disp_cat ; cbn.
+    apply HG.
+    use is_opcartesian_from_reindex_disp_cat.
+    - exact HD₁.
+    - exact Hff.
+  Defined.
+End ReindexOfDispFunctor.
+
+Definition reindex_of_cartesian_disp_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {D₁ D₂ : disp_cat C₂}
+           (G : cartesian_disp_functor (functor_identity _) D₁ D₂)
+           (HD₁ : cleaving D₁)
+  : cartesian_disp_functor
+      (functor_identity _)
+      (reindex_disp_cat F D₁)
+      (reindex_disp_cat F D₂)
+  := reindex_of_disp_functor F G
+     ,,
+     reindex_of_disp_functor_is_cartesian_disp_functor F G HD₁ (pr2 G).
+
+Definition reindex_of_opcartesian_disp_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {D₁ D₂ : disp_cat C₂}
+           (G : opcartesian_disp_functor (functor_identity _) D₁ D₂)
+           (HD₁ : opcleaving D₁)
+  : opcartesian_disp_functor
+      (functor_identity _)
+      (reindex_disp_cat F D₁)
+      (reindex_disp_cat F D₂)
+  := reindex_of_disp_functor F G
+     ,,
+     reindex_of_disp_functor_is_opcartesian_disp_functor F G HD₁ (pr2 G).
+
+(**
+ 10. Reindexing of natural transformations
+ *)
+Section ReindexOfDispNatTrans.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          {D₁ D₂ : disp_cat C₂}
+          {G₁ G₂ : disp_functor (functor_identity _) D₁ D₂}
+          (α : disp_nat_trans
+                 (nat_trans_id _)
+                 G₁ G₂).
+
+  Let reindex_of_disp_nat_trans_data
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (reindex_of_disp_functor F G₁)
+        (reindex_of_disp_functor F G₂)
+    := λ x xx,
+       transportb
+         (λ z, _ -->[ z ] _)
+         (functor_id F x)
+         (α (F x) xx).
+
+  Definition reindex_of_disp_nat_trans_axioms
+    : disp_nat_trans_axioms reindex_of_disp_nat_trans_data.
+  Proof.
+    intros x y f xx yy ff ; cbn ; unfold reindex_of_disp_nat_trans_data.
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      exact (disp_nat_trans_ax α ff).
+    }
+    unfold transportb.
+    refine (!_).
+    etrans.
+    {
+      apply transportf_reindex.
+    }
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition reindex_of_disp_nat_trans
+    : disp_nat_trans
+        (nat_trans_id _)
+        (reindex_of_disp_functor F G₁)
+        (reindex_of_disp_functor F G₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact reindex_of_disp_nat_trans_data.
+    - exact reindex_of_disp_nat_trans_axioms.
+  Defined.
+End ReindexOfDispNatTrans.
+
+(**
+ 11. Pseudofunctoriality of reindexing
+ *)
+Section ReindexOfId.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          (D : disp_cat C₂).
+
+  Let reindex_of_disp_functor_identity_data
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_identity _)
+        (reindex_of_disp_functor_data F (disp_functor_identity D))
+    := λ x xx,
+       transportb
+         (λ z, _ -->[ z ] _)
+         (functor_id F x)
+         (id_disp _).
+
+  Definition reindex_of_disp_functor_identity_axioms
+    : disp_nat_trans_axioms reindex_of_disp_functor_identity_data.
+  Proof.
+    intros x y f xx yy ff ; cbn ; unfold reindex_of_disp_functor_identity_data.
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite id_left_disp, id_right_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    refine (!_).
+    etrans.
+    {
+      apply transportf_reindex.
+    }
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition reindex_of_disp_functor_identity
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_identity _)
+        (reindex_of_disp_functor F (disp_functor_identity D)).
+  Proof.
+    simple refine (_ ,, _).
+    - exact reindex_of_disp_functor_identity_data.
+    - exact reindex_of_disp_functor_identity_axioms.
+  Defined.
+End ReindexOfId.
+
+Section ReindexOfComp.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          {D₁ D₂ D₃ : disp_cat C₂}
+          (G₁ : disp_functor (functor_identity _) D₁ D₂)
+          (G₂ : disp_functor (functor_identity _) D₂ D₃).
+
+  Let reindex_of_disp_functor_composite_data
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (reindex_of_disp_functor F G₁)
+           (reindex_of_disp_functor F G₂))
+        (reindex_of_disp_functor
+           F
+           (disp_functor_over_id_composite G₁ G₂))
+    := λ x xx,
+       transportb
+         (λ z, _ -->[ z ] _)
+         (functor_id F x)
+         (id_disp _).
+
+  Definition reindex_of_disp_functor_composite_axioms
+    : disp_nat_trans_axioms reindex_of_disp_functor_composite_data.
+  Proof.
+    intros x y f xx yy ff ; cbn ; unfold reindex_of_disp_functor_composite_data.
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite id_left_disp, id_right_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    refine (!_).
+    etrans.
+    {
+      apply transportf_reindex.
+    }
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition reindex_of_disp_functor_composite
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (reindex_of_disp_functor F G₁)
+           (reindex_of_disp_functor F G₂))
+        (reindex_of_disp_functor
+           F
+           (disp_functor_over_id_composite G₁ G₂)).
+  Proof.
+    simple refine (_ ,, _).
+    - exact reindex_of_disp_functor_composite_data.
+    - exact reindex_of_disp_functor_composite_axioms.
+  Defined.
+End ReindexOfComp.

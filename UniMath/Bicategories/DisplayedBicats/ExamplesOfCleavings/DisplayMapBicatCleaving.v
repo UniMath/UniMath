@@ -13,6 +13,7 @@
  4. Characterization of opcartesian cells
  5. Local cleaving
  6. Local opcleaving
+ 7. Specialized to internal Street (op)fibrations
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -34,9 +35,31 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
+
+Definition arrow_subbicat_local_iso_cleaving
+           {B : bicat}
+           (D : arrow_subbicat B)
+  : local_iso_cleaving (disp_map_bicat_to_disp_bicat D).
+Proof.
+  intros x y f g hx hy hf α.
+  simple refine (_ ,, _).
+  - refine (pr1 hf ,, pr12 hf ,, _) ; cbn.
+    exact (comp_of_invertible_2cell
+             (lwhisker_of_invertible_2cell
+                _
+                α)
+             (pr22 hf)).
+  - simple refine ((id2 _ ,, _) ,, _) ; cbn.
+    + abstract
+        (rewrite id2_rwhisker, id2_right ;
+         apply idpath).
+    + use is_invertible_to_is_disp_invertible.
+      cbn.
+      is_iso.
+Defined.
 
 Section DispMapBicatCleaving.
   Context {B : bicat}
@@ -868,6 +891,14 @@ Section DispMapBicatCleaving.
     Defined.
   End LocalCleaving.
 
+  Definition contravariant_disp_map_bicat_local_iso_cleaving
+             (HD : is_contravariant_disp_map_bicat D)
+    : local_iso_cleaving DD.
+  Proof.
+    apply local_cleaving_to_local_iso_cleaving.
+    exact (local_cleaving_of_disp_map_bicat HD).
+  Defined.
+
   Definition lwhisker_cartesian_disp_map_bicat
              (HD : is_contravariant_disp_map_bicat D)
     : lwhisker_cartesian DD.
@@ -991,6 +1022,14 @@ Section DispMapBicatCleaving.
     Defined.
   End LocalOpCleaving.
 
+  Definition covariant_disp_map_bicat_local_iso_cleaving
+             (HD : is_covariant_disp_map_bicat D)
+    : local_iso_cleaving DD.
+  Proof.
+    apply local_opcleaving_to_local_iso_cleaving.
+    exact (local_opcleaving_of_disp_map_bicat HD).
+  Defined.
+
   Definition lwhisker_opcartesian_disp_map_bicat
              (HD : is_covariant_disp_map_bicat D)
     : lwhisker_opcartesian DD.
@@ -1015,3 +1054,54 @@ Section DispMapBicatCleaving.
     - exact H.
   Qed.
 End DispMapBicatCleaving.
+
+(**
+ 7. Specialized to internal Street (op)fibrations
+ *)
+Section StreetFibs.
+  Context (B : bicat_with_pb).
+
+  Definition global_cleaving_sfib
+    : global_cleaving (cod_sfibs B)
+    := global_cleaving_of_disp_map_bicat (sfib_disp_map_bicat B).
+
+  Definition local_cleaving_sfib
+    : local_cleaving (cod_sfibs B)
+    := local_cleaving_of_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition lwhisker_cartesian_sfib
+    : lwhisker_cartesian (cod_sfibs B)
+    := lwhisker_cartesian_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition rwhisker_cartesian_sfib
+    : rwhisker_cartesian (cod_sfibs B)
+    := rwhisker_cartesian_disp_map_bicat
+         (sfib_disp_map_bicat B)
+         (sfib_disp_map_bicat_is_contravariant B).
+
+  Definition global_cleaving_sopfib
+    : global_cleaving (cod_sfibs B)
+    := global_cleaving_of_disp_map_bicat (sfib_disp_map_bicat B).
+
+  Definition local_opcleaving_sopfib
+    : local_opcleaving (cod_sopfibs B)
+    := local_opcleaving_of_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+
+  Definition lwhisker_opcartesian_sopfib
+    : lwhisker_opcartesian (cod_sopfibs B)
+    := lwhisker_opcartesian_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+
+  Definition rwhisker_opcartesian_sopfib
+    : rwhisker_opcartesian (cod_sopfibs B)
+    := rwhisker_opcartesian_disp_map_bicat
+         (sopfib_disp_map_bicat B)
+         (sopfib_disp_map_bicat_is_covariant B).
+End StreetFibs.

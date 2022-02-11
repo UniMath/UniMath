@@ -20,25 +20,39 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/Examples/FibSlice.v
 Core/FullyFaithful.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
 DisplayedBicats/DispAdjunctions.v
 DisplayedBicats/DispUnivalence.v
-DisplayedBicats/Fibration.v
+DisplayedBicats/CleavingOfBicat.v
 DisplayedBicats/FiberCategory.v
 DisplayedBicats/FiberBicategory/FiberBicategory1.v
 DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
-DisplayedBicats/Examples/DispBicatOfDispCats.v
-DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
+DisplayedBicats/Examples/FullSub.v
+DisplayedBicats/Examples/DispBicatOfDispCats.v
+DisplayedBicats/Examples/Slice.v
+DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
-DisplayedBicats/Examples/FullSub.v
 DisplayedBicats/Examples/Trivial.v
+
+MonoidalCategories/MonoidalFromBicategory.v
+MonoidalCategories/EndofunctorsMonoidal.v
+MonoidalCategories/PointedFunctorsMonoidal.v
+MonoidalCategories/Actions.v
+MonoidalCategories/ConstructionOfActions.v
+MonoidalCategories/ActionBasedStrength.v
+MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
+MonoidalCategories/ActionOfEndomorphismsInBicat.v
+MonoidalCategories/ActionBasedStrongFunctorCategory.v
+MonoidalCategories/ActionsFormBicategory.v
+
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
@@ -71,6 +85,7 @@ PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
+
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
 DisplayedBicats/Examples/Displayed2Inserter.v
@@ -93,10 +108,24 @@ Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
 
+Limits/Final.v
+Limits/Products.v
+Limits/Pullbacks.v
+Limits/CommaObjects.v
+Limits/Examples/OneTypesLimits.v
+Limits/Examples/BicatOfUnivCatsLimits.v
+Limits/Examples/OpCellBicatLimits.v
+Limits/Examples/UnivGroupoidsLimits.v
+Limits/Examples/SliceBicategoryLimits.v
+Limits/PullbackFunctions.v
+
 Colimits/Initial.v
-Colimits/Final.v
-Colimits/Products.v
-Colimits/Pullback.v
+Colimits/Coproducts.v
+Colimits/Extensive.v
+Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfUnivCatsColimits.v
+Colimits/Examples/SliceBicategoryColimits.v
+
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
@@ -119,7 +148,9 @@ Discreteness.v
 BicategoryOfBicat.v
 BicatOfBicategory.v
 
-DisplayedBicats/CleavingOfBicat.v
+Core/InternalStreetFibration.v
+Core/InternalStreetOpFibration.v
+
 DisplayedBicats/Cartesians.v
 DisplayedBicats/EquivalenceBetweenCartesians.v
 DisplayedBicats/CartesianPseudoFunctor.v
@@ -129,12 +160,17 @@ DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
-Core/InternalStreetFibration.v
-Core/InternalStreetOpFibration.v
-DisplayedBicats/Examples/CodomainFibs.v
+PseudoFunctors/Examples/Reindexing.v
 
 DisplayMapBicat.v
 DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
+DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
+
+PseudoFunctors/Examples/PullbackFunctor.v
+
+DisplayedBicats/FiberBicategory/TrivialFiber.v
+DisplayedBicats/FiberBicategory/CodomainFiber.v
+DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 ComprehensionBicat.v

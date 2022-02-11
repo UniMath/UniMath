@@ -48,6 +48,13 @@ Definition adjunction_data (A B : category) : UU
      nat_trans (functor_identity A) (F ∙ G) ×
                nat_trans (G ∙ F) (functor_identity B).
 
+Definition make_adjunction_data {A B : category}
+           (F : functor A B)
+           (G : functor B A)
+           (η : functor_identity _ ⟹ (F ∙ G))
+           (ε : (G ∙ F) ⟹ functor_identity _) : adjunction_data A B
+  := (F ,, G ,, (η ,, ε)).
+
 Definition left_functor {A B} (X : adjunction_data A B) : functor A B
   := pr1 X.
 
@@ -110,6 +117,38 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Proof.
     exists (eta,,eps).
     exact HH.
+  Defined.
+
+  Definition adjunction (A B : category) : UU
+    := ∑ X : adjunction_data A B, form_adjunction' X.
+
+  Coercion data_from_adjunction {A B} (X : adjunction A B)
+    : adjunction_data _ _ := pr1 X.
+
+  Definition make_adjunction {A B : category}
+             (adjData : adjunction_data A B)
+             (adjProp : form_adjunction' adjData) : adjunction A B
+    := (adjData ,, adjProp).
+
+  Definition form_adjunction_from_adjunction {A B : category}
+             (adj : adjunction A B) : form_adjunction' adj
+    := pr2 adj.
+
+  Definition triangle_1_statement_from_adjunction {A B : category}
+             (adj : adjunction A B) : triangle_1_statement adj
+    := pr1 (pr2 adj).
+
+  Definition triangle_2_statement_from_adjunction {A B : category}
+             (adj : adjunction A B) : triangle_2_statement adj
+    := pr2 (pr2 adj).
+
+  Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
+    : are_adjoints (left_functor X) (right_functor X).
+  Proof.
+    use make_are_adjoints.
+    - exact(adjunit X).
+    - exact(adjcounit X).
+    - exact(form_adjunction_from_adjunction X).
   Defined.
 
   Definition unit_from_are_adjoints {A B : category}

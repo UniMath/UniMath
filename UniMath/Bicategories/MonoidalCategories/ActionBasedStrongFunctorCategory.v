@@ -9,13 +9,16 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.Actions.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+
+Require Import UniMath.Bicategories.MonoidalCategories.Actions.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 
 Local Open Scope cat.
 

@@ -41,9 +41,10 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.InternalStreetFibration.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
 
 Local Open Scope cat.
 
@@ -896,6 +897,33 @@ Proof.
   - use invertible_is_opcartesian_2cell_sopfib.
     is_iso.
 Qed.
+
+Definition invertible_2cell_between_preserves_opcartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe₁ fe₂ : e₁ --> e₂}
+           (α : invertible_2cell fe₁ fe₂)
+           (H : mor_preserves_opcartesian p₁ p₂ fe₁)
+  : mor_preserves_opcartesian p₁ p₂ fe₂.
+Proof.
+  intros x f g γ Hγ.
+  assert ((_ ◃ α) • (γ ▹ fe₂) = (γ ▹ fe₁) • (_ ◃ α)) as p.
+  {
+    rewrite vcomp_whisker.
+    apply idpath.
+  }
+  use (is_opcartesian_2cell_sopfib_precomp _ _ _ _ p).
+  - use invertible_is_opcartesian_2cell_sopfib.
+    is_iso.
+    apply property_from_invertible_2cell.
+  - use vcomp_is_opcartesian_2cell_sopfib.
+    + exact (H x f g γ Hγ).
+    + use invertible_is_opcartesian_2cell_sopfib.
+      is_iso.
+      apply property_from_invertible_2cell.
+Defined.
 
 Definition locally_grpd_preserves_opcartesian
            {B : bicat}

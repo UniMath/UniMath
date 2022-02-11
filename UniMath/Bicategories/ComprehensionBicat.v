@@ -24,7 +24,11 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -55,9 +59,11 @@ Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.Codomain
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FibrationCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrationCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.DisplayMapBicatCleaving.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
@@ -661,7 +667,7 @@ Section TrivialCompBicat.
     use make_comprehension_bicat.
     - exact (trivial_displayed_bicat B B).
     - exact trivial_comprehension.
-    - exact (trivial_cleaving_of_bicats B B).
+    - exact (trivial_global_cleaving B B).
     - exact global_cartesian_trivial_comprehension.
   Defined.
 
@@ -881,7 +887,7 @@ Proof.
   use preserves_global_lifts_to_cartesian.
   - exact univalent_cat_is_univalent_2.
   - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
-  - exact cleaving_of_fibs.
+  - exact cleaving_of_fibs_global_cleaving.
   - intros C₁ C₂ F D₁.
     use is_pb_to_cartesian_1cell.
     apply reindexing_has_pb_ump.
@@ -1067,7 +1073,7 @@ Proof.
   use make_comprehension_bicat.
   - exact disp_bicat_of_fibs.
   - exact fibration_comprehension.
-  - exact cleaving_of_fibs.
+  - exact cleaving_of_fibs_global_cleaving.
   - exact global_cartesian_fibration_comprehension.
 Defined.
 
