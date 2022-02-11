@@ -99,16 +99,17 @@ Section IsoCommaCategory.
     : category
     := total_category iso_comma_disp_cat.
 
-  Definition is_pregroupoid_iso_comma
-             (HC₁ : is_pregroupoid C₁)
-             (HC₂ : is_pregroupoid C₂)
-    : is_pregroupoid iso_comma.
+  Definition is_iso_iso_comma
+             {x y : iso_comma}
+             (f : x --> y)
+             (H₁ : is_iso (pr11 f))
+             (H₂ : is_iso (pr21 f))
+    : is_iso f.
   Proof.
-    intros x y f.
     use is_iso_qinv.
     - simple refine ((_ ,, _) ,, _).
-      + exact (inv_from_iso (make_iso _ (HC₁ _ _ (pr11 f)))).
-      + exact (inv_from_iso (make_iso _ (HC₂ _ _ (pr21 f)))).
+      + exact (inv_from_iso (_ ,, H₁)).
+      + exact (inv_from_iso (_ ,, H₂)).
       + abstract
           (cbn ;
            rewrite !functor_on_inv_from_iso ;
@@ -125,15 +126,26 @@ Section IsoCommaCategory.
            [ intro ; apply homset_property | ] ;
            use pathsdirprod ;
            cbn ;
-           [ apply (iso_inv_after_iso (make_iso _ (HC₁ _ _ (pr11 f))))
-           | apply (iso_inv_after_iso (make_iso _ (HC₂ _ _ (pr21 f)))) ]).
+           [ apply (iso_inv_after_iso (make_iso _ H₁))
+           | apply (iso_inv_after_iso (make_iso _ H₂)) ]).
       + abstract
           (use subtypePath ;
            [ intro ; apply homset_property | ] ;
            use pathsdirprod ;
            cbn ;
-           [ apply (iso_after_iso_inv (make_iso _ (HC₁ _ _ (pr11 f))))
-           | apply (iso_after_iso_inv (make_iso _ (HC₂ _ _ (pr21 f)))) ]).
+           [ apply (iso_after_iso_inv (make_iso _ H₁))
+           | apply (iso_after_iso_inv (make_iso _ H₂)) ]).
+  Defined.
+
+  Definition is_pregroupoid_iso_comma
+             (HC₁ : is_pregroupoid C₁)
+             (HC₂ : is_pregroupoid C₂)
+    : is_pregroupoid iso_comma.
+  Proof.
+    intros x y f.
+    apply is_iso_iso_comma.
+    - apply HC₁.
+    - apply HC₂.
   Defined.
 
   (** Univalence of the iso-comma category *)

@@ -21,7 +21,7 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 
 Local Open Scope cat.
 
@@ -250,7 +250,7 @@ Qed.
 
 (** Faithful 1-cells in the bicategory of categories are faithful functors *)
 Definition cat_faithful_is_faithful_1cell
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
            (HF : faithful F)
   : faithful_1cell F.
@@ -267,7 +267,7 @@ Proof.
 Qed.
 
 Definition cat_faithful_1cell_is_faithful
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
            (HF : faithful_1cell F)
   : faithful F.
@@ -292,7 +292,7 @@ Proof.
 Qed.
 
 Definition cat_faithful_weq_faithful_1cell
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
   : faithful F ≃ faithful_1cell F.
 Proof.
@@ -847,7 +847,7 @@ Proof.
 Defined.
 
 Definition cat_fully_faithful_is_fully_faithful_1cell
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
            (HF : fully_faithful F)
   : fully_faithful_1cell F.
@@ -866,7 +866,7 @@ Proof.
 Qed.
 
 Definition cat_fully_faithful_1cell_is_fully_faithful
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
            (HF : fully_faithful_1cell F)
   : fully_faithful F.
@@ -907,7 +907,7 @@ Proof.
 Qed.
 
 Definition cat_fully_faithful_weq_fully_faithful_1cell
-           {C₁ C₂ : bicat_of_cats}
+           {C₁ C₂ : bicat_of_univ_cats}
            (F : C₁ --> C₂)
   : fully_faithful F ≃ fully_faithful_1cell F.
 Proof.

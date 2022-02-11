@@ -318,4 +318,38 @@ Section FunctorFromEmpty.
   Defined.
 End FunctorFromEmpty.
 
+(** Natural transformations for the empty category *)
+Definition nat_trans_from_empty
+           {C : category}
+           (F G : empty_category ⟶ C)
+  : nat_trans F G.
+Proof.
+  use make_nat_trans.
+  - exact (λ z, fromempty z).
+  - exact (λ z, fromempty z).
+Defined.
+
+Definition nat_trans_to_empty
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ empty_category)
+           (G : empty_category ⟶ C₂)
+           (H : C₁ ⟶ C₂)
+  : H ⟹ F ∙ G.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, fromempty (F x)).
+  - exact (λ x y f, fromempty (F x)).
+Defined.
+
+Definition nat_trans_to_empty_is_nat_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ empty_category)
+           (G : empty_category ⟶ C₂)
+           (H : C₁ ⟶ C₂)
+  : is_nat_iso (nat_trans_to_empty F G H).
+Proof.
+  intro x.
+  exact (fromempty (F x)).
+Defined.
+
 (* *)

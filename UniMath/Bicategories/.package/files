@@ -108,12 +108,6 @@ Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
 
-Colimits/Initial.v
-Colimits/Coproducts.v
-Colimits/Examples/OneTypesColimits.v
-Colimits/Examples/BicatOfUnivCatsColimits.v
-Colimits/Examples/SliceBicategoryColimits.v
-
 Limits/Final.v
 Limits/Products.v
 Limits/Pullbacks.v
@@ -124,6 +118,13 @@ Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
 Limits/PullbackFunctions.v
+
+Colimits/Initial.v
+Colimits/Coproducts.v
+Colimits/Extensive.v
+Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfUnivCatsColimits.v
+Colimits/Examples/SliceBicategoryColimits.v
 
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
