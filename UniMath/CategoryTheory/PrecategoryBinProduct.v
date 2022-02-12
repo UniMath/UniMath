@@ -648,7 +648,7 @@ Defined.
 
 (* A swapping functor σ : C × D → D × C. *)
 Definition binswap_pair_functor {C D : category} : (C × D) ⟶ (D × C) :=
-  pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (C × D).
+  bindelta_functor (C × D) ∙ pair_functor (pr2_functor C D) (pr1_functor C D).
 
 (* Reversing the order of three arguments *)
 Definition reverse_three_args {C D E : category} : ((C × D) × E) ⟶ ((E × D) × C).
