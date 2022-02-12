@@ -128,7 +128,7 @@ Proof.
   rewrite assoc'.
   apply z_iso_inv_on_right, z_iso_inv_on_left.
   apply (lax_monoidal_functor_unital F).
-Defined.
+Qed.
 
 Lemma lax_monoidal_functor_on_precompose_underlying_morphism {A : enriched_precat Mon_V} {x y : A} (z : A) (f : underlying_morphism x y) : # F (precompose_underlying_morphism z f) = @precompose_underlying_morphism _ (change_of_base_enriched_precat _) _ _ _ (lax_monoidal_functor_ϵ F · # F f).
 Proof.
@@ -151,7 +151,7 @@ Proof.
   rewrite assoc'.
   apply z_iso_inv_on_right, z_iso_inv_on_left.
   apply (lax_monoidal_functor_unital F).
-Defined.
+Qed.
 
 Definition change_of_base_enriched_nat_trans {A B : enriched_precat Mon_V} {G H : enriched_functor A B} (a : enriched_nat_trans G H) : enriched_nat_trans (change_of_base_enriched_functor G) (change_of_base_enriched_functor H).
 Proof.

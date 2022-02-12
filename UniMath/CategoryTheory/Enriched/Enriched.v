@@ -27,7 +27,7 @@ Proof.
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
   rewrite !id_left, !id_right.
   reflexivity.
-Defined.
+Qed.
 
 Lemma bifunctor_comp_left {A B C : category} (F : A ⊠ B ⟶ C) {a a' a'' : A} {b : B} (f : a --> a') (g : a' --> a'') : #F (f · g #, id b) = #F (f #, id _) · #F (g #, id _).
 Proof.
@@ -35,7 +35,7 @@ Proof.
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
   rewrite id_left.
   reflexivity.
-Defined.
+Qed.
 
 Lemma bifunctor_comp_right {A B C : category} (F : A ⊠ B ⟶ C) {a : A} {b b' b'' : B} (f : b --> b') (g : b' --> b'') : #F (id a #, f · g) = #F (id _ #, f) · #F (id _ #, g).
 Proof.
@@ -43,7 +43,7 @@ Proof.
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
   rewrite id_left.
   reflexivity.
-Defined.
+Qed.
 
 End aux.
 
@@ -338,7 +338,7 @@ Proof.
   rewrite assoc'.
   apply (transportb (λ f, _ · f = _) (enriched_id_right _ _)).
   apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
-Defined.
+Qed.
 
 Definition postcompose_identity {A : enriched_precat} {x y : A} : postcompose_underlying_morphism _ (enriched_cat_id y) = id enriched_cat_mor x y.
 Proof.
@@ -346,7 +346,7 @@ Proof.
   rewrite assoc'.
   apply (transportb (λ h, _ · h = _) (enriched_id_left _ _)).
   apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
-Defined.
+Qed.
 
 Lemma precompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism w x) : (# tensor (id _ #, precompose_underlying_morphism y f) · enriched_cat_comp w y z = enriched_cat_comp x y z · precompose_underlying_morphism z f)%cat.
 Proof.
@@ -373,7 +373,7 @@ Proof.
   apply cancel_postcomposition.
   apply pathsinv0.
   apply right_unitor_inv_of_tensor.
-Defined.
+Qed.
 
 Lemma enriched_cat_comp_underlying_morphism_middle {A : enriched_precat} {w x y z : A} (f : underlying_morphism x y) : (# tensor (id _ #, postcompose_underlying_morphism w f) · enriched_cat_comp w y z = #tensor (precompose_underlying_morphism z f #, id _) · enriched_cat_comp w x z)%cat.
 Proof.
@@ -393,7 +393,7 @@ Proof.
   rewrite assoc.
   apply cancel_postcomposition.
   apply monoidal_cat_triangle_eq_inv.
-Defined.
+Qed.
 
 Lemma postcompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism y z) : (# tensor (postcompose_underlying_morphism x f #, id _) · enriched_cat_comp w x z = enriched_cat_comp w x y · postcompose_underlying_morphism w f)%cat.
 Proof.
@@ -418,7 +418,7 @@ Proof.
   rewrite (functor_id tensor).
   apply cancel_postcomposition.
   apply left_unitor_inv_of_tensor.
-Defined.
+Qed.
 
 Definition postcompose_underlying_morphism_composite {A : enriched_precat} (w : A) {x y z : A} (f : underlying_morphism x y) (g : underlying_morphism y z) : postcompose_underlying_morphism w (f · postcompose_underlying_morphism _ g) = postcompose_underlying_morphism _ f · postcompose_underlying_morphism _ g.
 Proof.
@@ -441,7 +441,7 @@ Proof.
   apply cancel_postcomposition.
   apply pathsinv0.
   apply nat_trans_ax_l_unitor_inv.
-Defined.
+Qed.
 
 Definition precompose_underlying_morphism_composite {A : enriched_precat} (w : A) {x y z : A} (f : underlying_morphism x y) (g : underlying_morphism y z) : precompose_underlying_morphism w (f · postcompose_underlying_morphism _ g) = precompose_underlying_morphism _ g · precompose_underlying_morphism _ f.
 Proof.
@@ -484,7 +484,7 @@ Proof.
   apply (bifunctor_on_morphisms_comm tensor).
   apply cancel_postcomposition.
   apply left_unitor_inv_right_unitor_inv_of_unit.
-Defined.
+Qed.
 
 Definition underlying_morphism_compose_swap {A : enriched_precat} {x y z : A} (f : underlying_morphism x y) (g : underlying_morphism y z) : f · postcompose_underlying_morphism _ g = g · precompose_underlying_morphism _ f.
 Proof.
@@ -504,7 +504,7 @@ Proof.
   rewrite id_left, id_right.
   do 2 apply cancel_postcomposition.
   apply left_unitor_inv_right_unitor_inv_of_unit.
-Defined.
+Qed.
 
 Definition pre_post_compose_commute {A : enriched_precat} {w x y z : A} (f : underlying_morphism w x) (g : underlying_morphism y z) : precompose_underlying_morphism _ f · postcompose_underlying_morphism _ g = postcompose_underlying_morphism _ g · precompose_underlying_morphism _ f.
 Proof.
@@ -533,7 +533,7 @@ Proof.
   rewrite assoc.
   apply cancel_postcomposition.
   apply right_unitor_inv_of_tensor.
-Defined.
+Qed.
 
 Definition enriched_functor_on_postcompose {A B : enriched_precat} (F : enriched_functor A B) {y z : A} (f : underlying_morphism y z) (x : A) : postcompose_underlying_morphism x f · enriched_functor_on_morphisms F _ _ = enriched_functor_on_morphisms F _ _ · postcompose_underlying_morphism _ (f · enriched_functor_on_morphisms F _ _).
 Proof.
@@ -549,7 +549,7 @@ Proof.
   rewrite !assoc'.
   do 2 apply cancel_precomposition.
   apply enriched_functor_on_comp.
-Defined.
+Qed.
 
 Definition enriched_functor_on_precompose {A B : enriched_precat} (F : enriched_functor A B) {x y : A} (f : underlying_morphism x y) (z : A) : precompose_underlying_morphism z f · enriched_functor_on_morphisms F _ _ = enriched_functor_on_morphisms F _ _ · precompose_underlying_morphism _ (f · enriched_functor_on_morphisms F _ _).
 Proof.
@@ -565,7 +565,7 @@ Proof.
   rewrite !assoc'.
   do 2 apply cancel_precomposition.
   apply enriched_functor_on_comp.
-Defined.
+Qed.
 
 End UnderlyingMorphisms.
 
@@ -636,7 +636,7 @@ Proof.
     apply isasetaprop.
     repeat (apply impred_isaprop; intro).
     apply homset_property.
-Defined.
+Qed.
 
 Lemma enriched_nat_trans_assoc {A B : enriched_precat} {F G H K : enriched_functor A B} (f : enriched_nat_trans F G) (g : enriched_nat_trans G H) (h : enriched_nat_trans H K) : enriched_nat_trans_comp f (enriched_nat_trans_comp g h) = enriched_nat_trans_comp (enriched_nat_trans_comp f g) h.
 Proof.
@@ -645,7 +645,7 @@ Proof.
   cbn.
   rewrite postcompose_underlying_morphism_composite.
   apply assoc.
-Defined.
+Qed.
 
 Definition enriched_functor_category (A B : enriched_precat) : category.
 Proof.

@@ -434,13 +434,13 @@ Lemma tensor_z_isomorphism_left : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : i
 Proof.
   intros.
   reflexivity.
-Defined.
+Qed.
 
 Lemma tensor_z_isomorphism_right : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : is_z_isomorphism f), # tensor (id z #, is_z_isomorphism_mor f_z_iso) = is_z_isomorphism_mor (functor_on_is_z_isomorphism (functor_fix_fst_arg _ _ _ tensor z) f_z_iso).
 Proof.
   intros.
   reflexivity.
-Defined.
+Qed.
 
 Lemma monoidal_cat_triangle_eq_inv (X Y : Mon_V) : (nat_z_iso_to_trans_inv r_unitor X #⊗ id Y) · α ((X, I), Y) = (id X #⊗ nat_z_iso_to_trans_inv l_unitor Y).
 Proof.
@@ -450,7 +450,7 @@ Proof.
   change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
   apply z_iso_inv_on_right, z_iso_inv_on_left.
   apply monoidal_cat_triangle_eq.
-Defined.
+Qed.
 
 Corollary left_unitor_inv_right_unitor_inv_of_unit : nat_z_iso_to_trans_inv l_unitor I = nat_z_iso_to_trans_inv r_unitor _.
 Proof.
@@ -459,7 +459,7 @@ Proof.
   apply (transportb (λ f, id _ = is_z_isomorphism_mor _ · f) left_unitor_right_unitor_of_unit).
   apply pathsinv0.
   apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
-Defined.
+Qed.
 
 Corollary left_unitor_inv_of_tensor (X Y : Mon_V) : (nat_z_iso_to_trans_inv l_unitor _ #⊗ id _) · α ((_, _), _) = nat_z_iso_to_trans_inv l_unitor (X ⊗ Y).
 Proof.
@@ -469,7 +469,7 @@ Proof.
   apply z_iso_inv_on_right, z_iso_inv_on_left.
   apply pathsinv0.
   apply left_unitor_of_tensor.
-Defined.
+Qed.
 
 Corollary right_unitor_inv_of_tensor (X Y : Mon_V) : (id _ #⊗ nat_z_iso_to_trans_inv r_unitor _) = nat_z_iso_to_trans_inv r_unitor (X ⊗ Y)  · α ((_, _), _).
 Proof.
@@ -479,7 +479,7 @@ Proof.
   apply pathsinv0.
   apply z_iso_inv_on_right, z_iso_inv_on_left.
   apply right_unitor_of_tensor.
-Defined.
+Qed.
 
 End coherence_lemmas.
 
