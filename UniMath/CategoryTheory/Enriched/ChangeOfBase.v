@@ -14,97 +14,125 @@ Section Change_Of_Base.
 
 Context {Mon_V Mon_V' : monoidal_cat} (F : lax_monoidal_functor Mon_V Mon_V').
 
-Definition change_of_base_enriched_precat (A : enriched_precat Mon_V) : enriched_precat Mon_V'.
+Definition change_of_base_enriched_precat_data (A : enriched_precat Mon_V) : enriched_precat_data Mon_V'.
 Proof.
-  use make_enriched_precat.
-  - use make_enriched_precat_data.
-    + exact A.
-    + intros x y.
-      exact (F (enriched_cat_mor x y)).
-    + intro x.
-      exact (lax_monoidal_functor_ϵ F · #F (enriched_cat_id _)).
-    + intros x y z.
-      exact (lax_monoidal_functor_μ F (_, _) · #F (enriched_cat_comp _ y _)).
-  - intros a b.
-    split.
-    + cbn.
-      rewrite <- (functor_id F).
-      rewrite <- (id_left (#F (id _))).
-      change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
-      rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
-      rewrite assoc.
-      rewrite (assoc' _ (#(monoidal_cat_tensor Mon_V') _)).
-      apply (transportb (λ f, _ · f · _ = _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
-      simpl.
-      rewrite assoc, assoc'.
-      rewrite <- (functor_comp F).
-      apply (transportb (λ f, _ · #F f = _) (enriched_id_left _ _)).
-      apply pathsinv0.
-      apply (lax_monoidal_functor_unital F).
-    + cbn.
-      rewrite <- (functor_id F).
-      rewrite <- (id_left (#F (id _))).
-      change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
-      rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
-      rewrite assoc.
-      rewrite (assoc' _ (#(monoidal_cat_tensor Mon_V') _)).
-      apply (transportb (λ k, _ · k · _ = _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
-      simpl.
-      rewrite assoc, assoc'.
-      rewrite <- (functor_comp F).
-      apply (transportb (λ k, _ · #F k = _) (enriched_id_right _ _)).
-      apply pathsinv0.
-      apply (lax_monoidal_functor_unital F).
-  - intros a b c d.
-    simpl in a, b, c, d.
-    cbn.
-    rewrite <- (functor_id F).
+  use make_enriched_precat_data.
+  - exact A.
+  - intros x y.
+    exact (F (enriched_cat_mor x y)).
+  - intro x.
+    exact (lax_monoidal_functor_ϵ F · #F (enriched_cat_id _)).
+  - intros x y z.
+    exact (lax_monoidal_functor_μ F (_, _) · #F (enriched_cat_comp _ y _)).
+Defined.
+
+Definition change_of_base_enriched_id_ax (A : enriched_precat Mon_V) : enriched_id_ax (change_of_base_enriched_precat_data A).
+Proof.
+  intros a b.
+  split; cbn.
+  - rewrite <- (functor_id F).
     rewrite <- (id_left (#F (id _))).
     change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
     rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
-    rewrite <- (functor_id F (enriched_cat_mor c _)).
-    rewrite <- (id_left (#F (id enriched_cat_mor c _))).
+    rewrite assoc.
+    rewrite (assoc' _ (#(monoidal_cat_tensor Mon_V') _)).
+    apply (transportb (λ f, _ · f · _ = _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
+    simpl.
+    rewrite assoc, assoc'.
+    rewrite <- (functor_comp F).
+    apply (transportb (λ f, _ · #F f = _) (enriched_id_left _ _)).
+    apply pathsinv0.
+    apply (lax_monoidal_functor_unital F).
+  - rewrite <- (functor_id F).
+    rewrite <- (id_left (#F (id _))).
     change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
     rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
-    rewrite !assoc.
+    rewrite assoc.
     rewrite (assoc' _ (#(monoidal_cat_tensor Mon_V') _)).
     apply (transportb (λ k, _ · k · _ = _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
-    match goal with [|- _ = _ · _ · ?f · _ · _] => rewrite (assoc' _ f) end.
-    apply (transportb (λ k, _ = _ · k · _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
-    cbn.
-    rewrite !assoc.
-    do 2 rewrite (assoc' _ (#F _) (#F _)).
-    do 2 rewrite <- (functor_comp F).
-    apply (transportb (λ k, _ · #F k = _) (enriched_assoc _ _ _ _)).
-    rewrite (functor_comp F), assoc.
-    apply cancel_postcomposition.
-    apply lax_monoidal_functor_assoc.
+    simpl.
+    rewrite assoc, assoc'.
+    rewrite <- (functor_comp F).
+    apply (transportb (λ k, _ · #F k = _) (enriched_id_right _ _)).
+    apply pathsinv0.
+    apply (lax_monoidal_functor_unital F).
+Qed.
+
+Definition change_of_base_enriched_assoc_ax (A : enriched_precat Mon_V) : enriched_assoc_ax (change_of_base_enriched_precat_data A).
+Proof.
+  intros a b c d.
+  simpl in a, b, c, d.
+  cbn.
+  rewrite <- (functor_id F).
+  rewrite <- (id_left (#F (id _))).
+  change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
+  rewrite <- (functor_id F (enriched_cat_mor c _)).
+  rewrite <- (id_left (#F (id enriched_cat_mor c _))).
+  change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite (functor_comp (monoidal_cat_tensor Mon_V')).
+  rewrite !assoc.
+  rewrite (assoc' _ (#(monoidal_cat_tensor Mon_V') _)).
+  apply (transportb (λ k, _ · k · _ = _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
+  match goal with [|- _ = _ · _ · ?f · _ · _] => rewrite (assoc' _ f) end.
+  apply (transportb (λ k, _ = _ · k · _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
+  cbn.
+  rewrite !assoc.
+  do 2 rewrite (assoc' _ (#F _) (#F _)).
+  do 2 rewrite <- (functor_comp F).
+  apply (transportb (λ k, _ · #F k = _) (enriched_assoc _ _ _ _)).
+  rewrite (functor_comp F), assoc.
+  apply cancel_postcomposition.
+  apply lax_monoidal_functor_assoc.
+Qed.
+
+Definition change_of_base_enriched_precat (A : enriched_precat Mon_V) : enriched_precat Mon_V'.
+Proof.
+  use make_enriched_precat.
+  - exact (change_of_base_enriched_precat_data A).
+  - exact (change_of_base_enriched_id_ax A).
+  - exact (change_of_base_enriched_assoc_ax A).
 Defined.
+
+Definition change_of_base_enriched_functor_data {A B : enriched_precat Mon_V} (G : enriched_functor A B) : enriched_functor_data (change_of_base_enriched_precat A) (change_of_base_enriched_precat B).
+Proof.
+  use make_enriched_functor_data.
+  + exact G.
+  + intros x y.
+    exact (#F (enriched_functor_on_morphisms G _ _)).
+Defined.
+
+Definition change_of_base_enriched_functor_unit_ax {A B : enriched_precat Mon_V} (G : enriched_functor A B) : enriched_functor_unit_ax (change_of_base_enriched_functor_data G).
+Proof.
+  intro a.
+  cbn.
+  rewrite assoc'.
+  apply cancel_precomposition.
+  rewrite <- (functor_comp F).
+  apply maponpaths.
+  apply enriched_functor_on_identity.
+Qed.
+
+Definition change_of_base_enriched_functor_comp_ax {A B : enriched_precat Mon_V} (G : enriched_functor A B) : enriched_functor_comp_ax (change_of_base_enriched_functor_data G).
+Proof.
+  intros a b c.
+  cbn.
+  rewrite assoc.
+  apply (transportb (λ h, _ = h · _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
+  rewrite !assoc'.
+  apply cancel_precomposition.
+  cbn.
+  rewrite <- !(functor_comp F).
+  apply maponpaths.
+  apply enriched_functor_on_comp.
+Qed.
 
 Definition change_of_base_enriched_functor {A B : enriched_precat Mon_V} (G : enriched_functor A B) : enriched_functor (change_of_base_enriched_precat A) (change_of_base_enriched_precat B).
 Proof.
   use make_enriched_functor.
-  - use make_enriched_functor_data.
-    + exact G.
-    + intros x y.
-      exact (#F (enriched_functor_on_morphisms G _ _)).
-  - intro a.
-    cbn.
-    rewrite assoc'.
-    apply cancel_precomposition.
-    rewrite <- (functor_comp F).
-    apply maponpaths.
-    apply enriched_functor_on_identity.
-  - intros a b c.
-    cbn.
-    rewrite assoc.
-    apply (transportb (λ h, _ = h · _) (nat_trans_ax (lax_monoidal_functor_μ F) _ _ (_ #, _))).
-    rewrite !assoc'.
-    apply cancel_precomposition.
-    cbn.
-    rewrite <- !(functor_comp F).
-    apply maponpaths.
-    apply enriched_functor_on_comp.
+  - exact (change_of_base_enriched_functor_data G).
+  - exact (change_of_base_enriched_functor_unit_ax G).
+  - exact (change_of_base_enriched_functor_comp_ax G).
 Defined.
 
 Lemma lax_monoidal_functor_on_postcompose_underlying_morphism {A : enriched_precat Mon_V} (x : A) {y z : A} (f : underlying_morphism y z) : # F (postcompose_underlying_morphism x f) = @postcompose_underlying_morphism _ (change_of_base_enriched_precat _) _ _ _ (lax_monoidal_functor_ϵ F · # F f).
@@ -158,13 +186,13 @@ Proof.
   use make_enriched_nat_trans.
   - intro x.
     exact (lax_monoidal_functor_ϵ F · #F (a x)).
-  - intros x y.
-    cbn.
-    rewrite <- lax_monoidal_functor_on_postcompose_underlying_morphism.
-    rewrite <- lax_monoidal_functor_on_precompose_underlying_morphism.
-    rewrite <- !(functor_comp F).
-    apply maponpaths.
-    apply enriched_nat_trans_ax.
+  - abstract (intros x y;
+    cbn;
+    rewrite <- lax_monoidal_functor_on_postcompose_underlying_morphism;
+    rewrite <- lax_monoidal_functor_on_precompose_underlying_morphism;
+    rewrite <- !(functor_comp F);
+    apply maponpaths;
+    apply enriched_nat_trans_ax).
 Defined.
 
 End Change_Of_Base.

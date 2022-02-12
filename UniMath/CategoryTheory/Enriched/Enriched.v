@@ -251,11 +251,11 @@ Proof.
       exact (id _).
   - intro a.
     apply id_right.
-  - intros a b c.
-    simpl.
-    rewrite (functor_id tensor).
-    rewrite id_left, id_right.
-    reflexivity.
+  - abstract (intros a b c;
+    simpl;
+    rewrite (functor_id tensor);
+    rewrite id_left, id_right;
+    reflexivity).
 Defined.
 
 (** *** Composition of enriched functors *)
@@ -600,9 +600,9 @@ Proof.
   use make_enriched_nat_trans.
   - intro x.
     apply enriched_cat_id.
-  - intros x y.
-    rewrite precompose_identity, postcompose_identity.
-    reflexivity.
+  - abstract (intros x y;
+    rewrite precompose_identity, postcompose_identity;
+    reflexivity).
 Defined.
 
 Definition enriched_nat_trans_comp {A B : enriched_precat} {F G H : enriched_functor A B} (a : enriched_nat_trans F G) (b : enriched_nat_trans G H) : enriched_nat_trans F H.
@@ -610,16 +610,16 @@ Proof.
   use make_enriched_nat_trans.
   - intro x.
     exact (a x · postcompose_underlying_morphism _ (b x)).
-  - intros x y.
-    rewrite postcompose_underlying_morphism_composite.
-    rewrite assoc.
-    rewrite enriched_nat_trans_ax.
-    rewrite assoc'.
-    rewrite pre_post_compose_commute.
-    rewrite assoc.
-    rewrite enriched_nat_trans_ax.
-    rewrite precompose_underlying_morphism_composite.
-    apply assoc'.
+  - abstract (intros x y;
+    rewrite postcompose_underlying_morphism_composite;
+    rewrite assoc;
+    rewrite enriched_nat_trans_ax;
+    rewrite assoc';
+    rewrite pre_post_compose_commute;
+    rewrite assoc;
+    rewrite enriched_nat_trans_ax;
+    rewrite precompose_underlying_morphism_composite;
+    apply assoc').
 Defined.
 
 End NatTrans.
@@ -647,40 +647,44 @@ Proof.
   apply assoc.
 Qed.
 
+Definition enriched_functor_precategory_data (A B : enriched_precat) : precategory_data.
+Proof.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
+    + exact (enriched_functor A B).
+    + intros F G.
+      exact (enriched_nat_trans F G).
+  - intros c.
+    apply enriched_nat_trans_identity.
+  - intros a b c f g.
+    exact (enriched_nat_trans_comp f g).
+Defined.
+
 Definition enriched_functor_category (A B : enriched_precat) : category.
 Proof.
   use make_category.
   - use make_precategory.
-    + use make_precategory_data.
-      * use make_precategory_ob_mor.
-        exact (enriched_functor A B).
-        intros F G.
-        exact (enriched_nat_trans F G).
-      * intros c.
-        apply enriched_nat_trans_identity.
-      * intros a b c f g.
-        exact (enriched_nat_trans_comp f g).
+    + exact (enriched_functor_precategory_data A B).
     + repeat split;simpl.
-      * intros.
-        apply enriched_nat_trans_eq.
-        intro.
-        cbn.
-        rewrite underlying_morphism_compose_swap.
-        rewrite precompose_identity.
-        apply id_right.
-      * intros.
-        apply enriched_nat_trans_eq.
-        intro.
-        cbn.
-        rewrite postcompose_identity.
-        apply id_right.
-      * intros.
-        apply enriched_nat_trans_assoc.
-      * intros.
-        apply pathsinv0.
-        apply enriched_nat_trans_assoc.
-  - simpl.
-    intros a b.
+      * abstract (intros;
+        apply enriched_nat_trans_eq;
+        intro;
+        cbn;
+        rewrite underlying_morphism_compose_swap;
+        rewrite precompose_identity;
+        apply id_right).
+      * abstract (intros;
+        apply enriched_nat_trans_eq;
+        intro;
+        cbn;
+        rewrite postcompose_identity;
+        apply id_right).
+      * abstract (intros;
+        apply enriched_nat_trans_assoc).
+      * abstract (intros;
+        apply pathsinv0;
+        apply enriched_nat_trans_assoc).
+  - intros a b.
     apply isaset_enriched_nat_trans.
 Defined.
 
@@ -693,11 +697,11 @@ Proof.
   use make_enriched_nat_trans.
   - intro x.
     exact (a (F x)).
-  - intros x y.
-    simpl.
-    rewrite !assoc'.
-    apply cancel_precomposition.
-    apply enriched_nat_trans_ax.
+  - abstract (intros x y;
+    simpl;
+    rewrite !assoc';
+    apply cancel_precomposition;
+    apply enriched_nat_trans_ax).
 Defined.
 
 Definition post_whisker {A B C : enriched_precat} {F G : enriched_functor A B} (a : enriched_nat_trans F G) (H : enriched_functor B C) : enriched_nat_trans (enriched_functor_comp F H) (enriched_functor_comp G H).
@@ -705,72 +709,90 @@ Proof.
   use make_enriched_nat_trans.
   - intro x.
     exact (a x · enriched_functor_on_morphisms H _ _).
-  - intros x y.
-    simpl.
-    rewrite !assoc'.
-    rewrite <- enriched_functor_on_precompose, <- enriched_functor_on_postcompose.
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    apply enriched_nat_trans_ax.
+  - abstract (intros x y;
+    simpl;
+    rewrite !assoc';
+    rewrite <- enriched_functor_on_precompose, <- enriched_functor_on_postcompose;
+    rewrite !assoc;
+    apply cancel_postcomposition;
+    apply enriched_nat_trans_ax).
 Defined.
 
 End Whisker.
 
 Section Unit.
 
+Definition unit_enriched_precat_data : enriched_precat_data.
+Proof.
+  use make_enriched_precat_data.
+  - exact unit.
+  - intros.
+    exact (monoidal_cat_unit Mon_V).
+  - intros.
+    exact (id _).
+  - intros.
+    exact (monoidal_cat_left_unitor Mon_V _).
+Defined.
+
 Definition unit_enriched_precat : enriched_precat.
 Proof.
   use make_enriched_precat.
-  - use make_enriched_precat_data.
-    + exact unit.
-    + intros.
-      exact (monoidal_cat_unit Mon_V).
-    + intros.
-      exact (id _).
-    + intros.
-      exact (monoidal_cat_left_unitor Mon_V _).
-  - split.
-    + cbn.
-      rewrite (functor_id (monoidal_cat_tensor Mon_V)).
-      apply id_left.
-    + cbn.
-      rewrite (functor_id (monoidal_cat_tensor Mon_V)).
-      rewrite id_left.
-      apply left_unitor_right_unitor_of_unit.
-  - intros a b c d.
-    cbn.
-    rewrite assoc.
-    apply cancel_postcomposition.
+  - exact unit_enriched_precat_data.
+  - split; cbn.
+    + abstract (rewrite (functor_id (monoidal_cat_tensor Mon_V));
+      apply id_left).
+    + abstract (rewrite (functor_id (monoidal_cat_tensor Mon_V));
+      rewrite id_left;
+      apply left_unitor_right_unitor_of_unit).
+  - abstract (intros a b c d;
+    cbn;
+    rewrite assoc;
+    apply cancel_postcomposition;
     apply (transportb (λ f, # _ (f #, _) =
-    _) left_unitor_right_unitor_of_unit)%cat.
-    apply (monoidal_cat_triangle_eq Mon_V).
+    _) left_unitor_right_unitor_of_unit)%cat;
+    apply (monoidal_cat_triangle_eq Mon_V)).
 Defined.
+
+Definition element_functor_data {A : enriched_precat} (a : A) : enriched_functor_data unit_enriched_precat A.
+Proof.
+  use make_enriched_functor_data.
+  - intro.
+    exact a.
+  - intros x y.
+    induction x, y.
+    apply enriched_cat_id.
+Defined.
+
+Definition element_functor_unit_ax {A : enriched_precat} (a : A) : enriched_functor_unit_ax (element_functor_data a).
+Proof.
+  intro t.
+  induction t.
+  simpl.
+  apply id_left.
+Qed.
+
+Definition element_functor_comp_ax {A : enriched_precat} (a : A) : enriched_functor_comp_ax (element_functor_data a).
+Proof.
+  intros t t' t''.
+  induction t, t', t''.
+  cbn.
+  apply (@pathscomp0 _ _ (# tensor ((id _ #, enriched_cat_id a) · (enriched_cat_id a #, id _)) · enriched_cat_comp a a a) _)%cat.
+  - rewrite (functor_comp tensor).
+    rewrite assoc'.
+    rewrite (enriched_id_left a).
+    apply pathsinv0.
+    apply (nat_trans_ax l_unitor).
+  - change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+    rewrite id_left, id_right.
+    reflexivity.
+Qed.
 
 Definition element_functor {A : enriched_precat} (a : A) : enriched_functor unit_enriched_precat A.
 Proof.
   use make_enriched_functor.
-  - use make_enriched_functor_data.
-    + intro.
-      exact a.
-    + intros x y.
-      induction x, y.
-      apply enriched_cat_id.
-  - intro t.
-    induction t.
-    simpl.
-    apply id_left.
-  - intros t t' t''.
-    induction t, t', t''.
-    cbn.
-    apply (@pathscomp0 _ _ (# tensor ((id _ #, enriched_cat_id a) · (enriched_cat_id a #, id _)) · enriched_cat_comp a a a) _)%cat.
-    * rewrite (functor_comp tensor).
-      rewrite assoc'.
-      rewrite (enriched_id_left a).
-      apply pathsinv0.
-      apply (nat_trans_ax l_unitor).
-    * change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
-      rewrite id_left, id_right.
-      reflexivity.
+  - exact (element_functor_data a).
+  - exact (element_functor_unit_ax a).
+  - exact (element_functor_comp_ax a).
 Defined.
 
 End Unit.

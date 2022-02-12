@@ -29,12 +29,12 @@ Proof.
   - split; simpl in a, b; simpl.
     + apply (@enriched_id_right _ A).
     + apply (@enriched_id_left _ A).
-  - intros a b c d.
-    simpl.
-    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
-    apply pathsinv0.
-    apply z_iso_inv_on_right.
-    apply (@enriched_assoc _ A).
+  - abstract (intros a b c d;
+    simpl;
+    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x));
+    apply pathsinv0;
+    apply z_iso_inv_on_right;
+    apply (@enriched_assoc _ A)).
 Defined.
 
 Definition opposite_enriched_functor {A B : enriched_precat Mon_V} (F : enriched_functor A B) : enriched_functor (opposite_enriched_precat A) (opposite_enriched_precat B).
