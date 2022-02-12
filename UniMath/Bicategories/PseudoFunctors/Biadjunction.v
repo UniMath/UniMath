@@ -17,7 +17,8 @@ Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Properties.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
@@ -459,7 +460,7 @@ Section BiadjunctionPreservesInitial.
     apply (adj_equiv_to_equiv_cat
              (functor_to_unit (univ_hom HB₂ (L X) Y))).
     use equiv_to_adjequiv.
-    use iso_equiv.
+    use left_equivalence_invertible.
     - exact ((pr11 (biadj_hom_equiv R X Y))
                ∙ functor_to_unit (hom X (R Y))).
     - pose (comp_adj_equivalence_of_cats
