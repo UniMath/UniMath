@@ -551,6 +551,8 @@ Section Gauss.
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
+  Context (R : rig).
+
   Definition gauss_clear_column_step (n : nat) (ki kj : (⟦ n ⟧%stn))
              (i : (⟦ n ⟧%stn)) (mat : Matrix hq n n) : Matrix hq n n.
   Proof.
@@ -1374,11 +1376,11 @@ Section Gauss.
      2 : any zero row is below any non-zero row *)
   Definition is_row_echelon {n : nat} (mat : Matrix hq n n) :=
     ∏ i_1 i_2 : ⟦ n ⟧%stn,
-    ∏ j_1 j_2 : ⟦ n ⟧%stn,
+    (∏ j_1 j_2 : ⟦ n ⟧%stn,
        leading_entry_compute (mat i_1) = (just j_2)
     -> i_1 < i_2
     -> j_1 ≤ j_2
-    -> mat i_2 j_1 = 0%hq
+    -> mat i_2 j_1 = 0%hq)
    × ((mat i_1 = const_vec 0%hq) -> (i_1 < i_2) -> (mat i_2 = const_vec 0%hq)).
 
   Definition is_row_echelon_partial_1
@@ -1408,9 +1410,9 @@ Section Gauss.
   Proof.
     unfold is_row_echelon, is_row_echelon_partial.
     unfold is_row_echelon_partial_1, is_row_echelon_partial_2.
-    intros H ? ? ? H' ?; intros.
+    intros H ? ?; intros.
     use tpair.
-    { refine ((pr1 H) i_1 i_2 _ _ _ _ _ _);
+    { intros. refine (pr1 (H) i_1 i_2 j_1 _ _ _ _ _);
       try apply X; try assumption. exact (pr2 i_1).
     }
     simpl; intros.
@@ -2035,7 +2037,7 @@ Section Gauss.
     (mat : Matrix hq n n)
     (p : n > 0)
     (iter : ⟦ S n ⟧%stn)
-    : @is_row_echelon_partial n  mat p iter
+    : @is_row_echelon_partial n mat p iter
    -> @is_upper_triangular_partial hq n n iter mat.
   Proof.
     unfold is_row_echelon_partial, is_upper_triangular_partial.
@@ -2131,6 +2133,31 @@ Section Gauss.
         exact (pr2 (dualelement j)).
   Defined.
 
+  Lemma row_echelon_to_upper_triangular
+    { n : nat }
+    (mat : Matrix hq n n)
+    (p : n > 0)
+    : @is_row_echelon n mat
+  -> @is_upper_triangular hq n n mat.
+  Proof.
+    intros H.
+    unfold is_upper_triangular.
+    intros.
+    rewrite (row_echelon_partial_to_upper_triangular_partial mat p (n,, natgthsnn n));
+      try reflexivity; try assumption.
+    2: {exact (pr2 i). }
+    unfold is_row_echelon in H.
+    unfold is_row_echelon_partial.
+    unfold is_row_echelon_partial_1, is_row_echelon_partial_2.
+    use tpair.
+    - intros.
+      destruct (H i_1 i_2) as [H1 H2]; try assumption.
+      rewrite (H1 j_1 j_2); try assumption; reflexivity.
+    - simpl.
+      intros.
+      destruct (H i_1 i_2) as [H1 H2]; try assumption.
+      rewrite H2; try assumption; reflexivity.
+  Defined.
 
   (* TODO do this one for clear_column (no prime ?) *)
   Lemma clear_column_eq_matrix_def { n : nat } (iter : ⟦ S n ⟧%stn)
@@ -2309,7 +2336,7 @@ Section Gauss.
     {n : nat} (v : Vector hq n) := λ i : (stn n), flip_hq_bin (v i).
 
   Definition diagonal_all_nonzero_compute
-    {n : nat} (v : Vector hq n) (iter : (stn (S n)))
+    {n : nat} (v : Vector hq n)
     : coprod (forall j : (stn n), (v j) != 0%hq)
              (∑ i : (stn n), (v i) = 0%hq).
   Proof.

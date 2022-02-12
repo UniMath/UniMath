@@ -706,7 +706,6 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Defined.
 
 
-
   Lemma left_inverse_implies_right
     { n : nat } (A B: Matrix hq n n)
     : (B ** A) = (@identity_matrix hq n) -> (@matrix_right_inverse hq n n A).
@@ -795,33 +794,19 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma right_inverse_implies_left
     { n : nat } (A B: Matrix hq n n)
-    : (B ** A) = (@identity_matrix hq n) -> (@matrix_right_inverse hq n n A).
+    : @matrix_right_inverse hq n n A -> (@matrix_left_inverse hq n n A).
   Proof.
     intros H0.
-  Abort.
-
-
-  (* The argument we want to make is, that for _all_ A,
-     A not invertible (we are done),
-     or (B ** A) upper triangular, df,
-     -> we can find D s.t. DA = I,
-     (again, for all invertible, which would have BA ut, df) A, 
-     (AD)A = IA, A(DA) = A
-     and id is unique so if for all A, (AD)A = A then AD = I
-     DA = I     ADA = A  (AD)A = A(DA) : we got A left inverse*)
-  Local Lemma matrix_left_inverse_to_right_inverse
-  {R : rig} { n : nat } (A : Matrix R n n) (B : Matrix R n n)
-  (inv : (matrix_left_inverse A)) : matrix_right_inverse A.
-  Proof.
-    unfold matrix_right_inverse.
-    use tpair. {exact (pr1 inv). }
-    simpl.
-    intros.
-    destruct inv as [inv H].
-    assert (eq1 : (matrix_mult A (matrix_mult inv A)) = A).
-    { rewrite H. apply matrunax2. }
-    pose (eq2 := eq1).
-  Abort.
+    destruct H0 as [rinv isrinv].
+    pose (H1 := @make_matrix_left_inverse hq n n n A rinv isrinv).
+    pose (H2 := @left_inverse_implies_right n _ _ isrinv).
+    use tpair. {exact rinv. }
+    pose (H3 := @matrix_left_inverse_equals_right_inverse _ n _ n _ H1 H2).
+    unfold H1, H2 in H3.
+    simpl in H3.
+    rewrite H3.
+    apply H2.
+  Defined.
 
   Lemma matrix_inverse_or_non_invertible
     { n : nat } (A : Matrix hq n n)
@@ -830,14 +815,61 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Proof.
     destruct (natchoice0 n) as [? | gt].
     { left. apply nil_matrix_is_inv; symmetry; assumption. }
-    set (H1 := gauss_clear_rows_up_to A gt (n,, natgthsnn n)).
-    set (H2 := @gaussian_elimination_inv0).
-    set (H3 := @clear_rows_up_to_matrix_invertible).
-    set (H4 := @gauss_clear_rows_up_to_as_matrix_eq n (n,, natgthsnn n) A gt).
-    set (H5 := (clear_rows_up_to_as_left_matrix_internal A gt (n,, natgthsnn n) **  A)).
-    (* TODO rename remove diagonal *)
-    destruct (diagonal_all_nonzero_compute (λ i : (stn n), H1 i i)) as [nz | hasz].
-    {admit. } (* TODO rename unused arg *)
-    2: { right. try apply gauss_clear_columns_up_to_no_switch_inv7. admit. }
+    set (B:= @clear_rows_up_to_as_left_matrix n A gt (n,, natgthsnn n)).
+    set (BA := B ** A).
+    set (C := upper_triangular_right_inverse_construction (BA)).
+    assert (ut : is_upper_triangular (BA)).
+    { unfold BA. 
+      pose ( is_echelon := @gauss_clear_rows_up_to_inv3 _ A gt (n,, natgthsnn n)).
+      rewrite <- gauss_clear_rows_up_to_as_matrix_eq in is_echelon.
+      apply row_echelon_to_upper_triangular; try assumption.
+    }
+    destruct (diagonal_all_nonzero_compute (λ i : (stn n), BA i i)) as [nz | hasz].
+    2: { right.
+      intros H.
+      destruct H as [invM isinv].
+      destruct isinv as [isl isr].
+      pose (H1 := gauss_clear_columns_up_to_no_switch_inv7).
+      apply (gauss_clear_columns_up_to_no_switch_inv7 _ BA gt (n,, natgthsnn n) ut (pr1 hasz)); simpl; try assumption.
+      - apply (pr2 hasz).
+      - exact (pr2 (pr1 hasz)).
+      - apply left_inv_matrix_prod_is_left_inv; try assumption.
+        + apply matrix_inverse_to_right_and_left_inverse.
+          unfold B. apply gauss_clear_rows_up_to_matrix_invertible.
+        + use tpair. {exact invM. }
+        simpl; try assumption.
+    }
     left.
-  Abort.
+    set (BAC := BA ** C).
+    set (BAC_id := @upper_triangular_right_inverse_is_inverse _ _ ut nz).
+    assert (rinv_eq : (C ** BA) = identity_matrix).
+    { pose (linv := @right_inverse_implies_left _ BA C (C,, BAC_id)).
+      pose (eq := @matrix_left_inverse_equals_right_inverse hq n _ n BA linv (C,, BAC_id)).
+      change ( pr1 (C,, BAC_id)) with C in eq.
+      apply linv.
+    }
+    use tpair. {exact (C ** B). }
+    simpl; use tpair.
+    2: { simpl. rewrite matrix_mult_assoc. apply rinv_eq. }
+    rewrite <- matrix_mult_assoc.
+    unfold BA in BAC_id.
+    assert (linv_eq : ((B ** A ** C) = (A ** C ** B))).
+    { rewrite matrix_mult_assoc.
+      rewrite matrix_mult_assoc in BAC_id.
+      unfold C in *; clear C; set (C := (upper_triangular_right_inverse_construction BA)).
+      pose (B_rinv := @make_matrix_right_inverse hq n n n B (A** C) (BAC_id)).
+      pose (linv := @right_inverse_implies_left _ B C B_rinv).
+      pose (eq := @matrix_left_inverse_equals_right_inverse hq n _ n B linv ((A** C),, BAC_id)).
+      replace  (A** C) with (pr1 B_rinv).
+      2: {simpl. reflexivity. }
+      rewrite (pr2 B_rinv).
+      replace (pr1 B_rinv) with (pr1 linv); try assumption.
+      2: {rewrite eq. simpl; reflexivity. }
+      rewrite (pr2 linv); reflexivity.
+    }
+    simpl  in *.
+    rewrite <- BAC_id.
+    rewrite <- linv_eq.
+    unfold C, BA.
+    reflexivity.
+  Defined.
