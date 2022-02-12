@@ -194,7 +194,7 @@ Definition nattrans_naturality {B C:category} {F F':[B, C]} {b b':B}
   := nat_trans_ax p _ _ f.
 
 Definition comp_func_on_mor {A B C:category} (F:[A,B]) (G:[B,C]) {a a':A} (f:a-->a') :
-  G □ F ▭ f = G ▭ (F ▭ f).
+  F ∙ G ▭ f = G ▭ (F ▭ f).
 Proof.
   reflexivity.
 Defined.
@@ -215,7 +215,7 @@ Definition nattrans_nattrans_arrow_assoc {C:category} {c:C} {X X' X'':[C^op,HSET
 
 Definition nattrans_nattrans_object_assoc {A B C:category}
            (F:[A,B]) (G:[B, C]) {a a' : A} (f : a --> a') :
-  G □ F ▭ f = G ▭ (F ▭ f)
+  F ∙ G ▭ f = G ▭ (F ▭ f)
   := idpath _.
 
 Lemma functor_on_id {B C:category} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
@@ -509,9 +509,9 @@ Definition functor_composite_functor {A B C:category} (F:A⟶B) :
   [B,C] ⟶ [A,C].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
-  - exact (λ G, G □ F).
+  - exact (λ G, F ∙ G).
   - intros G G' p; simpl.
-    unshelve refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
+    unshelve refine (@makeNattrans A C (F ∙ G) (F ∙ G') (λ a, p ◽ (F ◾ a)) _).
     abstract (
         intros a a' f; rewrite 2? nattrans_nattrans_object_assoc;
         exact (nattrans_naturality p (F ▭ f))) using _L_.
