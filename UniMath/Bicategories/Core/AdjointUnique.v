@@ -12,12 +12,13 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.TransportLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
@@ -610,26 +611,4 @@ Section AdjointEquivUniqueCompInv.
     }
     apply idpath.
   Qed.
-
-  Lemma unique_adjoint_equivalence_comp
-             {a b c : B}
-    : ∏ (f : adjoint_equivalence a b) (g : adjoint_equivalence b c),
-      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) a b c f g.
-  Proof.
-    use (J_2_0 (pr1 HB) (λ a b f, _)).
-    intros x g; simpl.
-    unfold comp_adjoint_equivalence.
-    rewrite J_2_0_comp.
-    use subtypePath.
-    {
-      intro.
-      exact (isaprop_left_adjoint_equivalence _ (pr2 HB)).
-    }
-    cbn.
-    apply (isotoid_2_1 (pr2 HB)).
-    use make_invertible_2cell.
-    - exact (lunitor (pr1 g)).
-    - is_iso.
-  Qed.
-
 End AdjointEquivUniqueCompInv.

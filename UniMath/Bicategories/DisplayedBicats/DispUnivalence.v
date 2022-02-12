@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Export UniMath.Bicategories.Core.Univalence.

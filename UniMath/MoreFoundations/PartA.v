@@ -280,6 +280,21 @@ Defined.
 Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
   (∏ a b, C a b) ≃ (∏ b a, C a b) := make_weq flipsec isweq_flipsec.
 
+(** hlevel of empty type *)
+Definition empty_hlevel
+           (n : nat)
+  : isofhlevel (n + 1) ∅.
+Proof.
+  induction n.
+  - exact isapropempty.
+  - exact (λ x, fromempty x).
+Defined.
+
+Definition empty_HLevel
+           (n : nat)
+  : HLevel (n + 1)
+  := empty ,, empty_hlevel n.
+
 (** The subtypes of a type of hlevel S n are also of hlevel S n.
     This doesn't work for types of hlevel 0: a subtype of a contractible
     type might be empty, not contractible! *)

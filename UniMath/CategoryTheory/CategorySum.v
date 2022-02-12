@@ -387,6 +387,14 @@ Proof.
   - exact (inl_is_functor C₁ C₂).
 Defined.
 
+Definition fully_faithful_inl_functor
+           (C₁ C₂ : category)
+  : fully_faithful (inl_functor C₁ C₂).
+Proof.
+  intros x y.
+  apply idisweq.
+Defined.
+
 Definition inr_functor_data
            (C₁ C₂ : category)
   : functor_data C₂ (bincoprod_of_category C₁ C₂).
@@ -412,6 +420,14 @@ Proof.
   use make_functor.
   - exact (inr_functor_data C₁ C₂).
   - exact (inr_is_functor C₁ C₂).
+Defined.
+
+Definition fully_faithful_inr_functor
+           (C₁ C₂ : category)
+  : fully_faithful (inr_functor C₁ C₂).
+Proof.
+  intros x y.
+  apply idisweq.
 Defined.
 
 Definition sum_of_functors_data

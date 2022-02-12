@@ -29,9 +29,9 @@ Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -191,8 +191,8 @@ Section Initial.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
     pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell _ _ (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell _ _ (nat_iso_pointwise_iso η g)).
+    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
+    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
     exact (comp_of_invertible_2cell θ₁ (inv_of_invertible_2cell θ₂)).
   Defined.
 
@@ -206,8 +206,8 @@ Section Initial.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
     pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell _ _ (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell _ _ (nat_iso_pointwise_iso η g)).
+    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
+    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
     use (invmaponpathsincl
            _
            (isinclweq

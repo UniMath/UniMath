@@ -16,9 +16,9 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
-Require Import UniMath.Bicategories.Core.InternalStreetFibration.
-Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
