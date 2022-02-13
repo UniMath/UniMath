@@ -426,9 +426,9 @@ Section FiberOfCodomain.
     - exact from_fiber_cod_data.
     - exact from_fiber_cod_laws.
     - split ; intros.
-      + use invertible_2cell_in_slice_bicat ; cbn.
+      + use is_invertible_2cell_in_slice_bicat ; cbn.
         is_iso.
-      + use invertible_2cell_in_slice_bicat ; cbn.
+      + use is_invertible_2cell_in_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -476,7 +476,7 @@ Section FiberOfCodomain.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_slice_bicat ; cbn.
+      + apply is_invertible_2cell_in_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -579,7 +579,7 @@ Section FiberOfCodomain.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_slice_bicat ; cbn.
+      + apply is_invertible_2cell_in_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -1113,7 +1113,7 @@ Section FiberOfCodomain.
            rewrite lunitor_runitor_identity ;
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            apply triangle_r).
-    - apply invertible_2cell_in_slice_bicat.
+    - apply is_invertible_2cell_in_slice_bicat.
       cbn.
       is_iso.
   Defined.
@@ -1183,7 +1183,7 @@ Section FiberOfCodomain.
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            refine (!_) ;
            apply triangle_r).
-    - apply invertible_2cell_in_slice_bicat.
+    - apply is_invertible_2cell_in_slice_bicat.
       cbn.
       is_iso.
   Defined.
