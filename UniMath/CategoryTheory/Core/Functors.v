@@ -1081,5 +1081,5 @@ Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 
-Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat.
+(* Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat. *)
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
