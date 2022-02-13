@@ -357,6 +357,15 @@ Definition reflects_morphism {C D : category} (F : functor C D)
 Definition conservative {C D : category} (F : functor C D) : UU :=
   reflects_morphism F (@is_iso).
 
+Definition isaprop_conservative
+           {C D : category}
+           (F : functor C D)
+  : isaprop (conservative F).
+Proof.
+  do 4 (use impred ; intro).
+  apply isaprop_is_iso.
+Qed.
+
 (** ** Composition of functors, identity functors *)
 
 (** *** Composition *)
@@ -1072,5 +1081,5 @@ Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 
-Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat.
+(* Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat. *)
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)

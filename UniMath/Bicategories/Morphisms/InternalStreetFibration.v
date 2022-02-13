@@ -8,39 +8,19 @@
  1. Definition of an internal Street fibration
  2. Lemmas on cartesians
  3. Street fibrations in locally groupoidal bicategories
- 4. The identity Street fibration
- 5. Projection Street fibration
- 6. Composition of Street fibrations
- 7. Internal Street fibrations of categories
- 8. Morphisms of internal Street fibrations
- 9. Cells of internal Street fibrations
- 10. Equivalences preserve cartesian cells
- 11. Pullbacks of Street fibrations
+ 4. Morphisms of internal Street fibrations
+ 5. Cells of internal Street fibrations
 
  ********************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Adjunctions.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Limits.Products.
-Import Products.Notations.
-Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
 
@@ -241,7 +221,7 @@ Section InternalStreetFibration.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
              ,, pr112 lift
-             ,, iso_to_inv2cell _ _ (pr212 lift)
+             ,, iso_to_inv2cell (pr212 lift)
              ,, pr222 lift
              ,, pr122 lift).
     - exact (pr2 H).
@@ -255,7 +235,7 @@ Section InternalStreetFibration.
     - intros x f g α.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
-             ,, (pr12 lift ,, inv2cell_to_iso _ _ (pr122 lift))
+             ,, (pr12 lift ,, inv2cell_to_iso (pr122 lift))
              ,, pr2 (pr222 lift)
              ,, pr1 (pr222 lift)).
     - exact (pr2 H).
@@ -759,7 +739,7 @@ Section InvertibleBetweenCartesians.
 End InvertibleBetweenCartesians.
 
 (**
-3. Street fibrations in locally groupoidal bicategories
+ 3. Street fibrations in locally groupoidal bicategories
  *)
 Definition locally_grpd_cartesian
            {B : bicat}
@@ -824,379 +804,7 @@ Proof.
 Defined.
 
 (**
-4. The identity Street fibration
- *)
-Section IdentityInternalSFib.
-  Context {B : bicat}
-          (b : B).
-
-  Local Lemma identity_help
-        {x : B}
-        {f h : x --> b}
-        (δp : h · id₁ b ==> f · id₁ b)
-    : ((rinvunitor h • δp) • runitor f) ▹ id₁ b = δp.
-  Proof.
-    rewrite !vassocl.
-    rewrite <- rwhisker_vcomp.
-    use vcomp_move_R_pM ; [ is_iso | ].
-    cbn.
-    use (vcomp_rcancel (runitor _)) ; [ is_iso | ].
-    rewrite !vassocl.
-    rewrite !vcomp_runitor.
-    rewrite !vassocr.
-    do 2 apply maponpaths_2.
-    rewrite <- runitor_triangle.
-    use vcomp_move_R_pM ; [ is_iso | ].
-    cbn.
-    rewrite runitor_rwhisker.
-    rewrite runitor_lunitor_identity.
-    apply idpath.
-  Qed.
-
-  Definition identity_lift
-             {x : B}
-             {f g : x --> b}
-             (α : f ==> g · id₁ b)
-    : is_cartesian_2cell_sfib (id₁ b) (α • runitor g).
-  Proof.
-    intros h β δp q.
-    use iscontraprop1.
-    - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ;
-         [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-         use id1_faithful ;
-         exact (pr12 φ₁ @ !(pr12 φ₂))).
-    - refine (rinvunitor _ • δp • runitor _ ,, _ ,, _).
-      + apply identity_help.
-      + abstract
-          (rewrite !vassocl ;
-           etrans ;
-           [ do 2 apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite <- vcomp_runitor ;
-             rewrite !vassocl ;
-             rewrite <- vcomp_runitor ;
-             rewrite !vassocr ;
-             rewrite rwhisker_vcomp ;
-             apply idpath
-           | ] ;
-           etrans ;
-           [ apply maponpaths ;
-             rewrite !vassocr ;
-             apply maponpaths_2 ;
-             exact (!q)
-           | ] ;
-           rewrite vcomp_runitor ;
-           rewrite !vassocr ;
-           rewrite rinvunitor_runitor ;
-           apply id2_left).
-  Defined.
-
-  Definition identity_internal_cleaving
-    : internal_sfib_cleaving (id₁ b).
-  Proof.
-    intros x f g α.
-    refine (f
-            ,,
-            α • runitor _
-            ,,
-            runitor_invertible_2cell _
-            ,,
-            _
-            ,,
-            _) ; cbn.
-    - apply identity_lift.
-    - abstract
-        (rewrite <- vcomp_runitor ;
-         rewrite <- rwhisker_vcomp ;
-         apply maponpaths ;
-         rewrite <- runitor_triangle ;
-         use vcomp_move_L_pM ; [ is_iso | ] ;
-         cbn ;
-         rewrite runitor_rwhisker ;
-         rewrite lunitor_runitor_identity ;
-         apply idpath).
-  Defined.
-
-  Definition identity_lwhisker_cartesian
-    : lwhisker_is_cartesian (id₁ b).
-  Proof.
-    intros x y h f g γ Hγ k α δp q.
-    use iscontraprop1.
-    - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ;
-         [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-         use id1_faithful ;
-         exact (pr12 φ₁ @ !(pr12 φ₂))).
-    - refine (rinvunitor _ • δp • runitor _ ,, _ ,, _).
-      + apply identity_help.
-      + abstract
-          (rewrite !vassocl ;
-           rewrite <- vcomp_runitor ;
-           etrans ;
-           [ apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite <- q ;
-             apply vcomp_runitor
-           | ] ;
-           rewrite !vassocr ;
-           rewrite rinvunitor_runitor ;
-           apply id2_left).
-  Defined.
-
-  Definition identity_internal_sfib
-    : internal_sfib (id₁ b).
-  Proof.
-    split.
-    - exact identity_internal_cleaving.
-    - exact identity_lwhisker_cartesian.
-  Defined.
-End IdentityInternalSFib.
-
-(**
-5. Projection Street fibration
- *)
-Section ProjectionSFib.
-  Context {B : bicat_with_binprod}
-          (b₁ b₂ : B).
-
-  Section InvertibleToCartesian.
-    Context {a : B}
-            {f g : a --> b₁ ⊗ b₂}
-            (α : f ==> g)
-            (Hα : is_invertible_2cell (α ▹ π₂)).
-
-    Definition invertible_to_cartesian_unique
-               (h : a --> b₁ ⊗ b₂)
-               (β : h ==> g)
-               (δp : h · π₁ ==> f · π₁)
-               (q : β ▹ π₁ = δp • (α ▹ π₁))
-      : isaprop (∑ (δ : h ==> f), δ ▹ π₁ = δp × δ • α = β).
-    Proof.
-      use invproofirrelevance.
-      intros φ₁ φ₂.
-      use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ].
-      use binprod_ump_2cell_unique_alt.
-      - apply (pr2 B).
-      - exact (pr12 φ₁ @ !(pr12 φ₂)).
-      - use (vcomp_rcancel _ Hα).
-        rewrite !rwhisker_vcomp.
-        apply maponpaths.
-        exact (pr22 φ₁ @ !(pr22 φ₂)).
-    Qed.
-
-    Definition invertible_to_cartesian
-      : is_cartesian_2cell_sfib π₁ α.
-    Proof.
-      intros h β δp q.
-      use iscontraprop1.
-      - exact (invertible_to_cartesian_unique h β δp q).
-      - simple refine (_ ,, _ ,, _).
-        + use binprod_ump_2cell.
-          * apply (pr2 B).
-          * exact δp.
-          * exact (β ▹ _ • Hα^-1).
-        + apply binprod_ump_2cell_pr1.
-        + use binprod_ump_2cell_unique_alt.
-          * apply (pr2 B).
-          * abstract
-              (rewrite <- !rwhisker_vcomp ;
-               rewrite binprod_ump_2cell_pr1 ;
-               exact (!q)).
-          * abstract
-              (rewrite <- !rwhisker_vcomp ;
-               rewrite binprod_ump_2cell_pr2 ;
-               rewrite !vassocl ;
-               refine (_ @ id2_right _) ;
-               rewrite vcomp_linv ;
-               apply idpath).
-    Defined.
-  End InvertibleToCartesian.
-
-  Section CartesianToInvertible.
-    Context {a : B}
-            {f g : a --> b₁ ⊗ b₂}
-            (α : f ==> g)
-            (Hα : is_cartesian_2cell_sfib π₁ α).
-
-    Let h : a --> b₁ ⊗ b₂ := ⟨ f · π₁, g · π₂ ⟩.
-    Let δ : h ==> g
-      := binprod_ump_2cell
-           (pr2 (pr2 B _ _))
-           (binprod_ump_1cell_pr1 _ _ _ _ • (α ▹ _))
-           (binprod_ump_1cell_pr2 _ _ _ _).
-    Let hπ₁ : h · π₁ ==> f · π₁ := binprod_ump_1cell_pr1 _ _ _ _.
-
-    Local Lemma cartesian_to_invertible_eq
-      : δ ▹ π₁ = hπ₁ • (α ▹ π₁).
-    Proof.
-      apply binprod_ump_2cell_pr1.
-    Qed.
-
-    Let lift : ∃! δ0 : h ==> f, δ0 ▹ π₁ = hπ₁ × δ0 • α = δ
-      := Hα h δ hπ₁ cartesian_to_invertible_eq.
-    Let lift_map : h ==> f := pr11 lift.
-    Let inv : g · π₂ ==> f · π₂
-      := (binprod_ump_1cell_pr2 _ _ _ _)^-1 • (lift_map ▹ π₂).
-
-    Let ζ : f ==> f
-      := binprod_ump_2cell
-           (pr2 (pr2 B _ _))
-           (id2 _)
-           ((α ▹ π₂) • inv).
-
-    Local Lemma cartesian_to_invertible_map_inv_help
-      : ζ = id₂ f.
-    Proof.
-      refine (maponpaths
-                (λ z, pr1 z)
-                (proofirrelevance
-                   _
-                   (isapropifcontr (Hα f α (id2 _) (!(id2_left _))))
-                   (ζ ,, _ ,, _)
-                   (id₂ _ ,, _ ,, _))).
-      - apply binprod_ump_2cell_pr1.
-      - use binprod_ump_2cell_unique_alt.
-        + apply (pr2 B).
-        + rewrite <- rwhisker_vcomp.
-          unfold ζ.
-          rewrite binprod_ump_2cell_pr1.
-          apply id2_left.
-        + unfold ζ, inv.
-          rewrite <- rwhisker_vcomp.
-          rewrite binprod_ump_2cell_pr2.
-          rewrite !vassocl.
-          rewrite rwhisker_vcomp.
-          etrans.
-          {
-            do 3 apply maponpaths.
-            apply (pr221 lift).
-          }
-          unfold δ.
-          rewrite binprod_ump_2cell_pr2.
-          rewrite vcomp_linv.
-          apply id2_right.
-      - apply id2_rwhisker.
-      - apply id2_left.
-    Qed.
-
-    Local Lemma cartesian_to_invertible_map_inv
-      : (α ▹ π₂) • inv = id₂ (f · π₂).
-    Proof.
-      refine (_ @ maponpaths (λ z, z ▹ π₂) cartesian_to_invertible_map_inv_help @ _).
-      - unfold ζ.
-        refine (!_).
-        apply binprod_ump_2cell_pr2.
-      - apply id2_rwhisker.
-    Qed.
-
-    Local Lemma cartesian_to_invertible_inv_map
-      : inv • (α ▹ π₂) = id₂ (g · π₂).
-    Proof.
-      unfold inv.
-      rewrite !vassocl.
-      rewrite rwhisker_vcomp.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        exact (pr221 lift).
-      }
-      unfold δ.
-      etrans.
-      {
-        apply maponpaths.
-        apply binprod_ump_2cell_pr2.
-      }
-      apply vcomp_linv.
-    Qed.
-
-    Definition cartesian_to_invertible
-      : is_invertible_2cell (α ▹ π₂).
-    Proof.
-      unfold is_cartesian_2cell_sfib in Hα.
-      use make_is_invertible_2cell.
-      - exact inv.
-      - exact cartesian_to_invertible_map_inv.
-      - exact cartesian_to_invertible_inv_map.
-    Defined.
-  End CartesianToInvertible.
-
-  Definition pr1_internal_cleaving
-    : internal_sfib_cleaving (π₁ : b₁ ⊗ b₂ --> b₁).
-  Proof.
-    intros a f g α.
-    simple refine (⟨ f , g · π₂ ⟩
-                     ,, ⟪ α , id2 _ ⟫ • prod_1cell_eta _ g
-                     ,, prod_1cell_pr1 _ f _
-                     ,, _
-                     ,, _) ; simpl.
-    - apply invertible_to_cartesian.
-      rewrite <- rwhisker_vcomp.
-      use is_invertible_2cell_vcomp.
-      + rewrite prod_2cell_pr2.
-        is_iso.
-        apply prod_1cell_pr2.
-      + is_iso.
-        apply prod_1cell_eta.
-    - abstract
-        (unfold prod_1cell_eta_map ;
-         rewrite <- !rwhisker_vcomp ;
-         etrans ;
-         [ apply maponpaths ;
-           apply binprod_ump_2cell_pr1
-         | ] ;
-         rewrite prod_2cell_pr1 ;
-         rewrite !vassocl ;
-         rewrite vcomp_linv ;
-         rewrite id2_right ;
-         apply idpath).
-  Defined.
-
-  Definition pr1_lwhisker_is_cartesian
-    : lwhisker_is_cartesian (π₁ : b₁ ⊗ b₂ --> b₁).
-  Proof.
-    intros x y h f g γ Hγ.
-    apply invertible_to_cartesian.
-    pose (cartesian_to_invertible _ Hγ) as i.
-    use make_is_invertible_2cell.
-    - exact (rassociator _ _ _ • (h ◃ i^-1) • lassociator _ _ _).
-    - rewrite !vassocr.
-      rewrite <- rwhisker_lwhisker_rassociator.
-      refine (_ @ rassociator_lassociator _ _ _).
-      rewrite !vassocl.
-      apply maponpaths.
-      rewrite !vassocr.
-      rewrite lwhisker_vcomp.
-      rewrite vcomp_rinv.
-      rewrite lwhisker_id2.
-      apply id2_left.
-    - rewrite !vassocl.
-      rewrite <- rwhisker_lwhisker.
-      rewrite !vassocr.
-      refine (_ @ rassociator_lassociator _ _ _).
-      apply maponpaths_2.
-      rewrite !vassocl.
-      rewrite lwhisker_vcomp.
-      rewrite vcomp_linv.
-      rewrite lwhisker_id2.
-      apply id2_right.
-  Qed.
-
-  Definition pr1_internal_sfib
-    : internal_sfib (π₁ : b₁ ⊗ b₂ --> b₁).
-  Proof.
-    split.
-    - exact pr1_internal_cleaving.
-    - exact pr1_lwhisker_is_cartesian.
-  Defined.
-End ProjectionSFib.
-
-(**
- 8. Morphisms of internal Street fibrations
+ 4. Morphisms of internal Street fibrations
  *)
 Definition mor_preserves_cartesian
            {B : bicat}
@@ -1425,7 +1033,7 @@ Proof.
 Defined.
 
 (**
- 9. Cells of internal Street fibrations
+ 5. Cells of internal Street fibrations
  *)
 Definition cell_of_internal_sfib_over_homot
            {B : bicat}
@@ -1518,48 +1126,10 @@ Proof.
   exact p.
 Qed.
 
-(**
- 10. Equivalences preserve cartesian cells
- *)
-Definition equivalence_preserves_cartesian
-           {B : bicat}
-           {b e₁ e₂ : B}
-           (p₁ : e₁ --> b)
-           (p₂ : e₂ --> b)
-           (L : e₁ --> e₂)
-           (com : invertible_2cell p₁ (L · p₂))
-           (HL : left_adjoint_equivalence L)
-           (HB_2_0 : is_univalent_2_0 B)
-           (HB_2_1 : is_univalent_2_1 B)
-  : mor_preserves_cartesian p₁ p₂ L.
-Proof.
-  refine (J_2_0
-            HB_2_0
-            (λ (x₁ x₂ : B) (L : adjoint_equivalence x₁ x₂),
-             ∏ (p₁ : x₁ --> b)
-               (p₂ : x₂ --> b)
-               (c : invertible_2cell p₁ (L · p₂)),
-             mor_preserves_cartesian p₁ p₂ L)
-            _
-            (L ,, HL)
-            p₁
-            p₂
-            com).
-  clear e₁ e₂ L HL p₁ p₂ com HB_2_0.
-  cbn ; intros e p₁ p₂ com.
-  pose (c := comp_of_invertible_2cell com (lunitor_invertible_2cell _)).
-  refine (J_2_1
-            HB_2_1
-            (λ (x₁ x₂ : B)
-               (f g : x₁ --> x₂)
-               _,
-             mor_preserves_cartesian f g (id₁ _))
-            _
-            c).
-  intros.
-  apply id_mor_preserves_cartesian.
-Defined.
 
+
+
+(*
 (**
  11. Pullbacks of Street fibrations
  *)
@@ -2136,3 +1706,4 @@ Section PullbackOfSFib.
        apply idpath).
   Defined.
 End PullbackOfSFib.
+ *)

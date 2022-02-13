@@ -37,10 +37,12 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Adjunctions.
-Require Import UniMath.Bicategories.Core.InternalStreetFibration.
-Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.Properties.
+Require Import UniMath.Bicategories.Morphisms.Properties.Projections.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.

@@ -15,8 +15,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Notations.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.Bicategories.Core.Adjunctions.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInOneTypes.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
