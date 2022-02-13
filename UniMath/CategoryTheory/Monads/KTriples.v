@@ -234,7 +234,7 @@ Definition nat_trans_η {C : category} (T : KleisliMonad C) :
 (* ----- μ natural transformation. ----- *)
 
 Lemma is_nat_trans_μ {C : category} (T : KleisliMonad C) :
-  is_nat_trans (kleisli_functor T □ kleisli_functor T) (kleisli_functor T) (μ T).
+  is_nat_trans (kleisli_functor T ∙ kleisli_functor T) (kleisli_functor T) (μ T).
 Proof.
   unfold is_nat_trans, μ. simpl. intros.
   rewrite (map_bind T), (bind_map T).
@@ -242,7 +242,7 @@ Proof.
 Defined.
 
 Definition nat_trans_μ {C : category} (T : KleisliMonad C) :
-  kleisli_functor T □ kleisli_functor T ⟹ kleisli_functor T :=
+  kleisli_functor T ∙ kleisli_functor T ⟹ kleisli_functor T :=
   μ T,, is_nat_trans_μ T.
 
 (* ----- Identity Morphism ----- *)
