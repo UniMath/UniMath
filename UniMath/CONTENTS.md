@@ -335,6 +335,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)
    - [SkewMonoidal/CategoriesOfMonoids.v](CategoryTheory/SkewMonoidal/CategoriesOfMonoids.v)
    - [Enriched/Enriched.v](CategoryTheory/Enriched/Enriched.v)
+   - [Enriched/ChangeOfBase.v](CategoryTheory/Enriched/ChangeOfBase.v)
+   - [Enriched/Opposite.v](CategoryTheory/Enriched/Opposite.v)
    - [RepresentableFunctors/Precategories.v](CategoryTheory/RepresentableFunctors/Precategories.v)
    - [RepresentableFunctors/Bifunctor.v](CategoryTheory/RepresentableFunctors/Bifunctor.v)
    - [RepresentableFunctors/Representation.v](CategoryTheory/RepresentableFunctors/Representation.v)
