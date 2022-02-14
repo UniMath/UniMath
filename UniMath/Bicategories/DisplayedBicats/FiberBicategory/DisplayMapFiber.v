@@ -419,9 +419,9 @@ Section FiberOfDisplayMap.
     - exact from_fiber_disp_map_data.
     - exact from_fiber_disp_map_laws.
     - split ; intros.
-      + use invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      + use is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
-      + use invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      + use is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -468,7 +468,7 @@ Section FiberOfDisplayMap.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      + apply is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -570,7 +570,7 @@ Section FiberOfDisplayMap.
              rewrite linvunitor_lunitor ;
              rewrite lwhisker_id2 ;
              apply idpath).
-      + apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      + apply is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
         is_iso.
   Defined.
 
@@ -1141,7 +1141,7 @@ Section FiberOfDisplayMap.
            rewrite lunitor_runitor_identity ;
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            apply triangle_r).
-    - apply invertible_2cell_in_disp_map_slice_bicat.
+    - apply is_invertible_2cell_in_disp_map_slice_bicat.
       cbn.
       is_iso.
   Defined.
@@ -1211,7 +1211,7 @@ Section FiberOfDisplayMap.
            rewrite lwhisker_hcomp, rwhisker_hcomp ;
            refine (!_) ;
            apply triangle_r).
-    - apply invertible_2cell_in_disp_map_slice_bicat.
+    - apply is_invertible_2cell_in_disp_map_slice_bicat.
       cbn.
       is_iso.
   Defined.

@@ -184,7 +184,7 @@ Section ProductSlice.
                rewrite vcomp_linv ;
                rewrite id2_rwhisker ;
                apply id2_right).
-        + use invertible_2cell_in_slice_bicat.
+        + use is_invertible_2cell_in_slice_bicat.
           apply property_from_invertible_2cell.
       - use make_invertible_2cell.
         + simple refine (_ ,, _).
@@ -219,7 +219,7 @@ Section ProductSlice.
                rewrite vcomp_linv ;
                rewrite id2_rwhisker ;
                apply id2_right).
-        + use invertible_2cell_in_slice_bicat.
+        + use is_invertible_2cell_in_slice_bicat.
           apply property_from_invertible_2cell.
     Defined.
   End BinProdUmp1.
