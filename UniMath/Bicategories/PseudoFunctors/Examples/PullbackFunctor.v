@@ -98,12 +98,12 @@ Section PullbackFunctor.
   Proof.
     split.
     - intro.
-      apply invertible_2cell_in_slice_bicat ; cbn.
+      apply is_invertible_2cell_in_slice_bicat ; cbn.
       use is_invertible_2cell_pb_ump_cell.
       + is_iso.
       + is_iso.
     - intros.
-      apply invertible_2cell_in_slice_bicat ; cbn.
+      apply is_invertible_2cell_in_slice_bicat ; cbn.
       use is_invertible_2cell_pb_ump_cell.
       + is_iso.
         * apply property_from_invertible_2cell.
@@ -341,12 +341,12 @@ Section DispMapPullbackFunctor.
   Proof.
     split.
     - intro.
-      apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      apply is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
       use is_invertible_2cell_pb_ump_cell.
       + is_iso.
       + is_iso.
     - intros.
-      apply invertible_2cell_in_disp_map_slice_bicat ; cbn.
+      apply is_invertible_2cell_in_disp_map_slice_bicat ; cbn.
       use is_invertible_2cell_pb_ump_cell.
       + is_iso.
         * apply property_from_invertible_2cell.
