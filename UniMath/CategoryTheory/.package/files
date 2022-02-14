@@ -206,6 +206,7 @@ DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
+DisplayedCats/StreetOpFibration.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
