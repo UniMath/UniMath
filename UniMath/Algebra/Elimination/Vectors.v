@@ -173,7 +173,6 @@ Section Vectors.
         + apply j. exact neq.
   Defined.
 
-
   Lemma empty_sum_eq_0  (v1 : Vector R 0) : Σ v1 = 0%rig.
   Proof.
     apply zero_function_sums_to_zero.
@@ -380,14 +379,14 @@ Section Vectors.
     : col_vec v1 = col_vec v2 -> v1 = v2.
   Proof.
     intros H.
-    apply (invmaponpathsweq (@weq_colvec X n)  _ _ H). (* TODO typo *)
+    apply (invmaponpathsweq (@weq_colvec X n)  _ _ H).
   Defined.
 
   Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
     : row_vec v1 = row_vec v2 -> v1 = v2.
   Proof.
     intros H.
-    apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H). (* TODO typo *)
+    apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
   Defined.
 
   Lemma vectorize_inj { X : rig } { e1 e2 : X }
@@ -403,23 +402,4 @@ Section Vectors.
     reflexivity.
   Defined.
 
-  (* Definition all_nonzero {n : nat} (v : Vector R n)
-    := forall i : (stn n), v i != 0%rig.
-
-  Definition all_nonzero_compute_internal
-    {n : nat} (v : Vector hq n)
-    (iter : (stn (S n)))
-    : Prop.
-  Proof.
-    intros.
-    destruct iter as [iter p].
-    induction iter as [| iter IH]. {exact True. }
-    assert (obv : iter < S n). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
-    destruct (isdeceqhq 0%hq (v (iter,, p))).
-    { exact False. }
-    exact (IH obv).
-  Defined.
-
-  Definition all_nonzero_compute {n : nat} (v : Vector hq n)
-    := all_nonzero_compute_internal v (n,, natgthsnn n). *)
 End Vectors.

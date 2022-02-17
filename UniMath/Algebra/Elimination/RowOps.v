@@ -225,8 +225,9 @@ Section GaussOps.
 
 
   (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
-  Lemma add_row_mat_elementary { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧%stn) (p : r1 ≠ r2) (s : hq) :
-    ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
+  Lemma add_row_mat_elementary { n : nat } (mat : Matrix hq n n)
+  (r1 r2 : ⟦ n ⟧%stn) (p : r1 ≠ r2) (s : hq)
+  : ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
     unfold make_add_row_matrix, gauss_add_row.
@@ -244,7 +245,8 @@ Section GaussOps.
         apply isirrefl_natneq in p.
         contradiction.
       + simpl.
-        rewrite (@pulse_function_sums_to_point_rig'' hq n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n k i * _)%ring p' k).
+        rewrite (@pulse_function_sums_to_point_rig'' hq n
+          (λ i : (⟦ n ⟧%stn), @identity_matrix hq n k i * _)%ring p' k).
         * rewrite k_eq_r1 in *.
           rewrite id_mat_ii.
           rewrite (@riglunax2 hq).
@@ -254,7 +256,8 @@ Section GaussOps.
           apply (@rigmult0x hq).
     - destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
       + simpl.
-        rewrite (@two_pulse_function_sums_to_point_rig hq n (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
+        rewrite (@two_pulse_function_sums_to_point_rig hq n
+          (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
         * unfold const_vec, identity_matrix.
           rewrite stn_eq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
@@ -310,7 +313,7 @@ Section GaussOps.
   Defined.
 
   Lemma scalar_mult_matrix_multiplicative { n : nat }
-        ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (*( ne : hqneq s 0%hq )*) :
+        ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) :
     ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r ))
    = (make_scalar_mult_row_matrix (s1 * s2)%hq r ).
   Proof.
@@ -398,7 +401,7 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_additive { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
+        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) :
     ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
    = (make_add_row_matrix r1 r2 (s1 + s2)%hq ).
   Proof.
@@ -421,7 +424,7 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_commutes { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) (*( ne : hqneq s 0%hq )*) :
+        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) :
      ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
      = ((make_add_row_matrix r1 r2 s2 ) ** (make_add_row_matrix r1 r2 s1 )).
   Proof.
