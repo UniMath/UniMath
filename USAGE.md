@@ -74,7 +74,6 @@ Below is a partial list of Unicode symbols and identifiers used in UniMath.
 
 | Item                       | UniMath symbol  | Unicode input                  |UniMath ASCII alternative |
 | -------------------------- | --------------- | ------------------------------ | ------------------------ |
-|
 |   **Type and term constructors**
 | Product type               |  `∏ (x : A), B` | `\prod`                        | `forall x : A, B`        |
 | Function type              | `A → B`         | `\to`                          | `A -> B`                 |
@@ -84,7 +83,6 @@ Below is a partial list of Unicode symbols and identifiers used in UniMath.
 | Pair term                  |  `a,,b`         |                                | `a,,b`                   |
 | Coproduct type             | `X ⨿ Y`         | `\union` then select from menu | `coprod X Y`             |
 | Identity type              | `a = b`         |                                | `a = b`                  |
-|
 |   **Univalent logic in `hProp`** 
 | Conjunction                | `A ∧ B`         | `\and`                         | `hconj A B`              |
 | Disjunction                | `A ∨ B`         | `\or`                          | `hdisj A B`              |
@@ -93,7 +91,6 @@ Below is a partial list of Unicode symbols and identifiers used in UniMath.
 | Universal quantification   | `∀  x , P x`    | `\forall`                      | `forall_hProp A`         |
 | Existential quantification | `∃ x, P x`      | `\ex`                          | `hexists P`              |
 | Propositional truncation   | `∥ A ∥`          | `\\|\|`                        | `ishinh A`               |
-|
 |   **Category theory**
 | Object type of `C`         | `ob C` or `C`   |                                |                          |
 | Morphisms                  | `C⟦a,b⟧`        | `\[[` and `\]]`                |  `a --> b`               |
