@@ -508,6 +508,37 @@ Proof.
   - exact q.
 Defined.
 
+Definition invertible_between_opcartesians
+           {B : bicat}
+           {x e b : B}
+           {p : e --> b}
+           {g₀ g₁ g₂ : x --> e}
+           {α : g₀ ==> g₁}
+           (Hα : is_opcartesian_2cell_sopfib p α)
+           {β : g₀ ==> g₂}
+           (Hβ : is_opcartesian_2cell_sopfib p β)
+           (δ : invertible_2cell (g₂ · p) (g₁ · p))
+           (q : α ▹ p = (β ▹ p) • pr1 δ)
+  : invertible_2cell g₂ g₁.
+Proof.
+  use (make_invertible_2cell
+           (bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell
+              _
+              (@invertible_between_cartesians
+                 (op2_bicat B)
+                 x e b
+                 p
+                 _ _ _
+                 α
+                 (is_opcartesian_to_is_cartesian_sfib Hα)
+                 β
+                 (is_opcartesian_to_is_cartesian_sfib Hβ)
+                 _
+                 _))).
+  - exact (bicat_invertible_2cell_is_op2_bicat_invertible_2cell _ _ δ).
+  - exact q.
+Defined.
+
 (**
  4. Morphisms of internal Street opfibrations
  *)
