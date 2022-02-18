@@ -92,7 +92,7 @@ Definition op2_bicat_idtoiso_2_1_alt
            (C_is_univalent_2_1 : is_univalent_2_1 C)
            (f g : X --> Y)
   : f = g ≃ invertible_2cell f g
-  := ((bicat_invertible_2cell_is_op2_bicat_invertible_2cell f g)
+  := ((weq_op2_invertible_2cell f g)
         ∘ make_weq (@idtoiso_2_1 C _ _ g f) (C_is_univalent_2_1 _ _ g f)
         ∘ weqpathsinv0 _ _)%weq.
 
@@ -116,7 +116,7 @@ Definition op2_bicat_idtoiso_2_0_alt
            (C_is_univalent_2_0 : is_univalent_2_0 C)
            (X Y : op2_bicat C)
   : X = Y ≃ adjoint_equivalence X Y
-  := ((bicat_adjoint_equivalence_is_op2_bicat_adjoint_equivalence X Y)
+  := ((weq_op2_adjequiv X Y)
         ∘ make_weq (@idtoiso_2_0 C X Y) (C_is_univalent_2_0 X Y))%weq.
 
 Definition op2_bicat_is_univalent_2_0

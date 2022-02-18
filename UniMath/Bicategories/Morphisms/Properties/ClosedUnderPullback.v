@@ -910,7 +910,7 @@ Proof.
          (op2_bicat B)
          e₁ e₂ b₁ b₂
          p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+  - apply weq_op2_invertible_2cell.
     exact (inv_of_invertible_2cell γ).
   - apply to_op2_has_pb_ump.
     exact H.
@@ -936,7 +936,7 @@ Proof.
          (op2_bicat B)
          e₁ e₂ b₁ b₂
          p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+  - apply weq_op2_invertible_2cell.
     exact (inv_of_invertible_2cell γ).
   - apply to_op2_has_pb_ump.
     exact H.
@@ -976,7 +976,7 @@ Proof.
            e₀ b₀ p₀
            h₁ h₂
            (inv_of_invertible_2cell
-              (bicat_invertible_2cell_is_op2_bicat_invertible_2cell
+              (weq_op2_invertible_2cell
                  _ _
                  δ))
            (mor_preserves_opcartesian_to_mor_preserves_cartesian
