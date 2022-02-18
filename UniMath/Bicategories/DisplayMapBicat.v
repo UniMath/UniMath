@@ -11,36 +11,17 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderPullback.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Import DispBicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
-Require Import UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
-Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 
 Local Open Scope cat.
 
@@ -513,6 +494,43 @@ Section DispMapBicat.
        →
        internal_sopfib f.
 
+  Definition contained_in_faithful
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       faithful_1cell f.
+
+  Definition contained_in_conservative
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       conservative_1cell f.
+
+  Definition contained_in_discrete
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       discrete_1cell f.
+
+  Definition discrete_contained_in_faithful
+             (H : contained_in_discrete)
+    : contained_in_faithful.
+  Proof.
+    intros x y f Hf.
+    exact (pr1 (H x y f Hf)).
+  Defined.
+
+  Definition discrete_contained_in_conservative
+             (H : contained_in_discrete)
+    : contained_in_conservative.
+  Proof.
+    intros x y f Hf.
+    exact (pr2 (H x y f Hf)).
+  Defined.
+
   Definition pred_mor_is_mor_preserves_cartesian
     : UU
     := ∏ (e₁ e₂ b₁ b₂ : B)
@@ -805,12 +823,28 @@ Definition discrete_sfib_disp_map_bicat
        (sfib_disp_map_bicat B)
        (discrete_disp_map_bicat B).
 
+Definition discrete_sfib_disp_map_bicat_in_discrete
+           (B : bicat_with_pb)
+  : contained_in_discrete (discrete_sfib_disp_map_bicat B).
+Proof.
+  intros x y f Hf.
+  exact (pr2 Hf).
+Defined.
+
 Definition discrete_sopfib_disp_map_bicat
            (B : bicat_with_pb)
   : disp_map_bicat B
   := intersection_disp_map_bicat
        (sopfib_disp_map_bicat B)
        (discrete_disp_map_bicat B).
+
+Definition discrete_sopfib_disp_map_bicat_in_discrete
+           (B : bicat_with_pb)
+  : contained_in_discrete (discrete_sopfib_disp_map_bicat B).
+Proof.
+  intros x y f Hf.
+  exact (pr2 Hf).
+Defined.
 
 (**
  5. Properties of display map bicategories

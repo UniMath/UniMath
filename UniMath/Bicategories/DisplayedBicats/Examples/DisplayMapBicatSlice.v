@@ -7,6 +7,8 @@
  3. The slice bicategory of display map bicategories
  4. Invertible 2-cells
  5. Adjoint equivalences
+ 6. Discreteness
+ 7. Instantiations
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -18,11 +20,17 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.Discreteness.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
 
@@ -437,6 +445,45 @@ Definition disp_map_slice_bicat
   : bicat
   := total_bicat (disp_map_slice_disp_bicat D b).
 
+Definition is_univalent_2_1_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           (D : arrow_subbicat B)
+           (HD : arrow_subbicat_props D)
+           (b : B)
+  : is_univalent_2_1 (disp_map_slice_bicat D b).
+Proof.
+  use total_is_univalent_2_1.
+  - exact HB.
+  - exact (disp_univalent_2_1_disp_map_slice _ _ HD).
+Defined.
+
+Definition is_univalent_2_0_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2 B)
+           (D : arrow_subbicat B)
+           (HD : arrow_subbicat_props D)
+           (b : B)
+  : is_univalent_2_0 (disp_map_slice_bicat D b).
+Proof.
+  use total_is_univalent_2_0.
+  - exact (pr1 HB).
+  - exact (disp_univalent_2_0_disp_map_slice _ _ HB HD).
+Defined.
+
+Definition is_univalent_2_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2 B)
+           (D : arrow_subbicat B)
+           (HD : arrow_subbicat_props D)
+           (b : B)
+  : is_univalent_2 (disp_map_slice_bicat D b).
+Proof.
+  split.
+  - exact (is_univalent_2_0_disp_map_slice HB D HD b).
+  - exact (is_univalent_2_1_disp_map_slice (pr2 HB) D HD b).
+Defined.
+
 Definition eq_2cell_disp_map_slice
            {B : bicat}
            {D : arrow_subbicat B}
@@ -652,3 +699,105 @@ Section LeftAdjointEquivalenceDispMapSlice.
       apply property_from_invertible_2cell.
   Defined.
 End LeftAdjointEquivalenceDispMapSlice.
+
+(**
+ 6. Discreteness
+ *)
+Definition locally_groupoid_disp_map_slice
+           {B : bicat}
+           {D : arrow_subbicat B}
+           (HD : contained_in_conservative D)
+           (b : B)
+  : locally_groupoid (disp_map_slice_bicat D b).
+Proof.
+  intros x y f g α.
+  use is_invertible_2cell_in_disp_map_slice_bicat.
+  apply (HD _ _ _ (pr22 y)).
+  use eq_is_invertible_2cell.
+  - exact ((pr22 f)^-1 • pr122 g).
+  - abstract
+      (pose (pr2 α) as p ;
+       cbn in p ;
+       rewrite <- p ;
+       rewrite !vassocr ;
+       rewrite vcomp_linv ;
+       rewrite id2_left ;
+       apply idpath).
+  - is_iso.
+    apply property_from_invertible_2cell.
+Defined.
+
+Definition isaprop_2cell_disp_map_slice
+           {B : bicat}
+           {D : arrow_subbicat B}
+           (HD : contained_in_faithful D)
+           (b : B)
+  : isaprop_2cells (disp_map_slice_bicat D b).
+Proof.
+  intros x y f g α β.
+  use eq_2cell_disp_map_slice.
+  apply (faithful_1cell_eq_cell (HD _ _ _ (pr22 y))).
+  pose (p := pr2 α @ !(pr2 β)).
+  use (vcomp_lcancel (pr22 f)) ; [ apply property_from_invertible_2cell | ].
+  exact p.
+Qed.
+
+Definition is_discrete_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : arrow_subbicat B}
+           (HD₁ : arrow_subbicat_props D)
+           (HD₂ : contained_in_discrete D)
+           (b : B)
+  : is_discrete_bicat (disp_map_slice_bicat D b).
+Proof.
+  repeat split.
+  - exact (is_univalent_2_1_disp_map_slice HB D HD₁ b).
+  - apply locally_groupoid_disp_map_slice.
+    apply discrete_contained_in_conservative.
+    exact HD₂.
+  - apply isaprop_2cell_disp_map_slice.
+    apply discrete_contained_in_faithful.
+    exact HD₂.
+Defined.
+
+(**
+ 7. Instantiations
+ *)
+Definition sfib_slice
+           {B : bicat_with_pb}
+           (b : B)
+  : bicat
+  := disp_map_slice_bicat (sfib_subbicat B) b.
+
+Definition sopfib_slice
+           {B : bicat_with_pb}
+           (b : B)
+  : bicat
+  := disp_map_slice_bicat (sopfib_subbicat B) b.
+
+Definition disc_sfib_slice
+           {B : bicat_with_pb}
+           (HB : is_univalent_2_1 B)
+           (b : B)
+  : category
+  := @discrete_bicat_to_category
+       (disp_map_slice_bicat (discrete_sfib_disp_map_bicat B) b)
+       (is_discrete_disp_map_slice
+          HB
+          (discrete_sfib_subbicat_props B HB)
+          (discrete_sfib_disp_map_bicat_in_discrete B)
+          b).
+
+Definition disc_sopfib_slice
+           {B : bicat_with_pb}
+           (HB : is_univalent_2_1 B)
+           (b : B)
+  : category
+  := @discrete_bicat_to_category
+       (disp_map_slice_bicat (discrete_sopfib_disp_map_bicat B) b)
+       (is_discrete_disp_map_slice
+          HB
+          (discrete_sopfib_subbicat_props B HB)
+          (discrete_sopfib_disp_map_bicat_in_discrete B)
+          b).
