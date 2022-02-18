@@ -306,9 +306,8 @@ Proof.
             ,,
             internal_sfib_cleaving_lift_cell _ Hp α
             ,,
-            bicat_invertible_2cell_is_op2_bicat_invertible_2cell
-              _
-              _
+            weq_op2_invertible_2cell
+              _ _
               (internal_sfib_cleaving_com _ Hp α)
             ,,
             _
@@ -336,7 +335,7 @@ Proof.
             ,,
             internal_sopfib_opcleaving_lift_cell _ Hp α
             ,,
-            bicat_invertible_2cell_is_op2_bicat_invertible_2cell
+            weq_op2_invertible_2cell
               _ _
               (internal_sopfib_opcleaving_com _  Hp α)
             ,,
@@ -464,7 +463,7 @@ Definition invertible_is_opcartesian_2cell_sopfib
 Proof.
   apply is_cartesian_to_is_opcartesian_sfib.
   apply invertible_is_cartesian_2cell_sfib.
-  apply bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell.
+  apply to_op2_is_invertible_2cell.
   exact Hα.
 Defined.
 
@@ -522,8 +521,8 @@ Definition invertible_between_opcartesians
   : invertible_2cell g₂ g₁.
 Proof.
   use (make_invertible_2cell
-           (bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell
-              _
+           (weq_op2_invertible_2cell
+              _ _
               (@invertible_between_cartesians
                  (op2_bicat B)
                  x e b
@@ -535,7 +534,7 @@ Proof.
                  (is_opcartesian_to_is_cartesian_sfib Hβ)
                  _
                  _))).
-  - exact (bicat_invertible_2cell_is_op2_bicat_invertible_2cell _ _ δ).
+  - exact (weq_op2_invertible_2cell _ _ δ).
   - exact q.
 Defined.
 
@@ -905,99 +904,3 @@ Proof.
   }
   exact p.
 Qed.
-
-(*
-(**
- 11. Pullbacks of Street opfibrations
- *)
-Definition pb_of_sopfib
-           {B : bicat}
-           {e₁ e₂ b₁ b₂ : B}
-           {p₁ : e₁ --> b₁}
-           {p₂ : e₂ --> b₂}
-           {fe : e₁ --> e₂}
-           {fb : b₁ --> b₂}
-           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
-           (pb := make_pb_cone e₁ fe p₁ γ)
-           (H : has_pb_ump pb)
-           (Hf : internal_sopfib p₂)
-  : internal_sopfib p₁.
-Proof.
-  apply internal_sfib_is_internal_sopfib.
-  use (@pb_of_sfib
-         (op2_bicat B)
-         e₁ e₂ b₁ b₂
-         p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
-    exact (inv_of_invertible_2cell γ).
-  - apply to_op2_has_pb_ump.
-    exact H.
-  - apply internal_sopfib_is_internal_sfib.
-    exact Hf.
-Defined.
-
-Definition mor_preserves_opcartesian_pb_pr1
-           {B : bicat}
-           {e₁ e₂ b₁ b₂ : B}
-           {p₁ : e₁ --> b₁}
-           {p₂ : e₂ --> b₂}
-           {fe : e₁ --> e₂}
-           {fb : b₁ --> b₂}
-           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
-           (pb := make_pb_cone e₁ fe p₁ γ)
-           (H : has_pb_ump pb)
-           (Hf : internal_sopfib p₂)
-  : mor_preserves_opcartesian p₁ p₂ fe.
-Proof.
-  apply mor_preserves_cartesian_to_mor_preserves_opcartesian.
-  use (@mor_preserves_cartesian_pb_pr1
-         (op2_bicat B)
-         e₁ e₂ b₁ b₂
-         p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
-    exact (inv_of_invertible_2cell γ).
-  - apply to_op2_has_pb_ump.
-    exact H.
-  - apply internal_sopfib_is_internal_sfib.
-    exact Hf.
-Defined.
-
-Definition mor_preserves_opcartesian_pb_ump_mor
-           {B : bicat}
-           {e₁ e₂ b₁ b₂ : B}
-           {p₁ : e₁ --> b₁}
-           {p₂ : e₂ --> b₂}
-           {fe : e₁ --> e₂}
-           {fb : b₁ --> b₂}
-           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
-           (pb := make_pb_cone e₁ fe p₁ γ)
-           (H : has_pb_ump pb)
-           {e₀ b₀ : B}
-           (p₀ : e₀ --> b₀)
-           (h₁ : e₀ --> e₂)
-           (h₂ : b₀ --> b₁)
-           (δ : invertible_2cell (h₁ · p₂) (p₀ · h₂ · fb))
-           (cone := make_pb_cone e₀ h₁ (p₀ · h₂) δ)
-           (Hh₁ : mor_preserves_opcartesian p₀ p₂ h₁)
-  : mor_preserves_opcartesian
-      p₀
-      p₁
-      (pb_ump_mor H cone).
-Proof.
-  apply mor_preserves_cartesian_to_mor_preserves_opcartesian.
-  exact (@mor_preserves_cartesian_pb_ump_mor
-           (op2_bicat B)
-           e₁ e₂ b₁ b₂
-           p₁ p₂ fe fb
-           _
-           (to_op2_has_pb_ump _ H)
-           e₀ b₀ p₀
-           h₁ h₂
-           (inv_of_invertible_2cell
-              (bicat_invertible_2cell_is_op2_bicat_invertible_2cell
-                 _ _
-                 δ))
-           (mor_preserves_opcartesian_to_mor_preserves_cartesian
-              Hh₁)).
-Defined.
- *)

@@ -14,6 +14,7 @@ Core/TransportLaws.v
 Core/EquivToAdjequiv.v
 Core/AdjointUnique.v
 Core/UnivalenceOp.v
+Core/Discreteness.v
 
 Morphisms/InternalStreetFibration.v
 Morphisms/InternalStreetOpFibration.v
@@ -86,6 +87,7 @@ PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
+PseudoFunctors/Examples/Op2OfPseudoFunctor.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
@@ -161,7 +163,6 @@ WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
 WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
-Discreteness.v
 
 BicategoryOfBicat.v
 BicatOfBicategory.v
@@ -189,3 +190,5 @@ DisplayedBicats/FiberBicategory/CodomainFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 ComprehensionBicat.v
+
+DualityInvolution.v
