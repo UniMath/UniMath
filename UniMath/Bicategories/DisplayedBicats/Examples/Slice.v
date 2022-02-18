@@ -432,6 +432,42 @@ Proof.
   - exact (is_univalent_2_1_slice_bicat (pr2 HB) b).
 Defined.
 
+Definition make_ob_slice
+           {B : bicat}
+           {b : B}
+           {y : B}
+           (f : y --> b)
+  : slice_bicat b
+  := y ,, f.
+
+Definition make_1cell_slice
+           {B : bicat}
+           {b : B}
+           {f₁ f₂ : slice_bicat b}
+           (g : pr1 f₁ --> pr1 f₂)
+           (α : invertible_2cell (pr2 f₁) (g · pr2 f₂))
+  : f₁ --> f₂
+  := g ,, α.
+
+Definition cell_slice_homot
+           {B : bicat}
+           {b : B}
+           {f₁ f₂ : slice_bicat b}
+           (α β : f₁ --> f₂)
+           (γ : pr1 α ==> pr1 β)
+  : UU
+  := pr12 α • (γ ▹ pr2 f₂) = pr12 β.
+
+Definition make_2cell_slice
+           {B : bicat}
+           {b : B}
+           {f₁ f₂ : slice_bicat b}
+           {α β : f₁ --> f₂}
+           (γ : pr1 α ==> pr1 β)
+           (p : cell_slice_homot α β γ)
+  : α ==> β
+  := γ ,, p.
+
 Definition eq_2cell_slice
            {B : bicat}
            {b : B}
@@ -502,17 +538,16 @@ Section LeftAdjointEquivalenceSlice.
 
   Definition left_adjoint_equivalence_in_slice_right_adj
     : f₂ --> f₁
-    := r ,, left_adjoint_equivalence_in_slice_right_adj_cell.
+    := make_1cell_slice r (left_adjoint_equivalence_in_slice_right_adj_cell).
 
   Let slice_r : f₂ --> f₁ := left_adjoint_equivalence_in_slice_right_adj.
 
   Definition left_adjoint_equivalence_in_slice_unit_eq
-    : linvunitor _ • (η ▹ _)
-      =
-      pr12 l
-      • (_ ◃ (linvunitor _ • (ε^-1 ▹ _) • rassociator _ _ _ • (_ ◃ (pr22 l)^-1)))
-      • lassociator _ _ _.
+    : cell_slice_homot (id₁ f₁) (l · slice_r) η.
   Proof.
+    unfold cell_slice_homot.
+    cbn.
+    rewrite !vassocr.
     rewrite <- !lwhisker_vcomp.
     rewrite !vassocl.
     rewrite lwhisker_lwhisker.
@@ -566,25 +601,15 @@ Section LeftAdjointEquivalenceSlice.
   Definition left_adjoint_equivalence_in_slice_unit
     : id₁ f₁ ==> l · slice_r.
   Proof.
-    simple refine (_ ,, _).
+    use make_2cell_slice.
     - exact η.
-    - abstract
-        (cbn ;
-         rewrite !vassocr ;
-         exact left_adjoint_equivalence_in_slice_unit_eq).
+    - exact left_adjoint_equivalence_in_slice_unit_eq.
   Defined.
 
   Definition left_adjoint_equivalence_in_slice_counit_eq
-    : linvunitor _
-      • (ε^-1 ▹ _)
-      • rassociator _ _ _
-      • (_ ◃ (pr22 l)^-1)
-      • (_ ◃ pr12 l)
-      • lassociator _ _ _
-      • (ε ▹ _)
-      =
-      linvunitor _.
+    : cell_slice_homot (slice_r · l) (id₁ f₂) ε.
   Proof.
+    unfold cell_slice_homot ; cbn.
     rewrite !vassocl.
     etrans.
     {
@@ -612,12 +637,9 @@ Section LeftAdjointEquivalenceSlice.
   Definition left_adjoint_equivalence_in_slice_counit
     : slice_r · l ==> id₁ f₂.
   Proof.
-    simple refine (_ ,, _).
+    use make_2cell_slice.
     - exact ε.
-    - abstract
-        (cbn ;
-         rewrite !vassocr ;
-         exact left_adjoint_equivalence_in_slice_counit_eq).
+    - exact left_adjoint_equivalence_in_slice_counit_eq.
   Defined.
 
   Definition left_adjoint_equivalence_in_slice_bicat

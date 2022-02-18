@@ -129,7 +129,7 @@ Proof.
   - exact pb.
   - exact p₁.
   - exact p₂.
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+  - apply weq_op2_invertible_2cell.
     exact (inv_of_invertible_2cell γ).
 Defined.
 
@@ -147,7 +147,7 @@ Proof.
   - exact (pb_cone_pr2 cone).
   - exact (inv_of_invertible_2cell
              (invmap
-                (bicat_invertible_2cell_is_op2_bicat_invertible_2cell _ _)
+                (weq_op2_invertible_2cell _ _)
                 (pb_cone_cell cone))).
 Defined.
 
@@ -168,10 +168,10 @@ Section ToOp2Pullback.
     intro q.
     use make_pb_1cell ; cbn.
     - exact (pb_ump_mor H (from_op2_pb_cone q)).
-    - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+    - apply weq_op2_invertible_2cell.
       exact (inv_of_invertible_2cell
                (pb_ump_mor_pr1 H (from_op2_pb_cone q))).
-    - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+    - apply weq_op2_invertible_2cell.
       exact (inv_of_invertible_2cell
                (pb_ump_mor_pr2 H (from_op2_pb_cone q))).
     - abstract
@@ -183,7 +183,7 @@ Section ToOp2Pullback.
          rewrite !vassocl ;
          use vcomp_move_L_pM ; [ is_iso ; apply property_from_invertible_2cell | ] ;
          use vcomp_move_L_pM ;
-         [ apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell ;
+         [ apply from_op2_is_invertible_2cell ;
            apply property_from_invertible_2cell
          | ] ;
          cbn ;

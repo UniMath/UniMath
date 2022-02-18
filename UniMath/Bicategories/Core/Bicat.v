@@ -1128,76 +1128,56 @@ End chaotic_bicat.
 (* ----------------------------------------------------------------------------------- *)
 
 Section discrete_bicat.
+  Context (C : category).
 
-Variable C : category.
+  Definition discrete_prebicat_data : prebicat_data.
+  Proof.
+    use build_prebicat_data.
+    - exact C.
+    - exact (λ x y, x --> y).
+    - exact (λ x y f g, f = g).
+    - exact (λ x, identity x).
+    - exact (λ x y z f g, f · g).
+    - abstract
+        (exact (λ x y f, idpath f)).
+    - abstract
+        (exact (λ x y f g h p q, p @ q)).
+    - abstract
+        (exact (λ x y z f g h p, maponpaths (λ z, f · z) p)).
+    - abstract
+        (exact (λ x y z g h f p, maponpaths (λ z, z · f) p)).
+    - abstract
+        (exact (λ x y f, id_left f)).
+    - abstract
+        (exact (λ x y f, !(id_left f))).
+    - abstract
+        (exact (λ x y f, id_right f)).
+    - abstract
+        (exact (λ x y f, !(id_right f))).
+    - abstract
+        (exact (λ w x y z f g h, assoc f g h)).
+    - abstract
+        (exact (λ w x y z f g h, assoc' f g h)).
+  Defined.
 
-Definition discrete_prebicat_data : prebicat_data.
-Proof.
-  use tpair.
-  - use tpair.
-    + exact C.
-    + cbn. intros a b f g. exact (f = g).
-  - cbn; repeat (use tpair); cbn.
-    + intros. apply idpath.
-    + intros. apply id_left.
-    + intros. apply id_right.
-    + intros. apply (!id_left _).
-    + intros. apply (!id_right _).
-    + intros. apply (! assoc _ _ _).
-    + intros. apply assoc.
-    + intros a b f g h r s. apply (r @ s).
-    + intros. apply (maponpaths). assumption.
-    + intros. apply (maponpaths_2). assumption.
-Defined.
+  Lemma discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
+  Proof.
+    repeat split ; intro ; intros ; apply homset_property.
+  Qed.
 
-Lemma discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
-Proof.
-  repeat (use tpair); cbn.
-  - intros. apply idpath.
-  - intros. apply pathscomp0rid.
-  - intros. apply path_assoc.
-  - intros. apply idpath.
-  - intros. apply idpath.
-  - intros. apply pathsinv0. apply maponpathscomp0.
-  - intros. unfold maponpaths_2.
-    apply pathsinv0. apply (@maponpathscomp0  _ _ _ _ _ (λ x0 : C ⟦ a, b ⟧, x0 · i)).
-  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x; cbn. apply (pathscomp0rid).
-  - intros. induction x; induction y; cbn. apply idpath.
-  - intros. apply pathsinv0r.
-  - intros. apply pathsinv0l.
-  - intros. apply pathsinv0r.
-  - intros. apply pathsinv0l.
-  - intros. apply pathsinv0r.
-  - intros. apply pathsinv0l.
-  - intros. apply homset_property.
-  - intros. apply homset_property.
-Qed.
+  Definition discrete_prebicat
+    : prebicat
+    := _ ,, discrete_prebicat_laws.
 
-Definition discrete_prebicat : prebicat := _ ,, discrete_prebicat_laws.
-
+  Definition discrete_bicat
+    : bicat.
+  Proof.
+    simple refine (discrete_prebicat ,, _).
+    intros x y f g.
+    apply isasetaprop.
+    apply homset_property.
+  Defined.
 End discrete_bicat.
-
-Definition id2toequiv {C : prebicat} {a b : C} {f g : a --> b}
-  : f = g -> f ==> g.
-Proof.
-  intro e. induction e. apply id2.
-Defined.
-
-Definition is_discrete_prebicat (C : prebicat) : UU
-  := ∏ (a b : C) (f g : a --> b), isweq (λ e : f = g, id2toequiv e).
-
-Lemma is_discrete_discrete_prebicat (C : category)
-  : is_discrete_prebicat (discrete_prebicat C).
-Proof.
-  intros a b f g.
-  use weqhomot.
-  - exact (idweq _).
-  - intro e. induction e. apply idpath.
-Qed.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Associators and unitors are isos.                                               *)
