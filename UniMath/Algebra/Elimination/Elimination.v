@@ -110,7 +110,7 @@ Section LeadingEntry.
   (i_1 : ⟦ n ⟧%stn)
   (e_1 : leading_entry_compute_internal v (n,, natgthsnn n) = just i_1)
   : ∑ (i_2 : ⟦ n ⟧%stn),
-    leading_entry_compute_dual_internal 
+    leading_entry_compute_dual_internal
       (λ i : ⟦ n ⟧%stn, v (dualelement i)) (n,, natgthsnn n) = just i_2.
   Proof.
     unfold leading_entry_compute, leading_entry_dual_compute in *.
@@ -333,7 +333,7 @@ Section LeadingEntry.
       rewrite <- eq' in *.
       rewrite z; apply maponpaths.
       apply subtypePath_prop; symmetry; assumption.
-    - intros ?; simpl; use tpair. 
+    - intros ?; simpl; use tpair.
       { destruct (maybe_choice (leading_entry_compute_dual_internal v (S iter,, p)))
           as [ne_nothing|contr_eq].
         2: { rewrite contr_eq in *; unfold just in eq.
@@ -488,7 +488,7 @@ Section LeadingEntry.
      column that has a non-zero entry ≥ the row_sep. *)
   Definition select_uncleared_column_internal {n : nat} (mat : Matrix hq n n)
     (row_sep : ⟦ n ⟧%stn) (col_iter : ⟦ S n ⟧%stn) (p : n > 0)
-    : ∑ j: ⟦ n ⟧%stn, coprod 
+    : ∑ j: ⟦ n ⟧%stn, coprod
         (j < col_iter × (∑ i: ⟦ n ⟧%stn, row_sep ≤ i × (hqneq (mat i j) 0%hq)
           × ∏ i' j' : (⟦ n ⟧)%stn, row_sep ≤ i' -> j' < j -> mat i' j' = 0%hq))
         (∏ i : ⟦ n ⟧%stn, row_sep ≤ i
@@ -614,7 +614,7 @@ Section Gauss.
   Defined.
 
   (* TODO generalize some of this material to rigs *)
-  Lemma gauss_add_row_inv0 
+  Lemma gauss_add_row_inv0
     {n : nat} (mat : Matrix hq n n) (i j: ⟦ n ⟧%stn) (s : hq)
     : ∏ (k : ⟦ n ⟧%stn), j ≠ k -> gauss_add_row  mat i j s k = mat k.
   Proof.
@@ -661,8 +661,8 @@ Section Gauss.
   Defined.
 
   (* Restating a similar lemma for the regular version of this operation,
-     in order to prove their equivalence 
-     TODO this should not be necessary - should follow from pr1_ \le j invariant 
+     in order to prove their equivalence
+     TODO this should not be necessary - should follow from pr1_ \le j invariant
      TODO at least remove 'h' temp variable names*)
   Lemma gauss_clear_column_as_left_matrix_inv0  { n : nat } (iter : (stn (S n)))
         (mat : Matrix hq n n) (k_i k_j : (⟦ n ⟧%stn)) (i : ⟦ n ⟧%stn)
@@ -771,7 +771,7 @@ Section Gauss.
     {apply fromstn0. rewrite contr_eq; assumption. }
     destruct (pr2 (select_uncleared_column mat row p)) as [some | none].
     2 : {exact mat. }
-    refine (gauss_clear_column_old 
+    refine (gauss_clear_column_old
       _  row (pr1 (select_uncleared_column mat row p)) (n ,, natlthnsn n )).
     exact (gauss_switch_row mat row (pr1 (pr2 some))).
   Defined.
@@ -879,30 +879,35 @@ Section Gauss.
     - exact (natgthsnn n).
   Defined.
 
+  (* TODO: remove this for the version from RowOps *)
+  Definition gauss_add_row_comp1 { m n : nat } ( mat : Matrix hq m n )
+  ( r1 r2 : ⟦ m ⟧%stn ) (s : hq) (c : ⟦ n ⟧%stn)
+  : (gauss_add_row mat r1 r2 s) r2 c = op1 (mat r2 c) (op2 s (mat r1 c)).
+  Admitted.
+
   (* The clear column step operation does clear the target entry (mat (k j)) *)
-  (* TODO fix double work being done here - work on step' or use previous lemma *)
-  Lemma gauss_clear_column_step_inv1 (n : nat) (k_i k_j : (⟦ n ⟧%stn))
-        (j : (⟦ n ⟧%stn)) (mat : Matrix hq n n)  (p_1 : mat k_i k_j != 0%hq)
-        (p_2 : j ≠ k_i) :
-    (gauss_clear_column_step n k_i k_j j mat) j k_j = 0%hq.
+
+  Lemma gauss_clear_column_step_inv1 (n : nat) (r_pivot c_pivot : (⟦ n ⟧%stn))
+        (r : (⟦ n ⟧%stn)) (mat : Matrix hq n n)
+        (p_1 : mat r_pivot c_pivot != 0%hq)
+        (p_2 : r ≠ r_pivot) :
+    (gauss_clear_column_step n r_pivot c_pivot r mat) r c_pivot = 0%hq.
   Proof.
     intros.
-    rewrite gauss_clear_column_step_eq.
-    unfold gauss_clear_column_step'.
-    destruct (stn_eq_or_neq j k_i) as [p | ?].
-    {rewrite p in p_2. apply isirrefl_natneq in p_2. contradiction. }
-    unfold gauss_add_row.
-    rewrite stn_eq_or_neq_refl; simpl.
-    etrans.
-    { apply maponpaths.
-      rewrite <- (@ringlmultminus hq (mat j k_j)).
-      rewrite (hqmultassoc _ _ (mat k_i k_j)).
-      change ((- mat j k_j)%ring) with (- mat j k_j)%hq.
-      rewrite (hqislinvmultinv (mat k_i k_j)); try exact p_1.
-      apply (@rigrunax2 hq).
-    }
-    apply hqrminus.
-  Admitted. (* TOOD really slow proof because of hq/ring mix. To be sped up *)
+    unfold gauss_clear_column_step.
+    destruct (stn_eq_or_neq r r_pivot) as [p | ?].
+    { rewrite p in p_2. apply isirrefl_natneq in p_2. contradiction. }
+    rewrite add_row_mat_elementary.
+    2: { apply issymm_natneq; assumption. }
+    rewrite gauss_add_row_comp1.
+    set (a := (mat r c_pivot)).
+    set (b := (mat r_pivot c_pivot)).
+    rewrite <- (@ringlmultminus hq).
+    rewrite ringassoc2.
+    etrans. { apply maponpaths, maponpaths, hqislinvmultinv; assumption. }
+    rewrite (@rigrunax2 hq).
+    apply ringrinvax1.
+  Qed.
 
     (* The clear column step operation only changes the target row*)
   Lemma gauss_clear_column_step_inv2 (n : nat) (k_i k_j : (⟦ n ⟧%stn))
@@ -1038,7 +1043,7 @@ Section Gauss.
           apply eq.
         }
         assert (commute :
-          gauss_clear_column_step n k_i k_j (n',, p) (gauss_clear_column_old mat k_i k_j 
+          gauss_clear_column_step n k_i k_j (n',, p) (gauss_clear_column_old mat k_i k_j
             (n',, p')) r
           =  gauss_clear_column_old (gauss_clear_column_step n k_i k_j (n',, p) mat) k_i k_j
             (n',, p') r).
@@ -1066,12 +1071,12 @@ Section Gauss.
           2: { contradiction (isirrefl_natneq _ contr_neq). }
           apply funextfun. intros y.
           rewrite gauss_clear_column_inv3; try apply idpath.
-          apply isreflnatleh. 
+          apply isreflnatleh.
         }
         unfold gauss_clear_column_old in commute.
         set (f := @gauss_clear_column_inv0).
         rewrite <- (f n k_i k_j ( n' ,, p')).
-        * rewrite <- eq in *. 
+        * rewrite <- eq in *.
           replace (istransnatlth n' (S n') (S n) (natlthnsn n') p)
             with p'; try rewrite commute; try reflexivity.
           rewrite eq'; reflexivity.
@@ -1348,10 +1353,10 @@ Section Gauss.
     contradiction (pr1 (pr2 (pr2 (pr2 ((H1)))))).
   Defined.
 
-  (* TODO this proof can be cleaned up considerably - many things are repeated, 
+  (* TODO this proof can be cleaned up considerably - many things are repeated,
      some perhaps not once but twice or more. *)
   Lemma gauss_clear_row_inv2
-    { n : nat } (mat : Matrix hq n n) (p : n > 0) 
+    { n : nat } (mat : Matrix hq n n) (p : n > 0)
     (row_sep : (⟦ S n ⟧%stn)) (p' : row_sep < n)
     :  is_row_echelon_partial_1 mat p
         (pr1 row_sep,, istransnatlth (pr1 row_sep) n (S n) (p') (natgthsnn n))
@@ -1581,7 +1586,7 @@ Section Gauss.
             apply natlthtoleh.
             simpl.
             rewrite <- st_eq; assumption.
-          - destruct (stn_eq_or_neq _ _) as [? | contr_neq]; simpl. 
+          - destruct (stn_eq_or_neq _ _) as [? | contr_neq]; simpl.
             2: { try rewrite contr_eq in p0. try rewrite p0 in h1. try apply isirrefl_natneq in h1.
                  try contradiction.
                  rewrite <- p0 in contr_neq.
@@ -2199,7 +2204,7 @@ Section Gauss.
     destruct (@maybe_stn_choice hq n H1) as [some | none].
     - right.
       use tpair. {apply some. }
-      simpl. 
+      simpl.
       pose (H2 := @leading_entry_compute_internal_correct1
         _ (flip_hq_bin_vec v) (n,, natgthsnn n) _ (pr2 some)).
       destruct H2 as [H2 H3].
@@ -2238,7 +2243,7 @@ Section Gauss.
     - exact (@clear_rows_up_to_as_left_matrix n A gt (n,, natgthsnn n)).
     - simpl.
       use tpair.
-      + apply gauss_clear_rows_up_to_matrix_invertible. 
+      + apply gauss_clear_rows_up_to_matrix_invertible.
       + simpl.
         rewrite gauss_clear_rows_up_to_as_matrix_eq.
         pose (H2 := @gauss_clear_rows_up_to_inv3 n A gt (n,, natgthsnn n)).

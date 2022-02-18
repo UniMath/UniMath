@@ -24,13 +24,13 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 Require Import UniMath.Algebra.Elimination.Elimination.
 
 
-(** The purpose of this file is to store a left-over elimination procedure iterating over 
-    columns instead of rows in the outer loop - 
+(** The purpose of this file is to store a left-over elimination procedure iterating over
+    columns instead of rows in the outer loop -
     this alternative procedure allows us to show
     gauss_clear_columns_up_to_no_switch_inv6
     -> a lower triangular matrix with a zero entry in the diagonal
        is non-invertible.
-    
+
     Note that there are more elementary and perhaps principled proofs of this. *)
 
 Local Notation Σ := (iterop_fun hqzero op1).
@@ -363,8 +363,8 @@ Proof.
             rewrite  (subtypePath_prop   eq  ).
             reflexivity.
         }
-        apply gauss_clear_column_step_inv1. try assumption.
-        2: {apply natgthtoneq. apply X0. }
+        apply (gauss_clear_column_step_inv1 hq).
+        2: { apply natgthtoneq. apply X0. }
         unfold gauss_clear_columns_up_to_no_switch in inv4.
         rewrite  (inv4 n _ p (pr1 j,,  (istransnatlth j (S j) (S n) (natgthsnn j) lt_n'_n))); try assumption.
         replace (stntonat _ j,, lt_n'_n) with j in n0; try assumption.
@@ -679,7 +679,7 @@ Proof.
   }
   assert (contr_inv3 : @matrix_right_inverse hq n n (C ** mat)).
   {apply right_inv_matrix_prod_is_right_inv; assumption. }
-  pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n mat p (n,, natgthsnn n) 
+  pose (H2 := gauss_clear_columns_up_to_no_switch_inv5 n mat p (n,, natgthsnn n)
     p' k p'' (pr2 k)).
   rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq in H2.
   apply (zero_row_to_non_right_invertibility (C ** mat) (pr1 H2)); try assumption.
