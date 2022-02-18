@@ -50,6 +50,19 @@ Require Import Coq.Init.Prelude.
 ```
 at the beginning of the file, since the setup above does not load this library by default when reading a file.
 
+Various special commands for dealing with proof scripts are bound to keys in Proof General's proof mode.
+To get a list of such key bindings, type ` C-h f proof-mode RETURN `.
+
+One file made by the Makefile is the "TAGS" file.  This file is useful with various emacs commands, such as
+`M-x tags-search`, which allows you to search all the source files, in logical sequence, for the occurence of a strinbg
+matching a regular expression you provide.  For example, the regular expression `^Notation *" *\[ *. *\(, *[[:alpha:]]+ *\)*\]"`
+will locate the following lines in various files:
+```coq
+Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
+Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
+Notation "[ C , D ]" := (functor_category C D) : cat.
+Notation "[ C , D ]" := (functor_category C D) : cat.
+```
 
 Symbols used in UniMath
 -----------------------
@@ -59,30 +72,30 @@ To see how to input a specific Unicode character, type
 
 Below is a partial list of Unicode symbols and identifiers used in UniMath.
 
-| Item | UniMath symbol | Unicode input |UniMath ASCII alternative |
-|--------------|---------------------|-----------------|-----------------|
-|     **Type and term constructors**                                                    |
-| Product type |  `∏ (x : A), B`       | `\prod`          | `forall x : A, B`      |
-| Function type | `A → B`               | `\to`            | `A -> B`  |
-| Lambda abstraction |  `λ x, e`             | `\lambda`          | `fun x => e`  |
-| Sigma type | `∑ (x : A), B`        | `\sum`         | `total2 (fun x => B)` |
-| Cartesian product type |  `X × Y`              | `\times`       | `dirprod X Y` |
-| Pair term |  `a,,b`              |                | `a,,b`|
-| Coproduct type | `X ⨿ Y`               | `\union`, then press down key | `coprod X Y`|
-| Identity type | `a = b`               |             | `a = b`  |
-|  **Univalent logic in `hProp`** |
-| Conjunction | `A ∧ B` | `\and` | `hconj A B`|
-| Disjunction | `A ∨ B` | `\or` | `hdisj A B` |
-| Implication | `A ⇒ B` | `\=>` | `himpl A B` |
-| Negation | `¬ X` | `\neg`| `hneg X`| 
-| Universal quantification | `∀  x , P x` | `\forall` | `forall_hProp A`|
-| Existential quantification | `∃ x, P x` | `\ex` | `hexists P` |
-| Propositional truncation | `∥ A ∥` | `\\|\|`| `ishinh A`|
-|   **Category theory**                                                          |
-| Object type of `C` | `ob C` or `C` (`ob` is a coercion) |        |  | 
-| Morphisms  | `C⟦a,b⟧` | `\[[` and `\]]` |  `a --> b` |
-| Functor `F` on objects | `F a` (coercion) | | | 
-| Functor `F` on morphisms | `#F f` | | | 
+| Item                       | UniMath symbol  | Unicode input                  |UniMath ASCII alternative |
+| -------------------------- | --------------- | ------------------------------ | ------------------------ |
+|   **Type and term constructors**
+| Product type               |  `∏ (x : A), B` | `\prod`                        | `forall x : A, B`        |
+| Function type              | `A → B`         | `\to`                          | `A -> B`                 |
+| Lambda abstraction         |  `λ x, e`       | `\lambda`                      | `fun x => e`             |
+| Sigma type                 | `∑ (x : A), B`  | `\sum`                         | `total2 (fun x => B)`    |
+| Cartesian product type     |  `X × Y`        | `\times`                       | `dirprod X Y`            |
+| Pair term                  |  `a,,b`         |                                | `a,,b`                   |
+| Coproduct type             | `X ⨿ Y`         | `\union` then select from menu | `coprod X Y`             |
+| Identity type              | `a = b`         |                                | `a = b`                  |
+|   **Univalent logic in `hProp`** 
+| Conjunction                | `A ∧ B`         | `\and`                         | `hconj A B`              |
+| Disjunction                | `A ∨ B`         | `\or`                          | `hdisj A B`              |
+| Implication                | `A ⇒ B`         | `\=>`                          | `himpl A B`              |
+| Negation                   | `¬ X`           | `\neg`                         | `hneg X`                 |
+| Universal quantification   | `∀  x , P x`    | `\forall`                      | `forall_hProp A`         |
+| Existential quantification | `∃ x, P x`      | `\ex`                          | `hexists P`              |
+| Propositional truncation   | `∥ A ∥`          | `\\|\|`                        | `ishinh A`               |
+|   **Category theory**
+| Object type of `C`         | `ob C` or `C`   |                                |                          |
+| Morphisms                  | `C⟦a,b⟧`        | `\[[` and `\]]`                |  `a --> b`               |
+| Functor `F` on objects     | `F a`           |                                |                          |
+| Functor `F` on morphisms   | `#F f`          |                                |                          |
 
 
 
