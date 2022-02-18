@@ -17,10 +17,6 @@ Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 
 Local Open Scope cat.
 
-
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition functor_identity_op
            (C : category)
   : functor_identity (C^op)
