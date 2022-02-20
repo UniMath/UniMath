@@ -281,7 +281,7 @@ Section GaussOps.
       + simpl.
         rewrite (@sum_id_pointwise_prod_unf hq).
         apply idpath.
-  Defined.
+  Time Defined.
 
   (* For hq at least *)
   Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) :
@@ -397,21 +397,34 @@ Section GaussOps.
    = (make_add_row_matrix r1 r2 (s1 + s2)%hq ).
   Proof.
     rewrite add_row_mat_elementary; try assumption.
-    unfold gauss_add_row, make_add_row_matrix.
     apply funextfun; intros i; apply funextfun; intros j.
+    unfold gauss_add_row, make_add_row_matrix.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: {apply idpath. }
+    destruct i_eq_r2.
     simpl.
-    rewrite stn_eq_or_neq_refl.
-    rewrite (stn_eq_or_neq_right ne).
+    rewrite stn_eq_or_neq_refl, (stn_eq_or_neq_right ne).
     simpl.
-    unfold pointwise.
-    rewrite i_eq_r2.
-    unfold const_vec.
+    unfold pointwise, const_vec.
     rewrite (@rigrdistr hq).
     rewrite rigcomm1.
     rewrite (@rigassoc1 hq).
     reflexivity.
+  Time Defined.
+
+  Lemma add_row_matrix_zero
+      { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
+    : make_add_row_matrix r1 r2 0%hq = @identity_matrix hq _.
+  Proof.
+    apply funextfun; intros i.
+    unfold make_add_row_matrix.
+    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
+    2: { apply idpath. }
+    destruct i_eq_r2. simpl.
+    apply funextfun; intros j.
+    unfold pointwise.
+    rewrite (@rigmult0x hq).
+    apply (@rigrunax1 hq).
   Defined.
 
   Lemma add_row_matrix_commutes { n : nat }
@@ -421,133 +434,21 @@ Section GaussOps.
   Proof.
     rewrite add_row_matrix_additive; try assumption.
     rewrite add_row_matrix_additive; try assumption.
-    unfold make_add_row_matrix, pointwise, const_vec.
-    apply funextfun; intros i; apply funextfun; intros j.
-    destruct (stn_eq_or_neq _ _) as [i_eq_r2 | i_neq_r2].
-    2: {apply idpath. }
-    simpl.
     apply maponpaths.
-    rewrite (@rigcomm1 hq).
-    reflexivity.
+    apply (@rigcomm1 hq).
   Defined.
 
   Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : hq )
     (p' : n > 0):
     @matrix_inverse hq n (make_add_row_matrix r1 r2 s).
   Proof.
-    use tpair.
-    {
-      induction (stn_eq_or_neq r1 r2) as [? | ?].
-      - exact (make_add_row_matrix r1 r2 (hqmultinv s)). (* Contradiction also works *)
-      - exact (make_add_row_matrix r1 r2 (- s)%hq).
-    }
-    assert (proof :
-     ((make_add_row_matrix r1 r2 s)  ** (make_add_row_matrix r1 r2 (- s)%hq))
-      = @identity_matrix hq n).
-    { unfold make_add_row_matrix, identity_matrix, pointwise.
-    rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    (*use tpair.*) (*TODO was there a quicker alternative ? *)
-    - apply funextfun. intros k.
-      apply funextfun. intros l.
-      destruct (stn_eq_or_neq r1 r2) as [r1_eq_r2 | r1_neq_r2'].
-      + rewrite r1_eq_r2 in r1_neq_r2.
-        apply isirrefl_natneq in r1_neq_r2.
-        contradiction.
-      + simpl.
-        destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2]
-        ; destruct (stn_eq_or_neq k l) as [k_eq_l | k_neq_l]; simpl.
-        * rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
-          -- do 2 rewrite stn_eq_or_neq_refl. simpl.
-             rewrite (stn_eq_or_neq_right r1_neq_r2).
-             rewrite k_eq_l in *.
-             rewrite k_eq_r2 in *.
-             rewrite (stn_eq_or_neq_right r1_neq_r2'). simpl.
-             rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq).
-             rewrite stn_eq_or_neq_refl; simpl.
-             rewrite stn_eq_or_neq_refl; simpl.
-             rewrite (stn_eq_or_neq_right r1_neq_r2').
-             rewrite (@rigmultx0 hq); simpl; rewrite (@rigmultx0 hq).
-             do 2 rewrite (@rigrunax1 hq).
-             apply idpath.
-          -- rewrite k_eq_r2.
-             apply issymm_natneq in r1_neq_r2'.
-             assumption.
-          -- intros q q_neq_k q_neq_r1.
-             rewrite k_eq_r2, k_eq_l in *.
-             rewrite (stn_eq_or_neq_right q_neq_k); simpl.
-             rewrite (stn_eq_or_neq_right q_neq_k); simpl.
-             apply issymm_natneq in q_neq_k. (* TODO this is repeated quite often... *)
-             rewrite (stn_eq_or_neq_right q_neq_k).
-             apply issymm_natneq in q_neq_r1.
-             rewrite (stn_eq_or_neq_right q_neq_r1).
-             rewrite (@rigmultx0 hq).
-             apply idpath.
-        *  rewrite (@two_pulse_function_sums_to_point_rig hq n _ p' k r1).
-           -- rewrite (stn_eq_or_neq_right r1_neq_r2); simpl.
-              rewrite stn_eq_or_neq_refl. simpl.
-              rewrite k_eq_r2 in *.
-              rewrite (stn_eq_or_neq_right r1_neq_r2').
-              rewrite stn_eq_or_neq_refl.
-              simpl.
-              rewrite (stn_eq_or_neq_right k_neq_l).
-              rewrite (@rigmultx0 hq); rewrite (@rigrunax1 hq); rewrite (@riglunax2 hq); rewrite (@riglunax1 hq).
-              unfold const_vec.
-              rewrite stn_eq_or_neq_refl.
-              apply issymm_natneq in r1_neq_r2'.
-              rewrite (stn_eq_or_neq_right r1_neq_r2').
-              destruct (stn_eq_or_neq r1 l) as [r1_eq_l | r1_neq_l].
-              ++ simpl.
-                 do 3 rewrite (@rigrunax2 hq).
-                 rewrite (hqpluscomm _ s) . (* Only place we mention hq ? TODO don't? *)
-                 rewrite hqplusr0.
-                 rewrite hqlminus.
-                 apply idpath.
-              ++ repeat rewrite (@rigmultx0 hq).
-                 rewrite (@rigrunax1 hq).
-                 apply idpath.
-           -- rewrite k_eq_r2.
-              apply issymm_natneq.
-              assumption.
-           -- intros q q_neq_k q_neq_r1.
-              rewrite k_eq_r2 in *.
-              apply issymm_natneq in q_neq_k.
-              rewrite (stn_eq_or_neq_right q_neq_k).
-              unfold const_vec.
-              apply issymm_natneq in q_neq_r1.
-              rewrite (stn_eq_or_neq_right q_neq_r1).
-              rewrite (@riglunax1 hq).
-              rewrite (@rigmultx0 hq).
-              rewrite (@rigmult0x hq).
-              apply idpath.
-        * rewrite k_eq_l in *.
-          set (cl := setquot _ ).
-          rewrite (@pulse_function_sums_to_point_rig''  hq n _  p' l).
-          -- rewrite (stn_eq_or_neq_refl); simpl.
-             rewrite (stn_eq_or_neq_right k_neq_r2); simpl.
-             rewrite (@riglunax2 hq).
-             rewrite (stn_eq_or_neq_refl); simpl.
-             apply idpath.
-          -- intros q l_neq_q; simpl.
-             rewrite (stn_eq_or_neq_right l_neq_q); simpl.
-             apply (@rigmult0x hq).
-        *  rewrite (@pulse_function_sums_to_point_rig''  hq n _  p' l).
-           { rewrite (stn_eq_or_neq_right k_neq_l); simpl. apply (@rigmult0x hq). }
-           intros q q_neq_j.
-           destruct (stn_eq_or_neq k q) as [k_eq_q | k_neq_q]; simpl.
-           -- rewrite k_eq_q in *.
-              rewrite (stn_eq_or_neq_right k_neq_r2); simpl.
-              rewrite (stn_eq_or_neq_right k_neq_l); simpl.
-              apply (@rigmultx0 hq).
-           -- apply (@rigmult0x hq).
-    }
-    destruct (stn_eq_or_neq r1 r2) as [absurd | ?].
-    { rewrite absurd in r1_neq_r2. apply isirrefl_natneq in r1_neq_r2.
-      contradiction. }
-    simpl.
-    use tpair.
-    { apply proof. }
-    simpl.
-    rewrite add_row_matrix_commutes; try assumption; apply proof.
+    exists (make_add_row_matrix r1 r2 (- s)%hq).
+    split;
+      refine (add_row_matrix_additive _ _ _ _ r1_neq_r2 @ _);
+      refine (_ @ add_row_matrix_zero _ _ r1_neq_r2);
+      apply maponpaths.
+    - apply (@ringrinvax1 hq).
+    - apply (@ringlinvax1 hq).
   Defined.
 
   Lemma switch_row_matrix_self_inverse { n : nat }
