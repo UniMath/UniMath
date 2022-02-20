@@ -12,7 +12,6 @@ Core/Prelude.v
 FunctorCategory.v
 whiskering.v
 
-DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
