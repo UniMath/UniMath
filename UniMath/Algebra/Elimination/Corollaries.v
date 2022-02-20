@@ -54,8 +54,8 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   (* TODO moderately large cleanup needed - rename temp variables *)
   Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (x : Vector hq n) (b : Vector hq n)
-        (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
+        (p: @is_upper_triangular hq _ _ mat)
+        (p' : @diagonal_all_nonzero hq _ mat):
     ((mat ** (col_vec (back_sub_step iter mat x b))) iter  = (col_vec b) iter).
   Proof.
     intros.
@@ -153,7 +153,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma back_sub_step_inv1 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
+        (p' : @diagonal_all_nonzero hq _ mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
     (col_vec (back_sub_step iter mat b vec) i  = ( (col_vec b)) i).
   Proof.
     intros i ne.
@@ -170,7 +170,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma back_sub_step_inv2 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
+        (p' : @diagonal_all_nonzero hq _ mat):
      ∏ i : ⟦ n ⟧%stn, i ≥ iter ->
        (mat ** (col_vec b )) i = (col_vec vec) i
     -> (mat ** (col_vec (back_sub_step iter mat b vec))) i = ((col_vec vec) i).
@@ -214,7 +214,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma back_sub_step_inv3 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
+        (p' : @diagonal_all_nonzero hq _ mat):
      ∏ i : ⟦ n ⟧%stn, i > iter ->
        (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
   Proof.
@@ -265,7 +265,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Lemma back_sub_internal_inv0
         { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
         (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
+        (df : @diagonal_all_nonzero hq _ mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i < (dualelement iter)
     -> (((col_vec (back_sub_internal mat b vec iter)))) i = ((col_vec b) i).
   Proof.
@@ -330,7 +330,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Lemma back_sub_internal_inv2
         { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
         (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
+        (df : @diagonal_all_nonzero hq _ mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement iter)
     -> (mat ** (col_vec (back_sub_internal mat b vec iter))) i = (col_vec vec) i.
   Proof.
@@ -422,7 +422,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma back_sub_inv0 { n : nat } (mat : Matrix hq n n) (vec : Vector hq n)
         (ut : @is_upper_triangular hq _ _ mat)
-    (df: diagonal_all_nonzero mat) : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
+    (df: @diagonal_all_nonzero hq _ mat) : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
   Proof.
     intros.
     unfold back_sub.
@@ -452,7 +452,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Lemma invertible_upper_triangular_to_diagonal_all_nonzero { n : nat } (A : Matrix hq n n)
         (p : @is_upper_triangular hq n n A)
         (p': @matrix_inverse hq n A)
-    : (@diagonal_all_nonzero n A).
+    : (@diagonal_all_nonzero hq _ A).
   Proof.
     apply diagonal_nonzero_iff_transpose_nonzero.
     set (At := (λ y x : (⟦ n ⟧)%stn, A x y)).
@@ -486,7 +486,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Definition upper_triangular_right_inverse_is_inverse
     { n : nat } (mat : Matrix hq n n)
     (ut : @is_upper_triangular hq _ _ mat)
-    (df: diagonal_all_nonzero mat)
+    (df: @diagonal_all_nonzero hq _ mat)
     :
     (mat ** ((upper_triangular_right_inverse_construction mat)))
     = (@identity_matrix hq n).
@@ -560,7 +560,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Local Lemma left_inverse_implies_right_internal
     { n : nat } (A B: Matrix hq n n)
     (ut : @is_upper_triangular hq _ _ A)
-    (df: diagonal_all_nonzero A)
+    (df: @diagonal_all_nonzero hq _ A)
     : (B ** A) = (@identity_matrix hq n) -> (@matrix_inverse hq n A).
   Proof.
     intros H0.
@@ -660,7 +660,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         - rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in H3.
           apply H3.
       }
-      assert (H2 : diagonal_all_nonzero CA).
+      assert (H2 : @diagonal_all_nonzero hq _ CA).
       { unfold diagonal_all_nonzero.
         intros i neq.
         apply (gauss_clear_columns_up_to_no_switch_inv7 n CA gt (n,, natgthsnn n) H1 i); try assumption.
