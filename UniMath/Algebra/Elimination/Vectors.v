@@ -322,7 +322,6 @@ Section Vectors.
     Σ ((identity_matrix i) ^ v) = (v i).
   Proof.
     unfold identity_matrix, pointwise.
-    assert (p: n > 0). {apply (stn_implies_ngt0 i). } (*TODO this should be gt0 *)
     rewrite (pulse_function_sums_to_point_rig'' _  (stn_implies_ngt0 i)  i ).
     - rewrite stn_eq_or_neq_refl.
       simpl.
@@ -392,7 +391,7 @@ Section Vectors.
   Lemma vectorize_inj { X : rig } { e1 e2 : X }
     : vectorize_1 _ e1 = vectorize_1 _ e2 -> e1 = e2.
   Proof.
-    intros H. 
+    intros H.
     apply (invmaponpathsweq (@weq_vector_1 X)  _ _ H).
   Defined.
 
