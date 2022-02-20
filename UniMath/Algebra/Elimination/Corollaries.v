@@ -38,7 +38,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
   (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
-  Definition back_sub_step { n : nat } ( iter : (⟦ n ⟧)%stn ) 
+  Definition back_sub_step { n : nat } ( iter : (⟦ n ⟧)%stn )
     (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros i.
@@ -333,7 +333,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement iter)
     -> (mat ** (col_vec (back_sub_internal mat b vec iter))) i = (col_vec vec) i.
-  Proof. 
+  Proof.
     unfold transpose, flip.
     intros i i_le_iter.
     unfold back_sub_internal.
@@ -475,7 +475,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     destruct contr' as [idx contr'].
     set ( At' := gauss_clear_columns_up_to_no_switch gt (n,, natgthsnn n) At).
     pose (noninv := @zero_row_to_non_invertibility n At' idx contr').
-    apply noninv. 
+    apply noninv.
     unfold At'.
     rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq.
     apply inv_matrix_prod_is_inv.
@@ -496,20 +496,20 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     unfold col, transpose, flip.
     apply funextfun; intros ?.
     unfold upper_triangular_right_inverse_construction.
-    rewrite (@col_vec_mult_eq hq n n mat 
+    rewrite (@col_vec_mult_eq hq n n mat
       (λ y : (⟦ n ⟧)%stn, upper_triangular_right_inverse_construction mat y x) (@identity_matrix hq n x)).
     - destruct (stn_eq_or_neq i x) as [eq | neq].
       {rewrite eq; reflexivity. }
       rewrite id_mat_ij; try rewrite id_mat_ij; try reflexivity; try assumption.
       apply (issymm_natneq _ _ neq).
-    - unfold upper_triangular_right_inverse_construction. 
+    - unfold upper_triangular_right_inverse_construction.
       pose (H2 := @back_sub_inv0).
       destruct (natchoice0 n) as [eq | ?]. {apply fromstn0. rewrite eq. assumption. }
       apply H2; assumption.
   Defined.
 
-  Local Lemma row_vec_col_vec_mult_eq 
-  { n : nat } (A : Matrix hq n n) 
+  Local Lemma row_vec_col_vec_mult_eq
+  { n : nat } (A : Matrix hq n n)
   : forall x, transpose ((row_vec x) ** (transpose A)) = (A ** (col_vec x)).
   Proof.
     intros.
@@ -533,7 +533,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     intros i j.
     apply eq.
   Defined.
-  
+
 
   (* (BA)C = I -> D, s.t. BD = I*)
   Local Lemma matrix_product_right_inverse_to_left_term_right_inverse
@@ -544,7 +544,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     simpl.
     rewrite <- matrix_mult_assoc.
     apply inv.
-  Defined.    
+  Defined.
 
   (* C(BA) -> D s.t. DA = I*)
   Local Lemma matrix_product_left_inverse_to_right_term_left_inverse
@@ -555,7 +555,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     simpl.
     rewrite matrix_mult_assoc.
     apply inv.
-  Defined.    
+  Defined.
 
   Local Lemma left_inverse_implies_right_internal
     { n : nat } (A B: Matrix hq n n)
@@ -566,7 +566,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     intros H0.
     assert (eq0: forall y, ((A ** (col_vec (back_sub A y))) = (col_vec y))).
     { intros.  apply back_sub_inv0; assumption. }
-    assert (eq1 : forall y, 
+    assert (eq1 : forall y,
       (B ** (A ** (col_vec (back_sub A y)))) = (B ** (col_vec y))).
     { intros y. pose (H := eq0 y).
       rewrite H. reflexivity.  }
@@ -575,9 +575,9 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       pose (H := eq1 y).
       rewrite <- matrix_mult_assoc in H.
       rewrite H0 in H.
-      rewrite matlunax2 in H. 
+      rewrite matlunax2 in H.
       assumption. }
-    assert (eq3 :forall y, 
+    assert (eq3 :forall y,
       ((A ** (col_vec (back_sub A y))) = (A ** (B ** (col_vec y))))).
     { intros y.
       pose (H := eq2 y).
@@ -652,7 +652,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         apply H1; try assumption.
         2: {exact (pr2 i). }
         unfold is_row_echelon_partial.
-        pose (H2 := @gauss_clear_rows_up_to_inv1 n n A gt (n,, natgthsnn n)).
+        pose (H2 := @gauss_clear_rows_up_to_inv1 hq n n A gt (n,, natgthsnn n)).
         pose (H3 := @gauss_clear_rows_up_to_inv2 n n A gt (n,, natgthsnn n)).
         use tpair.
         - rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in H2.
@@ -670,7 +670,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
           apply gauss_clear_rows_up_to_matrix_invertible.
         }
         use tpair. {exact B. }
-        simpl; assumption. 
+        simpl; assumption.
       }
       pose (H4 := @upper_triangular_right_inverse_is_inverse _ _ H1 H2).
       unfold CA in H4.
@@ -742,8 +742,8 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     set (BA := B ** A).
     set (C := upper_triangular_right_inverse_construction (BA)).
     assert (ut : is_upper_triangular (BA)).
-    { unfold BA. 
-      pose ( is_echelon := @gauss_clear_rows_up_to_inv3 _ _ A gt (n,, natgthsnn n)).
+    { unfold BA.
+      pose ( is_echelon := @gauss_clear_rows_up_to_inv3 hq _ _ A gt (n,, natgthsnn n)).
       rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in is_echelon.
       apply row_echelon_to_upper_triangular; try assumption.
     }

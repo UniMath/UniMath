@@ -19,7 +19,6 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 
 Require Import UniMath.Algebra.Elimination.Matrices.
 
-
 Section GaussOps.
   (* TODO better (or any) comments for all these functions including assumptions*)
   (* TODO Carot operator is used similarly throughout the document, move out *)
@@ -37,14 +36,6 @@ Section GaussOps.
     - exact ( op1 ( mat r2 j )  ( op2 s ( mat r1 j ))).
     - exact ( mat i j ).
   Defined.
-
-  (*Definition add_row_op { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧ %stn) (s : hq) : Matrix hq n n.
-  Proof.
-    intros i.
-    induction (stn_eq_or_neq i r2).
-    - exact (pointwise n op1 (mat r1) (mat r2)).
-    - exact (mat i).
-  Defined.*)
 
   (* TODO rename *)
   Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : hq)  : Matrix hq n n.
@@ -109,9 +100,9 @@ Section GaussOps.
     intros m_eq.
     unfold gauss_switch_row.
     apply funextfun. intros i'.
-    destruct (stn_eq_or_neq _ _) as [eq | neq]; simpl;
+    destruct (stn_eq_or_neq _ _) as [eq | neq];
       destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      simpl; try rewrite eq in *; try rewrite eq' in *;
+      try rewrite eq; try rewrite eq';
       try rewrite m_eq; try reflexivity.
   Defined.
 
@@ -121,10 +112,10 @@ Section GaussOps.
   Proof.
     intros m_eq r3.
     unfold gauss_switch_row.
-    destruct (stn_eq_or_neq _ _) as [eq | neq]; simpl;
+    destruct (stn_eq_or_neq _ _) as [eq | neq];
       destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      simpl; try rewrite eq in *; try rewrite eq' in *;
-        try rewrite m_eq; try reflexivity.
+      try rewrite eq; try rewrite eq';
+      try rewrite m_eq; try reflexivity.
   Defined.
 
   Definition make_gauss_switch_row_matrix (n : nat)  (r1 r2 : ⟦ n ⟧ %stn) : Matrix hq n n.
@@ -143,17 +134,17 @@ Section GaussOps.
     use funextfun; intros i.
     use funextfun; intros j.
     unfold gauss_switch_row.
-    destruct (stn_eq_or_neq i r1) as [ e_ir1 | ne_ir1 ]; simpl.
-    - destruct (stn_eq_or_neq r2 r1) as [ e_r1r2 | ne_r1r2 ]; simpl.
+    destruct (stn_eq_or_neq i r1) as [ e_ir1 | ne_ir1 ].
+    - destruct (stn_eq_or_neq r2 r1) as [ e_r1r2 | ne_r1r2 ].
       + destruct e_ir1, e_r1r2. apply idpath.
-      + destruct (stn_eq_or_neq r2 r2) as [ ? | absurd ]; simpl.
+      + destruct (stn_eq_or_neq r2 r2) as [ ? | absurd ].
         * destruct e_ir1. apply idpath.
         * set (H := isirrefl_natneq _ absurd). destruct H.
-    - destruct (stn_eq_or_neq i r2) as [ e_ir2 | ne_ir2 ]; simpl.
-      + destruct e_ir2; simpl.
-        destruct (stn_eq_or_neq r1 r1) as [ ? | absurd ]; simpl.
+    - destruct (stn_eq_or_neq i r2) as [ e_ir2 | ne_ir2 ].
+      + destruct e_ir2.
+        destruct (stn_eq_or_neq r1 r1) as [ ? | absurd ].
         * reflexivity.
-        * destruct (stn_eq_or_neq r1 i) as [ e_ir1 | ne_ir1' ]; simpl.
+        * destruct (stn_eq_or_neq r1 i) as [ e_ir1 | ne_ir1' ].
         -- rewrite e_ir1. apply idpath.
         -- set (H := isirrefl_natneq _ absurd). destruct H.
       + reflexivity.
