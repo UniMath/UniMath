@@ -2231,17 +2231,23 @@ Section Gauss.
   Lemma gaussian_elimination_inv0 {m n : nat} {A : Matrix hq m n}
   : ∑ (A' : Matrix hq m m), (@matrix_inverse hq m A') × (@is_row_echelon m n (A' ** A)).
   Proof.
-    (* TODO define row ech / inverse s.t. that 0xn and nx0 matrices are by default. *)
+    (* TODO define row ech / inverse s.t. that 0xn and mx0 matrices are by default. *)
     destruct (natchoice0 n) as [eq0 | gt].
-    { admit. (*use tpair; try assumption; simpl. use tpair.
-      { unfold matrix_inverse. use tpair. {exact A. }
-        simpl.
+    { use tpair; try assumption.
+      - apply (@identity_matrix hq m).
+      - simpl.
         use tpair.
-        - apply funextfun; intros i. apply fromstn0. rewrite eq0. assumption.
-        - simpl; apply funextfun; intros i. apply fromstn0. rewrite eq0. assumption.
-      }
-      unfold is_row_echelon. intros i. apply fromstn0. rewrite eq0. assumption.
-    *) }
+        + apply identity_matrix_is_inv. 
+        + simpl.
+          rewrite matlunax2.
+          unfold is_row_echelon. intros i j.
+          use tpair.
+          * intros ?. apply fromstn0. rewrite eq0. assumption.
+          * intros ?. intros lt. 
+            unfold const_vec.
+            apply funextfun; intros ?.
+            apply fromstn0. rewrite eq0. assumption.
+    }
     use tpair.
     - exact (@clear_rows_up_to_as_left_matrix m n A (m,, natgthsnn m) gt).
     - simpl.
