@@ -388,13 +388,39 @@ Section Matrices.
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
 
-  Definition diagonal_all_nonzero { n : nat } (mat : Matrix hq n n) :=
-    ∏ i : ⟦ n ⟧%stn, mat i i != 0%hq.
+  Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
+    ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
 
   Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
   Proof.
     intros i' j'.
     exact (mat (dni i i') (dni j j')).
+  Defined.
+
+  Lemma upper_triangular_iff_transpose_lower_triangular
+  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix R m n)
+  : is_upper_triangular mat
+  <-> is_lower_triangular (transpose mat).
+  Proof.
+    unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
+    split.
+    - intros inv i j i_lt_j.
+      rewrite inv; try assumption; reflexivity.
+    - intros inv i j i_gt_j.
+      rewrite inv; try assumption; reflexivity.
+  Defined.
+
+  Lemma zero_row_product { m n p : nat }
+      (A : Matrix R m n) (B : Matrix R n p)
+      (i : ⟦m⟧%stn) (Ai_zero : row A i = const_vec 0%rig)
+    : row (A ** B) i = const_vec 0%rig.
+  Proof.
+    apply toforallpaths in Ai_zero.
+    apply funextfun; intro k.
+    apply zero_function_sums_to_zero.
+    apply funextfun; intro j; unfold pointwise.
+    etrans. { apply maponpaths_2, Ai_zero. }
+    apply rigmult0x.
   Defined.
 
 End Matrices.
@@ -410,19 +436,6 @@ Section MatricesHq.
   Local Notation Σ := (iterop_fun hqzero op1).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
-
-  Lemma upper_triangular_iff_transpose_lower_triangular
-  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq m n)
-  : (@is_upper_triangular hq m n mat)
-  <-> (@is_lower_triangular hq n m (transpose mat)).
-  Proof.
-    unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
-    split.
-    - intros inv i j i_lt_j.
-      rewrite inv; try assumption; reflexivity.
-    - intros inv i j i_gt_j.
-      rewrite inv; try assumption; reflexivity.
-  Defined.
 
   Lemma matrix_product_transpose
   { m n k : nat } (A : Matrix hq m n) (B : Matrix hq n k)
@@ -474,35 +487,27 @@ Section MatricesHq.
     apply pathsinv0, identity_matrix_symmetric.
   Defined.
 
-  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix hq m n)
-      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
-  (@matrix_right_inverse hq m n A) -> empty.
+  (* TODO: upstream; try to simplify/speed up? *)
+  Lemma hqone_neq_hqzero : 1%hq != 0%hq.
   Proof.
-    intros invA.
-    destruct invA as [inv isrightinv].
-    assert (∏ i j : ⟦ m ⟧%stn, (A ** inv) i j = identity_matrix i j).
-    { intros. rewrite isrightinv. reflexivity. }
-    destruct (natchoice0 m) as [eq | gt].
-    { apply fromstn0. clear zero_row. rewrite <- eq in i. assumption. }
-    assert (contr : (A ** inv) i i = 0%hq).
-    { rewrite matrix_mult_eq. unfold matrix_mult_unf.
-      rewrite zero_function_sums_to_zero. {reflexivity. }
-      apply funextfun. intros k.
-      replace (A i k) with 0%hq.
-      { apply (@rigmult0x hq). }
-      rewrite zero_row. reflexivity.
-    }
-    pose (id_ii := (@id_mat_ii hq m)).
-    rewrite isrightinv in contr.
-    rewrite id_ii in contr.
-    change 1%rig with 1%hq in contr.
-    pose (t1 := intpart 1%hq).
-    pose (t2 := intpart 0%hq).
-    assert (contr' : t1 != t2).
-    {apply hzone_neg_hzzero. }
-    unfold t1, t2 in contr'.
-    rewrite contr in contr'.
-    contradiction.
+    intro contr.
+    assert (contr_hz : intpart 1%hq != intpart 0%hq).
+    { apply hzone_neg_hzzero. }
+    apply contr_hz. apply maponpaths, contr.
+  Time Defined.
+
+  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix hq m n)
+      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%hq))
+    : (@matrix_right_inverse hq m n A) -> empty.
+  Proof.
+    intros [inv isrightinv].
+    apply hqone_neq_hqzero.
+    etrans. { apply pathsinv0, (@id_mat_ii hq). }
+    do 2 (apply toforallpaths in isrightinv; specialize (isrightinv i)).
+    etrans. { apply pathsinv0, isrightinv. }
+    refine (toforallpaths _ _ _ _ i).
+    apply (@zero_row_product hq).
+    apply zero_row.
   Defined.
 
   Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
@@ -517,8 +522,8 @@ Section MatricesHq.
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
     { n : nat } (A : Matrix hq n n)
-    : diagonal_all_nonzero A
-    <-> (diagonal_all_nonzero (transpose A)).
+    : @diagonal_all_nonzero hq _ A
+    <-> (@diagonal_all_nonzero hq _ (transpose A)).
   Proof.
     split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
   Defined.
@@ -548,69 +553,39 @@ Section Transpositions.
       + exact k.
   Defined.
 
-  (* This proof should probably be redone with all 3 destructs at top *)
+  Definition transposition_self_inverse {n} (i j : ⟦ n ⟧%stn)
+    : transposition_fun i j ∘ transposition_fun i j = idfun _.
+  Proof.
+    apply funextsec; intros k; simpl; unfold transposition_fun.
+    destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k];
+      destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
+    - destruct i_eq_j. assumption.
+    - rewrite stn_eq_or_neq_refl. assumption.
+    - destruct i_eq_j.
+      do 2 rewrite (stn_eq_or_neq_right i_neq_k).
+      reflexivity.
+    - destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
+      + rewrite stn_eq_or_neq_refl. assumption.
+      + rewrite (stn_eq_or_neq_right i_neq_k).
+        rewrite (stn_eq_or_neq_right j_neq_k).
+        reflexivity.
+  Defined.
+
   Definition transposition_perm {n : nat} (i j : ⟦ n ⟧%stn)
     : ⟦ n ⟧%stn ≃ ⟦ n ⟧%stn.
   Proof.
     exists (transposition_fun i j).
     use isweq_iso.
     - exact (transposition_fun i j).
-    - intros k.
-      unfold transposition_fun.
-      destruct (stn_eq_or_neq i) as [i_eq| i_neq].
-      + destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k].
-        * rewrite i_eq_k in i_eq.
-          symmetry; assumption.
-        * destruct (stn_eq_or_neq j k).
-          -- assumption.
-          -- rewrite <- i_eq in *.
-             apply isirrefl_natneq in i_neq_k.
-             contradiction. (*  This is repeated too many times *)
-      + destruct (stn_eq_or_neq j) as [j_eq | j_neq].
-        * destruct (stn_eq_or_neq j) as [j_eq' | j_neq'].
-          -- destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k].
-             ++ assumption.
-             ++ rewrite j_eq' in *.
-                assumption.
-          -- destruct (stn_eq_or_neq i k).
-             ++ assumption.
-             ++ apply isirrefl_natneq in i_neq.
-                contradiction.
-        * destruct (stn_eq_or_neq i k).
-          -- rewrite stn_eq_or_neq_refl.
-             assumption.
-          -- rewrite (stn_eq_or_neq_right j_neq).
-             apply idpath.
-    - intros k.
-      unfold transposition_fun.
-      destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k];
-      destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
-      + rewrite  i_eq_k in *.
-        symmetry; assumption.
-      + rewrite stn_eq_or_neq_refl.
-        assumption.
-      + assert (j_neq_k : j ≠ k).
-        { rewrite i_eq_j in i_neq_k.
-          assumption.
-        }
-        rewrite (stn_eq_or_neq_right j_neq_k).
-        rewrite (stn_eq_or_neq_right i_neq_k).
-        rewrite (stn_eq_or_neq_right j_neq_k).
-        apply idpath.
-      + destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
-        * rewrite stn_eq_or_neq_refl.
-          assumption.
-        * rewrite (stn_eq_or_neq_right i_neq_k).
-          rewrite (stn_eq_or_neq_right j_neq_k).
-          apply idpath.
+    - apply toforallpaths, transposition_self_inverse.
+    - apply toforallpaths, transposition_self_inverse.
   Defined.
 
+  (* TODO: generalize to functions on rows? *)
   Definition transposition_mat_rows {X : UU} {m n  : nat} (i j : ⟦ m ⟧%stn)
     : (Matrix X m n) -> Matrix X m n.
   Proof.
     intros mat.
-    unfold Matrix in mat.
-    unfold Vector in mat at 1.
     intros k.
     destruct (stn_eq_or_neq i k).
     - apply (mat j).
