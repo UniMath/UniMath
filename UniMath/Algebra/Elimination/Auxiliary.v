@@ -59,7 +59,7 @@ Section Misc.
     apply IHb.
   Defined.
 
-  Lemma min_eq_a_or_eq_b : 
+  Lemma min_eq_a_or_eq_b :
     ∏ a b : (nat),  coprod (min a b = a) (min a b = b).
   Proof.
     intros.
@@ -165,7 +165,7 @@ Section Misc.
   Defined.
 
       (* TODO: look for other places this can simplify proofs! and upstream? *)
-  Lemma stn_eq_or_neq_refl 
+  Lemma stn_eq_or_neq_refl
     {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
     intros.
@@ -251,7 +251,7 @@ Section PrelStn.
          apply fromempty. assumption.
   Defined.
 
-  Lemma stn_implies_nneq0 
+  Lemma stn_implies_nneq0
     { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
   Proof.
     induction (natchoice0 n) as [T | F].
@@ -334,6 +334,24 @@ Section PrelStn.
     - use tpair. {exact m. } simpl. refine (istransnatlth _ _ _ (natgthsnn m) _ ).
       rewrite eq. apply (pr2 i).
     - exact eq.
+  Defined.
+
+  (* General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)
+  (* Should also be generalisable, but non-unifiedness of definitions of ≠ makes that harder than it should be. *)
+  Lemma stn_eq_or_neq_symm_nondep {n} {x y : ⟦n⟧%stn}
+        (de_xy : (x = y) ⨿ (x ≠ y)%stn) (de_yx : (y = x) ⨿ (y ≠ x)%stn)
+       {Z} (z1 z2 : Z)
+    : coprod_rect (fun _ => Z) (fun _ => z1) (fun _ => z2) de_xy
+    = coprod_rect (fun _ => Z) (fun _ => z1) (fun _ => z2) de_yx.
+  Proof.
+    destruct de_xy as [e_xy | ne_xy];
+      destruct de_yx as [e_yx | ne_yx];
+      simpl;
+    (* consistent cases: *)
+      try reflexivity;
+    (* inconsistent cases: *)
+      eapply fromempty, nat_neq_to_nopath; try eassumption;
+      apply pathsinv0, maponpaths; assumption.
   Defined.
 
 End PrelStn.

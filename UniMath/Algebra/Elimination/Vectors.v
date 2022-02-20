@@ -194,33 +194,69 @@ Section Vectors.
   Definition stdb_vector { n : nat } (i : ⟦ n ⟧%stn) : Vector R n.
   Proof.
     intros j.
-    destruct (stn_eq_or_neq i j).
+    induction (stn_eq_or_neq i j).
     - exact rigunel2.
     - exact rigunel1.
   Defined.
 
-  Definition idvec_i_i {n : nat} (i : ⟦ n ⟧%stn) : (stdb_vector i) i = rigunel2.
+  Definition id_row_stdb_vector {n} (i : ⟦n⟧%stn)
+    : row (@identity_matrix R n) i = stdb_vector i.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition id_col_stdb_vector {n} (i : ⟦n⟧%stn)
+    : col (@identity_matrix R n) i = stdb_vector i.
+  Proof.
+    apply funextfun; intros j.
+    apply stn_eq_or_neq_symm_nondep.
+  Defined.
+
+  Definition stdb_ii {n : nat} (i : ⟦ n ⟧%stn)
+    : (stdb_vector i) i = rigunel2.
   Proof.
     unfold stdb_vector. rewrite (stn_eq_or_neq_refl). apply idpath.
   Defined.
 
-  Definition idvec_i_j {n : nat} (i j : ⟦ n ⟧%stn) : i ≠ j ->  (stdb_vector i) j = rigunel1.
+  Definition stdb_ij {n : nat} (i j : ⟦ n ⟧%stn)
+    : i ≠ j -> (stdb_vector i) j = rigunel1.
   Proof.
-    intros i_neq_j. unfold stdb_vector. rewrite (stn_eq_or_neq_right i_neq_j). apply idpath.
+    intros i_neq_j. unfold stdb_vector.
+    rewrite (stn_eq_or_neq_right i_neq_j). apply idpath.
   Defined.
 
-  Lemma stdb_vector_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn) :
-    Σ (@identity_matrix R n i) = 1%rig.
+  Lemma stdb_vector_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn)
+    : Σ (@stdb_vector n i) = 1%rig.
   Proof.
     rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
     (*TODO less versions of this, remove rig in name *) (* and p should be obtained inside pf sums... *)
-    - unfold identity_matrix.
-      rewrite stn_eq_or_neq_refl, coprod_rect_compute_1.
+    - unfold stdb_vector.
+      rewrite stn_eq_or_neq_refl.
       apply idpath.
-    - unfold identity_matrix.
-      intros ? i_neq_j.
-      rewrite (stn_eq_or_neq_right i_neq_j), coprod_rect_compute_2.
+    - unfold stdb_vector.
+      intros j i_neq_j.
+      rewrite (stn_eq_or_neq_right i_neq_j).
       apply idpath.
+  Defined.
+
+  Lemma is_pulse_function_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
+    : is_pulse_function i (stdb_vector i ^ v).
+  Proof.
+    intros j i_neq_j.
+    unfold stdb_vector, pointwise.
+    rewrite (stn_eq_or_neq_right i_neq_j).
+    simpl. apply (rigmult0x).
+  Defined.
+
+  Lemma stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
+    : Σ (stdb_vector i ^ v) = (v i).
+  Proof.
+    unfold stdb_vector, pointwise.
+    rewrite (pulse_function_sums_to_point_rig'' _  (stn_implies_ngt0 i)  i ).
+    - rewrite stn_eq_or_neq_refl.
+      simpl.
+      apply (riglunax2).
+    - apply is_pulse_function_stdb_vector_pointwise_prod.
   Defined.
 
   (* TODO sums to point_s_ *)
@@ -270,9 +306,9 @@ Section Vectors.
     unfold stdb_vector.
     do 2 rewrite stn_eq_or_neq_refl.
     apply issymm_natneq in  ne_i_j.
-    rewrite (stn_eq_or_neq_right ne_i_j).
+    rewrite (stn_eq_or_neq_right ne_i_j); simpl.
     apply issymm_natneq in ne_i_j.
-    rewrite (stn_eq_or_neq_right ne_i_j).
+    rewrite (stn_eq_or_neq_right ne_i_j); simpl.
     do 2 rewrite rigmultx0.
     rewrite rigrunax1.
     rewrite riglunax1.

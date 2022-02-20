@@ -19,13 +19,69 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 
 Require Import UniMath.RealNumbers.Prelim.
 
+Local Notation Σ := (iterop_fun rigunel1 op1).
+Local Notation "A ** B" := (matrix_mult A B) (at level 80).
+Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
-Section Matrices.
+(* Matrix algebra facts that hold over an arbitrary rig, not yet assumed commutative *)
+Section General_Rigs.
 
-  Context {R : rig}.
-  Local Notation Σ := (iterop_fun rigunel1 op1).
-  Local Notation "A ** B" := (matrix_mult A B) (at level 80).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+Context {R : rig}.
+
+Section Transposition.
+
+  Definition transpose_transpose {X : UU} {m n : nat} (mat : Matrix X m n)
+    : transpose (transpose mat) = mat.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
+    transpose mat1 = transpose mat2 -> mat1 = mat2.
+  Proof.
+    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
+  Defined.
+
+  Lemma transpose_inj_pointwise {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
+    (forall i : (stn n), transpose mat1 i = transpose mat2 i) -> mat1 = mat2.
+  Proof.
+    intros H.
+    apply @transpose_inj; try assumption.
+    apply funextfun; intros ?.
+    rewrite H; apply idpath.
+  Defined.
+
+  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
+  (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
+  Proof.
+    apply transpose_inj_pointwise; assumption.
+  Defined.
+
+  (* TODO: probably switch direction, for consistency *)
+  Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
+    := mat = transpose mat.
+
+  Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
+        (i : ⟦ n ⟧%stn)
+    : is_symmetric_mat mat -> row mat i = col mat i.
+  Proof.
+    intros issymm_mat. unfold col.
+    rewrite <- issymm_mat. apply idpath.
+  Defined.
+
+  Lemma identity_matrix_symmetric  {n : nat}
+    : is_symmetric_mat (@identity_matrix R n).
+  Proof.
+    unfold is_symmetric_mat.
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+    unfold identity_matrix, transpose, flip.
+    apply stn_eq_or_neq_symm_nondep.
+  Defined.
+
+End Transposition.
+
+Section Identity_Matrix.
 
   Definition matlunel2 (n : nat) := @identity_matrix R n.
   Definition matrunel2 (n : nat) := @identity_matrix R n.
@@ -48,52 +104,6 @@ Section Matrices.
   Proof.
     apply toforallpaths; use col_vec_inj.
     exact e.
-  Defined.
-
-  Definition transpose_transpose {X : UU} {m n : nat} (mat : Matrix X m n)
-    : transpose (transpose mat) = mat.
-  Proof.
-    reflexivity.
-  Defined.
-
-  (* TODO: probably switch direction, for consistency *)
-  Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
-    := mat = transpose mat.
-
-  Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
-        (i : ⟦ n ⟧%stn)
-    : is_symmetric_mat mat -> row mat i = col mat i.
-  Proof.
-    intros issymm_mat. unfold col.
-    rewrite <- issymm_mat. apply idpath.
-  Defined.
-
-  (* General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)
-  (* TODO: upstream! Should also be generalisable, but non-unifiedness of definitions of ≠ makes that harder than it should be. *)
-  Lemma stn_eq_or_neq_symm_nondep {n} {x y : ⟦n⟧%stn}
-        (de_xy : (x = y) ⨿ (x ≠ y)%stn) (de_yx : (y = x) ⨿ (y ≠ x)%stn)
-       {Z} (z1 z2 : Z)
-    : coprod_rect (fun _ => Z) (fun _ => z1) (fun _ => z2) de_xy
-    = coprod_rect (fun _ => Z) (fun _ => z1) (fun _ => z2) de_yx.
-  Proof.
-    destruct de_xy as [e_xy | ne_xy];
-      destruct de_yx as [e_yx | ne_yx];
-      simpl;
-    (* consistent cases: *)
-      try reflexivity;
-    (* inconsistent cases: *)
-      eapply fromempty, nat_neq_to_nopath; try eassumption;
-      apply pathsinv0, maponpaths; assumption.
-  Defined.
-
-  Lemma identity_matrix_symmetric  {n : nat}
-    : is_symmetric_mat (@identity_matrix R n).
-  Proof.
-    unfold is_symmetric_mat.
-    apply funextfun. intros i.
-    apply funextfun. intros j.
-    unfold identity_matrix, transpose, flip.
-    apply stn_eq_or_neq_symm_nondep.
   Defined.
 
   (* TODO: upstream to Vectors? *)
@@ -184,6 +194,10 @@ Section Matrices.
       rewrite (stn_eq_or_neq_right i_neq_j), coprod_rect_compute_2.
       apply idpath.
   Defined.
+
+End Identity_Matrix.
+
+Section Inverses.
 
   (* TODO: name as e.g. [matrix_right_inverse] since gives choice of inverse? and similar vice versa below. *)
   Definition matrix_right_inverse {m n : nat} (A : Matrix R m n) :=
@@ -314,7 +328,11 @@ Section Matrices.
     use tpair; apply matrunax2.
   Defined.
 
-  (* TODO: upstream *)
+End Inverses.
+
+Section Nil_Matrices.
+
+  (* TODO: upstream to Vectors *)
   Lemma iscontr_nil_vector {X : UU} : iscontr (Vector X 0).
   Proof.
     apply iscontrfunfromempty2. apply fromstn0.
@@ -352,32 +370,22 @@ Section Matrices.
     - apply nil_matrix_eq2; assumption.
   Defined.
 
-  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
-    transpose mat1 = transpose mat2 -> mat1 = mat2.
-  Proof.
-    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
-  Defined.
+End Nil_Matrices.
 
-  Lemma transpose_inj_pointwise {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
-    (forall i : (stn n), transpose mat1 i = transpose mat2 i) -> mat1 = mat2.
-  Proof.
-    intros H.
-    apply @transpose_inj; try assumption.
-    apply funextfun; intros ?.
-    rewrite H; apply idpath.
-  Defined.
-
-  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
-  (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
-  Proof.
-    apply transpose_inj_pointwise; assumption.
-  Defined.
+Section Diagonal.
 
   Definition diagonal_sq { n : nat } (mat : Matrix R n n) :=
     λ i : (stn n), mat i i.
 
   Definition is_diagonal { m n : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn), (stntonat _ i ≠ (stntonat _ j)) -> (mat i j) = 0%rig.
+
+  Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
+    ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
+
+End Diagonal.
+
+Section Triangular.
 
   Definition is_upper_triangular { m n : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> (mat i j) = 0%rig.
@@ -387,15 +395,6 @@ Section Matrices.
 
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
-
-  Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
-    ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
-
-  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
-  Proof.
-    intros i' j'.
-    exact (mat (dni i i') (dni j j')).
-  Defined.
 
   Lemma upper_triangular_iff_transpose_lower_triangular
   { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix R m n)
@@ -408,6 +407,16 @@ Section Matrices.
       rewrite inv; try assumption; reflexivity.
     - intros inv i j i_gt_j.
       rewrite inv; try assumption; reflexivity.
+  Defined.
+
+End Triangular.
+
+Section Misc.
+
+  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
+  Proof.
+    intros i' j'.
+    exact (mat (dni i i') (dni j j')).
   Defined.
 
   Lemma zero_row_product { m n p : nat }
@@ -423,7 +432,9 @@ Section Matrices.
     apply rigmult0x.
   Defined.
 
-End Matrices.
+End Misc.
+
+End General_Rigs.
 
 
   (* Things that are not really specific to hq but used in later in hq
