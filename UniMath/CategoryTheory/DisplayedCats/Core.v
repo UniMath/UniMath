@@ -42,7 +42,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 
 Local Open Scope type_scope.
 
