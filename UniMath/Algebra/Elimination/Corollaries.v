@@ -39,7 +39,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
   (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
   Definition back_sub_step { n : nat } ( iter : (⟦ n ⟧)%stn ) 
-  (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
+    (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros i.
     destruct (nat_eq_or_neq iter i).
@@ -496,7 +496,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     unfold col, transpose, flip.
     apply funextfun; intros ?.
     unfold upper_triangular_right_inverse_construction.
-    rewrite (@col_vec_mult_eq hq n mat 
+    rewrite (@col_vec_mult_eq hq n n mat 
       (λ y : (⟦ n ⟧)%stn, upper_triangular_right_inverse_construction mat y x) (@identity_matrix hq n x)).
     - destruct (stn_eq_or_neq i x) as [eq | neq].
       {rewrite eq; reflexivity. }
@@ -604,7 +604,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       pose (H := (eq4 (((col A' j))))).
       rewrite <- matrix_mult_assoc in H.
       symmetry in H.
-      pose (eq5 := @col_vec_mult_eq hq n _ _ _ H).
+      pose (eq5 := @col_vec_mult_eq hq n n _ _ _ H).
       unfold col, transpose, flip in eq5.
       rewrite <- eq5.
       apply idpath. }
@@ -637,7 +637,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     destruct (natchoice0 n) as [eq0 | gt].
     { unfold matrix_inverse. use tpair. {assumption. }
       simpl. apply funextfun; intros i; apply fromstn0; rewrite eq0; assumption. }
-    pose (C := (clear_rows_up_to_as_left_matrix_internal A gt (n,, natgthsnn n))).
+    pose (C := (clear_rows_up_to_as_left_matrix_internal A (n,, natgthsnn n)) gt).
     pose (C' := gauss_clear_rows_up_to_as_matrix_eq (n,, natgthsnn n) C).
     pose (CA := C ** A).
     pose (D := @upper_triangular_right_inverse_construction n CA).
@@ -645,19 +645,19 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     (*simpl; use tpair; try assumption.
     -*)
       assert (H1 : is_upper_triangular CA).
-      { pose (H1 := @row_echelon_partial_to_upper_triangular_partial n CA gt (n,, natgthsnn n)).
+      { pose (H1 := @row_echelon_partial_to_upper_triangular_partial n n CA gt (n,, natgthsnn n)).
         unfold is_upper_triangular.
         unfold is_upper_triangular_partial in H1.
         intros.
         apply H1; try assumption.
         2: {exact (pr2 i). }
         unfold is_row_echelon_partial.
-        pose (H2 := @gauss_clear_rows_up_to_inv1 n A gt (n,, natgthsnn n)).
-        pose (H3 := @gauss_clear_rows_up_to_inv2 n A gt (n,, natgthsnn n)).
+        pose (H2 := @gauss_clear_rows_up_to_inv1 n n A gt (n,, natgthsnn n)).
+        pose (H3 := @gauss_clear_rows_up_to_inv2 n n A gt (n,, natgthsnn n)).
         use tpair.
-        - rewrite <- gauss_clear_rows_up_to_as_matrix_eq in H2.
+        - rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in H2.
           apply H2.
-        - rewrite <- gauss_clear_rows_up_to_as_matrix_eq in H3.
+        - rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in H3.
           apply H3.
       }
       assert (H2 : diagonal_all_nonzero CA).
@@ -677,7 +677,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       rewrite matrix_mult_assoc in H4.
       pose (H5 := @matrix_product_left_inverse_to_right_term_left_inverse).
       pose (H6 := @matrix_product_right_inverse_to_left_term_right_inverse).
-      pose (CM := @gauss_clear_rows_up_to_matrix_invertible _ (n,, natgthsnn n) A gt).
+      pose (CM := @gauss_clear_rows_up_to_matrix_invertible _ _ (n,, natgthsnn n) A gt).
       pose (H7 := left_inverse_implies_right_internal _ (B ** (pr1 CM) ) H1 H2).
       assert (eq : (C ** A ** D) = (A ** D ** C)).
       { unfold CA in H4. unfold D, CA.
@@ -685,11 +685,11 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         pose (H8 := @matrix_left_inverse_equals_right_inverse).
         apply pathsinv0.
         unfold matrix_left_inverse in H7.
-        pose (H9 := @gauss_clear_rows_up_to_matrix_invertible n (n,, natgthsnn n) A gt).
+        pose (H9 := @gauss_clear_rows_up_to_matrix_invertible n n (n,, natgthsnn n) A gt).
         apply (matrix_inverse_to_right_and_left_inverse) in H9.
         destruct H9 as [H9 H10].
         unfold clear_rows_up_to_as_left_matrix in *.
-        pose (H11 := @H8 hq n _ n ((clear_rows_up_to_as_left_matrix_internal A gt (n,, natgthsnn n))) (H9) ((A ** D),, H4)).
+        pose (H11 := @H8 hq n _ n ((clear_rows_up_to_as_left_matrix_internal A (n,, natgthsnn n) gt)) (H9) ((A ** D),, H4)).
         simpl in H11.
         unfold D in H11.
         unfold CA in H11.
@@ -738,13 +738,13 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Proof.
     destruct (natchoice0 n) as [? | gt].
     { left. apply nil_matrix_is_inv; symmetry; assumption. }
-    set (B:= @clear_rows_up_to_as_left_matrix n A gt (n,, natgthsnn n)).
+    set (B:= @clear_rows_up_to_as_left_matrix n n A (n,, natgthsnn n) gt).
     set (BA := B ** A).
     set (C := upper_triangular_right_inverse_construction (BA)).
     assert (ut : is_upper_triangular (BA)).
     { unfold BA. 
-      pose ( is_echelon := @gauss_clear_rows_up_to_inv3 _ A gt (n,, natgthsnn n)).
-      rewrite <- gauss_clear_rows_up_to_as_matrix_eq in is_echelon.
+      pose ( is_echelon := @gauss_clear_rows_up_to_inv3 _ _ A gt (n,, natgthsnn n)).
+      rewrite <- (gauss_clear_rows_up_to_as_matrix_eq _ _ gt) in is_echelon.
       apply row_echelon_to_upper_triangular; try assumption.
     }
     destruct (diagonal_all_nonzero_compute (λ i : (stn n), BA i i)) as [nz | hasz].

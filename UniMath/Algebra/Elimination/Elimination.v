@@ -2231,7 +2231,6 @@ Section Gauss.
   Lemma gaussian_elimination_inv0 {m n : nat} {A : Matrix hq m n}
   : ∑ (A' : Matrix hq m m), (@matrix_inverse hq m A') × (@is_row_echelon m n (A' ** A)).
   Proof.
-    (* TODO define row ech / inverse s.t. that 0xn and mx0 matrices are by default. *)
     destruct (natchoice0 n) as [eq0 | gt].
     { use tpair; try assumption.
       - apply (@identity_matrix hq m).
