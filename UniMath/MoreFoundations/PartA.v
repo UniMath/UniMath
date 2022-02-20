@@ -1182,3 +1182,28 @@ Proof.
   induction p.
   apply idpath.
 Defined.
+
+
+
+
+(** Product of a propositions with itself *)
+Definition dirprod_with_prop (A : UU) (isa : isaprop A) : A × A ≃ A.
+Proof.
+  apply weqpr1, iscontraprop1; assumption.
+Defined.
+
+(** A variation on the above theme *)
+Definition dirprod_with_prop' (A B : UU) (isa : isaprop A) : A × B × A ≃ B × A.
+Proof.
+  intermediate_weq ((A × B) × A).
+  apply invweq, weqtotal2asstor.
+  intermediate_weq (A × (A × B)).
+  apply weqdirprodcomm.
+  intermediate_weq ((A × A) × B).
+  apply invweq, weqtotal2asstor.
+  intermediate_weq (A × B).
+  apply weqdirprodf.
+  - apply dirprod_with_prop; assumption.
+  - apply idweq.
+  - apply weqdirprodcomm.
+Defined.
