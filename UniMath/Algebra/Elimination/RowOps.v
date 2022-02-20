@@ -159,10 +159,9 @@ Section GaussOps.
     use funextfun. intros ?.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     unfold make_scalar_mult_row_matrix. unfold gauss_scalar_mult_row.
-    assert (p : m > 0). { apply (stn_implies_ngt0 r). }
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq m _ p i ).
+      rewrite (@pulse_function_sums_to_point hq m _ i ).
       + rewrite stn_eq_or_neq_refl.
         simpl.
         apply idpath.
@@ -171,7 +170,7 @@ Section GaussOps.
         simpl.
         apply (@rigmult0x hq).
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq m _ p i ).
+      rewrite (@pulse_function_sums_to_point hq m _ i ).
       + rewrite stn_eq_or_neq_refl.
         simpl.
         rewrite (@riglunax2 hq).
@@ -191,11 +190,10 @@ Section GaussOps.
     unfold make_gauss_switch_row_matrix, gauss_switch_row.
     apply funextfun. intros i.
     apply funextfun. intros ?.
-    assert (p: m > 0).  { apply ( stn_implies_ngt0 r1).  }
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq m
-        (λ i : (⟦ m ⟧%stn), @identity_matrix hq m r2 i * _)%ring p r2).
+      rewrite (@pulse_function_sums_to_point hq m
+        (λ i : (⟦ m ⟧%stn), @identity_matrix hq m r2 i * _)%ring r2).
       + unfold identity_matrix.
         rewrite stn_eq_or_neq_refl.
         simpl.
@@ -227,7 +225,6 @@ Section GaussOps.
     unfold pointwise.
     apply funextfun. intros k.
     apply funextfun. intros l.
-    assert (p': m > 0). { apply (stn_implies_ngt0 r1). }
     destruct (stn_eq_or_neq k r1) as [k_eq_r1 | k_neq_r1].
     - simpl.
       destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
@@ -237,8 +234,8 @@ Section GaussOps.
         apply isirrefl_natneq in p.
         contradiction.
       + simpl.
-        rewrite (@pulse_function_sums_to_point_rig'' hq m
-          (λ i : (⟦ m ⟧%stn), @identity_matrix hq m k i * _)%ring p' k).
+        rewrite (@pulse_function_sums_to_point hq m
+          (λ i : (⟦ m ⟧%stn), @identity_matrix hq m k i * _)%ring k).
         * rewrite k_eq_r1 in *.
           rewrite id_mat_ii.
           rewrite (@riglunax2 hq).
@@ -248,8 +245,8 @@ Section GaussOps.
           apply (@rigmult0x hq).
     - destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
       + simpl.
-        rewrite (@two_pulse_function_sums_to_point_rig hq m
-          (λ i : ( ⟦ m ⟧%stn), ((@identity_matrix hq m _ _ + _ * _) * _ ))%rig p' k r1).
+        rewrite (@two_pulse_function_sums_to_point hq m
+          (λ i : ( ⟦ m ⟧%stn), ((@identity_matrix hq m _ _ + _ * _) * _ ))%rig k r1).
         * unfold const_vec, identity_matrix.
           rewrite stn_eq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
@@ -439,8 +436,7 @@ Section GaussOps.
   Defined.
 
   Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : hq )
-    (p' : n > 0):
-    @matrix_inverse hq n (make_add_row_matrix r1 r2 s).
+   : @matrix_inverse hq n (make_add_row_matrix r1 r2 s).
   Proof.
     exists (make_add_row_matrix r1 r2 (- s)%hq).
     split;

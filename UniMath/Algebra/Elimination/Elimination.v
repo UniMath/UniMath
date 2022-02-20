@@ -760,8 +760,7 @@ Section Gauss.
            - apply IH. }
       apply inv_matrix_prod_is_inv.
       { apply add_row_matrix_is_inv.
-       - apply natlthtoneq; assumption.
-       - apply (stn_implies_ngt0 k_i). }
+        apply natlthtoneq; assumption. }
       apply IH.
   Defined.
 

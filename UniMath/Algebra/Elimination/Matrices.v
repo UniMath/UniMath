@@ -177,7 +177,7 @@ Section Identity_Matrix.
     apply funextfun. intros i.
     apply funextfun. intros j.
     unfold matrix_mult.
-    rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 j) j);
+    rewrite (pulse_function_sums_to_point _ j);
     rewrite <- (symmetric_mat_row_eq_col _ _ identity_matrix_symmetric);
     unfold pointwise, row.
     - rewrite id_mat_ii, rigrunax2.
@@ -212,14 +212,7 @@ Section Identity_Matrix.
   Lemma idrow_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn) :
     Σ ((@identity_matrix R n ) i) = 1%rig.
   Proof.
-    rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
-    - unfold identity_matrix.
-      rewrite stn_eq_or_neq_refl, coprod_rect_compute_1.
-      apply idpath.
-    - unfold identity_matrix.
-      intros ? i_neq_j.
-      rewrite (stn_eq_or_neq_right i_neq_j), coprod_rect_compute_2.
-      apply idpath.
+    apply stdb_vector_sums_to_1.
   Defined.
 
 End Identity_Matrix.

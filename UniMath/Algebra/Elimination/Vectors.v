@@ -151,14 +151,13 @@ Section Vectors.
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
    ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
-  (* TODO standardize, get rid of multiple versions ('' is the main one ? *)
-  Lemma pulse_function_sums_to_point_rig'' { n : nat }  (f : ⟦ n ⟧%stn -> R) (p : n > 0) :
-  ∏ (i : ⟦ n ⟧%stn ),  (∏ (j : ⟦ n ⟧%stn), ((i ≠ j) -> (f j = 0%rig))) ->  (Σ f = f i).
+  Lemma pulse_function_sums_to_point { n : nat }
+    (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
+    (f_pulse_function : is_pulse_function i f)
+    : Σ f = f i.
   Proof.
-    intros i.
     destruct (stn_inhabited_implies_succ i) as [n' e_n_Sn'].
     destruct (!e_n_Sn').
-    intros j.
     rewrite (rigsum_dni f i).
     rewrite zero_function_sums_to_zero. (* TODO rephrase in terms of stnsum_const *)
     { rewrite riglunax1. apply idpath. }
@@ -170,7 +169,7 @@ Section Vectors.
         + apply (stnneq_iff_nopath i (dni i k)) in eq.
           apply weqtoempty. intros. apply eq. assumption.
           exact (dni_neq_i i k). (* Move up *)
-        + apply j. exact neq.
+        + apply f_pulse_function. exact neq.
   Defined.
 
   Lemma empty_sum_eq_0  (v1 : Vector R 0) : Σ v1 = 0%rig.
@@ -226,9 +225,7 @@ Section Vectors.
     : Σ (@stdb_vector n i) = 1%rig.
   Proof.
     etrans.
-    { apply (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
-    (*TODO less versions of this, remove rig in name *) (* and p should be obtained inside pf sums... *)
-      apply is_pulse_function_stdb_vector. }
+    { apply (pulse_function_sums_to_point _ i), is_pulse_function_stdb_vector. }
     unfold stdb_vector.
     rewrite stn_eq_or_neq_refl.
     apply idpath.
@@ -249,7 +246,7 @@ Section Vectors.
     : Σ (stdb_vector i ^ v) = (v i).
   Proof.
     etrans.
-    { apply (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) i).
+    { apply (pulse_function_sums_to_point _ i).
       apply is_pulse_function_stdb_vector_pointwise_prod. }
     unfold pointwise, stdb_vector.
     rewrite stn_eq_or_neq_refl.
@@ -271,8 +268,8 @@ Section Vectors.
   Defined.
 
   (* TODO sums to point_s_ *)
-  Lemma two_pulse_function_sums_to_point_rig { n : nat }
-      (f : ⟦ n ⟧%stn -> R) (p : n > 0)
+  Lemma two_pulse_function_sums_to_point { n : nat }
+      (f : ⟦ n ⟧%stn -> R)
       (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
       (X : forall (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
     : (Σ f = f i + f j)%rig.
@@ -325,15 +322,6 @@ Section Vectors.
     rewrite riglunax1.
     do 2 rewrite rigrunax2.
     apply idpath.
-  Defined.
-
-  (* TODO remove and change mentions to the non apostrophesized version *)
-  Lemma two_pulse_function_sums_to_points_rig' { n : nat }  (f : ⟦ n ⟧%stn -> R) (p : n > 0) :
-    ∏ (i j: ⟦ n ⟧%stn ), i ≠ j -> (∏ (k: ⟦ n ⟧%stn), ((k ≠ i) -> (k ≠ j) ->
-   (f k = 0%rig))) ->  (Σ f = op1 (f i) (f j)).
-  Proof.
-    intros.
-    apply two_pulse_function_sums_to_point_rig; try assumption.
   Defined.
 
   Definition zero_vector_hq (n : nat) : ⟦ n ⟧%stn -> hq :=
