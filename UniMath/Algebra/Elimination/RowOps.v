@@ -33,17 +33,18 @@ Section GaussOps.
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r2).
-    - exact ( op1 ( mat r2 j )  ( op2 s ( mat r1 j ))).
-    - exact ( mat i j ).
+    - exact ( (mat r2 j) + ( s * (mat r1 j)))%rig.
+    - exact (mat i j).
   Defined.
 
   (* TODO rename *)
-  Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : hq)  : Matrix hq n n.
+  Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : hq)
+    : Matrix hq n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
-    - exact (pointwise n op1 (@identity_matrix hq n i) (const_vec s ^ ((@identity_matrix hq) n r1))).
-    - exact (@identity_matrix hq n i).
+    - exact (pointwise n op1 (@stdb_vector hq n i) (const_vec s ^ ((@stdb_vector hq) n r1))).
+    - exact (@stdb_vector hq n i).
   Defined.
 
   Definition gauss_scalar_mult_row { m n : nat} (mat : Matrix hq m n)
@@ -214,91 +215,49 @@ Section GaussOps.
         apply idpath.
   Defined.
 
+  (* TODO: generalize to rigs, upstream to Vectors *)
+  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector hq n)
+    : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
+  Proof.
+    use (pointwise_rdistr (rigrdistr hq)).
+  Defined.
+
+  (* TODO: generalize to rigs, upstream to Vectors *)
+  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector hq n)
+    : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
+  Proof.
+    use (pointwise_assoc (rigassoc2 hq)).
+  Defined.
+
+  (* TODO: generalize to commrigs, upstream to Vectors *)
+  Lemma pointwise_comm2_vector { n : nat } (v1 v2 : Vector hq n)
+    : v1 ^ v2 = v2 ^ v1.
+  Proof.
+    use (pointwise_comm (rigcomm2 hq)).
+  Defined.
+
   (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
   Lemma add_row_mat_elementary { m n : nat } (mat : Matrix hq m n)
   (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : hq)
   : ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
-    unfold make_add_row_matrix, gauss_add_row.
-    rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    unfold pointwise.
     apply funextfun. intros k.
     apply funextfun. intros l.
-    destruct (stn_eq_or_neq k r1) as [k_eq_r1 | k_neq_r1].
-    - simpl.
-      destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
-      + simpl.
-        rewrite k_eq_r1 in k_eq_r2.
-        rewrite k_eq_r2 in p.
-        apply isirrefl_natneq in p.
-        contradiction.
-      + simpl.
-        rewrite (@pulse_function_sums_to_point hq m
-          (λ i : (⟦ m ⟧%stn), @identity_matrix hq m k i * _)%ring k).
-        * rewrite k_eq_r1 in *.
-          rewrite id_mat_ii.
-          rewrite (@riglunax2 hq).
-          apply idpath.
-        * intros j k_neq_j.
-          rewrite (id_mat_ij k j k_neq_j).
-          apply (@rigmult0x hq).
-    - destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
-      + simpl.
-        rewrite (@two_pulse_function_sums_to_point hq m
-          (λ i : ( ⟦ m ⟧%stn), ((@identity_matrix hq m _ _ + _ * _) * _ ))%rig k r1).
-        * unfold const_vec, identity_matrix.
-          rewrite stn_eq_or_neq_refl. simpl.
-          apply issymm_natneq in k_neq_r1.
-          rewrite (stn_eq_or_neq_right k_neq_r1). simpl.
-          rewrite stn_eq_or_neq_refl. simpl.
-          apply issymm_natneq in k_neq_r1.
-          rewrite (stn_eq_or_neq_right k_neq_r1). simpl.
-          rewrite (@rigmultx0 hq).
-          rewrite (@rigrunax1 hq).
-          rewrite (@riglunax1 hq (s * _))%hq.
-          rewrite (@rigrunax2 hq).
-          rewrite (@riglunax2 hq).
-          rewrite k_eq_r2.
-          apply idpath.
-        * exact k_neq_r1.
-        * intros q q_neq_k q_neq_k'.
-          unfold identity_matrix.
-          apply issymm_natneq in q_neq_k.
-          rewrite (stn_eq_or_neq_right q_neq_k).
-          simpl.
-          rewrite (@riglunax1 hq).
-          unfold const_vec.
-          apply issymm_natneq in q_neq_k'.
-          rewrite (stn_eq_or_neq_right q_neq_k').
-          simpl.
-          rewrite (@rigmultx0 hq).
-          rewrite (@rigmult0x hq).
-          apply idpath.
-      + simpl.
-        rewrite (@sum_id_pointwise_prod_unf hq).
-        apply idpath.
-  Time Defined.
-
-  (* For hq at least *)
-  Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) :
-      ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r))
-    = ((make_scalar_mult_row_matrix s2 r ) ** (make_scalar_mult_row_matrix s1 r)).
-  Proof.
-    do 2 rewrite scalar_mult_mat_elementary.
-    unfold gauss_scalar_mult_row.
-    unfold make_scalar_mult_row_matrix.
-    apply funextfun; intros i.
-    apply funextfun; intros j.
-    destruct (stn_eq_or_neq _ _).
-    2: { simpl; reflexivity. }
-    simpl.
-    destruct (stn_eq_or_neq _ _).
-    - simpl.
-      rewrite (hqmultcomm); reflexivity. (* This works for fields with commutative multiplication *)
-    - simpl.
-      do 2 rewrite (@rigmultx0 hq).
-      reflexivity.
+    unfold matrix_mult, make_add_row_matrix, gauss_add_row, row.
+    destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
+    - simpl coprod_rect.
+      etrans. { apply maponpaths, pointwise_rdistr_vector. }
+      etrans. { apply (@sum_pointwise_op1 hq). }
+      apply map_on_two_paths.
+      + etrans. 2: { apply maponpaths_2, k_eq_r2. }
+        use sum_stdb_vector_pointwise_prod.
+      + etrans.
+        { apply maponpaths.
+          etrans. { apply maponpaths_2, pointwise_comm2_vector. }
+          apply pointwise_assoc2_vector. }
+        use sum_stdb_vector_pointwise_prod.
+    - use sum_stdb_vector_pointwise_prod.
   Defined.
 
   Lemma scalar_mult_matrix_multiplicative { n : nat }
@@ -326,66 +285,52 @@ Section GaussOps.
     reflexivity.
   Defined.
 
+  Lemma scalar_mult_matrix_one {n : nat} (r : ⟦ n ⟧%stn)
+    : make_scalar_mult_row_matrix 1%hq r
+    = @identity_matrix hq _.
+  Proof.
+    unfold make_scalar_mult_row_matrix.
+    apply funextfun; intros i.
+    apply funextfun; intros j.
+    (* TODO: would these proofs be easier if the destructs in [make_scalar_mult_row_matrix] were interchanged?  almost certainly!
+i.e.:
+  Definition make_scalar_mult_row_matrix {n : nat}
+    (s : hq) (r : ⟦ n ⟧%stn): Matrix hq n n.
+  Proof.
+    intros i.
+    induction (stn_eq_or_neq i r).
+    - exact (const_vec s ^ @stdb_vector hq _ i).
+    - exact (@stdb_vector hq _ i).
+    Defined.
+     *)
+    destruct (stn_eq_or_neq i j); simpl coprod_rect.
+    2: { apply pathsinv0, (@id_mat_ij hq); assumption. }
+    destruct p.
+    destruct (stn_eq_or_neq i r); simpl coprod_rect;
+      apply pathsinv0, (@id_mat_ii hq).
+  Defined.
+
+  (* For hq at least *)
+  Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : hq ) :
+      ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r))
+    = ((make_scalar_mult_row_matrix s2 r ) ** (make_scalar_mult_row_matrix s1 r)).
+  Proof.
+    do 2 rewrite scalar_mult_matrix_multiplicative.
+    apply maponpaths_2, (rigcomm2 hq).
+  Defined.
+
   (* TODO : hq should also be a general field, not short-hand for rationals specifically.
             This does not mandate any real change in any proofs ?*)
   Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : hq ) ( ne : hqneq s 0%hq )
   : @matrix_inverse hq n (make_scalar_mult_row_matrix s i).
   Proof.
-    set (B :=  (make_scalar_mult_row_matrix (hqmultinv s ) i)).
-    use tpair.
-    { exact B. }
-    assert (left : ((make_scalar_mult_row_matrix s i) ** B) = identity_matrix).
-    { unfold B.
-      rewrite scalar_mult_matrix_comm.
-      rewrite scalar_mult_mat_elementary.
-      apply funextfun. intros k.
-      apply funextfun. intros l.
-      unfold gauss_scalar_mult_row.
-      unfold  make_scalar_mult_row_matrix.
-      destruct (stn_eq_or_neq k l) as [T' | F'].
-      + (*rewrite T.*)
-        destruct (stn_eq_or_neq l i).
-        * destruct (stn_eq_or_neq l l).
-          2 : { apply isirrefl_natneq in h.
-                apply fromempty. assumption. }
-          -- rewrite T'. rewrite p.
-             destruct (stn_eq_or_neq i i).
-             ++ do 2 rewrite coprod_rect_compute_1.
-                simpl.
-                rewrite hqislinvmultinv; try assumption.
-                rewrite id_mat_ii. reflexivity.
-             ++ remember h as h'. clear Heqh'.
-                apply isirrefl_natneq in h.
-                apply fromempty. assumption.
-        * rewrite <- T' in h.
-          simpl.
-          destruct (stn_eq_or_neq k i) as [k_eq_i | k_neq_i].
-          { rewrite k_eq_i in h.
-            apply isirrefl_natneq in h. (* TODO fix h *)
-            contradiction.
-          }
-          simpl.
-          rewrite T'.
-          rewrite id_mat_ii; reflexivity.
-      + destruct (stn_eq_or_neq k l) as [cntr | dup ].
-        { apply fromempty.
-          rewrite cntr in F'. (* really should have a one_liner *)
-          apply isirrefl_natneq in F'.
-          apply fromempty. assumption.
-        }
-        simpl.
-        destruct (stn_eq_or_neq k i).
-        { simpl.
-          rewrite (@rigmultx0 hq).
-          rewrite id_mat_ij; try reflexivity; assumption. }
-        simpl.
-        rewrite id_mat_ij; try reflexivity; assumption.
-    }
-    use tpair.
-    - apply left.
-    - simpl.
-      unfold B. rewrite <- scalar_mult_matrix_comm.
-      apply left.
+    exists (make_scalar_mult_row_matrix (hqmultinv s) i).
+    split;
+      refine (scalar_mult_matrix_multiplicative _ _ _ @ _);
+      refine (_ @ scalar_mult_matrix_one i);
+      apply maponpaths_2.
+    - apply hqisrinvmultinv; assumption.
+    - apply hqislinvmultinv; assumption.
   Defined.
 
   Lemma add_row_matrix_additive
