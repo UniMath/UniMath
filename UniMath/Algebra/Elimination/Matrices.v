@@ -70,10 +70,10 @@ Section Matrices.
   Defined.
 
   Lemma col_vec_mult_eq
-    { n : nat } (mat : Matrix R n n) (v1 v2 : Vector R n)
+    { m n : nat } (mat : Matrix R m n) (v1 : Vector R n) (v2 : Vector R m)
     : 
     (mat ** (col_vec v1)) = (col_vec v2)
-    -> forall i : (stn n),
+    -> forall i : (stn m),
     @iterop_fun R (@rigunel1 R) op1 n ((mat i) ^ v1) = v2 i.
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
@@ -153,15 +153,15 @@ Section Matrices.
     rewrite (stn_eq_or_neq_right i_neq_j); simpl; apply idpath. (* TODO Should we try to use ; all the time ?*)
   Defined.
 
-  Lemma matrunax2 : ∏ (n : nat) (mat : Matrix R n n),
+  Lemma matrunax2 : ∏ (m n : nat) (mat : Matrix R m n),
     (mat ** identity_matrix) = mat.
   Proof.
-    intros n mat.
+    intros m n mat.
     apply funextfun. intros i.
     apply funextfun. intros j.
     unfold matrix_mult.
-    rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 i) j);
-    rewrite <- (symmetric_mat_row_eq_col _ _ identity_matrix_symmetric); (* Non-descript name ?*)
+    rewrite (pulse_function_sums_to_point_rig'' _ (stn_implies_ngt0 j) j);
+    rewrite <- (symmetric_mat_row_eq_col _ _ identity_matrix_symmetric);
     unfold pointwise, row.
     - rewrite id_mat_ii, rigrunax2.
       apply idpath.
@@ -215,6 +215,7 @@ Section Matrices.
   Definition matrix_inverse {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).  
 
+  (* TODO could indicate in names this applies to square matrices *)
   Lemma matrix_inverse_to_right_and_left_inverse 
     {n : nat} (A : Matrix R n n) 
     : (matrix_inverse A) -> matrix_left_inverse A × matrix_right_inverse A.
@@ -272,7 +273,7 @@ Section Matrices.
     rewrite matlunax2; apply idpath.
   Defined.
 
-  Lemma left_inv_matrix_prod_is_left_inv {n : nat} (A : Matrix R n n)
+  Lemma left_inv_matrix_prod_is_left_inv {m n : nat} (A : Matrix R m n)
     (A' : Matrix R n n) (pa : matrix_left_inverse A) (pb : matrix_left_inverse A') :
     (matrix_left_inverse (A ** A')).
   Proof.
@@ -287,7 +288,7 @@ Section Matrices.
     reflexivity.
   Defined.
 
-  Lemma right_inv_matrix_prod_is_right_inv {n : nat} (A : Matrix R n n)
+  Lemma right_inv_matrix_prod_is_right_inv {m n : nat} (A : Matrix R m n)
     (A' : Matrix R n n) (pa : matrix_right_inverse A) (pb : matrix_right_inverse A') :
     (matrix_right_inverse (A ** A')).
   Proof.
@@ -362,7 +363,7 @@ Section Matrices.
     intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
   Defined.
 
-  Lemma transpose_inj_pointwise {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
+  Lemma transpose_inj_pointwise {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
     (forall i : (stn n), transpose mat1 i = transpose mat2 i) -> mat1 = mat2.
   Proof.
     intros H.
@@ -370,7 +371,7 @@ Section Matrices.
     apply funextfun; intros ?.
     rewrite H; apply idpath.
   Defined.
-
+ 
   Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
   (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
   Proof.
@@ -416,11 +417,11 @@ Section MatricesHq.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma upper_triangular_iff_transpose_lower_triangular
-  { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
-  : (@is_upper_triangular hq n n mat)
-  <-> (@is_lower_triangular hq n n (transpose mat)).
+  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq m n)
+  : (@is_upper_triangular hq m n mat)
+  <-> (@is_lower_triangular hq n m (transpose mat)).
   Proof.
-    unfold  is_upper_triangular,  is_lower_triangular, transpose, flip.
+    unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
     split.
     - intros inv i j i_lt_j.
       rewrite inv; try assumption; reflexivity.
@@ -438,7 +439,8 @@ Section MatricesHq.
     symmetry; rewrite matrix_mult_eq; unfold matrix_mult_unf.
     apply funextfun. intros i.
     apply funextfun. intros j.
-    etrans. {apply maponpaths. apply funextfun. intros ?. rewrite hqmultcomm. reflexivity. }
+    etrans. {apply maponpaths. apply funextfun.
+      intros ?. rewrite hqmultcomm. reflexivity. }
     reflexivity.
   Defined.
 
@@ -506,15 +508,15 @@ Section MatricesHq.
     apply prod_eq.
   Defined.
 
-  Lemma zero_row_to_non_right_invertibility { n : nat } (A : Matrix hq n n)
-      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
-  (@matrix_right_inverse hq n n A) -> empty.
+  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix hq m n)
+      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
+  (@matrix_right_inverse hq m n A) -> empty.
   Proof.
     intros invA.
     destruct invA as [inv isrightinv].
-    assert (∏ i j : ⟦ n ⟧%stn, (A ** inv) i j = identity_matrix i j).
+    assert (∏ i j : ⟦ m ⟧%stn, (A ** inv) i j = identity_matrix i j).
     { intros. rewrite isrightinv. reflexivity. }
-    destruct (natchoice0 n) as [eq | gt].
+    destruct (natchoice0 m) as [eq | gt].
     { apply fromstn0. clear zero_row. rewrite <- eq in i. assumption. }
     assert (contr : (A ** inv) i i = 0%hq).
     { rewrite matrix_mult_eq. unfold matrix_mult_unf.
@@ -524,7 +526,7 @@ Section MatricesHq.
       { apply (@rigmult0x hq). }
       rewrite zero_row. reflexivity.
     }
-    pose (id_ii := (@id_mat_ii hq n)).
+    pose (id_ii := (@id_mat_ii hq m)).
     rewrite isrightinv in contr.
     rewrite id_ii in contr.
     change 1%rig with 1%hq in contr.
@@ -556,13 +558,12 @@ Section MatricesHq.
   Defined.
 
   Lemma upper_triangular_transpose_is_lower_triangular
-    { n : nat } (A : Matrix hq n n)
-    (H: @is_upper_triangular hq n n A)
-    : (@is_lower_triangular hq n n (transpose A)).
+    { m n : nat } (A : Matrix hq m n)
+    (H: @is_upper_triangular hq m n A)
+    : (@is_lower_triangular hq n m (transpose A)).
   Proof.
     intros i j lt; unfold is_upper_triangular; apply H; assumption.
   Defined.
-
 
 End MatricesHq.
 

@@ -38,13 +38,13 @@ Section GaussOps.
     - exact ( mat i j ).
   Defined.
 
-  Definition add_row_op { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧ %stn) (s : hq) : Matrix hq n n.
+  (*Definition add_row_op { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧ %stn) (s : hq) : Matrix hq n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
     - exact (pointwise n op1 (mat r1) (mat r2)).
     - exact (mat i).
-  Defined.
+  Defined.*)
 
   (* TODO rename *)
   Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : hq)  : Matrix hq n n.
@@ -65,7 +65,7 @@ Section GaussOps.
   Defined.
 
   (* TODO  generalize to m x n whereever possible*)
-  Definition make_scalar_mult_row_matrix { n : nat}
+  Definition make_scalar_mult_row_matrix {n : nat}
     (s : hq) (r : ⟦ n ⟧%stn): Matrix hq n n.
   Proof.
     intros i j.
@@ -87,8 +87,8 @@ Section GaussOps.
       + exact (mat i j).
   Defined.
 
-  Lemma gauss_switch_row_inv0 {m n : nat} (mat : Matrix hq n n)
-        (r1 : ⟦ n ⟧%stn) (r2 : ⟦ n ⟧%stn) : ∏ (i : ⟦ n ⟧%stn), i ≠ r1 -> i ≠ r2
+  Lemma gauss_switch_row_inv0 {m n : nat} (mat : Matrix hq m n)
+        (r1 : ⟦ m ⟧%stn) (r2 : ⟦ m ⟧%stn) : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
       -> (gauss_switch_row mat r1 r2 ) i = mat i.
   Proof.
     intros i i_ne_r1 i_ne_r2.
@@ -102,8 +102,8 @@ Section GaussOps.
     - simpl. apply idpath.
   Defined.
 
-  Lemma gauss_switch_row_inv1 {m n : nat} (mat : Matrix hq n n)
-        (r1 : ⟦ n ⟧%stn) (r2 : ⟦ n ⟧%stn) : (mat r1) = (mat r2)
+  Lemma gauss_switch_row_inv1 {m n : nat} (mat : Matrix hq m n)
+        (r1 : ⟦ m ⟧%stn) (r2 : ⟦ m ⟧%stn) : (mat r1) = (mat r2)
         -> (gauss_switch_row mat r1 r2 ) = mat.
   Proof.
     intros m_eq.
@@ -115,9 +115,9 @@ Section GaussOps.
       try rewrite m_eq; try reflexivity.
   Defined.
 
-  Lemma gauss_switch_row_inv2 {m n : nat} (mat : Matrix hq n n)
-        (r1 r2 j : ⟦ n ⟧%stn) : (mat r1 j) = (mat r2 j)
-        -> ∏ (r3 : ⟦ n ⟧%stn), (gauss_switch_row mat r1 r2 ) r3 j = mat r3 j.
+  Lemma gauss_switch_row_inv2 {m n : nat} (mat : Matrix hq m n)
+        (r1 r2 : ⟦ m ⟧%stn) (j : (stn n)): (mat r1 j) = (mat r2 j)
+        -> ∏ (r3 : ⟦ m ⟧%stn), (gauss_switch_row mat r1 r2 ) r3 j = mat r3 j.
   Proof.
     intros m_eq r3.
     unfold gauss_switch_row.
@@ -161,17 +161,17 @@ Section GaussOps.
 
   (* The following three lemmata test the equivalence of multiplication by elementary matrices
      to swaps of indices. *)
-  Lemma scalar_mult_mat_elementary {n : nat} (mat : Matrix hq n n) (s : hq) (r : ⟦ n ⟧%stn) :
+  Lemma scalar_mult_mat_elementary {m n : nat} (mat : Matrix hq m n) (s : hq) (r : ⟦ m ⟧%stn) :
     ((make_scalar_mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
   Proof.
     use funextfun. intros i.
     use funextfun. intros ?.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     unfold make_scalar_mult_row_matrix. unfold gauss_scalar_mult_row.
-    assert (p : n > 0). { apply (stn_implies_ngt0 r). }
+    assert (p : m > 0). { apply (stn_implies_ngt0 r). }
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
+      rewrite (@pulse_function_sums_to_point_rig'' hq m _ p i ).
       + rewrite stn_eq_or_neq_refl.
         simpl.
         apply idpath.
@@ -180,7 +180,7 @@ Section GaussOps.
         simpl.
         apply (@rigmult0x hq).
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq n _ p i ).
+      rewrite (@pulse_function_sums_to_point_rig'' hq m _ p i ).
       + rewrite stn_eq_or_neq_refl.
         simpl.
         rewrite (@riglunax2 hq).
@@ -192,23 +192,25 @@ Section GaussOps.
   Defined.
 
   (* TODO should certainly be over R *)
-  Lemma switch_row_mat_elementary { n : nat } (mat : Matrix hq n n) (r1 r2 : ⟦ n ⟧%stn) :
-    ((make_gauss_switch_row_matrix n r1 r2) ** mat)  = gauss_switch_row mat r1 r2.
+  Lemma switch_row_mat_elementary { m n : nat } (mat : Matrix hq m n)
+    (r1 r2 : ⟦ m ⟧%stn) :
+    ((make_gauss_switch_row_matrix m r1 r2) ** mat) = gauss_switch_row mat r1 r2.
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     unfold make_gauss_switch_row_matrix, gauss_switch_row.
     apply funextfun. intros i.
     apply funextfun. intros ?.
-    assert (p: n > 0).  { apply ( stn_implies_ngt0 r1).  }
+    assert (p: m > 0).  { apply ( stn_implies_ngt0 r1).  }
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
     - simpl.
-      rewrite (@pulse_function_sums_to_point_rig'' hq n (λ i : (⟦ n ⟧%stn), @identity_matrix hq n r2 i * _)%ring p r2).
+      rewrite (@pulse_function_sums_to_point_rig'' hq m
+        (λ i : (⟦ m ⟧%stn), @identity_matrix hq m r2 i * _)%ring p r2).
       + unfold identity_matrix.
         rewrite stn_eq_or_neq_refl.
         simpl.
         apply (@riglunax2 hq).
       + intros k r2_neq_k.
-        rewrite (@id_mat_ij hq n r2 k r2_neq_k).
+        rewrite (@id_mat_ij hq m r2 k r2_neq_k).
         apply (@rigmult0x hq).
     - simpl.
       destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
@@ -223,10 +225,9 @@ Section GaussOps.
         apply idpath.
   Defined.
 
-
   (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
-  Lemma add_row_mat_elementary { n : nat } (mat : Matrix hq n n)
-  (r1 r2 : ⟦ n ⟧%stn) (p : r1 ≠ r2) (s : hq)
+  Lemma add_row_mat_elementary { m n : nat } (mat : Matrix hq m n)
+  (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : hq)
   : ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
@@ -235,7 +236,7 @@ Section GaussOps.
     unfold pointwise.
     apply funextfun. intros k.
     apply funextfun. intros l.
-    assert (p': n > 0). { apply (stn_implies_ngt0 r1). }
+    assert (p': m > 0). { apply (stn_implies_ngt0 r1). }
     destruct (stn_eq_or_neq k r1) as [k_eq_r1 | k_neq_r1].
     - simpl.
       destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
@@ -245,8 +246,8 @@ Section GaussOps.
         apply isirrefl_natneq in p.
         contradiction.
       + simpl.
-        rewrite (@pulse_function_sums_to_point_rig'' hq n
-          (λ i : (⟦ n ⟧%stn), @identity_matrix hq n k i * _)%ring p' k).
+        rewrite (@pulse_function_sums_to_point_rig'' hq m
+          (λ i : (⟦ m ⟧%stn), @identity_matrix hq m k i * _)%ring p' k).
         * rewrite k_eq_r1 in *.
           rewrite id_mat_ii.
           rewrite (@riglunax2 hq).
@@ -256,8 +257,8 @@ Section GaussOps.
           apply (@rigmult0x hq).
     - destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
       + simpl.
-        rewrite (@two_pulse_function_sums_to_point_rig hq n
-          (λ i : ( ⟦ n ⟧%stn), ((@identity_matrix hq n  _ _ + _ * _) * _ ))%rig p' k r1).
+        rewrite (@two_pulse_function_sums_to_point_rig hq m
+          (λ i : ( ⟦ m ⟧%stn), ((@identity_matrix hq m _ _ + _ * _) * _ ))%rig p' k r1).
         * unfold const_vec, identity_matrix.
           rewrite stn_eq_or_neq_refl. simpl.
           apply issymm_natneq in k_neq_r1.
@@ -337,11 +338,10 @@ Section GaussOps.
     reflexivity.
   Defined.
 
-
   (* TODO : hq should also be a general field, not short-hand for rationals specifically.
             This does not mandate any real change in any proofs ?*)
-  Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : hq ) ( ne : hqneq s 0%hq ) :
-    @matrix_inverse hq n (make_scalar_mult_row_matrix s i ).
+  Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : hq ) ( ne : hqneq s 0%hq )
+  : @matrix_inverse hq n (make_scalar_mult_row_matrix s i).
   Proof.
     set (B :=  (make_scalar_mult_row_matrix (hqmultinv s ) i)).
     use tpair.
@@ -400,8 +400,8 @@ Section GaussOps.
       apply left.
   Defined.
 
-  Lemma add_row_matrix_additive { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) :
+  Lemma add_row_matrix_additive
+    { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : hq ) (ne : r1 ≠ r2) :
     ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
    = (make_add_row_matrix r1 r2 (s1 + s2)%hq ).
   Proof.

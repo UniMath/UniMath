@@ -251,7 +251,6 @@ Section PrelStn.
          apply fromempty. assumption.
   Defined.
 
-  (* Consider a version A : UU -> i : ⟦ n ⟧%stn -> p : n = 0 ->  A? *)
   Lemma stn_implies_nneq0 
     { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
   Proof.
@@ -268,25 +267,6 @@ Section PrelStn.
     { n : nat} (i : ⟦ n ⟧%stn) : n > 0.
   Proof.
     exact (natneq0to0lth n (stn_implies_nneq0 i)).
-  Defined.
-
-  (* And the following two seem completely unecessary and needlessly confusing
-    - if not all the forthcoming 4... *)
-  Definition decrement_stn_by_m
-    { n : nat } ( i : (⟦ n ⟧)%stn ) (m : nat) : ⟦ n ⟧%stn. (* (⟦ n ⟧)%stn.*)
-  Proof.
-    induction (natgehchoice m 0).
-    - assert ( p :  ((pr1 i) - m) < n).
-        {  unfold stn in i. set (p0 := pr2 i). assert (pr1 i < n).
-           - exact (pr2 i).
-           - assert ((pr1 i - m <= ( pr1 i))). {apply (natminuslehn ). }
-              apply (natlehlthtrans (pr1 i - m) (pr1 i) ).
-              + assumption.
-              + assumption.
-        }
-      exact (pr1 i - m,, p).
-    - exact i.
-    - reflexivity.
   Defined.
 
   Lemma snlehtotonlt
