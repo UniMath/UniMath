@@ -42,19 +42,11 @@ Section Transposition.
     intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
   Defined.
 
-  Lemma transpose_inj_pointwise {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
-    (forall i : (stn n), transpose mat1 i = transpose mat2 i) -> mat1 = mat2.
+  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n)
+    : (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
   Proof.
-    intros H.
-    apply @transpose_inj; try assumption.
-    apply funextfun; intros ?.
-    rewrite H; apply idpath.
-  Defined.
-
-  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n):
-  (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
-  Proof.
-    apply transpose_inj_pointwise; assumption.
+    intro H. apply funextfun; intro i; apply funextfun; intro j.
+    specialize (H j). apply toforallpaths in H. apply H.
   Defined.
 
   (* TODO: probably switch direction, for consistency *)
@@ -83,6 +75,56 @@ End Transposition.
 
 Section Identity_Matrix.
 
+  Definition id_row_stdb_vector {n} (i : ⟦n⟧%stn)
+    : row (@identity_matrix R n) i = stdb_vector i.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition id_col_stdb_vector {n} (i : ⟦n⟧%stn)
+    : col (@identity_matrix R n) i = stdb_vector i.
+  Proof.
+    apply funextfun; intros j.
+    apply stn_eq_or_neq_symm_nondep.
+  Defined.
+
+  Lemma id_mat_row_is_pf { n : nat } (r : ⟦ n ⟧%stn)
+    : is_pulse_function r (row (@identity_matrix R n) r).
+  Proof.
+    apply is_pulse_function_stdb_vector.
+  Defined.
+
+  Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
+    : (@identity_matrix R n i) ^ v
+      = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
+  Proof.
+    unfold identity_matrix, scalar_lmult_vec, pointwise.
+    apply funextfun. intros k.
+    destruct (stn_eq_or_neq i k) as [eq | neq].
+    - simpl.
+      rewrite riglunax2.
+      rewrite rigrunax2.
+      rewrite eq.
+      reflexivity.
+    - simpl.
+      rewrite rigmultx0.
+      rewrite rigmult0x.
+      apply idpath.
+  Defined.
+
+  Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
+    Σ ((identity_matrix i) ^ v) = (v i).
+  Proof.
+    apply sum_stdb_vector_pointwise_prod.
+  Defined.
+
+  (* TODO should this really be necessary? Used? *)
+  Lemma sum_id_pointwise_prod_unf { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
+    Σ (λ j : ⟦ n ⟧%stn, (identity_matrix i j) * (v j))%rig =  (v i).
+  Proof.
+    apply sum_id_pointwise_prod.
+  Defined.
+
   Definition matlunel2 (n : nat) := @identity_matrix R n.
   Definition matrunel2 (n : nat) := @identity_matrix R n.
 
@@ -104,21 +146,6 @@ Section Identity_Matrix.
   Proof.
     apply toforallpaths; use col_vec_inj.
     exact e.
-  Defined.
-
-  (* TODO: upstream to Vectors? *)
-  Lemma pointwise_prod_idvec {n : nat} (v : Vector R n) (i : ⟦ n ⟧%stn)
-    : v ^ (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
-  Proof.
-    apply funextfun. intros j.
-    unfold scalar_lmult_vec.
-    unfold const_vec, pointwise.
-    destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
-    - rewrite i_eq_j; apply idpath.
-    - unfold stdb_vector.
-      rewrite (stn_eq_or_neq_right i_neq_j).
-      do 2 rewrite rigmultx0.
-      apply idpath.
   Defined.
 
   Lemma idmat_i_to_idvec {n : nat} (i : ⟦ n ⟧%stn)
