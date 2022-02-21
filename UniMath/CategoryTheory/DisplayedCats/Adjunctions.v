@@ -17,7 +17,6 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.

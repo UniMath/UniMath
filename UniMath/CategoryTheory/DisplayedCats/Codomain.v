@@ -13,7 +13,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 

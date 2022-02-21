@@ -176,6 +176,29 @@ Proof.
 Qed.
 
 
+Lemma transportf_bind {X : UU} {P : X → UU}
+  {x x' x'' : X} (e : x' = x) (e' : x = x'')
+  y y'
+: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
+Proof.
+  intro H; destruct e, e'; exact H.
+Defined.
+
+Lemma pathscomp0_dep {X : UU} {P : X → UU}
+  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
+  {y} {y'} {y''}
+: (y = transportf P e y') -> (y' = transportf _ e' y'')
+  -> y = transportf _ (e' @ e) y''.
+Proof.
+  intros ee ee'.
+  etrans. apply ee.
+  apply transportf_bind, ee'.
+Defined.
+
+Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
+
+
+
 Lemma transportf_set {A : UU} (B : A → UU)
       {a : A} (e : a = a) (b : B a)
       (X : isaset A)
@@ -319,6 +342,33 @@ Proof.
   intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
 Defined.
+
+Lemma weq_subtypes'
+    {X Y : UU} (w : X ≃ Y)
+    {S : X -> UU} {T : Y -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x : X, S x <-> T (w x))
+  : (∑ x, S x) ≃ (∑ y, T y).
+Proof.
+  apply (weqbandf w).
+  intros. apply weqiff.
+  - apply HST.
+  - apply HS.
+  - apply HT.
+Defined.
+
+(* Specialisation of [weq_subtypes'] *)
+Lemma weq_subtypes_iff
+    {X : UU} {S T : X -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x, S x <-> T x)
+  : (∑ x, S x) ≃ (∑ x, T x).
+Proof.
+  apply (weq_subtypes' (idweq X)); assumption.
+Defined.
+
 
 Lemma hlevel_total2 n {A : UU} {B : A → UU} :
   isofhlevel n (∑ (x :A), B x) → isofhlevel (S n) A → ∏ (x : A), isofhlevel n (B x).
