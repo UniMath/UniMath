@@ -141,7 +141,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Core/Prelude.v](CategoryTheory/Core/Prelude.v)
    - [FunctorCategory.v](CategoryTheory/FunctorCategory.v)
    - [whiskering.v](CategoryTheory/whiskering.v)
-   - [DisplayedCats/Auxiliary.v](CategoryTheory/DisplayedCats/Auxiliary.v)
    - [DisplayedCats/Core.v](CategoryTheory/DisplayedCats/Core.v)
    - [DisplayedCats/Isos.v](CategoryTheory/DisplayedCats/Isos.v)
    - [DisplayedCats/Functors.v](CategoryTheory/DisplayedCats/Functors.v)
