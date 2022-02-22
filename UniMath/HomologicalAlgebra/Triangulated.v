@@ -1022,7 +1022,7 @@ Section rotation_isos.
     use make_TriMor_is_iso.
     - exact (is_z_isomorphism_identity (Ob1 D)).
     - exact (is_z_isomorphism_identity (Ob2 D)).
-    - exact (z_iso_is_z_isomorphism2 (AddEquivCounitIso Trans (Ob3 D))).
+    - exact (is_z_iso_inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D))).
   Defined.
 
 
