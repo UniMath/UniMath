@@ -1064,7 +1064,7 @@ Section functors_on_iso_with_inv.
   Proof.
     use make_z_iso.
     - exact (# F f).
-    - exact (# F (z_iso_inv_mor f)).
+    - exact (# F (inv_from_z_iso f)).
     - exact (functor_on_is_inverse_in_precat F f).
   Defined.
 
