@@ -663,29 +663,7 @@ Defined.
 
 Definition identity_z_iso {C : precategory} (a : ob C) :
    z_iso a a := tpair _ _ (identity_is_z_iso a).
-(* TODO : remove *)
-(*
-Definition inv_from_z_iso {C : precategory_data} {a b : ob C}
-  (f : z_iso a b) : b --> a := pr1 (pr2 f).
- *)
 
-(* TODO : remove *)
-
-(*
-Search (is_z_isomorphism (inv_from_z_iso _ )).
-Lemma is_z_iso_inv_from_z_iso {C : precategory_data} (a b : ob C)
-  (f : z_iso a b) : is_z_isomorphism (inv_from_z_iso f).
-Proof.
-  exact (z_iso_is_z_isomorphism2 f).
-Defined.
-(*
-  exists (pr1 f).
-  simpl; split; simpl.
-  - apply (pr2 (pr2 (pr2 f))).
-  - apply (pr1 (pr2 (pr2 f))).
-Defined.
-*)
-*)
 Definition z_iso_inv_from_z_iso {C : precategory_data} {a b : ob C}
   (f : z_iso a b) : z_iso b a.
 Proof.
