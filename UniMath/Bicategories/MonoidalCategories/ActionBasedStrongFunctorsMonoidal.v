@@ -550,7 +550,7 @@ Section Main.
       - apply is_invertible_2cell_lwhisker.
         change (is_z_isomorphism (# (pr11 FA') (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
+        apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
     Defined.
 
     Definition rwhisker_with_invlunitor_inv2cell (v : Mon_V):
@@ -561,7 +561,7 @@ Section Main.
       - apply is_invertible_2cell_rwhisker.
         change (is_z_isomorphism (# (pr11 FA) (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
+        apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor Mon_V) v)).
     Defined.
 
     Definition lwhisker_with_invrunitor_inv2cell (v : Mon_V):
@@ -572,7 +572,7 @@ Section Main.
       - apply is_invertible_2cell_lwhisker.
         change (is_z_isomorphism (# (pr11 FA') (pr1 (pr2 (monoidal_cat_right_unitor Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_right_unitor Mon_V) v)).
+        apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_right_unitor Mon_V) v)).
     Defined.
 
     Definition rwhisker_with_invrunitor_inv2cell (v : Mon_V):
@@ -583,7 +583,7 @@ Section Main.
       - apply is_invertible_2cell_rwhisker.
         change (is_z_isomorphism (# (pr11 FA) (pr1 (pr2 (monoidal_cat_right_unitor Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_right_unitor Mon_V) v)).
+        apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_right_unitor Mon_V) v)).
     Defined.
 
     Definition lwhisker_with_ϵ_inv2cell (v : Mon_V):
@@ -605,7 +605,7 @@ Section Main.
       - apply is_invertible_2cell_rwhisker.
         change (is_z_isomorphism (# (pr11 FA) (pr1 (pr2 (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))).
+        apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))).
     Defined.
     (** end of auxiliary definitions of isomorphisms *)
 
