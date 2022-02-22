@@ -26,6 +26,31 @@ Section GaussOps.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
 
+Section Auxiliary.
+
+  (* TODO: generalize to rigs, upstream to Vectors *)
+  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector hq n)
+    : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
+  Proof.
+    use (pointwise_rdistr (rigrdistr hq)).
+  Defined.
+
+  (* TODO: generalize to rigs, upstream to Vectors *)
+  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector hq n)
+    : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
+  Proof.
+    use (pointwise_assoc (rigassoc2 hq)).
+  Defined.
+
+  (* TODO: generalize to commrigs, upstream to Vectors *)
+  Lemma pointwise_comm2_vector { n : nat } (v1 v2 : Vector hq n)
+    : v1 ^ v2 = v2 ^ v1.
+  Proof.
+    use (pointwise_comm (rigcomm2 hq)).
+  Defined.
+
+End Auxiliary.
+
   (* Gaussian elimination over the field of rationals *)
 
   Definition gauss_add_row { m n : nat } ( mat : Matrix hq m n )
@@ -43,6 +68,7 @@ Section GaussOps.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
+    (* TODO: here and elsewhere, probably better to use [scalar_lmult_vec] instead of this pointwise-product with [const_vec]; but will need lemmas about it abstracting away. *)
     - exact (pointwise n op1 (@stdb_vector hq n i) (const_vec s ^ ((@stdb_vector hq) n r1))).
     - exact (@stdb_vector hq n i).
   Defined.
@@ -56,16 +82,13 @@ Section GaussOps.
     - exact (mat i j).
   Defined.
 
-  (* TODO  generalize to m x n whereever possible*)
   Definition make_scalar_mult_row_matrix {n : nat}
     (s : hq) (r : ⟦ n ⟧%stn): Matrix hq n n.
   Proof.
-    intros i j.
-    induction (stn_eq_or_neq i j).
-      - induction (stn_eq_or_neq i r).
-        + exact s.
-        + exact 1%hq.
-      - exact 0%hq.
+    intros i.
+    induction (stn_eq_or_neq i r).
+    - exact (const_vec s ^ @stdb_vector hq _ i).
+    - exact (@stdb_vector hq _ i).
   Defined.
 
   Definition gauss_switch_row {m n : nat} (mat : Matrix hq m n)
@@ -158,28 +181,16 @@ Section GaussOps.
   Proof.
     use funextfun. intros i.
     use funextfun. intros ?.
-    rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    unfold make_scalar_mult_row_matrix. unfold gauss_scalar_mult_row.
+    unfold matrix_mult, make_scalar_mult_row_matrix, gauss_scalar_mult_row, row.
     destruct (stn_eq_or_neq i r) as [? | ?].
-    - simpl.
-      rewrite (@pulse_function_sums_to_point hq m _ i ).
-      + rewrite stn_eq_or_neq_refl.
-        simpl.
-        apply idpath.
-      + intros k i_neq_k.
-        rewrite (stn_eq_or_neq_right i_neq_k).
-        simpl.
-        apply (@rigmult0x hq).
-    - simpl.
-      rewrite (@pulse_function_sums_to_point hq m _ i ).
-      + rewrite stn_eq_or_neq_refl.
-        simpl.
-        rewrite (@riglunax2 hq).
-        reflexivity.
-      + intros k i_neq_k.
-        rewrite (stn_eq_or_neq_right i_neq_k).
-        simpl.
-        apply (@rigmult0x hq).
+    - simpl coprod_rect.
+      etrans.
+      { apply maponpaths.
+        etrans. { apply maponpaths_2, pointwise_comm2_vector. }
+        apply pointwise_assoc2_vector. }
+      use sum_stdb_vector_pointwise_prod.
+    - simpl coprod_rect.
+      use sum_stdb_vector_pointwise_prod.
   Defined.
 
   (* TODO should certainly be over R *)
@@ -213,27 +224,6 @@ Section GaussOps.
       + simpl.
         rewrite (@sum_id_pointwise_prod_unf hq).
         apply idpath.
-  Defined.
-
-  (* TODO: generalize to rigs, upstream to Vectors *)
-  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector hq n)
-    : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
-  Proof.
-    use (pointwise_rdistr (rigrdistr hq)).
-  Defined.
-
-  (* TODO: generalize to rigs, upstream to Vectors *)
-  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector hq n)
-    : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
-  Proof.
-    use (pointwise_assoc (rigassoc2 hq)).
-  Defined.
-
-  (* TODO: generalize to commrigs, upstream to Vectors *)
-  Lemma pointwise_comm2_vector { n : nat } (v1 v2 : Vector hq n)
-    : v1 ^ v2 = v2 ^ v1.
-  Proof.
-    use (pointwise_comm (rigcomm2 hq)).
   Defined.
 
   (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
@@ -270,19 +260,11 @@ Section GaussOps.
     unfold make_scalar_mult_row_matrix.
     apply funextfun; intros i.
     apply funextfun; intros j.
-    destruct (stn_eq_or_neq i j).
-    2: { simpl.
-         destruct (stn_eq_or_neq i r).
-         - simpl. rewrite (@rigmultx0 hq).
-           reflexivity.
-         - simpl.
-           reflexivity.
-    }
-    simpl.
-    destruct (stn_eq_or_neq i r).
-    2: {simpl; reflexivity. }
-    simpl.
-    reflexivity.
+    destruct (stn_eq_or_neq i r);
+      simpl coprod_rect.
+    2: { reflexivity. }
+    unfold pointwise.
+    apply pathsinv0, rigassoc2.
   Defined.
 
   Lemma scalar_mult_matrix_one {n : nat} (r : ⟦ n ⟧%stn)
@@ -291,23 +273,9 @@ Section GaussOps.
   Proof.
     unfold make_scalar_mult_row_matrix.
     apply funextfun; intros i.
-    apply funextfun; intros j.
-    (* TODO: would these proofs be easier if the destructs in [make_scalar_mult_row_matrix] were interchanged?  almost certainly!
-i.e.:
-  Definition make_scalar_mult_row_matrix {n : nat}
-    (s : hq) (r : ⟦ n ⟧%stn): Matrix hq n n.
-  Proof.
-    intros i.
-    induction (stn_eq_or_neq i r).
-    - exact (const_vec s ^ @stdb_vector hq _ i).
-    - exact (@stdb_vector hq _ i).
-    Defined.
-     *)
-    destruct (stn_eq_or_neq i j); simpl coprod_rect.
-    2: { apply pathsinv0, (@id_mat_ij hq); assumption. }
-    destruct p.
-    destruct (stn_eq_or_neq i r); simpl coprod_rect;
-      apply pathsinv0, (@id_mat_ii hq).
+    destruct (stn_eq_or_neq i r); simpl coprod_rect.
+    2: { reflexivity. }
+    apply funextfun; intros j. apply (@riglunax2 hq).
   Defined.
 
   (* For hq at least *)
