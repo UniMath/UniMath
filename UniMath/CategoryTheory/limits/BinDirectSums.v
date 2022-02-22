@@ -887,7 +887,7 @@ Proof.
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 S).
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 S).
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 S).
-  + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (z_iso_inv_mor r)).
+  + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (inv_from_z_iso r)).
     rewrite <- leftDistribute. rewrite <- rightDistribute. rewrite wrap_inverse'.
     * reflexivity.
     * exact (to_BinOpId S).
