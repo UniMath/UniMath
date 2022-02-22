@@ -1866,7 +1866,7 @@ Section Main.
         - exact (# (pr11 FA') (pr1 (pr2 (monoidal_cat_associator Mon_V) ((v1,, v2),, v3)))).
         - change (is_z_isomorphism (# (pr11 FA') (pr1 (pr2 (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))))).
           apply functor_on_is_z_isomorphism.
-          apply (is_z_iso_inv_from_z_iso _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))).
+          apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon_V) ((v1,, v2),, v3))).
       }
       apply (lhs_right_invert_cell _ _ _ aux4iso).
       cbn.
