@@ -117,11 +117,11 @@ Section def_morphismpair.
     refine (maponpaths _ (! is_inverse_in_precat1 (z_iso_is_inverse_in_precat j)) @ _).
     refine (! assoc (z_iso_inv i) _ _ @ _).
     refine (maponpaths _ (assoc f _ _) @ _).
-    refine (maponpaths (precomp_with (z_iso_inv i)) (maponpaths (postcomp_with (z_iso_inv_mor j)) (!l)) @ _);
+    refine (maponpaths (precomp_with (z_iso_inv i)) (maponpaths (postcomp_with (inv_from_z_iso j)) (!l)) @ _);
       unfold precomp_with, postcomp_with.
     refine (maponpaths _ (! assoc _ _ _) @ _).
     refine (assoc _ _ _ @ _).
-    refine (maponpaths (postcomp_with (g · z_iso_inv_mor j)) (is_inverse_in_precat2 (z_iso_is_inverse_in_precat i)) @ _);
+    refine (maponpaths (postcomp_with (g · inv_from_z_iso j)) (is_inverse_in_precat2 (z_iso_is_inverse_in_precat i)) @ _);
       unfold postcomp_with.
     exact (id_left _).
   Qed.
