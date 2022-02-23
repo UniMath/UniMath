@@ -176,7 +176,8 @@ End Auxiliary.
 
   (* The following three lemmata test the equivalence of multiplication by elementary matrices
      to swaps of indices. *)
-  Lemma scalar_mult_mat_elementary {m n : nat} (mat : Matrix hq m n) (s : hq) (r : ⟦ m ⟧%stn) :
+  Lemma scalar_mult_mat_elementary
+    {m n : nat} (mat : Matrix hq m n) (s : hq) (r : ⟦ m ⟧%stn) :
     ((make_scalar_mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
   Proof.
     use funextfun. intros i.

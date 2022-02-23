@@ -553,8 +553,8 @@ Section MatricesHq.
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
     { n : nat } (A : Matrix hq n n)
-    : @diagonal_all_nonzero hq _ A
-    <-> (@diagonal_all_nonzero hq _ (transpose A)).
+    : @diagonal_all_nonzero hq n A
+    <-> (@diagonal_all_nonzero hq n (transpose A)).
   Proof.
     split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
   Defined.
