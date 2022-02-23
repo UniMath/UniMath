@@ -42,9 +42,9 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     (mat : Matrix hq n n) (b : Vector hq n) (vec : Vector hq n) : Vector hq n.
   Proof.
     intros i.
-    destruct (nat_eq_or_neq iter i).
+    destruct (nat_eq_or_neq iter i) as [? | ?].
     2 : {exact (b i). }
-    destruct (natlehchoice (S (pr1 iter)) n) as [? | ?]. {apply iter. }
+    destruct (natlehchoice (S iter) n) as [? | ?]. {apply iter. }
     - exact (((vec i) * hqmultinv (mat i i))
            - ((Σ (mat i ^ b)  - (b  i)* (mat i i))
            * (hqmultinv (mat i i))))%hq.
@@ -55,14 +55,14 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Lemma back_sub_step_inv0 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
         (x : Vector hq n) (b : Vector hq n)
         (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
-    ((mat ** (col_vec (back_sub_step iter mat x b))) iter  = (col_vec b) iter).
+        (p' : @diagonal_all_nonzero hq n mat):
+    ((mat ** (col_vec (back_sub_step iter mat x b))) iter = (col_vec b) iter).
   Proof.
     intros.
     unfold back_sub_step, col_vec.
     rewrite matrix_mult_eq; unfold matrix_mult_unf, pointwise.
     set (m := n - (S iter)).
-    assert (spliteq : n = (S iter) + m ).  (* Could do away with this if iter is ⟦ S n ⟧ instead of ⟦ n ⟧ *)
+    assert (split_eq : n = (S iter) + m ).  (* Could make iter S n and skip this step *)
     { unfold m.
       rewrite natpluscomm.
       rewrite minusplusnmm.
@@ -70,14 +70,14 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       - simpl. exact (pr2 iter).
     }
     generalize iter mat b p' p x.
-    set (itersucc := (stn_inhabited_implies_succ iter)).
-    destruct itersucc as [pr1_ pr2_].
-    rewrite pr2_ in *.
+    clear x p p' b mat.
+    destruct (stn_inhabited_implies_succ iter) as [s_iter s_iter_eq].
+    rewrite s_iter_eq in *.
     intros iter' mat' vec' filled' is_upper_t' b'.
-    apply funextfun;  intros ?.
-    rewrite (@rigsum_dni hq (pr1_)  _ iter').
+    apply funextfun; intros ?.
+    rewrite (@rigsum_dni hq (s_iter) _ iter').
     rewrite nat_eq_or_neq_refl.
-    destruct (natlehchoice (S (Preamble.pr1 iter')) (S pr1_)) as [lt | eq]. (* TODO why is this S _ < S _ ? **)
+    destruct (natlehchoice (S (pr1 iter')) (S s_iter)) as [lt | eq].
     - etrans.
       { apply maponpaths_2; apply maponpaths.
         apply funextfun. intros q.
@@ -85,18 +85,19 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         rewrite (nat_eq_or_neq_right (dni_neq_i iter' q)).
         reflexivity.
       }
-      rewrite (@rigsum_dni hq ( pr1_)  _ iter').
-      set (f := λ q : (⟦ pr1_ ⟧%stn), _).
+      rewrite (@rigsum_dni hq (s_iter)  _ iter').
+      set (f := λ q : (⟦ s_iter ⟧%stn), _).
       set (a := mat' iter' iter').
       set (b'' := b' iter').
       etrans.
       { apply maponpaths.
         etrans.
         { apply maponpaths.
-        rewrite hqmultcomm.
-        apply maponpaths.
-        rewrite hqmultcomm.
-        reflexivity. }
+          rewrite hqmultcomm.
+          apply maponpaths.
+          rewrite hqmultcomm.
+          reflexivity.
+        }
         apply (@ringminusdistr hq a).
       }
       etrans.
@@ -104,15 +105,13 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         rewrite <- (@rigassoc2 hq).
         rewrite hqisrinvmultinv.
         2: { unfold a.
-            apply  filled'. }
+             apply filled'. }
         apply (@riglunax2 hq).
         apply maponpaths.
         rewrite <- (@rigassoc2 hq).
         rewrite hqisrinvmultinv. 2: { apply filled'. }
         apply (@riglunax2 hq).
       }
-      set (sum := iterop_fun _ _ _).
-      pose hqplusminus.
       etrans.
       { do 3 apply maponpaths.
         rewrite (@rigcomm2 hq); rewrite hqplusminus.
@@ -126,7 +125,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       + rewrite (@riglunax1 hq).
         rewrite <- (@rigassoc2 hq).
         rewrite hqisrinvmultinv.
-        2 : { apply filled'.  }
+        2: { apply filled'. }
         rewrite (@riglunax2 hq).
         reflexivity.
       + simpl.
@@ -135,43 +134,54 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         { apply maponpaths_2.
           rewrite is_upper_t'. {reflexivity. }
           unfold dni, di; simpl.
-          destruct (natlthorgeh q iter') as [gt | ?].
-          { apply gt. }
+          destruct (natlthorgeh q iter') as [lt | geh].
+          { apply lt. }
           apply invmaponpathsS in eq.
           apply fromempty.
-          assert (q_ge_iter' : q ≥ (pr1 iter')).
-          { apply h. }
+          assert (q_ge_iter': q ≥ (pr1 iter')).
+          { apply geh. }
           rewrite eq in q_ge_iter'.
           apply natgehtonegnatlth in q_ge_iter'.
-          assert (q_le_iter_absurd : q < pr1_).
+          assert (q_le_iter_absurd : q < s_iter).
           { apply (pr2 q). }
-            exact (q_ge_iter' q_le_iter_absurd).
-          }
+          exact (q_ge_iter' q_le_iter_absurd).
+        }
         rewrite (@rigmult0x hq).
         reflexivity.
   Defined.
 
-  Lemma back_sub_step_inv1 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
-        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat): ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
-    (col_vec (back_sub_step iter mat b vec) i  = ( (col_vec b)) i).
+  Lemma back_sub_step_inv1
+    { n : nat }
+    (iter : ⟦ n ⟧%stn )
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (p: @is_upper_triangular hq n n mat)
+    (p' : @diagonal_all_nonzero hq n mat)
+    : ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
+      (col_vec (back_sub_step iter mat b vec) i  = ( (col_vec b)) i).
   Proof.
     intros i ne.
     unfold back_sub_step.
     unfold col_vec.
     apply funextfun. intros j.
     simpl.
-    destruct (nat_eq_or_neq iter i) as [eq | ?].
-    - rewrite eq in ne.
-      apply isirrefl_natneq in ne.
-      contradiction.
-    - apply idpath.
+    destruct (nat_eq_or_neq iter i) as [eq | ?];
+      try apply idpath.
+    rewrite eq in ne.
+    apply isirrefl_natneq in ne.
+    contradiction.
   Defined.
 
-  Lemma back_sub_step_inv2 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
-        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
-     ∏ i : ⟦ n ⟧%stn, i ≥ iter ->
+  Lemma back_sub_step_inv2 
+    { n : nat }
+    ( iter : ⟦ n ⟧%stn )
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (p: @is_upper_triangular hq n n mat)
+    (p' : @diagonal_all_nonzero hq n mat)
+    : ∏ i : ⟦ n ⟧%stn, i ≥ iter ->
        (mat ** (col_vec b )) i = (col_vec vec) i
     -> (mat ** (col_vec (back_sub_step iter mat b vec))) i = ((col_vec vec) i).
   Proof.
@@ -188,68 +198,69 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       apply maponpaths.
       apply funextfun. intros i'.
       destruct (stn_eq_or_neq i' (iter,, p'')) as [eq | neq].
-      2: { rewrite back_sub_step_inv1; try assumption; reflexivity. }
+      2 : { rewrite back_sub_step_inv1; try assumption; reflexivity. }
       replace (mat i i') with 0%hq.
-      2: {rewrite p; try reflexivity.
-          change (stntonat _ i) with (pr1 i) in lt.
-          change (stntonat _ (iter,, p'')) with (iter) in lt.
-          replace iter with (pr1 i') in lt.
-          2: {rewrite eq. reflexivity. }
-          apply lt.
-      }
+      2 : { rewrite p; try reflexivity. rewrite eq; assumption. }
       do 2 rewrite (@rigmult0x hq); reflexivity.
     - revert le. revert p''. rewrite eq.
       intros.
       replace (stntonat _ i,, p'') with i.
-      2: { do 2 change (stntonat _ i) with (pr1 i).
-           change i with (pr1 i,, pr2 i).
-           simpl.
-           assert (eq' : (pr2 i) = p'').
-           { apply proofirrelevance. apply propproperty. }
-           rewrite eq'. reflexivity.
-      }
-      rewrite back_sub_step_inv0; try reflexivity; try assumption.
-      apply pathsinv0. apply H.
+      { rewrite back_sub_step_inv0; try reflexivity; try assumption.
+        apply pathsinv0. apply H. }
+      simpl.
+      unfold stntonat.
+      do 2 change (stntonat _ i) with (pr1 i).
+      change i with (pr1 i,, pr2 i).
+      simpl.
+      assert (eq' : (pr2 i) = p'').
+      { apply proofirrelevance. apply propproperty. }
+      rewrite eq'. reflexivity.
   Defined.
 
-  Lemma back_sub_step_inv3 { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq n n)
-        (b : Vector hq n) (vec : Vector hq n) (p: @is_upper_triangular hq n n mat)
-        (p' : diagonal_all_nonzero mat):
-     ∏ i : ⟦ n ⟧%stn, i > iter ->
-       (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
+  Lemma back_sub_step_inv3
+    { n : nat }
+    ( iter : ⟦ n ⟧%stn )
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (p: @is_upper_triangular hq n n mat)
+    (p' : @diagonal_all_nonzero hq n mat):
+    ∏ i : ⟦ n ⟧%stn, i > iter ->
+      (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
   Proof.
     intros i lt.
     unfold transpose, flip in *.
     destruct iter as [iter p''].
-    destruct (natlehchoice iter i). {apply natlthtoleh in lt. apply lt. }
-    - rewrite matrix_mult_eq.
-      apply pathsinv0.
-      rewrite matrix_mult_eq.
-      unfold matrix_mult_unf.
-      apply funextfun; intros ?.
-      apply maponpaths.
-      apply funextfun. intros i'.
-      destruct (stn_eq_or_neq i' (iter,, p'')).
-      2: { rewrite back_sub_step_inv1; try assumption; reflexivity. }
-      replace (mat i i') with 0%hq.
-      2: {rewrite p; try reflexivity.
-          change (stntonat _ i) with (pr1 i) in lt.
-          change (stntonat _ (iter,, p'')) with (iter) in lt.
-          replace iter with (pr1 i') in lt.
-          2: {rewrite p0. reflexivity. }
-          rewrite p0.
-          try apply lt.
-          apply h.
-      }
-      do 2 rewrite (@rigmult0x hq); reflexivity.
-    - rewrite <- p0 in lt.
-      apply isirreflnatgth in lt. contradiction.
+    destruct (natlehchoice iter i) as [it_i_lt | eq]. {apply natlthtoleh in lt. apply lt. }
+    2: { rewrite <- eq in lt.
+         apply isirreflnatgth in lt. contradiction. }
+    rewrite matrix_mult_eq.
+    apply pathsinv0.
+    rewrite matrix_mult_eq.
+    unfold matrix_mult_unf.
+    apply funextfun; intros ?.
+    apply maponpaths.
+    apply funextfun. intros i'.
+    destruct (stn_eq_or_neq i' (iter,, p'')) as [eq | neq].
+    2: { rewrite back_sub_step_inv1; try assumption; reflexivity. }
+    replace (mat i i') with 0%hq.
+    { do 2 rewrite (@rigmult0x hq); reflexivity. }
+    rewrite p; try reflexivity.
+    change (stntonat _ i) with (pr1 i) in lt.
+    change (stntonat _ (iter,, p'')) with (iter) in lt.
+    replace iter with (pr1 i') in lt.
+    2: {rewrite eq. reflexivity. }
+    rewrite eq.
+    apply it_i_lt.
   Defined.
 
-  (* TODO fix signature *)
+  (* TODO fix signature - align b, vec with x, b as in other lemmata*)
   Definition back_sub_internal
-    { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
-    (vec : Vector hq n)(iter : ⟦ S n ⟧%stn)
+    { n : nat }
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (iter : ⟦ S n ⟧%stn)
     : Vector hq n.
   Proof.
     destruct iter as [iter p].
@@ -259,13 +270,20 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       apply (istransnatlth _ _ _ (natgthsnn m) p).
   Defined.
 
-  Definition back_sub {n : nat} (mat : Matrix hq n n) (vec : Vector hq n)
+  Definition back_sub
+    {n : nat}
+    (mat : Matrix hq n n)
+    (vec : Vector hq n)
     := back_sub_internal mat vec vec (n,, natgthsnn n).
 
   Lemma back_sub_internal_inv0
-        { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
-        (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
+    { n : nat }
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (ut : @is_upper_triangular hq _ _ mat)
+    (df : @diagonal_all_nonzero hq n mat)
+    (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i < (dualelement iter)
     -> (((col_vec (back_sub_internal mat b vec iter)))) i = ((col_vec b) i).
   Proof.
@@ -273,7 +291,8 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     induction iter.
     { intros i H.
       unfold dualelement in H.
-      destruct (natchoice0 (S n)) in H. {clear H. apply negpaths0sx in p0. contradiction. }
+      destruct (natchoice0 (S n)) as [contr_eq | gt] in H.
+      { clear H. apply negpaths0sx in contr_eq. contradiction. }
       simpl.
       unfold back_sub_internal.
       simpl.
@@ -284,17 +303,18 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     rewrite nat_rect_step.
     assert (p': iter < S n). { apply (istransnatlth _ _ _ (natgthsnn iter) p).  }
     assert (lt : i < dualelement (iter,, p')).
-    {unfold dualelement in *.
-     destruct (natchoice0 (S n)) in *. { pose (contr := (natneq0sx n)). rewrite p0 in contr.
-                                         apply isirrefl_natneq in contr. contradiction. }
+    { unfold dualelement in *.
+      destruct (natchoice0 (S n)) as [contr_eq | gt] in *.
+      { pose (contr := (natneq0sx n)).
+       rewrite contr_eq in contr.
+       apply isirrefl_natneq in contr. contradiction. }
       simpl in *.
       refine (istransnatgth _ _ _ _ _).
       { set (n' := n - 0 - iter).
         apply natminus1lthn.
         rewrite minus0r.
         apply minusgth0.
-        exact p.
-      }
+        exact p. }
       replace (n - 0 - iter - 1) with (n - 0 - (S iter)); try apply i_lt_dual.
       rewrite minus0r.
       rewrite natminusminus.
@@ -304,23 +324,23 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     }
     rewrite <- (IHiter p'); try assumption.
     rewrite back_sub_step_inv1; try reflexivity; try assumption.
-    2: { unfold dualelement in i_lt_dual.
-         unfold dualelement.
-         apply natlthtoneq.
-         unfold dualelement in *.
-         destruct (natchoice0 n).
-         {apply fromstn0. clear i_lt_dual. clear lt. rewrite <- p0 in i.
-          assumption. }
-          destruct (natchoice0 (S n)) in *.
-         {simpl. pose (contr := natneqsx0 n). rewrite  p0 in contr.
-          apply isirrefl_natneq in contr. contradiction.  }
-         simpl in *.
-         rewrite minus0r in i_lt_dual.
-         replace (S iter) with (iter + 1) in i_lt_dual.
-         2: { rewrite <- plus_n_Sm, natplusr0. reflexivity. }
-         rewrite natpluscomm in i_lt_dual.
-         rewrite <- natminusminusassoc in i_lt_dual. assumption.
-         }
+    2 : { unfold dualelement in i_lt_dual.
+          unfold dualelement.
+          apply natlthtoneq.
+          unfold dualelement in *.
+          destruct (natchoice0 n) as [contr_eq | gt].
+          { apply fromstn0. clear i_lt_dual. clear lt. rewrite <- contr_eq in i.
+            assumption. }
+          destruct (natchoice0 (S n)) as [contr_eq | sn_gt] in *.
+        { simpl. pose (contr := natneqsx0 n). rewrite contr_eq in contr.
+          apply isirrefl_natneq in contr. contradiction. }
+        simpl in *.
+        rewrite minus0r in i_lt_dual.
+        replace (S iter) with (iter + 1) in i_lt_dual.
+        2: { rewrite <- plus_n_Sm, natplusr0. reflexivity. }
+          rewrite natpluscomm in i_lt_dual.
+          rewrite <- natminusminusassoc in i_lt_dual. assumption.
+        }
     unfold back_sub_internal.
     apply maponpaths_2.
     apply maponpaths.
@@ -328,9 +348,12 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Defined.
 
   Lemma back_sub_internal_inv2
-        { n : nat } (mat : Matrix hq n n) (b : Vector hq n)
-        (vec : Vector hq n) (ut : @is_upper_triangular hq _ _ mat)
-        (df : diagonal_all_nonzero mat) (iter : ⟦ S n ⟧%stn)
+    { n : nat }
+    (mat : Matrix hq n n)
+    (b : Vector hq n)
+    (vec : Vector hq n)
+    (ut : @is_upper_triangular hq _ _ mat)
+    (df : @diagonal_all_nonzero hq n mat) (iter : ⟦ S n ⟧%stn)
     : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement iter)
     -> (mat ** (col_vec (back_sub_internal mat b vec iter))) i = (col_vec vec) i.
   Proof.
@@ -353,11 +376,11 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       contradiction.
     }
     rewrite nat_rect_step.
-    destruct (natlehchoice (dualelement (iter,, p)) (i)).
+    destruct (natlehchoice (dualelement (iter,, p)) (i)) as [leh | eq].
       { unfold dualelement in *.
-        destruct (natchoice0 n) as [p0 | ?]. {apply fromstn0. rewrite p0. assumption. }
-        destruct (natchoice0 (S n)) as [p0 | ?] in *.
-        { pose (contr := (natneq0sx n)). rewrite <- p0 in contr.
+        destruct (natchoice0 n) as [contr_eq | ?]. {apply fromstn0. rewrite contr_eq. assumption. }
+        destruct (natchoice0 (S n)) as [contr_eq | ?] in *.
+        { pose (contr := (natneq0sx n)). rewrite <- contr_eq in contr.
           apply isirrefl_natneq in contr. contradiction. }
         rewrite coprod_rect_compute_2 in *.
         simpl in *.
@@ -370,59 +393,55 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
         rewrite i_le_iter; reflexivity.
       }
     - rewrite back_sub_step_inv2; try reflexivity; try assumption.
-      { unfold dualelement. unfold dualelement in h.
-        destruct (natchoice0 n) as [p0 | ?]. {apply fromstn0. rewrite p0. assumption. }
+      { unfold dualelement. unfold dualelement in leh.
+        destruct (natchoice0 n) as [contr_eq | ?]. {apply fromstn0. rewrite contr_eq. assumption. }
         rewrite coprod_rect_compute_2 in *.
         apply natgthtogeh; assumption.
       }
       rewrite IH; try reflexivity.
       { unfold dualelement.
-        destruct (natchoice0 (S n)) as [p0 | ?] in *.
-        { pose (contr := (natneq0sx n)). rewrite <- p0 in contr.
+        destruct (natchoice0 (S n)) as [contr_eq | gt] in *.
+        { pose (contr := (natneq0sx n)). rewrite <- contr_eq in contr.
           apply isirrefl_natneq in contr. contradiction. }
         rewrite coprod_rect_compute_2.
-        unfold dualelement in h.
-        destruct (natchoice0 n) as [p0 | ?]. {apply fromstn0. rewrite p0. assumption. }
+        unfold dualelement in leh.
+        destruct (natchoice0 n) as [eq | gt']. {apply fromstn0. rewrite eq. assumption. }
         rewrite coprod_rect_compute_2 in *.
-        simpl; simpl in h.
+        simpl; simpl in leh.
         rewrite minus0r.
-        apply natgthtogehsn in h.
-        rewrite pathssminus in h.
+        apply natgthtogehsn in leh.
+        rewrite pathssminus in leh.
         2: { rewrite pathssminus.
-             - rewrite PAdics.lemmas.minussn1.
-               exact p.
-             - simpl; apply h1. }
+             - rewrite PAdics.lemmas.minussn1; exact p.
+             - simpl; apply gt'. }
         assert (e : n = S (n - 1)).
         { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
           apply pathsinv0. apply minusplusnmm. assumption. }
-        rewrite <- e in h.
-        apply h.
+        rewrite <- e in leh.
+        apply leh.
       }
-    - assert (eq: (dualelement (iter,, p)) = i).
-      { unfold dualelement in *.
-           try rewrite  p0.
-           destruct (natchoice0 n) as [? | ?]. {apply fromstn0. rewrite p1. assumption. }
-           rewrite coprod_rect_compute_2 in *.
-           unfold make_stn in *; simpl in *.
-           change (stntonat _ i) with (pr1 i) in p0.
-           symmetry in p0.
-           change i with (pr1 i,, pr2 i).
-           set (rhs := make_stn n (n - 1 - iter) (StandardFiniteSets.dualelement_lt iter n h)).
-           change (n - 1 - iter) with (pr1 rhs).
-           try rewrite <- p0. try apply p0. try assumption.
-           clear IH.
-           apply subtypePath_prop.
-           rewrite p0.
-           reflexivity.
-      }
-      rewrite eq.
-      rewrite back_sub_step_inv0; try reflexivity; try assumption.
+    - replace (dualelement (iter,, p)) with i.
+      { rewrite back_sub_step_inv0; try reflexivity; try assumption. } 
+      unfold dualelement in *.
+      try rewrite contr_eq.
+      destruct (natchoice0 n) as [eq0 | gt]. {apply fromstn0. rewrite eq0. assumption. }
+      rewrite coprod_rect_compute_2 in *.
+      unfold make_stn in *; simpl in *.
+      change (stntonat _ i) with (pr1 i) in eq.
+      change (n - 1 - iter)
+        with (pr1 (make_stn n (n - 1 - iter) (StandardFiniteSets.dualelement_lt iter n gt))) in eq.
+      pose (subtype_eq := @subtypePath_prop _ _ _ _ eq).
+      rewrite <- (@subtypePath_prop _ _ _ _ eq).
+      reflexivity.
   Defined.
 
-
-  Lemma back_sub_inv0 { n : nat } (mat : Matrix hq n n) (vec : Vector hq n)
-        (ut : @is_upper_triangular hq _ _ mat)
-    (df: diagonal_all_nonzero mat) : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
+  Lemma back_sub_inv0
+    { n : nat }
+    (mat : Matrix hq n n)
+    (vec : Vector hq n)
+    (ut : @is_upper_triangular hq _ _ mat)
+    (df: @diagonal_all_nonzero hq n mat)
+    : (mat ** (col_vec (back_sub mat vec))) = (col_vec vec).
   Proof.
     intros.
     unfold back_sub.
@@ -440,7 +459,8 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* Construct the inverse, if additionally mat is upper triangular with non-zero diagonal *)
   Definition upper_triangular_right_inverse_construction
-    { n : nat } (mat : Matrix hq n n)
+    { n : nat }
+    (mat : Matrix hq n n)
     : Matrix hq n n.
   Proof.
     set (H:= λ i : (stn n), (back_sub (mat) ((@identity_matrix hq n) i))).
@@ -449,10 +469,12 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Defined.
 
   (* actually only needs right invertibility ? *)
-  Lemma invertible_upper_triangular_to_diagonal_all_nonzero { n : nat } (A : Matrix hq n n)
-        (p : @is_upper_triangular hq n n A)
-        (p': @matrix_inverse hq n A)
-    : (@diagonal_all_nonzero n A).
+  Lemma invertible_upper_triangular_to_diagonal_all_nonzero
+    { n : nat }
+    (A : Matrix hq n n)
+    (p : @is_upper_triangular hq n n A)
+    (p': @matrix_inverse hq n A)
+    : (@diagonal_all_nonzero hq n A).
   Proof.
     apply diagonal_nonzero_iff_transpose_nonzero.
     set (At := (λ y x : (⟦ n ⟧)%stn, A x y)).
@@ -464,32 +486,31 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     2: { assumption. }
     apply fromempty.
     destruct (natchoice0 n) as [contr' | gt]. {apply fromstn0. rewrite contr'; exact i. }
-    set (M :=  @clear_columns_up_to_no_switch_as_left_matrix n gt (n,, natgthsnn n) A).
+    set (M :=  @clear_columns_up_to_no_switch_as_left_matrix n (n,, natgthsnn n) A).
     assert (invertible : matrix_inverse (M ** A)).
     { apply inv_matrix_prod_is_inv; try assumption.
       apply clear_columns_up_to_matrix_no_switch_invertible.
       apply i. (* TODO remove unnecessary argument *)
     }
     pose (inv := gauss_clear_columns_up_to_no_switch_inv5).
-    pose (contr' := inv n At gt (n,, natgthsnn n) X i contr (pr2 i)).
+    pose (contr' := inv n At (n,, natgthsnn n) X i contr (pr2 i)).
     destruct contr' as [idx contr'].
-    set ( At' := gauss_clear_columns_up_to_no_switch gt (n,, natgthsnn n) At).
+    set ( At' := gauss_clear_columns_up_to_no_switch (n,, natgthsnn n) At).
     pose (noninv := @zero_row_to_non_invertibility n At' idx contr').
     apply noninv.
     unfold At'.
     rewrite <- gauss_clear_columns_up_to_no_switch_as_matrix_eq.
     apply inv_matrix_prod_is_inv.
     2: {apply transpose_invertible_to_invertible; try assumption. }
-    apply clear_columns_up_to_matrix_no_switch_invertible; try assumption. (* TODO remove unused argument *)
+    apply clear_columns_up_to_matrix_no_switch_invertible. try assumption. (* TODO remove unused argument *)
   Defined.
 
   Definition upper_triangular_right_inverse_is_inverse
     { n : nat } (mat : Matrix hq n n)
     (ut : @is_upper_triangular hq _ _ mat)
-    (df: diagonal_all_nonzero mat)
-    :
-    (mat ** ((upper_triangular_right_inverse_construction mat)))
-    = (@identity_matrix hq n).
+    (df: @diagonal_all_nonzero hq n mat)
+    : (mat ** ((upper_triangular_right_inverse_construction mat)))
+      = (@identity_matrix hq n).
   Proof.
     apply funextfun; intros i.
     unfold matrix_mult, row.
@@ -497,19 +518,22 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     apply funextfun; intros ?.
     unfold upper_triangular_right_inverse_construction.
     rewrite (@col_vec_mult_eq hq n n mat
-      (λ y : (⟦ n ⟧)%stn, upper_triangular_right_inverse_construction mat y x) (@identity_matrix hq n x)).
+      (λ y : (⟦ n ⟧)%stn, upper_triangular_right_inverse_construction mat y x)
+        (@identity_matrix hq n x)).
     - destruct (stn_eq_or_neq i x) as [eq | neq].
       {rewrite eq; reflexivity. }
       rewrite id_mat_ij; try rewrite id_mat_ij; try reflexivity; try assumption.
       apply (issymm_natneq _ _ neq).
     - unfold upper_triangular_right_inverse_construction.
       pose (H2 := @back_sub_inv0).
-      destruct (natchoice0 n) as [eq | ?]. {apply fromstn0. rewrite eq. assumption. }
+      destruct (natchoice0 n) as [eq | ?].
+      {apply fromstn0. rewrite eq. assumption. }
       apply H2; assumption.
   Defined.
 
   Local Lemma row_vec_col_vec_mult_eq
-  { n : nat } (A : Matrix hq n n)
+  { n : nat }
+  (A : Matrix hq n n)
   : forall x, transpose ((row_vec x) ** (transpose A)) = (A ** (col_vec x)).
   Proof.
     intros.
@@ -537,7 +561,10 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* (BA)C = I -> D, s.t. BD = I*)
   Local Lemma matrix_product_right_inverse_to_left_term_right_inverse
-    {R : rig} { n : nat } (A : Matrix R n n) (B : Matrix R n n)
+    {R : rig}
+    { n : nat } 
+    (A : Matrix R n n)
+    (B : Matrix R n n)
     (inv : (matrix_right_inverse (matrix_mult A B))) : matrix_right_inverse A.
   Proof.
     use tpair. { exact (matrix_mult B (pr1 inv)). }
@@ -548,7 +575,10 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* C(BA) -> D s.t. DA = I*)
   Local Lemma matrix_product_left_inverse_to_right_term_left_inverse
-    {R : rig} { n : nat } (A : Matrix R n n) (B : Matrix R n n)
+    {R : rig}
+    { n : nat }
+    (A : Matrix R n n)
+    (B : Matrix R n n)
     (inv : (matrix_left_inverse (matrix_mult A B))) : matrix_left_inverse B.
   Proof.
     use tpair. { exact (matrix_mult (pr1 inv) A). }
@@ -558,9 +588,10 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Defined.
 
   Local Lemma left_inverse_implies_right_internal
-    { n : nat } (A B: Matrix hq n n)
+    { n : nat }
+    (A B: Matrix hq n n)
     (ut : @is_upper_triangular hq _ _ A)
-    (df: diagonal_all_nonzero A)
+    (df: @diagonal_all_nonzero hq n A)
     : (B ** A) = (@identity_matrix hq n) -> (@matrix_inverse hq n A).
   Proof.
     intros H0.
@@ -612,7 +643,11 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     use tpair; try assumption.
   Defined.
 
-  Lemma make_matrix_left_inverse {R : rig} {m n k: nat} (A : Matrix R m n) (B : Matrix R n m)
+  Lemma make_matrix_left_inverse
+    {R : rig}
+    {m n k: nat}
+    (A : Matrix R m n)
+    (B : Matrix R n m)
     (eq : matrix_mult A B = identity_matrix) : matrix_left_inverse B.
   Proof.
     unfold matrix_left_inverse.
@@ -620,7 +655,11 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     exact eq.
   Defined.
 
-  Lemma make_matrix_right_inverse {R : rig} {m n k: nat} (A : Matrix R m n) (B : Matrix R n m)
+  Lemma make_matrix_right_inverse
+    {R : rig}
+    {m n k: nat}
+    (A : Matrix R m n)
+    (B : Matrix R n m)
     (eq : matrix_mult A B = identity_matrix) : matrix_right_inverse A.
   Proof.
     unfold matrix_left_inverse.
@@ -628,9 +667,9 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
     exact eq.
   Defined.
 
-
   Lemma left_inverse_implies_right
-    { n : nat } (A B: Matrix hq n n)
+    { n : nat }
+    (A B: Matrix hq n n)
     : (B ** A) = (@identity_matrix hq n) -> (@matrix_right_inverse hq n n A).
   Proof.
     intros H0.
@@ -663,7 +702,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       assert (H2 : diagonal_all_nonzero CA).
       { unfold diagonal_all_nonzero.
         intros i neq.
-        apply (gauss_clear_columns_up_to_no_switch_inv7 n CA gt (n,, natgthsnn n) H1 i); try assumption.
+        apply (gauss_clear_columns_up_to_no_switch_inv7 n CA (n,, natgthsnn n) H1 i); try assumption.
         {exact (pr2 i). }
         apply left_inv_matrix_prod_is_left_inv.
         { apply matrix_inverse_to_right_and_left_inverse.
@@ -716,23 +755,24 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Defined.
 
   Lemma right_inverse_implies_left
-    { n : nat } (A B: Matrix hq n n)
+    { n : nat }
+    (A B: Matrix hq n n)
     : @matrix_right_inverse hq n n A -> (@matrix_left_inverse hq n n A).
   Proof.
-    intros H0.
-    destruct H0 as [rinv isrinv].
-    pose (H1 := @make_matrix_left_inverse hq n n n A rinv isrinv).
-    pose (H2 := @left_inverse_implies_right n _ _ isrinv).
+    intros A_right_inv.
+    destruct A_right_inv as [rinv isrinv].
+    pose (linv := @make_matrix_left_inverse hq n n n A rinv isrinv).
+    pose (linv_to_rinv := @left_inverse_implies_right n _ _ isrinv).
     use tpair. {exact rinv. }
-    pose (H3 := @matrix_left_inverse_equals_right_inverse _ n _ n _ H1 H2).
-    unfold H1, H2 in H3.
-    simpl in H3.
-    rewrite H3.
-    apply H2.
+    pose (inv_eq := @matrix_left_inverse_equals_right_inverse _ n _ n _ linv linv_to_rinv).
+    simpl in inv_eq.
+    rewrite inv_eq.
+    apply linv_to_rinv.
   Defined.
 
   Lemma matrix_inverse_or_non_invertible
-    { n : nat } (A : Matrix hq n n)
+    { n : nat }
+    (A : Matrix hq n n)
     : coprod (@matrix_inverse hq n A)
       (@matrix_inverse hq n A -> empty).
   Proof.
@@ -753,7 +793,7 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       destruct H as [invM isinv].
       destruct isinv as [isl isr].
       pose (H1 := gauss_clear_columns_up_to_no_switch_inv7).
-      apply (gauss_clear_columns_up_to_no_switch_inv7 _ BA gt (n,, natgthsnn n) ut (pr1 hasz)); simpl; try assumption.
+      apply (gauss_clear_columns_up_to_no_switch_inv7 _ BA (n,, natgthsnn n) ut (pr1 hasz)); simpl; try assumption.
       - apply (pr2 hasz).
       - exact (pr2 (pr1 hasz)).
       - apply left_inv_matrix_prod_is_left_inv; try assumption.
@@ -783,14 +823,14 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
       pose (B_rinv := @make_matrix_right_inverse hq n n n B (A** C) (BAC_id)).
       pose (linv := @right_inverse_implies_left _ B C B_rinv).
       pose (eq := @matrix_left_inverse_equals_right_inverse hq n _ n B linv ((A** C),, BAC_id)).
-      replace  (A** C) with (pr1 B_rinv).
+      replace  (A ** C) with (pr1 B_rinv).
       2: {simpl. reflexivity. }
       rewrite (pr2 B_rinv).
       replace (pr1 B_rinv) with (pr1 linv); try assumption.
       2: {rewrite eq. simpl; reflexivity. }
       rewrite (pr2 linv); reflexivity.
     }
-    simpl  in *.
+    simpl in *.
     rewrite <- BAC_id.
     rewrite <- linv_eq.
     unfold C, BA.

@@ -393,8 +393,8 @@ Section Matrices.
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
 
-  Definition diagonal_all_nonzero { n : nat } (mat : Matrix hq n n) :=
-    ∏ i : ⟦ n ⟧%stn, mat i i != 0%hq.
+  Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
+    ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
 
   Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
   Proof.
@@ -551,8 +551,8 @@ Section MatricesHq.
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
     { n : nat } (A : Matrix hq n n)
-    : diagonal_all_nonzero A
-    <-> (diagonal_all_nonzero (transpose A)).
+    : @diagonal_all_nonzero hq n A
+    <-> (@diagonal_all_nonzero hq n (transpose A)).
   Proof.
     split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
   Defined.

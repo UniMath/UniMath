@@ -218,13 +218,12 @@ Section PrelStn.
     {n:nat} (i : ⟦ n ⟧%stn)
   : ∑ m, n = S m.
   Proof.
-    destruct n as [ | m].
+    destruct n as [| m].
     - destruct i as [i le_i_0].
       destruct (nopathsfalsetotrue le_i_0).
     - exists m. apply idpath.
   Defined.
 
-   (* TODO: naming ? upstream?  Certainly rename p, p0. *)
   Lemma stn_eq_or_neq_left :
     ∏ {n : nat} {i j: (⟦ n ⟧)%stn} (p : (i = j)),
       stn_eq_or_neq i j = inl p.
@@ -242,13 +241,12 @@ Section PrelStn.
        apply isirrefl_natneq in p.
        assumption.
     -  apply isapropcoprod.
-       + apply stn_ne_iff_neq in p. apply isdecpropfromneg.  assumption.
-       (*apply stn_ne_iff_neq in p.*)
+       + apply stn_ne_iff_neq in p. apply isdecpropfromneg. assumption.
        + apply negProp_to_isaprop.
        + intros i_eq_j.
          rewrite i_eq_j in p.
          apply isirrefl_natneq in p.
-         apply fromempty. assumption.
+         apply fromempty; assumption.
   Defined.
 
   Lemma stn_implies_nneq0 
