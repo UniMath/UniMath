@@ -38,16 +38,17 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 
 Section LeadingEntry.
 
+  Context (R: ring).
+
   Local Notation Σ := (iterop_fun hqzero op1).
   Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
-  Definition is_leading_entry {n : nat} (v : Vector hq n) (i_1 : ⟦ n ⟧%stn) :=
-      (0%hq != v i_1) × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> 0%hq = (v i_2)).
-      (*(∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> (v i_2) = 0%hq).*)
+  Definition is_leading_entry {n : nat} (v : Vector R n) (i_1 : ⟦ n ⟧%stn) :=
+      (0%ring != v i_1) × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> 0%ring = (v i_2)).
 
-  Definition is_leading_entry_dual {n : nat} (v : Vector hq n) (i_1 : ⟦ n ⟧%stn) :=
-      (0%hq != v i_1) × (∏ i_2 : ⟦ n ⟧%stn, i_1 < i_2 -> (v i_2) = 0%hq).
+  Definition is_leading_entry_dual {n : nat} (v : Vector R n) (i_1 : ⟦ n ⟧%stn) :=
+      (0%ring != v i_1) × (∏ i_2 : ⟦ n ⟧%stn, i_1 < i_2 -> (v i_2) = 0%ring).
 
   Definition leading_entry_compute_dual_internal
     { n : nat } (v : Vector hq n) (iter : ⟦ S n ⟧%stn)
