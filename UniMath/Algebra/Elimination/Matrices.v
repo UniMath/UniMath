@@ -404,7 +404,6 @@ Section Matrices.
 
 End Matrices.
 
-
   (* Things that are not really specific to hq but used in later in hq
      - TODO either generalize elimination procedures or state below
        in terms of commrings and prove hq is one. 
@@ -412,14 +411,15 @@ End Matrices.
     Some material can be moved to semirings section above *)
 Section MatricesHq.
 
-  Local Notation Σ := (iterop_fun hqzero op1).
-  Local Notation "A ** B" := (@matrix_mult hq _ _ A _ B) (at level 80).
+  Context {F : fld}.
+  Local Notation Σ := (iterop_fun 0%ring op1).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   Lemma upper_triangular_iff_transpose_lower_triangular
-  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix hq m n)
-  : (@is_upper_triangular hq m n mat)
-  <-> (@is_lower_triangular hq n m (transpose mat)).
+  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F m n)
+  : (@is_upper_triangular F m n mat)
+  <-> (@is_lower_triangular F n m (transpose mat)).
   Proof.
     unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
     split.
@@ -430,7 +430,7 @@ Section MatricesHq.
   Defined.
 
   Lemma matrix_product_transpose
-  { m n k : nat } (A : Matrix hq m n) (B : Matrix hq n k)
+  { m n k : nat } (A : Matrix F m n) (B : Matrix F n k)
   : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
   Proof.
     intros.
@@ -440,16 +440,16 @@ Section MatricesHq.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {apply maponpaths. apply funextfun.
-      intros ?. rewrite hqmultcomm. reflexivity. }
+      intros ?. rewrite ringcomm2. reflexivity. }
     reflexivity.
   Defined.
 
   Lemma invertible_to_transpose_invertible
-    { n : nat } (mat : Matrix hq n n)
-    : (@matrix_inverse hq n mat)
-    -> (@matrix_inverse hq n (transpose mat)).
+    { n : nat } (mat : Matrix F n n)
+    : (@matrix_inverse F n mat)
+    -> (@matrix_inverse F n (transpose mat)).
   Proof.
-    assert (eq : transpose (@identity_matrix hq n) = @identity_matrix hq n).
+    assert (eq : transpose (@identity_matrix F n) = @identity_matrix F n).
     { unfold transpose. unfold flip.
       apply funextfun; intros ?. apply funextfun; intros ?.
       unfold identity_matrix.
@@ -480,10 +480,10 @@ Section MatricesHq.
   Defined.
 
   Lemma transpose_invertible_to_invertible
-  { n : nat } (mat : Matrix hq n n)
+  { n : nat } (mat : Matrix F n n)
   :
-  (@matrix_inverse hq n (transpose mat)) 
-  -> (@matrix_inverse hq n mat).
+  (@matrix_inverse F n (transpose mat)) 
+  -> (@matrix_inverse F n mat).
   Proof.
     intros.
     assert (eq : mat = (transpose (transpose mat))). {reflexivity. }
@@ -492,13 +492,13 @@ Section MatricesHq.
   Defined.
 
   Lemma matrix_left_inverse_to_transpose_right_inverse
-    {m n : nat} (A : Matrix hq m n)
-    (inv: @matrix_left_inverse hq m n A)
-    : (@matrix_right_inverse hq n m (@transpose hq n m A)).
+    {m n : nat} (A : Matrix F m n)
+    (inv: @matrix_left_inverse F m n A)
+    : (@matrix_right_inverse F n m (@transpose F n m A)).
   Proof.
     destruct inv as [inv isinv].
     pose (prod_eq := @matrix_product_transpose n m n inv A).
-    pose (id_eq := @identity_matrix_symmetric hq n).
+    pose (id_eq := @identity_matrix_symmetric F n).
     unfold is_symmetric_mat in id_eq.
     rewrite isinv in prod_eq.
     use tpair. {exact (transpose inv). }
@@ -508,9 +508,9 @@ Section MatricesHq.
     apply prod_eq.
   Defined.
 
-  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix hq m n)
-      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
-  (@matrix_right_inverse hq m n A) -> empty.
+  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix F m n)
+      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%ring)):
+  (@matrix_right_inverse F m n A) -> empty.
   Proof.
     intros invA.
     destruct invA as [inv isrightinv].
@@ -518,30 +518,23 @@ Section MatricesHq.
     { intros. rewrite isrightinv. reflexivity. }
     destruct (natchoice0 m) as [eq | gt].
     { apply fromstn0. clear zero_row. rewrite <- eq in i. assumption. }
-    assert (contr : (A ** inv) i i = 0%hq).
+    assert (contr : (A ** inv) i i = (@ringunel1 F)).
     { rewrite matrix_mult_eq. unfold matrix_mult_unf.
       rewrite zero_function_sums_to_zero. {reflexivity. }
       apply funextfun. intros k.
-      replace (A i k) with 0%hq.
-      { apply (@rigmult0x hq). }
+      replace (A i k) with (@rigunel1 F).
+      { apply (@rigmult0x F). }
       rewrite zero_row. reflexivity.
     }
-    pose (id_ii := (@id_mat_ii hq m)).
+    pose (id_ii := (@id_mat_ii F m)).
     rewrite isrightinv in contr.
     rewrite id_ii in contr.
-    change 1%rig with 1%hq in contr.
-    pose (t1 := intpart 1%hq).
-    pose (t2 := intpart 0%hq).
-    assert (contr' : t1 != t2).
-    {apply hzone_neg_hzzero. }
-    unfold t1, t2 in contr'.
-    rewrite contr in contr'.
-    contradiction.
+    contradiction (nonzeroax _ contr).
   Defined.
 
-  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix hq n n)
-      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%hq)) :
-  (@matrix_inverse hq n A) -> empty.
+  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix F n n)
+      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%ring)) :
+  (@matrix_inverse F n A) -> empty.
   Proof.
     intros invA.
     apply matrix_inverse_to_right_and_left_inverse in invA.
@@ -550,17 +543,17 @@ Section MatricesHq.
   Defined.
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
-    { n : nat } (A : Matrix hq n n)
-    : @diagonal_all_nonzero hq n A
-    <-> (@diagonal_all_nonzero hq n (transpose A)).
+    { n : nat } (A : Matrix F n n)
+    : @diagonal_all_nonzero F n A
+    <-> (@diagonal_all_nonzero F n (transpose A)).
   Proof.
     split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
   Defined.
 
   Lemma upper_triangular_transpose_is_lower_triangular
-    { m n : nat } (A : Matrix hq m n)
-    (H: @is_upper_triangular hq m n A)
-    : (@is_lower_triangular hq n m (transpose A)).
+    { m n : nat } (A : Matrix F m n)
+    (H: @is_upper_triangular F m n A)
+    : (@is_lower_triangular F n m (transpose A)).
   Proof.
     intros i j lt; unfold is_upper_triangular; apply H; assumption.
   Defined.
