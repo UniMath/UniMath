@@ -276,7 +276,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/flds.v](CategoryTheory/categories/flds.v)
    - [categories/modules.v](CategoryTheory/categories/modules.v)
    - [categories/StandardCategories.v](CategoryTheory/categories/StandardCategories.v)
-   - [categories/Cats.v](CategoryTheory/categories/Cats.v)
    - [categories/preorder_categories.v](CategoryTheory/categories/preorder_categories.v)
    - [categories/Type/Colimits.v](CategoryTheory/categories/Type/Colimits.v)
    - [categories/Type/Limits.v](CategoryTheory/categories/Type/Limits.v)
