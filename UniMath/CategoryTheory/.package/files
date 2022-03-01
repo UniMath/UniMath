@@ -210,6 +210,7 @@ categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
 Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v

@@ -88,3 +88,6 @@ Section Monoidal_Precategories.
               ∑ ru : right_unitor T I,
                 ∑ α : associator T,
                   (triangle_identity T I lu ru α) × (pentagon_identity T α).
+
+
+  End Monoidal_Precategories.
