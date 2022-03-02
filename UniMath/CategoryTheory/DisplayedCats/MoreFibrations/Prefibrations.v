@@ -47,17 +47,16 @@ Definition is_pre'cartesian {C : category} {D : disp_cat C}
 := forall (d'' : D c') (hh : d'' -->[identity c' · f] d),
     ∃! (gg : d'' -->[identity c'] d'), gg ;; ff = hh.
 
-(** Show that the're equivalent. TODO: Separate existence (data) and uniqueness (property). *)
 Definition pre'_implies_pre
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : is_pre'cartesian ff -> is_precartesian ff.
 Proof.
-  unfold is_pre'cartesian, is_precartesian.
   intros H d'' hh.
-  exact (H _ (transportb _ (id_left _) hh)).
+  apply H.
 Defined.
+Coercion pre'_implies_pre : is_pre'cartesian >-> is_precartesian.
 
 Definition pre_implies_pre'
     {C : category} {D : disp_cat C}
@@ -65,13 +64,11 @@ Definition pre_implies_pre'
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : is_precartesian ff -> is_pre'cartesian ff.
 Proof.
-  unfold is_precartesian, is_pre'cartesian.
   intros H d'' hh.
-  set (temp := H _ (transportf _ (id_left _) hh)).
-  set (temp' := transport_cancel_b_f _ (id_left _) hh).
-  rewrite temp' in temp.
-  exact temp.
+  induction (transport_cancel_b_f _ (id_left _) hh).
+  apply H.
 Defined.
+Coercion pre_implies_pre' : is_precartesian >-> is_pre'cartesian.
 
 (** See also [precartesian_factorisation'] below, for when the map one wishes to factor is not judgementally over [f], but over some equal map. TODO! *)
 
@@ -103,20 +100,6 @@ Definition pre'cartesian_factorisation_commutes
   : pre'cartesian_factorisation H hh ;; ff = hh
 := pr2 (pr1 (H _ hh)).
 
-Definition pre'cartesian_factorisation_of_composite
-    {C : category} {D : disp_cat C}
-    {c c' : C} {f : c' --> c}
-    {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_pre'cartesian ff)
-    {d'' : D c'} (gg : d'' -->[identity c'] d')
-  : gg = pre'cartesian_factorisation H (gg ;; ff).
-Proof.
-  set (temp1 := pr2 (H _ (gg ;; ff))).
-  set (temp2 := temp1 (gg,, idpath (gg ;; ff))). (* Why is it impossible to define the argument separately? *)
-  (* set (temp' := (gg,, idpath (gg ;; ff))). *)
-  set (yay := (maponpaths pr1 temp2)).
-  exact yay.
-Defined.
-
 Definition precartesian_factorisation_of_composite
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
@@ -124,25 +107,31 @@ Definition precartesian_factorisation_of_composite
     {d'' : D c'} (gg : d'' -->[identity c'] d')
   : gg = precartesian_factorisation H (transportf _ (id_left _) (gg ;; ff)).
 Proof.
-  set (contr := pr2 (H _ (transportf _ (id_left _) (gg ;; ff)))).
-  set (transp := (transport_cancel_b_f _ (id_left f) (gg ;; ff))).
-  set (temp := contr (gg,, ! transp)).
-  set (goal := (maponpaths pr1 temp)).
-  exact goal.
+  exact (maponpaths pr1 ((pr2 (H _ _)) (_,, ! ((transport_cancel_b_f _ _ _))))).
 Defined.
 
-Definition pre'cartesian_factorisation_unique
+Definition pre'cartesian_factorisation_of_composite
+    {C : category} {D : disp_cat C}
+    {c c' : C} {f : c' --> c}
+    {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_pre'cartesian ff)
+    {d'' : D c'} (gg : d'' -->[identity c'] d')
+  : gg = pre'cartesian_factorisation H (gg ;; ff).
+Proof.
+  exact (maponpaths pr1 ((pr2 (H _ _)) (_,, idpath _))).
+Defined.
+
+Definition pre'cartesian_factorisation_unique_new
     {C : category} {D : disp_cat C} {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_pre'cartesian ff)
     {d'': D c'} (gg gg' : d'' -->[identity c'] d')
   : (gg ;; ff = gg' ;; ff) -> gg = gg'.
 Proof.
-  set (temp := pre'cartesian_factorisation_of_composite H gg).
-  set (temp' := pre'cartesian_factorisation_of_composite H gg').
-  intros Hggff.
-  set (temp'' := maponpaths (pre'cartesian_factorisation H) Hggff).
-  set (yay := (temp @ temp'' @ ! temp')).
-  exact yay.
+  intro Hggff.
+  eapply pathscomp0.
+  - apply (pre'cartesian_factorisation_of_composite H).
+  - eapply pathscomp0.
+    + apply maponpaths. exact Hggff.
+    + apply pathsinv0. apply pre'cartesian_factorisation_of_composite.
 Defined.
 
 Definition precartesian_factorisation_unique
@@ -151,8 +140,12 @@ Definition precartesian_factorisation_unique
     {d'': D c'} (gg gg' : d'' -->[identity c'] d')
   : (gg ;; ff = gg' ;; ff) -> gg = gg'.
 Proof.
-  set (H' := pre_implies_pre' ff H).
-  exact (pre'cartesian_factorisation_unique H' gg gg').
+  intro Hggff.
+  eapply pathscomp0.
+  - apply (precartesian_factorisation_of_composite H).
+  - eapply pathscomp0.
+    + apply maponpaths. apply maponpaths. exact Hggff.
+    + apply pathsinv0. apply precartesian_factorisation_of_composite.
 Defined.
 
 Definition isaprop_is_precartesian
@@ -239,6 +232,28 @@ Definition pre'cartesian_lift_is_pre'cartesian
 := pr2 (pr2 fd).
 Coercion pre'cartesian_lift_is_pre'cartesian : pre'cartesian_lift >-> is_pre'cartesian.
 
+Definition pre'_implies_precartesian_lift
+    {C : category} {D : disp_cat C}
+    {c c' : C} {d : D c} {f : c' --> c}
+    (fd : pre'cartesian_lift d f)
+  : precartesian_lift d f.
+Proof.
+  exists (pr1 fd). exists (pr1 (pr2 fd)).
+  exact (pr2 (pr2 fd)).
+Defined.
+Coercion pre'_implies_precartesian_lift : pre'cartesian_lift >-> precartesian_lift.
+
+Definition pre_implies_pre'cartesian_lift
+    {C : category} {D : disp_cat C}
+    {c c' : C} {d : D c} {f : c' --> c}
+    (fd : precartesian_lift d f)
+  : pre'cartesian_lift d f.
+Proof.
+  exists (pr1 fd). exists (pr1 (pr2 fd)).
+  exact (pr2 (pr2 fd)).
+Defined.
+Coercion pre_implies_pre'cartesian_lift : precartesian_lift >-> pre'cartesian_lift.
+
 End Precartesian_lifts.
 
 
@@ -252,29 +267,25 @@ Definition pre'cleaving
     {C : category} (D : disp_cat C) : UU
   := forall (c c' : C) (f :  c' --> c) (d : D c), pre'cartesian_lift d f.
 
-Definition pre_implies_pre'_cleaving
+Definition pre_implies_pre'cleaving
     {C : category} (D : disp_cat C)
   : precleaving D -> pre'cleaving D.
 Proof.
-  unfold precleaving, pre'cleaving.
-  intros X c c' f d.
-  set (X' := X c c' f d).
-  exists (object_of_precartesian_lift X').
-  exists X'.
-  exact (pre_implies_pre' X' (precartesian_lift_is_precartesian X')).
+  unfold pre'cleaving.
+  intros.
+  exact (X _ _ _ _).
 Defined.
+Coercion pre_implies_pre'cleaving : precleaving >-> pre'cleaving.
 
-Definition pre'_implies_pre_cleaving
+Definition pre'_implies_precleaving
     {C : category} (D : disp_cat C)
   : pre'cleaving D -> precleaving D.
 Proof.
-  unfold precleaving, pre'cleaving.
-  intros X c c' f d.
-  set (X' := X c c' f d).
-  exists (object_of_pre'cartesian_lift X').
-  exists X'.
-  exact (pre'_implies_pre X' (pre'cartesian_lift_is_pre'cartesian X')).
+  unfold precleaving.
+  intros.
+  exact (X _ _ _ _).
 Defined.
+Coercion pre'_implies_precleaving : pre'cleaving >-> precleaving.
 
 (* TODO: Show that the above functions yield an equivalence *)
 
@@ -290,24 +301,24 @@ Definition pre'fibration
     (C : category) : UU
 := ∑ (D : disp_cat C), pre'cleaving D.
 
-Definition pre_implies_pre'_fibration
-    (C : category)
-  : prefibration C -> pre'fibration C.
-Proof.
-  unfold prefibration, pre'fibration.
-  intros (D, H).
-  exists D.
-  exact (pre_implies_pre'_cleaving D H).
-Defined.
-
-Definition pre'_implies_pre_fibration
+Definition pre'_implies_prefibration
     (C : category)
   : pre'fibration C -> prefibration C.
 Proof.
-  unfold prefibration, pre'fibration.
-  intros (D, H').
-  exists D.
-  exact (pre'_implies_pre_cleaving D H').
+  intro F.
+  exists (pr1 F).
+  exact (pr2 F).
 Defined.
+Coercion pre'_implies_prefibration : pre'fibration >-> prefibration.
+
+Definition pre_implies_pre'fibration
+    (C : category)
+  : prefibration C -> pre'fibration C.
+Proof.
+  intro F.
+  exists (pr1 F).
+  exact (pr2 F).
+Defined.
+Coercion pre_implies_pre'fibration : prefibration >-> pre'fibration.
 
 End Prefibrations.

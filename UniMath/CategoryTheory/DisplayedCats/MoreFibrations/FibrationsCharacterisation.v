@@ -175,4 +175,4 @@ Proof.
     2: { apply (! mor_disp_transportf_postwhisker _ _ ff). }
     apply maponpaths.
     assumption.
-Qed.
+Defined.

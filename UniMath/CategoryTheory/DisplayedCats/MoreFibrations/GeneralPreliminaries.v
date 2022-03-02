@@ -41,8 +41,8 @@ Definition contr_equiv_inhab_prop
 Proof.
   split.
   - intros H. split.
-    -- exact (iscontrpr1 H).
-    -- exact (isapropifcontr H).
+    -- apply iscontrpr1. assumption.
+    -- apply isapropifcontr. assumption.
   - unfold isaprop, isofhlevel, iscontr. intros (a, H).
     exists a. intros a'.
     exact (pr1 (H a' a)).
@@ -52,7 +52,7 @@ Definition uniex_equiv_ex_uni
     {A : UU} (B : A -> UU)
   : (∃! (a : A), B a) <-> (∑ (a : A), B a) × isaprop (∑ (a : A), B a).
 Proof.
-  exact (contr_equiv_inhab_prop (∑ (a : A), B a)).
+  apply contr_equiv_inhab_prop.
 Defined.
 
 (* Replace applictions of this by eapply unique_exists? *)

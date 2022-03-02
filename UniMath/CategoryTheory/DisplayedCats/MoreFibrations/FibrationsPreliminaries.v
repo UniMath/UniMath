@@ -35,15 +35,11 @@ Definition cartesian_factorisation_of_composite
     {c'' : C} {g : c'' --> c'} {d'' : D c''} (gg : d'' -->[g] d')
   : gg = cartesian_factorisation H g (gg ;; ff).
 Proof.
-  set (temp1 := pr2 (H _ g _ (gg ;; ff))).
-  simpl in temp1.
-  set (temp' := (gg,, idpath (gg ;; ff)) : ∑ (gg0: _), gg0 ;; ff = gg ;; ff).
-  set (temp2 := temp1 temp').
-  set (yay := (maponpaths pr1 temp2)).
-  exact yay.
+  exact (maponpaths pr1 (pr2 (H _ _ _ _) (_,, idpath _))).
 Defined.
 
-(* The following is just another proof of cartesian_factorisation_unique, written in a way that I understand. *)
+
+(* The following is just another proof of cartesian_factorisation_unique, written to use the above lemma directly. *)
 Definition cartesian_factorization_unique
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
@@ -51,10 +47,10 @@ Definition cartesian_factorization_unique
     {c''} {g : c'' --> c'} {d'' : D c''} (gg gg' : d'' -->[g] d')
   : (gg ;; ff = gg' ;; ff) -> gg = gg'.
 Proof.
-  set (temp := cartesian_factorisation_of_composite H gg).
-  set (temp' := cartesian_factorisation_of_composite H gg').
-  intros Hggff.
-  set (temp'' := maponpaths (cartesian_factorisation H g) Hggff).
-  set (yay := (temp @ temp'' @ ! temp')).
-  exact yay.
+  intro Hggff.
+  eapply pathscomp0.
+  - apply (cartesian_factorisation_of_composite H).
+  - eapply pathscomp0.
+    + apply maponpaths. exact Hggff.
+    + apply pathsinv0. apply cartesian_factorisation_of_composite.
 Qed.
