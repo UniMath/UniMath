@@ -214,6 +214,7 @@ Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
 Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v
+Monoidal/DisplayedMonoidalCurried.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/BraidedMonoidalCategories.v
 

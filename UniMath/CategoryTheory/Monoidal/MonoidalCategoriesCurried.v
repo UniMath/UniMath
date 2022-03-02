@@ -1,3 +1,24 @@
+(* In this file we formalize the definition of a monoidal category in a curried format.
+The data of a monoidal category consist of:
+	- Category C.
+	- A functor T : C x C → C, called the tensor which is specified as followed:
+		- On the objects: A function Ob(C) → (Ob(C) → Ob(C)) : x → (y → x ⊗_{T} y)
+		- On the morphisms: A function C[x,x'] → ( C[y,y'] -> C[ x ⊗_{T} y, x' ⊗_{T} y']) : f→ (g→ f ⊗^{T} g)
+	- An object I : C, called the unit.
+	- A natural transformation lu : I ⊗_T (-) → (-) with naturality condition
+                lu_y ∘ (Id_I ⊗^{T} f) = f ∘ lu_x.
+        - A natural transformation ru : (-) ⊗_T I → (-) with naturality condition
+                ru_y ∘ (f ⊗^{T} Id_I) = f ∘ ru_x.
+        - A natural transformation α : ((-)⊗_T(-))⊗_T(-) → (-)⊗((-)⊗(-)) with naturality condition
+                f⊗(g⊗h) ∘ α_{x,y,z} = α_{x',y',z'} ∘ (f⊗g)⊗h.
+The properties of a monoidal category are the following:
+        - Triangle identity:
+                   (Id_x ⊗ lu_y) ∘ α_{x,I,y} = ru_x ⊗^{T} Id_y.
+        - Pentagon identity:
+                   (Id_w ⊗ α_{x,y,z}) ∘ α_{w,x⊗y,z} ∘ (α_{w,x,y} ⊗ Id_z) = α_{w,x,y⊗z} ∘ α_{w⊗x,y,z}.
+
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -53,7 +74,7 @@ Section Monoidal_Precategories.
     ∏ (x : C), C ⟦I ⊗_{T} x, x⟧.
 
   Definition left_unitor_naturality {C : category} (T : tensor C) (I : C) (λ_ob : left_unitor_on_objects T I) :=
-    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), f∘(λ_ob x) = (λ_ob y)∘((identity I)⊗^{T}f).
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), (λ_ob y)∘((identity I)⊗^{T}f) = f∘(λ_ob x).
 
   Definition left_unitor {C : category} (T : tensor C) (I : C) :=
     ∑ (λ_ob : left_unitor_on_objects T I), left_unitor_naturality T I λ_ob.
@@ -62,7 +83,7 @@ Section Monoidal_Precategories.
     ∏ (x : C), C ⟦x ⊗_{T} I, x⟧.
 
   Definition right_unitor_naturality {C : category} (T : tensor C) (I : C) (ρ_ob : right_unitor_on_objects T I) :=
-    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), f∘(ρ_ob x) = (ρ_ob y)∘ (f ⊗^{T} (identity I)).
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), (ρ_ob y)∘ (f ⊗^{T} (identity I)) = f∘(ρ_ob x).
 
   Definition right_unitor {C : category} (T : tensor C) (I : C) :=
     ∑ (ρ_ob : right_unitor_on_objects T I), right_unitor_naturality T I ρ_ob.
@@ -73,14 +94,13 @@ Section Monoidal_Precategories.
              (lu : left_unitor T I)
              (ru : right_unitor T I)
              (α : associator T)
-    := ∏ (x y : C),  (((pr1 ru) x) ⊗^{T} identity y) = (((identity x)  ⊗^{T} (pr1 lu) y ) ∘ ((pr1 α) x I y)).
+    := ∏ (x y : C),  (((identity x)  ⊗^{T} (pr1 lu) y ) ∘ ((pr1 α) x I y)) = (((pr1 ru) x) ⊗^{T} identity y).
 
   Definition pentagon_identity {C : category} (T : tensor C) (α : associator T) :=
     ∏ (w x y z : C),
-      ((pr1 α) w x (y⊗_{T} z)) ∘ ((pr1 α) (w⊗_{T}x) y z) =
          ((identity w)⊗^{T} ((pr1 α) x y z))
-           ∘ ((pr1 α) w (x⊗_{T} y) z)
-           ∘ (((pr1 α) w x y) ⊗^{T} (identity z)).
+           ∘ (((pr1 α) w (x⊗_{T} y) z)
+           ∘ (((pr1 α) w x y) ⊗^{T} (identity z))) =  ((pr1 α) w x (y⊗_{T} z)) ∘ ((pr1 α) (w⊗_{T}x) y z).
 
   Definition monoidal_category  : UU :=
     ∑ C : category, ∑ T : tensor C, ∑ I : C,
@@ -89,5 +109,27 @@ Section Monoidal_Precategories.
                 ∑ α : associator T,
                   (triangle_identity T I lu ru α) × (pentagon_identity T α).
 
+  (* Some definitions to extract the data from a monoidal category. *)
+  Definition category_extraction_of_monoidalcat (M : monoidal_category) : category := pr1 M.
+  Coercion category_extraction_of_monoidalcat : monoidal_category >-> category.
 
-  End Monoidal_Precategories.
+  Definition tensor_extraction_of_monoidalcat (M : monoidal_category) : tensor M := pr1 (pr2 M).
+  Coercion tensor_extraction_of_monoidalcat : monoidal_category >-> tensor.
+
+  Definition unit_extraction_of_monoidalcat (M : monoidal_category) : M :=
+    pr1 (pr2 (pr2 M)).
+
+  Definition leftunitor_extraction_of_monoidalcat (M : monoidal_category) : left_unitor (tensor_extraction_of_monoidalcat M) (unit_extraction_of_monoidalcat M) :=
+    pr1 (pr2 (pr2 (pr2 M))).
+
+  Definition rightunitor_extraction_of_monoidalcat (M : monoidal_category) : right_unitor (tensor_extraction_of_monoidalcat M) (unit_extraction_of_monoidalcat M) :=
+    pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+
+  Definition associator_extraction_of_monoidalcat (M : monoidal_category) : associator (tensor_extraction_of_monoidalcat M) :=
+    pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+
+  Definition triangleidentity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+
+  Definition pentagonidentity_extraction_of_monoidalcat (M : monoidal_category) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+
+End Monoidal_Precategories.
