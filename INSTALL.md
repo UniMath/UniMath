@@ -145,6 +145,11 @@ takes you to the source code of the definition.  One may repeat that as often
 as desired, and return one level upward in the chain of locations visited with
 ```M-*```.
 
+Another use of the tags file is to search through all the source files for the
+occurrence of text matching a given regular expression.  For example, you can use
+```M-x tags-search``` with the regular expression ```^Notation +"\[[^:]*\(,[^:]\)*\]```
+to find the notation definitions that involved square brackets.
+
 In order to enable this facility, make a "TAGS" file as follows.
 To make a TAGS file for use with emacs ```etags``` commands:
 ```bash
