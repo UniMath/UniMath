@@ -35,24 +35,38 @@ Local Open Scope mor_disp_scope.
 (** * Comfortably proving unique existence *)
 Section Unique_existence.
 
-Definition contr_equiv_inhab_prop
+Definition contr_impl_inhab_prop
     (A : UU)
-  : (iscontr A) <-> A × (isaprop A).
+  : (iscontr A) -> A × (isaprop A).
 Proof.
-  split.
-  - intros H. split.
-    -- apply iscontrpr1. assumption.
-    -- apply isapropifcontr. assumption.
-  - unfold isaprop, isofhlevel, iscontr. intros (a, H).
-    exists a. intros a'.
-    exact (pr1 (H a' a)).
+  intro H. split.
+  - apply iscontrpr1. assumption.
+  - apply isapropifcontr. assumption.
 Defined.
 
-Definition uniex_equiv_ex_uni
-    {A : UU} (B : A -> UU)
-  : (∃! (a : A), B a) <-> (∑ (a : A), B a) × isaprop (∑ (a : A), B a).
+Definition inhab_prop_impl_contr
+    (A : UU)
+  : A × (isaprop A) -> iscontr A.
 Proof.
-  apply contr_equiv_inhab_prop.
+  unfold isaprop, isofhlevel, iscontr. intros (a, H).
+  exists a. intros a'.
+  exact (pr1 (H a' a)).
+Defined.
+
+
+
+Definition ex_uni_impl_uniex
+    {A : UU} (B : A -> UU)
+  : (∑ (a : A), B a) × isaprop (∑ (a : A), B a) -> (∃! (a : A), B a).
+Proof.
+  apply inhab_prop_impl_contr.
+Defined.
+
+Definition uniex_impl_ex_uni
+    {A : UU} (B : A -> UU)
+  : (∃! (a : A), B a) -> (∑ (a : A), B a) × isaprop (∑ (a : A), B a).
+Proof.
+  apply contr_impl_inhab_prop.
 Defined.
 
 (* Replace applictions of this by eapply unique_exists? *)

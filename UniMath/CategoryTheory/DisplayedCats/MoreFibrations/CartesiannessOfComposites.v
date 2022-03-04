@@ -43,11 +43,15 @@ Definition postcomp_pres_comm
   : (gg' ;; ff' = gg) -> (gg' ;; (ff' ;; ff) = hh).
 Proof.
   intro comm_left.
-  set (comm_left' := maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)) comm_left).
-  set (comm_all_pre := comm_left' @ comm_right).
-  set (comm_all_pre' := maponpaths (transportb _ (assoc g' f' f)) comm_all_pre).
-  set (comm_all := assoc_disp gg' ff' ff @ comm_all_pre' @ transport_cancel_b_f _ (assoc g' f' f) hh).
-  exact comm_all.
+  eapply pathscomp0.
+  - apply assoc_disp.
+  - eapply pathscomp0.
+    2: { apply transport_cancel_b_f. }
+    + apply maponpaths.
+      eapply pathscomp0.
+      2: { exact comm_right. }
+      * apply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+        exact comm_left.
 Qed.
 
 Definition postcomp_refl_comm
@@ -60,13 +64,15 @@ Definition postcomp_refl_comm
     (comm_right : gg ;; ff = transportf (mor_disp d''' d) (assoc g' f' f) hh)
   : (gg' ;; (ff' ;; ff) = hh) -> (gg' ;; ff' = gg).
 Proof.
-  set (temp := assoc_disp_var gg' ff' ff).
-  set (temp' := transport_cancel_b_f _ (assoc g' f' f) hh).
   intro comm_all.
-  set (comm_all' := maponpaths (transportf (mor_disp d''' d) (assoc g' f' f)) comm_all).
-  set (comm_left' := assoc_disp_var gg' ff' ff @ comm_all' @ ! comm_right).
-  set (comm_left := cartesian_factorisation_unique H (gg' ;; ff') gg comm_left').
-  exact comm_left.
+  apply (cartesian_factorisation_unique H).
+  eapply pathscomp0.
+  - apply assoc_disp_var.
+  - eapply pathscomp0.
+    2: { apply pathsinv0.
+         exact comm_right. }
+    + apply maponpaths.
+      exact comm_all.
 Qed.
 
 
@@ -81,29 +87,92 @@ Proof.
   unfold is_cartesian.
   intros c''' g' d''' hh.
   set (gg := cartesian_factorisation' cartff (g' · f') hh (! assoc g' f' f)).
-  set (comm_right := cartesian_factorisation_commutes'  cartff (g' · f') hh (! assoc g' f' f)).
+  set (comm_right := cartesian_factorisation_commutes' cartff (g' · f') hh (! assoc g' f' f)). simpl in comm_right.
   set (gg' := cartesian_factorisation cartff' g' gg).
   set (comm_left := cartesian_factorisation_commutes cartff' g' gg).
-  (*set (comm_all := postcomp_pres_eq ff ff' gg' gg hh comm_right).*)
   set (comm_left' := maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)) comm_left).
   set (comm_all_pre := comm_left' @ comm_right).
   set (comm_all_pre' := maponpaths (transportb _ (assoc g' f' f)) comm_all_pre).
   set (comm_all := (assoc_disp gg' ff' ff) @ comm_all_pre' @ transport_cancel_f_b _ (! assoc g' f' f) hh).
   exists (gg',, comm_all).
   intros (gg'', commgg''big).
-  apply subtypePairEquality.
-  intro gg0.
-  set (settemp := homsets_disp (g' · (f' · f)) d''' d).
-  set (proptemp := settemp (gg0 ;; (ff' ;; ff)) hh).
-  exact proptemp.
-  set (H := commgg''big @ ! comm_all).
-  set (H_assoc_temp := maponpaths (transportf _ (assoc g' f' f)) H).
-  set (temp_assoc_var := assoc_disp_var gg' ff' ff).
-  set (temp_assoc_var' := assoc_disp_var gg'' ff' ff).
-  set (H_assoc := temp_assoc_var' @ H_assoc_temp @ ! temp_assoc_var).
-  set (H_small := cartesian_factorisation_unique cartff (gg'' ;; ff') (gg' ;; ff') H_assoc).
-  set (yay := cartesian_factorisation_unique cartff' gg'' gg' H_small).
-  exact yay.
+  eapply subtypePairEquality.
+  - intro gg0.
+    apply homsets_disp.
+  - apply (cartesian_factorisation_unique cartff').
+    apply (cartesian_factorisation_unique cartff).
+    eapply pathscomp0.
+    + apply assoc_disp_var.
+    + eapply pathscomp0.
+      2: { apply pathsinv0.
+           apply assoc_disp_var. }
+      * apply maponpaths.
+        apply (pathscomp0 commgg''big).
+        apply pathsinv0.
+        eapply pathscomp0.
+        -- apply assoc_disp.
+        -- eapply pathscomp0.
+           2: { apply transport_cancel_f_b. }
+           ++ apply maponpaths.
+              eapply pathscomp0.
+              ** simpl in comm_left'.
+                 exact comm_left'.
+              ** apply cartesian_factorisation_commutes'.
+Defined.
+
+(*First some lemmas on gluing triangles and their commutativity. TODO: Generalize to full triangles over not judgmentally commutative base?*)
+(*Definition comp_comm_triangle
+    {C : category} {D : disp_cat C}
+    {c c' c'' c''' : C} {f : c' --> c} {f' : c'' --> c'} {g : c''' → c''}
+    {d : D c} {d' : D c'} {d'' : D c''} {d''' : D c'''} {ff : d' -->[f] d}
+    {ff' : d'' -->[f'] d'} {gf : d''' →[g · f'] d'} {gg : d''' →[g] d''}
+  : gg ;; ff' = gf →*)
+
+(* In the following we show that postcomposition with cartesian morphisms preserves and reflects (pre)cartesianness. *)
+Definition postcomp_w_cart_pres_cart_new
+    {C : category} {D : disp_cat C}
+    {c c' c'' : C} {f : c' --> c} {f' : c'' --> c'}
+    {d : D c} {d' : D c'} {d'' : D c''} (ff : d' -->[f] d) (ff' : d'' -->[f'] d')
+  : is_cartesian ff -> (is_cartesian ff' -> is_cartesian (ff' ;; ff)).
+Proof.
+  intros cartff cartff'.
+  unfold is_cartesian.
+  intros c''' g' d''' hh.
+  set (gg := cartesian_factorisation' cartff (g' · f') hh (! assoc g' f' f)).
+  set (comm_right := cartesian_factorisation_commutes' cartff (g' · f') hh (! assoc g' f' f)).
+  set (gg' := cartesian_factorisation cartff' g' gg).
+  set (comm_left := cartesian_factorisation_commutes cartff' g' gg).
+  set (comm_left' := maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)) comm_left).
+  set (comm_all_pre := comm_left' @ comm_right).
+  set (comm_all_pre' := maponpaths (transportb _ (assoc g' f' f)) comm_all_pre).
+  set (comm_all := (assoc_disp gg' ff' ff) @ comm_all_pre' @ transport_cancel_f_b _ (! assoc g' f' f) hh).
+  (*apply ex_uni_impl_uniex.*)
+  eexists. Unshelve. (* alternatively use tpair or eapply tpair*)
+  2: { exists gg'.
+       exact comm_all. }
+  - intros (gg'', commgg''big).
+    eapply subtypePairEquality.
+    + intro gg0.
+      apply homsets_disp.
+    + apply (cartesian_factorisation_unique cartff').
+      apply (cartesian_factorisation_unique cartff).
+      eapply pathscomp0.
+      * apply assoc_disp_var.
+      * eapply pathscomp0.
+        2: { apply pathsinv0.
+           apply assoc_disp_var. }
+        -- apply maponpaths.
+           apply (pathscomp0 commgg''big).
+           apply pathsinv0.
+           eapply pathscomp0.
+           ++ apply assoc_disp.
+           ++ eapply pathscomp0.
+              2: { apply transport_cancel_f_b. }
+              ** apply maponpaths.
+                 eapply pathscomp0.
+                 --- simpl in comm_left'.
+                     exact comm_left'.
+                 --- apply cartesian_factorisation_commutes'.
 Defined.
 
 Definition postcomp_w_cart_refl_cart
@@ -215,10 +284,11 @@ Definition postcomp_w_cart_pres_precart
   : is_cartesian ff -> (is_precartesian ff' -> is_precartesian (ff' ;; ff)).
 Proof.
   intros cartff precartff'.
-  set (pre'cartff' := pre_implies_pre' ff' precartff').
-  set (pre'cartff'ff := postcomp_w_cart_pres_pre'cart ff ff' cartff pre'cartff').
-  set (precartff'ff := pre'_implies_pre (ff' ;; ff) pre'cartff'ff).
-  exact (precartff'ff).
+  apply pre'_implies_pre.
+  eapply postcomp_w_cart_pres_pre'cart.
+  - exact cartff.
+  - apply pre_implies_pre'.
+    exact precartff'.
 Defined.
 
 Definition postcomp_w_cart_refl_precart
@@ -228,8 +298,9 @@ Definition postcomp_w_cart_refl_precart
   : is_cartesian ff -> (is_precartesian (ff' ;; ff) -> is_precartesian ff').
 Proof.
   intros cartff precartff'ff.
-  set (pre'cartff'ff := pre_implies_pre' (ff' ;; ff) precartff'ff).
-  set (pre'cartff' := postcomp_w_cart_refl_pre'cart ff ff' cartff pre'cartff'ff).
-  set (precartff' := pre'_implies_pre ff' pre'cartff').
-  exact (precartff').
+  apply pre'_implies_pre.
+  eapply postcomp_w_cart_refl_pre'cart.
+  - exact cartff.
+  - apply pre_implies_pre'.
+    exact precartff'ff.
 Defined.

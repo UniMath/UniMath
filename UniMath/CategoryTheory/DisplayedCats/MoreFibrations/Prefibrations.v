@@ -120,7 +120,7 @@ Proof.
   exact (maponpaths pr1 ((pr2 (H _ _)) (_,, idpath _))).
 Defined.
 
-Definition pre'cartesian_factorisation_unique_new
+Definition pre'cartesian_factorisation_unique
     {C : category} {D : disp_cat C} {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_pre'cartesian ff)
     {d'': D c'} (gg gg' : d'' -->[identity c'] d')
