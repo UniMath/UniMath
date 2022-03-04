@@ -74,22 +74,12 @@ Section CartesianMonoidal.
   (* Local Notation "π1[ ( x ) ⊗ ( y ) ]" := (BinProductPr1 _ (BC x y)). *)
   (* Local Notation "π2[ ( x ) ⊗ ( y ) ]" := (BinProductPr2 _ (BC x y)). *)
 
-  (* Equalities for which it almost always pays to rewrite forward *)
-  Hint Resolve BinProductArrow : binprod.
-  Hint Resolve BinProductPr1 : binprod.
-  Hint Resolve BinProductPr2 : binprod.
-  Hint Resolve compose : binprod.
-  Hint Rewrite BinProductPr1Commutes : binprod.
-  Hint Rewrite BinProductPr2Commutes : binprod.
-  Hint Rewrite BinProductOfArrowsPr1 : binprod.
-  Hint Rewrite BinProductOfArrowsPr2 : binprod.
-
   Local Lemma f_equal_2 :
     forall {A B C : UU} (f : A -> B -> C) (a a' : A) (b b' : B),
       a = a' -> b = b' -> f a b = f a' b'.
   Proof.
     do 8 intro; intros eq1 eq2.
-    abstract (rewrite eq1; rewrite eq2; auto).
+    abstract (rewrite eq1; rewrite eq2; reflexivity).
   Defined.
 
   Lemma cartesian_monoidal : monoidal_cat.
@@ -105,74 +95,71 @@ Section CartesianMonoidal.
     - (** [right_unitor] : [y × T -> y] *)
       exact cartesian_right_unitor.
     - (** [associator] *)
-      unfold associator.
-      use tpair.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * intros x.
-          unfold assoc_left; cbn.
           apply binprod_assoc_l.
         * intros x y f; cbn.
           unfold binprod_assoc_l.
-
-          abstract ((** Rewrite the LHS *)
-                    do 2 rewrite precompWithBinProductArrow;
-                    do 4 (rewrite assoc || autorewrite with binprod);
-                    do 4 (rewrite <- assoc || autorewrite with binprod);
-
-                    (** Rewrite the RHS *)
-                    do 2 rewrite postcompWithBinProductArrow;
-                    do 2 rewrite assoc;
-                    reflexivity).
+          abstract(
+            do 2 rewrite precompWithBinProductArrow;
+            rewrite !assoc, !BinProductOfArrowsPr1, BinProductOfArrowsPr2;
+            rewrite !assoc', BinProductOfArrowsPr1, BinProductOfArrowsPr2;
+            do 2 rewrite postcompWithBinProductArrow;
+            do 2 rewrite assoc;
+            reflexivity
+          ).
       + intros bp.
         use make_is_z_isomorphism.
         * apply binprod_assoc_r.
         * apply assoc_l_qinv_assoc_r.
-   - unfold triangle_eq; intros a b; cbn.
-     unfold binprod_assoc_l.
-     rewrite postcompWithBinProductArrow.
-     unfold BinProductOfArrows; cbn.
-     autorewrite with binprod.
-     do 2 rewrite id_right.
-     reflexivity.
-   - unfold pentagon_eq; cbn; intros a b c d.
+    - intros a b; cbn.
+      unfold binprod_assoc_l.
+      rewrite postcompWithBinProductArrow.
+      unfold BinProductOfArrows; cbn.
+      rewrite BinProductPr2Commutes.
+      do 2 rewrite id_right.
+      reflexivity.
+    - unfold pentagon_eq; cbn; intros a b c d.
+      unfold binprod_assoc_l; cbn.
+      repeat (rewrite assoc || rewrite BinProdPr1Commutes).
+      repeat (rewrite <- assoc || rewrite BinProdPr2Commutes).
+      repeat rewrite postcompWithBinProductArrow.
+      repeat rewrite precompWithBinProductArrow.
 
-     unfold binprod_assoc_l; cbn.
-     repeat (rewrite assoc   || rewrite BinProdPr1Commutes).
-     repeat (rewrite <- assoc || rewrite BinProdPr2Commutes).
-     repeat rewrite postcompWithBinProductArrow.
-     repeat rewrite precompWithBinProductArrow.
+      (* Now they both have the form:
+          [BinProductArrow C (BC a (b ⊗ (c ⊗ d))) f g],
+          so we can split into cases. *)
+      apply f_equal_2.
 
-     (* Now they both have the form:
-        [BinProductArrow C (BC a (b ⊗ (c ⊗ d))) f g],
-        so we can split into cases. *)
-     apply f_equal_2.
-
-     + repeat (rewrite assoc   || autorewrite with binprod).
-       repeat rewrite <- assoc.
-       apply (maponpaths (fun f => BinProductPr1 C _ · f)).
-       repeat (rewrite assoc   || autorewrite with binprod).
-       rewrite id_right.
-       reflexivity.
-     + apply f_equal_2.
-       * repeat (rewrite assoc   || autorewrite with binprod).
-         rewrite precompWithBinProductArrow.
-         repeat (rewrite assoc   || autorewrite with binprod).
-         repeat rewrite <- assoc.
-         apply (maponpaths (fun f => BinProductPr1 C _ · f)).
-         repeat (rewrite assoc   || autorewrite with binprod).
-         reflexivity.
-       * repeat (rewrite assoc   || autorewrite with binprod).
-         apply f_equal_2.
-         -- repeat rewrite precompWithBinProductArrow.
-            repeat (rewrite assoc   || autorewrite with binprod).
-            repeat rewrite <- assoc.
-            apply (maponpaths (fun f => BinProductPr1 C _ · f)).
-            repeat rewrite assoc.
-            autorewrite with binprod.
-            reflexivity.
-         -- repeat rewrite precompWithBinProductArrow.
-            repeat (rewrite assoc   || autorewrite with binprod).
-            rewrite id_right.
-            reflexivity.
+      + rewrite assoc, BinProductPr1Commutes.
+        rewrite !assoc, BinProductOfArrowsPr1.
+        rewrite !assoc'.
+        apply cancel_precomposition.
+        rewrite assoc, BinProductPr1Commutes, id_right.
+        reflexivity.
+      + apply f_equal_2.
+        * rewrite assoc, BinProductPr1Commutes.
+          rewrite assoc, precompWithBinProductArrow.
+          rewrite assoc, BinProductPr1Commutes.
+          rewrite assoc, BinProductOfArrowsPr1.
+          rewrite !assoc'.
+          apply cancel_precomposition.
+          rewrite assoc.
+          rewrite BinProductPr2Commutes, BinProductPr1Commutes.
+          reflexivity.
+        * rewrite assoc, BinProductPr2Commutes.
+          rewrite assoc, BinProductPr2Commutes.
+          apply f_equal_2.
+          -- repeat rewrite precompWithBinProductArrow.
+             rewrite assoc, BinProductPr1Commutes, BinProductOfArrowsPr1.
+             rewrite !assoc'.
+             apply cancel_precomposition.
+             rewrite assoc, BinProductPr2Commutes, BinProductPr2Commutes.
+             reflexivity.
+          -- repeat rewrite precompWithBinProductArrow.
+             rewrite BinProductOfArrowsPr2.
+             rewrite id_right.
+             reflexivity.
   Defined.
 End CartesianMonoidal.
