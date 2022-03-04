@@ -128,6 +128,97 @@ Section Misc.
     use tpair; try apply n; reflexivity.
   Defined.
 
+  Lemma fldchoice0 {X : fld} (e : X) : coprod (e = 0%ring) (e != 0%ring).
+  Proof.
+    destruct (fldchoice e).
+    2: {left; assumption. }
+    right.
+    unfold multinvpair, invpair in m.
+    destruct m as [m1 m2].
+    destruct m2 as [m2 m3].
+    apply (@ringneq0andmultlinv X e m1).
+    change 1%ring with 1%multmonoid in m3.
+    assert (eq: (e * m1)%ring = 1%ring).
+    { symmetry in m2. apply m3. }
+    rewrite eq; apply nonzeroax.
+  Defined.
+
+  Lemma fldchoice0_left {X : fld} (e : X) (eq : (e = 0)%ring):
+    (fldchoice0 e) = inl eq.
+  Proof.
+    destruct (fldchoice0 _).
+    - apply proofirrelevance.
+      apply isapropcoprod.
+      + use setproperty.
+      + apply isapropneg. 
+      + intros; contradiction.
+    - contradiction.
+  Defined.
+
+  Lemma fldchoice0_right {X : fld} (e : X) (neq : (e != 0)%ring):
+    (fldchoice0 e) = inr neq.
+  Proof.
+    destruct (fldchoice0 _).
+    - contradiction.
+    - apply proofirrelevance; apply isapropcoprod.
+      + use setproperty.
+      + apply isapropneg. 
+      + intros; contradiction.
+  Defined.
+
+  Lemma fldmultinv_eq {F : fld} : forall (e1 e2 : F), forall p1 : e1 != 0%ring,
+    forall p2: e2 != 0%ring, e1 = e2 -> fldmultinv e1 p1 = fldmultinv e2 p2.
+  Proof.
+    intros.
+    unfold fldmultinv, fldmultinvpair.
+    destruct (fldchoice _) as [eq0 | neq0].
+    - destruct (fldchoice _) as [eq0' | neq0'].
+      +  
+        unfold multinvpair in *.
+        
+        pose (H1 := invtolinv _ _ eq0).
+        pose (H2 := invtorinv _ _ eq0').
+        unfold linvpair in H1.
+        unfold rinvpair in H2.
+        rewrite <- X in H2.
+        unfold invpair in eq0.
+        pose (H3 := pathslinvtorinv _ _ H1 H2).
+        simpl in H3.
+
+        rewrite <- X in H3.
+        destruct eq0 as [eq0 ?].
+        rewrite H3.
+        pose (H4 := invtolinv _ _ eq0).
+        pose (H5 := invtorinv _ _ eq0').
+        clear H3.
+        rewrite X in H4.
+        pose (H6 := pathslinvtorinv _ _ H4 H5).
+        simpl.
+        simpl in H6.
+        rewrite <- H6.
+        simpl.
+
+        apply pathslinvtorinv.
+        unfold H2.
+        assumption.
+        apply H3.
+        destruct eq0 as [inv rinv].
+        destruct eq0' as [inv' rinv'].
+        Search "unique".
+        simpl.
+        Search "multmonoid".
+        Search "inv2".
+        Search rigmultmonoid.
+        Search "ringinv".
+        Search 1%multmonoid.
+        Search "rinvel".
+        Search "uniq".
+        Search invpair.
+        Search "invuniq".
+        About nonzeroax.
+        unfold 1%multmonoid in *.
+        rewrite X.
+
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
   Proof.
@@ -148,7 +239,7 @@ Section Misc.
     rewrite m_eq_n in m_neq_n.
     apply isirrefl_natneq in m_neq_n.
     apply fromempty.
-    exact (m_neq_n). (* TODO Do we prefer to rename this premise before applying it? *)
+    exact (m_neq_n).
   Defined.
 
   Lemma nat_eq_or_neq_refl
