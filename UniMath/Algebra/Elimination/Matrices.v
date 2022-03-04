@@ -497,9 +497,9 @@ Section MatricesHq.
       assumption.
   Defined.
 
-  Lemma transpose_invertible_to_invertible { n : nat } (mat : Matrix hq n n)
-    : (@matrix_inverse hq n (transpose mat))
-  -> (@matrix_inverse hq n mat).
+  Lemma transpose_invertible_to_invertible { n : nat } (mat : Matrix F n n)
+    : (@matrix_inverse F n (transpose mat))
+  -> (@matrix_inverse F n mat).
   Proof.
     intros.
     rewrite <- transpose_transpose.
@@ -527,17 +527,18 @@ Section MatricesHq.
     apply contr_hz. apply maponpaths, contr.
   Time Defined.
 
-  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix hq m n)
-      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%hq))
-    : (@matrix_right_inverse hq m n A) -> empty.
+  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix F m n)
+      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%ring))
+    : (@matrix_right_inverse F m n A) -> empty.
   Proof.
     intros [inv isrightinv].
-    apply hqone_neq_hqzero.
-    etrans. { apply pathsinv0, (@id_mat_ii hq). }
+    (*apply hqone_neq_hqzero.*)
+    contradiction (@nonzeroax F).
+    etrans. { apply pathsinv0, (@id_mat_ii F). }
     do 2 (apply toforallpaths in isrightinv; specialize (isrightinv i)).
     etrans. { apply pathsinv0, isrightinv. }
     refine (toforallpaths _ _ _ _ i).
-    apply (@zero_row_product hq).
+    apply (@zero_row_product F).
     apply zero_row.
   Defined.
 
