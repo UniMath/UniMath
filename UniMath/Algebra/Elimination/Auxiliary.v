@@ -169,55 +169,10 @@ Section Misc.
   Lemma fldmultinv_eq {F : fld} : forall (e1 e2 : F), forall p1 : e1 != 0%ring,
     forall p2: e2 != 0%ring, e1 = e2 -> fldmultinv e1 p1 = fldmultinv e2 p2.
   Proof.
-    intros.
-    unfold fldmultinv, fldmultinvpair.
-    destruct (fldchoice _) as [eq0 | neq0].
-    - destruct (fldchoice _) as [eq0' | neq0'].
-      +  
-        unfold multinvpair in *.
-        
-        pose (H1 := invtolinv _ _ eq0).
-        pose (H2 := invtorinv _ _ eq0').
-        unfold linvpair in H1.
-        unfold rinvpair in H2.
-        rewrite <- X in H2.
-        unfold invpair in eq0.
-        pose (H3 := pathslinvtorinv _ _ H1 H2).
-        simpl in H3.
-
-        rewrite <- X in H3.
-        destruct eq0 as [eq0 ?].
-        rewrite H3.
-        pose (H4 := invtolinv _ _ eq0).
-        pose (H5 := invtorinv _ _ eq0').
-        clear H3.
-        rewrite X in H4.
-        pose (H6 := pathslinvtorinv _ _ H4 H5).
-        simpl.
-        simpl in H6.
-        rewrite <- H6.
-        simpl.
-
-        apply pathslinvtorinv.
-        unfold H2.
-        assumption.
-        apply H3.
-        destruct eq0 as [inv rinv].
-        destruct eq0' as [inv' rinv'].
-        Search "unique".
-        simpl.
-        Search "multmonoid".
-        Search "inv2".
-        Search rigmultmonoid.
-        Search "ringinv".
-        Search 1%multmonoid.
-        Search "rinvel".
-        Search "uniq".
-        Search invpair.
-        Search "invuniq".
-        About nonzeroax.
-        unfold 1%multmonoid in *.
-        rewrite X.
+    intros e1 e2 neq1 neq2 eq.
+    destruct eq.
+    apply maponpaths, proofirrelevance, isapropneg.
+  Defined.
 
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
