@@ -146,7 +146,8 @@ Definition make_isBinProduct (a b p : C)
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
   isBinProduct a b p pa pb.
 Proof.
-  auto.
+  intros H c cc g.
+  apply H.
 Defined.
 
 Lemma BinProductArrowEta (c d : C) (P : BinProduct c d) (x : C)
@@ -783,9 +784,9 @@ Section ProductsBool.
     use make_BinProduct.
     - eapply ProductObject.
       apply (PBC index).
-    - replace x with (index true) by reflexivity.
+    - change x with (index true).
       apply ProductPr.
-    - replace y with (index false) by reflexivity.
+    - change y with (index false).
       apply ProductPr.
     - use make_isBinProduct; cbn.
       intros z f g; use make_iscontr.
@@ -841,31 +842,27 @@ Section Assoc.
   Context {C : category}.
   Context (BC : BinProducts C).
 
-  Hint Resolve BinProductArrow : binprod.
-  Hint Resolve BinProductPr1 : binprod.
-  Hint Resolve BinProductPr2 : binprod.
-  Hint Resolve compose : binprod.
-
   Local Notation "c '⊗' d" := (BinProductObject C (BC c d)) : cat.
   Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
   Local Open Scope cat.
 
-  (** The behavior of eauto here is to [apply] the above hints until successful *)
   Definition binprod_assoc_r {x y z} : C⟦x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z⟧.
   Proof.
-    eauto with binprod.
+    apply BinProductArrow.
+    - apply BinProductArrow.
+      + apply BinProductPr1.
+      + exact (BinProductPr2 _ _ · BinProductPr1 _ _).
+    - exact (BinProductPr2 _ _ · BinProductPr2 _ _).
   Defined.
 
   Definition binprod_assoc_l {x y z} : C⟦(x ⊗ y) ⊗ z, x ⊗ (y ⊗ z)⟧.
   Proof.
-    eauto with binprod.
+    apply BinProductArrow.
+    - exact (BinProductPr1 _ _ · BinProductPr1 _ _).
+    - apply BinProductArrow.
+      + exact (BinProductPr1 _ _ · BinProductPr2 _ _).
+      + apply BinProductPr2.
   Defined.
-
-  (* Equalities for which it almost always pays to rewrite forward *)
-  Hint Rewrite BinProductPr1Commutes : binprod.
-  Hint Rewrite BinProductPr2Commutes : binprod.
-  Hint Rewrite BinProductOfArrowsPr1 : binprod.
-  Hint Rewrite BinProductOfArrowsPr2 : binprod.
 
   (** This isomorphism extends to a natural ismorphism, see
       [CategoryTheory.Monoidal.Cartesian]. *)
@@ -876,14 +873,14 @@ Section Assoc.
     split.
     - unfold binprod_assoc_l, binprod_assoc_r.
       do 2 rewrite precompWithBinProductArrow.
-      do 4 ( rewrite assoc || autorewrite with binprod ).
+      rewrite !assoc, BinProductPr1Commutes, BinProductPr2Commutes, BinProductPr1Commutes, BinProductPr2Commutes.
       refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
       do 2 rewrite id_left.
       apply (maponpaths (fun f => BinProductArrow _ _ f _)).
       exact (! BinProductArrowEta _ _ _ _ _ (BinProductPr1 _ _)).
     - unfold binprod_assoc_l, binprod_assoc_r.
       do 2 rewrite precompWithBinProductArrow.
-      do 4 ( rewrite assoc || autorewrite with binprod ).
+      rewrite !assoc, !BinProductPr1Commutes, !BinProductPr2Commutes.
       refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
       do 2 rewrite id_left.
       apply (maponpaths (fun f => BinProductArrow _ _ _ f)).
@@ -1025,8 +1022,8 @@ Section Assoc3.
                              ltac:(apply right_assoc_ternary_product)).
     pose (p2 := make_Product _ _ _ ((a ⊠ b) ⊠ c) _
                              ltac:(apply left_assoc_ternary_product)).
-    replace (a ⊠ (b ⊠ c)) with (ProductObject _ _ p1) by reflexivity.
-    replace ((a ⊠ b) ⊠ c) with (ProductObject _ _ p2) by reflexivity.
+    change (a ⊠ (b ⊠ c)) with (ProductObject _ _ p1).
+    change ((a ⊠ b) ⊠ c) with (ProductObject _ _ p2).
     eapply make_iso.
     eapply product_unique.
   Defined.
