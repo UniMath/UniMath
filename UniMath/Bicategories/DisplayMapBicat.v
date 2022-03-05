@@ -11,34 +11,17 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderPullback.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Import DispBicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
-Require Import UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
-Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 
 Local Open Scope cat.
 
@@ -299,6 +282,62 @@ Proof.
     + exact (pr2 HD₂ _ _ _ _ p₁ p₂ fe).
 Defined.
 
+Definition faithful_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := full_arrow_subbicat (λ _ _ f, faithful_1cell f).
+
+Definition faithful_subbicat_props
+           (B : bicat)
+  : arrow_subbicat_props (faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_props.
+  intros.
+  apply isaprop_faithful_1cell.
+Defined.
+
+Definition fully_faithful_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := full_arrow_subbicat (λ _ _ f, fully_faithful_1cell f).
+
+Definition fully_faithful_subbicat_props
+           (B : bicat)
+  : arrow_subbicat_props (fully_faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_props.
+  intros.
+  apply isaprop_fully_faithful_1cell.
+Defined.
+
+Definition conservative_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := full_arrow_subbicat (λ _ _ f, conservative_1cell f).
+
+Definition conservative_subbicat_props
+           (B : bicat)
+  : arrow_subbicat_props (conservative_subbicat B).
+Proof.
+  use full_arrow_subbicat_props.
+  intros.
+  apply isaprop_conservative_1cell.
+Defined.
+
+Definition discrete_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := full_arrow_subbicat (λ _ _ f, discrete_1cell f).
+
+Definition discrete_subbicat_props
+           (B : bicat)
+  : arrow_subbicat_props (discrete_subbicat B).
+Proof.
+  use full_arrow_subbicat_props.
+  intros.
+  apply isaprop_discrete_1cell.
+Defined.
+
 Definition sfib_subbicat
            (B : bicat)
   : arrow_subbicat B.
@@ -353,6 +392,40 @@ Proof.
     exact HB_2_1.
   - intros ; simpl.
     apply isaprop_mor_preserves_opcartesian.
+Defined.
+
+Definition discrete_sfib_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := intersection_arrow_subbicat
+       (sfib_subbicat B)
+       (discrete_subbicat B).
+
+Definition discrete_sfib_subbicat_props
+           (B : bicat)
+           (HB_2_1 : is_univalent_2_1 B)
+  : arrow_subbicat_props (discrete_sfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_props.
+  - exact (sfib_subbicat_props _ HB_2_1).
+  - exact (discrete_subbicat_props B).
+Defined.
+
+Definition discrete_sopfib_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := intersection_arrow_subbicat
+       (sopfib_subbicat B)
+       (discrete_subbicat B).
+
+Definition discrete_sopfib_subbicat_props
+           (B : bicat)
+           (HB_2_1 : is_univalent_2_1 B)
+  : arrow_subbicat_props (discrete_sopfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_props.
+  - exact (sopfib_subbicat_props _ HB_2_1).
+  - exact (discrete_subbicat_props B).
 Defined.
 
 (**
@@ -420,6 +493,43 @@ Section DispMapBicat.
        pred_ob D f
        →
        internal_sopfib f.
+
+  Definition contained_in_faithful
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       faithful_1cell f.
+
+  Definition contained_in_conservative
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       conservative_1cell f.
+
+  Definition contained_in_discrete
+    : UU
+    := ∏ (x y : B) (f : x --> y),
+       pred_ob D f
+       →
+       discrete_1cell f.
+
+  Definition discrete_contained_in_faithful
+             (H : contained_in_discrete)
+    : contained_in_faithful.
+  Proof.
+    intros x y f Hf.
+    exact (pr1 (H x y f Hf)).
+  Defined.
+
+  Definition discrete_contained_in_conservative
+             (H : contained_in_discrete)
+    : contained_in_conservative.
+  Proof.
+    intros x y f Hf.
+    exact (pr2 (H x y f Hf)).
+  Defined.
 
   Definition pred_mor_is_mor_preserves_cartesian
     : UU
@@ -584,6 +694,31 @@ Defined.
 (**
  4. Examples of display map bicategories
  *)
+Definition full_disp_map_bicat
+           {B : bicat_with_pb}
+           (P₀ : ∏ (x y : B), x --> y → UU)
+           (closed_pb : ∏ (pb x y z : B)
+                          (f : x --> z)
+                          (g : y --> z)
+                          (p₁ : pb --> x)
+                          (p₂ : pb --> y)
+                          (γ : invertible_2cell (p₁ · f) (p₂ · g)),
+                        P₀ x z f
+                        →
+                        has_pb_ump (make_pb_cone pb p₁ p₂ γ)
+                        →
+                        P₀ pb y p₂)
+  : disp_map_bicat B.
+Proof.
+  use make_disp_map_bicat_with_pb.
+  - exact (full_arrow_subbicat P₀).
+  - exact (λ pb x y z f g p₁ p₂ γ H₁ H₂,
+           closed_pb pb x y z f g p₁ p₂ γ H₁ H₂
+           ,,
+           tt).
+  - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _, tt).
+Defined.
+
 Definition intersection_disp_map_bicat
            {B : bicat}
            (D₁ D₂ : disp_map_bicat B)
@@ -609,6 +744,46 @@ Proof.
                D₂
                _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
                (pr2 Hf) (pr2 Hp₁) (pr2 Hcp₁)).
+Defined.
+
+Definition faithful_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B.
+Proof.
+  use full_disp_map_bicat.
+  - exact (λ _ _ f, faithful_1cell f).
+  - intros pb x y z f g p₁ p₂ γ Hf Hpb.
+    exact (pb_of_faithful_1cell Hpb Hf).
+Defined.
+
+Definition fully_faithful_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B.
+Proof.
+  use full_disp_map_bicat.
+  - exact (λ _ _ f, fully_faithful_1cell f).
+  - intros pb x y z f g p₁ p₂ γ Hf Hpb.
+    exact (pb_of_fully_faithful_1cell Hpb Hf).
+Defined.
+
+Definition conservative_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B.
+Proof.
+  use full_disp_map_bicat.
+  - exact (λ _ _ f, conservative_1cell f).
+  - intros pb x y z f g p₁ p₂ γ Hf Hpb.
+    exact (pb_of_conservative_1cell Hpb Hf).
+Defined.
+
+Definition discrete_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B.
+Proof.
+  use full_disp_map_bicat.
+  - exact (λ _ _ f, discrete_1cell f).
+  - intros pb x y z f g p₁ p₂ γ Hf Hpb.
+    exact (pb_of_discrete_1cell Hpb Hf).
 Defined.
 
 Definition sfib_disp_map_bicat
@@ -641,6 +816,36 @@ Proof.
     exact H₃.
 Defined.
 
+Definition discrete_sfib_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B
+  := intersection_disp_map_bicat
+       (sfib_disp_map_bicat B)
+       (discrete_disp_map_bicat B).
+
+Definition discrete_sfib_disp_map_bicat_in_discrete
+           (B : bicat_with_pb)
+  : contained_in_discrete (discrete_sfib_disp_map_bicat B).
+Proof.
+  intros x y f Hf.
+  exact (pr2 Hf).
+Defined.
+
+Definition discrete_sopfib_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B
+  := intersection_disp_map_bicat
+       (sopfib_disp_map_bicat B)
+       (discrete_disp_map_bicat B).
+
+Definition discrete_sopfib_disp_map_bicat_in_discrete
+           (B : bicat_with_pb)
+  : contained_in_discrete (discrete_sopfib_disp_map_bicat B).
+Proof.
+  intros x y f Hf.
+  exact (pr2 Hf).
+Defined.
+
 (**
  5. Properties of display map bicategories
  *)
@@ -660,6 +865,128 @@ Definition is_contravariant_disp_map_bicat
      ×
      pred_mor_is_mor_preserves_cartesian D.
 
+Definition intersection_is_covariant
+           {B : bicat}
+           {D₁ D₂ : disp_map_bicat B}
+           (HD₁ : is_covariant_disp_map_bicat D₁)
+           (HD₂ : is_covariant_disp_map_bicat D₂)
+  : is_covariant_disp_map_bicat (intersection_disp_map_bicat D₁ D₂).
+Proof.
+  split.
+  - intros x y f Hf.
+    apply HD₁.
+    apply Hf.
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe.
+    split.
+    + intro H.
+      apply HD₁.
+      apply H.
+    + intro H.
+      split.
+      * apply HD₁.
+        apply H.
+      * apply HD₂.
+        apply H.
+Defined.
+
+Definition intersection_with_full_is_covariant
+           {B : bicat_with_pb}
+           (P₀ : ∏ (x y : B), x --> y → UU)
+           (closed_pb : ∏ (pb x y z : B)
+                          (f : x --> z)
+                          (g : y --> z)
+                          (p₁ : pb --> x)
+                          (p₂ : pb --> y)
+                          (γ : invertible_2cell (p₁ · f) (p₂ · g)),
+                        P₀ x z f
+                        →
+                        has_pb_ump (make_pb_cone pb p₁ p₂ γ)
+                        →
+                        P₀ pb y p₂)
+           {D : disp_map_bicat B}
+           (HD : is_covariant_disp_map_bicat D)
+  : is_covariant_disp_map_bicat
+      (intersection_disp_map_bicat
+         D
+         (full_disp_map_bicat P₀ closed_pb)).
+Proof.
+  split.
+  - intros x y f Hf.
+    apply HD.
+    apply Hf.
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe.
+    split.
+    + intro H.
+      apply HD.
+      apply H.
+    + intro H.
+      split.
+      * apply HD.
+        apply H.
+      * exact tt.
+Defined.
+
+Definition intersection_is_contravariant
+           {B : bicat}
+           {D₁ D₂ : disp_map_bicat B}
+           (HD₁ : is_contravariant_disp_map_bicat D₁)
+           (HD₂ : is_contravariant_disp_map_bicat D₂)
+  : is_contravariant_disp_map_bicat (intersection_disp_map_bicat D₁ D₂).
+Proof.
+  split.
+  - intros x y f Hf.
+    apply HD₁.
+    apply Hf.
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe.
+    split.
+    + intro H.
+      apply HD₁.
+      apply H.
+    + intro H.
+      split.
+      * apply HD₁.
+        apply H.
+      * apply HD₂.
+        apply H.
+Defined.
+
+Definition intersection_with_full_is_contravariant
+           {B : bicat_with_pb}
+           (P₀ : ∏ (x y : B), x --> y → UU)
+           (closed_pb : ∏ (pb x y z : B)
+                          (f : x --> z)
+                          (g : y --> z)
+                          (p₁ : pb --> x)
+                          (p₂ : pb --> y)
+                          (γ : invertible_2cell (p₁ · f) (p₂ · g)),
+                        P₀ x z f
+                        →
+                        has_pb_ump (make_pb_cone pb p₁ p₂ γ)
+                        →
+                        P₀ pb y p₂)
+           {D : disp_map_bicat B}
+           (HD : is_contravariant_disp_map_bicat D)
+  : is_contravariant_disp_map_bicat
+      (intersection_disp_map_bicat
+         D
+         (full_disp_map_bicat P₀ closed_pb)).
+Proof.
+  split.
+  - intros x y f Hf.
+    apply HD.
+    apply Hf.
+  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe.
+    split.
+    + intro H.
+      apply HD.
+      apply H.
+    + intro H.
+      split.
+      * apply HD.
+        apply H.
+      * exact tt.
+Defined.
+
 Definition sopfib_disp_map_bicat_is_covariant
            (B : bicat_with_pb)
   : is_covariant_disp_map_bicat (sopfib_disp_map_bicat B).
@@ -677,6 +1004,34 @@ Definition sfib_disp_map_bicat_is_contravariant
            (B : bicat_with_pb)
   : is_contravariant_disp_map_bicat (sfib_disp_map_bicat B).
 Proof.
+  split.
+  - intros ? ? ? H.
+    exact H.
+  - intros ? ? ? ? ? ? ?.
+    split.
+    + exact (λ H, H).
+    + exact (λ H, H).
+Defined.
+
+Definition discrete_sopfib_disp_map_bicat_is_covariant
+           (B : bicat_with_pb)
+  : is_covariant_disp_map_bicat (discrete_sopfib_disp_map_bicat B).
+Proof.
+  use intersection_with_full_is_covariant.
+  split.
+  - intros ? ? ? H.
+    exact H.
+  - intros ? ? ? ? ? ? ?.
+    split.
+    + exact (λ H, H).
+    + exact (λ H, H).
+Defined.
+
+Definition discrete_sfib_disp_map_bicat_is_covariant
+           (B : bicat_with_pb)
+  : is_contravariant_disp_map_bicat (discrete_sfib_disp_map_bicat B).
+Proof.
+  use intersection_with_full_is_contravariant.
   split.
   - intros ? ? ? H.
     exact H.

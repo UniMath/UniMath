@@ -12,7 +12,6 @@ Core/Prelude.v
 FunctorCategory.v
 whiskering.v
 
-DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
@@ -152,7 +151,6 @@ categories/intdoms.v
 categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
-categories/Cats.v
 categories/preorder_categories.v
 
 categories/Type/Colimits.v
@@ -206,6 +204,7 @@ DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
+DisplayedCats/StreetOpFibration.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v

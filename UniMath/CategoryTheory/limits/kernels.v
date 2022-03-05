@@ -347,7 +347,7 @@ Section kernels_iso.
     use make_isKernel.
     intros w h0 H'.
     use unique_exists.
-    - exact (KernelIn Z K w h0 H' · z_iso_inv_mor h).
+    - exact (KernelIn Z K w h0 H' · inv_from_z_iso h).
     - cbn beta. rewrite H. rewrite assoc. rewrite <- (assoc _ _ h).
       cbn. rewrite (is_inverse_in_precat2 h). rewrite id_right.
       apply KernelCommutes.

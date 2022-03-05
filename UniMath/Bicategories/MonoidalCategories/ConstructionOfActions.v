@@ -94,7 +94,7 @@ Proof.
   2: { exact (pr2 (act_ϱ actA) c). }
   - use is_z_iso_odot_z_iso.
     + exact (identity_is_z_iso _ ).
-    + apply (is_z_iso_inv_from_z_iso _ _ (strong_monoidal_functor_ϵ U)).
+    + apply (is_z_iso_inv_from_z_iso (strong_monoidal_functor_ϵ U)).
 Defined.
 
 Definition lifted_action_convertor_nat_trans :

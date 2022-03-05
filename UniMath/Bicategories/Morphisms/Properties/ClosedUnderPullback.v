@@ -38,8 +38,8 @@ Definition pb_of_faithful_1cell
            {γ : invertible_2cell (p₁ · f) (p₂ · g)}
            (pb := make_pb_cone x₁ p₁ p₂ γ)
            (H : has_pb_ump pb)
-           (Hg : faithful_1cell g)
-  : faithful_1cell p₁.
+           (Hf : faithful_1cell f)
+  : faithful_1cell p₂.
 Proof.
   intros z h₁ h₂ α β p.
   use (pb_ump_eq
@@ -65,19 +65,19 @@ Proof.
     apply idpath.
   - apply idpath.
   - apply idpath.
-  - exact (!p).
   - cbn.
-    use (faithful_1cell_eq_cell Hg).
+    use (faithful_1cell_eq_cell Hf).
     use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
     rewrite !rwhisker_rwhisker.
     apply maponpaths_2.
-    use (vcomp_lcancel (_ ◃ γ)) ; [ is_iso ; apply property_from_invertible_2cell | ].
-    rewrite <- !vcomp_whisker.
-    apply maponpaths_2.
+    use (vcomp_rcancel (_ ◃ γ)) ; [ is_iso ; apply property_from_invertible_2cell | ].
+    rewrite !vcomp_whisker.
+    apply maponpaths.
     use (vcomp_rcancel (lassociator _ _ _)) ; [ is_iso | ].
     rewrite <- !rwhisker_rwhisker.
     do 2 apply maponpaths.
     exact (!p).
+  - exact (!p).
 Qed.
 
 (**
@@ -93,81 +93,81 @@ Section PbOfFullyFaithful.
           {γ : invertible_2cell (p₁ · f) (p₂ · g)}
           (pb := make_pb_cone x₁ p₁ p₂ γ)
           (H : has_pb_ump pb)
-          (Hg : fully_faithful_1cell g).
+          (Hf : fully_faithful_1cell f).
 
   Section Fullness.
     Context {z : B}
             {h₁ h₂ : z --> x₁}
-            (αf : h₁ · p₁ ==> h₂ · p₁).
+            (αf : h₁ · p₂ ==> h₂ · p₂).
 
-    Let ψ : h₁ · p₂ · g ==> h₂ · p₂ · g
+    Let ψ : h₁ · p₁ · f ==> h₂ · p₁ · f
       := rassociator _ _ _
-         • (_ ◃ γ^-1)
+         • (_ ◃ γ)
          • lassociator _ _ _
          • (αf ▹ _)
          • rassociator _ _ _
-         • (_ ◃ γ)
+         • (_ ◃ γ^-1)
          • lassociator _ _ _.
 
-    Let ζ : h₁ · p₂ ==> h₂ · p₂
-      := fully_faithful_1cell_inv_map Hg ψ.
+    Let ζ : h₁ · p₁ ==> h₂ · p₁
+      := fully_faithful_1cell_inv_map Hf ψ.
 
     Local Lemma pb_of_fully_faithful_1cell_2cell_help_eq
       : (h₁ ◃ γ)
         • lassociator h₁ p₂ g
-        • (ζ ▹ g)
+        • (αf ▹ g)
         • rassociator h₂ p₂ g
         =
         lassociator h₁ p₁ f
-        • (αf ▹ f)
+        • (ζ ▹ f)
         • rassociator h₂ p₁ f
         • (h₂ ◃ γ).
     Proof.
       unfold ζ.
       rewrite fully_faithful_1cell_inv_map_eq.
       unfold ψ.
+      rewrite !vassocr.
+      rewrite lassociator_rassociator.
+      rewrite id2_left.
       rewrite !vassocl.
+      do 3 apply maponpaths.
+      refine (!(id2_right _) @ _).
+      apply maponpaths.
+      refine (!_).
       etrans.
       {
         apply maponpaths.
         rewrite !vassocr.
         rewrite lassociator_rassociator.
-        rewrite id2_left.
-        rewrite !vassocl.
-        apply idpath.
+        apply id2_left.
       }
-      rewrite !vassocr.
       rewrite lwhisker_vcomp.
-      rewrite vcomp_rinv.
+      rewrite vcomp_linv.
       rewrite lwhisker_id2.
-      rewrite id2_left.
-      rewrite !vassocl.
-      rewrite lassociator_rassociator.
-      rewrite id2_right.
       apply idpath.
     Qed.
 
     Definition pb_of_fully_faithful_1cell_2cell
       : h₁ ==> h₂.
     Proof.
-      use (pb_ump_cell H h₁ h₂ αf).
+      use (pb_ump_cell H h₁ h₂ _ αf).
       - exact ζ.
       - exact pb_of_fully_faithful_1cell_2cell_help_eq.
     Defined.
 
     Definition pb_of_fully_faithful_1cell_2cell_eq
-      : pb_of_fully_faithful_1cell_2cell ▹ p₁ = αf.
+      : pb_of_fully_faithful_1cell_2cell ▹ p₂ = αf.
     Proof.
       unfold pb_of_fully_faithful_1cell_2cell.
-      apply (pb_ump_cell_pr1 H).
+      apply (pb_ump_cell_pr2 H).
     Qed.
   End Fullness.
 
   Definition pb_of_fully_faithful_1cell
-    : fully_faithful_1cell p₁.
+    : fully_faithful_1cell p₂.
   Proof.
     use make_fully_faithful.
-    - exact (pb_of_faithful_1cell H (pr1 Hg)).
+    - exact (pb_of_faithful_1cell H (pr1 Hf)).
     - intros z h₁ h₂ αf.
       exact (pb_of_fully_faithful_1cell_2cell αf
              ,,
@@ -188,25 +188,25 @@ Section PbOfConservative.
           {γ : invertible_2cell (p₁ · f) (p₂ · g)}
           (pb := make_pb_cone x₁ p₁ p₂ γ)
           (H : has_pb_ump pb)
-          (Hg : conservative_1cell g).
+          (Hf : conservative_1cell f).
 
   Section ReflectIso.
     Context {z : B}
             {h₁ h₂ : z --> x₁}
             {α : h₁ ==> h₂}
-            (Hα : is_invertible_2cell (α ▹ p₁)).
+            (Hα : is_invertible_2cell (α ▹ p₂)).
 
     Definition pb_reflect_iso_help
-      : is_invertible_2cell (α ▹ p₂).
+      : is_invertible_2cell (α ▹ p₁).
     Proof.
-      apply (Hg z (h₁ · p₂) (h₂ · p₂) (α ▹ p₂)).
+      apply (Hf z (h₁ · p₁) (h₂ · p₁) (α ▹ p₁)).
       use eq_is_invertible_2cell.
       - exact (rassociator _ _ _
-               • (_ ◃ γ^-1)
-               • lassociator _ _ _
-               • ((α ▹ p₁) ▹ f)
-               • rassociator _ _ _
                • (_ ◃ γ)
+               • lassociator _ _ _
+               • ((α ▹ p₂) ▹ g)
+               • rassociator _ _ _
+               • (_ ◃ γ^-1)
                • lassociator _ _ _).
       - abstract
           (rewrite !vassocl ;
@@ -214,21 +214,23 @@ Section PbOfConservative.
            rewrite rwhisker_rwhisker ;
            rewrite !vassocr ;
            apply maponpaths_2 ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+           rewrite vcomp_whisker ;
            rewrite !vassocl ;
-           use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
-           rewrite <- vcomp_whisker ;
+           apply maponpaths ;
            rewrite !vassocr ;
-           apply maponpaths_2 ;
-           rewrite !rwhisker_rwhisker ;
+           rewrite rwhisker_rwhisker ;
            rewrite !vassocl ;
            rewrite lassociator_rassociator ;
            apply id2_right).
       - use is_invertible_2cell_vcomp ; [ | is_iso ].
         use is_invertible_2cell_vcomp ; [ | is_iso ; apply property_from_invertible_2cell ].
         use is_invertible_2cell_vcomp ; [ | is_iso ].
-        use is_invertible_2cell_vcomp ; [ is_iso | ].
-        apply is_invertible_2cell_rwhisker.
-        exact Hα.
+        use is_invertible_2cell_vcomp.
+        + is_iso.
+          apply property_from_invertible_2cell .
+        + apply is_invertible_2cell_rwhisker.
+          exact Hα.
     Defined.
 
     Local Lemma pb_reflect_iso_eq
@@ -270,8 +272,8 @@ Section PbOfConservative.
                        (is_invertible_2cell_pb_ump_cell
                           H
                           pb_reflect_iso_eq
-                          Hα
-                          pb_reflect_iso_help)).
+                          pb_reflect_iso_help
+                          Hα)).
       use (pb_ump_eq H h₁ h₂ (α ▹ p₁) (α ▹ p₂)).
       - apply pb_reflect_iso_eq.
       - apply pb_ump_cell_pr1.
@@ -282,7 +284,7 @@ Section PbOfConservative.
   End ReflectIso.
 
   Definition pb_of_conservative_1cell
-    : conservative_1cell p₁.
+    : conservative_1cell p₂.
   Proof.
     intros z h₁ h₂ α Hα.
     exact (pb_reflect_iso Hα).
@@ -302,8 +304,8 @@ Definition pb_of_discrete_1cell
            {γ : invertible_2cell (p₁ · f) (p₂ · g)}
            (pb := make_pb_cone x₁ p₁ p₂ γ)
            (H : has_pb_ump pb)
-           (Hg : discrete_1cell g)
-  : discrete_1cell p₁.
+           (Hg : discrete_1cell f)
+  : discrete_1cell p₂.
 Proof.
   split.
   - exact (pb_of_faithful_1cell H (pr1 Hg)).
@@ -908,7 +910,7 @@ Proof.
          (op2_bicat B)
          e₁ e₂ b₁ b₂
          p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+  - apply weq_op2_invertible_2cell.
     exact (inv_of_invertible_2cell γ).
   - apply to_op2_has_pb_ump.
     exact H.
@@ -934,7 +936,7 @@ Proof.
          (op2_bicat B)
          e₁ e₂ b₁ b₂
          p₁ p₂ fe fb).
-  - apply bicat_invertible_2cell_is_op2_bicat_invertible_2cell.
+  - apply weq_op2_invertible_2cell.
     exact (inv_of_invertible_2cell γ).
   - apply to_op2_has_pb_ump.
     exact H.
@@ -974,7 +976,7 @@ Proof.
            e₀ b₀ p₀
            h₁ h₂
            (inv_of_invertible_2cell
-              (bicat_invertible_2cell_is_op2_bicat_invertible_2cell
+              (weq_op2_invertible_2cell
                  _ _
                  δ))
            (mor_preserves_opcartesian_to_mor_preserves_cartesian
