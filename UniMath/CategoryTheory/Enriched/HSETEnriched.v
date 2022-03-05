@@ -19,9 +19,10 @@ Require Import UniMath.CategoryTheory.Enriched.ChangeOfBase.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
-(*Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.*)
+Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 
 Local Open Scope cat.
 
@@ -40,21 +41,26 @@ Proof.
     exact (enriched_cat_comp x y z (g,, f)).
 Defined.
 
+Lemma is_precategory_precategory_data_from_HSET_enriched_category (C : enriched_precat (cartesian_monoidal TerminalHSET BinProductsHSET)) : is_precategory (precategory_data_from_HSET_enriched_category C).
+Proof.
+  repeat split; cbn.
+  - intros x y f.
+    exact (eqtohomot (enriched_id_right x y) (f,, tt)).
+  - intros x y f.
+    exact (eqtohomot (enriched_id_left x y) (tt,, f)).
+  - intros w x y z f g h.
+    exact (eqtohomot (enriched_assoc w x y z) ((h,, g),, f)).
+  - intros w x y z f g h.
+    apply pathsinv0.
+    exact (eqtohomot (enriched_assoc w x y z) ((h,, g),, f)).
+Qed.
+
 Definition category_from_HSET_enriched_category (C : enriched_precat (cartesian_monoidal TerminalHSET BinProductsHSET)) : category.
 Proof.
   use make_category.
   - use make_precategory.
     + exact (precategory_data_from_HSET_enriched_category C).
-    + repeat split; cbn.
-      * intros x y f.
-        exact (eqtohomot (enriched_id_right x y) (f,, tt)).
-      * intros x y f.
-        exact (eqtohomot (enriched_id_left x y) (tt,, f)).
-      * intros w x y z f g h.
-        exact (eqtohomot (enriched_assoc w x y z) ((h,, g),, f)).
-      * intros w x y z f g h.
-        apply pathsinv0.
-        exact (eqtohomot (enriched_assoc w x y z) ((h,, g),, f)).
+    + exact (is_precategory_precategory_data_from_HSET_enriched_category C).
   - intros x y.
     apply setproperty.
 Defined.
@@ -80,9 +86,11 @@ Proof.
     + apply id_left.
   - intros w x y z.
     cbn.
-    apply funextsec.
-    intro.
-    apply assoc.
+    abstract (
+      apply funextsec;
+      intro;
+      apply assoc
+    ).
 Defined.
 
 Definition functor_from_HSET_enriched_functor {C D : enriched_precat (cartesian_monoidal TerminalHSET BinProductsHSET)} (F : enriched_functor C D) : functor (category_from_HSET_enriched_category C) (category_from_HSET_enriched_category D).
@@ -109,13 +117,17 @@ Proof.
     + intros x y f.
       exact (#F f).
   - intro x.
-    apply funextsec.
-    intro.
-    apply functor_id.
+    abstract (
+      apply funextsec;
+      intro;
+      apply functor_id
+    ).
   - intros x y z.
-    apply funextsec.
-    intro.
-    apply functor_comp.
+    abstract (
+      apply funextsec;
+      intro;
+      apply functor_comp
+    ).
 Defined.
 
 Definition nat_trans_from_HSET_enriched_nat_trans {C D : enriched_precat (cartesian_monoidal TerminalHSET BinProductsHSET)} {F G : enriched_functor C D} (a : enriched_nat_trans F G) : nat_trans (functor_from_HSET_enriched_functor F) (functor_from_HSET_enriched_functor G).
@@ -133,9 +145,11 @@ Proof.
   - intros x _.
     exact (a x).
   - intros x y.
-    apply funextsec.
-    intro.
-    apply nat_trans_ax.
+    abstract (
+      apply funextsec;
+      intro;
+      apply nat_trans_ax
+    ).
 Defined.
 
 Definition HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor_data : psfunctor_data (enriched_precat_bicat (cartesian_monoidal TerminalHSET BinProductsHSET)) bicat_of_cats.
@@ -150,10 +164,13 @@ Proof.
       exact (enriched_cat_id x tt).
     + intros x y f.
       cbn.
-      abstract(etrans; [
-        apply (eqtohomot (enriched_id_left x y) (tt,, f))
-        | apply pathsinv0; apply (eqtohomot (enriched_id_right x y) (f,, tt))
-      ]).
+      abstract(
+        etrans;
+        [
+          apply (eqtohomot (enriched_id_left x y) (tt,, f))
+          | apply pathsinv0; apply (eqtohomot (enriched_id_right x y) (f,, tt))
+        ]
+      ).
   - cbn.
     intros C D E F G.
     use make_nat_trans.
@@ -161,13 +178,16 @@ Proof.
       exact (enriched_cat_id (G (F x)) tt).
     + intros x y f.
       cbn.
-      abstract(etrans; [
-        apply (eqtohomot (enriched_id_left (G (F x)) (G (F y))) (tt,, _))
-        | apply pathsinv0; apply (eqtohomot (enriched_id_right (G (F x)) (G (F y))) (_,, tt))
-      ]).
+      abstract(
+        etrans;
+        [
+          apply (eqtohomot (enriched_id_left (G (F x)) (G (F y))) (tt,, _))
+          | apply pathsinv0; apply (eqtohomot (enriched_id_right (G (F x)) (G (F y))) (_,, tt))
+        ]
+      ).
 Defined.
 
-Definition HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor_laws : psfunctor_laws HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor_data.
+Lemma HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor_laws : psfunctor_laws HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor_data.
 Proof.
   repeat split.
   - intros a b f.
@@ -256,22 +276,32 @@ Proof.
         exact (enriched_cat_id x tt).
       * intros x y f.
         cbn.
-        etrans.
-        {
-          apply (eqtohomot (enriched_id_left x y) (tt,, _)).
-        }
-        apply pathsinv0.
-        apply (eqtohomot (enriched_id_right x y) (_,, tt)).
-    + use nat_trans_eq.
-      apply homset_property.
-      intro x.
-      cbn.
-      apply (eqtohomot (enriched_id_right x x) (_,, tt)).
-    + use nat_trans_eq.
-      apply homset_property.
-      intro x.
-      cbn.
-      apply (eqtohomot (enriched_id_right x x) (_,, tt)).
+        abstract(
+          etrans;
+          [
+            apply (eqtohomot (enriched_id_left x y) (tt,, _))|
+            apply pathsinv0;
+            apply (eqtohomot (enriched_id_right x y) (_,, tt))
+          ]
+        ).
+    + abstract (
+        use nat_trans_eq;
+        [
+          apply homset_property|
+          intro x;
+          cbn;
+          apply (eqtohomot (enriched_id_right x x) (_,, tt))
+        ]
+      ).
+    + abstract (
+        use nat_trans_eq;
+        [
+          apply homset_property|
+          intro x;
+          cbn;
+          apply (eqtohomot (enriched_id_right x x) (_,, tt))
+        ]
+      ).
   - intros.
     use make_is_invertible_2cell.
     + use make_nat_trans.
@@ -281,17 +311,25 @@ Proof.
       * intros x y h.
         cbn.
         cbn in f, g.
-        apply (eqtohomot (enriched_id_left (g (f x)) (g (f y))) (tt,, _) @ (! eqtohomot (enriched_id_right (g (f x)) (g (f y))) (_,, tt))).
-    + use nat_trans_eq.
-      apply homset_property.
-      intro x.
-      cbn.
-      apply (eqtohomot (@enriched_id_right _ c _ _) (_,, tt)).
-    + use nat_trans_eq.
-      apply homset_property.
-      intro x.
-      cbn.
-      apply (eqtohomot (@enriched_id_right _ c _ _) (_,, tt)).
+        abstract (apply (eqtohomot (enriched_id_left (g (f x)) (g (f y))) (tt,, _) @ (! eqtohomot (enriched_id_right (g (f x)) (g (f y))) (_,, tt)))).
+    + abstract (
+        use nat_trans_eq;
+        [
+          apply homset_property|
+          intro x;
+          cbn;
+          apply (eqtohomot (@enriched_id_right _ c _ _) (_,, tt))
+        ]
+      ).
+    + abstract (
+        use nat_trans_eq;
+        [
+          apply homset_property|
+          intro x;
+          cbn;
+          apply (eqtohomot (@enriched_id_right _ c _ _) (_,, tt))
+        ]
+      ).
 Defined.
 
 Definition HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor : psfunctor (enriched_precat_bicat (cartesian_monoidal TerminalHSET BinProductsHSET)) bicat_of_cats.
@@ -312,134 +350,175 @@ Proof.
     + intros x _.
       exact (id x).
     + intros x y.
-      apply funextfun.
-      intro f.
-      cbn.
-      apply (id_right _ @ (! id_left _)).
+      abstract(
+        apply funextfun;
+        intro f;
+        cbn;
+        apply (id_right _ @ (! id_left _))
+      ).
   - intros C D E F G.
     use make_enriched_nat_trans.
     + intros x _.
       cbn in F, G.
       exact (id (G (F x))).
     + intros x y.
-      apply funextfun.
-      intro f.
-      cbn.
-      apply (id_right _ @ (! id_left _)).
+      abstract(
+        apply funextfun;
+        intro f;
+        cbn;
+        apply (id_right _ @ (! id_left _))
+      ).
 Defined.
+
+Lemma bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor_law : psfunctor_laws bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor_data.
+Proof.
+  repeat split.
+  - intros a b f.
+    use enriched_nat_trans_eq.
+    intro x.
+    reflexivity.
+  - intros a b f g h η φ.
+    use enriched_nat_trans_eq.
+    intro x.
+    reflexivity.
+  - intros a b f.
+    use enriched_nat_trans_eq.
+    intro x.
+    apply funextfun.
+    intro y.
+    cbn.
+    rewrite functor_id, !id_left.
+    reflexivity.
+  - intros a b f.
+    use enriched_nat_trans_eq.
+    intro x.
+    apply funextfun.
+    intro y.
+    cbn.
+    rewrite !id_left.
+    reflexivity.
+  - intros a b c d f g h.
+    use enriched_nat_trans_eq.
+    intro x.
+    apply funextfun.
+    intro y.
+    cbn.
+    rewrite functor_id.
+    reflexivity.
+  - intros a b c f g₁ g₂ η.
+    use enriched_nat_trans_eq.
+    intro x.
+    apply funextfun.
+    intro y.
+    cbn.
+    apply (id_left _ @ (! id_right _)).
+  - intros a b c f₁ f₂ g η.
+    use enriched_nat_trans_eq.
+    intro x.
+    apply funextfun.
+    intro y.
+    cbn.
+    apply (id_left _ @ (! id_right _)).
+Qed.
 
 Definition bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor : psfunctor bicat_of_cats (enriched_precat_bicat (cartesian_monoidal TerminalHSET BinProductsHSET)).
 Proof.
   use make_psfunctor.
   - exact bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor_data.
-  - repeat split.
-    + intros a b f.
-      use enriched_nat_trans_eq.
-      intro x.
-      reflexivity.
-    + intros a b f g h η φ.
-      use enriched_nat_trans_eq.
-      intro x.
-      reflexivity.
-    + intros a b f.
-      use enriched_nat_trans_eq.
-      intro x.
-      apply funextfun.
-      intro y.
-      cbn.
-      rewrite functor_id, !id_left.
-      reflexivity.
-    + intros a b f.
-      use enriched_nat_trans_eq.
-      intro x.
-      apply funextfun.
-      intro y.
-      cbn.
-      rewrite !id_left.
-      reflexivity.
-    + intros a b c d f g h.
-      use enriched_nat_trans_eq.
-      intro x.
-      apply funextfun.
-      intro y.
-      cbn.
-      rewrite functor_id.
-      reflexivity.
-    + intros a b c f g₁ g₂ η.
-      use enriched_nat_trans_eq.
-      intro x.
-      apply funextfun.
-      intro y.
-      cbn.
-      apply (id_left _ @ (! id_right _)).
-    + intros a b c f₁ f₂ g η.
-      use enriched_nat_trans_eq.
-      intro x.
-      apply funextfun.
-      intro y.
-      cbn.
-      apply (id_left _ @ (! id_right _)).
+  - exact bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor_law.
   - split.
     + intro a.
       use make_is_invertible_2cell.
       * use make_enriched_nat_trans.
-        intros x _.
-        exact (id x).
-        intros x y.
-        apply funextfun.
-        intro f.
-        cbn.
-        apply (id_right _ @ (! id_left _)).
-      * use enriched_nat_trans_eq.
-        intro x.
-        apply funextfun.
-        intro.
-        apply id_left.
-      * use enriched_nat_trans_eq.
-        intro x.
-        apply funextfun.
-        intro.
-        apply id_left.
+        -- intros x _.
+           exact (id x).
+        -- intros x y.
+           abstract (
+             apply funextfun;
+             intro f;
+             cbn;
+             apply (id_right _ @ (! id_left _))
+           ).
+      * abstract (
+          use enriched_nat_trans_eq;
+          intro x;
+          apply funextfun;
+          intro;
+          apply id_left
+        ).
+      * abstract (
+          use enriched_nat_trans_eq;
+          intro x;
+          apply funextfun;
+          intro;
+          apply id_left
+        ).
     + intros a b c f g.
       use make_is_invertible_2cell.
       * use make_enriched_nat_trans.
-        intros x _.
-        cbn in f, g.
-        exact (id (g (f x))).
-        intros x y.
-        apply funextfun.
-        intro.
-        cbn.
-        apply (id_right _ @ (! id_left _)).
-      * use enriched_nat_trans_eq.
-        intro x.
-        apply funextfun.
-        intro.
-        apply id_left.
-      * use enriched_nat_trans_eq.
-        intro x.
-        apply funextfun.
-        intro.
-        apply id_left.
+        -- intros x _.
+           cbn in f, g.
+           exact (id (g (f x))).
+        -- intros x y.
+           abstract (
+             apply funextfun;
+             intro;
+             cbn;
+             apply (id_right _ @ (! id_left _))
+           ).
+      * abstract (
+          use enriched_nat_trans_eq;
+          intro x;
+          apply funextfun;
+          intro;
+          apply id_left
+        ).
+      * abstract (
+          use enriched_nat_trans_eq;
+          intro x;
+          apply funextfun;
+          intro;
+          apply id_left
+        ).
 Defined.
 
 (* TODO
 Definition HSET_enriched_precat_bicat_bicat_of_cats_biequivalence : biequivalence (enriched_precat_bicat (cartesian_monoidal TerminalHSET BinProductsHSET)) bicat_of_cats.
 Proof.
   exists HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor.
-  exists bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor.
-  use tpair.
+  use make_is_biequivalence_from_unit_counit.
+  - exact bicat_of_cats_to_HSET_enriched_precat_bicat_psfunctor.
   - split.
     + use make_pstrans.
       * use make_pstrans_data.
-        intro C.
-        use make_enriched_functor.
-        use make_enriched_functor_data.
-        exact (λ x, x).
-        intros x y.
-        exact (λ z, z).
-        intro.
-        cbn.
+        -- intro C.
+           use make_enriched_functor.
+           ++ use make_enriched_functor_data.
+              ** exact (λ x, x).
+              ** intros x y.
+                 exact (λ z, z).
+           ++ intro F.
+              apply funextfun.
+              intro t.
+              case t.
+              reflexivity.
+           ++ cbn.
+              intros x y z.
+              apply funextfun.
+              intro.
+              reflexivity.
+        -- cbn.
+           intros C D F.
+           use make_invertible_2cell.
+           ++ use make_enriched_nat_trans.
+              ** intro x.
+                 exact (enriched_cat_id (F x)).
+              ** intros x y.
+                 apply funextfun.
+                 cbn.
+                 intro.
+                 unfold prodtofuntoprod.
+                 cbn.
 Defined.
 *)
 
@@ -457,16 +536,102 @@ Proof.
     intro f.
     exact ((nat_z_iso_to_trans_inv (monoidal_cat_left_unitor Mon_V) _) · (#(monoidal_cat_tensor Mon_V) (f : Mon_V ⊠ Mon_V ⟦ (monoidal_cat_unit Mon_V, monoidal_cat_unit Mon_V), x⟧))).
   - intros x y f.
-    apply funextsec.
-    intro g.
-    cbn.
+    abstract (
+      apply funextsec;
+      intro g;
+      cbn;
+      unfold prodtofuntoprod;
+      cbn;
+      cbn in g;
+      change (?f1 · ?g1,, ?f2 · ?g2) with ((f1 #, f2) · (g1 #, g2));
+      rewrite (functor_comp (monoidal_cat_tensor Mon_V));
+      apply assoc
+    ).
+Defined.
+
+Lemma forgetful_monoidal_functor_associativity (Mon_V : monoidal_cat) : monoidal_functor_associativity Mon_V
+(cartesian_monoidal TerminalHSET BinProductsHSET) 
+(forgetful_functor Mon_V) (forgetful_functor_mult Mon_V).
+Proof.
+  intros x y z.
+  apply funextfun.
+  cbn.
+  intro x0.
+  destruct x0 as [x0 z0].
+  destruct x0 as [x0 y0].
+  unfold prodtofuntoprod.
+  cbn.
+  rewrite assoc'.
+  apply cancel_precomposition.
+  rewrite <- (id_left z0).
+  change (?x · ?z ,, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite <- (id_left x0).
+  change (?x · ?z ,, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite !id_left.
+  rewrite !(functor_comp (monoidal_cat_tensor Mon_V)).
+  etrans.
+  {
+    rewrite assoc'.
+    apply cancel_precomposition.
+    apply (nat_trans_ax (monoidal_cat_associator Mon_V) _ _ ((_#, _)#, _)).
+  }
+  rewrite assoc.
+  apply cancel_postcomposition.
+  rewrite (tensor_z_isomorphism_right _ _ _ _ _ : #(monoidal_cat_tensor Mon_V) _ = _).
+  rewrite (tensor_z_isomorphism_left _ _ _ _ _ : #(monoidal_cat_tensor Mon_V) _ = _).
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply (@pathscomp0 _ _ (#(monoidal_cat_tensor Mon_V)
+  ((monoidal_cat_right_unitor Mon_V) (monoidal_cat_unit Mon_V) #, id _))).
+  apply (maponpaths (λ f, #_ (f #, _))).
+  apply (@left_unitor_right_unitor_of_unit Mon_V).
+  apply monoidal_cat_triangle_eq.
+Qed.
+
+Lemma forgetful_monoidal_functor_unitality (Mon_V : monoidal_cat) : monoidal_functor_unitality Mon_V
+(cartesian_monoidal TerminalHSET BinProductsHSET)
+(yoneda_objects Mon_V^op (monoidal_cat_unit Mon_V))
+(λ _ : unit, id _) (forgetful_functor_mult Mon_V).
+Proof.
+  intro x.
+  cbn.
+  split; apply funextfun; intro x0.
+  - destruct x0 as [t x0].
     unfold prodtofuntoprod.
     cbn.
-    cbn in g.
-    change (?f1 · ?g1,, ?f2 · ?g2) with ((f1 #, f2) · (g1 #, g2)).
-    rewrite (functor_comp (monoidal_cat_tensor Mon_V)).
-    apply assoc.
-Defined.
+    apply pathsinv0.
+    etrans.
+    {
+      rewrite assoc'.
+      apply cancel_precomposition.
+      apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
+    }
+    rewrite assoc.
+    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+    rewrite z_iso_after_z_iso_inv.
+    apply id_left.
+  - destruct x0 as [x0 t].
+    unfold prodtofuntoprod.
+    cbn.
+    apply pathsinv0.
+    etrans.
+    {
+      rewrite assoc'.
+      apply cancel_precomposition.
+      apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
+    }
+    rewrite assoc.
+    etrans.
+    {
+      apply cancel_postcomposition.
+      apply cancel_precomposition.
+      apply pathsinv0.
+      apply left_unitor_right_unitor_of_unit.
+    }
+    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+    rewrite z_iso_after_z_iso_inv.
+    apply id_left.
+Qed.
 
 Definition forgetful_lax_monoidal_functor (Mon_V : monoidal_cat) : lax_monoidal_functor Mon_V (cartesian_monoidal TerminalHSET BinProductsHSET).
 Proof.
@@ -474,77 +639,8 @@ Proof.
   exists (λ _, id _).
   exists (forgetful_functor_mult Mon_V).
   split.
-  - intros x y z.
-    apply funextfun.
-    cbn.
-    intro x0.
-    destruct x0 as [x0 z0].
-    destruct x0 as [x0 y0].
-    unfold prodtofuntoprod.
-    cbn.
-    rewrite assoc'.
-    apply cancel_precomposition.
-    rewrite <- (id_left z0).
-    change (?x · ?z ,, ?y · ?w) with ((x #, y) · (z #, w)).
-    rewrite <- (id_left x0).
-    change (?x · ?z ,, ?y · ?w) with ((x #, y) · (z #, w)).
-    rewrite !id_left.
-    rewrite !(functor_comp (monoidal_cat_tensor Mon_V)).
-    etrans.
-    {
-      rewrite assoc'.
-      apply cancel_precomposition.
-      apply (nat_trans_ax (monoidal_cat_associator Mon_V) _ _ ((_#, _)#, _)).
-    }
-    rewrite assoc.
-    apply cancel_postcomposition.
-    rewrite (tensor_z_isomorphism_right _ _ _ _ _ : #(monoidal_cat_tensor Mon_V) _ = _).
-    rewrite (tensor_z_isomorphism_left _ _ _ _ _ : #(monoidal_cat_tensor Mon_V) _ = _).
-    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
-    apply z_iso_inv_on_right, z_iso_inv_on_left.
-    apply (@pathscomp0 _ _ (#(monoidal_cat_tensor Mon_V)
-    ((monoidal_cat_right_unitor Mon_V) (monoidal_cat_unit Mon_V) #, id _))).
-    apply (maponpaths (λ f, #_ (f #, _))).
-    apply (@left_unitor_right_unitor_of_unit Mon_V).
-    apply monoidal_cat_triangle_eq.
-  - intro x.
-    cbn.
-    split; apply funextfun; intro x0.
-    + destruct x0 as [t x0].
-      unfold prodtofuntoprod.
-      cbn.
-      apply pathsinv0.
-      etrans.
-      {
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
-      }
-      rewrite assoc.
-      change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
-      rewrite z_iso_after_z_iso_inv.
-      apply id_left.
-    + destruct x0 as [x0 t].
-      unfold prodtofuntoprod.
-      cbn.
-      apply pathsinv0.
-      etrans.
-      {
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
-      }
-      rewrite assoc.
-      etrans.
-      {
-        apply cancel_postcomposition.
-        apply cancel_precomposition.
-        apply pathsinv0.
-        apply left_unitor_right_unitor_of_unit.
-      }
-      change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
-      rewrite z_iso_after_z_iso_inv.
-      apply id_left.
+  - exact (forgetful_monoidal_functor_associativity Mon_V).
+  - exact (forgetful_monoidal_functor_unitality Mon_V).
 Defined.
 
 Definition underlying_psfunctor (Mon_V : monoidal_cat) : psfunctor (enriched_precat_bicat Mon_V) bicat_of_cats := comp_psfunctor HSET_enriched_precat_bicat_to_bicat_of_cats_psfunctor (change_of_base_psfunctor (forgetful_lax_monoidal_functor Mon_V)).

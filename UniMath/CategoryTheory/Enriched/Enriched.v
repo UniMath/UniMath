@@ -704,7 +704,7 @@ Proof.
     apply enriched_nat_trans_ax).
 Defined.
 
-Definition post_whisker {A B C : enriched_precat} {F G : enriched_functor A B} (a : enriched_nat_trans F G) (H : enriched_functor B C) : enriched_nat_trans (enriched_functor_comp F H) (enriched_functor_comp G H).
+Definition post_whisker {A B C : enriched_precat} {F G : enriched_functor A B} (H : enriched_functor B C) (a : enriched_nat_trans F G) : enriched_nat_trans (enriched_functor_comp F H) (enriched_functor_comp G H).
 Proof.
   use make_enriched_nat_trans.
   - intro x.

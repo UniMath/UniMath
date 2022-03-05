@@ -21,54 +21,70 @@ Proof.
   - exact (@enriched_nat_trans_identity Mon_V).
   - exact (@enriched_nat_trans_comp Mon_V).
   - exact (@pre_whisker Mon_V).
-  - intros C D E F G H a. (*TODO: change order of arguments*)
-    apply post_whisker.
-    exact a.
+  - exact (@post_whisker Mon_V).
   - intros C D F.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract(rewrite postcompose_identity, precompose_identity, id_left; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, id_left;
+        reflexivity
+      ).
   - intros C D F.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract(rewrite postcompose_identity, precompose_identity, id_left; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, id_left;
+        reflexivity
+      ).
   - intros C D F.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract(rewrite postcompose_identity, precompose_identity, id_right; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, id_right;
+        reflexivity
+      ).
   - intros C D F.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract(rewrite postcompose_identity, precompose_identity, !id_right; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, !id_right;
+        reflexivity
+      ).
   - intros A B C D F G H.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract(rewrite postcompose_identity, precompose_identity, assoc; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, assoc;
+        reflexivity
+      ).
   - intros A B C D F G H.
     use make_enriched_nat_trans.
     + intro x.
       apply enriched_cat_id.
     + intros x y.
       cbn.
-      abstract( rewrite postcompose_identity, precompose_identity, !assoc; reflexivity).
+      abstract (
+        rewrite postcompose_identity, precompose_identity, !assoc;
+        reflexivity
+      ).
 Defined.
 
-Definition enriched_precat_prebicat_laws (Mon_V : monoidal_cat) : prebicat_laws (enriched_precat_prebicat_data Mon_V).
+Lemma enriched_precat_prebicat_laws (Mon_V : monoidal_cat) : prebicat_laws (enriched_precat_prebicat_data Mon_V).
 Proof.
   repeat split; intros; use enriched_nat_trans_eq; intro; cbn.
   - rewrite underlying_morphism_compose_swap, precompose_identity.
