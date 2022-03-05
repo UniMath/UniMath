@@ -338,6 +338,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Enriched/Enriched.v](CategoryTheory/Enriched/Enriched.v)
    - [Enriched/ChangeOfBase.v](CategoryTheory/Enriched/ChangeOfBase.v)
    - [Enriched/Opposite.v](CategoryTheory/Enriched/Opposite.v)
+   - [Enriched/BicatOfEnrichedCat.v](CategoryTheory/Enriched/BicatOfEnrichedCat.v)
+   - [Enriched/HSETEnriched.v](CategoryTheory/Enriched/HSETEnriched.v)
    - [RepresentableFunctors/Precategories.v](CategoryTheory/RepresentableFunctors/Precategories.v)
    - [RepresentableFunctors/Bifunctor.v](CategoryTheory/RepresentableFunctors/Bifunctor.v)
    - [RepresentableFunctors/Representation.v](CategoryTheory/RepresentableFunctors/Representation.v)
