@@ -22,11 +22,8 @@ The properties of a monoidal category are the following:
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
-
-Section Monoidal_Precategories.
 
   Definition tensor (C : category) : UU :=
     ∑ tensor_ob : C -> C -> C,
@@ -107,6 +104,7 @@ Section Monoidal_Precategories.
             ∑ lu : left_unitor T I,
               ∑ ru : right_unitor T I,
                 ∑ α : associator T,
+                  (tensor_functor_id T) × (tensor_functor_comp T) ×
                   (triangle_identity T I lu ru α) × (pentagon_identity T α).
 
   (* Some definitions to extract the data from a monoidal category. *)
@@ -128,8 +126,10 @@ Section Monoidal_Precategories.
   Definition associator_extraction_of_monoidalcat (M : monoidal_category) : associator (tensor_extraction_of_monoidalcat M) :=
     pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-  Definition triangleidentity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+  Definition tensorfunctorid_identity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
 
-  Definition pentagonidentity_extraction_of_monoidalcat (M : monoidal_category) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+  Definition tensorfunctorcomp_identity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))).
 
-End Monoidal_Precategories.
+  Definition triangleidentity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))))).
+
+  Definition pentagonidentity_extraction_of_monoidalcat (M : monoidal_category) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))))).

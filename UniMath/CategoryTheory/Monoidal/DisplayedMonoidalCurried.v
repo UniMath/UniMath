@@ -37,10 +37,6 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 
-  (* These notations come from 'MonoidalCategoriesCurried' *)
-  Notation "x ⊗_{ T } y" := (tensoronobjects_from_tensor_cat T x y) (at level 31).
-  Notation "f ⊗^{ T } g" := (tensoronmorphisms_from_tensor_cat T  _ _ _ _ f g) (at level 31).
-
   Definition displayed_tensor {C : category} (T : tensor C) (D : disp_cat C) : UU :=
     ∑ (tensor_ob : ∏ (x y : C), (D x) → (D y) -> (D (x ⊗_{T} y))),
     ∏ (x x' y y' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧), ∏ (a : D x) (a' : D x') (b : D y) (b' : D y'),
@@ -78,6 +74,16 @@ Local Open Scope mor_disp_scope.
   Definition displayed_leftunitor_naturality {C : category} {T : tensor C} {I : C} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {lu : left_unitor T I} (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)) : UU :=
     ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b), (((id_disp i) ⊗^{{TD}} f') ;; (dlu y b)) = transportb _ ((pr2 lu) x y f) ((dlu x a) ;; f').
 
+(* TEST *)
+(*
+Definition ayed_leftunitor_naturality {C : category} {T : tensor C} {I : C} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {lu : left_unitor T I} (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)) : ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b), nat.
+Proof.
+  intros x y a b f f'.
+  Check (((id_disp i) ⊗^{{TD}} f') ;; (dlu y b)).
+  Check (dlu x a) ;; f'.
+  = transportb _ ((pr2 lu) x y f) ((dlu x a) ;; f').
+  *)
+
   Definition displayed_leftunitor {C : category} {T : tensor C} {I : C} {D : disp_cat C} (TD : displayed_tensor T D) (i : D I) (lu : left_unitor T I) : UU :=
     ∑ (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)), displayed_leftunitor_naturality dlu.
 
@@ -102,6 +108,10 @@ Local Open Scope mor_disp_scope.
   Definition displayed_associator {C : category} {T : tensor C} (α : associator T) {D : disp_cat C} (TD : displayed_tensor T D) : UU :=
     ∑ (dα_ob : displayed_associator_on_objects TD (pr1 α)), (displayed_associator_naturality dα_ob).
 
+Definition displayed_tensor_functoriality_id {C : category} {T : tensor C} (pfTensorId : tensor_functor_id T) {D : disp_cat C} (TD : displayed_tensor T D) := ∏ (x y : C), ∏ (a : D x) (b : D y), (transportf _ (pfTensorId x y) ((id_disp a) ⊗^{{TD}} (id_disp b)))  = (id_disp (a ⊗_{{TD}} b)).
+
+Definition displayed_tensor_functoriality_comp {C : category} {T : tensor C} (pfTensorComp : tensor_functor_comp T) {D : disp_cat C} (TD : displayed_tensor T D) := ∏ (x y x' y' x'' y'': C), ∏ (a : D x) (b : D y) (a' : D x') (b' : D y') (a'' : D x'') (b'' : D y''),
+    ∏ (f1 : C⟦x, x'⟧) (g1 : C⟦y,y'⟧) (f2 : C⟦x',x''⟧) (g2 : C⟦y',y''⟧) (f1' : a -->[f1] a') (g1' : b -->[g1] b') (f2' : a' -->[f2] a'') (g2' : b' -->[g2] b''), ((f1'⊗^{{TD}} g1') ;; (f2'⊗^{{TD}} g2')) = transportf _ (pfTensorComp x y x' y' x'' y'' f1 f2 g1 g2) ((f1';;f2') ⊗^{{TD}} (g1';;g2'))  .
 
   Definition displayed_triangle_identity {C : category} {T : tensor C} {I : C} {lu : left_unitor T I} {ru : right_unitor T I} {α : associator T} (tri : triangle_identity T I lu ru α) {D : disp_cat C} {TD : displayed_tensor T D} (i : D I) (dlu : displayed_leftunitor TD i lu) (dru : displayed_rightunitor TD i ru) (dα : displayed_associator α TD) := ∏ (x y : C), ∏ (a : D x) (b : D y),
       ((pr1 dα) x I y a i b) ;; ((id_disp a)  ⊗^{{TD}} (pr1 dlu) y b ) = transportb _ (tri x y) (((pr1 dru) x a) ⊗^{{TD}} id_disp b).
@@ -116,58 +126,7 @@ Local Open Scope mor_disp_scope.
       ∑ (dlu : displayed_leftunitor TD i (leftunitor_extraction_of_monoidalcat M)),
       ∑ (dru : displayed_rightunitor TD i (rightunitor_extraction_of_monoidalcat M)),
       ∑ (dα : displayed_associator (associator_extraction_of_monoidalcat M) TD),
+      (displayed_tensor_functoriality_id (tensorfunctorid_identity_extraction_of_monoidalcat M) TD) × (displayed_tensor_functoriality_comp (tensorfunctorcomp_identity_extraction_of_monoidalcat M) TD) ×
+
       displayed_triangle_identity (triangleidentity_extraction_of_monoidalcat M) i dlu dru dα ×
                                   displayed_pentagon_identity (pentagonidentity_extraction_of_monoidalcat M) dα.
-
-
-  Proposition total_category_has_tensor {C : category} {T : tensor C} {D : disp_cat C} (TD : displayed_tensor T D) :
-    tensor (total_category D).
-  Proof.
-    split with (λ xa yb, (pr1 xa) ⊗_{T} (pr1 yb) ,, (pr2 xa) ⊗_{{TD}} (pr2 yb)).
-    intros xa yb xa' yb' f g.
-    split with (pr1 f ⊗^{T} pr1 g).
-    apply (pr2 TD).
-    + exact (pr2 f).
-    + exact (pr2 g).
-  Defined.
-
-
-
-
-(*
-Section ForgetfullFunctorFromTotalToMonoidalCategories.
-  (* In this section we are going to show that the forgetfull functor from the total to the base category is strict monoidal. *)
-
-  Notation "π^{ D }" := (pr1_category D).
-
-  (* These notations come from 'MonoidalCategoriesCurried' *)
-  Notation "x ⊗_{ T } y" := (tensoronobjects_from_tensor_cat T x y) (at level 31).
-  Notation "f ⊗^{ T } g" := (tensoronmorphisms_from_tensor_cat T  _ _ _ _ f g) (at level 31).
-
-  Notation "a ⊗_{{ dtd }} b" := (displayedtensor_on_objects_from_displayedtensor_data dtd _ _ a b) (at level 31).
-  Notation "f' ⊗^{{ dtd }} g'" := (displayedtensor_on_morphisms_from_displayedtensor_data dtd _ _ _ _ _ _ _ _ _ _ f' g'  ) (at level 31).
-
-  Notation "T( DM )" := (total_category_is_monoidal DM).
-
-  Lemma projection_distributes_over_tensor {M : monoidal_category} (DM : displayed_monoidal_category M) :
-    ∏ (X Y : T(DM) ), π^{pr1 DM} (X ⊗_{pr1 (pr2 T(DM))} Y) = ((π^{pr1 DM} X) ⊗_{(pr1 (pr2 M))} (π^{pr1 DM} Y)).
-  Proof.
-    intros X Y.
-    trivial.
-  Qed.
-
-  Proposition projection_strictlypreserves_tensor {M : monoidal_category} (DM : displayed_monoidal_category M) :
-    strictly_tensor_preserving_morphism (π^{(pr1 DM)}).
-
-  Lemma projection_preservesunit_strictly {M : monoidal_category} (DM : displayed_monoidal_category M) :
-    ∏ (X Y : T(DM) ), π^{pr1 DM} (unit_extraction_of_monoidalcat T(DM)) = (unit_extraction_of_monoidalcat M).
-  Proof.
-    intros X Y.
-    trivial.
-  Qed.
-
-
-
-
-End ForgetfullFunctorFromTotalToMonoidalCategories.
-*)

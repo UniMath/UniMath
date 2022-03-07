@@ -212,11 +212,13 @@ categories/Universal_Algebra/EqAlgebras.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
+Monoidal/MonoidalFunctorsCurried.v
 Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v
 Monoidal/DisplayedMonoidalCurried.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/BraidedMonoidalCategories.v
+Monoidal/TotalDisplayedMonoidalCurried.v
 
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
