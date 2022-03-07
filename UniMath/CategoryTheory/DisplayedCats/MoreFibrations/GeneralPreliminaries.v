@@ -35,8 +35,7 @@ Local Open Scope mor_disp_scope.
 (** * Comfortably proving unique existence *)
 Section Unique_existence.
 
-Definition contr_impl_inhab_prop
-    (A : UU)
+Definition contr_impl_inhab_prop (A : UU)
   : (iscontr A) -> A × (isaprop A).
 Proof.
   intro H. split.
@@ -44,20 +43,33 @@ Proof.
   - apply isapropifcontr. assumption.
 Defined.
 
-Definition inhab_prop_impl_contr
-    (A : UU)
-  : A × (isaprop A) -> iscontr A.
+Definition isaprop' (A : UU)
+  := ∏ a a' : A, a = a'.
+
+Definition inhab_prop_impl_contr (A : UU)
+  : A × (isaprop' A) -> iscontr A.
 Proof.
   unfold isaprop, isofhlevel, iscontr. intros (a, H).
   exists a. intros a'.
-  exact (pr1 (H a' a)).
+  exact (H a' a).
 Defined.
 
-
+(*
+Definition isaprop_easy (A : UU)
+  : (∏ a a' : A, a = a') -> isaprop A.
+Proof.
+  intro H.
+  unfold isaprop, isofhlevel.
+  intros x x'.
+  apply inhab_prop_impl_contr.
+  split.
+  - exact (H x x').
+  - unfold.
+*)
 
 Definition ex_uni_impl_uniex
     {A : UU} (B : A -> UU)
-  : (∑ (a : A), B a) × isaprop (∑ (a : A), B a) -> (∃! (a : A), B a).
+  : (∑ (a : A), B a) × isaprop' (∑ (a : A), B a) -> (∃! (a : A), B a).
 Proof.
   apply inhab_prop_impl_contr.
 Defined.
