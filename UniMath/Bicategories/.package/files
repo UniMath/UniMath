@@ -192,3 +192,7 @@ DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 ComprehensionBicat.v
 
 DualityInvolution.v
+
+EnrichedCategories/BicatOfEnrichedCat.v
+EnrichedCategories/ChangeOfBase.v
+EnrichedCategories/HSETEnriched.v

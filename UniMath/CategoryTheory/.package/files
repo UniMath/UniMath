@@ -221,9 +221,8 @@ SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
 Enriched/Enriched.v
-Enriched/ChangeOfBase.v
 Enriched/Opposite.v
-Enriched/BicatOfEnrichedCat.v
+Enriched/ChangeOfBase.v
 Enriched/HSETEnriched.v
 
 # RepresentableFunctors
