@@ -95,14 +95,13 @@ Proof.
   - apply invproofirrelevance.
     unfold isProofIrrelevant.
     intros (gg0, commbig0) (gg1, commgg1).
-    eapply subtypePairEquality.
+    apply subtypePairEquality.
     + intro gg.
       apply homsets_disp.
     + apply (cartesian_factorisation_unique cartff').
       apply (cartesian_factorisation_unique cartff).
       eapply pathscomp_ternary.
-      3: { apply pathsinv0.
-        apply assoc_disp_var. }
+      3:{ apply pathsinv0. apply assoc_disp_var. }
       * apply assoc_disp_var.
       * apply maponpaths.
         apply (pathscomp0 commbig0).
@@ -114,7 +113,7 @@ Proof.
       apply (transportb _ (! assoc _ _ _)).
       exact hh.
     + eapply pathscomp_ternary.
-        3: { apply transport_cancel_f_b. }
+      3:{ apply transport_cancel_f_b. }
       * apply assoc_disp.
       * apply maponpaths.
         eapply pathscomp0.
@@ -166,7 +165,6 @@ Proof.
 Defined.
 *)
 
-
 Definition postcomp_w_cart_refl_cart
     {C : category} {D : disp_cat C}
     {c c' c'' : C} {f : c' --> c} {f' : c'' --> c'}
@@ -176,30 +174,35 @@ Proof.
   intros cartff cartff'ff.
   unfold is_cartesian.
   intros c''' g' d''' gg.
-  set (hh_assoc := gg ;; ff).
-  set (hh := transportb _ (assoc g' f' f) hh_assoc).
-  set (gg' := cartesian_factorisation cartff'ff g' hh).
-  set (comm_all := cartesian_factorisation_commutes cartff'ff g' hh).
-  set (temp := assoc_disp_var gg' ff' ff).
-  set (temp' := transport_cancel_b_f _ (assoc g' f' f) hh).
-  set (temp'' := transport_cancel_f_b _ (assoc g' f' f) hh_assoc).
-  set (comm_all' := maponpaths (transportf (mor_disp d''' d) (assoc g' f' f)) comm_all).
-  set (comm_left' := assoc_disp_var gg' ff' ff @ comm_all' @ temp'').
-  set (comm_left := cartesian_factorisation_unique cartff (gg' ;; ff') gg comm_left').
-  exists (gg',, comm_left).
-  intros (gg'', commgg''_left).
-  apply subtypePairEquality.
-  intro gg0.
-  set (settemp := homsets_disp (g' · f') d''' d').
-  set (proptemp := settemp (gg0 ;; ff') gg).
-  exact proptemp.
-  set (commgg''_all_pre := maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)) commgg''_left).
-  set (commgg''_all := (assoc_disp gg'' ff' ff) @ maponpaths (transportb _ (assoc g' f' f)) commgg''_all_pre).
-  set (commgg''gg' := commgg''_all @ ! comm_all).
-  set (eq := cartesian_factorisation_unique cartff'ff gg'' gg' commgg''gg').
-  exact eq.
+  apply iscontraprop1.
+  2: { use tpair.
+    + apply (cartesian_factorisation cartff'ff).
+      apply (transportb _ (assoc _ _ _)).
+      exact (gg ;; ff).
+    + apply (cartesian_factorisation_unique cartff).
+      eapply pathscomp_ternary.
+      3: { apply transport_cancel_f_b. }
+      * apply assoc_disp_var.
+      * apply maponpaths.
+        apply cartesian_factorisation_commutes. }
+  - apply invproofirrelevance.
+    unfold isProofIrrelevant.
+    intros (gg0, commbig0) (gg1, commbig1).
+    apply subtypePairEquality.
+    + intro ggtemp.
+      apply homsets_disp.
+    + apply (cartesian_factorisation_unique cartff'ff).
+      eapply pathscomp0.
+      2: { apply pathsinv0.
+        apply assoc_disp. }
+      * eapply pathscomp0.
+        -- apply assoc_disp.
+        -- apply maponpaths.
+           eapply (maponpaths ((fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)))).
+           apply (pathscomp0 commbig0).
+           apply pathsinv0.
+           exact commbig1.
 Defined.
-
 
 Definition postcomp_w_cart_pres_pre'cart
     {C : category} {D : disp_cat C}
@@ -210,30 +213,37 @@ Proof.
   intros cartff pre'cartff'.
   unfold is_pre'cartesian.
   intros d''' hh.
-  set (gg := cartesian_factorisation' cartff ((identity c'') · f') hh (! assoc (identity c'') f' f)).
-  set (comm_right := cartesian_factorisation_commutes'  cartff ((identity c'') · f') hh (! assoc (identity c'') f' f)).
-  set (gg' := pre'cartesian_factorisation pre'cartff' gg).
-  set (comm_left := pre'cartesian_factorisation_commutes pre'cartff' gg).
-  set (comm_left' := maponpaths (fun gg: d''' -->[(identity c'') · f'] d' => (gg ;; ff)) comm_left).
-  set (comm_all_pre := comm_left' @ comm_right).
-  set (comm_all_pre' := maponpaths (transportb _ (assoc (identity c'') f' f)) comm_all_pre).
-  set (comm_all := (assoc_disp gg' ff' ff) @ comm_all_pre' @ transport_cancel_f_b _ (! assoc (identity c'') f' f) hh).
-  exists (gg',, comm_all).
-  intros (gg'', commgg''big).
-  apply subtypePairEquality.
-  intro gg0.
-  set (settemp := homsets_disp ((identity c'') · (f' · f)) d''' d).
-  set (proptemp := settemp (gg0 ;; (ff' ;; ff)) hh).
-  exact proptemp.
-  set (H := commgg''big @ ! comm_all).
-  set (H_assoc_temp := maponpaths (transportf _ (assoc (identity c'') f' f)) H).
-  set (temp_assoc_var := assoc_disp_var gg' ff' ff).
-  set (temp_assoc_var' := assoc_disp_var gg'' ff' ff).
-  set (H_assoc := temp_assoc_var' @ H_assoc_temp @ ! temp_assoc_var).
-  set (H_small := cartesian_factorisation_unique cartff (gg'' ;; ff') (gg' ;; ff') H_assoc).
-  set (yay := pre'cartesian_factorisation_unique pre'cartff' gg'' gg' H_small).
-  exact yay.
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    unfold isProofIrrelevant.
+    intros (gg0, commbig0) (gg1, commbig1).
+    eapply subtypePairEquality.
+    + intro gg.
+      apply homsets_disp.
+    + apply (pre'cartesian_factorisation_unique pre'cartff').
+      apply (cartesian_factorisation_unique cartff).
+      eapply pathscomp_ternary.
+      3: { apply pathsinv0. apply assoc_disp_var. }
+      * apply assoc_disp_var.
+      * apply maponpaths.
+        apply (pathscomp0 commbig0).
+        apply pathsinv0.
+        exact commbig1.
+  - use tpair.
+    + apply (pre'cartesian_factorisation pre'cartff').
+      apply (cartesian_factorisation cartff).
+      apply (transportb _ (! assoc _ _ _)).
+      exact hh.
+    + eapply pathscomp_ternary.
+        3: { apply (transport_cancel_f_b _ (! assoc _ _ _) _). }
+        * apply assoc_disp.
+        * apply maponpaths.
+           eapply pathscomp0.
+           -- eapply (maponpaths (fun gg: d''' -->[(identity c'') · f'] d' => (gg ;; ff))).
+              apply pre'cartesian_factorisation_commutes.
+           -- apply cartesian_factorisation_commutes'.
 Defined.
+
 
 Definition postcomp_w_cart_refl_pre'cart
     {C : category} {D : disp_cat C}
