@@ -92,20 +92,6 @@ Proof.
   unfold is_cartesian.
   intros c''' g' d''' hh.
   apply iscontraprop1.
-  2:{ use tpair.
-      apply (cartesian_factorisation cartff').
-      apply (cartesian_factorisation cartff).
-      apply (transportb _ (! assoc _ _ _)).
-      exact hh.
-    eapply pathscomp0.
-    + apply assoc_disp.
-    + eapply pathscomp0.
-      2: { apply transport_cancel_f_b. }
-      * apply maponpaths.
-        eapply pathscomp0.
-        -- eapply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
-           apply cartesian_factorisation_commutes.
-        -- apply cartesian_factorisation_commutes'. }
   - apply invproofirrelevance.
     unfold isProofIrrelevant.
     intros (gg0, commbig0) (gg1, commgg1).
@@ -114,16 +100,71 @@ Proof.
       apply homsets_disp.
     + apply (cartesian_factorisation_unique cartff').
       apply (cartesian_factorisation_unique cartff).
-      eapply pathscomp0.
+      eapply pathscomp_ternary.
+      3: { apply pathsinv0.
+        apply assoc_disp_var. }
       * apply assoc_disp_var.
-      * eapply pathscomp0.
-        2: { apply pathsinv0.
-           apply assoc_disp_var. }
-        -- apply maponpaths.
-           apply (pathscomp0 commbig0).
-           apply pathsinv0.
-           exact commgg1.
+      * apply maponpaths.
+        apply (pathscomp0 commbig0).
+        apply pathsinv0.
+        exact commgg1.
+  - use tpair.
+    + apply (cartesian_factorisation cartff').
+      apply (cartesian_factorisation cartff).
+      apply (transportb _ (! assoc _ _ _)).
+      exact hh.
+    + eapply pathscomp_ternary.
+        3: { apply transport_cancel_f_b. }
+      * apply assoc_disp.
+      * apply maponpaths.
+        eapply pathscomp0.
+        -- eapply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+           apply cartesian_factorisation_commutes.
+        -- apply cartesian_factorisation_commutes'.
 Defined.
+
+(* Why does this not work? I can't choose a subgoal!
+Definition postcomp_w_cart_pres_cart_new
+    {C : category} {D : disp_cat C}
+    {c c' c'' : C} {f : c' --> c} {f' : c'' --> c'}
+    {d : D c} {d' : D c'} {d'' : D c''} (ff : d' -->[f] d) (ff' : d'' -->[f'] d')
+  : is_cartesian ff -> (is_cartesian ff' -> is_cartesian (ff' ;; ff)).
+Proof.
+  intros cartff cartff'.
+  unfold is_cartesian.
+  intros c''' g' d''' hh.
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    unfold isProofIrrelevant.
+    intros (gg0, commbig0) (gg1, commgg1).
+    eapply subtypePairEquality.
+    + intro gg.
+      apply homsets_disp.
+    + apply (cartesian_factorisation_unique cartff').
+      apply (cartesian_factorisation_unique cartff).
+      eapply pathscomp_ternary.
+      * apply assoc_disp_var.
+      2: { apply pathsinv0.
+           apply assoc_disp_var. }
+      * apply maponpaths.
+        apply (pathscomp0 commbig0).
+        apply pathsinv0.
+        exact commgg1.
+  - use tpair.
+    + apply (cartesian_factorisation cartff').
+      apply (cartesian_factorisation cartff).
+      apply (transportb _ (! assoc _ _ _)).
+      exact hh.
+    + eapply pathscomp_ternary.
+      * apply assoc_disp.
+      3: { apply transport_cancel_f_b. }
+      * apply maponpaths.
+        eapply pathscomp0.
+        -- eapply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+           apply cartesian_factorisation_commutes.
+        -- apply cartesian_factorisation_commutes'. }
+Defined.
+*)
 
 
 Definition postcomp_w_cart_refl_cart

@@ -31,6 +31,19 @@ Require Import UniMath.Foundations.All.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
+(** * Ternary composition of paths. Helps avoid deeply nested subgoals. *)
+Section Ternary_composition.
+
+Definition pathscomp_ternary {X : UU} {a b c d : X} (e1 : a = b) (e2 : b = c) (e3 : c = d)
+  : a = d.
+Proof.
+  induction e1.
+  induction e2.
+  apply e3.
+Defined.
+
+End Ternary_composition.
+
 
 (** * Comfortably proving unique existence *)
 Section Unique_existence.
