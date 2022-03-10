@@ -20,84 +20,241 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-  Definition total_category_has_tensor {C : category} {T : tensor C} {D : disp_cat C} (TD : displayed_tensor T D) :
-    tensor (total_category D).
-  Proof.
-    split with (λ xa yb, (pr1 xa) ⊗_{T} (pr1 yb) ,, (pr2 xa) ⊗_{{TD}} (pr2 yb)).
-    intros xa yb xa' yb' f g.
-    split with (pr1 f ⊗^{T} pr1 g).
-    apply (pr2 TD).
-    + exact (pr2 f).
-    + exact (pr2 g).
-  Defined.
+Section MonoidalTotalCategory.
 
-  Proposition total_category_has_leftunitor {C : category } {T : tensor C} {I : C} {lu : left_unitor T I} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} (dlu : displayed_leftunitor TD i lu) :
-    left_unitor (total_category_has_tensor TD) (I,,i).
-  Proof.
-    use tpair.
-    + intro x.
-      use tpair.
-      - apply lu.
-      - exact ((pr1 dlu) (pr1 x) (pr2 x)).
-    +  abstract( intros x y f ;
-       use total2_paths_b ;
-                 [ exact ((pr2 lu) (pr1 x) (pr1 y) (pr1 f)) |
-                   exact ((pr2 dlu) (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f) (pr2 f)) ]).
-  Defined.
+  Context (C : category) (T : tensor_data C) (I : C) (α : associator_data T) (lu : leftunitor_data T I) (ru : rightunitor_data T I) (tid : tensorfunctor_id T) (tcomp : tensorfunctor_comp T) (αnat : associator_naturality α) (αiso : associator_is_natiso α) (lunat : leftunitor_naturality lu) (luiso : leftunitor_is_natiso lu) (runat : rightunitor_naturality ru) (ruiso : rightunitor_is_natiso ru) (tri : triangle_identity lu ru α) (pen : pentagon_identity α)
+          (D : disp_cat C) (dtd : displayedtensor_data C D T) (i : D I) (dα : displayedassociator_data C D T α dtd) (dlu : displayedleftunitor_data C D T I lu dtd i) (dru : displayedrightunitor_data C D T I ru dtd i) (dtid : displayedtensor_id C D T tid dtd) (dtcomp : displayedtensor_comp C D T tcomp dtd) (dαnat : displayedassociator_naturality C D T α αnat dα ) (dαiso : displayedassociator_is_nat_iso C D T α αiso dα ) (dlunat : displayedleftunitor_naturality C D T I lu lunat dlu ) (dluiso : displayedleftunitor_is_nat_iso C D T I lu luiso dlu) (drunat : displayedrightunitor_naturality C D T I ru runat dru ) (druiso : displayedrightunitor_is_nat_iso C D T I ru ruiso dru) (dtri : displayedtriangle_identity C D T I α lu ru tri dlu dru dα) (dpen : displayedpentagon_identity C D T α pen dα).
 
-  Proposition total_category_has_rightunitor {C : category } {T : tensor C} {I : C} {ru : right_unitor T I} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} (dru : displayed_rightunitor TD i ru) :
-    right_unitor (total_category_has_tensor TD) (I,,i).
+  Notation ToD := (total_category D).
+  Notation "x ⊗_{ T } y" := (tensoronobjects_from_tensordata T x y) (at level 31).
+  Notation "f ⊗^{ T } g" := (tensoronmorphisms_from_tensordata T  _ _ _ _ f g) (at level 31).
+  Notation "a ⊗_{{ dtd }} b" := (displayedtensoronobjects_from_displayedtensordata _ _ _ dtd _ _ a b) (at level 31).
+  Notation "f' ⊗^{{ dtd }} g'" := (displayedtensoronmorphisms_from_displayedtensordata dtd _ _ _ _ _ _ _ _ _ _ f' g'  ) (at level 31).
+
+  (** DATA **)
+  Definition totalcategory_tensordata : tensor_data ToD.
   Proof.
     use tpair.
-    + intro x.
-      use tpair.
-      - apply ru.
-      - exact ((pr1 dru) (pr1 x) (pr2 x)).
-    +  abstract( intros x y f ;
-       use total2_paths_b ;
-        [ exact ((pr2 ru) (pr1 x) (pr1 y) (pr1 f)) |
-          exact ((pr2 dru) (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f) (pr2 f)) ]).
+    + intros xa yb.
+      exact ((pr1 xa) ⊗_{T} (pr1 yb) ,, (pr2 xa) ⊗_{{dtd}} (pr2 yb)).
+    +  intros xa yb xa' yb' f g.
+       split with (pr1 f ⊗^{T} pr1 g).
+       apply (pr2 dtd).
+       - exact (pr2 f).
+       - exact (pr2 g).
   Defined.
+  Notation TtD := totalcategory_tensordata.
 
-  Proposition total_category_has_associator {C : category } {T : tensor C} {α : associator T} {D : disp_cat C} {TD : displayed_tensor T D} (dα : displayed_associator α TD ) :
-    associator (total_category_has_tensor TD).
+  Definition totalcategory_associatordata : associator_data TtD.
   Proof.
+    intros x y z.
     use tpair.
-    + intros x y z.
-      use tpair.
-      - exact ((pr1 α) (pr1 x) (pr1 y) (pr1 z)).
-      - exact ((pr1 dα) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
-    + intros x x' y y' z z' f g h.
-      use total2_paths_b.
-      - exact ((pr2 α) (pr1 x) (pr1 x') (pr1 y) (pr1 y') (pr1 z) (pr1 z') (pr1 f) (pr1 g) (pr1 h)).
-      - exact ((pr2 dα) (pr1 x) (pr1 x') (pr1 y) (pr1 y') (pr1 z) (pr1 z')
-                        (pr2 x) (pr2 x') (pr2 y) (pr2 y') (pr2 z) (pr2 z')
-                        (pr1 f) (pr1 g) (pr1 h) (pr2 f) (pr2 g) (pr2 h) ).
+    + exact (α (pr1 x) (pr1 y) (pr1 z)).
+    + exact (dα (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
   Defined.
+  Notation TαD := totalcategory_associatordata.
 
-Proposition total_category_satisfied_tensor_functorialityid {C : category} {T : tensor C} {D : disp_cat C} {TD : displayed_tensor T D} {pfTensorId : tensor_functor_id T} (pfDTensorId : displayed_tensor_functoriality_id pfTensorId TD):
-  tensor_functor_id (total_category_has_tensor TD).
-Proof.
-  intros x y.
-  use total2_paths_f.
-  + use pfTensorId.
-  + use ((pfDTensorId (pr1 x) (pr1 y) (pr2 x) (pr2 y))).
-Defined.
+  Definition totalcategory_unitdata : ToD := (I,,i).
+  Notation TuD := totalcategory_unitdata.
 
-Proposition total_category_satisfied_tensor_functorialitycomp {C : category} {T : tensor C} {D : disp_cat C} {TD : displayed_tensor T D} {pfTensorComp : tensor_functor_comp T} (pfDTensorComp : displayed_tensor_functoriality_comp pfTensorComp TD):
-  tensor_functor_comp (total_category_has_tensor TD).
-Proof.
-  intros x y x' y' x'' y'' f f' g g'.
-  use total2_paths_f.
-  + use pfTensorComp.
-  + use (pathsinv0 ((pfDTensorComp (pr1 x) (pr1 y) (pr1 x') (pr1 y') (pr1 x'') (pr1 y'')
+  Definition totalcategory_leftunitordata : leftunitor_data TtD TuD.
+  Proof.
+    intro x.
+    use tpair.
+    + apply lu.
+    + exact (dlu (pr1 x) (pr2 x)).
+  Defined.
+  Notation TluD := totalcategory_leftunitordata.
+
+  Definition totalcategory_rightunitordata : rightunitor_data TtD TuD.
+  Proof.
+    intro x.
+    use tpair.
+    + apply ru.
+    + exact (dru (pr1 x) (pr2 x)).
+  Defined.
+  Notation TruD := totalcategory_rightunitordata.
+
+  Definition totalcategory_monoidalcatdata : (monoidalcategory_data ToD) := (TtD,,TuD,,TluD,,TruD,,TαD).
+
+  (** PROPERTIES **)
+  Lemma totalcategory_tensorfunctorid : tensorfunctor_id TtD.
+  Proof.
+    intros x y.
+    use total2_paths_b.
+    + apply tid.
+    + apply (dtid (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
+  Qed.
+
+  Lemma totalcategory_tensorfunctorcomp : tensorfunctor_comp TtD.
+  Proof.
+    intros x y x' y' x'' y'' f f' g g'.
+    use total2_paths_b.
+    + use tcomp.
+    + use (((dtcomp (pr1 x) (pr1 y) (pr1 x') (pr1 y') (pr1 x'') (pr1 y'')
                          (pr2 x) (pr2 y) (pr2 x') (pr2 y') (pr2 x'') (pr2 y'')
                          (pr1 f) (pr1 g) (pr1 f') (pr1 g')
-                         (pr2 f) (pr2 g) (pr2 f') (pr2 g')))). (* Converse some equality so that I don't have to use pathsinv0 *)
-Defined.
+                         (pr2 f) (pr2 g) (pr2 f') (pr2 g')))).
+  Qed.
 
-  Proposition total_category_has_triangle_identity {C : category} {T : tensor C} {I : C} {lu : left_unitor T I} {ru : right_unitor T I} {α : associator T} {tri : triangle_identity T I lu ru α} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {dlu : displayed_leftunitor TD i lu} {dru : displayed_rightunitor TD i ru} {dα : displayed_associator α TD} (dtri : displayed_triangle_identity tri i dlu dru dα)
-    : triangle_identity (total_category_has_tensor TD)  (I,,i) (total_category_has_leftunitor dlu) (total_category_has_rightunitor dru) (total_category_has_associator dα).
+  Lemma totalcategory_associatornaturality : associator_naturality TαD.
+  Proof.
+    intros x x' y y' z z' f g h.
+    use total2_paths_b.
+    - exact (αnat (pr1 x) (pr1 x') (pr1 y) (pr1 y') (pr1 z) (pr1 z') (pr1 f) (pr1 g) (pr1 h)).
+    - exact (dαnat (pr1 x) (pr1 x') (pr1 y) (pr1 y') (pr1 z) (pr1 z')
+                        (pr2 x) (pr2 x') (pr2 y) (pr2 y') (pr2 z) (pr2 z')
+                        (pr1 f) (pr1 g) (pr1 h) (pr2 f) (pr2 g) (pr2 h)).
+  Qed.
+
+  Lemma totalcategory_associatorisnatiso : associator_is_natiso TαD.
+  Proof.
+    intros x y z.
+    use tpair.
+    + use tpair.
+    - exact (pr1 (αiso (pr1 x) (pr1 y) (pr1 z))).
+    - cbn.
+      set (pf :=  (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (αiso (pr1 x) (pr1 y) (pr1 z))))).
+      (* pf : Isos.inv_from_iso (Isos.z_iso_to_iso (α (pr1 x) (pr1 y) (pr1 z),, αiso (pr1 x) (pr1 y) (pr1 z))) = pr1 (αiso (pr1 x) (pr1 y) (pr1 z))) *)
+      exact (transportf _ pf (pr1 (dαiso (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+      + use tpair.
+        - use total2_paths_b.
+          -- exact (pr1 (pr2 (αiso (pr1 x) (pr1 y) (pr1 z)))).
+          -- etrans. { apply mor_disp_transportf_prewhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+
+             etrans. {
+              apply maponpaths.
+              apply (pr2 (pr2 (dαiso (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+             }
+             etrans. { apply transport_f_f. }
+             apply transportf_set.
+             apply homset_property.
+        - use total2_paths_b.
+          -- exact (pr2 (pr2 (αiso (pr1 x) (pr1 y) (pr1 z)))).
+          -- etrans. { apply mor_disp_transportf_postwhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+
+             etrans. {
+              apply maponpaths.
+              apply (pr1 (pr2 (dαiso (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+            }
+            etrans. { apply transport_f_f. }
+            apply transportf_set.
+             apply homset_property.
+  Qed.
+
+
+  Lemma totalcategory_leftunitornaturality : leftunitor_naturality TluD.
+  Proof.
+    intros x y f.
+    use total2_paths_b.
+    + exact (lunat (pr1 x) (pr1 y) (pr1 f)).
+    + exact (dlunat (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f) (pr2 f)).
+  Qed.
+
+  Lemma totalcategory_leftunitorisnatiso : leftunitor_is_natiso TluD.
+  Proof.
+    intros x.
+    use tpair.
+    + use tpair.
+    - exact (pr1 (luiso (pr1 x))).
+    - set (pf (*: Isos.inv_from_iso (Isos.z_iso_to_iso (lu (pr1 x),, luiso (pr1 x))) = pr1 (luiso (pr1 x))*)
+           := (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (luiso (pr1 x))))
+          ).
+      exact (transportf _ pf (pr1 (dluiso (pr1 x) (pr2 x)))).
+      + use tpair.
+        - use total2_paths_b.
+          -- exact (pr1 (pr2 (luiso (pr1 x)))).
+          -- etrans.
+             { apply mor_disp_transportf_prewhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+             etrans. {
+              apply maponpaths.
+              apply (pr2 (pr2 (dluiso (pr1 x) (pr2 x)))).
+             }
+             etrans. { apply transport_f_f. }
+             apply transportf_set.
+             apply homset_property.
+        - use total2_paths_b.
+          -- exact (pr2 (pr2 (luiso (pr1 x)))).
+          -- etrans.
+             { apply mor_disp_transportf_postwhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+             etrans. {
+              apply maponpaths.
+              apply (pr1 (pr2 (dluiso (pr1 x) (pr2 x)))).
+             }
+             etrans. { apply transport_f_f. }
+             apply transportf_set.
+             apply homset_property.
+  Qed.
+
+  Lemma totalcategory_rightunitornaturality : rightunitor_naturality TruD.
+  Proof.
+    intros x y f.
+    use total2_paths_b.
+    + exact (runat (pr1 x) (pr1 y) (pr1 f)).
+    + exact (drunat (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f) (pr2 f)).
+  Qed.
+
+  Lemma totalcategory_rightunitorisnatiso : rightunitor_is_natiso TruD.
+  Proof.
+    intros x.
+    use tpair.
+    + use tpair.
+    - exact (pr1 (ruiso (pr1 x))).
+    - set (pf (*: Isos.inv_from_iso (Isos.z_iso_to_iso (lu (pr1 x),, luiso (pr1 x))) = pr1 (luiso (pr1 x))*)
+           := (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (ruiso (pr1 x))))
+          ).
+
+      exact (transportf _ pf (pr1 (druiso (pr1 x) (pr2 x)))).
+      + use tpair.
+        - use total2_paths_b.
+          -- exact (pr1 (pr2 (ruiso (pr1 x)))).
+          -- etrans.
+             { apply mor_disp_transportf_prewhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+
+             etrans. {
+              apply maponpaths.
+              apply (pr2 (pr2 (druiso (pr1 x) (pr2 x)))).
+            }
+            etrans. { apply transport_f_f. }
+
+             apply transportf_set.
+             apply homset_property.
+
+
+        - use total2_paths_b.
+          -- exact (pr2 (pr2 (ruiso (pr1 x)))).
+          -- etrans.
+             { apply mor_disp_transportf_postwhisker. }
+             apply transportb_transpose_right.
+             etrans.
+             { apply transport_f_f. }
+
+             etrans. {
+              apply maponpaths.
+              apply (pr1 (pr2 (druiso (pr1 x) (pr2 x)))).
+            }
+            etrans. { apply transport_f_f. }
+
+             apply transportf_set.
+             apply homset_property.
+  Qed.
+
+  Lemma totalcategory_triangleidentity : triangle_identity TluD TruD TαD.
   Proof.
     intros x y.
     use total2_paths_b.
@@ -105,8 +262,7 @@ Defined.
     + exact (dtri (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
   Qed.
 
-  Proposition total_category_has_pentagon_identity {C : category} {T : tensor C} {α : associator T} {pen : pentagon_identity T α} {D : disp_cat C} {TD : displayed_tensor T D} {dα : displayed_associator α TD} (dpen : displayed_pentagon_identity pen dα)
-    : pentagon_identity (total_category_has_tensor TD) (total_category_has_associator dα).
+  Lemma totalcategory_pentagonidentity : pentagon_identity TαD.
   Proof.
     intros w x y z.
     use total2_paths_b.
@@ -114,177 +270,79 @@ Defined.
     + exact (dpen (pr1 w) (pr1 x) (pr1 y) (pr1 z) (pr2 w) (pr2 x) (pr2 y) (pr2 z)).
   Qed.
 
+  Definition totalcategory_monoidallaws : monoidal_laws totalcategory_monoidalcatdata :=
+    (totalcategory_tensorfunctorid,, totalcategory_tensorfunctorcomp,,
+                                     totalcategory_associatornaturality,, totalcategory_associatorisnatiso,,
+                                     totalcategory_leftunitornaturality,, totalcategory_leftunitorisnatiso,,
+                                     totalcategory_rightunitornaturality,, totalcategory_rightunitorisnatiso,,
+                                     totalcategory_triangleidentity,, totalcategory_pentagonidentity).
 
-  Theorem total_category_is_monoidal {M : monoidal_category} (DM : displayed_monoidal_category M) : monoidal_category.
-Proof.
-    split with (total_category (pr1 DM)).
-    split with (total_category_has_tensor (pr1 (pr2 DM))).
-    split with (unit_extraction_of_monoidalcat M ,, pr1 (pr2 (pr2 DM))).
-    split with (total_category_has_leftunitor (pr1 (pr2 (pr2 (pr2 DM))))).
-    split with (total_category_has_rightunitor (pr1 (pr2 (pr2 (pr2 (pr2 DM)))))).
-    split with (total_category_has_associator (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DM))))))).
-    split with (total_category_satisfied_tensor_functorialityid (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DM)))))))).
-    split with (total_category_satisfied_tensor_functorialitycomp (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DM))))))))).
-    split with (total_category_has_triangle_identity (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DM)))))))))).
-    exact (total_category_has_pentagon_identity (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DM)))))))))).
-Defined.
+  Definition totalcategory_monoidalcat : monoidalcategory ToD := (totalcategory_monoidalcatdata,, totalcategory_monoidallaws).
 
-Notation "π^{ D }" := (pr1_category D).
+  Notation π := (pr1_category D).
+  Definition MC : monoidalcategory_data C := (T,,I,,lu,,ru,,α).
 
-Definition monoidal_projection {M : monoidal_category} (DM : displayed_monoidal_category M) : functor (total_category_is_monoidal DM) M.
-Proof.
-  exact π^{pr1 DM}.
-Defined.
+  Definition projection_tensorpreservingdata : tensor_preserving_data ToD C totalcategory_monoidalcatdata MC π := λ x y, identity (π x ⊗_{ MC} π y).
+  Definition projection_unitpreservingdata : unit_preserving_data ToD C totalcategory_monoidalcatdata MC π := identity I.
 
-Lemma projection_of_totalcategory_preservesunitstrictly {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  (strictly_unit_preserving_morphism (monoidal_projection DM)).
-Proof.
-  use tpair.
-  + use (identity).
-  + use tpair.
-  - apply idpath.
-  - apply idpath.
-Defined.
+  Definition projection_monoidalfunctordata : monoidalfunctor_data ToD C totalcategory_monoidalcatdata MC π :=
+  (projection_tensorpreservingdata,,projection_unitpreservingdata).
 
-Definition projection_of_totalcategory_preservestensorstrictly {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  (strictly_tensor_preserving_morphism (monoidal_projection DM)).
-Proof.
-  use tpair.
-  + intros x y.
-    use (identity).
-  + intros x y.
+  Lemma projection_tensornaturality : tensor_preserving_data_is_natural ToD C totalcategory_monoidalcatdata MC π projection_tensorpreservingdata.
+  Proof.
+    intros xx yy zz ww ff' gg'.
+    exact ((pr1 (pr1 (pr2 (pr1 C))) _ _ (pr1 ff' ⊗^{T} pr1 gg')) @ (pathsinv0 (pr2 (pr1 (pr2 (pr1 C))) _ _ (pr1 ff' ⊗^{T} pr1 gg')))).
+  Qed.
+
+  Lemma projection_preservesassociativity : preserves_associativity ToD C totalcategory_monoidalcatdata MC π projection_tensorpreservingdata.
+  Proof.
+    intros xx yy zz.
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    rewrite (pr2 (pr1 (pr2 (pr1 C)))).
+    rewrite tid.
+    rewrite tid.
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    rewrite (pr2 (pr1 (pr2 (pr1 C)))).
+    apply idpath.
+  Qed.
+
+  Lemma projection_preservesleftunitality : preserves_leftunitality ToD C totalcategory_monoidalcatdata MC π projection_tensorpreservingdata projection_unitpreservingdata.
+  Proof.
+    intro xx.
+    rewrite tid.
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    apply idpath.
+  Qed.
+
+  Lemma projection_preservesrightunitality : preserves_rightunitality ToD C totalcategory_monoidalcatdata MC π projection_tensorpreservingdata projection_unitpreservingdata.
+  Proof.
+    intro xx.
+    rewrite tid.
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    rewrite (pr1 (pr1 (pr2 (pr1 C)))).
+    apply idpath.
+  Qed.
+
+  Definition projection_monoidallaws : monoidalfunctor_laws ToD C totalcategory_monoidalcatdata MC π projection_monoidalfunctordata
+    := (projection_tensornaturality,,projection_preservesassociativity,,projection_preservesleftunitality,,projection_preservesrightunitality).
+
+  Definition projection_monoidalfunctor : monoidalfunctor ToD C totalcategory_monoidalcatdata MC π
+    := (projection_monoidalfunctordata,,projection_monoidallaws).
+
+  Lemma projection_strictlytensorpreserving : is_strictlytensorpreserving ToD C totalcategory_monoidalcatdata MC π projection_tensorpreservingdata.
+  Proof.
+    intros xx yy.
     use tpair.
-  - apply idpath.
-  - apply idpath.
-Defined.
+    + apply idpath.
+    + apply idpath.
+  Qed.
 
-Lemma projection_of_totalcategory_leftunitality {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  ∏ (x : (total_category_is_monoidal DM)), ((pr2 (pr1 (monoidal_projection DM))) _ _ ((pr1 (leftunitor_extraction_of_monoidalcat (total_category_is_monoidal DM))) x)) = ((pr1 (leftunitor_extraction_of_monoidalcat M)) (pr1 x)).
-Proof.
-  intro x.
-  apply idpath.
-Qed.
-
-Lemma projection_of_totalcategory_associativity {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  ∏ (x y z : (total_category_is_monoidal DM)), ((pr2 (pr1 (monoidal_projection DM))) _ _ ((pr1 (associator_extraction_of_monoidalcat (total_category_is_monoidal DM))) x y z)) = ((pr1 (associator_extraction_of_monoidalcat M)) (pr1 x) (pr1 y) (pr1 z)).
-Proof.
-  intros x y z.
-  apply idpath.
-Qed.
-
-Notation "T( M )" := (total_category_is_monoidal M).
-Notation "α^{ C }_{ x , y , z }" := ((pr1 (associator_extraction_of_monoidalcat C)) x y z) (at level 31).
-Notation "π^{ DM }( f )" := ((pr21 (monoidal_projection DM)) _ _ f).
-Notation "π_{ DM }( x , y )" := (( ( pr1 (pr1 (pr2 _))) (monoidal_projection DM x) (monoidal_projection DM y)  )).
-Notation "x ⊗_{ M } y" := ((pr1 (tensor_extraction_of_monoidalcat M)) x y).
-Notation "f ⊗^{ M } g" := ((pr2 (tensor_extraction_of_monoidalcat M)) _ _ _ _ f g).
-
-Lemma test {C : category} {x y  z w: C} (f : C⟦x,y⟧) (g : C⟦y,x⟧) (h : C⟦x,w⟧):
-  ((f·g) = (identity x)) -> ((f · (g · h)) = h).
-Proof.
-  intro p.
-  use (pathscomp0).
-  + exact ((f·g)·h).
-  + exact ((pr1 (pr2 (pr2 (pr1 C)))) _ _ _ _ f g h).
-  + use pathscomp0.
-  - exact ((identity x)·h).
-  - induction p.
-    use idpath.
-  - use (((pr1 (pr1 (pr2 (pr1 C)))) x w ) h).
-Qed.
-
-Lemma projection_of_totalcategory_preservesleftunitality {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  preserves_leftunitality (projection_of_totalcategory_preservestensorstrictly DM) (projection_of_totalcategory_preservesunitstrictly DM).
-Proof.
-  intro x.
-  cbn.
-  set (I := unit_extraction_of_monoidalcat M). (* : M *)
-  set (lu := pr1 (leftunitor_extraction_of_monoidalcat M)).
-
-  use test.
-  + exact (pr1 x).
-  + set (p :=  (((pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))) I (pr1 x)))).
-    set (q := ((pr2 (pr1 (pr2 (pr11 M)))) (I ⊗_{M} (pr1 x)) (I ⊗_{M} (pr1 x)) ((identity I) ⊗^{M} (identity (pr1 x))))).
-    exact (q@p).
-Defined.
-
-Lemma projection_of_totalcategory_preservesrightunitality {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  preserves_rightunitality (projection_of_totalcategory_preservestensorstrictly DM) (projection_of_totalcategory_preservesunitstrictly DM).
-Proof.
-  intro x.
-  cbn.
-  set (I := unit_extraction_of_monoidalcat M). (* : M *)
-  set (lu := pr1 (rightunitor_extraction_of_monoidalcat M)).
-
-  use test.
-  + exact (pr1 x).
-  + set (p :=  (((pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))) (pr1 x) I))).
-    set (q := ((pr2 (pr1 (pr2 (pr11 M)))) ((pr1 x) ⊗_{M} I) ((pr1 x) ⊗_{M} I) (((identity (pr1 x)) ⊗^{M} (identity I))))).
-    exact (q@p).
-Defined.
-
-Notation "id_{ x }" := (identity x).
-
-Lemma projection_of_totalcategory_preservesassociativity {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  preserves_associativity (projection_of_totalcategory_preservestensorstrictly DM).
-Proof.
-  intros x y z.
-  induction x as [x a] ; induction y as [y b]; induction z as [z c].
-  set (tid := (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))))).
-
-  assert (pf0 : id_{ x ⊗_{ M} y} ⊗^{ M} id_{ z} · (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z}) = id_{ (x ⊗_{ M} y) ⊗_{M} z} · (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z})).
-  { exact (cancel_postcomposition _ _ ( (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z})) (( (tid (x⊗_{M} y) z)))). }
-
-  assert (pf1 : id_{ (x ⊗_{ M} y) ⊗_{M} z} · (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z}) =  (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z})).
-  {
-    assert (intermid :  (id_{ (x ⊗_{ M} y) ⊗_{ M} z} · α^{ M }_{ x, y, z}) =  α^{ M }_{ x, y, z}). {
-      exact ((pr1 (pr1 (pr2 (pr11 M))))  _ _ (α^{ M }_{ x, y, z})).
-    }
-    exact (cancel_precomposition _ _ _ _ _ _  (id_{ (x ⊗_{ M} y) ⊗_{ M} z}) intermid).
-  }
-
-  assert (pf2 : (id_{ (x ⊗_{M} y) ⊗_{M} z}) · (α^{ M }_{ x, y, z}) = (α^{M}_{x,y,z})).
-  { exact ((pr1 (pr1 (pr2 (pr11 M))))  _ _ (α^{ M }_{ x, y, z})). }
-
-  assert (pf3 : (α^{M}_{x,y,z}) = α^{M}_{x,y,z}· id_{x ⊗_{ M} (y ⊗_{ M} z)}).
-  { exact (pathsinv0 ((pr2 (pr1 (pr2 (pr11 M))))  _ _ (α^{ M }_{ x, y, z}))). }
-
-  assert (pf4 :  α^{M}_{x,y,z}· id_{x ⊗_{ M} (y ⊗_{ M} z)} = α^{M}_{x,y,z}· id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z}).
-  { exact (cancel_precomposition _ _ _ _ _ _  (α^{M}_{x,y,z}) (pathsinv0 (tid x (y⊗_{M}z)))). }
-
-  assert (pf5 :  α^{M}_{x,y,z}· id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z} =   (α^{ M }_{ x, y, z} · (id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z})) · id_{ x ⊗_{ M} (y ⊗_{ M} z)}).
-  {  exact (pathsinv0 ((pr2 (pr1 (pr2 (pr1 (pr1 M))))) _ _ ( α^{M}_{x,y,z}· id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z} ))).  }
-
-  assert (pf6 :   (α^{ M }_{ x, y, z} · (id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z})) · id_{ x ⊗_{ M} (y ⊗_{ M} z)} =  α^{ M }_{ x, y, z} · (id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z} · id_{ x ⊗_{ M} (y ⊗_{ M} z)})).
-  { exact (assoc' (α^{ M }_{ x, y, z}) ( id_{ x} ⊗^{ M} id_{ y ⊗_{ M} z}) ( id_{ x ⊗_{ M} (y ⊗_{ M} z)})). }
-
-  exact (pf0 @ pf1 @ pf2 @ pf3 @ pf4 @ pf5 @ pf6).
-Qed.
-
-Theorem projection_of_totalcategory_is_strict_monoidal_functor {M : monoidal_category} (DM : displayed_monoidal_category M) :
-  strict_monoidal_functor (total_category_is_monoidal DM) M.
-Proof.
-  split with (monoidal_projection DM).
-  use tpair.
-  + unfold strictly_tensor_preserving_morphism.
+  Lemma projection_strictlyunitpreserving : is_strictlyunitpreserving ToD C totalcategory_monoidalcatdata MC π projection_unitpreservingdata.
+  Proof.
     use tpair.
-  - unfold weakly_tensor_preserving_morphism.
-    intros x y.
-    use identity.
-  - intros x y.
-    use tpair.
-    -- apply idpath.
-    -- apply idpath.
-    + cbn.
-      use tpair.
-  - use tpair.
-    -- use identity.
-    -- use tpair.
-       --- apply idpath.
-       --- apply idpath.
-  - use tpair.
-    -- apply (projection_of_totalcategory_preservesassociativity DM).
-    -- use tpair.
-       --- apply (projection_of_totalcategory_preservesleftunitality DM).
-       --- apply (projection_of_totalcategory_preservesrightunitality DM).
-Qed.
+    + apply idpath.
+    + apply idpath.
+  Qed.
+
+End MonoidalTotalCategory.

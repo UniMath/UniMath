@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -7,29 +8,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesCurried.
 
 Local Open Scope cat.
 
-(* Remark: Here is a section because I introduce notation which is just used here *)
-Section Curried_Monoidal_Functors.
-
-  Notation "x ⊗_{ M } y" := (pr1 (tensor_extraction_of_monoidalcat M) x y) (at level 31).
-  Notation "f ⊗^{ M } g" := (pr2 (tensor_extraction_of_monoidalcat M) _ _ _ _ f g) (at level 31).
-  Notation "α^{ M }_{ x , y , z }" := (pr1 (associator_extraction_of_monoidalcat M) x y z).
-  Notation "lu^{ M }_{ x }" := (pr1 (leftunitor_extraction_of_monoidalcat M) x ).
-  Notation "ru^{ M }_{ x }" := (pr1 (rightunitor_extraction_of_monoidalcat M) x ) .
-  Notation "I_{ M }" := (unit_extraction_of_monoidalcat M).
-
-  Definition weakly_tensor_preserving_morphism {M N : monoidal_category} (F : functor M N) : UU
-    := ∏ (x y : M), N⟦(F x) ⊗_{N} (F y), F (x ⊗_{M} y)⟧.
-
-  Definition strongly_tensor_preserving_morphism {M N : monoidal_category} (F : functor M N) : UU :=
-    ∑ (wtpm : weakly_tensor_preserving_morphism F), ∏ (x y : M), is_z_isomorphism (wtpm x y).
-
-  Definition strongly_tensor_preserving_is_wtp {M N : monoidal_category} {F : functor M N} (stpm : strongly_tensor_preserving_morphism F) : (weakly_tensor_preserving_morphism F) : UU := pr1 stpm.
-  Coercion strongly_tensor_preserving_is_wtp : strongly_tensor_preserving_morphism >-> weakly_tensor_preserving_morphism.
-
-  Definition strictly_tensor_preserving_morphism {M N : monoidal_category} (F : functor M N) : UU :=
-      ∑ (wtpm : weakly_tensor_preserving_morphism F), ∏ (x y : M), ∑ (pf : (F x) ⊗_{N} (F y) = F (x ⊗_{M} y)),
-      (wtpm x y ) = transportf _ pf (identity ((F x) ⊗_{N} (F y))).
-
+Section local_helper_lemmas.
   (* I would assume that the following lemmas should already exists in the "iso file", but I can't find it (I need is_iso_stable_undertransportation)  *)
   Lemma iso_stable_under_equality {C : category} {x y : C} {f g : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
   Proof.
@@ -53,76 +32,84 @@ Section Curried_Monoidal_Functors.
     use (iso_stable_under_tranportation).
     exact isof.
   Qed.
+End local_helper_lemmas.
 
 
-  Definition strictly_tensor_preserving_is_stp {M N : monoidal_category} {F : functor M N} (stpm : strictly_tensor_preserving_morphism F) : strongly_tensor_preserving_morphism F.
+Section Curried_Monoidal_Functors.
+
+  Context (C D : category) (M : monoidalcategory_data C) (N : monoidalcategory_data D) (F : functor C D).
+
+  Notation "x ⊗_{ M } y" := ((tensoronobjects_from_tensordata M) x y) (at level 31).
+  Notation "f ⊗^{ M } g" := ((tensoronmorphisms_from_tensordata M) _ _ _ _ f g) (at level 31).
+  Notation "I_{ M }" := (unit_from_monoidalcatdata M).
+  Notation "lu^{ M }_{ x }" := (leftunitordata_from_monoidalcatdata M x ).
+  Notation "ru^{ M }_{ x }" := (rightunitordata_from_monoidalcatdata M x ).
+  Notation "α^{ M }_{ x , y , z }" := ((associatordata_from_monoidalcatdata M) x y z).
+
+  (** (Weak) Monoidal functors **)
+  (* Monoidal functor data *)
+  Definition tensor_preserving_data : UU
+    := ∏ (x y : C), D⟦(F x) ⊗_{N} (F y), F (x ⊗_{M} y)⟧.
+
+  Definition unit_preserving_data : UU := D ⟦ I_{N} , F I_{M} ⟧.
+
+  Definition monoidalfunctor_data :=
+    tensor_preserving_data × unit_preserving_data.
+
+  Definition tensorpreservingdata_from_monoidalfunctordata (mfd : monoidalfunctor_data) : tensor_preserving_data := pr1 mfd.
+  Coercion tensorpreservingdata_from_monoidalfunctordata : monoidalfunctor_data >-> tensor_preserving_data.
+
+  Definition unitpreservingdata_from_monoidalfunctordata (mfd : monoidalfunctor_data) : unit_preserving_data := pr2 mfd.
+  Coercion unitpreservingdata_from_monoidalfunctordata : monoidalfunctor_data >-> unit_preserving_data.
+
+  (* Weak monoidal functor properties *)
+  Definition tensor_preserving_data_is_natural (tpd : tensor_preserving_data) :=
+    ∏ (x y x' y' : C) (f : C⟦x,x'⟧) (g : C⟦y,y'⟧),
+      (#F (f ⊗^{M} g))∘(tpd x y) = (tpd x' y')∘((#F f) ⊗^{N} (#F g)).
+
+  Definition preserves_associativity (tpd : tensor_preserving_data) :=
+    ∏ (x y z : C), (#F (α^{M}_{x,y,z})) ∘ (tpd (x ⊗_{M} y) z) ∘ ((tpd x y) ⊗^{N} (identity (F z)))
+                   = (tpd x (y ⊗_{M} z)) ∘ ((identity (F x)) ⊗^{N} (tpd y z)) ∘ α^{N}_{F x, F y, F z}.
+
+  Definition preserves_leftunitality (tpd : tensor_preserving_data) (upd : unit_preserving_data) : UU :=
+    ∏ (x : C), ((#F (lu^{M}_{x})) ∘ (tpd I_{M} x) ∘ (upd ⊗^{N} (identity (F x)))) = lu^{N}_{F x}.
+
+  Definition preserves_rightunitality (tpd : tensor_preserving_data) (upd : unit_preserving_data) : UU :=
+    ∏ (x : C), (#F (ru^{M}_{x})) ∘ (tpd x I_{M}) ∘ ((identity (F x)) ⊗^{N} upd) = ru^{N}_{F x}.
+
+  Definition monoidalfunctor_laws (mfd : monoidalfunctor_data) : UU :=
+    (tensor_preserving_data_is_natural mfd) × (preserves_associativity mfd) ×
+    (preserves_leftunitality mfd mfd) × (preserves_rightunitality mfd mfd).
+
+  Definition monoidalfunctor : UU :=
+    ∑ (mfd : monoidalfunctor_data), monoidalfunctor_laws mfd.
+
+
+  (** Strong and strict monoidal properties *)
+
+  Definition is_stronglytensorpreserving (tpd : tensor_preserving_data) : UU :=
+    ∏ (x y : C), is_z_isomorphism (tpd x y).
+
+  Definition is_strictlytensorpreserving (tpd : tensor_preserving_data) : UU :=
+      ∏ (x y : C), ∑ (pf : (F x) ⊗_{N} (F y) = F (x ⊗_{M} y)),
+      (tpd x y ) = transportf _ pf (identity ((F x) ⊗_{N} (F y))).
+
+  Lemma strictlytensorpreserving_is_strong {tpd : tensor_preserving_data} (pfstrict : is_strictlytensorpreserving tpd) : is_stronglytensorpreserving tpd.
   Proof.
-    split with (pr1 stpm).
     intros x y.
-    set (pfequ := (pr2 (pr2 stpm x y))).
-    set (idisiso := is_z_isomorphism_identity ((F x) ⊗_{N} (F y))).
-    use (iso_stable_under_equalitytransportation pfequ idisiso).
- Defined.
-  Coercion strictly_tensor_preserving_is_stp : strictly_tensor_preserving_morphism >-> strongly_tensor_preserving_morphism.
-
-  Definition weakly_unit_preserving_morphism {M N : monoidal_category} (F : functor M N) := N ⟦ I_{N} , F I_{M} ⟧.
-  Definition strongly_unit_preserving_morphism {M N : monoidal_category} (F : functor M N) :=
-    ∑ (wupm : weakly_unit_preserving_morphism F), is_z_isomorphism wupm.
-
-  Definition strongly_unit_preserving_is_wup {M N : monoidal_category} {F : functor M N} (supm : strongly_unit_preserving_morphism F) : weakly_unit_preserving_morphism F := pr1 supm.
-  Coercion strongly_unit_preserving_is_wup : strongly_unit_preserving_morphism >-> weakly_unit_preserving_morphism.
-
-  Definition strictly_unit_preserving_morphism {M N : monoidal_category} (F : functor M N) :=
-    ∑ (wupm : weakly_unit_preserving_morphism F), ∑ (pf : I_{N} = (F I_{M})), wupm = transportf _ pf (identity I_{N}).
-
-  Definition strictly_unit_preserving_is_sup {M N : monoidal_category} {F : functor M N} (supm : strictly_unit_preserving_morphism F) : strongly_unit_preserving_morphism F.
-  Proof.
-    split with (pr1 supm).
-    set (pfequ := (pr2 (pr2 supm))).
-    set (idisiso := is_z_isomorphism_identity I_{N}).
-    use (iso_stable_under_equalitytransportation pfequ idisiso).
- Defined.
-  Coercion strictly_unit_preserving_is_sup : strictly_unit_preserving_morphism >-> strongly_unit_preserving_morphism.
-
-
-  Definition preserves_associativity {M N : monoidal_category} {F : functor M N} (wtpm : weakly_tensor_preserving_morphism F) :=
-    ∏ (x y z : M), (#F (α^{M}_{x,y,z})) ∘ (wtpm (x ⊗_{M} y) z) ∘ ((wtpm x y) ⊗^{N} (identity (F z)))
-                   = (wtpm x (y ⊗_{M} z)) ∘ ((identity (F x)) ⊗^{N} (wtpm y z)) ∘ α^{N}_{F x, F y, F z}.
-
-  Definition preserves_leftunitality {M N : monoidal_category} {F : functor M N} (wtpm : weakly_tensor_preserving_morphism F) (wupm : weakly_unit_preserving_morphism F) : UU :=
-    ∏ (x : M), ((#F (lu^{M}_{x})) ∘ (wtpm I_{M} x) ∘ (wupm ⊗^{N} (identity (F x)))) = lu^{N}_{F x}.
-
-  Definition preserves_rightunitality {M N : monoidal_category} {F : functor M N} (wtpm : weakly_tensor_preserving_morphism F) (wupm : weakly_unit_preserving_morphism F) : UU :=
-    ∏ (x : M), (#F (ru^{M}_{x})) ∘ (wtpm x I_{M}) ∘ ((identity (F x)) ⊗^{N} wupm) = ru^{N}_{F x}.
-
-  Definition preserves_unitality {M N : monoidal_category} {F : functor M N} (wtpm : weakly_tensor_preserving_morphism F) (wupm : weakly_unit_preserving_morphism F) : UU :=
-    (preserves_leftunitality wtpm wupm) × (preserves_rightunitality wtpm wupm).
-
-  Definition weak_monoidal_functor (M N : monoidal_category) : UU :=
-    ∑ (F : functor M N), ∑ (wtpm : weakly_tensor_preserving_morphism F), ∑ (wupm : weakly_unit_preserving_morphism F),
-      (preserves_associativity wtpm) × (preserves_unitality wtpm wupm).
-
-  Definition extract_underlyingfunctor {M N : monoidal_category} (F : weak_monoidal_functor M N) : (functor M N) := (pr1 F).
-  Coercion extract_underlyingfunctor : weak_monoidal_functor >-> functor.
-
-  Definition strong_monoidal_functor (M N : monoidal_category) : UU :=
-    ∑ (F : functor M N), ∑ (stpm : strongly_tensor_preserving_morphism F), ∑ (supm : strongly_unit_preserving_morphism F),
-      (preserves_associativity stpm) × (preserves_unitality stpm supm).
-
-  Definition strict_monoidal_functor (M N : monoidal_category) :=
-    ∑ (F : functor M N), ∑ (stpm : strictly_tensor_preserving_morphism F), ∑ (supm : strictly_unit_preserving_morphism F),
-     (preserves_associativity stpm) × (preserves_unitality stpm supm).
-
-  Lemma strict_monoidal_functor_is_strong_monoidal {M N : monoidal_category} (F : strict_monoidal_functor M N) :
-    strong_monoidal_functor M N.
-  Proof.
-    split with (pr1 F).
-    split with (pr1 (pr2 F)).
-    split with (pr1 (pr2 (pr2 F))).
-    use tpair.
-    + use (pr1 (pr2 (pr2 (pr2 F)))).
-    + use (pr2 (pr2 (pr2 (pr2 F)))).
+    use (iso_stable_under_equalitytransportation (pr2 (pfstrict x y)) (is_z_isomorphism_identity ((F x) ⊗_{N} (F y)))).
   Defined.
-  Coercion strict_monoidal_functor_is_strong_monoidal : strict_monoidal_functor >-> strong_monoidal_functor.
+  Coercion strictlytensorpreserving_is_strong : is_strictlytensorpreserving >-> is_stronglytensorpreserving.
+
+  Definition is_stronglyunitpreserving (upd : unit_preserving_data) : UU := is_z_isomorphism upd.
+
+  Definition is_strictlyunitpreserving (upd : unit_preserving_data) : UU :=
+    ∑ (pf : I_{N} = (F I_{M})), upd = transportf _ pf (identity I_{N}).
+
+  Definition strictlyunitpreserving_is_strong {upd : unit_preserving_data} (pfstrict : is_strictlyunitpreserving upd) : is_stronglyunitpreserving upd.
+  Proof.
+    use (iso_stable_under_equalitytransportation (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
+  Defined.
+  Coercion strictlyunitpreserving_is_strong : is_strictlyunitpreserving >-> is_stronglyunitpreserving.
 
 End Curried_Monoidal_Functors.

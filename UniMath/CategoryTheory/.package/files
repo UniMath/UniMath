@@ -219,7 +219,6 @@ Monoidal/DisplayedMonoidalCurried.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/BraidedMonoidalCategories.v
 Monoidal/TotalDisplayedMonoidalCurried.v
-
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 

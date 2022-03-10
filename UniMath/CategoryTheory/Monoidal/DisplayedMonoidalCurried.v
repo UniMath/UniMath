@@ -27,106 +27,137 @@ And the properties of a displayed monoidal category are given by:
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesCurried.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Section displayedmonoidalcategories.
 
-  Definition displayed_tensor {C : category} (T : tensor C) (D : disp_cat C) : UU :=
-    ∑ (tensor_ob : ∏ (x y : C), (D x) → (D y) -> (D (x ⊗_{T} y))),
+  Context (C : category) (D : disp_cat C) (T : tensor_data C) (I : C) (α : associator_data T) (lu : leftunitor_data T I) (ru : rightunitor_data T I) (tid : tensorfunctor_id T) (tcomp : tensorfunctor_comp T) (αnat : associator_naturality α) (αiso : associator_is_natiso α) (lunat : leftunitor_naturality lu) (luiso : leftunitor_is_natiso lu) (runat : rightunitor_naturality ru) (ruiso : rightunitor_is_natiso ru) (tri : triangle_identity lu ru α) (pen : pentagon_identity α).
+
+  Definition displayedtensor_data : UU :=
+    ∑ (dt : ∏ (x y : C), (D x) → (D y) -> (D (x ⊗_{T} y))),
     ∏ (x x' y y' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧), ∏ (a : D x) (a' : D x') (b : D y) (b' : D y'),
-      (a -->[f] a') -> (b -->[g] b') -> ((tensor_ob x y a b)-->[f ⊗^{T} g] (tensor_ob x' y' a' b')).
+      (a -->[f] a') -> (b -->[g] b') -> ((dt x y a b)-->[f ⊗^{T} g] (dt x' y' a' b')).
 
-  Definition displayed_tensor_data : UU :=
-    ∑ (C : category), ∑ (T : tensor C), ∑ (D : disp_cat C), displayed_tensor T D.
+  Definition displayedtensoronobjects_from_displayedtensordata (dtd : displayedtensor_data)
+    :  ∏ (x y : C), (D x) → (D y) -> (D (x ⊗_{T} y)) := pr1 dtd.
+  Notation "a ⊗_{{ dtd }} b" := (displayedtensoronobjects_from_displayedtensordata dtd _ _ a b) (at level 31).
 
-  Definition cat_from_displayedtensor_data (dtd : displayed_tensor_data) : category := pr1 dtd.
-  Coercion cat_from_displayedtensor_data : displayed_tensor_data >-> category.
-
-  Definition tensor_from_displayedtensor_data (dtd : displayed_tensor_data) : tensor dtd := pr1 (pr2 dtd).
-  Coercion tensor_from_displayedtensor_data : displayed_tensor_data >-> tensor.
-
-  Definition dispcat_from_displayedtensor_data (dtd : displayed_tensor_data) : disp_cat dtd := pr1 (pr2 (pr2 dtd)).
-  Coercion dispcat_from_displayedtensor_data : displayed_tensor_data >-> disp_cat.
-
-  Definition disptensor_from_displayedtensor_data (dtd : displayed_tensor_data) : displayed_tensor dtd dtd := pr2 (pr2 (pr2 dtd)).
-  Coercion disptensor_from_displayedtensor_data : displayed_tensor_data >-> displayed_tensor.
-
-  Definition displayedtensor_on_objects_from_displayedtensor_data {C : category} {T : tensor C} {D : disp_cat C} (dtd : displayed_tensor T D)  : ∏ (x y : C), (D x) → (D y) -> (D (x ⊗_{T} y)) := pr1 dtd.
-  Notation "a ⊗_{{ dtd }} b" := (displayedtensor_on_objects_from_displayedtensor_data dtd _ _ a b) (at level 31).
-
-  Definition displayedtensor_on_morphisms_from_displayedtensor_data {C : category} {T : tensor C} {D : disp_cat C} (dtd : displayed_tensor T D) : ∏ (x x' y y' : C) (f : C ⟦ x, x' ⟧) (g : C ⟦ y, y' ⟧) (a : D x) (a' : D x') (b : D y) (b' : D y'),
+  Definition displayedtensoronmorphisms_from_displayedtensordata (dtd : displayedtensor_data) :
+    ∏ (x x' y y' : C) (f : C ⟦ x, x' ⟧) (g : C ⟦ y, y' ⟧) (a : D x) (a' : D x') (b : D y) (b' : D y'),
   (a -->[ f] a') -> (b -->[ g] b') -> ((a ⊗_{{dtd}} b) -->[ f ⊗^{ T} g ] (a' ⊗_{{ dtd}} b'))
     := pr2 dtd.
-  Notation "f' ⊗^{{ dtd }} g'" := (displayedtensor_on_morphisms_from_displayedtensor_data dtd _ _ _ _ _ _ _ _ _ _ f' g'  ) (at level 31).
+  Notation "f' ⊗^{{ dtd }} g'" := (displayedtensoronmorphisms_from_displayedtensordata dtd _ _ _ _ _ _ _ _ _ _ f' g'  ) (at level 31).
 
-
-  (* Remark::A unit for a displayed category D consists of the unit in C and a term in (D I), hence we do not need any special construction right now *)
-
-  Definition displayed_leftunitor_on_objects {C : category} {T : tensor C} {I : C} {D : disp_cat C} (TD : displayed_tensor T D) (i : D I) (lu : left_unitor_on_objects T I) : UU :=
-    ∏ (x : C), ∏ (a : D x), ((i ⊗_{{TD}} a)-->[(lu x)] a).
-
-  Definition displayed_leftunitor_naturality {C : category} {T : tensor C} {I : C} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {lu : left_unitor T I} (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)) : UU :=
-    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b), (((id_disp i) ⊗^{{TD}} f') ;; (dlu y b)) = transportb _ ((pr2 lu) x y f) ((dlu x a) ;; f').
-
-(* TEST *)
-(*
-Definition ayed_leftunitor_naturality {C : category} {T : tensor C} {I : C} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {lu : left_unitor T I} (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)) : ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b), nat.
-Proof.
-  intros x y a b f f'.
-  Check (((id_disp i) ⊗^{{TD}} f') ;; (dlu y b)).
-  Check (dlu x a) ;; f'.
-  = transportb _ ((pr2 lu) x y f) ((dlu x a) ;; f').
-  *)
-
-  Definition displayed_leftunitor {C : category} {T : tensor C} {I : C} {D : disp_cat C} (TD : displayed_tensor T D) (i : D I) (lu : left_unitor T I) : UU :=
-    ∑ (dlu : displayed_leftunitor_on_objects TD i (pr1 lu)), displayed_leftunitor_naturality dlu.
-
-  Definition displayed_rightunitor_on_objects {C : category} {T : tensor C} {I : C} {D : disp_cat C} (TD : displayed_tensor T D) (i : D I) (ru : right_unitor_on_objects T I) : UU :=
-    ∏ (x : C), ∏ (a : D x), ((a ⊗_{{TD}} i)-->[(ru x)] a).
-
-  Definition displayed_rightunitor_naturality {C : category} {T : tensor C} {I : C} {D : disp_cat C} {TD : displayed_tensor T D} {i : D I} {ru : right_unitor T I} (dru : displayed_rightunitor_on_objects TD i (pr1 ru)) : UU :=
-    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b),
-      (( f' ⊗^{{TD}}  (id_disp i)) ;; (dru y b)) = transportb _ ((pr2 ru) x y f)   ((dru x a) ;; f').
-
-  Definition displayed_rightunitor {C : category} {T : tensor C} {I : C} {D : disp_cat C} (TD : displayed_tensor T D) (i : D I) (ru : right_unitor T I) : UU :=
-    ∑ (dru : displayed_rightunitor_on_objects TD i (pr1 ru)), displayed_rightunitor_naturality dru.
-
-  Definition displayed_associator_on_objects {C : category} {T : tensor C} {D : disp_cat C} (TD : displayed_tensor T D) (α : associator_on_objects T) : UU :=
+  Definition displayedassociator_data (dtd : displayedtensor_data) : UU :=
     ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z),
-      ((a ⊗_{{TD}} b) ⊗_{{TD}} c) -->[(α x y z)] (a ⊗_{{TD}} (b ⊗_{{TD}} c)).
+      ((a ⊗_{{dtd}} b) ⊗_{{dtd}} c) -->[(α x y z)] (a ⊗_{{dtd}} (b ⊗_{{dtd}} c)).
 
-  Definition displayed_associator_naturality {C : category} {T : tensor C} {D : disp_cat C} {TD : displayed_tensor T D} {α : associator T} (dα : displayed_associator_on_objects TD (pr1 α)) : UU :=
+  Definition displayedleftunitor_data (dtd : displayedtensor_data) (i : D I) : UU
+    := ∏ (x : C), ∏ (a : D x), ((i ⊗_{{dtd}} a)-->[(lu x)] a).
+
+  Definition displayedrightunitor_data (dtd : displayedtensor_data) (i : D I) : UU
+    := ∏ (x : C), ∏ (a : D x), ((a ⊗_{{dtd}} i)-->[(ru x)] a).
+
+  Definition displayedmonoidalcat_data : UU :=
+    ∑ dtd : displayedtensor_data, ∑ i : D I,
+          (displayedleftunitor_data dtd i) × (displayedrightunitor_data dtd i) × (displayedassociator_data dtd).
+
+  Definition displayedtensordata_from_dispmoncatdata (DMD : displayedmonoidalcat_data) : displayedtensor_data := pr1 DMD.
+  Coercion displayedtensordata_from_dispmoncatdata : displayedmonoidalcat_data >-> displayedtensor_data.
+
+  Definition displayedunit_from_dispmoncatdata (DMD : displayedmonoidalcat_data) : D I := pr1 (pr2 DMD).
+  Coercion displayedunit_from_dispmoncatdata : displayedmonoidalcat_data >-> ob_disp.
+
+  Definition displayedleftunitordata_from_dispmoncatdata (DMD : displayedmonoidalcat_data) : displayedleftunitor_data DMD DMD := pr1 (pr2 (pr2 DMD)).
+  Coercion displayedleftunitordata_from_dispmoncatdata : displayedmonoidalcat_data >-> displayedleftunitor_data.
+
+  Definition displayedrightunitordata_from_dispmoncatdata (DMD : displayedmonoidalcat_data) : displayedrightunitor_data DMD DMD := pr1 (pr2 (pr2 (pr2 DMD))).
+  Coercion displayedrightunitordata_from_dispmoncatdata : displayedmonoidalcat_data >-> displayedrightunitor_data.
+
+  Definition displayedassociatordata_from_dispmoncatdata (DMD : displayedmonoidalcat_data) : displayedassociator_data DMD := pr2 (pr2 (pr2 (pr2 DMD))).
+  Coercion displayedassociatordata_from_dispmoncatdata : displayedmonoidalcat_data >-> displayedassociator_data.
+
+
+  (** PROPERTIES **)
+  Definition displayedtensor_id (dtd : displayedtensor_data)
+    := ∏ (x y : C), ∏ (a : D x) (b : D y),  ((id_disp a) ⊗^{{dtd}} (id_disp b))  = transportb _ (tid x y) (id_disp (a ⊗_{{dtd}} b)).
+
+  Definition displayedtensor_comp (dtd : displayedtensor_data)
+    := ∏ (x y x' y' x'' y'': C), ∏ (a : D x) (b : D y) (a' : D x') (b' : D y') (a'' : D x'') (b'' : D y''),
+      ∏ (f1 : C⟦x, x'⟧) (g1 : C⟦y,y'⟧) (f2 : C⟦x',x''⟧) (g2 : C⟦y',y''⟧) (f1' : a -->[f1] a') (g1' : b -->[g1] b') (f2' : a' -->[f2] a'') (g2' : b' -->[g2] b''), ((f1'⊗^{{dtd}} g1') ;; (f2'⊗^{{dtd}} g2')) = transportb _ (tcomp x y x' y' x'' y'' f1 f2 g1 g2) ((f1';;f2') ⊗^{{dtd}} (g1';;g2')).
+
+  Definition displayedassociator_naturality {dtd : displayedtensor_data} (dα : displayedassociator_data dtd) : UU :=
     ∏ (x x' y y' z z' : C), ∏ (a : D x) (a' : D x') (b : D y) (b' : D y') (c : D z) (c' : D z'),
-      ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧), ∏ (f' : a-->[f] a') (g' : b -->[g] b') (h' : c -->[h] c'), (dα x y z a b c) ;; (f' ⊗^{{TD}} (g' ⊗^{{TD}} h')) =  transportb _ ((pr2 α) _ _ _ _ _ _ f g h) ( ((f' ⊗^{{TD}} g') ⊗^{{TD}} h') ;; dα _ _ _ a' b' c' ).
+      ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧), ∏ (f' : a-->[f] a') (g' : b -->[g] b') (h' : c -->[h] c'),
+      ((dα x y z a b c) ;; (f' ⊗^{{dtd}} (g' ⊗^{{dtd}} h'))) = transportb _ (αnat _ _ _ _ _ _ f g h) (((f' ⊗^{{dtd}} g') ⊗^{{dtd}} h') ;; dα _ _ _ a' b' c').
 
-  Definition displayed_associator {C : category} {T : tensor C} (α : associator T) {D : disp_cat C} (TD : displayed_tensor T D) : UU :=
-    ∑ (dα_ob : displayed_associator_on_objects TD (pr1 α)), (displayed_associator_naturality dα_ob).
+  Definition displayedassociator_is_nat_iso {dtd : displayedtensor_data} (dα : displayedassociator_data dtd) : UU :=
+    ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z), is_iso_disp (z_iso_to_iso ((α x y z),,(αiso x y z))) (dα x y z a b c).
 
-Definition displayed_tensor_functoriality_id {C : category} {T : tensor C} (pfTensorId : tensor_functor_id T) {D : disp_cat C} (TD : displayed_tensor T D) := ∏ (x y : C), ∏ (a : D x) (b : D y), (transportf _ (pfTensorId x y) ((id_disp a) ⊗^{{TD}} (id_disp b)))  = (id_disp (a ⊗_{{TD}} b)).
+  Definition displayedleftunitor_naturality {i : D I} {dtd : displayedtensor_data} (dlud : displayedleftunitor_data dtd i) : UU :=
+    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b),
+      (dlud x a) ;; f' = transportb _ (lunat x y f) (((id_disp i) ⊗^{{dtd}} f') ;; (dlud y b)).
 
-Definition displayed_tensor_functoriality_comp {C : category} {T : tensor C} (pfTensorComp : tensor_functor_comp T) {D : disp_cat C} (TD : displayed_tensor T D) := ∏ (x y x' y' x'' y'': C), ∏ (a : D x) (b : D y) (a' : D x') (b' : D y') (a'' : D x'') (b'' : D y''),
-    ∏ (f1 : C⟦x, x'⟧) (g1 : C⟦y,y'⟧) (f2 : C⟦x',x''⟧) (g2 : C⟦y',y''⟧) (f1' : a -->[f1] a') (g1' : b -->[g1] b') (f2' : a' -->[f2] a'') (g2' : b' -->[g2] b''), ((f1'⊗^{{TD}} g1') ;; (f2'⊗^{{TD}} g2')) = transportf _ (pfTensorComp x y x' y' x'' y'' f1 f2 g1 g2) ((f1';;f2') ⊗^{{TD}} (g1';;g2'))  .
+  Definition displayedleftunitor_is_nat_iso {i : D I} {dtd : displayedtensor_data} (dlu : displayedleftunitor_data dtd i) : UU :=
+    ∏ (x : C), ∏ (a : D x), is_iso_disp (z_iso_to_iso (lu x,, luiso x)) (dlu x a).
 
-  Definition displayed_triangle_identity {C : category} {T : tensor C} {I : C} {lu : left_unitor T I} {ru : right_unitor T I} {α : associator T} (tri : triangle_identity T I lu ru α) {D : disp_cat C} {TD : displayed_tensor T D} (i : D I) (dlu : displayed_leftunitor TD i lu) (dru : displayed_rightunitor TD i ru) (dα : displayed_associator α TD) := ∏ (x y : C), ∏ (a : D x) (b : D y),
-      ((pr1 dα) x I y a i b) ;; ((id_disp a)  ⊗^{{TD}} (pr1 dlu) y b ) = transportb _ (tri x y) (((pr1 dru) x a) ⊗^{{TD}} id_disp b).
+  Definition displayedrightunitor_naturality {dtd : displayedtensor_data} {i : D I} (drud : displayedrightunitor_data dtd i) : UU :=
+    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b),
+      ((drud x a) ;; f') = transportb _ (runat x y f) (( f' ⊗^{{dtd}}  (id_disp i)) ;; (drud y b)).
 
-  Definition displayed_pentagon_identity {C : category} {T : tensor C} {α : associator T} (pen : pentagon_identity T α) {D : disp_cat C} {TD : displayed_tensor T D} (dα : displayed_associator α TD) : UU := ∏ (w x y z: C), ∏ (e : D w) (a : D x) (b : D y) (c : D z),
-      (((pr1 dα) _ _ _ e a b) ⊗^{{TD}} (id_disp c)) ;; ((pr1 dα) _ _ _ e (a ⊗_{{TD}} b) c) ;; ((id_disp e) ⊗^{{TD}}  ((pr1 dα) _ _ _  a b c))  = transportb _ (pen w x y z) (((pr1 dα) (w ⊗_{T} x) y z (e ⊗_{{TD}} a) b c) ;; ((pr1 dα) w x (y ⊗_{T} z) e a (b ⊗_{{TD}} c))).
+  Definition displayedrightunitor_is_nat_iso {i : D I} {dtd : displayedtensor_data} (dru : displayedrightunitor_data dtd i) : UU :=
+    ∏ (x : C), ∏ (a : D x), is_iso_disp (z_iso_to_iso (ru x,, ruiso x)) (dru x a).
 
-  Definition displayed_monoidal_category (M : monoidal_category) : UU :=
-    ∑ (D : disp_cat M),
-      ∑ (TD : displayed_tensor M D),
-      ∑ (i : D (unit_extraction_of_monoidalcat M)),
-      ∑ (dlu : displayed_leftunitor TD i (leftunitor_extraction_of_monoidalcat M)),
-      ∑ (dru : displayed_rightunitor TD i (rightunitor_extraction_of_monoidalcat M)),
-      ∑ (dα : displayed_associator (associator_extraction_of_monoidalcat M) TD),
-      (displayed_tensor_functoriality_id (tensorfunctorid_identity_extraction_of_monoidalcat M) TD) × (displayed_tensor_functoriality_comp (tensorfunctorcomp_identity_extraction_of_monoidalcat M) TD) ×
+  Definition displayedtriangle_identity {dtd : displayedtensor_data} {i : D I} (dlud : displayedleftunitor_data dtd i) (drud : displayedrightunitor_data dtd i) (dα : displayedassociator_data dtd) := ∏ (x y : C), ∏ (a : D x) (b : D y),
+      ((dα x I y a i b) ;; ((id_disp a)  ⊗^{{dtd}} dlud y b )) = transportb _ (tri x y) ((drud x a) ⊗^{{dtd}} id_disp b).
 
-      displayed_triangle_identity (triangleidentity_extraction_of_monoidalcat M) i dlu dru dα ×
-                                  displayed_pentagon_identity (pentagonidentity_extraction_of_monoidalcat M) dα.
+  Definition displayedpentagon_identity {dtd : displayedtensor_data} (dα : displayedassociator_data dtd) : UU
+    := ∏ (w x y z: C), ∏ (e : D w) (a : D x) (b : D y) (c : D z),
+      (((dα _ _ _ e a b) ⊗^{{dtd}} (id_disp c)) ;; (dα _ _ _ e (a ⊗_{{dtd}} b) c) ;; ((id_disp e) ⊗^{{dtd}}  (dα _ _ _  a b c))) = transportb _ (pen w x y z) ((dα (w ⊗_{T} x) y z (e ⊗_{{dtd}} a) b c) ;; (dα w x (y ⊗_{T} z) e a (b ⊗_{{dtd}} c))).
+
+  Definition displayedmonoidal_laws (DMD :  displayedmonoidalcat_data) : UU :=
+    (displayedtensor_id DMD) × (displayedtensor_comp DMD) ×
+                             (displayedassociator_naturality DMD) × (displayedassociator_is_nat_iso DMD) ×
+                             (displayedleftunitor_naturality DMD) × (displayedleftunitor_is_nat_iso DMD) ×
+                             (displayedrightunitor_naturality DMD) × (displayedrightunitor_is_nat_iso DMD) ×
+                             (displayedtriangle_identity DMD DMD DMD) × (displayedpentagon_identity DMD).
+
+  Definition displayedtensorid_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedtensor_id DMD := pr1 DML.
+Coercion displayedtensorid_from_monoidallaws : displayedmonoidal_laws >-> displayedtensor_id.
+
+Definition displayedtensorcomp_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedtensor_comp DMD := pr1 (pr2 DML).
+Coercion displayedtensorcomp_from_monoidallaws : displayedmonoidal_laws >-> displayedtensor_comp.
+
+Definition displayedassociatornaturality_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedassociator_naturality DMD := pr1 (pr2 (pr2 DML)).
+Coercion displayedassociatornaturality_from_monoidallaws : displayedmonoidal_laws >-> displayedassociator_naturality.
+
+Definition displayedassociatorisiso_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedassociator_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 DML))).
+Coercion displayedassociatorisiso_from_monoidallaws : displayedmonoidal_laws >-> displayedassociator_is_nat_iso.
+
+Definition displayedleftunitornaturality_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedleftunitor_naturality DMD := pr1 (pr2 (pr2 (pr2 (pr2 DML)))).
+Coercion displayedleftunitornaturality_from_monoidallaws : displayedmonoidal_laws >-> displayedleftunitor_naturality.
+
+Definition displayedleftunitorisiso_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedleftunitor_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DML))))).
+Coercion displayedleftunitorisiso_from_monoidallaws : displayedmonoidal_laws >-> displayedleftunitor_is_nat_iso.
+
+Definition displayedrightunitornaturality_from_monoidallaws{DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedrightunitor_naturality DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))).
+Coercion displayedrightunitornaturality_from_monoidallaws : displayedmonoidal_laws >-> displayedrightunitor_naturality.
+
+Definition displayedrightunitorisiso_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedrightunitor_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML))))))).
+Coercion displayedrightunitorisiso_from_monoidallaws : displayedmonoidal_laws >-> displayedrightunitor_is_nat_iso.
+
+Definition displayedtriangleidentity_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedtriangle_identity DMD DMD DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))))).
+Coercion displayedtriangleidentity_from_monoidallaws : displayedmonoidal_laws >-> displayedtriangle_identity.
+
+Definition displayedpentagonidentity_from_monoidallaws {DMD : displayedmonoidalcat_data} (DML : displayedmonoidal_laws DMD) : displayedpentagon_identity DMD := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))))).
+Coercion displayedpentagonidentity_from_monoidallaws : displayedmonoidal_laws >-> displayedpentagon_identity.
+
+End displayedmonoidalcategories.

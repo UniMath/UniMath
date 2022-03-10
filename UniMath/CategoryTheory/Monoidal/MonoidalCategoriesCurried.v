@@ -22,114 +22,136 @@ The properties of a monoidal category are the following:
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 
 Local Open Scope cat.
 
-  Definition tensor (C : category) : UU :=
-    ∑ tensor_ob : C -> C -> C,
-            ∏ (x y x' y' : C), C ⟦x,x'⟧ → C ⟦y,y'⟧ -> C ⟦(tensor_ob x y),(tensor_ob x' y')⟧.
+(** Data **)
 
-  Definition tensor_cat_struct : UU :=
-    ∑ C : category, (tensor C).
+  Definition tensor_data (C : category) : UU :=
+    ∑ to : C -> C -> C,
+            ∏ (x y x' y' : C), C ⟦x,x'⟧ → C ⟦y,y'⟧ -> C ⟦(to x y),(to x' y')⟧.
 
-  Definition cat_from_tensor_cat (X : tensor_cat_struct) : category := pr1 X.
-  Coercion cat_from_tensor_cat : tensor_cat_struct >-> category.
+  Definition tensoronobjects_from_tensordata {C : category} (T : tensor_data C) : C->C->C := pr1 T.
+  Notation "x ⊗_{ T } y" := (tensoronobjects_from_tensordata T x y) (at level 31).
 
-  Definition tensor_from_tensor_cat (X : tensor_cat_struct) : tensor X := pr2 X.
-  Coercion tensor_from_tensor_cat : tensor_cat_struct >-> tensor.
-
-  Definition tensoronobjects_from_tensor_cat {C : category} (T : tensor C) : C->C->C := pr1 T.
-  Notation "x ⊗_{ T } y" := (tensoronobjects_from_tensor_cat T x y) (at level 31).
-
-  Definition tensoronmorphisms_from_tensor_cat {C : category} (T : tensor C):
+  Definition tensoronmorphisms_from_tensordata {C : category} (T : tensor_data C):
     ∏ (x y x' y' : C), C ⟦x,x'⟧ → C ⟦y,y'⟧ -> C ⟦x ⊗_{T} y,x' ⊗_{T} y'⟧
     := pr2 T.
-  Notation "f ⊗^{ T } g" := (tensoronmorphisms_from_tensor_cat T  _ _ _ _ f g) (at level 31).
+  Notation "f ⊗^{ T } g" := (tensoronmorphisms_from_tensordata T  _ _ _ _ f g) (at level 31).
 
-  Definition tensor_functor_id {C : category} (T : tensor C) : UU :=
+  Definition associator_data {C : category} (T : tensor_data C) : UU :=
+    ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
+
+  Definition leftunitor_data {C : category} (T : tensor_data C) (I : C) : UU :=
+    ∏ (x : C), C ⟦I ⊗_{T} x, x⟧.
+
+  Definition rightunitor_data {C : category} (T : tensor_data C) (I : C) : UU :=
+    ∏ (x : C), C ⟦x ⊗_{T} I, x⟧.
+
+  Definition monoidalcategory_data (C : category): UU :=
+    ∑ T : tensor_data C, ∑ I : C,
+          (leftunitor_data T I) × (rightunitor_data T I) × (associator_data T).
+
+Definition tensordata_from_monoidalcatdata {C : category} (MD : monoidalcategory_data C) : tensor_data C := (pr1 MD).
+Coercion tensordata_from_monoidalcatdata : monoidalcategory_data >-> tensor_data.
+
+Definition unit_from_monoidalcatdata {C : category} (MD : monoidalcategory_data C) : C := (pr1 (pr2 MD)).
+Coercion unit_from_monoidalcatdata : monoidalcategory_data >-> ob.
+
+Definition leftunitordata_from_monoidalcatdata {C : category} (MD : monoidalcategory_data C) : leftunitor_data MD MD := (pr1 (pr2 (pr2 MD))).
+Coercion leftunitordata_from_monoidalcatdata : monoidalcategory_data >-> leftunitor_data.
+
+Definition rightunitordata_from_monoidalcatdata {C : category} (MD : monoidalcategory_data C) : rightunitor_data MD MD := (pr1 (pr2 (pr2 (pr2 MD)))).
+Coercion rightunitordata_from_monoidalcatdata : monoidalcategory_data >-> rightunitor_data.
+
+Definition associatordata_from_monoidalcatdata {C : category} (MD : monoidalcategory_data C) : associator_data MD := (pr2 (pr2 (pr2 (pr2 MD)))).
+Coercion associatordata_from_monoidalcatdata : monoidalcategory_data >-> associator_data.
+
+
+(** Axioms **)
+  Definition tensorfunctor_id {C : category} (T : tensor_data C) : UU :=
     ∏ (x y : C),
       (identity x) ⊗^{T} identity y = identity (x ⊗_{T} y).
 
-  Definition tensor_functor_comp {C : category} (T : tensor C) : UU :=
+  Definition tensorfunctor_comp {C : category} (T : tensor_data C) : UU :=
     ∏ (x y x' y' x'' y'' : C), ∏ (f : C ⟦x,x'⟧) (f' : C ⟦x',x''⟧) (g : C ⟦y,y'⟧) (g' : C ⟦y',y''⟧),
-      (f'∘f) ⊗^{T} (g'∘g) = (f' ⊗^{T} g') ∘ (f ⊗^{T} g).
+      (f' ⊗^{T} g') ∘ (f ⊗^{T} g) = (f'∘f) ⊗^{T} (g'∘g).
 
-
-  Definition associator_on_objects {C : category} (T : tensor C) :=
-    ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
-
-  Definition associator_naturality {C : category} (T : tensor C) (α_ob : associator_on_objects T) :=
+  Definition associator_naturality {C : category} {T : tensor_data C} (α : associator_data T) : UU :=
     ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
-      (f ⊗^{T} (g ⊗^{T} h))∘(α_ob x y z) = (α_ob x' y' z')∘ ((f ⊗^{T} g) ⊗^{T} h).
+       (f ⊗^{T} (g ⊗^{T} h))∘(α x y z) = (α x' y' z')∘ ((f ⊗^{T} g) ⊗^{T} h).
 
-  Definition associator {C : category} (T : tensor C) :=
-    ∑ (α_ob : associator_on_objects T), associator_naturality T α_ob.
+  Definition associator_is_natiso {C : category} {T : tensor_data C} (α : associator_data T) : UU :=
+    ∏ (x y z : C), is_z_isomorphism (α x y z).
 
-  (* REMARK:: The associator should be a natural isomorphism, but the isomorphism is not included in the definition *)
+  Definition leftunitor_naturality {C : category} {T : tensor_data C} {I : C} (lu : leftunitor_data T I) : UU :=
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f∘(lu x) = (lu y)∘((identity I)⊗^{T}f).
 
-  Definition left_unitor_on_objects {C : category} (T : tensor C) (I : C) :=
-    ∏ (x : C), C ⟦I ⊗_{T} x, x⟧.
+  Definition leftunitor_is_natiso {C : category} {T : tensor_data C} {I : C} (lu : leftunitor_data T I) : UU :=
+    ∏ (x : C), is_z_isomorphism (lu x).
 
-  Definition left_unitor_naturality {C : category} (T : tensor C) (I : C) (λ_ob : left_unitor_on_objects T I) :=
-    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), (λ_ob y)∘((identity I)⊗^{T}f) = f∘(λ_ob x).
+  Definition rightunitor_naturality {C : category} {T : tensor_data C} {I : C} (ru : rightunitor_data T I) :=
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f∘(ru x) = (ru y)∘ (f ⊗^{T} (identity I)).
 
-  Definition left_unitor {C : category} (T : tensor C) (I : C) :=
-    ∑ (λ_ob : left_unitor_on_objects T I), left_unitor_naturality T I λ_ob.
-
-  Definition right_unitor_on_objects {C : category} (T : tensor C) (I : C) :=
-    ∏ (x : C), C ⟦x ⊗_{T} I, x⟧.
-
-  Definition right_unitor_naturality {C : category} (T : tensor C) (I : C) (ρ_ob : right_unitor_on_objects T I) :=
-    ∏ (x y : C), ∏ (f : C ⟦x,y⟧), (ρ_ob y)∘ (f ⊗^{T} (identity I)) = f∘(ρ_ob x).
-
-  Definition right_unitor {C : category} (T : tensor C) (I : C) :=
-    ∑ (ρ_ob : right_unitor_on_objects T I), right_unitor_naturality T I ρ_ob.
+  Definition rightunitor_is_natiso {C : category} {T : tensor_data C} {I : C} (ru : rightunitor_data T I) : UU :=
+    ∏ (x : C), is_z_isomorphism (ru x).
 
   Definition triangle_identity {C : category}
-             (T : tensor C)
-             (I : C)
-             (lu : left_unitor T I)
-             (ru : right_unitor T I)
-             (α : associator T)
-    := ∏ (x y : C),  (((identity x)  ⊗^{T} (pr1 lu) y ) ∘ ((pr1 α) x I y)) = (((pr1 ru) x) ⊗^{T} identity y).
+             {T : tensor_data C}
+             {I : C}
+             (lu : leftunitor_data T I)
+             (ru : rightunitor_data T I)
+             (α : associator_data T)
+    := ∏ (x y : C),  (((identity x)  ⊗^{T} (lu y) ) ∘ (α x I y)) = ((ru x) ⊗^{T} identity y).
 
-  Definition pentagon_identity {C : category} (T : tensor C) (α : associator T) :=
+  Definition pentagon_identity {C : category} {T : tensor_data C} (α : associator_data T) : UU :=
     ∏ (w x y z : C),
-         ((identity w)⊗^{T} ((pr1 α) x y z))
-           ∘ (((pr1 α) w (x⊗_{T} y) z)
-           ∘ (((pr1 α) w x y) ⊗^{T} (identity z))) =  ((pr1 α) w x (y⊗_{T} z)) ∘ ((pr1 α) (w⊗_{T}x) y z).
+         ((identity w)⊗^{T} (α x y z))
+           ∘ ((α w (x⊗_{T} y) z)
+           ∘ ((α w x y) ⊗^{T} (identity z))) =  (α w x (y⊗_{T} z)) ∘ (α (w⊗_{T}x) y z).
 
-  Definition monoidal_category  : UU :=
-    ∑ C : category, ∑ T : tensor C, ∑ I : C,
-            ∑ lu : left_unitor T I,
-              ∑ ru : right_unitor T I,
-                ∑ α : associator T,
-                  (tensor_functor_id T) × (tensor_functor_comp T) ×
-                  (triangle_identity T I lu ru α) × (pentagon_identity T α).
+Definition monoidal_laws {C : category} (MD : monoidalcategory_data C) : UU :=
+  (tensorfunctor_id MD) × (tensorfunctor_comp MD) × (associator_naturality MD) × (associator_is_natiso MD) ×
+                                                    (leftunitor_naturality MD) × (leftunitor_is_natiso MD) ×
+                                                    (rightunitor_naturality MD) × (rightunitor_is_natiso MD) ×
+                                                    (triangle_identity MD MD MD) × (pentagon_identity MD).
 
-  (* Some definitions to extract the data from a monoidal category. *)
-  Definition category_extraction_of_monoidalcat (M : monoidal_category) : category := pr1 M.
-  Coercion category_extraction_of_monoidalcat : monoidal_category >-> category.
+Definition tensorfunctorialityid_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : tensorfunctor_id MD := pr1 ML.
+Coercion tensorfunctorialityid_from_monoidallaws : monoidal_laws >-> tensorfunctor_id.
 
-  Definition tensor_extraction_of_monoidalcat (M : monoidal_category) : tensor M := pr1 (pr2 M).
-  Coercion tensor_extraction_of_monoidalcat : monoidal_category >-> tensor.
+Definition tensorfunctorialitycomp_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : tensorfunctor_comp MD := pr1 (pr2 ML).
+Coercion tensorfunctorialitycomp_from_monoidallaws : monoidal_laws >-> tensorfunctor_comp.
 
-  Definition unit_extraction_of_monoidalcat (M : monoidal_category) : M :=
-    pr1 (pr2 (pr2 M)).
+Definition associatornaturality_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : associator_naturality MD := pr1 (pr2 (pr2 ML)).
+Coercion associatornaturality_from_monoidallaws : monoidal_laws >-> associator_naturality.
 
-  Definition leftunitor_extraction_of_monoidalcat (M : monoidal_category) : left_unitor (tensor_extraction_of_monoidalcat M) (unit_extraction_of_monoidalcat M) :=
-    pr1 (pr2 (pr2 (pr2 M))).
+Definition associatorisiso_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : associator_is_natiso MD := pr1 (pr2 (pr2 (pr2 ML))).
+Coercion associatorisiso_from_monoidallaws : monoidal_laws >-> associator_is_natiso.
 
-  Definition rightunitor_extraction_of_monoidalcat (M : monoidal_category) : right_unitor (tensor_extraction_of_monoidalcat M) (unit_extraction_of_monoidalcat M) :=
-    pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+Definition leftunitornaturality_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : leftunitor_naturality MD := pr1 (pr2 (pr2 (pr2 (pr2 ML)))).
+Coercion leftunitornaturality_from_monoidallaws : monoidal_laws >-> leftunitor_naturality.
 
-  Definition associator_extraction_of_monoidalcat (M : monoidal_category) : associator (tensor_extraction_of_monoidalcat M) :=
-    pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition leftunitorisiso_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : leftunitor_is_natiso MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 ML))))).
+Coercion leftunitorisiso_from_monoidallaws : monoidal_laws >-> leftunitor_is_natiso.
 
-  Definition tensorfunctorid_identity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+Definition rightunitornaturality_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : rightunitor_naturality MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))).
+Coercion rightunitornaturality_from_monoidallaws : monoidal_laws >-> rightunitor_naturality.
 
-  Definition tensorfunctorcomp_identity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))).
+Definition rightunitorisiso_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : rightunitor_is_natiso MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML))))))).
+Coercion rightunitorisiso_from_monoidallaws : monoidal_laws >-> rightunitor_is_natiso.
 
-  Definition triangleidentity_extraction_of_monoidalcat (M : monoidal_category) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))))).
+Definition triangleidentity_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : triangle_identity MD MD MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))))).
+Coercion triangleidentity_from_monoidallaws : monoidal_laws >-> triangle_identity.
 
-  Definition pentagonidentity_extraction_of_monoidalcat (M : monoidal_category) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))))).
+Definition pentagonidentity_from_monoidallaws {C : category} {MD : monoidalcategory_data C} (ML : monoidal_laws MD) : pentagon_identity MD := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))))).
+Coercion pentagonidentity_from_monoidallaws : monoidal_laws >-> pentagon_identity.
+
+Definition monoidalcategory (C : category) : UU :=
+  ∑ (MD : monoidalcategory_data C), (monoidal_laws MD).
+
+Definition monoidalcategorydata_from_monoidalcategory {C : category} (M : monoidalcategory C) : monoidalcategory_data C := pr1 M.
+Coercion monoidalcategorydata_from_monoidalcategory : monoidalcategory >-> monoidalcategory_data.
+
+Definition monoidallaws_from_monoidalcategory {C : category} (M : monoidalcategory C) : monoidal_laws M := pr2 M.
+Coercion monoidallaws_from_monoidalcategory : monoidalcategory >-> monoidal_laws.
