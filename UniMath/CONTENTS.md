@@ -326,6 +326,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/Universal_Algebra/Algebras.v](CategoryTheory/categories/Universal_Algebra/Algebras.v)
    - [categories/Universal_Algebra/EqAlgebras.v](CategoryTheory/categories/Universal_Algebra/EqAlgebras.v)
    - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
+   - [Monoidal/MonoidalCategoriesCurried.v](CategoryTheory/Monoidal/MonoidalCategoriesCurried.v)
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
    - [Monoidal/AugmentedSimplexCategory.v](CategoryTheory/Monoidal/AugmentedSimplexCategory.v)
    - [Monoidal/DisplayedMonoidal.v](CategoryTheory/Monoidal/DisplayedMonoidal.v)

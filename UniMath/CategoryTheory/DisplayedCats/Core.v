@@ -1,5 +1,5 @@
 (**
-A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
+/A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
 
 Roughly, a “displayed category _D_ over a category _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” ∑ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibers.
 
