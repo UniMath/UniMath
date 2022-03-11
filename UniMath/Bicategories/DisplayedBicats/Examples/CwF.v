@@ -133,6 +133,7 @@ Lemma transportf_yy
       {C : category}
       (F : opp_precat_data C ⟶ SET) (c c' : C) (A : (F : functor _ _ ) c : hSet)
       (e : c = c')
+(* TODO: see #1470 *)
   : paths
     (pr1weq
        (@yy C F c')
