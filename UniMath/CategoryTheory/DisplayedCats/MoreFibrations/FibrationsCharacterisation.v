@@ -35,7 +35,8 @@ Local Open Scope mor_disp_scope.
 
 Definition precleaving_comp_closed
     {C : category} {D : disp_cat C} (lift : precleaving D)
-:= forall (c c' c'' : C) (f' : c'' --> c') (f : c' --> c) (d : D c), is_precartesian ((lift _ _ f' (object_of_precartesian_lift (lift _ _ f d))) ;; (lift _ _ f d)).
+  := forall (c c' c'' : C) (f' : c'' --> c') (f : c' --> c) (d : D c),
+    is_precartesian ((lift _ _ f' (object_of_precartesian_lift (lift _ _ f d))) ;; (lift _ _ f d)).
 
 Definition precleaving_is_cleaving
     {C : category} {D : disp_cat C} (lift : precleaving D)
@@ -44,25 +45,19 @@ Definition precleaving_is_cleaving
 Search (transportf _ _ ?p = transportf _ _ ?p' -> ?p = ?p').
 
 Lemma transportf_cancel
-      {X : UU}
-      (P : X → UU)
-      {x x' : X}
-      (e : x = x')
-      (y0 y1 : P x):
+      {X : UU} (P : X → UU) {x x' : X} (e : x = x') (y0 y1 : P x):
       transportf P e y0 = transportf P e y1 -> y0 = y1.
 Proof.
-  induction e; apply idfun.
+  induction e.
+  apply idfun.
 Defined.
 
 Lemma transportb_cancel
-      {X : UU}
-      (P : X → UU)
-      {x x' : X}
-      (e : x = x')
-      (y'0 y'1 : P x'):
+      {X : UU} (P : X → UU) {x x' : X} (e : x = x') (y'0 y'1 : P x'):
       transportb P e y'0 = transportb P e y'1 -> y'0 = y'1.
 Proof.
-  induction e; apply idfun.
+  induction e.
+  apply idfun.
 Defined.
 
 Definition assoc_eq {C} {D : disp_precat C}
@@ -71,12 +66,12 @@ Definition assoc_eq {C} {D : disp_precat C}
   : ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh') -> (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh'.
 Proof.
   intro H.
-  etrans.
-  exact (assoc_disp_var ff gg hh).
-  etrans.
-  2: {exact (! assoc_disp_var ff' gg' hh'). }
-  apply maponpaths.
-  assumption.
+  eapply pathscomp_ternary.
+  - apply assoc_disp_var.
+  - apply maponpaths.
+    exact H.
+  - apply pathsinv0.
+    apply assoc_disp_var.
 Qed.
 
 Definition assoc_eq_var {C} {D : disp_precat C}
@@ -85,12 +80,11 @@ Definition assoc_eq_var {C} {D : disp_precat C}
   : (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh' -> ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh').
 Proof.
   intro H.
-  etrans.
-  exact (assoc_disp ff gg hh).
-  etrans.
-  2: {exact (! assoc_disp ff' gg' hh'). }
-  apply maponpaths.
-  assumption.
+  eapply pathscomp_ternary.
+  - apply assoc_disp.
+  - apply maponpaths.
+    exact H.
+  - apply pathsinv0. apply assoc_disp.
 Qed.
 
 Definition eq_postwhisker {C} {D : disp_precat C}
@@ -112,8 +106,6 @@ Proof.
   apply (maponpaths (λ gg, ff ;; gg)).
   assumption.
 Qed.
-
-
 
 Definition prefibration_w_precart_closed_implies_fibration
     {C : category} {D : disp_cat C} (lift : precleaving D)
