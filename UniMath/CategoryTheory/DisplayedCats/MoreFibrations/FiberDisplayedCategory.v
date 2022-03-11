@@ -57,7 +57,9 @@ Definition transportf_mor_ts
   : (c0 --> c1) -> (c0' --> c1').
 Proof.
   intro f.
-  exact (transportf _ H1 (transportf (precategory_morphisms_op _) H0 f)).
+  apply (transportf _ H1).
+  apply (transportf (precategory_morphisms_op _) H0).
+  exact f.
 Defined.
 
 Definition transportf_mor_st
@@ -65,7 +67,9 @@ Definition transportf_mor_st
   : (c0 --> c1) -> (c0' --> c1').
 Proof.
   intro f.
-  exact (transportf (precategory_morphisms_op _) H0 (transportf _ H1 f)).
+  apply (transportf (precategory_morphisms_op _) H0).
+  apply (transportf _ H1).
+  exact f.
 Defined.
 
 Definition transportf_mor_eq
@@ -96,7 +100,6 @@ Definition transp_pres_comp
     (transportf_mor H0 (idpath _) f0) · (transportf_mor (idpath _) H2 f1).
 Proof.
   induction H2. induction H0.
-  unfold transportf_mor.
   apply idpath_transportf.
 Qed.
 
@@ -108,13 +111,12 @@ Definition transp_pres_comp'
   : transportf_mor H0 H2 (f0 · f1) =
     (transportf_mor H0 H1 f0) · (transportf_mor H1 H2 f1).
 Proof.
-  etrans. apply transp_pres_comp.
-  unfold transportf_mor, transportf_mor_ts.
-  set (temp := transport_compose' (transportf (precategory_morphisms_op c1) H0 f0) (transportf (precategory_morphisms c1) H2 f1) H1).
-  apply pathsinv0.
-  etrans. apply (maponpaths _ (transportf_mor_eq H1 H2 _)). unfold transportf_mor_st.
-  etrans. apply temp.
-  apply idpath.
+  eapply pathscomp0.
+  - apply transp_pres_comp.
+  - apply pathsinv0.
+    eapply pathscomp0.
+    + apply (maponpaths _ (transportf_mor_eq H1 H2 _)).
+    + apply transport_compose'.
 Qed.
 
 
@@ -156,8 +158,9 @@ Definition fiber_disp_cat_id
 Proof.
   intros b [c H].
   exists (identity c).
-  etrans. apply functor_id.
-  apply transp_pres_id.
+  eapply pathscomp0.
+  - apply functor_id.
+  - apply transp_pres_id.
 Defined.
 
 Definition fiber_disp_cat_id'
@@ -174,12 +177,13 @@ Definition fiber_disp_cat_comp
 Proof.
   intros b b' b'' f f' [c H_ob] [c' H'_ob] [c'' H''_ob] [g H_mor] [g' H'_mor].
   exists (g · g').
-  etrans.
-  apply functor_comp.
-  etrans. 2: { apply (! transp_pres_comp' H_ob H'_ob H''_ob f f'). }
-  set (lefteq := maponpaths (λ mor : F c --> F c', mor · ((# F)%Cat g')) H_mor).
-  set (righteq := maponpaths (λ mor : F c' --> F c'', (transportf_mor H_ob H'_ob f) · mor) H'_mor).
-  exact (lefteq @ righteq).
+  eapply pathscomp0.
+  - apply functor_comp.
+  - eapply pathscomp0.
+    2: { apply pathsinv0. apply (transp_pres_comp' H_ob H'_ob H''_ob).}
+    + eapply pathscomp0.
+      * exact (maponpaths (λ mor : F c --> F c', mor · ((# F)%Cat g')) H_mor).
+      * exact (maponpaths (λ mor : F c' --> F c'', (transportf_mor H_ob H'_ob f) · mor) H'_mor).
 Defined.
 
 Definition fiber_disp_cat_comp'
@@ -199,7 +203,7 @@ Definition fiber_disp_cat_data
   : disp_cat_data B.
 Proof.
   exists (fiber_disp_cat_ob_mor F).
-  exact (fiber_disp_cat_id_comp F).
+  apply fiber_disp_cat_id_comp.
 Defined.
 
 (*Search (_ = pr1 (transportf _ _ _)).
@@ -221,19 +225,13 @@ Proof.
     apply homset_property.
   - simpl.
     apply pathsinv0.
-    etrans.
-    (*set (pr1trans := pr1_transportf (! (id_left f)) (c --> c')).*)
-    set (pr1trans := @pr1_transportf _ _
-                     (λ mor: b --> b',
-                     (λ mor': c --> c',
-                     (functor_on_morphisms F) mor' = transportf_mor H_ob H'_ob mor))
-                                   _ _ (! (id_left f)) (g,, H_mor)).
-    apply pr1trans. simpl.
-    set (consttrans := transportf_const (! id_left f) (c --> c')).
-    set (temp := eqtohomot consttrans g).
-    etrans. apply temp.
-    unfold idfun.
-    apply (! id_left g).
+    eapply pathscomp0.
+    + apply (@pr1_transportf _ _ (λ mor: b --> b', (λ mor': c --> c',
+                                 (functor_on_morphisms F) mor' = transportf_mor H_ob H'_ob mor))).
+    + simpl.
+      eapply pathscomp0.
+      2: { apply (! id_left _). }
+      * apply (eqtohomot (transportf_const _ _)).
 Qed.
 
 Definition fiber_disp_cat_id_left'
@@ -256,19 +254,13 @@ Proof.
     apply homset_property.
   - simpl.
     apply pathsinv0.
-    etrans.
-    (*set (pr1trans := pr1_transportf (! (id_right f)) (c --> c')).*)
-    set (pr1trans := @pr1_transportf _ _
-                     (λ mor: b --> b',
-                     (λ mor': c --> c',
-                     (functor_on_morphisms F) mor' = transportf_mor H_ob H'_ob mor))
-                                   _ _ (! (id_right f)) (g,, H_mor)).
-    apply pr1trans. simpl.
-    set (consttrans := transportf_const (! id_right f) (c --> c')).
-    set (temp := eqtohomot consttrans g).
-    etrans. apply temp.
-    unfold idfun.
-    exact (! id_right g).
+    eapply pathscomp0.
+    + apply (@pr1_transportf _ _ (λ mor: b --> b', (λ mor': c --> c',
+                     (functor_on_morphisms F) mor' = transportf_mor H_ob H'_ob mor))).
+    +  simpl.
+       eapply pathscomp0.
+       2: { apply (! id_right _). }
+       * apply (eqtohomot (transportf_const _ _)).
 Qed.
 
 Definition fiber_disp_cat_id_right'
@@ -295,24 +287,15 @@ Proof.
     apply homset_property.
   - simpl.
     apply pathsinv0.
-    etrans.
-    (*set (pr1trans := pr1_transportf (assoc f1 f2 f3)
+    eapply pathscomp0.
+    + (*set (pr1trans := pr1_transportf (assoc f1 f2 f3)
           (fiber_disp_cat_comp' (fiber_disp_cat_comp' (g1,, H1_mor) (g2,, H2_mor)) (g3,, H3_mor))).*)
-    set (pr1trans := @pr1_transportf _ _
-                     (λ mor: b0 --> b3,
-                     (λ mor': c0 --> c3,
-                     (functor_on_morphisms F) mor' = transportf_mor H0_ob H3_ob mor))
-                     _ _ (! (assoc f1 f2 f3))
-                     (fiber_disp_cat_comp' (fiber_disp_cat_comp'
-                     ((g1,, H1_mor) : fiber_disp_cat_mor F b0 b1 (c0,, H0_ob) (c1,, H1_ob) f1)
-                     ((g2,, H2_mor) : fiber_disp_cat_mor F b1 b2 (c1,, H1_ob) (c2,, H2_ob) f2))
-                     ((g3,, H3_mor) : fiber_disp_cat_mor F b2 b3 (c2,, H2_ob) (c3,, H3_ob) f3))).
-    apply pr1trans. simpl.
-    set (consttrans := transportf_const (! assoc f1 f2 f3) (c0 --> c3)).
-    set (temp := eqtohomot consttrans (g1 · g2 · g3)).
-    etrans. apply temp.
-    unfold idfun.
-    exact (! assoc g1 g2 g3).
+      apply (@pr1_transportf _ _ (λ mor: b0 --> b3, (λ mor': c0 --> c3,
+                                 (functor_on_morphisms F) mor' = transportf_mor H0_ob H3_ob mor))).
+    + simpl.
+      eapply pathscomp0.
+      2: { apply (! assoc _ _ _). }
+      * apply (eqtohomot (transportf_const _ _)).
 Qed.
 
 Definition fiber_disp_cat_assoc'
