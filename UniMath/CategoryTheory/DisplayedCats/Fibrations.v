@@ -1038,6 +1038,7 @@ Proof.
   use make_weq.
   - exact (λ HD c₁ c₂ cc₁ f,
            let ℓ := HD c₁ c₂ f cc₁ in
+(* TODO: see #1470 *)
            tpair
              (fun d' => total2 (fun ff => @is_cartesian _ _ _ _ _ f d' ff))
              (pr1 ℓ)
