@@ -1015,6 +1015,7 @@ Proof.
   use make_weq.
   - exact (λ HD c₁ c₂ cc₁ f,
            let ℓ := HD c₁ c₂ f cc₁ in
+(* TODO: see #1470 *)
            tpair
              (fun cc₂ => total2 (fun ff => @is_opcartesian _ _ _ _ _ cc₁ cc₂ ff))
              (pr1 ℓ)
