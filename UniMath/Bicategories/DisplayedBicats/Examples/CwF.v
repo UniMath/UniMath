@@ -195,6 +195,7 @@ Section CwFRepresentation.
   Lemma cwf_square_comm {Γ} {A}
         {ΓA : C} {π : ΓA --> Γ}
         {t : Tm ΓA : hSet} (e : (pp : nat_trans _ _) _ t = functor_on_morphisms Ty π A)
+(* TODO: see #1470 *)
     : @paths _
     (@compose _ _
        (@functor_on_objects _ (functor_category _ HSET_univalent_category) _ Γ)
