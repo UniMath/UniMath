@@ -209,6 +209,10 @@ DisplayedCats/StreetOpFibration.v
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
 
+Monoidal/WhiskeredBifunctors.v
+Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/MonoidalFunctorsWhiskered.v
+
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
