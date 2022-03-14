@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Cartesianness
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-Definition precleaving_comp_closed
+Definition precleaving_comp_is_precart
     {C : category} {D : disp_cat C} (lift : precleaving D)
   := forall (c c' c'' : C) (f' : c'' --> c') (f : c' --> c) (d : D c),
     is_precartesian ((lift _ _ f' (object_of_precartesian_lift (lift _ _ f d))) ;; (lift _ _ f d)).
@@ -84,7 +84,8 @@ Proof.
   - apply assoc_disp.
   - apply maponpaths.
     exact H.
-  - apply pathsinv0. apply assoc_disp.
+  - apply pathsinv0.
+    apply assoc_disp.
 Qed.
 
 Definition eq_postwhisker {C} {D : disp_precat C}
@@ -109,9 +110,9 @@ Qed.
 
 Definition prefibration_w_precart_closed_implies_fibration
     {C : category} {D : disp_cat C} (lift : precleaving D)
-  : precleaving_comp_closed lift -> precleaving_is_cleaving lift.
+  : precleaving_comp_is_precart lift -> precleaving_is_cleaving lift.
 Proof.
-  unfold precleaving_comp_closed, precleaving_is_cleaving.
+  unfold precleaving_comp_is_precart, precleaving_is_cleaving.
   intros liftclosed c c' f d.
   set (ff := lift _ _ f d).
   set (d' := object_of_precartesian_lift ff).
@@ -167,4 +168,203 @@ Proof.
     2: { apply (! mor_disp_transportf_postwhisker _ _ ff). }
     apply maponpaths.
     assumption.
+Defined.
+
+Definition prefibration_w_precart_closed_implies_fibration_new
+    {C : category} {D : disp_cat C} (lift : precleaving D)
+  : precleaving_comp_is_precart lift -> precleaving_is_cleaving lift.
+Proof.
+  unfold precleaving_comp_is_precart, precleaving_is_cleaving.
+  intros liftclosed c c' f d.
+  set (ff := lift _ _ f d).
+  set (d' := object_of_precartesian_lift ff).
+  unfold is_cartesian.
+  intros c'' g d'' hh.
+  set (gg'all := lift _ _ g d' : precartesian_lift d' g).
+  set (d''' := object_of_precartesian_lift gg'all).
+  set (gg' := mor_disp_of_precartesian_lift gg'all).
+  set (Hgg' := precartesian_lift_is_precartesian gg'all).
+  set (precartgg'ff := liftclosed _ _ _ g f d).
+  use unique_exists'.
+  - apply (transportf _ (id_left _)).
+    apply (λ gg'', gg'' ;; gg').
+    eapply (precartesian_factorisation).
+    + apply liftclosed.
+    + exact hh.
+  - simpl.
+    eapply pathscomp0.
+    + eapply pathscomp0.
+      * apply mor_disp_transportf_postwhisker.
+      * eapply pathscomp0.
+        -- apply maponpaths.
+           apply assoc_disp_var.
+        -- eapply pathscomp0.
+           ++ apply transport_f_f.
+           ++ apply maponpaths_2.
+              apply homset_property.
+    + apply transportf_transpose_left.
+       apply precartesian_factorisation_commutes.
+  - intro gg. simpl.
+    apply homsets_disp.
+  - simpl. intros gg0 gg1 H0 H1.
+    apply (transportb_cancel _ (id_left _) gg0 gg1).
+    eapply pathscomp0.
+    + apply pathsinv0.
+        apply (precartesian_factorisation_commutes Hgg').
+    + eapply pathscomp0.
+      2: { apply (precartesian_factorisation_commutes Hgg'). }
+      * apply (maponpaths (λ gg'', gg'' ;; gg'all)).
+        apply (precartesian_factorisation_unique precartgg'ff).
+        apply assoc_eq_var.
+        eapply pathscomp0.
+        -- apply eq_postwhisker.
+           apply precartesian_factorisation_commutes.
+        -- eapply pathscomp0.
+           ++ eapply pathscomp0.
+              ** apply mor_disp_transportf_postwhisker.
+              ** eapply pathscomp0.
+                 --- apply maponpaths.
+                     exact (H0 @ ! H1).
+                 --- apply pathsinv0.
+                     apply mor_disp_transportf_postwhisker.
+           ++ apply pathsinv0.
+              apply eq_postwhisker.
+              apply precartesian_factorisation_commutes.
+Defined.
+
+
+Definition prefibration_w_precart_closed_implies_fibration_new2
+    {C : category} {D : disp_cat C} (lift : precleaving D)
+  : precleaving_comp_is_precart lift -> precleaving_is_cleaving lift.
+Proof.
+  unfold precleaving_comp_is_precart, precleaving_is_cleaving.
+  intros liftclosed c c' f d.
+  set (ff := lift _ _ f d).
+  set (d' := object_of_precartesian_lift ff).
+  unfold is_cartesian.
+  intros c'' g d'' hh.
+  set (gg'all := lift _ _ g d' : precartesian_lift d' g).
+  set (d''' := object_of_precartesian_lift gg'all).
+  set (gg' := mor_disp_of_precartesian_lift gg'all).
+  set (Hgg' := precartesian_lift_is_precartesian gg'all).
+  set (precartgg'ff := liftclosed _ _ _ g f d).
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    unfold isProofIrrelevant.
+    intros [gg0 comm0] [gg1 comm1].
+    apply subtypePairEquality.
+    + intro gg.
+      apply homsets_disp.
+    + apply (transportb_cancel _ (id_left _) gg0 gg1).
+      eapply pathscomp0.
+      * apply pathsinv0.
+        apply (precartesian_factorisation_commutes Hgg').
+      * eapply pathscomp0.
+        2: { apply (precartesian_factorisation_commutes Hgg'). }
+        -- apply (maponpaths (λ gg'', gg'' ;; gg'all)).
+           apply (precartesian_factorisation_unique precartgg'ff).
+           apply assoc_eq_var.
+           eapply pathscomp0.
+           ++ apply eq_postwhisker.
+              apply precartesian_factorisation_commutes.
+           ++ eapply pathscomp0.
+              ** eapply pathscomp0.
+                 --- apply mor_disp_transportf_postwhisker.
+                 --- eapply pathscomp0.
+                     +++ apply maponpaths.
+                         exact (comm0 @ ! comm1).
+                     +++ apply pathsinv0.
+                         apply mor_disp_transportf_postwhisker.
+              ** apply pathsinv0.
+                 apply eq_postwhisker.
+                 apply precartesian_factorisation_commutes.
+  - use tpair.
+    + apply (transportf _ (id_left _)).
+      apply (λ gg'', gg'' ;; gg').
+      eapply (precartesian_factorisation).
+      * apply liftclosed.
+      * exact hh.
+    + simpl.
+      eapply pathscomp0.
+      * eapply pathscomp0.
+        -- apply mor_disp_transportf_postwhisker.
+        -- eapply pathscomp0.
+          ++ apply maponpaths.
+             apply assoc_disp_var.
+          ++ eapply pathscomp0.
+             ** apply transport_f_f.
+             ** apply maponpaths_2.
+                apply homset_property.
+      * apply transportf_transpose_left.
+        apply precartesian_factorisation_commutes.
+Defined.
+
+
+
+Definition prefibration_w_precart_closed_implies_fibration_new3
+    {C : category} {D : disp_cat C} (lift : precleaving D)
+  : precleaving_comp_is_precart lift -> precleaving_is_cleaving lift.
+Proof.
+  unfold precleaving_comp_is_precart, precleaving_is_cleaving.
+  intros liftclosed c c' f d.
+  set (ff := lift _ _ f d).
+  set (d' := object_of_precartesian_lift ff).
+  unfold is_cartesian.
+  intros c'' g d'' hh.
+  set (gg'all := lift _ _ g d' : precartesian_lift d' g).
+  set (d''' := object_of_precartesian_lift gg'all).
+  set (gg' := mor_disp_of_precartesian_lift gg'all).
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    unfold isProofIrrelevant.
+    intros [gg0 comm0] [gg1 comm1].
+    apply subtypePairEquality.
+    + intro gg.
+      apply homsets_disp.
+    + apply (transportb_cancel _ (id_left _) gg0 gg1).
+      eapply pathscomp0.
+      * apply pathsinv0.
+        (*eapply precartesian_factorisation_commutes. Unshelve.*)
+        use precartesian_factorisation_commutes.
+        3: { use precartesian_lift_is_precartesian. apply lift. }
+      * eapply pathscomp0.
+        2: { use precartesian_factorisation_commutes.
+          3: { use precartesian_lift_is_precartesian. apply lift. } }
+        -- apply (maponpaths (λ gg'', gg'' ;; gg'all)).
+           eapply precartesian_factorisation_unique.
+           ++ apply liftclosed.
+           ++ apply assoc_eq_var.
+              eapply pathscomp0.
+              ** apply eq_postwhisker.
+                 apply precartesian_factorisation_commutes.
+              ** eapply pathscomp0.
+                 --- eapply pathscomp0.
+                     +++ apply mor_disp_transportf_postwhisker.
+                     +++ eapply pathscomp0.
+                         *** apply maponpaths.
+                             exact (comm0 @ ! comm1).
+                         *** apply pathsinv0.
+                             apply mor_disp_transportf_postwhisker.
+                 --- apply pathsinv0.
+                     apply eq_postwhisker.
+                     apply precartesian_factorisation_commutes.
+  - use tpair.
+    + apply (transportf _ (id_left _)).
+      apply (λ gg'', gg'' ;; gg').
+      eapply (precartesian_factorisation).
+      * apply liftclosed.
+      * exact hh.
+    + simpl.
+      eapply pathscomp0.
+      * eapply pathscomp0.
+        -- apply mor_disp_transportf_postwhisker.
+        -- eapply pathscomp0.
+          ++ apply maponpaths.
+             apply assoc_disp_var.
+          ++ eapply pathscomp0.
+             ** apply transport_f_f.
+             ** apply maponpaths_2.
+                apply homset_property.
+      * apply transportf_transpose_left.
+        apply precartesian_factorisation_commutes.
 Defined.

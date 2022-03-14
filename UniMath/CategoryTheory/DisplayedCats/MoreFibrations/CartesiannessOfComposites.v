@@ -55,7 +55,7 @@ Proof.
     + apply maponpaths.
       eapply pathscomp0.
       2: { exact comm_right. }
-      * apply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+      * apply (maponpaths (λ gg, gg ;; ff)).
         exact comm_left.
 Qed.
 
@@ -101,25 +101,25 @@ Proof.
     + apply (cartesian_factorisation_unique cartff').
       apply (cartesian_factorisation_unique cartff).
       eapply pathscomp_ternary.
-      3:{ apply pathsinv0. apply assoc_disp_var. }
       * apply assoc_disp_var.
       * apply maponpaths.
         apply (pathscomp0 commbig0).
         apply pathsinv0.
         exact commgg1.
+      * apply pathsinv0. apply assoc_disp_var.
   - use tpair.
     + apply (cartesian_factorisation cartff').
       apply (cartesian_factorisation cartff).
       apply (transportb _ (! assoc _ _ _)).
       exact hh.
     + eapply pathscomp_ternary.
-      3:{ apply transport_cancel_f_b. }
       * apply assoc_disp.
       * apply maponpaths.
         eapply pathscomp0.
-        -- eapply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+        -- eapply (maponpaths (λ gg, gg ;; ff)).
            apply cartesian_factorisation_commutes.
         -- apply cartesian_factorisation_commutes'.
+      * apply transport_cancel_f_b.
 Defined.
 
 (* Why does this not work? I can't choose a subgoal!
@@ -159,7 +159,7 @@ Proof.
       3: { apply transport_cancel_f_b. }
       * apply maponpaths.
         eapply pathscomp0.
-        -- eapply (maponpaths (fun gg: d''' -->[ g' · f'] d' => (gg ;; ff))).
+        -- eapply (maponpaths (λ gg, gg ;; ff)).
            apply cartesian_factorisation_commutes.
         -- apply cartesian_factorisation_commutes'. }
 Defined.
@@ -178,7 +178,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance.
     unfold isProofIrrelevant.
-    intros (gg0, commbig0) (gg1, commbig1).
+    intros [gg0 commbig0] [gg1 commbig1].
     eapply subtypePairEquality.
     + intro gg.
       apply homsets_disp.
@@ -201,7 +201,7 @@ Proof.
         * apply assoc_disp.
         * apply maponpaths.
            eapply pathscomp0.
-           -- eapply (maponpaths (fun gg: d''' -->[(identity c'') · f'] d' => (gg ;; ff))).
+           -- eapply (maponpaths (λ gg, gg ;; ff)).
               apply pre'cartesian_factorisation_commutes.
            -- apply cartesian_factorisation_commutes'.
 Defined.
@@ -229,7 +229,7 @@ Proof.
         apply assoc_disp. }
       * apply assoc_disp.
       * apply maponpaths.
-        eapply (maponpaths ((fun gg: d''' -->[ g' · f'] d' => (gg ;; ff)))).
+        eapply (maponpaths ((λ gg, gg ;; ff))).
         exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (cartesian_factorisation cartff'ff).
@@ -266,7 +266,7 @@ Proof.
         apply assoc_disp. }
       * apply assoc_disp.
       * apply maponpaths.
-        eapply (maponpaths ((fun gg: d''' -->[ identity c'' · f'] d' => (gg ;; ff)))).
+        eapply (maponpaths ((λ gg, gg ;; ff))).
         exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (pre'cartesian_factorisation pre'cartff'ff).

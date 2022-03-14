@@ -97,7 +97,7 @@ Defined.
 (* Replace applictions of this by eapply unique_exists? *)
 Corollary unique_exists' {A : UU} {B : A -> UU} (x : A) (b : B x)
           (h : ∏ y, isaprop (B y)) (H : ∏ y y', B y -> B y' -> y = y') :
-  iscontr (total2 (λ t : A, B t)).
+  iscontr (total2 B).
 Proof.
   use make_iscontr.
   - exact (x,,b).

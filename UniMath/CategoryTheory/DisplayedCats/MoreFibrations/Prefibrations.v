@@ -68,7 +68,6 @@ Proof.
   induction (transport_cancel_b_f _ (id_left _) hh).
   apply H.
 Defined.
-Coercion pre_implies_pre' : is_precartesian >-> is_pre'cartesian.
 
 (** See also [precartesian_factorisation'] below, for when the map one wishes to factor is not judgementally over [f], but over some equal map. TODO! *)
 
@@ -130,8 +129,10 @@ Proof.
   eapply pathscomp0.
   - apply (pre'cartesian_factorisation_of_composite H).
   - eapply pathscomp0.
-    + apply maponpaths. exact Hggff.
-    + apply pathsinv0. apply pre'cartesian_factorisation_of_composite.
+    + apply maponpaths.
+      exact Hggff.
+    + apply pathsinv0.
+      apply pre'cartesian_factorisation_of_composite.
 Defined.
 
 Definition precartesian_factorisation_unique
@@ -144,8 +145,11 @@ Proof.
   eapply pathscomp0.
   - apply (precartesian_factorisation_of_composite H).
   - eapply pathscomp0.
-    + apply maponpaths. apply maponpaths. exact Hggff.
-    + apply pathsinv0. apply precartesian_factorisation_of_composite.
+    + apply maponpaths.
+      apply maponpaths.
+      exact Hggff.
+    + apply pathsinv0.
+      apply precartesian_factorisation_of_composite.
 Defined.
 
 Definition isaprop_is_precartesian
@@ -164,7 +168,11 @@ Definition isaprop_is_pre'cartesian
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : isaprop (is_pre'cartesian ff).
 Proof.
-  repeat (apply impred_isaprop; intro).
+  (*repeat (apply impred_isaprop; intro).*)
+  apply impred_isaprop.
+  intro d''.
+  apply impred_isaprop.
+  intro ff'.
   apply isapropiscontr.
 Defined.
 
@@ -239,6 +247,7 @@ Definition pre'_implies_precartesian_lift
   : precartesian_lift d f.
 Proof.
   exists (pr1 fd). exists (pr1 (pr2 fd)).
+  apply pre'_implies_pre.
   exact (pr2 (pr2 fd)).
 Defined.
 Coercion pre'_implies_precartesian_lift : pre'cartesian_lift >-> precartesian_lift.
@@ -250,9 +259,9 @@ Definition pre_implies_pre'cartesian_lift
   : pre'cartesian_lift d f.
 Proof.
   exists (pr1 fd). exists (pr1 (pr2 fd)).
+  apply pre_implies_pre'.
   exact (pr2 (pr2 fd)).
 Defined.
-Coercion pre_implies_pre'cartesian_lift : precartesian_lift >-> pre'cartesian_lift.
 
 End Precartesian_lifts.
 
@@ -272,8 +281,9 @@ Definition pre_implies_pre'cleaving
   : precleaving D -> pre'cleaving D.
 Proof.
   unfold pre'cleaving.
-  intros.
-  exact (X _ _ _ _).
+  intros H c c' f d.
+  apply pre_implies_pre'cartesian_lift.
+  apply H.
 Defined.
 Coercion pre_implies_pre'cleaving : precleaving >-> pre'cleaving.
 
@@ -282,10 +292,10 @@ Definition pre'_implies_precleaving
   : pre'cleaving D -> precleaving D.
 Proof.
   unfold precleaving.
-  intros.
-  exact (X _ _ _ _).
+  intros H c c' f d.
+  apply pre'_implies_precartesian_lift.
+  apply H.
 Defined.
-Coercion pre'_implies_precleaving : pre'cleaving >-> precleaving.
 
 (* TODO: Show that the above functions yield an equivalence *)
 
@@ -307,6 +317,7 @@ Definition pre'_implies_prefibration
 Proof.
   intro F.
   exists (pr1 F).
+  apply pre'_implies_precleaving.
   exact (pr2 F).
 Defined.
 Coercion pre'_implies_prefibration : pre'fibration >-> prefibration.
@@ -317,8 +328,8 @@ Definition pre_implies_pre'fibration
 Proof.
   intro F.
   exists (pr1 F).
+  apply pre_implies_pre'cleaving.
   exact (pr2 F).
 Defined.
-Coercion pre_implies_pre'fibration : prefibration >-> pre'fibration.
 
 End Prefibrations.

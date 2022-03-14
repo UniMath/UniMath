@@ -51,6 +51,8 @@ Proof.
   eapply pathscomp0.
   - apply (cartesian_factorisation_of_composite H).
   - eapply pathscomp0.
-    + apply maponpaths. exact Hggff.
-    + apply pathsinv0. apply cartesian_factorisation_of_composite.
+    + apply maponpaths.
+      exact Hggff.
+    + apply pathsinv0.
+      apply cartesian_factorisation_of_composite.
 Qed.
