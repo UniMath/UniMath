@@ -538,8 +538,6 @@ Proof.
   - exact q.
 Defined.
 
-
-
 Definition locally_grpd_internal_sopfib
            {B : bicat}
            (HB : locally_groupoid B)
