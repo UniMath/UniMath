@@ -507,7 +507,7 @@ Proof.
   intro H.
   red.
   intro c.
-  set (αcinv := pr1 (z_iso_inv_mor (α,,H)) c).
+  set (αcinv := pr1 (inv_from_z_iso (α,,H)) c).
   use make_is_z_isomorphism.
   - exact αcinv.
   - assert (HH := is_z_isomorphism_is_inverse_in_precat H).

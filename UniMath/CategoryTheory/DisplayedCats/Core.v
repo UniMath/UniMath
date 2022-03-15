@@ -1,5 +1,5 @@
 (**
-A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
+/A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
 
 Roughly, a “displayed category _D_ over a category _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” ∑ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibers.
 
@@ -42,7 +42,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 
 Local Open Scope type_scope.
 

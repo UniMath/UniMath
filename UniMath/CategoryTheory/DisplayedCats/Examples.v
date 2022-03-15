@@ -19,9 +19,9 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -132,7 +132,7 @@ Section Arrow_Disp.
 
 Context (C:category).
 
-Definition arrow_disp_ob_mor : disp_cat_ob_mor (prod_category C C).
+Definition arrow_disp_ob_mor : disp_cat_ob_mor (category_binproduct C C).
 Proof.
   exists (λ xy : (C × C), (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'.
@@ -155,13 +155,13 @@ Qed.
 Definition arrow_data : disp_cat_data _
   := (arrow_disp_ob_mor ,, arrow_id_comp).
 
-Lemma arrow_axioms : disp_cat_axioms (prod_category C C) arrow_data.
+Lemma arrow_axioms : disp_cat_axioms (category_binproduct C C) arrow_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   apply isasetaprop, homset_property.
 Qed.
 
-Definition arrow_disp : disp_cat (prod_category C C)
+Definition arrow_disp : disp_cat (category_binproduct C C)
   := (arrow_data ,, arrow_axioms).
 
 End Arrow_Disp.
@@ -643,7 +643,7 @@ Defined.
 
 Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
 Proof.
-  repeat split; intros; cbn;
+  repeat split; intros;
     try apply homset_property.
   apply isasetaprop.
   apply homset_property.

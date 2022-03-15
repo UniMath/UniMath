@@ -133,9 +133,12 @@ Lemma transportf_yy
       {C : category}
       (F : opp_precat_data C ⟶ SET) (c c' : C) (A : (F : functor _ _ ) c : hSet)
       (e : c = c')
-  : yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A)
-    =
-    transportf (fun d => nat_trans (yoneda _ d : functor _ _) F) e (yy A).
+(* TODO: see #1470 *)
+  : paths
+    (pr1weq
+       (@yy C F c')
+       (@transportf _ (fun d => pr1hSet (functor_on_objects F d : hSet)) _ _ e A))
+    (@transportf _ (fun d => nat_trans _ F) _ _ e (pr1weq (@yy C F c) A)).
 Proof.
   induction e.
   apply idpath.
@@ -192,7 +195,16 @@ Section CwFRepresentation.
   Lemma cwf_square_comm {Γ} {A}
         {ΓA : C} {π : ΓA --> Γ}
         {t : Tm ΓA : hSet} (e : (pp : nat_trans _ _) _ t = functor_on_morphisms Ty π A)
-    : functor_on_morphisms Yo π · yy A = yy t · pp.
+(* TODO: see #1470 *)
+    : @paths _
+    (@compose _ _
+       (@functor_on_objects _ (functor_category _ HSET_univalent_category) _ Γ)
+       Ty (functor_on_morphisms _ π)
+       (pr1weq (@yy C Ty Γ) A))
+    (@compose _
+       (@functor_on_objects _ (functor_category _ hset_category) _ ΓA)
+       Tm Ty
+       (pr1weq (@yy C Tm ΓA) t) pp).
   Proof.
     apply pathsinv0.
     etrans. 2: apply yy_natural.

@@ -366,7 +366,7 @@ Proof.
   use is_z_iso_comp_of_is_z_isos.
   - use is_z_iso_tensor_z_iso.
     + exact (identity_is_z_iso _ ).
-    + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ (strong_monoidal_functor_ϵ_is_z_iso U))).
+    + apply (is_z_iso_inv_from_z_iso (make_z_iso _ _ (strong_monoidal_functor_ϵ_is_z_iso U))).
   - exact (pr2 ρ_A c).
 Defined.
 
