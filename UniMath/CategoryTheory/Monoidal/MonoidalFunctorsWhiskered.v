@@ -47,8 +47,8 @@ Section MonoidalFunctors.
   Local Notation "α ··· β" := (nat_trans_comp _ _ _ α β) (at level 31).
 
   Local Notation "I_{ M }" := (unit_from_monoidalcatdata M).
-  Local Notation "lu^{ M }_{ x }" := ( (pr1 (leftunitor_from_monoidalcatdata M)) x ).
-  Local Notation "ru^{ M }_{ x }" := ( (pr1 (rightunitor_from_monoidalcatdata M)) x ).
+  Local Notation "lu^{ M }_{ x }" := ( (leftunitor_from_monoidalcatdata M) x ).
+  Local Notation "ru^{ M }_{ x }" := ( (rightunitor_from_monoidalcatdata M) x ).
   Local Notation "α^{ M }_{ x , y , z }" := (associatordata_from_monoidalcatdata M x y z).
 
   (** (Weak) Monoidal functors **)
@@ -72,6 +72,17 @@ Section MonoidalFunctors.
 
   Definition unitpreserved_from_monoidalfunctordata (mfd : monoidalfunctor_data) : preserves_unit := pr2 mfd.
   Coercion unitpreserved_from_monoidalfunctordata : monoidalfunctor_data >-> preserves_unit.
+
+  (* Definition preserves_leftunitality (pt : preserves_tensor) (pu : preserves_unit) :
+    ∏ (x : C), ((#F (lu^{M}_{x})) ∘ ((pr1 pt) I_{M} x) ∘ (pu ⊗^{N} (identity (F x)))) = lu^{N}_{F x}.
+  Proof.
+    intro x.
+    unfold functoronmorphisms1.
+    Check  ((pu ⊗^{ N}_{r} F x) · (F I_{ M} ⊗^{ N}_{l} identity (F x)) · (pr1 pt I_{ M} x · # F lu^{ M }_{ x}) = lu^{ N }_{ F x}). *)
+
+
+
+
 
   Definition functor0 : functor C D :=
     F ·· leftwhiskering_functor N (bifunctor_leftid N) (bifunctor_leftcomp N) I_{N}.
@@ -119,7 +130,7 @@ Section MonoidalFunctors.
     unfold nattrans1_data.
     unfold functor1.
     unfold functor2.
-    assert (pf : F I_{ M} ⊗^{ N}_{l} # F f =  identity I_{ M} ⊗^{ functor_tensorofimages}_{1} f ).
+    assert (pf : F I_{ M} ⊗^{ N}_{l} # F f =  identity I_{ M} ⊗^{ functor_tensorofimages} f ).
     {
       unfold functoronmorphisms1.
       unfold functor_tensorofimages.
@@ -133,9 +144,9 @@ Section MonoidalFunctors.
     }
     cbn.
     rewrite pf.
-    etrans. { apply (((pr2 pt) I_{M} I_{M} x y) (identity I_{M}) f). }
+    etrans. { apply (full_naturality_condition (pr1 pt) (pr2 pt) (identity I_{M}) f). }
 
-    assert (pg : identity I_{ M} ⊗^{ functor_imageoftensor}_{1} f =  # F (I_{ M} ⊗^{ M}_{l} f) ).
+    assert (pg : identity I_{ M} ⊗^{ functor_imageoftensor} f =  # F (I_{ M} ⊗^{ M}_{l} f) ).
     {
       unfold functoronmorphisms1.
       unfold functor_imageoftensor.
@@ -220,7 +231,7 @@ Section MonoidalFunctors.
     unfold functor2'.
     cbn.
 
-    assert (pf : (#F f) ⊗^{ N}_{r} (F I_{ M}) =  f ⊗^{ functor_tensorofimages}_{1} identity I_{ M}).
+    assert (pf : (#F f) ⊗^{ N}_{r} (F I_{ M}) =  f ⊗^{ functor_tensorofimages} identity I_{ M}).
     {
       (* unfold functor_tensorofimages. *)
       unfold functoronmorphisms1.
@@ -235,10 +246,10 @@ Section MonoidalFunctors.
     }
     rewrite pf.
     etrans. {
-      apply (((pr2 pt) x y I_{M} I_{M}) f (identity I_{M})).
+      apply (full_naturality_condition (pr1 pt) (pr2 pt) f (identity I_{M})).
     }
 
-    assert (pg : f ⊗^{ functor_imageoftensor}_{1} identity I_{ M} =  # F (f ⊗^{ M}_{r} I_{ M}) ).
+    assert (pg : f ⊗^{ functor_imageoftensor} identity I_{ M} =  # F (f ⊗^{ M}_{r} I_{ M}) ).
     {
       unfold functoronmorphisms1.
       unfold functor_imageoftensor.

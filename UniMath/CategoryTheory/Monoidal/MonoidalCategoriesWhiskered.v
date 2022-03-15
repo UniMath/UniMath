@@ -1,24 +1,3 @@
-(* In this file we formalize the definition of a monoidal category in a curried format.
-The data of a monoidal category consist of:
-	- Category C.
-	- A functor T : C x C → C, called the tensor which is specified as followed:
-		- On the objects: A function Ob(C) → (Ob(C) → Ob(C)) : x → (y → x ⊗_{T} y)
-		- On the morphisms: A function C[x,x'] → ( C[y,y'] -> C[ x ⊗_{T} y, x' ⊗_{T} y']) : f→ (g→ f ⊗^{T} g)
-	- An object I : C, called the unit.
-	- A natural transformation lu : I ⊗_T (-) → (-) with naturality condition
-                lu_y ∘ (Id_I ⊗^{T} f) = f ∘ lu_x.
-        - A natural transformation ru : (-) ⊗_T I → (-) with naturality condition
-                ru_y ∘ (f ⊗^{T} Id_I) = f ∘ ru_x.
-        - A natural transformation α : ((-)⊗_T(-))⊗_T(-) → (-)⊗((-)⊗(-)) with naturality condition
-                f⊗(g⊗h) ∘ α_{x,y,z} = α_{x',y',z'} ∘ (f⊗g)⊗h.
-The properties of a monoidal category are the following:
-        - Triangle identity:
-                   (Id_x ⊗ lu_y) ∘ α_{x,I,y} = ru_x ⊗^{T} Id_y.
-        - Pentagon identity:
-                   (Id_w ⊗ α_{x,y,z}) ∘ α_{w,x⊗y,z} ∘ (α_{w,x,y} ⊗ Id_z) = α_{w,x,y⊗z} ∘ α_{w⊗x,y,z}.
-
-*)
-
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -34,18 +13,18 @@ Import Notations.
 
 Definition tensor (C : category) : UU :=
   bifunctor C C C.
-
-Definition bifunctor_from_tensor {C : category} (T : tensor C) : bifunctor C C C := T.
-Coercion bifunctor_from_tensor : tensor >-> bifunctor.
+Identity Coercion tensorintobifunctor : tensor >-> bifunctor.
 
 Definition associator_data {C : category} (T : tensor C) : UU :=
   ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
 
 Definition leftunitor {C : category} (T : tensor C) (I : C) : UU :=
   nat_trans (leftwhiskering_functor T (bifunctor_leftid T) (bifunctor_leftcomp T) I) (functor_identity C).
+Identity Coercion leftunitorintonattrans : leftunitor >-> nat_trans.
 
 Definition rightunitor {C : category} (T : tensor C) (I : C) : UU :=
   nat_trans (rightwhiskering_functor T (bifunctor_rightid T) (bifunctor_rightcomp T) I) (functor_identity C).
+Identity Coercion rightunitorintonattrans : rightunitor >-> nat_trans.
 
 Definition monoidalcategory_data (C : category): UU :=
     ∑ T : tensor C, ∑ I : C,
@@ -70,33 +49,82 @@ Coercion associatordata_from_monoidalcatdata : monoidalcategory_data >-> associa
 
 
 (** Axioms **)
-Definition tensor_assoc_nat {C : category} {T : tensor C} (α : associator_data T) : UU :=
-  ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
-     (f ⊗^{T}_{1} (g ⊗^{T}_{1} h))∘(α x y z) = (α x' y' z')∘ ((f ⊗^{T}_{1} g) ⊗^{T}_{1} h).
+
+(* Definition tensor_rightassoc_nat' {C : category} {T : tensor C} (α : associator_data T) : UU
+  := ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
+       (α x y z) · ((f ⊗^{ T}_{r} (y ⊗_{ T} z)) · (x' ⊗^{ T}_{l} ((g ⊗^{ T}_{r} z) · (y' ⊗^{ T}_{l} h)))) =
+         (((f ⊗^{ T}_{r} y) · (x' ⊗^{ T}_{l} g))  ⊗^{ T}_{r} z) · ((x' ⊗_{ T} y') ⊗^{ T}_{l} h) · (α x' y' z'). *)
+
+Definition tensor_assoc_nat_leftwhisker {C : category} {T : tensor C} (α : associator_data T) : UU
+  := ∏ (x y z z' : C) (h : C⟦z,z'⟧),
+    (α x y z) · (x ⊗^{ T}_{l} (y ⊗^{ T}_{l} h)) = ((x ⊗_{ T} y) ⊗^{ T}_{l} h) · (α x y z').
+
+Definition tensor_assoc_nat_rightwhisker {C : category} {T : tensor C} (α : associator_data T) : UU
+  := ∏ (x x' y z : C) (f : C⟦x,x'⟧),
+    (α x y z) · (f ⊗^{ T}_{r} (y ⊗_{ T} z)) = ((f ⊗^{ T}_{r} y) ⊗^{ T}_{r} z) · (α x' y z).
+
+Definition tensor_assoc_nat_leftrightwhisker {C : category} {T : tensor C} (α : associator_data T) : UU
+  := ∏ (x y y' z : C) (g : C⟦y,y'⟧),
+       (α x y z) · (x ⊗^{ T}_{l} (g ⊗^{ T}_{r} z)) = ((x ⊗^{ T}_{l} g) ⊗^{ T}_{r} z) · (α x y' z).
+
+Definition tensor_assoc_nat1 {C : category} {T : tensor C} {α : associator_data T} (αnl : tensor_assoc_nat_leftwhisker α) (αnr : tensor_assoc_nat_rightwhisker α) (αnlr : tensor_assoc_nat_leftrightwhisker α) {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
+       (α x y z) · ((f ⊗^{ T}_{r} (y ⊗_{ T} z)) · (x' ⊗^{ T}_{l} ((g ⊗^{ T}_{r} z) · (y' ⊗^{ T}_{l} h)))) =
+         (((f ⊗^{ T}_{r} y) · (x' ⊗^{ T}_{l} g))  ⊗^{ T}_{r} z) · ((x' ⊗_{ T} y') ⊗^{ T}_{l} h) · (α x' y' z').
+Proof.
+  rewrite assoc.
+  rewrite αnr.
+  rewrite assoc'.
+  etrans. {
+    apply cancel_precomposition.
+    Check whiskerscommutes.
+    rewrite (bifunctor_leftcomp T).
+    rewrite assoc.
+    rewrite αnlr.
+    apply idpath.
+  }
+
+  etrans. {
+    apply cancel_precomposition.
+    rewrite assoc'.
+    apply cancel_precomposition.
+    apply αnl.
+  }
+  rewrite assoc.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  rewrite bifunctor_rightcomp.
+  apply idpath.
+Qed.
+
+Lemma tensor_assoc_nat2 {C : category} {T : tensor C} {α : associator_data T} (αnl : tensor_assoc_nat_leftwhisker α) (αnr : tensor_assoc_nat_rightwhisker α) (αnlr : tensor_assoc_nat_leftrightwhisker α)
+      {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
+    (f ⊗^{T} (g ⊗^{T} h))∘(α x y z) = (α x' y' z')∘ ((f ⊗^{T} g) ⊗^{T} h).
+Proof.
+  intros.
+  unfold functoronmorphisms1.
+  exact (tensor_assoc_nat1 αnl αnr αnlr f g h).
+Qed.
 
 Definition tensor_assoc_iso {C : category} {T : tensor C} (α : associator_data T) : UU :=
   ∏ (x y z : C), is_z_isomorphism (α x y z).
 
 Definition associator_law {C : category} {T : tensor C} (α : associator_data T) : UU :=
-  (tensor_assoc_nat α) × (tensor_assoc_iso α).
+  (tensor_assoc_nat_leftwhisker α) × (tensor_assoc_nat_rightwhisker α) × (tensor_assoc_nat_leftrightwhisker α) × (tensor_assoc_iso α).
 
-Definition tensorassociator_nat {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat α := pr1 αl.
-Coercion tensorassociator_nat : associator_law >-> tensor_assoc_nat.
-
-Definition tensorassociator_iso {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_iso α := pr2 αl.
-Coercion tensorassociator_iso : associator_law >-> tensor_assoc_iso.
-
-Definition leftunitor_iso {C : category} {T : tensor C} {I : C} (lu : leftunitor T I) : UU := is_nat_z_iso (pr1 lu).
-
-Definition rightunitor_iso {C : category} {T : tensor C} {I : C} (ru : rightunitor T I) : UU := is_nat_z_iso (pr1 ru).
-
+Definition tensorassociator_natleft {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat_leftwhisker α := pr1 αl.
+Definition tensorassociator_natright {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat_rightwhisker α := pr1 (pr2 αl).
+Definition tensorassociator_natleftright {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat_leftrightwhisker α := pr1 (pr2 (pr2 αl)).
+Definition tensorassociator_iso {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_iso α := pr2 (pr2 (pr2 αl)).
+Definition leftunitor_iso {C : category} {T : tensor C} {I : C} (lu : leftunitor T I) : UU := is_nat_z_iso lu.
+Definition rightunitor_iso {C : category} {T : tensor C} {I : C} (ru : rightunitor T I) : UU := is_nat_z_iso ru.
 Definition triangle_identity {C : category}
            {T : tensor C}
            {I : C}
            (lu : leftunitor T I)
            (ru : rightunitor T I)
            (α : associator_data T)
-    := ∏ (x y : C), (α x I y) · (x ⊗^{T}_{l} ((pr1 lu) y)) = ((pr1 ru) x) ⊗^{T}_{r} y.
+    := ∏ (x y : C), (α x I y) · (x ⊗^{T}_{l} (pr1 lu y)) = ((pr1 ru) x) ⊗^{T}_{r} y.
 
 Definition pentagon_identity {C : category} {T : tensor C} (α : associator_data T) : UU :=
   ∏ (w x y z : C),

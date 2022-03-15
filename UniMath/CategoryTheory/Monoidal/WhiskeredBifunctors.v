@@ -42,10 +42,8 @@ Section Bifunctor.
   Definition bifunctor_rightcompax {A B C : category} (F : bifunctor_data A B C) :=
     ∏ (b : B) (a1 a2 a3 : A) (f1 : A⟦a1,a2⟧) (f2 : A⟦a2,a3⟧), (f1 · f2) ⊗^{F}_{r} b = (f1 ⊗^{F}_{r} b) · (f2 ⊗^{F}_{r} b).
 
-  Lemma leftwhiskering_functor {A B C : category} (F : bifunctor_data A B C) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) :
-    ∏ (a : A), functor B C.
+  Lemma leftwhiskering_functor {A B C : category} (F : bifunctor_data A B C) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) (a : A): functor B C.
   Proof.
-    intro a.
     use make_functor.
     - use tpair.
       + intro b.
@@ -60,10 +58,8 @@ Section Bifunctor.
         exact (blc a b1 b2 b3 g2 g3).
   Defined.
 
-  Lemma rightwhiskering_functor {A B C : category} (F : bifunctor_data A B C) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) :
-    ∏ (b : B), functor A C.
+  Lemma rightwhiskering_functor {A B C : category} (F : bifunctor_data A B C) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) (b : B) : functor A C.
   Proof.
-    intro b.
     use make_functor.
     - use tpair.
       + intro a.
@@ -78,26 +74,21 @@ Section Bifunctor.
         exact (brc b a1 a2 a3 f2 f3).
   Defined.
 
-  Definition functoronmorphisms1 {A B C : category} (F : bifunctor_data A B C) :
-    ∏ (a1 a2 : A) (b1 b2 : B) (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧), C⟦a1 ⊗_{F} b1, a2 ⊗_{F} b2⟧ :=
-    λ _ a2 b1 _ f g, (f ⊗^{F}_{r} b1) · (a2 ⊗^{F}_{l} g).
-  Local Notation "f ⊗^{ F }_{1} g" := (functoronmorphisms1 F _ _ _ _ f g) (at level 31).
+  Definition functoronmorphisms1 {A B C : category} (F : bifunctor_data A B C) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧)
+             : C⟦a1 ⊗_{F} b1, a2 ⊗_{F} b2⟧ := (f ⊗^{F}_{r} b1) · (a2 ⊗^{F}_{l} g).
+  Local Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
 
-  Definition functoronmorphisms2 {A B C : category} (F : bifunctor_data A B C) :
-    ∏ (a1 a2 : A) (b1 b2 : B) (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧), C⟦a1 ⊗_{F} b1, a2 ⊗_{F} b2⟧ :=
-    λ a1 _ _ b2 f g, (a1 ⊗^{F}_{l} g) · (f ⊗^{F}_{r} b2).
-  Local Notation "f ⊗^{ F }_{2} g" := (functoronmorphisms2 F _ _ _ _ f g) (at level 31).
+  Definition functoronmorphisms2 {A B C : category} (F : bifunctor_data A B C) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧)
+    : C⟦a1 ⊗_{F} b1, a2 ⊗_{F} b2⟧ := (a1 ⊗^{F}_{l} g) · (f ⊗^{F}_{r} b2).
+  Local Notation "f ⊗^{ F }_{2} g" := (functoronmorphisms2 F f g) (at level 31).
 
   Definition functoronmorphisms_are_equal {A B C : category} (F : bifunctor_data A B C) :=
     ∏ (a1 a2 : A) (b1 b2 : B) (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧),
-      f ⊗^{F}_{1} g = f ⊗^{F}_{2} g.
+      f ⊗^{F} g = f ⊗^{F}_{2} g.
 
-  Lemma whiskerscommutes {A B C : category} (F : bifunctor_data A B C) (fmae : functoronmorphisms_are_equal F):
-    ∏ (a1 a2 : A) (b1 b2 : B) (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧),
-      (f ⊗^{F}_{r} b1)·(a2 ⊗^{F}_{l} g) = (a1 ⊗^{F}_{l} g)·(f ⊗^{F}_{r} b2).
+  Lemma whiskerscommutes {A B C : category} (F : bifunctor_data A B C) (fmae : functoronmorphisms_are_equal F) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F}_{r} b1)·(a2 ⊗^{F}_{l} g) = (a1 ⊗^{F}_{l} g)·(f ⊗^{F}_{r} b2).
   Proof.
-    intros.
-    apply (fmae _ _ _ _ f g).
+    exact (fmae _ _ _ _ f g).
   Qed.
 
   Definition is_bifunctor {A B C : category} (F : bifunctor_data A B C) : UU :=
@@ -107,46 +98,26 @@ Section Bifunctor.
     (bifunctor_rightcompax F) ×
     (functoronmorphisms_are_equal F).
 
-  Lemma bifunctor_distributes_over_id {A B C : category} {F : bifunctor_data A B C} (bli : bifunctor_leftidax F) (bri : bifunctor_rightidax F):
-      ∏ (a : A) (b : B), (identity a) ⊗^{F}_{1} (identity b) = identity (a ⊗_{F} b).
+  Lemma bifunctor_distributes_over_id {A B C : category} {F : bifunctor_data A B C} (bli : bifunctor_leftidax F) (bri : bifunctor_rightidax F) (a : A) (b : B) : (identity a) ⊗^{F} (identity b) = identity (a ⊗_{F} b).
   Proof.
-    intros.
     unfold functoronmorphisms1.
     rewrite bri.
     rewrite bli.
     apply id_left.
   Qed.
 
-  Lemma bifunctor_distributes_over_comp {A B C : category} {F : bifunctor_data A B C} (blc : bifunctor_leftcompax F) (brc : bifunctor_rightcompax F) (fmae : functoronmorphisms_are_equal F):
-    ∏ (a1 a2 a3 : A) (b1 b2 b3 : B) (f1 : A⟦a1,a2⟧) (f2 : A⟦a2,a3⟧) (g1 : B⟦b1,b2⟧) (g2 : B⟦b2,b3⟧),
-      (f1 · f2) ⊗^{F}_{1} (g1 · g2) = (f1 ⊗^{F}_{1} g1) · (f2 ⊗^{F}_{2} g2).
+  Lemma bifunctor_distributes_over_comp {A B C : category} {F : bifunctor_data A B C} (blc : bifunctor_leftcompax F) (brc : bifunctor_rightcompax F) (fmae : functoronmorphisms_are_equal F) {a1 a2 a3 : A} {b1 b2 b3 : B} (f1 : A⟦a1,a2⟧) (f2 : A⟦a2,a3⟧) (g1 : B⟦b1,b2⟧) (g2 : B⟦b2,b3⟧) : (f1 · f2) ⊗^{F} (g1 · g2) = (f1 ⊗^{F} g1) · (f2 ⊗^{F} g2).
   Proof.
-    intros.
     unfold functoronmorphisms1.
-
-    etrans. {
-      apply cancel_precomposition.
-      apply ((blc a3)).
-    }
-    etrans. {
-      apply cancel_postcomposition.
-      apply (brc b1).
-    }
-
-    etrans. { apply assoc. }
-
-    etrans. {
-      apply cancel_postcomposition.
-      apply assoc'.
-    }
-
-    rewrite whiskerscommutes.
+    rewrite brc.
+    rewrite blc.
+    rewrite assoc.
+    rewrite assoc.
+    apply cancel_postcomposition.
     rewrite assoc'.
-    rewrite assoc'.
-    rewrite whiskerscommutes.
-    apply assoc.
-    exact (fmae).
-    exact (fmae).
+    rewrite (whiskerscommutes _ fmae f2 g1).
+    rewrite assoc.
+    apply idpath.
   Qed.
 
   Definition bifunctor (A B C : category) : UU :=
@@ -260,8 +231,7 @@ Module Notations.
   Notation "a ⊗_{ F } b" := (bifunctor_on_objects F a b) (at level 31).
   Notation "a ⊗^{ F }_{l} g" := (leftwhiskering_on_morphisms F a _ _ g) (at level 31).
   Notation "f ⊗^{ F }_{r} b" := (rightwhiskering_on_morphisms F b _ _ f) (at level 31).
-  Notation "f ⊗^{ F }_{1} g" := (functoronmorphisms1 F _ _ _ _ f g) (at level 31).
-  Notation "f ⊗^{ F }_{2} g" := (functoronmorphisms2 F _ _ _ _ f g) (at level 31).
+  Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
 End Notations.
 
 
@@ -275,8 +245,22 @@ Section WhiskeredBinaturaltransformation.
   Definition make_binat_trans_data {A B C : category} {F G : bifunctor A B C} (α : ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧) : binat_trans_data F G := α.
 
   Definition is_binat_trans {A B C : category} {F G : bifunctor A B C} (α : binat_trans_data F G) :=
-    ∏ (a1 a2 : A) (b1 b2 : B) (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧),
-      (f ⊗^{F}_{1} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G}_{1} g).
+    (∏ (a : A) (b1 b2 : B) (g : B⟦b1,b2⟧),
+       (a ⊗^{ F}_{l} g) · (α a b2) = (α a b1) · (a ⊗^{ G}_{l} g))
+                                           ×
+       (∏ (a1 a2 : A) (b : B) (f : A⟦a1,a2⟧),
+       (f ⊗^{ F}_{r} b) · (α a2 b) = (α a1 b) · (f ⊗^{ G}_{r} b)).
+
+  Lemma full_naturality_condition {A B C : category} {F G : bifunctor A B C} (α : binat_trans_data F G) (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
+  Proof.
+    unfold functoronmorphisms1.
+    rewrite assoc'.
+    rewrite ((pr1 αn) a2 _ _ g).
+    rewrite assoc.
+    rewrite ((pr2 αn) a1 a2 b1 f).
+    rewrite assoc.
+    apply idpath.
+  Qed.
 
   Definition binat_trans {A B C : category} (F G : bifunctor A B C) : UU :=
     ∑ (α : binat_trans_data F G), is_binat_trans α.
