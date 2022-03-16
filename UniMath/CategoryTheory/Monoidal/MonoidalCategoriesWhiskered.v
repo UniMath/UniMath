@@ -49,12 +49,6 @@ Coercion associatordata_from_monoidalcatdata : monoidalcategory_data >-> associa
 
 
 (** Axioms **)
-
-(* Definition tensor_rightassoc_nat' {C : category} {T : tensor C} (α : associator_data T) : UU
-  := ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
-       (α x y z) · ((f ⊗^{ T}_{r} (y ⊗_{ T} z)) · (x' ⊗^{ T}_{l} ((g ⊗^{ T}_{r} z) · (y' ⊗^{ T}_{l} h)))) =
-         (((f ⊗^{ T}_{r} y) · (x' ⊗^{ T}_{l} g))  ⊗^{ T}_{r} z) · ((x' ⊗_{ T} y') ⊗^{ T}_{l} h) · (α x' y' z'). *)
-
 Definition tensor_assoc_nat_leftwhisker {C : category} {T : tensor C} (α : associator_data T) : UU
   := ∏ (x y z z' : C) (h : C⟦z,z'⟧),
     (α x y z) · (x ⊗^{ T}_{l} (y ⊗^{ T}_{l} h)) = ((x ⊗_{ T} y) ⊗^{ T}_{l} h) · (α x y z').
@@ -124,7 +118,7 @@ Definition triangle_identity {C : category}
            (lu : leftunitor T I)
            (ru : rightunitor T I)
            (α : associator_data T)
-    := ∏ (x y : C), (α x I y) · (x ⊗^{T}_{l} (pr1 lu y)) = ((pr1 ru) x) ⊗^{T}_{r} y.
+    := ∏ (x y : C), (α x I y) · (x ⊗^{T}_{l} (lu y)) = (ru x) ⊗^{T}_{r} y.
 
 Definition pentagon_identity {C : category} {T : tensor C} (α : associator_data T) : UU :=
   ∏ (w x y z : C),

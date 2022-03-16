@@ -251,7 +251,7 @@ Section WhiskeredBinaturaltransformation.
        (∏ (a1 a2 : A) (b : B) (f : A⟦a1,a2⟧),
        (f ⊗^{ F}_{r} b) · (α a2 b) = (α a1 b) · (f ⊗^{ G}_{r} b)).
 
-  Lemma full_naturality_condition {A B C : category} {F G : bifunctor A B C} (α : binat_trans_data F G) (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
+  Lemma full_naturality_condition {A B C : category} {F G : bifunctor A B C} {α : binat_trans_data F G} (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
   Proof.
     unfold functoronmorphisms1.
     rewrite assoc'.
@@ -264,12 +264,19 @@ Section WhiskeredBinaturaltransformation.
 
   Definition binat_trans {A B C : category} (F G : bifunctor A B C) : UU :=
     ∑ (α : binat_trans_data F G), is_binat_trans α.
+  Definition binattransdata_from_binattrans {A B C : category} {F G : bifunctor A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
+  (* Something like this is done in Core.NaturalTransformation, but I don't really know what this funclass is,
+     I inserted this to use (α x y) without having to project, it would be good to have some explanation,
+     also I don't understand why making a coercion for binattransdata_from_binattrans is not sufficient
+     since I already have a identity coercion for binat_trans_data. *)
+  Definition binattransdata_from_binattrans_funclass {A B C : category} {F G : bifunctor A B C} (α : binat_trans F G)
+    : ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧ := pr1 α.
+  Coercion binattransdata_from_binattrans_funclass : binat_trans >-> Funclass.
 
   Definition make_binat_trans {A B C : category} {F G : bifunctor A B C} (α : binat_trans_data F G) (H : is_binat_trans α)
     : binat_trans F G := (α,,H).
 
   Definition is_binatiso {A B C : category} {F G : bifunctor A B C} (α : binat_trans F G)
     := ∏ (a : A) (b : B), is_z_isomorphism (pr1 α a b).
-
 
 End WhiskeredBinaturaltransformation.
