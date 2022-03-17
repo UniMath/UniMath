@@ -20,7 +20,7 @@ Section local_helper_lemmas.
     exact pi.
   Qed.
 
-  Lemma iso_stable_under_tranportf {C : category} {x y z : C} {f : C⟦x,y⟧} {pf : y=z} : (is_z_isomorphism f) → (is_z_isomorphism (transportf _ pf f)).
+  Lemma iso_stable_under_transportf {C : category} {x y z : C} {f : C⟦x,y⟧} {pf : y=z} : (is_z_isomorphism f) → (is_z_isomorphism (transportf _ pf f)).
   Proof.
     intro pfi.
     induction pf.
@@ -32,7 +32,7 @@ Section local_helper_lemmas.
   Proof.
     intros p isof.
     use (iso_stable_under_equality p).
-    use (iso_stable_under_tranportf).
+    use (iso_stable_under_transportf).
     exact isof.
   Qed.
 End local_helper_lemmas.
