@@ -13,26 +13,26 @@ Local Open Scope cat.
 Import Notations.
 
 Section local_helper_lemmas.
-  Lemma isos_stable_under_equality {C : category} {x y : C} {f g : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
+  Lemma iso_stable_under_equality {C : category} {x y : C} {f g : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
   Proof.
     intros pe pi.
     induction pe.
     exact pi.
   Qed.
 
-  Lemma isos_stable_under_tranportation {C : category} {x y z : C} {f : C⟦x,y⟧} {pf : y=z} : (is_z_isomorphism f) → (is_z_isomorphism (transportf _ pf f)).
+  Lemma iso_stable_under_tranportf {C : category} {x y z : C} {f : C⟦x,y⟧} {pf : y=z} : (is_z_isomorphism f) → (is_z_isomorphism (transportf _ pf f)).
   Proof.
     intro pfi.
     induction pf.
     use pfi.
   Qed.
 
-  Lemma isos_stable_under_equalitytransportation {C : category} {x y z : C} {f : C⟦x,y⟧} {g : C⟦x,z⟧} {pf : y=z} :
+  Lemma iso_stable_under_equalitytransportf {C : category} {x y z : C} {f : C⟦x,y⟧} {g : C⟦x,z⟧} {pf : y=z} :
     (g = transportf _ pf f) -> (is_z_isomorphism f) -> (is_z_isomorphism g).
   Proof.
     intros p isof.
-    use (isos_stable_under_equality p).
-    use (isos_stable_under_tranportation).
+    use (iso_stable_under_equality p).
+    use (iso_stable_under_tranportf).
     exact isof.
   Qed.
 End local_helper_lemmas.
@@ -121,7 +121,7 @@ Section MonoidalFunctors.
   Lemma strictlytensorpreserving_is_strong {pt : preserves_tensor} (pfstrict : preserves_tensor_strictly pt) : preserves_tensor_strongly pt.
   Proof.
     intros x y.
-    use (isos_stable_under_equalitytransportation (pr2 (pfstrict x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
+    use (iso_stable_under_equalitytransportf (pr2 (pfstrict x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
   Qed.
   Coercion strictlytensorpreserving_is_strong : preserves_tensor_strictly >-> preserves_tensor_strongly.
 
@@ -132,7 +132,7 @@ Section MonoidalFunctors.
 
   Definition strictlyunitpreserving_is_strong {pu : preserves_unit} (pfstrict : preserves_unit_strictly pu) : preserves_unit_strongly pu.
   Proof.
-    use (isos_stable_under_equalitytransportation (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
+    use (iso_stable_under_equalitytransportf (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
   Defined.
   Coercion strictlyunitpreserving_is_strong : preserves_unit_strictly >-> preserves_unit_strongly.
 

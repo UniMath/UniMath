@@ -146,17 +146,17 @@ Section DisplayedBifunctor.
 
 End DisplayedBifunctor.
 
-Module Notations.
+Module DisplayedBifunctorNotations.
   Notation "xx ⊗⊗_{ DF } yy" := (disp_bifunctor_on_objects DF _ _ xx yy) (at level 31).
   Notation "xx ⊗⊗^{ DF }_{l} gg" := (disp_leftwhiskering_on_morphisms DF _ _ _ _ xx _ _ gg) (at level 31).
   Notation "ff ⊗⊗^{ DF }_{r} yy" := (disp_rightwhiskering_on_morphisms DF _ _ _ _ _ _ yy ff) (at level 31).
   Notation "ff ⊗⊗^{ DF } gg" := (dispfunctoronmorphisms1 DF ff gg) (at level 31).
-End Notations.
+End DisplayedBifunctorNotations.
 
 
 Section DisplayedWhiskeredBinaturaltransformation.
 
-  Import Notations.
+  Import DisplayedBifunctorNotations.
 
   Definition disp_binat_trans_data {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} (α : binat_trans_data F G) (DF : disp_bifunctor F DA DB DC) (DG : disp_bifunctor G DA DB DC) : UU :=
     ∏ (x : A) (y : B) (xx : DA x) (yy : DB y), xx ⊗⊗_{DF} yy -->[α x y] xx ⊗⊗_{DG} yy.

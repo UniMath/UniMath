@@ -10,7 +10,6 @@ Local Open Scope cat.
 Import Notations.
 
 (** Data **)
-
 Definition tensor (C : category) : UU :=
   bifunctor C C C.
 Identity Coercion tensorintobifunctor : tensor >-> bifunctor.
@@ -110,8 +109,13 @@ Definition tensorassociator_natleft {C : category} {T : tensor C} {α : associat
 Definition tensorassociator_natright {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat_rightwhisker α := pr1 (pr2 αl).
 Definition tensorassociator_natleftright {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_nat_leftrightwhisker α := pr1 (pr2 (pr2 αl)).
 Definition tensorassociator_iso {C : category} {T : tensor C} {α : associator_data T} (αl : associator_law α) : tensor_assoc_iso α := pr2 (pr2 (pr2 αl)).
+
 Definition leftunitor_iso {C : category} {T : tensor C} {I : C} (lu : leftunitor T I) : UU := is_nat_z_iso lu.
+Identity Coercion leftunitorisointozisos: leftunitor_iso >-> is_nat_z_iso.
+
 Definition rightunitor_iso {C : category} {T : tensor C} {I : C} (ru : rightunitor T I) : UU := is_nat_z_iso ru.
+Identity Coercion rightunitorisointozisos: rightunitor_iso >-> is_nat_z_iso.
+
 Definition triangle_identity {C : category}
            {T : tensor C}
            {I : C}
