@@ -1015,7 +1015,13 @@ Proof.
   use make_weq.
   - exact (λ HD c₁ c₂ cc₁ f,
            let ℓ := HD c₁ c₂ f cc₁ in
-           pr1 ℓ ,, pr12 ℓ ,, is_cartesian_weq_is_opcartesian _ ℓ).
+(* TODO: see #1470 *)
+           tpair
+             (fun cc₂ => total2 (fun ff => @is_opcartesian _ _ _ _ _ cc₁ cc₂ ff))
+             (pr1 ℓ)
+             (tpair
+                (@is_opcartesian _ _ _ _ _ cc₁ ℓ) (pr12 ℓ)
+                (pr1weq (is_cartesian_weq_is_opcartesian ℓ) ℓ))).
   - use gradth.
     + refine (λ HD c₁ c₂ cc₁ f,
               let ℓ := HD c₁ c₂ f cc₁ in
@@ -1033,7 +1039,15 @@ Proof.
   use make_weq.
   - exact (λ HD c₁ c₂ cc₁ f,
            let ℓ := HD c₁ c₂ f cc₁ in
-           pr1 ℓ ,, pr12 ℓ ,, is_opcartesian_weq_is_cartesian _ (pr22 ℓ)).
+(* TODO: see #1470 *)
+           tpair
+             (fun d' => total2 (fun ff => @is_cartesian _ _ _ _ _ f d' ff))
+             (pr1 ℓ)
+             (tpair
+                (@is_cartesian _ _ _ _ _ f (pr1 ℓ)) (pr12 ℓ)
+                (pr1weq
+                   (@is_opcartesian_weq_is_cartesian _ D _ _ _ _ _ (pr12 ℓ))
+                   (pr22 ℓ)))).
   - use gradth.
     + refine (λ HD c₁ c₂ cc₁ f,
               let ℓ := HD c₁ c₂ f cc₁ in
