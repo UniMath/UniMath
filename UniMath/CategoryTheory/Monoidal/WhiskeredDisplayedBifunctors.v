@@ -272,10 +272,16 @@ Section DisplayedWhiskeredBinaturaltransformation.
 
   Definition make_disp_binat_trans {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} {α : binat_trans F G} {DF : disp_bifunctor F DA DB DC} {DG : disp_bifunctor G DA DB DC} (dα : disp_binat_trans_data α DF DG) (H : is_disp_binat_trans dα) : disp_binat_trans α DF DG := (dα,,H).
 
-  Check is_iso_disp.
+  (* is_iso_disp is defined using iso instead of z_iso *)
+  Definition is_z_iso_disp {C : precategory} {D : disp_cat_data C}
+             {x y : C} (f : z_iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
+    : UU
+    := ∑ (gg : yy -->[inv_from_z_iso f] xx),
+      gg ;; ff = transportb _ (z_iso_after_z_iso_inv _) (id_disp _)
+                            × ff ;; gg = transportb _ (z_iso_inv_after_z_iso _) (id_disp _).
 
-  Definition is_dispbinatiso {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} {α : binat_trans F G} (αiso : is_binatiso α) {DF : disp_bifunctor F DA DB DC} {DG : disp_bifunctor G DA DB DC} (dα : disp_binat_trans α DF DG)
-    := ∏ (x : A) (y : B) (xx : DA x) (yy : DB y), is_iso_disp (z_iso_to_iso ((α x y ),,(αiso x y ))) (pr1 dα x y xx yy).
+
+  Definition is_dispbinatiso {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} {α : binat_trans F G} (αiso : is_binatiso α) {DF : disp_bifunctor F DA DB DC} {DG : disp_bifunctor G DA DB DC} (dα : disp_binat_trans α DF DG) := ∏ (x : A) (y : B) (xx : DA x) (yy : DB y), (is_z_iso_disp (α x y ,, αiso x y) (pr1 dα x y xx yy)).
 
 
 End DisplayedWhiskeredBinaturaltransformation.

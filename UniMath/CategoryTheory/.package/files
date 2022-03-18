@@ -214,6 +214,7 @@ Monoidal/MonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
+Monoidal/TotalDisplayedMonoidalWhiskered.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v

@@ -86,8 +86,8 @@ Section DisplayedMonoidalCategories.
   Admitted.
 
   Definition disp_tensor_assoc_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : UU :=
-    ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z), is_iso_disp
-        (z_iso_to_iso ((α^{M}_{x,y,z}),,(tensorassociator_iso (moncat_associator M) x y z))) (dα _ _ _ xx yy zz).
+    ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z), is_z_iso_disp
+        ((α^{M}_{x,y,z}),,(tensorassociator_iso (moncat_associator M) x y z)) (dα _ _ _ xx yy zz).
 
   Definition disp_assoc_law  {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : UU :=
   (disp_tensor_assoc_nat_leftwhisker dα) × (disp_tensor_assoc_nat_rightwhisker dα) × (disp_tensor_assoc_nat_leftrightwhisker dα) × (disp_tensor_assoc_iso dα).
@@ -97,7 +97,7 @@ Section DisplayedMonoidalCategories.
   Definition disp_tensorassoc_natleftright {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {dα : disp_associator_data DT} (dαl : disp_assoc_law dα) : disp_tensor_assoc_nat_leftrightwhisker dα := pr1 (pr2 (pr2 dαl)).
   Definition disp_tensorassoc_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {dα : disp_associator_data DT} (dαl : disp_assoc_law dα) : disp_tensor_assoc_iso dα := pr2 (pr2 (pr2 dαl)).
 
-  Definition is_dispnatiso {C D : category} {CC: disp_cat C} {DD : disp_cat D} {F G : functor C D} {α : nat_trans F G} (αiso : is_nat_z_iso α) { FF : disp_functor F CC DD } {GG : disp_functor G CC DD} (αα : disp_nat_trans α FF GG) : UU                                                    := ∏ (x : C) (xx : CC x), is_iso_disp (z_iso_to_iso (α x,,αiso x)) (αα x xx).
+  Definition is_dispnatiso {C D : category} {CC: disp_cat C} {DD : disp_cat D} {F G : functor C D} {α : nat_trans F G} (αiso : is_nat_z_iso α) { FF : disp_functor F CC DD } {GG : disp_functor G CC DD} (αα : disp_nat_trans α FF GG) : UU                                                    := ∏ (x : C) (xx : CC x), is_z_iso_disp (α x,,αiso x) (αα x xx).
 
   Definition disp_leftunitor_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} (DT : disp_tensor D M) (i : D I_{M}) (dlu : disp_leftunitor DT i) : UU := is_dispnatiso (moncat_leftunitoriso M) dlu.
 
