@@ -28,7 +28,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.GeneralPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 
@@ -100,26 +99,29 @@ Proof.
       apply homsets_disp.
     + apply (cartesian_factorisation_unique cartff').
       apply (cartesian_factorisation_unique cartff).
-      eapply pathscomp_ternary.
+      eapply pathscomp0.
       * apply assoc_disp_var.
-      * apply maponpaths.
-        apply (pathscomp0 commbig0).
-        apply pathsinv0.
-        exact commgg1.
-      * apply pathsinv0. apply assoc_disp_var.
+      * eapply pathscomp0.
+        -- apply maponpaths.
+           apply (pathscomp0 commbig0).
+           apply pathsinv0.
+           exact commgg1.
+        -- apply pathsinv0.
+           apply assoc_disp_var.
   - use tpair.
     + apply (cartesian_factorisation cartff').
       apply (cartesian_factorisation cartff).
       apply (transportb _ (! assoc _ _ _)).
       exact hh.
-    + eapply pathscomp_ternary.
+    + eapply pathscomp0.
       * apply assoc_disp.
-      * apply maponpaths.
-        eapply pathscomp0.
-        -- eapply (maponpaths (λ gg, gg ;; ff)).
-           apply cartesian_factorisation_commutes.
-        -- apply cartesian_factorisation_commutes'.
-      * apply transportfbinv.
+      * eapply pathscomp0.
+        --apply maponpaths.
+          eapply pathscomp0.
+          ++ eapply (maponpaths (λ gg, gg ;; ff)).
+             apply cartesian_factorisation_commutes.
+          ++ apply cartesian_factorisation_commutes'.
+        -- apply transportfbinv.
 Defined.
 
 
@@ -141,26 +143,29 @@ Proof.
       apply homsets_disp.
     + apply (pre'cartesian_factorisation_unique pre'cartff').
       apply (cartesian_factorisation_unique cartff).
-      eapply pathscomp_ternary.
-      3: { apply pathsinv0. apply assoc_disp_var. }
-      * apply assoc_disp_var.
-      * apply maponpaths.
-        apply (pathscomp0 commbig0).
-        apply pathsinv0.
-        exact commbig1.
+      eapply pathscomp0.
+      2: { apply pathsinv0.
+        apply assoc_disp_var. }
+      * eapply pathscomp0.
+        -- apply assoc_disp_var.
+        -- apply maponpaths.
+           apply (pathscomp0 commbig0).
+           apply pathsinv0.
+           exact commbig1.
   - use tpair.
     + apply (pre'cartesian_factorisation pre'cartff').
       apply (cartesian_factorisation cartff).
       apply (transportb _ (! assoc _ _ _)).
       exact hh.
-    + eapply pathscomp_ternary.
-        3: { apply (transportfbinv _ (! assoc _ _ _) _). }
-        * apply assoc_disp.
-        * apply maponpaths.
+    + eapply pathscomp0.
+      2: { apply (transportfbinv _ (! assoc _ _ _)). }
+      * eapply pathscomp0.
+        -- apply assoc_disp.
+        -- apply maponpaths.
            eapply pathscomp0.
-           -- eapply (maponpaths (λ gg, gg ;; ff)).
+           ++ eapply (maponpaths (λ gg, gg ;; ff)).
               apply pre'cartesian_factorisation_commutes.
-           -- apply cartesian_factorisation_commutes'.
+           ++ apply cartesian_factorisation_commutes'.
 Defined.
 
 
@@ -181,23 +186,25 @@ Proof.
     + intro ggtemp.
       apply homsets_disp.
     + apply (cartesian_factorisation_unique cartff'ff).
-      eapply pathscomp_ternary.
-      3: { apply pathsinv0.
+      eapply pathscomp0.
+      2: { apply pathsinv0.
         apply assoc_disp. }
-      * apply assoc_disp.
-      * apply maponpaths.
-        eapply (maponpaths ((λ gg, gg ;; ff))).
-        exact (commbig0 @ ! commbig1).
+      * eapply pathscomp0.
+        -- apply assoc_disp.
+        -- apply maponpaths.
+           eapply (maponpaths ((λ gg, gg ;; ff))).
+           exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (cartesian_factorisation cartff'ff).
       apply (transportb _ (assoc _ _ _)).
       exact (gg ;; ff).
     + apply (cartesian_factorisation_unique cartff).
-      eapply pathscomp_ternary.
-      3: { apply transportfbinv. }
-      * apply assoc_disp_var.
-      * apply maponpaths.
-        apply cartesian_factorisation_commutes.
+      eapply pathscomp0.
+      2: { apply transportfbinv. }
+      * eapply pathscomp0.
+        -- apply assoc_disp_var.
+        -- apply maponpaths.
+           apply cartesian_factorisation_commutes.
 Defined.
 
 
@@ -218,23 +225,25 @@ Proof.
     + intro ggtemp.
       apply homsets_disp.
     + apply (pre'cartesian_factorisation_unique pre'cartff'ff).
-      eapply pathscomp_ternary.
-      3: { apply pathsinv0.
+      eapply pathscomp0.
+      2: { apply pathsinv0.
         apply assoc_disp. }
-      * apply assoc_disp.
-      * apply maponpaths.
-        eapply (maponpaths ((λ gg, gg ;; ff))).
-        exact (commbig0 @ ! commbig1).
+      * eapply pathscomp0.
+        -- apply assoc_disp.
+        -- apply maponpaths.
+           eapply (maponpaths ((λ gg, gg ;; ff))).
+           exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (pre'cartesian_factorisation pre'cartff'ff).
       apply (transportb _ (assoc _ _ _)).
       exact (gg ;; ff).
     + apply (cartesian_factorisation_unique cartff).
-      eapply pathscomp_ternary.
-      3: { apply transportfbinv. }
-      * apply assoc_disp_var.
-      * apply maponpaths.
-        apply pre'cartesian_factorisation_commutes.
+      eapply pathscomp0.
+      2: { apply transportfbinv. }
+      * eapply pathscomp0.
+        -- apply assoc_disp_var.
+        -- apply maponpaths.
+           apply pre'cartesian_factorisation_commutes.
 Defined.
 
 

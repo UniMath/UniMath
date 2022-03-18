@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.GeneralPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.CartesiannessOfComposites.
@@ -180,7 +179,7 @@ Proof.
   eapply pathscomp0.
   - apply functor_comp.
   - eapply pathscomp0.
-    2: { apply pathsinv0. apply (transp_pres_comp' H_ob H'_ob H''_ob).}
+    2: { apply pathsinv0. apply (transp_pres_comp' H_ob H'_ob H''_ob). }
     + eapply pathscomp0.
       * exact (maponpaths (λ mor, mor · ((# F)%Cat g')) H_mor).
       * exact (maponpaths (λ mor, (transportf_mor H_ob H'_ob f) · mor) H'_mor).

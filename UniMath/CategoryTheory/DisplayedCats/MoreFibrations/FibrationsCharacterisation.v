@@ -25,7 +25,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.GeneralPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.CartesiannessOfComposites.
@@ -66,12 +65,13 @@ Definition assoc_eq {C} {D : disp_precat C}
   : ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh') -> (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh'.
 Proof.
   intro H.
-  eapply pathscomp_ternary.
+  eapply pathscomp0.
   - apply assoc_disp_var.
-  - apply maponpaths.
-    exact H.
-  - apply pathsinv0.
-    apply assoc_disp_var.
+  - eapply pathscomp0.
+    + apply maponpaths.
+      exact H.
+    + apply pathsinv0.
+      apply assoc_disp_var.
 Qed.
 
 Definition assoc_eq_var {C} {D : disp_precat C}
@@ -80,12 +80,13 @@ Definition assoc_eq_var {C} {D : disp_precat C}
   : (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh' -> ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh').
 Proof.
   intro H.
-  eapply pathscomp_ternary.
+  eapply pathscomp0.
   - apply assoc_disp.
-  - apply maponpaths.
-    exact H.
-  - apply pathsinv0.
-    apply assoc_disp.
+  - eapply pathscomp0.
+    + apply maponpaths.
+      exact H.
+    + apply pathsinv0.
+      apply assoc_disp.
 Qed.
 
 Definition eq_postwhisker {C} {D : disp_precat C}
