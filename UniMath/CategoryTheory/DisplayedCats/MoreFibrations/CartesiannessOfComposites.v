@@ -51,7 +51,7 @@ Proof.
   eapply pathscomp0.
   - apply assoc_disp.
   - eapply pathscomp0.
-    2: { apply transport_cancel_b_f. }
+    2: { apply transportbfinv. }
     + apply maponpaths.
       eapply pathscomp0.
       2: { exact comm_right. }
@@ -119,7 +119,7 @@ Proof.
         -- eapply (maponpaths (λ gg, gg ;; ff)).
            apply cartesian_factorisation_commutes.
         -- apply cartesian_factorisation_commutes'.
-      * apply transport_cancel_f_b.
+      * apply transportfbinv.
 Defined.
 
 
@@ -154,7 +154,7 @@ Proof.
       apply (transportb _ (! assoc _ _ _)).
       exact hh.
     + eapply pathscomp_ternary.
-        3: { apply (transport_cancel_f_b _ (! assoc _ _ _) _). }
+        3: { apply (transportfbinv _ (! assoc _ _ _) _). }
         * apply assoc_disp.
         * apply maponpaths.
            eapply pathscomp0.
@@ -194,7 +194,7 @@ Proof.
       exact (gg ;; ff).
     + apply (cartesian_factorisation_unique cartff).
       eapply pathscomp_ternary.
-      3: { apply transport_cancel_f_b. }
+      3: { apply transportfbinv. }
       * apply assoc_disp_var.
       * apply maponpaths.
         apply cartesian_factorisation_commutes.
@@ -231,7 +231,7 @@ Proof.
       exact (gg ;; ff).
     + apply (cartesian_factorisation_unique cartff).
       eapply pathscomp_ternary.
-      3: { apply transport_cancel_f_b. }
+      3: { apply transportfbinv. }
       * apply assoc_disp_var.
       * apply maponpaths.
         apply pre'cartesian_factorisation_commutes.

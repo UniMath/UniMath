@@ -65,7 +65,7 @@ Definition pre_implies_pre'
   : is_precartesian ff -> is_pre'cartesian ff.
 Proof.
   intros H d'' hh.
-  induction (transport_cancel_b_f _ (id_left _) hh).
+  induction (transportbfinv _ (id_left _) hh).
   apply H.
 Defined.
 
@@ -106,7 +106,7 @@ Definition precartesian_factorisation_of_composite
     {d'' : D c'} (gg : d'' -->[identity c'] d')
   : gg = precartesian_factorisation H (transportf _ (id_left _) (gg ;; ff)).
 Proof.
-  exact (maponpaths pr1 ((pr2 (H _ _)) (_,, ! ((transport_cancel_b_f _ _ _))))).
+  exact (maponpaths pr1 ((pr2 (H _ _)) (_,, ! ((transportbfinv _ _ _))))).
 Defined.
 
 Definition pre'cartesian_factorisation_of_composite
@@ -168,11 +168,7 @@ Definition isaprop_is_pre'cartesian
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : isaprop (is_pre'cartesian ff).
 Proof.
-  (*repeat (apply impred_isaprop; intro).*)
-  apply impred_isaprop.
-  intro d''.
-  apply impred_isaprop.
-  intro ff'.
+  repeat (apply impred_isaprop; intro).
   apply isapropiscontr.
 Defined.
 

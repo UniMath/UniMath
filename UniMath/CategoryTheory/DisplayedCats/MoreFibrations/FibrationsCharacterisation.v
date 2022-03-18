@@ -127,7 +127,6 @@ Proof.
     + apply (transportb_cancel _ (id_left _) gg0 gg1).
       eapply pathscomp0.
       * apply pathsinv0.
-        (*eapply precartesian_factorisation_commutes. Unshelve.*)
         use precartesian_factorisation_commutes.
         3: { use precartesian_lift_is_precartesian. apply lift. }
       * eapply pathscomp0.
