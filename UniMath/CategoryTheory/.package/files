@@ -80,6 +80,7 @@ limits/Opp.v
 
 IsoCommaCategory.v
 CommaCategories.v
+Elements.v
 
 SubobjectClassifier.v
 NNO.v
@@ -128,7 +129,6 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 LatticeObject.v
-Elements.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
