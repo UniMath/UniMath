@@ -80,7 +80,6 @@ limits/Opp.v
 
 IsoCommaCategory.v
 CommaCategories.v
-Elements.v
 
 SubobjectClassifier.v
 NNO.v
@@ -205,6 +204,8 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+
+Elements.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
