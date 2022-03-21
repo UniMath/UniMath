@@ -168,104 +168,60 @@ Section DisplayedWhiskeredBinaturaltransformation.
       ((xx ⊗⊗^{DF}_{l} gg) ;; (dα _ _ xx yy2) = transportb _ (pr1 (pr2 α) x y1 y2 _) ((dα _ _ xx yy1) ;; (xx ⊗⊗^{DG}_{l} gg)))) ×                                                                                                                                            (∏ (x1 x2 : A) (y : B) (f : A⟦x1,x2⟧) (xx1 : DA x1) (xx2 : DA x2) (yy : DB y) (ff : xx1 -->[f] xx2),
     ((ff ⊗⊗^{DF}_{r} yy) ;; (dα _ _ xx2 yy) = transportb _ (pr2 (pr2 α) x1 x2 y _) ((dα _ _ xx1 yy) ;; (ff ⊗⊗^{DG}_{r} yy))) ).
 
-  (* The following lemma is something we should, but I'm really stuck trying to prove because transportations jump in everywhere everytime I want to do something.. *)
+
+
+  Lemma mor_disp_transportb_prewhisker
+    {C : precategory} {D : disp_cat_data C}
+    {x y z : C} {f : x --> y} {g g' : y --> z} (eg : g = g')
+    {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg' : yy -->[g'] zz)
+  : ff ;; (transportb _ eg gg') =  transportb _ (maponpaths (compose f) (eg)) (ff ;; gg').
+  Proof.
+      destruct eg; apply idpath.
+  Qed.
+
+  Lemma mor_disp_transportb_postwhisker
+    {C : precategory} {D : disp_cat_data C}
+    {x y z : C} {f f' : x --> y} {g : y --> z} (ef : f' = f)
+    {xx : D x} {yy} {zz} (ff' : xx -->[f] yy) (gg : yy -->[g] zz)
+    : (transportb _ ef ff') ;; gg = transportb _ (cancel_postcomposition _ _ g ef) (ff' ;; gg).
+  Proof.
+    destruct ef ; apply idpath.
+  Qed.
+
   Lemma full_disp_naturality_condition {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} {α : binat_trans F G} {DF : disp_bifunctor F DA DB DC} {DG : disp_bifunctor G DA DB DC} {dα : disp_binat_trans_data α DF DG} (dαn : is_disp_binat_trans dα) (x1 x2 : A) (y1 y2 : B) (f : A⟦x1,x2⟧) (g : B⟦y1,y2⟧) (xx1 : DA x1) (xx2 : DA x2) (yy1 : DB y1) (yy2 : DB y2) (ff : xx1 -->[f] xx2) (gg : yy1 -->[g] yy2) :
     (ff ⊗⊗^{DF} gg) ;; (dα _ _ xx2 yy2) = transportb _ (full_naturality_condition (pr2 α) f g) ((dα _ _ xx1 yy1) ;; (ff ⊗⊗^{DG} gg)).
   Proof.
     unfold dispfunctoronmorphisms1.
-
-    (*
-    etrans.
-    {
-      apply (assoc_disp_var ( ff ⊗⊗^{ DF}_{r} yy1) ( xx2 ⊗⊗^{ DF}_{l} gg) ( dα x2 y2 xx2 yy2)).
-    }
-    rewrite (pr1 dαn).
-    apply transportb_transpose_right.
-    apply pathsinv0.
     etrans. {
-      apply assoc_disp.
+      apply assoc_disp_var.
     }
-    apply transportb_transpose_left.
-
-
-
-    assert (pf: dα x1 y1 xx1 yy1 ;; ff ⊗⊗^{ DG}_{r} yy1 ;; xx2 ⊗⊗^{ DG}_{l} gg = ( transportb _ (! (pr22 α) x1 x2 y1 f) (ff ⊗⊗^{ DF}_{r} yy1 ;; dα x2 y1 xx2 yy1)) ;; xx2 ⊗⊗^{ DG}_{l} gg).
-    {
-      rewrite (pathsinv0 (transportb_transpose_left (pr2 dαn x1 x2 y1  f xx1 xx2 yy1 ff))).
-      apply idpath.
-    }
-    etrans. { apply pf. }
-    Search (transportf _ _ (transportf _ _ _)).
-    rewrite transport_f_f.
-    rewrite transport_f_f.
-
-
-
-    etrans. {
-
-      apply (cancel_precomposition_disp (pr2 dα x1 x2 y1)).
-
-
-
-    }
-
-    etrans. { apply transport_b_b. }
-    (* Remains to show: transportb _ p1 (dα x1 y1 xx1 yy1 ;;  (ff ⊗⊗^{ DG}_{r} yy1 ;; xx2 ⊗⊗^{ DG}_{l} gg))
-                           =
-                ff ⊗⊗^{ DF}_{r} yy1 ;; transportb _ p2 (dα x2 y1 xx2 yy1 ;; xx2 ⊗⊗^{ DG}_{l} gg)
-       for some p1 ̸= p2
-     *)
-
-    apply transportb_transpose_left.
-    etrans.
-    {
-      apply assoc_disp.
-    }
-    etrans.
-    {
-      Check (pr2 dαn x1 x2 y1 f xx1 xx2 yy1 ff).
-      rewrite (pr1 dαn x2 y1 y2 g xx2 yy1 yy2 gg).
-
-
-
+    apply transportf_transpose_left.
     rewrite transport_b_b.
-    Search (_ ;; transportb _ _ _).
+    rewrite (pr1 dαn).
+    rewrite mor_disp_transportb_prewhisker.
 
-
-    apply pathsinv0.
-    rewrite (pathsinv0 (pr1 dαn _ _ _ _ _ _ _ _)).
-    apply transportf_transpose_right.
-    apply pathsinv0.
-    etrans.
-    {
-      rewrite (pr1 dαn x2 y1 y2 g xx2 yy1 yy2 gg).
-      apply idpath.
+    apply transportb_transpose_left.
+    etrans. {
+      apply assoc_disp.
     }
-
-
-
-    apply pathsinv0.
-    (* rewrite transport_f_f. *)
-    Search (transportf _ _ _ = _ -> _ transportb _ _ _).
-
-    Search (_ ;; transportf _ _ _).
-
-    Check (transport_b_b _ (pr2 dαn _ _ _ _ _ _ _ _) _).
-
-    Check ((pr1 dαn) x1 x2 y1 y _ xx1 yy1 yy2 gg).
-
-    rewrite ((pr1 dαn) x2 y1 y2 g xx2 yy1 yy2 gg).
-
-    rewrite mor_disp_transportf_postwhisker.
-
-
-    rewrite assoc.
-    rewrite ((pr2 αn) a1 a2 b1 f).
-    rewrite assoc.
-    apply idpath.
-  Qed. *)
-  Abort.
-
+    rewrite (pr2 dαn).
+    (* etrans. { rewrite transport_b_b. *)
+    apply transportb_transpose_left.
+    rewrite transport_f_f.
+    rewrite transport_f_b.
+    use pathsinv0.
+    apply transportf_transpose_left.
+    etrans. { apply assoc_disp. }
+    apply transportb_transpose_left.
+    rewrite transport_f_b.
+    apply transportf_transpose_right.
+    rewrite mor_disp_transportb_postwhisker.
+    apply transportb_transpose_left.
+    rewrite transport_f_b.
+    use pathsinv0.
+    apply transportf_set.
+    apply homset_property.
+  Qed.
 
   Definition disp_binat_trans {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} (α : binat_trans F G) (DF : disp_bifunctor F DA DB DC) (DG : disp_bifunctor G DA DB DC) : UU :=
     ∑ (dα : disp_binat_trans_data α DF DG), is_disp_binat_trans dα.
