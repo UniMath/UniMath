@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -83,7 +84,91 @@ Section DisplayedMonoidalCategories.
   Proof.
     intros.
     unfold dispfunctoronmorphisms1.
-  Admitted.
+    etrans. {
+      apply assoc_disp.
+    }
+    rewrite dtr.
+    rewrite mor_disp_transportb_postwhisker.
+    rewrite transport_b_b.
+    apply transportb_transpose_left.
+
+
+    etrans.
+    {
+      (* rewrite (disp_bifunctor_leftcomp DT _ _ _ _ _ _ xx2 _ _ _ (gg ⊗⊗^{ DT}_{r} zz1) (yy2 ⊗⊗^{ DT}_{l} hh)).
+      rewrite dtlr. *)
+      apply assoc_disp_var.
+    }
+    rewrite transport_f_b.
+    apply transportf_transpose_left.
+    rewrite transport_b_f.
+
+    etrans. {
+      apply maponpaths_1.
+      apply maponpaths_1.
+      apply disp_bifunctor_leftcomp.
+    }
+    rewrite mor_disp_transportb_prewhisker.
+    rewrite mor_disp_transportb_prewhisker.
+    apply transportb_transpose_left.
+
+    etrans. {
+      apply maponpaths_1.
+      rewrite assoc_disp.
+      rewrite dtlr.
+      rewrite mor_disp_transportb_postwhisker.
+      apply transport_b_b.
+    }
+    rewrite mor_disp_transportb_prewhisker.
+    apply transportf_transpose_left.
+
+    etrans.
+    {
+      apply maponpaths_1.
+      rewrite assoc_disp_var.
+      apply maponpaths_1.
+      apply maponpaths_1.
+      apply dtl.
+    }
+
+    rewrite mor_disp_transportb_prewhisker.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportb_prewhisker.
+    rewrite transport_f_b.
+    apply transportf_transpose_left.
+    rewrite transport_b_b.
+    rewrite transport_f_f.
+    rewrite transport_b_f.
+
+    use pathsinv0.
+    apply transportf_transpose_left.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths_2.
+      apply disp_bifunctor_rightcomp.
+    }
+
+    rewrite mor_disp_transportb_postwhisker.
+    rewrite mor_disp_transportb_postwhisker.
+    apply transportb_transpose_left.
+    rewrite transport_f_b.
+    (* Now the goals are equal up to associativity. *)
+    etrans. { apply assoc_disp_var. }
+    apply transportf_transpose_left.
+    rewrite transport_b_f.
+    use pathsinv0.
+    apply transportf_transpose_left.
+    etrans. { apply assoc_disp. }
+    apply transportb_transpose_left.
+    rewrite transport_f_b.
+
+    (* Now they are equal   *)
+    use pathsinv0.
+     apply transportf_set.
+    apply homset_property.
+  Qed.
+
 
   Definition disp_tensor_assoc_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : UU :=
     ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z), is_z_iso_disp
