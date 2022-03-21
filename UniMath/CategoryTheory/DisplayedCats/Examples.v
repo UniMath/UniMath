@@ -250,6 +250,69 @@ Definition elements_universal : disp_cat HSET
 Definition disp_cat_of_elements {C : category} (P : functor C HSET)
   := reindex_disp_cat P elements_universal.
 
+Definition elements_universal_mor_eq
+           {X Y : HSET}
+           {f : X --> Y}
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (ff₁ ff₂ : x -->[ f ] y)
+  : ff₁ = ff₂.
+Proof.
+  apply Y.
+Qed.
+
+Definition is_iso_disp_elements_universal
+           {X Y : HSET}
+           {f : X --> Y}
+           (Hf : is_iso f)
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (ff : x -->[ f ] y)
+  : is_iso_disp (make_iso _ Hf) ff.
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - pose (eqtohomot (iso_inv_after_iso (make_iso f Hf)) x) as p.
+    cbn in *.
+    refine (_ @ p).
+    apply maponpaths.
+    exact (!ff).
+  - apply elements_universal_mor_eq.
+  - apply elements_universal_mor_eq.
+Qed.
+
+Definition is_opcartesian_disp_elements_universal
+           {X Y : HSET}
+           {f : X --> Y}
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (p : x -->[ f ] y)
+  : is_opcartesian p.
+Proof.
+  intros Z z g q.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply elements_universal.
+    }
+    apply elements_universal_mor_eq.
+  - simple refine (_ ,, _).
+    + exact (maponpaths g (!p) @ q).
+    + apply elements_universal_mor_eq.
+Qed.
+
+Definition opcleaving_elements_universal
+  : opcleaving elements_universal.
+Proof.
+  intros X Y x f.
+  simple refine (_ ,, _).
+  - exact (f x).
+  - refine (idpath _ ,, _) ; cbn.
+    apply is_opcartesian_disp_elements_universal.
+Defined.
+
 (* TODO: compare to other definitions of this in the library! *)
 Definition precat_of_elements {C : category} (P : functor C HSET)
   := total_category (disp_cat_of_elements P).

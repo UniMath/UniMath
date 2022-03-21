@@ -191,4 +191,7 @@ DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 ComprehensionBicat.v
 
-DualityInvolution.v
+OtherStructure/DualityInvolution.v
+OtherStructure/ClassifyingDiscreteOpfib.v
+OtherStructure/Examples/StructureBicatOfUnivCats.v
+OtherStructure/Examples/StructureOneTypes.v

@@ -824,8 +824,8 @@ Definition discrete_sfib_disp_map_bicat
        (discrete_disp_map_bicat B).
 
 Definition discrete_sfib_disp_map_bicat_in_discrete
-           (B : bicat_with_pb)
-  : contained_in_discrete (discrete_sfib_disp_map_bicat B).
+           (B : bicat)
+  : contained_in_discrete (discrete_sfib_subbicat B).
 Proof.
   intros x y f Hf.
   exact (pr2 Hf).
@@ -839,8 +839,8 @@ Definition discrete_sopfib_disp_map_bicat
        (discrete_disp_map_bicat B).
 
 Definition discrete_sopfib_disp_map_bicat_in_discrete
-           (B : bicat_with_pb)
-  : contained_in_discrete (discrete_sopfib_disp_map_bicat B).
+           (B : bicat)
+  : contained_in_discrete (discrete_sopfib_subbicat B).
 Proof.
   intros x y f Hf.
   exact (pr2 Hf).
