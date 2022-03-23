@@ -1,3 +1,4 @@
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -227,17 +228,17 @@ Section Bifunctor.
 
 End Bifunctor.
 
-Module Notations.
+Module BifunctorNotations.
   Notation "a ⊗_{ F } b" := (bifunctor_on_objects F a b) (at level 31).
   Notation "a ⊗^{ F }_{l} g" := (leftwhiskering_on_morphisms F a _ _ g) (at level 31).
   Notation "f ⊗^{ F }_{r} b" := (rightwhiskering_on_morphisms F b _ _ f) (at level 31).
   Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
-End Notations.
+End BifunctorNotations.
 
 
 Section WhiskeredBinaturaltransformation.
 
-  Import Notations.
+  Import BifunctorNotations.
 
   Definition binat_trans_data {A B C : category} (F G : bifunctor A B C) : UU :=
     ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧.

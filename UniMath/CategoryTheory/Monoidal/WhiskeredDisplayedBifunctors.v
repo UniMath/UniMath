@@ -13,7 +13,7 @@ Open Scope mor_disp_scope.
 
 Section DisplayedBifunctor.
 
-  Import Notations.
+  Import BifunctorNotations.
 
   Definition disp_bifunctor_data {A B C : category} (F : bifunctor A B C) (DA : disp_cat A) (DB : disp_cat B) (DC : disp_cat C)
     := ∑ (Fob : ∏ (x : A) (y : B), DA x -> DB y -> DC (x ⊗_{F} y)),
@@ -192,20 +192,15 @@ Section DisplayedWhiskeredBinaturaltransformation.
     (ff ⊗⊗^{DF} gg) ;; (dα _ _ xx2 yy2) = transportb _ (full_naturality_condition (pr2 α) f g) ((dα _ _ xx1 yy1) ;; (ff ⊗⊗^{DG} gg)).
   Proof.
     unfold dispfunctoronmorphisms1.
-    etrans. {
-      apply assoc_disp_var.
-    }
+    etrans. { apply assoc_disp_var. }
     apply transportf_transpose_left.
     rewrite transport_b_b.
     rewrite (pr1 dαn).
     rewrite mor_disp_transportb_prewhisker.
 
     apply transportb_transpose_left.
-    etrans. {
-      apply assoc_disp.
-    }
+    etrans. { apply assoc_disp. }
     rewrite (pr2 dαn).
-    (* etrans. { rewrite transport_b_b. *)
     apply transportb_transpose_left.
     rewrite transport_f_f.
     rewrite transport_f_b.

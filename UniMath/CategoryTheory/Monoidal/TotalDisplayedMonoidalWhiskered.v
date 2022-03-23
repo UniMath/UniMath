@@ -18,10 +18,16 @@ Local Open Scope mor_disp_scope.
 
 Section MonoidalTotalCategory.
 
-  Import Notations.
+  Import BifunctorNotations.
+  Import MonoidalCategoryNotations.
   Import DisplayedBifunctorNotations.
+  Import DisplayedMonoidalCategoryNotations.
 
-  Notation "T( D )" := (total_category D).
+  (* Variable C : category.
+  Variable D : disp_cat C.
+  Variable M : monoidalcategory C. *)
+
+  Local Notation "T( D )" := (total_category D).
 
   (** DATA **)
   Definition totalcategory_tensor_data {C : category} {D : disp_cat C} {M : monoidalcategory C} (DT : disp_tensor D M) : bifunctor_data T(D) T(D) T(D).
@@ -83,49 +89,37 @@ Section MonoidalTotalCategory.
   Proof.
     intros x y z.
     use tpair.
-    + exact ((associatordata_from_monoidalcatdata M) (pr1 x) (pr1 y) (pr1 z)).
-    + exact (dα (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
+    - exact ((associatordata_from_monoidalcatdata M) (pr1 x) (pr1 y) (pr1 z)).
+    - exact (dα (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
   Defined.
   Notation Tα := totalcategory_associatordata.
 
   Definition totalcategory_unit {C : category} {D : disp_cat C} {M : monoidalcategory C} (DT : disp_tensor D M) (i : D (unit_from_monoidalcatdata M)): T(D) := (unit_from_monoidalcatdata M,,i).
   Notation Tu := totalcategory_unit.
 
-  Definition totalcategory_leftunitor {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {i : D (unit_from_monoidalcatdata M)} (dlu : disp_leftunitor DT i) : leftunitor (Tt DT) (Tu DT i).
+  Definition totalcategory_leftunitordata {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {i : D (unit_from_monoidalcatdata M)} (dlu : disp_leftunitor_data DT i) : leftunitor_data (Tt DT) (Tu DT i).
   Proof.
-    use make_nat_trans.
-    - intro x.
-      use tpair.
-      + exact ((leftunitor_from_monoidalcatdata M) (pr1 x)).
-      + exact ((pr1 dlu) (pr1 x) (pr2 x)).
-    - intros x y f.
-      use total2_paths_b.
-      + exact ((pr2 (leftunitor_from_monoidalcatdata M)) (pr1 x) (pr1 y) (pr1 f)).
-      + exact ((pr2 dlu) (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+    intro x.
+    use tpair.
+    - exact ((leftunitordata_from_monoidalcatdata M) (pr1 x)).
+    - exact (dlu (pr1 x) (pr2 x)).
   Defined.
-  Notation Tlu := totalcategory_leftunitor.
 
-  Definition totalcategory_rightunitor {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {i : D (unit_from_monoidalcatdata M)} (dru : disp_rightunitor DT i) : rightunitor (Tt DT) (Tu DT i).
+  Definition totalcategory_rightunitordata {C : category} {D : disp_cat C} {M : monoidalcategory C} {DT : disp_tensor D M} {i : D (unit_from_monoidalcatdata M)} (dru : disp_rightunitor_data DT i) : rightunitor_data (Tt DT) (Tu DT i).
   Proof.
-    use make_nat_trans.
-    - intro x.
-      use tpair.
-      + exact ((rightunitor_from_monoidalcatdata M) (pr1 x)).
-      + exact ((pr1 dru) (pr1 x) (pr2 x)).
-    - intros x y f.
-      use total2_paths_b.
-      + exact ((pr2 (rightunitor_from_monoidalcatdata M)) (pr1 x) (pr1 y) (pr1 f)).
-      + exact ((pr2 dru) (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+    intro x.
+    use tpair.
+    - exact ((rightunitordata_from_monoidalcatdata M) (pr1 x)).
+    - exact (dru (pr1 x) (pr2 x)).
   Defined.
-  Notation Tru := totalcategory_rightunitor.
 
   Definition totalcategory_monoidalcatdata {C : category} {D : disp_cat C} {M : monoidalcategory C} (DM : disp_monoidalcat_data D M) : (monoidalcategory_data T(D) ).
   Proof.
     use make_monoidalcat_data.
     - exact (totalcategory_tensor DM).
     - exact (totalcategory_unit DM DM).
-    - exact (totalcategory_leftunitor DM).
-    - exact (totalcategory_rightunitor DM).
+    - exact (totalcategory_leftunitordata DM).
+    - exact (totalcategory_rightunitordata DM).
     - exact (totalcategory_associatordata DM).
   Defined.
 
@@ -134,7 +128,7 @@ Section MonoidalTotalCategory.
   Proof.
     intros x y z z' h.
     use total2_paths_b.
-    - exact ((tensorassociator_natleft (moncat_associator M)) (pr1 x) (pr1 y) (pr1 z) (pr1 z') (pr1 h)).
+    - exact ((tensorassociator_natleft (moncat_associatorlaw M)) (pr1 x) (pr1 y) (pr1 z) (pr1 z') (pr1 h)).
     - exact (dαlnat (pr1 x) (pr1 y) (pr1 z) (pr1 z') (pr1 h) (pr2 x) (pr2 y) (pr2 z) (pr2 z') (pr2 h)).
   Qed.
 
@@ -142,7 +136,7 @@ Section MonoidalTotalCategory.
   Proof.
     intros x1 x2 y z f.
     use total2_paths_b.
-    - exact ((tensorassociator_natright (moncat_associator M)) (pr1 x1) (pr1 x2) (pr1 y) (pr1 z) (pr1 f)).
+    - exact ((tensorassociator_natright (moncat_associatorlaw M)) (pr1 x1) (pr1 x2) (pr1 y) (pr1 z) (pr1 f)).
     - exact (dαrnat (pr1 x1) (pr1 x2) (pr1 y) (pr1 z) (pr1 f) (pr2 x1) (pr2 x2) (pr2 y) (pr2 z) (pr2 f)).
   Qed.
 
@@ -150,7 +144,7 @@ Section MonoidalTotalCategory.
   Proof.
     intros x y1 y2 z g.
     use total2_paths_b.
-    - exact ((tensorassociator_natleftright (moncat_associator M)) (pr1 x) (pr1 y1) (pr1 y2) (pr1 z) (pr1 g)).
+    - exact ((tensorassociator_natleftright (moncat_associatorlaw M)) (pr1 x) (pr1 y1) (pr1 y2) (pr1 z) (pr1 g)).
     - exact (dαlrnat (pr1 x) (pr1 y1) (pr1 y2) (pr1 z) (pr1 g) (pr2 x) (pr2 y1) (pr2 y2) (pr2 z) (pr2 g)).
   Qed.
 
@@ -159,14 +153,14 @@ Section MonoidalTotalCategory.
     intros x y z.
     use tpair.
     - use tpair.
-      + exact (pr1 ((tensorassociator_iso (moncat_associator M)) (pr1 x) (pr1 y) (pr1 z))).
+      + exact (pr1 ((tensorassociator_iso (moncat_associatorlaw M)) (pr1 x) (pr1 y) (pr1 z))).
       + exact (pr1 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
     - use tpair.
       + use total2_paths_b.
-        * exact (pr1 (pr2 (tensorassociator_iso (moncat_associator M) (pr1 x) (pr1 y) (pr1 z)))).
+        * exact (pr1 (pr2 (tensorassociator_iso (moncat_associatorlaw M) (pr1 x) (pr1 y) (pr1 z)))).
         * exact (pr2 (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
       + use total2_paths_b.
-        * exact (pr2 (pr2 (tensorassociator_iso (moncat_associator M) (pr1 x) (pr1 y) (pr1 z)))).
+        * exact (pr2 (pr2 (tensorassociator_iso (moncat_associatorlaw M) (pr1 x) (pr1 y) (pr1 z)))).
         * exact (pr1 (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
   Qed.
 
@@ -178,39 +172,66 @@ Section MonoidalTotalCategory.
     exact (totalcategory_tensor_assoc_iso (disp_tensorassoc_iso dαiso)).
   Qed.
 
-  Lemma totalcategory_leftunitor_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dluiso : disp_leftunitor_iso DM DM DM) : leftunitor_iso (totalcategory_leftunitor DM).
+  Lemma totalcategory_leftunitor_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dluiso : disp_leftunitor_iso DM) : leftunitor_iso (totalcategory_leftunitordata DM).
   Proof.
     intros x.
     use tpair.
     - use tpair.
-      + exact (pr1 ((moncat_leftunitoriso M) (pr1 x))).
+      + exact (pr1 (pr2 (moncat_leftunitorlaw M) (pr1 x))).
       + exact (pr1 (dluiso (pr1 x) (pr2 x))).
     - use tpair.
       + use total2_paths_b.
-        * exact (pr1 (pr2 (moncat_leftunitoriso M (pr1 x)))).
+        * exact (pr1 (pr2 (pr2 (moncat_leftunitorlaw M) (pr1 x)))).
         * exact (pr2 (pr2 (dluiso (pr1 x) (pr2 x)))).
       + use total2_paths_b.
-        * exact (pr2 (pr2 (moncat_leftunitoriso M (pr1 x)))).
+        * exact (pr2 (pr2 (pr2 (moncat_leftunitorlaw M) (pr1 x)))).
         * exact (pr1 (pr2 (dluiso (pr1 x) (pr2 x)))).
   Qed.
 
-  Lemma totalcategory_rightunitor_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (druiso : disp_rightunitor_iso DM DM DM) : rightunitor_iso (totalcategory_rightunitor DM).
+  Lemma totalcategory_leftunitor_nat {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dluiso : disp_leftunitor_nat DM) : leftunitor_nat (totalcategory_leftunitordata DM).
+  Proof.
+    intros x y f.
+    use total2_paths_b.
+    - exact ((pr1 (moncat_leftunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - exact (dluiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  Defined.
+
+  Lemma totalcategory_leftunitor_law {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dluiso : disp_leftunitor_law DM) : leftunitor_law (totalcategory_leftunitordata DM).
+  Proof.
+    exact (totalcategory_leftunitor_nat (pr1 dluiso),,totalcategory_leftunitor_iso (pr2 dluiso)).
+  Defined.
+
+  Lemma totalcategory_rightunitor_iso {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (druiso : disp_rightunitor_iso DM) : rightunitor_iso (totalcategory_rightunitordata DM).
   Proof.
     intros x.
     use tpair.
     - use tpair.
-      + exact (pr1 ((moncat_rightunitoriso M) (pr1 x))).
+      + exact (pr1 (pr2 (moncat_rightunitorlaw M) (pr1 x))).
       + exact (pr1 (druiso (pr1 x) (pr2 x))).
     - use tpair.
       + use total2_paths_b.
-        * exact (pr1 (pr2 (moncat_rightunitoriso M (pr1 x)))).
+        * exact (pr1 (pr2 (pr2 (moncat_rightunitorlaw M) (pr1 x)))).
         * exact (pr2 (pr2 (druiso (pr1 x) (pr2 x)))).
       + use total2_paths_b.
-        * exact (pr2 (pr2 (moncat_rightunitoriso M (pr1 x)))).
+        * exact (pr2 (pr2 (pr2 (moncat_rightunitorlaw M) (pr1 x)))).
         * exact (pr1 (pr2 (druiso (pr1 x) (pr2 x)))).
   Qed.
 
-  Lemma totalcategory_triangleidentity {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dti : disp_triangle_identity DM DM DM) : triangle_identity (totalcategory_leftunitor DM) (totalcategory_rightunitor DM) (totalcategory_associatordata DM).
+
+  Lemma totalcategory_rightunitor_nat {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (druiso : disp_rightunitor_nat DM) : rightunitor_nat (totalcategory_rightunitordata DM).
+  Proof.
+    intros x y f.
+    use total2_paths_b.
+    - exact ((pr1 (moncat_rightunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - exact (druiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  Defined.
+
+  Lemma totalcategory_rightunitor_law {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (druiso : disp_rightunitor_law DM) : rightunitor_law (totalcategory_rightunitordata DM).
+  Proof.
+    exact (totalcategory_rightunitor_nat (pr1 druiso),,totalcategory_rightunitor_iso (pr2 druiso)).
+  Defined.
+
+  Lemma totalcategory_triangleidentity {C : category} {D : disp_cat C} {M : monoidalcategory C} {DM : disp_monoidalcat_data D M} (dti : disp_triangle_identity DM DM DM) : triangle_identity (totalcategory_leftunitordata DM) (totalcategory_rightunitordata DM) (totalcategory_associatordata DM).
   Proof.
     intros x y.
     use total2_paths_b.
@@ -226,13 +247,11 @@ Section MonoidalTotalCategory.
     - exact (dpi (pr1 w) (pr1 x) (pr1 y) (pr1 z) (pr2 w) (pr2 x) (pr2 y) (pr2 z)).
   Qed.
 
-  Check monoidal_laws (totalcategory_monoidalcatdata _).
-
   Definition totalcategory_monoidallaws {C : category} {D : disp_cat C} {M : monoidalcategory C} (DM : disp_monoidalcategory D M) : monoidal_laws (totalcategory_monoidalcatdata DM).
   Proof.
     split with (totalcategory_tensor_assoc_law (disp_moncat_associator DM)).
-    split with (totalcategory_leftunitor_iso (disp_moncat_leftunitoriso DM)).
-    split with (totalcategory_rightunitor_iso (disp_moncat_rightunitoriso DM)).
+    split with (totalcategory_leftunitor_law (disp_moncat_leftunitorlaw DM)).
+    split with (totalcategory_rightunitor_law (disp_moncat_rightunitorlaw DM)).
     split with (totalcategory_triangleidentity (disp_moncat_triangleidentity DM)).
     exact (totalcategory_pentagonidentity (disp_moncat_pentagonidentity DM)).
   Qed.
@@ -247,10 +266,6 @@ Section MonoidalTotalCategory.
   Proof.
     apply identity.
   Defined.
-
-
-  Check functor_imageoftensor TM π.
-  Check functor_tensorofimages π M.
 
   Definition projection_preserves_tensor_data :  binat_trans_data (functor_tensorofimages π M) (functor_imageoftensor TM π).
   Proof.
@@ -280,9 +295,6 @@ Section MonoidalTotalCategory.
   Lemma projection_preserves_leftunitality : preserves_leftunitality TM M π projection_preserves_tensor projection_preserves_unit.
   Proof.
     intro x.
-    unfold projection_preserves_unit.
-    unfold projection_preserves_tensor.
-    unfold projection_preserves_tensor_data.
     rewrite (bifunctor_rightid M).
     rewrite id_left.
     apply id_left.
@@ -291,9 +303,6 @@ Section MonoidalTotalCategory.
   Lemma projection_preserves_rightunitality : preserves_rightunitality TM M π projection_preserves_tensor projection_preserves_unit.
   Proof.
     intro x.
-    unfold projection_preserves_unit.
-    unfold projection_preserves_tensor.
-    unfold projection_preserves_tensor_data.
     rewrite (bifunctor_leftid M).
     rewrite id_left.
     apply id_left.
@@ -302,9 +311,6 @@ Section MonoidalTotalCategory.
   Lemma projection_preserves_associativity : preserves_associativity TM M π projection_preserves_tensor.
   Proof.
     intros x y z.
-    unfold projection_preserves_tensor.
-    unfold projection_preserves_tensor_data.
-    cbn.
     rewrite (bifunctor_leftid M).
     rewrite id_right.
     rewrite id_right.

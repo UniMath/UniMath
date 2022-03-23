@@ -10,7 +10,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 
 Local Open Scope cat.
 
-Import Notations.
+Import BifunctorNotations.
+Import MonoidalCategoryNotations.
 
 Section local_helper_lemmas.
   Lemma iso_stable_under_equality {C : category} {x y : C} {f g : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
@@ -56,11 +57,6 @@ Section MonoidalFunctors.
 
   Local Notation "F ·· G" := (functor_composite F G) (at level 31).
   Local Notation "α ··· β" := (nat_trans_comp _ _ _ α β) (at level 31).
-
-  Local Notation "I_{ M }" := (unit_from_monoidalcatdata M).
-  Local Notation "lu^{ M }_{ x }" := ( (leftunitor_from_monoidalcatdata M) x ).
-  Local Notation "ru^{ M }_{ x }" := ( (rightunitor_from_monoidalcatdata M) x ).
-  Local Notation "α^{ M }_{ x , y , z }" := (associatordata_from_monoidalcatdata M x y z).
 
   Definition preserves_unit : UU := D ⟦ I_{N} , F I_{M} ⟧.
 
@@ -123,7 +119,6 @@ Section MonoidalFunctors.
     intros x y.
     use (iso_stable_under_equalitytransportf (pr2 (pfstrict x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
   Qed.
-  Coercion strictlytensorpreserving_is_strong : preserves_tensor_strictly >-> preserves_tensor_strongly.
 
   Definition preserves_unit_strongly (pu : preserves_unit) : UU := is_z_isomorphism pu.
 
@@ -134,6 +129,5 @@ Section MonoidalFunctors.
   Proof.
     use (iso_stable_under_equalitytransportf (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
   Defined.
-  Coercion strictlyunitpreserving_is_strong : preserves_unit_strictly >-> preserves_unit_strongly.
 
 End MonoidalFunctors.
