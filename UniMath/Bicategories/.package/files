@@ -136,8 +136,6 @@ Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
 Limits/PullbackFunctions.v
 
-PseudoFunctors/Preservation.v
-
 Morphisms/Properties/Projections.v
 Morphisms/Properties/ClosedUnderPullback.v
 
@@ -147,6 +145,8 @@ Colimits/Extensive.v
 Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
+
+PseudoFunctors/Preservation.v
 
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
