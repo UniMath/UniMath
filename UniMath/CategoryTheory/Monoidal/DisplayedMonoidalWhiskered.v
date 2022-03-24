@@ -226,7 +226,7 @@ Module DisplayedMonoidalNotations.
   Notation "dlu^{ M }" := (disp_monoidal_leftunitor M).
   Notation "dru^{ M }" := (disp_monoidal_rightunitor M).
   Notation "dα^{ M }" := (disp_monoidal_associator M).
-  Notation "dlu^{ M }_{ x }" := (disp_monoidal_leftunitor M x).
-  Notation "dru^{ M }_{ x }" := (disp_monoidal_rightunitor M x).
-  Notation "dα^{ M }_{ x , y , z }" := (disp_monoidal_associator M x y z).
+  Notation "dlu^{ M }_{ xx }" := (disp_monoidal_leftunitor M _ xx).
+  Notation "dru^{ M }_{ xx }" := (disp_monoidal_rightunitor M _ xx).
+  Notation "dα^{ M }_{ xx , yy , zz }" := (disp_monoidal_associator M _ _ _ xx yy zz).
 End DisplayedMonoidalNotations.
