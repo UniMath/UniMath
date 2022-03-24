@@ -418,6 +418,17 @@ Proof.
 Defined.
 
 
+
+Definition univalent_functor_category
+           (C₁ C₂ : univalent_category)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (functor_category C₁ C₂).
+  - exact (is_univalent_functor_category _ _ (pr2 C₂)).
+Defined.
+
+
 Definition iso_to_nat_iso
            {C D : category}
            (F G : C ⟶ D)

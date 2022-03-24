@@ -815,6 +815,8 @@ Section Def_Curry_Mor.
 End Def_Curry_Mor.
 
 
+
+
 Section Def_Uncurry_Ob.
 
   Context (G: D ⟶ [C, E]).
@@ -926,7 +928,6 @@ Qed.
 
 End Currying.
 
-
 Section Evaluation.
 (** functor evaluation is the pointwise counit of the biadjunction behind currying and uncurrying
 
@@ -949,6 +950,200 @@ Proof.
 Qed.
 
 End Evaluation.
+
+Section EvaluationNatTrans.
+  Context {C D₁ D₂ : category}
+          (F G : D₁ ⟶ functor_category C D₂)
+          (α : bindelta_pair_functor
+                 (pr1_functor D₁ C ∙ F)
+                 (pr2_functor D₁ C ∙ functor_identity C)
+               ∙ bindelta_functor (category_binproduct [C, D₂] C)
+               ∙ pair_functor (pr2_functor [C, D₂] C) (pr1_functor [C, D₂] C)
+               ∙ uncurry_functor _ _ _ (functor_identity _)
+               ⟹
+               bindelta_pair_functor
+                 (pr1_functor D₁ C ∙ G)
+                 (pr2_functor D₁ C ∙ functor_identity C)
+               ∙ bindelta_functor (category_binproduct [C, D₂] C)
+               ∙ pair_functor (pr2_functor [C, D₂] C) (pr1_functor [C, D₂] C)
+               ∙ uncurry_functor _ _ _ (functor_identity _)).
+
+  Definition evaluation_nat_trans_data_point
+             (x : D₁)
+    : nat_trans_data (F x : _ ⟶ _) (G x : _ ⟶ _)
+    := λ y, α (x ,, y).
+
+  Definition evaluation_nat_trans_data_point_is_nat_trans
+             (x : D₁)
+    : is_nat_trans _ _ (evaluation_nat_trans_data_point x).
+  Proof.
+    intros y₁ y₂ g ; unfold evaluation_nat_trans_data_point ; cbn.
+    pose (nat_trans_ax α (x ,, y₁) (x ,, y₂) (identity _ ,, g)) as p.
+    cbn in p.
+    rewrite (functor_id F), (functor_id G) in p.
+    rewrite !id_right in p.
+    exact p.
+  Qed.
+
+  Definition evaluation_nat_trans_data
+    : nat_trans_data F G.
+  Proof.
+    intro x.
+    use make_nat_trans.
+    - exact (evaluation_nat_trans_data_point x).
+    - exact (evaluation_nat_trans_data_point_is_nat_trans x).
+  Defined.
+
+  Definition evaluation_nat_trans_is_nat_trans
+    : is_nat_trans _ _ evaluation_nat_trans_data.
+  Proof.
+    intros x₁ x₂ f.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intros y ; cbn.
+    pose (nat_trans_ax α (x₁ ,, y) (x₂ ,, y) (f ,, identity _)) as p.
+    cbn in p.
+    rewrite (functor_id (F _)), (functor_id (G _)) in p.
+    rewrite !id_left in p.
+    exact p.
+  Qed.
+
+  Definition evaluation_nat_trans : F ⟹ G.
+  Proof.
+    use make_nat_trans.
+    - exact evaluation_nat_trans_data.
+    - exact evaluation_nat_trans_is_nat_trans.
+  Defined.
+End EvaluationNatTrans.
+
+(** Currying but with the product in a different order *)
+Section CurryFunctor.
+  Context {C D₁ D₂ : category}
+          (F : category_binproduct D₁ C ⟶ D₂).
+
+  Definition curry_functor'_point_data
+             (x : D₁)
+    : functor_data C D₂.
+  Proof.
+    use make_functor_data.
+    - exact (λ y, F (x ,, y)).
+    - refine (λ y₁ y₂ g, #F (_ ,, _)).
+      + exact (identity x).
+      + exact g.
+  Defined.
+
+  Definition curry_functor'_point_is_functor
+             (x : D₁)
+    : is_functor (curry_functor'_point_data x).
+  Proof.
+    split.
+    - intro y ; cbn.
+      apply (functor_id F).
+    - intros y₁ y₂ y₃ g₁ g₂ ; cbn.
+      refine (_ @ functor_comp F _ _) ; cbn.
+      rewrite id_left.
+      apply idpath.
+  Qed.
+
+  Definition curry_functor'_point
+             (x : D₁)
+    : C ⟶ D₂.
+  Proof.
+    use make_functor.
+    - exact (curry_functor'_point_data x).
+    - exact (curry_functor'_point_is_functor x).
+  Defined.
+
+  Definition curry_functor'_mor
+             {x₁ x₂ : D₁}
+             (f : x₁ --> x₂)
+    : curry_functor'_point x₁ ⟹ curry_functor'_point x₂.
+  Proof.
+    use make_nat_trans.
+    - refine (λ y, #F (_ ,, _)).
+      + exact f.
+      + exact (identity y).
+    - abstract
+        (intros y₁ y₂ g ; cbn ;
+         rewrite <- !(functor_comp F) ;
+         cbn ;
+         rewrite !id_left, !id_right ;
+         apply idpath).
+  Defined.
+
+  Definition curry_functor'_data
+    : functor_data D₁ (functor_precategory_data C D₂).
+  Proof.
+    use make_functor_data.
+    - exact curry_functor'_point.
+    - exact @curry_functor'_mor.
+  Defined.
+
+  Definition curry_functor'_is_functor
+    : is_functor curry_functor'_data.
+  Proof.
+    split.
+    - intro x.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro y ; cbn.
+      apply (functor_id F).
+    - intros x₁ x₂ x₃ f₁ f₂.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro y ; cbn.
+      refine (_ @ functor_comp F _ _).
+      cbn.
+      rewrite id_left.
+      apply idpath.
+  Qed.
+
+  Definition curry_functor'
+    : D₁ ⟶ functor_category C D₂.
+  Proof.
+    use make_functor.
+    - exact curry_functor'_data.
+    - exact curry_functor'_is_functor.
+  Defined.
+
+  Definition evaluate_curry_functor'
+    : bindelta_pair_functor
+        (pr1_functor D₁ C ∙ curry_functor')
+        (pr2_functor D₁ C ∙ functor_identity _)
+      ∙ evaluation_functor
+      ⟹
+      F.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x, identity _).
+    - abstract
+        (intros x₁ x₂ f ; cbn ;
+         rewrite <- !(functor_comp F) ; cbn ;
+         rewrite !id_left, !id_right ;
+         apply idpath).
+  Defined.
+
+  Definition evaluate_curry_functor'_nat_iso
+    : nat_iso
+        (bindelta_pair_functor
+           (pr1_functor D₁ C ∙ curry_functor')
+           (pr2_functor D₁ C ∙ functor_identity _)
+         ∙ evaluation_functor)
+        F.
+  Proof.
+    use make_nat_iso.
+    - exact evaluate_curry_functor'.
+    - intro x.
+      apply identity_is_iso.
+  Defined.
+End CurryFunctor.
+
 
 Section Coevaluation.
   (** for completeness, we also define the pointwise unit of that biadjunction *)

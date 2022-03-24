@@ -4,6 +4,7 @@
  Contents:
  1. Duality involution on categories
  2. Classifying discrete opfibration
+ 3. Cartesian closed
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -14,6 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Elements.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -32,19 +35,24 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlic
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
+Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.UniversalArrow.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Op2OfPseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.OpFunctor.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.ConstProduct.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.OtherStructure.ClassifyingDiscreteOpfib.
 Require Import UniMath.Bicategories.OtherStructure.DualityInvolution.
+Require Import UniMath.Bicategories.OtherStructure.Exponentials.
 
 Local Open Scope cat.
 
@@ -693,4 +701,49 @@ Proof.
   use make_is_classifying.
   - exact is_classifying_full_help_in_bicat_of_univ_cats.
   - exact is_classifying_faithful_help_in_bicat_of_univ_cats.
+Defined.
+
+(**
+ 3. Cartesian closed
+ *)
+Definition bicat_of_univ_cats_is_cartesian_closed
+  : is_cartesian_closed_bicat (_ ,, has_binprod_bicat_of_univ_cats).
+Proof.
+  intros C.
+  use make_right_universal_arrow'.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact (λ D, univalent_functor_category C D).
+  - exact (λ D, evaluation_functor).
+  - intros D₁ D₂ F G α.
+    simple refine (_ ,, _).
+    + exact (evaluation_nat_trans F G α).
+    + abstract
+        (cbn in F, G, α ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         rewrite !id_left, !id_right ;
+         rewrite (functor_id (F _)) ;
+         rewrite id_left ;
+         apply idpath).
+  - abstract
+      (intros D₁ D₂ F G α β₁ β₂ p₁ p₂ ;
+       use nat_trans_eq ; [ apply homset_property | ] ;
+       intro ;
+       use nat_trans_eq ; [ apply homset_property | ] ;
+       intro y ;
+       pose (q := nat_trans_eq_pointwise p₁ (x ,, y)
+                  @
+                  !(nat_trans_eq_pointwise p₂ (x ,, y))) ;
+       cbn in q ;
+       rewrite !id_right, !id_left in q ;
+       unfold bindelta_pair_pr2_data in q ;
+       cbn in q ;
+       rewrite !(functor_id (pr1 F _)) in q ;
+       rewrite !id_left in q ;
+       exact q).
+  - intros D₁ D₂ F.
+    simple refine (_ ,, _).
+    + exact (curry_functor' F).
+    + use nat_iso_to_invertible_2cell.
+      exact (evaluate_curry_functor'_nat_iso F).
 Defined.
