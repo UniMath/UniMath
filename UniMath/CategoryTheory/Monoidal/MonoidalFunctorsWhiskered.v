@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Local Open Scope cat.
 
 Import BifunctorNotations.
-Import MonoidalCategoryNotations.
+Import MonoidalNotations.
 
 Section local_helper_lemmas.
   Lemma iso_stable_under_equality {C : category} {x y : C} {f g : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
@@ -44,35 +44,78 @@ Section MonoidalFunctors.
   (** (Weak) Monoidal functors **)
   (* Monoidal functor data *)
 
-  Definition functor_imageoftensor {C D : category} (M : monoidalcategory C) (F : functor C D) : bifunctor C C D
-    := compose_bifunctor_with_functor M F.
+  Definition preserves_tensordata {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU :=
+    ∏ (x y : C), D ⟦ F x ⊗_{ N} F y, F (x ⊗_{ M} y) ⟧.
 
-  Definition functor_tensorofimages {C D : category} (F : functor C D) (N : monoidalcategory D) : bifunctor C C D
-    := compose_functor_with_bifunctor F F N.
+  Definition preserves_unit {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU
+    := D ⟦ I_{N} , F I_{M} ⟧.
 
-  Definition preserves_tensor {C D : category} (M : monoidalcategory C) (N : monoidalcategory D) (F : functor C D) : UU := binat_trans (functor_tensorofimages F N) (functor_imageoftensor M F).
-  Identity Coercion tensorpreservationintobinattrans: preserves_tensor >-> binat_trans.
+  Definition fmonoidal_data {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) :=
+    preserves_tensordata M N F × preserves_unit M N F.
 
-  Context {C D : category} (M : monoidalcategory C) (N : monoidalcategory D) (F : functor C D).
+  Definition fmonoidal_preservestensordata {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fmd : fmonoidal_data M N F) : (preserves_tensordata M N F) := pr1 fmd.
 
-  Local Notation "F ·· G" := (functor_composite F G) (at level 31).
-  Local Notation "α ··· β" := (nat_trans_comp _ _ _ α β) (at level 31).
+  Definition fmonoidal_preservesunit {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fmd : fmonoidal_data M N F) : (preserves_unit M N F) := pr2 fmd.
 
-  Definition preserves_unit : UU := D ⟦ I_{N} , F I_{M} ⟧.
+  (** Properties **)
+  Definition preserves_tensor_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) := ∏ (x y1 y2 : C) (g : C⟦y1,y2⟧),
+      F x ⊗^{ N}_{l} # F g · pt x y2 = pt x y1 · # F (x ⊗^{ M}_{l} g).
 
-  Definition monoidalfunctor_data :=
-    (preserves_tensor M N F) × preserves_unit.
+  Definition preserves_tensor_nat_right {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) := ∏ (x1 x2 y : C) (f : C⟦x1,x2⟧),
+      # F f ⊗^{ N}_{r} F y · pt x2 y = pt x1 y · # F (f ⊗^{ M}_{r} y).
 
-  Definition tensorpreserved_from_monoidalfunctordata (mfd : monoidalfunctor_data) : (preserves_tensor M N F) := pr1 mfd.
-  Coercion tensorpreserved_from_monoidalfunctordata : monoidalfunctor_data >-> preserves_tensor.
-
-  Definition unitpreserved_from_monoidalfunctordata (mfd : monoidalfunctor_data) : preserves_unit := pr2 mfd.
-  Coercion unitpreserved_from_monoidalfunctordata : monoidalfunctor_data >-> preserves_unit.
-
-  Definition preserves_leftunitality (pt : preserves_tensor M N F) (pu : preserves_unit) :=
+  Definition preserves_leftunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) (pu : preserves_unit M N F) :=
     ∏ (x : C), (pu ⊗^{ N}_{r} F x) · (pt I_{ M} x) · (# F lu^{ M }_{ x}) = lu^{ N }_{ F x}.
 
-  Definition preserves_leftunitality' {pt : preserves_tensor M N F} {pu : preserves_unit} (plu : preserves_leftunitality pt pu) :
+  Definition preserves_rightunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) (pu : preserves_unit M N F) :=
+    ∏ (x : C), ((F x ⊗^{ N}_{l} pu) · (pt x I_{ M}) · (# F ru^{ M }_{ x}) = ru^{ N }_{ F x}).
+
+  Definition preserves_associativity {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU :=
+    ∏ (x y z : C), ((pt x y) ⊗^{N}_{r} (F z)) · (pt (x ⊗_{M} y) z) · (#F (α^{M}_{x,y,z}))
+                   = α^{N}_{F x, F y, F z} · ((F x) ⊗^{N}_{l} (pt y z)) · (pt x (y ⊗_{M} z)).
+
+  Definition fmonoidal_laws {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fmd : fmonoidal_data M N F) : UU :=
+    (preserves_tensor_nat_left (fmonoidal_preservestensordata fmd)) × (preserves_tensor_nat_right (fmonoidal_preservestensordata fmd)) × (preserves_associativity (fmonoidal_preservestensordata fmd)) × (preserves_leftunitality (fmonoidal_preservestensordata fmd) (fmonoidal_preservesunit fmd)) × (preserves_rightunitality (fmonoidal_preservestensordata fmd) (fmonoidal_preservesunit fmd)).
+
+  Definition fmonoidal {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D)  : UU :=
+    ∑ (fmd : fmonoidal_data M N F), fmonoidal_laws fmd.
+
+  Definition fmonoidal_fdata {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : fmonoidal_data M N F := pr1 fm.
+  Coercion fmonoidal_fdata : fmonoidal >-> fmonoidal_data.
+
+  Definition fmonoidal_flaws {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : fmonoidal_laws fm := pr2 fm.
+
+  Definition fmonoidal_preservestensornatleft {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : preserves_tensor_nat_left (fmonoidal_preservestensordata fm) := pr1 (pr2 fm).
+  Definition fmonoidal_preservestensornatright {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : preserves_tensor_nat_right (fmonoidal_preservestensordata fm) := pr1 (pr2 (pr2 fm)).
+  Definition fmonoidal_preservesassociativity {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : preserves_associativity (fmonoidal_preservestensordata fm) := pr1 (pr2 (pr2 (pr2 fm))).
+  Definition fmonoidal_preservesleftunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : preserves_leftunitality (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm) := pr1 (pr2 (pr2 (pr2 (pr2 fm)))).
+  Definition fmonoidal_preservesrightunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal M N F) : preserves_rightunitality (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm) := pr2 (pr2 (pr2 (pr2 (pr2 fm)))).
+
+
+  (** We now show that everything behaves as expected **)
+  Definition functor_imageoftensor {C D : category} (M : monoidal C) (F : functor C D) : bifunctor C C D
+    := compose_bifunctor_with_functor M F.
+
+  Definition functor_tensorofimages {C D : category} (F : functor C D) (N : monoidal D) : bifunctor C C D
+    := compose_functor_with_bifunctor F F N.
+
+  Definition preserves_tensor {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU := binat_trans (functor_tensorofimages F N) (functor_imageoftensor M F).
+
+  (* I really don't know how to call the following lemma *)
+  Lemma preservestensor_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} (ptnl : preserves_tensor_nat_left pt) (ptnr : preserves_tensor_nat_right pt) : preserves_tensor M N F.
+  Proof.
+    use make_binat_trans.
+    - use make_binat_trans_data.
+      intros x y.
+      apply pt.
+    - use tpair.
+      + intros x y1 y2 g.
+        apply ptnl.
+      + intros x1 x2 y f.
+        apply ptnr.
+  Defined.
+
+  Definition preserves_leftunitality' {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} {pu : preserves_unit M N F} (plu : preserves_leftunitality pt pu) :
     ∏ (x : C), (pu ⊗^{N} (identity (F x))) · (pt I_{M} x) · (#F (lu^{M}_{x})) = lu^{N}_{F x}.
   Proof.
     intro x.
@@ -82,10 +125,7 @@ Section MonoidalFunctors.
     apply plu.
   Qed.
 
-  Definition preserves_rightunitality (pt : preserves_tensor M N F) (pu : preserves_unit) :=
-    ∏ (x : C), ((F x ⊗^{ N}_{l} pu) · (pt x I_{ M}) · (# F ru^{ M }_{ x}) = ru^{ N }_{ F x}).
-
-  Definition preserves_rightunitality' {pt : preserves_tensor M N F} {pu : preserves_unit} (pru : preserves_rightunitality pt pu) :
+  Definition preserves_rightunitality' {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} {pu : preserves_unit M N F} (pru : preserves_rightunitality pt pu) :
     ∏ (x : C), ((identity (F x)) ⊗^{N} pu) · (pt x I_{M}) · (#F (ru^{M}_{x})) = ru^{N}_{F x}.
   Proof.
     intro x.
@@ -95,39 +135,28 @@ Section MonoidalFunctors.
     apply pru.
   Qed.
 
-  Definition preserves_associativity (pt : preserves_tensor M N F) : UU :=
-    ∏ (x y z : C), ((pt x y) ⊗^{N}_{r} (F z)) · (pt (x ⊗_{M} y) z) · (#F (α^{M}_{x,y,z}))
-                   = α^{N}_{F x, F y, F z} · ((F x) ⊗^{N}_{l} (pt y z)) · (pt x (y ⊗_{M} z)).
-
-  Definition monoidalfunctor_laws (mfd : monoidalfunctor_data) : UU :=
-    (preserves_associativity mfd) × (preserves_leftunitality mfd mfd) × (preserves_rightunitality mfd mfd).
-
-  Definition monoidalfunctor : UU :=
-    ∑ (mfd : monoidalfunctor_data), monoidalfunctor_laws mfd.
-
   (** Strong and strict monoidal properties *)
 
-  Definition preserves_tensor_strongly (pt : preserves_tensor M N F) : UU :=
-    is_binatiso pt.
+  Definition preserves_tensor_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU := ∏ (x y : C), is_z_isomorphism (pt x y).
 
-  Definition preserves_tensor_strictly (pt : preserves_tensor M N F) : UU :=
+  Definition preserves_tensor_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU :=
       ∏ (x y : C), ∑ (pf : (F x) ⊗_{N} (F y) = F (x ⊗_{M} y)),
       pt x y = transportf _ pf (identity ((F x) ⊗_{N} (F y))).
 
-  Lemma strictlytensorpreserving_is_strong {pt : preserves_tensor M N F} (pfstrict : preserves_tensor_strictly pt) : preserves_tensor_strongly pt.
+  Lemma strictlytensorpreserving_is_strong {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} (pst : preserves_tensor_strictly pt) : preserves_tensor_strongly pt.
   Proof.
     intros x y.
-    use (iso_stable_under_equalitytransportf (pr2 (pfstrict x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
+    use (iso_stable_under_equalitytransportf (pr2 (pst x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
   Qed.
 
-  Definition preserves_unit_strongly (pu : preserves_unit) : UU := is_z_isomorphism pu.
+  Definition preserves_unit_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU := is_z_isomorphism pu.
 
-  Definition preserves_unit_strictly (pu : preserves_unit) : UU :=
-    ∑ (pf : I_{N} = (F I_{M})), pu = transportf _ pf (identity I_{N}).
+  Definition preserves_unit_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU
+    := ∑ (pf : I_{N} = (F I_{M})), pu = transportf _ pf (identity I_{N}).
 
-  Definition strictlyunitpreserving_is_strong {pu : preserves_unit} (pfstrict : preserves_unit_strictly pu) : preserves_unit_strongly pu.
+  Definition strictlyunitpreserving_is_strong {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pu : preserves_unit M N F} (pus : preserves_unit_strictly pu) : preserves_unit_strongly pu.
   Proof.
-    use (iso_stable_under_equalitytransportf (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
+    use (iso_stable_under_equalitytransportf (pr2 pus) (is_z_isomorphism_identity I_{N})).
   Defined.
 
 End MonoidalFunctors.
