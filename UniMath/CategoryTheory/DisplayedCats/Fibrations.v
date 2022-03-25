@@ -104,6 +104,17 @@ Definition cartesian_factorisation_commutes
   : cartesian_factorisation H g hh ;; ff = hh
 := pr2 (pr1 (H _ g _ hh)).
 
+(** While [cartesian_factorisatoin_commutes] shows that composition with and factorisation through a cartesian morphism are one-sided inverses in one direction, the following shows the other direction. **)
+Definition cartesian_factorisation_of_composite
+    {C : category} {D : disp_cat C}
+    {c c' : C} {f : c' --> c}
+    {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
+    {c'' : C} {g : c'' --> c'} {d'' : D c''} (gg : d'' -->[g] d')
+  : gg = cartesian_factorisation H g (gg ;; ff).
+Proof.
+  exact (maponpaths pr1 (pr2 (H _ _ _ _) (_,, idpath _))).
+Defined.
+
 (** This is essentially the third access function for [is_cartesian], but given in a more usable form than [pr2 (H …)] would be. *)
 Definition cartesian_factorisation_unique
     {C : category} {D : disp_cat C}
@@ -121,9 +132,9 @@ Proof.
       (pr2 (H _ g _ (gg ;; ff)) (gg,,idpath _))).
   }
   intros gg gg' Hggff.
-  eapply pathscomp0. apply goal'.
+  eapply pathscomp0. apply (cartesian_factorisation_of_composite H).
   eapply pathscomp0. apply maponpaths, Hggff.
-  apply pathsinv0, goal'.
+  apply pathsinv0, cartesian_factorisation_of_composite.
 Qed.
 
 Definition cartesian_factorisation' {C : category} {D : disp_cat C}
