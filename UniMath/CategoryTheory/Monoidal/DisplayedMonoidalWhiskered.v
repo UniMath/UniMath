@@ -92,30 +92,48 @@ Section DisplayedMonoidalCategories.
     intros.
     unfold dispfunctoronmorphisms1.
     etrans. { apply assoc_disp. }
+    (* apply transportb_transpose_left.
+    rewrite transport_f_b.     *)
     rewrite dtr.
-    rewrite mor_disp_transportb_postwhisker.
-    rewrite transport_b_b.
-    apply transportb_transpose_left.
-    etrans. { apply assoc_disp_var. }
-    rewrite transport_f_b.
-    apply transportf_transpose_left.
+    etrans. {
+      apply maponpaths.
+      apply mor_disp_transportf_postwhisker.
+    }
     rewrite transport_b_f.
+    apply transportf_transpose_left.
+    etrans. { apply assoc_disp_var. }
+    apply transportf_transpose_left.
+    rewrite transport_b_b.
+    rewrite transport_b_b.
+
     etrans. {
       apply maponpaths_1.
       apply maponpaths_1.
       apply disp_bifunctor_leftcomp.
     }
-    rewrite mor_disp_transportb_prewhisker.
-    rewrite mor_disp_transportb_prewhisker.
-    apply transportb_transpose_left.
+    etrans. {
+      apply maponpaths.
+      apply mor_disp_transportf_prewhisker.
+    }
+
+    (* apply transportb_transpose_left. *)
     etrans. {
       apply maponpaths_1.
       rewrite assoc_disp.
       rewrite dtlr.
-      rewrite mor_disp_transportb_postwhisker.
-      apply transport_b_b.
+      apply transport_f_b.
     }
-    rewrite mor_disp_transportb_prewhisker.
+
+    etrans. {
+      apply maponpaths.
+      apply maponpaths.
+      apply mor_disp_transportf_postwhisker.
+    }
+    etrans. {
+      apply maponpaths.
+      apply transport_f_f.
+    }
+    etrans. { apply mor_disp_transportf_prewhisker. }
     apply transportf_transpose_left.
 
     etrans.
@@ -126,38 +144,39 @@ Section DisplayedMonoidalCategories.
       apply maponpaths_1.
       apply dtl.
     }
-
-    rewrite mor_disp_transportb_prewhisker.
-    rewrite mor_disp_transportf_prewhisker.
-    rewrite mor_disp_transportb_prewhisker.
-    rewrite transport_f_b.
+    etrans. { apply mor_disp_transportf_prewhisker. }
+    apply transportf_transpose_left.
+    etrans. {
+      apply maponpaths.
+      apply mor_disp_transportf_prewhisker.
+    }
+    etrans. { apply mor_disp_transportf_prewhisker. }
+    apply transportf_transpose_left.
+    (* Left to show:: *)
+    (* ((ff ⊗⊗^{ DT}_{r} yy1 ;; xx2 ⊗⊗^{ DT}_{l} gg)  =  (ff ⊗⊗^{ DT}_{r} yy1) ⊗⊗^{ DT}_{r} zz1 ;; ((xx2 ⊗⊗^{ DT}_{l} gg) *)
+    rewrite assoc_disp.
+    etrans. {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply (pathsinv0 (transportb_transpose_left (disp_bifunctor_rightcomp DT _ _ _ _ _ _ _ _ _ _ _ _))).
+    }
+    rewrite transport_b_b.
+    rewrite transport_b_b.
+    rewrite transport_b_b.
+    etrans. {
+      apply maponpaths.
+      apply mor_disp_transportf_postwhisker.
+    }
+    rewrite transport_b_f.
     apply transportf_transpose_left.
     rewrite transport_b_b.
-    rewrite transport_f_f.
-    rewrite transport_b_f.
 
-    use pathsinv0.
-    apply transportf_transpose_left.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply maponpaths_2.
-      apply disp_bifunctor_rightcomp.
-    }
-
-    rewrite mor_disp_transportb_postwhisker.
-    rewrite mor_disp_transportb_postwhisker.
-    apply transportb_transpose_left.
-    rewrite transport_f_b.
-    etrans. { apply assoc_disp_var. }
-    apply transportf_transpose_left.
-    rewrite transport_b_f.
-    use pathsinv0.
-    apply transportf_transpose_left.
     etrans. { apply assoc_disp. }
     apply transportb_transpose_left.
-    rewrite transport_f_b.
+
+
     use pathsinv0.
+    rewrite transport_f_b.
     apply transportf_set.
     apply homset_property.
   Qed.
