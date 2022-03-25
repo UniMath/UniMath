@@ -3,6 +3,7 @@
 
  Contents:
  1. Duality involution on locally groupoidal bicategory
+ 2. 1-Types are cartesian closed
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -12,18 +13,23 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
+Require Import UniMath.Bicategories.Limits.Products.
+Require Import UniMath.Bicategories.Limits.Examples.OneTypesLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Op2OfPseudoFunctor.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.ConstProduct.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.OtherStructure.DualityInvolution.
+Require Import UniMath.Bicategories.OtherStructure.Exponentials.
 
 Local Open Scope cat.
 
@@ -523,3 +529,133 @@ Section DualityInvolutionLocallyGroupoidal.
        ,,
        locally_groupoid_duality_involution_laws.
 End DualityInvolutionLocallyGroupoidal.
+
+(**
+ 2. 1-Types are cartesian closed
+*)
+Definition one_types_pair_2cell
+           {X₁ X₂ Y₁ Y₂ : one_type}
+           {f₁ f₂ : X₁ → Y₁}
+           {g₁ g₂ : X₂ → Y₂}
+           (p : f₁ ~ f₂)
+           (q : g₁ ~ g₂)
+           (x₁ : X₁)
+           (x₂ : X₂)
+  : @pair_2cell
+      (_ ,, has_binprod_one_types)
+      X₁ X₂ Y₁ Y₂
+      f₁ f₂
+      g₁ g₂
+      p
+      q
+      (x₁ ,, x₂)
+    =
+    pathsdirprod
+      (p x₁)
+      (q x₂).
+Proof.
+  refine (pathsdirprod_eta _ @ _).
+  use paths_pathsdirprod.
+  - pose (@pair_2cell_pr1
+            (_ ,, has_binprod_one_types)
+            X₁ X₂ Y₁ Y₂
+            f₁ f₂
+            g₁ g₂
+            p
+            q)
+      as r.
+    etrans.
+    {
+      apply (eqtohomot r (x₁ ,, x₂)).
+    }
+    apply pathscomp0rid.
+  - pose (@pair_2cell_pr2
+            (_ ,, has_binprod_one_types)
+            X₁ X₂ Y₁ Y₂
+            f₁ f₂
+            g₁ g₂
+            p
+            q)
+      as r.
+    etrans.
+    {
+      apply (eqtohomot r (x₁ ,, x₂)).
+    }
+    apply pathscomp0rid.
+Qed.
+
+Definition is_cartesian_closed_one_types
+  : is_cartesian_closed_bicat (_ ,, has_binprod_one_types).
+Proof.
+  use make_is_cartesian_closed_bicat.
+  - exact one_types_is_univalent_2_1.
+  - intros X Y.
+    exact (HLevel_fun X Y).
+  - exact (λ X Y fx, app_fun fx).
+  - exact (λ X Y₁ Y₂ f g p, app_homot p).
+  - abstract
+      (simpl ; intros X Y₁ Y₂ f g p ;
+       cbn in p ;
+       unfold homotsec in p ;
+       cbn -[pair_2cell] ;
+       unfold homotfun ;
+       use funextsec ;
+       intro yx ;
+       rewrite one_types_pair_2cell ;
+       rewrite maponpaths_app_fun ;
+       etrans ;
+       [ do 2 apply maponpaths ;
+         apply maponpaths_pr2_pathsdirprod
+      | ] ;
+       etrans ;
+       [ apply maponpaths_2 ;
+         apply maponpaths ;
+         apply maponpaths_pr1_pathsdirprod
+       | ] ;
+       cbn ;
+       rewrite pathscomp0rid ;
+       apply maponpaths_app_homot).
+  - abstract
+      (simpl ; intros X Y₁ Y₂ f g p q₁ q₂ r₁ r₂ ;
+       simpl in r₁ ;
+       use funextsec ;
+       intro y ;
+       use path_path_fun ;
+       intro x ;
+       refine (_ @ eqtohomot r₁ (y ,, x) @ !(eqtohomot r₂ (y ,, x)) @ _) ;
+       [ cbn -[pair_2cell] ;
+         unfold homotfun, homotrefl ;
+         rewrite one_types_pair_2cell ;
+         rewrite maponpaths_app_fun ;
+         refine (!_) ;
+         etrans ;
+         [ do 2 apply maponpaths ;
+           apply maponpaths_pr2_pathsdirprod
+         | ] ;
+         etrans ;
+         [ apply maponpaths_2 ;
+           apply maponpaths ;
+           apply maponpaths_pr1_pathsdirprod
+         | ] ;
+         apply pathscomp0rid
+       | cbn -[pair_2cell] ;
+         unfold homotfun, homotrefl ;
+         rewrite one_types_pair_2cell ;
+         rewrite maponpaths_app_fun ;
+         etrans ;
+         [ do 2 apply maponpaths ;
+           apply maponpaths_pr2_pathsdirprod
+         | ] ;
+         etrans ;
+         [ apply maponpaths_2 ;
+           apply maponpaths ;
+           apply maponpaths_pr1_pathsdirprod
+         | ] ;
+         cbn ;
+         apply pathscomp0rid ]).
+  - exact (λ X Y₁ Y₂ f y x, f (y ,, x)).
+  - simpl ; intros X Y₁ Y₂ f.
+    use make_invertible_2cell.
+    + apply homotrefl.
+    + apply one_type_2cell_iso.
+Defined.

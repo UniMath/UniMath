@@ -146,7 +146,11 @@ Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
+PseudoFunctors/Preservation.v
+
 PseudoFunctors/Biadjunction.v
+PseudoFunctors/UniversalArrow.v
+PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
@@ -193,5 +197,6 @@ ComprehensionBicat.v
 
 OtherStructure/DualityInvolution.v
 OtherStructure/ClassifyingDiscreteOpfib.v
+OtherStructure/Exponentials.v
 OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
