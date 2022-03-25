@@ -8,7 +8,7 @@
  4. Composition of fully faithful 1-cells
  5. Composition of discrete 1-cells
  6. Composition of Street fibrations
- 6. Composition of Street opfibrations
+ 7. Composition of Street opfibrations
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -592,9 +592,48 @@ Section CompositionOfSFib.
   Defined.
 End CompositionOfSFib.
 
+Definition comp_mor_preserves_cartesian
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           (Hf : internal_sfib f)
+           {g : y --> z}
+           (Hg : internal_sfib g)
+  : mor_preserves_cartesian (f · g) g f.
+Proof.
+  intros w h₁ h₂ γ Hγ.
+  apply from_is_cartesian_2cell_comp_rwhisker.
+  - exact Hf.
+  - exact Hg.
+  - exact Hγ.
+Defined.
+
 (**
  7. Composition of Street opfibrations
  *)
+Definition from_is_opcartesian_2cell_comp_rwhisker
+           {B : bicat}
+           {a b c : B}
+           {f : a --> b}
+           (Hf : internal_sopfib f)
+           {g : b --> c}
+           (Hg : internal_sopfib g)
+           {z : B}
+           {h₁ h₂ : z --> a}
+           {α : h₁ ==> h₂}
+           (Hα : is_opcartesian_2cell_sopfib (f · g) α)
+  : is_opcartesian_2cell_sopfib g (α ▹ f).
+Proof.
+  use is_cartesian_to_is_opcartesian_sfib.
+  use from_is_cartesian_2cell_comp_rwhisker.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hf.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hg.
+  - use is_opcartesian_to_is_cartesian_sfib.
+    exact Hα.
+Defined.
+
 Definition comp_sopfib
            {B : bicat}
            {a b c : B}
@@ -610,4 +649,20 @@ Proof.
     exact Hf.
   - apply internal_sopfib_is_internal_sfib.
     exact Hg.
+Defined.
+
+Definition comp_mor_preserves_opcartesian
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           (Hf : internal_sopfib f)
+           {g : y --> z}
+           (Hg : internal_sopfib g)
+  : mor_preserves_opcartesian (f · g) g f.
+Proof.
+  intros w h₁ h₂ γ Hγ.
+  apply from_is_opcartesian_2cell_comp_rwhisker.
+  - exact Hf.
+  - exact Hg.
+  - exact Hγ.
 Defined.

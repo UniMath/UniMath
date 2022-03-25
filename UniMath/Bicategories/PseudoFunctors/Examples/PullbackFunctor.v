@@ -265,7 +265,7 @@ Section DispMapPullbackFunctor.
                     (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₁))))
                  (pr12 α)))
         as c.
-      use (invertible_pred_mor _ _ c).
+      use (invertible_pred_mor_3 _ _ c).
       use make_invertible_2cell.
       - apply help_pred_mor_pb_on_1cell.
       - use is_invertible_2cell_pb_ump_cell.

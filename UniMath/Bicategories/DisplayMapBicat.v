@@ -2,10 +2,17 @@
 
  Display map bicategories
 
+ Contents
  1. Subbicategories of the arrow bicategory
  2. Examples of subbicategories of the arrow bicategory
  3. Display map bicategories
  4. Examples of display map bicategories
+ 5. Closure conditions for display map bicategories
+ 6. Examples
+ 6.1 Bifinal
+ 6.2 Biinitial
+ 6.3 Composition
+ 6.4 Product morphism
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -20,7 +27,11 @@ Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.
+Require Import UniMath.Bicategories.Morphisms.Properties.Composition.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderPullback.
+Require Import UniMath.Bicategories.Morphisms.Properties.FromInitial.
+Require Import UniMath.Bicategories.Colimits.Initial.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
@@ -77,12 +88,14 @@ Section Subbicat.
   Definition closed_under_invertible_2cell
     : UU
     := ∏ (e₁ e₂ b₁ b₂ : B)
-         (p₁ : e₁ --> b₁)
-         (p₂ : e₂ --> b₂)
-         (fe₁ fe₂ : e₁ --> e₂)
-         (α : invertible_2cell fe₁ fe₂)
-         (H : P₁ p₁ p₂ fe₁),
-       P₁ p₁ p₂ fe₂.
+         (p₁ p₁' : e₁ --> b₁)
+         (p₂ p₂' : e₂ --> b₂)
+         (fe fe'  : e₁ --> e₂)
+         (α : invertible_2cell p₁ p₁')
+         (β : invertible_2cell p₂ p₂')
+         (γ : invertible_2cell fe fe')
+         (H : P₁ p₁ p₂ fe),
+       P₁ p₁' p₂' fe'.
 End Subbicat.
 
 Definition arrow_subbicat
@@ -138,13 +151,45 @@ Section Projections.
 
   Definition invertible_pred_mor
              {e₁ e₂ b₁ b₂ : B}
+             {p₁ p₁' : e₁ --> b₁}
+             {p₂ p₂' : e₂ --> b₂}
+             {fe fe' : e₁ --> e₂}
+             (α : invertible_2cell p₁ p₁')
+             (β : invertible_2cell p₂ p₂')
+             (γ : invertible_2cell fe fe')
+             (H : pred_mor p₁ p₂ fe)
+    : pred_mor p₁' p₂' fe'
+    := pr2 (pr222 D) _ _ _ _ _ _ _ _ _ _ α β γ H.
+
+  Definition invertible_pred_mor_1
+             {e₁ e₂ b₁ b₂ : B}
+             {p₁ p₁' : e₁ --> b₁}
+             {p₂ : e₂ --> b₂}
+             {fe : e₁ --> e₂}
+             (α : invertible_2cell p₁ p₁')
+             (H : pred_mor p₁ p₂ fe)
+    : pred_mor p₁' p₂ fe
+    := invertible_pred_mor α (id2_invertible_2cell _) (id2_invertible_2cell _) H.
+
+  Definition invertible_pred_mor_2
+             {e₁ e₂ b₁ b₂ : B}
+             {p₁ : e₁ --> b₁}
+             {p₂ p₂' : e₂ --> b₂}
+             {fe : e₁ --> e₂}
+             (β : invertible_2cell p₂ p₂')
+             (H : pred_mor p₁ p₂ fe)
+    : pred_mor p₁ p₂' fe
+    := invertible_pred_mor (id2_invertible_2cell _) β (id2_invertible_2cell _) H.
+
+  Definition invertible_pred_mor_3
+             {e₁ e₂ b₁ b₂ : B}
              {p₁ : e₁ --> b₁}
              {p₂ : e₂ --> b₂}
-             {fe₁ fe₂ : e₁ --> e₂}
-             (α : invertible_2cell fe₁ fe₂)
-             (H : pred_mor p₁ p₂ fe₁)
-    : pred_mor p₁ p₂ fe₂
-    := pr2 (pr222 D) _ _ _ _ _ _ _ _ α H.
+             {fe fe' : e₁ --> e₂}
+             (γ : invertible_2cell fe fe')
+             (H : pred_mor p₁ p₂ fe)
+    : pred_mor p₁ p₂ fe'
+    := invertible_pred_mor (id2_invertible_2cell _) (id2_invertible_2cell _) γ H.
 End Projections.
 
 Definition make_arrow_subbicat
@@ -221,7 +266,7 @@ Proof.
   - exact (λ _ _ _ _ _ _ _, unit).
   - exact (λ _ _ _, tt).
   - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _, tt).
-  - exact (λ _ _ _ _ _ _ _ _ _ _, tt).
+  - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _ _, tt).
 Defined.
 
 Definition full_arrow_subbicat_props
@@ -258,10 +303,10 @@ Proof.
     + exact (comp_pred_mor
                D₂
                (pr2 H₁) (pr2 H₂)).
-  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
+  - intros e₁ e₂ b₁ b₂ p₁ p₁' p₂ p₂' fe fe' α β γ H.
     split.
-    + exact (invertible_pred_mor D₁ α (pr1 H)).
-    + exact (invertible_pred_mor D₂ α (pr2 H)).
+    + exact (invertible_pred_mor D₁ α β γ (pr1 H)).
+    + exact (invertible_pred_mor D₂ α β γ (pr2 H)).
 Defined.
 
 Definition intersection_arrow_subbicat_props
@@ -349,8 +394,8 @@ Proof.
     apply id_mor_preserves_cartesian.
   - intros e₁ e₂ e₃ b₁ b₂ b₃ p₁ p₂ p₃ fe ge Hf Hg.
     exact (comp_preserves_cartesian Hf Hg).
-  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
-    exact (invertible_2cell_between_preserves_cartesian α H).
+  - intros e₁ e₂ b₁ b₂ p₁ p₁' p₂ p₂' fe fe' α β γ H.
+    exact (invertible_2cell_between_preserves_cartesian α β γ H).
 Defined.
 
 Definition sfib_subbicat_props
@@ -377,8 +422,8 @@ Proof.
     apply id_mor_preserves_opcartesian.
   - intros e₁ e₂ e₃ b₁ b₂ b₃ p₁ p₂ p₃ fe ge Hf Hg.
     exact (comp_preserves_opcartesian Hf Hg).
-  - intros e₁ e₂ b₁ b₂ p₁ p₂ fe₁ fe₂ α H.
-    exact (invertible_2cell_between_preserves_opcartesian α H).
+  - intros e₁ e₂ b₁ b₂ p₁ p₁' p₂ p₂' fe fe' α β γ H.
+    exact (invertible_2cell_between_preserves_opcartesian α β γ H).
 Defined.
 
 Definition sopfib_subbicat_props
@@ -1039,4 +1084,535 @@ Proof.
     split.
     + exact (λ H, H).
     + exact (λ H, H).
+Defined.
+
+(**
+ 5. Closure conditions for display map bicategories
+ *)
+Definition arrow_subbicat_bifinal
+           {B : bicat}
+           (D : arrow_subbicat B)
+  : UU
+  := (∏ (b : B), pred_ob D (id₁ b))
+     ×
+     (∏ (e b : B)
+        (h : e --> b),
+      pred_mor D h (id₁ b) h).
+
+Definition arrow_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (D : arrow_subbicat B)
+  : UU
+  := (∏ (b : B), pred_ob D (is_biinitial_1cell_property (pr2 I) b))
+     ×
+     (∏ (e b : B)
+        (h : e --> b),
+      pred_mor
+        D
+        (is_biinitial_1cell_property (pr2 I) b)
+        h
+        (is_biinitial_1cell_property (pr2 I) e)).
+
+Definition arrow_subbicat_closed_composition
+           {B : bicat}
+           (D : arrow_subbicat B)
+  : UU
+  := (∏ (x y z : B)
+        (f : x --> y)
+        (g : y --> z),
+      pred_ob D f
+      →
+      pred_ob D g
+      →
+      pred_ob D (f · g))
+     ×
+     (∏ (x y z : B)
+        (f : x --> y)
+        (g : y --> z),
+      pred_ob D f
+      →
+      pred_ob D g
+      →
+      pred_mor D (f · g) g f).
+
+Definition arrow_subbicat_closed_prod_mor
+           {B : bicat}
+           (D : arrow_subbicat B)
+  : UU
+  := ∏ (pb x y z : B)
+       (f : x --> z)
+       (g : y --> z)
+       (p₁ : pb --> x)
+       (p₂ : pb --> y)
+       (γ : invertible_2cell (p₁ · f) (p₂ · g))
+       (H : has_pb_ump (make_pb_cone pb p₁ p₂ γ))
+       (c : B)
+       (cp : c --> x)
+       (h : c --> y)
+       (δ : invertible_2cell (cp · f) (h · g))
+       (cone := make_pb_cone c cp h δ),
+     pred_ob D f
+     →
+     pred_mor D (cp · f) f cp
+     →
+     pred_mor D (cp · f) g h
+     →
+     pred_mor D (cp · f) (p₁ · f) (pb_ump_mor H cone).
+
+(**
+ 6. Examples
+ *)
+
+(**
+ 6.1 Bifinal
+ *)
+Definition full_arrow_subbicat_bifinal
+           {B : bicat}
+           (P : ∏ (x y : B), x --> y → UU)
+           (Pid : ∏ (x : B), P x x (id₁ x))
+  : arrow_subbicat_bifinal (full_arrow_subbicat P).
+Proof.
+  split.
+  - exact Pid.
+  - exact (λ _ _ _, tt).
+Defined.
+
+Definition intersection_arrow_subbicat_bifinal
+           {B : bicat}
+           (D₁ D₂ : arrow_subbicat B)
+           (HD₁ : arrow_subbicat_bifinal D₁)
+           (HD₂ : arrow_subbicat_bifinal D₂)
+  : arrow_subbicat_bifinal (intersection_arrow_subbicat D₁ D₂).
+Proof.
+  split.
+  - intro b.
+    split.
+    + apply HD₁.
+    + apply HD₂.
+  - intros e b h.
+    split.
+    + apply HD₁.
+    + apply HD₂.
+Defined.
+
+Definition faithful_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_bifinal.
+  intros ; cbn.
+  apply id1_faithful.
+Defined.
+
+Definition fully_faithful_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (fully_faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_bifinal.
+  intros ; cbn.
+  apply id1_fully_faithful.
+Defined.
+
+Definition conservative_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (conservative_subbicat B).
+Proof.
+  use full_arrow_subbicat_bifinal.
+  intros ; cbn.
+  apply id1_conservative.
+Defined.
+
+Definition discrete_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (discrete_subbicat B).
+Proof.
+  use full_arrow_subbicat_bifinal.
+  intros ; cbn.
+  apply id1_discrete.
+Defined.
+
+Definition sfib_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (sfib_subbicat B).
+Proof.
+  split.
+  - exact identity_internal_sfib.
+  - intros.
+    apply mor_to_id_preserves_cartesian.
+Defined.
+
+Definition sopfib_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (sopfib_subbicat B).
+Proof.
+  split.
+  - exact identity_internal_sopfib.
+  - intros.
+    apply mor_to_id_preserves_opcartesian.
+Defined.
+
+Definition discrete_sfib_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (discrete_sfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_bifinal.
+  - exact (sfib_subbicat_bifinal B).
+  - exact (discrete_subbicat_bifinal B).
+Defined.
+
+Definition discrete_sopfib_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (discrete_sopfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_bifinal.
+  - exact (sopfib_subbicat_bifinal B).
+  - exact (discrete_subbicat_bifinal B).
+Defined.
+
+(**
+ 6.2 Biinitial
+ *)
+Definition full_arrow_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (P : ∏ (x y : B), x --> y → UU)
+           (PI : ∏ (x : B), P (pr1 I) x (is_biinitial_1cell_property (pr2 I) x))
+  : arrow_subbicat_biinitial I (full_arrow_subbicat P).
+Proof.
+  split.
+  - exact PI.
+  - exact (λ _ _ _, tt).
+Defined.
+
+Definition intersection_arrow_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (D₁ D₂ : arrow_subbicat B)
+           (HD₁ : arrow_subbicat_biinitial I D₁)
+           (HD₂ : arrow_subbicat_biinitial I D₂)
+  : arrow_subbicat_biinitial I (intersection_arrow_subbicat D₁ D₂).
+Proof.
+  split.
+  - intro b.
+    split.
+    + apply HD₁.
+    + apply HD₂.
+  - intros e b h.
+    split.
+    + apply HD₁.
+    + apply HD₂.
+Defined.
+
+Definition faithful_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_biinitial.
+  intros ; cbn.
+  exact (from_biinitial_faithful_1cell (pr2 I) HI _).
+Defined.
+
+Definition fully_faithful_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (fully_faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_biinitial.
+  intros ; cbn.
+  exact (from_biinitial_fully_faithful_1cell (pr2 I) HI _).
+Defined.
+
+Definition conservative_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (conservative_subbicat B).
+Proof.
+  use full_arrow_subbicat_biinitial.
+  intros ; cbn.
+  exact (from_biinitial_conservative_1cell (pr2 I) HI _).
+Defined.
+
+Definition discrete_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (discrete_subbicat B).
+Proof.
+  use full_arrow_subbicat_biinitial.
+  intros ; cbn.
+  exact (from_biinitial_discrete_1cell (pr2 I) HI _).
+Defined.
+
+Definition sfib_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (sfib_subbicat B).
+Proof.
+  split.
+  - exact (λ _, from_biinitial_internal_sfib (pr2 I) HI _).
+  - intros.
+    apply from_biinitial_mor_preserves_cartesian.
+    exact HI.
+Defined.
+
+Definition sopfib_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (sopfib_subbicat B).
+Proof.
+  split.
+  - exact (λ _, from_biinitial_internal_sopfib (pr2 I) HI _).
+  - intros.
+    apply from_biinitial_mor_preserves_opcartesian.
+    exact HI.
+Defined.
+
+Definition discrete_sfib_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (discrete_sfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_biinitial.
+  - exact (sfib_subbicat_biinitial I HI).
+  - exact (discrete_subbicat_biinitial I HI).
+Defined.
+
+Definition discrete_sopfib_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (discrete_sopfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_biinitial.
+  - exact (sopfib_subbicat_biinitial I HI).
+  - exact (discrete_subbicat_biinitial I HI).
+Defined.
+
+(**
+ 6.3 Composition
+ *)
+Definition full_arrow_subbicat_composition
+           {B : bicat}
+           (P : ∏ (x y : B), x --> y → UU)
+           (Pcomp : ∏ (x y z : B)
+                      (f : x --> y)
+                      (g : y --> z),
+                    P x y f
+                    →
+                    P y z g
+                    →
+                    P x z (f · g))
+  : arrow_subbicat_closed_composition (full_arrow_subbicat P).
+Proof.
+  split.
+  - exact Pcomp.
+  - intros.
+    apply tt.
+Defined.
+
+Definition intersection_arrow_subbicat_composition
+           {B : bicat}
+           (D₁ D₂ : arrow_subbicat B)
+           (HD₁ : arrow_subbicat_closed_composition D₁)
+           (HD₂ : arrow_subbicat_closed_composition D₂)
+  : arrow_subbicat_closed_composition (intersection_arrow_subbicat D₁ D₂).
+Proof.
+  split.
+  - intros x y z f g Hf Hg.
+    split.
+    + apply HD₁.
+      * exact (pr1 Hf).
+      * exact (pr1 Hg).
+    + apply HD₂.
+      * exact (pr2 Hf).
+      * exact (pr2 Hg).
+  - intros x y z f g Hf Hg.
+    split.
+    + apply HD₁.
+      * exact (pr1 Hf).
+      * exact (pr1 Hg).
+    + apply HD₂.
+      * exact (pr2 Hf).
+      * exact (pr2 Hg).
+Defined.
+
+Definition faithful_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_composition.
+  intros x y z f g Hf Hg.
+  exact (comp_faithful Hf Hg).
+Defined.
+
+Definition fully_faithful_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (fully_faithful_subbicat B).
+Proof.
+  use full_arrow_subbicat_composition.
+  intros x y z f g Hf Hg.
+  exact (comp_fully_faithful Hf Hg).
+Defined.
+
+Definition conservative_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (conservative_subbicat B).
+Proof.
+  use full_arrow_subbicat_composition.
+  intros x y z f g Hf Hg.
+  exact (comp_conservative Hf Hg).
+Defined.
+
+Definition discrete_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (discrete_subbicat B).
+Proof.
+  use full_arrow_subbicat_composition.
+  intros x y z f g Hf Hg.
+  exact (comp_discrete Hf Hg).
+Defined.
+
+Definition sfib_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (sfib_subbicat B).
+Proof.
+  split.
+  - intros x y z f g Hf Hg.
+    exact (comp_sfib Hf Hg).
+  - intros x y z f g Hf Hg ; cbn.
+    apply comp_mor_preserves_cartesian.
+    + exact Hf.
+    + exact Hg.
+Defined.
+
+Definition sopfib_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (sopfib_subbicat B).
+Proof.
+  split.
+  - intros x y z f g Hf Hg.
+    exact (comp_sopfib Hf Hg).
+  - intros x y z f g Hf Hg ; cbn.
+    apply comp_mor_preserves_opcartesian.
+    + exact Hf.
+    + exact Hg.
+Defined.
+
+Definition discrete_sfib_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (discrete_sfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_composition.
+  - exact (sfib_subbicat_closed_composition B).
+  - exact (discrete_subbicat_closed_composition B).
+Defined.
+
+Definition discrete_sopfib_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (discrete_sopfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_composition.
+  - exact (sopfib_subbicat_closed_composition B).
+  - exact (discrete_subbicat_closed_composition B).
+Defined.
+
+(**
+ 6.4 Product morphism
+ *)
+Definition full_arrow_subbicat_closed_prod_mor
+           {B : bicat}
+           (P : ∏ (x y : B), x --> y → UU)
+  : arrow_subbicat_closed_prod_mor (full_arrow_subbicat P).
+Proof.
+  intro ; intros.
+  exact tt.
+Defined.
+
+Definition intersection_arrow_subbicat_closed_prod_mor
+           {B : bicat}
+           (D₁ D₂ : arrow_subbicat B)
+           (HD₁ : arrow_subbicat_closed_prod_mor D₁)
+           (HD₂ : arrow_subbicat_closed_prod_mor D₂)
+  : arrow_subbicat_closed_prod_mor (intersection_arrow_subbicat D₁ D₂).
+Proof.
+  intros pb x y z f g p₁ p₂ γ H c cp h δ cone Hf Hfmap Hgmap.
+  split.
+  - apply HD₁.
+    + exact (pr1 Hf).
+    + exact (pr1 Hfmap).
+    + exact (pr1 Hgmap).
+  - apply HD₂.
+    + exact (pr2 Hf).
+    + exact (pr2 Hfmap).
+    + exact (pr2 Hgmap).
+Defined.
+
+Definition faithful_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (faithful_subbicat B).
+Proof.
+  apply full_arrow_subbicat_closed_prod_mor.
+Defined.
+
+Definition fully_faithful_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (fully_faithful_subbicat B).
+Proof.
+  apply full_arrow_subbicat_closed_prod_mor.
+Defined.
+
+Definition conservative_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (conservative_subbicat B).
+Proof.
+  apply full_arrow_subbicat_closed_prod_mor.
+Defined.
+
+Definition discrete_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (discrete_subbicat B).
+Proof.
+  apply full_arrow_subbicat_closed_prod_mor.
+Defined.
+
+Definition sfib_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (sfib_subbicat B).
+Proof.
+  intros pb x y z f g p₁ p₂ γ H c cp h δ cone Hf Hfmap Hgmap.
+  exact (mor_preserves_cartesian_pb_ump_mor_comp H Hf δ Hfmap Hgmap).
+Defined.
+
+Definition sopfib_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (sopfib_subbicat B).
+Proof.
+  intros pb x y z f g p₁ p₂ γ H c cp h δ cone Hf Hfmap Hgmap.
+  exact (mor_preserves_opcartesian_pb_ump_mor_comp H Hf δ Hfmap Hgmap).
+Defined.
+
+Definition discrete_sfib_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (discrete_sfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_closed_prod_mor.
+  - exact (sfib_subbicat_closed_prod_mor B).
+  - exact (discrete_subbicat_closed_prod_mor B).
+Defined.
+
+Definition discrete_sopfib_subbicat_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (discrete_sopfib_subbicat B).
+Proof.
+  use intersection_arrow_subbicat_closed_prod_mor.
+  - exact (sopfib_subbicat_closed_prod_mor B).
+  - exact (discrete_subbicat_closed_prod_mor B).
 Defined.

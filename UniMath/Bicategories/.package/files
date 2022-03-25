@@ -146,6 +146,7 @@ Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
+Morphisms/Properties/FromInitial.v
 PseudoFunctors/Preservation.v
 
 PseudoFunctors/Biadjunction.v
@@ -188,6 +189,9 @@ DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
 
 PseudoFunctors/Examples/PullbackFunctor.v
+
+Limits/Examples/DisplayMapSliceLimits.v
+Colimits/Examples/DisplayMapSliceColimits.v
 
 DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
