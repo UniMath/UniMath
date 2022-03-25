@@ -81,8 +81,6 @@ Definition identity {C : precategory_data}
   : ∏ c : C, c --> c
   := pr1 (pr2 C).
 
-Local Notation "1" := (identity _) : cat.
-
 Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
   := pr2 (pr2 C) a b c.
