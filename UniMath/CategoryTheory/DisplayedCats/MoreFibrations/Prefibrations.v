@@ -171,7 +171,7 @@ Proof.
   apply isapropiscontr.
 Defined.
 
-
+(*
 Definition pre_implies_pre'_new
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
@@ -198,6 +198,7 @@ Proof.
       * apply precartesian_factorisation_commutes.
       * apply transportbfinv.
 Defined.
+*)
 
 End Precartesian_morphisms.
 
