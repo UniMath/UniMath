@@ -128,7 +128,6 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 LatticeObject.v
-Elements.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
@@ -205,6 +204,8 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+
+Elements.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v

@@ -887,6 +887,60 @@ Section PullbackOfSFib.
        rewrite vcomp_whisker ;
        apply idpath).
   Defined.
+
+  Definition mor_preserves_cartesian_pb_ump_mor_alt
+             {e₀ : B}
+             (p₀ : e₀ --> b₁)
+             (h₁ : e₀ --> e₂)
+             (δ : invertible_2cell (h₁ · p₂) (p₀ · fb))
+             (cone := make_pb_cone e₀ h₁ p₀ δ)
+             (Hh₁ : mor_preserves_cartesian p₀ p₂ h₁)
+    : mor_preserves_cartesian
+        p₀
+        p₁
+        (pb_ump_mor H cone).
+  Proof.
+    intros x f g ζ Hζ.
+    apply to_pb_cartesian.
+    assert (H₁ : is_cartesian_2cell_sfib p₂ (rassociator g (pb_ump_mor H cone) fe)) .
+    {
+      apply invertible_is_cartesian_2cell_sfib.
+      is_iso.
+    }
+    assert (H₂ : is_cartesian_2cell_sfib p₂ ((g ◃ pb_ump_mor_pr1 H cone))).
+    {
+      apply invertible_is_cartesian_2cell_sfib.
+      is_iso.
+      apply property_from_invertible_2cell.
+    }
+    assert (H₃ : is_cartesian_2cell_sfib
+                   p₂
+                   (rassociator f (pb_ump_mor H cone) fe
+                                • ((f ◃ pb_ump_mor_pr1 H cone)
+                                     • (ζ ▹ pb_cone_pr1 cone)))).
+    {
+      use vcomp_is_cartesian_2cell_sfib.
+      - apply invertible_is_cartesian_2cell_sfib.
+        is_iso.
+      - use vcomp_is_cartesian_2cell_sfib.
+        + apply invertible_is_cartesian_2cell_sfib.
+          is_iso.
+          apply property_from_invertible_2cell.
+        + apply Hh₁.
+          exact Hζ.
+    }
+    use (is_cartesian_2cell_sfib_postcomp
+           p₂
+           _
+           (vcomp_is_cartesian_2cell_sfib _ H₁ H₂)
+           H₃).
+    abstract
+      (rewrite vassocr ;
+       rewrite rwhisker_rwhisker_alt ;
+       rewrite vassocl ;
+       rewrite vcomp_whisker ;
+       apply idpath).
+  Defined.
 End PullbackOfSFib.
 
 (**
@@ -975,6 +1029,105 @@ Proof.
            (to_op2_has_pb_ump _ H)
            e₀ b₀ p₀
            h₁ h₂
+           (inv_of_invertible_2cell
+              (weq_op2_invertible_2cell
+                 _ _
+                 δ))
+           (mor_preserves_opcartesian_to_mor_preserves_cartesian
+              Hh₁)).
+Defined.
+
+Definition from_pb_opcartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (H : has_pb_ump (make_pb_cone e₁ fe p₁ γ))
+           (Hp₂ : internal_sopfib p₂)
+           {x : B}
+           {g₁ g₂ : x --> e₁}
+           (α : g₁ ==> g₂)
+           (Hα : is_opcartesian_2cell_sopfib p₁ α)
+  : is_opcartesian_2cell_sopfib p₂ (α ▹ fe).
+Proof.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  use (@from_pb_cartesian
+         (op2_bicat B)
+         e₁ e₂ b₁ b₂
+         p₁ p₂
+         fe fb).
+  - apply weq_op2_invertible_2cell.
+    exact (inv_of_invertible_2cell γ).
+  - apply to_op2_has_pb_ump.
+    exact H.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hp₂.
+  - apply is_opcartesian_to_is_cartesian_sfib.
+    exact Hα.
+Defined.
+
+Definition to_pb_opcartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (H : has_pb_ump (make_pb_cone e₁ fe p₁ γ))
+           {x : B}
+           {g₁ g₂ : x --> e₁}
+           (α : g₁ ==> g₂)
+           (Hα : is_opcartesian_2cell_sopfib p₂ (α ▹ fe))
+  : is_opcartesian_2cell_sopfib p₁ α.
+Proof.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  use (@to_pb_cartesian
+         (op2_bicat B)
+         e₁ e₂ b₁ b₂
+         p₁ p₂
+         fe fb).
+  - apply weq_op2_invertible_2cell.
+    exact (inv_of_invertible_2cell γ).
+  - apply to_op2_has_pb_ump.
+    exact H.
+  - apply is_opcartesian_to_is_cartesian_sfib.
+    exact Hα.
+Defined.
+
+Definition mor_preserves_opcartesian_pb_ump_mor_alt
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ : e₁ --> b₁}
+           {p₂ : e₂ --> b₂}
+           {fe : e₁ --> e₂}
+           {fb : b₁ --> b₂}
+           {γ : invertible_2cell (fe · p₂) (p₁ · fb)}
+           (pb := make_pb_cone e₁ fe p₁ γ)
+           (H : has_pb_ump pb)
+           {e₀ : B}
+           (p₀ : e₀ --> b₁)
+           (h₁ : e₀ --> e₂)
+           (δ : invertible_2cell (h₁ · p₂) (p₀ · fb))
+           (cone := make_pb_cone e₀ h₁ p₀ δ)
+           (Hh₁ : mor_preserves_opcartesian p₀ p₂ h₁)
+  : mor_preserves_opcartesian
+      p₀
+      p₁
+      (pb_ump_mor H cone).
+Proof.
+  apply mor_preserves_cartesian_to_mor_preserves_opcartesian.
+  exact (@mor_preserves_cartesian_pb_ump_mor_alt
+           (op2_bicat B)
+           e₁ e₂ b₁ b₂
+           p₁ p₂ fe fb
+           _
+           (to_op2_has_pb_ump _ H)
+           e₀
+           p₀ h₁
            (inv_of_invertible_2cell
               (weq_op2_invertible_2cell
                  _ _

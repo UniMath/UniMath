@@ -538,6 +538,33 @@ Proof.
   - exact q.
 Defined.
 
+Definition locally_grpd_internal_sopfib
+           {B : bicat}
+           (HB : locally_groupoid B)
+           {e b : B}
+           (p : e --> b)
+  : internal_sopfib p.
+Proof.
+  split.
+  - intros x f g α.
+    refine (f
+            ,,
+            id2 _
+            ,,
+            inv_of_invertible_2cell (make_invertible_2cell (HB _ _ _ _ α))
+            ,,
+            locally_grpd_opcartesian HB _ _
+            ,,
+            _).
+    abstract
+      (cbn ;
+       rewrite id2_rwhisker ;
+       rewrite vcomp_rinv ;
+       apply idpath).
+  - intro ; intros.
+    apply (locally_grpd_opcartesian HB).
+Defined.
+
 (**
  4. Morphisms of internal Street opfibrations
  *)

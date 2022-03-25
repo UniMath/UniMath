@@ -765,24 +765,24 @@ Defined.
  7. Instantiations
  *)
 Definition sfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (b : B)
   : bicat
   := disp_map_slice_bicat (sfib_subbicat B) b.
 
 Definition sopfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (b : B)
   : bicat
   := disp_map_slice_bicat (sopfib_subbicat B) b.
 
 Definition disc_sfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
   := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sfib_disp_map_bicat B) b)
+       (disp_map_slice_bicat (discrete_sfib_subbicat B) b)
        (is_discrete_disp_map_slice
           HB
           (discrete_sfib_subbicat_props B HB)
@@ -790,12 +790,12 @@ Definition disc_sfib_slice
           b).
 
 Definition disc_sopfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
   := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sopfib_disp_map_bicat B) b)
+       (disp_map_slice_bicat (discrete_sopfib_subbicat B) b)
        (is_discrete_disp_map_slice
           HB
           (discrete_sopfib_subbicat_props B HB)
