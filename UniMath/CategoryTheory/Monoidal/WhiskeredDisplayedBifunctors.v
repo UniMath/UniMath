@@ -169,7 +169,7 @@ Section DisplayedWhiskeredBinaturaltransformation.
     ((ff ⊗⊗^{DF}_{r} yy) ;; (dα _ _ xx2 yy) = transportb _ (pr2 (pr2 α) x1 x2 y _) ((dα _ _ xx1 yy) ;; (ff ⊗⊗^{DG}_{r} yy))) ).
 
 
-
+  (*
   Lemma mor_disp_transportb_prewhisker
     {C : precategory} {D : disp_cat_data C}
     {x y z : C} {f : x --> y} {g g' : y --> z} (eg : g = g')
@@ -186,7 +186,7 @@ Section DisplayedWhiskeredBinaturaltransformation.
     : (transportb _ ef ff') ;; gg = transportb _ (cancel_postcomposition _ _ g ef) (ff' ;; gg).
   Proof.
     destruct ef ; apply idpath.
-  Qed.
+  Qed. *)
 
   Lemma full_disp_naturality_condition {A B C : category} {F : bifunctor A B C} {G : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} {α : binat_trans F G} {DF : disp_bifunctor F DA DB DC} {DG : disp_bifunctor G DA DB DC} {dα : disp_binat_trans_data α DF DG} (dαn : is_disp_binat_trans dα) (x1 x2 : A) (y1 y2 : B) (f : A⟦x1,x2⟧) (g : B⟦y1,y2⟧) (xx1 : DA x1) (xx2 : DA x2) (yy1 : DB y1) (yy2 : DB y2) (ff : xx1 -->[f] xx2) (gg : yy1 -->[g] yy2) :
     (ff ⊗⊗^{DF} gg) ;; (dα _ _ xx2 yy2) = transportb _ (full_naturality_condition (pr2 α) f g) ((dα _ _ xx1 yy1) ;; (ff ⊗⊗^{DG} gg)).
@@ -196,23 +196,21 @@ Section DisplayedWhiskeredBinaturaltransformation.
     apply transportf_transpose_left.
     rewrite transport_b_b.
     rewrite (pr1 dαn).
-    rewrite mor_disp_transportb_prewhisker.
-
-    apply transportb_transpose_left.
-    etrans. { apply assoc_disp. }
-    rewrite (pr2 dαn).
-    apply transportb_transpose_left.
+    etrans. { apply mor_disp_transportf_prewhisker. }
+    apply transportb_transpose_right.
     rewrite transport_f_f.
-    rewrite transport_f_b.
-    use pathsinv0.
     apply transportf_transpose_left.
     etrans. { apply assoc_disp. }
-    apply transportb_transpose_left.
+    rewrite (pr2 dαn).
+    apply transportb_transpose_right.
     rewrite transport_f_b.
-    apply transportf_transpose_right.
-    rewrite mor_disp_transportb_postwhisker.
-    apply transportb_transpose_left.
-    rewrite transport_f_b.
+    apply transportf_transpose_left.
+    etrans. { apply mor_disp_transportf_postwhisker. }
+    apply transportf_transpose_left.
+    rewrite transport_b_b.
+    rewrite assoc_disp_var.
+    apply transportf_transpose_left.
+    rewrite transport_b_b.
     use pathsinv0.
     apply transportf_set.
     apply homset_property.
