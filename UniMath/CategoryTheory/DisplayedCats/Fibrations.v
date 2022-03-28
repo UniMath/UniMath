@@ -123,15 +123,7 @@ Definition cartesian_factorisation_unique
     {c''} {g : c'' --> c'} {d'' : D c''} (gg gg' : d'' -->[g] d')
   : (gg ;; ff = gg' ;; ff) -> gg = gg'.
 Proof.
-  revert gg gg'.
-  assert (goal' : forall gg : d'' -->[g] d',
-                    gg = cartesian_factorisation H g (gg ;; ff)).
-  {
-    intros gg.
-    exact (maponpaths pr1
-      (pr2 (H _ g _ (gg ;; ff)) (gg,,idpath _))).
-  }
-  intros gg gg' Hggff.
+  intro Hggff.
   eapply pathscomp0. apply (cartesian_factorisation_of_composite H).
   eapply pathscomp0. apply maponpaths, Hggff.
   apply pathsinv0, cartesian_factorisation_of_composite.
