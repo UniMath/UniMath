@@ -190,25 +190,36 @@ Section additive_kernel_equalizers.
   Proof.
     use (to_rcan A (KernelArrow K · (to_inv g))).
     rewrite <- to_premor_linear'. rewrite <- to_premor_linear'.
-    rewrite KernelCompZero. rewrite (@to_rinvax' A (to_Zero A)). rewrite ZeroArrow_comp_right.
+    rewrite KernelCompZero.
+    rewrite (@to_rinvax' A (to_Zero A)). rewrite ZeroArrow_comp_right.
     apply idpath.
   Qed.
 
   Lemma AdditiveKernelToEqualizer_isEqualizer {x y : ob A} (f g : x --> y)
              (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
-    isEqualizer f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
+    isEqualizer (*C:= categoryWithAbgrops_category _ *)f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
   Proof.
     use make_isEqualizer.
     intros w h H'.
     use unique_exists.
     - use KernelIn.
       + exact h.
-      + rewrite to_premor_linear'. rewrite H'. rewrite <- to_premor_linear'.
+      + set (X := @to_premor_linear' A).
+        rewrite X.
+        etrans.
+        { apply maponpaths_2.
+          apply H'. }
+
+        rewrite <- to_premor_linear'.
         rewrite (@to_rinvax' A (to_Zero A)). apply ZeroArrow_comp_right.
     - cbn. use KernelCommutes.
     - intros y0. apply to_has_homsets.
     - intros y0 X. cbn in X.
-      use (KernelArrowisMonic _ K). rewrite KernelCommutes. exact X.
+      use (KernelArrowisMonic _ K).
+      etrans.
+        2 : { apply pathsinv0. apply KernelCommutes.
+        }
+        exact X.
   Qed.
 
   Definition AdditiveKernelToEqualizer {x y : ob A} (f g : x --> y)
@@ -224,7 +235,8 @@ Section additive_kernel_equalizers.
   Lemma AdditiveEqualizerToKernel_eq1 {x y : ob A} (f g : x --> y) (E : Equalizer f g) :
     EqualizerArrow E · to_binop x y f (to_inv g) = ZeroArrow (to_Zero A) E y.
   Proof.
-    rewrite to_premor_linear'.
+    set (X:= @to_premor_linear' A).
+    rewrite X.
     use (to_rcan A (EqualizerArrow E · g)). rewrite to_assoc.
     rewrite to_lunax''. rewrite <- to_premor_linear'. rewrite (@to_linvax' A (to_Zero A)).
     rewrite ZeroArrow_comp_right. rewrite to_runax''. apply (EqualizerEqAr E).
@@ -235,7 +247,6 @@ Section additive_kernel_equalizers.
              (AdditiveEqualizerToKernel_eq1 f g E).
   Proof.
     use make_isKernel.
-    - apply to_has_homsets.
     - intros w h H'.
       use unique_exists.
       + use (EqualizerIn E).
@@ -319,7 +330,6 @@ Section additive_kernel_equalizers.
                (AdditiveCoequalizerToCokernel_eq1 f g CE).
   Proof.
     use make_isCokernel.
-    - apply to_has_homsets.
     - intros w h H'.
       use unique_exists.
       + use CoequalizerOut.
@@ -353,6 +363,7 @@ Section additive_minus_monic.
 
   Variable A : CategoryWithAdditiveStructure.
 
+
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum y z) :
     isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
@@ -362,14 +373,21 @@ Section additive_minus_monic.
     assert (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS =
                 h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS).
     {
-      rewrite X. apply idpath.
+      etrans. apply maponpaths_2.
+      apply X.
+      apply idpath.
     }
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite to_postmor_linear' in e.
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn1 DS) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e.
+    rewrite (@to_postmor_linear' A) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e.
+    rewrite (to_IdIn1 DS) in e.
     rewrite (to_Unel2' DS) in e. rewrite ZeroArrow_comp_right in e.
     rewrite id_right in e. use (MonicisMonic A f).
     rewrite to_runax'' in e. exact e.
   Qed.
+
+
+
 
   (** This version is used in AbelianPushoutPullback *)
   Lemma isMonic_to_binop_BinDirectSum1' {x y z : A} (f : Monic A x y) (g : x --> z)
@@ -378,6 +396,7 @@ Section additive_minus_monic.
   Proof.
     rewrite PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
   Qed.
+
 
   Lemma isMonic_to_binop_BinDirectSum2 {x y z : A} (f : x --> y) (g : Monic A x z)
         (DS : BinDirectSum y z) :
@@ -390,12 +409,14 @@ Section additive_minus_monic.
     {
       rewrite X. apply idpath.
     }
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite to_postmor_linear' in e.
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn2 DS) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e.
+    rewrite (@to_postmor_linear' A) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (@to_IdIn2 A _ _ _ _ _ _ _ DS) in e.
     rewrite (to_Unel1' DS) in e. rewrite ZeroArrow_comp_right in e.
     rewrite id_right in e. use (MonicisMonic A g).
     rewrite to_lunax'' in e. exact e.
   Qed.
+
 
   Lemma isEpi_to_binop_BinDirectSum1 {x y z : A} (f : Epi A y x) (g : z --> x)
         (DS : BinDirectSum y z) :

@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 
 Section def_zero.
 
-  Variable C : precategory.
+  Variable C : category.
 
   Definition isZero (b : C) : UU :=
     (∏ a : C, iscontr (b --> a)) × (∏ a : C, iscontr (a --> b)).
@@ -125,62 +125,6 @@ Section def_zero.
 
   Definition hasZero := ishinh Zero.
 
-  Section Zero_Unique.
-    Hypothesis H : is_univalent C.
-
-    Lemma isaprop_Zero : isaprop Zero.
-    Proof.
-      apply invproofirrelevance.
-      intros Z Z'.
-      apply (total2_paths_f (isotoid _ H (iso_Zeros Z Z'))).
-      apply proofirrelevance.
-      unfold isZero.
-      apply isapropdirprod; apply impred; intros t; apply isapropiscontr.
-    Defined.
-
-  End Zero_Unique.
-
-  Lemma ZeroIffInitialAndTerminal (b : C) :
-    isZero b <-> (isInitial C b) × (isTerminal C b).
-  Proof.
-    unfold isZero, isInitial, isTerminal.
-    split; intros H; apply H.
-  Qed.
-
-  Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
-    isZero A.
-  Proof.
-    use make_isZero.
-    - intros a.
-      use tpair.
-      + exact (i · (ZeroArrowFrom Z a)).
-      + cbn. intros t.
-        apply (pre_comp_with_iso_is_inj
-                 C _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
-        rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
-        apply ArrowsFromZero.
-    - intros a.
-      use tpair.
-      + exact ((ZeroArrowTo Z a) · (iso_inv_from_iso i)).
-      + cbn. intros t.
-        apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
-        rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
-        apply ArrowsToZero.
-  Qed.
-
-
-  (** ** Transport of ZeroArrow *)
-  Lemma transport_target_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
-    transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
-  Proof.
-    induction e. apply idpath.
-  Qed.
-
-  Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
-    transportf (λ (a' : ob C), precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
-  Proof.
-    induction e. apply idpath.
-  Qed.
 
 End def_zero.
 
@@ -192,4 +136,72 @@ Arguments ZeroArrow [C] _ _ _.
 Arguments make_isZero {_} _ _ _ .
 Arguments make_Zero {_} _ _ .
 
-Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
+
+Section Zero_Unique.
+
+  Variable C : category.
+  Hypothesis H : is_univalent C.
+
+  Lemma isaprop_Zero : isaprop (Zero C).
+  Proof.
+    apply invproofirrelevance.
+    intros Z Z'.
+    apply (total2_paths_f (isotoid _ H (iso_Zeros _ Z Z'))).
+    apply proofirrelevance.
+    unfold isZero.
+    apply isapropdirprod; apply impred; intros t; apply isapropiscontr.
+  Defined.
+
+End Zero_Unique.
+
+
+Section facts.
+
+  Variable C : category.
+
+  Lemma ZeroIffInitialAndTerminal (b : C) :
+    isZero b <-> (isInitial C b) × (isTerminal C b).
+  Proof.
+    unfold isZero, isInitial, isTerminal.
+    split; intros H; apply H.
+  Qed.
+
+  Definition IsoToisZero {A : C} (Z : Zero C) (i : iso A Z) :
+    isZero A.
+  Proof.
+    use make_isZero.
+    - intros a.
+      use tpair.
+      + exact (i · (ZeroArrowFrom a)).
+      + cbn. intros t.
+        apply (pre_comp_with_iso_is_inj
+                 _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+        rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+        apply ArrowsFromZero.
+    - intros a.
+      use tpair.
+      + exact ((ZeroArrowTo a) · (iso_inv_from_iso i)).
+      + cbn. intros t.
+        apply (post_comp_with_iso_is_inj _ _ i (pr2 i)).
+        rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
+        apply ArrowsToZero.
+  Qed.
+
+
+  (** ** Transport of ZeroArrow *)
+  Lemma transport_target_ZeroArrow {a b c : C} (Z : Zero C) (e : b = c) :
+    transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+  Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero C) (e : b = a) :
+    transportf (λ (a' : ob C), precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+
+Definition zero_lifts (M:category) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
+
+End facts.

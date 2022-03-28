@@ -11,7 +11,6 @@ Partial contents:
   - [dirprodpr1_disp_functor], [dirprodpr2_disp_functor]
 - Sigmas of displayed categories
 - Displayed functor cat
-- Fiber cats
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -21,10 +20,17 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+(* Needed for [functor_lifting]. *)
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
@@ -41,16 +47,7 @@ Proof.
   - apply HY.
 Defined.
 
-
-Lemma transportf_pathsinv0_var :
-∏ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x}
-{v : P y}, transportf P p u = v → transportf P (!p) v = u.
-Proof.
-  intros. induction p. apply (!X0).
-Defined.
-
 End Auxiliary.
-
 
 (** * Full subcategories *)
 
@@ -70,15 +67,15 @@ Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
+Definition disp_full_sub_axioms (C : category) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub (C : precategory) (P : C → UU)
-  : disp_precat C := _ ,, disp_full_sub_axioms C P.
+Definition disp_full_sub (C : category) (P : C → UU)
+  : disp_cat C := _ ,, disp_full_sub_axioms C P.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
@@ -176,13 +173,13 @@ Definition dirprod_disp_cat_axioms
   : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
 Proof.
   repeat apply make_dirprod.
-  - intros. apply dirprod_paths; use (id_left_disp @ !_).
+  - intros. apply dirprod_paths; use (id_left_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (id_right_disp @ !_).
+  - intros. apply dirprod_paths; use (id_right_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (assoc_disp @ !_).
+  - intros. apply dirprod_paths; use (assoc_disp _ _ _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
   - intros. apply isaset_dirprod; apply homsets_disp.
@@ -368,6 +365,137 @@ Notation "D1 × D2" := (dirprod_disp_cat D1 D2) : disp_cat_scope.
 Delimit Scope disp_cat_scope with disp_cat.
 Bind Scope disp_cat_scope with disp_cat.
 
+(** ** Functors into displayed categories *)
+
+(** Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic building-block for functors into (total cats of) displayed categories will be analogous to a term.
+
+We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category), since it corresponds to a section of the forgetful functor. *)
+
+Section Sections.
+
+  Definition section_disp_data {C} (D : disp_cat C) : UU
+    := ∑ (Fob : forall x:C, D x),
+      (forall (x y:C) (f:x --> y), Fob x -->[f] Fob y).
+
+  Definition section_disp_on_objects {C} {D : disp_cat C}
+             (F : section_disp_data D) (x : C)
+    := pr1 F x : D x.
+
+  Coercion section_disp_on_objects : section_disp_data >-> Funclass.
+
+  Definition section_disp_on_morphisms {C} {D : disp_cat C}
+             (F : section_disp_data D) {x y : C} (f : x --> y)
+    := pr2 F _ _ f : F x -->[f] F y.
+
+  Notation "# F" := (section_disp_on_morphisms F)
+                      (at level 3) : mor_disp_scope.
+
+  Definition section_disp_axioms {C} {D : disp_cat C}
+             (F : section_disp_data D) : UU
+    := ((forall x:C, # F (identity x) = id_disp (F x))
+          × (forall (x y z : C) (f : x --> y) (g : y --> z),
+                # F (f · g) = (# F f) ;; (# F g))).
+
+  Definition section_disp {C} (D : disp_cat C) : UU
+    := total2 (@section_disp_axioms C D).
+
+  Definition section_disp_data_from_section_disp {C} {D : disp_cat C}
+             (F : section_disp D) := pr1 F.
+
+  Coercion section_disp_data_from_section_disp
+    : section_disp >-> section_disp_data.
+
+  Definition section_disp_id {C} {D : disp_cat C} (F : section_disp D)
+    := pr1 (pr2 F).
+
+  Definition section_disp_comp {C} {D : disp_cat C} (F : section_disp D)
+    := pr2 (pr2 F).
+
+End Sections.
+
+(** With sections defined, we can now define _lifts_ to a displayed category of a functor into the base. *)
+Section Functor_Lifting.
+
+  Notation "# F" := (section_disp_on_morphisms F)
+                      (at level 3) : mor_disp_scope.
+
+  Definition functor_lifting
+             {C C' : category} (D : disp_cat C) (F : functor C' C)
+    := section_disp (reindex_disp_cat F D).
+
+  Identity Coercion section_from_functor_lifting
+    : functor_lifting >-> section_disp.
+
+  (** Note: perhaps it would be better to define [functor_lifting] directly?
+  Reindexed displayed-cats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [lifted_functor_axioms] below. *)
+
+  Definition lifted_functor_data {C C' : category} {D : disp_cat C}
+             {F : functor C' C} (FF : functor_lifting D F)
+    : functor_data C' (total_category D).
+  Proof.
+    exists (λ x, (F x ,, FF x)).
+    intros x y f. exists (# F f)%cat. exact (# FF f).
+  Defined.
+
+  Definition lifted_functor_axioms {C C' : category} {D : disp_cat C}
+             {F : functor C' C} (FF : functor_lifting D F)
+    : is_functor (lifted_functor_data FF).
+  Proof.
+    split.
+    - intros x. use total2_paths_f; simpl.
+      apply functor_id.
+      eapply pathscomp0. apply maponpaths, (section_disp_id FF).
+      cbn. apply transportfbinv.
+    - intros x y z f g. use total2_paths_f; simpl.
+      apply functor_comp.
+      eapply pathscomp0. apply maponpaths, (section_disp_comp FF).
+      cbn. apply transportfbinv.
+  Qed.
+
+  Definition lifted_functor {C C' : category} {D : disp_cat C}
+             {F : functor C' C} (FF : functor_lifting D F)
+    : functor C' (total_category D)
+    := (_ ,, lifted_functor_axioms FF).
+
+  Lemma from_lifted_functor {C C' : category} {D : disp_cat C}
+        {F : functor C' C} (FF : functor_lifting D F):
+    functor_composite (lifted_functor FF) (pr1_category D) = F.
+  Proof.
+    use (functor_eq _ _ (homset_property C)). apply idpath.
+  Qed.
+
+  (** redo the development for the special case that F is the identity *)
+  Definition section_functor_data {C : category} {D : disp_cat C} (sd : section_disp D)
+    : functor_data C (total_category D).
+  Proof.
+    exists (λ x, (x ,, sd x)).
+    intros x y f. exists f. exact (section_disp_on_morphisms sd f).
+  Defined.
+
+  Definition section_functor_axioms {C : category} {D : disp_cat C} (sd : section_disp D)
+    : is_functor (section_functor_data sd).
+  Proof.
+    split.
+    - intro x. use total2_paths_f; simpl.
+      + apply idpath.
+      + apply (section_disp_id sd).
+    - intros x y z f g. use total2_paths_f; simpl.
+      + apply idpath.
+      + apply (section_disp_comp sd).
+  Qed.
+
+  Definition section_functor {C : category} {D : disp_cat C} (sd : section_disp D):
+    functor C (total_category D) :=
+    section_functor_data sd,, section_functor_axioms sd.
+
+  Lemma from_section_functor {C : category} {D : disp_cat C} (sd : section_disp D):
+    functor_composite (section_functor sd) (pr1_category D) = functor_identity C.
+  Proof.
+    use (functor_eq _ _ (homset_property C)). apply idpath.
+  Qed.
+
+End Functor_Lifting.
+
 (** * Sigmas of displayed (pre)categories *)
 Section Sigma.
 
@@ -403,18 +531,16 @@ Proof.
   repeat apply tpair.
   - intros. use total2_reassoc_paths'.
     + apply id_left_disp.
-    + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_left_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply id_right_disp.
-    + etrans. exact (@id_right_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_right_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply assoc_disp.
     + etrans.
-        exact (@assoc_disp _ _
-                 _ _ _ _  _ _ _
-                 _ _ _ _  (pr2 ff) (pr2 gg) (pr2 hh)).
+        exact (assoc_disp (pr2 ff) (pr2 gg) (pr2 hh)).
       apply maponpaths_2, homset_property.
   - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
@@ -461,7 +587,7 @@ Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
 Proof.
   destruct e. apply pathsinv0.
   etrans. apply maponpaths_2, maponpaths, maponpaths.
-  apply (homsets_disp _ _ _ (idpath _)).
+  apply (homsets_disp _ _ _ _ _ _ (idpath _)).
   apply idpath.
 Qed.
 
@@ -638,122 +764,6 @@ Variable D : disp_cat C.
 
 Let FunctorsC'C := functor_category C' C.
 
-Lemma disp_nat_trans_transportf
-  (F' F : functor C' C)
-  (a' a : nat_trans F' F)
-  (p : a' = a )
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a' FF' FF)
-  (c' : C')
-  (xx' : D' c')
-  :
-  pr1 (transportf (λ x, disp_nat_trans x FF' FF) p b) c' xx' =
-      transportf (mor_disp (FF' c' xx') (FF c' xx'))
-           (nat_trans_eq_pointwise p _ )  (b c' xx').
-Proof.
-  induction p.
-  assert (XR : nat_trans_eq_pointwise (idpath a') c' = idpath _ ).
-  { apply homset_property. }
-  rewrite XR.
-  apply idpath.
-Qed.
-
-Lemma disp_nat_trans_id_left
-  (F' F : functor C' C)
-  (a : nat_trans F' F)
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a FF' FF)
-  :
-   disp_nat_trans_comp (disp_nat_trans_id FF') b =
-   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF)
-              (id_left (a : FunctorsC'C ⟦ _ , _ ⟧))
-              b.
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply id_left_disp.
-  unfold transportb.
-  apply maponpaths_2, homset_property.
-Qed.
-
-Lemma disp_nat_trans_id_right
-  (F' F : functor C' C)
-  (a : nat_trans F' F)
-  (FF' : disp_functor F' D' D)
-  (FF : disp_functor F D' D)
-  (b : disp_nat_trans a FF' FF)
-  :
-   disp_nat_trans_comp b (disp_nat_trans_id FF) =
-   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF)
-              (id_right (a : FunctorsC'C ⟦ _ , _ ⟧))
-              b.
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply id_right_disp.
-  unfold transportb.
-  apply maponpaths_2, homset_property.
-Qed.
-
-Lemma disp_nat_trans_assoc
-  (x y z w : functor C' C)
-  (f : nat_trans x y)
-  (g : nat_trans y z)
-  (h : nat_trans z w)
-  (xx : disp_functor x D' D)
-  (yy : disp_functor y D' D)
-  (zz : disp_functor z D' D)
-  (ww : disp_functor w D' D)
-  (ff : disp_nat_trans f xx yy)
-  (gg : disp_nat_trans g yy zz)
-  (hh : disp_nat_trans h zz ww)
-  :
-   disp_nat_trans_comp ff (disp_nat_trans_comp gg hh) =
-   transportb (λ f0 : nat_trans x w, disp_nat_trans f0 xx ww)
-     (assoc (f : FunctorsC'C⟦_,_⟧) g h)
-     (disp_nat_trans_comp (disp_nat_trans_comp ff gg) hh).
-Proof.
-  apply subtypePath.
-  { intro. apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec; intro c'.
-  apply funextsec; intro xx'.
-  apply pathsinv0.
-  etrans. apply disp_nat_trans_transportf.
-  apply pathsinv0.
-  etrans. apply assoc_disp.
-  unfold transportb.
-  apply maponpaths_2.
-  apply homset_property.
-Qed.
-
-Lemma isaset_disp_nat_trans
-  (x y : functor C' C)
-  (f : nat_trans x y)
-  (xx : disp_functor x D' D)
-  (yy : disp_functor y D' D)
-  :
-   isaset (disp_nat_trans f xx yy).
-Proof.
-  intros. simpl in *.
-  apply (isofhleveltotal2 2).
-  * do 2 (apply impred; intro).
-    apply homsets_disp.
-  * intro d.
-    do 6 (apply impred; intro).
-    apply hlevelntosn. apply homsets_disp.
-Qed.
 
 Definition disp_functor_cat :
   disp_cat (FunctorsC'C).
@@ -773,7 +783,7 @@ Proof.
     + apply disp_nat_trans_id_left.
     + apply disp_nat_trans_id_right.
     + apply disp_nat_trans_assoc.
-    + apply isaset_disp_nat_trans.
+    + intros ; apply isaset_disp_nat_trans.
 Defined.
 
 (** TODO : characterize isos in the displayed functor cat *)
@@ -830,7 +840,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := disp_nat_trans_transportf).
+      assert (XR := @disp_nat_trans_transportf C' C D' D).
       specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -843,7 +853,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := disp_nat_trans_transportf).
+      assert (XR := @disp_nat_trans_transportf C' C D' D).
       specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -953,8 +963,6 @@ Proof.
     apply is_disp_nat_trans_pointwise_inv.
 Defined.
 
-
-
 Definition is_disp_functor_cat_iso_if_pointwise_iso
   (x y : FunctorsC'C)
   (f : iso x y)
@@ -1011,291 +1019,4 @@ Proof.
   - apply is_pointwise_iso_if_is_disp_functor_cat_iso.
 Defined.
 
-
 End Functor.
-
-(** * Fiber categories *)
-
-(** A displayed category gives a _fiber_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
-Section Fiber.
-
-Context {C : category}
-        (D : disp_cat C)
-        (c : C).
-
-Definition fiber_category_data : precategory_data.
-Proof.
-  use tpair.
-  - use tpair.
-    + apply (ob_disp D c).
-    + intros xx xx'. apply (mor_disp xx xx' (identity c)).
-  - use tpair.
-    + intros. apply id_disp.
-    + cbn. intros. apply (transportf _ (id_right _ ) (comp_disp X X0)).
-Defined.
-
-Lemma fiber_is_precategory : is_precategory fiber_category_data.
-Proof.
-  apply is_precategory_one_assoc_to_two.
-  repeat split; intros; cbn.
-  - etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f. apply transportf_comp_lemma_hset.
-    apply (homset_property). apply idpath.
-  - etrans. apply maponpaths. apply id_right_disp.
-    etrans. apply transport_f_f. apply transportf_comp_lemma_hset.
-    apply (homset_property). apply idpath.
-  - etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply assoc_disp.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply maponpaths_2. apply homset_property.
-Qed.
-
-Definition fiber_precategory : precategory := ( _ ,, fiber_is_precategory).
-
-Lemma has_homsets_fiber_category : has_homsets fiber_precategory.
-Proof.
-  intros x y. apply homsets_disp.
-Qed.
-
-Definition fiber_category : category
-  := ( fiber_precategory ,, has_homsets_fiber_category).
-
-
-Definition iso_disp_from_iso_fiber (a b : fiber_category) :
-  iso a b -> iso_disp (identity_iso c) a b.
-Proof.
- intro i.
- use tpair.
- + apply (pr1 i).
- + cbn.
-   use tpair.
-   * apply (inv_from_iso i).
-   * abstract (  split;
-       [ assert (XR := iso_after_iso_inv i);
-        cbn in *;
-        assert (XR' := transportf_pathsinv0_var XR);
-        etrans; [ apply (!XR') |];
-        unfold transportb;
-        apply maponpaths_2; apply homset_property
-       |assert (XR := iso_inv_after_iso i);
-        cbn in *;
-        assert (XR' := transportf_pathsinv0_var XR);
-        etrans; [ apply (!XR') | ];
-        unfold transportb;
-        apply maponpaths_2; apply homset_property ] ).
-Defined.
-
-Definition iso_fiber_from_iso_disp (a b : fiber_category) :
-  iso a b <- iso_disp (identity_iso c) a b.
-Proof.
-  intro i.
-  use tpair.
-  + apply (pr1 i).
-  + cbn in *.
-    apply (@is_iso_from_is_z_iso fiber_category).
-    use tpair.
-    apply (inv_mor_disp_from_iso i).
-    abstract (split; cbn;
-              [
-                assert (XR := inv_mor_after_iso_disp i);
-                etrans; [ apply maponpaths , XR |];
-                etrans; [ apply transport_f_f |];
-                apply transportf_comp_lemma_hset;
-                  try apply homset_property; apply idpath
-              | assert (XR := iso_disp_after_inv_mor i);
-                etrans; [ apply maponpaths , XR |] ;
-                etrans; [ apply transport_f_f |];
-                apply transportf_comp_lemma_hset;
-                try apply homset_property; apply idpath
-              ]).
-Defined.
-
-Lemma iso_disp_iso_fiber (a b : fiber_category) :
-  iso a b ≃ iso_disp (identity_iso c) a b.
-Proof.
-  exists (iso_disp_from_iso_fiber a b).
-  use (isweq_iso _ (iso_fiber_from_iso_disp _ _ )).
-  - intro. apply eq_iso. apply idpath.
-  - intro. apply eq_iso_disp. apply idpath.
-Defined.
-
-(** ** Univalence *)
-Variable H : is_univalent_disp D.
-
-Let idto1 (a b : fiber_category) : a = b ≃ iso_disp (identity_iso c) a b
-  :=
-  make_weq (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
-
-Let idto2 (a b : fiber_category) : a = b -> iso_disp (identity_iso c) a b
-  :=
-  funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fiber a b).
-
-Lemma eq_idto1_idto2 (a b : fiber_category)
-  : ∏ p : a = b, idto1 _ _ p = idto2 _ _ p.
-Proof.
-  intro p. induction p.
-  apply eq_iso_disp.
-  apply idpath.
-Qed.
-
-Lemma is_univalent_fiber_cat
-  (a b : fiber_category)
-  :
-  isweq (λ p : a = b, idtoiso p).
-Proof.
-  use (twooutof3a _ (iso_disp_iso_fiber a b)).
-  - use (isweqhomot (idto1 a b)).
-    + intro p.
-      apply eq_idto1_idto2.
-    + apply weqproperty.
-  - apply weqproperty.
-Defined.
-
-
-Lemma is_univalent_fiber : is_univalent fiber_category.
-Proof.
-  split.
-  - apply is_univalent_fiber_cat.
-  - apply has_homsets_fiber_category.
-Defined.
-
-End Fiber.
-
-Arguments fiber_precategory {_} _ _ .
-Arguments fiber_category {_} _ _ .
-
-(* TODO: is this a terrible notation?  Probably. *)
-Notation "D [{ x }]" := (fiber_category D x)(at level 3,format "D [{ x }]").
-
-
-Lemma is_univalent_disp_from_is_univalent_fiber {C : category} (D : disp_cat C)
-  : (∏ (c : C), is_univalent D[{c}]) → is_univalent_disp D.
-Proof.
-  intro H.
-  apply is_univalent_disp_from_fibers.
-  intros c xx xx'.
-  specialize (H c).
-  set (w := make_weq _ (pr1 H xx xx')).
-  set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
-  apply (weqhomot _ w').
-  intro e. induction e.
-  apply eq_iso_disp. apply idpath.
-Defined.
-
-Definition is_univalent_disp_iff_fibers_are_univalent {C : category} (D : disp_cat C)
-  : is_univalent_disp D <-> (∏ (c : C), is_univalent D[{c}]).
-Proof.
-  split; intro H.
-  - intro. apply is_univalent_fiber. apply H.
-  - apply is_univalent_disp_from_is_univalent_fiber.
-    apply H.
-Defined.
-
-
-(** ** Fiber functors
-
-Functors between displayed categories induce functors between their fibers. *)
-Section Fiber_Functors.
-
-Section fix_context.
-
-Context {C C' : category} {D} {D'}
-        {F : functor C C'} (FF : disp_functor F D D')
-        (x : C).
-
-Definition fiber_functor_data : functor_data D[{x}] D'[{F x}].
-Proof.
-  use tpair.
-  - apply (λ xx', FF xx').
-  - intros xx' xx ff.
-    apply (transportf _ (functor_id _ _ ) (# FF ff)).
-Defined.
-
-Lemma is_functor_fiber_functor : is_functor fiber_functor_data.
-Proof.
-  split; unfold functor_idax, functor_compax; cbn.
-  - intros.
-    apply transportf_pathsinv0.
-    apply pathsinv0. apply disp_functor_id.
-  - intros.
-    etrans. apply maponpaths. apply disp_functor_transportf.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply disp_functor_comp.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply maponpaths_2, homset_property.
-Qed.
-
-Definition fiber_functor : functor D[{x}] D'[{F x}]
-  := ( _ ,, is_functor_fiber_functor).
-
-End fix_context.
-
-(* TODO: consider lemma organisation in this file *)
-
-Definition is_iso_fiber_from_is_iso_disp
-  {C : category} {D : disp_cat C}
-  {c : C} {d d' : D c} (ff : d -->[identity c] d')
-  (Hff : is_iso_disp (identity_iso c) ff)
-: @is_iso (fiber_category D c) _ _ ff.
-Proof.
-  apply is_iso_from_is_z_iso.
-  exists (pr1 Hff).
-  use tpair; cbn.
-  + set (H := pr2 (pr2 Hff)).
-    etrans. apply maponpaths, H.
-    etrans. apply transport_f_b.
-    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
-    apply homset_property.
-  + set (H := pr1 (pr2 Hff)).
-    etrans. apply maponpaths, H.
-    etrans. apply transport_f_b.
-    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
-    apply homset_property.
-Qed.
-
-Definition fiber_nat_trans {C C' : category}
-  {F : functor C C'}
-  {D D'} {FF FF' : disp_functor F D D'}
-  (α : disp_nat_trans (nat_trans_id F) FF FF')
-  (c : C)
-: nat_trans (fiber_functor FF c) (fiber_functor FF' c).
-Proof.
-  use tpair; simpl.
-  - intro d. exact (α c d).
-  - unfold is_nat_trans; intros d d' ff; simpl.
-    set (αff := pr2 α _ _ _ _ _ ff); simpl in αff.
-    cbn.
-    etrans. apply maponpaths, mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths, αff.
-    etrans. apply transport_f_b.
-    apply @pathsinv0.
-    etrans. apply maponpaths, mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    apply maponpaths_2, homset_property.
-Defined.
-
-Lemma fiber_functor_ff
-    {C C' : category} {D} {D'}
-    {F : functor C C'} (FF : disp_functor F D D')
-    (H : disp_functor_ff FF)
-    (c : C)
-: fully_faithful (fiber_functor FF c).
-Proof.
-  intros xx yy; cbn.
-  set (XR := H _ _ xx yy (identity _ )).
-  apply twooutof3c.
-  - apply XR.
-  - apply isweqtransportf.
-Defined.
-
-End Fiber_Functors.

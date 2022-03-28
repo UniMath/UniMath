@@ -23,8 +23,8 @@ Local Open Scope cat.
 (** * Definition of equalizers in terms of limits *)
 Section def_equalizers.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
 
   Open Scope stn.
   Definition One : two := ● 0.
@@ -61,7 +61,7 @@ Section def_equalizers.
       + exact (h · f).
     - use two_rec_dep; use two_rec_dep.
       + exact (empty_rect _).
-      + intro e. unfold idfun. induction e.
+      + intro e. induction e.
         * apply idpath.
         * apply (! H).
       + exact (empty_rect _).
@@ -255,8 +255,8 @@ End def_equalizers.
   coincides with the direct definition. *)
 Section equalizers_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
 
 
   (** ** isEqualizers *)
@@ -266,7 +266,7 @@ Section equalizers_coincide.
   Proof.
     intros X.
     set (E := limits.equalizers.make_Equalizer f g h H X).
-    use (make_isEqualizer C hs).
+    use (make_isEqualizer C).
     intros e' h' H'.
     use (unique_exists (limits.equalizers.EqualizerIn E e' h' H')).
     (* Commutativity *)
@@ -338,7 +338,7 @@ Section equalizers_coincide.
                 a b f g (EqualizerObject C E)
                 (EqualizerArrow C E)
                 (EqualizerArrowEq C E)
-                (isEqualizer_Equalizer C hs E))).
+                (isEqualizer_Equalizer C E))).
   Defined.
 
   Definition equiv_Equalizers2 : @limits.equalizers.Equalizers C <- Equalizers C.
@@ -353,7 +353,7 @@ Section equalizers_coincide.
                 a b f g (EqualizerObject C E)
                 (EqualizerArrow C E)
                 (EqualizerArrowEq C E)
-                (isEqualizer_Equalizer C hs E))).
+                (isEqualizer_Equalizer C E))).
   Defined.
 
 End equalizers_coincide.

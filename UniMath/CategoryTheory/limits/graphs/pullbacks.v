@@ -16,8 +16,7 @@ Local Open Scope cat.
 
 Section def_pb.
 
-Variable C : precategory.
-Variable hs: has_homsets C.
+Variable C : category.
 
 Local Open Scope stn.
 Definition One : three := ● 0.
@@ -108,7 +107,7 @@ Proof.
       apply (coneOutCommutes cx One Two tt).
     * apply (pr2 (pr2 (pr1 H2))).
   + abstract (intro t; apply subtypePath;
-              [ intro; apply impred; intro; apply hs
+              [ intro; apply impred; intro; apply C
               | destruct t as [t p0];
                 apply path_to_ctr; split; [ apply (p0 One) | apply (p0 Three) ]]).
 Defined.
@@ -227,7 +226,7 @@ Proof.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
     apply subtypePath.
-    + intro. apply isapropdirprod; apply hs.
+    + intro. apply isapropdirprod; apply C.
     + destruct t as [t p]. simpl.
       use (PullbackArrowUnique _ _ P).
       * apply e.
@@ -242,11 +241,11 @@ Qed.
 
 Lemma equiv_isPullback_1 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
+  limits.pullbacks.isPullback (*f g p1 p2*) H -> isPullback f g p1 p2 H.
 Proof.
   intro X.
   intros R cc.
-  set (XR := limits.pullbacks.make_Pullback _ _ _ _ _ _ X).
+  set (XR := limits.pullbacks.make_Pullback _ X).
   use tpair.
   - use tpair.
     + use (pullbacks.PullbackArrow XR).
@@ -270,7 +269,7 @@ Proof.
   - abstract (
     intro t;
     apply subtypePath;
-    [intro; apply impred; intro; apply hs |];
+    [intro; apply impred; intro; apply C |];
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
@@ -302,7 +301,7 @@ Defined.
 
 Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
+  limits.pullbacks.isPullback (*f g p1 p2*) H <- isPullback f g p1 p2 H.
 Proof.
   intro X.
   set (XR := make_Pullback _ _ _ _ _  _ X).
@@ -315,7 +314,7 @@ Proof.
     + apply (PullbackArrow_PullbackPr2 XR).
   - abstract (
     intro t; apply subtypePath;
-    [ intro; apply isapropdirprod; apply hs |] ;
+    [ intro; apply isapropdirprod; apply C |] ;
     induction t as [x Hx]; simpl in * ;
     use (PullbackArrowUnique _ _ XR);
     [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
@@ -327,10 +326,11 @@ Definition equiv_Pullback_2 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
 Proof.
   intros X.
   exact (limits.pullbacks.make_Pullback
-           f g
+           (*f g
            (PullbackObject X)
            (PullbackPr1 X)
            (PullbackPr2 X)
+            *)
            (PullbackSqrCommutes X)
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
@@ -340,10 +340,11 @@ Proof.
   intros X' a b c f g.
   set (X := X' a b c f g).
   exact (limits.pullbacks.make_Pullback
-           f g
+           (*f g
            (PullbackObject X)
            (PullbackPr1 X)
            (PullbackPr2 X)
+            *)
            (PullbackSqrCommutes X)
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
@@ -490,11 +491,6 @@ Qed.
 
 End pullback_lemma.
 
-Section Universal_Unique.
-
-Hypothesis H : is_univalent C.
-
-
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧)
   (Pb : Pullback f g) (Pb' : Pullback f g):
     inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
@@ -536,11 +532,10 @@ Proof.
 Qed.
  *)
 
-End Universal_Unique.
 
 End def_pb.
 
-Lemma Pullbacks_from_Lims (C : precategory) :
+Lemma Pullbacks_from_Lims (C : category) :
   Lims C -> Pullbacks C.
 Proof.
   intros H a b c f g; apply H.

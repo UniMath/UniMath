@@ -262,7 +262,7 @@ Proof.
         intros m Hm.
       induction (natlehchoice _ _ (natlthsntoleh _ _ Hm)) as [Hm' | ->].
       generalize (pr2 Hx (m,,Hm')).
-      unfold funcomp, dni_lastelement ; simpl.
+      unfold dni_lastelement ; simpl.
       assert (H : Hm = natlthtolths m n Hm' ).
       { apply (pr2 (natlth m (S n))). }
       now rewrite H.
@@ -285,7 +285,7 @@ Proof.
   - induction L as [n L] ; simpl.
     apply maponpaths.
     apply funextfun ; intro m.
-    unfold funcomp.
+    simpl.
     rewrite <- replace_dni_last.
     apply append_vec_compute_1.
   - reflexivity.

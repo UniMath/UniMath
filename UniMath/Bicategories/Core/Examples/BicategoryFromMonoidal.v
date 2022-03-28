@@ -11,16 +11,16 @@ Require Import UniMath.Bicategories.Core.Bicat.
 
 Local Open Scope cat.
 
-(* Defines a prebicategory from a monoidal precategory. *)
-Section Prebicat_From_Monoidal_Precat.
+(* Defines a bicategory from a monoidal category. *)
+Section Bicat_From_Monoidal_Cat.
 
-Context (M : monoidal_precat).
-Let pM := monoidal_precat_precat M.
-Let I := monoidal_precat_unit M.
-Let tensor := monoidal_precat_tensor M.
-Let α := monoidal_precat_associator M.
-Let l := monoidal_precat_left_unitor M.
-Let ρ := monoidal_precat_right_unitor M.
+Context (M : monoidal_cat).
+Let pM := monoidal_cat_cat M.
+Let I := monoidal_cat_unit M.
+Let tensor := monoidal_cat_tensor M.
+Let α := monoidal_cat_associator M.
+Let l := monoidal_cat_left_unitor M.
+Let ρ := monoidal_cat_right_unitor M.
 Let triangle_equality := pr1 (pr222 (pr222 M)).
 Let pentagon_equation := pr2 (pr222 (pr222 M)).
 
@@ -56,16 +56,16 @@ Proof.
   - split. { intros ? ? f. exact (id f). }
     split. { intros ? ? f. apply l. }
     split. { intros ? ? f. apply ρ. }
-    split. { intros ? ? f. apply (nat_iso_inv l). }
-    split. { intros ? ? f. apply (nat_iso_inv ρ). }
-    split. { intros ? ? ? ? f g h. apply (pr1 α ((f , g) , h)). }
-    split. { intros ? ? ? ? f g h. apply (pr1 (nat_iso_inv α) ((f , g) , h)). }
+    split. { intros ? ? f. apply (nat_z_iso_inv l). }
+    split. { intros ? ? f. apply (nat_z_iso_inv ρ). }
+    split. { intros ? ? ? ? f g h. apply (α ((f , g) , h)). }
+    split. { intros ? ? ? ? f g h. apply ((nat_z_iso_inv α) ((f , g) , h)). }
     split. { intros ? ? f g h. exact compose. }
     split. { intros ? ? ? f g h. exact (λ u, (id f #⊗ u)). }
              intros ? ? ? f g h. exact (λ u, (u #⊗ id h)).
 Defined.
 
-Definition prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
+Lemma prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
 Proof.
   (* 1. Identities. *)
   split. { intros. apply id_left. }
@@ -102,7 +102,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_iso_inv α) _ _ ((id f #, id g) #, x)).
+    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, id g) #, x)).
     exact (maponpaths (fun z => _ · (z #⊗ _)) (functor_id tensor (f , g))).
   }
 
@@ -110,7 +110,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_iso_inv α) _ _ ((id f #, x) #, id i)).
+    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, x) #, id i)).
     apply idpath.
   }
 
@@ -118,7 +118,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (!(pr21 (nat_iso_inv α) _ _ ((x #, id h) #, id i))).
+    exact (!(pr21 (nat_z_iso_inv α) _ _ ((x #, id h) #, id i))).
     exact (maponpaths (fun z => (_ #⊗ z) · _) (functor_id tensor (h , i))).
   }
 
@@ -136,23 +136,23 @@ Proof.
   }
 
   (* 12. Left unitor invertible. *)
-  split. { intros ? ? f. exact (iso_inv_after_iso (pr1 l f,, pr2 l f)). }
-  split. { intros ? ? f. exact (iso_after_iso_inv (pr1 l f,, pr2 l f)). }
+  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (l f,, pr2 l f)). }
+  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (l f,, pr2 l f)). }
 
   (* 13. Right unitor invertible. *)
-  split. { intros ? ? f. exact (iso_inv_after_iso (pr1 ρ f,, pr2 ρ f)). }
-  split. { intros ? ? f. exact (iso_after_iso_inv (pr1 ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (ρ f,, pr2 ρ f)). }
 
   (* 14. Associator invertible. *)
-  split. { intros ? ? ? ? f g h. exact (iso_after_iso_inv ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
-  split. { intros ? ? ? ? f g h. exact (iso_inv_after_iso ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. exact (z_iso_after_z_iso_inv (α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. exact (z_iso_inv_after_z_iso (α ((f, g), h) ,, pr2 α ((f, g), h) )). }
 
   (* 15. Right unitor whiskering. *)
   split. {
     intros ? ? ? f g.
     etrans. exact (maponpaths (fun z => _ · z) (triangle_equality _ _)).
     etrans. exact (assoc _ _ _).
-    etrans. exact (maponpaths (fun z => z · _) (iso_after_iso_inv ( pr1 α ((f, I), g) ,, pr2 α ((f, I), g) ))).
+    etrans. exact (maponpaths (fun z => z · _) (z_iso_after_z_iso_inv (α ((f, I), g) ,, pr2 α ((f, I), g) ))).
     exact (id_left _).
   }
 
@@ -161,13 +161,13 @@ Proof.
   monoidal category, we need to rewrite the equation in order to apply it. *)
   intros ? ? ? ? ? f g h i.
   cbn.
-  apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
-  apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
+  apply (pre_comp_with_z_iso_is_inj'(f := α ((f, g), h ⊗ i)) (pr2 α _)).
+  apply (pre_comp_with_z_iso_is_inj'(f := α (((f ⊗ g), h) , i)) (pr2 α _)).
   apply pathsinv0.
   etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => _ · (z · _)) (iso_inv_after_iso (pr1 α ((f, g), _) ,, pr2 α _ ))).
+  etrans. exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (α ((f, g), _) ,, pr2 α _ ))).
   etrans. exact (maponpaths (fun z => _ · z) (id_left _)).
-  etrans. exact (iso_inv_after_iso (pr1 α ((f ⊗ g, h), _) ,, pr2 α _ )).
+  etrans. exact (z_iso_inv_after_z_iso (α ((f ⊗ g, h), _) ,, pr2 α _ )).
   apply pathsinv0.
   etrans. exact (assoc _ _ _).
   etrans. exact (assoc _ _ _).
@@ -176,129 +176,28 @@ Proof.
   etrans. exact (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)).
   etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). cbn.
   etrans. exact (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (iso_inv_after_iso (pr1 α ((g, h), i) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (z_iso_inv_after_z_iso (α ((g, h), i) ,, pr2 α _))).
   assert (aux: # tensor (id (f, (assoc_left (pr12 M)) ((g, h), i))) = id (f ⊗ (assoc_left (pr12 M)) ((g, h), i))) by
   exact (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))).
   etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) aux).
   etrans. exact (maponpaths (fun z => (_ · z · _)) (id_left _)).
   etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (iso_inv_after_iso (pr1 α ((f,g ⊗ h),i) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (_ · z · _)) (z_iso_inv_after_z_iso (α ((f,g ⊗ h),i) ,, pr2 α _))).
   etrans. exact (maponpaths (fun z => (z · _)) (id_right _)).
   etrans. exact (!(functor_comp tensor _ _)).
   etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
-  etrans. exact (maponpaths (fun z => (z #⊗ _)) (iso_inv_after_iso (pr1 α ((f,g),h) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (α ((f,g),h) ,, pr2 α _))).
   apply (functor_id tensor).
-Defined.
+Qed.
 
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
 
-End Prebicat_From_Monoidal_Precat.
-
-(** *** Going into the opposite direction *)
-(** We fix a bicategory and an object of it and construct the monoidal category of endomorphisms.
-
-This part written by Ralph Matthes in 2019.
-
-*)
-
-Section Monoidal_Precat_From_Prebicat.
-
-Local Open Scope bicategory_scope.
-Import Bicat.Notations.
-
-Context {C : prebicat}.
-Variable (c0: ob C).
-
-Definition precategory_data_from_prebicat_and_ob: precategory_data.
-Proof.
-  use make_precategory_data.
-  - use make_precategory_ob_mor.
-    + exact (C⟦c0,c0⟧).
-    + apply prebicat_cells.
-  - intro c; apply id2.
-  - intros a b c; apply vcomp2.
+Definition bicat_from_monoidal : bicat.
+  use build_bicategory.
+  - exact prebicat_data_from_monoidal.
+  - exact prebicat_laws_from_monoidal.
+  - red. intros. apply homset_property.
 Defined.
 
-Lemma is_precategory_data_from_prebicat_and_ob: is_precategory precategory_data_from_prebicat_and_ob.
-Proof.
-  use make_is_precategory.
-  - intros a b f; apply id2_left.
-  - intros a b f; apply id2_right.
-  - intros a b c d f g h; apply vassocr.
-  - intros a b c d f g h; apply pathsinv0; apply vassocr.
-Qed.
-
-Definition precategory_from_prebicat_and_ob: precategory := _,, is_precategory_data_from_prebicat_and_ob.
-
-Local Notation EndC := precategory_from_prebicat_and_ob.
-
-Definition tensor_from_prebicat_and_ob: precategory_from_prebicat_and_ob ⊠ precategory_from_prebicat_and_ob ⟶ precategory_from_prebicat_and_ob.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + intro ab.
-      exact (pr1 ab · pr2 ab).
-    + intros ab1 ab2 f.
-      exact (hcomp (pr1 f) (pr2 f)).
-  - abstract ( split; [ intro c; apply hcomp_identity |
-                        intros a b c f g; apply hcomp_vcomp ] ).
-Defined.
-
-Local Notation tensor := tensor_from_prebicat_and_ob.
-
-Local Definition build_left_unitor: left_unitor tensor (id c0).
-Proof.
-  use make_nat_iso.
-  + use make_nat_trans.
-    * intro c.
-      apply lunitor.
-    * abstract ( intros a b f; apply lunitor_natural ).
-  + intro c; apply is_iso_lunitor.
-Defined.
-
-Local Definition build_right_unitor: right_unitor tensor (id c0).
-Proof.
-  use make_nat_iso.
-  + use make_nat_trans.
-    * intro c.
-      apply runitor.
-    * abstract ( intros a b f; apply runitor_natural ).
-  + intro c; apply is_iso_runitor.
-Defined.
-
-Definition nat_trans_associator: assoc_left tensor ⟹ assoc_right tensor.
-Proof.
-  (* very slow with library elements:
-  set (aux := rassociator_transf(C := C) c0 c0 c0 c0).
-  set (aux' := pre_whisker (precategory_binproduct_unassoc _ _ _) aux).
-  use mk_nat_trans.
-  - intro c. exact (pr1 aux' c).
-  - apply (pr2 aux').
-   *)
-  (* still very slow with new additions to library:
-  set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).
-  use mk_nat_trans.
-  - intro c. exact (pr1 aux c).
-  - abstract ( apply (pr2 aux) ).
-   *)
-  (* now def. by Anders Mörtberg: *)
-  exists rassociator_fun'.
-  abstract (intros f g x; apply hcomp_rassoc).
-Defined.
-
-Local Definition build_associator: associator tensor.
-Proof.
-  use make_nat_iso.
-  - exact nat_trans_associator.
-  - intro c; apply is_iso_rassociator.
-Defined.
-
-Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.
-Proof.
-  use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
-  - abstract ( intros a b; apply pathsinv0; apply unit_triangle ).
-  - abstract ( intros a b c d; apply pathsinv0; apply associativity_pentagon ).
-Defined.
-
-End Monoidal_Precat_From_Prebicat.
+End Bicat_From_Monoidal_Cat.

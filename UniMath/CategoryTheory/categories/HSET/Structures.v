@@ -109,7 +109,7 @@ use tpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
     * abstract (intros x y f; apply idpath).
 - abstract (use tpair;
-  [ intro x; simpl; apply funextfun; intro ax; reflexivity
+  [ intro x; simpl; apply funextfun; intro ax; apply idpath
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
@@ -126,7 +126,7 @@ use tpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
     * abstract (intros x y f; apply idpath).
 - abstract (use tpair;
-  [ now intro x; simpl; apply funextfun; intro ax; reflexivity
+  [ now intro x; simpl; apply funextfun; intro ax; apply idpath
   | now intro b; apply funextfun; intro f]).
 Defined.
 
@@ -143,10 +143,10 @@ http://mathoverflow.net/questions/104152/exponentials-in-functor-categories
 *)
 Section exponentials_functor_cat.
 
-Variable (C : precategory) (hsC : has_homsets C).
+Context (C : category).
 
-Let CP := BinProducts_functor_precat C _ BinProductsHSET has_homsets_HSET.
-Let cy := covyoneda _ hsC.
+Let CP := BinProducts_functor_precat C _ BinProductsHSET.
+Let cy := covyoneda C.
 
 (* Defined Q^P *)
 Local Definition exponential_functor_cat (P Q : functor C HSET) : functor C HSET.
@@ -263,11 +263,11 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 · f = p2 · g)
-    (pb : isPullback f g p1 p2 ep)
+    (pb : isPullback ep)
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
-  set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
+  set (Pb := (make_Pullback _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypePath; simpl.
@@ -291,7 +291,7 @@ Defined.
 
 Section kernel_pair_Set.
 
-  Context  {A B:HSET}.
+  Context  {A B: HSET}.
   Variable (f: HSET ⟦A,B⟧).
 
 
@@ -304,13 +304,13 @@ Section kernel_pair_Set.
 
   (** Formulation in the categorical language of the universal property
       enjoyed by surjections (univ_surj) *)
-  Lemma isCoeqKernelPairSet (hf:issurjective f) :
+  Lemma isCoeqKernelPairSet (hf: issurjective f) :
     isCoequalizer _ _ _ (PullbackSqrCommutes g).
   Proof.
     intros.
     red.
     intros C u equ.
-    assert (hcompat :   ∏ x y : pr1 A, f x = f y → u x = u y).
+    assert (hcompat : ∏ x y : pr1 A, f x = f y → u x = u y).
     {
       intros x y eqfxy.
       assert (hpb:=pullback_HSET_univprop_elements
@@ -342,6 +342,7 @@ Section kernel_pair_Set.
       apply toforallpaths in X.
       exact X.
   Qed.
+
 End kernel_pair_Set.
 
 (** ** Effective epis ([EffectiveEpis_HSET]) *)
@@ -378,11 +379,23 @@ Proof.
     + exact pr1.
     + exact (λ _ _, idfun _).
   - split.
-    + intro; reflexivity.
-    + intros ? ? ? ? ?; reflexivity.
+    + intro; apply idpath.
+    + intros ? ? ? ? ?; apply idpath.
 Defined.
 
 (** This functor is conservative; it reflects isomorphisms. *)
+
+(**
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+               This statement seems problematic. This conservativity
+               statement is for precategories, but now it is only for
+               categories in the library
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Lemma conservative_forgetful_HSET : conservative forgetful_HSET.
 Proof.
@@ -391,6 +404,8 @@ Proof.
   refine (hset_equiv_is_iso a b (make_weq f _)).
   apply (type_iso_is_equiv _ _ (make_iso _ is_iso_forget_f)).
 Defined.
+
+*)
 
 (** ** Subobject classifier *)
 
@@ -427,7 +442,7 @@ Definition subobject_classifier_HSET_pullback {X Y : HSET}
   (m : Monic HSET X Y) :
     ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
     (H : m · chi = TerminalArrow TerminalHSET X · const_htrue),
-      isPullback chi const_htrue m (TerminalArrow TerminalHSET X) H.
+      isPullback H.
 Proof.
   exists (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z)).
   use tpair.
@@ -435,7 +450,7 @@ Proof.
     apply hProp_eq_unit; cbn.
     use make_hfiber.
     * assumption.
-    * reflexivity.
+    * apply idpath.
   + (** The aforementioned square is a pullback *)
     cbn beta.
     unfold isPullback; cbn.
@@ -497,14 +512,14 @@ Proof.
         -- apply toforallpaths in H; cbn.
            specialize (H p); cbn in H.
            abstract (rewrite H; exact tt).
-      * split; [reflexivity|].
+      * split; [apply idpath|].
         apply proofirrelevance, hlevelntosn, iscontrfuntounit.
     + intro t.
       apply subtypePath; [intro; apply isapropdirprod; apply setproperty|].
       apply funextfun; intro.
       apply subtypePath; [intro; apply propproperty|].
       refine (_ @ toforallpaths _ _ _ (pr1 (pr2 t)) x).
-      reflexivity.
+      apply idpath.
 Defined.
 
 Lemma hfiber_in_hfiber :
@@ -513,7 +528,7 @@ Proof.
   intros.
   use make_hfiber.
   - exact (hfiberpr1 _ _ z).
-  - reflexivity.
+  - apply idpath.
 Defined.
 
 Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
@@ -571,17 +586,17 @@ Proof.
             >>
          *)
 
-        pose (PBO' := make_Pullback (pr1 O') (@const_htrue unitHSET) X m (TerminalArrow TerminalHSET X) (pr1 (pr2 O')) (pr2 (pr2 O'))).
+        pose (PBO' := make_Pullback (pr1 (pr2 O')) (pr2 (pr2 O'))).
         pose (PBC := carrier_Pullback (pr1 O')).
-        pose (pbiso := pullbackiso PBC PBO').
+        pose (pbiso := pullbackiso _ PBC PBO').
 
         use make_hfiber.
-        -- exact (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO)).
-        -- change (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with
+        -- exact (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO)).
+        -- change (pr1 m (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO))) with
                   (((pr1 pbiso) · pr1 m) (y,, isO)).
            change (pr1 m) with (PullbackPr1 PBO').
-           rewrite (pr1 (pr2 pbiso)).
-           reflexivity.
+           pose (pr1 (pr2 pbiso)) as p.
+           exact (maponpaths (λ z, z _) p).
       * intros fib.
         apply (eqweqmap (maponpaths pr1 (maponpaths (pr1 O') (pr2 fib)))).
         apply (eqweqmap (maponpaths pr1 (eq (hfiberpr1 _ _ fib)))).

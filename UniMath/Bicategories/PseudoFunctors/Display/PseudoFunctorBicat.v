@@ -178,7 +178,7 @@ Section FunctorLaws.
     := (∏ (a : C),
         is_invertible_2cell (psfunctor_id F a))
      ×
-       (∏ {a b c : C} (f : a --> b) (g : b --> c),
+       (∏ (a b c : C) (f : a --> b) (g : b --> c),
         is_invertible_2cell (psfunctor_comp F f g)).
 
   Definition is_psfunctor : UU

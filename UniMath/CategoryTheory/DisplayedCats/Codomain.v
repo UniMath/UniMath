@@ -13,7 +13,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
@@ -30,7 +29,7 @@ the components of the objects and morphisms will be arranged differently
 (* TODO: perhaps rename [slice_disp], and make [C] implicit? *)
 Section Codomain_Disp.
 
-Context (C:category).
+Context (C : category).
 
 Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -103,7 +102,7 @@ Context {C:category}.
 Definition isPullback_cartesian_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+  : (isPullback (pr2 ff)) -> is_cartesian ff.
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
@@ -134,7 +133,7 @@ Qed.
 Definition cartesian_isPullback_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) <- is_cartesian ff.
+  : (isPullback (pr2 ff)) <- is_cartesian ff.
 Proof.
   intros cf c h k H.
   destruct p as [a x].
@@ -180,7 +179,7 @@ Qed.
 Definition cartesian_iff_isPullback
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) <-> is_cartesian ff.
+  : (isPullback (pr2 ff)) <-> is_cartesian ff.
 Proof.
   split.
   - apply isPullback_cartesian_in_cod_disp.

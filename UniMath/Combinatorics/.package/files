@@ -1,4 +1,6 @@
 StandardFiniteSets.v
+Vectors.v
+VectorsTests.v
 Lists.v
 FiniteSets.v
 Graph.v
@@ -12,3 +14,6 @@ FiniteSequences.v
 BoundedSearch.v
 MetricTree.v
 Tests.v
+DecSet.v
+Maybe.v
+MoreLists.v

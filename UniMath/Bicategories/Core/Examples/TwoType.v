@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Local Open Scope cat.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Local Open Scope bicategory_scope.
@@ -41,10 +41,10 @@ Section TwoTypeBiGroupoid.
   Defined.
 
 
-  Definition two_type_bicat_laws
+  Lemma two_type_bicat_laws
     : prebicat_laws two_type_bicat_data.
   Proof.
-    repeat (use tpair) ; try reflexivity.
+    repeat (use tpair) ; try (intros; apply idpath).
     - intros ; cbn in *.
       apply pathscomp0rid.
     - intros ; cbn in *.
@@ -54,10 +54,10 @@ Section TwoTypeBiGroupoid.
       apply maponpathscomp0.
     - intros ; cbn in *.
       rewrite maponpathscomp0.
-      reflexivity.
+      apply idpath.
     - intros x y p₁ p₂ q ; cbn in *.
       induction q ; cbn.
-      reflexivity.
+      apply idpath.
     - intros x y p₁ p₂ q ; cbn in *.
       induction q ; cbn.
       exact (!(pathscomp0rid _)).
@@ -83,10 +83,10 @@ Section TwoTypeBiGroupoid.
       apply pathsinv0l.
     - intros x y z p q ; cbn in *.
       induction p ; cbn.
-      reflexivity.
+      apply idpath.
     - intros v w x y z p₁ p₂ p₃ p₄ ; cbn in *.
       induction p₁, p₂, p₃, p₄ ; cbn.
-      reflexivity.
+      apply idpath.
   Qed.
 
   Definition fundamental_bigroupoid
@@ -144,13 +144,13 @@ Section TwoTypeBiGroupoid.
       apply q.
     - intros q.
       induction q ; cbn.
-      reflexivity.
+      apply idpath.
     - intros q.
       induction q as [q Hq].
       induction q ; cbn.
       use subtypePath ; cbn.
       + intro. apply (isaprop_is_invertible_2cell (C:=fundamental_bigroupoid)).
-      + reflexivity.
+      + apply idpath.
   Defined.
 
   Definition fundamental_bigroupoid_is_univalent_2_0
@@ -162,13 +162,13 @@ Section TwoTypeBiGroupoid.
       apply p.
     - intros p ; cbn in *.
       induction p ; cbn.
-      reflexivity.
+      apply idpath.
     - intros p ; cbn in *.
       apply path_internal_adjoint_equivalence.
       + apply fundamental_bigroupoid_is_univalent_2_1.
       + cbn in *.
         induction (pr1 p) ; cbn.
-        reflexivity.
+        apply idpath.
   Defined.
 
   Definition fundamental_bigroupoid_is_univalent_2

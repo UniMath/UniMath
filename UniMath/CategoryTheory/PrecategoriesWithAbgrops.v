@@ -17,43 +17,35 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
-  Definition categoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
-    ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y).
+  Definition categoryWithAbgropsData (PB : precategoryWithBinOps) : UU :=
+    ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property PB x y)) (@to_binop _ x y).
 
-  Definition make_categoryWithAbgropsData {PB : precategoryWithBinOps} (hs : has_homsets PB)
-             (H : ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y)) :
-    categoryWithAbgropsData PB hs := H.
+  Definition make_categoryWithAbgropsData {PB : precategoryWithBinOps}
+             (H : ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property _  x y)) (@to_binop _ x y)) :
+    categoryWithAbgropsData PB := H.
 
   Definition categoryWithAbgrops : UU :=
-    ∑ PA : (∑ PB : precategoryWithBinOps, has_homsets PB),
-           categoryWithAbgropsData (pr1 PA) (pr2 PA).
+    ∑ PA : precategoryWithBinOps,
+           categoryWithAbgropsData PA.
+
 
   Definition categoryWithAbgrops_precategoryWithBinOps (PB : categoryWithAbgrops) :
-    precategoryWithBinOps := pr1 (pr1 PB).
+    precategoryWithBinOps := (pr1 PB).
+
   Coercion categoryWithAbgrops_precategoryWithBinOps :
     categoryWithAbgrops >-> precategoryWithBinOps.
 
-  (* category with abgrops to category *)
-  Definition categoryWithAbgrops_category (PWA : categoryWithAbgrops) : category.
+  Definition make_categoryWithAbgrops (PB : precategoryWithBinOps)
+             (H : categoryWithAbgropsData PB) : categoryWithAbgrops.
   Proof.
-    use tpair.
-    - exact PWA.
-    - exact (pr2 (pr1 PWA)).
-  Defined.
-  Coercion categoryWithAbgrops_category : categoryWithAbgrops >-> category.
-
-
-  Definition make_categoryWithAbgrops (PB : precategoryWithBinOps) (hs : has_homsets PB)
-             (H : categoryWithAbgropsData PB hs) : categoryWithAbgrops.
-  Proof.
-    exact (tpair _ (tpair _ PB hs) H).
+    exact (tpair _ PB H).
   Defined.
 
 
   Variable PA : categoryWithAbgrops.
 
   (** Definitions to access the structure of a precategory with abelian groups. *)
-  Definition to_has_homsets : has_homsets PA := pr2 (pr1 PA).
+  Definition to_has_homsets : has_homsets PA := (pr1 PA).
 
   Definition to_homset (x y : PA) : hSet := make_hSet (PA⟦x, y⟧) (to_has_homsets x y).
 
@@ -107,11 +99,6 @@ Section def_precategory_with_abgrops.
   Lemma cancel_inv {x y : PA} (f g : PA⟦x, y⟧) (H : (to_inv f) = (to_inv g)) : f = g.
   Proof.
     apply (grinvmaponpathsinv (to_abgr x y) H).
-  Qed.
-
-  Lemma to_apply_inv {x y : PA} (f g : PA⟦x, y⟧) (H : f = g) : (to_inv f) = (to_inv g).
-  Proof.
-    apply maponpaths. apply H.
   Qed.
 
   Lemma to_inv_unel {x y : PA} : to_inv (to_unel x y) = to_unel x y.
@@ -255,8 +242,7 @@ End transport_morphisms.
 Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops.
 Proof.
   use tpair.
-  - exists (oppositePrecategoryWithBinOps M).
-    exact (λ a b, @to_has_homsets M (rm_opp_ob b) (rm_opp_ob a)).
+  - exact (oppositePrecategoryWithBinOps M).
   - exact (λ a b, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
 Defined.
 
@@ -264,7 +250,6 @@ Definition induced_categoryWithAbgrops (M : categoryWithAbgrops) {X:Type} (j : X
   : categoryWithAbgrops.
 Proof.
   use tpair.
-  - exists (induced_precategoryWithBinOps M j).
-    exact (λ a b, @to_has_homsets M (j a) (j b)).
+  - exact (induced_precategoryWithBinOps M j).
   - exact (λ a b, @to_isabgrop M (j a) (j b)).
 Defined.

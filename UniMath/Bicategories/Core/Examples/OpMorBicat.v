@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
 Local Open Scope cat.
 
@@ -45,7 +45,7 @@ Proof.
   - intros α. exact (g ◃ α).
 Defined.
 
-Definition op1_prebicat_laws (C : prebicat) : prebicat_laws (op1_prebicat_data C).
+Lemma op1_prebicat_laws (C : prebicat) : prebicat_laws (op1_prebicat_data C).
 Proof.
   red. cbn. unfold op1_2cell_struct. cbn.
   repeat use tpair; cbn; intros *.
@@ -226,12 +226,12 @@ Proof.
       use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
     + intros x.
       use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
 Defined.
 
 Definition bicat_adjoint_equivalence_is_op1_bicat_adjoint_equivalence

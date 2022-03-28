@@ -24,7 +24,7 @@ Section iso_yoneda_binproducts.
 
 Context {C : category} (PC : BinProducts C) (X Y : C).
 
-Let yon := yoneda C (homset_property C).
+Let yon : C ⟶ [C^op, HSET] := yoneda C.
 
 (** First we create a natural transformation from Yon(X × Y) to Yon(X) × Yon(Y). *)
 Definition yon_binprod_nat_trans_data :

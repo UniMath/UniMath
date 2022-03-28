@@ -1,8 +1,10 @@
-Installation of UniMath
-=======================
+Installation of UniMath on Unix-like systems
+============================================
 
-NB: This file describes the default method for installing UniMath.  An
-alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
+## Remarks
+
+- This file describes the default method for installing UniMath.  An alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
+- A sketch for getting UniMath to run on Windows is given at [INSTALL\_WIN.md](./INSTALL_WIN.md).
 
 ## Preparing your computer
 
@@ -32,7 +34,7 @@ Under Ubuntu or Debian, you may install ocaml with the
 following shell command.
 
 ```bash
- sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib emacs
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
@@ -142,6 +144,17 @@ accepts (or modifies) the proffered string, and presses return.  Emacs then
 takes you to the source code of the definition.  One may repeat that as often
 as desired, and return one level upward in the chain of locations visited with
 ```M-*```.
+
+Another use of the tags file is to search through all the source files for the
+occurrence of text matching a given regular expression.  For example, you can use
+```M-x tags-search``` with the regular expression `^Notation *" *\[ *. *\(, *[[:alpha:]]+ *\)*\]"`
+to locate the following lines in various files:
+```coq
+Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
+Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
+Notation "[ C , D ]" := (functor_category C D) : cat.
+Notation "[ C , D ]" := (functor_category C D) : cat.
+```
 
 In order to enable this facility, make a "TAGS" file as follows.
 To make a TAGS file for use with emacs ```etags``` commands:

@@ -64,8 +64,14 @@ Variable (vars : hSet).
       + (Rec × Rec)    (* -- arity 2, → (implies) *)
    >>
  *)
+
+Definition PL_functor : omega_cocont_functor HSET HSET :=
+  (omega_cocont_constant_functor (vars : HSET)) + Id + (Id * Id) + (Id * Id) + (Id * Id).
+
+(*
 Definition PL_functor : omega_cocont_functor HSET HSET :=
   ' vars + Id + (Id * Id) + (Id * Id) + (Id * Id).
+ *)
 
 (** The following three statements are crucial for performance. *)
 Definition PL_functor' : functor HSET HSET := pr1 PL_functor.
@@ -73,9 +79,9 @@ Let is_omega_cocont_PL_functor' : is_omega_cocont PL_functor' := pr2 PL_functor.
 Opaque is_omega_cocont_PL_functor'.
 
 Lemma PL_functor_initial :
-  Initial (precategory_FunctorAlg PL_functor' has_homsets_HSET).
+  Initial (category_FunctorAlg PL_functor').
 Proof.
-  apply (colimAlgInitial _ InitialHSET is_omega_cocont_PL_functor' (ColimCoconeHSET _ _)).
+  apply (colimAlgInitial InitialHSET is_omega_cocont_PL_functor' (ColimCoconeHSET _ _)).
 Defined.
 
 Let PL_alg : algebra_ob PL_functor' := InitialObject PL_functor_initial.

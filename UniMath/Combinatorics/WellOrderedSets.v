@@ -12,7 +12,6 @@ Require Import UniMath.MoreFoundations.AxiomOfChoice.
 Require Import UniMath.Combinatorics.OrderedSets.
 
 Local Open Scope logic.
-Local Open Scope prop.
 Local Open Scope set.
 Local Open Scope subtype.
 Local Open Scope poset.
@@ -785,7 +784,7 @@ Lemma chain_union_rel_isantisymm {X : hSet} {I : UU} {S : I → WOSubset X}
   isantisymm (chain_union_rel chain).
 Proof.
   intros x y l m.
-  change (x=y)%set.
+  change (x=y)%logic.
   apply (squash_to_hProp (common_index2 chain x y)); intros [i [r s]].
   apply subtypePath_prop.
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
@@ -1208,7 +1207,7 @@ Proof.
     assert (W'guided : is_guided_WOSubset g W').
     { unfold is_guided_WOSubset.
       intros [x W'x].
-      change (x = pr1 (g (@upto' X W' (x,, W'x))))%set.
+      change (x = pr1 (g (@upto' X W' (x,, W'x))))%logic.
       apply (squash_to_hProp W'x); intros [Wx|ezx].
       - assert (x_guided := Wguided (x,,Wx)).
         change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_guided.
@@ -1292,7 +1291,7 @@ Lemma isaprop_theSmallest {X : hSet}
 Proof.
   induction total as [[po anti] tot].
   apply invproofirrelevance; intros s t. apply subtypePath_prop.
-  induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
+  induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%logic.
   apply (squash_to_hProp (tot x y)); intros [c|c].
   { apply anti. { exact c. } { exact (j x I). } }
   { apply anti. { exact (i y J). } { exact c. } }

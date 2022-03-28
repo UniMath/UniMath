@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
@@ -296,7 +296,7 @@ Section BasePseudoFunctor.
       apply funextsec ; intro X.
       use total2_paths_b.
       + reflexivity.
-      + cbn ; unfold idfun.
+      + cbn.
         use subtypePath.
         {
           intro.
@@ -307,7 +307,7 @@ Section BasePseudoFunctor.
     - intros η.
       use total2_paths_b.
       + reflexivity.
-      + cbn ; unfold idfun.
+      + cbn.
         use subtypePath.
         {
           intro.

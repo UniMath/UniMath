@@ -133,13 +133,12 @@ Qed.
 (** * Construction of the subcategory consisting of all epis. *)
 Section epis_subcategory.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, make_hProp _ isapropunit).
 
   Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (λ a b : C, (fun f : C⟦a, b⟧ => make_hProp _ (isapropisEpi C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => make_hProp _ (isapropisEpi C C f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
   Proof.
@@ -157,7 +156,6 @@ Section epis_subcategory.
   Proof.
     intros a b.
     apply is_set_sub_precategory_morphisms.
-    exact hs.
   Qed.
 
   Definition subprecategory_of_epis_ob (c : C) : ob (subprecategory_of_epis) := tpair _ c tt.

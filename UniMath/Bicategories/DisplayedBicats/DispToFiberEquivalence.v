@@ -24,7 +24,7 @@ Require Import UniMath.Bicategories.Transformations.Examples.Unitality.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispTransformation.
@@ -290,7 +290,7 @@ Section FiberOfBiequiv.
     := (_ ,, fiber_counit_nat_iso).
 
   Definition fiber_equivalence
-    : equivalence_of_precats
+    : equivalence_of_cats
         (discrete_fiber_category D₁ HD₁ HD₁_2_1 h₁ c)
         (discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c).
   Proof.

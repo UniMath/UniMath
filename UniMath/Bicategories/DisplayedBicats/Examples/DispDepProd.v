@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.

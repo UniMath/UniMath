@@ -9,7 +9,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
@@ -37,6 +36,80 @@ Local Open Scope cat.
 (** ** Definition of displayed modifications *)
 
 Section DispModification.
+
+Context {B₁ : bicat} {D₁ : disp_bicat B₁}
+        {B₂ : bicat} {D₂ : disp_bicat B₂}
+        {F₁ F₂ : psfunctor B₁ B₂}
+        (α β : pstrans F₁ F₂)
+        (FF₁ : disp_psfunctor D₁ D₂ F₁)
+        (FF₂ : disp_psfunctor D₁ D₂ F₂)
+        (αα : disp_pstrans FF₁ FF₂ α)
+        (ββ : disp_pstrans FF₁ FF₂ β)
+        (m : modification α β).
+
+(** *** Data *)
+
+
+Definition disp_modification_data : UU
+  := ∏ (x : B₁) (xx : D₁ x), (αα x xx) ==>[m x] (ββ x xx).
+
+Definition total_modification_data (mmdata : disp_modification_data)
+  : modification_data (total_pstrans _ _ _ αα) (total_pstrans _ _ _ ββ)
+  := λ (x : total_bicat D₁), m (pr1 x),, mmdata (pr1 x) (pr2 x).
+
+Definition is_disp_modification (mm : disp_modification_data) : UU
+  := ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧)
+       (xx : D₁ x) (yy : D₁ y) (ff : xx -->[ f] yy),
+     disp_psnaturality_of FF₁ FF₂ α αα ff
+       •• (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff ◃◃ mm y yy) =
+     transportb
+       (λ p, _ ==>[p] _)
+       (modnaturality_of m x y f)
+       ((mm x xx ▹▹ disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+          •• disp_psnaturality_of FF₁ FF₂ β ββ ff).
+
+Definition disp_modification : UU
+  := ∑ mm : disp_modification_data, is_disp_modification mm.
+
+Coercion disp_modification_to_disp_modification_data (αα : disp_modification)
+  : disp_modification_data
+  := pr1 αα.
+
+Lemma is_disp_modification_from_total (mm : disp_modification_data)
+  : is_modification (total_modification_data mm) → is_disp_modification mm.
+Proof.
+  intros Hmm.
+  pose (Em := make_modification _ Hmm).
+  intros x y f xx yy ff.
+  pose (P := !fiber_paths (@modnaturality_of _ _ _ _ _ _ Em (x,,xx) (y,,yy) (f,,ff))).
+  symmetry.
+  etrans. { apply maponpaths. exact P. }
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite transportf_set.
+  * apply idpath.
+  * apply B₂.
+Qed.
+
+Lemma total_modification_laws (mm : disp_modification)
+  : is_modification (total_modification_data mm).
+Proof.
+  intros x y f.
+  use total2_paths_b.
+  - apply (modnaturality_of m (pr1 x) (pr1 y) (pr1 f)).
+  - apply mm.
+Qed.
+
+Definition is_invertible_disp_modification (mm : disp_modification) : UU
+  := ∑ (m_inv : is_invertible_modification m), ∏ (x : B₁) (xx : D₁ x),
+       (* Each underlying displayed 2-cell is invertible *)
+       is_disp_invertible_2cell (@is_invertible_modcomponent_of _ _ _ _ _ _ m m_inv x) (pr1 mm x xx).
+
+End DispModification.
+
+(** Invertible displayed modifications *)
+
+Section DispInvModification.
 
 Context {B₁ : bicat} {D₁ : disp_bicat B₁}
         {B₂ : bicat} {D₂ : disp_bicat B₂}
@@ -78,6 +151,23 @@ Coercion disp_invmodification_to_disp_invmodification_data (αα : disp_invmodif
   : disp_invmodification_data
   := pr1 αα.
 
+Definition disp_modification_of_invmodification (mm : disp_invmodification) :
+  disp_modification α β FF₁ FF₂ αα ββ (pr1 m).
+Proof.
+  use tpair.
+  - intros x xx. exact (pr1 mm x xx).
+  - simpl. exact (pr2 mm).
+Defined.
+
+Lemma is_invertible_disp_invmodification (mm : disp_invmodification) :
+  is_invertible_disp_modification _ _ _ _ _ _ _ (disp_modification_of_invmodification mm).
+Proof.
+  use tpair.
+  - exact (pr2 m).
+  - simpl. intros x xx.
+    exact (pr2 (pr1 mm x xx)).
+Qed.
+
 Lemma is_disp_invmodification_from_total (mm : disp_invmodification_data)
   : is_modification (total_invmodification_data mm) → is_disp_invmodification mm.
 Proof.
@@ -111,4 +201,4 @@ Proof.
   - exact (total_invmodification_laws mm).
 Defined.
 
-End DispModification.
+End DispInvModification.
