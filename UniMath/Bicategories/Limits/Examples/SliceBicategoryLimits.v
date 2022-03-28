@@ -12,7 +12,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -44,6 +44,47 @@ Section FinalSlice.
     exact (pr2 f ,, rinvunitor_invertible_2cell _).
   Defined.
 
+  Definition bifinal_2cell_property_slice_eq
+             {f : slice_bicat b}
+             (α β : f --> ι)
+    : pr12 α
+      • ((((rinvunitor (pr1 α) • (pr22 α) ^-1) • pr12 β) • runitor (pr1 β)) ▹ id₁ b)
+      =
+      pr12 β.
+  Proof.
+    cbn.
+    use vcomp_move_R_pM ; [ apply property_from_invertible_2cell | ].
+    use (vcomp_lcancel (runitor _)) ; [ is_iso | ].
+    refine (_ @ vcomp_runitor _ _ _).
+    rewrite <- !rwhisker_vcomp.
+    rewrite !vassocr.
+    etrans.
+    {
+      do 3 apply maponpaths_2.
+      rewrite <- runitor_triangle.
+      rewrite rwhisker_hcomp.
+      rewrite <- triangle_l_inv.
+      rewrite <- lwhisker_hcomp.
+      rewrite runitor_lunitor_identity.
+      rewrite !vassocl ;
+        refine (maponpaths (λ z, _ • z) (vassocr _ _ _) @ _).
+      rewrite lwhisker_vcomp.
+      rewrite lunitor_linvunitor.
+      rewrite lwhisker_id2.
+      rewrite id2_left.
+      rewrite rassociator_lassociator.
+      apply idpath.
+    }
+    rewrite id2_left.
+    rewrite !vassocl.
+    do 2 apply maponpaths.
+    rewrite <- runitor_triangle.
+    use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+    rewrite runitor_rwhisker.
+    rewrite runitor_lunitor_identity.
+    apply idpath.
+  Qed.
+
   Definition bifinal_2cell_property_slice
              (f : slice_bicat b)
     : bifinal_2cell_property ι f.
@@ -54,37 +95,7 @@ Section FinalSlice.
              • (pr22 α)^-1
              • pr12 β
              • runitor _).
-    - abstract
-        (cbn ;
-         use vcomp_move_R_pM ; [ apply property_from_invertible_2cell | ] ;
-         use (vcomp_lcancel (runitor _)) ; [ is_iso | ] ;
-         refine (_ @ vcomp_runitor _ _ _) ;
-         rewrite <- !rwhisker_vcomp ;
-         rewrite !vassocr ;
-         etrans ;
-         [ do 3 apply maponpaths_2 ;
-           rewrite <- runitor_triangle ;
-           rewrite rwhisker_hcomp ;
-           rewrite <- triangle_l_inv ;
-           rewrite <- lwhisker_hcomp ;
-           rewrite runitor_lunitor_identity ;
-           rewrite !vassocl ;
-           refine (maponpaths (λ z, _ • z) (vassocr _ _ _) @ _) ;
-           rewrite lwhisker_vcomp ;
-           rewrite lunitor_linvunitor ;
-           rewrite lwhisker_id2 ;
-           rewrite id2_left ;
-           rewrite rassociator_lassociator ;
-           apply idpath
-         | ] ;
-         rewrite id2_left ;
-         rewrite !vassocl ;
-         do 2 apply maponpaths ;
-         rewrite <- runitor_triangle ;
-         use vcomp_move_L_pM ; [ is_iso | ] ; cbn ;
-         rewrite runitor_rwhisker ;
-         rewrite runitor_lunitor_identity ;
-         apply idpath).
+    - exact (bifinal_2cell_property_slice_eq α β).
   Defined.
 
   Definition bifinal_eq_property_slice
@@ -169,6 +180,47 @@ Section ProductSlice.
                     (pb_ump_mor_pr1 Hpb other_cone))))
            (rassociator_invertible_2cell _ _ _).
 
+    Definition binprod_1_ump_in_slice_cell_eq
+      : pr12 (binprod_cone_pr1 q)
+        • ((pb_ump_mor_pr1 Hpb other_cone)^-1 ▹ f)
+        • rassociator _ _ _
+        • ((pb_ump_mor Hpb other_cone ◃ γ)
+        • lassociator _ _ _)
+        • (pb_ump_mor_pr2 Hpb other_cone ▹ g)
+        =
+        pr12 (binprod_cone_pr2 q).
+    Proof.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply maponpaths_2.
+        exact (pb_ump_mor_cell Hpb other_cone).
+      }
+      cbn.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite rassociator_lassociator.
+      rewrite id2_left.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite rwhisker_vcomp.
+      rewrite vcomp_linv.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      rewrite !vassocr.
+      rewrite vcomp_rinv.
+      rewrite id2_left.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite rassociator_lassociator.
+      rewrite id2_left.
+      rewrite rwhisker_vcomp.
+      rewrite vcomp_linv.
+      rewrite id2_rwhisker.
+      apply id2_right.
+    Qed.
+
     Definition binprod_1_ump_in_slice_cell
       : binprod_1cell q binprod_cone_in_slice.
     Proof.
@@ -195,36 +247,7 @@ Section ProductSlice.
       - use make_invertible_2cell.
         + simple refine (_ ,, _).
           * exact (pb_ump_mor_pr2 Hpb other_cone).
-          * abstract
-              (cbn ;
-               rewrite !vassocl ;
-               etrans ;
-               [ do 3 apply maponpaths ;
-                 apply maponpaths_2 ;
-                 exact (pb_ump_mor_cell Hpb other_cone)
-               | ] ;
-               cbn ;
-               rewrite !vassocl ;
-               rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
-               rewrite rassociator_lassociator ;
-               rewrite id2_left ;
-               rewrite !vassocl ;
-               rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) ;
-               rewrite rwhisker_vcomp ;
-               rewrite vcomp_linv ;
-               rewrite id2_rwhisker ;
-               rewrite id2_left ;
-               rewrite !vassocr ;
-               rewrite vcomp_rinv ;
-               rewrite id2_left ;
-               rewrite !vassocl ;
-               rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
-               rewrite rassociator_lassociator ;
-               rewrite id2_left ;
-               rewrite rwhisker_vcomp ;
-               rewrite vcomp_linv ;
-               rewrite id2_rwhisker ;
-               apply id2_right).
+          * exact binprod_1_ump_in_slice_cell_eq.
         + use is_invertible_2cell_in_slice_bicat.
           apply property_from_invertible_2cell.
     Defined.
