@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.

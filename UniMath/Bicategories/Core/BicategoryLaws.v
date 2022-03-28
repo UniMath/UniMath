@@ -1,10 +1,10 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
-Local Open Scope bicategory_scope.
+
 Local Open Scope cat.
 
 Section laws.

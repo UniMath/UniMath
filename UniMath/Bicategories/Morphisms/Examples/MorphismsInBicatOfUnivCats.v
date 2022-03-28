@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.

@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
