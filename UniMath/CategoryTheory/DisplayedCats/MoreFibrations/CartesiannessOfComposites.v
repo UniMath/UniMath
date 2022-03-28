@@ -26,8 +26,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Require Import UniMath.Foundations.All.
-
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 
@@ -54,7 +52,7 @@ Proof.
     + apply maponpaths.
       eapply pathscomp0.
       2: { exact comm_right. }
-      * apply (maponpaths (λ gg, gg ;; ff)).
+      * apply maponpaths_2.
         exact comm_left.
 Qed.
 
@@ -118,7 +116,7 @@ Proof.
       * eapply pathscomp0.
         --apply maponpaths.
           eapply pathscomp0.
-          ++ eapply (maponpaths (λ gg, gg ;; ff)).
+          ++ eapply maponpaths_2.
              apply cartesian_factorisation_commutes.
           ++ apply cartesian_factorisation_commutes'.
         -- apply transportfbinv.
@@ -163,7 +161,7 @@ Proof.
         -- apply assoc_disp.
         -- apply maponpaths.
            eapply pathscomp0.
-           ++ eapply (maponpaths (λ gg, gg ;; ff)).
+           ++ eapply maponpaths_2.
               apply pre'cartesian_factorisation_commutes.
            ++ apply cartesian_factorisation_commutes'.
 Defined.
@@ -192,7 +190,7 @@ Proof.
       * eapply pathscomp0.
         -- apply assoc_disp.
         -- apply maponpaths.
-           eapply (maponpaths ((λ gg, gg ;; ff))).
+           eapply maponpaths_2.
            exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (cartesian_factorisation cartff'ff).
@@ -231,7 +229,7 @@ Proof.
       * eapply pathscomp0.
         -- apply assoc_disp.
         -- apply maponpaths.
-           eapply (maponpaths ((λ gg, gg ;; ff))).
+           eapply maponpaths_2.
            exact (commbig0 @ ! commbig1).
   - use tpair.
     + apply (pre'cartesian_factorisation pre'cartff'ff).

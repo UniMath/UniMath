@@ -41,19 +41,9 @@ Definition precleaving_is_cleaving
     {C : category} {D : disp_cat C} (lift : precleaving D)
 := forall (c c' : C) (f: c' --> c) (d : D c), is_cartesian (lift _ _ f d).
 
-Search (transportf _ _ ?p = transportf _ _ ?p' -> ?p = ?p').
-
 Lemma transportf_cancel
       {X : UU} (P : X → UU) {x x' : X} (e : x = x') (y0 y1 : P x):
       transportf P e y0 = transportf P e y1 -> y0 = y1.
-Proof.
-  induction e.
-  apply idfun.
-Defined.
-
-Lemma transportb_cancel
-      {X : UU} (P : X → UU) {x x' : X} (e : x = x') (y'0 y'1 : P x'):
-      transportb P e y'0 = transportb P e y'1 -> y'0 = y'1.
 Proof.
   induction e.
   apply idfun.
@@ -89,26 +79,6 @@ Proof.
       apply assoc_disp.
 Qed.
 
-Definition eq_postwhisker {C} {D : disp_precat C}
-    {x y z} {f} {g} {xx : D x} {yy : D y} {zz : D z}
-    (ff ff' : xx -->[f] yy) (gg : yy -->[g] zz)
-  : ff = ff' -> ff ;; gg = ff' ;; gg.
-Proof.
-  intro H.
-  apply (maponpaths (λ ff, ff ;; gg)).
-  assumption.
-Qed.
-
-Definition eq_prewhisker {C} {D : disp_precat C}
-    {x y z} {f} {g} {xx : D x} {yy : D y} {zz : D z}
-    (ff : xx -->[f] yy) (gg gg' : yy -->[g] zz)
-  : gg = gg' -> ff ;; gg = ff ;; gg'.
-Proof.
-  intro H.
-  apply (maponpaths (λ gg, ff ;; gg)).
-  assumption.
-Qed.
-
 
 Definition prefibration_w_precart_closed_implies_fibration
     {C : category} {D : disp_cat C} (lift : precleaving D)
@@ -125,7 +95,7 @@ Proof.
     apply subtypePairEquality.
     + intro gg.
       apply homsets_disp.
-    + apply (transportb_cancel _ (id_left _) gg0 gg1).
+    + eapply transportf_cancel.
       eapply pathscomp0.
       * apply pathsinv0.
         use precartesian_factorisation_commutes.
@@ -133,12 +103,12 @@ Proof.
       * eapply pathscomp0.
         2: { use precartesian_factorisation_commutes.
           3: { use precartesian_lift_is_precartesian. apply lift. } }
-        -- eapply (maponpaths (λ gg'', gg'' ;; _)).
+        -- apply maponpaths_2.
            eapply precartesian_factorisation_unique.
            ++ apply liftclosed.
            ++ apply assoc_eq_var.
               eapply pathscomp0.
-              ** apply eq_postwhisker.
+              ** apply maponpaths_2.
                  apply precartesian_factorisation_commutes.
               ** eapply pathscomp0.
                  --- eapply pathscomp0.
@@ -149,7 +119,7 @@ Proof.
                          *** apply pathsinv0.
                              apply mor_disp_transportf_postwhisker.
                  --- apply pathsinv0.
-                     apply eq_postwhisker.
+                     apply maponpaths_2.
                      apply precartesian_factorisation_commutes.
   - use tpair.
     + apply (transportf _ (id_left _)).

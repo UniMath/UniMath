@@ -102,8 +102,6 @@ Proof.
   apply idpath_transportf.
 Qed.
 
-About transport_compose'.
-
 Definition transp_pres_comp'
     {C : category} {c0 c0' c1 c1' c2 c2' : C} (H0 : c0 = c0') (H1 : c1 = c1') (H2 : c2 = c2')
     (f0: c0 --> c1) (f1 : c1 --> c2)
@@ -204,11 +202,6 @@ Proof.
   exists (fiber_disp_cat_ob_mor F).
   apply fiber_disp_cat_id_comp.
 Defined.
-
-(*Search (_ = pr1 (transportf _ _ _)).
-Search (pr1 (transportf _ _ _) = _).*)
-
-About pr1_transportf.
 
 Definition fiber_disp_cat_id_left
     {B C : category} (F : functor C B)

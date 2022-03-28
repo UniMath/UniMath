@@ -171,35 +171,6 @@ Proof.
   apply isapropiscontr.
 Defined.
 
-(*
-Definition pre_implies_pre'_new
-    {C : category} {D : disp_cat C}
-    {c c' : C} {f : c' --> c}
-    {d : D c} {d' : D c'} (ff : d' -->[f] d)
-  : is_precartesian ff -> is_pre'cartesian ff.
-Proof.
-  unfold is_precartesian.
-  intros precartff d'' hh.
-  apply iscontraprop1.
-  - apply invproofirrelevance.
-    unfold isProofIrrelevant.
-    intros [gg0 comm0] [gg1 comm1].
-    apply subtypePairEquality.
-    + intro gg.
-      apply homsets_disp.
-    + apply (precartesian_factorisation_unique precartff).
-      exact (comm0 @ ! comm1).
-  - use tpair.
-    + apply precartff.
-      eapply (transportf (mor_disp d'' d) (id_left f)).
-      exact hh.
-    + simpl.
-      eapply pathscomp0.
-      * apply precartesian_factorisation_commutes.
-      * apply transportbfinv.
-Defined.
-*)
-
 End Precartesian_morphisms.
 
 
