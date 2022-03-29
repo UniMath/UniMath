@@ -159,4 +159,109 @@ Section MonoidalFunctors.
     use (iso_stable_under_equalitytransportf (pr2 pus) (is_z_isomorphism_identity I_{N})).
   Defined.
 
+  (* Monoidal functors form the morphisms in the category of monoidal categories *)
+  Lemma fmonoidal_identity {C : category} (M : monoidal C) : fmonoidal M M (functor_identity C).
+  Proof.
+    use tpair.
+    - use tpair.
+      + intros x y.
+        apply identity.
+      + apply identity.
+    - use tpair.
+      + intros x y1 y2 g.
+        cbn.
+        rewrite id_left.
+        apply id_right.
+      + use tpair.
+        * intros x1 x2 y f.
+          rewrite id_left.
+          apply id_right.
+        * use tpair.
+          -- intros x y z.
+             cbn.
+             rewrite bifunctor_leftid.
+             rewrite id_right.
+             rewrite bifunctor_rightid.
+             rewrite id_left.
+             rewrite id_right.
+             rewrite id_right.
+             apply idpath.
+          -- use tpair.
+             ++ intro x.
+                cbn.
+                rewrite bifunctor_rightid.
+                rewrite id_left.
+                apply id_left.
+             ++ intro x.
+                cbn.
+                rewrite bifunctor_leftid.
+                rewrite id_left.
+                apply id_left.
+  Defined.
+
+  Lemma fmonoidal_compositiondata {C D E : category} {MC : monoidal C} {MD : monoidal D} {ME : monoidal E}
+        {F : functor C D} {G : functor D E} (MF : fmonoidal MC MD F) (MG : fmonoidal MD ME G) : fmonoidal_data MC ME (functor_composite F G).
+  Proof.
+    use tpair.
+    - intros x y.
+      exact ((fmonoidal_preservestensordata MG (F x) (F y)) ·  (functor_on_morphisms G) (fmonoidal_preservestensordata MF x y)).
+    - exact ((fmonoidal_preservesunit MG) · (functor_on_morphisms G) (fmonoidal_preservesunit MF)).
+  Defined.
+
+  Lemma fmonoidal_compositionisfunctor {C D E : category} {MC : monoidal C} {MD : monoidal D} {ME : monoidal E}
+        {F : functor C D} {G : functor D E} (MF : fmonoidal MC MD F) (MG : fmonoidal MD ME G) : fmonoidal_laws (fmonoidal_compositiondata MF MG).
+  Proof.
+    use tpair.
+    - intros x y1 y2 g.
+      simpl.
+      rewrite assoc.
+      rewrite fmonoidal_preservestensornatleft.
+      rewrite assoc'.
+      etrans.
+      {
+        apply cancel_precomposition.
+        use pathsinv0.
+        exact (functor_comp G
+                ( (F x ⊗^{ MD}_{l} (# F)%Cat g))
+                ((fmonoidal_preservestensordata MF x y2))).
+      }
+      rewrite fmonoidal_preservestensornatleft.
+      rewrite functor_comp.
+      apply assoc.
+    - use tpair.
+      + intros x1 x2 y f.
+        simpl.
+        rewrite assoc.
+        rewrite fmonoidal_preservestensornatright.
+        rewrite assoc'.
+        etrans.
+        {
+          apply cancel_precomposition.
+          use pathsinv0.
+          exact (functor_comp G
+                ( ((# F)%Cat f) ⊗^{MD}_{r} F y)
+                ((fmonoidal_preservestensordata MF x2 y))).
+        }
+        rewrite fmonoidal_preservestensornatright.
+        rewrite functor_comp.
+        apply assoc.
+       + use tpair.
+         * intros x y z.
+           cbn.
+           rewrite assoc'.
+           Notation "fpt^{ MF }_{ x , y , z }" := (fmonoidal_preservestensordata MF x y z).
+           simpl.
+           Check fmonoidal_preservesassociativity MG (F x) (F y) (F z).
+
+
+           (* rewrite fmonoidal_preservesassociativity. *)
+
+
+
+  Admitted.
+
+  Definition fmonoidal_composition {C D E : category} {MC : monoidal C} {MD : monoidal D} {ME : monoidal E} {F : functor C D} {G : functor D E} (MF : fmonoidal MC MD F) (MG : fmonoidal MD ME G) : fmonoidal MC ME (functor_composite F G)
+    := (fmonoidal_compositiondata MF MG,, fmonoidal_compositionisfunctor MF MG).
+
+
 End MonoidalFunctors.

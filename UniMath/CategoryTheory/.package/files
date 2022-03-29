@@ -213,10 +213,12 @@ categories/Universal_Algebra/EqAlgebras.v
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
+Monoidal/MonoidalNaturalTransformationsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
+Monoidal/BicategoryOfMonoidalCategories.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
