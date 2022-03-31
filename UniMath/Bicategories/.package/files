@@ -38,6 +38,8 @@ Core/Examples/FibSlice.v
 
 Morphisms/Examples/MorphismsInOneTypes.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
+Morphisms/Examples/FibrationsInBicatOfUnivCats.v
+Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -135,13 +137,18 @@ Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
 Limits/PullbackFunctions.v
+Limits/PullbackEquivalences.v
 
+Morphisms/Eso.v
 Morphisms/Properties/Projections.v
 Morphisms/Properties/ClosedUnderPullback.v
+Morphisms/Properties/EsoProperties.v
+Morphisms/Examples/EsosInBicatOfUnivCats.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
@@ -202,5 +209,6 @@ ComprehensionBicat.v
 OtherStructure/DualityInvolution.v
 OtherStructure/ClassifyingDiscreteOpfib.v
 OtherStructure/Exponentials.v
+OtherStructure/Cores.v
 OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
