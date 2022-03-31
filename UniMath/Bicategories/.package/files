@@ -34,6 +34,7 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
 
 Morphisms/Examples/MorphismsInOneTypes.v
@@ -68,6 +69,7 @@ MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
+MonoidalCategories/WhiskeredMonoidalFromBicategory.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
