@@ -38,6 +38,7 @@ Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.BicatOfInvertibles.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Eso.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
@@ -885,9 +886,6 @@ Proof.
       * apply is_invertible_2cell_bicat_of_inv2cells.
 Defined.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
 Definition bicat_of_univ_cats_has_cores
   : has_cores bicat_of_univ_cats.
 Proof.
@@ -895,6 +893,8 @@ Proof.
   - exact bicat_of_univ_cats_has_cores_coreflection.
   - intro C.
     split ; cbn.
-    + apply TODO.
-    + apply TODO.
+    + apply essentially_surjective_is_eso.
+      apply functor_core_eso.
+    + apply cat_pseudmonic_is_pseudomonic_1cell.
+      apply functor_core_pseudomonic.
 Defined.

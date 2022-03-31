@@ -59,6 +59,7 @@ DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
+DisplayedBicats/Examples/BicatOfInvertibles.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
