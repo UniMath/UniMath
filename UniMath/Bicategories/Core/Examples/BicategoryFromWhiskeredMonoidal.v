@@ -22,10 +22,6 @@ Import BifunctorNotations.
 
 Context {C: category} (M : monoidal C).
 
-Local Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
-Local Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
-
-
 (* The type of 0-cells is unit type and the 1-cells are the objects of the monoidal category. The
  2-cells are given by the morphisms of the original monoidal category. *)
 Definition one_cells_data_from_monoidal : precategory_data.
