@@ -69,7 +69,7 @@ Definition associator_nat_leftrightwhisker {C : category} {T : tensor C} (α : a
   := ∏ (x y y' z : C) (g : C⟦y,y'⟧),
        (α x y z) · (x ⊗^{ T}_{l} (g ⊗^{ T}_{r} z)) = ((x ⊗^{ T}_{l} g) ⊗^{ T}_{r} z) · (α x y' z).
 
-Definition associator_nat1 {C : category} {T : tensor C} {α : associator_data T} (αnl : associator_nat_leftwhisker α) (αnr : associator_nat_rightwhisker α) (αnlr : associator_nat_leftrightwhisker α) {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
+Lemma associator_nat1 {C : category} {T : tensor C} {α : associator_data T} (αnl : associator_nat_leftwhisker α) (αnr : associator_nat_rightwhisker α) (αnlr : associator_nat_leftrightwhisker α) {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
        (α x y z) · ((f ⊗^{ T}_{r} (y ⊗_{ T} z)) · (x' ⊗^{ T}_{l} ((g ⊗^{ T}_{r} z) · (y' ⊗^{ T}_{l} h)))) =
          (((f ⊗^{ T}_{r} y) · (x' ⊗^{ T}_{l} g))  ⊗^{ T}_{r} z) · ((x' ⊗_{ T} y') ⊗^{ T}_{l} h) · (α x' y' z').
 Proof.
@@ -189,6 +189,17 @@ Definition monoidal_leftunitorlaw {C : category} (M : monoidal C) : leftunitor_l
 Definition monoidal_rightunitorlaw {C : category} (M : monoidal C) : rightunitor_law ru_{M} := pr1(pr2 (pr2 (monoidal_monlaws M))).
 Definition monoidal_triangleidentity {C : category} (M : monoidal C) : triangle_identity lu_{M} ru_{M} α_{M} := pr1 (pr2 (pr2 (pr2 (monoidal_monlaws M)))).
 Definition monoidal_pentagonidentity {C : category} (M : monoidal C) : pentagon_identity α_{M} := pr2 (pr2 (pr2 (pr2 (monoidal_monlaws M)))).
+
+Definition monoidal_leftassociator {C : category} (M : monoidal C) (x y z: C) := pr1 (associatorlaw_iso (monoidal_associatorlaw M) x y z).
+
+Lemma pentagon_identity_leftassociator {C : category} (M : monoidal C)(w x y z : C):
+  w ⊗^{ M}_{l} (monoidal_leftassociator M x y z)
+  ·  monoidal_leftassociator M w (x ⊗_{ M} y) z
+  ·  monoidal_leftassociator M w x y ⊗^{ M}_{r} z =
+   monoidal_leftassociator M w x (y ⊗_{ M} z)
+  · monoidal_leftassociator M (w ⊗_{ M} x) y z.
+Proof.
+  Admitted.
 
 Module MonoidalNotations.
   Notation "I_{ M }" := (monoidal_unit M).

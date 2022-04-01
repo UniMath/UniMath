@@ -92,96 +92,67 @@ Proof.
   (* 8. Associator and left/left whiskering *)
   split. {
     intros ? ? ? ? f g h i x.
-
-TODO
-
-    etrans.
-    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, id g) #, x)).
-    exact (maponpaths (fun z => _ · (z #⊗ _)) (functor_id tensor (f , g))).
+    cbn.
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g h)).
+    rewrite assoc.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g i)).
+    apply (associatorlaw_natleft (monoidal_associatorlaw M)).
   }
 
   (* 9. Associator and right/left whiskering *)
   split. {
     intros ? ? ? ? f g h i x.
-    etrans.
-    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, x) #, id i)).
-    apply idpath.
+    cbn.
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g i)).
+    rewrite assoc.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f h i)).
+    apply (associatorlaw_natleftright (monoidal_associatorlaw M)).
   }
 
   (* 10. Associator and right/right whiskering *)
   split. {
     intros ? ? ? ? f g h i x.
-    etrans.
-    exact (!(pr21 (nat_z_iso_inv α) _ _ ((x #, id h) #, id i))).
-    exact (maponpaths (fun z => (_ #⊗ z) · _) (functor_id tensor (h , i))).
+    cbn.
+    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f h i)).
+    rewrite assoc.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) g h i)).
+    apply (associatorlaw_natright (monoidal_associatorlaw M)).
   }
 
   (* 11. Vertical composition and whiskering *)
   split. {
     intros.
-    etrans. exact (!(functor_comp tensor _ _)).
-    etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_left _)).
-    etrans. exact (maponpaths (fun z => (z #⊗ _)) (id_right _)).
-    apply pathsinv0.
-    etrans. exact (!(functor_comp tensor _ _)).
-    etrans. exact (maponpaths (fun z => (z #⊗ _)) (id_left _)).
-    etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
-    apply idpath.
+    cbn.
+    apply bifunctor_equalwhiskers.
   }
 
   (* 12. Left unitor invertible. *)
-  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (l f,, pr2 l f)). }
-  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (l f,, pr2 l f)). }
+  split. { intros ? ? f. exact (pr12 (leftunitorlaw_iso (monoidal_leftunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr22 (leftunitorlaw_iso (monoidal_leftunitorlaw M) f)). }
 
   (* 13. Right unitor invertible. *)
-  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (ρ f,, pr2 ρ f)). }
-  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. exact (pr12 (rightunitorlaw_iso (monoidal_rightunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr22 (rightunitorlaw_iso (monoidal_rightunitorlaw M) f)). }
 
   (* 14. Associator invertible. *)
-  split. { intros ? ? ? ? f g h. exact (z_iso_after_z_iso_inv (α ((f, g), h) ,, pr2 α ((f, g), h) )). }
-  split. { intros ? ? ? ? f g h. exact (z_iso_inv_after_z_iso (α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. exact (pr22 (associatorlaw_iso (monoidal_associatorlaw M) f g h)). }
+  split. { intros ? ? ? ? f g h. exact (pr12 (associatorlaw_iso (monoidal_associatorlaw M) f g h)). }
 
   (* 15. Right unitor whiskering. *)
   split. {
     intros ? ? ? f g.
-    etrans. exact (maponpaths (fun z => _ · z) (triangle_equality _ _)).
-    etrans. exact (assoc _ _ _).
-    etrans. exact (maponpaths (fun z => z · _) (z_iso_after_z_iso_inv (α ((f, I), g) ,, pr2 α ((f, I), g) ))).
-    exact (id_left _).
+    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f I_{ M} g)).
+    apply pathsinv0, monoidal_triangleidentity.
   }
 
   (* 16. Pentagon equation *)
-  (* The pentagon equation is backwards on the definition of bicategory and in the definition of
-  monoidal category, we need to rewrite the equation in order to apply it. *)
   intros ? ? ? ? ? f g h i.
   cbn.
-  apply (pre_comp_with_z_iso_is_inj'(f := α ((f, g), h ⊗ i)) (pr2 α _)).
-  apply (pre_comp_with_z_iso_is_inj'(f := α (((f ⊗ g), h) , i)) (pr2 α _)).
-  apply pathsinv0.
-  etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (α ((f, g), _) ,, pr2 α _ ))).
-  etrans. exact (maponpaths (fun z => _ · z) (id_left _)).
-  etrans. exact (z_iso_inv_after_z_iso (α ((f ⊗ g, h), _) ,, pr2 α _ )).
-  apply pathsinv0.
-  etrans. exact (assoc _ _ _).
-  etrans. exact (assoc _ _ _).
-  etrans. exact (maponpaths (fun z => (z · _) · _) (pentagon_equation _ _ _ _)).
-  etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). cbn.
-  etrans. exact (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (z_iso_inv_after_z_iso (α ((g, h), i) ,, pr2 α _))).
-  assert (aux: # tensor (id (f, (assoc_left (pr12 M)) ((g, h), i))) = id (f ⊗ (assoc_left (pr12 M)) ((g, h), i))) by
-  exact (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))).
-  etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) aux).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (z_iso_inv_after_z_iso (α ((f,g ⊗ h),i) ,, pr2 α _))).
-  etrans. exact (maponpaths (fun z => (z · _)) (id_right _)).
-  etrans. exact (!(functor_comp tensor _ _)).
-  etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
-  etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (α ((f,g),h) ,, pr2 α _))).
-  apply (functor_id tensor).
+  (* the pentagon equation in bicategories is formulated for the left associator while it is based
+     on the right associator in whiskered monoidal categories *)
+  apply pentagon_identity_leftassociator.
 Qed.
 
 Definition prebicat_from_monoidal : prebicat :=
