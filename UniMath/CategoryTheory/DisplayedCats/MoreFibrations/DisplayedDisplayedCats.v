@@ -36,11 +36,49 @@ Definition top_disp_cat {C : category} (E : disp_disp_cat C)
   : disp_cat (total_category (base_disp_cat E))
   := pr2 E.
 
-Definition comp_disp_cat {C : category} (E : disp_disp_cat C) : disp_cat C.
+Definition composite_disp_cat {C : category} (DD : disp_disp_cat C) : disp_cat C.
 Proof.
+  destruct DD as [D E].
+  use tpair.
+  - unfold disp_cat_data.
+    use tpair.
+    + unfold disp_cat_ob_mor.
+      use tpair.
+      * intro c.
+        exact (∑ (cc : D c), E (c ,, cc)).
+      * simpl.
+        intros c c' [cc ccc] [cc' ccc'] f.
+        exact (∑ (ff : cc -->[f] cc'), ccc -->[(f ,, ff)] ccc').
+    + simpl.
+      split.
+      * simpl.
+        intros c [cc ccc].
+        exists (id_disp cc).
+        exact (id_disp ccc).
+      * simpl.
+        intros c c' c'' f g [cc ccc] [cc' ccc'] [cc'' ccc''] [ff fff] [gg ggg].
+        exists (comp_disp ff gg).
+        exact (comp_disp fff ggg).
+  - split.
+    + simpl.
+      intros c c' f [cc ccc] [cc' ccc'] [ff fff].
+
+
+      admit.
+    + simpl.
+      split.
+      *
+        admit.
+      * split.
+        --
+           admit.
+        --
+           admit.
 Admitted.
 
-Definition fiber_disp_cat {C : category} (E: disp_disp_cat C) (c : C)
-  : disp_cat (fiber_category (base_disp_cat E) c).
+Definition fiber_disp_cat {C : category} (DD: disp_disp_cat C) (c : C)
+  : disp_cat (fiber_category (base_disp_cat DD) c).
 Proof.
+  destruct DD as [D E]. simpl.
+
 Admitted.
