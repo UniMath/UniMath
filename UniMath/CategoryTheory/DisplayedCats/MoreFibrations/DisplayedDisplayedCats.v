@@ -69,17 +69,15 @@ Definition composite_disp_cat {C : category} (DD : disp_disp_cat C) : disp_cat C
 Proof.
   destruct DD as [D E].
   use tpair.
-  - unfold disp_cat_data.
-    use tpair.
-    + unfold disp_cat_ob_mor.
-      use tpair.
+  - use tpair.
+    + use tpair.
       * intro x.
         exact (∑ (xx : D x), E (x ,, xx)).
       * simpl.
         intros x y [xx xxx] [yy yyy] f.
         exact (∑ (ff : xx -->[f] yy), xxx -->[(f ,, ff)] yyy).
     + simpl.
-      split.
+      use tpair.
       * simpl.
         intros x [xx xxx].
         exists (id_disp xx).
@@ -89,7 +87,7 @@ Proof.
         exists (comp_disp ff gg).
         exact (comp_disp fff ggg).
   - simpl.
-    split.
+    use tpair.
     + simpl.
       intros x y f [xx xxx] [yy yyy] [ff fff].
       (* eapply transportf_total2'. *)
@@ -105,21 +103,82 @@ Proof.
         --
            admit.
     + simpl.
-      split.
+      use tpair.
       * intros x y f [xx xxx] [yy yyy] [ff fff].
-        set (temp := @id_right_disp _ E _ _ _ _ _ fff).
-        admit.
-      * split.
+        use total2_paths_b.
+        -- simpl.
+           eapply pathscomp0.
+           ++ apply id_right_disp.
+           ++ apply pathsinv0.
+              apply transportf_total2'_pr1.
+        -- simpl.
+           eapply pathscomp0.
+           ++ exact (id_right_disp fff).
+           ++
+              admit.
+      * simpl.
+        use tpair.
         -- intros x y z w f g h [xx xxx] [yy yyy] [zz zzz] [ww www] [ff fff] [gg ggg] [hh hhh].
-           set (temp := @assoc_disp _ E _ _ _ _ _ _ _ _ _ _ _ fff ggg hhh).
-           admit.
-        --
-           admit.
+           use total2_paths_b.
+           ++ simpl.
+              eapply pathscomp0.
+              ** apply assoc_disp.
+              ** apply pathsinv0.
+                 apply transportf_total2'_pr1.
+           ++ simpl.
+              admit.
+        -- simpl.
+           intros x y f [xx xxx] [yy yyy].
+           apply isaset_total2.
+           ++ apply homsets_disp.
+           ++ intros ff.
+              apply homsets_disp.
 Admitted.
 
 Definition fiber_disp_cat {C : category} (DD: disp_disp_cat C) (c : C)
   : disp_cat (fiber_category (base_disp_cat DD) c).
 Proof.
   destruct DD as [D E]. simpl.
-
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * intro cc.
+        exact (E (c ,, cc)).
+      * simpl.
+        intros x y xx yy f.
+        exact (xx -->[(identity c ,, f)] yy).
+    + use tpair.
+      * simpl.
+        intros x xx.
+        apply (@id_disp _ E _ xx).
+      * simpl.
+        intros x y z f g xx yy zz ff gg.
+        admit.
+  - use tpair.
+    + simpl.
+      intros x y f xx yy ff.
+      set (temp := id_left_disp ff).
+      eapply pathscomp0.
+      * (* apply (id_left_disp ff). *)
+        (* Doesn't work: compositions wrt different displayed categories! E and the new one I'm constructing here. *)
+        admit.
+      *
+        admit.
+    + simpl.
+      use tpair.
+      * intros x y f xx yy ff.
+        eapply pathscomp0.
+        -- (* apply (id_right_disp ff). *)
+           (* see above *)
+           admit.
+        --
+           admit.
+      * simpl.
+        use tpair.
+        -- intros x y z w f g h xx yy zz ww ff gg hh.
+           apply (assoc_disp ff gg hh).
+           admit.
+        -- simpl.
+           intros x y f xx yy.
+           apply homsets_disp.
 Admitted.
