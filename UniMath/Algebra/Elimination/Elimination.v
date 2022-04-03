@@ -1681,7 +1681,7 @@ Section Gauss.
             { rewrite gauss_clear_column_inv3; try reflexivity; apply isreflnatleh. }
             assert (fldmultinv'_eq : forall e1 e2 : F, (*forall p1 : e1 != 0%ring,
               forall p2: e2 != 0%ring,*) e1 = e2 -> fldmultinv' e1 = fldmultinv' e2).
-            { admit. }
+            { intros e1 e2 e_eq. destruct e_eq; reflexivity. }
             apply fldmultinv'_eq. assumption.
           - rewrite gauss_clear_column_inv3; try reflexivity; apply isreflnatleh.
         }
@@ -1696,7 +1696,7 @@ Section Gauss.
         { apply proofirrelevance, propproperty. }
         rewrite peq.
         reflexivity.
-  Admitted. (* TODO inv lemma *)
+  Defined. (* TODO inv lemma *)
 
   (* Invariant stating that the clearing procedure does clear all the target entries (r, k) for r > k. *)
   (* TODO use this more *)

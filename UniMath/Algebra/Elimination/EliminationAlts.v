@@ -194,8 +194,7 @@ Section EliminationAlts.
     destruct (natgthorleh k iter).
     2: { rewrite gauss_clear_column_inv3; try reflexivity; try assumption. apply IHiter. }
     rewrite gauss_clear_column_inv1.
-    3: { apply (pr2 k). }
-    2: {exact F. }
+    2: { apply (pr2 k). }
     unfold gauss_clear_column_step'.
     destruct (stn_eq_or_neq _ _); try apply IHiter; try assumption.
     2: {assumption. }
@@ -371,9 +370,8 @@ Section EliminationAlts.
           rewrite gauss_clear_column_inv6; try reflexivity; try assumption.
           rewrite IH1; try reflexivity; try assumption.
         * rewrite gauss_clear_column_inv1; try assumption.
-          4: { rewrite j_eq_n' in j_lt_i. apply j_lt_i. }
-          3: { apply (pr2 i). }
-          2: { exact F. }
+          3: { rewrite j_eq_n' in j_lt_i. apply j_lt_i. }
+          2: { apply (pr2 i). }
           rewrite <- gauss_clear_column_step_eq.
           revert IH1. revert s. revert n0. revert j_lt_sn. revert lt_n'_n. rewrite <- j_eq_n'.
           intros.
@@ -437,9 +435,8 @@ Section EliminationAlts.
             apply isreflnatgeh.
       }
       rewrite gauss_clear_column_inv1.
-      4: { apply le. }
-      3: { simpl. assumption. }
-      2: { exact F. }
+      3: { apply le. }
+      2: { simpl. assumption. }
       try rewrite gauss_clear_column_step_eq.
       unfold gauss_clear_column_step'.
       destruct (stn_eq_or_neq _ _).
@@ -523,8 +520,7 @@ Section EliminationAlts.
             reflexivity.
         }
         rewrite gauss_clear_column_inv1; try assumption.
-        3: {apply (pr2 IH_idx). }
-        2: {exact F. }
+        2: {apply (pr2 IH_idx). }
         unfold gauss_clear_column_step'.
         destruct (stn_eq_or_neq _ _).
         { change (pr1 iter_stn) with (iter).
@@ -577,8 +573,7 @@ Section EliminationAlts.
               reflexivity.
           }
           rewrite gauss_clear_column_inv1; try assumption.
-          3: {apply (pr2 (IH_idx)). }
-          2: {exact F. }
+          2: {apply (pr2 (IH_idx)). }
           unfold gauss_clear_column_step'.
           unfold gauss_add_row.
           set (f := nat_rect _ _ _).

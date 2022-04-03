@@ -711,7 +711,7 @@ Section Inverse.
         2: {exact (pr2 i). }
         unfold is_row_echelon_partial.
         pose (H2 := @gauss_clear_rows_up_to_inv1 F F n n A gt (n,, natgthsnn n)).
-        pose (H3 := @gauss_clear_rows_up_to_inv2 F F n n A gt (n,, natgthsnn n)).
+        pose (H3 := @gauss_clear_rows_up_to_inv2 F n n A gt (n,, natgthsnn n)).
         use tpair.
         - rewrite <- (gauss_clear_rows_up_to_as_matrix_eq F _ _ gt) in H2.
           apply H2.
