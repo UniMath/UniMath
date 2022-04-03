@@ -91,14 +91,15 @@ Section Misc.
   Proof.
     intros.
     refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i)  (min_le_a a b)).
+    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_a a b)).
   Defined.
+
   Lemma minabstn_to_bstn
     { a b : nat } (i : ⟦ min a b ⟧%stn) : ⟦ b ⟧%stn.
   Proof.
     intros.
     refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i)  (min_le_b a b)).
+    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_b a b)).
   Defined.
 
   Lemma natminus1lthn
@@ -166,25 +167,73 @@ Section Misc.
       + intros; contradiction.
   Defined.
 
-  Lemma fldmultinv_eq {F : fld} : forall (e1 e2 : F), forall p1 : e1 != 0%ring,
-    forall p2: e2 != 0%ring, e1 = e2 -> fldmultinv e1 p1 = fldmultinv e2 p2.
+  Lemma fldmultinvlax {X: fld} (e : X) (ne : e != 0%ring) :
+    (fldmultinv e ne * e)%ring = 1%ring.
   Proof.
-    intros e1 e2 neq1 neq2 eq.
-    destruct eq.
-    apply maponpaths, proofirrelevance, isapropneg.
+    unfold fldmultinv.
+    unfold fldmultinvpair.
+    destruct (fldchoice _) as [? | contr_eq].
+    2: { apply fromempty.
+         rewrite contr_eq in ne.
+         contradiction. }
+    unfold multinvpair in m.
+    unfold invpair in m.
+    destruct m as [m1 m2].
+    simpl.
+    destruct m2 as [m2 m3].
+    change (m1 * e)%ring with (m1 * e)%multmonoid.
+    rewrite m2.
+    reflexivity.
+  Defined.
+
+  Lemma fldmultinvrax {X: fld} (e : X) (ne : e != 0%ring) :
+    (e * fldmultinv e ne)%ring = 1%ring.
+  Proof.
+    rewrite ringcomm2; apply fldmultinvlax.
+  Defined.
+
+  Definition fldmultinv' {X : fld} (e : X) : X.
+  Proof.
+    destruct (fldchoice0 e) as [eq0 | neq].
+    - exact 0%ring.
+    - exact (fldmultinv e neq).
+  Defined.
+
+  Lemma fldmultinvlax' {X: fld} (e : X) (ne : e != 0%ring) :
+    (fldmultinv' e * e)%ring = 1%ring.
+  Proof.
+    unfold fldmultinv'.
+    destruct (fldchoice0 _).
+    - contradiction.
+    - apply fldmultinvlax.
+  Defined. 
+
+  Lemma fldmultinvrax' {X: fld} (e : X) (ne : e != 0%ring) :
+    (e * fldmultinv' e)%ring = 1%ring.
+  Proof.
+    unfold fldmultinv'.
+    destruct (fldchoice0 _).
+    - contradiction.
+    - apply fldmultinvrax.
+  Defined. 
+
+  Lemma fldplusminus
+    {F: fld} (a b : F) : (a + b - b)%ring = a.
+  Proof.
+    replace (a + b - b)%ring with (a + b + (- b))%ring.
+    - rewrite ringassoc1.
+      replace (b + - b)%ring with (b  - b)%ring.
+      + rewrite ringrinvax1. apply (@rigrunax1 F).
+      + reflexivity.
+   - symmetry.
+     rewrite ringcomm1.
+     reflexivity.
   Defined.
 
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
   Proof.
-    replace (a + b - b)%hq with (a + b + (- b))%hq.
-    - rewrite hqplusassoc.
-      replace (b + - b)%hq with (b  - b)%hq.
-      + rewrite hqrminus; apply (@rigrunax1 hq).
-      + reflexivity.
-   - symmetry.
-     rewrite hqpluscomm.
-     reflexivity.
+    apply (@fldplusminus hq).
   Defined.
 
   Lemma fromnatcontr
@@ -343,7 +392,9 @@ Section PrelStn.
       { apply pr1i_neq_pr1j. }
   Defined.
 
-  Lemma stnmn_to_stn0n
+  (* TODO remove - think not needed. *)
+
+  (*Lemma stnmn_to_stn0n
     { X : UU } {n : nat} (i : ⟦ n ⟧%stn) : ⟦ n ⟧%stn.
   Proof.
     destruct n.
@@ -357,7 +408,7 @@ Section PrelStn.
     destruct n.
     - apply weqstn0toempty in i. contradiction.
     - exact (make_stn (S 0) 0 (natgthsn0 0)).
-  Defined.
+  Defined.*)
 
   Lemma issymm_stnneq
     (A : UU) {n : nat} (i j : ⟦ n ⟧%stn) :
@@ -485,9 +536,18 @@ Section Dual.
     apply (minusgth0 _ _ lt).
   Defined.
 
+  Lemma dualelement_lt_comp'
+    {n : nat} (i j : ⟦ n ⟧%stn)
+  : (dualelement i) < (dualelement j) -> j < i.
+  Proof.
+    intros lt.
+    pose (H := @dualelement_lt_comp _ (dualelement i) (dualelement j) lt).
+    do 2 rewrite dualelement_2x in H; assumption.
+  Defined.
+
   Lemma dualelement_le_comp
     {n : nat} (i j : ⟦ n ⟧%stn)
-  : i ≤ j -> (dualelement i) ≥ (dualelement j).
+  : i ≤ j -> (dualelement j) ≤ (dualelement i).
   Proof.
     intros le.
     destruct (natlehchoice i j) as [lt | eq]; try assumption.
@@ -497,6 +557,15 @@ Section Dual.
     { simpl; apply fromstn0. rewrite contr_eq. assumption.  }
     rewrite eq.
     apply isreflnatgeh.
+  Defined.
+
+  Lemma dualelement_le_comp'
+    {n : nat} (i j : ⟦ n ⟧%stn)
+  : (dualelement i) ≤ (dualelement j) -> j ≤ i.
+  Proof.
+    intros le.
+    pose (H := @dualelement_le_comp _ (dualelement i) (dualelement j) le).
+    do 2 rewrite dualelement_2x in H. assumption.
   Defined.
 
   Lemma dualvalue_eq

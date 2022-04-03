@@ -64,7 +64,7 @@ End Auxiliary.
   Defined.
 
   (* TODO rename *)
-  Definition make_add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : F)
+  Definition add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : F)
     : Matrix F n n.
   Proof.
     intros i.
@@ -83,7 +83,7 @@ End Auxiliary.
     - exact (mat i j).
   Defined.
 
-  Definition make_scalar_mult_row_matrix {n : nat}
+  Definition mult_row_matrix {n : nat}
     (s : F) (r : ⟦ n ⟧%stn): Matrix F n n.
   Proof.
     intros i.
@@ -143,7 +143,7 @@ End Auxiliary.
       try rewrite m_eq; try reflexivity.
   Defined.
 
-  Definition make_gauss_switch_row_matrix (n : nat)  (r1 r2 : ⟦ n ⟧ %stn) : Matrix F n n.
+  Definition switch_row_matrix (n : nat)  (r1 r2 : ⟦ n ⟧ %stn) : Matrix F n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r1).
@@ -179,11 +179,11 @@ End Auxiliary.
      to swaps of indices. *)
   Lemma scalar_mult_mat_elementary
     {m n : nat} (mat : Matrix F m n) (s : F) (r : ⟦ m ⟧%stn) :
-    ((make_scalar_mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
+    ((mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
   Proof.
     use funextfun. intros i.
     use funextfun. intros ?.
-    unfold matrix_mult, make_scalar_mult_row_matrix, gauss_scalar_mult_row, row.
+    unfold matrix_mult, mult_row_matrix, gauss_scalar_mult_row, row.
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl coprod_rect.
       etrans.
@@ -198,10 +198,10 @@ End Auxiliary.
   (* TODO should certainly be over R *)
   Lemma switch_row_mat_elementary { m n : nat } (mat : Matrix F m n)
     (r1 r2 : ⟦ m ⟧%stn) :
-    ((make_gauss_switch_row_matrix m r1 r2) ** mat) = gauss_switch_row mat r1 r2.
+    ((switch_row_matrix m r1 r2) ** mat) = gauss_switch_row mat r1 r2.
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    unfold make_gauss_switch_row_matrix, gauss_switch_row.
+    unfold switch_row_matrix, gauss_switch_row.
     apply funextfun. intros i.
     apply funextfun. intros ?.
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
@@ -228,15 +228,15 @@ End Auxiliary.
         apply idpath.
   Defined.
 
-  (* TODO fix mixed up signatures on add_row  / make_add_row_matrix *)
+  (* TODO fix mixed up signatures on add_row  / add_row_matrix *)
   Lemma add_row_mat_elementary { m n : nat } (mat : Matrix F m n)
   (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : F)
-  : ((make_add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
+  : ((add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
     apply funextfun. intros k.
     apply funextfun. intros l.
-    unfold matrix_mult, make_add_row_matrix, gauss_add_row, row.
+    unfold matrix_mult, add_row_matrix, gauss_add_row, row.
     destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
     - simpl coprod_rect.
       etrans. { apply maponpaths, pointwise_rdistr_vector. }
@@ -254,12 +254,12 @@ End Auxiliary.
 
   Lemma scalar_mult_matrix_multiplicative { n : nat }
         ( r : ⟦ n ⟧%stn ) ( s1 s2 : F ) :
-    ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r ))
-   = (make_scalar_mult_row_matrix (s1 * s2)%ring r ).
+    ((mult_row_matrix s1 r ) ** (mult_row_matrix s2 r ))
+   = (mult_row_matrix (s1 * s2)%ring r ).
   Proof.
     rewrite scalar_mult_mat_elementary.
     unfold gauss_scalar_mult_row.
-    unfold make_scalar_mult_row_matrix.
+    unfold mult_row_matrix.
     apply funextfun; intros i.
     apply funextfun; intros j.
     destruct (stn_eq_or_neq i r);
@@ -270,10 +270,10 @@ End Auxiliary.
   Defined.
 
   Lemma scalar_mult_matrix_one {n : nat} (r : ⟦ n ⟧%stn)
-    : make_scalar_mult_row_matrix 1%ring r
+    : mult_row_matrix 1%ring r
     = @identity_matrix F _.
   Proof.
-    unfold make_scalar_mult_row_matrix.
+    unfold mult_row_matrix.
     apply funextfun; intros i.
     destruct (stn_eq_or_neq i r); simpl coprod_rect.
     2: { reflexivity. }
@@ -282,44 +282,19 @@ End Auxiliary.
 
   (* For F at least *)
   Lemma scalar_mult_matrix_comm { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F ) :
-      ((make_scalar_mult_row_matrix s1 r ) ** (make_scalar_mult_row_matrix s2 r))
-    = ((make_scalar_mult_row_matrix s2 r ) ** (make_scalar_mult_row_matrix s1 r)).
+      ((mult_row_matrix s1 r ) ** (mult_row_matrix s2 r))
+    = ((mult_row_matrix s2 r ) ** (mult_row_matrix s1 r)).
   Proof.
     do 2 rewrite scalar_mult_matrix_multiplicative.
     apply maponpaths_2, (rigcomm2 F).
   Defined.
 
-  Lemma fldmultinvlax {X: fld} (e : X) (ne : e != 0%ring) :
-    (fldmultinv e ne * e)%ring = 1%ring.
-  Proof.
-    unfold fldmultinv.
-    unfold fldmultinvpair.
-    destruct (fldchoice _) as [? | contr_eq].
-    2: { apply fromempty.
-         rewrite contr_eq in ne.
-         contradiction. }
-    unfold multinvpair in m.
-    unfold invpair in m.
-    destruct m as [m1 m2].
-    simpl.
-    destruct m2 as [m2 m3].
-    change (m1 * e)%ring with (m1 * e)%multmonoid.
-    rewrite m2.
-    reflexivity.
-  Defined.
-
-  Lemma fldmultinvrax {X: fld} (e : X) (ne : e != 0%ring) :
-    (e * fldmultinv e ne)%ring = 1%ring.
-  Proof.
-    rewrite ringcomm2; apply fldmultinvlax.
-  Defined.
-
   (* TODO : F should also be a general field, not short-hand for rationals specifically.
             This does not mandate any real change in any proofs ?*)
   Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != 0%ring )
-  : @matrix_inverse F n (make_scalar_mult_row_matrix s i).
+  : @matrix_inverse F n (mult_row_matrix s i).
   Proof.
-    exists (make_scalar_mult_row_matrix (fldmultinv s ne) i).
+    exists (mult_row_matrix (fldmultinv s ne) i).
     split;
       refine (scalar_mult_matrix_multiplicative _ _ _ @ _);
       refine (_ @ scalar_mult_matrix_one i);
@@ -330,12 +305,12 @@ End Auxiliary.
 
   Lemma add_row_matrix_additive
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : F ) (ne : r1 ≠ r2) :
-    ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
-   = (make_add_row_matrix r1 r2 (s1 + s2)%ring).
+    ((add_row_matrix r1 r2 s1 ) ** (add_row_matrix r1 r2 s2 ))
+   = (add_row_matrix r1 r2 (s1 + s2)%ring).
   Proof.
     rewrite add_row_mat_elementary; try assumption.
     apply funextfun; intros i; apply funextfun; intros j.
-    unfold gauss_add_row, make_add_row_matrix.
+    unfold gauss_add_row, add_row_matrix.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: {apply idpath. }
     destruct i_eq_r2.
@@ -351,10 +326,10 @@ End Auxiliary.
 
   Lemma add_row_matrix_zero
       { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
-    : make_add_row_matrix r1 r2 0%ring = @identity_matrix F _.
+    : add_row_matrix r1 r2 0%ring = @identity_matrix F _.
   Proof.
     apply funextfun; intros i.
-    unfold make_add_row_matrix.
+    unfold add_row_matrix.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: { apply idpath. }
     destruct i_eq_r2. simpl.
@@ -366,8 +341,8 @@ End Auxiliary.
 
   Lemma add_row_matrix_commutes { n : nat }
         ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : F ) (ne : r1 ≠ r2) :
-     ((make_add_row_matrix r1 r2 s1 ) ** (make_add_row_matrix r1 r2 s2 ))
-     = ((make_add_row_matrix r1 r2 s2 ) ** (make_add_row_matrix r1 r2 s1 )).
+     ((add_row_matrix r1 r2 s1 ) ** (add_row_matrix r1 r2 s2 ))
+     = ((add_row_matrix r1 r2 s2 ) ** (add_row_matrix r1 r2 s1 )).
   Proof.
     rewrite add_row_matrix_additive; try assumption.
     rewrite add_row_matrix_additive; try assumption.
@@ -376,9 +351,9 @@ End Auxiliary.
   Defined.
 
   Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : F )
-   : @matrix_inverse F n (make_add_row_matrix r1 r2 s).
+   : @matrix_inverse F n (add_row_matrix r1 r2 s).
   Proof.
-    exists (make_add_row_matrix r1 r2 (- s)%ring).
+    exists (add_row_matrix r1 r2 (- s)%ring).
     split;
       refine (add_row_matrix_additive _ _ _ _ r1_neq_r2 @ _);
       refine (_ @ add_row_matrix_zero _ _ r1_neq_r2);
@@ -387,15 +362,16 @@ End Auxiliary.
     - apply (@ringlinvax1 F).
   Defined.
 
+
   Lemma switch_row_matrix_self_inverse { n : nat }
     ( r1 r2 : ⟦ n ⟧%stn ) :
-       ((make_gauss_switch_row_matrix n r1 r2)
-     ** (make_gauss_switch_row_matrix n r1 r2))
+       ((switch_row_matrix n r1 r2)
+     ** (switch_row_matrix n r1 r2))
       = @identity_matrix F n.
   Proof.
     intros.
     rewrite switch_row_mat_elementary.
-    unfold gauss_switch_row, make_gauss_switch_row_matrix.
+    unfold gauss_switch_row, switch_row_matrix.
     apply funextfun; intros i; apply funextfun; intros j.
     destruct (stn_eq_or_neq i j) as [eq | neq].
     - rewrite eq; simpl.
@@ -452,12 +428,12 @@ End Auxiliary.
   Defined.
 
   Lemma switch_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ):
-    @matrix_inverse F n (make_gauss_switch_row_matrix n r1 r2).
+    @matrix_inverse F n (switch_row_matrix n r1 r2).
   Proof.
     use tpair.
-    { exact (make_gauss_switch_row_matrix n r1 r2). }
-    assert (proof : ((make_gauss_switch_row_matrix n r1 r2) **
-                    (make_gauss_switch_row_matrix n r1 r2)) = identity_matrix).
+    { exact (switch_row_matrix n r1 r2). }
+    assert (proof : ((switch_row_matrix n r1 r2) **
+                    (switch_row_matrix n r1 r2)) = identity_matrix).
     { apply switch_row_matrix_self_inverse. }
     - use tpair.
       + exact proof.

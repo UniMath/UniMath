@@ -532,7 +532,6 @@ Section MatricesHq.
     : (@matrix_right_inverse F m n A) -> empty.
   Proof.
     intros [inv isrightinv].
-    (*apply hqone_neq_hqzero.*)
     contradiction (@nonzeroax F).
     etrans. { apply pathsinv0, (@id_mat_ii F). }
     do 2 (apply toforallpaths in isrightinv; specialize (isrightinv i)).
@@ -614,7 +613,7 @@ Section Transpositions.
   Defined.
 
   (* TODO: generalize to functions on rows? *)
-  Definition transposition_mat_rows {X : UU} {m n  : nat} (i j : ⟦ m ⟧%stn)
+  Definition transposition_mat_rows {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
     : (Matrix X m n) -> Matrix X m n.
   Proof.
     intros mat.
@@ -642,7 +641,7 @@ Section Transpositions.
     intros; assumption.
   Defined.
 
-  Definition transpose_permutation_fun {n : nat} (p :  ⟦ n ⟧%stn -> ⟦ n ⟧%stn ) (i j : ⟦ n ⟧%stn) :  ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
+  Definition transpose_permutation_fun {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (i j : ⟦ n ⟧%stn) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
   Proof.
     intros k.
     destruct (stn_eq_or_neq i k).
@@ -653,12 +652,14 @@ Section Transpositions.
   Defined.
 
   (* TODO clean up - and this should follow from  transposition_perm  ?  *)
-  Definition permutation_fun_closed_under_tranpose {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (isp : is_permutation_fun p) :
+  Definition permutation_fun_closed_under_tranpose
+    {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (isp : is_permutation_fun p) :
     ∏ i j : ⟦ n ⟧%stn, is_permutation_fun (transpose_permutation_fun p i j).
   Proof.
     intros i j.
-    unfold is_permutation_fun, transpose_permutation_fun.
+    unfold is_permutation_fun.
     intros i' j'.
+    unfold is_permutation_fun, transpose_permutation_fun.
     unfold is_permutation_fun in isp.
     destruct (stn_eq_or_neq i i') as [i_eq_i' | F].
     - destruct (stn_eq_or_neq i j') as [i_eq_j' | F'].
