@@ -18,6 +18,9 @@ Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope bicategory_scope.
 
+(**
+ laws for idtoiso_2_0
+ *)
 Definition transport_one_cell_FlFr
            {C : bicat}
            {A : Type}
@@ -87,6 +90,9 @@ Proof.
   apply idpath.
 Qed.
 
+(**
+ laws for idtoiso_2_1
+ *)
 Lemma idtoiso_2_1_inv
            {C : bicat}
            {a b : C}
