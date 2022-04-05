@@ -292,7 +292,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
-   - [DisplayedCats/MoreFibrations/FibrationsPreliminaries.v](CategoryTheory/DisplayedCats/MoreFibrations/FibrationsPreliminaries.v)
    - [DisplayedCats/MoreFibrations/Prefibrations.v](CategoryTheory/DisplayedCats/MoreFibrations/Prefibrations.v)
    - [DisplayedCats/MoreFibrations/CartesiannessOfComposites.v](CategoryTheory/DisplayedCats/MoreFibrations/CartesiannessOfComposites.v)
    - [DisplayedCats/MoreFibrations/FibrationsCharacterisation.v](CategoryTheory/DisplayedCats/MoreFibrations/FibrationsCharacterisation.v)

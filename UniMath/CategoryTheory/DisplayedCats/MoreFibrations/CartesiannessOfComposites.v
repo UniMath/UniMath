@@ -26,7 +26,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 
 Local Open Scope type_scope.

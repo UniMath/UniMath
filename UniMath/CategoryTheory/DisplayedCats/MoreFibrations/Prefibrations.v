@@ -23,8 +23,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
-
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 

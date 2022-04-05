@@ -192,7 +192,6 @@ DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 
-DisplayedCats/MoreFibrations/FibrationsPreliminaries.v
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
 DisplayedCats/MoreFibrations/FibrationsCharacterisation.v

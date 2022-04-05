@@ -25,7 +25,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FibrationsPreliminaries.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.CartesiannessOfComposites.
 
