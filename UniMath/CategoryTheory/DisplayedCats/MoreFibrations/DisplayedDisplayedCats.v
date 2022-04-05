@@ -25,12 +25,24 @@ Require Import UniMath.Foundations.All.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
+About transportD.
 
 Definition transportD' {A : UU} (B : A -> UU) (C : (∑ a : A, B a) -> UU)
            {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
   C (x2 ,, (transportf _ p y)).
 Proof.
-  intros.
+  eapply (transportf _ _ z). Unshelve.
+  use (@total2_paths_f _ _ (x1 ,, y)).
+  - simpl.
+    exact p.
+  - simpl.
+    apply idpath.
+Defined.
+
+Definition transportD'' {A : UU} (B : A -> UU) (C : (∑ a : A, B a) -> UU)
+           {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
+  C (x2 ,, (transportf _ p y)).
+Proof.
   induction p.
   exact z.
 Defined.
@@ -64,6 +76,7 @@ Definition base_disp_cat {C : category} (E : disp_disp_cat C) : disp_cat C
 Definition top_disp_cat {C : category} (E : disp_disp_cat C)
   : disp_cat (total_category (base_disp_cat E))
   := pr2 E.
+
 
 Definition composite_disp_cat {C : category} (DD : disp_disp_cat C) : disp_cat C.
 Proof.
@@ -135,6 +148,156 @@ Proof.
               apply homsets_disp.
 Admitted.
 
+
+Definition composite_disp_cat' {C : category} (DD : disp_disp_cat C) : disp_cat C.
+Proof.
+  destruct DD as [D E].
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * intro x.
+        exact (∑ (xx : D x), E (x ,, xx)).
+      * simpl.
+        intros x y [xx xxx] [yy yyy] f.
+        exact (∑ (ff : xx -->[f] yy), xxx -->[(f ,, ff)] yyy).
+    + simpl.
+      use tpair.
+      * simpl.
+        intros x [xx xxx].
+        exists (id_disp xx).
+        exact (id_disp xxx).
+      * simpl.
+        intros x y z f g [xx xxx] [yy yyy] [zz zzz] [ff fff] [gg ggg].
+        exists (comp_disp ff gg).
+        exact (comp_disp fff ggg).
+  - simpl.
+    use tpair.
+    + simpl.
+      intros x y f [xx xxx] [yy yyy] [ff fff].
+      (* eapply transportf_total2'. *)
+      apply pathsinv0.
+      eapply pathscomp0.
+      * apply transportf_total2'.
+      * unfold transportD'.
+        use total2_paths_f.
+        -- simpl.
+           apply pathsinv0.
+           apply id_left_disp.
+        -- simpl.
+           apply pathsinv0.
+           eapply pathscomp0.
+           ++ apply (id_left_disp fff).
+           ++ simpl.
+              admit.
+    + simpl.
+      use tpair.
+      * intros x y f [xx xxx] [yy yyy] [ff fff].
+        use total2_paths_b.
+        -- simpl.
+           eapply pathscomp0.
+           ++ apply id_right_disp.
+           ++ apply pathsinv0.
+              apply transportf_total2'_pr1.
+        -- simpl.
+           eapply pathscomp0.
+           ++ exact (id_right_disp fff).
+           ++
+              admit.
+      * simpl.
+        use tpair.
+        -- intros x y z w f g h [xx xxx] [yy yyy] [zz zzz] [ww www] [ff fff] [gg ggg] [hh hhh].
+           use total2_paths_b.
+           ++ simpl.
+              eapply pathscomp0.
+              ** apply assoc_disp.
+              ** apply pathsinv0.
+                 apply transportf_total2'_pr1.
+           ++ simpl.
+              admit.
+        -- simpl.
+           intros x y f [xx xxx] [yy yyy].
+           apply isaset_total2.
+           ++ apply homsets_disp.
+           ++ intros ff.
+              apply homsets_disp.
+Admitted.
+
+
+Definition composite_disp_cat'' {C : category} (DD : disp_disp_cat C) : disp_cat C.
+Proof.
+  destruct DD as [D E].
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * intro x.
+        exact (∑ (xx : D x), E (x ,, xx)).
+      * simpl.
+        intros x y [xx xxx] [yy yyy] f.
+        exact (∑ (ff : xx -->[f] yy), xxx -->[(f ,, ff)] yyy).
+    + simpl.
+      use tpair.
+      * simpl.
+        intros x [xx xxx].
+        exists (id_disp xx).
+        exact (id_disp xxx).
+      * simpl.
+        intros x y z f g [xx xxx] [yy yyy] [zz zzz] [ff fff] [gg ggg].
+        exists (comp_disp ff gg).
+        exact (comp_disp fff ggg).
+  - simpl.
+    use tpair.
+    + simpl.
+      intros x y f [xx xxx] [yy yyy] [ff fff].
+      (* eapply transportf_total2'. *)
+      eapply pathscomp0.
+      2: {
+        apply pathsinv0.
+        apply transportf_total2'. }
+      * unfold transportD'.
+        use total2_paths_f.
+        -- simpl.
+           apply id_left_disp.
+        -- simpl.
+           set (temp := id_left_disp fff).
+           eapply pathscomp0.
+           ++ (* apply (id_left_disp fff). *)
+              admit.
+           ++ simpl.
+              admit.
+    + simpl.
+      use tpair.
+      * intros x y f [xx xxx] [yy yyy] [ff fff].
+        use total2_paths_b.
+        -- simpl.
+           eapply pathscomp0.
+           ++ apply id_right_disp.
+           ++ apply pathsinv0.
+              apply transportf_total2'_pr1.
+        -- simpl.
+           eapply pathscomp0.
+           ++ exact (id_right_disp fff).
+           ++
+              admit.
+      * simpl.
+        use tpair.
+        -- intros x y z w f g h [xx xxx] [yy yyy] [zz zzz] [ww www] [ff fff] [gg ggg] [hh hhh].
+           use total2_paths_b.
+           ++ simpl.
+              eapply pathscomp0.
+              ** apply assoc_disp.
+              ** apply pathsinv0.
+                 apply transportf_total2'_pr1.
+           ++ simpl.
+              admit.
+        -- simpl.
+           intros x y f [xx xxx] [yy yyy].
+           apply isaset_total2.
+           ++ apply homsets_disp.
+           ++ intros ff.
+              apply homsets_disp.
+Admitted.
+
+
 Definition fiber_disp_cat {C : category} (DD: disp_disp_cat C) (c : C)
   : disp_cat (fiber_category (base_disp_cat DD) c).
 Proof.
@@ -153,7 +316,15 @@ Proof.
         apply (@id_disp _ E _ xx).
       * simpl.
         intros x y z f g xx yy zz ff gg.
-        admit.
+        eapply (transportf _ _ (ff ;; gg)). (* Instead of the following comment?!? *)
+        (* eapply transportf.
+        2: { exact (ff ;; gg). }
+        -- use total2_paths_f.
+           ++ simpl.
+              (* apply id_left. In the definition of fiber categories, id_right is used! *)
+              apply id_right.
+           ++ simpl.
+              apply idpath. *)
   - use tpair.
     + simpl.
       intros x y f xx yy ff.
@@ -176,7 +347,7 @@ Proof.
       * simpl.
         use tpair.
         -- intros x y z w f g h xx yy zz ww ff gg hh.
-           apply (assoc_disp ff gg hh).
+           (* apply (assoc_disp ff gg hh). *)
            admit.
         -- simpl.
            intros x y f xx yy.
