@@ -23,7 +23,7 @@
  map from `B(b₁, c₁)` to the iso-comma category is an equivalence. We can then
  construct esos by using that fully faithful and essentially surjective
  functors are equivalences if the involved categories are univalent. From this
- formulation, we can also deduce a universla mapping property.
+ formulation, we can also deduce a universal mapping property.
 
  In this file, we consider both definitions, and we show that they are indeed
  equivalent.
