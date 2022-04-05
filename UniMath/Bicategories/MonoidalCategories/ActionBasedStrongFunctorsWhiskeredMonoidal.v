@@ -35,8 +35,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidal. *)
 
-
-(* not yet ready: Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered. *)
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
@@ -52,6 +52,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import Bicat.Notations.
 Import BifunctorNotations.
+Import DisplayedBifunctorNotations.
 
 Local Open Scope cat.
 
@@ -617,7 +618,7 @@ Section Main.
       invertible_2cell (FA (v1 ⊗ (v2 ⊗ v3)) · G) (FA ((v1 ⊗ v2) ⊗ v3) · G).
     Proof.
       use make_invertible_2cell.
-      - exact (# FA (αinv_{ Mon_V} v1 v2 v3) ▹ G).
+      - exact (# FA (αinv_{Mon_V} v1 v2 v3) ▹ G).
       - apply is_invertible_2cell_rwhisker.
         change (is_z_isomorphism (# FA (αinv_{Mon_V} v1 v2 v3))).
         apply functor_on_is_z_isomorphism.
@@ -625,20 +626,15 @@ Section Main.
     Defined.
     (** end of auxiliary definitions of isomorphisms *)
 
-(* does not compile from here onwards
-
-Definition montrafotargetbicat_disp_mon_cat: disp_monoidal montrafotargetbicat_disp Mon_V.
-
-    (** the main lemma for the construction of the tensor *)
-    Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
+    (** the main lemma for the construction of the tensor - for reasons of exploiting legacy code, this is the general lemma and not its two instances that come right afterwards *)
+    Lemma montrafotargetbicat_tensor_comp_aux (v w v' w': V) (f: V⟦v,v'⟧) (g: V⟦w,w'⟧)
           (η : montrafotargetbicat_disp v) (π : montrafotargetbicat_disp w)
           (η' : montrafotargetbicat_disp v') (π' : montrafotargetbicat_disp w')
           (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
       param_distr_bicat_pentagon_eq_body_variant_RHS v w η π
-      -->[# tensor (f,, g: pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
+      -->[ f ⊗^{Mon_V} g]
       param_distr_bicat_pentagon_eq_body_variant_RHS v' w' η' π'.
     Proof.
-      unfold mor_disp in Hyp, Hyp' |- *.
       hnf in Hyp, Hyp' |- *.
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       match goal with | [ |- (?Hαinv • (?Hassoc1 • ((?Hγ • (?Hassoc2 • ?Hδ)) • (?Hassoc3 • ?Hβ)))) · ?Hε = _ ] =>
@@ -647,14 +643,6 @@ Definition montrafotargetbicat_disp_mon_cat: disp_monoidal montrafotargetbicat_d
       match goal with | [ |- _ = ?Hε · (?Hαinv • (?Hassoc4 • ((?Hγ • (?Hassoc5 • ?Hδ) • (?Hassoc6 • ?Hβ))))) ] =>
                           set (αinv' := Hαinv); set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
       cbn in αinv', β'.
-      (* cbn. shows that the cdot expands to bullet *)
-      change ((αinv • (lassociator G ((pr11 FA') v) (FA' w)
-                                   • ((γ • (rassociator (FA v) G ((pr11 FA') w) • δ))
-                                        • (lassociator (FA v) (FA w) G • β)))) • ε1 =
-                ε2 • (αinv'
-                        • (lassociator G ((pr11 FA') v') (FA' w')
-                                       • ((γ' • (rassociator (FA v') G ((pr11 FA') w') • δ'))
-                                            • (lassociator (FA v') (FA w') G • β'))))).
       set (αinviso := lwhisker_with_μ_inv_inv2cell v w).
       cbn in αinviso.
       etrans.
@@ -662,16 +650,20 @@ Definition montrafotargetbicat_disp_mon_cat: disp_monoidal montrafotargetbicat_d
       apply (lhs_left_invert_cell _ _ _ αinviso).
       apply pathsinv0.
       unfold inv_cell.
-      set (α := lwhisker G (lax_monoidal_functor_μ FA' (v,, w))).
+      set (α := lwhisker G (fmonoidal_preservestensordata FA'm v w)).
       cbn in α.
       match goal with | [ |- ?Hαcand • _ = _ ] => set (αcand := Hαcand) end.
       change αcand with α.
       clear αcand.
-      set (fg := (f #, g)).
-      assert (μFA'natinst := nat_trans_ax (lax_monoidal_functor_μ FA') _ _ fg).
-      simpl in μFA'natinst.
-      assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
-      simpl in μFAnatinst.
+      assert (μFA'natinst := full_naturality_condition (pr2 (preservestensor_is_nattrans (fmonoidal_preservestensornatleft FA'm) (fmonoidal_preservestensornatright FA'm))) f g).
+      cbn in μFA'natinst.
+      unfold make_binat_trans_data in μFA'natinst.
+      assert (μFAnatinst := full_naturality_condition (pr2 (preservestensor_is_nattrans (fmonoidal_preservestensornatleft FAm) (fmonoidal_preservestensornatright FAm))) f g).
+      cbn in μFAnatinst.
+      unfold make_binat_trans_data in μFAnatinst.
+    Admitted.
+    (*
+
       set (ε2better := lwhisker G (# (functor_composite tensor FA') fg)).
       transparent assert (ε2betterok : (ε2 = ε2better)).
       { cbn. apply hcomp_identity_left. }
@@ -846,21 +838,75 @@ Definition montrafotargetbicat_disp_mon_cat: disp_monoidal montrafotargetbicat_d
       apply maponpaths.
       apply pathsinv0.
       apply (vcomp_rinv (is_invertible_2cell_lassociator _ _ _)).
+    Admitted.
+*)
+
+    (** the first dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
+    Lemma montrafotargetbicat_tensor_comp_aux_inst1 (v w w' : V) (g : V ⟦ w, w' ⟧)
+          (η : G · FA' v ==> FA v · G) (π : G · FA' w ==> FA w · G) (π' : G · FA' w' ==> FA w' · G):
+      π • (# FA g ▹ G) = (G ◃ # FA' g) • π'
+      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (v ⊗^{ Mon_V}_{l} g) ▹ G) =
+          (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π'.
+    Proof.
+      intro Hyp'.
+      rewrite <- hcomp_identity_right in Hyp' |- *.
+      rewrite <- hcomp_identity_left in Hyp' |- *.
+      rewrite <- when_bifunctor_becomes_leftwhiskering.
+      apply montrafotargetbicat_tensor_comp_aux; [| assumption].
+      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
     Qed.
 
-    Definition montrafotargetbicat_disp_tensor: displayed_tensor tensor montrafotargetbicat_disp.
+    (** the second dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
+    Lemma montrafotargetbicat_tensor_comp_aux_inst2 (v v' w : V) (f : V ⟦ v, v' ⟧)
+          (η : G · FA' v ==> FA v · G) (η' : G · FA' v' ==> FA v' · G) (π : G · FA' w ==> FA w · G):
+      η • (# FA f ▹ G) = (G ◃ # FA' f) • η'
+      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (f ⊗^{ Mon_V}_{r} w) ▹ G) =
+          (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π.
     Proof.
-      use tpair.
-      - use tpair.
-        + intros [v w] [η π].
+      intro Hyp.
+      rewrite <- hcomp_identity_right in Hyp |- *.
+      rewrite <- hcomp_identity_left in Hyp |- *.
+      rewrite <- when_bifunctor_becomes_rightwhiskering.
+      apply montrafotargetbicat_tensor_comp_aux; [assumption |].
+      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
+    Qed.
+
+    Definition montrafotargetbicat_disp_tensor: disp_tensor montrafotargetbicat_disp Mon_V.
+    Proof.
+      red.
+      use make_disp_bifunctor.
+      - use make_disp_bifunctor_data.
+        + intros v w η π.
           exact (param_distr_bicat_pentagon_eq_body_variant_RHS v w η π).
-        + intros [v w] [v' w'] [η π] [η' π'] [f g] [Hyp Hyp'].
-          apply montrafotargetbicat_tensor_comp_aux; [exact Hyp | exact Hyp'].
-      - cbv beta in |- *.
-        split; intros; apply trafotargetbicat_disp_cells_isaprop.
+        + cbn.
+          intros v w w' g η π π' Hyp'.
+          rewrite hcomp_identity_right in Hyp' |- *.
+          rewrite hcomp_identity_left in Hyp' |- *.
+           apply montrafotargetbicat_tensor_comp_aux_inst1; assumption.
+        + cbn.
+          intros v v' w f η η' π Hyp.
+          rewrite hcomp_identity_right in Hyp |- *.
+          rewrite hcomp_identity_left in Hyp |- *.
+          apply montrafotargetbicat_tensor_comp_aux_inst2; assumption.
+      - red. repeat split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
-    Definition montrafotargetbicat_tensor_aux := total_functor montrafotargetbicat_disp_tensor.
+    Definition montrafotargetbicat_disp_monoidal_data: disp_monoidal_data montrafotargetbicat_disp Mon_V.
+    Proof.
+      exists montrafotargetbicat_disp_tensor.
+      exists montrafotargetbicat_disp_unit.
+      use tpair.
+      - red.
+    Admitted.
+
+Definition montrafotargetbicat_disp_monoidal: disp_monoidal montrafotargetbicat_disp Mon_V.
+Proof.
+  exists montrafotargetbicat_disp_monoidal_data.
+Admitted.
+
+
+
+(* does not compile from here onwards
 
     Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat
       := total_tensor tensor  montrafotargetbicat_disp_tensor.
