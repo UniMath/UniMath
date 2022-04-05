@@ -131,8 +131,6 @@ Limits/Final.v
 Limits/Products.v
 Limits/Pullbacks.v
 Limits/CommaObjects.v
-Limits/Inserters.v
-Limits/Equifiers.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v

@@ -478,8 +478,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/Products.v](Bicategories/Limits/Products.v)
    - [Limits/Pullbacks.v](Bicategories/Limits/Pullbacks.v)
    - [Limits/CommaObjects.v](Bicategories/Limits/CommaObjects.v)
-   - [Limits/Inserters.v](Bicategories/Limits/Inserters.v)
-   - [Limits/Equifiers.v](Bicategories/Limits/Equifiers.v)
    - [Limits/Examples/OneTypesLimits.v](Bicategories/Limits/Examples/OneTypesLimits.v)
    - [Limits/Examples/BicatOfUnivCatsLimits.v](Bicategories/Limits/Examples/BicatOfUnivCatsLimits.v)
    - [Limits/Examples/OpCellBicatLimits.v](Bicategories/Limits/Examples/OpCellBicatLimits.v)
