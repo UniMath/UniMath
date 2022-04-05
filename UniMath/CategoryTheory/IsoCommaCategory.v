@@ -484,3 +484,26 @@ Proof.
     + exact (pr2 C₂).
     + exact (pr2 C₃).
 Defined.
+
+(**
+ Essentially surjective functors are closed under pullback
+ *)
+Definition iso_comma_essentially_surjective
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₃)
+           (HF : essentially_surjective F)
+           (G : C₂ ⟶ C₃)
+  : essentially_surjective (iso_comma_pr2 F G).
+Proof.
+  intros y.
+  use (factor_through_squash _ _ (HF (G y))).
+  - apply isapropishinh.
+  - intros x.
+    induction x as [ x i ].
+    apply hinhpr.
+    simple refine (((_ ,, _) ,, _) ,, _) ; cbn.
+    + exact x.
+    + exact y.
+    + exact i.
+    + apply identity_iso.
+Defined.

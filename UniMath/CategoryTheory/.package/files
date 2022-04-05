@@ -206,6 +206,7 @@ DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
 Elements.v
+Core.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
