@@ -70,6 +70,7 @@ MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v

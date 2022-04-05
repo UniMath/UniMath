@@ -419,6 +419,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [MonoidalCategories/ActionBasedStrongFunctorCategory.v](Bicategories/MonoidalCategories/ActionBasedStrongFunctorCategory.v)
    - [MonoidalCategories/ActionsFormBicategory.v](Bicategories/MonoidalCategories/ActionsFormBicategory.v)
    - [MonoidalCategories/WhiskeredMonoidalFromBicategory.v](Bicategories/MonoidalCategories/WhiskeredMonoidalFromBicategory.v)
+   - [MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v)
    - [Core/Examples/Groupoids.v](Bicategories/Core/Examples/Groupoids.v)
    - [PseudoFunctors/Display/Base.v](Bicategories/PseudoFunctors/Display/Base.v)
    - [PseudoFunctors/Display/Map1Cells.v](Bicategories/PseudoFunctors/Display/Map1Cells.v)
