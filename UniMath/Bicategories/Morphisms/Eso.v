@@ -8,7 +8,25 @@
  We can generalize this definition to bicategories since fully faithful 1-cells
  generalize monomorphisms. This gives rise to the notion of eso 1-cells.
 
- Usually, eso 1-cells are defined
+ Usually, eso 1-cells are defined as follows:
+
+    a 1-cell `f : b₁ --> b₂` is eso if for all fully faithful `m : c₁ --> c₂`
+    the follow square is a weak pullback of categories
+
+       B(b₁, c₁) -------------> B(b₁, c₂)
+           |                        |
+           |                        |
+           V                        V
+       B(b₂, c₁) -------------> B(b₂, c₂)
+
+ We also consider an alternative definition in which we say that the canonical
+ map from `B(b₁, c₁)` to the iso-comma category is an equivalence. We can then
+ construct esos by using that fully faithful and essentially surjective
+ functors are equivalences if the involved categories are univalent. From this
+ formulation, we can also deduce a universla mapping property.
+
+ In this file, we consider both definitions, and we show that they are indeed
+ equivalent.
 
  Contents
  1. Esos
