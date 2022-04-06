@@ -28,6 +28,11 @@ Section DisplayedMonoidalCategories.
     ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z),
       ((xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz) -->[α^{M}_{x,y,z}] (xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz)).
 
+  (** for later use in applications *)
+  Definition disp_associatorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) : UU :=
+    ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z),
+      (xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz)) -->[αinv_{M} x y z] ((xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz).
+
   Definition disp_leftunitor_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
     ∏ (x : C) (xx : D x), i ⊗⊗_{DT} xx -->[lu^{M}_{x}] xx.
 
