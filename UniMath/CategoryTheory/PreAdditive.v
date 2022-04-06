@@ -11,6 +11,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -158,7 +160,8 @@ Section preadditive_with_zero.
   Proof.
     unfold ZeroArrow.
     rewrite <- (id_left (ZeroArrowFrom y)).
-    assert (X : identity Z = to_unel Z Z) by apply ZeroEndo_is_identity.
+    assert (X : identity Z = to_unel Z Z).
+    { apply ZeroEndo_is_identity. }
     rewrite -> X. clear X.
 
     set (Y := to_postmor_unel A Z (@ZeroArrowFrom A Z y)).
@@ -174,12 +177,12 @@ Section preadditive_with_zero.
 
   Lemma to_lunax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y (ZeroArrow Z x y) f = f.
   Proof.
-    rewrite <- to_lunax'. use to_lrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_lunax'. apply maponpaths_2, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_runax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y f (ZeroArrow Z x y) = f.
   Proof.
-    rewrite <- to_runax'. use to_rrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_runax'. apply maponpaths, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_linvax' {Z : Zero A} {x y : A} (f : A⟦x, y⟧) :
@@ -259,6 +262,7 @@ Section def_additive_kernel_cokernel.
     rewrite to_lunax'. apply idpath.
   Qed.
 
+
   Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
         (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
     KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
@@ -266,7 +270,7 @@ Section def_additive_kernel_cokernel.
   Proof.
     use KernelInsEq.
     rewrite KernelCommutes.
-    rewrite to_postmor_linear'.
+    rewrite (to_postmor_linear' (A:=A)).
     rewrite KernelCommutes.
     rewrite KernelCommutes.
     apply idpath.
@@ -305,7 +309,7 @@ Section monics_and_epis_in_preadditive.
   Proof.
     use make_isMonic.
     intros x0 g h X.
-    rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
+    rewrite <- (PreAdditive_invrcomp PA) in X. rewrite <- (PreAdditive_invrcomp PA) in X.
     apply cancel_inv in X. use isM. exact X.
   Qed.
 
@@ -362,12 +366,6 @@ Section preadditive_quotient.
   Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
     (λ a1 : A, λ a2 : A, (subgrhrel_hprop B a1 a2)).
 
-  (** Some equalities *)
-  Local Lemma ropeq (X : setwithbinop) (x y z : X) : x = y -> @op X x z = @op X y z.
-  Proof.
-    intros e. induction e. apply idpath.
-  Qed.
-
   (** Let B be a subgroup of A. Then the canonical map A -> A/B is a monoidfun. *)
   Local Lemma abgrquotpr_ismonoidfun {A : abgr} (H : @binopeqrel A) :
     @ismonoidfun A (abgrquot H) (λ a : A, setquotpr H a).
@@ -409,7 +407,7 @@ Section preadditive_quotient.
         * exact (op (pr1 t) (pr1 t0)).
         * exact (pr2subsetswithbinop B t t0).
       + cbn. rewrite p. rewrite p0. rewrite <- (assocax A).
-        apply ropeq. rewrite assocax. rewrite grlinvax. rewrite runax.
+        apply maponpaths_2. rewrite assocax. rewrite grlinvax. rewrite runax.
         apply idpath.
     (* isrefl *)
     - intros x.
@@ -865,14 +863,15 @@ Section preadditive_quotient.
         rewrite assoc'. apply idpath.
   Defined.
 
-  Definition Quotcategory : precategory :=
+  Definition Quotprecategory : precategory :=
     tpair _ _ is_precategory_Quotcategory_data.
 
-  Lemma has_homsets_Quotcategory : has_homsets Quotcategory.
+  Lemma has_homsets_Quotcategory : has_homsets Quotprecategory.
   Proof.
     intros a b. apply isasetsetquot.
   Qed.
 
+  Definition Quotcategory : category := make_category Quotprecategory has_homsets_Quotcategory.
 
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
@@ -888,7 +887,6 @@ Section preadditive_quotient.
   Proof.
     use make_categoryWithAbgrops.
     - exact Quotcategory_binops.
-    - exact has_homsets_Quotcategory.
     - intros x y. exact (pr2 (subabgr_quot (PAS x y))).
   Defined.
   Set Kernel Term Sharing.
@@ -1047,13 +1045,15 @@ Proof.
   - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
 Defined.
 
+
+
 Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   oppositePreAdditive (induced_PreAdditive M j) =
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
 Proof.
   intros.
   compute.                    (* the following line bogs down without this one *)
-  reflexivity.                (* but the computation may make this proof fragile *)
+  apply idpath.                (* but the computation may make this proof fragile *)
 Defined.
 
 Section RewritingAids.

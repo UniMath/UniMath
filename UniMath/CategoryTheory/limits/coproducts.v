@@ -31,7 +31,7 @@ Local Open Scope cat.
 (** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
 
-Variables (I : UU) (C : precategory).
+Variables (I : UU) (C : category).
 
 Definition isCoproduct (a : I -> C) (co : C)
   (ia : ∏ i, a i --> co) :=
@@ -157,7 +157,7 @@ End coproduct_def.
 
 Section Coproducts.
 
-Variables (I : UU) (C : precategory) (CC : Coproducts I C).
+Variables (I : UU) (C : category) (CC : Coproducts I C).
 
 (* Lemma CoproductArrow_eq (f f' : a --> c) (g g' : b --> c) *)
 (*   : f = f' → g = g' → *)
@@ -178,18 +178,12 @@ rewrite assoc, CoproductOfArrowsIn.
 now rewrite <- assoc, CoproductOfArrowsIn, assoc.
 Qed.
 
-Definition CoproductOfArrows_eq (a c : I -> C) (f f' : ∏ i, a i --> c i) : f = f' ->
-  CoproductOfArrows _ _ _ _ f = CoproductOfArrows _ _ (CC _) (CC _) f'.
-Proof.
-now induction 1.
-Qed.
-
 End Coproducts.
 
 Section functors.
 
-Definition coproduct_functor_data (I : UU) {C : precategory}
-  (PC : Coproducts I C) : functor_data (power_precategory I C) C.
+Definition coproduct_functor_data (I : UU) {C : category}
+  (PC : Coproducts I C) : functor_data (power_category I C) C.
 Proof.
 use tpair.
 - intros p.
@@ -199,8 +193,8 @@ use tpair.
 Defined.
 
 (** * The coproduct functor: C^I -> C *)
-Definition coproduct_functor (I : UU) {C : precategory}
-  (PC : Coproducts I C) : functor (power_precategory I C) C.
+Definition coproduct_functor (I : UU) {C : category}
+  (PC : Coproducts I C) : functor (power_category I C) C.
 Proof.
 apply (tpair _ (coproduct_functor_data _ PC)).
 split.
@@ -214,14 +208,14 @@ End functors.
 (* The copropuct of a family of functors *)
 (* This is the old and not so good definition as it is unnecessarily complicated, also the proof
    that it is omega-cocontinuous requires that C has products *)
-Definition coproduct_of_functors_alt_old (I : UU) {C D : precategory}
+Definition coproduct_of_functors_alt_old (I : UU) {C D : category}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
 
 (** The copropuct of a family of functors *)
-Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+Definition coproduct_of_functors_alt (I : UU) {C D : category}
   (HD : Coproducts I D) (F : ∏ (i : I), functor C D)
   := functor_composite (tuple_functor F) (coproduct_functor _ HD).
 
@@ -229,9 +223,8 @@ Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
 (** * Coproducts lift to functor categories *)
 Section def_functor_pointwise_coprod.
 
-Variables (I : UU) (C D : precategory).
+Variables (I : UU) (C D : category).
 Variable HD : Coproducts I D.
-Variable hsD : has_homsets D.
 
 Section coproduct_of_functors.
 
@@ -275,13 +268,13 @@ Definition coproduct_of_functors : functor C D :=
 Lemma coproduct_of_functors_alt_old_eq_coproduct_of_functors :
   coproduct_of_functors_alt_old _ HD F = coproduct_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
   coproduct_of_functors_alt _ HD F = coproduct_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Definition coproduct_nat_trans_in_data i (c : C) :
@@ -325,7 +318,7 @@ Definition coproduct_nat_trans : nat_trans coproduct_of_functors A
 End vertex.
 
 Definition functor_precat_coproduct_cocone
-  : Coproduct I [C, D, hsD] F.
+  : Coproduct I [C, D] F.
 Proof.
 use make_Coproduct.
 - apply coproduct_of_functors.
@@ -335,19 +328,19 @@ use make_Coproduct.
   + intros A f.
     use tpair.
     * apply (tpair _ (coproduct_nat_trans A f)).
-      abstract (intro i; apply (nat_trans_eq hsD); intro c;
+      abstract (intro i; apply (nat_trans_eq D); intro c;
                 apply (CoproductInCommutes I D _ (HD (λ j, (F j) c)))).
     * abstract (
         intro t; apply subtypePath; simpl;
-          [intro; apply impred; intro; apply (isaset_nat_trans hsD)|];
-        apply (nat_trans_eq hsD); intro c;
+          [intro; apply impred; intro; apply (isaset_nat_trans D)|];
+        apply (nat_trans_eq D); intro c;
         apply CoproductArrowUnique; intro i;
         apply (nat_trans_eq_pointwise (pr2 t i))).
 Defined.
 
 End coproduct_of_functors.
 
-Definition Coproducts_functor_precat : Coproducts I [C, D, hsD].
+Definition Coproducts_functor_precat : Coproducts I [C, D].
 Proof.
   intros F.
   apply functor_precat_coproduct_cocone.
@@ -358,7 +351,7 @@ End def_functor_pointwise_coprod.
 (** * Coproducts from colimits *)
 Section coproducts_from_colimits.
 
-Variables (I : UU) (C : precategory) (hsC : has_homsets C).
+Variables (I : UU) (C : category).
 
 Definition I_graph : graph := (I,,λ _ _,empty).
 
@@ -383,11 +376,11 @@ set (HF := H (coproducts_diagram F)).
 use make_Coproduct.
 + apply (colim HF).
 + intros i; apply (colimIn HF).
-+ apply (make_isCoproduct _ _ hsC); intros c Fic.
++ apply (make_isCoproduct _ _ C); intros c Fic.
   use unique_exists.
   - now apply colimArrow, Coproducts_cocone.
   - abstract (simpl; intro i; apply (colimArrowCommutes HF)).
-  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros y; apply impred; intro i; apply C).
   - abstract (intros f Hf; apply colimArrowUnique; simpl in *; intros i; apply Hf).
 Defined.
 

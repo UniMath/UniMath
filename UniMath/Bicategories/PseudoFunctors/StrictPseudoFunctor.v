@@ -1,8 +1,8 @@
 (* ******************************************************************************* *)
-(** * Strict seudofunctors on bicategories
+(** * Strict pseudofunctors on bicategories
  ********************************************************************************* *)
 
-(** * Pseudo functors. *)
+(** * Strict pseudo functors. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -28,7 +28,7 @@ Local Open Scope bicategory_scope.
 Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Pseudo-functors                                                                 *)
+(** ** Strict pseudo-functors                                                                 *)
 (* ----------------------------------------------------------------------------------- *)
 
 Definition strict_psfunctor

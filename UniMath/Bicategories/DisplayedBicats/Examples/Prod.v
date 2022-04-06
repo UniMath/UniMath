@@ -12,7 +12,6 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
@@ -450,7 +449,7 @@ Section Disp_Dirprod.
               (_ ,, HD1 a b f g p (pr1 aa) (pr1 bb) (pr1 ff) (pr1 gg))
               (_ ,, HD2 a b f g p (pr2 aa) (pr2 bb) (pr2 ff) (pr2 gg))
               ∘ _)%weq.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     apply WeakEquivalences.pathsdirprodweq.
   Defined.
 
@@ -740,7 +739,7 @@ Section Disp_Dirprod.
               (_ ,, pr1 HD1 a b p (pr1 aa) (pr1 bb))
               (_ ,, pr1 HD2 a b p (pr2 aa) (pr2 bb))
               ∘ _)%weq.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     apply WeakEquivalences.pathsdirprodweq.
   Defined.
 

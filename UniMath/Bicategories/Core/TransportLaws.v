@@ -13,11 +13,14 @@ Local Open Scope cat.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope bicategory_scope.
 
+(**
+ laws for idtoiso_2_0
+ *)
 Definition transport_one_cell_FlFr
            {C : bicat}
            {A : Type}
@@ -32,7 +35,6 @@ Definition transport_one_cell_FlFr
       ∘ (idtoiso_2_0 _ _ (maponpaths f (!p))).
 Proof.
   induction p ; cbn.
-  unfold idfun.
   exact (linvunitor _ o rinvunitor _).
 Defined.
 
@@ -50,7 +52,6 @@ Definition transport_one_cell_FlFr_inv
       (transportf (λ (z : A), C⟦f z,g z⟧) p h).
 Proof.
   induction p ; cbn.
-  unfold idfun.
   exact (runitor _ o lunitor _).
 Defined.
 
@@ -66,20 +67,46 @@ Proof.
   refine (transport_one_cell_FlFr_inv f g p h ,, _).
   split ; cbn.
   - induction p ; cbn.
-    unfold idfun.
     rewrite <- !vassocr.
     rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite linvunitor_lunitor, id2_left.
     apply rinvunitor_runitor.
   - induction p ; cbn.
-    unfold idfun.
     rewrite <- !vassocr.
     rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite runitor_rinvunitor, id2_left.
     apply lunitor_linvunitor.
 Defined.
 
-Definition idtoiso_2_1_concat
+Definition idtoiso_2_0_inv
+           {B : bicat}
+           {b₁ b₂ : B}
+           (p : b₁ = b₂)
+  : pr1 (idtoiso_2_0 _ _ (!p))
+    =
+    left_adjoint_right_adjoint (idtoiso_2_0 _ _ p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+(**
+ laws for idtoiso_2_1
+ *)
+Lemma idtoiso_2_1_inv
+           {C : bicat}
+           {a b : C}
+           {f g : a --> b}
+           (p : f = g)
+  : idtoiso_2_1 _ _ (!p)
+    =
+    inv_of_invertible_2cell (idtoiso_2_1 _ _ p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Lemma idtoiso_2_1_concat
            {C : bicat}
            {a b : C}
            {f₁ f₂ f₃ : a --> b}
@@ -94,9 +121,9 @@ Proof.
   use subtypePath.
   { intro ; apply isaprop_is_invertible_2cell. }
   exact (!(id2_left _)).
-Defined.
+Qed.
 
-Definition idtoiso_2_1_rwhisker
+Lemma idtoiso_2_1_rwhisker
            {C : bicat}
            {X Y Z : C}
            (g : C⟦Y,Z⟧)
@@ -106,9 +133,9 @@ Definition idtoiso_2_1_rwhisker
 Proof.
   induction q ; cbn.
   apply id2_rwhisker.
-Defined.
+Qed.
 
-Definition idtoiso_2_1_lwhisker
+Lemma idtoiso_2_1_lwhisker
            {C : bicat}
            {X Y Z : C}
            (g : C⟦X,Y⟧)
@@ -118,9 +145,9 @@ Definition idtoiso_2_1_lwhisker
 Proof.
   induction q ; cbn.
   apply lwhisker_id2.
-Defined.
+Qed.
 
-Definition transport_two_cell_FlFr
+Lemma transport_two_cell_FlFr
            {C : bicat}
            {A : Type}
            {X Y : C}
@@ -134,10 +161,10 @@ Definition transport_two_cell_FlFr
 Proof.
   induction p ; cbn.
   rewrite id2_right, id2_left.
-  reflexivity.
+  apply idpath.
 Qed.
 
-Definition isotoid_2_1_id
+Lemma isotoid_2_1_id
            {B : bicat}
            (HB : is_univalent_2_1 B)
            {a b : B}
@@ -151,7 +178,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition isotoid_2_1_lwhisker
+Lemma isotoid_2_1_lwhisker
            {B : bicat}
            (HB : is_univalent_2_1 B)
            {a b c : B}
@@ -178,7 +205,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition isotoid_2_1_rwhisker
+Lemma isotoid_2_1_rwhisker
            {B : bicat}
            (HB : is_univalent_2_1 B)
            {a b c : B}
@@ -205,7 +232,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition isotoid_2_1_vcomp
+Lemma isotoid_2_1_vcomp
            {B : bicat}
            (HB : is_univalent_2_1 B)
            {a b : B}

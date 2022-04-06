@@ -20,7 +20,7 @@ Defined.
 Definition toforallpaths_funextsec_comp {T : UU} {P : T -> UU} (f g : ∏ t, P t) :
   toforallpaths P f g ∘ funextsec P f g = idfun _.
 Proof.
-  apply funextsec; intro; unfold funcomp.
+  apply funextsec; intro. simpl.
   apply toforallpaths_funextsec.
 Defined.
 
@@ -131,5 +131,35 @@ Proof.
     { unfold weqonsecbase; simpl. exact g. } }
   { intros [f h]. simpl. unfold maponsec1; simpl.
     induction k, l; simpl. unfold transportf; simpl.
-    unfold idfun; simpl. apply idweq. }
+    apply idweq. }
+Defined.
+
+
+
+Definition maponpaths_app_homot
+           {X Y₁ Y₂ : UU}
+           {f g : Y₁ → X → Y₂}
+           (p : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (x : X)
+           (y : Y₁)
+  : maponpaths (λ f, f x) (app_homot p y)
+    =
+    p (y ,, x).
+Proof.
+  apply (maponpaths_funextsec (f y)).
+Defined.
+
+Definition path_path_fun
+           {X Y : UU}
+           {f g : X → Y}
+           {e₁ e₂ : f = g}
+           (h : ∏ (x : X), eqtohomot e₁ x = eqtohomot e₂ x)
+  : e₁ = e₂.
+Proof.
+  refine (!(@funextsec_toforallpaths X (λ _, Y) f g e₁) @ _).
+  refine (_ @ @funextsec_toforallpaths X (λ _, Y) f g e₂).
+  apply maponpaths.
+  use funextsec.
+  intro x.
+  apply h.
 Defined.

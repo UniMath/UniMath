@@ -26,10 +26,14 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
-Require Import UniMath.CategoryTheory.limits.binproducts.
 
 Local Open Scope cat.
 
@@ -45,24 +49,23 @@ Proof.
   exact (bindelta_functor HSET ∙ binproduct_functor BinProductsHSET).
 Defined.
 
-Definition binop_precategory
-  : precategory.
+Definition binop_category
+  : category.
 Proof.
-  simple refine (FunctorAlg diag _).
-  apply has_homsets_HSET.
+  simple refine (FunctorAlg diag).
 Defined.
 
 Definition is_univalent_binop
-  : is_univalent binop_precategory.
+  : is_univalent binop_category.
 Proof.
-  exact (is_univalent_FunctorAlg diag is_univalent_HSET).
+  exact (is_univalent_FunctorAlg is_univalent_HSET diag).
 Defined.
 
 Definition binop
   : univalent_category.
 Proof.
   use make_univalent_category.
-  - exact binop_precategory.
+  - exact binop_category.
   - exact is_univalent_binop.
 Defined.
 

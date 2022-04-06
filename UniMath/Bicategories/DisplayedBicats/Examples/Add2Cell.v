@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
@@ -173,7 +173,7 @@ Section Add2Cell.
         (intros x xx yy;
          intros p;
          induction p as [p q];
-         cbn ; unfold idfun;
+         cbn;
          cbn in p, q;
          pose (pstrans_id_alt l) as pl;
          cbn in pl ; rewrite pl in p ; clear pl;

@@ -87,10 +87,8 @@ Proof.
     apply (@is_iso_qinv (po_precategory PO) _ _  relab relba).
     apply make_is_inverse_in_precat; apply po_homsets_isaprop.
   - intro poasymm.
-    use make_is_univalent.
-    + intros ? ?.
-      apply (antisymm_po_category_isweq PO poasymm).
-    + apply po_precategory_has_homsets.
+    intros ? ?.
+    apply (antisymm_po_category_isweq PO poasymm).
 Defined.
 
 Definition antisymm_po_univalent_category (PO : po X) (poasymm : isantisymm PO) :

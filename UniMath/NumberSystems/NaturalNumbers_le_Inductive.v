@@ -19,8 +19,6 @@ numbers from the univalent perspecive. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
 
-
-
 (** ** Inductive types [le] with values in [UU].
 
 This part is included for illustration purposes only. In practice it is easier
@@ -38,7 +36,7 @@ Lemma leFiter {T : UU} (F : T -> T) (t : T) (n : nat) : leF F t (iteration F n t
 Proof.
   intros. induction n as [ | n IHn ].
   - apply leF_O.
-  - simpl. unfold funcomp. apply leF_S. assumption.
+  - simpl. apply leF_S. assumption.
 Defined.
 
 Lemma leFtototal2withnat {T : UU} (F : T -> T) (t t' : T) (a : leF F t t') :

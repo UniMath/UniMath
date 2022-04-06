@@ -19,8 +19,9 @@ Local Open Scope cat.
 
 Section Cone.
 
-Variables J C : precategory.
-Variable hs: has_homsets C.
+  Variables J : precategory.
+  Variable C : category.
+
 Variable F : functor J C.
 
 Definition ConeData : UU := ∑ a : C, ∏ j : J, a --> F j.
@@ -35,7 +36,7 @@ Proof.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
   apply uip.
   apply (impred 2); intro j.
-  apply hs.
+  apply C.
 Defined.
 
 Definition ConeProp (a : ConeData) :=
@@ -44,7 +45,7 @@ Definition ConeProp (a : ConeData) :=
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
   repeat (apply impred; intro).
-  apply hs.
+  apply C.
 Qed.
 
 Definition Cone := total2 (λ a : ConeData, ConeProp a).
@@ -95,12 +96,12 @@ Definition Cone_Mor (M N : Cone) :=
 Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
 Proof.
   apply (isofhleveltotal2 2).
-  apply hs.
+  apply C.
   intros.
   apply hlevelntosn.
   apply impred.
   intros.
-  apply hs.
+  apply C.
 Qed.
 
 Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) :
@@ -112,7 +113,7 @@ Proof.
   intro H.
   apply (total2_paths_f H).
   apply proofirrelevance.
-  apply impred; intro; apply hs.
+  apply impred; intro; apply C.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) :
@@ -219,28 +220,37 @@ Proof.
   apply (base_paths _ _ T).
 Defined.
 
+End Cone.
+
+Arguments CONE [J C].
+Arguments ConeConnect [J C].
+
 Section CONE_category.
 
+
+Variable J : precategory.
+Variable C : category.
+Variable F : functor J C.
 Hypothesis is_cat_C : is_univalent C.
 
 
-Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
+Definition isotoid_CONE_pr1 (a b : (CONE F)) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
-  apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
+  apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso _ _ _ f))).
   intermediate_path ((λ c : J,
-     idtoiso (!isotoid C is_cat_C (ConeConnectIso f))· pr2 (pr1 a) c)).
+     idtoiso (!isotoid C is_cat_C (ConeConnectIso _ _ _ f))· pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  intermediate_path (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
+  intermediate_path (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso _ _ _ f)))·
        pr2 (pr1 a) t).
   apply cancel_postcomposition.
   apply maponpaths. apply maponpaths.
   apply inv_isotoid.
-  intermediate_path (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
+  intermediate_path (iso_inv_from_iso (ConeConnectIso _ _ _ f)· pr2 (pr1 a) t).
   apply cancel_postcomposition.
-  set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
+  set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso _ _ _ f))).
   simpl in *.
   apply (base_paths _ _ H).
   simpl.
@@ -251,7 +261,7 @@ Proof.
   apply T.
 Defined.
 
-Definition isotoid_CONE {a b : CONE} : iso a b -> a = b.
+Definition isotoid_CONE {a b : CONE F} : iso a b -> a = b.
 Proof.
   intro f.
   apply Cone_eq.
@@ -259,7 +269,7 @@ Proof.
 Defined.
 
 
-Lemma eq_CONE_pr1 (M N : CONE) (p q : M = N) : base_paths _ _ p = base_paths _ _ q -> p = q.
+Lemma eq_CONE_pr1 (M N : CONE F) (p q : M = N) : base_paths _ _ p = base_paths _ _ q -> p = q.
 Proof.
   intro H.
   simpl in *.
@@ -269,7 +279,7 @@ Proof.
 Defined.
 
 
-Lemma base_paths_isotoid_CONE (M : CONE):
+Lemma base_paths_isotoid_CONE (M : CONE F):
 base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) =
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
@@ -278,16 +288,16 @@ Proof.
   unfold Cone_eq.
   apply maponpaths.
   apply base_total2_paths.
-  intermediate_path (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
+  intermediate_path (isotoid C is_cat_C (ConeConnectIso _ _ _ (identity_iso M))).
   unfold isotoid_CONE_pr1.
   apply base_total2_paths.
-  intermediate_path (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
+  intermediate_path (isotoid C is_cat_C (identity_iso (ConeTop _ _ _ (pr1 M)))).
   apply maponpaths, ConeConnectIso_identity_iso.
   apply isotoid_identity_iso.
 Defined.
 
 
-Lemma isotoid_CONE_idtoiso (M N : CONE) : ∏ p : M = N, isotoid_CONE (idtoiso p) = p.
+Lemma isotoid_CONE_idtoiso (M N : CONE F) : ∏ p : M = N, isotoid_CONE (idtoiso p) = p.
 Proof.
   intro p.
   induction p.
@@ -297,14 +307,14 @@ Qed.
 
 
 
-Lemma ConeConnect_idtoiso (M N : CONE) (p : M = N):
-  ConeConnect (pr1 (idtoiso p)) = idtoiso ((base_paths _ _ (base_paths _ _  p))).
+Lemma ConeConnect_idtoiso (M N : CONE F) (p : M = N):
+  ConeConnect _ _ _ (pr1 (idtoiso p)) = idtoiso ((base_paths _ _ (base_paths _ _  p))).
 Proof.
   destruct p.
   apply idpath.
 Qed.
 
-Lemma idtoiso_isotoid_CONE (M N : CONE) : ∏ f : iso M N, idtoiso (isotoid_CONE f) = f.
+Lemma idtoiso_isotoid_CONE (M N : CONE F) : ∏ f : iso M N, idtoiso (isotoid_CONE f) = f.
 Proof.
   intro f.
   apply eq_iso.
@@ -321,20 +331,21 @@ Proof.
     apply idpath.
 Qed.
 
-
-Lemma is_univalent_CONE : is_univalent CONE.
+Lemma has_homsets_CONE : has_homsets (CONE F).
 Proof.
-  split.
-  - intros a b.
-    apply (isweq_iso _  (@isotoid_CONE a b)).
-    apply isotoid_CONE_idtoiso.
-    apply idtoiso_isotoid_CONE.
-  - intros x y. apply isaset_Cone_Mor.
+  intros x y.
+  apply isaset_Cone_Mor.
+Qed.
+
+Definition category_CONE : category := CONE F ,, has_homsets_CONE.
+
+
+Lemma is_univalent_CONE : is_univalent category_CONE.
+Proof.
+  intros a b.
+  apply (isweq_iso _  (@isotoid_CONE a b)).
+  apply isotoid_CONE_idtoiso.
+  apply idtoiso_isotoid_CONE.
 Defined.
 
 End CONE_category.
-
-End Cone.
-
-Arguments CONE [J C].
-Arguments ConeConnect [J C].

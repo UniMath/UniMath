@@ -768,7 +768,7 @@ Section SigmaDisplayedUnivalent.
     apply fiberwise_local_univalent_is_univalent_2_1.
     intros x y f xx yy ff gg.
     use weqhomot.
-    - cbn ; unfold idfun.
+    - cbn.
       refine (_ ∘ total2_paths_equiv _ _ _)%weq.
       refine (pair_disp_invertible_to_sigma_disp_invertible_weq _ _ ∘ _)%weq.
       induction ff as [ff1 ff2] ; induction gg as [gg1 gg2].
@@ -777,13 +777,13 @@ Section SigmaDisplayedUnivalent.
                    _
                    (HD₁_2_1 _ _ _ _ (idpath _) _ _ ff1 gg1))
                 _).
-      intro p ; cbn in p ; unfold idfun in p.
+      intro p ; cbn in p.
       induction p.
       exact (make_weq
                _
                (HD₂_2_1 _ _ _ _ (idpath _) _ _ ff2 gg2)).
     - intros p.
-      cbn in p ; unfold idfun in p.
+      cbn in p.
       induction p.
       use subtypePath.
       { intro ; apply isaprop_is_disp_invertible_2cell. }
@@ -1084,9 +1084,9 @@ Section SigmaDisplayedUnivalent.
               _)%weq.
     induction xx as [xx1 xx2].
     induction yy as [yy1 yy2].
-    intro p ; cbn in p ; unfold idfun in p.
+    intro p ; cbn in p.
     induction p.
-    unfold transportf ; simpl ; unfold idfun.
+    unfold transportf ; simpl.
     refine (_ ∘ make_weq
               _
               (HD₂_2_0 _ _ (idpath (x ,, xx1)) xx2 yy2))%weq.
@@ -1103,7 +1103,7 @@ Section SigmaDisplayedUnivalent.
     use weqhomot.
     - exact (sigma_idtoiso_2_0_alt HD₁_2_0 HD₂_2_0 xx yy).
     - intros p.
-      cbn in p ; unfold idfun in p.
+      cbn in p.
       induction p.
       use subtypePath.
       { intro ; apply isaprop_disp_left_adjoint_equivalence.

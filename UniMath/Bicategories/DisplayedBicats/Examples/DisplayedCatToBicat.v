@@ -7,7 +7,6 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
@@ -84,8 +83,7 @@ Section Disp_Prebicat_Cells_Unit.
   Proof.
     intros a b f g p aa bb ff gg.
     use isweqimplimpl.
-    - unfold idfun.
-      cbn in *.
+    - cbn in *.
       intros.
       apply H.
     - apply isasetaprop.
@@ -212,7 +210,7 @@ Section Disp_Prebicat_Cells_Unit.
         ×
         (bb -->[ left_adjoint_right_adjoint (idtoiso_2_0 _ _ p)] aa).
   Proof.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     intros pp.
     induction pp ; cbn.
     split ; apply id_disp.
@@ -234,7 +232,7 @@ Section Disp_Prebicat_Cells_Unit.
     apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
     intros a aa bb.
     use isweqimplimpl.
-    - intro η ; cbn ; unfold idfun.
+    - intro η ; cbn.
       apply inv.
       exact (invmap (disp_cell_unit_bicat_adjoint_equivalent
                        (idtoiso_2_0 a a (idpath a))

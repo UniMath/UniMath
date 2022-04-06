@@ -190,7 +190,7 @@ Section def_bindirectsums.
 
   (** Construction of BinCoproduct and BinProduct from BinDirectSum. *)
   Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSum a b) :
-    BinCoproduct A a b.
+    BinCoproduct a b.
   Proof.
     use (make_BinCoproduct A a b B (to_In1 B) (to_In2 B)).
     exact (to_isBinCoproduct B).
@@ -207,7 +207,7 @@ Section def_bindirectsums.
              (g : c --> b) : A⟦c, B⟧ := BinProductArrow A (BinDirectSum_BinProduct B) f g.
 
   Definition FromBinDirectSum {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
-             (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow A (BinDirectSum_BinCoproduct B) f g.
+             (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow (BinDirectSum_BinCoproduct B) f g.
 
   (** Commutativity of BinDirectSum. *)
   Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSum a b) :
@@ -442,16 +442,35 @@ Section bindirectsums_monics_and_epis.
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr1 B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn1 B) in H.
-    repeat rewrite id_right in H. apply H.
+    repeat rewrite <- assoc in H.
+    set (X:= to_IdIn1 (A:=A) B).
+    assert (X1 : to_In1 B · to_Pr1 B = 1%abgrcat).
+    { apply (to_IdIn1 (A:=A) B). }
+    apply (@pathscomp0 _ _ ( f · (to_In1 B · to_Pr1 B)) _).
+    - apply pathsinv0.
+      etrans. { apply maponpaths.
+                apply X1. }
+      apply id_right.
+    -  etrans. { apply H. }
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
   Qed.
 
   Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In2 B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr2 B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn2 B) in H.
-    repeat rewrite id_right in H. apply H.
+    repeat rewrite <- assoc in H.
+    set (X:= to_IdIn2 (A:=A) B).
+    assert (X1 : to_In2 B · to_Pr2 B = 1%abgrcat).
+    { apply X. }
+    apply (@pathscomp0 _ _ ( f · (to_In2 B · to_Pr2 B)) _).
+    - apply pathsinv0.
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
+    -  etrans. { apply H. }
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
   Qed.
 
   Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum a b) : isEpi (to_Pr1 B).
@@ -568,7 +587,7 @@ Section bindirectsums_criteria.
              (P : BinProduct A X Y) :
     isBinProduct A X Y (BinProductObject A P) (BinProductPr1 A P) (BinProductPr2 A P).
   Proof.
-    use (make_isBinProduct _ hs).
+    use (make_isBinProduct _ ).
     intros c f g.
     use unique_exists.
     - exact (BinProductArrow A P f g).
@@ -687,7 +706,6 @@ Section bindirectsums_in_quot.
                      (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
     use make_isBinProduct.
-    - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgr A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
       use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.
@@ -869,7 +887,7 @@ Proof.
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 S).
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 S).
   + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 S).
-  + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (z_iso_inv_mor r)).
+  + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (inv_from_z_iso r)).
     rewrite <- leftDistribute. rewrite <- rightDistribute. rewrite wrap_inverse'.
     * reflexivity.
     * exact (to_BinOpId S).

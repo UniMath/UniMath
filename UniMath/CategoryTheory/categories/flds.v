@@ -170,14 +170,14 @@ Section def_fld_category.
   Defined.
   Opaque fld_precategory_isweq.
 
-  Definition fld_precategory_is_univalent : is_univalent fld_precategory.
+  Definition fld_category : category := make_category _ has_homsets_fld_precategory.
+
+  Definition fld_category_is_univalent : is_univalent fld_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (fld_precategory_isweq X Y).
-    - exact has_homsets_fld_precategory.
+    intros X Y. exact (fld_precategory_isweq X Y).
   Defined.
 
-  Definition fld_category : univalent_category
-    := make_univalent_category fld_precategory fld_precategory_is_univalent.
+  Definition fld_univalent_category : univalent_category
+    := make_univalent_category fld_category fld_category_is_univalent.
 
 End def_fld_category.

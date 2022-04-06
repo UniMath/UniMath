@@ -14,11 +14,12 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.
@@ -675,6 +676,25 @@ Definition disp_lassociator_lassociator {a b c d e: C} {f : C⟦a,b⟧} {g : C�
 
 End disp_prebicat_law_projections.
 
+Definition disp_hcomp
+           {D : disp_prebicat}
+           {b₁ b₂ b₃ : C}
+           {f₁ f₂ : b₁ --> b₂}
+           {g₁ g₂ : b₂ --> b₃}
+           {α : f₁ ==> f₂}
+           {β : g₁ ==> g₂}
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {bb₃ : D b₃}
+           {ff₁ : bb₁ -->[ f₁ ] bb₂}
+           {ff₂ : bb₁ -->[ f₂ ] bb₂}
+           {gg₁ : bb₂ -->[ g₁ ] bb₃}
+           {gg₂ : bb₂ -->[ g₂ ] bb₃}
+           (αα : ff₁ ==>[ α ] ff₂)
+           (ββ : gg₁ ==>[ β ] gg₂)
+  : ff₁ ;; gg₁ ==>[ β ⋆⋆ α ] ff₂ ;; gg₂
+  := (αα ▹▹ gg₁) •• (ff₂ ◃◃ ββ).
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Invertible displayed 2-cells.                                                   *)
 (* ----------------------------------------------------------------------------------- *)
@@ -1128,6 +1148,189 @@ Proof.
   apply disp_id2_rwhisker.
 Qed.
 
+Definition disp_vcomp_runitor_alt
+           {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
+           {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
+           (ηη : ff ==>[η] gg)
+  : disp_runitor ff •• ηη
+    =
+    transportf
+      (λ α, _ ==>[α] _)
+      (vcomp_runitor _ _ _)
+      ((ηη ▹▹ id_disp _) •• disp_runitor gg).
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply disp_vcomp_runitor.
+  }
+  apply (transportfbinv (λ z, _ ==>[ z ] _) _ _).
+Qed.
+
+Definition disp_vcomp_lcancel
+           {b₁ b₂ : C}
+           {f g h : b₁ --> b₂}
+           {α : f ==> g}
+           {β : g ==> h}
+           (Hα : is_invertible_2cell α)
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {ff : bb₁ -->[ f ] bb₂}
+           {gg : bb₁ -->[ g ] bb₂}
+           {hh : bb₁ -->[ h ] bb₂}
+           {αα : ff ==>[ α ] gg}
+           {ββ₁ ββ₂ : gg ==>[ β ] hh}
+           (Hαα : is_disp_invertible_2cell Hα αα)
+           (p : αα •• ββ₁ = αα •• ββ₂)
+  : ββ₁ = ββ₂.
+Proof.
+  pose (αα_cell := (αα ,, Hαα) : disp_invertible_2cell (make_invertible_2cell Hα) ff gg).
+  assert (q := maponpaths (λ z, disp_inv_cell αα_cell •• z) p).
+  cbn in q.
+  rewrite !disp_vassocr in q.
+  pose (disp_vcomp_linv αα_cell) as z.
+  cbn in z.
+  rewrite !z in q.
+  unfold transportb in q.
+  rewrite !disp_mor_transportf_postwhisker in q.
+  rewrite !transport_f_f in q.
+  rewrite !disp_id2_left in q.
+  unfold transportb in q.
+  rewrite !transport_f_f in q.
+  pose (q' := @transportb_transpose_right
+                _
+                (λ z, _ ==>[ z ] _)
+                _ _ _ _ _
+                q).
+  rewrite transportbfinv in q'.
+  exact q'.
+Qed.
+
+Definition disp_vcomp_rcancel
+           {b₁ b₂ : C}
+           {f g h : b₁ --> b₂}
+           {α : f ==> g}
+           {β : g ==> h}
+           (Hβ : is_invertible_2cell β)
+           {bb₁ : D b₁}
+           {bb₂ : D b₂}
+           {ff : bb₁ -->[ f ] bb₂}
+           {gg : bb₁ -->[ g ] bb₂}
+           {hh : bb₁ -->[ h ] bb₂}
+           {αα₁ : ff ==>[ α ] gg}
+           {αα₂ : ff ==>[ α ] gg}
+           {ββ : gg ==>[ β ] hh}
+           (Hββ : is_disp_invertible_2cell Hβ ββ)
+           (p : αα₁ •• ββ = αα₂ •• ββ)
+  : αα₁ = αα₂.
+Proof.
+  assert (q := maponpaths (λ z, z •• pr1 Hββ) p).
+  cbn in q.
+  rewrite !disp_vassocl in q.
+  rewrite !(pr12 Hββ) in q.
+  unfold transportb in q.
+  rewrite !disp_mor_transportf_prewhisker in q.
+  rewrite !transport_f_f in q.
+  rewrite !disp_id2_right in q.
+  unfold transportb in q.
+  rewrite !transport_f_f in q.
+  pose (q' := @transportb_transpose_right
+                _
+                (λ z, _ ==>[ z ] _)
+                _ _ _ _ _
+                q).
+  rewrite transportbfinv in q'.
+  exact q'.
+Qed.
+
+Definition disp_id2_left_alt
+           {x y : C}
+           {f g : x --> y}
+           {η : f ==> g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (ηη : ff ==>[ η ] gg)
+  : ηη
+    =
+    transportf (λ z, ff ==>[ z ] gg) (id2_left η) (disp_id2 ff •• ηη).
+Proof.
+  exact (!(@transportf_transpose_left
+             _
+             (λ z, _ ==>[ z ] _)
+             _ _
+             _
+             _ _
+             (disp_id2_left ηη))).
+Qed.
+
+Definition disp_rwhisker_rwhisker_rassociator
+           {w x y z : C}
+           {f₁ f₂ : w --> x}
+           {α : f₁ ==> f₂}
+           {g : x --> y}
+           {h : y --> z}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff₁ : ww -->[ f₁ ] xx}
+           {ff₂ : ww -->[ f₂ ] xx}
+           (αα : ff₁ ==>[ α ] ff₂)
+           (gg : xx -->[ g ] yy)
+           (hh : yy -->[ h ] zz)
+  : transportb
+      (λ z, _ ==>[ z ] _)
+      (rwhisker_rwhisker_alt h g α)
+      (disp_rassociator ff₁ gg hh •• (αα ▹▹ (gg ;; hh)))
+    =
+    (αα ▹▹ gg ▹▹ hh) •• disp_rassociator ff₂ gg hh.
+Proof.
+  refine (!_).
+  refine (disp_id2_left_alt _ @ _).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    exact (!(@transportf_transpose_left
+               _
+               (λ z, _ ==>[ z ] _)
+               _ _
+               _
+               _ _
+               (disp_rassociator_lassociator _ ff₁ gg hh))).
+  }
+  rewrite disp_mor_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite !disp_vassocl.
+  unfold transportb.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    rewrite disp_rwhisker_rwhisker.
+    unfold transportb.
+    rewrite disp_mor_transportf_postwhisker.
+    rewrite transport_f_f.
+    rewrite !disp_vassocl.
+    rewrite disp_lassociator_rassociator.
+    unfold transportb.
+    rewrite disp_mor_transportf_prewhisker.
+    rewrite disp_id2_right.
+    unfold transportb.
+    rewrite !transport_f_f.
+    apply idpath.
+  }
+  rewrite disp_mor_transportf_prewhisker.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply cellset_property.
+Qed.
+
+
 End Derived_Laws.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -1332,7 +1535,7 @@ Defined.
 (* ----------------------------------------------------------------------------------- *)
 
 Definition disp_2cells_isaprop
-           {B : bicat} (D : disp_bicat B)
+           {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
   := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
        (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
      isaprop (disp_2cells x ff gg).
@@ -1382,6 +1585,77 @@ Proof.
   use (J_2_1 HB).
   exact HD.
 Defined.
+
+Section HomDisplayedCategory.
+  Context {B : bicat}
+          {D : disp_bicat B}.
+
+  Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+
+  Definition disp_hom_ob_mor
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+  : disp_cat_ob_mor (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ f, xx -->[ f ] yy).
+    - exact (λ f g ff gg α, ff ==>[ α ] gg).
+  Defined.
+
+  Definition disp_hom_id_comp
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_id_comp _ (disp_hom_ob_mor xx yy).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ f ff, disp_id2 ff).
+    - exact (λ f g h α β ff gg hh αα ββ, αα •• ββ).
+  Defined.
+
+  Definition disp_hom_data
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_data (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_hom_ob_mor xx yy).
+    - exact (disp_hom_id_comp xx yy).
+  Defined.
+
+  Definition disp_hom_laws
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat_axioms _ (disp_hom_data xx yy).
+  Proof.
+    repeat split ; intro ; intros ; cbn.
+    - rewrite disp_id2_left.
+      apply maponpaths_2.
+      apply cellset_property.
+    - rewrite disp_id2_right.
+      apply maponpaths_2.
+      apply cellset_property.
+    - rewrite disp_vassocr.
+      apply maponpaths_2.
+      apply cellset_property.
+    - apply D.
+  Qed.
+
+  Definition disp_hom
+             {x y : B}
+             (xx : D x)
+             (yy : D y)
+    : disp_cat (hom x y).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_hom_data xx yy).
+    - exact (disp_hom_laws xx yy).
+  Defined.
+End HomDisplayedCategory.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Notations.                                                                      *)

@@ -182,15 +182,15 @@ Section def_monoid_category.
   Defined.
   Opaque monoid_precategory_isweq.
 
-  Definition monoid_precategory_is_univalent : is_univalent monoid_precategory.
+  Definition monoid_category : category := make_category _ has_homsets_monoid_precategory.
+
+  Definition monoid_category_is_univalent : is_univalent monoid_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (monoid_precategory_isweq X Y).
-    - exact has_homsets_monoid_precategory.
+    intros X Y. exact (monoid_precategory_isweq X Y).
   Defined.
 
-  Definition monoid_category : univalent_category :=
-    make_univalent_category monoid_precategory monoid_precategory_is_univalent.
+  Definition monoid_univalent_category : univalent_category :=
+    make_univalent_category monoid_category monoid_category_is_univalent.
 
 End def_monoid_category.
 
@@ -257,7 +257,7 @@ Proof.
   apply list_ind.
   - apply pathsinv0, monoidfununel.
   - intros x xs H.
-    unfold funcomp in *.
+    simpl in *.
     refine (maponpaths iterop_list_mon (map_cons _ _ _) @ _).
     refine (iterop_list_mon_step _ _ @ _).
     refine (_ @ !maponpaths _ (iterop_list_mon_step _ _)).
@@ -287,7 +287,7 @@ Proof.
 Defined.
 
 Definition monoid_free_forgetful_adjunction_data :
-  adjunction_data HSET monoid_precategory .
+  adjunction_data HSET monoid_category .
 Proof.
   use tpair; [|use tpair]. (* TODO: there should be a constructor for this *)
   - exact monoid_free_functor.
@@ -303,14 +303,13 @@ Proof.
   split; intro.
   - apply monoidfun_paths.
     apply funextfun.
-    simpl; unfold funcomp.
+    simpl.
     unfold homot; apply list_ind; [reflexivity|].
     intros x xs ?.
-    unfold funcomp.
+    simpl.
     rewrite map_cons.
     (* For some reason, the unifier needs a lot of help here... *)
-    refine (iterop_list_mon_step ((cons _ _) : pr1hSet (free_monoid _))
-                                  (map singleton xs) @ _).
+    refine (iterop_list_mon_step (_ : pr1hSet (free_monoid _)) _ @ _).
     apply maponpaths; assumption.
   - reflexivity.
 Qed.

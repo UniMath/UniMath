@@ -14,6 +14,7 @@
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Notations.
 
 (** * Definition of a precategory *)
@@ -62,7 +63,8 @@ Definition precategory_id_comp (C : precategory_ob_mor) : UU
       ×
     (∏ a b c : C, a --> b -> b --> c -> a --> c). (* composition *)
 
-Definition precategory_data : UU := ∑ X, precategory_id_comp X.
+Definition precategory_data : UU
+  := ∑ C : precategory_ob_mor, precategory_id_comp C.
 
 Definition make_precategory_data (C : precategory_ob_mor)
     (id : ∏ c : C, c --> c)
@@ -79,13 +81,11 @@ Definition identity {C : precategory_data}
   : ∏ c : C, c --> c
   := pr1 (pr2 C).
 
-Local Notation "1" := (identity _) : cat.
-
 Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
   := pr2 (pr2 C) a b c.
 
-Notation "f ;; g" := (compose f g) : cat_deprecated.
+Notation "f ;; g" := (compose f g) (at level 50, left associativity, format "f  ;;  g") : cat_deprecated.
 
 Notation "f · g" := (compose f g) : cat.
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
@@ -166,7 +166,7 @@ Definition category := ∑ C:precategory, has_homsets C.
 Definition make_category C h : category := C,,h.
 Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
-Definition homset_property (C : category) : has_homsets C := pr2 C.
+Coercion homset_property (C : category) : has_homsets C := pr2 C.
 
 Definition makecategory
     (obj : UU)
@@ -264,17 +264,13 @@ Qed.
 Lemma cancel_postcomposition {C : precategory_data} {a b c: C}
    (f f' : a --> b) (g : b --> c) : f = f' -> f · g = f' · g.
 Proof.
-  intro H.
-  induction H.
-  apply idpath.
+  intro; apply maponpaths_2; assumption.
 Defined.
 
 Lemma cancel_precomposition (C : precategory_data) (a b c: C)
    (f f' : b --> c) (g : a --> b) : f = f' -> g · f = g · f'.
 Proof.
-  intro H.
-  induction H.
-  apply idpath.
+  apply maponpaths.
 Defined.
 
 (** Any equality on objects a and b induces a morphism from a to b *)

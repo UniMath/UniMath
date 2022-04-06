@@ -534,7 +534,7 @@ Section def_additive_equivalence.
   Lemma AddEquivUnitMorComm {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) {x x' : ob A1} (f : x --> x') :
     f = (AddEquivUnitIso AE x)
           · (# (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f)
-          · (z_iso_inv_mor (AddEquivUnitIso AE x')).
+          · (inv_from_z_iso (AddEquivUnitIso AE x')).
   Proof.
     use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE x')).
     use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
@@ -544,7 +544,7 @@ Section def_additive_equivalence.
   Qed.
 
   Lemma AddEquivCounitMorComm {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) {x x' : ob A2} (f : x --> x') :
-    f = (z_iso_inv_mor (AddEquivCounitIso AE x))
+    f = (inv_from_z_iso (AddEquivCounitIso AE x))
           · (# (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f)
           · (AddEquivCounitIso AE x').
   Proof.
@@ -556,9 +556,9 @@ Section def_additive_equivalence.
   Qed.
 
   Definition AddEquivUnitInv {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) {x x' : ob A1} (f : x --> x') :
-    z_iso_inv_mor (AddEquivUnitIso AE x) · f =
+    inv_from_z_iso (AddEquivUnitIso AE x) · f =
     # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f
-      · z_iso_inv_mor (AddEquivUnitIso AE x').
+      · inv_from_z_iso (AddEquivUnitIso AE x').
   Proof.
     use (pre_comp_with_z_iso_is_inj (AddEquivUnitIso AE x)). rewrite assoc.
     rewrite (is_inverse_in_precat1 (AddEquivUnitIso AE x)). rewrite id_left.
@@ -571,9 +571,9 @@ Section def_additive_equivalence.
 
   Definition AddEquivCounitInv {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) {x x' : ob A2}
              (f : x --> x') :
-    (z_iso_inv_mor (AddEquivCounitIso AE x))
+    (inv_from_z_iso (AddEquivCounitIso AE x))
       · # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f =
-    f · z_iso_inv_mor (AddEquivCounitIso AE x').
+    f · inv_from_z_iso (AddEquivCounitIso AE x').
   Proof.
     use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso AE x)). rewrite assoc.
     rewrite (is_inverse_in_precat1 (AddEquivCounitIso AE x)). rewrite id_left.
@@ -586,7 +586,7 @@ Section def_additive_equivalence.
   Qed.
 
   Lemma AddEquivCounitUnit {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (x : A1) :
-    z_iso_inv_mor (AddEquivCounitIso AE (AddEquiv1 AE x)) =
+    inv_from_z_iso (AddEquivCounitIso AE (AddEquiv1 AE x)) =
     # (AddEquiv1 AE) (AddEquivUnitIso AE x).
   Proof.
     use (post_comp_with_z_iso_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
@@ -596,7 +596,7 @@ Section def_additive_equivalence.
 
   Lemma AddEquivCounitUnit' {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (x : A1) :
     ((AddEquivCounitIso AE (AddEquiv1 AE x)) : A2⟦_, _⟧) =
-    # (AddEquiv1 AE) (z_iso_inv_mor (AddEquivUnitIso AE x)).
+    # (AddEquiv1 AE) (inv_from_z_iso (AddEquivUnitIso AE x)).
   Proof.
     use (post_comp_with_z_iso_inv_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
     apply pathsinv0. rewrite (is_inverse_in_precat1 (AddEquivCounitIso AE ((AddEquiv1 AE) x))).
@@ -605,7 +605,7 @@ Section def_additive_equivalence.
   Qed.
 
   Lemma AddEquivUnitCounit {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (x : A2) :
-    z_iso_inv_mor (AddEquivUnitIso AE (AddEquiv2 AE x)) =
+    inv_from_z_iso (AddEquivUnitIso AE (AddEquiv2 AE x)) =
     # (AddEquiv2 AE) (AddEquivCounitIso AE x).
   Proof.
     use (pre_comp_with_z_iso_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
@@ -615,7 +615,7 @@ Section def_additive_equivalence.
 
   Lemma AddEquivUnitCounit' {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (x : A2) :
     ((AddEquivUnitIso AE (AddEquiv2 AE x)) : A1⟦_, _⟧) =
-    # (AddEquiv2 AE) (z_iso_inv_mor (AddEquivCounitIso AE x)).
+    # (AddEquiv2 AE) (inv_from_z_iso (AddEquivCounitIso AE x)).
   Proof.
     use (pre_comp_with_z_iso_inv_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
     apply pathsinv0. rewrite (is_inverse_in_precat2 (AddEquivUnitIso AE ((AddEquiv2 AE) x))).

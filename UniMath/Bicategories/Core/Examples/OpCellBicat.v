@@ -15,284 +15,287 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
 Local Open Scope cat.
 
-Definition op2_2cell_struct (C : prebicat_1_id_comp_cells)
-  : prebicat_2cell_struct C
-  := λ (a b : C) (f g : C ⟦ a, b ⟧), g ==> f.
+Section OpCell.
+  Context (B : bicat).
 
-Definition op2_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells)
-  : prebicat_1_id_comp_cells
-  := (C:precategory_data),, op2_2cell_struct C.
+  Definition op2_prebicat_data
+    : prebicat_data.
+  Proof.
+    use build_prebicat_data.
+    - exact B.
+    - exact (λ x y, x --> y).
+    - exact (λ x y f g, g ==> f).
+    - exact (λ x, id₁ _).
+    - exact (λ x y z f g, f · g).
+    - exact (λ x y f, id₂ _).
+    - exact (λ x y f g h α β, β • α).
+    - exact (λ x y z f g h α, f ◃ α).
+    - exact (λ x y z g h f α, α ▹ f).
+    - exact (λ x y f, linvunitor f).
+    - exact (λ x y f, lunitor f).
+    - exact (λ x y f, rinvunitor f).
+    - exact (λ x y f, runitor f).
+    - exact (λ w x y z f g h, rassociator f g h).
+    - exact (λ w x y z f g h, lassociator f g h).
+  Defined.
 
-Definition op2_prebicat_data (C : prebicat_data)
-  : prebicat_data.
+  Lemma op2_prebicat_laws : prebicat_laws op2_prebicat_data.
+  Proof.
+    repeat split; intros; cbn.
+    - apply id2_right.
+    - apply id2_left.
+    - apply (!vassocr _ _ _ ).
+    - apply lwhisker_id2.
+    - apply id2_rwhisker.
+    - apply lwhisker_vcomp.
+    - apply rwhisker_vcomp.
+    - use lhs_left_invert_cell; [ apply is_invertible_2cell_linvunitor |].
+      cbn.
+      apply pathsinv0.
+      etrans. apply vassocr.
+      use lhs_right_invert_cell; [ apply is_invertible_2cell_linvunitor |].
+      cbn.
+      apply pathsinv0. apply vcomp_lunitor.
+    - use lhs_left_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
+      cbn.
+      apply pathsinv0.
+      etrans. apply vassocr.
+      use lhs_right_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
+      cbn.
+      apply pathsinv0. apply vcomp_runitor.
+    - apply lassociator_to_rassociator_pre.
+      apply pathsinv0.
+      etrans. apply (vassocr _ _ _ ).
+      apply lassociator_to_rassociator_post.
+      apply pathsinv0. apply lwhisker_lwhisker.
+    - apply lassociator_to_rassociator_pre.
+      apply pathsinv0.
+      etrans. apply (vassocr _ _ _ ).
+      apply lassociator_to_rassociator_post.
+      apply pathsinv0. apply rwhisker_lwhisker.
+    - apply pathsinv0, lassociator_to_rassociator_pre.
+      apply pathsinv0.
+      etrans. apply (vassocr _ _ _ ).
+      apply lassociator_to_rassociator_post.
+      apply rwhisker_rwhisker.
+    - apply (!vcomp_whisker _ _  ).
+    - apply lunitor_linvunitor.
+    - apply linvunitor_lunitor.
+    - apply runitor_rinvunitor.
+    - apply rinvunitor_runitor.
+    - apply lassociator_rassociator.
+    - apply rassociator_lassociator.
+    - use lhs_left_invert_cell.
+      { use is_invertible_2cell_rwhisker.
+        apply is_invertible_2cell_rinvunitor.
+      } cbn.
+      apply pathsinv0.
+      use lhs_right_invert_cell.
+      { use is_invertible_2cell_lwhisker.
+        apply is_invertible_2cell_linvunitor.
+      } cbn.
+      apply pathsinv0.
+      apply lassociator_to_rassociator_pre.
+      apply pathsinv0, runitor_rwhisker.
+    - use lhs_left_invert_cell.
+      { use is_invertible_2cell_rwhisker.
+        apply is_invertible_2cell_rassociator.
+      } cbn.
+      apply pathsinv0.
+      etrans. apply vassocr.
+      use lhs_right_invert_cell.
+      { apply is_invertible_2cell_rassociator.
+      } cbn.
+      use lhs_right_invert_cell.
+      { apply is_invertible_2cell_rassociator.
+      } cbn.
+      apply pathsinv0.
+      repeat rewrite <- vassocr.
+      use lhs_left_invert_cell.
+      { apply is_invertible_2cell_rassociator.
+      } cbn.
+      use lhs_left_invert_cell.
+      { apply is_invertible_2cell_lwhisker.
+        apply is_invertible_2cell_rassociator.
+      } cbn.
+      apply pathsinv0.
+      rewrite vassocr.
+      apply lassociator_lassociator.
+  Qed.
+
+  Definition op2_prebicat
+    : prebicat
+    := op2_prebicat_data ,, op2_prebicat_laws.
+
+  Definition op2_bicat
+    : bicat.
+  Proof.
+    refine (op2_prebicat ,, _).
+    intro ; intros.
+    apply cellset_property.
+  Defined.
+End OpCell.
+
+Definition from_op2_is_invertible_2cell
+           {B : bicat}
+           {x y : op2_bicat B}
+           {f g : x --> y}
+           {α : f ==> g}
+           (Hα : is_invertible_2cell α)
+  : @is_invertible_2cell B x y g f α.
 Proof.
-  exists (op2_prebicat_1_id_comp_cells C).
-  repeat use make_dirprod.
-  - intros; apply id2.
-  - intros; cbn. apply linvunitor.
-  - intros; cbn. apply rinvunitor.
-  - intros; cbn. apply lunitor.
-  - intros; cbn. apply runitor.
-  - intros; cbn. apply lassociator.
-  - intros; cbn. apply rassociator.
-  - intros; cbn. apply ( X0 • X ).
-  - intros; cbn. apply ( f ◃ X ).
-  - cbn; intros. apply (X ▹ g).
+  use make_is_invertible_2cell.
+  - exact (Hα^-1).
+  - exact (vcomp_linv Hα).
+  - exact (vcomp_rinv Hα).
 Defined.
 
-Section op2.
-
-Variable C : prebicat.
-
-Definition op2_prebicat_laws : prebicat_laws (op2_prebicat_data C).
+Definition to_op2_is_invertible_2cell
+           {B : bicat}
+           {x y : op2_bicat B}
+           {f g : x --> y}
+           {α : f ==> g}
+           (Hα : @is_invertible_2cell B x y g f α)
+  : is_invertible_2cell α.
 Proof.
-  repeat split; intros; cbn.
-  - apply id2_right.
-  - apply id2_left.
-  - apply (!vassocr _ _ _ ).
-  - apply lwhisker_id2.
-  - apply id2_rwhisker.
-  - apply lwhisker_vcomp.
-  - apply rwhisker_vcomp.
-  - use lhs_left_invert_cell; [ apply is_invertible_2cell_linvunitor |].
-    cbn.
-    apply pathsinv0.
-    etrans. apply vassocr.
-    use lhs_right_invert_cell; [ apply is_invertible_2cell_linvunitor |].
-    cbn.
-    apply pathsinv0. apply vcomp_lunitor.
-  - use lhs_left_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
-    cbn.
-    apply pathsinv0.
-    etrans. apply vassocr.
-    use lhs_right_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
-    cbn.
-    apply pathsinv0. apply vcomp_runitor.
-  - apply lassociator_to_rassociator_pre.
-    apply pathsinv0.
-    etrans. apply (vassocr _ _ _ ).
-    apply lassociator_to_rassociator_post.
-    apply pathsinv0. apply lwhisker_lwhisker.
-  - apply lassociator_to_rassociator_pre.
-    apply pathsinv0.
-    etrans. apply (vassocr _ _ _ ).
-    apply lassociator_to_rassociator_post.
-    apply pathsinv0. apply rwhisker_lwhisker.
-  - apply pathsinv0, lassociator_to_rassociator_pre.
-    apply pathsinv0.
-    etrans. apply (vassocr _ _ _ ).
-    apply lassociator_to_rassociator_post.
-    apply rwhisker_rwhisker.
-  - apply (!vcomp_whisker _ _  ).
-  - apply lunitor_linvunitor.
-  - apply linvunitor_lunitor.
-  - apply runitor_rinvunitor.
-  - apply rinvunitor_runitor.
-  - apply lassociator_rassociator.
-  - apply rassociator_lassociator.
-  - use lhs_left_invert_cell.
-    { use is_invertible_2cell_rwhisker.
-      apply is_invertible_2cell_rinvunitor.
-    } cbn.
-    apply pathsinv0.
-    use lhs_right_invert_cell.
-    { use is_invertible_2cell_lwhisker.
-      apply is_invertible_2cell_linvunitor.
-    } cbn.
-    apply pathsinv0.
-    apply lassociator_to_rassociator_pre.
-    apply pathsinv0, runitor_rwhisker.
-  - use lhs_left_invert_cell.
-    { use is_invertible_2cell_rwhisker.
-      apply is_invertible_2cell_rassociator.
-    } cbn.
-    apply pathsinv0.
-    etrans. apply vassocr.
-    use lhs_right_invert_cell.
-    { apply is_invertible_2cell_rassociator.
-    } cbn.
-    use lhs_right_invert_cell.
-    { apply is_invertible_2cell_rassociator.
-    } cbn.
-    apply pathsinv0.
-    repeat rewrite <- vassocr.
-    use lhs_left_invert_cell.
-    { apply is_invertible_2cell_rassociator.
-    } cbn.
-    use lhs_left_invert_cell.
-    { apply is_invertible_2cell_lwhisker.
-      apply is_invertible_2cell_rassociator.
-    } cbn.
-    apply pathsinv0.
-    rewrite vassocr.
-    apply lassociator_lassociator.
-Qed.
-
-Definition op2_prebicat : prebicat := op2_prebicat_data C ,, op2_prebicat_laws.
-
-End op2.
-
-Definition op2_isaset_cells (C : bicat) : isaset_cells (op2_prebicat C)
-  := λ (a b : C) (f g : C ⟦ a, b ⟧), cellset_property g f.
-
-Definition op2_bicat (C : bicat) : bicat
-  := op2_prebicat C,, op2_isaset_cells C.
-
-Definition op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell
-           {C : bicat}
-           {X Y : op2_bicat C}
-           {f g : X --> Y}
-           (α : f ==> g)
-  : is_invertible_2cell α → @is_invertible_2cell C X Y g f α.
-Proof.
-  intros Hα.
-  use tpair.
-  - apply Hα.
-  - split ; apply Hα.
+  use make_is_invertible_2cell.
+  - exact (Hα^-1).
+  - exact (vcomp_linv Hα).
+  - exact (vcomp_rinv Hα).
 Defined.
 
-Definition bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell
-           {C : bicat}
-           {X Y : op2_bicat C}
-           {f g : X --> Y}
+Definition weq_op2_is_invertible_2cell
+           {B : bicat}
+           {x y : op2_bicat B}
+           {f g : x --> y}
            (α : f ==> g)
-  : @is_invertible_2cell C X Y g f α → is_invertible_2cell α.
-Proof.
-  intros Hα.
-  use tpair.
-  - apply Hα.
-  - split ; apply Hα.
-Defined.
-
-Definition op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell
-           {C : bicat}
-           {X Y : op2_bicat C}
-           {f g : X --> Y}
-           (α : f ==> g)
-  : @is_invertible_2cell C X Y g f α ≃ is_invertible_2cell α.
+  : @is_invertible_2cell B x y g f α
+    ≃
+    is_invertible_2cell α.
 Proof.
   use weqimplimpl.
-  - exact (bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell α).
-  - exact (op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell α).
+  - exact to_op2_is_invertible_2cell.
+  - exact from_op2_is_invertible_2cell.
   - apply isaprop_is_invertible_2cell.
   - apply isaprop_is_invertible_2cell.
 Defined.
 
-Definition bicat_invertible_2cell_is_op2_bicat_invertible_2cell
-           {C : bicat}
-           {X Y : op2_bicat C}
-           (f g : X --> Y)
-  : @invertible_2cell C X Y g f ≃ invertible_2cell f g.
+Definition weq_op2_invertible_2cell
+           {B : bicat}
+           {x y : op2_bicat B}
+           (f g : x --> y)
+  : @invertible_2cell B x y g f ≃ invertible_2cell f g.
 Proof.
   use weqfibtototal.
   intro α.
-  apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+  apply weq_op2_is_invertible_2cell.
 Defined.
 
-Definition op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence
-           {C : bicat}
-           {X Y : op2_bicat C}
-           (f : X --> Y)
-  : left_adjoint_equivalence f → @left_adjoint_equivalence C X Y f.
+Definition from_op2_left_adjequiv
+           {B : bicat}
+           {x y : op2_bicat B}
+           (f : x --> y)
+  : left_adjoint_equivalence f → @left_adjoint_equivalence B x y f.
 Proof.
   intros Hf.
-  use tpair.
-  - use tpair.
-    + exact (left_adjoint_right_adjoint Hf).
-    + split.
-      * exact ((left_equivalence_unit_iso Hf)^-1).
-      * exact ((left_equivalence_counit_iso Hf)^-1).
-  - split ; split.
-    + use inv_cell_eq ; cbn.
-      * is_iso.
-        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-           is_iso.
-        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-           is_iso.
-      * is_iso.
-      * exact (internal_triangle1 Hf).
-    + use inv_cell_eq ; cbn.
-      * is_iso.
-        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-           is_iso.
-        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-           is_iso.
-      * is_iso.
-      * exact (internal_triangle2 Hf).
-    + cbn.
-      apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-      is_iso.
-    + cbn.
-      apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
-      is_iso.
+  simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+  - exact (left_adjoint_right_adjoint Hf).
+  - exact ((left_equivalence_unit_iso Hf)^-1).
+  - exact ((left_equivalence_counit_iso Hf)^-1).
+  - abstract
+      (use inv_cell_eq ; cbn ;
+       [ is_iso ;
+         [ apply from_op2_is_invertible_2cell ;
+           is_iso
+         | apply from_op2_is_invertible_2cell ;
+           is_iso
+         ]
+       | is_iso
+       | exact (internal_triangle1 Hf) ]).
+  - abstract
+      (use inv_cell_eq ; cbn ;
+       [ is_iso ;
+         [ apply from_op2_is_invertible_2cell ;
+           is_iso
+         | apply from_op2_is_invertible_2cell ;
+           is_iso ]
+       | is_iso
+       | exact (internal_triangle2 Hf) ]).
+  - cbn.
+    apply from_op2_is_invertible_2cell.
+    is_iso.
+  - cbn.
+    apply from_op2_is_invertible_2cell.
+    is_iso.
 Defined.
 
-Definition bicat_left_adjoint_equivalence_to_op2_bicat_left_adjoint_equivalence
-           {C : bicat}
-           {X Y : op2_bicat C}
-           (f : X --> Y)
-  : @left_adjoint_equivalence C X Y f → left_adjoint_equivalence f.
+Definition to_op2_left_adjequiv
+           {B : bicat}
+           {x y : op2_bicat B}
+           (f : x --> y)
+  : @left_adjoint_equivalence B x y f → left_adjoint_equivalence f.
 Proof.
   intros Hf.
-  use tpair.
-  - use tpair.
-    + exact (left_adjoint_right_adjoint Hf).
-    + split.
-      * exact ((left_equivalence_unit_iso Hf)^-1).
-      * exact ((left_equivalence_counit_iso Hf)^-1).
-  - split ; split.
-    + use inv_cell_eq ; cbn.
-      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-        is_iso.
-      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-        is_iso.
-      * exact (internal_triangle1 Hf).
-    + use inv_cell_eq ; cbn.
-      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-        is_iso.
-      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-        is_iso.
-      * exact (internal_triangle2 Hf).
-    + cbn.
-      apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-      is_iso.
-    + cbn.
-      apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
-      is_iso.
+  simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+  - exact (left_adjoint_right_adjoint Hf).
+  - exact ((left_equivalence_unit_iso Hf)^-1).
+  - exact ((left_equivalence_counit_iso Hf)^-1).
+  - abstract
+      (use inv_cell_eq ; cbn ;
+       [ apply to_op2_is_invertible_2cell ;
+         is_iso
+       | apply to_op2_is_invertible_2cell ;
+         is_iso
+       | exact (internal_triangle1 Hf) ]).
+  - abstract
+      (use inv_cell_eq ; cbn ;
+       [ apply to_op2_is_invertible_2cell ;
+         is_iso
+       | apply to_op2_is_invertible_2cell ;
+         is_iso
+       | exact (internal_triangle2 Hf)]).
+  - cbn.
+    apply to_op2_is_invertible_2cell.
+    is_iso.
+  - cbn.
+    apply to_op2_is_invertible_2cell.
+    is_iso.
 Defined.
 
-Definition op2_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence
-           {C : bicat}
-           {X Y : op2_bicat C}
-           (f : X --> Y)
-  : @left_adjoint_equivalence C X Y f ≃ left_adjoint_equivalence f.
+Definition weq_op2_left_adjequiv
+           {B : bicat}
+           {x y : op2_bicat B}
+           (f : x --> y)
+  : @left_adjoint_equivalence B x y f ≃ left_adjoint_equivalence f.
 Proof.
   use make_weq.
-  - exact (bicat_left_adjoint_equivalence_to_op2_bicat_left_adjoint_equivalence f).
-  - use isweq_iso.
-    + exact (op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).
-    + intros x.
-      use subtypePath.
-      * intro.
-        do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
-    + intros x.
-      use subtypePath.
-      * intro.
-        do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
-      * reflexivity.
+  - exact (to_op2_left_adjequiv f).
+  - use gradth.
+    + exact (from_op2_left_adjequiv f).
+    + abstract
+        (intros Hf ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         apply isapropdirprod ;
+         [ apply isapropdirprod ; apply cellset_property
+         | apply isapropdirprod ; apply isaprop_is_invertible_2cell ]).
+    + abstract
+        (intros Hf ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         apply isapropdirprod ;
+         [ apply isapropdirprod ; apply cellset_property
+         | apply isapropdirprod ; apply isaprop_is_invertible_2cell ]).
 Defined.
 
-Definition bicat_adjoint_equivalence_is_op2_bicat_adjoint_equivalence
-           {C : bicat}
-           (X Y : op2_bicat C)
-  : @adjoint_equivalence C X Y ≃ adjoint_equivalence X Y.
+Definition weq_op2_adjequiv
+           {B : bicat}
+           (x y : op2_bicat B)
+  : @adjoint_equivalence B x y ≃ adjoint_equivalence x y.
 Proof.
   use weqfibtototal.
   intro α.
-  apply op2_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence.
+  apply weq_op2_left_adjequiv.
 Defined.

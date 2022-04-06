@@ -17,9 +17,9 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -33,7 +33,7 @@ Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Section fix_a_category.
-  Local Notation "∁" := bicat_of_cats.
+  Local Notation "∁" := bicat_of_univ_cats.
 
   Variable (K : univalent_category).
 
@@ -61,7 +61,7 @@ Section fix_a_category.
       exact (@nat_trans_comp (op_unicat c) K _ _ _ T1 T2 ).
   Defined.
 
-  Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
+  Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
   Proof.
     exists disp_presheaf_cat_data.
     intros c d f g a.
@@ -115,7 +115,7 @@ Section fix_a_category.
   Proof.
     repeat split; intro;
       intros;
-      apply isaset_nat_trans; apply K.
+      apply isaset_nat_trans; apply homset_property.
   Qed.
 
   Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
@@ -130,7 +130,7 @@ Section fix_a_category.
     apply isasetaprop.
     cbn in *.
     apply isaset_nat_trans.
-    apply K.
+    apply homset_property.
   Qed.
 
   Definition disp_presheaf_bicat : disp_bicat ∁
@@ -149,7 +149,7 @@ Section fix_a_category.
   Proof.
     use tpair.
     - apply nat_trans_eq.
-      { apply K. }
+      { apply homset_property. }
       intro x.
       refine (!_).
       refine (maponpaths (λ z, z · _) (nat_trans_eq_pointwise p x) @ _).
@@ -166,7 +166,7 @@ Section fix_a_category.
         apply (functor_id FC).
       }
       apply id_right.
-    - split ; apply isaset_nat_trans ; apply K.
+    - split ; apply isaset_nat_trans ; apply homset_property.
   Qed.
 
   Definition disp_presheaves_is_univalent_2_1
@@ -175,9 +175,9 @@ Section fix_a_category.
     apply fiberwise_local_univalent_is_univalent_2_1.
     intros C D F CD FC α β.
     use isweqimplimpl.
-    - intro p ; cbn in * ; unfold idfun in *.
+    - intro p ; cbn in *.
       apply nat_trans_eq.
-      { apply K. }
+      { apply homset_property. }
       intro x.
       pose (nat_trans_eq_pointwise (pr1 p) x) as q.
       cbn in q.
@@ -185,10 +185,10 @@ Section fix_a_category.
       rewrite (functor_id FC), id_right.
       reflexivity.
     - apply isaset_nat_trans.
-      apply K.
+      apply homset_property.
     - apply isofhleveltotal2.
       + apply isaset_nat_trans.
-        apply K.
+        apply homset_property.
       + intro.
         apply isaprop_is_disp_invertible_2cell.
   Qed.
@@ -196,7 +196,7 @@ Section fix_a_category.
   Definition disp_presheaves_adjequiv
              {C : ∁}
              (FC FC' : disp_presheaf_bicat C)
-    : @invertible_2cell bicat_of_cats _ _ FC FC'
+    : @invertible_2cell bicat_of_univ_cats _ _ FC FC'
       -> disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
   Proof.
     intros α.
@@ -205,16 +205,16 @@ Section fix_a_category.
     - use tpair.
       + use tpair.
         * apply α.
-        * split ; apply nat_trans_eq ; try (apply K) ; intro x ; cbn.
+        * split ; apply nat_trans_eq ; try (apply homset_property) ; intro x ; cbn.
           ** rewrite (functor_id FC), id_right.
              exact (!(nat_trans_eq_pointwise (pr122 α) x)).
           ** rewrite (functor_id FC'), id_left.
              exact (nat_trans_eq_pointwise (pr222 α) x).
       + split ; split.
         * apply isaset_nat_trans.
-          apply K.
+          apply homset_property.
         * apply isaset_nat_trans.
-          apply K.
+          apply homset_property.
         * apply disp_presheaves_all_invertible.
         * apply disp_presheaves_all_invertible.
   Defined.
@@ -223,7 +223,7 @@ Section fix_a_category.
              {C : ∁}
              (FC FC' : disp_presheaf_bicat C)
     : disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
-      → @invertible_2cell bicat_of_cats _ _ FC FC'.
+      → @invertible_2cell bicat_of_univ_cats _ _ FC FC'.
   Proof.
     intros α.
     use tpair.
@@ -232,14 +232,14 @@ Section fix_a_category.
       + apply α.
       + split.
         * apply nat_trans_eq.
-          { apply K. }
+          { apply homset_property. }
           intro x ; cbn.
           pose (nat_trans_eq_pointwise (pr1(pr212 α)) x) as p.
           cbn in p.
           rewrite (functor_id FC), id_right in p.
           exact (!p).
         * apply nat_trans_eq.
-          { apply K. }
+          { apply homset_property. }
           intro x ; cbn.
           pose (nat_trans_eq_pointwise (pr2(pr212 α)) x) as p.
           cbn in p.
@@ -250,7 +250,7 @@ Section fix_a_category.
   Definition disp_presheaves_adjequiv_weq
              {C : ∁}
              (FC FC' : disp_presheaf_bicat C)
-    : @invertible_2cell bicat_of_cats _ _ FC FC'
+    : @invertible_2cell bicat_of_univ_cats _ _ FC FC'
       ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
   Proof.
     exists (disp_presheaves_adjequiv FC FC').
@@ -276,7 +276,7 @@ Section fix_a_category.
              (FC FC' : disp_presheaf_bicat C)
     : FC = FC' ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
     := ((disp_presheaves_adjequiv_weq FC FC')
-          ∘ (make_weq (@idtoiso_2_1 bicat_of_cats _ _ FC FC')
+          ∘ (make_weq (@idtoiso_2_1 bicat_of_univ_cats _ _ FC FC')
                      (univalent_cat_is_univalent_2_1 _ _ _ _)))%weq.
 
   Definition disp_presheaves_is_univalent_2_0
@@ -311,7 +311,7 @@ Section fix_a_category.
   Proof.
     intro; intros.
     apply isaset_nat_trans.
-    apply K.
+    apply homset_property.
   Qed.
 
   Definition disp_locally_groupoid_presheaf

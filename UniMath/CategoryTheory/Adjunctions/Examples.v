@@ -37,7 +37,7 @@ Local Open Scope cat.
 
 Section bindelta_functor_adjunction.
 
-Context {C : precategory} (PC : BinProducts C).
+Context {C : category} (PC : BinProducts C).
 
 (** The binary delta_functor is left adjoint to binproduct_functor *)
 Lemma is_left_adjoint_bindelta_functor : is_left_adjoint (bindelta_functor C).
@@ -52,10 +52,10 @@ use tpair.
                 now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
   + use tpair.
     * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
-    * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
+    * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
                 now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
 - abstract (split; simpl; intro x;
-  [ unfold precatbinprodmor, compose; simpl;
+  [ unfold catbinprodmor, compose; simpl;
     now rewrite BinProductPr1Commutes, BinProductPr2Commutes
   | cbn; rewrite postcompWithBinProductArrow, !id_left;
     apply pathsinv0, BinProduct_endo_is_identity;
@@ -66,7 +66,7 @@ End bindelta_functor_adjunction.
 
 Section delta_functor_adjunction.
 
-Context (I : UU) {C : precategory} (PC : Products I C).
+Context (I : UU) {C : category} (PC : Products I C).
 
 (** The general delta functor is left adjoint to the general product functor *)
 Lemma is_left_adjoint_delta_functor :
@@ -97,7 +97,7 @@ End delta_functor_adjunction.
 
 Section bincoproduct_functor_adjunction.
 
-Context {C : precategory} (PC : BinCoproducts C).
+Context {C : category} (PC : BinCoproducts C).
 
 (** The bincoproduct_functor left adjoint to delta_functor *)
 Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
@@ -107,11 +107,11 @@ use tpair.
 - split.
   + use tpair.
     * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
-      split; [ apply (BinCoproductIn1 _ (PC x y)) | apply (BinCoproductIn2 _ (PC x y)) ].
-    * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
+      split; [ apply (BinCoproductIn1 (PC x y)) | apply (BinCoproductIn2 (PC x y)) ].
+    * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
                 now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
   + use tpair.
-    * intro x; apply (BinCoproductArrow _ _ (identity x) (identity x)).
+    * intro x; apply (BinCoproductArrow _ (identity x) (identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
                             id_right, id_left).
@@ -119,7 +119,7 @@ use tpair.
   [ cbn; rewrite precompWithBinCoproductArrow, !id_right;
     apply pathsinv0, BinCoproduct_endo_is_identity;
       [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
-  | unfold precatbinprodmor, compose; simpl;
+  | unfold catbinprodmor, compose; simpl;
     now rewrite BinCoproductIn1Commutes, BinCoproductIn2Commutes ]).
 Defined.
 
@@ -127,7 +127,7 @@ End bincoproduct_functor_adjunction.
 
 Section coproduct_functor_adjunction.
 
-Context (I : UU) {C : precategory} (PC : Coproducts I C).
+Context (I : UU) {C : category} (PC : Coproducts I C).
 
 (** The general coproduct functor left adjoint to the general delta functor *)
 Lemma is_left_adjoint_coproduct_functor :
