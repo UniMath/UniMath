@@ -1202,6 +1202,14 @@ Section Main.
         apply pathsinv0, lunitor_triangle.
       - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
+
+    Lemma montrafotargetbicat_disp_leftunitor_law: disp_leftunitor_law montrafotargetbicat_disp_leftunitor_data.
+    Proof.
+      split.
+      - red. intros. apply trafotargetbicat_disp_cells_isaprop.
+      - exact montrafotargetbicat_disp_leftunitor_iso.
+    Qed.
+
     Lemma montrafotargetbicat_disp_rightunitor_iso: disp_rightunitor_iso montrafotargetbicat_disp_rightunitor_data.
     Proof.
       intros v η.
@@ -1329,13 +1337,22 @@ Section Main.
       - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
-
-
-
+    Lemma montrafotargetbicat_disp_rightunitor_law: disp_rightunitor_law montrafotargetbicat_disp_rightunitor_data.
+    Proof.
+      split.
+      - red. intros. apply trafotargetbicat_disp_cells_isaprop.
+      - exact montrafotargetbicat_disp_rightunitor_iso.
+    Qed.
 
     Definition montrafotargetbicat_disp_monoidal: disp_monoidal montrafotargetbicat_disp Mon_V.
     Proof.
       exists montrafotargetbicat_disp_monoidal_data.
+      split.
+      - admit.
+      - split; [ exact montrafotargetbicat_disp_leftunitor_law |].
+        split; [ exact montrafotargetbicat_disp_rightunitor_law |].
+        (** now we benefit from working in a displayed monoidal category *)
+        split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
     Admitted.
 
 
