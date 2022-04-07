@@ -410,6 +410,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/Examples/Trivial.v](Bicategories/DisplayedBicats/Examples/Trivial.v)
    - [MonoidalCategories/MonoidalFromBicategory.v](Bicategories/MonoidalCategories/MonoidalFromBicategory.v)
    - [MonoidalCategories/EndofunctorsMonoidal.v](Bicategories/MonoidalCategories/EndofunctorsMonoidal.v)
+   - [MonoidalCategories/EndofunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/EndofunctorsWhiskeredMonoidal.v)
    - [MonoidalCategories/PointedFunctorsMonoidal.v](Bicategories/MonoidalCategories/PointedFunctorsMonoidal.v)
    - [MonoidalCategories/Actions.v](Bicategories/MonoidalCategories/Actions.v)
    - [MonoidalCategories/ConstructionOfActions.v](Bicategories/MonoidalCategories/ConstructionOfActions.v)
