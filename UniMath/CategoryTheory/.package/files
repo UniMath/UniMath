@@ -80,6 +80,7 @@ limits/Opp.v
 
 IsoCommaCategory.v
 CommaCategories.v
+categories/Dialgebras.v
 
 SubobjectClassifier.v
 NNO.v

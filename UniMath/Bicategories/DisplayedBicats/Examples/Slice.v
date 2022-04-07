@@ -505,6 +505,21 @@ Proof.
              (make_invertible_2cell Hα)).
 Defined.
 
+Definition from_is_invertible_2cell_in_slice_bicat
+           {B : bicat}
+           {b : B}
+           {f₁ f₂ : slice_bicat b}
+           {g₁ g₂ : f₁ --> f₂}
+           {α : g₁ ==> g₂}
+           (Hα : is_invertible_2cell α)
+  : is_invertible_2cell (pr1 α).
+Proof.
+  use make_is_invertible_2cell.
+  - exact (pr1 (Hα^-1)).
+  - exact (maponpaths pr1 (vcomp_rinv Hα)).
+  - exact (maponpaths pr1 (vcomp_linv Hα)).
+Defined.
+
 (**
   5. Adjoint equivalences in slice bicategory
  *)
