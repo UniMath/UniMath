@@ -109,7 +109,7 @@ Definition cartesian_factorisation_commutes
   : cartesian_factorisation H g hh ;; ff = hh
 := pr2 (pr1 (H _ g _ hh)).
 
-(** While [cartesian_factorisatoin_commutes] shows that composition with and factorisation through a cartesian morphism are one-sided inverses in one direction, the following shows the other direction. **)
+(** While [cartesian_factorisation_commutes] shows that composition with and factorisation through a cartesian morphism are one-sided inverses in one direction, the following shows the other direction. **)
 Definition cartesian_factorisation_of_composite
     {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
