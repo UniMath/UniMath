@@ -1877,23 +1877,22 @@ Section Main.
         split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
+    Definition parameterized_distributivity_bicat_nat : UU := H ⟹ H'.
+    Definition parameterized_distributivity_bicat_nat_funclass (δ : parameterized_distributivity_bicat_nat):
+      ∏ v : V, H v --> H' v := pr1 δ.
+    Coercion parameterized_distributivity_bicat_nat_funclass : parameterized_distributivity_bicat_nat >-> Funclass.
+
+    Definition param_distr_bicat_triangle_eq_variant0 (δ : parameterized_distributivity_bicat_nat): UU :=
+      δ I_{Mon_V} = param_distr_bicat_triangle_eq_variant0_RHS.
+
+    Definition param_distr_bicat_pentagon_eq_variant (δ : parameterized_distributivity_bicat_nat): UU := ∏ (v w : V),
+        δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
     Section IntoMonoidalFunctorBicat.
 
-      Definition parameterized_distributivity_bicat_nat : UU := H ⟹ H'.
-      Definition parameterized_distributivity_bicat_nat_funclass (δ : parameterized_distributivity_bicat_nat):
-        ∏ v : V, H v --> H' v := pr1 δ.
-      Coercion parameterized_distributivity_bicat_nat_funclass : parameterized_distributivity_bicat_nat >-> Funclass.
-
       Context (δ: parameterized_distributivity_bicat_nat).
-
-      Definition param_distr_bicat_triangle_eq_variant0: UU :=
-        δ I_{Mon_V} = param_distr_bicat_triangle_eq_variant0_RHS.
-
-      Definition param_distr_bicat_pentagon_eq_variant: UU := ∏ (v w : V),
-          δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
-
-      Context (δtr_eq: param_distr_bicat_triangle_eq_variant0)
-              (δpe_eq: param_distr_bicat_pentagon_eq_variant).
+      Context (δtr_eq: param_distr_bicat_triangle_eq_variant0 δ)
+              (δpe_eq: param_distr_bicat_pentagon_eq_variant δ).
 
       (** using sections already for this direction *)
       Lemma param_distr_bicat_to_monoidal_section_data: smonoidal_data _ _ _ montrafotargetbicat_disp_monoidal (nat_trafo_to_section_bicat _ _ _ _ δ).
@@ -1945,7 +1944,47 @@ Proof.
   induction δs as [δ [δtr_eq δpe_eq]].
   exact (smf_from_param_distr_parts_bicat δ δtr_eq δpe_eq).
 Defined.
-*)
+ *)
+
+    (** the other direction, essentially dependent on sections *)
+    Section FromMonoidalFunctorBicat.
+
+      Context {sd: section_disp montrafotargetbicat_disp}.
+      Context (ms: smonoidal_data _ _ _ montrafotargetbicat_disp_monoidal sd).
+      (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
+
+      Definition δ_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
+
+      Lemma δtr_eq_from_ms: param_distr_bicat_triangle_eq_variant0 δ_from_ms.
+      Proof.
+        red.
+        assert (aux := smonoidal_preserves_unit _ _ _ _ ms).
+        cbn in aux.
+        rewrite hcomp_identity_left, hcomp_identity_right in aux.
+        rewrite (functor_id FA), (functor_id FA') in aux.
+        cbn in aux.
+        rewrite lwhisker_id2, id2_rwhisker in aux.
+        rewrite id2_left, id2_right in aux.
+        apply pathsinv0. exact aux.
+      Qed.
+
+      Lemma δpe_eq_from_ms: param_distr_bicat_pentagon_eq_variant δ_from_ms.
+      Proof.
+        intros v w.
+        assert (aux := smonoidal_preserves_tensor _ _ _ _ ms v w).
+        cbn in aux.
+        rewrite hcomp_identity_left, hcomp_identity_right in aux.
+        rewrite (functor_id FA), (functor_id FA') in aux.
+        cbn in aux.
+        rewrite lwhisker_id2, id2_rwhisker in aux.
+        rewrite id2_left, id2_right in aux.
+        apply pathsinv0. exact aux.
+      Qed.
+
+      (* TODO: roundtrip lemmas *)
+
+
+    End FromMonoidalFunctorBicat.
 
   End FunctorViaBicat.
 (* not yet migrated
