@@ -18,10 +18,10 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 Require Import UniMath.Foundations.All.
 
@@ -48,7 +48,7 @@ Proof.
   apply idfun.
 Defined.
 
-Definition assoc_eq {C} {D : disp_precat C}
+Definition assoc_eq {C} {D : disp_cat C}
     {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
     (ff ff' : xx -->[f] yy) (gg gg' : yy -->[g] zz) (hh hh' : zz -->[h] ww)
   : ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh') -> (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh'.
@@ -63,7 +63,7 @@ Proof.
       apply assoc_disp_var.
 Qed.
 
-Definition assoc_eq_var {C} {D : disp_precat C}
+Definition assoc_eq_var {C} {D : disp_cat C}
     {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
     (ff ff' : xx -->[f] yy) (gg gg' : yy -->[g] zz) (hh hh' : zz -->[h] ww)
   : (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh' -> ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh').
