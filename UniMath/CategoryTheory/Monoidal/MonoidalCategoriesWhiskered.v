@@ -298,8 +298,6 @@ Lemma pentagon_identity_leftassociator {C : category} (M : monoidal C) (w x y z 
     αinv_{M} w x (y ⊗_{ M} z)
   · αinv_{M} (w ⊗_{ M} x) y z.
 Proof.
-  Search (inv_from_z_iso).
-
   apply pathsinv0.
   apply (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso M _ _ _)).
   unfold z_iso_from_associator_iso.
