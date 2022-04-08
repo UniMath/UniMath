@@ -29,6 +29,9 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
+Require UniMath.Bicategories.Core.Bicat.
+Require UniMath.Bicategories.Core.Examples.BicatOfCats.
+
 Local Open Scope cat.
 
 Section A.
@@ -665,9 +668,19 @@ Section Param_Distr.
 
   Context (F : [A, A']).
 
+  (** the expected definitions:
   Local Definition precomp'F := pre_composition_functor _ A' A' F.
   Local Definition postcomp'F {C: category} := post_composition_functor C A A' F.
+   *)
 
+  (** the definitions that are more compatible with the bicategorical scenario
+  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (functorial_composition _ _ A') F.
+  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (functorial_composition C _ A') F.
+   *)
+
+  (** the definitions that force full compatibility with the bicategorical scenario *)
+  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A')) F.
+  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A')) F.
 
   (** a parameterized form of distributivity as strength *)
   Definition param_distributivity'_dom : functor V [A, A'] :=
@@ -732,6 +745,17 @@ Section The_Laws.
       exact Hyp.
     Qed.
 
+    Lemma param_distr'_triangle_eq_variant0_implies :
+      param_distr'_triangle_eq_variant0 -> param_distr'_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr'_triangle_eq_variant0_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso') in Hyp.
+      red.
+      exact Hyp.
+    Qed.
+
     (** we also abstract over the constituent distributivities *)
     Definition param_distr'_pentagon_eq_body_RHS (v w : V)
                (dv: [A, A'] ⟦ param_distributivity'_dom v, param_distributivity'_codom v ⟧)
@@ -765,6 +789,9 @@ Section The_Laws.
     Definition param_distr'_pentagon_eq_body_variant (v w : V): UU :=
       δ (v ⊗ w) = param_distr'_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
 
+    Definition param_distr'_pentagon_eq_variant: UU :=
+      ∏ (v w : V), param_distr'_pentagon_eq_body_variant v w.
+
     Definition prewhisker_with_μ_inv_z_iso' (v w : V):
       z_iso (precomp'F (FA' (v ⊗ w)))
             (precomp'F ((FA' v) ⊗_{Mon_EndA'} (FA' w))).
@@ -783,6 +810,16 @@ Section The_Laws.
       red.
       unfold param_distr'_pentagon_eq_body_variant_RHS.
       apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso' v w)).
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr'_pentagon_eq_body_variant_implies (v w : V):
+      param_distr'_pentagon_eq_body_variant v w -> param_distr'_pentagon_eq_body v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr'_pentagon_eq_body_variant_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso' v w)) in Hyp.
       exact Hyp.
     Qed.
 

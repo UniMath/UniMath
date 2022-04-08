@@ -1,16 +1,11 @@
 (** shows that action-based strong functors can be perceived as strong monoidal functors from the monoidal category that is acting on the underlying categories to a suitable monoidal category
 
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
-monoidal structures.
+monoidal structures. More precisely, we construct transformations in both directions between parameterized distributivity (in a slightly massaged form to accommodate reasoning through bicategories) and displayed sections that are a formalization-friendly form of strong monoidal functors that are right inverses of the projection from the target displayed category. The result makes use of displayed monoidal categories.
 
-Work in progress: the characterization in the monoidal case will need a full development of
-displayed monoidal categories and their sections, which is why there is now only a construction
-of a strong monoidal functor from a parameterized distributivity and no construction in the
-other direction
+The non-monoidal basic situation is developed before.
 
 Author: Ralph Matthes 2021, 2022
-
-work in progress towards using the whiskered variant of the monoidal categories, so as to resolve the problems identified above
 
  *)
 
@@ -32,8 +27,9 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalSectionsWhiskered.
-Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
@@ -1888,14 +1884,17 @@ Section Main.
     Definition param_distr_bicat_pentagon_eq_variant (δ : parameterized_distributivity_bicat_nat): UU := ∏ (v w : V),
         δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
 
-    Section IntoMonoidalFunctorBicat.
+    Section IntoMonoidalSectionBicat.
 
       Context (δ: parameterized_distributivity_bicat_nat).
       Context (δtr_eq: param_distr_bicat_triangle_eq_variant0 δ)
               (δpe_eq: param_distr_bicat_pentagon_eq_variant δ).
 
       (** using sections already for this direction *)
-      Lemma param_distr_bicat_to_monoidal_section_data: smonoidal_data _ _ _ montrafotargetbicat_disp_monoidal (nat_trafo_to_section_bicat _ _ _ _ δ).
+      Lemma param_distr_bicat_to_monoidal_section_data:
+        smonoidal_data V montrafotargetbicat_disp Mon_V
+                       montrafotargetbicat_disp_monoidal
+                       (nat_trafo_to_section_bicat a0 a0' H H' δ).
       Proof.
         split.
         - intros v w. cbn.
@@ -1915,12 +1914,15 @@ Section Main.
       Qed.
       (** the two equations were thus exactly the ingredients for the data of a monoidal section *)
 
-      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laws _ _ _ _ param_distr_bicat_to_monoidal_section_data.
+      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laws V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal param_distr_bicat_to_monoidal_section_data.
       Proof.
         repeat split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
-      Lemma param_distr_bicat_to_monoidal_section_strong: smonoidal_strongtensor _ _ _ _ (smonoidal_preserves_tensor _ _ _ _ param_distr_bicat_to_monoidal_section_data).
+      Lemma param_distr_bicat_to_monoidal_section_strong:
+        smonoidal_strongtensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
+                               (smonoidal_preserves_tensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
+                                                           param_distr_bicat_to_monoidal_section_data).
       Proof.
         intros v w.
         use tpair.
@@ -1934,7 +1936,7 @@ Section Main.
         - split; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
-    End IntoMonoidalFunctorBicat.
+    End IntoMonoidalSectionBicat.
 
 (* not migrated, and also parameterized_distributivity_bicat not yet defined (taking into account the variants!)
 Definition smf_from_param_distr_bicat:
@@ -1947,10 +1949,10 @@ Defined.
  *)
 
     (** the other direction, essentially dependent on sections *)
-    Section FromMonoidalFunctorBicat.
+    Section FromMonoidalSectionBicat.
 
       Context {sd: section_disp montrafotargetbicat_disp}.
-      Context (ms: smonoidal_data _ _ _ montrafotargetbicat_disp_monoidal sd).
+      Context (ms: smonoidal_data V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
       Definition δ_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
@@ -1984,93 +1986,184 @@ Defined.
       (* TODO: roundtrip lemmas *)
 
 
-    End FromMonoidalFunctorBicat.
+    End FromMonoidalSectionBicat.
 
   End FunctorViaBicat.
-(* not yet migrated
+
   Section Functor.
 
     Context {A A': category}.
 
-    Context (FA: strong_monoidal_functor Mon_V (monoidal_cat_of_endofunctors A)).
-    Context (FA': strong_monoidal_functor Mon_V (monoidal_cat_of_endofunctors A')).
+    Context {FA: functor V (cat_of_endofunctors A)}.
+    Context {FA': functor V (cat_of_endofunctors A')}.
+
+    Context (FAm: fmonoidal Mon_V (monoidal_of_endofunctors A) FA).
+    Context (FA'm: fmonoidal Mon_V (monoidal_of_endofunctors A') FA').
 
     Context (G : A ⟶ A').
 
-    Local Definition precompG := pre_composition_functor _ A' A' G.
-    Local Definition postcompG {C: category} := post_composition_functor C A A' G.
+    Let H := param_distributivity'_dom(FA':=FA') A A' G.
+    Let H' := param_distributivity'_codom(FA:=FA) A A' G.
 
-    Let H := param_distributivity_dom Mon_V _ _ FA' G.
-    Let H' := param_distributivity_codom Mon_V _ _ FA G.
-
-    Definition montrafotarget_disp: disp_cat Mon_V :=
-      trafotargetbicat_disp(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
-    Definition montrafotarget_cat: category :=
-      trafotargetbicat_cat(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
-
-    Definition montrafotarget_moncat: monoidal_cat :=
-      montrafotargetbicat_moncat(C:=bicat_of_cats)(a0:=A)(a0':=A') FA FA' G.
-
-    Definition parameterized_distributivity_nat_as_instance
-               (δtr: parameterized_distributivity_nat Mon_V A A' FA FA' G):
-      parameterized_distributivity_bicat_nat FA FA' G.
+    Goal H = Main.H(C:=bicat_of_cats)(FA':=FA') G.
     Proof.
-      red.
-      red in δtr.
-      unfold Main.H, Main.H'.
-      unfold param_distributivity_dom, param_distributivity_codom in δtr.
-      use make_nat_trans.
-      - exact (pr1 δtr).
-      - intros v w f. cbn.
-        set (δtr_nat_inst := pr2 δtr v w f).
-        cbn in δtr_nat_inst. unfold pre_whisker_in_funcat, post_whisker_in_funcat in δtr_nat_inst.
-        rewrite post_whisker_identity. rewrite pre_whisker_identity.
-        rewrite (nat_trans_comp_id_left A' (functor_composite G ((pr11 FA') v))
-                                        (functor_composite G ((pr11 FA') w))).
-        rewrite (nat_trans_comp_id_right A' (functor_composite ((pr11 FA) v) G)
-                                         (functor_composite ((pr11 FA) w) G)).
-        exact δtr_nat_inst.
-    Defined.
+      apply idpath.
+    Qed.
 
-    Definition smf_from_param_distr:
-      parameterized_distributivity Mon_V A A' FA FA' G -> strong_monoidal_functor Mon_V montrafotarget_moncat.
+    Goal H' = Main.H'(C:=bicat_of_cats)(FA:=FA) G.
     Proof.
-      intro δs.
-      induction δs as [δ [δtr_eq δpe_eq]].
-      use smf_from_param_distr_bicat_parts.
-      - exact (parameterized_distributivity_nat_as_instance δ).
-      - apply param_distr_triangle_eq_variant0_follows in δtr_eq.
+      apply idpath.
+    Qed.
+
+    Definition parameterized_distributivity'_nat_as_instance
+               (δtr: parameterized_distributivity'_nat(FA:=FA)(FA':=FA') A A' G):
+      parameterized_distributivity_bicat_nat(FA:=FA)(FA':=FA') G := δtr.
+
+    Definition montrafotarget_disp: disp_cat V :=
+      montrafotargetbicat_disp(C:=bicat_of_cats)(FA:=FA)(FA':=FA') G.
+
+    Definition montrafotarget_totalcat: category :=
+      total_category montrafotarget_disp.
+
+    Goal montrafotarget_disp = trafotargetbicat_disp(C:=bicat_of_cats) A A' H H'.
+    Proof.
+      apply idpath.
+    Qed.
+
+   Definition montrafotarget_disp_monoidal: disp_monoidal montrafotarget_disp Mon_V
+     := montrafotargetbicat_disp_monoidal(C:=bicat_of_cats)(a0:=A)(a0':=A') FAm FA'm G.
+
+   Definition montrafotarget_monoidal: monoidal montrafotarget_totalcat :=
+     total_monoidal montrafotarget_disp_monoidal.
+
+    Section IntoMonoidalSection.
+
+      Context (δs : parameterized_distributivity' Mon_V A A' FAm FA'm G).
+      Let δ := pr1 δs.
+      Let δtr_eq := pr12 δs.
+      Let δpe_eq := pr22 δs.
+
+      Definition montrafotarget_section_disp : section_disp montrafotarget_disp
+        := nat_trafo_to_section_bicat(C0:=V)(C:=bicat_of_cats) A A' H H' δ.
+
+      Lemma δtr_eq': param_distr_bicat_triangle_eq_variant0 FAm FA'm G δ.
+      Proof.
+        apply param_distr'_triangle_eq_variant0_follows in δtr_eq.
         red in δtr_eq |- *.
-        unfold param_distr_triangle_eq_variant0_RHS in δtr_eq.
+        unfold param_distr'_triangle_eq_variant0_RHS in δtr_eq.
         unfold param_distr_bicat_triangle_eq_variant0_RHS.
         cbn in δtr_eq |- *.
-        unfold pre_whisker_in_funcat, post_whisker_in_funcat in δtr_eq.
         etrans.
         { exact δtr_eq. }
-        apply maponpaths.
         rewrite (nat_trans_comp_id_right A' (functor_composite G (functor_identity A')) G).
-        show_id_type.
+        (* show_id_type. *)
         apply (nat_trans_eq A').
         intro a.
         cbn.
-        apply pathsinv0, id_left.
-      - intros v w.
+        rewrite id_right, id_left.
+        rewrite (functor_id (FA' I_{ Mon_V})), id_left.
+        apply idpath.
+      Qed.
+
+      Lemma δpe_eq': param_distr_bicat_pentagon_eq_variant FAm FA'm G δ.
+      Proof.
+        intros v w.
         set (δpe_eq_inst := δpe_eq v w).
-        apply param_distr_pentagon_eq_body_variant_follows in δpe_eq_inst.
+        apply param_distr'_pentagon_eq_body_variant_follows in δpe_eq_inst.
         unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
-        unfold param_distr_pentagon_eq_body_variant, param_distr_pentagon_eq_body_variant_RHS in δpe_eq_inst.
+        unfold param_distr'_pentagon_eq_body_variant, param_distr'_pentagon_eq_body_variant_RHS in δpe_eq_inst.
         cbn in δpe_eq_inst |- *.
         etrans.
         { exact δpe_eq_inst. }
         clear δpe_eq_inst.
-        apply maponpaths.
         apply (nat_trans_eq A').
         intro a.
         cbn.
-        do 3 rewrite id_left.
+        do 3 rewrite id_left. rewrite id_right.
+        rewrite (functor_id (FA' (v ⊗_{ Mon_V} w))), id_left.
         apply idpath.
-    Defined.
+      Qed.
 
-  End Functor.
-*)
+      Definition param_distr'_to_monoidal_section_data:
+        smonoidal_data V montrafotarget_disp Mon_V montrafotarget_disp_monoidal montrafotarget_section_disp :=
+        param_distr_bicat_to_monoidal_section_data(C:=bicat_of_cats) FAm FA'm G
+                             (parameterized_distributivity'_nat_as_instance δ) δtr_eq' δpe_eq'.
+
+      Definition param_distr'_to_monoidal_section_laws:
+        smonoidal_laws V montrafotarget_disp Mon_V
+                       montrafotarget_disp_monoidal
+                       param_distr'_to_monoidal_section_data :=
+        param_distr_bicat_to_monoidal_section_laws FAm FA'm G δ δtr_eq' δpe_eq'.
+
+      Definition param_distr'_to_monoidal_section_strong:
+        smonoidal_strongtensor V montrafotarget_disp Mon_V montrafotarget_disp_monoidal
+                               (smonoidal_preserves_tensor V
+                                                           montrafotarget_disp
+                                                           Mon_V
+                                                           montrafotarget_disp_monoidal
+                                                           param_distr'_to_monoidal_section_data) :=
+        param_distr_bicat_to_monoidal_section_strong FAm FA'm G δ δtr_eq' δpe_eq'.
+
+      Definition param_distr'_to_functor: V ⟶ montrafotarget_totalcat :=
+        section_functor montrafotarget_section_disp.
+
+      Definition param_distr'_to_smf: fmonoidal Mon_V montrafotarget_monoidal param_distr'_to_functor.
+      Proof.
+        (* should be done with sectionfunctor_fmonoidal in MonoidalSectionsWhiskered *)
+      Abort.
+
+End IntoMonoidalSection.
+
+Section FromMonoidalSection.
+
+      Context {sd: section_disp montrafotarget_disp}.
+      Context (ms: smonoidal_data V montrafotarget_disp Mon_V montrafotarget_disp_monoidal sd).
+      (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
+
+      Definition δ'_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
+
+      Lemma δtr'_eq_from_ms: param_distr'_triangle_eq Mon_V A A' FAm FA'm G δ'_from_ms.
+      Proof.
+        apply param_distr'_triangle_eq_variant0_implies.
+        assert (aux := δtr_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms).
+        unfold param_distr'_triangle_eq_variant0.
+        unfold param_distr'_triangle_eq_variant0_RHS.
+        red in aux.
+        unfold param_distr_bicat_triangle_eq_variant0_RHS in aux.
+        etrans.
+        { exact aux. }
+        cbn.
+        rewrite (nat_trans_comp_id_right A' (functor_composite G (functor_identity A')) G).
+        apply (nat_trans_eq A').
+        intro a.
+        cbn.
+        rewrite id_right, id_left.
+        rewrite (functor_id (FA' I_{ Mon_V})), id_left.
+        apply idpath.
+      Qed.
+
+      Lemma δpe'_eq_from_ms: param_distr'_pentagon_eq Mon_V A A' FAm FA'm G δ'_from_ms.
+      Proof.
+        intros v w.
+        apply param_distr'_pentagon_eq_body_variant_implies.
+        assert (aux := δpe_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms v w).
+        red.
+        etrans.
+        { exact aux. }
+        clear aux.
+        unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+        unfold param_distr'_pentagon_eq_body_variant_RHS.
+        apply (nat_trans_eq A').
+        intro a.
+        cbn.
+        do 3 rewrite id_left. rewrite id_right.
+        rewrite (functor_id (FA' (v ⊗_{ Mon_V} w))), id_left.
+        apply idpath.
+      Qed.
+
+
+End FromMonoidalSection.
+
+End Functor.
+
 End Main.
