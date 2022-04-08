@@ -165,7 +165,6 @@ PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
-PseudoFunctors/Examples/CompositionPseudoFunctor.v
 PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
@@ -202,6 +201,7 @@ DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
 
 PseudoFunctors/Examples/PullbackFunctor.v
+PseudoFunctors/Examples/CompositionPseudoFunctor.v
 
 Limits/Examples/DisplayMapSliceLimits.v
 Colimits/Examples/DisplayMapSliceColimits.v
