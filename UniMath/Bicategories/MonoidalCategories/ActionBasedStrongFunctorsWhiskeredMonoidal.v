@@ -182,7 +182,7 @@ Section Upstream.
       use make_nat_trans.
       - intro c. exact (sdob c).
       - intros c c' f.
-        assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
+        apply pathsinv0. exact (sdmor c c' f).
     Defined.
 
     Local Lemma roundtrip1_with_sections (η: H ⟹ H'):
