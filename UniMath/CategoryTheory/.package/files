@@ -80,6 +80,7 @@ limits/Opp.v
 
 IsoCommaCategory.v
 CommaCategories.v
+categories/Dialgebras.v
 
 SubobjectClassifier.v
 NNO.v
@@ -206,6 +207,7 @@ DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
 Elements.v
+Core.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
@@ -217,6 +219,11 @@ Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
+
+DisplayedCats/MoreFibrations/Prefibrations.v
+DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
+DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
+DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v

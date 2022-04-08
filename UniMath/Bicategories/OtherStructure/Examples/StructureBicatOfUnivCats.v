@@ -5,6 +5,9 @@
  1. Duality involution on categories
  2. Classifying discrete opfibration
  3. Cartesian closed
+ 4. Cores
+ 4.1 Groupoidal objects
+ 4.2 The coreflection
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -17,6 +20,9 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Elements.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.Groupoids.
+Require Import UniMath.CategoryTheory.Core.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -32,9 +38,14 @@ Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.BicatOfInvertibles.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Eso.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Morphisms.Examples.FibrationsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Morphisms.Examples.EsosInBicatOfUnivCats.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
@@ -53,6 +64,7 @@ Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.OtherStructure.ClassifyingDiscreteOpfib.
 Require Import UniMath.Bicategories.OtherStructure.DualityInvolution.
 Require Import UniMath.Bicategories.OtherStructure.Exponentials.
+Require Import UniMath.Bicategories.OtherStructure.Cores.
 
 Local Open Scope cat.
 
@@ -746,4 +758,143 @@ Proof.
     + exact (curry_functor' F).
     + use nat_iso_to_invertible_2cell.
       exact (evaluate_curry_functor'_nat_iso F).
+Defined.
+
+(**
+ 4. Cores
+ *)
+
+(**
+ 4.1 Groupoidal objects
+ *)
+Definition groupoid_is_groupoidal_obj
+           (C : bicat_of_univ_cats)
+           (HC : is_pregroupoid (pr1 C))
+  : groupoidal C.
+Proof.
+  intros C' F₁ F₂ n.
+  use is_nat_iso_to_is_invertible_2cell.
+  intro.
+  apply HC.
+Defined.
+
+Definition groupoidal_obj_is_groupoid
+           (C : bicat_of_univ_cats)
+           (HC : groupoidal C)
+  : is_pregroupoid (pr1 C).
+Proof.
+  intros x y f.
+  exact (is_invertible_2cell_to_is_nat_iso
+           _
+           (HC unit_category
+               (functor_from_unit x)
+               (functor_from_unit y)
+               (nat_trans_from_unit f))
+           tt).
+Defined.
+
+Definition groupoid_weq_groupoidal_obj
+           (C : bicat_of_univ_cats)
+  : is_pregroupoid (pr1 C) ≃ groupoidal C.
+Proof.
+  use weqimplimpl.
+  - exact (groupoid_is_groupoidal_obj C).
+  - exact (groupoidal_obj_is_groupoid C).
+  - apply isaprop_is_pregroupoid.
+  - apply isaprop_groupoidal.
+Defined.
+
+(**
+ 4.2 The coreflection
+ *)
+Definition bicat_of_univ_cats_has_cores_map
+           (C : bicat_of_inv2cells bicat_of_univ_cats)
+  : bicat_of_groupoidal bicat_of_univ_cats.
+Proof.
+  refine (univalent_core (pr1 C) ,, _).
+  apply groupoid_is_groupoidal_obj.
+  apply is_pregroupoid_core.
+Defined.
+
+Definition bicat_of_univ_cats_has_cores_counit
+           (C : bicat_of_inv2cells bicat_of_univ_cats)
+  : groupoidal_to_inv2cells bicat_of_univ_cats (bicat_of_univ_cats_has_cores_map C)
+    -->
+    C
+  := functor_core _ ,, tt.
+
+Definition bicat_of_univ_cats_has_cores_nat_trans
+           {C₀ : bicat_of_groupoidal bicat_of_univ_cats}
+           {C₀' : bicat_of_inv2cells bicat_of_univ_cats}
+           (F₁ F₂ : C₀ --> bicat_of_univ_cats_has_cores_map C₀')
+           (α : # (groupoidal_to_inv2cells bicat_of_univ_cats) F₁
+                · bicat_of_univ_cats_has_cores_counit C₀'
+                ==>
+                # (groupoidal_to_inv2cells bicat_of_univ_cats) F₂
+                · bicat_of_univ_cats_has_cores_counit C₀')
+  : pr11 F₁ ⟹ pr11 F₂.
+Proof.
+  use (@nat_trans_to_core
+         (pr11 C₀')
+         (pr11 C₀ ,, groupoidal_obj_is_groupoid _ (pr2 C₀))).
+  use make_nat_iso.
+  - exact (pr1 α).
+  - apply is_invertible_2cell_to_is_nat_iso.
+    exact (pr2 α).
+Defined.
+
+Definition bicat_of_univ_cats_has_cores_coreflection
+  : right_universal_arrow (groupoidal_to_inv2cells bicat_of_univ_cats).
+Proof.
+  use make_right_universal_arrow'.
+  - apply is_univalent_2_1_bicat_of_groupoidal.
+    exact univalent_cat_is_univalent_2_1.
+  - exact bicat_of_univ_cats_has_cores_map.
+  - exact bicat_of_univ_cats_has_cores_counit.
+  - intros C₀ C₀' F₁ F₂ α.
+    simple refine ((_ ,, tt) ,, _).
+    + exact (bicat_of_univ_cats_has_cores_nat_trans _ _ α).
+    + abstract
+        (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro ;
+         apply idpath).
+  - abstract
+      (intros C₀ C₀' F₁ F₂ α β₁ β₂ p q ;
+       use subtypePath ; [ intro ; apply isapropunit | ] ;
+       use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ;
+       use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+       refine (nat_trans_eq_pointwise (maponpaths pr1 p) x @ !_) ;
+       exact (nat_trans_eq_pointwise (maponpaths pr1 q) x)).
+  - intros C₀ C₀' F.
+    simple refine ((_ ,, tt) ,, _).
+    + exact (@factor_through_core
+               (pr11 C₀')
+               (pr11 C₀ ,, groupoidal_obj_is_groupoid _ (pr2 C₀))
+               (pr1 F)).
+    + cbn.
+      use make_invertible_2cell.
+      * simple refine (_ ,, _) ; cbn.
+        ** exact (@factor_through_core_commute
+                    (pr11 C₀')
+                    (pr11 C₀ ,, groupoidal_obj_is_groupoid _ (pr2 C₀))
+                    (pr1 F)).
+        ** apply is_nat_iso_to_is_invertible_2cell.
+           intro x.
+           apply identity_is_iso.
+      * apply is_invertible_2cell_bicat_of_inv2cells.
+Defined.
+
+Definition bicat_of_univ_cats_has_cores
+  : has_cores bicat_of_univ_cats.
+Proof.
+  simple refine (_ ,, _).
+  - exact bicat_of_univ_cats_has_cores_coreflection.
+  - intro C.
+    split ; cbn.
+    + apply essentially_surjective_is_eso.
+      apply functor_core_eso.
+    + apply cat_pseudmonic_is_pseudomonic_1cell.
+      apply functor_core_pseudomonic.
 Defined.

@@ -3,7 +3,11 @@
  Limits in op2 bicat
 
  Contents:
- 1. Pullbacks
+ 1. Final object
+ 2. Products
+ 3. Mirroring pullbacks
+ 4. Pullbacks in op2 bicat
+ 5. Comma objects
 
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -13,12 +17,88 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
+Require Import UniMath.Bicategories.Limits.Final.
+Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.CommaObjects.
 
 Local Open Scope cat.
 
 (**
- 1. Pullbacks
+ 1. Final object
+ *)
+Definition op2_bicat_bifinal
+           {B : bicat}
+           {x : B}
+           (Hx : is_bifinal x)
+  : @is_bifinal (op2_bicat B) x.
+Proof.
+  use make_is_bifinal.
+  - exact (λ y, is_bifinal_1cell_property Hx y).
+  - exact (λ y f g, is_bifinal_2cell_property Hx y g f).
+  - exact (λ y f g α β, is_bifinal_eq_property Hx y g f α β).
+Defined.
+
+(**
+ 2. Products
+ *)
+Section ProductOp2.
+  Context {B : bicat}
+          {a x y : B}
+          (p₁ : a --> x)
+          (p₂ : a --> y)
+          (cone := make_binprod_cone a p₁ p₂)
+          (ump : has_binprod_ump cone).
+
+  Definition op2_binprod_cone
+    : @binprod_cone (op2_bicat B) x y
+    := make_binprod_cone a p₁ p₂.
+
+  Definition has_binprod_ump_1_op_cell
+             (q : @binprod_cone (op2_bicat B) x y)
+    : binprod_1cell q op2_binprod_cone.
+  Proof.
+    pose (k₁ := binprod_cone_pr1 q).
+    pose (k₂ := binprod_cone_pr2 q).
+    use make_binprod_1cell.
+    - exact (binprod_ump_1cell ump k₁ k₂).
+    - apply weq_op2_invertible_2cell.
+      exact (inv_of_invertible_2cell (binprod_ump_1cell_pr1 ump _ k₁ k₂)).
+    - apply weq_op2_invertible_2cell.
+      exact (inv_of_invertible_2cell (binprod_ump_1cell_pr2 ump _ k₁ k₂)).
+  Defined.
+
+  Definition has_binprod_ump_2_op_cell
+    : binprod_ump_2 op2_binprod_cone.
+  Proof.
+    intros q φ ψ α β.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         exact (binprod_ump_2cell_unique_alt
+                  ump
+                  _ _
+                  (pr12 φ₁ @ !(pr12 φ₂))
+                  (pr22 φ₁ @ !(pr22 φ₂)))).
+    - simple refine (_ ,, _ ,, _).
+      + exact (binprod_ump_2cell ump α β).
+      + exact (binprod_ump_2cell_pr1 ump α β).
+      + exact (binprod_ump_2cell_pr2 ump α β).
+  Defined.
+
+  Definition op2_bicat_has_binprod_ump
+    : has_binprod_ump op2_binprod_cone.
+  Proof.
+    split.
+    - exact has_binprod_ump_1_op_cell.
+    - exact has_binprod_ump_2_op_cell.
+  Defined.
+End ProductOp2.
+
+(**
+ 3. Mirroring pullbacks
  *)
 Definition mirror_cone
            {B : bicat}
@@ -112,7 +192,7 @@ Section Mirroring.
 End Mirroring.
 
 (**
- 11. Pullbacks in op2
+ 4. Pullbacks in op2 bicat
  *)
 Definition to_op2_pb_cone
            {B : bicat}
@@ -239,3 +319,85 @@ Section ToOp2Pullback.
     - exact to_op2_pb_ump_2.
   Defined.
 End ToOp2Pullback.
+
+(**
+ 5. Comma objects
+ *)
+Section Op2Comma.
+  Context {B : bicat}
+          {c x y z : B}
+          {f : x --> z}
+          {g : y --> z}
+          {p₁ : c --> x}
+          {p₂ : c --> y}
+          {γ : p₁ · f ==> p₂ · g}
+          (cone := make_comma_cone c p₁ p₂ γ)
+          (comma_sqr : has_comma_ump cone).
+
+  Definition op2_comma_cone
+    : @comma_cone (op2_bicat B) _ _ _ g f.
+  Proof.
+    use make_comma_cone.
+    - exact c.
+    - exact p₂.
+    - exact p₁.
+    - exact γ.
+  Defined.
+
+  Definition op2_comma_has_comma_ump_1
+    : comma_ump_1 op2_comma_cone.
+  Proof.
+    intro q.
+    pose (q' := make_comma_cone
+                  _
+                  (comma_cone_pr2 q : B ⟦ _ , _ ⟧)
+                  (comma_cone_pr1 q)
+                  (comma_cone_cell q)).
+    use make_comma_1cell ; cbn.
+    - exact (comma_ump_mor comma_sqr q').
+    - apply weq_op2_invertible_2cell.
+      exact (inv_of_invertible_2cell (comma_ump_mor_pr2 comma_sqr q')).
+    - apply weq_op2_invertible_2cell.
+      exact (inv_of_invertible_2cell (comma_ump_mor_pr1 comma_sqr q')).
+    - abstract
+        (refine (comma_ump_mor_cell comma_sqr q' @ _) ; cbn ;
+         rewrite !vassocl ;
+         apply idpath).
+  Defined.
+
+  Definition op2_comma_has_comma_ump_2
+    : comma_ump_2 op2_comma_cone.
+  Proof.
+    intros q φ ψ α β p.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros ζ₁ ζ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         refine (comma_ump_eq
+                   comma_sqr
+                   _ _
+                   β α
+                   _ _ _
+                   (pr22 ζ₁) (pr12 ζ₁) (pr22 ζ₂) (pr12 ζ₂)) ;
+         cbn ; cbn in p ;
+         rewrite !vassocl ;
+         exact (!p)).
+    - simple refine (_ ,, _ ,, _).
+      + use (comma_ump_cell comma_sqr _ _ β α).
+        abstract
+          (cbn ; cbn in p ;
+           rewrite !vassocl ;
+           exact (!p)).
+      + abstract (apply (comma_ump_cell_pr2 comma_sqr)).
+      + abstract (apply (comma_ump_cell_pr1 comma_sqr)).
+  Defined.
+
+  Definition op2_comma_has_comma_ump
+    : has_comma_ump op2_comma_cone.
+  Proof.
+    split.
+    - exact op2_comma_has_comma_ump_1.
+    - exact op2_comma_has_comma_ump_2.
+  Defined.
+End Op2Comma.
