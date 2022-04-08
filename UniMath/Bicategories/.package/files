@@ -165,6 +165,7 @@ PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
+PseudoFunctors/Examples/CompositionPseudoFunctor.v
 PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v

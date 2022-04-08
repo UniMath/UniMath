@@ -507,6 +507,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/UniversalArrow.v](Bicategories/PseudoFunctors/UniversalArrow.v)
    - [PseudoFunctors/Examples/ConstProduct.v](Bicategories/PseudoFunctors/Examples/ConstProduct.v)
    - [PseudoFunctors/Examples/CurryingInBicatOfCats.v](Bicategories/PseudoFunctors/Examples/CurryingInBicatOfCats.v)
+   - [PseudoFunctors/Examples/CompositionPseudoFunctor.v](Bicategories/PseudoFunctors/Examples/CompositionPseudoFunctor.v)
    - [PseudoFunctors/PseudoFunctorLimits.v](Bicategories/PseudoFunctors/PseudoFunctorLimits.v)
    - [DisplayedBicats/DispBiadjunction.v](Bicategories/DisplayedBicats/DispBiadjunction.v)
    - [PseudoFunctors/Examples/PathGroupoid.v](Bicategories/PseudoFunctors/Examples/PathGroupoid.v)
