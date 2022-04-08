@@ -31,6 +31,7 @@ Subcategory/Full.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v
+HomotopicalCategory.v
 Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
