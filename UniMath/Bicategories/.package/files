@@ -63,7 +63,6 @@ DisplayedBicats/Examples/BicatOfInvertibles.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
-MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
@@ -73,6 +72,7 @@ MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
 Core/Examples/Groupoids.v
