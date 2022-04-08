@@ -859,7 +859,6 @@ Section Main.
 
     Definition montrafotargetbicat_disp_tensor: disp_tensor montrafotargetbicat_disp Mon_V.
     Proof.
-      red.
       use make_disp_bifunctor.
       - use make_disp_bifunctor_data.
         + intros v w η π.
