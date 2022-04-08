@@ -15,8 +15,8 @@ SubstitutionSystems
 
 Contents :
 
--    Definition of precategory of pointed endofunctors
--    Forgetful functor to precategory of endofunctors
+-    Definition of category of pointed endofunctors
+-    Forgetful functor to category of endofunctors
 
 
 ************************************************************)
@@ -32,8 +32,7 @@ Local Open Scope cat.
 
 Section def_ptd.
 
-Variable C : precategory.
-Hypothesis hs : has_homsets C.
+Context (C : category).
 
 Definition ptd_obj : UU := ∑ F : functor C C, functor_identity C ⟹ F.
 
@@ -54,7 +53,7 @@ Proof.
   apply subtypeInjectivity.
   intro x.
   apply impred; intros ?.
-  apply hs.
+  apply homset_property.
 Defined.
 
 Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G)
@@ -100,24 +99,36 @@ Lemma is_precategory_ptd : is_precategory ptd_precategory_data.
 Proof.
   repeat split; simpl; intros.
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (@id_left (functor_precategory C C hs)).
+    apply (@id_left (functor_category C C)).
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (@id_right (functor_precategory _ _ hs )).
+    apply (@id_right (functor_category _ _)).
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (@assoc (functor_precategory _ _ hs)).
+    apply (@assoc (functor_category _ _)).
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (@assoc' (functor_precategory _ _ hs)).
+    apply (@assoc' (functor_category _ _)).
 Qed.
 
 Definition precategory_Ptd : precategory := tpair _ _ is_precategory_ptd.
 
-Definition id_Ptd : precategory_Ptd.
+Lemma has_homsets_precategory_Ptd: has_homsets precategory_Ptd.
+Proof.
+  red.
+  intros F G.
+  red.
+  intros a b.
+  apply (isofhlevelweqb 1 (eq_ptd_mor a b)).
+  apply (homset_property (functor_category C C)).
+Qed.
+
+Definition category_Ptd : category := precategory_Ptd ,, has_homsets_precategory_Ptd.
+
+Definition id_Ptd : category_Ptd.
 Proof.
   exists (functor_identity _).
   exact (nat_trans_id _ ).
 Defined.
 
-Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F --> G)
+Lemma eq_ptd_mor_cat {F G : category_Ptd} (a b : F --> G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
   use tpair.
@@ -128,7 +139,7 @@ Defined.
 
 (** Forgetful functor to functor category *)
 
-Definition ptd_forget_data : functor_data precategory_Ptd [C, C, hs].
+Definition ptd_forget_data : functor_data category_Ptd [C, C].
 Proof.
   exists (λ a, pr1 a).
   exact (λ a b f, pr1 f).
@@ -139,6 +150,8 @@ Proof.
   split; intros; red; intros; apply idpath.
 Qed.
 
-Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.
+Definition functor_ptd_forget : functor category_Ptd [C, C] := tpair _ _ is_functor_ptd_forget.
 
 End def_ptd.
+
+Arguments eq_ptd_mor { _ } _ { _ _ } .

@@ -112,7 +112,7 @@ Proof.
     specialize (autreq v v' ed).
     rewrite  <- (pathsinv0inv0 (eqv v)) in autreq.
     apply pathsinv0 in autreq.
-    apply transportf_transpose in autreq.
+    apply transportf_transpose_right in autreq.
     unfold dmor in autreq.
     rewrite autreq.
     rewrite pathsinv0inv0.
@@ -155,9 +155,9 @@ Proof.
     apply pathsinv0;
     unfold transportb;
     rewrite pathsinv0inv0;
-    apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, dob d' v' ⟧)));
-    assert (eq_d2':=transportf_transpose (P:=(precategory_morphisms (dob d' v)))
-                                         _ _ _ (! eq_d2));
+    apply (transportf_transpose_right (P:=(λ obj : C, C ⟦ obj, dob d' v' ⟧)));
+    assert (eq_d2':=transportf_transpose_right
+                      (P:=(precategory_morphisms (dob d' v))) (! eq_d2));
     rewrite eq_d2';
     unfold transportb; rewrite pathsinv0inv0;
     apply (transport_swap (λ a b, C⟦b,a⟧))).
@@ -218,7 +218,7 @@ Proof.
         apply transport_compose|];
       rewrite transport_target_postcompose;
       apply cancel_precomposition;
-      apply transportf_transpose;
+      apply transportf_transpose_right;
       etrans;[
         apply (transport_swap (λ a b, C⟦a,b⟧))|];
       etrans;[
@@ -271,7 +271,7 @@ Proof.
     apply (path_to_ctr _ _ islimcone).
     intro v; specialize (hy v).
     cbn.
-    apply transportf_transpose.
+    apply transportf_transpose_right.
     rewrite <- hy.
     etrans.
     unfold transportb.
@@ -327,7 +327,7 @@ Proof.
     revert hy.
     cbn.
     intro hy.
-    apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, c' ⟧))).
+    apply (transportf_transpose_right (P:=(λ obj : C, C ⟦ obj, c' ⟧))).
     etrans.
     apply transport_source_precompose.
     unfold transportb.

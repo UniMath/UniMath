@@ -3,7 +3,10 @@
 (** * Group actions *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.OrderedSets.
@@ -48,6 +51,7 @@ Coercion ac_set : Action >-> hSet.
 Definition ac_type {G:gr} (X:Action G) := pr1hSet (ac_set X).
 Definition ac_str {G:gr} (X:Action G) := pr2 X : ActionStructure G (ac_set X).
 Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
+Declare Scope action_scope.
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Local Open Scope action_scope.
@@ -57,7 +61,7 @@ Definition right_mult {G:gr} {X:Action G} (x:X) := λ g, g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := λ x:X, g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) : hProp :=
-  (∀ g x, f (g*x) = g*(f x))%set.
+  (∀ g x, f (g*x) = g*(f x))%logic.
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
@@ -79,7 +83,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
 Proof.
   revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
-  simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
+  simpl in p. destruct p; simpl. unfold transportf; simpl.
   simple refine (make_weq _ _).
   { intros p g x. simpl in x. simpl.
     exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }

@@ -64,17 +64,24 @@ Variable (vars : hSet).
       + (Rec × Rec)    (* -- arity 2, → (implies) *)
    >>
  *)
+
+Definition PL_functor : omega_cocont_functor HSET HSET :=
+  (omega_cocont_constant_functor (vars : HSET)) + Id + (Id * Id) + (Id * Id) + (Id * Id).
+
+(*
 Definition PL_functor : omega_cocont_functor HSET HSET :=
   ' vars + Id + (Id * Id) + (Id * Id) + (Id * Id).
+ *)
 
+(** The following three statements are crucial for performance. *)
 Definition PL_functor' : functor HSET HSET := pr1 PL_functor.
-
 Let is_omega_cocont_PL_functor' : is_omega_cocont PL_functor' := pr2 PL_functor.
+Opaque is_omega_cocont_PL_functor'.
 
 Lemma PL_functor_initial :
-  Initial (precategory_FunctorAlg PL_functor' has_homsets_HSET).
+  Initial (category_FunctorAlg PL_functor').
 Proof.
-  apply (colimAlgInitial _ InitialHSET (pr2 PL_functor) (ColimCoconeHSET _ _)).
+  apply (colimAlgInitial InitialHSET is_omega_cocont_PL_functor' (ColimCoconeHSET _ _)).
 Defined.
 
 Let PL_alg : algebra_ob PL_functor' := InitialObject PL_functor_initial.
@@ -112,7 +119,7 @@ Definition PL_or_fun (x : PL_type) (y : PL_type) : PL_type :=
 
 Definition PL_impl : HSET⟦PL ⊗ PL, PL⟧.
   refine (_ · alg_map _ PL_alg).
-  intro s; do 1 apply inl; apply inr; exact s.
+  intro s; apply inr; exact s.
 Defined.
 
 Definition PL_impl_fun (x : PL_type) (y : PL_type) : PL_type :=
@@ -121,6 +128,7 @@ Definition PL_impl_fun (x : PL_type) (y : PL_type) : PL_type :=
 Definition PL_iff_fun (x : PL_type) (y : PL_type) : PL_type :=
   PL_and_fun (PL_impl (make_dirprod x y)) (PL_impl (make_dirprod y x)).
 
+Declare Scope PL.
 Delimit Scope PL with PL.
 Notation "¬" := (PL_not) : PL.
 Infix "∧" := (PL_and) : PL.
@@ -151,8 +159,6 @@ Proof.
   apply (InitialArrow PL_functor_initial (PL_mk_algebra X vs not and or impl)).
 Defined.
 
-Opaque is_omega_cocont_PL_functor'.
-
 Definition PL_fold {X : hSet} (vs : vars -> X)
            (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
   PL -> X := mor_from_algebra_mor _ _ _ (PL_fold_alg_mor vs not and or impl).
@@ -164,6 +170,7 @@ Section FoldComputationLemmas.
 
   Let fold := PL_fold vs not and or impl.
   Let mor := PL_fold_alg_mor vs not and or impl.
+  Let comm := algebra_mor_commutes _ _ _ mor.
 
   Lemma PL_fold_var : ∏ z, fold (PL_var z) = vs z.
   Proof.
@@ -173,16 +180,41 @@ Section FoldComputationLemmas.
   Lemma PL_fold_not : ∏ p, fold (PL_not p) = not (fold p).
   Proof.
     intro.
-    unfold fold.
-    pose (comm := algebra_mor_commutes _ _ _ mor).
     do 3 apply (maponpaths (λ x, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
     apply (maponpaths (λ x, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
     apply eqtohomot in comm.
     specialize (comm p).
-    (* this takes forever:  *)
-    (* apply comm. *)
-    (* exact comm. *)
-  Abort.
+    exact comm.
+  Qed.
+
+  Lemma PL_fold_and : ∏ p q, fold (PL_and (make_dirprod p q)) = and (fold p) (fold q).
+  Proof.
+    intros p q.
+    do 2 apply (maponpaths (λ x, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply (maponpaths (λ x, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply eqtohomot in comm.
+    specialize (comm (make_dirprod p q)).
+    exact comm.
+  Qed.
+
+  Lemma PL_fold_or : ∏ p q, fold (PL_or (make_dirprod p q)) = or (fold p) (fold q).
+  Proof.
+    intros p q.
+    apply (maponpaths (λ x, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply (maponpaths (λ x, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply eqtohomot in comm.
+    specialize (comm (make_dirprod p q)).
+    exact comm.
+  Qed.
+
+  Lemma PL_fold_impl : ∏ p q, fold (PL_impl (make_dirprod p q)) = impl (fold p) (fold q).
+  Proof.
+    intros p q.
+    apply (maponpaths (λ x, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply eqtohomot in comm.
+    specialize (comm (make_dirprod p q)).
+    apply comm.
+  Qed.
 End FoldComputationLemmas.
 
 
@@ -219,8 +251,6 @@ Proof.
   - abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet ]).
 Defined.
 
-(** This line is crucial for isalghom_pr1foldr to typecheck *)
-(* Opaque is_omega_cocont_listFunctor. *)
 Opaque is_omega_cocont_PL_functor'.
 
 Lemma is_algebra_morphism_pr1_PL_fold :
@@ -231,7 +261,7 @@ apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
   + induction x2 as [x4 | x5].
     * induction x4 as [x6 | x7].
       -- cbn in x6.
-         (** Also takes forever: *)
+         (* This line takes forever, more performance work to be done. *)
          (* apply (maponpaths pr1 (@PL_fold_var P'HSET P'_vars P'_not P'_and P'_or P'_impl x6)). *)
 Abort.
 

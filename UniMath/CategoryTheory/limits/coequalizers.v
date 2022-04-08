@@ -170,8 +170,7 @@ Section def_coequalizers.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦E, E⟧ => _ · φ' = _)) φ H).
     assert (H2 : identity_is_CoequalizerOut E = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (isCoequalizer_Coequalizer E).
       apply CoequalizerEqAr.
     - apply (base_paths _ _ H2).

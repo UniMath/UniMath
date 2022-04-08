@@ -29,9 +29,9 @@ Lattice in an abelian monoid:
 Truncated minus is a lattice:
 - a function minus such that: ∏ (x y : X), (minus x y) + y = max x y *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids.
-
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Groups.
 
 (** ** Strong Order *)
@@ -248,12 +248,15 @@ Proof.
   apply Lmax_le_l.
 Qed.
 Lemma Lmax_le_case :
-  isrdistr (Lmax is) (Lmin is)
-  → ∏ x y z : X, Lle is x z → Lle is y z → Lle is (Lmax is x y) z.
+  ∏ x y z : X, Lle is x z → Lle is y z → Lle is (Lmax is x y) z.
 Proof.
-  intros H x y z <- <-.
-  rewrite <- H.
-  apply Lmin_le_r.
+  intros x y z <- <-.
+  set (w := Lmax _ (Lmin _ x z) (Lmin _ y z)).
+  assert (c : z = (Lmax is w z)).
+  - unfold w.
+    now rewrite isassoc_Lmax, (iscomm_Lmax _ (Lmin _ y z) _),
+    (iscomm_Lmin _ y z), Lmax_absorb, iscomm_Lmax, iscomm_Lmin, Lmax_absorb.
+  - rewrite c. use (Lmin_absorb is).
 Qed.
 
 Lemma Lmin_le_eq_l :
@@ -342,8 +345,7 @@ Definition Lmax_ge_r :
   ∏ (x y : X), Lge is (Lmax is x y) y :=
   Lmax_le_r is.
 Definition Lmax_ge_case :
-  isrdistr (Lmax is) (Lmin is)
-  → ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
+  ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
   Lmax_le_case is.
 
 Definition Lmin_ge_eq_l :
@@ -771,7 +773,6 @@ Proof.
   apply (op_le_r' _ is1 is3 y).
   rewrite istruncminus_ex.
   apply Lmax_le_case.
-  - apply is5.
   - apply istrans_Lle with (0 + x).
     + rewrite (lunax _ x).
       apply isrefl_Lle.

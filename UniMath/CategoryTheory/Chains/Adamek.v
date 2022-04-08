@@ -40,7 +40,7 @@ Commentationes Mathematicae Universitatis Carolinae 015.4 (1974): 589-602.
 *)
 Section colim_initial_algebra.
 
-Context {C : precategory} (hsC : has_homsets C) (InitC : Initial C).
+Context {C : category} (InitC : Initial C).
 
 (* It is important that these are not packaged together as it is
    sometimes necessary to control how opaque HF is. See
@@ -86,7 +86,7 @@ use tpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (intros p; apply subtypePath;
-             [ intro f; apply impred; intro; apply hsC
+             [ intro f; apply impred; intro; apply homset_property
              | apply colimArrowUnique; intro n;
                destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
@@ -163,7 +163,7 @@ Proof.
 apply colimArrow.
 use make_cocone.
 - apply cocone_over_alg.
-- apply isCoconeOverAlg.
+- red; apply isCoconeOverAlg.
 Defined.
 
 Lemma ad_is_algebra_mor : is_algebra_mor _ α_alg Aa ad.
@@ -182,10 +182,10 @@ Local Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor
 
 End algebra_mor.
 
-Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F hsC)
+Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F)
         (Fa' : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
 Proof.
-apply (algebra_mor_eq _ hsC); simpl.
+apply algebra_mor_eq; simpl.
 apply colimArrowUnique; simpl; intro n.
 destruct Fa' as [f hf]; simpl.
 unfold is_algebra_mor in hf; simpl in hf.
@@ -194,19 +194,19 @@ induction n as [|n IHn]; simpl.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
+  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ α).
   rewrite unfold_inv_from_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
 
-Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
+Lemma colimAlgIsInitial : isInitial (category_FunctorAlg F) α_alg.
 Proof.
 apply make_isInitial; intros Aa.
 exists (ad_mor Aa).
 apply colimAlgIsInitial_subproof.
 Defined.
 
-Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
+Definition colimAlgInitial : Initial (category_FunctorAlg F) :=
   make_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.

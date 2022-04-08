@@ -23,7 +23,7 @@ Local Open Scope cat.
 (** * Definition of zero using limits and colimits *)
 Section def_zero.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   (** An object c is zero if it initial and terminal. *)
   Definition isZero (c : C) : UU := (isInitial C c) × (isTerminal C c).
@@ -190,7 +190,7 @@ End def_zero.
 (** * Zero coincides with the direct definition *)
 Section zero_coincides.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   (** ** isZero *)
 

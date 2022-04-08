@@ -2,6 +2,7 @@
 
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Foundations.NaturalNumbers.
 
@@ -142,6 +143,32 @@ Proof.
   now apply sumofmaps ; intros ->.
 Qed.
 
+Local Open Scope logic.
+Local Open Scope subtype.
+
+Lemma union_not_contained_in {X : UU} (U : (X -> hProp) -> hProp) (S : X -> hProp) :
+  union U ⊈ S ⇔ (∃ T, U T ∧ T ⊈ S).
+Proof.
+  unfold subtype_notContainedIn, union.
+  use make_dirprod; intro H.
+  - use (hinhuniv _ H); intro Hx.
+    induction Hx as [x Hx]. induction Hx as [Hx HSx].
+    use (hinhfun _ Hx); intro HT.
+    induction HT as [T HT].
+    exists T. use make_dirprod.
+    + exact (dirprod_pr1 HT).
+    + apply hinhpr. exists x.
+      exact (make_dirprod (dirprod_pr2 HT) HSx).
+  - use (hinhuniv _ H); intro HT.
+    induction HT as [T HT].
+    use (hinhfun _ (dirprod_pr2 HT)); intro Hx.
+    induction Hx as [x Hx].
+    exists x. use make_dirprod.
+    + apply hinhpr. exists T.
+      exact (make_dirprod (dirprod_pr1 HT) (dirprod_pr1 Hx)).
+    + exact (dirprod_pr2 Hx).
+Defined.
+
 (** finite intersection *)
 
 Definition finite_intersection {X : UU} (P : Sequence (X → hProp)) : X → hProp.
@@ -235,7 +262,7 @@ Proof.
         intros m Hm.
       induction (natlehchoice _ _ (natlthsntoleh _ _ Hm)) as [Hm' | ->].
       generalize (pr2 Hx (m,,Hm')).
-      unfold funcomp, dni_lastelement ; simpl.
+      unfold dni_lastelement ; simpl.
       assert (H : Hm = natlthtolths m n Hm' ).
       { apply (pr2 (natlth m (S n))). }
       now rewrite H.
@@ -258,7 +285,7 @@ Proof.
   - induction L as [n L] ; simpl.
     apply maponpaths.
     apply funextfun ; intro m.
-    unfold funcomp.
+    simpl.
     rewrite <- replace_dni_last.
     apply append_vec_compute_1.
   - reflexivity.
