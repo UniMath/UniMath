@@ -26,15 +26,11 @@ Context {C: category} (M : monoidal C).
  2-cells are given by the morphisms of the original monoidal category. *)
 Definition one_cells_data_from_monoidal : precategory_data.
 Proof.
-  red.
   use tpair.
   - exact (unit ,, (λ _ _, ob C)).
-  - cbn.
-    red.
-    cbn.
-    split.
-    + intros _. exact I_{ M }.
-    + intros _ _ _. exact (λ a b, a ⊗_{M} b).
+  - split.
+    + intros dummy. exact I_{ M }.
+    + intros dummy0 dummy1 dummy2. exact (λ a b, a ⊗_{M} b).
 Defined.
 
 Definition two_cells_from_monoidal : prebicat_2cell_struct (one_cells_data_from_monoidal)

@@ -30,7 +30,7 @@ Section Endofunctors_as_monoidal_category.
 
   Context (C : category).
 
-  Definition cat_of_endofunctors := category_from_bicat_and_ob(C:=bicat_of_cats) C.
+  Definition cat_of_endofunctors: category := category_from_bicat_and_ob(C:=bicat_of_cats) C.
 
   Definition monoidal_of_endofunctors: monoidal cat_of_endofunctors:= monoidal_from_bicat_and_ob(C:=bicat_of_cats) C.
   (** we need this high-level view in order to be able to instantiate [montrafotargetbicat_disp_monoidal] in [ActionBasedStrongFunctorsWhiskeredMonoidal] *)
