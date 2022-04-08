@@ -35,22 +35,22 @@ Section DisplayedMonoidalCategories.
 
   Definition disp_leftunitor_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
     ∏ (x : C) (xx : D x), i ⊗⊗_{DT} xx -->[lu^{M}_{x}] xx.
-
+(* currently incompatible
   Lemma dispnattransdata_from_displeftunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) :
     disp_nat_trans_data (nattransdata_from_leftunitordata lu_{M}) (leftwhiskering_dispfunctor DT (disp_bifunctor_leftid DT) (disp_bifunctor_leftcomp DT) I_{M} i) (disp_functor_identity D).
   Proof.
     exact (λ x xx, dlu x xx).
   Defined.
-
+*)
   Definition disp_rightunitor_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
     ∏ (x : C) (xx : D x), xx ⊗⊗_{DT} i -->[ru^{M}_{x}] xx.
-
+(*  currently incompatible
   Lemma dispnattransdata_from_rightunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dru : disp_rightunitor_data DT i) :
     disp_nat_trans_data (nattransdata_from_rightunitordata ru_{M}) (rightwhiskering_dispfunctor DT (disp_bifunctor_rightid DT) (disp_bifunctor_rightcomp DT) I_{M} i) (disp_functor_identity D).
   Proof.
     exact (λ x xx, dru x xx).
   Defined.
-
+*)
   Definition disp_monoidal_data {C : category} (D : disp_cat C) (M : monoidal C) : UU :=
     ∑ DT : disp_tensor D M, ∑ i : D I_{M},
           (disp_leftunitor_data DT i) × (disp_rightunitor_data DT i) × (disp_associator_data DT).
