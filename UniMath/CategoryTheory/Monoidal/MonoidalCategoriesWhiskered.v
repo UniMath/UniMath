@@ -187,7 +187,7 @@ Qed.
 Lemma swap_nat_along_zisos {C : category} {x1 x2 y1 y2 : C}
       (p1 : z_iso x1 y1) (p2 : z_iso x2 y2) :
   ∏ (f: C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
-    (pr1 p1) · g = f · (pr1 p2) -> g · (inv_from_z_iso p2) = (inv_from_z_iso p1) · f.
+    p1 · g = f · p2 -> g · (inv_from_z_iso p2) = (inv_from_z_iso p1) · f.
 Proof.
   intros f g p.
   apply pathsinv0.
