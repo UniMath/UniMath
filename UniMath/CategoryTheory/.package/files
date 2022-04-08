@@ -220,6 +220,11 @@ Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
 
+DisplayedCats/MoreFibrations/Prefibrations.v
+DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
+DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
+DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
+
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
