@@ -483,3 +483,177 @@ Definition bincoprod_of
            (B : bicat_with_bincoprod)
   : has_bincoprod B
   := pr2 B.
+
+(**
+ Some useful functions
+ *)
+Section StandardFunctions.
+  Context (B : bicat_with_bincoprod).
+
+  Definition bincoprod
+             (b₁ b₂ : B)
+    : B
+    := pr1 (bincoprod_of B b₁ b₂).
+
+  Local Notation "b₁ ⊕ b₂" := (bincoprod b₁ b₂).
+
+  Definition bincoprod_inl
+             (b₁ b₂ : B)
+    : b₁ --> b₁ ⊕ b₂
+    := bincoprod_cocone_inl (pr1 (bincoprod_of B b₁ b₂)).
+
+  Definition bincoprod_inr
+             (b₁ b₂ : B)
+    : b₂ --> b₁ ⊕ b₂
+    := bincoprod_cocone_inr (pr1 (bincoprod_of B b₁ b₂)).
+
+  Local Notation "'ι₁'" := (bincoprod_inl _ _).
+  Local Notation "'ι₂'" := (bincoprod_inr _ _).
+
+  Definition coprod_1cell
+             {b₁ b₂ c : B}
+             (f : b₁ --> c)
+             (g : b₂ --> c)
+    : b₁ ⊕ b₂ --> c
+    := bincoprod_ump_1cell (pr2 (bincoprod_of B b₁ b₂)) f g.
+
+  Local Notation "[ f , g ]" := (coprod_1cell f g).
+
+  Definition coprod_1cell_inl
+             {b₁ b₂ c : B}
+             (f : b₁ --> c)
+             (g : b₂ --> c)
+    : invertible_2cell (ι₁ · [ f , g ]) f
+    := bincoprod_ump_1cell_inl (pr2 (bincoprod_of B b₁ b₂)) _ f g.
+
+  Definition coprod_1cell_inr
+             {b₁ b₂ c : B}
+             (f : b₁ --> c)
+             (g : b₂ --> c)
+    : invertible_2cell (ι₂ · [ f , g ]) g
+    := bincoprod_ump_1cell_inr (pr2 (bincoprod_of B b₁ b₂)) _ f g.
+
+  Definition sum_1cell
+             {a₁ a₂ b₁ b₂ : B}
+             (f : a₁ --> b₁)
+             (g : a₂ --> b₂)
+    : a₁ ⊕ a₂ --> b₁ ⊕ b₂
+    := [ f · ι₁ , g · ι₂ ].
+
+  Local Notation "f '⊕₁' g" := (sum_1cell f g) (at level 34, left associativity).
+
+  Definition sum_1cell_inl
+             {a₁ a₂ b₁ b₂ : B}
+             (f : a₁ --> b₁)
+             (g : a₂ --> b₂)
+    : invertible_2cell (ι₁ · f ⊕₁ g) (f · ι₁)
+    := coprod_1cell_inl (f · ι₁) (g · ι₂).
+
+  Definition sum_1cell_inr
+             {a₁ a₂ b₁ b₂ : B}
+             (f : a₁ --> b₁)
+             (g : a₂ --> b₂)
+    : invertible_2cell (ι₂ · f ⊕₁ g) (g · ι₂)
+    := coprod_1cell_inr (f · ι₁) (g · ι₂).
+
+  Definition coprod_2cell
+             {b₁ b₂ c : B}
+             {f₁ f₂ : b₁ --> c}
+             {g₁ g₂ : b₂ --> c}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : [ f₁ , g₁ ] ==> [ f₂ , g₂ ].
+  Proof.
+    use (bincoprod_ump_2cell (pr2 (bincoprod_of B b₁ b₂))).
+    - exact (coprod_1cell_inl f₁ g₁ • α • (coprod_1cell_inl f₂ g₂)^-1).
+    - exact (coprod_1cell_inr f₁ g₁ • β • (coprod_1cell_inr f₂ g₂)^-1).
+  Defined.
+
+  Local Notation "[[ α , β ]]" := (coprod_2cell α β).
+
+  Definition coprod_2cell_is_invertible
+             {b₁ b₂ c : B}
+             {f₁ f₂ : b₁ --> c}
+             {g₁ g₂ : b₂ --> c}
+             {α : f₁ ==> f₂}
+             {β : g₁ ==> g₂}
+             (Hα : is_invertible_2cell α)
+             (Hβ : is_invertible_2cell β)
+    : is_invertible_2cell [[ α , β ]].
+  Proof.
+    use bincoprod_ump_2cell_invertible.
+    - is_iso.
+      apply property_from_invertible_2cell.
+    - is_iso.
+      apply property_from_invertible_2cell.
+  Defined.
+
+  Definition coprod_2cell_inl
+             {b₁ b₂ c : B}
+             {f₁ f₂ : b₁ --> c}
+             {g₁ g₂ : b₂ --> c}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : ι₁ ◃ [[ α , β ]]
+      =
+      coprod_1cell_inl f₁ g₁ • α • (coprod_1cell_inl f₂ g₂)^-1
+    := bincoprod_ump_2cell_inl _ _ _.
+
+  Definition coprod_2cell_inr
+             {b₁ b₂ c : B}
+             {f₁ f₂ : b₁ --> c}
+             {g₁ g₂ : b₂ --> c}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : ι₂ ◃ [[ α , β ]]
+      =
+      coprod_1cell_inr f₁ g₁ • β • (coprod_1cell_inr f₂ g₂)^-1
+    := bincoprod_ump_2cell_inr _ _ _.
+
+  Definition sum_2cell
+             {a₁ a₂ b₁ b₂ : B}
+             {f₁ f₂ : a₁ --> b₁}
+             {g₁ g₂ : a₂ --> b₂}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : f₁ ⊕₁ g₁ ==> f₂ ⊕₁ g₂
+    := [[ α ▹ ι₁ , β ▹ ι₂ ]].
+
+  Local Notation "α '⊕₂' β" := (sum_2cell α β) (at level 34, left associativity).
+
+  Definition sum_2cell_inl
+             {a₁ a₂ b₁ b₂ : B}
+             {f₁ f₂ : a₁ --> b₁}
+             {g₁ g₂ : a₂ --> b₂}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : ι₁ ◃ (α ⊕₂ β)
+      =
+      sum_1cell_inl f₁ g₁
+      • (α ▹ ι₁)
+      • (sum_1cell_inl f₂ g₂)^-1
+    := coprod_2cell_inl (α ▹ ι₁) (β ▹ ι₂).
+
+  Definition sum_2cell_inr
+             {a₁ a₂ b₁ b₂ : B}
+             {f₁ f₂ : a₁ --> b₁}
+             {g₁ g₂ : a₂ --> b₂}
+             (α : f₁ ==> f₂)
+             (β : g₁ ==> g₂)
+    : ι₂ ◃ (α ⊕₂ β)
+      =
+      sum_1cell_inr f₁ g₁
+      • (β ▹ ι₂)
+      • (sum_1cell_inr f₂ g₂)^-1
+    := coprod_2cell_inr (α ▹ ι₁) (β ▹ ι₂).
+End StandardFunctions.
+
+Module Notations.
+  Notation "b₁ ⊕ b₂" := (bincoprod _ b₁ b₂).
+  Notation "'ι₁'" := (bincoprod_inl _ _ _).
+  Notation "'ι₂'" := (bincoprod_inr _ _ _).
+  Notation "[ f , g ]" := (coprod_1cell _ f g).
+  Notation "[[ α , β ]]" := (coprod_2cell _ α β).
+  Notation "f '⊕₁' g" := (sum_1cell _ f g) (at level 34, left associativity).
+  Notation "α '⊕₂' β" := (sum_2cell _ α β) (at level 34, left associativity).
+End Notations.

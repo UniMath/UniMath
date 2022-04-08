@@ -86,32 +86,35 @@ End InitialSlice.
  *)
 Section CoproductSlice.
   Context {B : bicat}
-          (HB : has_bincoprod B)
           (b : B)
           {x₁ x₂ : B}
           (h₁ : x₁ --> b)
-          (h₂ : x₂ --> b).
+          (h₂ : x₂ --> b)
+          (sum : B)
+          (ι₁ : x₁ --> sum)
+          (ι₂ : x₂ --> sum)
+          (sum_cone := make_bincoprod_cocone sum ι₁ ι₂)
+          (ump : has_bincoprod_ump sum_cone).
 
-  Let sum_cone : bincoprod_cocone x₁ x₂
-    := pr1 (HB x₁ x₂).
-  Let sum : B
-    := sum_cone.
-  Let ι₁ : x₁ --> sum
-    := bincoprod_cocone_inl sum_cone.
-  Let ι₂ : x₂ --> sum
-    := bincoprod_cocone_inr sum_cone.
-  Let ump : has_bincoprod_ump sum_cone
-    := pr2 (HB x₁ x₂).
+  Let hh₁ : slice_bicat b := make_ob_slice h₁.
+  Let hh₂ : slice_bicat b := make_ob_slice h₂.
 
-  Let hh₁ : slice_bicat b := x₁ ,, h₁.
-  Let hh₂ : slice_bicat b := x₂ ,, h₂.
+  Definition sum_slice : slice_bicat b
+    := make_ob_slice (bincoprod_ump_1cell ump h₁ h₂).
 
-  Let sum_slice : slice_bicat b
-    := sum ,, bincoprod_ump_1cell ump h₁ h₂.
-  Let inl_slice : hh₁ --> sum_slice
-    := ι₁ ,, inv_of_invertible_2cell (bincoprod_ump_1cell_inl ump _ h₁ h₂).
-  Let inr_slice : hh₂ --> sum_slice
-    := ι₂ ,, inv_of_invertible_2cell (bincoprod_ump_1cell_inr ump _ h₁ h₂).
+  Definition inl_slice : hh₁ --> sum_slice.
+  Proof.
+    simple refine (make_1cell_slice _ _).
+    - exact ι₁.
+    - exact (inv_of_invertible_2cell (bincoprod_ump_1cell_inl ump _ h₁ h₂)).
+  Defined.
+
+  Definition inr_slice : hh₂ --> sum_slice.
+  Proof.
+    simple refine (make_1cell_slice _ _).
+    - exact ι₂.
+    - exact (inv_of_invertible_2cell (bincoprod_ump_1cell_inr ump _ h₁ h₂)).
+  Defined.
 
   Definition slice_coprod_cone
     : bincoprod_cocone hh₁ hh₂.
@@ -184,7 +187,7 @@ Section CoproductSlice.
         apply maponpaths_2.
         apply maponpaths.
         apply maponpaths_2.
-        apply bincoprod_ump_2cell_inl.
+        apply (bincoprod_ump_2cell_inl ump).
       }
       rewrite !vassocr.
       rewrite vcomp_linv, id2_left.
@@ -238,7 +241,7 @@ Section CoproductSlice.
         apply maponpaths_2.
         apply maponpaths.
         apply maponpaths_2.
-        apply bincoprod_ump_2cell_inr.
+        apply (bincoprod_ump_2cell_inr ump).
       }
       rewrite !vassocr.
       rewrite vcomp_linv, id2_left.
@@ -344,10 +347,10 @@ Section CoproductSlice.
              exact p).
       + abstract
           (use eq_2cell_slice ; cbn ;
-           apply bincoprod_ump_2cell_inl).
+           apply (bincoprod_ump_2cell_inl ump)).
       + abstract
           (use eq_2cell_slice ; cbn ;
-           apply bincoprod_ump_2cell_inr).
+           apply (bincoprod_ump_2cell_inr ump)).
   Defined.
 End CoproductSlice.
 
@@ -358,8 +361,9 @@ Definition has_bincoprod_slice_bicat
   : has_bincoprod (slice_bicat b).
 Proof.
   intros h₁ h₂.
-  refine (slice_coprod_cone HB b (pr2 h₁) (pr2 h₂) ,, _).
+  pose (sum := HB (pr1 h₁) (pr1 h₂)).
+  refine (slice_coprod_cone b (pr2 h₁) (pr2 h₂) _ _ _ (pr2 sum) ,, _).
   split.
-  - exact (slice_coprod_ump_1 HB b (pr2 h₁) (pr2 h₂)).
-  - exact (slice_coprod_ump_2 HB b (pr2 h₁) (pr2 h₂)).
+  - apply (slice_coprod_ump_1 b (pr2 h₁) (pr2 h₂)).
+  - apply (slice_coprod_ump_2 b (pr2 h₁) (pr2 h₂)).
 Defined.

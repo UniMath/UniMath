@@ -201,6 +201,7 @@ DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
 
 PseudoFunctors/Examples/PullbackFunctor.v
+PseudoFunctors/Examples/CompositionPseudoFunctor.v
 
 Limits/Examples/DisplayMapSliceLimits.v
 Colimits/Examples/DisplayMapSliceColimits.v
