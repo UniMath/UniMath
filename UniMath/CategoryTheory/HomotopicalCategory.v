@@ -153,9 +153,9 @@ Defined.
 
 Lemma iso_two_of_three_right {C : precategory} {x y z : C} {f : x --> y} {g : y --> z} (gf_is_iso : is_iso (f · g)) (f_is_iso : is_iso f) : is_iso g.
 Proof.
-  assert (g_right_inv : g · ((inv_from_iso (mk_iso gf_is_iso)) · f)  = identity _).
-  pose (iso_inv_after_iso (mk_iso gf_is_iso)).
-  apply (maponpaths (fun k => (inv_from_iso (mk_iso f_is_iso)) · k · f)) in p.
+  assert (g_right_inv : g · ((inv_from_iso (make_iso _ gf_is_iso)) · f)  = identity _).
+  pose (iso_inv_after_iso (make_iso _ gf_is_iso)).
+  apply (maponpaths (fun k => (inv_from_iso (make_iso _ f_is_iso)) · k · f)) in p.
   simpl in p.
   rewrite assoc in p.
   rewrite assoc in p.
@@ -165,9 +165,9 @@ Proof.
   rewrite iso_after_iso_inv in p.
   rewrite <- assoc in p.
   apply p.
-  assert (g_left_inv : ((inv_from_iso (mk_iso gf_is_iso)) · f) · g = identity _).
+  assert (g_left_inv : ((inv_from_iso (make_iso _ gf_is_iso)) · f) · g = identity _).
   rewrite <- assoc.
-  apply (iso_after_iso_inv (mk_iso gf_is_iso)).
+  apply (iso_after_iso_inv (make_iso _ gf_is_iso)).
   eapply (is_iso_qinv _ _).
   exists g_right_inv. apply g_left_inv.
 Defined.
@@ -182,18 +182,18 @@ Defined.
 
 Lemma iso_two_of_three_left {C : precategory} {x y z : C} {f : x --> y} {g : y --> z} (gf_is_iso : is_iso (f · g)) (g_is_iso : is_iso g) : is_iso f.
 Proof.
-  assert (f_right_inv : f · (g · (inv_from_iso (mk_iso gf_is_iso)))  = identity _).
+  assert (f_right_inv : f · (g · (inv_from_iso (make_iso _ gf_is_iso)))  = identity _).
   rewrite assoc.
-  apply (iso_inv_after_iso (mk_iso gf_is_iso)).
-  assert (f_left_inv : (g · (inv_from_iso (mk_iso gf_is_iso))) · f = identity _).
-  pose (iso_after_iso_inv (mk_iso gf_is_iso)).
-  apply (maponpaths (fun k => g · k · (inv_from_iso (mk_iso g_is_iso)))) in p.
+  apply (iso_inv_after_iso (make_iso _ gf_is_iso)).
+  assert (f_left_inv : (g · (inv_from_iso (make_iso _ gf_is_iso))) · f = identity _).
+  pose (iso_after_iso_inv (make_iso _ gf_is_iso)).
+  apply (maponpaths (fun k => g · k · (inv_from_iso (make_iso _ g_is_iso)))) in p.
   simpl in p.
   rewrite <- assoc in p.
   rewrite <- assoc in p.
   rewrite <- assoc in p.
   rewrite id_right in p.
-  pose (iso_inv_after_iso (mk_iso g_is_iso)).
+  pose (iso_inv_after_iso (make_iso _ g_is_iso)).
   simpl in p0.
   rewrite p0 in p.
   clear p0.
@@ -227,7 +227,7 @@ Defined.
 Lemma cats_minimal_homotopical (C : category) : homotopical_category.
 Proof.
   unfold homotopical_category.
-  pose (C_Weq := (C ,, (fun x y f => (is_z_isomorphism f ,, isaprop_is_z_isomorphism (homset_property C) f))) : category_with_weq ).
+  pose (C_Weq := (C ,, (fun x y f => (is_z_isomorphism f ,, isaprop_is_z_isomorphism f))) : category_with_weq ).
   exists C_Weq.
   unfold is_homotopical.
   unfold two_of_six.
@@ -240,9 +240,9 @@ Proof.
     apply (is_iso_isMonic _ _ hg).
     assert (g_left_inv : ((is_z_isomorphism_mor gf) · f · g) = identity _).
     rewrite <- assoc.
-    apply (z_iso_after_z_iso_inv _ _ _ (f · g ,, gf)).
+    apply (z_iso_after_z_iso_inv (f · g ,, gf)).
     pose (g_right_inv := left_inv_monic_is_right_inv _ g_is_monic _ g_left_inv).
-    eapply mk_is_z_isomorphism.
+    eapply make_is_z_isomorphism.
     split.
     apply g_right_inv.
     apply g_left_inv.
