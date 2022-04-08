@@ -30,7 +30,7 @@ by (** RR1 *) or (** RR2 *) comment.
 One can achieve similar results with a combination of usual axioms which imitate
 the resizing rules. However unlike the usual axioms the resizing rules do not
 affect the computation/normalization abilities of Coq which makes them the
-prefrred choice in this situation.
+preferred choice in this situation.
 *)
 
 (** ** Contents

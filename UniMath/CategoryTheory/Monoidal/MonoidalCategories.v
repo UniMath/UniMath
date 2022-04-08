@@ -191,12 +191,9 @@ Definition monoidal_cat_right_unitor : right_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2
 
 Definition monoidal_cat_associator : associator (pr1 (pr2 M)) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-Definition monoidal_cat_eq :
-  (λ α' : associator (pr1 (pr2 M)),
-          triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) α'
-                      × pentagon_eq (pr1 (pr2 M)) α')
-    (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_cat_triangle_eq : triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
+
+Definition monoidal_cat_pentagon_eq : pentagon_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))) := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M)))))).
 
 End Monoidal_Cat_Accessors.
 
@@ -234,7 +231,7 @@ Lemma triangle_eq_swapping_of_tensor: triangle_eq swapping_of_tensor (monoidal_c
   (monoidal_cat_right_unitor M) (monoidal_cat_left_unitor M) associator_swapping_of_tensor.
 Proof.
   red. intros a b. cbn.
-  set (H := pr1 (monoidal_cat_eq M)).
+  set (H := monoidal_cat_triangle_eq M).
   unfold triangle_eq in H.
   etrans.
   2: { apply cancel_precomposition.
@@ -254,7 +251,7 @@ Qed.
 Lemma pentagon_eq_swapping_of_tensor: pentagon_eq swapping_of_tensor associator_swapping_of_tensor.
 Proof.
   red. intros a b c d. cbn.
-  set (H := pr2 (monoidal_cat_eq M)).
+  set (H := monoidal_cat_pentagon_eq M).
   unfold pentagon_eq in H.
   set (f := nat_z_iso_pointwise_z_iso (monoidal_cat_associator M) ((d, c), monoidal_cat_tensor M (b, a))).
   apply (z_iso_inv_on_right _ _ _ f).
@@ -311,3 +308,178 @@ Proof.
 Defined.
 
 End swapped_tensor.
+
+Section coherence_lemmas.
+
+Context {Mon_V : monoidal_cat}.
+
+Let I        : Mon_V                  := monoidal_cat_unit Mon_V.
+Let tensor   : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
+Let α        : associator tensor      := monoidal_cat_associator Mon_V.
+Let l_unitor : left_unitor tensor I   := monoidal_cat_left_unitor Mon_V.
+Let r_unitor : right_unitor tensor I  := monoidal_cat_right_unitor Mon_V.
+
+Local Notation "X ⊗ Y" := (tensor (X, Y)).
+Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
+
+Lemma tensor_comp_left {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : ((f · g) #⊗ id W) = (f #⊗ id W) · (g #⊗ id W).
+Proof.
+  rewrite <- (functor_comp tensor).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  rewrite id_left.
+  apply idpath.
+Defined.
+
+Lemma tensor_comp_right {X Y Z W : Mon_V} (f : X --> Y) (g : Y --> Z) : (id W #⊗ (f · g)) = (id W #⊗ f) · (id W #⊗ g).
+Proof.
+  rewrite <- (functor_comp tensor).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  rewrite id_left.
+  apply idpath.
+Defined.
+
+Lemma I_posttensor_faithful {X Y : Mon_V} {f g : X --> Y} : (f #⊗ id I) = (g #⊗ id I) -> f = g.
+Proof.
+  intro H.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+  use (pathscomp0 (! (nat_trans_ax r_unitor _ _ f))).
+  use (pathscomp0 _ (nat_trans_ax r_unitor _ _ g)).
+  apply cancel_postcomposition.
+  assumption.
+Defined.
+
+Lemma I_pretensor_faithful {X Y : Mon_V} {f g : X --> Y} : (id I #⊗ f) = (id I #⊗ g) -> f = g.
+Proof.
+  intro H.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
+  use (pathscomp0 (! (nat_trans_ax l_unitor _ _ f))).
+  use (pathscomp0 _ (nat_trans_ax l_unitor _ _ g)).
+  apply cancel_postcomposition.
+  assumption.
+Defined.
+
+(*
+  The following three lemmas are from [Kelly, 1964].
+  https://doi.org/10.1016/0021-8693(64)90018-3
+  monoidal_cat_triangle_eq <-> diagram (6) in [Kelly, 1964]
+  monoidal_cat_pentagon_eq <-> diagram (1)
+  right_unitor_of_tensor <-> diagram (7)
+  left_unitor_right_unitor_of_unit <-> diagram (4)
+  left_unitor_of_tensor <-> diagram (5)
+*)
+Lemma right_unitor_of_tensor (X Y : Mon_V) : r_unitor (X ⊗ Y) = α ((X, Y), I) · (id X #⊗ r_unitor Y).
+Proof.
+  apply I_posttensor_faithful.
+  rewrite tensor_comp_left.
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α (_, _)))).
+  rewrite assoc'.
+  apply (transportb (λ h, _ = _ · h) (nat_trans_ax α _ _ ((_#, _)#, _))).
+  simpl.
+  rewrite assoc.
+  apply (transportb (λ h, _ = _ · #tensor (id _ #, h)) (monoidal_cat_triangle_eq Mon_V _ _)).
+  apply (transportf (λ k, _ = _ · #tensor (k #, _)) (id_left (id X))).
+  change (?x · ?z #, ?y · ?w) with ((x #, y) · (z #, w)).
+  rewrite (functor_comp tensor).
+  apply (transportb (λ h, h · _ = _) (monoidal_cat_triangle_eq Mon_V _ _)).
+  apply (transportf (λ h, _ · #tensor (h #, _) · _ = _) (functor_id tensor (X, Y))).
+  rewrite assoc'.
+  apply (transportb (λ h, _ · h = _) (nat_trans_ax α _ _ ((_#, _)#, _))).
+  rewrite !assoc.
+  apply cancel_postcomposition.
+  apply monoidal_cat_pentagon_eq.
+Defined.
+
+Lemma left_unitor_right_unitor_of_unit : l_unitor I = r_unitor I.
+Proof.
+  apply I_pretensor_faithful.
+  apply (pre_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 α ((_, _), _)))).
+  apply (pathscomp0 (! (monoidal_cat_triangle_eq Mon_V I I))).
+  use (pathscomp0 _ (right_unitor_of_tensor I I)).
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+  apply (nat_trans_ax r_unitor).
+Defined.
+
+Lemma left_unitor_of_tensor (X Y : Mon_V) : α ((I, X), Y) · l_unitor (X ⊗ Y) = l_unitor X #⊗ id Y.
+Proof.
+  apply I_pretensor_faithful.
+  rewrite tensor_comp_right.
+  apply (pre_comp_with_z_iso_is_inj (pr2 α ((I, (I ⊗ X)), Y))).
+  use (pathscomp0 _ (nat_trans_ax α _ _ ((_ #, _) #, _))).
+  simpl.
+  apply (pre_comp_with_z_iso_is_inj (functor_on_is_z_isomorphism (functor_fix_snd_arg _ _ _ tensor Y) (pr2 α ((I, I), X)))).
+  simpl.
+  unfold functor_fix_snd_arg_mor.
+  change (make_dirprod ?x ?y) with (x #, y).
+  rewrite !assoc.
+  apply (transportf (λ h, _ = h · _) (functor_comp tensor _ _)).
+  change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
+  apply (transportf (λ h, h · _ = _) (monoidal_cat_pentagon_eq Mon_V I I X Y)).
+  rewrite assoc'.
+  apply (transportf (λ h, _ · h = _) (monoidal_cat_triangle_eq Mon_V _ _)).
+  simpl.
+  apply (transportf (λ h, _ · #tensor (_ #, h) = _) (functor_id tensor (X, Y))).
+  apply (pathscomp0 (! (nat_trans_ax α _ _ ((_ #, _) #, _)))).
+  simpl.
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  apply maponpaths.
+  apply dirprod_paths; simpl; [|apply id_left].
+  apply pathsinv0.
+  apply monoidal_cat_triangle_eq.
+Defined.
+
+(* Corollaries for the inverses of left and right unitors. *)
+
+Lemma tensor_z_isomorphism_left : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : is_z_isomorphism f), # tensor (is_z_isomorphism_mor f_z_iso #, id z) = is_z_isomorphism_mor (functor_on_is_z_isomorphism (functor_fix_snd_arg _ _ _ tensor z) f_z_iso).
+Proof.
+  intros.
+  reflexivity.
+Qed.
+
+Lemma tensor_z_isomorphism_right : ∏ (x y z : Mon_V) (f : x --> y) (f_z_iso : is_z_isomorphism f), # tensor (id z #, is_z_isomorphism_mor f_z_iso) = is_z_isomorphism_mor (functor_on_is_z_isomorphism (functor_fix_fst_arg _ _ _ tensor z) f_z_iso).
+Proof.
+  intros.
+  reflexivity.
+Qed.
+
+Lemma monoidal_cat_triangle_eq_inv (X Y : Mon_V) : (nat_z_iso_to_trans_inv r_unitor X #⊗ id Y) · α ((X, I), Y) = (id X #⊗ nat_z_iso_to_trans_inv l_unitor Y).
+Proof.
+  cbn.
+  rewrite (tensor_z_isomorphism_right _ _ _ _ _ : #tensor _ = _).
+  rewrite (tensor_z_isomorphism_left _ _ _ _ _ : #tensor _ = _).
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply monoidal_cat_triangle_eq.
+Qed.
+
+Corollary left_unitor_inv_right_unitor_inv_of_unit : nat_z_iso_to_trans_inv l_unitor I = nat_z_iso_to_trans_inv r_unitor _.
+Proof.
+  apply (post_comp_with_z_iso_is_inj (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
+  apply (pathscomp0 (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _)))).
+  apply (transportb (λ f, id _ = is_z_isomorphism_mor _ · f) left_unitor_right_unitor_of_unit).
+  apply pathsinv0.
+  apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
+Qed.
+
+Corollary left_unitor_inv_of_tensor (X Y : Mon_V) : (nat_z_iso_to_trans_inv l_unitor _ #⊗ id _) · α ((_, _), _) = nat_z_iso_to_trans_inv l_unitor (X ⊗ Y).
+Proof.
+  simpl.
+  rewrite tensor_z_isomorphism_left.
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply pathsinv0.
+  apply left_unitor_of_tensor.
+Qed.
+
+Corollary right_unitor_inv_of_tensor (X Y : Mon_V) : (id _ #⊗ nat_z_iso_to_trans_inv r_unitor _) = nat_z_iso_to_trans_inv r_unitor (X ⊗ Y)  · α ((_, _), _).
+Proof.
+  simpl.
+  rewrite tensor_z_isomorphism_right.
+  change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x)).
+  apply pathsinv0.
+  apply z_iso_inv_on_right, z_iso_inv_on_left.
+  apply right_unitor_of_tensor.
+Qed.
+
+End coherence_lemmas.
+

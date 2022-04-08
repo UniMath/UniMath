@@ -19,14 +19,18 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 
 Local Open Scope mor_disp_scope.
 
@@ -128,7 +132,7 @@ Section Arrow_Disp.
 
 Context (C:category).
 
-Definition arrow_disp_ob_mor : disp_cat_ob_mor (prod_category C C).
+Definition arrow_disp_ob_mor : disp_cat_ob_mor (category_binproduct C C).
 Proof.
   exists (λ xy : (C × C), (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'.
@@ -151,13 +155,13 @@ Qed.
 Definition arrow_data : disp_cat_data _
   := (arrow_disp_ob_mor ,, arrow_id_comp).
 
-Lemma arrow_axioms : disp_cat_axioms (prod_category C C) arrow_data.
+Lemma arrow_axioms : disp_cat_axioms (category_binproduct C C) arrow_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   apply isasetaprop, homset_property.
 Qed.
 
-Definition arrow_disp : disp_cat (prod_category C C)
+Definition arrow_disp : disp_cat (category_binproduct C C)
   := (arrow_data ,, arrow_axioms).
 
 End Arrow_Disp.
@@ -245,6 +249,69 @@ Definition elements_universal : disp_cat HSET
 
 Definition disp_cat_of_elements {C : category} (P : functor C HSET)
   := reindex_disp_cat P elements_universal.
+
+Definition elements_universal_mor_eq
+           {X Y : HSET}
+           {f : X --> Y}
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (ff₁ ff₂ : x -->[ f ] y)
+  : ff₁ = ff₂.
+Proof.
+  apply Y.
+Qed.
+
+Definition is_iso_disp_elements_universal
+           {X Y : HSET}
+           {f : X --> Y}
+           (Hf : is_iso f)
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (ff : x -->[ f ] y)
+  : is_iso_disp (make_iso _ Hf) ff.
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - pose (eqtohomot (iso_inv_after_iso (make_iso f Hf)) x) as p.
+    cbn in *.
+    refine (_ @ p).
+    apply maponpaths.
+    exact (!ff).
+  - apply elements_universal_mor_eq.
+  - apply elements_universal_mor_eq.
+Qed.
+
+Definition is_opcartesian_disp_elements_universal
+           {X Y : HSET}
+           {f : X --> Y}
+           {x : elements_universal X}
+           {y : elements_universal Y}
+           (p : x -->[ f ] y)
+  : is_opcartesian p.
+Proof.
+  intros Z z g q.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply elements_universal.
+    }
+    apply elements_universal_mor_eq.
+  - simple refine (_ ,, _).
+    + exact (maponpaths g (!p) @ q).
+    + apply elements_universal_mor_eq.
+Qed.
+
+Definition opcleaving_elements_universal
+  : opcleaving elements_universal.
+Proof.
+  intros X Y x f.
+  simple refine (_ ,, _).
+  - exact (f x).
+  - refine (idpath _ ,, _) ; cbn.
+    apply is_opcartesian_disp_elements_universal.
+Defined.
 
 (* TODO: compare to other definitions of this in the library! *)
 Definition precat_of_elements {C : category} (P : functor C HSET)
@@ -576,7 +643,7 @@ Defined.
 
 Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
 Proof.
-  repeat split; intros; cbn;
+  repeat split; intros;
     try apply homset_property.
   apply isasetaprop.
   apply homset_property.

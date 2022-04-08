@@ -13,11 +13,14 @@ Local Open Scope cat.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope bicategory_scope.
 
+(**
+ laws for idtoiso_2_0
+ *)
 Definition transport_one_cell_FlFr
            {C : bicat}
            {A : Type}
@@ -75,6 +78,21 @@ Proof.
     apply lunitor_linvunitor.
 Defined.
 
+Definition idtoiso_2_0_inv
+           {B : bicat}
+           {b₁ b₂ : B}
+           (p : b₁ = b₂)
+  : pr1 (idtoiso_2_0 _ _ (!p))
+    =
+    left_adjoint_right_adjoint (idtoiso_2_0 _ _ p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+(**
+ laws for idtoiso_2_1
+ *)
 Lemma idtoiso_2_1_inv
            {C : bicat}
            {a b : C}

@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Examples.Image.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
@@ -143,8 +143,6 @@ Section CorestrictImage.
         apply is_inv2cell_to_is_iso.
         apply bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell.
         apply (iso_to_inv2cell
-                _
-                _
                 (_ ,,
                    is_invertible_2cell_to_is_nat_iso
                    _

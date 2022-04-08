@@ -16,7 +16,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
@@ -24,9 +24,9 @@ Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Constant.
 Import PseudoFunctor.Notations.
-Require Import UniMath.Bicategories.Colimits.Final.
 Require Import UniMath.Bicategories.Colimits.Initial.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.Limits.Final.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
 
 Local Open Scope cat.
@@ -50,9 +50,8 @@ End FixALocallyGrpd.
 (** 2. Final objects *)
 Section FixAFinal.
   Context (B₁ : bicat)
-          {B₂ : bicat}
-          {HB₂_2_1 : is_univalent_2_1 B₂}
-          (f : BiFinal HB₂_2_1).
+          (B₂ : bicat)
+          (f : bifinal_obj B₂).
 
   Definition final_psfunctor
     : psfunctor_bicat B₁ B₂
@@ -63,16 +62,16 @@ Section FixAFinal.
     : pstrans_data F final_psfunctor.
   Proof.
     use make_pstrans_data.
-    - exact (λ x, bifinal_1cell _ (pr2 f) (F x)).
+    - exact (λ x, is_bifinal_1cell_property (pr2 f) (F x)).
     - intros x y g.
-      apply (bifinal_2cell _ (pr2 f)).
+      apply (is_bifinal_invertible_2cell_property (pr2 f)).
   Defined.
 
   Definition final_psfunctor_1cell_is_pstrans
              (F : psfunctor B₁ B₂)
     : is_pstrans (final_psfunctor_1cell_data F).
   Proof.
-    repeat split ; intros ; apply (bifinal_eq _ (pr2 f)).
+    repeat split ; intros ; apply (is_bifinal_eq_property (pr2 f)).
   Qed.
 
   Definition final_psfunctor_1cell
@@ -87,8 +86,8 @@ Section FixAFinal.
   Definition final_psfunctor_2cell_data
              {F : psfunctor B₁ B₂}
              (α β : pstrans F final_psfunctor)
-    : invertible_modification_data α β
-    := λ x, bifinal_2cell _ (pr2 f) (α x) (β x).
+    : modification_data α β
+    := λ x, is_bifinal_2cell_property (pr2 f) _ (α x) (β x).
 
   Definition final_psfunctor_2cell_is_modification
              {F : psfunctor B₁ B₂}
@@ -96,15 +95,15 @@ Section FixAFinal.
     : is_modification (final_psfunctor_2cell_data α β).
   Proof.
     intros x y g.
-    apply (bifinal_eq _ (pr2 f)).
+    apply (is_bifinal_eq_property (pr2 f)).
   Qed.
 
   Definition final_psfunctor_2cell
              {F : psfunctor B₁ B₂}
              (α β : pstrans F final_psfunctor)
-    : invertible_modification α β.
+    : modification α β.
   Proof.
-    use make_invertible_modification.
+    use make_modification.
     - exact (final_psfunctor_2cell_data α β).
     - exact (final_psfunctor_2cell_is_modification α β).
   Defined.
@@ -117,16 +116,15 @@ Section FixAFinal.
   Proof.
     use modification_eq.
     intro.
-    apply (bifinal_eq _ (pr2 f)).
+    apply (is_bifinal_eq_property (pr2 f)).
   Qed.
 
   Definition psfunctor_bifinal
-    : BiFinal (psfunctor_bicat_is_univalent_2_1 B₁ B₂ HB₂_2_1).
+    : bifinal_obj (psfunctor_bicat B₁ B₂).
   Proof.
     simple refine (_ ,, _).
     - exact final_psfunctor.
-    - use is_bifinal'_to_is_bifinal.
-      use make_is_bifinal'.
+    - use make_is_bifinal.
       + exact final_psfunctor_1cell.
       + exact @final_psfunctor_2cell.
       + exact @final_psfunctor_eq.
@@ -136,9 +134,8 @@ End FixAFinal.
 (** 3. Initial objects *)
 Section FixAnInitial.
   Context (B₁ : bicat)
-          {B₂ : bicat}
-          {HB₂_2_1 : is_univalent_2_1 B₂}
-          (i : BiInitial HB₂_2_1).
+          (B₂ : bicat)
+          (i : biinitial_obj B₂).
 
   Definition initial_psfunctor
     : psfunctor_bicat B₁ B₂
@@ -149,16 +146,16 @@ Section FixAnInitial.
     : pstrans_data initial_psfunctor F.
   Proof.
     use make_pstrans_data.
-    - exact (λ x, biinitial_1cell _ (pr2 i) (F x)).
+    - exact (λ x, is_biinitial_1cell_property (pr2 i) (F x)).
     - intros x y g.
-      apply (biinitial_2cell _ (pr2 i)).
+      apply (is_biinitial_invertible_2cell_property (pr2 i)).
   Defined.
 
   Definition initial_psfunctor_1cell_is_pstrans
              (F : psfunctor B₁ B₂)
     : is_pstrans (initial_psfunctor_1cell_data F).
   Proof.
-    repeat split ; intros ; apply (biinitial_eq _ (pr2 i)).
+    repeat split ; intros ; apply (is_biinitial_eq_property (pr2 i)).
   Qed.
 
   Definition initial_psfunctor_1cell
@@ -173,8 +170,8 @@ Section FixAnInitial.
   Definition initial_psfunctor_2cell_data
              {F : psfunctor B₁ B₂}
              (α β : pstrans initial_psfunctor F)
-    : invertible_modification_data α β
-    := λ x, biinitial_2cell _ (pr2 i) (α x) (β x).
+    : modification_data α β
+    := λ x, is_biinitial_2cell_property (pr2 i) _ (α x) (β x).
 
   Definition initial_psfunctor_2cell_is_modification
              {F : psfunctor B₁ B₂}
@@ -182,15 +179,15 @@ Section FixAnInitial.
     : is_modification (initial_psfunctor_2cell_data α β).
   Proof.
     intros x y g.
-    apply (biinitial_eq _ (pr2 i)).
+    apply (is_biinitial_eq_property (pr2 i)).
   Qed.
 
   Definition initial_psfunctor_2cell
              {F : psfunctor B₁ B₂}
              (α β : pstrans initial_psfunctor F)
-    : invertible_modification α β.
+    : modification α β.
   Proof.
-    use make_invertible_modification.
+    use make_modification.
     - exact (initial_psfunctor_2cell_data α β).
     - exact (initial_psfunctor_2cell_is_modification α β).
   Defined.
@@ -203,16 +200,15 @@ Section FixAnInitial.
   Proof.
     use modification_eq.
     intro.
-    apply (biinitial_eq _ (pr2 i)).
+    apply (is_biinitial_eq_property (pr2 i)).
   Qed.
 
   Definition psfunctor_biinitial
-    : BiInitial (psfunctor_bicat_is_univalent_2_1 B₁ B₂ HB₂_2_1).
+    : biinitial_obj (psfunctor_bicat B₁ B₂).
   Proof.
     simple refine (_ ,, _).
     - exact initial_psfunctor.
-    - use is_biinitial'_to_is_biinitial.
-      use make_is_biinitial'.
+    - use make_is_biinitial.
       + exact initial_psfunctor_1cell.
       + exact @initial_psfunctor_2cell.
       + exact @initial_psfunctor_eq.

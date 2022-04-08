@@ -14,7 +14,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Local Open Scope bicategory_scope.
 
@@ -320,84 +320,7 @@ Section EquivToAdjEquiv.
 
   Definition equiv_to_adjequiv : adjoint_equivalence X Y
     := (f ,, equiv_to_isadjequiv).
-
 End EquivToAdjEquiv.
-
-Section CompositionEquivalence.
-  Context {C : bicat}
-          {X Y Z : C}.
-  Variable (f : C⟦X,Y⟧)
-           (g : C⟦Y,Z⟧)
-           (A₁ : left_equivalence f)
-           (A₂ : left_equivalence g).
-
-  Local Notation finv := (left_adjoint_right_adjoint A₁).
-  Local Notation ginv := (left_adjoint_right_adjoint A₂).
-
-  Local Definition comp_unit
-    : id₁ X ==> (finv ∘ ginv) ∘ (g ∘ f).
-  Proof.
-    refine (rassociator (g ∘ f) _ _ o _).
-    refine ((_ ◅ _) o (left_adjoint_unit A₁)).
-    refine (lassociator f g _ o _).
-    exact (((left_adjoint_unit A₂) ▻ f) o rinvunitor f).
-  Defined.
-
-  Local Definition comp_unit_isiso
-    : is_invertible_2cell comp_unit.
-  Proof.
-    unfold comp_unit.
-    is_iso.
-    - exact (left_equivalence_unit_iso A₁).
-    - exact (left_equivalence_unit_iso A₂).
-  Defined.
-
-  Local Definition comp_counit
-    : (g ∘ f) ∘ (finv ∘ ginv) ==> (id₁ Z).
-  Proof.
-    refine (_ o lassociator _ f g).
-    refine (left_adjoint_counit A₂ o (g ◅ _)).
-    refine (_ o rassociator _ _ _).
-    refine (runitor _ o _).
-    exact (left_adjoint_counit A₁ ▻ _).
-  Defined.
-
-  Local Definition comp_counit_isiso
-    : is_invertible_2cell comp_counit.
-  Proof.
-    unfold comp_counit.
-    is_iso.
-    - exact (left_equivalence_counit_iso A₁).
-    - exact (left_equivalence_counit_iso A₂).
-  Defined.
-
-  Definition comp_equiv
-    : left_equivalence (f · g).
-  Proof.
-    use tpair.
-    - repeat (use tpair).
-      * exact (finv ∘ ginv).
-      * exact comp_unit.
-      * exact comp_counit.
-    - split.
-      * exact comp_unit_isiso.
-      * exact comp_counit_isiso.
-  Defined.
-
-End CompositionEquivalence.
-
-Definition comp_adjequiv
-           {C : bicat}
-           {X Y Z : C}
-           (f : adjoint_equivalence X Y)
-           (g : adjoint_equivalence Y Z)
-  : adjoint_equivalence X Z.
-Proof.
-  use (equiv_to_adjequiv (f · g)).
-  use comp_equiv.
-  - exact f.
-  - exact g.
-Defined.
 
 Definition inv_equiv
            {C : bicat}

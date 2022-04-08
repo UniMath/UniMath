@@ -8,7 +8,6 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -16,8 +15,11 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -221,121 +223,10 @@ Proof.
       (intros C₁ C₂ F₁ F₂ n D₁ D₂ FF₁ FF₂ ;
        simpl in * ;
        cbn ;
-       exact (isaset_disp_nat_trans C₁ C₂ D₁ D₂ F₁ F₂ n FF₁ FF₂)).
+       exact (@isaset_disp_nat_trans C₁ C₂ D₁ D₂ F₁ F₂ n FF₁ FF₂)).
 Defined.
 
 (** Condition for displayed invertible 2-cells in this bicategory *)
-Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_natural
-           {C C' : category}
-           {F : C ⟶ C'}
-           {D : disp_cat C} {D' : disp_cat C'}
-           {FF : disp_functor F D D'} {GG : disp_functor F D D'}
-           (αα : disp_nat_trans (nat_trans_id F) FF GG)
-           (Hαα : ∏ (x : C) (xx : D x),
-                  is_iso_disp
-                    (identity_iso (pr1 F x))
-                    (pr1 αα x xx))
-           {x y : pr1 C}
-           {f : x --> y}
-           {xx : D x} {yy : D y}
-           (ff : xx -->[ f ] yy)
-  : # GG ff;; inv_mor_disp_from_iso (Hαα y yy)
-    =
-    transportb
-      (mor_disp (GG x xx) (FF y yy))
-      (is_nat_trans_id F x y f)
-      (inv_mor_disp_from_iso (Hαα x xx);; # FF ff).
-Proof.
-  use (precomp_with_iso_disp_is_inj (make_iso_disp _ (Hαα x xx))).
-  simpl.
-  refine (assoc_disp _ _ _ @ _).
-  unfold transportb.
-  rewrite mor_disp_transportf_prewhisker.
-  rewrite assoc_disp.
-  refine (!_).
-  refine (transport_f_f _ _ _ _ @ _).
-  etrans.
-  {
-    apply maponpaths.
-    apply maponpaths_2.
-    apply (inv_mor_after_iso_disp (Hαα x xx)).
-  }
-  etrans.
-  {
-    apply maponpaths.
-    etrans.
-    {
-      apply mor_disp_transportf_postwhisker.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      apply id_left_disp.
-    }
-    apply transport_f_f.
-  }
-  etrans.
-  {
-    apply transport_f_f.
-  }
-  assert (transportf
-            (mor_disp (FF x xx) (GG y yy)) (nat_trans_ax (nat_trans_id F) x y f)
-            (# FF ff;; pr1 αα y yy) =
-          pr1 αα x xx;; # GG ff)
-    as X.
-  {
-    apply transportf_transpose_left.
-    exact (pr2 αα x y f xx yy ff).
-  }
-  refine (!_).
-  apply transportf_transpose_left.
-  etrans.
-  {
-    apply maponpaths_2.
-    exact (!X).
-  }
-  rewrite mor_disp_transportf_postwhisker.
-  etrans.
-  {
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply assoc_disp_var.
-      }
-      etrans.
-      {
-        apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          apply (inv_mor_after_iso_disp (Hαα y yy)).
-        }
-        etrans.
-        {
-          apply mor_disp_transportf_prewhisker.
-        }
-        etrans.
-        {
-          apply maponpaths.
-          apply id_right_disp.
-        }
-        apply transport_f_f.
-      }
-      apply transport_f_f.
-    }
-    apply transport_f_f.
-  }
-  refine (!_).
-  etrans.
-  {
-    apply transport_f_f.
-  }
-  apply transportf_paths.
-  apply C'.
-Qed.
-
 Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
            {C C' : bicat_of_univ_cats}
            {F : C --> C'}
@@ -350,12 +241,7 @@ Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
   use tpair.
-  - use tpair.
-    + intros x xx ; cbn.
-      exact (inv_mor_disp_from_iso (Hαα x xx)).
-    + intros x xx y yy f ff ; cbn in *.
-      apply (@disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_natural
-               C C').
+  - exact (pointwise_inverse_disp_nat_trans αα Hαα).
   - split.
     + abstract
         (cbn ;
@@ -364,7 +250,7 @@ Proof.
          intros x xx ; cbn ;
          refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
          refine (!_) ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -379,7 +265,7 @@ Proof.
          intros x xx ; cbn ;
          refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
          refine (!_) ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -445,13 +331,7 @@ Definition disp_bicat_of_fibs_is_disp_invertible_2cell
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
   use tpair.
-  - refine (_ ,, tt).
-    use tpair.
-    + intros x xx ; cbn.
-      exact (inv_mor_disp_from_iso (Hαα x xx)).
-    + intros x xx y yy f ff ; cbn in *.
-      apply (@disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_natural
-               C C').
+  - exact (pointwise_inverse_disp_nat_trans (pr1 αα) Hαα ,, tt).
   - split.
     + abstract
         (cbn ;
@@ -463,7 +343,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -481,7 +361,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -528,7 +408,7 @@ Proof.
          | ];
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
@@ -552,7 +432,7 @@ Proof.
          | ] ;
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
@@ -620,13 +500,7 @@ Definition disp_bicat_of_opfibs_is_disp_invertible_2cell
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
   use tpair.
-  - refine (_ ,, tt).
-    use tpair.
-    + intros x xx ; cbn.
-      exact (inv_mor_disp_from_iso (Hαα x xx)).
-    + intros x xx y yy f ff ; cbn in *.
-      apply (@disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_natural
-               C C').
+  - exact (pointwise_inverse_disp_nat_trans (pr1 αα) Hαα ,, tt).
   - split.
     + abstract
         (cbn ;
@@ -638,7 +512,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -656,7 +530,7 @@ Proof.
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
-         refine (disp_nat_trans_transportf
+         refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
                    _ _
                    (!(@id2_left bicat_of_univ_cats _ _ _ _ (nat_trans_id F)))
@@ -703,7 +577,7 @@ Proof.
          | ];
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
@@ -727,7 +601,7 @@ Proof.
          | ] ;
          etrans ;
          [ apply maponpaths ;
-           exact (disp_nat_trans_transportf
+           exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _

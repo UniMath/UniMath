@@ -14,7 +14,11 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
@@ -173,7 +177,7 @@ Section OpCleavingOfOpFibsPointwiseCartesian.
         as p.
       cbn in p.
       rewrite pr1_transportf in p.
-      exact (p @ disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+      exact (p @ (@disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
     Qed.
 
     Definition opcleaving_of_opfibs_opcartesian_2cell_is_pointwise_opcartesian
@@ -213,6 +217,13 @@ Proof.
     + exact (opcartesian_factorisation_disp_functor_cell (pr2 D₂) (pr1 FF) α).
     + apply opcleaving_of_opfibs_is_opcartesian_2cell.
       apply opcartesian_factorisation_disp_functor_cell_is_opcartesian.
+Defined.
+
+Definition cleaving_of_opfibs_local_iso_cleaving
+  : local_iso_cleaving disp_bicat_of_opfibs.
+Proof.
+  apply local_opcleaving_to_local_iso_cleaving.
+  exact cleaving_of_opfibs_local_opcleaving.
 Defined.
 
 Definition cleaving_of_opfibs_lwhisker_opcartesian
@@ -424,7 +435,7 @@ Section Lift2CellOpFibs.
       cbn in p₁.
       rewrite pr1_transportf in p₁.
       unfold disp_cell_lift_1cell_factor in p₁.
-      pose (disp_nat_trans_transportf
+      pose (@disp_nat_trans_transportf
               _ _
               _ _
               (H₁ ∙ F) (H₂ ∙ F)
@@ -446,7 +457,7 @@ Section Lift2CellOpFibs.
       cbn in p₂.
       rewrite pr1_transportf in p₂.
       unfold disp_cell_lift_1cell_factor in p₂.
-      pose (disp_nat_trans_transportf
+      pose (@disp_nat_trans_transportf
               _ _
               _ _
               (H₁ ∙ F) (H₂ ∙ F)
@@ -535,7 +546,7 @@ Section Lift2CellOpFibs.
            cbn ;
            rewrite pr1_transportf ;
            unfold disp_cell_lift_1cell_factor ;
-           refine (disp_nat_trans_transportf
+           refine (@disp_nat_trans_transportf
                      _ _
                      _ _
                      (H₁ ∙ F) (H₂ ∙ F)
@@ -593,7 +604,7 @@ Proof.
     exact (cleaving_of_opfibs_lift_mor_lift_2cell αα Lh Lh').
 Defined.
 
-Definition cleaving_of_opfibs_global_cleaving
+Definition opfibs_global_cleaving
   : global_cleaving disp_bicat_of_opfibs.
 Proof.
   intros C₁ C₂ D₂ F.

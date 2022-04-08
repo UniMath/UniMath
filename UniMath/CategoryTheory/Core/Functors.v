@@ -357,6 +357,15 @@ Definition reflects_morphism {C D : category} (F : functor C D)
 Definition conservative {C D : category} (F : functor C D) : UU :=
   reflects_morphism F (@is_iso).
 
+Definition isaprop_conservative
+           {C D : category}
+           (F : functor C D)
+  : isaprop (conservative F).
+Proof.
+  do 4 (use impred ; intro).
+  apply isaprop_is_iso.
+Qed.
+
 (** ** Composition of functors, identity functors *)
 
 (** *** Composition *)
@@ -1055,7 +1064,7 @@ Section functors_on_iso_with_inv.
   Proof.
     use make_z_iso.
     - exact (# F f).
-    - exact (# F (z_iso_inv_mor f)).
+    - exact (# F (inv_from_z_iso f)).
     - exact (functor_on_is_inverse_in_precat F f).
   Defined.
 
@@ -1068,9 +1077,61 @@ Section functors_on_iso_with_inv.
 
 End functors_on_iso_with_inv.
 
+(**
+ Pseudomonic functors
+ *)
+Definition full_on_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y : C₁),
+     issurjective (λ (f : iso x y), functor_on_iso F f).
+
+Definition pseudomonic
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := faithful F × full_on_iso F.
+
+Definition isweq_functor_on_iso_pseudomonic
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           (HF : pseudomonic F)
+           (x y : C₁)
+  : isweq (@functor_on_iso _ _ F x y).
+Proof.
+  intro g.
+  use (factor_through_squash _ _ (pr2 HF x y g)).
+  {
+    apply isapropiscontr.
+  }
+  intro inv.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isaset_iso ; apply homset_property | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+       use (maponpaths pr1 (proofirrelevance _ (pr1 HF x y g) (_ ,, _) (_ ,, _))) ;
+       [ exact (maponpaths pr1 (pr2 φ₁)) | exact (maponpaths pr1 (pr2 φ₂)) ]).
+  - exact inv.
+Defined.
+
+Definition isaprop_pseudomonic
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : isaprop (pseudomonic F).
+Proof.
+  use isapropdirprod.
+  - apply isaprop_faithful.
+  - do 2 (use impred ; intro).
+    apply isapropissurjective.
+Qed.
+
+
 Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 
-Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat.
+(* Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat. *)
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)

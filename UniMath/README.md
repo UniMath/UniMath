@@ -119,6 +119,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   should be local or in a scope.  All scopes, if opened, should be opened only locally.
   Consider also putting them into a submodule, for then they won't be activated even
   for printing.
+* When introducing a notation using Unicode characters, document in a comment how to input that character using the Agda input method.
 * Each line should be limited to at most 100 (unicode) characters.  The
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the

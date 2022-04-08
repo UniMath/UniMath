@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 
 Local Open Scope cat.
@@ -455,6 +456,17 @@ Proof.
   - apply is_univalent_full_subcat, univalent_category_is_univalent.
 Defined.
 
+Definition univalent_image
+           {C₁ C₂ : univalent_category}
+           (F : C₁ ⟶ C₂)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (full_img_sub_precategory F).
+  - use is_univalent_full_subcat.
+    exact (pr2 C₂).
+Defined.
+
 Lemma functor_full_img_essentially_surjective (A B : category)
      (F : functor A B) :
   essentially_surjective (functor_full_img F).
@@ -467,3 +479,34 @@ Proof.
   apply iso_in_sub_from_iso.
   apply h.
 Qed.
+
+(**
+ Commuting triangle for factorization
+ *)
+Definition full_image_inclusion_commute
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : functor_full_img F ∙ sub_precategory_inclusion C₂ (full_img_sub_precategory F)
+    ⟹
+    F.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition full_image_inclusion_commute_nat_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : nat_iso
+      (functor_full_img F ∙ sub_precategory_inclusion C₂ (full_img_sub_precategory F))
+      F.
+Proof.
+  use make_nat_iso.
+  - exact (full_image_inclusion_commute F).
+  - intro.
+    apply identity_is_iso.
+Defined.
