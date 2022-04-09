@@ -34,6 +34,7 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
 
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
@@ -65,11 +66,14 @@ MonoidalCategories/EndofunctorsMonoidal.v
 MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
+MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
+MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
