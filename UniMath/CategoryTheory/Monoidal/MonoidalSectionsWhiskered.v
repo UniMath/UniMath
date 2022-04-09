@@ -238,7 +238,7 @@ Section MonoidalSections.
   Definition smonoidal_sdata {sd : section_disp D} (sm : smonoidal sd) : smonoidal_data sd := pr1 sm.
   Coercion smonoidal_sdata : smonoidal >-> smonoidal_data.
   Definition smonoidal_slaws {sd : section_disp D} (sm : smonoidal sd) : smonoidal_laws sm := pr2 sm.
-
+(* currently incompatible
   Definition sectionfunctor_fmonoidal_laws {sd : section_disp D} {ms : smonoidal_data sd} (ml : smonoidal_laws ms) :
     fmonoidal_laws (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms))
     := (sectionfunctor_preserves_tensor_nat_left (smonoidal_preserves_tensornatleft ml),,
@@ -250,7 +250,7 @@ Section MonoidalSections.
 
   Definition sectionfunctor_fmonoidal {sd : section_disp D} (ms : smonoidal sd) : fmonoidal M TM (section_functor sd)
     := (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms),,sectionfunctor_fmonoidal_laws (smonoidal_slaws ms)).
-
+*)
 
   (* We now define strong and strict monoidal sections *)
   Definition smonoidal_strongtensor {sd : section_disp D} (spt : section_preserves_tensor_data sd) : UU
