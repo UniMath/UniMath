@@ -1128,7 +1128,6 @@ in a coconus, namely the one that is given by the pair of t and the path that
 starts at t and ends at t, the coconuses are contractible. *)
 
 Lemma coconustot_isProofIrrelevant {T : UU} {t : T} (c1 c2 : coconustot T t) : c1 = c2.
-(* should rename this, since the property is not connectedness *)
 Proof.
   intros.
   induction c1 as [x0 x].

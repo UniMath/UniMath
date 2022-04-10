@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
@@ -171,65 +171,6 @@ Section IsoInvertible2Cells.
   Context {C : bicat}.
   Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
 
-  Definition is_inv2cell_to_is_iso {a b : C} (f g : hom a b) (η : f ==> g)
-    : is_invertible_2cell η → is_iso η.
-  Proof.
-    intros p h.
-    use isweq_iso.
-    - intro ψ.
-      cbn in *.
-      exact (p^-1 • ψ).
-    - abstract (intro ψ;
-                cbn in *;
-                rewrite vassocr;
-                rewrite vcomp_linv;
-                apply id2_left).
-    - abstract (intro ψ;
-                cbn in *;
-                rewrite vassocr;
-                rewrite vcomp_rinv;
-                apply id2_left).
-  Defined.
-
-  Definition inv2cell_to_iso {a b : C} (f g : hom a b) : invertible_2cell f g → iso f g.
-  Proof.
-    intro i.
-    use make_iso.
-    - apply i.
-    - apply is_inv2cell_to_is_iso.
-      apply i.
-  Defined.
-
-  Definition iso_to_inv2cell {a b : C} (f g : hom a b) : iso f g → invertible_2cell f g.
-  Proof.
-    intro i.
-    use tpair.
-    + exact (morphism_from_iso i).
-    + use make_is_invertible_2cell.
-      * exact (inv_from_iso i).
-      * exact (iso_inv_after_iso i).
-      * exact (iso_after_iso_inv i).
-  Defined.
-
-  Definition inv2cell_to_iso_isweq {a b : C} (f g : hom a b) : isweq (inv2cell_to_iso f g).
-  Proof.
-    use isweq_iso.
-    - exact (iso_to_inv2cell f g).
-    - intro i.
-      apply cell_from_invertible_2cell_eq.
-      apply idpath.
-    - intro i.
-      apply eq_iso.
-      apply idpath.
-  Defined.
-
-  Definition inv2cell_to_iso_weq {a b : C} (f g : hom a b) : invertible_2cell f g ≃ iso f g.
-  Proof.
-    use make_weq.
-    - exact (inv2cell_to_iso f g).
-    - exact (inv2cell_to_iso_isweq f g).
-  Defined.
-
   Definition idtoiso_alt_weq {a b : C} (f g : hom a b) : f = g ≃ iso f g.
   Proof.
     refine (inv2cell_to_iso_weq f g ∘ _)%weq.
@@ -247,7 +188,6 @@ Section IsoInvertible2Cells.
       induction p.
       apply idpath.
   Defined.
-
 End IsoInvertible2Cells.
 
 Definition is_univ_hom

@@ -297,34 +297,29 @@ Proof.
   exact (iso_after_iso_inv f').
 Defined.
 
+Definition nat_iso_inv_trans
+           {C D : precategory}
+           {F G : C ⟶ D}
+           (μ : nat_iso F G)
+  : G ⟹ F.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, inv_from_iso (make_iso _ (pr2 μ x))).
+  - abstract
+      (intros x y f ; cbn ;
+       refine (!_) ;
+       use iso_inv_on_right ; cbn ;
+       rewrite !assoc ;
+       use iso_inv_on_left ; cbn ;
+       exact (!(nat_trans_ax (pr1 μ) _ _ f))).
+Defined.
+
 Definition nat_iso_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) : nat_iso G F.
 Proof.
-  pose (iso := (λ c, make_iso _ (pr2 μ c))).
-  pose (inv := (λ c, inv_from_iso (iso c))).
-  use tpair.
-  - exists inv.
-    intros c c' f.
-    pose (coher := pr2 (pr1 μ) c c' f).
-    pose (coher_inv := maponpaths (λ p, inv c · p · inv c') coher).
-    simpl in coher_inv.
-    repeat rewrite <- assoc in coher_inv.
-    unfold inv in coher_inv.
-    assert (coher_inv' : (inv_from_iso (iso c) · (# F f · ((pr1 μ) c' · inv_from_iso (iso c'))) = inv_from_iso (iso c) · (pr1 (pr1 μ) c · (# G f · inv_from_iso (iso c'))))) by assumption.
-    clear coher_inv; rename coher_inv' into coher_inv.
-    assert (deref' : pr1 (iso c') = (pr1 μ) c') by reflexivity.
-    rewrite (iso_inv_after_iso' ((pr1 μ) c') (iso c') deref') in coher_inv.
-    rewrite id_right in coher_inv.
-    repeat rewrite assoc in coher_inv.
-    assert (deref : pr1 (iso c) = (pr1 μ) c) by reflexivity.
-    assert (coher_inv' : (inv_from_iso (iso c) · # F f = inv_from_iso (iso c) · (pr1 μ) c · # G f · inv_from_iso (iso c'))) by assumption.
-    clear coher_inv; rename coher_inv' into coher_inv.
-    rewrite (iso_after_iso_inv' ((pr1 μ) c) (iso c) deref) in coher_inv.
-    rewrite id_left in coher_inv.
-    unfold inv.
-    symmetry.
-    assumption.
-  - intro c.
-    exact (is_iso_inv_from_iso (iso c)).
+  use make_nat_iso.
+  - exact (nat_iso_inv_trans μ).
+  - intro x.
+    apply is_iso_inv_from_iso.
 Defined.
 
 Definition nat_iso_to_trans {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : F ⟹ G :=

@@ -43,12 +43,12 @@ Local Open Scope cat.
 Section Monad_def.
 
 Definition functor_with_μ (C : precategory_data) : UU
-  := ∑ F : functor C C, F □ F ⟹ F.
+  := ∑ F : functor C C, F ∙ F ⟹ F.
 
 Coercion functor_from_functor_with_μ (C : precategory_data) (F : functor_with_μ C)
   : functor C C := pr1 F.
 
-Definition μ {C : precategory_data} (F : functor_with_μ C) : F□F ⟹ F := pr2 F.
+Definition μ {C : precategory_data} (F : functor_with_μ C) : F ∙ F ⟹ F := pr2 F.
 
 Definition Monad_data (C : precategory_data) : UU :=
    ∑ F : functor_with_μ C, functor_identity C ⟹ F.

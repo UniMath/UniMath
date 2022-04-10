@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 
@@ -46,17 +46,26 @@ Proof.
   - exact (λ _ _ f g, f ~ g).
   - exact (λ _ x, x).
   - exact (λ _ _ _ f g x, g(f x)).
-  - intros. exact (homotrefl _).
+  - intros.
+    exact (homotrefl _).
   - cbn ; intros X Y f g h p q.
     exact (homotcomp p q).
-  - cbn ; intros X Y Z f g h p. exact (funhomotsec f p).
-  - cbn ; intros X Y Z f g h p. exact (homotfun p h).
-  - intros. intro. apply idpath.
-  - intros. intro. apply idpath.
-  - intros. intro. apply idpath.
-  - intros. intro. apply idpath.
-  - intros. intro. apply idpath.
-  - intros. intro. apply idpath.
+  - cbn ; intros X Y Z f g h p.
+    exact (funhomotsec f p).
+  - cbn ; intros X Y Z f g h p.
+    exact (homotfun p h).
+  - intros ; intro.
+    apply idpath.
+  - intros ; intro.
+    apply idpath.
+  - intros ; intro.
+    apply idpath.
+  - intros ; intro.
+    apply idpath.
+  - intros ; intro.
+    apply idpath.
+  - intros ; intro.
+    apply idpath.
 Defined.
 
 Lemma one_type_bicat_laws
@@ -135,8 +144,12 @@ Proof.
   intros X Y f g α.
   refine (invhomot α ,, _).
   split ; cbn.
-  - apply funextsec. intro x. apply pathsinv0r.
-  - apply funextsec. intro x. apply pathsinv0l.
+  - apply funextsec.
+    intro x.
+    apply pathsinv0r.
+  - apply funextsec.
+    intro x.
+    apply pathsinv0l.
 Defined.
 
 (** It is univalent *)
@@ -176,7 +189,7 @@ Defined.
 
 Definition weq_is_adjoint_equivalence_help
            {X Y : one_types}
-           (f : one_types⟦X,Y⟧)
+           (f : X --> Y)
            (Hf : isweq f)
   : left_equivalence f.
 Proof.
@@ -190,6 +203,16 @@ Proof.
   - split ; apply one_type_2cell_iso.
 Defined.
 
+Definition weq_is_adjoint_equivalence
+           {X Y : one_types}
+           (f : X --> Y)
+           (Hf : isweq f)
+  : left_adjoint_equivalence f.
+Proof.
+  apply equiv_to_isadjequiv.
+  exact (weq_is_adjoint_equivalence_help f Hf).
+Defined.
+
 Definition adjequiv_to_weq (X Y : one_types)
   : (pr1 X ≃ pr1 Y) ≃ adjoint_equivalence X Y.
 Proof.
@@ -197,8 +220,7 @@ Proof.
   intro f.
   apply weqimplimpl.
   - intro Hf.
-    apply equiv_to_isadjequiv.
-    exact (weq_is_adjoint_equivalence_help f Hf).
+    exact (weq_is_adjoint_equivalence f Hf).
   - exact (adjoint_equivalence_is_weq f).
   - apply isapropisweq.
   - apply isaprop_left_adjoint_equivalence.

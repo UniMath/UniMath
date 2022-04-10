@@ -196,7 +196,7 @@ Qed.
 Definition path_groupoid_invertible_cells
   : invertible_cells path_groupoid_data.
 Proof.
-  split ; intros ; apply grpd_bicat_is_invertible_2cell.
+  split ; intros ; apply locally_groupoid_grpds.
 Defined.
 
 (** The pseudofunctor *)
@@ -443,7 +443,7 @@ Proof.
   - intros G₁ G₂ F.
     use make_invertible_2cell.
     + exact (path_groupoid_counit_data_nat_trans G₁ G₂ F ,, tt).
-    + apply grpd_bicat_is_invertible_2cell.
+    + apply locally_groupoid_grpds.
 Defined.
 
 Definition path_groupoid_counit_is_pstrans
@@ -511,7 +511,7 @@ Proof.
         (intros x y p ; cbn in * ;
          induction p ; simpl ;
          apply idpath).
-  - apply grpd_bicat_is_invertible_2cell.
+  - apply locally_groupoid_grpds.
 Defined.
 
 Definition path_groupoid_biadj_triangle_l_is_modification
@@ -748,7 +748,7 @@ Proof.
   - intros G₁ G₂ F.
     use make_invertible_2cell.
     + exact (path_groupoid_counit_inv_data_nat_trans G₁ G₂ F ,, tt).
-    + apply grpd_bicat_is_invertible_2cell.
+    + apply locally_groupoid_grpds.
 Defined.
 
 Definition path_groupoid_counit_inv_is_pstrans
@@ -817,7 +817,7 @@ Proof.
            apply eq_isotoid ;
            use subtypePath ; try (intro ; apply isaprop_is_iso) ;
            apply idpath).
-    + apply grpd_bicat_is_invertible_2cell.
+    + apply locally_groupoid_grpds.
   - abstract
       (intros G₁ G₂ F ;
        use subtypePath ; try (intro ; apply isapropunit) ;
@@ -844,7 +844,7 @@ Proof.
           (intros x y p ; cbn ;
            rewrite id_right, id_left, idtoiso_isotoid ;
            apply idpath).
-    + apply grpd_bicat_is_invertible_2cell.
+    + apply locally_groupoid_grpds.
   - abstract
       (intros G₁ G₂ F ;
        use subtypePath ; try (intro ; apply isapropunit) ;

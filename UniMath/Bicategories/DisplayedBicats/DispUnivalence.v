@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Export UniMath.Bicategories.Core.Univalence.
@@ -309,6 +309,132 @@ Proof.
   exact (HD a aa bb).
 Defined.
 
+Definition disp_isotoid_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (ee : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : xx = yy
+  := invmap
+       (make_weq _ (HD_2_0 x x (idpath _) xx yy))
+       ee.
+
+Definition disp_idtoiso_2_0_isotoid_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (ee : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : disp_idtoiso_2_0 D (idpath _) xx yy (disp_isotoid_2_0 HD_2_0 ee)
+    =
+    ee.
+Proof.
+  exact (homotweqinvweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) ee).
+Defined.
+
+Definition disp_isotoid_2_0_idtoiso_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           {x : B}
+           {xx yy : D x}
+           (p : xx = yy)
+  : disp_isotoid_2_0 HD_2_0 (disp_idtoiso_2_0 _ (idpath _) xx yy p) = p.
+Proof.
+  exact (homotinvweqweq (make_weq _ (HD_2_0 x x (idpath _) xx yy)) p).
+Defined.
+
+Definition disp_J_2_0_help_on_paths
+           {B : bicat}
+           {D : disp_bicat B}
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x : B}
+           {xx : D x} {yy : D x}
+           (p : xx = yy)
+  : P x x
+      (internal_adjoint_equivalence_identity x)
+      xx yy
+      (disp_idtoiso_2_0 D (idpath x) xx yy p).
+Proof.
+  induction p.
+  apply P_id.
+Defined.
+
+Definition disp_J_2_0_help
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD_2_0 : disp_univalent_2_0 D)
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x : B}
+           {xx : D x} {yy : D x}
+           (ff : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   xx
+                   yy)
+  : P x x (internal_adjoint_equivalence_identity x) xx yy ff.
+Proof.
+  pose (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff)).
+  refine (transportf
+            (P x x _ xx yy)
+            _
+            (disp_J_2_0_help_on_paths P P_id (disp_isotoid_2_0 HD_2_0 ff))).
+  apply disp_idtoiso_2_0_isotoid_2_0.
+Defined.
+
+Definition disp_J_2_0
+           {B : bicat}
+           {D : disp_bicat B}
+           (HB_2_0 : is_univalent_2_0 B)
+           (HD_2_0 : disp_univalent_2_0 D)
+           (P : ∏ (x y : B)
+                  (f : adjoint_equivalence x y)
+                  (xx : D x) (yy : D y),
+                disp_adjoint_equivalence f xx yy → UU)
+           (P_id : ∏ (x : B)
+                     (xx : D x),
+                   P x x
+                     (internal_adjoint_equivalence_identity x)
+                     xx xx
+                     (disp_identity_adjoint_equivalence xx))
+           {x y : B}
+           {f : adjoint_equivalence x y}
+           {xx : D x} {yy : D y}
+           (ff : disp_adjoint_equivalence f xx yy)
+  : P x y f xx yy ff.
+Proof.
+  revert x y f xx yy ff.
+  use (J_2_0 HB_2_0).
+  intros x xx yy ff.
+  exact (disp_J_2_0_help HD_2_0 P P_id ff).
+Defined.
+
 Section Total_Category_Globally_Univalent.
   Context {C : bicat}.
   Variable (D : disp_bicat C)
@@ -394,7 +520,7 @@ Section Disp_Univalent_2.
     : disp_univalent_2_1 D
     := pr2 univ_2.
 
-  End Disp_Univalent_2.
+End Disp_Univalent_2.
 
 Lemma total_is_univalent_2
       {C : bicat}

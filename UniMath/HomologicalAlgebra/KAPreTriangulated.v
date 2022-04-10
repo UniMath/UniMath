@@ -398,7 +398,7 @@ Section KAPreTriangulated.
     use (pathscomp0 _ (! (functor_comp
                             (ComplexHomotFunctor A)
                             (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                            (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                            (inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                             (Source (KADTriDataMor I))))))).
     set (tmp''' := @AdditiveFunctorInv
                      _ _ (ComplexHomotFunctor A)
@@ -406,7 +406,7 @@ Section KAPreTriangulated.
     apply (maponpaths
              (postcompose
                 (# (ComplexHomotFunctor A)
-                   (z_iso_inv_mor
+                   (inv_from_z_iso
                       (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
       in tmp'''.
     use (pathscomp0 _ (! tmp''')). clear tmp'''. unfold postcompose.
@@ -454,11 +454,11 @@ Section KAPreTriangulated.
            (MappingConeTri
               (# (ComplexHomotFunctor A)
                  ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                    · z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                    · inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                       (Source (KADTriDataMor I)))))
               (KAFiber
                  ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                    · z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                    · inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                       (Source (KADTriDataMor I)))))).
   Proof.
     use (TriIso_comp (InvRotTriIso (KADTriDataIso I))).
@@ -490,11 +490,11 @@ Section KAPreTriangulated.
                (# (ComplexHomotFunctor A)
                   (to_inv (# (InvTranslationFunctor A)
                              (MappingConePr1 A i')) ·
-                          z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                          inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                          (Source (KADTriDataMor I)))))).
     - exact (KAFiber (to_inv (# (InvTranslationFunctor A)
                              (MappingConePr1 A i')) ·
-                             z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                             inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                             (Source (KADTriDataMor I))))).
     - exact (KAInvRotDTris_Iso D I).
   Qed.

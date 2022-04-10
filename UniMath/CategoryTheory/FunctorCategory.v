@@ -418,6 +418,17 @@ Proof.
 Defined.
 
 
+
+Definition univalent_functor_category
+           (C₁ C₂ : univalent_category)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (functor_category C₁ C₂).
+  - exact (is_univalent_functor_category _ _ (pr2 C₂)).
+Defined.
+
+
 Definition iso_to_nat_iso
            {C D : category}
            (F G : C ⟶ D)
@@ -507,7 +518,7 @@ Proof.
   intro H.
   red.
   intro c.
-  set (αcinv := pr1 (z_iso_inv_mor (α,,H)) c).
+  set (αcinv := pr1 (inv_from_z_iso (α,,H)) c).
   use make_is_z_isomorphism.
   - exact αcinv.
   - assert (HH := is_z_isomorphism_is_inverse_in_precat H).

@@ -176,6 +176,29 @@ Proof.
 Qed.
 
 
+Lemma transportf_bind {X : UU} {P : X → UU}
+  {x x' x'' : X} (e : x' = x) (e' : x = x'')
+  y y'
+: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
+Proof.
+  intro H; destruct e, e'; exact H.
+Defined.
+
+Lemma pathscomp0_dep {X : UU} {P : X → UU}
+  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
+  {y} {y'} {y''}
+: (y = transportf P e y') -> (y' = transportf _ e' y'')
+  -> y = transportf _ (e' @ e) y''.
+Proof.
+  intros ee ee'.
+  etrans. apply ee.
+  apply transportf_bind, ee'.
+Defined.
+
+Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
+
+
+
 Lemma transportf_set {A : UU} (B : A → UU)
       {a : A} (e : a = a) (b : B a)
       (X : isaset A)
@@ -280,6 +303,32 @@ Defined.
 Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
   (∏ a b, C a b) ≃ (∏ b a, C a b) := make_weq flipsec isweq_flipsec.
 
+(** hlevel of empty type *)
+Definition empty_hlevel
+           (n : nat)
+  : isofhlevel (n + 1) ∅.
+Proof.
+  induction n.
+  - exact isapropempty.
+  - exact (λ x, fromempty x).
+Defined.
+
+Definition empty_HLevel
+           (n : nat)
+  : HLevel (n + 1)
+  := empty ,, empty_hlevel n.
+
+Definition HLevel_fun
+           {n : nat}
+           (X Y : HLevel n)
+  : HLevel n.
+Proof.
+  simple refine (_ ,, _).
+  - exact (pr1 X → pr1 Y).
+  - apply impredfun.
+    exact (pr2 Y).
+Defined.
+
 (** The subtypes of a type of hlevel S n are also of hlevel S n.
     This doesn't work for types of hlevel 0: a subtype of a contractible
     type might be empty, not contractible! *)
@@ -304,6 +353,33 @@ Proof.
   intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
 Defined.
+
+Lemma weq_subtypes'
+    {X Y : UU} (w : X ≃ Y)
+    {S : X -> UU} {T : Y -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x : X, S x <-> T (w x))
+  : (∑ x, S x) ≃ (∑ y, T y).
+Proof.
+  apply (weqbandf w).
+  intros. apply weqiff.
+  - apply HST.
+  - apply HS.
+  - apply HT.
+Defined.
+
+(* Specialisation of [weq_subtypes'] *)
+Lemma weq_subtypes_iff
+    {X : UU} {S T : X -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x, S x <-> T x)
+  : (∑ x, S x) ≃ (∑ x, T x).
+Proof.
+  apply (weq_subtypes' (idweq X)); assumption.
+Defined.
+
 
 Lemma hlevel_total2 n {A : UU} {B : A → UU} :
   isofhlevel n (∑ (x :A), B x) → isofhlevel (S n) A → ∏ (x : A), isofhlevel n (B x).
@@ -1166,4 +1242,72 @@ Definition pathsdirprod_eta
 Proof.
   induction p.
   apply idpath.
+Defined.
+
+Definition paths_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           {p₁ p₂ : x₁ = x₂}
+           {q₁ q₂ : y₁ = y₂}
+           (r₁ : p₁ = p₂)
+           (r₂ : q₁ = q₂)
+  : pathsdirprod p₁ q₁
+    =
+    pathsdirprod p₂ q₂.
+Proof.
+  induction r₁, r₂.
+  apply idpath.
+Defined.
+
+(** Paths on functions *)
+Definition app_fun
+           {X Y : UU}
+  : (X → Y) × X → Y
+  := λ fx, pr1 fx (pr2 fx).
+
+Definition app_homot
+           {X Y₁ Y₂ : UU}
+           {f g : Y₁ → X → Y₂}
+           (p : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (y : Y₁)
+  : f y = g y
+  := funextsec _ _ _ (λ x, p (y ,, x)).
+
+Definition maponpaths_app_fun
+           {X Y : UU}
+           {fx gx : (X → Y) × X}
+           (p : fx = gx)
+  : maponpaths (λ (fx : (X → Y) × X), app_fun fx) p
+    =
+    maponpaths (λ z, z (pr2 fx)) (maponpaths dirprod_pr1 p)
+    @
+    maponpaths (pr1 gx) (maponpaths dirprod_pr2 p).
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+
+
+(** Product of a propositions with itself *)
+Definition dirprod_with_prop (A : UU) (isa : isaprop A) : A × A ≃ A.
+Proof.
+  apply weqpr1, iscontraprop1; assumption.
+Defined.
+
+(** A variation on the above theme *)
+Definition dirprod_with_prop' (A B : UU) (isa : isaprop A) : A × B × A ≃ B × A.
+Proof.
+  intermediate_weq ((A × B) × A).
+  apply invweq, weqtotal2asstor.
+  intermediate_weq (A × (A × B)).
+  apply weqdirprodcomm.
+  intermediate_weq ((A × A) × B).
+  apply invweq, weqtotal2asstor.
+  intermediate_weq (A × B).
+  apply weqdirprodf.
+  - apply dirprod_with_prop; assumption.
+  - apply idweq.
+  - apply weqdirprodcomm.
 Defined.

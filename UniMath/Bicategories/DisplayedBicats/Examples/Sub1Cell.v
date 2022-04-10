@@ -9,7 +9,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.

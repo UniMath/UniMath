@@ -904,7 +904,7 @@ Section shortshortexact_iskernel_iscokernel.
     use Kernel_up_to_iso_isKernel.
     + exact K.
     + exact (z_iso_inv (make_z_iso _ _ e)).
-    + apply (maponpaths (λ g : _, (z_iso_inv_mor (make_z_iso _ _ e)) · g)) in e1.
+    + apply (maponpaths (λ g : _, (inv_from_z_iso (make_z_iso _ _ e)) · g)) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite assoc.
       cbn. rewrite (is_inverse_in_precat2 e). rewrite id_left. apply idpath.
   Qed.
@@ -940,7 +940,7 @@ Section shortshortexact_iskernel_iscokernel.
     use Cokernel_up_to_iso_isCokernel.
     + exact CK.
     + exact (z_iso_inv (make_z_iso _ _ e)).
-    + apply (maponpaths (λ g : _, g · (z_iso_inv_mor (make_z_iso _ _ e)))) in e1.
+    + apply (maponpaths (λ g : _, g · (inv_from_z_iso (make_z_iso _ _ e)))) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite <- assoc. cbn.
       rewrite (is_inverse_in_precat1 e). rewrite id_right. apply idpath.
   Qed.

@@ -32,8 +32,11 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
-
+Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 
@@ -95,6 +98,55 @@ Section IsoCommaCategory.
   Definition iso_comma
     : category
     := total_category iso_comma_disp_cat.
+
+  Definition is_iso_iso_comma
+             {x y : iso_comma}
+             (f : x --> y)
+             (H₁ : is_iso (pr11 f))
+             (H₂ : is_iso (pr21 f))
+    : is_iso f.
+  Proof.
+    use is_iso_qinv.
+    - simple refine ((_ ,, _) ,, _).
+      + exact (inv_from_iso (_ ,, H₁)).
+      + exact (inv_from_iso (_ ,, H₂)).
+      + abstract
+          (cbn ;
+           rewrite !functor_on_inv_from_iso ;
+           use iso_inv_on_left ;
+           rewrite assoc' ;
+           refine (!_) ;
+           use iso_inv_on_right ;
+           cbn ;
+           refine (!_) ;
+           apply (pr2 f)).
+    - split.
+      + abstract
+          (use subtypePath ;
+           [ intro ; apply homset_property | ] ;
+           use pathsdirprod ;
+           cbn ;
+           [ apply (iso_inv_after_iso (make_iso _ H₁))
+           | apply (iso_inv_after_iso (make_iso _ H₂)) ]).
+      + abstract
+          (use subtypePath ;
+           [ intro ; apply homset_property | ] ;
+           use pathsdirprod ;
+           cbn ;
+           [ apply (iso_after_iso_inv (make_iso _ H₁))
+           | apply (iso_after_iso_inv (make_iso _ H₂)) ]).
+  Defined.
+
+  Definition is_pregroupoid_iso_comma
+             (HC₁ : is_pregroupoid C₁)
+             (HC₂ : is_pregroupoid C₂)
+    : is_pregroupoid iso_comma.
+  Proof.
+    intros x y f.
+    apply is_iso_iso_comma.
+    - apply HC₁.
+    - apply HC₂.
+  Defined.
 
   (** Univalence of the iso-comma category *)
   Definition is_univalent_disp_iso_comma_disp_cat
@@ -325,74 +377,22 @@ Section IsoCommaCategory.
 
     (** Now we look at the second universal mapping property *)
     Context (Φ₁ Φ₂ : D ⟶ iso_comma)
-            (τ₁ : nat_iso (Φ₁ ∙ iso_comma_pr1) P)
-            (τ₂ : nat_iso (Φ₂ ∙ iso_comma_pr1) P)
-            (θ₁ : nat_iso (Φ₁ ∙ iso_comma_pr2) Q)
-            (θ₂ : nat_iso (Φ₂ ∙ iso_comma_pr2) Q)
-            (p₁ : pre_whisker Φ₁ iso_comma_commute
-                  =
-                  nat_trans_comp
-                    _ _ _
-                    (nat_trans_functor_assoc_inv _ _ _)
-                    (nat_trans_comp
-                       _ _ _
-                       (post_whisker τ₁ F)
-                       (nat_trans_comp
-                          _ _ _
-                          η
-                          (nat_trans_comp
-                             _ _ _
-                             (post_whisker (nat_iso_inv θ₁) G)
-                             (nat_trans_functor_assoc _ _ _)))))
-            (p₂ : pre_whisker Φ₂ iso_comma_commute
-                  =
-                  nat_trans_comp
-                    _ _ _
-                    (nat_trans_functor_assoc_inv _ _ _)
-                    (nat_trans_comp
-                       _ _ _
-                       (post_whisker τ₂ F)
-                       (nat_trans_comp
-                          _ _ _
-                          η
-                          (nat_trans_comp
-                             _ _ _
-                             (post_whisker (nat_iso_inv θ₂) G)
-                             (nat_trans_functor_assoc _ _ _))))).
+            (τ₁ : Φ₁ ∙ iso_comma_pr1 ⟹ Φ₂ ∙ iso_comma_pr1)
+            (τ₂ : Φ₁ ∙ iso_comma_pr2 ⟹ Φ₂ ∙ iso_comma_pr2)
+            (p : ∏ (x : D),
+                 pr12 (Φ₁ x) · #G (τ₂ x)
+                 =
+                 #F (τ₁ x) · pr12 (Φ₂ x)).
 
     Definition iso_comma_ump2_nat_trans_data
       : nat_trans_data Φ₁ Φ₂.
     Proof.
       intro x.
       simple refine ((_ ,, _) ,, _) ; cbn.
-      - exact (τ₁ x · inv_from_iso (nat_iso_pointwise_iso τ₂ x)).
-      - exact (θ₁ x · inv_from_iso (nat_iso_pointwise_iso θ₂ x)).
+      - exact (τ₁ x).
+      - exact (τ₂ x).
       - abstract
-          (pose (nat_trans_eq_pointwise p₁ x) as q₁ ;
-           pose (nat_trans_eq_pointwise p₂ x) as q₂ ;
-           cbn in q₁, q₂ ; unfold iso_comma_commute_nat_trans_data in q₁, q₂ ;
-           rewrite id_left in q₁, q₂ ;
-           rewrite id_right in q₁, q₂ ;
-           unfold nat_iso_pointwise_iso ; simpl ;
-           rewrite !functor_comp ;
-           refine (!_) ;
-           refine (maponpaths (λ z, z · _) q₁ @ _) ; clear q₁ ;
-           rewrite !assoc' ;
-           apply maponpaths ;
-           refine (!_) ;
-           refine (maponpaths (λ z, _ · z) q₂ @ _) ; clear q₂ ;
-           rewrite !assoc ;
-           apply maponpaths_2 ;
-           rewrite <- functor_comp ;
-           rewrite iso_after_iso_inv ;
-           rewrite functor_id ;
-           rewrite id_left ;
-           rewrite !assoc' ;
-           rewrite <- functor_comp ;
-           rewrite iso_after_iso_inv ;
-           rewrite functor_id ;
-           rewrite id_right ;
-           apply idpath).
+          (exact (!(p x))).
     Defined.
 
     Definition iso_comma_ump2_is_nat_trans
@@ -403,29 +403,9 @@ Section IsoCommaCategory.
       {
         intro ; apply homset_property.
       }
-      use pathsdirprod ; cbn.
-      - pose (nat_trans_ax τ₁ _ _ f) as q.
-        cbn in q.
-        rewrite !assoc.
-        etrans.
-        {
-          apply maponpaths_2.
-          exact q.
-        }
-        rewrite !assoc'.
-        apply maponpaths.
-        exact (nat_trans_ax (nat_iso_inv τ₂) _ _ f).
-      - pose (nat_trans_ax θ₁ _ _ f) as q.
-        cbn in q.
-        rewrite !assoc.
-        etrans.
-        {
-          apply maponpaths_2.
-          exact q.
-        }
-        rewrite !assoc'.
-        apply maponpaths.
-        exact (nat_trans_ax (nat_iso_inv θ₂) _ _ f).
+      use pathsdirprod.
+      - exact (nat_trans_ax τ₁ _ _ f).
+      - exact (nat_trans_ax τ₂ _ _ f).
     Qed.
 
     Definition iso_comma_ump2
@@ -438,67 +418,33 @@ Section IsoCommaCategory.
 
     (** The computation rules *)
     Definition iso_comma_ump2_pr1
-      : nat_trans_comp
-          _ _ _
-          (post_whisker iso_comma_ump2 iso_comma_pr1)
-          τ₂
-        =
-        τ₁.
+      : post_whisker iso_comma_ump2 iso_comma_pr1 = τ₁.
     Proof.
       use nat_trans_eq.
       {
         intro ; apply homset_property.
       }
       intro x ; cbn.
-      rewrite !assoc'.
-      rewrite iso_after_iso_inv.
-      apply id_right.
+      apply idpath.
     Qed.
 
     Definition iso_comma_ump2_pr2
-      : nat_trans_comp
-          _ _ _
-          (post_whisker iso_comma_ump2 iso_comma_pr2)
-          θ₂
-        =
-        θ₁.
+      : post_whisker iso_comma_ump2 iso_comma_pr2 = τ₂.
     Proof.
       use nat_trans_eq.
       {
         intro ; apply homset_property.
       }
       intro x ; cbn.
-      rewrite !assoc'.
-      rewrite iso_after_iso_inv.
-      apply id_right.
+      apply idpath.
     Qed.
 
-    (** Next we look at the third universal property *)
+    (** The uniqueness *)
     Context {n₁ n₂ : Φ₁ ⟹ Φ₂}
-            (n₁pr1 : nat_trans_comp
-                      _ _ _
-                      (post_whisker n₁ iso_comma_pr1)
-                      τ₂
-                    =
-                    τ₁)
-            (n₂pr1 : nat_trans_comp
-                       _ _ _
-                       (post_whisker n₂ iso_comma_pr1)
-                       τ₂
-                     =
-                     τ₁)
-            (n₁pr2 : nat_trans_comp
-                       _ _ _
-                       (post_whisker n₁ iso_comma_pr2)
-                       θ₂
-                     =
-                     θ₁)
-            (n₂pr2 : nat_trans_comp
-                       _ _ _
-                       (post_whisker n₂ iso_comma_pr2)
-                       θ₂
-                     =
-                     θ₁).
+            (n₁_pr1 : post_whisker n₁ iso_comma_pr1 = τ₁)
+            (n₁_pr2 : post_whisker n₁ iso_comma_pr2 = τ₂)
+            (n₂_pr1 : post_whisker n₂ iso_comma_pr1 = τ₁)
+            (n₂_pr2 : post_whisker n₂ iso_comma_pr2 = τ₂).
 
     Definition iso_comma_ump_eq
       : n₁ = n₂.
@@ -513,18 +459,51 @@ Section IsoCommaCategory.
         intro ; apply homset_property.
       }
       use pathsdirprod.
-      - pose (nat_trans_eq_pointwise n₁pr1 x) as q₁.
-        pose (nat_trans_eq_pointwise n₂pr1 x) as q₂.
+      - pose (nat_trans_eq_pointwise n₁_pr1 x) as q₁.
+        pose (nat_trans_eq_pointwise n₂_pr1 x) as q₂.
         cbn in q₁, q₂.
-        pose (r := q₁ @ !q₂).
-        apply (cancel_postcomposition_iso (nat_iso_pointwise_iso τ₂ x)).
-        exact r.
-      - pose (nat_trans_eq_pointwise n₁pr2 x) as q₁.
-        pose (nat_trans_eq_pointwise n₂pr2 x) as q₂.
+        exact (q₁ @ !q₂).
+      - pose (nat_trans_eq_pointwise n₁_pr2 x) as q₁.
+        pose (nat_trans_eq_pointwise n₂_pr2 x) as q₂.
         cbn in q₁, q₂.
-        pose (r := q₁ @ !q₂).
-        apply (cancel_postcomposition_iso (nat_iso_pointwise_iso θ₂ x)).
-        exact r.
+        exact (q₁ @ !q₂).
     Qed.
   End UniversalMappingProperty.
 End IsoCommaCategory.
+
+Definition univalent_iso_comma
+           {C₁ C₂ C₃ : univalent_category}
+           (F : C₁ ⟶ C₃)
+           (G : C₂ ⟶ C₃)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (iso_comma F G).
+  - apply is_univalent_iso_comma.
+    + exact (pr2 C₁).
+    + exact (pr2 C₂).
+    + exact (pr2 C₃).
+Defined.
+
+(**
+ Essentially surjective functors are closed under pullback
+ *)
+Definition iso_comma_essentially_surjective
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₃)
+           (HF : essentially_surjective F)
+           (G : C₂ ⟶ C₃)
+  : essentially_surjective (iso_comma_pr2 F G).
+Proof.
+  intros y.
+  use (factor_through_squash _ _ (HF (G y))).
+  - apply isapropishinh.
+  - intros x.
+    induction x as [ x i ].
+    apply hinhpr.
+    simple refine (((_ ,, _) ,, _) ,, _) ; cbn.
+    + exact x.
+    + exact y.
+    + exact i.
+    + apply identity_iso.
+Defined.

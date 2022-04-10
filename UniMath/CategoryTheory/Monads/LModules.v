@@ -52,12 +52,12 @@ Section LModule_def.
 
 
 Definition LModule_data (D:precategory_data) : UU
-  := ∑ F : functor B D, F □ M ⟹ F.
+  := ∑ F : functor B D, M ∙ F ⟹ F.
 
 Coercion functor_from_LModule_data (C : precategory_data) (F : LModule_data C)
   : functor B C := pr1 F.
 
-Definition lm_mult {C : precategory_data} (F : LModule_data C) : F□M ⟹ F := pr2 F.
+Definition lm_mult {C : precategory_data} (F : LModule_data C) : M ∙ F ⟹ F := pr2 F.
 Local Notation σ := lm_mult.
 
 Definition LModule_laws  {C:precategory_data} (T : LModule_data C) : UU :=
@@ -254,9 +254,9 @@ Section Pullback_module.
   Notation "Z ∘ α" := (post_whisker α Z).
   Local Notation σ := lm_mult.
 
-  Definition pb_LModule_σ : T □ M ⟹ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
+  Definition pb_LModule_σ : M ∙ T ⟹ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
 
-  Definition pb_LModule_data : ∑ F : functor B C, F □ M ⟹ F :=
+  Definition pb_LModule_data : ∑ F : functor B C, M ∙ F ⟹ F :=
     tpair _ (T:functor B C) pb_LModule_σ.
 
   Lemma pb_LModule_laws : LModule_laws M pb_LModule_data.

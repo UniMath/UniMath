@@ -11,12 +11,14 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Properties.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
@@ -443,57 +445,40 @@ Section BiadjunctionHom.
 End BiadjunctionHom.
 
 (** Biadjunctions preserve unique maps *)
-Section BiadjunctionUniqueMaps.
+Section BiadjunctionPreservesInitial.
   Context {B₁ B₂ : bicat}
+          (HB₂ : is_univalent_2_1 B₂)
           {L : psfunctor B₁ B₂}
           (R : left_biadj_data L)
-          (H₂ : is_univalent_2_1 B₂)
-          (X : B₁) (HX : unique_maps X).
+          (X : B₁) (HX : is_biinitial X).
 
   Definition biadj_preserves_unique_maps
-    : is_biinitial H₂ (L X).
+    : is_biinitial (L X).
   Proof.
+    use is_biinitial_repr_to_is_biinitial.
     intros Y.
-    unfold is_biinitial in *.
+    apply (adj_equiv_to_equiv_cat
+             (functor_to_unit (univ_hom HB₂ (L X) Y))).
     use equiv_to_adjequiv.
-    use iso_equiv.
+    use left_equivalence_invertible.
     - exact ((pr11 (biadj_hom_equiv R X Y))
                ∙ functor_to_unit (hom X (R Y))).
     - pose (comp_adj_equivalence_of_cats
               (adj_equivalence_of_cats_inv (biadj_hom_equiv R X Y))
-              (HX (R Y))) as A.
+              (is_biinitial_to_is_biinitial_repr HX (R Y))) as A.
       exact (@adj_equivalence_to_left_equivalence
-               (univ_hom H₂ (L X) Y)
+               (univ_hom HB₂ (L X) Y)
                unit_category
                _ A).
     - use make_nat_trans.
       + exact (λ _, idpath _).
-      + intros f g α.
-        apply isapropunit.
+      + abstract
+          (intros f g α ;
+           apply isapropunit).
     - apply is_nat_iso_to_is_invertible_2cell.
       intros f.
       use is_iso_qinv ; cbn.
       + apply idpath.
-      + split ; apply idpath.
+      + abstract (split ; apply idpath).
   Defined.
-End BiadjunctionUniqueMaps.
-
-(** Biadjunctions preserve biinitial objects. *)
-Section BiadjunctionInitial.
-  Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}
-          (R : left_biadj_data L)
-          (H₁ : is_univalent_2_1 B₁)
-          (H₂ : is_univalent_2_1 B₂)
-          (X : B₁) (HX : is_biinitial H₁ X).
-
-  Definition biadj_preserves_biinitial
-    : is_biinitial H₂ (L X).
-  Proof.
-    apply biadj_preserves_unique_maps.
-    - exact R.
-    - use biinitial_to_unique_maps.
-      + exact H₁.
-      + apply HX.
-  Defined.
-End BiadjunctionInitial.
+End BiadjunctionPreservesInitial.

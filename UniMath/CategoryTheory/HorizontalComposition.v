@@ -34,7 +34,7 @@ Variable α : F ⟹ F'.
 Variable β : G ⟹ G'.
 
 
-Definition horcomp_data : nat_trans_data (G □ F) (G' □ F') := λ c : C, β (F c) · #G' (α c).
+Definition horcomp_data : nat_trans_data (F ∙ G) (F' ∙ G') := λ c : C, β (F c) · #G' (α c).
 
 Lemma is_nat_trans_horcomp : is_nat_trans _ _ horcomp_data.
 Proof.
@@ -43,7 +43,7 @@ Proof.
   now rewrite <- !functor_comp, nat_trans_ax.
 Qed.
 
-Definition horcomp : nat_trans (G □ F) (G' □ F') := tpair _ _ is_nat_trans_horcomp.
+Definition horcomp : nat_trans (F ∙ G) (F' ∙ G') := tpair _ _ is_nat_trans_horcomp.
 
 End horizontal_composition.
 
@@ -177,7 +177,7 @@ Qed.
 Lemma horcomp_pre_post
       (C D : category) (E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
       (g:nat_trans G G') :
-  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G' □ F)) (c:= (G' □ F'))
+  horcomp f g = compose (C:=functor_category C E) (a:= (F ∙ G)) (b:= (F ∙ G')) (c:= (F' ∙ G'))
                         (pre_whisker F g)
                         (post_whisker f G').
 Proof.
@@ -190,7 +190,7 @@ Qed.
 Lemma horcomp_post_pre
       (C D : category) (E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
       (g:nat_trans G G') :
-  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G □ F')) (c:= (G' □ F'))
+  horcomp f g = compose (C:=functor_category C E) (a:= (F ∙ G)) (b:= (F' ∙ G)) (c:= (F' ∙ G'))
                         (post_whisker f G)
                         (pre_whisker F' g).
 Proof.

@@ -349,7 +349,7 @@ Section cokernels_iso.
     use (make_isCokernel).
     intros w h0 H'.
     use unique_exists.
-    - exact ((z_iso_inv_mor h) · (CokernelOut Z CK w h0 H')).
+    - exact ((inv_from_z_iso h) · (CokernelOut Z CK w h0 H')).
     - cbn. rewrite H. rewrite assoc. rewrite <- (assoc _ h).
       rewrite (is_inverse_in_precat1 h).
       rewrite id_right. use CokernelCommutes.

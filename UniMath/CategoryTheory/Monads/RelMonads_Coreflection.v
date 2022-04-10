@@ -50,7 +50,7 @@ Let φinv {X Y} (g : X --> G Y) : F X --> Y := invweq (hom_weq NHW) g.
 Hypothesis corefl : ∏ c : C, is_iso (eta c).
 Let ηinv (X : C)  : G (F X) --> X := inv_from_iso (make_iso (eta X) (corefl X )).
 
-Let ηinv_is_natural : is_nat_trans (G □ F) (functor_identity _ ) (fun X => ηinv X).
+Let ηinv_is_natural : is_nat_trans (F ∙ G) (functor_identity _ ) (fun X => ηinv X).
 Proof. use is_nat_trans_inv_from_pointwise_inv. apply C. Qed.
 
 Section RelMonad_transfer_object.
@@ -61,7 +61,7 @@ Variable (T : RelMonad_data J).
    the coreflection
 *)
 
-Definition RelMonad_composed_data : RelMonad_data (F □ J).
+Definition RelMonad_composed_data : RelMonad_data (J ∙ F).
 Proof.
   repeat use tpair.
   - exact (λ a, F (T a)).
@@ -167,7 +167,7 @@ Qed.
 
 End RelMonad_transfer_object.
 
-Definition RelMonad_composed (T : RelMonad J) : RelMonad (F □ J)
+Definition RelMonad_composed (T : RelMonad J) : RelMonad (J ∙ F)
     := RelMonad_composed_data T,, RelMonad_composed_axioms _ T.
 
 (** ** Postcomposition of a monad morphism with a coreflection *)
@@ -233,7 +233,7 @@ End RelMonad_transfer_morphism.
 
 Section RelMonad_transfer_radj_object.
 
-Variable (T : RelMonad_data (F □ J)).
+Variable (T : RelMonad_data (J ∙ F)).
 
 Definition RelMonad_composed_radj_data : RelMonad_data J.
 Proof.
@@ -271,14 +271,14 @@ Defined.
 
 End RelMonad_transfer_radj_object.
 
-Definition RelMonad_composed_radj (T : RelMonad (F □ J)) : RelMonad J
+Definition RelMonad_composed_radj (T : RelMonad (J ∙ F)) : RelMonad J
     := RelMonad_composed_radj_data T,, RelMonad_composed_radj_axioms _ T.
 
 (** ** Postcomposing a monad morphism with the right adjoint of a coreflection *)
 
 Section RelMonad_transfer_radj_morphism.
 
-Context {T T' : RelMonad (F □ J)}
+Context {T T' : RelMonad (J ∙ F)}
         (f : RelMonadMor T T').
 
 Notation "'σ'" := (r_bind _).

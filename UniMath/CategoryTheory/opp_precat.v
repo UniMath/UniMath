@@ -135,7 +135,7 @@ Proof.
   intros H.
   use make_z_iso.
   - exact (z_iso_mor H).
-  - exact (z_iso_inv_mor H).
+  - exact (inv_from_z_iso H).
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
 Defined.
 

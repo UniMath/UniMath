@@ -429,9 +429,9 @@ Section def_triangles.
     - exact (AddEquiv2 T (Ob3 D)).
     - exact (Ob1 D).
     - exact (Ob2 D).
-    - exact (to_inv (# (AddEquiv2 T) (Mor3 D)) · (z_iso_inv_mor (AddEquivUnitIso T (Ob1 D)))).
+    - exact (to_inv (# (AddEquiv2 T) (Mor3 D)) · (inv_from_z_iso (AddEquivUnitIso T (Ob1 D)))).
     - exact (Mor1 D).
-    - exact (Mor2 D · (z_iso_inv_mor (AddEquivCounitIso T (Ob3 D)))).
+    - exact (Mor2 D · (inv_from_z_iso (AddEquivCounitIso T (Ob3 D)))).
   Defined.
 
 
@@ -464,9 +464,9 @@ Section def_triangles.
   Local Lemma InvRotTriMor_Comm1 {D1 D2 : Tri} (M : TriMor D1 D2) :
     (# (AddEquiv2 T) (MPMor3 M))
       · ((to_inv (# (AddEquiv2 T) (Mor3 D2)))
-            · z_iso_inv_mor (AddEquivUnitIso T (Ob1 D2))) =
+            · inv_from_z_iso (AddEquivUnitIso T (Ob1 D2))) =
     (to_inv (# (AddEquiv2 T) (Mor3 D1)))
-      · z_iso_inv_mor (AddEquivUnitIso T (Ob1 D1)) · MPMor1 M.
+      · inv_from_z_iso (AddEquivUnitIso T (Ob1 D1)) · MPMor1 M.
   Proof.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
@@ -478,8 +478,8 @@ Section def_triangles.
   Qed.
 
   Local Lemma InvRotTriMor_Comm3 {D1 D2 : Tri} (M : TriMor D1 D2)  :
-    MPMor2 M · (Mor2 D2 · z_iso_inv_mor (AddEquivCounitIso T (Ob3 D2))) =
-    Mor2 D1 · z_iso_inv_mor (AddEquivCounitIso T (Ob3 D1))
+    MPMor2 M · (Mor2 D2 · inv_from_z_iso (AddEquivCounitIso T (Ob3 D2))) =
+    Mor2 D1 · inv_from_z_iso (AddEquivCounitIso T (Ob3 D1))
          · # (AddEquiv1 T) (# (AddEquiv2 T) (MPMor3 M)).
   Proof.
     set (tmp := MPComm2 M). rewrite assoc. rewrite tmp. clear tmp.
@@ -922,7 +922,7 @@ Section rotation_isos.
   Local Lemma RotInvIso_Mor_Comm1 (D : DTri) :
     ((AddEquivUnitIso Trans (Ob1 D)) : PT⟦_, _⟧)
       · ((to_inv (# (AddEquiv2 Trans) (to_inv (# (AddEquiv1 Trans) (Mor1 D)))))
-            · (z_iso_inv_mor (AddEquivUnitIso (@Trans PT) (Ob2 D)))) =
+            · (inv_from_z_iso (AddEquivUnitIso (@Trans PT) (Ob2 D)))) =
     Mor1 D · identity (Ob2 D).
   Proof.
     rewrite AdditiveFunctorInv. rewrite inv_inv_eq. rewrite id_right.
@@ -941,7 +941,7 @@ Section rotation_isos.
 
   Local Lemma RotInvIso_Mor_Comm3 (D : DTri) :
     (identity (Ob3 D))
-      · ((Mor3 D) · (z_iso_inv_mor (AddEquivCounitIso Trans ((AddEquiv1 Trans) (Ob1 D))))) =
+      · ((Mor3 D) · (inv_from_z_iso (AddEquivCounitIso Trans ((AddEquiv1 Trans) (Ob1 D))))) =
     Mor3 D · # (AddEquiv1 (@Trans PT)) (AddEquivUnitIso Trans (Ob1 D)).
   Proof.
     rewrite id_left. apply cancel_precomposition. use AddEquivCounitUnit.
@@ -977,22 +977,22 @@ Section rotation_isos.
 
   Local Lemma InvRotIso_Mor_Comm2 (D : @DTri PT) :
     (identity (Ob2 D))
-      · (Mor2 D · z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D))) =
-    Mor2 D · z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)).
+      · (Mor2 D · inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D))) =
+    Mor2 D · inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D)).
   Proof.
     rewrite id_left. apply idpath.
   Qed.
 
   Local Lemma InvRotIso_Mor_Comm3 (D : @DTri PT) :
-    (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
+    (inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D)))
       · (to_inv (# (AddEquiv1 Trans) ((to_inv (# (AddEquiv2 Trans) (Mor3 D)))
-                                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D))))) =
+                                         · inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D))))) =
     Mor3 D · # (AddEquiv1 Trans) (identity (Ob1 D)).
   Proof.
     rewrite functor_id. rewrite id_right. rewrite <- PreAdditive_invlcomp.
     rewrite AdditiveFunctorInv. rewrite inv_inv_eq. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit' Trans (Ob1 D)). cbn in tmp. rewrite assoc. cbn.
-    apply (maponpaths (λ g : _, (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
+    apply (maponpaths (λ g : _, (inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D)))
                                    · (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D)))
                                    · g)) in tmp.
     use (pathscomp0 (! tmp)). clear tmp.
@@ -1010,7 +1010,7 @@ Section rotation_isos.
       + use make_MPMorMors.
         * exact (identity _).
         * exact (identity _).
-        * exact (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D))).
+        * exact (inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D))).
       + use make_MPMorComms.
         * exact (InvRotIso_Mor_Comm1 D).
         * exact (InvRotIso_Mor_Comm2 D).
@@ -1022,7 +1022,7 @@ Section rotation_isos.
     use make_TriMor_is_iso.
     - exact (is_z_isomorphism_identity (Ob1 D)).
     - exact (is_z_isomorphism_identity (Ob2 D)).
-    - exact (z_iso_is_z_isomorphism2 (AddEquivCounitIso Trans (Ob3 D))).
+    - exact (is_z_iso_inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D))).
   Defined.
 
 
@@ -1030,7 +1030,7 @@ Section rotation_isos.
 
   Local Lemma ExtMor'_Comm1 (D1 D2 : @DTri PT) (Mor : TriMor (RotDTri PT D1) (RotDTri PT D2)) :
     (AddEquivUnit Trans) (Ob1 D1) · # (AddEquiv2 Trans) (MPMor3 Mor)
-                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))
+                         · inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D2))
                          · Mor1 D2 = Mor1 D1 · MPMor1 Mor.
   Proof.
     set (tmp := DComm3 Mor). cbn in tmp.
@@ -1044,7 +1044,7 @@ Section rotation_isos.
     apply (maponpaths
              (λ gg : _, gg · # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 Mor)) ·
                             # (AddEquiv1 Trans)
-                            (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))))) in tmp.
+                            (inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D2))))) in tmp.
     use (pathscomp0 (! tmp)). clear tmp. rewrite <- assoc. rewrite <- assoc.
     apply cancel_precomposition. apply cancel_precomposition.
     use (! AddEquivCounitUnit' Trans (Ob1 D2)).
@@ -1054,7 +1054,7 @@ Section rotation_isos.
     MPMor2 Mor · Mor3 D2 =
     Mor3 D1 · # (AddEquiv1 Trans)
          ((AddEquivUnit Trans) (Ob1 D1) · # (AddEquiv2 Trans) (MPMor3 Mor) ·
-                               z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))).
+                               inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D2))).
   Proof.
     set (tmp := MPComm2 Mor). cbn in tmp. cbn. rewrite tmp. clear tmp.
     apply cancel_precomposition.
@@ -1079,7 +1079,7 @@ Section rotation_isos.
       + use make_MPMorMors.
         * exact (((AddEquivUnitIso Trans (Ob1 D1)) : PT⟦_, _⟧)
                    · (# (AddEquiv2 Trans) (MPMor3 Mor))
-                   · (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))).
+                   · (inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D2)))).
         * exact (MPMor1 Mor).
         * exact (MPMor2 Mor).
       + use make_MPMorComms.
@@ -1173,7 +1173,7 @@ Section rotation_isos.
     set (Ext' := DExt PT D1' D2' (# (AddEquiv2 Trans) f3)
                       (((AddEquivUnitIso Trans (Ob1 D1)) : PT⟦_, _⟧)
                          · (# (AddEquiv2 Trans) f4)
-                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))
+                         · inv_from_z_iso (AddEquivUnitIso Trans (Ob1 D2)))
                       (ExtMor2_Comm D1 D2 f3 f4 H)).
     use (squash_to_prop Ext' (propproperty _)). intros Ext.
     set (Mor := TExtMor Ext).
@@ -1183,7 +1183,7 @@ Section rotation_isos.
       + use make_MPMorMors.
         * exact (MPMor2 Mor).
         * exact (MPMor3 Mor).
-        * exact ((z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D1)))
+        * exact ((inv_from_z_iso (AddEquivCounitIso Trans (Ob3 D1)))
                    · (# (AddEquiv1 Trans) (MPMor1 Mor))
                    · (AddEquivCounitIso Trans (Ob3 D2))).
       + use make_MPMorComms.
@@ -1571,7 +1571,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowMors_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMors abgr_Abelian 
+    @FiveRowMors abgr_Abelian
                  (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X).
   Proof.
     use make_FiveRowMors.
@@ -1604,7 +1604,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedMorphism_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorphism abgr_Abelian 
+    @FiveRowMorphism abgr_Abelian
                      (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X) .
   Proof.
     use make_FiveRowMorphism.

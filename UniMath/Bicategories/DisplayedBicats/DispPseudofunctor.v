@@ -12,7 +12,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
@@ -24,7 +23,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
@@ -616,3 +615,20 @@ Section FiberOfFunctor.
     - exact (fiber_is_functor c).
   Defined.
 End FiberOfFunctor.
+
+Definition disp_psfunctor_id_on_disp_adjequiv
+           {B : bicat}
+           {D₁ D₂ : disp_bicat B}
+           (FF : disp_psfunctor D₁ D₂ (id_psfunctor _))
+           {x y : B}
+           {f : adjoint_equivalence x y}
+           {xx : D₁ x}
+           {yy : D₁ y}
+           {ff : xx -->[ f ] yy}
+           (Hff : disp_left_adjoint_equivalence f ff)
+  : disp_left_adjoint_equivalence _ (disp_psfunctor_mor _ _ _ FF ff)
+  := pr2 (left_adjoint_equivalence_total_disp_weq
+            _ _
+            (psfunctor_preserves_adjequiv'
+               (total_psfunctor _ _ _ FF)
+               (invmap (left_adjoint_equivalence_total_disp_weq f ff) (pr2 f ,, Hff)))).

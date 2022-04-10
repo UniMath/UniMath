@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.HorizontalComposition.

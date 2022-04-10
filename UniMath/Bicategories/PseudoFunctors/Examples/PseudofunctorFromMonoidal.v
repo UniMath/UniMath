@@ -17,9 +17,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.

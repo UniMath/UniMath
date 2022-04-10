@@ -35,9 +35,9 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
-Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Open Scope subsys.
