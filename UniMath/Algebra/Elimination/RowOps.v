@@ -63,14 +63,14 @@ End Auxiliary.
     - exact (mat i j).
   Defined.
 
-  (* TODO rename *)
   Definition add_row_matrix { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : F)
     : Matrix F n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
     (* TODO: here and elsewhere, probably better to use [scalar_lmult_vec] instead of this pointwise-product with [const_vec]; but will need lemmas about it abstracting away. *)
-    - exact (pointwise n op1 (@stdb_vector F n i) (const_vec s ^ ((@stdb_vector F) n r1))).
+    - exact (pointwise n op1 (@stdb_vector F n i)
+        (const_vec s ^ ((@stdb_vector F) n r1))).
     - exact (@stdb_vector F n i).
   Defined.
 
@@ -113,8 +113,10 @@ End Auxiliary.
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1]
     ; destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     - simpl. rewrite i_eq_r2; apply idpath.
-    - simpl. rewrite i_eq_r1 in i_ne_r1. apply isirrefl_natneq in i_ne_r1. contradiction.
-    - simpl. rewrite i_eq_r2 in i_ne_r2. apply isirrefl_natneq in i_ne_r2. contradiction.
+    - simpl. rewrite i_eq_r1 in i_ne_r1.
+        apply isirrefl_natneq in i_ne_r1. contradiction.
+    - simpl. rewrite i_eq_r2 in i_ne_r2.
+        apply isirrefl_natneq in i_ne_r2. contradiction.
     - simpl. apply idpath.
   Defined.
 
@@ -154,7 +156,8 @@ End Auxiliary.
   Defined.
 
   Definition test_row_switch {m n : nat} (mat : Matrix F m n)
-    (r1 r2 : ⟦ m ⟧%stn) : (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
+    (r1 r2 : ⟦ m ⟧%stn)
+    : (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
   Proof.
     use funextfun; intros i.
     use funextfun; intros j.
@@ -175,8 +178,8 @@ End Auxiliary.
       + reflexivity.
   Defined.
 
-  (* The following three lemmata test the equivalence of multiplication by elementary matrices
-     to swaps of indices. *)
+  (* The following three lemmata test the equivalence
+     of multiplication by elementary matrices to swaps of indices. *)
   Lemma scalar_mult_mat_elementary
     {m n : nat} (mat : Matrix F m n) (s : F) (r : ⟦ m ⟧%stn) :
     ((mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
@@ -291,7 +294,8 @@ End Auxiliary.
 
   (* TODO : F should also be a general field, not short-hand for rationals specifically.
             This does not mandate any real change in any proofs ?*)
-  Lemma scalar_mult_matrix_is_inv { n : nat } ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != 0%ring )
+  Lemma scalar_mult_matrix_is_inv { n : nat }
+    ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != 0%ring )
   : @matrix_inverse F n (mult_row_matrix s i).
   Proof.
     exists (mult_row_matrix (fldmultinv s ne) i).
@@ -350,7 +354,8 @@ End Auxiliary.
     apply (@rigcomm1 F).
   Defined.
 
-  Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (r1_neq_r2 : r1 ≠ r2) ( s : F )
+  Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
+  (r1_neq_r2 : r1 ≠ r2) ( s : F )
    : @matrix_inverse F n (add_row_matrix r1 r2 s).
   Proof.
     exists (add_row_matrix r1 r2 (- s)%ring).
@@ -361,7 +366,6 @@ End Auxiliary.
     - apply (@ringrinvax1 F).
     - apply (@ringlinvax1 F).
   Defined.
-
 
   Lemma switch_row_matrix_self_inverse { n : nat }
     ( r1 r2 : ⟦ n ⟧%stn ) :
@@ -387,8 +391,7 @@ End Auxiliary.
         simpl.
         apply idpath.
       + simpl.
-        rewrite stn_eq_or_neq_refl; simpl.
-        rewrite stn_eq_or_neq_refl; simpl.
+        do 2 rewrite stn_eq_or_neq_refl; simpl.
         destruct (stn_eq_or_neq j r1) as [j_eq_r1 | j_neq_r1].
         { simpl.
           rewrite j_eq_r1.
@@ -432,13 +435,7 @@ End Auxiliary.
   Proof.
     use tpair.
     { exact (switch_row_matrix n r1 r2). }
-    assert (proof : ((switch_row_matrix n r1 r2) **
-                    (switch_row_matrix n r1 r2)) = identity_matrix).
-    { apply switch_row_matrix_self_inverse. }
-    - use tpair.
-      + exact proof.
-      + simpl.
-        exact proof.
+    use tpair; apply switch_row_matrix_self_inverse.
   Defined.
 
 End GaussOps.

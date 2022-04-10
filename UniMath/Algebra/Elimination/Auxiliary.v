@@ -63,22 +63,22 @@ Section Misc.
     ∏ a b : (nat),  coprod (min a b = a) (min a b = b).
   Proof.
     intros.
-    destruct (natgthorleh a b).
+    destruct (natgthorleh a b) as [gt | leh].
     - apply ii2.
       unfold min.
-      revert h. revert b.
+      revert gt. revert b.
       induction a; destruct b; try reflexivity.
-      { intros. apply fromempty. apply negnatgth0n in h. assumption.  }
+      { intros. apply fromempty. apply negnatgth0n in gt. assumption.  }
       intros; rewrite IHa. {reflexivity. }
-      apply h.
+      apply gt.
     - apply ii1.
-      unfold min; revert h. revert b.
+      unfold min; revert leh. revert b.
       induction a; destruct b; try reflexivity.
-      { intros; apply negnatlehsn0 in h.
+      { intros; apply negnatlehsn0 in leh.
         apply fromempty; assumption. }
       intros.
       rewrite IHa. {reflexivity. }
-      apply h.
+      apply leh.
   Defined.
 
   Lemma minsymm
@@ -111,9 +111,7 @@ Section Misc.
     - reflexivity.
   Defined.
 
-  (*
-   TODO: perhaps rename to avoid clash with current [PAdics.Lemmas.minussn1]? *)
-  Lemma minussn1
+  Lemma minussn1'
     ( n : nat ) : n ≤ ( S n ) - 1.
   Proof.
     intros. destruct n. apply idpath.
@@ -259,21 +257,14 @@ Section Misc.
     apply isisolatedn.
   Defined.
 
-      (* TODO: look for other places this can simplify proofs! and upstream? *)
+      (* TODO: upstream? *)
   Lemma stn_eq_or_neq_refl
     {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
-    intros.
-    unfold stn_eq_or_neq.
-    simpl.
-    destruct (nat_eq_or_neq i i).  (* TODO rewrite h*)
-    2 : { remember h as h'. clear Heqh'. apply isirrefl_natneq in h. contradiction. }
+    intros; unfold stn_eq_or_neq; simpl.
+    destruct (nat_eq_or_neq i i) as [? | neq]. 2 : { contradiction (isirrefl_natneq _ neq). }
     rewrite coprod_rect_compute_1.
     apply maponpaths.
-    remember p as p'. clear Heqp'.
-    apply subtypePath_prop in p.
-    set (fst := pr1 i).
-    assert (X : fst = fst). { apply idpath. }
     apply proofirrelevance.
     apply isaproppathsfromisolated.
     apply isisolatedinstn.
@@ -305,7 +296,6 @@ Section Misc.
   Defined.
 
 End Misc.
-
 
 Section PrelStn.
 
@@ -350,8 +340,7 @@ Section PrelStn.
     induction (natchoice0 n) as [T | F].
     - rewrite <- T in i.
       apply weqstn0toempty in i. apply fromempty. assumption.
-    - change (0 < n) with (n > 0) in F.
-      destruct n.
+    - destruct n.
       + apply isirreflnatgth in F. apply fromempty. assumption.
       + apply natgthtoneq in F. reflexivity.
   Defined.
@@ -391,24 +380,6 @@ Section PrelStn.
     - intros pr1i_neq_pr1j.
       { apply pr1i_neq_pr1j. }
   Defined.
-
-  (* TODO remove - think not needed. *)
-
-  (*Lemma stnmn_to_stn0n
-    { X : UU } {n : nat} (i : ⟦ n ⟧%stn) : ⟦ n ⟧%stn.
-  Proof.
-    destruct n.
-    - apply weqstn0toempty in i. contradiction.
-    - exact (make_stn (S n) 0 (natgthsn0 0)).
-  Defined.
-
-  Lemma stnmn_to_stn01
-    { X : UU } {n : nat} (i : ⟦ n ⟧%stn) : ⟦ 1 ⟧%stn.
-  Proof.
-    destruct n.
-    - apply weqstn0toempty in i. contradiction.
-    - exact (make_stn (S 0) 0 (natgthsn0 0)).
-  Defined.*)
 
   Lemma issymm_stnneq
     (A : UU) {n : nat} (i j : ⟦ n ⟧%stn) :
@@ -462,6 +433,15 @@ Section Maybe.
   - apply ii2. rewrite u. exists.
   Defined.
 
+  Definition maybe_choice'
+    {X : UU} (e : maybe X)
+  : coprod (X) (e = nothing).
+  Proof.
+  destruct e as [x | u].
+  - apply ii1. exact x.
+  - apply ii2. rewrite u. exists.
+  Defined.
+
   Definition maybe_stn_choice
     {X : UU} { n : nat }
     (e : maybe (⟦ n ⟧)%stn)
@@ -472,7 +452,8 @@ Section Maybe.
   - apply ii2. rewrite u. exists.
   Defined.
 
-  Definition from_maybe {X : UU} (m : maybe X) (p : m != nothing) : X.
+  Definition from_maybe
+    {X : UU} (m : maybe X) (p : m != nothing) : X.
   Proof.
     unfold nothing in p.
      destruct m as [x | u].
@@ -491,15 +472,12 @@ Section Dual.
     unfold dualelement.
     destruct (natchoice0 n) as [contr_eq | gt].
     { simpl. apply fromstn0. rewrite <- contr_eq in i. assumption. }
-    simpl.
-    set (m := n - 1).
+    simpl; set (m := n - 1).
     unfold make_stn.
-    apply subtypePath_prop.
-    simpl.
+    apply subtypePath_prop; simpl.
     rewrite (doubleminuslehpaths m i); try reflexivity.
     unfold m.
-    apply minusnleh1.
-    apply (pr2 i).
+    apply minusnleh1; apply (pr2 i).
   Defined.
 
   Lemma dualelement_eq
@@ -524,7 +502,7 @@ Section Dual.
     intros lt.
     unfold dualelement.
     destruct (natchoice0 n) as [contr_eq | ?].
-    { simpl. apply fromstn0. rewrite contr_eq. assumption.  }
+    { simpl. apply fromstn0. rewrite contr_eq. assumption. }
     simpl.
     set (m := (n - 1)).
     apply minusgth0inv.

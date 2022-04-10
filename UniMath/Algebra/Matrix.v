@@ -3,7 +3,7 @@
 Operations on vectors and matrices.
 
 Author: Langston Barrett (@siddharthist) (March 2018)
-Additions : Skantz (@skantz) (July 2018)
+Additions : Skantz (@skantz) (April 2022)
 *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -406,7 +406,6 @@ Section Applications.
   {n : nat} (vec: Vector R n)
   := vec ^ (const_vec s).
 
-  (* This signature can be improved *)
   Lemma zero_function_sums_to_zero:
     ∏ (n : nat)
       (f : (⟦ n ⟧)%stn -> R),
@@ -421,15 +420,14 @@ Section Applications.
     - intros. rewrite iterop_fun_step.
       + rewrite rigrunax1.
         unfold funcomp.
-        rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig)).
-        reflexivity.
-        reflexivity.
+        rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
+          reflexivity.
       + apply riglunax1.
   Defined.
 
   Lemma sum_is_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 s (Σ vec) =  Σ ((λ _ : (⟦ n ⟧)%stn, s ) ^ vec). (* This should be const_vec *)
+    op2 s (Σ vec) =  Σ ((const_vec s ) ^ vec).
   Proof.
     intros. induction n.
     - change (Σ vec) with (@rigunel1 R).
@@ -448,7 +446,7 @@ Section Applications.
 
   Lemma sum_is_rdistr:
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 (Σ vec) s =  Σ (vec ^ (λ _ : (⟦ n ⟧)%stn, s )).
+    op2 (Σ vec) s =  Σ (vec ^ (const_vec s)).
   Proof.
     intros. induction n.
     - assert (x : ( Σ vec ) = 0%rig).
@@ -461,25 +459,6 @@ Section Applications.
       rewrite iterop_fun_step. 2: {apply riglunax1. }
       rewrite -> replace_dni_last.
       apply idpath.
-  Defined.
-
-  Lemma zero_function_sums_to_zero':
-    ∏ (n : nat) (f : (⟦ n ⟧)%stn -> R),
-    (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
-    (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%rig.
-  Proof.
-    intros n f f_eq.
-    rewrite f_eq.
-    unfold const_vec.
-    induction n.
-    - reflexivity.
-    - intros.
-      rewrite iterop_fun_step. 2 : {apply riglunax1. }
-      rewrite rigrunax1.
-      unfold funcomp.
-      rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig)).
-      + reflexivity.
-      + reflexivity.
   Defined.
 
   Lemma rigsum_add :

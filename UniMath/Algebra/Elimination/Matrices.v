@@ -23,7 +23,8 @@ Local Notation Σ := (iterop_fun rigunel1 op1).
 Local Notation "A ** B" := (matrix_mult A B) (at level 80).
 Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
-(* Matrix algebra facts that hold over an arbitrary rig, not yet assumed commutative *)
+(* Matrix algebra facts that hold over an arbitrary rig,
+   not yet assumed commutative *)
 Section General_Rigs.
 
 Context {R : rig}.
@@ -120,7 +121,7 @@ Section Identity_Matrix.
 
   (* TODO should this really be necessary? Used? *)
   Lemma sum_id_pointwise_prod_unf { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
-    Σ (λ j : ⟦ n ⟧%stn, (identity_matrix i j) * (v j))%rig =  (v i).
+    Σ (λ j : ⟦ n ⟧%stn, (identity_matrix i j) * (v j))%rig = (v i).
   Proof.
     apply sum_id_pointwise_prod.
   Defined.
@@ -163,11 +164,13 @@ Section Identity_Matrix.
     rewrite (stn_eq_or_neq_refl); simpl; apply idpath.
   Defined.
 
-  Lemma id_mat_ij {n : nat} (i j : ⟦ n ⟧%stn) : i ≠ j -> (@identity_matrix R n) i j = rigunel1.
+  Lemma id_mat_ij {n : nat} (i j : ⟦ n ⟧%stn)
+    : i ≠ j -> (@identity_matrix R n) i j = rigunel1.
   Proof.
     intros i_neq_j.
     unfold identity_matrix.
-    rewrite (stn_eq_or_neq_right i_neq_j); simpl; apply idpath. (* TODO Should we try to use ; all the time ?*)
+    rewrite (stn_eq_or_neq_right i_neq_j); simpl; apply idpath.
+    (* TODO Should we try to use ; all the time ?*)
   Defined.
 
   Lemma matrunax2 : ∏ (m n : nat) (mat : Matrix R m n),
@@ -433,7 +436,8 @@ End Triangular.
 
 Section Misc.
 
-  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn ) (mat : Matrix X (S n) (S n)) : Matrix X n n.
+  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn )
+    (mat : Matrix X (S n) (S n)) : Matrix X n n.
   Proof.
     intros i' j'.
     exact (mat (dni i i') (dni j j')).
@@ -616,8 +620,7 @@ Section Transpositions.
   Definition transposition_mat_rows {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
     : (Matrix X m n) -> Matrix X m n.
   Proof.
-    intros mat.
-    intros k.
+    intros mat k.
     destruct (stn_eq_or_neq i k).
     - apply (mat j).
     - destruct (stn_eq_or_neq j k).
@@ -641,73 +644,64 @@ Section Transpositions.
     intros; assumption.
   Defined.
 
-  Definition transpose_permutation_fun {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (i j : ⟦ n ⟧%stn) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
+  Definition transpose_permutation_fun {n : nat}
+    (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (i j : ⟦ n ⟧%stn) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
   Proof.
-    intros k.
-    destruct (stn_eq_or_neq i k).
-    - exact (p j).
-    - destruct (stn_eq_or_neq j k).
-      + exact (p i).
-      + exact (p k).
+    apply transposition_perm.
+    - exact i.
+    - exact j.
   Defined.
 
   (* TODO clean up - and this should follow from  transposition_perm  ?  *)
   Definition permutation_fun_closed_under_tranpose
-    {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (isp : is_permutation_fun p) :
-    ∏ i j : ⟦ n ⟧%stn, is_permutation_fun (transpose_permutation_fun p i j).
+    {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (isp : is_permutation_fun p)
+    : ∏ i j : ⟦ n ⟧%stn, is_permutation_fun (transpose_permutation_fun p i j).
   Proof.
     intros i j.
-    unfold is_permutation_fun.
+    unfold is_permutation_fun in *.
+    unfold transpose_permutation_fun.
     intros i' j'.
-    unfold is_permutation_fun, transpose_permutation_fun.
-    unfold is_permutation_fun in isp.
+    simpl.
+    unfold transposition_fun, is_permutation_fun, transpose_permutation_fun.
     destruct (stn_eq_or_neq i i') as [i_eq_i' | F].
     - destruct (stn_eq_or_neq i j') as [i_eq_j' | F'].
       + intros ?. rewrite <- i_eq_i', i_eq_j'.
         reflexivity.
-      + destruct (stn_eq_or_neq j j') as [j_eq_j' | ?].
+      + destruct (stn_eq_or_neq j j') as [j_eq_j' | neq].
         * intros j_eq_i.
-          apply isp in j_eq_i.
           rewrite <- j_eq_j',  j_eq_i.
           rewrite i_eq_i'.
           apply idpath.
         * intros j_eq_j'.
-          apply isp in j_eq_j'.
           rewrite j_eq_j' in *.
-          apply isirrefl_natneq in h. (* TODO h ? *)
+          apply isirrefl_natneq in neq.
           contradiction.
     - destruct (stn_eq_or_neq j i') as [j_eq_i' | j_neq_i'] ;
         destruct (stn_eq_or_neq i j') as [i_eq_j' | i_neq_j'].
-      +
-        intros i_eq_j.
+      + intros i_eq_j.
         rewrite <- i_eq_j'.
-        apply isp in i_eq_j.
         rewrite i_eq_j.
         rewrite j_eq_i'.
         reflexivity.
-      + destruct (stn_eq_or_neq j j').
+      + destruct (stn_eq_or_neq j j') as [eq | neq].
         * intros i_eq_i.
-          rewrite <- p0.
+          rewrite <- eq.
           rewrite j_eq_i'.
           reflexivity.
         * intros i_eq_j'.
-          apply isp in i_eq_j'.
           rewrite i_eq_j' in i_neq_j'.
           apply isirrefl_natneq in i_neq_j'.
           contradiction.
       + intros i'_eq_j.
-        apply isp in i'_eq_j.
         rewrite i'_eq_j in j_neq_i'.
         apply isirrefl_natneq in j_neq_i'.
         contradiction.
       + destruct (stn_eq_or_neq j j') as [j_eq_j' | j_neq_j'].
         * intros i'_eq_i.
-          apply isp in i'_eq_i.
           rewrite i'_eq_i in F.
           apply isirrefl_natneq in F.
           contradiction.
         * intros i'_eq_j'.
-          apply isp in i'_eq_j'.
           assumption.
   Defined.
 

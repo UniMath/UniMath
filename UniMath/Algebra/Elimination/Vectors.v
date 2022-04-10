@@ -137,11 +137,9 @@ Section Vectors.
 
   Lemma rigsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (left_part_is_zero : (f ∘ stn_left m' n') = const_vec 0%rig):
-    iterop_fun 0%rig op1  f = iterop_fun 0%rig op1 (f ∘ stn_right m' n' ).
+    iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_right m' n' ).
   Proof.
-    unfold funcomp.
-    rewrite rigsum_left_right.
-    rewrite zero_function_sums_to_zero.
+    rewrite rigsum_left_right, zero_function_sums_to_zero.
     - rewrite riglunax1.
       reflexivity.
     - rewrite (left_part_is_zero ).
@@ -257,8 +255,7 @@ Section Vectors.
     : v ^ (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
   Proof.
     apply funextfun. intros j.
-    unfold scalar_lmult_vec.
-    unfold const_vec, pointwise.
+    unfold scalar_lmult_vec, const_vec, pointwise.
     destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
     - rewrite i_eq_j; apply idpath.
     - unfold stdb_vector.
@@ -267,8 +264,7 @@ Section Vectors.
       apply idpath.
   Defined.
 
-  (* TODO sums to point_s_ *)
-  Lemma two_pulse_function_sums_to_point { n : nat }
+  Lemma two_pulse_function_sums_to_points { n : nat }
       (f : ⟦ n ⟧%stn -> R)
       (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
       (X : forall (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
@@ -285,13 +281,10 @@ Section Vectors.
           rewrite j_eq_k in ne_i_j.
           apply isirrefl_natneq in ne_i_j.
           contradiction.
-        + rewrite rigmultx0.
-          rewrite rigrunax1.
-          rewrite rigrunax2.
+        + rewrite rigmultx0, rigrunax1, rigrunax2.
           rewrite i_eq_k.
           reflexivity.
-      - rewrite rigmultx0.
-        rewrite riglunax1.
+      - rewrite rigmultx0, riglunax1.
         destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
         + rewrite rigrunax2.
           rewrite j_eq_k.
@@ -302,16 +295,12 @@ Section Vectors.
           * apply issymm_natneq. assumption.
     }
     rewrite H.
-    rewrite sum_pointwise_op1.  (*TODO rename to something sensible*)
-    unfold scalar_lmult_vec, const_vec.
+    rewrite sum_pointwise_op1.
+    unfold scalar_lmult_vec.
     rewrite <- (sum_is_ldistr _ (stdb_vector i)).
     rewrite <- (sum_is_ldistr _ (stdb_vector j)).
-    rewrite stdb_vector_sums_to_1, rigrunax2.
-    rewrite stdb_vector_sums_to_1, rigrunax2.
-    unfold pointwise. (* TODO: the following just a result of excessive unfolds and
-                               some lemma(s) should be stated using
-                               const_vec etc *)
-    unfold stdb_vector.
+    do 2 rewrite stdb_vector_sums_to_1, rigrunax2.
+    unfold pointwise, stdb_vector.
     do 2 rewrite stn_eq_or_neq_refl.
     apply issymm_natneq in  ne_i_j.
     rewrite (stn_eq_or_neq_right ne_i_j); simpl.
@@ -356,7 +345,8 @@ Section Vectors.
 
   Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
     : v = const_vec e -> v i = e.
-    Proof. intros eq. rewrite eq. reflexivity.
+  Proof.
+    intros eq. rewrite eq. reflexivity.
   Defined.
 
   Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
