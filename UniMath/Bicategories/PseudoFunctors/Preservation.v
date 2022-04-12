@@ -27,6 +27,8 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
+Require Import UniMath.Bicategories.Limits.Inserters.
+Require Import UniMath.Bicategories.Limits.Equifiers.
 Require Import UniMath.Bicategories.Colimits.Initial.
 Require Import UniMath.Bicategories.Colimits.Coproducts.
 
@@ -62,7 +64,7 @@ Section Preserves.
          (#F (binprod_cone_pr1 p))
          (#F (binprod_cone_pr2 p)).
 
-  Definition preserves_binprod
+  Definition preserves_binprods
     : UU
     := ∏ (x y : B₁)
          (p : binprod_cone x y),
@@ -79,13 +81,69 @@ Section Preserves.
          (#F (bincoprod_cocone_inl p))
          (#F (bincoprod_cocone_inr p)).
 
-  Definition preserves_bincoprod
+  Definition preserves_bincoprods
     : UU
     := ∏ (x y : B₁)
          (p : bincoprod_cocone x y),
        has_bincoprod_ump p
        →
        has_bincoprod_ump (psfunctor_bincoprod_cocone p).
+
+  Definition psfunctor_inserter_cone
+             {x y : B₁}
+             {f g : x --> y}
+             (p : inserter_cone f g)
+    : inserter_cone (#F f) (#F g)
+    := make_inserter_cone
+         (F p)
+         (#F (inserter_cone_pr1 p))
+         (psfunctor_comp F (inserter_cone_pr1 p) f
+          • ##F (inserter_cone_cell p)
+          • (psfunctor_comp F (inserter_cone_pr1 p) g)^-1).
+
+  Definition preserves_inserters
+    : UU
+    := ∏ (x y : B₁)
+         (f g : x --> y)
+         (p : inserter_cone f g),
+       has_inserter_ump p
+       →
+       has_inserter_ump (psfunctor_inserter_cone p).
+
+  Definition psfunctor_equifier_cone
+             {x y : B₁}
+             {f g : x --> y}
+             {α β : f ==> g}
+             (p : equifier_cone f g α β)
+    : equifier_cone (#F f) (#F g) (##F α) (##F β).
+  Proof.
+    refine (make_equifier_cone
+              (F p)
+              (#F (equifier_cone_pr1 p))
+              _).
+    abstract
+      (pose (maponpaths
+               (λ z, psfunctor_comp F (equifier_cone_pr1 p) f
+                     • ##F z
+                     • (psfunctor_comp F (equifier_cone_pr1 p) g)^-1)
+               (equifier_cone_eq p)) as q ;
+       cbn -[psfunctor_comp] in q ;
+       rewrite !psfunctor_lwhisker in q ;
+       rewrite !vassocl in q ;
+       rewrite !vcomp_rinv in q ;
+       rewrite !id2_right in q ;
+       exact q).
+  Defined.
+
+  Definition preserves_equifiers
+    : UU
+    := ∏ (x y : B₁)
+         (f g : x --> y)
+         (α β : f ==> g)
+         (p : equifier_cone f g α β),
+       has_equifier_ump p
+       →
+       has_equifier_ump (psfunctor_equifier_cone p).
 End Preserves.
 
 (**
@@ -101,14 +159,14 @@ Definition identity_preserves_biinitial
   : preserves_biinitial (id_psfunctor B)
   := λ x Hx, Hx.
 
-Definition identity_preserves_binprod
+Definition identity_preserves_binprods
            (B : bicat)
-  : preserves_binprod (id_psfunctor B)
+  : preserves_binprods (id_psfunctor B)
   := λ x y p Hp, Hp.
 
-Definition identity_preserves_bincoprod
+Definition identity_preserves_bincoprods
            (B : bicat)
-  : preserves_bincoprod (id_psfunctor B)
+  : preserves_bincoprods (id_psfunctor B)
   := λ x y p Hp, Hp.
 
 (**
@@ -132,20 +190,20 @@ Definition comp_psfunctor_preserves_biinitial
   : preserves_biinitial (comp_psfunctor G F)
   := λ x Hx, HG _ (HF _ Hx).
 
-Definition comp_psfunctor_preserves_binprod
+Definition comp_psfunctor_preserves_binprods
            {B₁ B₂ B₃ : bicat}
            {F : psfunctor B₁ B₂}
            {G : psfunctor B₂ B₃}
-           (HF : preserves_binprod F)
-           (HG : preserves_binprod G)
-  : preserves_binprod (comp_psfunctor G F)
+           (HF : preserves_binprods F)
+           (HG : preserves_binprods G)
+  : preserves_binprods (comp_psfunctor G F)
   := λ x y p Hp, HG _ _ _ (HF _ _ _ Hp).
 
-Definition comp_psfunctor_preserves_bincoprod
+Definition comp_psfunctor_preserves_bincoprods
            {B₁ B₂ B₃ : bicat}
            {F : psfunctor B₁ B₂}
            {G : psfunctor B₂ B₃}
-           (HF : preserves_bincoprod F)
-           (HG : preserves_bincoprod G)
-  : preserves_bincoprod (comp_psfunctor G F)
+           (HF : preserves_bincoprods F)
+           (HG : preserves_bincoprods G)
+  : preserves_bincoprods (comp_psfunctor G F)
   := λ x y p Hp, HG _ _ _ (HF _ _ _ Hp).

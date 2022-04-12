@@ -162,6 +162,7 @@ Morphisms/Properties/FromInitial.v
 PseudoFunctors/Preservation.v
 
 PseudoFunctors/Biadjunction.v
+PseudoFunctors/BiadjunctionPreservation.v
 PseudoFunctors/UniversalArrow.v
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
