@@ -142,6 +142,21 @@ Section Bifunctor.
 
   Definition bifunctor_equalwhiskers {A B C : category} (F : bifunctor A B C) : functoronmorphisms_are_equal F := pr2 (pr2 (pr2 (pr2 (isbifunctor_from_bifunctor F)))).
 
+  Lemma when_bifunctor_becomes_leftwhiskering {A B C : category} (F : bifunctor A B C) (a : A) {b1 b2 : B} (g: B⟦b1, b2⟧):
+    identity a ⊗^{ F } g = a ⊗^{F}_{l} g.
+  Proof.
+    unfold functoronmorphisms1. rewrite bifunctor_rightid.
+    apply id_left.
+  Qed.
+
+  Lemma when_bifunctor_becomes_rightwhiskering {A B C : category} (F : bifunctor A B C) {a1 a2 : A} (b : B) (f: A⟦a1, a2⟧):
+    f ⊗^{ F } identity b = f ⊗^{F}_{r} b.
+  Proof.
+    unfold functoronmorphisms1. rewrite bifunctor_leftid.
+    apply id_right.
+  Qed.
+
+
   Lemma compose_bifunctor_with_functor_data {A B C D : category} (F : bifunctor A B C) (G : functor C D) : bifunctor_data A B D.
   Proof.
     use make_bifunctor_data.
