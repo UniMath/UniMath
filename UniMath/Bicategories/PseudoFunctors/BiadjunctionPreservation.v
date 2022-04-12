@@ -434,14 +434,4 @@ Section BiadjunctionPreservation.
     - use is_nat_iso_to_is_invertible_2cell.
       apply right_biadj_preserves_binprod_is_nat_iso.
   Defined.
-
-  (**
-   3. Preservation of inserters
-   *)
-  Definition right_biadj_preserves_inserters
-             (HB₁ : is_univalent_2_1 B₁)
-             (HB₂ : is_univalent_2_1 B₂)
-    : preserves_inserters R.
-  Proof.
-    intros y₁ y₂ f g p Hp.
 End BiadjunctionPreservation.
