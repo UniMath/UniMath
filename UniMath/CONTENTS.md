@@ -514,6 +514,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Morphisms/Properties/FromInitial.v](Bicategories/Morphisms/Properties/FromInitial.v)
    - [PseudoFunctors/Preservation.v](Bicategories/PseudoFunctors/Preservation.v)
    - [PseudoFunctors/Biadjunction.v](Bicategories/PseudoFunctors/Biadjunction.v)
+   - [PseudoFunctors/BiadjunctionPreservation.v](Bicategories/PseudoFunctors/BiadjunctionPreservation.v)
    - [PseudoFunctors/UniversalArrow.v](Bicategories/PseudoFunctors/UniversalArrow.v)
    - [PseudoFunctors/Examples/ConstProduct.v](Bicategories/PseudoFunctors/Examples/ConstProduct.v)
    - [PseudoFunctors/Examples/CurryingInBicatOfCats.v](Bicategories/PseudoFunctors/Examples/CurryingInBicatOfCats.v)
