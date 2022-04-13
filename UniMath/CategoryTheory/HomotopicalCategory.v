@@ -40,10 +40,10 @@ Definition category_with_weq_pr1 (C : category_with_weq) : category := pr1 C.
 Coercion category_with_weq_pr1 : category_with_weq >-> category.
 
 Definition two_of_six {C : category} (W : morph_class C) :=
-  ∏ {x y z t : C}
-    {f  : x --> y}
-    {g  : y --> z}
-    {h  : z --> t}
+  ∏ (x y z t : C)
+    (f  : x --> y)
+    (g  : y --> z)
+    (h  : z --> t)
     (gf : W x z (f · g))
     (hg  : W y t (g · h)),
     (W x y f)
@@ -88,7 +88,7 @@ Defined.
 Definition homotopical_functor (C C' : homotopical_category) : UU := ∑ f : functor C C', is_homotopical_functor f.
 
 Definition two_of_three {C : category} (W : morph_class C) :=
-  ∏ {x y z : C}
+  ∏ (x y z : C)
     (f  : x --> y)
     (g  : y --> z),
   (W _ _ f × W _ _ g ->  W _ _ (f · g)) ×
@@ -212,7 +212,7 @@ Proof.
   exact (is_iso_from_is_z_iso _ g_is_iso).
 Defined.
 
-Definition is_minimal (C : homotopical_category) : UU := ∏ {x y : C} (f : pr21 C x y), is_iso (pr1 f).
+Definition is_minimal (C : homotopical_category) : UU := ∏ (x y : C) (f : pr21 C x y), is_iso (pr1 f).
 
 Proposition is_minimal_is_prop (C : homotopical_category) : isaprop (is_minimal C).
 Proof.
