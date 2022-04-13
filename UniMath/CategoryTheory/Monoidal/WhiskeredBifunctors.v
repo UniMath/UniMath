@@ -117,8 +117,7 @@ Section Bifunctor.
     apply cancel_postcomposition.
     rewrite assoc'.
     rewrite (whiskerscommutes _ fmae f2 g1).
-    rewrite assoc.
-    apply idpath.
+    apply assoc.
   Qed.
 
   Definition bifunctor (A B C : category) : UU :=
@@ -170,32 +169,30 @@ Section Bifunctor.
 
   Lemma composition_bifunctor_with_functor_isbifunctor {A B C D : category} (F : bifunctor A B C) (G : functor C D) : is_bifunctor (compose_bifunctor_with_functor_data F G).
   Proof.
-    use tpair.
+    repeat split.
     - intros a b.
       cbn.
       rewrite bifunctor_leftid.
-      exact ((pr1 (pr2 G)) (a ⊗_{F} b)).
-    - use tpair.
-      + intros a b.
-        cbn.
-        rewrite bifunctor_rightid.
-        exact ((pr1 (pr2 G)) (b ⊗_{F} a)).
-      + use tpair.
-        * intros a b1 b2 b3 g1 g2.
-          cbn.
-          rewrite bifunctor_leftcomp.
-          exact (pr2 (pr2 G) _ _ _ (a ⊗^{F}_{l} g1) (a ⊗^{F}_{l} g2)).
-        * use tpair.
-          -- intros  b a1 a2 a3 f1 f2.
-             cbn.
-             rewrite bifunctor_rightcomp.
-             apply functor_comp.
-          -- intros a1 a2 b1 b2 f g.
-             unfold compose_bifunctor_with_functor_data.
-             etrans. { apply (pathsinv0 ((pr2 (pr2 G)) _ _ _ (f ⊗^{ F}_{r} b1) (a2 ⊗^{ F}_{l} g))). }
-             rewrite whiskerscommutes.
-             apply functor_comp.
-             apply bifunctor_equalwhiskers.
+      exact (functor_id G (a ⊗_{F} b)).
+    - intros a b.
+      cbn.
+      rewrite bifunctor_rightid.
+      apply functor_id.
+    - intros a b1 b2 b3 g1 g2.
+      cbn.
+      rewrite bifunctor_leftcomp.
+      apply functor_comp.
+    - intros  b a1 a2 a3 f1 f2.
+      cbn.
+      rewrite bifunctor_rightcomp.
+      apply functor_comp.
+    - intros a1 a2 b1 b2 f g.
+      unfold compose_bifunctor_with_functor_data.
+      etrans.
+      { apply pathsinv0, functor_comp. }
+      rewrite whiskerscommutes.
+      apply functor_comp.
+      apply bifunctor_equalwhiskers.
   Qed.
 
   Definition compose_bifunctor_with_functor {A B C D : category} (F : bifunctor A B C) (G : functor C D)
@@ -214,28 +211,25 @@ Section Bifunctor.
 
   Lemma composition_functor_with_bifunctor_isbifunctor {A B A' B' C : category} (F : functor A A') (G : functor B B') (H : bifunctor A' B' C) : is_bifunctor (compose_functor_with_bifunctor_data F G H).
   Proof.
-    use tpair.
+    repeat split.
     - intros a b.
       cbn.
       rewrite functor_id.
       apply bifunctor_leftid.
-    - use tpair.
-      + intros a b.
-        cbn.
-        rewrite functor_id.
-        apply bifunctor_rightid.
-      + use tpair.
-        * intros a b1 b2 b3 g1 g2.
-          cbn.
-          rewrite functor_comp.
-          apply bifunctor_leftcomp.
-        * use tpair.
-          -- intros  b a1 a2 a3 f1 f2.
-             cbn.
-             rewrite functor_comp.
-             apply bifunctor_rightcomp.
-          -- intros a1 a2 b1 b2 f g.
-             apply (whiskerscommutes H (bifunctor_equalwhiskers H)).
+    - intros a b.
+      cbn.
+      rewrite functor_id.
+      apply bifunctor_rightid.
+    - intros a b1 b2 b3 g1 g2.
+      cbn.
+      rewrite functor_comp.
+      apply bifunctor_leftcomp.
+    - intros  b a1 a2 a3 f1 f2.
+      cbn.
+      rewrite functor_comp.
+      apply bifunctor_rightcomp.
+    - intros a1 a2 b1 b2 f g.
+      apply (whiskerscommutes H (bifunctor_equalwhiskers H)).
   Qed.
 
   Definition compose_functor_with_bifunctor {A B A' B' C : category} (F : functor A A') (G : functor B B') (H : bifunctor A' B' C)
@@ -267,19 +261,19 @@ Section WhiskeredBinaturaltransformation.
        (∏ (a1 a2 : A) (b : B) (f : A⟦a1,a2⟧),
        (f ⊗^{ F}_{r} b) · (α a2 b) = (α a1 b) · (f ⊗^{ G}_{r} b)).
 
-  Lemma full_naturality_condition {A B C : category} {F G : bifunctor A B C} {α : binat_trans_data F G} (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
+  Lemma full_naturality_condition {A B C : category} {F G : bifunctor A B C} {α : binat_trans_data F G} (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g) · (α a2 b2) = (α a1 b1) · (f ⊗^{G} g).
   Proof.
     unfold functoronmorphisms1.
     rewrite assoc'.
-    rewrite ((pr1 αn) a2 _ _ g).
+    rewrite (pr1 αn a2 _ _ g).
     rewrite assoc.
-    rewrite ((pr2 αn) a1 a2 b1 f).
-    rewrite assoc.
-    apply idpath.
+    rewrite (pr2 αn a1 a2 b1 f).
+    apply assoc'.
   Qed.
 
   Definition binat_trans {A B C : category} (F G : bifunctor A B C) : UU :=
     ∑ (α : binat_trans_data F G), is_binat_trans α.
+
   Definition binattransdata_from_binattrans {A B C : category} {F G : bifunctor A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
   (* Something like this is done in Core.NaturalTransformation, but I don't really know what this funclass is,
      I inserted this to use (α x y) without having to project, it would be good to have some explanation,
