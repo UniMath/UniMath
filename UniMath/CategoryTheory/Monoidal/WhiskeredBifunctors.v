@@ -295,4 +295,25 @@ Section WhiskeredBinaturaltransformation.
   Definition is_binatiso {A B C : category} {F G : bifunctor A B C} (α : binat_trans F G)
     := ∏ (a : A) (b : B), is_z_isomorphism (pr1 α a b).
 
+  Definition inv_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans_data G F := fun a b => pr1 (isiso a b).
+
+  Lemma is_binat_trans_inv_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : is_binat_trans (inv_from_binatiso isiso).
+  Proof.
+    split.
+    - intros ? ? ? ?.
+      apply pathsinv0.
+      apply (z_iso_inv_on_right _ _ _ (α a b1 ,, isiso a b1)).
+      rewrite assoc.
+      apply (z_iso_inv_on_left _ _ _ _ (α a b2 ,, isiso a b2)).
+      apply pathsinv0, (pr12 α).
+    - intros ? ? ? ?.
+      apply pathsinv0.
+      apply (z_iso_inv_on_right _ _ _ (α a1 b ,, isiso a1 b)).
+      rewrite assoc.
+      apply (z_iso_inv_on_left _ _ _ _ (α a2 b ,, isiso a2 b)).
+      apply pathsinv0, (pr22 α).
+  Qed.
+
+  Definition inv_binattrans_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
+
 End WhiskeredBinaturaltransformation.
