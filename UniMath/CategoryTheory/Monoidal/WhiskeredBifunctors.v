@@ -9,8 +9,6 @@ Open Scope cat.
 
 Section Bifunctor.
 
-  Section FixThreeCats.
-
     Context {A B C : category}.
 
   Definition bifunctor_data : UU :=
@@ -160,16 +158,21 @@ Section Bifunctor.
     apply id_right.
   Qed.
 
-  End FixThreeCats.
+End Bifunctor.
 
   Arguments bifunctor_data : clear implicits.
   Arguments bifunctor : clear implicits.
 
-  Local Notation "a ⊗_{ F } b" := (bifunctor_on_objects F a b) (at level 31).
-  Local Notation "a ⊗^{ F }_{l} g" := (leftwhiskering_on_morphisms F a _ _ g) (at level 31).
-  Local Notation "f ⊗^{ F }_{r} b" := (rightwhiskering_on_morphisms F b _ _ f) (at level 31).
-  Local Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
+  Module BifunctorNotations.
+  Notation "a ⊗_{ F } b" := (bifunctor_on_objects F a b) (at level 31).
+  Notation "a ⊗^{ F }_{l} g" := (leftwhiskering_on_morphisms F a _ _ g) (at level 31).
+  Notation "f ⊗^{ F }_{r} b" := (rightwhiskering_on_morphisms F b _ _ f) (at level 31).
+  Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
+  End BifunctorNotations.
 
+Section Bifunctors.
+
+    Import BifunctorNotations.
 
   Lemma compose_bifunctor_with_functor_data {A B C D : category} (F : bifunctor A B C) (G : functor C D) : bifunctor_data A B D.
   Proof.
@@ -255,19 +258,7 @@ Section Bifunctor.
   Definition compose_functor_with_bifunctor {A B A' B' C : category} (F : functor A A') (G : functor B B') (H : bifunctor A' B' C)
     : bifunctor A B C := (compose_functor_with_bifunctor_data F G H ,, composition_functor_with_bifunctor_isbifunctor F G H).
 
-End Bifunctor.
-
-  Arguments bifunctor_data : clear implicits.
-  Arguments bifunctor : clear implicits.
-
-
-Module BifunctorNotations.
-  Notation "a ⊗_{ F } b" := (bifunctor_on_objects F a b) (at level 31).
-  Notation "a ⊗^{ F }_{l} g" := (leftwhiskering_on_morphisms F a _ _ g) (at level 31).
-  Notation "f ⊗^{ F }_{r} b" := (rightwhiskering_on_morphisms F b _ _ f) (at level 31).
-  Notation "f ⊗^{ F } g" := (functoronmorphisms1 F f g) (at level 31).
-End BifunctorNotations.
-
+End Bifunctors.
 
 Section WhiskeredBinaturaltransformation.
 
@@ -315,9 +306,9 @@ Section WhiskeredBinaturaltransformation.
   Definition is_binatiso {F G : bifunctor A B C} (α : binat_trans F G)
     := ∏ (a : A) (b : B), is_z_isomorphism (pr1 α a b).
 
-  Definition inv_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans_data G F := fun a b => pr1 (isiso a b).
+  Definition inv_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans_data G F := fun a b => pr1 (isiso a b).
 
-  Lemma is_binat_trans_inv_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : is_binat_trans (inv_from_binatiso isiso).
+  Lemma is_binat_trans_inv_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : is_binat_trans (inv_from_binatiso isiso).
   Proof.
     split.
     - intros ? ? ? ?.
@@ -334,6 +325,6 @@ Section WhiskeredBinaturaltransformation.
       apply pathsinv0, (pr22 α).
   Qed.
 
-  Definition inv_binattrans_from_binatiso {A B C : category} {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
+  Definition inv_binattrans_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
 
 End WhiskeredBinaturaltransformation.
