@@ -117,10 +117,10 @@ Section MonoidalFunctors.
   Definition functor_tensorofimages {C D : category} (F : functor C D) (N : monoidal D) : bifunctor C C D
     := compose_functor_with_bifunctor F F N.
 
-  Definition preserves_tensor {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU := binat_trans (functor_tensorofimages F N) (functor_imageoftensor M F).
+  Definition preserves_tensor_is_nattrans_type {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU := binat_trans (functor_tensorofimages F N) (functor_imageoftensor M F).
 
   (* I really don't know how to call the following lemma *)
-  Lemma preservestensor_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} (ptnl : preserves_tensor_nat_left pt) (ptnr : preserves_tensor_nat_right pt) : preserves_tensor M N F.
+  Definition preservestensor_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} (ptnl : preserves_tensor_nat_left pt) (ptnr : preserves_tensor_nat_right pt) : preserves_tensor_is_nattrans_type M N F.
   Proof.
     use make_binat_trans.
     - use make_binat_trans_data.
@@ -132,6 +132,19 @@ Section MonoidalFunctors.
       + intros x1 x2 y f.
         apply ptnr.
   Defined.
+
+  Definition preserves_tensor_inv_is_nattrans_type {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU
+    := binat_trans (functor_imageoftensor M F) (functor_tensorofimages F N).
+
+  (* name follows [preservestensor_is_nattrans], for lack of a better proposition *)
+  Definition preservestensor_inv_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+             {pt : preserves_tensordata M N F}
+             (ptnl : preserves_tensor_nat_left pt)
+             (ptnr : preserves_tensor_nat_right pt)
+             (ptstr: preserves_tensor_strongly pt)
+    : preserves_tensor_inv_is_nattrans_type M N F
+    := inv_binattrans_from_binatiso(α:=preservestensor_is_nattrans ptnl ptnr) ptstr.
+
 
   Definition preserves_leftunitality' {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} {pu : preserves_unit M N F} (plu : preserves_leftunitality pt pu) :
     ∏ (x : C), (pu ⊗^{N} (identity (F x))) · (pt I_{M} x) · (#F (lu^{M}_{x})) = lu^{N}_{F x}.
