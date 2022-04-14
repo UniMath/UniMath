@@ -19,7 +19,8 @@ Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Properties.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.UnivalenceOp.
@@ -836,7 +837,7 @@ Section YonedaLocalEquivalence.
               univalent_cat_is_univalent_2_1)).
   Proof.
     apply equiv_to_isadjequiv.
-    exact (@iso_equiv
+    exact (@left_equivalence_invertible
             bicat_of_univ_cats
             _
             _

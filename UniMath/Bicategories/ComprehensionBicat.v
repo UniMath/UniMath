@@ -10,6 +10,8 @@
  3. Locally groupoidal bicategories with pullbacks
  4. The comprehension bicategory of fibrations
  5. The comprehension bicategory of opfibrations
+ 6. The comprehension bicategory of a display map bicategory
+ 7. Internal Street fibrations and opfibrations
 
  *******************************************************************)
 Require Import UniMath.Foundations.All.
@@ -22,34 +24,48 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Adjunctions.
-Require Import UniMath.Bicategories.Core.InternalStreetFibration.
-Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.Properties.
+Require Import UniMath.Bicategories.Morphisms.Properties.Projections.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+Require Import UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.TrivialCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FibrationCleaving.
 Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrationCleaving.
-Require Import UniMath.Bicategories.Colimits.Products.
+Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.DisplayMapBicatCleaving.
+Require Import UniMath.Bicategories.Limits.Products.
 Import Products.Notations.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
@@ -653,7 +669,7 @@ Section TrivialCompBicat.
     use make_comprehension_bicat.
     - exact (trivial_displayed_bicat B B).
     - exact trivial_comprehension.
-    - exact (trivial_cleaving_of_bicats B B).
+    - exact (trivial_global_cleaving B B).
     - exact global_cartesian_trivial_comprehension.
   Defined.
 
@@ -870,7 +886,16 @@ Defined.
 Definition global_cartesian_fibration_comprehension
   : global_cartesian_disp_psfunctor fibration_comprehension.
 Proof.
-Admitted.
+  use preserves_global_lifts_to_cartesian.
+  - exact univalent_cat_is_univalent_2.
+  - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
+  - exact cleaving_of_fibs_global_cleaving.
+  - intros C₁ C₂ F D₁.
+    use is_pb_to_cartesian_1cell.
+    apply reindexing_has_pb_ump.
+    apply is_isofibration_from_is_fibration.
+    exact (pr2 D₁).
+Defined.
 
 Section LocalCartesianFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
@@ -1050,7 +1075,7 @@ Proof.
   use make_comprehension_bicat.
   - exact disp_bicat_of_fibs.
   - exact fibration_comprehension.
-  - exact cleaving_of_fibs.
+  - exact cleaving_of_fibs_global_cleaving.
   - exact global_cartesian_fibration_comprehension.
 Defined.
 
@@ -1216,7 +1241,16 @@ Defined.
 Definition global_cartesian_opfibration_comprehension
   : global_cartesian_disp_psfunctor opfibration_comprehension.
 Proof.
-Admitted.
+  use preserves_global_lifts_to_cartesian.
+  - exact univalent_cat_is_univalent_2.
+  - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
+  - exact opfibs_global_cleaving.
+  - intros C₁ C₂ F D₁.
+    use is_pb_to_cartesian_1cell.
+    apply reindexing_has_pb_ump.
+    apply iso_cleaving_from_opcleaving.
+    exact (pr2 D₁).
+Defined.
 
 Section LocalOpCartesianOpFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
@@ -1414,4 +1448,180 @@ Proof.
   - exact cleaving_of_opfibs_lwhisker_opcartesian.
   - exact cleaving_of_opfibs_rwhisker_opcartesian.
   - exact local_opcartesian_opfibration_comprehension.
+Defined.
+
+(**
+ 6. The comprehension bicategory of a display map bicategory
+ *)
+Section DispMapBicatToCompBicat.
+  Context {B : bicat}
+          (D : disp_map_bicat B)
+          (HB : is_univalent_2 B).
+
+  Let DD : disp_bicat B := disp_map_bicat_to_disp_bicat D.
+
+  Definition disp_map_bicat_comprehension_data
+    : disp_psfunctor_data DD (cod_disp_bicat B) (id_psfunctor B).
+  Proof.
+    simple refine (_ ,, _ ,, _ ,, _ ,, _).
+    - exact (λ x hx, pr1 hx ,, pr12 hx).
+    - exact (λ x y f hx hy hf, pr1 hf ,, pr22 hf).
+    - exact (λ x y f g α hx hy hf hg hα, hα).
+    - simple refine (λ x hx, _ ,, _).
+      + use make_disp_2cell_cod.
+        * exact (id₂ _).
+        * abstract
+            (unfold coherent_homot ; cbn ;
+             rewrite id2_rwhisker, id2_right ;
+             rewrite lwhisker_id2, id2_left ;
+             apply idpath).
+      + use is_disp_invertible_2cell_cod ; simpl.
+        is_iso.
+    - simple refine (λ x y z f g hx hy hz hf hg, _ ,, _).
+      + use make_disp_2cell_cod.
+        * exact (id₂ _).
+        * abstract
+            (unfold coherent_homot ; cbn ;
+             rewrite id2_rwhisker, id2_right ;
+             rewrite lwhisker_id2, id2_left ;
+             rewrite !vassocl ;
+             apply idpath).
+      + use is_disp_invertible_2cell_cod ; simpl.
+        is_iso.
+  Defined.
+
+  Definition disp_map_bicat_comprehension_is_disp_psfunctor
+    : is_disp_psfunctor _ _ _ disp_map_bicat_comprehension_data.
+  Proof.
+    repeat split ; intro ; intros ;
+      (use subtypePath ; [ intro ; apply cellset_property | ]).
+    - refine (_ @ !(transportb_cell_of_cod_over _ _)) ; cbn.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over _ _)) ; cbn.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)) ; cbn.
+      rewrite id2_rwhisker, !id2_left.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)) ; cbn.
+      rewrite lwhisker_id2, !id2_left.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lassociator _ _ _ _) _)) ; cbn.
+      rewrite id2_rwhisker, lwhisker_id2.
+      rewrite !id2_left, !id2_right.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_lwhisker _ _ _) _)) ; cbn.
+      rewrite !id2_left, id2_right.
+      apply idpath.
+    - refine (_ @ !(transportb_cell_of_cod_over (psfunctor_rwhisker _ _ _) _)) ; cbn.
+      rewrite !id2_left, id2_right.
+      apply idpath.
+  Qed.
+
+  Definition disp_map_bicat_comprehension
+    : disp_psfunctor DD (cod_disp_bicat B) (id_psfunctor B)
+    := disp_map_bicat_comprehension_data
+       ,,
+       disp_map_bicat_comprehension_is_disp_psfunctor.
+
+  Definition global_cartesian_disp_map_bicat_comprehension
+    : global_cartesian_disp_psfunctor disp_map_bicat_comprehension.
+  Proof.
+    use preserves_global_lifts_to_cartesian.
+    - exact HB.
+    - exact (cod_disp_univalent_2 _ HB).
+    - exact (global_cleaving_of_disp_map_bicat D).
+    - intros x y f hy.
+      use is_pb_to_cartesian_1cell.
+      exact (mirror_has_pb_ump
+               (pb_of_pred_ob_has_pb_ump D (pr12 hy) f (pr22 hy))).
+  Defined.
+
+  Definition disp_map_bicat_to_comp_bicat
+    : comprehension_bicat B.
+  Proof.
+    use make_comprehension_bicat.
+    - exact DD.
+    - exact disp_map_bicat_comprehension.
+    - exact (global_cleaving_of_disp_map_bicat D).
+    - exact global_cartesian_disp_map_bicat_comprehension.
+  Defined.
+
+  Definition disp_map_bicat_to_comp_bicat_local_opcartesian
+             (HD : is_covariant_disp_map_bicat D)
+    : local_opcartesian_disp_psfunctor
+        (comp_of disp_map_bicat_to_comp_bicat).
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? H.
+    apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
+    cbn.
+    apply (disp_map_is_opcartesian_2cell_to_is_opcartesian_2cell_sopfib _ HD).
+    exact H.
+  Defined.
+
+  Definition is_covariant_disp_map_bicat_to_comp_bicat
+             (HD : is_covariant_disp_map_bicat D)
+    : is_covariant disp_map_bicat_to_comp_bicat.
+  Proof.
+    repeat split.
+    - exact (local_opcleaving_of_disp_map_bicat _ HD).
+    - exact (lwhisker_opcartesian_disp_map_bicat _ HD).
+    - exact (rwhisker_opcartesian_disp_map_bicat _ HD).
+    - exact (disp_map_bicat_to_comp_bicat_local_opcartesian HD).
+  Defined.
+
+  Definition disp_map_bicat_to_comp_bicat_local_cartesian
+             (HD : is_contravariant_disp_map_bicat D)
+    : local_cartesian_disp_psfunctor
+        (comp_of disp_map_bicat_to_comp_bicat).
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? H.
+    apply is_cartesian_2cell_sfib_to_is_cartesian_2cell.
+    cbn.
+    apply (disp_map_is_cartesian_2cell_to_is_cartesian_2cell_sfib _ HD).
+    exact H.
+  Defined.
+
+  Definition is_contravariant_disp_map_bicat_to_comp_bicat
+             (HD : is_contravariant_disp_map_bicat D)
+    : is_contravariant disp_map_bicat_to_comp_bicat.
+  Proof.
+    repeat split.
+    - exact (local_cleaving_of_disp_map_bicat _ HD).
+    - exact (lwhisker_cartesian_disp_map_bicat _ HD).
+    - exact (rwhisker_cartesian_disp_map_bicat _ HD).
+    - exact (disp_map_bicat_to_comp_bicat_local_cartesian HD).
+  Defined.
+End DispMapBicatToCompBicat.
+
+(**
+ 7. Internal Street fibrations and opfibrations
+ *)
+Definition internal_sfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat B
+  := disp_map_bicat_to_comp_bicat (sfib_disp_map_bicat B) HB.
+
+Definition is_contravariant_internal_sfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : is_contravariant (internal_sfib_comprehension_bicat B HB).
+Proof.
+  use is_contravariant_disp_map_bicat_to_comp_bicat.
+  apply sfib_disp_map_bicat_is_contravariant.
+Defined.
+
+Definition internal_sopfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat B
+  := disp_map_bicat_to_comp_bicat (sopfib_disp_map_bicat B) HB.
+
+Definition is_covariant_internal_sopfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : is_covariant (internal_sopfib_comprehension_bicat B HB).
+Proof.
+  use is_covariant_disp_map_bicat_to_comp_bicat.
+  apply sopfib_disp_map_bicat_is_covariant.
 Defined.

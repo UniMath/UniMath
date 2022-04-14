@@ -1,8 +1,16 @@
-(* ******************************************************************************* *)
-(** Biadjunctions between bicategories.
-    The biadjunctions are incoherent and do not necessarily satisfy the swallowtail equations.
- ********************************************************************************* *)
+(*********************************************************************************
 
+ Biadjunctions of bicategories
+
+ We define the notion of biadjunction. To do so, we use the formulation with units
+ and counits. We don't require the biadjunctions to be coherent: the swallowtail
+ equations do not have to be satisfied.
+
+ Contents
+ 1. Definition
+ 2. Equivalence on hom-categories
+
+ *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -11,12 +19,16 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Properties.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
@@ -35,12 +47,12 @@ Require Import UniMath.Bicategories.Transformations.Examples.Unitality.
 Require Import UniMath.Bicategories.Transformations.Examples.Associativity.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.Colimits.Initial.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 
-Local Open Scope bicategory_scope.
 Local Open Scope cat.
 
+(**
+ 1. Definition
+ *)
 Definition left_biadj_unit_counit
            {B₁ B₂ : bicat}
            (L : psfunctor B₁ B₂)
@@ -55,8 +67,8 @@ Definition left_biadj_unit_counit
 
 Section BiadjunctionProjections.
   Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}.
-  Variable (R : left_biadj_unit_counit L).
+          {L : psfunctor B₁ B₂}
+          (R : left_biadj_unit_counit L).
 
   Definition biadj_right_adjoint
     : psfunctor B₂ B₁
@@ -79,11 +91,13 @@ Coercion biadj_right_adjoint : left_biadj_unit_counit >-> psfunctor.
 
 Section BiadjunctionTriangleLaws.
   Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}.
-  Variable (R : left_biadj_unit_counit L).
+          {L : psfunctor B₁ B₂}
+          (R : left_biadj_unit_counit L).
 
-  Local Notation "'η'" := (biadj_unit R).
-  Local Notation "'ε'" := (biadj_counit R).
+  Let η : pstrans (id_psfunctor B₁) (comp_psfunctor R L)
+    := biadj_unit R.
+  Let ε : pstrans (comp_psfunctor L R) (id_psfunctor B₂)
+    := biadj_counit R.
 
   Definition biadj_triangle_l_lhs
     : pstrans L L
@@ -131,8 +145,8 @@ Definition left_biadj_data
 
 Section BiadjunctionDataProjections.
   Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}.
-  Variable (R : left_biadj_data L).
+          {L : psfunctor B₁ B₂}
+          (R : left_biadj_data L).
 
   Definition left_biadj_data_to_left_biadj_unit_counit
     : left_biadj_unit_counit L
@@ -174,26 +188,28 @@ Definition make_biadj_data
            (tl : biadj_triangle_l_law R)
            (tr : biadj_triangle_r_law R)
   : left_biadj_data L
-  := R ,, (tl ,, tr).
+  := R ,, tl ,, tr.
 
-(** Biadjunctions give equivalences on hom categories *)
+(**
+ 2. Equivalence on hom-categories
+ *)
 Section BiadjunctionHom.
   Context {B₁ B₂ : bicat}
           {L : psfunctor B₁ B₂}
           (R : left_biadj_data L)
           (X : B₁) (Y : B₂).
 
-  Local Notation "'η'" := (biadj_unit R).
-  Local Notation "'ε'" := (biadj_counit R).
+  Let η : pstrans (id_psfunctor B₁) (comp_psfunctor R L)
+    := biadj_unit R.
+  Let ε : pstrans (comp_psfunctor L R) (id_psfunctor B₂)
+    := biadj_counit R.
 
   Local Definition biadj_left_hom_data
     : functor_data (hom X (R Y)) (hom (L X) Y).
   Proof.
     use make_functor_data.
-    - cbn ; intro f.
-      exact (#L f · ε Y).
-    - cbn ; intros f g α.
-      exact ((##L α) ▹ ε Y).
+    - exact (λ f, #L f · ε Y).
+    - exact (λ f g α, (##L α) ▹ ε Y).
   Defined.
 
   Local Definition biadj_left_hom_is_functor
@@ -222,10 +238,8 @@ Section BiadjunctionHom.
     : functor_data (hom (L X) Y) (hom X (R Y)).
   Proof.
     use make_functor_data.
-    - cbn ; intro f.
-      exact (η X · #R f).
-    - cbn ; intros f g α.
-      exact (η X ◃ ##R α).
+    - exact (λ f, η X · #R f).
+    - exact (λ f g α, η X ◃ ##R α).
   Defined.
 
   Definition biadj_right_hom_is_functor
@@ -256,7 +270,6 @@ Section BiadjunctionHom.
         (biadj_left_hom ∙ biadj_right_hom).
   Proof.
     intros f.
-    cbn in f ; cbn.
     exact ((rinvunitor f)
              • (f ◃ (((invertible_modcomponent_of (biadj_triangle_r R) Y)^-1)
                        • lunitor _
@@ -331,7 +344,6 @@ Section BiadjunctionHom.
         (functor_identity (hom (L X) Y)).
   Proof.
     intros f.
-    cbn in f ; cbn.
     exact (((psfunctor_comp L (η X) (#R f))^-1 ▹ (ε Y))
              • rassociator _ _ _
              • (#L (η X) ◃ (psnaturality_of ε f)^-1)
@@ -427,12 +439,12 @@ Section BiadjunctionHom.
         apply is_inv2cell_to_is_iso.
         unfold biadj_hom_left_right_data.
         is_iso.
-        apply (psfunctor_comp R).
+        apply property_from_invertible_2cell.
       + intro a.
         apply is_inv2cell_to_is_iso.
         unfold biadj_hom_right_left_data.
         is_iso.
-        apply (invertible_modcomponent_of (biadj_triangle_l R)).
+        apply property_from_invertible_2cell.
   Defined.
 
   Definition biadj_hom_equiv
@@ -441,59 +453,3 @@ Section BiadjunctionHom.
     exact (adjointificiation biadj_hom_equivalence).
   Defined.
 End BiadjunctionHom.
-
-(** Biadjunctions preserve unique maps *)
-Section BiadjunctionUniqueMaps.
-  Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}
-          (R : left_biadj_data L)
-          (H₂ : is_univalent_2_1 B₂)
-          (X : B₁) (HX : unique_maps X).
-
-  Definition biadj_preserves_unique_maps
-    : is_biinitial H₂ (L X).
-  Proof.
-    intros Y.
-    unfold is_biinitial in *.
-    use equiv_to_adjequiv.
-    use iso_equiv.
-    - exact ((pr11 (biadj_hom_equiv R X Y))
-               ∙ functor_to_unit (hom X (R Y))).
-    - pose (comp_adj_equivalence_of_cats
-              (adj_equivalence_of_cats_inv (biadj_hom_equiv R X Y))
-              (HX (R Y))) as A.
-      exact (@adj_equivalence_to_left_equivalence
-               (univ_hom H₂ (L X) Y)
-               unit_category
-               _ A).
-    - use make_nat_trans.
-      + exact (λ _, idpath _).
-      + intros f g α.
-        apply isapropunit.
-    - apply is_nat_iso_to_is_invertible_2cell.
-      intros f.
-      use is_iso_qinv ; cbn.
-      + apply idpath.
-      + split ; apply idpath.
-  Defined.
-End BiadjunctionUniqueMaps.
-
-(** Biadjunctions preserve biinitial objects. *)
-Section BiadjunctionInitial.
-  Context {B₁ B₂ : bicat}
-          {L : psfunctor B₁ B₂}
-          (R : left_biadj_data L)
-          (H₁ : is_univalent_2_1 B₁)
-          (H₂ : is_univalent_2_1 B₂)
-          (X : B₁) (HX : is_biinitial H₁ X).
-
-  Definition biadj_preserves_biinitial
-    : is_biinitial H₂ (L X).
-  Proof.
-    apply biadj_preserves_unique_maps.
-    - exact R.
-    - use biinitial_to_unique_maps.
-      + exact H₁.
-      + apply HX.
-  Defined.
-End BiadjunctionInitial.

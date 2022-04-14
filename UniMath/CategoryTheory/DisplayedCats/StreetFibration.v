@@ -6,6 +6,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
@@ -677,3 +678,169 @@ Proof.
       rewrite iso_after_iso_inv.
       apply id_right.
 Qed.
+
+(**
+ Lemmas on cartesian cells for Street fibrations
+ *)
+Definition is_cartesian_sfib_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {x₁ x₂ : C₁}
+           {f₁ f₂ : x₁ --> x₂}
+           (p : f₁ = f₂)
+           (Hf₁ : is_cartesian_sfib F f₁)
+  : is_cartesian_sfib F f₂.
+Proof.
+  induction p.
+  exact Hf₁.
+Defined.
+
+Definition iso_is_cartesian_sfib
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {x₁ x₂ : C₁}
+           (i : x₁ --> x₂)
+           (Hi : is_iso i)
+  : is_cartesian_sfib F i.
+Proof.
+  pose (i_iso := make_iso _ Hi).
+  intros w g h p.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       refine (!(id_right _) @ _ @ id_right _) ;
+       rewrite <- (iso_inv_after_iso i_iso) ;
+       cbn ;
+       rewrite !assoc ;
+       rewrite (pr22 φ₁), (pr22 φ₂) ;
+       apply idpath).
+  - simple refine (_ ,, _ ,, _).
+    + exact (g · inv_from_iso i_iso).
+    + abstract
+        (rewrite functor_comp ;
+         rewrite p ;
+         rewrite !assoc' ;
+         rewrite <- functor_comp ;
+         etrans ;
+           [ do 2 apply maponpaths ;
+             exact (iso_inv_after_iso i_iso)
+           | ] ;
+         rewrite functor_id ;
+         apply id_right).
+    + abstract
+        (cbn ;
+         rewrite !assoc' ;
+         refine (_ @ id_right _) ;
+         apply maponpaths ;
+         apply iso_after_iso_inv).
+Defined.
+
+Section CompositionCartesian.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          {x₁ x₂ x₃ : C₁}
+          {f : x₁ --> x₂}
+          (Hf : is_cartesian_sfib F f)
+          {g : x₂ --> x₃}
+          (Hg : is_cartesian_sfib F g).
+
+  Section Factorization.
+    Context {w : C₁}
+            {h₁ : w --> x₃}
+            {h₂ : F w --> F x₁}
+            (p : # F h₁ = h₂ · # F (f · g)).
+
+    Definition comp_is_cartesian_sfib_factor_help
+      : w --> x₂.
+    Proof.
+      use (cartesian_factorization_sfib
+             _ Hg
+             h₁ (h₂ · #F f)).
+      abstract
+        (refine (p @ _) ;
+         rewrite functor_comp ;
+         rewrite assoc ;
+         apply idpath).
+    Defined.
+
+    Definition comp_is_cartesian_sfib_factor
+      : w --> x₁.
+    Proof.
+      use (cartesian_factorization_sfib _ Hf).
+      - exact comp_is_cartesian_sfib_factor_help.
+      - exact h₂.
+      - apply cartesian_factorization_sfib_over.
+    Defined.
+
+    Definition comp_is_cartesian_sfib_factor_over
+      : # F comp_is_cartesian_sfib_factor = h₂.
+    Proof.
+      apply cartesian_factorization_sfib_over.
+    Qed.
+
+    Definition comp_is_cartesian_sfib_factor_comm
+      : comp_is_cartesian_sfib_factor · (f · g) = h₁.
+    Proof.
+      unfold comp_is_cartesian_sfib_factor, comp_is_cartesian_sfib_factor_help.
+      rewrite !assoc.
+      rewrite !cartesian_factorization_sfib_commute.
+      apply idpath.
+    Qed.
+
+    Definition comp_is_cartesian_sfib_factor_unique
+      : isaprop (∑ φ, # F φ = h₂ × φ · (f · g) = h₁).
+    Proof.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply isapropdirprod ; apply homset_property.
+      }
+      use (cartesian_factorization_sfib_unique
+             _ Hf
+             comp_is_cartesian_sfib_factor_help h₂).
+      - apply cartesian_factorization_sfib_over.
+      - exact (pr12 φ₁).
+      - exact (pr12 φ₂).
+      - use (cartesian_factorization_sfib_unique _ Hg h₁ (h₂ · #F f)).
+        + rewrite p.
+          rewrite functor_comp.
+          rewrite !assoc.
+          apply idpath.
+        + rewrite functor_comp.
+          rewrite (pr12 φ₁).
+          apply idpath.
+        + apply cartesian_factorization_sfib_over.
+        + rewrite assoc'.
+          apply (pr22 φ₁).
+        + apply cartesian_factorization_sfib_commute.
+      - use (cartesian_factorization_sfib_unique _ Hg h₁ (h₂ · #F f)).
+        + rewrite p.
+          rewrite functor_comp.
+          rewrite !assoc.
+          apply idpath.
+        + rewrite functor_comp.
+          rewrite (pr12 φ₂).
+          apply idpath.
+        + apply cartesian_factorization_sfib_over.
+        + rewrite assoc'.
+          apply (pr22 φ₂).
+        + apply cartesian_factorization_sfib_commute.
+    Qed.
+  End Factorization.
+
+  Definition comp_is_cartesian_sfib
+    : is_cartesian_sfib F (f · g).
+  Proof.
+    intros w h₁ h₂ p.
+    use iscontraprop1.
+    - exact (comp_is_cartesian_sfib_factor_unique p).
+    - simple refine (_ ,, _ ,, _).
+      + exact (comp_is_cartesian_sfib_factor p).
+      + exact (comp_is_cartesian_sfib_factor_over p).
+      + exact (comp_is_cartesian_sfib_factor_comm p).
+  Defined.
+End CompositionCartesian.

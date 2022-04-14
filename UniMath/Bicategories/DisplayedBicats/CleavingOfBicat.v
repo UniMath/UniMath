@@ -6,11 +6,11 @@
 
  Content:
  1. Definition of cleaving
- 2. Properties of cartesian 1-cells
- 3. Properties of cartesian 2-cells
- 4. Local opcleavings
- 5. Properties of opcartesian 2-cells
- 6. Cartesian pseudofunctors
+ 2. Properties of cartesian 2-cells
+ 3. Local opcleavings
+ 4. Properties of opcartesian 2-cells
+ 5. Local isocleavings
+ 6. Local isocleavings from local (op)cleavings
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -22,29 +22,15 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.TransportLaws.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
-Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-Require Import UniMath.Bicategories.Colimits.Pullback.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
-Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
-Require Import UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -343,7 +329,42 @@ Section BicatCleaving.
              (gg : xx -->[ g ] yy)
              (α : f ==> g)
     : UU
-    := ∑ (ff : xx -->[ f ] yy) (αα : ff ==>[ α ] gg), is_cartesian_2cell αα.
+    := ∑ (ff : xx -->[ f ] yy)
+         (αα : ff ==>[ α ] gg),
+       is_cartesian_2cell αα.
+
+  Coercion mor_of_cartesian_lift_2cell
+           {x y : B}
+           {xx : D x}
+           {yy : D y}
+           {f g : x --> y}
+           {gg : xx -->[ g ] yy}
+           {α : f ==> g}
+           (ℓ : cartesian_lift_2cell gg α)
+    : xx -->[ f ] yy
+    := pr1 ℓ.
+
+  Definition cell_of_cartesian_lift_2cell
+             {x y : B}
+             {xx : D x}
+             {yy : D y}
+             {f g : x --> y}
+             {gg : xx -->[ g ] yy}
+             {α : f ==> g}
+             (ℓ : cartesian_lift_2cell gg α)
+    : ℓ ==>[ α] gg
+    := pr12 ℓ.
+
+  Definition cell_of_cartesian_lift_2cell_is_cartesian
+             {x y : B}
+             {xx : D x}
+             {yy : D y}
+             {f g : x --> y}
+             {gg : xx -->[ g ] yy}
+             {α : f ==> g}
+             (ℓ : cartesian_lift_2cell gg α)
+    : is_cartesian_2cell (cell_of_cartesian_lift_2cell ℓ)
+    := pr22 ℓ.
 
   Definition local_cleaving
     : UU
@@ -392,441 +413,9 @@ Section BicatCleaving.
        × global_cleaving
        × lwhisker_cartesian
        × rwhisker_cartesian.
-
-  Coercion cleaving_of_bicats_local_cleaving
-           (CD : cleaving_of_bicats)
-    : local_cleaving
-    := pr1 CD.
-
-  Coercion cleaving_of_bicats_global_cleaving
-           (CD : cleaving_of_bicats)
-    : global_cleaving
-    := pr12 CD.
-
-  Coercion cleaving_of_bicats_lwhisker_cartesian
-           (CD : cleaving_of_bicats)
-    : lwhisker_cartesian
-    := pr122 CD.
-
-  Coercion cleaving_of_bicats_rwhisker_cartesian
-           (CD : cleaving_of_bicats)
-    : rwhisker_cartesian
-    := pr222 CD.
 End BicatCleaving.
 
-(** 2. Properties of cartesian 1-cells *)
-Section Lift2CellInvertible.
-  Context {B : bicat}
-          (D : disp_bicat B)
-          {a b : B}
-          {f : a --> b}
-          {aa : D a}
-          {bb : D b}
-          {ff : aa -->[ f ] bb}
-          (Hff : cartesian_1cell _ ff)
-          {c : B}
-          {cc : D c}
-          {h h' : c --> a}
-          {gg : cc -->[h · f ] bb}
-          {gg' : cc -->[h' · f ] bb}
-          {δ : h ==> h'}
-          (Hδ : is_invertible_2cell δ)
-          {σσ : gg ==>[ δ ▹ f] gg'}
-          (Hσσ : is_disp_invertible_2cell (is_invertible_2cell_rwhisker f Hδ) σσ)
-          (Lh : lift_1cell_factor _ ff gg)
-          (Lh' : lift_1cell_factor _ ff gg').
-
-  Let inv : Lh' ==>[ Hδ ^-1] Lh := cartesian_1cell_lift_2cell _ _ Hff (pr1 Hσσ) Lh' Lh.
-
-  Local Lemma cartesian_1cell_lift_inv₁
-    : cartesian_1cell_lift_2cell D ff Hff σσ Lh Lh' •• inv
-      =
-      transportb (λ α, Lh ==>[ α] Lh) (vcomp_rinv Hδ) (disp_id2 Lh).
-  Proof.
-    use (isaprop_lift_of_lift_2cell D ff).
-    - refine (transportf
-                (λ z, _ ==>[ z ] _)
-                _
-                (disp_id2 _)).
-      abstract
-        (rewrite vcomp_rinv ;
-         rewrite id2_rwhisker ;
-         apply idpath).
-    - use iscontraprop1.
-      + use invproofirrelevance.
-        intros φ₁ φ₂.
-        use subtypePath ; [ intro ; apply D | ].
-        induction φ₁ as [ φ₁ p₁ ].
-        induction φ₂ as [ φ₂ p₂ ].
-        cbn.
-        rewrite disp_mor_transportf_prewhisker in p₁, p₂.
-        rewrite disp_id2_right in p₁, p₂.
-        unfold transportb in *.
-        rewrite transport_f_f in p₁, p₂.
-        assert (r := p₁ @ !p₂).
-        assert (r' : φ₁ ▹▹ ff = φ₂ ▹▹ ff).
-        {
-          use (disp_vcomp_rcancel _ (pr22 Lh)).
-          pose (@transportb_transpose_left
-                   _
-                   (λ z, Lh ;; ff ==>[ z] gg)
-                   _ _ _ _ _
-                   r)
-            as ρ.
-          rewrite transportbfinv in ρ.
-          exact ρ.
-        }
-        pose (l := pr1 Lh
-                   ,,
-                   disp_id2_invertible_2cell
-                     (pr1 Lh ;; ff)
-                 : lift_1cell_factor _ _ (Lh ;; ff)).
-        apply (isaprop_lift_of_lift_2cell
-                 _
-                 _
-                 (pr2 Hff
-                      _ _ _ _ _ _ _
-                      (φ₁ ▹▹ ff)
-                      l
-                      l)
-                 φ₁
-                 φ₂).
-        * cbn.
-          rewrite disp_id2_right, disp_id2_left.
-          unfold transportb.
-          rewrite transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-        * cbn.
-          rewrite disp_id2_right, disp_id2_left.
-          unfold transportb.
-          rewrite r'.
-          rewrite transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-      + simple refine (_ ,, _).
-        * simple refine (transportf
-                           (λ z, _ ==>[ z ] _)
-                           _
-                           (disp_id2 _)).
-          abstract
-            (rewrite vcomp_rinv ;
-             apply idpath).
-        * cbn.
-          rewrite !disp_mor_transportf_prewhisker.
-          rewrite disp_rwhisker_transport_left_new.
-          rewrite disp_mor_transportf_postwhisker.
-          rewrite transport_f_f.
-          rewrite disp_id2_rwhisker.
-          unfold transportb.
-          rewrite disp_mor_transportf_postwhisker.
-          rewrite transport_f_f.
-          rewrite disp_id2_left, disp_id2_right.
-          unfold transportb.
-          rewrite !transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-    - unfold cartesian_1cell_lift_2cell, inv.
-      rewrite disp_rwhisker_vcomp_alt.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocl.
-      unfold transportb.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply eq_lift_2cell_alt.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocr.
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        apply eq_lift_2cell_alt.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocl.
-      unfold transportb.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply Hσσ.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-    - unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite disp_rwhisker_transport_left_new.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_id2_rwhisker.
-      unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_id2_left, disp_id2_right.
-      unfold transportb.
-      rewrite !transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-  Qed.
-
-  Local Lemma cartesian_1cell_lift_inv₂
-    : inv •• cartesian_1cell_lift_2cell D ff Hff σσ Lh Lh'
-      =
-      transportb (λ α, Lh' ==>[ α] Lh') (vcomp_linv Hδ) (disp_id2 Lh').
-  Proof.
-    use (isaprop_lift_of_lift_2cell D ff).
-    - refine (transportf
-                (λ z, _ ==>[ z ] _)
-                _
-                (disp_id2 _)).
-      abstract
-        (rewrite vcomp_linv ;
-         rewrite id2_rwhisker ;
-         apply idpath).
-    - use iscontraprop1.
-      + use invproofirrelevance.
-        intros φ₁ φ₂.
-        use subtypePath ; [ intro ; apply D | ].
-        induction φ₁ as [ φ₁ p₁ ].
-        induction φ₂ as [ φ₂ p₂ ].
-        cbn.
-        rewrite disp_mor_transportf_prewhisker in p₁, p₂.
-        rewrite disp_id2_right in p₁, p₂.
-        unfold transportb in *.
-        rewrite transport_f_f in p₁, p₂.
-        assert (r := p₁ @ !p₂).
-        assert (r' : φ₁ ▹▹ ff = φ₂ ▹▹ ff).
-        {
-          use (disp_vcomp_rcancel _ (pr22 Lh')).
-          pose (@transportb_transpose_left
-                  _
-                  (λ z, Lh' ;; ff ==>[ z] gg')
-                  _ _ _ _ _
-                  r)
-            as ρ.
-          rewrite transportbfinv in ρ.
-          exact ρ.
-        }
-        pose (l := pr1 Lh'
-                       ,,
-                       disp_id2_invertible_2cell
-                       (pr1 Lh' ;; ff)
-                   : lift_1cell_factor _ _ (Lh' ;; ff)).
-        apply (isaprop_lift_of_lift_2cell
-                 _
-                 _
-                 (pr2 Hff
-                      _ _ _ _ _ _ _
-                      (φ₁ ▹▹ ff)
-                      l
-                      l)
-                 φ₁
-                 φ₂).
-        * cbn.
-          rewrite disp_id2_right, disp_id2_left.
-          unfold transportb.
-          rewrite transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-        * cbn.
-          rewrite disp_id2_right, disp_id2_left.
-          unfold transportb.
-          rewrite r'.
-          rewrite transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-      + simple refine (_ ,, _).
-        * simple refine (transportf
-                           (λ z, _ ==>[ z ] _)
-                           _
-                           (disp_id2 _)).
-          abstract
-            (rewrite vcomp_linv ;
-             apply idpath).
-        * cbn.
-          rewrite !disp_mor_transportf_prewhisker.
-          rewrite disp_rwhisker_transport_left_new.
-          rewrite disp_mor_transportf_postwhisker.
-          rewrite transport_f_f.
-          rewrite disp_id2_rwhisker.
-          unfold transportb.
-          rewrite disp_mor_transportf_postwhisker.
-          rewrite transport_f_f.
-          rewrite disp_id2_left, disp_id2_right.
-          unfold transportb.
-          rewrite !transport_f_f.
-          apply maponpaths_2.
-          apply cellset_property.
-    - unfold cartesian_1cell_lift_2cell, inv.
-      rewrite disp_rwhisker_vcomp_alt.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocl.
-      unfold transportb.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply eq_lift_2cell_alt.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocr.
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        apply eq_lift_2cell_alt.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_vassocl.
-      unfold transportb.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply Hσσ.
-      }
-      unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-    - unfold transportb.
-      rewrite disp_mor_transportf_prewhisker.
-      rewrite disp_rwhisker_transport_left_new.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_id2_rwhisker.
-      unfold transportb.
-      rewrite disp_mor_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite disp_id2_left, disp_id2_right.
-      unfold transportb.
-      rewrite !transport_f_f.
-      apply maponpaths_2.
-      apply cellset_property.
-  Qed.
-
-  Definition cartesian_1cell_lift_2cell_invertible
-    : is_disp_invertible_2cell Hδ (cartesian_1cell_lift_2cell _ _ Hff σσ Lh Lh').
-  Proof.
-    simple refine (_ ,, _ ,, _).
-    - exact inv.
-    - exact cartesian_1cell_lift_inv₁.
-    - exact cartesian_1cell_lift_inv₂.
-  Defined.
-End Lift2CellInvertible.
-
-Definition isaprop_cartesian_1cell
-           {B : bicat}
-           {D : disp_bicat B}
-           (HD : disp_univalent_2_1 D)
-           {b₁ b₂ : B}
-           {f : b₁ --> b₂}
-           {bb₁ : D b₁}
-           {bb₂ : D b₂}
-           (ff : bb₁ -->[ f ] bb₂)
-  : isaprop (cartesian_1cell D ff).
-Proof.
-  use invproofirrelevance.
-  intros φ₁ φ₂.
-  use subtypePath.
-  {
-    intro.
-    do 10 (use impred ; intro).
-    apply isapropiscontr.
-  }
-  use funextsec ; intro c.
-  use funextsec ; intro cc.
-  use funextsec ; intro h.
-  use funextsec ; intro gg.
-  use total2_paths_f.
-  - use (disp_isotoid_2_1
-             _
-             HD
-             (idpath _)).
-    simple refine (_ ,, _).
-    + refine (cartesian_1cell_lift_2cell _ _ φ₁ _ (pr1 φ₁ c cc h gg) (pr1 φ₂ c cc h gg)).
-      exact (transportf
-               (λ z, _ ==>[ z ] _)
-               (!(id2_rwhisker _ _))
-               (disp_id2 _)).
-    + simpl.
-      apply cartesian_1cell_lift_2cell_invertible.
-      simple refine (_ ,, _ ,, _).
-      * exact (transportf
-                 (λ z, _ ==>[ z ] _)
-                 (!(id2_rwhisker _ _))
-                 (disp_id2 _)).
-      * rewrite disp_mor_transportf_prewhisker.
-        rewrite disp_id2_right.
-        unfold transportb.
-        rewrite !transport_f_f.
-        apply maponpaths_2.
-        apply cellset_property.
-      * simpl.
-        rewrite disp_mor_transportf_prewhisker.
-        rewrite disp_id2_right.
-        unfold transportb.
-        rewrite !transport_f_f.
-        apply maponpaths_2.
-        apply cellset_property.
-  - simpl.
-    use subtypePath.
-    {
-      intro ; apply isaprop_is_disp_invertible_2cell.
-    }
-    unfold disp_invertible_2cell.
-    rewrite pr1_transportf.
-    cbn.
-    rewrite disp_1cell_transport_rwhisker.
-    etrans.
-    {
-      apply maponpaths.
-      apply maponpaths_2.
-      apply maponpaths.
-      apply disp_idtoiso_2_1_inv.
-    }
-    rewrite disp_idtoiso_isotoid_2_1.
-    cbn.
-    etrans.
-    {
-      apply maponpaths.
-      apply eq_lift_2cell_alt.
-    }
-    unfold transportb.
-    rewrite transport_f_f.
-    rewrite disp_mor_transportf_prewhisker.
-    rewrite transport_f_f.
-    rewrite disp_id2_right.
-    unfold transportb.
-    rewrite transport_f_f.
-    use (transportf_set (λ α, pr1 φ₂ c cc h gg ;; ff ==>[ α] gg)).
-    apply cellset_property.
-Qed.
-
-(** 3. Properties of cartesian 2-cells *)
+(** 2. Properties of cartesian 2-cells *)
 Definition local_fib
            {B : bicat}
            (D : disp_bicat B)
@@ -1194,7 +783,7 @@ Proof.
     exact Hββ.
 Defined.
 
-(** 4. Local Opcleavings *)
+(** 3. Local Opcleavings *)
 Section LocalOpcleaving.
   Context {B : bicat}
           (D : disp_bicat B).
@@ -1269,6 +858,39 @@ Section LocalOpcleaving.
     : UU
     := ∑ (gg : xx -->[ g ] yy) (αα : ff ==>[ α ] gg), is_opcartesian_2cell αα.
 
+  Coercion mor_of_opcartesian_lift_2cell
+           {x y : B}
+           {xx : D x}
+           {yy : D y}
+           {f g : x --> y}
+           {ff : xx -->[ f ] yy}
+           {α : f ==> g}
+           (ℓ : opcartesian_lift_2cell ff α)
+    : xx -->[ g ] yy
+    := pr1 ℓ.
+
+  Definition cell_of_opcartesian_lift_2cell
+             {x y : B}
+             {xx : D x}
+             {yy : D y}
+             {f g : x --> y}
+             {ff : xx -->[ f ] yy}
+             {α : f ==> g}
+             (ℓ : opcartesian_lift_2cell ff α)
+    : ff ==>[ α ] ℓ
+    := pr12 ℓ.
+
+  Definition cell_of_opcartesian_lift_2cell_is_opcartesian
+             {x y : B}
+             {xx : D x}
+             {yy : D y}
+             {f g : x --> y}
+             {ff : xx -->[ f ] yy}
+             {α : f ==> g}
+             (ℓ : opcartesian_lift_2cell ff α)
+    : is_opcartesian_2cell (cell_of_opcartesian_lift_2cell ℓ)
+    := pr22 ℓ.
+
   Definition local_opcleaving
     : UU
     := ∏ (x y : B)
@@ -1279,7 +901,7 @@ Section LocalOpcleaving.
        opcartesian_lift_2cell ff α.
 End LocalOpcleaving.
 
-(** 5. Properties of opcartesian 2-cells *)
+(** 4. Properties of opcartesian 2-cells *)
 Definition local_opfib
            {B : bicat}
            (D : disp_bicat B)
@@ -1615,7 +1237,7 @@ Section OpCartesian2CellUnique.
   Definition is_opcartesian_2cell_unique_iso
     : disp_invertible_2cell (id2_invertible_2cell _) gg₂ gg₁
     := (i
-          ,, m
+        ,, m
         ,, is_opcartesian_2cell_unique_iso_inv₁
         ,, is_opcartesian_2cell_unique_iso_inv₂).
 
@@ -1666,180 +1288,276 @@ Proof.
     exact Hββ.
 Defined.
 
-(** 6. Cartesian pseudofunctors *)
-Definition global_cartesian_disp_psfunctor
-           {B₁ B₂ : bicat}
-           {F : psfunctor B₁ B₂}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           (FF : disp_psfunctor D₁ D₂ F)
-  : UU
-  := ∏ (b₁ b₂ : B₁)
-       (f : b₁ --> b₂)
-       (bb₁ : D₁ b₁)
-       (bb₂ : D₁ b₂)
-       (ff : bb₁ -->[ f ] bb₂)
-       (Hff : cartesian_1cell D₁ ff),
-     cartesian_1cell D₂ (disp_psfunctor_mor _ _ _ FF ff).
+(**
+ 5. Local isocleavings
+ *)
+Section LocalIsoCleaving.
+  Context {C : bicat}.
 
-Definition local_cartesian_disp_psfunctor
-           {B₁ B₂ : bicat}
-           {F : psfunctor B₁ B₂}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           (FF : disp_psfunctor D₁ D₂ F)
-  : UU
-  := ∏ (b₁ b₂ : B₁)
-       (f g : b₁ --> b₂)
-       (α : f ==> g)
-       (bb₁ : D₁ b₁)
-       (bb₂ : D₁ b₂)
-       (ff : bb₁ -->[ f ] bb₂)
-       (gg : bb₁ -->[ g ] bb₂)
-       (αα : ff ==>[ α ] gg)
-       (Hαα : is_cartesian_2cell D₁ αα),
-     is_cartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+  Definition local_iso_cleaving (D : disp_prebicat C)
+    : UU
+    := ∏ (c c' : C) (f f' : C⟦c,c'⟧)
+         (d : D c) (d' : D c')
+         (ff' : d -->[f'] d')
+         (α : invertible_2cell f f'),
+       ∑ ff : d -->[f] d', disp_invertible_2cell α ff ff'.
 
-Definition local_opcartesian_disp_psfunctor
-           {B₁ B₂ : bicat}
-           {F : psfunctor B₁ B₂}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           (FF : disp_psfunctor D₁ D₂ F)
-  : UU
-  := ∏ (b₁ b₂ : B₁)
-       (f g : b₁ --> b₂)
-       (α : f ==> g)
-       (bb₁ : D₁ b₁)
-       (bb₂ : D₁ b₂)
-       (ff : bb₁ -->[ f ] bb₂)
-       (gg : bb₁ -->[ g ] bb₂)
-       (αα : ff ==>[ α ] gg)
-       (Hαα : is_opcartesian_2cell D₁ αα),
-     is_opcartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+  Section Projections.
+    Context {D : disp_prebicat C} (lic : local_iso_cleaving D)
+            {c c' : C} {f f' : C⟦c,c'⟧}
+            {d : D c} {d' : D c'}
+            (ff' : d -->[f'] d')
+            (α : invertible_2cell f f').
 
-Definition cartesian_disp_psfunctor
-           {B₁ B₂ : bicat}
-           {F : psfunctor B₁ B₂}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           (FF : disp_psfunctor D₁ D₂ F)
-  : UU
-  := global_cartesian_disp_psfunctor FF × local_cartesian_disp_psfunctor FF.
+    Definition local_iso_cleaving_1cell
+      : d -->[f] d'
+      := pr1 (lic c c' f f' d d' ff' α).
 
-(** Lmmas on cartesian pseudofunctors *)
-Definition global_cartesian_id_psfunctor
+    Definition disp_local_iso_cleaving_invertible_2cell
+      : disp_invertible_2cell α local_iso_cleaving_1cell ff'
+      := pr2 (lic c c' f f' d d' ff' α).
+  End Projections.
+End LocalIsoCleaving.
+
+Definition univalent_2_1_to_local_iso_cleaving_help
+           {C : bicat}
+           {D : disp_prebicat C}
+           {c c' : C}
+           {f f' : C⟦c,c'⟧}
+           {d : D c} {d' : D c'}
+           (ff' : d -->[f'] d')
+           (α : f  = f')
+  : ∑ ff : d -->[f] d', disp_invertible_2cell (idtoiso_2_1 _ _ α) ff ff'.
+Proof.
+  induction α.
+  refine (ff' ,, _).
+  apply disp_id2_invertible_2cell.
+Defined.
+
+Definition univalent_2_1_to_local_iso_cleaving
+           {C : bicat}
+           (HC : is_univalent_2_1 C)
+           (D : disp_prebicat C)
+  : local_iso_cleaving D.
+Proof.
+  intros x y f g xx yy gg α.
+  pose (univalent_2_1_to_local_iso_cleaving_help gg (isotoid_2_1 HC α)) as t.
+  rewrite idtoiso_2_1_isotoid_2_1 in t.
+  exact t.
+Defined.
+
+(**
+ 6. Local isocleavings from local (op)cleavings
+ *)
+Section LocalCleavingToLocalIsoCleaving.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          (HD : local_cleaving D)
+          {x y : B}
+          {f g : x --> y}
+          {xx : D x}
+          {yy : D y}
+          (gg : xx -->[ g ] yy)
+          (α : invertible_2cell f g).
+
+  Definition local_cleaving_to_local_iso_cleaving_lift
+    : xx -->[ f ] yy
+    := HD x y xx yy f g gg α.
+
+  Let ff : xx -->[ f ] yy
+    := local_cleaving_to_local_iso_cleaving_lift.
+
+  Let γ : ff ==>[ α ] gg
+    := cell_of_cartesian_lift_2cell _ (HD x y xx yy f g gg α).
+
+  Let Hγ : is_cartesian_2cell _ γ
+    := cell_of_cartesian_lift_2cell_is_cartesian _ (HD x y xx yy f g gg α).
+
+  Definition local_cleaving_to_local_iso_cleaving_disp_inv
+    : gg ==>[ α^-1 ] ff.
+  Proof.
+    use (is_cartesian_2cell_factor _ Hγ).
+    refine (transportf
+              (λ z, _ ==>[ z ] _)
+              _
+              (disp_id2 _)).
+    abstract
+      (cbn ;
+       rewrite vcomp_linv ;
+       apply idpath).
+  Defined.
+
+  Let δ : gg ==>[ α^-1 ] ff
+    := local_cleaving_to_local_iso_cleaving_disp_inv.
+
+  Lemma local_cleaving_to_local_iso_cleaving_disp_left_inv
+    : γ •• δ
+      =
+      transportb (λ z, ff ==>[ z ] ff) (vcomp_rinv α) (disp_id2 ff).
+  Proof.
+    unfold δ, local_cleaving_to_local_iso_cleaving_disp_inv.
+    use (is_cartesian_2cell_unique _ Hγ).
+    - refine (transportf
+                (λ z, _ ==>[ z ] _)
+                _
+                γ).
+      abstract
+        (rewrite vcomp_rinv ;
+         rewrite id2_left ;
+         apply idpath).
+    - rewrite disp_vassocl.
+      rewrite is_cartesian_2cell_comm.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite disp_id2_right.
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    - unfold transportb.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite disp_id2_left.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+  Qed.
+
+  Lemma local_cleaving_to_local_iso_cleaving_disp_right_inv
+    : δ •• γ
+      =
+      transportb (λ z, gg ==>[ z ] gg) (vcomp_linv α) (disp_id2 gg).
+  Proof.
+    unfold δ, local_cleaving_to_local_iso_cleaving_disp_inv.
+    rewrite is_cartesian_2cell_comm.
+    unfold transportb.
+    apply maponpaths_2.
+    apply cellset_property.
+  Qed.
+
+  Definition local_cleaving_to_local_iso_cleaving_disp_iso
+    : disp_invertible_2cell α ff gg.
+  Proof.
+    simple refine (_ ,, _).
+    - exact γ.
+    - refine (δ ,, _ ,, _).
+      * exact local_cleaving_to_local_iso_cleaving_disp_left_inv.
+      * exact local_cleaving_to_local_iso_cleaving_disp_right_inv.
+  Defined.
+End LocalCleavingToLocalIsoCleaving.
+
+Definition local_cleaving_to_local_iso_cleaving
            {B : bicat}
-           (D : disp_bicat B)
-  : global_cartesian_disp_psfunctor (disp_pseudo_id D).
-Proof.
-  intros ? ? ? ? ? ? H.
-  exact H.
-Defined.
+           {D : disp_bicat B}
+           (HD : local_cleaving D)
+  : local_iso_cleaving D
+  := λ x y f g xx yy gg α,
+     local_cleaving_to_local_iso_cleaving_lift HD gg α
+     ,,
+     local_cleaving_to_local_iso_cleaving_disp_iso HD gg α.
 
-Definition global_cartesian_comp_psfunctor
-           {B₁ B₂ B₃ : bicat}
-           {F : psfunctor B₁ B₂}
-           {G : psfunctor B₂ B₃}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           {D₃ : disp_bicat B₃}
-           {FF : disp_psfunctor D₁ D₂ F}
-           {GG : disp_psfunctor D₂ D₃ G}
-           (HFF : global_cartesian_disp_psfunctor FF)
-           (HGG : global_cartesian_disp_psfunctor GG)
-  : global_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
-Proof.
-  intros ? ? ? ? ? ? H.
-  apply HGG.
-  apply HFF.
-  exact H.
-Defined.
+Section LocalOpCleavingToLocalIsoCleaving.
+  Context {B : bicat}
+          {D : disp_bicat B}
+          (HD : local_opcleaving D)
+          {x y : B}
+          {f g : x --> y}
+          {xx : D x}
+          {yy : D y}
+          (gg : xx -->[ g ] yy)
+          (α : invertible_2cell f g).
 
-Definition local_cartesian_id_psfunctor
+  Definition local_opcleaving_to_local_iso_cleaving_lift
+    : xx -->[ f ] yy
+    := HD x y xx yy g f gg (α^-1).
+
+  Let ff : xx -->[ f ] yy
+    := local_opcleaving_to_local_iso_cleaving_lift.
+
+  Let γ : gg ==>[ α^-1 ] ff
+    := cell_of_opcartesian_lift_2cell _ (HD x y xx yy g f gg (α^-1)).
+
+  Let Hγ : is_opcartesian_2cell _ γ
+    := cell_of_opcartesian_lift_2cell_is_opcartesian _ (HD x y xx yy g f gg (α^-1)).
+
+  Definition local_opcleaving_to_local_iso_cleaving_disp_iso_cell
+    : ff ==>[ α ] gg.
+  Proof.
+    use (is_opcartesian_2cell_factor
+           _
+           Hγ).
+    refine (transportf
+              (λ z, _ ==>[ z ] _)
+              _
+              (disp_id2 _)).
+    abstract
+      (rewrite vcomp_linv ;
+       apply idpath).
+  Defined.
+
+  Let δ : ff ==>[ α ] gg
+    := local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+
+  Lemma local_opcleaving_to_local_iso_cleaving_left_inv
+    : δ •• γ
+      =
+      transportb (λ z, ff ==>[ z ] ff) (vcomp_rinv α) (disp_id2 ff).
+  Proof.
+    unfold δ, local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+    use (is_opcartesian_2cell_unique _ Hγ).
+    - refine (transportf
+                (λ z, _ ==>[ z ] _)
+                _
+                γ).
+      abstract
+        (rewrite vcomp_rinv ;
+         rewrite id2_right ;
+         apply idpath).
+    - rewrite disp_vassocr.
+      rewrite is_opcartesian_2cell_comm.
+      rewrite disp_mor_transportf_postwhisker.
+      rewrite disp_id2_left.
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+    - unfold transportb.
+      rewrite disp_mor_transportf_prewhisker.
+      rewrite disp_id2_right.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply cellset_property.
+  Qed.
+
+  Lemma local_opcleaving_to_local_iso_cleaving_right_inv
+    : γ •• δ
+      =
+      transportb (λ z, gg ==>[ z ] gg) (vcomp_linv α) (disp_id2 gg).
+  Proof.
+    unfold δ, local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+    rewrite is_opcartesian_2cell_comm.
+    unfold transportb.
+    apply maponpaths_2.
+    apply cellset_property.
+  Qed.
+
+  Definition local_opcleaving_to_local_iso_cleaving_disp_iso
+    : disp_invertible_2cell α ff gg.
+  Proof.
+    simple refine (_ ,, _).
+    - exact δ.
+    - refine (γ ,, _ ,, _).
+      + exact local_opcleaving_to_local_iso_cleaving_left_inv.
+      + exact local_opcleaving_to_local_iso_cleaving_right_inv.
+  Defined.
+End LocalOpCleavingToLocalIsoCleaving.
+
+Definition local_opcleaving_to_local_iso_cleaving
            {B : bicat}
-           (D : disp_bicat B)
-  : local_cartesian_disp_psfunctor (disp_pseudo_id D).
-Proof.
-  intros ? ? ? ? ? ? ? ? ? ? H.
-  exact H.
-Defined.
-
-Definition local_cartesian_comp_psfunctor
-           {B₁ B₂ B₃ : bicat}
-           {F : psfunctor B₁ B₂}
-           {G : psfunctor B₂ B₃}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           {D₃ : disp_bicat B₃}
-           {FF : disp_psfunctor D₁ D₂ F}
-           {GG : disp_psfunctor D₂ D₃ G}
-           (HFF : local_cartesian_disp_psfunctor FF)
-           (HGG : local_cartesian_disp_psfunctor GG)
-  : local_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
-Proof.
-  intros ? ? ? ? ? ? ? ? ? ? H.
-  apply HGG.
-  apply HFF.
-  exact H.
-Defined.
-
-Definition local_opcartesian_id_psfunctor
-           {B : bicat}
-           (D : disp_bicat B)
-  : local_opcartesian_disp_psfunctor (disp_pseudo_id D).
-Proof.
-  intros ? ? ? ? ? ? ? ? ? ? H.
-  exact H.
-Defined.
-
-Definition local_opcartesian_comp_psfunctor
-           {B₁ B₂ B₃ : bicat}
-           {F : psfunctor B₁ B₂}
-           {G : psfunctor B₂ B₃}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           {D₃ : disp_bicat B₃}
-           {FF : disp_psfunctor D₁ D₂ F}
-           {GG : disp_psfunctor D₂ D₃ G}
-           (HFF : local_opcartesian_disp_psfunctor FF)
-           (HGG : local_opcartesian_disp_psfunctor GG)
-  : local_opcartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
-Proof.
-  intros ? ? ? ? ? ? ? ? ? ? H.
-  apply HGG.
-  apply HFF.
-  exact H.
-Defined.
-
-Definition cartesian_id_psfunctor
-           {B : bicat}
-           (D : disp_bicat B)
-  : cartesian_disp_psfunctor (disp_pseudo_id D).
-Proof.
-  split.
-  - apply global_cartesian_id_psfunctor.
-  - apply local_cartesian_id_psfunctor.
-Defined.
-
-Definition cartesian_comp_psfunctor
-           {B₁ B₂ B₃ : bicat}
-           {F : psfunctor B₁ B₂}
-           {G : psfunctor B₂ B₃}
-           {D₁ : disp_bicat B₁}
-           {D₂ : disp_bicat B₂}
-           {D₃ : disp_bicat B₃}
-           {FF : disp_psfunctor D₁ D₂ F}
-           {GG : disp_psfunctor D₂ D₃ G}
-           (HFF : cartesian_disp_psfunctor FF)
-           (HGG : cartesian_disp_psfunctor GG)
-  : cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
-Proof.
-  split.
-  - apply global_cartesian_comp_psfunctor.
-    + exact (pr1 HFF).
-    + exact (pr1 HGG).
-  - apply local_cartesian_comp_psfunctor.
-    + exact (pr2 HFF).
-    + exact (pr2 HGG).
-Defined.
+           {D : disp_bicat B}
+           (HD : local_opcleaving D)
+  : local_iso_cleaving D
+  := λ x y f g xx yy gg α,
+     local_opcleaving_to_local_iso_cleaving_lift HD gg α
+     ,,
+     local_opcleaving_to_local_iso_cleaving_disp_iso HD gg α.

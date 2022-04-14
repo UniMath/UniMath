@@ -6,24 +6,24 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.InternalStreetFibration.
-Require Import UniMath.Bicategories.Core.InternalStreetOpFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
+Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
-Require Import UniMath.Bicategories.Colimits.Pullback.
+Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.Examples.OneTypesLimits.
 
 Local Open Scope cat.
 
@@ -33,6 +33,26 @@ Here we assume that every 2-cell is invertible
  *)
 Section CodomainCleaving.
   Context (B : bicat).
+
+  Definition cod_local_iso_cleaving
+    : local_iso_cleaving (cod_disp_bicat B).
+  Proof.
+    intros x y f g hx hy hf α.
+    simple refine (_ ,, _).
+    - refine (pr1 hf ,, _) ; cbn.
+      exact (comp_of_invertible_2cell
+               (lwhisker_of_invertible_2cell
+                  _
+                  α)
+               (pr2 hf)).
+    - simple refine ((id2 _ ,, _) ,, _) ; cbn.
+      + abstract
+          (rewrite id2_rwhisker, id2_right ;
+           apply idpath).
+      + use is_disp_invertible_2cell_cod.
+        cbn.
+        is_iso.
+  Defined.
 
   Section CartesianOfSFibToCartesian.
     Context {c₁ c₂ : B}

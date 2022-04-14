@@ -12,6 +12,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -551,6 +552,46 @@ Section Total_invertible_2cells.
 
 End Total_invertible_2cells.
 
+(** Examples of invertible 2-cells *)
+Definition disp_inv_cell_is_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : invertible_2cell f g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (Hαα : is_disp_invertible_2cell α αα)
+  : is_disp_invertible_2cell
+      (is_invertible_2cell_inv α)
+      (disp_inv_cell (αα ,, Hαα)).
+Proof.
+  refine (αα ,, _ ,, _).
+  - exact (disp_vcomp_linv (αα ,, Hαα)).
+  - exact (disp_vcomp_rinv (αα ,, Hαα)).
+Defined.
+
+Definition inverse_of_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : invertible_2cell f g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (αα : disp_invertible_2cell α ff gg)
+  : disp_invertible_2cell (inv_of_invertible_2cell α) gg ff.
+Proof.
+  simple refine (_ ,, _).
+  - exact (disp_inv_cell αα).
+  - exact (disp_inv_cell_is_disp_invertible_2cell (pr2 αα)).
+Defined.
+
 Section VCompDispIsInvertible.
 
 Context {B : bicat}
@@ -985,6 +1026,36 @@ Definition disp_invertible_2cell_rwhisker
   : disp_invertible_2cell (_ ,, is_invertible_2cell_rwhisker g (pr2 α)) _ _
   := disp_rwhisker gg αα,, is_disp_invertible_2cell_rwhisker gg αα.
 
+Definition transportf_is_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α β : f ==> g}
+           (Hα : is_invertible_2cell α)
+           (Hβ : is_invertible_2cell β)
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {αα : ff ==>[ α ] gg}
+           (p : α = β)
+           (Hαα : is_disp_invertible_2cell Hα αα)
+  : is_disp_invertible_2cell
+      Hβ
+      (transportf
+         (λ z, _ ==>[ z ] _)
+         p
+         αα).
+Proof.
+  induction p ; cbn.
+  refine (transportf
+            (λ z, is_disp_invertible_2cell z αα)
+            _
+            Hαα).
+  apply isaprop_is_invertible_2cell.
+Defined.
+
 Definition disp_hom_disp_iso_to_invertible_2cell
            {B : bicat}
            {D : disp_bicat B}
@@ -1001,7 +1072,7 @@ Definition disp_hom_disp_iso_to_invertible_2cell
                     _
                     (disp_hom xx yy)
                     _ _
-                    (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+                    (α ,, is_inv2cell_to_is_iso _ Hα)
                     _ _
                     αα)
   : is_disp_invertible_2cell Hα αα.
@@ -1052,7 +1123,7 @@ Definition disp_hom_disp_invertible_2cell_to_iso
       _
       (disp_hom xx yy)
       _ _
-      (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+      (α ,, is_inv2cell_to_is_iso _ Hα)
       _ _
       αα.
 Proof.
@@ -1104,7 +1175,7 @@ Definition disp_hom_disp_iso_weq_invertible_2cell
        _
        (disp_hom xx yy)
        _ _
-       (α ,, is_inv2cell_to_is_iso _ _ _ Hα)
+       (α ,, is_inv2cell_to_is_iso _ Hα)
        _ _
        αα)
       ≃
@@ -1116,3 +1187,102 @@ Proof.
   - apply isaprop_is_iso_disp.
   - apply (@isaprop_is_disp_invertible_2cell _ D _ _ _ _ (α ,, Hα)).
 Qed.
+
+Definition transportf_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           {α β : invertible_2cell f g}
+           (p : α = β)
+           (αα : disp_invertible_2cell α ff gg)
+  : pr1 (transportf
+           (λ (z : invertible_2cell f g),
+            disp_invertible_2cell z ff gg)
+           p
+           αα)
+    =
+    transportf
+      (λ z, ff ==>[ z ] gg)
+      (maponpaths pr1 p)
+      αα.
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+(** Transporting along displayed invertible 2-cells *)
+Definition transport_1cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transportf (λ z, _ -->[ z ] _) p ff.
+
+Definition transport_1cell_disp_invertible_2cell
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (p : f = g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell (idtoiso_2_1 _ _ p))
+      (transport_1cell p ff)
+      ff.
+Proof.
+  induction p.
+  exact (disp_id2_invertible_2cell ff).
+Defined.
+
+Definition transport_along_inv_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : xx -->[ g ] yy
+  := transport_1cell (isotoid_2_1 HB α) ff.
+
+Definition transport_along_inv_2cell_disp_invertible_2cell
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+  : disp_invertible_2cell
+      (inv_of_invertible_2cell α)
+      (transport_along_inv_2cell HB α ff)
+      ff.
+Proof.
+  refine (transportf
+            (λ z, disp_invertible_2cell z _ _)
+            _
+            (transport_1cell_disp_invertible_2cell
+               (isotoid_2_1 HB α)
+               ff)).
+  abstract
+    (use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+     cbn ;
+     rewrite idtoiso_2_1_isotoid_2_1 ;
+     apply idpath).
+Defined.

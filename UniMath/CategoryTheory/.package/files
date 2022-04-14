@@ -10,17 +10,28 @@ Core/NaturalTransformations.v
 Core/Prelude.v
 
 FunctorCategory.v
+whiskering.v
+
+DisplayedCats/Core.v
+DisplayedCats/Isos.v
+DisplayedCats/Functors.v
+DisplayedCats/NaturalTransformations.v
+DisplayedCats/Univalence.v
+DisplayedCats/Total.v
+DisplayedCats/Fiber.v
+
 categories/HSET/Core.v
 opp_precat.v
 Groupoids.v
-PrecategoryBinProduct.v
 ProductCategory.v
-whiskering.v
+PrecategoryBinProduct.v
+CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v
+HomotopicalCategory.v
 Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
@@ -38,8 +49,6 @@ limits/equalizers.v
 limits/graphs/colimits.v
 limits/graphs/limits.v
 limits/graphs/eqdiag.v
-limits/graphs/bincoproducts.v
-limits/graphs/binproducts.v
 limits/coproducts.v
 limits/products.v
 limits/initial.v
@@ -47,6 +56,8 @@ limits/terminal.v
 limits/zero.v
 limits/bincoproducts.v
 limits/binproducts.v
+limits/graphs/bincoproducts.v
+limits/graphs/binproducts.v
 limits/pullbacks.v
 limits/graphs/initial.v
 limits/graphs/terminal.v
@@ -67,6 +78,11 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
+
+IsoCommaCategory.v
+CommaCategories.v
+categories/Dialgebras.v
+
 SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
@@ -88,10 +104,7 @@ UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
-CATAsInstanceOfBicat.v
 PointedFunctorsComposition.v
-CommaCategories.v
-IsoCommaCategory.v
 ArrowCategory.v
 RightKanExtension.v
 slicecat.v
@@ -117,7 +130,6 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 LatticeObject.v
-Elements.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
@@ -140,7 +152,6 @@ categories/intdoms.v
 categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
-categories/Cats.v
 categories/preorder_categories.v
 
 categories/Type/Colimits.v
@@ -155,13 +166,11 @@ categories/HSET/Structures.v
 categories/HSET/SliceFamEquiv.v
 categories/HSET/All.v
 
-categories/Universal_Algebra/Algebras.v
-categories/Universal_Algebra/EqAlgebras.v
-
 SetValuedFunctors.v
 categories/FinSet.v
 categories/wosets.v
 categories/Graph.v
+categories/CGraph.v
 
 GrothendieckTopos.v
 Presheaf.v
@@ -182,12 +191,11 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
 
-DisplayedCats/Auxiliary.v
-DisplayedCats/Core.v
-DisplayedCats/Constructions.v
+DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions.v
 DisplayedCats/Equivalences.v
-DisplayedCats/Equivalences_bis.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
@@ -197,32 +205,44 @@ DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
-DisplayedCats/Examples/Reindexing.v
-DisplayedCats/Examples/Opposite.v
 DisplayedCats/StreetFibration.v
+DisplayedCats/StreetOpFibration.v
+
+Elements.v
+Core.v
+
+categories/Universal_Algebra/Algebras.v
+categories/Universal_Algebra/EqAlgebras.v
+
+Monoidal/WhiskeredBifunctors.v
+Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/MonoidalFunctorsWhiskered.v
+Monoidal/WhiskeredDisplayedBifunctors.v
+Monoidal/DisplayedMonoidalWhiskered.v
+Monoidal/TotalDisplayedMonoidalWhiskered.v
+Monoidal/MonoidalSectionsWhiskered.v
+
+DisplayedCats/MoreFibrations/Prefibrations.v
+DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
+DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
+DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
 
 Monoidal/MonoidalCategories.v
-Monoidal/EndofunctorsMonoidal.v
-Monoidal/PointedFunctorsMonoidal.v
+Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
+Monoidal/MonoidalFunctorsCurried.v
 Monoidal/AugmentedSimplexCategory.v
 Monoidal/DisplayedMonoidal.v
+Monoidal/DisplayedMonoidalCurried.v
 Monoidal/CategoriesOfMonoids.v
-Monoidal/Actions.v
-Monoidal/ConstructionOfActions.v
-Monoidal/ActionBasedStrongFunctorsMonoidal.v
-Monoidal/MonoidalFromBicategory.v
-Monoidal/ActionOfEndomorphismsInBicat.v
-Monoidal/ActionBasedStrength.v
-Monoidal/ActionBasedStrongFunctorCategory.v
-Monoidal/ActionsFormBicategory.v
-Monoidal/ActionBasedStrengthOnHomsInBicat.v
 Monoidal/BraidedMonoidalCategories.v
-
+Monoidal/TotalDisplayedMonoidalCurried.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
 Enriched/Enriched.v
+Enriched/ChangeOfBase.v
+Enriched/Opposite.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
