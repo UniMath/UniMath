@@ -53,8 +53,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
-           brew config
            brew install coq
+	   : --- show some configuration information ---
+           brew config --verbose
            type coqc
            coqc --version
       - name: Build UniMath
@@ -62,3 +63,18 @@ jobs:
           cd $GITHUB_WORKSPACE
           time make -j2 TIMECMD=time
 
+  build-macos-with-coq:
+    name: Build-coq-and-UniMath-on-MacOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+           brew install bash objective-caml ocaml-num ocaml-findlib camlp5
+	   : --- show some configuration information ---
+           brew config --verbose
+      - name: Build UniMath
+        run: |
+          cd $GITHUB_WORKSPACE
+          time make -j2 TIMECMD=time BUILD_COQ=yes
