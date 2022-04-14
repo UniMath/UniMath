@@ -556,9 +556,7 @@ Section TensorLayer.
       + use isweq_iso.
         * intro equalunits.
           induction equalunits as [adj_inv adj_prop].
-          cbn.
           apply C.
-          Search (Isos.iso _).
           apply Isos.z_iso_to_iso.
           use tpair.
           -- cbn in *.
@@ -574,8 +572,6 @@ Section TensorLayer.
                    unfold nat_trans_id in pr0.
                    cbn in pr0.
                    unfold functor_identity in pr0.
-                   Check pr0.
-                   (* unfold bicatcatsunit_disp_2cell_struct in pr0. *)
                    etrans. {
                      apply (pathsinv0 pr0).
                    }
@@ -599,6 +595,8 @@ Section TensorLayer.
           intro equalunits.
           induction equalunits.
           cbn.
+          apply C.
+
           admit.
         * cbn.
           intro adj.
