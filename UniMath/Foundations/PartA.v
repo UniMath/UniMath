@@ -372,7 +372,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-#[export] Hint Resolve @pathsinv0 : pathshints.
+Hint Resolve @pathsinv0 : pathshints.
 
 Definition path_assoc {X} {a b c d:X}
            (f : a = b) (g : b = c) (h : c = d)
