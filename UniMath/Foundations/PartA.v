@@ -347,7 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
-#[export] Hint Resolve @pathscomp0 : pathshints.
+Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
 Ltac etrans := eapply pathscomp0.
