@@ -31,6 +31,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install coq
+          type coqc
+          coqc --version
 
       # Change into UniMath directory and build UniMath
       - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
