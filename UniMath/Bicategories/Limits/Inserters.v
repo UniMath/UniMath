@@ -15,15 +15,20 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 
@@ -121,6 +126,34 @@ Section Inserters.
        • (inserter_1cell_pr1 u ▹ f)
        • inserter_cone_cell cone₁
     := pr22 u.
+
+  Definition path_inserter_1cell
+             {cone₁ cone₂ : inserter_cone}
+             (φ ψ : inserter_1cell cone₁ cone₂)
+             (p₁ : pr1 φ = pr1 ψ)
+             (p₂ : pr112 φ = (idtoiso_2_1 _ _ p₁ ▹ _) • pr112 ψ)
+    : φ = ψ.
+  Proof.
+    induction φ as [ φ₁ [ φ₂ φ₃ ]].
+    induction ψ as [ ψ₁ [ ψ₂ ψ₃ ]].
+    cbn in *.
+    induction p₁.
+    apply maponpaths.
+    use subtypePath.
+    {
+      intro.
+      apply cellset_property.
+    }
+    cbn.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_invertible_2cell.
+    }
+    cbn in p₂.
+    rewrite id2_rwhisker, id2_left in p₂.
+    exact p₂.
+  Qed.
 
   (**
    2. The universal mapping property
@@ -294,6 +327,186 @@ Section Inserters.
     Qed.
   End Projections.
 
+  Section Invertible2CellInserterUMP.
+    Context {cone : inserter_cone}
+            (H : has_inserter_ump cone)
+            {x : B}
+            {u₁ u₂ : x --> cone}
+            (α : u₁ · inserter_cone_pr1 cone
+                 ==>
+                 u₂ · inserter_cone_pr1 cone)
+            (p : rassociator _ _ _
+                 • (u₁ ◃ inserter_cone_cell cone)
+                 • lassociator _ _ _
+                 • (α ▹ g)
+                 =
+                 (α ▹ f)
+                 • rassociator _ _ _
+                 • (u₂ ◃ inserter_cone_cell cone)
+                 • lassociator _ _ _)
+            (Hα : is_invertible_2cell α).
+
+    Local Lemma is_invertible_2cell_inserter_ump_cell_inv_path
+      : rassociator _ _ _
+        • (u₂ ◃ inserter_cone_cell cone)
+        • lassociator _ _ _
+        • (Hα ^-1 ▹ g)
+        =
+        (Hα ^-1 ▹ f)
+        • rassociator _ _ _
+        • (u₁ ◃ inserter_cone_cell cone)
+        • lassociator _ _ _.
+    Proof.
+      use vcomp_move_R_Mp ; [ is_iso | ].
+      rewrite !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      cbn.
+      rewrite !vassocr.
+      exact (!p).
+    Qed.
+
+    Let inv : u₂ ==> u₁
+      := inserter_ump_cell
+           H
+           (Hα^-1)
+           is_invertible_2cell_inserter_ump_cell_inv_path.
+
+    Local Lemma is_invertible_2cell_inserter_ump_cell_inv_right
+      : inserter_ump_cell H α p • inv = id₂ _.
+    Proof.
+      use (inserter_ump_eq_alt H).
+      - rewrite <- !rwhisker_vcomp.
+        rewrite !vassocr.
+        unfold inv.
+        rewrite !inserter_ump_cell_pr1.
+        rewrite rwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite rwhisker_vcomp.
+        rewrite !vcomp_rinv.
+        rewrite !id2_rwhisker.
+        rewrite id2_left, id2_right.
+        apply idpath.
+      - rewrite <- !rwhisker_vcomp.
+        unfold inv.
+        rewrite !inserter_ump_cell_pr1.
+        rewrite id2_rwhisker.
+        apply vcomp_rinv.
+    Qed.
+
+    Local Lemma is_invertible_2cell_inserter_ump_cell_inv_left
+      : inv • inserter_ump_cell H α p = id₂ _.
+    Proof.
+      use (inserter_ump_eq_alt H).
+      - rewrite <- !rwhisker_vcomp.
+        rewrite !vassocr.
+        unfold inv.
+        rewrite !inserter_ump_cell_pr1.
+        rewrite rwhisker_vcomp.
+        rewrite !vassocl.
+        rewrite rwhisker_vcomp.
+        rewrite !vcomp_linv.
+        rewrite !id2_rwhisker.
+        rewrite id2_left, id2_right.
+        apply idpath.
+      - rewrite <- !rwhisker_vcomp.
+        unfold inv.
+        rewrite !inserter_ump_cell_pr1.
+        rewrite id2_rwhisker.
+        apply vcomp_linv.
+    Qed.
+
+    Definition is_invertible_2cell_inserter_ump_cell
+      : is_invertible_2cell (inserter_ump_cell H α p).
+    Proof.
+      use make_is_invertible_2cell.
+      - exact inv.
+      - exact is_invertible_2cell_inserter_ump_cell_inv_right.
+      - exact is_invertible_2cell_inserter_ump_cell_inv_left.
+    Defined.
+  End Invertible2CellInserterUMP.
+
+  Definition isaprop_has_inserter_ump
+             (HB_2_1 : is_univalent_2_1 B)
+             (cone : inserter_cone)
+    : isaprop (has_inserter_ump cone).
+  Proof.
+    use invproofirrelevance.
+    intros χ₁ χ₂.
+    use pathsdirprod.
+    - use funextsec.
+      intro q.
+      use path_inserter_1cell.
+      + apply (isotoid_2_1 HB_2_1).
+        use make_invertible_2cell.
+        * use (inserter_ump_cell χ₁).
+          ** exact (inserter_1cell_pr1 (pr1 χ₁ q) • (inserter_1cell_pr1 (pr1 χ₂ q))^-1).
+          ** rewrite <- !rwhisker_vcomp.
+             rewrite !vassocl.
+             etrans.
+             {
+               apply maponpaths.
+               rewrite !vassocr.
+               apply maponpaths_2.
+               exact (inserter_1cell_cell (pr1 χ₁ q)).
+             }
+             rewrite !vassocr.
+             rewrite rassociator_lassociator.
+             rewrite id2_left.
+             rewrite !vassocl.
+             apply maponpaths.
+             use vcomp_move_R_Mp ; [ is_iso | ].
+             cbn.
+             rewrite !vassocl.
+             refine (!_).
+             etrans.
+             {
+               do 2 apply maponpaths.
+               rewrite !vassocr.
+               exact (inserter_1cell_cell (pr1 χ₂ q)).
+             }
+             etrans.
+             {
+               apply maponpaths.
+               rewrite !vassocr.
+               rewrite rassociator_lassociator.
+               rewrite id2_left.
+               apply idpath.
+             }
+             rewrite !vassocr.
+             rewrite rwhisker_vcomp.
+             rewrite vcomp_linv.
+             rewrite id2_rwhisker.
+             apply id2_left.
+        * use is_invertible_2cell_inserter_ump_cell.
+          is_iso.
+          apply property_from_invertible_2cell.
+      + rewrite idtoiso_2_1_isotoid_2_1.
+        cbn.
+        rewrite inserter_ump_cell_pr1.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        apply idpath.
+    - use pathsdirprod.
+      + use funextsec ; intro x.
+        use funextsec ; intro u₁.
+        use funextsec ; intro u₂.
+        use funextsec ; intro φ.
+        use funextsec ; intro p.
+        use subtypePath.
+        {
+          intro.
+          apply cellset_property.
+        }
+        use (inserter_ump_eq χ₁).
+        * exact φ.
+        * exact p.
+        * exact (pr2 ((pr12 χ₁) x u₁ u₂ φ p)).
+        * exact (pr2 ((pr12 χ₂) x u₁ u₂ φ p)).
+      + do 9 (use funextsec ; intro).
+        apply cellset_property.
+  Qed.
+
   (**
    3. The universal property gives an equivalence of categories
    *)
@@ -353,7 +566,6 @@ Section Inserters.
     : UU
     := ∏ (x : B),
        adj_equivalence_of_cats (inserter_cone_functor cone x).
-
 
   Section MakeUniversalInserterCone.
     Context (HB_2_1 : is_univalent_2_1 B)
@@ -441,6 +653,184 @@ Section Inserters.
         apply H.
     - apply make_is_universal_inserter_cone_essentially_surjective.
       apply H.
+  Defined.
+
+  Definition isaprop_is_universal_inserter_cone
+             (HB_2_1 : is_univalent_2_1 B)
+             (cone : inserter_cone)
+    : isaprop (is_universal_inserter_cone cone).
+  Proof.
+    use impred ; intro x.
+    use isofhlevelweqf.
+    - exact (@left_adjoint_equivalence
+               bicat_of_univ_cats
+               (univ_hom HB_2_1 x cone)
+               (@univalent_dialgebra
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _)
+                  (post_comp x f)
+                  (post_comp x g))
+               (inserter_cone_functor cone x)).
+    - exact (@adj_equiv_is_equiv_cat
+               (univ_hom HB_2_1 x cone)
+               (@univalent_dialgebra
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _)
+                  (post_comp x f)
+                  (post_comp x g))
+               (inserter_cone_functor cone x)).
+    - apply isaprop_left_adjoint_equivalence.
+      exact univalent_cat_is_univalent_2_1.
+  Defined.
+
+  Section UniversalConeHasUMP.
+    Context {cone : inserter_cone}
+            (H : is_universal_inserter_cone cone).
+
+    Section UMP1.
+      Context (q : inserter_cone).
+
+      Let alg : dialgebra (post_comp q f) (post_comp q g)
+        := inserter_cone_pr1 q ,, inserter_cone_cell q.
+
+      Definition universal_inserter_cone_has_ump_1_mor
+        : q --> cone
+        := right_adjoint (H q) alg.
+
+      Definition universal_inserter_cone_has_ump_1_pr1
+        : invertible_2cell
+            (universal_inserter_cone_has_ump_1_mor · inserter_cone_pr1 cone)
+            (inserter_cone_pr1 q).
+      Proof.
+        use iso_to_inv2cell.
+        exact (from_iso_dialgebra
+                 (nat_iso_pointwise_iso
+                    (counit_nat_iso_from_adj_equivalence_of_cats (H q))
+                    alg)).
+      Defined.
+
+      Definition universal_inserter_cone_has_ump_1_cell
+        : (_ ◃ inserter_cone_cell cone)
+          • lassociator _ _ _
+          • (universal_inserter_cone_has_ump_1_pr1 ▹ g)
+          =
+          lassociator _ _ _
+          • (universal_inserter_cone_has_ump_1_pr1 ▹ f)
+          • inserter_cone_cell q.
+      Proof.
+        cbn.
+        rewrite !vassocl.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          exact (!(pr2 (counit_from_left_adjoint (pr1 (H q)) alg))).
+        }
+        cbn.
+        rewrite !vassocr.
+        rewrite lassociator_rassociator.
+        rewrite id2_left.
+        apply idpath.
+      Qed.
+    End UMP1.
+
+    Definition universal_inserter_cone_has_ump_1
+      : has_inserter_ump_1 cone.
+    Proof.
+      intro q.
+      use make_inserter_1cell.
+      - exact (universal_inserter_cone_has_ump_1_mor q).
+      - exact (universal_inserter_cone_has_ump_1_pr1 q).
+      - exact (universal_inserter_cone_has_ump_1_cell q).
+    Defined.
+
+    Section UMP2.
+      Context {x : B}
+              {u₁ u₂ : x --> cone}
+              (α : u₁ · inserter_cone_pr1 cone
+                   ==>
+                   u₂ · inserter_cone_pr1 cone)
+              (p : rassociator _ _ _
+                   • (u₁ ◃ inserter_cone_cell cone)
+                   • lassociator _ _ _
+                   • (α ▹ g)
+                   =
+                   (α ▹ f)
+                   • rassociator _ _ _
+                   • (u₂ ◃ inserter_cone_cell cone)
+                   • lassociator _ _ _).
+
+      Definition universal_inserter_cone_has_ump_2_cell
+        : u₁ ==> u₂.
+      Proof.
+        apply (invmap (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))).
+        simple refine (_ ,, _).
+        - exact α.
+        - abstract
+            (cbn ;
+             rewrite !vassocr ;
+             exact p).
+      Defined.
+
+      Definition universal_inserter_cone_has_ump_2_pr1
+        : universal_inserter_cone_has_ump_2_cell ▹ inserter_cone_pr1 cone
+          =
+          α.
+      Proof.
+        exact (maponpaths
+                 pr1
+                 (homotweqinvweq
+                    (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))
+                    _)).
+      Qed.
+    End UMP2.
+
+    Definition universal_inserter_cone_has_ump_2
+      : has_inserter_ump_2 cone.
+    Proof.
+      intros x u₁ u₂ α p.
+      simple refine (_ ,, _).
+      - exact (universal_inserter_cone_has_ump_2_cell α p).
+      - exact (universal_inserter_cone_has_ump_2_pr1 α p).
+    Defined.
+
+    Definition universal_inserter_cone_has_ump_eq
+      : has_inserter_ump_eq cone.
+    Proof.
+      intros x u₁ u₂ α p φ₁ φ₂ q₁ q₂.
+      use (invmaponpathsweq
+             (make_weq
+                _
+                (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))) ; cbn.
+      use subtypePath.
+      {
+        intro.
+        apply cellset_property.
+      }
+      cbn.
+      exact (q₁ @ !q₂).
+    Qed.
+
+    Definition universal_inserter_cone_has_ump
+      : has_inserter_ump cone.
+    Proof.
+      simple refine (_ ,, _ ,, _).
+      - exact universal_inserter_cone_has_ump_1.
+      - exact universal_inserter_cone_has_ump_2.
+      - exact universal_inserter_cone_has_ump_eq.
+    Defined.
+  End UniversalConeHasUMP.
+
+  Definition inserter_ump_weq_universal
+             (HB_2_1 : is_univalent_2_1 B)
+             (cone : inserter_cone)
+    : has_inserter_ump cone ≃ is_universal_inserter_cone cone.
+  Proof.
+    use weqimplimpl.
+    - exact (make_is_universal_inserter_cone HB_2_1 cone).
+    - exact universal_inserter_cone_has_ump.
+    - exact (isaprop_has_inserter_ump HB_2_1 cone).
+    - exact (isaprop_is_universal_inserter_cone HB_2_1 cone).
   Defined.
 End Inserters.
 

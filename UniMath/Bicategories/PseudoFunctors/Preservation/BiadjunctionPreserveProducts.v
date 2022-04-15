@@ -6,52 +6,27 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Morphisms.Properties.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.Identitor.
-Require Import UniMath.Bicategories.PseudoFunctors.Display.Compositor.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
-Require Import UniMath.Bicategories.PseudoFunctors.Preservation.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
-Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+Require Import UniMath.Bicategories.PseudoFunctors.Preservation.Preservation.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
-Require Import UniMath.Bicategories.Transformations.Examples.Whiskering.
-Require Import UniMath.Bicategories.Transformations.Examples.Unitality.
-Require Import UniMath.Bicategories.Transformations.Examples.Associativity.
 Require Import UniMath.Bicategories.Modifications.Modification.
-Require Import UniMath.Bicategories.Colimits.Initial.
-Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
-Require Import UniMath.Bicategories.Limits.Inserters.
-Require Import UniMath.Bicategories.Limits.Equifiers.
 
 Local Open Scope cat.
-
-Definition pair_adj_equivalence_of_cats
-           {C₁ C₁' C₂ C₂' : category}
-           {F : C₁ ⟶ C₁'}
-           {G : C₂ ⟶ C₂'}
-           (HF : adj_equivalence_of_cats F)
-           (HG : adj_equivalence_of_cats G)
-  : adj_equivalence_of_cats (pair_functor F G)
-  := adjointificiation (pair_equivalence_of_cats HF HG).
 
 Section BiadjunctionPreservation.
   Context {B₁ B₂ : bicat}
@@ -59,57 +34,7 @@ Section BiadjunctionPreservation.
           (R : left_biadj_data L).
 
   (**
-   1. Preservation of biinitial objects
-   *)
-  Definition left_biadj_preserves_biinitial
-    : preserves_biinitial L.
-  Proof.
-    intros x Hx.
-    use is_biinitial_repr_to_is_biinitial.
-    intro y.
-    use nat_iso_adj_equivalence_of_cats.
-    - exact (biadj_right_hom R x y ∙ functor_to_unit _).
-    - use make_nat_trans.
-      + exact (λ _, idpath _).
-      + abstract
-          (intros f g α ;
-           apply isapropunit).
-    - intros f.
-      use is_iso_qinv ; cbn.
-      + apply idpath.
-      + abstract (split ; apply idpath).
-    - use comp_adj_equivalence_of_cats.
-      + exact (adj_equivalence_of_cats_inv (biadj_hom_equiv R x y)).
-      + exact (is_biinitial_to_is_biinitial_repr Hx (R y)).
-  Defined.
-
-  (**
-   2. Preservation of bifinal objects
-   *)
-  Definition right_biadj_preserves_bifinal
-    : preserves_bifinal R.
-  Proof.
-    intros y Hy.
-    use is_bifinal_repr_to_is_bifinal.
-    intro x.
-    use nat_iso_adj_equivalence_of_cats.
-    - exact (biadj_left_hom R x y ∙ functor_to_unit _).
-    - use make_nat_trans.
-      + exact (λ _, idpath _).
-      + abstract
-          (intros f g α ;
-           apply isapropunit).
-    - intros f.
-      use is_iso_qinv ; cbn.
-      + apply idpath.
-      + abstract (split ; apply idpath).
-    - use comp_adj_equivalence_of_cats.
-      + exact (biadj_hom_equiv R x y).
-      + exact (is_bifinal_to_is_bifinal_repr Hy (L x)).
-  Defined.
-
-  (**
-   3. Preservation of products
+   1. Preservation of products
    *)
   Section PreserveProducts.
     Context (HB₁ : is_univalent_2_1 B₁)
@@ -382,7 +307,7 @@ Section BiadjunctionPreservation.
         apply maponpaths.
         refine (!_).
         apply psfunctor_rwhisker.
-        Time Qed.
+    Qed.
 
     Transparent psfunctor_comp.
 
