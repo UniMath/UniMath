@@ -35,7 +35,13 @@ Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-al
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
-Under Ubuntu or Debian, you may install ocaml with the
+Under Ubuntu or Debian, you may install coq with the following shell command.
+```bash
+ sudo apt-get install coq
+```
+(Ubuntu 21.10 provides coq version 8.12.0.)
+
+Alternatively, if you wish to compile a version of coq known to work with Unimath, you may install ocaml with the
 following shell command.
 
 ```bash

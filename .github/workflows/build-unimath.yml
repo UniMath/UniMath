@@ -15,46 +15,53 @@ on:
 jobs:
   # This workflow contains two jobs, called "build-ubuntu" and "build-macos"
 
-  build-ubuntu:
-    # Need a name for the job, see https://stackoverflow.com/questions/68554735/github-action-status-check-missing-from-the-list-of-checks-in-protected-branch-s
-    name: Build-UniMath-and-Sanity-Checks
-    # The type of runner that the job will run on
+  sanity-checks:
+    name: Sanity-Checks-Ubuntu
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: Run sanity checks
+        run: |
+          cd $GITHUB_WORKSPACE
+          time make sanity-checks
 
-      
-      # Install everything needed for building UniMath (and more)
+  build-Unimath-ubuntu:
+    name: Build-UniMath-Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install coq
+      - name: Build UniMath
+        run: |
+          cd $GITHUB_WORKSPACE
+          time make -j2 TIMECMD=time
+
+  build-coq-and-Unimath-ubuntu:
+    name: Build-coq-and-UniMath-Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
-
-      # Change into UniMath directory and build Coq and UniMath
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
-          time make BUILD_COQ=yes -j2 TIMECMD=time
-
-      # Change into UniMath directory and run sanity checks
-      - name: Change into UniMath directory and run sanity checks
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make TIMECMD=time sanity-checks
+          time make -j2 TIMECMD=time BUILD_COQ=yes
 
   build-macos:
     name: Build-UniMath-on-MacOS
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
            brew install coq
-	   : --- show some configuration information ---
+           : --- show some configuration information ---
            brew config --verbose
            type coqc
            coqc --version
@@ -66,13 +73,12 @@ jobs:
   build-macos-with-coq:
     name: Build-coq-and-UniMath-on-MacOS
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
            brew install bash objective-caml ocaml-num ocaml-findlib camlp5
-	   : --- show some configuration information ---
+           : --- show some configuration information ---
            brew config --verbose
       - name: Build UniMath
         run: |
