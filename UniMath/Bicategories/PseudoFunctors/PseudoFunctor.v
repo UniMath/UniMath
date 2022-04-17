@@ -337,6 +337,27 @@ Section PseudoFunctorDerivedLaws.
   Qed.
 End PseudoFunctorDerivedLaws.
 
+Definition psfunctor_lassociator_alt'
+           {B₁ B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+           {a b c d : B₁}
+           (f : a --> b)
+           (g : b --> c)
+           (h : c --> d)
+  : ##F (lassociator f g h)
+    • (psfunctor_comp F _ _)^-1
+    • ((psfunctor_comp F _ _)^-1 ▹ #F h)
+    • rassociator _ _ _
+    =
+    (psfunctor_comp F _ _)^-1
+    • (_ ◃ (psfunctor_comp F _ _)^-1).
+Proof.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  cbn.
+  rewrite !vassocr.
+  apply psfunctor_lassociator_alt.
+Qed.
+
 Section PseudoFunctorLocalFunctor.
   Context {B C : bicat}.
   Variable (F : psfunctor B C)

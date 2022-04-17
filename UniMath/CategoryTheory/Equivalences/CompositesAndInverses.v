@@ -390,3 +390,12 @@ Section PairEquivalence.
                       (pr2 x))).
   Defined.
 End PairEquivalence.
+
+Definition pair_adj_equivalence_of_cats
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           (HF : adj_equivalence_of_cats F)
+           (HG : adj_equivalence_of_cats G)
+  : adj_equivalence_of_cats (pair_functor F G)
+  := adjointificiation (pair_equivalence_of_cats HF HG).
