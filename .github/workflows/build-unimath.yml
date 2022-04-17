@@ -69,7 +69,6 @@ jobs:
       - name: Install build dependencies
         run: |
            brew install coq
-           : --- show some configuration information ---
            brew config --verbose
            type coqc
            coqc --version
@@ -78,19 +77,23 @@ jobs:
           cd $GITHUB_WORKSPACE
           time make -j2 TIMECMD=time
 
-#### ocaml 4.12 is currently too modern to compile this version of coq, and that's what github provides.
-#  build-macos-with-coq:
-#    name: Build-coq-and-UniMath-on-MacOS
-#    runs-on: macos-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Install build dependencies
-#        run: |
-#           brew install bash objective-caml ocaml-num ocaml-findlib camlp5
-#           : --- show some configuration information ---
-#           brew config --verbose
-#      - name: Build UniMath
-#        run: |
-#          cd $GITHUB_WORKSPACE
-#          time make -j2 TIMECMD=time BUILD_COQ=yes
-#
+#### ocaml 4.12 is currently too modern to compile this version of coq, and that's what homebrew provides.  So we use opam.  This is a good way to test the opam install instructions, anyway.
+  build-macos-with-coq:
+    name: Build-coq-and-UniMath-on-MacOS-with-opam
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install build dependencies using opam
+        run: |
+           brew install opam gtksourceview3
+           brew config --verbose
+           opam init --bare -n
+           opam switch create with-coq 4.07.1+flambda
+           opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
+      - name: Build UniMath
+        run: |
+          eval `opam env`
+          type ocamlc
+          ocamlc --version
+          cd $GITHUB_WORKSPACE
+          time make -j2 TIMECMD=time BUILD_COQ=yes
