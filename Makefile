@@ -92,7 +92,6 @@ EFFECTIVE_MEMORY_LIMIT = unlimited
 endif
 
 install: build/CoqMakefile.make
-	sudo chmod a+w /usr/lib/coq/user-contrib
 	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
 all html uninstall: build/CoqMakefile.make
 	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
@@ -210,8 +209,6 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 
 ifdef COQBIN
 build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
-else
-build/CoqMakefile.make .coq_makefile_output.conf: $(shell command -v coq_makefile)
 endif
 build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output

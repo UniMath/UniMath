@@ -34,24 +34,23 @@ jobs:
           type coqc
           coqc --version
 
-      # Change into UniMath directory and build UniMath
       - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
+        ### we don't use "make install", because the user-contrib directory might be write-protected
         run: |
-          pushd $GITHUB_WORKSPACE
           make -j2
-          make install
-          popd
-          # build TypeTheory
+	  : set the Coq path
+          export COQPATH="$GITHUB_WORKSPACE"
+          : build TypeTheory
           git clone https://github.com/UniMath/TypeTheory
           pushd TypeTheory
           make
           popd
-          # build largecatmodules
+          : build largecatmodules
           git clone https://github.com/UniMath/largecatmodules
           pushd largecatmodules
           make
           popd
-          # build SetHITS
+          : build SetHITS
           git clone https://github.com/UniMath/SetHITs
           pushd SetHITs
           cd code
