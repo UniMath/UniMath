@@ -85,7 +85,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install build dependencies using opam
         run: |
-           brew install opam gtksourceview3
+           brew install opam gtksourceview3 expat gtk+ gtksourceview libxml2
            brew config --verbose
            opam init --bare -n
            opam switch create with-coq 4.07.1+flambda
