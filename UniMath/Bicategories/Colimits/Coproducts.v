@@ -1,6 +1,6 @@
 (****************************************************************
 
- Coroducts in bicategories
+ Coproducts in bicategories
 
  In this file we define the notion of coproduct diagram in arbitrary
  bicategories. For this definition, there are 2 possibilities. One
