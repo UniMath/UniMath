@@ -476,6 +476,16 @@ UniMath/All.v: Makefile
 	do echo "Require Export UniMath.$$P.All.";				\
 	done
 
+# here we make the emacs local values file
+all: UniMath/.dir-locals.el
+UniMath/.dir-locals.el : UniMath/.dir-locals.el.in
+ifeq ($(BUILD_COQ),yes)
+	sed -e "s/@LOCAL@ //"   <$< >$@
+else
+	sed -e "s/@LOCAL@ /;;/" <$< >$@
+endif
+
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:
