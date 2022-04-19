@@ -1,6 +1,6 @@
 # Second method to install ocaml
 
-This method for installing OCaml (in order to also build coq) allows more
+This method for installing OCaml (in order to also build Coq) allows more
 flexibility, but is more involved than the method in
 [INSTALL.md](./INSTALL.md), because it depends on "opam".
 

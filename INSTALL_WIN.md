@@ -12,25 +12,25 @@ These notes are copied verbatim from the report at https://github.com/UniMath/Un
 
 I helped someone with a minimal setup running UniMath on Windows inside VSCode, and wanted to quickly write down what worked for me. OCaml, Coq, and Emacs all run natively on Windows, so if you make it past the "make" step in Cygwin, everything should work one way or another from there.
 
-This process was mostly trial an error, and far from perfect. In particular, you should only need one coq installation (I'm not really sure why UniMath builds its own anyway), and it would be much better to include the UniMath files in the correct path variable (it looks like this is setup with Emacs in this repository) rather than include them through the command line. Good luck!
+This process was mostly trial an error, and far from perfect. In particular, you should only need one Coq installation (I'm not really sure why UniMath builds its own anyway), and it would be much better to include the UniMath files in the correct path variable (it looks like this is setup with Emacs in this repository) rather than include them through the command line. Good luck!
 
 
 ## Install Coq through Cygwin
-Followed directions [here](https://github.com/coq/platform/blob/2021.02.1/README_Windows.md) to install coq from source using cygwin.
-This was probably overkill, but since the UniMath makefile builds coq from source, it seemed like a good setup and sanity check.
+Followed directions [here](https://github.com/coq/platform/blob/2021.02.1/README_Windows.md) to install Coq from source using cygwin.
+This was probably overkill, but since the UniMath makefile builds Coq from source, it seemed like a good setup and sanity check.
 
 ## Install UniMath
 Inside cygwin, `git clone` UniMath and `make`.
 
-(The makefile does let you specific BUILD_COQ=no, but I did not try this.)
+(The makefile does let you specific `BUILD_COQ=no`, but I did not try this.)
 
-There is now a second coq installation located at `path/to/UniMath/sub/coq/bin`.
+There is now a second Coq installation located at `path/to/UniMath/sub/coq/bin`.
 
 E.g. in Cygwin you can run:
 
 ```$ path/to/UniMath/sub/coq/bin/coqtop.exe```
 
-And test that coq is working.
+And test that Coq is working.
 
 ## Include the UniMath files
 At this point the UniMath library is not loaded, if you try to run

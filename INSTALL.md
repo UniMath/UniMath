@@ -37,13 +37,13 @@ Now you may proceed to the instructions for [Installation of Proof General](#ins
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
-Under Ubuntu or Debian, you may install coq with the following shell command.
+Under Ubuntu or Debian, you may install Coq with the following shell command.
 ```bash
  sudo apt-get install coq
 ```
-(Ubuntu 21.10 provides coq version 8.12.0.)
+(Ubuntu 21.10 provides Coq version 8.12.0.)
 
-Alternatively, if you wish to compile a version of coq known to work with Unimath, you may install OCaml with the
+Alternatively, if you wish to compile a version of Coq known to work with Unimath, you may install OCaml with the
 following shell command.
 
 ```bash
