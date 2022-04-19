@@ -1,8 +1,8 @@
 (****************************************************************
 
- Products in bicategories
+ Coproducts in bicategories
 
- In this file we define the notion of product diagram in arbitrary
+ In this file we define the notion of coproduct diagram in arbitrary
  bicategories. For this definition, there are 2 possibilities. One
  could either write universal properties, which expresses the
  existence of a morphism up to a unique 2-cell. Alternatively, one
@@ -17,11 +17,18 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
 Local Open Scope cat.
 
@@ -459,6 +466,276 @@ Section Coproduct.
     - repeat (use funextsec ; intro).
       apply isapropiscontr.
   Qed.
+
+  (**
+   Formulation via hom-categories
+   *)
+  Definition universal_coprod_functor_data
+             (p : bincoprod_cocone)
+             (x : B)
+    : functor_data
+        (hom p x)
+        (category_binproduct (hom b₁ x) (hom b₂ x)).
+  Proof.
+    use make_functor_data.
+    - exact (λ f,
+             bincoprod_cocone_inl p · f
+             ,,
+             bincoprod_cocone_inr p · f).
+    - exact (λ f₁ f₂ α,
+             _ ◃ α
+             ,,
+             _ ◃ α).
+  Defined.
+
+  Definition universal_coprod_is_functor
+             (p : bincoprod_cocone)
+             (x : B)
+    : is_functor (universal_coprod_functor_data p x).
+  Proof.
+    split.
+    - intro f.
+      use pathsdirprod ; cbn.
+      + apply lwhisker_id2.
+      + apply lwhisker_id2.
+    - intros f₁ f₂ f₃ α β.
+      use pathsdirprod ; cbn.
+      + refine (!_).
+        apply lwhisker_vcomp.
+      + refine (!_).
+        apply lwhisker_vcomp.
+  Qed.
+
+  Definition universal_coprod_functor
+             (p : bincoprod_cocone)
+             (x : B)
+    : hom p x ⟶ category_binproduct (hom b₁ x) (hom b₂ x).
+  Proof.
+    use make_functor.
+    - exact (universal_coprod_functor_data p x).
+    - exact (universal_coprod_is_functor p x).
+  Defined.
+
+  Definition is_universal_coprod_cocone
+             (p : bincoprod_cocone)
+    : UU
+    := ∏ (x : B),
+       adj_equivalence_of_cats
+         (universal_coprod_functor p x).
+
+  (**
+   Equivalence of the two formulations
+   *)
+  Section UniversalFromUMP.
+    Context {p : bincoprod_cocone}
+            (Hp : has_bincoprod_ump p)
+            (x : B).
+
+    Definition make_is_universal_coprod_cocone_full
+      : full (universal_coprod_functor p x).
+    Proof.
+      intros u₁ u₂ α.
+      apply hinhpr.
+      simple refine (_ ,, _).
+      - use (bincoprod_ump_2cell Hp).
+        + exact (pr1 α).
+        + exact (pr2 α).
+      - use pathsdirprod.
+        + apply bincoprod_ump_2cell_inl.
+        + apply bincoprod_ump_2cell_inr.
+    Defined.
+
+    Definition make_is_universal_coprod_cocone_faithful
+      : faithful (universal_coprod_functor p x).
+    Proof.
+      intros u₁ u₂ α.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      use (bincoprod_ump_2cell_unique Hp).
+      - exact (pr1 α).
+      - exact (pr2 α).
+      - exact (maponpaths pr1 (pr2 φ₁)).
+      - exact (maponpaths dirprod_pr2 (pr2 φ₁)).
+      - exact (maponpaths pr1 (pr2 φ₂)).
+      - exact (maponpaths dirprod_pr2 (pr2 φ₂)).
+    Qed.
+
+    Definition make_is_universal_coprod_cocone_essentially_surjective
+      : essentially_surjective (universal_coprod_functor p x).
+    Proof.
+      intros f.
+      use hinhpr.
+      simple refine (_ ,, _).
+      - exact (bincoprod_ump_1cell Hp (pr1 f) (pr2 f)).
+      - use category_binproduct_iso_map.
+        refine (_ ,, _).
+        + use inv2cell_to_iso ; cbn.
+          apply bincoprod_ump_1cell_inl.
+        + use inv2cell_to_iso ; cbn.
+          apply bincoprod_ump_1cell_inr.
+    Defined.
+  End UniversalFromUMP.
+
+  Definition make_is_universal_coprod_cocone
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : bincoprod_cocone)
+             (Hp : has_bincoprod_ump p)
+    : is_universal_coprod_cocone p.
+  Proof.
+    intro x.
+    use rad_equivalence_of_cats.
+    - apply is_univ_hom.
+      exact HB_2_1.
+    - use full_and_faithful_implies_fully_faithful.
+      split.
+      + apply make_is_universal_coprod_cocone_full.
+        apply Hp.
+      + apply make_is_universal_coprod_cocone_faithful.
+        apply Hp.
+    - apply make_is_universal_coprod_cocone_essentially_surjective.
+      apply Hp.
+  Defined.
+
+  Section UniversalCoprodHasUMP.
+    Context (p : bincoprod_cocone)
+            (Hp : is_universal_coprod_cocone p).
+
+    Definition universal_coprod_cocone_has_ump_1
+      : bincoprod_ump_1 p.
+    Proof.
+      intro q.
+      use make_bincoprod_1cell.
+      - exact (right_adjoint
+                 (Hp q)
+                 (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)).
+      - apply iso_to_inv2cell.
+        exact (pr1 (category_binproduct_iso_inv
+                      _ _
+                      (nat_iso_pointwise_iso
+                         (counit_nat_iso_from_adj_equivalence_of_cats (Hp q))
+                         (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)))).
+      - apply iso_to_inv2cell.
+        exact (pr2 (category_binproduct_iso_inv
+                      _ _
+                      (nat_iso_pointwise_iso
+                         (counit_nat_iso_from_adj_equivalence_of_cats (Hp q))
+                         (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)))).
+    Defined.
+
+    Definition universal_coprod_cocone_has_ump_2_unique
+               {x : B}
+               {u₁ u₂ : p --> x}
+               (ζ₁ : bincoprod_cocone_inl p · u₁
+                     ==>
+                     bincoprod_cocone_inl p · u₂)
+               (ζ₂ : bincoprod_cocone_inr p · u₁
+                     ==>
+                     bincoprod_cocone_inr p · u₂)
+      : isaprop
+          (∑ (γ : u₁ ==> u₂),
+           bincoprod_cocone_inl p ◃ γ = ζ₁
+           ×
+           bincoprod_cocone_inr p ◃ γ = ζ₂).
+    Proof.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply isapropdirprod ; apply cellset_property.
+      }
+      use (invmaponpathsweq
+             (make_weq
+                _
+                (fully_faithful_from_equivalence _ _ _ (Hp x) u₁ u₂))) ; cbn.
+      apply pathsdirprod.
+      - exact (pr12 φ₁ @ !(pr12 φ₂)).
+      - exact (pr22 φ₁ @ !(pr22 φ₂)).
+    Qed.
+
+    Definition universal_coprod_cocone_has_ump_2
+      : bincoprod_ump_2 p.
+    Proof.
+      intros x u₁ u₂ ζ₁ ζ₂.
+      use iscontraprop1.
+      - exact (universal_coprod_cocone_has_ump_2_unique ζ₁ ζ₂).
+      - simple refine (_ ,, _ ,, _).
+        + exact (invmap
+                   (make_weq
+                      _
+                      (fully_faithful_from_equivalence _ _ _ (Hp x) u₁ u₂))
+                   (ζ₁ ,, ζ₂)).
+        + abstract
+            (exact (maponpaths
+                      pr1
+                      (homotweqinvweq
+                         (make_weq
+                            _
+                            (fully_faithful_from_equivalence _ _ _ (Hp x) u₁ u₂))
+                         (ζ₁ ,, ζ₂)))).
+        + abstract
+            (exact (maponpaths
+                      dirprod_pr2
+                      (homotweqinvweq
+                         (make_weq
+                            _
+                            (fully_faithful_from_equivalence _ _ _ (Hp x) u₁ u₂))
+                         (ζ₁ ,, ζ₂)))).
+    Defined.
+  End UniversalCoprodHasUMP.
+
+  Definition universal_coprod_cocone_has_ump
+             (p : bincoprod_cocone)
+             (Hp : is_universal_coprod_cocone p)
+    : has_bincoprod_ump p.
+  Proof.
+    refine (_ ,, _).
+    - exact (universal_coprod_cocone_has_ump_1 p Hp).
+    - exact (universal_coprod_cocone_has_ump_2 p Hp).
+  Defined.
+
+  Definition isaprop_is_universal_inserter_cone
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : bincoprod_cocone)
+    : isaprop (is_universal_coprod_cocone p).
+  Proof.
+    use impred ; intro x.
+    use isofhlevelweqf.
+    - exact (@left_adjoint_equivalence
+               bicat_of_univ_cats
+               (univ_hom HB_2_1 _ _)
+               (univalent_category_binproduct
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _))
+               (universal_coprod_functor p x)).
+    - exact (@adj_equiv_is_equiv_cat
+               (univ_hom HB_2_1 _ _)
+               (univalent_category_binproduct
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _))
+               (universal_coprod_functor p x)).
+    - apply isaprop_left_adjoint_equivalence.
+      exact univalent_cat_is_univalent_2_1.
+  Qed.
+
+  Definition has_binprod_ump_weq_universal
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : bincoprod_cocone)
+    : has_bincoprod_ump p ≃ is_universal_coprod_cocone p.
+  Proof.
+    use weqimplimpl.
+    - exact (make_is_universal_coprod_cocone HB_2_1 p).
+    - exact (universal_coprod_cocone_has_ump p).
+    - apply isaprop_has_bincoprod_ump.
+      exact HB_2_1.
+    - apply isaprop_is_universal_inserter_cone.
+      exact HB_2_1.
+  Defined.
 End Coproduct.
 
 Arguments bincoprod_cocone {_} _ _.

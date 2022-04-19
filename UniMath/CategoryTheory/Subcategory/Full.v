@@ -510,3 +510,67 @@ Proof.
   - intro.
     apply identity_is_iso.
 Defined.
+
+(** Isos in full subcategory *)
+Definition is_iso_full_sub
+           {C : category}
+           {P : hsubtype C}
+           {x y : full_sub_category C P}
+           {f : x --> y}
+           (Hf : is_iso (pr1 f))
+  : is_iso f.
+Proof.
+  use is_iso_qinv.
+  - exact (inv_from_iso (make_iso _ Hf) ,, tt).
+  - split.
+    + abstract
+        (use subtypePath ; [ intro ; apply isapropunit | ] ;
+         exact (iso_inv_after_iso (make_iso _ Hf))).
+    + abstract
+        (use subtypePath ; [ intro ; apply isapropunit | ] ;
+         exact (iso_after_iso_inv (make_iso _ Hf))).
+Defined.
+
+(**
+ Functors between full subcategories
+ *)
+Definition full_sub_category_functor_data
+           {C₁ C₂ : category}
+           {P : hsubtype C₁}
+           {Q : hsubtype C₂}
+           {F : C₁ ⟶ C₂}
+           (HF : ∏ (x : C₁), P x → Q (F x))
+  : functor_data
+      (full_sub_category C₁ P)
+      (full_sub_category C₂ Q).
+Proof.
+  use make_functor_data.
+  - exact (λ x, F (pr1 x) ,, HF (pr1 x) (pr2 x)).
+  - exact (λ x y f, #F (pr1 f) ,, tt).
+Defined.
+
+Definition full_sub_category_is_functor
+           {C₁ C₂ : category}
+           {P : hsubtype C₁}
+           {Q : hsubtype C₂}
+           {F : C₁ ⟶ C₂}
+           (HF : ∏ (x : C₁), P x → Q (F x))
+  : is_functor (full_sub_category_functor_data HF).
+Proof.
+  split ; intro ; intros ; cbn ; (use subtypePath ; [ intro ; apply isapropunit | ]).
+  - apply functor_id.
+  - apply functor_comp.
+Qed.
+
+Definition full_sub_category_functor
+           {C₁ C₂ : category}
+           (P : hsubtype C₁)
+           (Q : hsubtype C₂)
+           (F : C₁ ⟶ C₂)
+           (HF : ∏ (x : C₁), P x → Q (F x))
+  : full_sub_category C₁ P ⟶ full_sub_category C₂ Q.
+Proof.
+  use make_functor.
+  - exact (full_sub_category_functor_data HF).
+  - exact (full_sub_category_is_functor HF).
+Defined.
