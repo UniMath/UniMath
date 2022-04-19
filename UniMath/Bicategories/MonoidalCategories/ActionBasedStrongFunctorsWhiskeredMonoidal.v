@@ -1925,12 +1925,12 @@ Section Main.
       Qed.
       (** the two equations were thus exactly the ingredients for the data of a monoidal section *)
 
-      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laws V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal param_distr_bicat_to_monoidal_section_data.
+      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laxlaws V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal param_distr_bicat_to_monoidal_section_data.
       Proof.
         repeat split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
-      Lemma param_distr_bicat_to_monoidal_section_strong:
+      Lemma param_distr_bicat_to_monoidal_section_strongtensor:
         smonoidal_strongtensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
                                (smonoidal_preserves_tensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
                                                            param_distr_bicat_to_monoidal_section_data).
@@ -1944,6 +1944,22 @@ Section Main.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
           apply δpe_eq.
+        - split; apply trafotargetbicat_disp_cells_isaprop.
+      Qed.
+
+      Lemma param_distr_bicat_to_monoidal_section_strongunit:
+        smonoidal_strongunit V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
+                             (smonoidal_preserves_unit V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
+                                                       param_distr_bicat_to_monoidal_section_data).
+      Proof.
+        use tpair.
+        - cbn.
+          rewrite hcomp_identity_left, hcomp_identity_right.
+          rewrite (functor_id FA), (functor_id FA').
+          cbn.
+          rewrite lwhisker_id2, id2_rwhisker.
+          rewrite id2_left, id2_right.
+          apply δtr_eq.
         - split; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
@@ -2101,27 +2117,44 @@ Defined.
                              (parameterized_distributivity'_nat_as_instance δ) δtr_eq' δpe_eq'.
 
       Definition param_distr'_to_monoidal_section_laws:
-        smonoidal_laws V montrafotarget_disp Mon_V
+        smonoidal_laxlaws V montrafotarget_disp Mon_V
                        montrafotarget_disp_monoidal
                        param_distr'_to_monoidal_section_data :=
         param_distr_bicat_to_monoidal_section_laws FAm FA'm G δ δtr_eq' δpe_eq'.
 
-      Definition param_distr'_to_monoidal_section_strong:
+      Definition param_distr'_to_monoidal_section_strongtensor:
         smonoidal_strongtensor V montrafotarget_disp Mon_V montrafotarget_disp_monoidal
                                (smonoidal_preserves_tensor V
                                                            montrafotarget_disp
                                                            Mon_V
                                                            montrafotarget_disp_monoidal
                                                            param_distr'_to_monoidal_section_data) :=
-        param_distr_bicat_to_monoidal_section_strong FAm FA'm G δ δtr_eq' δpe_eq'.
+        param_distr_bicat_to_monoidal_section_strongtensor FAm FA'm G δ δtr_eq' δpe_eq'.
+
+      Definition param_distr'_to_monoidal_section_strongunit:
+        smonoidal_strongunit V montrafotarget_disp Mon_V montrafotarget_disp_monoidal
+                               (smonoidal_preserves_unit V
+                                                           montrafotarget_disp
+                                                           Mon_V
+                                                           montrafotarget_disp_monoidal
+                                                           param_distr'_to_monoidal_section_data)
+        :=
+        param_distr_bicat_to_monoidal_section_strongunit FAm FA'm G δ δtr_eq' δpe_eq'.
 
       Definition param_distr'_to_functor: V ⟶ montrafotarget_totalcat :=
         section_functor montrafotarget_section_disp.
 
       Definition param_distr'_to_smf: fmonoidal Mon_V montrafotarget_monoidal param_distr'_to_functor.
       Proof.
-        (* should be done with sectionfunctor_fmonoidal in MonoidalSectionsWhiskered *)
-      Abort.
+        apply sectionfunctor_fmonoidal.
+        use tpair.
+        - use tpair.
+          + apply param_distr'_to_monoidal_section_data.
+          + apply param_distr'_to_monoidal_section_laws.
+        - split.
+          + apply param_distr'_to_monoidal_section_strongtensor.
+          + apply param_distr'_to_monoidal_section_strongunit.
+      Defined.
 
 End IntoMonoidalSection.
 
