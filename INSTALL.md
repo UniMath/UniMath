@@ -131,21 +131,21 @@ create HTML documentation.
    ```bash
    $ make html
    ```
-   The documentation is created in the subdirectory ```html```.
+   The documentation is created in the subdirectory `html`.
 
 - To create HTML documentation with "hidden" proofs:
    ```bash
    $ make doc
    ```
-   In this version of the documentation, any proof enclosed within ```Proof.``` and ```Qed.```/```Defined.``` is replaced by a button ```Show proof.```.
-   Clicking on this button unveils (unfolds) the corresponding proof. A ```Hide proof``` button can be used to fold the proof again.
-   The documentation is created in the subdirectory ```enhanced-html```.
-   (This feature requires the use of the otherwise optional ```Proof``` command of
+   In this version of the documentation, any proof enclosed within `Proof.` and `Qed.`/`Defined.` is replaced by a button `Show proof.`.
+   Clicking on this button unveils (unfolds) the corresponding proof. A `Hide proof` button can be used to fold the proof again.
+   The documentation is created in the subdirectory `enhanced-html`.
+   (This feature requires the use of the otherwise optional `Proof` command of
    the Coq vernacular language to indicate the beginning of the proof.  Toggling
-   of proofs requires an internet connection for downloading the ```jquery```
+   of proofs requires an internet connection for downloading the `jquery`
    library.)
 
-- To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
+- To install UniMath in the `user-contrib` directory of Coq, for use by other developments:
    ```bash
    $ make install
    ```
@@ -159,15 +159,15 @@ Emacs (which every UniMath user should become expert with) includes a facility
 called "tags" which enables easy navigation between Coq proof files.  For
 example, you may be examining a proof containing a reference to a symbol such
 as "has_homsets", and you may wonder where the source code of its definition
-is.  To do that, one positions the cursor on the symbol, presses ```M-.```,
+is.  To do that, one positions the cursor on the symbol, presses `M-.`,
 accepts (or modifies) the proffered string, and presses return.  Emacs then
 takes you to the source code of the definition.  One may repeat that as often
 as desired, and return one level upward in the chain of locations visited with
-```M-*```.
+`M-*`.
 
 Another use of the tags file is to search through all the source files for the
 occurrence of text matching a given regular expression.  For example, you can use
-```M-x tags-search``` with the regular expression `^Notation *" *\[ *. *\(, *[[:alpha:]]+ *\)*\]"`
+`M-x tags-search` with the regular expression `^Notation *" *\[ *. *\(, *[[:alpha:]]+ *\)*\]"`
 to locate the following lines in various files:
 ```coq
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
@@ -177,11 +177,11 @@ Notation "[ C , D ]" := (functor_category C D) : cat.
 ```
 
 In order to enable this facility, make a "TAGS" file as follows.
-To make a TAGS file for use with emacs ```etags``` commands:
+To make a TAGS file for use with emacs `etags` commands:
 ```bash
 $ make TAGS
 ```
-To make a TAGS file dealing with a single package, for example, ```Foundations```:
+To make a TAGS file dealing with a single package, for example, `Foundations`:
 ```bash
 $ make TAGS-Foundations
 ```
@@ -193,29 +193,29 @@ UniMath.
 ## Measuring compilation time
 
 To obtain information about the compilation time of each file, add
-```TIMED=yes``` to the ```make``` command line.  For this to work, you need the
-GNU ```time``` utility installed on your system in ```/usr/bin```.  Alternatively,
-add ```TIMECMD=time``` to the ```make``` command line, where ```time``` is a
+`TIMED=yes` to the `make` command line.  For this to work, you need the
+GNU `time` utility installed on your system in `/usr/bin`.  Alternatively,
+add `TIMECMD=time` to the `make` command line, where `time` is a
 time command that works on your system.
 
-On both Linux and Mac OS X systems, ```time``` is a built in bash shell command
-that differs from GNU time, available on Linux systems as ```\time```.  Under
-Mac OS X, you can install GNU time as ```gtime``` by running ```brew install
-gnu-time```.
+On both Linux and Mac OS X systems, `time` is a built in bash shell command
+that differs from GNU time, available on Linux systems as `\time`.  Under
+Mac OS X, you can install GNU time as `gtime` by running `brew install
+gnu-time`.
 
-Since ```make``` variables can be included in the time command, the following
-example (using GNU time ```gtime```) shows how to display the user time and the name of the
+Since `make` variables can be included in the time command, the following
+example (using GNU time `gtime`) shows how to display the user time and the name of the
 file on the same line.
 ```
 $ time make TIMECMD='gtime -f "user time %U: $*"'
 ```
-The first ```time``` command provides overall time for the whole build.
+The first `time` command provides overall time for the whole build.
 
 Timing of execution of individual tactics and vernacular commands can be obtained by
 ```bash
 $ make MOREFLAGS=-time
 ```
-For postprocessing of the (huge) output, use our utility ```slowest```, like this:
+For postprocessing of the (huge) output, use our utility `slowest`, like this:
 ```bash
 $ make MOREFLAGS=-time TIMECMD='util/slowest 10 0.5'
 ```
@@ -236,32 +236,32 @@ $ make -j4
 ## Further details
 
 The correct version of Coq is built and used automatically by the command
-```make```.  (If you wish to bypass the building of Coq and use your own version,
+`make`.  (If you wish to bypass the building of Coq and use your own version,
 then follow the instructions in the file build/Makefile-configuration-template.)
 
-The file ```UniMath/.dir-locals.el``` contains code that arranges for
-Proof General to use the Coq programs built by ```make``` when one of the proof
+The file `UniMath/.dir-locals.el` contains code that arranges for
+Proof General to use the Coq programs built by `make` when one of the proof
 files of UniMath is opened in emacs; in order to use them more generally, such
 as from the command line,, then add the full path for the directory
-```./sub/coq/bin``` to your ```PATH``` environment variable, or set the emacs
-variable ```coq-prog-name``` in your emacs initialization file, ```.emacs```.
+`./sub/coq/bin` to your `PATH` environment variable, or set the emacs
+variable `coq-prog-name` in your emacs initialization file, `.emacs`.
 
 The various *.v files are compiled by Coq in such a way that the fully
 qualified name of each identifier begins with UniMath.  For example, the fully
-qualified name of ```maponpaths``` in uu0.v is ```UniMath.Foundations.Basics.PartA.maponpaths```.
+qualified name of `maponpaths` in uu0.v is `UniMath.Foundations.Basics.PartA.maponpaths`.
 
 The preferred way to interact with the Coq code is with Proof General, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
-emacs variable ```coq-prog-args``` appropriately.  In particular, it will add the
-directory UniMath to the path, using the ```-R``` option, and it will arrange for
-files with names of the form ```*.v``` to be edited in "Coq mode".
+emacs variable `coq-prog-args` appropriately.  In particular, it will add the
+directory UniMath to the path, using the `-R` option, and it will arrange for
+files with names of the form `*.v` to be edited in "Coq mode".
 
 We are using some unicode characters in our Coq files.  One way to type such
 characters easily is with the "Agda input method": to type σ, for example, one
 types \sigma, which is automatically replaced by σ.  We have arranged for the
 Agda input method to be automatically enabled in buffers containing one of the
 UniMath Coq files.  The emacs command for viewing the typing shortcuts offered
-by the Agda input method is ```C-H I```.
+by the Agda input method is `C-H I`.
 
 ## Problems
 
@@ -286,8 +286,8 @@ compiled by an older version.  In the instructions above, we arrange for OCaml
 
 ### Problems caused by ill-formed input to make
 
-When calling ```make```, various files are read, some of them not under version control by git. 
-If those files are ill-formed, ```make``` stops working; in particular, ```make``` cannot be used to delete and recreate those files.
+When calling `make`, various files are read, some of them not under version control by git. 
+If those files are ill-formed, `make` stops working; in particular, `make` cannot be used to delete and recreate those files.
 When such a situation arises, one solution is to try cleaning everything with this command:
 ```bash
 $ make INCLUDE=no distclean
@@ -304,8 +304,8 @@ $ make INCLUDE=no git-clean
 
 ### Problems specific to MacOS
 
-If you get error messages involving the command line option ```-fno-defer-pop```, you
-might be running Mac OS X 10.9 with an OCaml compiler installed by ```brew```.  In
+If you get error messages involving the command line option `-fno-defer-pop`, you
+might be running Mac OS X 10.9 with an OCaml compiler installed by `brew`.  In
 that case try
 
 ```bash
@@ -322,7 +322,7 @@ brew install objective-caml
 
 ### Problems specific to Linux (e.g., Debian and Ubuntu)
 
-If you get the error message ```Error: cannot find 'ocamlc.opt' in your path!```, you need to install `ocaml-native-compilers`, e.g., by running
+If you get the error message `Error: cannot find 'ocamlc.opt' in your path!`, you need to install `ocaml-native-compilers`, e.g., by running
 ```bash
 $ sudo apt-get install ocaml-native-compilers
 ```
