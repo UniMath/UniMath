@@ -15,23 +15,25 @@ and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-
 
 ### Preparing for the installation under Mac OS X
 
-NB: The method explained below is recommended for beginners.
-A more flexible, but complex, installation method is given in [INSTALL\_OPAM.md](./INSTALL_OPAM.md).
+The simplest method, recommended for most users, is to first install Coq, Emacs, and Proof General, and then build and install UniMath.
 
-1. Install "Homebrew", available from http://brew.sh/.
-2. Using Homebrew, install Coq with the following command:
+Coq can be installed using the package manager *Homebrew*:
+
+1. Install Homebrew according to the instructions at http://brew.sh/.
+2. Install Coq from Homebrew with the command
 ```bash
 brew install coq
 ```
-   Alternatively, if you want to build a version of coq known to work with Unimath, which is not usually necessary, you may run this command:
+
+Alternatively, you can install Coq in any other standard way; or you can ask UniMath to build its own copy of Coq, which may be useful if your globally installed Coq is a version incompatible with UniMath.  If you plan to do this, then you must first install its dependencies, e.g. with the Homebrew command:
 ```bash
 brew install bash objective-caml ocaml-num ocaml-findlib camlp5 
 ```
+or, for more customisability, using the "opam" OCaml package manager, according to the detailed instructions in [`INSTALL_OPAM.md`](./INSTALL_OPAM.md).
 
-3. Install Emacs from https://emacsformacosx.com/.
-  
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Emacs may be installed using https://emacsformacosx.com/, http://aquamacs.org, or any other flavour of Emacs you prefer.
 
+Now you may proceed to the instructions for [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
@@ -61,6 +63,7 @@ shell commands.
  sudo pacman -S emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+
 ## Installation of ProofGeneral (all operating systems)
 
 You may obtain ProofGeneral from by using the quick installation instructions
@@ -101,8 +104,7 @@ shell command (in this directory).
 make
 ```
 
-Alternatively, if you want to build coq yourself, which is not usually necessary, and you have
-prepared for it as described above, you may issue the following command.
+Alternatively, if you want to build a specific version of Coq for UniMath (not usually needed, but sometimes useful for compatibility reasons), and you have installed its dependencies as described above, you may issue the following command.
 
 ```bash
 make BUILD_COQ=yes
