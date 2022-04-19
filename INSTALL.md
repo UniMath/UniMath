@@ -33,7 +33,7 @@ or, for more customisability, using the "opam" OCaml package manager, according 
 
 Emacs may be installed using https://emacsformacosx.com/, http://aquamacs.org, or any other flavour of Emacs you prefer.
 
-Now you may proceed to the instructions for [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now you may proceed to the instructions for [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
@@ -43,17 +43,17 @@ Under Ubuntu or Debian, you may install coq with the following shell command.
 ```
 (Ubuntu 21.10 provides coq version 8.12.0.)
 
-Alternatively, if you wish to compile a version of coq known to work with Unimath, you may install ocaml with the
+Alternatively, if you wish to compile a version of coq known to work with Unimath, you may install OCaml with the
 following shell command.
 
 ```bash
  sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 ```
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
 
-Under Arch Linux or Manjaro Linux you may install ocaml and Emacs  with the following
+Under Arch Linux or Manjaro Linux you may install OCaml and Emacs  with the following
 shell commands.
 
 ```bash
@@ -62,13 +62,13 @@ shell commands.
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
  sudo pacman -S emacs
 ```
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
-## Installation of ProofGeneral (all operating systems)
+## Installation of Proof General (all operating systems)
 
-You may obtain ProofGeneral from by using the quick installation instructions
+You may obtain Proof General from by using the quick installation instructions
 at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
-Your version of emacs determines which version of ProofGeneral you need,
+Your version of emacs determines which version of Proof General you need,
 roughly, so some experimentation may be required; you may even need the current
 development version if your emacs is recent.
 
@@ -79,13 +79,13 @@ started.
 
 Finally, `RET` means "press Enter".
 
-Hence, the first ProofGeneral installation instruction
+Hence, the first Proof General installation instruction
 ```
 M-x package-refresh-contents RET
 ```
 reads "hold Alt, press x; type package-refresh-contents; press Enter".
 
-Optional: some useful ProofGeneral add-ons are available for installation at
+Optional: some useful Proof General add-ons are available for installation at
 https://github.com/cpitclaudel/company-coq/.
 
 ## Installing UniMath
@@ -240,7 +240,7 @@ The correct version of Coq is built and used automatically by the command
 then follow the instructions in the file build/Makefile-configuration-template.)
 
 The file ```UniMath/.dir-locals.el``` contains code that arranges for
-ProofGeneral to use the Coq programs built by ```make``` when one of the proof
+Proof General to use the Coq programs built by ```make``` when one of the proof
 files of UniMath is opened in emacs; in order to use them more generally, such
 as from the command line,, then add the full path for the directory
 ```./sub/coq/bin``` to your ```PATH``` environment variable, or set the emacs
@@ -250,7 +250,7 @@ The various *.v files are compiled by Coq in such a way that the fully
 qualified name of each identifier begins with UniMath.  For example, the fully
 qualified name of ```maponpaths``` in uu0.v is ```UniMath.Foundations.Basics.PartA.maponpaths```.
 
-The preferred way to interact with the Coq code is with ProofGeneral, running
+The preferred way to interact with the Coq code is with Proof General, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable ```coq-prog-args``` appropriately.  In particular, it will add the
 directory UniMath to the path, using the ```-R``` option, and it will arrange for
@@ -270,7 +270,7 @@ In this section we describe some problems that have been encountered during comp
 ### Errors while compiling Coq
 
 The following type mismatch error during compilation of Coq results from a mismatch
-between the version of Ocaml used and the version of Coq being compiled.
+between the version of OCaml used and the version of Coq being compiled.
 
 ```
 "/usr/local/bin/ocamlfind" opt -rectypes -dtypes -w -3-52-56  -I config -I lib -I kernel -I kernel/byterun -I library -I proofs -I tactics -I pretyping -I interp -I stm -I toplevel -I parsing -I printing -I intf -I engine -I ltac -I tools -I tools/coqdoc -I plugins/omega -I plugins/romega -I plugins/micromega -I plugins/quote -I plugins/setoid_ring -I plugins/extraction -I plugins/fourier -I plugins/cc -I plugins/funind -I plugins/firstorder -I plugins/derive -I plugins/rtauto -I plugins/nsatz -I plugins/syntax -I plugins/decl_mode -I plugins/btauto -I plugins/ssrmatching -I plugins/ltac -I "/usr/local/Cellar/camlp5/7.03_1/lib/ocaml/camlp5" -thread -g    -c lib/pp_control.ml
@@ -280,8 +280,8 @@ Error: This expression has type bytes -> int -> int -> unit
        Type bytes is not compatible with type string 
 ```
 
-For example, Coq 8.6.1 cannot be compiled by Ocaml 4.06.0, and must instead be
-compiled by an older version.  In the instructions above, we arrange for Ocaml
+For example, Coq 8.6.1 cannot be compiled by OCaml 4.06.0, and must instead be
+compiled by an older version.  In the instructions above, we arrange for OCaml
 4.02.3 to be used to compile Coq 8.6.1.
 
 ### Problems caused by ill-formed input to make
@@ -305,7 +305,7 @@ $ make INCLUDE=no git-clean
 ### Problems specific to MacOS
 
 If you get error messages involving the command line option ```-fno-defer-pop```, you
-might be running Mac OS X 10.9 with an ocaml compiler installed by ```brew```.  In
+might be running Mac OS X 10.9 with an OCaml compiler installed by ```brew```.  In
 that case try
 
 ```bash
@@ -322,7 +322,7 @@ brew install objective-caml
 
 ### Problems specific to Linux (e.g., Debian and Ubuntu)
 
-If you get the error message ```Error: cannot find 'ocamlc.opt' in your path!```, you need to install ocaml-native-compilers, e.g., by running
+If you get the error message ```Error: cannot find 'ocamlc.opt' in your path!```, you need to install `ocaml-native-compilers`, e.g., by running
 ```bash
 $ sudo apt-get install ocaml-native-compilers
 ```
