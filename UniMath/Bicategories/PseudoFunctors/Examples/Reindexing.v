@@ -40,7 +40,7 @@ Section ReindexFib.
         (fib_slice_bicat C₁).
   Proof.
     use make_psfunctor_data.
-    - exact (λ D, cleaving_of_fibs_lift_obj D F).
+    - exact (λ D, cleaving_of_cleaving_lift_obj D F).
     - exact (λ D₁ D₂ G, reindex_of_cartesian_disp_functor F G (pr2 D₁)).
     - exact (λ D₁ D₂ G₁ G₂ α, reindex_of_disp_nat_trans F α).
     - exact (λ D, reindex_of_disp_functor_identity F (pr1 D)).
@@ -246,7 +246,7 @@ Section ReindexOpFib.
         (opfib_slice_bicat C₁).
   Proof.
     use make_psfunctor_data.
-    - exact (λ D, cleaving_of_opfibs_lift_obj D F).
+    - exact (λ D, cleaving_of_opcleaving_lift_obj D F).
     - exact (λ D₁ D₂ G, reindex_of_opcartesian_disp_functor F G (pr2 D₁)).
     - exact (λ D₁ D₂ G₁ G₂ α, reindex_of_disp_nat_trans F α).
     - exact (λ D, reindex_of_disp_functor_identity F (pr1 D)).
