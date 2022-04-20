@@ -529,20 +529,25 @@ Definition sigma_disp_cat_axioms
   : disp_cat_axioms _ sigma_disp_cat_data.
 Proof.
   repeat apply tpair.
-  - intros. use total2_reassoc_paths'.
-    + apply id_left_disp.
-    + etrans. exact (id_left_disp (pr2 ff)).
-      apply maponpaths_2, homset_property.
-  - intros. use total2_reassoc_paths'.
-    + apply id_right_disp.
-    + etrans. exact (id_right_disp (pr2 ff)).
-      apply maponpaths_2, homset_property.
-  - intros. use total2_reassoc_paths'.
-    + apply assoc_disp.
-    + etrans.
-        exact (assoc_disp (pr2 ff) (pr2 gg) (pr2 hh)).
-      apply maponpaths_2, homset_property.
-  - intros. apply isaset_total2; intros; apply homsets_disp.
+  - intros x y f [xx xxx] [yy yyy] [ff fff]; simpl in ff, fff.
+    use total2_reassoc_paths'.
+    + simpl. apply id_left_disp.
+    + simpl. apply (pathscomp0 (id_left_disp fff)).
+      apply maponpaths_2. apply homset_property.
+  - intros x y f [xx xxx] [yy yyy] [ff fff]; simpl in ff, fff.
+    use total2_reassoc_paths'.
+    + simpl. apply id_right_disp.
+    + simpl. apply (pathscomp0 (id_right_disp fff)).
+      apply maponpaths_2. apply homset_property.
+  - intros x y z w f g h [xx xxx] [yy yyy] [zz zzz] [ww www] [ff fff] [gg ggg] [hh hhh].
+    simpl in ff, fff, gg, ggg, hh, hhh.
+    use total2_reassoc_paths'.
+    + simpl. apply assoc_disp.
+    + apply (pathscomp0 (assoc_disp fff ggg hhh)).
+      apply maponpaths_2. apply homset_property.
+  - intros. apply isaset_total2.
+    + apply homsets_disp.
+    + intros. apply homsets_disp.
 Qed.
 
 Definition sigma_disp_cat : disp_cat C
