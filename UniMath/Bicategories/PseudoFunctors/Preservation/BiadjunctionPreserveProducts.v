@@ -1,3 +1,8 @@
+(******************************************************************
+
+ Preservation of products by right biadjoints
+
+ ******************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -33,9 +38,6 @@ Section BiadjunctionPreservation.
           {L : psfunctor B₁ B₂}
           (R : left_biadj_data L).
 
-  (**
-   1. Preservation of products
-   *)
   Section PreserveProducts.
     Context (HB₁ : is_univalent_2_1 B₁)
             (HB₂ : is_univalent_2_1 B₂)

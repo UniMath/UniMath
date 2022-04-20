@@ -1,7 +1,8 @@
 # Second method to install ocaml
 
-This method for installing ocaml allows more flexibility, but is more involved
-than the method in [INSTALL.md](./INSTALL.md), because it depends on "opam".
+This method for installing ocaml (in order to also build coq) allows more
+flexibility, but is more involved than the method in
+[INSTALL.md](./INSTALL.md), because it depends on "opam".
 
 First install opam and needed prerequisites:
 
@@ -91,6 +92,6 @@ $ type ocamlc
 ocamlc is hashed (/Users/XXXXXXXX/.opam/empty/bin/ocamlc)
 ```
 
-A result displaying a path that doesn't pass through `.opam` indicates that the
-wrong compiler is visible in the directories listed in your `PATH` environment
-variable.
+A result displaying a path that doesn't pass through `.opam` or `.opamroot`
+indicates that the wrong compiler is visible in the directories listed in your
+`PATH` environment variable.

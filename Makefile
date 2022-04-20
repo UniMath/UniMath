@@ -29,7 +29,7 @@ PACKAGES += Paradoxes
 PACKAGES += Induction
 ############################################
 # other user options; see also build/Makefile-configuration-template
-BUILD_COQ ?= yes
+BUILD_COQ ?= no
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= no
 COQBIN ?=
@@ -42,14 +42,17 @@ HIDE := $(if $(VERBOSE),,@)
 export COQBIN
 ############################################
 
-.PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
-all: make-summary-files
+.PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html sanity-checks other-checks
+.PHONY all: make-summary-files
 everything: TAGS all html install
-sanity-checks:  check-prescribed-ordering	\
-		check-listing-of-proof-files	\
-		check-for-change-to-Foundations	\
+.PHONY sanity-checks:  check-prescribed-ordering	\
+		check-listing-of-proof-files		\
+		check-for-change-to-Foundations		\
 		check-for-submodule-changes
-other-checks:   check-max-line-length
+.PHONY other-checks:   check-max-line-length
+
+# empty target prevents implicit rule search, saving time
+Makefile :;
 
 COQIDE_OPTION := no
 
@@ -88,10 +91,14 @@ else
 EFFECTIVE_MEMORY_LIMIT = unlimited
 endif
 
-all html install uninstall $(VOFILES): build/CoqMakefile.make
+install: build/CoqMakefile.make
 	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
-clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
-distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
+all html uninstall: build/CoqMakefile.make
+	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
+clean:: build/CoqMakefile.make
+	$(MAKE) -f build/CoqMakefile.make $@
+distclean:: build/CoqMakefile.make
+	$(MAKE) -f build/CoqMakefile.make cleanall archclean
 
 WARNING_FLAGS := -notation-overridden
 OTHERFLAGS += $(MOREFLAGS)
@@ -164,7 +171,7 @@ $(foreach P,$(PACKAGES),												\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
 
-$(foreach v,$(VFILES), $(eval $v.vo:; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
+$(foreach v,$(VFILES), $(eval $v.vo: $v.v; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
 
 install:all
 coqwc:; coqwc $(VFILES)
@@ -202,8 +209,6 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 
 ifdef COQBIN
 build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
-else
-build/CoqMakefile.make .coq_makefile_output.conf: $(shell command -v coq_makefile)
 endif
 build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
@@ -253,7 +258,7 @@ endif
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
-doc: $(GLOBFILES) $(VFILES) 
+doc: $(GLOBFILES)
 	mkdir -p $(ENHANCEDDOCTARGET)
 	cp $(ENHANCEDDOCSOURCE)/proofs-toggle.js $(ENHANCEDDOCTARGET)/proofs-toggle.js
 	$(SHOW)COQDOC
@@ -450,7 +455,8 @@ check-style :
 # will "Require Export" all of the files in its package.
 define make-summary-file
 make-summary-files: UniMath/$1/All.v
-UniMath/$1/All.v: UniMath/$1/.package/files Makefile
+UniMath/$1/.package/files: ;
+UniMath/$1/All.v: UniMath/$1/.package/files
 	$(SHOW)'--- making $$@'
 	$(HIDE)																				\
 	  exec > $$@ ;																			\
@@ -469,6 +475,16 @@ UniMath/All.v: Makefile
 	for P in $(PACKAGES);							\
 	do echo "Require Export UniMath.$$P.All.";				\
 	done
+
+# here we make the emacs local values file
+all: UniMath/.dir-locals.el
+UniMath/.dir-locals.el : UniMath/.dir-locals.el.in
+ifeq ($(BUILD_COQ),yes)
+	sed -e "s/@LOCAL@ //"   <$< >$@
+else
+	sed -e "s/@LOCAL@ /;;/" <$< >$@
+endif
+
 
 #################################
 # targets best used with INCLUDE=no

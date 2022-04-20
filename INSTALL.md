@@ -19,10 +19,15 @@ NB: The method explained below is recommended for beginners.
 A more flexible, but complex, installation method is given in [INSTALL\_OPAM.md](./INSTALL_OPAM.md).
 
 1. Install "Homebrew", available from http://brew.sh/.
-2. Using Homebrew, install ocaml with the following command:
+2. Using Homebrew, install Coq with the following command:
 ```bash
-$ brew install objective-caml ocaml-num camlp5 bash ocaml-findlib
+brew install coq
 ```
+   Alternatively, if you want to build a version of coq known to work with Unimath, which is not usually necessary, you may run this command:
+```bash
+brew install bash objective-caml ocaml-num ocaml-findlib camlp5 
+```
+
 3. Install Emacs from https://emacsformacosx.com/.
   
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
@@ -30,7 +35,13 @@ Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-al
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
-Under Ubuntu or Debian, you may install ocaml with the
+Under Ubuntu or Debian, you may install coq with the following shell command.
+```bash
+ sudo apt-get install coq
+```
+(Ubuntu 21.10 provides coq version 8.12.0.)
+
+Alternatively, if you wish to compile a version of coq known to work with Unimath, you may install ocaml with the
 following shell command.
 
 ```bash
@@ -87,7 +98,14 @@ To compile the Coq formalizations (in all the packages), issue the following
 shell command (in this directory).
 
 ```bash
-$ make
+make
+```
+
+Alternatively, if you want to build coq yourself, which is not usually necessary, and you have
+prepared for it as described above, you may issue the following command.
+
+```bash
+make BUILD_COQ=yes
 ```
 
 Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
