@@ -38,7 +38,7 @@ jobs:
         ### we don't use "make install", because the user-contrib directory might be write-protected
         run: |
           make -j2
-	  : set the Coq path
+          : set the Coq path
           export COQPATH="$GITHUB_WORKSPACE"
           : build TypeTheory
           git clone https://github.com/UniMath/TypeTheory
