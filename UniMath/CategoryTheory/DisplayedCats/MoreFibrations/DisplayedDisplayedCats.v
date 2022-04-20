@@ -267,13 +267,16 @@ Definition fiber_disp_cat_axioms' {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
 Proof.
   destruct DD as [D E].
-  repeat split; intros; simpl.
-  - set (idlff := id_disp xx ;; ff).
-    (* set (temp := id_left_disp ff). *)
+  repeat split; intros; simpl. (* simpl in x, y, f, xx, yy, ff. *)
+  - set (rhs_pre := transportb (mor_disp xx yy) (id_left f) ff). (* Does not work after simpl. *)
+    simpl in x, y, f, xx, yy.
+    simpl in ff. (* Okay, sure :-| *)
+    set (rhs_pre' := transportb (mor_disp xx yy) (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff). (* Well this works! *)
+    set (idlff := id_disp xx ;; ff).
+    set (temp := id_left_disp ff). (* Does not work before simpl. *)
+    set (rhs_post := transportb _ (two_arg_paths_b (idpath (identity c)) (id_left (f : D[{c}]⟦x, y⟧))) ff). (* Does not work before simpl. *)
+    set (rhs_unitor := transportb _ (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff). (* Works before simpl as well. *)
     use my_lemma. simpl.
-    (* set (rhs_post := transportb _ (two_arg_paths_b (idpath (identity c)) (id_left (f : D[{c}]⟦x, y⟧))) ff). *)
-    set (rhs_unitor := transportb _ (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff).
-    set (rhs_pre := transportb (mor_disp xx yy) (id_left f) ff).
     (* apply (pathscomp0 temp). *)
     unfold ";;". simpl.
 
@@ -281,10 +284,12 @@ Proof.
     About transport_b_b.
     unfold total2_paths_f. unfold two_arg_paths_f.
     admit.
-  - (* set (temp := id_right_disp ff). *)
+  - simpl in x, y, f, xx, yy, ff.
+    set (temp := id_right_disp ff).
     (* apply (pathscomp0 (id_right_disp ff)). *)
     admit.
-  - (* set (temp := assoc_disp ff gg hh). *)
+  - simpl in x, y, z, w, f, g, h, xx, yy, zz, ww, ff, gg, hh.
+    (* set (temp := assoc_disp ff gg hh). *)
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
     admit.
   - apply homsets_disp.
