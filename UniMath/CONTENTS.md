@@ -525,6 +525,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v](Bicategories/PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v)
    - [PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v](Bicategories/PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v)
    - [PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v](Bicategories/PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v)
+   - [PseudoFunctors/Preservation/ClosedUnderEquivalence.v](Bicategories/PseudoFunctors/Preservation/ClosedUnderEquivalence.v)
    - [PseudoFunctors/UniversalArrow.v](Bicategories/PseudoFunctors/UniversalArrow.v)
    - [PseudoFunctors/Examples/ConstProduct.v](Bicategories/PseudoFunctors/Examples/ConstProduct.v)
    - [PseudoFunctors/Examples/CurryingInBicatOfCats.v](Bicategories/PseudoFunctors/Examples/CurryingInBicatOfCats.v)

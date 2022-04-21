@@ -177,6 +177,7 @@ PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
 PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
 PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
 PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
+PseudoFunctors/Preservation/ClosedUnderEquivalence.v
 PseudoFunctors/UniversalArrow.v
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
