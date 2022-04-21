@@ -1,7 +1,8 @@
 # Second method to install ocaml
 
-This method for installing ocaml allows more flexibility, but is more involved
-than the method in [INSTALL.md](./INSTALL.md), because it depends on "opam".
+This method for installing OCaml (in order to also build Coq) allows more
+flexibility, but is more involved than the method in
+[INSTALL.md](./INSTALL.md), because it depends on "opam".
 
 First install opam and needed prerequisites:
 
@@ -60,7 +61,7 @@ First install opam and needed prerequisites:
   $ opam install -y --solver=mccs num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
   ```
 
-In both of the procedures above, we ignore any ocaml compiler offered by the
+In both of the procedures above, we ignore any OCaml compiler offered by the
 system, preferring to let opam install its preferred compiler.  That avoid
 problems with version skew, which I don't understand.
 
@@ -91,6 +92,6 @@ $ type ocamlc
 ocamlc is hashed (/Users/XXXXXXXX/.opam/empty/bin/ocamlc)
 ```
 
-A result displaying a path that doesn't pass through `.opam` indicates that the
-wrong compiler is visible in the directories listed in your `PATH` environment
-variable.
+A result displaying a path that doesn't pass through `.opam` or `.opamroot`
+indicates that the wrong compiler is visible in the directories listed in your
+`PATH` environment variable.
