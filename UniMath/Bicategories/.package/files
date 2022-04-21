@@ -143,8 +143,12 @@ Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
+
+Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
 Limits/PullbackEquivalences.v
+Limits/InserterEquivalences.v
+Limits/EquifierEquivalences.v
 
 Morphisms/Eso.v
 Morphisms/Properties/Projections.v
@@ -161,6 +165,8 @@ Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
+
+Colimits/CoproductEquivalences.v
 
 Morphisms/Properties/FromInitial.v
 PseudoFunctors/Preservation/Preservation.v
@@ -211,6 +217,8 @@ DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
 
 PseudoFunctors/Examples/PullbackFunctor.v
 PseudoFunctors/Examples/CompositionPseudoFunctor.v
+
+PseudoFunctors/Preservation/PullbackPreservation.v
 
 Limits/Examples/DisplayMapSliceLimits.v
 Colimits/Examples/DisplayMapSliceColimits.v

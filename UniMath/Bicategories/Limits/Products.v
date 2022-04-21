@@ -365,7 +365,6 @@ Section Product.
                (γ δ : φ ==> ψ)
                (ppr1 : γ ▹ binprod_cone_pr1 p = δ ▹ binprod_cone_pr1 p)
                (ppr2 : γ ▹ binprod_cone_pr2 p = δ ▹ binprod_cone_pr2 p)
-
       : γ = δ.
     Proof.
       exact (maponpaths
