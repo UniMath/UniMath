@@ -1,3 +1,8 @@
+(******************************************************************
+
+ Preservation of biinitial and bifinal objects by biadjoints
+
+ ******************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -25,9 +30,6 @@ Section BiadjunctionPreservation.
           {L : psfunctor B₁ B₂}
           (R : left_biadj_data L).
 
-  (**
-   1. Preservation of biinitial objects
-   *)
   Definition left_biadj_preserves_biinitial
     : preserves_biinitial L.
   Proof.

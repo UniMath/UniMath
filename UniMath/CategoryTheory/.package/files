@@ -39,6 +39,7 @@ Monads/RelativeModules.v
 Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
 Equivalences/FullyFaithful.v
+Subcategory/FullEquivalences.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 Profunctors/Core.v
