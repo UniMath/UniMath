@@ -267,19 +267,8 @@ Definition fiber_disp_cat_axioms' {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
 Proof.
   destruct DD as [D E].
-  repeat split; intros; simpl. (* simpl in x, y, f, xx, yy, ff. *)
-  - (* unfold "xx -->[ f ] yy" in ff.
-    set (rhs_pre' := transportb (mor_disp xx yy) (id_left f) ff). (* Does not work after simpl. *)
-    set (bla' := xx -->[f] yy). *)
-    simpl in x, y, f, xx, yy.
-    simpl in ff. (* Okay, sure :-| *)
-    (* unfold "xx -->[ f ] yy" in ff.
-    set (bla := xx -->[(identity c,, f)] yy).
-    set (rhs_pre := transportb (mor_disp xx yy) (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff). *) (* Well this works! *)
-    set (idlff := id_disp xx ;; ff).
-    set (unitorff := id_left_disp ff). (* Does not work before simpl. *)
-    set (rhs_post := transportb _ (two_arg_paths_b (idpath (identity c)) (id_left (f : D[{c}]⟦x, y⟧))) ff). (* Does not work before simpl. *)
-    set (rhs_unitor := transportb _ (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff). (* Works before simpl as well. *)
+  repeat split; intros; simpl.
+  - simpl in x, y, f, xx, yy, ff.
     use my_lemma. simpl.
     unfold ";;". simpl.
     eapply pathscomp0.
@@ -287,10 +276,10 @@ Proof.
       eapply transport_f_f.
     + apply (pathscomp0 (transport_f_f _ _ _ _)).
       apply transportf_transpose_left.
-      apply (pathscomp0 unitorff).
+      apply (pathscomp0 (id_left_disp ff)).
       eapply pathscomp0.
-      2: {apply pathsinv0.
-          apply transport_b_b. }
+      2: { apply pathsinv0.
+        apply transport_b_b. }
       eapply maponpaths_2.
       apply homset_property.
   - simpl in x, y, f, xx, yy, ff.
@@ -300,9 +289,14 @@ Proof.
     eapply pathscomp0.
     + eapply transportb_transpose_right.
       eapply transport_f_f.
-    + eapply pathscomp0.
-      *
-    admit.
+    + apply (pathscomp0 (transport_f_f _ _ _ _)).
+      apply transportf_transpose_left.
+      apply (pathscomp0 (id_right_disp ff)).
+      eapply pathscomp0.
+      2: { apply pathsinv0.
+        apply transport_b_b. }
+      eapply maponpaths_2.
+      apply homset_property.
   - simpl in x, y, z, w, f, g, h, xx, yy, zz, ww, ff, gg, hh.
     (* set (temp := assoc_disp ff gg hh). *)
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
