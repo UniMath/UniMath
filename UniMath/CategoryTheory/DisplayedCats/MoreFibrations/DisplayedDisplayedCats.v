@@ -269,37 +269,40 @@ Proof.
   destruct DD as [D E].
   repeat split; intros; simpl.
   - simpl in x, y, f, xx, yy, ff.
-    use my_lemma. simpl.
+    use my_lemma.
+    (* apply (pathscomp0 (id_left_disp ff)). *)
     unfold ";;". simpl.
+    apply transportf_transpose_left.
+    apply (pathscomp0 (id_left_disp ff)).
     eapply pathscomp0.
-    + eapply transportb_transpose_right.
-      eapply transport_f_f.
-    + apply (pathscomp0 (transport_f_f _ _ _ _)).
-      apply transportf_transpose_left.
-      apply (pathscomp0 (id_left_disp ff)).
-      eapply pathscomp0.
-      2: { apply pathsinv0.
-        apply transport_b_b. }
-      eapply maponpaths_2.
-      apply homset_property.
+    2: {
+      apply pathsinv0.
+      apply transport_f_f.
+    }
+    unfold transportb.
+    apply maponpaths_2.
+    apply homset_property.
   - simpl in x, y, f, xx, yy, ff.
-    set (unitorff := id_right_disp ff).
     use my_lemma.
     unfold ";;". simpl.
+    apply transportf_transpose_left.
+    apply (pathscomp0 (id_right_disp ff)).
     eapply pathscomp0.
-    + eapply transportb_transpose_right.
-      eapply transport_f_f.
-    + apply (pathscomp0 (transport_f_f _ _ _ _)).
-      apply transportf_transpose_left.
-      apply (pathscomp0 (id_right_disp ff)).
-      eapply pathscomp0.
-      2: { apply pathsinv0.
-        apply transport_b_b. }
-      eapply maponpaths_2.
-      apply homset_property.
+    2: {
+      apply pathsinv0.
+      apply transport_f_f.
+    }
+    unfold transportb.
+    apply maponpaths_2.
+    apply homset_property.
   - simpl in x, y, z, w, f, g, h, xx, yy, zz, ww, ff, gg, hh.
-    (* set (temp := assoc_disp ff gg hh). *)
+    set (assocffgghh := assoc_disp ff gg hh).
+    use my_lemma.
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
+    unfold ";;". simpl.
+    apply transportf_transpose_left.
+
+
     admit.
   - apply homsets_disp.
 Admitted.
