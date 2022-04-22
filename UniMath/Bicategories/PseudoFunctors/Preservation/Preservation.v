@@ -10,6 +10,7 @@
  1. Basic definitions
  2. The identity pseudofunctor preserves (co)limits
  3. Preservation of the composition
+ 4. Preservation of chosen (co)limits
 
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -20,6 +21,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
@@ -207,3 +209,31 @@ Definition comp_psfunctor_preserves_bincoprods
            (HG : preserves_bincoprods G)
   : preserves_bincoprods (comp_psfunctor G F)
   := λ x y p Hp, HG _ _ _ (HF _ _ _ Hp).
+
+(**
+ 4. Preservation of chosen (co)limits
+ *)
+Definition preserves_chosen_biinitial
+           (B₁ : bicat_with_biinitial)
+           {B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+  : UU
+  := is_biinitial (F (pr1 (biinitial_of B₁))).
+
+Definition preserves_chosen_biinitial_to_preserve_biinitial
+           (B₁ : bicat_with_biinitial)
+           {B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+           (HF : preserves_chosen_biinitial B₁ F)
+  : preserves_biinitial F.
+Proof.
+  intros x Hx.
+  refine (equiv_from_biinitial
+            _
+            (psfunctor_preserves_adjequiv'
+               F
+               (biinitial_unique_adj_eqv
+                  Hx
+                  (pr2 (biinitial_of B₁))))).
+  apply HF.
+Defined.
