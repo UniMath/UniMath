@@ -240,38 +240,11 @@ Definition fiber_disp_cat_axioms {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
 Proof.
   destruct DD as [D E].
-  repeat split; simpl; intros.
-  - set (idlff := id_disp xx ;; ff).
-    set (temp := id_left_disp ff).
-    use my_lemma. simpl.
-    set (rhs_post := transportb _ (two_arg_paths_b (idpath (identity c)) (id_left (f : D[{c}]⟦x, y⟧))) ff).
-    set (rhs_unitor := transportb _ (id_left ((identity c,, f) : (total_category D)⟦(c,, x), (c,, y)⟧)) ff).
-    (* set (rhs_pre := transportb (mor_disp xx yy) (id_left f) ff). *)
-    (* apply (pathscomp0 temp). *)
-    unfold ";;". simpl.
-
-    About transportf_transpose_left.
-    About transport_b_b.
-    unfold total2_paths_f. unfold two_arg_paths_f.
-    admit.
-  - set (temp := id_right_disp ff).
-    (* apply (pathscomp0 (id_right_disp ff)). *)
-    admit.
-  - set (temp := assoc_disp ff gg hh).
-    (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
-    admit.
-  - apply homsets_disp.
-Admitted.
-
-Definition fiber_disp_cat_axioms' {C : category} (DD : disp_disp_cat C) (c : C)
-  : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
-Proof.
-  destruct DD as [D E].
   repeat split; intros; simpl.
   - simpl in x, y, f, xx, yy, ff.
     use my_lemma.
     (* apply (pathscomp0 (id_left_disp ff)). *)
-    unfold ";;". simpl.
+    unfold ";;"; simpl.
     apply transportf_transpose_left.
     apply (pathscomp0 (id_left_disp ff)).
     eapply pathscomp0.
@@ -284,7 +257,7 @@ Proof.
     apply homset_property.
   - simpl in x, y, f, xx, yy, ff.
     use my_lemma.
-    unfold ";;". simpl.
+    unfold ";;"; simpl.
     apply transportf_transpose_left.
     apply (pathscomp0 (id_right_disp ff)).
     eapply pathscomp0.
@@ -299,9 +272,21 @@ Proof.
     set (assocffgghh := assoc_disp ff gg hh).
     use my_lemma.
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
-    unfold ";;". simpl.
+    unfold ";;"; simpl.
     apply transportf_transpose_left.
-
+    eapply pathscomp0.
+    + Unshelve.
+      2: {
+        eapply (transportf).
+        2: { exact (ff ;; (gg ;; hh)). }
+        unfold "·"; simpl.
+        eapply total2_paths_f. Unshelve.
+        2: {
+          simpl.
+          apply maponpaths.
+          apply id_right.
+        }
+        simpl.
 
     admit.
   - apply homsets_disp.
