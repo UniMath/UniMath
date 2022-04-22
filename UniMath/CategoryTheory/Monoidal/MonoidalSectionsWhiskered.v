@@ -25,11 +25,9 @@ Section MonoidalSections.
   Import DisplayedBifunctorNotations.
   Import DisplayedMonoidalNotations.
 
-  Variable C : category.
-  Variable D : disp_cat C.
+  Context {C : category} {D : disp_cat C}.
   Local Notation TD := (total_category D).
-  Variable M : monoidal C.
-  Variable DM : disp_monoidal D M.
+  Context (M : monoidal C) (DM : disp_monoidal D M).
   Local Notation TM := (total_monoidal DM).
 
   Definition section_preserves_tensor_data (sd : section_disp D) : UU
