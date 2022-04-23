@@ -236,6 +236,16 @@ Proof.
   apply idpath.
 Qed.
 
+Definition another_lemma {A B : UU} (P: A → UU) (Q : B → UU)
+    (f0: A → B) (f1: ∏ a : A, P a → Q(f0 a))
+    {x x' : A} (h: x = x')
+  : ∏ (p : P x), transportf Q (maponpaths f0 h) (f1 x p) = f1 x' (transportf P h p).
+Proof.
+  intro p.
+  induction h.
+  apply idpath.
+Defined.
+
 Definition fiber_disp_cat_axioms {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
 Proof.
@@ -287,10 +297,15 @@ Proof.
           apply id_right.
         }
         simpl.
+        set (temp := another_lemma (mor_disp y w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c))).
+        apply (another_lemma _ _ (compose (identity c)) (λ e ee, f ;; ee) _).
+      }
+      simpl.
 
-    admit.
+      admit.
+    +
+      admit.
   - apply homsets_disp.
 Admitted.
-
 
 End FiberDisplayedCategories.
