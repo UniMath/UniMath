@@ -304,7 +304,22 @@ Proof.
       eapply pathscomp0.
       * apply pathsinv0.
         About another_lemma.
-        set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) (λ e ee, f ;; ee) (λ e ee, ff ;; ee) (total2_paths_f (id_right (identity c)) (idpath (g · h))) (gg ;; hh)).
+        unfold "·"; simpl.
+        set (temp_path := (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))).
+        set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) _ (λ e ee, ff ;; ee) temp_path (gg ;; hh)). simpl in temp.
+        apply temp.
+      * unfold ";;".
+        apply maponpaths.
+
+        apply transportf_transpose_left.
+        apply (pathscomp0 assocffgghh).
+        eapply pathscomp0.
+        2: {
+          apply pathsinv0.
+          apply transport_f_f.
+        }
+        unfold transportb.
+        apply maponpaths.
 
 
       admit.
