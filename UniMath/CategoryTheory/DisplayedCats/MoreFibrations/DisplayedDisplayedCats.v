@@ -297,10 +297,15 @@ Proof.
           apply id_right.
         }
         simpl.
-        set (temp := another_lemma (mor_disp y w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c))).
+        set (temp := another_lemma (mor_disp y w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h)); simpl in temp.
         apply (another_lemma _ _ (compose (identity c)) (λ e ee, f ;; ee) _).
       }
       simpl.
+      eapply pathscomp0.
+      * apply pathsinv0.
+        About another_lemma.
+        set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) (λ e ee, f ;; ee) (λ e ee, ff ;; ee) (total2_paths_f (id_right (identity c)) (idpath (g · h))) (gg ;; hh)).
+
 
       admit.
     +
