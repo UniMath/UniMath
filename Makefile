@@ -485,6 +485,10 @@ else
 	sed -e "s/@LOCAL@ /;;/" <$< >$@
 endif
 
+# make *.vo files by calling the coq makefile
+%.vo : always; $(MAKE) -f build/CoqMakefile.make $@
+always:
+.PHONY: always 
 
 #################################
 # targets best used with INCLUDE=no
