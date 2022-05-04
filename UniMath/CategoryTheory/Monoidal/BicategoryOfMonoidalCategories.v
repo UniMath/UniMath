@@ -542,70 +542,112 @@ Section TensorLayer.
       + apply univalent_category_has_homsets.
   Qed.
 
+  Lemma dispadjequiv_to_equality (C : bicat_of_univ_cats) (IC ID : bicatcatsunit_disp_bicat C) :
+       (disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID) -> (IC = ID).
+  Proof.
+    intro equalunits.
+    induction equalunits as [adj_inv adj_prop].
+    induction adj_prop as [data [ladj_ax weq_ax]].
+    induction data as [adj_invinv [dunit dcounit]].
+    cbn in *.
+
+    apply ((univalent_category_is_univalent C) IC ID).
+    apply Isos.z_iso_to_iso.
+    use tpair.
+    - exact adj_invinv.
+    - use tpair.
+      + exact adj_inv.
+      + use tpair.
+        * unfold nat_trans_id in dunit.
+          unfold functor_identity in dunit.
+          cbn in *.
+          etrans. { apply (pathsinv0 dunit). }
+          apply id_left.
+        * unfold nat_trans_id in dcounit.
+          unfold functor_identity in dcounit.
+
+          apply pathsinv0.
+          etrans. { apply (pathsinv0 dcounit). }
+          apply id_right.
+  Defined.
+
   Lemma bicatcatsunit_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bicatcatsunit_disp_bicat.
   Proof.
+    (* apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros C IC ID.
+    cbn in *.*)
+    (* use gradth.
+
+    - apply dispadjequiv_to_equality.
+    - intro equalunits.
+      induction equalunits.
+      cbn.
+      unfold dispadjequiv_to_equality.
+      unfold disp_identity_adjoint_equivalence.
+      cbn.
+      apply (((univalent_category_is_univalent C) IC IC) (Isos.identity_iso IC)).
+        apply maponpaths.
+        apply maponpaths.
+        cbn.
+        apply maponpaths.
+
+      rewrite (id_left (identity IC)).
+
+      admit.
+    - intro dispadjequiv.
+      induction dispadjequiv as [adj_inv [data [ladj_ax weq_ax]]].
+      cbn in *.
+      use total2_paths_b.
+      + cbn.
+        induction weq_ax  as [unit_invertible counit_invertible].
+        cbn in *.
+        unfold dispadjequiv_to_equality.
+        induction data.
+        induction pr2.
+        cbn in *.
+
+     *)
+
     unfold disp_univalent_2_0.
     intros C D pfCisD IC ID.
     induction pfCisD.
 
     use weqhomot.
     - use make_weq.
-      + intro equalunits.
-        induction equalunits.
+      + Search (transportf _ (idpath _)).
+        rewrite idpath_transportf.
+        intro p. induction p.
+        Search (disp_adjoint_equivalence).
         apply disp_identity_adjoint_equivalence.
-      + use isweq_iso.
+      +
+
+
+        exact (dispadjequiv_to_equality C IC ID).
         * intro equalunits.
-          induction equalunits as [adj_inv adj_prop].
-          apply C.
-          apply Isos.z_iso_to_iso.
-          use tpair.
-          -- cbn in *.
-             apply adj_prop.
-          -- cbn in *.
-             use tpair.
-             ++ apply adj_inv.
-             ++ use tpair.
-                ** induction adj_prop.
-                   induction pr1.
-                   induction pr0.
-                   cbn in *.
-                   unfold nat_trans_id in pr0.
-                   cbn in pr0.
-                   unfold functor_identity in pr0.
-                   etrans. {
-                     apply (pathsinv0 pr0).
-                   }
-                   apply id_left.
-                ** cbn.
-                  induction adj_prop.
-                   induction pr1.
-                   induction pr0.
-                   cbn in *.
-                   (* unfold nat_trans_id in pr3. *)
-                   cbn in pr3.
-                   unfold bicatcatsunit_disp_2cell_struct in pr3.
-                   unfold functor_identity in pr3.
-                   cbn in pr3.
-                   apply pathsinv0.
-                   etrans. {
-                     apply (pathsinv0 pr3).
-                   }
-                   apply id_right.
-        * cbn.
-          intro equalunits.
           induction equalunits.
           cbn.
-          apply C.
+
+
+          Check subtypePath.
+
+          (* apply invproofirrelevance.
+          intros p q. *)
+          cbn.
+          unfold dispadjequiv_to_equality.
+          cbn.
+
 
           admit.
-        * cbn.
-          intro adj.
-          induction adj as [adj_inv adj_prop].
-          (* use total2_paths_b.
-          -- cbn. *)
-          admit.
-
-    - intro equalunits.
-      induction equalunits.
+        * intro adjequiv.
+          induction adjequiv.
+          use total2_paths_b.
+          -- unfold dispadjequiv_to_equality.
+             unfold univalent_category_is_univalent.
+             cbn.
+             apply univalent_category_has_groupoid_ob.
+             admit.
+          -- admit.
+    - intro.
+      induction x.
       apply idpath.
-  Admitted. (* Qed. *)
+  Admitted. (* Qed ¨*)
