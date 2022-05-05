@@ -167,9 +167,28 @@ Section def_monoid_category.
 
   (** ** Category of monoids *)
 
+  About monoid_univalence.
+
   Definition monoid_precategory_isweq (X Y : ob monoid_precategory) :
     isweq (λ p : X = Y, idtoiso p).
   Proof.
+    (* set (c := weqcomp (monoid_univalence X Y) (monoid_equiv_weq_iso X Y)).
+
+    use isweqhomot.
+
+    - exact (pr1 c).
+    - intro e. induction e.
+      use total2_paths_f.
+      + use idpath.
+      + use proofirrelevance.
+        use isaprop_is_iso.
+    - exact (pr2 c).
+
+(* This code is equivalent to the one below *)
+    *)
+
+
+
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (monoid_univalence X Y) (monoid_equiv_weq_iso X Y)))
