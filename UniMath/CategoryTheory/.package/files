@@ -230,6 +230,10 @@ Monoidal/DisplayedMonoidalCurried.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/BraidedMonoidalCategories.v
 Monoidal/TotalDisplayedMonoidalCurried.v
+
+Monoidal/UnivalenceOfBicategoryOfUnivMoncats/UnitLayer.v
+Monoidal/UnivalenceOfBicategoryOfUnivMoncats/TensorLayer.v
+
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 

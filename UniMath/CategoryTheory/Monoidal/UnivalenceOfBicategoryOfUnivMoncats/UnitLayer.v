@@ -4,6 +4,7 @@ In this file we construct one side of the first displayed layer above the bicate
 The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
 - The objects are categories together with a fixed object (which will be the unit for the monoidal structure).
 - The morphisms are functors which preserve the unit in a lax/weak sense (i.e. a non-necessairly isomorphic morphism).
+- The 2-cells are natural transformations which (at the unit) preserves the morphism of the underlying functors.
 *)
 
 Require Import UniMath.Foundations.All.
