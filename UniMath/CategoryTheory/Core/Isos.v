@@ -896,6 +896,34 @@ Defined.
 Definition iso_to_z_iso {C : precategory} {b c : C} : iso b c -> z_iso b c
   := λ f, pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
 
+Lemma roundtrip1_iso_z_iso {C : precategory} {b c : C} (f: iso b c) :
+  z_iso_to_iso (iso_to_z_iso f) = f.
+Proof.
+  destruct f as [f H].
+  use total2_paths_f.
+  - apply idpath.
+  - apply isaprop_is_iso.
+Qed.
+
+Lemma roundtrip2_iso_z_iso {C : category} {b c : C} (f: z_iso b c) :
+  iso_to_z_iso (z_iso_to_iso f) = f.
+Proof.
+  destruct f as [f H].
+  use total2_paths_f.
+  - apply idpath.
+  - apply isaprop_is_z_isomorphism.
+Qed.
+
+Definition weq_iso_z_iso {C : category} {b c : C} : iso b c ≃ z_iso b c.
+Proof.
+  exists iso_to_z_iso.
+  use gradth.
+  - apply z_iso_to_iso.
+  - apply roundtrip1_iso_z_iso.
+  - apply roundtrip2_iso_z_iso.
+Defined.
+
+
 (** The right inverse of an invertible morphism must be equal to the known (two-sided) inverse. *)
 (** TODO: Did I switch up right and left here vis a vis the conventional use? *)
 Lemma right_inverse_of_iso_is_inverse {C : precategory} {c c' : C}

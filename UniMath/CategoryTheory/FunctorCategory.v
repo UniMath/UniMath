@@ -204,6 +204,23 @@ Proof.
   - apply (nat_trans_eq_pointwise TA').
 Defined.
 
+Lemma is_functor_z_iso_pointwise_if_z_iso (C : precategory_data)(C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C', hs]) (A : F --> G) :
+  is_z_isomorphism A -> is_nat_z_iso (pr1 A).
+Proof.
+  intros H a.
+  set (T := inv_from_z_iso (tpair _ A H)).
+  set (TA := z_iso_inv_after_z_iso (tpair _ A H)).
+  set (TA' := z_iso_after_z_iso_inv (tpair _ A H)).
+  simpl in *.
+  exists (T a).
+  split.
+  - unfold T.
+    set (H1' := nat_trans_eq_pointwise TA). apply H1'.
+  - apply (nat_trans_eq_pointwise TA').
+Defined.
+
 Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_iso A) :
@@ -229,13 +246,21 @@ Proof.
 Qed.
 
 
-Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C')
+Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory) (hs: has_homsets C')
  (F G : ob [C, C',hs]) (A : F --> G)
   (H : is_iso A) :
   ∏ a : ob C,
         iso (pr1 F a) (pr1 G a) :=
   λ a, tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G A H a).
+
+Definition functor_z_iso_pointwise_if_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C',hs]) (A : F --> G)
+  (H : is_z_isomorphism A) :
+  ∏ a : ob C,
+        z_iso (pr1 F a) (pr1 G a) :=
+  λ a, tpair _ _ (is_functor_z_iso_pointwise_if_z_iso C C' _ F G A H a).
+
 
 Lemma nat_trans_inv_pointwise_inv_after_p (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
@@ -254,14 +279,14 @@ Qed.
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
     (H : is_univalent D) (F G : functor_category C D) :
-   iso F G -> pr1 (pr1 F) = pr1 (pr1 G).
+   z_iso F G -> pr1 (pr1 F) = pr1 (pr1 G).
 Proof.
   intro A.
   apply funextsec.
   intro t.
   apply isotoid.
   assumption.
-  apply (functor_iso_pointwise_if_iso _ _ _ _ _ A).
+  apply (functor_z_iso_pointwise_if_z_iso _ _ _ _ _ A).
   apply (pr2 A).
 Defined.
 
@@ -295,7 +320,7 @@ Qed.
 
 Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
     (H : is_univalent D) (F G : ob [C , D, D]) :
-   iso F G -> pr1 F = pr1 G.
+   z_iso F G -> pr1 F = pr1 G.
 Proof.
   intro A.
   apply (total2_paths_f (pr1_pr1_functor_eq_from_functor_iso C D H F G A)).
@@ -315,7 +340,7 @@ Proof.
     apply (nat_trans_ax (pr1 A)).
   }
   etrans.
-  { apply cancel_postcomposition.
+  { apply cancel_postcomposition. TODO
     apply nat_trans_inv_pointwise_inv_after_p. }
   rewrite assoc.
   apply remove_id_left; try apply idpath.
