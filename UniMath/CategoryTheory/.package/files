@@ -218,7 +218,6 @@ Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
-Monoidal/BicategoryOfMonoidalCategories.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
