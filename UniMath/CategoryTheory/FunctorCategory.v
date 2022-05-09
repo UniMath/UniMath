@@ -277,6 +277,15 @@ Proof.
   apply (nat_trans_eq_pointwise TA).
 Qed.
 
+Lemma nat_trans_inv_pointwise_inv_after_p_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_z_isomorphism A) a :
+  inv_from_z_iso (functor_z_iso_pointwise_if_z_iso C C' hs F G A Aiso a) =
+        pr1 (inv_from_z_iso (A,, Aiso)) a.
+Proof.
+  apply idpath.
+Qed.
+
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
     (H : is_univalent D) (F G : functor_category C D) :
    z_iso F G -> pr1 (pr1 F) = pr1 (pr1 G).
@@ -318,7 +327,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : category)
+Definition pr1_functor_eq_from_functor_z_iso (C : precategory_data) (D : category)
     (H : is_univalent D) (F G : ob [C , D, D]) :
    z_iso F G -> pr1 F = pr1 G.
 Proof.
@@ -340,21 +349,21 @@ Proof.
     apply (nat_trans_ax (pr1 A)).
   }
   etrans.
-  { apply cancel_postcomposition. TODO
-    apply nat_trans_inv_pointwise_inv_after_p. }
+  { apply cancel_postcomposition.
+    apply nat_trans_inv_pointwise_inv_after_p_z_iso. }
   rewrite assoc.
   apply remove_id_left; try apply idpath.
-  set (TA' := iso_after_iso_inv A).
+  set (TA' := z_iso_after_z_iso_inv A).
   set (TA'' := nat_trans_comp_pointwise _ _ _ _ _ _ _ _  _ TA').
   apply TA''.
 Defined.
 
-Definition functor_eq_from_functor_iso {C : precategory_data} {D : category}
+Definition functor_eq_from_functor_z_iso {C : precategory_data} {D : category}
            (H : is_univalent D) (F G : ob [C , D, D])
-    (H' : iso F G) : F = G.
+    (H' : z_iso F G) : F = G.
 Proof.
   apply (functor_eq _ _ D F G).
-  apply pr1_functor_eq_from_functor_iso;
+  apply pr1_functor_eq_from_functor_z_iso;
   assumption.
 Defined.
 
@@ -362,26 +371,26 @@ Defined.
 Lemma idtoiso_functorcat_compute_pointwise (C : precategory_data) (D : precategory)
   (hs: has_homsets D) (F G : ob [C, D, hs])
      (p : F = G) (a : ob C) :
-  functor_iso_pointwise_if_iso C D _ F G (idtoiso p) (pr2 (idtoiso p)) a =
+  functor_z_iso_pointwise_if_z_iso C D _ F G (idtoiso p) (pr2 (idtoiso p)) a =
 idtoiso
   (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  apply eq_iso. apply idpath.
+  apply (eq_z_iso(C:=D,,hs)). apply idpath.
 Qed.
 
 
-Lemma functor_eq_from_functor_iso_idtoiso (C : precategory_data) (D : category)
+Lemma functor_eq_from_functor_z_iso_idtoiso (C : precategory_data) (D : category)
     (H : is_univalent D)
     (F G : ob [C, D, D]) (p : F = G) :
-  functor_eq_from_functor_iso  H F G (idtoiso p) = p.
+  functor_eq_from_functor_z_iso  H F G (idtoiso p) = p.
 Proof.
   simpl; apply functor_eq_eq_from_functor_ob_eq. apply D.
-  unfold functor_eq_from_functor_iso.
+  unfold functor_eq_from_functor_z_iso.
   unfold functor_eq.
   rewrite base_total2_paths.
-  unfold pr1_functor_eq_from_functor_iso.
+  unfold pr1_functor_eq_from_functor_z_iso.
   rewrite base_total2_paths.
   unfold pr1_pr1_functor_eq_from_functor_iso.
   apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
@@ -392,26 +401,26 @@ Proof.
   apply isotoid_idtoiso.
 Qed.
 
-Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : category)
+Lemma idtoiso_functor_eq_from_functor_z_iso (C : precategory_data) (D : category)
       (H : is_univalent D)
-      (F G : ob [C, D, D]) (gamma : iso F G) :
-  idtoiso (functor_eq_from_functor_iso H F G gamma) = gamma.
+      (F G : ob [C, D, D]) (gamma : z_iso F G) :
+  idtoiso (functor_eq_from_functor_z_iso H F G gamma) = gamma.
 Proof.
-  apply eq_iso.
+  apply (eq_z_iso(C:=functor_category C D)).
   simpl; apply nat_trans_eq; intro a. apply D.
-  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_iso H F G gamma) a).
+  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_z_iso H F G gamma) a).
   simpl in *.
   assert (H2 := maponpaths (@pr1 _ _ ) H'). simpl in H2.
   etrans.
   { apply H2. }
   clear H' H2.
-  unfold functor_eq_from_functor_iso.
+  unfold functor_eq_from_functor_z_iso.
   unfold functor_eq.
   rewrite base_total2_paths.
-  unfold pr1_functor_eq_from_functor_iso.
+  unfold pr1_functor_eq_from_functor_z_iso.
   rewrite base_total2_paths.
   intermediate_path (pr1 (idtoiso
-     (isotoid D H (functor_iso_pointwise_if_iso C D D F G gamma (pr2 gamma) a)))).
+     (isotoid D H (functor_z_iso_pointwise_if_z_iso C D D F G gamma (pr2 gamma) a)))).
   2: { rewrite idtoiso_isotoid.
        apply idpath.
   }
@@ -426,9 +435,9 @@ Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : category) (H : is_uni
     (F G : ob [C, D, D]) :
    isweq (@idtoiso _ F G).
 Proof.
-  apply (isweq_iso _ (functor_eq_from_functor_iso H F G)).
-  apply functor_eq_from_functor_iso_idtoiso.
-  apply idtoiso_functor_eq_from_functor_iso.
+  apply (isweq_iso _ (functor_eq_from_functor_z_iso H F G)).
+  apply functor_eq_from_functor_z_iso_idtoiso.
+  apply idtoiso_functor_eq_from_functor_z_iso.
 Defined.
 
 
