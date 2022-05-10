@@ -304,6 +304,15 @@ Section functors_on_iso_with_inv.
     - exact (functor_on_is_inverse_in_precat F f).
   Defined.
 
+  Lemma functor_on_z_iso_inv (C C' : category) (F : functor C C')
+    (a b : ob C) (f : z_iso a b) :
+   functor_on_z_iso F (z_iso_inv_from_z_iso f) =
+       z_iso_inv_from_z_iso (functor_on_z_iso F f).
+  Proof.
+    apply eq_z_iso; simpl.
+    apply idpath.
+  Defined.
+
   Lemma functor_on_inv_from_z_iso' {C C' : precategory} (F : functor C C')
       {a b : ob C} {f : a --> b} (H : is_z_isomorphism f) :
   inv_from_z_iso (make_z_iso _ _ (functor_on_is_z_isomorphism F H)) = # F (inv_from_z_iso (make_z_iso _ _ H)).
