@@ -1162,6 +1162,41 @@ Section CategoryBinproductIsoWeq.
   Context {C D : category}
           (x y : category_binproduct C D).
 
+
+
+  Definition category_binproduct_z_iso_map
+    : z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y) → z_iso x y.
+  Proof.
+    intros i.
+    simple refine ((pr11 i ,, pr12 i) ,, _).
+    apply is_z_iso_binprod_z_iso.
+    - exact (pr21 i).
+    - exact (pr22 i).
+  Defined.
+
+  Definition category_binproduct_z_iso_inv
+    : z_iso x y → z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y)
+    := λ i, functor_on_z_iso (pr1_functor C D) i ,, functor_on_z_iso (pr2_functor C D) i.
+
+  Definition category_binproduct_z_iso_weq
+    : z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y) ≃ z_iso x y.
+  Proof.
+    use make_weq.
+    - exact category_binproduct_z_iso_map.
+    - use gradth.
+      + exact category_binproduct_z_iso_inv.
+      + abstract
+          (intros i ;
+           use pathsdirprod ;
+           (use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ]) ;
+           apply idpath).
+      + abstract
+          (intros i ;
+           use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
+           apply idpath).
+  Defined.
+
+  (*
   Definition category_binproduct_iso_map
     : iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y) → iso x y.
   Proof.
@@ -1193,6 +1228,8 @@ Section CategoryBinproductIsoWeq.
            use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
            apply idpath).
   Defined.
+*)
+
 End CategoryBinproductIsoWeq.
 
 Section Univalence.
@@ -1205,7 +1242,7 @@ Section Univalence.
   Proof.
     intros x y.
     use weqhomot.
-    - exact (category_binproduct_iso_weq x y
+    - exact (category_binproduct_z_iso_weq x y
              ∘ weqdirprodf
                  (make_weq _ (HC _ _))
                  (make_weq _ (HD _ _))
@@ -1213,7 +1250,7 @@ Section Univalence.
     - abstract
         (intro p ;
          induction p ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          cbn ;
          apply idpath).
   Defined.
