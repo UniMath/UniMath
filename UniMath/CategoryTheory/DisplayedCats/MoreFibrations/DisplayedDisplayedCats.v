@@ -418,8 +418,10 @@ Proof.
            (* Check (maponpaths (compose (identity c,, f : (total_category D ⟦(c,, x), (c,, y)⟧))) (total2_paths_f (id_right (identity c) : pr1 (_,,_) = pr1 (_,,_)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))). *)
            set (temp := homset_property (total_category D) (c,,x) (c,,w) (identity c · (identity c · identity c),, f ;; (g ;; h)) (identity c · identity c,, f ;; transportf (λ e : C ⟦ c, c ⟧, y -->[ e] w) (id_right (identity c)) (g ;; h))).
            apply (homset_property (total_category D) (c,, x) (c,, w)).
-    + unfold transportb.
-      eapply maponpaths.
+    + apply transportf_transpose_left.
+      apply (pathscomp0 (assoc_disp ff gg hh)).
+      apply transportf_transpose_left.
+
       admit.
   - apply homsets_disp.
 Admitted.
