@@ -379,9 +379,14 @@ Proof.
     set (assocffgghh := assoc_disp ff gg hh).
     use my_lemma.
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
-    unfold ";;" at 1 3; simpl.
+    unfold ";;" at 1; simpl.
     apply transportf_transpose_left.
-    unfold ";;" at 2; simpl.
+    (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
+    eapply pathscomp0.
+    2: {
+      apply pathsinv0.
+      apply transport_b_b.
+    }
     use pathscomp0.
     + eapply transportf.
       2: { exact (ff ;; (gg ;; hh)). }
@@ -419,7 +424,14 @@ Proof.
            set (temp := homset_property (total_category D) (c,,x) (c,,w) (identity c · (identity c · identity c),, f ;; (g ;; h)) (identity c · identity c,, f ;; transportf (λ e : C ⟦ c, c ⟧, y -->[ e] w) (id_right (identity c)) (g ;; h))).
            apply (homset_property (total_category D) (c,, x) (c,, w)).
     + apply transportf_transpose_left.
+      eapply pathscomp0.
+      2: {
+        apply pathsinv0.
+        apply transport_b_b.
+      }
       apply (pathscomp0 (assoc_disp ff gg hh)).
+      About maponpaths.
+      (* apply (@maponpaths _ _ (λ p, transportb (mor_disp xx ww) p (ff ;; gg ;; hh)) (assoc (identity c,, f : (total_category D ⟦(c,, x), (c,, y)⟧)) (identity c,, g : (total_category D ⟦(c,, y), (c,, z)⟧)) (identity c,, h : (total_category D ⟦(c,, z), (c,, w)⟧))) (total2_paths_f (maponpaths (compose (identity c)) (id_right (identity c)) : pr1 (_,, _) = pr1 (_,, _)) (another_lemma (λ e : C ⟦ c, c ⟧, y -->[ e] w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h)) @ total2_paths_f (id_right (identity c) : pr1 (_,, _) = pr1 (_,, _)) (idpath ((f : D[{c}]⟦x, y⟧) · ((g : D[{c}]⟦y, z⟧) · (h : D[{c}]⟦z, w⟧)))) @ paths_rect (pr2 D c c x w (identity c)) (f · (g · h)) (λ (b2 : pr2 D c c x w (identity c)) (_ : f · (g · h) = b2), identity c,, f · (g · h) = identity c,, b2) (idpath (identity c,, f · (g · h))) (f · g · h) (assoc f g h))). *)
       apply transportf_transpose_left.
 
       admit.
