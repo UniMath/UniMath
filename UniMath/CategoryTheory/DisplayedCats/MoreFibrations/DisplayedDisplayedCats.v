@@ -246,12 +246,22 @@ Proof.
   apply idpath.
 Defined.
 
+Definition another_lemma' {A B : UU} (P: A → UU) (Q : B → UU)
+    (f0: A → B) (f1: ∏ a : A, P a → Q(f0 a))
+    {x x' : A} (h: x = x')
+  : ∏ (p : P x), f1 x' (transportf P h p) = transportf Q (maponpaths f0 h) (f1 x p).
+Proof.
+  intro p.
+  induction h.
+  apply idpath.
+Defined.
+
 Definition fiber_disp_cat_axioms {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
 Proof.
   destruct DD as [D E].
   repeat split; intros; simpl.
-  - simpl in x, y, f, xx, yy, ff.
+  - simpl in *.
     use my_lemma.
     (* apply (pathscomp0 (id_left_disp ff)). *)
     unfold ";;"; simpl.
@@ -265,7 +275,7 @@ Proof.
     unfold transportb.
     apply maponpaths_2.
     apply homset_property.
-  - simpl in x, y, f, xx, yy, ff.
+  - simpl in *.
     use my_lemma.
     unfold ";;"; simpl.
     apply transportf_transpose_left.
@@ -278,29 +288,27 @@ Proof.
     unfold transportb.
     apply maponpaths_2.
     apply homset_property.
-  - simpl in x, y, z, w, f, g, h, xx, yy, zz, ww, ff, gg, hh.
+  - simpl in *.
     set (assocffgghh := assoc_disp ff gg hh).
     use my_lemma.
     (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
     unfold ";;"; simpl.
     apply transportf_transpose_left.
-    eapply pathscomp0.
-    + Unshelve.
+    use pathscomp0.
+    + eapply transportf.
+      2: { exact (ff ;; (gg ;; hh)). }
+      unfold "·"; simpl.
+      eapply total2_paths_f.
+      Unshelve.
       2: {
-        eapply (transportf).
-        2: { exact (ff ;; (gg ;; hh)). }
-        unfold "·"; simpl.
-        eapply total2_paths_f. Unshelve.
-        2: {
           simpl.
           apply maponpaths.
           apply id_right.
         }
-        simpl.
-        set (temp := another_lemma (mor_disp y w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h)); simpl in temp.
-        apply (another_lemma _ _ (compose (identity c)) (λ e ee, f ;; ee) _).
-      }
       simpl.
+      set (temp := another_lemma (mor_disp y w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h)); simpl in temp.
+      apply (another_lemma _ _ (compose (identity c)) (λ e ee, f ;; ee)).
+    + simpl.
       eapply pathscomp0.
       * apply pathsinv0.
         About another_lemma.
@@ -308,24 +316,114 @@ Proof.
         set (temp_path := (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))).
         set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) _ (λ e ee, ff ;; ee) temp_path (gg ;; hh)). simpl in temp.
         apply temp.
-      * unfold ";;".
-        apply maponpaths.
+      * (* eapply maponpaths. *)
+        eapply map_on_two_paths.
+        2: { apply idpath. } (* Why tf doesn't maponpaths apply if one subgoal is trivial? *)
+        -- (*
+        unfold ";;".
+        (* eapply maponpaths. *)
+        eapply map_on_two_paths.
+        2: { apply idpath. } (* Why tf doesn't maponpaths apply if one subgoal is trivial? *)
+        -- Check (pr1 (pr2 (pr2 D))).
+           Check (maponpaths (compose (identity c,, f : (total_category D)⟦(c,,x), (c,,y)⟧)) (total2_paths_f (id_right (identity c) : pr1 (identity c · identity c ,, _) = pr1 (identity c ,, _)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (pr1 (pr2 (pr2 D)) c c c (identity c) (identity c) y z w g h))))).
+           (**
+              Why is the pr1 in pr1 (pr2 (pr2 D)) omitted? Coercion?
 
-        apply transportf_transpose_left.
-        apply (pathscomp0 assocffgghh).
-        eapply pathscomp0.
-        2: {
-          apply pathsinv0.
-          apply transport_f_f.
-        }
-        unfold transportb.
-        apply maponpaths.
-
-
-      admit.
-    +
+              Given arguments of pr1( pr2 (pr2 D)) are (c : C) (c : C) (c : C) (identity c : D⟦c, c⟧) (identity c : D⟦c, c⟧) (identity c : D⟦c, c⟧) (y : D c) (z : D c) (w : D c) (g : y -->[ identity c] z) (h : z -->[ identity c] w).
+              Too many for unitors, too little for associator!
+            **)
+           apply homset_property.
+*)
+           Check (total2_paths_f (maponpaths (compose (identity c)) (id_right (identity c)) : pr1 (_,,_) = pr1 (_,,_)) (another_lemma (λ e : C ⟦ c, c ⟧, y -->[ e] w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h))).
+           (* Check (maponpaths (compose (identity c,, f : (total_category D ⟦(c,, x), (c,, y)⟧))) (total2_paths_f (id_right (identity c) : pr1 (_,,_) = pr1 (_,,_)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))). *)
+           set (temp := homset_property (total_category D) (c,,x) (c,,w) (identity c · (identity c · identity c),, f ;; (g ;; h)) (identity c · identity c,, f ;; transportf (λ e : C ⟦ c, c ⟧, y -->[ e] w) (id_right (identity c)) (g ;; h))).
+           apply (homset_property (total_category D) (c,, x) (c,, w)).
+    + unfold transportb.
       admit.
   - apply homsets_disp.
 Admitted.
+
+Definition fiber_disp_cat_axioms_new {C : category} (DD : disp_disp_cat C) (c : C)
+  : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
+Proof.
+  destruct DD as [D E].
+  repeat split; intros; simpl.
+  - simpl in *.
+    use my_lemma.
+    (* apply (pathscomp0 (id_left_disp ff)). *)
+    unfold ";;"; simpl.
+    apply transportf_transpose_left.
+    apply (pathscomp0 (id_left_disp ff)).
+    eapply pathscomp0.
+    2: {
+      apply pathsinv0.
+      apply transport_f_f.
+    }
+    unfold transportb.
+    apply maponpaths_2.
+    apply homset_property.
+  - simpl in *.
+    use my_lemma.
+    unfold ";;"; simpl.
+    apply transportf_transpose_left.
+    apply (pathscomp0 (id_right_disp ff)).
+    eapply pathscomp0.
+    2: {
+      apply pathsinv0.
+      apply transport_f_f.
+    }
+    unfold transportb.
+    apply maponpaths_2.
+    apply homset_property.
+  - simpl in *.
+    set (assocffgghh := assoc_disp ff gg hh).
+    use my_lemma.
+    (* apply (pathscomp0 (assoc_disp ff gg hh)). *)
+    unfold ";;" at 1 3; simpl.
+    apply transportf_transpose_left.
+    unfold ";;" at 2; simpl.
+    use pathscomp0.
+    + eapply transportf.
+      2: { exact (ff ;; (gg ;; hh)). }
+      unfold "·"; simpl.
+      use total2_paths_f; simpl.
+      * apply maponpaths.
+        apply id_right.
+      * apply (another_lemma _ _ (compose (identity c)) (λ e ee, f ;; ee)).
+    + eapply pathscomp0.
+      * apply pathsinv0.
+        unfold "·"; simpl.
+        set (temp_path := (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))).
+        set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) _ (λ e ee, ff ;; ee) temp_path (gg ;; hh)); simpl in temp.
+        apply temp.
+      * (* eapply maponpaths. *)
+        eapply map_on_two_paths.
+        2: { apply idpath. } (* Why tf doesn't maponpaths apply if one subgoal is trivial? *)
+        -- (*
+        unfold ";;".
+        (* eapply maponpaths. *)
+        eapply map_on_two_paths.
+        2: { apply idpath. } (* Why tf doesn't maponpaths apply if one subgoal is trivial? *)
+        -- Check (pr1 (pr2 (pr2 D))).
+           Check (maponpaths (compose (identity c,, f : (total_category D)⟦(c,,x), (c,,y)⟧)) (total2_paths_f (id_right (identity c) : pr1 (identity c · identity c ,, _) = pr1 (identity c ,, _)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (pr1 (pr2 (pr2 D)) c c c (identity c) (identity c) y z w g h))))).
+           (**
+              Why is the pr1 in pr1 (pr2 (pr2 D)) omitted? Coercion?
+
+              Given arguments of pr1( pr2 (pr2 D)) are (c : C) (c : C) (c : C) (identity c : D⟦c, c⟧) (identity c : D⟦c, c⟧) (identity c : D⟦c, c⟧) (y : D c) (z : D c) (w : D c) (g : y -->[ identity c] z) (h : z -->[ identity c] w).
+              Too many for unitors, too little for associator!
+            **)
+           apply homset_property.
+*)
+           Check (total2_paths_f (maponpaths (compose (identity c)) (id_right (identity c)) : pr1 (_,,_) = pr1 (_,,_)) (another_lemma (λ e : C ⟦ c, c ⟧, y -->[ e] w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h))).
+           (* Check (maponpaths (compose (identity c,, f : (total_category D ⟦(c,, x), (c,, y)⟧))) (total2_paths_f (id_right (identity c) : pr1 (_,,_) = pr1 (_,,_)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))). *)
+           set (temp := homset_property (total_category D) (c,,x) (c,,w) (identity c · (identity c · identity c),, f ;; (g ;; h)) (identity c · identity c,, f ;; transportf (λ e : C ⟦ c, c ⟧, y -->[ e] w) (id_right (identity c)) (g ;; h))).
+           apply (homset_property (total_category D) (c,, x) (c,, w)).
+    + unfold transportb.
+      eapply maponpaths.
+      admit.
+  - apply homsets_disp.
+Admitted.
+
+
 
 End FiberDisplayedCategories.
