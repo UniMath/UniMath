@@ -16,20 +16,20 @@ Section Core.
   Proof.
     use make_precategory_ob_mor.
     - exact C.
-    - exact (λ x y, iso x y).
+    - exact (λ x y, z_iso x y).
   Defined.
 
   Definition core_precategory_data : precategory_data.
   Proof.
     use make_precategory_data.
     - exact core_precategory_ob_mor.
-    - exact (λ x, identity_iso x).
-    - exact (λ x y z i₁ i₂, iso_comp i₁ i₂).
+    - exact (λ x, identity_z_iso x).
+    - exact (λ x y z i₁ i₂, z_iso_comp i₁ i₂).
   Defined.
 
   Definition core_is_precategory : is_precategory core_precategory_data.
   Proof.
-    use make_is_precategory_one_assoc ; intros ; use eq_iso ; cbn.
+    use make_is_precategory_one_assoc ; intros ; use eq_z_iso ; cbn.
     - apply id_left.
     - apply id_right.
     - apply assoc.
@@ -47,47 +47,45 @@ Section Core.
     use make_category.
     - exact core_precategory.
     - intros x y ; cbn.
-      use isaset_iso.
-      apply homset_property.
+      use isaset_z_iso.
   Defined.
 
-  Definition is_iso_core
+  Definition is_z_iso_core
              {x y : core}
              (f : x --> y)
-    : is_iso f.
+    : is_z_isomorphism f.
   Proof.
-    use is_iso_qinv ; cbn in *.
-    - exact (iso_inv_from_iso f).
+    exists (z_iso_inv_from_z_iso f).
     - abstract
         (split ;
-         use eq_iso ;
+         use eq_z_iso ;
          cbn ;
-         [ apply iso_inv_after_iso | apply iso_after_iso_inv]).
+         [ apply z_iso_inv_after_z_iso | apply z_iso_after_z_iso_inv]).
   Defined.
 
   Definition is_pregroupoid_core
     : is_pregroupoid core.
   Proof.
-    exact @is_iso_core.
+    exact @is_z_iso_core.
   Defined.
 
-  Definition core_iso_weq
+  Definition core_z_iso_weq
              (x y : C)
-    : @iso C x y ≃ @iso core x y.
+    : @z_iso C x y ≃ @z_iso core x y.
   Proof.
     use make_weq.
-    - simple refine (λ i, make_iso _ _).
+    - simple refine (λ i, _,,_).
       + exact i.
-      + apply is_iso_core.
+      + apply is_z_iso_core.
     - use gradth.
       + exact (λ i, pr1 i).
       + abstract
           (intro i ;
-           use eq_iso ;
+           use eq_z_iso ;
            apply idpath).
       + abstract
           (intro i ;
-           use eq_iso ;
+           use eq_z_iso ;
            apply idpath).
   Defined.
 
@@ -97,12 +95,12 @@ Section Core.
   Proof.
     intros x y.
     use weqhomot.
-    - exact (core_iso_weq x y
+    - exact (core_z_iso_weq x y
              ∘ make_weq idtoiso (HC x y))%weq.
     - abstract
         (intro p ;
          induction p ;
-         use eq_iso ; cbn ;
+         use eq_z_iso ; cbn ;
          apply idpath).
   Defined.
 
@@ -138,7 +136,7 @@ Section Core.
     intro x.
     apply hinhpr.
     refine (x ,, _).
-    apply identity_iso.
+    apply identity_z_iso.
   Defined.
 
   Definition functor_core_faithful
@@ -148,7 +146,7 @@ Section Core.
     use invproofirrelevance.
     intros φ₁ φ₂.
     use subtypePath ; [ intro ; apply homset_property | ].
-    use eq_iso ; cbn.
+    use eq_z_iso ; cbn.
     exact (pr2 φ₁ @ !(pr2 φ₂)).
   Qed.
 
@@ -159,9 +157,9 @@ Section Core.
     apply hinhpr.
     simple refine (_ ,, _).
     - refine (f ,, _).
-      apply is_iso_core.
+      apply is_z_iso_core.
     - abstract
-        (use eq_iso ; cbn ;
+        (use eq_z_iso ; cbn ;
          apply idpath).
   Defined.
 
@@ -183,15 +181,15 @@ Section Core.
       use make_functor_data.
       - exact (λ x, F x).
       - exact (λ x y f,
-               functor_on_iso
+               functor_on_z_iso
                  F
-                 (make_iso f (pr2 G _ _ f))).
+                 (_ ,, pr2 G _ _ f)).
     Defined.
 
     Definition factor_through_core_is_functor
       : is_functor factor_through_core_data.
     Proof.
-      split ; intro ; intros ; use eq_iso ; cbn.
+      split ; intro ; intros ; use eq_z_iso ; cbn.
       - apply functor_id.
       - apply functor_comp.
     Qed.
@@ -215,20 +213,20 @@ Section Core.
            apply idpath).
     Defined.
 
-    Definition factor_through_core_commute_iso
-      : nat_iso (factor_through_core ∙ functor_core) F.
+    Definition factor_through_core_commute_z_iso
+      : nat_z_iso (factor_through_core ∙ functor_core) F.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact factor_through_core_commute.
       - intro x.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
   End FactorCore.
 
   Section NatIsoToCore.
     Context {G : groupoid}
             {F₁ F₂ : G ⟶ core}
-            (α : nat_iso
+            (α : nat_z_iso
                    (F₁ ∙ functor_core)
                    (F₂ ∙ functor_core)).
 
@@ -236,20 +234,20 @@ Section Core.
       : F₁ ⟹ F₂.
     Proof.
       use make_nat_trans.
-      - exact (λ x, nat_iso_pointwise_iso α x).
+      - exact (λ x, nat_z_iso_pointwise_z_iso α x).
       - abstract
           (intros x₁ x₂ f ; cbn ;
-           use eq_iso ; cbn ;
+           use eq_z_iso ; cbn ;
            exact (nat_trans_ax α _ _ f)).
     Defined.
 
     Definition nat_iso_to_core
-      : nat_iso F₁ F₂.
+      : nat_z_iso F₁ F₂.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact nat_trans_to_core.
       - intro x.
-        apply is_iso_core.
+        apply is_z_iso_core.
     Defined.
   End NatIsoToCore.
 End Core.
