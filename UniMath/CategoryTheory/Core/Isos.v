@@ -498,7 +498,10 @@ Qed.
 Definition z_iso {C : precategory_data} (a b : ob C) := ∑ f : a --> b, is_z_isomorphism f.
 
 Definition make_z_iso {C : precategory_data} {a b : C} (f : a --> b) (g : b --> a)
-           (H : is_inverse_in_precat f g) : z_iso a b := (f,,make_is_z_isomorphism f g H).
+  (H : is_inverse_in_precat f g) : z_iso a b := (f,,make_is_z_isomorphism f g H).
+
+Definition make_z_iso' {C : precategory_data} {a b : C} (f : a --> b) (H : is_z_isomorphism f) :
+  z_iso a b := (f,,H).
 
 Definition z_iso_mor {C : precategory_data} {a b : ob C} (f : z_iso a b) : a --> b := pr1 f.
 Coercion z_iso_mor : z_iso >-> precategory_morphisms.
@@ -589,6 +592,14 @@ Proof.
   do 2 rewrite assoc in H.
   rewrite (is_inverse_in_precat2 i) in H. do 2 rewrite id_left in H.
   exact H.
+Qed.
+
+Lemma cancel_precomposition_z_iso {C : precategory} {a b c : C}
+    (f : z_iso a b) (g h : b --> c) : f · g = f · h -> g = h.
+Proof.
+  use pre_comp_with_z_iso_is_inj.
+  - exact (pr1 (pr2 f)).
+  - exact (pr2 (pr2 f)).
 Qed.
 
 Lemma pre_comp_with_z_iso_is_inj' {C : precategory} {a b b' : C} {f : a --> b}
