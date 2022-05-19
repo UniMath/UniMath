@@ -7,6 +7,7 @@
 - The discrete univalent_category on n objects ([cat_n])
   - The category with one object ([unit_category])
   - The category with no objects ([empty_category])
+  - The directed interval
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -433,4 +434,119 @@ Proof.
   exact (fromempty (F x)).
 Defined.
 
-(* *)
+(* Directed interval category *)
+Definition directed_interval_precategory_ob_mor
+  : precategory_ob_mor.
+Proof.
+  use make_precategory_ob_mor.
+  - exact bool.
+  - intros x y.
+    induction x ; induction y.
+    + exact unit.
+    + exact unit.
+    + exact empty.
+    + exact unit.
+Defined.
+
+Definition directed_interval_precategory_data
+  : precategory_data.
+Proof.
+  use make_precategory_data.
+  - exact directed_interval_precategory_ob_mor.
+  - intro x.
+    induction x.
+    + exact tt.
+    + exact tt.
+  - intros x y z f g.
+    induction x ; induction y ; induction z ; cbn in *.
+    + exact tt.
+    + exact tt.
+    + exact tt.
+    + exact tt.
+    + exact f.
+    + exact tt.
+    + exact g.
+    + exact tt.
+Defined.
+
+Definition directed_interval_precategory_is_precategory
+  : is_precategory directed_interval_precategory_data.
+Proof.
+  use make_is_precategory_one_assoc.
+  - intros x y f.
+    induction x ; induction y ; cbn in *.
+    + apply isapropunit.
+    + apply isapropunit.
+    + exact (fromempty f).
+    + apply isapropunit.
+  - intros x y f.
+    induction x ; induction y ; cbn in *.
+    + apply isapropunit.
+    + apply isapropunit.
+    + exact (fromempty f).
+    + apply isapropunit.
+  - intros w x y z f g h.
+    induction w ; induction x ; induction y ; induction z ; cbn in * ; try (apply idpath).
+    exact (fromempty f).
+Qed.
+
+Definition directed_interval_precategory
+  : precategory.
+Proof.
+  use make_precategory.
+  - exact directed_interval_precategory_data.
+  - exact directed_interval_precategory_is_precategory.
+Defined.
+
+Definition directed_interval_category_has_homprops
+           (x y : directed_interval_precategory_ob_mor)
+  : isaprop (x --> y).
+Proof.
+  induction x ; induction y.
+  - apply isapropunit.
+  - apply isapropunit.
+  - apply isapropempty.
+  - apply isapropunit.
+Qed.
+
+Definition directed_interval_category_has_homsets
+  : has_homsets directed_interval_precategory_ob_mor.
+Proof.
+  intros x y.
+  apply isasetaprop.
+  exact (directed_interval_category_has_homprops x y).
+Qed.
+
+Definition directed_interval_category
+  : category.
+Proof.
+  use make_category.
+  - exact directed_interval_precategory.
+  - exact directed_interval_category_has_homsets.
+Defined.
+
+Definition is_univalent_directed_interval
+  : is_univalent directed_interval_category.
+Proof.
+  intros x y.
+  use isweqimplimpl.
+  - intro f.
+    induction x ; induction y ; cbn in *.
+    + apply idpath.
+    + apply (fromempty (inv_from_iso f)).
+    + apply (fromempty (pr1 f)).
+    + apply idpath.
+  - apply isasetbool.
+  - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
+    + apply directed_interval_category_has_homprops.
+    + intro.
+      apply isaprop_is_iso.
+Qed.
+
+Definition directed_interval
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact directed_interval_category.
+  - exact is_univalent_directed_interval.
+Defined.

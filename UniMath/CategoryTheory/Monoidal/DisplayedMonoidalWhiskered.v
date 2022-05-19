@@ -28,23 +28,21 @@ Section DisplayedMonoidalCategories.
     ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z),
       ((xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz) -->[α^{M}_{x,y,z}] (xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz)).
 
+  Definition disp_associatorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) : UU :=
+  ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z),
+      (xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz)) -->[αinv_{M} x y z] ((xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz).
+
   Definition disp_leftunitor_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
     ∏ (x : C) (xx : D x), i ⊗⊗_{DT} xx -->[lu^{M}_{x}] xx.
 
-  Lemma dispnattransdata_from_displeftunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) :
-    disp_nat_trans_data (nattransdata_from_leftunitordata lu_{M}) (leftwhiskering_dispfunctor DT (disp_bifunctor_leftid DT) (disp_bifunctor_leftcomp DT) I_{M} i) (disp_functor_identity D).
-  Proof.
-    exact (λ x xx, dlu x xx).
-  Defined.
+  Definition disp_leftunitorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
+    ∏ (x : C) (xx : D x), xx -->[luinv^{M}_{x}] i ⊗⊗_{DT} xx.
 
   Definition disp_rightunitor_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
     ∏ (x : C) (xx : D x), xx ⊗⊗_{DT} i -->[ru^{M}_{x}] xx.
 
-  Lemma dispnattransdata_from_rightunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dru : disp_rightunitor_data DT i) :
-    disp_nat_trans_data (nattransdata_from_rightunitordata ru_{M}) (rightwhiskering_dispfunctor DT (disp_bifunctor_rightid DT) (disp_bifunctor_rightcomp DT) I_{M} i) (disp_functor_identity D).
-  Proof.
-    exact (λ x xx, dru x xx).
-  Defined.
+  Definition disp_rightunitorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}) : UU :=
+    ∏ (x : C) (xx : D x), xx -->[ruinv^{M}_{x}] xx ⊗⊗_{DT} i.
 
   Definition disp_monoidal_data {C : category} (D : disp_cat C) (M : monoidal C) : UU :=
     ∑ DT : disp_tensor D M, ∑ i : D I_{M},
@@ -92,8 +90,6 @@ Section DisplayedMonoidalCategories.
     intros.
     unfold dispfunctoronmorphisms1.
     etrans. { apply assoc_disp. }
-    (* apply transportb_transpose_left.
-    rewrite transport_f_b.     *)
     rewrite dtr.
     etrans. {
       apply maponpaths.
@@ -115,8 +111,6 @@ Section DisplayedMonoidalCategories.
       apply maponpaths.
       apply mor_disp_transportf_prewhisker.
     }
-
-    (* apply transportb_transpose_left. *)
     etrans. {
       apply maponpaths_1.
       rewrite assoc_disp.
@@ -152,8 +146,6 @@ Section DisplayedMonoidalCategories.
     }
     etrans. { apply mor_disp_transportf_prewhisker. }
     apply transportf_transpose_left.
-    (* Left to show:: *)
-    (* ((ff ⊗⊗^{ DT}_{r} yy1 ;; xx2 ⊗⊗^{ DT}_{l} gg)  =  (ff ⊗⊗^{ DT}_{r} yy1) ⊗⊗^{ DT}_{r} zz1 ;; ((xx2 ⊗⊗^{ DT}_{l} gg) *)
     rewrite assoc_disp.
     etrans. {
       apply maponpaths.
@@ -182,8 +174,10 @@ Section DisplayedMonoidalCategories.
   Qed.
 
   Definition disp_associator_iso {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : UU :=
-    ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z), is_z_iso_disp
-        ((α^{M}_{x,y,z}),,((associatorlaw_iso (monoidal_associatorlaw M)) x y z)) (dα _ _ _ xx yy zz).
+    ∏ (x y z : C), ∏ (xx : D x) (yy : D y) (zz : D z),
+      is_z_iso_disp
+        (z_iso_from_associator_iso M x y z)
+        (dα _ _ _ xx yy zz).
 
   Definition disp_associator_law  {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : UU :=
   (disp_associator_nat_leftwhisker dα) × (disp_associator_nat_rightwhisker dα) × (disp_associator_nat_leftrightwhisker dα) × (disp_associator_iso dα).
@@ -193,16 +187,20 @@ Section DisplayedMonoidalCategories.
   Definition disp_associatorlaw_natleftright {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {dα : disp_associator_data DT} (dαl : disp_associator_law dα) : disp_associator_nat_leftrightwhisker dα := pr1 (pr2 (pr2 dαl)).
   Definition disp_associatorlaw_iso {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {dα : disp_associator_data DT} (dαl : disp_associator_law dα) : disp_associator_iso dα := pr2 (pr2 (pr2 dαl)).
 
-  (* Definition is_dispnatiso {C D : category} {CC: disp_cat C} {DD : disp_cat D} {F G : functor C D} {α : nat_trans F G} (αiso : is_nat_z_iso α) { FF : disp_functor F CC DD } {GG : disp_functor G CC DD} (αα : disp_nat_trans α FF GG) : UU                                                    := ∏ (x : C) (xx : CC x), is_z_iso_disp (α x,,αiso x) (αα x xx). *)
-
   Definition disp_leftunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) : UU :=
     ∏ (x y : C) (f : C⟦x,y⟧) (xx : D x) (yy : D y) (ff : xx -->[f] yy), (i ⊗⊗^{DT}_{l} ff) ;; (dlu y yy) = transportb _ (pr1 (monoidal_leftunitorlaw M) _ _ _) (dlu x xx ;; ff).
 
   Definition disp_leftunitor_iso {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) : UU :=
-    ∏ (x : C) (xx : D x), is_z_iso_disp (lu^{M}_{x},,pr2 (monoidal_leftunitorlaw M) x) (dlu x xx).
+    ∏ (x : C) (xx : D x),
+      is_z_iso_disp
+        (lu^{M}_{x},,pr2 (monoidal_leftunitorlaw M) x)
+        (dlu x xx).
 
   Definition disp_leftunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) : UU :=
     disp_leftunitor_nat dlu × disp_leftunitor_iso dlu.
+
+  Definition disp_leftunitorlaw_nat {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} {dlu : disp_leftunitor_data DT i} (dlun : disp_leftunitor_law dlu) : disp_leftunitor_nat dlu := pr1 dlun.
+  Definition disp_leftunitorlaw_iso {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} {dlu : disp_leftunitor_data DT i} (dlui : disp_leftunitor_law dlu) : disp_leftunitor_iso dlu := pr2 dlui.
 
   Definition disp_rightunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dru : disp_rightunitor_data DT i) : UU :=
     ∏ (x y : C) (f : C⟦x,y⟧) (xx : D x) (yy : D y) (ff : xx -->[f] yy), (ff ⊗⊗^{DT}_{r} i) ;; (dru y yy) = transportb _ (pr1 (monoidal_rightunitorlaw M) _ _ _) (dru x xx ;; ff).
@@ -213,6 +211,9 @@ Section DisplayedMonoidalCategories.
   Definition disp_rightunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dru : disp_rightunitor_data DT i) : UU :=
     disp_rightunitor_nat dru × disp_rightunitor_iso dru.
 
+  Definition disp_rightunitorlaw_nat {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} {dru : disp_rightunitor_data DT i} (drun : disp_rightunitor_law dru) : disp_rightunitor_nat dru := pr1 drun.
+  Definition disp_rightunitorlaw_iso {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} {dru : disp_rightunitor_data DT i} (drui : disp_rightunitor_law dru) : disp_rightunitor_iso dru := pr2 drui.
+
   Definition disp_triangle_identity {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) (dru : disp_rightunitor_data DT i) (dα : disp_associator_data DT) : UU
     := ∏ (x y : C), ∏ (xx : D x) (yy : D y), ((dα x I_{M} y xx i yy) ;; (xx ⊗⊗^{DT}_{l} dlu y yy )) = transportb _ ((monoidal_triangleidentity M) x y) ((dru x xx) ⊗⊗^{DT}_{r} yy).
 
@@ -222,8 +223,11 @@ Section DisplayedMonoidalCategories.
         transportb _ ((monoidal_pentagonidentity M) w x y z) ((dα _ _ _ (ww ⊗⊗_{DT} xx) yy zz) ;; (dα _ _ _ ww xx (yy ⊗⊗_{DT} zz))).
 
   Definition disp_monoidal_laws {C : category} {D : disp_cat C} {M : monoidal C} (DMD :  disp_monoidal_data D M) : UU :=
-   (disp_associator_law dα_{DMD}) × (disp_leftunitor_law dlu_{DMD}) × (disp_rightunitor_law dru_{DMD})
-                       × (disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD}) × (disp_pentagon_identity dα_{DMD}).
+    (disp_associator_law dα_{DMD})
+      × (disp_leftunitor_law dlu_{DMD})
+      × (disp_rightunitor_law dru_{DMD})
+      × (disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD})
+      × (disp_pentagon_identity dα_{DMD}).
 
   Definition disp_monoidal {C : category} (D : disp_cat C) (M : monoidal C) : UU :=
   ∑ (MD : disp_monoidal_data D M), (disp_monoidal_laws MD).
@@ -232,11 +236,82 @@ Section DisplayedMonoidalCategories.
   Coercion disp_monoidal_mondata : disp_monoidal >-> disp_monoidal_data.
 
   Definition disp_monoidal_monlaws {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_monoidal_laws DM := pr2 DM.
+
   Definition disp_monoidal_associatorlaw {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associator_law dα_{DM} := pr1 (disp_monoidal_monlaws DM).
+  Definition disp_monoidal_associatornatleft {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associator_nat_leftwhisker dα_{DM} := disp_associatorlaw_natleft (disp_monoidal_associatorlaw DM).
+  Definition disp_monoidal_associatornatright {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associator_nat_rightwhisker dα_{DM} := disp_associatorlaw_natright (disp_monoidal_associatorlaw DM).
+  Definition disp_monoidal_associatornatleftright {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associator_nat_leftrightwhisker dα_{DM} := disp_associatorlaw_natleftright (disp_monoidal_associatorlaw DM).
+  Definition disp_monoidal_associatoriso {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associator_iso dα_{DM} := disp_associatorlaw_iso (disp_monoidal_associatorlaw DM).
+
   Definition disp_monoidal_leftunitorlaw  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_leftunitor_law dlu_{DM} := pr1 (pr2 (disp_monoidal_monlaws DM)).
+  Definition disp_monoidal_leftunitornat  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_leftunitor_nat dlu_{DM} := disp_leftunitorlaw_nat (disp_monoidal_leftunitorlaw DM).
+  Definition disp_monoidal_leftunitoriso  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_leftunitor_iso dlu_{DM} := disp_leftunitorlaw_iso (disp_monoidal_leftunitorlaw DM).
+
   Definition disp_monoidal_rightunitorlaw  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_rightunitor_law dru_{DM} := pr1 (pr2 (pr2 (disp_monoidal_monlaws DM))).
+  Definition disp_monoidal_rightunitornat  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_rightunitor_nat dru_{DM} := disp_rightunitorlaw_nat (disp_monoidal_rightunitorlaw DM).
+  Definition disp_monoidal_rightunitoriso  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_rightunitor_iso dru_{DM} := disp_rightunitorlaw_iso (disp_monoidal_rightunitorlaw DM).
+
   Definition disp_monoidal_triangleidentity  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_triangle_identity dlu_{DM} dru_{DM} dα_{DM} := pr1 (pr2 (pr2 (pr2 (disp_monoidal_monlaws DM)))).
   Definition disp_monoidal_pentagonidentity  {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_pentagon_identity dα_{DM} := pr2 (pr2 (pr2 (pr2 (disp_monoidal_monlaws DM)))).
+
+  (* Should be in DisplayedCats.Isos. *)
+  Lemma isaprop_is_z_iso_disp {C : category} {D : disp_cat C}
+        {x y : C} (f : z_iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
+    : isaprop (is_z_iso_disp f ff).
+  Proof.
+    apply invproofirrelevance; intros i i'.
+    apply subtypePath.
+- intros gg. apply isapropdirprod; apply homsets_disp.
+- destruct i as [gg [gf fg]], i' as [gg' [gf' fg']]; simpl.
+  etrans. eapply pathsinv0, transportfbinv.
+  etrans. apply maponpaths, @pathsinv0, id_right_disp.
+  etrans. apply maponpaths, maponpaths.
+  etrans. eapply pathsinv0, transportfbinv.
+  apply maponpaths, @pathsinv0, fg'.
+  etrans. apply maponpaths, mor_disp_transportf_prewhisker.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, assoc_disp.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, maponpaths_2, gf.
+  etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, id_left_disp.
+  etrans. apply transport_f_f.
+  use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
+  apply homset_property.
+  Qed.
+
+  Lemma isaprop_disp_monoidal_laws {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal_data D M) : isaprop (disp_monoidal_laws DM).
+  Proof.
+    repeat (apply isapropdirprod)
+    ; repeat (apply impred ; intro)
+    ; repeat (try apply D)
+    ; repeat (apply isaprop_is_z_iso_disp).
+  Qed.
+
+  Definition disp_monoidal_associatorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_associatorinv_data DM.
+  Proof.
+    intros x y z xx yy zz.
+    exact (pr1 (disp_monoidal_associatoriso DM x y z xx yy zz)).
+  Defined.
+  Notation "dαinv_{ DM }" := (disp_monoidal_associatorinv_data DM).
+
+  Definition disp_monoidal_leftunitorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_leftunitorinv_data DM dI_{DM}.
+  Proof.
+    intros x xx.
+    exact (pr1 (disp_monoidal_leftunitoriso DM x xx)).
+  Defined.
+  Notation "dluinv_{ DM }" := (disp_monoidal_leftunitorinv_data DM).
+
+  Definition disp_monoidal_rightunitorinv_data {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : disp_rightunitorinv_data DM dI_{DM}.
+  Proof.
+    intros x xx.
+    exact (pr1 (disp_monoidal_rightunitoriso DM x xx)).
+  Defined.
+  Notation "druinv_{ DM }" := (disp_monoidal_rightunitorinv_data DM).
+
+
+
 
 End DisplayedMonoidalCategories.
 
@@ -248,4 +323,11 @@ Module DisplayedMonoidalNotations.
   Notation "dlu^{ M }_{ xx }" := (disp_monoidal_leftunitor M _ xx).
   Notation "dru^{ M }_{ xx }" := (disp_monoidal_rightunitor M _ xx).
   Notation "dα^{ M }_{ xx , yy , zz }" := (disp_monoidal_associator M _ _ _ xx yy zz).
+
+  Notation "dluinv^{ M }" := (disp_monoidal_leftunitorinv_data M).
+  Notation "druinv^{ M }" := (disp_monoidal_rightunitorinv_data M).
+  Notation "dαinv^{ M }" := (disp_monoidal_associatorinv_data M).
+  Notation "dluinv^{ M }_{ xx }" := (disp_monoidal_leftunitorinv_data M _ xx).
+  Notation "druinv^{ M }_{ xx }" := (disp_monoidal_rightunitorinv_data M _ xx).
+  Notation "dαinv^{ M }_{ xx , yy , zz }" := (disp_monoidal_associatorinv_data M _ _ _ xx yy zz).
 End DisplayedMonoidalNotations.

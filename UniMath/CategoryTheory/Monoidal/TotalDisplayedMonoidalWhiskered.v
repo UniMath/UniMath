@@ -313,12 +313,11 @@ Section MonoidalTotalCategory.
     apply idpath.
   Qed.
 
-  Definition projection_fmonoidal_laws {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : fmonoidal_laws (projection_fmonoidaldata DM)
+  Definition projection_fmonoidal_laxlaws {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : fmonoidal_laxlaws (projection_fmonoidaldata DM)
     := (projection_preserves_tensornatleft DM,, projection_preserves_tensornatright DM,, projection_preserves_associativity DM,, projection_preserves_leftunitality DM,, projection_preserves_rightunitality DM).
 
-
-  Definition projection_fmonoidal {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : fmonoidal  TM(DM) M π^{D}
-    := (projection_fmonoidaldata DM,, projection_fmonoidal_laws DM).
+  Definition projection_fmonoidal_lax {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : fmonoidal_lax TM(DM) M π^{D}
+    := (projection_fmonoidaldata DM,, projection_fmonoidal_laxlaws DM).
 
   Definition projection_preservestensor_strictly {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : preserves_tensor_strictly (projection_preserves_tensordata DM).
   Proof.

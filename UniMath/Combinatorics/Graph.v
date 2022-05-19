@@ -47,12 +47,12 @@ Definition make_graph (G : pregraph)
 Definition pregraph_of_graph : graph → pregraph := pr1.
 Coercion pregraph_of_graph : graph >-> pregraph.
 
-Definition graph_has_vertexset (G : graph)
-  : has_vertexset G
+Definition isaset_vertex (G : graph)
+  : isaset (vertex G)
   := pr12 G.
 
-Definition graph_has_edgesets (G : graph)
-  : has_edgesets G
+Definition isaset_edge (G : graph)
+  : ∏ x y : vertex G, isaset (edge G x y)
   := pr22 G.
 
 (** ** Graph morphisms. *)
