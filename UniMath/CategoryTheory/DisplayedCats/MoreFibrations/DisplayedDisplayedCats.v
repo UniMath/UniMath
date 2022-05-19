@@ -28,48 +28,6 @@ Local Open Scope mor_disp_scope.
 
 About transportD.
 
-Section Auxiliary.
-
-Definition transportD' {A : UU} (B : A -> UU) (C : (∑ a : A, B a) -> UU)
-           {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
-  C (x2 ,, (transportf _ p y)).
-Proof.
-  use (transportf _ _ z).
-  use (@total2_paths_f _ _ (x1 ,, y)).
-  - simpl.
-    exact p.
-  - simpl.
-    apply idpath.
-Defined.
-
-Definition transportD'' {A : UU} (B : A -> UU) (C : (∑ a : A, B a) -> UU)
-           {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
-  C (x2 ,, (transportf _ p y)).
-Proof.
-  induction p.
-  exact z.
-Defined.
-
-Definition transportf_total2' {A : UU} {B : A -> UU} {C : (∑ a:A, B a) -> UU}
-           {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
-  transportf (λ x, ∑ y : B x, C (x ,, y)) p (y ,, z) =
-  tpair (λ y, C (x2 ,, y)) (transportf _ p y)
-        (transportD' _ _ p y z).
-Proof.
-  intros.
-  induction p.
-  apply idpath.
-Defined.
-
-Definition transportf_total2'_pr1 {A : UU} {B : A -> UU} {C : (∑ a:A, B a) -> UU}
-           {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C (x1 ,, y)) :
-  pr1 (transportf (λ x, ∑ y : B x, C (x ,, y)) p (y ,, z)) = transportf _ p y.
-Proof.
-  exact (maponpaths pr1 (transportf_total2' p y z)).
-Defined.
-
-End Auxiliary.
-
 
 Section DisplayedDisplayedCategories.
 
@@ -120,7 +78,7 @@ Defined.
 Definition composite_disp_cat_data {C : category} (DD : disp_disp_cat C)
   := (composite_disp_cat_ob_mor DD ,, composite_disp_cat_id_comp DD) : disp_cat_data C.
 
-Definition composite_disp_cat_axioms0 {C : category} (DD : disp_disp_cat C)
+Definition composite_disp_cat_axioms {C : category} (DD : disp_disp_cat C)
   : disp_cat_axioms C (composite_disp_cat_data DD).
 Proof.
   destruct DD as [D E].
@@ -130,7 +88,6 @@ Proof.
     + simpl.
       apply id_left_disp.
     + simpl.
-      set (temp := (id_left_disp fff)).
       apply (pathscomp0 (id_left_disp fff)).
       apply maponpaths_2.
       apply homset_property.
@@ -157,9 +114,42 @@ Proof.
     + apply homsets_disp.
     + intros ff.
       apply homsets_disp.
-Defined.
+Qed.
+
+Definition composite_disp_cat {C : category} (DD : disp_disp_cat C)
+  : disp_cat C
+  := (_,, composite_disp_cat_axioms DD).
 
 End CompositeDisplayedCategories.
+
+
+Section Auxiliary. (* Auxiliary lemmas for the axioms of fiber displayed categories. *)
+
+(* analogous to UniMath.MoreFoundations.PartA.total2_reassoc_paths' for fiber instead of composite: *)
+Definition total2_fiber_path {A : UU} {B : A -> UU} {C : (∑ a, B a) -> UU} (a : A)
+    (Ca : B a -> UU := λ b, C (a ,, b))
+    {b1 b2 : B a} (c1 : Ca b1) (c2 : Ca b2)
+    (eb : b1 = b2)
+    (ec : c1 = transportb C (two_arg_paths_b (idpath a) eb) c2)
+  : c1 = transportb Ca eb c2.
+Proof.
+  destruct eb; cbn.
+  destruct (! ec); cbn.
+  apply idpath.
+Defined.
+
+(* the following lemma roughly means that a morphism of dependent types commutes with transport: *)
+Definition mor_disp_types_comm_transp {A B : UU} (P: A → UU) (Q : B → UU)
+    (f0: A → B) (f1: ∏ a : A, P a → Q(f0 a))
+    {x x' : A} (h: x = x')
+  : ∏ (p : P x), transportf Q (maponpaths f0 h) (f1 x p) = f1 x' (transportf P h p).
+Proof.
+  intro p.
+  induction h.
+  apply idpath.
+Defined.
+
+End Auxiliary.
 
 
 Section FiberDisplayedCategories.
@@ -186,75 +176,15 @@ Proof.
     apply (@id_disp _ E _ xx).
   - simpl.
     intros x y z f g xx yy zz ff gg.
-    (* eapply (transportf _ _ (ff ;; gg)). *) (* Why does this get stuck with an unfocused subgoal? *)
     use (transportf _ _ (ff ;; gg)).
-    use total2_paths_f.
-    + simpl.
-      (* apply id_left. In the definition of fiber categories, id_right is used! *)
-      apply id_right.
-    + simpl.
-      apply idpath.
+    use total2_paths_f; simpl.
+    + apply id_right.
+    + apply idpath.
 Defined.
 
 Definition fiber_disp_cat_data {C : category} (DD : disp_disp_cat C) (c : C)
   := (fiber_disp_cat_ob_mor DD c,, fiber_disp_cat_id_comp DD c)
   : disp_cat_data (base_disp_cat DD)[{c}].
-
-Definition my_lemma {A : UU} {B : A -> UU} {C : (∑ a, B a) -> UU} (a : A)
-    (Ca : B a -> UU := λ b, C (a ,, b))
-    {b1 b2 : B a} (c1 : Ca b1) (c2 : Ca b2)
-    (eb : b1 = b2)
-    (ec : c1 = transportb C (two_arg_paths_b (idpath a) eb) c2)
-  : c1 = transportb Ca eb c2.
-Proof.
-  destruct eb; cbn.
-  destruct (! ec); cbn.
-  apply idpath.
-Qed.
-
-Definition my_lemma' {A : UU} {B : A -> UU} {C : (∑ a, B a) -> UU} (a : A)
-    (Ca : B a -> UU := λ b, C (a ,, b))
-    {b1 b2 : B a} (c1 : Ca b1) (c2 : Ca b2)
-    (eb : b1 = b2)
-    (ec : transportb C (two_arg_paths_b (idpath a) eb) c2 = c1)
-  : c1 = transportb Ca eb c2.
-Proof.
-  destruct eb; cbn.
-  destruct ec; cbn.
-  apply idpath.
-Qed.
-
-Definition my_lemma'' {A : UU} {B : A -> UU} {C : (∑ a, B a) -> UU} (a : A)
-    (Ca : B a -> UU := λ b, C (a ,, b))
-    {b1 b2 : B a} (c1 : Ca b1) (c2 : Ca b2)
-    (eb : b1 = b2)
-    (ec : transportf C (two_arg_paths_b (idpath a) eb) c1 = c2)
-  : c1 = transportb Ca eb c2.
-Proof.
-  destruct eb; cbn.
-  destruct ec; cbn.
-  apply idpath.
-Qed.
-
-Definition another_lemma {A B : UU} (P: A → UU) (Q : B → UU)
-    (f0: A → B) (f1: ∏ a : A, P a → Q(f0 a))
-    {x x' : A} (h: x = x')
-  : ∏ (p : P x), transportf Q (maponpaths f0 h) (f1 x p) = f1 x' (transportf P h p).
-Proof.
-  intro p.
-  induction h.
-  apply idpath.
-Defined.
-
-Definition another_lemma' {A B : UU} (P: A → UU) (Q : B → UU)
-    (f0: A → B) (f1: ∏ a : A, P a → Q(f0 a))
-    {x x' : A} (h: x = x')
-  : ∏ (p : P x), f1 x' (transportf P h p) = transportf Q (maponpaths f0 h) (f1 x p).
-Proof.
-  intro p.
-  induction h.
-  apply idpath.
-Defined.
 
 Definition fiber_disp_cat_axioms {C : category} (DD : disp_disp_cat C) (c : C)
   : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
@@ -262,22 +192,18 @@ Proof.
   destruct DD as [D E].
   repeat split; intros; simpl.
   - simpl in *.
-    set (idleftff := id_left_disp ff).
-    use my_lemma.
+    use total2_fiber_path.
     unfold ";;".
     apply transportf_transpose_left.
     apply (pathscomp0 (id_left_disp ff)).
     eapply pathscomp0.
-    2: {
-      apply pathsinv0.
-      apply transport_b_b.
-    }
+    2: { apply pathsinv0. apply transport_b_b. }
     + unfold transportb.
       apply maponpaths_2.
       apply homset_property.
   - simpl in *.
-    use my_lemma.
-    unfold ";;" at 1.
+    use total2_fiber_path.
+    unfold ";;".
     apply transportf_transpose_left.
     apply (pathscomp0 (id_right_disp ff)).
     eapply pathscomp0.
@@ -286,8 +212,7 @@ Proof.
     apply maponpaths_2.
     apply homset_property.
   - simpl in *.
-    set (assocffgghh := assoc_disp ff gg hh).
-    use my_lemma.
+    use total2_fiber_path.
     unfold ";;"; simpl.
     apply transportf_transpose_left.
     eapply pathscomp0.
@@ -299,16 +224,12 @@ Proof.
       use total2_paths_f; simpl.
       * apply maponpaths.
         apply id_right.
-      * set (temp := another_lemma (mor_disp y w) (mor_disp x w) (λ e, identity c · e) (λ e ee, f ;; ee) (id_right (identity c))).
-        apply (another_lemma _ _ (λ e, identity c · e) (λ e ee, f ;; ee)).
+      * apply (mor_disp_types_comm_transp _ _ (λ e, identity c · e) (λ e ee, f ;; ee)).
     + eapply pathscomp0.
       * apply pathsinv0.
         unfold "·"; simpl.
-        set (temp_path := (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h))))).
-        set (temp := another_lemma (mor_disp yy ww) (mor_disp xx ww) _ (λ e ee, ff ;; ee) temp_path (gg ;; hh)); simpl in temp.
-        apply temp.
+        apply (mor_disp_types_comm_transp (mor_disp yy ww) (mor_disp xx ww) _ (λ e ee, ff ;; ee) (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h)))) (gg ;; hh)).
       * apply maponpaths_2.
-        Check (total2_paths_f (maponpaths (compose (identity c)) (id_right (identity c)) : pr1 (_,,_) = pr1 (_,,_)) (another_lemma (λ e : C ⟦ c, c ⟧, y -->[ e] w) (mor_disp x w) (compose (identity c)) (λ (e : C ⟦ c, c ⟧) (ee : y -->[ e] w), f ;; ee) (id_right (identity c)) (g ;; h))).
         apply (homset_property (total_category D) (c,, x) (c,, w)).
     + eapply pathscomp0.
       2: { apply pathsinv0. apply transport_b_f. }
@@ -325,15 +246,19 @@ Proof.
       * eapply pathscomp0.
         -- apply transport_b_f.
         -- apply transportf_transpose_left.
-           apply (pathscomp0 (assoc_disp ff gg hh)). (* yippie ka yay mf *)
+           apply (pathscomp0 (assoc_disp ff gg hh)).
            eapply pathscomp0.
            2: { apply pathsinv0. apply transport_b_f. }
            unfold transportb.
            unfold ";;" at 1 2 9 10.
            apply maponpaths_2.
            apply (homset_property (total_category D) (c,, x) (c,, w)).
-      * apply (another_lemma _ _ (λ e : total_category_data D ⟦ c,, x, c,, z ⟧, e · (identity c,, h : total_category D ⟦(c,, z), (c,, w)⟧)) (λ e ee, ee ;; hh)).
+      * apply (mor_disp_types_comm_transp _ _ (λ e : total_category_data D ⟦ c,, x, c,, z ⟧, e · (identity c,, h : total_category D ⟦(c,, z), (c,, w)⟧)) (λ e ee, ee ;; hh)).
   - apply homsets_disp.
-Defined.
+Qed.
+
+Definition fiber_disp_cat {C : category} (DD : disp_disp_cat C) (c : C)
+  : disp_cat (base_disp_cat DD)[{c}]
+  := (_,, fiber_disp_cat_axioms DD c).
 
 End FiberDisplayedCategories.
