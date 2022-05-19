@@ -92,7 +92,7 @@ Defined.
 
 Definition adj_equivalence_inv {A B : category}
   {F : functor A B} (HF : adj_equivalence_of_cats F) : functor B A :=
-    right_adjoint (pr1 HF).
+    right_adjoint HF.
 
 Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 
@@ -103,7 +103,7 @@ Section Accessors.
       ∏ a, z_iso a (HF^^-1 (F a)).
   Proof.
   intro a.
-  exists (unit_from_left_adjoint (pr1 HF) a).
+  exists (unit_from_left_adjoint HF a).
   exact (pr1 (pr2 HF) a).
   Defined.
 
@@ -111,38 +111,38 @@ Section Accessors.
       ∏ b, z_iso (F (HF^^-1 b)) b.
   Proof.
     intro b.
-    exists (counit_from_left_adjoint (pr1 HF) b).
+    exists (counit_from_left_adjoint HF b).
     exact (pr2 (pr2 HF) b).
   Defined.
 
   Definition unit_nat_z_iso_from_adj_equivalence_of_cats  :
-    nat_z_iso (functor_identity A) (functor_composite F (right_adjoint (pr1 HF))).
+    nat_z_iso (functor_identity A) (functor_composite F (right_adjoint HF)).
   Proof.
-    exists (unit_from_left_adjoint (pr1 HF)).
+    exists (unit_from_left_adjoint HF).
     exact (dirprod_pr1 (pr2 HF)).
   Defined.
 
   Definition counit_nat_z_iso_from_adj_equivalence_of_cats :
-    nat_z_iso (functor_composite (right_adjoint (pr1 HF)) F) (functor_identity B).
+    nat_z_iso (functor_composite (right_adjoint HF) F) (functor_identity B).
   Proof.
-    exists (counit_from_left_adjoint (pr1 HF)).
+    exists (counit_from_left_adjoint HF).
     exact (dirprod_pr2 (pr2 HF)).
   Defined.
 
   Definition unit_z_iso_from_adj_equivalence_of_cats :
     z_iso (C:=[A, A]) (functor_identity A)
-        (functor_composite F (right_adjoint  (pr1 HF))).
+        (functor_composite F (right_adjoint HF)).
   Proof.
-    exists (unit_from_left_adjoint (pr1 HF)).
+    exists (unit_from_left_adjoint HF).
     apply nat_trafo_z_iso_if_pointwise_z_iso. intro c.
     apply (pr1 (pr2 HF)).
   Defined.
 
   Definition counit_z_iso_from_adj_equivalence_of_cats :
-    z_iso (C:=[B, B]) (functor_composite (right_adjoint (pr1 HF)) F)
+    z_iso (C:=[B, B]) (functor_composite (right_adjoint HF) F)
         (functor_identity B).
   Proof.
-    exists (counit_from_left_adjoint (pr1 HF)).
+    exists (counit_from_left_adjoint HF).
     apply nat_trafo_z_iso_if_pointwise_z_iso. intro c.
     apply (pr2 (pr2 HF)).
   Defined.
@@ -290,7 +290,7 @@ Defined.
 
 
 Definition adjointification_triangle_1
-  : triangle_1_statement (F,,G,,pr1 ηntiso,,pr1 ε'ntiso).
+  : triangle_1_statement (F,,G,, pr1 ηntiso,, pr1 ε'ntiso).
 Proof.
   intro x. cbn. repeat rewrite assoc.
   assert (ηinvH := nat_trans_ax (inv_from_z_iso ηntiso)).
@@ -356,23 +356,23 @@ Defined.
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : category)
-   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, B ])
+   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B])
    (HF : adj_equivalence_of_cats F) : isweq (pr1 (pr1 F)).
 Proof.
-  set (G := right_adjoint (pr1 HF)).
+  set (G := right_adjoint HF).
   set (et := unit_z_iso_from_adj_equivalence_of_cats HF).
   set (ep := counit_z_iso_from_adj_equivalence_of_cats HF).
   set (AAcat := is_univalent_functor_category A _ HA).
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (isweq_iso _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (isweq_iso _ (λ b, pr1 (right_adjoint HF) b)); intro a.
   apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
 
 Definition weq_on_objects_from_adj_equiv_of_cats (A B : category)
-   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, B])
+   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B])
    (HF : adj_equivalence_of_cats F) : weq
           (ob A) (ob B).
 Proof.
@@ -393,7 +393,7 @@ Proof.
   intros x x'; destruct x as [a f]; destruct x' as [a' f'].
   set (fminusf := z_iso_comp f (z_iso_inv_from_z_iso f')).
   set (g := iso_from_fully_faithful_reflection HF fminusf).
-  apply (two_arg_paths_f (B:=λ a', z_iso ((pr1 F) a') b) (isotoid _ HA g)).
+  apply (two_arg_paths_f (B:=λ a', z_iso (F a') b) (isotoid _ HA g)).
   intermediate_path (z_iso_comp (z_iso_inv_from_z_iso
     (functor_on_z_iso F (idtoiso (isotoid _ HA g)))) f).
   - generalize (isotoid _ HA g).
@@ -475,7 +475,7 @@ Defined.
 
 (** Definition of the epsilon transformation *)
 
-Definition rad_eps (b : ob B) : z_iso (pr1 F (rad_ob b)) b.
+Definition rad_eps (b : ob B) : z_iso (F (rad_ob b)) b.
 Proof.
   apply (pr2 (HS b (tpair (λ x, isaprop x) _
                (isaprop_sigma_z_iso A B HA F HF b)) (λ x, x))).
@@ -492,9 +492,9 @@ Defined.
 
 (** Definition of the eta transformation *)
 
-Definition rad_eta (a : ob A) : a --> rad_ob (pr1 F a).
+Definition rad_eta (a : ob A) : a --> rad_ob (F a).
 Proof.
-  set (epsFa := inv_from_z_iso (rad_eps (pr1 F a))).
+  set (epsFa := inv_from_z_iso (rad_eps (F a))).
   exact (fully_faithful_inv_hom HF _ _ epsFa).
 Defined.
 
@@ -524,7 +524,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition rad : ob [B, A, A].
+Definition rad : ob [B, A].
 Proof.
   exists rad_functor_data.
   apply rad_is_functor.
@@ -570,19 +570,19 @@ Proof.
   intros a a' f.
   unfold rad_mor. simpl.
   apply (invmaponpathsweq
-          (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a')))).
+          (weq_from_fully_faithful HF a (rad_ob (F a')))).
   simpl; repeat rewrite functor_comp.
   unfold rad_eta.
-  set (HHH := rad_eps_is_nat_trans (pr1 F a) (pr1 F a')).
+  set (HHH := rad_eps_is_nat_trans (F a) (F a')).
   simpl in HHH; rewrite <- HHH; clear HHH.
-  inv_functor a' (rad_ob ((pr1 F) a')).
-  inv_functor a (rad_ob ((pr1 F) a)).
-  inv_functor (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')).
+  inv_functor a' (rad_ob (F a')).
+  inv_functor a (rad_ob (F a)).
+  inv_functor (rad_ob (F a)) (rad_ob (F a')).
   unfold rad_mor. simpl.
   repeat rewrite <- assoc.
   rewrite z_iso_inv_after_z_iso.
   rewrite id_right.
-  inv_functor (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')).
+  inv_functor (rad_ob (F a)) (rad_ob (F a')).
   repeat rewrite assoc.
   rewrite z_iso_after_z_iso_inv.
   rewrite id_left.
@@ -600,16 +600,16 @@ Proof.
   split; simpl.
   - intro a. cbn.
     unfold rad_eta.
-    inv_functor a (rad_ob (pr1 F a)).
+    inv_functor a (rad_ob (F a)).
     apply z_iso_after_z_iso_inv.
   - intro b.
     apply (invmaponpathsweq
              (weq_from_fully_faithful HF (rad_ob b) (rad_ob b))).
     simpl; rewrite functor_comp.
     unfold rad_eta.
-    inv_functor (rad_ob b) (rad_ob (pr1 F (rad_ob b))).
+    inv_functor (rad_ob b) (rad_ob (F (rad_ob b))).
     unfold rad_mor.
-    inv_functor (rad_ob (pr1 F (rad_ob b))) (rad_ob b).
+    inv_functor (rad_ob (F (rad_ob b))) (rad_ob b).
     repeat rewrite assoc.
     rewrite z_iso_after_z_iso_inv.
     rewrite <- assoc.
@@ -643,13 +643,13 @@ Proof.
   intro a.
   unfold rad_eta.
   set (H := fully_faithful_reflects_iso_proof _ _ _ HF
-       a (rad_ob ((pr1 F) a))).
+       a (rad_ob (F a))).
   simpl in *.
-  set (H' := H (z_iso_inv_from_z_iso (rad_eps ((pr1 F) a)))).
-  change ((fully_faithful_inv_hom HF a (rad_ob ((pr1 F) a))
-     (inv_from_z_iso (rad_eps ((pr1 F) a))))) with
-      (fully_faithful_inv_hom HF a (rad_ob ((pr1 F) a))
-     (z_iso_inv_from_z_iso (rad_eps ((pr1 F) a)))).
+  set (H' := H (z_iso_inv_from_z_iso (rad_eps (F a)))).
+  change ((fully_faithful_inv_hom HF a (rad_ob (F a))
+     (inv_from_z_iso (rad_eps (F a))))) with
+      (fully_faithful_inv_hom HF a (rad_ob (F a))
+     (z_iso_inv_from_z_iso (rad_eps (F a)))).
   apply H'.
   intro b. apply (pr2 (rad_eps b)).
 Defined.
