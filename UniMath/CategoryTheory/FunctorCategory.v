@@ -227,8 +227,6 @@ Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategor
        ∏ a : C, pr1 (inv_from_iso (make_iso A Aiso)) a · pr1 A a = identity _ .
 Proof.
   intro a.
-  set (T := inv_from_iso (make_iso A Aiso)).
-  set (TA := iso_inv_after_iso (make_iso A Aiso)).
   set (TA' := iso_after_iso_inv (make_iso A Aiso)).
   apply (nat_trans_eq_pointwise TA').
 Qed.
@@ -239,9 +237,27 @@ Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory
        ∏ a : C, pr1 A a · pr1 (inv_from_iso (make_iso A Aiso)) a = identity _ .
 Proof.
   intro a.
-  set (T := inv_from_iso (make_iso A Aiso)).
   set (TA := iso_inv_after_iso (make_iso A Aiso)).
-  set (TA' := iso_after_iso_inv (make_iso A Aiso)).
+  apply (nat_trans_eq_pointwise TA).
+Qed.
+
+Lemma nat_trans_inv_pointwise_inv_before_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_z_isomorphism A) :
+       ∏ a : C, pr1 (inv_from_z_iso (A,, Aiso)) a · pr1 A a = identity _ .
+Proof.
+  intro a.
+  set (TA' := z_iso_after_z_iso_inv (A,,Aiso)).
+  apply (nat_trans_eq_pointwise TA').
+Qed.
+
+Lemma nat_trans_inv_pointwise_inv_after_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_z_isomorphism A) :
+       ∏ a : C, pr1 A a · pr1 (inv_from_z_iso (A,,Aiso)) a = identity _ .
+Proof.
+  intro a.
+  set (TA := z_iso_inv_after_z_iso (A,,Aiso)).
   apply (nat_trans_eq_pointwise TA).
 Qed.
 
