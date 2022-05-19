@@ -65,50 +65,31 @@ Section OpDispCat.
   Defined.
 End OpDispCat.
 
-Definition to_iso_disp_op_disp_cat
+Definition to_z_iso_disp_op_disp_cat
            {C : category}
            {D : disp_cat C}
            {x y : C}
-           {f : iso y x}
+           {f : z_iso y x}
            {xx : D x}
            {yy : D y}
            (ff : yy -->[ f ] xx)
-           (Hff : is_iso_disp f ff)
-  : @is_iso_disp
+           (Hff : is_z_iso_disp f ff)
+  : @is_z_iso_disp
       _
       (op_disp_cat D)
       x y
-      (opp_iso f)
+      (opp_z_iso f)
       _ _
       ff.
 Proof.
   simple refine (_ ,, _ ,, _).
-  - exact (transportb
-             (λ z, _ -->[ z ] _)
-             (id_left _)
-             (inv_mor_disp_from_iso Hff)).
-  - abstract
-      (cbn ;
-       unfold transportb ;
-       rewrite mor_disp_transportf_prewhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         apply inv_mor_after_iso_disp
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply homset_property).
-  - abstract
-      (cbn ;
-       unfold transportb ;
-       rewrite mor_disp_transportf_postwhisker ;
-       etrans ;
-       [ apply maponpaths ;
-         apply iso_disp_after_inv_mor
-       | ] ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply homset_property).
+  - simple refine (transportb
+                     (λ z, _ -->[ z ] _)
+                     _
+                     (inv_mor_disp_from_z_iso Hff)).
+    apply idpath.
+  - cbn.
+    apply inv_mor_after_z_iso_disp.
+  - cbn.
+    apply z_iso_disp_after_inv_mor.
 Defined.
