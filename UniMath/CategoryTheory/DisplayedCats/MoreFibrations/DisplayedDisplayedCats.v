@@ -41,6 +41,8 @@ Definition top_disp_cat {C : category} (E : disp_disp_cat C)
   : disp_cat (total_category (base_disp_cat E))
   := pr2 E.
 
+End DisplayedDisplayedCategories.
+
 
 Section CompositeDisplayedCategories.
 
