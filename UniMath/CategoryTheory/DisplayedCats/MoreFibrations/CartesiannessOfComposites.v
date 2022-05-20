@@ -30,8 +30,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-Search (isaprop _ -> _ -> iscontr _).
-
 (* First some technical lemmas about factorisation through a composite, where the latter morphism is cartesian. *)
 Definition postcomp_pres_comm
     {C : category} {D : disp_cat C}

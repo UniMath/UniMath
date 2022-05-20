@@ -25,11 +25,9 @@ Section MonoidalSections.
   Import DisplayedBifunctorNotations.
   Import DisplayedMonoidalNotations.
 
-  Variable C : category.
-  Variable D : disp_cat C.
+  Context {C : category} {D : disp_cat C}.
   Local Notation TD := (total_category D).
-  Variable M : monoidal C.
-  Variable DM : disp_monoidal D M.
+  Context (M : monoidal C) (DM : disp_monoidal D M).
   Local Notation TM := (total_monoidal DM).
 
   Definition section_preserves_tensor_data (sd : section_disp D) : UU
@@ -216,31 +214,31 @@ Section MonoidalSections.
       apply homset_property.
   Qed.
 
-  Definition smonoidal_laws {sd : section_disp D} (ms : smonoidal_data sd) : UU
+  Definition smonoidal_laxlaws {sd : section_disp D} (ms : smonoidal_data sd) : UU
     := (section_preserves_tensor_nat_left (smonoidal_preserves_tensor ms)) ×
        (section_preserves_tensor_nat_right (smonoidal_preserves_tensor ms)) ×
        (section_preserves_associativity (smonoidal_preserves_tensor ms)) ×
        (section_preserves_leftunitality (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms)) ×
        (section_preserves_rightunitality (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms)).
 
-  Definition smonoidal_preserves_tensornatleft {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laws ms) :
+  Definition smonoidal_preserves_tensornatleft {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laxlaws ms) :
     section_preserves_tensor_nat_left (smonoidal_preserves_tensor ms) := pr1 msl.
-  Definition smonoidal_preserves_tensornatright {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laws ms) :
+  Definition smonoidal_preserves_tensornatright {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laxlaws ms) :
     section_preserves_tensor_nat_right (smonoidal_preserves_tensor ms) := pr1 (pr2 msl).
-  Definition smonoidal_preserves_associativity {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laws ms) :
+  Definition smonoidal_preserves_associativity {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laxlaws ms) :
     section_preserves_associativity (smonoidal_preserves_tensor ms) := pr1 (pr2 (pr2 msl)).
-  Definition smonoidal_preserves_leftunitality {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laws ms) :
+  Definition smonoidal_preserves_leftunitality {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laxlaws ms) :
     section_preserves_leftunitality (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms) := pr1 (pr2 (pr2 (pr2 msl))).
-  Definition smonoidal_preserves_rightunitality {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laws ms) :
+  Definition smonoidal_preserves_rightunitality {sd : section_disp D} {ms : smonoidal_data sd} (msl : smonoidal_laxlaws ms) :
     section_preserves_rightunitality (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms) := pr2 (pr2 (pr2 (pr2 msl))).
 
-  Definition smonoidal (sd : section_disp D) : UU := ∑ (ms : smonoidal_data sd), smonoidal_laws ms.
-  Definition smonoidal_sdata {sd : section_disp D} (sm : smonoidal sd) : smonoidal_data sd := pr1 sm.
-  Coercion smonoidal_sdata : smonoidal >-> smonoidal_data.
-  Definition smonoidal_slaws {sd : section_disp D} (sm : smonoidal sd) : smonoidal_laws sm := pr2 sm.
+  Definition smonoidal_lax (sd : section_disp D) : UU := ∑ (ms : smonoidal_data sd), smonoidal_laxlaws ms.
+  Definition smonoidal_sdata {sd : section_disp D} (sm : smonoidal_lax sd) : smonoidal_data sd := pr1 sm.
+  Coercion smonoidal_sdata : smonoidal_lax >-> smonoidal_data.
+  Definition smonoidal_slaxlaws {sd : section_disp D} (sm : smonoidal_lax sd) : smonoidal_laxlaws sm := pr2 sm.
 
-  Definition sectionfunctor_fmonoidal_laws {sd : section_disp D} {ms : smonoidal_data sd} (ml : smonoidal_laws ms) :
-    fmonoidal_laws (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms))
+  Definition sectionfunctor_fmonoidal_laxlaws {sd : section_disp D} {ms : smonoidal_data sd} (ml : smonoidal_laxlaws ms) :
+    fmonoidal_laxlaws (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms))
     := (sectionfunctor_preserves_tensor_nat_left (smonoidal_preserves_tensornatleft ml),,
         sectionfunctor_preserves_tensor_nat_right (smonoidal_preserves_tensornatright ml),,
         sectionfunctor_preserves_associativity (smonoidal_preserves_associativity ml),,
@@ -248,17 +246,39 @@ Section MonoidalSections.
         sectionfunctor_preserves_rightunitality (smonoidal_preserves_rightunitality ml)
        ).
 
-  Definition sectionfunctor_fmonoidal {sd : section_disp D} (ms : smonoidal sd) : fmonoidal M TM (section_functor sd)
-    := (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms),,sectionfunctor_fmonoidal_laws (smonoidal_slaws ms)).
+  Definition sectionfunctor_fmonoidal_lax {sd : section_disp D} (ms : smonoidal_lax sd) : fmonoidal_lax M TM (section_functor sd)
+    := (sectionfunctor_fmonoidal_data (smonoidal_preserves_tensor ms) (smonoidal_preserves_unit ms),,sectionfunctor_fmonoidal_laxlaws (smonoidal_slaxlaws ms)).
 
-
-  (* We now define strong and strict monoidal sections *)
+  (* We now define a strong monoidal section and show that each such section induces a strong monoidal functor *)
   Definition smonoidal_strongtensor {sd : section_disp D} (spt : section_preserves_tensor_data sd) : UU
     := ∏ (x y : C), is_z_iso_disp
                         (Isos.identity_z_iso (x⊗_{M} y))
                         (spt x y).
 
-  Definition sectionfunctor_preservestensorstrongly {sd : section_disp D} (ms : smonoidal sd) (pfstrong : smonoidal_strongtensor (smonoidal_preserves_tensor ms))
+  Definition smonoidal_strongunit   {sd : section_disp D} (spu : section_preserves_unit sd) : UU
+    := is_z_iso_disp
+                        (Isos.identity_z_iso (I_{M}))
+                        spu.
+
+  Definition smonoidal_stronglaws {sd : section_disp D} (ms : smonoidal_data sd) : UU
+    := smonoidal_strongtensor (smonoidal_preserves_tensor ms)
+                              × smonoidal_strongunit (smonoidal_preserves_unit ms).
+
+  Definition smonoidal (sd : section_disp D) : UU
+    := ∑ (ms : smonoidal_lax sd), smonoidal_stronglaws ms.
+
+  Definition smonoidal_smonoidallax {sd : section_disp D} (sm : smonoidal sd)
+    : smonoidal_lax sd := pr1 sm.
+  Coercion smonoidal_smonoidallax : smonoidal >-> smonoidal_lax.
+
+  Definition smonoidal_smonoidalstronglaws {sd : section_disp D} (sm : smonoidal sd)
+    : smonoidal_stronglaws sm := pr2 sm.
+  Definition smonoidal_smonoidalstrongtensor {sd : section_disp D} (sm : smonoidal sd)
+    : smonoidal_strongtensor (smonoidal_preserves_tensor sm) := pr1 (smonoidal_smonoidalstronglaws sm).
+  Definition smonoidal_smonoidalstrongunit {sd : section_disp D} (sm : smonoidal sd)
+    : smonoidal_strongunit (smonoidal_preserves_unit sm) := pr2 (smonoidal_smonoidalstronglaws sm).
+
+  Definition sectionfunctor_preservestensorstrongly {sd : section_disp D} {ms : smonoidal sd} (pfstrong : smonoidal_strongtensor (smonoidal_preserves_tensor ms))
     : preserves_tensor_strongly (sectionfunctor_preserves_tensordata (smonoidal_preserves_tensor ms)).
   Proof.
     intros x y.
@@ -275,28 +295,25 @@ Section MonoidalSections.
         * apply (pr1 (pr2 (pfstrong x y))).
   Defined.
 
-  Definition smonoidal_stricttensor {sd : section_disp D} (spt : section_preserves_tensor_data sd) : UU
-    := ∏ (x y : C), ∑ (pf : (sd x) ⊗⊗_{DM} (sd y) = sd (x ⊗_{M} y)), nat.
-  (*   spt x y = transportf _ pf (id_disp (sd (x ⊗_{M} y))).  *)
-  (* I have actually no idea how I can write this equality, but it is too late to properly think *)
-
-
-
-  Definition sectionfunctor_preservestensorstrictly {sd : section_disp D} (ms : smonoidal sd) (pfstrict : smonoidal_stricttensor (smonoidal_preserves_tensor ms))
-    : preserves_tensor_strictly (sectionfunctor_preserves_tensordata (smonoidal_preserves_tensor ms)).
+  Definition sectionfunctor_preservesunitstrongly {sd : section_disp D} {ms : smonoidal sd} (pfstrong : smonoidal_strongunit (smonoidal_preserves_unit ms))
+    : preserves_unit_strongly (sectionfunctor_preserves_unit (smonoidal_preserves_unit ms)).
   Proof.
-    intros x y.
-    cbn.
     use tpair.
-    - use total2_paths_b. (* Show that the tensor of the images is equal to the image of the tensor *)
-      + apply idpath.
-      + apply pfstrict.
-    - use total2_paths_b. (* Show that the morphism from the tensor of the images to the image of the tensor is the identity. *)
-      + unfold sectionfunctor_preserves_tensordata.
-        rewrite pr1_transportf.
+    - use tpair.
+      + apply identity.
+      + exact (pr1 pfstrong).
+    - use tpair.
+      + use total2_paths_b.
+        * apply id_left.
+        * apply (pr22 pfstrong).
+      + use total2_paths_b.
+        * apply id_left.
+        * apply (pr1 (pr2 pfstrong)).
+  Defined.
 
-        rewrite (pr1 (pfstrict x y)).
-        apply idpath.
-      + admit.
-Admitted.
+  Definition sectionfunctor_fmonoidal {sd : section_disp D} (ms : smonoidal sd)  : fmonoidal M TM (section_functor sd)
+    := (sectionfunctor_fmonoidal_lax ms ,,
+        sectionfunctor_preservestensorstrongly (smonoidal_smonoidalstrongtensor ms) ,,
+        sectionfunctor_preservesunitstrongly (smonoidal_smonoidalstrongunit ms)).
+
 End MonoidalSections.

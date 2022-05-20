@@ -85,6 +85,6 @@ Lemma has_homsets_graph : has_homsets graph_precategory_ob_mor.
 Proof.
   intros G H.
   apply isaset_graph_mor.
-  - exact (graph_has_vertexset H).
-  - exact (graph_has_edgesets H).
+  - exact (isaset_vertex H).
+  - exact (isaset_edge H).
 Defined.
