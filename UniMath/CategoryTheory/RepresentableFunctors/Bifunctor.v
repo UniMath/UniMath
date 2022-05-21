@@ -100,7 +100,7 @@ Proof.
   { intro F.
     { unshelve refine (makeNatiso _ _).
       { intro a. unshelve refine (makeNatiso _ _).
-        { intro b. exact (identity_iso _). }
+        { intro b. exact (identity_z_iso _). }
         { abstract (intros b b' f; simpl; rewrite id_right, id_left; reflexivity) using _L_. } }
       abstract (intros a a' f; apply nat_trans_eq;
                 [ apply homset_property
