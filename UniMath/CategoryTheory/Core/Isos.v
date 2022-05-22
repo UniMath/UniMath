@@ -548,7 +548,7 @@ Proof.
 Defined.
 *)
 
-Definition z_iso_is_z_isomorphism1 {C : precategory_data} {a b : C} (I : z_iso a b) :
+Definition z_iso_is_z_isomorphism {C : precategory_data} {a b : C} (I : z_iso a b) :
   is_z_isomorphism I.
 Proof.
   use make_is_z_isomorphism.
@@ -801,7 +801,7 @@ Proof.
 Qed.
 
 Lemma inv_z_iso_unique' (C : precategory) (a b : C) (f : z_iso a b) (g : b --> a) :
-  precomp_with f g = identity _ -> g = z_iso_inv_from_z_iso f.
+  precomp_with f g = identity _ -> g = inv_from_z_iso f.
 Proof.
   intro H.
   apply (cancel_z_iso' f).
