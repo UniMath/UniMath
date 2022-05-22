@@ -509,6 +509,8 @@ Coercion z_iso_mor : z_iso >-> precategory_morphisms.
 Definition inv_from_z_iso {C : precategory_data} {a b : C} (i : z_iso a b) : b --> a :=
   is_z_isomorphism_mor (pr2 i).
 
+
+
 Definition z_iso_is_inverse_in_precat {C : precategory_data} {a b : C} (i : z_iso a b) :
   is_inverse_in_precat i (inv_from_z_iso i) := pr2 i.
 Coercion z_iso_is_inverse_in_precat : z_iso >-> is_inverse_in_precat.
@@ -546,7 +548,8 @@ Proof.
   - exact (identity c).
   - exact (is_inverse_in_precat_identity c).
 Defined.
-*)
+ *)
+
 
 Definition z_iso_is_z_isomorphism {C : precategory_data} {a b : C} (I : z_iso a b) :
   is_z_isomorphism I.
@@ -771,6 +774,20 @@ Proof.
   apply (pre_comp_with_z_iso_is_inj H).
   assumption.
 Qed.
+
+Definition are_z_isomorphic {C : precategory_data} : hrel C := λ a b, ∥z_iso a b∥.
+
+Lemma iseqrel_are_z_isomorphic {C : precategory} : iseqrel (are_z_isomorphic(C:=C)).
+  Proof.
+  repeat split.
+  - intros x y z h1.
+    apply hinhuniv; intros h2; generalize h1; clear h1.
+    now apply hinhuniv; intros h1; apply hinhpr, (z_iso_comp h1 h2).
+  - now intros x; apply hinhpr, identity_z_iso.
+  - now intros x y; apply hinhuniv; intro h1; apply hinhpr, z_iso_inv_from_z_iso.
+  Qed.
+
+Definition z_iso_eqrel {C : precategory} : eqrel C := (are_z_isomorphic,,iseqrel_are_z_isomorphic).
 
 
 (** ** Properties of 0-isomorphisms *)

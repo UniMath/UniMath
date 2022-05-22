@@ -209,7 +209,7 @@ Section FunctorAlg_saturated.
           (F : functor C C).
 
 Definition algebra_eq_type (X Y : FunctorAlg F) : UU
-  := ∑ p : iso (pr1 X) (pr1 Y), is_algebra_mor F X Y p.
+  := ∑ p : z_iso (pr1 X) (pr1 Y), is_algebra_mor F X Y p.
 
 Definition algebra_ob_eq (X Y : FunctorAlg F) :
   (X = Y) ≃ algebra_eq_type X Y.
@@ -230,62 +230,60 @@ Proof.
     apply idweq.
 Defined.
 
-Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg F) (f : X --> Y)
-  : is_iso f → is_iso (pr1 f).
+Definition is_z_iso_from_is_algebra_iso (X Y : FunctorAlg F) (f : X --> Y)
+  : is_z_isomorphism f → is_z_isomorphism (pr1 f).
 Proof.
   intro p.
-  apply is_iso_from_is_z_iso.
-  set (H' := iso_inv_after_iso (make_iso f p)).
-  set (H'':= iso_after_iso_inv (make_iso f p)).
-  exists (pr1 (inv_from_iso (make_iso f p))).
+  set (H' := z_iso_inv_after_z_iso (make_z_iso' f p)).
+  set (H'':= z_iso_after_z_iso_inv (make_z_iso' f p)).
+  exists (pr1 (inv_from_z_iso (make_z_iso' f p))).
   split; simpl.
   - apply (maponpaths pr1 H').
   - apply (maponpaths pr1 H'').
 Defined.
 
-Definition inv_algebra_mor_from_is_iso {X Y : FunctorAlg F} (f : X --> Y)
-  : is_iso (pr1 f) → (Y --> X).
+Definition inv_algebra_mor_from_is_z_iso {X Y : FunctorAlg F} (f : X --> Y)
+  : is_z_isomorphism (pr1 f) → (Y --> X).
 Proof.
   intro T.
-  set (fiso:=make_iso (pr1 f) T).
-  set (finv:=inv_from_iso fiso).
+  set (fiso:=make_z_iso' (pr1 f) T).
+  set (finv:=inv_from_z_iso fiso).
   exists finv.
   unfold finv.
   apply pathsinv0.
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   simpl.
-  rewrite functor_on_inv_from_iso.
+  rewrite functor_on_inv_from_z_iso.
   rewrite <- assoc.
   apply pathsinv0.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
   simpl.
   apply (pr2 f).
 Defined.
 
-Definition is_algebra_iso_from_is_iso {X Y : FunctorAlg F} (f : X --> Y)
-  : is_iso (pr1 f) → is_iso f.
+Definition is_algebra_iso_from_is_z_iso {X Y : FunctorAlg F} (f : X --> Y)
+  : is_z_isomorphism (pr1 f) → is_z_isomorphism f.
 Proof.
   intro T.
-  apply is_iso_from_is_z_iso.
-  exists (inv_algebra_mor_from_is_iso f T).
+  exists (inv_algebra_mor_from_is_z_iso f T).
   split; simpl.
   - apply algebra_mor_eq.
-    apply (iso_inv_after_iso (make_iso (pr1 f) T)).
+    apply (z_iso_inv_after_z_iso (make_z_iso' (pr1 f) T)).
   - apply algebra_mor_eq.
-    apply (iso_after_iso_inv (make_iso (pr1 f) T)).
+    apply (z_iso_after_z_iso_inv (make_z_iso' (pr1 f) T)).
 Defined.
 
-Definition algebra_iso_first_iso {X Y : FunctorAlg F}
-  : iso X Y ≃ ∑ f : X --> Y, is_iso (pr1 f).
+Definition algebra_iso_first_z_iso {X Y : FunctorAlg F}
+  : z_iso X Y ≃ ∑ f : X --> Y, is_z_isomorphism (pr1 f).
 Proof.
   apply (weqbandf (idweq _ )).
   unfold idweq. simpl.
   intro f.
   apply weqimplimpl.
-  - apply is_iso_from_is_algebra_iso.
-  - apply is_algebra_iso_from_is_iso.
-  - apply isaprop_is_iso.
-  - apply isaprop_is_iso.
+  - apply is_z_iso_from_is_algebra_iso.
+  - apply is_algebra_iso_from_is_z_iso.
+  - apply (isaprop_is_z_isomorphism(C:=FunctorAlg F) f).
+  - apply (isaprop_is_z_isomorphism f).
 Defined.
 
 Definition swap (A B : UU) : A × B → B × A.
@@ -303,8 +301,8 @@ Proof.
   - abstract ( intro ba; destruct ba; apply idpath ).
 Defined.
 
-Definition algebra_iso_rearrange {X Y : FunctorAlg F}
-  : (∑ f : X --> Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
+Definition algebra_z_iso_rearrange {X Y : FunctorAlg F}
+  : (∑ f : X --> Y, is_z_isomorphism (pr1 f)) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
   - apply weqtotal2asstor.
@@ -318,13 +316,13 @@ Proof.
 Defined.
 
 Definition algebra_idtoiso (X Y : FunctorAlg F) :
-  (X = Y) ≃ iso X Y.
+  (X = Y) ≃ z_iso X Y.
 Proof.
   eapply weqcomp.
   - apply algebra_ob_eq.
   - eapply weqcomp.
-    + apply (invweq (algebra_iso_rearrange)).
-    + apply (invweq algebra_iso_first_iso).
+    + apply (invweq (algebra_z_iso_rearrange)).
+    + apply (invweq algebra_iso_first_z_iso).
 Defined.
 
 Lemma isweq_idtoiso_FunctorAlg (X Y : FunctorAlg F)
@@ -332,7 +330,8 @@ Lemma isweq_idtoiso_FunctorAlg (X Y : FunctorAlg F)
 Proof.
   apply (isweqhomot (algebra_idtoiso X Y)).
   - intro p. induction p.
-    simpl. apply eq_iso. apply algebra_mor_eq.
+    simpl.
+    apply (eq_z_iso(C:=FunctorAlg F)). apply algebra_mor_eq.
     apply idpath.
   - apply (pr2 _ ).
 Defined.
@@ -349,10 +348,12 @@ Proof.
   apply idpath.
 Qed.
 
-Corollary idtoiso_FunctorAlg_commutes (X Y: FunctorAlg F)(e: X = Y): mor_from_algebra_mor F _ _ (morphism_from_iso (idtoiso e)) = idtoiso (maponpaths (alg_carrier F) e).
+Corollary idtoiso_FunctorAlg_commutes (X Y: FunctorAlg F)(e: X = Y): mor_from_algebra_mor F _ _ (morphism_from_z_iso _ _ (idtoiso e)) = idtoiso (maponpaths (alg_carrier F) e).
 Proof.
-  unfold morphism_from_iso.
-  do 2 rewrite eq_idtoiso_idtomor.
+  unfold morphism_from_z_iso.
+  rewrite eq_idtoiso_idtomor.
+  etrans.
+  2: { apply pathsinv0, eq_idtoiso_idtomor. }
   apply idtomor_FunctorAlg_commutes.
 Qed.
 
@@ -400,9 +401,10 @@ Proof.
   apply functor_id.
 Qed.
 
-Lemma initialAlg_is_iso : is_iso a.
+Lemma initialAlg_is_z_iso : is_z_isomorphism a.
 Proof.
-  exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
+  exists a'.
+  exact initialAlg_is_iso_subproof.
 Defined.
 
 End Lambeks_lemma.
