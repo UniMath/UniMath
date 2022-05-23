@@ -411,39 +411,46 @@ Section Constructions.
       set (ffinv := FFinv FFffinv').
       exists ffinv.
       split.
-      - unfold ffinv, FFffinv'; clear ffinv FFffinv'.
-        apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-        etrans. apply (disp_functor_comp FF).
-        etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-        admit.
-        (* etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-        etrans. apply transport_f_f.
-        unfold FFffinv'; clear FFffinv'.
-        etrans. apply maponpaths. eapply maponpaths_2. apply (eqtohomot (transportf_const _ _)).
-        etrans. apply maponpaths. unfold FFffinv. apply (iso_disp_after_inv_mor isiso).
-        etrans. apply transport_f_f.
-        apply pathsinv0.
-        etrans. apply (disp_functor_transportf _ FF).
-        etrans. apply maponpaths. apply disp_functor_id.
-        etrans. apply transport_f_f.
-        apply maponpaths_2. apply homset_property. *)
-      - unfold ffinv, FFffinv'; clear ffinv FFffinv'.
-        apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-        etrans. apply (disp_functor_comp FF).
-        etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-        admit.
-        (*etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-        etrans. apply transport_f_f.
-        unfold FFffinv'; clear FFffinv'.
-        etrans. apply maponpaths. eapply maponpaths. apply (eqtohomot (transportf_const _ _)).
-        etrans. apply maponpaths. unfold FFffinv. apply (inv_mor_after_iso_disp isiso).
-        etrans. apply transport_f_f.
-        apply pathsinv0.
-        etrans. apply (disp_functor_transportf _ FF).
-        etrans. apply maponpaths. apply disp_functor_id.
-        etrans. apply transport_f_f.
-        apply maponpaths_2. apply homset_property. *)
-    Admitted.
+      - abstract
+          (unfold ffinv, FFffinv'; clear ffinv FFffinv' ;
+           apply (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; cbn ;
+           etrans ; [ apply (disp_functor_comp FF) | ] ;
+           etrans ; [ apply maponpaths ;
+                      apply maponpaths_2 ;
+                      apply (homotweqinvweq (@FFweq _ _ _ _ _ ))
+                    | ] ;
+           rewrite transportf_const ; unfold idfun ;
+           unfold FFffinv ; clear FFffinv ;
+           etrans ; [ apply maponpaths ; apply (z_iso_disp_after_inv_mor isiso) | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply pathsinv0 ;
+           etrans ; [ apply (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ apply maponpaths ; apply disp_functor_id | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply maponpaths_2 ; apply homset_property).
+      - abstract
+          (unfold ffinv, FFffinv'; clear ffinv FFffinv' ;
+           apply (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; cbn ;
+           etrans ; [ apply (disp_functor_comp FF) | ] ;
+           etrans ; [ apply maponpaths ;
+                      apply maponpaths ;
+                      apply (homotweqinvweq (@FFweq _ _ _ _ _ )) | ] ;
+           etrans ; [ apply maponpaths ;
+                      eapply maponpaths ;
+                      apply (eqtohomot (transportf_const _ _))
+                    | ] ;
+           etrans ; [ apply maponpaths ;
+                      unfold FFffinv ;
+                      apply (inv_mor_after_z_iso_disp isiso)
+                    | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply pathsinv0 ;
+           etrans ; [ apply (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ apply maponpaths ; apply disp_functor_id | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply maponpaths_2 ;
+           apply homset_property).
+    Defined.
 
     Definition FFinv_on_z_iso_is_z_iso {x y} {xx : D x} {yy : D y} {f : z_iso x y}
                (ff : FF _ xx -->[ (#F)%cat f ] FF _ yy) (Hff: is_z_iso_disp (functor_on_z_iso F f) ff)
@@ -821,7 +828,7 @@ Definition disp_functor_id_ff_reflects_isos
   (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (# FF ff))
   : is_z_iso_disp _ ff.
 Proof.
-  use (disp_functor_ff_reflects_isos FF FF_split FF_ff).
+  use (disp_functor_ff_reflects_isos FF FF_ff).
   exact (disp_functor_on_is_z_iso_disp (disp_functor_identity _) isiso).
 Qed.
 
