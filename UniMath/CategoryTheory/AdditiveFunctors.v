@@ -174,17 +174,14 @@ Section additivefunctor_preserves_bindirectsums.
     assert (X : # F (identity (to_Zero A)) = identity (F (to_Zero A))) by apply functor_id.
     set (tmp2 := PreAdditive_unel_zero B (to_Zero B) (F (to_Zero A)) (F (to_Zero A))).
     unfold to_unel in tmp2. rewrite tmp2 in tmp. clear tmp2.
-    assert (X0 : iso (F (to_Zero A)) (to_Zero B)).
-    {
-      use make_iso.
-      - apply (ZeroArrowTo (F (to_Zero A))).
-      - use is_iso_qinv.
-        apply (ZeroArrowFrom (F (to_Zero A))).
-        split.
-        + rewrite <- X. rewrite tmp. apply ZeroArrowEq.
-        + apply ArrowsToZero.
+    assert (X0 : z_iso (F (to_Zero A)) (to_Zero B)).
+    { exists (ZeroArrowTo (F (to_Zero A))).
+      exists (ZeroArrowFrom (F (to_Zero A))).
+      split.
+      + rewrite <- X. rewrite tmp. apply ZeroArrowEq.
+      + apply ArrowsToZero.
     }
-    apply (IsoToisZero B (to_Zero B) X0).
+    apply (ZIsoToisZero B (to_Zero B) X0).
   Qed.
 
   (** ** F preserves IdIn1, IdIn2, IdUnit1, IdUnit2, and Id of BinDirectSum *)

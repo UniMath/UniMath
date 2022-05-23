@@ -171,9 +171,9 @@ Section IsoInvertible2Cells.
   Context {C : bicat}.
   Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
 
-  Definition idtoiso_alt_weq {a b : C} (f g : hom a b) : f = g ≃ iso f g.
+  Definition idtoiso_alt_weq {a b : C} (f g : hom a b) : f = g ≃ z_iso f g.
   Proof.
-    refine (inv2cell_to_iso_weq f g ∘ _)%weq.
+    refine (inv2cell_to_z_iso_weq f g ∘ _)%weq.
     use make_weq.
     - exact (idtoiso_2_1 f g).
     - apply C_is_univalent_2_1.
@@ -184,7 +184,7 @@ Section IsoInvertible2Cells.
     use weqhomot.
     + exact (idtoiso_alt_weq f g).
     + intro p.
-      apply eq_iso.
+      apply eq_z_iso.
       induction p.
       apply idpath.
   Defined.
@@ -209,7 +209,7 @@ Definition is_univalent_2_1_if_hom_is_univ
 Proof.
   intros a b f g.
   use weqhomot.
-  - exact (invweq (inv2cell_to_iso_weq f g)
+  - exact (invweq (inv2cell_to_z_iso_weq f g)
            ∘ make_weq idtoiso (C_local_univalent _ _ _ _))%weq.
   - intro p.
     induction p.

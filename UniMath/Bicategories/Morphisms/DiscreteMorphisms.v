@@ -68,9 +68,9 @@ Definition conservative_1cell_to_conservative
   : conservative (post_comp x f).
 Proof.
   intros g₁ g₂ α Hα.
-  apply is_inv2cell_to_is_iso.
+  apply is_inv2cell_to_is_z_iso.
   apply Hf.
-  exact (iso_to_inv2cell (make_iso _ Hα)).
+  exact (z_iso_to_inv2cell (make_z_iso' _ Hα)).
 Defined.
 
 Definition conservative_to_conservative_1cell
@@ -81,9 +81,9 @@ Definition conservative_to_conservative_1cell
   : conservative_1cell f.
 Proof.
   intros x g₁ g₂ α Hα.
-  apply is_iso_to_is_inv2cell.
+  apply is_z_iso_to_is_inv2cell.
   apply Hf.
-  apply is_inv2cell_to_is_iso.
+  apply is_inv2cell_to_is_z_iso.
   exact Hα.
 Defined.
 
