@@ -586,6 +586,28 @@ Definition z_nat_iso_from_z_iso  {C : precategory_data} {C' : precategory}
            (hs: has_homsets C') {F G : ob [C, C', hs]} (α : z_iso F G) : nat_z_iso F G
   := pr1 α ,, nat_trafo_pointwise_z_iso_if_z_iso hs (pr1 α) (pr2 α).
 
+Definition z_iso_is_nat_z_iso
+           {C D : category}
+           (F G : C ⟶ D)
+  : @z_iso (functor_category C D) F G ≃ nat_z_iso F G.
+Proof.
+  refine (make_weq (z_nat_iso_from_z_iso D (F:=F)(G:=G)) _).
+  use isweq_iso.
+  - apply z_iso_from_z_nat_iso.
+  - intros X.
+    use subtypePath.
+    + intro.
+      apply (isaprop_is_z_isomorphism(C:=functor_category C D)).
+    + apply nat_trans_eq.
+      { apply D. }
+      reflexivity.
+  - intros X.
+    use subtypePath.
+    + intro.
+      apply isaprop_is_nat_z_iso.
+    + reflexivity.
+Defined.
+
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 
 Notation "[ C , D ]" := (functor_category C D) : cat.

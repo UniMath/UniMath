@@ -215,7 +215,7 @@ Proof.
     apply idpath.
   - intros e.
     use subtypePath.
-    { intro ; apply isaprop_is_iso_disp. }
+    { intro ; apply isaprop_is_z_iso_disp. }
     cbn.
     induction (pr1 e).
     apply idpath.
@@ -297,7 +297,7 @@ Proof.
     + use invproofirrelevance.
       intros f g.
       use subtypePath.
-      { intro ; apply isaprop_is_iso_disp. }
+      { intro ; apply isaprop_is_z_iso_disp. }
       use subtypePath.
       { intro ; apply isapropunit. }
       apply setproperty.
