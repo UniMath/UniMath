@@ -295,6 +295,16 @@ Section functors_on_iso_with_inv.
       * apply (iso_after_iso_inv f).
   Qed.
 
+  Lemma functor_is_inverse_in_precat_inv_from_z_iso {C D : precategory} {c c' : ob C}
+        (F : functor C D) (f : z_iso c c') :
+    is_inverse_in_precat (# F f) (# F (inv_from_z_iso f)).
+  Proof.
+    apply functor_on_is_inverse_in_precat.
+    split.
+    - apply z_iso_inv_after_z_iso.
+    - apply z_iso_after_z_iso_inv.
+  Qed.
+
   Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
              (f : z_iso a b) : z_iso (F a) (F b).
   Proof.
