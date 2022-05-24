@@ -151,10 +151,8 @@ Section BiadjunctionPreservation.
       etrans.
       {
         do 3 apply maponpaths.
-        admit.
-        (*
-        do 2 refine (vassocl _ _ _ @ _).
-        do 3 apply maponpaths.
+        refine (vassocl _ _ _ @ _).
+        do 2 apply maponpaths.
         do 6 refine (vassocl _ _ _ @ _).
         do 7 apply maponpaths.
         refine (vassocl _ _ _ @ _).
@@ -171,11 +169,6 @@ Section BiadjunctionPreservation.
         apply maponpaths_2.
         do 2 apply maponpaths.
         apply vassocl.
-      }
-      etrans.
-      {
-        do 5 apply maponpaths.
-        apply id2_left.
       }
       do 7 refine (_ @ vassocr _ _ _).
       refine (!_).
@@ -1110,8 +1103,7 @@ Section BiadjunctionPreservation.
       apply maponpaths.
       refine (!_).
       apply rwhisker_vcomp.
-    Qed. *)
-Admitted.
+    Qed.
 
     Transparent psfunctor_comp.
 

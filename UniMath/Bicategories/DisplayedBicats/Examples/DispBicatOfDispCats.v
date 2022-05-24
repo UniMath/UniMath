@@ -391,63 +391,47 @@ Proof.
   simple refine (_ ,, _).
   - exact (pr111 Hαα x xx).
   - split.
-    + unfold transportb.
-      admit.
-      (*etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] .
-
-
-      abstract
-        (unfold transportb ;   TODO
-         (* etrans ; [ apply mor_disp_transportf_postwhisker | ] ; *)
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+    + abstract
+        (unfold transportb ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_linv Hα))
                     (disp_nat_trans_id (pr11 GG),, tt))
          | ];
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 GG))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
-         apply homset_property).*)
-    + admit.
-      (* abstract
+         apply homset_property).
+    + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_rinv Hα))
                     (disp_nat_trans_id (pr11 FF),, tt))
          | ] ;
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 FF))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.
-       *)
-      Admitted.
 
 (** Displayed bicategory of opfibrations *)
 Definition disp_bicat_of_opcleaving_ob_mor
@@ -565,54 +549,44 @@ Proof.
   simple refine (_ ,, _).
   - exact (pr111 Hαα x xx).
   - split.
-    + admit. (*abstract
+    + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_linv Hα))
                     (disp_nat_trans_id (pr11 GG),, tt))
          | ];
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 GG))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
-         apply homset_property). *)
-    + admit. (* abstract
+         apply homset_property).
+    + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_rinv Hα))
                     (disp_nat_trans_id (pr11 FF),, tt))
          | ] ;
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 FF))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.
-              *)
-      Admitted.

@@ -382,13 +382,10 @@ Section Lift2CellOpCleaving.
       rewrite !mor_disp_transportf_prewhisker.
       rewrite !transport_f_f.
       do 3 apply maponpaths.
-      admit. (*
       exact (disp_nat_trans_ax (pr11 (pr22 Lh')) ff).
     }
     unfold transportb.
     rewrite !mor_disp_transportf_prewhisker.
-    rewrite !transport_f_f.
-    rewrite !mor_disp_transportf_postwhisker.
     rewrite !transport_f_f.
     cbn.
     refine (!_).
@@ -404,8 +401,6 @@ Section Lift2CellOpCleaving.
     apply maponpaths_2.
     apply homset_property.
   Qed.
-              *)
-      Admitted.
 
   Definition cleaving_of_opcleaving_lift_2cell
     : disp_nat_trans
