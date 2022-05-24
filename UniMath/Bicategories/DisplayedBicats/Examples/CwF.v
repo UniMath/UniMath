@@ -259,23 +259,20 @@ Section CwFRepresentation.
         cbn.
         unfold from_Pullback_to_Pullback.
         cbn in *.
-        admit. (*
-        match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _ · _ = _ ] =>
-                         set (P:=PP) end.
-        match goal with |[|- ( _ (PullbackArrow _ ?PP ?E2 ?E3 _ )) _ _ · _ = _ ]
-                         => set (E1 := PP);
-                              set (e1 := E1);
-                              set (e2 := E2);
-                              set (e3 := E3) end.
-        match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _ · _ = _ ]
-                         => set (e4 := E4) end.
-        assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
-        assert (XR':= nat_trans_eq_pointwise XR ΓA').
+        pose (XR' := nat_trans_eq_pointwise
+                       (PullbackArrow_PullbackPr1
+                          (make_Pullback _ isP)
+                          (yoneda_objects C ΓA')
+                          (yoneda_morphisms C ΓA' Γ π')
+                          (yoneda_map_2 C ΓA' Tm te')
+                          (PullbackSqrCommutes
+                             (make_Pullback _ isP')))
+                       ΓA').
         cbn in XR'.
         assert (XR'':= toforallpaths _ _  _ XR').
         cbn in XR''.
         etrans. apply XR''.
-        apply id_left. *)
+        apply id_left.
       + unfold TT; clear TT.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
         match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
@@ -295,20 +292,15 @@ Section CwFRepresentation.
         etrans. apply maponpaths_2. apply XX.
         clear XX.
         etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
-        admit. (*
-        match goal with |[|- ( _ ?PP _ _ _  _ ) · _ = _ ] =>
-                         set (PT:=PP) end.
-        match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _ · _ = _ ]
-                         => set (E1 := PP);
-                              set (e1 := E1);
-                              set (e2 := E2);
-                              set (e3 := E3) end.
-        match goal with |[|- PullbackArrow _ _ _ _ ?E4 · _ = _ ]
-                         => set (e4 := E4) end.
-        apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
-
+        pose (XR' := PullbackArrow_PullbackPr2
+                       (make_Pullback _ isP)
+                       (yoneda_objects C ΓA')
+                       (yoneda_morphisms C ΓA' Γ π')
+                       (yoneda_map_2 C ΓA' Tm te')
+                       (PullbackSqrCommutes
+                          (make_Pullback _ isP'))).
+        apply XR'.
   Qed.
-*) Admitted.
 
   Definition cwf_representation : UU
     := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
