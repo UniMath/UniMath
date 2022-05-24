@@ -99,13 +99,13 @@ Definition op_psfunctor_invertible_cells
 Proof.
   split.
   - intro C.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
   - intros C₁ C₂ C₃ F G.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁.

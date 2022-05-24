@@ -132,58 +132,55 @@ Proof.
   apply idpath.
 Defined. (** idem concerning Defined vs. Qed *)
 
-Lemma is_iso_binprod_iso_aux {C D : category} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
-  (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
-        (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso)).
+Lemma is_z_iso_binprod_z_iso_aux {C D : category} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_z_isomorphism f)
+  (g_is_iso : is_z_isomorphism g) : is_inverse_in_precat (f #, g)
+        (inv_from_z_iso (make_z_iso' f f_is_iso) #, inv_from_z_iso (make_z_iso' g g_is_iso)).
 Proof.
   apply make_dirprod.
-  - transitivity ((make_iso f f_is_iso) · (inv_from_iso (make_iso f f_is_iso)) #, (make_iso g g_is_iso) · (inv_from_iso (make_iso g g_is_iso))).
+  - transitivity ((make_z_iso' f f_is_iso) · (inv_from_z_iso (make_z_iso' f f_is_iso)) #, (make_z_iso' g g_is_iso) · (inv_from_z_iso (make_z_iso' g g_is_iso))).
     + symmetry.
       apply binprod_comp.
-    + rewrite 2 iso_inv_after_iso.
+    + rewrite 2 z_iso_inv_after_z_iso.
       apply binprod_id.
-  - transitivity ((inv_from_iso (make_iso f f_is_iso)) · (make_iso f f_is_iso) #, (inv_from_iso (make_iso g g_is_iso)) · (make_iso g g_is_iso)).
+  - transitivity ((inv_from_z_iso (make_z_iso' f f_is_iso)) · (make_z_iso' f f_is_iso) #, (inv_from_z_iso (make_z_iso' g g_is_iso)) · (make_z_iso' g g_is_iso)).
     + symmetry.
       apply binprod_comp.
-    + rewrite 2 iso_after_iso_inv.
+    + rewrite 2 z_iso_after_z_iso_inv.
       apply binprod_id.
 Qed.
 
-Definition is_iso_binprod_iso {C D : category} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
-  (g_is_iso : is_iso g) : is_iso (f #, g).
+Definition is_z_iso_binprod_z_iso {C D : category} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_z_isomorphism f)
+  (g_is_iso : is_z_isomorphism g) : is_z_isomorphism (f #, g).
 Proof.
-  apply (is_iso_qinv (f #, g) (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso))).
-  apply is_iso_binprod_iso_aux.
+  exists (inv_from_z_iso (make_z_iso' f f_is_iso) #, inv_from_z_iso (make_z_iso' g g_is_iso)).
+  apply is_z_iso_binprod_z_iso_aux.
 Defined.
 
 (** Isos in product precategories *)
-Definition precatbinprodiso {C D : category} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')
-  : iso (X ⊗ Z) (X' ⊗ Z').
+Definition precatbinprod_z_iso {C D : category} {X X' : C} {Z Z' : D} (α : z_iso X X') (β : z_iso Z Z')
+  : z_iso (X ⊗ Z) (X' ⊗ Z').
 Proof.
   set (f := catbinprodmor α β).
-  set (g := catbinprodmor (iso_inv_from_iso α) (iso_inv_from_iso β)).
+  set (g := catbinprodmor (z_iso_inv_from_z_iso α) (z_iso_inv_from_z_iso β)).
   exists f.
-  apply (is_iso_qinv f g).
-  use tpair.
-  - apply pathsdirprod.
-    apply iso_inv_after_iso.
-    apply iso_inv_after_iso.
-  - apply pathsdirprod.
-    apply iso_after_iso_inv.
-    apply iso_after_iso_inv.
+  exists g.
+  split.
+  - apply pathsdirprod;
+    apply z_iso_inv_after_z_iso.
+  - apply pathsdirprod;
+    apply z_iso_after_z_iso_inv.
 Defined.
 
-Definition precatbinprodiso_inv {C D : category} {X X' : C} {Z Z' : D}
-  (α : iso X X') (β : iso Z Z')
-  : precatbinprodiso (iso_inv_from_iso α) (iso_inv_from_iso β)
-  = iso_inv_from_iso (precatbinprodiso α β).
+Definition precatbinprod_z_iso_inv {C D : category} {X X' : C} {Z Z' : D}
+  (α : z_iso X X') (β : z_iso Z Z')
+  : precatbinprod_z_iso (z_iso_inv_from_z_iso α) (z_iso_inv_from_z_iso β)
+  = z_iso_inv_from_z_iso (precatbinprod_z_iso α β).
 Proof.
-  apply inv_iso_unique.
-  apply pathsdirprod.
-  - apply iso_inv_after_iso.
-  - apply iso_inv_after_iso.
+  apply inv_z_iso_unique.
+  split; apply z_iso_inv_after_z_iso.
 Defined.
 
+(*
 Definition is_z_iso_binprod_z_iso {C D : category} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_z_iso : is_z_isomorphism f)
   (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #, g).
 Proof.
@@ -197,9 +194,10 @@ Proof.
   - apply (pr2 (pr2 g_is_z_iso)).
 Defined.
 
+
 Definition precatbinprod_z_iso {C D : category} {X X' : C} {Z Z' : D} (α : z_iso X X') (β : z_iso Z Z')
   : z_iso (X ⊗ Z) (X' ⊗ Z') := (pr1 α,, pr1 β) ,, is_z_iso_binprod_z_iso (pr2 α)(pr2 β).
-
+*)
 
 (** Associativity functors *)
 Section assoc.
@@ -588,18 +586,18 @@ Proof.
   - exact (bindelta_pair_pr1_is_nat_trans F G).
 Defined.
 
-Definition bindelta_pair_pr1_iso
+Definition bindelta_pair_pr1_z_iso
            {C₁ C₂ C₃ : category}
            (F : C₁ ⟶ C₂)
            (G : C₁ ⟶ C₃)
-  : nat_iso
+  : nat_z_iso
       (bindelta_pair_functor F G ∙ pr1_functor _ _)
       F.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (bindelta_pair_pr1 F G).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition bindelta_pair_pr2_data
@@ -631,18 +629,18 @@ Proof.
   - exact (bindelta_pair_pr2_is_nat_trans F G).
 Defined.
 
-Definition bindelta_pair_pr2_iso
+Definition bindelta_pair_pr2_z_iso
            {C₁ C₂ C₃ : category}
            (F : C₁ ⟶ C₂)
            (G : C₁ ⟶ C₃)
-  : nat_iso
+  : nat_z_iso
       (bindelta_pair_functor F G ∙ pr2_functor _ _)
       G.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (bindelta_pair_pr2 F G).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 
@@ -1129,18 +1127,18 @@ Section CurryFunctor.
          apply idpath).
   Defined.
 
-  Definition evaluate_curry_functor'_nat_iso
-    : nat_iso
+  Definition evaluate_curry_functor'_nat_z_iso
+    : nat_z_iso
         (bindelta_pair_functor
            (pr1_functor D₁ C ∙ curry_functor')
            (pr2_functor D₁ C ∙ functor_identity _)
          ∙ evaluation_functor)
         F.
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact evaluate_curry_functor'.
     - intro x.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   Defined.
 End CurryFunctor.
 

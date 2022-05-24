@@ -129,10 +129,10 @@ Section RightUniversalArrow.
                               functor_identity _)
             (unit_iso : ∏ (x : B₁) (y : B₂)
                           (f : x --> R y),
-                        is_iso (unit_adj x y f))
+                        is_z_isomorphism (unit_adj x y f))
             (counit_iso : ∏ (x : B₁) (y : B₂)
                             (f : L x --> y),
-                          is_iso (counit_adj x y f)).
+                          is_z_isomorphism (counit_adj x y f)).
 
     Definition make_right_universal_arrow_equivalence
                (x : B₁)
@@ -206,7 +206,7 @@ Section RightUniversalArrow.
         simple refine (_ ,, _).
         + exact (pr1 (H₃ x y f)).
         + simpl.
-          apply inv2cell_to_iso.
+          apply inv2cell_to_z_iso.
           exact (pr2 (H₃ x y f)).
     Defined.
   End Constructor.
@@ -286,10 +286,10 @@ Section LeftUniversalArrow.
                           functor_identity _)
             (unit_iso : ∏ (x : B₁) (y : B₂)
                           (f : L x --> y),
-                        is_iso (unit_adj x y f))
+                        is_z_isomorphism (unit_adj x y f))
             (counit_iso : ∏ (x : B₁) (y : B₂)
                             (f : x --> R y),
-                          is_iso (counit_adj x y f)).
+                          is_z_isomorphism (counit_adj x y f)).
 
     Definition make_left_universal_arrow_equivalence
                (x : B₁)
@@ -364,7 +364,7 @@ Section LeftUniversalArrow.
         simple refine (_ ,, _).
         + exact (pr1 (H₃ x y f)).
         + simpl.
-          apply inv2cell_to_iso.
+          apply inv2cell_to_z_iso.
           exact (pr2 (H₃ x y f)).
     Defined.
   End Constructor.

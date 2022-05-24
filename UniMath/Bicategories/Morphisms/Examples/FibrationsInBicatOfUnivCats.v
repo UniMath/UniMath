@@ -209,14 +209,14 @@ Section InternalSFibToStreetFib.
       : internal_sfib_is_street_fib_lift_ob --> e
       := pr1 (pr12 ℓ) tt.
 
-    Definition internal_sfib_is_street_fib_lift_iso
-      : iso (pr1 F internal_sfib_is_street_fib_lift_ob) b
-      := nat_iso_pointwise_iso (invertible_2cell_to_nat_iso _ _ (pr122 ℓ)) tt.
+    Definition internal_sfib_is_street_fib_lift_z_iso
+      : z_iso (pr1 F internal_sfib_is_street_fib_lift_ob) b
+      := nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (pr122 ℓ)) tt.
 
     Definition internal_sfib_is_street_fib_lift_over
       : # (pr1 F) internal_sfib_is_street_fib_lift_mor
         =
-        internal_sfib_is_street_fib_lift_iso · f
+        internal_sfib_is_street_fib_lift_z_iso · f
       := nat_trans_eq_pointwise (pr2 (pr222 ℓ)) tt.
 
     Definition internal_sfib_is_street_fib_lift_cartesian
@@ -231,7 +231,7 @@ Section InternalSFibToStreetFib.
     simple refine (_ ,, (_ ,, _) ,, _ ,, _) ; cbn.
     - exact (internal_sfib_is_street_fib_lift_ob f).
     - exact (internal_sfib_is_street_fib_lift_mor f).
-    - exact (internal_sfib_is_street_fib_lift_iso f).
+    - exact (internal_sfib_is_street_fib_lift_z_iso f).
     - exact (internal_sfib_is_street_fib_lift_over f).
     - exact (internal_sfib_is_street_fib_lift_cartesian f).
   Defined.
@@ -408,7 +408,7 @@ Section StreetFibToInternalSFib.
         + exact (pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)) · # (pr1 G₂) f).
         + exact (pr212 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))
                  · # (pr1 G₁) f
-                 · inv_from_iso (pr212 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y)))).
+                 · inv_from_z_iso (pr212 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y)))).
         + abstract
             (rewrite functor_comp ;
              rewrite (pr122 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))) ;
@@ -417,7 +417,7 @@ Section StreetFibToInternalSFib.
              refine (!(nat_trans_ax α _ _ f) @ _) ;
              apply maponpaths ;
              refine (!_) ;
-             use iso_inv_on_right ;
+             use z_iso_inv_on_right ;
              rewrite (pr122 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y))) ;
              apply idpath).
     Defined.
@@ -436,7 +436,7 @@ Section StreetFibToInternalSFib.
           apply idpath.
         + rewrite cartesian_factorization_sfib_over.
           refine (!_).
-          use iso_inv_on_left.
+          use z_iso_inv_on_left.
           rewrite id_left.
           rewrite (functor_id G₁).
           rewrite id_right.
@@ -453,7 +453,7 @@ Section StreetFibToInternalSFib.
         + exact (pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)) · # (pr1 G₂) (f · g)).
         + exact (pr212 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))
                  · # (pr1 G₁) (f · g)
-                 · inv_from_iso (pr212 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z)))).
+                 · inv_from_z_iso (pr212 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z)))).
         + rewrite functor_comp.
           etrans.
           {
@@ -465,7 +465,7 @@ Section StreetFibToInternalSFib.
           refine (!(nat_trans_ax α _ _ (f · g)) @ _).
           apply maponpaths.
           refine (!_).
-          use iso_inv_on_right.
+          use z_iso_inv_on_right.
           exact (pr122 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z))).
         + apply cartesian_factorization_sfib_over.
         + rewrite functor_comp.
@@ -478,7 +478,7 @@ Section StreetFibToInternalSFib.
           rewrite !assoc'.
           apply maponpaths.
           rewrite !assoc.
-          rewrite iso_after_iso_inv.
+          rewrite z_iso_after_z_iso_inv.
           apply id_left.
         + apply cartesian_factorization_sfib_commute.
         + rewrite !assoc'.
@@ -532,7 +532,7 @@ Section StreetFibToInternalSFib.
       unfold street_fib_is_internal_sfib_cleaving_lift_over_nat_trans_data.
       rewrite cartesian_factorization_sfib_over.
       rewrite !assoc'.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       rewrite id_right.
       apply idpath.
     Qed.
@@ -560,11 +560,11 @@ Section StreetFibToInternalSFib.
           (street_fib_is_internal_sfib_cleaving_lift · F)
           G₁.
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact street_fib_is_internal_sfib_cleaving_lift_over_nat_trans.
       - intro x.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
   End Cleaving.
 
@@ -602,7 +602,7 @@ Section StreetFibToInternalSFib.
                  · # (pr1 G₂) f).
         + exact (pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
                  · # (pr1 F) (# (pr1 G₁) f)
-                 · inv_from_iso
+                 · inv_from_z_iso
                      (pr212 (HF (pr1 G₂ y) (pr1 F (pr1 G₁ y)) (# (pr1 F) (pr1 α y))))).
         + abstract
             (rewrite functor_comp ;
@@ -617,7 +617,7 @@ Section StreetFibToInternalSFib.
              rewrite functor_comp ;
              apply maponpaths ;
              refine (!_) ;
-             use iso_inv_on_right ;
+             use z_iso_inv_on_right ;
              rewrite (pr122 (HF (pr1 G₂ y) (pr1 F (pr1 G₁ y)) (# (pr1 F) (pr1 α y)))) ;
              apply idpath).
     Defined.
@@ -636,7 +636,7 @@ Section StreetFibToInternalSFib.
           apply idpath.
         + rewrite cartesian_factorization_sfib_over.
           refine (!_).
-          use iso_inv_on_left.
+          use z_iso_inv_on_left.
           rewrite id_left.
           rewrite (functor_id G₁).
           rewrite (functor_id F).
@@ -654,7 +654,7 @@ Section StreetFibToInternalSFib.
                  · # (pr1 G₂) (f · g)).
         + exact (pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
                  · # (pr1 F) (# (pr1 G₁) (f · g))
-                 · inv_from_iso
+                 · inv_from_z_iso
                      (pr212 (HF (pr1 G₂ z) (pr1 F (pr1 G₁ z)) (# (pr1 F) (pr1 α z))))).
         + rewrite functor_comp.
           rewrite (pr122 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
@@ -669,7 +669,7 @@ Section StreetFibToInternalSFib.
           rewrite functor_comp.
           apply maponpaths.
           refine (!_).
-          use iso_inv_on_right.
+          use z_iso_inv_on_right.
           rewrite (pr122 (HF (pr1 G₂ z) (pr1 F (pr1 G₁ z)) (# (pr1 F) (pr1 α z)))).
           apply idpath.
         + apply cartesian_factorization_sfib_over.
@@ -682,7 +682,7 @@ Section StreetFibToInternalSFib.
           rewrite !assoc.
           apply maponpaths_2.
           rewrite !assoc'.
-          use iso_inv_on_right.
+          use z_iso_inv_on_right.
           apply idpath.
         + apply cartesian_factorization_sfib_commute.
         + rewrite !assoc'.
@@ -735,7 +735,7 @@ Section StreetFibToInternalSFib.
     Proof.
       intro x.
       pose (i := pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
-      exact (iso_inv_from_iso i).
+      exact (z_iso_inv_from_z_iso i).
     Defined.
 
     Definition is_cartesian_2cell_sfib_pointwise_cartesian_over_laws
@@ -745,13 +745,13 @@ Section StreetFibToInternalSFib.
     Proof.
       intros x y f ; cbn.
       refine (!_).
-      use iso_inv_on_right.
+      use z_iso_inv_on_right.
       rewrite !assoc.
-      use iso_inv_on_left.
+      use z_iso_inv_on_left.
       rewrite cartesian_factorization_sfib_over.
       rewrite !assoc'.
       apply maponpaths.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       rewrite id_right.
       apply idpath.
     Qed.
@@ -767,11 +767,11 @@ Section StreetFibToInternalSFib.
     Definition is_cartesian_2cell_sfib_pointwise_cartesian_inv2cell
       : invertible_2cell (G₁ · F) (pointwise_lift_functor · F).
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact is_cartesian_2cell_sfib_pointwise_cartesian_over.
       - intro.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
 
     Definition is_cartesian_2cell_sfib_pointwise_cartesian_eq
@@ -797,7 +797,7 @@ Section StreetFibToInternalSFib.
       etrans.
       {
         apply maponpaths_2.
-        apply iso_after_iso_inv.
+        apply z_iso_after_z_iso_inv.
       }
       apply id_left.
     Qed.
@@ -812,12 +812,12 @@ Section StreetFibToInternalSFib.
                    is_cartesian_2cell_sfib_pointwise_cartesian_inv2cell
                    is_cartesian_2cell_sfib_pointwise_cartesian_eq).
       use is_cartesian_sfib_eq.
-      - exact (nat_iso_pointwise_iso (invertible_2cell_to_nat_iso _ _ i) x
+      - exact (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ i) x
               · pr1 pointwise_lift_nat_trans x).
       - exact (cartesian_factorization_sfib_commute _ _ _ _ _).
       - use comp_is_cartesian_sfib.
-        + apply iso_is_cartesian_sfib.
-          apply iso_is_iso.
+        + apply z_iso_is_cartesian_sfib.
+          apply z_iso_is_z_isomorphism.
         + exact (pr222 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
     Defined.
   End IsCartesian.
@@ -1034,14 +1034,14 @@ Section InternalSOpFibToStreetOpFib.
       : e --> internal_sopfib_is_street_opfib_lift_ob
       := pr1 (pr12 ℓ) tt.
 
-    Definition internal_sopfib_is_street_opfib_lift_iso
-      : iso b (pr1 F internal_sopfib_is_street_opfib_lift_ob)
-      := nat_iso_pointwise_iso (invertible_2cell_to_nat_iso _ _ (pr122 ℓ)) tt.
+    Definition internal_sopfib_is_street_opfib_lift_z_iso
+      : z_iso b (pr1 F internal_sopfib_is_street_opfib_lift_ob)
+      := nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (pr122 ℓ)) tt.
 
     Definition internal_sopfib_is_street_opfib_lift_over
       : # (pr1 F) internal_sopfib_is_street_opfib_lift_mor
         =
-        f · internal_sopfib_is_street_opfib_lift_iso
+        f · internal_sopfib_is_street_opfib_lift_z_iso
       := nat_trans_eq_pointwise (pr2 (pr222 ℓ)) tt.
 
     Definition internal_sopfib_is_street_opfib_lift_cartesian
@@ -1056,7 +1056,7 @@ Section InternalSOpFibToStreetOpFib.
     simple refine (_ ,, (_ ,, _) ,, _ ,, _) ; cbn.
     - exact (internal_sopfib_is_street_opfib_lift_ob f).
     - exact (internal_sopfib_is_street_opfib_lift_mor f).
-    - exact (internal_sopfib_is_street_opfib_lift_iso f).
+    - exact (internal_sopfib_is_street_opfib_lift_z_iso f).
     - exact (internal_sopfib_is_street_opfib_lift_over f).
     - exact (internal_sopfib_is_street_opfib_lift_cartesian f).
   Defined.
@@ -1228,7 +1228,7 @@ Section StreetOpFibToInternalSOpFib.
                _
                (pr222 (HF _ _ (pr1 α x)))).
         + exact (# (pr1 G₁) f · pr112 (HF _ _ (pr1 α y))).
-        + exact (inv_from_iso (pr212 (HF _ _ (pr1 α x)))
+        + exact (inv_from_z_iso (pr212 (HF _ _ (pr1 α x)))
                  · # (pr1 G₂) f
                  · pr212 (HF _ _ (pr1 α y))).
         + abstract
@@ -1241,7 +1241,7 @@ Section StreetOpFibToInternalSOpFib.
              rewrite !assoc' ;
              apply maponpaths ;
              rewrite !assoc ;
-             rewrite iso_inv_after_iso ;
+             rewrite z_iso_inv_after_z_iso ;
              rewrite id_left ;
              apply idpath).
     Defined.
@@ -1262,7 +1262,7 @@ Section StreetOpFibToInternalSOpFib.
           refine (!_).
           rewrite (functor_id G₂).
           rewrite id_right.
-          rewrite iso_after_iso_inv.
+          rewrite z_iso_after_z_iso_inv.
           apply idpath.
         + apply functor_id.
         + rewrite opcartesian_factorization_sopfib_commute.
@@ -1274,7 +1274,7 @@ Section StreetOpFibToInternalSOpFib.
                _
                (pr222 (HF _ _ (pr1 α x)))).
         + exact (# (pr1 G₁) (f · g) · pr112 (HF _ _ (pr1 α z))).
-        + exact (inv_from_iso (pr212 (HF _ _ (pr1 α x)))
+        + exact (inv_from_z_iso (pr212 (HF _ _ (pr1 α x)))
                  · # (pr1 G₂) (f · g)
                  · pr212 (HF _ _ (pr1 α z))).
         + rewrite functor_comp.
@@ -1287,7 +1287,7 @@ Section StreetOpFibToInternalSOpFib.
           apply maponpaths_2.
           refine (nat_trans_ax α _ _ (f · g) @ _).
           apply maponpaths_2.
-          use iso_inv_on_left.
+          use z_iso_inv_on_left.
           exact (pr122 (HF _ _ (pr1 α x))).
         + apply opcartesian_factorization_sopfib_over.
         + rewrite functor_comp.
@@ -1300,7 +1300,7 @@ Section StreetOpFibToInternalSOpFib.
           rewrite !assoc'.
           apply maponpaths.
           rewrite !assoc.
-          rewrite iso_inv_after_iso.
+          rewrite z_iso_inv_after_z_iso.
           apply id_left.
         + apply opcartesian_factorization_sopfib_commute.
         + rewrite !assoc.
@@ -1355,7 +1355,7 @@ Section StreetOpFibToInternalSOpFib.
       unfold street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans_data.
       rewrite opcartesian_factorization_sopfib_over.
       rewrite !assoc.
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
       apply idpath.
     Qed.
@@ -1383,11 +1383,11 @@ Section StreetOpFibToInternalSOpFib.
           G₂
           (street_opfib_is_internal_sopfib_opcleaving_lift · F).
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans.
       - intro x.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
   End OpCleaving.
 
@@ -1422,7 +1422,7 @@ Section StreetOpFibToInternalSOpFib.
                _
                (pr222 (HF _ _ (# (pr1 F) (pr1 α x))))).
         + exact (# (pr1 G₁) f · pr112 (HF _ _ (# (pr1 F) (pr1 α y)))).
-        + exact (inv_from_iso (pr212 (HF _ _ (# (pr1 F) (pr1 α x))))
+        + exact (inv_from_z_iso (pr212 (HF _ _ (# (pr1 F) (pr1 α x))))
                  · # (pr1 F) (# (pr1 G₂) f)
                  · pr212 (HF _ _ (# (pr1 F) (pr1 α y)))).
         + abstract
@@ -1444,7 +1444,7 @@ Section StreetOpFibToInternalSOpFib.
              rewrite !assoc' ;
              apply maponpaths ;
              rewrite !assoc ;
-             rewrite iso_inv_after_iso ;
+             rewrite z_iso_inv_after_z_iso ;
              rewrite id_left ;
              apply idpath).
     Defined.
@@ -1463,7 +1463,7 @@ Section StreetOpFibToInternalSOpFib.
           apply idpath.
         + rewrite opcartesian_factorization_sopfib_over.
           rewrite !assoc'.
-          use iso_inv_on_right.
+          use z_iso_inv_on_right.
           rewrite id_right.
           rewrite (functor_id G₂).
           rewrite (functor_id F).
@@ -1479,7 +1479,7 @@ Section StreetOpFibToInternalSOpFib.
                (pr222 (HF _ _ (# (pr1 F) (pr1 α x))))).
         + exact (# (pr1 G₁) (f · g)
                  · pr112 (HF _ _ (# (pr1 F) (pr1 α z)))).
-        + exact (inv_from_iso
+        + exact (inv_from_z_iso
                    (pr212 (HF _ _ (# (pr1 F) (pr1 α x))))
                  · # (pr1 F) (# (pr1 G₂) (f · g))
                  · pr212 (HF _ _ (# (pr1 F) (pr1 α z)))).
@@ -1503,7 +1503,7 @@ Section StreetOpFibToInternalSOpFib.
           apply maponpaths.
           rewrite !assoc.
           apply maponpaths_2.
-          rewrite iso_inv_after_iso.
+          rewrite z_iso_inv_after_z_iso.
           rewrite id_left.
           apply idpath.
         + apply opcartesian_factorization_sopfib_over.
@@ -1515,7 +1515,7 @@ Section StreetOpFibToInternalSOpFib.
           do 2 apply maponpaths.
           rewrite !assoc.
           apply maponpaths_2.
-          rewrite iso_inv_after_iso.
+          rewrite z_iso_inv_after_z_iso.
           apply id_left.
         + apply opcartesian_factorization_sopfib_commute.
         + rewrite !assoc.
@@ -1569,7 +1569,7 @@ Section StreetOpFibToInternalSOpFib.
     Proof.
       intro x.
       pose (i := pr212 (HF _ _ (# (pr1 F) (pr1 α x)))).
-      exact (iso_inv_from_iso i).
+      exact (z_iso_inv_from_z_iso i).
     Defined.
 
     Definition is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_laws
@@ -1579,13 +1579,13 @@ Section StreetOpFibToInternalSOpFib.
     Proof.
       intros x y f ; cbn.
       refine (!_).
-      use iso_inv_on_right.
+      use z_iso_inv_on_right.
       rewrite !assoc.
-      use iso_inv_on_left.
+      use z_iso_inv_on_left.
       rewrite opcartesian_factorization_sopfib_over.
       rewrite !assoc.
       apply maponpaths_2.
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
       apply idpath.
     Qed.
@@ -1601,11 +1601,11 @@ Section StreetOpFibToInternalSOpFib.
     Definition is_opcartesian_2cell_sopfib_pointwise_opcartesian_inv2cell
       : invertible_2cell (pointwise_oplift_functor · F) (G₂ · F).
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact is_opcartesian_2cell_sopfib_pointwise_opcartesian_over.
       - intro.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
 
     Definition is_opcartesian_2cell_sopfib_pointwise_opcartesian_eq
@@ -1631,7 +1631,7 @@ Section StreetOpFibToInternalSOpFib.
       etrans.
       {
         apply maponpaths.
-        apply iso_inv_after_iso.
+        apply z_iso_inv_after_z_iso.
       }
       apply id_right.
     Qed.
@@ -1647,12 +1647,12 @@ Section StreetOpFibToInternalSOpFib.
                    is_opcartesian_2cell_sopfib_pointwise_opcartesian_eq).
       use is_opcartesian_sopfib_eq.
       - exact (pr1 pointwise_oplift_nat_trans x
-               · nat_iso_pointwise_iso (invertible_2cell_to_nat_iso _ _ i) x).
+               · nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ i) x).
       - exact (opcartesian_factorization_sopfib_commute _ _ _ _ _).
       - use comp_is_opcartesian_sopfib.
         + exact (pr222 (HF _ _ (# (pr1 F) (pr1 α x)))).
         + apply iso_is_opcartesian_sopfib.
-          apply iso_is_iso.
+          apply z_iso_is_z_isomorphism.
     Qed.
   End IsOpCartesian.
 
