@@ -859,6 +859,9 @@ Proof.
       apply maponpaths_2, homset_property.
 Defined.
 
+(* The following part has holes because of the migration from [iso] to [z_iso] as notion of isomorphism.
+   It compiled at the moment of commenting it. But at the price of two "Admitted".
+
 Lemma is_disp_nat_trans_pointwise_inv
   (x y : FunctorsC'C)
   (f : z_iso x y)
@@ -958,4 +961,5 @@ Proof.
   - apply is_pointwise_z_iso_if_is_disp_functor_cat_z_iso.
 Defined.
 
+*)
 End Functor.

@@ -107,6 +107,9 @@ Section MonoidalTotalCategory.
                         (pr1 f) (pr1 g) (pr1 h) (pr2 f) (pr2 g) (pr2 h)).
   Qed.
 
+(* The following part has holes because of the migration from [iso] to [z_iso] as notion of isomorphism.
+   It compiled at the moment of commenting it. But at the price of three "Admitted".
+
   Lemma totalcategory_associatorisnatiso : associator_is_natiso TαD.
   Proof.
     intros x y z.
@@ -354,5 +357,5 @@ Section MonoidalTotalCategory.
     + apply idpath.
     + apply idpath.
   Qed.
-
+*)
 End MonoidalTotalCategory.
