@@ -490,27 +490,27 @@ Proof.
        apply idpath).
 Defined.
 
-Definition sum_of_functor_inl_is_nat_iso
+Definition sum_of_functor_inl_is_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inl F G).
+  : is_nat_z_iso (sum_of_functor_inl F G).
 Proof.
   intro.
-  apply identity_is_iso.
+  apply identity_is_z_iso.
 Defined.
 
-Definition sum_of_functor_inl_nat_iso
+Definition sum_of_functor_inl_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : nat_iso
+  : nat_z_iso
       (inl_functor C₁ C₂ ∙ sum_of_functors F G)
       F.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (sum_of_functor_inl F G).
-  - exact (sum_of_functor_inl_is_nat_iso F G).
+  - exact (sum_of_functor_inl_is_nat_z_iso F G).
 Defined.
 
 Definition sum_of_functor_inr
@@ -527,27 +527,27 @@ Proof.
        apply idpath).
 Defined.
 
-Definition sum_of_functor_inr_is_nat_iso
+Definition sum_of_functor_inr_is_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inr F G).
+  : is_nat_z_iso (sum_of_functor_inr F G).
 Proof.
   intro.
-  apply identity_is_iso.
+  apply identity_is_z_iso.
 Defined.
 
-Definition sum_of_functor_inr_nat_iso
+Definition sum_of_functor_inr_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : nat_iso
+  : nat_z_iso
       (inr_functor C₁ C₂ ∙ sum_of_functors F G)
       G.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (sum_of_functor_inr F G).
-  - exact (sum_of_functor_inr_is_nat_iso F G).
+  - exact (sum_of_functor_inr_is_nat_z_iso F G).
 Defined.
 
 (**
