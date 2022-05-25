@@ -103,74 +103,74 @@ Proof.
     apply z_iso_disp_after_inv_mor.
 Defined.
 
-Definition iso_disp_to_op_disp_cat
+Definition z_iso_disp_to_op_disp_cat
            {C : category}
            {D : disp_cat C}
            {x : C}
            {xx yy : D x}
-           (f : iso_disp (identity_iso x) xx yy)
-  : @iso_disp _ (op_disp_cat D) _ _ (@identity_iso (op_cat C) x) xx yy.
+           (f : z_iso_disp (identity_z_iso x) xx yy)
+  : @z_iso_disp _ (op_disp_cat D) _ _ (@identity_z_iso (op_cat C) x) xx yy.
 Proof.
-  use make_iso_disp.
-  - exact (inv_mor_disp_from_iso f).
+  use make_z_iso_disp.
+  - exact (inv_mor_disp_from_z_iso f).
   - simple refine (_ ,, _ ,, _).
     + exact (pr1 f).
     + abstract
         (cbn ;
-         refine (iso_disp_after_inv_mor f @ _) ;
+         refine (z_iso_disp_after_inv_mor f @ _) ;
          apply maponpaths_2 ;
          apply homset_property).
     + abstract
         (cbn ;
-         refine (inv_mor_after_iso_disp f @ _) ;
+         refine (inv_mor_after_z_iso_disp f @ _) ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.
 
-Definition iso_disp_from_op_disp_cat
+Definition z_iso_disp_from_op_disp_cat
            {C : category}
            {D : disp_cat C}
            {x : C}
            {xx yy : D x}
-           (f :  @iso_disp _ (op_disp_cat D) _ _ (@identity_iso C^op x) xx yy)
-  : iso_disp (identity_iso x) xx yy.
+           (f :  @z_iso_disp _ (op_disp_cat D) _ _ (@identity_z_iso C^op x) xx yy)
+  : z_iso_disp (identity_z_iso x) xx yy.
 Proof.
-  use make_iso_disp.
-  - exact (inv_mor_disp_from_iso f).
+  use make_z_iso_disp.
+  - exact (inv_mor_disp_from_z_iso f).
   - simple refine (_ ,, _ ,, _).
     + exact (pr1 f).
     + abstract
         (cbn ;
-         refine (iso_disp_after_inv_mor f @ _) ;
+         refine (z_iso_disp_after_inv_mor f @ _) ;
          apply maponpaths_2 ;
          apply homset_property).
     + abstract
         (cbn ;
-         refine (inv_mor_after_iso_disp f @ _) ;
+         refine (inv_mor_after_z_iso_disp f @ _) ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.
 
-Definition iso_disp_weq_op_disp_cat
+Definition z_iso_disp_weq_op_disp_cat
            {C : category}
            {D : disp_cat C}
            {x : C}
            (xx yy : D x)
-  : @iso_disp _ (op_disp_cat D) _ _ (@identity_iso C^op x) xx yy
+  : @z_iso_disp _ (op_disp_cat D) _ _ (@identity_z_iso C^op x) xx yy
     ≃
-    iso_disp (identity_iso x) xx yy.
+    z_iso_disp (identity_z_iso x) xx yy.
 Proof.
   use make_weq.
-  - exact iso_disp_from_op_disp_cat.
+  - exact z_iso_disp_from_op_disp_cat.
   - use gradth.
-    + exact iso_disp_to_op_disp_cat.
+    + exact z_iso_disp_to_op_disp_cat.
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
          apply idpath).
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
          apply idpath).
 Defined.
 
@@ -183,11 +183,11 @@ Proof.
   intros x y p xx yy.
   induction p.
   use weqhomot.
-  - exact (iso_disp_weq_op_disp_cat xx yy
+  - exact (z_iso_disp_weq_op_disp_cat xx yy
            ∘ make_weq _ (HD x x (idpath _) xx yy))%weq.
   - abstract
       (intro p ;
-       use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
        induction p ; cbn ;
        apply idpath).
 Defined.
