@@ -1481,7 +1481,7 @@ Proof.
   - exact local_opcartesian_opcleaving_comprehension.
 Defined.
 
-Definition cleaving_comprehension_bicat
+Definition opcleaving_comprehension_bicat
   : comprehension_bicat
   := _ ,, _ ,, opcleaving_comprehension_is_covariant.
 
