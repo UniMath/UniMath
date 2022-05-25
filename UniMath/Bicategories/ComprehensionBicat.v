@@ -75,51 +75,51 @@ Local Open Scope cat.
 (**
  1. Comprehension bicategories
  *)
-Definition comprehension_bicat
+Definition comprehension_bicat_structure
            (B : bicat)
   : UU
   := ∑ (D : disp_bicat B)
        (χ : disp_psfunctor D (cod_disp_bicat B) (id_psfunctor B)),
      global_cleaving D × global_cartesian_disp_psfunctor χ.
 
-Definition make_comprehension_bicat
+Definition make_comprehension_bicat_structure
            (B : bicat)
            (D : disp_bicat B)
            (χ : disp_psfunctor D (cod_disp_bicat B) (id_psfunctor B))
            (HD : global_cleaving D)
            (Hχ : global_cartesian_disp_psfunctor χ)
-  : comprehension_bicat B
+  : comprehension_bicat_structure B
   := D ,, χ ,, HD ,, Hχ.
 
 (** Projections of a comprehension bicategory *)
 Definition ty_of
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : disp_bicat B
   := pr1 comp_B.
 
 Definition comp_of
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : disp_psfunctor (ty_of comp_B) (cod_disp_bicat B) (id_psfunctor B)
   := pr12 comp_B.
 
 Definition ty_of_global_cleaving
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : global_cleaving (ty_of comp_B)
   := pr122 comp_B.
 
 Definition comp_of_global_cartesian
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : global_cartesian_disp_psfunctor (comp_of comp_B)
   := pr222 comp_B.
 
 (** Variances of comprehension bicategories *)
 Definition is_covariant
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : UU
   := let D := ty_of comp_B in
      let χ := comp_of comp_B in
@@ -130,7 +130,7 @@ Definition is_covariant
 
 Definition is_contravariant
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : UU
   := let D := ty_of comp_B in
      let χ := comp_of comp_B in
@@ -139,6 +139,17 @@ Definition is_contravariant
      × rwhisker_cartesian D
      × local_cartesian_disp_psfunctor χ.
 
+Definition comprehension_bicat
+  : UU
+  := ∑ (B : bicat)
+       (comp_B : comprehension_bicat_structure B),
+     is_covariant comp_B.
+
+Definition contravariant_comprehension_bicat
+  : UU
+  := ∑ (B : bicat)
+       (comp_B : comprehension_bicat_structure B),
+     is_contravariant comp_B.
 (**
  2. The trivial comprehension bicategory
  *)
@@ -663,10 +674,10 @@ Section TrivialCompBicat.
     - exact (trivial_opcartesian_2cell_is_invertible _ _ _ _ Hβ).
   Defined.
 
-  Definition trivial_comprehension_bicat
-    : comprehension_bicat B.
+  Definition trivial_comprehension_bicat_structure
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact (trivial_displayed_bicat B B).
     - exact trivial_comprehension.
     - exact (trivial_global_cleaving B B).
@@ -674,7 +685,7 @@ Section TrivialCompBicat.
   Defined.
 
   Definition trivial_comprehension_is_covariant
-    : is_covariant trivial_comprehension_bicat.
+    : is_covariant trivial_comprehension_bicat_structure.
   Proof.
     repeat split.
     - exact (trivial_local_opcleaving B B).
@@ -684,7 +695,7 @@ Section TrivialCompBicat.
   Defined.
 
   Definition trivial_comprehension_is_contravariant
-    : is_contravariant trivial_comprehension_bicat.
+    : is_contravariant trivial_comprehension_bicat_structure.
   Proof.
     repeat split.
     - exact (trivial_local_cleaving B B).
@@ -692,6 +703,14 @@ Section TrivialCompBicat.
     - exact (trivial_rwhisker_cartesian B B).
     - exact local_cartesian_trivial_comprehension.
   Defined.
+
+  Definition trivial_comprehension_bicat
+    : comprehension_bicat
+    := _ ,, _ ,, trivial_comprehension_is_covariant.
+
+  Definition trivial_contravariant_comprehension_bicat
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, trivial_comprehension_is_contravariant.
 End TrivialCompBicat.
 
 (**
@@ -702,9 +721,9 @@ Section PullbackComprehension.
           (B_pb : has_pb B).
 
   Definition pb_comprehension
-    : comprehension_bicat B.
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact (cod_disp_bicat B).
     - exact (disp_pseudo_id (cod_disp_bicat B)).
     - exact (cod_global_cleaving B B_pb).
@@ -732,6 +751,14 @@ Section PullbackComprehension.
     - exact (cod_cleaving_rwhisker_cartesian _ HB).
     - exact (local_cartesian_id_psfunctor (cod_disp_bicat B)).
   Defined.
+
+  Definition locally_grpd_comprehension_bicat
+    : comprehension_bicat
+    := _ ,, _ ,, locally_grpd_pb_comprehension_is_covariant.
+
+  Definition locally_grpd_contravariant_comprehension_bicat
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, locally_grpd_pb_comprehension_is_contravariant.
 End PullbackComprehension.
 
 (**
@@ -1069,10 +1096,10 @@ Proof.
     + exact (local_cartesian_cleaving_lift_comm α αα p G γ δp q).
 Defined.
 
-Definition cleaving_comprehension_bicat
-  : comprehension_bicat bicat_of_univ_cats.
+Definition cleaving_comprehension_bicat_structure
+  : comprehension_bicat_structure bicat_of_univ_cats.
 Proof.
-  use make_comprehension_bicat.
+  use make_comprehension_bicat_structure.
   - exact disp_bicat_of_cleaving.
   - exact cleaving_comprehension.
   - exact cleaving_of_cleaving_global_cleaving.
@@ -1080,7 +1107,7 @@ Proof.
 Defined.
 
 Definition cleaving_comprehension_is_contravariant
-  : is_contravariant cleaving_comprehension_bicat.
+  : is_contravariant cleaving_comprehension_bicat_structure.
 Proof.
   repeat split.
   - exact cleaving_of_cleaving_local_cleaving.
@@ -1088,6 +1115,10 @@ Proof.
   - exact cleaving_of_cleaving_rwhisker_cartesian.
   - exact local_cartesian_cleaving_comprehension.
 Defined.
+
+Definition cleaving_contravariant_comprehension_bicat
+  : contravariant_comprehension_bicat
+  := _ ,, _ ,, cleaving_comprehension_is_contravariant.
 
 (**
  4. The comprehension bicategory of opfibrations
@@ -1430,18 +1461,18 @@ Proof.
     + exact (local_opcartesian_opcleaving_lift_comm α αα p G γ δp q).
 Defined.
 
-Definition opcleaving_comprehension_bicat
-  : comprehension_bicat bicat_of_univ_cats.
+Definition opcleaving_comprehension_bicat_structure
+  : comprehension_bicat_structure bicat_of_univ_cats.
 Proof.
-  use make_comprehension_bicat.
+  use make_comprehension_bicat_structure.
   - exact disp_bicat_of_opcleaving.
   - exact opcleaving_comprehension.
   - exact opcleaving_global_cleaving.
   - exact global_cartesian_opcleaving_comprehension.
 Defined.
 
-Definition opcleaving_comprehension_is_contravariant
-  : is_covariant opcleaving_comprehension_bicat.
+Definition opcleaving_comprehension_is_covariant
+  : is_covariant opcleaving_comprehension_bicat_structure.
 Proof.
   repeat split.
   - exact cleaving_of_opcleaving_local_opcleaving.
@@ -1449,6 +1480,10 @@ Proof.
   - exact cleaving_of_opcleaving_rwhisker_opcartesian.
   - exact local_opcartesian_opcleaving_comprehension.
 Defined.
+
+Definition opcleaving_comprehension_bicat
+  : comprehension_bicat
+  := _ ,, _ ,, opcleaving_comprehension_is_covariant.
 
 (**
  6. The comprehension bicategory of a display map bicategory
@@ -1537,9 +1572,9 @@ Section DispMapBicatToCompBicat.
   Defined.
 
   Definition disp_map_bicat_to_comp_bicat
-    : comprehension_bicat B.
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact DD.
     - exact disp_map_bicat_comprehension.
     - exact (global_cleaving_of_disp_map_bicat D).
@@ -1591,37 +1626,59 @@ Section DispMapBicatToCompBicat.
     - exact (rwhisker_cartesian_disp_map_bicat _ HD).
     - exact (disp_map_bicat_to_comp_bicat_local_cartesian HD).
   Defined.
+
+  Definition disp_map_bicat_comprehension_bicat
+             (HD : is_covariant_disp_map_bicat D)
+    : comprehension_bicat
+    := _ ,, _ ,, is_covariant_disp_map_bicat_to_comp_bicat HD.
+
+  Definition disp_map_bicat_contravariant_comprehension_bicat
+             (HD : is_contravariant_disp_map_bicat D)
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, is_contravariant_disp_map_bicat_to_comp_bicat HD.
 End DispMapBicatToCompBicat.
 
 (**
  7. Internal Street fibrations and opfibrations
  *)
-Definition internal_sfib_comprehension_bicat
+Definition internal_sfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : comprehension_bicat B
+  : comprehension_bicat_structure B
   := disp_map_bicat_to_comp_bicat (sfib_disp_map_bicat B) HB.
 
-Definition is_contravariant_internal_sfib_comprehension_bicat
+Definition is_contravariant_internal_sfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : is_contravariant (internal_sfib_comprehension_bicat B HB).
+  : is_contravariant (internal_sfib_comprehension_bicat_structure B HB).
 Proof.
   use is_contravariant_disp_map_bicat_to_comp_bicat.
   apply sfib_disp_map_bicat_is_contravariant.
 Defined.
 
-Definition internal_sopfib_comprehension_bicat
+Definition internal_sfib_contravariant_comprehension_bicat
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : comprehension_bicat B
+  : contravariant_comprehension_bicat
+  := _ ,, _ ,, is_contravariant_internal_sfib_comprehension_bicat_structure B HB.
+
+Definition internal_sopfib_comprehension_bicat_structure
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat_structure B
   := disp_map_bicat_to_comp_bicat (sopfib_disp_map_bicat B) HB.
 
-Definition is_covariant_internal_sopfib_comprehension_bicat
+Definition is_covariant_internal_sopfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : is_covariant (internal_sopfib_comprehension_bicat B HB).
+  : is_covariant (internal_sopfib_comprehension_bicat_structure B HB).
 Proof.
   use is_covariant_disp_map_bicat_to_comp_bicat.
   apply sopfib_disp_map_bicat_is_covariant.
 Defined.
+
+Definition internal_sopfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat
+  := _ ,, _ ,, is_covariant_internal_sopfib_comprehension_bicat_structure B HB.
