@@ -433,6 +433,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [MonoidalCategories/ActionBasedStrongFunctorCategory.v](Bicategories/MonoidalCategories/ActionBasedStrongFunctorCategory.v)
    - [MonoidalCategories/ActionsFormBicategory.v](Bicategories/MonoidalCategories/ActionsFormBicategory.v)
    - [MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v)
+   - [MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/UnitLayer.v](Bicategories/MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/UnitLayer.v)
+   - [MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/TensorLayer.v](Bicategories/MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/TensorLayer.v)
    - [Core/Examples/Groupoids.v](Bicategories/Core/Examples/Groupoids.v)
    - [PseudoFunctors/Display/Base.v](Bicategories/PseudoFunctors/Display/Base.v)
    - [PseudoFunctors/Display/Map1Cells.v](Bicategories/PseudoFunctors/Display/Map1Cells.v)
