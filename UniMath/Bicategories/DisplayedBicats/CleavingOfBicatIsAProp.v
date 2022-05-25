@@ -4,7 +4,7 @@
 
  There are several definitions of cleaving of bicategories, namely
  local (op)cleavings and global cleavings. If we assume that the
- involed (displayed) bicategories are univalent, then we can show
+ involved (displayed) bicategories are univalent, then we can show
  that these notions are propositional
 
  Contents
