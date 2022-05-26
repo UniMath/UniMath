@@ -15,6 +15,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.PAdics.lemmas.
 
 Require Import UniMath.NumberSystems.RationalNumbers.
+Require Import UniMath.RealNumbers.Prelim.
 
 (* The first few sections contain Definitions and Lemmas that
    should be moved further up the project tree *)
@@ -228,6 +229,17 @@ Section Misc.
      reflexivity.
   Defined.
 
+  (* TODO: try to simplify/speed up? *)
+  Lemma hqone_neq_hqzero : 1%hq != 0%hq.
+  Proof.
+    intro contr.
+    assert (contr_hz : intpart 1%hq != intpart 0%hq).
+    { apply hzone_neg_hzzero. }
+    apply contr_hz.
+    apply maponpaths, contr.
+    (* Done but slow. *)
+  Abort.
+
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
   Proof.
@@ -257,17 +269,15 @@ Section Misc.
     apply isisolatedn.
   Defined.
 
-      (* TODO: upstream? *)
+  (* TODO: upstream? *)
   Lemma stn_eq_or_neq_refl
     {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
     intros; unfold stn_eq_or_neq; simpl.
     destruct (nat_eq_or_neq i i) as [? | neq]. 2 : { contradiction (isirrefl_natneq _ neq). }
     rewrite coprod_rect_compute_1.
-    apply maponpaths.
-    apply proofirrelevance.
-    apply isaproppathsfromisolated.
-    apply isisolatedinstn.
+    apply maponpaths, proofirrelevance.
+    apply isaproppathsfromisolated, isisolatedinstn.
   Defined.
 
   Lemma nat_eq_or_neq_left:
@@ -288,8 +298,7 @@ Section Misc.
     - apply (fromnatcontr i j i_eq_j i_neq_j).
     - apply proofirrelevance.
       apply isapropcoprod.
-      + apply isaproppathsfromisolated.
-        apply isisolatedn.
+      + apply isaproppathsfromisolated, isisolatedn.
       + apply propproperty.
       + intros i_eq_j.
         apply (fromnatcontr i j i_eq_j i_neq_j).
@@ -428,9 +437,9 @@ Section Maybe.
     {X : UU} (e : maybe X)
   : coprod (e != nothing) (e = nothing).
   Proof.
-  destruct e as [? | u].
-  - apply ii1. apply negpathsii1ii2.
-  - apply ii2. rewrite u. exists.
+    destruct e as [? | u].
+    - apply ii1. apply negpathsii1ii2.
+    - apply ii2. rewrite u. exists.
   Defined.
 
   Definition maybe_choice'
@@ -470,13 +479,11 @@ Section Dual.
     {n : nat} (i : ⟦ n ⟧%stn) : dualelement (dualelement i) = i.
   Proof.
     unfold dualelement.
-    destruct (natchoice0 n) as [contr_eq | gt].
+    destruct (natchoice0 n) as [contr_eq | gt]; simpl.
     { simpl. apply fromstn0. rewrite <- contr_eq in i. assumption. }
-    simpl; set (m := n - 1).
     unfold make_stn.
     apply subtypePath_prop; simpl.
-    rewrite (doubleminuslehpaths m i); try reflexivity.
-    unfold m.
+    rewrite (doubleminuslehpaths (n - 1) i); try reflexivity.
     apply minusnleh1; apply (pr2 i).
   Defined.
 
@@ -489,9 +496,8 @@ Section Dual.
     {apply fromstn0. apply fromstn0. rewrite <- contr_eq in i. assumption. }
     intros H; apply subtypePath_prop; revert H; simpl.
     intros eq; rewrite <- eq; simpl.
-    set (m := n - 1).
     rewrite minusminusmmn; try reflexivity.
-    apply (natlthsntoleh); unfold m.
+    apply (natlthsntoleh).
     rewrite minussn1non0; try assumption; exact (pr2 i).
   Defined.
 
@@ -501,16 +507,12 @@ Section Dual.
   Proof.
     intros lt.
     unfold dualelement.
-    destruct (natchoice0 n) as [contr_eq | ?].
-    { simpl. apply fromstn0. rewrite contr_eq. assumption. }
-    simpl.
-    set (m := (n - 1)).
+    destruct (natchoice0 n) as [contr_eq | ?]; simpl.
+    {simpl. apply fromstn0. rewrite contr_eq. assumption. }
     apply minusgth0inv.
-    rewrite natminusminusassoc.
-    rewrite natpluscomm.
-    rewrite <- natminusminusassoc.
-    rewrite minusminusmmn.
-    2: {unfold m. apply (natgthtogehm1 _ _ (pr2 j)). }
+    rewrite natminusminusassoc, natpluscomm.
+    rewrite <- natminusminusassoc, minusminusmmn.
+    2: {apply (natgthtogehm1 _ _ (pr2 j)). }
     apply (minusgth0 _ _ lt).
   Defined.
 
@@ -533,8 +535,7 @@ Section Dual.
     unfold dualelement.
     destruct (natchoice0 n) as [contr_eq | ?].
     { simpl; apply fromstn0. rewrite contr_eq. assumption.  }
-    rewrite eq.
-    apply isreflnatgeh.
+    rewrite eq; apply isreflnatgeh.
   Defined.
 
   Lemma dualelement_le_comp'
@@ -543,7 +544,7 @@ Section Dual.
   Proof.
     intros le.
     pose (H := @dualelement_le_comp _ (dualelement i) (dualelement j) le).
-    do 2 rewrite dualelement_2x in H. assumption.
+    do 2 rewrite dualelement_2x in H; exact H.
   Defined.
 
   Lemma dualvalue_eq

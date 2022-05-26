@@ -14,7 +14,6 @@ Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.NumberSystems.RationalNumbers.
 Require Import UniMath.RealNumbers.Prelim.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
@@ -162,10 +161,7 @@ Section EliminationAlts.
         revert neq. revert iter2_lt.
         rewrite <- eq'.
         intros.
-        try rewrite <- eq'.
-        apply maponpaths_3.
-        intros.
-        apply proofirrelevance, propproperty.
+        apply maponpaths_3, proofirrelevance, propproperty.
     Defined.
 
   Lemma gauss_clear_columns_up_to_no_switch_inv4
@@ -485,10 +481,10 @@ Section EliminationAlts.
   Lemma gauss_clear_columns_up_to_no_switch_inv5
     ( n : nat ) (mat : Matrix F n n)
     (iter : ⟦ S n ⟧%stn) (p' : @is_lower_triangular F n n mat)
-    (k : ⟦ n ⟧%stn) (p'' : mat k k =  (@ringunel1 F)) :
+    (k : ⟦ n ⟧%stn) (p'' : mat k k = (@ringunel1 F)) :
     k < iter ->
     ∑ i : ⟦ n ⟧%stn, (@gauss_clear_columns_up_to_no_switch n iter mat) i
-      = (const_vec  (@ringunel1 F)).
+      = (const_vec (@ringunel1 F)).
   Proof.
     pose (inv0 := @gauss_clear_columns_up_to_no_switch_inv0).
     pose (inv2 := @gauss_clear_columns_up_to_no_switch_inv2).
@@ -564,8 +560,7 @@ Section EliminationAlts.
         etrans. {apply maponpaths_2, maponpaths, idpath. }
         change 0%rig with  (@ringunel1 F). replace (- 0)%ring with  (@ringunel1 F).
         2 : { try rewrite (@ringinvunel1 F ).
-              reflexivity.
-        }
+              reflexivity. }
         rewrite ringmult0x. reflexivity.
       + destruct (natlehchoice IH_idx j). {assumption. }
         * rewrite  gauss_clear_column_inv5; try reflexivity; try assumption.
@@ -704,10 +699,10 @@ Section EliminationAlts.
     (@matrix_right_inverse F n n mat) -> empty.
   Proof.
     intros lt contr_inv1.
-    assert (forall m' : Matrix F n n,
+    assert (∏ m' : Matrix F n n,
       (@matrix_right_inverse F n n m') -> matrix_right_inverse (mat ** m')).
     { intros. apply right_inv_matrix_prod_is_right_inv; try assumption. }
-    pose (C := @clear_columns_up_to_no_switch_as_left_matrix n (n,, natgthsnn n) mat).
+    pose (C := @clear_columns_up_to_no_switch_as_left_matrix _ (n,, natgthsnn n) mat).
     assert (contr_inv2 : @matrix_right_inverse F n n C).
     { pose (H := @clear_columns_up_to_no_switch_matrix_invertible n (n,, natgthsnn n) mat).
       apply matrix_inverse_to_right_and_left_inverse in H.
@@ -730,9 +725,9 @@ Section EliminationAlts.
     (iter : ⟦ S n ⟧%stn) 
     (p' : @is_upper_triangular F n n mat)
     (k : ⟦ n ⟧%stn)
-    (p'' : mat k k =  (@ringunel1 F)) :
-    k < iter ->
-    (@matrix_left_inverse F n n mat) -> empty.
+    (p'' : mat k k = (@ringunel1 F))
+    : k < iter
+      -> (@matrix_left_inverse F n n mat) -> empty.
   Proof.
     intros lt contr_inv1.
     apply (gauss_clear_columns_up_to_no_switch_inv6 n (transpose mat)

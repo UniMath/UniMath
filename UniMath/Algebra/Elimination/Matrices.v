@@ -11,7 +11,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.NumberSystems.RationalNumbers.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
@@ -44,7 +45,7 @@ Section Transposition.
   Defined.
 
   Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n)
-    : (forall i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
+    : (∏ i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
   Proof.
     intro H. apply funextfun; intro i; apply funextfun; intro j.
     specialize (H j). apply toforallpaths in H. apply H.
@@ -142,7 +143,7 @@ Section Identity_Matrix.
   Lemma col_vec_mult_eq
     { m n : nat } (mat : Matrix R m n) (v1 : Vector R n) (v2 : Vector R m)
     (e : (mat ** (col_vec v1)) = col_vec v2)
-    : forall i : (stn m),
+    : ∏ i : (stn m),
     @iterop_fun R (@rigunel1 R) op1 n ((mat i) ^ v1) = v2 i.
   Proof.
     apply toforallpaths; use col_vec_inj.
@@ -192,7 +193,7 @@ Section Identity_Matrix.
 
   Lemma identity_matrix_unique_left {m : nat}
     (Z : Matrix R m m)
-    : (forall n : nat, forall A : (Matrix R m n),
+    : (∏ n : nat, ∏ A : (Matrix R m n),
       (Z ** A) = A)
     -> Z = identity_matrix.
   Proof.
@@ -203,7 +204,7 @@ Section Identity_Matrix.
 
   Lemma identity_matrix_unique_right {n : nat}
     (Z : Matrix R n n)
-    : (forall m : nat, forall A : (Matrix R m n),
+    : (∏ m : nat, ∏ A : (Matrix R m n),
       (A ** Z) = A)
     -> Z = identity_matrix.
   Proof.
@@ -222,7 +223,6 @@ End Identity_Matrix.
 
 Section Inverses.
 
-  (* TODO: name as e.g. [matrix_right_inverse] since gives choice of inverse? and similar vice versa below. *)
   Definition matrix_right_inverse {m n : nat} (A : Matrix R m n) :=
     ∑ (B : Matrix R n m), ((A ** B) = identity_matrix).
 
@@ -251,12 +251,12 @@ Section Inverses.
   Defined.
 
   Lemma matrix_left_inverse_equals_right_inverse
-  {m n k: nat} (A : Matrix R n n) (lft : matrix_left_inverse A) (rght : matrix_right_inverse A)
+  {m n k: nat} (A : Matrix R n n)
+  (lft : matrix_left_inverse A) (rght : matrix_right_inverse A)
   : pr1 lft = pr1 rght.
   Proof.
     destruct lft as [lft islft].
-    destruct rght as [rght isrght].
-    simpl.
+    destruct rght as [rght isrght]; simpl.
     pose (H0 := matlunax2 n n rght).
     rewrite <- islft in H0.
     rewrite matrix_mult_assoc in H0.
@@ -270,8 +270,7 @@ Section Inverses.
     : matrix_left_inverse A -> matrix_right_inverse A -> (matrix_inverse A).
   Proof.
     intros lft rght.
-    use tpair. {apply lft. }
-    simpl.
+    use tpair; simpl. {apply lft. }
     use tpair. 2: {apply lft. }
     pose (H0 := @matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
     rewrite H0.
@@ -460,12 +459,8 @@ End Misc.
 
 End General_Rigs.
 
-  (* Things that are not really specific to hq but used in later in hq
-     - TODO either generalize elimination procedures or state below
-       in terms of commrings and prove hq is one.
-
-    Some material can be moved to semirings section above *)
-Section MatricesHq.
+  (* TODO Some material can be moved to semirings section above *)
+Section MatricesFld.
 
   Context {F : fld}.
   Local Notation Σ := (iterop_fun 0%ring op1).
@@ -522,15 +517,6 @@ Section MatricesHq.
     apply pathsinv0, identity_matrix_symmetric.
   Defined.
 
-  (* TODO: upstream; try to simplify/speed up? *)
-  Lemma hqone_neq_hqzero : 1%hq != 0%hq.
-  Proof.
-    intro contr.
-    assert (contr_hz : intpart 1%hq != intpart 0%hq).
-    { apply hzone_neg_hzzero. }
-    apply contr_hz. apply maponpaths, contr.
-  Time Defined.
-
   Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix F m n)
       (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%ring))
     : (@matrix_right_inverse F m n A) -> empty.
@@ -571,7 +557,7 @@ Section MatricesHq.
     intros i j lt; unfold is_upper_triangular; apply H; assumption.
   Defined.
 
-End MatricesHq.
+End MatricesFld.
 
 Section Transpositions.
 
@@ -669,8 +655,7 @@ Section Transpositions.
         reflexivity.
       + destruct (stn_eq_or_neq j j') as [j_eq_j' | neq].
         * intros j_eq_i.
-          rewrite <- j_eq_j',  j_eq_i.
-          rewrite i_eq_i'.
+          rewrite <- j_eq_j', j_eq_i, i_eq_i'.
           apply idpath.
         * intros j_eq_j'.
           rewrite j_eq_j' in *.
@@ -679,14 +664,11 @@ Section Transpositions.
     - destruct (stn_eq_or_neq j i') as [j_eq_i' | j_neq_i'] ;
         destruct (stn_eq_or_neq i j') as [i_eq_j' | i_neq_j'].
       + intros i_eq_j.
-        rewrite <- i_eq_j'.
-        rewrite i_eq_j.
-        rewrite j_eq_i'.
+        rewrite <- i_eq_j', i_eq_j, j_eq_i'.
         reflexivity.
       + destruct (stn_eq_or_neq j j') as [eq | neq].
         * intros i_eq_i.
-          rewrite <- eq.
-          rewrite j_eq_i'.
+          rewrite <- eq, j_eq_i'.
           reflexivity.
         * intros i_eq_j'.
           rewrite i_eq_j' in i_neq_j'.

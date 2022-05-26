@@ -14,7 +14,8 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.Algebra.Matrix.
-Require Import UniMath.NumberSystems.RationalNumbers.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
@@ -27,7 +28,7 @@ Section Vectors.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (* The following few lemmata are slight generalizations of the pre-existing proofs
-     for natural numbers *)
+     for natural numbers. Could be upstreamed. *)
 
   (* Identical to transport_stnsum but with Σ , R*)
   Lemma transport_rigsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
@@ -141,13 +142,25 @@ Section Vectors.
   Proof.
     rewrite rigsum_left_right, zero_function_sums_to_zero.
     - rewrite riglunax1.
-      reflexivity.
+      apply idpath.
     - rewrite (left_part_is_zero ).
       apply idpath.
   Defined.
 
-  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
-   ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
+  Lemma rigsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
+    (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
+    iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_left m' n' ).
+  Proof.
+    rewrite rigsum_left_right, rigcomm1, zero_function_sums_to_zero.
+    - rewrite riglunax1.
+      apply idpath.
+    - rewrite (right_part_is_zero).
+      apply idpath.
+  Defined.
+
+  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn ) 
+  (f : ⟦ n ⟧%stn -> R)
+  := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
   Lemma pulse_function_sums_to_point { n : nat }
     (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
@@ -157,7 +170,7 @@ Section Vectors.
     destruct (stn_inhabited_implies_succ i) as [n' e_n_Sn'].
     destruct (!e_n_Sn').
     rewrite (rigsum_dni f i).
-    rewrite zero_function_sums_to_zero. (* TODO rephrase in terms of stnsum_const *)
+    rewrite zero_function_sums_to_zero.
     { rewrite riglunax1. apply idpath. }
     apply funextfun; intros k.
     unfold funcomp.
@@ -172,10 +185,7 @@ Section Vectors.
 
   Lemma empty_sum_eq_0  (v1 : Vector R 0) : Σ v1 = 0%rig.
   Proof.
-    apply zero_function_sums_to_zero.
-    apply funextfun. intros i.
-    apply fromempty. apply weqstn0toempty.
-    assumption.
+    reflexivity.
   Defined.
 
   (* TODO resolve this situation with multiple aliases for essentially the same lemma
@@ -199,7 +209,7 @@ Section Vectors.
   Definition stdb_ii {n : nat} (i : ⟦ n ⟧%stn)
     : (stdb_vector i) i = rigunel2.
   Proof.
-    unfold stdb_vector. rewrite (stn_eq_or_neq_refl). apply idpath.
+    unfold stdb_vector; rewrite (stn_eq_or_neq_refl); apply idpath.
   Defined.
 
   Definition stdb_ij {n : nat} (i j : ⟦ n ⟧%stn)
@@ -229,15 +239,15 @@ Section Vectors.
     apply idpath.
   Defined.
 
-  (* TODO: generalize: any pointwise product with a pulse function is a pulse function? then can inline below *)
-  Lemma is_pulse_function_stdb_vector_pointwise_prod
-      { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
-    : is_pulse_function i (stdb_vector i ^ v).
+  Lemma pulse_prod_is_pulse {n : nat}
+    (f g : stn n -> R) {i : stn n} (H : is_pulse_function i f)
+    : is_pulse_function i (f ^ g).
   Proof.
-    intros j i_neq_j.
-    unfold pointwise.
-    rewrite (is_pulse_function_stdb_vector i j i_neq_j).
-    simpl. apply (rigmult0x).
+    unfold is_pulse_function in *; intros j.
+    intros neq; unfold pointwise.
+    replace (f j) with (@rigunel1 R).
+    - apply rigmult0x.
+    - rewrite H; try reflexivity; assumption.
   Defined.
 
   Lemma sum_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
@@ -245,7 +255,8 @@ Section Vectors.
   Proof.
     etrans.
     { apply (pulse_function_sums_to_point _ i).
-      apply is_pulse_function_stdb_vector_pointwise_prod. }
+      apply (pulse_prod_is_pulse _ _ ).
+      apply is_pulse_function_stdb_vector. }
     unfold pointwise, stdb_vector.
     rewrite stn_eq_or_neq_refl.
     apply riglunax2.
@@ -267,7 +278,7 @@ Section Vectors.
   Lemma two_pulse_function_sums_to_points { n : nat }
       (f : ⟦ n ⟧%stn -> R)
       (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
-      (X : forall (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
+      (X : ∏ (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
     : (Σ f = f i + f j)%rig.
   Proof.
     assert (H : f = pointwise n op1  (scalar_lmult_vec (f i) (stdb_vector i))
@@ -294,8 +305,7 @@ Section Vectors.
           * apply issymm_natneq. assumption.
           * apply issymm_natneq. assumption.
     }
-    rewrite H.
-    rewrite sum_pointwise_op1.
+    rewrite H, sum_pointwise_op1.
     unfold scalar_lmult_vec.
     rewrite <- (sum_is_ldistr _ (stdb_vector i)).
     rewrite <- (sum_is_ldistr _ (stdb_vector j)).
@@ -307,14 +317,10 @@ Section Vectors.
     apply issymm_natneq in ne_i_j.
     rewrite (stn_eq_or_neq_right ne_i_j); simpl.
     do 2 rewrite rigmultx0.
-    rewrite rigrunax1.
-    rewrite riglunax1.
+    rewrite rigrunax1, riglunax1.
     do 2 rewrite rigrunax2.
     apply idpath.
   Defined.
-
-  Definition zero_vector_hq (n : nat) : ⟦ n ⟧%stn -> hq :=
-    λ i : ⟦ n ⟧%stn, 0%hq.
 
   Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
     λ i : ⟦ n ⟧%stn, 0%nat.
@@ -322,10 +328,11 @@ Section Vectors.
   Definition zero_vector_stn (n : nat) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn :=
     λ i : ⟦ n ⟧%stn, (0%nat,, (natneq0to0lth _ (stn_implies_nneq0 i))).
 
-  Definition vectorize_1 ( X : UU ) : X -> Vector X 1.
+  Lemma vector_1_inj { X : rig } { n : nat } (e1 e2 : X)
+    : (λ y : (⟦ 1 ⟧)%stn, e1) = (λ y : (⟦ 1 ⟧)%stn, e2) -> e1 = e2.
   Proof.
-    intros e.
-    exact (λ i : (stn 1), e).
+    intros eq.
+    apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
   Defined.
 
   Lemma weq_rowvec
@@ -343,17 +350,18 @@ Section Vectors.
     apply weq_vector_1.
   Defined.
 
-  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
-    : v = const_vec e -> v i = e.
-  Proof.
-    intros eq. rewrite eq. reflexivity.
-  Defined.
-
   Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
     : col_vec v1 = col_vec v2 -> v1 = v2.
   Proof.
     intros H.
     apply (invmaponpathsweq (@weq_colvec X n)  _ _ H).
+  Defined.
+
+  Lemma col_vec_inj_pointwise { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
+  Proof.
+    intros i eq.
+    apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
   Defined.
 
   Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
@@ -363,17 +371,18 @@ Section Vectors.
     apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
   Defined.
 
-  Lemma vectorize_inj { X : rig } { e1 e2 : X }
-    : vectorize_1 _ e1 = vectorize_1 _ e2 -> e1 = e2.
+  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
+    : v = const_vec e -> v i = e.
   Proof.
-    intros H.
-    apply (invmaponpathsweq (@weq_vector_1 X)  _ _ H).
+    intros eq. rewrite eq. reflexivity.
   Defined.
 
   Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
-  : forall i : (stn 1), v = col (col_vec v) i.
+  : ∏ i : (stn 1), v = col (col_vec v) i.
   Proof.
     reflexivity.
   Defined.
+
+
 
 End Vectors.

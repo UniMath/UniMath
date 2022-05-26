@@ -12,7 +12,6 @@ Require Import UniMath.MoreFoundations.Nat.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.FiniteSequences.
-Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Maybe.
 
@@ -21,8 +20,6 @@ Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Matrix.
 
-Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.NumberSystems.RationalNumbers.
 Require Import UniMath.Tactics.Nat_Tactics.
 
 Require Import UniMath.PAdics.z_mod_p.
@@ -44,24 +41,39 @@ Require Import UniMath.Algebra.Elimination.RowOps.
     
 *)
 
-Definition is_leading_entry {F : fld} {n : nat} (v : Vector F n) (i_1 : ⟦ n ⟧%stn) :=
-  (v i_1 != 0%ring) × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> (v i_2) = 0%ring).
 
-(* 1 : any leading entry is strictly to the right of a previous leading entry
-    2 : any zero row is below any non-zero row *)
-Definition is_row_echelon {F : fld} {m n : nat} (mat : Matrix F m n) :=
-  ∏ i_1 i_2 : ⟦ m ⟧%stn,
-  (∏ j_1 j_2 : ⟦ n ⟧%stn,
-        is_leading_entry (mat i_1) j_2
-    -> i_1 < i_2 -> j_1 ≤ j_2 -> mat i_2 j_1 = 0%ring)
-  × ((mat i_1 = const_vec 0%ring) -> (i_1 < i_2) -> (mat i_2 = const_vec 0%ring)).
+Section Summary.
 
+  Context (R: ring).
+  Context (F: fld).
 
-Definition gaussian_elimination_stmt {F : fld}  {m n : nat} {A : Matrix F m n}
-  := ∑ (A' : Matrix F m m), (@matrix_inverse F m A')
-    × (@is_row_echelon F m n (@matrix_mult F _ _ A' _ A)).
+  Local Notation Σ := (iterop_fun hqzero op1).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
-  
+  Definition is_leading_entry {F : fld} {n : nat} (v : Vector F n) (i_1 : ⟦ n ⟧%stn)
+    := (v i_1 != 0%ring)
+      × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> (v i_2) = 0%ring).
+
+  (* 1 : any leading entry is strictly to the right of a previous leading entry
+      2 : any zero row is below any non-zero row *)
+  Definition is_row_echelon {F : fld} {m n : nat} (mat : Matrix F m n) :=
+    ∏ i_1 i_2 : ⟦ m ⟧%stn,
+    (∏ j_1 j_2 : ⟦ n ⟧%stn,
+      is_leading_entry (mat i_1) j_2
+      -> i_1 < i_2 -> j_1 ≤ j_2
+      -> mat i_2 j_1 = 0%ring)
+    × ((mat i_1 = const_vec 0%ring)
+      -> (i_1 < i_2)
+      -> (mat i_2 = const_vec 0%ring)).
+
+  Definition gaussian_elimination_stmt
+    {F : fld} {m n : nat} {A : Matrix _ m n}
+    := ∑ (B : Matrix _ _ _), (matrix_inverse B)
+      × (is_row_echelon (B ** A)).
+
+End Summary.
+
 (** In the proceeding, we provide a sub-module for calculating the leading entry of a vector, 
     and provide suitable correctness lemmata for it. *)
 
@@ -86,7 +98,6 @@ Section LeadingEntry.
     induction iter.
     { exact nothing. }
     simpl in lt.
-    About nat_rect_step.
     destruct (fldchoice0 (v (iter,, lt))).
     - refine (IHiter _).
       apply (istransnatlth _ _ _ lt (natgthsnn n)).
@@ -161,24 +172,6 @@ Section LeadingEntry.
     simpl. rewrite e_2. reflexivity.
   Defined.
 
-  Definition select_pivot_row_easy_internal {m n : nat} (mat : Matrix F m n)
-     (row_sep : ⟦ n ⟧%stn) (k : ⟦ n ⟧%stn) (iter : ⟦ S m ⟧%stn)
-    : maybe (∑ i : ⟦ m ⟧%stn, row_sep ≤ i).
-  Proof.
-    destruct (leading_entry_compute_dual_internal ((col mat k)) iter) as [i | ?].
-    2: { exact nothing. }
-    destruct (natlthorgeh (pr1 i) row_sep) as [? | gt]. {exact nothing. }
-    exact (just (i,, gt )).
-  Defined.
-
-  Definition select_pivot_row_easy {m n : nat} (mat : Matrix F m n)
-    (row_sep k : ⟦ n ⟧%stn) (iter : ⟦ S m ⟧%stn) : maybe (⟦ m ⟧%stn).
-  Proof.
-    destruct (select_pivot_row_easy_internal mat row_sep k iter) as [t | ?].
-    - apply (just (pr1 t)).
-    - exact nothing.
-  Defined.
-
   Lemma leading_entry_compute_dual_internal_correct2
     { n : nat } (v : Vector F n) (iter : ⟦ S n ⟧%stn)
     (ne_nothing : (leading_entry_compute_dual_internal v iter) != nothing)
@@ -207,14 +200,13 @@ Section LeadingEntry.
     - intros ?. use tpair.
       { exact (iter ,, p). }
       use tpair. {simpl. reflexivity. }
-      use tpair.
-      { apply (natgthsnn iter). }
+      use tpair. { apply (natgthsnn iter). }
       simpl; intros.
       intros contr_eq0.
       contradiction neq0.
   Defined.
 
-  Definition  leading_entry_compute_dual_internal_correct3
+  Definition leading_entry_compute_dual_internal_correct3
     {n : nat} (v : Vector F n) (iter : ⟦ S n ⟧%stn)
     (ne_nothing : (leading_entry_compute_dual_internal v iter) = nothing)
     : ∏ i : ⟦ n ⟧%stn, i < iter -> v i = 0%ring.
@@ -316,7 +308,7 @@ Section LeadingEntry.
         rewrite <- eq'; apply neq.
       }
       intros ? i'_gt_iter i_le_iter.
-            apply natlthtonegnatgeh in i'_gt_iter.
+      apply natlthtonegnatgeh in i'_gt_iter.
       unfold leading_entry_compute_dual_internal in eq.
       rewrite nat_rect_step in eq.
       destruct (fldchoice0 _) as [? | eq'] in eq.
@@ -326,8 +318,8 @@ Section LeadingEntry.
       contradiction.
   Defined.
 
-  Definition leading_entry_compute_internal_correct1
-    {n : nat} (v : Vector F n) (iter : ⟦ S n ⟧%stn) (i : ⟦ n ⟧%stn)
+  Lemma leading_entry_compute_internal_correct1
+    {n : nat} (v : Vector F n) (i : ⟦ n ⟧%stn)
     (eq : (leading_entry_compute_internal v (n,, natgthsnn n)) = (just i))
     : is_leading_entry v i.
   Proof.
@@ -341,9 +333,9 @@ Section LeadingEntry.
     destruct (@maybe_stn_choice F n
               (leading_entry_compute_dual_internal
               (λ i : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn n))) as [? | contr_eq].
-    2: { contradiction (@negpathsii1ii2 ((⟦ n ⟧)%stn) unit (i') tt).
+    2: { contradiction (@negpathsii1ii2 ((⟦ n ⟧)%stn) unit i' tt).
          unfold just in H1; rewrite <- H1.
-         rewrite contr_eq. reflexivity.  }
+         rewrite contr_eq. reflexivity. }
     destruct t as [t H3].
     rewrite H2 in *.
     destruct H as [H4 H5].
@@ -377,10 +369,10 @@ Section LeadingEntry.
             apply fromempty; assumption.
       }
       destruct (natlehchoice (dualelement i) (iter)). {  apply natlthsntoleh; assumption. }
-      { intros H. apply IHiter in H; try assumption. }
-      intros ?.
-      rewrite (dualelement_eq i (iter,, pr2_)); try reflexivity; try assumption.
-      apply subtypePath_prop; assumption.
+      + intros H. apply IHiter in H; try assumption.
+      + intros ?.
+        rewrite (dualelement_eq i (iter,, pr2_)); try reflexivity; try assumption.
+        apply subtypePath_prop; assumption.
   Defined.
 
   Lemma leading_entry_compute_internal_correct3
@@ -392,8 +384,7 @@ Section LeadingEntry.
     use tpair.
     - pose (H1 := @leading_entry_compute_internal_correct1).
       unfold is_leading_entry in H1.
-      apply H1. {exact (n,, natgthsnn n). }
-      exact eq.
+      apply H1; exact eq.
     - simpl.
       intros i' i_gt_i'.
       pose (H2 := @leading_entry_compute_impl _ _ _ eq).
@@ -450,7 +441,7 @@ Section LeadingEntry.
   Lemma leading_entry_compute_correct1
     {n : nat} (v : Vector F n)
     (i : ⟦ n ⟧%stn)
-    (eq:  (leading_entry_compute v = just i))
+    (eq: (leading_entry_compute v = just i))
     : is_leading_entry v i.
   Proof.
     unfold is_leading_entry.
@@ -460,54 +451,33 @@ Section LeadingEntry.
     apply leading_entry_compute_internal_correct3; assumption.
   Defined.
 
-  Lemma select_pivot_eq_leading_dual
-    {m n : nat} (mat : Matrix F m n) (row_sep k : ⟦ n ⟧%stn)
-    (i : stn m) (iter : ⟦ S m ⟧%stn)
-    (ne_nothing : (select_pivot_row_easy mat row_sep k iter) = (just i))
-    :
-    (select_pivot_row_easy mat row_sep k iter) =
-    (leading_entry_compute_dual_internal (col mat k) iter).
-  Proof.
-    unfold select_pivot_row_easy, select_pivot_row_easy_internal in *.
-    destruct (leading_entry_compute_dual_internal (col mat k) iter) as [s | ?].
-    - destruct (natlthorgeh _ _); simpl; try reflexivity.
-      symmetry in ne_nothing. apply negpathsii1ii2 in ne_nothing.
-      contradiction.
-    - simpl in ne_nothing.
-      symmetry in ne_nothing.
-      apply negpathsii1ii2 in ne_nothing.
-      contradiction.
-  Defined.
+End LeadingEntry.
 
-  Lemma select_pivot_impl_leading_dual
-    {m n : nat} (mat : Matrix F m n) (row_sep k : ⟦ n ⟧%stn)
-    (i : stn m) (iter : ⟦ S m ⟧%stn)
-    (k_le_i : k ≤ i)
-    : (select_pivot_row_easy mat row_sep k iter) != nothing ->
-    (leading_entry_compute_dual_internal (col mat k) iter) != nothing.
-  Proof.
-    unfold select_pivot_row_easy, select_pivot_row_easy_internal in *.
-    destruct (leading_entry_compute_dual_internal (col mat k) iter) as [s | ?];
-      simpl; try contradiction.
-    destruct (natlthorgeh _ _); intros; try contradiction.
-    apply negpathsii1ii2.
-  Defined.
+Section Pivot.
+
+  Context (R: ring).
+  Context (F: fld).
+
+  Local Notation Σ := (iterop_fun hqzero op1).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+
 
   Definition select_pivot_row_coprod {m n : nat} (mat : Matrix F m n)
     (row_sep : ⟦ m ⟧%stn) (k : ⟦ n ⟧%stn) :
     coprod ((∑ i: ⟦ m ⟧%stn, row_sep ≤ i × ((mat i k) != 0%ring)))
-           (∏ i : ⟦ m ⟧%stn, row_sep ≤ i -> mat i k = 0%ring).
+          (∏ i : ⟦ m ⟧%stn, row_sep ≤ i -> mat i k = 0%ring).
   Proof.
     pose (H := (leading_entry_compute_dual_internal_correct2
-      (col mat k) (m,, natgthsnn m))).
+      _ (col mat k) (m,, natgthsnn m))).
     destruct (maybe_choice (leading_entry_compute_dual_internal
-      (col mat k) (m,, natgthsnn m))) as [nnone | none].
+      _ (col mat k) (m,, natgthsnn m))) as [nnone | none].
     - destruct H as [H1 H2]; try assumption.
       destruct (natlthorgeh H1 row_sep) as [? | gt].
       + apply ii2.
         set (H2' := (pr1 H2)); symmetry in H2'.
         pose (H3 := @leading_entry_compute_dual_internal_correct5
-          _ (col mat k) (m,, natgthsnn m) H1 (H2')).
+          _ _ (col mat k) (m,, natgthsnn m) H1 (H2')).
         destruct H3 as [H3 H4].
         intros i ke_le_i.
         unfold col, transpose, flip in *.
@@ -526,7 +496,7 @@ Section LeadingEntry.
     - apply ii2.
       pose (H' := @leading_entry_compute_dual_internal_correct3).
       intros.
-      rewrite <- (H' m (col mat k) (m,, natgthsnn m) none i); try reflexivity.
+      rewrite <- (H' _ m (col mat k) (m,, natgthsnn m) none i); try reflexivity.
       apply (pr2 i).
   Defined.
 
@@ -551,26 +521,19 @@ Section LeadingEntry.
   (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn)
   :=
   ((∑ j: ⟦ n ⟧%stn, j < col_iter × (∑ i: ⟦ m ⟧%stn, row_sep ≤ i × ((mat i j) != 0%ring)
-  ×  ∏ i' : (⟦ m ⟧)%stn, forall (j' : stn n), row_sep ≤ i' -> j' < j -> mat i' j' = 0%ring))).
-
-  Local Definition is_first_uncleared
-  {m n : nat} (mat : Matrix F m n)
-  (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn)
-  (j : stn n)
-  := ((j < col_iter × (∑ i: ⟦ m ⟧%stn, row_sep ≤ i × ((mat i j) != 0%ring)
-  ×  ∏ i' : (⟦ m ⟧)%stn, forall (j' : stn n), row_sep ≤ i' -> j' < j -> mat i' j' = 0%ring))).
+  ×  ∏ i' : (⟦ m ⟧)%stn, ∏ (j' : stn n), row_sep ≤ i' -> j' < j -> mat i' j' = 0%ring))).
 
   Local Definition lower_left_zero {m n : nat} (mat : Matrix F m n)
   (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn)
   := (∏ i : ⟦ m ⟧%stn, row_sep ≤ i
     -> (∏ j : ⟦ n ⟧%stn, j < col_iter -> mat i j = 0%ring)).
 
-  Definition select_uncleared_column_internal
+  Lemma select_uncleared_column_internal
     {m n : nat} (mat : Matrix F m n)
     (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn) (p : n > 0)
     : coprod
-    (exists_first_uncleared mat row_sep col_iter)
-    (lower_left_zero mat row_sep col_iter).
+      (exists_first_uncleared mat row_sep col_iter)
+      (lower_left_zero mat row_sep col_iter).
   Proof.
     destruct (natchoice0 m) as [contr_eq | ngt0].
     {apply fromstn0. rewrite contr_eq. assumption. }
@@ -592,20 +555,15 @@ Section LeadingEntry.
         * left.
           use tpair. {exact (col_iter,, lt). }
           use tpair. { apply (natgthsnn col_iter). }
-          use tpair. {apply nz. }
-          use tpair. {apply nz. }
-          use tpair. {apply nz. }
-          simpl; intros i' j' ? ?.
+          do 3 (use tpair; try apply nz); simpl; intros.
           apply IH_right; try assumption.
         * right.
           intros i rowsep_le_i j j_lt_scoliter.
-          destruct (natlehchoice j col_iter) as [? | eq].
+          destruct (natlehchoice j col_iter) as [? | eq]; intros.
           { apply (natlehlthtrans _ _ _ j_lt_scoliter). apply (natgthsnn col_iter). }
           { intros. apply IH_right; try assumption. }
-          intros.
           rewrite <- (z i); try assumption.
-          apply maponpaths.
-          apply subtypePath_prop.
+          apply maponpaths, subtypePath_prop.
           assumption.
   Defined.
 
@@ -614,14 +572,14 @@ Section LeadingEntry.
     (row_sep : ⟦ m ⟧%stn) (p : n > 0)
     := select_uncleared_column_internal mat row_sep (n,, natgthsnn n) p.
 
-End LeadingEntry.
+End Pivot.
 
 Section Gauss.
 
   Context (R : rig).
   Context (F : fld).
   
-  Local Notation Σ := (iterop_fun hqzero op1).
+  Local Notation Σ := (iterop_fun (@ringunel1) op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
@@ -635,8 +593,8 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i) as [? | ?].
     - exact mat.
-    - exact (add_row_matrix k_i i (- ( (mat i k_j) * fldmultinv' (mat k_i k_j)))%ring
-      ** mat).
+    - refine ((add_row_matrix k_i i _)%ring ** mat).
+      exact (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring.
   Defined.
 
   Definition gauss_clear_column_step'
@@ -649,7 +607,8 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i) as [? | ?].
     - exact mat.
-    - exact (gauss_add_row mat k_i i (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring).
+    - exact (gauss_add_row mat k_i i
+        (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring).
   Defined.
 
   Lemma gauss_clear_column_step_eq {m n : nat}
@@ -678,11 +637,10 @@ Section Gauss.
   Proof.
     intros k j_ne_k.
     unfold gauss_add_row.
-    destruct (stn_eq_or_neq k j) as [k_eq_j | k_neq_j].
-    - rewrite k_eq_j in j_ne_k.
-      apply isirrefl_natneq in j_ne_k.
-      apply fromempty; assumption.
-    - reflexivity.
+    destruct (stn_eq_or_neq k j) as [k_eq_j | k_neq_j]; try reflexivity.
+    rewrite k_eq_j in j_ne_k.
+    apply isirrefl_natneq in j_ne_k.
+    apply fromempty; assumption.
   Defined.
 
   (* TODO step invs at same place *)
@@ -699,26 +657,26 @@ Section Gauss.
     rewrite gauss_clear_column_step_eq.
     unfold gauss_clear_column_step'.
     destruct (stn_eq_or_neq j k_i) as [? | ?].
-    {apply idpath. }
+    { apply idpath. }
     apply funextfun; intros ?.
     rewrite gauss_add_row_inv0; try reflexivity.
     apply issymm_natneq; assumption.
-  Defined.
+  Defined. 
 
   Definition gauss_clear_column { m n : nat }
     (mat : Matrix F m n) (k_i : (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn)) (iter : ⟦ S m ⟧%stn)
+    (k_j : (⟦ n ⟧%stn)) (row_sep : ⟦ S m ⟧%stn)
     : Matrix F m n.
   Proof.
-    destruct iter as [iter lt].
+    destruct row_sep as [iter lt].
     induction iter as [ | iter gauss_clear_column_IH ].
-    { exact mat. }
+    { exact mat. } 
     destruct (natgthorleh iter k_i) as [gt | leh].
-    - refine (gauss_clear_column_step k_i k_j (iter,, lt) _ ).
-      refine (gauss_clear_column_IH _).
-      refine (istransnatlth _ _ _ (natgthsnn iter) _).
-      assumption.
-    - exact mat.
+    2: {exact mat. }
+    refine (gauss_clear_column_step k_i k_j (iter,, lt) _ ).
+    refine (gauss_clear_column_IH _).
+    refine (istransnatlth _ _ _ (natgthsnn iter) _).
+    assumption.
   Defined.
 
   Lemma gauss_clear_column_as_left_matrix 
@@ -756,24 +714,6 @@ Section Gauss.
     simpl.
     rewrite <- i'_eq_j', eq0.
     unfold const_vec ; simpl.
-    rewrite (@ringmultx0 F), (@rigrunax1 F).
-    reflexivity.
-  Defined.
-
-  Lemma gauss_add_row_inv2
-    {m n : nat}
-    (mat : Matrix F m n)
-    (i_1 i_2: ⟦ m ⟧%stn)
-    (s : F)
-    : ∏ (j_1: ⟦ n ⟧%stn),
-    (mat i_1 j_1 = 0%ring)
-    -> (gauss_add_row mat i_1 i_2 s) i_2 j_1 = mat i_2 j_1.
-  Proof.
-    intros j_1 eq0.
-    unfold gauss_add_row.
-    destruct (stn_eq_or_neq _ _ ) as [i'_eq_j' | i'_neq_j'];
-      simpl; try reflexivity.
-    rewrite eq0.
     rewrite (@ringmultx0 F), (@rigrunax1 F).
     reflexivity.
   Defined.
@@ -820,16 +760,15 @@ Section Gauss.
         }
         rewrite IH; try apply idpath.
         apply natlehsntolth; apply natlthtoleh; assumption.
-      + rewrite matlunax2.
+      + rewrite matlunax2. 
         assert (lt: iter < S m). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
         unfold gauss_clear_column_as_left_matrix in IH.
         rewrite <- (IH lt).
-        2 : {apply (istransnatleh (natgehsnn iter) le). }
+        2: {apply (istransnatleh (natgehsnn iter) le). }
         unfold matrix_mult.
         apply funextfun; intros q.
         apply maponpaths; do 2 apply maponpaths_2.
-        apply maponpaths.
-        apply proofirrelevance, propproperty.
+        apply maponpaths, proofirrelevance, propproperty.
   Defined.
 
   Lemma gauss_clear_column_as_left_matrix_inv1
@@ -842,28 +781,19 @@ Section Gauss.
   Proof.
     unfold gauss_clear_column_as_left_matrix.
     destruct iter as [iter p].
-    induction iter as [| iter IH].
-    - simpl. rewrite matlunax2. reflexivity.
-    - intros.
-      unfold gauss_clear_column_as_left_matrix.
-      rewrite nat_rect_step.
-      destruct (natgthorleh iter k_i) as [gt | ?].
-      + assert (lt: iter < S m). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
-        ( rewrite <- (IH lt)).
-        unfold gauss_clear_column_as_left_matrix in *.
-        rewrite IH.
-        rewrite matrix_mult_assoc.
-        rewrite add_row_mat_elementary.
-        2: {apply issymm_natneq. apply natgthtoneq. assumption. }
-        rewrite gauss_add_row_inv0.
-        2: {apply natgthtoneq. apply (natlehlthtrans _ _ _  i_leh_k gt).  }
-        unfold gauss_clear_column_as_left_matrix in IH.
-        rewrite IH.
-        reflexivity.
-      + rewrite matlunax2.
-        unfold gauss_clear_column_as_left_matrix in IH.
-        rewrite IH.
-        reflexivity.
+    induction iter as [| iter IH]; intros.
+    { simpl; rewrite matlunax2; reflexivity. }
+    unfold gauss_clear_column_as_left_matrix.
+    rewrite nat_rect_step.
+    destruct (natgthorleh iter k_i) as [gt | ?].
+    2: { rewrite matlunax2; rewrite IH; reflexivity. }
+    assert (lt: iter < S m). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
+    rewrite <- (IH lt).
+    rewrite IH, matrix_mult_assoc, add_row_mat_elementary.
+    2: {apply issymm_natneq. apply natgthtoneq. assumption. }
+    rewrite gauss_add_row_inv0.
+    2: {apply natgthtoneq. apply (natlehlthtrans _ _ _  i_leh_k gt).  }
+    rewrite IH; reflexivity.
   Defined.
 
   Lemma clear_column_matrix_invertible
@@ -896,13 +826,13 @@ Section Gauss.
     : Matrix F m n.
   Proof.
     destruct (natchoice0 n) as [contr_eq | p].
-    { unfold Matrix, Vector. intros. apply fromstn0. rewrite contr_eq; assumption. }
+    { unfold Matrix, Vector; intros; apply fromstn0.
+      rewrite contr_eq; assumption. }
     destruct (select_uncleared_column F mat row p) as [some | none].
-    2 : {exact mat. }
-    unfold exists_first_uncleared in some.
-    set (piv_row := (pr1 (pr2 (pr2 some)))).
-    refine (gauss_clear_column
-      _  row (pr1 ((some ))) (m,, natlthnsn m)).
+    2: {exact mat. }
+    set (piv_col := pr1 some).
+    set (piv_row := pr1 (pr2 (pr2 some))).
+    refine (gauss_clear_column _ row piv_col (m,, natlthnsn m)).
     exact (gauss_switch_row mat row piv_row).
   Defined.
 
@@ -916,9 +846,11 @@ Section Gauss.
     destruct (select_uncleared_column F mat row p) as [some | none].
     2 : {exact (@identity_matrix F m). }
     set (mat_by_normal_op := (gauss_switch_row mat row (pr1 (pr2 (pr2 some))))).
+    set (piv_col := pr1 some).
+    set (piv_row := pr1 (pr2 (pr2 some))).
     refine ((gauss_clear_column_as_left_matrix (m,, natgthsnn m) mat_by_normal_op row
-      (pr1 (some))) ** _).
-    refine (switch_row_matrix m row (pr1 (pr2 (pr2 some)))).
+      (pr1 some)) ** _).
+    refine (@switch_row_matrix _ _ row piv_row).
   Defined.
 
   Lemma clear_row_matrix_invertible
@@ -947,7 +879,7 @@ Section Gauss.
   Proof.
     destruct row_sep as [row_sep row_sep_lt_n].
     induction row_sep as [ | row_sep gauss_clear_earlier_rows].
-    { exact mat. }
+    {exact mat. }
     refine (gauss_clear_row _ (row_sep,, row_sep_lt_n)).
     refine (gauss_clear_earlier_rows _).
     exact (istransnatlth _ _ _ (natgthsnn row_sep) row_sep_lt_n ).
@@ -1016,7 +948,7 @@ Section Gauss.
     (mat : Matrix F m n)
     : Matrix F m n.
   Proof.
-    refine ((gauss_clear_rows_up_to mat (m,,_))).
+    refine (gauss_clear_rows_up_to mat (m,,_)).
     exact (natgthsnn m).
   Defined.
 
@@ -1060,12 +992,11 @@ Section Gauss.
     rewrite gauss_add_row_comp1.
     set (a := (mat r c_pivot)).
     set (b := (mat r_pivot c_pivot)).
-    rewrite <- (@ringlmultminus F).
-    rewrite ringassoc2.
+    rewrite <- (@ringlmultminus F), ringassoc2.
     etrans. { apply maponpaths, maponpaths, fldmultinvlax'; assumption. }
     rewrite (@rigrunax2 F).
     apply ringrinvax1.
-  Qed.
+  Defined.
 
   Lemma gauss_clear_column_step_inv3
     {m n : nat} (k_i : stn m) 
@@ -1074,11 +1005,10 @@ Section Gauss.
     (j' : stn n) (p : r < j)
     : (gauss_clear_column_step k_i k_j j mat) r j' = mat r j'.
   Proof.
-    assert (p': r ≠ j). {apply issymm_natneq.  apply natgthtoneq. assumption. }
+    assert (p': r ≠ j). {apply issymm_natneq. apply natgthtoneq. assumption. }
     rewrite (gauss_clear_column_step_inv2 k_i k_j r mat j  p').
     apply idpath.
   Defined.
-
 
   Lemma gauss_clear_column_step_inv5
     {m n : nat} (mat : Matrix F m n)
@@ -1093,15 +1023,10 @@ Section Gauss.
     destruct (stn_eq_or_neq _ _); try apply idpath;
       try contradiction.
     unfold gauss_add_row.
-    destruct (stn_eq_or_neq _ _) as [eq | neq]; try reflexivity.
-    simpl.
-    rewrite eq.
-    rewrite kj_0.
-    rewrite (@ringmultx0 F).
-    rewrite (@ringrunax1 F).
-    reflexivity.
+    destruct (stn_eq_or_neq _ _) as [eq | neq]; try reflexivity; simpl.
+    rewrite eq, kj_0, (@ringmultx0 F), (@ringrunax1 F).
+    apply idpath.
   Defined.
-
 
   Lemma gauss_clear_column_step_inv6
     {m n : nat} (mat : Matrix F m n)
@@ -1117,19 +1042,14 @@ Section Gauss.
     unfold gauss_add_row.
     apply funextfun; intros i_2.
     apply funextfun; intros i_3.
-    destruct (stn_eq_or_neq _ _) as [eq | neq]; try reflexivity.
-    simpl.
-    rewrite eq.
     unfold fldmultinv'.
-    rewrite (fldchoice0_left _ kj_0).
-    rewrite (@ringmultx0 F).
-    rewrite ringinvunel1.
-    rewrite (@ringmult0x F).
-    rewrite (@ringrunax1 F).
+    destruct (stn_eq_or_neq _ _) as [eq | neq]; try reflexivity; simpl.
+    rewrite eq, (fldchoice0_left _ kj_0), (@ringmultx0 F).
+    rewrite ringinvunel1, (@ringmult0x F), (@ringrunax1 F).
     reflexivity.
   Defined.
 
-  (* Proving mat r  is unchanged after column clearance   if r > n'. *)
+  (* Proving mat r  is unchanged after column clearance  if r > n'. *)
   Lemma gauss_clear_column_inv0
     { m n : nat } (k_i : (⟦ m ⟧%stn))
     (k_j : stn n) (iter : ⟦ S m ⟧%stn)
@@ -1147,18 +1067,15 @@ Section Gauss.
     destruct (stn_eq_or_neq _ _).
     { unfold gauss_clear_column, gauss_clear_column_step.
       unfold gauss_clear_column in IH.
-      apply IH.
-      apply natgthtogeh; assumption.
-    }
+      apply IH, natgthtogeh; assumption. }
     unfold gauss_clear_column in IH.
     rewrite gauss_add_row_inv0. 2: {apply natlthtoneq. assumption. }
     rewrite IH. { apply idpath. }
-    apply natgthtogeh.
-    apply r_gt_n'.
+    apply natgthtogeh, r_gt_n'.
   Defined.
 
   (* if the target row r ≤  the pivot row k,
-     mat r is not changed bybac the clearing procedure. *)
+     mat r is not changed by the clearing procedure. *)
   Lemma gauss_clear_column_inv3
         { m n : nat } (k_i : (⟦ m ⟧%stn)) (k_j : stn n) (r : stn m)
         (iter : ⟦ S m ⟧%stn) (p' : r ≤ k_i)
@@ -1175,22 +1092,20 @@ Section Gauss.
     rewrite gauss_clear_column_step_inv3.
     2 : {refine (natgthgehtrans _ _ _ h _); assumption. }
     unfold gauss_clear_column in IH.
-    rewrite IH.
-    reflexivity.
+    rewrite IH; reflexivity.
   Defined.
 
-  (* Proving the column clearing procedure works on one row at a time *)
-  (* TODO - not admit, fix some variable naming*)
+  (* Proving the column clearing procedure equals applying step on a given row *)
   Lemma gauss_clear_column_inv1
     { m n : nat } (k_i : (⟦ m ⟧%stn))
-    (k_j : stn n) (iter : ⟦ S m ⟧%stn)
+    (k_j : stn n) (row_sep : ⟦ S m ⟧%stn)
     (mat : Matrix F m n)
-    : ∏ r : (⟦ m ⟧%stn), r < iter -> k_i < r ->
-    ((gauss_clear_column  mat k_i k_j iter) r
-    = (gauss_clear_column_step' k_i k_j r mat) r).
+    : ∏ r : (⟦ m ⟧%stn), r < row_sep -> k_i < r ->
+      ((gauss_clear_column  mat k_i k_j row_sep) r
+      = (gauss_clear_column_step' k_i k_j r mat) r).
   Proof.
     unfold gauss_clear_column.
-    destruct iter as [n' p].
+    destruct row_sep as [n' p].
     revert mat k_i k_j p.
     induction n' as [| n' IHn'].
     - intros mat ? ? ? r r_le_0.
@@ -1200,8 +1115,8 @@ Section Gauss.
       set (IHnp := IHn'  mat k_i k_j p').
       assert (eq' : p' = istransnatlth n' (S n') (S m) (natlthnsn n') p).
       { apply propproperty. }
-      destruct (natlehchoice r (n')) as [? | eq]. {assumption. }
-      + assert (le: r ≤ n'). { apply natlthtoleh in h. assumption. }
+      destruct (natlehchoice r n') as [lt| eq]. {assumption. }
+      + assert (le: r ≤ n'). { apply natlthtoleh in lt. assumption. }
         unfold gauss_clear_column.
         rewrite nat_rect_step.
         unfold gauss_clear_column in IHnp.
@@ -1214,21 +1129,21 @@ Section Gauss.
                contradiction.
         }
         rewrite (gauss_clear_column_step_inv2).
-        2 : { apply natgthtoneq in h. apply issymm_natneq. apply h. }
+        2 : { apply natgthtoneq in lt. apply issymm_natneq. apply lt. }
         rewrite <- IHnp; try reflexivity; try assumption.
         rewrite eq'; reflexivity.
       + unfold gauss_clear_column.
         rewrite nat_rect_step.
         unfold gauss_clear_column_step'.
         destruct (natgthorleh _ _) as [gt | leh].
-        2: { unfold gauss_clear_column_step.
-             destruct (stn_eq_or_neq _ _); try reflexivity.
-             assert (absurd : n' ≤ r).
-             { apply natgthtogeh in k_le_r.
-               rewrite eq; apply isreflnatgeh. }
-             rewrite <- eq in *.
-             apply natlehneggth in leh.
-             contradiction.
+        2 : { unfold gauss_clear_column_step.
+            destruct (stn_eq_or_neq _ _); try reflexivity.
+            assert (absurd : n' ≤ r).
+            { apply natgthtogeh in k_le_r.
+              rewrite eq; apply isreflnatgeh. }
+            rewrite <- eq in *.
+            apply natlehneggth in leh.
+            contradiction.
         }
         assert (stn_eq : n',, p = r).
         { apply subtypePath_prop. change n' with (pr1 (make_stn _ n' p')) in eq.
@@ -1242,8 +1157,7 @@ Section Gauss.
         { rewrite gauss_clear_column_step_eq. unfold gauss_clear_column_step'.
             destruct (stn_eq_or_neq _ _) as [contr_eq | ?].
             { rewrite contr_eq in k_le_r. contradiction (isirreflnatgth _ k_le_r). }
-            apply idpath.
-        }
+            apply idpath. }
         assert (commute :
           gauss_clear_column_step k_i k_j (n',, p) (gauss_clear_column mat k_i k_j
             (n',, p')) r
@@ -1255,7 +1169,7 @@ Section Gauss.
           { cbn. reflexivity. }
           unfold gauss_add_row.
           rewrite gauss_clear_column_inv0; simpl.
-          2 : { apply (natlthnsn). }
+          2 : { apply natlthnsn. }
           generalize p. generalize p'.
           rewrite <- eq.
           intros q q'; simpl.
@@ -1264,11 +1178,8 @@ Section Gauss.
           2: { contradiction (isirrefl_natneq _ contr_neq). }
           apply pathsinv0.
           etrans.
-          { rewrite (gauss_clear_column_inv0).
-            - apply idpath.
-            - simpl. rewrite eq.
-              apply natlthnsn.
-          }
+          { rewrite (gauss_clear_column_inv0); try reflexivity; simpl.
+            rewrite eq; apply natlthnsn. }
           destruct (stn_eq_or_neq _ _) as [? | contr_neq]; simpl.
           2: { contradiction (isirrefl_natneq _ contr_neq). }
           apply funextfun. intros y.
@@ -1278,7 +1189,7 @@ Section Gauss.
               = (gauss_clear_column mat k_i k_j (stntonat m r,, q) k_i k_j)).
             { rewrite gauss_clear_column_inv3; try reflexivity; apply isreflnatleh. }
             assert (fldmultinv'_eq :
-              forall e1 e2 : F, e1 = e2 -> fldmultinv' e1 = fldmultinv' e2).
+              ∏ e1 e2 : F, e1 = e2 -> fldmultinv' e1 = fldmultinv' e2).
             { intros e1 e2 e_eq. destruct e_eq; reflexivity. }
             apply fldmultinv'_eq. assumption.
           - rewrite gauss_clear_column_inv3; try reflexivity; apply isreflnatleh.
@@ -1303,8 +1214,8 @@ Section Gauss.
   Proof.
     destruct iter as [n' p].
     intros r r_le_n' r_gt_k.
-    rewrite (gauss_clear_column_inv1  k_i k_j (n' ,, p) mat r r_le_n').
-    rewrite <- gauss_clear_column_step_eq.
+    rewrite (gauss_clear_column_inv1  k_i k_j (n' ,, p) mat r r_le_n')
+      , <- gauss_clear_column_step_eq.
     rewrite (gauss_clear_column_step_inv1 k_i k_j r mat);
       try reflexivity; try assumption.
     - apply natgthtoneq. assumption.
@@ -1315,48 +1226,43 @@ Section Gauss.
     { m n : nat } (mat : Matrix F m n)
     (k_i : (⟦ m ⟧%stn)) (k_j : stn n)
     (iter : ⟦ S m ⟧%stn)
-    (lt : @is_lower_triangular F m n mat)
+    (lower : @is_lower_triangular F m n mat)
     : @is_lower_triangular F m n (gauss_clear_column mat k_i k_j iter).
   Proof.
     intros.
-    unfold gauss_clear_column.
-    unfold is_lower_triangular.
-    unfold gauss_clear_column.
-    destruct iter as [iter ?].
+    unfold gauss_clear_column, is_lower_triangular, gauss_clear_column.
+    destruct iter as [iter lt].
     induction iter as [| iter IHiter].
     { intros i j i_lt_j. simpl.
-      apply (lt _ _ i_lt_j). }
+      apply (lower _ _ i_lt_j). }
     intros i j i_lt_j.
-    rewrite nat_rect_step.
-    rewrite gauss_clear_column_step_eq.
+    rewrite nat_rect_step, gauss_clear_column_step_eq.
     unfold gauss_clear_column_step'.
     destruct (natgthorleh _ _) as [gt | le].
-    2: { apply lt.  assumption. }
+    2: { apply lower; assumption. }
     destruct (stn_eq_or_neq  _ _) as [eq | neq].
     { rewrite <- eq in gt. apply isirreflnatgth in gt. contradiction. }
     set (q := nat_rect _ _ _ _).
     set (p := istransnatlth _ _ _ _).
     unfold gauss_add_row.
     apply issymm_natneq in neq.
-    destruct (stn_eq_or_neq i (iter,, pr2)) as [eq | neq'].
-    - simpl.
-      rewrite IHiter.
-      2: { rewrite eq in i_lt_j.
-           simpl in i_lt_j. simpl.
-           rewrite <- i_lt_j.
-           reflexivity. }
-      replace (q _ k_i j) with (@ringunel1 F).
-      2: {unfold q.
+    destruct (stn_eq_or_neq i (iter,, lt)) as [eq | neq']; simpl.
+    2: { rewrite IHiter; try reflexivity; try assumption. }
+    rewrite IHiter.
+    2: { rewrite eq in i_lt_j.
+         simpl in i_lt_j; simpl.
+         rewrite <- i_lt_j.
+         reflexivity. }
+    replace (q _ k_i j) with (@ringunel1 F).
+    2 : { unfold q.
           rewrite IHiter; try reflexivity.
           rewrite eq in i_lt_j.
           refine (istransnatgth _ _ _ _ _).
           - apply i_lt_j.
           - apply gt.
-      }
-      rewrite (@rigmultx0 F), (@riglunax1 F).
-      apply idpath.
-    - simpl.
-      rewrite IHiter; try reflexivity; try assumption.
+    }
+    rewrite (@rigmultx0 F), (@riglunax1 F).
+    apply idpath.
   Defined.
 
   (* 0 in pivot row -> corresponding col is unchanged after gcc *)
@@ -1368,19 +1274,19 @@ Section Gauss.
     : ∏ i : ⟦ m ⟧%stn, gauss_clear_column mat k_i k_j iter i j = mat i j.
   Proof.
     unfold gauss_clear_column.
-    destruct iter as [iter ?].
+    destruct iter as [iter lt].
     induction iter.
     { intros i. simpl. reflexivity. }
     intros i.
     rewrite nat_rect_step, gauss_clear_column_step_eq.
-    destruct (stn_eq_or_neq (iter,, pr2) k_i) as [eq | ?].
+    destruct (stn_eq_or_neq (iter,, lt) k_i) as [eq | ?].
     - rewrite <- eq.
       destruct (natgthorleh _ _) as [contr | ?].
       { apply isirreflnatgth in contr. contradiction. }
       reflexivity.
-    - assert (obv : iter < S m). {exact (istransnatlth iter (S iter) (S m) (natlthnsn iter) pr2). }
-      rewrite <- (IHiter (istransnatlth iter (S iter) (S m) (natlthnsn iter) pr2)).
-      rewrite <- gauss_clear_column_step_eq.
+    - assert (obv : iter < S m). {exact (istransnatlth _ _ _ (natlthnsn iter) lt). }
+      rewrite <- (IHiter (istransnatlth _ _ _ (natlthnsn iter) lt)),
+        <- gauss_clear_column_step_eq.
       unfold gauss_clear_column_step'.
       destruct (natgthorleh _ _) as [? | ?].
       2: { rewrite IHiter. reflexivity. }
@@ -1392,11 +1298,9 @@ Section Gauss.
         try apply coprod_rect_compute_1; try apply coprod_rect_compute_2.
       + rewrite coprod_rect_compute_1.
         do 3 rewrite IHiter.
-        rewrite eq0, <- eq.
-        rewrite (@rigmultx0 F), (@rigrunax1 F).
+        rewrite eq0, <- eq, (@rigmultx0 F), (@rigrunax1 F).
         reflexivity.
-      + rewrite coprod_rect_compute_2.
-        reflexivity.
+      + rewrite coprod_rect_compute_2; reflexivity.
   Defined.
 
   Definition is_row_echelon_partial_1
@@ -1438,7 +1342,7 @@ Section Gauss.
   Lemma is_row_echelon_nil_matrix
     {m n : nat} {A : Matrix F m n}
     (eq0 : n = 0)
-    : (@is_row_echelon F m n A).
+    : (@is_row_echelon _ m n A).
   Proof.
     unfold is_row_echelon; intros i_1 i_2.
     use tpair. {intros ?; apply fromstn0; rewrite <- eq0; assumption. }
@@ -1449,68 +1353,12 @@ Section Gauss.
     apply fromstn0; rewrite <- eq0; exact j.
   Defined.
 
-  Lemma gauss_clear_row_inv0
-    {m n : nat} (mat : Matrix F m n)
-    (row : ⟦ m ⟧%stn) (iter : ⟦ S n ⟧%stn)
-    (p : n > 0)
-    : ∏ i : ⟦ m ⟧%stn, i < row
-    -> (gauss_clear_row mat ) row i = mat i.
-  Proof.
-    unfold gauss_clear_row.
-    destruct (natchoice0 n) as [contr_eq | gt]. { rewrite contr_eq in p.
-      contradiction (isirreflnatgth _ p). }
-    intros i lt.
-    destruct (@select_uncleared_column _ _ _ mat row gt) as [some | none];
-      try reflexivity.
-    destruct some as [piv_c some]; simpl.
-    rewrite gauss_clear_column_inv3; try reflexivity; try assumption.
-    2: { apply natgthtogeh. assumption. }
-    apply funextfun; intros ?.
-    rewrite (gauss_switch_row_inv0 mat); try reflexivity.
-    { apply natlthtoneq. assumption. }
-    apply natlthtoneq.
-    refine (natlthlehtrans _ _ _ _ _).
-    { apply lt. }
-    apply (pr1 (pr2 (pr2 some))).
-  Defined.
-
-  Lemma gauss_clear_row_inv1
-    {m n : nat} (mat : Matrix F m n) (p : n > 0) (row : ⟦ m ⟧%stn)
-    : ∏ i_1 : ⟦ m ⟧%stn,
-       (gauss_clear_row mat i_1) i_1 = const_vec 0%ring
-    -> ∏ i_2 : ⟦ m ⟧%stn, i_1 < i_2
-    -> mat i_2 = const_vec 0%ring.
-  Proof.
-    intros i_1 eqconst0 i_2 i1_lt_j2.
-    unfold gauss_clear_row in *.
-    destruct (natchoice0 n) as [contr_eq | gt]. { rewrite contr_eq in p;
-      contradiction (isirreflnatgth _ p). }
-    destruct (@select_uncleared_column _ _ _ mat i_1 gt) as [some | none];
-      try destruct some as [piv_c some].
-    2 : { simpl; simpl in eqconst0.
-          apply funextfun; intros j'; rewrite none; try assumption; try reflexivity.
-          {apply natlthtoleh. unfold lower_left_zero in none. assumption. }
-          apply (pr2 j').
-    }
-    simpl.
-    revert eqconst0; simpl.
-    rewrite gauss_clear_column_inv3.
-    2: {apply isreflnatleh. }
-    unfold gauss_clear_column_step', gauss_switch_row.
-    rewrite (stn_eq_or_neq_left (idpath i_1)).
-    simpl; intros.
-    assert (eqz : (λ j : (⟦ m ⟧)%stn, mat (pr1 (pr2 some)) piv_c) (i_2) = 0%ring).
-    {rewrite (const_vec_eq _ 0%ring); try assumption; try reflexivity. }
-    contradiction (pr1 (pr2 (pr2 (pr2 some)))).
-  Defined.
-
   Lemma gauss_clear_row_inv2
-      { m n : nat } (mat : Matrix F m n) (p : n > 0)
-      (row_sep : (⟦ S m ⟧%stn)) (p' : row_sep < m)
-      :  is_row_echelon_partial_1 mat p
-          (pr1 row_sep,, istransnatlth (pr1 row_sep) m (S m) (p') (natgthsnn m))
-      -> is_row_echelon_partial_1 (gauss_clear_row mat (pr1 row_sep,, p')) p
-          (S (pr1 row_sep),, p').
+    { m n : nat } (mat : Matrix F m n) (p : n > 0)
+    (row_sep : (⟦ S m ⟧%stn)) (p' : row_sep < m)
+    : is_row_echelon_partial_1 mat p row_sep
+    -> is_row_echelon_partial_1 (gauss_clear_row mat (pr1 row_sep,, p')) p
+        (S (pr1 row_sep),, p').
   Proof.
      intros H1.
      unfold is_row_echelon_partial_1 in *.
@@ -1529,25 +1377,26 @@ Section Gauss.
           rewrite <- eq; assumption.
      }
      unfold exists_first_uncleared in some.
-     set (eq0 := (pr2 (pr2 (pr2 (pr2 (pr2 some)))))).
-     set (neq0 := (pr1 (pr2 (pr2 (pr2 some))))).
+     set (eq0  := (pr2 (pr2 (pr2 (pr2 (pr2 some)))))).
+     set (leh  := (pr1 (pr2 (pr2 (pr2 some))))).
+     set (neq0 := (pr1 (pr2 (pr2 (pr2 (pr2 some)))))).
      intros is_le.
      rewrite gauss_clear_column_inv3 in is_le.
      2 : { apply natlthsntoleh; assumption. }
      destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq]. { apply natlthsntoleh; assumption.  }
      { rewrite gauss_switch_row_inv0 in is_le.
-        3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt neq0). }
+        3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
         2: { apply natlthtoneq; assumption. }
         rewrite gauss_clear_column_inv6.
         { rewrite gauss_switch_row_inv2.
           - rewrite (H1 i_1 i_2 j_1 j_2); try reflexivity; try assumption.
           - do 2 (rewrite (H1 i_1 _ j_1 j_2); try reflexivity; try assumption).
-            refine (natlthlehtrans _ _ _ lt neq0).
+            refine (natlthlehtrans _ _ _ lt leh).
         }
         rewrite gauss_switch_row_inv2.
           + rewrite (H1 i_1 _ j_1 j_2); try reflexivity; try assumption.
           + do 2 (rewrite (H1 i_1 _ j_1 j_2); try reflexivity; try assumption).
-            refine (natlthlehtrans _ _ _ lt neq0).
+            refine (natlthlehtrans _ _ _ lt leh).
     }
     destruct (natgthorleh (pr1 some) j_1).
     { rewrite gauss_clear_column_inv6; try reflexivity; try assumption.
@@ -1558,17 +1407,15 @@ Section Gauss.
           rewrite eq0; try reflexivity; try assumption.
           apply (isreflnatleh).
         + destruct (stn_eq_or_neq _ _) as [contr_eq | neq']; simpl.
-        { rewrite eq0; try reflexivity; try assumption. } 
+          { rewrite eq0; try reflexivity; try assumption. } 
           rewrite eq0; try reflexivity; try assumption.
           unfold stntonat in *; simpl.
           rewrite <- eq.
           apply natgthtogeh; assumption.
-       - rewrite gauss_switch_row_inv2.  
-         + rewrite eq0; try reflexivity; try assumption.
-           apply isreflnatleh.
-         + rewrite eq0; try reflexivity; try assumption.
-           2: { apply isreflnatleh. }
-           rewrite eq0; try reflexivity; try assumption.
+       - rewrite gauss_switch_row_inv2;
+         (rewrite eq0; try reflexivity; try assumption;
+           try apply isreflnatleh).
+          rewrite eq0; try reflexivity; try assumption.
     }
     destruct (natlehchoice (pr1 some) j_1) as [gt | eq']; try assumption.
     2 : { replace j_1 with (pr1 some).
@@ -1578,27 +1425,26 @@ Section Gauss.
             rewrite stn_eq_or_neq_refl; simpl.
             apply (pr1 (pr2 (pr2 (pr2 (pr2 some))))). 
           - exact (pr2 i_2).
-          - unfold stntonat in *. simpl. rewrite <- eq; assumption.
+          - unfold stntonat in *; simpl; rewrite <- eq; assumption.
     }
     contradiction (pr1 (pr2 (pr2 (pr2 (pr2 some))))).
     destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq']. { apply natlthsntoleh; assumption.  }
     - rewrite gauss_switch_row_inv0 in is_le.
-      3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt neq0). }
+      3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
       2: { apply natlthtoneq; assumption. }
       refine (H1 _ _ _ _ _ _ _ _).
       + apply lt.
       + apply is_le.
-      + refine (natlthlehtrans _ _ _ lt neq0). 
+      + refine (natlthlehtrans _ _ _ lt leh). 
       + refine (istransnatleh _  j1_lt_j2); assumption.
     - rewrite eq in *.
       assert (is_le' : is_leading_entry (mat (pr1 (pr2 (pr2 some)))) j_2).
-      { unfold is_leading_entry, gauss_switch_row in *.
+      { unfold is_leading_entry, gauss_switch_row in *;
         destruct (stn_eq_or_neq _ _) as [? | ?];
           destruct (stn_eq_or_neq _ _) as [? | contr_neq]; simpl in is_le;
-          try apply is_le.
-        - simpl in contr_neq. rewrite <- eq in contr_neq; (contradiction (isirrefl_natneq _ contr_neq)).
-        - simpl in contr_neq. rewrite <- eq in contr_neq; (contradiction (isirrefl_natneq _ contr_neq)).
-      }
+          try apply is_le;
+          simpl in contr_neq; rewrite <- eq in contr_neq;
+          contradiction (isirrefl_natneq _ contr_neq). }
       unfold is_leading_entry in is_le'.
       rewrite (pr2 (is_le')); try reflexivity.
       refine (natlthlehtrans _ _ _ gt j1_lt_j2).
@@ -1622,7 +1468,8 @@ Section Gauss.
     unfold gauss_clear_rows_up_to in *.
     rewrite nat_rect_step in *.
     unfold gauss_clear_row in *.
-    destruct (natchoice0 n) as [contr_eq | gt]. { rewrite contr_eq in p.
+    destruct (natchoice0 n) as [contr_eq | gt].
+    { rewrite contr_eq in p.
       contradiction (isirreflnatgth _ p). }
     revert le_nought.
     destruct (natlehchoice i_1 row_sep) as [i1_lt_rowsep | eq].
@@ -1651,7 +1498,7 @@ Section Gauss.
           -- rewrite gauss_switch_row_inv1; try reflexivity; try assumption.
              ++ rewrite IH; try assumption; try reflexivity.
              ++ do 2 (rewrite IH; try assumption; try reflexivity).
-                apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+                apply (natgehgthtrans _ _ _ leh i1_lt_rowsep). 
         * rewrite gauss_clear_column_inv3 in le_nought.
           2: { apply natlthtoleh. assumption. }
           rewrite gauss_switch_row_inv0 in le_nought.
@@ -1688,20 +1535,18 @@ Section Gauss.
            apply (pr2 j_2).
       }
       unfold leading_entry_compute in le_nought.
-      contradiction (pr1 (pr2 (pr2 (pr2 (pr2 col))))).
+      pose (neq0 := (pr1 (pr2 (pr2 (pr2 (pr2 col)))))).
+      contradiction neq0.
       refine (const_vec_eq _ _ _ _).
       rewrite <- le_nought.
       unfold gauss_switch_row.
       rewrite gauss_clear_column_inv3.
       2: { rewrite eq. apply isreflnatleh. }
       unfold gauss_clear_column_step'.
-      destruct (stn_eq_or_neq _ _).
-      + destruct (stn_eq_or_neq _ _) as [? | contr_neq].
-        2: { contradiction (nat_neq_to_nopath contr_neq). }
-        reflexivity.
-      + destruct (stn_eq_or_neq _ _) as [? | contr_neq].
-        2: { contradiction (nat_neq_to_nopath contr_neq). }
-        reflexivity.
+      destruct (stn_eq_or_neq _ _); 
+       destruct (stn_eq_or_neq _ _) as [? | contr_neq];
+       try reflexivity;
+       contradiction (nat_neq_to_nopath contr_neq).
   Defined.
 
   Lemma gauss_clear_rows_up_to_inv1
@@ -1710,7 +1555,7 @@ Section Gauss.
     : is_row_echelon_partial_1
         (gauss_clear_rows_up_to mat row_sep) p row_sep.
   Proof.
-    pose ( H:= @gauss_clear_row_inv2).
+    pose (H:= @gauss_clear_row_inv2).
     unfold gauss_clear_rows_up_to.
     destruct row_sep as [row_sep p''].
     induction row_sep as [| row_sep IH].
@@ -1722,9 +1567,8 @@ Section Gauss.
     assert (lt' : row_sep < S m). {apply (istransnatlth _ _ _ (natgthsnn row_sep) p''). }
     apply (H m n inner' p (row_sep,, lt') p'').
     change (pr1 (row_sep,, lt')) with row_sep.
-    assert (eq : (istransnatlth row_sep m (S m) p'' (natgthsnn m))
-              = (istransnatlth row_sep (S row_sep) (S m) (natgthsnn row_sep) p'')).
-    { apply proofirrelevance. apply propproperty. }
+    assert (eq : lt' = (istransnatlth row_sep (S row_sep) (S m) (natgthsnn row_sep) p'') ).
+    { apply propproperty. }
     rewrite eq; apply IH.
   Defined.
 
@@ -1744,32 +1588,25 @@ Section Gauss.
   Defined.
 
   Lemma is_row_echelon_1_eq
-    { m n : nat } (mat : Matrix F m n) (p : n > 0)
-    : is_row_echelon_partial_1
-        (gauss_clear_rows_up_to mat (m,, natgthsnn m)) p (m,, natgthsnn m)
-    -> ∏ i_1 i_2 : ⟦ m ⟧%stn, ∏ j_1 j_2 : ⟦ n ⟧%stn, i_1 < i_2
-    -> leading_entry_compute F (gauss_clear_rows_up_to mat (m,, natgthsnn m) i_1)
-       = just j_1
-    -> leading_entry_compute F (gauss_clear_rows_up_to mat (m,, natgthsnn m) i_2)
-       = just j_2
+    { m n : nat } (mat : Matrix F m n)
+    : is_row_echelon mat
+    -> ∏ i_1 i_2 : ⟦ m ⟧%stn, ∏ j_1 j_2 : ⟦ n ⟧%stn,
+       i_1 < i_2
+    -> is_leading_entry (mat i_1) j_1
+    -> is_leading_entry (mat i_2) j_2
     -> j_1 < j_2.
   Proof.
-    unfold is_row_echelon_partial_1.
-    intros H1 i_1 i_2 j_1 j_2 lt.
+    destruct (natchoice0 n) as [contr_eq0 | p].
+    { unfold is_upper_triangular. intros ? ? ? j.
+      apply fromstn0; rewrite contr_eq0. assumption. }
+    unfold is_row_echelon.
+    intros H1 i_1 i_2 j_1 j_2 lt H2 H3.
     destruct (natgthorleh j_2 j_1) as [gt | leh]. {intros; apply gt. }
-    unfold leading_entry_compute; intros H2 H3.
-    pose (H4 := @leading_entry_compute_internal_correct1 F n
-                  _ (n,, natgthsnn n) _ H3).
-    contradiction (pr1 H4).
-    destruct (natlehchoice j_2 j_1) as [lt' | eq]. {assumption. }
-    - rewrite (H1 i_1 i_2 j_2 j_1); try assumption; try reflexivity;
-        try exact (pr2 i_1).
-      apply leading_entry_compute_correct1; assumption.
-    - rewrite  eq in *.
-      rewrite (H1 i_1 i_2 j_2 j_1); try assumption; try reflexivity.
-      {exact (pr2 i_1). }
-      2: { rewrite eq; apply (isreflnatleh). }
-      apply leading_entry_compute_correct1; assumption.
+    destruct (H1 i_1 i_2) as [H4 H5].
+    destruct (natgthorleh j_2 j_1); try assumption.
+    unfold is_leading_entry in H3.
+    contradiction (pr1 H3).
+    apply (H4 _ _ H2 lt leh).
   Defined.
 
   Lemma gauss_clear_rows_up_to_inv3
@@ -1800,7 +1637,7 @@ Section Gauss.
     destruct iter as [iter p'].
     unfold is_row_echelon_partial_1, is_row_echelon_partial_2.
     induction iter as [| iter IH].
-    {simpl. intros ? ? ? ? contr. contradiction (nopathsfalsetotrue contr). }
+    { simpl. intros ? ? ? ? contr. contradiction (nopathsfalsetotrue contr). }
     intros isre.
     destruct isre as [re_1 re_2].
     intros i j lt lt'.
@@ -1829,10 +1666,10 @@ Section Gauss.
       + destruct t as [t jst].
         destruct (natlthorgeh j t) as [j_lt_t | contr_gt].
         * pose (H := @leading_entry_compute_internal_correct1
-            F n _ (n,, natgthsnn n)  _ jst).
+            F n _ _ jst).
           rewrite (pr2 H); try reflexivity; try assumption.
         * pose (H1 := @leading_entry_compute_internal_correct1
-            F n _ (n,, natgthsnn n)  _ jst).
+            F n _ _ jst).
           destruct (natchoice0 i) as [contr0 | ?].
           { apply fromempty; refine  (negnatgth0n _ _). rewrite contr0. apply lt. }
           destruct (prev_stn i) as [u u_lt]; try assumption.
@@ -1841,7 +1678,7 @@ Section Gauss.
           -- destruct prev as [prev eq''].
              unfold leading_entry_compute in prev.
              pose (H2 := @leading_entry_compute_internal_correct1
-              F n _ (n,, natgthsnn n) _ eq'').
+              F n _ _ eq'').
              contradiction (pr1 H2).
              rewrite (IH iter_lt_sn); try reflexivity; try assumption.
              use tpair.
@@ -1852,7 +1689,7 @@ Section Gauss.
                 intros i_1 i_2 i1_lt_iter ? ?.
                 rewrite (re_2 i_1 i_2); try assumption; try reflexivity.
                 apply (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
-             ** destruct (natgthorleh u prev) as [gt | leh]; try assumption.
+             ** destruct (natgthorleh u prev) as [gt | leh]; try assumption.  
                 contradiction (pr1 H1).
                 rewrite (re_1 u i t prev); try assumption;
                   try reflexivity; try assumption.
@@ -1884,7 +1721,7 @@ Section Gauss.
                 apply natgehsntogth.
                 rewrite u_lt; rewrite eq'.
                 apply (isreflnatleh).
-      + pose (H := @leading_entry_compute_internal_correct2 F n _ _ none).
+      + pose (H := @leading_entry_compute_internal_correct2 _ _ _ _ none).
         rewrite H; try reflexivity.
         exact (pr2 (dualelement j)).
   Defined.
@@ -1892,12 +1729,14 @@ Section Gauss.
   Lemma row_echelon_to_upper_triangular
     { m n : nat }
     (mat : Matrix F m n)
-    (p : n > 0)
-    : @is_row_echelon F m n mat
-    -> @is_upper_triangular F m n mat.
+    :  is_row_echelon mat
+    -> @is_upper_triangular F _ _ mat.
   Proof.
+    destruct (natchoice0 n) as [contr_eq0 | p].
+    { unfold is_upper_triangular. intros ? ? j.
+      apply fromstn0; rewrite contr_eq0; assumption. }
     intros H.
-    unfold is_upper_triangular.
+    unfold is_upper_triangular. 
     intros.
     rewrite (row_echelon_partial_to_upper_triangular_partial mat p (m,, natgthsnn m));
       try reflexivity; try assumption.
@@ -1935,13 +1774,13 @@ Section Gauss.
             - rewrite nat_rect_step.
               destruct (natgthorleh iter k_i) as [gt' | ?]; try reflexivity.
               apply natgehsntogth in gt'.
-              apply fromempty. apply (isasymmnatgth _ _  gt' leh).
+              apply fromempty, (isasymmnatgth _ _  gt' leh).
       }
       rewrite matrix_mult_assoc, <- IH.
       unfold gauss_clear_column_step'.
       destruct (stn_eq_or_neq _ _) as [eq | neq].
       { apply fromempty. apply neggth_logeq_leh in gt; try assumption.
-        rewrite <- eq. apply isreflnatgeh.  }
+        rewrite <- eq. apply isreflnatgeh. }
       rewrite add_row_mat_elementary.
       2 : {apply issymm_natneq, natgthtoneq. assumption. }
       apply pathsinv0, maponpaths.
@@ -1952,7 +1791,7 @@ Section Gauss.
           with (fldmultinv' (mat k_i k_j)%ring).
         - reflexivity.
         - clear IH; induction iter as [| iter IH'].
-          {apply fromempty. apply  negnatgth0n in gt; assumption. }
+          {apply fromempty. apply negnatgth0n in gt; assumption. }
           unfold x'', x'.
           rewrite nat_rect_step.
           destruct (natgthorleh iter _).
@@ -1974,7 +1813,8 @@ Section Gauss.
           pose (f' := f (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter) obv))).
           rewrite f'. 2: {apply isreflnatleh. }
           rewrite matrix_mult_assoc,
-            add_row_mat_elementary. 2: {apply issymm_natneq. apply natgthtoneq; assumption. }
+            add_row_mat_elementary.
+          2: {apply issymm_natneq. apply natgthtoneq; assumption. }
           rewrite gauss_add_row_inv0.
           2: { apply natgthtoneq. assumption. }
           clear f'.
@@ -1989,13 +1829,13 @@ Section Gauss.
       induction iter as [| iter IH']. {apply fromempty. apply negnatgth0n in gt. assumption. }
       rewrite nat_rect_step.
       destruct (natgthorleh _ _) as [eq | neq'].
-      2: {rewrite matlunax2.
-          set (f' := @gauss_clear_column_as_left_matrix_inv0 m n).
-          unfold gauss_clear_column_as_left_matrix  in f'; try reflexivity.
-          pose (f'' := f' (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
-          (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))).
-          rewrite f''; try reflexivity.
-          apply natlehnsn.
+      2 : { rewrite matlunax2.
+            set (f' := @gauss_clear_column_as_left_matrix_inv0 m n).
+            unfold gauss_clear_column_as_left_matrix  in f'; try reflexivity.
+            pose (f'' := f' (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
+              (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))).
+            rewrite f''; try reflexivity.
+            apply natlehnsn.
       }
       rewrite matrix_mult_assoc, add_row_mat_elementary.
       2: {apply natgthtoneq in eq. apply issymm_natneq. assumption. }
@@ -2027,14 +1867,12 @@ Section Gauss.
 
   Lemma gauss_clear_rows_up_to_as_matrix_eq { m n : nat } (iter : ⟦ S m ⟧%stn)
     (mat : Matrix F m n) (p : n > 0) :
-    ((@clear_rows_up_to_as_left_matrix_internal m n mat iter p) ** mat)
+    ((@clear_rows_up_to_as_left_matrix_internal _ _ mat iter p) ** mat)
       = (gauss_clear_rows_up_to mat iter).
   Proof.
     intros.
-    unfold clear_rows_up_to_as_left_matrix,
-           gauss_clear_rows_up_to,
-           clear_rows_up_to_as_left_matrix_internal,
-           gauss_clear_rows_up_to.
+    unfold clear_rows_up_to_as_left_matrix, gauss_clear_rows_up_to.
+    unfold clear_rows_up_to_as_left_matrix_internal, gauss_clear_rows_up_to.
     destruct iter as [iter p'].
     induction iter as [| iter IH ]. {simpl. rewrite matlunax2. apply idpath. }
     do 2 rewrite nat_rect_step; rewrite <- IH.
@@ -2050,7 +1888,7 @@ Section Gauss.
     induction iter as [| iter IH].
     { unfold clear_rows_up_to_as_left_matrix,
              clear_rows_up_to_as_left_matrix_internal.
-      simpl; apply identity_matrix_is_inv. }
+      apply identity_matrix_is_inv. }
     unfold clear_rows_up_to_as_left_matrix,
     clear_rows_up_to_as_left_matrix_internal.
     rewrite nat_rect_step.
@@ -2059,63 +1897,23 @@ Section Gauss.
     - apply IH.
   Defined.
 
-  Local Definition flip_fld_bin
-    (e : F) : F.
-  Proof.
-    destruct (fldchoice0 e).
-    - exact 1%ring.
-    - exact 0%ring.
-  Defined.
-
-  Local Definition flip_fld_bin_vec
-    {n : nat} (v : Vector F n) := λ i : (stn n), flip_fld_bin (v i).
-
-  Definition diagonal_all_nonzero_compute
-    {n : nat} (v : Vector F n)
-    : coprod (forall j : (stn n), (v j) != 0%ring)
-             (∑ i : (stn n), (v i) = 0%ring).
-  Proof.
-    pose (H1 := leading_entry_compute F (flip_fld_bin_vec v)).
-    destruct (@maybe_stn_choice F n H1) as [some | none].
-    - right; use tpair. {apply some. }
-      simpl.
-      pose (H2 := @leading_entry_compute_internal_correct1
-        F _ (flip_fld_bin_vec v) (n,, natgthsnn n) _ (pr2 some)).
-      destruct H2 as [H2 H3].
-      unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in *.
-      destruct (fldchoice0 (v (pr1 some))); try contradiction.
-      assumption.
-    - left; intros j.
-      pose (H3 := @leading_entry_compute_internal_correct2
-        F _ (flip_fld_bin_vec v) (n,, natgthsnn n ) none j).
-      rewrite <- H3; try apply (pr2 (dualelement j)); clear H3.
-      destruct (fldchoice0 (v j)) as [eq | neq];
-        unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in *.
-      + destruct (fldchoice0 _); try assumption.
-        rewrite eq; intros contr_neq.
-        contradiction (nonzeroax _ (pathsinv0 contr_neq)).
-      + destruct (fldchoice0 (v j)) as [contr_eq | ?]; try assumption.
-        rewrite contr_eq in neq; contradiction.
-  Defined.
-
-  Lemma gaussian_elimination_inv0
+  Theorem gaussian_elimination
     {m n : nat} {A : Matrix F m n}
-    : @gaussian_elimination_stmt F m n A.
+    : @gaussian_elimination_stmt _ F _ _ A.
   Proof.
     unfold gaussian_elimination_stmt.
     destruct (natchoice0 n) as [eq0 | gt].
     { use tpair.
       - apply (@identity_matrix F m).
-      - simpl; use tpair. {apply identity_matrix_is_inv. }
-        simpl; rewrite matlunax2.
+      - use tpair. {apply identity_matrix_is_inv. }
+        rewrite matlunax2.
         apply is_row_echelon_nil_matrix; rewrite eq0.
         apply idpath. }
     use tpair.
     - exact (@clear_rows_up_to_as_left_matrix m n A (m,, natgthsnn m) gt).
-    - simpl; use tpair. {apply gauss_clear_rows_up_to_matrix_invertible. }
-      simpl; rewrite gauss_clear_rows_up_to_as_matrix_eq; try assumption.
-      pose (H2 := @gauss_clear_rows_up_to_inv3 m n A gt (m,, natgthsnn m)).
-      apply H2; assumption.
+    - use tpair. {apply gauss_clear_rows_up_to_matrix_invertible. }
+      rewrite gauss_clear_rows_up_to_as_matrix_eq; try assumption.
+      apply (@gauss_clear_rows_up_to_inv3 _ _ A gt (m,, natgthsnn m)).
   Defined.
 
 End Gauss.
@@ -2126,29 +1924,19 @@ Section SmithNF.
   Local Definition I := hz.
   Local Notation Σ := (iterop_fun 0%hz op1).
 
-
   Local Notation "A ** B" := (@matrix_mult hz _ _ A _ B) (at level 80).
 
   (* Such code might go intro Matrix.v *)
-  Definition is_smithnf { m n : nat } (A : Matrix I m n) :
-    ∑ (S : Matrix I m m), ∑ (T : Matrix I n n),
-    @is_diagonal I m n (S ** A ** T) ×
-    ∏ (i j : ⟦ min n m ⟧%stn), i < j ->
-    hzdiv (A (minabstn_to_bstn i) (minabstn_to_astn i))
-    (A (minabstn_to_bstn j) (minabstn_to_astn i)).
-  Abort.
+  Definition is_smithnf_stmt
+    { m n : nat } (A : Matrix I m n)
+    := ∑ (S : Matrix I m m), ∑ (T : Matrix I n n),
+      @is_diagonal I m n (S ** A ** T) ×
+      ∏ (i j : ⟦ min n m ⟧%stn), i < j ->
+      hzdiv (A (minabstn_to_bstn i) (minabstn_to_astn i))
+      (A (minabstn_to_bstn j) (minabstn_to_astn i)).
 
-  Definition MinAij {m n : nat} (A : Matrix I m n) (s : nat) (p : s < min m n) : I.
+  Definition MinAij { m n : nat} (A : Matrix I m n) (s : nat) (p : s < min m n) : I.
   Proof.
   Abort.
 
-
 End SmithNF.
-
-Section SmithNFOps.
-
-End SmithNFOps.
-
-Section SmithNFAlgs.
-
-End SmithNFAlgs.
