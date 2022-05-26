@@ -347,6 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
+#[global]
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
@@ -372,6 +373,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+#[global]
 Hint Resolve @pathsinv0 : pathshints.
 
 Definition path_assoc {X} {a b c d:X}

@@ -801,6 +801,7 @@ Proof.
   - apply idpath.
   - simpl. apply (maponpaths S IH).
 Defined.
+#[global]
 Hint Resolve natplusr0: natarith.
 
 Lemma natplusnsm (n m : nat) : n + S m = S n + m.
@@ -810,7 +811,9 @@ Proof.
   - auto with natarith.
   - simpl. intro. apply (maponpaths S (IHn m)).
 Defined.
+#[global]
 Hint Resolve natplusnsm : natarith.
+#[global]
 Hint Resolve pathsinv0 : natarith.
 
 Lemma natpluscomm (n m : nat) : n + m = m + n.
@@ -826,6 +829,7 @@ Proof.
     set (int4 := pathscomp0 int2 int).
     apply (pathscomp0 int4 int3).
 Defined.
+#[global]
 Hint Resolve natpluscomm : natarith.
 
 Lemma natplusassoc (n m k : nat) : ((n + m) + k) = (n + (m + k)).
@@ -834,6 +838,7 @@ Proof.
   - auto with natarith.
   - intros. simpl. apply (maponpaths S (IHn m k)).
 Defined.
+#[global]
 Hint Resolve natplusassoc : natarith.
 
 
@@ -1622,6 +1627,7 @@ Lemma natmult0n (n : nat) : (0 * n) = 0.
 Proof.
   apply idpath.
 Defined.
+#[global]
 Hint Resolve natmult0n : natarith.
 
 Lemma natmultn0 (n : nat) : n * 0 = 0.
@@ -1630,12 +1636,14 @@ Proof.
   - apply idpath.
   - simpl. exact (natplusr0 _ @ IHn).
 Defined.
+#[global]
 Hint Resolve natmultn0 : natarith.
 
 Lemma multsnm (n m : nat) : S n * m = m + n * m.
 Proof.
   intros. simpl. apply natpluscomm.
 Defined.
+#[global]
 Hint Resolve multsnm : natarith.
 
 Lemma multnsm (n m : nat) : n * S m = n + n * m.
@@ -1652,6 +1660,7 @@ Proof.
     apply (maponpaths (λ x, x + S m)).
     apply IHn.
 Defined.
+#[global]
 Hint Resolve multnsm : natarith.
 
 Lemma natmultcomm (n m : nat) : (n * m) = (m * n).
@@ -1696,12 +1705,14 @@ Lemma natmultl1 (n : nat) : (1 * n) = n.
 Proof.
   simpl. auto with natarith.
 Defined.
+#[global]
 Hint Resolve natmultl1 : natarith.
 
 Lemma natmultr1 (n : nat) : (n * 1) = n.
 Proof.
   rewrite (natmultcomm n 1). auto with natarith.
 Defined.
+#[global]
 Hint Resolve natmultr1 : natarith.
 
 (** *** Cancellation properties of [mul] on [nat] *)

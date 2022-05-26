@@ -75,51 +75,51 @@ Local Open Scope cat.
 (**
  1. Comprehension bicategories
  *)
-Definition comprehension_bicat
+Definition comprehension_bicat_structure
            (B : bicat)
   : UU
   := ∑ (D : disp_bicat B)
        (χ : disp_psfunctor D (cod_disp_bicat B) (id_psfunctor B)),
      global_cleaving D × global_cartesian_disp_psfunctor χ.
 
-Definition make_comprehension_bicat
+Definition make_comprehension_bicat_structure
            (B : bicat)
            (D : disp_bicat B)
            (χ : disp_psfunctor D (cod_disp_bicat B) (id_psfunctor B))
            (HD : global_cleaving D)
            (Hχ : global_cartesian_disp_psfunctor χ)
-  : comprehension_bicat B
+  : comprehension_bicat_structure B
   := D ,, χ ,, HD ,, Hχ.
 
 (** Projections of a comprehension bicategory *)
 Definition ty_of
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : disp_bicat B
   := pr1 comp_B.
 
 Definition comp_of
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : disp_psfunctor (ty_of comp_B) (cod_disp_bicat B) (id_psfunctor B)
   := pr12 comp_B.
 
 Definition ty_of_global_cleaving
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : global_cleaving (ty_of comp_B)
   := pr122 comp_B.
 
 Definition comp_of_global_cartesian
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : global_cartesian_disp_psfunctor (comp_of comp_B)
   := pr222 comp_B.
 
 (** Variances of comprehension bicategories *)
 Definition is_covariant
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : UU
   := let D := ty_of comp_B in
      let χ := comp_of comp_B in
@@ -130,7 +130,7 @@ Definition is_covariant
 
 Definition is_contravariant
            {B : bicat}
-           (comp_B : comprehension_bicat B)
+           (comp_B : comprehension_bicat_structure B)
   : UU
   := let D := ty_of comp_B in
      let χ := comp_of comp_B in
@@ -139,6 +139,17 @@ Definition is_contravariant
      × rwhisker_cartesian D
      × local_cartesian_disp_psfunctor χ.
 
+Definition comprehension_bicat
+  : UU
+  := ∑ (B : bicat)
+       (comp_B : comprehension_bicat_structure B),
+     is_covariant comp_B.
+
+Definition contravariant_comprehension_bicat
+  : UU
+  := ∑ (B : bicat)
+       (comp_B : comprehension_bicat_structure B),
+     is_contravariant comp_B.
 (**
  2. The trivial comprehension bicategory
  *)
@@ -663,10 +674,10 @@ Section TrivialCompBicat.
     - exact (trivial_opcartesian_2cell_is_invertible _ _ _ _ Hβ).
   Defined.
 
-  Definition trivial_comprehension_bicat
-    : comprehension_bicat B.
+  Definition trivial_comprehension_bicat_structure
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact (trivial_displayed_bicat B B).
     - exact trivial_comprehension.
     - exact (trivial_global_cleaving B B).
@@ -674,7 +685,7 @@ Section TrivialCompBicat.
   Defined.
 
   Definition trivial_comprehension_is_covariant
-    : is_covariant trivial_comprehension_bicat.
+    : is_covariant trivial_comprehension_bicat_structure.
   Proof.
     repeat split.
     - exact (trivial_local_opcleaving B B).
@@ -684,7 +695,7 @@ Section TrivialCompBicat.
   Defined.
 
   Definition trivial_comprehension_is_contravariant
-    : is_contravariant trivial_comprehension_bicat.
+    : is_contravariant trivial_comprehension_bicat_structure.
   Proof.
     repeat split.
     - exact (trivial_local_cleaving B B).
@@ -692,6 +703,14 @@ Section TrivialCompBicat.
     - exact (trivial_rwhisker_cartesian B B).
     - exact local_cartesian_trivial_comprehension.
   Defined.
+
+  Definition trivial_comprehension_bicat
+    : comprehension_bicat
+    := _ ,, _ ,, trivial_comprehension_is_covariant.
+
+  Definition trivial_contravariant_comprehension_bicat
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, trivial_comprehension_is_contravariant.
 End TrivialCompBicat.
 
 (**
@@ -702,9 +721,9 @@ Section PullbackComprehension.
           (B_pb : has_pb B).
 
   Definition pb_comprehension
-    : comprehension_bicat B.
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact (cod_disp_bicat B).
     - exact (disp_pseudo_id (cod_disp_bicat B)).
     - exact (cod_global_cleaving B B_pb).
@@ -732,14 +751,22 @@ Section PullbackComprehension.
     - exact (cod_cleaving_rwhisker_cartesian _ HB).
     - exact (local_cartesian_id_psfunctor (cod_disp_bicat B)).
   Defined.
+
+  Definition locally_grpd_comprehension_bicat
+    : comprehension_bicat
+    := _ ,, _ ,, locally_grpd_pb_comprehension_is_covariant.
+
+  Definition locally_grpd_contravariant_comprehension_bicat
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, locally_grpd_pb_comprehension_is_contravariant.
 End PullbackComprehension.
 
 (**
  4. The comprehension bicategory of fibrations
  *)
-Definition fibration_comprehension_data
+Definition cleaving_comprehension_data
   : disp_psfunctor_data
-      disp_bicat_of_fibs
+      disp_bicat_of_cleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats).
 Proof.
@@ -788,12 +815,12 @@ Proof.
       apply identity_is_iso.
 Defined.
 
-Definition fibration_comprehension_is_disp_psfunctor
+Definition cleaving_comprehension_is_disp_psfunctor
   : is_disp_psfunctor
-      disp_bicat_of_fibs
+      disp_bicat_of_cleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats)
-      fibration_comprehension_data.
+      cleaving_comprehension_data.
 Proof.
   repeat split ; intro ; intros ;
     (use subtypePath ; [ intro ; apply cellset_property | ]).
@@ -872,24 +899,24 @@ Proof.
       apply homset_property.
 Qed.
 
-Definition fibration_comprehension
+Definition cleaving_comprehension
   : disp_psfunctor
-      disp_bicat_of_fibs
+      disp_bicat_of_cleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats).
 Proof.
   simple refine (_ ,, _).
-  - exact fibration_comprehension_data.
-  - exact fibration_comprehension_is_disp_psfunctor.
+  - exact cleaving_comprehension_data.
+  - exact cleaving_comprehension_is_disp_psfunctor.
 Defined.
 
-Definition global_cartesian_fibration_comprehension
-  : global_cartesian_disp_psfunctor fibration_comprehension.
+Definition global_cartesian_cleaving_comprehension
+  : global_cartesian_disp_psfunctor cleaving_comprehension.
 Proof.
   use preserves_global_lifts_to_cartesian.
   - exact univalent_cat_is_univalent_2.
   - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
-  - exact cleaving_of_fibs_global_cleaving.
+  - exact cleaving_of_cleaving_global_cleaving.
   - intros C₁ C₂ F D₁.
     use is_pb_to_cartesian_1cell.
     apply reindexing_has_pb_ump.
@@ -901,8 +928,8 @@ Section LocalCartesianFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
           {F₁ F₂ : C₁ --> C₂}
           (α : F₁ ==> F₂)
-          {D₁ : disp_bicat_of_fibs C₁}
-          {D₂ : disp_bicat_of_fibs C₂}
+          {D₁ : disp_bicat_of_cleaving C₁}
+          {D₂ : disp_bicat_of_cleaving C₂}
           {FF₁ : D₁ -->[ F₁ ] D₂}
           {FF₂ : D₁ -->[ F₂ ] D₂}
           (αα : disp_2cells α FF₁ FF₂)
@@ -924,7 +951,7 @@ Section LocalCartesianFibration.
                  δp
                  (post_whisker (total_nat_trans (pr1 αα)) (pr1_category _))).
 
-  Definition local_cartesian_fibration_lift_data
+  Definition local_cartesian_cleaving_lift_data
     : nat_trans_data
         (pr1 G)
         (total_functor (pr1 FF₁)).
@@ -937,8 +964,8 @@ Section LocalCartesianFibration.
              (pr2 (pr1 γ x))).
   Defined.
 
-  Definition local_cartesian_fibration_lift_is_nat_trans
-    : is_nat_trans _ _ local_cartesian_fibration_lift_data.
+  Definition local_cartesian_cleaving_lift_is_nat_trans
+    : is_nat_trans _ _ local_cartesian_cleaving_lift_data.
   Proof.
     intros x y f ; cbn.
     use total2_paths_f.
@@ -978,24 +1005,24 @@ Section LocalCartesianFibration.
       apply homset_property.
   Qed.
 
-  Definition local_cartesian_fibration_lift
+  Definition local_cartesian_cleaving_lift
     : G ==> total_functor (pr1 FF₁).
   Proof.
     use make_nat_trans.
-    - exact local_cartesian_fibration_lift_data.
-    - exact local_cartesian_fibration_lift_is_nat_trans.
+    - exact local_cartesian_cleaving_lift_data.
+    - exact local_cartesian_cleaving_lift_is_nat_trans.
   Defined.
 
-  Definition local_cartesian_fibration_lift_over
-    : local_cartesian_fibration_lift ▹ _ = δp.
+  Definition local_cartesian_cleaving_lift_over
+    : local_cartesian_cleaving_lift ▹ _ = δp.
   Proof.
     use nat_trans_eq ; [ apply homset_property | ].
     intro x.
     apply idpath.
   Qed.
 
-  Definition local_cartesian_fibration_lift_comm
-    : local_cartesian_fibration_lift • total_nat_trans (pr1 αα)
+  Definition local_cartesian_cleaving_lift_comm
+    : local_cartesian_cleaving_lift • total_nat_trans (pr1 αα)
       =
       γ.
   Proof.
@@ -1011,7 +1038,7 @@ Section LocalCartesianFibration.
       apply homset_property.
   Qed.
 
-  Definition local_cartesian_fibration_lift_unique
+  Definition local_cartesian_cleaving_lift_unique
     : isaprop
         (∑ δ,
          δ ▹ _ = δp
@@ -1054,47 +1081,51 @@ Section LocalCartesianFibration.
   Qed.
 End LocalCartesianFibration.
 
-Definition local_cartesian_fibration_comprehension
-  : local_cartesian_disp_psfunctor fibration_comprehension.
+Definition local_cartesian_cleaving_comprehension
+  : local_cartesian_disp_psfunctor cleaving_comprehension.
 Proof.
   intros C₁ C₂ F₁ F₂ α D₁ D₂ FF₁ FF₂ αα Hαα.
   apply is_cartesian_2cell_sfib_to_is_cartesian_2cell ; cbn.
-  pose (cleaving_of_fibs_cartesian_2cell_is_pointwise_cartesian _ Hαα) as p.
+  pose (cleaving_of_cleaving_cartesian_2cell_is_pointwise_cartesian _ Hαα) as p.
   intros G γ δp q.
   use iscontraprop1.
-  - exact (local_cartesian_fibration_lift_unique α αα p G γ δp).
+  - exact (local_cartesian_cleaving_lift_unique α αα p G γ δp).
   - simple refine (_ ,, _ ,, _).
-    + exact (local_cartesian_fibration_lift α αα p G γ δp q).
-    + exact (local_cartesian_fibration_lift_over α αα p G γ δp q).
-    + exact (local_cartesian_fibration_lift_comm α αα p G γ δp q).
+    + exact (local_cartesian_cleaving_lift α αα p G γ δp q).
+    + exact (local_cartesian_cleaving_lift_over α αα p G γ δp q).
+    + exact (local_cartesian_cleaving_lift_comm α αα p G γ δp q).
 Defined.
 
-Definition fibration_comprehension_bicat
-  : comprehension_bicat bicat_of_univ_cats.
+Definition cleaving_comprehension_bicat_structure
+  : comprehension_bicat_structure bicat_of_univ_cats.
 Proof.
-  use make_comprehension_bicat.
-  - exact disp_bicat_of_fibs.
-  - exact fibration_comprehension.
-  - exact cleaving_of_fibs_global_cleaving.
-  - exact global_cartesian_fibration_comprehension.
+  use make_comprehension_bicat_structure.
+  - exact disp_bicat_of_cleaving.
+  - exact cleaving_comprehension.
+  - exact cleaving_of_cleaving_global_cleaving.
+  - exact global_cartesian_cleaving_comprehension.
 Defined.
 
-Definition fibration_comprehension_is_contravariant
-  : is_contravariant fibration_comprehension_bicat.
+Definition cleaving_comprehension_is_contravariant
+  : is_contravariant cleaving_comprehension_bicat_structure.
 Proof.
   repeat split.
-  - exact cleaving_of_fibs_local_cleaving.
-  - exact cleaving_of_fibs_lwhisker_cartesian.
-  - exact cleaving_of_fibs_rwhisker_cartesian.
-  - exact local_cartesian_fibration_comprehension.
+  - exact cleaving_of_cleaving_local_cleaving.
+  - exact cleaving_of_cleaving_lwhisker_cartesian.
+  - exact cleaving_of_cleaving_rwhisker_cartesian.
+  - exact local_cartesian_cleaving_comprehension.
 Defined.
+
+Definition cleaving_contravariant_comprehension_bicat
+  : contravariant_comprehension_bicat
+  := _ ,, _ ,, cleaving_comprehension_is_contravariant.
 
 (**
  4. The comprehension bicategory of opfibrations
  *)
-Definition opfibration_comprehension_data
+Definition opcleaving_comprehension_data
   : disp_psfunctor_data
-      disp_bicat_of_opfibs
+      disp_bicat_of_opcleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats).
 Proof.
@@ -1143,12 +1174,12 @@ Proof.
       apply identity_is_iso.
 Defined.
 
-Definition opfibration_comprehension_is_disp_psfunctor
+Definition opcleaving_comprehension_is_disp_psfunctor
   : is_disp_psfunctor
-      disp_bicat_of_opfibs
+      disp_bicat_of_opcleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats)
-      opfibration_comprehension_data.
+      opcleaving_comprehension_data.
 Proof.
   repeat split ; intro ; intros ;
     (use subtypePath ; [ intro ; apply cellset_property | ]).
@@ -1227,24 +1258,24 @@ Proof.
       apply homset_property.
 Qed.
 
-Definition opfibration_comprehension
+Definition opcleaving_comprehension
   : disp_psfunctor
-      disp_bicat_of_opfibs
+      disp_bicat_of_opcleaving
       (cod_disp_bicat bicat_of_univ_cats)
       (id_psfunctor bicat_of_univ_cats).
 Proof.
   simple refine (_ ,, _).
-  - exact opfibration_comprehension_data.
-  - exact opfibration_comprehension_is_disp_psfunctor.
+  - exact opcleaving_comprehension_data.
+  - exact opcleaving_comprehension_is_disp_psfunctor.
 Defined.
 
-Definition global_cartesian_opfibration_comprehension
-  : global_cartesian_disp_psfunctor opfibration_comprehension.
+Definition global_cartesian_opcleaving_comprehension
+  : global_cartesian_disp_psfunctor opcleaving_comprehension.
 Proof.
   use preserves_global_lifts_to_cartesian.
   - exact univalent_cat_is_univalent_2.
   - exact (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
-  - exact opfibs_global_cleaving.
+  - exact opcleaving_global_cleaving.
   - intros C₁ C₂ F D₁.
     use is_pb_to_cartesian_1cell.
     apply reindexing_has_pb_ump.
@@ -1256,8 +1287,8 @@ Section LocalOpCartesianOpFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
           {F₁ F₂ : C₁ --> C₂}
           (α : F₁ ==> F₂)
-          {D₁ : disp_bicat_of_opfibs C₁}
-          {D₂ : disp_bicat_of_opfibs C₂}
+          {D₁ : disp_bicat_of_opcleaving C₁}
+          {D₂ : disp_bicat_of_opcleaving C₂}
           {FF₁ : D₁ -->[ F₁ ] D₂}
           {FF₂ : D₁ -->[ F₂ ] D₂}
           (αα : disp_2cells α FF₁ FF₂)
@@ -1288,7 +1319,7 @@ Section LocalOpCartesianOpFibration.
                  (post_whisker (total_nat_trans (pr1 αα)) (pr1_category _))
                  δp).
 
-  Definition local_opcartesian_opfibration_lift_data
+  Definition local_opcartesian_opcleaving_lift_data
     : nat_trans_data (pr1 tot_FF₂) (pr1 G).
   Proof.
     refine (λ x, pr1 δp x ,, _) ; cbn.
@@ -1299,8 +1330,8 @@ Section LocalOpCartesianOpFibration.
              (pr2 (pr1 γ x))).
   Defined.
 
-  Definition local_opcartesian_opfibration_lift_is_nat_trans
-    : is_nat_trans _ _ local_opcartesian_opfibration_lift_data.
+  Definition local_opcartesian_opcleaving_lift_is_nat_trans
+    : is_nat_trans _ _ local_opcartesian_opcleaving_lift_data.
   Proof.
     intros x y f ; cbn.
     use total2_paths_f.
@@ -1339,24 +1370,24 @@ Section LocalOpCartesianOpFibration.
       apply homset_property.
   Qed.
 
-  Definition local_opcartesian_opfibration_lift
+  Definition local_opcartesian_opcleaving_lift
     : tot_FF₂ ==> G.
   Proof.
     use make_nat_trans.
-    - exact local_opcartesian_opfibration_lift_data.
-    - exact local_opcartesian_opfibration_lift_is_nat_trans.
+    - exact local_opcartesian_opcleaving_lift_data.
+    - exact local_opcartesian_opcleaving_lift_is_nat_trans.
   Defined.
 
-  Definition local_opcartesian_opfibration_lift_over
-    : local_opcartesian_opfibration_lift ▹ _ = δp.
+  Definition local_opcartesian_opcleaving_lift_over
+    : local_opcartesian_opcleaving_lift ▹ _ = δp.
   Proof.
     use nat_trans_eq ; [ apply homset_property | ].
     intro x.
     apply idpath.
   Qed.
 
-  Definition local_opcartesian_opfibration_lift_comm
-    : tot_αα • local_opcartesian_opfibration_lift
+  Definition local_opcartesian_opcleaving_lift_comm
+    : tot_αα • local_opcartesian_opcleaving_lift
       =
       γ.
   Proof.
@@ -1372,7 +1403,7 @@ Section LocalOpCartesianOpFibration.
       apply homset_property.
   Qed.
 
-  Definition local_opcartesian_opfibration_lift_unique
+  Definition local_opcartesian_opcleaving_lift_unique
     : isaprop
         (∑ δ,
          δ ▹ _ = δp
@@ -1415,40 +1446,44 @@ Section LocalOpCartesianOpFibration.
   Qed.
 End LocalOpCartesianOpFibration.
 
-Definition local_opcartesian_opfibration_comprehension
-  : local_opcartesian_disp_psfunctor opfibration_comprehension.
+Definition local_opcartesian_opcleaving_comprehension
+  : local_opcartesian_disp_psfunctor opcleaving_comprehension.
 Proof.
   intros C₁ C₂ F₁ F₂ α D₁ D₂ FF₁ FF₂ αα Hαα.
   apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell ; cbn.
-  pose (opcleaving_of_opfibs_opcartesian_2cell_is_pointwise_opcartesian _ Hαα) as p.
+  pose (opcleaving_of_opcleaving_opcartesian_2cell_is_pointwise_opcartesian _ Hαα) as p.
   intros G γ δp q.
   use iscontraprop1.
-  - exact (local_opcartesian_opfibration_lift_unique α αα p G γ δp).
+  - exact (local_opcartesian_opcleaving_lift_unique α αα p G γ δp).
   - simple refine (_ ,, _ ,, _).
-    + exact (local_opcartesian_opfibration_lift α αα p G γ δp q).
-    + exact (local_opcartesian_opfibration_lift_over α αα p G γ δp q).
-    + exact (local_opcartesian_opfibration_lift_comm α αα p G γ δp q).
+    + exact (local_opcartesian_opcleaving_lift α αα p G γ δp q).
+    + exact (local_opcartesian_opcleaving_lift_over α αα p G γ δp q).
+    + exact (local_opcartesian_opcleaving_lift_comm α αα p G γ δp q).
 Defined.
 
-Definition opfibration_comprehension_bicat
-  : comprehension_bicat bicat_of_univ_cats.
+Definition opcleaving_comprehension_bicat_structure
+  : comprehension_bicat_structure bicat_of_univ_cats.
 Proof.
-  use make_comprehension_bicat.
-  - exact disp_bicat_of_opfibs.
-  - exact opfibration_comprehension.
-  - exact opfibs_global_cleaving.
-  - exact global_cartesian_opfibration_comprehension.
+  use make_comprehension_bicat_structure.
+  - exact disp_bicat_of_opcleaving.
+  - exact opcleaving_comprehension.
+  - exact opcleaving_global_cleaving.
+  - exact global_cartesian_opcleaving_comprehension.
 Defined.
 
-Definition opfibration_comprehension_is_contravariant
-  : is_covariant opfibration_comprehension_bicat.
+Definition opcleaving_comprehension_is_covariant
+  : is_covariant opcleaving_comprehension_bicat_structure.
 Proof.
   repeat split.
-  - exact cleaving_of_opfibs_local_opcleaving.
-  - exact cleaving_of_opfibs_lwhisker_opcartesian.
-  - exact cleaving_of_opfibs_rwhisker_opcartesian.
-  - exact local_opcartesian_opfibration_comprehension.
+  - exact cleaving_of_opcleaving_local_opcleaving.
+  - exact cleaving_of_opcleaving_lwhisker_opcartesian.
+  - exact cleaving_of_opcleaving_rwhisker_opcartesian.
+  - exact local_opcartesian_opcleaving_comprehension.
 Defined.
+
+Definition opcleaving_comprehension_bicat
+  : comprehension_bicat
+  := _ ,, _ ,, opcleaving_comprehension_is_covariant.
 
 (**
  6. The comprehension bicategory of a display map bicategory
@@ -1537,9 +1572,9 @@ Section DispMapBicatToCompBicat.
   Defined.
 
   Definition disp_map_bicat_to_comp_bicat
-    : comprehension_bicat B.
+    : comprehension_bicat_structure B.
   Proof.
-    use make_comprehension_bicat.
+    use make_comprehension_bicat_structure.
     - exact DD.
     - exact disp_map_bicat_comprehension.
     - exact (global_cleaving_of_disp_map_bicat D).
@@ -1591,37 +1626,59 @@ Section DispMapBicatToCompBicat.
     - exact (rwhisker_cartesian_disp_map_bicat _ HD).
     - exact (disp_map_bicat_to_comp_bicat_local_cartesian HD).
   Defined.
+
+  Definition disp_map_bicat_comprehension_bicat
+             (HD : is_covariant_disp_map_bicat D)
+    : comprehension_bicat
+    := _ ,, _ ,, is_covariant_disp_map_bicat_to_comp_bicat HD.
+
+  Definition disp_map_bicat_contravariant_comprehension_bicat
+             (HD : is_contravariant_disp_map_bicat D)
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, is_contravariant_disp_map_bicat_to_comp_bicat HD.
 End DispMapBicatToCompBicat.
 
 (**
  7. Internal Street fibrations and opfibrations
  *)
-Definition internal_sfib_comprehension_bicat
+Definition internal_sfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : comprehension_bicat B
+  : comprehension_bicat_structure B
   := disp_map_bicat_to_comp_bicat (sfib_disp_map_bicat B) HB.
 
-Definition is_contravariant_internal_sfib_comprehension_bicat
+Definition is_contravariant_internal_sfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : is_contravariant (internal_sfib_comprehension_bicat B HB).
+  : is_contravariant (internal_sfib_comprehension_bicat_structure B HB).
 Proof.
   use is_contravariant_disp_map_bicat_to_comp_bicat.
   apply sfib_disp_map_bicat_is_contravariant.
 Defined.
 
-Definition internal_sopfib_comprehension_bicat
+Definition internal_sfib_contravariant_comprehension_bicat
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : comprehension_bicat B
+  : contravariant_comprehension_bicat
+  := _ ,, _ ,, is_contravariant_internal_sfib_comprehension_bicat_structure B HB.
+
+Definition internal_sopfib_comprehension_bicat_structure
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat_structure B
   := disp_map_bicat_to_comp_bicat (sopfib_disp_map_bicat B) HB.
 
-Definition is_covariant_internal_sopfib_comprehension_bicat
+Definition is_covariant_internal_sopfib_comprehension_bicat_structure
            (B : bicat_with_pb)
            (HB : is_univalent_2 B)
-  : is_covariant (internal_sopfib_comprehension_bicat B HB).
+  : is_covariant (internal_sopfib_comprehension_bicat_structure B HB).
 Proof.
   use is_covariant_disp_map_bicat_to_comp_bicat.
   apply sopfib_disp_map_bicat_is_covariant.
 Defined.
+
+Definition internal_sopfib_comprehension_bicat
+           (B : bicat_with_pb)
+           (HB : is_univalent_2 B)
+  : comprehension_bicat
+  := _ ,, _ ,, is_covariant_internal_sopfib_comprehension_bicat_structure B HB.

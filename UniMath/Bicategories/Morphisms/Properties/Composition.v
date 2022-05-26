@@ -102,6 +102,18 @@ Proof.
   - exact l₂.
 Defined.
 
+Definition comp_left_adjoint_equivalence
+           {B : bicat}
+           {a b c : B}
+           {l₁ : a --> b}
+           (Hl₁ : left_adjoint_equivalence l₁)
+           {l₂ : b --> c}
+           (Hl₂ : left_adjoint_equivalence l₂)
+  : left_adjoint_equivalence (l₁ · l₂).
+Proof.
+  exact (comp_adjequiv (l₁ ,, Hl₁) (l₂ ,, Hl₂)).
+Defined.
+
 Lemma unique_adjoint_equivalence_comp
       {B : bicat}
       (HB : is_univalent_2 B)

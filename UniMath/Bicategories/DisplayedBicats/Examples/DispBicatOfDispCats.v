@@ -276,7 +276,7 @@ Proof.
 Defined.
 
 (** Displayed bicategory of fibrations *)
-Definition disp_bicat_of_fibs_ob_mor
+Definition disp_bicat_of_cleaving_ob_mor
   : disp_cat_ob_mor (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use tpair.
@@ -284,8 +284,8 @@ Proof.
   - exact (λ X Y fibX fibY F, is_cartesian_disp_functor (pr2 F)).
 Defined.
 
-Definition disp_bicat_of_fibs_id_comp
-  : disp_cat_id_comp (total_bicat disp_bicat_of_univ_disp_cats) disp_bicat_of_fibs_ob_mor.
+Definition disp_bicat_of_cleaving_id_comp
+  : disp_cat_id_comp (total_bicat disp_bicat_of_univ_disp_cats) disp_bicat_of_cleaving_ob_mor.
 Proof.
   use tpair.
   - intros X fibX x y f xx yy ff p.
@@ -296,32 +296,32 @@ Proof.
     exact p.
 Qed.
 
-Definition disp_bicat_of_fibs_cat_data
+Definition disp_bicat_of_cleaving_cat_data
   : disp_cat_data (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use tpair.
-  - exact disp_bicat_of_fibs_ob_mor.
-  - exact disp_bicat_of_fibs_id_comp.
+  - exact disp_bicat_of_cleaving_ob_mor.
+  - exact disp_bicat_of_cleaving_id_comp.
 Defined.
 
-Definition disp_bicat_of_fibs_help
+Definition disp_bicat_of_cleaving_help
   : disp_bicat (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use disp_cell_unit_bicat.
-  exact disp_bicat_of_fibs_cat_data.
+  exact disp_bicat_of_cleaving_cat_data.
 Defined.
 
-Definition disp_bicat_of_fibs
+Definition disp_bicat_of_cleaving
   : disp_bicat bicat_of_univ_cats
   := sigma_bicat
        bicat_of_univ_cats
        disp_bicat_of_univ_disp_cats
-       disp_bicat_of_fibs_help.
+       disp_bicat_of_cleaving_help.
 
-Definition disp_bicat_of_fibs_is_disp_invertible_2cell
+Definition disp_bicat_of_cleaving_is_disp_invertible_2cell
            {C C' : bicat_of_univ_cats}
            {F : C --> C'}
-           {D : disp_bicat_of_fibs C} {D' : disp_bicat_of_fibs C'}
+           {D : disp_bicat_of_cleaving C} {D' : disp_bicat_of_cleaving C'}
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
            (Hαα : ∏ (x : (C : univalent_category)) (xx : pr11 D x),
@@ -371,12 +371,12 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition disp_bicat_of_fibs_disp_invertible_2cell_pointwise_inv
+Definition disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
            {C C' : bicat_of_univ_cats}
            {F G : C --> C'}
            {α : F ==> G}
            (Hα : is_invertible_2cell α)
-           {D : disp_bicat_of_fibs C} {D' : disp_bicat_of_fibs C'}
+           {D : disp_bicat_of_cleaving C} {D' : disp_bicat_of_cleaving C'}
            {FF : D -->[ F ] D'} {GG : D -->[ G ] D'}
            (αα : FF ==>[ α ] GG)
            (Hαα : is_disp_invertible_2cell Hα αα)
@@ -445,7 +445,7 @@ Proof.
 Defined.
 
 (** Displayed bicategory of opfibrations *)
-Definition disp_bicat_of_opfibs_ob_mor
+Definition disp_bicat_of_opcleaving_ob_mor
   : disp_cat_ob_mor (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use tpair.
@@ -453,8 +453,8 @@ Proof.
   - exact (λ X Y fibX fibY F, is_opcartesian_disp_functor (pr2 F)).
 Defined.
 
-Definition disp_bicat_of_opfibs_id_comp
-  : disp_cat_id_comp (total_bicat disp_bicat_of_univ_disp_cats) disp_bicat_of_opfibs_ob_mor.
+Definition disp_bicat_of_opcleaving_id_comp
+  : disp_cat_id_comp (total_bicat disp_bicat_of_univ_disp_cats) disp_bicat_of_opcleaving_ob_mor.
 Proof.
   use tpair.
   - intros X fibX x y f xx yy ff p.
@@ -465,32 +465,32 @@ Proof.
     exact p.
 Qed.
 
-Definition disp_bicat_of_opfibs_cat_data
+Definition disp_bicat_of_opcleaving_cat_data
   : disp_cat_data (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use tpair.
-  - exact disp_bicat_of_opfibs_ob_mor.
-  - exact disp_bicat_of_opfibs_id_comp.
+  - exact disp_bicat_of_opcleaving_ob_mor.
+  - exact disp_bicat_of_opcleaving_id_comp.
 Defined.
 
-Definition disp_bicat_of_opfibs_help
+Definition disp_bicat_of_opcleaving_help
   : disp_bicat (total_bicat disp_bicat_of_univ_disp_cats).
 Proof.
   use disp_cell_unit_bicat.
-  exact disp_bicat_of_opfibs_cat_data.
+  exact disp_bicat_of_opcleaving_cat_data.
 Defined.
 
-Definition disp_bicat_of_opfibs
+Definition disp_bicat_of_opcleaving
   : disp_bicat bicat_of_univ_cats
   := sigma_bicat
        bicat_of_univ_cats
        disp_bicat_of_univ_disp_cats
-       disp_bicat_of_opfibs_help.
+       disp_bicat_of_opcleaving_help.
 
-Definition disp_bicat_of_opfibs_is_disp_invertible_2cell
+Definition disp_bicat_of_opcleaving_is_disp_invertible_2cell
            {C C' : bicat_of_univ_cats}
            {F : C --> C'}
-           {D : disp_bicat_of_opfibs C} {D' : disp_bicat_of_opfibs C'}
+           {D : disp_bicat_of_opcleaving C} {D' : disp_bicat_of_opcleaving C'}
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
            (Hαα : ∏ (x : (C : univalent_category)) (xx : pr11 D x),
@@ -540,12 +540,12 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition disp_bicat_of_opfibs_disp_invertible_2cell_pointwise_inv
+Definition disp_bicat_of_opcleaving_disp_invertible_2cell_pointwise_inv
            {C C' : bicat_of_univ_cats}
            {F G : C --> C'}
            {α : F ==> G}
            (Hα : is_invertible_2cell α)
-           {D : disp_bicat_of_opfibs C} {D' : disp_bicat_of_opfibs C'}
+           {D : disp_bicat_of_opcleaving C} {D' : disp_bicat_of_opcleaving C'}
            {FF : D -->[ F ] D'} {GG : D -->[ G ] D'}
            (αα : FF ==>[ α ] GG)
            (Hαα : is_disp_invertible_2cell Hα αα)

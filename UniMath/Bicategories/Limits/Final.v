@@ -11,6 +11,7 @@
    3. Equivalence between the two definitions
    4. Bicategories with bifinal objects
    5. Bifinal objects are unique
+   6. Being bifinal is preserved under equivalence
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -29,6 +30,8 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -439,3 +442,60 @@ Section Uniqueness.
   Definition bifinal_unique : X = Y
     := isotoid_2_0 HC0 (_ ,, bifinal_unique_adj_eqv).
 End Uniqueness.
+
+(**
+ 6. Being bifinal is preserved under equivalence
+ *)
+Section FinalEquivalence.
+  Context {B : bicat}
+          {x y : B}
+          (l : x --> y)
+          (Hl : left_adjoint_equivalence l)
+          (Hx : is_bifinal x).
+
+  Let r : y --> x
+    := left_adjoint_right_adjoint Hl.
+  Let η : invertible_2cell (id₁ _) (l · r)
+    := left_equivalence_unit_iso Hl.
+  Let ε : invertible_2cell (r · l) (id₁ _)
+    := left_equivalence_counit_iso Hl.
+
+  Definition is_bifinal_1cell_left_adjoint_equivalence
+    : bifinal_1cell_property y
+    := λ z, is_bifinal_1cell_property Hx z · l.
+
+  Definition is_bifinal_2cell_left_adjoint_equivalence
+             (z : B)
+    : bifinal_2cell_property y z
+    := λ f g,
+       rinvunitor _
+       • (_ ◃ ε^-1)
+       • lassociator _ _ _
+       • (is_bifinal_2cell_property Hx z (f · r) (g · r) ▹ l)
+       • rassociator _ _ _
+       • (_ ◃ ε)
+       • runitor _.
+
+  Definition is_bifinal_eq_left_adjoint_equivalence
+             (z : B)
+    : bifinal_eq_property y z.
+  Proof.
+    intros f g α β.
+    enough (α ▹ r = β ▹ r) as H.
+    {
+      use (faithful_1cell_eq_cell
+             (pr1 (adj_equiv_fully_faithful (inv_adjequiv (_ ,, Hl))))).
+      exact H.
+    }
+    exact (is_bifinal_eq_property Hx z (f · r) (g · r) (α ▹ r) (β ▹ r)).
+  Qed.
+
+  Definition is_bifinal_left_adjoint_equivalence
+    : is_bifinal y.
+  Proof.
+    use make_is_bifinal.
+    - exact is_bifinal_1cell_left_adjoint_equivalence.
+    - exact is_bifinal_2cell_left_adjoint_equivalence.
+    - exact is_bifinal_eq_left_adjoint_equivalence.
+  Defined.
+End FinalEquivalence.
