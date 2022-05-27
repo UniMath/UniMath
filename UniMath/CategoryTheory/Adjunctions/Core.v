@@ -282,12 +282,12 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       + apply (pr2 H2).
   Defined.
 
-  Lemma is_left_adjoint_iso {A B : category}
-        (F G : functor A B) (αiso : @iso [A,B] F G) (HF : is_left_adjoint F) :
+  Lemma is_left_adjoint_z_iso {A B : category}
+        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
     is_left_adjoint G.
   Proof.
     set (α := pr1 αiso : nat_trans F G).
-    set (αinv := inv_from_iso αiso : nat_trans G F).
+    set (αinv := inv_from_z_iso αiso : nat_trans G F).
     destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
     use tpair.
     - apply F'.
@@ -306,13 +306,13 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
           rewrite assoc.
           etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                     apply maponpaths, HF1|].
-          now rewrite id_right; apply (nat_trans_eq_pointwise (iso_after_iso_inv αiso)).
+          now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
         * unfold triangle_2_statement in *.
           simpl; intro b; rewrite functor_comp, assoc.
           etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                     eapply maponpaths, pathsinv0, functor_comp|].
           etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
-                    (nat_trans_eq_pointwise (iso_inv_after_iso αiso))|].
+                    (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
           cbn. rewrite (functor_id F'), id_right. apply (HF2 b).
   Defined.
 
@@ -394,7 +394,7 @@ Proof.
      now rewrite HHH.
 Defined.
 
-Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
+Local Definition counit : nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
   * red. apply eps.
@@ -1066,11 +1066,11 @@ Section AdjunctionLemmas.
     - apply fullG.
   Qed.
 
-  Lemma counit_is_iso_if_right_adjoint_is_fully_faithful :
-    fully_faithful G -> ∏ x, is_iso (ε x).
+  Lemma counit_is_z_iso_if_right_adjoint_is_fully_faithful :
+    fully_faithful G -> ∏ x, is_z_isomorphism (ε x).
   Proof.
     intros ? ?.
-    apply merely_split_monic_is_epi_to_is_iso.
+    apply merely_split_monic_is_epi_to_is_z_iso.
     - apply counit_is_split_monic_if_right_adjoint_is_full.
       apply fully_faithful_implies_full_and_faithful; assumption.
     - apply counit_is_epi_if_right_adjoint_is_faithful.

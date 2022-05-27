@@ -120,9 +120,9 @@ Section IsEffectivePw.
     set (eqd := eq_coeq_pw (PullbackPr1 g) (PullbackPr2 g) x).
     set (z:= (eq_diag_iscolimcocone _ eqd hf)).
     set (CC := (make_ColimCocone _ _ _ z)).
-    apply (is_iso_isColim _ CC).
+    apply (is_z_iso_isColim _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
-    apply identity_is_iso.
+    apply identity_is_z_iso.
     use StandardFiniteSets.two_rec_dep;
     cbn beta;
     rewrite id_right;
@@ -172,9 +172,9 @@ Section PointwiseEpi.
     }
     apply (eq_diag_iscolimcocone _ (sym_eq_diag _ _ (eq_po_pw x)))in epia; cycle 1.
     set (CC := (make_ColimCocone _ _ _ epia)).
-    eapply (is_iso_isColim  _ CC).
+    eapply (is_z_iso_isColim  _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
-    apply identity_is_iso.
+    apply identity_is_z_iso.
     use StandardFiniteSets.three_rec_dep;
     cbn beta;
     rewrite id_right;

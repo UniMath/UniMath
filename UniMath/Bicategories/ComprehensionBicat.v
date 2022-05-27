@@ -775,8 +775,8 @@ Proof.
   - intros C₁ C₂ F D₁ D₂ FF.
     use make_disp_1cell_cod.
     + exact (total_functor (pr1 FF)).
-    + use nat_iso_to_invertible_2cell.
-      exact (total_functor_commute_iso (pr1 FF)).
+    + use nat_z_iso_to_invertible_2cell.
+      exact (total_functor_commute_z_iso (pr1 FF)).
   - intros C₁ C₂ F G α D₁ D₂ FF GG αα.
     use make_disp_2cell_cod.
     + exact (total_nat_trans (pr1 αα)).
@@ -796,9 +796,9 @@ Proof.
            rewrite !id_left ;
            apply idpath).
     + use is_disp_invertible_2cell_cod.
-      use is_nat_iso_to_is_invertible_2cell.
+      use is_nat_z_iso_to_is_invertible_2cell.
       intro x.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   - intros C₁ C₂ C₃ F G D₁ D₂ D₃ FF GG.
     simple refine (_ ,, _).
     + use make_disp_2cell_cod.
@@ -810,9 +810,9 @@ Proof.
            rewrite !id_left, !id_right ;
            apply functor_id).
     + use is_disp_invertible_2cell_cod.
-      use is_nat_iso_to_is_invertible_2cell.
+      use is_nat_z_iso_to_is_invertible_2cell.
       intro x.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
 Defined.
 
 Definition cleaving_comprehension_is_disp_psfunctor
@@ -1134,8 +1134,8 @@ Proof.
   - intros C₁ C₂ F D₁ D₂ FF.
     use make_disp_1cell_cod.
     + exact (total_functor (pr1 FF)).
-    + use nat_iso_to_invertible_2cell.
-      exact (total_functor_commute_iso (pr1 FF)).
+    + use nat_z_iso_to_invertible_2cell.
+      exact (total_functor_commute_z_iso (pr1 FF)).
   - intros C₁ C₂ F G α D₁ D₂ FF GG αα.
     use make_disp_2cell_cod.
     + exact (total_nat_trans (pr1 αα)).
@@ -1155,9 +1155,9 @@ Proof.
            rewrite !id_left ;
            apply idpath).
     + use is_disp_invertible_2cell_cod.
-      use is_nat_iso_to_is_invertible_2cell.
+      use is_nat_z_iso_to_is_invertible_2cell.
       intro x.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   - intros C₁ C₂ C₃ F G D₁ D₂ D₃ FF GG.
     simple refine (_ ,, _).
     + use make_disp_2cell_cod.
@@ -1169,9 +1169,9 @@ Proof.
            rewrite !id_left, !id_right ;
            apply functor_id).
     + use is_disp_invertible_2cell_cod.
-      use is_nat_iso_to_is_invertible_2cell.
+      use is_nat_z_iso_to_is_invertible_2cell.
       intro x.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
 Defined.
 
 Definition opcleaving_comprehension_is_disp_psfunctor

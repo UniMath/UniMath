@@ -280,7 +280,7 @@ Section CommaCategory.
     - apply homset_property.
     - use isaproptotal2.
       + intro.
-        apply isaprop_is_iso_disp.
+        apply isaprop_is_z_iso_disp.
       + intros.
         apply homset_property.
   Qed.
@@ -302,20 +302,20 @@ Section CommaCategory.
   Section IsIsoComma.
     Context {x y : comma}
             (f : x --> y)
-            (Hf1 : is_iso (pr11 f))
-            (Hf2 : is_iso (pr21 f)).
+            (Hf1 : is_z_isomorphism (pr11 f))
+            (Hf2 : is_z_isomorphism (pr21 f)).
 
     Definition inv_comma
       : y --> x.
     Proof.
-      refine ((inv_from_iso (make_iso _ Hf1) ,, inv_from_iso (make_iso _ Hf2)) ,, _).
+      refine ((inv_from_z_iso (make_z_iso' _ Hf1) ,, inv_from_z_iso (make_z_iso' _ Hf2)) ,, _).
       abstract
         (cbn ;
-         rewrite !functor_on_inv_from_iso ;
-         use iso_inv_on_left ;
+         rewrite !functor_on_inv_from_z_iso ;
+         use z_iso_inv_on_left ;
          rewrite assoc' ;
          refine (!_) ;
-         use iso_inv_on_right ;
+         use z_iso_inv_on_right ;
          cbn ;
          exact (!(pr2 f))).
     Defined.
@@ -329,8 +329,8 @@ Section CommaCategory.
         apply homset_property.
       }
       use pathsdirprod ; cbn.
-      - exact (iso_inv_after_iso (make_iso _ Hf1)).
-      - exact (iso_inv_after_iso (make_iso _ Hf2)).
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf1)).
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf2)).
     Qed.
 
     Lemma is_iso_comma_right_inv
@@ -342,18 +342,17 @@ Section CommaCategory.
         apply homset_property.
       }
       use pathsdirprod ; cbn.
-      - exact (iso_after_iso_inv (make_iso _ Hf1)).
-      - exact (iso_after_iso_inv (make_iso _ Hf2)).
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf1)).
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf2)).
     Qed.
 
-    Definition is_iso_comma
-      : is_iso f.
+    Definition is_z_iso_comma
+      : is_z_isomorphism f.
     Proof.
-      use is_iso_qinv.
-      - exact inv_comma.
-      - split.
-        + exact is_iso_comma_left_inv.
-        + exact is_iso_comma_right_inv.
+      exists inv_comma.
+      split.
+      - exact is_iso_comma_left_inv.
+      - exact is_iso_comma_right_inv.
     Defined.
   End IsIsoComma.
 
@@ -466,12 +465,12 @@ Section CommaCategory.
 
     (** Computation rule for first projection *)
     Definition comma_ump1_pr1
-      : nat_iso (comma_ump1 ∙ comma_pr1) P.
+      : nat_z_iso (comma_ump1 ∙ comma_pr1) P.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact comma_ump1_pr1_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     Definition comma_ump1_pr2_nat_trans_data
@@ -496,12 +495,12 @@ Section CommaCategory.
 
     (** Computation rule for second projection *)
     Definition comma_ump1_pr2
-      : nat_iso (comma_ump1 ∙ comma_pr2) Q.
+      : nat_z_iso (comma_ump1 ∙ comma_pr2) Q.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact comma_ump1_pr2_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     (** Computation rule for natural iso *)
@@ -519,7 +518,7 @@ Section CommaCategory.
                 η
                 (nat_trans_comp
                    _ _ _
-                   (post_whisker (nat_iso_inv comma_ump1_pr2) G)
+                   (post_whisker (nat_z_iso_inv comma_ump1_pr2) G)
                    (nat_trans_functor_assoc _ _ _)))).
     Proof.
       use nat_trans_eq.

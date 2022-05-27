@@ -436,12 +436,12 @@ Section BiadjunctionHom.
           ** exact biadj_hom_right_left.
     - split ; simpl.
       + intro a.
-        apply is_inv2cell_to_is_iso.
+        apply is_inv2cell_to_is_z_iso.
         unfold biadj_hom_left_right_data.
         is_iso.
         apply property_from_invertible_2cell.
       + intro a.
-        apply is_inv2cell_to_is_iso.
+        apply is_inv2cell_to_is_z_iso.
         unfold biadj_hom_right_left_data.
         is_iso.
         apply property_from_invertible_2cell.

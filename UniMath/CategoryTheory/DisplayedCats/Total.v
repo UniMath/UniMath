@@ -139,56 +139,54 @@ Section Total_Category.
 
   (** ** Isomorphisms and saturation *)
 
-  Definition is_iso_total {C : category} {D : disp_cat C}
+  Definition is_z_iso_total {C : category} {D : disp_cat C}
              {xx yy : total_category D} (ff : xx --> yy)
-             (i : is_iso (pr1 ff))
-             (fi := make_iso (pr1 ff) i)
-             (ii : is_iso_disp fi (pr2 ff))
-    : is_iso ff.
+             (i : is_z_isomorphism (pr1 ff))
+             (fi := pr1 ff,, i)
+             (ii : is_z_iso_disp fi (pr2 ff))
+    : is_z_isomorphism ff.
   Proof.
-    apply is_iso_from_is_z_iso.
-    exists (inv_from_iso fi,, pr1 ii).
+    exists (inv_from_z_iso fi,, pr1 ii).
     split.
     - use total2_paths_f.
-      apply (iso_inv_after_iso fi).
-      etrans. apply maponpaths. apply (inv_mor_after_iso_disp ii).
+      apply (z_iso_inv_after_z_iso fi).
+      etrans. apply maponpaths. apply (inv_mor_after_z_iso_disp ii).
       apply transportfbinv.
     - use total2_paths_f.
-      apply (iso_after_iso_inv fi).
-      etrans. apply maponpaths. apply (iso_disp_after_inv_mor ii).
+      apply (z_iso_after_z_iso_inv fi).
+      etrans. apply maponpaths. apply (z_iso_disp_after_inv_mor ii).
       apply transportfbinv.
   Qed.
 
-  Definition inv_from_iso_in_total
+  Definition inv_from_z_iso_in_total
              {C : category}
              {D : disp_cat C}
              {x y : C}
              {f : x --> y}
-             (Hf : is_iso f)
+             (Hf : is_z_isomorphism f)
              {xx : D x}
              {yy : D y}
              {ff : xx -->[ f ] yy}
-             (Hff : is_iso_disp (make_iso f Hf) ff)
-    : pr1 (inv_from_iso
-             (make_iso
-                _
-                (@is_iso_total
+             (Hff : is_z_iso_disp (f ,, Hf) ff)
+    : pr1 (inv_from_z_iso
+             (make_z_iso' _
+                (@is_z_iso_total
                    C D
                    (x ,, xx) (y ,, yy)
                    (f ,, ff)
                    Hf
                    Hff)))
       =
-        inv_from_iso (make_iso _ Hf).
+        inv_from_z_iso (_,,Hf).
   Proof.
-    use inv_iso_unique'.
+    apply inv_z_iso_unique'.
     unfold precomp_with ; cbn.
     exact (maponpaths
              pr1
-             (iso_inv_after_iso
-                (make_iso
+             (z_iso_inv_after_z_iso
+                (make_z_iso'
                    _
-                   (@is_iso_total
+                   (@is_z_iso_total
                       C D
                       (x ,, xx) (y ,, yy)
                       (f ,, ff)
@@ -196,104 +194,104 @@ Section Total_Category.
                       Hff)))).
   Qed.
 
-  Definition is_iso_base_from_total {C : category} {D : disp_cat C}
-             {xx yy : total_category D} {ff : xx --> yy} (i : is_iso ff)
-    : is_iso (pr1 ff).
+  Definition is_z_iso_base_from_total {C : category} {D : disp_cat C}
+             {xx yy : total_category D} {ff : xx --> yy} (i : is_z_isomorphism ff)
+    : is_z_isomorphism (pr1 ff).
   Proof.
-    set (ffi := make_iso ff i).
-    apply (is_iso_qinv _ (pr1 (inv_from_iso ffi))).
+    set (ffi := ff ,, i).
+    exists (pr1 (inv_from_z_iso ffi)).
     split.
-    - exact (maponpaths pr1 (iso_inv_after_iso ffi)).
-    - exact (maponpaths pr1 (iso_after_iso_inv ffi)).
+    - exact (maponpaths pr1 (z_iso_inv_after_z_iso ffi)).
+    - exact (maponpaths pr1 (z_iso_after_z_iso_inv ffi)).
   Qed.
 
-  Definition iso_base_from_total {C : category} {D : disp_cat C}
-             {xx yy : total_category D} (ffi : iso xx yy) : iso (pr1 xx) (pr1 yy) :=
-    make_iso _ (is_iso_base_from_total (pr2 ffi)).
+  Definition z_iso_base_from_total {C : category} {D : disp_cat C}
+             {xx yy : total_category D} (ffi : z_iso xx yy) : z_iso (pr1 xx) (pr1 yy) :=
+    _ ,, (is_z_iso_base_from_total (pr2 ffi)).
 
-  Definition inv_iso_base_from_total {C : category} {D : disp_cat C}
-             {xx yy : total_precategory D} (ffi : iso xx yy) :
-    inv_from_iso (iso_base_from_total ffi) = pr1 (inv_from_iso ffi).
+  Definition inv_z_iso_base_from_total {C : category} {D : disp_cat C}
+             {xx yy : total_precategory D} (ffi : z_iso xx yy) :
+    inv_from_z_iso (z_iso_base_from_total ffi) = pr1 (inv_from_z_iso ffi).
   Proof.
-    apply pathsinv0, inv_iso_unique'. unfold precomp_with.
-    exact (maponpaths pr1 (iso_inv_after_iso ffi)).
+    apply pathsinv0, inv_z_iso_unique'. unfold precomp_with.
+    exact (maponpaths pr1 (z_iso_inv_after_z_iso ffi)).
   Qed.
 
-  Definition is_iso_disp_from_total {C : category} {D : disp_cat C}
-             {xx yy : total_precategory D} {ff : xx --> yy} (i : is_iso ff) (ffi := make_iso ff i) :
-    is_iso_disp (iso_base_from_total (ff,,i)) (pr2 ff).
+  Definition is_z_iso_disp_from_total {C : category} {D : disp_cat C}
+             {xx yy : total_precategory D} {ff : xx --> yy} (i : is_z_isomorphism ff) (ffi := ff ,, i) :
+    is_z_iso_disp (z_iso_base_from_total (ff,,i)) (pr2 ff).
   Proof.
     use tpair; [ | split].
-    - eapply transportb. apply inv_iso_base_from_total.
-      exact (pr2 (inv_from_iso ffi)).
+    - eapply transportb. apply inv_z_iso_base_from_total.
+      exact (pr2 (inv_from_z_iso ffi)).
     - etrans. apply mor_disp_transportf_postwhisker.
       etrans. apply maponpaths, @pathsinv0.
-      exact (fiber_paths (!iso_after_iso_inv ffi)).
+      exact (fiber_paths (!z_iso_after_z_iso_inv ffi)).
       etrans. apply transport_f_f.
       use (toforallpaths _ _ _ _ (id_disp _)).
       unfold transportb; apply maponpaths, homset_property.
     - etrans. apply mor_disp_transportf_prewhisker.
       etrans. apply maponpaths, @pathsinv0.
-      exact (fiber_paths (!iso_inv_after_iso ffi)).
+      exact (fiber_paths (!z_iso_inv_after_z_iso ffi)).
       etrans. apply transport_f_f.
       use (toforallpaths _ _ _ _ (id_disp _)).
       unfold transportb; apply maponpaths, homset_property.
   Qed.
 
-  Definition iso_disp_from_total {C : category} {D : disp_cat C}
-             {xx yy : total_precategory D} (ff : iso xx yy) :
-    iso_disp (iso_base_from_total ff) (pr2 xx) (pr2 yy).
+  Definition z_iso_disp_from_total {C : category} {D : disp_cat C}
+             {xx yy : total_precategory D} (ff : z_iso xx yy) :
+    z_iso_disp (z_iso_base_from_total ff) (pr2 xx) (pr2 yy).
   Proof.
-    exact (_,, is_iso_disp_from_total (pr2 ff)).
+    exact (_,, is_z_iso_disp_from_total (pr2 ff)).
   Defined.
 
-  Definition total_iso {C : category} {D : disp_cat C} {xx yy : total_category D}
-             (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
-    : iso xx yy.
+  Definition total_z_iso {C : category} {D : disp_cat C} {xx yy : total_category D}
+             (f : z_iso (pr1 xx) (pr1 yy)) (ff : z_iso_disp f (pr2 xx) (pr2 yy))
+    : z_iso xx yy.
   Proof.
     exists (pr1 f,, pr1 ff).
-    apply (is_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
+    apply (is_z_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
   Defined.
 
-  Lemma inv_mor_total_iso {C : category} {D : disp_cat C} {xx yy : total_category D}
-        (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
-    : inv_from_iso (total_iso f ff)
-      = (inv_from_iso f,, inv_mor_disp_from_iso ff).
+  Lemma inv_mor_total_z_iso {C : category} {D : disp_cat C} {xx yy : total_category D}
+        (f : z_iso (pr1 xx) (pr1 yy)) (ff : z_iso_disp f (pr2 xx) (pr2 yy))
+    : inv_from_z_iso (total_z_iso f ff)
+      = (inv_from_z_iso f,, inv_mor_disp_from_z_iso ff).
   Proof.
-    (* Could de-opacify [is_iso_total] and then use [inv_from_iso_from_is_z_iso].  If de-opacfying [is_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
-    apply cancel_precomposition_iso with (total_iso f ff).
-    etrans. apply iso_inv_after_iso. apply pathsinv0.
+    (* Could de-opacify [is_z_iso_total] and then use [inv_from_z_iso_].  If de-opacfying [is_z_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
+    apply cancel_precomposition_z_iso with (total_z_iso f ff).
+    etrans. apply z_iso_inv_after_z_iso. apply pathsinv0.
     use total2_paths_f; cbn.
-    - apply iso_inv_after_iso.
-    - etrans. apply maponpaths, inv_mor_after_iso_disp.
+    - apply z_iso_inv_after_z_iso.
+    - etrans. apply maponpaths, inv_mor_after_z_iso_disp.
       apply transportfbinv.
   Qed.
 
-  Definition total_iso_equiv_map {C : category} {D : disp_cat C} {xx yy : total_category D}
-    : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
-      -> iso xx yy
-    := λ ff, total_iso (pr1 ff) (pr2 ff).
+  Definition total_z_iso_equiv_map {C : category} {D : disp_cat C} {xx yy : total_category D}
+    : (∑ f : z_iso (pr1 xx) (pr1 yy), z_iso_disp f (pr2 xx) (pr2 yy))
+      -> z_iso xx yy
+    := λ ff, total_z_iso (pr1 ff) (pr2 ff).
 
-  Definition total_isweq_iso {C : category} {D : disp_cat C} (xx yy : total_category D)
-    : isweq (@total_iso_equiv_map _ _ xx yy).
+  Definition total_isweq_z_iso {C : category} {D : disp_cat C} (xx yy : total_category D)
+    : isweq (@total_z_iso_equiv_map _ _ xx yy).
   Proof.
     use isweq_iso.
-    - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
+    - intros ff. exists (z_iso_base_from_total ff). apply z_iso_disp_from_total.
     - intros [f ff]. use total2_paths_f.
-      + apply eq_iso, idpath.
-      + apply eq_iso_disp.
-        etrans. apply transportf_iso_disp.
-        simpl pr2. simpl (pr1 (iso_disp_from_total _)).
+      + apply eq_z_iso, idpath.
+      + apply eq_z_iso_disp.
+        etrans. apply transportf_z_iso_disp.
+        simpl pr2. simpl (pr1 (z_iso_disp_from_total _)).
         use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
         apply homset_property.
-    - intros f. apply eq_iso; simpl.
+    - intros f. apply eq_z_iso; simpl.
       destruct f as [[f ff] w]; apply idpath.
   Qed.
 
-  Definition total_iso_equiv {C : category} {D : disp_cat C} (xx yy : total_category D)
-    : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
-        ≃ iso xx yy
-    := make_weq _ (total_isweq_iso xx yy).
+  Definition total_z_iso_equiv {C : category} {D : disp_cat C} (xx yy : total_category D)
+    : (∑ f : z_iso (pr1 xx) (pr1 yy), z_iso_disp f (pr2 xx) (pr2 yy))
+        ≃ z_iso xx yy
+    := make_weq _ (total_isweq_z_iso xx yy).
 
   Lemma is_univalent_total_category {C : category} {D : disp_cat C}
         (CC : is_univalent C) (DD : is_univalent_disp D) :
@@ -305,14 +303,14 @@ Section Total_Category.
     use weqhomot.
     apply (@weqcomp _ (∑ e : x = y, transportf _ e xx = yy) _).
     apply total2_paths_equiv.
-    apply (@weqcomp _ (∑ e : x = y, iso_disp (idtoiso e) xx yy) _).
+    apply (@weqcomp _ (∑ e : x = y, z_iso_disp (idtoiso e) xx yy) _).
     apply weqfibtototal.
     intros e. exists (λ ee, idtoiso_disp e ee).
     apply DD.
-    apply (@weqcomp _ (∑ f : iso x y, iso_disp f xx yy) _).
+    apply (@weqcomp _ (∑ f : z_iso x y, z_iso_disp f xx yy) _).
     use (weqfp (make_weq _ _)). apply CC.
-    apply total_iso_equiv.
-    intros e; destruct e; apply eq_iso; cbn.
+    apply total_z_iso_equiv.
+    intros e; destruct e; apply eq_z_iso; cbn.
     apply idpath.
   Qed.
 
@@ -383,20 +381,20 @@ Section Total_Functors.
          apply idpath).
   Defined.
 
-  Definition total_functor_commute_iso
+  Definition total_functor_commute_z_iso
              {C₁ C₂ : category}
              {F : C₁ ⟶ C₂}
              {D₁ : disp_cat C₁}
              {D₂ : disp_cat C₂}
              (FF : disp_functor F D₁ D₂)
-    : nat_iso
+    : nat_z_iso
         (pr1_category D₁ ∙ F)
         (total_functor FF ∙ pr1_category D₂).
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     * exact (total_functor_commute FF).
     * intro.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   Defined.
 
   Definition total_functor_identity

@@ -44,7 +44,7 @@ Section BiadjunctionPreservation.
           (intros f g α ;
            apply isapropunit).
     - intros f.
-      use is_iso_qinv ; cbn.
+      use tpair; cbn.
       + apply idpath.
       + abstract (split ; apply idpath).
     - use comp_adj_equivalence_of_cats.
@@ -69,7 +69,7 @@ Section BiadjunctionPreservation.
           (intros f g α ;
            apply isapropunit).
     - intros f.
-      use is_iso_qinv ; cbn.
+      use tpair; cbn.
       + apply idpath.
       + abstract (split ; apply idpath).
     - use comp_adj_equivalence_of_cats.

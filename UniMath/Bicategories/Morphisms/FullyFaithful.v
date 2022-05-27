@@ -398,12 +398,12 @@ Proof.
   - intros g₁ g₂ α.
     apply hinhpr.
     simple refine (_ ,, _) ; cbn.
-    + apply inv2cell_to_iso.
+    + apply inv2cell_to_z_iso.
       use make_invertible_2cell.
-      * use (pseudomonic_1cell_inv_map Hf (iso_to_inv2cell α)).
+      * use (pseudomonic_1cell_inv_map Hf (z_iso_to_inv2cell α)).
         apply property_from_invertible_2cell.
       * apply is_invertible_2cell_pseudomonic_1cell_inv_map.
-    + use subtypePath ; [ intro ; apply isaprop_is_iso | ].
+    + use subtypePath ; [ intro ; apply (isaprop_is_z_isomorphism(C:=hom z b)) | ].
       cbn.
       apply pseudomonic_1cell_inv_map_eq.
 Qed.
@@ -423,14 +423,14 @@ Proof.
     pose (w := make_weq _ (isweq_functor_on_iso_pseudomonic (H z) g₁ g₂)).
     simple refine (_ ,, _ ,, _).
     + apply (invweq w).
-      use inv2cell_to_iso.
+      use inv2cell_to_z_iso.
       exact (αf ,, Hαf).
     + cbn.
-      apply is_iso_to_is_inv2cell.
-      apply (pr2 (invmap w (inv2cell_to_iso (αf,, Hαf)))).
+      apply is_z_iso_to_is_inv2cell.
+      apply (pr2 (invmap w (inv2cell_to_z_iso (αf,, Hαf)))).
     + exact (maponpaths
                pr1
-               (homotweqinvweq w (inv2cell_to_iso (αf,, Hαf)))).
+               (homotweqinvweq w (inv2cell_to_z_iso (αf,, Hαf)))).
 Qed.
 
 Definition pseudomonic_1cell_weq_pseudomonic

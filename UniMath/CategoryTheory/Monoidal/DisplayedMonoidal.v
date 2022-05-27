@@ -720,8 +720,8 @@ Section section_tensor.
 
   Definition monoidal_tensor_section_data : UU
     := ∏ (c c' : C),
-      iso_disp
-        (identity_iso (T (c,,c')))
+      z_iso_disp
+        (identity_z_iso (T (c,,c')))
         (S (T (c,,c')))
         (TT _ ((S c,, S c') : (D ⊠⊠ D)(c,,c'))).
 

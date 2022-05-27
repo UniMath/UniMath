@@ -170,7 +170,7 @@ Definition functor_of_kleisli_comm
     (f ∙ functor_of_kleisli_triple ky).
 Proof.
   use make_nat_trans.
-  - exact (λ a, inv_from_iso (pr1 kf a)).
+  - exact (λ a, inv_from_z_iso (pr1 kf a)).
   - abstract
       (intros a b p;
        cbn;
@@ -179,7 +179,7 @@ Proof.
        rewrite H;
        rewrite !assoc';
        apply maponpaths;
-       rewrite iso_inv_after_iso;
+       rewrite z_iso_inv_after_z_iso;
        rewrite id_right;
        apply maponpaths;
        rewrite functor_comp;
@@ -187,34 +187,34 @@ Proof.
        apply maponpaths;
        rewrite (pr12 kf);
        rewrite assoc';
-       rewrite iso_inv_after_iso;
+       rewrite z_iso_inv_after_z_iso;
        apply id_right).
 Defined.
 
-Lemma functor_of_kleisli_comm_nat_iso
+Lemma functor_of_kleisli_comm_nat_z_iso
       {x y : univalent_category}
       {f : x ⟶ y}
       {kx : kleisli_triple x}
       {ky : kleisli_triple y}
       (kf : kleisli_triple_on_functor kx ky f)
-  : is_nat_iso (functor_of_kleisli_comm kf).
+  : is_nat_z_iso (functor_of_kleisli_comm kf).
 Proof.
   intro a.
-  apply is_iso_inv_from_iso.
-Qed.
+  apply is_z_iso_inv_from_z_iso.
+Defined.
 
-Definition functor_of_kleisli_iso
+Definition functor_of_kleisli_z_iso
            {x y : univalent_category}
            {f : x ⟶ y}
            {kx : kleisli_triple x}
            {ky : kleisli_triple y}
            (kf : kleisli_triple_on_functor kx ky f)
-  : nat_iso (functor_of_kleisli_triple kx ∙ f)
+  : nat_z_iso (functor_of_kleisli_triple kx ∙ f)
             (f ∙ functor_of_kleisli_triple ky).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (functor_of_kleisli_comm kf).
-  - exact (functor_of_kleisli_comm_nat_iso kf).
+  - exact (functor_of_kleisli_comm_nat_z_iso kf).
 Defined.
 
 Definition unit_mu_kleisli_functor
@@ -226,12 +226,12 @@ Definition unit_mu_kleisli_functor
   : unit_mu_kleisli KC -->[ F] unit_mu_kleisli KD.
 Proof.
   use make_cat_monad_mor ; cbn.
-  - exact (functor_of_kleisli_iso KF).
+  - exact (functor_of_kleisli_z_iso KF).
   - abstract
       (intros X ; cbn ;
        rewrite (kleisli_triple_on_functor_unit_kt KF);
        rewrite assoc';
-       rewrite iso_inv_after_iso;
+       rewrite z_iso_inv_after_z_iso;
        rewrite id_right;
        apply idpath).
   - abstract
@@ -242,7 +242,7 @@ Proof.
        rewrite (bind_bind KD);
        rewrite !assoc';
        rewrite (unit_bind KD), id_right;
-       rewrite iso_inv_after_iso, id_right;
+       rewrite z_iso_inv_after_z_iso, id_right;
        rewrite functor_id, id_left;
        apply idpath).
 Defined.
@@ -266,11 +266,11 @@ Proof.
        use nat_trans_eq; try apply homset_property;
        cbn; intro a;
        apply pathsinv0;
-       apply iso_inv_on_left;
+       apply z_iso_inv_on_left;
        rewrite assoc';
        rewrite <- e;
        rewrite assoc;
-       rewrite iso_after_iso_inv;
+       rewrite z_iso_after_z_iso_inv;
        apply pathsinv0;
        apply id_left).
   - abstract
@@ -326,9 +326,9 @@ Definition monad_mor_natural_pointwise
            {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
            (X : C₁)
-  : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
-  := CompositesAndInverses.nat_iso_to_pointwise_iso
-       (nat_iso_inv (monad_mor_nat_iso FF)) X.
+  : z_iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso
+       (nat_z_iso_inv (monad_mor_nat_z_iso FF)) X.
 
 Lemma inv_monad_mor_natural_pointwise
       {C₁ C₂ : univalent_category}
@@ -337,14 +337,15 @@ Lemma inv_monad_mor_natural_pointwise
       {M₂ : monad bicat_of_univ_cats C₂}
       (FF : M₁ -->[F] M₂)
       (X : C₁)
-  : inv_from_iso (monad_mor_natural_pointwise FF X)
+  : inv_from_z_iso (monad_mor_natural_pointwise FF X)
     =
-    CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF) X.
+    CompositesAndInverses.nat_z_iso_to_pointwise_z_iso (monad_mor_nat_z_iso FF) X.
 Proof.
   refine (!_).
-  apply inv_iso_unique'.
+  apply inv_z_iso_unique'.
   unfold precomp_with.
-  apply iso_after_iso_inv.
+  cbn.
+  apply (nat_trans_eq_pointwise (vcomp_linv (monad_mor_natural FF)) X).
 Qed.
 
 Definition Monad_to_Ktriple_functor
@@ -364,8 +365,8 @@ Proof.
         do 2 rewrite id_left in mf_unit;
         etrans; [ apply pathsinv0 | apply maponpaths_2; exact mf_unit ];
         etrans; [ rewrite assoc' | apply id_right ];
-        apply maponpaths;
-        exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X ,, _))
+      apply maponpaths;
+        exact (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural mf)) X))
       ).
   - abstract (
         refine (λ (X Y : x) (p : x ⟦ X, pr1 (Monad_to_Ktriple_data mx) Y ⟧), _);
@@ -377,6 +378,7 @@ Proof.
       ).
 Defined.
 
+(** the extra identities in the statement are no longer of use for [Monad_to_Ktriple] *)
 Definition Monad_to_Ktriple_2cell
   : ∏ (x y : univalent_category)
       (f g : x ⟶ y)
@@ -427,8 +429,7 @@ Definition Monad_to_Ktriple_identitor
       Monad_to_Ktriple_functor (id_disp xx).
 Proof.
   intros x mx X; cbn.
-  unfold precomp_with.
-  do 2 rewrite id_left ; do 3 rewrite id_right.
+  do 2 rewrite id_left ; do 2 rewrite id_right.
   rewrite (functor_id (pr11 mx)), id_right.
   refine (!_).
   apply (cat_monad_unit_bind mx).
@@ -447,26 +448,12 @@ Definition Monad_to_Ktriple_compositor
 Proof.
   intros x y z f g mx my mz mf mg.
   refine (λ X : pr1 x, _).
-  cbn ; unfold precomp_with.
+  cbn.
   etrans.
-  {
-    refine (id_right _ @ _).
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply id_right.
-    }
-    apply maponpaths_2.
-    apply id_right.
-  }
+  { apply id_right. }
   refine (!_).
   etrans.
   {
-    etrans.
-    {
-      apply maponpaths.
-      apply id_right.
-    }
     etrans.
     {
       apply maponpaths_2.
@@ -507,7 +494,11 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - exact @Monad_to_Ktriple_data.
   - exact @Monad_to_Ktriple_functor.
-  - exact Monad_to_Ktriple_2cell.
+  - intros x y f g α mx my mf mg mα X.
+    assert (Hyp := Monad_to_Ktriple_2cell x y f g α mx my mf mg mα X).
+    cbn.
+    do 2 rewrite id_right in Hyp.
+    assumption.
   - exact Monad_to_Ktriple_identitor.
   - exact Monad_to_Ktriple_compositor.
 Defined.
@@ -552,7 +543,7 @@ Proof.
     use make_cat_monad_mor.
     + simpl.
       cbn.
-      use make_nat_iso.
+      use make_nat_z_iso.
       * use make_nat_trans.
         ** intro z. apply identity.
         ** abstract
@@ -564,7 +555,7 @@ Proof.
               etrans;
               [ apply maponpaths; apply (cat_monad_ημ xx)
               | apply id_right ]).
-      * intros z. apply identity_is_iso.
+      * intros z. apply identity_is_z_iso.
     + intros z.
       apply id_right.
     + abstract (
@@ -583,10 +574,10 @@ Proof.
         rewrite !(functor_id ((monad_endo yy) : _ ⟶ _));
         rewrite !id_right;
         apply pathsinv0;
-        apply inv_iso_unique';
+        apply inv_z_iso_unique';
         unfold precomp_with;
         simpl;
-        exact (iso_after_iso_inv (pr11 (monad_mor_natural ff) X,, _))
+        exact (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural ff)) X))
       ).
 Defined.
 
@@ -606,7 +597,7 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - refine (λ (x : univalent_category) (kx : kleisli_triple x), _).
     use make_kleisli_triple_on_functor.
-    + exact (λ X, identity_iso (kx X)).
+    + exact (λ X, identity_z_iso (kx X)).
     + abstract (
           refine (λ A : x, _);
           apply pathsinv0;
@@ -653,9 +644,8 @@ Proof.
           etrans; [ apply id_left | idtac];
           apply id_left
         | idtac ];
-        etrans; [ apply id_right | idtac];
-        apply inv_iso_unique';
-        exact (iso_after_iso_inv (kleisli_triple_on_functor_iso kf X))
+          etrans; [ apply id_right | idtac];
+        apply idpath
       ).
 Defined.
 
@@ -693,14 +683,14 @@ Proof.
     use make_cat_monad_mor.
     + simpl.
       cbn.
-      use make_nat_iso.
+      use make_nat_z_iso.
       * use make_nat_trans.
         ** intro z. apply identity.
         ** abstract
              (intros z t f ; cbn ;
               rewrite id_left, id_right ;
               apply cat_monad_map_as_bind).
-      * intros z. apply identity_is_iso.
+      * intros z. apply identity_is_z_iso.
     + intros z.
       apply id_right.
     + abstract
@@ -724,8 +714,6 @@ Proof.
        rewrite (functor_id f) ;
        rewrite id_left ;
        cbn ;
-       unfold precomp_with ;
-       rewrite id_right ;
        rewrite <- assoc ;
        apply maponpaths ;
        refine (!_) ;
@@ -749,7 +737,7 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - refine (λ (x : univalent_category) (kx : kleisli_triple x), _).
     use make_kleisli_triple_on_functor.
-    + exact (λ X, identity_iso (kx X)).
+    + exact (λ X, identity_z_iso (kx X)).
     + abstract (
           refine (λ A : x, _);
           apply pathsinv0;
@@ -763,22 +751,16 @@ Proof.
          apply maponpaths ;
          apply id_right).
   - abstract
-      (intros x y f kx ky kf z ;
-       simpl ;
-       cbn ;
-       unfold precomp_with ;
-       rewrite !id_left, !id_right ;
-       rewrite functor_id, id_right ;
-       refine (!_) ;
-       apply inv_iso_unique' ;
-       unfold precomp_with ;
-       cbn ;
-       refine (maponpaths
-                 (λ q, _ · (q · _))
-                 (cat_monad_unit_bind (unit_mu_kleisli ky))
-               @ _) ;
-       rewrite id_left ;
-       apply iso_after_iso_inv).
+      ( intros x y f kx ky kf z ;
+        simpl ;
+        cbn;
+        rewrite !id_left, !id_right;
+        rewrite functor_id, id_right;
+        etrans;
+        [| apply cancel_postcomposition, pathsinv0,
+          (cat_monad_unit_bind (unit_mu_kleisli ky))];
+        apply pathsinv0, id_left
+      ).
 Defined.
 
 Definition Monad_disp_biequiv_Ktriple

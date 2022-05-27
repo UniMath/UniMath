@@ -50,7 +50,7 @@ Section IsoCommaCategory.
     : disp_cat_ob_mor (category_binproduct C₁ C₂).
   Proof.
     simple refine (_ ,, _).
-    - exact (λ x, iso (F (pr1 x)) (G (pr2 x))).
+    - exact (λ x, z_iso (F (pr1 x)) (G (pr2 x))).
     - exact (λ x y i₁ i₂ f, #F (pr1 f) · i₂ = i₁ · #G (pr2 f)).
   Defined.
 
@@ -99,24 +99,24 @@ Section IsoCommaCategory.
     : category
     := total_category iso_comma_disp_cat.
 
-  Definition is_iso_iso_comma
+  Definition is_z_iso_iso_comma
              {x y : iso_comma}
              (f : x --> y)
-             (H₁ : is_iso (pr11 f))
-             (H₂ : is_iso (pr21 f))
-    : is_iso f.
+             (H₁ : is_z_isomorphism (pr11 f))
+             (H₂ : is_z_isomorphism (pr21 f))
+    : is_z_isomorphism f.
   Proof.
-    use is_iso_qinv.
-    - simple refine ((_ ,, _) ,, _).
-      + exact (inv_from_iso (_ ,, H₁)).
-      + exact (inv_from_iso (_ ,, H₂)).
-      + abstract
+    simple refine ((_ ,, _) ,, _).
+    split.
+    - exact (inv_from_z_iso (_ ,, H₁)).
+    - exact (inv_from_z_iso (_ ,, H₂)).
+    - abstract
           (cbn ;
-           rewrite !functor_on_inv_from_iso ;
-           use iso_inv_on_left ;
+           rewrite !functor_on_inv_from_z_iso ;
+           use z_iso_inv_on_left ;
            rewrite assoc' ;
            refine (!_) ;
-           use iso_inv_on_right ;
+           use z_iso_inv_on_right ;
            cbn ;
            refine (!_) ;
            apply (pr2 f)).
@@ -126,15 +126,15 @@ Section IsoCommaCategory.
            [ intro ; apply homset_property | ] ;
            use pathsdirprod ;
            cbn ;
-           [ apply (iso_inv_after_iso (make_iso _ H₁))
-           | apply (iso_inv_after_iso (make_iso _ H₂)) ]).
+           [ apply (z_iso_inv_after_z_iso (make_z_iso' _ H₁))
+           | apply (z_iso_inv_after_z_iso (make_z_iso' _ H₂)) ]).
       + abstract
           (use subtypePath ;
            [ intro ; apply homset_property | ] ;
            use pathsdirprod ;
            cbn ;
-           [ apply (iso_after_iso_inv (make_iso _ H₁))
-           | apply (iso_after_iso_inv (make_iso _ H₂)) ]).
+           [ apply (z_iso_after_z_iso_inv (make_z_iso' _ H₁))
+           | apply (z_iso_after_z_iso_inv (make_z_iso' _ H₂)) ]).
   Defined.
 
   Definition is_pregroupoid_iso_comma
@@ -143,7 +143,7 @@ Section IsoCommaCategory.
     : is_pregroupoid iso_comma.
   Proof.
     intros x y f.
-    apply is_iso_iso_comma.
+    apply is_z_iso_iso_comma.
     - apply HC₁.
     - apply HC₂.
   Defined.
@@ -163,14 +163,13 @@ Section IsoCommaCategory.
       rewrite id_left, id_right in m.
       use subtypePath.
       {
-        intro ; apply isaprop_is_iso.
+        intro ; apply isaprop_is_z_isomorphism.
       }
       exact (!m).
-    - apply isaset_iso.
-      apply homset_property.
+    - apply isaset_z_iso.
     - use isaproptotal2.
       + intro.
-        apply isaprop_is_iso_disp.
+        apply isaprop_is_z_iso_disp.
       + intros.
         apply homset_property.
   Qed.
@@ -221,14 +220,14 @@ Section IsoCommaCategory.
   Defined.
 
   Definition iso_comma_commute
-    : nat_iso
+    : nat_z_iso
         (iso_comma_pr1 ∙ F)
         (iso_comma_pr2 ∙ G).
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact iso_comma_commute_nat_trans.
     - intros x.
-      apply iso_is_iso.
+      apply z_iso_is_z_isomorphism.
   Defined.
 
   (**
@@ -244,14 +243,14 @@ Section IsoCommaCategory.
     Context {D : category}
             (P : D ⟶ C₁)
             (Q : D ⟶ C₂)
-            (η : nat_iso (P ∙ F) (Q ∙ G)).
+            (η : nat_z_iso (P ∙ F) (Q ∙ G)).
 
     (** The functor witnessing the universal property *)
     Definition iso_comma_ump1_data
       : functor_data D iso_comma.
     Proof.
       use make_functor_data.
-      - exact (λ d, (P d ,, Q d) ,, nat_iso_pointwise_iso η d).
+      - exact (λ d, (P d ,, Q d) ,, nat_z_iso_pointwise_z_iso η d).
       - exact (λ d₁ d₂ f, (#P f ,, #Q f) ,, nat_trans_ax η _ _ f).
     Defined.
 
@@ -308,12 +307,12 @@ Section IsoCommaCategory.
 
     (** Computation rule for first projection *)
     Definition iso_comma_ump1_pr1
-      : nat_iso (iso_comma_ump1 ∙ iso_comma_pr1) P.
+      : nat_z_iso (iso_comma_ump1 ∙ iso_comma_pr1) P.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact iso_comma_ump1_pr1_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     Definition iso_comma_ump1_pr2_nat_trans_data
@@ -338,12 +337,12 @@ Section IsoCommaCategory.
 
     (** Computation rule for second projection *)
     Definition iso_comma_ump1_pr2
-      : nat_iso (iso_comma_ump1 ∙ iso_comma_pr2) Q.
+      : nat_z_iso (iso_comma_ump1 ∙ iso_comma_pr2) Q.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact iso_comma_ump1_pr2_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     (** Computation rule for natural iso *)
@@ -361,7 +360,7 @@ Section IsoCommaCategory.
                 η
                 (nat_trans_comp
                    _ _ _
-                   (post_whisker (nat_iso_inv iso_comma_ump1_pr2) G)
+                   (post_whisker (nat_z_iso_inv iso_comma_ump1_pr2) G)
                    (nat_trans_functor_assoc _ _ _)))).
     Proof.
       use nat_trans_eq.
@@ -505,5 +504,5 @@ Proof.
     + exact x.
     + exact y.
     + exact i.
-    + apply identity_iso.
+    + apply identity_z_iso.
 Defined.

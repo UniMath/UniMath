@@ -193,26 +193,26 @@ Section Disp_Functor.
       + intros; apply idpath.
   Defined.
 
-  (** ** Action of functors on isos. *)
-  Section Functors_on_isos.
+  (** ** Action of functors on z_isos. *)
+  Section Functors_on_z_isos.
 
-    (* TODO: functor_on_inv_from_iso should have implicit arguments *)
+    (* TODO: functor_on_inv_from_z_iso should have implicit arguments *)
 
-    Lemma disp_functor_on_iso_disp_aux1 {C C'} {F}
+    Lemma disp_functor_on_z_iso_disp_aux1 {C C'} {F}
           {D : disp_cat C} {D' : disp_cat C'}
           (FF : disp_functor F D D')
-          {x y} {xx : D x} {yy} {f : iso x y}
+          {x y} {xx : D x} {yy} {f : z_iso x y}
           (ff : xx -->[f] yy)
-          (Hff : is_iso_disp f ff)
-      : transportf _ (functor_on_inv_from_iso F f)
-                   (# FF (inv_mor_disp_from_iso Hff))
+          (Hff : is_z_iso_disp f ff)
+      : transportf _ (functor_on_inv_from_z_iso F f)
+                   (# FF (inv_mor_disp_from_z_iso Hff))
         ;; # FF ff
-        = transportb _ (iso_after_iso_inv _) (id_disp _).
+        = transportb _ (z_iso_after_z_iso_inv _) (id_disp _).
     Proof.
       etrans. apply mor_disp_transportf_postwhisker.
       etrans. apply maponpaths, @pathsinv0, disp_functor_comp_var.
       etrans. apply transport_f_f.
-      etrans. apply maponpaths, maponpaths, iso_disp_after_inv_mor.
+      etrans. apply maponpaths, maponpaths, z_iso_disp_after_inv_mor.
       etrans. apply maponpaths, disp_functor_transportf.
       etrans. apply transport_f_f.
       etrans. apply maponpaths, disp_functor_id.
@@ -220,22 +220,22 @@ Section Disp_Functor.
       unfold transportb. apply maponpaths_2, homset_property.
     Qed.
 
-    Lemma disp_functor_on_iso_disp_aux2 {C C'} {F}
+    Lemma disp_functor_on_z_iso_disp_aux2 {C C'} {F}
           {D : disp_cat C} {D' : disp_cat C'}
           (FF : disp_functor F D D')
-          {x y} {xx : D x} {yy} {f : iso x y}
+          {x y} {xx : D x} {yy} {f : z_iso x y}
           (ff : xx -->[f] yy)
-          (Hff : is_iso_disp f ff)
+          (Hff : is_z_iso_disp f ff)
       : # FF ff
-        ;; transportf _ (functor_on_inv_from_iso F f)
-                      (# FF (inv_mor_disp_from_iso Hff))
+        ;; transportf _ (functor_on_inv_from_z_iso F f)
+                      (# FF (inv_mor_disp_from_z_iso Hff))
         =
-          transportb _ (iso_inv_after_iso (functor_on_iso _ _)) (id_disp (FF x xx)).
+          transportb _ (z_iso_inv_after_z_iso (functor_on_z_iso _ _)) (id_disp (FF x xx)).
     Proof.
       etrans. apply mor_disp_transportf_prewhisker.
       etrans. apply maponpaths, @pathsinv0, disp_functor_comp_var.
       etrans. apply transport_f_f.
-      etrans. apply maponpaths, maponpaths, inv_mor_after_iso_disp.
+      etrans. apply maponpaths, maponpaths, inv_mor_after_z_iso_disp.
       etrans. apply maponpaths, disp_functor_transportf.
       etrans. apply transport_f_f.
       etrans. apply maponpaths, disp_functor_id.
@@ -243,31 +243,31 @@ Section Disp_Functor.
       unfold transportb. apply maponpaths_2, homset_property.
     Qed.
 
-    (** Let's see how [disp_functor]s behave on [iso_disp]s *)
+    (** Let's see how [disp_functor]s behave on [z_iso_disp]s *)
     (** TODO: consider naming *)
     (* Undelimit Scope transport. *)
-    Definition disp_functor_on_is_iso_disp {C C'} {F}
+    Definition disp_functor_on_is_z_iso_disp {C C'} {F}
                {D : disp_cat C} {D' : disp_cat C'}
                (FF : disp_functor F D D')
-               {x y} {xx : D x} {yy} {f : iso x y}
-               {ff : xx -->[f] yy} (Hff : is_iso_disp f ff)
-      : is_iso_disp (functor_on_iso F f) (# FF ff).
+               {x y} {xx : D x} {yy} {f : z_iso x y}
+               {ff : xx -->[f] yy} (Hff : is_z_iso_disp f ff)
+      : is_z_iso_disp (functor_on_z_iso F f) (# FF ff).
     Proof.
-      exists (transportf _ (functor_on_inv_from_iso F f)
-                    (# FF (inv_mor_disp_from_iso Hff))); split.
-      - apply disp_functor_on_iso_disp_aux1.
-      - apply disp_functor_on_iso_disp_aux2.
+      exists (transportf _ (functor_on_inv_from_z_iso F f)
+                    (# FF (inv_mor_disp_from_z_iso Hff))); split.
+      - apply disp_functor_on_z_iso_disp_aux1.
+      - apply disp_functor_on_z_iso_disp_aux2.
     Defined.
 
-    Definition disp_functor_on_iso_disp {C C'} {F}
+    Definition disp_functor_on_z_iso_disp {C C'} {F}
                {D : disp_cat C} {D' : disp_cat C'}
                (FF : disp_functor F D D')
-               {x y} {xx : D x} {yy} {f : iso x y}
-               (ff : iso_disp f xx yy)
-      : iso_disp (functor_on_iso F f) (FF _ xx) (FF _ yy)
-      := (_ ,, disp_functor_on_is_iso_disp _ ff).
+               {x y} {xx : D x} {yy} {f : z_iso x y}
+               (ff : z_iso_disp f xx yy)
+      : z_iso_disp (functor_on_z_iso F f) (FF _ xx) (FF _ yy)
+      := (_ ,, disp_functor_on_is_z_iso_disp _ ff).
 
-  End Functors_on_isos.
+  End Functors_on_z_isos.
 
 
   (** ** Properties of functors *)
@@ -333,12 +333,12 @@ Section Disp_Functor.
       Qed.
 
       Definition disp_functor_ff_reflects_isos
-                 {x y} {xx : D x} {yy : D y} {f : iso x y}
-                 (ff : xx -->[f] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff))
-        : is_iso_disp _ ff.
+                 {x y} {xx : D x} {yy : D y} {f : z_iso x y}
+                 (ff : xx -->[f] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (# FF ff))
+        : is_z_iso_disp _ ff.
       Proof.
-        set (FFffinv := inv_mor_disp_from_iso isiso).
-        set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ ) FFffinv).
+        set (FFffinv := inv_mor_disp_from_z_iso isiso).
+        set (FFffinv' := transportb _ (functor_on_inv_from_z_iso _ _ ) FFffinv).
         set (ffinv := disp_functor_ff_inv FFffinv').
         exists ffinv.
         split.
@@ -362,9 +362,9 @@ The second version is better-behaved in general; but the stricter first version 
       :=
       ∏ x (xx : D' (F x)),
         ∑ y : C,
-          ∑ i : iso y x,
+          ∑ i : z_iso y x,
             ∑ yy : D y,
-              iso_disp (functor_on_iso F i) (FF _ yy) xx.
+              z_iso_disp (functor_on_z_iso F i) (FF _ yy) xx.
 
     Definition disp_functor_disp_ess_split_surj {C' C} {F}
                {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D D')
@@ -372,7 +372,7 @@ The second version is better-behaved in general; but the stricter first version 
       :=
       ∏ x (xx : D' (F x)),
         ∑ (yy : D x),
-        iso_disp (identity_iso _) (FF _ yy) xx.
+        z_iso_disp (identity_z_iso _) (FF _ yy) xx.
 
     (* TODO: add access functions for these. *)
 

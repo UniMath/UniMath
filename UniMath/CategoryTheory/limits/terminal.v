@@ -63,15 +63,15 @@ Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_iso (TerminalArrow T T').
+Lemma isziso_from_Terminal_to_Terminal (T T' : Terminal) :
+   is_z_isomorphism (TerminalArrow T T').
 Proof.
-apply (is_iso_qinv _ (TerminalArrow T' T)).
-now split; apply TerminalEndo_is_identity.
+ exists (TerminalArrow T' T).
+ now split; apply TerminalEndo_is_identity.
 Defined.
 
-Definition iso_Terminals (T T' : Terminal) : iso T T' :=
-  (TerminalArrow T' T,,isiso_from_Terminal_to_Terminal T' T) .
+Definition z_iso_Terminals (T T' : Terminal) : z_iso T T' :=
+  (TerminalArrow T' T,,isziso_from_Terminal_to_Terminal T' T) .
 
 Definition hasTerminal := ishinh Terminal.
 
@@ -95,7 +95,7 @@ Lemma isaprop_Terminal : isaprop (Terminal C).
 Proof.
   apply invproofirrelevance.
   intros T T'.
-  apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ).
+  apply (total2_paths_f (isotoid _ H (z_iso_Terminals T T')) ).
   apply proofirrelevance.
   unfold isTerminal.
   apply impred.

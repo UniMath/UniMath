@@ -80,23 +80,26 @@ End def_setwith2binop_precategory.
 (** * Category of setwith2binops *)
 Section def_setwith2binop_category.
 
+  Definition setwith2binop_category : category
+    := make_category _ has_homsets_setwith2binop_precategory.
+
   (** ** (twobinopiso X Y) ≃ (iso X Y) *)
 
-  Lemma setwith2binop_iso_is_equiv (A B : ob setwith2binop_precategory) (f : iso A B) :
+  Lemma setwith2binop_iso_is_equiv (A B : ob setwith2binop_category) (f : z_iso A B) :
     isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1twobinopfun _ _ (inv_from_iso f)).
+    - exact (pr1twobinopfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropistwobinopfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropistwobinopfun.
   Defined.
   Opaque setwith2binop_iso_is_equiv.
 
-  Lemma setwith2binop_iso_equiv (X Y : ob setwith2binop_precategory) : iso X Y -> twobinopiso X Y.
+  Lemma setwith2binop_iso_equiv (X Y : ob setwith2binop_category) : z_iso X Y -> twobinopiso X Y.
   Proof.
     intro f.
     use make_twobinopiso.
@@ -104,44 +107,42 @@ Section def_setwith2binop_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma setwith2binop_equiv_is_iso (X Y : ob setwith2binop_precategory) (f : twobinopiso X Y) :
-    @is_iso setwith2binop_precategory X Y (make_twobinopfun (pr1 (pr1 f)) (pr2 f)).
+  Lemma setwith2binop_equiv_is_z_iso (X Y : ob setwith2binop_category) (f : twobinopiso X Y) :
+    @is_z_isomorphism setwith2binop_precategory X Y (make_twobinopfun (pr1 (pr1 f)) (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (make_twobinopfun (pr1 (pr1 (invtwobinopiso f))) (pr2 (invtwobinopiso f))).
-    - use make_is_inverse_in_precat.
-      + use twobinopfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use twobinopfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (make_twobinopfun (pr1 (pr1 (invtwobinopiso f))) (pr2 (invtwobinopiso f))).
+    split.
+    - use twobinopfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use twobinopfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque setwith2binop_equiv_is_iso.
+  Opaque setwith2binop_equiv_is_z_iso.
 
-  Lemma setwith2binop_equiv_iso (X Y : ob setwith2binop_precategory) : twobinopiso X Y -> iso X Y.
+  Lemma setwith2binop_equiv_iso (X Y : ob setwith2binop_category) : twobinopiso X Y -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso setwith2binop_precategory X Y (make_twobinopfun (pr1 (pr1 f)) (pr2 f))
-                              (setwith2binop_equiv_is_iso X Y f)).
+    intros f. exact (_,,setwith2binop_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma setwith2binop_iso_equiv_is_equiv (X Y : setwith2binop_precategory) :
+  Lemma setwith2binop_iso_equiv_is_equiv (X Y : setwith2binop_category) :
     isweq (setwith2binop_iso_equiv X Y).
   Proof.
     use isweq_iso.
     - exact (setwith2binop_equiv_iso X Y).
-    - intros x. use eq_iso. use twobinopfun_paths. use idpath.
+    - intros x. use eq_z_iso. use twobinopfun_paths. use idpath.
     - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
   Opaque setwith2binop_iso_equiv_is_equiv.
 
-  Definition setwith2binop_iso_equiv_weq (X Y : ob setwith2binop_precategory) :
-    (iso X Y) ≃ (twobinopiso X Y).
+  Definition setwith2binop_iso_equiv_weq (X Y : ob setwith2binop_category) :
+    (z_iso X Y) ≃ (twobinopiso X Y).
   Proof.
     use make_weq.
     - exact (setwith2binop_iso_equiv X Y).
     - exact (setwith2binop_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma setwith2binop_equiv_iso_is_equiv (X Y : ob setwith2binop_precategory) :
+  Lemma setwith2binop_equiv_iso_is_equiv (X Y : ob setwith2binop_category) :
     isweq (setwith2binop_equiv_iso X Y).
   Proof.
     use isweq_iso.
@@ -149,12 +150,12 @@ Section def_setwith2binop_category.
     - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_iso. use twobinopfun_paths. use idpath.
+    - intros x. use eq_z_iso. use twobinopfun_paths. use idpath.
   Defined.
   Opaque setwith2binop_equiv_iso_is_equiv.
 
-  Definition setwith2binop_equiv_weq_iso (X Y : ob setwith2binop_precategory) :
-    (twobinopiso X Y) ≃ (iso X Y).
+  Definition setwith2binop_equiv_weq_iso (X Y : ob setwith2binop_category) :
+    (twobinopiso X Y) ≃ (z_iso X Y).
   Proof.
     use make_weq.
     - exact (setwith2binop_equiv_iso X Y).
@@ -164,11 +165,11 @@ Section def_setwith2binop_category.
 
   (** ** Category of setwith2binops *)
 
-  Definition setwith2binop_precategory_isweq (X Y : ob setwith2binop_precategory) :
+  Definition setwith2binop_category_isweq (X Y : ob setwith2binop_category) :
     isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (setwith2binop_univalence X Y) (setwith2binop_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (setwith2binop_univalence X Y)
                                      (setwith2binop_equiv_weq_iso X Y)))).
@@ -176,19 +177,18 @@ Section def_setwith2binop_category.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque setwith2binop_precategory_isweq.
+  Opaque setwith2binop_category_isweq.
 
-  Definition setwith2binop_category : category
-    := make_category _ has_homsets_setwith2binop_precategory.
 
-  Definition setwith2binop_precategory_is_univalent : is_univalent setwith2binop_category.
+
+  Definition setwith2binop_category_is_univalent : is_univalent setwith2binop_category.
   Proof.
-    intros X Y. exact (setwith2binop_precategory_isweq X Y).
+    intros X Y. exact (setwith2binop_category_isweq X Y).
   Defined.
 
   Definition setwith2binop_univalent_category : univalent_category :=
-    make_univalent_category setwith2binop_category setwith2binop_precategory_is_univalent.
+    make_univalent_category setwith2binop_category setwith2binop_category_is_univalent.
 
 End def_setwith2binop_category.

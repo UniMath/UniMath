@@ -1103,9 +1103,9 @@ Proof.
       apply (id_left(C:=[C, D])).
   - split.
     + intro sig.
-      apply (z_iso_to_iso (_,,roundtrip1_ob_data_is_nat_z_iso sig)).
+      apply (_,,roundtrip1_ob_data_is_nat_z_iso sig).
     + intro FF.
-      apply (z_iso_to_iso (_,,roundtrip2_ob_data_is_nat_z_iso FF)).
+      apply (_,,roundtrip2_ob_data_is_nat_z_iso FF).
 Defined.
 
 (* source and target category of the functors are deemed to be univalent if parameter category D is *)

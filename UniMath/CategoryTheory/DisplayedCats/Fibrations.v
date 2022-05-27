@@ -52,16 +52,16 @@ there’s some object d' in D c', and an iso φbar : d' =~ d over φ.
 
 Definition iso_cleaving {C : category} (D : disp_cat C) : UU
 :=
-  forall (c c' : C) (i : iso c' c) (d : D c),
-          ∑ d' : D c', iso_disp i d' d.
+  forall (c c' : C) (i : z_iso c' c) (d : D c),
+          ∑ d' : D c', z_iso_disp i d' d.
 
 Definition iso_fibration (C : category) : UU
   := ∑ D : disp_cat C, iso_cleaving D.
 
 Definition is_uncloven_iso_cleaving {C : category} (D : disp_cat C) : UU
 :=
-  forall (c c' : C) (i : iso c' c) (d : D c),
-          ∃ d' : D c', iso_disp i d' d.
+  forall (c c' : C) (i : z_iso c' c) (d : D c),
+          ∃ d' : D c', z_iso_disp i d' d.
 
 Definition weak_iso_fibration (C : category) : UU
   := ∑ D : disp_cat C, is_uncloven_iso_cleaving D.
@@ -71,8 +71,8 @@ Definition weak_iso_fibration (C : category) : UU
 
 Definition is_op_isofibration {C : category} (D : disp_cat C) : UU
 :=
-  forall (c c' : C) (i : iso c c') (d : D c),
-          ∑ d' : D c', iso_disp i d d'.
+  forall (c c' : C) (i : z_iso c c') (d : D c),
+          ∑ d' : D c', z_iso_disp i d d'.
 
 Lemma is_isofibration_iff_is_op_isofibration
     {C : category} (D : disp_cat C)
@@ -297,15 +297,15 @@ Definition weak_fibration (C : category) : UU
 
 (** ** Connection with isofibrations *)
 
-Lemma is_iso_from_is_cartesian {C : category} {D : disp_cat C}
-    {c c' : C} (i : iso c' c) {d : D c} {d'} (ff : d' -->[i] d)
-  : is_cartesian ff -> is_iso_disp i ff.
+Lemma is_z_iso_from_is_cartesian {C : category} {D : disp_cat C}
+    {c c' : C} (i : z_iso c' c) {d : D c} {d'} (ff : d' -->[i] d)
+  : is_cartesian ff -> is_z_iso_disp i ff.
 Proof.
   intros Hff.
   use (_,,_); try split.
   - use
-      (cartesian_factorisation' Hff (inv_from_iso i) (id_disp _)).
-    apply iso_after_iso_inv.
+      (cartesian_factorisation' Hff (inv_from_z_iso i) (id_disp _)).
+    apply z_iso_after_z_iso_inv.
   - apply cartesian_factorisation_commutes'.
   - apply (cartesian_factorisation_unique Hff).
     etrans. apply assoc_disp_var.
@@ -326,7 +326,7 @@ Proof.
   assert (fd := D_fib _ _ f d).
   exists (fd : D _).
   exists (fd : _ -->[_] _).
-  apply is_iso_from_is_cartesian; exact fd.
+  apply is_z_iso_from_is_cartesian; exact fd.
 Defined.
 
 (** ** Uniqueness of cartesian lifts *)
@@ -334,7 +334,7 @@ Defined.
 (* TODO: show that when [D] is _univalent_, cartesian lifts are literally unique, and so any uncloven fibration (isofibration, etc) is in fact cloven. *)
 Definition cartesian_lifts_iso {C : category} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c} (fd fd' : cartesian_lift d f)
-  : iso_disp (identity_iso c') fd fd'.
+  : z_iso_disp (identity_z_iso c') fd fd'.
 Proof.
   use (_,,(_,,_)).
   - exact (cartesian_factorisation' fd' (identity _) fd (id_left _)).
@@ -390,10 +390,10 @@ Proof.
   cbn. etrans. apply transportf_precompose_disp.
   rewrite idtoiso_isotoid_disp.
   use (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)).
-  apply (precomp_with_iso_disp_is_inj (cartesian_lifts_iso fd fd')).
+  apply (precomp_with_z_iso_disp_is_inj (cartesian_lifts_iso fd fd')).
   etrans. apply assoc_disp.
   etrans. eapply transportf_bind, cancel_postcomposition_disp.
-    use inv_mor_after_iso_disp.
+    use inv_mor_after_z_iso_disp.
   etrans. eapply transportf_bind, id_left_disp.
   apply pathsinv0.
   etrans. apply mor_disp_transportf_prewhisker.
@@ -795,12 +795,11 @@ Lemma forms_equivalence_disc_fib
 Proof.
   split.
   - intro F.
-    apply functor_iso_if_pointwise_iso.
+    apply nat_trafo_z_iso_if_pointwise_z_iso.
     intro c. cbn.
-    set (XR := hset_equiv_is_iso _ _ (idweq (pr1 F c : hSet) )).
+    set (XR := hset_equiv_is_z_iso _ _ (idweq (pr1 F c : hSet) )).
     apply XR.
   - intro F.
-    apply is_iso_from_is_z_iso.
     use (_ ,, (_,,_ )).
     + apply ε_inv_disc_fib.
     + apply eq_discrete_fib_mor.
@@ -1163,34 +1162,34 @@ Section IsoCleavingFromOpcleaving.
 
   Section Lift.
     Context {x y : C}
-            (f : iso x y)
+            (f : z_iso x y)
             (d : D y).
 
-    Definition iso_cleaving_from_opcleaving_ob
+    Definition z_iso_cleaving_from_opcleaving_ob
       : D x
-      := opcleaving_ob HD (inv_from_iso f) d.
+      := opcleaving_ob HD (inv_from_z_iso f) d.
 
-    Let ℓ : d -->[ inv_from_iso f ] iso_cleaving_from_opcleaving_ob
-      := opcleaving_mor HD (inv_from_iso f) d.
-    Let ℓ_opcart : is_opcartesian (pr12 (HD y x d (inv_from_iso f)))
-      := pr22 (HD _ _ d (inv_from_iso f)).
+    Let ℓ : d -->[ inv_from_z_iso f ] z_iso_cleaving_from_opcleaving_ob
+      := opcleaving_mor HD (inv_from_z_iso f) d.
+    Let ℓ_opcart : is_opcartesian (pr12 (HD y x d (inv_from_z_iso f)))
+      := pr22 (HD _ _ d (inv_from_z_iso f)).
 
-    Definition iso_cleaving_from_opcleaving_ob_disp_iso_map
-      : iso_cleaving_from_opcleaving_ob -->[ f ] d.
+    Definition z_iso_cleaving_from_opcleaving_ob_disp_iso_map
+      : z_iso_cleaving_from_opcleaving_ob -->[ f ] d.
     Proof.
       use (opcartesian_factorisation ℓ_opcart).
       refine (transportb
                 (λ z, _ -->[ z ] _)
                 _
                 (id_disp d)).
-      apply iso_after_iso_inv.
+      apply z_iso_after_z_iso_inv.
     Defined.
 
-    Definition iso_cleaving_from_opcleaving_ob_disp_iso
-      : iso_disp f iso_cleaving_from_opcleaving_ob d.
+    Definition z_iso_cleaving_from_opcleaving_ob_disp_iso
+      : z_iso_disp f z_iso_cleaving_from_opcleaving_ob d.
     Proof.
-      use make_iso_disp.
-      - exact iso_cleaving_from_opcleaving_ob_disp_iso_map.
+      use make_z_iso_disp.
+      - exact z_iso_cleaving_from_opcleaving_ob_disp_iso_map.
       - simple refine (_ ,, _ ,, _).
         + exact ℓ.
         + abstract
@@ -1219,9 +1218,9 @@ Section IsoCleavingFromOpcleaving.
   Definition iso_cleaving_from_opcleaving
     : iso_cleaving D
     := λ x y f d,
-       iso_cleaving_from_opcleaving_ob f d
+       z_iso_cleaving_from_opcleaving_ob f d
        ,,
-       iso_cleaving_from_opcleaving_ob_disp_iso f d.
+       z_iso_cleaving_from_opcleaving_ob_disp_iso f d.
 End IsoCleavingFromOpcleaving.
 
 Section isofibration_from_disp_over_univalent.
@@ -1242,7 +1241,7 @@ Proof.
     cbn.
     rewrite isotoid_identity_iso.
     cbn.
-    apply identity_iso_disp.
+    apply identity_z_iso_disp.
 Defined.
 
 End isofibration_from_disp_over_univalent.
@@ -1387,7 +1386,7 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition is_cartesian_iso_disp
+Definition is_cartesian_z_iso_disp
            {C : category}
            {D : disp_cat C}
            {x : C}
@@ -1395,9 +1394,9 @@ Definition is_cartesian_iso_disp
            {y : C}
            {yy : D y}
            {f : x --> y}
-           {Hf : is_iso f}
+           {Hf : is_z_isomorphism f}
            {ff : xx -->[ f ] yy}
-           (Hff : is_iso_disp (make_iso f Hf) ff)
+           (Hff : is_z_iso_disp (make_z_iso' f Hf) ff)
   : is_cartesian ff.
 Proof.
   intros z g zz gf.
@@ -1408,7 +1407,7 @@ Proof.
        use subtypePath ; [ intro ; apply D | ] ;
        pose (pr2 φ₁ @ !(pr2 φ₂)) as r ;
        refine (id_right_disp_var _ @ _ @ !(id_right_disp_var _)) ;
-       pose (transportf_transpose_left (inv_mor_after_iso_disp Hff)) as r' ;
+       pose (transportf_transpose_left (inv_mor_after_z_iso_disp Hff)) as r' ;
        rewrite <- !r' ; clear r' ;
        rewrite !mor_disp_transportf_prewhisker ;
        rewrite !assoc_disp ;
@@ -1421,12 +1420,12 @@ Proof.
     + refine (transportf
                 (λ z, _ -->[ z ] _)
                 _
-                (gf ;; inv_mor_disp_from_iso Hff)%mor_disp).
+                (gf ;; inv_mor_disp_from_z_iso Hff)%mor_disp).
       abstract
         (rewrite assoc' ;
          refine (_ @ id_right _) ;
          apply maponpaths ;
-         apply (iso_inv_after_iso (make_iso f Hf))).
+         apply (z_iso_inv_after_z_iso (make_z_iso' f Hf))).
     + abstract
         (simpl ;
          rewrite mor_disp_transportf_postwhisker ;
@@ -1434,7 +1433,7 @@ Proof.
          rewrite transport_f_f ;
          etrans ;
            [ do 2 apply maponpaths ;
-             apply (iso_disp_after_inv_mor Hff)
+             apply (z_iso_disp_after_inv_mor Hff)
            | ] ;
          unfold transportb ;
          rewrite mor_disp_transportf_prewhisker ;
@@ -1546,14 +1545,14 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition iso_disp_to_is_cartesian
+Definition z_iso_disp_to_is_cartesian
            {C : category}
            {D : disp_cat C}
            {x y z : C}
            {f : x --> z}
            {g : y --> z}
            {h : y --> x}
-           (Hh : is_iso h)
+           (Hh : is_z_isomorphism h)
            {p : h · f = g}
            {xx : D x}
            {yy : D y}
@@ -1562,21 +1561,21 @@ Definition iso_disp_to_is_cartesian
            {gg : yy -->[ g ] zz}
            {hh : yy -->[ h ] xx}
            (Hff : is_cartesian ff)
-           (Hhh : is_iso_disp (make_iso h Hh) hh)
+           (Hhh : is_z_iso_disp (make_z_iso' h Hh) hh)
            (pp : (hh ;; ff = transportb _ p gg)%mor_disp)
   : is_cartesian gg.
 Proof.
   intros q k qq kg.
-  assert (f = inv_from_iso (make_iso h Hh) · g) as r.
+  assert (f = inv_from_z_iso (make_z_iso' h Hh) · g) as r.
   {
     abstract
       (refine (!_) ;
-       use iso_inv_on_right ;
+       use z_iso_inv_on_right ;
        exact (!p)).
   }
   assert (transportf (λ z, _ -->[ z ] _) r ff
           =
-          inv_mor_disp_from_iso Hhh ;; gg)%mor_disp as rr.
+          inv_mor_disp_from_z_iso Hhh ;; gg)%mor_disp as rr.
   {
     abstract
       (rewrite <- (transportb_transpose_left pp) ;
@@ -1587,7 +1586,7 @@ Proof.
        etrans ;
        [ do 2 apply maponpaths ;
          apply maponpaths_2 ;
-         exact (iso_disp_after_inv_mor Hhh)
+         exact (z_iso_disp_after_inv_mor Hhh)
        | ] ;
        unfold transportb ;
        rewrite mor_disp_transportf_postwhisker ;
@@ -1602,7 +1601,7 @@ Proof.
       (use invproofirrelevance ;
        intros φ₁ φ₂ ;
        use subtypePath ; [ intro ; apply D | ] ;
-       use (postcomp_with_iso_disp_is_inj Hh (idpath _) Hhh) ; cbn ;
+       use (postcomp_with_z_iso_disp_is_inj Hh (idpath _) Hhh) ; cbn ;
        use (cartesian_factorisation_unique Hff) ;
        rewrite !assoc_disp_var ;
        rewrite pp ;
@@ -1622,10 +1621,10 @@ Proof.
                       (λ z, _ -->[ z ] _)
                       _
                       kg)
-                 ;; inv_mor_disp_from_iso Hhh)%mor_disp).
+                 ;; inv_mor_disp_from_z_iso Hhh)%mor_disp).
       * abstract
           (rewrite assoc' ;
-           etrans ; [ apply maponpaths ; apply (iso_inv_after_iso (make_iso h Hh)) | ] ;
+           etrans ; [ apply maponpaths ; apply (z_iso_inv_after_z_iso (make_z_iso' h Hh)) | ] ;
            apply id_right).
       * abstract
           (rewrite assoc' ;
@@ -1704,7 +1703,7 @@ Proof.
     exact Hhh.
 Defined.
 
-Definition is_opcartesian_iso_disp
+Definition is_opcartesian_z_iso_disp
            {C : category}
            {D : disp_cat C}
            {x : C}
@@ -1712,15 +1711,15 @@ Definition is_opcartesian_iso_disp
            {y : C}
            {yy : D y}
            {f : x --> y}
-           {Hf : is_iso f}
+           {Hf : is_z_isomorphism f}
            {ff : xx -->[ f ] yy}
-           (Hff : is_iso_disp (make_iso f Hf) ff)
+           (Hff : is_z_iso_disp (make_z_iso' f Hf) ff)
   : is_opcartesian ff.
 Proof.
   apply is_cartesian_to_is_opcartesian.
-  use (@is_cartesian_iso_disp _ (op_disp_cat D) _ _ _ _ _ _ ff).
-  - exact (pr2 (@opp_iso C _ _ (make_iso f Hf))).
-  - use (@to_iso_disp_op_disp_cat C D y x (make_iso f Hf) yy xx ff).
+  use (@is_cartesian_z_iso_disp _ (op_disp_cat D) _ _ _ _ _ _ ff).
+  - exact (pr2 (@opp_z_iso C _ _ (make_z_iso' f Hf))).
+  - use (@to_z_iso_disp_op_disp_cat C D y x (make_z_iso' f Hf) yy xx ff).
     exact Hff.
 Defined.
 
@@ -2216,7 +2215,7 @@ Section Essential_Surjectivity.
              (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
              (x : C)
     : ∏ yy : D'[{F x}], ∑ xx : D[{x}],
-          iso (fiber_functor FF _ xx) yy.
+          z_iso (fiber_functor FF _ xx) yy.
   Proof.
     intro yy.
     set (XR := X _ yy).
@@ -2226,21 +2225,21 @@ Section Essential_Surjectivity.
     use tpair.
     - apply dd.
     - (* now need disp_functor_on_iso_disp *)
-      set (XR := disp_functor_on_iso_disp FF pe).
-      set (XR' := iso_inv_from_iso_disp XR).
+      set (XR := disp_functor_on_z_iso_disp FF pe).
+      set (XR' := z_iso_inv_from_z_iso_disp XR).
       (* now need composition of iso_disps *)
-      apply  (invweq (iso_disp_iso_fiber _ _ _ _)).
-      set (XRt := iso_disp_comp XR' ii).
+      apply  (invweq (z_iso_disp_z_iso_fiber _ _ _ _)).
+      set (XRt := z_iso_disp_comp XR' ii).
       transparent assert (XH :
-                           (iso_comp (iso_inv_from_iso (functor_on_iso F i))
-                                     (functor_on_iso F i) = identity_iso _ )).
-      { apply eq_iso. cbn. simpl. unfold precomp_with.
-        etrans. apply maponpaths_2. apply id_right.
-        etrans. eapply pathsinv0. apply functor_comp.
-        etrans. 2: apply functor_id.
-        apply maponpaths. apply iso_after_iso_inv.
+                           (z_iso_comp (z_iso_inv_from_z_iso (functor_on_z_iso F i))
+                                     (functor_on_z_iso F i) = identity_z_iso _ )).
+      { apply eq_z_iso. cbn.
+        etrans.
+        { apply pathsinv0, functor_comp. }
+        apply functor_id_id.
+        apply z_iso_after_z_iso_inv.
       }
-      set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
+      set (XRT := transportf (λ r, z_iso_disp r (FF x dd) yy )
                              XH).
       apply XRT.
       assumption.

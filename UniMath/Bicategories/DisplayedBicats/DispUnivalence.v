@@ -550,13 +550,13 @@ Section DispLocallyUnivalent.
           {yy : D y}
           (ff₁ ff₂ : xx -->[ f ] yy).
 
-  Definition disp_inv2cell_to_disp_iso
+  Definition disp_inv2cell_to_disp_z_iso
     : disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂
       →
-      @iso_disp _ (disp_hom xx yy) _ _ (identity_iso _) ff₁ ff₂.
+      @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂.
   Proof.
     intro α.
-    simple refine (@make_iso_disp _ (disp_hom xx yy) _ _ _ _ _ _ _).
+    simple refine (@make_z_iso_disp _ (disp_hom xx yy) _ _ _ _ _ _ _).
     - exact (pr1 α).
     - simple refine (_ ,, _ ,, _).
       + exact (disp_inv_cell α).
@@ -570,15 +570,15 @@ Section DispLocallyUnivalent.
            apply cellset_property).
   Defined.
 
-  Definition disp_iso_to_disp_inv2cell
-    : @iso_disp _ (disp_hom xx yy) _ _ (identity_iso _) ff₁ ff₂
+  Definition disp_z_iso_to_disp_inv2cell
+    : @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂
       →
       disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂.
   Proof.
     intro α.
     simple refine (_ ,, _ ,, _ ,, _).
     - exact (pr1 α).
-    - exact (inv_mor_disp_from_iso α).
+    - exact (inv_mor_disp_from_z_iso α).
     - abstract
         (cbn ;
          refine (pr222 α @ _) ;
@@ -591,22 +591,22 @@ Section DispLocallyUnivalent.
          apply cellset_property).
   Defined.
 
-  Definition disp_inv2cell_weq_disp_iso
+  Definition disp_inv2cell_weq_disp_z_iso
     : disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂
       ≃
-      @iso_disp _ (disp_hom xx yy) _ _ (identity_iso _) ff₁ ff₂.
+      @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂.
   Proof.
     use make_weq.
-    - exact disp_inv2cell_to_disp_iso.
+    - exact disp_inv2cell_to_disp_z_iso.
     - use gradth.
-      + exact disp_iso_to_disp_inv2cell.
+      + exact disp_z_iso_to_disp_inv2cell.
       + abstract
           (intro α ;
            use subtypePath ; [ intro ; apply isaprop_is_disp_invertible_2cell | ] ;
            apply idpath).
       + abstract
           (intro α ;
-           use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+           use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
            apply idpath).
   Defined.
 End DispLocallyUnivalent.
@@ -623,11 +623,11 @@ Proof.
   intros f g p ff gg.
   induction p.
   use weqhomot.
-  - exact (disp_inv2cell_weq_disp_iso D _ _
+  - exact (disp_inv2cell_weq_disp_z_iso D _ _
            ∘ make_weq _ (HD x y f f (idpath _) xx yy ff gg))%weq.
   - abstract
       (intro p ;
        induction p ;
-       use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
        apply idpath).
 Defined.
