@@ -1,0 +1,1 @@
+../../monoidal/wc_count_monoidal.sh

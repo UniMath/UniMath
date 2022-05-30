@@ -640,11 +640,11 @@ Section TensorLayer.
 
   (* Check total2_paths_equiv. *)
 
+
   Definition tensor_eq' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
     ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
-      (transportf _ (α x2 y2) (f ⊗^{TD} g)
-       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)).
+       (transportf _ (α x2 y2) (f ⊗^{TD} g)) = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g).
 
   Lemma t_lemma_fb {C : category} {x y : C} (pxy : x = y)
     :   transportf (precategory_morphisms x) pxy (identity x)
@@ -673,11 +673,6 @@ Section TensorLayer.
     etrans. { apply id_left. }
     apply idpath_transportf.
   Qed.
-
-  (* Lemma t_lemma_other {C : category} {x y z w : C} (pxy : x = y) (pwz : z = w) (f : C⟦y,z⟧)
-    :  transportb (precategory_morphisms _) pwz (transportf (precategory_morphisms x) pxy (identity x)
-  · f =
-  f · transportf (precategory_morphisms x) pxy (identity z). *)
 
   Definition tensor_eq'_to_tensor_iso {C : univalent_category} (TC TD : tensor C)
     : tensor_eq' TC TD -> tensor_iso TC TD.
@@ -713,31 +708,140 @@ Section TensorLayer.
       apply teh.
   Defined.
 
-  Lemma transport_univ_id {C : univalent_category} {x y : C} (p : z_iso x y) :
+  Lemma transport_univ_id_to_iso {C : univalent_category} {x y : C} (p : x = y) :
+    transportf (λ z : C, C⟦z,y⟧) (! pr11 (pr2 C x y (idtoiso p))) (identity y) = pr1 (idtoiso p).
+  Proof.
+    etrans. {
+      apply (! idtoiso_precompose C _ _ _ (! pr11 (pr2 C x y (idtoiso p))) (identity y)).
+    }
+    etrans. {
+      apply id_right.
+    }
+
+    induction p.
+    cbn.
+    etrans. {
+      apply maponpaths.
+      apply maponpaths.
+      apply pathsinv0inv0.
+    }
+    etrans. {
+      apply maponpaths.
+      apply (pr21 ((pr2 C) x x (identity_iso x))).
+    }
+    apply idpath.
+  Defined.
+
+  Lemma transport_univ_id_to_iso' {C : univalent_category} {x y : C} (p : x = y) :
+    transportf (λ z : C, C⟦x,z⟧) (pr11 (pr2 C x y (idtoiso p))) (identity x) = pr1 (idtoiso p).
+  Proof.
+    etrans. {
+      apply (! idtoiso_postcompose C _ _ _ (pr11 (pr2 C x y (idtoiso p))) (identity x)).
+    }
+    etrans. {
+      apply id_left.
+    }
+
+    induction p.
+    cbn.
+
+    etrans. {
+      apply maponpaths.
+      apply (pr21 ((pr2 C) x x (identity_iso x))).
+    }
+    apply idpath.
+  Defined.
+
+  Lemma transport_univ_id_to_iso'' {C : univalent_category} {x y : C} (p : x = y) :
+    transportb (λ z : C, C⟦x,z⟧) (! pr11 (pr2 C x y (idtoiso p))) (identity x) = pr1 (idtoiso p).
+  Proof.
+    unfold transportb.
+    etrans. {
+      rewrite pathsinv0inv0.
+      apply (! idtoiso_postcompose C _ _ _ (pr11 (pr2 C x y (idtoiso p))) (identity x)).
+    }
+    etrans. {
+      apply id_left.
+    }
+
+    induction p.
+    cbn.
+
+    etrans. {
+      apply maponpaths.
+      apply (pr21 ((pr2 C) x x (identity_iso x))).
+    }
+    apply idpath.
+  Defined.
+
+  Lemma transport_univ_iso_to_id {C : univalent_category} {x y : C} (p : iso x y) :
+    transportf (λ z : C, C⟦z,y⟧) (! pr11 (pr2 C x y p)) (identity y) = pr1 p.
+  Proof.
+    set (pxy := pr11 (pr2 C x y p)).
+    set (i := idtoiso pxy).
+
+    assert (pf : i = p). {
+      exact (pr21 (pr2 C x y p)).
+    }
+    induction pf.
+    apply transport_univ_id_to_iso.
+  Defined.
+
+  Lemma transport_univ_iso_to_id' {C : univalent_category} {x y : C} (p : iso x y) :
+    transportf (λ z : C, C⟦x,z⟧) (pr11 (pr2 C x y p)) (identity x) = pr1 p.
+  Proof.
+    set (pxy := pr11 (pr2 C x y p)).
+    set (i := idtoiso pxy).
+
+    assert (pf : i = p). {
+      exact (pr21 (pr2 C x y p)).
+    }
+    induction pf.
+    apply transport_univ_id_to_iso'.
+  Defined.
+
+  Search (iso).
+
+  Lemma transport_univ_iso_to_id'' {C : univalent_category} {x y : C} (p : iso y x) :
+    transportb (λ z : C, C⟦x,z⟧) (pr11 (pr2 C y x p)) (identity x) = inv_from_iso p.
+  Proof.
+    (* set (pxy := ! pr11 (pr2 C y x p)).
+    set (i := idtoiso pxy).
+
+    assert (pf : pr1 i = inv_from_iso p). {
+      apply (pr21 (pr2 C y x p)).
+    }
+    induction pf.
+    apply transport_univ_id_to_iso''.
+  Defined.*) Admitted.
+
+  Lemma transport_univ_ziso_to_id {C : univalent_category} {x y : C} (p : z_iso x y) :
     transportf (λ z : C, C⟦z,y⟧) (! pr11 (pr2 C x y (z_iso_to_iso p))) (identity y) = pr1 p.
   Proof.
-    (* set (q := pr1 p). *)
-    (* set (e :=  (! pr11 (pr2 C x y (z_iso_to_iso p)))).
-    induction e.
-    etrans. { apply (idpath_transportf (λ z : C, C⟦z,y⟧)). } *)
+    apply transport_univ_iso_to_id.
+  Defined.
 
-  Admitted.
-
-  Lemma transport_univ_id' {C : univalent_category} {x y : C} (p : z_iso x y) :
+  Lemma transport_univ_ziso_to_id' {C : univalent_category} {x y : C} (p : z_iso x y) :
     transportf (λ z : C, C⟦x,z⟧) (pr11 (pr2 C x y (z_iso_to_iso p))) (identity x) = pr1 p.
   Proof.
+    apply transport_univ_iso_to_id'.
+  Defined.
 
-  Admitted.
-
-  Lemma transport_univ_id'' {C : univalent_category} {x y : C} (p : z_iso y x) :
-    transportf (precategory_morphisms x) (! pr11 (pr2 C y x (z_iso_to_iso p))) (identity x) = pr12 p.
+  Lemma transport_univ_ziso_to_id'' {C : univalent_category} {x y : C} (p : z_iso y x) :
+    transportb (λ z : C, C⟦x,z⟧) (pr11 (pr2 C y x (z_iso_to_iso p))) (identity x)
+               = inv_from_z_iso p. (* = pr12 p. *)
   Proof.
-  Admitted.
+    etrans. {
+      apply transport_univ_iso_to_id''.
+    }
+    apply id_right.
+  Defined.
 
-  Lemma transport_univ_id_b {C : univalent_category} {x y : C} (p : z_iso y x) :
-    transportb (precategory_morphisms x) (pr11 (pr2 C y x (z_iso_to_iso p))) (identity x) = pr12 p.
+  Lemma transport_univ_ziso_to_id''' {C : univalent_category} {x y : C} (p : z_iso y x) :
+    transportb (λ z : C, C⟦x,z⟧) (pr11 (pr2 C y x (z_iso_to_iso p))) (identity x)
+               = pr12 p.
   Proof.
-    apply transport_univ_id''.
+    apply transport_univ_ziso_to_id''.
   Defined.
 
   Definition tensor_iso_to_tensor_eq' {C : univalent_category} (TC TD : tensor C)
@@ -771,19 +875,16 @@ Section TensorLayer.
         apply TransportMorphisms.transport_source_precompose.
       }
 
-      Check transport_univ_id (pr1 ti x1 y1).
       etrans. {
         apply cancel_postcomposition.
-        apply transport_univ_id.
+        apply transport_univ_ziso_to_id.
       }
 
       apply pathsinv0.
-
       etrans. {
         apply cancel_precomposition.
-        apply transport_univ_id'.
+        apply transport_univ_ziso_to_id'.
       }
-
       exact (! n).
   Defined.
 
@@ -797,55 +898,240 @@ Section TensorLayer.
       + intro te.
         exact (tensor_eq'_to_tensor_iso TC TD te).
       + intro ti.
-        use total2_paths_b.
-        * use funextsec ; intro x ; use funextsec ; intro y.
-          repeat (use total2_paths_b).
-          -- apply transport_univ_id'.
-          -- cbn.
-             etrans. {
-               apply transport_univ_id_b.
-             }
-             (* We have to show equality of inverses. *)
-             apply (inverse_unique_precat (x⊗_{TD}y) (x⊗_{TC}y) (pr1 (pr1 ti x y))).
-             ++ exact (pr22 (pr1 ti x y)).
-             ++ repeat (use tpair).
-                ** admit.
-                ** cbn.
-                   admit.
-          -- apply univalent_category_has_homsets.
-          -- apply univalent_category_has_homsets.
-        * repeat (use funextsec ; intro).
+        use subtypePath.
+        * intro.
+          repeat (apply impred_isaprop ; intro).
           apply univalent_category_has_homsets.
-      + intro te.
-        cbn.
-        use total2_paths_b.
         * cbn.
-          apply funextsec ; intro x ; apply funextsec ; intro y.
-          Check pr1 te x y.
-          admit.
-        * repeat (apply funextsec ; intro).
+          repeat (apply funextsec ; intro).
+          cbn.
+          use total2_paths_b.
+          -- apply transport_univ_ziso_to_id'.
+          -- use total2_paths_b.
+             ++ etrans. {
+                  apply transport_univ_ziso_to_id'''.
+                }
+                apply pathsinv0.
+                etrans. {
+                  apply ((pr1_transportf  (! transport_univ_ziso_to_id' (pr1 ti _ _))) ( (pr2 (pr1 ti _ _)))).
+                }
+                admit.
+             ++ use total2_paths_b.
+                apply univalent_category_has_homsets.
+                apply univalent_category_has_homsets.
+
+      + intro te.
+        use subtypePath.
+        * intro.
+          repeat (apply impred_isaprop ; intro).
           apply univalent_category_has_homsets.
+        * cbn.
+          repeat (apply funextsec ; intro).
+          admit.
   Admitted.
 
-  (* Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
+  Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ te : pr11 TC = pr11 TD,
         ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
         transportf (λ x : C → C → C, C ⟦ x x1 y1, x x2 y2 ⟧) te (f ⊗^{TC} g) = f ⊗^{TD} g.
 
+  (* Definition tensor_eq'' {C : univalent_category} (TC TD : tensor C) : UU
+    := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
+    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+      f ⊗^{TD} g = transportb _ (α x2 y2) (transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)).
 
 
+  Lemma tensor_eq'_equiv_tensor_eq'' {C : univalent_category} (TC TD : tensor C)
+    : tensor_eq' TC TD ≃ tensor_eq'' TC TD.
+  Proof.
+    unfold tensor_eq' ; unfold tensor_eq''.
+
+    Search ((∑ _ : _, _) ≃ (∑ _ : _, _)).
+    apply weqfibtototal.
+    intros a.
+    Search ((∏ _ : ?x, _) ≃ ∏ _ : ?x, _).
+    repeat (apply weqonsecfibers ; intro).
+    Search (_ = _ ≃ _ = _).
+    use make_weq.
+    - intro e.
+
+      apply transportf_transpose_right.
+      use pathscomp0.
+      3: exact e.
+      apply transportf_transpose_right.
+      etrans. { apply transport_b_b. }
+      rewrite pathsinv0r.
+      apply idpath_transportf.
+    - use isweq_iso.
+      + intro e.
+        apply transportf_transpose_left.
+        apply e.
+      + intro ; apply univalent_category_has_homsets.
+      + intro ; apply univalent_category_has_homsets.
+  Defined. *)
+
+  Lemma transport_at_domain_and_codomain_simultaniously {C : category} (F G : C -> C -> C)
+        (p : ∏ x y : C, G x y = F x y)
+        {x1 x2 y1 y2 : C}
+        (f : C⟦F x1 y1, F x2 y2⟧) :
+     transportf (λ t : C → C → C, C ⟦ t x1 y1, t x2 y2 ⟧)
+     (funextsec (λ _ : C, C → C) F G
+     (λ x : C, funextsec (λ _ : C, C) (F x) (G x) (λ y : C, ! p x y))) f =
+       transportb (precategory_morphisms (G x1 y1)) (p x2 y2)
+             (transportf (λ x : C, C ⟦ x, F x2 y2 ⟧) (! p x1 y1) f).
+  Proof.
+    set (pxy1 := p x1 y1).
+    set (pxy2 := p x2 y2).
+  Admitted.
+
+  Lemma tensor_eq'_to_tensor_eq {C : univalent_category} (TC TD : tensor C)
+    : tensor_eq' TC TD -> tensor_eq TC TD.
+  Proof.
+    intro te.
+    induction te as [teo teh].
+    use tpair.
+    - apply funextsec ; intro x ; apply funextsec ; intro y.
+      set (txy := teo x y).
+      exact (! txy).
+    - repeat (intro).
+      cbn.
+      set (fig := (teh x1 x2 y1 y2 f g)).
+
+      assert (fig1 : (f ⊗^{ TD} g) =
+                       transportb (precategory_morphisms (x1 ⊗_{ TD} y1)) (teo x2 y2) (transportf (λ x : C, C ⟦ x, x2 ⊗_{ TC} y2 ⟧) (! teo x1 y1) (f ⊗^{ TC} g))). {
+        apply transportf_transpose_right.
+        unfold transportb.
+        use pathscomp0.
+        3: exact fig.
+        apply transportf_transpose_right.
+        etrans. { apply transport_b_b. }
+        rewrite pathsinv0r.
+        apply idpath_transportf.
+      }
+      use pathscomp0.
+      3: exact (! fig1).
+      apply transport_at_domain_and_codomain_simultaniously.
+  Defined.
+
+  Lemma funextsec_conv {A B : UU} (f g : A -> B) :
+    (f=g -> ∏ x : A, f x = g x).
+  Proof.
+    intro e.
+    induction e.
+    intro x.
+    apply idpath.
+  Defined.
+
+  Lemma funextsec_proof_equal {C : category} (F G : C -> C -> C) (p : F = G) :
+     funextsec (λ _ : C, C → C) F G
+    (λ x : C, funextsec (λ _ : C, C) (F x) (G x)
+                        (λ y : C, ! funextsec_conv (G x) (F x) (funextsec_conv G F (! p) x) y)
+    ) = p.
+  Proof.
+  Admitted.
+
+  Lemma tensoronobequality_to_ptwequality {C : univalent_category} (TC TD : tensor C)
+    : pr11 TC = pr11 TD -> ∏ x y : C, x ⊗_{TC} y = x ⊗_{TD} y.
+  Proof.
+    intro e.
+    intros x y.
+    apply funextsec_conv.
+    apply funextsec_conv.
+    apply e.
+  Defined.
+
+  Lemma tensor_eq_to_tensor_eq' {C : univalent_category} (TC TD : tensor C)
+    : tensor_eq TC TD -> tensor_eq' TC TD.
+  Proof.
+    intro te.
+    induction te as [teo teh].
+    use tpair.
+    - intros x y.
+      apply tensoronobequality_to_ptwequality.
+      exact (! teo).
+    - repeat (intro).
+      apply transportf_transpose_left.
+      etrans. { apply (! teh _ _ _ _ f g). }
+      use pathscomp0.
+      3: apply transport_at_domain_and_codomain_simultaniously.
+
+      assert (pf : (funextsec (λ _ : C, C → C) (tensor_on_ob TC) (tensor_on_ob TD)
+                   (λ x : C, funextsec (λ _ : C, C) (tensor_on_ob TC x) (tensor_on_ob TD x)
+                   (λ y : C, ! tensoronobequality_to_ptwequality TD TC (! teo) x y))) = teo).
+      {
+        unfold tensoronobequality_to_ptwequality.
+        apply funextsec_proof_equal.
+      }
+      set (pg := ! pf).
+      induction pg.
+      apply idpath.
+  Defined.
+
+  Lemma runoutofnames {C : category} (F G : C -> C -> C) (p : ∏ x y : C, G x y = F x y) (x x0 : C)
+    :  funextsec_conv (G x) (F x)
+    (funextsec_conv G F
+       (! funextsec (λ _ : C, C → C) F G
+            (λ x1 : C, funextsec (λ _ : C, C) (F x1) (G x1) (λ y : C, ! p x1 y)))
+       x) x0 = p x x0.
+  Proof.
+  Admitted.
+
+  Definition tensor_eq_equiv_tensor_eq' {C : univalent_category} (TC TD : tensor C)
+    : tensor_eq TC TD ≃ tensor_eq' TC TD.
+  Proof.
+    use make_weq.
+    - exact (tensor_eq_to_tensor_eq' TC TD).
+    - use isweq_iso.
+      + exact (tensor_eq'_to_tensor_eq TC TD).
+      + intro te.
+        use subtypePath.
+        * intro.
+          repeat (apply impred_isaprop ; intro).
+          apply univalent_category_has_homsets.
+        * apply funextsec_proof_equal.
+      + intro te.
+        use subtypePath.
+        * intro.
+          repeat (apply impred_isaprop ; intro).
+          apply univalent_category_has_homsets.
+        * repeat (apply funextsec ; intro).
+          apply runoutofnames.
+  Defined.
+
+  Definition runoutofnames2 {C : category} (F : C -> C -> C)
+             {x1 x2 y1 y2 : C} (f : C⟦F x1 y1, F x2 y2⟧)
+    : transportf (λ x : C → C → C, C ⟦ x x1 y1, x x2 y2 ⟧)
+    (funextsec (λ _ : C, C → C) F F
+       (λ x : C,
+        funextsec (λ _ : C, C) (F x) (F x) (λ x0 : C, idpath (F x x0))))
+    f = f.
+  Proof.
+  Admitted.
+
+  Definition runoutofnames3 {C : category} (F G : C -> C -> C) (p : F = G)
+             {x1 x2 y1 y2 : C} (f : C⟦F x1 y1, F x2 y2⟧) :
+    transportf (λ x5 : C → C → C, C ⟦ x5 x1 y1, x5 x2 y2 ⟧) (! p)
+               (transportf (λ x5 : C → C → C, C ⟦ x5 x1 y1, x5 x2 y2 ⟧) p f)
+    = f.
+  Proof.
+    induction p.
+    rewrite transport_f_f.
+    rewrite pathsinv0r.
+    apply idpath.
+  Defined.
 
   Definition equiv_tensor_eq_on_hom {C : univalent_category} (TC TD : tensor C)
-    : tensor_eq TC TD ≃ (pr1 TC = pr1 TD).
-    (* (pr1 TC = pr1 TD) ≃ tensor_eq TC TD. *)
+    :  TC = TD ≃ tensor_eq TC TD.
   Proof.
-    (* simple refine (_ ∘ total2_paths_equiv _ _ _)%weq.
     use make_weq.
     - intro teq.
-      induction teq as [teo teh].
+      induction teq.
       use tpair.
-      + exact teo.
+      + repeat (apply funextsec ; intro).
+        apply idpath.
       + intros x1 x2 y1 y2 f g.
+        apply runoutofnames2.
+        (*
         set (_1 := eqtohomot teh x1).
         set (_2 := eqtohomot _1 x2).
         set (_3 := eqtohomot _2 y1).
@@ -858,106 +1144,36 @@ Section TensorLayer.
           repeat (rewrite transportf_sec_constant).
           apply idpath.
         }
-        apply idpath.
+        apply idpath. *)
     - use isweq_iso.
       + intro teq.
-        use tpair.
-        * exact (pr1 teq).
-        * repeat (apply funextsec ; intro).
-          apply pathsinv0.
-          etrans. { exact (! pr2 teq x x0 x1 x2 x3 x4). }
-          apply pathsinv0.
-          etrans. {
-          repeat (rewrite transportf_sec_constant).
-          apply idpath.
-        }
-        apply idpath.
-      + cbn.
-        intro p.
-        cbn. *)
+        use total2_paths_b.
+        * use total2_paths_b.
+          -- exact (pr1 teq).
+          --  repeat (apply funextsec ; intro).
+              induction teq as [teo teh].
+              set (pf := teh _ _ _ _ x3 x4).
+              apply pathsinv0.
+              unfold transportb.
+              repeat (rewrite transportf_sec_constant).
+              etrans. {
+                apply maponpaths.
+                apply (! pf).
+              }
+              cbn.
+              apply (runoutofnames3 (pr11 TC) (pr11 TD) teo (x3 ⊗^{TC} x4)).
 
 
-
-
-
-    use make_weq.
-    - intro teq.
-      use total2_paths_b.
-      + (* repeat (apply funextsec ; intro).*)
-        exact (pr1 teq).
-      + apply transportb_transpose_right.
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-      apply funextsec ; intro x1.
-
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-      apply funextsec ; intro x2.
-
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-      apply funextsec ; intro y1.
-
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-      apply funextsec ; intro y2.
-
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-
-      apply funextsec ; intro f.
-
-      etrans. {
-        rewrite transportf_sec_constant.
-        apply idpath.
-      }
-      apply funextsec ; intro g.
-      exact ((pr2 teq) _ _ _ _ f g).
-    - use isweq_iso.
-      + intro peq.
-        use tpair.
-        * apply maponpaths.
-          exact peq.
-        * cbn.
-          intros.
-          Search (_ : (∑ _ : _, _) = ∑ _ : _, _).
-
-
-
-
-
-
-  Definition test {C : univalent_category} (TC TD : tensor C)
-    : TC = TD ≃ tensor_eq TC TD.
-  Proof.
-    Check weqfibtototal
-          (X := C -> C -> C)
-
-    .
-
-    (P := λ T,
-    -
-
-
-(*  Definition tensor_eq' {C : univalent_category} (TC TD : tensor C) : UU
-    := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
-      ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
-      f ⊗^{TC} g = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧)
-                              (! α x1 y1)
-                              (transportf (λ x : C, C⟦x1 ⊗_{TD} y1, x⟧) (! α x2 y2) (f ⊗^{TD} g)). *)
-
-                              (*= transportf (λ T : C ->C -> C, C[x1,x2] -> C[y1,y2] -> C[x1 ⊗T y1, x2⊗T y2]) (s : pr11 TC*)
-
+        * use total2_paths_b.
+          -- repeat (apply funextsec ; intro).
+             apply univalent_category_has_homsets.
+          -- repeat (apply funextsec ; intro).
+             apply univalent_category_has_homsets.
+      + intro te.
+        induction te.
+        admit.
+      + intro te.
+        admit.
   Definition identity_is_tensor_eq {C : univalent_category} (T : tensor C) :
     tensor_eq T T.
   Proof.
@@ -966,14 +1182,6 @@ Section TensorLayer.
     - intros x1 x2 y1 y2 f g.
       apply (idpath_transportf  (λ x : C → C → C, C ⟦ x x1 y1, x x2 y2 ⟧)).
   Defined.
-
-
-  (* Definition test {C : bicat_of_univ_cats} (TC TD : bicatcatstensor_disp_bicat C) (pf : TC = TD)
-    : TC = TD.
-  Proof.
-    use total2_paths_b.
-    - use total2_paths_b.
-      + Search ((∑ _ : _, _) ≃ (∑ _ : _, _)). *)
 
   Definition tensor_eq_to_eq {C : bicat_of_univ_cats} (TC TD : bicatcatstensor_disp_bicat C)
     : tensor_eq TC TD -> TC = TD.
