@@ -593,19 +593,19 @@ Section PointwiseInverse.
           {FF : disp_functor F D D'} {GG : disp_functor F D D'}
           (αα : disp_nat_trans (nat_trans_id F) FF GG)
           (Hαα : ∏ (x : C) (xx : D x),
-                 is_iso_disp
-                   (identity_iso (pr1 F x))
+                 is_z_iso_disp
+                   (identity_z_iso (pr1 F x))
                    (pr1 αα x xx)).
 
   Let pointwise_inverse_disp_nat_trans_data
     : disp_nat_trans_data (nat_trans_id F) GG FF
-    := λ x xx, inv_mor_disp_from_iso (Hαα x xx).
+    := λ x xx, inv_mor_disp_from_z_iso (Hαα x xx).
 
   Definition pointwise_inverse_disp_nat_trans_axioms
     : disp_nat_trans_axioms pointwise_inverse_disp_nat_trans_data.
   Proof.
     intros x y f xx yy ff.
-    use (precomp_with_iso_disp_is_inj (make_iso_disp _ (Hαα x xx))).
+    use (precomp_with_z_iso_disp_is_inj (make_z_iso_disp _ (Hαα x xx))).
     simpl.
     refine (assoc_disp _ _ _ @ _).
     unfold transportb.
@@ -617,7 +617,7 @@ Section PointwiseInverse.
     {
       apply maponpaths.
       apply maponpaths_2.
-      apply (inv_mor_after_iso_disp (Hαα x xx)).
+      apply (inv_mor_after_z_iso_disp (Hαα x xx)).
     }
     etrans.
     {
@@ -669,7 +669,7 @@ Section PointwiseInverse.
           etrans.
           {
             apply maponpaths.
-            apply (inv_mor_after_iso_disp (Hαα y yy)).
+            apply (inv_mor_after_z_iso_disp (Hαα y yy)).
           }
           etrans.
           {
@@ -710,8 +710,8 @@ Lemma pointwise_inverse_disp_nat_trans_over_id_left
       {FF GG : disp_functor (functor_identity _) D D'}
       (αα : disp_nat_trans (nat_trans_id _) FF GG)
       (Hαα : ∏ (x : C) (xx : D x),
-             is_iso_disp
-               (identity_iso x)
+             is_z_iso_disp
+               (identity_z_iso x)
                (pr1 αα x xx))
   : disp_nat_trans_over_id_comp
       αα
@@ -724,7 +724,7 @@ Proof.
   etrans.
   {
     apply maponpaths.
-    apply (inv_mor_after_iso_disp (Hαα x xx)).
+    apply (inv_mor_after_z_iso_disp (Hαα x xx)).
   }
   unfold transportb.
   rewrite transport_f_f.
@@ -738,8 +738,8 @@ Lemma pointwise_inverse_disp_nat_trans_over_id_right
       {FF GG : disp_functor (functor_identity _) D D'}
       (αα : disp_nat_trans (nat_trans_id _) FF GG)
       (Hαα : ∏ (x : C) (xx : D x),
-             is_iso_disp
-               (identity_iso x)
+             is_z_iso_disp
+               (identity_z_iso x)
                (pr1 αα x xx))
   : disp_nat_trans_over_id_comp
       (pointwise_inverse_disp_nat_trans αα Hαα)
@@ -752,7 +752,7 @@ Proof.
   etrans.
   {
     apply maponpaths.
-    apply (iso_disp_after_inv_mor (Hαα x xx)).
+    apply (z_iso_disp_after_inv_mor (Hαα x xx)).
   }
   unfold transportb.
   rewrite transport_f_f.

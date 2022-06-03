@@ -258,7 +258,7 @@ Section FibSlice.
              (α : G₁ ==> G₂)
              (Hα : (∏ (x : C)
                       (xx : pr1 D₁ x),
-                    is_iso_disp (identity_iso x) (pr1 α x xx)))
+                    is_z_iso_disp (identity_z_iso x) (pr1 α x xx)))
     : is_invertible_2cell α.
   Proof.
     use make_is_invertible_2cell.
@@ -504,7 +504,7 @@ Section OpFibSlice.
              (α : G₁ ==> G₂)
              (Hα : (∏ (x : C)
                       (xx : pr1 D₁ x),
-                    is_iso_disp (identity_iso x) (pr1 α x xx)))
+                    is_z_iso_disp (identity_z_iso x) (pr1 α x xx)))
     : is_invertible_2cell α.
   Proof.
     use make_is_invertible_2cell.

@@ -86,17 +86,17 @@ Proof.
        apply idpath).
 Defined.
 
-Definition op_unit_nat_iso
+Definition op_unit_nat_z_iso
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
-  : nat_iso
+  : nat_z_iso
       (functor_identity C₁ ∙ functor_opp (functor_opp F))
       (F ∙ functor_identity C₂).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (op_unit_nat_trans F).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_data
@@ -107,8 +107,8 @@ Proof.
   use make_pstrans_data.
   - exact (λ C, functor_identity _).
   - intros C₁ C₂ F.
-    use nat_iso_to_invertible_2cell.
-    exact (op_unit_nat_iso F).
+    use nat_z_iso_to_invertible_2cell.
+    exact (op_unit_nat_z_iso F).
 Defined.
 
 Definition op_unit_is_pstrans
@@ -147,17 +147,17 @@ Proof.
        apply idpath).
 Defined.
 
-Definition op_unit_inv_nat_iso
+Definition op_unit_inv_nat_z_iso
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
-  : nat_iso
+  : nat_z_iso
       (functor_identity _ ∙ F)
       (functor_opp (functor_opp F) ∙ functor_identity _).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (op_unit_inv_nat_trans F).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_inv_data
@@ -168,8 +168,8 @@ Proof.
   use make_pstrans_data.
   - exact (λ C, functor_identity _).
   - intros C₁ C₂ F.
-    use nat_iso_to_invertible_2cell.
-    exact (op_unit_inv_nat_iso F).
+    use nat_z_iso_to_invertible_2cell.
+    exact (op_unit_inv_nat_z_iso F).
 Defined.
 
 Definition op_unit_inv_is_pstrans
@@ -205,16 +205,16 @@ Proof.
        apply idpath).
 Defined.
 
-Definition op_triangle_nat_iso
+Definition op_triangle_nat_z_iso
            (C : category)
-  : nat_iso
+  : nat_z_iso
       (functor_identity _)
       (functor_opp (functor_identity C)).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (op_triangle_nat_trans C).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_triangle
@@ -223,8 +223,8 @@ Definition op_triangle
       (op_unit (op_psfunctor C))
       (# op_psfunctor (op_unit C)).
 Proof.
-  use nat_iso_to_invertible_2cell.
-  exact (op_triangle_nat_iso _).
+  use nat_z_iso_to_invertible_2cell.
+  exact (op_triangle_nat_z_iso _).
 Defined.
 
 Definition op_unit_unit_inv_nat_trans
@@ -241,16 +241,16 @@ Proof.
        apply idpath).
 Defined.
 
-Definition op_unit_unit_inv_nat_iso
+Definition op_unit_unit_inv_nat_z_iso
            (C : category)
-  : nat_iso
+  : nat_z_iso
       (functor_identity C)
       (functor_identity C ∙ functor_identity ((C^op)^op)).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (op_unit_unit_inv_nat_trans C).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_unit_inv_data
@@ -259,8 +259,8 @@ Definition op_unit_unit_inv_data
       (op_unit · op_unit_inv).
 Proof.
   intro C.
-  use nat_iso_to_invertible_2cell.
-  exact (op_unit_unit_inv_nat_iso _).
+  use nat_z_iso_to_invertible_2cell.
+  exact (op_unit_unit_inv_nat_z_iso _).
 Defined.
 
 Definition op_unit_unit_inv_is_modif
@@ -300,16 +300,16 @@ Proof.
        apply idpath).
 Defined.
 
-Definition op_unit_inv_unit_nat_iso
+Definition op_unit_inv_unit_nat_z_iso
            (C : category)
-  : nat_iso
+  : nat_z_iso
       (functor_identity ((C^op)^op) ∙ functor_identity C)
       (functor_identity ((C^op)^op)).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (op_unit_inv_unit_nat_trans C).
   - intro.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_inv_unit_data
@@ -318,8 +318,8 @@ Definition op_unit_inv_unit_data
       (id₁ _).
 Proof.
   intro C.
-  use nat_iso_to_invertible_2cell.
-  exact (op_unit_inv_unit_nat_iso _).
+  use nat_z_iso_to_invertible_2cell.
+  exact (op_unit_inv_unit_nat_z_iso _).
 Defined.
 
 Definition op_unit_inv_unit_is_modif
@@ -399,7 +399,7 @@ Proof.
     + apply cat_conservative_is_conservative_1cell.
       apply groupoidal_disp_cat_to_conservative.
       intro ; intros.
-      apply is_iso_disp_cat_of_elems.
+      apply is_z_iso_disp_cat_of_elems.
 Defined.
 
 Section CategoryOfElementsHasPbUMP.
@@ -416,8 +416,8 @@ Section CategoryOfElementsHasPbUMP.
         (F₁ · set_of_pointed_set)
         (F₂ · P).
   Proof.
-    use invertible_2cell_is_nat_iso.
-    exact (cat_of_elems_commute_iso P).
+    use invertible_2cell_is_nat_z_iso.
+    exact (cat_of_elems_commute_z_iso P).
   Defined.
 
   Let cone
@@ -436,11 +436,11 @@ Section CategoryOfElementsHasPbUMP.
                _
                (pb_cone_pr1 q)
                (pb_cone_pr2 q)).
-      apply invertible_2cell_to_nat_iso.
+      apply invertible_2cell_to_nat_z_iso.
       apply (pb_cone_cell q).
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply functor_to_cat_of_elems_pointed.
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply functor_to_cat_of_elems_forgetful.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -526,7 +526,7 @@ Proof.
     + apply cat_conservative_is_conservative_1cell.
       apply groupoidal_disp_cat_to_conservative.
       intros X Y f Hf x y ff.
-      apply is_iso_disp_elements_universal.
+      apply is_z_iso_disp_elements_universal.
 Defined.
 
 Section IsClassifyingFull.
@@ -546,11 +546,11 @@ Section IsClassifyingFull.
              G
              (pr2 C)
              (pr1 (pr122 n) (x ,, z))
-             (iso_is_iso
-                (nat_iso_pointwise_iso
-                   (make_nat_iso
+             (z_iso_is_z_isomorphism
+                (nat_z_iso_pointwise_z_iso
+                   (make_nat_z_iso
                       _ _ _
-                      (is_invertible_2cell_to_is_nat_iso _ (pr222 n)))
+                      (is_invertible_2cell_to_is_nat_z_iso _ (pr222 n)))
                    (x ,, z)))
              (pr2 (pr1 (pr1 n) (x ,, z)))).
   Defined.
@@ -564,7 +564,7 @@ Section IsClassifyingFull.
     unfold is_classifying_nat_trans_data ; cbn.
     unfold cat_of_elems_iso_lift ; cbn.
     pose (p := pr212 (pr2 n) (x ,, z) (y,, # F f z) (f ,, idpath _)).
-    refine (cat_of_elems_iso_natural _ _ _ _ _ _ _ _ _ _ p (!_)) ; cbn.
+    refine (cat_of_elems_z_iso_natural _ _ _ _ _ _ _ _ _ _ p (!_)) ; cbn.
     exact (pr2 (@functor_on_morphisms
                   _ _
                   (pr11 n)
@@ -624,15 +624,15 @@ Section IsClassifyingFull.
   Definition invertible_is_classifying_bicat_of_univ_cats_nat_trans
     : is_invertible_2cell is_classifying_bicat_of_univ_cats_nat_trans.
   Proof.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intros x.
-    use is_iso_cat_of_elems.
+    use is_z_iso_cat_of_elems.
     cbn.
-    exact (iso_is_iso
-             (nat_iso_pointwise_iso
-                (make_nat_iso
+    exact (z_iso_is_z_isomorphism
+             (nat_z_iso_pointwise_z_iso
+                (make_nat_z_iso
                    _ _ _
-                   (is_invertible_2cell_to_is_nat_iso _ (pr222 n)))
+                   (is_invertible_2cell_to_is_nat_z_iso _ (pr222 n)))
                 x)).
   Defined.
 
@@ -756,8 +756,8 @@ Proof.
   - intros D₁ D₂ F.
     simple refine (_ ,, _).
     + exact (curry_functor' F).
-    + use nat_iso_to_invertible_2cell.
-      exact (evaluate_curry_functor'_nat_iso F).
+    + use nat_z_iso_to_invertible_2cell.
+      exact (evaluate_curry_functor'_nat_z_iso F).
 Defined.
 
 (**
@@ -773,7 +773,7 @@ Definition groupoid_is_groupoidal_obj
   : groupoidal C.
 Proof.
   intros C' F₁ F₂ n.
-  use is_nat_iso_to_is_invertible_2cell.
+  use is_nat_z_iso_to_is_invertible_2cell.
   intro.
   apply HC.
 Defined.
@@ -784,7 +784,7 @@ Definition groupoidal_obj_is_groupoid
   : is_pregroupoid (pr1 C).
 Proof.
   intros x y f.
-  exact (is_invertible_2cell_to_is_nat_iso
+  exact (is_invertible_2cell_to_is_nat_z_iso
            _
            (HC unit_category
                (functor_from_unit x)
@@ -837,9 +837,9 @@ Proof.
   use (@nat_trans_to_core
          (pr11 C₀')
          (pr11 C₀ ,, groupoidal_obj_is_groupoid _ (pr2 C₀))).
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (pr1 α).
-  - apply is_invertible_2cell_to_is_nat_iso.
+  - apply is_invertible_2cell_to_is_nat_z_iso.
     exact (pr2 α).
 Defined.
 
@@ -864,7 +864,7 @@ Proof.
        use subtypePath ; [ intro ; apply isapropunit | ] ;
        use nat_trans_eq ; [ apply homset_property | ] ;
        intro x ;
-       use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
        refine (nat_trans_eq_pointwise (maponpaths pr1 p) x @ !_) ;
        exact (nat_trans_eq_pointwise (maponpaths pr1 q) x)).
   - intros C₀ C₀' F.
@@ -880,9 +880,9 @@ Proof.
                     (pr11 C₀')
                     (pr11 C₀ ,, groupoidal_obj_is_groupoid _ (pr2 C₀))
                     (pr1 F)).
-        ** apply is_nat_iso_to_is_invertible_2cell.
+        ** apply is_nat_z_iso_to_is_invertible_2cell.
            intro x.
-           apply identity_is_iso.
+           apply identity_is_z_iso.
       * apply is_invertible_2cell_bicat_of_inv2cells.
 Defined.
 

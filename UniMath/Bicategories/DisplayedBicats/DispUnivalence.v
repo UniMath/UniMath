@@ -8,8 +8,11 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
@@ -535,4 +538,96 @@ Proof.
     apply disp_univalent_2_0_of_2. assumption.
   - apply total_is_univalent_2_1. apply UC.
     apply disp_univalent_2_1_of_2. assumption.
+Defined.
+
+(** Displayed local univalence corresponds with the expected local condition *)
+Section DispLocallyUnivalent.
+  Context {B : bicat}
+          (D : disp_bicat B)
+          {x y : B}
+          {f : x --> y}
+          {xx : D x}
+          {yy : D y}
+          (ff₁ ff₂ : xx -->[ f ] yy).
+
+  Definition disp_inv2cell_to_disp_z_iso
+    : disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂
+      →
+      @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂.
+  Proof.
+    intro α.
+    simple refine (@make_z_iso_disp _ (disp_hom xx yy) _ _ _ _ _ _ _).
+    - exact (pr1 α).
+    - simple refine (_ ,, _ ,, _).
+      + exact (disp_inv_cell α).
+      + abstract
+          (refine (disp_vcomp_linv α @ _) ; cbn ;
+           apply maponpaths_2 ;
+           apply cellset_property).
+      + abstract
+          (refine (disp_vcomp_rinv α @ _) ; cbn ;
+           apply maponpaths_2 ;
+           apply cellset_property).
+  Defined.
+
+  Definition disp_z_iso_to_disp_inv2cell
+    : @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂
+      →
+      disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂.
+  Proof.
+    intro α.
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact (pr1 α).
+    - exact (inv_mor_disp_from_z_iso α).
+    - abstract
+        (cbn ;
+         refine (pr222 α @ _) ;
+         apply maponpaths_2 ;
+         apply cellset_property).
+    - abstract
+        (cbn ;
+         refine (pr122 α @ _) ;
+         apply maponpaths_2 ;
+         apply cellset_property).
+  Defined.
+
+  Definition disp_inv2cell_weq_disp_z_iso
+    : disp_invertible_2cell (id2_invertible_2cell f) ff₁ ff₂
+      ≃
+      @z_iso_disp _ (disp_hom xx yy) _ _ (identity_z_iso _) ff₁ ff₂.
+  Proof.
+    use make_weq.
+    - exact disp_inv2cell_to_disp_z_iso.
+    - use gradth.
+      + exact disp_z_iso_to_disp_inv2cell.
+      + abstract
+          (intro α ;
+           use subtypePath ; [ intro ; apply isaprop_is_disp_invertible_2cell | ] ;
+           apply idpath).
+      + abstract
+          (intro α ;
+           use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
+           apply idpath).
+  Defined.
+End DispLocallyUnivalent.
+
+Definition is_univalent_disp_disp_hom
+           {B : bicat}
+           (D : disp_bicat B)
+           (HD : disp_univalent_2_1 D)
+           {x y : B}
+           (xx : D x)
+           (yy : D y)
+  : is_univalent_disp (disp_hom xx yy).
+Proof.
+  intros f g p ff gg.
+  induction p.
+  use weqhomot.
+  - exact (disp_inv2cell_weq_disp_z_iso D _ _
+           ∘ make_weq _ (HD x y f f (idpath _) xx yy ff gg))%weq.
+  - abstract
+      (intro p ;
+       induction p ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
+       apply idpath).
 Defined.

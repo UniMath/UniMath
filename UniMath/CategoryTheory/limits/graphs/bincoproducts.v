@@ -237,10 +237,9 @@ Proof.
 Defined.
 
 
-Lemma is_iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a b)
-  : is_iso (from_BinCoproduct_to_BinCoproduct CC CC').
+Lemma is_z_iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a b)
+  : is_z_isomorphism (from_BinCoproduct_to_BinCoproduct CC CC').
 Proof.
-  apply is_iso_from_is_z_iso.
   exists (from_BinCoproduct_to_BinCoproduct CC' CC).
   split; simpl.
   - apply pathsinv0.
@@ -261,11 +260,11 @@ Proof.
       repeat rewrite BinCoproductIn2Commutes; apply idpath.
 Defined.
 
-Definition iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a b)
-  : iso (BinCoproductObject CC) (BinCoproductObject CC')
-  := make_iso _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
+Definition z_iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a b)
+  : z_iso (BinCoproductObject CC) (BinCoproductObject CC')
+  := make_z_iso' _ (is_z_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
-Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
+Lemma transportf_isotoid' (c d d': C) (p : z_iso d d') (f : c --> d) :
   transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
 Proof.
   rewrite <- idtoiso_postcompose.

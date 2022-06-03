@@ -69,23 +69,23 @@ Section Fiber.
     := ( fiber_precategory ,, has_homsets_fiber_category).
 
 
-  Definition iso_disp_from_iso_fiber (a b : fiber_category) :
-    iso a b -> iso_disp (identity_iso c) a b.
+  Definition z_iso_disp_from_z_iso_fiber (a b : fiber_category) :
+    z_iso a b -> z_iso_disp (identity_z_iso c) a b.
   Proof.
     intro i.
     use tpair.
     + apply (pr1 i).
     + cbn.
       use tpair.
-      * apply (inv_from_iso i).
+      * apply (inv_from_z_iso i).
       * abstract (  split;
-                    [ assert (XR := iso_after_iso_inv i);
+                    [ assert (XR := z_iso_after_z_iso_inv i);
                       cbn in *;
                       assert (XR' := transportf_pathsinv0' _ _ _ _ XR);
                       etrans; [ apply (!XR') |];
                       unfold transportb;
                       apply maponpaths_2; apply homset_property
-                    |assert (XR := iso_inv_after_iso i);
+                    |assert (XR := z_iso_inv_after_z_iso i);
                      cbn in *;
                      assert (XR' := transportf_pathsinv0' _ _ _ _ XR);
                      etrans; [ apply (!XR') | ];
@@ -93,24 +93,23 @@ Section Fiber.
                      apply maponpaths_2; apply homset_property ] ).
   Defined.
 
-  Definition iso_fiber_from_iso_disp (a b : fiber_category) :
-    iso a b <- iso_disp (identity_iso c) a b.
+  Definition z_iso_fiber_from_z_iso_disp (a b : fiber_category) :
+    z_iso a b <- z_iso_disp (identity_z_iso c) a b.
   Proof.
     intro i.
     use tpair.
     + apply (pr1 i).
     + cbn in *.
-      apply (@is_iso_from_is_z_iso fiber_category).
       use tpair.
-      apply (inv_mor_disp_from_iso i).
+      apply (inv_mor_disp_from_z_iso i).
       abstract (split; cbn;
                 [
-                  assert (XR := inv_mor_after_iso_disp i);
+                  assert (XR := inv_mor_after_z_iso_disp i);
                   etrans; [ apply maponpaths , XR |];
                   etrans; [ apply transport_f_f |];
                   apply transportf_comp_lemma_hset;
                   try apply homset_property; apply idpath
-                | assert (XR := iso_disp_after_inv_mor i);
+                | assert (XR := z_iso_disp_after_inv_mor i);
                   etrans; [ apply maponpaths , XR |] ;
                   etrans; [ apply transport_f_f |];
                   apply transportf_comp_lemma_hset;
@@ -118,31 +117,31 @@ Section Fiber.
                ]).
   Defined.
 
-  Lemma iso_disp_iso_fiber (a b : fiber_category) :
-    iso a b ≃ iso_disp (identity_iso c) a b.
+  Lemma z_iso_disp_z_iso_fiber (a b : fiber_category) :
+    z_iso a b ≃ z_iso_disp (identity_z_iso c) a b.
   Proof.
-    exists (iso_disp_from_iso_fiber a b).
-    use (isweq_iso _ (iso_fiber_from_iso_disp _ _ )).
-    - intro. apply eq_iso. apply idpath.
-    - intro. apply eq_iso_disp. apply idpath.
+    exists (z_iso_disp_from_z_iso_fiber a b).
+    use (isweq_iso _ (z_iso_fiber_from_z_iso_disp _ _ )).
+    - intro. apply eq_z_iso. apply idpath.
+    - intro. apply eq_z_iso_disp. apply idpath.
   Defined.
 
   (** ** Univalence *)
   Variable H : is_univalent_disp D.
 
-  Let idto1 (a b : fiber_category) : a = b ≃ iso_disp (identity_iso c) a b
+  Let idto1 (a b : fiber_category) : a = b ≃ z_iso_disp (identity_z_iso c) a b
       :=
         make_weq (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
 
-  Let idto2 (a b : fiber_category) : a = b -> iso_disp (identity_iso c) a b
+  Let idto2 (a b : fiber_category) : a = b -> z_iso_disp (identity_z_iso c) a b
       :=
-        funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fiber a b).
+        funcomp (λ p : a = b, idtoiso p) (z_iso_disp_z_iso_fiber a b).
 
   Lemma eq_idto1_idto2 (a b : fiber_category)
     : ∏ p : a = b, idto1 _ _ p = idto2 _ _ p.
   Proof.
     intro p. induction p.
-    apply eq_iso_disp.
+    apply eq_z_iso_disp.
     apply idpath.
   Qed.
 
@@ -151,7 +150,7 @@ Section Fiber.
     :
     isweq (λ p : a = b, idtoiso p).
   Proof.
-    use (twooutof3a _ (iso_disp_iso_fiber a b)).
+    use (twooutof3a _ (z_iso_disp_z_iso_fiber a b)).
     - use (isweqhomot (idto1 a b)).
       + intro p.
         apply eq_idto1_idto2.
@@ -184,10 +183,10 @@ Section UnivalentFiber.
     intros c xx xx'.
     specialize (H c).
     set (w := make_weq _ (H xx xx')).
-    set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
+    set (w' := weqcomp w (z_iso_disp_z_iso_fiber D _ xx xx')).
     apply (weqhomot _ w').
     intro e. induction e.
-    apply eq_iso_disp. apply idpath.
+    apply eq_z_iso_disp. apply idpath.
   Defined.
 
   Definition is_univalent_disp_iff_fibers_are_univalent {C : category} (D : disp_cat C)
@@ -245,13 +244,12 @@ Section Fiber_Functors.
 
   (* TODO: consider lemma organisation in this file *)
 
-  Definition is_iso_fiber_from_is_iso_disp
+  Definition is_z_iso_fiber_from_is_z_iso_disp
              {C : category} {D : disp_cat C}
              {c : C} {d d' : D c} (ff : d -->[identity c] d')
-             (Hff : is_iso_disp (identity_iso c) ff)
-    : @is_iso (fiber_category D c) _ _ ff.
+             (Hff : is_z_iso_disp (identity_z_iso c) ff)
+    : @is_z_isomorphism (fiber_category D c) _ _ ff.
   Proof.
-    apply is_iso_from_is_z_iso.
     exists (pr1 Hff).
     use tpair; cbn.
     + set (H := pr2 (pr2 Hff)).

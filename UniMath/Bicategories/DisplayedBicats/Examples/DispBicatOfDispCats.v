@@ -235,8 +235,8 @@ Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
            (Hαα : ∏ (x : (C : univalent_category)) (xx : pr1 D x),
-                  is_iso_disp
-                    (identity_iso (pr1 F x))
+                  is_z_iso_disp
+                    (identity_z_iso (pr1 F x))
                     (pr1 αα x xx))
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
@@ -248,7 +248,7 @@ Proof.
          simpl in * ;
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
+         refine (inv_mor_after_z_iso_disp (Hαα x xx) @ _) ;
          refine (!_) ;
          refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
@@ -263,7 +263,7 @@ Proof.
          simpl in * ;
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
+         refine (z_iso_disp_after_inv_mor (Hαα x xx) @ _) ;
          refine (!_) ;
          refine (@disp_nat_trans_transportf
                    _ _ _ _ _ _
@@ -325,8 +325,8 @@ Definition disp_bicat_of_cleaving_is_disp_invertible_2cell
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
            (Hαα : ∏ (x : (C : univalent_category)) (xx : pr11 D x),
-                  is_iso_disp
-                    (identity_iso (pr1 F x))
+                  is_z_iso_disp
+                    (identity_z_iso (pr1 F x))
                     (pr11 αα x xx))
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
@@ -339,7 +339,7 @@ Proof.
          use subtypePath ; [intro ; apply isapropunit | ];
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
+         refine (inv_mor_after_z_iso_disp (Hαα x xx) @ _) ;
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
@@ -357,7 +357,7 @@ Proof.
          use subtypePath ; [intro ; apply isapropunit | ];
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
+         refine (z_iso_disp_after_inv_mor (Hαα x xx) @ _) ;
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
@@ -382,64 +382,53 @@ Definition disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
            (Hαα : is_disp_invertible_2cell Hα αα)
            {x : (C : univalent_category)}
            (xx : (pr1 D : disp_univalent_category _) x)
-  : is_iso_disp
-      (make_iso
+  : is_z_iso_disp
+      (make_z_iso'
          (pr1 α x)
-         (is_invertible_2cell_to_is_nat_iso _ Hα x))
+         (is_invertible_2cell_to_is_nat_z_iso _ Hα x))
       (pr11 αα x xx).
 Proof.
   simple refine (_ ,, _).
-  - exact (transportf
-             (λ z, _ -->[ z ] _)
-             (!(id_right _))
-             (pr111 Hαα x xx)).
+  - exact (pr111 Hαα x xx).
   - split.
     + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_linv Hα))
                     (disp_nat_trans_id (pr11 GG),, tt))
          | ];
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 GG))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
     + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_rinv Hα))
                     (disp_nat_trans_id (pr11 FF),, tt))
          | ] ;
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 FF))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.
@@ -494,8 +483,8 @@ Definition disp_bicat_of_opcleaving_is_disp_invertible_2cell
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
            (Hαα : ∏ (x : (C : univalent_category)) (xx : pr11 D x),
-                  is_iso_disp
-                    (identity_iso (pr1 F x))
+                  is_z_iso_disp
+                    (identity_z_iso (pr1 F x))
                     (pr11 αα x xx))
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
@@ -508,7 +497,7 @@ Proof.
          use subtypePath ; [intro ; apply isapropunit | ];
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (inv_mor_after_iso_disp (Hαα x xx) @ _) ;
+         refine (inv_mor_after_z_iso_disp (Hαα x xx) @ _) ;
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
@@ -526,7 +515,7 @@ Proof.
          use subtypePath ; [intro ; apply isapropunit | ];
          use (@disp_nat_trans_eq C C') ;
          intros x xx ; cbn ;
-         refine (iso_disp_after_inv_mor (Hαα x xx) @ _) ;
+         refine (z_iso_disp_after_inv_mor (Hαα x xx) @ _) ;
          refine (!_) ;
          unfold transportb ;
          rewrite pr1_transportf ;
@@ -551,64 +540,53 @@ Definition disp_bicat_of_opcleaving_disp_invertible_2cell_pointwise_inv
            (Hαα : is_disp_invertible_2cell Hα αα)
            {x : (C : univalent_category)}
            (xx : (pr1 D : disp_univalent_category _) x)
-  : is_iso_disp
-      (make_iso
+  : is_z_iso_disp
+      (make_z_iso'
          (pr1 α x)
-         (is_invertible_2cell_to_is_nat_iso _ Hα x))
+         (is_invertible_2cell_to_is_nat_z_iso _ Hα x))
       (pr11 αα x xx).
 Proof.
   simple refine (_ ,, _).
-  - exact (transportf
-             (λ z, _ -->[ z ] _)
-             (!(id_right _))
-             (pr111 Hαα x xx)).
+  - exact (pr111 Hαα x xx).
   - split.
     + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_postwhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr22 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_linv Hα))
                     (disp_nat_trans_id (pr11 GG),, tt))
          | ];
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_linv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 GG))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
     + abstract
         (unfold transportb ;
-         etrans ; [ apply mor_disp_transportf_prewhisker | ] ;
-         etrans ; [ apply maponpaths ; apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
+         etrans ; [ apply (maponpaths (λ z, pr11 z x xx) (pr12 Hαα)) |] ;
          unfold transportb ;
          etrans ;
-         [ apply maponpaths ;
-           refine (maponpaths (λ z, pr1 z x xx) _) ;
+         [ refine (maponpaths (λ z, pr1 z x xx) _) ;
            exact (pr1_transportf
                     (!(vcomp_rinv Hα))
                     (disp_nat_trans_id (pr11 FF),, tt))
          | ] ;
          etrans ;
-         [ apply maponpaths ;
-           exact (@disp_nat_trans_transportf
+         [ exact (@disp_nat_trans_transportf
                     _ _ _ _ _ _ _ _
                     (!(vcomp_rinv Hα))
                     _ _
                     (disp_nat_trans_id (pr11 FF))
                     x xx)
          | ] ;
-         etrans ; [ apply transport_f_f | ] ;
          apply maponpaths_2 ;
          apply homset_property).
 Defined.

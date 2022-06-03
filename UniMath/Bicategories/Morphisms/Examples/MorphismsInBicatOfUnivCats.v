@@ -223,11 +223,11 @@ Definition cat_conservative_1cell_is_conservative
   : conservative F.
 Proof.
   intros x y f Hf.
-  refine (is_invertible_2cell_to_is_nat_iso
+  refine (is_invertible_2cell_to_is_nat_z_iso
             _
             (HF unit_category _ _ (nat_trans_from_unit f) _)
            tt).
-  use is_nat_iso_to_is_invertible_2cell.
+  use is_nat_z_iso_to_is_invertible_2cell.
   intro.
   cbn.
   apply Hf.
@@ -240,10 +240,10 @@ Definition cat_conservative_is_conservative_1cell
   : conservative_1cell F.
 Proof.
   intros C₀ G₁ G₂ α Hα.
-  use is_nat_iso_to_is_invertible_2cell.
+  use is_nat_z_iso_to_is_invertible_2cell.
   intro x.
   apply HF.
-  exact (is_invertible_2cell_to_is_nat_iso _ Hα x).
+  exact (is_invertible_2cell_to_is_nat_z_iso _ Hα x).
 Defined.
 
 Definition cat_conservative_weq_conservative
@@ -268,7 +268,7 @@ Section Pseudomonic1CellToPseudomonic.
 
   Section OnIso.
     Context {x y : pr1 C₁}
-            (f : iso (pr1 F x) (pr1 F y)).
+            (f : z_iso (pr1 F x) (pr1 F y)).
 
     Local Definition cat_pseudmonic_1cell_is_pseudomonic_on_iso_nat_trans
       : functor_from_unit x ∙ F ⟹ functor_from_unit y ∙ F.
@@ -284,23 +284,23 @@ Section Pseudomonic1CellToPseudomonic.
 
     Let τ := cat_pseudmonic_1cell_is_pseudomonic_on_iso_nat_trans.
 
-    Definition cat_pseudmonic_1cell_is_pseudomonic_on_iso
-      : iso x y.
+    Definition cat_pseudmonic_1cell_is_pseudomonic_on_z_iso
+      : z_iso x y.
     Proof.
-      use make_iso.
+      use make_z_iso'.
       - refine (pr1 (pseudomonic_1cell_inv_map HF τ _) tt).
-        use is_nat_iso_to_is_invertible_2cell.
+        use is_nat_z_iso_to_is_invertible_2cell.
         intro.
-        apply iso_is_iso.
-      - apply (is_invertible_2cell_to_is_nat_iso
+        apply z_iso_is_z_isomorphism.
+      - apply (is_invertible_2cell_to_is_nat_z_iso
                  _
                  (is_invertible_2cell_pseudomonic_1cell_inv_map HF τ _)).
     Defined.
 
-    Definition cat_pseudmonic_1cell_is_pseudomonic_on_iso_eq
-      : functor_on_iso F cat_pseudmonic_1cell_is_pseudomonic_on_iso = f.
+    Definition cat_pseudmonic_1cell_is_pseudomonic_on_z_iso_eq
+      : functor_on_z_iso F cat_pseudmonic_1cell_is_pseudomonic_on_z_iso = f.
     Proof.
-      use eq_iso.
+      use eq_z_iso.
       exact (nat_trans_eq_pointwise (pseudomonic_1cell_inv_map_eq HF τ _) tt).
     Qed.
   End OnIso.
@@ -314,8 +314,8 @@ Section Pseudomonic1CellToPseudomonic.
     - intros x y f.
       apply hinhpr.
       simple refine (_ ,, _).
-      + exact (cat_pseudmonic_1cell_is_pseudomonic_on_iso f).
-      + exact (cat_pseudmonic_1cell_is_pseudomonic_on_iso_eq f).
+      + exact (cat_pseudmonic_1cell_is_pseudomonic_on_z_iso f).
+      + exact (cat_pseudmonic_1cell_is_pseudomonic_on_z_iso_eq f).
   Defined.
 End Pseudomonic1CellToPseudomonic.
 
@@ -338,9 +338,9 @@ Section PseudomonicToPseudomonic1Cell.
               (isweq_functor_on_iso_pseudomonic
                  HF
                  (pr1 G₁ x) (pr1 G₂ x)))).
-    use make_iso.
+    use make_z_iso'.
     - exact (pr1 n x).
-    - apply (is_invertible_2cell_to_is_nat_iso _ Hn).
+    - apply (is_invertible_2cell_to_is_nat_z_iso _ Hn).
   Defined.
 
   Definition cat_pseudmonic_is_pseudomonic_1cell_inv_is_nat_trans
@@ -397,9 +397,9 @@ Section PseudomonicToPseudomonic1Cell.
   Definition is_invertible_cat_pseudmonic_is_pseudomonic_1cell_inv
     : is_invertible_2cell (cat_pseudmonic_is_pseudomonic_1cell_inv).
   Proof.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intro.
-    apply iso_is_iso.
+    apply z_iso_is_z_isomorphism.
   Defined.
 
   Definition cat_pseudmonic_is_pseudomonic_1cell_inv_eq

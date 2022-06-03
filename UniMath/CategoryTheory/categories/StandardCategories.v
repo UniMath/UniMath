@@ -55,11 +55,10 @@ Definition path_pregroupoid (X:UU) (iobj : isofhlevel 3 X) : pregroupoid.
     intros ? ? ? ? ? ?.
     apply iobj.
   - intros x y path.
-    use (is_iso_qinv path); cbn in *.
-    + exact (!path).
-    + use make_dirprod.
-      * apply pathsinv0r.
-      * apply pathsinv0l.
+    exists (!path).
+    split.
+    + apply pathsinv0r.
+    + apply pathsinv0l.
 Defined.
 
 (** If X [isofhlevel] 3, then in particular, its path types are sets *)
@@ -423,12 +422,12 @@ Proof.
   - exact (λ x y f, fromempty (F x)).
 Defined.
 
-Definition nat_trans_to_empty_is_nat_iso
+Definition nat_trans_to_empty_is_nat_z_iso
            {C₁ C₂ : category}
            (F : C₁ ⟶ empty_category)
            (G : empty_category ⟶ C₂)
            (H : C₁ ⟶ C₂)
-  : is_nat_iso (nat_trans_to_empty F G H).
+  : is_nat_z_iso (nat_trans_to_empty F G H).
 Proof.
   intro x.
   exact (fromempty (F x)).
@@ -533,14 +532,14 @@ Proof.
   - intro f.
     induction x ; induction y ; cbn in *.
     + apply idpath.
-    + apply (fromempty (inv_from_iso f)).
+    + apply (fromempty (inv_from_z_iso f)).
     + apply (fromempty (pr1 f)).
     + apply idpath.
   - apply isasetbool.
   - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
     + apply directed_interval_category_has_homprops.
     + intro.
-      apply isaprop_is_iso.
+      apply isaprop_is_z_isomorphism.
 Qed.
 
 Definition directed_interval

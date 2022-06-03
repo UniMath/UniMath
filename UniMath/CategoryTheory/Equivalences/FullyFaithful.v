@@ -37,14 +37,14 @@ Variable H : adj_equivalence_of_cats F.
 
 Local Definition G : B ⟶ A := adj_equivalence_inv H.
 
-Local Definition eta : ∏ a : A, iso a (G (F a))
-  := unit_pointwise_iso_from_adj_equivalence H.
+Local Definition eta : ∏ a : A, z_iso a (G (F a))
+  := unit_pointwise_z_iso_from_adj_equivalence H.
 
-Local Definition eps : ∏ b : B, iso (F (G b)) b
-  := counit_pointwise_iso_from_adj_equivalence H.
+Local Definition eps : ∏ b : B, z_iso (F (G b)) b
+  := counit_pointwise_z_iso_from_adj_equivalence H.
 
 Definition inverse {a b} (g : B⟦F a, F b⟧) : A⟦a, b⟧
-  := eta a · #G g · inv_from_iso (eta b).
+  := eta a · #G g · inv_from_z_iso (eta b).
 
 Lemma inverse_is_inverse_1 a b (f : a --> b) : inverse (#F f) = f.
 Proof.
@@ -54,26 +54,26 @@ Proof.
   rewrite <- assoc.
   intermediate_path (f · identity _).
   apply maponpaths.
-  set (H' := iso_inv_after_iso (eta b)).
+  set (H' := z_iso_inv_after_z_iso (eta b)).
   apply H'.
   rewrite id_right.
   apply idpath.
 Qed.
 
 Lemma triangle_id_inverse (a : A)
-  : iso_inv_from_iso (functor_on_iso F (eta a)) = eps (F a).
+  : z_iso_inv_from_z_iso (functor_on_z_iso F (eta a)) = eps (F a).
 Proof.
-  apply eq_iso. simpl.
+  apply eq_z_iso. simpl.
   match goal with | [ |- ?x = ?y ] => transitivity (x · identity _) end.
   apply pathsinv0, id_right.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
   set (H' := triangle_id_left_ad (pr2 (pr1 H)) a).
   apply pathsinv0.
   apply H'.
 Qed.
 
 Lemma triangle_id_inverse' (a : A)
-  : inv_from_iso (functor_on_iso F (eta a)) = eps (F a).
+  : inv_from_z_iso (functor_on_z_iso F (eta a)) = eps (F a).
 Proof.
   apply (base_paths _ _ (triangle_id_inverse a)).
 Qed.
@@ -82,11 +82,11 @@ Lemma inverse_is_inverse_2 a b (g : F a --> F b) : #F (inverse g) = g.
 Proof.
   unfold inverse.
   repeat rewrite functor_comp.
-  rewrite functor_on_inv_from_iso.
+  rewrite functor_on_inv_from_z_iso.
   simpl.
   rewrite triangle_id_inverse'.
   rewrite <- assoc.
-  set (H' := nat_trans_ax  (adjcounit (pr1 H))).
+  set (H' := nat_trans_ax (adjcounit (pr1 H))).
   simpl in H'; rewrite H'; clear H'.
   rewrite assoc.
   set (H' := pathsinv0 (triangle_id_left_ad (pr2 (pr1 H)) a)).
@@ -111,7 +111,7 @@ Proof.
   unfold essentially_surjective.
   intros b; apply hinhpr.
   exists (G b).
-  apply counit_pointwise_iso_from_adj_equivalence.
+  apply counit_pointwise_z_iso_from_adj_equivalence.
 Defined.
 
 End from_equiv_to_fully_faithful.
@@ -142,13 +142,13 @@ Section HomtypeProperties.
     - apply weq_from_fully_faithful; assumption.
     - intermediate_weq (D ⟦ F (pr1 c), d' ⟧).
       + eapply make_weq.
-        apply iso_comp_left_isweq.
+        apply z_iso_comp_left_isweq.
         Unshelve.
         exact (pr2 c').
       + eapply make_weq.
-        apply iso_comp_right_weq.
+        apply z_iso_comp_right_weq.
         Unshelve.
-        exact (iso_inv_from_is_iso (pr1 (pr2 c)) (pr2 (pr2 c))).
+        exact (z_iso_inv_from_is_z_iso (pr1 (pr2 c)) (pr2 (pr2 c))).
   Defined.
 
   Lemma ff_es_homtype_property (FFF : fully_faithful F)

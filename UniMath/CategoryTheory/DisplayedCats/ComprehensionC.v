@@ -46,12 +46,12 @@ Proof.
 Qed.
 
 (* TODO: upstream *)
-Lemma is_cartesian_from_iso_to_cartesian
+Lemma is_cartesian_from_z_iso_to_cartesian
     {C : category} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c}
     {d0'} {ff : d0' -->[f] d} (ff_cart : is_cartesian ff)
     {d1'} {ff' : d1' -->[f] d}
-    (i : iso_disp (identity_iso _) d0' d1')
+    (i : z_iso_disp (identity_z_iso _) d0' d1')
     (e : (i ;; ff')%mor_disp
          = transportb _ (id_left _) ff)
   : is_cartesian ff'.
@@ -61,7 +61,7 @@ Proof.
   use weq_subtypes'.
   - eapply weqcomp.
     + exists (fun gg => (gg ;; i))%mor_disp.
-      apply iso_disp_postcomp.
+      apply z_iso_disp_postcomp.
     + exists (transportf _ (id_right _)).
       apply isweqtransportf.
   - intros ?; apply homsets_disp.
@@ -104,18 +104,18 @@ Proof.
   use (squash_to_prop (H _ _ f d)).
   - apply isaprop_is_cartesian.
   - intros [ff' ff'_cart].
-    use (is_cartesian_from_iso_to_cartesian ff'_cart).
-    + refine (transportf (fun i => iso_disp i _ _)
+    use (is_cartesian_from_z_iso_to_cartesian ff'_cart).
+    + refine (transportf (fun i => z_iso_disp i _ _)
                        _
-                       (@disp_functor_on_iso_disp
+                       (@disp_functor_on_z_iso_disp
                           _ _ _ _ _ FF
-                          _ _ _ _ (identity_iso _) _)).
-      apply (eq_iso _ _), functor_id.
+                          _ _ _ _ (identity_z_iso _) _)).
+      apply (eq_z_iso _ _), functor_id.
       refine (cartesian_lifts_iso ff' (_,,_)).
       exact (_,,ff_cart).
     + etrans. {
         apply maponpaths_2.
-        refine (@pr1_transportf _ _  (fun i ff => is_iso_disp i ff) _ _ _ _). }
+        refine (@pr1_transportf _ _  (fun i ff => is_z_iso_disp i ff) _ _ _ _). }
       etrans. {
         apply maponpaths_2.
         apply functtransportf. }

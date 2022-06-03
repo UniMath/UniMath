@@ -593,25 +593,25 @@ Section BiadjunctionPreservation.
       - exact left_biadj_preserves_bincoprod_is_nat_trans.
     Defined.
 
-    Definition left_biadj_preserves_bincoprod_is_nat_iso
-      : is_nat_iso left_biadj_preserves_bincoprod_nat_trans.
+    Definition left_biadj_preserves_bincoprod_is_nat_z_iso
+      : is_nat_z_iso left_biadj_preserves_bincoprod_nat_trans.
     Proof.
       intro.
-      use is_iso_binprod_iso.
-      + use is_inv2cell_to_is_iso.
+      use is_z_iso_binprod_z_iso.
+      + use is_inv2cell_to_is_z_iso.
         is_iso ; apply property_from_invertible_2cell.
-      + use is_inv2cell_to_is_iso.
+      + use is_inv2cell_to_is_z_iso.
         is_iso ; apply property_from_invertible_2cell.
     Defined.
 
-    Definition left_biadj_preserves_bincoprod_nat_iso
-      : nat_iso
+    Definition left_biadj_preserves_bincoprod_nat_z_iso
+      : nat_z_iso
           (left_biadj_preserves_binprods_1cell x p)
           (universal_coprod_functor (psfunctor_bincoprod_cocone L p) x).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact left_biadj_preserves_bincoprod_nat_trans.
-      - exact left_biadj_preserves_bincoprod_is_nat_iso.
+      - exact left_biadj_preserves_bincoprod_is_nat_z_iso.
     Defined.
   End PreserveCoproducts.
 
@@ -626,7 +626,7 @@ Section BiadjunctionPreservation.
     use nat_iso_adj_equivalence_of_cats.
     - exact (left_biadj_preserves_binprods_1cell x p).
     - exact (left_biadj_preserves_bincoprod_nat_trans p x).
-    - exact (left_biadj_preserves_bincoprod_is_nat_iso p x).
+    - exact (left_biadj_preserves_bincoprod_is_nat_z_iso p x).
     - exact (left_biadj_preserves_binprods_1cell_adj_equiv HB₁ x p Hp).
   Defined.
 End BiadjunctionPreservation.
