@@ -620,7 +620,7 @@ Section Inserters.
       use hinhpr.
       simple refine (_ ,, _).
       - exact (inserter_ump_mor H (pr1 h) (pr2 h)).
-      - use iso_dialgebra.
+      - use z_iso_dialgebra.
         + simple refine (_ ,, _) ; cbn.
           * apply inserter_ump_mor_pr1.
           * abstract
@@ -630,7 +630,7 @@ Section Inserters.
                cbn ;
                rewrite !vassocr ;
                apply inserter_ump_mor_cell).
-        + use is_inv2cell_to_is_iso.
+        + use is_inv2cell_to_is_z_iso.
           apply property_from_invertible_2cell.
     Defined.
   End MakeUniversalInserterCone.
@@ -702,10 +702,10 @@ Section Inserters.
             (universal_inserter_cone_has_ump_1_mor · inserter_cone_pr1 cone)
             (inserter_cone_pr1 q).
       Proof.
-        use iso_to_inv2cell.
-        exact (from_iso_dialgebra
-                 (nat_iso_pointwise_iso
-                    (counit_nat_iso_from_adj_equivalence_of_cats (H q))
+        use z_iso_to_inv2cell.
+        exact (from_z_iso_dialgebra
+                 (nat_z_iso_pointwise_z_iso
+                    (counit_nat_z_iso_from_adj_equivalence_of_cats (H q))
                     alg)).
       Defined.
 

@@ -126,13 +126,13 @@ Definition is_omega_cocont : ∏ {C D : category}, functor C D → UU :=
   @UniMath.CategoryTheory.Chains.Chains.is_omega_cocont.
 
 (** Lemma 21: Invariance of cocontinuity under isomorphism *)
-Lemma preserves_colimit_iso :
+Lemma preserves_colimit_z_iso :
   ∏ (C D : category)
-    (F G : functor C D) (α : @iso [C, D] F G)
+    (F G : functor C D) (α : @z_iso [C, D] F G)
     (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
   preserves_colimit F d L cc → preserves_colimit G d L cc.
 Proof.
-exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_iso.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_z_iso.
 Defined.
 
 (** Problem 22: Colimits in functor categories *)
@@ -149,11 +149,11 @@ Definition colimAlgInitial :
   @UniMath.CategoryTheory.Chains.Adamek.colimAlgInitial.
 
 (** Lemma 25: Lambek's lemma *)
-Lemma initialAlg_is_iso :
+Lemma initialAlg_is_z_iso :
   ∏ (C : category) (F : functor C C)
-    (Aa : algebra_ob F), isInitial (FunctorAlg F) Aa → is_iso (alg_map F Aa).
+    (Aa : algebra_ob F), isInitial (FunctorAlg F) Aa → is_z_isomorphism (alg_map F Aa).
 Proof.
-exact @UniMath.CategoryTheory.FunctorAlgebras.initialAlg_is_iso.
+exact @UniMath.CategoryTheory.FunctorAlgebras.initialAlg_is_z_iso.
 Defined.
 
 (** Problem 27: Colimits in Set *)

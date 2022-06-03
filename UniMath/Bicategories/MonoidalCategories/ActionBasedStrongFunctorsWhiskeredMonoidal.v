@@ -344,11 +344,10 @@ Section UpstreamInBicat.
       @section_disp C0 trafotargetbicat_disp -> H ⟹ H'.
     Proof.
       intro sd.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
       use make_nat_trans.
-      - intro c. exact (sdob c).
+      - intro c. exact (pr1 (pr1 sd) c).
       - intros c c' f.
-        assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
+        assert (aux := pr2 (pr1 sd) c c' f). apply pathsinv0. exact aux.
     Defined.
 
     Local Lemma roundtrip1_with_sections_bicat (η: H ⟹ H'):
@@ -362,7 +361,6 @@ Section UpstreamInBicat.
     Local Lemma roundtrip2_with_sections_bicat (sd: @section_disp C0 trafotargetbicat_disp):
       nat_trafo_to_section_bicat (section_to_nat_trafo_bicat sd) = sd.
     Proof.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
       unfold nat_trafo_to_section_bicat, section_to_nat_trafo_bicat.
       cbn.
       use total2_paths_f; simpl.
@@ -378,7 +376,7 @@ Section UpstreamInBicat.
         2: { apply Hprop. }
         apply isapropdirprod.
         + apply impred. intro c.
-          (* assert (aux := sdmor c c (id₁ c)).
+          (* assert (aux := pr2 (pr1 sd) c c (id₁ c)).
           cbn in aux.
           match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
           apply hlevelntosn.
@@ -1977,7 +1975,7 @@ Defined.
     (** the other direction, essentially dependent on sections *)
     Section FromMonoidalSectionBicat.
 
-      Context {sd: section_disp montrafotargetbicat_disp}.
+      Context (sd: section_disp montrafotargetbicat_disp).
       Context (ms: smonoidal_data Mon_V montrafotargetbicat_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
@@ -2013,6 +2011,71 @@ Defined.
 
 
     End FromMonoidalSectionBicat.
+
+    Section RoundtripForSDData.
+
+      Local Definition source_type: UU := ∑ δ: parameterized_distributivity_bicat_nat,
+            param_distr_bicat_triangle_eq_variant0 δ ×
+              param_distr_bicat_pentagon_eq_variant δ.
+      Local Definition target_type: UU := ∑ sd: section_disp montrafotargetbicat_disp,
+            smonoidal_data Mon_V montrafotargetbicat_disp_monoidal sd.
+
+      Local Definition source_to_target : source_type -> target_type.
+      Proof.
+        intro ass. destruct ass as [δ [δtr_eq δpe_eq]].
+        exists (nat_trafo_to_section_bicat a0 a0' H H' δ).
+        apply param_distr_bicat_to_monoidal_section_data; [exact δtr_eq | exact δpe_eq].
+      Defined.
+
+      Local Definition target_to_source : target_type -> source_type.
+      Proof.
+        intro ass. destruct ass as [sd ms].
+        exists (δ_from_ms sd).
+        split; [apply δtr_eq_from_ms | apply δpe_eq_from_ms]; exact ms.
+      Defined.
+
+      Local Lemma roundtrip1 (ass: source_type): target_to_source (source_to_target ass) = ass.
+      Proof.
+        destruct ass as [δ [δtr_eq δpe_eq]].
+        use total2_paths_f.
+        - cbn.
+          unfold δ_from_ms.
+          apply roundtrip1_with_sections_bicat.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + unfold param_distr_bicat_triangle_eq_variant0.
+            apply C.
+          + unfold param_distr_bicat_pentagon_eq_variant.
+            apply impred. intro v.
+            apply impred. intro w.
+            apply C.
+      Qed.
+
+      Local Lemma roundtrip2 (ass: target_type): source_to_target (target_to_source ass) = ass.
+      Proof.
+        destruct ass as [sd ms].
+        use total2_paths_f.
+        - cbn.
+          unfold δ_from_ms.
+          apply roundtrip2_with_sections_bicat.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + unfold section_preserves_tensor_data.
+            apply impred. intro v.
+            apply impred. intro w.
+            apply trafotargetbicat_disp_cells_isaprop.
+          + unfold section_preserves_unit.
+            apply trafotargetbicat_disp_cells_isaprop.
+      Qed.
+
+    End RoundtripForSDData.
+
 
   End FunctorViaBicat.
 
@@ -2162,7 +2225,7 @@ Section FromMonoidalSection.
       Lemma δtr'_eq_from_ms: param_distr'_triangle_eq Mon_V A A' FAm FA'm G δ'_from_ms.
       Proof.
         apply param_distr'_triangle_eq_variant0_implies.
-        assert (aux := δtr_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms).
+        assert (aux := δtr_eq_from_ms(C:=bicat_of_cats) FAm FA'm G sd ms).
         unfold param_distr'_triangle_eq_variant0.
         unfold param_distr'_triangle_eq_variant0_RHS.
         red in aux.
@@ -2183,7 +2246,7 @@ Section FromMonoidalSection.
       Proof.
         intros v w.
         apply param_distr'_pentagon_eq_body_variant_implies.
-        assert (aux := δpe_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms v w).
+        assert (aux := δpe_eq_from_ms(C:=bicat_of_cats) FAm FA'm G sd ms v w).
         red.
         etrans.
         { exact aux. }

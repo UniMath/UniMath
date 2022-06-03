@@ -650,7 +650,7 @@ Definition make_cat_monad_mor
            {C D : univalent_category}
            {mx : monad bicat_of_univ_cats C} {my : monad bicat_of_univ_cats D}
            {F : C ⟶ D}
-           (mf_nat : nat_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
+           (mf_nat : nat_z_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
            (mfη : ∏ (X : C), # F (pr1 (monad_unit mx) X) · mf_nat X
                              =
                              pr1 (monad_unit my) (F X))
@@ -663,7 +663,7 @@ Definition make_cat_monad_mor
   : mx -->[F] my.
 Proof.
   use make_monad_mor.
-  - apply nat_iso_to_invertible_2cell.
+  - apply nat_z_iso_to_invertible_2cell.
     exact mf_nat.
   - abstract
       (use nat_trans_eq; try apply homset_property;
@@ -697,14 +697,14 @@ Proof.
   apply H.
 Qed.
 
-Definition monad_mor_nat_iso
+Definition monad_mor_nat_z_iso
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
            {M₁ : monad bicat_of_univ_cats C₁}
            {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
-  : nat_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
-  := invertible_2cell_to_nat_iso _ _ (monad_mor_natural FF).
+  : nat_z_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
+  := invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural FF).
 
 Definition monad_mor_natural_pointwise
            {C₁ C₂ : univalent_category}
@@ -713,18 +713,18 @@ Definition monad_mor_natural_pointwise
            {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
            (X : C₁)
-  : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
-  := CompositesAndInverses.nat_iso_to_pointwise_iso
-       (nat_iso_inv (monad_mor_nat_iso FF)) X.
+  : z_iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso
+       (nat_z_iso_inv (monad_mor_nat_z_iso FF)) X.
 
-Definition monad_mor_iso
+Definition monad_mor_z_iso
            {C₁ C₂ : univalent_category}
            {F : C₁ ⟶ C₂}
            {M₁ : monad bicat_of_univ_cats C₁}
            {M₂ : monad bicat_of_univ_cats C₂}
            (FF : M₁ -->[F] M₂)
-  : ∏ X : C₁, iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
-  := CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF).
+  : ∏ X : C₁, z_iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso (monad_mor_nat_z_iso FF).
 
 Lemma monad_mor_bind
       {C₁ C₂ : univalent_category}
@@ -734,11 +734,11 @@ Lemma monad_mor_bind
       (FF : M₁ -->[F] M₂)
       {A B : C₁}
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)
-  : #F (monad_bind M₁ f) · monad_mor_iso FF B
+  : #F (monad_bind M₁ f) · monad_mor_z_iso FF B
     =
-    monad_mor_iso FF A · monad_bind M₂ (# F f · pr1 (monad_mor_iso FF B)).
+    monad_mor_z_iso FF A · monad_bind M₂ (# F f · pr1 (monad_mor_z_iso FF B)).
 Proof.
-  unfold monad_bind, monad_mor_iso.
+  unfold monad_bind, monad_mor_z_iso.
   simpl.
   etrans.
   2: {
@@ -774,11 +774,11 @@ Lemma monad_mor_bind_alt
       (f : A --> (monad_endo M₁ : _ ⟶ _) B)
   : #F (monad_bind M₁ f)
     =
-    monad_mor_iso FF A
-      · monad_bind M₂ (# F f · pr1 (monad_mor_iso FF B))
-      · inv_from_iso (monad_mor_iso FF B).
+    monad_mor_z_iso FF A
+      · monad_bind M₂ (# F f · pr1 (monad_mor_z_iso FF B))
+      · inv_from_z_iso (monad_mor_z_iso FF B).
 Proof.
-  use iso_inv_on_left.
+  use z_iso_inv_on_left.
   apply pathsinv0.
   apply monad_mor_bind.
 Qed.

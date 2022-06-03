@@ -87,7 +87,7 @@ Proof.
   apply isweqcontrprop. apply HP.
   apply isofhleveltotal2.
   - apply isapropunit.
-  - intros ?. apply (@isaprop_is_iso_disp _ (disp_full_sub C P)).
+  - intros ?. apply (@isaprop_is_z_iso_disp _ (disp_full_sub C P)).
 Defined.
 
 End full_subcat.
@@ -190,14 +190,14 @@ Definition dirprod_disp_cat : disp_cat C
 
 (** ** Characterization of the isomorphisms of the direct product of displayed categories *)
 (** TODO: generalize over an aritrary base isomorphism *)
-Definition iso_disp_prod1
+Definition z_iso_disp_prod1
       {x : C}
       (xx1 xx1' : D1 x)
       (xx2 xx2' : D2 x) :
-  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2') →
-  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2').
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2') →
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2').
 Proof.
-  unfold iso_disp. cbn.
+  unfold z_iso_disp. cbn.
   intros [[f1 f2] Hff].
   destruct Hff as [[g1 g2] Hfg].
   cbn in Hfg. destruct Hfg as [Hgf Hfg].
@@ -216,14 +216,14 @@ Proof.
       apply pr2_transportf.
 Defined.
 
-Definition iso_disp_prod2
+Definition z_iso_disp_prod2
       {x : C}
       (xx1 xx1' : D1 x)
       (xx2 xx2' : D2 x) :
-  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2') →
-  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2').
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2') →
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2').
 Proof.
-  unfold iso_disp. cbn.
+  unfold z_iso_disp. cbn.
   intros [[f1 Hf1] [f2 Hf2]].
   destruct Hf1 as [g1 [Hgf1 Hfg1]].
   destruct Hf2 as [g2 [Hgf2 Hfg2]].
@@ -241,45 +241,45 @@ Proof.
       apply pathsinv0. apply pr2_transportf.
 Defined.
 
-Lemma iso_disp_prod21
+Lemma z_iso_disp_prod21
       {x : C}
       (xx1 xx1' : D1 x)
       (xx2 xx2' : D2 x)
       i
 :
-  iso_disp_prod2 xx1 xx1' xx2 xx2' (iso_disp_prod1 xx1 xx1' xx2 xx2' i) = i.
+  z_iso_disp_prod2 xx1 xx1' xx2 xx2' (z_iso_disp_prod1 xx1 xx1' xx2 xx2' i) = i.
 Proof.
-  apply eq_iso_disp. cbn. reflexivity.
+  apply eq_z_iso_disp. cbn. reflexivity.
 Qed.
 
-Lemma iso_disp_prod12
+Lemma z_iso_disp_prod12
       {x : C}
       (xx1 xx1' : D1 x)
       (xx2 xx2' : D2 x)
-      (t : iso_disp (identity_iso x) xx1 xx1' × iso_disp (identity_iso x) xx2 xx2')
+      (t : z_iso_disp (identity_z_iso x) xx1 xx1' × z_iso_disp (identity_z_iso x) xx2 xx2')
 :
-  iso_disp_prod1 xx1 xx1' xx2 xx2' (iso_disp_prod2 xx1 xx1' xx2 xx2' t) = t.
+  z_iso_disp_prod1 xx1 xx1' xx2 xx2' (z_iso_disp_prod2 xx1 xx1' xx2 xx2' t) = t.
 Proof.
   apply dirprod_paths.
-  - apply eq_iso_disp. cbn. reflexivity.
-  - apply eq_iso_disp. cbn. reflexivity.
+  - apply eq_z_iso_disp. cbn. reflexivity.
+  - apply eq_z_iso_disp. cbn. reflexivity.
 Qed.
 
-Lemma iso_disp_prod_weq
+Lemma z_iso_disp_prod_weq
       (x : C)
       (xx1 xx1' : D1 x)
       (xx2 xx2' : D2 x) :
-  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2') ≃
-  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2').
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2') ≃
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2').
 Proof.
-  exists (iso_disp_prod1 xx1 xx1' xx2 xx2').
+  exists (z_iso_disp_prod1 xx1 xx1' xx2 xx2').
   use gradth.
-  - apply iso_disp_prod2.
-  - apply iso_disp_prod21.
-  - apply iso_disp_prod12.
+  - apply z_iso_disp_prod2.
+  - apply z_iso_disp_prod21.
+  - apply z_iso_disp_prod12.
 Defined.
 
-Lemma iso_disp_aux_weq
+Lemma z_iso_disp_aux_weq
       (U1 : is_univalent_in_fibers D1)
       (U2 : is_univalent_in_fibers D2)
       (x : C)
@@ -287,10 +287,10 @@ Lemma iso_disp_aux_weq
 
 :
   xx = xx'
-    ≃ @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) xx xx'.
+    ≃ @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) xx xx'.
 Proof.
   eapply weqcomp. apply pathsdirprodweq.
-  apply invweq. eapply weqcomp. apply iso_disp_prod_weq.
+  apply invweq. eapply weqcomp. apply z_iso_disp_prod_weq.
   apply invweq.
   apply weqdirprodf.
   - exists idtoiso_fiber_disp. apply U1.
@@ -306,15 +306,15 @@ Proof.
   apply is_univalent_disp_from_fibers.
   intros x xx xx'.
   use isweqhomot.
-  - apply iso_disp_aux_weq.
+  - apply z_iso_disp_aux_weq.
     + apply is_univalent_in_fibers_from_univalent_disp.
       apply HD1.
     + apply is_univalent_in_fibers_from_univalent_disp.
       apply HD2.
   - intros p. induction p. cbn.
-    apply (@eq_iso_disp _ dirprod_disp_cat).
+    apply (@eq_z_iso_disp _ dirprod_disp_cat).
     reflexivity.
-  - apply iso_disp_aux_weq.
+  - apply z_iso_disp_aux_weq.
 Defined.
 
 Definition dirprodpr1_disp_functor_data
@@ -596,103 +596,103 @@ Qed.
 
 Local Open Scope hide_transport_scope.
 
-Definition is_iso_sigma_disp_aux1
+Definition is_z_iso_sigma_disp_aux1
     {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
-    {f : iso x y} (fff : xxx -->[f] yyy)
-    (ii : is_iso_disp f (pr1 fff))
-    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
-    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
-  : yyy -->[inv_from_iso f] xxx.
+    {f : z_iso x y} (fff : xxx -->[f] yyy)
+    (ii : is_z_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : z_iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_z_iso_disp (@total_z_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  : yyy -->[inv_from_z_iso f] xxx.
 Proof.
-  exists (inv_mor_disp_from_iso ii).
-  set (ggg := inv_mor_disp_from_iso iii).
-  exact (transportf _ (inv_mor_total_iso _ _) ggg).
+  exists (inv_mor_disp_from_z_iso ii).
+  set (ggg := inv_mor_disp_from_z_iso iii).
+  exact (transportf _ (inv_mor_total_z_iso _ _) ggg).
 Defined.
 
-Lemma is_iso_sigma_disp_aux2
+Lemma is_z_iso_sigma_disp_aux2
     {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
-    {f : iso x y} (fff : xxx -->[f] yyy)
-    (ii : is_iso_disp f (pr1 fff))
-    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
-    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
-  :   (is_iso_sigma_disp_aux1 fff ii iii) ;; fff
-    = transportb _ (iso_after_iso_inv f) (id_disp yyy)
+    {f : z_iso x y} (fff : xxx -->[f] yyy)
+    (ii : is_z_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : z_iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_z_iso_disp (@total_z_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  :   (is_z_iso_sigma_disp_aux1 fff ii iii) ;; fff
+    = transportb _ (z_iso_after_z_iso_inv f) (id_disp yyy)
   ×
-      fff ;; (is_iso_sigma_disp_aux1 fff ii iii)
-    = transportb _ (iso_inv_after_iso f) (id_disp xxx).
+      fff ;; (is_z_iso_sigma_disp_aux1 fff ii iii)
+    = transportb _ (z_iso_inv_after_z_iso f) (id_disp xxx).
 Proof.
   split.
   - use total2_paths_f.
     + abstract ( etrans;
-        [ apply iso_disp_after_inv_mor
+        [ apply z_iso_disp_after_inv_mor
         | apply pathsinv0, pr1_transportf_sigma_disp]).
     + etrans. 2: apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
         use (mor_disp_transportf_postwhisker
-          (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
+          (@inv_mor_total_z_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
       etrans. apply functtransportf.
       etrans. apply transport_f_f.
       etrans. eapply transportf_bind.
-        apply (iso_disp_after_inv_mor iii).
+        apply (z_iso_disp_after_inv_mor iii).
       apply maponpaths_2, (@homset_property (total_category D)).
   - use total2_paths_f; cbn.
     + abstract ( etrans;
-        [ apply inv_mor_after_iso_disp
+        [ apply inv_mor_after_z_iso_disp
         | apply pathsinv0, pr1_transportf_sigma_disp ]).
     + etrans. 2: apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
       use (mor_disp_transportf_prewhisker
-        (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
+        (@inv_mor_total_z_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
       etrans. apply functtransportf.
       etrans. apply transport_f_f.
       etrans. eapply transportf_bind.
-        apply (inv_mor_after_iso_disp iii).
+        apply (inv_mor_after_z_iso_disp iii).
       apply maponpaths_2, (@homset_property (total_category D)).
 Qed.
 
-Lemma is_iso_sigma_disp
+Lemma is_z_iso_sigma_disp
     {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
-    {f : iso x y} (fff : xxx -->[f] yyy)
-    (ii : is_iso_disp f (pr1 fff))
-    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
-    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
-  : is_iso_disp f fff.
+    {f : z_iso x y} (fff : xxx -->[f] yyy)
+    (ii : is_z_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : z_iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_z_iso_disp (@total_z_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  : is_z_iso_disp f fff.
 Proof.
-  exists (is_iso_sigma_disp_aux1 fff ii iii).
-  apply is_iso_sigma_disp_aux2.
+  exists (is_z_iso_sigma_disp_aux1 fff ii iii).
+  apply is_z_iso_sigma_disp_aux2.
 Defined.
 
-Definition sigma_disp_iso
+Definition sigma_disp_z_iso
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
-    {f : iso x y} (ff : iso_disp f (pr1 xx) (pr1 yy))
-    (fff : iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
-  : iso_disp f xx yy.
+    {f : z_iso x y} (ff : z_iso_disp f (pr1 xx) (pr1 yy))
+    (fff : z_iso_disp (@total_z_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
+  : z_iso_disp f xx yy.
 Proof.
-  exists (pr1 ff,, pr1 fff). use is_iso_sigma_disp; cbn.
+  exists (pr1 ff,, pr1 fff). use is_z_iso_sigma_disp; cbn.
   - exact (pr2 ff).
   - exact (pr2 fff).
 Defined.
 
-Definition sigma_disp_iso_map
+Definition sigma_disp_z_iso_map
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
-    (f : iso x y)
-  : (∑ ff : iso_disp f (pr1 xx) (pr1 yy),
-       iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
-  -> iso_disp f xx yy
-:= λ ff, sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
+    (f : z_iso x y)
+  : (∑ ff : z_iso_disp f (pr1 xx) (pr1 yy),
+       z_iso_disp (@total_z_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
+  -> z_iso_disp f xx yy
+:= λ ff, sigma_disp_z_iso _ _ (pr1 ff) (pr2 ff).
 
-Lemma sigma_disp_isweq_iso
+Lemma sigma_disp_isweq_z_iso
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
-    (f : iso x y)
-  : isweq (sigma_disp_iso_map xx yy f).
+    (f : z_iso x y)
+  : isweq (sigma_disp_z_iso_map xx yy f).
 Proof.
 Abort.
 
 (*
-Definition sigma_disp_iso_equiv
+Definition sigma_disp_z_iso_equiv
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
-    (f : iso x y)
-:= make_weq _ (sigma_disp_isweq_iso xx yy f).
+    (f : z_iso x y)
+:= make_weq _ (sigma_disp_isweq_z_iso xx yy f).
 *)
 
 (*
@@ -789,21 +789,21 @@ Defined.
 (** TODO : characterize isos in the displayed functor cat *)
 
 (** TODO: integrate [has_homsets] assumptions below! *)
-Definition pointwise_iso_from_nat_iso {A X : precategory} {hsX : has_homsets X}
+Definition pointwise_z_iso_from_nat_z_iso {A X : precategory} {hsX : has_homsets X}
   {F G : functor_precategory A X hsX}
-  (b : iso F G) (a : A) : iso (pr1 F a) (pr1 G a)
+  (b : z_iso F G) (a : A) : z_iso (pr1 F a) (pr1 G a)
   :=
-  functor_iso_pointwise_if_iso _ _ _ _ _ b (pr2 b)_ .
+  functor_z_iso_pointwise_if_z_iso _ _ _ _ _ b (pr2 b)_ .
 
 
-Definition pointwise_inv_is_inv_on {A X : precategory} {hsX : has_homsets X}
+Definition pointwise_inv_is_inv_on_z_iso {A X : precategory} {hsX : has_homsets X}
   {F G : functor_precategory A X hsX}
-  (b : iso F G) (a : A) :
+  (b : z_iso F G) (a : A) :
 
-  inv_from_iso (pointwise_iso_from_nat_iso b a) =
-                                       pr1 (inv_from_iso b) a.
+  inv_from_z_iso (pointwise_z_iso_from_nat_z_iso b a) =
+                                       pr1 (inv_from_z_iso b) a.
 Proof.
-  apply id_right.
+  apply idpath.
 Defined.
 
 (** TODO : write a few lemmas about isos in
@@ -815,21 +815,21 @@ Defined.
     first.
 *)
 
-Definition is_pointwise_iso_if_is_disp_functor_cat_iso
+Definition is_pointwise_z_iso_if_is_disp_functor_cat_z_iso
   (x y : FunctorsC'C)
-  (f : iso x y)
+  (f : z_iso x y)
   (xx : disp_functor_cat x)
   (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
-  (H : is_iso_disp f FF)
+  (H : is_z_iso_disp f FF)
   :
-  forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+  forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
                           (pr1 FF _ xx' ).
 Proof.
   intros x' xx'.
   use tpair.
   - set (X:= pr1 H). simpl in X.
-    apply (transportb _ (pointwise_inv_is_inv_on f _ ) (X x' xx')).
+    apply (transportb _ (pointwise_inv_is_inv_on_z_iso f _ ) (X x' xx')).
   - simpl. repeat split.
     + etrans. apply mor_disp_transportf_postwhisker.
       apply pathsinv0.
@@ -841,140 +841,78 @@ Proof.
       etrans. apply XRT'.
       clear XRT' XRT XR.
       assert (XR := @disp_nat_trans_transportf C' C D' D).
-      specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
+      specialize (XR _ _ _ _ (! z_iso_after_z_iso_inv f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
     + etrans. apply mor_disp_transportf_prewhisker.
       apply pathsinv0.
       apply transportf_comp_lemma.
-      assert (XR:= inv_mor_after_iso_disp H).
+      assert (XR:= inv_mor_after_z_iso_disp H).
       assert (XRT :=  (maponpaths pr1 XR)).
       assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
       assert (XR := @disp_nat_trans_transportf C' C D' D).
-      specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
+      specialize (XR _ _ _ _ (! z_iso_inv_after_z_iso f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
 Defined.
 
+(* The following part has holes because of the migration from [iso] to [z_iso] as notion of isomorphism.
+   It compiled at the moment of commenting it. But at the price of two "Admitted".
+
 Lemma is_disp_nat_trans_pointwise_inv
   (x y : FunctorsC'C)
-  (f : iso x y)
+  (f : z_iso x y)
   (xx : disp_functor_cat x)
   (yy : disp_functor_cat y)
   (FF : xx -->[ f] yy)
   (H : ∏ (x' : C') (xx' : D' x'),
-      is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
+      is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f x') (pr1 FF x' xx'))
   (x' x0 : C')
   (f0 : x' --> x0)
   (xx' : D' x')
   (xx0 : D' x0)
   (ff : xx' -->[ f0] xx0)
-  :
-   # (yy : disp_functor _ _ _)  ff ;; (let RT := pr1 (H x0 xx0) in
-               transportf (mor_disp (pr1 yy x0 xx0) (pr1 xx x0 xx0))
-                 (id_right (pr1 (inv_from_iso f) x0)) RT) =
-   transportb (mor_disp (pr1 yy x' xx') (pr1 xx x0 xx0))
-     (nat_trans_ax (inv_from_iso f) x' x0 f0)
-     ((let RT := pr1 (H x' xx') in
-       transportf (mor_disp (pr1 yy x' xx') (pr1 xx x' xx'))
-         (id_right (pr1 (inv_from_iso f) x')) RT) ;;
-      # (xx : disp_functor _ _ _) ff).
+  : # (pr1 yy) ff ;; pr1 (H x0 xx0) =
+  transportb (mor_disp (pr1 yy x' xx') (pr1 xx x0 xx0)) (nat_trans_ax (inv_from_z_iso f) x' x0 f0)
+    (pr1 (H x' xx') ;; # (pr1 xx) ff).
 Proof.
- etrans. apply mor_disp_transportf_prewhisker.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-(*    Search (transportf _ _ _ = transportf _ _ _ ). *)
-(*    Search (?e = ?e' -> ?w = ?w' -> _ ?e ?w = _ ?e' ?w'). *)
-    etrans. apply transport_f_f.
-(*    Search (transportf _ _ _ = transportf _ _ _ ). *)
-    apply transportf_comp_lemma.
-    set (Hx := H x' xx').
-    assert (Hx1 := pr2 (pr2 Hx)).
-    set (XR:= iso_disp_precomp (pointwise_iso_from_nat_iso f x' ) (_ ,,Hx)).
-(*    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)). *)
-    specialize (XR _
-       (
-        ((# (y : functor _ _ ))%cat f0 · inv_from_iso (pointwise_iso_from_nat_iso f x0))
+  show_id_type.
+Admitted.
 
-         )
-       ).
-    specialize (XR ((xx : disp_functor _ _ _  ) x0 xx0)).
-    set (Xweq := make_weq _ XR).
-    apply (invmaponpathsweq Xweq).
-    unfold Xweq. clear Xweq.
-    etrans.  apply mor_disp_transportf_prewhisker.
-    etrans. apply maponpaths. apply assoc_disp.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply maponpaths_2. apply Hx1.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply assoc_disp.
-    assert (XRO := @disp_nat_trans_ax _ _ _ _ _ _ _ _ _ FF).
-    specialize (XRO _ _ _ xx'  _ ff).
-    assert (XR' := ! (transportf_pathsinv0 _ _ _ _  (!XRO))).
-    clear XRO.
-    clear XR. clear Hx1.
-    etrans. apply maponpaths. apply maponpaths_2.
-            apply XR'.
-    etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-
-    etrans. apply maponpaths.
-            apply assoc_disp_var.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply maponpaths.
-            apply (inv_mor_after_iso_disp (H _ _ )).
-    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply maponpaths. apply maponpaths.
-            apply id_right_disp.
-    etrans. apply transport_f_f.
-    etrans. apply transport_f_f.
-    apply maponpaths_2. apply homset_property.
-Qed.
-
-Definition inv_disp_from_pointwise_iso
+Definition inv_disp_from_pointwise_z_iso
   (x y : FunctorsC'C)
-  (f : iso x y)
+  (f : z_iso x y)
   (xx : disp_functor_cat x)
   (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
-  (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+  (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
                           (pr1 FF _ xx' ))
   :
-       yy -->[ inv_from_iso f] xx.
+       yy -->[ inv_from_z_iso f] xx.
 Proof.
   use tpair.
   + intros x' xx'.
     simpl in xx. simpl in yy.
-    assert (XR : inv_from_iso (pointwise_iso_from_nat_iso f x') =
-                                       pr1 (inv_from_iso f) x').
-    { apply id_right. }
-    set (RT := pr1 (H x' xx')).
-    apply (transportf _ XR RT).
+    apply (pr1 (H x' xx')).
   + intros x' x0 f0 xx' xx0 ff.
     apply is_disp_nat_trans_pointwise_inv.
 Defined.
 
-Definition is_disp_functor_cat_iso_if_pointwise_iso
+Definition is_disp_functor_cat_iso_if_pointwise_z_iso
   (x y : FunctorsC'C)
-  (f : iso x y)
+  (f : z_iso x y)
   (xx : disp_functor_cat x)
   (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
-  (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+  (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
                           (pr1 FF _ xx' ))
-  : is_iso_disp f FF.
+  : is_z_iso_disp f FF.
 Proof.
   use tpair.
-  - apply (inv_disp_from_pointwise_iso _ _ _ _ _ FF H).
+  - apply (inv_disp_from_pointwise_z_iso _ _ _ _ _ FF H).
   - split.
     + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
@@ -984,10 +922,13 @@ Proof.
       etrans. apply disp_nat_trans_transportf.
       cbn.
       apply pathsinv0.
+      admit.
+      (*
       etrans. apply mor_disp_transportf_postwhisker.
       etrans. apply maponpaths. apply (iso_disp_after_inv_mor (H c' xx')).
       etrans. apply transport_f_f.
       apply maponpaths_2, homset_property.
+*)
     + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
@@ -996,27 +937,29 @@ Proof.
       etrans. apply disp_nat_trans_transportf.
       cbn.
       apply pathsinv0.
-      etrans. apply mor_disp_transportf_prewhisker.
+      admit.
+      (* etrans. apply mor_disp_transportf_prewhisker.
       etrans. apply maponpaths. apply (inv_mor_after_iso_disp (H c' xx')).
       etrans. apply transport_f_f.
-      apply maponpaths_2, homset_property.
-Defined.
+      apply maponpaths_2, homset_property. *)
+Admitted.
 
-Definition is_disp_functor_cat_iso_iff_pointwise_iso
+Definition is_disp_functor_cat_z_iso_iff_pointwise_z_iso
   (x y : FunctorsC'C)
-  (f : iso x y)
+  (f : z_iso x y)
   (xx : disp_functor_cat x)
   (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
   :
-  (∏ x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+  (∏ x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
                           (pr1 FF _ xx' ))
     <->
-    is_iso_disp f FF.
+    is_z_iso_disp f FF.
 Proof.
   split.
-  - apply is_disp_functor_cat_iso_if_pointwise_iso.
-  - apply is_pointwise_iso_if_is_disp_functor_cat_iso.
+  - apply is_disp_functor_cat_iso_if_pointwise_z_iso.
+  - apply is_pointwise_z_iso_if_is_disp_functor_cat_z_iso.
 Defined.
 
+*)
 End Functor.

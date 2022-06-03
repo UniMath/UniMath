@@ -103,7 +103,7 @@ Section StreetFibration.
          (b : B)
          (f : b --> F e),
        ∑ (bb : E)
-         (ff_i : bb --> e × iso (F bb) b),
+         (ff_i : bb --> e × z_iso (F bb) b),
        # F (pr1 ff_i) = pr2 ff_i · f
        ×
        is_cartesian_sfib (pr1 ff_i).
@@ -119,22 +119,22 @@ Definition lift_unique_sfib_map
            (f : b --> F e)
            (bb₁ bb₂ : E)
            (ff₁ : bb₁ --> e)
-           (β₁ : iso (F bb₁) b)
+           (β₁ : z_iso (F bb₁) b)
            (ff₂ : bb₂ --> e)
-           (β₂ : iso (F bb₂) b)
+           (β₂ : z_iso (F bb₂) b)
            (over₁ : # F (ff₁) = β₁ · f)
            (over₂ : # F (ff₂) = β₂ · f)
            (cart₁ : is_cartesian_sfib F ff₁)
            (cart₂ : is_cartesian_sfib F ff₂)
   : bb₁ --> bb₂.
 Proof.
-  refine (cartesian_factorization_sfib F cart₂ ff₁ (β₁ · inv_from_iso β₂) _).
+  refine (cartesian_factorization_sfib F cart₂ ff₁ (β₁ · inv_from_z_iso β₂) _).
   abstract
     (rewrite over₁, over₂ ;
      rewrite !assoc' ;
      apply maponpaths ;
      rewrite !assoc ;
-     rewrite iso_after_iso_inv ;
+     rewrite z_iso_after_z_iso_inv ;
      rewrite id_left ;
      apply idpath).
 Defined.
@@ -147,9 +147,9 @@ Section UniqueLifts.
           (f : b --> F e)
           (bb₁ bb₂ : E)
           (ff₁ : bb₁ --> e)
-          (β₁ : iso (F bb₁) b)
+          (β₁ : z_iso (F bb₁) b)
           (ff₂ : bb₂ --> e)
-          (β₂ : iso (F bb₂) b)
+          (β₂ : z_iso (F bb₂) b)
           (over₁ : # F (ff₁) = β₁ · f)
           (over₂ : # F (ff₂) = β₂ · f)
           (cart₁ : is_cartesian_sfib F ff₁)
@@ -175,9 +175,9 @@ Section UniqueLifts.
       rewrite !cartesian_factorization_sfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       rewrite id_left.
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc'.
@@ -201,9 +201,9 @@ Section UniqueLifts.
       rewrite !cartesian_factorization_sfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       rewrite id_left.
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc'.
@@ -213,15 +213,13 @@ Section UniqueLifts.
   Qed.
 
   Definition lift_unique_sfib
-    : iso bb₁ bb₂.
+    : z_iso bb₁ bb₂.
   Proof.
-    use make_iso.
-    - exact ζ.
-    - use is_iso_qinv.
-      + exact ζinv.
-      + split.
-        * exact lift_unique_sfib_inv₁.
-        * exact lift_unique_sfib_inv₂.
+    exists ζ.
+    exists ζinv.
+    split.
+    - exact lift_unique_sfib_inv₁.
+    - exact lift_unique_sfib_inv₂.
   Defined.
 End UniqueLifts.
 
@@ -406,7 +404,7 @@ Section CleavingToStreetFib.
   Proof.
     intros e b f.
     pose (HD (pr1 e) b f (pr2 e)) as c.
-    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_iso b) ,, _).
+    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_z_iso b) ,, _).
     simpl.
     split.
     - apply (!(id_left _)).
@@ -474,7 +472,7 @@ Definition mor_of_street_fib
        (FE : E₁ ⟶ E₂),
      preserves_cartesian P₁ P₂ FE
      ×
-     nat_iso (P₁ ∙ FB) (FE ∙ P₂).
+     nat_z_iso (P₁ ∙ FB) (FE ∙ P₂).
 
 Definition mor_of_street_fib_base
            {B₁ B₂ E₁ E₂ : category}
@@ -500,12 +498,12 @@ Definition mor_of_street_fib_preserves_cartesian
   : preserves_cartesian P₁ P₂ (mor_of_street_fib_total F)
   := pr122 F.
 
-Definition mor_of_street_fib_preserves_nat_iso
+Definition mor_of_street_fib_preserves_nat_z_iso
            {B₁ B₂ E₁ E₂ : category}
            {P₁ : E₁ ⟶ B₁}
            {P₂ : E₂ ⟶ B₂}
            (F : mor_of_street_fib P₁ P₂)
-  : nat_iso
+  : nat_z_iso
       (P₁ ∙ mor_of_street_fib_base F)
       (mor_of_street_fib_total F ∙ P₂)
   := pr222 F.
@@ -524,16 +522,16 @@ Proof.
        apply idpath).
 Defined.
 
-Definition id_mor_of_street_fib_nat_iso
+Definition id_mor_of_street_fib_nat_z_iso
            {B E : category}
            (P : E ⟶ B)
-  : nat_iso (P ∙ functor_identity B) (functor_identity E ∙ P).
+  : nat_z_iso (P ∙ functor_identity B) (functor_identity E ∙ P).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (id_mor_of_street_fib_nat_trans P).
   - intro x.
     cbn.
-    apply identity_is_iso.
+    apply identity_is_z_iso.
 Defined.
 
 Definition id_mor_of_street_fib
@@ -546,7 +544,7 @@ Definition id_mor_of_street_fib
      ,,
      identity_preserves_cartesian _
      ,,
-     id_mor_of_street_fib_nat_iso P.
+     id_mor_of_street_fib_nat_z_iso P.
 
 Definition comp_mor_of_street_fib_nat_trans
            {B₁ B₂ B₃ E₁ E₂ E₃ : category}
@@ -560,9 +558,9 @@ Definition comp_mor_of_street_fib_nat_trans
     (mor_of_street_fib_total F₁ ∙ mor_of_street_fib_total F₂) ∙ P₃.
 Proof.
   use make_nat_trans.
-  - exact (λ x, #(mor_of_street_fib_base F₂) (mor_of_street_fib_preserves_nat_iso F₁ x)
+  - exact (λ x, #(mor_of_street_fib_base F₂) (mor_of_street_fib_preserves_nat_z_iso F₁ x)
                 ·
-                mor_of_street_fib_preserves_nat_iso F₂ _).
+                mor_of_street_fib_preserves_nat_z_iso F₂ _).
   - abstract
       (intros x y f ;
        cbn ;
@@ -571,33 +569,33 @@ Proof.
        etrans ;
          [ apply maponpaths_2 ;
            apply maponpaths ;
-           exact (nat_trans_ax (mor_of_street_fib_preserves_nat_iso F₁) _ _ f)
+           exact (nat_trans_ax (mor_of_street_fib_preserves_nat_z_iso F₁) _ _ f)
          | ] ;
        rewrite functor_comp ;
        rewrite !assoc' ;
        apply maponpaths ;
-       apply (nat_trans_ax (mor_of_street_fib_preserves_nat_iso F₂))).
+       apply (nat_trans_ax (mor_of_street_fib_preserves_nat_z_iso F₂))).
 Defined.
 
-Definition comp_mor_of_street_fib_nat_iso
+Definition comp_mor_of_street_fib_nat_z_iso
            {B₁ B₂ B₃ E₁ E₂ E₃ : category}
            {P₁ : E₁ ⟶ B₁}
            {P₂ : E₂ ⟶ B₂}
            {P₃ : E₃ ⟶ B₃}
            (F₁ : mor_of_street_fib P₁ P₂)
            (F₂ : mor_of_street_fib P₂ P₃)
-  : nat_iso
+  : nat_z_iso
       (P₁ ∙ (mor_of_street_fib_base F₁ ∙ mor_of_street_fib_base F₂))
       ((mor_of_street_fib_total F₁ ∙ mor_of_street_fib_total F₂) ∙ P₃).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (comp_mor_of_street_fib_nat_trans F₁ F₂).
   - intro x.
     cbn.
-    apply is_iso_comp_of_is_isos.
-    + apply functor_on_is_iso_is_iso.
-      apply (mor_of_street_fib_preserves_nat_iso F₁).
-    + apply (mor_of_street_fib_preserves_nat_iso F₂).
+    apply is_z_iso_comp_of_is_z_isos.
+    + apply functor_on_is_z_isomorphism.
+      apply (mor_of_street_fib_preserves_nat_z_iso F₁).
+    + apply (mor_of_street_fib_preserves_nat_z_iso F₂).
 Defined.
 
 Definition comp_mor_of_street_fib
@@ -616,7 +614,7 @@ Definition comp_mor_of_street_fib
        (mor_of_street_fib_preserves_cartesian F₁)
        (mor_of_street_fib_preserves_cartesian F₂)
      ,,
-     comp_mor_of_street_fib_nat_iso F₁ F₂.
+     comp_mor_of_street_fib_nat_z_iso F₁ F₂.
 
 (** The type of Street fibrations is a proposition *)
 Definition isaprop_street_fib
@@ -650,32 +648,28 @@ Proof.
     use dirprod_paths.
     + etrans.
       {
-        apply (@pr1_transportf E (λ x, x --> e) (λ x _, iso (F x) b)).
+        apply (@pr1_transportf E (λ x, x --> e) (λ x _, z_iso (F x) b)).
       }
       rewrite transportf_isotoid.
       cbn.
-      unfold precomp_with.
-      rewrite id_right.
       apply cartesian_factorization_sfib_commute.
     + rewrite pr2_transportf.
       use subtypePath.
       {
         intro.
-        apply isaprop_is_iso.
+        apply isaprop_is_z_isomorphism.
       }
-      unfold iso.
+      unfold z_iso.
       rewrite pr1_transportf.
       rewrite transportf_functor_isotoid.
       cbn.
-      unfold precomp_with.
-      rewrite id_right.
       etrans.
       {
         apply maponpaths_2.
         apply cartesian_factorization_sfib_over.
       }
       rewrite !assoc'.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply id_right.
 Qed.
 
@@ -695,15 +689,15 @@ Proof.
   exact Hf₁.
 Defined.
 
-Definition iso_is_cartesian_sfib
+Definition z_iso_is_cartesian_sfib
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
            {x₁ x₂ : C₁}
            (i : x₁ --> x₂)
-           (Hi : is_iso i)
+           (Hi : is_z_isomorphism i)
   : is_cartesian_sfib F i.
 Proof.
-  pose (i_iso := make_iso _ Hi).
+  pose (i_iso := make_z_iso' _ Hi).
   intros w g h p.
   use iscontraprop1.
   - abstract
@@ -711,13 +705,13 @@ Proof.
        intros φ₁ φ₂ ;
        use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
        refine (!(id_right _) @ _ @ id_right _) ;
-       rewrite <- (iso_inv_after_iso i_iso) ;
+       rewrite <- (z_iso_inv_after_z_iso i_iso) ;
        cbn ;
        rewrite !assoc ;
        rewrite (pr22 φ₁), (pr22 φ₂) ;
        apply idpath).
   - simple refine (_ ,, _ ,, _).
-    + exact (g · inv_from_iso i_iso).
+    + exact (g · inv_from_z_iso i_iso).
     + abstract
         (rewrite functor_comp ;
          rewrite p ;
@@ -725,7 +719,7 @@ Proof.
          rewrite <- functor_comp ;
          etrans ;
            [ do 2 apply maponpaths ;
-             exact (iso_inv_after_iso i_iso)
+             exact (z_iso_inv_after_z_iso i_iso)
            | ] ;
          rewrite functor_id ;
          apply id_right).
@@ -734,7 +728,7 @@ Proof.
          rewrite !assoc' ;
          refine (_ @ id_right _) ;
          apply maponpaths ;
-         apply iso_after_iso_inv).
+         apply z_iso_after_z_iso_inv).
 Defined.
 
 Section CompositionCartesian.
