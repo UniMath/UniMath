@@ -90,23 +90,20 @@ Section BackSub.
       rewrite natpluscomm, minusplusnmm.
       - apply idpath.
       - simpl. exact (pr2 iter). }
-    generalize iter mat b p' p x.
-    clear x p p' b mat.
     destruct (stn_inhabited_implies_succ iter) as [s_iter s_iter_eq].
-    rewrite s_iter_eq in *.
-    intros iter' mat' vec' filled' is_upper_t' b'.
+    destruct (!s_iter_eq).
     apply funextfun; intros ?.
-    rewrite (@rigsum_dni F (s_iter) _ iter').
+    rewrite (@rigsum_dni F (s_iter) _ iter).
     rewrite nat_eq_or_neq_refl.
     destruct (fldchoice0 _) as [contr0 | neq].
-    { contradiction contr0. (* (filled' iter'). *) }
+    { contradiction contr0. }
     etrans.
     { apply maponpaths_2; apply maponpaths.
       apply funextfun. intros q.
       unfold funcomp.
-      rewrite (nat_eq_or_neq_right (dni_neq_i iter' q)).
+      rewrite (nat_eq_or_neq_right (dni_neq_i iter q)).
       reflexivity. }
-    rewrite (@rigsum_dni F (s_iter)  _ iter').
+    rewrite (@rigsum_dni F (s_iter)  _ iter).
     etrans.
     { apply maponpaths.
       etrans.
@@ -115,7 +112,7 @@ Section BackSub.
         apply maponpaths.
         rewrite (@ringcomm2 F).
         reflexivity. }
-      apply (@ringminusdistr F (mat' iter' iter')).
+      apply (@ringminusdistr F (mat iter iter)).
     }
     etrans.
     { apply maponpaths; apply map_on_two_paths.
@@ -138,7 +135,7 @@ Section BackSub.
     (mat : Matrix F n n)
     (b : Vector F n) (vec : Vector F n)
     : ∏ i : ⟦ n ⟧%stn, i ≠ iter ->
-      (col_vec (back_sub_step iter mat b vec) i  = ((col_vec b)) i).
+      (col_vec (back_sub_step iter mat b vec) i = ((col_vec b)) i).
   Proof.
     intros i ne.
     unfold back_sub_step, col_vec.
@@ -156,9 +153,8 @@ Section BackSub.
     (mat : Matrix F n n)
     (b : Vector F n) (vec : Vector F n)
     (is_ut: @is_upper_triangular F n n mat)
-    (*(nz : @diagonal_all_nonzero F n mat)*)
     : ∏ i : ⟦ n ⟧%stn, i ≥ iter ->
-      (mat i i != 0)%ring
+       (mat i i != 0)%ring
     -> (mat ** (col_vec b )) i = (col_vec vec) i
     -> (mat ** (col_vec (back_sub_step iter mat b vec))) i = ((col_vec vec) i).
   Proof.
@@ -197,7 +193,8 @@ Section BackSub.
     (b : Vector F n) (vec : Vector F n)
     (is_ut : @is_upper_triangular F n n mat)
     : ∏ i : ⟦ n ⟧%stn, iter < i
-      -> (mat ** (col_vec b )) i = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
+      -> (mat ** (col_vec b )) i
+      = (mat ** (col_vec (back_sub_step iter mat b vec))) i.
   Proof.
     intros i lt.
     unfold transpose, flip in *.
@@ -408,6 +405,7 @@ Section BackSubZero.
   Local Notation "0" := (@ringunel1 F).
 
   (* TODO might be a dupe in Vectors *)
+
   Local Lemma col_vec_inj_pointwise { X : rig } { n : nat } (v1 v2 : Vector X n)
     : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
   Proof.
@@ -423,6 +421,137 @@ Section BackSubZero.
   Defined.
 
   (* End possible dupe *)
+
+  (* TODO upstream? *)
+  Local Lemma stn_eq
+    {k : nat} (i j : stn k) (eq : pr1 i = pr1 j) : i = j.
+  Proof.
+    apply subtypePath_prop; assumption.
+  Defined.
+
+  Local Lemma stn_eq_2
+    {k : nat} (i: stn k) (j : nat) (eq : pr1 i = j) : forall P : j < k, i = (j,, P).
+  Proof.
+    intros lt.
+    apply subtypePath_prop.
+    assumption.
+  Defined.
+
+  Local Lemma stn_eq_3
+    {k : nat} (i: nat) (j : stn k) (eq : i = pr1 j) : forall P : i < k, j = (i,, P).
+  Proof.
+    apply stn_eq_2; symmetry; assumption.
+  Defined.
+
+  Lemma back_sub_step_inv4 { n : nat }
+    (iter : ⟦ n ⟧%stn) (mat : Matrix F n n)
+    (x : Vector F n) (b : Vector F n)
+    (p: @is_upper_triangular F n n mat)
+    (z1 : x = (const_vec 0))
+    (z2 : b iter = 0)
+    : (mat ** (col_vec (back_sub_step F iter mat x b))) iter
+      = (col_vec (const_vec 0)) iter.
+  Proof.
+    intros.
+    unfold back_sub_step, col_vec.
+    unfold fldmultinv'.
+    pose (inv0 := back_sub_step_inv0).
+    rewrite matrix_mult_eq; unfold matrix_mult_unf, pointwise.
+    destruct (stn_inhabited_implies_succ iter) as [s_iter s_iter_eq].
+    destruct (!s_iter_eq). (* TODO see if can use this on other places with excessive generalizes / reverts *)
+    apply funextfun; intros ?.
+    rewrite (@rigsum_dni F (s_iter) _ iter).
+    rewrite nat_eq_or_neq_refl.
+    destruct (fldchoice0 _) as [eq | neq].
+    - do 2 rewrite (@rigmultx0 F).
+      rewrite ringrinvax1.
+      rewrite (@rigmultx0 F).
+      rewrite (@rigrunax1 F).
+      rewrite zero_function_sums_to_zero; try reflexivity.
+      etrans.
+      { apply maponpaths.
+        apply funextfun; intro i.
+        destruct (stn_eq_or_neq iter i) as [eq' | neq].
+        - rewrite <- eq', eq.
+          apply (@rigmult0x F).
+        - destruct (nat_eq_or_neq _ _) as [eq' | neq'].
+          2: {rewrite z1; unfold const_vec; apply (@rigmultx0 F). }
+          (* TODO would be nice with a version that didn't require doing the second part inline. Also use in more places *)
+          rewrite (stn_eq_3 _ _ eq' (pr2 iter)); unfold stntonat; change (pr1 iter,, pr2 iter) with iter.
+          rewrite eq.
+          rewrite (@rigmult0x).
+          apply idpath.
+      }
+      reflexivity.
+    - admit.
+      (* This is inv0 *)
+  Admitted.
+
+  Lemma back_sub_step_inv5
+    { n : nat }
+    (iter : ⟦ n ⟧%stn)
+    (mat : Matrix F n n)
+    (b : Vector F n) (vec : Vector F n)
+    (is_ut: @is_upper_triangular F n n mat)
+    (z1 : vec = (const_vec 0))
+    (z2 : b iter = 0)
+    : ∏ i : ⟦ n ⟧%stn,
+      i ≥ iter
+    -> (mat ** (col_vec b )) i = (col_vec vec) i
+    -> (mat ** (col_vec (back_sub_step F iter mat b vec))) i = ((col_vec vec) i).
+  Proof.
+    unfold transpose, flip.
+    intros i le H.
+    destruct iter as [iter p''].
+    rewrite <- H.
+    destruct (natlehchoice iter i) as [lt | eq]. {apply le. }
+    - rewrite matrix_mult_eq in *.
+      apply pathsinv0.
+      rewrite matrix_mult_eq in *.
+      unfold matrix_mult_unf in *.
+      apply funextfun; intros ?.
+      apply maponpaths, funextfun; intros i'.
+      destruct (stn_eq_or_neq i' (iter,, p'')) as [eq | neq].
+      2 : { rewrite back_sub_step_inv1; try assumption; reflexivity. }
+      replace (mat i i') with (@ringunel1 F).
+      2 : { rewrite is_ut; try reflexivity. rewrite eq; assumption. }
+      do 2 rewrite (@rigmult0x F); reflexivity.
+    - revert le. revert z1. revert z2. revert p''. rewrite eq.
+      intros.
+      unfold stntonat in eq.
+      replace (stntonat _ i,, p'') with i.
+      2: { unfold stntonat. apply subtypePath_prop. rewrite (stn_eq _ _ eq). apply subtypePath_prop. }
+      { rewrite back_sub_step_inv4; try reflexivity; try assumption.
+        admit. admit. admit. }
+      unfold stntonat in *.
+      change i with (pr1 i,, pr2 i); simpl.
+      assert (eq' : (pr2 i) = p'').
+      { apply proofirrelevance. apply propproperty. }
+      rewrite eq'; reflexivity.
+  Admitted.
+
+  Lemma back_sub_internal_inv3
+    { n : nat }
+    (mat : Matrix F n n)
+    (b : Vector F n) (vec : Vector F n)
+    (ut : @is_upper_triangular F _ _ mat)
+    (iter : ⟦ S n ⟧%stn)
+    : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement iter)
+    -> (b i) = 0
+    -> (vec i) = 0
+    -> (col_vec (back_sub_internal F mat b vec iter)) i = (col_vec b) i. 
+  Proof.
+    destruct iter as [iter p].
+    induction iter.
+    { intros i H.
+      destruct (natchoice0 (S n)) as [contr_eq | gt] in H.
+      { clear H. apply negpaths0sx in contr_eq. contradiction. }
+      reflexivity. }
+    unfold back_sub_internal.
+    intros i i_lt_dual.
+    rewrite nat_rect_step.
+    intros z1 z2.
+  Admitted.
 
   Local Lemma contr_construction
     { n : nat }

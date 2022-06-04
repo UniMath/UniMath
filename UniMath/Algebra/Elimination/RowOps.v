@@ -61,7 +61,7 @@ Section RowOps.
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r2).
-    - exact ( (mat r2 j) + ( s * (mat r1 j)))%rig.
+    - exact ((mat r2 j) + (s * (mat r1 j)))%rig.
     - exact (mat i j).
   Defined.
 
@@ -254,7 +254,7 @@ Section Elementary.
   Lemma add_row_mat_elementary
     { m n : nat } (mat : Matrix F m n)
     (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : F)
-    : ((add_row_matrix  r1 r2 s) ** mat)  = (gauss_add_row mat r1 r2 s).
+    : ((add_row_matrix  r1 r2 s) ** mat) = (gauss_add_row mat r1 r2 s).
   Proof.
     intros.
     apply funextfun. intros k.
@@ -306,8 +306,8 @@ Section Elementary.
 
   Lemma scalar_mult_matrix_comm
     { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
-    : ((mult_row_matrix s1 r ) ** (mult_row_matrix s2 r))
-    = ((mult_row_matrix s2 r ) ** (mult_row_matrix s1 r)).
+    : ((mult_row_matrix s1 r) ** (mult_row_matrix s2 r))
+    = ((mult_row_matrix s2 r) ** (mult_row_matrix s1 r)).
   Proof.
     do 2 rewrite scalar_mult_matrix_product.
     apply maponpaths_2, (rigcomm2 F).
@@ -316,7 +316,7 @@ Section Elementary.
   Lemma scalar_mult_matrix_is_inv
     { n : nat }
     ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != 0%ring )
-  : @matrix_inverse F n (mult_row_matrix s i).
+  : @matrix_inverse F _ (mult_row_matrix s i).
   Proof.
     exists (mult_row_matrix (fldmultinv s ne) i).
     split;
@@ -329,7 +329,7 @@ Section Elementary.
 
   Lemma add_row_matrix_plus_eq
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : F ) (ne : r1 ≠ r2) :
-    ((add_row_matrix r1 r2 s1 ) ** (add_row_matrix r1 r2 s2 ))
+    ((add_row_matrix r1 r2 s1 ) ** (add_row_matrix r1 r2 s2))
    = (add_row_matrix r1 r2 (s1 + s2)%ring).
   Proof.
     rewrite add_row_mat_elementary; try assumption.
@@ -381,6 +381,16 @@ Section Elementary.
     - apply (@ringlinvax1 F).
   Defined.
 
+  (* TODO upstream *)
+  Lemma stn_neq_symm {n : nat} {i j : stn n} (neq : i ≠ j)
+    : (j ≠ i).
+  Proof.
+    destruct (stn_eq_or_neq j i) as [contr_eq | ?].
+    - rewrite contr_eq in neq.
+      contradiction (isirrefl_natneq i).
+    - assumption.
+  Defined.
+
   Lemma switch_row_matrix_self_inverse
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
     : ((switch_row_matrix r1 r2)
@@ -390,37 +400,23 @@ Section Elementary.
     intros.
     rewrite switch_row_mat_elementary.
     unfold gauss_switch_row, switch_row_matrix.
-    apply funextfun; intros i; apply funextfun; intros j.
-    destruct (stn_eq_or_neq i j) as [eq | neq].
+    apply funextfun; intros i.
+    destruct (stn_eq_or_neq i r1) as [eq | neq];
+      destruct (stn_eq_or_neq r1 r2) as [eq' | neq'];
+      rewrite stn_eq_or_neq_refl; simpl.
+    - rewrite eq'; rewrite stn_eq_or_neq_refl; simpl.
+      apply funextfun; intros j.
+      rewrite <- eq', eq; apply idpath.
     - rewrite eq; simpl.
-      destruct (stn_eq_or_neq r1 r2) as [r1_eq_r2 | r1_neq_r2].
-      + rewrite stn_eq_or_neq_refl; simpl.
-        rewrite r1_eq_r2 in *.
-        destruct (stn_eq_or_neq j r2) as [j_eq_r2 | j_neq_r2].
-        { rewrite j_eq_r2, stn_eq_or_neq_refl; simpl; reflexivity. }
-        simpl; apply idpath.
-      + simpl.
-        do 2 rewrite stn_eq_or_neq_refl; simpl.
-        destruct (stn_eq_or_neq j r1) as [j_eq_r1 | j_neq_r1]; simpl.
-        * rewrite j_eq_r1.
-          apply issymm_natneq in r1_neq_r2.
-          rewrite (stn_eq_or_neq_right r1_neq_r2).
-          apply idpath.
-        * destruct (stn_eq_or_neq j r2) as [j_eq_r2 | j_neq_r2]; try apply idpath.
-          rewrite j_eq_r2.
-          apply idpath.
+      rewrite (stn_eq_or_neq_right (stn_neq_symm neq')); simpl.
+      reflexivity.
+    - rewrite <- eq'; rewrite stn_eq_or_neq_refl; simpl.
+      rewrite (stn_eq_or_neq_right neq); simpl.
+      reflexivity.
     - rewrite stn_eq_or_neq_refl; simpl.
-      destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1]; simpl.
-      + rewrite i_eq_r1.
-        destruct (stn_eq_or_neq r2 r1) as [r2_eq_r1 | r2_neq_r1]; try reflexivity.
-        simpl; rewrite r2_eq_r1.
-        reflexivity.
-      + destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; simpl; try apply idpath.
-        rewrite i_eq_r2; simpl.
-        rewrite stn_eq_or_neq_refl; simpl.
-        rewrite <- i_eq_r2.
-        apply issymm_natneq in i_neq_r1.
-        reflexivity.
+      destruct (stn_eq_or_neq _ _) as [eq | ?]; simpl.
+      + rewrite eq; reflexivity.
+      + reflexivity.
   Defined.
 
   Lemma switch_row_matrix_is_inv

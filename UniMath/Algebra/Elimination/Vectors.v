@@ -145,7 +145,7 @@ Section Vectors.
       apply idpath.
     - rewrite (left_part_is_zero ).
       apply idpath.
-  Defined.
+  Defined..
 
   Lemma rigsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
@@ -382,7 +382,5 @@ Section Vectors.
   Proof.
     reflexivity.
   Defined.
-
-
 
 End Vectors.
