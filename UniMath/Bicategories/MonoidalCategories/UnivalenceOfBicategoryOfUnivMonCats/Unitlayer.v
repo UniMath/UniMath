@@ -292,51 +292,14 @@ Section UnitLayer.
         * apply idpath.
   Defined.
 
-  Lemma iso_from_ziso_from_iso {C : category} {x y : C} (f : C⟦x,y⟧) (pf : is_iso f) :
-    (is_iso_from_is_z_iso f (is_z_iso_from_is_iso f pf) = pf).
-  Proof.
-  Admitted.
-
-
-  (* This should already exists somewhere, but I can't find it *)
-  Lemma iso_z_iso_equivalence {C : bicat_of_univ_cats} (IC ID : bicatcatsunit_disp_bicat C) :
-     (iso IC ID) ≃ (z_iso IC ID).
-  Proof.
-    use make_weq.
-    - apply iso_to_z_iso.
-    - use isweq_iso.
-      * apply z_iso_to_iso.
-      * intro i.
-        use total2_paths_b.
-        -- apply idpath.
-        -- apply transportb_transpose_right.
-           etrans. { apply idpath_transportf. }
-           cbn in *.
-           Search (iso _ _ -> z_iso _ _).
-           induction i as [i j].
-           apply iso_from_ziso_from_iso.
-      * intro i.
-        unfold iso_to_z_iso.
-        unfold z_iso_to_iso.
-        cbn.
-        use total2_paths_b.
-        -- apply idpath.
-        -- use total2_paths_b.
-           ++ apply id_right.
-           ++ use total2_paths_b.
-              *** apply univalent_category_has_homsets.
-              *** apply univalent_category_has_homsets.
-  Defined.
-
   Lemma bicatcatsunit_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bicatcatsunit_disp_bicat.
   Proof.
     intros C D equalcats IC ID.
     induction equalcats.
     use weqhomot.
     - set (i1 := iso_dispadjequiv_equivalence C IC ID).
-      set (i2 := iso_z_iso_equivalence IC ID).
       set (i3 := (_ ,, (pr2 C) IC ID)).
-      exact (i1 ∘ i2 ∘ i3)%weq.
+      exact (i1 ∘ i3)%weq.
     - intro p.
       induction p ; cbn.
       use subtypePath.
