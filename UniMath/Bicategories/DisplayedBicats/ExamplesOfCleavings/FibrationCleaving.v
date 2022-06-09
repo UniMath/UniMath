@@ -183,7 +183,7 @@ Section CleavingOfCleavingPointwiseCartesian.
                 _).
       apply is_cartesian_transportf.
       use is_cartesian_comp_disp.
-      - exact (is_cartesian_iso_disp
+      - exact (is_cartesian_z_iso_disp
                  (disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
                     _
                     _
@@ -285,7 +285,7 @@ Proof.
     + exact (lift_functor_into_reindex_commute (pr1 HH)).
     + apply disp_bicat_of_cleaving_is_disp_invertible_2cell.
       intros x xx.
-      apply id_is_iso_disp.
+      apply id_is_z_iso_disp.
 Defined.
 
 Section Lift2CellCleaving.
@@ -313,7 +313,7 @@ Section Lift2CellCleaving.
                      _
                      (pr1 (pr112 Lh) x xx
                       ;; pr11 αα x xx
-                      ;; inv_mor_disp_from_iso
+                      ;; inv_mor_disp_from_z_iso
                            (disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
                               _
                               (pr2 Lh')
@@ -380,8 +380,6 @@ Section Lift2CellCleaving.
     }
     unfold transportb.
     rewrite !mor_disp_transportf_prewhisker.
-    rewrite !transport_f_f.
-    rewrite !mor_disp_transportf_postwhisker.
     rewrite !transport_f_f.
     cbn.
     refine (!_).
@@ -484,7 +482,7 @@ Section Lift2CellCleaving.
       clear r ; cbn in r'.
       rewrite !transportbfinv in r'.
       assert (p := transportf_transpose_left
-                     (inv_mor_after_iso_disp
+                     (inv_mor_after_z_iso_disp
                         (disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
                            _
                            (pr2 Lh')
@@ -566,7 +564,7 @@ Section Lift2CellCleaving.
            rewrite !transport_f_f ;
            etrans ;
            [ do 3 apply maponpaths ;
-             apply (iso_disp_after_inv_mor
+             apply (z_iso_disp_after_inv_mor
                       (disp_bicat_of_cleaving_disp_invertible_2cell_pointwise_inv
                          (id2_invertible_2cell (H₂ · F))
                          (pr2 Lh') (pr22 Lh') xx))

@@ -55,7 +55,7 @@ Section IsoCommaUMP.
       use iso_comma_ump1.
       + exact (pr1 (pb_cone_pr1 q)).
       + exact (pr1 (pb_cone_pr2 q)).
-      + exact (grpds_2cell_to_nat_iso (pr1 (pb_cone_cell q))).
+      + exact (grpds_2cell_to_nat_z_iso (pr1 (pb_cone_cell q))).
     - use make_invertible_2cell.
       + refine (_ ,, tt).
         apply iso_comma_ump1_pr1.
@@ -68,12 +68,12 @@ Section IsoCommaUMP.
         (use subtypePath ; [ intro ; apply isapropunit | ] ;
          use nat_trans_eq ; [ apply homset_property | ] ;
          intros x ; cbn ; unfold pb_cone_cell ;
-         rewrite (functor_on_inv_from_iso (pr1 G)) ;
+         rewrite (functor_on_inv_from_z_iso (pr1 G)) ;
          rewrite (functor_id (pr1 F)) ;
          rewrite !id_left, id_right ;
          refine (!(id_right _) @ _) ;
          apply maponpaths ;
-         use inv_iso_unique' ;
+         use inv_z_iso_unique' ;
          unfold precomp_with ;
          cbn ;
          rewrite id_right ;

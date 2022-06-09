@@ -371,8 +371,8 @@ Section iso_presheaf.
 
 Context {C : category}.
 
-Local Definition make_PreShv_functor_iso_helper (F G : functor (PreShv C) (PreShv C))
-      (set_iso : ∏ X c, iso (pr1 (F X) c) (pr1 (G X) c))
+Local Definition make_PreShv_functor_z_iso_helper (F G : functor (PreShv C) (PreShv C))
+      (set_iso : ∏ X c, z_iso (pr1 (F X) c) (pr1 (G X) c))
       (nat_in_c : ∏ X, is_nat_trans _ _ (λ c, set_iso X c))
       (nat_in_X : is_nat_trans F G (λ X, make_nat_trans _ _ _ (nat_in_c X))) :
       [PreShv C, PreShv C] ⟦ F, G ⟧.
@@ -386,36 +386,34 @@ Proof.
     + exact nat_in_X.
 Defined.
 
-Lemma make_PreShv_functor_iso (F G : functor (PreShv C) (PreShv C))
-      (set_iso : ∏ X c, iso (pr1 (F X) c) (pr1 (G X) c))
+Lemma make_PreShv_functor_z_iso (F G : functor (PreShv C) (PreShv C))
+      (set_iso : ∏ X c, z_iso (pr1 (F X) c) (pr1 (G X) c))
       (nat_in_c : ∏ X, is_nat_trans _ _ (λ c, set_iso X c))
       (nat_in_X : is_nat_trans F G (λ X, make_nat_trans _ _ _ (nat_in_c X))) :
-      @iso [PreShv C, PreShv C] F G.
+      @z_iso [PreShv C, PreShv C] F G.
 Proof.
-  use make_iso.
-  - exact (make_PreShv_functor_iso_helper F G set_iso nat_in_c nat_in_X).
-  - use is_iso_from_is_z_iso.
-    use make_is_z_isomorphism.
-    + use make_PreShv_functor_iso_helper.
+  exists (make_PreShv_functor_z_iso_helper F G set_iso nat_in_c nat_in_X).
+  use make_is_z_isomorphism.
+  + use make_PreShv_functor_z_iso_helper.
       * intros X c.
-        exact (iso_inv_from_iso (set_iso X c)).
+        exact (z_iso_inv_from_z_iso (set_iso X c)).
       * abstract (intros X c y f;
-                  apply pathsinv0, iso_inv_on_left; rewrite <- assoc;
-                  now apply pathsinv0, iso_inv_on_right, (nat_in_c X)).
+                  apply pathsinv0, z_iso_inv_on_left; rewrite <- assoc;
+                  now apply pathsinv0, z_iso_inv_on_right, (nat_in_c X)).
       * abstract (intros X Y α;
                   apply nat_trans_eq; [ apply homset_property|];
                   intro x; simpl;
-                  apply pathsinv0, (iso_inv_on_left _ _ _ _ (set_iso Y x));
-                  rewrite <- assoc; apply pathsinv0, (iso_inv_on_right (C:=HSET));
+                  apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (set_iso Y x));
+                  rewrite <- assoc; apply pathsinv0, (z_iso_inv_on_right (C:=HSET));
                   exact (eqtohomot (maponpaths pr1 (nat_in_X X Y α)) x)).
     + abstract (use make_is_inverse_in_precat;
                 [ apply nat_trans_eq; [ apply homset_property |]; intro X;
                   apply nat_trans_eq; [ apply homset_property |]; intro x;
-                  exact (iso_inv_after_iso (set_iso X x))
+                  exact (z_iso_inv_after_z_iso (set_iso X x))
                 | apply nat_trans_eq; [ apply homset_property |]; intro X;
                   apply nat_trans_eq; [ apply homset_property |]; intro x;
                   apply funextsec; intros y;
-                  exact (eqtohomot (iso_after_iso_inv (set_iso X x)) y) ]).
+                  exact (eqtohomot (z_iso_after_z_iso_inv (set_iso X x)) y) ]).
 Defined.
 
 End iso_presheaf.

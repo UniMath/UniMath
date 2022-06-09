@@ -231,27 +231,27 @@ Section def_po.
   Qed.
 
 
-  Lemma isiso_from_Pushout_to_Pushout {a b c : C} {f : a --> b} {g : a --> c}
+  Lemma isziso_from_Pushout_to_Pushout {a b c : C} {f : a --> b} {g : a --> c}
         (Pb Pb': Pushout f g) :
-    is_iso (from_Pushout_to_Pushout Pb Pb').
+    is_z_isomorphism (from_Pushout_to_Pushout Pb Pb').
   Proof.
-    apply (is_iso_qinv _ (from_Pushout_to_Pushout Pb' Pb)).
+    exists (from_Pushout_to_Pushout Pb' Pb).
     apply are_inverses_from_Pushout_to_Pushout.
   Defined.
 
 
-  Definition iso_from_Pushout_to_Pushout {a b c : C} {f : a --> b} {g : a --> c}
-             (Pb Pb': Pushout f g) : iso Pb Pb' :=
-    tpair _ _ (isiso_from_Pushout_to_Pushout Pb Pb').
+  Definition z_iso_from_Pushout_to_Pushout {a b c : C} {f : a --> b} {g : a --> c}
+             (Pb Pb': Pushout f g) : z_iso Pb Pb' :=
+    tpair _ _ (isziso_from_Pushout_to_Pushout Pb Pb').
 
 
-  Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : a --> b) (g : a --> c)
+  Lemma inv_from_z_iso_z_iso_from_Pushout (a b c : C) (f : a --> b) (g : a --> c)
         (Pb : Pushout f g) (Pb' : Pushout f g):
-      inv_from_iso (iso_from_Pushout_to_Pushout Pb Pb')
+      inv_from_z_iso (z_iso_from_Pushout_to_Pushout Pb Pb')
       = from_Pushout_to_Pushout Pb' Pb.
   Proof.
       apply pathsinv0.
-      apply inv_iso_unique'.
+      apply inv_z_iso_unique'.
       set (T:= are_inverses_from_Pushout_to_Pushout Pb' Pb).
       apply (pr1 T).
   Qed.
@@ -280,7 +280,7 @@ Section Universal_Unique.
         + apply C.
         + intros; apply isaprop_isPushout.
       - apply (total2_paths_f
-                 (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
+                 (isotoid _ H (z_iso_from_Pushout_to_Pushout Pb Pb' ))).
         rewrite transportf_dirprod, transportf_isotoid', transportf_isotoid'.
         fold (PushoutIn1 Pb). fold (PushoutIn2 Pb).
         use (dirprodeq); simpl.
@@ -458,20 +458,20 @@ Section lemmas_on_pushouts.
 End lemmas_on_pushouts.
 
 
-Section pushout_up_to_iso.
+Section pushout_up_to_z_iso.
 
   Context {C : category}.
 
-  Local Lemma isPushout_up_to_iso_eq {a a' b c d : C} (f : a --> b) (g : a --> c)
-        (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) (i : iso a' a) :
+  Local Lemma isPushout_up_to_z_iso_eq {a a' b c d : C} (f : a --> b) (g : a --> c)
+        (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) (i : z_iso a' a) :
     i · f · in1 = i · g · in2.
   Proof.
     rewrite <- assoc. rewrite <- assoc. rewrite H. apply idpath.
   Qed.
 
-  Lemma isPushout_up_to_iso {a a' b c d : C} (f : a --> b) (g : a --> c)
-        (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) (i : iso a' a)
-        (iPo : isPushout (i · f) (i · g) in1 in2 (isPushout_up_to_iso_eq f g in1 in2 H i)) :
+  Lemma isPushout_up_to_z_iso {a a' b c d : C} (f : a --> b) (g : a --> c)
+        (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) (i : z_iso a' a)
+        (iPo : isPushout (i · f) (i · g) in1 in2 (isPushout_up_to_z_iso_eq f g in1 in2 H i)) :
     isPushout f g in1 in2 H.
   Proof.
     set (Po := make_Pushout _ _ _ _ _ _ iPo).
@@ -481,10 +481,10 @@ Section pushout_up_to_iso.
     - use (PushoutArrow Po).
       + exact h.
       + exact k.
-      + use isPushout_up_to_iso_eq. exact Hk.
+      + use isPushout_up_to_z_iso_eq. exact Hk.
     - cbn. split.
-      + exact (PushoutArrow_PushoutIn1 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
-      + exact (PushoutArrow_PushoutIn2 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
+      + exact (PushoutArrow_PushoutIn1 Po e h k (isPushout_up_to_z_iso_eq f g h k Hk i)).
+      + exact (PushoutArrow_PushoutIn2 Po e h k (isPushout_up_to_z_iso_eq f g h k Hk i)).
     - intros y. apply isapropdirprod.
       + apply C.
       + apply C.
@@ -494,7 +494,7 @@ Section pushout_up_to_iso.
       + exact (dirprod_pr2 X).
   Qed.
 
-End pushout_up_to_iso.
+End pushout_up_to_z_iso.
 
 
 Section pushout_paths.

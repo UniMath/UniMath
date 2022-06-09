@@ -62,15 +62,15 @@ Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Initial_to_Initial {C : precategory} (O O' : Initial C) :
-   is_iso (InitialArrow O O').
+Lemma isziso_from_Initial_to_Initial {C : precategory} (O O' : Initial C) :
+   is_z_isomorphism (InitialArrow O O').
 Proof.
-  apply (is_iso_qinv _ (InitialArrow O' O)).
+  exists (InitialArrow O' O).
   split; apply InitialEndo_is_identity.
 Defined.
 
-Definition iso_Initials {C : precategory} (O O' : Initial C) : iso O O' :=
-   (InitialArrow O O',,isiso_from_Initial_to_Initial O O').
+Definition ziso_Initials {C : precategory} (O O' : Initial C) : z_iso O O' :=
+   (InitialArrow O O',,isziso_from_Initial_to_Initial O O').
 
 Definition hasInitial {C : precategory} : UU := ishinh (Initial C).
 
@@ -95,7 +95,7 @@ Lemma isaprop_Initial : isaprop (Initial C).
 Proof.
   apply invproofirrelevance.
   intros O O'.
-  apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ).
+  apply (total2_paths_f (isotoid _ H (ziso_Initials O O')) ).
   apply proofirrelevance.
   unfold isInitial.
   apply impred.

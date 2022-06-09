@@ -72,9 +72,9 @@ Lemma pr1_preserves_limit (d : diagram J (total_category D))
 Proof.
   intro H1.
   set (XR := X (mapdiagram π d)).
-  use is_iso_isLim.
+  use is_z_iso_isLim.
   - apply X.
-  - match goal with |[ |- is_iso ?foo ] => set (T:= foo) end.
+  - match goal with |[ |- is_z_isomorphism ?foo ] => set (T:= foo) end.
     destruct X as [[a L] isL]. cbn in isL.
     clear XR.
     set (tL := H _ _ _ _ isL).
@@ -89,9 +89,9 @@ Proof.
     match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
 *)
 
-    set (RX := isLim_is_iso _ (make_LimCone _ _ _ RT1) _ _ H1).
-    set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
-    match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
+    set (RX := isLim_is_z_iso _ (make_LimCone _ _ _ RT1) _ _ H1).
+    set (XR := @functor_on_is_z_isomorphism _ _ π _ _ _ RX).
+    match goal with |[ H : is_z_isomorphism ?f |- _ ] => set (T':= f) end.
 
     assert (X0 : T' = T).
     {

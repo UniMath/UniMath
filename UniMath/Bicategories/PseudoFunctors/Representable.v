@@ -161,16 +161,16 @@ Definition representable_invertible_cells (X : C) : invertible_cells (representa
 Proof.
   split.
   - intro Y.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intro f.
     simpl.
-    apply is_inv2cell_to_is_iso.
+    apply is_inv2cell_to_is_z_iso.
     is_iso.
   - intros Y Z W f g.
-    use is_nat_iso_to_is_invertible_2cell.
+    use is_nat_z_iso_to_is_invertible_2cell.
     intro h.
     simpl.
-    apply is_inv2cell_to_is_iso.
+    apply is_inv2cell_to_is_z_iso.
     is_iso.
 Defined.
 
@@ -216,9 +216,9 @@ Proof.
       -- intros k l η.
          cbn in *.
          apply rwhisker_lwhisker.
-    + use is_nat_iso_to_is_invertible_2cell.
+    + use is_nat_z_iso_to_is_invertible_2cell.
       intro g.
-      apply is_inv2cell_to_is_iso.
+      apply is_inv2cell_to_is_z_iso.
       simpl.
       is_iso.
 Defined.

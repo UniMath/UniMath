@@ -549,6 +549,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [BicatOfBicategory.v](Bicategories/BicatOfBicategory.v)
    - [DisplayedBicats/Cartesians.v](Bicategories/DisplayedBicats/Cartesians.v)
    - [DisplayedBicats/EquivalenceBetweenCartesians.v](Bicategories/DisplayedBicats/EquivalenceBetweenCartesians.v)
+   - [DisplayedBicats/CleavingOfBicatIsAProp.v](Bicategories/DisplayedBicats/CleavingOfBicatIsAProp.v)
    - [DisplayedBicats/CartesianPseudoFunctor.v](Bicategories/DisplayedBicats/CartesianPseudoFunctor.v)
    - [DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v](Bicategories/DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v)
    - [DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v](Bicategories/DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v)

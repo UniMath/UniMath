@@ -239,10 +239,9 @@ Proof.
 Defined.
 
 
-Lemma is_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
-  : is_iso (from_BinCoproduct_to_BinCoproduct CC CC').
+Lemma is_z_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
+  : is_z_isomorphism (from_BinCoproduct_to_BinCoproduct CC CC').
 Proof.
-  apply is_iso_from_is_z_iso.
   exists (from_BinCoproduct_to_BinCoproduct CC' CC).
   split; simpl.
   - apply pathsinv0.
@@ -263,9 +262,9 @@ Proof.
       repeat rewrite BinCoproductIn2Commutes; apply idpath.
 Defined.
 
-Definition iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
-  : iso (BinCoproductObject CC) (BinCoproductObject CC')
-  := make_iso _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
+Definition z_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
+  : z_iso (BinCoproductObject CC) (BinCoproductObject CC')
+  := _ ,, is_z_iso_from_BinCoproduct_to_BinCoproduct CC CC'.
 
 
 End coproduct_def.
@@ -286,7 +285,7 @@ Hypothesis H : is_univalent C.
 Variables a b : C.
 
 (* TODO: upstream *)
-Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
+Lemma transportf_isotoid' (c d d': C) (p : z_iso d d') (f : c --> d) :
   transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
 Proof.
   rewrite <- idtoiso_postcompose.
@@ -301,7 +300,7 @@ Proof.
   apply subtypePath.
   + intros.
     intro. do 3 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct _ CC CC'))).
+  + apply (total2_paths_f (isotoid _ H (z_iso_from_BinCoproduct_to_BinCoproduct _ CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
     rewrite transportf_isotoid'.
@@ -1012,65 +1011,65 @@ End option_functor.
 End generalized_option_functors.
 
 (** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
-Section BinCoproduct_from_iso.
+Section BinCoproduct_from_z_iso.
 
   Variable C : category.
 
-  Local Lemma iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct x y)
-        (i : iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) :
-    (BinCoproductIn1 BP · inv_from_iso i · (i · BinCoproductArrow BP f g) = f)
-      × (BinCoproductIn2 BP · inv_from_iso i · (i · BinCoproductArrow BP f g) = g).
+  Local Lemma z_iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct x y)
+        (i : z_iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) :
+    (BinCoproductIn1 BP · inv_from_z_iso i · (i · BinCoproductArrow BP f g) = f)
+      × (BinCoproductIn2 BP · inv_from_z_iso i · (i · BinCoproductArrow BP f g) = g).
   Proof.
     split.
     - rewrite <- assoc. rewrite (assoc _ i).
-      rewrite (iso_after_iso_inv i). rewrite id_left.
+      rewrite (z_iso_after_z_iso_inv i). rewrite id_left.
       apply BinCoproductIn1Commutes.
     - rewrite <- assoc. rewrite (assoc _ i).
-      rewrite (iso_after_iso_inv i). rewrite id_left.
+      rewrite (z_iso_after_z_iso_inv i). rewrite id_left.
       apply BinCoproductIn2Commutes.
   Qed.
 
-  Local Lemma iso_to_isBinCoproduct_unique {x y z : C} (BP : BinCoproduct x y)
-        (i : iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) (y0 : C ⟦ z, w ⟧)
-        (T : (BinCoproductIn1 BP · inv_from_iso i · y0 = f)
-               × (BinCoproductIn2 BP · inv_from_iso i · y0 = g)) :
+  Local Lemma z_iso_to_isBinCoproduct_unique {x y z : C} (BP : BinCoproduct x y)
+        (i : z_iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) (y0 : C ⟦ z, w ⟧)
+        (T : (BinCoproductIn1 BP · inv_from_z_iso i · y0 = f)
+               × (BinCoproductIn2 BP · inv_from_z_iso i · y0 = g)) :
     y0 = i · BinCoproductArrow BP f g.
   Proof.
-    apply (pre_comp_with_iso_is_inj _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
-    rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+    apply (pre_comp_with_z_iso_is_inj (z_iso_inv_from_z_iso i)).
+    rewrite assoc. cbn. rewrite (z_iso_after_z_iso_inv i). rewrite id_left.
     apply BinCoproductArrowUnique.
     - rewrite assoc. apply (dirprod_pr1 T).
     - rewrite assoc. apply (dirprod_pr2 T).
   Qed.
 
-  Lemma iso_to_isBinCoproduct {x y z : C} (BP : BinCoproduct x y)
-        (i : iso z (BinCoproductObject BP)) :
+  Lemma z_iso_to_isBinCoproduct {x y z : C} (BP : BinCoproduct x y)
+        (i : z_iso z (BinCoproductObject BP)) :
     isBinCoproduct C _ _ z
-                         ((BinCoproductIn1 BP) · (iso_inv_from_iso i))
-                         ((BinCoproductIn2 BP) · (iso_inv_from_iso i)).
+                         ((BinCoproductIn1 BP) · (z_iso_inv_from_z_iso i))
+                         ((BinCoproductIn2 BP) · (z_iso_inv_from_z_iso i)).
   Proof.
     intros w f g.
     use unique_exists.
     (* The arrow *)
     - exact (i · (BinCoproductArrow BP f g)).
     (* Commutativity *)
-    - exact (iso_to_isBinCoproduct_comm BP i w f g).
+    - exact (z_iso_to_isBinCoproduct_comm BP i w f g).
     (* Equality on equalities of morphisms. *)
     - intros y0. apply isapropdirprod. apply C. apply C.
     (* Uniqueness *)
-    - intros y0 T. exact (iso_to_isBinCoproduct_unique BP i w f g y0 T).
+    - intros y0 T. exact (z_iso_to_isBinCoproduct_unique BP i w f g y0 T).
   Defined.
-  Opaque iso_to_isBinCoproduct.
+  Opaque z_iso_to_isBinCoproduct.
 
-  Definition iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct x y)
-             (i : iso z (BinCoproductObject BP)) :
+  Definition z_iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct x y)
+             (i : z_iso z (BinCoproductObject BP)) :
     BinCoproduct x y := make_BinCoproduct
                                   C _ _ z
-                                  ((BinCoproductIn1 BP) · (iso_inv_from_iso i))
-                                  ((BinCoproductIn2 BP) · (iso_inv_from_iso i))
-                                  (iso_to_isBinCoproduct BP i).
+                                  ((BinCoproductIn1 BP) · (z_iso_inv_from_z_iso i))
+                                  ((BinCoproductIn2 BP) · (z_iso_inv_from_z_iso i))
+                                  (z_iso_to_isBinCoproduct BP i).
 
-End BinCoproduct_from_iso.
+End BinCoproduct_from_z_iso.
 
 (** Equivalent universal property: (A --> C) × (B --> C) ≃ (A + B --> C)
 

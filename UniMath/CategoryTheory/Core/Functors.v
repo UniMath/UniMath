@@ -257,6 +257,81 @@ Proof.
   rewrite tmp. apply functor_id.
 Qed.
 
+
+
+Section functors_on_iso_with_inv.
+
+  Lemma functor_on_is_inverse_in_precat {C C' : precategory} (F : functor C C')
+        {a b : ob C} {f : a --> b} {g : b --> a} (H : is_inverse_in_precat f g) :
+    is_inverse_in_precat (# F f) (# F g).
+  Proof.
+    use make_is_inverse_in_precat.
+    - rewrite <- functor_comp. rewrite (is_inverse_in_precat1 H). apply functor_id.
+    - rewrite <- functor_comp. rewrite (is_inverse_in_precat2 H). apply functor_id.
+  Qed.
+
+  Definition functor_on_is_z_isomorphism {C C' : precategory} (F : functor C C')
+             {a b : ob C} {f : a --> b} (I : is_z_isomorphism f) :
+    is_z_isomorphism (# F f).
+  Proof.
+    use make_is_z_isomorphism.
+    - exact (# F (is_z_isomorphism_mor I)).
+    - exact (functor_on_is_inverse_in_precat F I).
+  Defined.
+
+  Lemma functor_is_inverse_in_precat_inv_from_iso {C D : precategory} {c c' : ob C}
+        (F : functor C D) (f : iso c c') :
+    is_inverse_in_precat (# F f) (# F (inv_from_iso f)).
+  Proof.
+    apply functor_on_is_inverse_in_precat.
+    split.
+    + apply is_inverse_in_precat1.
+      split.
+      * apply (iso_inv_after_iso f).
+      * apply (iso_after_iso_inv f).
+    + apply is_inverse_in_precat2.
+      split.
+      * apply (iso_inv_after_iso f).
+      * apply (iso_after_iso_inv f).
+  Qed.
+
+  Lemma functor_is_inverse_in_precat_inv_from_z_iso {C D : precategory} {c c' : ob C}
+        (F : functor C D) (f : z_iso c c') :
+    is_inverse_in_precat (# F f) (# F (inv_from_z_iso f)).
+  Proof.
+    apply functor_on_is_inverse_in_precat.
+    split.
+    - apply z_iso_inv_after_z_iso.
+    - apply z_iso_after_z_iso_inv.
+  Qed.
+
+  Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
+             (f : z_iso a b) : z_iso (F a) (F b).
+  Proof.
+    use make_z_iso.
+    - exact (# F f).
+    - exact (# F (inv_from_z_iso f)).
+    - exact (functor_on_is_inverse_in_precat F f).
+  Defined.
+
+  Lemma functor_on_z_iso_inv (C C' : category) (F : functor C C')
+    (a b : ob C) (f : z_iso a b) :
+   functor_on_z_iso F (z_iso_inv_from_z_iso f) =
+       z_iso_inv_from_z_iso (functor_on_z_iso F f).
+  Proof.
+    apply eq_z_iso; simpl.
+    apply idpath.
+  Defined.
+
+  Lemma functor_on_inv_from_z_iso' {C C' : precategory} (F : functor C C')
+      {a b : ob C} {f : a --> b} (H : is_z_isomorphism f) :
+  inv_from_z_iso (make_z_iso _ _ (functor_on_is_z_isomorphism F H)) = # F (inv_from_z_iso (make_z_iso _ _ H)).
+  Proof.
+    apply idpath.
+  Qed.
+
+End functors_on_iso_with_inv.
+
 (** ** Functors and [idtoiso] *)
 
 Section functors_and_idtoiso.
@@ -267,20 +342,20 @@ Variable F : functor C D.
 Lemma maponpaths_idtoiso (a b : C) (e : a = b)
 : idtoiso (maponpaths (functor_on_objects F) e)
   =
-  functor_on_iso F (idtoiso e).
+  functor_on_z_iso F (idtoiso e).
 Proof.
   induction e.
-  apply eq_iso.
+  apply eq_z_iso.
   apply (! functor_id _ _ ).
 Qed.
 
 Hypothesis HC : is_univalent C.
 Hypothesis HD : is_univalent D.
 
-Lemma maponpaths_isotoid (a b : C) (i : iso a b)
+Lemma maponpaths_isotoid (a b : C) (i : z_iso a b)
 : maponpaths (functor_on_objects F) (isotoid _ HC i)
   =
-  isotoid _ HD (functor_on_iso F i).
+  isotoid _ HD (functor_on_z_iso F i).
 Proof.
   apply (invmaponpathsweq (make_weq (idtoiso) (HD _ _ ))).
   simpl.
@@ -315,14 +390,14 @@ Definition transportf_functor_isotoid
            (F : C₁ ⟶ C₂)
            {y : C₂}
            {x₁ x₂ : C₁}
-           (i : iso x₁ x₂)
+           (i : z_iso x₁ x₂)
            (f : F x₁ --> y)
   : transportf
       (λ z, F z --> y)
       (isotoid _ HC₁ i)
       f
     =
-    #F (inv_from_iso i) · f.
+    #F (inv_from_z_iso i) · f.
 Proof.
   rewrite <- idtoiso_functor_precompose.
   rewrite maponpaths_idtoiso.
@@ -333,14 +408,12 @@ Qed.
 
 (** ** Functors preserve inverses *)
 
-Lemma functor_on_inv_from_iso {C C' : precategory} (F : functor C C')
-    {a b : ob C}(f : iso a b) :
-      #F (inv_from_iso f) = inv_from_iso (functor_on_iso F f) .
+Lemma functor_on_inv_from_z_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C}(f : z_iso a b) :
+      #F (inv_from_z_iso f) = inv_from_z_iso (functor_on_z_iso F f) .
 Proof.
-  apply inv_iso_unique'; simpl.
-  unfold precomp_with. rewrite <- functor_comp.
-  rewrite iso_inv_after_iso.
-  apply functor_id.
+  destruct f.
+  apply functor_on_inv_from_z_iso'.
 Qed.
 
 (** ** Conservative functors *)
@@ -355,7 +428,7 @@ Definition reflects_morphism {C D : category} (F : functor C D)
     if whenever # F f is an iso, so is f. *)
 
 Definition conservative {C D : category} (F : functor C D) : UU :=
-  reflects_morphism F (@is_iso).
+  reflects_morphism F (@is_z_isomorphism).
 
 Definition isaprop_conservative
            {C D : category}
@@ -363,7 +436,7 @@ Definition isaprop_conservative
   : isaprop (conservative F).
 Proof.
   do 4 (use impred ; intro).
-  apply isaprop_is_iso.
+  apply isaprop_is_z_isomorphism.
 Qed.
 
 (** ** Composition of functors, identity functors *)
@@ -529,8 +602,8 @@ Qed.
 (** *** Fully faithful functors reflect isos *)
 
 Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
-   (FF : fully_faithful F) (a b : C) (f : iso (F a) (F b)) :
-  is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_iso f)).
+   (FF : fully_faithful F) (a b : C) (f : z_iso (F a) (F b)) :
+  is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_z_iso f)).
 Proof.
   unfold fully_faithful_inv_hom; simpl.
   split.
@@ -542,7 +615,7 @@ Proof.
   rewrite HFFab; clear HFFab.
   rewrite HFFba; clear HFFba.
   rewrite functor_id.
-  apply iso_inv_after_iso.
+  apply z_iso_inv_after_z_iso.
 
   apply (invmaponpathsweq (weq_from_fully_faithful FF b b)).
   set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b)).
@@ -552,15 +625,15 @@ Proof.
   rewrite HFFab.
   rewrite HFFba.
   rewrite functor_id.
-  apply iso_after_iso_inv.
+  apply z_iso_after_z_iso_inv.
 Qed.
 
 Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D)
         (FF : fully_faithful F)
-    (a b : ob C) (f : iso (F a) (F b)) :
-     is_iso (FF^-1 f).
+    (a b : ob C) (f : z_iso (F a) (F b)) :
+     is_z_isomorphism (FF^-1 f).
 Proof.
-  apply (is_iso_qinv _ (FF^-1 (inv_from_iso f))).
+  exists (FF^-1 (inv_from_z_iso f)).
   apply inv_of_ff_inv_is_inv.
 Defined.
 
@@ -573,44 +646,44 @@ Proof.
   use transportf.
   - exact (FF^-1 (# F f)).
   - apply fully_faithful_inv_hom_is_inv.
-  - apply (fully_faithful_reflects_iso_proof _ _ _ _ _ _ (make_iso _ is_iso_Ff)).
+  - apply (fully_faithful_reflects_iso_proof _ _ _ _ _ _ (_,,is_iso_Ff)).
 Defined.
 
 Definition  iso_from_fully_faithful_reflection {C D : precategory} {F : functor C D}
         (HF : fully_faithful F)
-    {a b : ob C} (f : iso (F a) (F b)) :
-      iso a b.
+    {a b : ob C} (f : z_iso (F a) (F b)) :
+      z_iso a b.
 Proof.
   exists (fully_faithful_inv_hom HF a b f).
   apply fully_faithful_reflects_iso_proof.
 Defined.
 
-Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory)
+Lemma functor_on_iso_iso_from_fully_faithful_reflection (C : precategory)(D : category)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
-   (f : iso (F a) (F b)) :
-      functor_on_iso F
+   (f : z_iso (F a) (F b)) :
+      functor_on_z_iso F
         (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
-  apply eq_iso.
+  apply eq_z_iso.
   simpl;
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
 
-Lemma iso_from_fully_faithful_reflection_functor_on_iso (C D : precategory)
+Lemma iso_from_fully_faithful_reflection_functor_on_iso (C : category)(D : precategory)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
-   (f : iso a b) :
-      iso_from_fully_faithful_reflection HF (functor_on_iso F f) = f.
+   (f : z_iso a b) :
+      iso_from_fully_faithful_reflection HF (functor_on_z_iso F f) = f.
 Proof.
-  apply eq_iso.
+  apply eq_z_iso.
   simpl;
   apply (homotinvweqweq (weq_from_fully_faithful HF a b)).
 Qed.
 
-Definition weq_ff_functor_on_iso {C D : precategory}{F : functor C D}
+Definition weq_ff_functor_on_z_iso {C D : category}{F : functor C D}
            (HF : fully_faithful F) (a b : ob C)
-  : iso a b ≃ iso (F a) (F b).
+  : z_iso a b ≃ z_iso (F a) (F b).
 Proof.
-  exists (functor_on_iso F).
+  exists (functor_on_z_iso F).
   apply (isweq_iso _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
   - apply iso_from_fully_faithful_reflection_functor_on_iso.
   - apply functor_on_iso_iso_from_fully_faithful_reflection.
@@ -618,20 +691,20 @@ Defined.
 
 (** Computation check *)
 
-Lemma weq_ff_functor_on_iso_compute {C D : precategory} (F : functor C D)
-      (HF : fully_faithful F) {a b : C} (f : iso a b)
-: #F f = weq_ff_functor_on_iso HF _ _ f.
+Lemma weq_ff_functor_on_iso_compute {C D : category} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : z_iso a b)
+: #F f = weq_ff_functor_on_z_iso HF _ _ f.
 Proof.
 apply idpath.
 Qed.
 
-Lemma functor_on_iso_iso_from_ff_reflection (C D : precategory)
+Lemma functor_on_iso_iso_from_ff_reflection (C : precategory)(D : category)
       (F : functor C D) (HF : fully_faithful F) (a b : C)
-      (f : iso (F a) (F b)):
-  functor_on_iso F
+      (f : z_iso (F a) (F b)):
+  functor_on_z_iso F
                  (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
-  apply eq_iso.
+  apply eq_z_iso.
   simpl.
   apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
 Qed.
@@ -639,20 +712,20 @@ Qed.
 (** Alternative implementation of [weq_ff_functor_on_iso] *)
 
 Definition reflects_isos {C D : precategory} (F : C ⟶ D) :=
-  ∏ c c' (f : C⟦c,c'⟧), is_iso (# F f) → is_iso f.
+  ∏ c c' (f : C⟦c,c'⟧), is_z_isomorphism (# F f) → is_z_isomorphism f.
 
-Lemma isaprop_reflects_isos {C D : precategory} (F : C ⟶ D) : isaprop (reflects_isos F).
+Lemma isaprop_reflects_isos {C : category} {D : precategory} (F : C ⟶ D) : isaprop (reflects_isos F).
 Proof.
 apply impred; intros c; apply impred; intros c'.
 apply impred; intros f; apply impred; intros f'.
-apply isaprop_is_iso.
+apply isaprop_is_z_isomorphism.
 Qed.
 
 Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
   (HF : fully_faithful F) : reflects_isos F.
 Proof.
   intros a b f H.
-  set (X:= fully_faithful_reflects_iso_proof _ _ F HF _ _ (make_iso _ H)).
+  set (X:= fully_faithful_reflects_iso_proof _ _ F HF _ _ (_,,H)).
   simpl in X.
   set (T:= homotinvweqweq (weq_from_fully_faithful HF a b ) ).
   simpl in T.
@@ -663,26 +736,26 @@ Proof.
 Defined.
 
 
-Definition weq_ff_functor_on_weq_isobandf {C D : precategory}
+Definition weq_ff_functor_on_weq_isobandf {C D : category}
   {F : functor C D}
   (HF : fully_faithful F) (a b : C)
-  : iso a b ≃ iso (F a) (F b).
+  : z_iso a b ≃ z_iso (F a) (F b).
 Proof.
   use weqbandf.
   - apply (make_weq _ (HF a b)).
   - simpl; intro f.
     apply weqimplimpl.
     + intro H.
-      apply (functor_on_iso_is_iso _ _ _ _ _ (make_iso f H)).
+      exact (pr2(functor_on_z_iso _ (_,,H))).
     + apply ff_reflects_is_iso. apply HF.
-    + apply isaprop_is_iso.
-    + apply isaprop_is_iso.
+    + apply isaprop_is_z_isomorphism.
+    + apply isaprop_is_z_isomorphism.
 Defined.
 
 (** Computation check *)
 
-Lemma weq_ff_functor_on_weq_isobandf_compute {C D : precategory} (F : functor C D)
-      (HF : fully_faithful F) {a b : C} (f : iso a b)
+Lemma weq_ff_functor_on_weq_isobandf_compute {C D : category} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : z_iso a b)
 : #F f = weq_ff_functor_on_weq_isobandf HF _ _ f.
 Proof.
   apply idpath.
@@ -728,7 +801,7 @@ Qed.
 (** See "Univalent categories and the Rezk completion" (arXiv:1303.0584v2)
     Definition 6.5. *)
 Definition split_essentially_surjective {C D : precategory_data} (F : functor C D) :=
-  ∏ b, (∑ a : ob C, iso (F a) b).
+  ∏ b, (∑ a : ob C, z_iso (F a) b).
 
 (** Split essentially surjective functors have "inverses" on objects, where we
     map d : ob D to the c : ob C such that F c ≅ d. *)
@@ -737,7 +810,7 @@ Definition split_essentially_surjective_inv_on_obj {C D : precategory_data}
   λ d, (pr1 (HF d)).
 
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
-  ∏ b, ishinh (total2 (λ a, iso (F a) b)).
+  ∏ b, ishinh (total2 (λ a, z_iso (F a) b)).
 
 Lemma isaprop_essentially_surjective {C D : precategory_data} (F : functor C D) :
    isaprop (essentially_surjective F).
@@ -763,8 +836,8 @@ Proof.
   apply (squash_to_prop (esF (pr1 isoGe))); [apply isapropishinh|]; intros isoFGe.
   apply hinhpr.
   exists (pr1 isoFGe); unfold functor_composite; cbn.
-  apply (@iso_comp E _ (G (pr1 isoGe))).
-  - apply functor_on_iso.
+  apply (@z_iso_comp E _ (G (pr1 isoGe))).
+  - apply functor_on_z_iso.
     exact (pr2 isoFGe).
   - apply (pr2 isoGe).
 Defined.
@@ -932,7 +1005,7 @@ Qed.
 Definition is_in_img_functor {C D : precategory_data} (F : functor C D)
       (d : ob D) :=
   ishinh (
-  total2 (λ c : ob C, iso (F c) d)).
+  total2 (λ c : ob C, z_iso (F c) d)).
 
 Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
     hsubtype (ob D) :=
@@ -1023,59 +1096,6 @@ Defined.
 
 End functor_equalities.
 
-Section functors_on_iso_with_inv.
-
-  Lemma functor_on_is_inverse_in_precat {C C' : precategory} (F : functor C C')
-        {a b : ob C} {f : a --> b} {g : b --> a} (H : is_inverse_in_precat f g) :
-    is_inverse_in_precat (# F f) (# F g).
-  Proof.
-    use make_is_inverse_in_precat.
-    - rewrite <- functor_comp. rewrite (is_inverse_in_precat1 H). apply functor_id.
-    - rewrite <- functor_comp. rewrite (is_inverse_in_precat2 H). apply functor_id.
-  Qed.
-
-  Definition functor_on_is_z_isomorphism {C C' : precategory} (F : functor C C')
-             {a b : ob C} {f : a --> b} (I : is_z_isomorphism f) :
-    is_z_isomorphism (# F f).
-  Proof.
-    use make_is_z_isomorphism.
-    - exact (# F (is_z_isomorphism_mor I)).
-    - exact (functor_on_is_inverse_in_precat F I).
-  Defined.
-
-  Lemma functor_is_inverse_in_precat_inv_from_iso {C D : precategory} {c c' : ob C}
-        (F : functor C D) (f : iso c c') :
-    is_inverse_in_precat (# F f) (# F (inv_from_iso f)).
-  Proof.
-    apply functor_on_is_inverse_in_precat.
-    split.
-    + apply is_inverse_in_precat1.
-      split.
-      * apply (iso_inv_after_iso f).
-      * apply (iso_after_iso_inv f).
-    + apply is_inverse_in_precat2.
-      split.
-      * apply (iso_inv_after_iso f).
-      * apply (iso_after_iso_inv f).
-  Qed.
-
-  Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
-             (f : z_iso a b) : z_iso (F a) (F b).
-  Proof.
-    use make_z_iso.
-    - exact (# F f).
-    - exact (# F (inv_from_z_iso f)).
-    - exact (functor_on_is_inverse_in_precat F f).
-  Defined.
-
-  Lemma functor_on_inv_from_z_iso' {C C' : precategory} (F : functor C C')
-      {a b : ob C} {f : a --> b} (H : is_z_isomorphism f) :
-  inv_from_z_iso (make_z_iso _ _ (functor_on_is_z_isomorphism F H)) = # F (inv_from_z_iso (make_z_iso _ _ H)).
-  Proof.
-    apply idpath.
-  Qed.
-
-End functors_on_iso_with_inv.
 
 (**
  Pseudomonic functors
@@ -1085,7 +1105,7 @@ Definition full_on_iso
            (F : C₁ ⟶ C₂)
   : UU
   := ∏ (x y : C₁),
-     issurjective (λ (f : iso x y), functor_on_iso F f).
+     issurjective (λ (f : z_iso x y), functor_on_z_iso F f).
 
 Definition pseudomonic
            {C₁ C₂ : category}
@@ -1098,7 +1118,7 @@ Definition isweq_functor_on_iso_pseudomonic
            {F : C₁ ⟶ C₂}
            (HF : pseudomonic F)
            (x y : C₁)
-  : isweq (@functor_on_iso _ _ F x y).
+  : isweq (@functor_on_z_iso _ _ F x y).
 Proof.
   intro g.
   use (factor_through_squash _ _ (pr2 HF x y g)).
@@ -1110,8 +1130,8 @@ Proof.
   - abstract
       (use invproofirrelevance ;
        intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply isaset_iso ; apply homset_property | ] ;
-       use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+       use subtypePath ; [ intro ; apply isaset_z_iso ; apply homset_property | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
        use (maponpaths pr1 (proofirrelevance _ (pr1 HF x y g) (_ ,, _) (_ ,, _))) ;
        [ exact (maponpaths pr1 (pr2 φ₁)) | exact (maponpaths pr1 (pr2 φ₂)) ]).
   - exact inv.

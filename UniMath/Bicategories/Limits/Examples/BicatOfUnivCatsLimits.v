@@ -104,10 +104,10 @@ Section CatsBinprodUMP.
     intro q.
     use make_binprod_1cell.
     - exact (bindelta_pair_functor (binprod_cone_pr1 q) (binprod_cone_pr2 q)).
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr1_iso.
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr2_iso.
+    - apply nat_z_iso_to_invertible_2cell.
+      apply bindelta_pair_pr1_z_iso.
+    - apply nat_z_iso_to_invertible_2cell.
+      apply bindelta_pair_pr2_z_iso.
   Defined.
 
   Definition binprod_ump_2_cell_univ_cat
@@ -198,7 +198,7 @@ Proof.
   - exact (univalent_iso_comma F G).
   - exact (iso_comma_pr1 F G).
   - exact (iso_comma_pr2 F G).
-  - apply nat_iso_to_invertible_2cell.
+  - apply nat_z_iso_to_invertible_2cell.
     exact (iso_comma_commute F G).
 Defined.
 
@@ -215,11 +215,11 @@ Section IsoCommaUMP.
     - use iso_comma_ump1.
       + exact (pb_cone_pr1 q).
       + exact (pb_cone_pr2 q).
-      + apply invertible_2cell_to_nat_iso.
+      + apply invertible_2cell_to_nat_z_iso.
         exact (pb_cone_cell q).
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply iso_comma_ump1_pr1.
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply iso_comma_ump1_pr2.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -325,10 +325,10 @@ Section ReindexingPullback.
   Let π₂ : pb --> tot_D₂
     := total_functor (reindex_disp_cat_disp_functor F D₂).
   Let γ : invertible_2cell (π₁ · F) (π₂ · pr1_category D₂)
-    := nat_iso_to_invertible_2cell
+    := nat_z_iso_to_invertible_2cell
          (π₁ · F)
          (π₂ · pr1_category D₂)
-         (total_functor_commute_iso (reindex_disp_cat_disp_functor F (pr1 D₂))).
+         (total_functor_commute_z_iso (reindex_disp_cat_disp_functor F (pr1 D₂))).
   Let cone : pb_cone F (pr1_category _ : tot_D₂ --> C₂)
     := make_pb_cone pb π₁ π₂ γ.
 
@@ -340,7 +340,7 @@ Section ReindexingPullback.
     - exact HD₂.
     - exact (pb_cone_pr2 q).
     - exact (pb_cone_pr1 q).
-    - apply invertible_2cell_to_nat_iso.
+    - apply invertible_2cell_to_nat_z_iso.
       exact (pb_cone_cell q).
   Defined.
 
@@ -350,12 +350,12 @@ Section ReindexingPullback.
         (reindexing_has_pb_ump_1_cell q · pb_cone_pr1 cone)
         (pb_cone_pr1 q).
   Proof.
-    use nat_iso_to_invertible_2cell.
+    use nat_z_iso_to_invertible_2cell.
     exact (reindex_pb_ump_1_pr1_nat_iso
              F D₂ HD₂
              (pb_cone_pr2 q)
              (pb_cone_pr1 q)
-             (invertible_2cell_to_nat_iso
+             (invertible_2cell_to_nat_z_iso
                 _ _
                 (pb_cone_cell q))).
   Defined.
@@ -366,12 +366,12 @@ Section ReindexingPullback.
         (reindexing_has_pb_ump_1_cell q · pb_cone_pr2 cone)
         (pb_cone_pr2 q).
   Proof.
-    use nat_iso_to_invertible_2cell.
-    exact (reindex_pb_ump_1_pr2_nat_iso
+    use nat_z_iso_to_invertible_2cell.
+    exact (reindex_pb_ump_1_pr2_nat_z_iso
              F D₂ HD₂
              (pb_cone_pr2 q)
              (pb_cone_pr1 q)
-             (invertible_2cell_to_nat_iso
+             (invertible_2cell_to_nat_z_iso
                 _ _
                 (pb_cone_cell q))).
   Defined.
@@ -408,14 +408,9 @@ Section ReindexingPullback.
     etrans.
     {
       apply maponpaths.
-      exact (inv_from_iso_in_total
-               (is_invertible_2cell_to_is_nat_iso _ (pr2 (pb_cone_cell q)) x)
+      exact (inv_from_z_iso_in_total
+               (is_invertible_2cell_to_is_nat_z_iso _ (pr2 (pb_cone_cell q)) x)
                _).
-    }
-    etrans.
-    {
-      apply maponpaths.
-      apply id_right.
     }
     exact (nat_trans_eq_pointwise
              (vcomp_rinv
@@ -502,9 +497,9 @@ Section CommaObject.
       + exact (comma_cone_pr1 q).
       + exact (comma_cone_pr2 q).
       + exact (comma_cone_cell q).
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply comma_ump1_pr1.
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply comma_ump1_pr2.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -614,8 +609,8 @@ Proof.
   - exact (functor_to_dialgebra
              (inserter_cone_pr1 q)
              (inserter_cone_cell q)).
-  - use nat_iso_to_invertible_2cell.
-    exact (functor_to_dialgebra_pr1_nat_iso
+  - use nat_z_iso_to_invertible_2cell.
+    exact (functor_to_dialgebra_pr1_nat_z_iso
              (inserter_cone_pr1 q)
              (inserter_cone_cell q)).
   - abstract
@@ -761,15 +756,15 @@ Section EquifiersCat.
            apply idpath).
     Defined.
 
-    Definition equifier_bicat_of_univ_cats_ump_1_pr1_nat_iso
-      : nat_iso
+    Definition equifier_bicat_of_univ_cats_ump_1_pr1_nat_z_iso
+      : nat_z_iso
           (equifier_bicat_of_univ_cats_ump_1_mor ∙ equifier_bicat_of_univ_cats_pr1)
           (equifier_cone_pr1 q).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact equifier_bicat_of_univ_cats_ump_1_pr1.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
   End EquifierUMP1.
 
@@ -779,8 +774,8 @@ Section EquifiersCat.
     intro q.
     use make_equifier_1cell.
     - exact (equifier_bicat_of_univ_cats_ump_1_mor q).
-    - apply nat_iso_to_invertible_2cell.
-      exact (equifier_bicat_of_univ_cats_ump_1_pr1_nat_iso q).
+    - apply nat_z_iso_to_invertible_2cell.
+      exact (equifier_bicat_of_univ_cats_ump_1_pr1_nat_z_iso q).
   Defined.
 
   Section EquifierUMP2.

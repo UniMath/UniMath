@@ -96,17 +96,17 @@ Local Definition shiftColimCocone : ColimCocone FFchain :=
 
 Definition colim_algebra_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
-Local Definition is_iso_colim_algebra_mor : is_iso colim_algebra_mor :=
-  isColim_is_iso _ FHC _ _ shiftIsColimCocone.
+Local Definition is_z_iso_colim_algebra_mor : is_z_isomorphism colim_algebra_mor :=
+  isColim_is_z_iso _ FHC _ _ shiftIsColimCocone.
 
-Let α : iso (F L) L := make_iso _ is_iso_colim_algebra_mor.
-Let α_inv : iso L (F L) := iso_inv_from_iso α.
+Let α : z_iso (F L) L := make_z_iso' _ is_z_iso_colim_algebra_mor.
+Let α_inv : z_iso L (F L) := z_iso_inv_from_z_iso α.
 Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α.
 
-Lemma unfold_inv_from_iso_α :
-  inv_from_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
+Lemma unfold_inv_from_z_iso_α :
+  inv_from_z_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
 Proof.
-apply id_right.
+apply idpath.
 Qed.
 
 (** Given an algebra:
@@ -168,10 +168,10 @@ Defined.
 
 Lemma ad_is_algebra_mor : is_algebra_mor _ α_alg Aa ad.
 Proof.
-apply pathsinv0, iso_inv_to_left, colimArrowUnique; simpl; intro n.
+apply pathsinv0, z_iso_inv_to_left, colimArrowUnique; simpl; intro n.
 destruct n as [|n].
 - now apply InitialArrowUnique.
-- rewrite assoc, unfold_inv_from_iso_α.
+- rewrite assoc, unfold_inv_from_z_iso_α.
   eapply pathscomp0;
     [apply cancel_postcomposition, (colimArrowCommutes shiftColimCocone)|].
   simpl; rewrite assoc, <- functor_comp.
@@ -194,8 +194,8 @@ induction n as [|n IHn]; simpl.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ α).
-  rewrite unfold_inv_from_iso_α; apply pathsinv0.
+  apply cancel_postcomposition, pathsinv0, (z_iso_inv_to_right _ _ _ _ α).
+  rewrite unfold_inv_from_z_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
 
