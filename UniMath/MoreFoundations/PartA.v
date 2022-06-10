@@ -818,8 +818,8 @@ Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     (ec : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
   : transportf _ ea bc1 = bc2.
 Proof.
-  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
-  cbn in *; destruct eb, ec.
+  destruct bc1 as [b1 c1], bc2 as [b2 c2]; simpl in *.
+  destruct ea. destruct eb. simpl in *. destruct ec.
   apply idpath.
 Defined.
 
@@ -830,7 +830,7 @@ Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
     (ec : pr2 bc1 = transportb C (total2_paths2_b ea eb) (pr2 bc2))
-  : bc1 = transportb _ ea bc2.
+  : bc1 = transportb BC ea bc2.
 Proof.
   destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
   cbn in eb; destruct eb; cbn in ec; destruct ec.
