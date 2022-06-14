@@ -81,7 +81,6 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
 
-limits/Examples/UnitCategoryLimits.v
 limits/Examples/CategoryProductLimits.v
 
 IsoCommaCategory.v
@@ -159,6 +158,8 @@ categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
 categories/preorder_categories.v
+
+limits/Examples/UnitCategoryLimits.v
 
 categories/Type/Colimits.v
 categories/Type/Limits.v
