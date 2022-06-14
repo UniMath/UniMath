@@ -10,6 +10,7 @@ Direct implementation of binary coproducts togther with:
 - Definition of the option functor ([option_functor])
 - Binary coproducts from colimits ([BinCoproducts_from_Colims])
 - Equivalent universal property: (A --> C) × (B --> C) ≃ (A + B --> C)
+- The type of coproducts on a given diagram is a proposition
 
 Written by Benedikt Ahrens, March 2015
 Extended by Anders Mörtberg and Tomi Pannila, 2016
@@ -1118,3 +1119,98 @@ End EquivalentDefinition.
 
 (** Match non-implicit arguments of [isBinCoproduct] *)
 Arguments isBinCoproduct' _ _ _ _ _ : clear implicits.
+
+(**
+ Coproducts when the inclusions are equal
+ *)
+Definition isBinCoproduct_eq_arrow
+           {C : category}
+           {x y z : C}
+           {ι₁ ι₁' : x --> z}
+           (p₁ : ι₁ = ι₁')
+           {ι₂ ι₂' : y --> z}
+           (p₂ : ι₂ = ι₂')
+           (H : isBinCoproduct C x y z ι₁ ι₂)
+  : isBinCoproduct C x y z ι₁' ι₂'.
+Proof.
+  pose (P := make_BinCoproduct _ _ _ _ _ _ H).
+  intros w f g.
+  use iscontraprop1.
+  - abstract
+      (induction p₁, p₂ ;
+       apply isapropifcontr ;
+       apply H).
+  - simple refine (_ ,, _ ,, _).
+    + exact (BinCoproductArrow P f g).
+    + abstract
+        (induction p₁ ;
+         exact (BinCoproductIn1Commutes _ _ _ P _ f g)).
+    + abstract
+        (induction p₂ ;
+         exact (BinCoproductIn2Commutes _ _ _ P _ f g)).
+Defined.
+
+(**
+ Coproduct of isos
+ *)
+Section BinCoproductOfIsos.
+  Context {C : category}
+          {a b c d : C}
+          (Pab : BinCoproduct a b)
+          (Pcd : BinCoproduct c d)
+          (f : z_iso a c)
+          (g : z_iso b d).
+
+  Let fg : BinCoproductObject Pab --> BinCoproductObject Pcd
+    := BinCoproductOfArrows _ _ _ f g.
+
+  Let fg_inv : BinCoproductObject Pcd --> BinCoproductObject Pab
+    := BinCoproductOfArrows _ _ _ (inv_from_z_iso f) (inv_from_z_iso g).
+
+  Definition bincoproduct_of_z_iso_inv
+    : is_inverse_in_precat fg fg_inv.
+  Proof.
+    split ; use BinCoproductArrowsEq ; unfold fg, fg_inv.
+    - rewrite !assoc.
+      rewrite BinCoproductOfArrowsIn1.
+      rewrite !assoc'.
+      rewrite BinCoproductOfArrowsIn1.
+      rewrite !assoc.
+      rewrite z_iso_inv_after_z_iso.
+      rewrite id_left, id_right.
+      apply idpath.
+    - rewrite !assoc.
+      rewrite BinCoproductOfArrowsIn2.
+      rewrite !assoc'.
+      rewrite BinCoproductOfArrowsIn2.
+      rewrite !assoc.
+      rewrite z_iso_inv_after_z_iso.
+      rewrite id_left, id_right.
+      apply idpath.
+    - rewrite !assoc.
+      rewrite BinCoproductOfArrowsIn1.
+      rewrite !assoc'.
+      rewrite BinCoproductOfArrowsIn1.
+      rewrite !assoc.
+      rewrite z_iso_after_z_iso_inv.
+      rewrite id_left, id_right.
+      apply idpath.
+    - rewrite !assoc.
+      rewrite BinCoproductOfArrowsIn2.
+      rewrite !assoc'.
+      rewrite BinCoproductOfArrowsIn2.
+      rewrite !assoc.
+      rewrite z_iso_after_z_iso_inv.
+      rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition bincoproduct_of_z_iso
+    : z_iso (BinCoproductObject Pab) (BinCoproductObject Pcd).
+  Proof.
+    use make_z_iso.
+    - exact fg.
+    - exact fg_inv.
+    - exact bincoproduct_of_z_iso_inv.
+  Defined.
+End BinCoproductOfIsos.

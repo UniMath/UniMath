@@ -7,10 +7,8 @@ Direct definition of terminal object together with:
 
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -204,3 +202,23 @@ now apply TerminalArrowEq.
 Qed.
 
 End monics_terminal.
+
+Definition iso_to_Terminal
+           {C : category}
+           (T : Terminal C)
+           (x : C)
+           (i : z_iso T x)
+  : isTerminal C x.
+Proof.
+  intros w.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       refine (!(id_right _) @ _ @ id_right _) ;
+       rewrite <- !(z_iso_after_z_iso_inv i) ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       apply TerminalArrowEq).
+  - exact (TerminalArrow T w · i).
+Defined.

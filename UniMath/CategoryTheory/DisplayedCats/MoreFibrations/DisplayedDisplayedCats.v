@@ -26,8 +26,6 @@ Require Import UniMath.Foundations.All.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-About transportD.
-
 
 Section DisplayedDisplayedCategories.
 

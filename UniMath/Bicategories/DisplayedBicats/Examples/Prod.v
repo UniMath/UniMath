@@ -840,3 +840,80 @@ Section Disp_Dirprod.
   Qed.
 
 End Disp_Dirprod.
+
+(**
+ Invertible 2-cells in the total bicategory
+ *)
+Definition pr1_dirprod_invertible_2cell
+           {B : bicat}
+           (D₁ D₂ : disp_bicat B)
+           {x y : total_bicat (disp_dirprod_bicat D₁ D₂)}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+  : @invertible_2cell
+      (total_bicat D₁)
+      (pr1 x ,, pr12 x)
+      (pr1 y ,, pr12 y)
+      (pr1 f ,, pr12 f)
+      (pr1 g ,, pr12 g).
+Proof.
+  use make_invertible_2cell.
+  - exact (pr11 α ,, pr121 α).
+  - use make_is_invertible_2cell.
+    + exact (pr1 (α^-1) ,, pr12 (α^-1)).
+    + abstract
+        (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
+         cbn ;
+         refine (_ @ maponpaths pr1 (fiber_paths (vcomp_rinv α))) ;
+         refine (!_) ;
+         apply (@pr1_transportf
+                  (pr1 f ==> pr1 f)
+                  (λ z, pr12 f ==>[ z ] pr12 f)
+                  (λ z _, pr22 f ==>[ z ] pr22 f))).
+    + abstract
+        (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_linv α)) | ] ;
+         cbn ;
+         refine (_ @ maponpaths pr1 (fiber_paths (vcomp_linv α))) ;
+         refine (!_) ;
+         apply (@pr1_transportf
+                  (pr1 g ==> pr1 g)
+                  (λ z, pr12 g ==>[ z ] pr12 g)
+                  (λ z _, pr22 g ==>[ z ] pr22 g))).
+Defined.
+
+Definition pr2_dirprod_invertible_2cell
+           {B : bicat}
+           (D₁ D₂ : disp_bicat B)
+           {x y : total_bicat (disp_dirprod_bicat D₁ D₂)}
+           {f g : x --> y}
+           (α : invertible_2cell f g)
+  : @invertible_2cell
+      (total_bicat D₂)
+      (pr1 x ,, pr22 x)
+      (pr1 y ,, pr22 y)
+      (pr1 f ,, pr22 f)
+      (pr1 g ,, pr22 g).
+Proof.
+  use make_invertible_2cell.
+  - exact (pr11 α ,, pr221 α).
+  - use make_is_invertible_2cell.
+    + exact (pr1 (α^-1) ,, pr22 (α^-1)).
+    + abstract
+        (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
+         cbn ;
+         refine (_ @ maponpaths dirprod_pr2 (fiber_paths (vcomp_rinv α))) ;
+         refine (!_) ;
+         apply (@pr2_transportf
+                  (pr1 f ==> pr1 f)
+                  (λ z, pr12 f ==>[ z ] pr12 f)
+                  (λ z, pr22 f ==>[ z ] pr22 f))).
+    + abstract
+        (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_linv α)) | ] ;
+         cbn ;
+         refine (_ @ maponpaths dirprod_pr2 (fiber_paths (vcomp_linv α))) ;
+         refine (!_) ;
+         apply (@pr2_transportf
+                  (pr1 g ==> pr1 g)
+                  (λ z, pr12 g ==>[ z ] pr12 g)
+                  (λ z, pr22 g ==>[ z ] pr22 g))).
+Defined.
