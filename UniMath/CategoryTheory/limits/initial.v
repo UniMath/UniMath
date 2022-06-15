@@ -200,3 +200,23 @@ now apply InitialArrowEq.
 Qed.
 
 End epis_initial.
+
+Definition iso_to_Initial
+           {C : category}
+           (I : Initial C)
+           (x : C)
+           (i : z_iso I x)
+  : isInitial C x.
+Proof.
+  intros w.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       refine (!(id_left _) @ _ @ id_left _) ;
+       rewrite <- !(z_iso_after_z_iso_inv i) ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       apply InitialArrowEq).
+  - exact (z_iso_inv i · InitialArrow I w).
+Defined.
