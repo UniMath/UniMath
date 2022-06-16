@@ -74,8 +74,6 @@ MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
-MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/UnitLayer.v
-MonoidalCategories/UnivalenceOfBicategoryOfUnivMoncats/TensorLayer.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
