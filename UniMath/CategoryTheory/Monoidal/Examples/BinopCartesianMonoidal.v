@@ -1,8 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-
+Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.CategoryTheory.Core.Categories.
-
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -16,38 +15,17 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.SetCartesianMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
 
 Local Open Scope cat.
 
-(* Import BifunctorNotations.
-Import MonoidalNotations. *)
-
 Section BinopCategory.
-
-  Definition Binop_data (X : hSet) : UU := X -> X -> X.
-  Definition Binop_law {X : hSet} (m : Binop_data X) : UU
-    := ∏ x y z : X, m (m x y) z = m x (m y z).
-  Definition Binop (X : hSet) : UU
-    := ∑ m : Binop_data X, Binop_law m.
-  Definition Binop_to_data {X : hSet} (m : Binop X) : Binop_data X := pr1 m.
-  Coercion Binop_to_data : Binop >-> Binop_data.
-
-  Definition preserve_binop {X Y : hSet} (m : Binop X) (n : Binop Y) (f : X → Y)
-    : UU := ∏ x1 x2 : X, (pr1 n) (f x1) (f x2) = f (pr1 m x1 x2).
-
-  Lemma isaprop_preserve_binop {X Y : hSet} (m : Binop X) (n : Binop Y) (f : X → Y)
-    : isaprop (preserve_binop m n f).
-  Proof.
-    repeat (apply impred_isaprop ; intro).
-    apply Y.
-  Qed.
 
   Definition Binop_disp_cat_ob_mor : disp_cat_ob_mor SET.
   Proof.
     use tpair.
-    - exact (λ X, Binop X).
-    - exact (λ _ _ m n f, preserve_binop m n f).
+    - exact (λ X, binop (pr1 X)).
+    - exact (λ X Y m n f, isbinopfun (X := (X,,m)) (Y := (Y,,n)) f).
   Defined.
 
   Definition Binop_disp_cat_id_comp : disp_cat_id_comp SET Binop_disp_cat_ob_mor.
@@ -55,14 +33,11 @@ Section BinopCategory.
     use tpair.
     - intros X m x1 x2.
       apply idpath.
-    - intros X Y Z f g m n o pf pg x1 x2.
-      cbn in *.
-      use pathscomp0.
-      3: {
-        apply maponpaths.
-        apply pf.
-      }
-      apply pg.
+    - intros X Y Z f g m n o pf pg.
+      exact (isbinopfuncomp (make_binopfun (X := (X,,m)) (Y := (Y,,n)) f pf)
+            (make_binopfun (X := (Y,,n)) (Y := (Z,,o)) g pg)).
+
+      (* etrans. { apply maponpaths. apply pf. } ; apply pg. *)
   Defined.
 
   Definition Binop_disp_cat_data : disp_cat_data SET
@@ -98,24 +73,12 @@ Section BinopIsCartesianMonoidal.
   Local Notation BO := Binop_cat.
   Local Notation DBO := Binop_disp_cat.
 
-  Definition BO_disp_tensor_data : disp_bifunctor_data SET_cart_monoidal DBO DBO DBO.
+  Definition BO_disp_tensor_data : disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO.
   Proof.
     repeat (use tpair).
     - intros X Y m n.
-      use tpair.
-      + intros xy1 xy2.
-        cbn in *.
-        exact (pr1 m (pr1 xy1) (pr1 xy2),, pr1 n (pr2 xy1) (pr2 xy2)).
-      + intros x y z.
-        use total2_paths_b.
-        * apply m.
-        * simpl.
-          etrans. { apply n. }
-          unfold transportb.
-          rewrite transportf_const.
-          apply idpath.
-          (* use pathscomp0.
-          3: { Check (! transportf_const ( (! pr2 m (pr1 x) (pr1 y) (pr1 z))) (pr1 Y)). *)
+      intros xy1 xy2.
+      exact (m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2)).
     - intros X Y Z f m n o pf.
       intros x1 x2.
       use total2_paths_b.
@@ -135,29 +98,26 @@ Section BinopIsCartesianMonoidal.
   Proof.
     repeat (use tpair).
     - intros X Y m n.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y m n.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
   Qed.
 
-  Definition BO_disp_tensor : disp_tensor DBO SET_cart_monoidal
+  Definition BO_disp_tensor : disp_tensor DBO SET_cartesian_monoidal
     := (BO_disp_tensor_data,, BO_disp_tensor_laws).
 
-  Definition BO_cart_disp_monoidal_data : disp_monoidal_data DBO SET_cart_monoidal.
+  Definition BO_cart_disp_monoidal_data : disp_monoidal_data DBO SET_cartesian_monoidal.
   Proof.
     use tpair.
     - exact (BO_disp_tensor).
     - repeat (use tpair).
       + intros t1 t2 ; induction t1 ; induction t2 ; exact tt.
-      + intros i j k.
-        induction i ; induction j ; induction k.
-        apply idpath.
       + intro ; intros ; intro ; intro.
         apply idpath.
       + intro ; intros ; intro ; intro.
@@ -170,11 +130,11 @@ Section BinopIsCartesianMonoidal.
   Proof.
     repeat (use tpair).
     - intros X Y Z W f m n o p pf.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z W f m n o p pf.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z W f m n o p pf.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X Y Z m n o.
       use tpair.
       + intros a b.
@@ -184,33 +144,33 @@ Section BinopIsCartesianMonoidal.
           -- apply idpath_transportf.
         * apply idpath_transportf.
       + use tpair.
-        * apply isaprop_preserve_binop.
-        * apply isaprop_preserve_binop.
+        * apply isapropisbinopfun.
+        * apply isapropisbinopfun.
     - intros X Y f x y pf.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X x.
       use tpair.
       + intros x1 x2.
         apply idpath.
       + use tpair.
-        * apply isaprop_preserve_binop.
-        * apply isaprop_preserve_binop.
+        * apply isapropisbinopfun.
+        * apply isapropisbinopfun.
     - intros X Y f x y pf.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intros X x.
       use tpair.
       + intros x1 x2.
         apply idpath.
       + use tpair.
-        * apply isaprop_preserve_binop.
-        * apply isaprop_preserve_binop.
+        * apply isapropisbinopfun.
+        * apply isapropisbinopfun.
     - intros X Y x y.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
     - intro ; intros.
-      apply isaprop_preserve_binop.
+      apply isapropisbinopfun.
   Qed.
 
-  Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cart_monoidal
+  Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cartesian_monoidal
     := (BO_cart_disp_monoidal_data,, BO_cart_disp_monoidal_laws).
 
   Definition Binop_cat_cart_monoidal : monoidal Binop_cat

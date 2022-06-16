@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.SetCartesianMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
 
 Local Open Scope cat.
 
@@ -100,7 +100,7 @@ Section PointedSetIsCartesianMonoidal.
   Local Notation PS := ptset_cat.
   Local Notation DPS := ptset_disp_cat.
 
-  Definition PS_disp_tensor_data : disp_bifunctor_data SET_cart_monoidal DPS DPS DPS.
+  Definition PS_disp_tensor_data : disp_bifunctor_data SET_cartesian_monoidal DPS DPS DPS.
   Proof.
     repeat (use tpair).
     - exact (λ _ _ x y, x,,y).
@@ -132,10 +132,10 @@ Section PointedSetIsCartesianMonoidal.
       apply isaprop_preserve_ptset.
   Qed.
 
-  Definition PS_disp_tensor : disp_tensor DPS SET_cart_monoidal
+  Definition PS_disp_tensor : disp_tensor DPS SET_cartesian_monoidal
     := (PS_disp_tensor_data,, PS_disp_tensor_laws).
 
-  Definition PS_cart_disp_monoidal_data : disp_monoidal_data DPS SET_cart_monoidal.
+  Definition PS_cart_disp_monoidal_data : disp_monoidal_data DPS SET_cartesian_monoidal.
   Proof.
     use tpair.
     - exact (PS_disp_tensor).
@@ -201,7 +201,7 @@ Section PointedSetIsCartesianMonoidal.
       apply isaprop_preserve_ptset.
   Qed.
 
-  Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cart_monoidal
+  Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
     := (PS_cart_disp_monoidal_data,, PS_cart_disp_monoidal_laws).
 
   Definition PS_cat_cart_monoidal : monoidal ptset_cat
