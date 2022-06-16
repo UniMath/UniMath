@@ -217,6 +217,7 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
@@ -226,7 +227,8 @@ Monoidal/MonoidalSectionsWhiskered.v
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
 DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
-DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
+DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
+DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v

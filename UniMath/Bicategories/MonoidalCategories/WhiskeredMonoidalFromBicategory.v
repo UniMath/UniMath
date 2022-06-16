@@ -87,28 +87,28 @@ Defined.
 
 Local Definition MD := monoidal_data_from_bicat_and_ob.
 
-Local Lemma associator_law_from_bicat_and_ob: associator_law α_{MD}.
+Local Definition associator_law_from_bicat_and_ob: associator_law α_{MD}.
 Proof.
   repeat split; red; cbn.
   - apply lwhisker_lwhisker_rassociator.
   - intros; apply pathsinv0, rwhisker_rwhisker_alt.
   - apply rwhisker_lwhisker_rassociator.
   - apply is_invertible_2cell_rassociator.
-Qed.
+Defined.
 
-Local Lemma leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD}.
+Local Definition leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_lunitor.
   - apply is_invertible_2cell_lunitor.
-Qed.
+Defined.
 
-Local Lemma rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD}.
+Local Definition rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_runitor.
   - apply is_invertible_2cell_runitor.
-Qed.
+Defined.
 
 Local Lemma triangle_identity_from_bicat_and_ob: triangle_identity lu_{MD} ru_{MD} α_{MD}.
 Proof.
