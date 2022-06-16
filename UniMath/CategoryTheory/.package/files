@@ -241,6 +241,9 @@ Monoidal/TotalDisplayedMonoidalCurried.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
+Monoidal/Examples/SetCartesianMonoidal.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
