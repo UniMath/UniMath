@@ -291,9 +291,9 @@ Section Final.
              {X : B}
              (HX : is_bifinal X)
              (Y : B)
-    : (functor_identity (hom Y X))
-        ⟹
-        functor_composite
+    : functor_identity (hom Y X)
+      ⟹
+      functor_composite
         (functor_to_unit (hom Y X))
         (bifinal_inv HX Y).
   Proof.
@@ -330,11 +330,11 @@ Section Final.
              {X : B}
              (HX : is_bifinal X)
              (Y : B)
-    : (functor_composite
-         (bifinal_inv HX Y)
-         (functor_to_unit (hom Y X)))
-        ⟹
-        (functor_identity _).
+    : functor_composite
+        (bifinal_inv HX Y)
+        (functor_to_unit (hom Y X))
+      ⟹
+      functor_identity _.
   Proof.
     use make_nat_trans.
     - exact (bifinal_inv_counit_data HX Y).

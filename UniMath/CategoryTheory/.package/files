@@ -79,8 +79,12 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
+limits/Preservation.v
+
+limits/Examples/CategoryProductLimits.v
 
 IsoCommaCategory.v
+limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 categories/Dialgebras.v
 
@@ -154,6 +158,8 @@ categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
 categories/preorder_categories.v
+
+limits/Examples/UnitCategoryLimits.v
 
 categories/Type/Colimits.v
 categories/Type/Limits.v

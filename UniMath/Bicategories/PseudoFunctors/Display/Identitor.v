@@ -144,4 +144,50 @@ Section Identitor.
     - exact identitor_is_disp_univalent_2_1.
   Defined.
 
+  Definition identitor_disp_left_adjequiv_over_id
+             {F : map1cells C D}
+             {Fid Gid : identitor_disp_cat F}
+             (ηid : Fid -->[ internal_adjoint_equivalence_identity _ ] Gid)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ηid.
+  Proof.
+    apply disp_cell_unit_bicat_left_adjoint_equivalence_weq.
+    intro x.
+    cbn.
+    pose (ηid x) as p.
+    cbn in p.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite <- rwhisker_hcomp.
+    rewrite lunitor_runitor_identity.
+    rewrite <- lunitor_V_id_is_left_unit_V_id.
+    rewrite !vassocr.
+    refine (!p @ _).
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite <- rwhisker_hcomp.
+    rewrite lunitor_runitor_identity.
+    rewrite <- lunitor_V_id_is_left_unit_V_id.
+    apply idpath.
+  Qed.
+
+  Definition identitor_disp_left_adjequiv
+             {HD : is_univalent_2 D}
+             {F G : map1cells C D}
+             (η : adjoint_equivalence F G)
+             {F₂ : identitor_disp_cat F}
+             {G₂ : identitor_disp_cat G}
+             (η₂ : F₂ -->[ η ] G₂)
+    : disp_left_adjoint_equivalence η η₂.
+  Proof.
+    revert F G η F₂ G₂ η₂.
+    use J_2_0.
+    - apply map1cells_is_univalent_2_0.
+      exact HD.
+    - intros F F₂ G₂ η₂.
+      apply identitor_disp_left_adjequiv_over_id.
+  Defined.
 End Identitor.
