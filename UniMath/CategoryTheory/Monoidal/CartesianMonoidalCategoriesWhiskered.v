@@ -10,10 +10,15 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+
 Local Open Scope cat.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
+
+Section GeneralConstruction.
 
 Context (C : category)(CP : BinProducts C)(terminal : Terminal C).
 
@@ -367,4 +372,14 @@ Proof.
   exists rightunitor_law_from_binprod.
   exists triangle_identity_from_binprod.
   exact pentagon_identity_from_binprod.
+Defined.
+
+End GeneralConstruction.
+
+
+Definition SET_cartesian_monoidal : monoidal SET.
+Proof.
+  apply cartesianmonoidalcat.
+  - apply BinProductsHSET.
+  - apply TerminalHSET.
 Defined.
