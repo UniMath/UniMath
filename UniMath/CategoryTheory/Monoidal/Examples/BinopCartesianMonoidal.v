@@ -6,6 +6,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
@@ -34,6 +35,13 @@ Section BinopCategory.
 
   Definition preserve_binop {X Y : hSet} (m : Binop X) (n : Binop Y) (f : X → Y)
     : UU := ∏ x1 x2 : X, (pr1 n) (f x1) (f x2) = f (pr1 m x1 x2).
+
+  Lemma isaprop_preserve_binop {X Y : hSet} (m : Binop X) (n : Binop Y) (f : X → Y)
+    : isaprop (preserve_binop m n f).
+  Proof.
+    repeat (apply impred_isaprop ; intro).
+    apply Y.
+  Qed.
 
   Definition Binop_disp_cat_ob_mor : disp_cat_ob_mor SET.
   Proof.
@@ -127,21 +135,16 @@ Section BinopIsCartesianMonoidal.
   Proof.
     repeat (use tpair).
     - intros X Y m n.
-      apply funextsec ; intro xy1 ; apply funextsec ; intro xy2.
-      unfold transportb.
-      (* rewrite (! transportf_sec_constant _ _ ). *)
-      admit.
+      apply isaprop_preserve_binop.
     - intros X Y m n.
-      admit.
+      apply isaprop_preserve_binop.
     - intros X Y Z W f g m n o p pf pg.
-      admit.
+      apply isaprop_preserve_binop.
     - intros X Y Z W f g m n o p pf pg.
-      admit.
-    - simpl.
-      unfold dispfunctoronmorphisms_are_equal.
-      intros X Y Z W f g m n o p pf pg.
-      admit.
-  Admitted.
+      apply isaprop_preserve_binop.
+    - intros X Y Z W f g m n o p pf pg.
+      apply isaprop_preserve_binop.
+  Qed.
 
   Definition BO_disp_tensor : disp_tensor DBO SET_cart_monoidal
     := (BO_disp_tensor_data,, BO_disp_tensor_laws).
@@ -167,36 +170,45 @@ Section BinopIsCartesianMonoidal.
   Proof.
     repeat (use tpair).
     - intros X Y Z W f m n o p pf.
-      Check  disp_monoidal_associator BO_cart_disp_monoidal_data X Y Z m n o.
-      apply funextsec ; intro xy1.
-      apply funextsec ; intro xy2.
-      unfold transportb.
-      rewrite (! transportf_sec_constant _ _ ).
-      etrans. {
-        unfold BO_cart_disp_monoidal_data.
-        simpl.
-        Check disp_monoidal_associator.
-
-      admit.
-
+      apply isaprop_preserve_binop.
     - intros X Y Z W f m n o p pf.
-      admit.
-
+      apply isaprop_preserve_binop.
     - intros X Y Z W f m n o p pf.
-      admit.
+      apply isaprop_preserve_binop.
     - intros X Y Z m n o.
       use tpair.
       + intros a b.
-        cbn in *.
-        induction a as [xa [ya za]].
-        induction b as [xb [yb zb]].
-        cbn in *.
-        use total2_paths_b.
-        * use total2_paths_b.
-          -- cbn in *.
-             admit.
-  Admitted.
-
+        use total2_paths_f.
+        * use total2_paths_f.
+          -- apply idpath.
+          -- apply idpath_transportf.
+        * apply idpath_transportf.
+      + use tpair.
+        * apply isaprop_preserve_binop.
+        * apply isaprop_preserve_binop.
+    - intros X Y f x y pf.
+      apply isaprop_preserve_binop.
+    - intros X x.
+      use tpair.
+      + intros x1 x2.
+        apply idpath.
+      + use tpair.
+        * apply isaprop_preserve_binop.
+        * apply isaprop_preserve_binop.
+    - intros X Y f x y pf.
+      apply isaprop_preserve_binop.
+    - intros X x.
+      use tpair.
+      + intros x1 x2.
+        apply idpath.
+      + use tpair.
+        * apply isaprop_preserve_binop.
+        * apply isaprop_preserve_binop.
+    - intros X Y x y.
+      apply isaprop_preserve_binop.
+    - intro ; intros.
+      apply isaprop_preserve_binop.
+  Qed.
 
   Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cart_monoidal
     := (BO_cart_disp_monoidal_data,, BO_cart_disp_monoidal_laws).
@@ -204,6 +216,16 @@ Section BinopIsCartesianMonoidal.
   Definition Binop_cat_cart_monoidal : monoidal Binop_cat
     := total_monoidal BO_cart_disp_monoidal.
 
-  Lemma Forgetful_binop_to_set_strict_monoidal :
+  Lemma Forgetful_BO_to_set_preserves_unit_strictly
+    : preserves_unit_strictly (projection_preserves_unit BO_cart_disp_monoidal).
+  Proof.
+    apply projection_preservesunit_strictly.
+  Qed.
+
+  Lemma Forgetful_ptset_to_set_preserves_tensor_strictly
+    : preserves_tensor_strictly (projection_preserves_tensordata BO_cart_disp_monoidal).
+  Proof.
+    apply projection_preservestensor_strictly.
+  Qed.
 
 End BinopIsCartesianMonoidal.
