@@ -12,13 +12,12 @@ Direct implementation of pullbacks together with:
 - A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square])
 - Pullbacks in functor categories ([FunctorcategoryPullbacks])
 - Construction of binary products from pullbacks ([BinProductsFromPullbacks])
+- The type of pullbacks on a given diagram is a proposition
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -1291,3 +1290,286 @@ Lemma induced_precategory_reflects_pullbacks {M : precategory} {X:Type} (j : X -
 Proof.
   exact (λ pb T, pb (j T)).
 Qed.
+
+(**
+ The type of pullbacks on a given diagram is a proposition
+ *)
+Definition eq_Pullback
+           {C : category}
+           {x y z : C}
+           {f : x --> z}
+           {g : y --> z}
+           (p₁ p₂ : Pullback f g)
+           (e₁ : PullbackObject p₁ = PullbackObject p₂)
+           (e₂ : idtoiso e₁ · PullbackPr1 p₂
+                 =
+                 PullbackPr1 p₁)
+           (e₃ : idtoiso e₁ · PullbackPr2 p₂
+                 =
+                 PullbackPr2 p₁)
+  : p₁ = p₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    use isaproptotal2.
+    {
+      intro.
+      apply isaprop_isPullback.
+    }
+    intros.
+    apply homset_property.
+  }
+  induction p₁ as [ [ p₁ [ h₁ k₁ ]] ? ].
+  induction p₂ as [ [ p₂ [ h₂ k₂ ]] ? ].
+  cbn in *.
+  induction e₁.
+  cbn in *.
+  rewrite !id_left in *.
+  apply maponpaths.
+  apply pathsdirprod.
+  - exact (!e₂).
+  - exact (!e₃).
+Qed.
+
+Definition isaprop_Pullback
+           {C : category}
+           (HC : is_univalent C)
+           {x y z : C}
+           (f : x --> z)
+           (g : y --> z)
+  : isaprop (Pullback f g).
+Proof.
+  use invproofirrelevance.
+  intros p₁ p₂.
+  use eq_Pullback.
+  - refine (isotoid _ HC _).
+    apply z_iso_from_Pullback_to_Pullback.
+  - rewrite idtoiso_isotoid ; cbn.
+    apply PullbackArrow_PullbackPr1.
+  - rewrite idtoiso_isotoid ; cbn.
+    apply PullbackArrow_PullbackPr2.
+Qed.
+
+(**
+ Isos between pullbacks
+ *)
+Section IsoIsPullback.
+  Context {C : category}
+          {x y z : C}
+          {f : x --> z}
+          {g : y --> z}
+          {pb pb' : C}
+          {π₁ : pb --> x}
+          {π₂ : pb --> y}
+          (sqr : π₁ · f = π₂ · g)
+          {π₁' : pb' --> x}
+          {π₂' : pb' --> y}
+          (sqr' : π₁' · f = π₂' · g)
+          (H : isPullback sqr)
+          (i : z_iso pb pb')
+          (iπ₁' : i · π₁' = π₁)
+          (iπ₂' : i · π₂' = π₂).
+
+  Let P : Pullback f g := make_Pullback _ H.
+
+  Section UMP.
+    Context {w : C}
+            {h₁ : w --> x}
+            {h₂ : w --> y}
+            (q : h₁ · f = h₂ · g).
+
+    Definition isPullback_z_iso_unique
+      : isaprop (∑ (hk : w --> pb'), hk · π₁' = h₁ × hk · π₂' = h₂).
+    Proof.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply isapropdirprod ; apply homset_property.
+      }
+      refine (!(id_right _) @ _ @ id_right _).
+      rewrite <- (z_iso_after_z_iso_inv i).
+      rewrite !assoc.
+      apply maponpaths_2.
+      use (MorphismsIntoPullbackEqual H).
+      - pose (maponpaths (λ z, inv_from_z_iso i · z) iπ₁') as p.
+        cbn in p.
+        rewrite !assoc in p.
+        rewrite !z_iso_after_z_iso_inv in p.
+        rewrite id_left in p.
+        rewrite !assoc'.
+        rewrite <- p.
+        exact (pr12 φ₁ @ !(pr12 φ₂)).
+      - pose (maponpaths (λ z, inv_from_z_iso i · z) iπ₂') as p.
+        cbn in p.
+        rewrite !assoc in p.
+        rewrite !z_iso_after_z_iso_inv in p.
+        rewrite id_left in p.
+        rewrite !assoc'.
+        rewrite <- p.
+        exact (pr22 φ₁ @ !(pr22 φ₂)).
+    Qed.
+
+    Definition isPullback_z_iso_mor
+      : w --> pb'
+      := PullbackArrow P _ h₁ h₂ q · i.
+
+    Definition isPullback_z_iso_pr1
+      : isPullback_z_iso_mor · π₁' = h₁.
+    Proof.
+      unfold isPullback_z_iso_mor.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        exact iπ₁'.
+      }
+      apply PullbackArrow_PullbackPr1.
+    Qed.
+
+    Definition isPullback_z_iso_pr2
+      : isPullback_z_iso_mor · π₂' = h₂.
+    Proof.
+      unfold isPullback_z_iso_mor.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        exact iπ₂'.
+      }
+      apply PullbackArrow_PullbackPr2.
+    Qed.
+  End UMP.
+
+  Definition isPullback_z_iso
+    : isPullback sqr'.
+  Proof.
+    intros w h₁ h₂ q.
+    use iscontraprop1.
+    - apply isPullback_z_iso_unique.
+    - refine (isPullback_z_iso_mor q ,, _ ,, _).
+      + apply isPullback_z_iso_pr1.
+      + apply isPullback_z_iso_pr2.
+  Defined.
+End IsoIsPullback.
+
+(**
+ A general statement to get isos between pullbacks
+ *)
+Section IsoOfPullbacks.
+  Context {C : category}
+          {pb pb' x x' y y' z z' : C}
+          {f : x --> z}
+          {f' : x' --> z'}
+          {g : y --> z}
+          {g' : y' --> z'}
+          {π₁ : pb --> x}
+          {π₂ : pb --> y}
+          {π₁' : pb' --> x'}
+          {π₂' : pb' --> y'}
+          (sqr : π₁ · f = π₂ · g)
+          (sqr' : π₁' · f' = π₂' · g')
+          (H : isPullback sqr)
+          (H' : isPullback sqr')
+          (ix : z_iso x x')
+          (iy : z_iso y y')
+          (iz : z_iso z z')
+          (pf : ix · f' = f · iz)
+          (pg : iy · g' = g · iz).
+
+  Let P : Pullback f g := make_Pullback _ H.
+  Let P' : Pullback f' g' := make_Pullback _ H'.
+
+  Definition iso_between_pullbacks_help_path
+    : inv_from_z_iso ix · f = f' · inv_from_z_iso iz.
+  Proof.
+    use z_iso_inv_on_left.
+    rewrite !assoc'.
+    refine (!_).
+    use z_iso_inv_on_right.
+    exact (!pf).
+  Qed.
+
+  Definition iso_between_pullbacks_other_help_path
+    : inv_from_z_iso iy · g = g' · inv_from_z_iso iz.
+  Proof.
+    use z_iso_inv_on_left.
+    rewrite !assoc'.
+    refine (!_).
+    use z_iso_inv_on_right.
+    exact (!pg).
+  Qed.
+
+  Definition iso_between_pullbacks_map : pb --> pb'.
+  Proof.
+    use (PullbackArrow P' _ (π₁ · ix) (π₂ · iy)).
+    abstract
+      (rewrite !assoc' ;
+       rewrite pf, pg ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       exact sqr).
+  Defined.
+
+  Definition iso_between_pullbacks_inv : pb' --> pb.
+  Proof.
+    use (PullbackArrow P _ (π₁' · inv_from_z_iso ix) (π₂' · inv_from_z_iso iy)).
+    abstract
+      (rewrite !assoc' ;
+       rewrite iso_between_pullbacks_help_path, iso_between_pullbacks_other_help_path ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       exact sqr').
+  Defined.
+
+  Definition iso_between_pullbacks_are_inv
+    : is_inverse_in_precat iso_between_pullbacks_map iso_between_pullbacks_inv.
+  Proof.
+    split ; unfold iso_between_pullbacks_map, iso_between_pullbacks_inv.
+    - use (MorphismsIntoPullbackEqual H).
+      + rewrite !assoc'.
+        rewrite (PullbackArrow_PullbackPr1 P).
+        rewrite !assoc.
+        rewrite (PullbackArrow_PullbackPr1 P').
+        rewrite !assoc'.
+        rewrite z_iso_inv_after_z_iso.
+        rewrite id_left, id_right.
+        apply idpath.
+      + rewrite !assoc'.
+        rewrite (PullbackArrow_PullbackPr2 P).
+        rewrite !assoc.
+        rewrite (PullbackArrow_PullbackPr2 P').
+        rewrite !assoc'.
+        rewrite z_iso_inv_after_z_iso.
+        rewrite id_left, id_right.
+        apply idpath.
+    - use (MorphismsIntoPullbackEqual H').
+      + rewrite !assoc'.
+        rewrite (PullbackArrow_PullbackPr1 P').
+        rewrite !assoc.
+        rewrite (PullbackArrow_PullbackPr1 P).
+        rewrite !assoc'.
+        rewrite z_iso_after_z_iso_inv.
+        rewrite id_left, id_right.
+        apply idpath.
+      + rewrite !assoc'.
+        rewrite (PullbackArrow_PullbackPr2 P').
+        rewrite !assoc.
+        rewrite (PullbackArrow_PullbackPr2 P).
+        rewrite !assoc'.
+        rewrite z_iso_after_z_iso_inv.
+        rewrite id_left, id_right.
+        apply idpath.
+  Qed.
+
+  Definition iso_between_pullbacks
+    : z_iso pb pb'.
+  Proof.
+    use make_z_iso.
+    - exact iso_between_pullbacks_map.
+    - exact iso_between_pullbacks_inv.
+    - exact iso_between_pullbacks_are_inv.
+  Defined.
+End IsoOfPullbacks.

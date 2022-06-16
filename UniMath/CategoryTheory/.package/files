@@ -79,8 +79,12 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
+limits/Preservation.v
+
+limits/Examples/CategoryProductLimits.v
 
 IsoCommaCategory.v
+limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 categories/Dialgebras.v
 
@@ -155,6 +159,8 @@ categories/modules.v
 categories/StandardCategories.v
 categories/preorder_categories.v
 
+limits/Examples/UnitCategoryLimits.v
+
 categories/Type/Colimits.v
 categories/Type/Limits.v
 categories/Type/Structures.v
@@ -226,7 +232,8 @@ Monoidal/MonoidalSectionsWhiskered.v
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
 DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
-DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
+DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
+DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
