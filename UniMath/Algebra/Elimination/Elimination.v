@@ -698,7 +698,8 @@ Section Gauss.
     (k_j : (⟦ n ⟧%stn)) (row_sep : ⟦ S m ⟧%stn)
     : Matrix F m n.
   Proof.
-    destruct row_sep as [iter lt].
+    destruct row_sep as [iter lt'].
+    generalize lt'; intros lt; clear lt'.
     induction iter as [ | iter gauss_clear_column_IH ].
     { exact mat. } 
     destruct (natgthorleh iter k_i) as [gt | leh].
@@ -717,13 +718,14 @@ Section Gauss.
     : Matrix F m m.
   Proof.
     destruct iter as [iter p].
+    generalize p; intros lt; clear p.
     induction iter as [| iter IH].
     - exact (@identity_matrix F m).
     - assert (p': iter < S m).
-      { apply (istransnatlth _ _ _ (natgthsnn iter) p ). }
+      { apply (istransnatlth _ _ _ (natgthsnn iter) lt ). }
        destruct (natgthorleh iter k_i).
-      + exact (add_row_matrix k_i (iter,, p)
-        (- ((mat (iter,, p) k_j) * fldmultinv' (mat k_i k_j) ))%ring ** (IH p')).
+      + exact (add_row_matrix k_i (iter,, lt)
+        (- ((mat (iter,, lt) k_j) * fldmultinv' (mat k_i k_j) ))%ring ** (IH p')).
       + exact (@identity_matrix F m ** (IH p')).
   Defined.
 
@@ -1682,8 +1684,7 @@ Section Gauss.
             (leading_entry_compute F (mat u))) as [prev | none_prev].
           -- destruct prev as [prev eq''].
              unfold leading_entry_compute in prev.
-             pose (H2 := @leading_entry_compute_correct1
-              F n _ _ eq'').
+             pose (H2 := @leading_entry_compute_correct1 F n _ _ eq'').
              contradiction (pr1 H2).
              rewrite (IH iter_lt_sn); try reflexivity; try assumption.
              use tpair.
@@ -1793,63 +1794,35 @@ Section Gauss.
         replace (fldmultinv' (@matrix_mult F _ _ x'' _ mat k_i k_j)%ring)
           with (fldmultinv' (mat k_i k_j)%ring).
         - reflexivity.
-        - clear IH; induction iter as [| iter IH'].
-          {apply fromempty. apply negnatgth0n in gt; assumption. }
-          unfold x'', x'.
-          rewrite nat_rect_step.
-          destruct (natgthorleh iter _).
-          2 : {rewrite matlunax2.
-               set (f := @gauss_clear_column_as_left_matrix_inv0 m ).
-               assert (obv: S iter < S m). { apply (istransnatlth _ _ _ p (natgthsnn (S m))). }
-               set (f' := @gauss_clear_column_as_left_matrix_inv1 m).
-               unfold gauss_clear_column_as_left_matrix in f'.
-               pose (f'' := f' _ (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
-                  (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))
-                  mat k_i k_j k_i (isreflnatleh k_i)).
-               rewrite f''; reflexivity.
-          }
+        - unfold x'', x'.
           set (f := @gauss_clear_column_as_left_matrix_inv1 m n).
           unfold gauss_clear_column_as_left_matrix in f.
-          assert (lt: S iter < S m). { apply (istransnatlth _ _ _ p (natgthsnn (S m)) ). }
-          rewrite (IH' lt); try assumption.
-          2: {apply natgthtoneq. assumption. }
-          pose (f' := f (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter) lt))).
-          rewrite f'. 2: {apply isreflnatleh. }
-          rewrite matrix_mult_assoc,
-            add_row_mat_elementary.
-          2: {apply issymm_natneq. apply natgthtoneq; assumption. }
-          rewrite gauss_add_row_inv0.
-          2: { apply natgthtoneq. assumption. }
-          clear f'.
-          set (f' := @gauss_clear_column_as_left_matrix_inv1 m n).
-          unfold gauss_clear_column_as_left_matrix  in f'; try reflexivity.
-          pose (f'' := f' (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
-            (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))
-              mat k_i k_j k_i (isreflnatleh k_i)).
-          rewrite f''.
-          reflexivity.
+          set (lt' := (istransnatlth iter (S iter) (S m) (natgthsnn iter) p)).
+          set (a := pr1 (make_stn _ iter lt')).
+          set (b := pr2 (make_stn _ iter lt')).
+          change iter with a.
+          assert (eq: lt' = b).
+          { apply proofirrelevance; apply propproperty. }
+          rewrite eq.
+          unfold a, b.
+          rewrite f. {reflexivity. }
+          apply isreflnatleh.
       }
-      induction iter as [| iter IH']. {apply fromempty. apply negnatgth0n in gt. assumption. }
-      rewrite nat_rect_step.
-      destruct (natgthorleh _ _) as [eq | neq'].
-      2 : { rewrite matlunax2.
-            set (f' := @gauss_clear_column_as_left_matrix_inv0 m n).
-            unfold gauss_clear_column_as_left_matrix  in f'; try reflexivity.
-            pose (f'' := f' (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
-              (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))).
-            rewrite f''; try reflexivity.
-            apply natlehnsn.
-      }
-      rewrite matrix_mult_assoc, add_row_mat_elementary.
-      2: {apply natgthtoneq in eq. apply issymm_natneq. assumption. }
-      rewrite gauss_add_row_inv0.
-      2: {apply issymm_natneq; apply natgthtoneq; apply natgthsnn. }
-      set (f' := @gauss_clear_column_as_left_matrix_inv0 m n).
-      unfold gauss_clear_column_as_left_matrix in f'.
-      pose (f'' := f' (iter,, (istransnatlth iter (S iter) (S m) (natgthsnn iter)
-        (istransnatlth (S iter) (S (S iter)) (S m) (natgthsnn (S iter)) p)))).
-      rewrite f''; try apply idpath.
-      apply natlehnsn.
+      apply maponpaths_1.
+      apply maponpaths_2.
+      rewrite IH.
+      pose (H := @gauss_clear_column_inv0).
+      unfold gauss_clear_column in H.
+      set (lt' := (istransnatlth iter (S iter) (S m) (natgthsnn iter) p)).
+      set (a := pr1 (make_stn _ iter lt')).
+      set (b := pr2 (make_stn _ iter lt')).
+      change iter with a.
+      assert (eq: lt' = b).
+      { apply proofirrelevance; apply propproperty. }
+      rewrite eq.
+      unfold a, b.
+      rewrite H; try assumption; try reflexivity.
+      apply isreflnatleh.
   Defined.
 
   Lemma clear_row_eq_matrix_def { m n : nat }
@@ -1884,7 +1857,9 @@ Section Gauss.
     rewrite IH; apply idpath.
   Defined.
 
-  Lemma gauss_clear_rows_up_to_matrix_invertible { m n : nat } (iter : ⟦ S m ⟧%stn)
+  Lemma gauss_clear_rows_up_to_matrix_invertible
+    { m n : nat }
+    (iter : ⟦ S m ⟧%stn)
     (mat : Matrix F m n) (p : n > 0) :
     (@matrix_inverse F m (@clear_rows_up_to_as_left_matrix m n mat iter p)).
   Proof.

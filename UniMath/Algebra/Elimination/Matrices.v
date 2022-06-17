@@ -532,8 +532,8 @@ Section MatricesFld.
   Defined.
 
   Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix F n n)
-      (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%ring)) :
-  (@matrix_inverse F n A) -> empty.
+    (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%ring)) :
+    (@matrix_inverse F n A) -> empty.
   Proof.
     intros invA.
     apply matrix_inverse_to_right_and_left_inverse in invA.

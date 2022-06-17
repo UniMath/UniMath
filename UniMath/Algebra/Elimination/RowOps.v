@@ -71,9 +71,8 @@ Section RowOps.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
-    (* TODO: here and elsewhere, probably better to use [scalar_lmult_vec] instead of this pointwise-product with [const_vec]; but will need lemmas about it abstracting away. *)
     - exact (pointwise n op1 (@stdb_vector F n i)
-        (const_vec s ^ ((@stdb_vector F) n r1))).
+        (@scalar_lmult_vec F s _ ((@stdb_vector F) n r1))).
     - exact (@stdb_vector F n i).
   Defined.
 
@@ -339,7 +338,7 @@ Section Elementary.
     2: {apply idpath. }
     destruct i_eq_r2.
     rewrite stn_eq_or_neq_refl, (stn_eq_or_neq_right ne); simpl.
-    unfold pointwise, const_vec.
+    unfold scalar_lmult_vec, pointwise, const_vec.
     rewrite (@rigrdistr F), rigcomm1, (@rigassoc1 F).
     reflexivity.
   Defined.
@@ -354,7 +353,7 @@ Section Elementary.
     2: { apply idpath. }
     destruct i_eq_r2. simpl.
     apply funextfun; intros j.
-    unfold pointwise.
+    unfold scalar_lmult_vec, pointwise.
     rewrite (@rigmult0x F).
     apply (@rigrunax1 F).
   Defined.

@@ -145,7 +145,7 @@ Section Vectors.
       apply idpath.
     - rewrite (left_part_is_zero ).
       apply idpath.
-  Defined..
+  Defined.
 
   Lemma rigsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
@@ -160,7 +160,7 @@ Section Vectors.
 
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn ) 
   (f : ⟦ n ⟧%stn -> R)
-  := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
+    := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
   Lemma pulse_function_sums_to_point { n : nat }
     (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
@@ -176,7 +176,7 @@ Section Vectors.
     unfold funcomp.
     replace (const_vec 0%rig k) with (@rigunel1 R). 2: { reflexivity. }
     assert (i_neq_dni : i ≠ dni i k) . {exact (dni_neq_i i k). }
-    - intros. destruct (stn_eq_or_neq i (dni i k) ) as [eq | neq].
+    - intros; destruct (stn_eq_or_neq i (dni i k) ) as [eq | neq].
         + apply (stnneq_iff_nopath i (dni i k)) in eq.
           apply weqtoempty. intros. apply eq. assumption.
           exact (dni_neq_i i k). (* Move up *)
