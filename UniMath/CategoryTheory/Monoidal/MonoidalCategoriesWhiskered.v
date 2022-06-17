@@ -367,4 +367,7 @@ Module MonoidalNotations.
   Notation "lu^{ M }_{ x }" := (monoidal_leftunitordata M x ).
   Notation "ru^{ M }_{ x }" := ( monoidal_rightunitordata M x ).
   Notation "α^{ M }_{ x , y , z }" := (monoidal_associatordata M x y z).
+  Notation "luinv^{ M }_{ x }" := (monoidal_leftunitorinv_data M x ).
+  Notation "ruinv^{ M }_{ x }" := ( monoidal_rightunitorinv_data M x ).
+  Notation "αinv^{ M }_{ x , y , z }" := (monoidal_associatorinv_data M x y z).
 End MonoidalNotations.

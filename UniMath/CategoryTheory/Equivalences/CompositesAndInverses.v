@@ -19,8 +19,9 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
@@ -253,3 +254,148 @@ Section eqv_inv.
   Defined.
 
 End eqv_inv.
+
+(** Closure under natural isomorphisms *)
+Definition nat_iso_equivalence_of_cats
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (α : F ⟹ G)
+           (Hα : is_nat_iso α)
+           (HF : adj_equivalence_of_cats F)
+  : equivalence_of_cats C₁ C₂.
+Proof.
+  use make_equivalence_of_cats.
+  - use make_adjunction_data.
+    + exact G.
+    + exact (right_adjoint HF).
+    + exact (nat_trans_comp
+               _ _ _
+               (adjunit HF)
+               (post_whisker α _)).
+    + exact (nat_trans_comp
+               _ _ _
+               (pre_whisker _ (nat_iso_inv (make_nat_iso _ _ α Hα)))
+               (adjcounit HF)).
+  - split.
+    + intro x ; cbn.
+      use is_iso_comp_of_is_isos.
+      * apply (unit_nat_iso_from_adj_equivalence_of_cats HF).
+      * apply functor_is_iso_is_iso.
+        apply Hα.
+    + intro x ; cbn.
+      use is_iso_comp_of_is_isos.
+      * apply is_iso_inv_from_iso.
+      * apply (counit_nat_iso_from_adj_equivalence_of_cats HF).
+Defined.
+
+Definition nat_iso_adj_equivalence_of_cats
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (α : F ⟹ G)
+           (Hα : is_nat_iso α)
+           (HF : adj_equivalence_of_cats F)
+  : adj_equivalence_of_cats G
+  := adjointificiation (nat_iso_equivalence_of_cats α Hα HF).
+
+Section PairEquivalence.
+  Context {C₁ C₁' C₂ C₂' : category}
+          {F : C₁ ⟶ C₁'}
+          {G : C₂ ⟶ C₂'}
+          (HF : adj_equivalence_of_cats F)
+          (HG : adj_equivalence_of_cats G).
+
+  Let L : category_binproduct C₁ C₂ ⟶ category_binproduct C₁' C₂'
+    := pair_functor F G.
+
+  Let R : category_binproduct C₁' C₂' ⟶ category_binproduct C₁ C₂
+    := pair_functor (right_adjoint HF) (right_adjoint HG).
+
+  Definition pair_equivalence_of_cats_unit_data
+    : nat_trans_data (functor_identity _) (L ∙ R)
+    := λ x, adjunit HF (pr1 x) ,, adjunit HG (pr2 x).
+
+  Definition pair_equivalence_of_cats_unit_is_nat_trans
+    : is_nat_trans
+        _ _
+        pair_equivalence_of_cats_unit_data.
+  Proof.
+    intros x y f.
+    use pathsdirprod ; cbn.
+    - exact (nat_trans_ax (adjunit HF) _ _ (pr1 f)).
+    - exact (nat_trans_ax (adjunit HG) _ _ (pr2 f)).
+  Qed.
+
+  Definition pair_equivalence_of_cats_unit
+    : functor_identity (category_binproduct C₁ C₂) ⟹ L ∙ R.
+  Proof.
+    use make_nat_trans.
+    - exact pair_equivalence_of_cats_unit_data.
+    - exact pair_equivalence_of_cats_unit_is_nat_trans.
+  Defined.
+
+  Definition pair_equivalence_of_cats_counit_data
+    : nat_trans_data (R ∙ L) (functor_identity _)
+    := λ x, adjcounit HF (pr1 x) ,, adjcounit HG (pr2 x).
+
+  Definition pair_equivalence_of_cats_counit_is_nat_trans
+    : is_nat_trans
+        _ _
+        pair_equivalence_of_cats_counit_data.
+  Proof.
+    intros x y f.
+    use pathsdirprod ; cbn.
+    - exact (nat_trans_ax (adjcounit HF) _ _ (pr1 f)).
+    - exact (nat_trans_ax (adjcounit HG) _ _ (pr2 f)).
+  Qed.
+
+  Definition pair_equivalence_of_cats_counit
+    : R ∙ L ⟹ functor_identity _.
+  Proof.
+    use make_nat_trans.
+    - exact pair_equivalence_of_cats_counit_data.
+    - exact pair_equivalence_of_cats_counit_is_nat_trans.
+  Defined.
+
+  Definition pair_equivalence_of_cats
+    : equivalence_of_cats
+        (category_binproduct C₁ C₂)
+        (category_binproduct C₁' C₂').
+  Proof.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + exact L.
+      + exact R.
+      + exact pair_equivalence_of_cats_unit.
+      + exact pair_equivalence_of_cats_counit.
+    - split.
+      + intro x.
+        use is_iso_binprod_iso.
+        * exact (iso_is_iso
+                   (nat_iso_pointwise_iso
+                      (unit_nat_iso_from_adj_equivalence_of_cats HF)
+                      (pr1 x))).
+        * exact (iso_is_iso
+                   (nat_iso_pointwise_iso
+                      (unit_nat_iso_from_adj_equivalence_of_cats HG)
+                      (pr2 x))).
+      + intro x.
+        use is_iso_binprod_iso.
+        * exact (iso_is_iso
+                   (nat_iso_pointwise_iso
+                      (counit_nat_iso_from_adj_equivalence_of_cats HF)
+                      (pr1 x))).
+        * exact (iso_is_iso
+                   (nat_iso_pointwise_iso
+                      (counit_nat_iso_from_adj_equivalence_of_cats HG)
+                      (pr2 x))).
+  Defined.
+End PairEquivalence.
+
+Definition pair_adj_equivalence_of_cats
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           (HF : adj_equivalence_of_cats F)
+           (HG : adj_equivalence_of_cats G)
+  : adj_equivalence_of_cats (pair_functor F G)
+  := adjointificiation (pair_equivalence_of_cats HF HG).

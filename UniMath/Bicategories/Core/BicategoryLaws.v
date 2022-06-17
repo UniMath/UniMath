@@ -524,3 +524,39 @@ Section laws.
   Qed.
 
 End laws.
+
+Lemma inverse_pentagon_7
+      {B : bicat}
+      {v w x y z : B}
+      (k : y --> z) (h : x --> y)
+      (g : w --> x) (f : v --> w)
+  : lassociator (f · g) h k • (rassociator f g h ▹ k)
+    =
+    rassociator f g (h · k) • (f ◃ lassociator g h k) • lassociator f (g · h) k.
+Proof.
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  cbn.
+  rewrite !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  cbn.
+  rewrite <- lassociator_lassociator.
+  rewrite !vassocl.
+  apply idpath.
+Qed.
+
+Lemma pentagon_6
+      {B : bicat}
+      {v w x y z : B}
+      (k : y --> z) (h : x --> y)
+      (g : w --> x) (f : v --> w)
+  : lassociator f (g · h) k • (lassociator f g h ▹ k)
+    =
+    (f ◃ rassociator g h k) • lassociator f g (h · k) • lassociator (f · g) h k.
+Proof.
+  rewrite !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  cbn.
+  rewrite !vassocr.
+  rewrite <- lassociator_lassociator.
+  apply idpath.
+Qed.

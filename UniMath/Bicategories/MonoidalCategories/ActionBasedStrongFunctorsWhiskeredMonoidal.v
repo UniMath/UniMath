@@ -344,11 +344,10 @@ Section UpstreamInBicat.
       @section_disp C0 trafotargetbicat_disp -> H ⟹ H'.
     Proof.
       intro sd.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
       use make_nat_trans.
-      - intro c. exact (sdob c).
+      - intro c. exact (pr1 (pr1 sd) c).
       - intros c c' f.
-        assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
+        assert (aux := pr2 (pr1 sd) c c' f). apply pathsinv0. exact aux.
     Defined.
 
     Local Lemma roundtrip1_with_sections_bicat (η: H ⟹ H'):
@@ -362,7 +361,6 @@ Section UpstreamInBicat.
     Local Lemma roundtrip2_with_sections_bicat (sd: @section_disp C0 trafotargetbicat_disp):
       nat_trafo_to_section_bicat (section_to_nat_trafo_bicat sd) = sd.
     Proof.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
       unfold nat_trafo_to_section_bicat, section_to_nat_trafo_bicat.
       cbn.
       use total2_paths_f; simpl.
@@ -378,7 +376,7 @@ Section UpstreamInBicat.
         2: { apply Hprop. }
         apply isapropdirprod.
         + apply impred. intro c.
-          (* assert (aux := sdmor c c (id₁ c)).
+          (* assert (aux := pr2 (pr1 sd) c c (id₁ c)).
           cbn in aux.
           match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
           apply hlevelntosn.
@@ -867,7 +865,7 @@ Section Main.
           intros v w w' g η π π' Hyp'.
           rewrite hcomp_identity_right in Hyp' |- *.
           rewrite hcomp_identity_left in Hyp' |- *.
-           apply montrafotargetbicat_tensor_comp_aux_inst1; assumption.
+          apply montrafotargetbicat_tensor_comp_aux_inst1; assumption.
         + cbn.
           intros v v' w f η η' π Hyp.
           rewrite hcomp_identity_right in Hyp |- *.
@@ -1619,104 +1617,110 @@ Section Main.
       exact montrafotargetbicat_disp_associator_iso.
     Qed.
 
+    Lemma montrafotargetbicat_disp_leftunitorinv_data: disp_leftunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
+    Proof.
+      intros v η.
+      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
+      unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
+        param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+      rewrite hcomp_identity_left. rewrite hcomp_identity_right.
+      do 3 rewrite <- rwhisker_vcomp.
+      repeat rewrite <- vassocr.
+      apply pathsinv0.
+      match goal with | [ |- ?Hl1 • (?Hl2 • (_ • (?Hl3 • (_ • (_ • (?Hl4 • (_ • (?Hl5 • (_ • ?Hl6))))))))) = _ • ?Hr2]
+                        => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4);
+                          set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
+      change (H v ==> H' v) in η.
+      set (l1iso := lwhisker_with_invlunitor_inv2cell v).
+      apply (lhs_left_invert_cell _ _ _ l1iso).
+      cbn.
+      set (l2iso := lwhisker_with_μ_inv_inv2cell I_{Mon_V} v).
+      apply (lhs_left_invert_cell _ _ _ l2iso).
+      cbn.
+      apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+      cbn.
+      set (l3iso := lwhisker_rwhisker_with_ϵ_inv_inv2cell v).
+      apply (lhs_left_invert_cell _ _ _ l3iso).
+      cbn.
+      match goal with | [ |- _ = ?Hl3inv • (_ • (?Hl2inv • (?Hl1inv • _)))]
+                        => set (l1inv := Hl1inv); set (l2inv := Hl2inv); set (l3inv := Hl3inv) end.
+      clear l1 l2 l3 l1iso l2iso l3iso.
+      etrans.
+      2: { repeat rewrite vassocr.
+           do 4 apply maponpaths_2.
+           unfold l3inv.
+           apply rwhisker_lwhisker_rassociator. }
+      etrans.
+      2: { do 2 apply maponpaths_2.
+           repeat rewrite <- vassocr.
+           apply maponpaths.
+           unfold l2inv, l1inv.
+           do 2 rewrite lwhisker_vcomp.
+           apply maponpaths.
+           rewrite vassocr.
+           assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesleftunitality FA'm v).
+           cbn in lax_monoidal_functor_unital_inst.
+           apply pathsinv0.
+           exact lax_monoidal_functor_unital_inst.
+      }
+      clear l1inv l2inv l3inv.
+      etrans.
+      { do 2 apply maponpaths.
+        repeat rewrite vassocr.
+        do 3 apply maponpaths_2.
+        apply rwhisker_rwhisker_alt. }
+      cbn.
+      etrans.
+      { do 2 apply maponpaths.
+        do 2 apply maponpaths_2.
+        rewrite <- vassocr.
+        apply maponpaths.
+        apply hcomp_hcomp'. }
+      clear l4 l5.
+      unfold hcomp'.
+      set (r2iso := rwhisker_with_invlunitor_inv2cell v).
+      apply pathsinv0.
+      apply (lhs_right_invert_cell _ _ _ r2iso).
+      apply pathsinv0.
+      cbn.
+      clear r2 r2iso.
+      etrans.
+      { repeat rewrite <- vassocr.
+        do 4 apply maponpaths.
+        rewrite vassocr.
+        rewrite <- rwhisker_rwhisker.
+        repeat rewrite <- vassocr.
+        apply maponpaths.
+        unfold l6.
+        do 2 rewrite rwhisker_vcomp.
+        apply maponpaths.
+        apply pathsinv0.
+        rewrite vassocr.
+        assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesleftunitality FAm v).
+        cbn in lax_monoidal_functor_unital_inst.
+        apply pathsinv0.
+        exact lax_monoidal_functor_unital_inst.
+      }
+      clear l6. (* now only admin tasks in bicategory: the goal is the same as at that
+                   position in [montrafotargetbicat_left_unitor_aux1] *)
+      rewrite lunitor_lwhisker.
+      apply maponpaths.
+      apply (lhs_left_invert_cell _ _ _ (rwhisker_with_linvunitor_inv2cell v)).
+      cbn.
+      rewrite lunitor_triangle.
+      rewrite vcomp_lunitor.
+      rewrite vassocr.
+      apply maponpaths_2.
+      apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
+      cbn.
+      apply pathsinv0, lunitor_triangle.
+    Qed.
+
     Lemma montrafotargetbicat_disp_leftunitor_iso: disp_leftunitor_iso montrafotargetbicat_disp_leftunitor_data.
     Proof.
       intros v η.
       use tpair.
-      - cbn. (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
-        unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
-          param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
-        rewrite hcomp_identity_left. rewrite hcomp_identity_right.
-        do 3 rewrite <- rwhisker_vcomp.
-        repeat rewrite <- vassocr.
-        apply pathsinv0.
-        match goal with | [ |- ?Hl1 • (?Hl2 • (_ • (?Hl3 • (_ • (_ • (?Hl4 • (_ • (?Hl5 • (_ • ?Hl6))))))))) = _ • ?Hr2]
-                          => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4);
-                            set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
-        change (H v ==> H' v) in η.
-        set (l1iso := lwhisker_with_invlunitor_inv2cell v).
-        apply (lhs_left_invert_cell _ _ _ l1iso).
-        cbn.
-        set (l2iso := lwhisker_with_μ_inv_inv2cell I_{Mon_V} v).
-        apply (lhs_left_invert_cell _ _ _ l2iso).
-        cbn.
-        apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
-        cbn.
-        set (l3iso := lwhisker_rwhisker_with_ϵ_inv_inv2cell v).
-        apply (lhs_left_invert_cell _ _ _ l3iso).
-        cbn.
-        match goal with | [ |- _ = ?Hl3inv • (_ • (?Hl2inv • (?Hl1inv • _)))]
-                          => set (l1inv := Hl1inv); set (l2inv := Hl2inv); set (l3inv := Hl3inv) end.
-        clear l1 l2 l3 l1iso l2iso l3iso.
-        etrans.
-        2: { repeat rewrite vassocr.
-             do 4 apply maponpaths_2.
-             unfold l3inv.
-             apply rwhisker_lwhisker_rassociator. }
-        etrans.
-        2: { do 2 apply maponpaths_2.
-             repeat rewrite <- vassocr.
-             apply maponpaths.
-             unfold l2inv, l1inv.
-             do 2 rewrite lwhisker_vcomp.
-             apply maponpaths.
-             rewrite vassocr.
-             assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesleftunitality FA'm v).
-             cbn in lax_monoidal_functor_unital_inst.
-             apply pathsinv0.
-             exact lax_monoidal_functor_unital_inst.
-        }
-        clear l1inv l2inv l3inv.
-        etrans.
-        { do 2 apply maponpaths.
-          repeat rewrite vassocr.
-          do 3 apply maponpaths_2.
-          apply rwhisker_rwhisker_alt. }
-        cbn.
-        etrans.
-        { do 2 apply maponpaths.
-          do 2 apply maponpaths_2.
-          rewrite <- vassocr.
-          apply maponpaths.
-          apply hcomp_hcomp'. }
-        clear l4 l5.
-        unfold hcomp'.
-        set (r2iso := rwhisker_with_invlunitor_inv2cell v).
-        apply pathsinv0.
-        apply (lhs_right_invert_cell _ _ _ r2iso).
-        apply pathsinv0.
-        cbn.
-        clear r2 r2iso.
-        etrans.
-        { repeat rewrite <- vassocr.
-          do 4 apply maponpaths.
-          rewrite vassocr.
-          rewrite <- rwhisker_rwhisker.
-          repeat rewrite <- vassocr.
-          apply maponpaths.
-          unfold l6.
-          do 2 rewrite rwhisker_vcomp.
-          apply maponpaths.
-          apply pathsinv0.
-          rewrite vassocr.
-          assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesleftunitality FAm v).
-          cbn in lax_monoidal_functor_unital_inst.
-          apply pathsinv0.
-          exact lax_monoidal_functor_unital_inst.
-        }
-        clear l6. (* now only admin tasks in bicategory: the goal is the same as at that
-                     position in [montrafotargetbicat_left_unitor_aux1] *)
-        rewrite lunitor_lwhisker.
-        apply maponpaths.
-        apply (lhs_left_invert_cell _ _ _ (rwhisker_with_linvunitor_inv2cell v)).
-        cbn.
-        rewrite lunitor_triangle.
-        rewrite vcomp_lunitor.
-        rewrite vassocr.
-        apply maponpaths_2.
-        apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
-        cbn.
-        apply pathsinv0, lunitor_triangle.
+      - apply montrafotargetbicat_disp_leftunitorinv_data .
       - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
@@ -1727,130 +1731,136 @@ Section Main.
       - exact montrafotargetbicat_disp_leftunitor_iso.
     Qed.
 
+    Lemma montrafotargetbicat_disp_rightunitorinv_data: disp_rightunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
+    Proof.
+      intros v η.
+      apply pathsinv0. cbn. (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
+      unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
+        param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+      rewrite hcomp_identity_left. rewrite hcomp_identity_right.
+      do 3 rewrite <- lwhisker_vcomp.
+      repeat rewrite <- vassocr.
+      match goal with | [ |- ?Hl1 • (?Hl2 • (_ • (?Hl3 • (_ • (?Hl4 • (_ • (_ • (?Hl5 • (_ • ?Hl6))))))))) = _ • ?Hr2]
+                        => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4);
+                          set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
+      change (H v ==> H' v) in η.
+      set (l1iso := lwhisker_with_invrunitor_inv2cell v).
+      apply (lhs_left_invert_cell _ _ _ l1iso).
+      cbn.
+      clear l1 l1iso.
+      set (l2iso := lwhisker_with_μ_inv_inv2cell v I_{Mon_V}).
+      apply (lhs_left_invert_cell _ _ _ l2iso).
+      cbn.
+      clear l2 l2iso.
+      apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+      cbn.
+      etrans.
+      2: { repeat rewrite <- vassocr.
+           apply maponpaths.
+           rewrite vassocr.
+           apply maponpaths_2.
+           rewrite lwhisker_vcomp.
+           apply maponpaths.
+           assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesrightunitality FA'm v).
+           cbn in lax_monoidal_functor_unital_inst.
+           apply pathsinv0 in lax_monoidal_functor_unital_inst.
+           set (aux1iso := lwhisker_with_ϵ_inv2cell v).
+           rewrite <- vassocr in lax_monoidal_functor_unital_inst.
+           apply pathsinv0 in lax_monoidal_functor_unital_inst.
+           apply (rhs_left_inv_cell _ _ _ aux1iso) in lax_monoidal_functor_unital_inst.
+           unfold inv_cell in lax_monoidal_functor_unital_inst.
+           apply pathsinv0.
+           exact lax_monoidal_functor_unital_inst.
+      }
+      cbn. (* same goal as in [montrafotargetbicat_right_unitor_aux1],
+              except l_i -> l_{i+1} for i=2,3,4,5, and l6 becomes r2 on the other side *)
+      etrans.
+      2: { rewrite vassocr.
+           apply maponpaths_2.
+           rewrite <- lwhisker_vcomp.
+           rewrite vassocr.
+           apply maponpaths_2.
+           apply pathsinv0.
+           apply lwhisker_lwhisker_rassociator. }
+      etrans.
+      2: { repeat rewrite <- vassocr.
+           apply maponpaths.
+           rewrite vassocr.
+           apply maponpaths_2.
+           apply pathsinv0, runitor_triangle. }
+      etrans.
+      2: { apply maponpaths.
+           rewrite vassocr.
+           rewrite <- vcomp_runitor.
+           apply idpath. }
+      etrans.
+      2: { rewrite vassocr.
+           apply maponpaths_2.
+           rewrite vassocr.
+           apply maponpaths_2.
+           apply hcomp_hcomp'. }
+      unfold hcomp.
+      etrans.
+      2: { repeat rewrite <- vassocr. apply idpath. }
+      apply maponpaths.
+      clear l3.
+      etrans.
+      { repeat rewrite vassocr.
+        do 5 apply maponpaths_2.
+        apply lwhisker_lwhisker_rassociator. }
+      repeat rewrite <- vassocr.
+      apply maponpaths.
+      clear l4.
+      cbn.
+      etrans.
+      { repeat rewrite vassocr.
+        do 4 apply maponpaths_2.
+        apply runitor_triangle. }
+      (* now we put an end to the diversion from the goal in [montrafotargetbicat_right_unitor_aux1] *)
+      set (r2iso := rwhisker_with_invrunitor_inv2cell v).
+      apply pathsinv0, (lhs_right_invert_cell _ _ _ r2iso), pathsinv0.
+      cbn.
+      clear r2 r2iso.
+      (* resume analogous proof *)
+      etrans.
+      2: { apply id2_right. }
+      repeat rewrite <- vassocr.
+      apply maponpaths.
+      etrans.
+      { apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply rwhisker_lwhisker. }
+      cbn.
+      clear l5.
+      etrans.
+      { apply maponpaths.
+        rewrite <- vassocr.
+        apply maponpaths.
+        unfold l6.
+        do 2 rewrite rwhisker_vcomp.
+        apply maponpaths.
+        assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesrightunitality FAm v).
+        cbn in lax_monoidal_functor_unital_inst.
+        apply pathsinv0 in lax_monoidal_functor_unital_inst.
+        rewrite vassocr.
+        apply pathsinv0.
+        exact lax_monoidal_functor_unital_inst.
+      }
+      clear l6. (* now only pure bicategory reasoning *)
+      set (auxiso := lwhisker_with_linvunitor_inv2cell v).
+      apply (lhs_left_invert_cell _ _ _ auxiso).
+      cbn.
+      rewrite id2_right.
+      clear auxiso.
+      apply runitor_rwhisker.
+    Qed.
+
     Lemma montrafotargetbicat_disp_rightunitor_iso: disp_rightunitor_iso montrafotargetbicat_disp_rightunitor_data.
     Proof.
       intros v η.
       use tpair.
-      - apply pathsinv0. cbn. (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
-        unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
-          param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
-        rewrite hcomp_identity_left. rewrite hcomp_identity_right.
-        do 3 rewrite <- lwhisker_vcomp.
-        repeat rewrite <- vassocr.
-        match goal with | [ |- ?Hl1 • (?Hl2 • (_ • (?Hl3 • (_ • (?Hl4 • (_ • (_ • (?Hl5 • (_ • ?Hl6))))))))) = _ • ?Hr2]
-                          => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4);
-                            set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
-        change (H v ==> H' v) in η.
-        set (l1iso := lwhisker_with_invrunitor_inv2cell v).
-        apply (lhs_left_invert_cell _ _ _ l1iso).
-        cbn.
-        clear l1 l1iso.
-        set (l2iso := lwhisker_with_μ_inv_inv2cell v I_{Mon_V}).
-        apply (lhs_left_invert_cell _ _ _ l2iso).
-        cbn.
-        clear l2 l2iso.
-        apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
-        cbn.
-        etrans.
-        2: { repeat rewrite <- vassocr.
-             apply maponpaths.
-             rewrite vassocr.
-             apply maponpaths_2.
-             rewrite lwhisker_vcomp.
-             apply maponpaths.
-             assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesrightunitality FA'm v).
-             cbn in lax_monoidal_functor_unital_inst.
-             apply pathsinv0 in lax_monoidal_functor_unital_inst.
-             set (aux1iso := lwhisker_with_ϵ_inv2cell v).
-             rewrite <- vassocr in lax_monoidal_functor_unital_inst.
-             apply pathsinv0 in lax_monoidal_functor_unital_inst.
-             apply (rhs_left_inv_cell _ _ _ aux1iso) in lax_monoidal_functor_unital_inst.
-             unfold inv_cell in lax_monoidal_functor_unital_inst.
-             apply pathsinv0.
-             exact lax_monoidal_functor_unital_inst.
-        }
-        cbn. (* same goal as in [montrafotargetbicat_right_unitor_aux1],
-                except l_i -> l_{i+1} for i=2,3,4,5, and l6 becomes r2 on the other side *)
-        etrans.
-        2: { rewrite vassocr.
-             apply maponpaths_2.
-             rewrite <- lwhisker_vcomp.
-             rewrite vassocr.
-             apply maponpaths_2.
-             apply pathsinv0.
-             apply lwhisker_lwhisker_rassociator. }
-        etrans.
-        2: { repeat rewrite <- vassocr.
-             apply maponpaths.
-             rewrite vassocr.
-             apply maponpaths_2.
-             apply pathsinv0, runitor_triangle. }
-        etrans.
-        2: { apply maponpaths.
-             rewrite vassocr.
-             rewrite <- vcomp_runitor.
-             apply idpath. }
-        etrans.
-        2: { rewrite vassocr.
-             apply maponpaths_2.
-             rewrite vassocr.
-             apply maponpaths_2.
-             apply hcomp_hcomp'. }
-        unfold hcomp.
-        etrans.
-        2: { repeat rewrite <- vassocr. apply idpath. }
-        apply maponpaths.
-        clear l3.
-        etrans.
-        { repeat rewrite vassocr.
-          do 5 apply maponpaths_2.
-          apply lwhisker_lwhisker_rassociator. }
-        repeat rewrite <- vassocr.
-        apply maponpaths.
-        clear l4.
-        cbn.
-        etrans.
-        { repeat rewrite vassocr.
-          do 4 apply maponpaths_2.
-          apply runitor_triangle. }
-        (* now we put an end to the diversion from the goal in [montrafotargetbicat_right_unitor_aux1] *)
-        set (r2iso := rwhisker_with_invrunitor_inv2cell v).
-        apply pathsinv0, (lhs_right_invert_cell _ _ _ r2iso), pathsinv0.
-        cbn.
-        clear r2 r2iso.
-        (* resume analogous proof *)
-        etrans.
-        2: { apply id2_right. }
-        repeat rewrite <- vassocr.
-        apply maponpaths.
-        etrans.
-        { apply maponpaths.
-          rewrite vassocr.
-          apply maponpaths_2.
-          apply rwhisker_lwhisker. }
-        cbn.
-        clear l5.
-        etrans.
-        { apply maponpaths.
-          rewrite <- vassocr.
-          apply maponpaths.
-          unfold l6.
-          do 2 rewrite rwhisker_vcomp.
-          apply maponpaths.
-          assert (lax_monoidal_functor_unital_inst := fmonoidal_preservesrightunitality FAm v).
-          cbn in lax_monoidal_functor_unital_inst.
-          apply pathsinv0 in lax_monoidal_functor_unital_inst.
-          rewrite vassocr.
-          apply pathsinv0.
-          exact lax_monoidal_functor_unital_inst.
-        }
-        clear l6. (* now only pure bicategory reasoning *)
-        set (auxiso := lwhisker_with_linvunitor_inv2cell v).
-        apply (lhs_left_invert_cell _ _ _ auxiso).
-        cbn.
-        rewrite id2_right.
-        clear auxiso.
-        apply runitor_rwhisker.
+      - apply montrafotargetbicat_disp_rightunitorinv_data.
       - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
@@ -1891,8 +1901,7 @@ Section Main.
 
       (** using sections already for this direction *)
       Lemma param_distr_bicat_to_monoidal_section_data:
-        smonoidal_data V montrafotargetbicat_disp Mon_V
-                       montrafotargetbicat_disp_monoidal
+        smonoidal_data Mon_V montrafotargetbicat_disp_monoidal
                        (nat_trafo_to_section_bicat a0 a0' H H' δ).
       Proof.
         split.
@@ -1913,14 +1922,14 @@ Section Main.
       Qed.
       (** the two equations were thus exactly the ingredients for the data of a monoidal section *)
 
-      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laws V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal param_distr_bicat_to_monoidal_section_data.
+      Lemma param_distr_bicat_to_monoidal_section_laws: smonoidal_laxlaws Mon_V montrafotargetbicat_disp_monoidal param_distr_bicat_to_monoidal_section_data.
       Proof.
         repeat split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
-      Lemma param_distr_bicat_to_monoidal_section_strong:
-        smonoidal_strongtensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
-                               (smonoidal_preserves_tensor V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal
+      Lemma param_distr_bicat_to_monoidal_section_strongtensor:
+        smonoidal_strongtensor Mon_V montrafotargetbicat_disp_monoidal
+                               (smonoidal_preserves_tensor Mon_V montrafotargetbicat_disp_monoidal
                                                            param_distr_bicat_to_monoidal_section_data).
       Proof.
         intros v w.
@@ -1932,6 +1941,22 @@ Section Main.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
           apply δpe_eq.
+        - split; apply trafotargetbicat_disp_cells_isaprop.
+      Qed.
+
+      Lemma param_distr_bicat_to_monoidal_section_strongunit:
+        smonoidal_strongunit Mon_V montrafotargetbicat_disp_monoidal
+                             (smonoidal_preserves_unit Mon_V montrafotargetbicat_disp_monoidal
+                                                       param_distr_bicat_to_monoidal_section_data).
+      Proof.
+        use tpair.
+        - cbn.
+          rewrite hcomp_identity_left, hcomp_identity_right.
+          rewrite (functor_id FA), (functor_id FA').
+          cbn.
+          rewrite lwhisker_id2, id2_rwhisker.
+          rewrite id2_left, id2_right.
+          apply δtr_eq.
         - split; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
@@ -1950,8 +1975,8 @@ Defined.
     (** the other direction, essentially dependent on sections *)
     Section FromMonoidalSectionBicat.
 
-      Context {sd: section_disp montrafotargetbicat_disp}.
-      Context (ms: smonoidal_data V montrafotargetbicat_disp Mon_V montrafotargetbicat_disp_monoidal sd).
+      Context (sd: section_disp montrafotargetbicat_disp).
+      Context (ms: smonoidal_data Mon_V montrafotargetbicat_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
       Definition δ_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
@@ -1959,7 +1984,7 @@ Defined.
       Lemma δtr_eq_from_ms: param_distr_bicat_triangle_eq_variant0 δ_from_ms.
       Proof.
         red.
-        assert (aux := smonoidal_preserves_unit _ _ _ _ ms).
+        assert (aux := smonoidal_preserves_unit _ _ ms).
         cbn in aux.
         rewrite hcomp_identity_left, hcomp_identity_right in aux.
         rewrite (functor_id FA), (functor_id FA') in aux.
@@ -1972,7 +1997,7 @@ Defined.
       Lemma δpe_eq_from_ms: param_distr_bicat_pentagon_eq_variant δ_from_ms.
       Proof.
         intros v w.
-        assert (aux := smonoidal_preserves_tensor _ _ _ _ ms v w).
+        assert (aux := smonoidal_preserves_tensor _ _ ms v w).
         cbn in aux.
         rewrite hcomp_identity_left, hcomp_identity_right in aux.
         rewrite (functor_id FA), (functor_id FA') in aux.
@@ -1986,6 +2011,71 @@ Defined.
 
 
     End FromMonoidalSectionBicat.
+
+    Section RoundtripForSDData.
+
+      Local Definition source_type: UU := ∑ δ: parameterized_distributivity_bicat_nat,
+            param_distr_bicat_triangle_eq_variant0 δ ×
+              param_distr_bicat_pentagon_eq_variant δ.
+      Local Definition target_type: UU := ∑ sd: section_disp montrafotargetbicat_disp,
+            smonoidal_data Mon_V montrafotargetbicat_disp_monoidal sd.
+
+      Local Definition source_to_target : source_type -> target_type.
+      Proof.
+        intro ass. destruct ass as [δ [δtr_eq δpe_eq]].
+        exists (nat_trafo_to_section_bicat a0 a0' H H' δ).
+        apply param_distr_bicat_to_monoidal_section_data; [exact δtr_eq | exact δpe_eq].
+      Defined.
+
+      Local Definition target_to_source : target_type -> source_type.
+      Proof.
+        intro ass. destruct ass as [sd ms].
+        exists (δ_from_ms sd).
+        split; [apply δtr_eq_from_ms | apply δpe_eq_from_ms]; exact ms.
+      Defined.
+
+      Local Lemma roundtrip1 (ass: source_type): target_to_source (source_to_target ass) = ass.
+      Proof.
+        destruct ass as [δ [δtr_eq δpe_eq]].
+        use total2_paths_f.
+        - cbn.
+          unfold δ_from_ms.
+          apply roundtrip1_with_sections_bicat.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + unfold param_distr_bicat_triangle_eq_variant0.
+            apply C.
+          + unfold param_distr_bicat_pentagon_eq_variant.
+            apply impred. intro v.
+            apply impred. intro w.
+            apply C.
+      Qed.
+
+      Local Lemma roundtrip2 (ass: target_type): source_to_target (target_to_source ass) = ass.
+      Proof.
+        destruct ass as [sd ms].
+        use total2_paths_f.
+        - cbn.
+          unfold δ_from_ms.
+          apply roundtrip2_with_sections_bicat.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + unfold section_preserves_tensor_data.
+            apply impred. intro v.
+            apply impred. intro w.
+            apply trafotargetbicat_disp_cells_isaprop.
+          + unfold section_preserves_unit.
+            apply trafotargetbicat_disp_cells_isaprop.
+      Qed.
+
+    End RoundtripForSDData.
+
 
   End FunctorViaBicat.
 
@@ -2084,39 +2174,50 @@ Defined.
       Qed.
 
       Definition param_distr'_to_monoidal_section_data:
-        smonoidal_data V montrafotarget_disp Mon_V montrafotarget_disp_monoidal montrafotarget_section_disp :=
+        smonoidal_data Mon_V montrafotarget_disp_monoidal montrafotarget_section_disp :=
         param_distr_bicat_to_monoidal_section_data(C:=bicat_of_cats) FAm FA'm G
                              (parameterized_distributivity'_nat_as_instance δ) δtr_eq' δpe_eq'.
 
       Definition param_distr'_to_monoidal_section_laws:
-        smonoidal_laws V montrafotarget_disp Mon_V
-                       montrafotarget_disp_monoidal
-                       param_distr'_to_monoidal_section_data :=
+        smonoidal_laxlaws Mon_V montrafotarget_disp_monoidal
+                          param_distr'_to_monoidal_section_data :=
         param_distr_bicat_to_monoidal_section_laws FAm FA'm G δ δtr_eq' δpe_eq'.
 
-      Definition param_distr'_to_monoidal_section_strong:
-        smonoidal_strongtensor V montrafotarget_disp Mon_V montrafotarget_disp_monoidal
-                               (smonoidal_preserves_tensor V
-                                                           montrafotarget_disp
-                                                           Mon_V
+      Definition param_distr'_to_monoidal_section_strongtensor:
+        smonoidal_strongtensor Mon_V montrafotarget_disp_monoidal
+                               (smonoidal_preserves_tensor Mon_V
                                                            montrafotarget_disp_monoidal
                                                            param_distr'_to_monoidal_section_data) :=
-        param_distr_bicat_to_monoidal_section_strong FAm FA'm G δ δtr_eq' δpe_eq'.
+        param_distr_bicat_to_monoidal_section_strongtensor FAm FA'm G δ δtr_eq' δpe_eq'.
+
+      Definition param_distr'_to_monoidal_section_strongunit:
+        smonoidal_strongunit Mon_V montrafotarget_disp_monoidal
+                             (smonoidal_preserves_unit Mon_V
+                                                       montrafotarget_disp_monoidal
+                                                       param_distr'_to_monoidal_section_data) :=
+        param_distr_bicat_to_monoidal_section_strongunit FAm FA'm G δ δtr_eq' δpe_eq'.
 
       Definition param_distr'_to_functor: V ⟶ montrafotarget_totalcat :=
         section_functor montrafotarget_section_disp.
 
       Definition param_distr'_to_smf: fmonoidal Mon_V montrafotarget_monoidal param_distr'_to_functor.
       Proof.
-        (* should be done with sectionfunctor_fmonoidal in MonoidalSectionsWhiskered *)
-      Abort.
+        apply sectionfunctor_fmonoidal.
+        use tpair.
+        - use tpair.
+          + apply param_distr'_to_monoidal_section_data.
+          + apply param_distr'_to_monoidal_section_laws.
+        - split.
+          + apply param_distr'_to_monoidal_section_strongtensor.
+          + apply param_distr'_to_monoidal_section_strongunit.
+      Defined.
 
 End IntoMonoidalSection.
 
 Section FromMonoidalSection.
 
       Context {sd: section_disp montrafotarget_disp}.
-      Context (ms: smonoidal_data V montrafotarget_disp Mon_V montrafotarget_disp_monoidal sd).
+      Context (ms: smonoidal_data Mon_V montrafotarget_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
       Definition δ'_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
@@ -2124,7 +2225,7 @@ Section FromMonoidalSection.
       Lemma δtr'_eq_from_ms: param_distr'_triangle_eq Mon_V A A' FAm FA'm G δ'_from_ms.
       Proof.
         apply param_distr'_triangle_eq_variant0_implies.
-        assert (aux := δtr_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms).
+        assert (aux := δtr_eq_from_ms(C:=bicat_of_cats) FAm FA'm G sd ms).
         unfold param_distr'_triangle_eq_variant0.
         unfold param_distr'_triangle_eq_variant0_RHS.
         red in aux.
@@ -2145,7 +2246,7 @@ Section FromMonoidalSection.
       Proof.
         intros v w.
         apply param_distr'_pentagon_eq_body_variant_implies.
-        assert (aux := δpe_eq_from_ms(C:=bicat_of_cats) FAm FA'm G ms v w).
+        assert (aux := δpe_eq_from_ms(C:=bicat_of_cats) FAm FA'm G sd ms v w).
         red.
         etrans.
         { exact aux. }

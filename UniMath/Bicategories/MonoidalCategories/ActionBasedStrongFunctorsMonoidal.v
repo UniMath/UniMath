@@ -840,8 +840,6 @@ Section Main.
         split; intros; apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
-    Definition montrafotargetbicat_tensor_aux := total_functor montrafotargetbicat_disp_tensor.
-
     Definition montrafotargetbicat_tensor: montrafotargetbicat_cat ⊠ montrafotargetbicat_cat ⟶ montrafotargetbicat_cat
       := total_tensor tensor  montrafotargetbicat_disp_tensor.
 

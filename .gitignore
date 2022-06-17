@@ -27,3 +27,4 @@ _CoqProject
 *.vok
 *.v~
 /..coq_makefile_output.d
+/UniMath/.dir-locals.el
