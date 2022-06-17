@@ -586,6 +586,59 @@ Section Map1Cells.
       reflexivity.
   Defined.
 
+  Definition map1cells_disp_left_adjoint_equivalence_help
+             (HD : is_univalent_2 D)
+             {F₀ G₀ : ps_base C D}
+             (η₀ : adjoint_equivalence F₀ G₀)
+             (F₁ : map1cells_disp_bicat F₀)
+             (G₁ : map1cells_disp_bicat G₀)
+             (η₁ : F₁ -->[ η₀ ] G₁)
+    : disp_left_adjoint_equivalence η₀ η₁.
+  Proof.
+    revert F₀ G₀ η₀ F₁ G₁ η₁.
+    use J_2_0.
+    - use ps_base_is_univalent_2_0.
+      exact HD.
+    - intros F₀ F₁ F₁' η₁.
+      cbn in η₁.
+      pose (pr2 (all_invertible_2cell_to_disp_adjoint_equivalence
+                   F₀
+                   F₁ F₁'
+                   (λ x y f, comp_of_invertible_2cell
+                               (rinvunitor_invertible_2cell _)
+                               (comp_of_invertible_2cell
+                                  (inv_of_invertible_2cell (η₁ x y f))
+                                  (lunitor_invertible_2cell _)))))
+        as H.
+      refine (transportf
+                (disp_left_adjoint_equivalence _)
+                _
+                H).
+      use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro f.
+      use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ].
+      cbn.
+      rewrite !vassocr.
+      rewrite lunitor_linvunitor.
+      rewrite id2_left.
+      rewrite !vassocl.
+      rewrite runitor_rinvunitor.
+      rewrite id2_right.
+      apply idpath.
+  Qed.
+
+  Definition map1cells_disp_left_adjoint_equivalence
+             (HD : is_univalent_2 D)
+             {F₀ G₀ : ps_base C D}
+             {η₀ : F₀ --> G₀}
+             (Hη₀ : left_adjoint_equivalence η₀)
+             (F₁ : map1cells_disp_bicat F₀)
+             (G₁ : map1cells_disp_bicat G₀)
+             (η₁ : F₁ -->[ η₀ ] G₁)
+    : disp_left_adjoint_equivalence Hη₀ η₁
+    := map1cells_disp_left_adjoint_equivalence_help HD (η₀ ,, Hη₀) F₁ G₁ η₁.
+
   Definition map1cells_disp_univalent_2_0
              (HD_2_1 : is_univalent_2_1 D)
     : disp_univalent_2_0 map1cells_disp_bicat.

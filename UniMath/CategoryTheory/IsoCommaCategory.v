@@ -99,6 +99,23 @@ Section IsoCommaCategory.
     : category
     := total_category iso_comma_disp_cat.
 
+  Definition eq_iso_comma_mor
+             {x y : iso_comma}
+             {f g : x --> y}
+             (p : pr11 f = pr11 g)
+             (q : pr21 f = pr21 g)
+    : f = g.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    use pathsdirprod.
+    - exact p.
+    - exact q.
+  Qed.
+
   Definition is_z_iso_iso_comma
              {x y : iso_comma}
              (f : x --> y)
@@ -122,16 +139,12 @@ Section IsoCommaCategory.
            apply (pr2 f)).
     - split.
       + abstract
-          (use subtypePath ;
-           [ intro ; apply homset_property | ] ;
-           use pathsdirprod ;
+          (use eq_iso_comma_mor ;
            cbn ;
            [ apply (z_iso_inv_after_z_iso (make_z_iso' _ H₁))
            | apply (z_iso_inv_after_z_iso (make_z_iso' _ H₂)) ]).
       + abstract
-          (use subtypePath ;
-           [ intro ; apply homset_property | ] ;
-           use pathsdirprod ;
+          (use eq_iso_comma_mor ;
            cbn ;
            [ apply (z_iso_after_z_iso_inv (make_z_iso' _ H₁))
            | apply (z_iso_after_z_iso_inv (make_z_iso' _ H₂)) ]).
@@ -398,11 +411,7 @@ Section IsoCommaCategory.
       : is_nat_trans _ _ iso_comma_ump2_nat_trans_data.
     Proof.
       intros x y f.
-      use subtypePath.
-      {
-        intro ; apply homset_property.
-      }
-      use pathsdirprod.
+      use eq_iso_comma_mor.
       - exact (nat_trans_ax τ₁ _ _ f).
       - exact (nat_trans_ax τ₂ _ _ f).
     Qed.
@@ -453,11 +462,7 @@ Section IsoCommaCategory.
         apply homset_property.
       }
       intro x.
-      use subtypePath.
-      {
-        intro ; apply homset_property.
-      }
-      use pathsdirprod.
+      use eq_iso_comma_mor.
       - pose (nat_trans_eq_pointwise n₁_pr1 x) as q₁.
         pose (nat_trans_eq_pointwise n₂_pr1 x) as q₂.
         cbn in q₁, q₂.

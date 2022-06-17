@@ -61,6 +61,8 @@ DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
 DisplayedBicats/Examples/BicatOfInvertibles.v
 
+Core/Examples/StructuredCategories.v
+
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
 MonoidalCategories/PointedFunctorsMonoidal.v
@@ -74,11 +76,11 @@ MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
-
 MonoidalCategories/UnivalenceOfBicategoryOfUnivMonCats/Tensorlayer.v
 MonoidalCategories/UnivalenceOfBicategoryOfUnivMonCats/Unitlayer.v
 MonoidalCategories/UnivalenceOfBicategoryOfUnivMonCats/TensorUnitlayer.v
-
+MonoidalCategories/UnivalenceOfBicategoryOfUnivMonCats/leftUnitorLayer.v
+MonoidalCategories/UnivalenceOfBicategoryOfUnivMonCats/associatorLayer.v
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
@@ -147,6 +149,10 @@ Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
+Limits/Examples/TotalBicategoryLimits.v
+Limits/Examples/DispConstructionsLimits.v
+Limits/Examples/SubbicatLimits.v
+Limits/Examples/LimitsStructuredCategories.v
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v

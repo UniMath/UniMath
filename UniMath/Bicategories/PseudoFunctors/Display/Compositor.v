@@ -323,4 +323,80 @@ Section Compositor.
     - exact compositor_is_disp_univalent_2_1.
   Defined.
 
+  Definition compositor_disp_left_adjequiv_over_id
+             {F : map1cells C D}
+             {Fc Gc : compositor_disp_cat F}
+             (ηc : Fc -->[ internal_adjoint_equivalence_identity _ ] Gc)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ηc.
+  Proof.
+    apply disp_cell_unit_bicat_left_adjoint_equivalence_weq.
+    intros x y z f g.
+    cbn.
+    pose (ηc x y z f g) as p.
+    cbn in p.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite <- rwhisker_hcomp.
+    rewrite <- lunitor_triangle.
+    rewrite <- rinvunitor_triangle.
+    rewrite !vassocl.
+    rewrite !vassocl in p.
+    refine (_ @ !p @ _).
+    - apply maponpaths.
+      rewrite !vassocr.
+      do 2 apply maponpaths_2.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocr.
+      refine (!(id2_left _) @ _).
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite lunitor_lwhisker.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      apply idpath.
+    - rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite <- lunitor_triangle.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      rewrite rinvunitor_natural.
+      rewrite <- rwhisker_hcomp.
+      rewrite <- rinvunitor_triangle.
+      rewrite !vassocr.
+      do 2 apply maponpaths_2.
+      rewrite <- !lwhisker_vcomp.
+      refine (!(id2_left _) @ _).
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite lunitor_lwhisker.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      apply idpath.
+  Qed.
+
+  Definition compositor_disp_left_adjequiv
+             {HD : is_univalent_2 D}
+             {F G : map1cells C D}
+             (η : adjoint_equivalence F G)
+             {F₂ : compositor_disp_cat F}
+             {G₂ : compositor_disp_cat G}
+             (η₂ : F₂ -->[ η ] G₂)
+    : disp_left_adjoint_equivalence η η₂.
+  Proof.
+    revert F G η F₂ G₂ η₂.
+    use J_2_0.
+    - apply map1cells_is_univalent_2_0.
+      exact HD.
+    - intros F F₂ G₂ η₂.
+      apply compositor_disp_left_adjequiv_over_id.
+  Defined.
 End Compositor.
