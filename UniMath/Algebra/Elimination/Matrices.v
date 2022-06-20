@@ -25,18 +25,138 @@ Local Notation "A ** B" := (matrix_mult A B) (at level 80).
 Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
 (* Matrix algebra facts that hold over an arbitrary rig,
-   not yet assumed commutative *)
+   not yet assumed commutative. *)
+
 Section General_Rigs.
 
 Context {R : rig}.
+
+Section General.
+
+  Definition matrix_mult_unf  {m n : nat} (mat1 : Matrix R m n)
+    {p : nat} (mat2 : Matrix R n p) : (Matrix R m p) :=
+    λ i j, Σ (λ k, (mat1 i k * mat2 k j))%rig.
+
+  Lemma matrix_mult_eq {m n : nat} (mat1 : Matrix R m n)
+    {p : nat} (mat2 : Matrix R n p) :
+    matrix_mult mat1 mat2 = matrix_mult_unf mat1 mat2.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition matrix_add
+  {m n : nat}
+  (mat1 : Matrix R m n)
+  (mat2 : Matrix R m n)
+  : (Matrix R m n) :=
+    entrywise _ _ op1 mat1 mat2.
+  
+  Lemma matrix_add_comm:
+  ∏ {m n : nat} (mat1 : Matrix R m n)
+                (mat2 : Matrix R m n),
+  matrix_add mat1 mat2 = matrix_add mat2 mat1.
+  Proof.
+    intros.   apply funextfun.
+    intros i. apply funextfun.
+    intros j. apply rigcomm1.
+  Defined.
+
+  Lemma matrix_add_assoc:
+  ∏ {m n : nat} (mat1 : Matrix R m n)
+  (mat2 : Matrix R m n) (mat3 : Matrix R m n),
+    matrix_add (matrix_add mat1 mat2) mat3
+  = matrix_add mat1 (matrix_add mat2 mat3).
+  Proof.
+    intros.   apply funextfun.
+    intros i. apply funextfun.
+    intros j. apply rigassoc1.
+  Defined.
+
+  Lemma matrix_mult_assoc :
+    ∏ {m n : nat} (mat1 : Matrix R m n)
+      {p : nat} (mat2 : Matrix R n p)
+      {q : nat} (mat3 : Matrix R p q),
+    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
+  Proof.
+    intros; unfold matrix_mult.
+    apply funextfun; intro i; apply funextfun; intro j.
+    etrans.
+    2: { symmetry.
+         apply maponpaths, funextfun. intros k.
+         apply sum_is_ldistr. }
+    etrans.
+      { apply maponpaths. apply funextfun. intros k.
+        apply sum_is_rdistr. }
+    rewrite interchange_sums.
+    apply maponpaths, funextfun; intros k.
+    apply maponpaths, funextfun; intros l.
+    apply rigassoc2.
+  Defined.
+
+  Local Notation "A ++' B" := (matrix_add A B) (at level 80).
+
+  Lemma matrix_mult_ldistr :
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R n p),
+    ((mat1 ** (mat2 ++' mat3))) = ((mat1 ** mat2) ++' (mat1 ** mat3)).
+  Proof.
+    intros.
+    rewrite matrix_mult_eq.
+    unfold matrix_mult_unf, matrix_add
+    , entrywise, pointwise.
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+    etrans. {
+      apply maponpaths, funextfun; intros k.
+      rewrite rigldistr; apply idpath.
+    }
+    apply pathsinv0, rigsum_add.
+  Defined.
+
+  Lemma matrix_mult_rdistr :
+    ∏ (m n p: nat) (mat1 : Matrix R n p)
+      (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q),
+    ((mat1 ++' mat2) ** mat3) = ((mat1 ** mat3) ++' (mat2 ** mat3)).
+  Proof.
+    intros.
+    rewrite matrix_mult_eq.
+    unfold matrix_mult_unf, matrix_add.
+    unfold entrywise, pointwise.
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+    etrans. {
+      apply maponpaths, funextfun; intros k.
+      rewrite rigrdistr.
+      exact (idpath _).
+    }
+    apply pathsinv0, rigsum_add.
+  Defined.
+
+  Lemma matrix_mult_zero_vec_eq {m n : nat} {mat : Matrix R m n}
+  : (@matrix_mult R _ _ mat _
+    (col_vec (const_vec (@rigunel1 R))))
+      = (col_vec (const_vec (@rigunel1 R))).
+  Proof.
+    rewrite matrix_mult_eq; unfold matrix_mult_unf.
+    apply funextfun; intros i.
+    unfold col_vec.
+    apply funextfun; intros _.
+    rewrite zero_function_sums_to_zero;
+      try (apply idpath).
+    unfold const_vec.
+    apply funextfun; intros k.
+    apply rigmultx0.
+  Defined.
+
+End General.
 
 Section Transposition.
 
   Definition transpose_transpose {X : UU} {m n : nat} (mat : Matrix X m n)
     : transpose (transpose mat) = mat.
-  Proof.
-    reflexivity.
-  Defined.
+  Proof. easy. Defined.
 
   Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
     transpose mat1 = transpose mat2 -> mat1 = mat2.
@@ -51,7 +171,7 @@ Section Transposition.
     specialize (H j). apply toforallpaths in H. apply H.
   Defined.
 
-  (* TODO: probably switch direction, for consistency *)
+  (* Note: probably switch direction, for consistency *)
   Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
     := mat = transpose mat.
 
@@ -79,9 +199,7 @@ Section Identity_Matrix.
 
   Definition id_row_stdb_vector {n} (i : ⟦n⟧%stn)
     : row (@identity_matrix R n) i = stdb_vector i.
-  Proof.
-    reflexivity.
-  Defined.
+  Proof. easy. Defined.
 
   Definition id_col_stdb_vector {n} (i : ⟦n⟧%stn)
     : col (@identity_matrix R n) i = stdb_vector i.
@@ -103,28 +221,14 @@ Section Identity_Matrix.
     unfold identity_matrix, scalar_lmult_vec, pointwise.
     apply funextfun. intros k.
     destruct (stn_eq_or_neq i k) as [eq | neq].
-    - simpl.
-      rewrite riglunax2.
-      rewrite rigrunax2.
-      rewrite eq.
-      reflexivity.
-    - simpl.
-      rewrite rigmultx0.
-      rewrite rigmult0x.
-      apply idpath.
+    - now rewrite riglunax2, rigrunax2, eq.
+    - now rewrite rigmultx0, rigmult0x.
   Defined.
 
   Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
     Σ ((identity_matrix i) ^ v) = (v i).
   Proof.
     apply sum_stdb_vector_pointwise_prod.
-  Defined.
-
-  (* TODO should this really be necessary? Used? *)
-  Lemma sum_id_pointwise_prod_unf { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
-    Σ (λ j : ⟦ n ⟧%stn, (identity_matrix i j) * (v j))%rig = (v i).
-  Proof.
-    apply sum_id_pointwise_prod.
   Defined.
 
   Definition matlunel2 (n : nat) := @identity_matrix R n.
@@ -146,8 +250,7 @@ Section Identity_Matrix.
     : ∏ i : (stn m),
     @iterop_fun R (@rigunel1 R) op1 n ((mat i) ^ v1) = v2 i.
   Proof.
-    apply toforallpaths; use col_vec_inj.
-    exact e.
+    now apply toforallpaths; use col_vec_inj.
   Defined.
 
   Lemma idmat_i_to_idvec {n : nat} (i : ⟦ n ⟧%stn)
@@ -155,14 +258,14 @@ Section Identity_Matrix.
   Proof.
     apply funextfun. intros j.
     apply funextfun. intros k.
-    destruct (stn_eq_or_neq j k); simpl; apply idpath.
+    now destruct (stn_eq_or_neq j k).
   Defined.
 
   Lemma id_mat_ii {n : nat} (i : ⟦ n ⟧%stn)
      : (@identity_matrix R n) i i = rigunel2.
   Proof.
-    unfold identity_matrix.
-    rewrite (stn_eq_or_neq_refl); simpl; apply idpath.
+    unfold identity_matrix;
+    now rewrite (stn_eq_or_neq_refl).
   Defined.
 
   Lemma id_mat_ij {n : nat} (i j : ⟦ n ⟧%stn)
@@ -170,8 +273,7 @@ Section Identity_Matrix.
   Proof.
     intros i_neq_j.
     unfold identity_matrix.
-    rewrite (stn_eq_or_neq_right i_neq_j); simpl; apply idpath.
-    (* TODO Should we try to use ; all the time ?*)
+    now rewrite (stn_eq_or_neq_right i_neq_j).
   Defined.
 
   Lemma matrunax2 : ∏ (m n : nat) (mat : Matrix R m n),
@@ -184,11 +286,9 @@ Section Identity_Matrix.
     rewrite (pulse_function_sums_to_point _ j);
     rewrite <- (symmetric_mat_row_eq_col _ _ identity_matrix_symmetric);
     unfold pointwise, row.
-    - rewrite id_mat_ii, rigrunax2.
-      apply idpath.
-    - intros k j_neq_k.
-      rewrite (id_mat_ij _ _ j_neq_k), rigmultx0.
-      apply idpath.
+    - now rewrite id_mat_ii, rigrunax2.
+    - intros k j_neq_k;
+      now rewrite (id_mat_ij _ _ j_neq_k), rigmultx0.
   Defined.
 
   Lemma identity_matrix_unique_left {m : nat}
@@ -230,24 +330,38 @@ Section Inverses.
     ∑ (B : Matrix R n m), ((B ** A) = identity_matrix).
 
   Definition matrix_inverse {n : nat} (A : Matrix R n n) :=
-    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).
+    ∑ (B : Matrix R n n),
+      ((A ** B) = identity_matrix)
+    × ((B ** A) = identity_matrix).
 
-  (* TODO could indicate in names this applies to square matrices *)
   Lemma matrix_inverse_to_right_and_left_inverse
     {n : nat} (A : Matrix R n n)
-    : (matrix_inverse A) -> matrix_left_inverse A × matrix_right_inverse A.
+    : (matrix_inverse A) 
+      -> matrix_left_inverse A × matrix_right_inverse A.
   Proof.
     intros inv.
     destruct inv as [inv isinv].
-    use tpair.
-    - unfold matrix_left_inverse.
-      use tpair. {exact inv. }
-      simpl.
-      exact (pr2 isinv).
-    - unfold matrix_right_inverse.
-      use tpair. {exact inv. }
-      simpl.
-      exact (pr1 isinv).
+    split; exists inv.
+    - exact (pr2 isinv).
+    - exact (pr1 isinv).
+  Defined.
+
+  Lemma make_matrix_left_inverse
+    {m n k: nat}
+    (A : Matrix R m n) (B : Matrix R n m)
+    (eq : matrix_mult A B = identity_matrix)
+    : matrix_left_inverse B.
+  Proof.
+    now exists A.
+  Defined.
+
+  Lemma make_matrix_right_inverse
+    {m n k: nat}
+    (A : Matrix R m n) (B : Matrix R n m)
+    (eq : matrix_mult A B = identity_matrix)
+    : matrix_right_inverse A.
+  Proof.
+    now exists B.
   Defined.
 
   Lemma matrix_left_inverse_equals_right_inverse
@@ -255,14 +369,10 @@ Section Inverses.
   (lft : matrix_left_inverse A) (rght : matrix_right_inverse A)
   : pr1 lft = pr1 rght.
   Proof.
-    destruct lft as [lft islft].
+    destruct lft as [? islft].
     destruct rght as [rght isrght]; simpl.
     pose (H0 := matlunax2 n n rght).
-    rewrite <- islft in H0.
-    rewrite matrix_mult_assoc in H0.
-    rewrite isrght in H0.
-    rewrite matrunax2 in H0.
-    exact H0.
+    now rewrite <- islft, matrix_mult_assoc, isrght, matrunax2 in H0.
   Defined.
 
   Lemma matrix_right_left_inverse_to_inverse
@@ -271,10 +381,9 @@ Section Inverses.
   Proof.
     intros lft rght.
     use tpair; simpl. {apply lft. }
-    use tpair. 2: {apply lft. }
+    split. 2: {apply lft. }
     pose (H0 := @matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
-    rewrite H0.
-    apply rght.
+    rewrite H0; apply rght.
   Defined.
 
   Lemma matrix_inverse_unique {n : nat} (A : Matrix R n n)
@@ -282,11 +391,9 @@ Section Inverses.
   Proof.
     assert (eq : pr1 B = ((pr1 B) ** (A ** (pr1 C)))).
     { rewrite (pr1 (pr2 C)).
-      rewrite matrunax2; apply idpath. }
-    rewrite eq.
-    rewrite <- matrix_mult_assoc.
-    rewrite (pr2 (pr2 B)).
-    rewrite matlunax2; apply idpath.
+      now rewrite matrunax2. }
+    rewrite eq, <- matrix_mult_assoc, (pr2 (pr2 B)).
+    now rewrite matlunax2.
   Defined.
 
   Lemma left_inv_matrix_prod_is_left_inv {m n : nat} (A : Matrix R m n)
@@ -294,14 +401,9 @@ Section Inverses.
     (matrix_left_inverse (A ** A')).
   Proof.
     intros.
-    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
-    simpl.
-    rewrite matrix_mult_assoc.
-    rewrite <- (matrix_mult_assoc _ A _).
-    rewrite (pr2 pa).
-    rewrite matlunax2.
-    rewrite (pr2 pb).
-    reflexivity.
+    exists ((pr1 pb) ** (pr1 pa)); simpl.
+    rewrite matrix_mult_assoc, <- (matrix_mult_assoc _ A _).
+    now rewrite (pr2 pa), matlunax2, (pr2 pb).
   Defined.
 
   Lemma right_inv_matrix_prod_is_right_inv {m n : nat} (A : Matrix R m n)
@@ -309,56 +411,36 @@ Section Inverses.
     (matrix_right_inverse (A ** A')).
   Proof.
     intros.
-    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
-    simpl.
-    rewrite matrix_mult_assoc.
-    rewrite <- (matrix_mult_assoc _ (pr1 pb) _).
-    rewrite (pr2 pb).
-    rewrite matlunax2.
-    rewrite (pr2 pa).
-    reflexivity.
+    use tpair; simpl. { exact ((pr1 pb) ** (pr1 pa)). }
+    rewrite matrix_mult_assoc,
+    <- (matrix_mult_assoc _ (pr1 pb) _).
+    now rewrite (pr2 pb), matlunax2, (pr2 pa).
   Defined.
 
-  (* The product of two invertible matrices being invertible *)
-  (* TODO Rewrite this in terms of above instead of copying. *)
-  Lemma inv_matrix_prod_is_inv {n : nat} (A : Matrix R n n)
+  Lemma inv_matrix_prod_invertible {n : nat} (A : Matrix R n n)
     (A' : Matrix R n n) (pa : matrix_inverse A) (pb : matrix_inverse A') :
     (matrix_inverse (A ** A')).
   Proof.
-    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
-    simpl.
+    use tpair; simpl. { exact ((pr1 pb) ** (pr1 pa)). }
     use tpair.
     - rewrite matrix_mult_assoc.
       rewrite <- (matrix_mult_assoc _ (pr1 pb) _).
-      rewrite (pr1 (pr2 pb)).
-      rewrite matlunax2.
-      rewrite (pr1 (pr2 pa)).
-      reflexivity.
-    - simpl.
-      rewrite matrix_mult_assoc.
-      rewrite <- (matrix_mult_assoc _ A _).
-      rewrite (pr2 (pr2 pa)).
-      rewrite matlunax2.
-      rewrite (pr2 (pr2 pb)).
-      reflexivity.
+      rewrite (pr1 (pr2 pb)), matlunax2.
+      now rewrite (pr1 (pr2 pa)).
+    - simpl; rewrite matrix_mult_assoc.
+      now rewrite <- (matrix_mult_assoc _ A _),
+      (pr2 (pr2 pa)), matlunax2, (pr2 (pr2 pb)).
   Defined.
 
-  (* TODO rename identity_matrix_inv *)
-  Lemma identity_matrix_is_inv { n : nat } : matrix_inverse (@identity_matrix _ n).
+  Lemma identity_matrix_invertible { n : nat } : matrix_inverse (@identity_matrix _ n).
   Proof.
-    use tpair. { exact identity_matrix. }
+    exists identity_matrix.
     use tpair; apply matrunax2.
   Defined.
 
 End Inverses.
 
 Section Nil_Matrices.
-
-  (* TODO: upstream to Vectors *)
-  Lemma iscontr_nil_vector {X : UU} : iscontr (Vector X 0).
-  Proof.
-    apply iscontrfunfromempty2. apply fromstn0.
-  Defined.
 
   Lemma iscontr_nil_row_matrix {X : UU} {n : nat} : iscontr (Matrix X 0 n).
   Proof.
@@ -370,26 +452,12 @@ Section Nil_Matrices.
     apply impred_iscontr; intro; apply iscontr_nil_vector.
   Defined.
 
-  Lemma nil_matrix_eq1 {X : UU} {m n : nat} (A B: Matrix X m n) (eq0 : m = 0)
-    : A = B.
+  Lemma nil_matrix_invertible {n : nat} (A : Matrix R 0 0): matrix_inverse A.
   Proof.
-    destruct (pathsinv0 eq0).
-    apply isapropifcontr, iscontr_nil_row_matrix.
-  Defined.
-
-  Lemma nil_matrix_eq2 {X : UU} {m n : nat} (A B: Matrix X m n) (eq0 : n = 0)
-    : A = B.
-  Proof.
-    destruct (pathsinv0 eq0).
-    apply isapropifcontr, iscontr_nil_col_matrix.
-  Defined.
-
-  Lemma nil_matrix_is_inv {n : nat} (A : Matrix R n n) (eq : n = 0): matrix_inverse A.
-  Proof.
-    use tpair. { exact identity_matrix. }
-    use tpair.
-    - apply nil_matrix_eq1; assumption.
-    - apply nil_matrix_eq2; assumption.
+    exists identity_matrix.
+    use tpair;
+      rewrite matrunax2; apply funextfun; intros i;
+      apply (@iscontr_nil_row_matrix _ 0); assumption.
   Defined.
 
 End Nil_Matrices.
@@ -459,7 +527,7 @@ End Misc.
 
 End General_Rigs.
 
-  (* TODO Some material can be moved to semirings section above *)
+  (* Note: Some material can be moved to semirings section above *)
 Section MatricesFld.
 
   Context {F : fld}.
@@ -500,9 +568,8 @@ Section MatricesFld.
     : (@matrix_inverse F n (transpose mat))
   -> (@matrix_inverse F n mat).
   Proof.
-    intros.
-    rewrite <- transpose_transpose.
-    apply invertible_to_transpose_invertible; assumption.
+    intros; rewrite <- transpose_transpose.
+    now apply invertible_to_transpose_invertible.
   Defined.
 
   Lemma matrix_left_inverse_to_transpose_right_inverse
@@ -554,7 +621,7 @@ Section MatricesFld.
     (H: @is_upper_triangular F m n A)
     : (@is_lower_triangular F n m (transpose A)).
   Proof.
-    intros i j lt; unfold is_upper_triangular; apply H; assumption.
+    intros i j lt; unfold is_upper_triangular; now apply H.
   Defined.
 
 End MatricesFld.
@@ -580,13 +647,13 @@ Section Transpositions.
     apply funextsec; intros k; simpl; unfold transposition_fun.
     destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k];
       destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
-    - destruct i_eq_j. assumption.
-    - rewrite stn_eq_or_neq_refl. assumption.
+    - now destruct i_eq_j.
+    - now rewrite stn_eq_or_neq_refl.
     - destruct i_eq_j.
       do 2 rewrite (stn_eq_or_neq_right i_neq_k).
       reflexivity.
     - destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
-      + rewrite stn_eq_or_neq_refl. assumption.
+      + now rewrite stn_eq_or_neq_refl.
       + rewrite (stn_eq_or_neq_right i_neq_k).
         rewrite (stn_eq_or_neq_right j_neq_k).
         reflexivity.
@@ -602,7 +669,7 @@ Section Transpositions.
     - apply toforallpaths, transposition_self_inverse.
   Defined.
 
-  (* TODO: generalize to functions on rows? *)
+  (* Note: can be generalize to functions on rows? *)
   Definition transposition_mat_rows {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
     : (Matrix X m n) -> Matrix X m n.
   Proof.
@@ -628,63 +695,6 @@ Section Transpositions.
   Proof.
     unfold is_permutation_fun, id_permutation_fun.
     intros; assumption.
-  Defined.
-
-  Definition transpose_permutation_fun {n : nat}
-    (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (i j : ⟦ n ⟧%stn) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
-  Proof.
-    apply transposition_perm.
-    - exact i.
-    - exact j.
-  Defined.
-
-  (* TODO clean up - and this should follow from  transposition_perm  ?  *)
-  Definition permutation_fun_closed_under_tranpose
-    {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) (isp : is_permutation_fun p)
-    : ∏ i j : ⟦ n ⟧%stn, is_permutation_fun (transpose_permutation_fun p i j).
-  Proof.
-    intros i j.
-    unfold is_permutation_fun in *.
-    unfold transpose_permutation_fun.
-    intros i' j'.
-    simpl.
-    unfold transposition_fun, is_permutation_fun, transpose_permutation_fun.
-    destruct (stn_eq_or_neq i i') as [i_eq_i' | F].
-    - destruct (stn_eq_or_neq i j') as [i_eq_j' | F'].
-      + intros ?. rewrite <- i_eq_i', i_eq_j'.
-        reflexivity.
-      + destruct (stn_eq_or_neq j j') as [j_eq_j' | neq].
-        * intros j_eq_i.
-          rewrite <- j_eq_j', j_eq_i, i_eq_i'.
-          apply idpath.
-        * intros j_eq_j'.
-          rewrite j_eq_j' in *.
-          apply isirrefl_natneq in neq.
-          contradiction.
-    - destruct (stn_eq_or_neq j i') as [j_eq_i' | j_neq_i'] ;
-        destruct (stn_eq_or_neq i j') as [i_eq_j' | i_neq_j'].
-      + intros i_eq_j.
-        rewrite <- i_eq_j', i_eq_j, j_eq_i'.
-        reflexivity.
-      + destruct (stn_eq_or_neq j j') as [eq | neq].
-        * intros i_eq_i.
-          rewrite <- eq, j_eq_i'.
-          reflexivity.
-        * intros i_eq_j'.
-          rewrite i_eq_j' in i_neq_j'.
-          apply isirrefl_natneq in i_neq_j'.
-          contradiction.
-      + intros i'_eq_j.
-        rewrite i'_eq_j in j_neq_i'.
-        apply isirrefl_natneq in j_neq_i'.
-        contradiction.
-      + destruct (stn_eq_or_neq j j') as [j_eq_j' | j_neq_j'].
-        * intros i'_eq_i.
-          rewrite i'_eq_i in F.
-          apply isirrefl_natneq in F.
-          contradiction.
-        * intros i'_eq_j'.
-          assumption.
   Defined.
 
 End Transpositions.

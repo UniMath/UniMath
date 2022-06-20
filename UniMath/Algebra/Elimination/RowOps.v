@@ -20,39 +20,29 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 Require Import UniMath.Algebra.Elimination.Matrices.
 
 Section GaussOps.
-  (* TODO better (or any) comments for all these functions including assumptions*)
-  (* TODO Carot operator is used similarly throughout the document, move out *)
+
   Context { F : fld }.
   Local Notation Σ := (iterop_fun 0%ring op1).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
 
-Section Auxiliary.
-
-  (* TODO: generalize to rigs, upstream to Vectors *)
-  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector F n)
-    : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
-  Proof.
-    use (pointwise_rdistr (rigrdistr F)).
-  Defined.
-
-  (* TODO: generalize to rigs, upstream to Vectors *)
-  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector F n)
-    : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
-  Proof.
-    use (pointwise_assoc (rigassoc2 F)).
-  Defined.
-
-  (* TODO: generalize to commrigs, upstream to Vectors *)
-  Lemma pointwise_comm2_vector { n : nat } (v1 v2 : Vector F n)
-    : v1 ^ v2 = v2 ^ v1.
-  Proof.
-    use (pointwise_comm (rigcomm2 F)).
-  Defined.
-
-End Auxiliary.
 
 Section RowOps.
+
+  (** Defining the three row operations on F;
+      Addition of a multiple of a row to another row,
+      the interchange of two rows,
+      multiplication of a row by a nonzero scalar.
+
+      Two versions of each operation: directly on input matrix,
+      or as left multiplication by a matrix.
+
+      Some material could be generalized to (comm)ri(n)gs, 
+      which could be of interest e.g. as providing constructions 
+      for help in computing Smith Normal Form.
+      
+      Hopefully the material can be easily re-used for
+      column operations too. *)
 
   Definition gauss_add_row
     { m n : nat } ( mat : Matrix F m n )
@@ -110,6 +100,53 @@ Section RowOps.
       + exact (mat i j).
   Defined.
 
+  Lemma gauss_add_row_inv0
+    {m n : nat}
+    (mat : Matrix F m n)
+    (i : ⟦ m ⟧%stn) (j: ⟦ m ⟧%stn)
+    (s : F)
+    : ∏ (k : ⟦ m ⟧%stn), j ≠ k -> gauss_add_row mat i j s k = mat k.
+  Proof.
+    intros k j_ne_k.
+    unfold gauss_add_row.
+    destruct (stn_eq_or_neq k j) as [k_eq_j | k_neq_j]; try reflexivity.
+    rewrite k_eq_j in j_ne_k.
+    apply isirrefl_natneq in j_ne_k.
+    apply fromempty; assumption.
+  Defined.
+
+  Lemma gauss_add_row_inv1
+    {m n : nat}
+    (mat : Matrix F m n)
+    (i : ⟦ m ⟧%stn)
+    (j: ⟦ m ⟧%stn)
+    (s : F)
+    : ∏ (k : ⟦ m ⟧%stn),
+      (mat i = const_vec 0%ring)
+      -> gauss_add_row mat i j s = mat.
+  Proof.
+    intros k eq0.
+    apply funextfun; intros i'; apply funextfun; intros j'.
+    unfold gauss_add_row.
+    destruct (stn_eq_or_neq _ _ ) as [i'_eq_j' | i'_neq_j'];
+      simpl; try reflexivity.
+    rewrite <- i'_eq_j', eq0.
+    unfold const_vec ; simpl.
+    now rewrite (@ringmultx0 F), (@rigrunax1 F).
+  Defined.
+
+  Definition gauss_add_row_comp
+    { m n : nat }
+    ( mat : Matrix F m n )
+    ( r1 r2 : ⟦ m ⟧%stn )
+    (s : F)
+    (c : ⟦ n ⟧%stn)
+  : (gauss_add_row mat r1 r2 s) r2 c = op1 (mat r2 c) (op2 s (mat r1 c)).
+  Proof.
+    unfold gauss_add_row
+    ; now rewrite stn_eq_or_neq_refl.
+  Defined.
+
   Lemma gauss_switch_row_inv0
     {m n : nat} (mat : Matrix F m n)
     (r1 : ⟦ m ⟧%stn) (r2 : ⟦ m ⟧%stn)
@@ -154,7 +191,7 @@ Section RowOps.
     destruct (stn_eq_or_neq _ _) as [eq | neq];
       destruct (stn_eq_or_neq _ _) as [eq' | neq'];
       try rewrite eq; try rewrite eq';
-      try rewrite m_eq; try reflexivity.
+      try rewrite m_eq; reflexivity.
   Defined.
 
   Definition switch_row_matrix
@@ -217,7 +254,6 @@ Section Elementary.
       use sum_stdb_vector_pointwise_prod.
   Defined.
 
-  (* TODO should certainly be over R *)
   Lemma switch_row_mat_elementary
     { m n : nat } (mat : Matrix F m n)
     (r1 r2 : ⟦ m ⟧%stn)
@@ -239,17 +275,17 @@ Section Elementary.
         rewrite (@id_mat_ij F m r2 k r2_neq_k).
         apply (@rigmult0x F).
     - simpl.
-      pose (H := @sum_id_pointwise_prod_unf F).
+      pose (H' := @sum_id_pointwise_prod F).
+      unfold pointwise in H'.
       destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
       + simpl.
         destruct (stn_eq_or_neq i r1) as [? | ?].
-        * rewrite H; apply idpath.
-        * rewrite H; apply idpath.
-      + simpl; rewrite H.
+        * rewrite H'; apply idpath.
+        * rewrite H'; apply idpath.
+      + simpl; rewrite H'.
         apply idpath.
   Defined.
 
-  (* TODO fix mixed up signatures on add_row  / add_row_matrix *)
   Lemma add_row_mat_elementary
     { m n : nat } (mat : Matrix F m n)
     (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : F)
@@ -312,7 +348,7 @@ Section Elementary.
     apply maponpaths_2, (rigcomm2 F).
   Defined.
 
-  Lemma scalar_mult_matrix_is_inv
+  Lemma scalar_mult_matrix_invertible
     { n : nat }
     ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != 0%ring )
   : @matrix_inverse F _ (mult_row_matrix s i).
@@ -367,7 +403,7 @@ Section Elementary.
     apply maponpaths, (@rigcomm1 F).
   Defined.
 
-  Lemma add_row_matrix_is_inv { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
+  Lemma add_row_matrix_invertible { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
   (r1_neq_r2 : r1 ≠ r2) ( s : F )
    : @matrix_inverse F n (add_row_matrix r1 r2 s).
   Proof.
@@ -380,20 +416,10 @@ Section Elementary.
     - apply (@ringlinvax1 F).
   Defined.
 
-  (* TODO upstream *)
-  Lemma stn_neq_symm {n : nat} {i j : stn n} (neq : i ≠ j)
-    : (j ≠ i).
-  Proof.
-    destruct (stn_eq_or_neq j i) as [contr_eq | ?].
-    - rewrite contr_eq in neq.
-      contradiction (isirrefl_natneq i).
-    - assumption.
-  Defined.
-
-  Lemma switch_row_matrix_self_inverse
+  Lemma switch_row_matrix_involution
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
     : ((switch_row_matrix r1 r2)
-     ** (switch_row_matrix r1 r2))
+      ** (switch_row_matrix r1 r2))
       = @identity_matrix _ _.
   Proof.
     intros.
@@ -414,17 +440,16 @@ Section Elementary.
       reflexivity.
     - rewrite stn_eq_or_neq_refl; simpl.
       destruct (stn_eq_or_neq _ _) as [eq | ?]; simpl.
-      + rewrite eq; reflexivity.
+      + now rewrite eq.
       + reflexivity.
   Defined.
 
-  Lemma switch_row_matrix_is_inv
+  Lemma switch_row_matrix_invertible
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
     : @matrix_inverse F n (switch_row_matrix r1 r2).
   Proof.
-    use tpair.
-    { exact (switch_row_matrix r1 r2). }
-    use tpair; apply switch_row_matrix_self_inverse.
+    exists (switch_row_matrix r1 r2).
+    split; apply switch_row_matrix_involution.
   Defined.
 
 End Elementary.
