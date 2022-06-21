@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
@@ -92,6 +93,52 @@ Section PointedSetCategory.
     := (ptset_disp_cat_data,, ptset_disp_cat_axioms).
 
   Definition ptset_cat : category := total_category ptset_disp_cat.
+
+  Definition ptset_dispBinproducts : dispBinProducts ptset_disp_cat BinProductsHSET.
+  Proof.
+    intros X Y x y.
+    use tpair.
+    - use tpair.
+      + exact (x ,, y).
+      + split; apply idpath.
+    - cbn. intros Z f g z pf pg.
+      use unique_exists.
+      + cbn. unfold preserve_ptset. unfold prodtofuntoprod. cbn. rewrite pf, pg.
+        apply idpath.
+      + cbn. split.
+        * (* show_id_type. *) apply X.
+        * apply Y.
+      + intro pfg.
+        apply isapropdirprod; apply isasetaprop, isaprop_preserve_ptset.
+      + intro pfg.
+        cbn.
+        intros.
+        apply isaprop_preserve_ptset.
+  Defined.
+
+  (** todo: provide a general construction of terminal objects in total categories *)
+  Definition PS_cat_cart_monoidal_via_cartesian : monoidal ptset_cat.
+  Proof.
+    use cartesianmonoidalcat.
+    - apply (total_category_Binproducts _ BinProductsHSET ptset_dispBinproducts).
+    - use tpair.
+      + exists unitHSET.
+        exact tt.
+      + cbn.
+        intro t. induction t as [X x].
+        cbn in x.
+        use unique_exists.
+        * exact (fun _ => tt).
+        * apply idpath.
+        * intro f.
+          apply isaprop_preserve_ptset.
+        * intro f.
+          intro H.
+          apply funextfun.
+          intro y.
+          case (f y).
+          apply idpath.
+  Defined.
 
 End PointedSetCategory.
 

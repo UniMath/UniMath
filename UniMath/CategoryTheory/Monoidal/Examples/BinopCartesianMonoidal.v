@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
@@ -65,6 +66,55 @@ Section BinopCategory.
     := (Binop_disp_cat_data,, Binop_disp_cat_axioms).
 
   Definition Binop_cat : category := total_category Binop_disp_cat.
+
+  Definition Binop_dispBinproducts : dispBinProducts Binop_disp_cat BinProductsHSET.
+  Proof.
+    intros X Y m n.
+    use tpair.
+    - use tpair.
+      + intros xy1 xy2.
+        exact (m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2)).
+      + split; intros x1 x2; apply idpath.
+    - cbn. intros Z f g o pf pg.
+      use unique_exists.
+      + cbn. intros x1 x2.
+        apply dirprodeq; cbn.
+        * rewrite pf. apply idpath.
+        * rewrite pg. apply idpath.
+      + split; apply isapropisbinopfun.
+      + intro pfg.
+        apply isapropdirprod; apply isasetaprop, isapropisbinopfun.
+      + intro pfg.
+        cbn.
+        intros.
+        apply isapropisbinopfun.
+  Defined.
+
+  (** todo: provide a general construction of terminal objects in total categories *)
+  Definition Binop_cat_cart_monoidal_via_cartesian : monoidal Binop_cat.
+  Proof.
+    use cartesianmonoidalcat.
+    - apply (total_category_Binproducts _ BinProductsHSET Binop_dispBinproducts).
+    - use tpair.
+      + exists unitHSET.
+        cbn.
+        exact (fun _ _ => tt).
+      + cbn.
+        intro t. induction t as [X m].
+        cbn in m.
+        use unique_exists.
+        * exact (fun _ => tt).
+        * intros ? ?. apply idpath.
+        * intro f.
+          apply isapropisbinopfun.
+        * intro f.
+          intro H.
+          apply funextfun.
+          intro y.
+          case (f y).
+          apply idpath.
+  Defined.
+
 
 End BinopCategory.
 

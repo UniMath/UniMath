@@ -24,6 +24,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
+Section FixDispCat.
+
   Context {C : category} (D : disp_cat C).
 
   Definition is_dispBinProduct_naive (c d p : C) (p1 : p --> c) (p2 : p --> d) (cc : D c)
@@ -198,3 +200,5 @@ Local Open Scope mor_disp.
           apply (maponpaths (fun z => transportf (mor_disp aa (dispBinProductObject (Ps c d) (dPs c d cc dd))) z fgfg)).
           apply C.
   Defined.
+
+End FixDispCat.
