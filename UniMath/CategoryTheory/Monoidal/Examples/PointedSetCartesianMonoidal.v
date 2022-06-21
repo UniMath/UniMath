@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
@@ -56,41 +57,17 @@ Section PointedSetCategory.
     apply pg.
   Qed.
 
-  Definition ptset_disp_cat_ob_mor : disp_cat_ob_mor SET.
+  Definition ptset_disp_cat : disp_cat SET.
   Proof.
-    use tpair.
+    use disp_struct.
     - exact (λ X, pr1 X).
     - exact (λ _ _ m n f, preserve_ptset m n f).
-  Defined.
-
-  Definition ptset_disp_cat_id_comp : disp_cat_id_comp SET ptset_disp_cat_ob_mor.
-  Proof.
-    use tpair.
+    - intros x y m n f. apply isaprop_preserve_ptset.
     - intros X x.
       apply id_preserve_ptset.
     - intros X Y Z f g x y z pf pg.
       apply (comp_preserve_ptset pf pg).
   Defined.
-
-  Definition ptset_disp_cat_data : disp_cat_data SET
-    := (ptset_disp_cat_ob_mor,, ptset_disp_cat_id_comp).
-
-  Definition ptset_disp_cat_axioms : disp_cat_axioms SET ptset_disp_cat_data.
-  Proof.
-    repeat (use tpair).
-    - intros ? Y ; intros.
-      apply Y.
-    - intros ? Y ; intros.
-      apply Y.
-    - intros ? ? ? W ; intros.
-      apply W.
-    - intros ? Y ; intros.
-      apply isasetaprop.
-      apply Y.
-  Qed.
-
-  Definition ptset_disp_cat : disp_cat SET
-    := (ptset_disp_cat_data,, ptset_disp_cat_axioms).
 
   Definition ptset_cat : category := total_category ptset_disp_cat.
 
@@ -166,17 +143,7 @@ Section PointedSetIsCartesianMonoidal.
 
   Definition PS_disp_tensor_laws : is_disp_bifunctor PS_disp_tensor_data.
   Proof.
-    repeat (use tpair).
-    - intros X Y x y.
-      apply isaprop_preserve_ptset.
-    - intros X Y x y.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isaprop_preserve_ptset.
+    repeat split; red; intros; apply isaprop_preserve_ptset.
   Qed.
 
   Definition PS_disp_tensor : disp_tensor DPS SET_cartesian_monoidal
@@ -185,26 +152,15 @@ Section PointedSetIsCartesianMonoidal.
   Definition PS_cart_disp_monoidal_data : disp_monoidal_data DPS SET_cartesian_monoidal.
   Proof.
     use tpair.
-    - exact (PS_disp_tensor).
-    - repeat (use tpair).
+    - exact PS_disp_tensor.
+    - use tpair.
       + exact tt.
-      + intros X x.
-        apply idpath.
-      + intros X x.
-        apply idpath.
-      + intros X Y Z x y z.
-        apply idpath.
+      + repeat split.
   Defined.
 
   Definition PS_cart_disp_monoidal_laws : disp_monoidal_laws PS_cart_disp_monoidal_data.
   Proof.
-    repeat (use tpair).
-    - intros X Y Z W f x y z w pf.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W f x y z w pf.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W f x y z w pf.
-      apply isaprop_preserve_ptset.
+    repeat split; try (red; intros; apply isaprop_preserve_ptset).
     - intros X Y Z x y z.
       use tpair.
       + apply idpath.
@@ -223,29 +179,15 @@ Section PointedSetIsCartesianMonoidal.
           Check Isos.inv_z_iso_unique'.
           apply Isos.inv_iso_unique.
          *)
-      + use tpair.
-        * apply isaprop_preserve_ptset.
-        * apply isaprop_preserve_ptset.
-    - intros X Y f x y pf.
-      apply isaprop_preserve_ptset.
+      + split; apply isaprop_preserve_ptset.
     - intros X x.
       use tpair.
       + apply idpath.
-      + use tpair.
-        * apply isaprop_preserve_ptset.
-        * apply isaprop_preserve_ptset.
-    - intros X Y f x y pf.
-      apply isaprop_preserve_ptset.
+      + split; apply isaprop_preserve_ptset.
     - intros X x.
       use tpair.
       + apply idpath.
-      + use tpair.
-        * apply isaprop_preserve_ptset.
-        * apply isaprop_preserve_ptset.
-    - intros X Y x y.
-      apply isaprop_preserve_ptset.
-    - intros X Y Z W x y z w.
-      apply isaprop_preserve_ptset.
+      + split; apply isaprop_preserve_ptset.
   Qed.
 
   Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
