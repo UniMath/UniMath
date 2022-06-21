@@ -10,7 +10,7 @@ Ralph Matthes
 Contents :
 
 - defines a notion of binary products for displayed categories that gives binary products on its total category
-- same programme for terminal elements
+- same programme for terminal objects
 
  ************************************************************)
 
