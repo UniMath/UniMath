@@ -93,28 +93,22 @@ Section PointedSetCategory.
         apply isaprop_preserve_ptset.
   Defined.
 
-  (** todo: provide a general construction of terminal objects in total categories *)
+  Definition ptset_dispTerminal : dispTerminal ptset_disp_cat TerminalHSET.
+  Proof.
+    use tpair.
+    - exact tt.
+    - cbn.
+      intros X x.
+      use tpair.
+      + apply idpath.
+      + intro f. apply isaprop_preserve_ptset.
+  Defined.
+
   Definition PS_cat_cart_monoidal_via_cartesian : monoidal ptset_cat.
   Proof.
     use cartesianmonoidalcat.
     - apply (total_category_Binproducts _ BinProductsHSET ptset_dispBinproducts).
-    - use tpair.
-      + exists unitHSET.
-        exact tt.
-      + cbn.
-        intro t. induction t as [X x].
-        cbn in x.
-        use unique_exists.
-        * exact (fun _ => tt).
-        * apply idpath.
-        * intro f.
-          apply isaprop_preserve_ptset.
-        * intro f.
-          intro H.
-          apply funextfun.
-          intro y.
-          case (f y).
-          apply idpath.
+    - apply (total_category_Terminal _ TerminalHSET ptset_dispTerminal).
   Defined.
 
 End PointedSetCategory.

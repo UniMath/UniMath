@@ -64,29 +64,22 @@ Section BinopCategory.
         apply isapropisbinopfun.
   Defined.
 
-  (** todo: provide a general construction of terminal objects in total categories *)
+  Definition Binop_dispTerminal : dispTerminal Binop_disp_cat TerminalHSET.
+  Proof.
+    use tpair.
+    - exact (fun _ _ => tt).
+    - cbn.
+      intros X m.
+      use tpair.
+      + intros ? ?. apply idpath.
+      + intro pf. apply isapropisbinopfun.
+  Defined.
+
   Definition Binop_cat_cart_monoidal_via_cartesian : monoidal Binop_cat.
   Proof.
     use cartesianmonoidalcat.
     - apply (total_category_Binproducts _ BinProductsHSET Binop_dispBinproducts).
-    - use tpair.
-      + exists unitHSET.
-        cbn.
-        exact (fun _ _ => tt).
-      + cbn.
-        intro t. induction t as [X m].
-        cbn in m.
-        use unique_exists.
-        * exact (fun _ => tt).
-        * intros ? ?. apply idpath.
-        * intro f.
-          apply isapropisbinopfun.
-        * intro f.
-          intro H.
-          apply funextfun.
-          intro y.
-          case (f y).
-          apply idpath.
+    - apply (total_category_Terminal _ TerminalHSET Binop_dispTerminal).
   Defined.
 
 

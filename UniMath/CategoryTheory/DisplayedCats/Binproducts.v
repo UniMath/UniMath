@@ -10,6 +10,7 @@ Ralph Matthes
 Contents :
 
 - defines a notion of binary products for displayed categories that gives binary products on its total category
+- same programme for terminal elements
 
  ************************************************************)
 
@@ -18,6 +19,7 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
@@ -200,5 +202,48 @@ Section FixDispCat.
           apply (maponpaths (fun z => transportf (mor_disp aa (dispBinProductObject (Ps c d) (dPs c d cc dd))) z fgfg)).
           apply C.
   Defined.
+
+(** ** analogously for terminal objects *)
+
+
+  Definition is_dispTerminal (P : Terminal C) (pp : D (TerminalObject P)) : UU :=
+    ∏ (a : C) (aa : D a), iscontr (aa -->[TerminalArrow P a] pp).
+
+  Definition dispTerminal (P : Terminal C) : UU :=
+    ∑ pp :  D (TerminalObject P), is_dispTerminal P pp.
+
+  Definition dispTerminalObject {P : Terminal C} (dP : dispTerminal P) : D (TerminalObject P) := pr1 dP.
+
+  Definition is_dispTerminal_dispTerminal (P : Terminal C) (dP : dispTerminal P) :
+    is_dispTerminal P (dispTerminalObject dP) := pr2 dP.
+
+  Definition dispTerminalArrow (P : Terminal C) (dP : dispTerminal P) {a : C} (aa : D a) :
+    aa -->[TerminalArrow P a] dispTerminalObject dP := pr1 (is_dispTerminal_dispTerminal P dP a aa).
+
+  Lemma dispTerminalArrowUnique  (P : Terminal C)
+    (dP : dispTerminal P) {x : C} (xx : D x)
+    (kk : xx -->[TerminalArrow P x] dispTerminalObject dP) :
+    kk = dispTerminalArrow P dP xx.
+  Proof.
+    apply (pr2 (pr2 dP x xx)).
+  Qed.
+
+  Definition total_category_Terminal (P : Terminal C) (dP : dispTerminal P) : Terminal (total_category D).
+  Proof.
+    use tpair.
+    - exists (TerminalObject P).
+      exact (dispTerminalObject dP).
+    - intros aaa.
+      destruct aaa as [a aa].
+      cbn.
+      use tpair.
+      + exact (TerminalArrow P a,, dispTerminalArrow P dP aa).
+      + intro fff.
+        induction fff as [f ff].
+        use total2_paths_f; cbn.
+        * apply TerminalArrowUnique.
+        * apply dispTerminalArrowUnique.
+  Defined.
+
 
 End FixDispCat.
