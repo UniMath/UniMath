@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
@@ -22,48 +23,21 @@ Local Open Scope cat.
 
 Section BinopCategory.
 
-  Definition Binop_disp_cat_ob_mor : disp_cat_ob_mor SET.
+
+  Definition Binop_disp_cat : disp_cat SET.
   Proof.
-    use tpair.
+    use disp_struct.
     - exact (λ X, binop (pr1 X)).
     - exact (λ X Y m n f, isbinopfun (X := (X,,m)) (Y := (Y,,n)) f).
-  Defined.
-
-  Definition Binop_disp_cat_id_comp : disp_cat_id_comp SET Binop_disp_cat_ob_mor.
-  Proof.
-    use tpair.
+    - intros X Y m n f.
+      apply isapropisbinopfun.
     - intros X m x1 x2.
       apply idpath.
-    - intros X Y Z f g m n o pf pg.
+    - intros X Y Z m n o f g pf pg.
+      cbn in *.
       exact (isbinopfuncomp (make_binopfun (X := (X,,m)) (Y := (Y,,n)) f pf)
             (make_binopfun (X := (Y,,n)) (Y := (Z,,o)) g pg)).
-
-      (* etrans. { apply maponpaths. apply pf. } ; apply pg. *)
   Defined.
-
-  Definition Binop_disp_cat_data : disp_cat_data SET
-    := (Binop_disp_cat_ob_mor,, Binop_disp_cat_id_comp).
-
-  Definition Binop_disp_cat_axioms : disp_cat_axioms SET Binop_disp_cat_data.
-  Proof.
-    repeat (use tpair).
-    - intros ? Y ; intros.
-      repeat (apply funextsec ; intro).
-      apply Y.
-    - intros ? Y ; intros.
-      repeat (apply funextsec ; intro).
-      apply Y.
-    - intros ? ? ? W ; intros.
-      repeat (apply funextsec ; intro).
-      apply W.
-    - intros ? Y ; intros.
-      repeat (apply impred_isaset ; intro).
-      apply isasetaprop.
-      apply Y.
-  Qed.
-
-  Definition Binop_disp_cat : disp_cat SET
-    := (Binop_disp_cat_data,, Binop_disp_cat_axioms).
 
   Definition Binop_cat : category := total_category Binop_disp_cat.
 
@@ -137,7 +111,7 @@ Section BinopIsCartesianMonoidal.
     - intros X Y1 Y2 g m m1 m2 pg.
       intros xy1 xy2.
       use total2_paths_b.
-      + cbn in * ; apply pg.
+      + cbn in *; apply pg.
       + cbn in *.
         unfold transportb.
         rewrite transportf_const.
@@ -146,17 +120,7 @@ Section BinopIsCartesianMonoidal.
 
   Definition BO_disp_tensor_laws : is_disp_bifunctor BO_disp_tensor_data.
   Proof.
-    repeat (use tpair).
-    - intros X Y m n.
-      apply isapropisbinopfun.
-    - intros X Y m n.
-      apply isapropisbinopfun.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isapropisbinopfun.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isapropisbinopfun.
-    - intros X Y Z W f g m n o p pf pg.
-      apply isapropisbinopfun.
+    repeat split; red; intros; apply isapropisbinopfun.
   Qed.
 
   Definition BO_disp_tensor : disp_tensor DBO SET_cartesian_monoidal
@@ -165,26 +129,15 @@ Section BinopIsCartesianMonoidal.
   Definition BO_cart_disp_monoidal_data : disp_monoidal_data DBO SET_cartesian_monoidal.
   Proof.
     use tpair.
-    - exact (BO_disp_tensor).
-    - repeat (use tpair).
+    - exact BO_disp_tensor.
+    - use tpair.
       + intros t1 t2 ; induction t1 ; induction t2 ; exact tt.
-      + intro ; intros ; intro ; intro.
-        apply idpath.
-      + intro ; intros ; intro ; intro.
-        apply idpath.
-      + intro ; intros ; intro ; intro.
-        apply idpath.
+      + repeat split.
   Defined.
 
   Definition BO_cart_disp_monoidal_laws : disp_monoidal_laws BO_cart_disp_monoidal_data.
   Proof.
-    repeat (use tpair).
-    - intros X Y Z W f m n o p pf.
-      apply isapropisbinopfun.
-    - intros X Y Z W f m n o p pf.
-      apply isapropisbinopfun.
-    - intros X Y Z W f m n o p pf.
-      apply isapropisbinopfun.
+    repeat split; try (red; intros; apply isapropisbinopfun).
     - intros X Y Z m n o.
       use tpair.
       + intros a b.
@@ -193,31 +146,17 @@ Section BinopIsCartesianMonoidal.
           -- apply idpath.
           -- apply idpath_transportf.
         * apply idpath_transportf.
-      + use tpair.
-        * apply isapropisbinopfun.
-        * apply isapropisbinopfun.
-    - intros X Y f x y pf.
-      apply isapropisbinopfun.
+      + split; apply isapropisbinopfun.
     - intros X x.
       use tpair.
       + intros x1 x2.
         apply idpath.
-      + use tpair.
-        * apply isapropisbinopfun.
-        * apply isapropisbinopfun.
-    - intros X Y f x y pf.
-      apply isapropisbinopfun.
+      + split; apply isapropisbinopfun.
     - intros X x.
       use tpair.
       + intros x1 x2.
         apply idpath.
-      + use tpair.
-        * apply isapropisbinopfun.
-        * apply isapropisbinopfun.
-    - intros X Y x y.
-      apply isapropisbinopfun.
-    - intro ; intros.
-      apply isapropisbinopfun.
+      + split; apply isapropisbinopfun.
   Qed.
 
   Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cartesian_monoidal
