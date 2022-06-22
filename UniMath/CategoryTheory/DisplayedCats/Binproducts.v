@@ -140,6 +140,53 @@ Section FixDispCat.
       apply C.
   Qed.
 
+  Definition dispBinProductOfArrows {c d : C} {Pcd : BinProduct C c d}
+    {cc : D c} {dd : D d}
+    (dPcd : dispBinProduct c d Pcd cc dd)
+    {a b : C} {Pab : BinProduct C a b}
+    {aa : D a} {bb : D b}
+    (dPab : dispBinProduct a b Pab aa bb)
+    {f : a --> c} {g : b --> d}
+    (ff : aa -->[f] cc) (gg : bb -->[g] dd)
+    : dispBinProductObject Pab dPab -->[BinProductOfArrows C Pcd Pab f g] dispBinProductObject Pcd dPcd :=
+    dispBinProductArrow Pcd dPcd (dispBinProductPr1 Pab dPab ;; ff) (dispBinProductPr2 Pab dPab ;; gg).
+
+  Lemma dispBinProductOfArrowsPr1 {c d : C} {Pcd : BinProduct C c d}
+    {cc : D c} {dd : D d}
+    (dPcd : dispBinProduct c d Pcd cc dd)
+    {a b : C} {Pab : BinProduct C a b}
+    {aa : D a} {bb : D b}
+    (dPab : dispBinProduct a b Pab aa bb)
+    {f : a --> c} {g : b --> d}
+    (ff : aa -->[f] cc) (gg : bb -->[g] dd) :
+    dispBinProductOfArrows dPcd dPab ff gg ;; dispBinProductPr1 Pcd dPcd =
+      transportb _ (BinProductOfArrowsPr1 _ Pcd Pab f g) (dispBinProductPr1 Pab dPab ;; ff).
+  Proof.
+    unfold dispBinProductOfArrows.
+    etrans.
+    { apply dispBinProductPr1Commutes. }
+    apply (maponpaths (fun z => transportb (mor_disp (dispBinProductObject Pab dPab) cc) z (dispBinProductPr1 Pab dPab ;; ff))).
+    apply C.
+  Qed.
+
+  Lemma dispBinProductOfArrowsPr2 {c d : C} {Pcd : BinProduct C c d}
+    {cc : D c} {dd : D d}
+    (dPcd : dispBinProduct c d Pcd cc dd)
+    {a b : C} {Pab : BinProduct C a b}
+    {aa : D a} {bb : D b}
+    (dPab : dispBinProduct a b Pab aa bb)
+    {f : a --> c} {g : b --> d}
+    (ff : aa -->[f] cc) (gg : bb -->[g] dd) :
+    dispBinProductOfArrows dPcd dPab ff gg ;; dispBinProductPr2 Pcd dPcd =
+      transportb _ (BinProductOfArrowsPr2 _ Pcd Pab f g) (dispBinProductPr2 Pab dPab ;; gg).
+  Proof.
+    unfold dispBinProductOfArrows.
+    etrans.
+    { apply dispBinProductPr2Commutes. }
+    apply (maponpaths (fun z => transportb (mor_disp (dispBinProductObject Pab dPab) dd) z (dispBinProductPr2 Pab dPab ;; gg))).
+    apply C.
+  Qed.
+
   Definition dispBinProducts (Ps : BinProducts C)  : UU := ∏ (c d : C) (cc : D c) (dd : D d),
       dispBinProduct c d (Ps c d) cc dd.
 
