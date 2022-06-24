@@ -45,7 +45,7 @@ Section FixADisplayedCategory.
 
   Local Definition M : monoidal C := cartesianmonoidalcat C CP terminal.
 
-  Definition CDM_tensor_data : disp_bifunctor_data M D D D.
+  Definition DCM_tensor_data : disp_bifunctor_data M D D D.
   Proof.
     use make_disp_bifunctor_data.
     - intros c d cc dd.
@@ -56,49 +56,49 @@ Section FixADisplayedCategory.
       exact (dispBinProductOfArrows _ _ _ ff (id_disp dd)).
   Defined.
 
-  Definition CDM_tensor_laws : is_disp_bifunctor CDM_tensor_data.
+  Definition DCM_tensor_laws : is_disp_bifunctor DCM_tensor_data.
   Proof.
   Admitted.
 
-  Definition CDM_tensor : disp_tensor D M.
+  Definition DCM_tensor : disp_tensor D M.
   Proof.
     use make_disp_bifunctor.
-    - exact CDM_tensor_data.
-    - exact CDM_tensor_laws.
+    - exact DCM_tensor_data.
+    - exact DCM_tensor_laws.
   Defined.
 
-  Definition CDM_unit : D I_{ M}.
+  Definition DCM_unit : D I_{ M}.
   Proof.
   Admitted.
 
-  Definition CDM_leftunitor_data : disp_leftunitor_data CDM_tensor CDM_unit.
+  Definition DCM_leftunitor_data : disp_leftunitor_data DCM_tensor DCM_unit.
   Proof.
   Admitted.
 
-  Definition CDM_rightunitor_data : disp_rightunitor_data CDM_tensor CDM_unit.
+  Definition DCM_rightunitor_data : disp_rightunitor_data DCM_tensor DCM_unit.
   Proof.
   Admitted.
 
-  Definition CDM_associator_data : disp_associator_data CDM_tensor.
+  Definition DCM_associator_data : disp_associator_data DCM_tensor.
   Proof.
   Admitted.
 
-  Definition CDM_data : disp_monoidal_data D M.
+  Definition DCM_data : disp_monoidal_data D M.
   Proof.
-    exists CDM_tensor. exists CDM_unit.
+    exists DCM_tensor. exists DCM_unit.
     split; [| split].
-    - exact CDM_leftunitor_data.
-    - exact CDM_rightunitor_data.
-    - exact CDM_associator_data.
+    - exact DCM_leftunitor_data.
+    - exact DCM_rightunitor_data.
+    - exact DCM_associator_data.
   Defined.
 
-  Definition CDM_laws : disp_monoidal_laws CDM_data.
+  Definition DCM_laws : disp_monoidal_laws DCM_data.
   Proof.
     repeat split.
 
   Admitted.
 
-  Definition cartesiandisplayedmonoidalcat: disp_monoidal D M := CDM_data ,, CDM_laws.
+  Definition displayedcartesianmonoidalcat: disp_monoidal D M := DCM_data ,, DCM_laws.
 
 
 End FixADisplayedCategory.
