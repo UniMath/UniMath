@@ -822,6 +822,11 @@ Section TensorLayer.
     exact ((i5 ∘ i4 ∘ i3 ∘ i2 ∘ i1)%weq).
   Defined.
 
+  Definition tensor_eqi''' {C : univalent_category} (TC TD : tensor C) : UU
+    := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
+    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+      transportf (λ x : C, C⟦x , x2 ⊗_{TD} y2⟧) (α x1 y1) (transportf _ (α x2 y2) (f ⊗^{TC} g)) = (f ⊗^{TD} g).
+
   (*** Until here, all good... ***)
 
   Lemma t_lemma {C : univalent_category} (TC TD : C -> C -> C)
@@ -863,39 +868,20 @@ Section TensorLayer.
     use pathscomp0.
     3: { exact (t_lemma TC TD TCh TDh pe). }
 
-    Search (transportf ?P _ ?x = transportf ?P _ ?x).
-    apply transportf_paths.
+    (*Search (transportf ?P _ ?x = transportf ?P _ ?x).
+    apply transportf_paths.*)
+  Admitted.
 
-
-  Definition tensor_eqi''_to_eq {C : univalent_category} (TC TD : tensor C) : tensor_eqi'' TC TD -> TC = TD.
+  Definition tensor_eqi'''_to_eq {C : univalent_category} (TC TD : tensor C) : tensor_eqi''' TC TD -> TC = TD.
   Proof.
     intro te.
     use total2_paths_f.
     - use total2_paths_f.
       + apply funextsec ; intro ; apply funextsec ; intro ; apply (pr1 te).
       + cbn in *.
-        unfold tensor_eqi'' in te.
-
-        use pathscomp0.
-        3: {
-
-          apply (t_lemma (pr11 TC) (pr11 TD) (pr21 TC) (pr21 TD)).
-        }
-
-        assert (pf :  (funextsec (λ _ : C, C → C) (pr11 TC) (pr11 TD)
-       (λ x : C,
-           funextsec (λ _ : C, C) ((pr11 TC) x) ((pr11 TD) x) (λ x0 : C, pr1 te x x0)))
-                      =
-                          (funextsec (λ _ : C, C → C) (pr11 TC) (pr11 TD)
-       (λ x : C,
-        funextsec (λ _ : C, C) ((pr11 TC) x) ((pr11 TD) x)
-          (λ x0 : C,
-           toforallpaths (λ _ : C, C) ((pr11 TC) x) ((pr11 TD) x)
-                         (toforallpaths (λ _ : C, C → C) (pr11 TC) (pr11 TD) ?p x) x0)))
-               ).
-
-
-        (* exact (pr2 te). *)
+        unfold tensor_eqi''' in te.
+        (* repeat (apply funextsec ; intro). *)
+        Search (transportf _ (funextsec _ _ _ _) _).
 
     - use total2_paths_b.
       + abstract (repeat (apply impred_isaprop ; intro) ;
