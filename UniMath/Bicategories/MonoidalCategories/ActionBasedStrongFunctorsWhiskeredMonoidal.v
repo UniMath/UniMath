@@ -607,7 +607,9 @@ Section Main.
       - apply is_invertible_2cell_rwhisker.
         change (is_z_isomorphism (# FA (αinv_{Mon_V} v1 v2 v3))).
         apply functor_on_is_z_isomorphism.
-        apply (is_z_isomorphism_inv (monoidal_associatoriso Mon_V v1 v2 v3)).
+        exists (α_{Mon_V} v1 v2 v3).
+        destruct (monoidal_associatorisolaw Mon_V v1 v2 v3).
+        split; assumption.
     Defined.
     (** end of auxiliary definitions of isomorphisms *)
 
@@ -1333,14 +1335,6 @@ Section Main.
       exact pentagon_inst.
     Qed.
 
-    Definition montrafotargetbicat_disp_monoidal_data: disp_monoidal_data montrafotargetbicat_disp Mon_V.
-    Proof.
-      exists montrafotargetbicat_disp_tensor.
-      exists montrafotargetbicat_disp_unit.
-      exists montrafotargetbicat_disp_leftunitor_data.
-      exists montrafotargetbicat_disp_rightunitor_data.
-      exact montrafotargetbicat_disp_associator_data.
-    Defined.
 
     Lemma montrafotargetbicat_disp_associatorinv_data: disp_associatorinv_data montrafotargetbicat_disp_tensor.
     Proof.
@@ -1580,7 +1574,8 @@ Section Main.
         - exact (# FA' (αinv_{ Mon_V} v1 v2 v3)).
         - change (is_z_isomorphism (# FA' (αinv_{ Mon_V} v1 v2 v3))).
           apply functor_on_is_z_isomorphism.
-          apply (is_z_isomorphism_inv (monoidal_associatoriso Mon_V v1 v2 v3)).
+          exists (α_{ Mon_V} v1 v2 v3).
+          destruct (monoidal_associatorisolaw Mon_V v1 v2 v3); split; assumption.
       }
       apply (lhs_right_invert_cell _ _ _ aux4iso).
       cbn.
@@ -1602,19 +1597,17 @@ Section Main.
       exact lax_monoidal_functor_assoc_inst.
     Qed.
 
-    Lemma montrafotargetbicat_disp_associator_iso: disp_associator_iso montrafotargetbicat_disp_associator_data.
+    Lemma montrafotargetbicat_disp_associator_iso: disp_associator_iso montrafotargetbicat_disp_associator_data montrafotargetbicat_disp_associatorinv_data.
     Proof.
       intros v1 v2 v3 η1 η2 η3.
-      exists (montrafotargetbicat_disp_associatorinv_data v1 v2 v3 η1 η2 η3).
       (** now we benefit from working in a displayed monoidal category *)
       split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
-    Lemma montrafotargetbicat_disp_associator_law: disp_associator_law montrafotargetbicat_disp_associator_data.
+    Lemma montrafotargetbicat_disp_associator_law: disp_associator_law montrafotargetbicat_disp_associator_data montrafotargetbicat_disp_associatorinv_data.
     Proof.
       (** now we benefit from working in a displayed monoidal category *)
-      repeat (split; try (red; intros; apply trafotargetbicat_disp_cells_isaprop)).
-      exact montrafotargetbicat_disp_associator_iso.
+      repeat (split; try (red; intros; apply trafotargetbicat_disp_cells_isaprop)); try apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
     Lemma montrafotargetbicat_disp_leftunitorinv_data: disp_leftunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
@@ -1716,15 +1709,13 @@ Section Main.
       apply pathsinv0, lunitor_triangle.
     Qed.
 
-    Lemma montrafotargetbicat_disp_leftunitor_iso: disp_leftunitor_iso montrafotargetbicat_disp_leftunitor_data.
+    Lemma montrafotargetbicat_disp_leftunitor_iso: disp_leftunitor_iso montrafotargetbicat_disp_leftunitor_data montrafotargetbicat_disp_leftunitorinv_data.
     Proof.
       intros v η.
-      use tpair.
-      - apply montrafotargetbicat_disp_leftunitorinv_data .
-      - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
+      (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
-    Lemma montrafotargetbicat_disp_leftunitor_law: disp_leftunitor_law montrafotargetbicat_disp_leftunitor_data.
+    Lemma montrafotargetbicat_disp_leftunitor_law: disp_leftunitor_law montrafotargetbicat_disp_leftunitor_data montrafotargetbicat_disp_leftunitorinv_data.
     Proof.
       split.
       - red. intros. apply trafotargetbicat_disp_cells_isaprop.
@@ -1856,30 +1847,40 @@ Section Main.
       apply runitor_rwhisker.
     Qed.
 
-    Lemma montrafotargetbicat_disp_rightunitor_iso: disp_rightunitor_iso montrafotargetbicat_disp_rightunitor_data.
+    Lemma montrafotargetbicat_disp_rightunitor_iso: disp_rightunitor_iso montrafotargetbicat_disp_rightunitor_data montrafotargetbicat_disp_rightunitorinv_data.
     Proof.
       intros v η.
-      use tpair.
-      - apply montrafotargetbicat_disp_rightunitorinv_data.
-      - (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
+      (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
     Qed.
 
-    Lemma montrafotargetbicat_disp_rightunitor_law: disp_rightunitor_law montrafotargetbicat_disp_rightunitor_data.
+    Lemma montrafotargetbicat_disp_rightunitor_law: disp_rightunitor_law montrafotargetbicat_disp_rightunitor_data montrafotargetbicat_disp_rightunitorinv_data.
     Proof.
       split.
       - red. intros. apply trafotargetbicat_disp_cells_isaprop.
       - exact montrafotargetbicat_disp_rightunitor_iso.
     Qed.
 
+    Definition montrafotargetbicat_disp_monoidal_data: disp_monoidal_data montrafotargetbicat_disp Mon_V.
+    Proof.
+      exists montrafotargetbicat_disp_tensor.
+      exists montrafotargetbicat_disp_unit.
+      exists montrafotargetbicat_disp_leftunitor_data.
+      exists montrafotargetbicat_disp_leftunitorinv_data.
+      exists montrafotargetbicat_disp_rightunitor_data.
+      exists montrafotargetbicat_disp_rightunitorinv_data.
+      exists montrafotargetbicat_disp_associator_data.
+      exact montrafotargetbicat_disp_associatorinv_data.
+    Defined.
+
     Definition montrafotargetbicat_disp_monoidal: disp_monoidal montrafotargetbicat_disp Mon_V.
     Proof.
       exists montrafotargetbicat_disp_monoidal_data.
       split.
-      - exact montrafotargetbicat_disp_associator_law.
-      - split; [ exact montrafotargetbicat_disp_leftunitor_law |].
-        split; [ exact montrafotargetbicat_disp_rightunitor_law |].
-        (** now we benefit from working in a displayed monoidal category *)
-        split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
+      exact montrafotargetbicat_disp_leftunitor_law.
+      split; [ exact montrafotargetbicat_disp_rightunitor_law |].
+      split; [ exact montrafotargetbicat_disp_associator_law |].
+      (** now we benefit from working in a displayed monoidal category *)
+      split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
     Defined.
 
     Definition parameterized_distributivity_bicat_nat : UU := H ⟹ H'.

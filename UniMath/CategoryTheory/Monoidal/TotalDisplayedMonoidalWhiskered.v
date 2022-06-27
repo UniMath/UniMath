@@ -78,10 +78,52 @@ Section MonoidalTotalCategory.
   Qed.
 
   Definition total_tensor {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) :
-    tensor T(D) := (total_tensor_data DT ,, total_leftidax DT ,, total_rightidax DT ,, total_leftcompax DT ,, total_rightcompax DT ,, total_functoronmorphisms_are_equal DT).
+    tensor T(D) := (total_tensor_data DT ,, total_leftidax DT ,, total_rightidax DT ,,
+                      total_leftcompax DT ,, total_rightcompax DT ,, total_functoronmorphisms_are_equal DT).
   Local Notation Tt := total_tensor.
 
-  Definition total_associatordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} (dα : disp_associator_data DT) : associator_data (Tt DT).
+  Definition total_unit {C : category} {D : disp_cat C} {M : monoidal C}
+    (DT : disp_tensor D M) (i : D I_{M}): T(D) := (I_{M},,i).
+  Notation Tu := total_unit.
+
+  Definition total_leftunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}}
+    (dlu : disp_leftunitor_data DT i) : leftunitor_data (Tt DT) (Tu DT i).
+  Proof.
+    intro x.
+    use tpair.
+    - exact (lu_{M} (pr1 x)).
+    - exact (dlu (pr1 x) (pr2 x)).
+  Defined.
+
+   Definition total_leftunitorinvdata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}}
+    (dluinv : disp_leftunitorinv_data DT i) : leftunitorinv_data (Tt DT) (Tu DT i).
+  Proof.
+    intro x.
+    use tpair.
+    - exact (luinv_{M} (pr1 x)).
+    - exact (dluinv (pr1 x) (pr2 x)).
+  Defined.
+
+  Definition total_rightunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}}
+    (dru : disp_rightunitor_data DT i) : rightunitor_data (Tt DT) (Tu DT i).
+  Proof.
+    intro x.
+    use tpair.
+    - exact (ru_{M} (pr1 x)).
+    - exact (dru (pr1 x) (pr2 x)).
+  Defined.
+
+  Definition total_rightunitorinvdata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}}
+    (druinv : disp_rightunitorinv_data DT i) : rightunitorinv_data (Tt DT) (Tu DT i).
+  Proof.
+    intro x.
+    use tpair.
+    - exact (ruinv_{M} (pr1 x)).
+    - exact (druinv (pr1 x) (pr2 x)).
+  Defined.
+
+  Definition total_associatordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M}
+    (dα : disp_associator_data DT) : associator_data (Tt DT).
   Proof.
     intros x y z.
     use tpair.
@@ -90,36 +132,82 @@ Section MonoidalTotalCategory.
   Defined.
   Notation Tα := total_associatordata.
 
-  Definition total_unit {C : category} {D : disp_cat C} {M : monoidal C} (DT : disp_tensor D M) (i : D I_{M}): T(D) := (I_{M},,i).
-  Notation Tu := total_unit.
-
-  Definition total_leftunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dlu : disp_leftunitor_data DT i) : leftunitor_data (Tt DT) (Tu DT i).
+  Definition total_associatorinvdata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M}
+    (dαinv : disp_associatorinv_data DT) : associatorinv_data (Tt DT).
   Proof.
-    intro x.
+    intros x y z.
     use tpair.
-    - exact (lu_{M} (pr1 x)).
-    - exact (dlu (pr1 x) (pr2 x)).
+    - exact (αinv_{M} (pr1 x) (pr1 y) (pr1 z)).
+    - exact (dαinv (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
   Defined.
 
-  Definition total_rightunitordata {C : category} {D : disp_cat C} {M : monoidal C} {DT : disp_tensor D M} {i : D I_{M}} (dru : disp_rightunitor_data DT i) : rightunitor_data (Tt DT) (Tu DT i).
-  Proof.
-    intro x.
-    use tpair.
-    - exact (ru_{M} (pr1 x)).
-    - exact (dru (pr1 x) (pr2 x)).
-  Defined.
-
-  Definition total_monoidaldata {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal_data D M) : (monoidal_data T(D) ).
+  Definition total_monoidaldata {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal_data D M) : monoidal_data T(D).
   Proof.
     use make_monoidal_data.
     - exact (total_tensor DM).
     - exact (total_unit DM dI_{DM}).
     - exact (total_leftunitordata dlu^{DM}).
+    - exact (total_leftunitorinvdata dluinv^{DM}).
     - exact (total_rightunitordata dru^{DM}).
+    - exact (total_rightunitorinvdata druinv^{DM}).
     - exact (total_associatordata dα^{DM}).
+    - exact (total_associatorinvdata dαinv^{DM}).
   Defined.
 
   (** PROPERTIES **)
+  Lemma total_leftunitor_iso_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M}
+    (dluiso : disp_leftunitor_iso dlu^{DM} dluinv^{DM})
+    : leftunitor_iso_law (total_leftunitordata dlu^{DM}) (total_leftunitorinvdata dluinv^{DM}).
+  Proof.
+    intros x.
+    split.
+    - use total2_paths_b.
+      + exact (pr1 (pr2 (monoidal_leftunitorlaw M) (pr1 x))).
+      + exact (pr2 (dluiso (pr1 x) (pr2 x))).
+    - use total2_paths_b.
+        * exact (pr2 (pr2 (monoidal_leftunitorlaw M) (pr1 x))).
+        * exact (pr1 (dluiso (pr1 x) (pr2 x))).
+  Qed.
+
+  Lemma total_leftunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M}
+    (dluiso : disp_leftunitor_nat dlu^{DM}) : leftunitor_nat (total_leftunitordata dlu^{DM}).
+  Proof. (* TODO *)
+    intros x y f.
+    use total2_paths_b.
+    - exact ((pr1 (monoidal_leftunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - exact (dluiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  Defined.
+
+  Lemma total_leftunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dluiso : disp_leftunitor_law dlu^{DM} dluinv^{DM}) : leftunitor_law (total_leftunitordata dlu^{DM}) (total_leftunitorinvdata dluinv^{DM}).
+  Proof.
+    exact (total_leftunitor_nat (pr1 dluiso),,total_leftunitor_iso_law (pr2 dluiso)).
+  Defined.
+
+  Lemma total_rightunitor_iso_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_iso dru^{DM} druinv^{DM}) : rightunitor_iso_law (total_rightunitordata dru^{DM}) (total_rightunitorinvdata druinv^{DM}).
+  Proof.
+    intros x.
+    split.
+    - use total2_paths_b.
+      + exact (pr1 (pr2 (monoidal_rightunitorlaw M) (pr1 x))).
+      + exact (pr2 (druiso (pr1 x) (pr2 x))).
+    - use total2_paths_b.
+        * exact (pr2 (pr2 (monoidal_rightunitorlaw M) (pr1 x))).
+        * exact (pr1 (druiso (pr1 x) (pr2 x))).
+  Qed.
+
+  Lemma total_rightunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_nat dru^{DM}) : rightunitor_nat (total_rightunitordata dru^{DM}).
+  Proof.
+    intros x y f.
+    use total2_paths_b.
+    - exact ((pr1 (monoidal_rightunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - exact (druiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  Defined.
+
+  Lemma total_rightunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_law dru^{DM} druinv^{DM}) : rightunitor_law (total_rightunitordata dru^{DM}) (total_rightunitorinvdata druinv^{DM}).
+  Proof.
+    exact (total_rightunitor_nat (pr1 druiso),,total_rightunitor_iso_law (pr2 druiso)).
+  Defined.
+
   Lemma total_associator_nat_leftwhisker {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dαlnat : disp_associator_nat_leftwhisker dα^{DM}) : associator_nat_leftwhisker (total_associatordata dα^{DM}).
   Proof.
     intros x y z z' h.
@@ -144,90 +232,32 @@ Section MonoidalTotalCategory.
     - exact (dαlrnat (pr1 x) (pr1 y1) (pr1 y2) (pr1 z) (pr1 g) (pr2 x) (pr2 y1) (pr2 y2) (pr2 z) (pr2 g)).
   Qed.
 
-  Lemma total_associator_iso {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dαiso : disp_associator_iso dα^{DM}) : associator_iso (total_associatordata dα^{DM}).
+  Lemma total_associator_iso_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dαiso : disp_associator_iso dα^{DM} dαinv^{DM}) : associator_iso_law (total_associatordata dα^{DM}) (total_associatorinvdata dαinv^{DM}).
   Proof.
     intros x y z.
-    use tpair.
-    - use tpair.
-      + exact (pr1 (associatorlaw_iso (monoidal_associatorlaw M) (pr1 x) (pr1 y) (pr1 z))).
-      + exact (pr1 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
-    - use tpair.
+   - split.
       + use total2_paths_b.
-        * exact (pr1 (pr2 (associatorlaw_iso (monoidal_associatorlaw M) (pr1 x) (pr1 y) (pr1 z)))).
-        * exact (pr2 (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+        * exact (pr1 (associatorlaw_iso_law (monoidal_associatorlaw M) (pr1 x) (pr1 y) (pr1 z))).
+        * exact (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
       + use total2_paths_b.
-        * exact (pr2 (pr2 (associatorlaw_iso (monoidal_associatorlaw M) (pr1 x) (pr1 y) (pr1 z)))).
-        * exact (pr1 (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+        * exact (pr2 (associatorlaw_iso_law (monoidal_associatorlaw M) (pr1 x) (pr1 y) (pr1 z))).
+        * exact (pr1 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
   Qed.
 
-  Lemma total_associator_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dαiso : disp_associator_law dα^{DM}) : associator_law (total_associatordata dα^{DM}).
+  Lemma total_associator_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M}
+    (dαiso : disp_associator_law dα^{DM} dαinv^{DM}) :
+    associator_law (total_associatordata dα^{DM}) (total_associatorinvdata dαinv^{DM}).
   Proof.
     split with (total_associator_nat_leftwhisker (disp_associatorlaw_natleft dαiso)).
     split with (total_associator_nat_rightwhisker (disp_associatorlaw_natright dαiso)).
     split with (total_associator_nat_leftrightwhisker (disp_associatorlaw_natleftright dαiso)).
-    exact (total_associator_iso (disp_associatorlaw_iso dαiso)).
-  Qed.
-
-  Lemma total_leftunitor_iso {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dluiso : disp_leftunitor_iso dlu^{DM}) : leftunitor_iso (total_leftunitordata dlu^{DM}).
-  Proof.
-    intros x.
-    use tpair.
-    - use tpair.
-      + exact (pr1 (pr2 (monoidal_leftunitorlaw M) (pr1 x))).
-      + exact (pr1 (dluiso (pr1 x) (pr2 x))).
-    - use tpair.
-      + use total2_paths_b.
-        * exact (pr1 (pr2 (pr2 (monoidal_leftunitorlaw M) (pr1 x)))).
-        * exact (pr2 (pr2 (dluiso (pr1 x) (pr2 x)))).
-      + use total2_paths_b.
-        * exact (pr2 (pr2 (pr2 (monoidal_leftunitorlaw M) (pr1 x)))).
-        * exact (pr1 (pr2 (dluiso (pr1 x) (pr2 x)))).
-  Qed.
-
-  Lemma total_leftunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dluiso : disp_leftunitor_nat dlu^{DM}) : leftunitor_nat (total_leftunitordata dlu^{DM}).
-  Proof.
-    intros x y f.
-    use total2_paths_b.
-    - exact ((pr1 (monoidal_leftunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
-    - exact (dluiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
-  Defined.
-
-  Lemma total_leftunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dluiso : disp_leftunitor_law dlu^{DM}) : leftunitor_law (total_leftunitordata dlu^{DM}).
-  Proof.
-    exact (total_leftunitor_nat (pr1 dluiso),,total_leftunitor_iso (pr2 dluiso)).
-  Defined.
-
-  Lemma total_rightunitor_iso {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_iso dru^{DM}) : rightunitor_iso (total_rightunitordata dru^{DM}).
-  Proof.
-    intros x.
-    use tpair.
-    - use tpair.
-      + exact (pr1 (pr2 (monoidal_rightunitorlaw M) (pr1 x))).
-      + exact (pr1 (druiso (pr1 x) (pr2 x))).
-    - use tpair.
-      + use total2_paths_b.
-        * exact (pr1 (pr2 (pr2 (monoidal_rightunitorlaw M) (pr1 x)))).
-        * exact (pr2 (pr2 (druiso (pr1 x) (pr2 x)))).
-      + use total2_paths_b.
-        * exact (pr2 (pr2 (pr2 (monoidal_rightunitorlaw M) (pr1 x)))).
-        * exact (pr1 (pr2 (druiso (pr1 x) (pr2 x)))).
+    exact (total_associator_iso_law (disp_associatorlaw_iso dαiso)).
   Qed.
 
 
-  Lemma total_rightunitor_nat {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_nat dru^{DM}) : rightunitor_nat (total_rightunitordata dru^{DM}).
-  Proof.
-    intros x y f.
-    use total2_paths_b.
-    - exact ((pr1 (monoidal_rightunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
-    - exact (druiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
-  Defined.
-
-  Lemma total_rightunitor_law {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (druiso : disp_rightunitor_law dru^{DM}) : rightunitor_law (total_rightunitordata dru^{DM}).
-  Proof.
-    exact (total_rightunitor_nat (pr1 druiso),,total_rightunitor_iso (pr2 druiso)).
-  Defined.
-
-  Lemma total_triangleidentity {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dti : disp_triangle_identity dlu^{DM} dru^{DM} dα^{DM}) : triangle_identity (total_leftunitordata dlu^{DM}) (total_rightunitordata dru^{DM}) (total_associatordata dα^{DM}).
+  Lemma total_triangleidentity {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M}
+    (dti : disp_triangle_identity dlu^{DM} dru^{DM} dα^{DM}) :
+    triangle_identity (total_leftunitordata dlu^{DM}) (total_rightunitordata dru^{DM}) (total_associatordata dα^{DM}).
   Proof.
     intros x y.
     use total2_paths_b.
@@ -235,7 +265,9 @@ Section MonoidalTotalCategory.
     - exact (dti (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
   Qed.
 
-  Lemma total_pentagonidentity {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M} (dpi : disp_pentagon_identity dα^{DM}) : pentagon_identity (total_associatordata dα^{DM}).
+  Lemma total_pentagonidentity {C : category} {D : disp_cat C} {M : monoidal C} {DM : disp_monoidal_data D M}
+    (dpi : disp_pentagon_identity dα^{DM}) :
+    pentagon_identity (total_associatordata dα^{DM}).
   Proof.
     intros w x y z.
     use total2_paths_b.
@@ -245,14 +277,15 @@ Section MonoidalTotalCategory.
 
   Definition total_monoidallaws {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : monoidal_laws (total_monoidaldata DM).
   Proof.
-    split with (total_associator_law (disp_monoidal_associatorlaw DM)).
     split with (total_leftunitor_law (disp_monoidal_leftunitorlaw DM)).
     split with (total_rightunitor_law (disp_monoidal_rightunitorlaw DM)).
+    split with (total_associator_law (disp_monoidal_associatorlaw DM)).
     split with (total_triangleidentity (disp_monoidal_triangleidentity DM)).
     exact (total_pentagonidentity (disp_monoidal_pentagonidentity DM)).
   Qed.
 
-  Definition total_monoidal {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : monoidal T(D) := (total_monoidaldata DM,, total_monoidallaws DM).
+  Definition total_monoidal {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : monoidal T(D)
+    := (total_monoidaldata DM,, total_monoidallaws DM).
 
   Notation "π^{ D }" := (pr1_category D).
   Notation "TM( DM )" := (total_monoidal DM).
