@@ -75,7 +75,15 @@ Section FixADisplayedCategory.
   Proof.
   Admitted.
 
+  Definition DCM_leftunitorinv_data : disp_leftunitorinv_data DCM_tensor DCM_unit.
+  Proof.
+  Admitted.
+
   Definition DCM_rightunitor_data : disp_rightunitor_data DCM_tensor DCM_unit.
+  Proof.
+  Admitted.
+
+  Definition DCM_rightunitorinv_data : disp_rightunitorinv_data DCM_tensor DCM_unit.
   Proof.
   Admitted.
 
@@ -83,16 +91,23 @@ Section FixADisplayedCategory.
   Proof.
   Admitted.
 
+  Definition DCM_associatorinv_data : disp_associatorinv_data DCM_tensor.
+  Proof.
+  Admitted.
+
   Definition DCM_data : disp_monoidal_data D M.
   Proof.
     exists DCM_tensor. exists DCM_unit.
-    split; [| split].
+    repeat split.
     - exact DCM_leftunitor_data.
+    - exact DCM_leftunitorinv_data.
     - exact DCM_rightunitor_data.
+    - exact DCM_rightunitorinv_data.
     - exact DCM_associator_data.
+    - exact DCM_associatorinv_data.
   Defined.
 
-  Definition DCM_laws : disp_monoidal_laws DCM_data.
+  Lemma DCM_laws : disp_monoidal_laws DCM_data.
   Proof.
     repeat split.
 

@@ -342,7 +342,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/MonoidalFunctorsWhiskered.v](CategoryTheory/Monoidal/MonoidalFunctorsWhiskered.v)
    - [Monoidal/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/WhiskeredDisplayedBifunctors.v)
    - [Monoidal/DisplayedMonoidalWhiskered.v](CategoryTheory/Monoidal/DisplayedMonoidalWhiskered.v)
-   - [Monoidal/CartesianDisplayedMonoidalCategoriesWhiskered.v](CategoryTheory/Monoidal/CartesianDisplayedMonoidalCategoriesWhiskered.v)
+   - [Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v](CategoryTheory/Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v)
    - [Monoidal/TotalDisplayedMonoidalWhiskered.v](CategoryTheory/Monoidal/TotalDisplayedMonoidalWhiskered.v)
    - [Monoidal/MonoidalSectionsWhiskered.v](CategoryTheory/Monoidal/MonoidalSectionsWhiskered.v)
    - [DisplayedCats/MoreFibrations/Prefibrations.v](CategoryTheory/DisplayedCats/MoreFibrations/Prefibrations.v)
