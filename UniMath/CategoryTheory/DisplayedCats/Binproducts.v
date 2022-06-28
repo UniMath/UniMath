@@ -190,6 +190,55 @@ Section FixDispCat.
   Definition dispBinProducts (Ps : BinProducts C)  : UU := ∏ (c d : C) (cc : D c) (dd : D d),
       dispBinProduct c d (Ps c d) cc dd.
 
+
+  Lemma dispBinProductOfArrows_comp { Ps : BinProducts C } (dPs : dispBinProducts Ps) {a b c d x y : C}
+    {aa : D a} {bb : D b} {cc : D c} {dd: D d} {xx : D x} {yy : D y}
+    {f : a --> c} {f' : b --> d} {g : c --> x} {g' : d --> y}
+    (ff : aa -->[f] cc) (ff' : bb -->[f'] dd) (gg : cc -->[g] xx) (gg' : dd -->[g'] yy) :
+    dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) ff ff' ;; dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) gg gg' =
+      transportb _ (BinProductOfArrows_comp _ _ _ _ _ _ _ _ f f' g g') (dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) (ff;;gg) (ff';;gg')).
+  Proof.
+    apply transportb_transpose_right.
+    apply dispBinProductArrowUnique.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      rewrite assoc_disp_var.
+      rewrite dispBinProductOfArrowsPr1.
+      rewrite transport_f_f.
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+      do 2 rewrite assoc_disp.
+      rewrite dispBinProductOfArrowsPr1.
+      do 2 rewrite transport_f_b.
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      { apply maponpaths.
+        apply mor_disp_transportf_postwhisker. }
+      rewrite transport_f_f.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      rewrite assoc_disp_var.
+      rewrite dispBinProductOfArrowsPr2.
+      rewrite transport_f_f.
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+      do 2 rewrite assoc_disp.
+      rewrite dispBinProductOfArrowsPr2.
+      do 2 rewrite transport_f_b.
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      { apply maponpaths.
+        apply mor_disp_transportf_postwhisker. }
+      rewrite transport_f_f.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+  Qed.
+
+
   Definition total_category_Binproducts (Ps : BinProducts C) (dPs : dispBinProducts Ps) : BinProducts (total_category D).
   Proof.
     intros ccc ddd.

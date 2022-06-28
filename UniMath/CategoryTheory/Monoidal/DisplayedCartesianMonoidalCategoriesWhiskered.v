@@ -58,7 +58,188 @@ Section FixADisplayedCategory.
 
   Definition DCM_tensor_laws : is_disp_bifunctor DCM_tensor_data.
   Proof.
-  Admitted.
+    red; repeat split; red; intros.
+    - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_left_disp.
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        rewrite transport_f_b.
+        apply transportf_comp_lemma_hset;
+            try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_left_disp.
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        rewrite transport_f_b.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+    - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_left_disp.
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        rewrite transport_f_b.
+        apply transportf_comp_lemma_hset;
+            try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_left_disp.
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        rewrite transport_f_b.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+    - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp_var.
+        etrans.
+        2: { apply maponpaths. apply maponpaths.
+             apply pathsinv0, dispBinProductPr1Commutes. }
+        apply transportf_comp_lemma.
+        rewrite id_right_disp.
+        rewrite transport_b_b.
+        etrans.
+        2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0, dispBinProductPr1Commutes. }
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_right_disp.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp_var.
+        etrans.
+        2: { apply maponpaths. apply maponpaths.
+             apply pathsinv0, dispBinProductPr2Commutes. }
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+        apply transportf_comp_lemma.
+        etrans.
+        2: { rewrite assoc_disp. apply idpath. }
+        match goal with | [ |- _ = transportb _ _ (?auxH1 ;; gg2) ] => set (aux1 := auxH1) end.
+        assert (H: aux1 = transportb (mor_disp (dispBinProductObject D (CP x y1) (dP x y1 xx yy1)) yy2)
+           (BinProductPr2Commutes C x y2 (CP x y2) (BinProductObject C (CP x y1))
+              (BinProductPr1 C (CP x y1) · identity x) (BinProductPr2 C (CP x y1) · g1))
+           (dispBinProductPr2 D (CP x y1) (dP x y1 xx yy1) ;; gg1)).
+        { apply dispBinProductPr2Commutes. }
+        apply transportf_comp_lemma.
+        unfold transportb in H.
+        etrans.
+        2: { apply pathsinv0, (cancel_postcomposition_disp gg2 H). }
+        clear aux1 H.
+        rewrite assoc_disp_var.
+        rewrite transport_f_f.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+    - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite id_right_disp.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp_var.
+        etrans.
+        2: { apply maponpaths. apply maponpaths.
+             apply pathsinv0, dispBinProductPr1Commutes. }
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0,  mor_disp_transportf_prewhisker. }
+        etrans.
+        2: { rewrite assoc_disp. apply idpath. }
+        unfold transportb.
+        rewrite transport_f_f.
+        match goal with | [ |- _ = transportf _ _ (?auxH1 ;; ff2) ] => set (aux1 := auxH1) end.
+        assert (H: aux1 = transportb (mor_disp (dispBinProductObject D (CP x1 y) (dP x1 y xx1 yy)) xx2)
+           (BinProductPr1Commutes C x2 y (CP x2 y) (BinProductObject C (CP x1 y))
+              (BinProductPr1 C (CP x1 y) · f1) (BinProductPr2 C (CP x1 y) · identity y))
+           (dispBinProductPr1 D (CP x1 y) (dP x1 y xx1 yy) ;; ff1)).
+        { apply dispBinProductPr1Commutes. }
+        apply transportf_comp_lemma.
+        unfold transportb in H.
+        etrans.
+        2: { apply pathsinv0, (cancel_postcomposition_disp ff2 H). }
+        clear aux1 H.
+        rewrite assoc_disp_var.
+        rewrite transport_f_f.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        do 2 rewrite id_right_disp.
+        rewrite transport_b_b.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp_var.
+        etrans.
+        2: { apply maponpaths. apply maponpaths.
+             apply pathsinv0, dispBinProductPr2Commutes. }
+        apply transportf_comp_lemma.
+        rewrite transport_b_b.
+        etrans.
+        2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0, dispBinProductPr2Commutes. }
+        rewrite transport_b_b.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset;
+          try apply homset_property; apply idpath.
+    - cbn. unfold dispfunctoronmorphisms1, dispfunctoronmorphisms2,
+        disp_leftwhiskering_on_morphisms, disp_rightwhiskering_on_morphisms.
+      cbn. do 2 rewrite dispBinProductOfArrows_comp.
+      do 2 rewrite id_left_disp.
+      do 2 rewrite id_right_disp.
+      rewrite transport_b_b.
+      apply transportf_comp_lemma.
+      unfold dispBinProductOfArrows. apply dispBinProductArrowUnique.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        etrans.
+        { apply maponpaths.
+          apply dispBinProductPr1Commutes. }
+        rewrite transport_f_b.
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+        etrans.
+        { apply maponpaths.
+          apply mor_disp_transportf_prewhisker. }
+        rewrite transport_f_f.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        etrans.
+        { apply maponpaths.
+          apply dispBinProductPr2Commutes. }
+        rewrite transport_f_b.
+        apply transportf_comp_lemma.
+        etrans.
+        2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+        etrans.
+        { apply maponpaths.
+          apply mor_disp_transportf_prewhisker. }
+        rewrite transport_f_f.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+  Qed.
 
   Definition DCM_tensor : disp_tensor D M.
   Proof.
