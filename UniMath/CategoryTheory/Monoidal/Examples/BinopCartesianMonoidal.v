@@ -111,7 +111,7 @@ Section BinopIsCartesianMonoidal.
         apply idpath.
   Defined.
 
-  Definition BO_disp_tensor_laws : is_disp_bifunctor BO_disp_tensor_data.
+  Lemma BO_disp_tensor_laws : is_disp_bifunctor BO_disp_tensor_data.
   Proof.
     repeat split; red; intros; apply isapropisbinopfun.
   Qed.
@@ -128,28 +128,9 @@ Section BinopIsCartesianMonoidal.
       + repeat split.
   Defined.
 
-  Definition BO_cart_disp_monoidal_laws : disp_monoidal_laws BO_cart_disp_monoidal_data.
+  Lemma BO_cart_disp_monoidal_laws : disp_monoidal_laws BO_cart_disp_monoidal_data.
   Proof.
-    repeat split; try (red; intros; apply isapropisbinopfun).
-    - intros X Y Z m n o.
-      use tpair.
-      + intros a b.
-        use total2_paths_f.
-        * use total2_paths_f.
-          -- apply idpath.
-          -- apply idpath_transportf.
-        * apply idpath_transportf.
-      + split; apply isapropisbinopfun.
-    - intros X x.
-      use tpair.
-      + intros x1 x2.
-        apply idpath.
-      + split; apply isapropisbinopfun.
-    - intros X x.
-      use tpair.
-      + intros x1 x2.
-        apply idpath.
-      + split; apply isapropisbinopfun.
+    repeat split; try (red; intros; apply isapropisbinopfun); try (apply isapropisbinopfun).
   Qed.
 
   Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cartesian_monoidal

@@ -43,10 +43,10 @@ Proof.
   - split. { intros ? ? f. exact (id₁ f). }
     split. { intros ? ? f. apply monoidal_leftunitordata. }
     split. { intros ? ? f. apply monoidal_rightunitordata. }
-    split. { intros ? ? f. apply (is_z_isomorphism_mor (leftunitorlaw_iso (monoidal_leftunitorlaw M) f)). }
-    split. { intros ? ? f. apply (is_z_isomorphism_mor (rightunitorlaw_iso (monoidal_rightunitorlaw M) f)). }
+    split. { intros ? ? f. apply monoidal_leftunitorinvdata. }
+    split. { intros ? ? f. apply monoidal_rightunitorinvdata. }
     split. { intros ? ? ? ? f g h. exact ( α_{ M } f g h ). }
-    split. { intros ? ? ? ? f g h. apply (is_z_isomorphism_mor (associatorlaw_iso (monoidal_associatorlaw M) f g h)). }
+    split. { intros ? ? ? ? f g h. exact ( αinv_{ M } f g h ). }
     split. { intros ? ? f g h. exact compose. }
     split. { intros ? ? ? f g h. exact (λ u, (f ⊗^{ M }_{l} u)). }
              intros ? ? ? f g h. exact (λ u, (u ⊗^{ M }_{r} h)).
@@ -86,9 +86,9 @@ Proof.
     intros ? ? ? ? f g h i x.
     cbn.
     apply pathsinv0.
-    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g h)).
+    apply (z_iso_inv_on_right _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f g h))).
     rewrite assoc.
-    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g i)).
+    apply (z_iso_inv_on_left _ _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f g i))).
     apply (associatorlaw_natleft (monoidal_associatorlaw M)).
   }
 
@@ -97,9 +97,9 @@ Proof.
     intros ? ? ? ? f g h i x.
     cbn.
     apply pathsinv0.
-    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f g i)).
+    apply (z_iso_inv_on_right _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f g i))).
     rewrite assoc.
-    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f h i)).
+    apply (z_iso_inv_on_left _ _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f h i))).
     apply (associatorlaw_natleftright (monoidal_associatorlaw M)).
   }
 
@@ -107,9 +107,9 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     cbn.
-    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f h i)).
+    apply (z_iso_inv_on_right _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f h i))).
     rewrite assoc.
-    apply (z_iso_inv_on_left _ _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) g h i)).
+    apply (z_iso_inv_on_left _ _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) g h i))).
     apply (associatorlaw_natright (monoidal_associatorlaw M)).
   }
 
@@ -121,21 +121,21 @@ Proof.
   }
 
   (* 12. Left unitor invertible. *)
-  split. { intros ? ? f. exact (pr12 (leftunitorlaw_iso (monoidal_leftunitorlaw M) f)). }
-  split. { intros ? ? f. exact (pr22 (leftunitorlaw_iso (monoidal_leftunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr1 (leftunitorlaw_iso_law (monoidal_leftunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr2 (leftunitorlaw_iso_law (monoidal_leftunitorlaw M) f)). }
 
   (* 13. Right unitor invertible. *)
-  split. { intros ? ? f. exact (pr12 (rightunitorlaw_iso (monoidal_rightunitorlaw M) f)). }
-  split. { intros ? ? f. exact (pr22 (rightunitorlaw_iso (monoidal_rightunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr1 (rightunitorlaw_iso_law (monoidal_rightunitorlaw M) f)). }
+  split. { intros ? ? f. exact (pr2 (rightunitorlaw_iso_law (monoidal_rightunitorlaw M) f)). }
 
   (* 14. Associator invertible. *)
-  split. { intros ? ? ? ? f g h. exact (pr22 (associatorlaw_iso (monoidal_associatorlaw M) f g h)). }
-  split. { intros ? ? ? ? f g h. exact (pr12 (associatorlaw_iso (monoidal_associatorlaw M) f g h)). }
+  split. { intros ? ? ? ? f g h. exact (pr2 (associatorlaw_iso_law (monoidal_associatorlaw M) f g h)). }
+  split. { intros ? ? ? ? f g h. exact (pr1 (associatorlaw_iso_law (monoidal_associatorlaw M) f g h)). }
 
   (* 15. Right unitor whiskering. *)
   split. {
     intros ? ? ? f g.
-    apply (z_iso_inv_on_right _ _ _ (_,,associatorlaw_iso (monoidal_associatorlaw M) f I_{ M} g)).
+    apply (z_iso_inv_on_right _ _ _ (_,,(_,,associatorlaw_iso_law (monoidal_associatorlaw M) f I_{ M} g))).
     apply pathsinv0, monoidal_triangleidentity.
   }
 
