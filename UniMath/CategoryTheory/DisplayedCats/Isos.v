@@ -15,12 +15,16 @@ Local Open Scope mor_disp_scope.
 
 Section Isos.
 
+  Definition is_disp_inverse {C : precategory} {D : disp_cat_data C} {x y : C}
+    {f : x --> y} {g: y --> x} (isinv: is_inverse_in_precat f g)
+    {xx : D x} {yy : D y} (ff : xx -->[f] yy) (gg : yy -->[g] xx) : UU
+    := gg ;; ff = transportb _ (pr2 isinv) (id_disp yy) ×
+                    ff ;; gg = transportb _ (pr1 isinv) (id_disp xx).
+
   Definition is_z_iso_disp {C : precategory} {D : disp_cat_data C}
-             {x y : C} (f : z_iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
-    : UU
+             {x y : C} (f : z_iso x y) {xx : D x} {yy} (ff : xx -->[f] yy) : UU
     := ∑ (gg : yy -->[inv_from_z_iso f] xx),
-      gg ;; ff = transportb _ (z_iso_after_z_iso_inv _) (id_disp _)
-                            × ff ;; gg = transportb _ (z_iso_inv_after_z_iso _) (id_disp _).
+      is_disp_inverse (z_iso_is_inverse_in_precat f) ff gg.
 
   Definition z_iso_disp {C : precategory} {D : disp_cat_data C}
              {x y : C} (f : z_iso x y) (xx : D x) (yy : D y)
@@ -65,13 +69,22 @@ Section Isos.
     apply (pr2 (pr2 i)).
   Qed.
 
+
+  Lemma isaprop_is_disp_inverse {C : category} {D : disp_cat C} {x y : C}
+    (f : x --> y) (g: y --> x) (isinv: is_inverse_in_precat f g)
+    {xx : D x} {yy : D y} (ff : xx -->[f] yy) (gg : yy -->[g] xx)
+    : isaprop (is_disp_inverse isinv ff gg).
+  Proof.
+    apply isapropdirprod; apply homsets_disp.
+  Qed.
+
   Lemma isaprop_is_z_iso_disp {C : category} {D : disp_cat C}
         {x y : C} (f : z_iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
     : isaprop (is_z_iso_disp f ff).
   Proof.
     apply invproofirrelevance; intros i i'.
     apply subtypePath.
-    - intros gg. apply isapropdirprod; apply homsets_disp.
+    - intros gg. apply isaprop_is_disp_inverse.
     (* uniqueness of inverses *)
     (* TODO: think about better lemmas for this sort of calculation?
   e.g. all that repeated application of [transport_f_f], etc. *)

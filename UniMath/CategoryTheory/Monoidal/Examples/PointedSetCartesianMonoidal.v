@@ -41,7 +41,7 @@ Section PointedSetCategory.
     apply idpath.
   Qed.
 
-  Definition comp_preserve_ptset {X Y Z : hSet}
+  Lemma comp_preserve_ptset {X Y Z : hSet}
              {x : X} {y : Y} {z : Z}
              {f : X → Y} {g : Y→ Z}
              (pf : preserve_ptset x y f)
@@ -135,7 +135,7 @@ Section PointedSetIsCartesianMonoidal.
         apply idpath.
   Defined.
 
-  Definition PS_disp_tensor_laws : is_disp_bifunctor PS_disp_tensor_data.
+  Lemma PS_disp_tensor_laws : is_disp_bifunctor PS_disp_tensor_data.
   Proof.
     repeat split; red; intros; apply isaprop_preserve_ptset.
   Qed.
@@ -152,36 +152,9 @@ Section PointedSetIsCartesianMonoidal.
       + repeat split.
   Defined.
 
-  Definition PS_cart_disp_monoidal_laws : disp_monoidal_laws PS_cart_disp_monoidal_data.
+  Lemma PS_cart_disp_monoidal_laws : disp_monoidal_laws PS_cart_disp_monoidal_data.
   Proof.
-    repeat split; try (red; intros; apply isaprop_preserve_ptset).
-    - intros X Y Z x y z.
-      use tpair.
-      + apply idpath.
-
-        (*
-        assert (p0 : αinv_{ SET_cart_monoidal} X Y Z
-                     = Isos.inv_from_z_iso (z_iso_from_associator_iso SET_cart_monoidal X Y Z)).
-        {
-          apply idpath.
-        }
-
-        rewrite p0.
-
-        assert (p :  Isos.inv_from_z_iso (z_iso_from_associator_iso SET_cart_monoidal X Y Z)  = (λ xyz :  pr1 X × (pr1 Y × pr1 Z), (pr1 xyz,, pr12 xyz),, pr22 xyz)).
-        {
-          Check Isos.inv_z_iso_unique'.
-          apply Isos.inv_iso_unique.
-         *)
-      + split; apply isaprop_preserve_ptset.
-    - intros X x.
-      use tpair.
-      + apply idpath.
-      + split; apply isaprop_preserve_ptset.
-    - intros X x.
-      use tpair.
-      + apply idpath.
-      + split; apply isaprop_preserve_ptset.
+    repeat split; try (red; intros; apply isaprop_preserve_ptset); try (apply isaprop_preserve_ptset).
   Qed.
 
   Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
