@@ -248,33 +248,59 @@ Section FixADisplayedCategory.
     - exact DCM_tensor_laws.
   Defined.
 
-  Definition DCM_unit : D I_{ M}.
-  Proof.
-  Admitted.
+  Definition DCM_unit : D I_{ M} := dispTerminalObject _ dterminal.
 
   Definition DCM_leftunitor_data : disp_leftunitor_data DCM_tensor DCM_unit.
   Proof.
-  Admitted.
+    red; intros. apply dispBinProductPr2.
+  Defined.
 
   Definition DCM_leftunitorinv_data : disp_leftunitorinv_data DCM_tensor DCM_unit.
   Proof.
-  Admitted.
+    red; intros. apply dispBinProductArrow.
+    - apply dispTerminalArrow.
+    - apply id_disp.
+  Defined.
 
   Definition DCM_rightunitor_data : disp_rightunitor_data DCM_tensor DCM_unit.
   Proof.
-  Admitted.
+    red; intros. apply dispBinProductPr1.
+  Defined.
 
   Definition DCM_rightunitorinv_data : disp_rightunitorinv_data DCM_tensor DCM_unit.
   Proof.
-  Admitted.
+    red; intros. apply dispBinProductArrow.
+    - apply id_disp.
+    - apply dispTerminalArrow.
+  Defined.
 
   Definition DCM_associator_data : disp_associator_data DCM_tensor.
   Proof.
-  Admitted.
+    red; intros.
+    apply dispBinProductArrow.
+    + use comp_disp.
+      2: {apply dispBinProductPr1. }
+      apply dispBinProductPr1.
+    + apply dispBinProductArrow.
+      * use comp_disp.
+        2: {apply dispBinProductPr1. }
+        apply dispBinProductPr2.
+      * apply dispBinProductPr2.
+  Defined.
 
   Definition DCM_associatorinv_data : disp_associatorinv_data DCM_tensor.
   Proof.
-  Admitted.
+    red; intros.
+    apply dispBinProductArrow.
+    + apply dispBinProductArrow.
+      * apply dispBinProductPr1.
+      * use comp_disp.
+        2: {apply dispBinProductPr2. }
+        apply dispBinProductPr1.
+    + use comp_disp.
+      2: {apply dispBinProductPr2. }
+      apply dispBinProductPr2.
+  Defined.
 
   Definition DCM_data : disp_monoidal_data D M.
   Proof.
@@ -290,7 +316,7 @@ Section FixADisplayedCategory.
 
   Lemma DCM_laws : disp_monoidal_laws DCM_data.
   Proof.
-    repeat split.
+    repeat split; try red; intros.
 
   Admitted.
 

@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.DisplayedCartesianMonoidalCategoriesWhiskered.
 
 Local Open Scope cat.
 
@@ -82,13 +83,17 @@ Section BinopCategory.
     - apply (total_category_Terminal _ TerminalHSET Binop_dispTerminal).
   Defined.
 
-
 End BinopCategory.
 
 Section BinopIsCartesianMonoidal.
 
   Local Notation BO := Binop_cat.
   Local Notation DBO := Binop_disp_cat.
+
+  Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cartesian_monoidal
+    := displayedcartesianmonoidalcat BinProductsHSET TerminalHSET Binop_disp_cat Binop_dispBinproducts Binop_dispTerminal.
+
+ Section ElementaryProof.
 
   Definition BO_disp_tensor_data : disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO.
   Proof.
@@ -133,8 +138,10 @@ Section BinopIsCartesianMonoidal.
     repeat split; try (red; intros; apply isapropisbinopfun); try (apply isapropisbinopfun).
   Qed.
 
-  Definition BO_cart_disp_monoidal : disp_monoidal DBO SET_cartesian_monoidal
+  Definition BO_cart_disp_monoidal_elementary : disp_monoidal DBO SET_cartesian_monoidal
     := (BO_cart_disp_monoidal_data,, BO_cart_disp_monoidal_laws).
+
+ End ElementaryProof.
 
   Definition Binop_cat_cart_monoidal : monoidal Binop_cat
     := total_monoidal BO_cart_disp_monoidal.
@@ -150,5 +157,6 @@ Section BinopIsCartesianMonoidal.
   Proof.
     apply projection_preservestensor_strictly.
   Qed.
+
 
 End BinopIsCartesianMonoidal.
