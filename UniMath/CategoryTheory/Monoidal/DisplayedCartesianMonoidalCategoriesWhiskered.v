@@ -332,7 +332,37 @@ Section FixADisplayedCategory.
   Lemma DCM_triangle_identity : disp_triangle_identity DCM_leftunitor_data DCM_rightunitor_data DCM_associator_data.
   Proof.
     red; intros.
-  Admitted.
+    cbn. unfold DCM_associator_data.
+    rewrite dispPostcompWithBinProductArrow.
+    apply pathsinv0, transportf_comp_lemma.
+    apply dispBinProductArrowUnique.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0, dispBinProductOfArrowsPr1. }
+      unfold DCM_rightunitor_data.
+      rewrite assoc_disp_var.
+      rewrite id_right_disp.
+      rewrite transport_f_f.
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      apply pathsinv0, transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0, dispBinProductOfArrowsPr2. }
+      rewrite id_right_disp.
+      unfold DCM_leftunitor_data.
+      apply pathsinv0, transportf_comp_lemma.
+      rewrite dispBinProductPr2Commutes.
+      rewrite transport_f_b.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+  Qed.
 
   Lemma DCM_pentagon_identity : disp_pentagon_identity DCM_associator_data.
   Proof.
