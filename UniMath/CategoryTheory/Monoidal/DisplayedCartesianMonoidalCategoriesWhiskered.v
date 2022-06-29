@@ -314,11 +314,39 @@ Section FixADisplayedCategory.
     - exact DCM_associatorinv_data.
   Defined.
 
-  Lemma DCM_laws : disp_monoidal_laws DCM_data.
+  Lemma DCM_leftunitor_law : disp_leftunitor_law DCM_leftunitor_data DCM_leftunitorinv_data.
+  Proof.
+    split; [| split]; try red; intros.
+  Admitted.
+
+  Lemma DCM_rightunitor_law : disp_rightunitor_law DCM_rightunitor_data DCM_rightunitorinv_data.
+  Proof.
+    split; [| split]; try red; intros.
+  Admitted.
+
+  Lemma DCM_associator_law : disp_associator_law DCM_associator_data DCM_associatorinv_data.
   Proof.
     repeat split; try red; intros.
-
   Admitted.
+
+  Lemma DCM_triangle_identity : disp_triangle_identity DCM_leftunitor_data DCM_rightunitor_data DCM_associator_data.
+  Proof.
+    red; intros.
+  Admitted.
+
+  Lemma DCM_pentagon_identity : disp_pentagon_identity DCM_associator_data.
+  Proof.
+    red; intros.
+  Admitted.
+
+  Lemma DCM_laws : disp_monoidal_laws DCM_data.
+  Proof.
+    exists DCM_leftunitor_law.
+    exists DCM_rightunitor_law.
+    exists DCM_associator_law.
+    exists DCM_triangle_identity.
+    exact DCM_pentagon_identity.
+  Qed.
 
   Definition displayedcartesianmonoidalcat: disp_monoidal D M := DCM_data ,, DCM_laws.
 
