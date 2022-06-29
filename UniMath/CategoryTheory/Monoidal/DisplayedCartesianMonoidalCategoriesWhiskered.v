@@ -317,12 +317,69 @@ Section FixADisplayedCategory.
   Lemma DCM_leftunitor_law : disp_leftunitor_law DCM_leftunitor_data DCM_leftunitorinv_data.
   Proof.
     split; [| split]; try red; intros.
-  Admitted.
+    - cbn.
+      etrans.
+      { apply dispBinProductOfArrowsPr2. }
+      unfold DCM_leftunitor_data.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - cbn. unfold DCM_leftunitorinv_data, DCM_leftunitor_data.
+      rewrite dispBinProductPr2Commutes.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - cbn. unfold DCM_leftunitorinv_data, DCM_leftunitor_data.
+      apply pathsinv0.
+      etrans.
+      2: { apply dispBinProduct_endo_is_identity.
+           + apply dispTerminalArrowEq.
+           + rewrite assoc_disp_var.
+             rewrite dispBinProductPr2Commutes.
+             apply pathsinv0, transportf_comp_lemma.
+             etrans.
+             2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+             rewrite id_right_disp.
+             rewrite transport_f_b.
+             apply transportf_comp_lemma.
+             apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      Unshelve.
+      rewrite <- assoc. rewrite BinProductPr2Commutes. apply id_right.
+  Qed.
 
   Lemma DCM_rightunitor_law : disp_rightunitor_law DCM_rightunitor_data DCM_rightunitorinv_data.
   Proof.
     split; [| split]; try red; intros.
-  Admitted.
+    - cbn. unfold DCM_rightunitor_data.
+      etrans.
+      { apply dispBinProductOfArrowsPr1. }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - cbn. unfold DCM_rightunitorinv_data, DCM_rightunitor_data.
+      rewrite dispBinProductPr1Commutes.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - cbn. unfold DCM_rightunitorinv_data, DCM_rightunitor_data.
+      apply pathsinv0.
+      etrans.
+      2: { apply dispBinProduct_endo_is_identity.
+           + rewrite assoc_disp_var.
+             rewrite dispBinProductPr1Commutes.
+             apply pathsinv0, transportf_comp_lemma.
+             etrans.
+             2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+             rewrite id_right_disp.
+             rewrite transport_f_b.
+             apply transportf_comp_lemma.
+             apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+           + apply dispTerminalArrowEq.
+      }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      Unshelve.
+      rewrite <- assoc. rewrite BinProductPr1Commutes. apply id_right.
+  Qed.
 
   Lemma DCM_associator_law : disp_associator_law DCM_associator_data DCM_associatorinv_data.
   Proof.

@@ -124,9 +124,11 @@ Section FixDispCat.
   Lemma dispBinProductArrowEta {c d : C} (P : BinProduct C c d) (cc : D c) (dd : D d)
     (dP : dispBinProduct c d P cc dd) {x : C} (xx : D x) {fg : x --> BinProductObject C P }
     (fgfg : xx -->[ fg] dispBinProductObject P dP) :
-    transportf (mor_disp xx (dispBinProductObject P dP)) (BinProductArrowEta C c d P x fg) fgfg =
-      dispBinProductArrow P dP (fgfg ;; dispBinProductPr1 P dP) (fgfg ;; dispBinProductPr2 P dP).
+    fgfg =
+      transportb (mor_disp xx (dispBinProductObject P dP)) (BinProductArrowEta C c d P x fg)
+        (dispBinProductArrow P dP (fgfg ;; dispBinProductPr1 P dP) (fgfg ;; dispBinProductPr2 P dP)).
   Proof.
+    apply transportf_transpose_right.
     apply dispBinProductArrowUnique.
     - etrans.
       { apply mor_disp_transportf_postwhisker. }
@@ -140,6 +142,39 @@ Section FixDispCat.
       apply C.
   Qed.
 
+  Lemma dispBinProduct_endo_is_identity {a b : C} (aa : D a) (bb : D b)
+    (P : BinProduct _ a b) (dP : dispBinProduct a b P aa bb)
+    {k : BinProductObject _ P --> BinProductObject _ P} (kk: dispBinProductObject P dP -->[k] dispBinProductObject P dP)
+    {H1 : k · BinProductPr1 _ P = BinProductPr1 _ P} (dH1 : kk ;; dispBinProductPr1 P dP = transportb _ H1 (dispBinProductPr1 P dP))
+    {H2 : k · BinProductPr2 _ P = BinProductPr2 _ P} (dH2 : kk ;; dispBinProductPr2 P dP = transportb _ H2 (dispBinProductPr2 P dP))
+    : transportf _ (BinProduct_endo_is_identity C a b P k H1 H2) (id_disp (dispBinProductObject P dP)) = kk.
+  Proof.
+    apply pathsinv0.
+    etrans.
+    { apply dispBinProductArrowEta. }
+    apply pathsinv0, transportf_comp_lemma.
+    apply dispBinProductArrowUnique.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      rewrite id_left_disp.
+      rewrite transport_f_b.
+      apply transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0; exact dH1. }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+    - etrans.
+      { apply mor_disp_transportf_postwhisker. }
+      rewrite id_left_disp.
+      rewrite transport_f_b.
+      apply transportf_comp_lemma.
+      etrans.
+      2: { apply pathsinv0; exact dH2. }
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+  Qed.
 
   Definition dispBinProductOfArrows {c d : C} {Pcd : BinProduct C c d}
     {cc : D c} {dd : D d}
@@ -343,7 +378,9 @@ Section FixDispCat.
           (* we proceed as follows: *)
           cbn.
           etrans.
-          2: { apply dispBinProductArrowEta. }
+          2: { assert (aux := dispBinProductArrowEta (Ps c d) cc dd (dPs _ _ cc dd) aa fgfg).
+               apply transportf_transpose_left in aux.
+               exact aux. }
           apply (maponpaths (fun z => transportf (mor_disp aa (dispBinProductObject (Ps c d) (dPs c d cc dd))) z fgfg)).
           apply C.
   Defined.
@@ -372,6 +409,27 @@ Section FixDispCat.
   Proof.
     apply (pr2 (pr2 dP x xx)).
   Qed.
+
+  Lemma dispTerminalArrowUnique'  (P : Terminal C)
+    (dP : dispTerminal P) {x : C} (xx : D x) (f: x --> TerminalObject P)
+    (kk : xx -->[f] dispTerminalObject dP) :
+    kk = transportb _ (TerminalArrowUnique P x f) (dispTerminalArrow P dP xx).
+  Proof.
+    apply transportf_transpose_right.
+    apply dispTerminalArrowUnique.
+  Qed.
+
+  Lemma dispTerminalArrowEq {T : Terminal C} {TT: dispTerminal T} {a : C} {aa : D a} {f g : a --> T}
+    (ff: aa -->[f] dispTerminalObject TT) (gg: aa -->[g] dispTerminalObject TT) :
+    ff = transportb _ (TerminalArrowEq f g) gg.
+  Proof.
+    induction (TerminalArrowEq f g).
+    cbn.
+    rewrite (dispTerminalArrowUnique' _ _ _ _ ff).
+    rewrite (dispTerminalArrowUnique' _ _ _ _ gg).
+    apply idpath.
+  Qed.
+
 
   Definition total_category_Terminal (P : Terminal C) (dP : dispTerminal P) : Terminal (total_category D).
   Proof.
