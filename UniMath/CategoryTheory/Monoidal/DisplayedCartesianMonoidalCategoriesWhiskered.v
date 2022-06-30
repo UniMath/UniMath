@@ -461,11 +461,323 @@ Section FixADisplayedCategory.
           rewrite transport_b_f.
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
-    - admit.
-    - admit.
-    - admit.
-    - admit.
-  Admitted.
+    - unfold DCM_associator_data. cbn.
+      rewrite dispPostcompWithBinProductArrow.
+      apply pathsinv0, transportf_comp_lemma.
+      apply dispBinProductArrowUnique.
+      + rewrite dispPrecompWithBinProductArrow.
+        rewrite transport_f_b.
+        etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite dispBinProductPr1Commutes.
+        rewrite transport_f_b.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp.
+        rewrite dispBinProductOfArrowsPr1.
+        etrans.
+        2: { apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker. }
+        rewrite transport_b_f.
+        etrans.
+        2: { rewrite assoc_disp_var.
+             rewrite dispBinProductOfArrowsPr1.
+             rewrite transport_f_f.
+             unfold transportb.
+             rewrite mor_disp_transportf_prewhisker.
+             rewrite transport_f_f.
+             rewrite assoc_disp.
+             rewrite transport_f_b.
+             apply idpath.
+        }
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite assoc_disp_var.
+        rewrite dispBinProductPr2Commutes.
+        rewrite transport_f_f.
+        etrans.
+        { apply maponpaths.
+          apply mor_disp_transportf_prewhisker. }
+        rewrite transport_f_f.
+        rewrite dispPrecompWithBinProductArrow.
+        rewrite transport_f_b.
+        apply pathsinv0, transportf_comp_lemma.
+        apply dispBinProductArrowUnique.
+        * rewrite id_right_disp.
+          rewrite transport_f_b.
+          etrans.
+          { apply mor_disp_transportf_postwhisker. }
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite dispBinProductPr1Commutes.
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp.
+          rewrite dispBinProductOfArrowsPr1.
+          etrans.
+          2: { apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker. }
+          rewrite transport_b_f.
+          apply transportf_comp_lemma.
+          rewrite assoc_disp_var.
+          rewrite dispBinProductOfArrowsPr2.
+          rewrite id_right_disp.
+          rewrite transport_b_b.
+          etrans.
+          2: { apply maponpaths, pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite transport_f_f.
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        * etrans.
+          { apply mor_disp_transportf_postwhisker. }
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp_var.
+          rewrite dispBinProductOfArrowsPr2.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          rewrite id_left_disp.
+          etrans.
+          2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite id_right_disp.
+          rewrite transport_f_b.
+          rewrite dispBinProductPr2Commutes.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - unfold DCM_associator_data. cbn.
+      rewrite dispPostcompWithBinProductArrow.
+      apply pathsinv0, transportf_comp_lemma.
+      apply dispBinProductArrowUnique.
+      + rewrite dispPrecompWithBinProductArrow.
+        rewrite transport_f_b.
+        etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite dispBinProductPr1Commutes.
+        rewrite transport_f_b.
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp.
+        rewrite dispBinProductOfArrowsPr1.
+        etrans.
+        2: { apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker. }
+        rewrite transport_b_f.
+        etrans.
+        2: { rewrite assoc_disp_var.
+             rewrite dispBinProductOfArrowsPr1.
+             rewrite transport_f_f.
+             unfold transportb.
+             rewrite mor_disp_transportf_prewhisker.
+             rewrite transport_f_f.
+             rewrite id_right_disp.
+             unfold transportb.
+             rewrite mor_disp_transportf_prewhisker.
+             rewrite transport_f_f.
+             apply idpath.
+        }
+        apply pathsinv0, transportf_comp_lemma.
+        rewrite assoc_disp_var.
+        rewrite id_right_disp.
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        apply transportf_comp_lemma.
+        apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      + etrans.
+        { apply mor_disp_transportf_postwhisker. }
+        rewrite assoc_disp_var.
+        rewrite dispBinProductPr2Commutes.
+        rewrite transport_f_f.
+        etrans.
+        { apply maponpaths.
+          apply mor_disp_transportf_prewhisker. }
+        rewrite transport_f_f.
+        rewrite dispPrecompWithBinProductArrow.
+        rewrite transport_f_b.
+        apply pathsinv0, transportf_comp_lemma.
+        apply dispBinProductArrowUnique.
+        * etrans.
+          { apply mor_disp_transportf_postwhisker. }
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp_var.
+          rewrite dispBinProductOfArrowsPr1.
+          etrans.
+          2: { apply maponpaths, pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite transport_f_f.
+          apply transportf_comp_lemma.
+          etrans.
+          2: { rewrite assoc_disp.
+               rewrite dispBinProductPr1Commutes.
+               unfold transportb.
+               rewrite mor_disp_transportf_postwhisker.
+               rewrite transport_f_f.
+               apply idpath.
+          }
+          apply pathsinv0, transportf_comp_lemma.
+          etrans.
+          2: { rewrite assoc_disp.
+               rewrite dispBinProductOfArrowsPr1.
+               apply maponpaths.
+               apply pathsinv0, mor_disp_transportf_postwhisker. }
+          rewrite transport_b_f.
+          etrans.
+          2: { rewrite assoc_disp_var.
+               rewrite dispBinProductOfArrowsPr2.
+               unfold transportb.
+               rewrite mor_disp_transportf_prewhisker.
+               rewrite transport_f_f.
+               rewrite assoc_disp.
+               rewrite transport_f_f.
+               rewrite transport_f_b.
+               apply idpath.
+          }
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        * etrans.
+          { apply mor_disp_transportf_postwhisker. }
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp_var.
+          do 2 rewrite dispBinProductOfArrowsPr2.
+          rewrite transport_f_b.
+          rewrite id_right_disp.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          etrans.
+          2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite id_right_disp.
+          etrans.
+          2: { apply maponpaths, pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite dispBinProductPr2Commutes.
+          rewrite transport_f_f.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - unfold DCM_associator_data, DCM_associatorinv_data. cbn.
+      etrans.
+      { apply pathsinv0, dispBinProduct_endo_is_identity.
+        + rewrite assoc_disp_var.
+          rewrite dispBinProductPr1Commutes.
+          etrans.
+          { apply maponpaths, mor_disp_transportf_prewhisker. }
+          rewrite transport_f_f.
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp.
+          rewrite dispBinProductPr1Commutes.
+          unfold transportb.
+          rewrite mor_disp_transportf_postwhisker.
+          rewrite dispBinProductPr1Commutes.
+          rewrite transport_f_f.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        + rewrite assoc_disp_var.
+          rewrite dispBinProductPr2Commutes.
+          etrans.
+          { apply maponpaths, mor_disp_transportf_prewhisker. }
+          rewrite transport_f_f.
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite dispPrecompWithBinProductArrow.
+          apply transportf_comp_lemma.
+          apply dispBinProductArrowUnique.
+          * etrans.
+            { apply mor_disp_transportf_postwhisker. }
+            apply transportf_comp_lemma.
+            rewrite assoc_disp.
+            rewrite dispBinProductPr1Commutes.
+            etrans.
+            2: { apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker. }
+            rewrite dispBinProductPr2Commutes.
+            rewrite transport_b_f.
+            rewrite transport_f_b.
+            apply transportf_comp_lemma.
+            apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+          * etrans.
+            { apply mor_disp_transportf_postwhisker. }
+            apply transportf_comp_lemma.
+            rewrite dispBinProductPr2Commutes.
+            apply transportf_comp_lemma.
+            apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      }
+(* still two goals to unshelve! *)
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+    - unfold DCM_associator_data, DCM_associatorinv_data. cbn.
+      etrans.
+      { apply pathsinv0, dispBinProduct_endo_is_identity.
+        + rewrite assoc_disp_var.
+          rewrite dispBinProductPr1Commutes.
+          apply pathsinv0, transportf_comp_lemma.
+          etrans.
+          2: { apply pathsinv0, mor_disp_transportf_prewhisker. }
+          rewrite dispPrecompWithBinProductArrow.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          apply dispBinProductArrowUnique.
+          * etrans.
+            { apply mor_disp_transportf_postwhisker. }
+            apply transportf_comp_lemma.
+            rewrite dispBinProductPr1Commutes.
+            apply transportf_comp_lemma.
+            apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+          * etrans.
+            { apply mor_disp_transportf_postwhisker. }
+            apply transportf_comp_lemma.
+            rewrite assoc_disp.
+            rewrite dispBinProductPr2Commutes.
+            etrans.
+            2: { apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker. }
+            rewrite dispBinProductPr1Commutes.
+            rewrite transport_b_f.
+            rewrite transport_f_b.
+            apply transportf_comp_lemma.
+            apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        + rewrite assoc_disp_var.
+          rewrite dispBinProductPr2Commutes.
+          etrans.
+          { apply maponpaths, mor_disp_transportf_prewhisker. }
+          rewrite transport_f_f.
+          apply pathsinv0, transportf_comp_lemma.
+          rewrite assoc_disp.
+          rewrite dispBinProductPr2Commutes.
+          unfold transportb.
+          rewrite mor_disp_transportf_postwhisker.
+          rewrite dispBinProductPr2Commutes.
+          rewrite transport_f_f.
+          rewrite transport_f_b.
+          apply transportf_comp_lemma.
+          apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      }
+(* still two goals to unshelve! *)
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+      Unshelve.
+      + rewrite <- assoc.
+        rewrite BinProductPr1Commutes.
+        rewrite assoc.
+        do 2 rewrite BinProductPr1Commutes.
+        apply idpath.
+      + rewrite <- assoc.
+        rewrite BinProductPr2Commutes.
+        rewrite precompWithBinProductArrow.
+        apply pathsinv0, BinProductArrowUnique.
+        * rewrite assoc.
+          rewrite BinProductPr1Commutes.
+          rewrite BinProductPr2Commutes.
+          apply idpath.
+        * rewrite BinProductPr2Commutes.
+          apply idpath.
+      + rewrite <- assoc.
+        rewrite BinProductPr1Commutes.
+        rewrite precompWithBinProductArrow.
+        apply pathsinv0, BinProductArrowUnique.
+        * rewrite BinProductPr1Commutes.
+          apply idpath.
+        * rewrite assoc.
+          rewrite BinProductPr2Commutes.
+          rewrite BinProductPr1Commutes.
+          apply idpath.
+      + rewrite <- assoc.
+        rewrite BinProductPr2Commutes.
+        rewrite assoc.
+        do 2 rewrite BinProductPr2Commutes.
+        apply idpath.
+  Qed.
+
 
   Lemma DCM_triangle_identity : disp_triangle_identity DCM_leftunitor_data DCM_rightunitor_data DCM_associator_data.
   Proof.
