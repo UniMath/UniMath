@@ -270,6 +270,40 @@ Section FixDispCat.
         try apply homset_property; apply idpath.
   Qed.
 
+  Lemma dispPrecompWithBinProductArrow {c d : C} {Pcd : BinProduct C c d}
+    {cc : D c} {dd : D d} (dPcd : dispBinProduct c d Pcd cc dd)
+    {a : C} {aa : D a}
+    {f : a --> c} {g : a --> d} (ff: aa -->[f] cc) (gg: aa -->[g] dd)
+    {x : C} {xx : D x} {k : x --> a} (kk: xx -->[k] aa) :
+    kk ;; dispBinProductArrow Pcd dPcd ff gg  =
+      transportb _ (precompWithBinProductArrow C Pcd f g k) (dispBinProductArrow Pcd dPcd (kk ;; ff) (kk ;; gg)).
+  Proof.
+    apply transportb_transpose_right.
+    apply dispBinProductArrowUnique.
+    - rewrite mor_disp_transportf_postwhisker.
+      rewrite assoc_disp_var.
+      rewrite dispBinProductPr1Commutes.
+      rewrite transport_f_f.
+      etrans.
+      { apply maponpaths.
+        apply mor_disp_transportf_prewhisker. }
+      rewrite transport_f_f.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+    - rewrite mor_disp_transportf_postwhisker.
+      rewrite assoc_disp_var.
+      rewrite dispBinProductPr2Commutes.
+      rewrite transport_f_f.
+      etrans.
+      { apply maponpaths.
+        apply mor_disp_transportf_prewhisker. }
+      rewrite transport_f_f.
+      apply transportf_comp_lemma.
+      apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+  Qed.
+
 
   Definition dispBinProducts (Ps : BinProducts C)  : UU := ∏ (c d : C) (cc : D c) (dd : D d),
       dispBinProduct c d (Ps c d) cc dd.
