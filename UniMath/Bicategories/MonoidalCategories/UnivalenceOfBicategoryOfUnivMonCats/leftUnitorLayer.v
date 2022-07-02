@@ -57,6 +57,72 @@ Section LeftUnitor.
     : UU := ∏ x : uc C,
         (pu_{F} ⊗^{D} (identity ((pr1 F : functor _ _) x))) · (pt_{F} I_{C} x) · (functor_on_morphisms (pr1 F : functor _ _) (pr1 luC x)) = pr1 luD ((pr1 F : functor _ _) x).
 
+  Definition id_preserves_lunitor {C : tu_cat} (luC : lunitor C)
+    : preserves_lunitor luC luC (identity C).
+  Proof.
+    intro x.
+    etrans. {
+      apply cancel_postcomposition.
+      apply id_right.
+    }
+    etrans. {
+      apply cancel_postcomposition.
+      apply tensor_id.
+    }
+    apply id_left.
+  Qed.
+
+  Definition comp_preserves_lunitor {C D E : tu_cat}
+             (luC : lunitor C) (luD : lunitor D) (luE : lunitor E)
+             {F : tu_cat⟦C,D⟧} {G : tu_cat⟦D,E⟧}
+             (pluF : preserves_lunitor luC luD F)
+             (pluG : preserves_lunitor luD luE G)
+    : preserves_lunitor luC luE (F · G).
+  Proof.
+    intro x.
+    use pathscomp0.
+    3: exact (pluG ((pr1 F : functor (uc C) (uc D)) x)).
+
+    etrans. {
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      apply maponpaths.
+      apply (! id_right _).
+    }
+
+    etrans. {
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      apply (pr2 (pr212 E)).
+    }
+
+    rewrite assoc'.
+    rewrite assoc'.
+    use pathscomp0.
+    3: {
+      apply assoc.
+    }
+    apply cancel_precomposition.
+    unfold compositions_preserves_tensor_data.
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply maponpaths.
+      exact (pluF x).
+    }
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply (! functor_comp _ _ _).
+    }
+    rewrite assoc.
+    rewrite assoc.
+
+    cbn in *.
+
+
+  Admitted.
+
   Definition isaprop_preserves_lunitor {C D : tu_cat} (luC : lunitor C) (luD : lunitor D) (F : tu_cat⟦C,D⟧) : isaprop (preserves_lunitor luC luD F).
   Proof.
     repeat (apply impred_isaprop ; intro).
@@ -79,19 +145,10 @@ Section LeftUnitorLayer.
   Proof.
     use tpair.
     - intros C lu.
-      intro x.
-      etrans. {
-          apply cancel_postcomposition.
-          apply id_right.
-        }
-        etrans. {
-          apply cancel_postcomposition.
-          apply tensor_id.
-        }
-        apply id_left.
+      apply id_preserves_lunitor.
     - intros C D E F G luC luD luE pluF pluG x.
-      admit.
-  Admitted.
+      apply (comp_preserves_lunitor luC luD luE pluF pluG).
+  Defined.
 
 
   Definition catcatslu_disp_cat_data : disp_cat_data tu_cat
@@ -251,7 +308,7 @@ Section LeftUnitorLayer.
     : lu_equal lu1 lu2 → lu1 = lu2.
   Proof.
     intro lue.
-    use total2_paths_b.
+    use total2_paths_f.
     - apply funextsec ; intro x.
       exact (lue x).
     - repeat (apply funextsec ; intro).
@@ -278,14 +335,29 @@ Section LeftUnitorLayer.
         exact (lu_equal_to_equal _ _ lue).
       + intro lue.
         induction lue.
-
-        admit.
+        unfold lu_equal_to_equal.
+        unfold equal_to_lu_equal.
+        unfold bicatcatslu_disp_bicat in lu1.
+        use pathscomp0.
+        3: {
+          apply total2_paths_idpath.
+        }
+        apply maponpaths_total.
+        * apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 lu1) (pr1 lu1))).
+          -- intro p.
+             apply funextsec_toforallpaths.
+          -- etrans. { apply toforallpaths_funextsec. }
+             apply funextsec ; intro x.
+             apply idpath.
+        * intro l.
+          unfold lunitor_nat.
+          repeat (apply impred_isaset ; intro).
+          apply isasetaprop.
+          apply homset_property.
       + intro lue.
         apply funextsec ; intro.
         apply univalent_category_has_homsets.
-
-  Admitted.
-
+  Defined.
 
   Lemma bicatcatslu_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bicatcatslu_disp_bicat.
   Proof.
@@ -313,3 +385,5 @@ Section LeftUnitorLayer.
     - apply bicatcatslu_disp_prebicat_is_globally_univalent.
     - apply bicatcatslu_disp_prebicat_is_locally_univalent.
   Defined.
+
+End LeftUnitorLayer.

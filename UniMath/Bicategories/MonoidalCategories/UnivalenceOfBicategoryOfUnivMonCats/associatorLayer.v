@@ -298,7 +298,7 @@ Section AssociatorLayer.
     : ass_equal ass1 ass2 → ass1 = ass2.
   Proof.
     intro asse.
-    use total2_paths_b.
+    use total2_paths_f.
     - repeat (apply funextsec ; intro).
       apply asse.
     - repeat (apply funextsec ; intro).
@@ -325,14 +325,39 @@ Section AssociatorLayer.
         exact (ass_equal_to_equal _ _ asse).
       + intro asse.
         induction asse.
+        use pathscomp0.
+        3: {
+          apply total2_paths_idpath.
+        }
+        unfold ass_equal_to_equal.
+        unfold equal_to_ass_equal.
 
-        admit.
+        apply maponpaths_total.
+        * apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1) (pr1 ass1))).
+          -- intro p.
+             apply funextsec_toforallpaths.
+          -- etrans. { apply toforallpaths_funextsec. }
+             apply funextsec ; intro x.
+             apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1 x) (pr1 ass1 x))).
+             ++ intro p.
+                apply funextsec_toforallpaths.
+             ++ etrans. { apply toforallpaths_funextsec. }
+                apply funextsec ; intro y.
+                apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1 x y) (pr1 ass1 x y))).
+                ** intro p.
+                   apply funextsec_toforallpaths.
+                ** etrans. { apply toforallpaths_funextsec. }
+                   apply funextsec ; intro z.
+                   apply idpath.
+        * intro l.
+          unfold associator_nat.
+          repeat (apply impred_isaset ; intro).
+          apply isasetaprop.
+          apply homset_property.
       + intro asse.
         repeat (apply funextsec ; intro).
         apply univalent_category_has_homsets.
-
-  Admitted.
-
+  Defined.
 
   Lemma bicatcatsass_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bicatcatsass_disp_bicat.
   Proof.
@@ -360,3 +385,5 @@ Section AssociatorLayer.
     - apply bicatcatsass_disp_prebicat_is_globally_univalent.
     - apply bicatcatsass_disp_prebicat_is_locally_univalent.
   Defined.
+
+End AssociatorLayer.
