@@ -57,6 +57,8 @@ limits/terminal.v
 limits/zero.v
 limits/bincoproducts.v
 limits/binproducts.v
+DisplayedCats/Binproducts.v
+
 limits/graphs/bincoproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v

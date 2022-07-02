@@ -1,8 +1,6 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-(* Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations. *)
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -76,7 +74,13 @@ Proof.
   - exact tensorfrombinprod.
   - exact (TerminalObject terminal).
   - intro c. apply BinProductPr2.
+  - intro c. apply BinProductArrow.
+      * apply TerminalArrow.
+      * exact (identity c).
   - intro c. apply BinProductPr1.
+  - intro c. apply BinProductArrow.
+    * exact (identity c).
+    * apply TerminalArrow.
   - intros c1 c2 c3.
     apply BinProductArrow.
     + use compose.
@@ -87,11 +91,55 @@ Proof.
         2: {apply BinProductPr1. }
         apply BinProductPr2.
       * apply BinProductPr2.
+  - intros a b c.
+    apply BinProductArrow.
+    + apply BinProductArrow.
+      * apply BinProductPr1.
+      * use compose.
+        2: {apply BinProductPr2. }
+        apply BinProductPr1.
+    + use compose.
+      2: {apply BinProductPr2. }
+      apply BinProductPr2.
 Defined.
 
 Local Definition MD := cartesianmonoidalcat_data.
 
-Local Definition associator_law_from_binprod: associator_law α_{MD}.
+Local Lemma leftunitor_law_from_binprod: leftunitor_law lu_{MD} luinv_{MD}.
+Proof.
+  split.
+  - intros c1 c2 f.
+    cbn.
+    apply BinProductOfArrowsPr2.
+  - split.
+    + apply pathsinv0, BinProduct_endo_is_identity.
+      * (* show_id_type. *)
+        apply TerminalArrowEq.
+      * rewrite <- assoc.
+        etrans.
+        { apply maponpaths. apply BinProductPr2Commutes. }
+        apply id_right.
+    + apply BinProductPr2Commutes.
+Qed.
+
+Local Lemma rightunitor_law_from_binprod: rightunitor_law ru_{MD} ruinv_{MD}.
+Proof.
+  split.
+  - intros c1 c2 f.
+    cbn.
+    apply BinProductOfArrowsPr1.
+  - intro c.
+    split.
+    + apply pathsinv0, BinProduct_endo_is_identity.
+      * rewrite <- assoc.
+        etrans.
+        { apply maponpaths. apply BinProductPr1Commutes. }
+        apply id_right.
+      * apply TerminalArrowEq.
+    + apply BinProductPr1Commutes.
+Qed.
+
+Local Lemma associator_law_from_binprod: associator_law α_{MD} αinv_{MD}.
 Proof.
   repeat split.
   - intros a b c1 c2 h.
@@ -199,94 +247,40 @@ Proof.
         rewrite BinProductPr2Commutes.
         rewrite id_right.
         apply idpath.
-  - intros a b c.
-    use make_is_z_isomorphism.
-    + apply BinProductArrow.
-      * apply BinProductArrow.
-        -- apply BinProductPr1.
-        -- use compose.
-           2: {apply BinProductPr2. }
-           apply BinProductPr1.
-      * use compose.
-         2: {apply BinProductPr2. }
-         apply BinProductPr2.
-    + split.
-      * apply pathsinv0, BinProduct_endo_is_identity.
-        -- cbn.
-           rewrite <- assoc.
-           rewrite BinProductPr1Commutes.
-           rewrite precompWithBinProductArrow.
-           apply pathsinv0, BinProductArrowUnique.
-           ++ apply pathsinv0, BinProductPr1Commutes.
-           ++ rewrite assoc.
-              rewrite BinProductPr2Commutes.
-              apply pathsinv0, BinProductPr1Commutes.
-        -- cbn.
-           rewrite <- assoc.
-           rewrite BinProductPr2Commutes.
-           rewrite assoc.
-           rewrite BinProductPr2Commutes.
-           apply BinProductPr2Commutes.
-      * apply pathsinv0, BinProduct_endo_is_identity.
-        -- cbn.
-           rewrite <- assoc.
-           rewrite BinProductPr1Commutes.
-           rewrite assoc.
-           rewrite BinProductPr1Commutes.
-           apply BinProductPr1Commutes.
-        -- cbn.
-           rewrite <- assoc.
-           rewrite BinProductPr2Commutes.
-           rewrite precompWithBinProductArrow.
-           rewrite BinProductPr2Commutes.
-           rewrite assoc.
-           rewrite BinProductPr1Commutes.
-           rewrite BinProductPr2Commutes.
-           apply pathsinv0, BinProductArrowUnique; apply idpath.
-Defined.
+  - apply pathsinv0, BinProduct_endo_is_identity.
+    -- cbn.
+       rewrite <- assoc.
+       rewrite BinProductPr1Commutes.
+       rewrite precompWithBinProductArrow.
+       apply pathsinv0, BinProductArrowUnique.
+       ++ apply pathsinv0, BinProductPr1Commutes.
+       ++ rewrite assoc.
+          rewrite BinProductPr2Commutes.
+          apply pathsinv0, BinProductPr1Commutes.
+    -- cbn.
+       rewrite <- assoc.
+       rewrite BinProductPr2Commutes.
+       rewrite assoc.
+       rewrite BinProductPr2Commutes.
+       apply BinProductPr2Commutes.
+  - apply pathsinv0, BinProduct_endo_is_identity.
+    -- cbn.
+       rewrite <- assoc.
+       rewrite BinProductPr1Commutes.
+       rewrite assoc.
+       rewrite BinProductPr1Commutes.
+       apply BinProductPr1Commutes.
+    -- cbn.
+       rewrite <- assoc.
+       rewrite BinProductPr2Commutes.
+       rewrite precompWithBinProductArrow.
+       rewrite BinProductPr2Commutes.
+       rewrite assoc.
+       rewrite BinProductPr1Commutes.
+       rewrite BinProductPr2Commutes.
+       apply pathsinv0, BinProductArrowUnique; apply idpath.
+Qed.
 
-Local Definition leftunitor_law_from_binprod: leftunitor_law lu_{MD}.
-Proof.
-  split.
-  - intros c1 c2 f.
-    cbn.
-    apply BinProductOfArrowsPr2.
-  - intro c.
-    use make_is_z_isomorphism.
-    + apply BinProductArrow.
-      * apply TerminalArrow.
-      * exact (identity c).
-    + split.
-      * apply pathsinv0, BinProduct_endo_is_identity.
-        -- (* show_id_type. *)
-          apply TerminalArrowEq.
-        -- rewrite <- assoc.
-           etrans.
-           { apply maponpaths. apply BinProductPr2Commutes. }
-           apply id_right.
-      * apply BinProductPr2Commutes.
-Defined.
-
-Local Definition rightunitor_law_from_binprod: rightunitor_law ru_{MD}.
-Proof.
-  split.
-  - intros c1 c2 f.
-    cbn.
-    apply BinProductOfArrowsPr1.
-  - intro c.
-    use make_is_z_isomorphism.
-    + apply BinProductArrow.
-      * exact (identity c).
-      * apply TerminalArrow.
-    + split.
-      * apply pathsinv0, BinProduct_endo_is_identity.
-        -- rewrite <- assoc.
-           etrans.
-           { apply maponpaths. apply BinProductPr1Commutes. }
-           apply id_right.
-        -- apply TerminalArrowEq.
-      * apply BinProductPr1Commutes.
-Defined.
 
 Local Lemma triangle_identity_from_binprod: triangle_identity lu_{MD} ru_{MD} α_{MD}.
 Proof.
@@ -367,9 +361,9 @@ Qed.
 Definition cartesianmonoidalcat: monoidal C.
 Proof.
   exists cartesianmonoidalcat_data.
-  exists associator_law_from_binprod.
   exists leftunitor_law_from_binprod.
   exists rightunitor_law_from_binprod.
+  exists associator_law_from_binprod.
   exists triangle_identity_from_binprod.
   exact pentagon_identity_from_binprod.
 Defined.
