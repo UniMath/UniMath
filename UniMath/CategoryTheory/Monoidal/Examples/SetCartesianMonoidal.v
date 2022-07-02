@@ -1,5 +1,12 @@
+(** an elementary direct construction of the monoidal category
+
+    one can also instantiate the construction of cartesian monoidal categories
+    [UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.SET_cartesian_monoidal] *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+
+Require UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -8,8 +15,6 @@ Require Import UniMath.CategoryTheory.categories.HSET.All.
 
 Local Open Scope cat.
 
-(* Import BifunctorNotations.
-Import MonoidalNotations. *)
 
 Section SetIsCartesianMonoidal.
 

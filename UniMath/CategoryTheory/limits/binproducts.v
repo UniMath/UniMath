@@ -100,10 +100,7 @@ Lemma BinProductArrowUnique (c d : C) (P : BinProduct c d) (x : C)
     k · BinProductPr1 P = f -> k · BinProductPr2 P = g ->
       k = BinProductArrow P f g.
 Proof.
-  intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (make_dirprod H1 H2)).
-  set (H' := (pr2 (isBinProduct_BinProduct P _ f g)) H).
-  apply (base_paths _ _ H').
+  intros; apply path_to_ctr; split; assumption.
 Qed.
 
 Lemma BinProductArrowsEq (c d : C) (P : BinProduct c d) (x : C)
