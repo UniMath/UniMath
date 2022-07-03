@@ -381,7 +381,7 @@ Section FixDispCat.
     - apply dispBinProductArrow; assumption.
   Defined.
 
-  Lemma total_category_Binproducts_mediating_morphism_ok (Ps : BinProducts C) (dPs : dispBinProducts Ps)
+  Local Lemma total_category_Binproducts_mediating_morphism_ok (Ps : BinProducts C) (dPs : dispBinProducts Ps)
     {c d x : C} {cc : D c} {dd: D d} {xx : D x} {f : x --> c} (ff: xx -->[f] cc) {g : x --> d} (gg: xx -->[g] dd) :
     BinProductArrow C (Ps c d) f g · BinProductPr1 C (Ps c d),, dispBinProductArrow (Ps c d) (dPs c d cc dd) ff gg ;; dispBinProductPr1 (Ps c d) (dPs c d cc dd) = f,, ff ×
     BinProductArrow C (Ps c d) f g · BinProductPr2 C (Ps c d),, dispBinProductArrow (Ps c d) (dPs c d cc dd) ff gg ;; dispBinProductPr2 (Ps c d) (dPs c d cc dd) = g,, gg.
@@ -399,7 +399,7 @@ Section FixDispCat.
         apply dispBinProductPr2Commutes.
   Qed.
 
-  Lemma total_category_Binproducts_mediating_morphism_unique (Ps : BinProducts C) (dPs : dispBinProducts Ps)
+  Local Lemma total_category_Binproducts_mediating_morphism_unique (Ps : BinProducts C) (dPs : dispBinProducts Ps)
     {c d x : C} {cc : D c} {dd: D d} {xx : D x} {f : x --> c} (ff: xx -->[f] cc) {g : x --> d} (gg: xx -->[g] dd)
     {fg : x --> BinProductObject C (Ps c d)} (fgfg : xx -->[fg] dispBinProductObject (Ps c d) (dPs c d cc dd)) :
     fg · BinProductPr1 C (Ps c d),, fgfg ;; dispBinProductPr1 (Ps c d) (dPs c d cc dd) = f,, ff ×
@@ -452,8 +452,8 @@ Section FixDispCat.
         exact (total_category_Binproducts_mediating_morphism_unique Ps dPs ff gg fgfg).
   Defined.
 
-(** ** analogously for terminal objects *)
 
+(** ** analogously for terminal objects *)
 
   Definition is_dispTerminal (P : Terminal C) (pp : D (TerminalObject P)) : UU :=
     ∏ (a : C) (aa : D a), iscontr (aa -->[TerminalArrow P a] pp).
