@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.DisplayedCartesianMonoidalCategoriesWhiskered.
 
 Local Open Scope cat.
 
@@ -118,6 +119,11 @@ Section PointedSetIsCartesianMonoidal.
   Local Notation PS := ptset_cat.
   Local Notation DPS := ptset_disp_cat.
 
+  Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
+    := displayedcartesianmonoidalcat BinProductsHSET TerminalHSET ptset_disp_cat ptset_dispBinproducts ptset_dispTerminal.
+
+  Section ElementaryProof.
+
   Definition PS_disp_tensor_data : disp_bifunctor_data SET_cartesian_monoidal DPS DPS DPS.
   Proof.
     repeat (use tpair).
@@ -157,8 +163,10 @@ Section PointedSetIsCartesianMonoidal.
     repeat split; try (red; intros; apply isaprop_preserve_ptset); try (apply isaprop_preserve_ptset).
   Qed.
 
-  Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
+  Definition PS_cart_disp_monoidal_elementary : disp_monoidal DPS SET_cartesian_monoidal
     := (PS_cart_disp_monoidal_data,, PS_cart_disp_monoidal_laws).
+
+  End ElementaryProof.
 
   Definition PS_cat_cart_monoidal : monoidal ptset_cat
     := total_monoidal PS_cart_disp_monoidal.
