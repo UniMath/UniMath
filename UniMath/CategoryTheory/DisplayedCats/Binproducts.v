@@ -145,8 +145,8 @@ Section FixDispCat.
   Lemma dispBinProduct_endo_is_identity {a b : C} (aa : D a) (bb : D b)
     (P : BinProduct _ a b) (dP : dispBinProduct a b P aa bb)
     {k : BinProductObject _ P --> BinProductObject _ P} (kk: dispBinProductObject P dP -->[k] dispBinProductObject P dP)
-    {H1 : k · BinProductPr1 _ P = BinProductPr1 _ P} (dH1 : kk ;; dispBinProductPr1 P dP = transportb _ H1 (dispBinProductPr1 P dP))
-    {H2 : k · BinProductPr2 _ P = BinProductPr2 _ P} (dH2 : kk ;; dispBinProductPr2 P dP = transportb _ H2 (dispBinProductPr2 P dP))
+    (H1 : k · BinProductPr1 _ P = BinProductPr1 _ P) (dH1 : kk ;; dispBinProductPr1 P dP = transportb _ H1 (dispBinProductPr1 P dP))
+    (H2 : k · BinProductPr2 _ P = BinProductPr2 _ P) (dH2 : kk ;; dispBinProductPr2 P dP = transportb _ H2 (dispBinProductPr2 P dP))
     : transportf _ (BinProduct_endo_is_identity C a b P k H1 H2) (id_disp (dispBinProductObject P dP)) = kk.
   Proof.
     apply pathsinv0.

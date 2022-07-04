@@ -292,9 +292,12 @@ Section FixADisplayedCategory.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
     - cbn. unfold DCM_leftunitorinv_data, DCM_leftunitor_data.
       apply pathsinv0.
-      etrans. (* creates a shelved goal *)
-      2: { apply dispBinProduct_endo_is_identity. (* creates a shelved goal *)
-           + apply dispTerminalArrowEq. (* resolves a shelved goal *)
+      (* eapply (pathscomp0(b:=?[sh1])).
+      Show sh1. *)
+      etrans.
+      2: { simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). shelve. (* creates one shelved goal *)
+           + apply dispTerminalArrowEq. (* resolves the shelved goal *)
+           + shelve. (* creates one shelved goal *)
            + rewrite assoc_disp_var.
              rewrite dispBinProductPr2Commutes.
              apply pathsinv0, transportf_comp_lemma.
@@ -323,8 +326,9 @@ Section FixADisplayedCategory.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
     - cbn. unfold DCM_rightunitorinv_data, DCM_rightunitor_data.
       apply pathsinv0.
-      etrans. (* creates a shelved goal *)
-      2: { apply dispBinProduct_endo_is_identity. (* creates a shelved goal *)
+      etrans.
+      2: { simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). shelve. (* creates one shelved goal *)
+           (* Show shH1. *)
            + rewrite assoc_disp_var.
              rewrite dispBinProductPr1Commutes.
              apply pathsinv0, transportf_comp_lemma.
@@ -333,7 +337,9 @@ Section FixADisplayedCategory.
              rewrite transport_f_b.
              apply transportf_comp_lemma.
              apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
-           + apply dispTerminalArrowEq. (* resolves a shelved goal *)
+           + shelve. (* creates one shelved goal *)
+           + apply dispTerminalArrowEq. (* resolves second shelved goal *)
+             (* Show shH1. *)
       }
       apply transportf_comp_lemma.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
@@ -423,7 +429,7 @@ Section FixADisplayedCategory.
         rewrite dispBinProductOfArrowsPr1.
         etrans; [| apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
         rewrite transport_b_f.
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { rewrite assoc_disp_var.
              rewrite dispBinProductOfArrowsPr1.
              rewrite transport_f_f.
@@ -432,7 +438,7 @@ Section FixADisplayedCategory.
              rewrite transport_f_f.
              rewrite assoc_disp.
              rewrite transport_f_b.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
         apply transportf_comp_lemma.
         apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
@@ -493,7 +499,7 @@ Section FixADisplayedCategory.
         rewrite dispBinProductOfArrowsPr1.
         etrans; [| apply maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
         rewrite transport_b_f.
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { rewrite assoc_disp_var.
              rewrite dispBinProductOfArrowsPr1.
              rewrite transport_f_f.
@@ -504,7 +510,7 @@ Section FixADisplayedCategory.
              unfold transportb.
              rewrite mor_disp_transportf_prewhisker.
              rewrite transport_f_f.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
         apply pathsinv0, transportf_comp_lemma.
         rewrite assoc_disp_var.
@@ -531,23 +537,23 @@ Section FixADisplayedCategory.
           etrans; [| apply maponpaths, pathsinv0, mor_disp_transportf_prewhisker].
           rewrite transport_f_f.
           apply transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite assoc_disp.
                rewrite dispBinProductPr1Commutes.
                unfold transportb.
                rewrite mor_disp_transportf_postwhisker.
                rewrite transport_f_f.
-               apply idpath. (* resolves a shelved goal *)
+               apply idpath.
           }
           apply pathsinv0, transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite assoc_disp.
                rewrite dispBinProductOfArrowsPr1.
                apply maponpaths.
-               apply pathsinv0, mor_disp_transportf_postwhisker. (* resolves a shelved goal *)
+               apply pathsinv0, mor_disp_transportf_postwhisker.
           }
           rewrite transport_b_f.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite assoc_disp_var.
                rewrite dispBinProductOfArrowsPr2.
                unfold transportb.
@@ -556,7 +562,7 @@ Section FixADisplayedCategory.
                rewrite assoc_disp.
                rewrite transport_f_f.
                rewrite transport_f_b.
-               apply idpath. (* resolves a shelved goal *)
+               apply idpath.
           }
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
@@ -577,8 +583,15 @@ Section FixADisplayedCategory.
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
     - unfold DCM_associator_data, DCM_associatorinv_data. cbn.
-      etrans. (* creates a shelved goal *)
-      { apply pathsinv0, dispBinProduct_endo_is_identity. (* creates a shelved goal *)
+      etrans.
+      { apply pathsinv0. simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _).
+        + change (αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr1 C (CP x (y ⊗_{M} z)) = BinProductPr1 C (CP x (y ⊗_{M} z))). (** it thus appears as intermediary result in Lemma [CartesianMonoidalCategoriesWhiskered.associator_law_from_binprod], but we reprove it here, analogously with the three other goals of this kind to come *)
+          cbn.
+          rewrite <- assoc.
+          rewrite BinProductPr1Commutes.
+          rewrite assoc.
+          rewrite BinProductPr1Commutes.
+          apply BinProductPr1Commutes.
         + rewrite assoc_disp_var.
           rewrite dispBinProductPr1Commutes.
           etrans; [apply maponpaths, mor_disp_transportf_prewhisker |].
@@ -593,6 +606,16 @@ Section FixADisplayedCategory.
           rewrite transport_f_b.
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        + change( αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr2 C (CP x (y ⊗_{M} z)) = BinProductPr2 C (CP x (y ⊗_{M} z))).
+          cbn.
+          rewrite <- assoc.
+          rewrite BinProductPr2Commutes.
+          rewrite precompWithBinProductArrow.
+          rewrite BinProductPr2Commutes.
+          rewrite assoc.
+          rewrite BinProductPr1Commutes.
+          rewrite BinProductPr2Commutes.
+          apply pathsinv0, BinProductArrowUnique; apply idpath.
         + rewrite assoc_disp_var.
           rewrite dispBinProductPr2Commutes.
           etrans; [apply maponpaths, mor_disp_transportf_prewhisker |].
@@ -617,12 +640,21 @@ Section FixADisplayedCategory.
             apply transportf_comp_lemma.
             apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
       }
-(* still two goals to unshelve! *)
       apply transportf_comp_lemma.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
     - unfold DCM_associator_data, DCM_associatorinv_data. cbn.
-      etrans. (* creates a shelved goal *)
-      { apply pathsinv0, dispBinProduct_endo_is_identity. (* creates a shelved goal *)
+      etrans.
+      { apply pathsinv0. simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _).
+        + change (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr1 C (CP (x ⊗_{M} y) z) = BinProductPr1 C (CP (x ⊗_{M} y) z)).
+          cbn.
+          rewrite <- assoc.
+          rewrite BinProductPr1Commutes.
+          rewrite precompWithBinProductArrow.
+          apply pathsinv0, BinProductArrowUnique.
+          * apply pathsinv0, BinProductPr1Commutes.
+          * rewrite assoc.
+            rewrite BinProductPr2Commutes.
+            apply pathsinv0, BinProductPr1Commutes.
         + rewrite assoc_disp_var.
           rewrite dispBinProductPr1Commutes.
           apply pathsinv0, transportf_comp_lemma.
@@ -646,6 +678,13 @@ Section FixADisplayedCategory.
             rewrite transport_f_b.
             apply transportf_comp_lemma.
             apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
+        + change (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr2 C (CP (x ⊗_{M} y) z) = BinProductPr2 C (CP (x ⊗_{M} y) z)).
+          cbn.
+          rewrite <- assoc.
+          rewrite BinProductPr2Commutes.
+          rewrite assoc.
+          rewrite BinProductPr2Commutes.
+          apply BinProductPr2Commutes.
         + rewrite assoc_disp_var.
           rewrite dispBinProductPr2Commutes.
           etrans; [apply maponpaths, mor_disp_transportf_prewhisker |].
@@ -661,44 +700,8 @@ Section FixADisplayedCategory.
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
       }
-(* still two more goals to unshelve! *)
       apply transportf_comp_lemma.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
-      Unshelve.
-      + change (αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr1 C (CP x (y ⊗_{M} z)) = BinProductPr1 C (CP x (y ⊗_{M} z))). (** it thus appears as intermediary result in Lemma [CartesianMonoidalCategoriesWhiskered.associator_law_from_binprod], but we reporve it here, analogously with the three other goals *)
-        cbn.
-        rewrite <- assoc.
-        rewrite BinProductPr1Commutes.
-        rewrite assoc.
-        rewrite BinProductPr1Commutes.
-        apply BinProductPr1Commutes.
-      + change( αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr2 C (CP x (y ⊗_{M} z)) = BinProductPr2 C (CP x (y ⊗_{M} z))).
-        cbn.
-        rewrite <- assoc.
-        rewrite BinProductPr2Commutes.
-        rewrite precompWithBinProductArrow.
-        rewrite BinProductPr2Commutes.
-        rewrite assoc.
-        rewrite BinProductPr1Commutes.
-        rewrite BinProductPr2Commutes.
-        apply pathsinv0, BinProductArrowUnique; apply idpath.
-      + change (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr1 C (CP (x ⊗_{M} y) z) = BinProductPr1 C (CP (x ⊗_{M} y) z)).
-        cbn.
-        rewrite <- assoc.
-        rewrite BinProductPr1Commutes.
-        rewrite precompWithBinProductArrow.
-        apply pathsinv0, BinProductArrowUnique.
-        * apply pathsinv0, BinProductPr1Commutes.
-        * rewrite assoc.
-          rewrite BinProductPr2Commutes.
-          apply pathsinv0, BinProductPr1Commutes.
-      + change (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr2 C (CP (x ⊗_{M} y) z) = BinProductPr2 C (CP (x ⊗_{M} y) z)).
-        cbn.
-        rewrite <- assoc.
-        rewrite BinProductPr2Commutes.
-        rewrite assoc.
-        rewrite BinProductPr2Commutes.
-        apply BinProductPr2Commutes.
   Qed.
 
 
@@ -738,11 +741,11 @@ Section FixADisplayedCategory.
     unfold DCM_associator_data. cbn.
     etrans; [apply assoc_disp_var |].
     apply pathsinv0, transportf_comp_lemma.
-    etrans. (* creates a shelved goal *)
+    etrans.
     2: { rewrite dispPostcompWithBinProductArrow.
          rewrite dispPrecompWithBinProductArrow.
          unfold transportb.
-         apply pathsinv0, mor_disp_transportf_prewhisker. (* resolves a shelved goal *)
+         apply pathsinv0, mor_disp_transportf_prewhisker.
     }
     etrans; [| apply maponpaths, pathsinv0, dispPrecompWithBinProductArrow].
     rewrite transport_f_b.
@@ -752,7 +755,7 @@ Section FixADisplayedCategory.
     apply dispBinProductArrowUnique.
     - etrans; [apply mor_disp_transportf_postwhisker |].
       apply pathsinv0, transportf_comp_lemma.
-      etrans. (* creates a shelved goal *)
+      etrans.
       2: { rewrite dispBinProductPr1Commutes.
            apply maponpaths.
            rewrite id_right_disp.
@@ -772,31 +775,31 @@ Section FixADisplayedCategory.
            rewrite assoc_disp.
            rewrite transport_f_f.
            rewrite transport_f_b.
-           apply idpath. (* resolves a shelved goal *)
+           apply idpath.
       }
       rewrite transport_b_f.
       rewrite transport_f_b.
       do 2 rewrite transport_f_f.
       apply pathsinv0, transportf_comp_lemma.
-      etrans. (* creates a shelved goal *)
+      etrans.
       2: { rewrite assoc_disp.
            apply maponpaths.
            rewrite dispBinProductPr1Commutes.
            unfold transportb.
            rewrite mor_disp_transportf_postwhisker.
-           apply idpath. (* resolves a shelved goal *)
+           apply idpath.
       }
       rewrite transport_b_f.
       apply transportf_comp_lemma.
       apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
     - etrans; [apply mor_disp_transportf_postwhisker |].
       apply pathsinv0, transportf_comp_lemma.
-      etrans. (* creates a shelved goal *)
+      etrans.
       2: { rewrite dispBinProductPr2Commutes.
            apply maponpaths.
            rewrite mor_disp_transportf_prewhisker.
            apply maponpaths.
-           apply pathsinv0, dispPrecompWithBinProductArrow. (* resolves a shelved goal *)
+           apply pathsinv0, dispPrecompWithBinProductArrow.
       }
       rewrite transport_b_f.
       rewrite transport_f_b.
@@ -804,7 +807,7 @@ Section FixADisplayedCategory.
       apply dispBinProductArrowUnique.
       + etrans; [apply mor_disp_transportf_postwhisker |].
         apply pathsinv0, transportf_comp_lemma.
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { rewrite dispPrecompWithBinProductArrow.
              unfold transportb.
              rewrite mor_disp_transportf_postwhisker.
@@ -816,20 +819,20 @@ Section FixADisplayedCategory.
              rewrite dispBinProductPr1Commutes.
              unfold transportb.
              rewrite mor_disp_transportf_postwhisker.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
         do 2 rewrite transport_f_b.
         rewrite transport_f_f.
         apply pathsinv0, transportf_comp_lemma.
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { apply maponpaths. rewrite assoc_disp.
              apply maponpaths.
              rewrite dispBinProductPr1Commutes.
              unfold transportb.
              rewrite mor_disp_transportf_postwhisker.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { rewrite transport_b_f.
              rewrite mor_disp_transportf_prewhisker.
              apply maponpaths.
@@ -854,7 +857,7 @@ Section FixADisplayedCategory.
              rewrite dispBinProductPr1Commutes.
              rewrite transport_f_f.
              rewrite transport_f_b.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
         rewrite transport_f_b.
         rewrite mor_disp_transportf_prewhisker.
@@ -865,7 +868,7 @@ Section FixADisplayedCategory.
         apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
       + etrans; [apply mor_disp_transportf_postwhisker |].
         apply pathsinv0, transportf_comp_lemma.
-        etrans. (* creates a shelved goal *)
+        etrans.
         2: { rewrite dispPrecompWithBinProductArrow.
              unfold transportb.
              rewrite mor_disp_transportf_postwhisker.
@@ -873,14 +876,14 @@ Section FixADisplayedCategory.
              rewrite dispBinProductPr2Commutes.
              apply maponpaths.
              rewrite dispBinProductPr2Commutes.
-             apply idpath. (* resolves a shelved goal *)
+             apply idpath.
         }
         do 2 rewrite transport_f_b.
         apply transportf_comp_lemma.
         apply dispBinProductArrowUnique.
         * rewrite mor_disp_transportf_postwhisker.
           apply pathsinv0, transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite assoc_disp_var.
                apply maponpaths.
                apply maponpaths.
@@ -894,18 +897,18 @@ Section FixADisplayedCategory.
                unfold transportb.
                rewrite mor_disp_transportf_postwhisker.
                do 2 rewrite transport_f_f.
-               apply idpath. (* resolves a shelved goal *)
+               apply idpath.
           }
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite mor_disp_transportf_prewhisker.
                rewrite transport_f_f.
-               apply idpath. (* resolves a shelved goal *) }
+               apply idpath. }
           apply transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { apply maponpaths.
                rewrite assoc_disp_var.
-               apply idpath. (* resolves a shelved goal *) }
-          etrans. (* creates a shelved goal *)
+               apply idpath. }
+          etrans.
           2: { rewrite mor_disp_transportf_prewhisker.
                apply maponpaths.
                rewrite assoc_disp.
@@ -923,7 +926,7 @@ Section FixADisplayedCategory.
                rewrite transport_f_f.
                rewrite dispBinProductPr2Commutes.
                rewrite transport_f_b.
-               apply idpath. (* resolves a shelved goal *)
+               apply idpath.
           }
           rewrite mor_disp_transportf_prewhisker.
           do 3 rewrite transport_f_f.
@@ -931,7 +934,7 @@ Section FixADisplayedCategory.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
         * rewrite mor_disp_transportf_postwhisker.
           apply pathsinv0, transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite assoc_disp_var.
                apply maponpaths.
                apply maponpaths.
@@ -942,16 +945,16 @@ Section FixADisplayedCategory.
                rewrite transport_f_f.
                rewrite dispBinProductPr2Commutes.
                rewrite transport_f_b.
-               apply idpath. (* resolves a shelved goal *)
+               apply idpath.
           }
           rewrite mor_disp_transportf_prewhisker.
           rewrite transport_f_f.
           apply transportf_comp_lemma.
-          etrans. (* creates a shelved goal *)
+          etrans.
           2: { rewrite dispBinProductOfArrowsPr2.
                rewrite id_right_disp.
                rewrite transport_b_b.
-               apply idpath. (* resolves a shelved goal *) }
+               apply idpath. }
           apply transportf_comp_lemma.
           apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
   Qed.
