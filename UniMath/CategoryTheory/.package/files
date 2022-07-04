@@ -57,6 +57,8 @@ limits/terminal.v
 limits/zero.v
 limits/bincoproducts.v
 limits/binproducts.v
+DisplayedCats/Binproducts.v
+
 limits/graphs/bincoproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v
@@ -223,9 +225,11 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
+Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
 
@@ -247,6 +251,10 @@ Monoidal/BraidedMonoidalCategories.v
 Monoidal/TotalDisplayedMonoidalCurried.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
+
+Monoidal/Examples/SetCartesianMonoidal.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+Monoidal/Examples/BinopCartesianMonoidal.v
 
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v

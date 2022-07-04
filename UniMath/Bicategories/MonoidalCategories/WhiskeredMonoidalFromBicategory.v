@@ -81,34 +81,38 @@ Proof.
   - exact tensor.
   - exact (id₁ c0).
   - red; intros; apply lunitor.
+  - red; intros; apply linvunitor.
   - red; intros; apply runitor.
+  - red; intros; apply rinvunitor.
   - red; intros; apply rassociator.
+  - red; intros; apply lassociator.
 Defined.
 
 Local Definition MD := monoidal_data_from_bicat_and_ob.
 
-Local Lemma associator_law_from_bicat_and_ob: associator_law α_{MD}.
-Proof.
-  repeat split; red; cbn.
-  - apply lwhisker_lwhisker_rassociator.
-  - intros; apply pathsinv0, rwhisker_rwhisker_alt.
-  - apply rwhisker_lwhisker_rassociator.
-  - apply is_invertible_2cell_rassociator.
-Qed.
-
-Local Lemma leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD}.
+Local Definition leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD} luinv_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_lunitor.
   - apply is_invertible_2cell_lunitor.
-Qed.
+Defined.
 
-Local Lemma rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD}.
+Local Definition rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD} ruinv_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_runitor.
   - apply is_invertible_2cell_runitor.
-Qed.
+Defined.
+
+Local Definition associator_law_from_bicat_and_ob: associator_law α_{MD} αinv_{MD}.
+Proof.
+  repeat split; try red; cbn.
+  - apply lwhisker_lwhisker_rassociator.
+  - intros; apply pathsinv0, rwhisker_rwhisker_alt.
+  - apply rwhisker_lwhisker_rassociator.
+  - apply is_invertible_2cell_rassociator.
+  - apply is_invertible_2cell_rassociator.
+Defined.
 
 Local Lemma triangle_identity_from_bicat_and_ob: triangle_identity lu_{MD} ru_{MD} α_{MD}.
 Proof.
@@ -124,9 +128,9 @@ Definition monoidal_from_bicat_and_ob: monoidal category_from_bicat_and_ob.
 Proof.
   exists monoidal_data_from_bicat_and_ob.
   red.
-  exists associator_law_from_bicat_and_ob.
   exists leftunitor_law_from_bicat_and_ob.
   exists rightunitor_law_from_bicat_and_ob.
+  exists associator_law_from_bicat_and_ob.
   exists triangle_identity_from_bicat_and_ob.
   exact pentagon_identity_from_bicat_and_ob.
 Defined.
