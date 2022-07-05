@@ -126,7 +126,7 @@ Section def_abmonoid_category.
   Proof.
     use isweq_iso.
     - exact (abmonoid_equiv_z_iso X Y).
-    - intros x. use eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
@@ -149,7 +149,7 @@ Section def_abmonoid_category.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
   Defined.
   Opaque abmonoid_equiv_iso_is_equiv.
 

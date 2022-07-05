@@ -122,7 +122,7 @@ Section Fiber.
   Proof.
     exists (z_iso_disp_from_z_iso_fiber a b).
     use (isweq_iso _ (z_iso_fiber_from_z_iso_disp _ _ )).
-    - intro. apply eq_z_iso. apply idpath.
+    - intro. apply z_iso_eq. apply idpath.
     - intro. apply eq_z_iso_disp. apply idpath.
   Defined.
 

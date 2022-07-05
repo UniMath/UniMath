@@ -300,7 +300,7 @@ Section Pseudomonic1CellToPseudomonic.
     Definition cat_pseudmonic_1cell_is_pseudomonic_on_z_iso_eq
       : functor_on_z_iso F cat_pseudmonic_1cell_is_pseudomonic_on_z_iso = f.
     Proof.
-      use eq_z_iso.
+      use z_iso_eq.
       exact (nat_trans_eq_pointwise (pseudomonic_1cell_inv_map_eq HF τ _) tt).
     Qed.
   End OnIso.

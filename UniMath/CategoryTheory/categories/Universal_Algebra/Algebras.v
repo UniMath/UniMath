@@ -116,7 +116,7 @@ Section Algebras.
     : shSet_iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) F G p s).
   Proof.
     induction p.
-    apply eq_z_iso. apply idpath.
+    apply z_iso_eq. apply idpath.
   Qed.
 
   Lemma shSet_eq_from_shSet_z_iso_idtoiso  (F G : shSet_category) (p : F = G)
@@ -136,7 +136,7 @@ Section Algebras.
   Lemma idtoiso_shSet_eq_from_shSet_z_iso (F G : shSet_category) (i : z_iso F G)
     : idtoiso (shSet_eq_from_shSet_z_iso F G i) = i.
   Proof.
-    apply eq_z_iso.
+    apply z_iso_eq.
     apply funextsec.
     intro s.
     unfold shSet_eq_from_shSet_z_iso.

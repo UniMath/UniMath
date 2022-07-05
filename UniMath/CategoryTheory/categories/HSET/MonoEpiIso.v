@@ -166,7 +166,7 @@ Defined.
 Lemma hset_z_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_z_iso_equiv A B).
 Proof.
   apply (isweq_iso _ (hset_equiv_z_iso A B)).
-  intro; apply eq_z_iso.
+  intro; apply z_iso_eq.
   - reflexivity.
   - intro; apply subtypePath.
     + intro; apply isapropisweq.
@@ -186,7 +186,7 @@ Proof.
     apply subtypePath.
     { intro; apply isapropisweq. }
     reflexivity. }
-  intro; apply eq_z_iso.
+  intro; apply z_iso_eq.
   reflexivity.
 Qed.
 

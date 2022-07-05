@@ -644,15 +644,6 @@ Proof.
   exact (inverse_unique_precat _ _ _ _ _ (z_iso_inv i) H).
 Qed.
 
-Lemma eq_z_iso {C : category} (a b : ob C)
-   (f g : z_iso a b) : pr1 f = pr1 g -> f = g.
-Proof.
-  intro H.
-  apply (total2_paths_f H).
-  apply proofirrelevance.
-  apply isaprop_is_z_isomorphism.
-Defined.
-
 Definition morphism_from_z_iso {C : precategory_data} (a b : ob C)
    (f : z_iso a b) : a --> b := pr1 f.
 Coercion morphism_from_z_iso : z_iso >-> precategory_morphisms.
@@ -808,7 +799,7 @@ Lemma inv_z_iso_unique {C : category} (a b : ob C)
   is_inverse_in_precat f g -> g = z_iso_inv_from_z_iso f.
 Proof.
   intro H.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply (inverse_unique_precat _ _ f).
     - assumption.
     - split.
@@ -833,21 +824,21 @@ Lemma z_iso_inv_of_z_iso_comp {C : category} (a b c : ob C)
    z_iso_inv_from_z_iso (z_iso_comp f g) =
        z_iso_comp (z_iso_inv_from_z_iso g) (z_iso_inv_from_z_iso f).
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply idpath.
 Defined.
 
 Lemma z_iso_inv_of_z_iso_id {C : category} (a : ob C) :
    z_iso_inv_from_z_iso (identity_z_iso a) = identity_z_iso a.
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply idpath.
 Qed.
 
 Lemma z_iso_inv_z_iso_inv {C : category} (a b : ob C) (f : z_iso a b) :
      z_iso_inv_from_z_iso (z_iso_inv_from_z_iso f) = f.
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply idpath.
 Defined.
 

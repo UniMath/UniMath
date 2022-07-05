@@ -500,7 +500,7 @@ idtoiso
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  apply eq_z_iso. apply idpath.
+  apply z_iso_eq. apply idpath.
 Qed.
 (** end of better upstream *)
 
@@ -551,7 +551,7 @@ Lemma z_iso_from_is_relmonadmor_z_iso_idtoiso {C : precategory_data} (D : catego
 Proof.
   unfold z_iso_from_is_relmonadmor_z_iso.
   simpl.
-  apply (eq_z_iso(C := [C, D])).
+  apply (z_iso_eq(C := [C, D])).
   simpl.
   apply (nat_trans_eq D).
   intro c.
@@ -821,7 +821,7 @@ Proof.
   rewrite idtoiso_isotoid.
   simpl.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply idpath.
 Defined.
 
@@ -1019,7 +1019,7 @@ Lemma idtoiso_relmonad_eq_from_relmonad_z_iso {C : precategory_data} {D : catego
            (α : z_iso(C := category_RelMonad D J) R R') :
         idtoiso(C := category_RelMonad D J) (relmonad_eq_from_relmonad_z_iso H J α) = α.
 Proof.
-  apply (eq_z_iso(C := category_RelMonad D J)).
+  apply (z_iso_eq(C := category_RelMonad D J)).
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply RelMonadMor_equiv.
   - apply D.

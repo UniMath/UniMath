@@ -29,7 +29,7 @@ Section Core.
 
   Definition core_is_precategory : is_precategory core_precategory_data.
   Proof.
-    use make_is_precategory_one_assoc ; intros ; use eq_z_iso ; cbn.
+    use make_is_precategory_one_assoc ; intros ; use z_iso_eq ; cbn.
     - apply id_left.
     - apply id_right.
     - apply assoc.
@@ -58,7 +58,7 @@ Section Core.
     exists (z_iso_inv_from_z_iso f).
     - abstract
         (split ;
-         use eq_z_iso ;
+         use z_iso_eq ;
          cbn ;
          [ apply z_iso_inv_after_z_iso | apply z_iso_after_z_iso_inv]).
   Defined.
@@ -81,11 +81,11 @@ Section Core.
       + exact (λ i, pr1 i).
       + abstract
           (intro i ;
-           use eq_z_iso ;
+           use z_iso_eq ;
            apply idpath).
       + abstract
           (intro i ;
-           use eq_z_iso ;
+           use z_iso_eq ;
            apply idpath).
   Defined.
 
@@ -100,7 +100,7 @@ Section Core.
     - abstract
         (intro p ;
          induction p ;
-         use eq_z_iso ; cbn ;
+         use z_iso_eq ; cbn ;
          apply idpath).
   Defined.
 
@@ -146,7 +146,7 @@ Section Core.
     use invproofirrelevance.
     intros φ₁ φ₂.
     use subtypePath ; [ intro ; apply homset_property | ].
-    use eq_z_iso ; cbn.
+    use z_iso_eq ; cbn.
     exact (pr2 φ₁ @ !(pr2 φ₂)).
   Qed.
 
@@ -159,7 +159,7 @@ Section Core.
     - refine (f ,, _).
       apply is_z_iso_core.
     - abstract
-        (use eq_z_iso ; cbn ;
+        (use z_iso_eq ; cbn ;
          apply idpath).
   Defined.
 
@@ -189,7 +189,7 @@ Section Core.
     Definition factor_through_core_is_functor
       : is_functor factor_through_core_data.
     Proof.
-      split ; intro ; intros ; use eq_z_iso ; cbn.
+      split ; intro ; intros ; use z_iso_eq ; cbn.
       - apply functor_id.
       - apply functor_comp.
     Qed.
@@ -237,7 +237,7 @@ Section Core.
       - exact (λ x, nat_z_iso_pointwise_z_iso α x).
       - abstract
           (intros x₁ x₂ f ; cbn ;
-           use eq_z_iso ; cbn ;
+           use z_iso_eq ; cbn ;
            exact (nat_trans_ax α _ _ f)).
     Defined.
 

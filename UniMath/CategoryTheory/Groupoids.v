@@ -120,13 +120,13 @@ Proof.
   - intros f; refine (f,, _); apply pregroupoid_is_pregroupoid.
   - apply pr1.
   - reflexivity.
-  - intro; apply eq_z_iso; reflexivity.
+  - intro; apply z_iso_eq; reflexivity.
 Defined.
 
 Lemma pregroupoid_hom_weq_iso_idtoiso {pgpd : pregroupoid} (a : pgpd) :
   pregroupoid_hom_weq_iso a a (identity a) = idtoiso (idpath a).
 Proof.
-  apply eq_z_iso; reflexivity.
+  apply z_iso_eq; reflexivity.
 Defined.
 
 Lemma pregroupoid_hom_weq_iso_comp {pgpd : pregroupoid} {a b c : ob pgpd}
@@ -134,7 +134,7 @@ Lemma pregroupoid_hom_weq_iso_comp {pgpd : pregroupoid} {a b c : ob pgpd}
   z_iso_comp (pregroupoid_hom_weq_iso _ _ f) (pregroupoid_hom_weq_iso _ _ g) =
   (pregroupoid_hom_weq_iso _ _ (f · g)).
 Proof.
-  apply eq_z_iso; reflexivity.
+  apply z_iso_eq; reflexivity.
 Defined.
 
 (** If D is a groupoid, then a functor category into it is as well. *)
@@ -174,15 +174,15 @@ Proof.
         -- intros ? ? ? f g; exact (z_iso_comp f g).
       * use make_dirprod;
         intros;
-        apply eq_z_iso.
+        apply z_iso_eq.
         -- apply id_left.
         -- apply id_right.
-      * use make_dirprod; intros; apply eq_z_iso.
+      * use make_dirprod; intros; apply z_iso_eq.
         -- apply assoc.
         -- apply assoc'.
     + cbn. intros a b. cbn. apply isaset_z_iso.
   - intros ? ? f. exists (z_iso_inv_from_z_iso f).
-    use make_dirprod; apply eq_z_iso.
+    use make_dirprod; apply z_iso_eq.
     + apply z_iso_inv_after_z_iso.
     + apply z_iso_after_z_iso_inv.
 Defined.
