@@ -217,6 +217,8 @@ DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
+DisplayedBicats/FiberBicategory/FunctorFromCleaving.v
+
 PseudoFunctors/Examples/Reindexing.v
 
 DisplayMapBicat.v
@@ -234,6 +236,7 @@ Colimits/Examples/DisplayMapSliceColimits.v
 
 DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
+DisplayedBicats/FiberBicategory/DomainFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 ComprehensionBicat.v

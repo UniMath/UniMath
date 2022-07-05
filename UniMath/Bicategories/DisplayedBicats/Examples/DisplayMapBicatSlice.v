@@ -761,6 +761,17 @@ Proof.
     exact HD₂.
 Defined.
 
+Definition discrete_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : arrow_subbicat B}
+           (HD₁ : arrow_subbicat_props D)
+           (HD₂ : contained_in_discrete D)
+           (b : B)
+  : category
+  := discrete_bicat_to_category
+       (is_discrete_disp_map_slice HB HD₁ HD₂ b).
+
 (**
  7. Instantiations
  *)
@@ -781,23 +792,19 @@ Definition disc_sfib_slice
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
-  := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sfib_subbicat B) b)
-       (is_discrete_disp_map_slice
-          HB
-          (discrete_sfib_subbicat_props B HB)
-          (discrete_sfib_disp_map_bicat_in_discrete B)
-          b).
+  := discrete_disp_map_slice
+       HB
+       (discrete_sfib_subbicat_props B HB)
+       (discrete_sfib_disp_map_bicat_in_discrete B)
+       b.
 
 Definition disc_sopfib_slice
            {B : bicat}
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
-  := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sopfib_subbicat B) b)
-       (is_discrete_disp_map_slice
-          HB
-          (discrete_sopfib_subbicat_props B HB)
-          (discrete_sopfib_disp_map_bicat_in_discrete B)
-          b).
+  := discrete_disp_map_slice
+       HB
+       (discrete_sopfib_subbicat_props B HB)
+       (discrete_sopfib_disp_map_bicat_in_discrete B)
+       b.
