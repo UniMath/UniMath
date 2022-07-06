@@ -393,7 +393,7 @@ idtoiso
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  apply (eq_z_iso(C:=D,,hs)). apply idpath.
+  apply (z_iso_eq(C:=D,,hs)). apply idpath.
 Qed.
 
 
@@ -422,7 +422,7 @@ Lemma idtoiso_functor_eq_from_functor_z_iso (C : precategory_data) (D : category
       (F G : ob [C, D, D]) (gamma : z_iso F G) :
   idtoiso (functor_eq_from_functor_z_iso H F G gamma) = gamma.
 Proof.
-  apply (eq_z_iso(C:=functor_category C D)).
+  apply (z_iso_eq(C:=functor_category C D)).
   simpl; apply nat_trans_eq; intro a. apply D.
   assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_z_iso H F G gamma) a).
   simpl in *.

@@ -121,7 +121,7 @@ Section def_rig_category.
   Proof.
     use isweq_iso.
     - exact (rig_equiv_z_iso X Y).
-    - intros x. use eq_z_iso. use rigfun_paths. use idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
@@ -143,7 +143,7 @@ Section def_rig_category.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_z_iso. use rigfun_paths. use idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. use idpath.
   Defined.
   Opaque rig_equiv_iso_is_equiv.
 

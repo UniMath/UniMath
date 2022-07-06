@@ -2233,7 +2233,7 @@ Section Essential_Surjectivity.
       transparent assert (XH :
                            (z_iso_comp (z_iso_inv_from_z_iso (functor_on_z_iso F i))
                                      (functor_on_z_iso F i) = identity_z_iso _ )).
-      { apply eq_z_iso. cbn.
+      { apply z_iso_eq. cbn.
         etrans.
         { apply pathsinv0, functor_comp. }
         apply functor_id_id.

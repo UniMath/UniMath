@@ -144,7 +144,7 @@ Section def_abgr_category.
   Proof.
     use isweq_iso.
     - exact (abgr_equiv_z_iso X Y).
-    - intros x. use eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
@@ -165,7 +165,7 @@ Section def_abgr_category.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
   Qed.
 
   Definition abgr_equiv_weq_z_iso (X Y : ob abgr_category) :

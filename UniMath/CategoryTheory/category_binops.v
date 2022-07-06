@@ -145,7 +145,7 @@ Section BINOP_category.
   Lemma binop_iso_equiv_is_equiv (A B : BINOP) : isweq (binop_iso_equiv A B).
   Proof.
     apply (isweq_iso _ (binop_equiv_iso A B)).
-    - intro; apply eq_z_iso. apply maponpaths.
+    - intro; apply z_iso_eq. apply maponpaths.
       unfold binop_equiv_iso, binop_iso_equiv. cbn.
       use total2_paths_f.
       + cbn. unfold make_binopfun.

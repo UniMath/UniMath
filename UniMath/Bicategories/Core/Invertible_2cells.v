@@ -518,7 +518,7 @@ Section InvertibleIsIso.
          apply idpath).
     - abstract
         (intro i ;
-         apply eq_z_iso ;
+         apply z_iso_eq ;
          apply idpath).
   Defined.
 

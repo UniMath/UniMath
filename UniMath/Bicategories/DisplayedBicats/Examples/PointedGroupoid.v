@@ -202,7 +202,7 @@ Proof.
        cbn in * ;
        rewrite <- isotoid_comp ;
        apply maponpaths ;
-       apply eq_z_iso ;
+       apply z_iso_eq ;
        cbn ;
        refine (! p)).
   - abstract
@@ -274,7 +274,7 @@ Proof.
        cbn;
        refine (_ @ isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y)) _ _ _);
        apply maponpaths;
-       apply eq_z_iso;
+       apply z_iso_eq;
        cbn;
        induction p;
        apply idpath).
@@ -295,7 +295,7 @@ Proof.
        cbn;
        rewrite pathscomp0rid;
        apply maponpaths;
-       use eq_z_iso;
+       use z_iso_eq;
        apply idpath).
 Defined.
 
@@ -316,7 +316,7 @@ Proof.
        refine (!(isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y)) _ _ _) @_);
        apply maponpaths;
        induction p;
-       use eq_z_iso;
+       use z_iso_eq;
        apply idpath).
 Defined.
 
@@ -390,7 +390,7 @@ Proof.
        rewrite pathscomp0rid;
        refine (! (isotoid_idtoiso _ (pr21 G) _ _ (idpath _)) @ _);
        apply maponpaths;
-       apply eq_z_iso;
+       apply z_iso_eq;
        apply idpath).
 Defined.
 
