@@ -91,29 +91,17 @@ Local Open Scope cat.
     exists pointedfunctors_disp_tensor. exists pointedfunctors_disp_unit.
     repeat split.
     - intros F ptF c. cbn. rewrite id_left; apply id_right.
+    - intros F ptF c. cbn. rewrite id_left; apply id_right.
     - intros F ptF c. cbn. rewrite id_right; apply id_right.
+      (* no goal left for inverse of right unitor *)
     - intros F G H ptF ptG ptH c. cbn. rewrite id_right. apply assoc'.
+    - intros F G H ptF ptG ptH c. cbn. rewrite id_right. apply assoc.
   Defined.
 
-  Definition pointedfunctors_disp_moncat_laws : disp_monoidal_laws pointedfunctors_disp_moncat_data.
+  Lemma pointedfunctors_disp_moncat_laws : disp_monoidal_laws pointedfunctors_disp_moncat_data.
   Proof.
-    repeat split; red; try (intros; apply funextsec; intro; apply C).
-    (** only the displayed iso requirements remain *)
-    - intros F G H ptF ptG ptH.
-      use tpair.
-      + cbn. intro c. rewrite id_right.
-        apply assoc.
-      + split; apply funextsec; intro; apply C.
-    - intros F ptF.
-      use tpair.
-      + cbn. intro c. rewrite id_left.
-        apply id_right.
-      + split; apply funextsec; intro; apply C.
-     - intros F ptF.
-      use tpair.
-      + cbn. intro c. apply idpath.
-      + split; apply funextsec; intro; apply C.
-  Defined.
+    repeat split; try red; try (intros; apply funextsec; intro; apply C).
+  Qed.
 
   Definition pointedfunctors_disp_moncat : disp_monoidal pointedfunctors_disp_cat (monoidal_of_endofunctors C) :=
     pointedfunctors_disp_moncat_data ,, pointedfunctors_disp_moncat_laws.
