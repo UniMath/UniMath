@@ -924,8 +924,7 @@ Section TensorLayer.
     - use total2_paths_f.
       + (* apply funextsec ; intro ; apply funextsec ; intro ; apply (pr1 te). *)
         exact (tensor_eqi'''_to_eq1 TC TD te).
-      + cbn in *.
-        repeat (apply funextsec ; intro).
+      + repeat (apply funextsec ; intro).
         use pathscomp0.
         3: apply (pr2 te).
 
@@ -945,15 +944,34 @@ Section TensorLayer.
         apply homset_property).
   Defined.
 
+  Lemma id_tensor_eqi'''_2 {C : univalent_category} (TC TD : tensor C)
+    : pr11 TC = pr11 TD ->  ∏ x y : C, x ⊗_{ TC} y = x ⊗_{ TD} y.
+  Proof.
+    intros p x y.
+    exact (toforallpaths _ _ _ (toforallpaths _ _ _ p x) y).
+  Defined.
+
+  Lemma id_tensor_eqi'''_1 {C : univalent_category} (TC TD : tensor C)
+    : TC = TD ->  ∏ x y : C, x ⊗_{ TC} y = x ⊗_{ TD} y.
+  Proof.
+    intros p.
+    set (eqonob := base_paths _ _ (base_paths _ _ p)).
+    (* exact (toforallpaths _ _ _ (toforallpaths _ _ _ eqonob x) y). *)
+    exact (id_tensor_eqi'''_2 TC TD eqonob).
+  Defined.
+
   Lemma id_tensor_eqi''' {C : bicat_of_univ_cats} (TC TD : bicatcatstensor_disp_bicat C)
     : TC = TD -> tensor_eqi''' TC TD.
   Proof.
     intro p.
-    induction p.
+    (* induction p. *)
     use tpair.
-    - intros x y.
-      apply idpath.
+    - exact (id_tensor_eqi'''_1 TC TD p).
+
+      (* induction p.
+      apply idpath. *)
     - intros ? ? ? ? f g.
+      induction p.
       use pathscomp0.
       2: apply (! idpath_transportf _ _).
       apply idpath_transportf.
@@ -1050,6 +1068,31 @@ Section TensorLayer.
       + repeat (repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property).
   Qed.
 
+  Lemma pr_id_tensor_eqi'''_funextsec {C : univalent_category} {TC TD : tensor C} (p : TC = TD) (x y : C)
+    : pr1 (id_tensor_eqi''' TC TD p) x y = id_tensor_eqi'''_1 TC TD p x y.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma distributer {C : univalent_category} {TC TD : tensor C} (p : tensor_eqi''' TC TD)
+    :  id_tensor_eqi'''_1 TC TD (tensor_eqi'''_to_eq TC TD p) = id_tensor_eqi'''_2 TC TD (tensor_eqi'''_to_eq1 TC TD p).
+  Proof.
+    unfold id_tensor_eqi'''_1.
+    apply maponpaths.
+    etrans. {
+      apply maponpaths.
+      apply base_total2_paths.
+    }
+    apply base_total2_paths.
+  Qed.
+
+  Lemma distributer_funext {C : univalent_category} {TC TD : tensor C} (p : tensor_eqi''' TC TD) (x y : C)
+    :  id_tensor_eqi'''_1 TC TD (tensor_eqi'''_to_eq TC TD p) x y = id_tensor_eqi'''_2 TC TD (tensor_eqi'''_to_eq1 TC TD p) x y.
+  Proof.
+    rewrite distributer.
+    apply idpath.
+  Qed.
+
   Lemma teqi'''_to_id_to_teqi'''
         {C : bicat_of_univ_cats}
         {TC TD : bicatcatstensor_disp_bicat C}
@@ -1058,13 +1101,20 @@ Section TensorLayer.
   Proof.
     use total2_paths_f.
     - apply funextsec ; intro x ; apply funextsec ; intro y.
-
-
-
-      admit.
+      etrans. {
+        apply pr_id_tensor_eqi'''_funextsec.
+      }
+      etrans. {
+        apply distributer_funext.
+      }
+      unfold id_tensor_eqi'''_2.
+      unfold tensor_eqi'''_to_eq1.
+      rewrite toforallpaths_funextsec.
+      rewrite toforallpaths_funextsec.
+      apply idpath.
     - repeat (apply funextsec ; intro).
       apply homset_property.
-  Admitted.
+  Qed.
 
   Definition tensor_eqi'''_equiv_eq {C : bicat_of_univ_cats} (TC TD : bicatcatstensor_disp_bicat C)
     : TC = TD ≃ tensor_eqi''' TC TD.
