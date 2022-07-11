@@ -1,3 +1,8 @@
+(*
+This is the thirth of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
+In this file we construct the total category of the (direct) product of the unit and tensor layer. This finishes the first layer.
+*)
+
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceOfBicategoryOfUnivMonCats.Tensorlayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceOfBicategoryOfUnivMonCats.Unitlayer.
 
@@ -38,14 +43,6 @@ Section TensorUnitLayer.
 
   Definition bicatcatstensorunit_univalentcat (C : bicatcatstensorunit_total) : univalent_category
     := pr1 C.
-
-  (* Coercion bicatcatstensorunit_univalentcat : bicatcatstensorunit_total >-> univalent_category.
-
-
-  Definition bicatcatstensorunit_univalentcat
-    : bicatcatstensorunit_total -> univalent_category
-    := λ C, pr1 C.
-  Coercion bicatcatstensorunit_univalentcat : bicatcatstensorunit_total >-> univalent_category. *)
 
   Definition tensorunit_unit (C : bicatcatstensorunit_total) : (pr1 C : univalent_category) := pr22 C.
 

@@ -1,3 +1,9 @@
+(*
+This is the last file which concludes that the bicategory of univalent monoidal categories is again univalent.
+In this file we conclude that both the bicategory of univalent monoidal categories with lax monoidal functors is univalent
+and that the result still holds when we replace lax by strong monoidal functors.
+*)
+
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceOfBicategoryOfUnivMonCats.Tensorlayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceOfBicategoryOfUnivMonCats.Unitlayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceOfBicategoryOfUnivMonCats.TensorUnitlayer.
