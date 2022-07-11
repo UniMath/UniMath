@@ -1,7 +1,7 @@
 (*
 This is the first of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
 In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:
-The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
+The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories together with a fixed object (which will be the unit for the monoidal structure).
 - The morphisms are functors which preserve the unit in a lax/weak sense (i.e. a non-necessairly isomorphic morphism).
 - The 2-cells are natural transformations which (at the unit) preserves the morphism of the underlying functors.
@@ -75,90 +75,80 @@ Section UnitLayer.
 
   Definition bicatcatsunit_disp_prebicat_ops : disp_prebicat_ops bicatcatsunit_disp_prebicat_1_id_comp_cells.
   Proof.
-    cbn in *.
-    use tpair.
+    cbn in *; repeat split.
     - intros C D F IC ID puF.
       apply id_right.
-    - use tpair.
-      + intros C D F IC ID puF.
-        etrans. { apply id_right. }
-        etrans. {
-          apply cancel_precomposition.
-          apply functor_id.
-        }
-        apply id_right.
-      + use tpair.
-        * intros C D F IC ID puF.
-          etrans. { apply id_right. }
-          apply id_left.
-        * use tpair.
-          -- intros C D F IC ID puF.
-             apply cancel_precomposition.
-             apply pathsinv0.
-             apply functor_id.
-          -- use tpair.
-             ++ intros C D F IC ID puF.
-                etrans. { apply id_right. }
-                apply pathsinv0.
-                apply id_left.
-             ++ use tpair.
-                ** intros C D E W F G H IC ID IE IW puF puG puH.
-                   cbn.
-                   unfold bicatcatsunit_disp_2cell_struct.
-                   cbn.
-                   etrans. { apply id_right. }
-                   etrans. {
-                     apply cancel_precomposition.
-                     apply functor_comp.
-                   }
-                   etrans. { apply assoc. }
-                   apply idpath.
-                ** use tpair.
-                   --- intros C D E W F G H IC ID IE IW puF puG puH.
-                       cbn.
-                       unfold bicatcatsunit_disp_2cell_struct.
-                       cbn.
-                       etrans.  { apply id_right. }
-                       etrans. { apply assoc'. }
-                       apply cancel_precomposition.
-                       apply pathsinv0.
-                       apply functor_comp.
-                   --- use tpair.
-                       +++ intros C D F G H α β IC ID puF puG puH pucα pucβ.
-                           etrans. { apply assoc. }
-                           etrans. {
-                             apply cancel_postcomposition.
-                             apply pucα.
-                           }
-                           apply pucβ.
-                       +++ use tpair.
-                           *** intros C D E F G H α IC ID IE puF puG puH pucα.
-                               cbn.
-                               unfold bicatcatsunit_disp_2cell_struct.
-                               cbn.
-                               cbn.
-                               etrans. { apply assoc'. }
-                               etrans. {
-                                 apply cancel_precomposition.
-                                 apply (pr2 α).
-                               }
-                               etrans. { apply assoc. }
-                               apply cancel_postcomposition.
-                               apply pucα.
-                           *** cbn in *.
-                               intros C D E F G H α IC ID IE puF puG puH pucα.
-                               cbn.
-                               unfold bicatcatsunit_disp_2cell_struct.
-                               cbn.
-                               cbn.
-                               etrans. { apply assoc'. }
-                               etrans. {
-                                 apply cancel_precomposition.
-                                 apply (pathsinv0 (functor_comp _ _ _)).
-                               }
-                               apply cancel_precomposition.
-                               apply maponpaths.
-                               apply pucα.
+    - intros C D F IC ID puF.
+      etrans. { apply id_right. }
+      etrans. {
+        apply cancel_precomposition.
+        apply functor_id.
+      }
+      apply id_right.
+    - intros C D F IC ID puF.
+      etrans. { apply id_right. }
+      apply id_left.
+    - intros C D F IC ID puF.
+      apply cancel_precomposition.
+      apply pathsinv0.
+      apply functor_id.
+    - intros C D F IC ID puF.
+      etrans. { apply id_right. }
+      apply pathsinv0.
+      apply id_left.
+    - intros C D E W F G H IC ID IE IW puF puG puH.
+      cbn.
+      unfold bicatcatsunit_disp_2cell_struct.
+      cbn.
+      etrans. { apply id_right. }
+      etrans. {
+        apply cancel_precomposition.
+        apply functor_comp.
+      }
+      etrans. { apply assoc. }
+      apply idpath.
+    - intros C D E W F G H IC ID IE IW puF puG puH.
+      cbn.
+      unfold bicatcatsunit_disp_2cell_struct.
+      cbn.
+      etrans.  { apply id_right. }
+      etrans. { apply assoc'. }
+      apply cancel_precomposition.
+      apply pathsinv0.
+      apply functor_comp.
+    - intros C D F G H α β IC ID puF puG puH pucα pucβ.
+      etrans. { apply assoc. }
+      etrans. {
+        apply cancel_postcomposition.
+        apply pucα.
+      }
+      apply pucβ.
+    - intros C D E F G H α IC ID IE puF puG puH pucα.
+      cbn.
+      unfold bicatcatsunit_disp_2cell_struct.
+      cbn.
+      cbn.
+      etrans. { apply assoc'. }
+      etrans. {
+        apply cancel_precomposition.
+        apply (pr2 α).
+      }
+      etrans. { apply assoc. }
+      apply cancel_postcomposition.
+      apply pucα.
+    - intros C D E F G H α IC ID IE puF puG puH pucα.
+      cbn.
+      unfold bicatcatsunit_disp_2cell_struct.
+      cbn.
+      cbn.
+      etrans. { apply assoc'. }
+      etrans. {
+        apply cancel_precomposition.
+        apply (pathsinv0 (functor_comp _ _ _)).
+      }
+      apply cancel_precomposition.
+      apply maponpaths.
+      apply pucα.
   Qed.
 
   Definition bicatcatsunit_disp_prebicat_data : disp_prebicat_data bicat_of_univ_cats

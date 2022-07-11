@@ -1,9 +1,9 @@
 (*
 This is one file which leads to showing that the bicategory of univalent monoidal categories is again univalent.
 In this file we construct one side of the second displayed layer above the bicategory of univalent categories, more precisely:
-The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
+The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories (already equipped with a tensor and unit) together with the data (and naturality) of the associator.
-- The morphisms expresses a preservation condition of the associator.
+- The morphisms express a preservation condition of the associator.
 - The 2-cells are trivial.
 *)
 

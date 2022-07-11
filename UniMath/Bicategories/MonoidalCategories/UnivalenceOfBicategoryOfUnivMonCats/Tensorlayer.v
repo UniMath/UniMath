@@ -1,9 +1,9 @@
 (*
 This is the second of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
 In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:
-The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
+The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories together with a binary operation (which will be the tensor product for the monoidal structure).
-- The morphisms are functors which preserve the tensor in a lax/weak sense (i.e. a non-necessairly isomorphic morphism).
+- The morphisms are functors which preserve the tensor in a lax/weak sense (i.e. a non-necessarily isomorphic morphism).
 - The 2-cells are natural transformations which (at the unit) commute the tensor-preserving morphisms.
 *)
 
@@ -235,7 +235,7 @@ Section TensorLayer.
 
   Definition bicatcatstensor_disp_prebicat_ops : disp_prebicat_ops bicatcatstensor_disp_prebicat_1_id_comp_cells.
   Proof.
-    use tpair.
+    repeat split.
     - intros C D F TC TD ptF.
       intros x y.
       etrans. { apply id_right. }
@@ -243,136 +243,128 @@ Section TensorLayer.
       rewrite tensor_id.
       rewrite id_left.
       apply idpath.
-    - use tpair.
-      + intros C D F TC TD ptF.
-        intros x y.
-        rewrite id_right.
-        simpl.
-        rewrite tensor_id.
-        rewrite id_left.
-        unfold identityfunctor_preserves_tensor_data.
-        unfold compositions_preserves_tensor_data.
-        rewrite functor_id.
-        apply id_right.
-      + use tpair.
-        * intros C D F TC TD ptF.
-          intros x y.
-          rewrite id_right.
-          cbn.
-          unfold compositions_preserves_tensor_data.
-          unfold identityfunctor_preserves_tensor_data.
-          rewrite id_left.
-          simpl.
-          rewrite tensor_id.
-          rewrite id_left.
-          apply idpath.
-        * use tpair.
-          --  intros C D F TC TD ptF.
-              intros x y.
-              rewrite id_right.
-              simpl.
-              rewrite tensor_id.
-              rewrite id_left.
-              cbn.
-              unfold compositions_preserves_tensor_data.
-              cbn.
-              unfold identityfunctor_preserves_tensor_data.
-              rewrite functor_id.
-              rewrite id_right.
-              apply idpath.
-          -- use tpair.
-             ++ intros C D F TC TD ptF.
-                intros x y.
-                rewrite id_right.
-                cbn.
-                rewrite tensor_id.
-                unfold compositions_preserves_tensor_data.
-                unfold identityfunctor_preserves_tensor_data.
-                simpl.
-                rewrite id_left.
-                rewrite id_left.
-                apply idpath.
-             ++ use tpair.
-                ** intros C D E W F G H TC TD TE TW ptF ptG ptH.
-                   intros x y.
-                   simpl.
-                   rewrite id_right.
-                   rewrite tensor_id.
-                   rewrite id_left.
-                   cbn.
-                   unfold compositions_preserves_tensor_data.
-                   cbn.
-                   rewrite assoc'.
-                   rewrite functor_comp.
-                   apply idpath.
-                ** use tpair.
-                   --- intros C D E W F G H TC TD TE TW ptF ptG ptH.
-                       intros x y.
-                       simpl.
-                       rewrite id_right.
-                       rewrite tensor_id.
-                       rewrite id_left.
-                       cbn.
-                       unfold compositions_preserves_tensor_data.
-                       cbn.
-                       rewrite assoc'.
-                       rewrite functor_comp.
-                       apply idpath.
-                   --- use tpair.
-                       +++ intros C D F G H α β TC TD ptF ptG ptH ptcα ptcβ.
-                           intros x y.
-                               simpl.
-                               rewrite assoc.
-                               rewrite ptcα.
-                               rewrite assoc'.
-                               rewrite ptcβ.
-                               rewrite assoc.
-                               rewrite tensor_comp.
-                               apply idpath.
-                       +++ use tpair.
-                           *** intros C D E F G H α TC TD TE ptF ptG ptH ptcα.
-                               intros x y.
-                               cbn.
-                               unfold compositions_preserves_tensor_data.
-                               rewrite assoc'.
-                               rewrite (pr2 α).
-                               rewrite assoc.
-                               rewrite ptcα.
-                               rewrite assoc.
-                               apply idpath.
-                           *** intros C D E F G H α TC TD TE ptF ptG ptH ptcα.
-                               intros x y.
-                               cbn.
-                               unfold compositions_preserves_tensor_data.
-                               rewrite assoc'.
-                               etrans. {
-                                 apply cancel_precomposition.
-                                 apply (pathsinv0 (functor_comp _ _ _)).
-                               }
-                               etrans. {
-                                 apply cancel_precomposition.
-                                 apply maponpaths.
-                                 apply ptcα.
-                               }
-                               rewrite assoc.
-                               rewrite functor_comp.
-                               rewrite assoc.
-                               apply cancel_postcomposition.
-                               cbn in *.
-                               unfold preserves_tensor in ptF.
-                               induction ptF as [ptF ptnatF].
-                               induction ptG as [ptG ptnatG].
-                               induction ptH as [ptH ptnatH].
+    - intros C D F TC TD ptF.
+      intros x y.
+      rewrite id_right.
+      simpl.
+      rewrite tensor_id.
+      rewrite id_left.
+      unfold identityfunctor_preserves_tensor_data.
+      unfold compositions_preserves_tensor_data.
+      rewrite functor_id.
+      apply id_right.
+    - intros C D F TC TD ptF.
+      intros x y.
+      rewrite id_right.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      unfold identityfunctor_preserves_tensor_data.
+      rewrite id_left.
+      simpl.
+      rewrite tensor_id.
+      rewrite id_left.
+      apply idpath.
+    -  intros C D F TC TD ptF.
+       intros x y.
+       rewrite id_right.
+       simpl.
+       rewrite tensor_id.
+       rewrite id_left.
+       cbn.
+       unfold compositions_preserves_tensor_data.
+       cbn.
+       unfold identityfunctor_preserves_tensor_data.
+       rewrite functor_id.
+       rewrite id_right.
+       apply idpath.
+    - intros C D F TC TD ptF.
+      intros x y.
+      rewrite id_right.
+      cbn.
+      rewrite tensor_id.
+      unfold compositions_preserves_tensor_data.
+      unfold identityfunctor_preserves_tensor_data.
+      simpl.
+      rewrite id_left.
+      rewrite id_left.
+      apply idpath.
+    - intros C D E W F G H TC TD TE TW ptF ptG ptH.
+      intros x y.
+      simpl.
+      rewrite id_right.
+      rewrite tensor_id.
+      rewrite id_left.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      cbn.
+      rewrite assoc'.
+      rewrite functor_comp.
+      apply idpath.
+    - intros C D E W F G H TC TD TE TW ptF ptG ptH.
+      intros x y.
+      simpl.
+      rewrite id_right.
+      rewrite tensor_id.
+      rewrite id_left.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      cbn.
+      rewrite assoc'.
+      rewrite functor_comp.
+      apply idpath.
+    - intros C D F G H α β TC TD ptF ptG ptH ptcα ptcβ.
+      intros x y.
+      simpl.
+      rewrite assoc.
+      rewrite ptcα.
+      rewrite assoc'.
+      rewrite ptcβ.
+      rewrite assoc.
+      rewrite tensor_comp.
+      apply idpath.
+    - intros C D E F G H α TC TD TE ptF ptG ptH ptcα.
+      intros x y.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      rewrite assoc'.
+      rewrite (pr2 α).
+      rewrite assoc.
+      rewrite ptcα.
+      rewrite assoc.
+      apply idpath.
+    - intros C D E F G H α TC TD TE ptF ptG ptH ptcα.
+      intros x y.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      rewrite assoc'.
+      etrans. {
+        apply cancel_precomposition.
+        apply (pathsinv0 (functor_comp _ _ _)).
+      }
+      etrans. {
+        apply cancel_precomposition.
+        apply maponpaths.
+        apply ptcα.
+      }
+      rewrite assoc.
+      rewrite functor_comp.
+      rewrite assoc.
+      apply cancel_postcomposition.
+      cbn in *.
+      unfold preserves_tensor in ptF.
+      induction ptF as [ptF ptnatF].
+      induction ptG as [ptG ptnatG].
+      induction ptH as [ptH ptnatH].
 
-                               cbn in *.
-                               unfold bicatcatstensor_disp_2cell_struct in ptcα.
-                               cbn in *.
-                               unfold preserves_tensor_nat in ptnatF.
+      cbn in *.
+      unfold bicatcatstensor_disp_2cell_struct in ptcα.
+      cbn in *.
+      unfold preserves_tensor_nat in ptnatF.
 
-                               etrans. { apply ptnatH. }
-                               cbn in *.
-                               apply cancel_precomposition.
-                               apply idpath.
+      etrans. { apply ptnatH. }
+      cbn in *.
+      apply cancel_precomposition.
+      apply idpath.
   Defined.
 
 
@@ -475,17 +467,17 @@ Section TensorLayer.
 
   Definition tensor_iso {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ α : ∏ x y : C, z_iso (x ⊗_{TD} y) (x ⊗_{TC} y),
-          ∏ {a1 a2 b1 b2 : C} (f : C⟦a1,a2⟧) (g : C⟦b1,b2⟧),
+          ∏ (a1 a2 b1 b2 : C) (f : C⟦a1,a2⟧) (g : C⟦b1,b2⟧),
           (pr1 (α a1 b1))·(f ⊗^{TC} g) = (f ⊗^{TD} g)·(pr1 (α a2 b2)).
 
   Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       (idtomor _ _ (α x1 y1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (idtomor _ _ (α x2 y2)).
 
   Definition tensor_eq' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
       = (transportf _ (α x2 y2) (f ⊗^{TD} g)).
 
@@ -555,7 +547,7 @@ Section TensorLayer.
 
   Definition tensor_eq'' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (α x1 y1) (transportf _ (α x2 y2) (f ⊗^{TD} g)).
 
@@ -798,7 +790,7 @@ Section TensorLayer.
 
   Definition tensor_eqi'' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (transportf _ (! α x2 y2) (f ⊗^{TD} g)).
 
@@ -836,7 +828,7 @@ Section TensorLayer.
 
   Definition tensor_eqi''' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       transportf (λ x : C, C⟦x , x2 ⊗_{TD} y2⟧) (α x1 y1) (transportf (λ x : C, C⟦x1 ⊗_{TC} y1 , x⟧) (α x2 y2) (f ⊗^{TC} g)) = (f ⊗^{TD} g).
 
   Lemma independent_transportation_commutes {C : univalent_category}
