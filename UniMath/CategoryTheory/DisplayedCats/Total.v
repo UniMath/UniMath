@@ -278,13 +278,13 @@ Section Total_Category.
     use isweq_iso.
     - intros ff. exists (z_iso_base_from_total ff). apply z_iso_disp_from_total.
     - intros [f ff]. use total2_paths_f.
-      + apply eq_z_iso, idpath.
+      + apply z_iso_eq, idpath.
       + apply eq_z_iso_disp.
         etrans. apply transportf_z_iso_disp.
         simpl pr2. simpl (pr1 (z_iso_disp_from_total _)).
         use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
         apply homset_property.
-    - intros f. apply eq_z_iso; simpl.
+    - intros f. apply z_iso_eq; simpl.
       destruct f as [[f ff] w]; apply idpath.
   Qed.
 
@@ -310,7 +310,7 @@ Section Total_Category.
     apply (@weqcomp _ (∑ f : z_iso x y, z_iso_disp f xx yy) _).
     use (weqfp (make_weq _ _)). apply CC.
     apply total_z_iso_equiv.
-    intros e; destruct e; apply eq_z_iso; cbn.
+    intros e; destruct e; apply z_iso_eq; cbn.
     apply idpath.
   Qed.
 

@@ -184,7 +184,7 @@ Section IsoInvertible2Cells.
     use weqhomot.
     + exact (idtoiso_alt_weq f g).
     + intro p.
-      apply eq_z_iso.
+      apply z_iso_eq.
       induction p.
       apply idpath.
   Defined.

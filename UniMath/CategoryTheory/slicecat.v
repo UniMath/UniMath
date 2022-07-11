@@ -377,7 +377,7 @@ intros a b.
 set (h := id_weq_z_iso_slicecat a b).
 apply (isweqhomot h); [intro p|induction h; trivial].
 induction p.
-apply eq_z_iso, eq_mor_slicecat, idpath.
+apply z_iso_eq, eq_mor_slicecat, idpath.
 Qed.
 
 End slicecat_theory.

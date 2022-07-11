@@ -40,7 +40,7 @@ Lemma hset_id_weq_iso_is (A B : ob HSET):
 Proof.
   apply funextfun.
   intro p; elim p.
-  apply eq_z_iso; simpl.
+  apply z_iso_eq; simpl.
   - apply funextfun;
     intro x;
     destruct A.

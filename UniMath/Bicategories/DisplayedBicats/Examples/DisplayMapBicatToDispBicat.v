@@ -486,6 +486,23 @@ Section ArrowSubBicatToDispBicat.
       apply cellset_property.
   Defined.
 
+  Definition disp_2cells_isaprop_if_contained_in_faithful
+             (HD : contained_in_faithful D)
+    : disp_2cells_isaprop disp_map_bicat_to_disp_bicat.
+  Proof.
+    intros x y f g α xx yy ff gg.
+    use invproofirrelevance.
+    intros αα ββ.
+    use subtypePath.
+    {
+      intro.
+      apply cellset_property.
+    }
+    apply (faithful_1cell_eq_cell (HD _ _ _ (pr22 yy))).
+    use (vcomp_lcancel (pr22 ff)) ; [ apply property_from_invertible_2cell | ].
+    exact (pr2 αα @ !(pr2 ββ)).
+  Qed.
+
   (** Displayed invertible 2-cells *)
   Definition is_invertible_to_is_disp_invertible
              {x y : B}

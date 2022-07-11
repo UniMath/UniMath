@@ -363,17 +363,17 @@ Lemma isweq_iso_from_iso_in_sub (a b : ob (full_sub_category C C')):
 Proof.
   apply (isweq_iso _ (iso_in_sub_from_iso a b)).
   - intro f.
-    apply eq_z_iso; simpl.
+    apply z_iso_eq; simpl.
     apply eq_in_sub_precategory, idpath.
-  - intro f; apply eq_z_iso, idpath.
+  - intro f; apply z_iso_eq, idpath.
 Defined.
 
 Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_category C C')):
      isweq (iso_in_sub_from_iso a b).
 Proof.
   apply (isweq_iso _ (iso_from_iso_in_sub a b)).
-  intro f; apply eq_z_iso, idpath.
-  intro f; apply eq_z_iso; simpl.
+  intro f; apply z_iso_eq, idpath.
+  intro f; apply z_iso_eq; simpl.
   apply eq_in_sub_precategory, idpath.
 Defined.
 
@@ -395,7 +395,7 @@ Proof.
   apply funextfun.
   intro p.
   destruct p.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl; apply idpath.
 Qed.
 
@@ -417,7 +417,7 @@ Lemma precat_paths_in_sub_as_3_maps
 Proof.
   apply funextfun.
   intro p; destruct p.
-  apply eq_z_iso; simpl.
+  apply z_iso_eq; simpl.
   unfold precategory_morphisms_in_subcat.
   apply eq_in_sub_precategory, idpath.
 Qed.

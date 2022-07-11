@@ -319,7 +319,7 @@ Section functors_on_iso_with_inv.
    functor_on_z_iso F (z_iso_inv_from_z_iso f) =
        z_iso_inv_from_z_iso (functor_on_z_iso F f).
   Proof.
-    apply eq_z_iso; simpl.
+    apply z_iso_eq; simpl.
     apply idpath.
   Defined.
 
@@ -345,7 +345,7 @@ Lemma maponpaths_idtoiso (a b : C) (e : a = b)
   functor_on_z_iso F (idtoiso e).
 Proof.
   induction e.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply (! functor_id _ _ ).
 Qed.
 
@@ -664,7 +664,7 @@ Lemma functor_on_iso_iso_from_fully_faithful_reflection (C : precategory)(D : ca
       functor_on_z_iso F
         (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl;
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
@@ -674,7 +674,7 @@ Lemma iso_from_fully_faithful_reflection_functor_on_iso (C : category)(D : preca
    (f : z_iso a b) :
       iso_from_fully_faithful_reflection HF (functor_on_z_iso F f) = f.
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl;
   apply (homotinvweqweq (weq_from_fully_faithful HF a b)).
 Qed.
@@ -704,7 +704,7 @@ Lemma functor_on_iso_iso_from_ff_reflection (C : precategory)(D : category)
   functor_on_z_iso F
                  (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl.
   apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
 Qed.

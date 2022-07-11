@@ -118,7 +118,7 @@ Lemma idtoiso_postcompose_iso (C : category) (a b b' : ob C)
     z_iso_comp f (idtoiso p) = transportf (λ b, z_iso a b) p f.
 Proof.
   destruct p.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply id_right.
 Qed.
 
@@ -135,7 +135,7 @@ Lemma idtoiso_precompose_iso (C : category) (a a' b : ob C)
       z_iso_comp (idtoiso (!p)) f = transportf (λ a, z_iso a b) p f.
 Proof.
   destruct p.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply id_left.
 Qed.
 
@@ -154,7 +154,7 @@ Lemma idtoiso_inv (C : category) (a a' : ob C)
   (p : a = a') : idtoiso (!p) = z_iso_inv_from_z_iso (idtoiso p).
 Proof.
   destruct p.
-  simpl. apply eq_z_iso.
+  simpl. apply z_iso_eq.
   apply idpath.
 Defined.
 
@@ -164,7 +164,7 @@ Lemma idtoiso_concat (C : category) (a a' a'' : ob C)
 Proof.
   destruct p.
   destruct q.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl; apply pathsinv0, id_left.
 Qed.
 

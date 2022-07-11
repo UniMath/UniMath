@@ -127,7 +127,7 @@ Section def_setwith2binop_category.
   Proof.
     use isweq_iso.
     - exact (setwith2binop_equiv_iso X Y).
-    - intros x. use eq_z_iso. use twobinopfun_paths. use idpath.
+    - intros x. use z_iso_eq. use twobinopfun_paths. use idpath.
     - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
@@ -150,7 +150,7 @@ Section def_setwith2binop_category.
     - intros y. use twobinopiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_z_iso. use twobinopfun_paths. use idpath.
+    - intros x. use z_iso_eq. use twobinopfun_paths. use idpath.
   Defined.
   Opaque setwith2binop_equiv_iso_is_equiv.
 

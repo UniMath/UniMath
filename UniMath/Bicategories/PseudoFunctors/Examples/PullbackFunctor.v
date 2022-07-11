@@ -7,6 +7,7 @@
 
  1. Change of base for slice bicategories
  2. Change of base for slices of display map bicategories
+ 3. Change of base in the discrete case
 
  *************************************************************)
 Require Import UniMath.Foundations.All.
@@ -367,3 +368,56 @@ Section DispMapPullbackFunctor.
     - exact disp_map_pb_psfunctor_invertible_cells.
   Defined.
 End DispMapPullbackFunctor.
+
+(**
+ 3. Change of base in the discrete case
+ *)
+Section DiscreteDispMapPullbackFunctor.
+  Context (B : bicat_with_pb)
+          (HB : is_univalent_2_1 B)
+          (D : disp_map_bicat B)
+          (HD₁ : arrow_subbicat_props D)
+          (HD₂ : contained_in_discrete D)
+          {b₁ b₂ : B}
+          (f : b₁ --> b₂).
+
+  Definition discrete_disp_map_pb_functor_data
+    : functor_data
+        (discrete_disp_map_slice HB HD₁ HD₂ b₂)
+        (discrete_disp_map_slice HB HD₁ HD₂ b₁).
+  Proof.
+    use make_functor_data.
+    - exact (λ g, disp_map_pb_psfunctor B D f g).
+    - exact (λ g₁ g₂ α, #(disp_map_pb_psfunctor B D f) α).
+  Defined.
+
+  Definition discrete_disp_map_pb_is_functor
+    : is_functor discrete_disp_map_pb_functor_data.
+  Proof.
+    split.
+    - intro g.
+      refine (!_).
+      apply isotoid_2_1.
+      + apply is_univalent_2_1_disp_map_slice.
+        * exact HB.
+        * exact HD₁.
+      + exact (psfunctor_id (disp_map_pb_psfunctor B D f) g).
+    - intros g₁ g₂ g₃ α β.
+      refine (!_).
+      apply isotoid_2_1.
+      + apply is_univalent_2_1_disp_map_slice.
+        * exact HB.
+        * exact HD₁.
+      + exact (psfunctor_comp (disp_map_pb_psfunctor B D f) α β).
+  Qed.
+
+  Definition discrete_disp_map_pb_functor
+    : discrete_disp_map_slice HB HD₁ HD₂ b₂
+      ⟶
+      discrete_disp_map_slice HB HD₁ HD₂ b₁.
+  Proof.
+    use make_functor.
+    - exact discrete_disp_map_pb_functor_data.
+    - exact discrete_disp_map_pb_is_functor.
+  Defined.
+End DiscreteDispMapPullbackFunctor.

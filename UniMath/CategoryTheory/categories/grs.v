@@ -118,7 +118,7 @@ Section def_gr_category.
   Proof.
     use isweq_iso.
     - exact (gr_equiv_iso X Y).
-    - intros x. use eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
@@ -140,7 +140,7 @@ Section def_gr_category.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. apply eq_z_iso. use monoidfun_paths. use idpath.
+    - intros x. apply z_iso_eq. use monoidfun_paths. use idpath.
   Defined.
   Opaque gr_equiv_iso_is_equiv.
 

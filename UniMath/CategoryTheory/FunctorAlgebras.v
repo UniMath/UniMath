@@ -331,7 +331,7 @@ Proof.
   apply (isweqhomot (algebra_idtoiso X Y)).
   - intro p. induction p.
     simpl.
-    apply (eq_z_iso(C:=FunctorAlg F)). apply algebra_mor_eq.
+    apply (z_iso_eq(C:=FunctorAlg F)). apply algebra_mor_eq.
     apply idpath.
   - apply (pr2 _ ).
 Defined.
