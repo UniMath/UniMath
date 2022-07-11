@@ -80,6 +80,7 @@ Section LeftUnitor.
     : preserves_lunitor luC luE (F · G).
   Proof.
     intro x.
+
     use pathscomp0.
     3: exact (pluG ((pr1 F : functor (uc C) (uc D)) x)).
 
@@ -110,18 +111,39 @@ Section LeftUnitor.
       apply maponpaths.
       exact (pluF x).
     }
+    cbn in *.
+    unfold compositions_preserves_tensor_data.
+
     use pathscomp0.
     3: {
       apply cancel_precomposition.
       apply (! functor_comp _ _ _).
     }
+
     rewrite assoc.
     rewrite assoc.
+    rewrite assoc.
+    apply cancel_postcomposition.
 
-    cbn in *.
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply (! functor_comp _ _ _).
+    }
 
+    use pathscomp0.
+    3: { apply assoc'. }
+    apply cancel_postcomposition.
 
-  Admitted.
+    use pathscomp0.
+    3: {
+      apply (! (pr212 G) I_{D} _ (pr1 F x) _ (pu_{F}) (identity (pr1 F x))).
+      (* this is naturality of G preserving the tensor *)
+    }
+    apply cancel_postcomposition.
+    apply maponpaths.
+    apply (! functor_id _ _).
+  Qed.
 
   Definition isaprop_preserves_lunitor {C D : tu_cat} (luC : lunitor C) (luD : lunitor D) (F : tu_cat⟦C,D⟧) : isaprop (preserves_lunitor luC luD F).
   Proof.

@@ -76,7 +76,69 @@ Section RightUnitor.
              (pruG : preserves_runitor ruD ruE G)
     : preserves_runitor ruC ruE (F · G).
   Proof.
-  Admitted.
+    intro x.
+
+    use pathscomp0.
+    3: exact (pruG ((pr1 F : functor (uc C) (uc D)) x)).
+
+    etrans. {
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      cbn in *.
+      assert (pf :  (identity (pr1 G (pr1 F x))) =  (identity (pr1 G (pr1 F x)))· (identity (pr1 G (pr1 F x)))). {
+        apply (! id_right _).
+      }
+      rewrite pf.
+      apply (pr2 (pr212 E)).
+    }
+
+    rewrite assoc'.
+    rewrite assoc'.
+    use pathscomp0.
+    3: {
+      apply assoc.
+    }
+    apply cancel_precomposition.
+    unfold compositions_preserves_tensor_data.
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply maponpaths.
+      exact (pruF x).
+    }
+    cbn in *.
+    unfold compositions_preserves_tensor_data.
+
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply (! functor_comp _ _ _).
+    }
+
+    rewrite assoc.
+    rewrite assoc.
+    rewrite assoc.
+    apply cancel_postcomposition.
+
+    use pathscomp0.
+    3: {
+      apply cancel_precomposition.
+      apply (! functor_comp _ _ _).
+    }
+
+    use pathscomp0.
+    3: { apply assoc'. }
+    apply cancel_postcomposition.
+
+    use pathscomp0.
+    3: {
+      apply (! (pr212 G) _ _ _ _ (identity (pr1 F x)) (pu_{F})).
+      (* this is naturality of G preserving the tensor *)
+    }
+    apply cancel_postcomposition.
+    rewrite (! functor_id _ _).
+    apply idpath.
+  Qed.
 
   Definition isaprop_preserves_runitor {C D : tu_cat} (ruC : runitor C) (ruD : runitor D) (F : tu_cat⟦C,D⟧) : isaprop (preserves_runitor ruC ruD F).
   Proof.
