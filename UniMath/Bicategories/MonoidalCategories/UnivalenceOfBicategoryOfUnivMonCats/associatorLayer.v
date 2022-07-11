@@ -105,10 +105,85 @@ Section AssociatorLayer.
         apply id_right.
       }
       apply id_right.
-    -
-      admit.
-  Admitted.
+    - intros C D E F G aC aD aE paF paG x y z.
+      cbn in *.
+      unfold compositions_preserves_tensor_data.
 
+      etrans. {
+        apply cancel_postcomposition.
+        apply cancel_postcomposition.
+        apply maponpaths.
+        apply (! id_right _).
+      }
+      etrans. {
+        apply cancel_postcomposition.
+        apply cancel_postcomposition.
+        apply (pr212 E).
+      }
+
+      etrans. {
+        rewrite assoc'.
+        rewrite assoc'.
+        apply cancel_precomposition.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        rewrite (! functor_id _ _).
+        apply (! pr212 G _ _ _ _ _ _ ).
+      }
+      etrans. {
+        apply cancel_precomposition.
+        rewrite assoc'.
+        rewrite (! functor_comp _ _ _).
+        rewrite assoc'.
+        rewrite (! functor_comp _ _ _).
+        apply cancel_precomposition.
+        apply maponpaths.
+        rewrite assoc.
+        apply (paF x y z).
+      }
+
+      Notation "f ⊗⊗ g" := (tensor_on_hom _ _ _ _ _ f g) (at level 31).
+      simpl.
+      rewrite functor_comp.
+      etrans. {
+        rewrite assoc.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        rewrite assoc'.
+        rewrite functor_comp.
+        rewrite assoc.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        apply paG.
+      }
+      rewrite assoc'.
+      rewrite assoc'.
+      rewrite assoc'.
+      rewrite assoc'.
+      apply cancel_precomposition.
+      rewrite assoc.
+      rewrite assoc.
+      rewrite assoc.
+      apply cancel_postcomposition.
+
+      assert (pf : (identity (pr1 G (pr1 F x))) =  (identity (pr1 G (pr1 F x)))·  (identity (pr1 G (pr1 F x)))). {
+        apply (! id_right _).
+      }
+
+      use pathscomp0.
+      3: {
+        rewrite pf.
+        rewrite (pr2 (pr212 E)).
+        apply assoc.
+      }
+      rewrite assoc'.
+      apply cancel_precomposition.
+      etrans. { apply (pr212 G). }
+      rewrite (functor_id _ _).
+      apply idpath.
+  Qed.
 
   Definition catcatsass_disp_cat_data : disp_cat_data tu_cat
     := (catcatsass_disp_ob_mor,, catcatsass_disp_id_comp).
