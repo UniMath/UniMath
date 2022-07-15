@@ -3,8 +3,8 @@ This is the first of a sequence of files with the purpose of showing that the bi
 In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:
 The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories together with a fixed object (which will be the unit for the monoidal structure).
-- The morphisms are functors which preserve the unit in a lax/weak sense (i.e. a non-necessairly isomorphic morphism).
-- The 2-cells are natural transformations which (at the unit) preserves the morphism of the underlying functors.
+- The morphisms are functors which preserve the unit in a lax/weak sense (i.e. a non-necessarily isomorphic morphism).
+- The 2-cells are natural transformations which (at the unit) preserve the morphisms for source and target functor.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -33,21 +33,19 @@ Section UnitLayer.
 
   Definition catcatsunit_disp_ob_mor : disp_cat_ob_mor bicat_of_univ_cats.
   Proof.
-    use tpair.
-    - exact (λ C, ob (C : univalent_category)).
-    - exact (λ C D IC ID F, (D : univalent_category)⟦ID, (pr1 F) IC⟧).
+    exists (λ C, ob (C : univalent_category)).
+    exact (λ C D IC ID F, (D : univalent_category)⟦ID, (pr1 F) IC⟧).
   Defined.
 
   Definition catcatsunit_disp_cat_data : disp_cat_data bicat_of_univ_cats.
   Proof.
+    exists catcatsunit_disp_ob_mor.
     use tpair.
-    - exact catcatsunit_disp_ob_mor.
-    - use tpair.
-      + intros C I.
-        exact (identity I).
-      + intros C D E F G IC ID IE puF puG.
-        cbn.
-        exact (puG · (functor_on_morphisms (pr1 G) puF)).
+    - intros C I.
+      exact (identity I).
+    - intros C D E F G IC ID IE puF puG.
+      cbn.
+      exact (puG · (functor_on_morphisms (pr1 G) puF)).
   Defined.
 
   Definition bicatcatsunit_disp_2cell_struct : disp_2cell_struct catcatsunit_disp_cat_data.
@@ -75,13 +73,13 @@ Section UnitLayer.
 
   Definition bicatcatsunit_disp_prebicat_ops : disp_prebicat_ops bicatcatsunit_disp_prebicat_1_id_comp_cells.
   Proof.
-    cbn in *; repeat split.
+    repeat split; cbn; unfold bicatcatsunit_disp_2cell_struct.
     - intros C D F IC ID puF.
       apply id_right.
     - intros C D F IC ID puF.
       etrans. { apply id_right. }
       etrans. {
-        apply cancel_precomposition.
+        apply maponpaths.
         apply functor_id.
       }
       apply id_right.
@@ -89,7 +87,7 @@ Section UnitLayer.
       etrans. { apply id_right. }
       apply id_left.
     - intros C D F IC ID puF.
-      apply cancel_precomposition.
+      apply maponpaths.
       apply pathsinv0.
       apply functor_id.
     - intros C D F IC ID puF.
@@ -97,23 +95,17 @@ Section UnitLayer.
       apply pathsinv0.
       apply id_left.
     - intros C D E W F G H IC ID IE IW puF puG puH.
-      cbn.
-      unfold bicatcatsunit_disp_2cell_struct.
-      cbn.
       etrans. { apply id_right. }
       etrans. {
-        apply cancel_precomposition.
+        apply maponpaths.
         apply functor_comp.
       }
       etrans. { apply assoc. }
       apply idpath.
     - intros C D E W F G H IC ID IE IW puF puG puH.
-      cbn.
-      unfold bicatcatsunit_disp_2cell_struct.
-      cbn.
       etrans.  { apply id_right. }
       etrans. { apply assoc'. }
-      apply cancel_precomposition.
+      apply maponpaths.
       apply pathsinv0.
       apply functor_comp.
     - intros C D F G H α β IC ID puF puG puH pucα pucβ.
@@ -124,30 +116,22 @@ Section UnitLayer.
       }
       apply pucβ.
     - intros C D E F G H α IC ID IE puF puG puH pucα.
-      cbn.
-      unfold bicatcatsunit_disp_2cell_struct.
-      cbn.
-      cbn.
       etrans. { apply assoc'. }
       etrans. {
-        apply cancel_precomposition.
+        apply maponpaths.
         apply (pr2 α).
       }
       etrans. { apply assoc. }
       apply cancel_postcomposition.
       apply pucα.
     - intros C D E F G H α IC ID IE puF puG puH pucα.
-      cbn.
-      unfold bicatcatsunit_disp_2cell_struct.
-      cbn.
-      cbn.
       etrans. { apply assoc'. }
       etrans. {
-        apply cancel_precomposition.
+        apply maponpaths.
+        cbn.
         apply (pathsinv0 (functor_comp _ _ _)).
       }
-      apply cancel_precomposition.
-      apply maponpaths.
+      do 2 apply maponpaths.
       apply pucα.
   Qed.
 
@@ -192,7 +176,7 @@ Section UnitLayer.
   Qed.
 
   Lemma dispadjequiv_to_iso (C : bicat_of_univ_cats) (IC ID : bicatcatsunit_disp_bicat C) :
-       (disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID) -> (Isos.z_iso IC ID).
+       disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID -> z_iso IC ID.
   Proof.
     intro equalunits.
     induction equalunits as [f adj].
@@ -203,30 +187,29 @@ Section UnitLayer.
     unfold nat_trans_id in dunit.
     cbn in dunit.
 
-    use tpair.
-    - exact finv.
-    - repeat (use tpair).
-      + exact f.
-      + unfold nat_trans_id in dunit.
-        unfold functor_identity in dunit.
-        cbn in *.
-        etrans. { apply (pathsinv0 dunit). }
-        apply id_left.
-      + unfold nat_trans_id in dcounit.
-        unfold functor_identity in dcounit.
-        apply pathsinv0.
-        etrans. { apply (pathsinv0 dcounit). }
-        apply id_right.
+    exists finv.
+    exists f.
+    split.
+    - unfold nat_trans_id in dunit.
+      unfold functor_identity in dunit.
+      cbn in *.
+      etrans. { apply (pathsinv0 dunit). }
+      apply id_left.
+    - unfold nat_trans_id in dcounit.
+      unfold functor_identity in dcounit.
+      apply pathsinv0.
+      etrans. { apply (pathsinv0 dcounit). }
+      apply id_right.
   Defined.
 
   Lemma iso_to_dispadjequiv (C : bicat_of_univ_cats) (IC ID : bicatcatsunit_disp_bicat C) :
-    (z_iso IC ID) -> (disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID).
+    z_iso IC ID -> disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID.
   Proof.
     intro i.
     induction i as [finv [f [li ri]]].
     split with f.
     unfold disp_left_adjoint_equivalence.
-    repeat (use tpair).
+    repeat (use tpair); try apply univalent_category_has_homsets.
     - exact finv.
     - etrans. { apply id_left. }
       exact (! li).
@@ -237,8 +220,6 @@ Section UnitLayer.
         apply ri.
       }
       apply id_right.
-    - apply univalent_category_has_homsets.
-    - apply univalent_category_has_homsets.
     - unfold disp_2cells.
       cbn in *.
       unfold bicatcatsunit_disp_2cell_struct.
@@ -247,19 +228,15 @@ Section UnitLayer.
         apply li.
       }
       apply id_left.
-    - apply univalent_category_has_homsets.
-    - apply univalent_category_has_homsets.
     - unfold disp_2cells.
       cbn in *.
       unfold bicatcatsunit_disp_2cell_struct.
       etrans. { apply id_left. }
       exact (! ri).
-    - apply univalent_category_has_homsets.
-    - apply univalent_category_has_homsets.
   Defined.
 
     Lemma iso_dispadjequiv_equivalence (C : bicat_of_univ_cats) (IC ID : bicatcatsunit_disp_bicat C) :
-    (z_iso IC ID) ≃ (disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID).
+    z_iso IC ID ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID.
   Proof.
     use make_weq.
     - apply iso_to_dispadjequiv.
@@ -291,9 +268,9 @@ Section UnitLayer.
       set (i3 := (_ ,, (pr2 C) IC ID)).
       exact (i1 ∘ i3)%weq.
     - intro p.
-      induction p ; cbn.
+      induction p; cbn.
       use subtypePath.
-      + intro ; simpl.
+      + intro; simpl.
         apply (@isaprop_disp_left_adjoint_equivalence bicat_of_univ_cats  bicatcatsunit_disp_bicat).
         * exact univalent_cat_is_univalent_2_1.
         * exact bicatcatsunit_disp_prebicat_is_locally_univalent.

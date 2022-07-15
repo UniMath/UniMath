@@ -4,7 +4,7 @@ In this file we construct one side of the first displayed layer above the bicate
 The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories together with a binary operation (which will be the tensor product for the monoidal structure).
 - The morphisms are functors which preserve the tensor in a lax/weak sense (i.e. a non-necessarily isomorphic morphism).
-- The 2-cells are natural transformations which (at the unit) commute the tensor-preserving morphisms.
+- The 2-cells are natural transformations which (at tensor products) commute the tensor-preserving morphisms.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -190,14 +190,13 @@ Section TensorLayer.
 
   Definition catcatstensor_disp_ob_mor : disp_cat_ob_mor bicat_of_univ_cats.
   Proof.
-    use tpair.
-    - exact (λ C, tensor C).
-    - exact (λ C D TC TD F, preserves_tensor TC TD F).
+    exists (λ C, tensor C).
+    exact (λ C D TC TD F, preserves_tensor TC TD F).
   Defined.
 
   Definition catcatstensor_disp_id_comp : disp_cat_id_comp bicat_of_univ_cats catcatstensor_disp_ob_mor.
   Proof.
-    use tpair.
+    split.
     - intros C TC.
       apply identityfunctor_preserves_tensor.
     - intros C D E F G TC TD TE.
@@ -264,19 +263,19 @@ Section TensorLayer.
       rewrite tensor_id.
       rewrite id_left.
       apply idpath.
-    -  intros C D F TC TD ptF.
-       intros x y.
-       rewrite id_right.
-       simpl.
-       rewrite tensor_id.
-       rewrite id_left.
-       cbn.
-       unfold compositions_preserves_tensor_data.
-       cbn.
-       unfold identityfunctor_preserves_tensor_data.
-       rewrite functor_id.
-       rewrite id_right.
-       apply idpath.
+    - intros C D F TC TD ptF.
+      intros x y.
+      rewrite id_right.
+      simpl.
+      rewrite tensor_id.
+      rewrite id_left.
+      cbn.
+      unfold compositions_preserves_tensor_data.
+      cbn.
+      unfold identityfunctor_preserves_tensor_data.
+      rewrite functor_id.
+      rewrite id_right.
+      apply idpath.
     - intros C D F TC TD ptF.
       intros x y.
       rewrite id_right.
@@ -338,12 +337,11 @@ Section TensorLayer.
       unfold compositions_preserves_tensor_data.
       rewrite assoc'.
       etrans. {
-        apply cancel_precomposition.
+        apply maponpaths.
         apply (pathsinv0 (functor_comp _ _ _)).
       }
       etrans. {
-        apply cancel_precomposition.
-        apply maponpaths.
+        do 2 apply maponpaths.
         apply ptcα.
       }
       rewrite assoc.
@@ -363,7 +361,7 @@ Section TensorLayer.
 
       etrans. { apply ptnatH. }
       cbn in *.
-      apply cancel_precomposition.
+      apply maponpaths.
       apply idpath.
   Defined.
 
@@ -430,7 +428,6 @@ Section TensorLayer.
       rewrite id_right in ix.
       rewrite tensor_id in ix.
       rewrite id_left in ix.
-      repeat (use tpair).
       repeat (apply impred_isaprop ; intro).
       apply univalent_category_has_homsets.
   Defined.
@@ -468,7 +465,7 @@ Section TensorLayer.
   Definition tensor_iso {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ α : ∏ x y : C, z_iso (x ⊗_{TD} y) (x ⊗_{TC} y),
           ∏ (a1 a2 b1 b2 : C) (f : C⟦a1,a2⟧) (g : C⟦b1,b2⟧),
-          (pr1 (α a1 b1))·(f ⊗^{TC} g) = (f ⊗^{TD} g)·(pr1 (α a2 b2)).
+          (pr1 (α a1 b1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (pr1 (α a2 b2)).
 
   Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
@@ -521,7 +518,7 @@ Section TensorLayer.
     rewrite (! idtoiso_postcompose _ _ _ _ _ _) in q.
     rewrite pathsinv0inv0 in q.
     etrans. { apply q. }
-    apply cancel_precomposition.
+    apply maponpaths.
     apply eq_idtoiso_idtomor.
   Qed.
 
@@ -570,7 +567,7 @@ Section TensorLayer.
     : f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (α x1 y1) (transportf _ (α x2 y2) (f ⊗^{TD} g))
       -> transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
-      = (transportf _ (α x2 y2) (f ⊗^{TD} g)).
+      = transportf _ (α x2 y2) (f ⊗^{TD} g).
   Proof.
     intro q.
     apply (transportf_transpose_left (P :=  (λ x : C, C ⟦ x, x2 ⊗_{ TC} y2 ⟧))).
@@ -645,7 +642,7 @@ Section TensorLayer.
       use make_z_iso.
       + exact (ptd x y).
       + exact (pr1 ptdinv x y).
-      + use tpair.
+      + split.
         * set (t := ptcounit x y).
           cbn in t.
           unfold identityfunctor_preserves_tensor_data in t.
@@ -696,8 +693,7 @@ Section TensorLayer.
       repeat (use tpair).
       * intros x y.
         apply ti.
-      *
-        intros x1 x2 y1 y2 f g.
+      * intros x1 x2 y1 y2 f g.
         induction ti as [n i].
         apply (swap_nat_along_zisos (n x1 y1) (n x2 y2) (f ⊗^{pr1 TD} g) (f ⊗^{pr1 TC} g)).
         exact (i x1 x2 y1 y2 f g).
@@ -720,13 +716,13 @@ Section TensorLayer.
         cbn.
         apply (z_iso_inv_after_z_iso ((pr1 ti x y))).
       + (* axioms *)
-        use tpair.
-        * use tpair.
+        split.
+        * split.
           -- abstract (repeat (apply funextsec ; intro) ;
              apply univalent_category_has_homsets).
           -- apply funextsec ; intro ; apply funextsec ; intro.
              apply univalent_category_has_homsets.
-        * use tpair.
+        * split.
           -- use tpair.
              ++ intros x y.
                 cbn.
@@ -737,7 +733,7 @@ Section TensorLayer.
                 rewrite id_right.
                 rewrite tensor_id.
                 apply (z_iso_after_z_iso_inv ((pr1 ti x y))).
-             ++ use tpair.
+             ++ split.
                 ** abstract (repeat (apply funextsec ; intro) ;
                    apply univalent_category_has_homsets).
                 ** abstract (repeat (apply funextsec ; intro) ;
@@ -752,7 +748,7 @@ Section TensorLayer.
                 rewrite tensor_id.
                 rewrite id_left.
                 apply (! z_iso_inv_after_z_iso ((pr1 ti x y))).
-             ++ use tpair.
+             ++ split.
                 ** abstract (repeat (apply funextsec ; intro) ;
                    apply univalent_category_has_homsets).
                 ** abstract (repeat (apply funextsec ; intro) ;
@@ -988,7 +984,7 @@ Section TensorLayer.
   Qed.
 
   Lemma cancellation_lemma {A B : UU} (a : A) (b : B) (f : A -> B) (g : B -> A)
-    : (∏ b0 : B, f(g(b0)) = b0) -> g(f(a))=g(b) -> f(a)=b.
+    : (∏ b0 : B, f (g b0) = b0) -> g (f a) = g b -> f a = b.
   Proof.
     intros i e.
     set (k0 := ! i (f a)).
@@ -1055,9 +1051,7 @@ Section TensorLayer.
         repeat (apply impred_isaset ; intro).
         apply homset_property.
     - intro T.
-      apply isaset_dirprod.
-      + repeat (repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property).
-      + repeat (repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property).
+      apply isaset_dirprod; repeat (repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property).
   Qed.
 
   Lemma pr_id_tensor_eqi'''_funextsec {C : univalent_category} {TC TD : tensor C} (p : TC = TD) (x y : C)
