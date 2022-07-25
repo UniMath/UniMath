@@ -78,6 +78,16 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
+MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
+MonoidalCategories/UnivalenceMonCat/UnitLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
+MonoidalCategories/UnivalenceMonCat/AssociatorLayer.v
+MonoidalCategories/UnivalenceMonCat/LeftUnitorLayer.v
+MonoidalCategories/UnivalenceMonCat/RightUnitorLayer.v
+MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
+MonoidalCategories/UnivalenceMonCat/FinalLayer.v
+
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
