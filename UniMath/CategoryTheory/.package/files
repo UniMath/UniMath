@@ -255,6 +255,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
 
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
