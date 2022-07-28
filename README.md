@@ -71,6 +71,7 @@ The current members of the UniMath Coordinating Committee are:
 
 - Benedikt Ahrens
 - Daniel Grayson
+- Ralph Matthes
 
 
 Acknowledgments
