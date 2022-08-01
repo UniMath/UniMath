@@ -3,7 +3,7 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures. More precisely, we construct transformations in both directions between parameterized distributivity (in a slightly massaged form to accommodate reasoning through bicategories) and displayed sections that are a formalization-friendly form of strong monoidal functors that are right inverses of the projection from the target displayed category. The result makes use of displayed monoidal categories.
 
-The non-monoidal basic situation is developed before.
+The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.CommaCategories].
 
 Author: Ralph Matthes 2021, 2022
 
@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.CommaCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -45,191 +46,6 @@ Import DisplayedBifunctorNotations.
 
 Local Open Scope cat.
 
-Section Upstream.
-  (** this section has nothing to do with monoidal categories but is dictated by the aims of this file *)
-
-  Context {C A A' : category}.
-
-  Context (H H' : C ⟶ [A, A']).
-
-  Definition trafotarget_disp_cat_ob_mor: disp_cat_ob_mor C.
-  Proof.
-    use make_disp_cat_ob_mor.
-    - intro c. exact ([A, A']⟦(H c : A ⟶ A'), (H' c : A ⟶ A')⟧).
-    - intros c c' α β f.
-      exact (α · (# H' f) = (# H f) · β).
-  Defined.
-
-  Lemma trafotarget_disp_cat_id_comp: disp_cat_id_comp C trafotarget_disp_cat_ob_mor.
-  Proof.
-    split.
-    - intros c α.
-      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
-      do 2 rewrite functor_id.
-      rewrite id_left. apply id_right.
-    - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
-      red. red in Hypf, Hypg.
-      unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
-      do 2 rewrite functor_comp.
-      rewrite assoc.
-      rewrite Hypf.
-      rewrite <- assoc.
-      rewrite Hypg.
-      apply assoc.
-   Qed.
-
-  Definition trafotarget_disp_cat_data: disp_cat_data C :=
-    trafotarget_disp_cat_ob_mor ,, trafotarget_disp_cat_id_comp.
-
-  Lemma trafotarget_disp_cells_isaprop (x y : C) (f : C ⟦ x, y ⟧)
-        (xx : trafotarget_disp_cat_data x) (yy : trafotarget_disp_cat_data y):
-    isaprop (xx -->[ f] yy).
-  Proof.
-    intros Hyp Hyp'.
-    apply (functor_category_has_homsets _ _).
-  Qed.
-
-  Lemma trafotarget_disp_cat_axioms: disp_cat_axioms C trafotarget_disp_cat_data.
-  Proof.
-    repeat split; intros; try apply trafotarget_disp_cells_isaprop.
-    apply isasetaprop.
-    apply trafotarget_disp_cells_isaprop.
-  Qed.
-
-  Definition trafotarget_disp: disp_cat C := trafotarget_disp_cat_data ,, trafotarget_disp_cat_axioms.
-
-  Definition trafotarget_cat: category := total_category trafotarget_disp.
-
-  Definition forget_from_trafotarget: trafotarget_cat ⟶ C := pr1_category trafotarget_disp.
-
-  Section TheEquivalence.
-
-    (** a naive specification of the target of the bijection - we need to limit the equality to [functor_data] for the elementary definition *)
-    Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_cat,
-      functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
-        functor_data_from_functor _ _ (functor_identity C).
-
-    (** a "pedestrian" definition *)
-    Definition nat_trafo_to_functor (η: H ⟹ H'): C ⟶ trafotarget_cat.
-    Proof.
-      use make_functor.
-      - use make_functor_data.
-        + intro c.
-          exact (c ,, η c).
-        + intros c c' f.
-          exists f.
-          red. unfold trafotarget_disp. hnf.
-          apply pathsinv0, nat_trans_ax.
-      - split; red.
-        + intro c.
-          use total2_paths_f.
-          * cbn. apply idpath.
-          * apply (functor_category_has_homsets _ _).
-        + intros c1 c2 c3 f f'.
-          use total2_paths_f.
-          * cbn. apply idpath.
-          * apply (functor_category_has_homsets _ _).
-    Defined.
-
-    (** an immediate consequence *)
-    Definition nat_trafo_to_functor_with_eq (η: H ⟹ H'): trafotarget_with_eq.
-    Proof.
-      exists (nat_trafo_to_functor η).
-      apply idpath.
-    Defined.
-
-    (** we can also use the infrastructure of displayed categories *)
-    Definition nat_trafo_to_section (η: H ⟹ H'):
-      @section_disp C trafotarget_disp.
-    Proof.
-      use tpair.
-      - use tpair.
-        + intro c. exact (η c).
-        + intros c c' f.
-          red. unfold trafotarget_disp. hnf.
-          apply pathsinv0, nat_trans_ax.
-      - split.
-        + intro c.
-          apply (functor_category_has_homsets _ _).
-        + intros c1 c2 c3 f f'.
-          apply (functor_category_has_homsets _ _).
-    Defined.
-
-    Definition nat_trafo_to_functor_through_section (η: H ⟹ H'): C ⟶ trafotarget_cat :=
-      @section_functor C trafotarget_disp (nat_trafo_to_section η).
-
-    Definition nat_trafo_to_functor_through_section_cor (η: H ⟹ H'):
-      functor_composite (nat_trafo_to_functor_through_section η) forget_from_trafotarget = functor_identity C.
-    Proof.
-      apply from_section_functor.
-    Defined.
-
-    (** the immediate consequence needs to weaken this strong information *)
-    Definition nat_trafo_to_functor_through_section_with_eq (η: H ⟹ H'): trafotarget_with_eq.
-    Proof.
-      exists (nat_trafo_to_functor_through_section η).
-      (* show_id_type. *)
-      apply (maponpaths pr1 (nat_trafo_to_functor_through_section_cor η)).
-    Defined.
-
-    (** the backwards direction essentially uses the sections - already for the statements *)
-    Definition section_to_nat_trafo:
-      @section_disp C trafotarget_disp -> H ⟹ H'.
-    Proof.
-      intro sd.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
-      use make_nat_trans.
-      - intro c. exact (sdob c).
-      - intros c c' f.
-        apply pathsinv0. exact (sdmor c c' f).
-    Defined.
-
-    Local Lemma roundtrip1_with_sections (η: H ⟹ H'):
-      section_to_nat_trafo (nat_trafo_to_section η) = η.
-    Proof.
-      apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
-      intro c.
-      apply idpath.
-    Qed.
-
-    Local Lemma roundtrip2_with_sections (sd: @section_disp C trafotarget_disp):
-      nat_trafo_to_section (section_to_nat_trafo sd) = sd.
-    Proof.
-      induction sd as [[sdob sdmor] [sdid sdcomp]].
-      unfold nat_trafo_to_section, section_to_nat_trafo.
-      cbn.
-      use total2_paths_f; simpl.
-      - use total2_paths_f; simpl.
-        + apply idpath.
-        + (* a bit of an overkill: a real proof of equality *)
-          cbn.
-          do 3 (apply funextsec; intro).
-          (* show_id_type. *)
-          apply pathsinv0inv0.
-      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
-        assert (Hprop: isaprop goaltype).
-        2: { apply Hprop. }
-        apply isapropdirprod.
-        + apply impred. intro c.
-          (* assert (aux := sdmor c c (id c)).
-          cbn in aux.
-          match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
-          apply hlevelntosn.
-          apply (functor_category_has_homsets _ _).
-        + do 5 (apply impred; intro).
-          apply hlevelntosn.
-          apply (functor_category_has_homsets _ _).
-    Qed.
-
-  End TheEquivalence.
-
-End Upstream.
-
-(** the previous development can be generalized to a bicategory for the items in the target
-
-    this paves the way for an efficient treatment of the construction of a monoidal target category *)
-
 Section UpstreamInBicat.
 
   Context {C0 : category}. (** an "ordinary" category for the source *)
@@ -238,155 +54,25 @@ Section UpstreamInBicat.
 
   Context (H H' : C0 ⟶ hom a a').
 
-  Definition trafotargetbicat_disp_cat_ob_mor: disp_cat_ob_mor C0.
-  Proof.
-    use make_disp_cat_ob_mor.
-    - intro c. exact (H c ==> H' c).
-    - intros c c' α β f.
-      exact (α · (# H' f) = (# H f) · β).
-  Defined.
-
-  Lemma trafotargetbicat_disp_cat_id_comp: disp_cat_id_comp C0 trafotargetbicat_disp_cat_ob_mor.
-  Proof.
-    split.
-    - intros c α.
-      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
-      do 2 rewrite functor_id.
-      rewrite id_left. apply id_right.
-    - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
-      red in Hypf, Hypg |- *.
-      unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
-      hnf in Hypf, Hypg |- *.
-      do 2 rewrite functor_comp.
-      rewrite assoc.
-      rewrite Hypf.
-      rewrite <- assoc.
-      rewrite Hypg.
-      apply assoc.
-  Qed.
-
-  Definition trafotargetbicat_disp_cat_data: disp_cat_data C0 :=
-    trafotargetbicat_disp_cat_ob_mor ,, trafotargetbicat_disp_cat_id_comp.
+  Definition trafotargetbicat_disp: disp_cat C0 := inserter_disp_cat H H'.
 
   Lemma trafotargetbicat_disp_cells_isaprop (x y : C0) (f : C0 ⟦ x, y ⟧)
-        (xx : trafotargetbicat_disp_cat_data x) (yy : trafotargetbicat_disp_cat_data y):
+        (xx : trafotargetbicat_disp x) (yy : trafotargetbicat_disp y):
     isaprop (xx -->[ f] yy).
   Proof.
     intros Hyp Hyp'.
     apply (hom a a').
   Qed.
 
-  Lemma trafotargetbicat_disp_cat_axioms: disp_cat_axioms C0 trafotargetbicat_disp_cat_data.
-  Proof.
-    repeat split; intros; try apply trafotargetbicat_disp_cells_isaprop.
-    apply isasetaprop.
-    apply trafotargetbicat_disp_cells_isaprop.
-  Qed.
-
-  Definition trafotargetbicat_disp: disp_cat C0 := trafotargetbicat_disp_cat_data ,, trafotargetbicat_disp_cat_axioms.
-
   Definition trafotargetbicat_cat: category := total_category trafotargetbicat_disp.
 
   Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
-  Section EquivalenceInBicat.
+  Definition nat_trafo_to_section_bicat (η: H ⟹ H'):
+    @section_disp C0 trafotargetbicat_disp := nat_trafo_to_section H H' η.
 
-    (** a "pedestrian" definition *)
-    Definition nat_trafo_to_functor_bicat_elementary (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat.
-    Proof.
-      use make_functor.
-      - use make_functor_data.
-        + intro c.
-          exact (c ,, η c).
-        + intros c c' f.
-          exists f.
-          red. unfold trafotargetbicat_disp. hnf.
-          apply pathsinv0, nat_trans_ax.
-      - split; red.
-        + intro c.
-          use total2_paths_f.
-          * cbn. apply idpath.
-          * apply trafotargetbicat_disp_cells_isaprop.
-        + intros c1 c2 c3 f f'.
-          use total2_paths_f.
-          * cbn. apply idpath.
-          * apply trafotargetbicat_disp_cells_isaprop.
-    Defined.
-
-    (** using sections *)
-    Definition nat_trafo_to_section_bicat (η: H ⟹ H'):
-      @section_disp C0 trafotargetbicat_disp.
-    Proof.
-      use tpair.
-      - use tpair.
-        + intro c. exact (η c).
-        + intros c c' f.
-          red. unfold trafotargetbicat_disp. hnf.
-          apply pathsinv0, nat_trans_ax.
-      - split.
-        + intro c.
-          apply trafotargetbicat_disp_cells_isaprop.
-        + intros c1 c2 c3 f f'.
-          apply trafotargetbicat_disp_cells_isaprop.
-    Defined.
-
-    Definition nat_trafo_to_functor_bicat (η: H ⟹ H'): C0 ⟶ trafotargetbicat_cat :=
-      @section_functor C0 trafotargetbicat_disp (nat_trafo_to_section_bicat η).
-
-    Definition nat_trafo_to_functor_bicat_cor (η: H ⟹ H'):
-      functor_composite (nat_trafo_to_functor_bicat η) forget_from_trafotargetbicat = functor_identity C0.
-    Proof.
-      apply from_section_functor.
-    Defined.
-
-    (** the other direction, essentially dependent on sections *)
-    Definition section_to_nat_trafo_bicat:
-      @section_disp C0 trafotargetbicat_disp -> H ⟹ H'.
-    Proof.
-      intro sd.
-      use make_nat_trans.
-      - intro c. exact (pr1 (pr1 sd) c).
-      - intros c c' f.
-        assert (aux := pr2 (pr1 sd) c c' f). apply pathsinv0. exact aux.
-    Defined.
-
-    Local Lemma roundtrip1_with_sections_bicat (η: H ⟹ H'):
-      section_to_nat_trafo_bicat (nat_trafo_to_section_bicat η) = η.
-    Proof.
-      apply nat_trans_eq; [ apply (hom a a') |].
-      intro c.
-      apply idpath.
-    Qed.
-
-    Local Lemma roundtrip2_with_sections_bicat (sd: @section_disp C0 trafotargetbicat_disp):
-      nat_trafo_to_section_bicat (section_to_nat_trafo_bicat sd) = sd.
-    Proof.
-      unfold nat_trafo_to_section_bicat, section_to_nat_trafo_bicat.
-      cbn.
-      use total2_paths_f; simpl.
-      - use total2_paths_f; simpl.
-        + apply idpath.
-        + (* a bit of an overkill: a real proof of equality *)
-          cbn.
-          do 3 (apply funextsec; intro).
-          (* show_id_type. *)
-          apply pathsinv0inv0.
-      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
-        assert (Hprop: isaprop goaltype).
-        2: { apply Hprop. }
-        apply isapropdirprod.
-        + apply impred. intro c.
-          (* assert (aux := pr2 (pr1 sd) c c (id₁ c)).
-          cbn in aux.
-          match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
-          apply hlevelntosn.
-          apply (hom a a').
-        + do 5 (apply impred; intro).
-          apply hlevelntosn.
-          apply (hom a a').
-    Qed.
-
-  End EquivalenceInBicat.
+  Definition section_to_nat_trafo_bicat:
+    @section_disp C0 trafotargetbicat_disp -> H ⟹ H' := section_to_nat_trafo H H'.
 
 End UpstreamInBicat.
 
@@ -623,6 +309,7 @@ Section Main.
       param_distr_bicat_pentagon_eq_body_variant_RHS v' w' η' π'.
     Proof.
       hnf in Hyp, Hyp' |- *.
+      apply pathsinv0.
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       match goal with | [ |- (?Hαinv • (?Hassoc1 • ((?Hγ • (?Hassoc2 • ?Hδ)) • (?Hassoc3 • ?Hβ)))) · ?Hε = _ ] =>
                           set (αinv := Hαinv); set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
@@ -720,6 +407,7 @@ Section Main.
       rewrite <- lwhisker_vcomp.
       match goal with | [ |- (((((?Hσ'1 • ?Hσ'2) • _) • _) • _) • _) • _  = _ • ?Hσ ]
                         => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
+      apply pathsinv0 in Hyp.
       change (η • # H' f = # H f • η') in Hyp.
       apply (maponpaths (rwhisker (FA' w'))) in Hyp.
       do 2 rewrite <- rwhisker_vcomp in Hyp.
@@ -759,6 +447,7 @@ Section Main.
       repeat rewrite <- vassocr.
       apply maponpaths.
       clear γ.
+      apply pathsinv0 in Hyp'.
       change (π • # H' g = # H g • π') in Hyp'.
       apply (maponpaths (lwhisker (FA v))) in Hyp'.
       do 2 rewrite <- lwhisker_vcomp in Hyp'.
@@ -830,31 +519,31 @@ Section Main.
     (** the first dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
     Lemma montrafotargetbicat_tensor_comp_aux_inst1 (v w w' : V) (g : V ⟦ w, w' ⟧)
           (η : G · FA' v ==> FA v · G) (π : G · FA' w ==> FA w · G) (π' : G · FA' w' ==> FA w' · G):
-      π • (# FA g ▹ G) = (G ◃ # FA' g) • π'
-      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (v ⊗^{ Mon_V}_{l} g) ▹ G) =
-          (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π'.
+       (G ◃ # FA' g) • π' = π • (# FA g ▹ G)
+       → (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π' =
+           param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (v ⊗^{ Mon_V}_{l} g) ▹ G).
     Proof.
       intro Hyp'.
       rewrite <- hcomp_identity_right in Hyp' |- *.
       rewrite <- hcomp_identity_left in Hyp' |- *.
       rewrite <- when_bifunctor_becomes_leftwhiskering.
       apply montrafotargetbicat_tensor_comp_aux; [| assumption].
-      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
+      hnf. apply pathsinv0. do 2 rewrite functor_id. rewrite id_left. apply id_right.
     Qed.
 
     (** the second dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
     Lemma montrafotargetbicat_tensor_comp_aux_inst2 (v v' w : V) (f : V ⟦ v, v' ⟧)
           (η : G · FA' v ==> FA v · G) (η' : G · FA' v' ==> FA v' · G) (π : G · FA' w ==> FA w · G):
-      η • (# FA f ▹ G) = (G ◃ # FA' f) • η'
-      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (f ⊗^{ Mon_V}_{r} w) ▹ G) =
-          (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π.
+      (G ◃ # FA' f) • η' = η • (# FA f ▹ G)
+      → (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π =
+          param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (f ⊗^{ Mon_V}_{r} w) ▹ G).
     Proof.
       intro Hyp.
       rewrite <- hcomp_identity_right in Hyp |- *.
       rewrite <- hcomp_identity_left in Hyp |- *.
       rewrite <- when_bifunctor_becomes_rightwhiskering.
       apply montrafotargetbicat_tensor_comp_aux; [assumption |].
-      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
+      hnf. apply pathsinv0. do 2 rewrite functor_id. rewrite id_left. apply id_right.
     Qed.
 
     Definition montrafotargetbicat_disp_tensor: disp_tensor montrafotargetbicat_disp Mon_V.
@@ -882,6 +571,7 @@ Section Main.
       hnf.
       intros v η.
       cbn.
+      apply pathsinv0.
       (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
@@ -968,6 +658,7 @@ Section Main.
       hnf.
       intros v η.
       cbn.
+      apply pathsinv0.
       (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
@@ -1077,7 +768,8 @@ Section Main.
     Definition montrafotargetbicat_disp_associator_data: disp_associator_data montrafotargetbicat_disp_tensor.
     Proof.
       intros v1 v2 v3 η1 η2 η3.
-      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux1] from the former approach to monoidal categories *)
+      cbn. apply pathsinv0.
+      (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1339,7 +1031,9 @@ Section Main.
     Lemma montrafotargetbicat_disp_associatorinv_data: disp_associatorinv_data montrafotargetbicat_disp_tensor.
     Proof.
       intros v1 v2 v3 η1 η2 η3.
-      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux2] from the former approach to monoidal categories *)
+      cbn.
+      apply pathsinv0.
+      (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1613,7 +1307,9 @@ Section Main.
     Lemma montrafotargetbicat_disp_leftunitorinv_data: disp_leftunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
       intros v η.
-      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
+      cbn.
+      apply pathsinv0.
+      (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1724,8 +1420,8 @@ Section Main.
 
     Lemma montrafotargetbicat_disp_rightunitorinv_data: disp_rightunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
-      intros v η.
-      apply pathsinv0. cbn. (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
+      intros v η. cbn.
+      (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1912,14 +1608,14 @@ Section Main.
           cbn.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
-          apply pathsinv0, δpe_eq.
+          apply δpe_eq.
         - cbn.
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
-          apply pathsinv0, δtr_eq.
+          apply δtr_eq.
       Qed.
       (** the two equations were thus exactly the ingredients for the data of a monoidal section *)
 
@@ -1935,7 +1631,7 @@ Section Main.
       Proof.
         intros v w.
         use tpair.
-        - cbn. (** now as for [param_distr_bicat_to_monoidal_section_data] *)
+        - cbn. apply pathsinv0. (** now as for [param_distr_bicat_to_monoidal_section_data] *)
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
@@ -1951,7 +1647,7 @@ Section Main.
                                                        param_distr_bicat_to_monoidal_section_data).
       Proof.
         use tpair.
-        - cbn.
+        - cbn. apply pathsinv0.
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
@@ -1992,7 +1688,7 @@ Defined.
         cbn in aux.
         rewrite lwhisker_id2, id2_rwhisker in aux.
         rewrite id2_left, id2_right in aux.
-        apply pathsinv0. exact aux.
+        exact aux.
       Qed.
 
       Lemma δpe_eq_from_ms: param_distr_bicat_pentagon_eq_variant δ_from_ms.
@@ -2005,11 +1701,8 @@ Defined.
         cbn in aux.
         rewrite lwhisker_id2, id2_rwhisker in aux.
         rewrite id2_left, id2_right in aux.
-        apply pathsinv0. exact aux.
+        exact aux.
       Qed.
-
-      (* TODO: roundtrip lemmas *)
-
 
     End FromMonoidalSectionBicat.
 
@@ -2041,7 +1734,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply roundtrip1_with_sections_bicat.
+          apply UniMath.CategoryTheory.CommaCategories.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -2061,7 +1754,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply roundtrip2_with_sections_bicat.
+          apply UniMath.CategoryTheory.CommaCategories.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).

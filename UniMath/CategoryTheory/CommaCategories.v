@@ -1,6 +1,8 @@
 (** **********************************************************
 
 Benedikt Ahrens March 2016, Anthony Bordg May 2017
+Niels van der Weide February 2022: rebasing of general comma categories on displayed categories
+Ralph Matthes August 2022: inserter categories as a kind of simplified comma categories
 
 
 ************************************************************)
@@ -18,6 +20,8 @@ Contents :
         - general comma categories [comma_category]
           - projection functors ([comma_pr1], [comma_pr2])
 
+        - inserter categories
+
 ************************************************************)
 
 
@@ -33,6 +37,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 
@@ -205,15 +210,16 @@ End lemmas_on_const_comma_cats.
 
 (** General comma categories *)
 Section CommaCategory.
+
   Context {C₁ C₂ C₃ : category}
           (F : C₁ ⟶ C₃)
           (G : C₂ ⟶ C₃).
 
-  (** Definition of iso comma categories via displayed categories *)
+  (** Definition of comma categories via displayed categories *)
   Definition comma_disp_cat_ob_mor
     : disp_cat_ob_mor (category_binproduct C₁ C₂).
   Proof.
-    simple refine (_ ,, _).
+    use tpair.
     - exact (λ x, F (pr1 x) --> G (pr2 x)).
     - exact (λ x y i₁ i₂ f, #F (pr1 f) · i₂ = i₁ · #G (pr2 f)).
   Defined.
@@ -221,12 +227,12 @@ Section CommaCategory.
   Definition comma_disp_cat_id_comp
     : disp_cat_id_comp _ comma_disp_cat_ob_mor.
   Proof.
-    simple refine (_ ,, _).
-    - intros x i ; cbn.
+    use tpair.
+    - intros x i; cbn.
       rewrite !functor_id.
       rewrite id_left, id_right.
       apply idpath.
-    - cbn ; intros x y z f g i₁ i₂ i₃ p q.
+    - cbn; intros x y z f g i₁ i₂ i₃ p q.
       rewrite !functor_comp.
       rewrite !assoc'.
       rewrite q.
@@ -236,12 +242,8 @@ Section CommaCategory.
   Qed.
 
   Definition comma_disp_cat_data
-    : disp_cat_data (category_binproduct C₁ C₂).
-  Proof.
-    simple refine (_ ,, _).
-    - exact comma_disp_cat_ob_mor.
-    - exact comma_disp_cat_id_comp.
-  Defined.
+    : disp_cat_data (category_binproduct C₁ C₂)
+    := comma_disp_cat_ob_mor,, comma_disp_cat_id_comp.
 
   Definition comma_disp_cat_axioms
     : disp_cat_axioms _ comma_disp_cat_data.
@@ -254,7 +256,7 @@ Section CommaCategory.
   Definition comma_disp_cat
     : disp_cat (category_binproduct C₁ C₂).
   Proof.
-    simple refine (_ ,, _).
+    use tpair.
     - exact comma_disp_cat_data.
     - exact comma_disp_cat_axioms.
   Defined.
@@ -263,7 +265,7 @@ Section CommaCategory.
     : category
     := total_category comma_disp_cat.
 
-  (** Univalence of the iso-comma category *)
+  (** Univalence of the comma category *)
   Definition is_univalent_disp_comma_disp_cat
              (HC₃ : is_univalent C₃)
     : is_univalent_disp comma_disp_cat.
@@ -310,13 +312,13 @@ Section CommaCategory.
     Proof.
       refine ((inv_from_z_iso (make_z_iso' _ Hf1) ,, inv_from_z_iso (make_z_iso' _ Hf2)) ,, _).
       abstract
-        (cbn ;
-         rewrite !functor_on_inv_from_z_iso ;
-         use z_iso_inv_on_left ;
-         rewrite assoc' ;
+        (cbn;
+         rewrite !functor_on_inv_from_z_iso;
+         use z_iso_inv_on_left;
+         rewrite assoc';
          refine (!_) ;
-         use z_iso_inv_on_right ;
-         cbn ;
+         use z_iso_inv_on_right;
+         cbn;
          exact (!(pr2 f))).
     Defined.
 
@@ -328,7 +330,7 @@ Section CommaCategory.
         intro.
         apply homset_property.
       }
-      use pathsdirprod ; cbn.
+      use pathsdirprod; cbn.
       - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf1)).
       - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf2)).
     Qed.
@@ -341,7 +343,7 @@ Section CommaCategory.
         intro.
         apply homset_property.
       }
-      use pathsdirprod ; cbn.
+      use pathsdirprod; cbn.
       - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf1)).
       - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf2)).
     Qed.
@@ -354,6 +356,7 @@ Section CommaCategory.
       - exact is_iso_comma_left_inv.
       - exact is_iso_comma_right_inv.
     Defined.
+
   End IsIsoComma.
 
   (** Projection functors *)
@@ -369,14 +372,14 @@ Section CommaCategory.
   Definition comma_commute_nat_trans_data
     : nat_trans_data (comma_pr1 ∙ F) (comma_pr2 ∙ G).
   Proof.
-    intros x ; cbn in x.
+    intros x; cbn in x.
     exact (pr2 x).
   Defined.
 
   Definition comma_commute_is_nat_trans
     : is_nat_trans _ _ comma_commute_nat_trans_data.
   Proof.
-    intros x y f ; unfold comma_commute_nat_trans_data ; cbn ; cbn in f.
+    intros x y f; unfold comma_commute_nat_trans_data; cbn; cbn in f.
     exact (pr2 f).
   Qed.
 
@@ -416,18 +419,18 @@ Section CommaCategory.
       : is_functor comma_ump1_data.
     Proof.
       split.
-      - intro x ; cbn.
+      - intro x; cbn.
         use subtypePath.
         {
-          intro ; apply homset_property.
+          intro; apply homset_property.
         }
         cbn.
         rewrite !functor_id.
         apply idpath.
-      - intros x y z f g ; cbn.
+      - intros x y z f g; cbn.
         use subtypePath.
         {
-          intro ; apply homset_property.
+          intro; apply homset_property.
         }
         cbn.
         rewrite !functor_comp.
@@ -450,7 +453,7 @@ Section CommaCategory.
     Definition comma_ump1_pr1_is_nat_trans
       : is_nat_trans _ _ comma_ump1_pr1_nat_trans_data.
     Proof.
-      intros x y f ; cbn ; unfold comma_ump1_pr1_nat_trans_data.
+      intros x y f; cbn; unfold comma_ump1_pr1_nat_trans_data.
       rewrite id_left, id_right.
       apply idpath.
     Qed.
@@ -480,7 +483,7 @@ Section CommaCategory.
     Definition comma_ump1_pr2_is_nat_trans
       : is_nat_trans _ _ comma_ump1_pr2_nat_trans_data.
     Proof.
-      intros x y f ; cbn ; unfold comma_ump1_pr2_nat_trans_data.
+      intros x y f; cbn; unfold comma_ump1_pr2_nat_trans_data.
       rewrite id_left, id_right.
       apply idpath.
     Qed.
@@ -525,7 +528,7 @@ Section CommaCategory.
       {
         apply homset_property.
       }
-      intro ; cbn ; unfold comma_ump1_pr1_nat_trans_data.
+      intro; cbn; unfold comma_ump1_pr1_nat_trans_data.
       rewrite (functor_id F), (functor_id G).
       rewrite !id_left.
       rewrite id_right.
@@ -579,9 +582,9 @@ Section CommaCategory.
     Proof.
       use nat_trans_eq.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
-      intro x ; cbn.
+      intro x; cbn.
       apply idpath.
     Qed.
 
@@ -590,9 +593,9 @@ Section CommaCategory.
     Proof.
       use nat_trans_eq.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
-      intro x ; cbn.
+      intro x; cbn.
       apply idpath.
     Qed.
 
@@ -613,7 +616,7 @@ Section CommaCategory.
       intro x.
       use subtypePath.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
       use pathsdirprod.
       - pose (nat_trans_eq_pointwise n₁_pr1 x) as q₁.
@@ -625,7 +628,9 @@ Section CommaCategory.
         cbn in q₁, q₂.
         exact (q₁ @ !q₂).
     Qed.
+
   End UniversalMappingProperty.
+
 End CommaCategory.
 
 Definition univalent_comma
@@ -641,3 +646,166 @@ Proof.
     + exact (pr2 C₂).
     + exact (pr2 C₃).
 Defined.
+
+
+Section InserterCategory.
+
+  Context {C₁ C₂ : category}
+          (F G : C₁ ⟶ C₂).
+
+  (** Definition via displayed categories *)
+  Definition inserter_disp_cat_ob_mor
+    : disp_cat_ob_mor C₁.
+  Proof.
+    use tpair.
+    - exact (λ x, F x --> G x).
+    - exact (λ x y i₁ i₂ f, #F f · i₂ = i₁ · #G f).
+  Defined.
+
+  Definition inserter_disp_cat_id_comp
+    : disp_cat_id_comp _ inserter_disp_cat_ob_mor.
+  Proof.
+    use tpair.
+    - intros x i; cbn.
+      rewrite !functor_id.
+      rewrite id_left, id_right.
+      apply idpath.
+    - cbn; intros x y z f g i₁ i₂ i₃ p q.
+      rewrite !functor_comp.
+      rewrite !assoc'.
+      rewrite q.
+      rewrite !assoc.
+      rewrite p.
+      apply idpath.
+  Qed.
+
+  Definition inserter_disp_cat_data
+    : disp_cat_data C₁
+    := inserter_disp_cat_ob_mor,, inserter_disp_cat_id_comp.
+
+  Definition inserter_disp_cat_axioms
+    : disp_cat_axioms _ inserter_disp_cat_data.
+  Proof.
+    repeat split ; intros ; try (apply homset_property).
+    apply isasetaprop.
+    apply homset_property.
+  Qed.
+
+  Definition inserter_disp_cat
+    : disp_cat C₁.
+  Proof.
+    use tpair.
+    - exact inserter_disp_cat_data.
+    - exact inserter_disp_cat_axioms.
+  Defined.
+
+  Definition inserter_cat
+    : category
+    := total_category inserter_disp_cat.
+
+  Definition forget_from_inserter_cat: inserter_cat ⟶ C₁ := pr1_category inserter_disp_cat.
+
+  (** Univalence of the inserter category, verbatim the proof for [comma] *)
+  Definition is_univalent_disp_inserter_disp_cat (HC₂ : is_univalent C₂)
+    : is_univalent_disp inserter_disp_cat.
+  Proof.
+    intros x y p i₁ i₂.
+    induction p.
+    use isweqimplimpl.
+    - intros p.
+      pose (pr1 p) as m.
+      cbn in m.
+      rewrite !functor_id in m.
+      rewrite id_left, id_right in m.
+      exact (!m).
+    - apply homset_property.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_z_iso_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
+  Definition is_univalent_inserter_cat
+             (HC₁ : is_univalent C₁)
+             (HC₂ : is_univalent C₂)
+    : is_univalent inserter_cat.
+  Proof.
+    use is_univalent_total_category.
+    - exact HC₁.
+    - exact (is_univalent_disp_inserter_disp_cat HC₂).
+  Defined.
+
+(** ** Equivalence between nat. transformations and functors into the inserter category *)
+(** This is a simplification of the exercise 4 on p.47 in the 2nd edition of MacLane's book.
+    Appears in a less streamlined form in the CPP'22 paper by Ahrens, Matthes and Mörtberg. *)
+
+(** This direction could also be spelt out more elementarily without sections. *)
+  Definition nat_trafo_to_section (η: F ⟹ G):
+      @section_disp C₁ inserter_disp_cat.
+    Proof.
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold inserter_disp_cat. hnf.
+          apply nat_trans_ax.
+      - split.
+        + intro c.
+          apply C₂.
+        + intros c1 c2 c3 f f'.
+          apply C₂.
+    Defined.
+
+    Definition nat_trafo_to_functor (η: F ⟹ G): C₁ ⟶ inserter_cat :=
+      @section_functor C₁ inserter_disp_cat (nat_trafo_to_section η).
+
+    Definition nat_trafo_to_functor_cor (η: F ⟹ G):
+      functor_composite (nat_trafo_to_functor η) forget_from_inserter_cat = functor_identity C₁.
+    Proof.
+      apply from_section_functor.
+    Defined.
+
+(** the backwards direction essentially uses the sections - already for the statements *)
+    Definition section_to_nat_trafo:
+      @section_disp C₁ inserter_disp_cat -> F ⟹ G.
+    Proof.
+      intro sd.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - intro c. exact (sdob c).
+      - intros c c' f.
+        exact (sdmor c c' f).
+    Defined.
+
+    Local Lemma roundtrip1_with_sections (η: F ⟹ G):
+      section_to_nat_trafo (nat_trafo_to_section η) = η.
+    Proof.
+      apply nat_trans_eq; [ apply C₂ |].
+      intro c.
+      apply idpath.
+    Qed.
+
+    Local Lemma roundtrip2_with_sections (sd: @section_disp C₁ inserter_disp_cat):
+      nat_trafo_to_section (section_to_nat_trafo sd) = sd.
+    Proof.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      unfold nat_trafo_to_section, section_to_nat_trafo.
+      cbn.
+      use total2_paths_f; simpl.
+      - use total2_paths_f; simpl.
+        + apply idpath.
+        + apply idpath.
+      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+        assert (Hprop: isaprop goaltype).
+        2: { apply Hprop. }
+        apply isapropdirprod.
+        + apply impred. intro c.
+          apply hlevelntosn.
+          apply C₂.
+        + do 5 (apply impred; intro).
+          apply hlevelntosn.
+          apply C₂.
+    Qed.
+
+End InserterCategory.
