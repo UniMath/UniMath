@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
@@ -136,6 +137,86 @@ Section Dialgebra.
              (p : dialgebra_mor_path f)
     : x --> y
     := f ,, p.
+
+
+  Definition forget_from_dialgebra: dialgebra ⟶ C₁ := pr1_category dialgebra_disp_cat.
+
+(** Equivalence between nat. transformations and functors into the dialgebras
+
+    This is a simplification of the exercise 4 on p.47 in the 2nd edition of MacLane's book.
+    Appears in a less streamlined form in the CPP'22 paper by Ahrens, Matthes and Mörtberg. *)
+
+(** This direction could also be spelt out more elementarily without sections. *)
+  Definition nat_trafo_to_section (η: F ⟹ G):
+      @section_disp C₁ dialgebra_disp_cat.
+    Proof.
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold dialgebra_disp_cat. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split.
+        + intro c.
+          apply C₂.
+        + intros c1 c2 c3 f f'.
+          apply C₂.
+    Defined.
+
+    Definition nat_trafo_to_functor (η: F ⟹ G): C₁ ⟶ dialgebra :=
+      @section_functor C₁ dialgebra_disp_cat (nat_trafo_to_section η).
+
+    Definition nat_trafo_to_functor_cor (η: F ⟹ G):
+      functor_composite (nat_trafo_to_functor η) forget_from_dialgebra = functor_identity C₁.
+    Proof.
+      apply from_section_functor.
+    Defined.
+
+(** the backwards direction essentially uses the sections - already for the statements *)
+    Definition section_to_nat_trafo:
+      @section_disp C₁ dialgebra_disp_cat -> F ⟹ G.
+    Proof.
+      intro sd.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - intro c. exact (sdob c).
+      - intros c c' f.
+        apply pathsinv0.
+        exact (sdmor c c' f).
+    Defined.
+
+    Local Lemma roundtrip1_with_sections (η: F ⟹ G):
+      section_to_nat_trafo (nat_trafo_to_section η) = η.
+    Proof.
+      apply nat_trans_eq; [ apply C₂ |].
+      intro c.
+      apply idpath.
+    Qed.
+
+    Local Lemma roundtrip2_with_sections (sd: @section_disp C₁ dialgebra_disp_cat):
+      nat_trafo_to_section (section_to_nat_trafo sd) = sd.
+    Proof.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      unfold nat_trafo_to_section, section_to_nat_trafo.
+      cbn.
+      use total2_paths_f; simpl.
+      - use total2_paths_f; simpl.
+        + apply idpath.
+        + cbn.
+          do 3 (apply funextsec; intro).
+          apply pathsinv0inv0.
+      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+        assert (Hprop: isaprop goaltype).
+        2: { apply Hprop. }
+        apply isapropdirprod.
+        + apply impred. intro c.
+          apply hlevelntosn.
+          apply C₂.
+        + do 5 (apply impred; intro).
+          apply hlevelntosn.
+          apply C₂.
+    Qed.
+
 End Dialgebra.
 
 Definition univalent_dialgebra

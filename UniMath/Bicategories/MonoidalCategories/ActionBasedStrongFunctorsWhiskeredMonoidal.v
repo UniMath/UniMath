@@ -3,7 +3,7 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures. More precisely, we construct transformations in both directions between parameterized distributivity (in a slightly massaged form to accommodate reasoning through bicategories) and displayed sections that are a formalization-friendly form of strong monoidal functors that are right inverses of the projection from the target displayed category. The result makes use of displayed monoidal categories.
 
-The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.CommaCategories].
+The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.categories.Dialgebras].
 
 Author: Ralph Matthes 2021, 2022
 
@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.CommaCategories.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -54,7 +54,7 @@ Section UpstreamInBicat.
 
   Context (H H' : C0 ⟶ hom a a').
 
-  Definition trafotargetbicat_disp: disp_cat C0 := inserter_disp_cat H H'.
+  Definition trafotargetbicat_disp: disp_cat C0 := dialgebra_disp_cat H H'.
 
   Lemma trafotargetbicat_disp_cells_isaprop (x y : C0) (f : C0 ⟦ x, y ⟧)
         (xx : trafotargetbicat_disp x) (yy : trafotargetbicat_disp y):
@@ -309,7 +309,6 @@ Section Main.
       param_distr_bicat_pentagon_eq_body_variant_RHS v' w' η' π'.
     Proof.
       hnf in Hyp, Hyp' |- *.
-      apply pathsinv0.
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       match goal with | [ |- (?Hαinv • (?Hassoc1 • ((?Hγ • (?Hassoc2 • ?Hδ)) • (?Hassoc3 • ?Hβ)))) · ?Hε = _ ] =>
                           set (αinv := Hαinv); set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
@@ -407,7 +406,6 @@ Section Main.
       rewrite <- lwhisker_vcomp.
       match goal with | [ |- (((((?Hσ'1 • ?Hσ'2) • _) • _) • _) • _) • _  = _ • ?Hσ ]
                         => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
-      apply pathsinv0 in Hyp.
       change (η • # H' f = # H f • η') in Hyp.
       apply (maponpaths (rwhisker (FA' w'))) in Hyp.
       do 2 rewrite <- rwhisker_vcomp in Hyp.
@@ -447,7 +445,6 @@ Section Main.
       repeat rewrite <- vassocr.
       apply maponpaths.
       clear γ.
-      apply pathsinv0 in Hyp'.
       change (π • # H' g = # H g • π') in Hyp'.
       apply (maponpaths (lwhisker (FA v))) in Hyp'.
       do 2 rewrite <- lwhisker_vcomp in Hyp'.
@@ -519,31 +516,31 @@ Section Main.
     (** the first dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
     Lemma montrafotargetbicat_tensor_comp_aux_inst1 (v w w' : V) (g : V ⟦ w, w' ⟧)
           (η : G · FA' v ==> FA v · G) (π : G · FA' w ==> FA w · G) (π' : G · FA' w' ==> FA w' · G):
-       (G ◃ # FA' g) • π' = π • (# FA g ▹ G)
-       → (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π' =
-           param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (v ⊗^{ Mon_V}_{l} g) ▹ G).
+      π • (# FA g ▹ G) = (G ◃ # FA' g) • π'
+      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (v ⊗^{ Mon_V}_{l} g) ▹ G) =
+          (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π'.
     Proof.
       intro Hyp'.
       rewrite <- hcomp_identity_right in Hyp' |- *.
       rewrite <- hcomp_identity_left in Hyp' |- *.
       rewrite <- when_bifunctor_becomes_leftwhiskering.
       apply montrafotargetbicat_tensor_comp_aux; [| assumption].
-      hnf. apply pathsinv0. do 2 rewrite functor_id. rewrite id_left. apply id_right.
+      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
     Qed.
 
     (** the second dependently-typed ingredient of the displayed bifunctor for the tensor construction *)
     Lemma montrafotargetbicat_tensor_comp_aux_inst2 (v v' w : V) (f : V ⟦ v, v' ⟧)
           (η : G · FA' v ==> FA v · G) (η' : G · FA' v' ==> FA v' · G) (π : G · FA' w ==> FA w · G):
-      (G ◃ # FA' f) • η' = η • (# FA f ▹ G)
-      → (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π =
-          param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (f ⊗^{ Mon_V}_{r} w) ▹ G).
+      η • (# FA f ▹ G) = (G ◃ # FA' f) • η'
+      → param_distr_bicat_pentagon_eq_body_variant_RHS v w η π • (# FA (f ⊗^{ Mon_V}_{r} w) ▹ G) =
+          (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π.
     Proof.
       intro Hyp.
       rewrite <- hcomp_identity_right in Hyp |- *.
       rewrite <- hcomp_identity_left in Hyp |- *.
       rewrite <- when_bifunctor_becomes_rightwhiskering.
       apply montrafotargetbicat_tensor_comp_aux; [assumption |].
-      hnf. apply pathsinv0. do 2 rewrite functor_id. rewrite id_left. apply id_right.
+      hnf. do 2 rewrite functor_id. rewrite id_left. apply id_right.
     Qed.
 
     Definition montrafotargetbicat_disp_tensor: disp_tensor montrafotargetbicat_disp Mon_V.
@@ -571,7 +568,6 @@ Section Main.
       hnf.
       intros v η.
       cbn.
-      apply pathsinv0.
       (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
@@ -658,7 +654,6 @@ Section Main.
       hnf.
       intros v η.
       cbn.
-      apply pathsinv0.
       (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
@@ -768,8 +763,7 @@ Section Main.
     Definition montrafotargetbicat_disp_associator_data: disp_associator_data montrafotargetbicat_disp_tensor.
     Proof.
       intros v1 v2 v3 η1 η2 η3.
-      cbn. apply pathsinv0.
-      (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux1] from the former approach to monoidal categories *)
+      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux1] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1031,9 +1025,7 @@ Section Main.
     Lemma montrafotargetbicat_disp_associatorinv_data: disp_associatorinv_data montrafotargetbicat_disp_tensor.
     Proof.
       intros v1 v2 v3 η1 η2 η3.
-      cbn.
-      apply pathsinv0.
-      (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux2] from the former approach to monoidal categories *)
+      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_associator_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1307,9 +1299,7 @@ Section Main.
     Lemma montrafotargetbicat_disp_leftunitorinv_data: disp_leftunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
       intros v η.
-      cbn.
-      apply pathsinv0.
-      (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
+      cbn. (** now comes an adaptation of the code of [montrafotargetbicat_left_unitor_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1420,8 +1410,8 @@ Section Main.
 
     Lemma montrafotargetbicat_disp_rightunitorinv_data: disp_rightunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
-      intros v η. cbn.
-      (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
+      intros v η.
+      apply pathsinv0. cbn. (** now comes an adaptation of the code of [montrafotargetbicat_right_unitor_aux2] from the former approach to monoidal categories *)
       unfold param_distr_bicat_pentagon_eq_body_variant_RHS, montrafotargetbicat_disp_unit,
         param_distr_bicat_triangle_eq_variant0_RHS, param_distr_bicat_pentagon_eq_body_RHS.
       rewrite hcomp_identity_left. rewrite hcomp_identity_right.
@@ -1608,14 +1598,14 @@ Section Main.
           cbn.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
-          apply δpe_eq.
+          apply pathsinv0, δpe_eq.
         - cbn.
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
           rewrite lwhisker_id2, id2_rwhisker.
           rewrite id2_left, id2_right.
-          apply δtr_eq.
+          apply pathsinv0, δtr_eq.
       Qed.
       (** the two equations were thus exactly the ingredients for the data of a monoidal section *)
 
@@ -1631,7 +1621,7 @@ Section Main.
       Proof.
         intros v w.
         use tpair.
-        - cbn. apply pathsinv0. (** now as for [param_distr_bicat_to_monoidal_section_data] *)
+        - cbn. (** now as for [param_distr_bicat_to_monoidal_section_data] *)
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
@@ -1647,7 +1637,7 @@ Section Main.
                                                        param_distr_bicat_to_monoidal_section_data).
       Proof.
         use tpair.
-        - cbn. apply pathsinv0.
+        - cbn.
           rewrite hcomp_identity_left, hcomp_identity_right.
           rewrite (functor_id FA), (functor_id FA').
           cbn.
@@ -1688,7 +1678,7 @@ Defined.
         cbn in aux.
         rewrite lwhisker_id2, id2_rwhisker in aux.
         rewrite id2_left, id2_right in aux.
-        exact aux.
+        apply pathsinv0. exact aux.
       Qed.
 
       Lemma δpe_eq_from_ms: param_distr_bicat_pentagon_eq_variant δ_from_ms.
@@ -1701,7 +1691,7 @@ Defined.
         cbn in aux.
         rewrite lwhisker_id2, id2_rwhisker in aux.
         rewrite id2_left, id2_right in aux.
-        exact aux.
+        apply pathsinv0. exact aux.
       Qed.
 
     End FromMonoidalSectionBicat.
@@ -1734,7 +1724,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.CommaCategories.roundtrip1_with_sections.
+          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -1754,7 +1744,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.CommaCategories.roundtrip2_with_sections.
+          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
