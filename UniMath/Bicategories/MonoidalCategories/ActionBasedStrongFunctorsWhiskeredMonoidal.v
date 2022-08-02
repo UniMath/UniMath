@@ -68,11 +68,11 @@ Section UpstreamInBicat.
 
   Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
-  Definition nat_trafo_to_section_bicat (η: H ⟹ H'):
-    @section_disp C0 trafotargetbicat_disp := nat_trafo_to_section H H' η.
+  Definition nat_trans_to_section_bicat (η: H ⟹ H'):
+    @section_disp C0 trafotargetbicat_disp := nat_trans_to_section H H' η.
 
-  Definition section_to_nat_trafo_bicat:
-    @section_disp C0 trafotargetbicat_disp -> H ⟹ H' := section_to_nat_trafo H H'.
+  Definition section_to_nat_trans_bicat:
+    @section_disp C0 trafotargetbicat_disp -> H ⟹ H' := section_to_nat_trans H H'.
 
 End UpstreamInBicat.
 
@@ -1589,7 +1589,7 @@ Section Main.
       (** using sections already for this direction *)
       Lemma param_distr_bicat_to_monoidal_section_data:
         smonoidal_data Mon_V montrafotargetbicat_disp_monoidal
-                       (nat_trafo_to_section_bicat a0 a0' H H' δ).
+                       (nat_trans_to_section_bicat a0 a0' H H' δ).
       Proof.
         split.
         - intros v w. cbn.
@@ -1666,7 +1666,7 @@ Defined.
       Context (ms: smonoidal_data Mon_V montrafotargetbicat_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
-      Definition δ_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
+      Definition δ_from_ms: H ⟹ H' := section_to_nat_trans_bicat _ _ _ _ sd.
 
       Lemma δtr_eq_from_ms: param_distr_bicat_triangle_eq_variant0 δ_from_ms.
       Proof.
@@ -1707,7 +1707,7 @@ Defined.
       Local Definition source_to_target : source_type -> target_type.
       Proof.
         intro ass. destruct ass as [δ [δtr_eq δpe_eq]].
-        exists (nat_trafo_to_section_bicat a0 a0' H H' δ).
+        exists (nat_trans_to_section_bicat a0 a0' H H' δ).
         apply param_distr_bicat_to_monoidal_section_data; [exact δtr_eq | exact δpe_eq].
       Defined.
 
@@ -1817,7 +1817,7 @@ Defined.
       Let δpe_eq := pr22 δs.
 
       Definition montrafotarget_section_disp : section_disp montrafotarget_disp
-        := nat_trafo_to_section_bicat(C0:=V)(C:=bicat_of_cats) A A' H H' δ.
+        := nat_trans_to_section_bicat(C0:=V)(C:=bicat_of_cats) A A' H H' δ.
 
       Lemma δtr_eq': param_distr_bicat_triangle_eq_variant0 FAm FA'm G δ.
       Proof.
@@ -1904,7 +1904,7 @@ Section FromMonoidalSection.
       Context (ms: smonoidal_data Mon_V montrafotarget_disp_monoidal sd).
       (** since the laws were anyway trivial to establish, we do not need more than [smonoidal_data] *)
 
-      Definition δ'_from_ms: H ⟹ H' := section_to_nat_trafo_bicat _ _ _ _ sd.
+      Definition δ'_from_ms: H ⟹ H' := section_to_nat_trans_bicat _ _ _ _ sd.
 
       Lemma δtr'_eq_from_ms: param_distr'_triangle_eq Mon_V A A' FAm FA'm G δ'_from_ms.
       Proof.
