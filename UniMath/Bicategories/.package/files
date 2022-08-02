@@ -142,6 +142,7 @@ Limits/Inserters.v
 Limits/Equifiers.v
 
 Limits/Examples/OneTypesLimits.v
+Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
