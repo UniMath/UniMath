@@ -412,6 +412,21 @@ Proof.
 Defined.
 (** [section_to_nat_trans] above is essentially a specialization of this construction *)
 
+(** we obtain [dialgebra_nat_trans] as an instance of this construction *)
+Definition dialgebra_nat_trans_alt
+           {C₁ C₂ : category}
+           (F G : C₁ ⟶ C₂)
+  : dialgebra_pr1 F G ∙ F ⟹ dialgebra_pr1 F G ∙ G.
+Proof.
+  apply dialgebra_lifting_to_nat_trans.
+  use tpair.
+  - use tpair.
+    + exact (λ x, pr2 x).
+    + intros x y f. cbn.
+      exact (pr2 f).
+  - split; intros; apply C₂.
+Defined.
+
 Local Lemma roundtrip1_with_liftings {C₁ C₂ C₃ : category}
   {F G : C₂ ⟶ C₃}
   (K : C₁ ⟶ C₂)
