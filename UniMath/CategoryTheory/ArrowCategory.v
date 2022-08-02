@@ -161,7 +161,7 @@ Section ArrowCategoryEquivCommaCategory.
     use make_functor_data.
     - exact (λ f, f).
     - cbn.
-      exact (λ f g p, pr1 p ,, !(pr2 p)).
+      exact (λ f g p, p).
   Defined.
 
   Definition arrow_category_to_comma_category_is_functor
@@ -192,7 +192,7 @@ Section ArrowCategoryEquivCommaCategory.
     use make_functor_data.
     - exact (λ f, f).
     - cbn.
-      exact (λ f g p, pr1 p ,, !(pr2 p)).
+      exact (λ f g p, p).
   Defined.
 
   Definition comma_category_to_arrow_category_is_functor

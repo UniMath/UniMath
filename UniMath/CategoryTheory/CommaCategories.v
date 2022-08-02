@@ -219,7 +219,7 @@ Section CommaCategory.
   Proof.
     use tpair.
     - exact (λ x, F (pr1 x) --> G (pr2 x)).
-    - exact (λ x y i₁ i₂ f, #F (pr1 f) · i₂ = i₁ · #G (pr2 f)).
+    - exact (λ x y i₁ i₂ f, i₁ · #G (pr2 f) = #F (pr1 f) · i₂).
   Defined.
 
   Definition comma_disp_cat_id_comp
@@ -231,9 +231,10 @@ Section CommaCategory.
       rewrite id_left, id_right.
       apply idpath.
     - cbn; intros x y z f g i₁ i₂ i₃ p q.
+      apply pathsinv0.
       rewrite !functor_comp.
       rewrite !assoc'.
-      rewrite q.
+      rewrite <- q.
       rewrite !assoc.
       rewrite p.
       apply idpath.
@@ -276,7 +277,7 @@ Section CommaCategory.
       cbn in m.
       rewrite !functor_id in m.
       rewrite id_left, id_right in m.
-      exact (!m).
+      assumption.
     - apply homset_property.
     - use isaproptotal2.
       + intro.
@@ -310,14 +311,14 @@ Section CommaCategory.
     Proof.
       refine ((inv_from_z_iso (make_z_iso' _ Hf1) ,, inv_from_z_iso (make_z_iso' _ Hf2)) ,, _).
       abstract
-        (cbn;
+        (cbn; apply pathsinv0;
          rewrite !functor_on_inv_from_z_iso;
          use z_iso_inv_on_left;
          rewrite assoc';
          refine (!_) ;
          use z_iso_inv_on_right;
          cbn;
-         exact (!(pr2 f))).
+         exact (pr2 f)).
     Defined.
 
     Lemma is_iso_comma_left_inv
@@ -378,7 +379,7 @@ Section CommaCategory.
     : is_nat_trans _ _ comma_commute_nat_trans_data.
   Proof.
     intros x y f; unfold comma_commute_nat_trans_data; cbn; cbn in f.
-    exact (pr2 f).
+    exact (!(pr2 f)).
   Qed.
 
   Definition comma_commute
@@ -410,7 +411,7 @@ Section CommaCategory.
     Proof.
       use make_functor_data.
       - exact (λ d, (P d ,, Q d) ,, η d).
-      - exact (λ d₁ d₂ f, (#P f ,, #Q f) ,, nat_trans_ax η _ _ f).
+      - exact (λ d₁ d₂ f, (#P f ,, #Q f) ,, !(nat_trans_ax η _ _ f)).
     Defined.
 
     Definition comma_ump1_is_functor
@@ -550,7 +551,7 @@ Section CommaCategory.
       - exact (τ₁ x).
       - exact (τ₂ x).
       - abstract
-          (exact (!(p x))).
+          (exact (p x)).
     Defined.
 
     Definition comma_ump2_is_nat_trans
