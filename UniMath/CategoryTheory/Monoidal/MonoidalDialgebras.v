@@ -29,7 +29,7 @@ Section TheDefinition.
   Context {A B : category}
           {V : monoidal A} {W : monoidal B}
           {F G : A ⟶ B}
-          (Fm : fmonoidal V W F) (Gm : fmonoidal V W G).
+          (Fm : fmonoidal V W F) (Gm : fmonoidal_lax V W G).
 
   Local Definition base_disp : disp_cat A := dialgebra_disp_cat F G.
 
