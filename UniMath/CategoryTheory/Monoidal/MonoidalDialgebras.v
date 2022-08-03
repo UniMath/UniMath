@@ -3,6 +3,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -47,7 +48,78 @@ Section TheDefinition.
     exact (f ⊗^{W} f').
   Defined.
 
-  (** we do not follow the division into the two whiskerings here *)
+  Lemma dialgebra_disp_tensor_comp_aux1 {a a2 a2' : A} {h': a2 --> a2'}
+    (f : base_disp a) (f' : base_disp a2) (g' : base_disp a2')
+    : f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[ a ⊗^{V}_{l} h' ] dialgebra_disp_tensor_op f g'.
+  Proof.
+    intro Hyp'.
+    cbn in Hyp'.
+    cbn. unfold dialgebra_disp_tensor_op.
+    etrans.
+    { repeat rewrite assoc'. do 2 apply maponpaths. apply pathsinv0, fmonoidal_preservestensornatleft. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { rewrite bifunctor_equalwhiskers. unfold functoronmorphisms2.
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      apply bifunctor_equalwhiskers. }
+    rewrite bifunctor_equalwhiskers.
+    unfold functoronmorphisms2.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    assert (aux := fmonoidal_preservestensornatleft Fm a a2 a2' h').
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a a2)) in aux.
+    rewrite assoc in aux.
+    apply pathsinv0 in aux.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a a2')) in aux.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply aux. }
+    clear aux.
+    do 2 rewrite assoc'.
+    apply maponpaths.
+    do 2 rewrite <- bifunctor_leftcomp.
+    apply maponpaths.
+    assumption.
+  Qed.
+
+  Lemma dialgebra_disp_tensor_comp_aux2 {a1 a1' a : A} {h: a1 --> a1'}
+    (f : base_disp a1) (f' : base_disp a) (g : base_disp a1')
+    : f -->[h] g -> dialgebra_disp_tensor_op f f' -->[ h ⊗^{V}_{r} a ] dialgebra_disp_tensor_op g f'.
+  Proof.
+    intro Hyp.
+    cbn in Hyp.
+    cbn. unfold dialgebra_disp_tensor_op.
+    etrans.
+    { repeat rewrite assoc'. do 2 apply maponpaths. apply pathsinv0, fmonoidal_preservestensornatright. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { unfold functoronmorphisms1.
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      apply pathsinv0, bifunctor_equalwhiskers. }
+    unfold functoronmorphisms1.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    assert (aux := fmonoidal_preservestensornatright Fm _ _ a h).
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a1 a)) in aux.
+    rewrite assoc in aux.
+    apply pathsinv0 in aux.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a1' a)) in aux.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply aux. }
+    clear aux.
+    do 2 rewrite assoc'.
+    apply maponpaths.
+    do 2 rewrite <- bifunctor_rightcomp.
+    apply maponpaths.
+    assumption.
+  Qed.
+
+  (** the following "morally right" formulation does not follow the division into the two whiskerings
   Lemma dialgebra_disp_tensor_comp_aux {a1 a2 a1' a2' : A} {h: a1 --> a1'} {h': a2 --> a2'}
     (f : base_disp a1) (f' : base_disp a2) (g : base_disp a1') (g' : base_disp a2')
     : f -->[h] g -> f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[ h ⊗^{V} h' ] dialgebra_disp_tensor_op g g'.
@@ -55,21 +127,15 @@ Section TheDefinition.
     intros Hyp Hyp'.
     hnf in Hyp, Hyp' |- *.
     unfold dialgebra_disp_tensor_op.
-  Admitted.
+    *)
 
   Definition dialgebra_disp_tensor : disp_tensor base_disp V.
   Proof.
     use make_disp_bifunctor.
     - use make_disp_bifunctor_data.
       + intros a a' f f'. exact (dialgebra_disp_tensor_op f f').
-      + intros a a1 a2 g f f1 f2 Hyp'. cbn. rewrite <- when_bifunctor_becomes_leftwhiskering.
-        apply dialgebra_disp_tensor_comp_aux.
-        * apply id_disp.
-        * assumption.
-      + intros a1 a2 a f g1 g2 g Hyp. cbn. rewrite <- when_bifunctor_becomes_rightwhiskering.
-        apply dialgebra_disp_tensor_comp_aux.
-        * assumption.
-        * apply id_disp.
+      + intros; apply dialgebra_disp_tensor_comp_aux1; assumption.
+      + intros; apply dialgebra_disp_tensor_comp_aux2; assumption.
     - red. repeat split; red; intros; apply base_disp_cells_isaprop.
   Defined.
 
