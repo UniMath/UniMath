@@ -81,7 +81,7 @@ Section TheDefinition.
     apply maponpaths.
     do 2 rewrite <- bifunctor_leftcomp.
     apply maponpaths.
-    assumption.
+    exact Hyp'.
   Qed.
 
   Lemma dialgebra_disp_tensor_comp_aux2 {a1 a1' a : A} {h: a1 --> a1'}
@@ -116,7 +116,7 @@ Section TheDefinition.
     apply maponpaths.
     do 2 rewrite <- bifunctor_rightcomp.
     apply maponpaths.
-    assumption.
+    exact Hyp.
   Qed.
 
   (** the following "morally right" formulation does not follow the division into the two whiskerings
@@ -146,7 +146,38 @@ Section TheDefinition.
   Proof.
     intros a f.
     cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
-  Admitted.
+    rewrite bifunctor_equalwhiskers. unfold functoronmorphisms2.
+    rewrite bifunctor_rightcomp.
+    set (aux1 := fmonoidal_preservesleftunitality Gm a).
+    etrans.
+    { repeat rewrite assoc'. do 3 apply maponpaths.
+      rewrite assoc.
+      exact aux1. }
+    clear aux1.
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm I_{V} a)).
+    cbn.
+    set (aux2 := fmonoidal_preservesleftunitality Fm a).
+    etrans.
+    { rewrite assoc. apply cancel_postcomposition.
+      apply pathsinv0, bifunctor_equalwhiskers. }
+    unfold functoronmorphisms1.
+    rewrite assoc'.
+    etrans.
+    { apply maponpaths.
+      apply monoidal_leftunitornat. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- aux2. clear aux2.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- bifunctor_rightcomp.
+    etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      apply  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+    rewrite bifunctor_rightid.
+    apply id_left.
+  Qed.
 
   Lemma dialgebra_disp_leftunitorinv_data : disp_leftunitorinv_data dialgebra_disp_tensor dialgebra_disp_unit.
   Proof.
