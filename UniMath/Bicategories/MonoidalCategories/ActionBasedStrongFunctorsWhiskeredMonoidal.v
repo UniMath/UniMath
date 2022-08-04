@@ -1647,6 +1647,17 @@ Section Main.
         - split; apply trafotargetbicat_disp_cells_isaprop.
       Qed.
 
+      Definition param_distr_bicat_to_monoidal_section:
+        smonoidal Mon_V montrafotargetbicat_disp_monoidal (nat_trans_to_section_bicat a0 a0' H H' δ).
+      Proof.
+        use tpair.
+        - exact (param_distr_bicat_to_monoidal_section_data,,param_distr_bicat_to_monoidal_section_laws).
+        - split.
+          + exact param_distr_bicat_to_monoidal_section_strongtensor.
+          + exact param_distr_bicat_to_monoidal_section_strongunit.
+      Defined.
+
+
     End IntoMonoidalSectionBicat.
 
 (* not migrated, and also parameterized_distributivity_bicat not yet defined (taking into account the variants!)
