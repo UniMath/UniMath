@@ -1,3 +1,20 @@
+(** **********************************************************
+
+Ralph Matthes
+
+August 2022
+*)
+
+(** **********************************************************
+
+Contents :
+
+- constructs a displayed monoidal category that is displayed over the dialgebras, its total
+  category is called the monoidal dialgebras
+
+ ************************************************************)
+
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -181,15 +198,115 @@ Section FixTwoMonoidalFunctors.
 
   Lemma dialgebra_disp_leftunitorinv_data : disp_leftunitorinv_data dialgebra_disp_tensor dialgebra_disp_unit.
   Proof.
-  Admitted.
+    intros a f.
+    cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
+    rewrite <- (fmonoidal_preservesleftunitalityinv Gm).
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite bifunctor_equalwhiskers.
+    unfold functoronmorphisms2.
+    rewrite bifunctor_rightcomp.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- (fmonoidal_preservesleftunitalityinv Fm).
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm I_{V} a)). }
+    rewrite id_right.
+    etrans.
+    { apply pathsinv0, monoidal_leftunitorinvnat. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    rewrite assoc.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0, bifunctor_equalwhiskers. }
+    unfold functoronmorphisms2.
+    rewrite assoc'.
+    etrans.
+    2: { apply maponpaths.
+         rewrite <- bifunctor_rightcomp.
+         apply maponpaths.
+         apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
+    rewrite bifunctor_rightid.
+    apply pathsinv0, id_right.
+  Qed.
 
   Lemma dialgebra_disp_rightunitor_data : disp_rightunitor_data dialgebra_disp_tensor dialgebra_disp_unit.
   Proof.
-  Admitted.
+    intros a f.
+    cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
+    unfold functoronmorphisms1.
+    rewrite bifunctor_leftcomp.
+    set (aux1 := fmonoidal_preservesrightunitality Gm a).
+    etrans.
+    { repeat rewrite assoc'. do 3 apply maponpaths.
+      rewrite assoc.
+      exact aux1. }
+    clear aux1.
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a I_{V})).
+    cbn.
+    set (aux2 := fmonoidal_preservesrightunitality Fm a).
+    etrans.
+    { rewrite assoc. apply cancel_postcomposition.
+      apply bifunctor_equalwhiskers. }
+    unfold functoronmorphisms2.
+    rewrite assoc'.
+    etrans.
+    { apply maponpaths.
+      apply monoidal_rightunitornat. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- aux2. clear aux2.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- bifunctor_leftcomp.
+    etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      apply  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+    rewrite bifunctor_leftid.
+    apply id_left.
+  Qed.
 
   Lemma dialgebra_disp_rightunitorinv_data : disp_rightunitorinv_data dialgebra_disp_tensor dialgebra_disp_unit.
   Proof.
-  Admitted.
+    intros a f.
+    cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
+    rewrite <- (fmonoidal_preservesrightunitalityinv Gm).
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    unfold functoronmorphisms1.
+    rewrite bifunctor_leftcomp.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- (fmonoidal_preservesrightunitalityinv Fm).
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a I_{V})). }
+    rewrite id_right.
+    etrans.
+    { apply pathsinv0, monoidal_rightunitorinvnat. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    rewrite assoc.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply bifunctor_equalwhiskers. }
+    unfold functoronmorphisms1.
+    rewrite assoc'.
+    etrans.
+    2: { apply maponpaths.
+         rewrite <- bifunctor_leftcomp.
+         apply maponpaths.
+         apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
+    rewrite bifunctor_leftid.
+    apply pathsinv0, id_right.
+  Qed.
 
   Lemma dialgebra_disp_associator_data : disp_associator_data dialgebra_disp_tensor.
   Proof.

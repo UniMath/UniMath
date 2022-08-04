@@ -72,9 +72,17 @@ Section MonoidalFunctors.
     (pt : preserves_tensordata M N F) (pu : preserves_unit M N F)
     := ∏ (x : C), (pu ⊗^{ N}_{r} F x) · (pt I_{ M} x) · (# F lu^{ M }_{ x}) = lu^{ N }_{ F x}.
 
+  Definition preserves_leftunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    (pt : preserves_tensordata M N F) (pu : preserves_unit M N F)
+    := ∏ (x : C), luinv^{ N }_{ F x} · (pu ⊗^{ N}_{r} F x) · (pt I_{ M} x) = # F luinv^{ M }_{ x}.
+
   Definition preserves_rightunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
     (pt : preserves_tensordata M N F) (pu : preserves_unit M N F)
     := ∏ (x : C), ((F x ⊗^{ N}_{l} pu) · (pt x I_{ M}) · (# F ru^{ M }_{ x}) = ru^{ N }_{ F x}).
+
+  Definition preserves_rightunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    (pt : preserves_tensordata M N F) (pu : preserves_unit M N F)
+    := ∏ (x : C), ruinv^{ N }_{ F x} · F x ⊗^{ N}_{l} pu · pt x I_{ M} = # F ruinv^{ M }_{ x}.
 
   Definition preserves_associativity {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU :=
     ∏ (x y z : C), ((pt x y) ⊗^{N}_{r} (F z)) · (pt (x ⊗_{M} y) z) · (#F (α^{M}_{x,y,z}))
@@ -103,8 +111,49 @@ Section MonoidalFunctors.
     preserves_associativity (fmonoidal_preservestensordata fm) := pr1 (pr222 fm).
   Definition fmonoidal_preservesleftunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
     preserves_leftunitality (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm) := pr12 (pr222 fm).
+
+  Lemma fmonoidal_preservesleftunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
+    preserves_leftunitalityinv (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm).
+  Proof.
+    intro x.
+    rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (_,,_,, monoidal_leftunitorisolaw N (F x))).
+    cbn.
+    rewrite <- (fmonoidal_preservesleftunitality fm).
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { apply maponpaths.
+         apply functor_comp. }
+    etrans.
+    2: { do 2 apply maponpaths.
+         apply pathsinv0, (pr1(monoidal_leftunitorisolaw M x)). }
+    rewrite functor_id.
+    apply pathsinv0, id_right.
+  Qed.
+
   Definition fmonoidal_preservesrightunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
     preserves_rightunitality (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm) := pr22 (pr222 fm).
+
+  Lemma fmonoidal_preservesrightunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
+    preserves_rightunitalityinv (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm).
+  Proof.
+    intro x.
+    rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (_,,_,, monoidal_rightunitorisolaw N (F x))).
+    cbn.
+    rewrite <- (fmonoidal_preservesrightunitality fm).
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { apply maponpaths.
+         apply functor_comp. }
+    etrans.
+    2: { do 2 apply maponpaths.
+         apply pathsinv0, (pr1(monoidal_rightunitorisolaw M x)). }
+    rewrite functor_id.
+    apply pathsinv0, id_right.
+  Qed.
 
   Definition preserves_tensor_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU
     := ∏ (x y : C), is_z_isomorphism (pt x y).
