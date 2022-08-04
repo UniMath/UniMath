@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Section TheDefinition.
+Section FixTwoMonoidalFunctors.
 
   Import BifunctorNotations.
   Import MonoidalNotations.
@@ -242,4 +242,200 @@ Section TheDefinition.
 
   Definition dialgebra_monoidal : monoidal (dialgebra F G) := total_monoidal dialgebra_disp_monoidal.
 
-End TheDefinition.
+
+  Section IntoMonoidalSection.
+
+    Context (α : F ⟹ G).
+
+    Definition is_mon_nat_trans : UU :=
+      (∏ (a a' : A), fmonoidal_preservestensordata Fm a a' · α (a ⊗_{V} a') = α a ⊗^{W} α a' · fmonoidal_preservestensordata Gm a a') × fmonoidal_preservesunit Fm · α I_{V} = fmonoidal_preservesunit Gm.
+
+    Context (ismnt : is_mon_nat_trans).
+
+    Let ismnt_tensor := pr1 ismnt.
+    Let ismnt_unit := pr2 ismnt.
+
+    Lemma monnattrans_to_monoidal_section_data :
+      smonoidal_data V dialgebra_disp_monoidal (nat_trans_to_section F G α).
+    Proof.
+      split.
+      - intros a a'. cbn. unfold dialgebra_disp_tensor_op.
+        do 2 rewrite functor_id. rewrite id_left, id_right.
+        rewrite assoc'. rewrite <- ismnt_tensor.
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply  (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a a')).
+        }
+        apply id_left.
+      - cbn. unfold dialgebra_disp_unit.
+        do 2 rewrite functor_id. rewrite id_left, id_right.
+        cbn in ismnt_unit.
+        rewrite <- ismnt_unit.
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+        apply id_left.
+    Qed.
+
+    Lemma monnattrans_to_monoidal_section_laws :
+      smonoidal_laxlaws V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data.
+      Proof.
+        repeat split; red; intros; apply base_disp_cells_isaprop.
+      Qed.
+
+    Lemma monnattrans_to_monoidal_section_strongtensor :
+      smonoidal_strongtensor V dialgebra_disp_monoidal
+      (smonoidal_preserves_tensor V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data).
+    Proof.
+      intros a a'.
+      use tpair.
+      - cbn. unfold dialgebra_disp_tensor_op. apply pathsinv0.
+        (* now as for [monnattrans_to_monoidal_section_data] *)
+        do 2 rewrite functor_id. rewrite id_left, id_right.
+        rewrite assoc'. rewrite <- ismnt_tensor.
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a a')).
+        }
+        apply id_left.
+      - split; apply base_disp_cells_isaprop.
+    Qed.
+
+    Lemma monnattrans_to_monoidal_section_strongunit :
+      smonoidal_strongunit V dialgebra_disp_monoidal
+      (smonoidal_preserves_unit V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data).
+    Proof.
+      use tpair.
+      - cbn. unfold dialgebra_disp_unit.
+        do 2 rewrite functor_id. rewrite id_left, id_right.
+        cbn in ismnt_unit.
+        rewrite <- ismnt_unit.
+        rewrite assoc. apply pathsinv0.
+        etrans.
+        { apply cancel_postcomposition.
+          apply  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+        apply id_left.
+      - split; apply base_disp_cells_isaprop.
+    Qed.
+
+    Definition monnattrans_to_monoidal_section :
+      smonoidal V dialgebra_disp_monoidal (nat_trans_to_section F G α).
+    Proof.
+      use tpair.
+      - exact (monnattrans_to_monoidal_section_data,,monnattrans_to_monoidal_section_laws).
+      - split.
+        + exact monnattrans_to_monoidal_section_strongtensor.
+        + exact monnattrans_to_monoidal_section_strongunit.
+    Defined.
+
+  End IntoMonoidalSection.
+
+  Section FromMonoidalSection.
+
+    Context (sd: section_disp (dialgebra_disp_cat F G)).
+    Context (ms: smonoidal_data V dialgebra_disp_monoidal sd).
+
+    Definition nattrans_from_ms : F ⟹ G := section_to_nat_trans F G sd.
+
+    Lemma nattrans_from_ms_is_mon_nat_trans : is_mon_nat_trans nattrans_from_ms.
+    Proof.
+      split.
+      - intros a a'.
+        assert (aux := smonoidal_preserves_tensor _ _ ms a a').
+        cbn in aux.
+        unfold dialgebra_disp_tensor_op in aux.
+        do 2 rewrite functor_id in aux.
+        rewrite id_left, id_right in aux.
+        unfold nattrans_from_ms.
+        cbn.
+        etrans.
+        { apply maponpaths.
+          apply pathsinv0, aux. }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { apply cancel_postcomposition.
+          apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a a')). }
+        apply id_left.
+      - cbn.
+        assert (aux := smonoidal_preserves_unit _ _ ms).
+        cbn in aux.
+        unfold dialgebra_disp_unit in aux.
+        do 2 rewrite functor_id in aux.
+        rewrite id_left, id_right in aux.
+        etrans.
+        { apply maponpaths.
+          apply pathsinv0, aux. }
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
+        apply id_left.
+    Qed.
+
+  End FromMonoidalSection.
+
+  Section RoundtripForSDData.
+
+      Local Definition source_type: UU := ∑ α : F ⟹ G, is_mon_nat_trans α.
+      Local Definition target_type: UU := ∑ sd: section_disp (dialgebra_disp_cat F G),
+            smonoidal_data V dialgebra_disp_monoidal sd.
+
+      Local Definition source_to_target : source_type -> target_type.
+      Proof.
+        intro ass. destruct ass as [α ismnt].
+        exists (nat_trans_to_section F G α).
+        exact (monnattrans_to_monoidal_section_data α ismnt).
+      Defined.
+
+      Local Definition target_to_source : target_type -> source_type.
+      Proof.
+        intro ass. destruct ass as [sd ms].
+        exists (nattrans_from_ms sd).
+        exact (nattrans_from_ms_is_mon_nat_trans sd ms).
+      Defined.
+
+      Local Lemma roundtrip1 (ass: source_type): target_to_source (source_to_target ass) = ass.
+      Proof.
+        destruct ass as [α [ismnt_tensor ismnt_unit]].
+        use total2_paths_f.
+        - cbn.
+          unfold nattrans_from_ms.
+          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + apply impred. intro a.
+            apply impred. intro a'.
+            apply B.
+          + apply B.
+      Qed.
+
+      Local Lemma roundtrip2 (ass: target_type): source_to_target (target_to_source ass) = ass.
+      Proof.
+        destruct ass as [sd ms].
+        use total2_paths_f.
+        - cbn.
+          unfold nattrans_from_ms.
+          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
+        - cbn.
+          match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+          assert (Hprop: isaprop goaltype).
+          2: { apply Hprop. }
+          apply isapropdirprod.
+          + unfold section_preserves_tensor_data.
+            apply impred. intro a.
+            apply impred. intro a'.
+            apply base_disp_cells_isaprop.
+          + unfold section_preserves_unit.
+            apply base_disp_cells_isaprop.
+      Qed.
+
+    End RoundtripForSDData.
+
+End FixTwoMonoidalFunctors.
