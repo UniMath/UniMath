@@ -88,6 +88,10 @@ Section MonoidalFunctors.
     ∏ (x y z : C), ((pt x y) ⊗^{N}_{r} (F z)) · (pt (x ⊗_{M} y) z) · (#F (α^{M}_{x,y,z}))
                    = α^{N}_{F x, F y, F z} · ((F x) ⊗^{N}_{l} (pt y z)) · (pt x (y ⊗_{M} z)).
 
+  Definition preserves_associativityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU :=
+    ∏ (x y z : C), αinv^{N}_{F x, F y, F z} · ((pt x y) ⊗^{N}_{r} (F z)) · (pt (x ⊗_{M} y) z)
+                   = ((F x) ⊗^{N}_{l} (pt y z)) · (pt x (y ⊗_{M} z)) · (#F (αinv^{M}_{x,y,z})).
+
   Definition fmonoidal_laxlaws {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fmd : fmonoidal_data M N F) : UU :=
     (preserves_tensor_nat_left (fmonoidal_preservestensordata fmd)) ×
       (preserves_tensor_nat_right (fmonoidal_preservestensordata fmd)) ×
@@ -109,6 +113,28 @@ Section MonoidalFunctors.
     preserves_tensor_nat_right (fmonoidal_preservestensordata fm) := pr122 fm.
   Definition fmonoidal_preservesassociativity {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
     preserves_associativity (fmonoidal_preservestensordata fm) := pr1 (pr222 fm).
+
+  Lemma fmonoidal_preservesassociativityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
+    preserves_associativityinv (fmonoidal_preservestensordata fm).
+  Proof.
+    intros x y z.
+    rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (_,,_,, monoidal_associatorisolaw N _ _ _)).
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc. apply cancel_postcomposition.
+         apply fmonoidal_preservesassociativity. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { apply maponpaths.
+         rewrite <- functor_comp.
+         apply maponpaths.
+         apply pathsinv0, (monoidal_associatorisolaw M). }
+    rewrite functor_id.
+    apply pathsinv0, id_right.
+  Qed.
+
   Definition fmonoidal_preservesleftunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : fmonoidal_lax M N F) :
     preserves_leftunitality (fmonoidal_preservestensordata fm) (fmonoidal_preservesunit fm) := pr12 (pr222 fm).
 

@@ -401,7 +401,98 @@ Section FixTwoMonoidalFunctors.
 
   Lemma dialgebra_disp_associatorinv_data : disp_associatorinv_data dialgebra_disp_tensor.
   Proof.
-  Admitted.
+    intros a1 a2 a3 f1 f2 f3.
+    cbn. unfold dialgebra_disp_tensor_op.
+    etrans.
+    { unfold functoronmorphisms1 at 1.
+      rewrite bifunctor_leftcomp.
+      repeat rewrite assoc'.
+      do 3 apply maponpaths.
+      rewrite assoc.
+      apply pathsinv0, fmonoidal_preservesassociativityinv. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    2: { rewrite bifunctor_equalwhiskers.
+         unfold functoronmorphisms2.
+         rewrite bifunctor_rightcomp.
+         apply idpath. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite bifunctor_rightcomp.
+    rewrite bifunctor_leftcomp.
+    etrans.
+    { apply cancel_postcomposition.
+      rewrite assoc.
+      apply cancel_postcomposition.
+      rewrite assoc'.
+      apply maponpaths.
+      apply bifunctor_equalwhiskers. }
+    unfold functoronmorphisms2 at 1.
+    repeat rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm _ _)).
+    cbn.
+    transparent assert (aux1 : (z_iso (F a1 ⊗_{ W} F (a2 ⊗_{ V} a3)) (F a1 ⊗_{ W} (F a2 ⊗_{ W} F a3)))).
+    { exists (F a1 ⊗^{ W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
+      exists (F a1 ⊗^{ W}_{l} fmonoidal_preservestensordata Fm a2 a3).
+      split.
+      - rewrite <- bifunctor_leftcomp.
+        etrans.
+        { apply maponpaths.
+          apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
+        apply bifunctor_leftid.
+      - rewrite <- bifunctor_leftcomp.
+        etrans.
+        { apply maponpaths.
+          apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
+        apply bifunctor_leftid.
+    }
+    apply pathsinv0, (z_iso_inv_to_left _ _ _ aux1).
+    cbn.
+    clear aux1.
+    etrans.
+    { repeat rewrite assoc.
+      do 4 apply cancel_postcomposition.
+      apply pathsinv0, fmonoidal_preservesassociativityinv. }
+    etrans.
+    { repeat rewrite assoc.
+      do 3 apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm _ a3)). }
+    rewrite id_right.
+    etrans.
+    2: { rewrite assoc. apply cancel_postcomposition. apply pathsinv0, bifunctor_equalwhiskers. }
+    rewrite <- bifunctor_equalwhiskers.
+    etrans.
+    2: { apply pathsinv0, (associatorinv_nat2 W). }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { apply pathsinv0, bifunctor_equalwhiskers. }
+    unfold functoronmorphisms2.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    transparent assert (aux2 : (z_iso (F (a1 ⊗_{ V} a2) ⊗_{ W} G a3) ((F a1 ⊗_{ W} F a2) ⊗_{ W} G a3))).
+    { exists (pr1 (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{ W}_{r} G a3).
+      exists (fmonoidal_preservestensordata Fm a1 a2 ⊗^{ W}_{r} G a3).
+      split.
+      - rewrite <- bifunctor_rightcomp.
+        etrans.
+        { apply maponpaths.
+          apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
+        apply bifunctor_rightid.
+      - rewrite <- bifunctor_rightcomp.
+        etrans.
+        { apply maponpaths.
+          apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
+        apply bifunctor_rightid.
+    }
+    apply (z_iso_inv_to_right _ _ _ _ aux2).
+    cbn.
+    clear aux2.
+    apply bifunctor_equalwhiskers.
+  Qed.
 
   Definition dialgebra_disp_monoidal_data : disp_monoidal_data base_disp V.
   Proof.
