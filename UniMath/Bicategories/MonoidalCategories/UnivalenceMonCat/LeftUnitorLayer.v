@@ -165,20 +165,8 @@ Section LeftUnitorLayer.
         * exact tt.
       + (* axioms *)
         use tpair.
-        -- use tpair.
-           ++ apply isapropunit.
-           ++ apply isapropunit.
-        -- use tpair.
-           ++ use tpair.
-              ** exact tt.
-              ** use tpair.
-                 --- apply isapropunit.
-                 --- apply isapropunit.
-           ++ use tpair.
-              ** exact tt.
-              ** use tpair.
-                 --- apply isapropunit.
-                 --- apply isapropunit.
+        -- split; apply isapropunit.
+        -- split; (use tpair; [exact tt | split; apply isapropunit]).
   Defined.
 
   Definition disp_adj_equiv_equivalence_lu_equal {C : tu_cat} (lu1 lu2 : bidisp_lu_disp_bicat C)

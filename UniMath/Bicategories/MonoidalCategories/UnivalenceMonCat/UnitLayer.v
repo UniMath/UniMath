@@ -288,46 +288,14 @@ Section UnitLayer.
   Proof.
     intros C D F G α IC ID puC puD puc.
     use tpair.
-    - set (α_natiso := (invertible_2cell_to_nat_z_iso F G α)).
-      set (αxy_iso := pr2 α_natiso (IC )).
-
-      etrans. {
-        apply maponpaths.
-        apply (! id_right _).
-      }
-
-      etrans. {
-        do 2 apply maponpaths.
-        exact (! pr12 αxy_iso).
-      }
-
-      use pathscomp0.
-      3: { apply (id_right). }
-      use pathscomp0.
-      3: {
-        apply maponpaths.
-        exact (pr12 αxy_iso).
-      }
-
-      etrans. {
-        apply maponpaths.
-        apply assoc.
-      }
-      etrans. { apply assoc. }
-      use pathscomp0.
-      3: apply assoc'.
-
-      apply cancel_postcomposition.
-
-      etrans. {
-        apply maponpaths.
-        apply (pr22 αxy_iso).
-      }
-      etrans. { apply id_right. }
+    - set (α_natiso := invertible_2cell_to_nat_z_iso F G α).
+      set (α_natisoIC := nat_z_iso_pointwise_z_iso α_natiso IC : z_iso (pr1 F IC) (pr1 G IC)).
+      cbn.
+      unfold bidisp_unit_disp_2cell_struct.
+      red.
+      apply pathsinv0, (z_iso_inv_on_left _ _ _ _ α_natisoIC).
       exact (! puc).
-    - split.
-      + apply isaprop_bidisp_unit_disp_2cell_struct.
-      + apply isaprop_bidisp_unit_disp_2cell_struct.
+    - split; apply isaprop_bidisp_unit_disp_2cell_struct.
   Qed.
 
 

@@ -3,9 +3,9 @@ This is one file which leads to showing that the bicategory of univalent monoida
 In this file we construct one side of the second displayed layer above the bicategory of univalent categories, more precisely:
 The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
 - The objects are categories (already equipped with a tensor and unit) together with the data (and naturality) of the associator.
-- The morphisms expresses a preservation condition of the associator.
+- The morphisms express a preservation condition of the associator.
 - The 2-cells are trivial.
-*)
+ *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -198,20 +198,8 @@ Section AssociatorLayer.
         * exact tt.
       + (* axioms *)
         use tpair.
-        -- use tpair.
-           ++ apply isapropunit.
-           ++ apply isapropunit.
-        -- use tpair.
-           ++ use tpair.
-              ** exact tt.
-              ** use tpair.
-                 --- apply isapropunit.
-                 --- apply isapropunit.
-           ++ use tpair.
-              ** exact tt.
-              ** use tpair.
-                 --- apply isapropunit.
-                 --- apply isapropunit.
+        -- split; apply isapropunit.
+        -- split; (use tpair; [exact tt | split; apply isapropunit]).
   Defined.
 
   Definition disp_adj_equiv_equivalence_ass_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
@@ -230,7 +218,6 @@ Section AssociatorLayer.
         use subtypePath.
         * intro.
           apply isaprop_disp_left_adjoint_equivalence.
-          Search (is_univalent_2_1 tu_cat).
           apply bidisp_tensorunit_is_univalent_2.
           apply bidisp_ass_disp_prebicat_is_locally_univalent.
         * repeat (use funextsec ; intro).

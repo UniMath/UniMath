@@ -253,11 +253,6 @@ Section TensorLayer.
     use total2_paths_b.
     - apply (disp_inv_to_eq1 ptF ptG i).
     - apply funextsec ; intro ; apply funextsec ; intro.
-      set (ix := (pr1 i) x x0).
-      cbn in ix.
-      rewrite id_right in ix.
-      rewrite tensor_id in ix.
-      rewrite id_left in ix.
       repeat (apply impred_isaprop ; intro).
       apply univalent_category_has_homsets.
   Defined.
