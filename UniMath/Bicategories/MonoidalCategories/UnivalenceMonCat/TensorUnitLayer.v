@@ -1,5 +1,5 @@
 (*
-This is the thirth of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
+This is the third of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
 In this file we construct the total category of the (direct) product of the unit and tensor layer. This finishes the first layer.
 *)
 
