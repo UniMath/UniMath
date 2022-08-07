@@ -156,7 +156,7 @@ Section LaxLayer.
     use tpair.
     - apply equality_functor_assunitors_with_layer.
       apply (pr1 ptuua).
-    - repeat (use tpair).
+    - repeat split.
       + apply (pr121 ptuua).
       + apply (pr2 (pr121 ptuua)).
       + apply (pr221 ptuua).
