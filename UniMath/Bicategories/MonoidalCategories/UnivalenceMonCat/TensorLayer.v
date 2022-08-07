@@ -741,7 +741,7 @@ Section TensorLayer.
       + (* apply funextsec ; intro ; apply funextsec ; intro ; apply (pr1 te). *)
         exact (tensor_eqi'''_to_eq1 TC TD te).
       + repeat (apply funextsec ; intro).
-        use pathscomp0.
+        etrans.
         3: apply (pr2 te).
 
         etrans. {
