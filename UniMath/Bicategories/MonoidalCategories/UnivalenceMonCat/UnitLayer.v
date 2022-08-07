@@ -244,7 +244,6 @@ Section UnitLayer.
           apply isaprop_is_z_isomorphism.
         * apply idpath.
       + intro adjequiv.
-        unfold iso_to_dispadjequiv.
         induction adjequiv.
         use subtypePath.
         * intro f.
