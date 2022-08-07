@@ -879,7 +879,7 @@ Section TensorLayer.
         repeat (apply impred_isaset ; intro).
         apply homset_property.
     - intro T.
-      apply isaset_dirprod; repeat (repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property).
+      apply isaset_dirprod; repeat (apply impred_isaset ; intro) ; apply isasetaprop ; apply homset_property.
   Qed.
 
   Lemma pr_id_tensor_eqi'''_funextsec {C : univalent_category} {TC TD : tensor C} (p : TC = TD) (x y : C)
