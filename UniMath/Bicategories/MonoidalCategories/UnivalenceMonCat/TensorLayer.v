@@ -471,7 +471,7 @@ Section TensorLayer.
       use make_z_iso.
       + exact (ptd x y).
       + exact (pr1 ptdinv x y).
-      + use tpair.
+      + split.
         * set (t := ptcounit x y).
           cbn in t.
           unfold identityfunctor_preserves_tensor_data in t.
