@@ -418,9 +418,15 @@ Section StrongMonoidalFunctorLayer.
     use tpair.
     - apply is_z_isomorphism_comp.
       + apply sG.
-      + cbn in *.
-
-  Admitted.
+      + apply functor_on_is_z_isomorphism.
+        apply sF.
+    - intro ; intro.
+      apply is_z_isomorphism_comp.
+      + apply sG.
+      + simpl.
+        apply functor_on_is_z_isomorphism.
+        apply sF.
+  Defined.
 
   Definition disp_bicat_univstrongfunctor : disp_bicat bicat_univlaxmon
     := disp_sub1cell_bicat bicat_univlaxmon P_strong_preserving Pid_strong_preserving Pcomp_strong_preserving.
@@ -558,9 +564,7 @@ Section StrongMonoidalFunctorLayer.
     - apply functor_strongfunctor_to_layer.
     - apply functor_strongfunctor_from_layer.
     - intro.
-      use total2_paths_f.
-      + apply idpath.
-      + apply idpath.
+      use total2_paths_f ; apply idpath.
     - intro.
       use total2_paths_f.
       + use total2_paths_f.
