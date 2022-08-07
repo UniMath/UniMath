@@ -33,35 +33,27 @@ Local Open Scope mor_disp_scope.
 
 Section AssociatorUnitorsLayer.
 
-  Definition bidisp_unitors_disp_bicat : disp_bicat _
+  Definition bidisp_unitors_disp_bicat : disp_bicat tu_cat
     := disp_dirprod_bicat bidisp_lu_disp_bicat bidisp_ru_disp_bicat.
 
   Definition bidisp_unitors_disp_2cells_isaprop : disp_2cells_isaprop bidisp_unitors_disp_bicat.
   Proof.
     intro ; intros.
-    apply isapropdirprod.
-    - apply isapropunit.
-    - apply isapropunit.
+    apply isapropdirprod ; apply isapropunit.
   Qed.
 
   Definition bidisp_lunitor_disp_locally_groupoid : disp_locally_groupoid bidisp_lu_disp_bicat.
   Proof.
     intro ; intros.
-    use tpair.
-    - exact tt.
-    - use tpair.
-      + apply isapropunit.
-      + apply isapropunit.
+    exists tt.
+    split ; apply isapropunit.
   Qed.
 
   Definition bidisp_runitor_disp_locally_groupoid : disp_locally_groupoid bidisp_ru_disp_bicat.
   Proof.
     intro ; intros.
-    use tpair.
-    - exact tt.
-    - use tpair.
-      + apply isapropunit.
-      + apply isapropunit.
+    exists tt.
+    split ; apply isapropunit.
   Qed.
 
   Definition bidisp_unitors_disp_locally_groupoid : disp_locally_groupoid bidisp_unitors_disp_bicat.
@@ -80,14 +72,11 @@ Section AssociatorUnitorsLayer.
   Definition bidisp_associator_disp_locally_groupoid : disp_locally_groupoid bidisp_ass_disp_bicat.
   Proof.
     intro ; intros.
-    use tpair.
-    - exact tt.
-    - use tpair.
-      + apply isapropunit.
-      + apply isapropunit.
+    exists tt.
+    split ; apply isapropunit.
   Qed.
 
-  Definition bidisp_assunitors_disp_bicat : disp_bicat _
+  Definition bidisp_assunitors_disp_bicat : disp_bicat tu_cat
     := disp_dirprod_bicat bidisp_unitors_disp_bicat bidisp_ass_disp_bicat.
 
 
