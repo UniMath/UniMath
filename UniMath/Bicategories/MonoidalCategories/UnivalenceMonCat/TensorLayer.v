@@ -3,7 +3,7 @@ This is the second of a sequence of files with the purpose of showing that the b
 In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:
 The total category corresponding to this displayed layer is the univalent bicategory defined as follows:
 - The objects are categories together with a binary operation (which will be the tensor product for the monoidal structure).
-- The morphisms are functors which preserve the tensor in a lax/weak sense (i.e. a non-necessairly isomorphic morphism).
+- The morphisms are functors which preserve the tensor in a lax/weak sense (i.e. a non-necessarily isomorphic morphism).
 - The 2-cells are natural transformations which (at tensor products) commute the tensor-preserving morphisms.
 *)
 
