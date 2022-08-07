@@ -742,7 +742,7 @@ Section TensorLayer.
         exact (tensor_eqi'''_to_eq1 TC TD te).
       + repeat (apply funextsec ; intro).
         etrans.
-        3: apply (pr2 te).
+        2: apply (pr2 te).
 
         etrans. {
           apply transport_of_bifunctor_map_is_pointwise.
