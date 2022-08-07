@@ -202,7 +202,6 @@ Section LeftUnitorLayer.
         use subtypePath.
         * intro.
           apply isaprop_disp_left_adjoint_equivalence.
-          Search (is_univalent_2_1 tu_cat).
           apply bidisp_tensorunit_is_univalent_2.
           apply bidisp_lu_disp_prebicat_is_locally_univalent.
         * use funextsec ; intro.
