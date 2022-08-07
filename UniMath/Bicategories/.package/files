@@ -82,9 +82,6 @@ MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/UnitLayer.v
 MonoidalCategories/UnivalenceMonCat/TensorLayer.v
 MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
-MonoidalCategories/UnivalenceMonCat/AssociatorLayer.v
-MonoidalCategories/UnivalenceMonCat/LeftUnitorLayer.v
-MonoidalCategories/UnivalenceMonCat/RightUnitorLayer.v
 MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
 MonoidalCategories/UnivalenceMonCat/FinalLayer.v
 
