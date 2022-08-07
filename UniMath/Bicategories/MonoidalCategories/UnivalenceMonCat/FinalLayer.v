@@ -8,9 +8,6 @@ Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedM
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.UnitLayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorUnitLayer.
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.LeftUnitorLayer.
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.RightUnitorLayer.
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorLayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorUnitorsLayer.
 
 Require Import UniMath.Foundations.All.
@@ -214,6 +211,14 @@ Section StrongMonoidalCatLayer.
   Definition P_strong : bicat_univlaxmon -> UU
     := λ C : bicat_univlaxmon, P_sass C × P_slu C × P_sru C.
 
+  Lemma isaprop_P_strong (C : bicat_univlaxmon) : isaprop (P_strong C).
+  Proof.
+    repeat (apply isapropdirprod).
+    * apply isaprop_strong_associator.
+    * apply isaprop_strong_lunitor.
+    * apply isaprop_strong_runitor.
+  Qed.
+
   Definition disp_bicat_univstrongmon : disp_bicat bicat_univlaxmon
     := disp_fullsubbicat bicat_univlaxmon P_strong.
 
@@ -223,11 +228,7 @@ Section StrongMonoidalCatLayer.
     split.
     - apply disp_univalent_2_0_fullsubbicat.
       + apply bicat_univlaxmon_is_univalent_2.
-      + intro.
-        repeat (apply isapropdirprod).
-        * apply isaprop_strong_associator.
-        * apply isaprop_strong_lunitor.
-        * apply isaprop_strong_runitor.
+      + intro ; apply isaprop_P_strong.
     - apply disp_fullsubbicat_univalent_2_1.
   Qed.
 

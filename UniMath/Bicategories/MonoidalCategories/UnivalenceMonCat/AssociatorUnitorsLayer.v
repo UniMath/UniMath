@@ -201,35 +201,6 @@ Section UnitorsLayer.
   Definition bidisp_unitors_disp_bicat : disp_bicat tu_cat
     := disp_dirprod_bicat bidisp_lu_disp_bicat bidisp_ru_disp_bicat.
 
-  Definition bidisp_unitors_disp_2cells_isaprop : disp_2cells_isaprop bidisp_unitors_disp_bicat.
-  Proof.
-    intro ; intros.
-    apply isapropdirprod ; apply isapropunit.
-  Qed.
-
-  Definition bidisp_lunitor_disp_locally_groupoid : disp_locally_groupoid bidisp_lu_disp_bicat.
-  Proof.
-
-
-    intro ; intros.
-    exists tt.
-    split ; apply isapropunit.
-  Qed.
-
-  Definition bidisp_runitor_disp_locally_groupoid : disp_locally_groupoid bidisp_ru_disp_bicat.
-  Proof.
-    intro ; intros.
-    exists tt.
-    split ; apply isapropunit.
-  Qed.
-
-  Definition bidisp_unitors_disp_locally_groupoid : disp_locally_groupoid bidisp_unitors_disp_bicat.
-  Proof.
-    apply disp_locally_groupoid_prod.
-    - apply bidisp_lunitor_disp_locally_groupoid.
-    - apply bidisp_runitor_disp_locally_groupoid.
-  Qed.
-
 End UnitorsLayer.
 
 Section AssociatorLayer.
@@ -316,19 +287,6 @@ Section AssociatorLayer.
     - apply bidisp_ass_disp_prebicat_is_locally_univalent.
   Defined.
 
-  Definition bidisp_associator_disp_2cells_isaprop : disp_2cells_isaprop bidisp_ass_disp_bicat.
-  Proof.
-    intro ; intros.
-    apply isapropunit.
-  Qed.
-
-  Definition bidisp_associator_disp_locally_groupoid : disp_locally_groupoid bidisp_ass_disp_bicat.
-  Proof.
-    intro ; intros.
-    exists tt.
-    split ; apply isapropunit.
-  Qed.
-
 End AssociatorLayer.
 
 Section AssociatorUnitorsLayer.
@@ -336,20 +294,14 @@ Section AssociatorUnitorsLayer.
   Definition bidisp_assunitors_disp_bicat : disp_bicat tu_cat
     := disp_dirprod_bicat bidisp_unitors_disp_bicat bidisp_ass_disp_bicat.
 
-
   Definition bidisp_assunitors_disp_2cells_isaprop : disp_2cells_isaprop bidisp_assunitors_disp_bicat.
   Proof.
-    intro ; intros.
-    apply isapropdirprod.
-    - apply bidisp_unitors_disp_2cells_isaprop.
-    - apply bidisp_associator_disp_2cells_isaprop.
+    repeat (apply disp_2cells_isaprop_prod) ; apply disp_2cells_isaprop_cell_unit_bicat.
   Qed.
 
   Definition bidisp_assunitors_disp_locally_groupoid : disp_locally_groupoid bidisp_assunitors_disp_bicat.
   Proof.
-    apply disp_locally_groupoid_prod.
-    - apply bidisp_unitors_disp_locally_groupoid.
-    - apply bidisp_associator_disp_locally_groupoid.
+    repeat (apply disp_locally_groupoid_prod) ; apply disp_locally_groupoid_cell_unit_bicat.
   Qed.
 
   Definition bidisp_unitors_disp_prebicat_is_univalent_2
