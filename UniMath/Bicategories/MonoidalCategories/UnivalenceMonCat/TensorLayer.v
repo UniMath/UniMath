@@ -488,7 +488,7 @@ Section TensorLayer.
       exact (ptnat x1 x2 y1 y2 f g).
   Defined.
 
-  Lemma swap_nat_along_zisos {C : category} {x1 x2 y1 y2 : C}
+  Lemma swap_along_zisos {C : category} {x1 x2 y1 y2 : C}
       (p1 : z_iso x1 y1) (p2 : z_iso x2 y2) :
   ∏ (f: C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
     (pr1 p1) · g = f · (pr1 p2) -> (inv_from_z_iso p1) · f = g · (inv_from_z_iso p2) .
@@ -519,7 +519,7 @@ Section TensorLayer.
         apply ti.
       * intros x1 x2 y1 y2 f g.
         induction ti as [n i].
-        apply (swap_nat_along_zisos (n x1 y1) (n x2 y2) (f ⊗^{pr1 TD} g) (f ⊗^{pr1 TC} g)).
+        apply (swap_along_zisos (n x1 y1) (n x2 y2) (f ⊗^{pr1 TD} g) (f ⊗^{pr1 TC} g)).
         exact (i x1 x2 y1 y2 f g).
       * intros x y.
         cbn.
