@@ -789,7 +789,7 @@ Section TensorLayer.
     - intros ? ? ? ? f g.
       induction p.
       etrans.
-      2: apply (! idpath_transportf _ _).
+      { apply (! idpath_transportf _ _). }
       apply idpath_transportf.
   Defined.
 
