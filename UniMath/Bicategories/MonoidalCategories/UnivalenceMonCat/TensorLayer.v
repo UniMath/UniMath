@@ -538,7 +538,6 @@ Section TensorLayer.
         cbn.
         unfold compositions_preserves_tensor_data.
         unfold identityfunctor_preserves_tensor_data.
-        unfold compositions_preserves_tensor_data.
         rewrite id_right.
         rewrite tensor_id.
         rewrite id_left.
