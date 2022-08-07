@@ -362,7 +362,7 @@ Section TensorLayer.
       repeat (apply impred_isaprop ; intro).
       apply homset_property.
     - intro pob.
-      use tpair.
+      split.
       + intros q ? ? ? ? f g.
         apply transport_to_idtomor.
         exact (q _ _ _ _ f g).
