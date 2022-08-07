@@ -160,7 +160,6 @@ Section LeftUnitorLayer.
             apply cancel_postcomposition.
             apply id_left.
           }
-          unfold identityfunctor_preserves_tensor_data.
           etrans. { apply id_left. }
           exact (! lue x).
         * exact tt.
