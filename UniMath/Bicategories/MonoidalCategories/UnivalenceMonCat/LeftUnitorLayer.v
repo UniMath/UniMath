@@ -124,7 +124,6 @@ Section LeftUnitorLayer.
     unfold identityfunctor_preserves_unit in p.
     rewrite tensor_id in p.
     rewrite id_left in p.
-    unfold identityfunctor_preserves_tensor_data in p.
     rewrite id_left in p.
     exact p.
   Defined.
