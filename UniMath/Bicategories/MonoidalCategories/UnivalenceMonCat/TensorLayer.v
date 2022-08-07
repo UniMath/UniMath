@@ -294,7 +294,7 @@ Section TensorLayer.
 
   Definition tensor_iso {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ α : ∏ x y : C, z_iso (x ⊗_{TD} y) (x ⊗_{TC} y),
-          ∏ {a1 a2 b1 b2 : C} (f : C⟦a1,a2⟧) (g : C⟦b1,b2⟧),
+          ∏ (a1 a2 b1 b2 : C) (f : C⟦a1,a2⟧) (g : C⟦b1,b2⟧),
           (pr1 (α a1 b1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (pr1 (α a2 b2)).
 
   Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
