@@ -788,7 +788,7 @@ Section TensorLayer.
       apply idpath. *)
     - intros ? ? ? ? f g.
       induction p.
-      use pathscomp0.
+      etrans.
       2: apply (! idpath_transportf _ _).
       apply idpath_transportf.
   Defined.
