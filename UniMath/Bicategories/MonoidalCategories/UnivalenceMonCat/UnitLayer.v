@@ -163,7 +163,7 @@ Section UnitLayer.
 
   Lemma bidisp_unit_disp_prebicat_is_locally_univalent : disp_univalent_2_1 bidisp_unit_disp_bicat.
   Proof.
-    intros C D F G pfFisG IC ID puF puG.
+    apply fiberwise_local_univalent_is_univalent_2_1.
     induction pfFisG.
     apply isweqimplimpl.
     - cbn.
