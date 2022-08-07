@@ -26,6 +26,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
@@ -56,219 +57,51 @@ Section RightUnitorLayer.
   Definition disp_ru_disp_cat_data : disp_cat_data tu_cat
     := (disp_ru_disp_ob_mor,, disp_ru_disp_id_comp).
 
-  Definition bidisp_ru_disp_2cell_struct : disp_2cell_struct disp_ru_disp_cat_data.
-  Proof.
-    intros C D F G a ruC ruD pruF pruG.
-    exact unit.
-  Defined.
-
-  Definition bidisp_ru_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells tu_cat
-    := (disp_ru_disp_cat_data,, bidisp_ru_disp_2cell_struct).
-
-  Definition bidisp_ru_disp_prebicat_ops : disp_prebicat_ops bidisp_ru_disp_prebicat_1_id_comp_cells.
-  Proof.
-    repeat (use tpair ; intros ; try (exact tt)).
-    intros C D E W F G H IC ID IE IW puF puG puH.
-    exact tt.
-  Qed.
-
-  Definition bidisp_ru_disp_prebicat_data : disp_prebicat_data tu_cat
-    := (bidisp_ru_disp_prebicat_1_id_comp_cells,, bidisp_ru_disp_prebicat_ops).
-
-  Definition bidisp_ru_disp_prebicat_laws : disp_prebicat_laws bidisp_ru_disp_prebicat_data.
-  Proof.
-    repeat split; intro; intros; apply isapropunit.
-  Qed.
-
-  Definition bidisp_ru_disp_prebicat : disp_prebicat tu_cat
-    := (bidisp_ru_disp_prebicat_data,,bidisp_ru_disp_prebicat_laws).
-
-  Definition bidisp_ru_disp_bicat : disp_bicat tu_cat.
-  Proof.
-    refine (bidisp_ru_disp_prebicat,, _).
-    intros C D F G α ruC ruD pruF pruG.
-    apply isasetunit.
-  Defined.
+  Definition bidisp_ru_disp_bicat : disp_bicat tu_cat
+    := disp_cell_unit_bicat disp_ru_disp_cat_data.
 
   Lemma bidisp_ru_disp_prebicat_is_locally_univalent : disp_univalent_2_1 bidisp_ru_disp_bicat.
   Proof.
-    intros C D F G pfFisG ruF ruG pruF pruG.
-    induction pfFisG.
-    apply isweqimplimpl.
-    - intros α.
-      apply isaprop_preserves_runitor.
-    - apply isasetaprop.
-      apply isaprop_preserves_runitor.
-    - apply invproofirrelevance.
-      intro ; intro.
-      use subtypePath.
-      + intro x0.
-        apply isaprop_is_disp_invertible_2cell.
-      + apply isapropunit.
+    apply disp_cell_unit_bicat_univalent_2_1.
+    intro ; intros.
+    apply isaprop_preserves_runitor.
   Qed.
 
-  Definition ru_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C) : UU
-    := ∏ x : (pr1 C : univalent_category), (pr1 ru1) x = (pr1 ru2) x.
-
-  Definition disp_adj_equiv_to_ru_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ru1 ru2 -> ru_equal ru1 ru2.
+  Lemma isaset_runitor (C : tu_cat) : isaset (runitor (pr2 C)).
   Proof.
-    intro dae.
-    intro x.
-    induction dae as [pru [adj_data [adj_ax adj_eq]]].
-    induction adj_data as [inv [unit counit]].
-    cbn in *.
+    apply isaset_total2.
+    {
+      apply impred_isaset ; intro.
+      apply homset_property.
+    }
+    intro.
+    repeat (apply impred_isaset ; intro).
+    apply isasetaprop.
+    apply homset_property.
+  Qed.
 
-    set (p := pru x).
-    cbn in p.
-    unfold identityfunctor_preserves_tensor_data in p.
-    unfold identityfunctor_preserves_unit in p.
-    rewrite tensor_id in p.
-    rewrite id_left in p.
-    unfold identityfunctor_preserves_tensor_data in p.
-    rewrite id_left in p.
-    exact p.
-  Defined.
-
-  Definition ru_equal_to_disp_adj_equiv {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : ru_equal ru1 ru2 -> disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ru1 ru2.
+  Lemma isaprop_runitor_nat {C : tu_cat} (ru : runitor (pr2 C)) : isaprop (runitor_nat (pr1 ru)).
   Proof.
-    intro rue.
-    use tpair.
-    - intro x.
-      etrans. {
-        apply cancel_postcomposition.
-        apply cancel_postcomposition.
-        apply tensor_id.
-      }
-      etrans. {
-        apply cancel_postcomposition.
-        apply id_left.
-      }
-      unfold identityfunctor_preserves_tensor_data.
-      etrans. { apply id_left. }
-      exact (rue x).
-    - use tpair.
-      + (* data *)
-        repeat (use tpair).
-        * intro x.
-
-          etrans. {
-            apply cancel_postcomposition.
-            apply cancel_postcomposition.
-            apply tensor_id.
-          }
-          etrans. {
-            apply cancel_postcomposition.
-            apply id_left.
-          }
-          unfold identityfunctor_preserves_tensor_data.
-          etrans. { apply id_left. }
-          exact (! rue x).
-        * exact tt.
-        * exact tt.
-      + (* axioms *)
-        use tpair.
-        -- split; apply isapropunit.
-        -- split; (use tpair; [exact tt | split; apply isapropunit]).
-  Defined.
-
-  Definition disp_adj_equiv_equivalence_ru_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : ru_equal ru1 ru2 ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ru1 ru2.
-  Proof.
-    use make_weq.
-    - intro rue.
-      exact (ru_equal_to_disp_adj_equiv _ _ rue).
-    - use isweq_iso.
-      + intro dae.
-        exact (disp_adj_equiv_to_ru_equal _ _ dae).
-      + intro rue.
-        use funextsec ; intro.
-        apply univalent_category_has_homsets.
-      + intro dae.
-        use subtypePath.
-        * intro.
-          apply isaprop_disp_left_adjoint_equivalence.
-          Search (is_univalent_2_1 tu_cat).
-          apply bidisp_tensorunit_is_univalent_2.
-          apply bidisp_ru_disp_prebicat_is_locally_univalent.
-        * use funextsec ; intro.
-          apply univalent_category_has_homsets.
-  Defined.
-
-  Definition ru_equal_to_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : ru_equal ru1 ru2 → ru1 = ru2.
-  Proof.
-    intro rue.
-    use total2_paths_f.
-    - apply funextsec ; intro x.
-      exact (rue x).
-    - repeat (apply funextsec ; intro).
-      apply univalent_category_has_homsets.
-  Defined.
-
-  Definition equal_to_ru_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : ru1 = ru2 -> ru_equal ru1 ru2.
-  Proof.
-    intro rue.
-    induction rue.
-    intro x.
-    apply idpath.
-  Defined.
-
-  Definition ru_equal_equivalent_equal {C : tu_cat} (ru1 ru2 : bidisp_ru_disp_bicat C)
-    : ru1 = ru2 ≃ ru_equal ru1 ru2.
-  Proof.
-    use make_weq.
-    - intro rue.
-      exact (equal_to_ru_equal _ _ rue).
-    - use isweq_iso.
-      + intro rue.
-        exact (ru_equal_to_equal _ _ rue).
-      + intro rue.
-        induction rue.
-        unfold ru_equal_to_equal.
-        unfold equal_to_ru_equal.
-        unfold bidisp_ru_disp_bicat in ru1.
-        use pathscomp0.
-        3: {
-          apply total2_paths_idpath.
-        }
-        apply maponpaths_total.
-        * apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ru1) (pr1 ru1))).
-          -- intro p.
-             apply funextsec_toforallpaths.
-          -- etrans. { apply toforallpaths_funextsec. }
-             apply funextsec ; intro x.
-             apply idpath.
-        * intro l.
-          unfold runitor_nat.
-          repeat (apply impred_isaset ; intro).
-          apply isasetaprop.
-          apply homset_property.
-      + intro rue.
-        apply funextsec ; intro.
-        apply univalent_category_has_homsets.
-  Defined.
+    repeat (apply impred_isaprop ; intro).
+    apply homset_property.
+  Qed.
 
   Lemma bidisp_ru_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bidisp_ru_disp_bicat.
   Proof.
-    intros C D equalcats ruC ruD.
-    induction equalcats.
-    use weqhomot.
-    - (* rewrite idpath_transportf. *)
-      set (i1 := ru_equal_equivalent_equal ruC ruD).
-      set (i2 := disp_adj_equiv_equivalence_ru_equal ruC ruD).
-      exact (i2 ∘ i1)%weq.
-    - intro p.
-      induction p ; cbn.
-      use subtypePath.
-      + intro ; simpl.
-        apply (@isaprop_disp_left_adjoint_equivalence _  bidisp_ru_disp_bicat).
-        * apply bidisp_tensorunit_is_univalent_2.
-        * exact bidisp_ru_disp_prebicat_is_locally_univalent.
-      + apply funextsec ; intro x.
-        apply univalent_category_has_homsets.
+    apply disp_cell_unit_bicat_univalent_2_0.
+    - apply bidisp_tensorunit_is_univalent_2.
+    - intro ; intros.
+      apply isaprop_preserves_runitor.
+    - intro ; apply isaset_runitor.
+    - intros C ru1 ru2 pru.
+      use total2_paths_f.
+      + apply funextsec ; intro.
+        refine (_ @ (pr1 pru x)).
+        refine (! id_left _ @ _).
+        apply cancel_postcomposition.
+        refine (_ @ ! id_right _).
+        apply (! tensor_id _ _ _).
+      + apply isaprop_runitor_nat.
   Qed.
 
   Lemma bidisp_ru_disp_prebicat_is_univalent_2 : disp_univalent_2 bidisp_ru_disp_bicat.

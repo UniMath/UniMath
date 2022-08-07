@@ -1,6 +1,6 @@
 (*
-This is one file which leads to showing that the bicategory of univalent monoidal categories is again univalent.
-In this file we construct one side of the second displayed layer above the bicategory of univalent categories, more precisely:
+The second displayed layer we lay over the bicategory of univalent categories has the purppose of adding the unitors and the associator. In this file we construct the displayed bicategory which adds all the data of the associator.
+More precisely:
 The total category corresponding to this displayed layer is the univalent bicategory defined as followed:
 - The objects are categories (already equipped with a tensor and unit) together with the data (and naturality) of the associator.
 - The morphisms express a preservation condition of the associator.
@@ -26,6 +26,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
@@ -56,257 +57,60 @@ Section AssociatorLayer.
   Definition disp_ass_disp_cat_data : disp_cat_data tu_cat
     := (disp_ass_disp_ob_mor,, disp_ass_disp_id_comp).
 
-  Definition bidisp_ass_disp_2cell_struct : disp_2cell_struct disp_ass_disp_cat_data.
-  Proof.
-    intros C D F G a assC assD passF passG.
-    exact unit.
-  Defined.
-
-  Definition bidisp_ass_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells tu_cat
-    := (disp_ass_disp_cat_data,, bidisp_ass_disp_2cell_struct).
-
-  Definition bidisp_ass_disp_prebicat_ops : disp_prebicat_ops bidisp_ass_disp_prebicat_1_id_comp_cells.
-  Proof.
-    repeat (use tpair ; intros ; try (exact tt)).
-    intros C D E W F G H IC ID IE IW puF puG puH.
-    exact tt.
-  Qed.
-
-  Definition bidisp_ass_disp_prebicat_data : disp_prebicat_data tu_cat
-    := (bidisp_ass_disp_prebicat_1_id_comp_cells,, bidisp_ass_disp_prebicat_ops).
-
-  Definition bidisp_ass_disp_prebicat_laws : disp_prebicat_laws bidisp_ass_disp_prebicat_data.
-  Proof.
-    repeat split; intro; intros; apply isapropunit.
-  Qed.
-
-  Definition bidisp_ass_disp_prebicat : disp_prebicat tu_cat
-    := (bidisp_ass_disp_prebicat_data,,bidisp_ass_disp_prebicat_laws).
-
-  Definition bidisp_ass_disp_bicat : disp_bicat tu_cat.
-  Proof.
-    refine (bidisp_ass_disp_prebicat,, _).
-    intros C D F G α assC assD passF passG.
-    apply isasetunit.
-  Defined.
+  Definition bidisp_ass_disp_bicat : disp_bicat tu_cat
+    := disp_cell_unit_bicat disp_ass_disp_cat_data.
 
   Lemma bidisp_ass_disp_prebicat_is_locally_univalent : disp_univalent_2_1 bidisp_ass_disp_bicat.
   Proof.
-    intros C D F G pfFisG assF assG passF passG.
-    induction pfFisG.
-    apply isweqimplimpl.
-    - intros α.
-      apply isaprop_preserves_associator.
-    - apply isasetaprop.
-      apply isaprop_preserves_associator.
-    - apply invproofirrelevance.
-      intro ; intro.
-      use subtypePath.
-      + intro x0.
-        apply isaprop_is_disp_invertible_2cell.
-      + apply isapropunit.
+    apply disp_cell_unit_bicat_univalent_2_1.
+    intro ; intros.
+    apply isaprop_preserves_associator.
   Qed.
 
-  Definition ass_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C) : UU
-    := ∏ x y z : (pr1 C : univalent_category), (pr1 ass1) x y z = (pr1 ass2) x y z.
-
-  Definition disp_adj_equiv_to_ass_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ass1 ass2 -> ass_equal ass1 ass2.
+  Lemma isaset_associator (C : tu_cat) : isaset (associator (pr2 C)).
   Proof.
-    intro dae.
-    intros x y z.
-    induction dae as [pass [adj_data [adj_ax adj_eq]]].
-    induction adj_data as [inv [unit counit]].
-    cbn in *.
+    apply isaset_total2.
+    {
+      do 3 (apply impred_isaset ; intro).
+      apply homset_property.
+    }
+    intro.
+    repeat (apply impred_isaset ; intro).
+    apply isasetaprop.
+    apply homset_property.
+  Qed.
 
-    set (p := pass x y z).
-    cbn in p.
-    unfold identityfunctor_preserves_tensor_data in p.
-    rewrite id_right in p.
-    rewrite id_right in p.
-    rewrite tensor_id in p.
-    rewrite id_left in p.
-    rewrite tensor_id in p.
-    rewrite id_right in p.
-    exact p.
-  Defined.
-
-  Definition ass_equal_to_disp_adj_equiv {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : ass_equal ass1 ass2 -> disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ass1 ass2.
+  Lemma isaprop_associator_nat (C : tu_cat) (ass : associator (pr2 C))
+    : isaprop (associator_nat (pr1 ass)).
   Proof.
-    intro asse.
-    use tpair.
-    - intros x y z.
-      etrans. {
-        apply cancel_postcomposition.
-        apply cancel_postcomposition.
-        apply tensor_id.
-      }
-      etrans. {
-        apply cancel_postcomposition.
-        apply id_left.
-      }
-      cbn.
-      unfold identityfunctor_preserves_tensor_data.
-
-      etrans. { apply id_left. }
-      apply pathsinv0.
-
-      etrans. {
-        apply cancel_postcomposition.
-        apply cancel_precomposition.
-        apply tensor_id.
-      }
-      etrans. {
-        apply id_right.
-      }
-      etrans. {
-        apply id_right.
-      }
-      exact (! asse x y z).
-    - use tpair.
-      + (* data *)
-        repeat (use tpair).
-        * intros x y z.
-
-          etrans. {
-            apply cancel_postcomposition.
-            apply cancel_postcomposition.
-            apply tensor_id.
-          }
-          etrans. {
-            apply cancel_postcomposition.
-            apply id_left.
-          }
-          unfold identityfunctor_preserves_tensor_data.
-          etrans. { apply id_left. }
-          apply pathsinv0.
-
-          etrans. {
-            apply cancel_postcomposition.
-            apply cancel_precomposition.
-            apply tensor_id.
-          }
-          etrans. {
-            apply id_right.
-          }
-          etrans. {
-            apply id_right.
-          }
-          exact (asse x y z).
-        * exact tt.
-        * exact tt.
-      + (* axioms *)
-        use tpair.
-        -- split; apply isapropunit.
-        -- split; (use tpair; [exact tt | split; apply isapropunit]).
-  Defined.
-
-  Definition disp_adj_equiv_equivalence_ass_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : ass_equal ass1 ass2 ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) ass1 ass2.
-  Proof.
-    use make_weq.
-    - intro asse.
-      exact (ass_equal_to_disp_adj_equiv _ _ asse).
-    - use isweq_iso.
-      + intro dae.
-        exact (disp_adj_equiv_to_ass_equal _ _ dae).
-      + intro asse.
-        repeat (use funextsec ; intro).
-        apply univalent_category_has_homsets.
-      + intro dae.
-        use subtypePath.
-        * intro.
-          apply isaprop_disp_left_adjoint_equivalence.
-          apply bidisp_tensorunit_is_univalent_2.
-          apply bidisp_ass_disp_prebicat_is_locally_univalent.
-        * repeat (use funextsec ; intro).
-          apply univalent_category_has_homsets.
-  Defined.
-
-  Definition ass_equal_to_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : ass_equal ass1 ass2 → ass1 = ass2.
-  Proof.
-    intro asse.
-    use total2_paths_f.
-    - repeat (apply funextsec ; intro).
-      apply asse.
-    - repeat (apply funextsec ; intro).
-      apply univalent_category_has_homsets.
-  Defined.
-
-  Definition equal_to_ass_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : ass1 = ass2 -> ass_equal ass1 ass2.
-  Proof.
-    intro asse.
-    induction asse.
-    intros x y z.
-    apply idpath.
-  Defined.
-
-  Definition ass_equal_equivalent_equal {C : tu_cat} (ass1 ass2 : bidisp_ass_disp_bicat C)
-    : ass1 = ass2 ≃ ass_equal ass1 ass2.
-  Proof.
-    use make_weq.
-    - intro asse.
-      exact (equal_to_ass_equal _ _ asse).
-    - use isweq_iso.
-      + intro asse.
-        exact (ass_equal_to_equal _ _ asse).
-      + intro asse.
-        induction asse.
-        use pathscomp0.
-        3: {
-          apply total2_paths_idpath.
-        }
-        unfold ass_equal_to_equal.
-        unfold equal_to_ass_equal.
-
-        apply maponpaths_total.
-        * apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1) (pr1 ass1))).
-          -- intro p.
-             apply funextsec_toforallpaths.
-          -- etrans. { apply toforallpaths_funextsec. }
-             apply funextsec ; intro x.
-             apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1 x) (pr1 ass1 x))).
-             ++ intro p.
-                apply funextsec_toforallpaths.
-             ++ etrans. { apply toforallpaths_funextsec. }
-                apply funextsec ; intro y.
-                apply (cancellation_lemma _ _ _ (toforallpaths _ (pr1 ass1 x y) (pr1 ass1 x y))).
-                ** intro p.
-                   apply funextsec_toforallpaths.
-                ** etrans. { apply toforallpaths_funextsec. }
-                   apply funextsec ; intro z.
-                   apply idpath.
-        * intro l.
-          unfold associator_nat.
-          repeat (apply impred_isaset ; intro).
-          apply isasetaprop.
-          apply homset_property.
-      + intro asse.
-        repeat (apply funextsec ; intro).
-        apply univalent_category_has_homsets.
-  Defined.
+    repeat (apply impred_isaprop ; intro).
+    apply homset_property.
+  Qed.
 
   Lemma bidisp_ass_disp_prebicat_is_globally_univalent : disp_univalent_2_0 bidisp_ass_disp_bicat.
   Proof.
-    intros C D equalcats assC assD.
-    induction equalcats.
-    use weqhomot.
-    - (* rewrite idpath_transportf. *)
-      set (i1 := ass_equal_equivalent_equal assC assD).
-      set (i2 := disp_adj_equiv_equivalence_ass_equal assC assD).
-      exact (i2 ∘ i1)%weq.
-    - intro p.
-      induction p ; cbn.
-      use subtypePath.
-      + intro ; simpl.
-        apply (@isaprop_disp_left_adjoint_equivalence _  bidisp_ass_disp_bicat).
-        * apply bidisp_tensorunit_is_univalent_2.
-        * exact bidisp_ass_disp_prebicat_is_locally_univalent.
-      + repeat (apply funextsec ; intro).
-        apply univalent_category_has_homsets.
+    apply disp_cell_unit_bicat_univalent_2_0.
+    - apply bidisp_tensorunit_is_univalent_2.
+    - intro ; intros.
+      apply isaprop_preserves_associator.
+    - intro ; apply isaset_associator.
+    - intros C a1 a2 pa.
+      use total2_paths_f.
+      + apply funextsec ; intro x1 ;
+          apply funextsec ; intro x2 ;
+          apply funextsec ; intro x3.
+
+        set (p := pr1 pa x1 x2 x3).
+        cbn in p.
+        unfold identityfunctor_preserves_tensor_data in p.
+        rewrite id_right in p.
+        rewrite id_right in p.
+        rewrite tensor_id in p.
+        rewrite id_left in p.
+        rewrite tensor_id in p.
+        rewrite id_right in p.
+        exact p.
+      + apply isaprop_associator_nat.
   Qed.
 
   Lemma bidisp_ass_disp_prebicat_is_univalent_2 : disp_univalent_2 bidisp_ass_disp_bicat.
