@@ -466,7 +466,7 @@ Section TensorLayer.
     induction data as [ptdinv [ptunit ptcounit]].
     cbn in *.
 
-    repeat (use tpair).
+    use tpair.
     - intros x y.
       use make_z_iso.
       + exact (ptd x y).
