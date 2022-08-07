@@ -68,7 +68,7 @@ Section LeftUnitorLayer.
 
   Definition bidisp_lu_disp_prebicat_ops : disp_prebicat_ops bidisp_lu_disp_prebicat_1_id_comp_cells.
   Proof.
-    repeat (use tpair ; intros ; try (exact tt)).
+    repeat (use tpair ; red; intros ; try (exact tt)).
     intros C D E W F G H IC ID IE IW puF puG puH.
     exact tt.
   Qed.
