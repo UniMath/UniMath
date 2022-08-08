@@ -771,17 +771,17 @@ Section UnitorsAssociator.
   Definition unitors_associator_to_lunitor {C : category}
              {tu : tensor_unit C} (ua : unitors_associator tu)
     : lunitor tu := pr1 ua.
-  Coercion unitors_associator_to_lunitor : unitors_associator >-> lunitor.
+  (* Coercion unitors_associator_to_lunitor : unitors_associator >-> lunitor. *)
 
   Definition unitors_associator_to_runitor {C : category}
              {tu : tensor_unit C} (ua : unitors_associator tu)
     : runitor tu := pr12 ua.
-  Coercion unitors_associator_to_runitor : unitors_associator >-> runitor.
+  (* Coercion unitors_associator_to_runitor : unitors_associator >-> runitor. *)
 
   Definition unitors_associator_to_associator {C : category}
              {tu : tensor_unit C} (ua : unitors_associator tu)
     : associator tu := pr22 ua.
-  Coercion unitors_associator_to_associator : unitors_associator >-> associator.
+  (* Coercion unitors_associator_to_associator : unitors_associator >-> associator. *)
 
   Definition functor_unitors_associator {C D : category}
              {tuC : tensor_unit C} {tuD : tensor_unit D}
@@ -790,9 +790,12 @@ Section UnitorsAssociator.
              {F : functor C D}
              (ptuF : functor_tensor_unit tuC tuD F)
     : UU
-    := preserves_lunitor ptuF uaC uaD
+    := preserves_lunitor ptuF (pr1 uaC) (pr1 uaD)
+                         × preserves_runitor ptuF (pr12 uaC) (pr12 uaD)
+                         × preserves_associator ptuF (pr22 uaC) (pr22 uaD).
+  (* := preserves_lunitor ptuF uaC uaD
                          × preserves_runitor ptuF uaC uaD
-                         × preserves_associator ptuF uaC uaD.
+                         × preserves_associator ptuF uaC uaD. *)
 
   Definition functor_unitors_associator_to_preserves_lunitor
              {C D : category}
@@ -802,7 +805,8 @@ Section UnitorsAssociator.
              {F : functor C D}
              {ptuF : functor_tensor_unit tuC tuD F}
              (puaF : functor_unitors_associator uaC uaD ptuF)
-    : preserves_lunitor ptuF uaC uaD := pr1 puaF.
+    : preserves_lunitor ptuF (pr1 uaC) (pr1 uaD) := pr1 puaF.
+    (* : preserves_lunitor ptuF (pr1 uaC) uaD := pr1 puaF. *)
   Coercion functor_unitors_associator_to_preserves_lunitor
     : functor_unitors_associator >-> preserves_lunitor.
 
@@ -814,7 +818,7 @@ Section UnitorsAssociator.
              {F : functor C D}
              {ptuF : functor_tensor_unit tuC tuD F}
              (puaF : functor_unitors_associator uaC uaD ptuF)
-    : preserves_runitor ptuF uaC uaD := pr12 puaF.
+    : preserves_runitor ptuF (pr12 uaC) (pr12 uaD) := pr12 puaF.
   Coercion functor_unitors_associator_to_preserves_runitor
     : functor_unitors_associator >-> preserves_runitor.
 
@@ -826,7 +830,7 @@ Section UnitorsAssociator.
              {F : functor C D}
              {ptuF : functor_tensor_unit tuC tuD F}
              (puaF : functor_unitors_associator uaC uaD ptuF)
-    : preserves_associator ptuF uaC uaD := pr22 puaF.
+    : preserves_associator ptuF (pr22 uaC) (pr22 uaD) := pr22 puaF.
   Coercion functor_unitors_associator_to_preserves_associator
     : functor_unitors_associator >-> preserves_associator.
 

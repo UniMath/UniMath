@@ -37,6 +37,8 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Import Bicat.Notations.
+
 Import AssociatorUnitorsNotations.
 
 Section LaxLayer.
@@ -103,7 +105,7 @@ Section LaxLayer.
     - apply univalent_cat_is_univalent_2.
   Qed.
 
-  (* We now show that the type of displayed objects and 1-cells is as we expect *)
+  (* We now show that the type of displayed objects, 1-cells and 2-cells is as we expect *)
   Definition laxmon_from_layer (C : bicat_of_univ_cats)
     : disp_univlaxmon C
       -> laxmon (C : univalent_category).
@@ -192,6 +194,64 @@ Section LaxLayer.
       + apply idpath_transportf.
   Defined.
 
+  Import Notations.
+
+  Definition nattrans_laxmon_from_layer
+             {C D : bicat_of_univ_cats} {F G : bicat_of_univ_cats⟦C,D⟧} (α : F ==> G)
+             {tuuaC : disp_univlaxmon C} {tuuaD : disp_univlaxmon D}
+             (ptuuaF : tuuaC -->[F] tuuaD) (ptuuaG : tuuaC -->[G] tuuaD)
+    : ptuuaF ==>[α] ptuuaG
+      -> nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ ptuuaF)
+          (functor_laxmon_from_layer _ _ ptuuaG)
+          α.
+  Proof.
+    intro ntu.
+    apply ntu.
+    (* exists (λ x y, pr111 ntu x y).
+    exact (pr211 ntu). *)
+  Defined.
+
+  Definition nattrans_laxmon_to_layer
+             {C D : bicat_of_univ_cats} {F G : bicat_of_univ_cats⟦C,D⟧} (α : F ==> G)
+             {tuuaC : disp_univlaxmon C} {tuuaD : disp_univlaxmon D}
+             (ptuuaF : tuuaC -->[F] tuuaD) (ptuuaG : tuuaC -->[G] tuuaD)
+    : nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ ptuuaF)
+          (functor_laxmon_from_layer _ _ ptuuaG)
+          α
+      -> ptuuaF ==>[α] ptuuaG.
+  Proof.
+    intro ntu.
+    repeat (use tpair) ; try (exact tt) ; try (apply ntu).
+  Defined.
+
+  Definition equivalence_nattrans_laxmon_with_layer
+             {C D : bicat_of_univ_cats} {F G : bicat_of_univ_cats⟦C,D⟧} (α : F ==> G)
+             {tuuaC : disp_univlaxmon C} {tuuaD : disp_univlaxmon D}
+             (ptuuaF : tuuaC -->[F] tuuaD) (ptuuaG : tuuaC -->[G] tuuaD)
+    : nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ ptuuaF)
+          (functor_laxmon_from_layer _ _ ptuuaG)
+          α
+          ≃ ptuuaF ==>[α] ptuuaG.
+  Proof.
+    use weq_iso.
+    - apply nattrans_laxmon_to_layer.
+    - apply nattrans_laxmon_from_layer.
+    - intro ; apply idpath.
+    - intro.
+      repeat (use total2_paths_f) ; try (apply idpath) ; try (apply isapropunit).
+  Defined.
+
+
+
+
+
+
+
+
+
 End LaxLayer.
 
 Section StrongMonoidalCatLayer.
@@ -203,7 +263,6 @@ Section StrongMonoidalCatLayer.
    Definition P_slu : bicat_univlaxmon -> UU
     :=  λ C : bicat_univlaxmon,
         strong_lunitor (pr2 (assunitors_from_layer (pr1 C)  (pr12 C))).
-
     Definition P_sru : bicat_univlaxmon -> UU
     :=  λ C : bicat_univlaxmon,
         strong_runitor (pr2 (assunitors_from_layer (pr1 C)  (pr12 C))).
