@@ -71,6 +71,7 @@ MonoidalCategories/ConstructionOfActions.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
+MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v

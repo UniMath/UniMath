@@ -540,12 +540,7 @@ Section FixTwoMonoidalFunctors.
 
   Section IntoMonoidalSection.
 
-    Context (α : F ⟹ G).
-
-    Definition is_mon_nat_trans : UU :=
-      (∏ (a a' : A), fmonoidal_preservestensordata Fm a a' · α (a ⊗_{V} a') = α a ⊗^{W} α a' · fmonoidal_preservestensordata Gm a a') × fmonoidal_preservesunit Fm · α I_{V} = fmonoidal_preservesunit Gm.
-
-    Context (ismnt : is_mon_nat_trans).
+    Context (α : F ⟹ G) (ismnt : is_mon_nat_trans Fm Gm α).
 
     Let ismnt_tensor := pr1 ismnt.
     Let ismnt_unit := pr2 ismnt.
@@ -635,7 +630,7 @@ Section FixTwoMonoidalFunctors.
 
     Definition nattrans_from_ms : F ⟹ G := section_to_nat_trans F G sd.
 
-    Lemma nattrans_from_ms_is_mon_nat_trans : is_mon_nat_trans nattrans_from_ms.
+    Lemma nattrans_from_ms_is_mon_nat_trans : is_mon_nat_trans Fm Gm nattrans_from_ms.
     Proof.
       split.
       - intros a a'.
@@ -675,7 +670,7 @@ Section FixTwoMonoidalFunctors.
 
   Section RoundtripForSDData.
 
-      Local Definition source_type: UU := ∑ α : F ⟹ G, is_mon_nat_trans α.
+      Local Definition source_type: UU := ∑ α : F ⟹ G, is_mon_nat_trans Fm Gm α.
       Local Definition target_type: UU := ∑ sd: section_disp (dialgebra_disp_cat F G),
             smonoidal_data V dialgebra_disp_monoidal sd.
 
