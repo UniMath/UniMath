@@ -294,19 +294,19 @@ Section TensorLayer.
 
   Definition tensor_eq {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       (idtomor _ _ (α x1 y1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (idtomor _ _ (α x2 y2)).
 
   Definition tensor_eq' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
       = (transportf _ (α x2 y2) (f ⊗^{TD} g)).
 
 
   Lemma idtomor_to_transport {C : univalent_category} (TC TD : tensor C)
         (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y))
-        {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
+        (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
     : (idtomor _ _ (α x1 y1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (idtomor _ _ (α x2 y2))
       -> transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
         = (transportf _ (α x2 y2) (f ⊗^{TD} g)).
@@ -328,7 +328,7 @@ Section TensorLayer.
 
   Lemma transport_to_idtomor {C : univalent_category} (TC TD : tensor C)
         (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y))
-        {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
+        (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
     : transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
       = (transportf _ (α x2 y2) (f ⊗^{TD} g))
       -> (idtomor _ _ (α x1 y1)) · (f ⊗^{TC} g) = (f ⊗^{TD} g) · (idtomor _ _ (α x2 y2)).
@@ -368,13 +368,13 @@ Section TensorLayer.
 
   Definition tensor_eq'' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (α x1 y1) (transportf _ (α x2 y2) (f ⊗^{TD} g)).
 
   Lemma transport_to_transport_f_f {C : univalent_category} (TC TD : tensor C)
         (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y))
-        {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
+        (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
     : transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
       = transportf _ (α x2 y2) (f ⊗^{TD} g)
       -> f ⊗^{TC} g
@@ -387,7 +387,7 @@ Section TensorLayer.
 
   Lemma transport_f_f_to_transport {C : univalent_category} (TC TD : tensor C)
         (α : ∏ x y : C, (x ⊗_{TD} y) = (x ⊗_{TC} y))
-        {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
+        (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧)
     : f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (α x1 y1) (transportf _ (α x2 y2) (f ⊗^{TD} g))
       -> transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (f ⊗^{TC} g)
@@ -609,7 +609,7 @@ Section TensorLayer.
 
   Definition tensor_eqi'' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       f ⊗^{TC} g
       = transportf (λ x : C, C⟦x , x2 ⊗_{TC} y2⟧) (! α x1 y1) (transportf _ (! α x2 y2) (f ⊗^{TD} g)).
 
@@ -647,7 +647,7 @@ Section TensorLayer.
 
   Definition tensor_eqi''' {C : univalent_category} (TC TD : tensor C) : UU
     := ∑ (α : ∏ x y : C, (x ⊗_{TC} y) = (x ⊗_{TD} y)),
-    ∏ {x1 x2 y1 y2 : C} (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
       transportf (λ x : C, C⟦x , x2 ⊗_{TD} y2⟧) (α x1 y1) (transportf (λ x : C, C⟦x1 ⊗_{TC} y1 , x⟧) (α x2 y2) (f ⊗^{TC} g)) = (f ⊗^{TD} g).
 
   Lemma independent_transportation_commutes {C : univalent_category}
