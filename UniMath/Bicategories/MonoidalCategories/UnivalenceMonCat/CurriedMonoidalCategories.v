@@ -605,7 +605,13 @@ Section Associator.
 
   Definition associator_nat {C : category} {tu : tensor_unit C} (α : associator_data tu) : UU
     := ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
-       (α x y z)· (f ⊗^{tu} (g ⊗^{tu} h)) = ((f ⊗^{tu} g) ⊗^{tu} h) · (α x' y' z').
+      (α x y z)· (f ⊗^{tu} (g ⊗^{tu} h)) = ((f ⊗^{tu} g) ⊗^{tu} h) · (α x' y' z').
+
+  Definition isaprop_associator_nat {C : category} {tu : tensor_unit C} (α : associator_data tu)
+    : isaprop (associator_nat α).
+  Proof.
+    repeat (apply impred_isaprop ; intro) ; apply homset_property.
+  Qed.
 
   Definition associator {C : category} (tu : tensor_unit C) : UU
     := ∑ α : associator_data tu, associator_nat α.
@@ -947,70 +953,74 @@ Section PentagonTriangle.
 
 End PentagonTriangle.
 
-Section Strong.
+Section CurriedLaxMonoidalCategories.
 
   Import TensorNotation.
   Import TensorUnitNotation.
   Import UnitorsAssociatorNotation.
 
-  Definition strong_lunitor {C : category}
+  Definition lunitor_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu) : UU
     := ∏ (x : C), is_z_isomorphism (pr1 lu^{ua} x).
 
-  Definition strong_runitor {C : category}
+  Definition runitor_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu) : UU
     := ∏ (x : C), is_z_isomorphism (pr1 ru^{ua} x).
 
-  Definition strong_associator {C : category}
+  Definition associator_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu) : UU
     := ∏ (x y z : C), is_z_isomorphism (pr1 ass^{ua} x y z).
 
-  Definition strong {C : category}
+  Definition invertible_data {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu)
              : UU
-    := strong_lunitor ua × strong_runitor ua × strong_associator ua.
+    := lunitor_invertible ua × runitor_invertible ua × associator_invertible ua.
 
-  Definition isaprop_strong_lunitor {C : category}
+  Definition isaprop_lunitor_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu)
-    : isaprop (strong_lunitor ua).
+    : isaprop (lunitor_invertible ua).
   Proof.
     repeat (apply impred_isaprop ; intro).
     apply isaprop_is_z_isomorphism.
   Qed.
 
-  Definition isaprop_strong_runitor {C : category}
+  Definition isaprop_runitor_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu)
-    : isaprop (strong_runitor ua).
+    : isaprop (runitor_invertible ua).
   Proof.
     repeat (apply impred_isaprop ; intro).
     apply isaprop_is_z_isomorphism.
   Qed.
 
-  Definition isaprop_strong_associator {C : category}
+  Definition isaprop_associator_invertible {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu)
-    : isaprop (strong_associator ua).
+    : isaprop (associator_invertible ua).
   Proof.
     repeat (apply impred_isaprop ; intro).
     apply isaprop_is_z_isomorphism.
   Qed.
 
-  Definition isaprop_strong {C : category}
+  Definition isaprop_invertible_data {C : category}
              {tu : tensor_unit C}
              {ua : unitors_associator tu}
-    : isaprop (strong ua).
+    : isaprop (invertible_data ua).
   Proof.
     repeat (apply isapropdirprod).
-    - apply isaprop_strong_lunitor.
-    - apply isaprop_strong_runitor.
-    - apply isaprop_strong_associator.
+    - apply isaprop_lunitor_invertible.
+    - apply isaprop_runitor_invertible.
+    - apply isaprop_associator_invertible.
   Qed.
+
+End CurriedLaxMonoidalCategories.
+
+Section StrongMonoidalFunctors.
 
   Definition functor_strong
              {C D : category}
@@ -1038,7 +1048,7 @@ Section Strong.
       apply isaprop_is_z_isomorphism.
   Qed.
 
-End Strong.
+End StrongMonoidalFunctors.
 
 Section MonoidalSigmaStructure.
 
@@ -1058,23 +1068,23 @@ Section MonoidalSigmaStructure.
   Coercion tensor_unit_unitors_associator_to_unitors_associator
     : tensor_unit_unitors_associator >-> unitors_associator.
 
-  Definition laxmon (C : category) : UU
+  (* Definition tensor_unit_unitors_associator_triangle_pentagon (C : category) : UU
     := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua.
 
-  Definition laxmon_to_tensor_unit_unitors_associator
-             {C : category} (lm : laxmon C)
-    : tensor_unit_unitors_associator C := pr1 lm.
-  Coercion laxmon_to_tensor_unit_unitors_associator
-    : laxmon >-> tensor_unit_unitors_associator.
+  Definition triangle_pentagon_to_tensor_unit_unitors_associator
+             {C : category} (M : tensor_unit_unitors_associator_triangle_pentagon C)
+    : tensor_unit_unitors_associator C := pr1 M.
+  Coercion triangle_pentagon_to_tensor_unit_unitors_associator
+    : tensor_unit_unitors_associator_triangle_pentagon >-> tensor_unit_unitors_associator. *)
 
-  Definition strongmon (C : category) : UU
-    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × strong tuua.
+  Definition mon_structure (C : category) : UU
+    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × invertible_data tuua.
 
-  Definition strongmon_to_laxmon
-             {C : category} (lm : strongmon C)
-    : laxmon C := (pr1 lm,, pr12 lm).
-  Coercion strongmon_to_laxmon
-    : strongmon >-> laxmon.
+  (* Definition mon_structure_to_triangle_pentagon
+             {C : category} (lm : mon_structure C)
+    : tensor_unit_unitors_associator_triangle_pentagon C := (pr1 lm,, pr12 lm).
+  Coercion mon_structure_to_triangle_pentagon
+    : mon_structure >-> tensor_unit_unitors_associator_triangle_pentagon. *)
 
 End MonoidalSigmaStructure.
 
