@@ -1,3 +1,18 @@
+(** **********************************************************
+
+Ralph Matthes
+
+August 2022
+*)
+
+(** **********************************************************
+
+Contents :
+
+- constructs the bicategory of whiskered monoidal categories
+
+ ************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.

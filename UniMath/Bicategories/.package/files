@@ -153,6 +153,8 @@ Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
+MonoidalCategories/MonoidalDialgebrasInserters.v
+
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
 Limits/PullbackEquivalences.v

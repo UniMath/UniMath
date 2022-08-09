@@ -537,6 +537,8 @@ Section FixTwoMonoidalFunctors.
 
   Definition dialgebra_monoidal : monoidal (dialgebra F G) := total_monoidal dialgebra_disp_monoidal.
 
+  Definition dialgebra_monoidal_pr1 : fmonoidal dialgebra_monoidal V (dialgebra_pr1 F G)
+    := projection_fmonoidal dialgebra_disp_monoidal.
 
   Section IntoMonoidalSection.
 
@@ -667,6 +669,42 @@ Section FixTwoMonoidalFunctors.
     Qed.
 
   End FromMonoidalSection.
+
+  (** the following lemma should be instance of a construction with lifting *)
+  Lemma dialgebra_monoidal_nat_trans :
+    is_mon_nat_trans (comp_fmonoidal_lax dialgebra_monoidal_pr1 Fm)
+                     (comp_fmonoidal_lax dialgebra_monoidal_pr1 Gm)
+                     (dialgebra_nat_trans F G).
+  Proof.
+    split.
+    + intros a a'.
+      unfold fmonoidal_preservestensordata. cbn.
+      unfold fmonoidal_preservestensordata.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata.
+      cbn.
+      unfold dialgebra_nat_trans_data.
+      do 2 rewrite functor_id.
+      do 2 rewrite id_right.
+      unfold dialgebra_disp_tensor_op.
+      etrans.
+      { repeat rewrite assoc. do 2 apply cancel_postcomposition.
+        apply (pr12 (fmonoidal_preservestensorstrongly Fm (pr1 a) (pr1 a'))). }
+      rewrite id_left.
+      apply idpath.
+    + unfold fmonoidal_preservesunit. cbn.
+      unfold fmonoidal_preservesunit.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit.
+      cbn.
+      unfold dialgebra_disp_unit.
+      do 2 rewrite functor_id.
+      do 2 rewrite id_right.
+      etrans.
+      { rewrite assoc. apply cancel_postcomposition.
+        apply (pr12 (fmonoidal_preservesunitstrongly Fm)). }
+      unfold fmonoidal_preservesunit.
+      apply id_left.
+  Qed.
+
 
   Section RoundtripForSDData.
 
