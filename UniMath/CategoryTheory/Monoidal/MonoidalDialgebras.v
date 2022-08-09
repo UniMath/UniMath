@@ -671,7 +671,7 @@ Section FixTwoMonoidalFunctors.
   End FromMonoidalSection.
 
   (** the following lemma should be instance of a construction with lifting *)
-  Lemma dialgebra_monoidal_nat_trans :
+  Lemma dialgebra_nat_trans_is_mon_nat_trans :
     is_mon_nat_trans (comp_fmonoidal_lax dialgebra_monoidal_pr1 Fm)
                      (comp_fmonoidal_lax dialgebra_monoidal_pr1 Gm)
                      (dialgebra_nat_trans F G).
