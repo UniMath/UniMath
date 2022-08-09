@@ -47,66 +47,291 @@ Local Open Scope mor_disp_scope.
 
 Import BifunctorNotations.
 
-Definition monbicat_inserter_cone {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧):
-  inserter_cone Fm Gm.
-Proof.
-  cbn in Fm, Gm.
-   use make_inserter_cone.
-   - exact (dialgebra (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
-   - exists (dialgebra_pr1 (pr1 Fm) (pr1 Gm)).
-     apply dialgebra_monoidal_pr1.
-   - exists (dialgebra_nat_trans (pr1 Fm) (pr1 Gm)).
-     apply dialgebra_nat_trans_is_mon_nat_trans.
-Defined.
+Section FixTwoMonoidalFunctors.
 
-Definition monbicat_inserter_ump_1 {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧):
-  has_inserter_ump_1 (monbicat_inserter_cone Fm Gm).
-Proof.
-  intro q.
-  transparent assert (q0 : (inserter_cone (pr1 Fm) (pr1 Gm))).
-  { use make_inserter_cone.
+  Context {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧).
+
+  Definition monbicat_inserter_cone :
+    inserter_cone Fm Gm.
+  Proof.
+    cbn in Fm, Gm.
+    use make_inserter_cone.
+    - exact (dialgebra (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
+    - exists (dialgebra_pr1 (pr1 Fm) (pr1 Gm)).
+      apply dialgebra_monoidal_pr1.
+    - exists (dialgebra_nat_trans (pr1 Fm) (pr1 Gm)).
+      apply dialgebra_nat_trans_is_mon_nat_trans.
+  Defined.
+
+  Local Definition underlying_inserter_cone (q : inserter_cone Fm Gm) : inserter_cone (pr1 Fm) (pr1 Gm).
+  Proof.
+    use make_inserter_cone.
     - exact (pr11 q).
     - exact (pr1 (inserter_cone_pr1 q)).
-    - exact (pr1 (inserter_cone_cell q)). }
-  set (mor_from_q0 := dialgebra_inserter_ump_1 (pr1 Fm) (pr1 Gm) q0).
-  use make_inserter_1cell.
-  - use tpair.
-    + exact mor_from_q0.
-    + cbn.
-      use tpair.
-      * use tpair.
-        -- split.
-           ++ intros x y.
-              use tpair.
-              ** cbn. apply (fmonoidal_preservestensordata (pr2 (inserter_cone_pr1 q) :
-                                 fmonoidal (pr21 q) (pr2 Mon_V) (pr1 (inserter_cone_pr1 q)))).
-              ** cbn. unfold dialgebra_disp_tensor_op, fmonoidal_preservestensordata.
-                 (** This is crying even more loudly for a displayed treament. *)
-Admitted.
+    - exact (pr1 (inserter_cone_cell q)).
+  Defined.
 
-Definition monbicat_inserter_ump_2 {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧):
-  has_inserter_ump_2 (monbicat_inserter_cone Fm Gm).
-Proof.
-Admitted.
+  Local Definition underlying_inserter_1cell (q : inserter_cone Fm Gm) :
+    inserter_1cell (underlying_inserter_cone q) (dialgebra_inserter_cone (pr1 Fm) (pr1 Gm))
+    := dialgebra_inserter_ump_1 (pr1 Fm) (pr1 Gm) (underlying_inserter_cone q).
 
-Definition monbicat_inserter_ump_eq {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧):
-  has_inserter_ump_eq (monbicat_inserter_cone Fm Gm).
-Proof.
-Admitted.
+  Local Definition fmonoidal_underlying_inserter_1cell (q : inserter_cone Fm Gm) :
+    fmonoidal (pr21 q)
+              (dialgebra_monoidal (pr2 Fm) ((pr12 Gm): fmonoidal_lax (pr2 Mon_V) (pr2 Mon_W) _))
+              (pr1 (underlying_inserter_1cell q)).
+  Proof.
+    induction q as [Mon_U [Hm α]].
+    use tpair.
+    - use tpair.
+      + split.
+        * intros x y.
+          use tpair.
+          -- cbn.
+             apply (fmonoidal_preservestensordata (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm))).
+          -- cbn. unfold dialgebra_disp_tensor_op, fmonoidal_preservestensordata.
+             repeat rewrite assoc'.
+             apply (z_iso_inv_on_right _ _ _
+                      (_,,fmonoidal_preservestensorstrongly (pr2 Fm) (pr1 (pr1 Hm) x) (pr1 (pr1 Hm) y))).
+             cbn.
+             unfold fmonoidal_preservestensordata.
+             assert (aux := pr12 α x y). cbn in aux.
+             etrans.
+             2: { apply assoc'. }
+             apply pathsinv0, aux.
+        * use tpair.
+          -- cbn.
+             apply (fmonoidal_preservesunit (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm))).
+          -- cbn. unfold dialgebra_disp_unit, fmonoidal_preservesunit.
+             rewrite assoc'.
+             apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservesunitstrongly (pr2 Fm))).
+             cbn.
+             unfold fmonoidal_preservesunit.
+             assert (aux := pr22 α). cbn in aux.
+             etrans.
+             2: { apply assoc'. }
+             apply pathsinv0, aux.
+      + repeat split; (red; cbn; intros; use total2_paths_f; [cbn | apply (pr1 Mon_W)]). (* the lax functor laws *)
+        * apply fmonoidal_preservestensornatleft.
+        * apply fmonoidal_preservestensornatright.
+        * apply fmonoidal_preservesassociativity.
+        * apply fmonoidal_preservesleftunitality.
+        * apply fmonoidal_preservesrightunitality.
+    - cbn; split.
+      + intros x y.
+        use tpair.
+        * use tpair.
+          -- cbn.
+             apply (pr1 (fmonoidal_preservestensorstrongly (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm)) x y)).
+          -- cbn. unfold dialgebra_disp_tensor_op, fmonoidal_preservestensordata.
+             repeat rewrite assoc'.
+             match goal with | [ |- _ = ?HR1 · _]  => set (R1 := HR1) end.
+             transparent assert (auxiso : (z_iso (pr11 Fm (pr11 Hm (x ⊗_{ pr12 Mon_U : tensor (pr1 Mon_U)} y)))
+                                             (pr11 Fm (pr11 Hm x ⊗_{ pr12 Mon_V} pr11 Hm y)))).
+             { exists R1.
+               exists ((# (pr11 Fm))%Cat (fmonoidal_preservestensordata (pr12 Hm) x y)).
+               split.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr22 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)). }
+                 apply functor_id.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr12 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)). }
+                 apply functor_id.
+             }
+             apply (z_iso_inv_to_left _ _ _ auxiso).
+             cbn.
+             apply pathsinv0, (z_iso_inv_on_right _ _ _
+                                 (_,,fmonoidal_preservestensorstrongly (pr2 Fm) (pr11 Hm x) (pr11 Hm y))).
+             cbn.
+             repeat rewrite assoc.
+             match goal with | [ |- _ = _ · ?HR4 ]  => set (R4 := HR4) end.
+             transparent assert (auxiso' : (z_iso (pr11 Gm (pr11 Hm (x ⊗_{ pr12 Mon_U : tensor (pr1 Mon_U)} y)))
+                                             (pr11 Gm (pr11 Hm x ⊗_{ pr12 Mon_V} pr11 Hm y)))).
+             { exists R4.
+               exists ((# (pr11 Gm))%Cat (fmonoidal_preservestensordata (pr12 Hm) x y)).
+               split.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr22 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)). }
+                 apply functor_id.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr12 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)). }
+                 apply functor_id.
+             }
+             apply pathsinv0, (z_iso_inv_to_right _ _ _ _ auxiso').
+             cbn.
+             assert (aux := pr12 α x y). cbn in aux.
+             etrans.
+             2: { apply assoc. }
+             exact aux.
+        * cbn. split.
+          -- use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+             apply (pr12 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)).
+          -- use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+             apply (pr22 (fmonoidal_preservestensorstrongly (pr2 Hm) x y)).
+      + use tpair.
+        * use tpair.
+          -- cbn.
+             apply (pr1 (fmonoidal_preservesunitstrongly (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm)))).
+          -- cbn. unfold dialgebra_disp_tensor_op, dialgebra_disp_unit, fmonoidal_preservesunit.
+             match goal with | [ |- _ = ?HR1 · _]  => set (R1 := HR1) end.
+             transparent assert (auxiso : (z_iso (pr11 Fm (pr11 Hm I_{ pr12 Mon_U }))
+                                             (pr11 Fm I_{ pr12 Mon_V}))).
+             { exists R1.
+               exists ((# (pr11 Fm))%Cat (fmonoidal_preservesunit (pr12 Hm))).
+               split.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr22 (fmonoidal_preservesunitstrongly (pr2 Hm))). }
+                 apply functor_id.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr12 (fmonoidal_preservesunitstrongly (pr2 Hm))). }
+                 apply functor_id.
+             }
+             apply (z_iso_inv_to_left _ _ _ auxiso).
+             cbn.
+             apply pathsinv0, (z_iso_inv_on_right _ _ _
+                                 (_,,fmonoidal_preservesunitstrongly (pr2 Fm))).
+             cbn.
+             repeat rewrite assoc.
+             match goal with | [ |- _ = _ · ?HR4 ]  => set (R4 := HR4) end.
+             transparent assert (auxiso' : (z_iso (pr11 Gm (pr11 Hm I_{ pr12 Mon_U}))
+                                             (pr11 Gm I_{ pr12 Mon_V}))).
+             { exists R4.
+               exists ((# (pr11 Gm))%Cat (fmonoidal_preservesunit (pr12 Hm))).
+               split.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr22 (fmonoidal_preservesunitstrongly (pr2 Hm))). }
+                 apply functor_id.
+               - etrans.
+                 { apply pathsinv0, functor_comp. }
+                 etrans.
+                 { apply maponpaths.
+                   exact (pr12 (fmonoidal_preservesunitstrongly (pr2 Hm))). }
+                 apply functor_id.
+             }
+             apply pathsinv0, (z_iso_inv_to_right _ _ _ _ auxiso').
+             cbn.
+             assert (aux := pr22 α). cbn in aux.
+             exact aux.
+        * cbn. split.
+          -- use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+             apply (pr12 (fmonoidal_preservesunitstrongly (pr2 Hm))).
+          -- use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+             apply (pr22 (fmonoidal_preservesunitstrongly (pr2 Hm))).
+             Time Defined.
 
+  Lemma is_mon_nat_trans_underlying_inserter_1cell_pr1 (q : inserter_cone Fm Gm) :
+    is_mon_nat_trans
+      (comp_fmonoidal (fmonoidal_underlying_inserter_1cell q) (dialgebra_monoidal_pr1 (pr2 Fm) (pr12 Gm)))
+      (pr12 (inserter_cone_pr1 q))
+      (pr1 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
+  Proof.
+    split.
+    - intros x y.
+      cbn.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata, fmonoidal_preservestensordata.
+      rewrite id_left.
+      rewrite id_right.
+      etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, bifunctor_distributes_over_id.
+           - apply bifunctor_leftid.
+           - apply bifunctor_rightid.
+      }
+      apply pathsinv0, id_left.
+    - cbn.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit, fmonoidal_preservesunit.
+      rewrite id_left.
+      apply id_right.
+  Defined.
 
-Definition has_inserters_monbicat : has_inserters monbicat.
-Proof.
-  intros Mon_V Mon_W Fm Gm.
-  cbn in Fm, Gm.
-  exists (dialgebra (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
-  simple refine (_ ,, _ ,, _).
-  - cbn. exists (dialgebra_pr1 (pr1 Fm) (pr1 Gm)).
-    apply dialgebra_monoidal_pr1.
-  - cbn. exists (dialgebra_nat_trans (pr1 Fm) (pr1 Gm)).
-    apply dialgebra_nat_trans_is_mon_nat_trans.
-  - simple refine (_ ,, _ ,, _).
-    + exact (monbicat_inserter_ump_1 Fm Gm).
-    + exact (monbicat_inserter_ump_2 Fm Gm).
-    + exact (monbicat_inserter_ump_eq Fm Gm).
-Defined.
+  Definition monbicat_inserter_ump_1 :
+    has_inserter_ump_1 monbicat_inserter_cone.
+  Proof.
+    intro q.
+    use make_inserter_1cell.
+    - use tpair.
+      + exact (underlying_inserter_1cell q).
+      + exact (fmonoidal_underlying_inserter_1cell q).
+    - use tpair.
+      + use tpair.
+        * exact (pr112 (underlying_inserter_1cell q)).
+        * apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+      + use tpair.
+        * use tpair.
+          -- exact (pr12 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
+          -- apply is_mon_nat_trans_pointwise_inverse.
+             apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+        * split.
+          -- use total2_paths_f.
+             ++ cbn. apply nat_trans_eq; try apply (pr1 Mon_V).
+                intro x. cbn.
+                apply id_left.
+             ++ apply isaprop_is_mon_nat_trans.
+          -- use total2_paths_f.
+             ++ cbn. apply nat_trans_eq; try apply (pr1 Mon_V).
+                intro x. cbn.
+                apply id_left.
+             ++ apply isaprop_is_mon_nat_trans.
+    - use total2_paths_f.
+      + cbn. apply nat_trans_eq; try apply (pr1 Mon_W).
+        intro x. cbn.
+        rewrite id_right.
+        rewrite id_left.
+        etrans.
+        { apply maponpaths.
+          apply functor_id. }
+        rewrite id_right.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, functor_id. }
+        apply pathsinv0, id_left.
+      + apply isaprop_is_mon_nat_trans.
+  Defined.
+
+  Definition monbicat_inserter_ump_2 :
+    has_inserter_ump_2 monbicat_inserter_cone.
+  Proof.
+  Admitted.
+
+  Definition monbicat_inserter_ump_eq :
+    has_inserter_ump_eq monbicat_inserter_cone.
+  Proof.
+  Admitted.
+
+End FixTwoMonoidalFunctors.
+
+  Definition has_inserters_monbicat : has_inserters monbicat.
+  Proof.
+    intros Mon_V Mon_W Fm Gm.
+    cbn in Fm, Gm.
+    exists (dialgebra (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
+    simple refine (_ ,, _ ,, _).
+    - cbn. exists (dialgebra_pr1 (pr1 Fm) (pr1 Gm)).
+      apply dialgebra_monoidal_pr1.
+    - cbn. exists (dialgebra_nat_trans (pr1 Fm) (pr1 Gm)).
+      apply dialgebra_nat_trans_is_mon_nat_trans.
+    - simple refine (_ ,, _ ,, _).
+      + exact (monbicat_inserter_ump_1 Fm Gm).
+      + exact (monbicat_inserter_ump_2 Fm Gm).
+      + exact (monbicat_inserter_ump_eq Fm Gm).
+  Defined.

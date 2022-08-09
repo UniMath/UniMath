@@ -534,3 +534,30 @@ Section MonoidalNaturalTransformations.
   Qed.
 
 End MonoidalNaturalTransformations.
+
+Section InverseMonoidalNaturalTransformation.
+
+  Context {C D : category} {M : monoidal C} {N : monoidal D}
+    {F G : functor C D} (Fm : fmonoidal_lax M N F) (Gm : fmonoidal_lax M N G)
+    (α : F ⟹ G).
+
+  Lemma is_mon_nat_trans_pointwise_inverse (isnziα : is_nat_z_iso α) :
+    is_mon_nat_trans Fm Gm α -> is_mon_nat_trans Gm Fm (nat_z_iso_inv (α,,isnziα)).
+  Proof.
+    intro ismnt. split.
+    - intros x y.
+      cbn.
+      unfold fmonoidal_preservestensordata.
+      set (aux := (_,, is_z_iso_bifunctor_z_iso (monoidal_tensor N) _ _ (isnziα x) (isnziα y)) : z_iso _ _).
+      apply pathsinv0, (z_iso_inv_on_right _ _ _ aux).
+      rewrite assoc.
+      apply (z_iso_inv_on_left _ _ _ _ (_,,isnziα (x ⊗_{ M} y))).
+      cbn.
+      apply (!(pr1 ismnt x y)).
+    - cbn.
+      apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (_,,isnziα I_{M})).
+      apply (!(pr2 ismnt)).
+  Qed.
+
+
+End InverseMonoidalNaturalTransformation.

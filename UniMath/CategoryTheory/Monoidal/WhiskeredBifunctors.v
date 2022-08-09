@@ -157,6 +157,36 @@ Section Bifunctor.
     apply id_right.
   Qed.
 
+  Definition is_z_iso_bifunctor_z_iso (F : bifunctor) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧)
+    (f_is_z_iso : is_z_isomorphism f) (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f ⊗^{ F } g).
+  Proof.
+    use tpair.
+    - exact (is_z_isomorphism_mor f_is_z_iso ⊗^{ F } is_z_isomorphism_mor g_is_z_iso).
+    - split.
+      + etrans.
+        { apply pathsinv0, bifunctor_distributes_over_comp.
+          - apply bifunctor_leftcomp.
+          - apply bifunctor_rightcomp.
+          - apply bifunctor_equalwhiskers. }
+        unfold is_z_isomorphism_mor.
+        rewrite (pr12 f_is_z_iso).
+        rewrite (pr12 g_is_z_iso).
+        apply bifunctor_distributes_over_id.
+        * apply bifunctor_leftid.
+        * apply bifunctor_rightid.
+      + etrans.
+        { apply pathsinv0, bifunctor_distributes_over_comp.
+          - apply bifunctor_leftcomp.
+          - apply bifunctor_rightcomp.
+          - apply bifunctor_equalwhiskers. }
+        unfold is_z_isomorphism_mor.
+        rewrite (pr22 f_is_z_iso).
+        rewrite (pr22 g_is_z_iso).
+        apply bifunctor_distributes_over_id.
+        * apply bifunctor_leftid.
+        * apply bifunctor_rightid.
+  Defined.
+
 End Bifunctor.
 
   Arguments bifunctor_data : clear implicits.
@@ -286,7 +316,7 @@ Section WhiskeredBinaturaltransformation.
     ∑ (α : binat_trans_data F G), is_binat_trans α.
 
   Definition binattransdata_from_binattrans {F G : bifunctor A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
-  
+
   (* Something like this is done in Core.NaturalTransformation, but I don't really know what this funclass is,
      I inserted this to use (α x y) without having to project, it would be good to have some explanation,
      also I don't understand why making a coercion for binattransdata_from_binattrans is not sufficient
