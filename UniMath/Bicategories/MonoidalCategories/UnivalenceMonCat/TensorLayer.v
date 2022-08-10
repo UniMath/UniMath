@@ -988,84 +988,51 @@ Section TensorLayer.
     - intros x y.
 
       set (α_natiso := (invertible_2cell_to_nat_z_iso F G α)).
-      set (αxy_iso := pr2 α_natiso (tensor_on_ob (TC : tensor (C : univalent_category)) x y)).
-
-      etrans. {
-        apply cancel_precomposition.
-        apply (! id_right _).
+      set (α_natisox := nat_z_iso_pointwise_z_iso α_natiso x : z_iso (pr1 F x) (pr1 G x)).
+      set (α_natisoy := nat_z_iso_pointwise_z_iso α_natiso y : z_iso (pr1 F y) (pr1 G y)).
+      set (α_natisoxty := nat_z_iso_pointwise_z_iso α_natiso (x ⊗_{ TC: tensor (C : univalent_category)} y)
+             : z_iso (pr1 F (x ⊗_{ TC: tensor (C : univalent_category)} y))
+                     (pr1 G (x ⊗_{ TC: tensor (C : univalent_category)} y))
+          ).
+      transparent assert (α_natisotxmym
+                           : (z_iso
+                                (pr1 G x ⊗_{ TD: tensor (D : univalent_category)} pr1 G y)
+                                (pr1 F x ⊗_{ TD: tensor (D : univalent_category)} pr1 F y)
+                             )
+                         ).
+      {
+        exists (pr1 (α ^-1)%bicategory x ⊗^{ TD: tensor (D : univalent_category)} pr1 (α ^-1)%bicategory y).
+        exists (pr11 α%bicategory x ⊗^{ TD: tensor (D : univalent_category)} pr11 α%bicategory y).
+        split.
+        - rewrite <- tensor_comp.
+          etrans.
+          {
+            apply (maponpaths (t2:=identity (pr1 G x)) (fun l => l ⊗^{ TD: tensor (D : univalent_category)} (pr1 (α ^-1)%bicategory y · (pr11 α) y))).
+            apply (pr222 α_natisox).
+          }
+          etrans.
+          { apply maponpaths. apply (pr222 α_natisoy). }
+          apply tensor_id.
+        - rewrite <- tensor_comp.
+          etrans.
+          {
+            apply (maponpaths (t2:=identity (pr1 F x)) (fun l => l ⊗^{ TD: tensor (D : univalent_category)} ((pr11 α) y · pr1 (α ^-1)%bicategory y))).
+            apply (pr122 α_natisox).
+          }
+          etrans.
+          { apply maponpaths. apply (pr122 α_natisoy). }
+          apply tensor_id.
       }
 
-      etrans. {
-        apply cancel_precomposition.
-        apply cancel_precomposition.
-        exact (! pr12 αxy_iso).
-      }
+      apply (z_iso_inv_to_left _ _ _ α_natisotxmym).
+      rewrite assoc.
 
-      use pathscomp0.
-      3: { apply (id_right). }
-      use pathscomp0.
-      3: {
-        apply cancel_precomposition.
-        exact (pr12 αxy_iso).
-      }
 
-      etrans. {
-        apply cancel_precomposition.
-        apply assoc.
-      }
-      etrans. { apply assoc. }
-      use pathscomp0.
-      3: apply assoc'.
-
-      apply cancel_postcomposition.
-
-      etrans. {
-        apply cancel_precomposition.
-        apply (pr22 αxy_iso).
-      }
-      etrans. { apply id_right. }
-
-      use pathscomp0.
-      3: {
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply (! ptc x y).
-      }
-      use pathscomp0.
-      3: {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        apply tensor_comp.
-      }
-
-      use pathscomp0.
-      3: {
-        apply cancel_postcomposition.
-        apply maponpaths.
-        apply (! pr22 (pr2 α_natiso y)).
-      }
-      set (αx_iso := pr22 (pr2 α_natiso x)).
-
-      assert (pf : ∏ (x y z w : (D : univalent_category))
-                     (f : (D : univalent_category)⟦x,y⟧)
-                     (f' : (D : univalent_category)⟦x,y⟧)
-                     (g : (D : univalent_category)⟦z,w⟧),
-                 f=f' -> tensor_on_hom (TD : tensor (D : univalent_category)) x y z w f g = tensor_on_hom (TD : tensor (D : univalent_category)) _ _ _ _ f' g). {
-        intros ? ? ? ? ? ? ? p.
-        induction p.
-        apply idpath.
-      }
-
-      use pathscomp0.
-      3: {
-        apply cancel_postcomposition.
-        apply (! pf _ _ _ _ _ _ _ αx_iso).
-      }
-      rewrite tensor_id.
-      apply (! id_left _).
-    - use tpair.
-      + apply isaprop_bidisp_tensor_disp_2cell_struct.
-      + apply isaprop_bidisp_tensor_disp_2cell_struct.
+      apply pathsinv0, (z_iso_inv_on_left _ _ _ _ α_natisoxty).
+      cbn.
+      cbn in ptc. unfold bidisp_tensor_disp_2cell_struct in ptc. red in ptc.
+      apply pathsinv0, ptc.
+    - split ; apply isaprop_bidisp_tensor_disp_2cell_struct.
   Qed.
 
 End TensorLayer.
