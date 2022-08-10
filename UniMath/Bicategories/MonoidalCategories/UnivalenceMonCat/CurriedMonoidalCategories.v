@@ -974,7 +974,7 @@ Section CurriedLaxMonoidalCategories.
              (ua : unitors_associator tu) : UU
     := ∏ (x y z : C), is_z_isomorphism (pr1 ass^{ua} x y z).
 
-  Definition invertible_data {C : category}
+  Definition unitors_associator_are_z_isos {C : category}
              {tu : tensor_unit C}
              (ua : unitors_associator tu)
              : UU
@@ -1010,7 +1010,7 @@ Section CurriedLaxMonoidalCategories.
   Definition isaprop_invertible_data {C : category}
              {tu : tensor_unit C}
              {ua : unitors_associator tu}
-    : isaprop (invertible_data ua).
+    : isaprop (unitors_associator_are_z_isos ua).
   Proof.
     repeat (apply isapropdirprod).
     - apply isaprop_lunitor_invertible.
@@ -1069,7 +1069,7 @@ Section MonoidalSigmaStructure.
     : tensor_unit_unitors_associator >-> unitors_associator.
 
   Definition mon_structure (C : category) : UU
-    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × invertible_data tuua.
+    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × unitors_associator_are_z_isos tuua.
 
   Definition mon_structure_to_tensor_unit_unitors_associator
              {C : category} (lm : mon_structure C)
@@ -1078,7 +1078,7 @@ Section MonoidalSigmaStructure.
     : mon_structure >-> tensor_unit_unitors_associator.
   Definition mon_structure_triangle_pentagon
              {C : category} (lm : mon_structure C)
-    : triangle_pentagon lm × invertible_data lm := pr2 lm.
+    : triangle_pentagon lm × unitors_associator_are_z_isos lm := pr2 lm.
 
 End MonoidalSigmaStructure.
 

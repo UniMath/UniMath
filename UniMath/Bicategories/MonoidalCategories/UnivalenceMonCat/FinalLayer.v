@@ -1,7 +1,7 @@
 (*
 This is the last file which concludes that the bicategory of univalent monoidal categories is again univalent.
-In this file we conclude that both the bicategory of univalent monoidal categories with lax monoidal functors is univalent
-and that the result still holds when we replace lax by strong monoidal functors.
+In this file we conclude that both the bicategory of univalent monoidal categories with lax monoidal functors, denoted by UMONCAT, is univalent
+and that the result still holds when we replace lax by strong monoidal functors, we denote this bicategory by UMONCAT_strong.
 *)
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
@@ -123,6 +123,15 @@ Section MonoidalCategoryLayer.
     - apply disp_locally_groupoid_fullsubbicat.
   Qed.
 
+  (* UMONCAT is the bicategory defined as follows:
+     - Objects: Monoidal categories (over univalent categories).
+     - Morphisms: Lax monoidal functors.
+     - 2-cells: Monoidal natural transformations.
+
+     This bicategory is constructed precisely such that
+     we are able to carry out a modular proof of univalence,
+     as seen in UMONCAT_is_univalent_2.
+   *)
   Definition UMONCAT : bicat := total_bicat disp_univmon.
 
   Definition UMONCAT_is_univalent_2 : is_univalent_2 UMONCAT.
@@ -287,9 +296,18 @@ Section StrongLayer.
     - apply disp_bicat_univstrongfunctor_is_univalent_2.
   Qed.
 
+  (* UMONCAT is the bicategory defined as follows:
+     - Objects: Monoidal categories (over univalent categories).
+     - Morphisms: Strong monoidal functors (not requiring any functorial strength).
+     - 2-cells: Monoidal natural transformations.
+
+     This bicategory is constructed precisely such that
+     we are able to carry out a modular proof of univalence,
+     as seen in UMONCAT_strong_is_univalent_2.
+   *)
   Definition UMONCAT_strong : bicat := total_bicat disp_univstrongfunctor.
 
-  Definition bicat_univstrongfunctor_is_univalent_2 : is_univalent_2 UMONCAT_strong.
+  Definition UMONCAT_strong_is_univalent_2 : is_univalent_2 UMONCAT_strong.
   Proof.
     apply total_is_univalent_2.
     - apply disp_univstrongfunctor_is_univalent_2.
