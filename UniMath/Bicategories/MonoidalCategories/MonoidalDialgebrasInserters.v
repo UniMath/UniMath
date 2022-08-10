@@ -9,7 +9,7 @@ August 2022
 
 Contents :
 
-- tries to identify monoidal dialgebras as inserters in the bicategory of whiskered monoidal categories
+- identifies monoidal dialgebras as inserters in the bicategory of whiskered monoidal categories
 
  ************************************************************)
 
