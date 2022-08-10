@@ -362,7 +362,13 @@ Section FixTwoMonoidalFunctors.
   Definition monbicat_inserter_ump_eq :
     has_inserter_ump_eq monbicat_inserter_cone.
   Proof.
-  Admitted.
+    intros Mon_U Hm H'm α Hyp ϕ1 ϕ2 eqϕ1 eqϕ2.
+    use total2_paths_f; [cbn | apply isaprop_is_mon_nat_trans].
+    use (dialgebra_inserter_ump_eq (pr1 Fm) (pr1 Gm) (pr1 Mon_U) (pr1 Hm) (pr1 H'm)
+         (pr1 α) (maponpaths pr1 Hyp)).
+    - exact (maponpaths pr1 eqϕ1).
+    - exact (maponpaths pr1 eqϕ2).
+  Defined.
 
 End FixTwoMonoidalFunctors.
 
