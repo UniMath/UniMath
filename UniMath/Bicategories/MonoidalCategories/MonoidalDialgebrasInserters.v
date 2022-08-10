@@ -308,10 +308,56 @@ Section FixTwoMonoidalFunctors.
       + apply isaprop_is_mon_nat_trans.
   Defined.
 
+  Section UMP2Prep.
+
+  Context {Mon_U : monbicat}
+  {Hm H'm : monbicat ⟦ Mon_U, monbicat_inserter_cone ⟧}
+  (α : prebicat_cells monbicat (Hm · inserter_cone_pr1 monbicat_inserter_cone) (H'm · inserter_cone_pr1 monbicat_inserter_cone))
+  (Hyp : vcomp2
+          (vcomp2 (vcomp2 (rassociator Hm (inserter_cone_pr1 monbicat_inserter_cone) Fm) (lwhisker Hm (inserter_cone_cell monbicat_inserter_cone)))
+             (lassociator Hm (inserter_cone_pr1 monbicat_inserter_cone) Gm)) (rwhisker Gm α) =
+        vcomp2 (vcomp2 (vcomp2 (rwhisker Fm α) (rassociator H'm (inserter_cone_pr1 monbicat_inserter_cone) Fm)) (lwhisker H'm (inserter_cone_cell monbicat_inserter_cone)))
+          (lassociator H'm (inserter_cone_pr1 monbicat_inserter_cone) Gm)).
+
+  Local Definition underlying_inserter_ump_2
+    : ∑ ζ : prebicat_cells bicat_of_cats (pr1 Hm) (pr1 H'm),
+        rwhisker (inserter_cone_pr1 (dialgebra_inserter_cone (pr1 Fm) (pr1 Gm))) ζ = pr1 α
+    := dialgebra_inserter_ump_2 (pr1 Fm) (pr1 Gm) (pr1 Mon_U) (pr1 Hm) (pr1 H'm)
+         (pr1 α) (maponpaths pr1 Hyp).
+
+  Local Definition underlying_inserter_ump_cell : prebicat_cells bicat_of_cats (pr1 Hm) (pr1 H'm)
+    := pr1 underlying_inserter_ump_2.
+
+  Local Lemma is_mon_nat_trans_underlying_inserter_ump_cell :
+    is_mon_nat_trans (pr2 Hm : fmonoidal (pr2 Mon_U) _ _)
+                     (pr2 H'm : fmonoidal (pr2 Mon_U) _ _)
+                     underlying_inserter_ump_cell.
+  Proof.
+    split.
+    - intros x y. use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+      assert (aux := pr12 α x y). cbn in aux.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata in aux.
+      do 2 rewrite id_left in aux.
+      exact aux.
+    - use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+      assert (aux := pr22 α). cbn in aux.
+      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit in aux.
+      do 2 rewrite id_left in aux.
+      exact aux.
+  Qed.
+
+  End UMP2Prep.
+
   Definition monbicat_inserter_ump_2 :
     has_inserter_ump_2 monbicat_inserter_cone.
   Proof.
-  Admitted.
+    intros Mon_U Hm H'm α Hyp.
+    exists (underlying_inserter_ump_cell α Hyp,,
+         is_mon_nat_trans_underlying_inserter_ump_cell α Hyp).
+    use total2_paths_f; [cbn | apply isaprop_is_mon_nat_trans].
+    apply nat_trans_eq; try apply (pr1 Mon_V).
+    intro x. apply idpath.
+  Defined.
 
   Definition monbicat_inserter_ump_eq :
     has_inserter_ump_eq monbicat_inserter_cone.
