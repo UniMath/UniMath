@@ -5,11 +5,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
-Require Import UniMath.Bicategories.Core.Bicat.
-
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesReordered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
 
@@ -187,7 +186,8 @@ Section MonoidalCategoryEquivalence.
     use weqtotal2.
     { apply idweq. }
     intro α.
-    use weq_iso.
+
+    apply weqimplimpl.
     {
       intro αnat.
       repeat split.
@@ -246,21 +246,9 @@ Section MonoidalCategoryEquivalence.
         apply id_left.
     }
     {
-      intro.
-      repeat (apply funextsec ; intro).
-      apply homset_property.
-    }
-    intro.
-    assert (q : isaprop (associator_nat_leftwhisker
-        (idweq (MonoidalCategoriesWhiskered.associator_data (tensor_unit_equivalence C tu)) α)
-      × associator_nat_rightwhisker
-          (idweq (MonoidalCategoriesWhiskered.associator_data (tensor_unit_equivalence C tu)) α)
-        × associator_nat_leftrightwhisker
-        (idweq (MonoidalCategoriesWhiskered.associator_data (tensor_unit_equivalence C tu)) α))).
-    {
       repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
     }
-    apply q.
+    repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
   Defined.
 
   Lemma isaprop_lax_monoidal_leftunitor_inverse {C : category}
@@ -317,7 +305,7 @@ Section MonoidalCategoryEquivalence.
     - apply l1.
   Defined.
 
-  Definition wmon_equivalent_monreorderd (C : category)
+  Definition cmon_equiv_monreordered (C : category)
     : CurriedMonoidalCategories.mon_structure C ≃ MonoidalCategoriesReordered.monoidal_struct C.
   Proof.
     use weqtotal2.
@@ -358,12 +346,216 @@ Section MonoidalCategoryEquivalence.
       + intro ; apply isaprop_lax_monoidal_associator_inverse.
   Defined.
 
+  Definition cmonoidal_to_cmonoidalreordered
+             {C : category} (M : CurriedMonoidalCategories.mon_structure C)
+    : MonoidalCategoriesReordered.monoidal_struct C := cmon_equiv_monreordered C M.
+
+  Definition cmonoidal_to_cmonoidalReordered
+             {C : category} (M : MonoidalCategoriesReordered.monoidal_struct C)
+    : CurriedMonoidalCategories.mon_structure C
+    := invmap (cmon_equiv_monreordered C) M.
+
+  Definition cmon_equiv_wmon (C : category)
+    : CurriedMonoidalCategories.mon_structure C ≃ MonoidalCategoriesWhiskered.monoidal C
+    := (monoidal_struct_equiv_monoidal C ∘ cmon_equiv_monreordered C)%weq.
+
+  Definition cmonoidal_to_wmonoidal
+             {C : category} (M : CurriedMonoidalCategories.mon_structure C)
+    : MonoidalCategoriesWhiskered.monoidal C := cmon_equiv_wmon C M.
+
+  Definition wmonoidal_to_cmonoidal
+             {C : category} (M : MonoidalCategoriesWhiskered.monoidal C)
+    : CurriedMonoidalCategories.mon_structure C
+    := invmap (cmon_equiv_wmon C) M.
+
 End MonoidalCategoryEquivalence.
 
 Section MonoidalFunctorEquivalence.
 
+  Context {C D : category} (F : functor C D)
+          (MC : CurriedMonoidalCategories.mon_structure C)
+          (MD : CurriedMonoidalCategories.mon_structure D).
+
+  Definition cmonfunctor : UU := CurriedMonoidalCategories.functor_lax_monoidal F MC MD.
+  Definition wmonfunctordata : UU
+    := MonoidalFunctorsWhiskered.fmonoidal_data
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  Definition wmonfunctorlaws (MF : wmonfunctordata)
+    := MonoidalFunctorsWhiskered.fmonoidal_laxlaws MF.
+
+  Definition wmonfunctor : UU
+    := MonoidalFunctorsWhiskered.fmonoidal_lax
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  Definition cmonfunctor_to_wmonfunctordata
+    : cmonfunctor -> wmonfunctordata.
+  Proof.
+    intro cmf.
+    split ; repeat (intro) ; apply cmf.
+  Defined.
+
+  (* The proof runs perfectly and immediate, however, Qed is stuck in a loop *)
+  Definition cmonfunctor_to_wmonfunctorlaws (cmf : cmonfunctor)
+    : wmonfunctorlaws (cmonfunctor_to_wmonfunctordata cmf).
+  Proof.
+    (* repeat split ; try (repeat intro ; apply (pr2 cmf)).
+    - intros x y1 y2 g.
+      refine (_ @ ! pr211 cmf x x y1 y2 (identity x) g).
+      unfold leftwhiskering_on_morphisms.
+      simpl.
+      do 2 apply maponpaths_2.
+      apply (! functor_id _ _).
+    - intros x1 x2 y f.
+      refine (_ @ ! pr211 cmf x1 x2 y y f (identity y)).
+      apply maponpaths_2.
+      unfold rightwhiskering_on_morphisms.
+      simpl.
+      apply maponpaths.
+      apply (! functor_id _ _). *)
+  Admitted.
+  
+  Definition cmonfunctor_to_wmonfunctor
+    : cmonfunctor -> wmonfunctor
+    := (λ cmf, cmonfunctor_to_wmonfunctordata cmf ,, cmonfunctor_to_wmonfunctorlaws cmf).
+
+  Definition wmonfunctor_to_cmontensorunitfunctor
+    : wmonfunctor -> functor_tensor_unit MC MD F.
+  Proof.
+    intro wmf.
+    split.
+    - exists (pr11 wmf).
+      intros x1 x2 y1 y2 f g.
+      
+      assert (p0 : #F (tensor_on_hom MC _ _ _ _ f g)
+                   = #F (tensor_on_hom MC _ _ _ _ f (identity y1))
+                      · #F (tensor_on_hom MC _ _ _ _ (identity x2) g)).
+      {
+        etrans.
+        2: { apply functor_comp. }
+        apply maponpaths.
+        refine (_ @ tensor_comp _ _ _ _ _ _ _ f (identity x2) (identity y1) g).
+        etrans.
+        2: { apply maponpaths_2 ; apply (! id_right _). }
+        apply maponpaths ; apply (! id_left _).        
+      }
+      etrans. { apply maponpaths ; apply p0. }
+      etrans. { apply assoc. }
+      etrans. { apply maponpaths_2 ; apply (! pr122 wmf x1 x2 y1 f). }
+      etrans. { apply assoc'. }
+      etrans. { apply maponpaths ; apply (! pr12 wmf x2 y1 y2 g). }
+      etrans. { apply assoc. }
+      apply maponpaths_2.
+      etrans.
+      2: { 
+        do 2 apply maponpaths.
+        apply id_left.
+      }
+      etrans.
+      2: {
+        apply maponpaths_2.
+        apply maponpaths.
+        apply id_right.
+      }
+
+      etrans.
+      2: {
+        apply maponpaths.
+        apply (! functor_comp _ _ _).
+      }
+      etrans.
+      2: {
+        apply maponpaths_2.
+        apply (! functor_comp _ _ _).
+      }
+      refine (_ @ ! tensor_comp _ _ _ _ _ _ _ _ _ _ _).
+      etrans.
+      2: {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply (! functor_id _ _).
+      }
+      apply maponpaths_2.
+      
+      etrans.
+      2: {
+        apply maponpaths.
+        apply (! functor_id _ _).
+      }
+      apply idpath.
+    - exact (pr21 wmf).
+  Defined.
+  
+  Definition wmonfunctor_to_cmonfunctor
+    : wmonfunctor -> cmonfunctor.
+  Proof.
+    intro wmf.
+    exists (wmonfunctor_to_cmontensorunitfunctor wmf).
+    repeat split ; apply (pr2 wmf).
+  Defined.
+
+  Lemma cwcmf (cmf : cmonfunctor)
+    : wmonfunctor_to_cmonfunctor (cmonfunctor_to_wmonfunctor cmf) = cmf.
+  Proof.
+    repeat (use total2_paths_f) ; try (apply idpath) ; try (repeat (apply funextsec ; intro) ; apply homset_property).
+    rewrite transportf_const.
+    apply idpath.
+  Qed.
+
+  Lemma wcwmf (cmf : wmonfunctor)
+    : cmonfunctor_to_wmonfunctor (wmonfunctor_to_cmonfunctor cmf) = cmf.
+  Proof.
+    repeat (use total2_paths_f) ; try (apply idpath) ; try (repeat (apply funextsec ; intro) ; apply homset_property).
+  Qed.
+
+  Definition cmonfunctor_equiv_wmonfunctor
+    : cmonfunctor ≃ wmonfunctor.
+  Proof.
+    use weq_iso.
+    - apply cmonfunctor_to_wmonfunctor.
+    - apply wmonfunctor_to_cmonfunctor.
+    - intro ; apply cwcmf.
+    - intro ; apply wcwmf.
+  Defined.
+
 End MonoidalFunctorEquivalence.
 
 Section StrongMonoidalFunctorEquivalence.
+
+  Context {C D : category} (F : functor C D)
+          (MC : CurriedMonoidalCategories.mon_structure C)
+          (MD : CurriedMonoidalCategories.mon_structure D).
+
+  Definition csmonfunctor : UU := CurriedMonoidalCategories.functor_strong_monoidal F MC MD.
+  Definition wsmonfunctor : UU
+    := MonoidalFunctorsWhiskered.fmonoidal
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  Definition csmonfunctor_equiv_wsmonfunctor
+    : csmonfunctor ≃ wsmonfunctor.
+  Proof.
+    unfold csmonfunctor ; unfold wsmonfunctor.
+    unfold functor_strong_monoidal ; unfold fmonoidal.
+    use weqtotal2.
+    { apply cmonfunctor_equiv_wmonfunctor. }
+    intro cmf.
+    apply weqimplimpl.
+    - intro csmf.
+      split.
+      + do 2 intro ; apply (pr2 csmf).
+      + apply (pr1 csmf).
+    - intro csmf.
+      split.
+      + apply (pr2 csmf).
+      + do 2 intro ; apply (pr1 csmf).
+    - apply isaprop_functor_strong.
+    - apply isapropdirprod ; repeat (apply impred_isaprop ; intro) ; apply Isos.isaprop_is_z_isomorphism.
+  Defined.
 
 End StrongMonoidalFunctorEquivalence.

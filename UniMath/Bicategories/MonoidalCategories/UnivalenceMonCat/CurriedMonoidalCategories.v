@@ -1068,23 +1068,17 @@ Section MonoidalSigmaStructure.
   Coercion tensor_unit_unitors_associator_to_unitors_associator
     : tensor_unit_unitors_associator >-> unitors_associator.
 
-  (* Definition tensor_unit_unitors_associator_triangle_pentagon (C : category) : UU
-    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua.
-
-  Definition triangle_pentagon_to_tensor_unit_unitors_associator
-             {C : category} (M : tensor_unit_unitors_associator_triangle_pentagon C)
-    : tensor_unit_unitors_associator C := pr1 M.
-  Coercion triangle_pentagon_to_tensor_unit_unitors_associator
-    : tensor_unit_unitors_associator_triangle_pentagon >-> tensor_unit_unitors_associator. *)
-
   Definition mon_structure (C : category) : UU
     := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × invertible_data tuua.
 
-  (* Definition mon_structure_to_triangle_pentagon
+  Definition mon_structure_to_tensor_unit_unitors_associator
              {C : category} (lm : mon_structure C)
-    : tensor_unit_unitors_associator_triangle_pentagon C := (pr1 lm,, pr12 lm).
-  Coercion mon_structure_to_triangle_pentagon
-    : mon_structure >-> tensor_unit_unitors_associator_triangle_pentagon. *)
+    : tensor_unit_unitors_associator C := pr1 lm.
+  Coercion mon_structure_to_tensor_unit_unitors_associator
+    : mon_structure >-> tensor_unit_unitors_associator.
+  Definition mon_structure_triangle_pentagon
+             {C : category} (lm : mon_structure C)
+    : triangle_pentagon lm × invertible_data lm := pr2 lm.
 
 End MonoidalSigmaStructure.
 

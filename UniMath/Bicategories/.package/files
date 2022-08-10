@@ -79,11 +79,13 @@ MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
 MonoidalCategories/UnivalenceMonCat/UnitLayer.v
 MonoidalCategories/UnivalenceMonCat/TensorLayer.v
 MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
 MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
 MonoidalCategories/UnivalenceMonCat/FinalLayer.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
