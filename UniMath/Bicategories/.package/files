@@ -224,7 +224,7 @@ DisplayedBicats/FiberBicategory/FunctorFromCleaving.v
 
 PseudoFunctors/Examples/Reindexing.v
 
-DisplayMapBicat.v
+Logic/DisplayMapBicat.v
 DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
 DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
@@ -242,7 +242,13 @@ DisplayedBicats/FiberBicategory/CodomainFiber.v
 DisplayedBicats/FiberBicategory/DomainFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
-ComprehensionBicat.v
+Logic/ComprehensionBicat.v
+
+Logic/Examples/TrivialComprehensionBicat.v
+Logic/Examples/PullbackComprehensionBicat.v
+Logic/Examples/FibrationsComprehensionBicat.v
+Logic/Examples/OpfibrationsComprehensionBicat.v
+Logic/Examples/DisplayMapComprehensionBicat.v
 
 OtherStructure/DualityInvolution.v
 OtherStructure/ClassifyingDiscreteOpfib.v

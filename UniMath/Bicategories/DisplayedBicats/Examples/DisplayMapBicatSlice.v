@@ -29,7 +29,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.

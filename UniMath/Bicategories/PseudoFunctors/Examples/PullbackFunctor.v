@@ -30,7 +30,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Slice.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
 
 Local Open Scope cat.
