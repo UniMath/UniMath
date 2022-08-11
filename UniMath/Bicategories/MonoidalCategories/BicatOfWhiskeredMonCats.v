@@ -10,6 +10,7 @@ August 2022
 Contents :
 
 - constructs the bicategory of whiskered monoidal categories
+- constructs its final object
 
  ************************************************************)
 
@@ -19,6 +20,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -30,6 +33,9 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.Bicategories.Limits.Final.
+Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
+Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -245,7 +251,80 @@ Section TheConstruction.
     apply isaprop_bidisp_monbicat_disp_2cell_struct.
   Defined.
 
+  Lemma monbicat_disp_2cells_isaprop : disp_2cells_isaprop bidisp_monbicat_disp_bicat.
+  Proof.
+    red.
+    intros.
+    apply isaprop_bidisp_monbicat_disp_2cell_struct.
+  Qed.
+
   Definition monbicat : bicat := total_bicat bidisp_monbicat_disp_bicat.
 
 
 End TheConstruction.
+
+Definition monbicat_disp_locally_groupoid : disp_locally_groupoid bidisp_monbicat_disp_bicat.
+Proof.
+  red. intros C D F G αiso M N Fm Gm ismnt.
+  use tpair.
+  - transparent assert (isnziα : (is_nat_z_iso (pr11 αiso))).
+    { apply (nat_trafo_pointwise_z_iso_if_z_iso (pr2 D)). exact (pr2 αiso). }
+    exact (is_mon_nat_trans_pointwise_inverse (Fm : fmonoidal _ _ _) (Gm : fmonoidal _ _ _) (pr1 αiso) isnziα ismnt).
+  - split; apply isaprop_bidisp_monbicat_disp_2cell_struct.
+Defined.
+
+(** the final object *)
+
+Definition unit_monoidal : monoidal (pr1 unit_category).
+Proof.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use make_bifunctor_data.
+        -- exact (fun _ _ => tt).
+        -- intros. apply idpath.
+        -- intros. apply idpath.
+      * abstract (repeat split).
+    + exists tt.
+      repeat split; intro x; induction x; apply isapropunit.
+  - abstract (
+        do 2 (split; [split; red; intros; [apply isasetunit | split; apply isasetunit] |]);
+        split;
+        [ do 3 (split; [red; intros; apply isasetunit |]);
+          split; apply isasetunit |
+          split; red; intros; apply isasetunit]).
+Defined.
+
+Definition unit_monoidal_disp_bifinal_obj : disp_bifinal_obj bidisp_monbicat_disp_bicat (_,,bifinal_cats).
+Proof.
+  exists unit_monoidal.
+  intros C M.
+  cbn.
+  use tpair.
+  - use tpair.
+    + split; red; intros; apply idpath.
+    + abstract (repeat split).
+  - split; red; intros; exists (idpath tt); abstract (split; apply isasetunit).
+Defined.
+
+Definition bifinal_moncats : bifinal_obj monbicat.
+Proof.
+  (** strongly inspired from [total_bicat_final] but without using hypothesis [HD₂] there *)
+    simple refine (_ ,, _).
+    - exact (pr1 unit_category ,, pr1 unit_monoidal_disp_bifinal_obj).
+    - use make_is_bifinal.
+      + exact (λ x,
+              is_bifinal_1cell_property bifinal_cats (pr1 x)
+              ,,
+              pr2 unit_monoidal_disp_bifinal_obj (pr1 x) (pr2 x)).
+      + refine (λ x f g,
+                 is_bifinal_2cell_property bifinal_cats _ (pr1 f) (pr1 g)
+                   ,,
+                   _).
+        red; cbn; red; cbn.
+        split; intros; apply isasetunit.
+      + abstract
+          (intros x f g α β ;
+           use subtypePath ; [ intro ; apply monbicat_disp_2cells_isaprop | ] ;
+           apply (is_bifinal_eq_property bifinal_cats)).
+Defined.

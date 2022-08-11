@@ -1,4 +1,4 @@
-(** copies the inserters from the treatment of the bicategory of univalent categories *)
+(** copies the final object and the inserters from the treatment of the bicategory of univalent categories *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -31,6 +31,44 @@ Require Import UniMath.Bicategories.Limits.Inserters.
 Require Import UniMath.Bicategories.Limits.Equifiers.
 
 Local Open Scope cat.
+
+(**
+ 1. Final object
+ *)
+
+(** MOVE??? *)
+Definition unit_category_nat_trans
+           {C : category}
+           (F G : C ⟶ unit_category)
+  : F ⟹ G.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, pr1 (isapropunit _ _)).
+  - abstract
+      (intro ; intros ;
+       apply isasetunit).
+Defined.
+
+Lemma nat_trans_to_unit_eq
+      {X : category}
+      (F G : X ⟶ unit_category)
+      (α β : F ⟹ G)
+  : α = β.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro z. apply isasetunit.
+Qed.
+
+Definition bifinal_cats
+  : @is_bifinal bicat_of_cats (pr1 unit_category).
+Proof.
+  use make_is_bifinal.
+  - exact (λ C, functor_to_unit (pr1 C)).
+  - exact (λ C F G, unit_category_nat_trans F G).
+  - intros Y f g α β.
+    apply nat_trans_to_unit_eq.
+Defined.
 
 
 (**
