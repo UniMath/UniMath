@@ -295,36 +295,26 @@ Proof.
           split; red; intros; apply isasetunit]).
 Defined.
 
-Definition unit_monoidal_disp_bifinal_obj : disp_bifinal_obj bidisp_monbicat_disp_bicat (_,,bifinal_cats).
+Definition unit_monoidal_disp_bifinal_obj : disp_bifinal_obj_stronger bidisp_monbicat_disp_bicat (_,,bifinal_cats).
 Proof.
   exists unit_monoidal.
-  intros C M.
-  cbn.
   use tpair.
-  - use tpair.
-    + split; red; intros; apply idpath.
-    + abstract (repeat split).
-  - split; red; intros; exists (idpath tt); abstract (split; apply isasetunit).
+  - intros C M.
+    cbn.
+    use tpair.
+    + use tpair.
+      * split; red; intros; apply idpath.
+      * abstract (repeat split).
+    + split; red; intros; exists (idpath tt); abstract (split; apply isasetunit).
+  - intros x xx f g ff gg.
+    red; cbn; red; cbn.
+    split; intros; apply isasetunit.
 Defined.
 
 Definition bifinal_moncats : bifinal_obj monbicat.
 Proof.
-  (** strongly inspired from [total_bicat_final] but without using hypothesis [HD₂] there *)
-    simple refine (_ ,, _).
-    - exact (pr1 unit_category ,, pr1 unit_monoidal_disp_bifinal_obj).
-    - use make_is_bifinal.
-      + exact (λ x,
-              is_bifinal_1cell_property bifinal_cats (pr1 x)
-              ,,
-              pr2 unit_monoidal_disp_bifinal_obj (pr1 x) (pr2 x)).
-      + refine (λ x f g,
-                 is_bifinal_2cell_property bifinal_cats _ (pr1 f) (pr1 g)
-                   ,,
-                   _).
-        red; cbn; red; cbn.
-        split; intros; apply isasetunit.
-      + abstract
-          (intros x f g α β ;
-           use subtypePath ; [ intro ; apply monbicat_disp_2cells_isaprop | ] ;
-           apply (is_bifinal_eq_property bifinal_cats)).
+  use total_bicat_final_stronger.
+  - exact monbicat_disp_2cells_isaprop.
+  - exact (_,,bifinal_cats).
+  - exact unit_monoidal_disp_bifinal_obj.
 Defined.
