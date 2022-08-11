@@ -1,5 +1,12 @@
 (*******************************************************************
 
+ The trivial comprehension bicategory
+
+ Contents
+ 1. The comprehension pseudofunctor
+ 2. Preservation of cartesian 1-cells
+ 3. Preservation of (op)cartesian 2-cells
+ 4. The comprehension bicategory
 
  *******************************************************************)
 Require Import UniMath.Foundations.All.
@@ -30,12 +37,12 @@ Require Import UniMath.Bicategories.Logic.ComprehensionBicat.
 
 Local Open Scope cat.
 
-(**
- 2. The trivial comprehension bicategory
- *)
 Section TrivialCompBicat.
   Context (B : bicat_with_binprod).
 
+  (**
+   1. The comprehension pseudofunctor
+   *)
   Definition trivial_comprehension_data
     : disp_psfunctor_data
         (trivial_displayed_bicat B B)
@@ -171,6 +178,9 @@ Section TrivialCompBicat.
     - exact trivial_comprehension_is_disp_psfunctor.
   Defined.
 
+  (**
+   2. Preservation of cartesian 1-cells
+   *)
   Section GlobalCartesian.
     Context {b₁ b₂ : B}
             (f : b₁ --> b₂)
@@ -524,6 +534,9 @@ Section TrivialCompBicat.
     apply (adj_equiv_to_pb f g g_equiv).
   Defined.
 
+  (**
+   3. Preservation of (op)cartesian 2-cells
+   *)
   Definition local_cartesian_trivial_comprehension
     : local_cartesian_disp_psfunctor trivial_comprehension.
   Proof.
@@ -554,6 +567,9 @@ Section TrivialCompBicat.
     - exact (trivial_opcartesian_2cell_is_invertible _ _ _ _ Hβ).
   Defined.
 
+  (**
+   4. The comprehension bicategory
+   *)
   Definition trivial_comprehension_bicat_structure
     : comprehension_bicat_structure B.
   Proof.

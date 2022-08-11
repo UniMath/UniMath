@@ -2,17 +2,11 @@
 
  Comprehension bicategories
 
- In this file we define comprehension bicategories and we
- construct examples of them.
+ In this file we define comprehension bicategories and properties
+ of comprehension bicategories.
 
  1. Comprehension bicategories
- 2. The trivial comprehension bicategory
- 3. Locally groupoidal bicategories with pullbacks
- 4. The comprehension bicategory of fibrations
- 5. The comprehension bicategory of opfibrations
- 6. The comprehension bicategory of a display map bicategory
- 7. Internal Street fibrations and opfibrations
- 8. Functors into categories
+ 2. Variances of comprehension bicategories
 
  *******************************************************************)
 Require Import UniMath.Foundations.All.
@@ -75,7 +69,9 @@ Definition comp_of_global_cartesian
   : global_cartesian_disp_psfunctor (comp_of comp_B)
   := pr222 comp_B.
 
-(** Variances of comprehension bicategories *)
+(**
+ 2. Variances of comprehension bicategories
+ *)
 Definition is_covariant
            {B : bicat}
            (comp_B : comprehension_bicat_structure B)

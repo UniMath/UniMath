@@ -1,5 +1,12 @@
 (*******************************************************************
 
+ The comprehension bicategory of opfibrations
+
+ Contents
+ 1. The comprehension pseudofunctor
+ 2. Preservation of cartesian 1-cells
+ 3. Preservation of opcartesian 2-cells
+ 4. The comprehension bicategory
 
  *******************************************************************)
 Require Import UniMath.Foundations.All.
@@ -41,7 +48,7 @@ Require Import UniMath.Bicategories.Logic.ComprehensionBicat.
 Local Open Scope cat.
 
 (**
- 4. The comprehension bicategory of opfibrations
+ 1. The comprehension pseudofunctor
  *)
 Definition opcleaving_comprehension_data
   : disp_psfunctor_data
@@ -189,6 +196,9 @@ Proof.
   - exact opcleaving_comprehension_is_disp_psfunctor.
 Defined.
 
+(**
+ 2. Preservation of cartesian 1-cells
+ *)
 Definition global_cartesian_opcleaving_comprehension
   : global_cartesian_disp_psfunctor opcleaving_comprehension.
 Proof.
@@ -203,6 +213,9 @@ Proof.
     exact (pr2 D₁).
 Defined.
 
+(**
+ 3. Preservation of opcartesian 2-cells
+ *)
 Section LocalOpCartesianOpFibration.
   Context {C₁ C₂ : bicat_of_univ_cats}
           {F₁ F₂ : C₁ --> C₂}
@@ -381,6 +394,9 @@ Proof.
     + exact (local_opcartesian_opcleaving_lift_comm α αα p G γ δp q).
 Defined.
 
+(**
+ 4. The comprehension bicategory
+ *)
 Definition opcleaving_comprehension_bicat_structure
   : comprehension_bicat_structure bicat_of_univ_cats.
 Proof.

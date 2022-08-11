@@ -1,5 +1,14 @@
 (*******************************************************************
 
+ The comprehension bicategory of a display map bicategory
+
+ Contents
+ 1. The comprehension pseudofunctor
+ 2. Preservation of cartesian 1-cells
+ 3. Preservation of (op)cartesian 2-cells
+ 4. The comprehension bicategory
+ 5. Internal Street fibrations and opfibrations
+
  *******************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -28,9 +37,6 @@ Require Import UniMath.Bicategories.Logic.ComprehensionBicat.
 
 Local Open Scope cat.
 
-(**
- 6. The comprehension bicategory of a display map bicategory
- *)
 Section DispMapBicatToCompBicat.
   Context {B : bicat}
           (D : disp_map_bicat B)
@@ -38,6 +44,9 @@ Section DispMapBicatToCompBicat.
 
   Let DD : disp_bicat B := disp_map_bicat_to_disp_bicat D.
 
+  (**
+   1. The comprehension pseudofunctor
+   *)
   Definition disp_map_bicat_comprehension_data
     : disp_psfunctor_data DD (cod_disp_bicat B) (id_psfunctor B).
   Proof.
@@ -101,6 +110,9 @@ Section DispMapBicatToCompBicat.
        ,,
        disp_map_bicat_comprehension_is_disp_psfunctor.
 
+  (**
+   2. Preservation of cartesian 1-cells
+   *)
   Definition global_cartesian_disp_map_bicat_comprehension
     : global_cartesian_disp_psfunctor disp_map_bicat_comprehension.
   Proof.
@@ -114,6 +126,34 @@ Section DispMapBicatToCompBicat.
                (pb_of_pred_ob_has_pb_ump D (pr12 hy) f (pr22 hy))).
   Defined.
 
+  (**
+   3. Preservation of (op)cartesian 2-cells
+   *)
+  Definition disp_map_bicat_to_comp_bicat_local_opcartesian
+             (HD : is_covariant_disp_map_bicat D)
+    : local_opcartesian_disp_psfunctor disp_map_bicat_comprehension.
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? H.
+    apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
+    cbn.
+    apply (disp_map_is_opcartesian_2cell_to_is_opcartesian_2cell_sopfib _ HD).
+    exact H.
+  Defined.
+
+  Definition disp_map_bicat_to_comp_bicat_local_cartesian
+             (HD : is_contravariant_disp_map_bicat D)
+    : local_cartesian_disp_psfunctor disp_map_bicat_comprehension.
+  Proof.
+    intros ? ? ? ? ? ? ? ? ? ? H.
+    apply is_cartesian_2cell_sfib_to_is_cartesian_2cell.
+    cbn.
+    apply (disp_map_is_cartesian_2cell_to_is_cartesian_2cell_sfib _ HD).
+    exact H.
+  Defined.
+
+  (**
+   4. The comprehension bicategory
+   *)
   Definition disp_map_bicat_to_comp_bicat
     : comprehension_bicat_structure B.
   Proof.
@@ -122,18 +162,6 @@ Section DispMapBicatToCompBicat.
     - exact disp_map_bicat_comprehension.
     - exact (global_cleaving_of_disp_map_bicat D).
     - exact global_cartesian_disp_map_bicat_comprehension.
-  Defined.
-
-  Definition disp_map_bicat_to_comp_bicat_local_opcartesian
-             (HD : is_covariant_disp_map_bicat D)
-    : local_opcartesian_disp_psfunctor
-        (comp_of disp_map_bicat_to_comp_bicat).
-  Proof.
-    intros ? ? ? ? ? ? ? ? ? ? H.
-    apply is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
-    cbn.
-    apply (disp_map_is_opcartesian_2cell_to_is_opcartesian_2cell_sopfib _ HD).
-    exact H.
   Defined.
 
   Definition is_covariant_disp_map_bicat_to_comp_bicat
@@ -145,18 +173,6 @@ Section DispMapBicatToCompBicat.
     - exact (lwhisker_opcartesian_disp_map_bicat _ HD).
     - exact (rwhisker_opcartesian_disp_map_bicat _ HD).
     - exact (disp_map_bicat_to_comp_bicat_local_opcartesian HD).
-  Defined.
-
-  Definition disp_map_bicat_to_comp_bicat_local_cartesian
-             (HD : is_contravariant_disp_map_bicat D)
-    : local_cartesian_disp_psfunctor
-        (comp_of disp_map_bicat_to_comp_bicat).
-  Proof.
-    intros ? ? ? ? ? ? ? ? ? ? H.
-    apply is_cartesian_2cell_sfib_to_is_cartesian_2cell.
-    cbn.
-    apply (disp_map_is_cartesian_2cell_to_is_cartesian_2cell_sfib _ HD).
-    exact H.
   Defined.
 
   Definition is_contravariant_disp_map_bicat_to_comp_bicat
@@ -182,7 +198,7 @@ Section DispMapBicatToCompBicat.
 End DispMapBicatToCompBicat.
 
 (**
- 7. Internal Street fibrations and opfibrations
+ 5. Internal Street fibrations and opfibrations
  *)
 Definition internal_sfib_comprehension_bicat_structure
            (B : bicat_with_pb)
