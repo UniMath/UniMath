@@ -39,6 +39,7 @@ Core/Examples/FibSlice.v
 
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
+Morphisms/Examples/FibrationsInStrictCats.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -121,6 +122,7 @@ DisplayedBicats/Examples/ContravariantFunctor.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CwF.v
 DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
@@ -213,6 +215,7 @@ DisplayedBicats/CleavingOfBicatIsAProp.v
 DisplayedBicats/CartesianPseudoFunctor.v
 DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
 DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/FunctorsIntoCatCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
