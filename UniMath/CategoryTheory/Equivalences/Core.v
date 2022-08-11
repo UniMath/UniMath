@@ -400,7 +400,7 @@ Proof.
     intro p0; destruct p0.
     rewrite <- functor_on_z_iso_inv. simpl.
     rewrite z_iso_inv_of_z_iso_id.
-    apply eq_z_iso.
+    apply z_iso_eq.
     simpl; rewrite functor_id.
     rewrite id_left.
     apply idpath.
@@ -413,14 +413,14 @@ Proof.
             z_iso_comp f (z_iso_inv_from_z_iso f')).
     + generalize (z_iso_comp f (z_iso_inv_from_z_iso f')).
       intro h.
-      apply eq_z_iso; simpl.
+      apply z_iso_eq; simpl.
       set (H3:= homotweqinvweq (weq_from_fully_faithful HF a a')).
       simpl in H3. unfold fully_faithful_inv_hom.
       unfold invweq; simpl.
       rewrite H3; apply idpath.
     + rewrite HFg.
       rewrite z_iso_inv_of_z_iso_comp.
-      apply eq_z_iso; simpl.
+      apply z_iso_eq; simpl.
       repeat rewrite <- assoc.
       rewrite z_iso_after_z_iso_inv.
       rewrite id_right.

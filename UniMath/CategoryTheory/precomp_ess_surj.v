@@ -163,11 +163,11 @@ Proof.
                (fH^-i (z_iso_comp h (z_iso_inv_from_z_iso hnot)))) (idtoiso w) ).
     { generalize w; intro w0.
       induction w0.
-      simpl. apply eq_z_iso. simpl.
+      simpl. apply z_iso_eq. simpl.
       simpl. rewrite id_right.
       apply idpath.
     }
-    apply eq_z_iso.
+    apply z_iso_eq.
     simpl.
     unfold w.
     rewrite idtoiso_isotoid.
@@ -282,7 +282,7 @@ Proof.
   set (m' := fH^-i (z_iso_comp h0' (z_iso_inv_from_z_iso h'))).
   assert (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) =
                   k b a0 h0).
-  { apply eq_z_iso.
+  { apply z_iso_eq.
     apply (q b (tpair _ a0 h0) (tpair _ a h) m).
     simpl.
     inv_functor fH a0 a.
@@ -292,7 +292,7 @@ Proof.
   }
   assert (ssss : z_iso_comp (functor_on_z_iso F m') (k b' a' h') =
                    k b' a0' h0').
-  { apply eq_z_iso.
+  { apply z_iso_eq.
     apply (q b' (tpair _ a0' h0') (tpair _ a' h') m').
     simpl;
     inv_functor fH a0' a'.
@@ -489,7 +489,7 @@ Proof.
       set (m' := fH^-i (z_iso_comp h0' (z_iso_inv_from_z_iso h'))).
       assert (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) =
                       k b a0 h0).
-      { apply eq_z_iso; simpl.
+      { apply z_iso_eq; simpl.
         apply (q b (tpair _ a0 h0) (tpair _ a h) m).
         simpl.
         inv_functor fH a0 a.
@@ -499,7 +499,7 @@ Proof.
       }
       assert (ssss : z_iso_comp (functor_on_z_iso F m') (k b' a' h') =
                        k b' a0' h0').
-      { apply eq_z_iso; simpl.
+      { apply z_iso_eq; simpl.
         apply (q b' (tpair _ a0' h0') (tpair _ a' h') m'); simpl.
         inv_functor fH a0' a'.
         rewrite <- assoc.
@@ -585,7 +585,7 @@ Proof.
       set (m' := fH^-i (z_iso_comp h0'' (z_iso_inv_from_z_iso h''))).
       assert (sss : z_iso_comp (functor_on_z_iso F m) (k b' a' h') =
                       k b' a0' h0').
-      { apply eq_z_iso; simpl.
+      { apply z_iso_eq; simpl.
         apply (q b' (tpair _ a0' h0') (tpair _ a' h') m); simpl.
         inv_functor fH a0' a'.
         rewrite <- assoc.
@@ -594,7 +594,7 @@ Proof.
       }
       assert (ssss : z_iso_comp (functor_on_z_iso F m') (k b'' a'' h'') =
                        k b'' a0'' h0'').
-      { apply eq_z_iso; simpl.
+      { apply z_iso_eq; simpl.
         apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); simpl.
         inv_functor fH a0'' a''.
         rewrite <- assoc.
@@ -668,7 +668,7 @@ Proof.
       set (m := fH^-i (z_iso_comp h0 (z_iso_inv_from_z_iso h))).
       set (m' := fH^-i (z_iso_comp h0'' (z_iso_inv_from_z_iso h''))).
       assert (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) = k b a0 h0).
-      { apply eq_z_iso.
+      { apply z_iso_eq.
         apply (q b (tpair _ a0 h0) (tpair _ a h) m); simpl.
         inv_functor fH a0 a.
         rewrite <- assoc.
@@ -677,7 +677,7 @@ Proof.
       }
       assert (ssss : z_iso_comp (functor_on_z_iso F m') (k b'' a'' h'') =
                        k b'' a0'' h0'').
-      { apply eq_z_iso.
+      { apply z_iso_eq.
         apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
         simpl; inv_functor fH a0'' a''.
         rewrite <- assoc.

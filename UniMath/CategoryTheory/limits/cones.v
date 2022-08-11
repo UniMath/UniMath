@@ -206,14 +206,14 @@ Definition ConeConnectIso {a b : CONE} (f : z_iso a b) :
 Lemma ConeConnectIso_identity_iso (a : CONE) :
    ConeConnectIso (identity_z_iso a) = identity_z_iso _ .
 Proof.
-  apply eq_z_iso. apply idpath.
+  apply z_iso_eq. apply idpath.
 Qed.
 
 Lemma ConeConnectIso_inj (a b : CONE) (f g : z_iso a b) :
    ConeConnectIso f = ConeConnectIso g -> f = g.
 Proof.
   intro H.
-  apply eq_z_iso; simpl in *.
+  apply z_iso_eq; simpl in *.
   apply Cone_Mor_eq.
   apply (base_paths _ _ H).
 Qed.
@@ -321,17 +321,17 @@ Qed.
 Lemma idtoiso_isotoid_CONE (M N : CONE F) : ∏ f : z_iso M N, idtoiso (isotoid_CONE f) = f.
 Proof.
   intro f.
-  apply eq_z_iso.
-    apply Cone_Mor_eq.
-    rewrite ConeConnect_idtoiso.
-    unfold isotoid_CONE.
-    unfold Cone_eq.
-    rewrite base_total2_paths.
-    unfold isotoid_CONE_pr1.
-    rewrite base_total2_paths.
-    simpl.
-    rewrite idtoiso_isotoid.
-    apply idpath.
+  apply z_iso_eq.
+  apply Cone_Mor_eq.
+  etrans; [apply ConeConnect_idtoiso |].
+  unfold isotoid_CONE.
+  unfold Cone_eq.
+  rewrite base_total2_paths.
+  unfold isotoid_CONE_pr1.
+  rewrite base_total2_paths.
+  simpl.
+  rewrite idtoiso_isotoid.
+  apply idpath.
 Qed.
 
 

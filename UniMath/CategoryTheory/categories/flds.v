@@ -119,7 +119,7 @@ Section def_fld_category.
   Proof.
     use isweq_iso.
     - exact (fld_equiv_iso X Y).
-    - intros x. use eq_z_iso. use rigfun_paths. apply idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + apply idpath.
@@ -141,7 +141,7 @@ Section def_fld_category.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + apply idpath.
-    - intros x. use eq_z_iso. use rigfun_paths. apply idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
   Defined.
   Opaque fld_equiv_iso_is_equiv.
 

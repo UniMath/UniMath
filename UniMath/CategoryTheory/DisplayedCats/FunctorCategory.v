@@ -241,9 +241,9 @@ Proof.
   exists (base_category_z_iso_to_z_iso_fam F₀ G₀).
   use gradth.
   - apply base_category_z_iso_fam_to_z_iso.
-  - intros x. apply eq_z_iso. apply idpath.
+  - intros x. apply z_iso_eq. apply idpath.
   - intros x. apply funextsec. intros y.
-    apply eq_z_iso. apply idpath.
+    apply z_iso_eq. apply idpath.
 Defined.
 
 Definition base_category_z_iso_fam_weq (F₀ G₀ : base_category) :
@@ -278,7 +278,7 @@ Proof.
   - intros p. induction p. simpl.
     show_id_type.
     cbn.
-    apply (eq_z_iso(C:=base_category)). apply idpath.
+    apply (z_iso_eq(C:=base_category)). apply idpath.
   - apply base_category_z_iso_weq_aux.
 Defined.
 

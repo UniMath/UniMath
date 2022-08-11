@@ -110,7 +110,7 @@ Proof.
                        (@disp_functor_on_z_iso_disp
                           _ _ _ _ _ FF
                           _ _ _ _ (identity_z_iso _) _)).
-      apply (eq_z_iso _ _), functor_id.
+      apply (z_iso_eq _ _), functor_id.
       refine (cartesian_lifts_iso ff' (_,,_)).
       exact (_,,ff_cart).
     + etrans. {

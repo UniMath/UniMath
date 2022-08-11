@@ -72,7 +72,7 @@ Proof.
     apply proofirrelevance.
     apply xisaset.
   - intro iso.
-    use eq_z_iso.
+    use z_iso_eq.
     apply proofirrelevance.
     apply propproperty.
 Defined.

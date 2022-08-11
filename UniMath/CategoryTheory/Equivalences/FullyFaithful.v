@@ -63,7 +63,7 @@ Qed.
 Lemma triangle_id_inverse (a : A)
   : z_iso_inv_from_z_iso (functor_on_z_iso F (eta a)) = eps (F a).
 Proof.
-  apply eq_z_iso. simpl.
+  apply z_iso_eq. simpl.
   match goal with | [ |- ?x = ?y ] => transitivity (x · identity _) end.
   apply pathsinv0, id_right.
   apply z_iso_inv_on_right.
