@@ -296,7 +296,7 @@ Section StrongLayer.
     - apply disp_bicat_univstrongfunctor_is_univalent_2.
   Qed.
 
-  (* UMONCAT is the bicategory defined as follows:
+  (* UMONCAT_strong is the bicategory defined as follows:
      - Objects: Monoidal categories (over univalent categories).
      - Morphisms: Strong monoidal functors (not requiring any functorial strength).
      - 2-cells: Monoidal natural transformations.
