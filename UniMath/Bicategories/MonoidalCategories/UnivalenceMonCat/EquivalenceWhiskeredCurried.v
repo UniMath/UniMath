@@ -396,29 +396,32 @@ Section MonoidalFunctorEquivalence.
     : cmonfunctor -> wmonfunctordata.
   Proof.
     intro cmf.
-    split ; repeat (intro) ; apply cmf.
+    split; red; intros; apply cmf.
   Defined.
 
-  (* The proof runs perfectly and immediate, however, Qed is stuck in a loop *)
   Definition cmonfunctor_to_wmonfunctorlaws (cmf : cmonfunctor)
     : wmonfunctorlaws (cmonfunctor_to_wmonfunctordata cmf).
   Proof.
-    (* repeat split ; try (repeat intro ; apply (pr2 cmf)).
+    split.
     - intros x y1 y2 g.
-      refine (_ @ ! pr211 cmf x x y1 y2 (identity x) g).
+      etrans.
+      2: { apply pathsinv0. exact ((pr211 cmf) x x y1 y2 (identity x) g). }
       unfold leftwhiskering_on_morphisms.
-      simpl.
+      cbn.
       do 2 apply maponpaths_2.
-      apply (! functor_id _ _).
-    - intros x1 x2 y f.
-      refine (_ @ ! pr211 cmf x1 x2 y y f (identity y)).
-      apply maponpaths_2.
-      unfold rightwhiskering_on_morphisms.
-      simpl.
-      apply maponpaths.
-      apply (! functor_id _ _). *)
-  Admitted.
-  
+      apply (! functor_id F x).
+    - split.
+      + intros x1 x2 y f.
+        etrans.
+        2: { apply pathsinv0. exact (pr211 cmf x1 x2 y y f (identity y)). }
+        unfold rightwhiskering_on_morphisms.
+        cbn.
+        apply maponpaths_2.
+        apply maponpaths.
+        apply (! functor_id F y).
+      + repeat split; red; intros; apply (pr2 cmf).
+  Qed.
+
   Definition cmonfunctor_to_wmonfunctor
     : cmonfunctor -> wmonfunctor
     := (λ cmf, cmonfunctor_to_wmonfunctordata cmf ,, cmonfunctor_to_wmonfunctorlaws cmf).
@@ -430,7 +433,7 @@ Section MonoidalFunctorEquivalence.
     split.
     - exists (pr11 wmf).
       intros x1 x2 y1 y2 f g.
-      
+
       assert (p0 : #F (tensor_on_hom MC _ _ _ _ f g)
                    = #F (tensor_on_hom MC _ _ _ _ f (identity y1))
                       · #F (tensor_on_hom MC _ _ _ _ (identity x2) g)).
@@ -441,7 +444,7 @@ Section MonoidalFunctorEquivalence.
         refine (_ @ tensor_comp _ _ _ _ _ _ _ f (identity x2) (identity y1) g).
         etrans.
         2: { apply maponpaths_2 ; apply (! id_right _). }
-        apply maponpaths ; apply (! id_left _).        
+        apply maponpaths ; apply (! id_left _).
       }
       etrans. { apply maponpaths ; apply p0. }
       etrans. { apply assoc. }
@@ -451,7 +454,7 @@ Section MonoidalFunctorEquivalence.
       etrans. { apply assoc. }
       apply maponpaths_2.
       etrans.
-      2: { 
+      2: {
         do 2 apply maponpaths.
         apply id_left.
       }
@@ -480,7 +483,7 @@ Section MonoidalFunctorEquivalence.
         apply (! functor_id _ _).
       }
       apply maponpaths_2.
-      
+
       etrans.
       2: {
         apply maponpaths.
@@ -489,7 +492,7 @@ Section MonoidalFunctorEquivalence.
       apply idpath.
     - exact (pr21 wmf).
   Defined.
-  
+
   Definition wmonfunctor_to_cmonfunctor
     : wmonfunctor -> cmonfunctor.
   Proof.
