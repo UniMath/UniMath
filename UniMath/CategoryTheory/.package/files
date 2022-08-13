@@ -233,7 +233,6 @@ Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
 Monoidal/MonoidalCategoriesReordered.v
-Monoidal/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
@@ -242,6 +241,7 @@ DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
 DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
 Monoidal/MonoidalFunctorsCurried.v
