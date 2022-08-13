@@ -5,6 +5,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
+(* This import is included because in the end we want to show that
+   bifunctors are equivalent to functors coming out of a product category
+*)
+Require Import  UniMath.CategoryTheory.PrecategoryBinProduct.
+
 Open Scope cat.
 
 Section Bifunctor.
@@ -100,6 +105,12 @@ Section Bifunctor.
     (bifunctor_leftcompax F) ×
     (bifunctor_rightcompax F) ×
     (functoronmorphisms_are_equal F).
+
+  Lemma isaprop_is_bifunctor (F : bifunctor_data)
+    : isaprop (is_bifunctor F).
+  Proof.
+    repeat (apply isapropdirprod) ; try (repeat (apply impred_isaprop ; intro) ; apply homset_property).
+  Qed.
 
   Lemma bifunctor_distributes_over_id {F : bifunctor_data} (bli : bifunctor_leftidax F) (bri : bifunctor_rightidax F) (a : A) (b : B) : (identity a) ⊗^{F} (identity b) = identity (a ⊗_{F} b).
   Proof.
@@ -286,7 +297,7 @@ Section WhiskeredBinaturaltransformation.
     ∑ (α : binat_trans_data F G), is_binat_trans α.
 
   Definition binattransdata_from_binattrans {F G : bifunctor A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
-  
+
   (* Something like this is done in Core.NaturalTransformation, but I don't really know what this funclass is,
      I inserted this to use (α x y) without having to project, it would be good to have some explanation,
      also I don't understand why making a coercion for binattransdata_from_binattrans is not sufficient
@@ -323,3 +334,148 @@ Section WhiskeredBinaturaltransformation.
   Definition inv_binattrans_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
 
 End WhiskeredBinaturaltransformation.
+
+Section FunctorsFromProductCategory.
+
+  Import BifunctorNotations.
+
+  (* This notation comes from Precategorybinproduct. *)
+  Local Notation "C × D" := (category_binproduct C D) (at level 75, right associativity).
+
+  Definition bifunctor_to_functorfromproductcat_data {C D E : category}
+             (F : bifunctor C D E) : functor_data (C × D) E.
+  Proof.
+    exists (λ cd, (pr1 cd) ⊗_{F} (pr2 cd)).
+    exact (λ _ _ fg, (pr1 fg) ⊗^{F} (pr2 fg)).
+  Defined.
+
+  Definition bifunctor_to_functorfromproductcat_laws
+             {C D E : category} (F : bifunctor C D E)
+    : is_functor (bifunctor_to_functorfromproductcat_data F).
+  Proof.
+    split.
+    - intro ; apply bifunctor_distributes_over_id.
+      exact (bifunctor_leftid F).
+      exact (bifunctor_rightid F).
+    - intro ; intros ; apply bifunctor_distributes_over_comp.
+      exact (bifunctor_leftcomp F).
+      exact (bifunctor_rightcomp F).
+      exact (bifunctor_equalwhiskers F).
+  Qed.
+
+  Definition bifunctor_to_functorfromproductcat {C D E : category}
+             (F : bifunctor C D E) : functor (C × D) E
+    := bifunctor_to_functorfromproductcat_data F ,, bifunctor_to_functorfromproductcat_laws F.
+
+  Definition bifunctor_from_functorfromproductcat_data {C D E : category}
+             (F : functor (C × D) E) : bifunctor_data C D E.
+  Proof.
+    exists (λ c d, F (c,,d)).
+    exists (λ c _ _ g, #F (catbinprodmor (identity c) g)).
+    exact (λ d _ _ f, #F (catbinprodmor f (identity d))).
+  Defined.
+
+  Definition bifunctor_from_functorfromproductcat_laws
+             {C D E : category} (F : functor (C × D) E)
+    : is_bifunctor (bifunctor_from_functorfromproductcat_data F).
+  Proof.
+    repeat split.
+    - exact (λ c d, functor_id F (c ,, d)).
+    - exact (λ c d, functor_id F (d ,, c)).
+    - intros c d1 d2 d3 g1 g2.
+      refine (_ @ functor_comp F (catbinprodmor (identity c) g1) (catbinprodmor (identity c) g2)).
+      cbn.
+      etrans. {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply (! id_left _).
+      }
+      apply maponpaths.
+      apply binprod_comp.
+    - intros d c1 c2 c3 f1 f2.
+      refine (_ @ functor_comp F (catbinprodmor f1 (identity d)) (catbinprodmor f2 (identity d))).
+      cbn.
+      etrans. {
+        do 2 apply maponpaths.
+        apply (! id_left _).
+      }
+      apply maponpaths.
+      apply binprod_comp.
+    - intro ; intros.
+      unfold functoronmorphisms1.
+      unfold functoronmorphisms2.
+      cbn.
+      etrans. { apply (! functor_comp _ _ _). }
+      etrans. { apply maponpaths ; apply (binprod_comp). }
+      etrans.
+      2: { apply functor_comp. }
+      etrans.
+      2: { apply maponpaths ; apply binprod_comp. }
+      apply maponpaths.
+      etrans. { apply (! binprod_comp _ _ _ _ _ _ f (identity a2) (identity b1) g). }
+      etrans. { apply maponpaths_2 ; apply id_right. }
+      etrans.
+      2: { apply maponpaths_2 ; apply (! id_left _). }
+      apply maponpaths.
+      exact (id_left _ @ ! id_right _).
+  Qed.
+
+  Definition bifunctor_from_functorfromproductcat {C D E : category}
+             (F : functor (C × D) E) : bifunctor C D E
+    := bifunctor_from_functorfromproductcat_data F ,, bifunctor_from_functorfromproductcat_laws F.
+
+  Lemma bifunctor_to_functor_to_bifunctor_data
+        {C D E : category} (F : bifunctor C D E)
+    : pr1 (bifunctor_from_functorfromproductcat (bifunctor_to_functorfromproductcat F)) = pr1 F.
+  Proof.
+    repeat (use total2_paths_f).
+    - apply idpath.
+    - repeat (apply funextsec ; intro).
+      apply when_bifunctor_becomes_leftwhiskering.
+    - repeat (apply funextsec ; intro).
+      etrans. {
+        rewrite transportf_const.
+        apply when_bifunctor_becomes_rightwhiskering.
+      }
+      apply idpath.
+  Qed.
+
+  Lemma bifunctor_to_functor_to_bifunctor
+        {C D E : category} (F : bifunctor C D E)
+    : bifunctor_from_functorfromproductcat (bifunctor_to_functorfromproductcat F) = F.
+  Proof.
+    use total2_paths_f.
+    { apply bifunctor_to_functor_to_bifunctor_data. }
+    apply isaprop_is_bifunctor.
+  Qed.
+
+  Lemma functor_to_bifunctor_to_functor
+        {C D E : category} (F : functor (C × D) E)
+    : bifunctor_to_functorfromproductcat (bifunctor_from_functorfromproductcat F) = F.
+  Proof.
+    apply (functor_eq _ _ (homset_property _)).
+    use total2_paths_f.
+    - apply idpath.
+    - etrans. { rewrite idpath_transportf.
+                apply idpath. }
+      repeat (apply funextsec ; intro).
+      etrans. { apply (! functor_comp _ _ _). }
+      apply maponpaths.
+      etrans. { apply binprod_comp. }
+      cbn.
+      etrans. { apply maponpaths ; apply id_left. }
+      etrans. { apply maponpaths_2 ; apply id_right. }
+      apply idpath.
+  Qed.
+
+  Lemma bifunctor_equiv_functorfromproductcat (C D E : category)
+    : bifunctor C D E ≃ functor (category_binproduct C D) E.
+  Proof.
+    use weq_iso.
+    { apply bifunctor_to_functorfromproductcat. }
+    { apply bifunctor_from_functorfromproductcat. }
+    { intro ; apply bifunctor_to_functor_to_bifunctor. }
+    intro ; apply functor_to_bifunctor_to_functor.
+  Defined.
+
+End FunctorsFromProductCategory.
