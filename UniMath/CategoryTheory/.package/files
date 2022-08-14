@@ -88,7 +88,6 @@ limits/Examples/CategoryProductLimits.v
 IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
-categories/Dialgebras.v
 
 SubobjectClassifier.v
 NNO.v
@@ -217,6 +216,7 @@ DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
+categories/Dialgebras.v
 Elements.v
 Core.v
 
@@ -234,6 +234,8 @@ Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
 Monoidal/BraidedMonoidalCategoriesWhiskered.v
 Monoidal/ClosedMonoidalCategoriesWhiskered.v
+Monoidal/MonoidalCategoriesReordered.v
+Monoidal/MonoidalDialgebras.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
@@ -242,6 +244,7 @@ DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
 DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
 Monoidal/MonoidalFunctorsCurried.v

@@ -80,6 +80,9 @@ Notation "αinv_{ MD }" := (monoidal_associatorinvdata MD).
 Definition leftunitor_nat {C : category} {T : tensor C} {I : C} (lu : leftunitor_data T I) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  I ⊗^{ T}_{l} f · lu y = lu x · f.
 
+Definition leftunitorinv_nat {C : category} {T : tensor C} {I : C} (luinv : leftunitorinv_data T I) : UU :=
+  ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  luinv x · I ⊗^{ T}_{l} f = f · luinv y.
+
 Definition leftunitor_iso_law {C : category} {T : tensor C} {I : C} (lu : leftunitor_data T I) (luinv : leftunitorinv_data T I) : UU :=
   ∏ (x : C), is_inverse_in_precat (lu x) (luinv x).
 
@@ -94,6 +97,9 @@ Definition leftunitorlaw_iso_law {C : category} {T : tensor C} {I : C} {lu : lef
 
 Definition rightunitor_nat {C : category} {T : tensor C} {I : C} (ru : rightunitor_data T I) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f ⊗^{ T}_{r} I · ru y = ru x · f.
+
+Definition rightunitorinv_nat {C : category} {T : tensor C} {I : C} (ruinv : rightunitorinv_data T I) : UU :=
+  ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  ruinv x · f ⊗^{ T}_{r} I = f · ruinv y.
 
 Definition rightunitor_iso_law {C : category} {T : tensor C} {I : C} (ru : rightunitor_data T I) (ruinv : rightunitorinv_data T I) : UU :=
   ∏ (x : C), is_inverse_in_precat (ru x) (ruinv x).
@@ -202,9 +208,30 @@ Definition monoidal_leftunitorlaw {C : category} (M : monoidal C) : leftunitor_l
 Definition monoidal_leftunitornat {C : category} (M : monoidal C) : leftunitor_nat lu_{M} := leftunitorlaw_nat (monoidal_leftunitorlaw M).
 Definition monoidal_leftunitorisolaw {C : category} (M : monoidal C) : leftunitor_iso_law lu_{M} luinv_{M} := leftunitorlaw_iso_law (monoidal_leftunitorlaw M).
 
+Lemma monoidal_leftunitorinvnat {C : category} (M : monoidal C) : leftunitorinv_nat luinv_{M}.
+Proof.
+  intros x y f.
+  apply (z_iso_inv_on_right _ _ _ (_,,_,,monoidal_leftunitorisolaw M x)).
+  cbn.
+  rewrite assoc.
+  apply (z_iso_inv_on_left _ _ _ _ (_,,_,,monoidal_leftunitorisolaw M y)).
+  apply pathsinv0, monoidal_leftunitornat.
+Qed.
+
 Definition monoidal_rightunitorlaw {C : category} (M : monoidal C) : rightunitor_law ru_{M} ruinv_{M} := pr12 (monoidal_monlaws M).
 Definition monoidal_rightunitornat {C : category} (M : monoidal C) : rightunitor_nat ru_{M} := rightunitorlaw_nat (monoidal_rightunitorlaw M).
+
 Definition monoidal_rightunitorisolaw {C : category} (M : monoidal C) : rightunitor_iso_law ru_{M} ruinv_{M} := rightunitorlaw_iso_law (monoidal_rightunitorlaw M).
+
+Lemma monoidal_rightunitorinvnat {C : category} (M : monoidal C) : rightunitorinv_nat ruinv_{M}.
+Proof.
+  intros x y f.
+  apply (z_iso_inv_on_right _ _ _ (_,,_,,monoidal_rightunitorisolaw M x)).
+  cbn.
+  rewrite assoc.
+  apply (z_iso_inv_on_left _ _ _ _ (_,,_,,monoidal_rightunitorisolaw M y)).
+  apply pathsinv0, monoidal_rightunitornat.
+Qed.
 
 Definition monoidal_associatorlaw {C : category} (M : monoidal C) : associator_law α_{M} αinv_{M} := pr122 (monoidal_monlaws M).
 Definition monoidal_associatornatleft {C : category} (M : monoidal C) : associator_nat_leftwhisker α_{M} := associatorlaw_natleft (monoidal_associatorlaw M).

@@ -5,11 +5,13 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
@@ -136,6 +138,85 @@ Section Dialgebra.
              (p : dialgebra_mor_path f)
     : x --> y
     := f ,, p.
+
+  Definition dialgebra_pr1 : dialgebra ⟶ C₁ := pr1_category _.
+
+(** Equivalence between nat. transformations and functors into the dialgebras
+
+    This is a simplification of the exercise 4 on p.47 in the 2nd edition of MacLane's book.
+    Appears in a less streamlined form in the CPP'22 paper by Ahrens, Matthes and Mörtberg. *)
+
+(** This direction could also be spelt out more elementarily without sections. *)
+  Definition nat_trans_to_section (η: F ⟹ G):
+      @section_disp C₁ dialgebra_disp_cat.
+    Proof.
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold dialgebra_disp_cat. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split.
+        + intro c.
+          apply C₂.
+        + intros c1 c2 c3 f f'.
+          apply C₂.
+    Defined.
+
+    Definition nat_trans_to_functor (η: F ⟹ G): C₁ ⟶ dialgebra :=
+      @section_functor C₁ dialgebra_disp_cat (nat_trans_to_section η).
+
+    Definition nat_trans_to_functor_cor (η: F ⟹ G):
+      functor_composite (nat_trans_to_functor η) dialgebra_pr1 = functor_identity C₁.
+    Proof.
+      apply from_section_functor.
+    Defined.
+
+(** the backwards direction essentially uses the sections - already for the statements *)
+    Definition section_to_nat_trans:
+      @section_disp C₁ dialgebra_disp_cat -> F ⟹ G.
+    Proof.
+      intro sd.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - intro c. exact (sdob c).
+      - intros c c' f.
+        apply pathsinv0.
+        exact (sdmor c c' f).
+    Defined.
+
+    Local Lemma roundtrip1_with_sections (η: F ⟹ G):
+      section_to_nat_trans (nat_trans_to_section η) = η.
+    Proof.
+      apply nat_trans_eq; [ apply C₂ |].
+      intro c.
+      apply idpath.
+    Qed.
+
+    Local Lemma roundtrip2_with_sections (sd: @section_disp C₁ dialgebra_disp_cat):
+      nat_trans_to_section (section_to_nat_trans sd) = sd.
+    Proof.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      unfold nat_trans_to_section, section_to_nat_trans.
+      cbn.
+      use total2_paths_f; simpl.
+      - use total2_paths_f; simpl.
+        + apply idpath.
+        + cbn.
+          do 3 (apply funextsec; intro).
+          apply pathsinv0inv0.
+      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+        assert (Hprop: isaprop goaltype).
+        2: { apply Hprop. }
+        apply isapropdirprod.
+        + apply impred. intro c.
+          apply hlevelntosn.
+          apply C₂.
+        + do 5 (apply impred; intro).
+          apply hlevelntosn.
+          apply C₂.
+    Qed.
+
 End Dialgebra.
 
 Definition univalent_dialgebra
@@ -192,11 +273,6 @@ Proof.
     exact Hf.
 Defined.
 
-Definition dialgebra_pr1
-           {C₁ C₂ : category}
-           (F G : C₁ ⟶ C₂)
-  : dialgebra F G ⟶ C₁
-  := pr1_category _.
 
 Definition from_is_z_iso_dialgebra
            {C₁ C₂ : category}
@@ -242,51 +318,36 @@ Proof.
   - exact (dialgebra_nat_trans_is_nat_trans F G).
 Defined.
 
-Definition functor_to_dialgebra_data
+Definition nat_trans_to_dialgebra_lifting
            {C₁ C₂ C₃ : category}
            {F G : C₂ ⟶ C₃}
            (K : C₁ ⟶ C₂)
            (α : K ∙ F ⟹ K ∙ G)
-  : functor_data C₁ (dialgebra F G).
+  : functor_lifting (dialgebra_disp_cat F G) K.
 Proof.
-  use make_functor_data.
-  - exact (λ x, K x ,, α x).
-  - refine (λ x y f, #K f ,, _).
-    abstract
-      (cbn ;
-       exact (!(nat_trans_ax α _ _ f))).
+  use tpair.
+  - use tpair.
+    + exact (λ x, α x).
+    + intros x y f.
+      exact (!(nat_trans_ax α _ _ f)).
+  - split; intros; apply C₃.
 Defined.
 
-Definition functor_to_dialgebra_is_functor
+Definition nat_trans_to_dialgebra
            {C₁ C₂ C₃ : category}
            {F G : C₂ ⟶ C₃}
            (K : C₁ ⟶ C₂)
            (α : K ∙ F ⟹ K ∙ G)
-  : is_functor (functor_to_dialgebra_data K α).
-Proof.
-  split ; intro ; intros ; use eq_dialgebra.
-  - apply functor_id.
-  - apply functor_comp.
-Qed.
+  : C₁ ⟶ dialgebra F G
+  := lifted_functor (nat_trans_to_dialgebra_lifting K α).
+(** [nat_trans_to_functor] above is essentially a specialization of this construction *)
 
-Definition functor_to_dialgebra
+Definition nat_trans_to_dialgebra_pr1
            {C₁ C₂ C₃ : category}
            {F G : C₂ ⟶ C₃}
            (K : C₁ ⟶ C₂)
            (α : K ∙ F ⟹ K ∙ G)
-  : C₁ ⟶ dialgebra F G.
-Proof.
-  use make_functor.
-  - exact (functor_to_dialgebra_data K α).
-  - exact (functor_to_dialgebra_is_functor K α).
-Defined.
-
-Definition functor_to_dialgebra_pr1
-           {C₁ C₂ C₃ : category}
-           {F G : C₂ ⟶ C₃}
-           (K : C₁ ⟶ C₂)
-           (α : K ∙ F ⟹ K ∙ G)
-  : functor_to_dialgebra K α ∙ dialgebra_pr1 F G ⟹ K.
+  : nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G ⟹ K.
 Proof.
   use make_nat_trans.
   - exact (λ _, identity _).
@@ -296,22 +357,117 @@ Proof.
        apply idpath).
 Defined.
 
-Definition functor_to_dialgebra_pr1_nat_z_iso
+Definition nat_trans_to_dialgebra_pr1_nat_z_iso
            {C₁ C₂ C₃ : category}
            {F G : C₂ ⟶ C₃}
            (K : C₁ ⟶ C₂)
            (α : K ∙ F ⟹ K ∙ G)
   : nat_z_iso
-      (functor_to_dialgebra K α ∙ dialgebra_pr1 F G)
+      (nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G)
       K.
 Proof.
   use make_nat_z_iso.
-  - exact (functor_to_dialgebra_pr1 K α).
+  - exact (nat_trans_to_dialgebra_pr1 K α).
   - intro.
     apply identity_is_z_iso.
 Defined.
 
-Definition nat_trans_to_dialgebra
+(** a more generic way of obtaining it: *)
+Definition nat_trans_to_dialgebra_pr1_alt_nat_z_iso
+           {C₁ C₂ C₃ : category}
+           {F G : C₂ ⟶ C₃}
+           (K : C₁ ⟶ C₂)
+           (α : K ∙ F ⟹ K ∙ G)
+  : nat_z_iso
+      (nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G)
+      K.
+Proof.
+  apply (nat_z_iso_from_z_iso C₂).
+  exact (idtoiso (C:=[C₁, C₂]) (from_lifted_functor (nat_trans_to_dialgebra_lifting K α))).
+Defined.
+
+Definition nat_trans_to_dialgebra_pr1_alt
+           {C₁ C₂ C₃ : category}
+           {F G : C₂ ⟶ C₃}
+           (K : C₁ ⟶ C₂)
+           (α : K ∙ F ⟹ K ∙ G)
+  : nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G ⟹ K.
+Proof.
+  exact (nat_trans_to_dialgebra_pr1_alt_nat_z_iso K α).
+Defined.
+
+Definition dialgebra_lifting_to_nat_trans
+           {C₁ C₂ C₃ : category}
+           {F G : C₂ ⟶ C₃}
+           (K : C₁ ⟶ C₂)
+  : functor_lifting (dialgebra_disp_cat F G) K -> K ∙ F ⟹ K ∙ G.
+Proof.
+  intro fl.
+  induction fl as [[sdob sdmor] _].
+  use make_nat_trans.
+  - intro c. exact (sdob c).
+  - intros c c' f.
+    apply pathsinv0.
+    exact (sdmor c c' f).
+Defined.
+(** [section_to_nat_trans] above is essentially a specialization of this construction *)
+
+(** we obtain [dialgebra_nat_trans] as an instance of this construction *)
+Definition dialgebra_nat_trans_alt
+           {C₁ C₂ : category}
+           (F G : C₁ ⟶ C₂)
+  : dialgebra_pr1 F G ∙ F ⟹ dialgebra_pr1 F G ∙ G.
+Proof.
+  apply dialgebra_lifting_to_nat_trans.
+  use tpair.
+  - use tpair.
+    + exact (λ x, pr2 x).
+    + intros x y f. cbn.
+      exact (pr2 f).
+  - split; intros; apply C₂.
+Defined.
+
+Local Lemma roundtrip1_with_liftings {C₁ C₂ C₃ : category}
+  {F G : C₂ ⟶ C₃}
+  (K : C₁ ⟶ C₂)
+  (α : K ∙ F ⟹ K ∙ G) :
+  dialgebra_lifting_to_nat_trans K (nat_trans_to_dialgebra_lifting K α) = α.
+Proof.
+  apply nat_trans_eq; [ apply C₃ |].
+  intro c.
+  apply idpath.
+Qed.
+
+Local Lemma roundtrip2_with_liftings
+  {C₁ C₂ C₃ : category}
+  {F G : C₂ ⟶ C₃}
+  (K : C₁ ⟶ C₂)
+  (fl : functor_lifting (dialgebra_disp_cat F G) K) :
+  nat_trans_to_dialgebra_lifting K (dialgebra_lifting_to_nat_trans K fl) = fl.
+Proof.
+  induction fl as [[sdob sdmor] [sdid sdcomp]].
+  unfold  nat_trans_to_dialgebra_lifting, dialgebra_lifting_to_nat_trans.
+  cbn.
+  use total2_paths_f; simpl.
+  - use total2_paths_f; simpl.
+    + apply idpath.
+    + cbn.
+      do 3 (apply funextsec; intro).
+      apply pathsinv0inv0.
+  - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+    assert (Hprop: isaprop goaltype).
+    2: { apply Hprop. }
+    apply isapropdirprod.
+    + apply impred. intro c.
+      apply hlevelntosn.
+      apply C₃.
+    + do 5 (apply impred; intro).
+      apply hlevelntosn.
+      apply C₃.
+Qed.
+
+
+Definition build_nat_trans_to_dialgebra
            {C₁ C₂ C₃ : category}
            {F G : C₂ ⟶ C₃}
            (K₁ K₂ : C₁ ⟶ dialgebra F G)
@@ -412,7 +568,7 @@ Section DialgebraEquivalence.
 
   Definition dialgebra_equivalence_of_cats_functor
     : dialgebra F G ⟶ dialgebra F' G'
-    := functor_to_dialgebra
+    := nat_trans_to_dialgebra
          (dialgebra_pr1 _ _ ∙ L)
          dialgebra_equivalence_nat_trans.
 
@@ -515,7 +671,7 @@ Section DialgebraEquivalence.
 
   Definition dialgebra_equivalence_of_cats_inv_functor
     : dialgebra F' G' ⟶ dialgebra F G
-    := functor_to_dialgebra
+    := nat_trans_to_dialgebra
          (dialgebra_pr1 _ _ ∙ R)
          dialgebra_equivalence_of_cats_inv_nat_trans.
 

@@ -78,6 +78,15 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 
+MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
+MonoidalCategories/UnivalenceMonCat/UnitLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
+MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
+MonoidalCategories/UnivalenceMonCat/FinalLayer.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
+
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
@@ -142,6 +151,7 @@ Limits/Inserters.v
 Limits/Equifiers.v
 
 Limits/Examples/OneTypesLimits.v
+Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
@@ -150,6 +160,10 @@ Limits/Examples/TotalBicategoryLimits.v
 Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
+
+MonoidalCategories/BicatOfWhiskeredMonCats.v
+MonoidalCategories/MonoidalDialgebrasInserters.v
+
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
