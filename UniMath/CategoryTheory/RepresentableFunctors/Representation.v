@@ -271,7 +271,7 @@ Defined.
 Theorem Representation_to_z_iso {C:category} (X:[C^op,HSET]) (r:Representation X) :
   z_iso (Hom1 (universalObject r)) X.
 Proof.
-  refine (z_iso_from_z_nat_iso _ ((element_to_nattrans X (universalObject r) (universalElement r)),,_)).
+  refine (z_iso_from_nat_z_iso _ ((element_to_nattrans X (universalObject r) (universalElement r)),,_)).
   intro b. apply (pr2 (weq_iff_z_iso_SET _)). exact (pr2 (pr2 r) b).
 Defined.
 

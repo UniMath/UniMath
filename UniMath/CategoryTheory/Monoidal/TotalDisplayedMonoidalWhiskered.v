@@ -367,4 +367,14 @@ Section MonoidalTotalCategory.
     - apply idpath.
   Qed.
 
+  Definition projection_fmonoidal {C : category} {D : disp_cat C} {M : monoidal C} (DM : disp_monoidal D M) : fmonoidal TM(DM) M π^{D}.
+  Proof.
+    exists (projection_fmonoidal_lax DM).
+    split.
+    - apply strictlytensorpreserving_is_strong.
+      exact (projection_preservestensor_strictly DM).
+    - apply strictlyunitpreserving_is_strong.
+      exact (projection_preservesunit_strictly DM).
+  Defined.
+
 End MonoidalTotalCategory.

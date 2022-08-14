@@ -606,11 +606,11 @@ Definition dialgebra_inserter_ump_1
 Proof.
   intros q.
   use make_inserter_1cell.
-  - exact (functor_to_dialgebra
+  - exact (nat_trans_to_dialgebra
              (inserter_cone_pr1 q)
              (inserter_cone_cell q)).
   - use nat_z_iso_to_invertible_2cell.
-    exact (functor_to_dialgebra_pr1_nat_z_iso
+    exact (nat_trans_to_dialgebra_pr1_nat_z_iso
              (inserter_cone_pr1 q)
              (inserter_cone_cell q)).
   - abstract
@@ -628,7 +628,7 @@ Definition dialgebra_inserter_ump_2
 Proof.
   intros C₀ K₁ K₂ α p.
   simple refine (_ ,, _).
-  - apply (nat_trans_to_dialgebra K₁ K₂ α).
+  - apply (build_nat_trans_to_dialgebra K₁ K₂ α).
     abstract
       (intro x ;
        pose (nat_trans_eq_pointwise p x) as p' ;
