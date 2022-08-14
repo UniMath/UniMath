@@ -181,7 +181,7 @@ Section set_slice_fam_equiv.
   Lemma fam_z_iso (F : fam X) : z_iso ((functor_identity (fam X)) F)
                                   ((functor_composite fam_to_slice slice_to_fam) F).
   Proof.
-    apply (z_iso_from_z_nat_iso has_homsets_HSET).
+    apply (z_iso_from_nat_z_iso has_homsets_HSET).
     exists ((pr1 fam_unit) F).
     intro x.
     exact (hset_equiv_is_z_iso ((pr1 F) x)

@@ -257,14 +257,14 @@ Let G : functor D C := right_functor E.
 
 Let ηntiso : z_iso (C:= [C,C]) (functor_identity _ ) (F ∙ G).
 Proof.
-  use z_iso_from_z_nat_iso.
+  use z_iso_from_nat_z_iso.
   exists (adjunit E). intro c.
   apply (pr1 (pr2 E)).
 Defined.
 
 Let εntiso : z_iso (C:= [D,D]) (G ∙ F) (functor_identity _ ).
 Proof.
-  use z_iso_from_z_nat_iso.
+  use z_iso_from_nat_z_iso.
   exists (adjcounit E). intro c.
   apply (pr2 (pr2 E)).
 Defined.

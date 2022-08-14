@@ -151,6 +151,7 @@ Limits/Inserters.v
 Limits/Equifiers.v
 
 Limits/Examples/OneTypesLimits.v
+Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
@@ -159,6 +160,10 @@ Limits/Examples/TotalBicategoryLimits.v
 Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
+
+MonoidalCategories/BicatOfWhiskeredMonCats.v
+MonoidalCategories/MonoidalDialgebrasInserters.v
+
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
