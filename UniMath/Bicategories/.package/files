@@ -263,6 +263,7 @@ Logic/Examples/PullbackComprehensionBicat.v
 Logic/Examples/FibrationsComprehensionBicat.v
 Logic/Examples/OpfibrationsComprehensionBicat.v
 Logic/Examples/DisplayMapComprehensionBicat.v
+Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
 OtherStructure/DualityInvolution.v
 OtherStructure/ClassifyingDiscreteOpfib.v
