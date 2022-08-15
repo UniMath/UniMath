@@ -3,10 +3,10 @@ Core/TwoCategories.v
 Core/Isos.v
 Core/Univalence.v
 Core/TransportMorphisms.v
-Core/Setcategories.v
 Core/EssentiallyAlgebraic.v
 Core/Functors.v
 Core/NaturalTransformations.v
+Core/Setcategories.v
 Core/Prelude.v
 
 FunctorCategory.v
