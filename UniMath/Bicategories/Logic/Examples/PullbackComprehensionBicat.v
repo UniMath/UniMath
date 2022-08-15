@@ -1,5 +1,7 @@
 (*******************************************************************
 
+ Every locally groupoidal category with pullback gives rise to
+ a comprehension bicategory
 
  *******************************************************************)
 Require Import UniMath.Foundations.All.
@@ -22,9 +24,6 @@ Require Import UniMath.Bicategories.Logic.ComprehensionBicat.
 
 Local Open Scope cat.
 
-(**
- 3. Locally groupoidal bicategories with pullbacks
- *)
 Section PullbackComprehension.
   Context (B : bicat)
           (B_pb : has_pb B).
