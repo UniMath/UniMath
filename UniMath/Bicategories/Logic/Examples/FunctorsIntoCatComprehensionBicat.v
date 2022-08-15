@@ -39,1058 +39,6 @@ Require Import UniMath.Bicategories.Logic.ComprehensionBicat.
 
 Local Open Scope cat.
 
-
-Definition pr1_idtoiso_concat
-          {C : category}
-          {x y z : C}
-          (f : x = y) (g : y = z)
-  : pr1 (idtoiso (f @ g)) = pr1 (idtoiso f) · pr1 (idtoiso g).
-Proof.
-  exact (maponpaths pr1 (idtoiso_concat _ _ _ _ f g)).
-Qed.
-
-Definition pr1_maponpaths_idtoiso
-          {C D : category}
-          (F : C ⟶ D)
-          {a b : C}
-          (e : a = b)
-  : pr1 (idtoiso (maponpaths F e)) = #F (pr1 (idtoiso e)).
-Proof.
-  exact (maponpaths pr1 (maponpaths_idtoiso _ _ F _ _ e)).
-Qed.
-
-Definition setcategory_eq_idtoiso
-          {C : setcategory}
-          {x y : C}
-          (p q : x = y)
-  : pr1 (idtoiso p) = pr1 (idtoiso q).
-Proof.
-  do 2 apply maponpaths.
-  apply C.
-Qed.
-
-Definition setcategory_refl_idtoiso
-          {C : setcategory}
-          {x : C}
-          (p : x = x)
-  : pr1 (idtoiso p) = identity _.
-Proof.
-  apply (setcategory_eq_idtoiso p (idpath x)).
-Qed.
-
-Definition setcategory_eq_idtoiso_comp
-          {C : setcategory}
-          {x x' y y' : C}
-          (p p' : x = x')
-          (f : x' --> y)
-          (q q' : y = y')
-  : idtoiso p · f · idtoiso q
-    =
-    idtoiso p' · f · idtoiso q'.
-Proof.
-  etrans.
-  {
-    apply maponpaths.
-    exact (setcategory_eq_idtoiso q q').
-  }
-  do 2 apply maponpaths_2.
-  apply setcategory_eq_idtoiso.
-Qed.
-
-Definition total_precategory_ob_mor_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : precategory_ob_mor.
-Proof.
-  simple refine (_ ,, _).
-  - exact (∑ (x : ob C), ob (pr1 (F x))).
-  - exact (λ x y, ∑ (f : pr1 x --> pr1 y), pr1 (#F f) (pr2 x) --> pr2 y).
-Defined.
-
-Definition eq_in_set_fiber
-          {C : setcategory}
-          {F : C ⟶ cat_of_setcategory}
-          {x₁ x₂ : C}
-          {f g : F x₁ --> F x₂}
-          (p : f = g)
-          (y : pr1 (F x₁))
-  : pr11 f y = pr11 g y.
-Proof.
-  exact (eqtohomot (maponpaths (λ z, pr11 z) p) y).
-Qed.
-
-Definition from_eq_cat_of_setcategory
-          {C₁ C₂ : cat_of_setcategory}
-          {F₁ F₂ : C₁ --> C₂}
-          (p : F₁ = F₂)
-          {x₁ x₂ : pr1 C₁}
-          (f : x₁ --> x₂)
-  : # (pr1 F₁) f
-    =
-    idtoiso (maponpaths (λ z, pr11 z x₁) p)
-    · # (pr1 F₂) f
-    · idtoiso (maponpaths (λ z, pr11 z x₂) (!p)).
-Proof.
-  induction p ; cbn.
-  rewrite id_left, id_right.
-  apply idpath.
-Qed.
-
-Definition total_precategory_data_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : precategory_data.
-Proof.
-  use make_precategory_data.
-  - exact (total_precategory_ob_mor_of_set_functor F).
-  - refine (λ x, identity _ ,, _).
-    apply idtoiso.
-    exact (eq_in_set_fiber (functor_id F (pr1 x)) (pr2 x)).
-  - refine (λ x y z f g, pr1 f · pr1 g ,, _ · # (pr1 (# F (pr1 g))) (pr2 f) · pr2 g).
-    apply idtoiso.
-    exact (eq_in_set_fiber (functor_comp F (pr1 f) (pr1 g)) (pr2 x)).
-Defined.
-
-Definition eq_mor_category_of_set_functor
-          {C : setcategory}
-          {F : C ⟶ cat_of_setcategory}
-          {x y : total_precategory_data_of_set_functor F}
-          {f g : x --> y}
-          (p : pr1 f = pr1 g)
-          (q : pr2 f = idtoiso (maponpaths (λ z, pr1 (#F z) (pr2 x)) p) · pr2 g)
-  : f = g.
-Proof.
-  induction f as [ f₁ f₂ ].
-  induction g as [ g₁ g₂ ].
-  cbn in p, q.
-  induction p.
-  apply maponpaths.
-  cbn in q.
-  rewrite id_left in q.
-  exact q.
-Qed.
-
-Definition eq_mor_category_of_set_functor_pr1
-          {C : setcategory}
-          {F : C ⟶ cat_of_setcategory}
-          {x y : total_precategory_data_of_set_functor F}
-          {f g : x --> y}
-          (p : f = g)
-  : pr1 f = pr1 g.
-Proof.
-  exact (base_paths _ _ p).
-Defined.
-
-Definition eq_mor_category_of_set_functor_pr2
-          {C : setcategory}
-          {F : C ⟶ cat_of_setcategory}
-          {x y : total_precategory_data_of_set_functor F}
-          {f g : x --> y}
-          (p : f = g)
-  : pr2 f
-    =
-    idtoiso
-      (maponpaths
-         (λ z, pr1 (#F z) (pr2 x))
-         (eq_mor_category_of_set_functor_pr1 p))
-    · pr2 g.
-Proof.
-  induction p.
-  cbn.
-  exact (!(id_left _)).
-Qed.
-
-
-Definition is_precategory_total_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : is_precategory (total_precategory_data_of_set_functor F).
-Proof.
-  use make_is_precategory_one_assoc.
-  - intros x y f ; cbn.
-    use eq_mor_category_of_set_functor ; cbn.
-    + apply id_left.
-    + apply maponpaths_2.
-      etrans.
-      {
-        apply maponpaths.
-        refine (!_).
-        exact (pr1_maponpaths_idtoiso
-                 (# F (pr1 f))
-                 (eq_in_set_fiber (functor_id F (pr1 x)) (pr2 x))).
-      }
-      etrans.
-      {
-        refine (!_).
-        exact (pr1_idtoiso_concat
-                 (eq_in_set_fiber (functor_comp F (id₁ (pr1 x)) (pr1 f)) (pr2 x))
-                 _).
-      }
-      apply setcategory_eq_idtoiso.
-  - intros x y f ; cbn.
-    use eq_mor_category_of_set_functor ; cbn.
-    + apply id_right.
-    + etrans.
-      {
-        apply maponpaths_2.
-        apply maponpaths.
-        exact (from_eq_cat_of_setcategory (functor_id F (pr1 y)) (pr2 f)).
-      }
-      cbn.
-      rewrite !assoc.
-      etrans.
-      {
-        do 3 apply maponpaths_2.
-        exact (!(pr1_idtoiso_concat
-                   (eq_in_set_fiber (functor_comp F (pr1 f) (id₁ (pr1 y))) (pr2 x))
-                   _)).
-      }
-      rewrite !assoc'.
-      etrans.
-      {
-        apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          etrans.
-          {
-            exact (!(pr1_idtoiso_concat
-                       _
-                       (eq_in_set_fiber (functor_id F (pr1 y)) (pr2 y)))).
-          }
-          apply setcategory_refl_idtoiso.
-        }
-        apply id_right.
-      }
-      apply maponpaths_2.
-      apply setcategory_eq_idtoiso.
-  - intros w x y z f g h ; cbn.
-    use eq_mor_category_of_set_functor ; cbn.
-    + apply assoc.
-    + refine (assoc _ _ _ @ _ @ assoc' _ _ _).
-      apply maponpaths_2.
-      refine (!_).
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply functor_comp.
-      }
-      do 2 refine (assoc _ _ _ @ _).
-      refine (_ @ assoc' _ _ _).
-      apply maponpaths_2.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        apply maponpaths.
-        exact (from_eq_cat_of_setcategory (functor_comp F (pr1 g) (pr1 h)) (pr2 f)).
-      }
-      cbn.
-      rewrite !assoc'.
-      etrans.
-      {
-        do 3 apply maponpaths.
-        exact (!(pr1_idtoiso_concat
-                   _
-                   (eq_in_set_fiber (functor_comp F (pr1 g) (pr1 h)) (pr2 x)))).
-      }
-      do 2 refine (assoc _ _ _ @ _).
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        exact (!(pr1_idtoiso_concat
-                   (eq_in_set_fiber (functor_comp F (pr1 f) (pr1 g · pr1 h)) (pr2 w))
-                   _)).
-      }
-      refine (!_).
-      refine (assoc _ _ _ @ _).
-      etrans.
-      {
-        apply maponpaths_2.
-        exact (!(pr1_idtoiso_concat
-                   _
-                   (eq_in_set_fiber (functor_comp F (pr1 f · pr1 g) (pr1 h)) (pr2 w)))).
-      }
-      rewrite !assoc'.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          apply setcategory_refl_idtoiso.
-        }
-        apply id_right.
-      }
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        apply functor_comp.
-      }
-      refine (assoc _ _ _ @ _).
-      apply maponpaths_2.
-      etrans.
-      {
-        apply maponpaths.
-        exact (!(pr1_maponpaths_idtoiso
-                   (# F (pr1 h))
-                   (eq_in_set_fiber (functor_comp F (pr1 f) (pr1 g)) (pr2 w)))).
-      }
-      etrans.
-      {
-        refine (!_).
-        exact (pr1_idtoiso_concat
-                 (maponpaths
-                    (λ q,
-                      pr1 (# F q) (pr2 w)) (assoc (pr1 f) (pr1 g) (pr1 h))
-                      @ eq_in_set_fiber (functor_comp F (pr1 f · pr1 g) (pr1 h)) (pr2 w))
-                 _).
-      }
-      apply setcategory_eq_idtoiso.
-Qed.
-
-Definition total_precategory_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : precategory.
-Proof.
-  use make_precategory.
-  - exact (total_precategory_data_of_set_functor F).
-  - exact (is_precategory_total_of_set_functor F).
-Defined.
-
-Definition is_setcategory_total_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : is_setcategory (total_precategory_of_set_functor F).
-Proof.
-  split.
-  - apply isaset_total2.
-    + apply C.
-    + intro.
-      apply (F x).
-  - intros x y.
-    apply isaset_total2.
-    + apply homset_property.
-    + intro.
-      apply homset_property.
-Defined.
-
-Definition total_setcategory_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : setcategory.
-Proof.
-  simple refine (_ ,, _).
-  - exact (total_precategory_of_set_functor F).
-  - exact (is_setcategory_total_of_set_functor F).
-Defined.
-
-Definition pr1_total_category_of_set_functor_data
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : functor_data
-      (total_setcategory_of_set_functor F)
-      C.
-Proof.
-  use make_functor_data.
-  - exact (λ x, pr1 x).
-  - exact (λ _ _ f, pr1 f).
-Defined.
-
-Definition pr1_total_category_of_set_is_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : is_functor (pr1_total_category_of_set_functor_data F).
-Proof.
-  split ; intro ; intros ; apply idpath.
-Qed.
-
-Definition pr1_total_category_of_set_functor
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : total_setcategory_of_set_functor F ⟶ C.
-Proof.
-  use make_functor.
-  - exact (pr1_total_category_of_set_functor_data F).
-  - exact (pr1_total_category_of_set_is_functor F).
-Defined.
-
-Section FunctorTotalCategoryFromSetFunctor.
-  Context {C₁ C₂ : setcategory}
-         (F : C₁ ⟶ C₂)
-         {G₁ : C₁ ⟶ cat_of_setcategory}
-         {G₂ : C₂ ⟶ cat_of_setcategory}
-         (α : G₁ ⟹ F ∙ G₂).
-
-  Definition functor_total_category_of_set_functor_eq
-            {x y : total_precategory_of_set_functor G₁}
-            (f : x --> y)
-    : pr1 (# G₂ (# F (pr1 f))) (pr1 (pr1 α (pr1 x)) (pr2 x))
-      =
-      pr1 (α (pr1 y)) (pr1 (# G₁ (pr1 f)) (pr2 x)).
-  Proof.
-    exact (!(eqtohomot (maponpaths (λ z, pr11 z) (nat_trans_ax α _ _ (pr1 f))) (pr2 x))).
-  Qed.
-
-  Definition functor_total_category_of_set_functor_data
-    : functor_data
-        (total_precategory_of_set_functor G₁)
-        (total_precategory_of_set_functor G₂).
-  Proof.
-    use make_functor_data.
-    - exact (λ x, F (pr1 x) ,, pr1 (pr1 α (pr1 x)) (pr2 x)).
-    - refine (λ x y f, #F (pr1 f) ,, _).
-      exact (idtoiso (functor_total_category_of_set_functor_eq f)
-             · # (pr1 (α (pr1 y))) (pr2 f)).
-  Defined.
-
-  Definition is_functor_functor_total_category_of_set_functor
-    : is_functor functor_total_category_of_set_functor_data.
-  Proof.
-    split.
-    - intro x.
-      use eq_mor_category_of_set_functor ; cbn.
-      + apply functor_id.
-      + etrans.
-        {
-          apply maponpaths.
-          refine (!_).
-          exact (pr1_maponpaths_idtoiso
-                   (α (pr1 x))
-                   (eq_in_set_fiber (functor_id G₁ (pr1 x)) (pr2 x))).
-        }
-        etrans.
-        {
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   _
-                   (maponpaths
-                      (pr1 (α (pr1 x)))
-                      (eq_in_set_fiber (functor_id G₁ (pr1 x)) (pr2 x)))).
-        }
-        refine (!_).
-        etrans.
-        {
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   _
-                   (eq_in_set_fiber
-                      (functor_id G₂ (F (pr1 x))) (pr1 (pr1 α (pr1 x)) (pr2 x)))).
-        }
-        apply setcategory_eq_idtoiso.
-    - intros x y z f g.
-      use eq_mor_category_of_set_functor ; cbn.
-      + apply functor_comp.
-      + cbn.
-        refine (!_).
-        rewrite !assoc.
-        etrans.
-        {
-          do 3 apply maponpaths_2.
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   _
-                   (eq_in_set_fiber
-                      (functor_comp G₂ (# F (pr1 f)) (# F (pr1 g)))
-                      (pr1 (pr1 α (pr1 x)) (pr2 x)))).
-        }
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          apply maponpaths_2.
-          etrans.
-          {
-            apply functor_comp.
-          }
-          apply maponpaths_2.
-          refine (!_).
-          apply  (pr1_maponpaths_idtoiso
-                    (# G₂ (# F (pr1 g)))
-                    (functor_total_category_of_set_functor_eq f)).
-        }
-        rewrite !assoc.
-        etrans.
-        {
-          do 3 apply maponpaths_2.
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   (maponpaths
-                      (λ q, pr1 (# G₂ q) (pr1 (pr1 α (pr1 x)) (pr2 x)))
-                      (functor_comp F (pr1 f) (pr1 g))
-                       @ eq_in_set_fiber
-                           (functor_comp G₂ (# F (pr1 f)) (# F (pr1 g)))
-                           (pr1 (pr1 α (pr1 x)) (pr2 x)))
-                   (maponpaths
-                      (pr1 (# G₂ (# F (pr1 g))))
-                      (functor_total_category_of_set_functor_eq f))).
-        }
-        refine (!_).
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          etrans.
-          {
-            apply functor_comp.
-          }
-          apply maponpaths.
-          apply functor_comp.
-        }
-        rewrite !assoc.
-        apply maponpaths_2.
-        etrans.
-        {
-          apply maponpaths_2.
-          etrans.
-          {
-            apply maponpaths.
-            refine (!_).
-            exact (pr1_maponpaths_idtoiso
-                     (α (pr1 z))
-                     (eq_in_set_fiber (functor_comp G₁ (pr1 f) (pr1 g)) (pr2 x))).
-          }
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   _
-                   (maponpaths
-                      (pr1 (α (pr1 z)))
-                      (eq_in_set_fiber (functor_comp G₁ (pr1 f) (pr1 g)) (pr2 x)))).
-        }
-        etrans.
-        {
-          apply maponpaths.
-          exact (from_eq_cat_of_setcategory
-                   (nat_trans_ax α _ _ (pr1 g))
-                   (pr2 f)).
-        }
-        rewrite !assoc.
-        etrans.
-        {
-          do 2 apply maponpaths_2.
-          refine (!_).
-          apply pr1_idtoiso_concat.
-        }
-        cbn.
-        apply setcategory_eq_idtoiso_comp.
-  Qed.
-
-  Definition functor_total_category_of_set_functor
-    : total_precategory_of_set_functor G₁ ⟶ total_precategory_of_set_functor G₂.
-  Proof.
-    use make_functor.
-    - exact functor_total_category_of_set_functor_data.
-    - exact is_functor_functor_total_category_of_set_functor.
-  Defined.
-
-  Definition functor_total_category_of_set_functor_comm
-    : pr1_total_category_of_set_functor G₁ ∙ F
-      ⟹
-      functor_total_category_of_set_functor ∙ pr1_total_category_of_set_functor G₂.
-  Proof.
-    use make_nat_trans.
-    - exact (λ x, identity _).
-    - abstract
-        (intros x y f ; cbn ;
-         exact (id_right _ @ !(id_left _))).
-  Defined.
-
-  Definition is_nat_z_iso_functor_total_category_of_set_functor_comm
-    : is_nat_z_iso functor_total_category_of_set_functor_comm.
-  Proof.
-    intro ; cbn.
-    apply identity_is_z_iso.
-  Defined.
-End FunctorTotalCategoryFromSetFunctor.
-
-Section NatTransTotalCategoryFromNatTrans.
-  Context {C₁ C₂ : setcategory}
-         {F₁ F₂ : C₁ ⟶ C₂}
-         (α : F₁ ⟹ F₂)
-         {G₁ : C₁ ⟶ cat_of_setcategory}
-         {G₂ : C₂ ⟶ cat_of_setcategory}
-         (β₁ : G₁ ⟹ F₁ ∙ G₂)
-         (β₂ : G₁ ⟹ F₂ ∙ G₂)
-         (p : ∏ (x : C₁), pr1 β₁ x ∙ # (pr1 G₂) (pr1 α x) = pr1 β₂ x).
-
-  Definition nat_trans_total_category_of_set_functor_eq
-            (x : total_precategory_of_set_functor G₁)
-    : pr1 (# G₂ (α (pr1 x))) (pr1 (pr1 β₁ (pr1 x)) (pr2 x))
-      =
-      pr1 (pr1 β₂ (pr1 x)) (pr2 x).
-  Proof.
-    exact (eqtohomot (maponpaths (λ z, pr11 z) (p (pr1 x))) (pr2 x)).
-  Qed.
-
-  Definition nat_trans_total_category_of_set_functor_data
-    : nat_trans_data
-        (functor_total_category_of_set_functor F₁ β₁)
-        (functor_total_category_of_set_functor F₂ β₂).
-  Proof.
-    refine (λ x, α (pr1 x) ,, _).
-    exact (idtoiso (nat_trans_total_category_of_set_functor_eq x)).
-  Defined.
-
-  Definition nat_trans_total_category_of_set_functor_is_nat_trans
-    : is_nat_trans
-        _ _
-        nat_trans_total_category_of_set_functor_data.
-  Proof.
-    intros x y f.
-    use eq_mor_category_of_set_functor.
-    - apply nat_trans_ax.
-    - cbn.
-      rewrite !assoc'.
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        apply functor_comp.
-      }
-      rewrite !assoc.
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        etrans.
-        {
-          apply maponpaths.
-          refine (!_).
-          apply (pr1_maponpaths_idtoiso (# G₂ (α (pr1 y)))).
-        }
-        refine (!_).
-        apply (pr1_idtoiso_concat
-                 (eq_in_set_fiber
-                    (functor_comp G₂ (# F₁ (pr1 f)) (α (pr1 y)))
-                    (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
-      }
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        etrans.
-        {
-          apply maponpaths_2.
-          etrans.
-          {
-            apply maponpaths_2.
-            refine (!_).
-            exact (pr1_idtoiso_concat
-                     _
-                     (eq_in_set_fiber
-                        (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
-                        (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
-          }
-          etrans.
-          {
-            apply maponpaths.
-            refine (!_).
-            apply (pr1_maponpaths_idtoiso (# G₂ (# F₂ (pr1 f)))).
-          }
-          refine (!_).
-          apply (pr1_idtoiso_concat
-                   (_
-                    @ eq_in_set_fiber
-                        (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
-                        (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
-        }
-        refine (!_).
-        apply (pr1_idtoiso_concat
-                 ((_
-                  @ eq_in_set_fiber
-                      (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
-                      (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))
-                  @ _)).
-      }
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        apply maponpaths.
-        exact (from_eq_cat_of_setcategory (p (pr1 y)) (pr2 f)).
-      }
-      rewrite !assoc'.
-      etrans.
-      {
-        do 3 apply maponpaths.
-        refine (!_).
-        exact (pr1_idtoiso_concat
-                 _
-                 (nat_trans_total_category_of_set_functor_eq y)).
-      }
-      rewrite !assoc.
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        refine (!_).
-        apply pr1_idtoiso_concat.
-      }
-      etrans.
-      {
-        apply maponpaths.
-        apply setcategory_refl_idtoiso.
-      }
-      etrans.
-      {
-        apply id_right.
-      }
-      apply maponpaths_2.
-      apply setcategory_eq_idtoiso.
-  Qed.
-
-  Definition nat_trans_total_category_of_set_functor
-    : functor_total_category_of_set_functor F₁ β₁
-        ⟹
-        functor_total_category_of_set_functor F₂ β₂.
-  Proof.
-    use make_nat_trans.
-    - exact nat_trans_total_category_of_set_functor_data.
-    - exact nat_trans_total_category_of_set_functor_is_nat_trans.
-  Defined.
-End NatTransTotalCategoryFromNatTrans.
-
-Definition functor_total_category_of_set_functor_on_id_data
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : nat_trans_data
-      (functor_identity _)
-      (functor_total_category_of_set_functor
-         (functor_identity C)
-         (nat_trans_id F))
-  := λ _, identity _.
-
-Definition functor_total_category_of_set_functor_on_id_is_nat_trans
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : is_nat_trans
-      _ _
-      (functor_total_category_of_set_functor_on_id_data F).
-Proof.
-  intros x y f.
-  refine (id_right _ @ _ @ !(id_left _)).
-  use eq_mor_category_of_set_functor.
-  - apply idpath.
-  - cbn.
-    rewrite id_left.
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths_2.
-      apply setcategory_refl_idtoiso.
-    }
-    apply id_left.
-Qed.
-
-Definition functor_total_category_of_set_functor_on_id
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : functor_identity _
-    ⟹
-    functor_total_category_of_set_functor
-      (functor_identity C)
-      (nat_trans_id F).
-Proof.
-  use make_nat_trans.
-  - exact (functor_total_category_of_set_functor_on_id_data F).
-  - exact (functor_total_category_of_set_functor_on_id_is_nat_trans F).
-Defined.
-
-Definition is_nat_z_iso_functor_total_category_of_set_functor_on_id
-          {C : setcategory}
-          (F : C ⟶ cat_of_setcategory)
-  : is_nat_z_iso (functor_total_category_of_set_functor_on_id_data F).
-Proof.
-  intro.
-  apply identity_is_z_iso.
-Defined.
-
-Definition functor_total_category_of_set_functor_on_comp_data
-          {C₁ C₂ C₃ : setcategory}
-          {F₁ : C₁ ⟶ C₂}
-          {F₂ : C₂ ⟶ C₃}
-          {G₁ : C₁ ⟶ cat_of_setcategory}
-          {G₂ : C₂ ⟶ cat_of_setcategory}
-          {G₃ : C₃ ⟶ cat_of_setcategory}
-          (α : G₁ ⟹ F₁ ∙ G₂)
-          (β : G₂ ⟹ F₂ ∙ G₃)
-  : nat_trans_data
-      (functor_total_category_of_set_functor F₁ α
-       ∙ functor_total_category_of_set_functor F₂ β)
-      (functor_total_category_of_set_functor
-         (F₁ ∙ F₂)
-         (nat_trans_comp _ _ _ α (pre_whisker F₁ β)))
-  := λ _, identity _.
-
-Definition functor_total_category_of_set_functor_on_comp_is_nat_trans
-          {C₁ C₂ C₃ : setcategory}
-          {F₁ : C₁ ⟶ C₂}
-          {F₂ : C₂ ⟶ C₃}
-          {G₁ : C₁ ⟶ cat_of_setcategory}
-          {G₂ : C₂ ⟶ cat_of_setcategory}
-          {G₃ : C₃ ⟶ cat_of_setcategory}
-          (α : G₁ ⟹ F₁ ∙ G₂)
-          (β : G₂ ⟹ F₂ ∙ G₃)
-  : is_nat_trans
-      _ _
-      (functor_total_category_of_set_functor_on_comp_data α β).
-Proof.
-  intros x y f.
-  refine (id_right _ @ _ @ !(id_left _)).
-  use eq_mor_category_of_set_functor ; cbn.
-  - apply idpath.
-  - cbn.
-    refine (_ @ !(id_left _)).
-    etrans.
-    {
-      apply maponpaths.
-      apply functor_comp.
-    }
-    rewrite !assoc.
-    apply maponpaths_2.
-    etrans.
-    {
-      apply maponpaths.
-      refine (!_).
-      apply (pr1_maponpaths_idtoiso (β (F₁ (pr1 y)))).
-    }
-    etrans.
-    {
-      refine (!_).
-      exact (pr1_idtoiso_concat
-               _
-               (maponpaths
-                  (pr1 (β (F₁ (pr1 y))))
-                  (functor_total_category_of_set_functor_eq F₁ α f))).
-    }
-    apply setcategory_eq_idtoiso.
-Qed.
-
-Definition functor_total_category_of_set_functor_on_comp
-          {C₁ C₂ C₃ : setcategory}
-          {F₁ : C₁ ⟶ C₂}
-          {F₂ : C₂ ⟶ C₃}
-          {G₁ : C₁ ⟶ cat_of_setcategory}
-          {G₂ : C₂ ⟶ cat_of_setcategory}
-          {G₃ : C₃ ⟶ cat_of_setcategory}
-          (α : G₁ ⟹ F₁ ∙ G₂)
-          (β : G₂ ⟹ F₂ ∙ G₃)
-  : functor_total_category_of_set_functor F₁ α
-    ∙ functor_total_category_of_set_functor F₂ β
-    ⟹
-    functor_total_category_of_set_functor
-      (F₁ ∙ F₂)
-      (nat_trans_comp _ _ _ α (pre_whisker F₁ β)).
-Proof.
-  use make_nat_trans.
-  - exact (functor_total_category_of_set_functor_on_comp_data α β).
-  - exact (functor_total_category_of_set_functor_on_comp_is_nat_trans α β).
-Defined.
-
-Definition is_nat_z_iso_functor_total_category_of_set_functor_on_comp
-          {C₁ C₂ C₃ : setcategory}
-          {F₁ : C₁ ⟶ C₂}
-          {F₂ : C₂ ⟶ C₃}
-          {G₁ : C₁ ⟶ cat_of_setcategory}
-          {G₂ : C₂ ⟶ cat_of_setcategory}
-          {G₃ : C₃ ⟶ cat_of_setcategory}
-          (α : G₁ ⟹ F₁ ∙ G₂)
-          (β : G₂ ⟹ F₂ ∙ G₃)
-  : is_nat_z_iso
-      (functor_total_category_of_set_functor_on_comp α β).
-Proof.
-  intro.
-  apply identity_is_z_iso.
-Defined.
-
-
-Section IsOpcartesianTotalSetCategory.
-  Context {C : setcategory}
-         (G : C ⟶ cat_of_setcategory)
-         {e₁ e₂ : total_setcategory_of_set_functor G}
-         {f : e₁ --> e₂}
-         (Hf : is_z_isomorphism (pr2 f)).
-
-  Section Factorization.
-    Context {e₃ : total_setcategory_of_set_functor G}
-           (g : e₁ --> e₃)
-           (h : pr1 e₂ --> pr1 e₃)
-           (p : pr1 g = pr1 f · h).
-
-    Definition is_opcartesian_total_setcategory_of_set_functor_factor_unique
-      : isaprop
-          (∑ φ, # (pr1_total_category_of_set_functor G) φ = h
-               ×
-               f · φ = g).
-    Proof.
-      use invproofirrelevance.
-      intros φ₁ φ₂.
-      use subtypePath.
-      {
-        intro.
-        apply isapropdirprod ; apply homset_property.
-      }
-      use eq_mor_category_of_set_functor.
-      - exact (pr12 φ₁ @ !(pr12 φ₂)).
-      - pose (q := eq_mor_category_of_set_functor_pr2 (pr22 φ₁ @ !(pr22 φ₂))).
-        cbn in q.
-        use (cancel_z_iso'
-               (# (pr1 (# G (pr11 φ₁))) (pr2 f) ,, _)).
-        {
-          cbn.
-          apply functor_on_is_z_isomorphism.
-          exact Hf.
-        }
-        cbn.
-        use (cancel_z_iso'
-               (idtoiso
-                  (eq_in_set_fiber (functor_comp G (pr1 f) (pr11 φ₁)) (pr2 e₁)))).
-        rewrite !assoc.
-        refine (q @ _) ; clear q.
-        rewrite !assoc.
-        apply maponpaths_2.
-        rewrite !assoc'.
-        refine (!_).
-        etrans.
-        {
-          apply maponpaths.
-          apply maponpaths_2.
-          apply (from_eq_cat_of_setcategory
-                   (maponpaths (λ z, #G z) (pr12 φ₁ @ !(pr12 φ₂)))
-                   (pr2 f)).
-        }
-        rewrite !assoc'.
-        etrans.
-        {
-          do 3 apply maponpaths.
-          etrans.
-          {
-            refine (!_).
-            apply (pr1_idtoiso_concat
-                     (maponpaths
-                      (λ z, (pr11 z) (pr2 e₂))
-                      (!(maponpaths
-                           (λ z, # G z)
-                           (pr12 φ₁ @ ! pr12 φ₂))))).
-          }
-          apply setcategory_refl_idtoiso.
-        }
-        rewrite id_right.
-        rewrite !assoc.
-        apply maponpaths_2.
-        etrans.
-        {
-          refine (!_).
-          apply pr1_idtoiso_concat.
-        }
-        refine (!_).
-        etrans.
-        {
-          refine (!_).
-          exact (pr1_idtoiso_concat
-                   _
-                   (eq_in_set_fiber (functor_comp G (pr1 f) (pr11 φ₂)) (pr2 e₁))).
-        }
-        apply setcategory_eq_idtoiso.
-    Qed.
-
-    Definition is_opcartesian_total_setcategory_of_set_functor_factor_eq
-      : pr1 (# G h) (pr1 (# G (pr1 f)) (pr2 e₁))
-        =
-        pr1 (# G (pr1 g)) (pr2 e₁).
-    Proof.
-      refine (!(eq_in_set_fiber (functor_comp G (pr1 f) h) (pr2 e₁)) @ _).
-      apply maponpaths_2.
-      do 2 apply maponpaths.
-      exact (!p).
-    Qed.
-
-    Definition is_opcartesian_total_setcategory_of_set_functor_factor
-      : e₂ --> e₃.
-    Proof.
-      refine (h ,, #(pr1 (#G h)) (inv_from_z_iso (_ ,, Hf)) · idtoiso _ · pr2 g).
-      apply is_opcartesian_total_setcategory_of_set_functor_factor_eq.
-    Defined.
-
-    Definition is_opcartesian_total_setcategory_of_set_functor_factor_comm
-      : f · is_opcartesian_total_setcategory_of_set_functor_factor
-        =
-        g.
-    Proof.
-      unfold is_opcartesian_total_setcategory_of_set_functor_factor.
-      use eq_mor_category_of_set_functor.
-      - cbn.
-        exact (!p).
-      - cbn.
-        rewrite !assoc.
-        apply maponpaths_2.
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          apply maponpaths_2.
-          etrans.
-          {
-            refine (!_).
-            apply functor_comp.
-          }
-          etrans.
-          {
-            apply maponpaths.
-            exact (z_iso_inv_after_z_iso (pr2 f ,, Hf)).
-          }
-          apply functor_id.
-        }
-        rewrite id_left.
-        etrans.
-        {
-          refine (!_).
-          apply (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp G _ _) _)).
-        }
-        apply setcategory_eq_idtoiso.
-    Qed.
-  End Factorization.
-
-  Definition is_opcartesian_total_setcategory_of_set_functor
-    : is_opcartesian_sopfib
-        (pr1_total_category_of_set_functor G)
-        f.
-  Proof.
-    intros e₃ g h p.
-    use iscontraprop1.
-    - exact (is_opcartesian_total_setcategory_of_set_functor_factor_unique g h).
-    - simple refine (_ ,, (_ ,, _)).
-      + exact (is_opcartesian_total_setcategory_of_set_functor_factor g h p).
-      + abstract
-          (cbn ;
-           apply idpath).
-      + exact (is_opcartesian_total_setcategory_of_set_functor_factor_comm g h p).
-  Defined.
-End IsOpcartesianTotalSetCategory.
-
-Definition street_opfib_pr1_total_setcategory
-          {C : setcategory}
-          (G : C ⟶ cat_of_setcategory)
-  : street_opfib
-      (pr1_total_category_of_set_functor G).
-Proof.
-  intros x y f.
-  simple refine (_ ,, (_ ,, _) ,, _ ,, _).
-  - exact (y ,, pr1 (#G f) (pr2 x)).
-  - exact (f ,, identity _).
-  - apply identity_z_iso.
-  - exact (!(id_right f)).
-  - apply is_opcartesian_total_setcategory_of_set_functor.
-    apply is_z_isomorphism_identity.
-Defined.
-
-
-
-
-
-
 Definition functors_into_cat_comprehension_data
   : disp_psfunctor_data
       disp_bicat_of_functors_into_cat
@@ -1145,7 +93,7 @@ Proof.
     + use is_disp_invertible_2cell_cod.
       use is_invertible_2cell_bicat_of_strict_cat.
       exact (is_nat_z_iso_functor_total_category_of_set_functor_on_comp α β).
-Time Defined.
+Defined.
 
 Definition is_disp_psfunctor_functors_into_cat_comprehension
   : is_disp_psfunctor
@@ -1575,7 +523,7 @@ Proof.
         apply (pr1_idtoiso_concat _ (_ @ eq_in_set_fiber (functor_id cc _) _)).
       }
       apply setcategory_eq_idtoiso.
-Time Qed.
+Qed.
 
 Definition functors_into_cat_comprehension
   : disp_psfunctor
@@ -1615,54 +563,953 @@ Admitted.
 
 Section PullbackFromTotal.
   Context {C₁ C₂ : setcategory}
-         {F : C₁ ⟶ C₂}
-         {G₁ : C₁ ⟶ cat_of_setcategory}
-         {G₂ : C₂ ⟶ cat_of_setcategory}
-         (α : G₁ ⟹ F ∙ G₂)
-         (Hα : is_nat_z_iso α).
+          {F : C₁ ⟶ C₂}
+          {G₁ : C₁ ⟶ cat_of_setcategory}
+          {G₂ : C₂ ⟶ cat_of_setcategory}
+          (α : G₁ ⟹ F ∙ G₂)
+          (Hα : is_nat_z_iso α).
+
+  Let αiso : nat_z_iso G₁ (F ∙ G₂) := α ,, Hα.
+  Let αinv : F ∙ G₂ ⟹ G₁ := nat_z_iso_inv αiso.
+
+  Local Lemma α_iso_α_inv
+              (x : C₁)
+              (y : pr1 (G₂ (F x)))
+    : pr1 (α x) (pr1 (αinv x) y) = y.
+  Proof.
+    exact (maponpaths
+             (λ z, pr11 z y)
+             (z_iso_after_z_iso_inv
+                (nat_z_iso_pointwise_z_iso αiso x))).
+  Qed.
+
+  Local Lemma α_iso_α_inv_on_mor
+              (x : C₁)
+              {y₁ y₂ : pr1 (G₂ (F x))}
+              (f : y₁ --> y₂)
+    : # (pr1 (α x)) (# (pr1 (αinv x)) f)
+      =
+      idtoiso (α_iso_α_inv x y₁)
+      · f
+      · idtoiso (!(α_iso_α_inv x y₂)).
+  Proof.
+    refine (from_eq_cat_of_setcategory
+             (z_iso_after_z_iso_inv
+                (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; cbn.
+    apply setcategory_eq_idtoiso_comp.
+  Qed.
+
+  Local Lemma α_inv_α_iso
+              (x : C₁)
+              (y : pr1 (G₁ x))
+    : pr1 (αinv x) (pr1 (α x) y) = y.
+  Proof.
+    exact (maponpaths
+             (λ z, pr11 z y)
+             (z_iso_inv_after_z_iso
+                (nat_z_iso_pointwise_z_iso αiso x))).
+  Qed.
+
+  Local Lemma α_inv_α_iso_on_mor
+              (x : C₁)
+              {y₁ y₂ : pr1 (G₁ x)}
+              (f : y₁ --> y₂)
+    : # (pr1 (αinv x)) (# (pr1 (α x)) f)
+      =
+      idtoiso (α_inv_α_iso x y₁)
+      · f
+      · idtoiso (!(α_inv_α_iso x y₂)).
+  Proof.
+    refine (from_eq_cat_of_setcategory
+              (z_iso_inv_after_z_iso
+                 (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; cbn.
+    apply setcategory_eq_idtoiso_comp.
+  Qed.
 
   Section PbMor.
     Context {C₀ : setcategory}
-           (P₁ : C₀ ⟶ C₁)
-           (P₂ : C₀ ⟶ total_setcategory_of_set_functor G₂)
-           (β : P₁ ∙ F ⟹ P₂ ∙ pr1_total_category_of_set_functor G₂)
-           (Hβ : is_nat_z_iso β).
+            (P₁ : C₀ ⟶ C₁)
+            (P₂ : C₀ ⟶ total_setcategory_of_set_functor G₂)
+            (β : P₁ ∙ F ⟹ P₂ ∙ pr1_total_category_of_set_functor G₂)
+            (Hβ : is_nat_z_iso β).
 
-    Definition test
+    Definition total_set_category_pb_ump_1_mor_eq
+               {x y : C₀}
+               (f : x --> y)
+      : pr1 (# G₁ (# P₁ f)) ((pr11 (αinv (P₁ x))) ((pr11 (# G₂ (pr1 (Hβ x)))) (pr2 (P₂ x))))
+        =
+        pr1 (αinv (P₁ y)) (pr1 (# G₂ (pr1 (Hβ y))) (pr1 (# G₂ (pr1 (# P₂ f))) (pr2 (P₂ x)))).
+    Proof.
+      pose (maponpaths
+              (λ z, pr11 z ((pr11 (# G₂ (pr1 (Hβ x)))) (pr2 (P₂ x))))
+              (nat_trans_ax αinv _ _ (#P₁ f)))
+        as p.
+      cbn -[αinv] in p.
+      refine (!p @ _).
+      apply maponpaths.
+      refine (maponpaths
+                (λ z, pr11 z (pr2 (P₂ x)))
+                (!(functor_comp G₂ (pr1 (Hβ x)) (# F (# P₁ f)))) @ _).
+      refine (!(maponpaths
+                  (λ z, pr1 (# G₂ z) (pr2 (P₂ x)))
+                  (nat_trans_ax (nat_z_iso_inv (β ,, Hβ)) _ _ f)) @ _).
+      exact (maponpaths
+               (λ z, pr11 z (pr2 (P₂ x)))
+               (functor_comp G₂ _ _)).
+    Qed.
+
+    Definition total_set_category_pb_ump_1_mor_data
+      : functor_data
+          C₀
+          (total_setcategory_of_set_functor G₁).
+    Proof.
+      use make_functor_data.
+      - refine (λ x, P₁ x ,, _).
+        apply (αinv (P₁ x)).
+        apply (# G₂ (pr1 (Hβ x))).
+        exact (pr2 (P₂ x)).
+      - refine (λ x y f,
+                #P₁ f
+                ,,
+                _ · #(pr1 (αinv (P₁ y))) (# (pr1 (# G₂ (pr1 (Hβ y)))) (pr2 (# P₂ f)))).
+        apply idtoiso.
+        exact (total_set_category_pb_ump_1_mor_eq f).
+    Defined.
+
+    Definition total_set_category_pb_ump_1_mor_is_functor
+      : is_functor total_set_category_pb_ump_1_mor_data.
+    Proof.
+      split.
+      - intro x.
+        use eq_mor_category_of_set_functor.
+        + apply functor_id.
+        + cbn -[αinv].
+          etrans.
+          {
+            do 3 apply maponpaths.
+            exact (eq_mor_category_of_set_functor_pr2 (functor_id P₂ x)).
+          }
+          cbn -[αinv].
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths.
+                refine (!_).
+                apply (pr1_idtoiso_concat
+                         _
+                         (eq_in_set_fiber (functor_id G₂ _) _)).
+              }
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ x)))).
+            }
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (αinv (P₁ x))).
+          }
+          etrans.
+          {
+            refine (!_).
+            apply (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq (id₁ x))).
+          }
+          refine (!_).
+          etrans.
+          {
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     _
+                     (eq_in_set_fiber (functor_id G₁ (P₁ x)) _)).
+          }
+          apply setcategory_eq_idtoiso.
+      - intros x y z f g.
+        use eq_mor_category_of_set_functor.
+        + apply functor_comp.
+        + cbn -[αinv].
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths.
+                exact (eq_mor_category_of_set_functor_pr2 (functor_comp P₂ f g)).
+              }
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths.
+              apply functor_comp.
+            }
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths.
+            apply functor_comp.
+          }
+          cbn -[αinv].
+          rewrite !assoc.
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ z)))).
+            }
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+          }
+          refine (assoc _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths_2.
+              etrans.
+              {
+                apply maponpaths.
+                etrans.
+                {
+                  apply maponpaths.
+                  refine (!_).
+                  apply (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ z)))).
+                }
+                refine (!_).
+                apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+              }
+              refine (!_).
+              apply (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq (f · g))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq (f · g) @ _)).
+          }
+          refine (!_).
+          etrans.
+          {
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths.
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₁ (# P₁ g))).
+            }
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_idtoiso_concat
+                       _
+                       (eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _)).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     (_ @ eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _)).
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            exact (from_eq_cat_of_setcategory
+                     (!(nat_trans_ax αinv _ _ (# P₁ g)))
+                     (# (pr1 (# G₂ (pr1 (Hβ y)))) (pr2 (# P₂ f)))).
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     ((_ @ eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _) @ _)).
+          }
+          refine (assoc' _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            refine (!_).
+            apply (pr1_idtoiso_concat _ (total_set_category_pb_ump_1_mor_eq g)).
+          }
+          cbn -[αinv].
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              exact (from_eq_cat_of_setcategory
+                       (!(functor_comp G₂ (pr1 (Hβ y)) (# F (# P₁ g))))
+                       (pr2 (# P₂ f))).
+            }
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            apply functor_comp.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            do 2 (refine (assoc _ _ _ @ _) ; apply maponpaths_2).
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     (((_ @ eq_in_set_fiber (functor_comp G₁ _ _) _) @ _) @ _)).
+          }
+          do 2 refine (assoc' _ _ _ @ _).
+          etrans.
+          {
+            do 2 apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     _
+                     (_ @ total_set_category_pb_ump_1_mor_eq g)).
+          }
+          etrans.
+          {
+            apply maponpaths.
+            apply maponpaths_2.
+            apply maponpaths.
+            exact (from_eq_cat_of_setcategory
+                     (maponpaths
+                        (λ q, # G₂ q)
+                        (!(nat_trans_ax (nat_z_iso_inv (β ,, Hβ)) _ _ g)))
+                     (pr2 (# P₂ f))).
+          }
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              apply functor_comp.
+            }
+            refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     _
+                     (_ @ _ @ total_set_category_pb_ump_1_mor_eq g)).
+          }
+          cbn -[αinv].
+          refine (assoc _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     ((((_ @ eq_in_set_fiber (functor_comp G₁ _ _) _) @ _) @ _) @ _)).
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            apply maponpaths.
+            exact (from_eq_cat_of_setcategory
+                       (functor_comp G₂ _ _) _).
+          }
+          refine (assoc' _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              apply functor_comp.
+            }
+            do 2 refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (!_).
+                apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+              }
+              refine (!_).
+              apply (pr1_idtoiso_concat
+                       _
+                       (_ @ _ @ _ @ total_set_category_pb_ump_1_mor_eq g)).
+            }
+            etrans.
+            {
+              apply maponpaths.
+              apply setcategory_refl_idtoiso.
+            }
+            apply id_right.
+          }
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+          }
+          etrans.
+          {
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     (((((_ @ eq_in_set_fiber (functor_comp G₁ _ _) _) @ _) @ _) @ _) @ _)).
+          }
+          apply setcategory_eq_idtoiso.
+    Time Qed.
+
+    Definition total_set_category_pb_ump_1_mor
       : C₀ ⟶ total_setcategory_of_set_functor G₁.
     Proof.
       use make_functor.
-      - use make_functor_data.
-        + cbn.
-          refine (λ x, P₁ x ,, _).
-          apply (pr1 (Hα (P₁ x))).
-          apply (# G₂ (pr1 (Hβ x))).
-          exact (pr2 (P₂ x)).
-        + cbn.
-          apply TODO.
-      - apply TODO.
+      - exact total_set_category_pb_ump_1_mor_data.
+      - exact total_set_category_pb_ump_1_mor_is_functor.
     Defined.
 
-    Definition test_pr1
-      : test ∙ pr1_total_category_of_set_functor G₁ ⟹ P₁.
+    Definition total_set_category_pb_ump_1_mor_pr1
+      : total_set_category_pb_ump_1_mor ∙ pr1_total_category_of_set_functor G₁
+        ⟹
+        P₁.
     Proof.
       use make_nat_trans.
       - exact (λ _, identity _).
-      - intros x y f ; cbn.
-        apply TODO.
+      - abstract
+          (intros x y f ; cbn ;
+           rewrite id_left, id_right ;
+           apply idpath).
     Defined.
 
-    Definition test_pr2
-      : test ∙ functor_total_category_of_set_functor F α ⟹ P₂.
+    Definition total_set_category_pb_ump_1_mor_pr2_eq
+               (x : C₀)
+      : pr1 (# G₂ (β x))
+          (pr1 (pr1 α (P₁ x))
+             ((pr11 (αinv (P₁ x)))
+                ((pr11 (# G₂ (pr1 (Hβ x))))
+                   (pr2 (P₂ x)))))
+        =
+        pr2 (P₂ x).
+    Proof.
+      etrans.
+      {
+        apply maponpaths.
+        apply α_iso_α_inv.
+      }
+      etrans.
+      {
+        exact (maponpaths
+                 (λ z, pr11 z (pr2 (P₂ x)))
+                 (!(functor_comp G₂ (pr1 (Hβ x)) (β x)))).
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        do 2 apply maponpaths.
+        exact (z_iso_after_z_iso_inv (_ ,, Hβ x)).
+      }
+      cbn.
+      etrans.
+      {
+        exact (maponpaths
+                 (λ z, pr11 z (pr2 (P₂ x)))
+                 (functor_id G₂ _)).
+      }
+      cbn.
+      apply idpath.
+    Qed.
+
+    Definition total_set_category_pb_ump_1_mor_pr2_data
+      : nat_trans_data
+          (total_set_category_pb_ump_1_mor ∙ functor_total_category_of_set_functor F α)
+          P₂.
+    Proof.
+      refine (λ x, β x ,, _).
+      refine (idtoiso _).
+      apply total_set_category_pb_ump_1_mor_pr2_eq.
+    Defined.
+
+    Definition total_set_category_pb_ump_1_mor_pr2_is_nat_trans
+      : is_nat_trans
+          _ _
+          total_set_category_pb_ump_1_mor_pr2_data.
+    Proof.
+      intros x y f.
+      use eq_mor_category_of_set_functor.
+      - apply (nat_trans_ax β).
+      - cbn -[αinv].
+        etrans.
+        {
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths.
+                refine (functor_comp _ _ _ @ _).
+                etrans.
+                {
+                  apply maponpaths_2.
+                  refine (!_).
+                  apply (pr1_maponpaths_idtoiso (α (P₁ y))).
+                }
+                etrans.
+                {
+                  apply maponpaths.
+                  apply α_iso_α_inv_on_mor.
+                }
+                refine (assoc _ _ _ @ _).
+                apply maponpaths_2.
+                refine (assoc _ _ _ @ _).
+                apply maponpaths_2.
+                refine (!_).
+                apply (pr1_idtoiso_concat
+                         (maponpaths
+                            (pr11 (α (P₁ y)))
+                            (total_set_category_pb_ump_1_mor_eq f))).
+              }
+              refine (assoc _ _ _ @ _).
+              apply maponpaths_2.
+              refine (assoc _ _ _ @ _).
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_idtoiso_concat
+                       _
+                       (maponpaths
+                          (pr11 (α (P₁ y)))
+                          (total_set_category_pb_ump_1_mor_eq f) @ _)).
+            }
+            refine (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₂ (β y))).
+            }
+            apply maponpaths_2.
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (# G₂ (β y))).
+          }
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _)).
+        }
+        do 2 refine (assoc' _ _ _ @ _).
+        etrans.
+        {
+          do 2 apply maponpaths.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   _
+                   (total_set_category_pb_ump_1_mor_pr2_eq y)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          exact (from_eq_cat_of_setcategory
+                   ((!functor_comp G₂ (pr1 (Hβ y)) (β y))
+                    @ maponpaths
+                        (λ z, # G₂ z)
+                        (z_iso_after_z_iso_inv (_ ,, Hβ y))
+                    @ functor_id G₂ _)
+                   (pr2 (# P₂ f))).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          do 2 refine (assoc' _ _ _ @ _).
+          do 2 apply maponpaths.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   _
+                   (_ @ total_set_category_pb_ump_1_mor_pr2_eq y)).
+        }
+        do 2 refine (assoc _ _ _ @ _).
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _ @ _)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply setcategory_refl_idtoiso.
+        }
+        refine (id_right _ @ _).
+        refine (_ @ assoc' _ _ _).
+        apply maponpaths_2.
+        refine (!_).
+        etrans.
+        {
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₂ (pr1 (# P₂ f)))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     (eq_in_set_fiber (functor_comp G₂ _ _) _)).
+          }
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _ @ _)).
+        }
+        apply setcategory_eq_idtoiso.
+    Qed.
+
+    Definition total_set_category_pb_ump_1_mor_pr2
+      : total_set_category_pb_ump_1_mor ∙ functor_total_category_of_set_functor F α
+        ⟹
+        P₂.
     Proof.
       use make_nat_trans.
-      - refine (λ x, β x ,, _).
-        cbn.
+      - exact total_set_category_pb_ump_1_mor_pr2_data.
+      - exact total_set_category_pb_ump_1_mor_pr2_is_nat_trans.
+    Defined.
+  End PbMor.
+
+  Section PbCell.
+    Context {C₀ : setcategory}
+            {φ₁ φ₂ : pr1 C₀ ⟶ total_setcategory_of_set_functor G₁}
+            (δ₁ : φ₁ ∙ pr1_total_category_of_set_functor G₁
+                  ⟹
+                  φ₂ ∙ pr1_total_category_of_set_functor G₁)
+            (δ₂ : φ₁ ∙ functor_total_category_of_set_functor F α
+                  ⟹
+                  φ₂ ∙ functor_total_category_of_set_functor F α)
+            (q : ∏ (x : C₀), pr1 (δ₂ x) = # F (δ₁ x)).
+
+    Definition total_set_category_pb_ump_2_unique
+      : isaprop
+          (∑ (γ : φ₁ ⟹ φ₂),
+            post_whisker γ (pr1_total_category_of_set_functor G₁) = δ₁
+            ×
+            post_whisker γ (functor_total_category_of_set_functor F α) = δ₂).
+    Proof.
+      use invproofirrelevance.
+      intros ζ ξ.
+      use subtypePath.
+      {
+        intro.
+        use isapropdirprod ; apply isaset_nat_trans ; apply homset_property.
+      }
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use eq_mor_category_of_set_functor.
+      - exact (nat_trans_eq_pointwise (pr12 ζ) x @ !(nat_trans_eq_pointwise (pr12 ξ) x)).
+      - assert (p := maponpaths
+                       (λ z, #(pr1 (αinv (pr1 (φ₂ x)))) z)
+                       (eq_mor_category_of_set_functor_pr2
+                          (nat_trans_eq_pointwise (pr22 ζ) x
+                           @ !(nat_trans_eq_pointwise (pr22 ξ) x)))).
+        cbn -[αinv] in p.
+        rewrite !(functor_comp (αinv (pr1 (φ₂ x)))) in p.
+        rewrite !α_inv_α_iso_on_mor in p.
+        (*
+        simple refine (_ @ maponpaths (λ z, idtoiso TODO · z · idtoiso TODO) p @ _).
+         *)
+        Check  p.
         apply TODO.
-      - apply TODO.
+    Qed.
+
+    Definition total_set_category_pb_ump_2_cell_data
+      : nat_trans_data φ₁ φ₂.
+    Proof.
+      refine (λ x, δ₁ x ,, _).
+      refine (idtoiso _ · # (pr1 (αinv (pr1 (φ₂ x)))) (pr2 (δ₂ x)) · idtoiso _).
+      - abstract
+          (rewrite q ;
+           cbn -[αinv] ;
+           pose (maponpaths (λ z, pr11 z (pr2 (φ₁ x))) (nat_trans_ax α _ _ (δ₁ x))) as p ;
+           cbn in p ;
+           refine (!_) ;
+           etrans ;
+             [ apply maponpaths ;
+               exact (!p)
+             | ] ;
+           apply α_inv_α_iso).
+      - abstract
+          (apply α_inv_α_iso).
     Defined.
 
-  End PbMor.
+    Definition total_set_category_pb_ump_2_cell_is_nat_trans
+      : is_nat_trans φ₁ φ₂ total_set_category_pb_ump_2_cell_data.
+    Proof.
+      intros x y f.
+      use eq_mor_category_of_set_functor.
+      - exact (nat_trans_ax δ₁ _ _ f).
+      - cbn -[αinv].
+        refine (!_).
+        rewrite !assoc.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber (functor_comp G₁ _ _) _)).
+        }
+        etrans.
+        {
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            apply functor_comp.
+          }
+          rewrite !assoc.
+          do 2 apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (# G₁ (pr1 (# φ₂ f)))).
+          }
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   (_ @ eq_in_set_fiber (functor_comp G₁ _ _) _)).
+        }
+
+
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          apply maponpaths.
+          exact (from_eq_cat_of_setcategory
+                   (!(nat_trans_ax αinv _ _ (pr1 (# φ₂ f))))
+                   (pr2 (δ₂ x))).
+        }
+        cbn -[αinv].
+
+        pose (maponpaths
+                (λ z, # (pr1 (αinv (pr1 (φ₂ y)))) z)
+                (eq_mor_category_of_set_functor_pr2
+                   (nat_trans_ax δ₂ _ _ f)))
+          as p.
+    Admitted.
+
+    Definition total_set_category_pb_ump_2_cell
+      : φ₁ ⟹ φ₂.
+    Proof.
+      use make_nat_trans.
+      - exact total_set_category_pb_ump_2_cell_data.
+      - exact total_set_category_pb_ump_2_cell_is_nat_trans.
+    Defined.
+
+    Definition total_set_category_pb_ump_2_pr1
+      : post_whisker
+          total_set_category_pb_ump_2_cell
+          (pr1_total_category_of_set_functor G₁)
+        =
+        δ₁.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x ; cbn.
+      apply idpath.
+    Qed.
+
+    Definition total_set_category_pb_ump_2_pr2
+      : post_whisker
+          total_set_category_pb_ump_2_cell
+          (functor_total_category_of_set_functor F α)
+        =
+        δ₂.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use eq_mor_category_of_set_functor.
+      - cbn.
+        exact (!(q x)).
+      - cbn -[αinv].
+        etrans.
+        {
+          apply maponpaths.
+          refine (functor_comp _ _ _ @ _).
+          apply maponpaths_2.
+          refine (functor_comp _ _ _ @ _).
+          apply maponpaths.
+          apply α_iso_α_inv_on_mor.
+        }
+        rewrite !assoc'.
+        etrans.
+        {
+          do 4 apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            refine (!_).
+            apply (pr1_maponpaths_idtoiso (α (pr1 (φ₂ x)))).
+          }
+          refine (!_).
+          apply pr1_idtoiso_concat.
+        }
+        rewrite !assoc.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (α (pr1 (φ₂ x)))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     (functor_total_category_of_set_functor_eq
+                        F α
+                        (total_set_category_pb_ump_2_cell_data x))).
+          }
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   (functor_total_category_of_set_functor_eq
+                      F α
+                      (total_set_category_pb_ump_2_cell_data x) @ _)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply setcategory_refl_idtoiso.
+        }
+        refine (id_right _ @ _).
+        apply maponpaths_2.
+        apply setcategory_eq_idtoiso.
+    Time Qed.
+  End PbCell.
+
+  Definition total_set_category_has_pb_ump
+    : has_pb_ump
+        (@make_pb_cone
+           bicat_of_strict_cats
+           C₁ (total_setcategory_of_set_functor G₂) C₂
+           F (pr1_total_category_of_set_functor G₂)
+           (total_setcategory_of_set_functor G₁)
+           (pr1_total_category_of_set_functor G₁)
+           (functor_total_category_of_set_functor F α)
+           (make_invertible_2cell
+              (is_invertible_2cell_bicat_of_strict_cat
+                 (functor_total_category_of_set_functor_comm F α)
+                 (is_nat_z_iso_functor_total_category_of_set_functor_comm F α)))).
+  Proof.
+    split.
+    - intro x.
+      use make_pb_1cell.
+      + apply (total_set_category_pb_ump_1_mor
+                 (pb_cone_pr1 x) (pb_cone_pr2 x)
+                 (pr1 (pb_cone_cell x))).
+        apply from_is_invertible_2cell_bicat_of_strict_cat.
+        apply property_from_invertible_2cell.
+      + use make_invertible_2cell.
+        * apply (total_set_category_pb_ump_1_mor_pr1
+                   (pb_cone_pr1 x) (pb_cone_pr2 x)
+                   (pr1 (pb_cone_cell x))).
+        * apply is_invertible_2cell_bicat_of_strict_cat.
+          intro ; cbn.
+          apply is_z_isomorphism_identity.
+      + use make_invertible_2cell.
+        * apply (total_set_category_pb_ump_1_mor_pr2
+                   (pb_cone_pr1 x) (pb_cone_pr2 x)
+                   (pr1 (pb_cone_cell x))).
+        * apply is_invertible_2cell_bicat_of_strict_cat.
+          (*intro ; cbn.
+          use is_z_iso_total_setcategory_of_set_functor.
+          ** cbn.
+             apply TODO.
+          ** cbn.
+          cbn.*)
+          apply TODO.
+      + (*
+        use nat_trans_eq ; [ apply homset_property | ].
+        intro z ; cbn.
+        rewrite (functor_id F).
+        rewrite !id_left, id_right.
+        *)
+        apply TODO.
+    - intros C₀ φ₁ φ₂ δ₁ δ₂ p.
+      assert (∏ (x : pr1 C₀), pr1 (pr1 δ₂ x) = # F (pr1 δ₁ x)) as q.
+      {
+        intro x.
+        pose (nat_trans_eq_pointwise p x) as q.
+        cbn in q .
+        rewrite !id_left, !id_right in q.
+        exact q.
+      }
+      use iscontraprop1.
+      + apply total_set_category_pb_ump_2_unique.
+      + simple refine (_ ,, _ ,, _).
+        * exact (total_set_category_pb_ump_2_cell δ₁ δ₂ q).
+        * apply total_set_category_pb_ump_2_pr1.
+        * apply total_set_category_pb_ump_2_pr2.
+  Defined.
 End PullbackFromTotal.
 
 Definition global_cartesian_functors_into_cat_comprehension
@@ -1670,29 +1517,9 @@ Definition global_cartesian_functors_into_cat_comprehension
 Proof.
   intros C₁ C₂ F G₁ G₂ α Hα.
   use is_pb_to_cartesian_1cell.
-  pose (functors_into_cat_cartesian_1cell_is_nat_iso _ Hα) as Hα'.
-  cbn in *.
-  split.
-  - intro x.
-    use make_pb_1cell.
-    + exact (test α Hα' (pb_cone_pr1 x) (pb_cone_pr2 x) (pr1 (pb_cone_cell x)) TODO).
-    + use make_invertible_2cell.
-      * exact (test_pr1 α Hα' (pb_cone_pr1 x) (pb_cone_pr2 x) (pr1 (pb_cone_cell x)) TODO).
-      * apply is_invertible_2cell_bicat_of_strict_cat.
-        cbn.
-        apply TODO.
-    + use make_invertible_2cell.
-      * exact (test_pr2 α Hα' (pb_cone_pr1 x) (pb_cone_pr2 x) (pr1 (pb_cone_cell x)) TODO).
-      * apply is_invertible_2cell_bicat_of_strict_cat.
-        cbn.
-        apply TODO.
-    + use nat_trans_eq ; [ apply homset_property | ].
-      intro z ; cbn.
-      rewrite (functor_id F).
-      rewrite !id_left, id_right.
-      apply TODO.
-  - admit.
-Admitted.
+  apply total_set_category_has_pb_ump.
+  exact (functors_into_cat_cartesian_1cell_is_nat_iso _ Hα).
+Defined.
 
 (************************************************
 

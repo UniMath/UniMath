@@ -264,6 +264,11 @@ Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
 
+GrothendieckConstruction/TotalCategory.v
+GrothendieckConstruction/IsosInTotal.v
+GrothendieckConstruction/Projection.v
+GrothendieckConstruction/IsOpfibration.v
+
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
 RepresentableFunctors/Bifunctor.v
