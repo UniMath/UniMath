@@ -27,9 +27,6 @@ Require Import UniMath.CategoryTheory.GrothendieckConstruction.IsosInTotal.
 
 Local Open Scope cat.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
 Section PullbackFromTotal.
   Context {C₁ C₂ : setcategory}
           {F : C₁ ⟶ C₂}
@@ -695,12 +692,150 @@ Section PullbackFromTotal.
                           (nat_trans_eq_pointwise (pr22 ζ) x
                            @ !(nat_trans_eq_pointwise (pr22 ξ) x)))).
         cbn -[αinv] in p.
-        rewrite !(functor_comp (αinv (pr1 (φ₂ x)))) in p.
-        rewrite !α_inv_α_iso_on_mor in p.
-        (*
-        simple refine (_ @ maponpaths (λ z, idtoiso TODO · z · idtoiso TODO) p @ _).
-         *)
-        apply TODO.
+        assert (pr1 (# G₁ (pr1 (pr1 ζ x))) (pr2 (φ₁ x))
+                =
+                pr1 (αinv (pr1 (φ₂ x)))
+                  (pr1 (# G₂ (# F (pr1 ((pr11 ζ) x))))
+                         (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x)))))
+          as X.
+        {
+          pose (maponpaths
+                   (λ z, pr11 z (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x))))
+                   (nat_trans_ax αinv _ _ (pr1 (pr11 ζ x))))
+            as r.
+          cbn -[αinv] in r.
+          refine (_ @ !r).
+          apply maponpaths.
+          refine (!_).
+          apply α_inv_α_iso.
+        }
+        simple refine (_
+                       @ maponpaths
+                           (λ z, idtoiso X · z · idtoiso (α_inv_α_iso _ _))
+                           p
+                       @ _).
+        + refine (!_).
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            refine (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              apply α_inv_α_iso_on_mor.
+            }
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+            }
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            apply setcategory_refl_idtoiso.
+          }
+          refine (id_right _ @ _).
+          etrans.
+          {
+            apply maponpaths_2.
+            apply setcategory_refl_idtoiso.
+          }
+          apply id_left.
+        + etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            refine (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              refine (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                apply maponpaths.
+                apply α_inv_α_iso_on_mor.
+              }
+              refine (assoc _ _ _ @ _).
+              apply maponpaths_2.
+              refine (assoc _ _ _ @ _).
+              apply maponpaths_2.
+
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (!_).
+                apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+              }
+              refine (!_).
+              apply pr1_idtoiso_concat.
+            }
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+            }
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          do 2 refine (assoc' _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                refine (!_).
+                apply pr1_idtoiso_concat.
+              }
+              apply setcategory_refl_idtoiso.
+            }
+            apply id_right.
+          }
+          apply maponpaths_2.
+          apply setcategory_eq_idtoiso.
     Qed.
 
     Definition total_set_category_pb_ump_2_cell_data
@@ -719,8 +854,7 @@ Section PullbackFromTotal.
                exact (!p)
              | ] ;
            apply α_inv_α_iso).
-      - abstract
-          (apply α_inv_α_iso).
+      - apply α_inv_α_iso.
     Defined.
 
     Definition total_set_category_pb_ump_2_cell_is_nat_trans
@@ -762,8 +896,6 @@ Section PullbackFromTotal.
           apply (pr1_idtoiso_concat
                    (_ @ eq_in_set_fiber (functor_comp G₁ _ _) _)).
         }
-
-
         etrans.
         {
           do 2 apply maponpaths_2.
@@ -772,14 +904,290 @@ Section PullbackFromTotal.
                    (!(nat_trans_ax αinv _ _ (pr1 (# φ₂ f))))
                    (pr2 (δ₂ x))).
         }
-        cbn -[αinv].
-
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (assoc' _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₁ (pr1 (# φ₂ f)))).
+            }
+            refine (!_).
+            apply (pr1_idtoiso_concat
+                     _
+                     (maponpaths (λ z, pr1 (# G₁ (pr1 (# φ₂ f))) z) _)).
+          }
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          refine (!_).
+          apply (pr1_idtoiso_concat
+                   (_ @ maponpaths (λ z, pr1 (# G₁ (pr1 (# φ₂ f))) z) _)).
+        }
         pose (maponpaths
                 (λ z, # (pr1 (αinv (pr1 (φ₂ y)))) z)
                 (eq_mor_category_of_set_functor_pr2
                    (nat_trans_ax δ₂ _ _ f)))
           as p.
-    Admitted.
+        cbn -[αinv] in p.
+        assert (pr1 (# G₁ (pr1 (# φ₁ f) · δ₁ y)) (pr2 (φ₁ x))
+                =
+                pr1 (αinv (pr1 (φ₂ y)))
+                      (pr1 (# G₂ (# F (pr1 (# φ₁ f)) · pr1 (δ₂ y)))
+                              (pr1 (pr1 α (pr1 (φ₁ x)))
+                                 (pr2 (φ₁ x)))))
+          as X1.
+        {
+          rewrite q.
+          cbn -[αinv].
+          rewrite <- functor_comp.
+          refine (!_).
+          etrans.
+          {
+            apply (maponpaths
+                     (λ z, pr11 z (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x))))
+                     (nat_trans_ax αinv _ _ (pr1 (# φ₁ f) · δ₁ y))).
+          }
+          cbn -[αinv].
+          apply maponpaths.
+          apply α_inv_α_iso.
+        }
+        simple refine (_
+                       @ maponpaths
+                           (λ z, idtoiso X1 · z · idtoiso (α_inv_α_iso _ _))
+                           (!p)
+                       @ _).
+        + refine (!_).
+          etrans.
+          {
+            etrans.
+            {
+              apply maponpaths_2.
+              apply maponpaths.
+              refine (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (!_).
+                apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+              }
+              apply maponpaths.
+              refine (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                apply maponpaths.
+                refine (functor_comp _ _ _ @ _).
+                etrans.
+                {
+                  apply maponpaths.
+                  apply α_inv_α_iso_on_mor.
+                }
+                refine (assoc  _ _ _ @ _).
+                apply maponpaths_2.
+                refine (assoc  _ _ _ @ _).
+                apply maponpaths_2.
+                etrans.
+                {
+                  apply maponpaths_2.
+                  refine (!_).
+                  apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+                }
+                refine (!_).
+                apply pr1_idtoiso_concat.
+              }
+              apply maponpaths_2.
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            etrans.
+            {
+              apply maponpaths_2.
+              do 3 refine (assoc _ _ _ @ _).
+              do 2 apply maponpaths_2.
+              refine (assoc _ _ _ @ _).
+              apply maponpaths_2.
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (!_).
+                apply pr1_idtoiso_concat.
+              }
+              refine (!_).
+              apply pr1_idtoiso_concat.
+            }
+            do 3 refine (assoc' _ _ _ @ _).
+            do 2 apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply pr1_idtoiso_concat.
+            }
+            etrans.
+            {
+              apply maponpaths.
+              apply setcategory_refl_idtoiso.
+            }
+            apply id_right.
+          }
+          do 2 refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          apply setcategory_eq_idtoiso_comp.
+        + apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            refine (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths.
+                refine (functor_comp _ _ _ @ _).
+                apply maponpaths_2.
+                refine (!_).
+                apply (pr1_maponpaths_idtoiso (# G₂ (pr1 (δ₂ y)))).
+              }
+              refine (functor_comp _ _ _ @ _).
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          refine (assoc _ _ _ @ _).
+          apply maponpaths_2.
+          etrans.
+          {
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              exact (from_eq_cat_of_setcategory
+                       (maponpaths (λ z, #G₂ z) (q y))
+                       (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
+            }
+            refine (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply pr1_maponpaths_idtoiso.
+            }
+            apply maponpaths_2.
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_maponpaths_idtoiso.
+          }
+          etrans.
+          {
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            apply (from_eq_cat_of_setcategory
+                     (nat_trans_ax αinv _ _(δ₁ y))
+                     (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            apply maponpaths.
+            cbn -[αinv].
+            etrans.
+            {
+              apply maponpaths.
+              apply α_inv_α_iso_on_mor.
+            }
+            refine (functor_comp _ _ _ @ _).
+            apply maponpaths_2.
+            apply functor_comp.
+          }
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₁ (δ₁ y))).
+            }
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            refine (assoc' _ _ _ @ _).
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (!_).
+              apply (pr1_maponpaths_idtoiso (# G₁ (δ₁ y))).
+            }
+            refine (!_).
+            apply pr1_idtoiso_concat.
+          }
+          apply setcategory_eq_idtoiso_comp.
+    Qed.
 
     Definition total_set_category_pb_ump_2_cell
       : φ₁ ⟹ φ₂.
