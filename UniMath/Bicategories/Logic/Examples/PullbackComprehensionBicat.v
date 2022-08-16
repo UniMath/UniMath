@@ -1,6 +1,6 @@
 (*******************************************************************
 
- Every locally groupoidal category with pullback gives rise to
+ Every locally groupoidal bicategory with pullback gives rise to
  a comprehension bicategory
 
  *******************************************************************)
