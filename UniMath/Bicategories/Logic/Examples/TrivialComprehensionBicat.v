@@ -2,6 +2,11 @@
 
  The trivial comprehension bicategory
 
+ If we have a bicategory with products, then we obtain a
+ comprehension bicategory. The fibration comes from the trivial
+ displayed bicategory and for the comprehension pseudofunctor, we
+ use that the bicategory has products.
+
  Contents
  1. The comprehension pseudofunctor
  2. Preservation of cartesian 1-cells
