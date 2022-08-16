@@ -289,7 +289,7 @@ Section SetWithSubsetMonoidal.
       use (factor_through_squash _ _ xy1_prop).
       { apply setsubtype_in_product. }
       intro xy1.
-      repeat split.
+      split.
       + rewrite (! pr12 xy1).
         exact (pr122 xy1).
       + simpl in *.
