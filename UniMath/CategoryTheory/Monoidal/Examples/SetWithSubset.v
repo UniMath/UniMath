@@ -305,7 +305,7 @@ Section SetWithSubsetMonoidal.
       use (factor_through_squash _ _ x1y_prop).
       { apply setsubtype_in_product. }
       intro x1y.
-      repeat split.
+      split.
       + simpl in *.
         apply (fsp _).
         apply hinhpr.
