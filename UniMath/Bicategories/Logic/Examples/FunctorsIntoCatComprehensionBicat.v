@@ -1,6 +1,6 @@
 (*******************************************************************
 
- The comprehension bicategory of functors into categories
+ The comprehension bicategory of functors into the category of strict categories
 
  Contents
  1. The comprehension pseudofunctor
