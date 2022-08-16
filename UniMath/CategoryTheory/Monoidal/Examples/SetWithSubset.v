@@ -283,7 +283,7 @@ Section SetWithSubsetMonoidal.
     : disp_bifunctor_data SET_cartesian_monoidal SS_disp_cat SS_disp_cat SS_disp_cat.
   Proof.
     exists (λ _ _ U V, setsubtype_in_product U V).
-    repeat (use tpair).
+    split.
     - intros X Y1 Y2 g Ux U1 U2 gsp.
       intros xy2 xy1_prop.
       use (factor_through_squash _ _ xy1_prop).
