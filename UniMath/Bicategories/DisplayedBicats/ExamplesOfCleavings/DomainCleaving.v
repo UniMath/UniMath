@@ -1,3 +1,14 @@
+(******************************************************************************************
+
+ The domain displayed bicategory has a cleaving
+
+ Contents
+ 1. Characterization of opcartesian 2-cells
+ 2. Local opcleaving and isocleaving
+ 3. Characterizations of cartesian 1-cells
+ 4. Global cleaving
+
+ ******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -28,7 +39,9 @@ Section DomainCleaving.
   Context {B : bicat}
           (a : B).
 
-  (** Every 2-cell is opcartesian *)
+  (**
+   1. Characterization of opcartesian 2-cells
+   *)
   Definition dom_is_opcartesian_2cell
              {c₁ c₂ : B}
              {s₁ s₂ : c₁ --> c₂}
@@ -56,7 +69,10 @@ Section DomainCleaving.
       + apply cellset_property.
   Qed.
 
-  Definition dom_local_cleaving
+  (**
+   2. Local opcleaving and isocleaving
+   *)
+  Definition dom_local_opcleaving
     : local_opcleaving (dom_disp_bicat B a).
   Proof.
     intros c₁ c₂ t₁ t₂ s₁ s₂ α β ; cbn in *.
@@ -81,7 +97,9 @@ Section DomainCleaving.
     - apply dom_disp_locally_groupoid.
   Defined.
 
-  (** Characterizations of cartesian 1-cells *)
+  (**
+   3. Characterizations of cartesian 1-cells
+   *)
   Definition dom_invertible_2cell_is_cartesian_1cell
              {c₁ c₂ : B}
              {s : c₁ --> c₂}
@@ -207,6 +225,9 @@ Section DomainCleaving.
       apply linvunitor_lunitor.
   Qed.
 
+  (**
+   4. Global cleaving
+   *)
   Definition dom_global_cleaving
     : global_cleaving (dom_disp_bicat B a).
   Proof.

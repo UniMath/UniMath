@@ -168,6 +168,15 @@ Proof.
   simpl; apply pathsinv0, id_left.
 Qed.
 
+Definition pr1_idtoiso_concat
+           {C : category}
+           {x y z : C}
+           (f : x = y) (g : y = z)
+  : pr1 (idtoiso (f @ g)) = pr1 (idtoiso f) · pr1 (idtoiso g).
+Proof.
+  exact (maponpaths pr1 (idtoiso_concat _ _ _ _ f g)).
+Qed.
+
 Lemma idtoiso_inj (C : category) (H : is_univalent C) (a a' : ob C)
    (p p' : a = a') : idtoiso p = idtoiso p' -> p = p'.
 Proof.
