@@ -2,9 +2,9 @@
 
  The displayed bicategory of functors into categories
 
- In this file, we look at the displayed bicategory of functors into categories. Note that
- here, we restrict ourselves to strict categories. In addition, note that a functor into
- categories is the same as a split opfibration on the base.
+ In this file, we look at the displayed bicategory of functors into the category of strict categories. 
+ Note that here, we restrict ourselves to functors starting in strict categories. 
+ In addition, note that a functor into the category of strict categories is the same as a split opfibration on the source.
 
  Contents:
  1. Definition
