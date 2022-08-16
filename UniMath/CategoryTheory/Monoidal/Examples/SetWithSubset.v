@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiske
 
 Section Subtype_AUX.
 
-  (* We could define the intersection as follows but this makes it more complicated then it should be *)
+  (* We could define the intersection as follows but this makes it more complicated than it should be *)
   Definition binary_intersection' {X : UU} (U V : hsubtype X) : hsubtype X
     := subtype_intersection (λ b,  bool_rect (λ _ : bool, hsubtype X) U V b).
 
