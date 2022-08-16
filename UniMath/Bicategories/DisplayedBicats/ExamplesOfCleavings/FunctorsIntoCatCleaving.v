@@ -1,8 +1,8 @@
 (******************************************************************************************
 
- The fibrations of functors into categories
+ The fibrations of functors into the category of strict categories
 
- In this file, we prove that the displayed bicategory of functors into categories has a
+ In this file, we prove that the displayed bicategory of functors into the category of strict categories has a
  local opcleaving, a local isocleaving, and a global cleaving.
 
  Contents:
