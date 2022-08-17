@@ -59,15 +59,15 @@ Section Subtype_AUX.
   Definition intersection_contained {X : UU} {U U' V V' : hsubtype X}
              (uu : subtype_containedIn U U')
              (vv : subtype_containedIn V V')
-    : subtype_containedIn (binary_intersection U V) (binary_intersection V' U').
+    : subtype_containedIn (binary_intersection U V) (binary_intersection U' V').
   Proof.
     intros x p.
     cbn.
     split.
-    - apply (vv x).
-      exact ((intersection_contained_r U V) x p).
     - apply (uu x).
       exact ((intersection_contained_l U V) x p).
+    - apply (vv x).
+      exact ((intersection_contained_r U V) x p).
   Qed.
 
   Lemma isaprop_subtype_containedIn {X : UU} (U V : hsubtype X)
@@ -258,22 +258,22 @@ Section SetWithSubset.
   Definition SS_disp_cat : disp_cat hset_category
     := SS_disp_cat_data ,, SS_disp_cat_axioms.
 
-  Definition total_section_data : section_disp_data SS_disp_cat.
+  Definition total_subset_section_data : section_disp_data SS_disp_cat.
   Proof.
     exists (λ X, totalsetsubtype X).
     intro ; intros.
     apply total_hsubtype_preserving.
   Defined.
 
-  Definition total_section_axioms : section_disp_axioms total_section_data.
+  Definition total_subset_section_axioms : section_disp_axioms total_subset_section_data.
   Proof.
     use tpair.
     - intro ; repeat (apply funextsec ; intro) ; apply totalsubtype.
     - intro ; intros ; repeat (apply funextsec ; intro) ; apply totalsubtype.
   Qed.
 
-  Definition total_section : section_disp SS_disp_cat
-    := total_section_data ,, total_section_axioms.
+  Definition total_subset_section : section_disp SS_disp_cat
+    := total_subset_section_data ,, total_subset_section_axioms.
 
 End SetWithSubset.
 
@@ -385,24 +385,24 @@ Section SetWithSubsetMonoidal.
   Definition SS_disp_monoidal : disp_monoidal SS_disp_cat SET_cartesian_monoidal
     := SS_disp_monoidal_data,, SS_disp_monoidal_laws.
 
-  Definition entire_section_monoidal_data : smonoidal_data SET_cartesian_monoidal SS_disp_monoidal total_section .
+  Definition total_subset_section_monoidal_data : smonoidal_data SET_cartesian_monoidal SS_disp_monoidal total_subset_section .
   Proof.
     use tpair.
     - exact (λ _ _ _ _, tt).
     - exact (λ _ _, tt).
   Defined.
 
-  Definition entire_section_monoidal_ax : smonoidal_laxlaws _ _ entire_section_monoidal_data.
+  Definition total_subset_section_monoidal_ax : smonoidal_laxlaws _ _ total_subset_section_monoidal_data.
   Proof.
     repeat split ; repeat (intro ; intros ; apply isaprop_hsubtype_preserving).
   Qed.
 
-  Definition entire_section_monoidal_lax : smonoidal_lax SET_cartesian_monoidal SS_disp_monoidal total_section
-    := entire_section_monoidal_data,, entire_section_monoidal_ax.
+  Definition total_subset_section_monoidal_lax : smonoidal_lax SET_cartesian_monoidal SS_disp_monoidal total_subset_section
+    := total_subset_section_monoidal_data,, total_subset_section_monoidal_ax.
 
-  Definition entire_section_monoidal : smonoidal SET_cartesian_monoidal SS_disp_monoidal total_section.
+  Definition total_subset_section_monoidal : smonoidal SET_cartesian_monoidal SS_disp_monoidal total_subset_section.
   Proof.
-    exists (entire_section_monoidal_lax).
+    exists (total_subset_section_monoidal_lax).
     use tpair.
     - intros X Y.
       repeat (use tpair) ; repeat (apply isaprop_hsubtype_preserving).
