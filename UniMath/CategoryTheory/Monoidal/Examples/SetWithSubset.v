@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiske
 
 Section Subtype_AUX.
 
-  (* We could define the intersection as follows but this makes it more complicated then it should be *)
+  (* We could define the intersection as follows but this makes it more complicated than it should be *)
   Definition binary_intersection' {X : UU} (U V : hsubtype X) : hsubtype X
     := subtype_intersection (λ b,  bool_rect (λ _ : bool, hsubtype X) U V b).
 
@@ -283,13 +283,13 @@ Section SetWithSubsetMonoidal.
     : disp_bifunctor_data SET_cartesian_monoidal SS_disp_cat SS_disp_cat SS_disp_cat.
   Proof.
     exists (λ _ _ U V, setsubtype_in_product U V).
-    repeat (use tpair).
+    split.
     - intros X Y1 Y2 g Ux U1 U2 gsp.
       intros xy2 xy1_prop.
       use (factor_through_squash _ _ xy1_prop).
       { apply setsubtype_in_product. }
       intro xy1.
-      repeat split.
+      split.
       + rewrite (! pr12 xy1).
         exact (pr122 xy1).
       + simpl in *.
@@ -305,7 +305,7 @@ Section SetWithSubsetMonoidal.
       use (factor_through_squash _ _ x1y_prop).
       { apply setsubtype_in_product. }
       intro x1y.
-      repeat split.
+      split.
       + simpl in *.
         apply (fsp _).
         apply hinhpr.
