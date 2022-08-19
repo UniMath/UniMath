@@ -22,7 +22,7 @@ Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 
 Local Open Scope cat.
 

@@ -10,7 +10,7 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
 Require Import UniMath.Bicategories.Colimits.Initial.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 
 Local Open Scope cat.
 

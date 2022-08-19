@@ -30,7 +30,7 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.

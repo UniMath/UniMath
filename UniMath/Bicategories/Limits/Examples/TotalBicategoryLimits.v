@@ -100,6 +100,39 @@ Section LimitsTotalBicat.
            apply (is_bifinal_eq_property (pr2 HB))).
   Defined.
 
+  Definition disp_bifinal_obj_stronger
+             (HB : bifinal_obj B)
+    : UU
+    := ∑ (i : D (pr1 HB))
+       (j : ∏ (x : B)
+         (xx : D x),
+           xx -->[ is_bifinal_1cell_property (pr2 HB) x ] i),
+      ∏ (x : B)(xx : D x)(f g : x --> pr1 HB)(ff : xx -->[f] i)(gg : xx -->[g] i),
+      ff ==>[ is_bifinal_2cell_property (pr2 HB) x f g] gg.
+
+  Definition total_bicat_final_stronger
+             (HB : bifinal_obj B)
+             (HD₄ : disp_bifinal_obj_stronger HB)
+    : bifinal_obj (total_bicat D).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (pr1 HB ,, pr1 HD₄).
+    - use make_is_bifinal.
+      + exact (λ x,
+              is_bifinal_1cell_property (pr2 HB) (pr1 x)
+              ,,
+              pr12 HD₄ (pr1 x) (pr2 x)).
+      + refine (λ x f g,
+                 is_bifinal_2cell_property (pr2 HB) _ (pr1 f) (pr1 g)
+                   ,,
+                   _).
+        apply (pr22 HD₄).
+      + abstract
+          (intros x f g α β ;
+           use subtypePath ; [ intro ; apply HD₁ | ] ;
+           apply (is_bifinal_eq_property (pr2 HB))).
+  Defined.
+
   (**
    2. Products
    *)

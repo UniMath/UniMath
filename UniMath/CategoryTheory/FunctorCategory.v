@@ -555,7 +555,7 @@ Proof.
   - exact (pr2 (pr2 (H c))).
 Defined.
 
-Definition z_iso_from_z_nat_iso {C : precategory_data} {C' : precategory}
+Definition z_iso_from_nat_z_iso {C : precategory_data} {C' : precategory}
   (hs: has_homsets C') {F G : ob [C, C', hs]} (α : nat_z_iso F G) : z_iso F G
   := pr1 α ,, nat_trafo_z_iso_if_pointwise_z_iso hs (pr1 α) (pr2 α).
 
@@ -582,7 +582,7 @@ Proof.
     + apply HH2.
 Defined.
 
-Definition z_nat_iso_from_z_iso  {C : precategory_data} {C' : precategory}
+Definition nat_z_iso_from_z_iso  {C : precategory_data} {C' : precategory}
            (hs: has_homsets C') {F G : ob [C, C', hs]} (α : z_iso F G) : nat_z_iso F G
   := pr1 α ,, nat_trafo_pointwise_z_iso_if_z_iso hs (pr1 α) (pr2 α).
 
@@ -591,9 +591,9 @@ Definition z_iso_is_nat_z_iso
            (F G : C ⟶ D)
   : @z_iso (functor_category C D) F G ≃ nat_z_iso F G.
 Proof.
-  refine (make_weq (z_nat_iso_from_z_iso D (F:=F)(G:=G)) _).
+  refine (make_weq (nat_z_iso_from_z_iso D (F:=F)(G:=G)) _).
   use isweq_iso.
-  - apply z_iso_from_z_nat_iso.
+  - apply z_iso_from_nat_z_iso.
   - intros X.
     use subtypePath.
     + intro.

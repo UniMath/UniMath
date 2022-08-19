@@ -349,6 +349,7 @@ Proof.
   apply (! functor_id _ _ ).
 Qed.
 
+
 Hypothesis HC : is_univalent C.
 Hypothesis HD : is_univalent D.
 
@@ -365,6 +366,16 @@ Proof.
 Qed.
 
 End functors_and_idtoiso.
+
+Definition pr1_maponpaths_idtoiso
+           {C D : category}
+           (F : C ⟶ D)
+           {a b : C}
+           (e : a = b)
+  : pr1 (idtoiso (maponpaths F e)) = #F (pr1 (idtoiso e)).
+Proof.
+  exact (maponpaths pr1 (maponpaths_idtoiso _ _ F _ _ e)).
+Qed.
 
 Notation "# F" := (functor_on_morphisms F)(at level 3) : cat. (* Notations do not survive the end of sections.  *)
 
