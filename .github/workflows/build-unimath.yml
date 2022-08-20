@@ -17,7 +17,7 @@ jobs:
 
   sanity-checks:
     name: Sanity-Checks-Ubuntu
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Install build dependencies
@@ -33,7 +33,7 @@ jobs:
 
   build-Unimath-ubuntu:
     name: Build-UniMath-Ubuntu
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Install build dependencies
@@ -49,13 +49,13 @@ jobs:
 
   build-coq-and-Unimath-ubuntu:
     name: Build-coq-and-UniMath-Ubuntu
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
+          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
