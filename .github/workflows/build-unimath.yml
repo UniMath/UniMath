@@ -89,7 +89,7 @@ jobs:
            brew config --verbose
            opam init --bare -n
            opam switch create with-coq 4.07.1+flambda
-           opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
+           opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5 zarith
       - name: Build UniMath
         run: |
           eval `opam env`
