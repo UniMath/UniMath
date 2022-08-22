@@ -25,6 +25,8 @@ Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiske
 
 Section SetWithSubset.
 
+  Local Definition setsubtype (X : HSET) : UU := hsubtype (pr1 X).
+
   Definition SS_disp_cat_ob_mor : disp_cat_ob_mor hset_category.
   Proof.
     use tpair.
@@ -53,7 +55,7 @@ Section SetWithSubset.
 
   Definition total_subset_section_data : section_disp_data SS_disp_cat.
   Proof.
-    exists (λ X, totalsetsubtype X).
+    exists (λ X, totalsubtype (pr1 X)).
     intro ; intros.
     apply total_hsubtype_preserving.
   Defined.
@@ -75,12 +77,12 @@ Section SetWithSubsetMonoidal.
   Definition SS_disp_cat_tensor_data
     : disp_bifunctor_data SET_cartesian_monoidal SS_disp_cat SS_disp_cat SS_disp_cat.
   Proof.
-    exists (λ _ _ U V, setsubtype_in_product U V).
+    exists (λ _ _ U V, subtypesdirprod U V).
     split.
     - intros X Y1 Y2 g Ux U1 U2 gsp.
       intros xy2 xy1_prop.
       use (factor_through_squash _ _ xy1_prop).
-      { apply setsubtype_in_product. }
+      { apply subtypesdirprod. }
       intro xy1.
       split.
       + rewrite (! pr12 xy1).
@@ -96,7 +98,7 @@ Section SetWithSubsetMonoidal.
     - intros X1 X2 Y f U1 U2 Uy fsp.
       intros x2y x1y_prop.
       use (factor_through_squash _ _ x1y_prop).
-      { apply setsubtype_in_product. }
+      { apply subtypesdirprod. }
       intro x1y.
       split.
       + simpl in *.
@@ -122,7 +124,7 @@ Section SetWithSubsetMonoidal.
   Definition SS_disp_monoidal_data : disp_monoidal_data SS_disp_cat SET_cartesian_monoidal.
   Proof.
     exists (SS_disp_cat_tensor).
-    exists (totalsetsubtype unitHSET).
+    exists (totalsubtype (pr1 unitHSET)).
     repeat (use tpair).
     - intros X U x xinU_prop.
       use (factor_through_squash _ _ xinU_prop).

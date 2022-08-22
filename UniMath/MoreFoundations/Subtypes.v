@@ -373,29 +373,3 @@ Lemma total_hsubtype_preserving {X Y : UU} (f : X → Y)
 Proof.
   exact (λ _ _, tt).
 Qed.
-
-Section SetSubtype.
-
-  Definition setsubtype (X : hSet) : UU := hsubtype X.
-  Identity Coercion setsubtype_to_subtype : setsubtype >-> hsubtype.
-
-  Definition singletonsetsubtype {X : hSet} (x : X) : setsubtype X.
-  Proof.
-    intro x'.
-    exists (x'=x).
-    apply X.
-  Defined.
-
-  Definition emptysetsubtype {X : hSet} : setsubtype X := emptysubtype X.
-
-  Definition setsubtype_in_product {X Y : hSet}
-             (U : hsubtype X) (V : hsubtype Y)
-    : setsubtype (setdirprod X Y) := subtypesdirprod U V.
-
-  Definition union {X I : hSet} (U : I -> setsubtype X) :  setsubtype X := subtype_union U.
-
-  Definition totalsetsubtype (X : hSet) : setsubtype X := totalsubtype X.
-
-  Definition contained {X : hSet} (U V : setsubtype X) : UU := subtype_containedIn U V.
-
-End SetSubtype.
