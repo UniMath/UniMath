@@ -230,7 +230,7 @@ distclean::          ; rm -f build/Makefile-configuration
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -prefix $(shell pwd)
-BUILD_TARGETS := coqbinaries tools states world
+BUILD_TARGETS := coqbinaries tools states coq
 ifeq ($(DEBUG_COQ),yes)
 CONFIGURE_OPTIONS += -annot
 BUILD_TARGETS += byte
