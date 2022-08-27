@@ -21,7 +21,7 @@ Contents
 The [UniMath subdirectory](UniMath/) contains various packages of formalized
 mathematics. For more information, see the [UniMath Table of Contents](UniMath/CONTENTS.md).
 
-Some scientific articles describing the contents of the UniMath library are listed in the 
+Some scientific articles describing the contents of the UniMath library or work using it are listed in the 
 [wiki](https://github.com/UniMath/UniMath/wiki/Documentation:-Articles-describing-UniMath).
 
 Contributing to UniMath
@@ -50,7 +50,7 @@ To cite UniMath in your article, you can use the following bibtex item:
     author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
     title = {{UniMath --- a computer-checked library of univalent mathematics}},
     url = {https://github.com/UniMath/UniMath},
-    howpublished = { {available at \url{https://unimath.org} }
+    howpublished = { {available at \url{http://unimath.org} }
  }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
