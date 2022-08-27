@@ -22,7 +22,7 @@ The [UniMath subdirectory](UniMath/) contains various packages of formalized
 mathematics. For more information, see the [UniMath Table of Contents](UniMath/CONTENTS.md).
 
 Some scientific articles describing the contents of the UniMath library or work using it are listed in the 
-[wiki](https://github.com/UniMath/UniMath/wiki/Documentation:-Articles-describing-UniMath).
+[wiki](https://github.com/UniMath/UniMath/wiki/Articles-with-accompanying-formalization-in-UniMath).
 
 Contributing to UniMath
 -----------------------
