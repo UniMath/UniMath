@@ -50,7 +50,7 @@ To cite UniMath in your article, you can use the following bibtex item:
     author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
     title = {{UniMath --- a computer-checked library of univalent mathematics}},
     url = {https://github.com/UniMath/UniMath},
-    howpublished = { {available at \url{http://unimath.org} }
+    howpublished = {available at \url{http://unimath.org}}
  }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
