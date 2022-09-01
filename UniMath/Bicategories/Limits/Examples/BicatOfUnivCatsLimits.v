@@ -10,6 +10,7 @@
  5. Comma objects
  6. Inserters
  7. Equifiers
+ 8. Iso-inserters
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -21,6 +22,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.categories.CatIsoInserter.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -34,6 +36,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
@@ -41,6 +44,7 @@ Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
 Require Import UniMath.Bicategories.Limits.Inserters.
 Require Import UniMath.Bicategories.Limits.Equifiers.
+Require Import UniMath.Bicategories.Limits.IsoInserters.
 
 Local Open Scope cat.
 
@@ -848,4 +852,94 @@ Proof.
     + exact (equifier_bicat_of_univ_cats_ump_1 n₁ n₂).
     + exact (equifier_bicat_of_univ_cats_ump_2 n₁ n₂).
     + exact (equifier_bicat_of_univ_cats_ump_eq n₁ n₂).
+Defined.
+
+(**
+ 8. Iso-inserters
+ *)
+Definition iso_inserter_cone_bicat_of_univ_cats
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : @iso_inserter_cone bicat_of_univ_cats _ _ F G.
+Proof.
+  use make_iso_inserter_cone.
+  - exact (univalent_cat_iso_inserter F G).
+  - exact (cat_iso_inserter_pr1 F G).
+  - use nat_z_iso_to_invertible_2cell.
+    exact (cat_iso_inserter_nat_iso F G).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_1
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_1
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros q.
+  use make_iso_inserter_1cell.
+  - refine (functor_to_cat_iso_inserter
+              (iso_inserter_cone_pr1 q)
+              _).
+    apply invertible_2cell_to_nat_z_iso.
+    exact (iso_inserter_cone_cell q).
+  - apply nat_z_iso_to_invertible_2cell.
+    apply functor_to_cat_iso_inserter_pr1_nat_z_iso.
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite (functor_id F), (functor_id G) ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_2
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_2
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros C₀ H₁ H₂ α p.
+  simple refine (_ ,, _).
+  - refine (nat_trans_to_cat_iso_inserter α _).
+    abstract
+      (intro x ;
+       pose (nat_trans_eq_pointwise p x) as q ; cbn in q ;
+       rewrite !id_left, !id_right in q ;
+       exact q).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       apply idpath).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_eq
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_eq
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros C₀ H₁ H₂ α p ζ₁ ζ₂ q₁ q₂.
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro x.
+  use eq_cat_iso_inserter.
+  refine (nat_trans_eq_pointwise q₁ x @ !_).
+  exact (nat_trans_eq_pointwise q₂ x).
+Qed.
+
+Definition has_iso_inserters_bicat_of_univ_cats
+  : has_iso_inserters bicat_of_univ_cats.
+Proof.
+  intros C₁ C₂ F G.
+  simple refine (_ ,, _ ,, _ ,, _).
+  - exact (univalent_cat_iso_inserter F G).
+  - exact (cat_iso_inserter_pr1 F G).
+  - use nat_z_iso_to_invertible_2cell.
+    exact (cat_iso_inserter_nat_iso F G).
+  - simple refine (_ ,, _ ,, _).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_1 F G).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_2 F G).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_eq F G).
 Defined.
