@@ -85,6 +85,7 @@ limits/Opp.v
 limits/Preservation.v
 
 limits/Examples/CategoryProductLimits.v
+limits/Examples/CategoryOfSetcategoriesLimits.v
 
 IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
@@ -218,6 +219,7 @@ DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
 categories/Dialgebras.v
+categories/CatIsoInserter.v
 Elements.v
 Core.v
 
