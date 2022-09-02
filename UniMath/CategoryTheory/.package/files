@@ -235,6 +235,8 @@ Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
+Monoidal/BraidedMonoidalCategoriesWhiskered.v
+Monoidal/ClosedMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalCategoriesReordered.v
 Monoidal/MonoidalDialgebras.v
 
@@ -261,6 +263,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
 
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
