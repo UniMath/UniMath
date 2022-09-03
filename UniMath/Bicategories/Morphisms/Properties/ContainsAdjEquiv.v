@@ -14,9 +14,10 @@
  8. Adjoint equivalences are fully faithful
  9. Adjoint equivalences are conservative
  10. Adjoint equivalences are discrete
- 11. Adjoint equivalences preserve cartesian cells
+ 11. Adjoints equivalences are pseudomonic
  12. Adjoint equivalences preserve cartesian cells
- 13. Morphism to identity preserves (op)cartesians
+ 13. Adjoint equivalences preserve cartesian cells
+ 14. Morphism to identity preserves (op)cartesians
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -497,7 +498,22 @@ Proof.
 Defined.
 
 (**
- 11. Adjoint equivalences preserve cartesian cells
+ 11. Adjoints equivalences are pseudomonic
+ *)
+Definition adj_equiv_pseudomonic
+           {B : bicat}
+           {a b : B}
+           {l : a --> b}
+           (Hl : left_adjoint_equivalence l)
+  : pseudomonic_1cell l.
+Proof.
+  apply fully_faithful_is_pseudomonic.
+  apply adj_equiv_fully_faithful.
+  exact Hl.
+Defined.
+
+(**
+ 12. Adjoint equivalences preserve cartesian cells
  *)
 Definition equivalence_preserves_cartesian
            {B : bicat}
@@ -539,7 +555,7 @@ Proof.
 Defined.
 
 (**
- 12. Adjoint equivalences preserve cartesian cells
+ 13. Adjoint equivalences preserve cartesian cells
  *)
 Definition equivalence_preserves_opcartesian
            {B : bicat}
@@ -581,7 +597,7 @@ Proof.
 Defined.
 
 (**
- 13. Morphism to identity preserves (op)cartesians
+ 14. Morphism to identity preserves (op)cartesians
  *)
 Definition mor_to_id_preserves_cartesian
            {B : bicat}
