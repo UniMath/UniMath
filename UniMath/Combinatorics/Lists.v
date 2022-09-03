@@ -20,12 +20,19 @@ Context {A : UU}.
 (** The type of lists *)
 Definition list : UU := ∑ n, vec A n.
 
+(** Length of a list *)
+Definition length : list -> nat := pr1.
+
+(** Coercion to a vector *)
+Definition list_to_vec: ∏ l: list, vec A (length l) := pr2.
+Coercion list_to_vec: list >-> vec.
+
 (** The empty list *)
 Definition nil : list := (0,, vnil).
 
 (** List cons *)
 Definition cons (x : A) (xs : list) : list :=
-  (S (pr1 xs),, vcons x (pr2 xs)).
+  (S (pr1 xs),, vcons x xs).
 
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
@@ -58,8 +65,6 @@ Defined.
 
 Definition foldr {B : UU} (f : A -> B -> B) (b : B) : list -> B :=
   list_ind (λ _, B) b (λ a _ b', f a b').
-
-Definition length : list -> nat := pr1.
 
 (** Variation of foldr that returns a for the empty list and folds the
     rest with the first element as new default value *)

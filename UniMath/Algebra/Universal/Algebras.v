@@ -201,7 +201,7 @@ Definition ops' {σ: signature} (A: algebra σ) (nm: names σ) := currify (ops A
 Definition make_algebra'
     {σ: signature}
     (A : sUU (sorts σ))
-    (ops: ∏ nm: names σ, iterfun (vec_map A (pr2 (arity nm))) (A (sort nm)))
+    (ops: ∏ nm: names σ, iterfun (vec_map A (arity nm)) (A (sort nm)))
   : algebra σ := A ,, λ nm, uncurrify (ops nm).
 
 Definition make_algebra_simple_single_sorted'

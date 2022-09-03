@@ -87,7 +87,7 @@ Section VTerms.
   (** ** Helpers for working with curried functions *)
 
   Definition build_term' {V: varspec σ} (nm: names σ)
-    : iterfun (vec_map (term σ V) (pr2 (arity (namelift V nm)))) (term σ V (sort (namelift V nm)))
+    : iterfun (vec_map (term σ V) (arity (namelift V nm))) (term σ V (sort (namelift V nm)))
     := build_gterm' (namelift V nm).
 
 End VTerms.

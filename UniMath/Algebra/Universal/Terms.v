@@ -932,5 +932,5 @@ Notation build_gterm := build_term.
 (** *** Helpers for working with curried functions. *)
 
 Definition build_gterm' {σ: signature} (nm: names σ)
-  : iterfun (vec_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
+  : iterfun (vec_map (term σ) (arity nm)) (term σ (sort nm))
   := currify (build_term nm).
