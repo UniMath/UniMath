@@ -368,7 +368,7 @@ Section DomainArrow.
   Proof.
     use make_weq.
     - exact dom_invertible_2cell_to_disp_adj_equiv.
-    - use gradth.
+    - use isweq_iso.
       + exact dom_disp_adj_equiv_to_invertible_2cell.
       + abstract
           (intros α ;

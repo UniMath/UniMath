@@ -519,7 +519,7 @@ Definition left_adjoint_weq_is_left_adjoint
 Proof.
   use make_weq.
   - exact left_adjoint_to_is_left_adjoint.
-  - use gradth.
+  - use isweq_iso.
     + exact is_left_adjoint_to_left_adjoint.
     + abstract
         (intro HF ;

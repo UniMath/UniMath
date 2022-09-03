@@ -582,7 +582,7 @@ Section EndoMap.
   Proof.
     use make_weq.
     - exact inv2cell_to_disp_adj_equiv_disp_end.
-    - use gradth.
+    - use isweq_iso.
       + exact disp_adj_equiv_to_inv2cell_disp_end.
       + abstract
           (intros τ ;
