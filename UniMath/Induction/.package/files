@@ -2,12 +2,14 @@ FunctorAlgebras_legacy.v
 FunctorCoalgebras_legacy.v
 
 PolynomialFunctors.v
+PolynomialAlgebras2Cells.v
 ImpredicativeInductiveSets.v
 M/Core.v
 M/Limits.v
 M/Uniqueness.v
 W/Core.v
 W/Wtypes.v
+W/WtypesAsW.v
 W/Fibered.v
 W/Naturals.v
 W/Uniqueness.v
