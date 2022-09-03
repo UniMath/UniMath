@@ -1,5 +1,5 @@
 (** * Sorted types. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
 (*
 This file contains a formalization of _sorted types_, i.e. types indexed by elements of another
 type, called _index type_. Notation and terminologies are inspired by Wolfgang Wechler,

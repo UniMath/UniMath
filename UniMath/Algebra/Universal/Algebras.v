@@ -1,5 +1,5 @@
 (** * Algebra for a given signature. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
 
 Require Import UniMath.Foundations.All.
 
@@ -11,9 +11,7 @@ Local Open Scope sorted.
 (** ** Basic definitions. *)
 
 Definition algebra (σ: signature): UU
-  := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
-
-Definition supportset {σ: signature} (A: algebra σ) : shSet (sorts σ) := pr1 A.
+  := ∑ A: sUU (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
 
 Definition support {σ: signature} (A: algebra σ): sUU (sorts σ) := pr1 A.
 
@@ -21,12 +19,15 @@ Coercion support: algebra >-> sUU.
 
 Definition ops {σ: signature} (A: algebra σ) := pr2 A.
 
-Definition make_algebra {σ: signature} (A : shSet (sorts σ)) (ops: ∏ nm: names σ, A⋆ (arity nm) → A (sort nm))
+Definition make_algebra {σ: signature} (A : sUU (sorts σ)) (ops: ∏ nm: names σ, A⋆ (arity nm) → A (sort nm))
   : algebra σ := A ,, ops.
 
 Definition dom {σ: signature} (A: algebra σ) (nm: names σ): UU := A⋆ (arity nm).
 
 Definition rng {σ: signature} (A: algebra σ) (nm: names σ): UU := support A (sort nm).
+
+Definition has_supportsets {σ: signature} (A: algebra σ): UU
+  := ∏ s: sorts σ, isaset (support A s).
 
 (** ** Helper for building an algebra starting from a simple signature.
 
@@ -36,7 +37,7 @@ a [signature_single] for the multi-sorted case.
 
 Definition make_algebra_simple_single_sorted
     (σ : signature_simple_single_sorted)
-    (A : hSet)
+    (A : UU)
     (ops : (λ n: nat, vec A n → A)⋆ σ)
   : algebra σ.
 Proof.
@@ -59,7 +60,7 @@ Defined.
 
 Definition make_algebra_simple
     (σ: signature_simple)
-    (A: vec hSet (pr1 σ))
+    (A: vec UU (pr1 σ))
     (ops: (λ a, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
   : algebra σ.
 Proof.
@@ -110,24 +111,31 @@ Definition hom2axiom {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2) := pr2 f
 
 Definition make_hom {σ: signature} {A1 A2: algebra σ} {f: sfun A1 A2} (is: ishom f): A1 ↷ A2 := f ,, is.
 
-Theorem isapropishom {σ: signature} {A1 A2: algebra σ} (f: sfun A1 A2): isaprop (ishom f).
+Theorem isapropishom {σ: signature} {A1 A2: algebra σ} (f: sfun A1 A2)
+   (setprop: has_supportsets A2): isaprop (ishom f).
 Proof.
   red.
   apply impred_isaprop.
   intros.
   apply impred_isaprop.
   intros.
-  apply setproperty.
+  apply setprop.
 Defined.
 
-Theorem isasethom {σ: signature} (A1 A2: algebra σ): isaset (A1 ↷ A2).
+Theorem isasethom {σ: signature} (A1 A2: algebra σ) (setprop: has_supportsets A2)
+  : isaset (A1 ↷ A2).
 Proof.
   red.
   apply isaset_total2.
-  - apply isaset_set_sfun_space.
+  - apply impred_isaset.
+    intros.
+    apply impred_isaset.
+    intros.
+    apply setprop.
   - intros.
     apply isasetaprop.
     apply isapropishom.
+    exact setprop.
 Defined.
 
 (** ** Identity and composition of homomorphisms. *)
@@ -161,7 +169,7 @@ Definition homcomp {σ: signature} {a1 a2 a3: algebra σ} (h1: a1 ↷ a2) (h2: a
 (** ** The unit algebra and the proof it is final. *)
 
 Definition unitalgebra (σ: signature): algebra σ
-  := make_algebra (sunitset (sorts σ)) tosunit.
+  := make_algebra (sunit (sorts σ)) tosunit.
 
 Lemma ishomtounit {σ: signature} (A: algebra σ): @ishom σ A (unitalgebra σ) tosunit.
 Proof.
@@ -181,6 +189,9 @@ Proof.
   - apply proofirrelevancecontr.
     apply iscontr_sfuntosunit.
   - apply isapropishom.
+    unfold has_supportsets.
+    intros.
+    apply isasetunit.
 Defined.
 
 (** ** Helpers for working with curried functions *)
@@ -189,8 +200,8 @@ Definition ops' {σ: signature} (A: algebra σ) (nm: names σ) := currify (ops A
 
 Definition make_algebra'
     {σ: signature}
-    (A : shSet (sorts σ))
-    (ops: ∏ nm: names σ, iterfun (vec_map (pr1hSet ∘ A) (pr2 (arity nm))) (A (sort nm)))
+    (A : sUU (sorts σ))
+    (ops: ∏ nm: names σ, iterfun (vec_map A (pr2 (arity nm))) (A (sort nm)))
   : algebra σ := A ,, λ nm, uncurrify (ops nm).
 
 Definition make_algebra_simple_single_sorted'
@@ -208,6 +219,20 @@ Defined.
 
 Definition make_algebra_simple'
     (σ: signature_simple)
-    (A: vec hSet (pr1 σ))
-    (ops: (λ a, iterfun (vec_map (pr1hSet ∘ el A) (pr2 (dirprod_pr1 a))) (el A (dirprod_pr2 a)))⋆ (pr2 σ))
+    (A: vec UU (pr1 σ))
+    (ops: (λ a, iterfun (vec_map (el A) (pr2 (dirprod_pr1 a))) (el A (dirprod_pr2 a)))⋆ (pr2 σ))
   : algebra σ := make_algebra_simple σ A (h1map (λ _, uncurrify) ops).
+
+(** ** Algebras with hSets as carriers *)
+
+Definition hSetalgebra (σ : signature) : UU
+  := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
+
+Definition make_hSetalgebra {σ : signature} {A: algebra σ} (setproperty: has_supportsets A): hSetalgebra σ
+:= ((λ s : sorts σ, make_hSet (support A s) (setproperty s)),, ops A).
+
+Definition hSetalgebra_to_algebra {σ : signature} (A: hSetalgebra σ): algebra σ
+:= ((λ s : sorts σ, pr1 (pr1 A s)),, pr2 A).
+
+Definition has_supportsets_hSetalgebra {σ : signature} (A: hSetalgebra σ): has_supportsets (hSetalgebra_to_algebra A)
+:= λ s: sorts σ, setproperty (pr1 A s).

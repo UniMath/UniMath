@@ -37,7 +37,7 @@ Section VTerms.
 
   Definition term (σ: signature) (V: varspec σ): sUU (sorts σ) := gterm (vsignature σ V).
 
-  Definition termset (σ: signature) (V: varspec σ): shSet (sorts σ) := gtermset (vsignature σ V).
+  Definition termset (σ: signature) (V: varspec σ): sUU (sorts σ) := gtermset (vsignature σ V).
 
   Definition build_term {V: varspec σ} (nm: names σ) (v: (term σ V)⋆ (arity nm))
     : term σ V (sort nm) := build_gterm (namelift V nm) v.
