@@ -80,6 +80,28 @@ Proof.
          apply idpath).
 Defined.
 
+Definition id1_pseudomonic
+           {B : bicat}
+           (a : B)
+  : pseudomonic_1cell (id₁ a).
+Proof.
+  use make_pseudomonic.
+  - apply id1_faithful.
+  - intros z g₁ g₂ αf Hαf.
+    simple refine (_ ,, (_ ,, _)).
+    + exact (rinvunitor _ • αf • runitor _).
+    + is_iso.
+    + abstract
+        (cbn ;
+         use (vcomp_rcancel (runitor _)) ; [ is_iso | ] ;
+         rewrite !vassocl ;
+         rewrite vcomp_runitor ;
+         rewrite !vassocr ;
+         rewrite runitor_rinvunitor ;
+         rewrite id2_left ;
+         apply idpath).
+Defined.
+
 (**
  3. Identity is conservative
  *)
