@@ -520,7 +520,7 @@ Proof.
 Defined.
 
 (**
- 11. Adjoints equivalences are pseudomonic
+ 11. Adjoint equivalences are pseudomonic
  *)
 Definition adj_equiv_pseudomonic
            {B : bicat}
