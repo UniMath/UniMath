@@ -4,7 +4,7 @@
  Contents:
  1. Conservative 1-cells
  2. Characterization of conservative 1-cells
- 3. Pseudomonic and fully faithful 1-cells are conservative
+ 3. Pseudomonic 1-cells and fully faithful 1-cells are conservative
  4. Discrete 1-cells
  5. Pseudomonic and fully faithful 1-cells are discrete
  6. Conservative 1-cells in locally groupoidal bicategories
