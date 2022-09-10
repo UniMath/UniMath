@@ -578,6 +578,40 @@ Proof.
   assumption.
 Qed.
 
+Definition isaprop_left_adjoint
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {x y : B}
+           (l : x --> y)
+  : isaprop (left_adjoint l).
+Proof.
+  use invproofirrelevance.
+  intros Hl₁ Hl₂.
+  use subtypePath.
+  {
+    intro.
+    apply isapropdirprod ; apply cellset_property.
+  }
+  use total2_paths_f.
+  - apply (isotoid_2_1 HB).
+    refine (adjoint_unique_map l Hl₁ Hl₂ ,, _).
+    exact (adjoint_unique_map_iso l Hl₁ Hl₂).
+  - rewrite transportf_dirprod.
+    apply pathsdirprod.
+    + rewrite transport_two_cell_FlFr.
+      rewrite maponpaths_for_constant_function ; cbn.
+      rewrite id2_left.
+      rewrite isotoid_2_1_lwhisker.
+      rewrite idtoiso_2_1_isotoid_2_1 ; cbn.
+      exact (transport_unit l Hl₁ Hl₂).
+    + rewrite transport_two_cell_FlFr.
+      rewrite maponpaths_for_constant_function ; cbn.
+      rewrite id2_right.
+      rewrite isotoid_2_1_rwhisker.
+      rewrite idtoiso_2_1_isotoid_2_1 ; cbn.
+      exact (transport_counit l Hl₂ Hl₁).
+Qed.
+
 (** As a corollary, in a univalent bicategory 0-cells are 2-types. *)
 Lemma univalent_bicategory_0_cell_hlevel_4
       (C : bicat) (HC : is_univalent_2 C) : isofhlevel 4 C.

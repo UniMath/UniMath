@@ -4,8 +4,10 @@
  Contents:
  1. Conservative 1-cells
  2. Characterization of conservative 1-cells
- 3. Fully faithful 1-cells are conservative
+ 3. Pseudomonic 1-cells and fully faithful 1-cells are conservative
  4. Discrete 1-cells
+ 5. Pseudomonic and fully faithful 1-cells are discrete
+ 6. Conservative 1-cells in locally groupoidal bicategories
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -102,8 +104,31 @@ Proof.
 Defined.
 
 (**
- 3. Fully faithful 1-cells are conservative
+ 3. Pseudomonic and fully faithful 1-cells are conservative
  *)
+Definition pseudomonic_is_conservative
+           {B : bicat}
+           {a b : B}
+           {f : a --> b}
+           (Hf : pseudomonic_1cell f)
+  : conservative_1cell f.
+Proof.
+  intros x g₁ g₂ α Hα.
+  pose (H := is_invertible_2cell_pseudomonic_1cell_inv_map Hf (α ▹ f) Hα).
+  use make_is_invertible_2cell.
+  - exact (H^-1).
+  - abstract
+      (use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+       rewrite id2_left ;
+       apply (pseudomonic_1cell_faithful Hf) ;
+       exact (!(pseudomonic_1cell_inv_map_eq Hf (α ▹ f) Hα))).
+  - abstract
+      (use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
+       rewrite id2_right ;
+       apply (pseudomonic_1cell_faithful Hf) ;
+       exact (!(pseudomonic_1cell_inv_map_eq Hf (α ▹ f) Hα))).
+Defined.
+
 Definition fully_faithful_to_conservative
            {B : bicat}
            {a b : B}
@@ -111,21 +136,9 @@ Definition fully_faithful_to_conservative
            (Hf : fully_faithful_1cell f)
   : conservative_1cell f.
 Proof.
-  intros x g₁ g₂ α Hα.
-  use make_is_invertible_2cell.
-  - exact (fully_faithful_1cell_inv_map Hf (Hα^-1)).
-  - abstract
-      (use (fully_faithful_1cell_eq Hf) ;
-       rewrite <- rwhisker_vcomp ;
-       rewrite fully_faithful_1cell_inv_map_eq ;
-       rewrite id2_rwhisker ;
-       apply vcomp_rinv).
-  - abstract
-      (use (fully_faithful_1cell_eq Hf) ;
-       rewrite <- rwhisker_vcomp ;
-       rewrite fully_faithful_1cell_inv_map_eq ;
-       rewrite id2_rwhisker ;
-       apply vcomp_linv).
+  apply pseudomonic_is_conservative.
+  apply fully_faithful_is_pseudomonic.
+  exact Hf.
 Defined.
 
 (**
@@ -150,8 +163,20 @@ Proof.
 Qed.
 
 (**
- 5. Fully faithful 1-cells are discrete
+ 5. Pseudomonic 1-cells and fully faithful 1-cells are discrete
  *)
+Definition pseudomonic_is_discrete
+           {B : bicat}
+           {a b : B}
+           {f : a --> b}
+           (Hf : pseudomonic_1cell f)
+  : discrete_1cell f.
+Proof.
+  split.
+  - exact (pseudomonic_1cell_faithful Hf).
+  - exact (pseudomonic_is_conservative Hf).
+Defined.
+
 Definition fully_faithful_is_discrete
            {B : bicat}
            {a b : B}
