@@ -14,7 +14,7 @@
  8. Adjoint equivalences are fully faithful
  9. Adjoint equivalences are conservative
  10. Adjoint equivalences are discrete
- 11. Adjoints equivalences are pseudomonic
+ 11. Adjoint equivalences are pseudomonic
  12. Adjoint equivalences preserve cartesian cells
  13. Adjoint equivalences preserve cartesian cells
  14. Morphism to identity preserves (op)cartesians
