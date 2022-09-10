@@ -163,7 +163,7 @@ Proof.
 Qed.
 
 (**
- 5. Pseudomonic and fully faithful 1-cells are discrete
+ 5. Pseudomonic 1-cells and fully faithful 1-cells are discrete
  *)
 Definition pseudomonic_is_discrete
            {B : bicat}
