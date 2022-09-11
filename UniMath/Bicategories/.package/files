@@ -61,6 +61,8 @@ DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
 DisplayedBicats/Examples/BicatOfInvertibles.v
+DisplayedBicats/Examples/EndoMap.v
+DisplayedBicats/Examples/MonadsLax.v
 
 Core/Examples/StructuredCategories.v
 
@@ -88,6 +90,17 @@ MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
 MonoidalCategories/UnivalenceMonCat/FinalLayer.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
 
+Monads/Examples/AdjunctionToMonad.v
+Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfUnivCats.v
+Monads/Examples/MonadsInOp1Bicat.v
+Monads/Examples/MonadsInOp2Bicat.v
+
+Monads/DistributiveLaws.v
+
+Monads/Examples/MonadsInMonads.v
+Monads/Examples/Composition.v
+
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
@@ -107,6 +120,7 @@ PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
+PseudoFunctors/Examples/PsfunctorOnMonad.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
@@ -121,6 +135,10 @@ PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
+
+DisplayedBicats/DispBicatSection.v
+
+PseudoFunctors/Examples/MonadInclusion.v
 
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
@@ -152,6 +170,7 @@ Limits/CommaObjects.v
 Limits/Inserters.v
 Limits/IsoInserters.v
 Limits/Equifiers.v
+Limits/EilenbergMooreObject.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
@@ -166,7 +185,6 @@ Limits/Examples/LimitsStructuredCategories.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
-
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
