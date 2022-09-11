@@ -11,6 +11,7 @@
  6. Inserters
  7. Equifiers
  8. Iso-inserters
+ 9. Eilenberg-Moore objects
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -23,6 +24,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.categories.CatIsoInserter.
+Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -34,6 +36,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -45,37 +48,15 @@ Require Import UniMath.Bicategories.Limits.CommaObjects.
 Require Import UniMath.Bicategories.Limits.Inserters.
 Require Import UniMath.Bicategories.Limits.Equifiers.
 Require Import UniMath.Bicategories.Limits.IsoInserters.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
 
 Local Open Scope cat.
 
 (**
  1. Final object
  *)
-
-(** MOVE??? *)
-Definition unit_category_nat_trans
-           {C : category}
-           (F G : C ⟶ unit_category)
-  : F ⟹ G.
-Proof.
-  use make_nat_trans.
-  - exact (λ _, pr1 (isapropunit _ _)).
-  - abstract
-      (intro ; intros ;
-       apply isasetunit).
-Defined.
-
-Lemma nat_trans_to_unit_eq
-      {X : category}
-      (F G : X ⟶ unit_category)
-      (α β : F ⟹ G)
-  : α = β.
-Proof.
-  apply nat_trans_eq.
-  - apply homset_property.
-  - intro z. apply isasetunit.
-Qed.
-
 Definition bifinal_cats
   : @is_bifinal bicat_of_univ_cats unit_category.
 Proof.
@@ -943,3 +924,119 @@ Proof.
     + exact (iso_inserter_cone_bicat_of_univ_cats_ump_2 F G).
     + exact (iso_inserter_cone_bicat_of_univ_cats_ump_eq F G).
 Defined.
+
+(**
+ 9. Eilenberg-Moore objects
+ *)
+Section EilenbergMooreUMP.
+  Context (m : mnd bicat_of_univ_cats).
+
+  Let C : univalent_category := ob_of_mnd m.
+  Let mC : Monad C := mnd_bicat_of_univ_cats_to_Monad m.
+
+  Definition eilenberg_moore_cat_cone
+    : em_cone m.
+  Proof.
+    use make_em_cone.
+    - exact (eilenberg_moore_univalent_cat _ mC).
+    - exact (eilenberg_moore_pr mC).
+    - exact (eilenberg_moore_nat_trans mC).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         rewrite id_left ;
+         exact (!(pr12 x))).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         rewrite (functor_id (endo_of_mnd m)) ;
+         rewrite id_left, id_right ;
+         exact (!(pr22 x))).
+  Defined.
+
+  Definition eilenberg_moore_cat_ump_1
+    : em_ump_1 m eilenberg_moore_cat_cone.
+  Proof.
+    intro q.
+    use make_em_cone_mor.
+    - use functor_to_eilenberg_moore_cat.
+      + exact (mor_of_mnd_mor (mor_of_em_cone _ q)).
+      + exact (mnd_mor_endo (mor_of_em_cone _ q)).
+      + abstract
+          (intro x ;
+           pose (nat_trans_eq_pointwise
+                   (mnd_mor_unit (mor_of_em_cone _ q))
+                   x) as p ;
+           cbn in p ;
+           rewrite (functor_id (mor_of_mnd_mor (mor_of_em_cone m q))) in p ;
+           rewrite !id_left in p ;
+           exact (!p)).
+      + abstract
+          (intro x ;
+           pose (nat_trans_eq_pointwise
+                   (mnd_mor_mu (mor_of_em_cone _ q))
+                   x) as p ;
+           cbn in p ;
+           rewrite (functor_id (mor_of_mnd_mor (mor_of_em_cone m q))) in p ;
+           rewrite !id_left, !id_right in p ;
+           exact p).
+    - use make_invertible_2cell.
+      + use make_mnd_cell.
+        * apply functor_to_eilenberg_moore_cat_pr.
+        * abstract
+            (use nat_trans_eq ; [ apply homset_property | ] ;
+             intro x ; cbn ;
+             rewrite (functor_id (endo_of_mnd m)) ;
+             rewrite !id_left, !id_right ;
+             apply idpath).
+      + use is_invertible_mnd_2cell.
+        use is_nat_z_iso_to_is_invertible_2cell.
+        apply functor_to_eilenberg_moore_cat_pr_is_nat_z_iso.
+  Defined.
+
+  Definition eilenberg_moore_cat_ump_2
+    : em_ump_2 m eilenberg_moore_cat_cone.
+  Proof.
+    intros C' F₁ F₂ α.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply cellset_property | ] ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 (pr2 φ₁)) x) as p₁ ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 (pr2 φ₂)) x) as p₂ ;
+         use eq_mor_eilenberg_moore ;
+         exact (p₁ @ (!p₂))).
+    - simple refine (_ ,, _).
+      + use nat_trans_to_eilenberg_moore_cat.
+        * exact (cell_of_mnd_cell α).
+        * abstract
+            (intro x ;
+             pose (nat_trans_eq_pointwise (mnd_cell_endo α) x) as p ;
+             simpl in p ;
+             rewrite !id_left, !id_right in p ;
+             unfold mor_of_eilenberg_moore_mor in p ;
+             simpl in p ;
+             rewrite !id_left, !id_right in p ;
+             exact p).
+      + abstract
+          (use eq_mnd_cell ;
+           use nat_trans_eq ; [ apply homset_property | ] ;
+           intro x ;
+           apply idpath).
+  Defined.
+
+  Definition eilenberg_moore_cat_ump
+    : has_em_ump m eilenberg_moore_cat_cone.
+  Proof.
+    split.
+    - exact eilenberg_moore_cat_ump_1.
+    - exact eilenberg_moore_cat_ump_2.
+  Defined.
+End EilenbergMooreUMP.
+
+Definition has_em_bicat_of_univ_cats
+  : bicat_has_em bicat_of_univ_cats
+  := λ m, eilenberg_moore_cat_cone m ,, eilenberg_moore_cat_ump m.

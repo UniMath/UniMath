@@ -31,8 +31,6 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Limits.Products.
-Require Import UniMath.Bicategories.Limits.Examples.OneTypesLimits.
-Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.

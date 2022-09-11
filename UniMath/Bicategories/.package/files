@@ -170,7 +170,7 @@ Limits/CommaObjects.v
 Limits/Inserters.v
 Limits/IsoInserters.v
 Limits/Equifiers.v
-Limits/EilenbergMooreObject.v
+Limits/EilenbergMooreObjects.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v

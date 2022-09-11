@@ -12,6 +12,10 @@
  1. The definition
  2. The univalence
  3. Constructors and projections
+ 4. The universal property
+ 4.1 The cone
+ 4.2 The universal property for functors
+ 4.3 The universal property for natural transformations
 
  ******************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -186,3 +190,147 @@ Definition eq_of_eilenberg_moore_mor
     =
     # m (pr11 f) · mor_of_eilenberg_moore_ob y
   := pr21 f.
+
+(**
+ 4. The universal property
+ *)
+
+(**
+ 4.1 The cone
+ *)
+Definition eilenberg_moore_pr_data
+           {C : category}
+           (m : Monad C)
+  : functor_data (eilenberg_moore_cat m) C.
+Proof.
+  use make_functor_data.
+  - exact (λ h, ob_of_eilenberg_moore_ob h).
+  - exact (λ h₁ h₂ α, mor_of_eilenberg_moore_mor α).
+Defined.
+
+Definition eilenberg_moore_pr_is_functor
+           {C : category}
+           (m : Monad C)
+  : is_functor (eilenberg_moore_pr_data m).
+Proof.
+  split.
+  - intro x ; cbn.
+    apply idpath.
+  - intros x y z f g ; cbn.
+    apply idpath.
+Qed.
+
+Definition eilenberg_moore_pr
+           {C : category}
+           (m : Monad C)
+  : eilenberg_moore_cat m ⟶ C.
+Proof.
+  use make_functor.
+  - exact (eilenberg_moore_pr_data m).
+  - exact (eilenberg_moore_pr_is_functor m).
+Defined.
+
+Definition eilenberg_moore_nat_trans
+           {C : category}
+           (m : Monad C)
+  : eilenberg_moore_pr m ∙ m
+    ⟹
+    functor_identity _ ∙ eilenberg_moore_pr m.
+Proof.
+  use make_nat_trans.
+  - exact (λ f, mor_of_eilenberg_moore_ob f).
+  - abstract
+      (intros f₁ f₂ α ; cbn ;
+       exact (!(eq_of_eilenberg_moore_mor α))).
+Defined.
+
+(**
+ 4.2 The universal property for functors
+ *)
+Section EilenbergMooreUMP1.
+  Context {C₁ C₂ : category}
+          (m : Monad C₂)
+          (F : C₁ ⟶ C₂)
+          (α : F ∙ m ⟹ functor_identity _ ∙ F)
+          (αη : ∏ (x : C₁), η m (F x) · α x = identity _)
+          (αμ : ∏ (x : C₁), # m (α x) · α x = μ m (F x) · α x).
+
+  Definition functor_to_eilenberg_moore_cat_data
+    : functor_data C₁ (eilenberg_moore_cat m).
+  Proof.
+    use make_functor_data.
+    - intro x.
+      use make_ob_eilenberg_moore.
+      + exact (F x).
+      + exact (α x).
+      + exact (αη x).
+      + exact (!(αμ x)).
+    - intros x y f.
+      use make_mor_eilenberg_moore.
+      + exact (#F f).
+      + exact (!(nat_trans_ax α _ _ f)).
+  Defined.
+
+  Definition functor_to_eilenberg_moore_is_functor
+    : is_functor functor_to_eilenberg_moore_cat_data.
+  Proof.
+    split.
+    - intro x.
+      use eq_mor_eilenberg_moore ; cbn.
+      apply functor_id.
+    - intros x y z f g.
+      use eq_mor_eilenberg_moore ; cbn.
+      apply functor_comp.
+  Qed.
+
+  Definition functor_to_eilenberg_moore_cat
+    : C₁ ⟶ eilenberg_moore_cat m.
+  Proof.
+    use make_functor.
+    - exact functor_to_eilenberg_moore_cat_data.
+    - exact functor_to_eilenberg_moore_is_functor.
+  Defined.
+
+  Definition functor_to_eilenberg_moore_cat_pr
+    : functor_to_eilenberg_moore_cat ∙ eilenberg_moore_pr m ⟹ F.
+  Proof.
+    use make_nat_trans.
+    - exact (λ _, identity _).
+    - abstract
+        (intros x y f ; cbn ;
+         rewrite id_left, id_right ;
+         apply idpath).
+  Defined.
+
+  Definition functor_to_eilenberg_moore_cat_pr_is_nat_z_iso
+    : is_nat_z_iso functor_to_eilenberg_moore_cat_pr.
+  Proof.
+    intro.
+    apply identity_is_z_iso.
+  Defined.
+End EilenbergMooreUMP1.
+
+(**
+ 4.3 The universal property for natural transformations
+ *)
+Definition nat_trans_to_eilenberg_moore_cat
+           {C₁ C₂ : category}
+           (m : Monad C₂)
+           (F₁ F₂ : C₁ ⟶ eilenberg_moore_cat m)
+           (α : F₁ ∙ eilenberg_moore_pr m ⟹ F₂ ∙ eilenberg_moore_pr m)
+           (p : ∏ (x : C₁),
+               mor_of_eilenberg_moore_ob (F₁ x) · α x
+               =
+               # m (α x) · mor_of_eilenberg_moore_ob (F₂ x))
+  : F₁ ⟹ F₂.
+Proof.
+  use make_nat_trans.
+  - intro x.
+    use make_mor_eilenberg_moore.
+    + exact (α x).
+    + exact (p x).
+  - abstract
+      (intros x y f ;
+       use eq_mor_eilenberg_moore ; cbn ;
+       exact (nat_trans_ax α _ _ f)).
+Defined.
