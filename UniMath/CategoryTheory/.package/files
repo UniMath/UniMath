@@ -161,7 +161,6 @@ categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
 categories/preorder_categories.v
-categories/EilenbergMoore.v
 
 limits/Examples/UnitCategoryLimits.v
 
@@ -221,6 +220,7 @@ DisplayedCats/StreetOpFibration.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
+categories/EilenbergMoore.v
 Elements.v
 Core.v
 
