@@ -124,15 +124,7 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
-PseudoFunctors/Preservation/Preservation.v
-
 PseudoFunctors/Biadjunction.v
-PseudoFunctors/Preservation/BiadjunctionPreservation.v
-PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
-PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
-PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
-PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
-PseudoFunctors/Preservation/ClosedUnderEquivalence.v
 PseudoFunctors/UniversalArrow.v
 
 DisplayedBicats/DispBicatSection.v
@@ -179,7 +171,6 @@ Limits/Inserters.v
 Limits/IsoInserters.v
 Limits/Equifiers.v
 Limits/EilenbergMooreObjects.v
-
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
@@ -240,6 +231,14 @@ WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
 
 PseudoFunctors/Examples/MonadInclusion.v
+
+PseudoFunctors/Preservation/Preservation.v
+PseudoFunctors/Preservation/BiadjunctionPreservation.v
+PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
+PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
+PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
+PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
+PseudoFunctors/Preservation/ClosedUnderEquivalence.v
 
 BicategoryOfBicat.v
 BicatOfBicategory.v
