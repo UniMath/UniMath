@@ -108,7 +108,6 @@ PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
-PseudoFunctors/Examples/PsfunctorOnMonad.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
@@ -150,6 +149,8 @@ DisplayedBicats/DispBiequivalence.v
 
 DisplayedBicats/Examples/MonadsLax.v
 
+PseudoFunctors/Examples/MonadInclusion.v
+
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
@@ -158,6 +159,7 @@ Monads/Examples/MonadsInOp2Bicat.v
 Monads/DistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
+Monads/Examples/PsfunctorOnMonad.v
 
 Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
@@ -229,8 +231,6 @@ WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
 WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
-
-PseudoFunctors/Examples/MonadInclusion.v
 
 PseudoFunctors/Preservation/Preservation.v
 PseudoFunctors/Preservation/BiadjunctionPreservation.v
