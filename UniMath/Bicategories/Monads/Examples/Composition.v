@@ -1,8 +1,11 @@
-(********************************************************************************
+(***********************************************************************************
 
  Monads can be composed if we have a distributive law between them
 
- ********************************************************************************)
+ This results holds for monads in arbitrary bicategories. For monads of categories,
+ this was already proved in Monads.Derivative.v (`monad_comp`)
+
+ ***********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
