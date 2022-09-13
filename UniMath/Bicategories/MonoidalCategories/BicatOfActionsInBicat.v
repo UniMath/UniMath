@@ -64,6 +64,33 @@ Section FixMoncatAndBicat.
 
   Context (C : bicat).
 
+  Definition disp_actionbicat_disp_mor {a0 a0' : C}
+  {FA : V ⟶ category_from_bicat_and_ob a0}
+  (FAm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA)
+  {FA' : V ⟶ category_from_bicat_and_ob a0'}
+  (FA'm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0') FA')
+  (G : C ⟦ a0, a0' ⟧): UU :=
+    ∑ δ : parameterized_distributivity_bicat_nat G,
+                param_distr_bicat_triangle_eq Mon_V FAm FA'm G δ ×
+                  param_distr_bicat_pentagon_eq Mon_V FAm FA'm G δ.
+
+  Lemma disp_actionbicat_disp_mor_eq {a0 a0' : C}
+  {FA : V ⟶ category_from_bicat_and_ob a0}
+  {FAm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+  {FA' : V ⟶ category_from_bicat_and_ob a0'}
+  {FA'm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0') FA'}
+  {G : C ⟦ a0, a0' ⟧}
+  (pm1 pm2: disp_actionbicat_disp_mor FAm FA'm G):
+    pr1 pm1 = pr1 pm2 -> pm1 = pm2.
+  Proof.
+    intro Hyp.
+    apply subtypePath.
+    - intro δ. apply isapropdirprod.
+      + apply isaprop_param_distr_bicat_triangle_eq.
+      + apply isaprop_param_distr_bicat_pentagon_eq.
+    - exact Hyp.
+  Qed.
+
   Definition disp_actionbicat_disp_ob_mor : disp_cat_ob_mor C.
   Proof.
     use tpair.
@@ -71,9 +98,7 @@ Section FixMoncatAndBicat.
       exact (∑ FA: functor V (category_from_bicat_and_ob a0),
                 fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA).
     - intros a0 a0' [FA FAm] [FA' FA'm] G.
-      exact (∑ δ : parameterized_distributivity_bicat_nat G,
-                param_distr_bicat_triangle_eq Mon_V FAm FA'm G δ ×
-                param_distr_bicat_pentagon_eq Mon_V FAm FA'm G δ).
+      exact (disp_actionbicat_disp_mor FAm FA'm G).
   Defined.
 
   Definition disp_actionbicat_disp_id_comp : disp_cat_id_comp C disp_actionbicat_disp_ob_mor.
