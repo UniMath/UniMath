@@ -198,7 +198,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (lwhisker G (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
-      - apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
         apply is_z_isomorphism_inv.
     Defined.
@@ -208,8 +208,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (G ◃ (pr1 (fmonoidal_preservestensorstrongly FA'm v1 v2) ▹ FA' v3)).
-      - apply is_invertible_2cell_lwhisker.
-        apply is_invertible_2cell_rwhisker.
+      - is_iso.
         change (is_z_isomorphism  (pr1 (fmonoidal_preservestensorstrongly FA'm v1 v2))).
         apply is_z_isomorphism_inv.
     Defined.
@@ -219,8 +218,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact ((G ◃ pr1 (fmonoidal_preservesunitstrongly FA'm)) ▹ FA' v).
-      - apply is_invertible_2cell_rwhisker.
-        apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (pr1 (fmonoidal_preservesunitstrongly FA'm))).
         apply is_z_isomorphism_inv.
     Defined.
@@ -229,8 +227,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (linvunitor G ▹ FA' v).
-      - apply is_invertible_2cell_rwhisker.
-        apply is_invertible_2cell_linvunitor.
+      - is_iso.
     Defined.
 
     Definition lwhisker_with_linvunitor_inv2cell (v : V):
@@ -238,8 +235,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (FA v ◃ linvunitor G).
-      - apply is_invertible_2cell_lwhisker.
-        apply is_invertible_2cell_linvunitor.
+      - is_iso.
     Defined.
 
     Definition lwhisker_with_invlunitor_inv2cell (v : V):
@@ -247,7 +243,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (G ◃ # FA' (pr1 (pr2 (leftunitor_nat_z_iso Mon_V) v))).
-      - apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (# FA' (pr1 (pr2 (leftunitor_nat_z_iso Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
         apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (leftunitor_nat_z_iso Mon_V) v)).
@@ -258,7 +254,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (# FA (pr1 (pr2 (leftunitor_nat_z_iso Mon_V) v)) ▹ G).
-      - apply is_invertible_2cell_rwhisker.
+      - is_iso.
         change (is_z_isomorphism (# FA (pr1 (pr2 (leftunitor_nat_z_iso Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
         apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (leftunitor_nat_z_iso Mon_V) v)).
@@ -269,7 +265,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (G ◃ # FA' (pr1 (pr2 (rightunitor_nat_z_iso Mon_V) v))).
-      - apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (# FA' (pr1 (pr2 (rightunitor_nat_z_iso Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
         apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (rightunitor_nat_z_iso Mon_V) v)).
@@ -280,7 +276,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (# FA (pr1 (pr2 (rightunitor_nat_z_iso Mon_V) v)) ▹ G).
-      - apply is_invertible_2cell_rwhisker.
+      - is_iso.
         change (is_z_isomorphism (# FA (pr1 (pr2 (rightunitor_nat_z_iso Mon_V) v)))).
         apply functor_on_is_z_isomorphism.
         apply (is_z_iso_inv_from_z_iso (nat_z_iso_pointwise_z_iso (rightunitor_nat_z_iso Mon_V) v)).
@@ -291,7 +287,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (FA' v ◃ fmonoidal_preservesunit FA'm).
-      - apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (fmonoidal_preservesunit FA'm)).
         apply fmonoidal_preservesunitstrongly.
     Defined.
@@ -301,7 +297,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (G ◃ pr1 (fmonoidal_preservesunitstrongly FA'm)).
-      - apply is_invertible_2cell_lwhisker.
+      - is_iso.
         change (is_z_isomorphism (pr1 (fmonoidal_preservesunitstrongly FA'm))).
         apply is_z_isomorphism_inv.
     Defined.
@@ -311,7 +307,7 @@ Section Main.
     Proof.
       use make_invertible_2cell.
       - exact (# FA (αinv_{Mon_V} v1 v2 v3) ▹ G).
-      - apply is_invertible_2cell_rwhisker.
+      - is_iso.
         change (is_z_isomorphism (# FA (αinv_{Mon_V} v1 v2 v3))).
         apply functor_on_is_z_isomorphism.
         exists (α_{Mon_V} v1 v2 v3).
@@ -1260,7 +1256,7 @@ Section Main.
                                                       ((FA' v1 · FA' v2) · FA' v3))).
       { use make_invertible_2cell.
         - exact ((pr1 (fmonoidal_preservestensorstrongly FA'm v1 v2)) ▹ FA' v3).
-        - apply is_invertible_2cell_rwhisker.
+        - is_iso.
           change (is_z_isomorphism  (pr1 (fmonoidal_preservestensorstrongly FA'm v1 v2))).
           apply is_z_isomorphism_inv.
       }
@@ -1291,7 +1287,7 @@ Section Main.
                                                       (FA' v1 · (FA' v2 · FA' v3)))).
       { use make_invertible_2cell.
         - exact (FA' v1 ◃ (pr1 (fmonoidal_preservestensorstrongly FA'm v2 v3))).
-        - apply is_invertible_2cell_lwhisker.
+        - is_iso.
           change (is_z_isomorphism (pr1 (fmonoidal_preservestensorstrongly FA'm v2 v3))).
           apply is_z_isomorphism_inv.
       }

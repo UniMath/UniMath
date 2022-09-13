@@ -272,7 +272,8 @@ Section FixMoncatAndBicat.
     unfold disp_actionbicat_disp_comp_nat_trans_data.
     assert (aux1 := pr12 Hyp1).
     assert (aux2 := pr12 Hyp2).
-    apply param_distr_bicat_triangle_eq_variant0_follows in aux1, aux2.
+    apply param_distr_bicat_triangle_eq_variant0_follows in aux1.
+    apply param_distr_bicat_triangle_eq_variant0_follows in aux2.
     red in aux1, aux2; cbn in aux1, aux2.
     rewrite aux1, aux2.
     clear Hyp1 Hyp2 aux1 aux2.
@@ -367,7 +368,8 @@ Section FixMoncatAndBicat.
       disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data.
     set (aux1 := pr22 Hyp1 v w).
     set (aux2 := pr22 Hyp2 v w).
-    apply param_distr_bicat_pentagon_eq_body_variant_follows in aux1, aux2.
+    apply param_distr_bicat_pentagon_eq_body_variant_follows in aux1.
+    apply param_distr_bicat_pentagon_eq_body_variant_follows in aux2.
     red in aux1, aux2; cbn in aux1, aux2.
     rewrite aux1, aux2.
     clear aux1 aux2.
@@ -527,13 +529,11 @@ Section FixMoncatAndBicat.
       transparent assert (invertible1 : (invertible_2cell (FA v · f2) (FA v · f1))).
       { use make_invertible_2cell.
         - exact (FA v ◃ ηinvertible ^-1).
-        - apply is_invertible_2cell_lwhisker.
-          apply inv_of_invertible_2cell. }
+        - is_iso. }
       transparent assert (invertible2 : (invertible_2cell (f2 · FA' v) (f1 · FA' v))).
       { use make_invertible_2cell.
         - exact (ηinvertible ^-1 ▹ FA' v).
-        - apply is_invertible_2cell_rwhisker.
-          apply inv_of_invertible_2cell. }
+        - is_iso. }
       apply (lhs_right_invert_cell _ _ _ invertible1).
       rewrite vassocl.
       apply pathsinv0, (lhs_left_invert_cell _ _ _ invertible2).
