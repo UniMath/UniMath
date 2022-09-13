@@ -137,8 +137,12 @@ Section Main.
     Definition montrafotargetbicat_disp: disp_cat V := trafotargetbicat_disp a0 a0' H H'.
     Definition montrafotargetbicat_cat: category := trafotargetbicat_cat a0 a0' H H'.
 
-    Definition param_distr_bicat_triangle_eq_variant0_RHS : trafotargetbicat_disp a0 a0' H H' I_{Mon_V}.
-    Proof.
+    Definition param_distr_bicat_triangle_eq_variant0_RHS : trafotargetbicat_disp a0 a0' H H' I_{Mon_V} :=
+      G ◃ (pr1 (fmonoidal_preservesunitstrongly FA'm))
+          • (((runitor G : G · I_{ monoidal_from_bicat_and_ob a0'} ==> G)
+          • (linvunitor G : G ==> I_{ monoidal_from_bicat_and_ob a0} · G))
+          • ((fmonoidal_preservesunit FAm) ▹ G)).
+(*    Proof.
       set (t1 := lwhisker G (pr1 (fmonoidal_preservesunitstrongly FA'm))).
       set (t2 := rwhisker G (fmonoidal_preservesunit FAm)).
       refine (vcomp2 t1 _).
@@ -146,7 +150,7 @@ Section Main.
       apply (vcomp2(g:=G)).
       - cbn. apply runitor.
       - cbn. apply linvunitor.
-    Defined.
+    Defined. *)
 
     Definition montrafotargetbicat_disp_unit: montrafotargetbicat_disp I_{Mon_V} :=
       param_distr_bicat_triangle_eq_variant0_RHS.
@@ -154,8 +158,13 @@ Section Main.
     Definition montrafotargetbicat_unit: montrafotargetbicat_cat := I_{Mon_V},, montrafotargetbicat_disp_unit.
 
     Definition param_distr_bicat_pentagon_eq_body_RHS (v w : V)
-               (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : H v · FA' w ==> FA (v ⊗ w) · G.
-    Proof.
+      (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : H v · FA' w ==> FA (v ⊗ w) · G :=
+      ((dv ▹ FA' w)
+         • ((rassociator (FA v) G (FA' w) : H' v · FA' w ==> FA v · H w)
+         • (FA v ◃ dw)))
+         • ((lassociator (FA v) (FA w) G : FA v · H' w ==> FA v ⊗_{ monoidal_from_bicat_and_ob a0} FA w · G)
+         • (fmonoidal_preservestensordata FAm v w ▹ G)).
+(*    Proof.
       set (aux1 := rwhisker (FA' w) dv).
       set (aux2 := lwhisker (FA v) dw).
       transparent assert (auxr : (H v · FA' w ==> FA v · H' w)).
@@ -169,18 +178,20 @@ Section Main.
       refine (vcomp2 _ aux3).
       cbn.
       apply lassociator.
-    Defined.
+    Defined. *)
 
     Definition param_distr_bicat_pentagon_eq_body_variant_RHS (v w : V)
-               (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : montrafotargetbicat_disp (v ⊗ w).
-    Proof.
+      (dv: montrafotargetbicat_disp v) (dw: montrafotargetbicat_disp w) : montrafotargetbicat_disp (v ⊗ w) :=
+      (G ◃ pr1 (fmonoidal_preservestensorstrongly FA'm v w))
+        • ((lassociator G (FA' v) (FA' w) : G · FA' v ⊗_{ monoidal_from_bicat_and_ob a0'} FA' w ==> H v · FA' w)
+        • param_distr_bicat_pentagon_eq_body_RHS v w dv dw).
+(*    Proof.
       set (aux1inv := lwhisker G (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
       refine (vcomp2 aux1inv _).
       refine (vcomp2 _ (param_distr_bicat_pentagon_eq_body_RHS v w dv dw)).
       cbn.
       apply lassociator.
-    Defined.
-
+    Defined. *)
 
     (** a number of auxiliary isomorphisms to ease the lemmas on arrow reversion *)
     Definition lwhisker_with_μ_inv_inv2cell (v w : V): invertible_2cell (G · FA' (v ⊗ w)) (G · (FA' v · FA' w)).
@@ -283,6 +294,16 @@ Section Main.
       - apply is_invertible_2cell_lwhisker.
         change (is_z_isomorphism (fmonoidal_preservesunit FA'm)).
         apply fmonoidal_preservesunitstrongly.
+    Defined.
+
+    Definition lwhisker_with_ϵ_inv2cell_bis:
+      invertible_2cell (G · FA' I_{ Mon_V}) (G · I_{ monoidal_from_bicat_and_ob a0'}).
+    Proof.
+      use make_invertible_2cell.
+      - exact (G ◃ pr1 (fmonoidal_preservesunitstrongly FA'm)).
+      - apply is_invertible_2cell_lwhisker.
+        change (is_z_isomorphism (pr1 (fmonoidal_preservesunitstrongly FA'm))).
+        apply is_z_isomorphism_inv.
     Defined.
 
     Definition rwhisker_with_invassociator_inv2cell (v1 v2 v3 : V):
@@ -1577,8 +1598,88 @@ Section Main.
     Definition param_distr_bicat_triangle_eq_variant0 (δ : parameterized_distributivity_bicat_nat): UU :=
       δ I_{Mon_V} = param_distr_bicat_triangle_eq_variant0_RHS.
 
+    Definition param_distr_bicat_triangle_eq (δ : parameterized_distributivity_bicat_nat): UU :=
+      (G ◃ fmonoidal_preservesunit FA'm)  • δ I_{Mon_V}  =
+        ((runitor G : G · I_{ monoidal_from_bicat_and_ob a0'} ==> G)
+           • (linvunitor G : G ==> I_{ monoidal_from_bicat_and_ob a0} · G))
+          • (fmonoidal_preservesunit FAm ▹ G).
+
+    Lemma param_distr_bicat_triangle_eq_variant0_follows (δ : parameterized_distributivity_bicat_nat):
+      param_distr_bicat_triangle_eq δ -> param_distr_bicat_triangle_eq_variant0 δ.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_bicat_triangle_eq_variant0_RHS.
+      apply pathsinv0, (lhs_left_invert_cell _ _ _ lwhisker_with_ϵ_inv2cell_bis).
+      apply pathsinv0.
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr_bicat_triangle_eq_variant0_implies (δ : parameterized_distributivity_bicat_nat):
+      param_distr_bicat_triangle_eq_variant0 δ -> param_distr_bicat_triangle_eq δ.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_bicat_triangle_eq_variant0_RHS in Hyp.
+      apply pathsinv0, (rhs_left_inv_cell _ _ _ lwhisker_with_ϵ_inv2cell_bis), pathsinv0 in Hyp.
+      exact Hyp.
+    Qed.
+
+    Definition param_distr_bicat_pentagon_eq_body_variant (δ : parameterized_distributivity_bicat_nat) (v w : V): UU :=
+      δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
     Definition param_distr_bicat_pentagon_eq_variant (δ : parameterized_distributivity_bicat_nat): UU := ∏ (v w : V),
-        δ (v ⊗ w) = param_distr_bicat_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+        param_distr_bicat_pentagon_eq_body_variant δ v w.
+
+    Definition param_distr_bicat_pentagon_eq_body (δ : parameterized_distributivity_bicat_nat) (v w : V): UU :=
+      ((rassociator G (FA' v) (FA' w) : H v · FA' w ==> G · FA' v ⊗_{ monoidal_from_bicat_and_ob a0'} FA' w)
+         • (G ◃ (fmonoidal_preservestensordata FA'm v w)))
+         • δ (v ⊗ w)
+      = param_distr_bicat_pentagon_eq_body_RHS v w (δ v) (δ w).
+
+    Definition param_distr_bicat_pentagon_eq (δ : parameterized_distributivity_bicat_nat): UU := ∏ (v w : V),
+        param_distr_bicat_pentagon_eq_body δ v w.
+
+    Lemma param_distr_bicat_pentagon_eq_body_variant_follows (δ : parameterized_distributivity_bicat_nat) (v w : V):
+      param_distr_bicat_pentagon_eq_body δ v w -> param_distr_bicat_pentagon_eq_body_variant δ v w.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_bicat_pentagon_eq_body_variant_RHS.
+      apply pathsinv0, (lhs_left_invert_cell _ _ _ (lwhisker_with_μ_inv_inv2cell v w)).
+      apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+      apply pathsinv0.
+      etrans.
+      2: { exact Hyp. }
+      apply vassocr.
+    Qed.
+
+    Lemma param_distr_bicat_pentagon_eq_body_variant_implies (δ : parameterized_distributivity_bicat_nat) (v w : V):
+      param_distr_bicat_pentagon_eq_body_variant δ v w -> param_distr_bicat_pentagon_eq_body δ v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_bicat_pentagon_eq_body_variant_RHS in Hyp.
+      apply pathsinv0, (rhs_left_inv_cell _ _ _ (lwhisker_with_μ_inv_inv2cell v w)) in Hyp.
+      apply (rhs_left_inv_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)), pathsinv0 in Hyp.
+      etrans.
+      2: { exact Hyp. }
+      apply vassocl.
+    Qed.
+
+    Lemma isaprop_param_distr_bicat_triangle_eq (δ : parameterized_distributivity_bicat_nat): isaprop (param_distr_bicat_triangle_eq δ).
+    Proof.
+      apply C.
+    Qed.
+
+    Lemma isaprop_param_distr_bicat_pentagon_eq (δ : parameterized_distributivity_bicat_nat): isaprop (param_distr_bicat_pentagon_eq δ).
+    Proof.
+      red.
+      apply impred; intros v.
+      apply impred; intros w.
+      apply cellset_property.
+    Qed.
+
 
     Section IntoMonoidalSectionBicat.
 
