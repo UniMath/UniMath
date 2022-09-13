@@ -341,6 +341,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/Universal_Algebra/EqAlgebras.v](CategoryTheory/categories/Universal_Algebra/EqAlgebras.v)
    - [Monoidal/WhiskeredBifunctors.v](CategoryTheory/Monoidal/WhiskeredBifunctors.v)
    - [Monoidal/MonoidalCategoriesWhiskered.v](CategoryTheory/Monoidal/MonoidalCategoriesWhiskered.v)
+   - [Monoidal/ActionsWhiskered.v](CategoryTheory/Monoidal/ActionsWhiskered.v)
    - [Monoidal/CartesianMonoidalCategoriesWhiskered.v](CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.v)
    - [Monoidal/MonoidalFunctorsWhiskered.v](CategoryTheory/Monoidal/MonoidalFunctorsWhiskered.v)
    - [Monoidal/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/WhiskeredDisplayedBifunctors.v)
