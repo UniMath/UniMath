@@ -42,9 +42,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-(*
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-*)
 
 Import Bicat.Notations.
 Import BifunctorNotations.
@@ -521,6 +519,26 @@ Section FixMoncatAndBicat.
 
   Definition bicatactionbicat : bicat := total_bicat bidisp_actionbicat_disp_bicat.
 
-
+  Lemma actionbicat_disp_locally_groupoid : disp_locally_groupoid bidisp_actionbicat_disp_bicat.
+  Proof.
+    red. intros a a' f1 f2 ηinvertible [FA FAm] [FA' FA'm] [δ1 [tria1 penta1]] [δ2 [tria2 penta2]] is2cell.
+    use tpair.
+    - red. cbn. red. intro v. red.
+      transparent assert (invertible1 : (invertible_2cell (FA v · f2) (FA v · f1))).
+      { use make_invertible_2cell.
+        - exact (FA v ◃ ηinvertible ^-1).
+        - apply is_invertible_2cell_lwhisker.
+          apply inv_of_invertible_2cell. }
+      transparent assert (invertible2 : (invertible_2cell (f2 · FA' v) (f1 · FA' v))).
+      { use make_invertible_2cell.
+        - exact (ηinvertible ^-1 ▹ FA' v).
+        - apply is_invertible_2cell_rwhisker.
+          apply inv_of_invertible_2cell. }
+      apply (lhs_right_invert_cell _ _ _ invertible1).
+      rewrite vassocl.
+      apply pathsinv0, (lhs_left_invert_cell _ _ _ invertible2).
+      exact (is2cell v).
+    - split; apply isaprop_bidisp_actionbicat_disp_2cell_struct.
+  Qed.
 
 End FixMoncatAndBicat.
