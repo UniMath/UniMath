@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
@@ -33,19 +34,16 @@ Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalSectionsWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
-(*
-Require Import UniMath.Bicategories.MonoidalCategories.Actions.
-Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
-*)
+
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorsWhiskeredMonoidal.
 
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 (*
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 *)
 
 Import Bicat.Notations.
@@ -400,6 +398,129 @@ Section FixMoncatAndBicat.
       exists (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
       + split; [apply disp_actionbicat_disp_comp_triangle | apply disp_actionbicat_disp_comp_pentagon]; assumption.
   Defined.
+
+  Definition disp_actionbicat_disp_catdata : disp_cat_data B
+    := (disp_actionbicat_disp_ob_mor,,disp_actionbicat_disp_id_comp).
+
+  Definition bidisp_actionbicat_disp_2cell_eq_body
+    {a a' : B}
+    {f1 f2 : B ⟦ a, a' ⟧}
+    (η : f1 ==> f2)
+    (FA : V ⟶ category_from_bicat_and_ob a)
+    (FA' : V ⟶ category_from_bicat_and_ob a')
+    (δ1 : parameterized_distributivity_bicat_nat f1)
+    (δ2 : parameterized_distributivity_bicat_nat f2)
+    (v : V): UU
+    := δ1 v • (FA v ◃ η) = (η ▹ FA' v) • δ2 v.
+
+  Lemma isaprop_bidisp_actionbicat_disp_2cell_eq_body
+    {a a' : B}
+    {f1 f2 : B ⟦ a, a' ⟧}
+    (η : f1 ==> f2)
+    (FA : V ⟶ category_from_bicat_and_ob a)
+    (FA' : V ⟶ category_from_bicat_and_ob a')
+    (δ1 : parameterized_distributivity_bicat_nat f1)
+    (δ2 : parameterized_distributivity_bicat_nat f2)
+    (v : V): isaprop (bidisp_actionbicat_disp_2cell_eq_body η FA FA' δ1 δ2 v).
+  Proof.
+    apply B.
+  Qed.
+
+  Definition bidisp_actionbicat_disp_2cell_struct : disp_2cell_struct disp_actionbicat_disp_ob_mor.
+  Proof.
+    intros a a' f1 f2 η [FA FAm] [FA' FA'm] [δ1 [tria1 penta1]] [δ2 [tria2 penta2]].
+    exact (∏ v: V, bidisp_actionbicat_disp_2cell_eq_body η FA FA' δ1 δ2 v).
+  Defined.
+
+  Lemma isaprop_bidisp_actionbicat_disp_2cell_struct
+    {a a' : B}
+    {f1 f2 : B ⟦ a, a' ⟧}
+    (η : f1 ==> f2)
+    {M : disp_actionbicat_disp_catdata a}
+    {M' : disp_actionbicat_disp_catdata a'}
+    (FM1 : M -->[ f1] M')
+    (FM2 : M -->[ f2] M'):
+    isaprop (bidisp_actionbicat_disp_2cell_struct a a' f1 f2 η M M' FM1 FM2).
+  Proof.
+    apply impred.
+    intro v.
+    apply isaprop_bidisp_actionbicat_disp_2cell_eq_body.
+  Qed.
+
+  Definition bidisp_actionbicat_disp_prebicat_1_id_comp_cells
+    :  disp_prebicat_1_id_comp_cells B
+    := (disp_actionbicat_disp_catdata,, bidisp_actionbicat_disp_2cell_struct).
+
+  Lemma bidisp_actionbicat_disp_prebicat_ops :
+    disp_prebicat_ops bidisp_actionbicat_disp_prebicat_1_id_comp_cells.
+  Proof.
+    repeat split; intros; red; cbn;
+      unfold bidisp_actionbicat_disp_2cell_struct, bidisp_actionbicat_disp_2cell_eq_body;
+      intro v;
+      unfold disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data;
+      cbn; show_id_type.
+    - rewrite lwhisker_id2. rewrite id2_right.
+      rewrite id2_rwhisker. apply pathsinv0, id2_left.
+    - rewrite <- rwhisker_vcomp.
+      etrans.
+      { repeat rewrite vassocl. do 5 apply maponpaths.
+        apply lunitor_lwhisker. }
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      rewrite id2_right.
+      rewrite lunitor_triangle.
+      rewrite vcomp_lunitor.
+      rewrite vassocr.
+      apply maponpaths_2.
+      apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
+      cbn.
+      apply pathsinv0, lunitor_triangle.
+
+
+      (* 8 proofs missing *)
+
+  (* probably not useful:
+      induction x as [FA FAm].
+      induction y as [FA' FA'm].
+      induction f' as [δ [tria penta]].
+      cbn.
+      red in tria, penta. unfold param_distr_bicat_pentagon_eq_body in penta.
+      (* assert (δnat := pr2 δ). red in δnat.
+      unfold H, H' in δnat. cbn in δnat.
+      rewrite hcomp_identity_left in δnat; rewrite hcomp_identity_right in δnat. *)
+       *)
+
+  Admitted.
+
+  Definition bidisp_actionbicat_disp_prebicat_data : disp_prebicat_data B
+    := (bidisp_actionbicat_disp_prebicat_1_id_comp_cells,, bidisp_actionbicat_disp_prebicat_ops).
+
+  Definition bidisp_actionbicat_disp_prebicat_laws : disp_prebicat_laws bidisp_actionbicat_disp_prebicat_data.
+  Proof.
+    repeat split; intro; intros; apply isaprop_bidisp_actionbicat_disp_2cell_struct.
+  Qed.
+
+  Definition bidisp_actionbicat_disp_prebicat : disp_prebicat B
+    := (bidisp_actionbicat_disp_prebicat_data,,bidisp_actionbicat_disp_prebicat_laws).
+
+  Definition bidisp_actionbicat_disp_bicat : disp_bicat B.
+  Proof.
+    refine (bidisp_actionbicat_disp_prebicat,, _).
+    intros a a' f1 f2 η M M' FM1 FM2.
+    apply isasetaprop.
+    apply isaprop_bidisp_actionbicat_disp_2cell_struct.
+  Defined.
+
+  Lemma actionbicat_disp_2cells_isaprop : disp_2cells_isaprop bidisp_actionbicat_disp_bicat.
+  Proof.
+    red.
+    intros.
+    apply isaprop_bidisp_actionbicat_disp_2cell_struct.
+  Qed.
+
+  Definition bicatactionbicat : bicat := total_bicat bidisp_actionbicat_disp_bicat.
+
 
 
 End FixMoncatAndBicat.
