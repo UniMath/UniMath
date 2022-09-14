@@ -365,10 +365,10 @@ Qed.
 End A.
 
 Module ActegoryNotations.
-  Notation "au^{ Act }" := (actegory_unitordata Act).
-  Notation "aα^{ Act }" := (actegory_actordata Act).
-  Notation "au^{ Act }_{ x }" := (actegory_unitordata Act x ).
-  Notation "aα^{ Act }_{ x , y , z }" := (actegory_actordata Act x y z).
-  Notation "auinv^{ Act }_{ x }" := (actegory_unitorinvdata Act x ).
-  Notation "aαinv^{ Act }_{ x , y , z }" := (actegory_actorinvdata Act x y z).
+  Notation "au^{ Mon_V , Act }" := (actegory_unitordata Mon_V Act).
+  Notation "aα^{ Mon_V , Act }" := (actegory_actordata Mon_V Act).
+  Notation "au^{ Mon_V , Act }_{ x }" := (actegory_unitordata Mon_V Act x ).
+  Notation "aα^{ Mon_V , Act }_{ v , w , x }" := (actegory_actordata Mon_V Act v w x).
+  Notation "auinv^{ Mon_V , Act }_{ x }" := (actegory_unitorinvdata Mon_V Act x ).
+  Notation "aαinv^{ Mon_V , Act }_{ v , w , x }" := (actegory_actorinvdata Mon_V Act v w x).
 End ActegoryNotations.
