@@ -19,6 +19,7 @@ Section Bicat_From_Monoidal_Cat.
 
 Import Bicat.Notations.
 Import BifunctorNotations.
+Import MonoidalNotations.
 
 Context {C: category} (M : monoidal C).
 

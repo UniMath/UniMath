@@ -37,10 +37,10 @@ Proof.
   use tpair.
   - use make_actegory_data.
     + exact (monoidal_tensor Mon_V).
-    + exact (lu^{Mon_V}).
-    + exact (luinv^{Mon_V}).
-    + exact (α^{Mon_V}).
-    + exact (αinv^{Mon_V}).
+    + exact (lu_{Mon_V}).
+    + exact (luinv_{Mon_V}).
+    + exact (α_{Mon_V}).
+    + exact (αinv_{Mon_V}).
   - split; [| split; [| split]].
     + apply monoidal_leftunitorlaw.
     + apply monoidal_associatorlaw.

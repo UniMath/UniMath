@@ -43,6 +43,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Import Bicat.Notations.
 Import BifunctorNotations.
 Import DisplayedBifunctorNotations.
+Import MonoidalNotations.
 
 Local Open Scope cat.
 

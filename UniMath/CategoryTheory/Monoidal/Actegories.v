@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Local Open Scope cat.
 
 Import BifunctorNotations.
+Import MonoidalNotations.
 
 Section A.
 
@@ -365,8 +366,10 @@ Qed.
 End A.
 
 Module ActegoryNotations.
-  Notation "au^{ Mon_V , Act }" := (actegory_unitordata Mon_V Act).
-  Notation "aα^{ Mon_V , Act }" := (actegory_actordata Mon_V Act).
+  Notation "au_{ Mon_V , Act }" := (actegory_unitordata Mon_V Act).
+  Notation "aα_{ Mon_V , Act }" := (actegory_actordata Mon_V Act).
+  Notation "au_{ Mon_V , Act }_{ x }" := (actegory_unitordata Mon_V Act x ).
+  Notation "aα_{ Mon_V , Act }_{ v , w , x }" := (actegory_actordata Mon_V Act v w x).
   Notation "au^{ Mon_V , Act }_{ x }" := (actegory_unitordata Mon_V Act x ).
   Notation "aα^{ Mon_V , Act }_{ v , w , x }" := (actegory_actordata Mon_V Act v w x).
   Notation "auinv^{ Mon_V , Act }_{ x }" := (actegory_unitorinvdata Mon_V Act x ).

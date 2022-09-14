@@ -647,6 +647,7 @@ End A.
 
 Section Alternative_Definition_Whiskered.
   Import BifunctorNotations.
+  Import MonoidalNotations.
 
   Context {V : category}.
   Context (Mon_V : monoidal V).
