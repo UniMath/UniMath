@@ -23,6 +23,8 @@ Local Open Scope cat.
 
 Import BifunctorNotations.
 
+Section A.
+
 Context {V : category} (Mon_V : monoidal V). (** given the monoidal category that acts upon categories *)
 
 (** Data **)
@@ -359,6 +361,8 @@ Proof.
   }
   apply bifunctor_rightid.
 Qed.
+
+End A.
 
 Module ActegoryNotations.
   Notation "au^{ Act }" := (actegory_unitordata Act).
