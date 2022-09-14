@@ -144,7 +144,7 @@ Proof.
   cbn.
   (* the pentagon equation in bicategories is formulated for the left associator while it is based
      on the right associator in whiskered monoidal categories *)
-  apply pentagon_identity_leftassociator.
+  apply pentagon_identity_associatorinv.
 Qed.
 
 Definition prebicat_from_monoidal : prebicat :=

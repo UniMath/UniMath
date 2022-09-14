@@ -351,7 +351,7 @@ Proof.
   apply associatorinv_nat1.
 Qed.
 
-Lemma pentagon_identity_leftassociator {C : category} (M : monoidal C) (w x y z : C):
+Lemma pentagon_identity_associatorinv {C : category} (M : monoidal C) (w x y z : C):
   w ⊗^{ M}_{l} (αinv_{M} x y z)
   · αinv_{M} w (x ⊗_{ M} y) z
   · αinv_{M} w x y ⊗^{ M}_{r} z =
