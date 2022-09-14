@@ -376,6 +376,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Examples/PointedSetCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/PointedSetCartesianMonoidal.v)
    - [Monoidal/Examples/BinopCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/BinopCartesianMonoidal.v)
    - [Monoidal/Examples/SetWithSubset.v](CategoryTheory/Monoidal/Examples/SetWithSubset.v)
+   - [Monoidal/Examples/MonoidalPointedObjects.v](CategoryTheory/Monoidal/Examples/MonoidalPointedObjects.v)
    - [Enriched/Enriched.v](CategoryTheory/Enriched/Enriched.v)
    - [Enriched/ChangeOfBase.v](CategoryTheory/Enriched/ChangeOfBase.v)
    - [Enriched/Opposite.v](CategoryTheory/Enriched/Opposite.v)
