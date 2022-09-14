@@ -17,34 +17,34 @@ Import BifunctorNotations.
 Context {V : category} (Mon_V : monoidal V). (** given the monoidal category that acts upon categories *)
 
 (** Data **)
-Definition action (C : category) : UU :=
+Definition actionop (C : category) : UU :=
   bifunctor V C C.
-Identity Coercion actionintobifunctor : action >-> bifunctor.
+Identity Coercion actionopintobifunctor : actionop >-> bifunctor.
 
-Definition aleftunitor_data {C : category} (A : action C) : UU :=
+Definition aleftunitor_data {C : category} (A : actionop C) : UU :=
   ∏ (x : C), C⟦I_{Mon_V} ⊗_{A} x, x⟧.
 
-Definition aleftunitorinv_data {C : category} (A : action C) : UU :=
+Definition aleftunitorinv_data {C : category} (A : actionop C) : UU :=
   ∏ (x : C), C⟦x, I_{Mon_V} ⊗_{A} x⟧.
 
-Definition convertor_data {C : category} (A : action C) : UU :=
+Definition convertor_data {C : category} (A : actionop C) : UU :=
   ∏ (v w : V) (x : C), C ⟦(v ⊗_{Mon_V} w) ⊗_{A} x, v ⊗_{A} (w ⊗_{A} x)⟧.
 
-Definition convertorinv_data {C : category} (A : action C) : UU :=
+Definition convertorinv_data {C : category} (A : actionop C) : UU :=
   ∏ (v w : V) (x : C), C ⟦v ⊗_{A} (w ⊗_{A} x), (v ⊗_{Mon_V} w) ⊗_{A} x⟧.
 
 Definition action_data (C : category) : UU :=
-    ∑ A : action C,
+    ∑ A : actionop C,
         (aleftunitor_data A) × (aleftunitorinv_data A) ×
            (convertor_data A) × (convertorinv_data A).
 
-Definition make_action_data {C : category} {A : action C}
+Definition make_action_data {C : category} {A : actionop C}
   (alu : aleftunitor_data A) (aluinv : aleftunitorinv_data A)
   (χ : convertor_data A) (χinv : convertorinv_data A) : action_data C
   := (A,,alu,,aluinv,,χ,,χinv).
 
-Definition monoidal_action {C : category} (AD : action_data C) : action C := pr1 AD.
-Coercion monoidal_action : action_data >-> action.
+Definition monoidal_actionop {C : category} (AD : action_data C) : actionop C := pr1 AD.
+Coercion monoidal_actionop : action_data >-> actionop.
 
 Definition action_leftunitordata {C : category} (AD : action_data C) : aleftunitor_data AD
   := pr1 (pr2 AD).
@@ -62,54 +62,50 @@ Definition action_convertorinvdata {C : category} (AD : action_data C) : convert
   := pr22 (pr2 (pr2 AD)).
 Notation "χinv_{ AD }" := (action_convertorinvdata AD).
 
-Definition monoidal_associatorinvdata {C : category} (MD : monoidal_data C) : associatorinv_data MD
-  := pr22 (pr222 (pr22 MD)).
-Notation "αinv_{ MD }" := (monoidal_associatorinvdata MD).
 
 (** Axioms **)
-Definition aleftunitor_nat {C : category} {A : action C} (alu : aleftunitor_data A) : UU :=
+Definition aleftunitor_nat {C : category} {A : actionop C} (alu : aleftunitor_data A) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  I_{Mon_V} ⊗^{A}_{l} f · alu y = alu x · f.
 
-Definition aleftunitorinv_nat {C : category} {A : action C} (aluinv : aleftunitorinv_data A) : UU :=
+Definition aleftunitorinv_nat {C : category} {A : actionop C} (aluinv : aleftunitorinv_data A) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  aluinv x · I_{Mon_V} ⊗^{A}_{l} f = f · aluinv y.
 
-Definition aleftunitor_iso_law {C : category} {A : action C} (alu : aleftunitor_data A) (aluinv : aleftunitorinv_data A) : UU :=
+Definition aleftunitor_iso_law {C : category} {A : actionop C} (alu : aleftunitor_data A) (aluinv : aleftunitorinv_data A) : UU :=
   ∏ (x : C), is_inverse_in_precat (alu x) (aluinv x).
 
-Definition aleftunitor_law {C : category} {A : action C} (alu : aleftunitor_data A) (aluinv : aleftunitorinv_data A) : UU :=
+Definition aleftunitor_law {C : category} {A : actionop C} (alu : aleftunitor_data A) (aluinv : aleftunitorinv_data A) : UU :=
   aleftunitor_nat alu × aleftunitor_iso_law alu aluinv.
 
-Definition aleftunitorlaw_nat {C : category} {A : action C} {alu : aleftunitor_data A} {aluinv : aleftunitorinv_data A}
+Definition aleftunitorlaw_nat {C : category} {A : actionop C} {alu : aleftunitor_data A} {aluinv : aleftunitorinv_data A}
   (alul : aleftunitor_law alu aluinv) : aleftunitor_nat alu := pr1 alul.
 
-Definition aleftunitorlaw_iso_law {C : category} {A : action C} {alu : aleftunitor_data A} {aluinv : aleftunitorinv_data A}
+Definition aleftunitorlaw_iso_law {C : category} {A : actionop C} {alu : aleftunitor_data A} {aluinv : aleftunitorinv_data A}
   (alul : aleftunitor_law alu aluinv) : aleftunitor_iso_law alu aluinv := pr2 alul.
 
-Definition convertor_nat_leftwhisker {C : category} {A : action C} (χ : convertor_data A) : UU
+Definition convertor_nat_leftwhisker {C : category} {A : actionop C} (χ : convertor_data A) : UU
   := ∏ (v w : V) (z z' : C) (h : C⟦z,z'⟧),
     (χ v w z) · (v ⊗^{A}_{l} (w ⊗^{A}_{l} h)) = ((v ⊗_{Mon_V} w) ⊗^{A}_{l} h) · (χ v w z').
 
-Definition convertor_nat_rightwhisker {C : category} {A : action C} (χ : convertor_data A) : UU
+Definition convertor_nat_rightwhisker {C : category} {A : actionop C} (χ : convertor_data A) : UU
   := ∏ (v v' w : V) (z : C) (f : V⟦v,v'⟧),
     (χ v w z) · (f ⊗^{A}_{r} (w ⊗_{A} z)) = ((f ⊗^{Mon_V}_{r} w) ⊗^{A}_{r} z) · (χ v' w z).
 
-Definition convertor_nat_leftrightwhisker {C : category} {A : action C} (χ : convertor_data A) : UU
+Definition convertor_nat_leftrightwhisker {C : category} {A : actionop C} (χ : convertor_data A) : UU
   := ∏ (v w w' : V) (z : C) (g : V⟦w,w'⟧),
     (χ v w z) · (v ⊗^{A}_{l} (g ⊗^{A}_{r} z)) = ((v ⊗^{Mon_V}_{l} g) ⊗^{A}_{r} z) · (χ v w' z).
 
-Lemma convertor_nat1 {C : category} {A : action C} {χ : convertor_data A} (χnl : convertor_nat_leftwhisker χ)
+Lemma convertor_nat1 {C : category} {A : actionop C} {χ : convertor_data A} (χnl : convertor_nat_leftwhisker χ)
   (χnr : convertor_nat_rightwhisker χ) (χnlr : convertor_nat_leftrightwhisker χ)
   {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
   (χ v w z) · ((f ⊗^{A}_{r} (w ⊗_{A} z)) · (v' ⊗^{A}_{l} ((g ⊗^{A}_{r} z) · (w' ⊗^{A}_{l} h)))) =
     (((f ⊗^{Mon_V}_{r} w) · (v' ⊗^{Mon_V}_{l} g))  ⊗^{A}_{r} z) · ((v' ⊗_{Mon_V} w') ⊗^{A}_{l} h) · (χ v' w' z').
 Proof.
-  (* TODO
   rewrite assoc.
   rewrite χnr.
   rewrite assoc'.
   etrans. {
     apply cancel_precomposition.
-    rewrite (bifunctor_leftcomp T).
+    rewrite (bifunctor_leftcomp A).
     rewrite assoc.
     rewrite χnlr.
     apply idpath.
@@ -125,12 +121,11 @@ Proof.
   rewrite assoc.
   apply cancel_postcomposition.
   apply pathsinv0.
-  rewrite bifunctor_rightcomp.
+  rewrite (bifunctor_rightcomp A).
   apply idpath.
-Qed.*)
-  Admitted.
+Qed.
 
-Lemma convertor_nat2 {C : category} {A : action C} {χ : convertor_data A} (χnl : convertor_nat_leftwhisker χ)
+Lemma convertor_nat2 {C : category} {A : actionop C} {χ : convertor_data A} (χnl : convertor_nat_leftwhisker χ)
   (χnr : convertor_nat_rightwhisker χ) (χnlr : convertor_nat_leftrightwhisker χ)
   {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
   (χ v w z) · (f ⊗^{A} (g ⊗^{A} h)) = ((f ⊗^{Mon_V} g) ⊗^{A} h) · (χ v' w' z').
@@ -140,73 +135,70 @@ Proof.
   exact (convertor_nat1 χnl χnr χnlr f g h).
 Qed.
 
-(* TODO
-Definition convertor_iso_law {C : category} {T : tensor C} (χ : convertor_data T) (χinv : convertorinv_data T) : UU
-  := ∏ (x y z : C), is_inverse_in_precat (χ x y z) (χinv x y z).
+Definition convertor_iso_law {C : category} {A : actionop C} (χ : convertor_data A) (χinv : convertorinv_data A) : UU
+  := ∏ (v w : V) (z : C), is_inverse_in_precat (χ v w z) (χinv v w z).
 
-Definition convertor_law {C : category} {T : tensor C} (χ : convertor_data T) (χinv : convertorinv_data T) : UU :=
+Definition convertor_law {C : category} {A : actionop C} (χ : convertor_data A) (χinv : convertorinv_data A) : UU :=
   (convertor_nat_leftwhisker χ) × (convertor_nat_rightwhisker χ) ×
     (convertor_nat_leftrightwhisker χ) × (convertor_iso_law χ χinv).
 
-Definition convertorlaw_natleft {C : category} {T : tensor C} {χ : convertor_data T} {χinv : convertorinv_data T}
+Definition convertorlaw_natleft {C : category} {A : actionop C} {χ : convertor_data A} {χinv : convertorinv_data A}
   (χl : convertor_law χ χinv) : convertor_nat_leftwhisker χ := pr1 χl.
-Definition convertorlaw_natright {C : category} {T : tensor C} {χ : convertor_data T} {χinv : convertorinv_data T}
+Definition convertorlaw_natright {C : category} {A : actionop C} {χ : convertor_data A} {χinv : convertorinv_data A}
   (χl : convertor_law χ χinv) : convertor_nat_rightwhisker χ := pr1 (pr2 χl).
-Definition convertorlaw_natleftright {C : category} {T : tensor C} {χ : convertor_data T} {χinv : convertorinv_data T}
+Definition convertorlaw_natleftright {C : category} {A : actionop C} {χ : convertor_data A} {χinv : convertorinv_data A}
   (χl : convertor_law χ χinv) : convertor_nat_leftrightwhisker χ := pr1 (pr2 (pr2 χl)).
-Definition convertorlaw_iso_law {C : category} {T : tensor C} {χ : convertor_data T} {χinv : convertorinv_data T}
+Definition convertorlaw_iso_law {C : category} {A : actionop C} {χ : convertor_data A} {χinv : convertorinv_data A}
   (χl : convertor_law χ χinv) : convertor_iso_law χ χinv := pr2 (pr2 (pr2 χl)).
-*)
-Definition atriangle_identity {C : category}
-           {A : action C}
+
+Definition action_triangle_identity {C : category}
+           {A : actionop C}
            (alu : aleftunitor_data A)
            (χ : convertor_data A)
     := ∏ (v : V) (y : C), (χ v I_{Mon_V} y) · (v ⊗^{A}_{l} (alu y)) = (ru_{Mon_V} v) ⊗^{A}_{r} y.
 
-Definition pentagon_identity {C : category} {A : action C} (χ : convertor_data A) : UU :=
+Definition action_pentagon_identity {C : category} {A : actionop C} (χ : convertor_data A) : UU :=
   ∏ (w v v' : V) (z : C),
     ((α_{Mon_V} w v v') ⊗^{A}_{r} z) · (χ w (v ⊗_{Mon_V} v') z) · (w ⊗^{A}_{l} (χ v v' z)) =
       (χ (w⊗_{Mon_V} v) v' z) · (χ w v (v' ⊗_{A} z)).
 
-(* TODO
+Definition action_laws {C : category} (AD : action_data C) : UU :=
+  (aleftunitor_law alu_{AD} aluinv_{AD}) × (convertor_law χ_{AD} χinv_{AD}) ×
+    (action_triangle_identity alu_{AD} χ_{AD}) × (action_pentagon_identity χ_{AD}).
 
-Definition monoidal_laws {C : category} (MD : monoidal_data C) : UU :=
-  (leftunitor_law lu_{MD} luinv_{MD}) × (rightunitor_law ru_{MD} ruinv_{MD}) × (convertor_law χ_{MD} χinv_{MD}) ×
-    (triangle_identity lu_{MD} ru_{MD} χ_{MD}) × (pentagon_identity χ_{MD}).
+Definition action (C : category) : UU :=
+  ∑ (AD : action_data C), (action_laws AD).
 
-Definition monoidal (C : category) : UU :=
-  ∑ (MD : monoidal_data C), (monoidal_laws MD).
+Definition action_actiondata {C : category} (Act : action C) : action_data C := pr1 Act.
+Coercion action_actiondata : action >-> action_data.
 
-Definition monoidal_mondata {C : category} (M : monoidal C) : monoidal_data C := pr1 M.
-Coercion monoidal_mondata : monoidal >-> monoidal_data.
+Definition action_monlaws {C : category} (Act : action C) : action_laws Act := pr2 Act.
 
-Definition monoidal_monlaws {C : category} (M : monoidal C) : monoidal_laws M := pr2 M.
+Definition action_leftunitorlaw {C : category} (Act : action C) : aleftunitor_law alu_{Act} aluinv_{Act} := pr1 (action_monlaws Act).
+Definition action_leftunitornat {C : category} (Act : action C) : aleftunitor_nat alu_{Act} := aleftunitorlaw_nat (action_leftunitorlaw Act).
+Definition action_leftunitorisolaw {C : category} (Act : action C) : aleftunitor_iso_law alu_{Act} aluinv_{Act} := aleftunitorlaw_iso_law (action_leftunitorlaw Act).
 
-Definition monoidal_leftunitorlaw {C : category} (M : monoidal C) : leftunitor_law lu_{M} luinv_{M} := pr1 (monoidal_monlaws M).
-Definition monoidal_leftunitornat {C : category} (M : monoidal C) : leftunitor_nat lu_{M} := leftunitorlaw_nat (monoidal_leftunitorlaw M).
-Definition monoidal_leftunitorisolaw {C : category} (M : monoidal C) : leftunitor_iso_law lu_{M} luinv_{M} := leftunitorlaw_iso_law (monoidal_leftunitorlaw M).
-
-Lemma monoidal_leftunitorinvnat {C : category} (M : monoidal C) : leftunitorinv_nat luinv_{M}.
+Lemma action_leftunitorinvnat {C : category} (Act : action C) : aleftunitorinv_nat aluinv_{Act}.
 Proof.
   intros x y f.
-  apply (z_iso_inv_on_right _ _ _ (_,,_,,monoidal_leftunitorisolaw M x)).
+  apply (z_iso_inv_on_right _ _ _ (_,,_,,action_leftunitorisolaw Act x)).
   cbn.
   rewrite assoc.
-  apply (z_iso_inv_on_left _ _ _ _ (_,,_,,monoidal_leftunitorisolaw M y)).
-  apply pathsinv0, monoidal_leftunitornat.
+  apply (z_iso_inv_on_left _ _ _ _ (_,,_,,action_leftunitorisolaw Act y)).
+  apply pathsinv0, action_leftunitornat.
 Qed.
 
-Definition monoidal_convertorlaw {C : category} (M : monoidal C) : convertor_law χ_{M} χinv_{M} := pr122 (monoidal_monlaws M).
-Definition monoidal_convertornatleft {C : category} (M : monoidal C) : convertor_nat_leftwhisker χ_{M} := convertorlaw_natleft (monoidal_convertorlaw M).
-Definition monoidal_convertornatright {C : category} (M : monoidal C) : convertor_nat_rightwhisker χ_{M} := convertorlaw_natright (monoidal_convertorlaw M).
-Definition monoidal_convertornatleftright {C : category} (M : monoidal C) : convertor_nat_leftrightwhisker χ_{M} := convertorlaw_natleftright (monoidal_convertorlaw M).
-Definition monoidal_convertorisolaw {C : category} (M : monoidal C) : convertor_iso_law χ_{M} χinv_{M} := convertorlaw_iso_law (monoidal_convertorlaw M).
+Definition action_convertorlaw {C : category} (Act : action C) : convertor_law χ_{Act} χinv_{Act} := pr12 (action_monlaws Act).
+Definition action_convertornatleft {C : category} (Act : action C) : convertor_nat_leftwhisker χ_{Act} := convertorlaw_natleft (action_convertorlaw Act).
+Definition action_convertornatright {C : category} (Act : action C) : convertor_nat_rightwhisker χ_{Act} := convertorlaw_natright (action_convertorlaw Act).
+Definition action_convertornatleftright {C : category} (Act : action C) : convertor_nat_leftrightwhisker χ_{Act} := convertorlaw_natleftright (action_convertorlaw Act).
+Definition action_convertorisolaw {C : category} (Act : action C) : convertor_iso_law χ_{Act} χinv_{Act} := convertorlaw_iso_law (action_convertorlaw Act).
 
-Definition monoidal_triangleidentity {C : category} (M : monoidal C) : triangle_identity lu_{M} ru_{M} χ_{M} := pr1 (pr222 (monoidal_monlaws M)).
-Definition monoidal_pentagonidentity {C : category} (M : monoidal C) : pentagon_identity χ_{M} := pr2 (pr222 (monoidal_monlaws M)).
+Definition action_triangleidentity {C : category} (Act : action C) : action_triangle_identity alu_{Act} χ_{Act} := pr1 (pr22 (action_monlaws Act)).
+Definition action_pentagonidentity {C : category} (Act : action C) : action_pentagon_identity χ_{Act} := pr2 (pr22 (action_monlaws Act)).
 
-Lemma isaprop_monoidal_laws {C : category} (M : monoidal_data C)
-  : isaprop (monoidal_laws M).
+Lemma isaprop_action_laws {C : category} (AD : action_data C)
+  : isaprop (action_laws AD).
 Proof.
   repeat (apply isapropdirprod)
   ; repeat (apply impred ; intro)
@@ -214,115 +206,102 @@ Proof.
   ; repeat (apply isaprop_is_inverse_in_precat).
 Qed.
 
-(** Some additional data and properties which one deduces from monoidal categories **)
-(* Not the best name though, but here my creativity fails *)
-Lemma swap_nat_along_zisos {C : category} {x1 x2 y1 y2 : C}
-  (p1 : z_iso x1 y1) (p2 : z_iso x2 y2) :
-  ∏ (f: C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
-    (pr1 p1) · g = f · (pr1 p2) -> g · (inv_from_z_iso p2) = (inv_from_z_iso p1) · f.
-Proof.
-  intros f g p.
-  apply pathsinv0.
-  apply z_iso_inv_on_right.
-  rewrite assoc.
-  apply z_iso_inv_on_left.
-  apply p.
-Qed.
+(** Some additional data and properties which one deduces from action categories **)
 
-Lemma leftunitor_nat_z_iso {C : category} (M : monoidal C):
-  nat_z_iso (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) I_{M}) (functor_identity C).
+Lemma aleftunitor_nat_z_iso {C : category} (Act : action C):
+  nat_z_iso (leftwhiskering_functor Act (bifunctor_leftid Act) (bifunctor_leftcomp Act) I_{Mon_V}) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.
-    + exact (λ x, lu_{M} x).
-    + exact (λ x y f, monoidal_leftunitornat M x y f).
-  - intro x. exists (luinv_{M} x).
-    apply (monoidal_leftunitorisolaw M x).
+    + exact (λ x, alu_{Act} x).
+    + exact (λ x y f, action_leftunitornat Act x y f).
+  - intro x. exists (aluinv_{Act} x).
+    apply (action_leftunitorisolaw Act x).
 Defined.
 
 Definition z_iso_from_convertor_iso
-  {C : category} (M : monoidal C) (x y z : C)
-  : z_iso ((x ⊗_{ M} y) ⊗_{ M} z) (x ⊗_{ M} (y ⊗_{ M} z))
+  {C : category} (Act : action C) (v w : V) (x : C)
+  : z_iso ((v ⊗_{Mon_V} w) ⊗_{Act} x) (v ⊗_{Act} (w ⊗_{Act} x))
   := make_z_iso
-       (χ_{M} x y z)
-       (χinv_{M} x y z)
-       (monoidal_convertorisolaw M x y z).
+       (χ_{Act} v w x)
+       (χinv_{Act} v w x)
+       (action_convertorisolaw Act v w x).
 
-Definition convertorinv_nat_leftwhisker {C : category} (M : monoidal C) :
-  ∏ (x y z z' : C) (h : C⟦z,z'⟧),
-    (x ⊗^{M}_{l} (y ⊗^{M}_{l} h)) · (χinv_{M} x y z') = (χinv_{M} x y z) · ((x ⊗_{M} y) ⊗^{M}_{l} h) .
+Definition convertorinv_nat_leftwhisker {C : category} (Act : action C) :
+  ∏ (v w : V) (z z' : C) (h : C⟦z,z'⟧),
+    (v ⊗^{Act}_{l} (w ⊗^{Act}_{l} h)) · (χinv_{Act} v w z') = (χinv_{Act} v w z) · ((v ⊗_{Mon_V} w) ⊗^{Act}_{l} h) .
 Proof.
-  intros x y z z' h.
-  apply (swap_nat_along_zisos (z_iso_from_convertor_iso M x y z) (z_iso_from_convertor_iso M x y z')).
-  apply monoidal_convertornatleft.
+  intros v w z z' h.
+  apply (swap_nat_along_zisos (z_iso_from_convertor_iso Act v w z) (z_iso_from_convertor_iso Act v w z')).
+  apply action_convertornatleft.
 Qed.
 
-Definition convertorinv_nat_rightwhisker {C : category} (M : monoidal C) :
-  ∏ (x x' y z: C) (f : C⟦x,x'⟧),
-    (f ⊗^{M}_{r} (y ⊗_{M} z)) · (χinv_{M} x' y z) = (χinv_{M} x y z) · ((f ⊗^{M}_{r} y) ⊗^{M}_{r} z).
+Definition convertorinv_nat_rightwhisker {C : category} (Act : action C) :
+  ∏ (v v' w : V) (z: C) (f : V⟦v,v'⟧),
+    (f ⊗^{Act}_{r} (w ⊗_{Act} z)) · (χinv_{Act} v' w z) = (χinv_{Act} v w z) · ((f ⊗^{Mon_V}_{r} w) ⊗^{Act}_{r} z).
 Proof.
-  intros x x' y z f.
-  apply (swap_nat_along_zisos (z_iso_from_convertor_iso M x y z) (z_iso_from_convertor_iso M x' y z)).
-  apply monoidal_convertornatright.
+  intros v v' w z f.
+  apply (swap_nat_along_zisos (z_iso_from_convertor_iso Act v w z) (z_iso_from_convertor_iso Act v' w z)).
+  apply action_convertornatright.
 Qed.
 
-Definition convertorinv_nat_leftrightwhisker {C : category} (M : monoidal C) :
-  ∏ (x y y' z : C) (g : C⟦y,y'⟧),
-    (x ⊗^{M}_{l} (g ⊗^{M}_{r} z)) · (χinv_{M} x y' z) = (χinv_{M} x y z) · ((x ⊗^{M}_{l} g) ⊗^{M}_{r} z).
+Definition convertorinv_nat_leftrightwhisker {C : category} (Act : action C) :
+  ∏ (v w w' : V) (z : C) (g : V⟦w,w'⟧),
+    (v ⊗^{Act}_{l} (g ⊗^{Act}_{r} z)) · (χinv_{Act} v w' z) = (χinv_{Act} v w z) · ((v ⊗^{Mon_V}_{l} g) ⊗^{Act}_{r} z).
 Proof.
-  intros x y y' z g.
-  apply (swap_nat_along_zisos (z_iso_from_convertor_iso M x y z) (z_iso_from_convertor_iso M x y' z)).
-  apply monoidal_convertornatleftright.
+  intros v w w' z g.
+  apply (swap_nat_along_zisos (z_iso_from_convertor_iso Act v w z) (z_iso_from_convertor_iso Act v w' z)).
+  apply action_convertornatleftright.
 Qed.
 
-Definition convertorinv_nat1 {C : category} (M : monoidal C)
-  {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
-  ((f ⊗^{M}_{r} (y ⊗_{M} z)) · (x' ⊗^{M}_{l} ((g ⊗^{M}_{r} z) · (y' ⊗^{M}_{l} h)))) · (χinv_{M} x' y' z') =
-    (χinv_{M} x y z) · ((((f ⊗^{M}_{r} y) · (x' ⊗^{M}_{l} g))  ⊗^{M}_{r} z) · ((x' ⊗_{M} y') ⊗^{ M}_{l} h)).
+Definition convertorinv_nat1 {C : category} (Act : action C)
+  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
+  ((f ⊗^{Act}_{r} (w ⊗_{Act} z)) · (v' ⊗^{Act}_{l} ((g ⊗^{Act}_{r} z) · (w' ⊗^{Act}_{l} h)))) · (χinv_{Act} v' w' z') =
+    (χinv_{Act} v w z) · ((((f ⊗^{Mon_V}_{r} w) · (v' ⊗^{Mon_V}_{l} g)) ⊗^{Act}_{r} z) · ((v' ⊗_{Mon_V} w') ⊗^{ Act}_{l} h)).
 Proof.
   apply (swap_nat_along_zisos
-           (z_iso_from_convertor_iso M x y z)
-           (z_iso_from_convertor_iso M x' y' z')
+           (z_iso_from_convertor_iso Act v w z)
+           (z_iso_from_convertor_iso Act v' w' z')
         ).
   unfold z_iso_from_convertor_iso.
   unfold make_z_iso.
   unfold make_is_z_isomorphism.
   unfold pr1.
   apply convertor_nat1.
-  - exact (monoidal_convertornatleft M).
-  - exact (monoidal_convertornatright M).
-  - exact (monoidal_convertornatleftright M).
+  - exact (action_convertornatleft Act).
+  - exact (action_convertornatright Act).
+  - exact (action_convertornatleftright Act).
 Qed.
 
-Lemma convertorinv_nat2 {C : category} (M : monoidal C)
-  {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
-  (f ⊗^{M} (g ⊗^{M} h)) · (χinv_{M} x' y' z') = (χinv_{M} x y z) · ((f ⊗^{M} g) ⊗^{M} h).
+Lemma convertorinv_nat2 {C : category} (Act : action C)
+  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
+  (f ⊗^{Act} (g ⊗^{Act} h)) · (χinv_{Act} v' w' z') = (χinv_{Act} v w z) · ((f ⊗^{Mon_V} g) ⊗^{Act} h).
 Proof.
   intros.
   unfold functoronmorphisms1.
   apply convertorinv_nat1.
 Qed.
 
-Lemma pentagon_identity_leftconvertor {C : category} (M : monoidal C) (w x y z : C):
-  w ⊗^{ M}_{l} (χinv_{M} x y z)
-  · χinv_{M} w (x ⊗_{ M} y) z
-  · χinv_{M} w x y ⊗^{ M}_{r} z =
-    χinv_{M} w x (y ⊗_{ M} z)
-  · χinv_{M} (w ⊗_{ M} x) y z.
+Lemma pentagon_identity_leftconvertor {C : category} (Act : action C) (w v u : V) (z : C):
+  w ⊗^{ Act}_{l} (χinv_{Act} v u z)
+  · χinv_{Act} w (v ⊗_{Mon_V} u) z
+  · αinv_{Mon_V} w v u ⊗^{Act}_{r} z =
+    χinv_{Act} w v (u ⊗_{Act} z)
+  · χinv_{Act} (w ⊗_{Mon_V} v) u z.
 Proof.
   apply pathsinv0.
-  apply (z_iso_inv_on_right _ _ _ (z_iso_from_convertor_iso M _ _ _)).
+  apply (z_iso_inv_on_right _ _ _ (z_iso_from_convertor_iso Act _ _ _)).
   unfold z_iso_from_convertor_iso.
   unfold make_z_iso.
   unfold make_is_z_isomorphism.
   etrans. { apply (pathsinv0 (id_right _)). }
-  apply (z_iso_inv_on_right _ _ _ (z_iso_from_convertor_iso M _ _ _)).
+  apply (z_iso_inv_on_right _ _ _ (z_iso_from_convertor_iso Act _ _ _)).
   cbn.
   apply pathsinv0.
   etrans. {
    rewrite assoc.
    apply cancel_postcomposition.
-   apply (pathsinv0 (monoidal_pentagonidentity M w x y z)).
+   apply (pathsinv0 (action_pentagonidentity Act w v u z)).
   }
   etrans. {
     rewrite assoc.
@@ -331,14 +310,14 @@ Proof.
     apply cancel_postcomposition.
     rewrite assoc'.
     apply cancel_precomposition.
-    apply (pathsinv0 (bifunctor_leftcomp M _ _ _ _ _ _)).
+    apply (pathsinv0 (bifunctor_leftcomp Act _ _ _ _ _ _)).
   }
   etrans. {
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     apply cancel_precomposition.
     apply maponpaths.
-    apply (pr2 (z_iso_from_convertor_iso M x y z)).
+    apply (pr2 (z_iso_from_convertor_iso Act v u z)).
   }
   etrans. {
     apply cancel_postcomposition.
@@ -355,27 +334,27 @@ Proof.
     apply cancel_postcomposition.
     rewrite assoc'.
     apply cancel_precomposition.
-    apply (pr2 (z_iso_from_convertor_iso M w (x⊗_{M}y) z)).
+    apply (pr2 (z_iso_from_convertor_iso Act w (v⊗_{Mon_V}u) z)).
   }
   etrans. {
     apply cancel_postcomposition.
     apply id_right.
   }
   etrans. {
-    apply (pathsinv0 (bifunctor_rightcomp M _ _ _ _ _ _)).
+    apply (pathsinv0 (bifunctor_rightcomp Act _ _ _ _ _ _)).
   }
   etrans. {
     apply maponpaths.
-    apply (pr2 (pr2 (z_iso_from_convertor_iso M w x y))).
+    apply (pr2 (pr2 (z_iso_from_associator_iso Mon_V w v u))).
   }
   apply bifunctor_rightid.
 Qed.
-*)
-Module MonoidalNotations.
-  Notation "alu^{ M }" := (action_leftunitordata M).
-  Notation "χ^{ M }" := (action_convertordata M).
-  Notation "alu^{ M }_{ x }" := (action_leftunitordata M x ).
-  Notation "χ^{ M }_{ x , y , z }" := (action_convertordata M x y z).
-  Notation "aluinv^{ M }_{ x }" := (action_leftunitorinvdata M x ).
-  Notation "χinv^{ M }_{ x , y , z }" := (action_convertorinvdata M x y z).
-End MonoidalNotations.
+
+Module ActionNotations.
+  Notation "alu^{ Act }" := (action_leftunitordata Act).
+  Notation "χ^{ Act }" := (action_convertordata Act).
+  Notation "alu^{ Act }_{ x }" := (action_leftunitordata Act x ).
+  Notation "χ^{ Act }_{ x , y , z }" := (action_convertordata Act x y z).
+  Notation "aluinv^{ Act }_{ x }" := (action_leftunitorinvdata Act x ).
+  Notation "χinv^{ Act }_{ x , y , z }" := (action_convertorinvdata Act x y z).
+End ActionNotations.
