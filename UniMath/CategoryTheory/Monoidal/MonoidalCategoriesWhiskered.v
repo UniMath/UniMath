@@ -422,8 +422,10 @@ Qed.
 Module MonoidalNotations.
   Notation "I_{ M }" := (monoidal_unit M).
   Notation "lu^{ M }" := (monoidal_leftunitordata M).
+  Notation "luinv^{ M }" := (monoidal_leftunitorinvdata M).
   Notation "ru^{ M }" := (monoidal_rightunitordata M).
   Notation "α^{ M }" := (monoidal_associatordata M).
+  Notation "αinv^{ M }" := (monoidal_associatorinvdata M).
   Notation "lu^{ M }_{ x }" := (monoidal_leftunitordata M x ).
   Notation "ru^{ M }_{ x }" := ( monoidal_rightunitordata M x ).
   Notation "α^{ M }_{ x , y , z }" := (monoidal_associatordata M x y z).
