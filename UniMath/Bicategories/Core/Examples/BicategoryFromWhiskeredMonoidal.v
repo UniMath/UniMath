@@ -19,6 +19,7 @@ Section Bicat_From_Monoidal_Cat.
 
 Import Bicat.Notations.
 Import BifunctorNotations.
+Import MonoidalNotations.
 
 Context {C: category} (M : monoidal C).
 
@@ -144,7 +145,7 @@ Proof.
   cbn.
   (* the pentagon equation in bicategories is formulated for the left associator while it is based
      on the right associator in whiskered monoidal categories *)
-  apply pentagon_identity_leftassociator.
+  apply monoidal_pentagon_identity_inv.
 Qed.
 
 Definition prebicat_from_monoidal : prebicat :=

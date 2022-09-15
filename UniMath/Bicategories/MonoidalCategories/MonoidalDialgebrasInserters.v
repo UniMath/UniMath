@@ -46,6 +46,7 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Import BifunctorNotations.
+Import MonoidalNotations.
 
 Section FixTwoMonoidalFunctors.
 

@@ -33,6 +33,8 @@ Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
+Import MonoidalNotations.
+
 Local Open Scope cat.
 
   Context (C : category).

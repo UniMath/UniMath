@@ -23,6 +23,7 @@ Section Monoidal_Cat_From_Bicat.
 
 Local Open Scope bicategory_scope.
 Import Bicat.Notations.
+Import MonoidalNotations.
 
 Context {C : bicat}.
 Context (c0: ob C).
