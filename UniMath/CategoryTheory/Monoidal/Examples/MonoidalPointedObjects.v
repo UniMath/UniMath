@@ -11,6 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -113,37 +114,39 @@ Proof.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
     apply maponpaths.
-
-
-    (*
-      unfold functoronmorphisms1.
-      do 2 rewrite bifunctor_rightcomp.
-      do 2 rewrite bifunctor_leftcomp.
-      repeat rewrite assoc.
-
-
-      repeat rewrite assoc'.
-r     ewrite <- monoidal_associatornatleft.
-      rewrite <- (id_left pv).
-      etrans.
-      2: { apply pathsinv0, (bifunctor_distributes_over_comp
-      etrans.
-      2: { replace pv with (identity _ · pv).
-
-      rewrite <- (id_left pw).
-      rewrite bifunctor_distributes_over_comp.
-      etrans.
-      { apply maponpaths.
-      rewrite assoc'.
-      rewrite <- associator_nat2.*)
-    admit.
+    unfold functoronmorphisms1.
+    repeat rewrite bifunctor_rightcomp.
+    repeat rewrite bifunctor_leftcomp.
+    repeat rewrite assoc'.
+    rewrite <- monoidal_associatornatleft.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    repeat rewrite assoc'.
+    rewrite <- monoidal_associatornatleftright.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    apply (z_iso_inv_to_right _ _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
+    cbn.
+    etrans.
+    2: { rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, monoidal_triangle_identity_inv. }
+    repeat rewrite <- bifunctor_rightcomp.
+    apply maponpaths.
+    rewrite leftunitorinv_rightunitorinv_unit.
+    apply monoidal_rightunitorinvnat.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
     apply maponpaths.
-
+    repeat rewrite bifunctor_equalwhiskers.
+    unfold functoronmorphisms2.
+    repeat rewrite bifunctor_rightcomp.
+    repeat rewrite bifunctor_leftcomp.
+    repeat rewrite assoc'.
+    rewrite monoidal_associatorinvnatright.
     admit.
 
-    (* 2 goals to solve *)
+    (* 1 goal to solve *)
 
 
 

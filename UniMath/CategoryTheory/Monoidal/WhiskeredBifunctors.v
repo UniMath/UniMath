@@ -198,6 +198,55 @@ Section Bifunctor.
         * apply bifunctor_rightid.
   Defined.
 
+  (* the following definitions do not compute well
+  Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) {a : A} {b1 b2 : B} (g : B⟦b1,b2⟧)
+    (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (a ⊗^{ F }_{l} g).
+  Proof.
+    rewrite <- when_bifunctor_becomes_leftwhiskering.
+    use is_z_iso_bifunctor_z_iso.
+    - apply identity_is_z_iso.
+    - assumption.
+  Defined.
+  Definitions is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} {b : B} (f : A⟦a1,a2⟧)
+    (f_is_z_iso : is_z_isomorphism f) : is_z_isomorphism (f ⊗^{ F }_{r} b).
+  Proof.
+    rewrite <- when_bifunctor_becomes_rightwhiskering.
+    use is_z_iso_bifunctor_z_iso.
+    - assumption.
+    - apply identity_is_z_iso.
+  Defined.
+   *)
+
+  Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) {a : A} {b1 b2 : B} (g : B⟦b1,b2⟧)
+    (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (a ⊗^{ F }_{l} g).
+  Proof.
+    exists (a ⊗^{ F }_{l} is_z_isomorphism_mor g_is_z_iso).
+    split; rewrite <- bifunctor_leftcomp.
+    - etrans.
+      { apply maponpaths.
+        apply (pr12 g_is_z_iso). }
+      apply bifunctor_leftid.
+    - etrans.
+      { apply maponpaths.
+        apply (pr22 g_is_z_iso). }
+      apply bifunctor_leftid.
+  Defined.
+
+  Definition is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} {b : B} (f : A⟦a1,a2⟧)
+    (f_is_z_iso : is_z_isomorphism f) : is_z_isomorphism (f ⊗^{ F }_{r} b).
+  Proof.
+    exists (is_z_isomorphism_mor f_is_z_iso ⊗^{ F }_{r} b).
+    split; rewrite <- bifunctor_rightcomp.
+    - etrans.
+      { apply maponpaths.
+        apply (pr12 f_is_z_iso). }
+      apply bifunctor_rightid.
+    - etrans.
+      { apply maponpaths.
+        apply (pr22 f_is_z_iso). }
+      apply bifunctor_rightid.
+  Defined.
+
 End Bifunctor.
 
   Arguments bifunctor_data : clear implicits.

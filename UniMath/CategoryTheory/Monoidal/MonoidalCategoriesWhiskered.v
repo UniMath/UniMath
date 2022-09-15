@@ -298,7 +298,7 @@ Definition z_iso_from_associator_iso
        (αinv_{M} x y z)
        (monoidal_associatorisolaw M x y z).
 
-Definition associatorinv_nat_leftwhisker {C : category} (M : monoidal C) :
+Definition monoidal_associatorinvnatleft {C : category} (M : monoidal C) :
   ∏ (x y z z' : C) (h : C⟦z,z'⟧),
     (x ⊗^{M}_{l} (y ⊗^{M}_{l} h)) · (αinv_{M} x y z') = (αinv_{M} x y z) · ((x ⊗_{M} y) ⊗^{M}_{l} h) .
 Proof.
@@ -307,7 +307,7 @@ Proof.
   apply monoidal_associatornatleft.
 Qed.
 
-Definition associatorinv_nat_rightwhisker {C : category} (M : monoidal C) :
+Definition monoidal_associatorinvnatright {C : category} (M : monoidal C) :
   ∏ (x x' y z: C) (f : C⟦x,x'⟧),
     (f ⊗^{M}_{r} (y ⊗_{M} z)) · (αinv_{M} x' y z) = (αinv_{M} x y z) · ((f ⊗^{M}_{r} y) ⊗^{M}_{r} z).
 Proof.
@@ -316,7 +316,7 @@ Proof.
   apply monoidal_associatornatright.
 Qed.
 
-Definition associatorinv_nat_leftrightwhisker {C : category} (M : monoidal C) :
+Definition monoidal_associatorinvnatleftright {C : category} (M : monoidal C) :
   ∏ (x y y' z : C) (g : C⟦y,y'⟧),
     (x ⊗^{M}_{l} (g ⊗^{M}_{r} z)) · (αinv_{M} x y' z) = (αinv_{M} x y z) · ((x ⊗^{M}_{l} g) ⊗^{M}_{r} z).
 Proof.
@@ -325,7 +325,7 @@ Proof.
   apply monoidal_associatornatleftright.
 Qed.
 
-Definition associatorinv_nat1 {C : category} (M : monoidal C)
+Definition monoidal_associatorinv_nat1 {C : category} (M : monoidal C)
   {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
   ((f ⊗^{M}_{r} (y ⊗_{M} z)) · (x' ⊗^{M}_{l} ((g ⊗^{M}_{r} z) · (y' ⊗^{M}_{l} h)))) · (αinv_{M} x' y' z') =
     (αinv_{M} x y z) · ((((f ⊗^{M}_{r} y) · (x' ⊗^{M}_{l} g))  ⊗^{M}_{r} z) · ((x' ⊗_{M} y') ⊗^{ M}_{l} h)).
@@ -344,16 +344,35 @@ Proof.
   - exact (monoidal_associatornatleftright M).
 Qed.
 
-Lemma associatorinv_nat2 {C : category} (M : monoidal C)
+Lemma monoidal_associatorinv_nat2 {C : category} (M : monoidal C)
   {x x' y y' z z' : C} (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧) :
   (f ⊗^{M} (g ⊗^{M} h)) · (αinv_{M} x' y' z') = (αinv_{M} x y z) · ((f ⊗^{M} g) ⊗^{M} h).
 Proof.
   intros.
   unfold functoronmorphisms1.
-  apply associatorinv_nat1.
+  apply monoidal_associatorinv_nat1.
 Qed.
 
-Lemma pentagon_identity_associatorinv {C : category} (M : monoidal C) (w x y z : C):
+Lemma monoidal_triangle_identity_inv {C : category} (M : monoidal C) (x y : C):
+  x ⊗^{M}_{l} (luinv_{M} y) · αinv_{M} x I_{M} y  = (ruinv_{M} x) ⊗^{M}_{r} y.
+Proof.
+  transparent assert (auxiso1 : (z_iso (x ⊗_{ M} y) (x ⊗_{ M} (I_{ M} ⊗_{ M} y)))).
+  { exists (x ⊗^{M}_{l} (luinv_{M} y)).
+    apply is_z_iso_leftwhiskering_z_iso.
+    exists (lu_{ M} y).
+    split; apply monoidal_leftunitorisolaw. }
+  transparent assert (auxiso2 : (z_iso (x ⊗_{ M} y) ((x ⊗_{ M} I_{ M}) ⊗_{ M} y))).
+  { exists (ruinv_{ M} x ⊗^{ M}_{r} y).
+    apply is_z_iso_rightwhiskering_z_iso.
+    exists (ru_{ M} x).
+    split; apply monoidal_rightunitorisolaw. }
+  apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (z_iso_from_associator_iso M _ _ _)).
+  apply (z_iso_inv_to_left _ _ _ auxiso2).
+  apply (z_iso_inv_to_right _ _ _ _ auxiso1).
+  apply pathsinv0, monoidal_triangleidentity.
+Qed.
+
+Lemma monoidal_pentagon_identity_inv {C : category} (M : monoidal C) (w x y z : C):
   w ⊗^{ M}_{l} (αinv_{M} x y z)
   · αinv_{M} w (x ⊗_{ M} y) z
   · αinv_{M} w x y ⊗^{ M}_{r} z =
