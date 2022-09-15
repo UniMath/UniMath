@@ -1,4 +1,5 @@
 Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -6,6 +7,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 
 Local Open Scope cat.
 
@@ -353,6 +357,23 @@ Proof.
   apply monoidal_associatorinv_nat1.
 Qed.
 
+Lemma triangle_identity_inverse {C : category} (M : monoidal C) (x y : C)
+  : x ⊗^{M}_{l} luinv_{M} y · αinv_{M} x I_{ M} y = ruinv_{M} x ⊗^{ M}_{r} y.
+Proof.
+  apply pathsinv0.
+  apply (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+  cbn.
+  set (luiy := make_z_iso _ _ (monoidal_leftunitorisolaw M y)).
+  set (luixy := functor_on_z_iso (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) x) luiy).
+  set (ruix := make_z_iso _ _ (monoidal_rightunitorisolaw M x)).
+  set (ruixy := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) ruix).
+
+  apply pathsinv0.
+  apply (z_iso_inv_on_right _ _ _ ruixy).
+  apply (z_iso_inv_on_left _ _ _ _ luixy).
+  exact (! (monoidal_triangleidentity M) x y).
+Qed.
+
 Lemma monoidal_triangle_identity_inv {C : category} (M : monoidal C) (x y : C):
   x ⊗^{M}_{l} (luinv_{M} y) · αinv_{M} x I_{M} y  = (ruinv_{M} x) ⊗^{M}_{r} y.
 Proof.
@@ -457,3 +478,305 @@ Module MonoidalNotations.
   Notation "ruinv^{ M }_{ x }" := ( monoidal_rightunitorinvdata M x ).
   Notation "αinv^{ M }_{ x , y , z }" := (monoidal_associatorinvdata M x y z).
 End MonoidalNotations.
+
+Section OppositeMonoidal.
+
+  Context {C : category} (M : monoidal C).
+
+  Require Import UniMath.CategoryTheory.opp_precat.
+
+  Definition monoidal_opp_tensor_data : bifunctor_data C^op C^op C^op.
+  Proof.
+    exists (pr11 (monoidal_tensor M)).
+    exists (λ x _ _ g, x ⊗^{M}_{l} g).
+    exact (λ x _ _ f, f ⊗^{M}_{r} x).
+  Defined.
+
+  Lemma monoidal_opp_is_tensor : is_bifunctor monoidal_opp_tensor_data.
+  Proof.
+    repeat split ; (try (intro ; intros) ; try apply (pr2 (monoidal_tensor M))).
+    exact (! bifunctor_equalwhiskers M a2 a1 b2 b1 f g).
+  Qed.
+
+  Definition monoidal_opp_tensor : bifunctor C^op C^op C^op
+    := monoidal_opp_tensor_data ,, monoidal_opp_is_tensor.
+
+  Definition monoidal_opp_data : monoidal_data C^op.
+  Proof.
+    exists monoidal_opp_tensor.
+    exists I_{M}.
+    exists luinv_{M}.
+    exists lu_{M}.
+    exists ruinv_{M}.
+    exists ru_{M}.
+    exists αinv_{M}.
+    exact α_{M}.
+  Defined.
+
+  Definition monoidal_opp_laws : monoidal_laws monoidal_opp_data.
+  Proof.
+    repeat split.
+    - intro ; intros ; apply monoidal_leftunitorinvnat.
+    - apply (monoidal_leftunitorisolaw M).
+    - apply (monoidal_leftunitorisolaw M).
+    - intro ; intros ; apply monoidal_rightunitorinvnat.
+    - apply (monoidal_rightunitorisolaw M).
+    - apply (monoidal_rightunitorisolaw M).
+    - intro ; intros ; apply associatorinv_nat_leftwhisker.
+    - intro ; intros ; apply associatorinv_nat_rightwhisker.
+    - intro ; intros ; apply associatorinv_nat_leftrightwhisker.
+    - apply (monoidal_associatorisolaw M).
+    - apply (monoidal_associatorlaw M).
+    - intro ; intros ; apply triangle_identity_inverse.
+    - intros w x y z.
+      refine (_ @ monoidal_pentagon_identity_inv M w x y z).
+      simpl ; apply assoc.
+  Qed.
+
+  Definition monoidal_opp : monoidal C^op
+    := monoidal_opp_data ,, monoidal_opp_laws.
+
+End OppositeMonoidal.
+
+Section EquivalenceFromTensorWithUnit.
+
+  Import MonoidalNotations.
+  Context {C : category} (M : monoidal C).
+
+  Definition ladjunction_data_from_tensor_with_unit
+    : Core.adjunction_data C C.
+  Proof.
+    exists (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+    exists (functor_identity C).
+    use tpair.
+    - apply (nat_z_iso_inv (leftunitor_nat_z_iso M)).
+    - apply (leftunitor_nat_z_iso M).
+  Defined.
+
+  Definition lequivalence_from_tensor_with_unit
+    : equivalence_of_cats C C.
+  Proof.
+    exists ladjunction_data_from_tensor_with_unit.
+    split.
+    - intro ; apply (nat_z_iso_inv (leftunitor_nat_z_iso M)).
+    - intro ; apply (leftunitor_nat_z_iso M).
+  Defined.
+
+  Definition radjunction_data_from_tensor_with_unit
+    : Core.adjunction_data C C.
+  Proof.
+    exists (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+    exists (functor_identity C).
+    use tpair.
+    - apply (nat_z_iso_inv (rightunitor_nat_z_iso M)).
+    - apply (rightunitor_nat_z_iso M).
+  Defined.
+
+  Definition requivalence_from_tensor_with_unit
+    : equivalence_of_cats C C.
+  Proof.
+    exists radjunction_data_from_tensor_with_unit.
+    split.
+    - intro ; apply (nat_z_iso_inv (rightunitor_nat_z_iso M)).
+    - intro ; apply (rightunitor_nat_z_iso M).
+  Defined.
+
+  Lemma leftwhiskering_fullyfaithful
+    : fully_faithful (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+  Proof.
+    apply fully_faithful_from_equivalence.
+    exact (adjointificiation lequivalence_from_tensor_with_unit).
+  Defined.
+
+  Lemma rightwhiskering_fullyfaithful
+    : fully_faithful (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+  Proof.
+    apply fully_faithful_from_equivalence.
+    exact (adjointificiation requivalence_from_tensor_with_unit).
+  Defined.
+
+  Lemma leftwhiskering_faithful
+    : faithful (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+  Proof.
+    exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ leftwhiskering_fullyfaithful)).
+  Defined.
+
+  Lemma rightwhiskering_faithful
+    : faithful (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+  Proof.
+    exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ rightwhiskering_fullyfaithful)).
+  Defined.
+
+End EquivalenceFromTensorWithUnit.
+
+
+Section UnitorsCoincide.
+
+  Import MonoidalNotations.
+  Context {C : category} (M : monoidal C).
+
+  Lemma lemma0
+    : ∏ x y : C, ((α_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
+                   · ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y)
+                 = (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  Proof.
+    intros x y.
+    refine (! bifunctor_rightcomp _ _ _ _ _ _ _ @ _).
+    apply maponpaths.
+    apply (monoidal_triangleidentity M I_{M} x).
+  Qed.
+
+  Lemma lemma1
+    : ∏ x y : C, α_{M} I_{M} (I_{M} ⊗_{M} x) y · (I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y))
+                 = ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y.
+  Proof.
+    intro ; intro.
+    apply monoidal_associatornatleftright.
+  Qed.
+
+  Lemma lemma2
+    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
+                 = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y · (((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y).
+  Proof.
+    intro ; intro.
+    set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{ M} x) y)).
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ αiso).
+    apply pathsinv0.
+    apply lemma1.
+  Qed.
+
+  Lemma lemma2'
+    : ∏ x y : C, (I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y
+                 = ((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
+                     · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  Proof.
+    intro ; intro.
+    apply pathsinv0.
+    set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
+    set (αisor := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) αiso).
+    apply (z_iso_inv_on_right _ _ _ αisor).
+    apply pathsinv0.
+    apply lemma0.
+  Qed.
+
+  Lemma lemma3
+    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
+                 = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y
+                        · ((((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
+                             · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y)
+                        · α_{M} I_{M} x y).
+  Proof.
+    intros x y.
+    refine (lemma2 x y @ _).
+    apply maponpaths.
+    apply maponpaths_2.
+    apply lemma2'.
+  Qed.
+
+  Lemma unitors_blabla'
+    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
+                 = I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
+  Proof.
+    intros x y.
+    refine (lemma3 x y @ _).
+    set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{M} x) y)).
+    apply (z_iso_inv_on_right _ _ _ αiso).
+    set (αiso' := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
+    set (αisor := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) αiso').
+    etrans. { apply assoc'. }
+    apply (z_iso_inv_on_right _ _ _ αisor).
+    apply pathsinv0.
+    simpl.
+
+    etrans. { apply assoc. }
+    etrans.
+    {
+      apply maponpaths.
+      apply (bifunctor_leftcomp M _ _ _ _ _ _).
+    }
+
+    etrans. { apply assoc. }
+    etrans. {
+      apply maponpaths_2.
+      apply (monoidal_pentagonidentity M I_{M} I_{M} x y).
+    }
+
+    etrans.
+    2: {
+      apply (associatorlaw_natright (monoidal_associatorlaw M)).
+    }
+
+    etrans. { apply assoc'. }
+    apply maponpaths.
+    apply monoidal_triangleidentity.
+  Qed.
+
+  Lemma unitors_blabla
+    : ∏ x y : C, lu_{M} x ⊗^{M}_{r} y
+                 = α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y).
+  Proof.
+    intro ; intro.
+    apply pathsinv0.
+    use faithful_reflects_commutative_triangle.
+    3: { apply leftwhiskering_faithful. }
+    apply pathsinv0.
+    refine (unitors_blabla' _ _ @ _).
+    apply bifunctor_leftcomp.
+  Qed.
+
+  Lemma lunitor_preserves_leftwhiskering_with_unit
+    :  lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
+  Proof.
+    apply pathsinv0.
+    set (lun := monoidal_leftunitornat M _ _ (lu^{M} (I_{M}))).
+    etrans. { apply (! id_right _). }
+    etrans.
+    2: { apply id_right. }
+
+    etrans. {
+      apply maponpaths.
+      exact (! pr1 (monoidal_leftunitorisolaw M I_{ M})).
+    }
+    etrans. { apply assoc. }
+    etrans. { apply maponpaths_2 ; exact lun. }
+    etrans. { apply assoc'. }
+    apply maponpaths.
+    apply monoidal_leftunitorisolaw.
+  Qed.
+
+  Lemma unitors_coincide_on_unit'
+    : lu_{M} I_{M} ⊗^{M}_{r} I_{M} = ru_{M} I_{M} ⊗^{M}_{r} I_{M}.
+  Proof.
+    refine (unitors_blabla I_{M} I_{M} @ _).
+    refine (_ @ monoidal_triangleidentity M I_{M} I_{M}).
+    apply maponpaths.
+    apply lunitor_preserves_leftwhiskering_with_unit.
+  Qed.
+
+  Lemma unitors_coincide_on_unit
+    : lu_{M} I_{M} = ru_{M} I_{M}.
+  Proof.
+    refine (! id_right _ @ _).
+    use faithful_reflects_commutative_triangle.
+    3: { apply rightwhiskering_faithful. }
+    refine (_ @ unitors_coincide_on_unit').
+    etrans. {
+      apply maponpaths.
+      apply bifunctor_rightid.
+    }
+    apply id_right.
+  Qed.
+
+End UnitorsCoincide.
+
+(* This is outside the previous section, but I don't know how to
+   use the lemma unitors_coincide_on_unit inside the section for
+   another category, I should "close" the context in some way
+ *)
+
+Lemma unitorsinv_coincide_on_unit {C : category} (M : monoidal C)
+  : luinv_{M} I_{M} = ruinv_{M} I_{M}.
+Proof.
+  exact (unitors_coincide_on_unit (monoidal_opp M)).
+Qed.
