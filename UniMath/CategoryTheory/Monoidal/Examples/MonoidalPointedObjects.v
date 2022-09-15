@@ -61,51 +61,61 @@ Qed.
 Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
   := monoidal_pointed_objects_disp_tensor_data,,monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor.
 
-Definition monoidal_pointed_objects_disp_data : disp_monoidal_data cosliced Mon_V.
+(** the following is needed in most of the proof cases in the following verification *)
+
+Context (leftunitor_rightunitor_unit : lu^{Mon_V}_{I_{Mon_V}} = ru^{Mon_V}_{I_{Mon_V}}).
+Context (leftunitorinv_rightunitorinv_unit : luinv^{Mon_V}_{I_{Mon_V}} = ruinv^{Mon_V}_{I_{Mon_V}}).
+(* Of course, this holds already in any bicategory, see [UniMath.Bicategories.Core.Unitors]. *)
+
+Lemma monoidal_pointed_objects_disp_data_verif :
+  disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
+    × disp_leftunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
+    × disp_rightunitor_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
+    × disp_rightunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
+    × disp_associator_data monoidal_pointed_objects_disp_tensor
+    × disp_associatorinv_data monoidal_pointed_objects_disp_tensor.
 Proof.
-  exists monoidal_pointed_objects_disp_tensor.
-  use tpair.
-  - apply identity.
-  - repeat split; red.
-    + intros v pv. cbn.
-      unfold functoronmorphisms1.
-      rewrite bifunctor_rightid.
-      rewrite id_left.
-      rewrite assoc'.
-      rewrite monoidal_leftunitornat.
-      rewrite assoc.
-      rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
-      apply id_left.
-    + intros v pv. cbn.
-      rewrite bifunctor_equalwhiskers.
-      unfold functoronmorphisms2.
-      rewrite bifunctor_rightid.
-      rewrite id_right.
-      rewrite monoidal_leftunitorinvnat.
-      apply idpath.
-    + intros v pv. cbn.
-      unfold functoronmorphisms1.
-      rewrite bifunctor_leftid.
-      rewrite id_right.
-      rewrite assoc'.
-      rewrite monoidal_rightunitornat.
-      rewrite assoc.
-      (* we need that ru and lu coincide on the monoidal unit! Of course, this holds already in bicategories, see [UniMath.Bicategories.Core.Unitors]. *)
-      admit.
-    + intros v pv. cbn.
-      unfold functoronmorphisms1.
-      rewrite bifunctor_leftid.
-      rewrite id_right.
-      rewrite <- monoidal_rightunitorinvnat.
-      apply cancel_postcomposition.
-      (* same problem as before *)
-      admit.
-    + intros v w u pv pw pu. cbn.
-      rewrite assoc'.
-      apply maponpaths.
+  repeat split; red.
+  - intros v pv. cbn.
+    unfold functoronmorphisms1.
+    rewrite bifunctor_rightid.
+    rewrite id_left.
+    rewrite assoc'.
+    rewrite monoidal_leftunitornat.
+    rewrite assoc.
+    rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
+    apply id_left.
+  - intros v pv. cbn.
+    rewrite bifunctor_equalwhiskers.
+    unfold functoronmorphisms2.
+    rewrite bifunctor_rightid.
+    rewrite id_right.
+    rewrite monoidal_leftunitorinvnat.
+    apply idpath.
+  - intros v pv. cbn.
+    unfold functoronmorphisms1.
+    rewrite bifunctor_leftid.
+    rewrite id_right.
+    rewrite assoc'.
+    rewrite monoidal_rightunitornat.
+    rewrite assoc.
+    rewrite <- leftunitor_rightunitor_unit.
+    rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
+    apply id_left.
+  - intros v pv. cbn.
+    unfold functoronmorphisms1.
+    rewrite bifunctor_leftid.
+    rewrite id_right.
+    rewrite <- monoidal_rightunitorinvnat.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    exact leftunitorinv_rightunitorinv_unit.
+  - intros v w u pv pw pu. cbn.
+    rewrite assoc'.
+    apply maponpaths.
 
 
-      (*
+    (*
       unfold functoronmorphisms1.
       do 2 rewrite bifunctor_rightcomp.
       do 2 rewrite bifunctor_leftcomp.
@@ -113,7 +123,7 @@ Proof.
 
 
       repeat rewrite assoc'.
-      rewrite <- monoidal_associatornatleft.
+r     ewrite <- monoidal_associatornatleft.
       rewrite <- (id_left pv).
       etrans.
       2: { apply pathsinv0, (bifunctor_distributes_over_comp
@@ -126,15 +136,26 @@ Proof.
       { apply maponpaths.
       rewrite assoc'.
       rewrite <- associator_nat2.*)
-      admit.
-    + intros v w u pv pw pu. cbn.
-      rewrite assoc'.
-      apply maponpaths.
+    admit.
+  - intros v w u pv pw pu. cbn.
+    rewrite assoc'.
+    apply maponpaths.
 
-      admit.
+    admit.
 
-    (* 4 goals to solve *)
+    (* 2 goals to solve *)
+
+
+
 Admitted.
+
+Definition monoidal_pointed_objects_disp_data : disp_monoidal_data cosliced Mon_V.
+Proof.
+  exists monoidal_pointed_objects_disp_tensor.
+  use tpair.
+  - apply identity.
+  - exact monoidal_pointed_objects_disp_data_verif.
+Defined.
 
 Lemma monoidal_pointed_objects_disp_laws : disp_monoidal_laws monoidal_pointed_objects_disp_data.
 Proof.
