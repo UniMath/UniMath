@@ -220,6 +220,7 @@ DisplayedCats/StreetOpFibration.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
+categories/EilenbergMoore.v
 Elements.v
 Core.v
 

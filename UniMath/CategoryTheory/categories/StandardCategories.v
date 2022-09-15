@@ -327,6 +327,29 @@ Proof.
   - exact (nat_trans_from_unit_is_nat_trans f).
 Defined.
 
+Definition unit_category_nat_trans
+           {C : category}
+           (F G : C ⟶ unit_category)
+  : F ⟹ G.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, pr1 (isapropunit _ _)).
+  - abstract
+      (intro ; intros ;
+       apply isasetunit).
+Defined.
+
+Lemma nat_trans_to_unit_eq
+      {X : category}
+      (F G : X ⟶ unit_category)
+      (α β : F ⟹ G)
+  : α = β.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro z. apply isasetunit.
+Qed.
+
 (** Morphisms are the same as certain natural transformations *)
 Definition nat_trans_from_unit_weq_morphisms
            {C : category}
