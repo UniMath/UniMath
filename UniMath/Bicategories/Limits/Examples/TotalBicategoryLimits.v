@@ -10,6 +10,7 @@
  1. Final objects
  2. Products
  3. Pullbacks
+ 4. Eilenberg-Moore objects
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -17,12 +18,25 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.Unitors.
+Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.EndoMap.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 
 Local Open Scope cat.
 
@@ -422,5 +436,209 @@ Section LimitsTotalBicat.
         intros w φ ψ α β p.
         apply total_pb_cone_ump2_unique.
         exact p.
+  Defined.
+
+  (**
+   4. Eilenberg-Moore objects
+   *)
+  Definition pr1_of_em_cone
+             (m : mnd (total_bicat D))
+             (q : em_cone m)
+    : em_cone (pr1_of_mnd_total_bicat m).
+  Proof.
+    use make_em_cone.
+    - exact (pr11 q).
+    - exact (pr1 (mor_of_mnd_mor (mor_of_em_cone _ q))).
+    - exact (pr1 (mnd_mor_endo (mor_of_em_cone _ q))).
+    - abstract
+        (refine (_ @ maponpaths pr1 (mnd_mor_unit (mor_of_em_cone _ q))) ;
+         cbn ;
+         rewrite id2_rwhisker, id2_right ;
+         apply idpath).
+    - abstract
+        (refine (_ @ maponpaths pr1 (mnd_mor_mu (mor_of_em_cone _ q))) ;
+         cbn ;
+         rewrite !vassocl ;
+         do 2 apply maponpaths ;
+         use vcomp_move_L_pM ; [ is_iso | ] ; cbn ;
+         rewrite !vassocr ;
+         rewrite lunitor_triangle ;
+         rewrite <- vcomp_lunitor ;
+         rewrite !vassocl ;
+         rewrite lunitor_triangle ;
+         apply idpath).
+  Defined.
+
+  Definition disp_has_em
+             (HB : bicat_has_em B)
+    : UU
+    := ∏ (m : mnd (total_bicat D)),
+       let cone := pr1 (HB (pr1_of_mnd_total_bicat m)) in
+       let ump := pr2 (HB (pr1_of_mnd_total_bicat m)) in
+       ∑ (dob : D (pr1 cone))
+         (dmor : dob
+                 -->[ mor_of_mnd_mor (mor_of_em_cone (pr1_of_mnd_total_bicat m) cone) ]
+                 pr2 (ob_of_mnd m))
+         (dcell : dmor ;; pr2 (endo_of_mnd m)
+                  ==>[ mnd_mor_endo (mor_of_em_cone (pr1_of_mnd_total_bicat m) cone) ]
+                  id_disp _ ;; dmor),
+       ∏ (q : em_cone m), pr21 q -->[ em_ump_1_mor _ ump (pr1_of_em_cone _ q) ] dob.
+
+  Section TotalBicatEilenbergMoore.
+    Context (HB : bicat_has_em B)
+            (m : mnd (total_bicat D))
+            (HD : disp_has_em HB).
+
+    Let cone
+      : em_cone (pr1_of_mnd_total_bicat m)
+      := pr1 (HB (pr1_of_mnd_total_bicat m)).
+
+    Let ump
+      : has_em_ump _ cone
+      := pr2 (HB (pr1_of_mnd_total_bicat m)).
+
+    Definition total_em_cone : em_cone m.
+    Proof.
+      use make_em_cone.
+      - exact (pr1 cone ,, pr1 (HD m)).
+      - exact (mor_of_mnd_mor (mor_of_em_cone _ cone) ,, pr12 (HD m)).
+      - refine (mnd_mor_endo (mor_of_em_cone _ cone) ,, _).
+        cbn.
+        apply (pr2 (HD m)).
+      - abstract
+          (use subtypePath ; [ intro ; apply HD₁ | ] ;
+           refine (_ @ mnd_mor_unit (mor_of_em_cone _ cone)) ;
+           cbn ;
+           rewrite id2_rwhisker ;
+           rewrite id2_right ;
+           apply idpath).
+      - abstract
+          (use subtypePath ; [ intro ; apply HD₁ | ] ;
+           refine (_ @ mnd_mor_mu (mor_of_em_cone _ cone)) ;
+           cbn ;
+           rewrite !vassocl ;
+           do 2 apply maponpaths ;
+           use vcomp_move_L_pM ; [ is_iso | ] ; cbn ;
+           rewrite !vassocr ;
+           rewrite lunitor_triangle ;
+           rewrite <- vcomp_lunitor ;
+           rewrite !vassocl ;
+           rewrite lunitor_triangle ;
+           apply idpath).
+    Defined.
+
+    Section UMP1.
+      Context (q : em_cone m).
+
+      Definition total_has_em_ump_1_mor
+        : q --> total_em_cone
+        := em_ump_1_mor _ ump (pr1_of_em_cone _ q) ,, pr222 (HD m) q.
+
+      Definition total_has_em_ump_1_mor_cell
+        : # (mnd_incl (total_bicat D)) total_has_em_ump_1_mor
+          · mor_of_em_cone m total_em_cone
+          ==>
+          mor_of_em_cone m q.
+      Proof.
+        use make_mnd_cell.
+        - simple refine (_ ,, _).
+          + exact (pr11 (em_ump_1_inv2cell _ ump (pr1_of_em_cone _ q))).
+          + apply HD₂.
+        - abstract
+            (use subtypePath ; [ intro ; apply HD₁ | ] ;
+             apply (mnd_cell_endo (pr1 (em_ump_1_inv2cell _ ump (pr1_of_em_cone _ q))))).
+      Defined.
+
+      Definition total_has_em_ump_1_mor_is_invertible
+        : is_invertible_2cell total_has_em_ump_1_mor_cell.
+      Proof.
+        use is_invertible_mnd_2cell.
+        use is_invertible_in_total.
+        exact (from_invertible_mnd_2cell
+                 (em_ump_1_inv2cell (pr1_of_mnd_total_bicat m) ump (pr1_of_em_cone m q))).
+      Defined.
+    End UMP1.
+
+    Definition total_has_em_ump_1
+      : em_ump_1 m total_em_cone.
+    Proof.
+      intro q.
+      use make_em_cone_mor.
+      - exact (total_has_em_ump_1_mor q).
+      - use make_invertible_2cell.
+        + exact (total_has_em_ump_1_mor_cell q).
+        + exact (total_has_em_ump_1_mor_is_invertible q).
+    Defined.
+
+    Section UMP2.
+      Context {x : total_bicat D}
+              {g₁ g₂ : x --> total_em_cone}
+              (α : # (mnd_incl (total_bicat D)) g₁ · mor_of_em_cone m total_em_cone
+                   ==>
+                   # (mnd_incl (total_bicat D)) g₂ · mor_of_em_cone m total_em_cone).
+
+      Local Definition total_has_em_ump_2_cell
+        : # (mnd_incl B) (pr1 g₁) · mor_of_em_cone (pr1_of_mnd_total_bicat m) cone
+          ==>
+          # (mnd_incl B) (pr1 g₂) · mor_of_em_cone (pr1_of_mnd_total_bicat m) cone.
+      Proof.
+        use make_mnd_cell.
+        - exact (pr1 (cell_of_mnd_cell α)).
+        - exact (maponpaths pr1 (mnd_cell_endo α)).
+      Defined.
+
+      Definition total_has_em_ump_unique
+        : isaprop
+            (∑ (β : g₁ ==> g₂),
+              ## (mnd_incl (total_bicat D)) β ▹ mor_of_em_cone m total_em_cone = α).
+      Proof.
+        use invproofirrelevance.
+        intros β₁ β₂.
+        use subtypePath ; [ intro ; apply cellset_property | ].
+        use subtypePath ; [ intro ; apply HD₁ | ].
+        use (em_ump_eq _ ump).
+        - exact total_has_em_ump_2_cell.
+        - use eq_mnd_cell.
+          exact (maponpaths (λ z, pr11 z) (pr2 β₁)).
+        - use eq_mnd_cell.
+          exact (maponpaths (λ z, pr11 z) (pr2 β₂)).
+      Qed.
+    End UMP2.
+
+    Definition total_has_em_ump_2
+      : em_ump_2 m total_em_cone.
+    Proof.
+      intros x g₁ g₂ α.
+      use iscontraprop1.
+      - exact (total_has_em_ump_unique α).
+      - simple refine ((_ ,, _) ,, _).
+        + use (em_ump_2_cell _ ump).
+          exact (total_has_em_ump_2_cell α).
+        + apply HD₂.
+        + abstract
+            (use eq_mnd_cell ;
+             use subtypePath ; [ intro ; apply HD₁ | ] ;
+             exact (maponpaths
+                      pr1
+                      (em_ump_2_eq _ ump (total_has_em_ump_2_cell α)))).
+    Defined.
+
+    Definition total_has_em_ump
+      : has_em_ump m total_em_cone.
+    Proof.
+      split.
+      - exact total_has_em_ump_1.
+      - exact total_has_em_ump_2.
+    Defined.
+  End TotalBicatEilenbergMoore.
+
+  Definition total_bicat_has_em
+             (HB : bicat_has_em B)
+             (HD : disp_has_em HB)
+    : bicat_has_em (total_bicat D).
+  Proof.
+    intros m.
+    refine (total_em_cone HB m HD ,, _).
+    apply total_has_em_ump.
   Defined.
 End LimitsTotalBicat.
