@@ -138,13 +138,22 @@ Proof.
     repeat rewrite bifunctor_leftcomp.
     repeat rewrite assoc'.
     rewrite monoidal_associatorinvnatright.
-    admit.
-
-    (* 1 goal to solve *)
-
-
-
-Admitted.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    repeat rewrite assoc'.
+    rewrite monoidal_associatorinvnatleftright.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    2: { rewrite unitorsinv_coincide_on_unit.
+         apply maponpaths.
+         apply monoidal_triangle_identity_inv. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    repeat rewrite <- bifunctor_leftcomp.
+    apply maponpaths.
+    apply monoidal_leftunitorinvnat.
+Qed.
 
 Definition monoidal_pointed_objects_disp_data : disp_monoidal_data cosliced Mon_V.
 Proof.
