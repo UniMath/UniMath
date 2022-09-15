@@ -11,6 +11,7 @@ author: Ralph Matthes 2022
 
 
 Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -113,6 +114,136 @@ Proof.
   split; [| split; [| split]]. (* splits into the 4 main goals *)
   - repeat split.
     + intros x y f. cbn. unfold lifted_action_unitor_data.
+      admit.
+    + cbn. unfold lifted_action_unitor_data.
+      unfold lifted_action_unitorinv_data.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply maponpaths_2.
+        exact (pr1 (actegory_unitorisolaw Mon_V Act x)).
+      }
+      rewrite id_left.
+      refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
+      etrans. {
+        apply maponpaths.
+        exact (pr22 (fmonoidal_preservesunitstrongly U)).
+      }
+      apply (bifunctor_rightid Act).
+    + cbn. unfold lifted_action_unitor_data.
+      unfold lifted_action_unitorinv_data.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply maponpaths_2.
+        refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
+        apply maponpaths.
+        exact (pr12 (fmonoidal_preservesunitstrongly U)).
+      }
+      rewrite bifunctor_rightid.
+      rewrite id_left.
+      exact (pr2 (actegory_unitorisolaw Mon_V Act x)).
+  - repeat split.
+    + intros v w z z' h.
+      cbn.
+      unfold lifted_actor_data.
+      admit.
+    + admit.
+    + admit.
+    + cbn.
+      unfold lifted_actor_data.
+      unfold lifted_actorinv_data.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply maponpaths_2.
+        exact (pr1 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
+      }
+      rewrite id_left.
+      refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
+      etrans. {
+        apply maponpaths.
+        exact (pr22 (fmonoidal_preservestensorstrongly U v w)).
+      }
+      apply bifunctor_rightid.
+    + cbn.
+      unfold lifted_actor_data.
+      unfold lifted_actorinv_data.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply maponpaths_2.
+        refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
+        apply maponpaths.
+        exact (pr12 (fmonoidal_preservestensorstrongly U v w)).
+      }
+      rewrite bifunctor_rightid.
+      rewrite id_left.
+      exact (pr2 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
+  - intros v y.
+    cbn.
+    unfold lifted_actor_data.
+    unfold lifted_action_unitor_data.
+    rewrite assoc'.
+    rewrite bifunctor_leftcomp.
+    etrans. {
+      apply maponpaths.
+      rewrite assoc.
+      apply maponpaths_2.
+      apply (actegory_actornatleftright Mon_V Act).
+    }
+    rewrite assoc'.
+    rewrite (actegory_triangleidentity Mon_V Act (F v) y).
+    do 2 rewrite (! bifunctor_rightcomp _ _ _ _ _ _ _).
+    apply maponpaths.
+
+    rewrite (! fmonoidal_preservesrightunitality U v).
+    etrans. {
+      apply maponpaths.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite (! bifunctor_leftcomp _ _ _ _ _ _ _).
+      apply maponpaths.
+      exact (pr22 (fmonoidal_preservesunitstrongly U)).
+    }
+    rewrite bifunctor_leftid.
+    rewrite id_left.
+    rewrite assoc.
+    rewrite (pr22 (fmonoidal_preservestensorstrongly U v I_{Mon_W})).
+    apply id_left.
+  - intros w v v' z.
+    cbn.
+    unfold lifted_actor_data.
+    rewrite bifunctor_leftcomp.
+    rewrite assoc'.
+
+    etrans. {
+      apply maponpaths.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      apply (actegory_actornatleftright Mon_V Act).
+    }
+    admit.
+
+    Check (actegory_pentagonidentity Mon_V Act (F w) (F v) (F v') z).
+
+    etrans. {
+      apply maponpaths.
+      rewrite bifunctor_leftcomp.
+
+
+
+    admit.
+
+
 
       (* TODO: a lot of work (approx. 200loc) was needed in [UniMath.Bicategories.MonoidalCategories.ConstructionOfActions] *)
 
