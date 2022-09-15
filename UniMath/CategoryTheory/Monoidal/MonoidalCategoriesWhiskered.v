@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Open Scope cat.
 
@@ -357,7 +358,7 @@ Proof.
   apply monoidal_associatorinv_nat1.
 Qed.
 
-Lemma triangle_identity_inverse {C : category} (M : monoidal C) (x y : C)
+Lemma monoidal_triangle_identity_inv {C : category} (M : monoidal C) (x y : C)
   : x ⊗^{M}_{l} luinv_{M} y · αinv_{M} x I_{ M} y = ruinv_{M} x ⊗^{ M}_{r} y.
 Proof.
   apply pathsinv0.
@@ -374,7 +375,8 @@ Proof.
   exact (! (monoidal_triangleidentity M) x y).
 Qed.
 
-Lemma monoidal_triangle_identity_inv {C : category} (M : monoidal C) (x y : C):
+(* another proof of the same law - could be deleted in some future: *)
+Lemma monoidal_triangle_identity_inv_alt {C : category} (M : monoidal C) (x y : C):
   x ⊗^{M}_{l} (luinv_{M} y) · αinv_{M} x I_{M} y  = (ruinv_{M} x) ⊗^{M}_{r} y.
 Proof.
   transparent assert (auxiso1 : (z_iso (x ⊗_{ M} y) (x ⊗_{ M} (I_{ M} ⊗_{ M} y)))).
@@ -483,7 +485,8 @@ Section OppositeMonoidal.
 
   Context {C : category} (M : monoidal C).
 
-  Require Import UniMath.CategoryTheory.opp_precat.
+  Import MonoidalNotations.
+
 
   Definition monoidal_opp_tensor_data : bifunctor_data C^op C^op C^op.
   Proof.
@@ -522,12 +525,12 @@ Section OppositeMonoidal.
     - intro ; intros ; apply monoidal_rightunitorinvnat.
     - apply (monoidal_rightunitorisolaw M).
     - apply (monoidal_rightunitorisolaw M).
-    - intro ; intros ; apply associatorinv_nat_leftwhisker.
-    - intro ; intros ; apply associatorinv_nat_rightwhisker.
-    - intro ; intros ; apply associatorinv_nat_leftrightwhisker.
+    - intro ; intros ; apply monoidal_associatorinvnatleft.
+    - intro ; intros ; apply monoidal_associatorinvnatright.
+    - intro ; intros ; apply monoidal_associatorinvnatleftright.
     - apply (monoidal_associatorisolaw M).
     - apply (monoidal_associatorlaw M).
-    - intro ; intros ; apply triangle_identity_inverse.
+    - intro ; intros ; apply monoidal_triangle_identity_inv.
     - intros w x y z.
       refine (_ @ monoidal_pentagon_identity_inv M w x y z).
       simpl ; apply assoc.
@@ -615,30 +618,25 @@ Section UnitorsCoincide.
   Import MonoidalNotations.
   Context {C : category} (M : monoidal C).
 
-  Lemma lemma0
-    : ∏ x y : C, ((α_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
-                   · ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y)
-                 = (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  Local Lemma lemma0 (x y : C) :
+    ((α_{M} I_{M} I_{M} x) ⊗^{M}_{r} y) · ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) =
+    (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
   Proof.
-    intros x y.
     refine (! bifunctor_rightcomp _ _ _ _ _ _ _ @ _).
     apply maponpaths.
     apply (monoidal_triangleidentity M I_{M} x).
   Qed.
 
-  Lemma lemma1
-    : ∏ x y : C, α_{M} I_{M} (I_{M} ⊗_{M} x) y · (I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y))
-                 = ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y.
+  Local Lemma lemma1 (x y : C) :
+    α_{M} I_{M} (I_{M} ⊗_{M} x) y · (I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)) =
+      ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y.
   Proof.
-    intro ; intro.
     apply monoidal_associatornatleftright.
   Qed.
 
-  Lemma lemma2
-    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
-                 = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y · (((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y).
+  Local Lemma lemma2 (x y : C) :
+    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y · (((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y).
   Proof.
-    intro ; intro.
     set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{ M} x) y)).
     apply pathsinv0.
     apply (z_iso_inv_on_right _ _ _ αiso).
@@ -646,12 +644,10 @@ Section UnitorsCoincide.
     apply lemma1.
   Qed.
 
-  Lemma lemma2'
-    : ∏ x y : C, (I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y
-                 = ((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
-                     · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  Local Lemma lemma2' (x y : C) :
+    (I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y =
+      ((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y) · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
   Proof.
-    intro ; intro.
     apply pathsinv0.
     set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
     set (αisor := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) αiso).
@@ -660,25 +656,23 @@ Section UnitorsCoincide.
     apply lemma0.
   Qed.
 
-  Lemma lemma3
-    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
-                 = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y
-                        · ((((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
-                             · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y)
-                        · α_{M} I_{M} x y).
+  Lemma lemma3 (x y : C) :
+    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
+      αinv_{M} I_{M} (I_{M} ⊗_{M} x) y
+        · ((((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
+        · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y)
+        · α_{M} I_{M} x y).
   Proof.
-    intros x y.
     refine (lemma2 x y @ _).
     apply maponpaths.
     apply maponpaths_2.
     apply lemma2'.
   Qed.
 
-  Lemma unitors_blabla'
-    : ∏ x y : C, I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
-                 = I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
+  Local Lemma unitors_blabla' (x y : C) :
+    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
+      I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
   Proof.
-    intros x y.
     refine (lemma3 x y @ _).
     set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{M} x) y)).
     apply (z_iso_inv_on_right _ _ _ αiso).
@@ -712,11 +706,9 @@ Section UnitorsCoincide.
     apply monoidal_triangleidentity.
   Qed.
 
-  Lemma unitors_blabla
-    : ∏ x y : C, lu_{M} x ⊗^{M}_{r} y
-                 = α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y).
+  Local Lemma unitors_blabla (x y : C) :
+    lu_{M} x ⊗^{M}_{r} y = α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y).
   Proof.
-    intro ; intro.
     apply pathsinv0.
     use faithful_reflects_commutative_triangle.
     3: { apply leftwhiskering_faithful. }
@@ -729,7 +721,7 @@ Section UnitorsCoincide.
     :  lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
   Proof.
     apply pathsinv0.
-    set (lun := monoidal_leftunitornat M _ _ (lu^{M} (I_{M}))).
+    set (lun := monoidal_leftunitornat M _ _ (lu_{M} (I_{M}))).
     etrans. { apply (! id_right _). }
     etrans.
     2: { apply id_right. }
@@ -768,14 +760,24 @@ Section UnitorsCoincide.
     apply id_right.
   Qed.
 
+  Corollary unitorsinv_coincide_on_unit
+    : luinv_{M} I_{M} = ruinv_{M} I_{M}.
+  Proof.
+    apply (cancel_z_iso _ _ (lu_{M} I_{M},,(luinv_{M} I_{M},,monoidal_leftunitorisolaw M I_{M}))).
+    cbn.
+    etrans.
+    2: { rewrite unitors_coincide_on_unit.
+         apply pathsinv0, (monoidal_rightunitorisolaw M I_{M}). }
+    apply (monoidal_leftunitorisolaw M I_{M}).
+  Qed.
+
 End UnitorsCoincide.
 
-(* This is outside the previous section, but I don't know how to
-   use the lemma unitors_coincide_on_unit inside the section for
-   another category, I should "close" the context in some way
- *)
+(* Using the lemma for a different category, hence outside of the section. *)
 
-Lemma unitorsinv_coincide_on_unit {C : category} (M : monoidal C)
+Import MonoidalNotations.
+
+Lemma unitorsinv_coincide_on_unit_alt {C : category} (M : monoidal C)
   : luinv_{M} I_{M} = ruinv_{M} I_{M}.
 Proof.
   exact (unitors_coincide_on_unit (monoidal_opp M)).
