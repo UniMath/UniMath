@@ -62,12 +62,6 @@ Qed.
 Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
   := monoidal_pointed_objects_disp_tensor_data,,monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor.
 
-(** the following is needed in most of the proof cases in the following verification *)
-
-Context (leftunitor_rightunitor_unit : lu^{Mon_V}_{I_{Mon_V}} = ru^{Mon_V}_{I_{Mon_V}}).
-Context (leftunitorinv_rightunitorinv_unit : luinv^{Mon_V}_{I_{Mon_V}} = ruinv^{Mon_V}_{I_{Mon_V}}).
-(* Of course, this holds already in any bicategory, see [UniMath.Bicategories.Core.Unitors]. *)
-
 Lemma monoidal_pointed_objects_disp_data_verif :
   disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
     × disp_leftunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
@@ -100,7 +94,7 @@ Proof.
     rewrite assoc'.
     rewrite monoidal_rightunitornat.
     rewrite assoc.
-    rewrite <- leftunitor_rightunitor_unit.
+    rewrite <- unitors_coincide_on_unit.
     rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
     apply id_left.
   - intros v pv. cbn.
@@ -110,7 +104,7 @@ Proof.
     rewrite <- monoidal_rightunitorinvnat.
     apply cancel_postcomposition.
     apply pathsinv0.
-    exact leftunitorinv_rightunitorinv_unit.
+    apply unitorsinv_coincide_on_unit.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
     apply maponpaths.
@@ -133,7 +127,7 @@ Proof.
          apply pathsinv0, monoidal_triangle_identity_inv. }
     repeat rewrite <- bifunctor_rightcomp.
     apply maponpaths.
-    rewrite leftunitorinv_rightunitorinv_unit.
+    rewrite unitorsinv_coincide_on_unit.
     apply monoidal_rightunitorinvnat.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
