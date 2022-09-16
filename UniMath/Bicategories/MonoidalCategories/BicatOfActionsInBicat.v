@@ -238,8 +238,61 @@ Section FixMoncatAndBicat.
     rewrite hcomp_identity_right;
       rewrite vassocr.
 
+    rewrite (! lwhisker_lwhisker_rassociator _ _ _ _ _ _ _ _ _).
+    rewrite vassocr.
+    etrans. {
+      apply maponpaths_2.
+      rewrite vassocl.
+      apply maponpaths.
+      exact (lwhisker_vcomp g1  (g2 ◃ # FA'' f) (pr1 Hyp2 w)).
+    }
 
-  Admitted.
+    etrans.
+    2: {
+      rewrite !vassocr.
+      rewrite vassocl.
+      apply maponpaths.
+      apply rwhisker_rwhisker_alt.
+    }
+
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite !vassocr.
+    apply maponpaths_2.
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite (! hcomp_identity_left _ _ _ _).
+      exact (pr21 Hyp2 v w f).
+    }
+    etrans.
+    2: {
+      rewrite vassocl.
+      apply maponpaths.
+      rewrite rwhisker_vcomp.
+      apply maponpaths.
+      rewrite (! hcomp_identity_right _ _ _ _).
+      exact (pr21 Hyp1 v w f).
+    }
+
+    cbn.
+    rewrite (hcomp_identity_right _ _ _ _).
+    rewrite (hcomp_identity_left _ _ _ _).
+    rewrite (! lwhisker_vcomp _ _ _).
+
+    do 3 rewrite vassocl.
+    apply maponpaths.
+    rewrite vassocr.
+    etrans.
+    2: {
+      rewrite (! rwhisker_vcomp _ _ _).
+      rewrite vassocr.
+      apply idpath.
+    }
+    apply maponpaths_2.
+    apply rwhisker_lwhisker.
+  Qed.
 
   Definition disp_actionbicat_disp_comp_nat_trans {a0 a1 a2 : B}
     {g1 : B ⟦ a0, a1 ⟧}
@@ -385,6 +438,8 @@ Section FixMoncatAndBicat.
 
 
 
+
+
     Admitted.
 
   Definition disp_actionbicat_disp_id_comp : disp_cat_id_comp B disp_actionbicat_disp_ob_mor.
@@ -476,9 +531,98 @@ Section FixMoncatAndBicat.
       apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
       cbn.
       apply pathsinv0, lunitor_triangle.
+    - rewrite <- lwhisker_vcomp.
+      etrans.
+      {
+        repeat rewrite vassocl.
+        do 5 apply maponpaths.
+        apply runitor_triangle.
+      }
 
+      etrans. {
+        do 2 apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply rinvunitor_triangle.
+      }
+      rewrite vcomp_runitor.
+      etrans. {
+        do 2 apply maponpaths.
+        rewrite vassocr.
+        rewrite rinvunitor_runitor.
+        apply id2_left.
+      }
+      rewrite vassocr.
+      apply maponpaths_2.
+      apply lunitor_lwhisker.
+    - etrans.
+      2: {
+        do 3 apply maponpaths.
+        apply maponpaths_2.
+        rewrite <- rwhisker_vcomp.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! lunitor_triangle _ _ _ _ _ _).
+      }
+      etrans.
+      2: {
+        do 2 apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! vcomp_lunitor _ _ _).
+      }
 
-      (* 8 proofs missing *)
+      rewrite vassocr.
+      rewrite <- linvunitor_assoc.
+      rewrite !vassocr.
+      rewrite linvunitor_lunitor.
+      rewrite id2_left.
+      rewrite vassocl.
+      apply maponpaths.
+      rewrite (! hcomp_identity_right _ _ _ _).
+      rewrite (! hcomp_identity_left _ _ _ _).
+      apply triangle_r_inv.
+    -
+      rewrite <- lwhisker_vcomp.
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! lunitor_lwhisker _ _).
+      }
+      Search (lassociator _ _ (id₁ _)).
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite vassocl.
+        apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! rinvunitor_triangle  _ _ _ _ _ _).
+      }
+      rewrite vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      rewrite left_unit_inv_assoc.
+      rewrite vassocr.
+      apply maponpaths_2.
+      rewrite rinvunitor_natural.
+      apply maponpaths.
+      apply hcomp_identity_right.
+    - admit.
+    - admit.
+    - admit.
+    - admit.
+    - admit.
 
   (* probably not useful:
       induction x as [FA FAm].
