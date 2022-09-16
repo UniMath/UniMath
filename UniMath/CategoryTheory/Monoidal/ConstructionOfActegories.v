@@ -114,7 +114,15 @@ Proof.
   split; [| split; [| split]]. (* splits into the 4 main goals *)
   - repeat split.
     + intros x y f. cbn. unfold lifted_action_unitor_data.
-      admit.
+      etrans.
+      2: {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (actegory_unitornat Mon_V Act x y f).
+      }
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      apply (! bifunctor_equalwhiskers Act _ _ _ _  (pr1 (fmonoidal_preservesunitstrongly U)) f).
     + cbn. unfold lifted_action_unitor_data.
       unfold lifted_action_unitorinv_data.
       etrans. {
@@ -149,9 +157,33 @@ Proof.
     + intros v w z z' h.
       cbn.
       unfold lifted_actor_data.
-      admit.
-    + admit.
-    + admit.
+      rewrite assoc'.
+      rewrite (actegory_actornatleft Mon_V Act (F v) (F w) z z' h).
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      apply bifunctor_equalwhiskers.
+    + intros v v' w z f.
+      cbn.
+      unfold lifted_actor_data.
+      rewrite assoc'.
+      rewrite (actegory_actornatright Mon_V Act).
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      do 2 rewrite (! bifunctor_rightcomp Act _ _ _ _ _ _).
+      apply maponpaths.
+      apply preserves_tensorinv_nat_right.
+      exact (fmonoidal_preservestensornatright U).
+    + intros v w w' z g.
+      cbn.
+      unfold lifted_actor_data.
+      rewrite assoc'.
+      rewrite (actegory_actornatleftright Mon_V Act).
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      do 2 rewrite (! bifunctor_rightcomp Act _ _ _ _ _ _).
+      apply maponpaths.
+      apply preserves_tensorinv_nat_left.
+      exact (fmonoidal_preservestensornatleft U).
     + cbn.
       unfold lifted_actor_data.
       unfold lifted_actorinv_data.
@@ -255,10 +287,7 @@ Proof.
     apply maponpaths.
     set (pα := fmonoidal_preservesassociativity U).
     apply (! preserves_associativity_of_inverse_preserves_tensor pα _ _ _ _).
-
-      (* TODO: a lot of work (approx. 200loc) was needed in [UniMath.Bicategories.MonoidalCategories.ConstructionOfActions] *)
-
-Admitted.
+Qed.
 
 Definition lifted_actegory: actegory Mon_W C := lifted_actegory_data,,lifted_actegory_laws.
 

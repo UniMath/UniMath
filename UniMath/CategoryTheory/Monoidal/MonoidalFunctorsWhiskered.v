@@ -263,7 +263,24 @@ Section MonoidalFunctors.
     apply (! id_right _).
   Qed.
 
-
+  Definition preserves_tensorinv_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_left pt)
+    : ∏ (x1 x2 y : C) (f : C⟦x1,x2⟧),
+      (pr1 (pts y x1)) · F y ⊗^{ N}_{l} # F f = # F (y ⊗^{ M}_{l} f) · (pr1 (pts y x2)).
+  Proof.
+    intros x1 x2 y f.
+    set (ptiso := pt y x1 ,, pts y x1 : z_iso _ _).
+    apply (z_iso_inv_on_right _ _ _ ptiso).
+    rewrite assoc.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply ptrn.
+    }
+    rewrite assoc'.
+    rewrite (pr12 (pts y x2)).
+    apply (! id_right _).
+  Qed.
 
   Definition preserves_unit_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU
     := is_z_isomorphism pu.
