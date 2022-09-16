@@ -102,323 +102,208 @@ Section TheDefinitions.
     apply pathsinv0, functor_id.
   Qed.
 
-  (*
-  Definition lineator_preservesleftunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : lineator_lax M N F) :
-    preserves_leftunitality (lineator_preservestensordata fm) (lineator_preservesunit fm) := pr12 (pr222 fm).
+  Definition lineator_preservesunitor (ll : lineator_lax) : preserves_unitor ll := pr2 (pr222 ll).
 
-  Lemma lineator_preservesleftunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : lineator_lax M N F) :
-    preserves_leftunitalityinv (lineator_preservestensordata fm) (lineator_preservesunit fm).
+  Lemma lineator_preservesunitorinv (ll : lineator_lax) : preserves_unitorinv ll.
   Proof.
     intro x.
-    rewrite assoc'.
-    apply (z_iso_inv_on_right _ _ _ (_,,_,, monoidal_leftunitorisolaw N (F x))).
+    apply (z_iso_inv_on_right _ _ _ (_,,_,, actegory_unitorisolaw Mon_V ActD (F x))).
     cbn.
-    rewrite <- (lineator_preservesleftunitality fm).
+    rewrite <- (lineator_preservesunitor ll).
     repeat rewrite assoc'.
+    etrans.
+    { apply pathsinv0, id_right. }
     apply maponpaths.
     etrans.
-    2: { apply maponpaths.
-         apply functor_comp. }
-    etrans.
-    2: { do 2 apply maponpaths.
-         apply pathsinv0, (pr1(monoidal_leftunitorisolaw M x)). }
-    rewrite functor_id.
-    apply pathsinv0, id_right.
+    2: { rewrite <- functor_comp.
+         apply maponpaths.
+         apply pathsinv0, (actegory_unitorisolaw Mon_V ActC x). }
+    apply pathsinv0, functor_id.
   Qed.
 
-  Definition lineator_preservesrightunitality {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : lineator_lax M N F) :
-    preserves_rightunitality (lineator_preservestensordata fm) (lineator_preservesunit fm) := pr22 (pr222 fm).
+  Definition lineator_strongly (ld : lineator_data) : UU
+    := ∏ (v : V) (x : C), is_z_isomorphism (ld v x).
 
-  Lemma lineator_preservesrightunitalityinv {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (fm : lineator_lax M N F) :
-    preserves_rightunitalityinv (lineator_preservestensordata fm) (lineator_preservesunit fm).
+  Definition pointwise_z_iso_from_lineator_strongly {ld : lineator_data}
+    (pas : lineator_strongly ld) (v : V) (x : C) :
+    z_iso (v ⊗_{ActD} F x) (F (v ⊗_{ActC} x)) := ld v x ,, pas v x.
+
+  Lemma preserves_actor_of_inverse_lineator_strongly
+        {ld : lineator_data}
+        (pα : preserves_actor ld)
+        (ls : lineator_strongly ld) (v w : V) (x : C) :
+    (is_z_isomorphism_mor (ls (v ⊗_{Mon_V} w) x))
+       · aα^{ActD}_{v, w, F x} =
+    (#F (aα^{ActC}_{v,w,x}))
+      · (is_z_isomorphism_mor (ls v (w ⊗_{ActC} x)))
+      · (v ⊗^{ActD}_{l} (is_z_isomorphism_mor (ls w x))).
   Proof.
-    intro x.
-    rewrite assoc'.
-    apply (z_iso_inv_on_right _ _ _ (_,,_,, monoidal_rightunitorisolaw N (F x))).
-    cbn.
-    rewrite <- (lineator_preservesrightunitality fm).
-    repeat rewrite assoc'.
-    apply maponpaths.
-    etrans.
-    2: { apply maponpaths.
-         apply functor_comp. }
-    etrans.
-    2: { do 2 apply maponpaths.
-         apply pathsinv0, (pr1(monoidal_rightunitorisolaw M x)). }
-    rewrite functor_id.
-    apply pathsinv0, id_right.
-  Qed.
-
-  Definition preserves_tensor_strongly
-             {C D : category} {M : monoidal C} {N : monoidal D}
-             {F : functor C D} (pt : preserves_tensordata M N F) : UU
-    := ∏ (x y : C), is_z_isomorphism (pt x y).
-
-  Definition pointwise_z_iso_from_preserves_tensor_strongly
-             {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (x y : C) :
-    z_iso (F x ⊗_{ N} F y) (F (x ⊗_{ M} y)) := pt x y ,, pts x y.
-
-  Lemma preserves_actor_of_inverse_preserves_tensor
-        {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-        {pt : preserves_tensordata M N F}
-        (ptα : preserves_actor pt)
-        (pts : preserves_tensor_strongly pt) (x y z : C) :
-    (is_z_isomorphism_mor (pts (x ⊗_{M} y) z))
-      · ((is_z_isomorphism_mor (pts x y)) ⊗^{N}_{r} (F z))
-      · α^{N}_{F x, F y, F z} =
-    (#F (α^{M}_{x,y,z}))
-      · (is_z_isomorphism_mor (pts x (y ⊗_{M} z)))
-      · ((F x) ⊗^{N}_{l} (is_z_isomorphism_mor (pts y z))).
-  Proof.
-    set (ptsx_yz := pointwise_z_iso_from_preserves_tensor_strongly pts x (y ⊗_{M} z)).
-    set (ptsxy_z := pointwise_z_iso_from_preserves_tensor_strongly pts (x ⊗_{M} y) z).
-    set (ptsfx := functor_on_z_iso
-          (leftwhiskering_functor N (bifunctor_leftid N) (bifunctor_leftcomp N) (F x))
-          (pointwise_z_iso_from_preserves_tensor_strongly pts y z)).
-    set (ptsfz := functor_on_z_iso
-          (rightwhiskering_functor N (bifunctor_rightid N) (bifunctor_rightcomp N) (F z))
-          (pointwise_z_iso_from_preserves_tensor_strongly pts x y)).
-
-    apply (z_iso_inv_on_left _ _ _ _ ptsfx).
+    set (lsv_wx := pointwise_z_iso_from_lineator_strongly ls v (w ⊗_{ActC} x)).
+    set (lsvw_x := pointwise_z_iso_from_lineator_strongly ls (v ⊗_{Mon_V} w) x).
+    set (lsfv := functor_on_z_iso
+          (leftwhiskering_functor ActD (bifunctor_leftid ActD) (bifunctor_leftcomp ActD) v)
+          (pointwise_z_iso_from_lineator_strongly ls w x)).
+    apply (z_iso_inv_on_left _ _ _ _ lsfv).
     apply pathsinv0.
-    apply (z_iso_inv_on_left _ _ _ _ ptsx_yz).
+    apply (z_iso_inv_on_left _ _ _ _ lsv_wx).
     rewrite assoc'.
     rewrite assoc'.
     etrans.
     2: {
       apply maponpaths.
       rewrite assoc.
-      exact (ptα x y z).
+      exact (pα v w x).
     }
     etrans.
     2: {
-      rewrite assoc'.
-      apply maponpaths.
       rewrite assoc.
       apply maponpaths_2.
-      rewrite assoc.
-      apply maponpaths_2.
-      exact (! pr222 ptsfz).
-    }
-    rewrite id_left.
-    etrans.
-    2: {
-      rewrite assoc.
-      apply maponpaths_2.
-      exact (! pr222 ptsxy_z).
+      exact (! pr222 lsvw_x).
     }
     apply (! id_left _).
   Qed.
 
-  Lemma preserves_tensorinv_nat_right {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_right pt)
-    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
-       (is_z_isomorphism_mor (pts x1 y)) · # F f ⊗^{ N}_{r} F y = # F (f ⊗^{ M}_{r} y) · (is_z_isomorphism_mor (pts x2 y)).
+  Lemma lineatorinv_nat_right {ld : lineator_data} (ls : lineator_strongly ld) (lrn : lineator_nat_right ld)
+    (v1 v2 : V) (x : C) (f : V⟦v1,v2⟧) :
+    (is_z_isomorphism_mor (ls v1 x)) · f ⊗^{ActD}_{r} F x =  #F (f ⊗^{ActC}_{r} x) · (is_z_isomorphism_mor (ls v2 x)).
   Proof.
-    set (ptiso := pt x1 y ,, pts x1 y : z_iso _ _).
-    apply (z_iso_inv_on_right _ _ _ ptiso).
+    set (ldiso := ld v1 x ,, ls v1 x : z_iso _ _).
+    apply (z_iso_inv_on_right _ _ _ ldiso).
     rewrite assoc.
     etrans.
     2: {
       apply maponpaths_2.
-      apply ptrn.
+      apply lrn.
     }
     rewrite assoc'.
     unfold is_z_isomorphism_mor.
-    rewrite (pr12 (pts x2 y)).
+    rewrite (pr12 (ls v2 x)).
     apply (! id_right _).
   Qed.
 
-  Lemma preserves_tensorinv_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_left pt)
-    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
-      (is_z_isomorphism_mor (pts y x1)) · F y ⊗^{ N}_{l} # F f = # F (y ⊗^{ M}_{l} f) · (is_z_isomorphism_mor (pts y x2)).
+  Lemma lineatorinv_nat_left {ld : lineator_data} (ls : lineator_strongly ld) (lln : lineator_nat_left ld)
+    (v : V) (x1 x2 : C) (f : C⟦x1,x2⟧) :
+      (is_z_isomorphism_mor (ls v x1)) · v ⊗^{ActD}_{l} # F f = # F (v ⊗^{ActC}_{l} f) · (is_z_isomorphism_mor (ls v x2)).
   Proof.
-    set (ptiso := pt y x1 ,, pts y x1 : z_iso _ _).
-    apply (z_iso_inv_on_right _ _ _ ptiso).
+    set (ldiso := ld v x1 ,, ls v x1 : z_iso _ _).
+    apply (z_iso_inv_on_right _ _ _ ldiso).
     rewrite assoc.
     etrans.
     2: {
       apply maponpaths_2.
-      apply ptrn.
+      apply lln.
     }
     rewrite assoc'.
     unfold is_z_isomorphism_mor.
-    rewrite (pr12 (pts y x2)).
+    rewrite (pr12 (ls v x2)).
     apply (! id_right _).
   Qed.
 
-  Definition preserves_unit_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU
-    := is_z_isomorphism pu.
+  Definition lineator : UU := ∑ (ll : lineator_lax), lineator_strongly ll.
 
-  Definition lineator_stronglaws {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-    (pt : preserves_tensordata M N F) (pu : preserves_unit M N F) : UU
-    := preserves_tensor_strongly pt × preserves_unit_strongly pu.
-
-  Definition lineator {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D)  : UU :=
-    ∑ (Fm : lineator_lax M N F),
-      lineator_stronglaws (lineator_preservestensordata Fm) (lineator_preservesunit Fm).
-
-  Definition lineator_lineatorlax {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (Fm : lineator M N F) :
-    lineator_lax M N F := pr1 Fm.
+  Definition lineator_lineatorlax (lin : lineator) : lineator_lax := pr1 lin.
   Coercion lineator_lineatorlax : lineator >-> lineator_lax.
 
-  Definition lineator_preservestensorstrongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (Fm : lineator M N F) :
-    preserves_tensor_strongly (lineator_preservestensordata Fm) := pr12 Fm.
-
-  Definition lineator_preservesunitstrongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (Fm : lineator M N F) :
-    preserves_unit_strongly (lineator_preservesunit Fm) := pr22 Fm.
-
+  Definition lineator_linstrongly (lin : lineator) : lineator_strongly lin := pr2 lin.
 
   (** We now show that everything behaves as expected **)
-  Definition functor_imageoftensor {C D : category} (M : monoidal C) (F : functor C D) : bifunctor C C D
-    := compose_bifunctor_with_functor M F.
+  Definition functor_imageofaction : bifunctor V C D
+    := compose_bifunctor_with_functor ActC F.
 
-  Definition functor_tensorofimages {C D : category} (F : functor C D) (N : monoidal D) : bifunctor C C D
-    := compose_functor_with_bifunctor F F N.
+  Definition functor_actionofrightimage : bifunctor V C D
+    := compose_functor_with_bifunctor (functor_identity _) F ActD.
 
-  Definition preserves_tensor_is_nattrans_type {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU
-    := binat_trans (functor_tensorofimages F N) (functor_imageoftensor M F).
+  Definition lineator_is_nattrans_type : UU
+    := binat_trans functor_actionofrightimage functor_imageofaction.
 
   (* I really don't know how to call the following lemma *)
-  Definition preservestensor_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F}
-    (ptnl : preserves_tensor_nat_left pt) (ptnr : preserves_tensor_nat_right pt) : preserves_tensor_is_nattrans_type M N F.
+  Definition lineator_is_nattrans {ld : lineator_data}
+    (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld) : lineator_is_nattrans_type.
   Proof.
     use make_binat_trans.
     - use make_binat_trans_data.
-      intros x y.
-      apply pt.
+      intros v x.
+      apply ld.
     - use tpair.
-      + intros x y1 y2 g.
-        apply ptnl.
-      + intros x1 x2 y f.
-        apply ptnr.
+      + intros v x1 x2 g.
+        apply lnl.
+      + intros v1 v2 x f.
+        apply lnr.
   Defined.
 
-  Lemma preservestensor_is_nattrans_full {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F}
-    (ptnl : preserves_tensor_nat_left pt) (ptnr : preserves_tensor_nat_right pt) :
- ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
-      # F f ⊗^{ N} # F g · pt x2 y2 = pt x1 y1 · # F (f ⊗^{ M} g).
+  Lemma lineator_is_nattrans_full {ld : lineator_data}
+    (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld) :
+    ∏ (v1 v2 : V) (x1 x2 : C) (f : V⟦v1,v2⟧) (g : C⟦x1,x2⟧),
+      f ⊗^{ActD} # F g · ld v2 x2 = ld v1 x1 · # F (f ⊗^{ActC} g).
   Proof.
     intros.
     etrans.
     { unfold functoronmorphisms1.
       rewrite assoc'.
-      rewrite ptnl.
+      rewrite lnl.
       apply assoc. }
-    rewrite ptnr.
+    rewrite lnr.
     rewrite assoc'.
     apply maponpaths.
     apply pathsinv0, functor_comp.
   Qed.
 
-  Definition preserves_tensor_inv_is_nattrans_type {C D : category} (M : monoidal C) (N : monoidal D) (F : functor C D) : UU
-    := binat_trans (functor_imageoftensor M F) (functor_tensorofimages F N).
+  Definition lineator_inv_is_nattrans_type : UU
+    := binat_trans functor_imageofaction functor_actionofrightimage.
 
-  (* name follows [preservestensor_is_nattrans], for lack of a better proposition *)
-  Definition preservestensor_inv_is_nattrans {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-             {pt : preserves_tensordata M N F}
-             (ptnl : preserves_tensor_nat_left pt)
-             (ptnr : preserves_tensor_nat_right pt)
-             (ptstr: preserves_tensor_strongly pt)
-    : preserves_tensor_inv_is_nattrans_type M N F
-    := inv_binattrans_from_binatiso(α:=preservestensor_is_nattrans ptnl ptnr) ptstr.
+  (* name follows [lineator_is_nattrans], for lack of a better proposition *)
+  Definition lineator_inv_is_nattrans
+    {ld : lineator_data}
+    (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld) (ls : lineator_strongly ld)
+    : lineator_inv_is_nattrans_type
+    := inv_binattrans_from_binatiso(α:=lineator_is_nattrans lnl lnr) ls.
 
+  (* Strictly linear functors *)
+  Definition lineator_strictly (ld : lineator_data) : UU
+    := ∏ (v : V) (x : C), ∑ (pf : v ⊗_{ActD} (F x) = F (v ⊗_{ActC} x)), ld v x = transportf _ pf (identity (v ⊗_{ActD} (F x))).
 
-  Definition preserves_leftunitality' {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-    {pt : preserves_tensordata M N F} {pu : preserves_unit M N F} (plu : preserves_leftunitality pt pu) :
-    ∏ (x : C), (pu ⊗^{N} (identity (F x))) · (pt I_{M} x) · (#F (lu^{M}_{x})) = lu^{N}_{F x}.
+  Lemma lineator_strictly_is_strongly  {ld : lineator_data} (lst : lineator_strictly ld) : lineator_strongly ld.
   Proof.
-    intro x.
-    unfold functoronmorphisms1.
-    rewrite bifunctor_leftid.
-    rewrite id_right.
-    apply plu.
+    intros v x.
+    use (iso_stable_under_equalitytransportf (pr2 (lst v x)) (is_z_isomorphism_identity (v ⊗_{ActD} F x))).
   Qed.
 
-  Definition preserves_rightunitality' {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-    {pt : preserves_tensordata M N F} {pu : preserves_unit M N F} (pru : preserves_rightunitality pt pu) :
-    ∏ (x : C), ((identity (F x)) ⊗^{N} pu) · (pt x I_{M}) · (#F (ru^{M}_{x})) = ru^{N}_{F x}.
-  Proof.
-    intro x.
-    unfold functoronmorphisms1.
-    rewrite bifunctor_rightid.
-    rewrite id_left.
-    apply pru.
-  Qed.
-
-
-
-  (* Strictly preserving monoidal functors *)
-  Definition preserves_tensor_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU
-    := ∏ (x y : C), ∑ (pf : (F x) ⊗_{N} (F y) = F (x ⊗_{M} y)), pt x y = transportf _ pf (identity ((F x) ⊗_{N} (F y))).
-
-  Lemma strictlytensorpreserving_is_strong {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F}
-    (pst : preserves_tensor_strictly pt) : preserves_tensor_strongly pt.
-  Proof.
-    intros x y.
-    use (iso_stable_under_equalitytransportf (pr2 (pst x y)) (is_z_isomorphism_identity (F x ⊗_{N} F y))).
-  Qed.
-
-
-
-  Definition preserves_unit_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU
-    := ∑ (pf : I_{N} = (F I_{M})), pu = transportf _ pf (identity I_{N}).
-
-  Definition strictlyunitpreserving_is_strong {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pu : preserves_unit M N F}
-    (pus : preserves_unit_strictly pu) : preserves_unit_strongly pu.
-  Proof.
-    use (iso_stable_under_equalitytransportf (pr2 pus) (is_z_isomorphism_identity I_{N})).
-  Defined.
-*)
 End TheDefinitions.
-(*
 
-(** towards a bicategory of monoidal categories *)
-  Definition identity_lineator_data {C : category} (M : monoidal C) :
-    lineator_data M M (functor_identity C).
+(** towards a bicategory of actegories *)
+  Definition identity_lineator_data {C : category} (Act : actegory Mon_V C) :
+    lineator_data Act Act (functor_identity C).
   Proof.
-    split.
-    - intros x y. apply identity.
-    - apply identity.
+    - intros v x. apply identity.
   Defined.
 
-  Lemma identity_lineator_laxlaws {C : category} (M : monoidal C) :
-    lineator_laxlaws (identity_lineator_data M).
+  Lemma identity_lineator_laxlaws {C : category} (Act : actegory Mon_V C) :
+    lineator_laxlaws _ _ _ (identity_lineator_data Act).
   Proof.
-    repeat split; red; unfold lineator_preservesunit, lineator_preservestensordata; cbn; intros.
+    repeat split; red; unfold identity_lineator_data; cbn; intros.
     - rewrite id_left. apply id_right.
     - rewrite id_left. apply id_right.
-    - do 2 rewrite id_right.
-      rewrite bifunctor_rightid.
+    - rewrite id_right.
       rewrite bifunctor_leftid.
       rewrite id_right.
       apply id_left.
-    -  rewrite id_right.
-       rewrite bifunctor_rightid.
-       apply id_left.
-    - rewrite id_right.
-       rewrite bifunctor_leftid.
-       apply id_left.
+    - apply id_left.
   Qed.
 
-  Definition identity_lineator_lax {C : category} (M : monoidal C) :
-    lineator_lax M M (functor_identity C)
-    := identity_lineator_data M ,, identity_lineator_laxlaws M.
+  Definition identity_lineator_lax {C : category} (Act : actegory Mon_V C) :
+    lineator_lax Act Act (functor_identity C)
+    := identity_lineator_data Act ,, identity_lineator_laxlaws Act.
 
-  Definition identity_lineator_stronglaws {C : category} (M : monoidal C) :
-    lineator_stronglaws (lineator_preservestensordata (identity_lineator_lax M))
-      (lineator_preservesunit (identity_lineator_lax M)).
+  Definition identity_lineator_strongly {C : category} (Act : actegory Mon_V C) :
+    lineator_strongly _ _ _ (identity_lineator_lax Act).
   Proof.
-    split.
-    - intros x y. apply is_z_isomorphism_identity.
-    - apply is_z_isomorphism_identity.
+    - intros v x. apply is_z_isomorphism_identity.
   Defined.
 
-  Definition identity_lineator {C : category} (M : monoidal C) : lineator M M (functor_identity C)
-    := identity_lineator_lax M ,, identity_lineator_stronglaws M.
+  Definition identity_lineator {C : category} {C : category} (Act : actegory Mon_V C) : lineator Act Act (functor_identity C)
+    := identity_lineator_lax Act ,, identity_lineator_strongly Act.
 
+  (*
   Definition comp_lineator_data {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
     {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator_lax M N F) (Gm : lineator_lax N O G) :
     lineator_data M O (F ∙ G).
@@ -477,8 +362,8 @@ End TheDefinitions.
       repeat rewrite assoc.
       do 2 apply cancel_postcomposition.
       apply lineator_linnatright.
-    - assert (auxF := lineator_preservesleftunitality Fm x).
-      assert (auxG := lineator_preservesleftunitality Gm (F x)).
+    - assert (auxF := lineator_preservesunitor Fm x).
+      assert (auxG := lineator_preservesunitor Gm (F x)).
       unfold lineator_preservesunit, lineator_preservestensordata in auxF, auxG.
       etrans; [| exact auxG].
       clear auxG.
@@ -584,50 +469,35 @@ End TheDefinitions.
 *)
 End LinearFunctors.
 
-(*
-Section MonoidalNaturalTransformations.
+Section TransformationsOfActegories.
 
-  Context {C D : category} {M : monoidal C} {N : monoidal D}
-    {F G : functor C D} (Fm : lineator_lax M N F) (Gm : lineator_lax M N G)
-    (α : F ⟹ G).
+  Context {V : category} {Mon_V : monoidal V} {C D : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D}.
 
-  Definition is_mon_nat_trans : UU :=
-    (∏ (a a' : C), lineator_preservestensordata Fm a a' · α (a ⊗_{M} a') = α a ⊗^{N} α a' · lineator_preservestensordata Gm a a') × lineator_preservesunit Fm · α I_{M} = lineator_preservesunit Gm.
+  Definition is_linear_nat_trans {F G : functor C D}
+    (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)(ξ : F ⟹ G) : UU :=
+    ∏ (v : V) (x : C), lineator_lindata Mon_V ActC ActD F Fl v x · ξ (v ⊗_{ActC} x) =
+                         v ⊗^{ActD}_{l} ξ x · lineator_lindata Mon_V ActC ActD G Gl v x.
 
-  Lemma isaprop_is_mon_nat_trans : isaprop is_mon_nat_trans.
+  Lemma isaprop_is_linear_nat_trans {F G : functor C D}
+    (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)
+    (ξ : F ⟹ G) : isaprop (is_linear_nat_trans Fl Gl ξ).
   Proof.
-    apply isapropdirprod.
-    - apply impred; intro a; apply impred; intro a'.
-      apply D.
-    - apply D.
+    apply impred; intro v; apply impred; intro x. apply D.
   Qed.
 
-End MonoidalNaturalTransformations.
-
-Section InverseMonoidalNaturalTransformation.
-
-  Context {C D : category} {M : monoidal C} {N : monoidal D}
-    {F G : functor C D} (Fm : lineator_lax M N F) (Gm : lineator_lax M N G)
-    (α : F ⟹ G).
-
-  Lemma is_mon_nat_trans_pointwise_inverse (isnziα : is_nat_z_iso α) :
-    is_mon_nat_trans Fm Gm α -> is_mon_nat_trans Gm Fm (nat_z_iso_inv (α,,isnziα)).
+  Lemma is_mon_nat_trans_pointwise_inverse {F G : functor C D}
+    (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)
+    (ξ : F ⟹ G) (isnziξ : is_nat_z_iso ξ) :
+    is_linear_nat_trans Fl Gl ξ -> is_linear_nat_trans Gl Fl (nat_z_iso_inv (ξ,,isnziξ)).
   Proof.
-    intro ismnt. split.
-    - intros x y.
-      cbn.
-      unfold lineator_preservestensordata.
-      set (aux := (_,, is_z_iso_bifunctor_z_iso (monoidal_tensor N) _ _ (isnziα x) (isnziα y)) : z_iso _ _).
-      apply pathsinv0, (z_iso_inv_on_right _ _ _ aux).
-      rewrite assoc.
-      apply (z_iso_inv_on_left _ _ _ _ (_,,isnziα (x ⊗_{ M} y))).
-      cbn.
-      apply (!(pr1 ismnt x y)).
-    - cbn.
-      apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (_,,isnziα I_{M})).
-      apply (!(pr2 ismnt)).
+    intros islnt v x.
+    cbn.
+    set (aux := (_,,is_z_iso_leftwhiskering_z_iso (actegory_action Mon_V ActD) v (ξ x) (isnziξ x)  : z_iso _ _)).
+    apply pathsinv0, (z_iso_inv_on_right _ _ _ aux).
+    rewrite assoc.
+    apply (z_iso_inv_on_left _ _ _ _ (_,,isnziξ (v ⊗_{ActC} x))).
+    cbn.
+    apply (!(islnt v x)).
   Qed.
 
-
-End InverseMonoidalNaturalTransformation.
-*)
+End TransformationsOfActegories.
