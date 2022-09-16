@@ -669,7 +669,7 @@ Section UnitorsCoincide.
     apply lemma2'.
   Qed.
 
-  Local Lemma unitors_blabla' (x y : C) :
+  Local Lemma right_whisker_with_lunitor' (x y : C) :
     I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
       I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
   Proof.
@@ -706,14 +706,14 @@ Section UnitorsCoincide.
     apply monoidal_triangleidentity.
   Qed.
 
-  Local Lemma unitors_blabla (x y : C) :
+  Lemma right_whisker_with_lunitor (x y : C) :
     lu_{M} x ⊗^{M}_{r} y = α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y).
   Proof.
     apply pathsinv0.
     use faithful_reflects_commutative_triangle.
     3: { apply leftwhiskering_faithful. }
     apply pathsinv0.
-    refine (unitors_blabla' _ _ @ _).
+    refine (right_whisker_with_lunitor' _ _ @ _).
     apply bifunctor_leftcomp.
   Qed.
 
@@ -740,7 +740,7 @@ Section UnitorsCoincide.
   Lemma unitors_coincide_on_unit'
     : lu_{M} I_{M} ⊗^{M}_{r} I_{M} = ru_{M} I_{M} ⊗^{M}_{r} I_{M}.
   Proof.
-    refine (unitors_blabla I_{M} I_{M} @ _).
+    refine (right_whisker_with_lunitor I_{M} I_{M} @ _).
     refine (_ @ monoidal_triangleidentity M I_{M} I_{M}).
     apply maponpaths.
     apply lunitor_preserves_leftwhiskering_with_unit.
