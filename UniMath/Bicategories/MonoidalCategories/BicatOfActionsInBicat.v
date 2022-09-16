@@ -584,15 +584,45 @@ Section FixMoncatAndBicat.
       rewrite (! hcomp_identity_right _ _ _ _).
       rewrite (! hcomp_identity_left _ _ _ _).
       apply triangle_r_inv.
-    - (* 6 goals left *)
-      admit.
-
-
-
-
-
-
-      (* 8 proofs missing *)
+    -
+      rewrite <- lwhisker_vcomp.
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! lunitor_lwhisker _ _).
+      }
+      Search (lassociator _ _ (id₁ _)).
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite vassocl.
+        apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply (! rinvunitor_triangle  _ _ _ _ _ _).
+      }
+      rewrite vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      rewrite left_unit_inv_assoc.
+      rewrite vassocr.
+      apply maponpaths_2.
+      rewrite rinvunitor_natural.
+      apply maponpaths.
+      apply hcomp_identity_right.
+    - admit.
+    - admit.
+    - admit.
+    - admit.
+    - admit.
 
   (* probably not useful:
       induction x as [FA FAm].
