@@ -6,7 +6,7 @@
 Reconstructs the results from [UniMath.Bicategories.MonoidalCategories.ConstructionOfActions]
 in the whiskered setting.
 
-author: Ralph Matthes 2022
+authors: Ralph Matthes, Kobe Wullaert 2022
  *)
 
 
