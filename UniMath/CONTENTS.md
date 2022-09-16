@@ -345,6 +345,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Actegories.v](CategoryTheory/Monoidal/Actegories.v)
    - [Monoidal/CartesianMonoidalCategoriesWhiskered.v](CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.v)
    - [Monoidal/MonoidalFunctorsWhiskered.v](CategoryTheory/Monoidal/MonoidalFunctorsWhiskered.v)
+   - [Monoidal/MorphismsOfActegories.v](CategoryTheory/Monoidal/MorphismsOfActegories.v)
    - [Monoidal/ConstructionOfActegories.v](CategoryTheory/Monoidal/ConstructionOfActegories.v)
    - [Monoidal/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/WhiskeredDisplayedBifunctors.v)
    - [Monoidal/DisplayedMonoidalWhiskered.v](CategoryTheory/Monoidal/DisplayedMonoidalWhiskered.v)

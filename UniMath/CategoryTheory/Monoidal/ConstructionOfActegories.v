@@ -78,25 +78,25 @@ Definition lifted_action: action(V:=W) C := lifted_action_data,,lifted_action_da
 Definition lifted_action_unitor_data : action_unitor_data Mon_W lifted_action.
 Proof.
   intro x.
-  exact (pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Act}_{r} x · au^{Mon_V,Act}_{x}).
+  exact (pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Act}_{r} x · au^{Act}_{x}).
 Defined.
 
 Definition lifted_action_unitorinv_data : action_unitorinv_data Mon_W lifted_action.
 Proof.
   intro x.
-  exact (auinv^{Mon_V,Act}_{x} · fmonoidal_preservesunit U ⊗^{Act}_{r} x).
+  exact (auinv^{Act}_{x} · fmonoidal_preservesunit U ⊗^{Act}_{r} x).
 Defined.
 
 Definition lifted_actor_data : actor_data Mon_W lifted_action.
 Proof.
   intros v w x.
-  exact (pr1 (fmonoidal_preservestensorstrongly U v w) ⊗^{Act}_{r} x · aα^{Mon_V,Act}_{F v,F w,x}).
+  exact (pr1 (fmonoidal_preservestensorstrongly U v w) ⊗^{Act}_{r} x · aα^{Act}_{F v,F w,x}).
 Defined.
 
 Definition lifted_actorinv_data : actorinv_data Mon_W lifted_action.
 Proof.
   intros v w x.
-  exact (aαinv^{Mon_V,Act}_{F v,F w,x} · fmonoidal_preservestensordata U v w ⊗^{Act}_{r} x).
+  exact (aαinv^{Act}_{F v,F w,x} · fmonoidal_preservestensordata U v w ⊗^{Act}_{r} x).
 Defined.
 
 Definition lifted_actegory_data: actegory_data Mon_W C.
