@@ -200,7 +200,6 @@ Proof.
     rewrite (actegory_triangleidentity Mon_V Act (F v) y).
     do 2 rewrite (! bifunctor_rightcomp _ _ _ _ _ _ _).
     apply maponpaths.
-
     rewrite (! fmonoidal_preservesrightunitality U v).
     etrans. {
       apply maponpaths.
@@ -220,9 +219,27 @@ Proof.
   - intros w v v' z.
     cbn.
     unfold lifted_actor_data.
+
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      exact (! actegory_actornatright Mon_V Act _ _ _ _ _).
+    }
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc'.
+      apply maponpaths.
+      exact (actegory_pentagonidentity Mon_V Act (F w) (F v) (F v') z).
+    }
+
     rewrite bifunctor_leftcomp.
     rewrite assoc'.
-
     etrans. {
       apply maponpaths.
       rewrite assoc.
@@ -231,19 +248,13 @@ Proof.
       apply maponpaths.
       apply (actegory_actornatleftright Mon_V Act).
     }
-    admit.
 
-    Check (actegory_pentagonidentity Mon_V Act (F w) (F v) (F v') z).
-
-    etrans. {
-      apply maponpaths.
-      rewrite bifunctor_leftcomp.
-
-
-
-    admit.
-
-
+    repeat (rewrite assoc).
+    do 2 apply maponpaths_2.
+    repeat (rewrite (! bifunctor_rightcomp Act _ _ _ _ _ _)).
+    apply maponpaths.
+    set (pα := fmonoidal_preservesassociativity U).
+    apply (! preserves_associativity_of_inverse_preserves_tensor pα _ _ _ _).
 
       (* TODO: a lot of work (approx. 200loc) was needed in [UniMath.Bicategories.MonoidalCategories.ConstructionOfActions] *)
 
