@@ -4,7 +4,7 @@
     The strength notion for the morphisms between actions is taken from
     B. Ahrens, R. Matthes and A. Mörtberg: Implementing a category-theoretic framework for typed abstract syntax, Proceedings CPP'22.
 
-Authors: Ralph Matthes 2022
+Authors: Ralph Matthes and Kobe Wullaert 2022
  *)
 
 
@@ -584,8 +584,7 @@ Section FixMoncatAndBicat.
       rewrite (! hcomp_identity_right _ _ _ _).
       rewrite (! hcomp_identity_left _ _ _ _).
       apply triangle_r_inv.
-    -
-      rewrite <- lwhisker_vcomp.
+    - rewrite <- lwhisker_vcomp.
       etrans.
       2: {
         apply maponpaths.
@@ -595,7 +594,7 @@ Section FixMoncatAndBicat.
         apply maponpaths_2.
         apply (! lunitor_lwhisker _ _).
       }
-      Search (lassociator _ _ (id₁ _)).
+      (* Search (lassociator _ _ (id₁ _)). *)
       etrans.
       2: {
         apply maponpaths.
