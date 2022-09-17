@@ -270,6 +270,13 @@ Section TheDefinitions.
 
 End TheDefinitions.
 
+Arguments lineator_lindata {_ _ _ _ _} _ _ _.
+Arguments lineator_laxlaws {_ _ _ _ _} _.
+Arguments lineator_strongly {_ _ _ _ _} _.
+Arguments lineator_preservesactor {_ _ _ _ _} _ _ _ _.
+Arguments lineator_preservesunitor {_ _ _ _ _} _ _.
+Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
+
 (** towards a bicategory of actegories *)
   Definition identity_lineator_data {C : category} (Act : actegory Mon_V C) :
     lineator_data Act Act (functor_identity C).
@@ -278,7 +285,7 @@ End TheDefinitions.
   Defined.
 
   Lemma identity_lineator_laxlaws {C : category} (Act : actegory Mon_V C) :
-    lineator_laxlaws _ _ _ (identity_lineator_data Act).
+    lineator_laxlaws (identity_lineator_data Act).
   Proof.
     repeat split; red; unfold identity_lineator_data; cbn; intros.
     - rewrite id_left. apply id_right.
@@ -295,30 +302,27 @@ End TheDefinitions.
     := identity_lineator_data Act ,, identity_lineator_laxlaws Act.
 
   Definition identity_lineator_strongly {C : category} (Act : actegory Mon_V C) :
-    lineator_strongly _ _ _ (identity_lineator_lax Act).
+    lineator_strongly (identity_lineator_lax Act).
   Proof.
     - intros v x. apply is_z_isomorphism_identity.
   Defined.
 
-  Definition identity_lineator {C : category} {C : category} (Act : actegory Mon_V C) : lineator Act Act (functor_identity C)
+  Definition identity_lineator {C : category} (Act : actegory Mon_V C) : lineator Act Act (functor_identity C)
     := identity_lineator_lax Act ,, identity_lineator_strongly Act.
 
-  (*
-  Definition comp_lineator_data {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator_lax M N F) (Gm : lineator_lax N O G) :
-    lineator_data M O (F ∙ G).
+  Definition comp_lineator_data {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
+    lineator_data ActC ActE (F ∙ G).
   Proof.
-    split.
-    - intros x y.
-      exact (lineator_preservestensordata Gm (F x) (F y) · #G (lineator_preservestensordata Fm x y)).
-    - exact (lineator_preservesunit Gm · #G (lineator_preservesunit Fm)).
+    intros v x.
+    exact (lineator_lindata Gl v (F x) · #G (lineator_lindata Fl v x)).
   Defined.
 
-  Lemma comp_lineator_laxlaws {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator_lax M N F) (Gm : lineator_lax N O G) :
-    lineator_laxlaws (comp_lineator_data Fm Gm).
+  Lemma comp_lineator_laxlaws {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
+    lineator_laxlaws (comp_lineator_data Fl Gl).
   Proof.
-    repeat split; red; cbn; unfold lineator_preservesunit, lineator_preservestensordata; cbn; intros.
+    repeat split; red; cbn; unfold comp_lineator_data; cbn; intros.
     - etrans.
       2: { rewrite assoc'. apply maponpaths. apply functor_comp. }
       etrans.
@@ -335,12 +339,9 @@ End TheDefinitions.
       repeat rewrite assoc.
       apply cancel_postcomposition.
       apply lineator_linnatright.
-    - assert (auxF := lineator_preservesactor Fm x y z).
-      unfold lineator_preservestensordata in auxF.
-      assert (auxG := lineator_preservesactor Gm (F x) (F y) (F z)).
-      unfold lineator_preservestensordata in auxG.
+    - assert (auxF := lineator_preservesactor Fl v w x).
+      assert (auxG := lineator_preservesactor Gl v w (F x)).
       rewrite bifunctor_leftcomp.
-      rewrite bifunctor_rightcomp.
       etrans.
       2: { repeat rewrite assoc. apply cancel_postcomposition.
            repeat rewrite assoc'. do 2 apply maponpaths.
@@ -350,123 +351,61 @@ End TheDefinitions.
            repeat rewrite assoc. apply cancel_postcomposition.
            exact auxG. }
       repeat rewrite assoc'. apply maponpaths.
-      etrans.
-      2: { apply maponpaths.
-           rewrite <- functor_comp.
-           apply functor_comp. }
-      etrans.
-      2: { do 2 apply maponpaths.
-           rewrite assoc.
-           exact auxF. }
-      do 2 rewrite functor_comp.
-      repeat rewrite assoc.
-      do 2 apply cancel_postcomposition.
-      apply lineator_linnatright.
-    - assert (auxF := lineator_preservesunitor Fm x).
-      assert (auxG := lineator_preservesunitor Gm (F x)).
-      unfold lineator_preservesunit, lineator_preservestensordata in auxF, auxG.
+      repeat rewrite <- functor_comp.
+      apply maponpaths.
+      etrans; [ exact auxF |].
+      apply assoc'.
+    - assert (auxF := lineator_preservesunitor Fl x).
+      assert (auxG := lineator_preservesunitor Gl (F x)).
       etrans; [| exact auxG].
       clear auxG.
-      rewrite bifunctor_rightcomp.
       rewrite <- auxF.
       clear auxF.
-      do 2 rewrite functor_comp.
-      repeat rewrite assoc.
-      do 2 apply cancel_postcomposition.
       repeat rewrite assoc'.
       apply maponpaths.
-      apply lineator_linnatright.
-    - assert (auxF := lineator_preservesrightunitality Fm x).
-      assert (auxG := lineator_preservesrightunitality Gm (F x)).
-      unfold lineator_preservesunit, lineator_preservestensordata in auxF, auxG.
-      etrans; [| exact auxG].
-      clear auxG.
-      rewrite bifunctor_leftcomp.
-      rewrite <- auxF.
-      clear auxF.
-      do 2 rewrite functor_comp.
-      repeat rewrite assoc.
-      do 2 apply cancel_postcomposition.
-      repeat rewrite assoc'.
-      apply maponpaths.
-      apply lineator_linnatleft.
+      apply pathsinv0, functor_comp.
   Qed.
 
-  Definition comp_lineator_lax {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator_lax M N F) (Gm : lineator_lax N O G) :
-    lineator_lax M O (F ∙ G)
-    := comp_lineator_data Fm Gm ,, comp_lineator_laxlaws Fm Gm.
+  Definition comp_lineator_lax {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
+    lineator_lax ActC ActE (F ∙ G) := comp_lineator_data Fl Gl ,, comp_lineator_laxlaws Fl Gl.
 
-  Definition comp_lineator_stronglaws {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator M N F) (Gm : lineator N O G) :
-  lineator_stronglaws (lineator_preservestensordata (comp_lineator_lax Fm Gm))
-    (lineator_preservesunit (comp_lineator_lax Fm Gm)).
+  Definition comp_lineator_strongly {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator ActC ActD F) (Gl : lineator ActD ActE G) :
+    lineator_strongly (comp_lineator_lax Fl Gl).
   Proof.
-    split.
-    - intros x y.
-      use tpair.
-      + exact (#G (pr1 (lineator_preservestensorstrongly Fm x y)) · pr1 (lineator_preservestensorstrongly Gm (F x) (F y))).
-      + split.
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            rewrite <- functor_comp.
-            apply maponpaths.
-            apply (pr12 (lineator_preservestensorstrongly Fm x y)). }
-          rewrite functor_id.
-          rewrite id_left.
-          apply (pr12 (lineator_preservestensorstrongly Gm (F x) (F y))).
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            apply (pr22 (lineator_preservestensorstrongly Gm (F x) (F y))). }
-          rewrite id_left.
-          rewrite <- functor_comp.
-          etrans.
-          { apply maponpaths.
-            apply (pr22 (lineator_preservestensorstrongly Fm x y)). }
-          apply functor_id.
-    - use tpair.
-      + exact (#G (pr1 (lineator_preservesunitstrongly Fm)) · pr1 (lineator_preservesunitstrongly Gm)).
-      + split.
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            rewrite <- functor_comp.
-            apply maponpaths.
-            apply (pr12 (lineator_preservesunitstrongly Fm)). }
-          rewrite functor_id.
-          rewrite id_left.
-          apply (pr12 (lineator_preservesunitstrongly Gm)).
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            apply (pr22 (lineator_preservesunitstrongly Gm)). }
-          rewrite id_left.
-          rewrite <- functor_comp.
-          etrans.
-          { apply maponpaths.
-            apply (pr22 (lineator_preservesunitstrongly Fm)). }
-          apply functor_id.
-  Qed.
+    intros v x.
+    exists (#G (pr1 (lineator_linstrongly Fl v x)) · pr1 (lineator_linstrongly Gl v (F x))).
+    split; cbn; unfold comp_lineator_data.
+    - etrans.
+      { repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        rewrite <- functor_comp.
+        apply maponpaths.
+        apply (pr12 (lineator_linstrongly Fl v x)). }
+      rewrite functor_id.
+      rewrite id_left.
+      apply (pr12 (lineator_linstrongly Gl v (F x))).
+    - etrans.
+      { repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        apply (pr22 (lineator_linstrongly Gl v (F x))). }
+      rewrite id_left.
+      rewrite <- functor_comp.
+      etrans.
+      { apply maponpaths.
+        apply (pr22 (lineator_linstrongly Fl v x)). }
+      apply functor_id.
+  Defined.
 
-  Definition comp_lineator {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fm : lineator M N F) (Gm : lineator N O G) : lineator M O (F ∙ G)
-    := comp_lineator_lax Fm Gm ,, comp_lineator_stronglaws Fm Gm.
+  Definition comp_lineator {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator ActC ActD F) (Gl : lineator ActD ActE G) : lineator ActC ActE (F ∙ G)
+    := comp_lineator_lax Fl Gl ,, comp_lineator_strongly Fl Gl.
 
-*)
 End LinearFunctors.
 
 Section TransformationsOfActegories.

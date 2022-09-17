@@ -604,7 +604,7 @@ Section MonoidalFunctors.
           { apply maponpaths.
             apply (pr22 (fmonoidal_preservesunitstrongly Fm)). }
           apply functor_id.
-  Qed.
+  Defined.
 
   Definition comp_fmonoidal {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
     {F : C ⟶ D} {G : D ⟶ E} (Fm : fmonoidal M N F) (Gm : fmonoidal N O G) : fmonoidal M O (F ∙ G)
