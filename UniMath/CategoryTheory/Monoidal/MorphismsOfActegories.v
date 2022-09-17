@@ -424,7 +424,7 @@ Section TransformationsOfActegories.
     apply impred; intro v; apply impred; intro x. apply D.
   Qed.
 
-  Lemma is_mon_nat_trans_pointwise_inverse {F G : functor C D}
+  Lemma is_linear_nat_trans_pointwise_inverse {F G : functor C D}
     (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)
     (ξ : F ⟹ G) (isnziξ : is_nat_z_iso ξ) :
     is_linear_nat_trans Fl Gl ξ -> is_linear_nat_trans Gl Fl (nat_z_iso_inv (ξ,,isnziξ)).

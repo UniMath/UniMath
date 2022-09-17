@@ -188,6 +188,7 @@ Limits/Examples/LimitsStructuredCategories.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
+MonoidalCategories/BicatOfActegories.v
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v

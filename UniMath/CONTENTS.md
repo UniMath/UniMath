@@ -564,6 +564,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/Examples/LimitsStructuredCategories.v](Bicategories/Limits/Examples/LimitsStructuredCategories.v)
    - [MonoidalCategories/BicatOfWhiskeredMonCats.v](Bicategories/MonoidalCategories/BicatOfWhiskeredMonCats.v)
    - [MonoidalCategories/MonoidalDialgebrasInserters.v](Bicategories/MonoidalCategories/MonoidalDialgebrasInserters.v)
+   - [MonoidalCategories/BicatOfActegories.v](Bicategories/MonoidalCategories/BicatOfActegories.v)
    - [Limits/ProductEquivalences.v](Bicategories/Limits/ProductEquivalences.v)
    - [Limits/PullbackFunctions.v](Bicategories/Limits/PullbackFunctions.v)
    - [Limits/PullbackEquivalences.v](Bicategories/Limits/PullbackEquivalences.v)
