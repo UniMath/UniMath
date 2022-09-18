@@ -2,7 +2,7 @@
 
 Background on vectors, for [Algebra.Elimination.Elimination]
 
-Author: @Skantz (April 2021)
+Author: Daniel @Skantz (September 2022)
 *)
 
 Require Import UniMath.Foundations.PartA.
@@ -40,7 +40,7 @@ Section Vectors.
 
   Local Notation  Σ := (iterop_fun rigunel1 op1).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
-  
+
   Definition scalar_lmult_vec
   (s : R)
   {n : nat} (vec: Vector R n)
@@ -78,7 +78,7 @@ Section Vectors.
       + apply rigmultx0.
       + apply funextfun; intros i.
         destruct (weqstn0toempty i).
-    - rewrite iterop_fun_step.  2: {apply riglunax1. }
+    - rewrite iterop_fun_step. 2: {apply riglunax1. }
       rewrite rigldistr, IH, replace_dni_last.
       rewrite iterop_fun_step. 2: {apply riglunax1. }
       rewrite replace_dni_last.
@@ -140,7 +140,7 @@ Section Vectors.
       { reflexivity. }
       change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
         with (@rigunel1 R).
-      apply zero_function_sums_to_zero. 
+      apply zero_function_sums_to_zero.
       reflexivity.
     - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       unfold funcomp.
@@ -150,10 +150,10 @@ Section Vectors.
       reflexivity.
   Defined.
 
-  (* The following few lemmata are slight generalizations of the pre-existing proofs
-     for natural numbers. Could be upstreamed. *)
+  (** The following few lemmata are variants of existing proofs
+     for natural numbers. *)
 
-  (* Identical to transport_stnsum but with Σ , R*)
+  (** Identical to transport_stnsum but with Σ , R*)
   Lemma transport_rigsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
      Σ g =  Σ (λ i, g (transportf stn e i)).
   Proof.
@@ -273,10 +273,13 @@ Section Vectors.
     - now rewrite right_part_is_zero.
   Defined.
 
-  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn ) 
+  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )
   (f : ⟦ n ⟧%stn -> R)
     := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
+  (** Some lemmata on vectors with one or two non-zero values. 
+      Useful later for computations using standard basis vectors,
+      identity matrix, elementary row operations. *)
   Lemma pulse_function_sums_to_point { n : nat }
     (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
     (f_pulse_function : is_pulse_function i f)
@@ -290,7 +293,7 @@ Section Vectors.
     apply funextfun; intros k.
     unfold funcomp.
     replace (const_vec 0%rig k) with (@rigunel1 R). 2: { reflexivity. }
-    assert (i_neq_dni : i ≠ dni i k) . {exact (dni_neq_i i k). }
+    assert (i_neq_dni : i ≠ dni i k). {exact (dni_neq_i i k). }
     intros; destruct (stn_eq_or_neq i (dni i k) ) as [eq | neq].
       - apply (stnneq_iff_nopath i (dni i k)) in eq.
         apply weqtoempty. intros. apply eq. assumption.
@@ -469,32 +472,22 @@ Section Vectors.
   : ∏ i : (stn 1), v = col (col_vec v) i.
   Proof. easy. Defined.
 
-End Vectors.
-
-Section VectorsField.
-
-  Context {F : fld}.
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
-
-  (* Can be generalized to rigs *)
-  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector F n)
+  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector R n)
     : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
   Proof.
-    use (pointwise_rdistr (rigrdistr F)).
+    use (pointwise_rdistr (rigrdistr R)).
   Defined.
 
-  (* Can be generalized to rigs *)
-  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector F n)
+  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector R n)
     : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
   Proof.
-    use (pointwise_assoc (rigassoc2 F)).
+    use (pointwise_assoc (rigassoc2 R)).
   Defined.
 
-  (* Can be generalized to commrigs *)
-  Lemma pointwise_comm2_vector { n : nat } (v1 v2 : Vector F n)
+  Lemma pointwise_comm2_vector {CR: commrig} { n : nat } (v1 v2 : Vector CR n)
     : v1 ^ v2 = v2 ^ v1.
   Proof.
-    use (pointwise_comm (rigcomm2 F)).
+    use (pointwise_comm (rigcomm2 CR)).
   Defined.
 
-End VectorsField.
+End Vectors.

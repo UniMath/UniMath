@@ -2,7 +2,7 @@
 
 Some matrix background material for [Algebra.Elimination]
 
-Author: @Skantz (April 2021)
+Author: Daniel @Skantz (September 2022)
 *)
 
 Require Import UniMath.Foundations.All.
@@ -14,11 +14,11 @@ Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Matrix.
+Require Import UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 Require Import UniMath.Algebra.Elimination.Vectors.
 
-Require Import UniMath.RealNumbers.Prelim.
 
 Local Notation Σ := (iterop_fun rigunel1 op1).
 Local Notation "A ** B" := (matrix_mult A B) (at level 80).
@@ -50,7 +50,7 @@ Section General.
   (mat2 : Matrix R m n)
   : (Matrix R m n) :=
     entrywise _ _ op1 mat1 mat2.
-  
+
   Lemma matrix_add_comm:
   ∏ {m n : nat} (mat1 : Matrix R m n)
                 (mat2 : Matrix R m n),
@@ -336,7 +336,7 @@ Section Inverses.
 
   Lemma matrix_inverse_to_right_and_left_inverse
     {n : nat} (A : Matrix R n n)
-    : (matrix_inverse A) 
+    : (matrix_inverse A)
       -> matrix_left_inverse A × matrix_right_inverse A.
   Proof.
     intros inv.
@@ -526,6 +526,35 @@ Section Misc.
 End Misc.
 
 End General_Rigs.
+
+Section MatricesCommrig.
+
+  Lemma row_vec_col_vec_mult_eq
+  { n : nat } {CR: commrig}
+  (A : Matrix CR n n)
+  : ∏ x, transpose (matrix_mult (row_vec x) (transpose A))
+  = (matrix_mult A (col_vec x)).
+  Proof.
+    intros; unfold transpose, flip, row_vec, col_vec, row, col; intros.
+    do 2 (rewrite (matrix_mult_eq); unfold matrix_mult_unf).
+    assert (eq: ∏ x0 : (stn n), iterop_fun 0%rig op1
+        (λ k : (⟦ n ⟧)%stn, (x k * A x0 k)%rig)
+      = iterop_fun 0%rig op1 (λ k : (⟦ n ⟧)%stn, (A x0 k * x k )%rig)).
+    { intros x0.
+      assert (sum_pointwise_eq : ∏ (f g : (stn n) -> CR),
+      (∏ i : (stn n), f i = g i) ->
+        iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 g).
+      { intros f g H. apply maponpaths. apply funextfun. intros j. apply H. }
+      apply sum_pointwise_eq.
+      intros. rewrite (rigcomm2). reflexivity. }
+    assert (f_eq : ∏ f g: (stn n) -> (stn 1) -> CR,
+      (∏ i : (stn n), ∏ j : (stn 1), f i j = g i j) -> f = g).
+    { intros f g. intros H. apply funextfun; intros i.
+      apply funextfun; intros j. apply H. }
+    apply f_eq; intros i j; apply eq.
+  Defined.
+
+End MatricesCommrig.
 
   (* Note: Some material can be moved to semirings section above *)
 Section MatricesFld.

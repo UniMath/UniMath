@@ -3,10 +3,7 @@
 Operations on vectors and matrices.
 
 Author: Langston Barrett (@siddharthist) (March 2018)
-Additions : Skantz (@skantz) (April 2022)
 *)
-
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.MoreFoundations.PartA.
@@ -42,19 +39,13 @@ Section OneOp.
 
   Definition pointwise_assoc (assocax : isassoc op) : isassoc (pointwise n op).
   Proof.
-    intros ? ? ?.
-    apply funextfun.
-    intro.
-    apply assocax.
+    intros ? ? ?; apply funextfun; intro; apply assocax.
   Defined.
 
   Definition pointwise_lunit (lun : X) (lunax : islunit op lun) :
     islunit (pointwise n op) (const_vec lun).
   Proof.
-    intros ?.
-    apply funextfun.
-    intro.
-    apply lunax.
+    intros ?; apply funextfun; intro; apply lunax.
   Defined.
 
   Definition pointwise_runit (run : X) (runax : isrunit op run) :
@@ -104,10 +95,7 @@ Section TwoOps.
   Definition pointwise_ldistr (isldistrax : isldistr op op') :
     isldistr (pointwise n op) (pointwise n op').
   Proof.
-    intros ? ? ?.
-    apply funextfun.
-    intro.
-    apply isldistrax.
+    intros ? ? ?; apply funextfun; intro; apply isldistrax.
   Defined.
 
   Definition pointwise_rdistr (isrdistrax : isrdistr op op') :
@@ -182,10 +170,7 @@ Section OneOpMat.
 
   Definition entrywise_assoc (assocax : isassoc op) : isassoc (entrywise n m op).
   Proof.
-    intros ? ? ?.
-    apply funextfun.
-    intro.
-    apply pointwise_assoc, assocax.
+    intros ? ? ?; apply funextfun; intro; apply pointwise_assoc, assocax.
   Defined.
 
   Definition entrywise_lunit (lun : X) (lunax : islunit op lun) :
@@ -234,7 +219,7 @@ Section OneOpMat.
 End OneOpMat.
 
 (** It is uncommon to consider two entrywise binary operations on matrices,
-    so we don't derive "standard conditions on a pair of binary operations"
+    so we don't derive "standard conditions on a pair of binar operations"
     for matrices. *)
 
 (** *** Structures *)
@@ -267,9 +252,7 @@ Section MatrixMult.
     induction (stn_eq_or_neq i j).
     - exact (rigunel2). (* The multiplicative identity *)
     - exact (rigunel1). (* The additive identity *)
-
   Defined.
-
 
 End MatrixMult.
 
@@ -324,8 +307,6 @@ Section Weighting.
       (p : nat) (mat2 : Matrix R n p)
       (q : nat) (mat3 : Matrix R p q),
     ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
-
-
 
   (** Lemma 1.1.2 in arXiv:1012.5857v3 *)
   Lemma weighting_coweighting_sum {m n : nat} (mat : Matrix R m n)
