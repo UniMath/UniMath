@@ -33,7 +33,7 @@ Section A.
 
 Context {V : category} (Mon_V : monoidal V).
 
-Definition actegory_of_action_on_itself: actegory Mon_V V.
+Definition actegory_with_canonical_self_action: actegory Mon_V V.
 Proof.
   use tpair.
   - use make_actegory_data.
