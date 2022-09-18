@@ -88,36 +88,27 @@ Section def_zero.
     apply ArrowsToZero.
   Qed.
 
-  Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
-    is_iso (ZeroArrowTo Z Z').
+  Lemma isziso_from_Zero_to_Zero (Z Z' : Zero) :
+    is_z_isomorphism (ZeroArrowTo Z Z').
   Proof.
-    apply (is_iso_qinv _ (ZeroArrowTo Z' Z)).
+    exists (ZeroArrowTo Z' Z).
     split; apply pathsinv0; apply ZeroEndo_is_identity.
   Qed.
 
-  Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
-    tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
+  Definition z_iso_Zeros (Z Z' : Zero) : z_iso Z Z' :=
+    tpair _ (ZeroArrowTo Z' Z) (isziso_from_Zero_to_Zero Z' Z).
 
-  Definition z_iso_Zeros (Z Z' : Zero) : z_iso Z Z'.
-  Proof.
-    use make_z_iso.
-    - exact (ZeroArrowTo Z' Z).
-    - exact (ZeroArrowTo Z Z').
-    - use make_is_inverse_in_precat.
-      + apply ArrowsFromZero.
-      + apply ArrowsFromZero.
-  Defined.
 
   Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
   Proof.
-    set (i := iso_Zeros Z Z').
+    set (i := z_iso_Zeros Z Z').
     unfold ZeroArrow.
     assert (e : ZeroArrowTo Z a · identity _ = ZeroArrowTo Z a) by apply id_right.
     rewrite <- e. clear e.
-    rewrite <- (iso_inv_after_iso i). rewrite assoc.
+    rewrite <- (z_iso_inv_after_z_iso i). rewrite assoc.
     assert (e1 : ZeroArrowTo Z a · i = ZeroArrowTo Z' a) by apply ArrowsToZero.
     rewrite e1. clear e1.
-    assert (e2 : inv_from_iso i · ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+    assert (e2 : inv_from_z_iso i · ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
       by apply ArrowsFromZero.
     rewrite <- assoc. rewrite e2. clear e2.
     apply idpath.
@@ -146,7 +137,7 @@ Section Zero_Unique.
   Proof.
     apply invproofirrelevance.
     intros Z Z'.
-    apply (total2_paths_f (isotoid _ H (iso_Zeros _ Z Z'))).
+    apply (total2_paths_f (isotoid _ H (z_iso_Zeros _ Z Z'))).
     apply proofirrelevance.
     unfold isZero.
     apply isapropdirprod; apply impred; intros t; apply isapropiscontr.
@@ -166,7 +157,7 @@ Section facts.
     split; intros H; apply H.
   Qed.
 
-  Definition IsoToisZero {A : C} (Z : Zero C) (i : iso A Z) :
+  Definition ZIsoToisZero {A : C} (Z : Zero C) (i : z_iso A Z) :
     isZero A.
   Proof.
     use make_isZero.
@@ -174,16 +165,18 @@ Section facts.
       use tpair.
       + exact (i · (ZeroArrowFrom a)).
       + cbn. intros t.
-        apply (pre_comp_with_iso_is_inj
-                 _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
-        rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+        apply (pre_comp_with_z_iso_is_inj (pr2 (z_iso_inv_from_z_iso i))).
+        rewrite assoc. cbn. rewrite (z_iso_after_z_iso_inv i). rewrite id_left.
         apply ArrowsFromZero.
     - intros a.
       use tpair.
-      + exact ((ZeroArrowTo a) · (iso_inv_from_iso i)).
+      + exact ((ZeroArrowTo a) · (z_iso_inv_from_z_iso i)).
       + cbn. intros t.
-        apply (post_comp_with_iso_is_inj _ _ i (pr2 i)).
-        rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
+        apply (post_comp_with_z_iso_is_inj (pr2 i)).
+        rewrite <- assoc. cbn.
+        etrans.
+        2: { apply maponpaths, pathsinv0, (z_iso_after_z_iso_inv i). }
+        rewrite id_right.
         apply ArrowsToZero.
   Qed.
 

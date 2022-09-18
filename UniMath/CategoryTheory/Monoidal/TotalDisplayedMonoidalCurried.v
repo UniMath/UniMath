@@ -107,6 +107,9 @@ Section MonoidalTotalCategory.
                         (pr1 f) (pr1 g) (pr1 h) (pr2 f) (pr2 g) (pr2 h)).
   Qed.
 
+(* The following part has holes because of the migration from [iso] to [z_iso] as notion of isomorphism.
+   It compiled at the moment of commenting it. But at the price of three "Admitted".
+
   Lemma totalcategory_associatorisnatiso : associator_is_natiso TαD.
   Proof.
     intros x y z.
@@ -116,11 +119,15 @@ Section MonoidalTotalCategory.
     - cbn.
       set (pf :=  (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (αiso (pr1 x) (pr1 y) (pr1 z))))).
       (* pf : Isos.inv_from_iso (Isos.z_iso_to_iso (α (pr1 x) (pr1 y) (pr1 z),, αiso (pr1 x) (pr1 y) (pr1 z))) = pr1 (αiso (pr1 x) (pr1 y) (pr1 z))) *)
-      exact (transportf _ pf (pr1 (dαiso (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+      admit.
+      (*
+      exact (transportf (*(mor_disp (pr2 x ⊗_{{ dtd}} (pr2 y ⊗_{{ dtd}} pr2 z))
+          ((pr2 x ⊗_{{ dtd}} pr2 y) ⊗_{{ dtd}} pr2 z))*) _ pf (pr1 (dαiso (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)))).
+*)
       + use tpair.
         - use total2_paths_b.
           -- exact (pr1 (pr2 (αiso (pr1 x) (pr1 y) (pr1 z)))).
-          -- etrans. { apply mor_disp_transportf_prewhisker. }
+          -- admit. (* etrans. { apply mor_disp_transportf_prewhisker. }
              apply transportb_transpose_right.
              etrans.
              { apply transport_f_f. }
@@ -131,10 +138,11 @@ Section MonoidalTotalCategory.
              }
              etrans. { apply transport_f_f. }
              apply transportf_set.
-             apply homset_property.
+             apply homset_property. *)
         - use total2_paths_b.
           -- exact (pr2 (pr2 (αiso (pr1 x) (pr1 y) (pr1 z)))).
-          -- etrans. { apply mor_disp_transportf_postwhisker. }
+          -- admit.
+             (* etrans. { apply mor_disp_transportf_postwhisker. }
              apply transportb_transpose_right.
              etrans.
              { apply transport_f_f. }
@@ -147,6 +155,8 @@ Section MonoidalTotalCategory.
             apply transportf_set.
              apply homset_property.
   Qed.
+       *)
+      Admitted.
 
 
   Lemma totalcategory_leftunitornaturality : leftunitor_naturality TluD.
@@ -166,11 +176,12 @@ Section MonoidalTotalCategory.
     - set (pf (*: Isos.inv_from_iso (Isos.z_iso_to_iso (lu (pr1 x),, luiso (pr1 x))) = pr1 (luiso (pr1 x))*)
            := (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (luiso (pr1 x))))
           ).
-      exact (transportf _ pf (pr1 (dluiso (pr1 x) (pr2 x)))).
+      admit. (*
+      exact (transportf _ pf (pr1 (dluiso (pr1 x) (pr2 x)))). *)
       + use tpair.
         - use total2_paths_b.
           -- exact (pr1 (pr2 (luiso (pr1 x)))).
-          -- etrans.
+          -- admit. (* etrans.
              { apply mor_disp_transportf_prewhisker. }
              apply transportb_transpose_right.
              etrans.
@@ -181,10 +192,10 @@ Section MonoidalTotalCategory.
              }
              etrans. { apply transport_f_f. }
              apply transportf_set.
-             apply homset_property.
+             apply homset_property. *)
         - use total2_paths_b.
           -- exact (pr2 (pr2 (luiso (pr1 x)))).
-          -- etrans.
+          -- admit. (* etrans.
              { apply mor_disp_transportf_postwhisker. }
              apply transportb_transpose_right.
              etrans.
@@ -196,7 +207,8 @@ Section MonoidalTotalCategory.
              etrans. { apply transport_f_f. }
              apply transportf_set.
              apply homset_property.
-  Qed.
+  Qed. *)
+             Admitted.
 
   Lemma totalcategory_rightunitornaturality : rightunitor_naturality TruD.
   Proof.
@@ -215,12 +227,12 @@ Section MonoidalTotalCategory.
     - set (pf (*: Isos.inv_from_iso (Isos.z_iso_to_iso (lu (pr1 x),, luiso (pr1 x))) = pr1 (luiso (pr1 x))*)
            := (((pr2 (pr1 (pr2(pr1 C)))) _ _) (pr1 (ruiso (pr1 x))))
           ).
-
-      exact (transportf _ pf (pr1 (druiso (pr1 x) (pr2 x)))).
+      admit.
+      (* exact (transportf _ pf (pr1 (druiso (pr1 x) (pr2 x)))). *)
       + use tpair.
         - use total2_paths_b.
           -- exact (pr1 (pr2 (ruiso (pr1 x)))).
-          -- etrans.
+          -- admit. (* etrans.
              { apply mor_disp_transportf_prewhisker. }
              apply transportb_transpose_right.
              etrans.
@@ -235,10 +247,10 @@ Section MonoidalTotalCategory.
              apply transportf_set.
              apply homset_property.
 
-
+*)
         - use total2_paths_b.
           -- exact (pr2 (pr2 (ruiso (pr1 x)))).
-          -- etrans.
+          -- admit. (* etrans.
              { apply mor_disp_transportf_postwhisker. }
              apply transportb_transpose_right.
              etrans.
@@ -252,7 +264,8 @@ Section MonoidalTotalCategory.
 
              apply transportf_set.
              apply homset_property.
-  Qed.
+  Qed. *)
+             Admitted.
 
   Lemma totalcategory_triangleidentity : triangle_identity TluD TruD TαD.
   Proof.
@@ -344,5 +357,5 @@ Section MonoidalTotalCategory.
     + apply idpath.
     + apply idpath.
   Qed.
-
+*)
 End MonoidalTotalCategory.

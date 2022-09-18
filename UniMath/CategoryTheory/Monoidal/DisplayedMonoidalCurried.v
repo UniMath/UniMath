@@ -100,21 +100,21 @@ Section displayedmonoidalcategories.
       ((dα x y z a b c) ;; (f' ⊗^{{dtd}} (g' ⊗^{{dtd}} h'))) = transportb _ (αnat _ _ _ _ _ _ f g h) (((f' ⊗^{{dtd}} g') ⊗^{{dtd}} h') ;; dα _ _ _ a' b' c').
 
   Definition displayedassociator_is_nat_iso {dtd : displayedtensor_data} (dα : displayedassociator_data dtd) : UU :=
-    ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z), is_iso_disp (z_iso_to_iso ((α x y z),,(αiso x y z))) (dα x y z a b c).
+    ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z), is_z_iso_disp ((α x y z),,(αiso x y z)) (dα x y z a b c).
 
   Definition displayedleftunitor_naturality {i : D I} {dtd : displayedtensor_data} (dlud : displayedleftunitor_data dtd i) : UU :=
     ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b),
       (dlud x a) ;; f' = transportb _ (lunat x y f) (((id_disp i) ⊗^{{dtd}} f') ;; (dlud y b)).
 
   Definition displayedleftunitor_is_nat_iso {i : D I} {dtd : displayedtensor_data} (dlu : displayedleftunitor_data dtd i) : UU :=
-    ∏ (x : C), ∏ (a : D x), is_iso_disp (z_iso_to_iso (lu x,, luiso x)) (dlu x a).
+    ∏ (x : C), ∏ (a : D x), is_z_iso_disp (lu x,, luiso x) (dlu x a).
 
   Definition displayedrightunitor_naturality {dtd : displayedtensor_data} {i : D I} (drud : displayedrightunitor_data dtd i) : UU :=
     ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a -->[f] b),
       ((drud x a) ;; f') = transportb _ (runat x y f) (( f' ⊗^{{dtd}}  (id_disp i)) ;; (drud y b)).
 
   Definition displayedrightunitor_is_nat_iso {i : D I} {dtd : displayedtensor_data} (dru : displayedrightunitor_data dtd i) : UU :=
-    ∏ (x : C), ∏ (a : D x), is_iso_disp (z_iso_to_iso (ru x,, ruiso x)) (dru x a).
+    ∏ (x : C), ∏ (a : D x), is_z_iso_disp (ru x,, ruiso x) (dru x a).
 
   Definition displayedtriangle_identity {dtd : displayedtensor_data} {i : D I} (dlud : displayedleftunitor_data dtd i) (drud : displayedrightunitor_data dtd i) (dα : displayedassociator_data dtd) := ∏ (x y : C), ∏ (a : D x) (b : D y),
       ((dα x I y a i b) ;; ((id_disp a)  ⊗^{{dtd}} dlud y b )) = transportb _ (tri x y) ((drud x a) ⊗^{{dtd}} id_disp b).

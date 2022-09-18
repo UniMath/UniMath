@@ -77,38 +77,38 @@ Section BINOPS_precategory.
   Definition binop_precategory : precategory :=
     tpair _ _ is_precategory_binop_precategory_data.
 
-  Local Notation BINOP := binop_precategory.
-  Lemma has_homsets_BINOP : has_homsets BINOP.
+  Lemma has_homsets_BINOP : has_homsets binop_precategory.
   Proof. intros a b; apply isasetbinopfun. Qed.
 
 End BINOPS_precategory.
 
-Notation BINOP := binop_precategory.
-
 Section BINOP_category.
+
+  Definition binop_category : category := make_category _ has_homsets_BINOP.
+  Notation BINOP := binop_category.
 
   (** ** Equivalence between isomorphisms and binopisos *)
 
   Lemma binop_iso_is_equiv (A B : ob BINOP)
-        (f : iso A B) : isweq (pr1 (pr1 f)).
+        (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    apply (isweq_iso _ (pr1binopfun _ _ (inv_from_iso f))).
+    apply (isweq_iso _ (pr1binopfun _ _ (inv_from_z_iso f))).
     - intro x.
-      set (T:=iso_inv_after_iso f).
+      set (T:=z_iso_inv_after_z_iso f).
       apply subtypeInjectivity in T.
       set (T':=toforallpaths _ _ _ T). apply T'.
       intro x0.
       apply isapropisbinopfun.
     - intros y.
 
-      set (T:=iso_after_iso_inv f).
+      set (T:=z_iso_after_z_iso_inv f).
       apply subtypeInjectivity in T.
       set (T':=toforallpaths _ _ _ T). apply T'.
       intros x0.
       apply isapropisbinopfun.
   Defined.
 
-  Lemma binop_iso_equiv (A B : ob BINOP) : iso A B -> binopiso A B.
+  Lemma binop_iso_equiv (A B : ob BINOP) : z_iso A B -> binopiso A B.
   Proof.
     intro f.
     use make_binopiso.
@@ -117,57 +117,57 @@ Section BINOP_category.
     apply (pr2 (pr1 f)).
   Defined.
 
-  Lemma binop_equiv_is_iso (A B : setwithbinop)
+  Lemma binop_equiv_is_z_iso (A B : setwithbinop)
         (f : binopiso A B) :
-    @is_iso BINOP A B (make_binopfun (pr1 (pr1 f)) (pr2 f)).
+    @is_z_isomorphism BINOP A B (make_binopfun (pr1 (pr1 f)) (pr2 f)).
   Proof.
-    apply (is_iso_qinv (C:=BINOP) _ (make_binopfun (pr1 (pr1 (invbinopiso f)))
-                                                  (pr2 (invbinopiso f)))).
-    split; cbn. unfold compose, identity. cbn. unfold binopfuncomp, idbinopfun.
-    cbn. use total2_paths_f. cbn. apply funextfun. intros x.
-    apply homotinvweqweq. cbn. apply impred_isaprop. intros t.
-    apply impred_isaprop. intros t0. apply (pr2 (pr1 A)).
+    exists (make_binopfun (pr1 (pr1 (invbinopiso f)))
+                                                  (pr2 (invbinopiso f))).
+    split; cbn.
+    - unfold compose, identity. cbn. unfold binopfuncomp, idbinopfun.
+      cbn. use total2_paths_f. cbn. apply funextfun. intros x.
+      apply homotinvweqweq. cbn. apply impred_isaprop. intros t.
+      apply impred_isaprop. intros t0. apply (pr2 (pr1 A)).
 
-    use total2_paths_f. cbn. apply funextfun. intros x.
-    apply homotweqinvweq. cbn. apply impred_isaprop. intros yt.
-    apply impred_isaprop. intros t0. apply (pr2 (pr1 B)).
+    - use total2_paths_f. cbn. apply funextfun. intros x.
+      apply homotweqinvweq. cbn. apply impred_isaprop. intros yt.
+      apply impred_isaprop. intros t0. apply (pr2 (pr1 B)).
   Defined.
 
-  Lemma binop_equiv_iso (A B : BINOP) : binopiso A B -> iso A B.
+  Lemma binop_equiv_iso (A B : BINOP) : binopiso A B -> z_iso A B.
   Proof.
     intro f.
     cbn in *.
-    set (T := binop_equiv_is_iso A B f).
-    set (T' := @make_iso BINOP _ _ (make_binopfun (pr1 (pr1 f)) (pr2 f)) T).
-    apply T'.
+    set (T := binop_equiv_is_z_iso A B f).
+    exact (_,,T).
   Defined.
 
   Lemma binop_iso_equiv_is_equiv (A B : BINOP) : isweq (binop_iso_equiv A B).
   Proof.
     apply (isweq_iso _ (binop_equiv_iso A B)).
-    intro; apply eq_iso. apply maponpaths.
-    unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths_f. cbn. unfold make_binopfun.
-    apply subtypePath. intros y. apply isapropisbinopfun.
-    apply maponpaths. apply subtypePath.
-    unfold isPredicate.
-
-    intros x0. apply isapropisbinopfun.
-    apply idpath.
-
-    apply proofirrelevance.
-    apply isaprop_is_iso.
-
-    intros y. unfold binop_iso_equiv, binop_equiv_iso. cbn.
-    use total2_paths_f. cbn. unfold make_binopfun.
-    apply subtypePath. intros x. apply isapropisweq.
-    apply idpath.
-
-    apply proofirrelevance.
-    apply isapropisbinopfun.
+    - intro; apply z_iso_eq. apply maponpaths.
+      unfold binop_equiv_iso, binop_iso_equiv. cbn.
+      use total2_paths_f.
+      + cbn. unfold make_binopfun.
+        apply subtypePath.
+        * intros y. apply isapropisbinopfun.
+        * apply maponpaths. apply subtypePath.
+          -- unfold isPredicate.
+             intros x0. apply isapropisbinopfun.
+          -- apply idpath.
+      + apply proofirrelevance.
+        apply (isaprop_is_z_isomorphism(C:=BINOP)).
+    - intros y. unfold binop_iso_equiv, binop_equiv_iso. cbn.
+      use total2_paths_f.
+      + cbn. unfold make_binopfun.
+        apply subtypePath.
+        * intros x. apply isapropisweq.
+        * apply idpath.
+      + apply proofirrelevance.
+        apply isapropisbinopfun.
   Defined.
 
-  Definition binop_iso_equiv_weq (A B : BINOP) : (iso A B) ≃ (binopiso A B).
+  Definition binop_iso_equiv_weq (A B : BINOP) : (z_iso A B) ≃ (binopiso A B).
   Proof.
     exists (binop_iso_equiv A B).
     apply binop_iso_equiv_is_equiv.
@@ -187,11 +187,11 @@ Section BINOP_category.
     use total2_paths_f. cbn. unfold make_binopfun. cbn.
     apply subtypePath. intros x. apply isapropisbinopfun.
     apply idpath. apply proofirrelevance.
-    apply isaprop_is_iso.
+    apply (isaprop_is_z_isomorphism(C:=BINOP)).
   Qed.
 
   Definition binop_equiv_weq_iso (A B : BINOP) :
-    (binopiso A B) ≃ (iso A B).
+    (binopiso A B) ≃ (z_iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.
@@ -201,18 +201,18 @@ Section BINOP_category.
     isweq (λ p : a = b, idtoiso p).
   Proof.
     use (@isweqhomot
-           (a = b) (iso a b)
+           (a = b) (z_iso a b)
            (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))
            _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
   Opaque binop_precategory_isweq.
 
-  Definition binop_category : category := make_category _ has_homsets_BINOP.
+
 
   Definition binop_precategory_is_univalent : is_univalent binop_category.
   Proof.

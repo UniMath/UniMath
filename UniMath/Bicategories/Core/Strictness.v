@@ -418,16 +418,17 @@ Proof.
 Defined.
 
 Definition swap
-  : nat_iso diag_set diag_set.
+  : nat_z_iso diag_set diag_set.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - use make_nat_trans.
     + intros X x.
       exact (pr2 x ,, pr1 x).
     + intros X Y f.
       apply idpath.
   - intros X.
-    use is_iso_qinv.
+    cbn.
+    use tpair.
     + exact (λ z, pr2 z ,, pr1 z).
     + split.
       * apply idpath.
@@ -454,7 +455,7 @@ Proof.
                          diag_set
                          diag_set)
                       (id2_invertible_2cell _)
-                      (nat_iso_to_invertible_2cell _ _ swap)))
+                      (nat_z_iso_to_invertible_2cell _ _ swap)))
                 boolset)
              (true ,, false)))
     as C.

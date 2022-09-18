@@ -538,14 +538,14 @@ Section Product.
     - intros f g.
       use hinhpr.
       simple refine (binprod_ump_1cell H (pr1 f) (pr2 f) ,, _).
-      use make_iso.
+      use make_z_iso'.
       + exact (pr1 (binprod_ump_1cell_pr1 H _ (pr1 f) (pr2 f))
                ,,
                pr1 (binprod_ump_1cell_pr2 H _ (pr1 f) (pr2 f))).
-      + use is_iso_binprod_iso.
-        * apply is_inv2cell_to_is_iso.
+      + use is_z_iso_binprod_z_iso.
+        * apply is_inv2cell_to_is_z_iso.
           apply property_from_invertible_2cell.
-        * apply is_inv2cell_to_is_iso.
+        * apply is_inv2cell_to_is_z_iso.
           apply property_from_invertible_2cell.
   Defined.
 
@@ -569,11 +569,11 @@ Section Product.
           (has_binprod_cat_ump_binprod_ump_1_mor · binprod_cone_pr1 p)
           (binprod_cone_pr1 q).
     Proof.
-      apply iso_to_inv2cell.
-      exact (pr1 (category_binproduct_iso_inv
+      apply z_iso_to_inv2cell.
+      exact (pr1 (category_binproduct_z_iso_inv
                     _ _
-                    (nat_iso_pointwise_iso
-                       (invertible_2cell_to_nat_iso
+                    (nat_z_iso_pointwise_z_iso
+                       (invertible_2cell_to_nat_z_iso
                           _ _
                           (left_equivalence_counit_iso
                              (H (pr1 q))))
@@ -585,11 +585,11 @@ Section Product.
           (has_binprod_cat_ump_binprod_ump_1_mor · binprod_cone_pr2 p)
           (binprod_cone_pr2 q).
     Proof.
-      apply iso_to_inv2cell.
-      exact (pr2 (category_binproduct_iso_inv
+      apply z_iso_to_inv2cell.
+      exact (pr2 (category_binproduct_z_iso_inv
                     _ _
-                    (nat_iso_pointwise_iso
-                       (invertible_2cell_to_nat_iso
+                    (nat_z_iso_pointwise_z_iso
+                       (invertible_2cell_to_nat_z_iso
                           _ _
                           (left_equivalence_counit_iso
                              (H (pr1 q))))

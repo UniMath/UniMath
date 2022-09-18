@@ -390,7 +390,7 @@ Section Equifiers.
         + exact (pr2 h).
       - cbn.
         use iso_in_sub_from_iso ; cbn.
-        use inv2cell_to_iso.
+        use inv2cell_to_z_iso.
         apply equifier_ump_mor_pr1.
     Defined.
   End MakeUniversalEquifierCone.
@@ -434,11 +434,11 @@ Section Equifiers.
             (universal_equifier_cone_has_ump_1_mor · equifier_cone_pr1 cone)
             (equifier_cone_pr1 q).
       Proof.
-        use iso_to_inv2cell.
+        use z_iso_to_inv2cell.
         exact (iso_from_iso_in_sub
                  _ _ _ _
-                 (nat_iso_pointwise_iso
-                    (counit_nat_iso_from_adj_equivalence_of_cats (H q))
+                 (nat_z_iso_pointwise_z_iso
+                    (counit_nat_z_iso_from_adj_equivalence_of_cats (H q))
                     q')).
       Defined.
     End UMP1.

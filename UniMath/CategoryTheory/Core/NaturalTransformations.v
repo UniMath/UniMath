@@ -133,9 +133,9 @@ Proof.
   intros c1 c2 f.
   rewrite double_transport_idtoiso.
   rewrite <- assoc.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
 (* make the coercion visible: *)
-  unfold morphism_from_iso.
+  unfold z_iso_mor.
   do 2 rewrite eq_idtoiso_idtomor.
   apply H1.
 Qed.

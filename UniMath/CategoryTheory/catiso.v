@@ -528,6 +528,6 @@ Proof.
       repeat (apply (maponpaths (λ z, z · _))).
       rewrite idtoiso_inv.
       cbn.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       reflexivity.
 Defined.

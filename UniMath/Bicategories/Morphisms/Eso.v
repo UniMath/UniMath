@@ -90,17 +90,17 @@ Section EsoMorphisms.
          apply idpath).
   Defined.
 
-  Definition pre_comp_post_comp_commute_iso
+  Definition pre_comp_post_comp_commute_z_iso
              {c₁ c₂ : B}
              (m : c₁ --> c₂)
-    : nat_iso
+    : nat_z_iso
         (pre_comp c₁ f ∙ post_comp b₁ m)
         (post_comp b₂ m ∙ pre_comp c₂ f).
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact (pre_comp_post_comp_commute m).
     - intro.
-      use is_inv2cell_to_is_iso ; cbn.
+      use is_inv2cell_to_is_z_iso ; cbn.
       is_iso.
   Defined.
 
@@ -112,7 +112,7 @@ Section EsoMorphisms.
     use iso_comma_ump1.
     - exact (pre_comp c₁ f).
     - exact (post_comp b₂ m).
-    - exact (pre_comp_post_comp_commute_iso m).
+    - exact (pre_comp_post_comp_commute_z_iso m).
   Defined.
 
   Definition is_eso
@@ -286,19 +286,19 @@ Section EsoMorphisms.
         : essentially_surjective (is_eso_functor m).
       Proof.
         intros h.
-        pose (ℓ := H₃ c₁ c₂ m Hm (pr11 h) (pr21 h) (iso_to_inv2cell (pr2 h))).
+        pose (ℓ := H₃ c₁ c₂ m Hm (pr11 h) (pr21 h) (z_iso_to_inv2cell (pr2 h))).
         apply hinhpr.
         simple refine (_ ,, _).
         - exact (pr1 ℓ).
-        - use make_iso.
+        - use make_z_iso'.
           + simple refine ((_ ,, _) ,, _) ; cbn.
             * exact (pr12 ℓ).
             * exact (pr122 ℓ).
             * exact (pr222 ℓ).
-          + use is_iso_iso_comma.
-            * use is_inv2cell_to_is_iso.
+          + use is_z_iso_iso_comma.
+            * use is_inv2cell_to_is_z_iso.
               apply property_from_invertible_2cell.
-            * use is_inv2cell_to_is_iso.
+            * use is_inv2cell_to_is_z_iso.
               apply property_from_invertible_2cell.
       Defined.
     End MakeEsoHelp.
@@ -332,28 +332,28 @@ Section EsoMorphisms.
 
       Definition is_eso_lift_1
         : b₂ --> c₁
-        := right_adjoint (H c₁ c₂ m Hm) ((g₁ ,, g₂) ,, inv2cell_to_iso α).
+        := right_adjoint (H c₁ c₂ m Hm) ((g₁ ,, g₂) ,, inv2cell_to_z_iso α).
 
       Definition is_eso_lift_1_comm_left
         : invertible_2cell (f · is_eso_lift_1) g₁.
       Proof.
-        apply iso_to_inv2cell.
-        exact (functor_on_iso
+        apply z_iso_to_inv2cell.
+        exact (functor_on_z_iso
                 (iso_comma_pr1 _ _)
-                (counit_pointwise_iso_from_adj_equivalence
+                (counit_pointwise_z_iso_from_adj_equivalence
                    (H c₁ c₂ m Hm)
-                   ((g₁ ,, g₂) ,, inv2cell_to_iso α))).
+                   ((g₁ ,, g₂) ,, inv2cell_to_z_iso α))).
       Defined.
 
       Definition is_eso_lift_1_comm_right
         : invertible_2cell (is_eso_lift_1 · m) g₂.
       Proof.
-        apply iso_to_inv2cell.
-        exact (functor_on_iso
+        apply z_iso_to_inv2cell.
+        exact (functor_on_z_iso
                  (iso_comma_pr2 _ _)
-                 (counit_pointwise_iso_from_adj_equivalence
+                 (counit_pointwise_z_iso_from_adj_equivalence
                     (H c₁ c₂ m Hm)
-                    ((g₁ ,, g₂) ,, inv2cell_to_iso α))).
+                    ((g₁ ,, g₂) ,, inv2cell_to_z_iso α))).
       Defined.
 
       Definition is_eso_lift_1_eq
@@ -362,7 +362,7 @@ Section EsoMorphisms.
           rassociator _ _ _ • (f ◃ is_eso_lift_1_comm_right)
         := pr2 (counit_from_left_adjoint
                   (pr1 (H c₁ c₂ m Hm))
-                  ((g₁ ,, g₂) ,, inv2cell_to_iso α)).
+                  ((g₁ ,, g₂) ,, inv2cell_to_z_iso α)).
     End LiftOne.
 
     (** Lifting property for for 2-cells *)
@@ -381,16 +381,16 @@ Section EsoMorphisms.
         := right_adjoint (H c₁ c₂ m Hm).
 
       Let φ : iso_comma (post_comp b₁ m) (pre_comp c₂ f)
-        := (f · l₁ ,, l₁ · m) ,, inv2cell_to_iso (rassociator_invertible_2cell _ _ _).
+        := (f · l₁ ,, l₁ · m) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
       Let ψ : iso_comma (post_comp b₁ m) (pre_comp c₂ f)
-        := (f · l₂ ,, l₂ · m) ,, inv2cell_to_iso (rassociator_invertible_2cell _ _ _).
+        := (f · l₂ ,, l₂ · m) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
       Let μ : φ --> ψ
         := (k₁ ,, k₂) ,, p.
 
       Let η₁ : l₁ ==> R φ
         := unit_from_left_adjoint (H c₁ c₂ m Hm) l₁.
       Let η₂ : R ψ ==> l₂
-        := iso_to_inv2cell (unit_pointwise_iso_from_adj_equivalence (H c₁ c₂ m Hm) l₂)^-1.
+        := z_iso_to_inv2cell (unit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) l₂)^-1.
       Let ε₁ : f · R φ ==> f · l₁
         := pr11 (counit_from_left_adjoint (pr1 (H c₁ c₂ m Hm)) φ).
       Let ε₂ : f · R ψ ==> f · l₂
@@ -408,10 +408,10 @@ Section EsoMorphisms.
         : is_invertible_2cell ε₂.
       Proof.
         exact (property_from_invertible_2cell
-                 (iso_to_inv2cell
-                    (functor_on_iso
+                 (z_iso_to_inv2cell
+                    (functor_on_z_iso
                        (iso_comma_pr1 _ _)
-                       (counit_pointwise_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
+                       (counit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
       Qed.
 
       Local Lemma is_eso_lift_2_left_path_1
@@ -476,10 +476,10 @@ Section EsoMorphisms.
         : is_invertible_2cell ε₂'.
       Proof.
         exact (property_from_invertible_2cell
-                 (iso_to_inv2cell
-                    (functor_on_iso
+                 (z_iso_to_inv2cell
+                    (functor_on_z_iso
                        (iso_comma_pr2 _ _)
-                       (counit_pointwise_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
+                       (counit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
       Qed.
 
       Local Lemma is_eso_lift_2_right_path_1
@@ -615,8 +615,8 @@ Section EsoMorphisms.
     - exact (univ_hom HB_2_1 b₂ c₁).
     - exact (pre_comp c₁ f).
     - exact (post_comp b₂ m).
-    - use nat_iso_to_invertible_2cell.
-      exact (pre_comp_post_comp_commute_iso m).
+    - use nat_z_iso_to_invertible_2cell.
+      exact (pre_comp_post_comp_commute_z_iso m).
   Defined.
 
   Definition is_eso_via_pb
@@ -671,8 +671,8 @@ Section EsoMorphisms.
                   (pre_comp c₂ f))
                (is_eso_functor m)
                Hf).
-    - use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+    - use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * exact (λ _, id2 _).
         * abstract
@@ -680,10 +680,10 @@ Section EsoMorphisms.
              rewrite id2_left, id2_right ;
              apply idpath).
       + intro.
-        use is_inv2cell_to_is_iso ; cbn.
+        use is_inv2cell_to_is_z_iso ; cbn.
         is_iso.
-    - use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+    - use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * exact (λ _, id2 _).
         * abstract
@@ -691,7 +691,7 @@ Section EsoMorphisms.
              rewrite id2_left, id2_right ;
              apply idpath).
       + intro.
-        use is_inv2cell_to_is_iso ; cbn.
+        use is_inv2cell_to_is_z_iso ; cbn.
         is_iso.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -761,12 +761,12 @@ Section EsoMorphisms.
       as p.
     use (left_adjoint_equivalence_invertible p).
     - exact (is_eso_via_pb_to_is_eso_nat_trans HB_2_1 Hm).
-    - use is_nat_iso_to_is_invertible_2cell.
+    - use is_nat_z_iso_to_is_invertible_2cell.
       intro.
-      use is_iso_iso_comma.
-      + use is_inv2cell_to_is_iso ; cbn.
+      use is_z_iso_iso_comma.
+      + use is_inv2cell_to_is_z_iso ; cbn.
         is_iso.
-      + use is_inv2cell_to_is_iso ; cbn.
+      + use is_inv2cell_to_is_z_iso ; cbn.
         is_iso.
   Defined.
 

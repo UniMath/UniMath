@@ -83,7 +83,7 @@ Section pushout_monic_pullback_epi.
                      (f · (to_In1 DS))
                      (g · (to_In2 DS)))).
     (* Transform the statement to a statement about other pushout *)
-    set (iso := iso_from_Pushout_to_Pushout Po Po').
+    set (iso := z_iso_from_Pushout_to_Pushout Po Po').
     apply (isMonic_postcomp
              A _ (PushoutArrow Po Po' (PushoutIn1 Po') (PushoutIn2 Po')
                                (PushoutSqrCommutes Po'))).
@@ -172,8 +172,8 @@ Section pushout_monic_pullback_epi.
                      A
                      (f · (to_In1 DS))
                      (g · (to_In2 DS)))).
-    set (i := iso_from_Pushout_to_Pushout Po Po').
-    use isPullback_up_to_iso.
+    set (i := z_iso_from_Pushout_to_Pushout Po Po').
+    use isPullback_up_to_z_iso.
     - exact hs.
     - exact Po'.
     - exact i.
@@ -240,7 +240,7 @@ Section pushout_monic_pullback_epi.
                      ((to_Pr1 DS) · f)
                      ((to_Pr2 DS) · g))).
     (* Transform the statement to a statement about other pullback *)
-    set (iso := iso_from_Pullback_to_Pullback Pb Pb').
+    set (iso := z_iso_from_Pullback_to_Pullback Pb Pb').
     apply (isEpi_precomp
              A (PullbackArrow Pb Pb' (PullbackPr1 Pb') (PullbackPr2 Pb')
                               (PullbackSqrCommutes Pb'))).
@@ -325,8 +325,8 @@ Section pushout_monic_pullback_epi.
     set (Pb' := Pullback_from_Equalizer_BinProduct
                   A _ _ _ f g (BinDirectSum_BinProduct _ DS)
                   (Abelian.Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g))).
-    set (i := iso_from_Pullback_to_Pullback Pb' Pb).
-    use isPushout_up_to_iso.
+    set (i := z_iso_from_Pullback_to_Pullback Pb' Pb).
+    use isPushout_up_to_z_iso.
     - exact Pb'.
     - exact i.
     - use isPushout_mor_paths.

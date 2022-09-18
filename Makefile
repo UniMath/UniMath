@@ -225,13 +225,12 @@ latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
-distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 #############################################################################
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -local -no-custom
-BUILD_TARGETS := coqbinaries tools states ltac
+CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -prefix $(shell pwd)
+BUILD_TARGETS := coqbinaries tools states coq
 ifeq ($(DEBUG_COQ),yes)
 CONFIGURE_OPTIONS += -annot
 BUILD_TARGETS += byte
@@ -250,6 +249,7 @@ sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 	$(MAKE) -w -C sub/coq $(BUILD_OPTIONS) $(BUILD_TARGETS)
+	$(MAKE) -w -C sub/coq install
 ifeq ($(DEBUG_COQ),yes)
 	$(MAKE) -w -C sub/coq tags
 endif

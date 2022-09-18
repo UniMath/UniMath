@@ -9,7 +9,8 @@
  Contents
  1. Faithfulness
  2. Fully faithfulness
- 3. Conservativity
+ 3. Pseudomonic
+ 4. Conservativity
  4. Discreteness
  5. It's an internal Street fibration
  6. Preservation of cartesian cells
@@ -73,7 +74,29 @@ Section FromInitial.
   Defined.
 
   (**
-   3. Conservativity
+   3. Pseudomonic
+   *)
+  Definition from_biinitial_pseudomonic_1cell
+    : pseudomonic_1cell f.
+  Proof.
+    use make_pseudomonic.
+    - exact from_biinitial_faithful_1cell.
+    - intros z g₁ g₂ αf Hαf.
+      assert(Hz : is_biinitial z).
+      {
+        exact (equiv_to_biinitial Hx (Sx z g₁)).
+      }
+      simple refine (_ ,, _ ,, _).
+      + apply (is_biinitial_2cell_property Hz).
+      + use make_is_invertible_2cell.
+        * apply (is_biinitial_2cell_property Hz).
+        * apply (is_biinitial_eq_property Hz).
+        * apply (is_biinitial_eq_property Hz).
+      + apply (is_biinitial_eq_property Hz).
+  Defined.
+
+  (**
+   4. Conservativity
    *)
   Definition from_biinitial_conservative_1cell
     : conservative_1cell f.
@@ -90,7 +113,7 @@ Section FromInitial.
   Defined.
 
   (**
-   4. Discreteness
+   5. Discreteness
    *)
   Definition from_biinitial_discrete_1cell
     : discrete_1cell f.
@@ -101,7 +124,7 @@ Section FromInitial.
   Defined.
 
   (**
-   5. It's an internal Street fibration
+   6. It's an internal Street fibration
    *)
   Definition from_biinitial_is_cartesian_2cell_sfib
              {z : B}
@@ -163,7 +186,7 @@ Section FromInitial.
   Defined.
 
   (**
-   6. Preservation of cartesian cells
+   7. Preservation of cartesian cells
    *)
   Definition from_biinitial_mor_preserves_cartesian
              {x' y' : B}
@@ -192,7 +215,7 @@ Section FromInitial.
   Defined.
 
   (**
-   7. It's an internal Street opfibration
+   8. It's an internal Street opfibration
    *)
   Definition from_biinitial_is_opcartesian_2cell_sopfib
              {z : B}
@@ -254,7 +277,7 @@ Section FromInitial.
   Defined.
 
   (**
-   8. Preservation of opcartesian cells
+   9. Preservation of opcartesian cells
    *)
   Definition from_biinitial_mor_preserves_opcartesian
              {x' y' : B}

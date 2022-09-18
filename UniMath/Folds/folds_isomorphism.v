@@ -526,7 +526,7 @@ Context {a b : C} (i : z_iso (C:=C') a b).
 
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
-  apply (eq_z_iso(C:=C',,hs)).
+  apply (z_iso_eq(C:=C',,hs)).
   apply (@id_left C').
 Qed.
 

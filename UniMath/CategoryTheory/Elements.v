@@ -49,7 +49,7 @@ Proof.
   - apply X.
   - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
     + apply X.
-    + apply isaprop_is_iso_disp.
+    + apply isaprop_is_z_iso_disp.
 Qed.
 
 Definition is_univalent_pointed_sets
@@ -72,28 +72,28 @@ Definition set_of_pointed_set
   : pointed_sets_univalent ⟶ HSET_univalent_category
   := pr1_category elements_universal.
 
-Definition is_iso_pointed_sets
+Definition is_z_iso_pointed_sets
            {X Y : pointed_sets}
            (f : X --> Y)
-           (Hf : is_iso (pr1 f))
-  : is_iso f.
+           (Hf : is_z_isomorphism (pr1 f))
+  : is_z_isomorphism f.
 Proof.
-  use is_iso_qinv.
+  use tpair.
   - simple refine (_ ,, _).
-    + exact (inv_from_iso (make_iso _ Hf)).
+    + exact (inv_from_z_iso (make_z_iso' _ Hf)).
     + abstract
         (cbn ;
          pose (pr2 f) as p ;
          cbn in p ;
          rewrite <- p ;
-         exact (eqtohomot (iso_inv_after_iso (make_iso _ Hf)) (pr2 X))).
+         exact (eqtohomot (z_iso_inv_after_z_iso (make_z_iso' _ Hf)) (pr2 X))).
   - split.
     + abstract
         (use subtypePath ; [ intro ; apply (pr1 X) | ] ;
-         exact (iso_inv_after_iso (make_iso _ Hf))).
+         exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf))).
     + abstract
         (use subtypePath ; [ intro ; apply (pr1 Y) | ] ;
-         exact (iso_after_iso_inv (make_iso _ Hf))).
+         exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf))).
 Defined.
 
 Section CategoryOfElements.
@@ -169,21 +169,21 @@ Section CategoryOfElements.
     - apply (F c).
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + apply disp_mor_elems_isaprop.
-      + apply isaprop_is_iso_disp.
+      + apply isaprop_is_z_iso_disp.
   Qed.
 
-  Definition is_iso_disp_cat_of_elems
+  Definition is_z_iso_disp_cat_of_elems
              {c₁ c₂ : C}
-             {f : iso c₁ c₂}
+             {f : z_iso c₁ c₂}
              {x : disp_cat_of_elems c₁}
              {y : disp_cat_of_elems c₂}
              (p : x -->[ f ] y)
-    : is_iso_disp f p.
+    : is_z_iso_disp f p.
   Proof.
     simple refine (_ ,, (_ ,, _)) ; cbn in *.
     - rewrite <- p.
-      refine (!(eqtohomot (functor_comp F f (inv_from_iso f)) x) @ _).
-      rewrite iso_inv_after_iso.
+      refine (!(eqtohomot (functor_comp F f (inv_from_z_iso f)) x) @ _).
+      rewrite z_iso_inv_after_z_iso.
       apply (eqtohomot (functor_id F c₁) x).
     - apply disp_mor_elems_isaprop.
     - apply disp_mor_elems_isaprop.
@@ -265,32 +265,32 @@ Section CategoryOfElements.
     Context (HC : is_univalent C)
             {x₁ x₂ : C}
             (f : x₁ --> x₂)
-            (Hf : is_iso f)
+            (Hf : is_z_isomorphism f)
             (y : disp_cat_of_elems x₂).
 
     Definition cat_of_elems_iso_lift
       : disp_cat_of_elems x₁
-      := cat_of_elems_path_lift (isotoid _ HC (make_iso _ Hf)) y.
+      := cat_of_elems_path_lift (isotoid _ HC (make_z_iso' _ Hf)) y.
 
     Definition cat_of_elems_iso_path
       : #F f cat_of_elems_iso_lift = y.
     Proof.
-      refine (_ @ cat_of_elems_path_path (isotoid _ HC (make_iso _ Hf)) y).
+      refine (_ @ cat_of_elems_path_path (isotoid _ HC (make_z_iso' _ Hf)) y).
       apply maponpaths_2.
       rewrite idtoiso_isotoid.
       apply idpath.
     Qed.
   End CatOfElemsIsoCleaving.
 
-  Definition cat_of_elems_iso_natural
+  Definition cat_of_elems_z_iso_natural
              (HC : is_univalent C)
              {x₁ x₂ x₁' x₂' : C}
              (f₁ : x₁ --> x₁')
              (f₂ : x₂ --> x₂')
              (g₁ : x₁ --> x₂)
-             (Hg₁ : is_iso g₁)
+             (Hg₁ : is_z_isomorphism g₁)
              (g₂ : x₁' --> x₂')
-             (Hg₂ : is_iso g₂)
+             (Hg₂ : is_z_isomorphism g₂)
              (y : disp_cat_of_elems x₂)
              (y' : disp_cat_of_elems x₂')
              (q : f₁ · g₂ = g₁ · f₂)
@@ -318,29 +318,29 @@ Section CategoryOfElements.
     - exact is_univalent_disp_disp_cat_of_elems.
   Defined.
 
-  Definition is_iso_cat_of_elems
+  Definition is_z_iso_cat_of_elems
              {cx₁ cx₂ : cat_of_elems}
              (f : cx₁ --> cx₂)
-             (Hf : is_iso (pr1 f))
-    : is_iso f.
+             (Hf : is_z_isomorphism (pr1 f))
+    : is_z_isomorphism f.
   Proof.
-    use is_iso_qinv.
-    - simple refine (inv_from_iso (make_iso _ Hf) ,, _).
+    use tpair.
+    - simple refine (inv_from_z_iso (make_z_iso' _ Hf) ,, _).
       abstract
         (cbn ;
          pose (pr2 f) as p ;
          cbn in p ;
          rewrite <- p ;
          exact (eqtohomot
-                  (iso_inv_after_iso
-                     (functor_on_iso F (make_iso _ Hf))) (pr2 cx₁))).
+                  (z_iso_inv_after_z_iso
+                     (functor_on_z_iso F (make_z_iso' _ Hf))) (pr2 cx₁))).
     - split.
       + abstract
           (use subtypePath ; [ intro ; apply (F _) | ] ;
-           apply (iso_inv_after_iso (make_iso _ Hf))).
+           apply (z_iso_inv_after_z_iso (make_z_iso' _ Hf))).
       + abstract
           (use subtypePath ; [ intro ; apply (F _) | ] ;
-           apply (iso_after_iso_inv (make_iso _ Hf))).
+           apply (z_iso_after_z_iso_inv (make_z_iso' _ Hf))).
   Defined.
 
   Definition cat_of_elems_forgetful
@@ -401,22 +401,22 @@ Section CategoryOfElements.
          apply idpath).
   Defined.
 
-  Definition cat_of_elems_commute_iso
-    : nat_iso
+  Definition cat_of_elems_commute_z_iso
+    : nat_z_iso
         (cat_of_elems_to_pointed ∙ set_of_pointed_set)
         (cat_of_elems_forgetful ∙ F).
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact cat_of_elems_commute.
     - intro.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   Defined.
 
   Section FunctorToCatOfElems.
     Context {C' : category}
             (G₁ : C' ⟶ pointed_sets)
             (G₂ : C' ⟶ C)
-            (γ : nat_iso
+            (γ : nat_z_iso
                    (G₁ ∙ set_of_pointed_set)
                    (G₂ ∙ F)).
 
@@ -467,11 +467,11 @@ Section CategoryOfElements.
       : functor_to_cat_of_elems ∙ cat_of_elems_to_pointed ⟹ G₁.
     Proof.
       use make_nat_trans.
-      - refine (λ x, inv_from_iso (nat_iso_pointwise_iso γ x) ,, _) ; cbn.
+      - refine (λ x, inv_from_z_iso (nat_z_iso_pointwise_z_iso γ x) ,, _) ; cbn.
         abstract
           (exact (eqtohomot
-                    (iso_inv_after_iso
-                       (nat_iso_pointwise_iso γ x))
+                    (z_iso_inv_after_z_iso
+                       (nat_z_iso_pointwise_z_iso γ x))
                     (pr2 (G₁ x)))).
       - abstract
           (intros c₁ c₂ f ; cbn ;
@@ -482,19 +482,19 @@ Section CategoryOfElements.
            cbn ;
            use funextsec ;
            intro x ;
-           exact (eqtohomot (nat_trans_ax (nat_iso_inv_trans γ) _ _ f) x)).
+           exact (eqtohomot (nat_trans_ax (nat_z_iso_to_trans_inv γ) _ _ f) x)).
     Defined.
 
     Definition functor_to_cat_of_elems_pointed
-      : nat_iso
+      : nat_z_iso
           (functor_to_cat_of_elems ∙ cat_of_elems_to_pointed)
           G₁.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact functor_to_cat_of_elems_pointed_nat_trans.
       - intro.
-        use is_iso_pointed_sets.
-        apply is_iso_inv_from_iso.
+        use is_z_iso_pointed_sets.
+        apply is_z_iso_inv_from_z_iso.
     Defined.
 
     Definition functor_to_cat_of_elems_forgetful_nat_trans
@@ -509,14 +509,14 @@ Section CategoryOfElements.
     Defined.
 
     Definition functor_to_cat_of_elems_forgetful
-      : nat_iso
+      : nat_z_iso
           (functor_to_cat_of_elems ∙ cat_of_elems_forgetful)
           G₂.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact functor_to_cat_of_elems_forgetful_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     Definition functor_to_cat_of_elems_commute
@@ -527,7 +527,7 @@ Section CategoryOfElements.
     Proof.
       use funextsec.
       intro x ; cbn.
-      exact (!(eqtohomot (iso_after_iso_inv (nat_iso_pointwise_iso γ c)) x)).
+      exact (!(eqtohomot (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso γ c)) x)).
     Qed.
   End FunctorToCatOfElems.
 

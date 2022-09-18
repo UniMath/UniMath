@@ -191,13 +191,12 @@ Section FiberOfBiequiv.
     : nat_trans (FF ∙ GG) (functor_identity _)
     := _ ,, fiber_unit_is_nat_trans.
 
-  Definition fiber_unit_nat_iso
-    : is_nat_iso fiber_unit.
+  Definition fiber_unit_nat_z_iso
+    : is_nat_z_iso fiber_unit.
   Proof.
     intros z.
-    use is_iso_qinv.
-    - exact (pr1 EE c z).
-    - split.
+    exists (pr1 EE c z).
+    split.
       + apply local_iso_cleaving_id.
         * exact HC.
         * exact HD₁_2_1.
@@ -216,9 +215,12 @@ Section FiberOfBiequiv.
           ** apply LGD₁.
   Qed.
 
-  Definition fiber_unit_iso
-    : nat_iso (FF ∙ GG) (functor_identity _)
-    := (_ ,, fiber_unit_nat_iso).
+  Definition fiber_unit_z_iso
+    : nat_z_iso (FF ∙ GG) (functor_identity _).
+  Proof.
+    use tpair.
+    2: { apply fiber_unit_nat_z_iso. }
+  Defined.
 
   Definition fiber_counit_is_nat_trans
     : is_nat_trans
@@ -260,13 +262,12 @@ Section FiberOfBiequiv.
     : nat_trans (GG ∙ FF) (functor_identity _)
     := _ ,, fiber_counit_is_nat_trans.
 
-  Definition fiber_counit_nat_iso
-    : is_nat_iso fiber_counit.
+  Definition fiber_counit_nat_z_iso
+    : is_nat_z_iso fiber_counit.
   Proof.
     intros z.
-    use is_iso_qinv.
-    - exact (pr12 EE c z).
-    - split.
+    exists (pr12 EE c z).
+    split.
       + apply local_iso_cleaving_id.
         * exact HC.
         * exact HD₂_2_1.
@@ -285,9 +286,12 @@ Section FiberOfBiequiv.
           ** apply LGD₂.
   Qed.
 
-  Definition fiber_counit_iso
-    : nat_iso (GG ∙ FF) (functor_identity _)
-    := (_ ,, fiber_counit_nat_iso).
+  Definition fiber_counit_z_iso
+    : nat_z_iso (GG ∙ FF) (functor_identity _).
+  Proof.
+    use tpair.
+    2: { apply fiber_counit_nat_z_iso. }
+  Defined.
 
   Definition fiber_equivalence
     : equivalence_of_cats
@@ -295,9 +299,9 @@ Section FiberOfBiequiv.
         (discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c).
   Proof.
     simple refine ((FF ,, (GG ,, (_ ,, _))) ,, (_ ,, _)).
-    - exact (pr1 (nat_iso_inv fiber_unit_iso)).
-    - exact (pr1 fiber_counit_iso).
-    - exact (pr2 (nat_iso_inv fiber_unit_iso)).
-    - exact (pr2 fiber_counit_iso).
+    - exact (pr1 (nat_z_iso_inv fiber_unit_z_iso)).
+    - exact (pr1 fiber_counit_z_iso).
+    - exact (pr2 (nat_z_iso_inv fiber_unit_z_iso)).
+    - exact (pr2 fiber_counit_z_iso).
   Defined.
 End FiberOfBiequiv.

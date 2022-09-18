@@ -1,6 +1,6 @@
 (** * Results about Topology *)
 (** Author: Catherine LELAY. Jan 2016 - *)
-(** Based on Bourbaky *)
+(** Based on Bourbaki *)
 
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.

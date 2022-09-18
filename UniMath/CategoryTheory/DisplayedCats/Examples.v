@@ -261,17 +261,17 @@ Proof.
   apply Y.
 Qed.
 
-Definition is_iso_disp_elements_universal
+Definition is_z_iso_disp_elements_universal
            {X Y : HSET}
            {f : X --> Y}
-           (Hf : is_iso f)
+           (Hf : is_z_isomorphism f)
            {x : elements_universal X}
            {y : elements_universal Y}
            (ff : x -->[ f ] y)
-  : is_iso_disp (make_iso _ Hf) ff.
+  : is_z_iso_disp (make_z_iso' _ Hf) ff.
 Proof.
   simple refine (_ ,, _ ,, _).
-  - pose (eqtohomot (iso_inv_after_iso (make_iso f Hf)) x) as p.
+  - pose (eqtohomot (z_iso_inv_after_z_iso (make_z_iso' f Hf)) x) as p.
     cbn in *.
     refine (_ @ p).
     apply maponpaths.
@@ -398,21 +398,21 @@ Proof.
   intros c c' i d.
   cbn in *.
   use tpair.
-  - exact (compose (compose (functor_on_iso F i) d) (iso_inv_from_iso i)).
-  - cbn. unfold iso_disp. cbn.
+  - exact (compose (compose (functor_on_z_iso F i) d) (z_iso_inv_from_z_iso i)).
+  - cbn. unfold z_iso_disp. cbn.
     use tpair.
     + abstract (
           etrans; [eapply pathsinv0; apply id_right |];
           repeat rewrite <- assoc;
           do 2 apply maponpaths;
-          apply pathsinv0; apply iso_after_iso_inv
+          apply pathsinv0; apply z_iso_after_z_iso_inv
         ).
     + use tpair.
       * unfold functor_alg_mor.
         cbn. repeat rewrite assoc.
         unfold functor_alg_mor. cbn.
         rewrite <- functor_comp.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         rewrite functor_id.
         rewrite id_left. apply idpath.
       * split; apply homset_property.

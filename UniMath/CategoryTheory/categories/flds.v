@@ -35,21 +35,21 @@ Section def_fld_precategory.
   Local Lemma fld_id_left (X Y : fld) (f : ringfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque fld_id_left.
 
   Local Lemma fld_id_right (X Y : fld) (f : ringfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque fld_id_right.
 
   Local Lemma fld_assoc (X Y Z W : fld) (f : ringfun X Y) (g : ringfun Y Z) (h : ringfun Z W) :
     rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque fld_assoc.
 
@@ -75,22 +75,24 @@ End def_fld_precategory.
 (** * Category of flds *)
 Section def_fld_category.
 
-  (** ** (rigiso X Y) ≃ (iso X Y) *)
+  Definition fld_category : category := make_category _ has_homsets_fld_precategory.
 
-  Lemma fld_iso_is_equiv (A B : ob fld_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  (** ** (rigiso X Y) ≃ (z_iso X Y) *)
+
+  Lemma fld_iso_is_equiv (A B : ob fld_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1rigfun _ _ (inv_from_iso f)).
+    - exact (pr1rigfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropisrigfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropisrigfun.
   Defined.
   Opaque fld_iso_is_equiv.
 
-  Lemma fld_iso_equiv (X Y : ob fld_precategory) : iso X Y -> ringiso (X : fld) (Y : fld).
+  Lemma fld_iso_equiv (X Y : ob fld_category) : z_iso X Y -> ringiso (X : fld) (Y : fld).
   Proof.
     intro f.
     use make_ringiso.
@@ -98,55 +100,53 @@ Section def_fld_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma fld_equiv_is_iso (X Y : ob fld_precategory) (f : ringiso (X : fld) (Y : fld)) :
-    @is_iso fld_precategory X Y (ringfunconstr (pr2 f)).
+  Lemma fld_equiv_is_z_iso (X Y : ob fld_category) (f : ringiso (X : fld) (Y : fld)) :
+    @is_z_isomorphism fld_category X Y (ringfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use make_is_inverse_in_precat.
-      + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (ringfunconstr (pr2 (invrigiso f))).
+    use make_is_inverse_in_precat.
+    - use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque fld_equiv_is_iso.
+  Opaque fld_equiv_is_z_iso.
 
-  Lemma fld_equiv_iso (X Y : ob fld_precategory) : ringiso (X : fld) (Y : fld) -> iso X Y.
+  Lemma fld_equiv_iso (X Y : ob fld_category) : ringiso (X : fld) (Y : fld) -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso fld_precategory X Y (ringfunconstr (pr2 f))
-                              (fld_equiv_is_iso X Y f)).
+    intros f. exact (_,,fld_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma fld_iso_equiv_is_equiv (X Y : fld_precategory) : isweq (fld_iso_equiv X Y).
+  Lemma fld_iso_equiv_is_equiv (X Y : fld_category) : isweq (fld_iso_equiv X Y).
   Proof.
     use isweq_iso.
     - exact (fld_equiv_iso X Y).
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
+      + apply idpath.
   Defined.
   Opaque fld_iso_equiv_is_equiv.
 
-  Definition fld_iso_equiv_weq (X Y : ob fld_precategory) :
-    weq (iso X Y) (ringiso (X : fld) (Y : fld)).
+  Definition fld_iso_equiv_weq (X Y : ob fld_category) :
+    weq (z_iso X Y) (ringiso (X : fld) (Y : fld)).
   Proof.
     use make_weq.
     - exact (fld_iso_equiv X Y).
     - exact (fld_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma fld_equiv_iso_is_equiv (X Y : ob fld_precategory) : isweq (fld_equiv_iso X Y).
+  Lemma fld_equiv_iso_is_equiv (X Y : ob fld_category) : isweq (fld_equiv_iso X Y).
   Proof.
     use isweq_iso.
     - exact (fld_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+      + apply idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
   Defined.
   Opaque fld_equiv_iso_is_equiv.
 
-  Definition fld_equiv_weq_iso (X Y : ob fld_precategory) :
-    (ringiso (X : fld) (Y : fld)) ≃ (iso X Y).
+  Definition fld_equiv_weq_iso (X Y : ob fld_category) :
+    (ringiso (X : fld) (Y : fld)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
     - exact (fld_equiv_iso X Y).
@@ -156,25 +156,24 @@ Section def_fld_category.
 
   (** ** Category of flds *)
 
-  Definition fld_precategory_isweq (X Y : ob fld_precategory) : isweq (λ p : X = Y, idtoiso p).
+  Definition fld_category_isweq (X Y : ob fld_category) : isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (fld_univalence X Y) (fld_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (fld_univalence X Y) (fld_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
-    - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - apply idpath.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque fld_precategory_isweq.
+  Opaque fld_category_isweq.
 
-  Definition fld_category : category := make_category _ has_homsets_fld_precategory.
 
   Definition fld_category_is_univalent : is_univalent fld_category.
   Proof.
-    intros X Y. exact (fld_precategory_isweq X Y).
+    intros X Y. exact (fld_category_isweq X Y).
   Defined.
 
   Definition fld_univalent_category : univalent_category

@@ -221,7 +221,7 @@ Proof.
     intro x.
     apply isotoid.
     { apply (pr1 G₂). }
-    use make_iso.
+    use make_z_iso'.
     + exact ((pr1 α : _ ⟹ _) x).
     + exact (pr2 G₂ _ _ ((pr1 α : _ ⟹ _) x)).
   - exact (λ _ _, idpath _).
@@ -238,7 +238,7 @@ Proof.
     refine (_ @ isotoid_identity_iso _ _ _).
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ F₁ F₂ F₃ α₁ α₂ ; cbn.
     use funextsec.
@@ -246,7 +246,7 @@ Proof.
     rewrite <- isotoid_comp.
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ F ; cbn.
     use funextsec.
@@ -255,7 +255,7 @@ Proof.
     refine (_ @ isotoid_identity_iso _ _ _).
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ F ; cbn.
     use funextsec.
@@ -264,7 +264,7 @@ Proof.
     refine (_ @ isotoid_identity_iso _ _ _).
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ G₃ G₄ F₁ F₂ F₃ ; cbn.
     use funextsec.
@@ -272,7 +272,7 @@ Proof.
     refine (_ @ isotoid_identity_iso _ _ _).
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ G₃ F₁ F₂ F₃ α ; cbn.
     use funextsec.
@@ -280,7 +280,7 @@ Proof.
     rewrite pathscomp0rid.
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ G₃ F₁ F₂ F₃ α ; cbn.
     use funextsec.
@@ -293,7 +293,7 @@ Proof.
     }
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
 Qed.
 
@@ -320,7 +320,7 @@ Defined.
 Lemma eq_isotoid
       {C : univalent_category}
       {X Y : C}
-      (f : iso X Y) (p : X = Y)
+      (f : z_iso X Y) (p : X = Y)
   : f = idtoiso p → isotoid C (pr2 C) f = p.
 Proof.
   intro H.
@@ -338,7 +338,7 @@ Proof.
     cbn ; unfold funhomotsec.
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     cbn.
     induction (p x).
     apply idpath.
@@ -348,7 +348,7 @@ Proof.
     rewrite pathscomp0rid ; cbn in *.
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     cbn.
     apply idpath.
   - intros X Y Z f g ; cbn.
@@ -357,7 +357,7 @@ Proof.
     rewrite pathscomp0rid ; cbn in *.
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     cbn.
     apply idpath.
 Qed.
@@ -557,7 +557,7 @@ Proof.
   cbn ; unfold path_groupoid_counit_data_nat_trans_data.
   use eq_isotoid.
   use subtypePath.
-  { intro ; apply isaprop_is_iso. }
+  { intro ; apply isaprop_is_z_isomorphism. }
   apply idpath.
 Qed.
 
@@ -600,7 +600,7 @@ Proof.
     refine (!_).
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     cbn.
     induction (p x).
     apply idpath.
@@ -611,7 +611,7 @@ Proof.
     rewrite maponpathsidfun.
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros X Y Z f g ; cbn.
     use funextsec ; intro x.
@@ -620,7 +620,7 @@ Proof.
     rewrite maponpathsidfun.
     apply (@eq_isotoid (path_univalent_groupoid _)).
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
 Qed.
 
@@ -682,12 +682,12 @@ Proof.
   - intro x ; cbn.
     apply eq_isotoid.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros x y z f g ; cbn.
     apply eq_isotoid.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     rewrite idtoiso_concat.
     rewrite !idtoiso_isotoid.
     apply idpath.
@@ -721,7 +721,7 @@ Proof.
   rewrite (maponpaths_isotoid _ _ (pr1 F) _ (pr21 G₂)).
   apply maponpaths.
   apply subtypePath.
-  { intro ; apply isaprop_is_iso. }
+  { intro ; apply isaprop_is_z_isomorphism. }
   apply idpath.
 Qed.
 
@@ -764,7 +764,7 @@ Proof.
     rewrite pathscomp0rid.
     apply maponpaths.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G.
     use subtypePath.
@@ -775,7 +775,7 @@ Proof.
     refine (!_).
     apply eq_isotoid.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
   - intros G₁ G₂ G₃ F₁ F₂.
     use subtypePath.
@@ -786,7 +786,7 @@ Proof.
     refine (!_).
     apply eq_isotoid.
     use subtypePath.
-    { intro ; apply isaprop_is_iso. }
+    { intro ; apply isaprop_is_z_isomorphism. }
     apply idpath.
 Qed.
 
@@ -815,7 +815,7 @@ Proof.
           (intros x y p ; cbn ;
            rewrite pathscomp0rid ;
            apply eq_isotoid ;
-           use subtypePath ; try (intro ; apply isaprop_is_iso) ;
+           use subtypePath ; try (intro ; apply isaprop_is_z_isomorphism) ;
            apply idpath).
     + apply locally_groupoid_grpds.
   - abstract
@@ -825,7 +825,7 @@ Proof.
        intro ; cbn ;
        rewrite !pathscomp0rid ;
        apply eq_isotoid ;
-       use subtypePath ; try (intro ; apply isaprop_is_iso) ;
+       use subtypePath ; try (intro ; apply isaprop_is_z_isomorphism) ;
        apply idpath).
 Defined.
 

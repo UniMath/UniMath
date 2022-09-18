@@ -102,10 +102,10 @@ Section EquivalenceFullSub.
     - split.
       + intro.
         apply is_iso_full_sub.
-        apply unit_nat_iso_from_adj_equivalence_of_cats.
+        apply unit_nat_z_iso_from_adj_equivalence_of_cats.
       + intro.
         apply is_iso_full_sub.
-        apply counit_nat_iso_from_adj_equivalence_of_cats.
+        apply counit_nat_z_iso_from_adj_equivalence_of_cats.
   Defined.
 
   Definition full_sub_category_adj_equivalence

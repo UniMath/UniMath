@@ -355,6 +355,21 @@ Proof.
   apply isaprop_fully_faithful_1cell.
 Defined.
 
+Definition pseudomonic_subbicat
+           (B : bicat)
+  : arrow_subbicat B
+  := full_arrow_subbicat (λ _ _ f, pseudomonic_1cell f).
+
+Definition pseudomonic_subbicat_props
+           (B : bicat)
+  : arrow_subbicat_props (pseudomonic_subbicat B).
+Proof.
+  use full_arrow_subbicat_props.
+  intros.
+  apply isaprop_pseudomonic_1cell.
+Defined.
+
+
 Definition conservative_subbicat
            (B : bicat)
   : arrow_subbicat B
@@ -811,6 +826,16 @@ Proof.
     exact (pb_of_fully_faithful_1cell Hpb Hf).
 Defined.
 
+Definition pseudomonic_disp_map_bicat
+           (B : bicat_with_pb)
+  : disp_map_bicat B.
+Proof.
+  use full_disp_map_bicat.
+  - exact (λ _ _ f, pseudomonic_1cell f).
+  - intros pb x y z f g p₁ p₂ γ Hf Hpb.
+    exact (pb_of_pseudomonic_1cell Hpb Hf).
+Defined.
+
 Definition conservative_disp_map_bicat
            (B : bicat_with_pb)
   : disp_map_bicat B.
@@ -1214,6 +1239,15 @@ Proof.
   apply id1_fully_faithful.
 Defined.
 
+Definition pseudomonic_subbicat_bifinal
+           (B : bicat)
+  : arrow_subbicat_bifinal (pseudomonic_subbicat B).
+Proof.
+  use full_arrow_subbicat_bifinal.
+  intros ; cbn.
+  apply id1_pseudomonic.
+Defined.
+
 Definition conservative_subbicat_bifinal
            (B : bicat)
   : arrow_subbicat_bifinal (conservative_subbicat B).
@@ -1324,6 +1358,17 @@ Proof.
   use full_arrow_subbicat_biinitial.
   intros ; cbn.
   exact (from_biinitial_fully_faithful_1cell (pr2 I) HI _).
+Defined.
+
+Definition pseudomonic_subbicat_biinitial
+           {B : bicat}
+           (I : biinitial_obj B)
+           (HI : biinitial_is_strict_biinitial_obj (pr2 I))
+  : arrow_subbicat_biinitial I (pseudomonic_subbicat B).
+Proof.
+  use full_arrow_subbicat_biinitial.
+  intros ; cbn.
+  exact (from_biinitial_pseudomonic_1cell (pr2 I) HI _).
 Defined.
 
 Definition conservative_subbicat_biinitial
@@ -1462,6 +1507,15 @@ Proof.
   exact (comp_fully_faithful Hf Hg).
 Defined.
 
+Definition pseudomonic_subbicat_closed_composition
+           (B : bicat)
+  : arrow_subbicat_closed_composition (pseudomonic_subbicat B).
+Proof.
+  use full_arrow_subbicat_composition.
+  intros x y z f g Hf Hg.
+  exact (comp_pseudomonic Hf Hg).
+Defined.
+
 Definition conservative_subbicat_closed_composition
            (B : bicat)
   : arrow_subbicat_closed_composition (conservative_subbicat B).
@@ -1565,6 +1619,13 @@ Defined.
 Definition fully_faithful_subbicat_closed_prod_mor
            (B : bicat)
   : arrow_subbicat_closed_prod_mor (fully_faithful_subbicat B).
+Proof.
+  apply full_arrow_subbicat_closed_prod_mor.
+Defined.
+
+Definition pseudomonic_closed_prod_mor
+           (B : bicat)
+  : arrow_subbicat_closed_prod_mor (pseudomonic_subbicat B).
 Proof.
   apply full_arrow_subbicat_closed_prod_mor.
 Defined.

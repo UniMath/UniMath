@@ -217,11 +217,11 @@ Section ReindexFib.
     - intro D.
       use is_invertible_2cell_fib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
     - intros D₁ D₂ D₃ G₁ G₂.
       use is_invertible_2cell_fib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
   Defined.
 
   Definition reindex_fib_psfunctor
@@ -423,11 +423,11 @@ Section ReindexOpFib.
     - intro D.
       use is_invertible_2cell_opfib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
     - intros D₁ D₂ D₃ G₁ G₂.
       use is_invertible_2cell_opfib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
   Defined.
 
   Definition reindex_opfib_psfunctor

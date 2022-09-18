@@ -74,30 +74,7 @@ Defined.
 
 (** The n-th element of a list *)
 
-Fixpoint nth'' n i : i < n -> vec A n -> A
-  (* eventually figure out how to use "induction" alone to define this *)
-  := match n, i with
-     |   0,   _ => λ r x, fromempty (nopathsfalsetotrue r)
-     | S n,   0 => λ r x, pr1 x
-     | S n, S i => λ r x, nth'' n i r (pr2 x)
-     end.
-
-Definition nth' n : vec A n -> stn n -> A.
-Proof.
-  intros x i.
-  exact (nth'' n (pr1 i) (pr2 i) x).
-Defined.
-
-Lemma nth'_step n (x : vec A (S n)) i (I:i<n) :
-  nth' (S n) x (make_stn (S n) (S i) I) = nth' n (pr2 x) (make_stn n i I).
-Proof.
-  reflexivity.
-Defined.
-
-Definition nth x : stn(length x) -> A.
-Proof.
-  intros i. exact (nth' (length x) (pr2 x) i).
-Defined.
+Definition nth x : stn(length x) -> A := el (pr2 x).
 
 Definition functionToList' n : (stn n -> A) -> vec A n.
 Proof.
@@ -317,31 +294,6 @@ Proof.
   unfold flatten.
   rewrite list_ind_compute_2.
   reflexivity.
-Defined.
-
-(** between ≃ lists and functions  *)
-
-Lemma isweqlistfun {A} n : isweq (@nth' A n).
-Proof.
-  simple refine (isweq_iso _ (functionToList' _) _ _).
-  - intros. induction n as [|n N].
-    + apply isapropunit.
-    + simpl in x. induction x as [a x]. apply dirprodeq.
-      * simpl. reflexivity.
-      * simpl. apply N.
-  - intros. apply funextfun; intro i.
-    induction n as [|n N].
-    + apply fromempty. now apply negstn0.
-    + induction i as [i I].
-      induction i as [|i IHi].
-      * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypePath_prop.
-      * change (hProptoType (i<n)) in I.
-        exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
-Defined.
-
-Corollary weqlistfun {A} n : (vec A n) ≃ (stn n -> A).
-Proof.
-  exact (make_weq _ (isweqlistfun _)).
 Defined.
 
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).

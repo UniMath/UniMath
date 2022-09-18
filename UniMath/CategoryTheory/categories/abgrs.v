@@ -106,75 +106,74 @@ End def_abgr_precategory.
 *)
 Section def_abgr_category.
 
-  (** ** (monoidiso X Y) ≃ (iso X Y) *)
+  (** ** (monoidiso X Y) ≃ (z_iso X Y) *)
 
-  Lemma abgr_iso_is_equiv (A B : ob abgr_category) (f : iso A B) : isweq (pr1 (pr1 f)).
+  Lemma abgr_z_iso_is_equiv (A B : ob abgr_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1monoidfun _ _ (inv_from_iso f)).
+    - exact (pr1monoidfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropismonoidfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropismonoidfun.
   Qed.
 
-  Lemma abgr_iso_equiv (X Y : ob abgr_category) : iso X Y -> monoidiso (X : abgr) (Y : abgr).
+  Lemma abgr_z_iso_equiv (X Y : ob abgr_category) : z_iso X Y -> monoidiso (X : abgr) (Y : abgr).
   Proof.
     intro f.
     use make_monoidiso.
-    - exact (make_weq (pr1 (pr1 f)) (abgr_iso_is_equiv X Y f)).
+    - exact (make_weq (pr1 (pr1 f)) (abgr_z_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma abgr_equiv_is_iso (X Y : ob abgr_category) (f : monoidiso (X : abgr) (Y : abgr)) :
-    @is_iso abgr_category X Y (monoidfunconstr (pr2 f)).
+  Lemma abgr_equiv_is_z_iso (X Y : ob abgr_category) (f : monoidiso (X : abgr) (Y : abgr)) :
+    @is_z_isomorphism abgr_category X Y (monoidfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use make_is_inverse_in_precat.
-      + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (monoidfunconstr (pr2 (invmonoidiso f))).
+    split.
+    - use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Qed.
 
-  Definition abgr_equiv_iso (X Y : ob abgr_category) (f : monoidiso (X : abgr) (Y : abgr)) :
-    iso X Y := @make_iso abgr_category X Y (monoidfunconstr (pr2 f)) (abgr_equiv_is_iso X Y f).
+  Definition abgr_equiv_z_iso (X Y : ob abgr_category) (f : monoidiso (X : abgr) (Y : abgr)) :
+    z_iso X Y := @make_z_iso' abgr_category X Y (monoidfunconstr (pr2 f)) (abgr_equiv_is_z_iso X Y f).
 
-  Lemma abgr_iso_equiv_is_equiv (X Y : abgr_category) : isweq (abgr_iso_equiv X Y).
+  Lemma abgr_z_iso_equiv_is_equiv (X Y : abgr_category) : isweq (abgr_z_iso_equiv X Y).
   Proof.
     use isweq_iso.
-    - exact (abgr_equiv_iso X Y).
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - exact (abgr_equiv_z_iso X Y).
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Qed.
 
-  Definition abgr_iso_equiv_weq (X Y : ob abgr_category) :
-    weq (iso X Y) (monoidiso (X : abgr) (Y : abgr)).
+  Definition abgr_z_iso_equiv_weq (X Y : ob abgr_category) :
+    weq (z_iso X Y) (monoidiso (X : abgr) (Y : abgr)).
   Proof.
     use make_weq.
-    - exact (abgr_iso_equiv X Y).
-    - exact (abgr_iso_equiv_is_equiv X Y).
+    - exact (abgr_z_iso_equiv X Y).
+    - exact (abgr_z_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma abgr_equiv_iso_is_equiv (X Y : ob abgr_category) : isweq (abgr_equiv_iso X Y).
+  Lemma abgr_equiv_z_iso_is_equiv (X Y : ob abgr_category) : isweq (abgr_equiv_z_iso X Y).
   Proof.
     use isweq_iso.
-    - exact (abgr_iso_equiv X Y).
+    - exact (abgr_z_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
   Qed.
 
-  Definition abgr_equiv_weq_iso (X Y : ob abgr_category) :
-    (monoidiso (X : abgr) (Y : abgr)) ≃ (iso X Y).
+  Definition abgr_equiv_weq_z_iso (X Y : ob abgr_category) :
+    (monoidiso (X : abgr) (Y : abgr)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
-    - exact (abgr_equiv_iso X Y).
-    - exact (abgr_equiv_iso_is_equiv X Y).
+    - exact (abgr_equiv_z_iso X Y).
+    - exact (abgr_equiv_z_iso_is_equiv X Y).
   Defined.
 
 
@@ -183,16 +182,16 @@ Section def_abgr_category.
   Definition abgr_category_isweq (a b : ob abgr_category) : isweq (λ p : a = b, idtoiso p).
   Proof.
     use (@isweqhomot
-           (a = b) (iso a b)
-           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))
-           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))).
+           (a = b) (z_iso a b)
+           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_weq_z_iso a b)))
+           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_weq_z_iso a b)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use total2_paths_f.
       + use idpath.
       + use proofirrelevance. use isapropismonoidfun.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Qed.
 
   Definition abgr_category_is_univalent : is_univalent abgr_category.

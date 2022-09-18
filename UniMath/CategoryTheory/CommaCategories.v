@@ -1,6 +1,7 @@
 (** **********************************************************
 
 Benedikt Ahrens March 2016, Anthony Bordg May 2017
+Niels van der Weide February 2022: rebasing of general comma categories on displayed categories
 
 
 ************************************************************)
@@ -17,6 +18,8 @@ Contents :
           [functor_cComma_mor : functor (c' ↓ K) (c ↓ K)]
         - general comma categories [comma_category]
           - projection functors ([comma_pr1], [comma_pr2])
+
+        - inserter categories
 
 ************************************************************)
 
@@ -205,43 +208,41 @@ End lemmas_on_const_comma_cats.
 
 (** General comma categories *)
 Section CommaCategory.
+
   Context {C₁ C₂ C₃ : category}
           (F : C₁ ⟶ C₃)
           (G : C₂ ⟶ C₃).
 
-  (** Definition of iso comma categories via displayed categories *)
+  (** Definition of comma categories via displayed categories *)
   Definition comma_disp_cat_ob_mor
     : disp_cat_ob_mor (category_binproduct C₁ C₂).
   Proof.
-    simple refine (_ ,, _).
+    use tpair.
     - exact (λ x, F (pr1 x) --> G (pr2 x)).
-    - exact (λ x y i₁ i₂ f, #F (pr1 f) · i₂ = i₁ · #G (pr2 f)).
+    - exact (λ x y i₁ i₂ f, i₁ · #G (pr2 f) = #F (pr1 f) · i₂).
   Defined.
 
   Definition comma_disp_cat_id_comp
     : disp_cat_id_comp _ comma_disp_cat_ob_mor.
   Proof.
-    simple refine (_ ,, _).
-    - intros x i ; cbn.
+    use tpair.
+    - intros x i; cbn.
       rewrite !functor_id.
       rewrite id_left, id_right.
       apply idpath.
-    - cbn ; intros x y z f g i₁ i₂ i₃ p q.
+    - cbn; intros x y z f g i₁ i₂ i₃ p q.
+      apply pathsinv0.
       rewrite !functor_comp.
       rewrite !assoc'.
-      rewrite q.
+      rewrite <- q.
       rewrite !assoc.
       rewrite p.
       apply idpath.
   Qed.
 
   Definition comma_disp_cat_data
-    : disp_cat_data (category_binproduct C₁ C₂).
-  Proof.
-    simple refine (_ ,, _).
-    - exact comma_disp_cat_ob_mor.
-    - exact comma_disp_cat_id_comp.
-  Defined.
+    : disp_cat_data (category_binproduct C₁ C₂)
+    := comma_disp_cat_ob_mor,, comma_disp_cat_id_comp.
 
   Definition comma_disp_cat_axioms
     : disp_cat_axioms _ comma_disp_cat_data.
@@ -254,7 +255,7 @@ Section CommaCategory.
   Definition comma_disp_cat
     : disp_cat (category_binproduct C₁ C₂).
   Proof.
-    simple refine (_ ,, _).
+    use tpair.
     - exact comma_disp_cat_data.
     - exact comma_disp_cat_axioms.
   Defined.
@@ -263,7 +264,7 @@ Section CommaCategory.
     : category
     := total_category comma_disp_cat.
 
-  (** Univalence of the iso-comma category *)
+  (** Univalence of the comma category *)
   Definition is_univalent_disp_comma_disp_cat
              (HC₃ : is_univalent C₃)
     : is_univalent_disp comma_disp_cat.
@@ -276,11 +277,11 @@ Section CommaCategory.
       cbn in m.
       rewrite !functor_id in m.
       rewrite id_left, id_right in m.
-      exact (!m).
+      assumption.
     - apply homset_property.
     - use isaproptotal2.
       + intro.
-        apply isaprop_is_iso_disp.
+        apply isaprop_is_z_iso_disp.
       + intros.
         apply homset_property.
   Qed.
@@ -302,22 +303,22 @@ Section CommaCategory.
   Section IsIsoComma.
     Context {x y : comma}
             (f : x --> y)
-            (Hf1 : is_iso (pr11 f))
-            (Hf2 : is_iso (pr21 f)).
+            (Hf1 : is_z_isomorphism (pr11 f))
+            (Hf2 : is_z_isomorphism (pr21 f)).
 
     Definition inv_comma
       : y --> x.
     Proof.
-      refine ((inv_from_iso (make_iso _ Hf1) ,, inv_from_iso (make_iso _ Hf2)) ,, _).
+      refine ((inv_from_z_iso (make_z_iso' _ Hf1) ,, inv_from_z_iso (make_z_iso' _ Hf2)) ,, _).
       abstract
-        (cbn ;
-         rewrite !functor_on_inv_from_iso ;
-         use iso_inv_on_left ;
-         rewrite assoc' ;
+        (cbn; apply pathsinv0;
+         rewrite !functor_on_inv_from_z_iso;
+         use z_iso_inv_on_left;
+         rewrite assoc';
          refine (!_) ;
-         use iso_inv_on_right ;
-         cbn ;
-         exact (!(pr2 f))).
+         use z_iso_inv_on_right;
+         cbn;
+         exact (pr2 f)).
     Defined.
 
     Lemma is_iso_comma_left_inv
@@ -328,9 +329,9 @@ Section CommaCategory.
         intro.
         apply homset_property.
       }
-      use pathsdirprod ; cbn.
-      - exact (iso_inv_after_iso (make_iso _ Hf1)).
-      - exact (iso_inv_after_iso (make_iso _ Hf2)).
+      use pathsdirprod; cbn.
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf1)).
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf2)).
     Qed.
 
     Lemma is_iso_comma_right_inv
@@ -341,20 +342,20 @@ Section CommaCategory.
         intro.
         apply homset_property.
       }
-      use pathsdirprod ; cbn.
-      - exact (iso_after_iso_inv (make_iso _ Hf1)).
-      - exact (iso_after_iso_inv (make_iso _ Hf2)).
+      use pathsdirprod; cbn.
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf1)).
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf2)).
     Qed.
 
-    Definition is_iso_comma
-      : is_iso f.
+    Definition is_z_iso_comma
+      : is_z_isomorphism f.
     Proof.
-      use is_iso_qinv.
-      - exact inv_comma.
-      - split.
-        + exact is_iso_comma_left_inv.
-        + exact is_iso_comma_right_inv.
+      exists inv_comma.
+      split.
+      - exact is_iso_comma_left_inv.
+      - exact is_iso_comma_right_inv.
     Defined.
+
   End IsIsoComma.
 
   (** Projection functors *)
@@ -370,15 +371,15 @@ Section CommaCategory.
   Definition comma_commute_nat_trans_data
     : nat_trans_data (comma_pr1 ∙ F) (comma_pr2 ∙ G).
   Proof.
-    intros x ; cbn in x.
+    intros x; cbn in x.
     exact (pr2 x).
   Defined.
 
   Definition comma_commute_is_nat_trans
     : is_nat_trans _ _ comma_commute_nat_trans_data.
   Proof.
-    intros x y f ; unfold comma_commute_nat_trans_data ; cbn ; cbn in f.
-    exact (pr2 f).
+    intros x y f; unfold comma_commute_nat_trans_data; cbn; cbn in f.
+    exact (!(pr2 f)).
   Qed.
 
   Definition comma_commute
@@ -410,25 +411,25 @@ Section CommaCategory.
     Proof.
       use make_functor_data.
       - exact (λ d, (P d ,, Q d) ,, η d).
-      - exact (λ d₁ d₂ f, (#P f ,, #Q f) ,, nat_trans_ax η _ _ f).
+      - exact (λ d₁ d₂ f, (#P f ,, #Q f) ,, !(nat_trans_ax η _ _ f)).
     Defined.
 
     Definition comma_ump1_is_functor
       : is_functor comma_ump1_data.
     Proof.
       split.
-      - intro x ; cbn.
+      - intro x; cbn.
         use subtypePath.
         {
-          intro ; apply homset_property.
+          intro; apply homset_property.
         }
         cbn.
         rewrite !functor_id.
         apply idpath.
-      - intros x y z f g ; cbn.
+      - intros x y z f g; cbn.
         use subtypePath.
         {
-          intro ; apply homset_property.
+          intro; apply homset_property.
         }
         cbn.
         rewrite !functor_comp.
@@ -451,7 +452,7 @@ Section CommaCategory.
     Definition comma_ump1_pr1_is_nat_trans
       : is_nat_trans _ _ comma_ump1_pr1_nat_trans_data.
     Proof.
-      intros x y f ; cbn ; unfold comma_ump1_pr1_nat_trans_data.
+      intros x y f; cbn; unfold comma_ump1_pr1_nat_trans_data.
       rewrite id_left, id_right.
       apply idpath.
     Qed.
@@ -466,12 +467,12 @@ Section CommaCategory.
 
     (** Computation rule for first projection *)
     Definition comma_ump1_pr1
-      : nat_iso (comma_ump1 ∙ comma_pr1) P.
+      : nat_z_iso (comma_ump1 ∙ comma_pr1) P.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact comma_ump1_pr1_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     Definition comma_ump1_pr2_nat_trans_data
@@ -481,7 +482,7 @@ Section CommaCategory.
     Definition comma_ump1_pr2_is_nat_trans
       : is_nat_trans _ _ comma_ump1_pr2_nat_trans_data.
     Proof.
-      intros x y f ; cbn ; unfold comma_ump1_pr2_nat_trans_data.
+      intros x y f; cbn; unfold comma_ump1_pr2_nat_trans_data.
       rewrite id_left, id_right.
       apply idpath.
     Qed.
@@ -496,12 +497,12 @@ Section CommaCategory.
 
     (** Computation rule for second projection *)
     Definition comma_ump1_pr2
-      : nat_iso (comma_ump1 ∙ comma_pr2) Q.
+      : nat_z_iso (comma_ump1 ∙ comma_pr2) Q.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact comma_ump1_pr2_nat_trans.
       - intro.
-        apply identity_is_iso.
+        apply identity_is_z_iso.
     Defined.
 
     (** Computation rule for natural iso *)
@@ -519,14 +520,14 @@ Section CommaCategory.
                 η
                 (nat_trans_comp
                    _ _ _
-                   (post_whisker (nat_iso_inv comma_ump1_pr2) G)
+                   (post_whisker (nat_z_iso_inv comma_ump1_pr2) G)
                    (nat_trans_functor_assoc _ _ _)))).
     Proof.
       use nat_trans_eq.
       {
         apply homset_property.
       }
-      intro ; cbn ; unfold comma_ump1_pr1_nat_trans_data.
+      intro; cbn; unfold comma_ump1_pr1_nat_trans_data.
       rewrite (functor_id F), (functor_id G).
       rewrite !id_left.
       rewrite id_right.
@@ -550,7 +551,7 @@ Section CommaCategory.
       - exact (τ₁ x).
       - exact (τ₂ x).
       - abstract
-          (exact (!(p x))).
+          (exact (p x)).
     Defined.
 
     Definition comma_ump2_is_nat_trans
@@ -580,9 +581,9 @@ Section CommaCategory.
     Proof.
       use nat_trans_eq.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
-      intro x ; cbn.
+      intro x; cbn.
       apply idpath.
     Qed.
 
@@ -591,9 +592,9 @@ Section CommaCategory.
     Proof.
       use nat_trans_eq.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
-      intro x ; cbn.
+      intro x; cbn.
       apply idpath.
     Qed.
 
@@ -614,7 +615,7 @@ Section CommaCategory.
       intro x.
       use subtypePath.
       {
-        intro ; apply homset_property.
+        intro; apply homset_property.
       }
       use pathsdirprod.
       - pose (nat_trans_eq_pointwise n₁_pr1 x) as q₁.
@@ -626,7 +627,9 @@ Section CommaCategory.
         cbn in q₁, q₂.
         exact (q₁ @ !q₂).
     Qed.
+
   End UniversalMappingProperty.
+
 End CommaCategory.
 
 Definition univalent_comma

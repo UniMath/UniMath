@@ -221,7 +221,7 @@ Section InternalStreetFibration.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
              ,, pr112 lift
-             ,, iso_to_inv2cell (pr212 lift)
+             ,, z_iso_to_inv2cell (pr212 lift)
              ,, pr222 lift
              ,, pr122 lift).
     - exact (pr2 H).
@@ -235,7 +235,7 @@ Section InternalStreetFibration.
     - intros x f g α.
       pose (lift := pr1 H x g f α).
       exact (pr1 lift
-             ,, (pr12 lift ,, inv2cell_to_iso (pr122 lift))
+             ,, (pr12 lift ,, inv2cell_to_z_iso (pr122 lift))
              ,, pr2 (pr222 lift)
              ,, pr1 (pr222 lift)).
     - exact (pr2 H).
@@ -266,7 +266,7 @@ Section InternalStreetFibration.
     refine (maponpaths (λ z, _ ,, z) _).
     use subtypePath.
     {
-      intro ; apply isaprop_is_iso.
+      intro. apply (isaprop_is_z_isomorphism(C:=hom x b)).
     }
     cbn.
     apply idpath.

@@ -323,25 +323,25 @@ Section BiadjunctionPreservation.
       - exact right_biadj_preserves_binprod_is_nat_trans.
     Defined.
 
-    Definition right_biadj_preserves_binprod_is_nat_iso
-      : is_nat_iso right_biadj_preserves_binprod_nat_trans.
+    Definition right_biadj_preserves_binprod_is_nat_z_iso
+      : is_nat_z_iso right_biadj_preserves_binprod_nat_trans.
     Proof.
       intro.
-      use is_iso_binprod_iso.
-      + use is_inv2cell_to_is_iso.
+      use is_z_iso_binprod_z_iso.
+      + use is_inv2cell_to_is_z_iso.
         is_iso ; apply property_from_invertible_2cell.
-      + use is_inv2cell_to_is_iso.
+      + use is_inv2cell_to_is_z_iso.
         is_iso ; apply property_from_invertible_2cell.
     Defined.
 
-    Definition right_biadj_preserves_binprod_nat_iso
-      : nat_iso
+    Definition right_biadj_preserves_binprod_nat_z_iso
+      : nat_z_iso
           (postcomp_binprod_cone HB₁ (psfunctor_binprod_cone R p) x)
           right_biadj_preserves_binprod_1cell.
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact right_biadj_preserves_binprod_nat_trans.
-      - exact right_biadj_preserves_binprod_is_nat_iso.
+      - exact right_biadj_preserves_binprod_is_nat_z_iso.
     Defined.
   End PreserveProducts.
 
@@ -358,7 +358,7 @@ Section BiadjunctionPreservation.
     - apply left_adj_equiv_right_biadj_preserves_binprod_1cell.
       exact Hp.
     - apply right_biadj_preserves_binprod_nat_trans.
-    - use is_nat_iso_to_is_invertible_2cell.
-      apply right_biadj_preserves_binprod_is_nat_iso.
+    - use is_nat_z_iso_to_is_invertible_2cell.
+      apply right_biadj_preserves_binprod_is_nat_z_iso.
   Defined.
 End BiadjunctionPreservation.

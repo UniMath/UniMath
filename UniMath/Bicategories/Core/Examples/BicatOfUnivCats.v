@@ -153,14 +153,14 @@ Qed.
 Definition bicat_of_univ_cats : bicat
   := (prebicat_of_univ_cats,, isaset_cells_prebicat_of_univ_cats).
 
-Definition is_invertible_2cell_to_is_nat_iso
+Definition is_invertible_2cell_to_is_nat_z_iso
            {C D : bicat_of_univ_cats}
            {F G : C --> D}
            (η : F ==> G)
-  : is_invertible_2cell η → is_nat_iso η.
+  : is_invertible_2cell η → is_nat_z_iso (pr1 η).
 Proof.
   intros Hη X.
-  use is_iso_qinv.
+  use tpair.
   - apply (Hη^-1).
   - abstract
       (split ; cbn ;
@@ -168,62 +168,62 @@ Proof.
        | exact (nat_trans_eq_pointwise (vcomp_linv Hη) X)]).
 Defined.
 
-Definition invertible_2cell_to_nat_iso
+Definition invertible_2cell_to_nat_z_iso
            {C D : bicat_of_univ_cats}
            (F G : C --> D)
-  : invertible_2cell F G → nat_iso F G.
+  : invertible_2cell F G → nat_z_iso F G.
 Proof.
   intros η.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (cell_from_invertible_2cell η).
-  - apply is_invertible_2cell_to_is_nat_iso.
+  - apply is_invertible_2cell_to_is_nat_z_iso.
     apply η.
 Defined.
 
-Definition is_nat_iso_to_is_invertible_2cell
+Definition is_nat_z_iso_to_is_invertible_2cell
            {C D : bicat_of_univ_cats}
            {F G : C --> D}
            (η : F ==> G)
-  : is_nat_iso η → is_invertible_2cell η.
+  : is_nat_z_iso (pr1 η) → is_invertible_2cell η.
 Proof.
   intros Hη.
   use tpair.
-  - apply (nat_iso_inv (η ,, Hη)).
+  - apply (nat_z_iso_inv (η ,, Hη)).
   - abstract
       (split ;
        [ apply nat_trans_eq ; [ apply homset_property | ] ;
          intros x ; cbn ;
-         exact (iso_inv_after_iso (pr1 η x ,, _))
+         exact (z_iso_inv_after_z_iso (pr1 η x ,, _))
        | apply nat_trans_eq ; [ apply homset_property | ] ;
          intros x ; cbn ;
-         exact (iso_after_iso_inv (pr1 η x ,, _)) ]).
+         exact (z_iso_after_z_iso_inv (pr1 η x ,, _)) ]).
 Defined.
 
-Definition nat_iso_to_invertible_2cell
+Definition nat_z_iso_to_invertible_2cell
            {C D : bicat_of_univ_cats}
            (F G : C --> D)
-  : nat_iso F G → invertible_2cell F G.
+  : nat_z_iso F G → invertible_2cell F G.
 Proof.
   intros η.
   use tpair.
   - apply η.
-  - apply is_nat_iso_to_is_invertible_2cell.
+  - apply is_nat_z_iso_to_is_invertible_2cell.
     apply η.
 Defined.
 
-Definition invertible_2cell_is_nat_iso
+Definition invertible_2cell_is_nat_z_iso
            {C D : bicat_of_univ_cats}
            (F G : C --> D)
-  : nat_iso F G ≃ invertible_2cell F G.
+  : nat_z_iso F G ≃ invertible_2cell F G.
 Proof.
   use make_weq.
-  - exact (nat_iso_to_invertible_2cell F G).
+  - exact (nat_z_iso_to_invertible_2cell F G).
   - use isweq_iso.
-    + exact (invertible_2cell_to_nat_iso F G).
+    + exact (invertible_2cell_to_nat_z_iso F G).
     + intros x.
       use subtypePath.
       * intro.
-        apply isaprop_is_nat_iso.
+        apply isaprop_is_nat_z_iso.
       * apply idpath.
     + intros x.
       use subtypePath.
@@ -259,9 +259,9 @@ Proof.
          exact p).
   - split.
     + intro X.
-      apply (invertible_2cell_to_nat_iso _ _ (left_equivalence_unit_iso A)).
+      apply (invertible_2cell_to_nat_z_iso _ _ (left_equivalence_unit_iso A)).
     + intro X.
-      apply (invertible_2cell_to_nat_iso _ _ (left_equivalence_counit_iso A)).
+      apply (invertible_2cell_to_nat_z_iso _ _ (left_equivalence_counit_iso A)).
 Defined.
 
 Definition equiv_cat_to_adj_equiv
@@ -287,10 +287,10 @@ Proof.
          intro x ; cbn ;
          rewrite id_left, !id_right ;
          apply (pr2(pr2(pr1 A)))).
-    + apply is_nat_iso_to_is_invertible_2cell.
+    + apply is_nat_z_iso_to_is_invertible_2cell.
       intro x.
       apply (pr2 A).
-    + apply is_nat_iso_to_is_invertible_2cell.
+    + apply is_nat_z_iso_to_is_invertible_2cell.
       intro x.
       apply (pr2 A).
 Defined.
@@ -316,7 +316,7 @@ Proof.
     + intros A.
       use subtypePath.
       * intro.
-        apply isapropdirprod ; apply impred ; intro ; apply isaprop_is_iso.
+        apply isapropdirprod ; apply impred ; intro ; apply isaprop_is_z_isomorphism.
       * use total2_paths_b.
         ** apply idpath.
         ** use subtypePath.
@@ -330,8 +330,8 @@ Definition univalent_cat_idtoiso_2_1
            (F G : bicat_of_univ_cats⟦C,D⟧)
   : F = G ≃ invertible_2cell F G.
 Proof.
-  refine ((invertible_2cell_is_nat_iso F G)
-            ∘ iso_is_nat_iso F G
+  refine ((invertible_2cell_is_nat_z_iso F G)
+            ∘ z_iso_is_nat_z_iso F G
             ∘ make_weq (@idtoiso (functor_category C D) F G) _)%weq.
   refine (is_univalent_functor_category C D _ F G).
   apply D.
@@ -377,7 +377,7 @@ Section CatIso_To_LeftAdjEquiv.
            (HF : is_catiso F).
 
   Local Definition cat_iso_unit
-    : nat_iso
+    : nat_z_iso
         (functor_identity C)
         (functor_composite F (inv_catiso (F ,, HF))).
   Proof.
@@ -428,7 +428,7 @@ Section CatIso_To_LeftAdjEquiv.
   Defined.
 
   Local Definition cat_iso_counit
-    : nat_iso
+    : nat_z_iso
         (functor_composite (inv_catiso (F ,, HF)) F)
         (functor_identity (pr1 (pr1 D))).
   Proof.
@@ -467,29 +467,27 @@ Section CatIso_To_LeftAdjEquiv.
         * apply cat_iso_counit.
     - split.
       + use tpair ; try split.
-        * apply (nat_iso_inv cat_iso_unit).
+        * apply (nat_z_iso_inv cat_iso_unit).
         * apply nat_trans_eq.
           { apply homset_property. }
           intro X ; cbn.
-          rewrite idtoiso_inv ; cbn ; unfold precomp_with.
-          rewrite id_right.
-          apply iso_after_iso_inv.
+          rewrite idtoiso_inv; cbn.
+          apply z_iso_after_z_iso_inv.
         * apply nat_trans_eq.
           { apply homset_property. }
           intro X ; cbn.
-          rewrite idtoiso_inv ; cbn ; unfold precomp_with.
-          rewrite id_right.
-          apply iso_inv_after_iso.
+          rewrite idtoiso_inv; cbn.
+          apply z_iso_inv_after_z_iso.
       + use tpair ; try split.
-        * apply (nat_iso_inv cat_iso_counit).
+        * apply (nat_z_iso_inv cat_iso_counit).
         * apply nat_trans_eq.
           { apply homset_property. }
           intro X ; cbn.
-          apply iso_inv_after_iso.
+          apply z_iso_inv_after_z_iso.
         * apply nat_trans_eq.
           { apply homset_property. }
           intro X ; cbn.
-          apply iso_after_iso_inv.
+          apply z_iso_after_z_iso_inv.
   Qed.
 
 End CatIso_To_LeftAdjEquiv.
@@ -568,8 +566,7 @@ Proof.
       * apply C.
       * use tpair.
         ** exact (ηinv X).
-        ** use is_iso_qinv ; try split.
-           *** exact (η X).
+        ** exists (η X); split.
            *** exact (ηinvη X).
            *** exact (ηηinv X).
     + intros Y ; cbn.
@@ -577,8 +574,7 @@ Proof.
       * apply D.
       * use tpair.
         ** exact (ε Y).
-        ** use is_iso_qinv ; try split.
-           *** exact (εinv Y).
+        ** exists (εinv Y); split.
            *** exact (εεinv Y).
            *** exact (εinvε Y).
 Qed.
@@ -644,10 +640,10 @@ Definition adj_equivalence_to_left_equivalence
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
   - exact (adj_equivalence_inv A).
-  - exact (pr1 (unit_nat_iso_from_adj_equivalence_of_cats A)).
-  - exact (pr1 (counit_nat_iso_from_adj_equivalence_of_cats A)).
-  - apply is_nat_iso_to_is_invertible_2cell.
-    exact (pr2 (unit_nat_iso_from_adj_equivalence_of_cats A)).
-  - apply is_nat_iso_to_is_invertible_2cell.
-    exact (pr2 (counit_nat_iso_from_adj_equivalence_of_cats A)).
+  - exact (pr1 (unit_nat_z_iso_from_adj_equivalence_of_cats A)).
+  - exact (pr1 (counit_nat_z_iso_from_adj_equivalence_of_cats A)).
+  - apply is_nat_z_iso_to_is_invertible_2cell.
+    exact (pr2 (unit_nat_z_iso_from_adj_equivalence_of_cats A)).
+  - apply is_nat_z_iso_to_is_invertible_2cell.
+    exact (pr2 (counit_nat_z_iso_from_adj_equivalence_of_cats A)).
 Defined.

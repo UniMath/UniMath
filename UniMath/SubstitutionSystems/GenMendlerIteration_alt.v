@@ -138,14 +138,14 @@ Proof.
 apply (colimArrowCommutes CC_LchnF).
 Qed.
 
-Local Lemma is_iso_inF : is_iso inF.
+Local Lemma is_z_iso_inF : is_z_isomorphism inF.
 Proof.
 (* Use Lambek's lemma, this could be extracted from the concrete proof as well *)
-apply initialAlg_is_iso, pr2.
+apply initialAlg_is_z_iso, pr2.
 Defined.
 
-Let inF_iso : iso (F μF) μF := make_iso _ is_iso_inF.
-Let inF_inv : C⟦μF,F μF⟧ := inv_from_iso inF_iso.
+Let inF_z_iso : z_iso (F μF) μF := make_z_iso' _ is_z_iso_inF.
+Let inF_inv : C⟦μF,F μF⟧ := inv_from_z_iso inF_z_iso.
 
 (* The direction * -> ** *)
 Lemma S_imp_SS h n : # L inF · h = ψ μF h → # L (e n) · h = Pow n IC z.
@@ -165,7 +165,7 @@ Local Lemma SS_imp_S (H : ∏ n, # L (e n) · preIt = Pow n IC z) : # L inF · p
 Proof.
 assert (H'' : # L inF · # L inF_inv = identity _).
 { rewrite <- functor_comp,  <- functor_id.
-   apply maponpaths, (iso_inv_after_iso inF_iso). }
+   apply maponpaths, (z_iso_inv_after_z_iso inF_z_iso). }
 assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n)) _ z).
 { intro n.
   rewrite e_comm, functor_comp.

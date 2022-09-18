@@ -50,12 +50,11 @@ Arguments reflective_subcategory _ : clear implicits.
 
 Lemma localization_is_idempotent {C : category} (R : reflective_subcategory C)
       (d : ob R) :
-  iso (localization R (precategory_object_from_sub_precategory_object _ _ d)) d.
+  z_iso (localization R (precategory_object_from_sub_precategory_object _ _ d)) d.
 Proof.
-  use make_iso.
-  - exact ((counit_from_left_adjoint (pr2 (pr2 R))) d).
-  - abstract (
-        apply (@counit_is_iso_if_right_adjoint_is_fully_faithful
+  exists ((counit_from_left_adjoint (pr2 (pr2 R))) d).
+  abstract (
+        apply (@counit_is_z_iso_if_right_adjoint_is_fully_faithful
                  C (subcategory C (full_sub_precategory R)) _ _ (pr2 (pr2 R))),
         fully_faithful_sub_precategory_inclusion).
 Defined.

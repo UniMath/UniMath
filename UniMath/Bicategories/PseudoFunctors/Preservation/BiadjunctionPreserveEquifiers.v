@@ -306,13 +306,13 @@ Section BiadjunctionPreservation.
       - exact (right_biadj_preserves_equifiers_commute_is_nat_trans x).
     Defined.
 
-    Definition right_biadj_preserves_equifiers_commute_is_nat_iso
+    Definition right_biadj_preserves_equifiers_commute_is_nat_z_iso
                (x : B₁)
-      : is_nat_iso (right_biadj_preserves_equifiers_commute x).
+      : is_nat_z_iso (right_biadj_preserves_equifiers_commute x).
     Proof.
       intro h.
       use is_iso_full_sub.
-      use is_inv2cell_to_is_iso.
+      use is_inv2cell_to_is_z_iso.
       cbn.
       unfold right_biadj_preserves_equifiers_nat_trans_cell.
       is_iso.
@@ -394,7 +394,7 @@ Section BiadjunctionPreservation.
                  (biadj_right_hom R x y₁)
                  preserve_equifiers_R_path).
     - exact (right_biadj_preserves_equifiers_commute x).
-    - exact (right_biadj_preserves_equifiers_commute_is_nat_iso x).
+    - exact (right_biadj_preserves_equifiers_commute_is_nat_z_iso x).
     - use comp_adj_equivalence_of_cats.
       + use comp_adj_equivalence_of_cats.
         * exact (biadj_hom_equiv R x e).

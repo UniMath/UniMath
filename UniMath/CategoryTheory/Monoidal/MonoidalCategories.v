@@ -43,12 +43,6 @@ Proof.
   apply (functor_comp tensor).
 Qed.
 
-Definition is_iso_tensor_iso {X Y X' Y' : C} {f : X --> Y} {g : X' --> Y'}
-           (f_is_iso : is_iso f) (g_is_iso : is_iso g) : is_iso (f #⊗ g).
-Proof.
-  exact (functor_on_is_iso_is_iso _ (is_iso_binprod_iso f_is_iso g_is_iso)).
-Defined.
-
 Definition is_z_iso_tensor_z_iso {X Y X' Y' : C} {f : X --> Y} {g : X' --> Y'}
            (f_is_z_iso : is_z_isomorphism f) (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #⊗ g).
 Proof.
@@ -482,4 +476,3 @@ Proof.
 Qed.
 
 End coherence_lemmas.
-

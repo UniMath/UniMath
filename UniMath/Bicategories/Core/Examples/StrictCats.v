@@ -155,6 +155,41 @@ Qed.
 Definition bicat_of_strict_cats : bicat
   := (prebicat_of_strict_cats,, isaset_cells_prebicat_of_strict_cats).
 
+Definition is_invertible_2cell_bicat_of_strict_cat
+           {C₁ C₂ : bicat_of_strict_cats}
+           {F G : C₁ --> C₂}
+           (α : F ==> G)
+           (Hα : is_nat_z_iso (pr1 α))
+  : is_invertible_2cell α.
+Proof.
+  use make_is_invertible_2cell.
+  - exact (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ α Hα))).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       exact (z_iso_inv_after_z_iso (make_z_iso _ _ (Hα x)))).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       exact (z_iso_after_z_iso_inv (make_z_iso _ _ (Hα x)))).
+Defined.
+
+Definition from_is_invertible_2cell_bicat_of_strict_cat
+           {C₁ C₂ : bicat_of_strict_cats}
+           {F G : C₁ --> C₂}
+           (α : F ==> G)
+           (Hα : is_invertible_2cell α)
+  : is_nat_z_iso (pr1 α).
+Proof.
+  intros x.
+  use make_is_z_isomorphism.
+  - exact (pr1 (Hα^-1) x).
+  - abstract
+      (split ;
+       [ exact (nat_trans_eq_pointwise (vcomp_rinv Hα) x)
+       | exact (nat_trans_eq_pointwise (vcomp_linv Hα) x) ]).
+Defined.
+
 Lemma idtoiso_2_1_strict_cat_help
            {c d : bicat_of_strict_cats}
            {f : functor_data (pr1 c) (pr1 d)}

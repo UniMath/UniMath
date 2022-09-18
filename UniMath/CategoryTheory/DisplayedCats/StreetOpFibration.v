@@ -33,7 +33,7 @@ Definition transportf_functor_isotoid'
            (F : C₁ ⟶ C₂)
            {y : C₂}
            {x₁ x₂ : C₁}
-           (i : iso x₁ x₂)
+           (i : z_iso x₁ x₂)
            (f : y --> F x₁)
   : transportf
       (λ z, y --> F z)
@@ -140,7 +140,7 @@ Section StreetOpFibration.
          (b : B)
          (f : F e --> b),
        ∑ (bb : E)
-         (ff_i : e --> bb × iso b (F bb)),
+         (ff_i : e --> bb × z_iso b (F bb)),
        # F (pr1 ff_i) = f · pr2 ff_i
        ×
        is_opcartesian_sopfib (pr1 ff_i).
@@ -327,7 +327,7 @@ Section OpcleavingToStreetOpFib.
   Proof.
     intros e b f.
     pose (HD (pr1 e) b (pr2 e) f) as c.
-    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_iso b) ,, _).
+    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_z_iso b) ,, _).
     simpl.
     split.
     - apply (!(id_right _)).
@@ -347,22 +347,22 @@ Definition lift_unique_sopfib_map
            (f : F e --> b)
            (bb₁ bb₂ : E)
            (ff₁ : e --> bb₁)
-           (β₁ : iso b (F bb₁))
+           (β₁ : z_iso b (F bb₁))
            (ff₂ :  e --> bb₂)
-           (β₂ : iso b (F bb₂))
+           (β₂ : z_iso b (F bb₂))
            (over₁ : # F (ff₁) = f · β₁)
            (over₂ : # F (ff₂) = f · β₂)
            (cart₁ : is_opcartesian_sopfib F ff₁)
            (cart₂ : is_opcartesian_sopfib F ff₂)
   : bb₁ --> bb₂.
 Proof.
-  use (opcartesian_factorization_sopfib F cart₁ ff₂ (inv_from_iso β₁ · β₂) _).
+  use (opcartesian_factorization_sopfib F cart₁ ff₂ (inv_from_z_iso β₁ · β₂) _).
   abstract
     (rewrite over₁, over₂ ;
      rewrite !assoc' ;
      apply maponpaths ;
      rewrite !assoc ;
-     rewrite iso_inv_after_iso ;
+     rewrite z_iso_inv_after_z_iso ;
      rewrite id_left ;
      apply idpath).
 Defined.
@@ -375,9 +375,9 @@ Section UniqueLifts.
           (f : F e --> b)
           (bb₁ bb₂ : E)
           (ff₁ : e --> bb₁)
-          (β₁ : iso b (F bb₁))
+          (β₁ : z_iso b (F bb₁))
           (ff₂ :  e --> bb₂)
-          (β₂ : iso b (F bb₂))
+          (β₂ : z_iso b (F bb₂))
           (over₁ : # F (ff₁) = f · β₁)
           (over₂ : # F (ff₂) = f · β₂)
           (cart₁ : is_opcartesian_sopfib F ff₁)
@@ -403,9 +403,9 @@ Section UniqueLifts.
       rewrite !opcartesian_factorization_sopfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc.
@@ -429,9 +429,9 @@ Section UniqueLifts.
       rewrite !opcartesian_factorization_sopfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc.
@@ -441,15 +441,13 @@ Section UniqueLifts.
   Qed.
 
   Definition lift_unique_sopfib
-    : iso bb₁ bb₂.
+    : z_iso bb₁ bb₂.
   Proof.
-    use make_iso.
-    - exact ζ.
-    - use is_iso_qinv.
-      + exact ζinv.
-      + split.
-        * exact lift_unique_sopfib_inv₁.
-        * exact lift_unique_sopfib_inv₂.
+    exists ζ.
+    exists  ζinv.
+    split.
+    - exact lift_unique_sopfib_inv₁.
+    - exact lift_unique_sopfib_inv₂.
   Defined.
 End UniqueLifts.
 
@@ -485,7 +483,7 @@ Proof.
     use dirprod_paths.
     + etrans.
       {
-        apply (@pr1_transportf E (λ x, e --> x) (λ x _, iso _ (F x))).
+        apply (@pr1_transportf E (λ x, e --> x) (λ x _, z_iso _ (F x))).
       }
       rewrite transportf_isotoid'.
       apply opcartesian_factorization_sopfib_commute.
@@ -493,9 +491,9 @@ Proof.
       use subtypePath.
       {
         intro.
-        apply isaprop_is_iso.
+        apply isaprop_is_z_isomorphism.
       }
-      unfold iso.
+      unfold z_iso.
       rewrite pr1_transportf.
       rewrite transportf_functor_isotoid'.
       etrans.
@@ -507,7 +505,7 @@ Proof.
       etrans.
       {
         apply maponpaths_2.
-        apply iso_inv_after_iso.
+        apply z_iso_inv_after_z_iso.
       }
       apply id_left.
 Qed.
@@ -533,10 +531,10 @@ Definition iso_is_opcartesian_sopfib
            (F : C₁ ⟶ C₂)
            {x₁ x₂ : C₁}
            (i : x₁ --> x₂)
-           (Hi : is_iso i)
+           (Hi : is_z_isomorphism i)
   : is_opcartesian_sopfib F i.
 Proof.
-  pose (i_iso := make_iso _ Hi).
+  pose (i_iso := make_z_iso' _ Hi).
   intros w g h p.
   use iscontraprop1.
   - abstract
@@ -544,13 +542,13 @@ Proof.
        intros φ₁ φ₂ ;
        use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
        refine (!(id_left _) @ _ @ id_left _) ;
-       rewrite <- (iso_after_iso_inv i_iso) ;
+       rewrite <- (z_iso_after_z_iso_inv i_iso) ;
        cbn ;
        rewrite !assoc' ;
        rewrite (pr22 φ₁), (pr22 φ₂) ;
        apply idpath).
   - simple refine (_ ,, _ ,, _).
-    + exact (inv_from_iso i_iso · g).
+    + exact (inv_from_z_iso i_iso · g).
     + abstract
         (rewrite functor_comp ;
          rewrite p ;
@@ -559,7 +557,7 @@ Proof.
          etrans ;
            [ apply maponpaths_2 ;
              apply maponpaths ;
-             exact (iso_after_iso_inv i_iso)
+             exact (z_iso_after_z_iso_inv i_iso)
            | ] ;
          rewrite functor_id ;
          apply id_left).
@@ -568,7 +566,7 @@ Proof.
          rewrite !assoc ;
          refine (_ @ id_left _) ;
          apply maponpaths_2 ;
-         exact (iso_inv_after_iso i_iso)).
+         exact (z_iso_inv_after_z_iso i_iso)).
 Defined.
 
 Section CompositionOpCartesian.

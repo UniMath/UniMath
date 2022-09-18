@@ -39,34 +39,34 @@ Proof.
   use make_is_invertible_2cell.
   - refine (_ ,, tt).
     use make_nat_trans.
-    + exact (λ x, inv_from_iso (_ ,, pr2 G₂ _ _ (pr11 α x))).
+    + exact (λ x, inv_from_z_iso (_ ,, pr2 G₂ _ _ (pr11 α x))).
     + abstract
         (intros x y f ; cbn ;
          refine (!_) ;
-         apply iso_inv_on_right ;
+         apply z_iso_inv_on_right ;
          rewrite !assoc ;
-         apply iso_inv_on_left ;
+         apply z_iso_inv_on_left ;
          simpl ;
          exact (!(pr21 α x y f))).
   - abstract
       (apply subtypePath ; try (intro ; apply isapropunit)
        ; apply nat_trans_eq ; try apply homset_property ;
        intro x ; cbn ;
-       exact (iso_inv_after_iso (_ ,, _))).
+       exact (z_iso_inv_after_z_iso (_ ,, _))).
   - abstract
       (apply subtypePath ; try (intro ; apply isapropunit)
        ; apply nat_trans_eq ; try apply homset_property ;
        intro x ; cbn ;
-       exact (iso_after_iso_inv (_ ,, _))).
+       exact (z_iso_after_z_iso_inv (_ ,, _))).
 Defined.
 
-Definition grpds_2cell_to_nat_iso
+Definition grpds_2cell_to_nat_z_iso
            {G₁ G₂ : grpds}
            {F₁ F₂ : G₁ --> G₂}
            (α : F₁ ==> F₂)
-  : nat_iso (pr1 F₁) (pr1 F₂).
+  : nat_z_iso (pr1 F₁) (pr1 F₂).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (pr1 α).
   - intros x.
     exact (pr2 G₂ (pr11 F₁ x) (pr11 F₂ x) (pr11 α x)).

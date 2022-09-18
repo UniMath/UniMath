@@ -154,25 +154,25 @@ Qed.
 (**
  2. Characterization of displayed isomorphisms
  *)
-Definition iso_disp_to_iso_disp_reindex
+Definition z_iso_disp_to_z_iso_disp_reindex
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
            {D : disp_cat C₂}
            {x : C₁}
            {xx yy : D (F x)}
-  : iso_disp (identity_iso (F x)) xx yy
+  : z_iso_disp (identity_z_iso (F x)) xx yy
     →
-    @iso_disp
+    @z_iso_disp
        _
        (reindex_disp_cat F D)
        _
        _
-       (identity_iso x)
+       (identity_z_iso x)
        xx
        yy.
 Proof.
   intros i.
-  use make_iso_disp.
+  use make_z_iso_disp.
   - exact (transportb
              (λ z, _ -->[ z ] _)
              (functor_id _ _)
@@ -181,7 +181,7 @@ Proof.
     + exact (transportb
                (λ z, _ -->[ z ] _)
                (functor_id _ _)
-               (inv_mor_disp_from_iso i)).
+               (inv_mor_disp_from_z_iso i)).
     + abstract
         (cbn ;
          unfold transportb ;
@@ -189,7 +189,7 @@ Proof.
          rewrite transport_f_f ;
          rewrite mor_disp_transportf_postwhisker ;
          rewrite transport_f_f ;
-         refine (maponpaths (λ z, transportf _ _ z) (iso_disp_after_inv_mor i) @ _) ;
+         refine (maponpaths (λ z, transportf _ _ z) (z_iso_disp_after_inv_mor i) @ _) ;
          unfold transportb ;
          rewrite !transport_f_f ;
          refine (!_) ;
@@ -204,7 +204,7 @@ Proof.
          rewrite transport_f_f ;
          rewrite mor_disp_transportf_postwhisker ;
          rewrite transport_f_f ;
-         refine (maponpaths (λ z, transportf _ _ z) (inv_mor_after_iso_disp i) @ _) ;
+         refine (maponpaths (λ z, transportf _ _ z) (inv_mor_after_z_iso_disp i) @ _) ;
          unfold transportb ;
          rewrite !transport_f_f ;
          refine (!_) ;
@@ -214,25 +214,25 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition iso_disp_reindex_to_iso_disp
+Definition z_iso_disp_reindex_to_z_iso_disp
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
            {D : disp_cat C₂}
            {x : C₁}
            {xx yy : D (F x)}
-  : @iso_disp
+  : @z_iso_disp
        _
        (reindex_disp_cat F D)
        _
        _
-       (identity_iso x)
+       (identity_z_iso x)
        xx
        yy
     →
-    iso_disp (identity_iso (F x)) xx yy.
+    z_iso_disp (identity_z_iso (F x)) xx yy.
 Proof.
   intros i.
-  use make_iso_disp.
+  use make_z_iso_disp.
   - exact (transportf
                (λ z, _ -->[ z ] _)
                (functor_id _ _)
@@ -241,7 +241,7 @@ Proof.
     + exact (transportf
                (λ z, _ -->[ z ] _)
                (functor_id _ _)
-               (inv_mor_disp_from_iso i)).
+               (inv_mor_disp_from_z_iso i)).
     + abstract
         (unfold transportb ;
          rewrite mor_disp_transportf_prewhisker ;
@@ -249,7 +249,7 @@ Proof.
          rewrite !transport_f_f ;
          etrans ;
          [ apply maponpaths ;
-           pose (iso_disp_after_inv_mor i) as p ;
+           pose (z_iso_disp_after_inv_mor i) as p ;
            cbn in p ;
            exact (transportf_transpose_right p)
          | ] ;
@@ -269,7 +269,7 @@ Proof.
          rewrite !transport_f_f ;
          etrans ;
          [ apply maponpaths ;
-           pose (inv_mor_after_iso_disp i) as p ;
+           pose (inv_mor_after_z_iso_disp i) as p ;
            cbn in p ;
            exact (transportf_transpose_right p)
          | ] ;
@@ -284,35 +284,35 @@ Proof.
          apply homset_property).
 Defined.
 
-Definition iso_disp_weq_iso_disp_reindex
+Definition z_iso_disp_weq_z_iso_disp_reindex
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
            {D : disp_cat C₂}
            {x : C₁}
            (xx yy : D (F x))
-  : iso_disp (identity_iso (F x)) xx yy
+  : z_iso_disp (identity_z_iso (F x)) xx yy
     ≃
-    @iso_disp
+    @z_iso_disp
        _
        (reindex_disp_cat F D)
        _
        _
-       (identity_iso x)
+       (identity_z_iso x)
        xx
        yy.
 Proof.
   use make_weq.
-  - exact iso_disp_to_iso_disp_reindex.
+  - exact z_iso_disp_to_z_iso_disp_reindex.
   - use gradth.
-    + exact iso_disp_reindex_to_iso_disp.
+    + exact z_iso_disp_reindex_to_z_iso_disp.
     + abstract
         (intros i ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
          cbn ;
          apply transportfbinv).
     + abstract
         (intros i ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
          cbn ;
          apply transportbfinv).
 Defined.
@@ -330,14 +330,14 @@ Proof.
   intros x y p xx yy.
   induction p.
   use weqhomot.
-  - exact (iso_disp_weq_iso_disp_reindex xx yy
+  - exact (z_iso_disp_weq_z_iso_disp_reindex xx yy
            ∘ make_weq
                (@idtoiso_disp _ D _ _ (idpath _) xx yy)
                (HD _ _ _ xx yy))%weq.
   - abstract
       (intros p ;
        induction p ;
-       use subtypePath ; [ intro ; apply isaprop_is_iso_disp | ] ;
+       use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
        apply idpath).
 Defined.
 
@@ -431,7 +431,7 @@ Section IsCartesianFromReindexDispCat.
       =
       transportb
         (λ z, _ -->[ z ] _)
-        (iso_after_iso_inv (make_iso _ (identity_is_iso C₂ (F x))))
+        (z_iso_after_z_iso_inv (make_z_iso' _ (identity_is_z_iso (F x))))
         (id_disp ℓ).
   Proof.
     unfold minv, m.
@@ -471,7 +471,7 @@ Section IsCartesianFromReindexDispCat.
       =
       transportb
         (λ z, _ -->[ z ] _)
-        (iso_inv_after_iso (make_iso _ (identity_is_iso C₂ (F x))))
+        (z_iso_inv_after_z_iso (make_z_iso' _ (identity_is_z_iso (F x))))
         (id_disp xx).
   Proof.
     cbn.
@@ -555,9 +555,9 @@ Section IsCartesianFromReindexDispCat.
   Definition is_cartesian_from_reindex_disp_cat
     : is_cartesian ff.
   Proof.
-    use (iso_disp_to_is_cartesian _ ℓ).
+    use (z_iso_disp_to_is_cartesian _ ℓ).
     - apply identity.
-    - apply identity_is_iso.
+    - apply identity_is_z_iso.
     - apply id_left.
     - exact m.
     - simple refine (_ ,, _ ,, _).
@@ -643,7 +643,7 @@ Section IsOpCartesianFromReindexDispCat.
       =
       transportb
         (λ z, _ -->[ z ] _)
-        (iso_after_iso_inv (make_iso _ (identity_is_iso C₂ _)))
+        (z_iso_after_z_iso_inv (make_z_iso' _ (identity_is_z_iso _)))
         (id_disp _).
   Proof.
     pose (p := @opcartesian_factorisation_unique
@@ -709,7 +709,7 @@ Section IsOpCartesianFromReindexDispCat.
       =
       transportb
         (λ z, _ -->[ z ] _)
-        (iso_inv_after_iso (make_iso _ (identity_is_iso C₂ _)))
+        (z_iso_inv_after_z_iso (make_z_iso' _ (identity_is_z_iso _)))
         (id_disp _).
   Proof.
     cbn.
@@ -766,8 +766,8 @@ Section IsOpCartesianFromReindexDispCat.
     apply is_opcartesian_transportf.
     use is_opcartesian_comp_disp.
     - apply mor_of_opcartesian_lift_is_opcartesian.
-    - use is_opcartesian_iso_disp.
-      + apply identity_is_iso.
+    - use is_opcartesian_z_iso_disp.
+      + apply identity_is_z_iso.
       + simple refine (_ ,, _ ,, _).
         * exact minv.
         * apply op_minv_m.
@@ -1102,7 +1102,7 @@ Section ReindexIsPB.
   Context {C₀ : category}
           (G : C₀ ⟶ total_category D₂)
           (H : C₀ ⟶ C₁)
-          (α : nat_iso (H ∙ F) (G ∙ pr1_category D₂)).
+          (α : nat_z_iso (H ∙ F) (G ∙ pr1_category D₂)).
 
   Definition reindex_pb_ump_1_data
     : functor_data
@@ -1112,20 +1112,20 @@ Section ReindexIsPB.
     use make_functor_data.
     - exact (λ x, H x
                     ,,
-                    pr1 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))).
+                    pr1 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x)))).
     - refine (λ x y f, # H f ,, _).
       refine (transportb
                 (λ z, _ -->[ z ] _)
                 _
-                (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))
+                (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x)))
                  ;;
                  (pr2 (#G f))%Cat
                  ;;
-                 inv_mor_disp_from_iso
-                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y)))))%mor_disp).
+                 inv_mor_disp_from_z_iso
+                   (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α y) (pr2 (G y)))))%mor_disp).
       abstract
         (cbn ;
-         use iso_inv_on_left ;
+         use z_iso_inv_on_left ;
          refine (!_) ;
          exact (nat_trans_ax α _ _ f)).
   Defined.
@@ -1166,8 +1166,8 @@ Section ReindexIsPB.
         etrans.
         {
           apply maponpaths.
-          exact (inv_mor_after_iso_disp
-                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x))))).
+          exact (inv_mor_after_z_iso_disp
+                   (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x))))).
         }
         unfold transportb.
         rewrite transport_f_f.
@@ -1208,8 +1208,8 @@ Section ReindexIsPB.
           rewrite transport_f_f.
           apply maponpaths.
           do 2 apply maponpaths_2.
-          exact (iso_disp_after_inv_mor
-                   (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y))))).
+          exact (z_iso_disp_after_inv_mor
+                   (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α y) (pr2 (G y))))).
         }
         unfold transportb.
         rewrite !mor_disp_transportf_postwhisker.
@@ -1243,26 +1243,26 @@ Section ReindexIsPB.
   Defined.
 
   Definition reindex_pb_ump_1_pr1_nat_iso
-    : nat_iso
+    : nat_z_iso
         (reindex_pb_ump_1 ∙ pr1_category _)
         H.
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact reindex_pb_ump_1_pr1.
     - intro.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   Defined.
 
-  Definition reindex_pb_ump_1_pr2_nat_iso_data
+  Definition reindex_pb_ump_1_pr2_nat_z_iso_data
     : nat_trans_data
         (reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂))
         G
-    := λ x, α x ,, pr12 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x))).
+    := λ x, α x ,, pr12 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x))).
 
   Definition reindex_pb_ump_1_pr2_is_nat_trans
     : is_nat_trans
         _ _
-        reindex_pb_ump_1_pr2_nat_iso_data.
+        reindex_pb_ump_1_pr2_nat_z_iso_data.
   Proof.
     intros x y f.
     use total2_paths_f ; cbn.
@@ -1275,8 +1275,8 @@ Section ReindexIsPB.
       etrans.
       {
         do 3 apply maponpaths.
-        exact (iso_disp_after_inv_mor
-                 (pr2 (HD₂ _ _ (nat_iso_pointwise_iso α y) (pr2 (G y))))).
+        exact (z_iso_disp_after_inv_mor
+                 (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α y) (pr2 (G y))))).
       }
       unfold transportb.
       rewrite !mor_disp_transportf_prewhisker.
@@ -1293,21 +1293,21 @@ Section ReindexIsPB.
     : reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂) ⟹ G.
   Proof.
     use make_nat_trans.
-    - exact reindex_pb_ump_1_pr2_nat_iso_data.
+    - exact reindex_pb_ump_1_pr2_nat_z_iso_data.
     - exact reindex_pb_ump_1_pr2_is_nat_trans.
   Defined.
 
-  Definition reindex_pb_ump_1_pr2_nat_iso
-    : nat_iso
+  Definition reindex_pb_ump_1_pr2_nat_z_iso
+    : nat_z_iso
         (reindex_pb_ump_1 ∙ total_functor (reindex_disp_cat_disp_functor F D₂))
         G.
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - exact reindex_pb_ump_1_pr2.
     - intros x.
-      use is_iso_total.
-      + exact (pr2 (nat_iso_pointwise_iso α x)).
-      + exact (pr22 (HD₂ _ _ (nat_iso_pointwise_iso α x) (pr2 (G x)))).
+      use is_z_iso_total.
+      + exact (pr2 (nat_z_iso_pointwise_z_iso α x)).
+      + exact (pr22 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x)))).
   Defined.
 
   (** Universal property for natural transformations *)

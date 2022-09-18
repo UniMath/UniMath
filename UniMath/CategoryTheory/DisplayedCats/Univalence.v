@@ -58,7 +58,7 @@ Section Univalent_Categories.
     intros xx xx'.
     set (XR := is_univalent_in_fibers_from_univalent_disp _ is_u).
     apply (isofhlevelweqb _ (make_weq _ (XR _ xx xx'))).
-    apply isaset_iso_disp.
+    apply isaset_z_iso_disp.
   Defined.
 
   Definition disp_univalent_category C
@@ -81,7 +81,7 @@ Section Univalent_Categories.
 
   Definition isotoid_disp
              {C} {D : disp_cat C} (D_cat : is_univalent_disp D)
-             {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
+             {c c' : C} (e : c = c') {d : D c} {d'} (i : z_iso_disp (idtoiso e) d d')
     : transportf _ e d = d'.
   Proof.
     exact (invmap (make_weq (idtoiso_disp e) (D_cat _ _ _ _ _)) i).
@@ -89,7 +89,7 @@ Section Univalent_Categories.
 
   Definition idtoiso_isotoid_disp
              {C} {D : disp_cat C} (D_cat : is_univalent_disp D)
-             {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
+             {c c' : C} (e : c = c') {d : D c} {d'} (i : z_iso_disp (idtoiso e) d d')
     : idtoiso_disp e (isotoid_disp D_cat e i) = i.
   Proof.
     use homotweqinvweq.

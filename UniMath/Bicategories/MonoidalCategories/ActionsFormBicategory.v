@@ -228,12 +228,12 @@ Proof.
     assert (Hypηinst := Hypη a v).
     red in Hypηinst.
     apply pathsinv0.
-    set (η_z_nat_iso := z_nat_iso_from_z_iso (homset_property A') invertibleη).
-    set (η_z_nat_iso_inst1 := nat_z_iso_pointwise_z_iso η_z_nat_iso (ActionBasedStrongFunctorCategory.odot Mon_V actn (a, v))).
-    apply (z_iso_inv_on_left _ _ _ _ η_z_nat_iso_inst1).
+    set (η_nat_z_iso := nat_z_iso_from_z_iso (homset_property A') invertibleη).
+    set (η_nat_z_iso_inst1 := nat_z_iso_pointwise_z_iso η_nat_z_iso (ActionBasedStrongFunctorCategory.odot Mon_V actn (a, v))).
+    apply (z_iso_inv_on_left _ _ _ _ η_nat_z_iso_inst1).
     rewrite <- assoc.
-    set (η_z_nat_iso_inst2 := nat_z_iso_pointwise_z_iso η_z_nat_iso a).
-    set (aux1_z_iso := precatbinprod_z_iso η_z_nat_iso_inst2 (identity_z_iso v)).
+    set (η_nat_z_iso_inst2 := nat_z_iso_pointwise_z_iso η_nat_z_iso a).
+    set (aux1_z_iso := precatbinprod_z_iso η_nat_z_iso_inst2 (identity_z_iso v)).
     set (aux2_z_iso := functor_on_z_iso (ActionBasedStrongFunctorCategory.odot' Mon_V actn') aux1_z_iso).
     apply pathsinv0.
     apply (z_iso_inv_on_right _ _ _ aux2_z_iso).

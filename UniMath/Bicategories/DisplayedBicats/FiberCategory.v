@@ -7,12 +7,15 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 
@@ -341,4 +344,69 @@ Context {C : bicat}.
         apply isaprop_is_disp_invertible_2cell.
   Defined.
 
+  Section IsoInDiscreteFiber.
+    Context {x y : discrete_fiber_category}
+            (f : x --> y)
+            (Hf : disp_left_adjoint_equivalence
+                    (internal_adjoint_equivalence_identity c)
+                    f).
+
+    Let finv : y --> x := pr11 Hf.
+
+    Let η : disp_invertible_2cell
+              (linvunitor_invertible_2cell _)
+              (id_disp x)
+              (f ;; pr11 Hf)
+      := pr121 Hf ,, pr122 Hf.
+
+    Let ε : disp_invertible_2cell
+              (lunitor_invertible_2cell _)
+              (pr11 Hf ;; f)
+              (id_disp y)
+      := pr221 Hf ,, pr222 Hf.
+
+    Local Lemma is_z_iso_discrete_fiber_left_inv
+      : finv · f = id₁ y.
+    Proof.
+      use (disp_isotoid_2_1 D HD_2_1 (idpath _)).
+      refine (transportf
+                (λ z, disp_invertible_2cell z _ _)
+                _
+                (vcomp_disp_invertible
+                   (disp_local_iso_cleaving_invertible_2cell
+                      h
+                      (finv ;; f)
+                      (idempunitor c))
+                   ε)).
+      use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ; cbn.
+      apply linvunitor_lunitor.
+    Qed.
+
+    Local Lemma is_z_iso_discrete_fiber_right_inv
+      : f · finv = id₁ x.
+    Proof.
+      use (disp_isotoid_2_1 D HD_2_1 (idpath _)).
+      refine (transportf
+                (λ z, disp_invertible_2cell z _ _)
+                _
+                (vcomp_disp_invertible
+                   (disp_local_iso_cleaving_invertible_2cell
+                      h
+                      (f ;; finv)
+                      (idempunitor c))
+                   (inverse_of_disp_invertible_2cell η))).
+      use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ; cbn.
+      apply linvunitor_lunitor.
+    Qed.
+
+    Definition is_z_iso_discrete_fiber
+      : is_z_isomorphism f.
+    Proof.
+      use make_is_z_isomorphism.
+      - exact finv.
+      - split.
+        + exact is_z_iso_discrete_fiber_right_inv.
+        + exact is_z_iso_discrete_fiber_left_inv.
+    Defined.
+  End IsoInDiscreteFiber.
 End Discrete_Fiber.

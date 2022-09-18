@@ -253,6 +253,21 @@ Section FullSubBicat.
       apply fullsub_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence.
   Defined.
 
+  Definition disp_left_adjoint_equivalence_fullsubbicat
+             {x y : C}
+             {l : x --> y}
+             (Hl : left_adjoint_equivalence l)
+             {Hx : disp_fullsubbicat x}
+             {Hy : disp_fullsubbicat y}
+             (ll : Hx -->[ l ] Hy)
+    : disp_left_adjoint_equivalence Hl ll.
+  Proof.
+    simple refine ((tt ,, (tt ,, tt)) ,, ((_ ,, _)
+                   ,,
+                   ((tt ,, (_ ,, _)) ,, (tt ,, (_ ,, _)))))
+    ; apply isapropunit.
+  Defined.
+
   Definition disp_univalent_2_0_fullsubbicat
              (HC : is_univalent_2 C)
              (HP : ∏ (x : C), isaprop (P x))

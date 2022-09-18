@@ -112,10 +112,10 @@ Definition groupoidal_disp_cat
   : UU
   := ∏ (x y : C)
        (f : x --> y)
-       (Hf : is_iso f)
+       (Hf : is_z_isomorphism f)
        (xx : D x) (yy : D y)
        (ff : xx -->[ f ] yy),
-     is_iso_disp (make_iso f Hf) ff.
+     is_z_iso_disp (make_z_iso' f Hf) ff.
 
 Definition isaprop_groupoidal_disp_cat
            {C : category}
@@ -123,7 +123,7 @@ Definition isaprop_groupoidal_disp_cat
   : isaprop (groupoidal_disp_cat D).
 Proof.
   do 7 (use impred ; intro).
-  apply isaprop_is_iso_disp.
+  apply isaprop_is_z_iso_disp.
 Qed.
 
 (**
@@ -187,7 +187,7 @@ Proof.
   use isofhleveltotal2.
   - apply HD₂.
   - intro.
-    apply isaprop_is_iso_disp.
+    apply isaprop_is_z_iso_disp.
 Defined.
 
 (**
@@ -199,11 +199,11 @@ Definition locally_contractible_disp_iso
            {C : category}
            (D : disp_cat C)
            {x y : C}
-           {f : iso x y}
+           {f : z_iso x y}
            {xx : D x} {yy : D y}
            (ff : xx -->[ f ] yy)
            (HD : locally_contractible D)
-  : is_iso_disp f ff.
+  : is_z_iso_disp f ff.
 Proof.
   simple refine (_ ,, _ ,, _).
   - apply HD.
@@ -225,7 +225,7 @@ Proof.
   - apply HD₂.
   - intro f.
     apply iscontraprop1.
-    + apply isaprop_is_iso_disp.
+    + apply isaprop_is_z_iso_disp.
     + apply locally_contractible_disp_iso.
       apply HD₂.
 Defined.
@@ -376,7 +376,7 @@ Definition groupoidal_disp_cat_to_conservative
   : conservative (pr1_category D).
 Proof.
   intros x y f Hf.
-  use is_iso_total.
+  use is_z_iso_total.
   - exact Hf.
   - apply HD.
 Defined.
@@ -388,16 +388,16 @@ Definition conservative_to_groupoidal_disp_cat
   : groupoidal_disp_cat D.
 Proof.
   intros x y f Hf xx yy ff.
-  assert (@is_iso (total_category D) (_ ,, _) (_ ,, _) (f ,, ff)) as Hff.
+  assert (@is_z_isomorphism (total_category D) (_ ,, _) (_ ,, _) (f ,, ff)) as Hff.
   {
     apply HD.
     apply Hf.
   }
   refine (transportf
-            (λ z, is_iso_disp (make_iso f z) ff)
+            (λ z, is_z_iso_disp (make_z_iso' f z) ff)
             _
-            (is_iso_disp_from_total Hff)).
-  apply isaprop_is_iso.
+            (is_z_iso_disp_from_total Hff)).
+  apply isaprop_is_z_isomorphism.
 Defined.
 
 Definition groupoidal_disp_cat_weq_conservative

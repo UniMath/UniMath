@@ -25,7 +25,7 @@ Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderPullback.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
 Import PullbackFunctions.Notations.

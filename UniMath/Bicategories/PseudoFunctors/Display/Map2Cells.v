@@ -131,4 +131,46 @@ Section Map2Cells.
     - exact map2cells_is_disp_univalent_2_1.
   Defined.
 
+  Definition map2cells_disp_left_adjequiv_over_id
+             {F : map1cells C D}
+             {F₂ G₂ : map2cells_disp_cat F}
+             (η₂ : F₂ -->[ internal_adjoint_equivalence_identity _ ] G₂)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) η₂.
+  Proof.
+    apply disp_cell_unit_bicat_left_adjoint_equivalence_weq.
+    intros x y f g α.
+    cbn.
+    pose (η₂ x y f g α) as p.
+    cbn in p.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite <- rwhisker_hcomp.
+    rewrite !vassocr.
+    refine (!p @ _).
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite <- rwhisker_hcomp.
+    apply idpath.
+  Qed.
+
+  Definition map2cells_disp_left_adjequiv
+             {HD : is_univalent_2 D}
+             {F G : map1cells C D}
+             (η : adjoint_equivalence F G)
+             {F₂ : map2cells_disp_cat F}
+             {G₂ : map2cells_disp_cat G}
+             (η₂ : F₂ -->[ η ] G₂)
+    : disp_left_adjoint_equivalence η η₂.
+  Proof.
+    revert F G η F₂ G₂ η₂.
+    use J_2_0.
+    - apply map1cells_is_univalent_2_0.
+      exact HD.
+    - intros F F₂ G₂ η₂.
+      apply map2cells_disp_left_adjequiv_over_id.
+  Defined.
 End Map2Cells.

@@ -3,10 +3,10 @@ Core/TwoCategories.v
 Core/Isos.v
 Core/Univalence.v
 Core/TransportMorphisms.v
-Core/Setcategories.v
-Core/EssentiallyAlgebraic.v
 Core/Functors.v
 Core/NaturalTransformations.v
+Core/Setcategories.v
+Core/EssentiallyAlgebraic.v
 Core/Prelude.v
 
 FunctorCategory.v
@@ -20,6 +20,7 @@ DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
 
+categories/CategoryOfSetCategories.v
 categories/HSET/Core.v
 opp_precat.v
 Groupoids.v
@@ -57,6 +58,8 @@ limits/terminal.v
 limits/zero.v
 limits/bincoproducts.v
 limits/binproducts.v
+DisplayedCats/Binproducts.v
+
 limits/graphs/bincoproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v
@@ -79,10 +82,14 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
+limits/Preservation.v
+
+limits/Examples/CategoryProductLimits.v
+limits/Examples/CategoryOfSetcategoriesLimits.v
 
 IsoCommaCategory.v
+limits/Examples/IsoCommaLimits.v
 CommaCategories.v
-categories/Dialgebras.v
 
 SubobjectClassifier.v
 NNO.v
@@ -155,6 +162,8 @@ categories/modules.v
 categories/StandardCategories.v
 categories/preorder_categories.v
 
+limits/Examples/UnitCategoryLimits.v
+
 categories/Type/Colimits.v
 categories/Type/Limits.v
 categories/Type/Structures.v
@@ -209,6 +218,9 @@ DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
+categories/Dialgebras.v
+categories/CatIsoInserter.v
+categories/EilenbergMoore.v
 Elements.v
 Core.v
 
@@ -217,18 +229,26 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
+Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/MonoidalSectionsWhiskered.v
+Monoidal/BraidedMonoidalCategoriesWhiskered.v
+Monoidal/ClosedMonoidalCategoriesWhiskered.v
+Monoidal/MonoidalCategoriesReordered.v
+Monoidal/MonoidalDialgebras.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
 DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
-DisplayedCats/MoreFibrations/FiberDisplayedCategory.v
+DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
+DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
 Monoidal/MonoidalCategoriesCurried.v
 Monoidal/MonoidalFunctors.v
 Monoidal/MonoidalFunctorsCurried.v
@@ -241,9 +261,20 @@ Monoidal/TotalDisplayedMonoidalCurried.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
+Monoidal/Examples/SetCartesianMonoidal.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+Monoidal/Examples/BinopCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
+
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
+
+GrothendieckConstruction/TotalCategory.v
+GrothendieckConstruction/IsosInTotal.v
+GrothendieckConstruction/Projection.v
+GrothendieckConstruction/IsOpfibration.v
+GrothendieckConstruction/IsPullback.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v

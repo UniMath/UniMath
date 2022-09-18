@@ -36,16 +36,16 @@ Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
 
 Local Open Scope cat.
 
-Definition transportf_iso_functors
+Definition transportf_z_iso_functors
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
            {x₁ x₂ : C₁}
            (y : C₂)
            (p : x₁ = x₂)
-           (i : iso (F x₁) y)
-  : pr1 (transportf (λ (x : C₁), iso (F x) y) p i)
+           (i : z_iso (F x₁) y)
+  : pr1 (transportf (λ (x : C₁), z_iso (F x) y) p i)
     =
-    #F (inv_from_iso (idtoiso p)) · i.
+    #F (inv_from_z_iso (idtoiso p)) · i.
 Proof.
   induction p ; cbn.
   rewrite functor_id.
@@ -68,8 +68,8 @@ Section EsoIsEssentiallySurjective.
   Definition eso_is_essentially_surjective_inv2cell
     : invertible_2cell (fim · π) (F · id₁ C₂).
   Proof.
-    use nat_iso_to_invertible_2cell.
-    use make_nat_iso.
+    use nat_z_iso_to_invertible_2cell.
+    use make_nat_z_iso.
     - use make_nat_trans.
       + exact (λ _, identity _).
       + abstract
@@ -77,7 +77,7 @@ Section EsoIsEssentiallySurjective.
            rewrite id_left, id_right ;
            apply idpath).
     - intro.
-      apply identity_is_iso.
+      apply identity_is_z_iso.
   Defined.
 
   Definition eso_is_essentially_surjective_lift
@@ -107,9 +107,9 @@ Section EsoIsEssentiallySurjective.
     simple refine (_ ,, _).
     - exact (pr1 q).
     - simpl.
-      refine (iso_comp (pr2 q) _).
-      exact (nat_iso_pointwise_iso
-               (invertible_2cell_to_nat_iso
+      refine (z_iso_comp (pr2 q) _).
+      exact (nat_z_iso_pointwise_z_iso
+               (invertible_2cell_to_nat_z_iso
                   _ _
                   (is_eso_lift_1_comm_right
                      _
@@ -287,7 +287,7 @@ Section EssentiallySurjectiveIsEso.
     - apply homset_property.
     - intro xx.
       induction xx as [ x i ].
-      use (cancel_precomposition_iso (functor_on_iso H₁ i)).
+      use (cancel_precomposition_z_iso (functor_on_z_iso H₁ i)).
       cbn.
       rewrite !nat_trans_ax.
       apply maponpaths_2.
@@ -304,35 +304,35 @@ Section EssentiallySurjectiveIsEso.
 
     Let HG' : fully_faithful G
       := cat_fully_faithful_1cell_is_fully_faithful _ HG.
-    Let α' : nat_iso (H₁ ∙ G) (F ∙ H₂)
-      := invertible_2cell_to_nat_iso _ _ α.
+    Let α' : nat_z_iso (H₁ ∙ G) (F ∙ H₂)
+      := invertible_2cell_to_nat_z_iso _ _ α.
 
     Local Definition isaprop_ob_fiber
                (y : pr1 C₂)
-      : isaprop (∑ (x : pr1 D₁), iso (pr1 G x) (pr1 H₂ y)).
+      : isaprop (∑ (x : pr1 D₁), z_iso (pr1 G x) (pr1 H₂ y)).
     Proof.
       use invproofirrelevance.
       intros φ₁ φ₂.
       use total2_paths_f.
       - apply (isotoid _ (pr2 D₁)).
-        exact (make_iso
+        exact (make_z_iso'
                  _
                  (fully_faithful_reflects_iso_proof
                     _ _ _
                     HG'
                     _ _
-                    (iso_comp (pr2 φ₁) (iso_inv_from_iso (pr2 φ₂))))).
+                    (z_iso_comp (pr2 φ₁) (z_iso_inv_from_z_iso (pr2 φ₂))))).
       - use subtypePath.
         {
           intro.
-          apply isaprop_is_iso.
+          apply isaprop_is_z_isomorphism.
         }
         etrans.
         {
-          apply transportf_iso_functors.
+          apply transportf_z_iso_functors.
         }
-        rewrite functor_on_inv_from_iso.
-        use iso_inv_on_right.
+        rewrite functor_on_inv_from_z_iso.
+        use z_iso_inv_on_right.
         refine (!_).
         etrans.
         {
@@ -342,13 +342,13 @@ Section EssentiallySurjectiveIsEso.
           apply (homotweqinvweq (make_weq _ (HG' _ _)) _).
         }
         rewrite !assoc'.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         apply id_right.
     Qed.
 
     Local Definition iscontr_ob_fiber
                (y : pr1 C₂)
-      : iscontr (∑ (x : pr1 D₁), iso (pr1 G x) (pr1 H₂ y)).
+      : iscontr (∑ (x : pr1 D₁), z_iso (pr1 G x) (pr1 H₂ y)).
     Proof.
       use (factor_through_squash _ _ (HF y)).
       - apply isapropiscontr.
@@ -356,17 +356,29 @@ Section EssentiallySurjectiveIsEso.
         use iscontraprop1.
         + exact (isaprop_ob_fiber y).
         + refine (pr1 H₁ (pr1 z) ,, _).
-          exact (iso_comp
-                   (nat_iso_pointwise_iso α' (pr1 z))
-                   (functor_on_iso H₂ (pr2 z))).
+          exact (z_iso_comp
+                   (nat_z_iso_pointwise_z_iso α' (pr1 z))
+                   (functor_on_z_iso H₂ (pr2 z))).
     Defined.
+
+    (* upstream *)
+    Local Lemma cancel_postcomposition_z_iso : ∏ {C : precategory} {a b c : C} (h : z_iso b c) (f g : C ⟦ a, b ⟧), f · h = g · h → f = g.
+    Proof.
+      intros.
+      use post_comp_with_z_iso_is_inj.
+      - exact c.
+      - exact (pr1 h).
+      - exact (pr1 (pr2 h)).
+      - exact (pr2 (pr2 h)).
+      - assumption.
+    Qed.
 
     Local Definition isaprop_mor_fiber
                {y₁ y₂ : pr1 C₂}
                (g : y₁ --> y₂)
                {x₁ x₂ : pr1 D₁}
-               (i₁ : iso (pr1 G x₁) (pr1 H₂ y₁))
-               (i₂ : iso (pr1 G x₂) (pr1 H₂ y₂))
+               (i₁ : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (i₂ : z_iso (pr1 G x₂) (pr1 H₂ y₂))
       : isaprop (∑ (f : x₁ --> x₂), i₁ · # (pr1 H₂) g = # (pr1 G) f · i₂).
     Proof.
       use invproofirrelevance.
@@ -377,7 +389,7 @@ Section EssentiallySurjectiveIsEso.
         apply homset_property.
       }
       use (invmaponpathsweq (make_weq _ (HG' x₁ x₂))) ; cbn.
-      use (cancel_postcomposition_iso i₂).
+      use (cancel_postcomposition_z_iso i₂).
       exact (!(pr2 φ₁) @ pr2 φ₂).
     Qed.
 
@@ -385,8 +397,8 @@ Section EssentiallySurjectiveIsEso.
                {y₁ y₂ : pr1 C₂}
                (g : y₁ --> y₂)
                {x₁ x₂ : pr1 D₁}
-               (i₁ : iso (pr1 G x₁) (pr1 H₂ y₁))
-               (i₂ : iso (pr1 G x₂) (pr1 H₂ y₂))
+               (i₁ : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (i₂ : z_iso (pr1 G x₂) (pr1 H₂ y₂))
       : iscontr (∑ (f : x₁ --> x₂),
                  i₁ · # (pr1 H₂) g
                  =
@@ -394,7 +406,7 @@ Section EssentiallySurjectiveIsEso.
     Proof.
       pose (HG'' := pr1 (fully_faithful_implies_full_and_faithful _ _ _ HG')
                         x₁ x₂
-                        (i₁ · #(pr1 H₂) g · inv_from_iso i₂)).
+                        (i₁ · #(pr1 H₂) g · inv_from_z_iso i₂)).
       use (factor_through_squash _ _ HG'').
       - apply isapropiscontr.
       - intro f.
@@ -407,7 +419,7 @@ Section EssentiallySurjectiveIsEso.
              refine (!_) ;
              refine (maponpaths (λ z, z · _) p @ _) ;
              rewrite !assoc' ;
-             rewrite iso_after_iso_inv ;
+             rewrite z_iso_after_z_iso_inv ;
              rewrite id_right ;
              apply idpath).
     Defined.
@@ -416,8 +428,8 @@ Section EssentiallySurjectiveIsEso.
                {y₁ y₂ : pr1 C₂}
                (g : y₁ --> y₂)
                {x₁ x₂ : pr1 D₁}
-               (i₁ : iso (pr1 G x₁) (pr1 H₂ y₁))
-               (i₂ : iso (pr1 G x₂) (pr1 H₂ y₂))
+               (i₁ : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (i₂ : z_iso (pr1 G x₂) (pr1 H₂ y₂))
                (h : x₁ --> x₂)
                (p : i₁ · # (pr1 H₂) g
                     =
@@ -487,7 +499,7 @@ Section EssentiallySurjectiveIsEso.
            HG'
            _ _
            (pr21 (iscontr_ob_fiber (pr1 F x))
-            · inv_from_iso (nat_iso_pointwise_iso α' x)).
+            · inv_from_z_iso (nat_z_iso_pointwise_z_iso α' x)).
 
     Local Definition essentially_surjective_is_eso_lift_left_is_nat_trans
       : is_nat_trans
@@ -509,8 +521,6 @@ Section EssentiallySurjectiveIsEso.
         apply maponpaths_2.
         apply (homotweqinvweq (make_weq _ (HG' _ _))).
       }
-      unfold precomp_with.
-      rewrite !id_right.
       refine (!_).
       rewrite !assoc.
       etrans.
@@ -539,14 +549,14 @@ Section EssentiallySurjectiveIsEso.
           (F · essentially_surjective_is_eso_lift)
           H₁.
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact essentially_surjective_is_eso_lift_left_nat_trans.
       - intro.
-        use (fully_faithful_reflects_iso_proof _ _ _ HG' _ _ (make_iso _ _)).
-        use is_iso_comp_of_is_isos.
-        + apply iso_is_iso.
-        + apply is_iso_inv_from_iso.
+        use (fully_faithful_reflects_iso_proof _ _ _ HG' _ _ (make_z_iso' _ _)).
+        use is_z_iso_comp_of_is_z_isos.
+        + apply z_iso_is_z_isomorphism.
+        + apply is_z_iso_inv_from_z_iso.
     Defined.
 
     Definition essentially_surjective_is_eso_lift_right_nat_trans
@@ -567,11 +577,11 @@ Section EssentiallySurjectiveIsEso.
           (essentially_surjective_is_eso_lift · G)
           H₂.
     Proof.
-      use nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       - exact essentially_surjective_is_eso_lift_right_nat_trans.
       - intro.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
 
     Definition essentially_surjective_is_eso_lift_eq
@@ -592,8 +602,6 @@ Section EssentiallySurjectiveIsEso.
         apply maponpaths_2.
         exact (homotweqinvweq (make_weq _ (HG' _ _)) _).
       }
-      unfold precomp_with.
-      rewrite id_right.
       rewrite assoc'.
       refine (_ @ id_right _).
       apply maponpaths.
@@ -649,7 +657,7 @@ Proof.
     apply fully_faithful_sub_precategory_inclusion.
   - use essentially_surjective_is_eso.
     apply functor_full_img_essentially_surjective.
-  - use nat_iso_to_invertible_2cell.
+  - use nat_z_iso_to_invertible_2cell.
     exact (full_image_inclusion_commute_nat_iso F).
 Defined.
 

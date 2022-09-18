@@ -6,8 +6,9 @@
  2. Pullbacks of fully faithful 1-cells
  3. Pullbacks of conservative 1-cells
  4. Pullbacks of discrete 1-cells
- 5. Pullbacks of Street fibrations
- 6. Pullbacks of Street opfibrations
+ 5. Pullbacks of pseudomonic 1-cells
+ 6. Pullbacks of Street fibrations
+ 7. Pullbacks of Street opfibrations
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -305,16 +306,129 @@ Definition pb_of_discrete_1cell
            {γ : invertible_2cell (p₁ · f) (p₂ · g)}
            (pb := make_pb_cone x₁ p₁ p₂ γ)
            (H : has_pb_ump pb)
-           (Hg : discrete_1cell f)
+           (Hf : discrete_1cell f)
   : discrete_1cell p₂.
 Proof.
   split.
-  - exact (pb_of_faithful_1cell H (pr1 Hg)).
-  - exact (pb_of_conservative_1cell H (pr2 Hg)).
+  - exact (pb_of_faithful_1cell H (pr1 Hf)).
+  - exact (pb_of_conservative_1cell H (pr2 Hf)).
 Defined.
 
 (**
- 5. Pullbacks of Street fibrations
+ 5. Pullbacks of pseudomonic 1-cells
+ *)
+Section PullbackOfPseudomonic.
+  Context {B : bicat}
+          {x₁ x₂ y₁ y₂ : B}
+          {p₁ : x₁ --> y₁}
+          {p₂ : x₁ --> x₂}
+          {f : y₁ --> y₂}
+          {g : x₂ --> y₂}
+          {γ : invertible_2cell (p₁ · f) (p₂ · g)}
+          (pb := make_pb_cone x₁ p₁ p₂ γ)
+          (H : has_pb_ump pb)
+          (Hf : pseudomonic_1cell f).
+
+  Section Invmap.
+    Context {z : B}
+            {g₁ g₂ : z --> x₁}
+            (αf : g₁ · p₂ ==> g₂ · p₂)
+            (Hαf : is_invertible_2cell αf).
+
+    Local Definition pb_of_pseudomonic_1cell_invmap_help_cell
+      : g₁ · p₁ · f ==> g₂ · p₁ · f
+      := rassociator _ _ _
+         • (_ ◃ γ)
+         • lassociator _ _ _
+         • (αf ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ γ^-1)
+         • lassociator _ _ _.
+
+    Local Notation "'ψ'" := pb_of_pseudomonic_1cell_invmap_help_cell.
+
+    Local Lemma pb_of_pseudomonic_1cell_invmap_help_cell_invertible
+      : is_invertible_2cell ψ.
+    Proof.
+      unfold pb_of_pseudomonic_1cell_invmap_help_cell.
+      is_iso.
+      apply property_from_invertible_2cell.
+    Qed.
+
+    Local Notation "'Hψ'" := pb_of_pseudomonic_1cell_invmap_help_cell_invertible.
+
+    Let ζ : g₁ · p₁ ==> g₂ · p₁
+      := pseudomonic_1cell_inv_map Hf ψ Hψ.
+
+    Local Lemma pb_of_pseudomonic_1cell_invmap_eq_help
+      : (g₁ ◃ γ)
+        • lassociator g₁ p₂ g
+        • (αf ▹ g)
+        • rassociator g₂ p₂ g
+        =
+        lassociator g₁ p₁ f
+        • (ζ ▹ f)
+        • rassociator g₂ p₁ f
+        • (g₂ ◃ γ).
+    Proof.
+      unfold ζ.
+      rewrite pseudomonic_1cell_inv_map_eq.
+      unfold pb_of_pseudomonic_1cell_invmap_help_cell.
+      rewrite !vassocr.
+      rewrite lassociator_rassociator.
+      rewrite id2_left.
+      rewrite !vassocl.
+      do 3 apply maponpaths.
+      refine (!(id2_right _) @ _).
+      apply maponpaths.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
+      rewrite id2_right.
+      rewrite !vassocr.
+      rewrite lassociator_rassociator.
+      rewrite id2_left.
+      apply idpath.
+    Qed.
+
+    Definition pb_of_pseudomonic_1cell_invmap
+      : g₁ ==> g₂.
+    Proof.
+      use (pb_ump_cell H _ _ _ αf) ; cbn.
+      - exact ζ.
+      - exact pb_of_pseudomonic_1cell_invmap_eq_help.
+    Defined.
+
+    Definition pb_of_pseudomonic_1cell_invmap_is_invertible
+      : is_invertible_2cell pb_of_pseudomonic_1cell_invmap.
+    Proof.
+      apply (is_invertible_2cell_pb_ump_cell H).
+      - apply is_invertible_2cell_pseudomonic_1cell_inv_map.
+      - exact Hαf.
+    Defined.
+
+    Definition pb_of_pseudomonic_1cell_invmap_eq
+      : pb_of_pseudomonic_1cell_invmap ▹ p₂ = αf.
+    Proof.
+      apply (pb_ump_cell_pr2 H).
+    Qed.
+  End Invmap.
+
+  Definition pb_of_pseudomonic_1cell
+    : pseudomonic_1cell p₂.
+  Proof.
+    use make_pseudomonic.
+    - apply (pb_of_faithful_1cell H).
+      apply pseudomonic_1cell_faithful.
+      exact Hf.
+    - intros z g₁ g₂ αf Hαf.
+      simple refine (_ ,, (_ ,, _)).
+      + exact (pb_of_pseudomonic_1cell_invmap αf Hαf).
+      + exact (pb_of_pseudomonic_1cell_invmap_is_invertible αf Hαf).
+      + exact (pb_of_pseudomonic_1cell_invmap_eq αf Hαf).
+  Defined.
+End PullbackOfPseudomonic.
+
+(**
+ 6. Pullbacks of Street fibrations
  *)
 Section PullbackOfSFib.
   Context {B : bicat}
@@ -1032,7 +1146,7 @@ Proof.
 Defined.
 
 (**
- 6. Pullbacks of Street fibrations
+ 7. Pullbacks of Street fibrations
  *)
 Definition pb_of_sopfib
            {B : bicat}

@@ -155,79 +155,79 @@ Defined.
 Definition bicat_of_cats : bicat
   := (prebicat_of_cats ,, isaset_cells_prebicat_of_cats).
 
-Definition is_invertible_2cell_to_is_nat_iso
+Definition is_invertible_2cell_to_is_nat_z_iso
            {C D : bicat_of_cats}
            {F G : C --> D}
            (η : F ==> G)
-  : is_invertible_2cell η → is_nat_iso η.
+  : is_invertible_2cell η → is_nat_z_iso (pr1 η).
 Proof.
   intros Hη X.
-  use is_iso_qinv.
+  use tpair.
   - apply (Hη^-1).
   - abstract
       (split ; cbn ;
        [ exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X)
-       | exact (nat_trans_eq_pointwise (vcomp_linv Hη) X) ]).
+       | exact (nat_trans_eq_pointwise (vcomp_linv Hη) X)]).
 Defined.
 
-Definition invertible_2cell_to_nat_iso
+Definition invertible_2cell_to_nat_z_iso
            {C D : bicat_of_cats}
            (F G : C --> D)
-  : invertible_2cell F G → nat_iso F G.
+  : invertible_2cell F G → nat_z_iso F G.
 Proof.
   intros η.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (cell_from_invertible_2cell η).
-  - apply is_invertible_2cell_to_is_nat_iso.
+  - apply is_invertible_2cell_to_is_nat_z_iso.
     apply η.
 Defined.
 
-Definition is_nat_iso_to_is_invertible_2cell
+Definition is_nat_z_iso_to_is_invertible_2cell
            {C D : bicat_of_cats}
            {F G : C --> D}
            (η : F ==> G)
-  : is_nat_iso η → is_invertible_2cell η.
+  : is_nat_z_iso (pr1 η) → is_invertible_2cell η.
 Proof.
   intros Hη.
   use tpair.
-  - apply (nat_iso_inv (η ,, Hη)).
+  - apply (nat_z_iso_inv (η ,, Hη)).
   - abstract
       (split ;
        [ apply nat_trans_eq ; [ apply homset_property | ] ;
          intros x ; cbn ;
-         exact (iso_inv_after_iso (pr1 η x ,, _))
+         exact (z_iso_inv_after_z_iso (pr1 η x ,, _))
        | apply nat_trans_eq ; [ apply homset_property | ] ;
          intros x ; cbn ;
-         exact (iso_after_iso_inv (pr1 η x ,, _)) ]).
+         exact (z_iso_after_z_iso_inv (pr1 η x ,, _)) ]).
 Defined.
 
-Definition nat_iso_to_invertible_2cell
+Definition nat_z_iso_to_invertible_2cell
            {C D : bicat_of_cats}
            (F G : C --> D)
-  : nat_iso F G → invertible_2cell F G.
+  : nat_z_iso F G → invertible_2cell F G.
 Proof.
   intros η.
   use tpair.
   - apply η.
-  - apply is_nat_iso_to_is_invertible_2cell.
+  - apply is_nat_z_iso_to_is_invertible_2cell.
     apply η.
 Defined.
 
-Definition invertible_2cell_is_nat_iso
+Definition invertible_2cell_is_nat_z_iso
            {C D : bicat_of_cats}
            (F G : C --> D)
-  : nat_iso F G ≃ invertible_2cell F G.
+  : nat_z_iso F G ≃ invertible_2cell F G.
 Proof.
   use make_weq.
-  - exact (nat_iso_to_invertible_2cell F G).
+  - exact (nat_z_iso_to_invertible_2cell F G).
   - use isweq_iso.
-    + exact (invertible_2cell_to_nat_iso F G).
-    + intros X.
+    + exact (invertible_2cell_to_nat_z_iso F G).
+    + intros x.
       use subtypePath.
       * intro.
-        apply isaprop_is_nat_iso.
+        apply isaprop_is_nat_z_iso.
       * apply idpath.
-    + intros X.
+    + intros x.
       use subtypePath.
       * intro.
         apply isaprop_is_invertible_2cell.

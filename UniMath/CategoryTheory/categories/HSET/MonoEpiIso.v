@@ -116,33 +116,33 @@ Qed.
 (** Given an iso, we construct a weak equivalence.
    This is basically unpacking and packing again. *)
 
-Lemma hset_iso_is_equiv (A B : ob HSET)
-   (f : iso A B) : isweq (pr1 f).
+Lemma hset_z_iso_is_equiv (A B : ob HSET)
+   (f : z_iso A B) : isweq (pr1 f).
 Proof.
-  apply (isweq_iso _ (inv_from_iso f)).
+  apply (isweq_iso _ (inv_from_z_iso f)).
   - intro x.
-    set (T:=iso_inv_after_iso f).
+    set (T:=z_iso_inv_after_z_iso f).
     set (T':=toforallpaths _ _ _ T). apply T'.
   - intro x.
-    apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
+    apply (toforallpaths _ _ _ (z_iso_after_z_iso_inv f)).
 Defined.
 
-Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> (pr1 A) ≃ (pr1 B).
+Lemma hset_z_iso_equiv (A B : ob HSET) : z_iso A B -> (pr1 A) ≃ (pr1 B).
 Proof.
   intro f.
   exists (pr1 f).
-  apply hset_iso_is_equiv.
+  apply hset_z_iso_is_equiv.
 Defined.
 
 (** Given a weak equivalence, we construct an iso.
     Again mostly unwrapping and packing.
 *)
 
-Lemma hset_equiv_is_iso (A B : hSet)
+Lemma hset_equiv_is_z_iso (A B : hSet)
       (f : (pr1 A) ≃ (pr1 B)) :
-           is_iso (C:=HSET) (pr1 f).
+           is_z_isomorphism (C:=HSET) (pr1 f).
 Proof.
-  apply (is_iso_qinv (C:=HSET) _ (invmap f)).
+  exists (invmap f).
   split; simpl.
   - apply funextfun; intro x; simpl in *.
     unfold compose, identity; simpl.
@@ -152,47 +152,47 @@ Proof.
     apply homotweqinvweq.
 Defined.
 
-Lemma hset_equiv_iso (A B : ob HSET) : (pr1 A) ≃ (pr1 B) -> iso A B.
+Lemma hset_equiv_z_iso (A B : ob HSET) : (pr1 A) ≃ (pr1 B) -> z_iso A B.
 Proof.
   intro f.
   simpl in *.
   exists (pr1 f).
-  apply hset_equiv_is_iso.
+  apply hset_equiv_is_z_iso.
 Defined.
 
 (** Both maps defined above are weak equivalences. *)
 
 
-Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
+Lemma hset_z_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_z_iso_equiv A B).
 Proof.
-  apply (isweq_iso _ (hset_equiv_iso A B)).
-  intro; apply eq_iso.
+  apply (isweq_iso _ (hset_equiv_z_iso A B)).
+  intro; apply z_iso_eq.
   - reflexivity.
   - intro; apply subtypePath.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
 
-Definition hset_iso_equiv_weq (A B : ob HSET) : (iso A B) ≃ ((pr1 A) ≃ (pr1 B)).
+Definition hset_z_iso_equiv_weq (A B : ob HSET) : (z_iso A B) ≃ ((pr1 A) ≃ (pr1 B)).
 Proof.
-  exists (hset_iso_equiv A B).
-  apply hset_iso_equiv_is_equiv.
+  exists (hset_z_iso_equiv A B).
+  apply hset_z_iso_equiv_is_equiv.
 Defined.
 
-Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
+Lemma hset_equiv_z_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_z_iso A B).
 Proof.
-  apply (isweq_iso _ (hset_iso_equiv A B)).
+  apply (isweq_iso _ (hset_z_iso_equiv A B)).
   { intro f.
     apply subtypePath.
     { intro; apply isapropisweq. }
     reflexivity. }
-  intro; apply eq_iso.
+  intro; apply z_iso_eq.
   reflexivity.
 Qed.
 
-Definition hset_equiv_weq_iso (A B : ob HSET) :
-  (pr1 A ≃ pr1 B) ≃ iso A B.
+Definition hset_equiv_weq_z_iso (A B : ob HSET) :
+  (pr1 A ≃ pr1 B) ≃ z_iso A B.
 Proof.
-  exists (hset_equiv_iso A B).
-  apply hset_equiv_iso_is_equiv.
+  exists (hset_equiv_z_iso A B).
+  apply hset_equiv_z_iso_is_equiv.
 Defined.

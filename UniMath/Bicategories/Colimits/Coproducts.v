@@ -572,11 +572,11 @@ Section Coproduct.
       use hinhpr.
       simple refine (_ ,, _).
       - exact (bincoprod_ump_1cell Hp (pr1 f) (pr2 f)).
-      - use category_binproduct_iso_map.
+      - use category_binproduct_z_iso_map.
         refine (_ ,, _).
-        + use inv2cell_to_iso ; cbn.
+        + use inv2cell_to_z_iso ; cbn.
           apply bincoprod_ump_1cell_inl.
-        + use inv2cell_to_iso ; cbn.
+        + use inv2cell_to_z_iso ; cbn.
           apply bincoprod_ump_1cell_inr.
     Defined.
   End UniversalFromUMP.
@@ -613,17 +613,17 @@ Section Coproduct.
       - exact (right_adjoint
                  (Hp q)
                  (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)).
-      - apply iso_to_inv2cell.
-        exact (pr1 (category_binproduct_iso_inv
+      - apply z_iso_to_inv2cell.
+        exact (pr1 (category_binproduct_z_iso_inv
                       _ _
-                      (nat_iso_pointwise_iso
-                         (counit_nat_iso_from_adj_equivalence_of_cats (Hp q))
+                      (nat_z_iso_pointwise_z_iso
+                         (counit_nat_z_iso_from_adj_equivalence_of_cats (Hp q))
                          (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)))).
-      - apply iso_to_inv2cell.
-        exact (pr2 (category_binproduct_iso_inv
+      - apply z_iso_to_inv2cell.
+        exact (pr2 (category_binproduct_z_iso_inv
                       _ _
-                      (nat_iso_pointwise_iso
-                         (counit_nat_iso_from_adj_equivalence_of_cats (Hp q))
+                      (nat_z_iso_pointwise_z_iso
+                         (counit_nat_z_iso_from_adj_equivalence_of_cats (Hp q))
                          (bincoprod_cocone_inl q ,, bincoprod_cocone_inr q)))).
     Defined.
 

@@ -145,7 +145,7 @@ Proof.
 Defined.
 
 Lemma forall_isotid (A : category) (a_is : is_univalent A)
-      (a a' : A) (P : iso a a' -> UU)
+      (a a' : A) (P : z_iso a a' -> UU)
   : (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
   intros H i.
@@ -156,11 +156,10 @@ Defined.
 Lemma transportf_isotoid_functor
       (A X : category) (H : is_univalent A)
       (K : functor A X)
-      (a a' : A) (p : iso a a') (b : X) (f : K a --> b)
-  : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_iso p) · f.
+      (a a' : A) (p : z_iso a a') (b : X) (f : K a --> b)
+  : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_z_iso p) · f.
 Proof.
-  rewrite functor_on_inv_from_iso. simpl. cbn.
-  unfold precomp_with. rewrite id_right.
+  rewrite functor_on_inv_from_z_iso. simpl. cbn.
   generalize p.
   apply forall_isotid.
   - apply H.
@@ -172,15 +171,13 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
-      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
-  : inv_from_iso
+Lemma inv_from_z_iso_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : z_iso (F a) (F b))
+  : inv_from_z_iso
       (iso_from_fully_faithful_reflection HF i) =
-    iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+    iso_from_fully_faithful_reflection HF (z_iso_inv_from_z_iso i).
 Proof.
-  cbn.
-  unfold precomp_with.
-  apply id_right.
+  apply idpath.
 Defined.
 
 Section CwFRepresentation.
@@ -241,8 +238,8 @@ Section CwFRepresentation.
     use (total2_paths_f).
     - set (T1 := make_Pullback _ isP).
       set (T2 := make_Pullback _ isP').
-      set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
-      set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _) _ _ ) i ).
+      set (i := z_iso_from_Pullback_to_Pullback T1 T2). cbn in i.
+      set (i' := invmap (weq_ff_functor_on_z_iso (yoneda_fully_faithful _) _ _ ) i ).
       set (TT := isotoid _ isC i').
       apply TT.
     - cbn.
@@ -259,21 +256,18 @@ Section CwFRepresentation.
       apply pathsdirprod.
       + unfold TT; clear TT.
         rewrite transportf_isotoid.
-        cbn. unfold precomp_with.
-        rewrite id_right.
+        cbn.
         unfold from_Pullback_to_Pullback.
         cbn in *.
-        match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _ · _ = _ ] =>
-                         set (P:=PP) end.
-        match goal with |[|- ( _ (PullbackArrow _ ?PP ?E2 ?E3 _ )) _ _ · _ = _ ]
-                         => set (E1 := PP);
-                              set (e1 := E1);
-                              set (e2 := E2);
-                              set (e3 := E3) end.
-        match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _ · _ = _ ]
-                         => set (e4 := E4) end.
-        assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
-        assert (XR':= nat_trans_eq_pointwise XR ΓA').
+        pose (XR' := nat_trans_eq_pointwise
+                       (PullbackArrow_PullbackPr1
+                          (make_Pullback _ isP)
+                          (yoneda_objects C ΓA')
+                          (yoneda_morphisms C ΓA' Γ π')
+                          (yoneda_map_2 C ΓA' Tm te')
+                          (PullbackSqrCommutes
+                             (make_Pullback _ isP')))
+                       ΓA').
         cbn in XR'.
         assert (XR'':= toforallpaths _ _  _ XR').
         cbn in XR''.
@@ -292,23 +286,20 @@ Section CwFRepresentation.
         {
           apply (transportf_isotoid_functor C (functor_category _ SET)).
         }
-        rewrite inv_from_iso_iso_from_fully_faithful_reflection.
+        rewrite inv_from_z_iso_iso_from_fully_faithful_reflection.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful
                                       (yoneda_fully_faithful _) ΓA' ΓA )).
         etrans. apply maponpaths_2. apply XX.
         clear XX.
-        etrans. apply maponpaths_2. apply id_right.
         etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
-        match goal with |[|- ( _ ?PP _ _ _  _ ) · _ = _ ] =>
-                         set (PT:=PP) end.
-        match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _ · _ = _ ]
-                         => set (E1 := PP);
-                              set (e1 := E1);
-                              set (e2 := E2);
-                              set (e3 := E3) end.
-        match goal with |[|- PullbackArrow _ _ _ _ ?E4 · _ = _ ]
-                         => set (e4 := E4) end.
-        apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
+        pose (XR' := PullbackArrow_PullbackPr2
+                       (make_Pullback _ isP)
+                       (yoneda_objects C ΓA')
+                       (yoneda_morphisms C ΓA' Γ π')
+                       (yoneda_map_2 C ΓA' Tm te')
+                       (PullbackSqrCommutes
+                          (make_Pullback _ isP'))).
+        apply XR'.
   Qed.
 
   Definition cwf_representation : UU

@@ -280,8 +280,8 @@ Section Currying.
     use make_pstrans_data.
       + intro A. apply coevaluation_functor.
       + intros A A' F.
-        apply nat_iso_to_invertible_2cell.
-        use make_nat_iso.
+        apply nat_z_iso_to_invertible_2cell.
+        use make_nat_z_iso.
         * use make_nat_trans.
           -- intro a.
              cbn in a. cbn.
@@ -298,7 +298,6 @@ Section Currying.
               ++ rewrite id_left. apply id_right.
               ++ apply idpath.
         * intro a.
-          apply is_iso_from_is_z_iso.
           apply nat_trafo_z_iso_if_pointwise_z_iso.
           intro b. cbn.
           cbn in F, a.
@@ -348,8 +347,8 @@ Section Currying.
     use make_pstrans_data.
     - intro A. apply evaluation_functor.
     - intros A A' F.
-      apply nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      apply nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * intro Gb. apply identity.
         * intros Gb Gb' βg. induction Gb as [G b]. induction Gb' as [G' b']. induction βg as [β g].
@@ -357,7 +356,6 @@ Section Currying.
           rewrite id_left, id_right.
           apply functor_comp.
       + intro a.
-        apply is_iso_from_is_z_iso.
         cbn.
         apply identity_is_z_iso.
   Defined.
@@ -400,8 +398,8 @@ Section Currying.
     red.
     use make_invertible_modification.
     - intro A.
-      apply nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      apply nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * intro ab. apply identity.
         * intros ab ab' fg.
@@ -410,7 +408,6 @@ Section Currying.
           -- rewrite id_right. apply idpath.
           -- rewrite id_left. rewrite id_right. apply id_right.
       + intro ab.
-        apply is_iso_from_is_z_iso.
         cbn.
         set (aux := identity(C:=pr1(productwithfixedelement _ _)) ab).
         change (is_z_isomorphism aux).
@@ -428,8 +425,8 @@ Section Currying.
     red.
     use make_invertible_modification.
     - intro A.
-      apply nat_iso_to_invertible_2cell.
-      use make_nat_iso.
+      apply nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
       + use make_nat_trans.
         * intro G. cbn in G.
           use make_nat_trans.
@@ -441,7 +438,6 @@ Section Currying.
           intro b.
           cbn. rewrite id_right. apply cancel_postcomposition. apply functor_id.
       + intro G.
-        apply is_iso_from_is_z_iso.
         apply nat_trafo_z_iso_if_pointwise_z_iso.
         intro b. cbn.
         apply identity_is_z_iso.

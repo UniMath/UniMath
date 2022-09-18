@@ -183,23 +183,23 @@ Section DisplayedEquivalences.
   Definition form_equiv_over {C C' : category} {E : equivalence_of_cats C C'}
              {D : disp_cat C} {D' : disp_cat C'}
              (AA : disp_adjunction_data E D D') : UU
-    := (∏ x xx, is_iso_disp (adjunitiso E x) (unit_over AA x xx))
+    := (∏ x xx, is_z_iso_disp (adjunitiso E x) (unit_over AA x xx))
          ×
-         (∏ x xx, is_iso_disp (adjcounitiso E x) (counit_over AA x xx)).
+         (∏ x xx, is_z_iso_disp (adjcounitiso E x) (counit_over AA x xx)).
 
 
-  Definition is_iso_unit_over
+  Definition is_z_iso_unit_over
              {C C' : category} (E : equivalence_of_cats C C') {D D'}
              (AA : disp_adjunction_data E D D')
              (EE : form_equiv_over AA)
-    : ∏ (x : C) (xx : D x), is_iso_disp (adjunitiso E x) ((unit_over AA) x xx)
+    : ∏ (x : C) (xx : D x), is_z_iso_disp (adjunitiso E x) ((unit_over AA) x xx)
     := pr1 EE.
 
-  Definition is_iso_counit_over
+  Definition is_z_iso_counit_over
              {C C' : category} (E : equivalence_of_cats C C') {D D'}
              (AA : disp_adjunction_data E D D')
              (EE : form_equiv_over AA)
-    :  ∏ (x0 : C') (xx : D' x0), is_iso_disp (adjcounitiso E x0) ((counit_over AA) x0 xx)
+    :  ∏ (x0 : C') (xx : D' x0), is_z_iso_disp (adjcounitiso E x0) ((counit_over AA) x0 xx)
     := pr2 EE.
 
   Definition equiv_over {C C' : category} (E : adj_equiv C C')
@@ -272,8 +272,8 @@ Section DisplayedEquivalences.
     etrans. eapply transportf_bind.
       eapply cancel_postcomposition_disp.
       etrans. eapply transportf_transpose_right. apply @pathsinv0.
-        refine (iso_disp_after_inv_mor _).
-        refine (disp_functor_on_is_iso_disp GG _).
+        refine (z_iso_disp_after_inv_mor _).
+        refine (disp_functor_on_is_z_iso_disp GG _).
         apply Hε. (*1a*)
       eapply transportf_bind.
       eapply cancel_postcomposition_disp.
@@ -281,7 +281,7 @@ Section DisplayedEquivalences.
       eapply transportf_bind.
       etrans. eapply cancel_precomposition_disp.
       eapply transportf_transpose_right. apply @pathsinv0.
-        refine (iso_disp_after_inv_mor _).
+        refine (z_iso_disp_after_inv_mor _).
         apply (Hη). (*1b*)
       eapply transportf_bind, assoc_disp.
     etrans. eapply transportf_bind.
@@ -336,9 +336,9 @@ Section DisplayedEquivalences.
         etrans. apply assoc_disp.
         eapply transportf_bind.
         etrans. eapply cancel_postcomposition_disp.
-          exact (iso_disp_after_inv_mor _). (*7a*)
+          exact (z_iso_disp_after_inv_mor _). (*7a*)
         eapply transportf_bind. apply id_left_disp.
-      apply maponpaths. exact (iso_disp_after_inv_mor _). (*7b*)
+      apply maponpaths. exact (z_iso_disp_after_inv_mor _). (*7b*)
     etrans. apply transport_f_f.
     unfold transportb. apply maponpaths_2, homset_property.
   Time Qed.
@@ -401,53 +401,60 @@ Section Constructions.
     Qed.
 
     Definition disp_functor_ff_reflects_isos
-               {x y} {xx : D x} {yy : D y} {f : iso x y}
-               (ff : xx -->[ f ] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff))
-      : is_iso_disp _ ff.
+               {x y} {xx : D x} {yy : D y} {f : z_iso x y}
+               (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (# FF ff))
+      : is_z_iso_disp _ ff.
     Proof.
-      set (FFffinv := inv_mor_disp_from_iso isiso).
-      set (FFffinv':= transportf (λ f', _ -->[ _ ] _ ) (functor_on_inv_from_iso F f) FFffinv).
-      cbn in FFffinv'. unfold precomp_with in FFffinv'.
-      set (FFffinv'' := transportf (λ f', _ -->[f'] _ ) (id_right _ ) FFffinv').
-      cbn in FFffinv''.
-      set (ffinv := FFinv FFffinv'').
+      set (FFffinv := inv_mor_disp_from_z_iso isiso).
+      set (FFffinv':= transportf (λ f', _ -->[ _ ] _ ) (functor_on_inv_from_z_iso F f) FFffinv).
+      cbn in FFffinv'.
+      set (ffinv := FFinv FFffinv').
       exists ffinv.
       split.
-      - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
-        apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-        etrans. apply (disp_functor_comp FF).
-        etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-        etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-        etrans. apply transport_f_f.
-        unfold FFffinv'; clear FFffinv'.
-        etrans. apply maponpaths. eapply maponpaths_2. apply (eqtohomot (transportf_const _ _)).
-        etrans. apply maponpaths. unfold FFffinv. apply (iso_disp_after_inv_mor isiso).
-        etrans. apply transport_f_f.
-        apply pathsinv0.
-        etrans. apply (disp_functor_transportf _ FF).
-        etrans. apply maponpaths. apply disp_functor_id.
-        etrans. apply transport_f_f.
-        apply maponpaths_2. apply homset_property.
-      - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
-        apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-        etrans. apply (disp_functor_comp FF).
-        etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-        etrans. apply transport_f_f.
-        unfold FFffinv'; clear FFffinv'.
-        etrans. apply maponpaths. eapply maponpaths. apply (eqtohomot (transportf_const _ _)).
-        etrans. apply maponpaths. unfold FFffinv. apply (inv_mor_after_iso_disp isiso).
-        etrans. apply transport_f_f.
-        apply pathsinv0.
-        etrans. apply (disp_functor_transportf _ FF).
-        etrans. apply maponpaths. apply disp_functor_id.
-        etrans. apply transport_f_f.
-        apply maponpaths_2. apply homset_property.
-    Qed.
+      - abstract
+          (unfold ffinv, FFffinv'; clear ffinv FFffinv' ;
+           apply (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; cbn ;
+           etrans ; [ apply (disp_functor_comp FF) | ] ;
+           etrans ; [ apply maponpaths ;
+                      apply maponpaths_2 ;
+                      apply (homotweqinvweq (@FFweq _ _ _ _ _ ))
+                    | ] ;
+           rewrite transportf_const ; unfold idfun ;
+           unfold FFffinv ; clear FFffinv ;
+           etrans ; [ apply maponpaths ; apply (z_iso_disp_after_inv_mor isiso) | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply pathsinv0 ;
+           etrans ; [ apply (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ apply maponpaths ; apply disp_functor_id | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply maponpaths_2 ; apply homset_property).
+      - abstract
+          (unfold ffinv, FFffinv'; clear ffinv FFffinv' ;
+           apply (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; cbn ;
+           etrans ; [ apply (disp_functor_comp FF) | ] ;
+           etrans ; [ apply maponpaths ;
+                      apply maponpaths ;
+                      apply (homotweqinvweq (@FFweq _ _ _ _ _ )) | ] ;
+           etrans ; [ apply maponpaths ;
+                      eapply maponpaths ;
+                      apply (eqtohomot (transportf_const _ _))
+                    | ] ;
+           etrans ; [ apply maponpaths ;
+                      unfold FFffinv ;
+                      apply (inv_mor_after_z_iso_disp isiso)
+                    | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply pathsinv0 ;
+           etrans ; [ apply (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ apply maponpaths ; apply disp_functor_id | ] ;
+           etrans ; [ apply transport_f_f | ] ;
+           apply maponpaths_2 ;
+           apply homset_property).
+    Defined.
 
-    Definition FFinv_on_iso_is_iso {x y} {xx : D x} {yy : D y} {f : iso x y}
-               (ff : FF _ xx -->[ (#F)%cat f ] FF _ yy) (Hff: is_iso_disp (functor_on_iso F f) ff)
-      : is_iso_disp _ (FFinv ff).
+    Definition FFinv_on_z_iso_is_z_iso {x y} {xx : D x} {yy : D y} {f : z_iso x y}
+               (ff : FF _ xx -->[ (#F)%cat f ] FF _ yy) (Hff: is_z_iso_disp (functor_on_z_iso F f) ff)
+      : is_z_iso_disp _ (FFinv ff).
     Proof.
       apply disp_functor_ff_reflects_isos.
       use (transportf _ _ Hff).
@@ -617,15 +624,15 @@ Definition form_equiv_over_id {C} {D D' : disp_cat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= (∏ x xx, is_iso_disp (identity_iso _ ) (η x xx))
- × (∏ x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
+:= (∏ x xx, is_z_iso_disp (identity_z_iso _ ) (η x xx))
+ × (∏ x xx, is_z_iso_disp (identity_z_iso _ ) (ε x xx)).
 
-Definition is_iso_unit_over_id {C} {D D' : disp_cat C}
+Definition is_z_iso_unit_over_id {C} {D D' : disp_cat C}
   {A : disp_adjunction_id_data D D'}
   (E : form_equiv_over_id A)
 := pr1 E.
 
-Definition is_iso_counit_over_id {C} {D D' : disp_cat C}
+Definition is_z_iso_counit_over_id {C} {D D' : disp_cat C}
   {A : disp_adjunction_id_data D D'}
   (E : form_equiv_over_id A)
 := pr2 E.
@@ -704,8 +711,8 @@ Proof.
   etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
     etrans. eapply transportf_transpose_right. apply @pathsinv0.
-      refine (iso_disp_after_inv_mor _).
-      refine (disp_functor_on_is_iso_disp GG _).
+      refine (z_iso_disp_after_inv_mor _).
+      refine (disp_functor_on_is_z_iso_disp GG _).
       apply Hε. (*1a*)
     eapply transportf_bind.
     eapply cancel_postcomposition_disp.
@@ -713,7 +720,7 @@ Proof.
     eapply transportf_bind.
     etrans. eapply cancel_precomposition_disp.
     eapply transportf_transpose_right. apply @pathsinv0.
-      refine (iso_disp_after_inv_mor _).
+      refine (z_iso_disp_after_inv_mor _).
       apply (Hη). (*1b*)
     eapply transportf_bind, assoc_disp.
   etrans. eapply transportf_bind.
@@ -768,9 +775,9 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        exact (iso_disp_after_inv_mor _). (*7a*)
+        exact (z_iso_disp_after_inv_mor _). (*7a*)
       eapply transportf_bind. apply id_left_disp.
-    apply maponpaths. exact (iso_disp_after_inv_mor _). (*7b*)
+    apply maponpaths. exact (z_iso_disp_after_inv_mor _). (*7b*)
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
 Time Qed.
@@ -817,17 +824,17 @@ Proof.
 Qed.
 
 Definition disp_functor_id_ff_reflects_isos
-  {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : xx -->[ f ] yy) (isiso: is_iso_disp f (# FF ff))
-  : is_iso_disp _ ff.
+  {x y} {xx : D' x} {yy : D' y} {f : z_iso x y}
+  (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (# FF ff))
+  : is_z_iso_disp _ ff.
 Proof.
-  use(disp_functor_ff_reflects_isos FF FF_ff).
-  exact(disp_functor_on_is_iso_disp (disp_functor_identity _) isiso).
+  use (disp_functor_ff_reflects_isos FF FF_ff).
+  exact (disp_functor_on_is_z_iso_disp (disp_functor_identity _) isiso).
 Qed.
 
-Definition FFinv_over_id_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : FF _ xx -->[ f ] FF _ yy) (Hff: is_iso_disp f ff)
-  : is_iso_disp _ (FFinv ff).
+Definition FFinv_over_id_on_z_iso_is_z_iso   {x y} {xx : D' x} {yy : D' y} {f : z_iso x y}
+  (ff : FF _ xx -->[ f ] FF _ yy) (Hff: is_z_iso_disp f ff)
+  : is_z_iso_disp _ (FFinv ff).
 Proof.
   apply disp_functor_id_ff_reflects_isos.
   use (transportf _ _ Hff).
@@ -846,7 +853,7 @@ Proof.
     set (Hyy := FF_split y yy).
     apply FFinv.
     refine (transportf (mor_disp _ _) _ _).
-    2: exact ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_iso (pr2 Hyy)).
+    2: exact ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_z_iso (pr2 Hyy)).
     cbn. etrans. apply id_right. apply id_left.
 Defined.
 
@@ -859,7 +866,7 @@ Proof.
     etrans. apply maponpaths.
       etrans. apply maponpaths_2, id_right_disp.
       etrans. apply mor_disp_transportf_postwhisker.
-      apply maponpaths, (inv_mor_after_iso_disp (pr2 (FF_split _ _))).
+      apply maponpaths, (inv_mor_after_z_iso_disp (pr2 (FF_split _ _))).
     etrans. apply transport_f_f.
     etrans. apply transport_f_f.
     unfold transportb. apply maponpaths_2, homset_property.
@@ -885,7 +892,7 @@ Proof.
              etrans. apply assoc_disp_var.
              apply maponpaths.
              etrans. apply maponpaths.
-               exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+               exact (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
              etrans. apply mor_disp_transportf_prewhisker.
              etrans. apply maponpaths, id_right_disp.
              apply transport_f_f.
@@ -925,7 +932,7 @@ Proof.
     etrans. apply assoc_disp_var.
     apply maponpaths.
     etrans. apply maponpaths.
-      apply (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+      apply (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
     etrans. apply mor_disp_transportf_prewhisker.
     apply maponpaths, id_right_disp.
   etrans. apply transport_f_f.
@@ -945,7 +952,7 @@ Definition η_ses_ff_data
 Proof.
   intros x xx. cbn.
   apply FFinv.
-  exact (inv_mor_disp_from_iso (pr2 (FF_split _ _))).
+  exact (inv_mor_disp_from_z_iso (pr2 (FF_split _ _))).
 Defined.
 
 Definition η_ses_ff_ax
@@ -965,7 +972,7 @@ Proof.
       etrans. apply assoc_disp.
       apply maponpaths.
       etrans.
-        apply maponpaths_2, (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+        apply maponpaths_2, (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
       etrans. apply mor_disp_transportf_postwhisker.
       etrans. apply maponpaths, id_left_disp.
       apply transport_f_f.
@@ -995,11 +1002,11 @@ Lemma form_equiv_GGεη : form_equiv_over_id GGεη.
 Proof.
   split; intros x xx; cbn.
   - unfold η_ses_ff_data.
-    apply (@FFinv_over_id_on_iso_is_iso _ _ _ _ (identity_iso _)).
-    eapply is_iso_disp_independent_of_is_iso.
-    exact (@is_iso_inv_from_iso_disp _ _ _ _ (identity_iso _) _ _ _).
+    apply (@FFinv_over_id_on_z_iso_is_z_iso _ _ _ _ (identity_z_iso _)).
+    eapply is_z_iso_disp_independent_of_is_z_iso.
+    exact (@is_z_iso_inv_from_z_iso_disp _ _ _ _ (identity_z_iso _) _ _ _).
   - unfold ε_ses_ff_data.
-    apply is_iso_disp_from_iso.
+    apply is_z_iso_disp_from_z_iso.
 Qed.
 
 Lemma tri_1_GGεη : triangle_1_statement_over_id GGεη.
@@ -1007,7 +1014,7 @@ Proof.
   intros x xx; cbn.
   unfold ε_ses_ff_data, η_ses_ff_data.
   etrans. apply maponpaths_2; use homotweqinvweq.
-  etrans. exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+  etrans. exact (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
   apply maponpaths_2, homset_property.
 Qed.
 
@@ -1034,7 +1041,7 @@ Section Nat_Trans_Disp_Inv.
 Context {C : category} {D' D : disp_cat C}
         {FF GG : disp_functor (functor_identity _) D' D}
         (alpha : disp_nat_trans (nat_trans_id _ ) FF GG)
-        (Ha : ∏ x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
+        (Ha : ∏ x xx, is_z_iso_disp (identity_z_iso _ ) (alpha x xx)).
 
 (*
 Lemma inv_ax : disp_nat_trans_axioms
@@ -1045,16 +1052,16 @@ Local Lemma inv_ax : @disp_nat_trans_axioms C C (functor_identity_data C)
     (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
     D' D GG FF
     (λ (x : C) (xx : D' x),
-     @inv_mor_disp_from_iso C D ((functor_identity C) x)
-       ((functor_identity C) x) (@identity_iso C ((functor_identity C) x))
+     @inv_mor_disp_from_z_iso C D ((functor_identity C) x)
+       ((functor_identity C) x) (@identity_z_iso C ((functor_identity C) x))
        (FF x xx) (GG x xx) (alpha x xx) (Ha x xx)).
 Proof.
-     intros x y f xx yy ff.
+   intros x y f xx yy ff.
     apply pathsinv0.
     apply transportf_pathsinv0.
     apply pathsinv0.
-    set (XR := @iso_disp_precomp).
-    specialize (XR _ _ _ _ (identity_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
+    set (XR := @z_iso_disp_precomp).
+    specialize (XR _ _ _ _ (identity_z_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
     match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
     specialize (XR _ (identity x · f) (FF y yy)).
     set (R := make_weq _ XR).
@@ -1062,14 +1069,14 @@ Proof.
     unfold R. unfold E. cbn.
     etrans. apply assoc_disp.
     etrans. apply maponpaths. apply maponpaths_2.
-            apply (inv_mor_after_iso_disp (Ha x xx)).
+            apply (inv_mor_after_z_iso_disp (Ha x xx)).
     etrans. apply maponpaths.
             apply mor_disp_transportf_postwhisker.
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply id_left_disp.
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans.            apply mor_disp_transportf_prewhisker.
+    etrans. apply mor_disp_transportf_prewhisker.
     etrans. apply maponpaths.
             apply assoc_disp.
     etrans. apply transport_f_f.
@@ -1077,11 +1084,11 @@ Proof.
             apply (disp_nat_trans_ax_var alpha).
     etrans. apply maponpaths.
             apply mor_disp_transportf_postwhisker.
-    etrans.    apply transport_f_f.
+    etrans. apply transport_f_f.
     etrans. apply maponpaths. apply assoc_disp_var.
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply maponpaths.
-            apply (inv_mor_after_iso_disp (Ha _ _ )).
+            apply (inv_mor_after_z_iso_disp (Ha _ _ )).
     etrans. apply maponpaths.
             apply mor_disp_transportf_prewhisker.
 
@@ -1096,7 +1103,7 @@ Local Definition inv : disp_nat_trans (nat_trans_id _ ) GG FF.
 Proof.
   use tpair.
   - intros x xx.
-    apply (inv_mor_disp_from_iso (Ha _ _ )).
+    apply (inv_mor_disp_from_z_iso (Ha _ _ )).
   - apply inv_ax.
 Defined.
 
@@ -1124,7 +1131,7 @@ Definition η_inv : disp_nat_trans (nat_trans_id (functor_identity C))
     (disp_functor_identity D) (disp_functor_composite GG FF).
 Proof.
   apply (inv ε).
-  apply (is_iso_counit_over_id isEquiv).
+  apply (is_z_iso_counit_over_id isEquiv).
 Defined.
 
 Definition ε_inv :
@@ -1134,7 +1141,7 @@ Definition ε_inv :
     (disp_functor_composite FF GG) (disp_functor_identity D').
 Proof.
   apply (inv η). cbn.
-  apply (is_iso_unit_over_id isEquiv).
+  apply (is_z_iso_unit_over_id isEquiv).
 Defined.
 
 Definition inv_adjunction_data : disp_adjunction_id_data D D'.
@@ -1149,16 +1156,16 @@ Lemma form_equiv_inv_adjunction_data : form_equiv_over_id inv_adjunction_data.
 Proof.
   cbn. use tpair.
     + intros. cbn.
-      set (XR:= @is_iso_inv_from_is_iso_disp).
-      specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
+      set (XR:= @is_z_iso_inv_from_is_z_iso_disp).
+      specialize (XR _ D _  _ _ _ _ _ (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
       cbn in XR.
-      eapply is_iso_disp_independent_of_is_iso.
+      eapply is_z_iso_disp_independent_of_is_z_iso.
       apply XR.
     + cbn. intros.
-      set (XR:= @is_iso_inv_from_is_iso_disp).
-      specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
+      set (XR:= @is_z_iso_inv_from_is_z_iso_disp).
+      specialize (XR _ D' _  _ _ _ _ _ (is_z_iso_unit_over_id (pr2 isEquiv) x xx)).
       cbn in XR.
-      eapply is_iso_disp_independent_of_is_iso.
+      eapply is_z_iso_disp_independent_of_is_z_iso.
       apply XR.
 Qed.
 
@@ -1166,16 +1173,16 @@ Lemma inv_triangle_1_statement_over_id
   : triangle_1_statement_over_id inv_adjunction_data.
 Proof.
   intros x xx. cbn.
-        set (XR:= @iso_disp_precomp).
+        set (XR:= @z_iso_disp_precomp).
         set (Gepsxxx := (#GG (ε x xx))).
-        set (RG := @disp_functor_on_is_iso_disp _ _ (functor_identity C)).
+        set (RG := @disp_functor_on_is_z_iso_disp _ _ (functor_identity C)).
         specialize (RG _ _ GG).
-        specialize (RG _ _ _ _ (identity_iso _ )  (ε x xx)).
-        specialize (RG (is_iso_counit_over_id (pr2 isEquiv) x xx)).
-        transparent assert (Ge : (iso_disp (identity_iso x)
+        specialize (RG _ _ _ _ (identity_z_iso _ )  (ε x xx)).
+        specialize (RG (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
+        transparent assert (Ge : (z_iso_disp (identity_z_iso x)
                                   (GG _ (FF _ (GG _ xx))) (GG _ xx))).
-        { apply (make_iso_disp (f:=identity_iso _ ) Gepsxxx).
-          eapply is_iso_disp_independent_of_is_iso.
+        { apply (make_z_iso_disp (f:=identity_z_iso _ ) Gepsxxx).
+          eapply is_z_iso_disp_independent_of_is_z_iso.
           apply RG.
         }
 
@@ -1194,7 +1201,7 @@ Proof.
         etrans. apply transport_f_f.
         etrans. apply maponpaths. apply maponpaths_2.
                 apply maponpaths.
-                apply (inv_mor_after_iso_disp (is_iso_counit_over_id (pr2 isEquiv) x xx)).
+                apply (inv_mor_after_z_iso_disp (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
         etrans. apply maponpaths. apply maponpaths_2.
                 apply (disp_functor_transportf _ GG).
         etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
@@ -1209,13 +1216,13 @@ Proof.
         match goal with |[|- transportf _ ?EE _ = _ ] => generalize EE end.
         intro EE.
 
-        set (XR:= @iso_disp_precomp).
+        set (XR:= @z_iso_disp_precomp).
         set (etaGxxx := η _ (GG x xx)).
-        transparent assert (Ge : (iso_disp (identity_iso x)
+        transparent assert (Ge : (z_iso_disp (identity_z_iso x)
                                   (GG _ xx) (GG _ (FF _ (GG _ xx))) )).
-        { apply (make_iso_disp (f:=identity_iso _ ) etaGxxx).
-          eapply is_iso_disp_independent_of_is_iso.
-          apply (is_iso_unit_over_id (pr2 isEquiv) ).
+        { apply (make_z_iso_disp (f:=identity_z_iso _ ) etaGxxx).
+          eapply is_z_iso_disp_independent_of_is_z_iso.
+          apply (is_z_iso_unit_over_id (pr2 isEquiv) ).
         }
 
         match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
@@ -1230,7 +1237,7 @@ Proof.
 
         etrans. apply  mor_disp_transportf_prewhisker.
         etrans. apply maponpaths.
-           apply (inv_mor_after_iso_disp (is_iso_unit_over_id (pr2 isEquiv) x _ )).
+           apply (inv_mor_after_z_iso_disp (is_z_iso_unit_over_id (pr2 isEquiv) x _ )).
         etrans. apply transport_f_f.
         apply pathsinv0.
         etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
@@ -1317,11 +1324,11 @@ Proof.
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.
   use tpair.
   + intros d.
-    apply is_iso_fiber_from_is_iso_disp.
-    apply (is_iso_unit_over_id isos).
+    apply is_z_iso_fiber_from_is_z_iso_disp.
+    apply (is_z_iso_unit_over_id isos).
   + intros d.
-    apply is_iso_fiber_from_is_iso_disp.
-    apply (is_iso_counit_over_id isos).
+    apply is_z_iso_fiber_from_is_z_iso_disp.
+    apply (is_z_iso_counit_over_id isos).
 Defined.
 
 End Equiv_Fibers.
