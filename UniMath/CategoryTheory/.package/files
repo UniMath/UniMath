@@ -234,6 +234,7 @@ Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/MorphismsOfActegories.v
 Monoidal/ConstructionOfActegories.v
+Monoidal/ActionBasedStrongMonads.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v

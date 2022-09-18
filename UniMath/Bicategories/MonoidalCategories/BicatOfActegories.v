@@ -100,11 +100,7 @@ Section TheConstruction.
   Proof.
     repeat split; cbn; unfold bidisp_actbicat_disp_2cell_struct, comp_lineator, identity_lineator.
     (** first 5 quantified equations for identity, then 5 quantified equations for composition *)
-    - intros C D F ActC ActD lin v c.
-      rewrite id_right.
-      etrans.
-      2: { apply cancel_postcomposition. apply pathsinv0, bifunctor_leftid. }
-      apply pathsinv0, id_left.
+    - intros. apply is_linear_nat_trans_identity.
     - intros C D F ActC ActD lin v c.
       cbn.
       unfold comp_lineator_data, identity_lineator_lax.

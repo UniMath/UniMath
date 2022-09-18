@@ -439,4 +439,34 @@ Section TransformationsOfActegories.
     apply (!(islnt v x)).
   Qed.
 
+
+  Lemma is_linear_nat_trans_identity {F : functor C D} (Fl : lineator Mon_V ActC ActD F) :
+    is_linear_nat_trans Fl Fl (nat_trans_id F).
+  Proof.
+    intros v c.
+    rewrite id_right.
+    etrans.
+    2: { apply cancel_postcomposition. apply pathsinv0, bifunctor_leftid. }
+    apply pathsinv0, id_left.
+  Qed.
+
+  Lemma is_linear_nat_trans_comp {F G H : functor C D}
+    (Fl : lineator_lax Mon_V ActC ActD F)
+    (Gl : lineator_lax Mon_V ActC ActD G)
+    (Hl : lineator_lax Mon_V ActC ActD H) {ξ1 : F ⟹ G} {ξ2 : G ⟹ H}
+    (islnt1 : is_linear_nat_trans Fl Gl ξ1)
+    (islnt2 : is_linear_nat_trans Gl Hl ξ2) : is_linear_nat_trans Fl Hl (nat_trans_comp _ _ _ ξ1 ξ2).
+  Proof.
+    intros v x.
+    cbn.
+    rewrite bifunctor_leftcomp.
+    rewrite assoc.
+    etrans.
+    { apply cancel_postcomposition.
+      apply islnt1. }
+    do 2 rewrite assoc'.
+    apply maponpaths.
+    apply islnt2.
+  Qed.
+
 End TransformationsOfActegories.
