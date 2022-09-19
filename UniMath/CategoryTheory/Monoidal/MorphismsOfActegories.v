@@ -42,6 +42,7 @@ Section TheDefinitions.
   (* Linear functor data *)
 
   Definition lineator_data : UU := ∏ (v : V) (x : C), D ⟦ v ⊗_{ActD} F x, F (v ⊗_{ActC} x) ⟧.
+  Identity Coercion lineator_data_funclass : lineator_data >-> Funclass.
 
   (** Properties **)
   Definition lineator_nat_left (ld : lineator_data)

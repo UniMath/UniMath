@@ -34,14 +34,41 @@ Section A.
 
 Context {V : category} {Mon_V : monoidal V} {C : category} (Act : actegory Mon_V C).
 
+Definition ηandμlinear {M: Monad C} (Ml : lineator Mon_V Act Act M) : UU :=
+  is_linear_nat_trans (identity_lineator Mon_V Act) Ml (η M) ×
+    is_linear_nat_trans (comp_lineator Mon_V Ml Ml) Ml (μ M).
+
+Definition ηandμlinearnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) : UU :=
+  ∏ (v : V) (x : C), η M (v ⊗_{Act} x) = v ⊗^{Act}_{l} η M x · Ml v x ×
+                     v ⊗^{Act}_{l} μ M x · Ml v x = Ml v (M x) · #M (Ml v x) · μ M (v ⊗_{Act} x).
+
+Lemma ηandμlinearimpliesnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) (ηandμlin : ηandμlinear Ml) : ηandμlinearnicer Ml.
+Proof.
+  split.
+  - etrans.
+    2: { apply ηandμlin. }
+    apply pathsinv0, id_left.
+  - apply pathsinv0, ηandμlin.
+Qed.
+
+Lemma ηandμlinearfollowsfromnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) (ηandμlinn : ηandμlinearnicer Ml) : ηandμlinear Ml.
+Proof.
+  split.
+  - red; intros.
+    etrans.
+    2: { apply ηandμlinn. }
+    apply id_left.
+  - red; intros.
+    apply pathsinv0, ηandμlinn.
+Qed.
+
 Definition actionbasedstrongmonads_cat_disp : disp_cat (category_Monad C).
 Proof.
   use tpair.
   - use tpair.
     + use make_disp_cat_ob_mor.
       * intro M.
-        exact (∑ Ml : lineator Mon_V Act Act (M: Monad C), is_linear_nat_trans (identity_lineator Mon_V Act) Ml (η (M: Monad C)) ×
-                                                           is_linear_nat_trans (comp_lineator Mon_V Ml Ml) Ml (μ (M: Monad C))).
+        exact (∑ Ml : lineator Mon_V Act Act (M: Monad C), ηandμlinear Ml).
       * intros M N [Ml islinM] [Nl islinN] α.
         exact (is_linear_nat_trans Ml Nl (nat_trans_from_monad_mor _ _ _ α)).
     + split.
