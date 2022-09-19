@@ -40,6 +40,7 @@ Core/Examples/FibSlice.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -157,6 +158,8 @@ Monads/Examples/ToMonadInCat.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
+Monads/Examples/MonadsInTotalBicat.v
+Monads/Examples/MonadsInStructuredCategories.v
 Monads/DistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
