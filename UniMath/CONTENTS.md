@@ -538,6 +538,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/Examples/AdjunctionToMonad.v](Bicategories/Monads/Examples/AdjunctionToMonad.v)
    - [Monads/Examples/ToMonadInCat.v](Bicategories/Monads/Examples/ToMonadInCat.v)
    - [Monads/Examples/MonadsInBicatOfUnivCats.v](Bicategories/Monads/Examples/MonadsInBicatOfUnivCats.v)
+   - [Monads/Examples/MonadsInBicatOfCats.v](Bicategories/Monads/Examples/MonadsInBicatOfCats.v)
    - [Monads/Examples/MonadsInOp1Bicat.v](Bicategories/Monads/Examples/MonadsInOp1Bicat.v)
    - [Monads/Examples/MonadsInOp2Bicat.v](Bicategories/Monads/Examples/MonadsInOp2Bicat.v)
    - [Monads/Examples/MonadsInTotalBicat.v](Bicategories/Monads/Examples/MonadsInTotalBicat.v)

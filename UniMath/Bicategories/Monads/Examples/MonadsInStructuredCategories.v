@@ -27,7 +27,12 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfCats.
 Require Import UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
 (**
  1. Monads in the bicategory of categories with a terminal object
@@ -163,4 +168,30 @@ Proof.
     + exact (MS ,, tt).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
+Defined.
+
+(**
+ 7. Monads in the bicategory of actegories
+ *)
+Definition make_mnd_actegory
+           (V : category)
+           (Mon_V : monoidal V)
+           (C : category)
+           (M : Monad C)
+           (Act : actegory Mon_V C)
+           (Ml : lineator Mon_V Act Act M)
+           (ηlinear : is_linear_nat_trans (identity_lineator Mon_V Act) Ml (η M))
+           (μlinear : is_linear_nat_trans (comp_lineator Mon_V Ml Ml) Ml (μ M))
+  : mnd (actbicat Mon_V).
+Proof.
+  use make_mnd_total_bicat.
+  - apply actbicat_disp_2cells_isaprop.
+  - use Monad_to_mnd_bicat_of_cats.
+    + exact C.
+    + exact M.
+  - use make_disp_mnd.
+    + exact Act.
+    + exact Ml.
+    + exact ηlinear.
+    + exact μlinear.
 Defined.
