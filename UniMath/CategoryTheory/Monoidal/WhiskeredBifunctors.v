@@ -198,12 +198,12 @@ Section Bifunctor.
         * apply bifunctor_rightid.
   Defined.
 
-  Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) {a : A} {b1 b2 : B} (g : B⟦b1,b2⟧)
+  Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) (a : A) {b1 b2 : B} (g : B⟦b1,b2⟧)
     (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (a ⊗^{ F }_{l} g) :=
     pr2 (functor_on_z_iso (leftwhiskering_functor F (bifunctor_leftid F) (bifunctor_leftcomp F) a)
            (g,,g_is_z_iso)).
 
-  Definition is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} {b : B} (f : A⟦a1,a2⟧)
+  Definition is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} (b : B) (f : A⟦a1,a2⟧)
     (f_is_z_iso : is_z_isomorphism f) : is_z_isomorphism (f ⊗^{ F }_{r} b) :=
     pr2 (functor_on_z_iso (rightwhiskering_functor F (bifunctor_rightid F) (bifunctor_rightcomp F) b)
            (f,,f_is_z_iso)).

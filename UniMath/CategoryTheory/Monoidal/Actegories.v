@@ -365,13 +365,17 @@ Qed.
 
 End A.
 
+
+Arguments actegory_unitordata {_ _ _} _ _.
+Arguments actegory_unitorinvdata {_ _ _} _ _.
+Arguments actegory_actordata {_ _ _} _ _ _ _.
+Arguments actegory_actorinvdata {_ _ _} _ _ _ _.
+
 Module ActegoryNotations.
-  Notation "au_{ Mon_V , Act }" := (actegory_unitordata Mon_V Act).
-  Notation "aα_{ Mon_V , Act }" := (actegory_actordata Mon_V Act).
-  Notation "au_{ Mon_V , Act }_{ x }" := (actegory_unitordata Mon_V Act x ).
-  Notation "aα_{ Mon_V , Act }_{ v , w , x }" := (actegory_actordata Mon_V Act v w x).
-  Notation "au^{ Mon_V , Act }_{ x }" := (actegory_unitordata Mon_V Act x ).
-  Notation "aα^{ Mon_V , Act }_{ v , w , x }" := (actegory_actordata Mon_V Act v w x).
-  Notation "auinv^{ Mon_V , Act }_{ x }" := (actegory_unitorinvdata Mon_V Act x ).
-  Notation "aαinv^{ Mon_V , Act }_{ v , w , x }" := (actegory_actorinvdata Mon_V Act v w x).
+  Notation "au_{ Act }" := (actegory_unitordata Act).
+  Notation "aα_{ Act }" := (actegory_actordata Act).
+  Notation "au^{ Act }_{ x }" := (actegory_unitordata Act x ).
+  Notation "aα^{ Act }_{ v , w , x }" := (actegory_actordata Act v w x).
+  Notation "auinv^{ Act }_{ x }" := (actegory_unitorinvdata Act x ).
+  Notation "aαinv^{ Act }_{ v , w , x }" := (actegory_actorinvdata Act v w x).
 End ActegoryNotations.

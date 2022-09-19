@@ -13,8 +13,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
@@ -173,5 +175,32 @@ Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V
 
 Definition monoidal_pointed_objects : monoidal (coslice_cat_total V I_{Mon_V})
   := total_monoidal monoidal_pointed_objects_disp.
+
+Definition forget_monoidal_pointed_objects_data : fmonoidal_data monoidal_pointed_objects Mon_V (pr1_category cosliced).
+Proof.
+  split; red; intros; cbn; apply identity.
+Defined.
+
+Lemma forget_monoidal_pointed_objects_laxlaws : fmonoidal_laxlaws forget_monoidal_pointed_objects_data.
+Proof.
+  repeat split; red; intros; cbn.
+  - rewrite id_left; apply id_right.
+  - rewrite id_left; apply id_right.
+  - do 2 rewrite id_right.
+    rewrite bifunctor_leftid.
+    rewrite bifunctor_rightid.
+    rewrite id_right; apply id_left.
+  - rewrite bifunctor_rightid. rewrite id_left. apply id_left.
+  - rewrite bifunctor_leftid. rewrite id_left. apply id_left.
+Qed.
+
+Definition forget_monoidal_pointed_objects_lax_monoidal : fmonoidal_lax monoidal_pointed_objects Mon_V (pr1_category cosliced)
+  := forget_monoidal_pointed_objects_data,,forget_monoidal_pointed_objects_laxlaws.
+
+Definition forget_monoidal_pointed_objects_monoidal : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced).
+Proof.
+  exists forget_monoidal_pointed_objects_lax_monoidal.
+  split; red; intros; apply identity_is_z_iso.
+Defined.
 
 End A.

@@ -186,33 +186,31 @@ Section MonoidalFunctors.
              {F : functor C D} (pt : preserves_tensordata M N F) : UU
     := ∏ (x y : C), is_z_isomorphism (pt x y).
 
-  Definition z_iso_from_preserves_tensor_strongly
+  Definition pointwise_z_iso_from_preserves_tensor_strongly
              {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt)
-    : ∏ x y : C, z_iso _ _
-    := λ x y, (pt x y ,, pts x y).
+             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (x y : C) :
+    z_iso (F x ⊗_{ N} F y) (F (x ⊗_{ M} y)) := pt x y ,, pts x y.
 
   Lemma preserves_associativity_of_inverse_preserves_tensor
         {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
         {pt : preserves_tensordata M N F}
         (ptα : preserves_associativity pt)
-        (pts : preserves_tensor_strongly pt)
-    : ∏ (x y z : C), (pr1 (pts (x ⊗_{M} y) z))
-                         · ((pr1 (pts x y)) ⊗^{N}_{r} (F z))
-                         · α^{N}_{F x, F y, F z}
-                     = (#F (α^{M}_{x,y,z}))
-                       · (pr1 (pts x (y ⊗_{M} z)))
-                       · ((F x) ⊗^{N}_{l} (pr1 (pts y z))).
+        (pts : preserves_tensor_strongly pt) (x y z : C) :
+    (is_z_isomorphism_mor (pts (x ⊗_{M} y) z))
+      · ((is_z_isomorphism_mor (pts x y)) ⊗^{N}_{r} (F z))
+      · α^{N}_{F x, F y, F z} =
+    (#F (α^{M}_{x,y,z}))
+      · (is_z_isomorphism_mor (pts x (y ⊗_{M} z)))
+      · ((F x) ⊗^{N}_{l} (is_z_isomorphism_mor (pts y z))).
   Proof.
-    intros x y z.
-    set (ptsx_yz := z_iso_from_preserves_tensor_strongly pts x (y ⊗_{M} z)).
-    set (ptsxy_z := z_iso_from_preserves_tensor_strongly pts (x ⊗_{M} y) z).
+    set (ptsx_yz := pointwise_z_iso_from_preserves_tensor_strongly pts x (y ⊗_{M} z)).
+    set (ptsxy_z := pointwise_z_iso_from_preserves_tensor_strongly pts (x ⊗_{M} y) z).
     set (ptsfx := functor_on_z_iso
           (leftwhiskering_functor N (bifunctor_leftid N) (bifunctor_leftcomp N) (F x))
-          (z_iso_from_preserves_tensor_strongly pts y z)).
+          (pointwise_z_iso_from_preserves_tensor_strongly pts y z)).
     set (ptsfz := functor_on_z_iso
           (rightwhiskering_functor N (bifunctor_rightid N) (bifunctor_rightcomp N) (F z))
-          (z_iso_from_preserves_tensor_strongly pts x y)).
+          (pointwise_z_iso_from_preserves_tensor_strongly pts x y)).
 
     apply (z_iso_inv_on_left _ _ _ _ ptsfx).
     apply pathsinv0.
@@ -245,11 +243,11 @@ Section MonoidalFunctors.
     apply (! id_left _).
   Qed.
 
-  Definition preserves_tensorinv_nat_right {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_right pt)
-    : ∏ (x1 x2 y : C) (f : C⟦x1,x2⟧),
-      (pr1 (pts x1 y)) · # F f ⊗^{ N}_{r} F y = # F (f ⊗^{ M}_{r} y) · (pr1 (pts x2 y)).
+  Lemma preserves_tensorinv_nat_right {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_right pt)
+    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
+       (is_z_isomorphism_mor (pts x1 y)) · # F f ⊗^{ N}_{r} F y = # F (f ⊗^{ M}_{r} y) · (is_z_isomorphism_mor (pts x2 y)).
   Proof.
-    intros x1 x2 y f.
     set (ptiso := pt x1 y ,, pts x1 y : z_iso _ _).
     apply (z_iso_inv_on_right _ _ _ ptiso).
     rewrite assoc.
@@ -259,16 +257,16 @@ Section MonoidalFunctors.
       apply ptrn.
     }
     rewrite assoc'.
+    unfold is_z_isomorphism_mor.
     rewrite (pr12 (pts x2 y)).
     apply (! id_right _).
   Qed.
 
-  Definition preserves_tensorinv_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
-             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_left pt)
-    : ∏ (x1 x2 y : C) (f : C⟦x1,x2⟧),
-      (pr1 (pts y x1)) · F y ⊗^{ N}_{l} # F f = # F (y ⊗^{ M}_{l} f) · (pr1 (pts y x2)).
+  Lemma preserves_tensorinv_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_left pt)
+    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
+      (is_z_isomorphism_mor (pts y x1)) · F y ⊗^{ N}_{l} # F f = # F (y ⊗^{ M}_{l} f) · (is_z_isomorphism_mor (pts y x2)).
   Proof.
-    intros x1 x2 y f.
     set (ptiso := pt y x1 ,, pts y x1 : z_iso _ _).
     apply (z_iso_inv_on_right _ _ _ ptiso).
     rewrite assoc.
@@ -278,6 +276,7 @@ Section MonoidalFunctors.
       apply ptrn.
     }
     rewrite assoc'.
+    unfold is_z_isomorphism_mor.
     rewrite (pr12 (pts y x2)).
     apply (! id_right _).
   Qed.
@@ -605,7 +604,7 @@ Section MonoidalFunctors.
           { apply maponpaths.
             apply (pr22 (fmonoidal_preservesunitstrongly Fm)). }
           apply functor_id.
-  Qed.
+  Defined.
 
   Definition comp_fmonoidal {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
     {F : C ⟶ D} {G : D ⟶ E} (Fm : fmonoidal M N F) (Gm : fmonoidal N O G) : fmonoidal M O (F ∙ G)
