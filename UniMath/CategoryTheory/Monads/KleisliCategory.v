@@ -11,12 +11,15 @@ TODO:
 Written by: Brandon Doherty (July 2018)
 ************************************************************)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
@@ -225,3 +228,206 @@ Proof.
 Defined.
 
 End Kleisli_Categories.
+
+(**
+ Two useful laws
+ *)
+Definition η_η_bind
+           {C : category}
+           (M : Monad C)
+           (x : C)
+  : η M x · η M _ · bind (identity _) = η M x.
+Proof.
+  rewrite bind_identity.
+  rewrite !assoc'.
+  refine (_ @ id_right _).
+  apply maponpaths.
+  apply Monad_law1.
+Qed.
+
+Definition η_bind_bind
+           {C : category}
+           (M : Monad C)
+           (x : C)
+  : η M (M(M x)) · bind (identity _) · bind (identity _)
+    =
+    μ M x · η M (M x) · bind (identity _).
+Proof.
+  rewrite !bind_identity.
+  rewrite Monad_law1, id_left.
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply Monad_law1.
+  }
+  apply id_right.
+Qed.
+
+(** The universal mapping property of the Kleisli category *)
+Section KleisliUMP1.
+  Context {C₁ C₂ : category}
+          (m : Monad C₁)
+          (F : C₁ ⟶ C₂)
+          (γ : m ∙ F ⟹ F)
+          (p₁ : ∏ (x : C₁), #F (η m x) · γ x = identity _)
+          (p₂ : ∏ (x : C₁), γ _ · γ x = #F (μ m x) · γ x).
+
+  Definition functor_from_kleisli_cat_monad_data
+    : functor_data (Kleisli_cat_monad m) C₂.
+  Proof.
+    use make_functor_data.
+    - exact F.
+    - exact (λ x y f, #F f · γ y).
+  Defined.
+
+  Definition functor_from_kleisli_cat_monad_is_functor
+    : is_functor functor_from_kleisli_cat_monad_data.
+  Proof.
+    split.
+    - intro x ; cbn.
+      apply p₁.
+    - intros x y z f g ; cbn ; unfold bind.
+      rewrite !functor_comp.
+      rewrite !assoc'.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(p₂ z)).
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      exact (nat_trans_ax γ _ _ g).
+  Qed.
+
+  Definition functor_from_kleisli_cat_monad
+    : Kleisli_cat_monad m ⟶ C₂.
+  Proof.
+    use make_functor.
+    - exact functor_from_kleisli_cat_monad_data.
+    - exact functor_from_kleisli_cat_monad_is_functor.
+  Defined.
+
+  Definition functor_from_kleisli_cat_monad_nat_trans
+    : Left_Kleisli_functor m ∙ functor_from_kleisli_cat_monad ⟹ F.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x, identity _).
+    - abstract
+        (intros x y f ; cbn ;
+         rewrite id_right, id_left ;
+         rewrite functor_comp ;
+         rewrite !assoc' ;
+         etrans ;
+           [ apply maponpaths ;
+             exact (p₁ y)
+           | ] ;
+         apply id_right).
+  Defined.
+
+  Definition functor_from_kleisli_cat_monad_nat_trans_is_z_iso
+    : is_nat_z_iso functor_from_kleisli_cat_monad_nat_trans.
+  Proof.
+    intro x.
+    apply is_z_isomorphism_identity.
+  Defined.
+End KleisliUMP1.
+
+Definition kleisli_monad_nat_trans
+           {C : category}
+           (m : Monad C)
+  : m ∙ Left_Kleisli_functor m ⟹ Left_Kleisli_functor m.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity (m x)).
+  - abstract
+      (intros x y f ; cbn ; unfold bind ;
+       rewrite functor_id, !id_left ;
+       rewrite functor_comp ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       exact (Monad_law1 _ @ !(Monad_law2 _))).
+Defined.
+
+Section KleisliUMP2.
+  Context {C₁ C₂ : category}
+          (m : Monad C₁)
+          {G₁ G₂ : Kleisli_cat_monad m ⟶ C₂}
+          (α : Left_Kleisli_functor m ∙ G₁ ⟹ Left_Kleisli_functor m ∙ G₂)
+          (p : ∏ (x : C₁),
+               #G₁ (kleisli_monad_nat_trans m x) · α x
+               =
+               α (m x) · # G₂ (kleisli_monad_nat_trans m x)).
+
+  Definition nat_trans_from_kleisli_cat_monad_is_nat_trans
+    : is_nat_trans G₁ G₂ (λ x, α x).
+  Proof.
+    intros x y f.
+    pose (maponpaths (λ z, z · # G₂ (identity (m y))) (nat_trans_ax α _ _ f)) as q.
+    cbn in q.
+    refine (_ @ q @ _) ; clear q.
+    - rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(p y)).
+      }
+      cbn.
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp G₁ _ _) @ _).
+      apply maponpaths.
+      cbn ; unfold bind.
+      rewrite functor_id, id_left.
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply Monad_law1.
+    - rewrite !assoc'.
+      apply maponpaths.
+      refine (!(functor_comp G₂ _ _) @ _).
+      apply maponpaths.
+      cbn ; unfold bind.
+      rewrite functor_id, id_left.
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply Monad_law1.
+  Qed.
+
+  Definition nat_trans_from_kleisli_cat_monad
+    : G₁ ⟹ G₂.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x, α x).
+    - exact nat_trans_from_kleisli_cat_monad_is_nat_trans.
+  Defined.
+
+  Definition pre_whisker_nat_trans_from_kleisli_cat_monad
+    : pre_whisker _ nat_trans_from_kleisli_cat_monad = α.
+  Proof.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition nat_trans_from_kleisli_cat_monad_unique
+             {β₁ β₂ : G₁ ⟹ G₂}
+             (q₁ : pre_whisker _ β₁ = α)
+             (q₂ : pre_whisker _ β₂ = α)
+    : β₁ = β₂.
+  Proof.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro ; cbn.
+    exact (nat_trans_eq_pointwise q₁ x @ !(nat_trans_eq_pointwise q₂ x)).
+  Qed.
+End KleisliUMP2.

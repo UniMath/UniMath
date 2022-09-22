@@ -154,6 +154,7 @@ PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
@@ -180,6 +181,7 @@ Limits/EilenbergMooreObjects.v
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
+Limits/Examples/OpMorBicatLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
@@ -208,8 +210,10 @@ Morphisms/Examples/MorphismsInSliceBicat.v
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/KleisliObjects.v
 Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
