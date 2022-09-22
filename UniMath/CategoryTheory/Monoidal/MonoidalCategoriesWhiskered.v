@@ -782,3 +782,67 @@ Lemma unitorsinv_coincide_on_unit_alt {C : category} (M : monoidal C)
 Proof.
   exact (unitors_coincide_on_unit (monoidal_opp M)).
 Qed.
+
+Section MonoidalSwapped.
+
+  Import MonoidalNotations.
+
+  Definition tensor_swapped {V : category} (Mon_V : monoidal V)
+    : tensor V.
+  Proof.
+    repeat (use tpair).
+    - intros v w.
+      exact (w ⊗_{Mon_V} v).
+    - intros v w1 w2 f.
+      exact (f ⊗^{Mon_V}_{r} v).
+    - intros v w1 w2 f.
+      exact (v ⊗^{Mon_V}_{l} f).
+    - intro ; intro ; apply bifunctor_rightid.
+    - intro ; intro ; apply bifunctor_leftid.
+    - intro ; intros ; apply bifunctor_rightcomp.
+    - intro ; intros ; apply bifunctor_leftcomp.
+    - intro ; intros ; apply (! bifunctor_equalwhiskers _ _ _ _ _ _ _).
+  Defined.
+
+  Definition monoidal_swapped_data {V : category} (Mon_V : monoidal V)
+    : monoidal_data V.
+  Proof.
+    exists (tensor_swapped Mon_V).
+    exists I_{Mon_V}.
+    exists (λ v, ru_{Mon_V} v).
+    exists (λ v, ruinv_{Mon_V} v).
+    exists (λ v, lu_{Mon_V} v).
+    exists (λ v, luinv_{Mon_V} v).
+    exists (λ v1 v2 v3, αinv_{Mon_V} v3 v2 v1).
+    exact (λ v1 v2 v3, α_{Mon_V} v3 v2 v1).
+  Defined.
+
+  Definition monoidal_swapped_laws {V : category} (Mon_V : monoidal V)
+    : monoidal_laws (monoidal_swapped_data Mon_V).
+  Proof.
+    repeat split.
+    - intro ; intros ; apply monoidal_rightunitornat.
+    - apply monoidal_rightunitorisolaw.
+    - apply monoidal_rightunitorisolaw.
+    - intro ; intros ; apply monoidal_leftunitornat.
+    - apply monoidal_leftunitorisolaw.
+    - apply monoidal_leftunitorisolaw.
+    - intro ; intros ; apply (! monoidal_associatorinvnatright Mon_V _ _ _ _ _).
+    - intro ; intros ; apply (! monoidal_associatorinvnatleft Mon_V _ _ _ _ _).
+    - intro ; intros ; apply (! monoidal_associatorinvnatleftright Mon_V _ _ _ _ _).
+    - apply monoidal_associatorisolaw.
+    - apply monoidal_associatorisolaw.
+    - intro ; intros.
+      cbn.
+      rewrite (! monoidal_triangleidentity Mon_V _ _).
+      rewrite assoc.
+      rewrite (pr2 (monoidal_associatorisolaw Mon_V _ _ _)).
+      apply id_left.
+    - intro ; intros ; apply monoidal_pentagon_identity_inv.
+  Qed.
+
+  Definition monoidal_swapped {V : category} (Mon_V : monoidal V)
+    : monoidal V
+    := monoidal_swapped_data Mon_V ,, monoidal_swapped_laws Mon_V.
+
+End MonoidalSwapped.
