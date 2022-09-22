@@ -148,8 +148,23 @@ Section ActegoryToObject.
     repeat split ; (intro ; intros ; apply nat_trans_eq ; [apply homset_property | intro ; cbn ]).
     - apply actorinv_nat_rightwhisker.
     - apply actorinv_nat_leftrightwhisker.
-    - admit.
-    - admit.
+    - rewrite id_left.
+      apply pentagon_identity_actorinv.
+    - rewrite (! actegory_triangleidentity Mon_V act x x0).
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        exact (pr2 (actegory_actorisolaw Mon_V act x (monoidal_unit Mon_V) x0)).
+      }
+      rewrite id_right.
+      rewrite (! bifunctor_leftcomp _ _ _ _ _ _ _).
+      etrans. {
+        apply maponpaths.
+        apply actegory_unitorisolaw.
+      }
+      apply bifunctor_leftid.
     - admit.
   Admitted.
 
@@ -254,7 +269,32 @@ Section ActegoryFromObject.
     : actegory_laws (monoidal_swapped Mon_V) actegory_data_from_object.
   Proof.
     repeat split.
-    -
+    - intro ; intros.
+      cbn.
+      unfold unitor_from_object.
+      cbn.
+      admit.
+    - apply (toforallpaths _ _ _ (base_paths _ _ (pr222 action_fmon_strong))).
+    - apply (toforallpaths _ _ _ (base_paths _ _ (pr122 action_fmon_strong))).
+    - intro ; intros.
+      cbn.
+      cbn in C.
+      unfold fmonoidal in C.
+      admit.
+    - intro ; intros.
+      cbn.
+      admit.
+    - intro ; intros.
+      cbn.
+      admit.
+    - apply (toforallpaths _ _ _ (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
+    - apply (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
+    - intro ; intros.
+      cbn.
+      admit.
+    - intro ; intros.
+      cbn.
+      admit.
   Admitted.
 
   Definition actegory_from_object
@@ -275,6 +315,10 @@ Section FromActegoriesToActionsInCat.
 
   Definition acat_to_acti_on_ob : (ob ACAT) -> (ob ACTI)
     := λ act, actegory_to_object Mon_V (pr2 act).
+
+  Lemma TODO (A : UU) : A.
+  Proof.
+  Admitted.
 
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
@@ -299,38 +343,36 @@ Section FromActegoriesToActionsInCat.
       exact (pr12 (pr212 f) v w c g).
     - use total2_paths_f.
         2: { apply isaprop_is_nat_trans ; apply homset_property. }
-        {
-          apply funextsec ; intro c.
-          cbn.
-          etrans.
-          2: {
-            apply maponpaths_2.
-            apply (! id_left _).
-          }
-          etrans.
-          2: { apply (! id_left _). }
-          (* cbn in f.
-          unfold lineator in f.
-          unfold lineator_lax in f.
-          unfold lineator_laxlaws in f.
-          unfold preserves_unitor in f.
-          unfold lineator_strongly in f.
-          cbn in a1. *)
-          apply TODO'.
+
+        apply funextsec ; intro c.
+        cbn.
+        etrans.
+        2: {
+          apply maponpaths_2.
+          apply (! id_left _).
         }
+        etrans.
+        2: { apply (! id_left _). }
+        cbn in f.
+        unfold lineator in f.
+        unfold lineator_lax in f.
+        unfold lineator_laxlaws in f.
+        unfold preserves_unitor in f.
+        unfold lineator_strongly in f.
+        cbn in a1.
+        Check actegory_triangleidentity Mon_V (pr2 a2) _.
+
+        apply TODO. (*** TODO ***)
     -
       intros v w.
-        use nat_trans_eq.
-        { apply homset_property. }
-        intro c.
-        cbn.
-        rewrite ! id_left.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro c.
+      cbn.
+      rewrite ! id_left.
 
-        apply TODO'.
+      apply TODO. (*** TODO ***)
   Defined.
-
-
-
 
   Definition acat_to_acti_data
     : psfunctor_data ACAT ACTI.
@@ -463,11 +505,8 @@ End FromActegoriesToActionsInCat.
 
 Section FromActionInCatToActegories.
 
-  Definition acti_to_acat_on_ob : (ob ACTI) -> (ob ACAT).
-  Proof.
-    intro act.
-    exact ((_ ,, actegory_from_object _ act)).
-  Defined.
+  Definition acti_to_acat_on_ob : (ob ACTI) -> (ob ACAT)
+    := λ act, _ ,, actegory_from_object _ act.
 
   Definition acti_to_acat_on_mor
   {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
@@ -477,15 +516,27 @@ Section FromActionInCatToActegories.
     repeat (use tpair).
     - exact (λ v c, pr1 (pr112 f v) c).
     - intros v c1 c2 g.
-      apply TODO'.
+      exact (pr2 (pr112 f v) c1 c2 g).
     - intros v w c g.
-      cbn in *.
-      apply TODO'.
+      refine (_ @ toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c @ _).
+      + simpl.
+        apply maponpaths_2.
+        etrans.
+        2: {
+          apply maponpaths_2.
+          apply (! functor_id _ _).
+        }
+        apply (! id_left _).
+      + etrans. { apply assoc. }
+        apply id_right.
     - intros v w c.
       cbn.
-      apply TODO'.
-    - apply TODO'.
-    - apply TODO'.
+      apply TODO.
+    - intro c.
+      apply TODO.
+    - intros v c.
+      simpl.
+      apply TODO.
   Defined.
 
   Definition acti_to_acat_data
