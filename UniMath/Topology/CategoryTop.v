@@ -18,9 +18,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Definition top_disp_cat_ob_mor : disp_cat_ob_mor hset_category.
 Proof.
   use tpair.
-  - intro X. exact (isTopologicalSet (pr1hSet X)).
+  - intro X. exact (isTopologicalSet X).
   - cbn. intros X Y T U f.
-    apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
+    apply (@continuous (X,,T) (Y,,U) f).
 Defined.
 
 Definition top_disp_cat_data : disp_cat_data hset_category.
@@ -32,7 +32,7 @@ Proof.
     unfold filterlim. cbn. unfold filter_le. cbn.
     intros. assumption.
   - intros X Y Z f g XX YY ZZ Hf Hg.
-    use (@continuous_funcomp (pr1hSet X,,XX) (pr1hSet Y,,YY) (pr1hSet Z,,ZZ) f g);
+    use (@continuous_funcomp (X,,XX) (Y,,YY) (Z,,ZZ) f g);
       assumption.
 Defined.
 
