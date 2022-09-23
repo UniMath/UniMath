@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Definition top_disp_cat_ob_mor : disp_cat_ob_mor hset_category.
 Proof.
   use tpair.
-  - intro X. exact (isTopologicalSet X).
+  - intro X. exact (isTopologicalSpace X).
   - cbn. intros X Y T U f.
     apply (@continuous (X,,T) (Y,,U) f).
 Defined.
