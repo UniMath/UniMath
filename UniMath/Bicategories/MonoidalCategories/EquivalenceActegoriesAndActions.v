@@ -165,7 +165,30 @@ Section ActegoryToObject.
         apply actegory_unitorisolaw.
       }
       apply bifunctor_leftid.
-    - admit.
+    - set (tri := actegory_triangleidentity Mon_V act x x0).
+
+      (* Here we have to show:
+          preserves_rightunitality
+                    (fmonoidal_preservestensordata (fmonoidal_data_to_object act))
+                    (fmonoidal_preservesunit (fmonoidal_data_to_object act))
+
+          The previous "bullet" was showing that left unitality was preserved,
+          in order to show that, I've used the triangle identity, however,
+          that is now not possible to use since we have the left unitor instead
+          of the right unitor.
+
+       *)
+      (*
+        Notice that the goal is equivalent to:
+        monoidal_leftunitordata Mon_V v ⊗^{ act}_{r} c
+        = actegory_actordata act (monoidal_unit Mon_V) v c
+          · actegory_unitordata act (v ⊗_{ act} v)
+
+          Here, v : V, c : C.
+
+       *)
+
+      admit.
   Admitted.
 
   Definition fmonoidal_lax_to_object
@@ -224,6 +247,44 @@ Section ActegoryToObject.
 
 End ActegoryToObject.
 
+(* Should be moved in MonoidalFunctorswhiskered.v, but in order to not have to be able to compile
+the whole bicategory library, it is currently placed in here.. *)
+
+Import MonoidalNotations.
+Definition preserves_leftunitality'' {C D : category}
+           {M : monoidal C} {N : monoidal D}
+           {F : functor C D} (Fm : fmonoidal M N F) :
+  ∏ (x : C), (pr1 (fmonoidal_preservestensorstrongly Fm I_{M} x))
+                 · (pr1 (fmonoidal_preservesunitstrongly Fm) ⊗^{N} (identity (F x)))
+                 · lu^{N}_{F x}
+             = #F (lu^{M}_{x}).
+Proof.
+  intro x.
+  set (plu := preserves_leftunitality' (fmonoidal_preservesleftunitality (pr1 Fm)) x).
+  rewrite (! plu).
+  rewrite ! assoc.
+
+  etrans. {
+    apply maponpaths_2.
+    apply maponpaths_2.
+    rewrite assoc'.
+    apply maponpaths.
+    unfold functoronmorphisms1.
+    do 2 rewrite bifunctor_leftid.
+    do 2 rewrite id_right.
+    rewrite <- bifunctor_rightcomp.
+    apply maponpaths.
+    apply (fmonoidal_preservesunitstrongly Fm).
+  }
+  rewrite bifunctor_rightid.
+  rewrite id_right.
+  etrans. {
+    apply maponpaths_2.
+    apply (fmonoidal_preservestensorstrongly Fm).
+  }
+  apply id_left.
+Qed.
+
 Section ActegoryFromObject.
 
   Context {V : category}.
@@ -231,9 +292,9 @@ Section ActegoryFromObject.
 
   Context (C : bicatactionbicat Mon_V bicat_of_cats).
 
-  Local Notation action_C := (pr12 C).
-  Local Notation action_fmon_lax := (pr122 C).
-  Local Notation action_fmon_strong := (pr222 C).
+  Local Definition action_C := (pr12 C).
+  Local Definition action_fmon_lax := (pr122 C).
+  Local Definition action_fmon_strong := (pr222 C).
 
   Definition unitor_from_object
     :  action_unitor_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
@@ -270,32 +331,77 @@ Section ActegoryFromObject.
   Proof.
     repeat split.
     - intro ; intros.
-      cbn.
-      unfold unitor_from_object.
-      cbn.
-      admit.
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr222 action_fmon_strong))).
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr122 action_fmon_strong))).
+      (* That the monoidal unit is strongly preserved, means that we have
+         a morphism in the category of endofunctors on C,
+         i.e. a natural transformation, hence, we use this naturality *)
+      apply (pr212 action_fmon_strong).
+    - (* Here we use that the unit is strongly preserved, that is,
+         we use that the equation that expresses that the
+         unit preserving morphism is invertible *)
+      apply (toforallpaths _ _ _ (base_paths _ _ (pr222 action_fmon_strong))).
+    - (* Idem as previous bullet point *)
+      apply (toforallpaths _ _ _ (base_paths _ _ (pr122 action_fmon_strong))).
     - intro ; intros.
-      cbn.
-      cbn in C.
-      unfold fmonoidal in C.
-      admit.
-    - intro ; intros.
-      cbn.
-      admit.
-    - intro ; intros.
-      cbn.
-      admit.
+      (* Here we use that the tensor preserving morphism is an isomorphism,
+         i.e. we use the equation that expresses the invertibility *)
+      exact (! pr21 (pr1 action_fmon_strong w v) z z' h).
+    - intros v1 v2 w c f.
+      set (fmon_strong_preserves_tensor_inv := preservestensor_inv_is_nattrans
+            (pr12 action_fmon_lax)
+            (pr122 action_fmon_lax)
+            (pr1 action_fmon_strong)).
+      exact (! (toforallpaths _ _ _ (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
+    - intros w v1 v2 c f.
+      exact (toforallpaths _ _ _ (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
     - apply (toforallpaths _ _ _ (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
     - apply (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
+    - intros v c.
+      cbn.
+
+      set (plu := preserves_leftunitality'' (_,,pr222 C) v).
+      set (pluc := toforallpaths _ _ _ (base_paths _ _ plu) c).
+      refine (_ @ pluc).
+      clear pluc ; clear plu.
+      cbn.
+      rewrite ! id_right.
+      apply idpath.
     - intro ; intros.
       cbn.
-      admit.
-    - intro ; intros.
-      cbn.
-      admit.
-  Admitted.
+      unfold actor_from_object.
+      set (t := ! toforallpaths _ _ _ (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
+      cbn in t.
+      rewrite id_right in t.
+
+      set (αisov'vw := z_iso_inv (z_iso_from_associator_iso Mon_V v' v w)).
+      rewrite assoc' in t.
+
+      assert (pf:  (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' (v ⊗_{ Mon_V} w))) z
+                                     · pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v w)) (pr1 ((pr12 C) v') z))
+               =  pr1 (# (pr12 C) (monoidal_associatorinvdata Mon_V v' v w)) z · (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong (v' ⊗_{ Mon_V} v) w)) z
+                                                                                      · # (pr1 ((pr12 C) w)) (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' v)) z))).
+      {
+        etrans.
+        2: {
+          apply maponpaths.
+          exact t.
+        }
+
+        rewrite ! assoc.
+        apply maponpaths_2.
+        etrans.
+        2: {
+          apply maponpaths_2.
+          set (bla := toforallpaths _ _ _ (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
+          rewrite functor_comp in bla.
+          exact (! bla).
+        }
+        rewrite functor_id.
+        apply (! id_left _).
+      }
+
+      refine (_ @ ! pf).
+      apply assoc'.
+  Qed.
 
   Definition actegory_from_object
     : actegory (monoidal_swapped Mon_V) (pr1 C)
@@ -320,6 +426,26 @@ Section FromActegoriesToActionsInCat.
   Proof.
   Admitted.
 
+  Lemma actegory_hom_preserves_unitor_inv
+        {a1 a2 : ACAT} (f : ACAT ⟦ a1, a2 ⟧)
+        (c : pr11 (actegory_to_object Mon_V (pr2 a1)))
+    : actegory_unitorinvdata (pr2 a2 : actegory _ _) (pr1 (pr1 f) c) · (pr112 f) I_{ Mon_V} c
+      = # (pr11 f) (actegory_unitorinvdata (pr2 a1 : actegory _ _) c).
+  Proof.
+
+    set (t := (pr222 (pr212 f)) c). (* preserves_unitor *)
+    apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_unitorisolaw Mon_V (pr2 a2) (pr1 (pr1 f) c))).
+    cbn.
+    etrans.
+    2: { apply maponpaths_2 ; apply t. }
+    rewrite assoc'.
+    rewrite <- functor_comp.
+    rewrite (pr1 (actegory_unitorisolaw Mon_V (pr2 a1) c)).
+    rewrite functor_id.
+    apply (! id_right _).
+  Qed.
+
+
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
     : ACTI⟦actegory_to_object Mon_V (pr2 a1), actegory_to_object Mon_V (pr2 a2)⟧.
@@ -342,36 +468,30 @@ Section FromActegoriesToActionsInCat.
       etrans. 2: { apply maponpaths ; apply (! id_right _). }.
       exact (pr12 (pr212 f) v w c g).
     - use total2_paths_f.
-        2: { apply isaprop_is_nat_trans ; apply homset_property. }
-
-        apply funextsec ; intro c.
-        cbn.
-        etrans.
-        2: {
-          apply maponpaths_2.
-          apply (! id_left _).
-        }
-        etrans.
-        2: { apply (! id_left _). }
-        cbn in f.
-        unfold lineator in f.
-        unfold lineator_lax in f.
-        unfold lineator_laxlaws in f.
-        unfold preserves_unitor in f.
-        unfold lineator_strongly in f.
-        cbn in a1.
-        Check actegory_triangleidentity Mon_V (pr2 a2) _.
-
-        apply TODO. (*** TODO ***)
-    -
-      intros v w.
+      2: { apply isaprop_is_nat_trans ; apply homset_property. }
+      abstract (
+          apply funextsec ; intro c ;
+          cbn ;
+          rewrite ! id_left ;
+          apply actegory_hom_preserves_unitor_inv
+        ).
+    - intros v w.
       use nat_trans_eq.
       { apply homset_property. }
-      intro c.
-      cbn.
-      rewrite ! id_left.
-
-      apply TODO. (*** TODO ***)
+      abstract (
+          intro c ;
+          cbn ;
+          rewrite ! id_left ;
+          set (t := pr122 (pr212 f) w v c) ;
+          apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_actorisolaw Mon_V (pr2 a2) _ _ _)) ;
+          rewrite assoc ;
+          set (i := (_,,_,,actegory_actorisolaw Mon_V (pr2 a1) w v c) : z_iso _ _) ;
+          apply (z_iso_inv_on_left _ _ _ _ (functor_on_z_iso (pr1 f) i)) ;
+          cbn ;
+          rewrite assoc ;
+          rewrite t ;
+          apply idpath
+        ).
   Defined.
 
   Definition acat_to_acti_data
@@ -531,8 +651,25 @@ Section FromActionInCatToActegories.
         apply id_right.
     - intros v w c.
       cbn.
+      cbn in f.
+      unfold disp_actionbicat_disp_mor in f.
+
       apply TODO.
     - intro c.
+      cbn in f.
+      unfold disp_actionbicat_disp_mor in f.
+      set (t := pr122 f).
+      unfold  ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq  in t.
+      cbn in t.
+      set (tt := toforallpaths _ _ _ (base_paths _ _ t) c).
+      cbn in tt.
+      rewrite ! id_left in tt.
+      cbn.
+      unfold unitor_from_object.
+      unfold  ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat_funclass in tt.
+
+
+
       apply TODO.
     - intros v c.
       simpl.
