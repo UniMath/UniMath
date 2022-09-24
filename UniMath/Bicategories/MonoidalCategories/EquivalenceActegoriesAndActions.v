@@ -34,14 +34,17 @@ Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBica
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
+Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
+
+Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Import BifunctorNotations.
 
+Local Lemma TODO_JOKER (A : UU) : A.
+Proof.
+Admitted.
+
 Section FunctorsIntoEndofunctorCategory.
-
-  Require Import UniMath.CategoryTheory.FunctorCategory.
-
-  Import BifunctorNotations.
 
   Lemma bifunctor_to_functorintoendofunctorcat
         {C D E : category} (F : bifunctor C D E)
@@ -165,31 +168,19 @@ Section ActegoryToObject.
         apply actegory_unitorisolaw.
       }
       apply bifunctor_leftid.
-    - set (tri := actegory_triangleidentity Mon_V act x x0).
+    - set (tri := actegory_triangleidentity' Mon_V act x x0).
+      rewrite (! tri).
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        exact (pr2 (actegory_actorisolaw Mon_V act (monoidal_unit Mon_V) x x0)).
+      }
+      rewrite id_right.
+      apply actegory_unitorisolaw.
+  Qed.
 
-      (* Here we have to show:
-          preserves_rightunitality
-                    (fmonoidal_preservestensordata (fmonoidal_data_to_object act))
-                    (fmonoidal_preservesunit (fmonoidal_data_to_object act))
-
-          The previous "bullet" was showing that left unitality was preserved,
-          in order to show that, I've used the triangle identity, however,
-          that is now not possible to use since we have the left unitor instead
-          of the right unitor.
-
-       *)
-      (*
-        Notice that the goal is equivalent to:
-        monoidal_leftunitordata Mon_V v ⊗^{ act}_{r} c
-        = actegory_actordata act (monoidal_unit Mon_V) v c
-          · actegory_unitordata act (v ⊗_{ act} v)
-
-          Here, v : V, c : C.
-
-       *)
-
-      admit.
-  Admitted.
 
   Definition fmonoidal_lax_to_object
              (act : actegory Mon_V C)
@@ -246,44 +237,6 @@ Section ActegoryToObject.
   Defined.
 
 End ActegoryToObject.
-
-(* Should be moved in MonoidalFunctorswhiskered.v, but in order to not have to be able to compile
-the whole bicategory library, it is currently placed in here.. *)
-
-Import MonoidalNotations.
-Definition preserves_leftunitality'' {C D : category}
-           {M : monoidal C} {N : monoidal D}
-           {F : functor C D} (Fm : fmonoidal M N F) :
-  ∏ (x : C), (pr1 (fmonoidal_preservestensorstrongly Fm I_{M} x))
-                 · (pr1 (fmonoidal_preservesunitstrongly Fm) ⊗^{N} (identity (F x)))
-                 · lu^{N}_{F x}
-             = #F (lu^{M}_{x}).
-Proof.
-  intro x.
-  set (plu := preserves_leftunitality' (fmonoidal_preservesleftunitality (pr1 Fm)) x).
-  rewrite (! plu).
-  rewrite ! assoc.
-
-  etrans. {
-    apply maponpaths_2.
-    apply maponpaths_2.
-    rewrite assoc'.
-    apply maponpaths.
-    unfold functoronmorphisms1.
-    do 2 rewrite bifunctor_leftid.
-    do 2 rewrite id_right.
-    rewrite <- bifunctor_rightcomp.
-    apply maponpaths.
-    apply (fmonoidal_preservesunitstrongly Fm).
-  }
-  rewrite bifunctor_rightid.
-  rewrite id_right.
-  etrans. {
-    apply maponpaths_2.
-    apply (fmonoidal_preservestensorstrongly Fm).
-  }
-  apply id_left.
-Qed.
 
 Section ActegoryFromObject.
 
@@ -419,12 +372,10 @@ Local Definition ACTI
 
 Section FromActegoriesToActionsInCat.
 
+  Import MonoidalNotations.
+
   Definition acat_to_acti_on_ob : (ob ACAT) -> (ob ACTI)
     := λ act, actegory_to_object Mon_V (pr2 act).
-
-  Lemma TODO (A : UU) : A.
-  Proof.
-  Admitted.
 
   Lemma actegory_hom_preserves_unitor_inv
         {a1 a2 : ACAT} (f : ACAT ⟦ a1, a2 ⟧)
@@ -444,7 +395,6 @@ Section FromActegoriesToActionsInCat.
     rewrite functor_id.
     apply (! id_right _).
   Qed.
-
 
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
@@ -654,7 +604,7 @@ Section FromActionInCatToActegories.
       cbn in f.
       unfold disp_actionbicat_disp_mor in f.
 
-      apply TODO.
+      apply TODO_JOKER.
     - intro c.
       cbn in f.
       unfold disp_actionbicat_disp_mor in f.
@@ -670,10 +620,12 @@ Section FromActionInCatToActegories.
 
 
 
-      apply TODO.
+
+      apply TODO_JOKER.
     - intros v c.
       simpl.
-      apply TODO.
+
+      apply TODO_JOKER.
   Defined.
 
   Definition acti_to_acat_data
@@ -704,7 +656,6 @@ Section FromActionInCatToActegories.
         cbn.
         unfold comp_lineator_data.
         cbn.
-
         rewrite ! id_right.
         rewrite ! id_left.
         cbn.
@@ -798,8 +749,6 @@ Section FromActionInCatToActegories.
 End FromActionInCatToActegories.
 
 Section ActionInCatEquivActegories.
-
-  Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 
   Definition acti_to_acat_unit_data_on_ob (a : ACTI)
     : ACTI ⟦Composition.comp_psfunctor acat_to_acti acti_to_acat a, Identity.id_psfunctor ACTI a⟧.

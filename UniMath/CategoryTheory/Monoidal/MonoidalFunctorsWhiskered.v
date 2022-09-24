@@ -380,7 +380,39 @@ Section MonoidalFunctors.
     apply pru.
   Qed.
 
+  Definition preserves_leftunitality'' {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             {F : functor C D} (Fm : fmonoidal M N F) :
+    ∏ (x : C), (pr1 (fmonoidal_preservestensorstrongly Fm I_{M} x))
+                 · (pr1 (fmonoidal_preservesunitstrongly Fm) ⊗^{N} (identity (F x)))
+                 · lu^{N}_{F x}
+               = #F (lu^{M}_{x}).
+  Proof.
+    intro x.
+    set (plu := preserves_leftunitality' (fmonoidal_preservesleftunitality (pr1 Fm)) x).
+    rewrite (! plu).
+    rewrite ! assoc.
 
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      unfold functoronmorphisms1.
+      do 2 rewrite bifunctor_leftid.
+      do 2 rewrite id_right.
+      rewrite <- bifunctor_rightcomp.
+      apply maponpaths.
+      apply (fmonoidal_preservesunitstrongly Fm).
+    }
+    rewrite bifunctor_rightid.
+    rewrite id_right.
+    etrans. {
+      apply maponpaths_2.
+      apply (fmonoidal_preservestensorstrongly Fm).
+    }
+    apply id_left.
+  Qed.
 
   (* Strictly preserving monoidal functors *)
   Definition preserves_tensor_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU
