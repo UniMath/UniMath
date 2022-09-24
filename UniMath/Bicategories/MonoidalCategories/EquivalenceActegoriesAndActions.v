@@ -414,8 +414,9 @@ Section FromActegoriesToActionsInCat.
         do 2 apply maponpaths_2.
         apply (bifunctor_leftid (pr12 a2)).
       }
-      etrans. { apply maponpaths_2 ; apply id_left. }.
-      etrans. 2: { apply maponpaths ; apply (! id_right _). }.
+      etrans. { apply maponpaths_2 ; apply id_left. }
+      etrans.
+      2: { apply maponpaths ; apply (! id_right _). }
       exact (pr12 (pr212 f) v w c g).
     - use total2_paths_f.
       2: { apply isaprop_is_nat_trans ; apply homset_property. }
