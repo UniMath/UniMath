@@ -40,6 +40,7 @@ Core/Examples/FibSlice.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -156,8 +157,10 @@ PseudoFunctors/Examples/MonadInclusion.v
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
+Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
+Monads/Examples/MonadsInTotalBicat.v
 Monads/DistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
@@ -190,6 +193,8 @@ Limits/Examples/LimitsStructuredCategories.v
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegories.v
+Monads/Examples/MonadsInStructuredCategories.v
+
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v

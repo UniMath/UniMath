@@ -221,6 +221,7 @@ DisplayedCats/StreetOpFibration.v
 categories/Dialgebras.v
 categories/CatIsoInserter.v
 categories/EilenbergMoore.v
+limits/Examples/EilenbergMooreLimits.v
 Elements.v
 Core.v
 

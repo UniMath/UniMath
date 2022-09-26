@@ -193,7 +193,22 @@ Definition triangle_identity {C : category}
            (lu : leftunitor_data T I)
            (ru : rightunitor_data T I)
            (α : associator_data T)
-    := ∏ (x y : C), (α x I y) · (x ⊗^{T}_{l} (lu y)) = (ru x) ⊗^{T}_{r} y.
+  := ∏ (x y : C), α x I y · x ⊗^{T}_{l} (lu y) = ru x ⊗^{T}_{r} y.
+
+(** more triangle laws that are redundant in the axiomatisation *)
+Definition triangle_identity' {C : category}
+           {T : tensor C}
+           {I : C}
+           (lu : leftunitor_data T I)
+           (α : associator_data T)
+  := ∏ (x y : C), α I x y · lu (x ⊗_{T} y) = lu x ⊗^{T}_{r} y.
+
+Definition triangle_identity'' {C : category}
+           {T : tensor C}
+           {I : C}
+           (ru : rightunitor_data T I)
+           (α : associator_data T)
+  := ∏ (x y : C), α x y I · x ⊗^{T}_{l} (ru y) = ru (x ⊗_{T} y).
 
 Definition pentagon_identity {C : category} {T : tensor C} (α : associator_data T) : UU :=
   ∏ (w x y z : C),
@@ -706,10 +721,9 @@ Section UnitorsCoincide.
     apply monoidal_triangleidentity.
   Qed.
 
-  Lemma right_whisker_with_lunitor (x y : C) :
-    lu_{M} x ⊗^{M}_{r} y = α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y).
+  Lemma right_whisker_with_lunitor : triangle_identity' lu_{M} α_{M}.
   Proof.
-    apply pathsinv0.
+    intros x y.
     use faithful_reflects_commutative_triangle.
     3: { apply leftwhiskering_faithful. }
     apply pathsinv0.
@@ -740,7 +754,7 @@ Section UnitorsCoincide.
   Lemma unitors_coincide_on_unit'
     : lu_{M} I_{M} ⊗^{M}_{r} I_{M} = ru_{M} I_{M} ⊗^{M}_{r} I_{M}.
   Proof.
-    refine (right_whisker_with_lunitor I_{M} I_{M} @ _).
+    refine (! right_whisker_with_lunitor I_{M} I_{M} @ _).
     refine (_ @ monoidal_triangleidentity M I_{M} I_{M}).
     apply maponpaths.
     apply lunitor_preserves_leftwhiskering_with_unit.
@@ -846,3 +860,17 @@ Section MonoidalSwapped.
     := monoidal_swapped_data Mon_V ,, monoidal_swapped_laws Mon_V.
 
 End MonoidalSwapped.
+
+Lemma left_whisker_with_runitor {C : category} (M : monoidal C) :
+  triangle_identity'' ru_{M} α_{M}.
+Proof.
+  red; intros x y.
+  assert (aux := right_whisker_with_lunitor (monoidal_swapped M) y x).
+  cbn in aux.
+  rewrite <- aux.
+  rewrite assoc.
+  etrans.
+  { apply cancel_postcomposition.
+    apply monoidal_associatorisolaw. }
+  apply id_left.
+Qed.
