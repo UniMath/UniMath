@@ -81,7 +81,6 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 MonoidalCategories/BicatOfActionsInBicat.v
-MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
@@ -125,6 +124,8 @@ PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
+
+MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
