@@ -168,7 +168,13 @@ Definition actegory_triangle_identity {C : category}
            {A : action C}
            (au : action_unitor_data A)
            (aα : actor_data A)
-    := ∏ (v : V) (y : C), (aα v I_{Mon_V} y) · (v ⊗^{A}_{l} (au y)) = (ru_{Mon_V} v) ⊗^{A}_{r} y.
+  := ∏ (v : V) (y : C), (aα v I_{Mon_V} y) · (v ⊗^{A}_{l} (au y)) = (ru_{Mon_V} v) ⊗^{A}_{r} y.
+
+Definition actegory_triangle_identity' {C : category}
+           {A : action C}
+           (au : action_unitor_data A)
+           (aα : actor_data A)
+    := ∏ (v : V) (y : C), (aα I_{Mon_V} v y) · (au (v ⊗_{A} y)) = (lu_{Mon_V} v) ⊗^{A}_{r} y.
 
 Definition actegory_pentagon_identity {C : category} {A : action C} (aα : actor_data A) : UU :=
   ∏ (w v v' : V) (z : C),
@@ -220,6 +226,13 @@ Proof.
 Qed.
 
 (** Some additional data and properties which one deduces from actegories **)
+
+Lemma actegory_triangleidentity'
+      {C : category}
+      (Act : actegory C)
+  : actegory_triangle_identity' au_{Act} aα_{Act}.
+Proof.
+Admitted.
 
 Lemma action_unitor_nat_z_iso {C : category} (Act : actegory C):
   nat_z_iso (leftwhiskering_functor Act (bifunctor_leftid Act) (bifunctor_leftcomp Act) I_{Mon_V}) (functor_identity C).
