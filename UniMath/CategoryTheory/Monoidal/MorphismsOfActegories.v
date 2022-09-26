@@ -142,7 +142,7 @@ Section TheDefinitions.
     set (lsv_wx := pointwise_z_iso_from_lineator_strongly ls v (w ⊗_{ActC} x)).
     set (lsvw_x := pointwise_z_iso_from_lineator_strongly ls (v ⊗_{Mon_V} w) x).
     set (lsfv := functor_on_z_iso
-          (leftwhiskering_functor ActD (bifunctor_leftid ActD) (bifunctor_leftcomp ActD) v)
+          (leftwhiskering_functor ActD v)
           (pointwise_z_iso_from_lineator_strongly ls w x)).
     apply (z_iso_inv_on_left _ _ _ _ lsfv).
     apply pathsinv0.

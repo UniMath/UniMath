@@ -46,47 +46,67 @@ Admitted.
 
 Section FunctorsIntoEndofunctorCategory.
 
-  Lemma bifunctor_to_functorintoendofunctorcat
-        {C D E : category} (F : bifunctor C D E)
-    : functor C [D,E].
+  Definition bifunctor_to_functorintoendofunctorcat_data
+    {C D E : category} (F : bifunctor C D E)
+    : functor_data C [D,E].
   Proof.
-    use make_functor.
-    - exists (λ c, leftwhiskering_functor F (bifunctor_leftid F) (bifunctor_leftcomp F) c).
-      intros c1 c2 f.
+    use make_functor_data.
+    - exact (λ c, leftwhiskering_functor F c).
+    - intros c1 c2 f.
       exists (λ d, f ⊗^{F}_{r} d).
-      exact (λ d1 d2 g, ! bifunctor_equalwhiskers F c1 c2 d1 d2 f g).
-    - use tpair.
-      + intro c.
-        use total2_paths_f.
-        * apply funextsec ; intro d.
-          apply bifunctor_rightid.
-        * repeat (apply funextsec ; intro).
-          apply homset_property.
-      + intros c1 c2 c3 f g.
-        use total2_paths_f.
-        * apply funextsec ; intro.
-          apply bifunctor_rightcomp.
-        * repeat (apply funextsec ; intro).
-          apply homset_property.
+      abstract (exact (λ d1 d2 g, ! bifunctor_equalwhiskers F c1 c2 d1 d2 f g)). (** abstract needs [apply E] in [bifunctor_from_to] *)
   Defined.
 
-  Lemma bifunctor_from_functorintoendofunctorcat
-        {C D E : category} (F : functor C [D,E])
-    : bifunctor C D E.
+  Lemma bifunctor_to_functorintoendofunctorcat_data_is_functor
+    {C D E : category} (F : bifunctor C D E)
+    : is_functor (bifunctor_to_functorintoendofunctorcat_data F).
   Proof.
-    use make_bifunctor.
-    - exists (λ c d, pr1 (F c) d).
-      exists (λ c d1 d2 g, #(pr1 (F c)) g).
-      exact (λ d c1 c2 f, pr1 (#F f) d).
-    - repeat (use tpair).
-      + intro ; intro ; apply functor_id.
-      + exact (λ d c, toforallpaths _ _ _ (maponpaths pr1 (functor_id F c)) d).
-      + intro ; intros ; apply functor_comp.
-      + intro ; intros.
-        exact (toforallpaths _ _ _ (maponpaths pr1 (functor_comp F f1 f2)) b).
-      + intro ; intros.
-        exact (! pr2 (#F f) b1 b2 g).
+    use tpair.
+    + intro c.
+      use total2_paths_f.
+      * apply funextsec ; intro d.
+        apply bifunctor_rightid.
+      * repeat (apply funextsec ; intro).
+        apply homset_property.
+    + intros c1 c2 c3 f g.
+      use total2_paths_f.
+      * apply funextsec ; intro.
+        apply bifunctor_rightcomp.
+      * repeat (apply funextsec ; intro).
+        apply homset_property.
+  Qed.
+
+  Definition bifunctor_to_functorintoendofunctorcat
+    {C D E : category} (F : bifunctor C D E)
+    : functor C [D,E] := _,,bifunctor_to_functorintoendofunctorcat_data_is_functor F.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat
+    {C D E : category} (F : functor C [D,E])
+    : bifunctor_data C D E.
+  Proof.
+    exists (λ c d, pr1 (F c) d).
+    exists (λ c d1 d2 g, #(pr1 (F c)) g).
+    exact (λ d c1 c2 f, pr1 (#F f) d).
   Defined.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat_is_bifunctor
+    {C D E : category} (F : functor C [D,E])
+    : is_bifunctor (bifunctor_data_from_functorintoendofunctorcat F).
+  Proof.
+    repeat (use tpair).
+    + intro ; intro ; apply functor_id.
+    + abstract (exact (λ d c, toforallpaths _ _ _ (maponpaths pr1 (functor_id F c)) d)).
+    + intro ; intros ; apply functor_comp.
+    + abstract (intro ; intros;
+      exact (toforallpaths _ _ _ (maponpaths pr1 (functor_comp F f1 f2)) b)).
+    + abstract (intro ; intros;
+      exact (! pr2 (#F f) b1 b2 g)).
+  Defined. (** needs to be defined for [bifunctor_from_to] *)
+
+
+  Definition bifunctor_from_functorintoendofunctorcat
+        {C D E : category} (F : functor C [D,E])
+    : bifunctor C D E := _,,bifunctor_data_from_functorintoendofunctorcat_is_bifunctor F.
 
   Lemma bifunctor_to_from {C D E : category} (F : bifunctor C D E)
     : bifunctor_from_functorintoendofunctorcat (bifunctor_to_functorintoendofunctorcat F) = F.
@@ -94,7 +114,7 @@ Section FunctorsIntoEndofunctorCategory.
     use total2_paths_f.
     2: { apply isaprop_is_bifunctor. }
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma bifunctor_from_to {C D E : category} (F : functor C [D,E])
     : bifunctor_to_functorintoendofunctorcat (bifunctor_from_functorintoendofunctorcat F) = F.
@@ -102,13 +122,15 @@ Section FunctorsIntoEndofunctorCategory.
     use functor_eq.
     { apply homset_property. }
     use total2_paths_f.
-    { apply idpath. }
+    { cbn. apply idpath. }
+    cbn.
     repeat (apply funextsec ; intro).
     use total2_paths_f.
     { apply idpath. }
     repeat (apply funextsec ; intro).
-    apply pathsinv0inv0.
-  Defined.
+    apply E.
+    (* more precisely, it could be: apply pathsinv0inv0. *)
+  Qed.
 
   Lemma bifunctor_equiv_functorintoendofunctorcat (C D E : category)
     : bifunctor C D E ≃ functor C [D,E].
@@ -121,6 +143,8 @@ Section FunctorsIntoEndofunctorCategory.
   Defined.
 
 End FunctorsIntoEndofunctorCategory.
+
+Local Opaque bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
 
 Section ActegoryToObject.
 
@@ -137,11 +161,11 @@ Section ActegoryToObject.
     split.
     - intros v w.
       exists (λ c, actegory_actorinvdata act w v c).
-      intros v1 w1 f.
-      apply actorinv_nat_leftwhisker.
+      abstract (intros v1 w1 f;
+      apply actorinv_nat_leftwhisker).
     - exists (λ v, actegory_unitorinvdata act v).
-      intros v w f.
-      exact (! actegory_unitorinvnat Mon_V act v w f).
+      abstract (intros v w f;
+      exact (! actegory_unitorinvnat Mon_V act v w f)).
   Defined.
 
   Definition fmonoidal_laxlaws_to_object
@@ -199,32 +223,32 @@ Section ActegoryToObject.
     - intros v w.
       use tpair.
       + exists (λ c, actegory_actordata Act w v c).
-        intros c1 c2 f.
-        cbn.
-        apply (! actegory_actornatleft _ _ _ _ _ _ _ ).
-      + use tpair.
-        * apply nat_trans_eq.
-          { apply homset_property. }
-          intro.
-          apply actegory_actorisolaw.
-        * apply nat_trans_eq.
-          { apply homset_property. }
-          intro.
-          apply (pr1 (actegory_actorisolaw Mon_V Act w v x)).
+        abstract (intros c1 c2 f;
+        cbn;
+        apply (! actegory_actornatleft _ _ _ _ _ _ _ )).
+      + use tpair;
+        [ apply nat_trans_eq;
+          [ apply homset_property |
+          intro;
+          apply actegory_actorisolaw]
+        | apply nat_trans_eq;
+          [ apply homset_property |
+          intro;
+          apply (pr1 (actegory_actorisolaw Mon_V Act w v x))] ].
     - exact (λ c, actegory_unitordata Act c).
-    - intros c1 c2 f.
-      cbn.
-      apply actegory_unitornat.
-    - use nat_trans_eq.
-      { apply homset_property. }
-      intro.
-      cbn.
-      apply actegory_unitorisolaw.
-    - use nat_trans_eq.
-      { apply homset_property. }
-      intro.
-      cbn.
-      apply actegory_unitorisolaw.
+    - abstract (intros c1 c2 f;
+      cbn;
+      apply actegory_unitornat).
+    - abstract (use nat_trans_eq;
+      [ apply homset_property |
+      intro;
+      cbn;
+      apply actegory_unitorisolaw]).
+    - abstract (use nat_trans_eq;
+      [ apply homset_property |
+      intro;
+      cbn;
+      apply actegory_unitorisolaw]).
   Defined.
 
   Definition actegory_to_object (Act : actegory Mon_V C)
@@ -245,9 +269,9 @@ Section ActegoryFromObject.
 
   Context (C : bicatactionbicat Mon_V bicat_of_cats).
 
-  Local Definition action_C := (pr12 C).
-  Local Definition action_fmon_lax := (pr122 C).
-  Local Definition action_fmon_strong := (pr222 C).
+  Local Definition action_C := pr12 C.
+  Local Definition action_fmon_lax := pr122 C.
+  Local Definition action_fmon_strong := pr222 C.
 
   Definition unitor_from_object
     :  action_unitor_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
@@ -279,7 +303,7 @@ Section ActegoryFromObject.
     exact actorinv_from_object.
   Defined.
 
-  Definition actegory_laws_from_object
+  Lemma actegory_laws_from_object
     : actegory_laws (monoidal_swapped Mon_V) actegory_data_from_object.
   Proof.
     repeat split.
@@ -374,7 +398,7 @@ Section FromActegoriesToActionsInCat.
 
   Import MonoidalNotations.
 
-  Definition acat_to_acti_on_ob : (ob ACAT) -> (ob ACTI)
+  Definition acat_to_acti_on_ob : ob ACAT -> ob ACTI
     := λ act, actegory_to_object Mon_V (pr2 act).
 
   Lemma actegory_hom_preserves_unitor_inv
@@ -396,53 +420,79 @@ Section FromActegoriesToActionsInCat.
     apply (! id_right _).
   Qed.
 
+  Definition acat_to_acti_on_mor_data_data
+    {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
+    nat_trans_data (ActionBasedStrongFunctorsWhiskeredMonoidal.H(V:=V)(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f))
+      (ActionBasedStrongFunctorsWhiskeredMonoidal.H'(FA:=pr12(actegory_to_object Mon_V (pr2 a1))) (pr1 f)).
+  Proof.
+    intro v.
+    exists (λ c, pr11 (pr2 f) v c).
+    abstract (exact (λ c1 c2 g, pr1 (pr212 f) v c1 c2 g)).
+  Defined.
+
+  Definition acat_to_acti_on_mor_data_data_is_nat_trans
+    {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
+    is_nat_trans _ _ (acat_to_acti_on_mor_data_data f).
+  Proof.
+    intros v w g.
+    use nat_trans_eq.
+    { apply homset_property. }
+    intro c.
+    cbn.
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply (bifunctor_leftid (pr12 a2)).
+    }
+    etrans. { apply maponpaths_2 ; apply id_left. }
+    etrans.
+    2: { apply maponpaths ; apply (! id_right _). }
+    exact (pr12 (pr212 f) v w c g).
+  Qed.
+
+  Definition acat_to_acti_on_mor_data
+    {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
+    ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat(V:=V)
+      (FA:=pr12(actegory_to_object Mon_V (pr2 a1)))(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f)
+    := _,,acat_to_acti_on_mor_data_data_is_nat_trans f.
+
+  Lemma acat_to_acti_on_mor_laws
+    {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
+    ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq (monoidal_swapped Mon_V)
+      (pr22 (actegory_to_object Mon_V (pr2 a1))) (pr22 (actegory_to_object Mon_V (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f)
+      × ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_pentagon_eq (monoidal_swapped Mon_V)
+      (pr22 (actegory_to_object Mon_V (pr2 a1))) (pr22 (actegory_to_object Mon_V (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f).
+  Proof.
+    split.
+    - use total2_paths_f.
+      2: { apply isaprop_is_nat_trans ; apply homset_property. }
+      apply funextsec ; intro c ;
+        cbn ;
+        rewrite ! id_left ;
+        apply actegory_hom_preserves_unitor_inv.
+    - intros v w.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro c ;
+        cbn ;
+        rewrite ! id_left ;
+        set (t := pr122 (pr212 f) w v c) ;
+        apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_actorisolaw Mon_V (pr2 a2) _ _ _)) ;
+        rewrite assoc ;
+        set (i := (_,,_,,actegory_actorisolaw Mon_V (pr2 a1) w v c) : z_iso _ _) ;
+        apply (z_iso_inv_on_left _ _ _ _ (functor_on_z_iso (pr1 f) i)) ;
+        cbn ;
+        rewrite assoc ;
+        rewrite t ;
+        apply idpath.
+  Qed.
+
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
     : ACTI⟦actegory_to_object Mon_V (pr2 a1), actegory_to_object Mon_V (pr2 a2)⟧.
   Proof.
     exists (pr1 f).
-    repeat (use tpair).
-    - intro v.
-      exists (λ c, pr11 (pr2 f) v c).
-      abstract (exact (λ c1 c2 g, pr1 (pr212 f) v c1 c2 g)).
-    - intros v w g.
-      use nat_trans_eq.
-      { apply homset_property. }
-      intro c.
-      cbn.
-      etrans. {
-        do 2 apply maponpaths_2.
-        apply (bifunctor_leftid (pr12 a2)).
-      }
-      etrans. { apply maponpaths_2 ; apply id_left. }
-      etrans.
-      2: { apply maponpaths ; apply (! id_right _). }
-      exact (pr12 (pr212 f) v w c g).
-    - use total2_paths_f.
-      2: { apply isaprop_is_nat_trans ; apply homset_property. }
-      abstract (
-          apply funextsec ; intro c ;
-          cbn ;
-          rewrite ! id_left ;
-          apply actegory_hom_preserves_unitor_inv
-        ).
-    - intros v w.
-      use nat_trans_eq.
-      { apply homset_property. }
-      abstract (
-          intro c ;
-          cbn ;
-          rewrite ! id_left ;
-          set (t := pr122 (pr212 f) w v c) ;
-          apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_actorisolaw Mon_V (pr2 a2) _ _ _)) ;
-          rewrite assoc ;
-          set (i := (_,,_,,actegory_actorisolaw Mon_V (pr2 a1) w v c) : z_iso _ _) ;
-          apply (z_iso_inv_on_left _ _ _ _ (functor_on_z_iso (pr1 f) i)) ;
-          cbn ;
-          rewrite assoc ;
-          rewrite t ;
-          apply idpath
-        ).
+    exists (acat_to_acti_on_mor_data f).
+    apply acat_to_acti_on_mor_laws.
   Defined.
 
   Definition acat_to_acti_data
@@ -716,14 +766,19 @@ Section FromActionInCatToActegories.
       + use tpair.
         * apply nat_trans_id.
         * intro ; intro.
+          rewrite ! id_right.
+          etrans.
+          2: { apply cancel_postcomposition. cbn.
+               apply pathsinv0, functor_id. }
+          rewrite id_left.
+
+          (** is there no result already available here? *)
           cbn.
           unfold ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat_funclass.
           unfold comp_lineator_data.
           cbn.
           rewrite ! id_right.
           rewrite ! id_left.
-          rewrite (functor_id  (((pr12 c) v))).
-          rewrite id_left.
           apply idpath.
       + use tpair ;
           (use total2_paths_f

@@ -289,7 +289,7 @@ Proof.
 Qed.
 
 Lemma leftunitor_nat_z_iso {C : category} (M : monoidal C):
-  nat_z_iso (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) I_{M}) (functor_identity C).
+  nat_z_iso (leftwhiskering_functor M I_{M}) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.
@@ -300,7 +300,7 @@ Proof.
 Defined.
 
 Definition rightunitor_nat_z_iso {C : category} (M : monoidal C) :
-  nat_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) I_{M}) (functor_identity C).
+  nat_z_iso (rightwhiskering_functor M I_{M}) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.
@@ -380,9 +380,9 @@ Proof.
   apply (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
   cbn.
   set (luiy := make_z_iso _ _ (monoidal_leftunitorisolaw M y)).
-  set (luixy := functor_on_z_iso (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) x) luiy).
+  set (luixy := functor_on_z_iso (leftwhiskering_functor M x) luiy).
   set (ruix := make_z_iso _ _ (monoidal_rightunitorisolaw M x)).
-  set (ruixy := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) ruix).
+  set (ruixy := functor_on_z_iso (rightwhiskering_functor M y) ruix).
 
   apply pathsinv0.
   apply (z_iso_inv_on_right _ _ _ ruixy).
@@ -564,7 +564,7 @@ Section EquivalenceFromTensorWithUnit.
   Definition ladjunction_data_from_tensor_with_unit
     : Core.adjunction_data C C.
   Proof.
-    exists (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+    exists (leftwhiskering_functor (monoidal_tensor M) I_{M}).
     exists (functor_identity C).
     use tpair.
     - apply (nat_z_iso_inv (leftunitor_nat_z_iso M)).
@@ -583,7 +583,7 @@ Section EquivalenceFromTensorWithUnit.
   Definition radjunction_data_from_tensor_with_unit
     : Core.adjunction_data C C.
   Proof.
-    exists (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+    exists (rightwhiskering_functor (monoidal_tensor M) I_{M}).
     exists (functor_identity C).
     use tpair.
     - apply (nat_z_iso_inv (rightunitor_nat_z_iso M)).
@@ -600,27 +600,27 @@ Section EquivalenceFromTensorWithUnit.
   Defined.
 
   Lemma leftwhiskering_fullyfaithful
-    : fully_faithful (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+    : fully_faithful (leftwhiskering_functor (monoidal_tensor M) I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
     exact (adjointificiation lequivalence_from_tensor_with_unit).
   Defined.
 
   Lemma rightwhiskering_fullyfaithful
-    : fully_faithful (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+    : fully_faithful (rightwhiskering_functor (monoidal_tensor M) I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
     exact (adjointificiation requivalence_from_tensor_with_unit).
   Defined.
 
   Lemma leftwhiskering_faithful
-    : faithful (leftwhiskering_functor (monoidal_tensor M) (bifunctor_leftid (monoidal_tensor M)) (bifunctor_leftcomp (monoidal_tensor M)) I_{M}).
+    : faithful (leftwhiskering_functor (monoidal_tensor M) I_{M}).
   Proof.
     exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ leftwhiskering_fullyfaithful)).
   Defined.
 
   Lemma rightwhiskering_faithful
-    : faithful (rightwhiskering_functor (monoidal_tensor M) (bifunctor_rightid (monoidal_tensor M)) (bifunctor_rightcomp (monoidal_tensor M)) I_{M}).
+    : faithful (rightwhiskering_functor (monoidal_tensor M) I_{M}).
   Proof.
     exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ rightwhiskering_fullyfaithful)).
   Defined.
@@ -665,7 +665,7 @@ Section UnitorsCoincide.
   Proof.
     apply pathsinv0.
     set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
-    set (αisor := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) αiso).
+    set (αisor := functor_on_z_iso (rightwhiskering_functor M y) αiso).
     apply (z_iso_inv_on_right _ _ _ αisor).
     apply pathsinv0.
     apply lemma0.
@@ -692,7 +692,7 @@ Section UnitorsCoincide.
     set (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{M} x) y)).
     apply (z_iso_inv_on_right _ _ _ αiso).
     set (αiso' := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
-    set (αisor := functor_on_z_iso (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) y) αiso').
+    set (αisor := functor_on_z_iso (rightwhiskering_functor M y) αiso').
     etrans. { apply assoc'. }
     apply (z_iso_inv_on_right _ _ _ αisor).
     apply pathsinv0.
