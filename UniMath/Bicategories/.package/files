@@ -125,8 +125,6 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
-MonoidalCategories/EquivalenceActegoriesAndActions.v
-
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
 
@@ -195,7 +193,7 @@ MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegories.v
 Monads/Examples/MonadsInStructuredCategories.v
-
+MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
