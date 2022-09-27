@@ -11,6 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -205,7 +206,16 @@ Defined.
 
 End A.
 
-Section CosliceToCosliceRecursive.
+Section PointedObjectFixpoint.
+
+  (* Let V be a monoidal category.
+     In this section we construct functors (in both directions)
+     between the monoidal category of monoidal-pointed objects of V,
+     (i.e. the coslice category under the unit object of V)
+     and the category of monoidal-pointed objects of the category of monoidal-pointed objects of V.
+     The constructions in this section are used to show that
+     taking the category of monoidal-pointed objects is idempotent.
+   *)
 
   Local Definition ptd_ob {V : category} (Mon_V : monoidal V)
     := coslice_cat_total V I_{ Mon_V}.
@@ -266,8 +276,6 @@ Section CosliceToCosliceRecursive.
     : functor (ptd_ob (ptd_ob_mon Mon_V)) (ptd_ob Mon_V)
     := ptdptdob_to_ptdob_data ,, ptdptdob_to_ptdob_is_functor.
 
-  Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-
   Definition unit_ptdob_data
     : nat_trans_data
         (functor_identity (ptd_ob Mon_V))
@@ -275,7 +283,7 @@ Section CosliceToCosliceRecursive.
   Proof.
     intro v.
     exists (identity _).
-    apply id_right.
+    abstract (apply id_right).
   Defined.
 
   Definition unit_ptdob_is_nat_trans
@@ -284,6 +292,7 @@ Section CosliceToCosliceRecursive.
     intro ; intros.
     use total2_paths_f.
     2: { apply homset_property. }
+    simpl.
     rewrite id_left.
     apply id_right.
   Qed.
@@ -302,8 +311,7 @@ Section CosliceToCosliceRecursive.
     intro v.
     exists (identity _).
     abstract (use total2_paths_f ;
-    [
-      simpl ;
+    [ simpl ;
       rewrite (! pr22 v) ;
       rewrite id_right ;
       apply id_left
@@ -329,9 +337,11 @@ Section CosliceToCosliceRecursive.
         (functor_identity (ptd_ob (ptd_ob_mon Mon_V)))
     := counit_ptdob_data ,, counit_ptdob_is_nat_trans.
 
-End CosliceToCosliceRecursive.
+End PointedObjectFixpoint.
 
-Section CosliceToCosliceRecursiveMonoidal.
+Section PointedObjectFixpointMonoidal.
+
+  (* In this section, we show that the data defined in the previous section "Pointedobjectfixpoint" is monoidal *)
 
   Context {V : category} (Mon_V : monoidal V).
 
@@ -341,9 +351,9 @@ Section CosliceToCosliceRecursiveMonoidal.
     split.
     - intros f g.
       exists (identity _).
-      apply id_right.
+      abstract (apply id_right).
     - exists (identity _).
-      apply id_right.
+      abstract (apply id_right).
   Defined.
 
   Definition ptdob_to_ptdptdob_fmonoidal_data
@@ -352,13 +362,15 @@ Section CosliceToCosliceRecursiveMonoidal.
     split.
     - intros f g.
       exists (identity _).
-      use total2_paths_f.
-      2: { apply homset_property. }
-      apply id_right.
+      abstract (
+          use total2_paths_f ;
+          [ apply id_right | apply homset_property ]
+        ).
     - exists (identity _).
-      use total2_paths_f.
-      2: { apply homset_property. }
-      apply id_right.
+      abstract (
+          use total2_paths_f ;
+          [ apply id_right | apply homset_property ]
+        ).
   Defined.
 
   Lemma ptdptdob_to_ptdob_fmonoidal_laxlaws
@@ -426,13 +438,13 @@ Section CosliceToCosliceRecursiveMonoidal.
               (try intro ; intros) ;
               repeat (use tpair) ;
               [ exact (identity _)
-              | apply id_right
-              | use total2_paths_f ;
-                [ apply id_right | apply homset_property ]
-              | use total2_paths_f ;
-                [ apply id_right | apply homset_property ]
+              | abstract (apply id_right)
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
               ]).
-  Qed. (* Could be defined, but not necessairy for me *)
+  Defined.
 
   Definition ptdob_to_ptdptdob_fmonoidal_stronglaws
     : fmonoidal_stronglaws (fmonoidal_preservestensordata ptdob_to_ptdptdob_fmonoidal_lax)
@@ -443,14 +455,18 @@ Section CosliceToCosliceRecursiveMonoidal.
               repeat (use tpair) ;
               [ exact (identity _)
               | apply id_right
-              | use total2_paths_f ;
-                [ apply id_right | apply homset_property ]
-              | use total2_paths_f ;
-                [ apply id_right | apply homset_property ]
-              | use total2_paths_f ;
-                [ apply id_right | apply homset_property ]
+              | abstract (
+                    use total2_paths_f ;
+                    [ apply id_right | apply homset_property ]
+                  )
+              | abstract (
+                    use total2_paths_f ;
+                    [ apply id_right | apply homset_property ]
+                  )
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
               ]).
-  Qed. (* Could be defined, but not necessairy for me *)
+  Defined.
 
   Definition ptdptdob_to_ptdob_fmonoidal
     : fmonoidal (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptd_ob_mon Mon_V) (ptdptdob_to_ptdob Mon_V).
@@ -466,4 +482,4 @@ Section CosliceToCosliceRecursiveMonoidal.
     exact ptdob_to_ptdptdob_fmonoidal_stronglaws.
   Defined.
 
-End CosliceToCosliceRecursiveMonoidal.
+End PointedObjectFixpointMonoidal.
