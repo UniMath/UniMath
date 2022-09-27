@@ -172,6 +172,40 @@ Definition make_mnd_opcell
 Section MonadsInOpBicat.
   Context {B : bicat}.
 
+  Definition mnd_op1_to_mnd_data
+             (m : mnd (op1_bicat B))
+    : mnd_data B.
+  Proof.
+    use make_mnd_data.
+    - exact (ob_of_mnd m).
+    - exact (endo_of_mnd m).
+    - exact (unit_of_mnd m).
+    - exact (mult_of_mnd m).
+  Defined.
+
+  Definition mnd_op1_to_is_mnd
+             (m : mnd (op1_bicat B))
+    : is_mnd B (mnd_op1_to_mnd_data m).
+  Proof.
+    refine (_ ,, _ ,, _).
+    - exact (mnd_unit_right m).
+    - exact (mnd_unit_left m).
+    - exact (!(mnd_mult_assoc' m)).
+  Qed.
+
+  Definition mnd_op1_to_mnd
+             (m : mnd (op1_bicat B))
+    : mnd B.
+  Proof.
+    use make_mnd.
+    - exact (mnd_op1_to_mnd_data m).
+    - exact (mnd_op1_to_is_mnd m).
+  Defined.
+End MonadsInOpBicat.
+
+Section MonadsInOpBicat.
+  Context {B : bicat}.
+
   Definition op1_mnd_to_mnd_data
              (m : op1_bicat (mnd (op1_bicat B)))
     : mnd_data B.
