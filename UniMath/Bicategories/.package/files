@@ -81,6 +81,7 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 MonoidalCategories/BicatOfActionsInBicat.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v

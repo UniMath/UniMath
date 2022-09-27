@@ -11,6 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -204,3 +205,281 @@ Proof.
 Defined.
 
 End A.
+
+Section PointedObjectFixpoint.
+
+  (* Let V be a monoidal category.
+     In this section we construct functors (in both directions)
+     between the monoidal category of monoidal-pointed objects of V,
+     (i.e. the coslice category under the unit object of V)
+     and the category of monoidal-pointed objects of the category of monoidal-pointed objects of V.
+     The constructions in this section are used to show that
+     taking the category of monoidal-pointed objects is idempotent.
+   *)
+
+  Local Definition ptd_ob {V : category} (Mon_V : monoidal V)
+    := coslice_cat_total V I_{ Mon_V}.
+
+  Local Definition ptd_ob_mon {V : category} (Mon_V : monoidal V)
+    := monoidal_pointed_objects Mon_V.
+
+  Context {V : category} (Mon_V : monoidal V).
+
+  Definition ptdob_to_ptdptdob_data
+    : functor_data (ptd_ob Mon_V) (ptd_ob (ptd_ob_mon Mon_V)).
+  Proof.
+    use make_functor_data.
+    - intro f.
+      exists f.
+      exists (pr2 f).
+      apply id_left.
+    - intros f g α.
+      exists α.
+      use total2_paths_f.
+      2: { apply homset_property. }
+      exact (pr2 α).
+  Defined.
+
+  Definition ptdob_to_ptdptdob_is_functor
+    : is_functor ptdob_to_ptdptdob_data.
+  Proof.
+    split.
+    - intro.
+      use total2_paths_f.
+      2: { apply homset_property. }
+      apply idpath.
+    - intro ; intros.
+      use total2_paths_f.
+      2: { apply homset_property. }
+      apply idpath.
+  Qed.
+
+  Definition ptdob_to_ptdptdob
+    : functor (ptd_ob Mon_V) (ptd_ob (ptd_ob_mon Mon_V))
+    := ptdob_to_ptdptdob_data ,, ptdob_to_ptdptdob_is_functor.
+
+  Definition ptdptdob_to_ptdob_data
+    : functor_data (ptd_ob (ptd_ob_mon Mon_V)) (ptd_ob Mon_V).
+  Proof.
+    use make_functor_data.
+    - exact (λ f, pr1 f).
+    - exact (λ _ _ α, pr1 α).
+  Defined.
+
+  Definition ptdptdob_to_ptdob_is_functor
+    : is_functor ptdptdob_to_ptdob_data.
+  Proof.
+    repeat split.
+  Qed.
+
+  Definition ptdptdob_to_ptdob
+    : functor (ptd_ob (ptd_ob_mon Mon_V)) (ptd_ob Mon_V)
+    := ptdptdob_to_ptdob_data ,, ptdptdob_to_ptdob_is_functor.
+
+  Definition unit_ptdob_data
+    : nat_trans_data
+        (functor_identity (ptd_ob Mon_V))
+        (functor_composite ptdob_to_ptdptdob ptdptdob_to_ptdob).
+  Proof.
+    intro v.
+    exists (identity _).
+    abstract (apply id_right).
+  Defined.
+
+  Definition unit_ptdob_is_nat_trans
+    : is_nat_trans _ _ unit_ptdob_data.
+  Proof.
+    intro ; intros.
+    use total2_paths_f.
+    2: { apply homset_property. }
+    simpl.
+    rewrite id_left.
+    apply id_right.
+  Qed.
+
+  Definition unit_ptdob
+    : nat_trans
+        (functor_identity (ptd_ob Mon_V))
+        (functor_composite ptdob_to_ptdptdob ptdptdob_to_ptdob)
+    := unit_ptdob_data ,, unit_ptdob_is_nat_trans.
+
+  Definition counit_ptdob_data
+    : nat_trans_data
+        (functor_composite ptdptdob_to_ptdob ptdob_to_ptdptdob)
+        (functor_identity (ptd_ob (ptd_ob_mon Mon_V))).
+  Proof.
+    intro v.
+    exists (identity _).
+    abstract (use total2_paths_f ;
+    [ simpl ;
+      rewrite (! pr22 v) ;
+      rewrite id_right ;
+      apply id_left
+    | apply homset_property ]).
+  Defined.
+
+  Definition counit_ptdob_is_nat_trans
+    : is_nat_trans _ _ counit_ptdob_data.
+  Proof.
+    intro ; intros.
+    use total2_paths_f.
+    2: { apply homset_property. }
+    use total2_paths_f.
+    2: { apply homset_property. }
+    cbn.
+    rewrite id_left.
+    apply id_right.
+  Qed.
+
+  Definition counit_ptdob
+    : nat_trans
+        (functor_composite ptdptdob_to_ptdob ptdob_to_ptdptdob)
+        (functor_identity (ptd_ob (ptd_ob_mon Mon_V)))
+    := counit_ptdob_data ,, counit_ptdob_is_nat_trans.
+
+End PointedObjectFixpoint.
+
+Section PointedObjectFixpointMonoidal.
+
+  (* In this section, we show that the data defined in the previous section "Pointedobjectfixpoint" is monoidal *)
+
+  Context {V : category} (Mon_V : monoidal V).
+
+  Definition ptdptdob_to_ptdob_fmonoidal_data
+    : fmonoidal_data (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptd_ob_mon Mon_V) (ptdptdob_to_ptdob Mon_V).
+  Proof.
+    split.
+    - intros f g.
+      exists (identity _).
+      abstract (apply id_right).
+    - exists (identity _).
+      abstract (apply id_right).
+  Defined.
+
+  Definition ptdob_to_ptdptdob_fmonoidal_data
+    : fmonoidal_data (ptd_ob_mon Mon_V) (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptdob_to_ptdptdob Mon_V).
+  Proof.
+    split.
+    - intros f g.
+      exists (identity _).
+      abstract (
+          use total2_paths_f ;
+          [ apply id_right | apply homset_property ]
+        ).
+    - exists (identity _).
+      abstract (
+          use total2_paths_f ;
+          [ apply id_right | apply homset_property ]
+        ).
+  Defined.
+
+  Lemma ptdptdob_to_ptdob_fmonoidal_laxlaws
+    : fmonoidal_laxlaws ptdptdob_to_ptdob_fmonoidal_data.
+  Proof.
+    repeat split ; (intro ; intros ; use total2_paths_f ; [ cbn | apply homset_property ]).
+    - rewrite id_left ; apply id_right.
+    - rewrite id_left ; apply id_right.
+    - rewrite bifunctor_rightid.
+      rewrite bifunctor_leftid.
+      rewrite ! id_left.
+      rewrite ! id_right.
+      apply idpath.
+    - rewrite id_right.
+      rewrite bifunctor_rightid.
+      apply id_left.
+    - rewrite id_right.
+      rewrite bifunctor_leftid.
+      apply id_left.
+  Qed.
+
+  Lemma ptdob_to_ptdptdob_fmonoidal_laxlaws
+    : fmonoidal_laxlaws ptdob_to_ptdptdob_fmonoidal_data.
+  Proof.
+    repeat split ; (intro ; intros ; use total2_paths_f ; [ use total2_paths_f ; cbn | apply homset_property ]).
+    - rewrite id_left ; apply id_right.
+    - apply homset_property.
+    - rewrite id_left ; apply id_right.
+    - apply homset_property.
+    - rewrite bifunctor_rightid.
+      rewrite bifunctor_leftid.
+      rewrite ! id_left.
+      rewrite ! id_right.
+      apply idpath.
+    - apply homset_property.
+    - rewrite id_right.
+      rewrite bifunctor_rightid.
+      apply id_left.
+    - apply homset_property.
+    - rewrite id_right.
+      rewrite bifunctor_leftid.
+      apply id_left.
+    - apply homset_property.
+  Qed.
+
+  Definition ptdptdob_to_ptdob_fmonoidal_lax
+    : fmonoidal_lax (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptd_ob_mon Mon_V) (ptdptdob_to_ptdob Mon_V).
+  Proof.
+    exists ptdptdob_to_ptdob_fmonoidal_data.
+    exact ptdptdob_to_ptdob_fmonoidal_laxlaws.
+  Defined.
+
+  Definition ptdob_to_ptdptdob_fmonoidal_lax
+    : fmonoidal_lax (ptd_ob_mon Mon_V) (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptdob_to_ptdptdob Mon_V).
+  Proof.
+    exists ptdob_to_ptdptdob_fmonoidal_data.
+    exact ptdob_to_ptdptdob_fmonoidal_laxlaws.
+  Defined.
+
+  Definition ptdptdob_to_ptdob_fmonoidal_stronglaws
+    : fmonoidal_stronglaws (fmonoidal_preservestensordata ptdptdob_to_ptdob_fmonoidal_lax)
+                           (fmonoidal_preservesunit ptdptdob_to_ptdob_fmonoidal_lax).
+  Proof.
+    split ; (
+              (try intro ; intros) ;
+              repeat (use tpair) ;
+              [ exact (identity _)
+              | abstract (apply id_right)
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
+              ]).
+  Defined.
+
+  Definition ptdob_to_ptdptdob_fmonoidal_stronglaws
+    : fmonoidal_stronglaws (fmonoidal_preservestensordata ptdob_to_ptdptdob_fmonoidal_lax)
+                           (fmonoidal_preservesunit ptdob_to_ptdptdob_fmonoidal_lax).
+  Proof.
+    split ; (
+              (try intro ; intros) ;
+              repeat (use tpair) ;
+              [ exact (identity _)
+              | apply id_right
+              | abstract (
+                    use total2_paths_f ;
+                    [ apply id_right | apply homset_property ]
+                  )
+              | abstract (
+                    use total2_paths_f ;
+                    [ apply id_right | apply homset_property ]
+                  )
+              | abstract (use total2_paths_f ;
+                [ apply id_right | apply homset_property ])
+              ]).
+  Defined.
+
+  Definition ptdptdob_to_ptdob_fmonoidal
+    : fmonoidal (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptd_ob_mon Mon_V) (ptdptdob_to_ptdob Mon_V).
+  Proof.
+    exists ptdptdob_to_ptdob_fmonoidal_lax.
+    exact ptdptdob_to_ptdob_fmonoidal_stronglaws.
+  Defined.
+
+  Definition ptdob_to_ptdptdob_fmonoidal
+    : fmonoidal (ptd_ob_mon Mon_V) (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptdob_to_ptdptdob Mon_V).
+  Proof.
+    exists ptdob_to_ptdptdob_fmonoidal_lax.
+    exact ptdob_to_ptdptdob_fmonoidal_stronglaws.
+  Defined.
+
+End PointedObjectFixpointMonoidal.
