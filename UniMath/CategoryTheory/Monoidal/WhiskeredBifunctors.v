@@ -50,7 +50,7 @@ Section Bifunctor.
   Definition bifunctor_rightcompax (F : bifunctor_data) :=
     ∏ (b : B) (a1 a2 a3 : A) (f1 : A⟦a1,a2⟧) (f2 : A⟦a2,a3⟧), (f1 · f2) ⊗^{F}_{r} b = (f1 ⊗^{F}_{r} b) · (f2 ⊗^{F}_{r} b).
 
-  Lemma leftwhiskering_functor (F : bifunctor_data) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) (a : A): functor B C.
+  Lemma leftwhiskering_functor_pre (F : bifunctor_data) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) (a : A): functor B C.
   Proof.
     use make_functor.
     - use tpair.
@@ -66,7 +66,7 @@ Section Bifunctor.
         exact (blc a b1 b2 b3 g2 g3).
   Defined.
 
-  Lemma rightwhiskering_functor (F : bifunctor_data) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) (b : B) : functor A C.
+  Lemma rightwhiskering_functor_pre (F : bifunctor_data) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) (b : B) : functor A C.
   Proof.
     use make_functor.
     - use tpair.
@@ -154,6 +154,12 @@ Section Bifunctor.
 
   Definition bifunctor_equalwhiskers (F : bifunctor) : functoronmorphisms_are_equal F := pr2 (pr2 (pr2 (pr2 (isbifunctor_from_bifunctor F)))).
 
+  Definition leftwhiskering_functor (F : bifunctor) (a : A) : functor B C :=
+    leftwhiskering_functor_pre F (bifunctor_leftid F) (bifunctor_leftcomp F) a.
+
+  Definition rightwhiskering_functor (F : bifunctor) (b : B) : functor A C :=
+    rightwhiskering_functor_pre F (bifunctor_rightid F) (bifunctor_rightcomp F) b.
+
   Lemma when_bifunctor_becomes_leftwhiskering (F : bifunctor) (a : A) {b1 b2 : B} (g: B⟦b1, b2⟧):
     identity a ⊗^{ F } g = a ⊗^{F}_{l} g.
   Proof.
@@ -200,13 +206,11 @@ Section Bifunctor.
 
   Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) (a : A) {b1 b2 : B} (g : B⟦b1,b2⟧)
     (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (a ⊗^{ F }_{l} g) :=
-    pr2 (functor_on_z_iso (leftwhiskering_functor F (bifunctor_leftid F) (bifunctor_leftcomp F) a)
-           (g,,g_is_z_iso)).
+    pr2 (functor_on_z_iso (leftwhiskering_functor F a) (g,,g_is_z_iso)).
 
   Definition is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} (b : B) (f : A⟦a1,a2⟧)
     (f_is_z_iso : is_z_isomorphism f) : is_z_isomorphism (f ⊗^{ F }_{r} b) :=
-    pr2 (functor_on_z_iso (rightwhiskering_functor F (bifunctor_rightid F) (bifunctor_rightcomp F) b)
-           (f,,f_is_z_iso)).
+    pr2 (functor_on_z_iso (rightwhiskering_functor F b) (f,,f_is_z_iso)).
 
 End Bifunctor.
 

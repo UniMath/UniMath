@@ -235,7 +235,7 @@ Proof.
 Admitted.
 
 Lemma action_unitor_nat_z_iso {C : category} (Act : actegory C):
-  nat_z_iso (leftwhiskering_functor Act (bifunctor_leftid Act) (bifunctor_leftcomp Act) I_{Mon_V}) (functor_identity C).
+  nat_z_iso (leftwhiskering_functor Act I_{Mon_V}) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.

@@ -206,10 +206,10 @@ Section MonoidalFunctors.
     set (ptsx_yz := pointwise_z_iso_from_preserves_tensor_strongly pts x (y ⊗_{M} z)).
     set (ptsxy_z := pointwise_z_iso_from_preserves_tensor_strongly pts (x ⊗_{M} y) z).
     set (ptsfx := functor_on_z_iso
-          (leftwhiskering_functor N (bifunctor_leftid N) (bifunctor_leftcomp N) (F x))
+          (leftwhiskering_functor N (F x))
           (pointwise_z_iso_from_preserves_tensor_strongly pts y z)).
     set (ptsfz := functor_on_z_iso
-          (rightwhiskering_functor N (bifunctor_rightid N) (bifunctor_rightcomp N) (F z))
+          (rightwhiskering_functor N (F z))
           (pointwise_z_iso_from_preserves_tensor_strongly pts x y)).
 
     apply (z_iso_inv_on_left _ _ _ _ ptsfx).
