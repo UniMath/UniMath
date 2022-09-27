@@ -63,17 +63,13 @@ Section FunctorsIntoEndofunctorCategory.
   Proof.
     use tpair.
     + intro c.
-      use total2_paths_f.
-      * apply funextsec ; intro d.
-        apply bifunctor_rightid.
-      * repeat (apply funextsec ; intro).
-        apply homset_property.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightid.
     + intros c1 c2 c3 f g.
-      use total2_paths_f.
-      * apply funextsec ; intro.
-        apply bifunctor_rightcomp.
-      * repeat (apply funextsec ; intro).
-        apply homset_property.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightcomp.
   Qed.
 
   Definition bifunctor_to_functorintoendofunctorcat
@@ -611,7 +607,7 @@ Section FromActegoriesToActionsInCat.
               apply impred_isaprop ; intro ;
               apply cellset_property
           ]).
-  Qed.
+  Qed. (* This takes quite some time *)
 
   Definition acat_to_acti
     : psfunctor ACAT ACTI.
@@ -791,7 +787,7 @@ Section FromActionInCatToActegories.
               repeat (apply impred_isaprop ; intro) ;
               apply homset_property
           ]).
-  Qed.
+  Qed. (* This takes TOO much time *)
 
   Definition acti_to_acat
     : psfunctor ACTI ACAT.
@@ -1042,7 +1038,7 @@ Section ActionInCatEquivActegories.
     - rewrite id_left ; apply id_right.
     - rewrite id_left ; apply (! id_left _).
     - rewrite ! id_left ; rewrite ! id_right ; apply (! functor_id _ _).
-  Qed.
+  Qed. (* Time might be shorter but is doable *)
 
   Definition acti_to_acat_counit
     :  pstrans (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
@@ -1534,12 +1530,12 @@ Section ActionInCatEquivActegories.
         apply isapropunit.
   Qed.
 
-  Lemma is_invertible_2cell_unit
-    : is_invertible_2cell (Adjunctions.left_adjoint_unit unit_left_adjoint_data).
+  Definition invertible_2cell_unit_data (a : ACTI)
+    :  prebicat_cells ACTI
+    ((pr111 (acti_to_acat_unit · Adjunctions.left_adjoint_right_adjoint unit_left_adjoint_data)) a)
+    ((pr111 (identity (Composition.comp_psfunctor acat_to_acti acti_to_acat))) a).
   Proof.
-    repeat (use tpair) ; try (exact tt).
-    - intro.
-      use tpair.
+    use tpair.
       + exists (λ _, identity _).
         abstract (
             intro ; intros ;
@@ -1557,64 +1553,88 @@ Section ActionInCatEquivActegories.
             rewrite id_right ;
             apply (! functor_id _ _)
           ).
-    - intro ; intros.
-      use total2_paths_f.
-      + use nat_trans_eq.
-        { apply homset_property. }
-        abstract (
-            intro ;
-            simpl ;
-            rewrite ! id_left ;
-            rewrite id_right ;
-            apply (! functor_id _ _)
-          ).
-      + abstract (
-            apply proofirrelevance ;
-            apply impred_isaprop ; intro ;
-            apply cellset_property
-          ).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    apply impred_isaprop ; intro ;
-                    apply cellset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance ; apply isapropunit.
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    apply impred_isaprop ; intro ;
-                    apply cellset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance ; apply isapropunit.
+  Defined.
+
+  Definition equality_of_2cells_in_ACAT
+             {a b : ACAT} {f g : ACAT⟦a,b⟧} (α β : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { apply homset_property. }
+      exact (λ x, p x).
+    }
+    apply proofirrelevance.
+    repeat (apply impred_isaprop ; intro).
+    apply homset_property.
+  Qed.
+
+  Definition equality_of_2cells_in_ACTI
+             {a b : ACTI} {f g : ACTI⟦a,b⟧} (α β : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro x.
+      exact (p x).
+    }
+    apply proofirrelevance.
+    apply impred_isaprop ; intro.
+    apply cellset_property.
+  Qed.
+
+  Lemma equality_of_ACTI_endofunctors
+        {a b : psfunctor_bicat ACTI ACTI}
+        {f g : (psfunctor_bicat ACTI ACTI)⟦a,b⟧}
+        (α β : prebicat_cells (psfunctor_bicat ACTI ACTI) f g)
+    : (∏ x : ACTI,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    2: { apply proofirrelevance ; apply isapropunit. }
+    use total2_paths_f.
+    2: { use total2_paths_f ;
+         (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit). }
+    use total2_paths_f.
+    2: { apply proofirrelevance ;
+          repeat (apply impred_isaprop ; intro) ;
+         apply cellset_property. }
+
+    apply funextsec ; intro.
+    use equality_of_2cells_in_ACTI.
+    intro.
+    apply p.
+  Qed.
+
+  Lemma is_invertible_2cell_unit
+    : is_invertible_2cell (Adjunctions.left_adjoint_unit unit_left_adjoint_data).
+  Proof.
+    use make_is_invertible_2cell.
+    - use tpair.
+      + use tpair.
+        * exists (λ a, invertible_2cell_unit_data a).
+          do 3 intro ; use equality_of_2cells_in_ACTI.
+          abstract (
+              intro ;
+              simpl ;
+              rewrite ! id_left ;
+              rewrite id_right ;
+              apply (! functor_id _ _)
+            ).
+        * repeat (use tpair) ; try (exact tt).
+      + exact tt.
+    - abstract (
+          use equality_of_ACTI_endofunctors ;
+          intro ; intro ;
+          simpl ; apply id_right
+        ).
+    - abstract (use equality_of_ACTI_endofunctors ;
+      intro ; intro ; simpl ; apply id_right).
   Qed.
 
   Lemma is_invertible_2cell_counit
