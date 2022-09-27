@@ -9,13 +9,15 @@ the whole structure is an [actegory], the binary operation is the [action], the 
 
 *)
 
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 
@@ -227,12 +229,6 @@ Qed.
 
 (** Some additional data and properties which one deduces from actegories **)
 
-Lemma actegory_triangleidentity'
-      {C : category}
-      (Act : actegory C)
-  : actegory_triangle_identity' au_{Act} aα_{Act}.
-Proof.
-Admitted.
 
 Lemma action_unitor_nat_z_iso {C : category} (Act : actegory C):
   nat_z_iso (leftwhiskering_functor Act I_{Mon_V}) (functor_identity C).
@@ -392,3 +388,147 @@ Module ActegoryNotations.
   Notation "auinv^{ Act }_{ x }" := (actegory_unitorinvdata Act x ).
   Notation "aαinv^{ Act }_{ v , w , x }" := (actegory_actorinvdata Act v w x).
 End ActegoryNotations.
+
+
+Section EquivalenceFromTensorWithUnit.
+
+  Import MonoidalNotations.
+  Context {V : category} (Mon_V : monoidal V) {C : category} (Act : actegory Mon_V C).
+
+  Definition ladjunction_data_from_action_with_unit
+    : Core.adjunction_data C C.
+  Proof.
+    exists (leftwhiskering_functor (actegory_action _ Act) I_{Mon_V}).
+    exists (functor_identity C).
+    use tpair.
+    - apply (nat_z_iso_inv (action_unitor_nat_z_iso _ Act)).
+    - apply (action_unitor_nat_z_iso _ Act).
+  Defined.
+
+  Definition lequivalence_from_action_with_unit
+    : equivalence_of_cats C C.
+  Proof.
+    exists ladjunction_data_from_action_with_unit.
+    split.
+    - intro ; apply (nat_z_iso_inv (action_unitor_nat_z_iso _ Act)).
+    - intro ; apply (action_unitor_nat_z_iso _ Act).
+  Defined.
+
+  Lemma leftwhiskering_fullyfaithful_action
+    : fully_faithful (leftwhiskering_functor (actegory_action _ Act) I_{Mon_V}).
+  Proof.
+    apply fully_faithful_from_equivalence.
+    exact (adjointificiation lequivalence_from_action_with_unit).
+  Defined.
+
+  Lemma leftwhiskering_faithful_action
+    : faithful (leftwhiskering_functor (actegory_action _ Act) I_{Mon_V}).
+  Proof.
+    exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ leftwhiskering_fullyfaithful_action)).
+  Defined.
+
+End EquivalenceFromTensorWithUnit.
+
+
+Section SecondTriangleEquality.
+
+  Import MonoidalNotations.
+  Import ActegoryNotations.
+
+  Context {V : category} (Mon_V : monoidal V) {C : category} (Act : actegory Mon_V C).
+
+  Local Lemma lemma0 (v : V) (x : C) :
+    (α_{Mon_V} I_{Mon_V} I_{Mon_V} v) ⊗^{Act}_{r} x · (I_{ Mon_V} ⊗^{ Mon_V}_{l} lu^{ Mon_V }_{ v}) ⊗^{ Act}_{r} x =
+      (ru^{ Mon_V }_{ I_{ Mon_V}} ⊗^{ Mon_V}_{r} v) ⊗^{ Act}_{r} x.
+  Proof.
+    refine (! bifunctor_rightcomp _ _ _ _ _ _ _ @ _).
+    apply maponpaths.
+    apply (monoidal_triangleidentity Mon_V I_{Mon_V} v).
+  Qed.
+
+  Local Lemma lemma2 (v : V) (x : C) :
+    I_{Mon_V} ⊗^{Act}_{l} (lu_{Mon_V} v ⊗^{Act}_{r} x) = aαinv^{Act}_{ I_{Mon_V}, (I_{Mon_V} ⊗_{Mon_V} v), x} · (((I_{Mon_V} ⊗^{Mon_V}_{l} lu_{Mon_V} v) ⊗^{Act}_{r} x) · aα_{Act} I_{Mon_V} v x).
+  Proof.
+    set (aαiso := make_z_iso _ _ (actegory_actorisolaw Mon_V Act  I_{Mon_V} (I_{Mon_V} ⊗_{Mon_V} v) x)).
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ aαiso).
+    apply pathsinv0.
+    apply (actegory_actornatleftright Mon_V Act).
+  Qed.
+
+  Local Lemma lemma2' (v : V) (x : C) :
+    (I_{ Mon_V} ⊗^{ Mon_V}_{l} lu^{ Mon_V }_{ v}) ⊗^{ Act}_{r} x =
+      αinv^{ Mon_V }_{ I_{ Mon_V}, I_{ Mon_V}, v} ⊗^{ Act}_{r} x
+             · (ru^{ Mon_V }_{ I_{ Mon_V}} ⊗^{ Mon_V}_{r} v) ⊗^{ Act}_{r} x.
+  Proof.
+    apply pathsinv0.
+    set (αiso := make_z_iso _ _ (monoidal_associatorisolaw Mon_V  I_{Mon_V} I_{Mon_V} v)).
+    set (αisor := functor_on_z_iso (rightwhiskering_functor Act x) αiso).
+    apply (z_iso_inv_on_right _ _ _ αisor).
+    apply pathsinv0.
+    apply lemma0.
+  Qed.
+
+  Local Lemma lemma3 (v : V) (x : C) :
+    I_{Mon_V} ⊗^{Act}_{l} (lu_{Mon_V} v ⊗^{Act}_{r} x) =
+      aαinv^{Act}_{ I_{Mon_V}, (I_{Mon_V} ⊗_{Mon_V} v), x}
+        · ((((αinv_{Mon_V} I_{Mon_V} I_{Mon_V} v) ⊗^{Act}_{r} x)
+        · (ru_{Mon_V} I_{Mon_V} ⊗^{Mon_V}_{r} v) ⊗^{Act}_{r} x)
+        · aα_{Act} I_{Mon_V} v x).
+  Proof.
+    refine (lemma2 v x @ _).
+    apply maponpaths.
+    apply maponpaths_2.
+    apply lemma2'.
+  Qed.
+
+  Local Lemma right_whisker_with_action_unitor' (v : V) (x : C) :
+    I_{Mon_V} ⊗^{Act}_{l} (lu_{Mon_V} v ⊗^{Act}_{r} x) =
+      I_{Mon_V} ⊗^{Act}_{l} (aα_{Act} I_{Mon_V} v x · au_{Act} (v ⊗_{Act} x)).
+  Proof.
+    refine (lemma3 v x @ _).
+    set (aαiso := make_z_iso _ _ (actegory_actorisolaw Mon_V Act  I_{Mon_V} (I_{Mon_V} ⊗_{Mon_V} v) x)).
+    apply (z_iso_inv_on_right _ _ _ aαiso).
+    set (αiso' := make_z_iso _ _ (monoidal_associatorisolaw Mon_V  I_{Mon_V} I_{Mon_V} v)).
+    set (αisor := functor_on_z_iso (rightwhiskering_functor Act x) αiso').
+    etrans. { apply assoc'. }
+    apply (z_iso_inv_on_right _ _ _ αisor).
+    apply pathsinv0.
+    simpl.
+
+    etrans. { apply assoc. }
+    etrans.
+    {
+      apply maponpaths.
+      apply (bifunctor_leftcomp Act _ _ _ _ _ _).
+    }
+
+    etrans. { apply assoc. }
+    etrans. {
+      apply maponpaths_2.
+      apply (actegory_pentagonidentity Mon_V Act I_{Mon_V} I_{Mon_V} v x).
+    }
+
+    etrans.
+    2: {
+      apply (actegory_actornatright Mon_V Act).
+    }
+
+    etrans. { apply assoc'. }
+    apply maponpaths.
+    apply actegory_triangleidentity.
+  Qed.
+
+  Lemma right_whisker_with_action_unitor : actegory_triangle_identity' Mon_V au_{Act} aα_{Act}.
+  Proof.
+    intros v x.
+    use faithful_reflects_commutative_triangle.
+    3: { apply (leftwhiskering_faithful_action(V:=V)). }
+    apply pathsinv0.
+    refine (right_whisker_with_action_unitor' _ _ @ _).
+    apply bifunctor_leftcomp.
+  Qed.
+
+  Definition actegory_triangleidentity' := right_whisker_with_action_unitor.
+
+End SecondTriangleEquality.
