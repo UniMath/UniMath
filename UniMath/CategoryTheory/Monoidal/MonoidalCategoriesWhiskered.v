@@ -671,7 +671,7 @@ Section UnitorsCoincide.
     apply lemma0.
   Qed.
 
-  Lemma lemma3 (x y : C) :
+  Local Lemma lemma3 (x y : C) :
     I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
       αinv_{M} I_{M} (I_{M} ⊗_{M} x) y
         · ((((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
@@ -730,6 +730,8 @@ Section UnitorsCoincide.
     refine (right_whisker_with_lunitor' _ _ @ _).
     apply bifunctor_leftcomp.
   Qed.
+
+  Definition monoidal_triangleidentity' := right_whisker_with_lunitor.
 
   Lemma lunitor_preserves_leftwhiskering_with_unit
     :  lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
