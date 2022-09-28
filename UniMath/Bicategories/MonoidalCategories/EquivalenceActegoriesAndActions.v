@@ -390,6 +390,90 @@ Local Definition ACAT
 Local Definition ACTI
   : bicat := bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats.
 
+Section EqualityLemmaHelpers.
+
+  Definition equality_of_2cells_in_ACAT
+             {a b : ACAT} {f g : ACAT⟦a,b⟧} (α β : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { apply homset_property. }
+      exact (λ x, p x).
+    }
+    apply proofirrelevance.
+    repeat (apply impred_isaprop ; intro).
+    apply homset_property.
+  Qed.
+
+  Definition equality_of_2cells_in_ACTI
+             {a b : ACTI} {f g : ACTI⟦a,b⟧} (α β : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro x.
+      exact (p x).
+    }
+    apply proofirrelevance.
+    apply impred_isaprop ; intro.
+    apply cellset_property.
+  Qed.
+
+  Lemma equality_of_ACTI_endofunctors
+        {a b : psfunctor_bicat ACTI ACTI}
+        {f g : (psfunctor_bicat ACTI ACTI)⟦a,b⟧}
+        (α β : prebicat_cells (psfunctor_bicat ACTI ACTI) f g)
+    : (∏ x : ACTI,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    2: { apply proofirrelevance ; apply isapropunit. }
+    use total2_paths_f.
+    2: { use total2_paths_f ;
+         (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit). }
+    use total2_paths_f.
+    2: { apply proofirrelevance ;
+          repeat (apply impred_isaprop ; intro) ;
+         apply cellset_property. }
+
+    apply funextsec ; intro.
+    use equality_of_2cells_in_ACTI.
+    intro.
+    apply p.
+  Qed.
+
+  Lemma equality_of_ACAT_endofunctors
+        {a b : psfunctor_bicat ACAT ACAT}
+        {f g : (psfunctor_bicat ACAT ACAT)⟦a,b⟧}
+        (α β : prebicat_cells (psfunctor_bicat ACAT ACAT) f g)
+    : (∏ x : ACAT,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -> α = β.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    2: { apply proofirrelevance ; apply isapropunit. }
+    use total2_paths_f.
+    2: { use total2_paths_f ;
+         (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit). }
+    use total2_paths_f.
+    2: { apply proofirrelevance ;
+          repeat (apply impred_isaprop ; intro) ;
+         apply cellset_property. }
+
+    apply funextsec ; intro.
+    use equality_of_2cells_in_ACAT.
+    intro.
+    apply p.
+  Qed.
+
+End EqualityLemmaHelpers.
+
+
 Section FromActegoriesToActionsInCat.
 
   Import MonoidalNotations.
@@ -459,9 +543,9 @@ Section FromActegoriesToActionsInCat.
       (pr22 (actegory_to_object Mon_V (pr2 a1))) (pr22 (actegory_to_object Mon_V (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f).
   Proof.
     split.
-    - use total2_paths_f.
-      2: { apply isaprop_is_nat_trans ; apply homset_property. }
-      apply funextsec ; intro c ;
+    - use nat_trans_eq.
+      { apply homset_property. }
+      intro c ;
         cbn ;
         rewrite ! id_left ;
         apply actegory_hom_preserves_unitor_inv.
@@ -532,9 +616,7 @@ Section FromActegoriesToActionsInCat.
     : psfunctor_laws acat_to_acti_data.
   Proof.
     repeat split ;
-      (intro ; intros ; use total2_paths_f ;
-       [try (apply idpath) ; try (use nat_trans_eq ; [apply homset_property | intro ; cbn ])
-       | apply proofirrelevance ; (apply impred_isaprop ; intro) ; apply cellset_property]).
+      (intro ; intros ; use equality_of_2cells_in_ACTI ; intro ; try (apply idpath) ; cbn).
     - rewrite ! id_right ; apply (! functor_id _ _).
     - rewrite ! id_right ; apply idpath.
     - rewrite ! id_right ; rewrite (! functor_id _ _) ; rewrite id_left ; apply idpath.
@@ -551,62 +633,28 @@ Section FromActegoriesToActionsInCat.
       + use tpair.
         * apply nat_trans_id.
         * intro.
-          use total2_paths_f.
-          2: {
-            apply proofirrelevance.
-            apply isaprop_is_nat_trans.
-            apply homset_property.
-          }
-          simpl.
-          apply funextsec ; intro.
+          use nat_trans_eq.
+          { apply homset_property. }
+          intro.
+          cbn.
           rewrite ! id_right.
           apply (! bifunctor_leftid _ _ _).
-      + use tpair.
-        * use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             intro.
-             apply id_right.
-          -- apply proofirrelevance.
-             apply impred_isaprop ; intro.
-             apply cellset_property.
-        * use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             intro.
-             apply id_right.
-          -- apply proofirrelevance.
-             apply impred_isaprop ; intro.
-             apply cellset_property.
+      + use tpair ; use equality_of_2cells_in_ACTI ; intro ; apply id_right.
     - intro ; intros.
       use tpair.
       + use tpair.
         * apply nat_trans_id.
         * intro.
-          use total2_paths_f.
-          2: {
-            apply proofirrelevance.
-            apply isaprop_is_nat_trans.
-            apply homset_property.
-          }
+          use nat_trans_eq.
+          { apply homset_property. }
+          intro.
           simpl.
-          apply funextsec ; intro.
           rewrite ! id_right.
           rewrite ! id_left.
           rewrite bifunctor_leftid.
           apply (! id_left _).
-      + use tpair ;
-          (use total2_paths_f
-           ; [
-              use nat_trans_eq ;
-              [ apply homset_property
-              | intro ; apply id_right ]
-            |
-              apply proofirrelevance ;
-              apply impred_isaprop ; intro ;
-              apply cellset_property
-          ]).
-  Qed. (* This takes quite some time *)
+      + use tpair ; use equality_of_2cells_in_ACTI ; intro ; apply id_right.
+  Qed.
 
   Definition acat_to_acti
     : psfunctor ACAT ACTI.
@@ -713,19 +761,14 @@ Section FromActionInCatToActegories.
   Definition acti_to_acat_laws
     : psfunctor_laws acti_to_acat_data.
   Proof.
-    repeat split ; (intro ; intros ; use total2_paths_f ;
-                    [try (apply idpath) ; try (use nat_trans_eq ; [apply homset_property | intro ; cbn])
-                    | apply proofirrelevance ;
-                      repeat (apply impred_isaprop ; intro) ; apply homset_property
-                   ]).
-
+    repeat split ;
+      (intro ; intros ; use equality_of_2cells_in_ACAT ; intro ; try (apply idpath) ; cbn).
     - rewrite ! id_right ; apply (! functor_id _ _).
     - rewrite ! id_right ; apply idpath.
     - rewrite ! id_right ; rewrite (! functor_id _ _) ; rewrite id_left ; apply idpath.
     - rewrite id_left ; apply (! id_right _).
     - rewrite id_left ; apply (! id_right _).
   Qed.
-
 
   Definition acti_to_acat_invertible_cells
     : invertible_cells acti_to_acat_data.
@@ -739,23 +782,7 @@ Section FromActionInCatToActegories.
           cbn.
           rewrite ! id_right.
           apply (! functor_id _ _).
-      + use tpair.
-        * use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             intro.
-             apply id_right.
-          -- apply proofirrelevance.
-             repeat (apply impred_isaprop ; intro).
-             apply homset_property.
-        * use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             intro.
-             apply id_right.
-          -- apply proofirrelevance.
-             repeat (apply impred_isaprop ; intro).
-             apply homset_property.
+      + use tpair ; use equality_of_2cells_in_ACAT ; intro ; apply id_right.
     - intro ; intros.
       use tpair.
       + use tpair.
@@ -775,17 +802,7 @@ Section FromActionInCatToActegories.
           rewrite ! id_right.
           rewrite ! id_left.
           apply idpath.
-      + use tpair ;
-          (use total2_paths_f
-           ; [
-              use nat_trans_eq ;
-              [ apply homset_property
-              | intro ; apply id_right ]
-            |
-              apply proofirrelevance ;
-              repeat (apply impred_isaprop ; intro) ;
-              apply homset_property
-          ]).
+      + use tpair ; use equality_of_2cells_in_ACAT ; intro ; apply id_right.
   Qed. (* This takes TOO much time *)
 
   Definition acti_to_acat
@@ -894,41 +911,14 @@ Section ActionInCatEquivActegories.
                   rewrite id_left ;
                   apply (! id_right _)
                 ).
-         * use tpair.
-           -- use total2_paths_f.
-              ++ apply nat_trans_eq.
-                 { apply homset_property. }
-                 intro.
-                 simpl.
-                 apply id_right.
-              ++ apply proofirrelevance.
-                 unfold disp_2cells.
-                 apply impred_isaprop ; intro.
-                 apply cellset_property.
-           -- use total2_paths_f.
-              ++ apply nat_trans_eq.
-                 { apply homset_property. }
-                 intro.
-                 simpl.
-                 apply id_right.
-              ++ apply proofirrelevance.
-                 unfold disp_2cells.
-                 apply impred_isaprop ; intro.
-                 apply cellset_property.
+         * use tpair ; use equality_of_2cells_in_ACTI ;
+             intro ; simpl ; apply id_right.
   Defined.
 
   Lemma acti_to_acat_unit_is_pstrans
     : is_pstrans acti_to_acat_unit_data.
   Proof.
-    repeat split ;
-      (intro ; intros
-       ; use total2_paths_f ;
-             [
-               apply nat_trans_eq ; [apply homset_property | intro ; intros ; simpl ]
-             |
-               apply proofirrelevance ; apply impred_isaprop ; intro ; apply cellset_property
-             ]
-      ).
+    repeat split ; intros ; intros ; use equality_of_2cells_in_ACTI ; intro ; intros ; simpl.
     - rewrite id_left ; apply id_right.
     - rewrite id_left ; apply (! id_left _).
     - rewrite ! id_left ; rewrite ! id_right ; apply (! functor_id _ _).
@@ -1007,37 +997,18 @@ Section ActionInCatEquivActegories.
                   rewrite ! id_left ;
                   apply idpath
                 ).
-        * use tpair ; use total2_paths_f.
-          ++  use total2_paths_f.
-              ** apply funextsec ; intro.
-                 apply id_right.
-              ** apply isaprop_is_nat_trans ; apply homset_property.
-          ++ apply proofirrelevance.
-             repeat (apply impred_isaprop ; intro).
-             apply homset_property.
-          ++ use nat_trans_eq.
-             { apply homset_property. }
+        * use tpair ; use equality_of_2cells_in_ACAT ;
              intro ; simpl ; apply id_right.
-          ++ apply proofirrelevance ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
   Defined.
 
   Lemma acti_to_acat_counit_is_pstrans
     : is_pstrans acti_to_acat_counit_data.
   Proof.
-    repeat split ;
-      (intro ; intros
-       ; use total2_paths_f ;
-             [
-               apply nat_trans_eq ; [apply homset_property | intro ; intros ; simpl ]
-             |
-               apply proofirrelevance ; repeat (apply impred_isaprop ; intro) ; apply homset_property
-             ]
-      ).
-
+    repeat split ; intros ; intros ; use equality_of_2cells_in_ACAT ; intro ; intros ; simpl.
     - rewrite id_left ; apply id_right.
     - rewrite id_left ; apply (! id_left _).
     - rewrite ! id_left ; rewrite ! id_right ; apply (! functor_id _ _).
-  Qed. (* Time might be shorter but is doable *)
+  Qed.
 
   Definition acti_to_acat_counit
     :  pstrans (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
@@ -1069,16 +1040,12 @@ Section ActionInCatEquivActegories.
             rewrite id_left ;
             apply id_right
           ).
-      * intro ; intros.
-        use total2_paths_f.
-        -- abstract (
-               apply funextsec ; intro ;
-               cbn ;
-               rewrite (functor_id ((pr12 x) x0)) ;
-               rewrite ! id_left ;
-               apply idpath
-             ).
-        -- apply isaprop_is_nat_trans ; apply homset_property.
+      * intro ; intros ; use nat_trans_eq.
+        { apply homset_property. }
+        intro ; cbn ;
+          rewrite (functor_id ((pr12 x) x0)) ;
+          rewrite ! id_left ;
+          apply idpath.
       + use tpair.
         * use nat_trans_eq.
           { apply homset_property. }
@@ -1170,32 +1137,10 @@ Section ActionInCatEquivActegories.
           rewrite functor_id ;
           apply idpath
         ).
-    - abstract (
-          use total2_paths_f ;
-          [ use nat_trans_eq ;
-            [ apply homset_property |
-              intro ;
-              simpl ;
-              apply id_right
-            ]
-          |
-           apply proofirrelevance ;
-           repeat (apply impred_isaprop ; intro) ;
-           apply homset_property
-        ]).
-    - abstract (
-          use total2_paths_f ;
-          [ use nat_trans_eq ;
-            [ apply homset_property |
-              intro ;
-              simpl ;
-              apply id_right
-            ]
-          |
-           apply proofirrelevance ;
-           repeat (apply impred_isaprop ; intro) ;
-           apply homset_property
-          ]).
+    - abstract (use equality_of_2cells_in_ACAT ;
+        intro ; simpl ; apply id_right).
+    - abstract (use equality_of_2cells_in_ACAT ;
+             intro ; simpl ; apply id_right).
   Defined.
 
   Definition ACTI_invertible_2cell {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
@@ -1243,18 +1188,8 @@ Section ActionInCatEquivActegories.
               apply (! id_left _)
             ).
       + abstract (
-            use tpair ;
-            (use total2_paths_f ;
-             [
-               use nat_trans_eq ;
-               [ apply homset_property
-               | intro ; apply id_left
-               ]
-             |
-               apply proofirrelevance ;
-               apply impred_isaprop ; intro ;
-               apply cellset_property
-            ])).
+            use tpair ; use equality_of_2cells_in_ACTI ;
+             intro ; simpl ; apply id_left).
   Defined.
 
   Definition ps_functor_ACTI
@@ -1265,22 +1200,8 @@ Section ActionInCatEquivActegories.
     use tpair.
     - exists ps_base_ACTI.
       exact (λ a1 a2 f, ACTI_invertible_2cell f).
-    - repeat (use tpair) ;
-        (
-          intro ; intros ; use total2_paths_f ;
-          [
-
-            use nat_trans_eq ;
-            [ apply homset_property | intro ; intros ; simpl ]
-
-          |
-            use proofirrelevance ;
-                apply impred_isaprop ;
-                intro ;
-                apply cellset_property
-
-              ]
-        ).
+    - repeat (use tpair) ; (intro ; intros ; use equality_of_2cells_in_ACTI ;
+             intro ; simpl).
       + abstract (rewrite id_left ; apply id_right).
       + abstract (apply idpath).
       + abstract (rewrite ! id_left ;
@@ -1297,22 +1218,8 @@ Section ActionInCatEquivActegories.
     use tpair.
     - exists ps_base_ACAT.
       exact (λ a1 a2 f, ACAT_invertible_2cell f).
-    - repeat (use tpair) ;
-        (
-          intro ; intros ; use total2_paths_f ;
-          [
-
-            use nat_trans_eq ;
-            [ apply homset_property | intro ; intros ; simpl ]
-
-          |
-            use proofirrelevance ;
-                repeat (apply impred_isaprop ;
-                intro) ;
-                apply homset_property
-
-              ]
-        ).
+    - repeat (use tpair) ; (intro ; intros ; use equality_of_2cells_in_ACAT ;
+             intro ; simpl).
       + abstract (rewrite id_left ; apply id_right).
       + abstract (apply idpath).
       + abstract (rewrite ! id_left ;
@@ -1320,7 +1227,6 @@ Section ActionInCatEquivActegories.
                   apply (! functor_id (pr1 g) _)
                  ).
   Defined.
-
 
   Definition unit_left_adjoint_data
     :  Adjunctions.left_adjoint_data acti_to_acat_unit.
@@ -1349,21 +1255,14 @@ Section ActionInCatEquivActegories.
                  rewrite id_right ;
                  apply (! functor_id _ _)
                ).
-        * intro ; intros.
-          use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             abstract (
-                 intro ;
-                 simpl ;
-                 rewrite ! id_right ;
-                 apply (! functor_id (pr1 f) _)
-               ).
-          -- use proofirrelevance ;
-                       apply impred_isaprop ; intro ;
-                       apply cellset_property.
+        * abstract (
+              intro ; intros ;
+              use equality_of_2cells_in_ACTI ;
+              intro ; simpl ;
+              rewrite ! id_right ;
+              apply (! functor_id (pr1 f) _)
+            ).
       + exact (tt,,(tt,,tt)).
-
     - use tpair.
       + use tpair.
         * intro.
@@ -1383,22 +1282,14 @@ Section ActionInCatEquivActegories.
                  rewrite id_right ;
                  apply (! functor_id _ _)
                ).
-        * intro ; intros.
-          use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             abstract (
-                 intro ;
-                 simpl ;
-                 rewrite (functor_id (pr1 f) _) ;
-                 rewrite ! id_right ;
-                 apply idpath
-               ).
-          -- abstract (
-                 use proofirrelevance ;
-                 apply impred_isaprop ; intro ;
-                 apply cellset_property
-               ).
+        * abstract (
+              intro ; intros ;
+              use equality_of_2cells_in_ACTI ;
+              intro ; simpl ;
+              rewrite (functor_id (pr1 f) _) ;
+              rewrite ! id_right ;
+              apply idpath
+            ).
       + exact (tt,, (tt,,tt)).
   Defined.
 
@@ -1427,21 +1318,15 @@ Section ActionInCatEquivActegories.
                  rewrite ! id_left ;
                  apply (! id_right _)
                ).
-        * intro ; intros.
-          use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             abstract (
-                 intro ;
-                 cbn ;
-                 rewrite ! id_left ;
-                 rewrite id_right ;
-                 apply (! functor_id _ _)
-               ).
-          -- use proofirrelevance ;
-               repeat (apply impred_isaprop ; intro) ;
-               apply homset_property.
-
+        * abstract (
+              intro ; intros ;
+              use equality_of_2cells_in_ACAT ;
+              intro ;
+              cbn ;
+              rewrite ! id_left ;
+              rewrite id_right ;
+              apply (! functor_id _ _)
+            ).
       + exact (tt,,(tt,,tt)).
     - use tpair.
       + use tpair.
@@ -1459,74 +1344,21 @@ Section ActionInCatEquivActegories.
                  rewrite bifunctor_leftid ;
                  apply id_right
                ).
-        * intro ; intros.
-          use total2_paths_f.
-          -- use nat_trans_eq.
-             { apply homset_property. }
-             abstract (
-                 intro ;
+        * abstract (
+              intro ; intros ;
+              use equality_of_2cells_in_ACAT ;
+              intro ;
                  cbn ;
                  rewrite ! id_left ;
                  rewrite id_right ;
-                 apply (! functor_id _ _)
-               ).
-          -- use proofirrelevance ;
-               repeat (apply impred_isaprop ; intro) ;
-               apply homset_property.
-
+                 apply (! functor_id _ _)).
       + exact (tt,,(tt,,tt)).
   Defined.
 
   Lemma unit_left_adjoints_axioms
     :  Adjunctions.left_adjoint_axioms unit_left_adjoint_data.
   Proof.
-    use tpair.
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (
-                    intro ;
-                    simpl ;
-                    rewrite ! id_right ;
-                    apply idpath
-                  ).
-             ++ apply proofirrelevance.
-                apply impred_isaprop ; intro.
-                apply cellset_property.
-          -- apply proofirrelevance.
-             repeat (apply impred_isaprop ; intro).
-             apply cellset_property.
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance.
-        apply isapropunit.
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (
-                    intro ;
-                    simpl ;
-                    rewrite ! id_right ;
-                    apply idpath
-                  ).
-             ++ apply proofirrelevance.
-                apply impred_isaprop ; intro.
-                apply cellset_property.
-          -- apply proofirrelevance.
-             repeat (apply impred_isaprop ; intro).
-             apply cellset_property.
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance.
-        apply isapropunit.
+    use tpair ; apply equality_of_ACTI_endofunctors ; intro ; intro ; simpl ; rewrite ! id_right ; apply idpath.
   Qed.
 
   Definition invertible_2cell_unit_data (a : ACTI)
@@ -1553,62 +1385,6 @@ Section ActionInCatEquivActegories.
             apply (! functor_id _ _)
           ).
   Defined.
-
-  Definition equality_of_2cells_in_ACAT
-             {a b : ACAT} {f g : ACAT⟦a,b⟧} (α β : prebicat_cells _ f g)
-    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
-  Proof.
-    intro p.
-    use total2_paths_f.
-    {
-      use nat_trans_eq.
-      { apply homset_property. }
-      exact (λ x, p x).
-    }
-    apply proofirrelevance.
-    repeat (apply impred_isaprop ; intro).
-    apply homset_property.
-  Qed.
-
-  Definition equality_of_2cells_in_ACTI
-             {a b : ACTI} {f g : ACTI⟦a,b⟧} (α β : prebicat_cells _ f g)
-    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
-  Proof.
-    intro p.
-    use total2_paths_f.
-    {
-      use nat_trans_eq.
-      { apply homset_property. }
-      intro x.
-      exact (p x).
-    }
-    apply proofirrelevance.
-    apply impred_isaprop ; intro.
-    apply cellset_property.
-  Qed.
-
-  Lemma equality_of_ACTI_endofunctors
-        {a b : psfunctor_bicat ACTI ACTI}
-        {f g : (psfunctor_bicat ACTI ACTI)⟦a,b⟧}
-        (α β : prebicat_cells (psfunctor_bicat ACTI ACTI) f g)
-    : (∏ x : ACTI,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -> α = β.
-  Proof.
-    intro p.
-    use total2_paths_f.
-    2: { apply proofirrelevance ; apply isapropunit. }
-    use total2_paths_f.
-    2: { use total2_paths_f ;
-         (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit). }
-    use total2_paths_f.
-    2: { apply proofirrelevance ;
-          repeat (apply impred_isaprop ; intro) ;
-         apply cellset_property. }
-
-    apply funextsec ; intro.
-    use equality_of_2cells_in_ACTI.
-    intro.
-    apply p.
-  Qed.
 
   Lemma is_invertible_2cell_unit
     : is_invertible_2cell (Adjunctions.left_adjoint_unit unit_left_adjoint_data).
@@ -1659,65 +1435,28 @@ Section ActionInCatEquivActegories.
             rewrite id_right ;
             apply (! functor_id _ _)
           ).
-    - intro ; intros.
-      use total2_paths_f.
-      + use nat_trans_eq.
-        { apply homset_property. }
-        abstract (
-            intro ;
-            simpl ;
-            rewrite ! id_left ;
-            rewrite id_right ;
-            apply (! functor_id _ _)
-          ).
-      + abstract (
-            apply proofirrelevance ;
-            apply impred_isaprop ; intro ;
-            apply cellset_property
-          ).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    apply impred_isaprop ; intro ;
-                    apply cellset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance ; apply isapropunit.
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    apply impred_isaprop ; intro ;
-                    apply cellset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit).
-      + apply proofirrelevance ; apply isapropunit.
-  Qed.
+    - abstract (
+          intro ; intros ;
+          use equality_of_2cells_in_ACTI ;
+          intro ;
+          simpl ;
+          rewrite ! id_left ;
+          rewrite id_right ;
+          apply (! functor_id _ _)
+        ).
+    - abstract (
+          use equality_of_ACTI_endofunctors ;
+          intro ; intro ;
+          simpl ;
+          apply id_right
+        ).
+    - abstract (
+          use equality_of_ACTI_endofunctors ;
+          intro ; intro ;
+          simpl ;
+          apply id_right
+        ).
+   Qed.
 
   Definition prebicat_cells_ACAT (a : ACAT)
     :  prebicat_cells ACAT ((pr111 (identity (Identity.id_psfunctor ACAT))) a)
@@ -1746,121 +1485,34 @@ Section ActionInCatEquivActegories.
     repeat (use tpair) ; try (exact tt).
     - exact (λ _, prebicat_cells_ACAT _).
 
-    - intro ; intros.
-      use total2_paths_f.
-      + use nat_trans_eq.
-        { apply homset_property. }
-        abstract (
-            intro ;
-            simpl ;
-            rewrite ! id_left ;
-            rewrite id_right ;
-            apply (! functor_id _ _)
-          ).
-      + abstract (
-            apply proofirrelevance ;
-            repeat (apply impred_isaprop ; intro) ;
-            apply homset_property
-          ).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply homset_property
-                  ).
-          -- abstract (
-                 apply proofirrelevance ;
-                 repeat (apply impred_isaprop ; intro) ;
-                 apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply isapropunit).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++  abstract (
-                     apply proofirrelevance ;
-                     repeat (apply impred_isaprop ; intro) ;
-                     apply homset_property
-                   ).
-          -- abstract (
-                 apply proofirrelevance ;
-                 repeat (apply impred_isaprop ; intro) ;
-                 apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply isapropunit).
-  Qed.
+    - abstract (
+          intro ; intros ;
+          use equality_of_2cells_in_ACAT ;
+          intro ;
+          simpl ;
+          rewrite ! id_left ;
+          rewrite id_right ;
+          apply (! functor_id _ _)
+        ).
+
+    - abstract (
+          use equality_of_ACAT_endofunctors ;
+          intro ; intro ;
+          simpl ;
+          apply id_right
+        ).
+    - abstract (
+          use equality_of_ACAT_endofunctors ;
+          intro ; intro ;
+          simpl ;
+          apply id_right
+        ).
+   Qed.
 
   Lemma counit_left_adjoints_axioms
     :  Adjunctions.left_adjoint_axioms counit_left_adjoint_data.
   Proof.
-    use tpair.
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (
-                    intro ;
-                    simpl ;
-                    rewrite ! id_right ;
-                    apply idpath
-                  ).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply homset_property).
-          -- abstract (
-                 apply proofirrelevance ;
-                 repeat (apply impred_isaprop ; intro) ;
-                 apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply isapropunit).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (
-                    intro ;
-                    simpl ;
-                    rewrite ! id_right ;
-                    apply idpath
-                  ).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply homset_property
-                  ).
-          -- abstract (
-                 apply proofirrelevance ;
-                 repeat (apply impred_isaprop ; intro) ;
-                 apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply isapropunit).
+    use tpair ; apply equality_of_ACAT_endofunctors ; intro ; intro ; simpl ; rewrite ! id_right ; apply idpath.
   Qed.
 
   Lemma is_invertible_2cell_unit'
@@ -1885,64 +1537,22 @@ Section ActionInCatEquivActegories.
             rewrite bifunctor_leftid ;
             apply id_right
           ).
-    - intro ; intros.
-      use total2_paths_f.
-      + use nat_trans_eq.
-        { apply homset_property. }
-        abstract (
-            intro ;
-            simpl ;
-            rewrite ! id_left ;
-            rewrite id_right ;
-            apply (! functor_id _ _)
-          ).
-      + abstract (
-            apply proofirrelevance ;
-            repeat (apply impred_isaprop ; intro) ;
-            apply homset_property
-          ).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply homset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply proofirrelevance ; apply isapropunit).
-    - use total2_paths_f.
-      + use total2_paths_f.
-        * use total2_paths_f.
-          -- apply funextsec ; intro.
-             use total2_paths_f.
-             ++ use nat_trans_eq.
-                { apply homset_property. }
-                abstract (intro ; simpl ; apply id_right).
-             ++ abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply homset_property
-                  ).
-          -- abstract (
-                    apply proofirrelevance ;
-                    repeat (apply impred_isaprop ; intro) ;
-                    apply cellset_property
-               ).
-        * abstract (use total2_paths_f ;
-            (apply proofirrelevance ; try (apply isapropdirprod) ; apply isapropunit)).
-      + abstract (apply isapropunit).
+    - abstract (
+          intro ; intros ;
+          use equality_of_2cells_in_ACAT ;
+          intro ;
+          simpl ;
+          rewrite ! id_left ;
+          rewrite id_right ;
+          apply (! functor_id _ _)
+        ).
+    - abstract (
+          use equality_of_ACAT_endofunctors ;
+          intro ; intro ;
+          simpl ; apply id_right
+        ).
+    - abstract (use equality_of_ACAT_endofunctors ;
+      intro ; intro ; simpl ; apply id_right).
   Qed.
 
   Lemma unit_left_adjoint_equiv_axiom
