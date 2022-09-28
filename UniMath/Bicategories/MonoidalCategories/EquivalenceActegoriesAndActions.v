@@ -499,34 +499,33 @@ Section FromActegoriesToActionsInCat.
     - exact (λ a1 a2 f, acat_to_acti_on_mor f).
     - intros a1 a2 f g α.
       exists (pr1 α).
-      intro v.
-      use nat_trans_eq.
-      { apply homset_property. }
-      exact (λ c, pr2 α v c).
+      abstract (intro v; use nat_trans_eq;
+      [apply homset_property |
+      exact (λ c, pr2 α v c)]).
     - intro a.
       use tpair.
       + apply nat_trans_id.
-      + intro v.
-        use nat_trans_eq.
-        { apply homset_property. }
-        intro c.
-        cbn ;
-        unfold identity_lineator_data ;
-        rewrite ! id_left ;
-        rewrite id_right ;
-        apply (! bifunctor_leftid _ _ _).
+      + abstract (intro v;
+                  use nat_trans_eq;
+                  [apply homset_property |
+                    intro c;
+                    cbn ;
+                    unfold identity_lineator_data ;
+                    rewrite ! id_left ;
+                    rewrite id_right ;
+                    apply (! bifunctor_leftid _ _ _)]).
     - intros a1 a2 a3 f g.
       use tpair.
       {  simpl. apply nat_trans_id. }
-      intro v.
-      use nat_trans_eq.
-      { apply homset_property. }
-      intro c.
-      cbn.
-      rewrite bifunctor_leftid.
-      rewrite ! id_left.
-      rewrite ! id_right.
-      apply idpath.
+      abstract (intro v;
+                use nat_trans_eq;
+                [apply homset_property |
+                  intro c;
+                  cbn;
+                  rewrite bifunctor_leftid;
+                  rewrite ! id_left;
+                  rewrite ! id_right;
+                  apply idpath]).
   Defined.
 
   Definition acat_to_acti_laws
