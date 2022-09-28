@@ -5,10 +5,14 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
-(* This import is included because in the end we want to show that
-   bifunctors are equivalent to functors coming out of a product category
+(** This import is included because in the end we want to show that
+    bifunctors are equivalent to functors coming out of a product category
 *)
 Require Import  UniMath.CategoryTheory.PrecategoryBinProduct.
+(** the following are needed for the connection with functors into the functor category *)
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+
 
 Open Scope cat.
 
@@ -523,3 +527,101 @@ Section FunctorsFromProductCategory.
   Defined.
 
 End FunctorsFromProductCategory.
+
+Section FunctorsIntoEndofunctorCategory.
+
+  Import BifunctorNotations.
+
+  Definition bifunctor_to_functorintoendofunctorcat_data
+    {C D E : category} (F : bifunctor C D E)
+    : functor_data C [D,E].
+  Proof.
+    use make_functor_data.
+    - exact (λ c, leftwhiskering_functor F c).
+    - intros c1 c2 f.
+      exists (λ d, f ⊗^{F}_{r} d).
+      abstract (exact (λ d1 d2 g, ! bifunctor_equalwhiskers F c1 c2 d1 d2 f g)). (** abstract needs [apply E] in [bifunctor_from_to] *)
+  Defined.
+
+  Lemma bifunctor_to_functorintoendofunctorcat_data_is_functor
+    {C D E : category} (F : bifunctor C D E)
+    : is_functor (bifunctor_to_functorintoendofunctorcat_data F).
+  Proof.
+    use tpair.
+    + intro c.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightid.
+    + intros c1 c2 c3 f g.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightcomp.
+  Qed.
+
+  Definition bifunctor_to_functorintoendofunctorcat
+    {C D E : category} (F : bifunctor C D E)
+    : functor C [D,E] := _,,bifunctor_to_functorintoendofunctorcat_data_is_functor F.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat
+    {C D E : category} (F : functor C [D,E])
+    : bifunctor_data C D E.
+  Proof.
+    exists (λ c d, pr1 (F c) d).
+    exists (λ c d1 d2 g, #(pr1 (F c)) g).
+    exact (λ d c1 c2 f, pr1 (#F f) d).
+  Defined.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat_is_bifunctor
+    {C D E : category} (F : functor C [D,E])
+    : is_bifunctor (bifunctor_data_from_functorintoendofunctorcat F).
+  Proof.
+    repeat (use tpair).
+    + intro ; intro ; apply functor_id.
+    + abstract (exact (λ d c, toforallpaths _ _ _ (maponpaths pr1 (functor_id F c)) d)).
+    + intro ; intros ; apply functor_comp.
+    + abstract (intro ; intros;
+      exact (toforallpaths _ _ _ (maponpaths pr1 (functor_comp F f1 f2)) b)).
+    + abstract (intro ; intros;
+      exact (! pr2 (#F f) b1 b2 g)).
+  Defined. (** needs to be defined for [bifunctor_from_to] *)
+
+
+  Definition bifunctor_from_functorintoendofunctorcat
+        {C D E : category} (F : functor C [D,E])
+    : bifunctor C D E := _,,bifunctor_data_from_functorintoendofunctorcat_is_bifunctor F.
+
+  Lemma bifunctor_to_from {C D E : category} (F : bifunctor C D E)
+    : bifunctor_from_functorintoendofunctorcat (bifunctor_to_functorintoendofunctorcat F) = F.
+  Proof.
+    use total2_paths_f.
+    2: { apply isaprop_is_bifunctor. }
+    apply idpath.
+  Qed.
+
+  Lemma bifunctor_from_to {C D E : category} (F : functor C [D,E])
+    : bifunctor_to_functorintoendofunctorcat (bifunctor_from_functorintoendofunctorcat F) = F.
+  Proof.
+    use functor_eq.
+    { apply homset_property. }
+    use total2_paths_f.
+    { cbn. apply idpath. }
+    cbn.
+    repeat (apply funextsec ; intro).
+    use total2_paths_f.
+    { apply idpath. }
+    repeat (apply funextsec ; intro).
+    apply E.
+    (* more precisely, it could be: apply pathsinv0inv0. *)
+  Qed.
+
+  Lemma bifunctor_equiv_functorintoendofunctorcat (C D E : category)
+    : bifunctor C D E ≃ functor C [D,E].
+  Proof.
+    use weq_iso.
+    { apply bifunctor_to_functorintoendofunctorcat. }
+    { apply bifunctor_from_functorintoendofunctorcat. }
+    { intro ; apply bifunctor_to_from. }
+    { intro ; apply bifunctor_from_to. }
+  Defined.
+
+End FunctorsIntoEndofunctorCategory.
