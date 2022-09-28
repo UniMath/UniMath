@@ -81,7 +81,6 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 MonoidalCategories/BicatOfActionsInBicat.v
-MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
@@ -156,6 +155,7 @@ PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
 Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v
@@ -191,6 +191,7 @@ Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegories.v
 Monads/Examples/MonadsInStructuredCategories.v
@@ -213,8 +214,13 @@ Morphisms/Examples/MorphismsInSliceBicat.v
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/KleisliObjects.v
+
+Limits/Examples/OpMorBicatLimits.v
+
 Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 

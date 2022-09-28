@@ -32,7 +32,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Local Open Scope cat.
 
 (**
- 1. Monads internal to `bicat_of__cats` to monads
+ 1. Monads internal to `bicat_of_cats` to monads
  *)
 Definition mnd_bicat_of_cats_to_Monad
            (m : mnd bicat_of_cats)

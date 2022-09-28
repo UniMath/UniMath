@@ -515,13 +515,6 @@ Section FromActegoriesToActionsInCat.
     { apply homset_property. }
     intro c.
     cbn.
-    etrans. {
-      do 2 apply maponpaths_2.
-      apply (bifunctor_leftid (pr12 a2)).
-    }
-    etrans. { apply maponpaths_2 ; apply id_left. }
-    etrans.
-    2: { apply maponpaths ; apply (! id_right _). }
     exact (pr12 (pr212 f) v w c g).
   Qed.
 
@@ -684,37 +677,23 @@ Section FromActionInCatToActegories.
          (acti_to_acat_on_mor_lineator_data f).
   Proof.
     repeat split.
-    - (* lineator_nat_left *)
-      intros v c1 c2 g.
+    - intros v c1 c2 g.
       exact (pr2 (pr112 f v) c1 c2 g).
-    - (* lineator_nat_right *)
-      intros v w c g.
-      refine (_ @ toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c @ _).
-      + simpl.
-        apply maponpaths_2.
-        etrans.
-        2: {
-          apply maponpaths_2.
-          apply (! functor_id _ _).
-        }
-        apply (! id_left _).
-      + etrans. { apply assoc. }
-        apply id_right.
-    - (* preserves_actor. *)
-      intros v w c.
-      induction f as [F [δ [tri pent]]].
-
+    - intros v w c g.
+      exact (toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c).
+    - intros v w c.
+      induction f as [f [δ [tri pent]]].
       set (tt := toforallpaths _ _ _ (base_paths _ _ (pent w v)) c).
       cbn in tt.
       rewrite ! id_left in tt.
 
       transparent assert (z_iso_ptwvFc
-               : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 F c)))
+               : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 f c)))
              ).
       {
-        exists (pr11 (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 F c)).
-        exists (toforallpaths _ _ _ (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 F c)).
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 F c)).
+        exists (pr11 (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 f c)).
+        exists (toforallpaths _ _ _ (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exact (toforallpaths _ _ _ (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
       }
       set (tt' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_ptwvFc) _ _ (! tt)).
       etrans. {
@@ -735,7 +714,7 @@ Section FromActionInCatToActegories.
 
       etrans. {
         apply maponpaths.
-        rewrite (! functor_comp F _ _).
+        rewrite (! functor_comp f _ _).
         apply maponpaths.
         exact (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
       }
@@ -920,13 +899,9 @@ Section ActionInCatEquivActegories.
         * intros v w f.
           use nat_trans_eq.
           { apply homset_property. }
-          intro c.
-          abstract (
-              cbn ;
-              do 2 rewrite id_right ;
-              rewrite id_left ;
-              rewrite (functor_id  ((pr12 a) v)) ;
-              apply id_left).
+          abstract ( intro c; cbn;
+          rewrite id_left;
+          apply id_right ).
       + use tpair.
         * use nat_trans_eq.
           { apply homset_property. }
@@ -1128,10 +1103,7 @@ Section ActionInCatEquivActegories.
           ).
       * intro ; intros ; use nat_trans_eq.
         { apply homset_property. }
-        intro ; cbn ;
-          rewrite (functor_id ((pr12 x) x0)) ;
-          rewrite ! id_left ;
-          apply idpath.
+        intro ; cbn; rewrite id_left; apply id_right.
       + use tpair.
         * use nat_trans_eq.
           { apply homset_property. }
