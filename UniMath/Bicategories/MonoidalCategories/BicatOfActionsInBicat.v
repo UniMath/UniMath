@@ -15,13 +15,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-(*
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
-*)
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -105,8 +99,6 @@ Section FixMoncatAndBicat.
     * intro v. cbn. exact (lunitor _ • rinvunitor _).
     * abstract ( intros v w f;
                  cbn;
-                 rewrite hcomp_identity_left;
-                 rewrite hcomp_identity_right;
                  rewrite vassocr;
                  rewrite vcomp_lunitor;
                  do 2 rewrite vassocl;
@@ -233,10 +225,7 @@ Section FixMoncatAndBicat.
     is_nat_trans _ _ (disp_actionbicat_disp_comp_nat_trans_data Hyp1 Hyp2).
   Proof.
     intros v w f. unfold disp_actionbicat_disp_comp_nat_trans_data.
-    cbn;
-    rewrite hcomp_identity_left;
-    rewrite hcomp_identity_right;
-      rewrite vassocr.
+    cbn; rewrite vassocr.
 
     rewrite (! lwhisker_lwhisker_rassociator _ _ _ _ _ _ _ _ _).
     rewrite vassocr.
@@ -263,7 +252,6 @@ Section FixMoncatAndBicat.
       apply maponpaths_2.
       apply maponpaths_2.
       apply maponpaths.
-      rewrite (! hcomp_identity_left _ _ _ _).
       exact (pr21 Hyp2 v w f).
     }
     etrans.
@@ -272,13 +260,10 @@ Section FixMoncatAndBicat.
       apply maponpaths.
       rewrite rwhisker_vcomp.
       apply maponpaths.
-      rewrite (! hcomp_identity_right _ _ _ _).
       exact (pr21 Hyp1 v w f).
     }
 
     cbn.
-    rewrite (hcomp_identity_right _ _ _ _).
-    rewrite (hcomp_identity_left _ _ _ _).
     rewrite (! lwhisker_vcomp _ _ _).
 
     do 3 rewrite vassocl.

@@ -680,8 +680,8 @@ Section Param_Distr.
    *)
 
   (** the definitions that force full compatibility with the bicategorical scenario *)
-  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A')) F.
-  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A')) F.
+  Local Definition precomp'F := UniMath.Bicategories.Core.Bicat.lwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A') F.
+  Local Definition postcomp'F {C: category} := UniMath.Bicategories.Core.Bicat.rwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A') F.
 
   (** a parameterized form of distributivity as strength *)
   Definition param_distributivity'_dom : functor V [A, A'] :=

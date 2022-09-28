@@ -519,13 +519,6 @@ Section FromActegoriesToActionsInCat.
     { apply homset_property. }
     intro c.
     cbn.
-    etrans. {
-      do 2 apply maponpaths_2.
-      apply (bifunctor_leftid (pr12 a2)).
-    }
-    etrans. { apply maponpaths_2 ; apply id_left. }
-    etrans.
-    2: { apply maponpaths ; apply (! id_right _). }
     exact (pr12 (pr212 f) v w c g).
   Qed.
 
@@ -682,17 +675,7 @@ Section FromActionInCatToActegories.
     - intros v c1 c2 g.
       exact (pr2 (pr112 f v) c1 c2 g).
     - intros v w c g.
-      refine (_ @ toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c @ _).
-      + simpl.
-        apply maponpaths_2.
-        etrans.
-        2: {
-          apply maponpaths_2.
-          apply (! functor_id _ _).
-        }
-        apply (! id_left _).
-      + etrans. { apply assoc. }
-        apply id_right.
+      exact (toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c).
     - intros v w c.
       cbn.
       cbn in f.
@@ -834,13 +817,9 @@ Section ActionInCatEquivActegories.
         * intros v w f.
           use nat_trans_eq.
           { apply homset_property. }
-          intro c.
-          abstract (
-              cbn ;
-              do 2 rewrite id_right ;
-              rewrite id_left ;
-              rewrite (functor_id  ((pr12 a) v)) ;
-              apply id_left).
+          abstract ( intro c; cbn;
+          rewrite id_left;
+          apply id_right ).
       + use tpair.
         * use nat_trans_eq.
           { apply homset_property. }
@@ -1042,10 +1021,7 @@ Section ActionInCatEquivActegories.
           ).
       * intro ; intros ; use nat_trans_eq.
         { apply homset_property. }
-        intro ; cbn ;
-          rewrite (functor_id ((pr12 x) x0)) ;
-          rewrite ! id_left ;
-          apply idpath.
+        intro ; cbn; rewrite id_left; apply id_right.
       + use tpair.
         * use nat_trans_eq.
           { apply homset_property. }

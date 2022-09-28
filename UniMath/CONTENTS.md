@@ -471,6 +471,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [MonoidalCategories/ActionsFormBicategory.v](Bicategories/MonoidalCategories/ActionsFormBicategory.v)
    - [MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v)
    - [MonoidalCategories/BicatOfActionsInBicat.v](Bicategories/MonoidalCategories/BicatOfActionsInBicat.v)
+   - [MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v)
    - [MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v](Bicategories/MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v)
    - [MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v](Bicategories/MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v)
    - [MonoidalCategories/UnivalenceMonCat/UnitLayer.v](Bicategories/MonoidalCategories/UnivalenceMonCat/UnitLayer.v)
