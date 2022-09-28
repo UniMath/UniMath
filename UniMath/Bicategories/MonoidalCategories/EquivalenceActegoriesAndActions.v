@@ -40,10 +40,6 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Import BifunctorNotations.
 
-Local Lemma TODO_JOKER (A : UU) : A.
-Proof.
-Admitted.
-
 Section FunctorsIntoEndofunctorCategory.
 
   Definition bifunctor_to_functorintoendofunctorcat_data
@@ -665,44 +661,130 @@ Section FromActionInCatToActegories.
   Definition acti_to_acat_on_ob : (ob ACTI) -> (ob ACAT)
     := λ act, _ ,, actegory_from_object _ act.
 
-  Definition acti_to_acat_on_mor
-  {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    : ACAT ⟦ acti_to_acat_on_ob a1, acti_to_acat_on_ob a2⟧.
+  Definition acti_to_acat_on_mor_lineator_data
+             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
+    :  lineator_data Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
+                     (actegory_from_object (monoidal_swapped Mon_V) a2) (pr1 f)
+    := λ v c, pr1 (pr112 f v) c.
+
+  Definition acti_to_acat_on_mor_lineator_lax_laws
+             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
+    :  lineator_laxlaws
+         Mon_V
+         (actegory_from_object (monoidal_swapped Mon_V) a1)
+         (actegory_from_object (monoidal_swapped Mon_V) a2)
+         (pr1 f)
+         (acti_to_acat_on_mor_lineator_data f).
   Proof.
-    exists (pr1 f).
-    repeat (use tpair).
-    - exact (λ v c, pr1 (pr112 f v) c).
+    repeat split.
     - intros v c1 c2 g.
       exact (pr2 (pr112 f v) c1 c2 g).
     - intros v w c g.
       exact (toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c).
     - intros v w c.
-      cbn.
-      cbn in f.
-      unfold disp_actionbicat_disp_mor in f.
-
-      apply TODO_JOKER.
-    - intro c.
-      cbn in f.
-      unfold disp_actionbicat_disp_mor in f.
-      set (t := pr122 f).
-      unfold  ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq  in t.
-      cbn in t.
-      set (tt := toforallpaths _ _ _ (base_paths _ _ t) c).
+      induction f as [f [δ [tri pent]]].
+      set (tt := toforallpaths _ _ _ (base_paths _ _ (pent w v)) c).
       cbn in tt.
       rewrite ! id_left in tt.
+
+      transparent assert (z_iso_ptwvFc
+               : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 f c)))
+             ).
+      {
+        exists (pr11 (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 f c)).
+        exists (toforallpaths _ _ _ (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exact (toforallpaths _ _ _ (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+      }
+      set (tt' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_ptwvFc) _ _ (! tt)).
+      etrans. {
+        apply maponpaths_2.
+        exact tt'.
+      }
       cbn.
-      unfold unitor_from_object.
-      unfold  ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat_funclass in tt.
+      clear tt'.
+      etrans.
+      2: { apply assoc. }
 
+      etrans. { apply assoc'. }
+      apply maponpaths.
 
+      etrans. { apply assoc'. }
+      etrans. { apply assoc'. }
+      apply maponpaths.
 
-
-      apply TODO_JOKER.
-    - intros v c.
+      etrans. {
+        apply maponpaths.
+        rewrite (! functor_comp f _ _).
+        apply maponpaths.
+        exact (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
+      }
       simpl.
+      rewrite functor_id.
+      apply id_right.
+    - (* preserves_unitor *)
+      intro c.
+      induction f as [F [δ [tri pent]]].
+      set (tric := toforallpaths _ _ _ (base_paths _ _ tri) c).
+      cbn in tric.
+      rewrite ! id_left in tric.
 
-      apply TODO_JOKER.
+      transparent assert (z_iso_puFc
+                           : (is_z_isomorphism ( pr1 (fmonoidal_preservesunit (pr22 a2)) (pr1 F c)))).
+      {
+        exists (pr11 (fmonoidal_preservesunitstrongly (pr22 a2))(pr1 F c)).
+        exists (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
+        exact (toforallpaths _ _ _ (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
+      }
+
+      set (tric' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_puFc) _ _ (! tric)).
+      etrans. { apply maponpaths_2 ; exact tric'. }
+      clear tric'.
+      clear tric.
+      rewrite assoc'.
+
+      etrans. {
+        apply maponpaths.
+        exact (! functor_comp F  (pr1 (fmonoidal_preservesunit (pr22 a1)) c) _).
+      }
+
+      etrans. {
+        do 2 apply maponpaths.
+        exact (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a1))) c).
+      }
+      rewrite (functor_id F _).
+      apply id_right.
+  Qed.
+
+  Definition acti_to_acat_on_mor_lineator_lax
+             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
+    : lineator_lax Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
+                   (actegory_from_object (monoidal_swapped Mon_V) a2) (pr1 f).
+  Proof.
+    exists (acti_to_acat_on_mor_lineator_data f).
+    exact (acti_to_acat_on_mor_lineator_lax_laws f).
+  Defined.
+
+  Definition acti_to_acat_on_mor_lineator_strong
+             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
+    :  lineator_strongly
+         Mon_V
+         (pr2 (acti_to_acat_on_ob a1))
+         (pr2 (acti_to_acat_on_ob a2))
+         (pr1 f)
+         (acti_to_acat_on_mor_lineator_lax f).
+  Proof.
+    intros v c.
+    induction f as [f [δ [t p]]].
+
+  Admitted.
+
+  Definition acti_to_acat_on_mor
+             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
+    : ACAT ⟦ acti_to_acat_on_ob a1, acti_to_acat_on_ob a2⟧.
+  Proof.
+    exists (pr1 f).
+    exists (acti_to_acat_on_mor_lineator_lax f).
+    exact (acti_to_acat_on_mor_lineator_strong f).
   Defined.
 
   Definition acti_to_acat_data
