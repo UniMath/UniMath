@@ -40,6 +40,7 @@ Core/Examples/FibSlice.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -153,9 +154,12 @@ PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
+Monads/Examples/MonadsInTotalBicat.v
+Monads/Examples/MonadsInStructuredCategories.v
 Monads/DistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
@@ -205,8 +209,13 @@ Morphisms/Examples/MorphismsInSliceBicat.v
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/KleisliObjects.v
+
+Limits/Examples/OpMorBicatLimits.v
+
 Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 

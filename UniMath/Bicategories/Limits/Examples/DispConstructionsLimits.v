@@ -18,10 +18,17 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 
 Local Open Scope cat.
 
@@ -59,6 +66,13 @@ Section LimitsFullSubbicat.
     : disp_has_pb (disp_fullsubbicat _ P) HB
     := λ x y z f g,
        H _ _ _ _ _ (pr2 x) (pr2 y) (pr2 z) ,, tt ,, tt ,, λ _, tt.
+
+  Definition disp_fullsubbicat_em_obj
+             (HB : bicat_has_em B)
+             (H : ∏ (m : mnd (total_bicat (disp_fullsubbicat _ P))),
+                  P (pr11 (HB (pr1_of_mnd_total_bicat m))))
+    : disp_has_em (disp_fullsubbicat _ P) HB
+    := λ m, H m ,, tt ,, tt ,, λ _, tt.
 End LimitsFullSubbicat.
 
 (**

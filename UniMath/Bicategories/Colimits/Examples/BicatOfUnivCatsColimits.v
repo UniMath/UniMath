@@ -6,6 +6,7 @@
  1. Initial object
  2. Coproducts
  3. Extensivity
+ 4. Kleisli objects
 
  *********************************************************************************)
 
@@ -17,25 +18,39 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.categories.KleisliCategory.
 Require Import UniMath.CategoryTheory.CategorySum.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
+Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
 Require Import UniMath.Bicategories.Colimits.Initial.
 Require Import UniMath.Bicategories.Colimits.Coproducts.
 Require Import UniMath.Bicategories.Colimits.Extensive.
+Require Import UniMath.Bicategories.Colimits.KleisliObjects.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInOp1Bicat.
 
 Local Open Scope cat.
 
@@ -1094,4 +1109,97 @@ Proof.
     + apply has_pb_bicat_of_univ_cats.
     + intros Z F.
       exact (universal_bicat_of_univ_cats F).
+Defined.
+
+(**
+ 4. Kleisli objects
+ *)
+Section KleisliCategoryUMP.
+  Context (m : mnd (op1_bicat bicat_of_univ_cats)).
+
+  Let C : univalent_category := ob_of_mnd m.
+  Let M : Monad C := mnd_bicat_of_univ_cats_to_Monad (mnd_op1_to_mnd m).
+
+  Definition bicat_of_univ_cats_has_kleisli_cocone
+    : kleisli_cocone m.
+  Proof.
+    use make_kleisli_cocone.
+    - exact (univalent_kleisli_cat M).
+    - exact (kleisli_incl M).
+    - exact (kleisli_nat_trans M).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         use eq_mor_kleisli_cat ;
+         exact (@Monad_law2 _ M x)).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         use eq_mor_kleisli_cat ;
+         cbn ;
+         rewrite id_left ;
+         apply (!(@Monad_law3 _ M x))).
+  Defined.
+
+  Definition bicat_of_univ_cats_has_kleisli_ump_1
+    : has_kleisli_ump_1 m bicat_of_univ_cats_has_kleisli_cocone.
+  Proof.
+    intro q.
+    pose (F := mor_of_kleisli_cocone _ q).
+    pose (γ := cell_of_kleisli_cocone _ q).
+    pose (p₁ := nat_trans_eq_pointwise (kleisli_cocone_unit _ q)).
+    assert (p₂ : ∏ (x : C), pr1 γ (M x) · pr1 γ x = # (pr1 F) (μ M x) · pr1 γ x).
+    {
+      intro x.
+      pose (p₂ := nat_trans_eq_pointwise (kleisli_cocone_mult _ q) x).
+      cbn in p₂.
+      rewrite !id_left in p₂.
+      exact p₂.
+    }
+    use make_kleisli_cocone_mor.
+    - exact (functor_from_univalent_kleisli_cat M F γ p₁ p₂).
+    - exact (functor_from_univalent_kleisli_cat_nat_trans M F γ p₁ p₂).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         refine (_ @ maponpaths (λ z, z · _) (!(id_left _))) ;
+         exact (functor_from_univalent_kleisli_cat_eq M F γ p₁ p₂ x)).
+    - use is_nat_z_iso_to_is_invertible_2cell.
+      exact (functor_from_univalent_kleisli_cat_nat_trans_is_z_iso M F γ p₁ p₂).
+  Defined.
+
+  Definition bicat_of_univ_cats_has_kleisli_ump_2
+    : has_kleisli_ump_2 m bicat_of_univ_cats_has_kleisli_cocone.
+  Proof.
+    intros C' G₁ G₂ α p.
+    assert (p' : ∏ (x : C),
+                 # (pr1 G₁) (kleisli_nat_trans M x) · pr1 α x
+                 =
+                 pr1 α (M x) · # (pr1 G₂) (kleisli_nat_trans M x)).
+    {
+      intro x.
+      pose (q := nat_trans_eq_pointwise p x).
+      cbn in q.
+      rewrite !id_left, !id_right in q.
+      exact q.
+    }
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros β₁ β₂.
+      use subtypePath ; [ intro ; apply cellset_property | ].
+      exact (nat_trans_from_univalent_kleisli_cat_unique M α (pr2 β₁) (pr2 β₂)).
+    - simple refine (_ ,, _).
+      + exact (nat_trans_from_univalent_kleisli_cat M α p').
+      + exact (pre_whisker_nat_trans_from_univalent_kleisli_cat M α p').
+  Defined.
+End KleisliCategoryUMP.
+
+Definition bicat_of_univ_cats_has_kleisli
+  : has_kleisli bicat_of_univ_cats.
+Proof.
+  intro m.
+  simple refine (_ ,, _ ,, _).
+  - exact (bicat_of_univ_cats_has_kleisli_cocone m).
+  - exact (bicat_of_univ_cats_has_kleisli_ump_1 m).
+  - exact (bicat_of_univ_cats_has_kleisli_ump_2 m).
 Defined.

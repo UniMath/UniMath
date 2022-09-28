@@ -6,6 +6,7 @@
  2. Fully faithful 1-cells
  3. Conservative 1-cells
  4. Discrete 1-cells
+ 5. Adjunctions
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -91,4 +92,91 @@ Proof.
     apply Hf.
   - apply conservative_op2_bicat.
     apply Hf.
+Defined.
+
+(**
+ 5. Adjunctions
+ *)
+Definition op2_left_adjoint_right_adjoint_is_left_adjoint
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           (Hf : @left_adjoint (op2_bicat B) _ _ f)
+  : @left_adjoint B _ _ (left_adjoint_right_adjoint Hf).
+Proof.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact f.
+  - exact (left_adjoint_counit Hf).
+  - exact (left_adjoint_unit Hf).
+  - abstract
+      (cbn ;
+       rewrite !vassocl ;
+       exact (internal_triangle2 Hf)).
+  - abstract
+      (cbn ;
+       rewrite !vassocl ;
+       exact (internal_triangle1 Hf)).
+Defined.
+
+Definition op2_left_adjoint_to_right_adjoint
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           (Hf : @left_adjoint (op2_bicat B) _ _ f)
+  : @internal_right_adj B _ _ f.
+Proof.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (left_adjoint_right_adjoint Hf).
+  - exact (left_adjoint_counit Hf).
+  - exact (left_adjoint_unit Hf).
+  - abstract
+      (cbn ;
+       rewrite !vassocl ;
+       exact (internal_triangle2 Hf)).
+  - abstract
+      (cbn ;
+       rewrite !vassocl ;
+       exact (internal_triangle1 Hf)).
+Defined.
+
+Definition right_adjoint_to_op2_left_adjoint
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           (Hf : @internal_right_adj B _ _ f)
+  : @left_adjoint (op2_bicat B) _ _ f.
+Proof.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (internal_right_adj_left_adjoint Hf).
+  - exact (internal_right_adj_counit Hf).
+  - exact (internal_right_adj_unit Hf).
+  - abstract
+      (cbn ;
+       rewrite !vassocr ;
+       exact (pr22 Hf)).
+  - abstract
+      (cbn ;
+       rewrite !vassocr ;
+       exact (pr12 Hf)).
+Defined.
+
+
+Definition op2_left_adjoint_weq_right_adjoint
+           {B : bicat}
+           {x y : B}
+           (f : x --> y)
+  : @left_adjoint (op2_bicat B) _ _ f ≃ @internal_right_adj B _ _ f.
+Proof.
+  use make_weq.
+  - exact op2_left_adjoint_to_right_adjoint.
+  - use gradth.
+    + exact right_adjoint_to_op2_left_adjoint.
+    + abstract
+        (intro Hf ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
+    + abstract
+        (intro Hf ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
 Defined.

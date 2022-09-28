@@ -35,6 +35,8 @@ Emacs may be installed using https://emacsformacosx.com/, http://aquamacs.org, o
 
 Now you may proceed to the instructions for [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
+The automated sanity checks (for contributions to UniMath) may require a more recent version of bash than the one preinstalled on Mac OS; this can be installed with `brew install bash`.
+
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
 Under Ubuntu or Debian, you may install Coq with the following shell command.

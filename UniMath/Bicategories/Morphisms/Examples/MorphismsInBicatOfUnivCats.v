@@ -6,6 +6,7 @@
  2. Fully faithful 1-cells
  3. Conservative 1-cells
  4. Pseudomonic 1-cells
+ 5. Adjoints
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -16,6 +17,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -453,4 +455,79 @@ Proof.
   - exact cat_pseudmonic_1cell_is_pseudomonic.
   - apply isaprop_pseudomonic.
   - apply isaprop_pseudomonic_1cell.
+Defined.
+
+(**
+ 5. Adjoints
+ *)
+Definition left_adjoint_to_is_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint F)
+  : is_left_adjoint F.
+Proof.
+  refine (left_adjoint_right_adjoint HF ,, _).
+  use make_are_adjoints.
+  - exact (left_adjoint_unit HF).
+  - exact (left_adjoint_counit HF).
+  - split.
+    + abstract
+        (intro x ; cbn ;
+         pose (nat_trans_eq_pointwise
+                 (internal_triangle1 HF)
+                 x)
+           as p ;
+         cbn in p ;
+         rewrite !id_left, !id_right in p ;
+         exact p).
+    + abstract
+        (intro x ; cbn ;
+         pose (nat_trans_eq_pointwise
+                 (internal_triangle2 HF)
+                 x)
+           as p ;
+         cbn in p ;
+         rewrite !id_left, !id_right in p ;
+         exact p).
+Defined.
+
+Definition is_left_adjoint_to_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F : C₁ --> C₂}
+           (HF : is_left_adjoint F)
+  : left_adjoint F.
+Proof.
+  simple refine ((right_adjoint HF ,, _ ,, _) ,, (_ ,, _)).
+  - exact (adjunit HF).
+  - exact (adjcounit HF).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr122 HF x)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr222 HF x)).
+Defined.
+
+Definition left_adjoint_weq_is_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F : C₁ --> C₂)
+  : left_adjoint F ≃ is_left_adjoint F.
+Proof.
+  use make_weq.
+  - exact left_adjoint_to_is_left_adjoint.
+  - use gradth.
+    + exact is_left_adjoint_to_left_adjoint.
+    + abstract
+        (intro HF ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
+    + abstract
+        (intro HF ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
+         apply idpath).
 Defined.
