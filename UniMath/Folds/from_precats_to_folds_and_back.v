@@ -22,7 +22,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.Core.Categories.
 
-Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 
 Local Open Scope cat.
