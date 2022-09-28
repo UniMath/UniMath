@@ -72,14 +72,17 @@ MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
+MonoidalCategories/BicatOfActegories.v
 MonoidalCategories/BicatOfActionsInBicat.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
@@ -124,6 +127,8 @@ PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
+
+MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
@@ -190,12 +195,10 @@ Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
-MonoidalCategories/BicatOfWhiskeredMonCats.v
-MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
+MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
-MonoidalCategories/BicatOfActegories.v
+MonoidalCategories/BicatOfActegoriesFinalObject.v
 Monads/Examples/MonadsInStructuredCategories.v
-MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
