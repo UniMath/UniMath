@@ -15,28 +15,9 @@ Require Import UniMath.NumberSystems.RationalNumbers.
 
 Require Import UniMath.RealNumbers.Prelim.
 
-(** The first few sections contain Definitions and Lemmas that
-   should be moved further up the project tree *)
-
-(** Local Notation "A ** B" := (matrix_mult A B) (at level 80).
-Local Notation  Σ := (iterop_fun 0%hq op1).
-Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2). *)
+(** Results of this file are required for the [Elimination] subpackage but aren’t specifically part of the topic; probably could/should be upstreamed within [UniMath] *)
 
 Section Misc.
-
-  Definition min'
-    (n m : nat) : nat.
-  Proof.
-    induction (natgthorleh n m).
-    - exact m.
-    - exact n.
-  Defined.
-
-  Lemma min_eq_min'
-    (n m : nat)
-    : min n m = min' n m.
-  Proof.
-  Abort.
 
   Lemma min_le_b:
     ∏ a b : (nat), min a b ≤ b.
@@ -77,11 +58,6 @@ Section Misc.
       rewrite IH. {reflexivity. }
       apply leh.
   Defined.
-
-  Lemma minsymm
-    (a b : nat) : min a b = min b a.
-  Proof.
-  Abort.
 
   Lemma minabstn_to_astn
     { a b : nat } (i : ⟦ min a b ⟧%stn) : ⟦ a ⟧%stn.
