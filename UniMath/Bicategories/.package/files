@@ -81,7 +81,6 @@ MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
 MonoidalCategories/BicatOfActionsInBicat.v
-MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
@@ -192,6 +191,7 @@ Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegories.v
 Monads/Examples/MonadsInStructuredCategories.v
