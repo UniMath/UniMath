@@ -484,6 +484,7 @@ ifeq ($(BUILD_COQ),yes)
 else
 	sed -e "s/@LOCAL@ /;;/" <$< >$@
 endif
+distclean::; rm -f UniMath/.dir-locals.el
 
 # make *.vo files by calling the coq makefile
 %.vo : always; $(MAKE) -f build/CoqMakefile.make $@
