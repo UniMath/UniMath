@@ -5,6 +5,7 @@
   Author: Daniel @Skantz (September 2022)
 *)
 
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Combinatorics.Maybe.
@@ -21,45 +22,6 @@ Require Import UniMath.RealNumbers.Prelim.
 (** Lemmas for standard functions on natural numbers *)
 Section Nat.
 
-  Lemma min_le_l:
-    ∏ a b : (nat), min a b ≤ a.
-  Proof.
-    intros; unfold min; revert a.
-    induction b as [| b IH]; destruct a ; try reflexivity.
-    apply IH.
-  Defined.
-
-
-  Lemma min_le_r:
-    ∏ a b : (nat), min a b ≤ b.
-  Proof.
-    intros; unfold min; revert a.
-    induction b as [| b IH]; destruct a ; try reflexivity.
-    apply IH.
-  Defined.
-
-  Lemma min_eq_a_or_eq_b :
-    ∏ a b : (nat),  coprod (min a b = a) (min a b = b).
-  Proof.
-    intros.
-    destruct (natgthorleh a b) as [gt | leh].
-    - apply ii2.
-      unfold min.
-      revert gt. revert b.
-      induction a as [| a IH ]; destruct b; try reflexivity.
-      { intros. apply fromempty. apply negnatgth0n in gt. assumption.  }
-      intros; rewrite IH. {reflexivity. }
-      apply gt.
-    - apply ii1.
-      unfold min; revert leh. revert b.
-      induction a as [| a IH ]; destruct b; try reflexivity.
-      { intros; apply negnatlehsn0 in leh.
-        apply fromempty; assumption. }
-      intros.
-      rewrite IH. {reflexivity. }
-      apply leh.
-  Defined.
-
   Lemma natminus1lthn
     (n : nat) : n > 0 -> n - 1 < n.
   Proof.
@@ -73,6 +35,15 @@ Section Nat.
   Proof.
     intros e; destruct e. apply isreflnatleh.
   Qed.
+
+  Lemma eq_of_le_le {a b : nat} (le_a_b : a ≤ b) (le_b_a : b ≤ a)
+    : a = b.
+  Proof.
+    destruct (natlehchoice _ _ le_a_b) as [lt_a_b | e_a_b].
+    2: { assumption. }
+    apply fromempty. eapply natlthtonegnatgeh; eassumption.
+  Qed.
+
 
   Lemma minussn1'
     ( n : nat ) : n ≤ ( S n ) - 1.
@@ -93,7 +64,7 @@ Section Nat.
     apply isdeceqnat.
   Defined.
 
-  Lemma fromnatcontr
+  Lemma from_natneq_eq
     {X : UU} (m n : nat) : (m = n) -> (m ≠ n) -> X.
   Proof.
     intros m_eq_n m_neq_n.
@@ -127,9 +98,70 @@ Section Nat.
   Proof.
     intros i j i_neq_j.
     destruct (nat_eq_or_neq i j) as [i_eq_j | ?].
-    { apply (fromnatcontr i j i_eq_j i_neq_j). }
+    { apply (from_natneq_eq i j i_eq_j i_neq_j). }
     apply maponpaths, propproperty.
   Defined.
+
+  Lemma min_le_l:
+    ∏ a b : (nat), min a b ≤ a.
+  Proof.
+    intros; unfold min; revert a.
+    induction b as [| b IH]; destruct a ; try reflexivity.
+    apply IH.
+  Defined.
+
+  Lemma min_le_r:
+    ∏ a b : (nat), min a b ≤ b.
+  Proof.
+    intros; unfold min; revert a.
+    induction b as [| b IH]; destruct a ; try reflexivity.
+    apply IH.
+  Defined.
+
+  Lemma min_le_iff :
+    ∏ a b c : nat, (a ≤ min b c) <-> (a ≤ b ∧ a ≤ c).
+  Proof.
+    intros a b c; split.
+    - intros le_a_mbc; split; eapply (istransnatleh le_a_mbc).
+      + apply min_le_l.
+      + apply min_le_r.
+    - revert a c; induction b as [ | b' IH ]; intros a c [le_a_b le_a_c].
+      { intros; exact le_a_b. } (* case b = 0 *)
+      destruct c as [ | c' ].
+      { exact le_a_c. } (* case c = 0 *)
+      destruct a as [ | a' ].
+      { apply natleh0n. } (* case a = 0 *)
+      (* when all successors, done by the reductions
+          [ min (S b') (S c')  ~~>  S (min b' c') ]
+          [ S x ≤ S y  ~~>  x ≤ y ] *)
+      apply IH.
+      split; assumption.
+  Qed.
+
+  (** All further properties of [min] should be derivable from [min_le_iff]:
+  the inductive definition of [min] should never need unfolding again
+  (though of course it can be, if that makes a proof nicer). *)
+
+  Lemma min_of_le {a b : nat} (le_a_b : a ≤ b) : min a b = a.
+  Proof.
+    apply eq_of_le_le.
+    - apply min_le_l.
+    - apply min_le_iff. split; try assumption. apply isreflnatleh.
+  Qed.
+
+  Lemma min_comm (a b : nat) : min a b = min b a.
+  Proof.
+    apply eq_of_le_le;
+      apply min_le_iff; split; auto using min_le_l, min_le_r.
+  Qed.
+
+  Lemma min_eq_a_or_eq_b :
+    ∏ a b : (nat), coprod (min a b = a) (min a b = b).
+  Proof.
+    intros a b. destruct (natleorle a b) as [le_a_b | le_b_a].
+    - apply inl. apply min_of_le; assumption.
+    - apply inr. rewrite min_comm. apply min_of_le; assumption.
+  Qed.
 
 End Nat.
 
