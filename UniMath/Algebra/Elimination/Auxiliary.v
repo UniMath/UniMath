@@ -21,18 +21,17 @@ Require Import UniMath.RealNumbers.Prelim.
 (** Lemmas for standard functions on natural numbers *)
 Section Nat.
 
-  Lemma min_le_b:
-    ∏ a b : (nat), min a b ≤ b.
+  Lemma min_le_l:
+    ∏ a b : (nat), min a b ≤ a.
   Proof.
-    intros.
-    unfold min.
-    revert a.
+    intros; unfold min; revert a.
     induction b as [| b IH]; destruct a ; try reflexivity.
     apply IH.
   Defined.
 
-  Lemma min_le_a:
-    ∏ a b : (nat), min a b ≤ a.
+
+  Lemma min_le_r:
+    ∏ a b : (nat), min a b ≤ b.
   Proof.
     intros; unfold min; revert a.
     induction b as [| b IH]; destruct a ; try reflexivity.
@@ -70,34 +69,37 @@ Section Nat.
     - reflexivity.
   Defined.
 
+  Lemma eq_to_natleh (m n : nat) : m = n -> m ≤ n.
+  Proof.
+    intros e; destruct e. apply isreflnatleh.
+  Qed.
+
   Lemma minussn1'
     ( n : nat ) : n ≤ ( S n ) - 1.
   Proof.
-    intros. destruct n. apply idpath.
-    assert (e : (S (S n)) > (S n)).
-    { apply natgthsnn. }
-    apply natgthtogehm1 in e. assumption.
+    apply eq_to_natleh, pathsinv0, minussn1.
   Defined.
 
   Lemma prev_nat
     (n : nat) (p : n > 0): ∑ m, S m = n.
   Proof.
-    destruct n as [| n]. {contradiction (negnatlthn0 _ p). }
-    use tpair; try apply n; reflexivity.
+    destruct n as [| n]. { contradiction (negnatlthn0 _ p). }
+    exists n; reflexivity.
   Defined.
 
+  (* alias for searchability *)
   Lemma isdeceqnatcommrig : isdeceq natcommrig.
   Proof.
     apply isdeceqnat.
   Defined.
 
-    Lemma fromnatcontr
+  Lemma fromnatcontr
     {X : UU} (m n : nat) : (m = n) -> (m ≠ n) -> X.
   Proof.
     intros m_eq_n m_neq_n.
-    rewrite m_eq_n in m_neq_n.
-    apply isirrefl_natneq in m_neq_n.
     apply fromempty.
+    destruct m_eq_n.
+    eapply isirrefl_natneq.
     exact (m_neq_n).
   Defined.
 
@@ -106,22 +108,8 @@ Section Nat.
   Proof.
     intros.
     destruct (nat_eq_or_neq i i) as [ ? | cnt].
-    2 : { remember cnt as cnt'. clear Heqcnt'.
-          apply isirrefl_natneq in cnt. contradiction. }
-    apply maponpaths, proofirrelevance
-    , isaproppathsfromisolated, isisolatedn.
-  Defined.
-
-  (** could upstream to stn *)
-  Lemma stn_eq_or_neq_refl
-    {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
-  Proof.
-    intros; unfold stn_eq_or_neq; simpl.
-    destruct (nat_eq_or_neq i i) as [? | neq].
-    2 : { contradiction (isirrefl_natneq _ neq). }
-    rewrite coprod_rect_compute_1.
-    apply maponpaths, proofirrelevance
-    , isaproppathsfromisolated, isisolatedinstn.
+    2: { eapply fromempty, isirrefl_natneq, cnt. }
+    apply maponpaths, isasetnat.
   Defined.
 
   Lemma nat_eq_or_neq_left:
@@ -129,7 +117,7 @@ Section Nat.
       nat_eq_or_neq i j = inl p.
   Proof.
     intros i j i_eq_j.
-    rewrite i_eq_j.
+    destruct i_eq_j.
     apply nat_eq_or_neq_refl.
   Defined.
 
@@ -139,13 +127,8 @@ Section Nat.
   Proof.
     intros i j i_neq_j.
     destruct (nat_eq_or_neq i j) as [i_eq_j | ?].
-    - apply (fromnatcontr i j i_eq_j i_neq_j).
-    - apply proofirrelevance.
-      apply isapropcoprod.
-      + apply isaproppathsfromisolated, isisolatedn.
-      + apply propproperty.
-      + intros i_eq_j.
-        apply (fromnatcontr i j i_eq_j i_neq_j).
+    { apply (fromnatcontr i j i_eq_j i_neq_j). }
+    apply maponpaths, propproperty.
   Defined.
 
 End Nat.
@@ -160,7 +143,7 @@ Section Stn.
   Proof.
     intros.
     refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_a a b)).
+    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_l a b)).
   Defined.
 
   Lemma minabstn_to_bstn
@@ -168,7 +151,7 @@ Section Stn.
   Proof.
     intros.
     refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_b a b)).
+    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_r a b)).
   Defined.
 
   Lemma stn_inhabited_implies_succ
@@ -179,6 +162,17 @@ Section Stn.
     - destruct i as [i le_i_0].
       destruct (nopathsfalsetotrue le_i_0).
     - exists m. apply idpath.
+  Defined.
+
+  Lemma stn_eq_or_neq_refl
+    {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
+  Proof.
+    intros; unfold stn_eq_or_neq; simpl.
+    destruct (nat_eq_or_neq i i) as [? | neq].
+    2 : { contradiction (isirrefl_natneq _ neq). }
+    rewrite coprod_rect_compute_1.
+    apply maponpaths, proofirrelevance
+    , isaproppathsfromisolated, isisolatedinstn.
   Defined.
 
   Lemma stn_eq_or_neq_left :
