@@ -177,6 +177,7 @@ Limits/Inserters.v
 Limits/IsoInserters.v
 Limits/Equifiers.v
 Limits/EilenbergMooreObjects.v
+Limits/EilenbergMooreComonad.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v

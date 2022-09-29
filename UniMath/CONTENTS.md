@@ -554,6 +554,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/IsoInserters.v](Bicategories/Limits/IsoInserters.v)
    - [Limits/Equifiers.v](Bicategories/Limits/Equifiers.v)
    - [Limits/EilenbergMooreObjects.v](Bicategories/Limits/EilenbergMooreObjects.v)
+   - [Limits/EilenbergMooreComonad.v](Bicategories/Limits/EilenbergMooreComonad.v)
    - [Limits/Examples/OneTypesLimits.v](Bicategories/Limits/Examples/OneTypesLimits.v)
    - [Limits/Examples/BicatOfCatsLimits.v](Bicategories/Limits/Examples/BicatOfCatsLimits.v)
    - [Limits/Examples/BicatOfUnivCatsLimits.v](Bicategories/Limits/Examples/BicatOfUnivCatsLimits.v)
