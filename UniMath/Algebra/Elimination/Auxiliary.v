@@ -171,19 +171,15 @@ End Nat.
 Section Stn.
 
   Lemma minabstn_to_astn
-    { a b : nat } (i : ⟦ min a b ⟧%stn) : ⟦ a ⟧%stn.
+    { a b : nat } : ⟦ min a b ⟧%stn -> ⟦ a ⟧%stn.
   Proof.
-    intros.
-    refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_l a b)).
+    apply stnmtostnn, min_le_l.
   Defined.
 
   Lemma minabstn_to_bstn
-    { a b : nat } (i : ⟦ min a b ⟧%stn) : ⟦ b ⟧%stn.
+    { a b : nat } : ⟦ min a b ⟧%stn -> ⟦ b ⟧%stn.
   Proof.
-    intros.
-    refine (pr1 i,, _).
-    exact (natlthlehtrans _ _ _ (pr2 i) (min_le_r a b)).
+    apply stnmtostnn, min_le_r.
   Defined.
 
   Lemma stn_inhabited_implies_succ
@@ -192,7 +188,7 @@ Section Stn.
   Proof.
     destruct n as [| m].
     - destruct i as [i le_i_0].
-      destruct (nopathsfalsetotrue le_i_0).
+      destruct (negnatlthn0 _ le_i_0).
     - exists m. apply idpath.
   Defined.
 
@@ -202,9 +198,7 @@ Section Stn.
     intros; unfold stn_eq_or_neq; simpl.
     destruct (nat_eq_or_neq i i) as [? | neq].
     2 : { contradiction (isirrefl_natneq _ neq). }
-    rewrite coprod_rect_compute_1.
-    apply maponpaths, proofirrelevance
-    , isaproppathsfromisolated, isisolatedinstn.
+    simpl. apply maponpaths, isasetstn.
   Defined.
 
   Lemma stn_eq_or_neq_left :
@@ -218,59 +212,68 @@ Section Stn.
     : ∏ {n : nat} {i j : (⟦ n ⟧)%stn} (p : (i ≠ j)),
     stn_eq_or_neq i j = inr p.
   Proof.
-    intros ? ? ? p. unfold stn_eq_or_neq.
-    destruct (nat_eq_or_neq i j).
-    - apply fromempty. rewrite p0 in p.
-       now apply isirrefl_natneq in p.
-    - apply isapropcoprod.
-       + apply stn_ne_iff_neq in p. apply isdecpropfromneg. assumption.
-       + apply negProp_to_isaprop.
-       + intros i_eq_j; rewrite i_eq_j in p; now apply isirrefl_natneq in p.
-  Defined.
-
-  Lemma stn_implies_nneq0
-    { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
-  Proof.
-    induction (natchoice0 n) as [T | F].
-    - rewrite <- T in i.
-      apply weqstn0toempty in i. apply fromempty. assumption.
-    - destruct n.
-      + now apply isirreflnatgth in F.
-      + now apply natgthtoneq in F.
+    intros n i j i_neq_j.
+    destruct (stn_eq_or_neq i j) as [i_eq_j | ?].
+    { apply fromempty.
+      destruct i_eq_j; eapply isirrefl_natneq, i_neq_j. }
+    apply maponpaths, propproperty.
   Defined.
 
   Lemma stn_implies_ngt0
     { n : nat} (i : ⟦ n ⟧%stn) : n > 0.
   Proof.
-    exact (natneq0to0lth n (stn_implies_nneq0 i)).
+    eapply natgthgehtrans. { exact (stnlt i). }
+    apply natgehn0.
   Defined.
 
-  Lemma snlehtotonlt
-    (m n : nat) : n > 0 -> (S n ≤ m) -> n < m.
+  Lemma stn_implies_nneq0
+    { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
   Proof.
-    intros ngt0 snltm.
-    assert (n_lt_sn : n < S n).
-      { apply natlthnsn. }
-    now apply natlehsntolth.
+    apply natgthtoneq, stn_implies_ngt0, i.
   Defined.
 
+  Lemma snlehm_to_nltm
+    (m n : nat) : (S n ≤ m) -> n < m.
+  Proof.
+    intros le_sn_m; exact le_sn_m.
+  Defined.
+
+  Lemma stn_eq
+    {k : nat} (i j : stn k) (eq : pr1 i = pr1 j) : i = j.
+  Proof.
+    now apply subtypePath_prop.
+  Defined.
+
+  Lemma stn_eq_2
+    {k : nat} (i: stn k) (j : nat) (eq : pr1 i = j)
+      : forall P : j < k, i = (j,, P).
+  Proof.
+    intros; apply stn_eq, eq.
+  Defined.
+
+  Lemma stn_eq_3
+    {k : nat} (i: nat) (j : stn k) (eq : i = pr1 j)
+      : forall P : i < k, j = (i,, P).
+  Proof.
+    intros; apply stn_eq, pathsinv0, eq.
+  Defined.
+
+  (* perhaps generalise to a version for any [isincl], and use [isinclstntonat]? *)
   Lemma stn_eq_nat_eq
     { n : nat} (i j : ⟦ n ⟧%stn) : i = j <-> (pr1 i = pr1 j).
   Proof.
     split.
-    - intros i_eq_j; now rewrite i_eq_j.
-    - intros pr1i_eq_pr1j; now apply subtypePath_prop.
+    - apply maponpaths.
+    - apply subtypePath_prop.
   Defined.
 
   Lemma stn_neq_nat_neq
     { n : nat} (i j : ⟦ n ⟧%stn) : i ≠ j <-> (pr1 i ≠ pr1 j).
   Proof.
-    split.
-    - now intros i_neq_j.
-    - now intros pr1i_neq_pr1j.
+    split; apply idfun.
   Defined.
 
-  Lemma stn_neq_symm {n : nat} {i j : stn n} (neq : i ≠ j)
+  Lemma issymm_stnneq {n : nat} {i j : stn n} (neq : i ≠ j)
     : (j ≠ i).
   Proof.
     destruct (stn_eq_or_neq j i) as [contr_eq | ?].
@@ -280,16 +283,15 @@ Section Stn.
   Defined.
 
   Lemma prev_stn
-    {n : nat} (i : ⟦ n ⟧%stn) (p : i > 0): ∑ j : ⟦ n ⟧%stn, S j = i.
+    {n : nat} (i : ⟦ n ⟧%stn) (p : i > 0) : ∑ j : ⟦ n ⟧%stn, S j = i.
   Proof.
-    pose (m := prev_nat i p).
-    destruct m as [m eq].
+    destruct (prev_nat i p) as [j Sj_i].
     use tpair.
-    - exists m.
-      refine (istransnatlth _ _ _ (natgthsnn m) _ ).
-      rewrite eq.
+    - exists j.
+      refine (istransnatlth _ _ _ (natgthsnn j) _ ).
+      rewrite Sj_i.
       apply (pr2 i).
-    - exact eq.
+    - exact Sj_i.
   Defined.
 
   (** General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)
@@ -308,26 +310,6 @@ Section Stn.
     (** inconsistent cases: *)
       eapply fromempty, nat_neq_to_nopath; try eassumption;
       apply pathsinv0, maponpaths; assumption.
-  Defined.
-
-  Lemma stn_eq
-    {k : nat} (i j : stn k) (eq : pr1 i = pr1 j) : i = j.
-  Proof.
-    now apply subtypePath_prop.
-  Defined.
-
-  Lemma stn_eq_2
-    {k : nat} (i: stn k) (j : nat) (eq : pr1 i = j)
-      : forall P : j < k, i = (j,, P).
-  Proof.
-    intros lt; now apply subtypePath_prop.
-  Defined.
-
-  Lemma stn_eq_3
-    {k : nat} (i: nat) (j : stn k) (eq : i = pr1 j)
-      : forall P : i < k, j = (i,, P).
-  Proof.
-    now apply stn_eq_2.
   Defined.
 
 End Stn.
@@ -475,7 +457,6 @@ Section Dual.
     unfold make_stn in gt.
     destruct (natchoice0 n) as [contr_eq | ?].
     {simpl. apply fromstn0. now rewrite contr_eq. }
-    rewrite coprod_rect_compute_2 in gt.
     simpl in gt.
     do 2 rewrite minus0r in gt.
     contradiction (natgthtonegnatleh _ _ (pr2 i)).
@@ -497,7 +478,7 @@ Section Dual.
     { pose (contr := (natneq0sx n));
       rewrite <- contr_eq in contr.
       contradiction (isirrefl_natneq _ contr). }
-    rewrite coprod_rect_compute_2.
+    simpl coprod_rect.
     destruct (natchoice0 n) as [eq | gt'].
     {apply fromstn0; now rewrite eq. }
     simpl in leh |- *.

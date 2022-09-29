@@ -436,7 +436,7 @@ Section Elementary.
       apply funextfun; intros j.
       rewrite <- eq', eq; apply idpath.
     - rewrite eq; simpl.
-      rewrite (stn_eq_or_neq_right (stn_neq_symm neq')); simpl.
+      rewrite (stn_eq_or_neq_right (issymm_stnneq neq')); simpl.
       reflexivity.
     - rewrite <- eq'; rewrite stn_eq_or_neq_refl; simpl.
       rewrite (stn_eq_or_neq_right neq); simpl.

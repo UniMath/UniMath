@@ -277,7 +277,7 @@ Section Vectors.
   (f : ⟦ n ⟧%stn -> R)
     := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
-  (** Some lemmata on vectors with one or two non-zero values. 
+  (** Some lemmata on vectors with one or two non-zero values.
       Useful later for computations using standard basis vectors,
       identity matrix, elementary row operations. *)
   Lemma pulse_function_sums_to_point { n : nat }
@@ -422,9 +422,6 @@ Section Vectors.
 
   Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
     λ i : ⟦ n ⟧%stn, 0%nat.
-
-  Definition zero_vector_stn (n : nat) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn :=
-    λ i : ⟦ n ⟧%stn, (0%nat,, (natneq0to0lth _ (stn_implies_nneq0 i))).
 
   Lemma vector_1_inj { X : rig } { n : nat } (e1 e2 : X)
     : (λ y : (⟦ 1 ⟧)%stn, e1) = (λ y : (⟦ 1 ⟧)%stn, e2) -> e1 = e2.
