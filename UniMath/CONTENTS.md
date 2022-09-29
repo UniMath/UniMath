@@ -719,7 +719,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](SubstitutionSystems/All.v)
 ## Package [Folds](Folds/README.md)
    - [UnicodeNotations.v](Folds/UnicodeNotations.v)
-   - [aux_lemmas.v](Folds/aux_lemmas.v)
    - [folds_precat.v](Folds/folds_precat.v)
    - [from_precats_to_folds_and_back.v](Folds/from_precats_to_folds_and_back.v)
    - [folds_isomorphism.v](Folds/folds_isomorphism.v)
