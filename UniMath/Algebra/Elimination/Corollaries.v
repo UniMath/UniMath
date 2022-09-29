@@ -110,7 +110,7 @@ Section BackSub.
       apply (@riglunax2 F). }
     etrans.
     { do 3 apply maponpaths.
-      now rewrite (@rigcomm2 F), (@fldplusminus F). }
+      now rewrite (@rigcomm2 F), (@ringplusminus F). }
     rewrite (@rigcomm1 F); rewrite (@rigassoc1 F).
     now rewrite (@ringlinvax1 F), (@rigrunax1 F).
   Defined.

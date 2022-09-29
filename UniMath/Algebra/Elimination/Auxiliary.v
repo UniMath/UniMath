@@ -18,6 +18,21 @@ Require Import UniMath.RealNumbers.Prelim.
 
 (** Results of this file are required for the [Elimination] subpackage but aren’t specifically part of the topic; probably could/should be upstreamed within [UniMath] *)
 
+(** * Logic *)
+
+Section Logic.
+
+  (* not obvious how to deduce this from existing [isapropisdecprop] *)
+  Lemma isaprop_dec_with_negProp {P : hProp} (Q : negProp P) : isaprop (P ⨿ Q).
+  Proof.
+    apply isapropcoprod.
+    - apply propproperty.
+    - apply propproperty.
+    - intros p q; revert p. apply (negProp_to_neg q).
+  Defined.
+
+End Logic.
+
 (** * Naturals *)
 (** Lemmas for standard functions on natural numbers *)
 Section Nat.
@@ -74,32 +89,28 @@ Section Nat.
     exact (m_neq_n).
   Defined.
 
-  Lemma nat_eq_or_neq_refl
-    (i : nat) : nat_eq_or_neq i i = inl (idpath i).
+  Lemma isaprop_nat_eq_or_neq {m n : nat} : isaprop ((m = n) ⨿ (m ≠ n)).
   Proof.
-    intros.
-    destruct (nat_eq_or_neq i i) as [ ? | cnt].
-    2: { eapply fromempty, isirrefl_natneq, cnt. }
-    apply maponpaths, isasetnat.
+    refine (@isaprop_dec_with_negProp (_,,_) (natneq _ _)).
+    apply isasetnat.
   Defined.
 
-  Lemma nat_eq_or_neq_left:
-    ∏ {i j: nat} (p : (i = j)),
-      nat_eq_or_neq i j = inl p.
+  Lemma nat_eq_or_neq_refl (i : nat)
+    : nat_eq_or_neq i i = inl (idpath i).
   Proof.
-    intros i j i_eq_j.
-    destruct i_eq_j.
-    apply nat_eq_or_neq_refl.
+    apply isaprop_nat_eq_or_neq.
   Defined.
 
-  Lemma nat_eq_or_neq_right:
-    ∏ {i j: nat} (p : (i ≠ j)),
-      nat_eq_or_neq i j = inr p.
+  Lemma nat_eq_or_neq_left {i j: nat} (p : i = j)
+    : nat_eq_or_neq i j = inl p.
   Proof.
-    intros i j i_neq_j.
-    destruct (nat_eq_or_neq i j) as [i_eq_j | ?].
-    { apply (from_natneq_eq i j i_eq_j i_neq_j). }
-    apply maponpaths, propproperty.
+    apply isaprop_nat_eq_or_neq.
+  Defined.
+
+  Lemma nat_eq_or_neq_right {i j: nat} (p : i ≠ j)
+    : nat_eq_or_neq i j = inr p.
+  Proof.
+    apply isaprop_nat_eq_or_neq.
   Defined.
 
   Lemma min_le_l:
@@ -192,31 +203,29 @@ Section Stn.
     - exists m. apply idpath.
   Defined.
 
-  Lemma stn_eq_or_neq_refl
-    {n : nat} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
+  Lemma isaprop_stn_eq_or_neq {n} (i j : ⟦n⟧%stn)
+    : isaprop ((i = j) ⨿ (i ≠ j)).
   Proof.
-    intros; unfold stn_eq_or_neq; simpl.
-    destruct (nat_eq_or_neq i i) as [? | neq].
-    2 : { contradiction (isirrefl_natneq _ neq). }
-    simpl. apply maponpaths, isasetstn.
+    refine (@isaprop_dec_with_negProp (_,,_) (stnneq _ _)).
+    apply isasetstn.
   Defined.
 
-  Lemma stn_eq_or_neq_left :
-    ∏ {n : nat} {i j: (⟦ n ⟧)%stn} (p : (i = j)),
-      stn_eq_or_neq i j = inl p.
+  Lemma stn_eq_or_neq_refl {n} {i : ⟦ n ⟧%stn}
+    : stn_eq_or_neq i i = inl (idpath i).
   Proof.
-    intros ? ? ? p. rewrite p. apply stn_eq_or_neq_refl.
+    apply isaprop_stn_eq_or_neq.
   Defined.
 
-  Lemma stn_eq_or_neq_right
-    : ∏ {n : nat} {i j : (⟦ n ⟧)%stn} (p : (i ≠ j)),
-    stn_eq_or_neq i j = inr p.
+  Lemma stn_eq_or_neq_left {n} {i j: (⟦ n ⟧)%stn} (p : i = j)
+     : stn_eq_or_neq i j = inl p.
   Proof.
-    intros n i j i_neq_j.
-    destruct (stn_eq_or_neq i j) as [i_eq_j | ?].
-    { apply fromempty.
-      destruct i_eq_j; eapply isirrefl_natneq, i_neq_j. }
-    apply maponpaths, propproperty.
+    apply isaprop_stn_eq_or_neq.
+  Defined.
+
+  Lemma stn_eq_or_neq_right {n} {i j : (⟦ n ⟧)%stn} (p : i ≠ j)
+    : stn_eq_or_neq i j = inr p.
+  Proof.
+    apply isaprop_stn_eq_or_neq.
   Defined.
 
   Lemma stn_implies_ngt0
@@ -316,6 +325,7 @@ End Stn.
 
 (** Lemmas on the “dual” function on the standard finite sets, reversing the order *)
 
+(** Note: the definition of [dualelement] upstream has an unnecessary case split.  Refactoring that would hopefully simplify all proofs of this section. *)
 Section Dual.
 
   Lemma dualelement_2x
@@ -504,69 +514,63 @@ Section Dual.
 
 End Dual.
 
-(** * Fields *)
+(** * Rings, fields *)
 
-(** Lemmas on fields, and in particular their decidable equality *)
+(** Lemmas on general rings and fields, and in particular their decidable equality *)
 
-Section Fields.
+Section Rings_and_Fields.
+
+  Coercion multlinvpair_of_multinvpair {R : rig} (x : R)
+    : @multinvpair R x -> @multlinvpair R x.
+  Proof.
+    intros [y [xy yx]]. esplit; eauto.
+  Defined.
+
+  Coercion multrinvpair_of_multinvpair {R : rig} (x : R)
+    : @multinvpair R x -> @multrinvpair R x.
+  Proof.
+    intros [y [xy yx]]. esplit; eauto.
+  Defined.
+
+  Lemma ringplusminus
+    {R: ring} (a b : R) : (a + b - b)%ring = a.
+  Proof.
+    rewrite ringassoc1.
+    rewrite ringrinvax1.
+    apply (rigrunax1 R).
+  Defined.
 
   Lemma fldchoice0 {X : fld} (e : X) : coprod (e = 0%ring) (e != 0%ring).
   Proof.
-    destruct (fldchoice e).
-    2: {left; assumption. }
-    right.
-    unfold multinvpair, invpair in m.
-    destruct m as [m1 [m2 m3]].
-    apply (@ringneq0andmultlinv X e m1).
-    change 1%ring with 1%multmonoid in m3.
-    assert (eq: (e * m1)%ring = 1%ring).
-    { symmetry in m2. apply m3. }
-    rewrite eq; apply nonzeroax.
+    destruct (fldchoice e) as [ x_inv | x_0 ].
+    - right.
+      apply isnonzerofromrinvel. { apply nonzeroax. }
+      exact x_inv.
+    - left; assumption.
   Defined.
 
   Lemma fldchoice0_left {X : fld} (e : X) (eq : (e = 0)%ring):
     (fldchoice0 e) = inl eq.
   Proof.
-    destruct (fldchoice0 _).
-    - apply proofirrelevance.
-      apply isapropcoprod.
-      + use setproperty.
-      + apply isapropneg.
-      + intros; contradiction.
-    - contradiction.
+    apply isapropdec, setproperty.
   Defined.
 
   Lemma fldchoice0_right {X : fld} (e : X) (neq : (e != 0)%ring):
     (fldchoice0 e) = inr neq.
   Proof.
-    destruct (fldchoice0 _).
-    - contradiction.
-    - apply proofirrelevance; apply isapropcoprod.
-      + use setproperty.
-      + apply isapropneg.
-      + intros; contradiction.
+    apply isapropdec, setproperty.
   Defined.
 
   Lemma fldmultinvlax {X: fld} (e : X) (ne : e != 0%ring) :
     (fldmultinv e ne * e)%ring = 1%ring.
   Proof.
-    unfold fldmultinv.
-    unfold fldmultinvpair.
-    destruct (fldchoice _) as [? | contr_eq].
-    2: { apply fromempty.
-         rewrite contr_eq in ne.
-         contradiction. }
-    destruct m as [m1 [m2 m3]].
-    simpl.
-    change (m1 * e)%ring with (m1 * e)%multmonoid.
-    rewrite m2.
-    reflexivity.
+    exact (pr1 (pr2 (fldmultinvpair _ e ne))).
   Defined.
 
   Lemma fldmultinvrax {X: fld} (e : X) (ne : e != 0%ring) :
     (e * fldmultinv e ne)%ring = 1%ring.
   Proof.
-    rewrite ringcomm2; apply fldmultinvlax.
+    exact (pr2 (pr2 (fldmultinvpair _ e ne))).
   Defined.
 
   Definition fldmultinv' {X : fld} (e : X) : X.
@@ -594,19 +598,7 @@ Section Fields.
     - apply fldmultinvrax.
   Defined.
 
-  Lemma fldplusminus
-    {F: fld} (a b : F) : (a + b - b)%ring = a.
-  Proof.
-    replace (a + b - b)%ring with (a + b + (- b))%ring.
-    - rewrite ringassoc1.
-      replace (b + - b)%ring with (b  - b)%ring.
-      + rewrite ringrinvax1. apply (@rigrunax1 F).
-      + reflexivity.
-   - rewrite <- ringcomm1.
-     reflexivity.
-  Defined.
-
-End Fields.
+End Rings_and_Fields.
 
 (** * Rationals *)
 Section Rationals.
@@ -624,7 +616,7 @@ Section Rationals.
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
   Proof.
-    apply (@fldplusminus hq).
+    apply (@ringplusminus hq).
   Defined.
 
 End Rationals.
