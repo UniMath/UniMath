@@ -34,22 +34,21 @@ Require Import UniMath.Algebra.Elimination.Matrices.
 
   Hopefully the material can be easily re-used for column operations too. *)
 
-Section RowOps.
 
-  Local Notation Σ := (iterop_fun 0%rig op1).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
-  Local Notation "A ** B" := (@matrix_mult _ _ _ A _ B) (at level 40, left associativity).
-  Local Notation "A **' B" := (@matrix_mult (_:ring) _ _ A _ B) (at level 40, left associativity).
-  (* second notation is needed since the projections to [setwithbinop] from [ring] and further structures factor syntactically through [ring] but NOT [rig] *)
+Local Notation Σ := (iterop_fun 0%rig op1).
+Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
+Local Notation "A ** B" := (@matrix_mult _ _ _ A _ B) (at level 40, left associativity).
+Local Notation "A **' B" := (@matrix_mult (_:ring) _ _ A _ B) (at level 40, left associativity).
+(* second notation is needed since [pr1ring] being a coercion means the inferred coercions to [setwithbinop] from [ring] and further structures factor syntactically through [ring] but NOT always [rig] *)
 
-  Section Add_Row.
+Section Add_Row.
 
-  Context { CR : commring}.
+  Context { R : ring }.
 
   Definition gauss_add_row
-    { m n : nat } ( mat : Matrix CR m n )
-    ( r1 r2 : ⟦ m ⟧%stn ) ( s : CR )
-    : ( Matrix CR m n ).
+    { m n : nat } ( mat : Matrix R m n )
+    ( r1 r2 : ⟦ m ⟧%stn ) ( s : R )
+    : ( Matrix R m n ).
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r2).
@@ -58,45 +57,96 @@ Section RowOps.
   Defined.
 
   Definition add_row_matrix
-    { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : CR)
-    : Matrix CR n n.
+    { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : R)
+    : Matrix R n n.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
-    - refine (pointwise _ op1 (@stdb_vector CR _ i)
-        (@scalar_lmult_vec CR s _ (@stdb_vector CR _ r1))).
-    - refine (@stdb_vector CR _ i).
+    - refine (pointwise _ op1 (@stdb_vector R _ i)
+        (@scalar_lmult_vec R s _ (@stdb_vector R _ r1))).
+    - refine (@stdb_vector R _ i).
   Defined.
 
   Lemma add_row_mat_elementary
-    { m n : nat } (mat : Matrix CR m n)
-    (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : CR)
-    : ((add_row_matrix r1 r2 s) **' mat) = (gauss_add_row mat r1 r2 s).
+    { m n : nat } (mat : Matrix R m n)
+    (r1 r2 : ⟦ m ⟧%stn) (p : r1 ≠ r2) (s : R)
+    : (add_row_matrix r1 r2 s) **' mat = gauss_add_row mat r1 r2 s.
   Proof.
     intros.
-    apply funextfun. intros k.
-    apply funextfun. intros l.
-    unfold matrix_mult, add_row_matrix, gauss_add_row, row.
-    destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
-    - simpl coprod_rect.
-      etrans. { apply maponpaths, (@pointwise_rdistr_vector CR). }
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+    unfold matrix_mult, add_row_matrix, gauss_add_row, col, row.
+    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; simpl coprod_rect.
+    - etrans. { apply maponpaths, (@pointwise_rdistr_vector R). }
       etrans. { apply vecsum_add. }
       apply map_on_two_paths.
-      + etrans. 2: { apply maponpaths_2, k_eq_r2. }
+      + etrans. 2: { apply maponpaths_2, i_eq_r2. }
         use sum_stdb_vector_pointwise_prod.
-      + etrans.
-        { apply maponpaths.
-          etrans. { apply maponpaths_2, (@pointwise_comm2_vector CR). }
-          apply pointwise_assoc2_vector. }
-        use sum_stdb_vector_pointwise_prod.
+      + etrans. { apply vecsum_scalar_lmult. }
+        apply maponpaths, @sum_stdb_vector_pointwise_prod.
     - use sum_stdb_vector_pointwise_prod.
   Defined.
 
+  Lemma add_row_matrix_sum
+    { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : R ) (ne : r1 ≠ r2) :
+    ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2))
+   = (add_row_matrix r1 r2 (s1 + s2)%ring).
+  Proof.
+    rewrite add_row_mat_elementary; try assumption.
+    apply funextfun; intros i; apply funextfun; intros j.
+    unfold gauss_add_row, add_row_matrix.
+    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
+    2: {apply idpath. }
+    destruct i_eq_r2.
+    rewrite stn_eq_or_neq_refl, (stn_eq_or_neq_right ne); simpl.
+    unfold scalar_lmult_vec, pointwise, vector_fmap.
+    rewrite (@rigrdistr R), rigcomm1, (@rigassoc1 R).
+    reflexivity.
+  Defined.
+
+  Lemma add_row_matrix_zero
+      { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
+    : add_row_matrix r1 r2 (@rigunel1 R) = @identity_matrix R _.
+  Proof.
+    apply funextfun; intros i.
+    unfold add_row_matrix.
+    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
+    2: { apply idpath. }
+    destruct i_eq_r2. simpl.
+    apply funextfun; intros j.
+    unfold scalar_lmult_vec, pointwise, vector_fmap.
+    rewrite (@rigmult0x R).
+    apply (@rigrunax1 R).
+  Defined.
+
+  Lemma add_row_matrix_commutes { n : nat }
+        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : R ) (ne : r1 ≠ r2) :
+       ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2 ))
+     = ((add_row_matrix r1 r2 s2 ) **' (add_row_matrix r1 r2 s1 )).
+  Proof.
+    do 2 (rewrite add_row_matrix_sum; try assumption).
+    apply maponpaths, (@rigcomm1 R).
+  Defined.
+
+  Lemma add_row_matrix_invertible { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
+  (r1_neq_r2 : r1 ≠ r2) ( s : R )
+   : @matrix_inverse R n (add_row_matrix r1 r2 s).
+  Proof.
+    exists (add_row_matrix r1 r2 (- s)%ring).
+    split;
+      refine (add_row_matrix_sum _ _ _ _ r1_neq_r2 @ _);
+      refine (_ @ add_row_matrix_zero _ _ r1_neq_r2);
+      apply maponpaths.
+    - apply (@ringrinvax1 R).
+    - apply (@ringlinvax1 R).
+  Defined.
+
+  (** Some basic invariants of the add-row operation, used in Gaussian elimination. *)
   Lemma gauss_add_row_inv0
     {m n : nat}
-    (mat : Matrix CR m n)
+    (mat : Matrix R m n)
     (i : ⟦ m ⟧%stn) (j: ⟦ m ⟧%stn)
-    (s : CR)
+    (s : R)
     : ∏ (k : ⟦ m ⟧%stn), j ≠ k -> gauss_add_row mat i j s k = mat k.
   Proof.
     intros k j_ne_k.
@@ -109,10 +159,10 @@ Section RowOps.
 
   Lemma gauss_add_row_inv1
     {m n : nat}
-    (mat : Matrix CR m n)
+    (mat : Matrix R m n)
     (i : ⟦ m ⟧%stn)
     (j: ⟦ m ⟧%stn)
-    (s : CR)
+    (s : R)
     : ∏ (k : ⟦ m ⟧%stn),
       (mat i = (const_vec 0%ring))
       -> gauss_add_row mat i j s = mat.
@@ -124,15 +174,15 @@ Section RowOps.
       simpl; try reflexivity.
     rewrite <- i'_eq_j', eq0.
     unfold const_vec ; simpl.
-    rewrite (@rigmultx0 CR).
-    apply (@rigrunax1 CR).
+    rewrite (@rigmultx0 R).
+    apply (@rigrunax1 R).
   Defined.
 
   Definition gauss_add_row_comp
     { m n : nat }
-    ( mat : Matrix CR m n )
+    ( mat : Matrix R m n )
     ( r1 r2 : ⟦ m ⟧%stn )
-    (s : CR)
+    (s : R)
     (c : ⟦ n ⟧%stn)
   : (gauss_add_row mat r1 r2 s) r2 c = op1 (mat r2 c) (op2 s (mat r1 c)).
   Proof.
@@ -140,63 +190,9 @@ Section RowOps.
     ; now rewrite stn_eq_or_neq_refl.
   Defined.
 
-    Lemma add_row_matrix_plus_eq
-    { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : CR ) (ne : r1 ≠ r2) :
-    ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2))
-   = (add_row_matrix r1 r2 (s1 + s2)%ring).
-  Proof.
-    rewrite add_row_mat_elementary; try assumption.
-    apply funextfun; intros i; apply funextfun; intros j.
-    unfold gauss_add_row, add_row_matrix.
-    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
-    2: {apply idpath. }
-    destruct i_eq_r2.
-    rewrite stn_eq_or_neq_refl, (stn_eq_or_neq_right ne); simpl.
-    unfold scalar_lmult_vec, pointwise, vector_fmap.
-    rewrite (@rigrdistr CR), rigcomm1, (@rigassoc1 CR).
-    reflexivity.
-  Defined.
+End Add_Row.
 
-  Lemma add_row_matrix_zero
-      { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
-    : add_row_matrix r1 r2 (@rigunel1 CR) = @identity_matrix CR _.
-  Proof.
-    apply funextfun; intros i.
-    unfold add_row_matrix.
-    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
-    2: { apply idpath. }
-    destruct i_eq_r2. simpl.
-    apply funextfun; intros j.
-    unfold scalar_lmult_vec, pointwise, vector_fmap.
-    rewrite (@rigmult0x CR).
-    apply (@rigrunax1 CR).
-  Defined.
-
-  Lemma add_row_matrix_commutes { n : nat }
-        ( r1 r2 : ⟦ n ⟧%stn ) ( s1 s2 : CR ) (ne : r1 ≠ r2) :
-       ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2 ))
-     = ((add_row_matrix r1 r2 s2 ) **' (add_row_matrix r1 r2 s1 )).
-  Proof.
-    do 2 (rewrite add_row_matrix_plus_eq; try assumption).
-    apply maponpaths, (@rigcomm1 CR).
-  Defined.
-
-  Lemma add_row_matrix_invertible { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
-  (r1_neq_r2 : r1 ≠ r2) ( s : CR )
-   : @matrix_inverse CR n (add_row_matrix r1 r2 s).
-  Proof.
-    exists (add_row_matrix r1 r2 (- s)%ring).
-    split;
-      refine (add_row_matrix_plus_eq _ _ _ _ r1_neq_r2 @ _);
-      refine (_ @ add_row_matrix_zero _ _ r1_neq_r2);
-      apply maponpaths.
-    - apply (@ringrinvax1 CR).
-    - apply (@ringlinvax1 CR).
-  Defined.
-
-  End Add_Row.
-
-  Section Mult_Row.
+Section Mult_Row.
 
   Context { F : fld }.
 
@@ -292,9 +288,9 @@ Section RowOps.
     - apply fldmultinvlax; assumption.
   Defined.
 
-  End Mult_Row.
+End Mult_Row.
 
-  Section Switch_Row.
+Section Switch_Row.
 
   Context { R : rig }.
 
@@ -462,6 +458,4 @@ Section RowOps.
     split; apply switch_row_matrix_involution.
   Defined.
 
-  End Switch_Row.
-
-End RowOps.
+End Switch_Row.

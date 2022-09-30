@@ -272,6 +272,27 @@ Section Vector_Sums.
       apply rigcomm1.
   Defined.
 
+  Lemma vecsum_interchange :
+    ∏ (m n : nat)
+      (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),
+    Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
+    = Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, f j i)).
+  Proof.
+    intros. induction n as [| n IH].
+    - induction m.
+      { reflexivity. }
+      change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
+        with (@rigunel1 R).
+      apply vecsum_zero.
+    - rewrite vecsum_step.
+      unfold funcomp.
+      rewrite <- IH, <- vecsum_add.
+      apply maponpaths, funextfun; intros i.
+      rewrite vecsum_step.
+      reflexivity.
+  Defined.
+
+
   (** From here on, we are really using the ring structure *)
   Lemma vecsum_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
@@ -293,24 +314,11 @@ Section Vector_Sums.
       rewrite rigrdistr. apply maponpaths_2, IH.
   Defined.
 
-  Lemma vecsum_interchange :
-    ∏ (m n : nat)
-      (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),
-    Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
-    = Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, f j i)).
+  Lemma vecsum_scalar_lmult {m} (s : R) (v w : Vector R m)
+    : Σ (scalar_lmult_vec s v *pw w) = (s * Σ (v *pw w))%rig.
   Proof.
-    intros. induction n as [| n IH].
-    - induction m.
-      { reflexivity. }
-      change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
-        with (@rigunel1 R).
-      apply vecsum_zero.
-    - rewrite vecsum_step.
-      unfold funcomp.
-      rewrite <- IH, <- vecsum_add.
-      apply maponpaths, funextfun; intros i.
-      rewrite vecsum_step.
-      reflexivity.
+    etrans. 2: { apply pathsinv0, vecsum_ldistr. }
+    apply vecsum_eq. intro i. apply rigassoc2.
   Defined.
 
 End Vector_Sums.

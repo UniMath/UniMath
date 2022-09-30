@@ -531,7 +531,7 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i).
     - exact mat.
-    - refine ((add_row_matrix k_i i _)%ring ** mat).
+    - refine ((@add_row_matrix F _ k_i i _)%ring ** mat).
       exact (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring.
   Defined.
 
@@ -595,7 +595,7 @@ Section Gauss.
     { apply (istransnatlth _ _ _ (natgthsnn iter) lt). }
     destruct (natgthorleh iter k_i).
     2: { exact (@identity_matrix F m ** (IH p')). }
-    refine (add_row_matrix k_i (iter,, lt) (- (_ * _))%ring ** _).
+    refine (@add_row_matrix F _ k_i (iter,, lt) (- (_ * _))%ring ** _).
     - exact (mat (iter,, lt) k_j).
     - exact (fldmultinv' (mat k_i k_j)).
     - exact (IH p').
