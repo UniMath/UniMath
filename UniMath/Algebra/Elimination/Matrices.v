@@ -80,46 +80,34 @@ Section General.
   := λ i j, Σ (λ k, (mat1 i k * mat2 k j))%rig.
 
   Lemma matrix_mult_eq {m n p} (mat1 : Matrix R m n) (mat2 : Matrix R n p)
-    : (mat1 ** mat2) = matrix_mult_unf mat1 mat2.
+    : mat1 ** mat2 = matrix_mult_unf mat1 mat2.
   Proof.
     reflexivity.
   Defined.
 
-  Definition matrix_add
-  {m n : nat}
-  (mat1 : Matrix R m n)
-  (mat2 : Matrix R m n)
-  : (Matrix R m n) :=
-    entrywise _ _ op1 mat1 mat2.
+  Definition matrix_add {m n} (mat1 : Matrix R m n) (mat2 : Matrix R m n)
+    : Matrix R m n
+  := entrywise _ _ op1 mat1 mat2.
 
   Local Notation "A ++' B" := (matrix_add A B) (at level 50, left associativity).
 
-  Lemma matrix_add_comm:
-  ∏ {m n : nat} (mat1 : Matrix R m n)
-                (mat2 : Matrix R m n),
-  matrix_add mat1 mat2 = matrix_add mat2 mat1.
+  Lemma matrix_add_comm {m n} (mat1 : Matrix R m n) (mat2 : Matrix R m n)
+    : matrix_add mat1 mat2 = matrix_add mat2 mat1.
   Proof.
-    intros.   apply funextfun.
-    intros i. apply funextfun.
-    intros j. apply rigcomm1.
+    apply entrywise_comm, rigcomm1.
   Defined.
 
-  Lemma matrix_add_assoc:
-  ∏ {m n : nat} (mat1 : Matrix R m n)
-  (mat2 : Matrix R m n) (mat3 : Matrix R m n),
-    matrix_add (matrix_add mat1 mat2) mat3
-  = matrix_add mat1 (matrix_add mat2 mat3).
+  Lemma matrix_add_assoc {m n : nat}
+      (mat1 : Matrix R m n) (mat2 : Matrix R m n) (mat3 : Matrix R m n)
+    : matrix_add (matrix_add mat1 mat2) mat3
+      = matrix_add mat1 (matrix_add mat2 mat3).
   Proof.
-    intros.   apply funextfun.
-    intros i. apply funextfun.
-    intros j. apply rigassoc1.
+    apply entrywise_assoc, rigassoc1.
   Defined.
 
-  Lemma matrix_mult_assoc :
-    ∏ {m n : nat} (mat1 : Matrix R m n)
-      {p : nat} (mat2 : Matrix R n p)
-      {q : nat} (mat3 : Matrix R p q),
-    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
+  Lemma matrix_mult_assoc {m n p q}
+      (mat1 : Matrix R m n) (mat2 : Matrix R n p) (mat3 : Matrix R p q)
+    : (mat1 ** mat2) ** mat3 = mat1 ** (mat2 ** mat3).
   Proof.
     intros; unfold matrix_mult.
     apply funextfun; intro i; apply funextfun; intro j.
@@ -136,11 +124,9 @@ Section General.
     apply rigassoc2.
   Defined.
 
-  Lemma matrix_mult_ldistr :
-    ∏ (m n : nat) (mat1 : Matrix R m n)
-      (p : nat) (mat2 : Matrix R n p)
-      (q : nat) (mat3 : Matrix R n p),
-    ((mat1 ** (mat2 ++' mat3))) = ((mat1 ** mat2) ++' (mat1 ** mat3)).
+  Lemma matrix_mult_ldistr {m n p}
+        (mat1 : Matrix R m n) (mat2 : Matrix R n p) (mat3 : Matrix R n p)
+    : mat1 ** (mat2 ++' mat3) = (mat1 ** mat2) ++' (mat1 ** mat3).
   Proof.
     intros.
     rewrite matrix_mult_eq.
@@ -155,11 +141,9 @@ Section General.
     apply vecsum_add.
   Defined.
 
-  Lemma matrix_mult_rdistr :
-    ∏ (m n p: nat) (mat1 : Matrix R n p)
-      (mat2 : Matrix R n p)
-      (q : nat) (mat3 : Matrix R p q),
-    ((mat1 ++' mat2) ** mat3) = ((mat1 ** mat3) ++' (mat2 ** mat3)).
+  Lemma matrix_mult_rdistr {m n p}
+        (mat1 : Matrix R m n) (mat2 : Matrix R m n) (mat3 : Matrix R n p)
+    : (mat1 ++' mat2) ** mat3 = (mat1 ** mat3) ++' (mat2 ** mat3).
   Proof.
     intros.
     rewrite matrix_mult_eq.
@@ -176,9 +160,8 @@ Section General.
   Defined.
 
   Lemma matrix_mult_zero_vec_eq {m n : nat} {mat : Matrix R m n}
-  : (@matrix_mult R _ _ mat _
-    (col_vec (const_vec (@rigunel1 R))))
-      = (col_vec (const_vec (@rigunel1 R))).
+    : mat ** col_vec (const_vec 0%rig)
+      = col_vec (const_vec 0%rig).
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     apply funextfun; intros i.
