@@ -39,17 +39,17 @@ Section Vectors.
   Context { R : rig }.
 
   Local Notation  Σ := (iterop_fun rigunel1 op1).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Definition scalar_lmult_vec
   (s : R)
   {n : nat} (vec: Vector R n)
-  := (const_vec s) ^ vec.
+  := (const_vec s) *pw vec.
 
   Definition scalar_rmult_vec
   (s : R)
   {n : nat} (vec: Vector R n)
-  := vec ^ (const_vec s).
+  := vec *pw (const_vec s).
 
   Lemma zero_function_sums_to_zero:
     ∏ (n : nat)
@@ -70,7 +70,7 @@ Section Vectors.
 
   Lemma sum_is_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 s (Σ vec) =  Σ ((const_vec s ) ^ vec).
+    op2 s (Σ vec) =  Σ ((const_vec s ) *pw vec).
   Proof.
     intros. induction n as [| n IH].
     - change (Σ vec) with (@rigunel1 R).
@@ -87,7 +87,7 @@ Section Vectors.
 
   Lemma sum_is_rdistr:
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 (Σ vec) s =  Σ (vec ^ (const_vec s)).
+    op2 (Σ vec) s =  Σ (vec *pw (const_vec s)).
   Proof.
     intros. induction n as [| n IH].
     - assert (x : ( Σ vec ) = 0%rig).
@@ -346,9 +346,9 @@ Section Vectors.
 
   Lemma pulse_prod_is_pulse {n : nat}
     (f g : stn n -> R) {i : stn n} (H : is_pulse_function i f)
-    : is_pulse_function i (f ^ g).
+    : is_pulse_function i (f *pw g).
   Proof.
-    unfold is_pulse_function in * |-; intros j.
+    unfold is_pulse_function in * |- ; intros j.
     intros neq; unfold pointwise.
     replace (f j) with (@rigunel1 R).
     - apply rigmult0x.
@@ -356,7 +356,7 @@ Section Vectors.
   Defined.
 
   Lemma sum_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
-    : Σ (stdb_vector i ^ v) = (v i).
+    : Σ (stdb_vector i *pw v) = (v i).
   Proof.
     etrans.
     { apply
@@ -369,7 +369,7 @@ Section Vectors.
   Defined.
 
   Lemma pointwise_prod_stdb_vector {n : nat} (v : Vector R n) (i : ⟦ n ⟧%stn)
-    : v ^ (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
+    : v *pw (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
   Proof.
     apply funextfun. intros j.
     unfold scalar_lmult_vec, const_vec, pointwise.
@@ -470,19 +470,19 @@ Section Vectors.
   Proof. easy. Defined.
 
   Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector R n)
-    : (pointwise n op1 v1 v2) ^ v3 = pointwise n op1 (v1 ^ v3) (v2 ^ v3).
+    : (pointwise n op1 v1 v2) *pw v3 = pointwise n op1 (v1 *pw v3) (v2 *pw v3).
   Proof.
     use (pointwise_rdistr (rigrdistr R)).
   Defined.
 
   Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector R n)
-    : (v1 ^ v2) ^ v3 = v1 ^ (v2 ^ v3).
+    : (v1 *pw v2) *pw v3 = v1 *pw (v2 *pw v3).
   Proof.
     use (pointwise_assoc (rigassoc2 R)).
   Defined.
 
   Lemma pointwise_comm2_vector {CR: commrig} { n : nat } (v1 v2 : Vector CR n)
-    : v1 ^ v2 = v2 ^ v1.
+    : v1 *pw v2 = v2 *pw v1.
   Proof.
     use (pointwise_comm (rigcomm2 CR)).
   Defined.

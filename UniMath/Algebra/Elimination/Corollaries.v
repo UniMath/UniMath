@@ -47,7 +47,7 @@ Section BackSub.
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** output: a solution [x] to [mat ** x = b] if one exists
      - given mat upper triangular, non-zero diagonal. *)
@@ -57,7 +57,7 @@ Section BackSub.
     intros i.
     destruct (nat_eq_or_neq row i).
     - exact (((b i) * fldmultinv' (mat i i))
-           - ((Σ (mat i ^ x) - (x  i)* (mat i i))
+           - ((Σ (mat i *pw x) - (x  i)* (mat i i))
            * (fldmultinv' (mat i i))))%ring.
     - exact (x i).
   Defined.
@@ -303,7 +303,7 @@ Section BackSubZero.
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Local Notation "0" := (@ringunel1 F).
 
@@ -507,7 +507,7 @@ Section Inverse.
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** Construct the inverse,
     if additionally mat is upper triangular with non-zero diagonal *)

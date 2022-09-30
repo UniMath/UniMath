@@ -22,7 +22,7 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 
 Local Notation Σ := (iterop_fun rigunel1 op1).
 Local Notation "A ** B" := (matrix_mult A B) (at level 80).
-Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
 (* Matrix algebra facts that hold over an arbitrary rig,
    not yet assumed commutative. *)
@@ -215,7 +215,7 @@ Section Identity_Matrix.
   Defined.
 
   Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
-    : (@identity_matrix R n i) ^ v
+    : (@identity_matrix R n i) *pw v
       = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
   Proof.
     unfold identity_matrix, scalar_lmult_vec, pointwise.
@@ -226,7 +226,7 @@ Section Identity_Matrix.
   Defined.
 
   Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
-    Σ ((identity_matrix i) ^ v) = (v i).
+    Σ ((identity_matrix i) *pw v) = (v i).
   Proof.
     apply sum_stdb_vector_pointwise_prod.
   Defined.
@@ -248,7 +248,7 @@ Section Identity_Matrix.
     { m n : nat } (mat : Matrix R m n) (v1 : Vector R n) (v2 : Vector R m)
     (e : (mat ** (col_vec v1)) = col_vec v2)
     : ∏ i : (stn m),
-    @iterop_fun R (@rigunel1 R) op1 n ((mat i) ^ v1) = v2 i.
+    @iterop_fun R (@rigunel1 R) op1 n ((mat i) *pw v1) = v2 i.
   Proof.
     now apply toforallpaths; use col_vec_inj.
   Defined.
@@ -562,7 +562,7 @@ Section MatricesFld.
   Context {F : fld}.
   Local Notation Σ := (iterop_fun 0%ring op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
-  Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2).
 
   Lemma matrix_product_transpose
   { m n k : nat } (A : Matrix F m n) (B : Matrix F n k)
