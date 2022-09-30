@@ -377,7 +377,7 @@ Section Elementary.
     2: {apply idpath. }
     destruct i_eq_r2.
     rewrite stn_eq_or_neq_refl, (stn_eq_or_neq_right ne); simpl.
-    unfold scalar_lmult_vec, pointwise, const_vec.
+    unfold scalar_lmult_vec, pointwise, vector_fmap.
     rewrite (@rigrdistr CR), rigcomm1, (@rigassoc1 CR).
     reflexivity.
   Defined.
@@ -392,7 +392,7 @@ Section Elementary.
     2: { apply idpath. }
     destruct i_eq_r2. simpl.
     apply funextfun; intros j.
-    unfold scalar_lmult_vec, pointwise.
+    unfold scalar_lmult_vec, pointwise, vector_fmap.
     rewrite (@rigmult0x CR).
     apply (@rigrunax1 CR).
   Defined.

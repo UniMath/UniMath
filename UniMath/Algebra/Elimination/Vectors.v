@@ -23,6 +23,12 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
 Section Misc.
+(** * Vectors sans algebra
+*)
+  Lemma vector_fmap {X Y : UU} (f : X -> Y) {n} : Vector X n -> Vector Y n.
+  Proof.
+    intros ? ?; auto.
+  Defined.
 
   Lemma iscontr_nil_vector {X : UU} : iscontr (Vector X 0).
   Proof.
@@ -39,17 +45,14 @@ Section Vectors.
   Context { R : rig }.
 
   Local Notation  Σ := (iterop_fun rigunel1 op1).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
+  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
+  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
 
-  Definition scalar_lmult_vec
-  (s : R)
-  {n : nat} (vec: Vector R n)
-  := (const_vec s) *pw vec.
+  Definition scalar_lmult_vec (s : R) {n} (vec: Vector R n)
+    := vector_fmap (fun x => s * x)%rig vec.
 
-  Definition scalar_rmult_vec
-  (s : R)
-  {n : nat} (vec: Vector R n)
-  := vec *pw (const_vec s).
+  Definition scalar_rmult_vec {n} (vec: Vector R n) (s : R)
+    := vector_fmap (fun x => x * s)%rig vec.
 
   Lemma zero_function_sums_to_zero:
     ∏ (n : nat)
@@ -70,33 +73,25 @@ Section Vectors.
 
   Lemma sum_is_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 s (Σ vec) =  Σ ((const_vec s ) *pw vec).
+    op2 s (Σ vec) =  Σ (scalar_lmult_vec s vec).
   Proof.
     intros. induction n as [| n IH].
-    - change (Σ vec) with (@rigunel1 R).
-      rewrite zero_function_sums_to_zero.
-      + apply rigmultx0.
-      + apply funextfun; intros i.
-        destruct (weqstn0toempty i).
+    - simpl. apply rigmultx0.
     - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite rigldistr, IH, replace_dni_last.
+      rewrite rigldistr. rewrite IH.
       rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite replace_dni_last.
       reflexivity.
   Defined.
 
   Lemma sum_is_rdistr:
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 (Σ vec) s =  Σ (vec *pw (const_vec s)).
+    op2 (Σ vec) s =  Σ (scalar_rmult_vec vec s).
   Proof.
     intros. induction n as [| n IH].
-    - assert (x : ( Σ vec ) = 0%rig).
-      + apply idpath.
-      + rewrite x. apply rigmult0x.
-    - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite rigrdistr, IH, -> replace_dni_last.
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite -> replace_dni_last.
+    - apply rigmult0x.
+    - rewrite iterop_fun_step. 2: { apply riglunax1. }
+      rewrite rigrdistr. rewrite IH.
+      rewrite iterop_fun_step. 2: { apply riglunax1. }
       reflexivity.
   Defined.
 
@@ -123,7 +118,7 @@ Section Vectors.
   Defined.
 
   Lemma sum_pointwise_op1 { n : nat } (v1 v2 : Vector R n)
-    : Σ (pointwise n op1 v1 v2) = (Σ v1 + Σ v2)%rig.
+    : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
   Proof.
     unfold pointwise.
     apply pathsinv0, rigsum_add.
@@ -372,7 +367,7 @@ Section Vectors.
     : v *pw (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
   Proof.
     apply funextfun. intros j.
-    unfold scalar_lmult_vec, const_vec, pointwise.
+    unfold scalar_lmult_vec, vector_fmap, pointwise.
     destruct (stn_eq_or_neq i j) as [i_eq_j | i_neq_j].
     - rewrite i_eq_j; apply idpath.
     - unfold stdb_vector.
@@ -383,41 +378,27 @@ Section Vectors.
   Lemma two_pulse_function_sums_to_points { n : nat }
       (f : ⟦ n ⟧%stn -> R)
       (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
-      (X : ∏ (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
+      (f_two_pulse : ∏ (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
     : (Σ f = f i + f j)%rig.
   Proof.
-    assert (H : f = pointwise n op1 (scalar_lmult_vec (f i) (stdb_vector i))
-                    (scalar_lmult_vec (f j) (stdb_vector j))).
-    { unfold pointwise.
-      apply funextfun. intros k.
-      unfold stdb_vector, scalar_lmult_vec, pointwise, const_vec.
+    assert (H : f = (scalar_lmult_vec (f i) (stdb_vector i))
+                    +pw (scalar_lmult_vec (f j) (stdb_vector j))).
+    { apply funextfun. intros k.
+      unfold stdb_vector, scalar_lmult_vec, vector_fmap, pointwise.
       destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k].
-      - destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
-        + rewrite i_eq_k, j_eq_k in ne_i_j.
+      - destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k]; destruct i_eq_k.
+        + destruct j_eq_k.
           now apply isirrefl_natneq in ne_i_j.
-        + now rewrite rigmultx0, rigrunax1, rigrunax2, i_eq_k.
+        + now rewrite rigmultx0, rigrunax1, rigrunax2.
       - rewrite rigmultx0, riglunax1.
         destruct (stn_eq_or_neq j k) as [j_eq_k | j_neq_k].
         + now rewrite rigrunax2, j_eq_k.
-        + rewrite rigmultx0; apply X.
-          * now apply issymm_natneq.
-          * now apply issymm_natneq.
+        + rewrite rigmultx0; apply f_two_pulse; now apply issymm_natneq.
     }
-    rewrite H, sum_pointwise_op1.
-    unfold scalar_lmult_vec.
-    rewrite <- (sum_is_ldistr _ (stdb_vector i)).
-    rewrite <- (sum_is_ldistr _ (stdb_vector j)).
-    do 2 rewrite stdb_vector_sums_to_1, rigrunax2.
-    unfold pointwise, stdb_vector.
-    do 2 rewrite stn_eq_or_neq_refl.
-    apply issymm_natneq in  ne_i_j.
-    rewrite (stn_eq_or_neq_right ne_i_j); simpl.
-    apply issymm_natneq in ne_i_j.
-    rewrite (stn_eq_or_neq_right ne_i_j); simpl.
-    do 2 rewrite rigmultx0.
-    rewrite rigrunax1, riglunax1.
-    do 2 rewrite rigrunax2.
-    apply (idpath _).
+    etrans. { apply maponpaths, H. }
+    etrans. { apply sum_pointwise_op1. }
+    apply maponpaths_12;
+    rewrite <- sum_is_ldistr, stdb_vector_sums_to_1; apply rigrunax2.
   Defined.
 
   Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
@@ -470,7 +451,7 @@ Section Vectors.
   Proof. easy. Defined.
 
   Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector R n)
-    : (pointwise n op1 v1 v2) *pw v3 = pointwise n op1 (v1 *pw v3) (v2 *pw v3).
+    : (v1 +pw v2) *pw v3 = (v1 *pw v3) +pw (v2 *pw v3).
   Proof.
     use (pointwise_rdistr (rigrdistr R)).
   Defined.

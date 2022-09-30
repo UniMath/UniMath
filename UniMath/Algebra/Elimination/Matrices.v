@@ -218,7 +218,7 @@ Section Identity_Matrix.
     : (@identity_matrix R n i) *pw v
       = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
   Proof.
-    unfold identity_matrix, scalar_lmult_vec, pointwise.
+    unfold identity_matrix, scalar_lmult_vec, pointwise, vector_fmap.
     apply funextfun. intros k.
     destruct (stn_eq_or_neq i k) as [eq | neq].
     - now rewrite riglunax2, rigrunax2, eq.
