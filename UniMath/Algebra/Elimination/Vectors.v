@@ -156,35 +156,35 @@ Section Vector_Sums.
 
   For now they are given here for rigs; many use only the additive structure, so could be generalised to commutative monoids (or arbitrary monoids). Lemmas involving the least structure are given first. *)
 
-  Lemma empty_sum_eq_0 (v1 : Vector R 0) : Σ v1 = 0%rig.
+  Lemma vecsum_empty (v1 : Vector R 0) : Σ v1 = 0%rig.
   Proof.
     reflexivity.
   Defined.
 
-  Lemma rigsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
+  Lemma vecsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
     Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
   Proof.
     intros; apply iterop_fun_step; apply riglunax1.
   Defined.
 
-  (** compare [transport_stnsum]*)
-  Lemma transport_rigsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
+  (* compare [transport_stnsum]*)
+  Lemma transport_vecsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
      Σ g =  Σ (λ i, g (transportf stn e i)).
   Proof.
     intros; now induction e.
   Defined.
 
-  Lemma rigsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g ->  Σ f =  Σ g.
+  Lemma vecsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g ->  Σ f =  Σ g.
   Proof.
     intros H.
     induction n as [|n IH]; try apply idpath.
-    rewrite 2 iterop_fun_step; try apply riglunax1.
+    rewrite 2 vecsum_step.
       induction (H lastelement).
       apply (maponpaths (λ i, op1 i (f lastelement))).
       apply IH; intro x; apply H.
   Defined.
 
-  Lemma zero_function_sums_to_zero:
+  Lemma vecsum_zero:
     ∏ (n : nat)
       (f : (⟦ n ⟧)%stn -> R),
     (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
@@ -194,14 +194,13 @@ Section Vector_Sums.
     rewrite X.
     unfold const_vec.
     induction n as [| n IH]. {apply idpath. }
-    intros. rewrite iterop_fun_step.
-    - rewrite rigrunax1; unfold funcomp.
-      rewrite IH with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
+    intros. rewrite vecsum_step.
+    rewrite rigrunax1; unfold funcomp.
+    rewrite IH with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
       try assumption; reflexivity.
-    - apply riglunax1.
   Defined.
 
-  Lemma rigsum_left_right :
+  Lemma vecsum_left_right :
   ∏ (m n : nat) (f : (⟦ m + n ⟧)%stn → R),
    Σ f =  op1 (Σ (f ∘ stn_left m n)) (Σ (f ∘ stn_right m n)).
   Proof.
@@ -210,26 +209,26 @@ Section Vector_Sums.
     { change (Σ  _) with (@rigunel1 R) at 3.
       set (a := m + 0). assert (a = m). { apply natplusr0. }
       assert (e := ! natplusr0 m).
-      rewrite (transport_rigsum e).
+      rewrite (transport_vecsum e).
       unfold funcomp.
       rewrite  rigrunax1.
       apply maponpaths. apply pathsinv0.
       apply funextfun. intros i.
       now rewrite <- stn_left_0.
     }
-    rewrite rigsum_step.
+    rewrite vecsum_step.
     assert (e : S (m + n) = m + S n).
     { apply pathsinv0. apply natplusnsm. }
-    rewrite (transport_rigsum e).
-    rewrite rigsum_step.
+    rewrite (transport_vecsum e).
+    rewrite vecsum_step.
     rewrite <- rigassoc1. apply map_on_two_paths.
     { rewrite IHn; clear IHn. apply map_on_two_paths.
-      { apply rigsum_eq; intro i. unfold funcomp.
+      { apply vecsum_eq; intro i. unfold funcomp.
         apply maponpaths. apply subtypePath_prop.
         rewrite stn_left_compute. induction e.
         rewrite idpath_transportf. rewrite dni_last.
         apply idpath. }
-      { apply rigsum_eq; intro i. unfold funcomp.
+      { apply vecsum_eq; intro i. unfold funcomp.
         apply maponpaths. apply subtypePath_prop.
         rewrite stn_right_compute. unfold stntonat. induction e.
         rewrite idpath_transportf. rewrite 2? dni_last.
@@ -238,7 +237,7 @@ Section Vector_Sums.
     now induction e.
   Defined.
 
-  Lemma rigsum_dni {n : nat} (f : ⟦ S n ⟧%stn -> R) (j : ⟦ S n ⟧%stn ) :
+  Lemma vecsum_dni {n : nat} (f : ⟦ S n ⟧%stn -> R) (j : ⟦ S n ⟧%stn ) :
     Σ f = op1 (Σ (f ∘ dni j)) (f j).
   Proof.
     intros.
@@ -248,16 +247,16 @@ Section Vector_Sums.
     assert (e : (S j) + (n - j) = S n).
     { change (S j + (n - j)) with (S (j + (n - j))). apply maponpaths. exact e2. }
     intermediate_path (Σ  (λ i, f (transportf stn e i))).
-    - apply (transport_rigsum e).
-    - rewrite (rigsum_left_right (S j) (n - j)); unfold funcomp.
-      apply pathsinv0. rewrite (transport_rigsum e2).
-      rewrite (rigsum_left_right j (n-j)); unfold funcomp.
-      rewrite (rigsum_step (λ x, f (transportf stn e _))); unfold funcomp.
+    - apply (transport_vecsum e).
+    - rewrite (vecsum_left_right (S j) (n - j)); unfold funcomp.
+      apply pathsinv0. rewrite (transport_vecsum e2).
+      rewrite (vecsum_left_right j (n-j)); unfold funcomp.
+      rewrite (vecsum_step (λ x, f (transportf stn e _))); unfold funcomp.
       apply pathsinv0.
       rewrite rigassoc1. rewrite (@rigcomm1 R (f _) ). rewrite  <- rigassoc1.
       apply map_on_two_paths.
       + apply map_on_two_paths.
-        * apply rigsum_eq; intro i. induction i as [i I].
+        * apply vecsum_eq; intro i. induction i as [i I].
           apply maponpaths. apply subtypePath_prop.
           induction e. rewrite idpath_transportf. rewrite stn_left_compute.
           unfold dni,di, stntonat; simpl.
@@ -270,7 +269,7 @@ Section Vector_Sums.
              induction (natlthorgeh i j) as [V|V].
              ++ contradicts I (natlehneggth R').
              ++ apply idpath.
-        * apply rigsum_eq; intro i. induction i as [i I]. apply maponpaths.
+        * apply vecsum_eq; intro i. induction i as [i I]. apply maponpaths.
           unfold dni,di, stn_right, stntonat; repeat rewrite transport_stn; simpl.
           induction (natlthorgeh (j+i) j) as [X|X].
           -- contradicts (negnatlthplusnmn j i) X.
@@ -280,30 +279,30 @@ Section Vector_Sums.
         apply subtypePath_prop, idpath.
   Defined.
 
-  Lemma rigsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
+  Lemma vecsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (left_part_is_zero : (f ∘ stn_left m' n') = const_vec 0%rig):
     iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_right m' n' ).
   Proof.
-    rewrite rigsum_left_right, zero_function_sums_to_zero.
+    rewrite vecsum_left_right, vecsum_zero.
     - now rewrite riglunax1.
     - now rewrite (left_part_is_zero ).
   Defined.
 
-  Lemma rigsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
+  Lemma vecsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
     iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_left m' n' ).
   Proof.
-    rewrite rigsum_left_right, rigcomm1, zero_function_sums_to_zero.
+    rewrite vecsum_left_right, rigcomm1, vecsum_zero.
     - now rewrite riglunax1.
     - now rewrite right_part_is_zero.
   Defined.
 
-  Lemma rigsum_add {n} (v1 v2 : (⟦ n ⟧)%stn -> R)
+  Lemma vecsum_add {n} (v1 v2 : (⟦ n ⟧)%stn -> R)
     : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
   Proof.
     induction n as [| n IH].
     - cbn. apply pathsinv0, riglunax1.
-    - do 3 (rewrite iterop_fun_step; [ | apply riglunax1 ]).
+    - rewrite 3 vecsum_step.
       etrans. { apply maponpaths_2. apply IH. }
       refine (rigassoc1 _ _ _ _ @ _ @ !rigassoc1 _ _ _ _).
       apply maponpaths.
@@ -319,10 +318,8 @@ Section Vector_Sums.
   Proof.
     intros. induction n as [| n IH].
     - simpl. apply rigmultx0.
-    - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite rigldistr. rewrite IH.
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      reflexivity.
+    - rewrite 2 vecsum_step.
+      rewrite rigldistr. apply maponpaths_2, IH.
   Defined.
 
   Lemma vecsum_rdistr:
@@ -331,14 +328,12 @@ Section Vector_Sums.
   Proof.
     intros. induction n as [| n IH].
     - apply rigmult0x.
-    - rewrite iterop_fun_step. 2: { apply riglunax1. }
-      rewrite rigrdistr. rewrite IH.
-      rewrite iterop_fun_step. 2: { apply riglunax1. }
-      reflexivity.
+    - rewrite 2 vecsum_step.
+      rewrite rigrdistr. apply maponpaths_2, IH.
   Defined.
 
   (* does this belong in matrices, perhaps? *)
-  Lemma interchange_sums :
+  Lemma vecsum_interchange :
     ∏ (m n : nat)
       (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),
     Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
@@ -349,16 +344,15 @@ Section Vector_Sums.
       { reflexivity. }
       change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
         with (@rigunel1 R).
-      apply zero_function_sums_to_zero.
+      apply vecsum_zero.
       reflexivity.
-    - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
+    - rewrite vecsum_step.
       unfold funcomp.
-      rewrite <- IH, <- rigsum_add.
+      rewrite <- IH, <- vecsum_add.
       apply maponpaths, funextfun; intros i.
-      rewrite -> iterop_fun_step. 2: { apply riglunax1. }
+      rewrite vecsum_step.
       reflexivity.
   Defined.
-
 
 End Vector_Sums.
 
@@ -385,8 +379,8 @@ Section Pulse_Functions.
   Proof.
     destruct (stn_inhabited_implies_succ i) as [n' e_n_Sn'].
     destruct (!e_n_Sn').
-    rewrite (rigsum_dni f i).
-    rewrite zero_function_sums_to_zero.
+    rewrite (vecsum_dni f i).
+    rewrite vecsum_zero.
     { rewrite riglunax1. apply idpath. }
     apply funextfun; intros k.
     unfold funcomp.
@@ -473,7 +467,7 @@ Section Pulse_Functions.
         + rewrite rigmultx0; apply f_two_pulse; now apply issymm_natneq.
     }
     etrans. { apply maponpaths, H. }
-    etrans. { apply rigsum_add. }
+    etrans. { apply vecsum_add. }
     apply maponpaths_12;
     rewrite <- vecsum_ldistr, stdb_vector_sums_to_1; apply rigrunax2.
   Defined.

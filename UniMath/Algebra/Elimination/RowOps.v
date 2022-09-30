@@ -300,7 +300,7 @@ Section Elementary.
     destruct (stn_eq_or_neq k r2) as [k_eq_r2 | k_neq_r2].
     - simpl coprod_rect.
       etrans. { apply maponpaths, (@pointwise_rdistr_vector CR). }
-      etrans. { apply rigsum_add. }
+      etrans. { apply vecsum_add. }
       apply map_on_two_paths.
       + etrans. 2: { apply maponpaths_2, k_eq_r2. }
         use sum_stdb_vector_pointwise_prod.

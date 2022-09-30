@@ -87,7 +87,7 @@ Section General.
     etrans.
       { apply maponpaths. apply funextfun. intros k.
         apply vecsum_rdistr. }
-    rewrite interchange_sums.
+    rewrite vecsum_interchange.
     apply maponpaths, funextfun; intros k.
     apply maponpaths, funextfun; intros l.
     apply rigassoc2.
@@ -111,7 +111,7 @@ Section General.
       apply maponpaths, funextfun; intros k.
       rewrite rigldistr; apply idpath.
     }
-    apply rigsum_add.
+    apply vecsum_add.
   Defined.
 
   Lemma matrix_mult_rdistr :
@@ -131,7 +131,7 @@ Section General.
       rewrite rigrdistr.
       exact (idpath _).
     }
-    apply rigsum_add.
+    apply vecsum_add.
   Defined.
 
 
@@ -144,7 +144,7 @@ Section General.
     apply funextfun; intros i.
     unfold col_vec.
     apply funextfun; intros _.
-    rewrite zero_function_sums_to_zero;
+    rewrite vecsum_zero;
       try (apply idpath).
     unfold const_vec.
     apply funextfun; intros k.
@@ -518,7 +518,7 @@ Section Misc.
   Proof.
     apply toforallpaths in Ai_zero.
     apply funextfun; intro k.
-    apply zero_function_sums_to_zero.
+    apply vecsum_zero.
     apply funextfun; intro j; unfold pointwise.
     etrans. { apply maponpaths_2, Ai_zero. }
     apply rigmult0x.

@@ -82,7 +82,7 @@ Section BackSub.
     destruct (stn_inhabited_implies_succ row)
       as [s_row s_row_eq], (!s_row_eq).
     apply funextfun; intros ?.
-    rewrite (@rigsum_dni _ (s_row) _ row)
+    rewrite (@vecsum_dni _ (s_row) _ row)
     , nat_eq_or_neq_refl.
     destruct (fldchoice0 _) as [? | neq].
     {contradiction. }
@@ -91,7 +91,7 @@ Section BackSub.
       apply funextfun; intros q.
       unfold funcomp.
       now rewrite (nat_eq_or_neq_right (dni_neq_i row q)). }
-    rewrite (@rigsum_dni F (s_row) _ row).
+    rewrite (@vecsum_dni F (s_row) _ row).
     etrans.
     { apply maponpaths.
       etrans.
@@ -340,7 +340,7 @@ Section BackSubZero.
           apply funextfun; intros k.
           unfold col_vec, const_vec.
           etrans.
-          { rewrite zero_function_sums_to_zero.
+          { rewrite vecsum_zero.
             - apply idpath.
             - apply funextfun; intros ?; apply rigmultx0. }
           reflexivity.
@@ -408,7 +408,7 @@ Section BackSubZero.
       + rewrite matrix_mult_eq; unfold matrix_mult_unf.
         unfold col_vec, const_vec.
         apply funextfun; intros ?.
-        rewrite zero_function_sums_to_zero.
+        rewrite vecsum_zero.
         {reflexivity. }
         apply funextfun; intros k.
         destruct (natgthorleh j k) as [? | le].
