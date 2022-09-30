@@ -86,7 +86,7 @@ Section Transposition.
   Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n)
     : transpose mat1 = transpose mat2 -> mat1 = mat2.
   Proof.
-    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
+    apply (maponpaths transpose).
   Defined.
 
   Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
@@ -96,8 +96,8 @@ Section Transposition.
         (i : ⟦ n ⟧%stn)
     : is_symmetric_mat mat -> row mat i = col mat i.
   Proof.
-    intros issymm_mat. unfold col.
-    rewrite issymm_mat. apply idpath.
+    intros H. unfold col, row.
+    exact (toforallpaths _ _ _ (!H) i).
   Defined.
 
 End Transposition.
@@ -574,7 +574,7 @@ Section MatricesCommrig.
     apply rigcomm2.
   Defined.
 
-  Lemma row_vec_col_vec_mult_eq {n} (A : Matrix CR n n) (x : Vector CR n)
+  Lemma row_vec_col_vec_mult_eq {m n} (A : Matrix CR m n) (x : Vector CR n)
   : transpose ((row_vec x) ** (transpose A)) = A ** (col_vec x).
   Proof.
     etrans. { apply matrix_product_transpose. }
@@ -704,7 +704,6 @@ Section Transpositions.
 
   Definition tranposition_mat_rows_perm_stmt {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
     := (Matrix X m n) ≃ Matrix X m n.
-  (* Proof. (* This is just the switch_rows proof *)   Abort.*)
 
   Definition is_permutation_fun {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) :=
     ∏ i j: ⟦ n ⟧%stn, (p i = p j) -> i = j.
