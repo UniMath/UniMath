@@ -366,10 +366,10 @@ Section FromActegoriesToActionsInCat.
   Lemma actegory_hom_preserves_unitor_inv
         {a1 a2 : ACAT} (f : ACAT ⟦ a1, a2 ⟧)
         (c : pr11 (actegory_to_object Mon_V (pr2 a1)))
-    : actegory_unitorinvdata (pr2 a2 : actegory _ _) (pr1 (pr1 f) c) · (pr112 f) I_{ Mon_V} c
+    : actegory_unitorinvdata (pr2 a2 : actegory _ _) (pr1 (pr1 f) c) · (pr12 f) I_{ Mon_V} c
       = # (pr11 f) (actegory_unitorinvdata (pr2 a1 : actegory _ _) c).
   Proof.
-    assert (t := (pr222 (pr212 f)) c). (* preserves_unitor *)
+    set (t := (pr222 (pr22 f)) c). (* preserves_unitor *)
     apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_unitorisolaw Mon_V (pr2 a2) (pr1 (pr1 f) c))).
     cbn.
     etrans.
@@ -387,8 +387,8 @@ Section FromActegoriesToActionsInCat.
       (ActionBasedStrongFunctorsWhiskeredMonoidal.H'(FA:=pr12(actegory_to_object Mon_V (pr2 a1))) (pr1 f)).
   Proof.
     intro v.
-    exists (λ c, pr11 (pr2 f) v c).
-    abstract (exact (λ c1 c2 g, pr1 (pr212 f) v c1 c2 g)).
+    exists (λ c, pr1 (pr2 f) v c).
+    abstract (exact (λ c1 c2 g, pr1 (pr22 f) v c1 c2 g)).
   Defined.
 
   Definition acat_to_acti_on_mor_data_data_is_nat_trans
@@ -400,7 +400,7 @@ Section FromActegoriesToActionsInCat.
     { apply homset_property. }
     intro c.
     cbn.
-    exact (pr12 (pr212 f) v w c g).
+    exact (pr12 (pr22 f) v w c g).
   Qed.
 
   Definition acat_to_acti_on_mor_data
@@ -429,7 +429,7 @@ Section FromActegoriesToActionsInCat.
       intro c ;
         cbn ;
         rewrite ! id_left ;
-        assert (t := pr122 (pr212 f) w v c) ;
+        assert (t := pr122 (pr22 f) w v c) ;
         apply (z_iso_inv_on_right _ _ _ (_,,_,,actegory_actorisolaw Mon_V (pr2 a2) _ _ _)) ;
         rewrite assoc ;
         set (i := (_,,_,,actegory_actorisolaw Mon_V (pr2 a1) w v c) : z_iso _ _) ;
@@ -640,27 +640,12 @@ Section FromActionInCatToActegories.
     exact (acti_to_acat_on_mor_lineator_lax_laws f).
   Defined.
 
-  Definition acti_to_acat_on_mor_lineator_strong
-             {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    :  lineator_strongly
-         Mon_V
-         (pr2 (acti_to_acat_on_ob a1))
-         (pr2 (acti_to_acat_on_ob a2))
-         (pr1 f)
-         (acti_to_acat_on_mor_lineator_lax f).
-  Proof.
-    intros v c.
-    induction f as [f [δ [t p]]].
-
-  Admitted.
-
   Definition acti_to_acat_on_mor
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     : ACAT ⟦ acti_to_acat_on_ob a1, acti_to_acat_on_ob a2⟧.
   Proof.
     exists (pr1 f).
-    exists (acti_to_acat_on_mor_lineator_lax f).
-    exact (acti_to_acat_on_mor_lineator_strong f).
+    exact (acti_to_acat_on_mor_lineator_lax f).
   Defined.
 
   Definition acti_to_acat_data
@@ -871,19 +856,17 @@ Section ActionInCatEquivActegories.
     : ACAT ⟦Composition.comp_psfunctor acti_to_acat acat_to_acti a, Identity.id_psfunctor ACAT a⟧.
   Proof.
     exists (identity _).
-    use tpair.
-    + exists (λ _ _, identity _).
-      abstract (
-          simpl ;
-          repeat split ; (intro ; intros ; try (rewrite id_right ; rewrite id_left ; apply idpath)) ;
-          [
-            rewrite id_left ;
-            rewrite id_right ;
-            rewrite bifunctor_leftid ;
-            apply (! id_right _)
-          |
-            rewrite id_left ; apply idpath ]).
-    + intro ; intro ; apply is_z_isomorphism_identity.
+    exists (λ _ _, identity _).
+    abstract (
+        simpl ;
+        repeat split ; (intro ; intros ; try (rewrite id_right ; rewrite id_left ; apply idpath)) ;
+        [
+          rewrite id_left ;
+          rewrite id_right ;
+          rewrite bifunctor_leftid ;
+          apply (! id_right _)
+        |
+          rewrite id_left ; apply idpath ]).
   Defined.
 
   Definition acti_to_acat_counit_data
@@ -1027,7 +1010,6 @@ Section ActionInCatEquivActegories.
           apply idpath
         ).
     - abstract (intro ; apply id_left).
-    - intro ; intro ; apply is_z_isomorphism_identity.
   Defined.
 
   Definition ACAT_invertible_2cell {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
