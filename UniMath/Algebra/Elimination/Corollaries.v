@@ -456,7 +456,7 @@ Section Locals.
         × (forall j : stn n, (j < (pr1 i) -> (v j) != 0%ring))).
   Proof.
   pose (leading_entry := leading_entry_compute F (flip_fld_bin_vec v)).
-  destruct (@maybe_stn_choice F n leading_entry) as [some | none].
+  destruct (maybe_choice' leading_entry) as [some | none].
   - right; use tpair; simpl. {apply some. }
     pose (leading_entry_inv := @leading_entry_compute_inv2 F _
       (flip_fld_bin_vec v) (pr1 some) (pr2 some)).

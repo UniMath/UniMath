@@ -603,7 +603,6 @@ End Rings_and_Fields.
 (** * Rationals *)
 Section Rationals.
 
-  (* could try to simplify/speed up? perhaps refactor with general injectivity of map from integers to rationals (proved either by this same technique or more directly) *)
   Lemma hqone_neq_hqzero : 1%hq != 0%hq.
   Proof.
     intro contr.
@@ -612,6 +611,10 @@ Section Rationals.
     apply contr_hz.
     apply maponpaths, contr.
   Defined.
+  (* A more obvious approach might be to use the injectivity of the map from the integers:
+    [apply hzone_neg_hzzero; refine (invmaponpathsincl _ isinclhztohq 1%hz 0%hz contr).]
+  However, this turns out very slow, apparently because recognising [hztohq 1%hz = 1%hq] is slow (and similarly for 0).  Seems surprising that this is slower than computing [intpart 1%hq = 1%hz]!
+*)
 
   Lemma hqplusminus
     (a b : hq) : (a + b - b)%hq = a.
@@ -641,26 +644,16 @@ Section Maybe.
   Proof.
     destruct e as [? | u].
     - apply ii1. apply negpathsii1ii2.
-    - apply ii2. rewrite u. exists.
+    - apply ii2. rewrite u; exists.
   Defined.
 
   Definition maybe_choice'
     {X : UU} (e : maybe X)
-  : coprod (X) (e = nothing).
+  : coprod (∑ x:X, e = just x) (e = nothing).
   Proof.
-  destruct e as [x | u].
-  - apply ii1. exact x.
-  - apply ii2. rewrite u; exists.
-  Defined.
-
-  Definition maybe_stn_choice
-    {X : UU} { n : nat }
-    (e : maybe (⟦ n ⟧)%stn)
-  : coprod (∑ i : ⟦ n ⟧%stn, e = just i) (e = nothing).
-  Proof.
-  destruct e as [i | u].
-  - apply ii1. now exists i.
-  - apply ii2. rewrite u; exists.
+    destruct e as [x | u].
+    - apply ii1. exists x; reflexivity.
+    - apply ii2. rewrite u; exists.
   Defined.
 
   Definition from_maybe

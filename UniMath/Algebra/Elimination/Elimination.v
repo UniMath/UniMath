@@ -246,7 +246,7 @@ Section LeadingEntry.
     { intros; now use tpair. }
     set (p' := istransnatlth iter _ _ p (natgthsnn _)).
     pose (@leading_entry_compute_dual_internal n v (S _,, p)) as H.
-    destruct (@maybe_stn_choice F n H) as [s | ?].
+    destruct (maybe_choice' H) as [s | ?].
     2: {contradiction. }
     unfold leading_entry_compute_dual_internal.
     rewrite nat_rect_step.
@@ -315,10 +315,10 @@ Section LeadingEntry.
     unfold leading_entry_compute_internal in eq.
     pose (H := @leading_entry_compute_dual_internal_inv3 _
       (λ i : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn _) (dualelement i)).
-    destruct (@maybe_stn_choice F n
+    destruct (maybe_choice'
               (leading_entry_compute_dual_internal
               (λ i : (⟦ n ⟧)%stn, v (dualelement i))
-              (n,, natgthsnn _))) as [? | contr_eq].
+              (n,, natgthsnn _))) as [t | contr_eq].
     2: { contradiction (@negpathsii1ii2 ((⟦ n ⟧)%stn) unit i' tt).
          unfold just in H1; rewrite <- H1.
          now rewrite contr_eq. }
@@ -739,7 +739,7 @@ Section Gauss.
     destruct (natchoice0 n) as [contr_eq | p].
     { unfold Matrix, Vector; intros; apply fromstn0.
       now rewrite contr_eq. }
-    destruct (select_uncleared_column _ mat row p) 
+    destruct (select_uncleared_column _ mat row p)
       as [[piv_col [? [piv_row ?]]] | none].
     2: {exact mat. }
     refine (gauss_clear_column _ row piv_col (m,, natlthnsn _)).
@@ -1456,8 +1456,7 @@ Section Gauss.
     simpl in p'.
     assert (iter_lt_sn := (istransnatlth _ _ _ p' (natgthsnn m))).
     destruct (natlehchoice i iter) as [? | eq]. {now apply natlthsntoleh. }
-    - destruct (@maybe_stn_choice
-      (⟦ n ⟧%stn) n (leading_entry_compute _ (mat i))) as [t | none].
+    - destruct (maybe_choice' (leading_entry_compute _ (mat i))) as [t | none].
       + destruct t as [t eq].
         rewrite (IH iter_lt_sn); try easy.
         use tpair; simpl.
@@ -1469,8 +1468,7 @@ Section Gauss.
       + now rewrite (@leading_entry_compute_inv1 _ n _ none).
     - unfold stntonat in eq.
       assert (eq' : i = (iter,, p')). { apply subtypePath_prop; apply eq. }
-      destruct (@maybe_stn_choice (⟦ n ⟧%stn) _
-        (leading_entry_compute F (mat i))) as [t | none].
+      destruct (maybe_choice' (leading_entry_compute F (mat i))) as [t | none].
       2: { now rewrite (@leading_entry_compute_inv1 _ _ _ none). }
       destruct t as [t jst].
       destruct (natlthorgeh j t) as [j_lt_t | contr_gt].
@@ -1480,8 +1478,8 @@ Section Gauss.
         destruct (natchoice0 i) as [contr0 | ?].
         { apply fromempty; refine (negnatgth0n _ _); rewrite contr0; apply lt. }
         destruct (prev_stn i) as [u u_lt]; try assumption.
-        destruct (@maybe_stn_choice (⟦ n ⟧%stn) _
-          (leading_entry_compute _ (mat u))) as [prev | none_prev].
+        destruct (maybe_choice' (leading_entry_compute _ (mat u)))
+                   as [prev | none_prev].
         * destruct prev as [prev eq''].
           unfold leading_entry_compute in prev.
           pose (H2 := @leading_entry_compute_inv2 _ n _ _ eq'').
