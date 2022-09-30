@@ -28,7 +28,7 @@ Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left assoc
 (** Purely structural facts about matrices over arbitary types *)
 Section Arbitrary_Types.
 
-    Lemma weq_rowvec
+  Lemma weq_rowvec
     : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
   Proof.
     intros; apply weq_vector_1.

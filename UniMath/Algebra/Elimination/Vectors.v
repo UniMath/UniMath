@@ -14,11 +14,12 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
+Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
+
 
 Section Arbitrary_Vectors.
 (** * Vectors in arbitrary types *)
@@ -46,17 +47,17 @@ Section Arbitrary_Vectors.
 
 End Arbitrary_Vectors.
 
+(** * Basic vector algebra over rigs *)
 
-Section Basic_Vector_Algebra.
-(** * Basic vector algebra *)
-
-  (** First basic algebra on vectors in rigs:
+(** First basic algebra on vectors in rigs:
   pointwise operations, standard basis vectors, etc. *)
 
-  Context { R : rig }.
+Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
+Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
 
-  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
-  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
+Section Basic_Vector_Algebra.
+
+  Context { R : rig }.
 
   Definition scalar_lmult_vec (s : R) {n} (vec: Vector R n)
     := vector_fmap (fun x => s * x)%rig vec.
@@ -106,13 +107,12 @@ Section Basic_Vector_Algebra.
 End Basic_Vector_Algebra.
 
 (** * Total sums of vectors *)
+
+Local Notation  Σ := (iterop_fun 0%rig op1).
+
 Section Vector_Sums.
 
   Context { R : rig }.
-
-  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
-  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
-  Local Notation  Σ := (iterop_fun 0%rig op1).
 
   (** Many of the following are generalisations of versions for natural numbers, given in [Combinatorics.StandardFiniteSets] using the keyword [stnsum].
 
@@ -124,19 +124,18 @@ Section Vector_Sums.
   Defined.
 
   Lemma vecsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
-    Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
+    Σ f = (Σ (f ∘ (dni lastelement)) + f lastelement)%rig.
   Proof.
     intros; apply iterop_fun_step; apply riglunax1.
   Defined.
 
-  (* compare [transport_stnsum]*)
   Lemma transport_vecsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
      Σ g =  Σ (λ i, g (transportf stn e i)).
   Proof.
     intros; now induction e.
   Defined.
 
-  Lemma vecsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g ->  Σ f =  Σ g.
+  Lemma vecsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g -> Σ f = Σ g.
   Proof.
     intros H.
     induction n as [|n IH]; try apply idpath.
@@ -156,7 +155,7 @@ Section Vector_Sums.
   Defined.
 
   Lemma vecsum_eq_zero {n} (v : Vector R n) (v_0 : v ~ const_vec 0%rig)
-    : (Σ v) = 0%rig.
+    : Σ v = 0%rig.
   Proof.
     etrans. { apply vecsum_eq, v_0. }
     apply vecsum_zero.
@@ -323,10 +322,6 @@ Section Pulse_Functions.
   this turns out to be a useful framework for arguments with elementary row operations. *)
 
   Context { R : rig }.
-
-  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
-  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
-  Local Notation  Σ := (iterop_fun 0%rig op1).
 
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )
   (f : ⟦ n ⟧%stn -> R)
