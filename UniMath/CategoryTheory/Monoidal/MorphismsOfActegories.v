@@ -1,12 +1,14 @@
 (** the concept of morphism between actegories that is a functor between the
     categories acted upon that is compatible with the action structures
 
-written by Ralph Matthes in close correspondence with the code in [UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered]
+Written by Ralph Matthes in close correspondence with the code in [UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered]
 
-naming is inspired from Actegories for the Working Amthematician by Matteo Capucci and Bruno Gavranović,
+Naming is inspired from Actegories for the Working Amthematician by Matteo Capucci and Bruno Gavranović,
 available at https://arxiv.org/abs/2203.16351
 
-in particular: the morphisms of V-actegories are called V-linear functors (the lax variant is also singled out), the crucial natural isomorphism asked for is called the lineator
+There are lax and non-lax versions of morphisms: the lax morphisms of V-actegories are called lax V-linear functors, and the non-lax version the V-linear functors, where the difference is that in the latter the crucial natural transformation called the lineator is required to be an isomorphism.
+
+The non-lax version is not called strong so as to avoid confusion with the usual denomination of the lineator as the strength of the underlying functor. [lineator_lax] is that notion of strength together with the laws governing it.
 
 2022
 *)
@@ -22,6 +24,9 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.coslicecat.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 Local Open Scope cat.
 
@@ -471,3 +476,116 @@ Section TransformationsOfActegories.
   Qed.
 
 End TransformationsOfActegories.
+
+Section StrongFunctors.
+
+  Definition tensorialstrength {C : category} (M : monoidal C) (F : functor C C) : UU :=
+    lineator_lax M (actegory_with_canonical_self_action M)
+      (actegory_with_canonical_self_action M) F.
+
+  Identity Coercion id_tensorialstrength : tensorialstrength >-> lineator_lax.
+
+  Lemma tensorialstrength_lineator_nat_left {C : category} (M : monoidal C)
+    {F : functor C C} (ts : tensorialstrength M F) :
+    lineator_nat_left _ _ _ _ ts =
+      ∏ (v x1 x2 : C) (g : C ⟦ x1, x2 ⟧),
+      v ⊗^{ M}_{l} # F g · ts v x2 = ts v x1 · # F (v ⊗^{ M}_{l} g).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma tensorialstrength_lineator_nat_right {C : category} (M : monoidal C)
+    {F : functor C C} (ts : tensorialstrength M F) :
+    lineator_nat_right _ _ _ _ ts =
+      ∏ (v1 v2 x : C) (f : C ⟦ v1, v2 ⟧),
+      f ⊗^{ M}_{r} F x · ts v2 x = ts v1 x · # F (f ⊗^{ M}_{r} x).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma tensorialstrength_preserves_unitor {C : category} (M : monoidal C)
+    {F : functor C C} (ts : tensorialstrength M F) :
+    preserves_unitor _ _ _ _ ts = ∏ c : C, ts I_{M} c · # F lu^{M}_{c} = lu^{M}_{F c}.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma tensorialstrength_preserves_actor {C : category} (M : monoidal C)
+    {F : functor C C} (ts : tensorialstrength M F) :
+    preserves_actor _ _ _ _ ts = ∏ v w x : C,
+        ts (v ⊗_{M} w) x · # F α^{M}_{v, w, x} =
+          α^{M}_{v, w, F x} · v ⊗^{M}_{l} ts w x · ts v (w ⊗_{M} x).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition pointedtensorialstrength {C : category} (M : monoidal C) (F : functor C C) : UU :=
+    lineator_lax (monoidal_pointed_objects M) (actegory_with_canonical_pointed_action M)
+                                              (actegory_with_canonical_pointed_action M) F.
+
+  Identity Coercion id_pointedtensorialstrength : pointedtensorialstrength >-> lineator_lax.
+
+  Lemma pointedtensorialstrength_lineator_nat_left {C : category} (M : monoidal C)
+    {F : functor C C} (pts : pointedtensorialstrength M F):
+    lineator_nat_left _ _ _ _ pts =
+      ∏ (v : coslice_cat_total C I_{M}) (x1 x2 : C) (g : C⟦x1,x2⟧),
+      pr1 v ⊗^{ M}_{l} # F g · pts v x2 = pts v x1 · # F (pr1 v ⊗^{ M}_{l} g).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma pointedtensorialstrength_lineator_nat_right {C : category} (M : monoidal C)
+    {F : functor C C} (pts : pointedtensorialstrength M F):
+    lineator_nat_right _ _ _ _ pts =
+      ∏ (v1 v2 : coslice_cat_total C I_{M}) (x : C) (f : coslice_cat_total C I_{M} ⟦v1,v2⟧),
+      pr1 f ⊗^{ M}_{r} F x · pts v2 x = pts v1 x · # F (pr1 f ⊗^{ M}_{r} x).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma pointedtensorialstrength_preserves_unitor {C : category} (M : monoidal C)
+    {F : functor C C} (pts : pointedtensorialstrength M F):
+    preserves_unitor _ _ _ _ pts ≃
+      ∏ c : C, pts I_{ monoidal_pointed_objects M} c · # F lu^{M}_{c} = lu^{M}_{F c}.
+  Proof.
+    use weqimplimpl.
+    - intros H c.
+      assert (Hc := H c). clear H.
+      cbn in Hc.
+      unfold TotalDisplayedMonoidalWhiskered.total_unit, lifted_action_unitor_data in Hc. cbn in Hc.
+      do 2 rewrite bifunctor_rightid in Hc. do 2 rewrite id_left in Hc.
+      exact Hc.
+    - intros H c.
+      cbn.
+      unfold TotalDisplayedMonoidalWhiskered.total_unit, lifted_action_unitor_data. cbn.
+      do 2 rewrite bifunctor_rightid. do 2 rewrite id_left.
+      apply H.
+    - apply impred; intro c. apply C.
+    - apply impred; intro c. apply C.
+  Qed.
+
+  Lemma pointedtensorialstrength_preserves_actor {C : category} (M : monoidal C)
+    {F : functor C C} (pts : pointedtensorialstrength M F) :
+    preserves_actor _ _ _ _ pts ≃
+      ∏ (v w : coslice_cat_total C I_{M}) (x : C),
+      pts (v ⊗_{monoidal_pointed_objects M} w) x · # F α^{M}_{pr1 v, pr1 w, x} =
+          α^{M}_{pr1 v, pr1 w, F x} · pr1 v ⊗^{M}_{l} pts w x · pts v (pr1 w ⊗_{M} x).
+  Proof.
+    use weqimplimpl.
+    - intros H v w x.
+      assert (Hinst := H v w x). clear H.
+      cbn in Hinst.
+      unfold lifted_actor_data in Hinst. cbn in Hinst.
+      do 2 rewrite bifunctor_rightid in Hinst. do 2 rewrite id_left in Hinst.
+      exact Hinst.
+    - intros H v w x.
+      cbn.
+      unfold lifted_actor_data. cbn.
+      do 2 rewrite bifunctor_rightid. do 2 rewrite id_left.
+      apply H.
+    - do 3 (apply impred; intro). apply C.
+    - do 3 (apply impred; intro). apply C.
+  Qed.
+
+
+End StrongFunctors.

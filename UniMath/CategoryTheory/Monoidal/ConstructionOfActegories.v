@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 Local Open Scope cat.
 
@@ -292,3 +293,13 @@ Qed.
 Definition lifted_actegory: actegory Mon_W C := lifted_actegory_data,,lifted_actegory_laws.
 
 End A.
+
+Section B.
+
+  Context {V : category} (Mon_V : monoidal V).
+
+  Definition actegory_with_canonical_pointed_action: actegory (monoidal_pointed_objects Mon_V) V :=
+    lifted_actegory Mon_V (actegory_with_canonical_self_action Mon_V)
+      (monoidal_pointed_objects Mon_V) (forget_monoidal_pointed_objects_monoidal Mon_V).
+
+End B.
