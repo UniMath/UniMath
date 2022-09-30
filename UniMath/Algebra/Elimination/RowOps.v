@@ -36,11 +36,6 @@ Require Import UniMath.Algebra.Elimination.Matrices.
 
 Section RowOps.
 
-
-  Context { R : rig }.
-  Context { CR : commring}.
-  Context { F : fld }.
-
   Local Notation Σ := (iterop_fun 0%rig op1).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
   Local Notation "A ** B" := (@matrix_mult _ _ _ A _ B) (at level 40, left associativity).
@@ -48,6 +43,8 @@ Section RowOps.
   (* second notation is needed since the projections to [setwithbinop] from [ring] and further structures factor syntactically through [ring] but NOT [rig] *)
 
   Section Add_Row.
+
+  Context { CR : commring}.
 
   Definition gauss_add_row
     { m n : nat } ( mat : Matrix CR m n )
@@ -66,9 +63,9 @@ Section RowOps.
   Proof.
     intros i.
     induction (stn_eq_or_neq i r2).
-    - exact (pointwise n op1 (@stdb_vector CR n i)
-        (@scalar_lmult_vec CR s _ ((@stdb_vector CR) n r1))).
-    - exact (@stdb_vector CR n i).
+    - refine (pointwise _ op1 (@stdb_vector CR _ i)
+        (@scalar_lmult_vec CR s _ (@stdb_vector CR _ r1))).
+    - refine (@stdb_vector CR _ i).
   Defined.
 
   Lemma add_row_mat_elementary
@@ -201,6 +198,8 @@ Section RowOps.
 
   Section Mult_Row.
 
+  Context { F : fld }.
+
   Definition gauss_scalar_mult_row
     { m n : nat} (mat : Matrix F m n)
     (s : F) (r : ⟦ m ⟧%stn)
@@ -296,6 +295,8 @@ Section RowOps.
   End Mult_Row.
 
   Section Switch_Row.
+
+  Context { R : rig }.
 
   Definition gauss_switch_row
     {m n : nat} (mat : Matrix R m n)
