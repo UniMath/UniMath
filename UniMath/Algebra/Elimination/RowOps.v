@@ -29,8 +29,8 @@ Section GaussOps.
   Local Notation Σ := (iterop_fun 0%rig op1).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
   Local Notation "A ** B" := (@matrix_mult _ _ _ A _ B) (at level 40, left associativity).
-  Local Notation "A **' B" := (@matrix_mult CR _ _ A _ B) (at level 40, left associativity).
-  Local Notation "A **'' B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
+  Local Notation "A **' B" := (@matrix_mult (_:ring) _ _ A _ B) (at level 40, left associativity).
+  (* second notation is needed since the prejections to [setwithbinop] from [ring] and further structures factor syntactically through [ring] but NOT [rig] *)
 
 Section RowOps.
 
@@ -240,7 +240,7 @@ Section Elementary.
      of multiplication by elementary matrices to swaps of indices. *)
   Lemma scalar_mult_mat_elementary
     {m n : nat} (mat : Matrix F m n) (s : F) (r : ⟦ m ⟧%stn)
-    : ((mult_row_matrix s r) **'' mat) = gauss_scalar_mult_row mat s r.
+    : ((mult_row_matrix s r) **' mat) = gauss_scalar_mult_row mat s r.
   Proof.
     use funextfun. intros i.
     use funextfun. intros ?.
@@ -315,7 +315,7 @@ Section Elementary.
   Lemma scalar_mult_matrix_product
     { n : nat }
     ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
-    : ((mult_row_matrix s1 r ) **'' (mult_row_matrix s2 r ))
+    : ((mult_row_matrix s1 r ) **' (mult_row_matrix s2 r ))
       = (mult_row_matrix (s1 * s2)%ring r ).
   Proof.
     rewrite scalar_mult_mat_elementary.
@@ -344,8 +344,8 @@ Section Elementary.
 
   Lemma scalar_mult_matrix_comm
     { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
-    : ((mult_row_matrix s1 r) **'' (mult_row_matrix s2 r))
-    = ((mult_row_matrix s2 r) **'' (mult_row_matrix s1 r)).
+    : ((mult_row_matrix s1 r) **' (mult_row_matrix s2 r))
+    = ((mult_row_matrix s2 r) **' (mult_row_matrix s1 r)).
   Proof.
     do 2 rewrite scalar_mult_matrix_product.
     apply maponpaths_2, (rigcomm2 F).
