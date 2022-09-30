@@ -441,7 +441,7 @@ Section TransformationsOfActegories.
   Qed.
 
 
-  Lemma is_linear_nat_trans_identity {F : functor C D} (Fl : lineator Mon_V ActC ActD F) :
+  Lemma is_linear_nat_trans_identity {F : functor C D} (Fl : lineator_lax Mon_V ActC ActD F) :
     is_linear_nat_trans Fl Fl (nat_trans_id F).
   Proof.
     intros v c.

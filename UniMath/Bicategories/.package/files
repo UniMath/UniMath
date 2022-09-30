@@ -160,7 +160,6 @@ PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
-Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
 Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v

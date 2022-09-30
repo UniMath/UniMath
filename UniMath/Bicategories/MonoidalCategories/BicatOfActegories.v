@@ -8,6 +8,7 @@ August 2022
 (** **********************************************************
 
 constructs the bicategory of (elementarily defined) actegories
+with lax morphisms as 1-cells
 
  ************************************************************)
 
@@ -49,15 +50,15 @@ Section TheConstruction.
   Definition disp_actbicat_disp_ob_mor : disp_cat_ob_mor bicat_of_cats.
   Proof.
     exists (actegory Mon_V).
-    exact (λ C D ActC ActD F, lineator Mon_V ActC ActD F).
+    exact (λ C D ActC ActD F, lineator_lax Mon_V ActC ActD F).
   Defined.
 
   Definition disp_actbicat_disp_id_comp : disp_cat_id_comp bicat_of_cats disp_actbicat_disp_ob_mor.
   Proof.
     split.
-    - intros C F. apply identity_lineator.
+    - intros C F. apply identity_lineator_lax.
     - intros C D E ActC ActD ActE N O.
-      apply comp_lineator.
+      apply comp_lineator_lax.
   Defined.
 
   Definition disp_actbicat_disp_catdata : disp_cat_data bicat_of_cats
@@ -66,7 +67,7 @@ Section TheConstruction.
   Definition bidisp_actbicat_disp_2cell_struct : disp_2cell_struct disp_actbicat_disp_ob_mor.
   Proof.
     intros C D F G ξ ActC ActD.
-    exact (λ Fl Gl, is_linear_nat_trans (Fl : lineator Mon_V ActC ActD F) (Gl : lineator Mon_V ActC ActD G) ξ).
+    exact (λ Fl Gl, is_linear_nat_trans (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G) ξ).
   Defined.
 
   Lemma isaprop_bidisp_actbicat_disp_2cell_struct
@@ -236,7 +237,7 @@ Proof.
   use tpair.
   - transparent assert (isnziα : (is_nat_z_iso (pr11 αiso))).
     { apply (nat_trafo_pointwise_z_iso_if_z_iso (pr2 D)). exact (pr2 αiso). }
-    exact (is_linear_nat_trans_pointwise_inverse (Fl : lineator _ _ _ _) (Gl : lineator _ _ _ _) (pr1 αiso) isnziα islin).
+    exact (is_linear_nat_trans_pointwise_inverse (Fl : lineator_lax _ _ _ _) (Gl : lineator_lax _ _ _ _) (pr1 αiso) isnziα islin).
   - split; apply isaprop_bidisp_actbicat_disp_2cell_struct.
 Defined.
 

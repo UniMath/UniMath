@@ -82,10 +82,8 @@ Proof.
   - intros C ActC.
     cbn.
     use tpair.
-    + use tpair.
-      * split; red; intros; apply idpath.
-      * abstract (repeat split).
-    + red; intros; exists (idpath tt); abstract (split; apply isasetunit).
+    + split; red; intros; apply idpath.
+    + abstract (repeat split).
   - intros x xx f g ff gg.
     red; cbn; red; cbn.
     red; intros; apply isasetunit.

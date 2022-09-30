@@ -8,26 +8,36 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActionsInBicat.
+
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
+
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 
 Import BifunctorNotations.
+
 Local Opaque bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
 
+
 Section ActegoryToObject.
+
   Context {V : category} (Mon_V : monoidal V).
   Context {C : category}.
+
   Definition fmonoidal_data_to_object
              (act : actegory Mon_V C)
     : fmonoidal_data
@@ -44,6 +54,7 @@ Section ActegoryToObject.
       abstract (intros v w f;
       exact (! actegory_unitorinvnat Mon_V act v w f)).
   Defined.
+
   Definition fmonoidal_laxlaws_to_object
              (act : actegory Mon_V C)
     : fmonoidal_laxlaws (fmonoidal_data_to_object act).
@@ -88,6 +99,7 @@ Section ActegoryToObject.
         (monoidal_from_bicat_and_ob (C : bicat_of_cats))
         (bifunctor_to_functorintoendofunctorcat act)
     := fmonoidal_data_to_object act ,, fmonoidal_laxlaws_to_object act.
+
   Definition fmonoidal_stronglaws_to_object (Act : actegory Mon_V C)
     : fmonoidal_stronglaws
         (pr1 (fmonoidal_data_to_object Act))
@@ -124,6 +136,7 @@ Section ActegoryToObject.
       cbn;
       apply actegory_unitorisolaw]).
   Defined.
+
   Definition actegory_to_object (Act : actegory Mon_V C)
     : bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats.
   Proof.
@@ -132,30 +145,39 @@ Section ActegoryToObject.
     exists (fmonoidal_lax_to_object Act).
     exact (fmonoidal_stronglaws_to_object Act).
   Defined.
+
 End ActegoryToObject.
+
 Section ActegoryFromObject.
+
   Context {V : category}.
   Context (Mon_V : monoidal V).
   Context (C : bicatactionbicat Mon_V bicat_of_cats).
+
   Local Definition action_C := pr12 C.
   Local Definition action_fmon_lax := pr122 C.
   Local Definition action_fmon_strong := pr222 C.
+
   Definition unitor_from_object
     :  action_unitor_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
   Proof.
     intro ; apply (pr12 action_fmon_strong).
   Defined.
+
   Definition unitorinv_from_object
     : action_unitorinv_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
   Proof.
     intro ; apply (fmonoidal_preservesunit action_fmon_lax).
   Defined.
+
   Definition actor_from_object
     : actor_data (monoidal_swapped Mon_V) (bifunctor_from_functorintoendofunctorcat action_C)
     := λ v w c, pr11 (pr1 action_fmon_strong w v) c.
+
   Definition actorinv_from_object
     : actorinv_data (monoidal_swapped Mon_V) (bifunctor_from_functorintoendofunctorcat action_C)
     := λ v w c, pr1 (fmonoidal_preservestensordata (pr122 C) w v) c.
+
   Definition actegory_data_from_object
     : actegory_data (monoidal_swapped Mon_V) (pr1 C).
   Proof.
@@ -165,6 +187,7 @@ Section ActegoryFromObject.
     exists actor_from_object.
     exact actorinv_from_object.
   Defined.
+
   Lemma actegory_laws_from_object
     : actegory_laws (monoidal_swapped Mon_V) actegory_data_from_object.
   Proof.
@@ -236,16 +259,23 @@ Section ActegoryFromObject.
       refine (_ @ ! pf).
       apply assoc'.
   Qed.
+
   Definition actegory_from_object
     : actegory (monoidal_swapped Mon_V) (pr1 C)
     := actegory_data_from_object ,, actegory_laws_from_object.
+
 End ActegoryFromObject.
+
 Context {V : category} (Mon_V : monoidal V).
+
 Local Definition ACAT
   : bicat := actbicat Mon_V.
+
 Local Definition ACTI
   : bicat := bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats.
+
 Section EqualityLemmaHelpers.
+
   Definition equality_of_2cells_in_ACAT
              {a b : ACAT} {f g : ACAT⟦a,b⟧} (α β : prebicat_cells _ f g)
     : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
@@ -261,6 +291,7 @@ Section EqualityLemmaHelpers.
     repeat (apply impred_isaprop ; intro).
     apply homset_property.
   Qed.
+
   Definition equality_of_2cells_in_ACTI
              {a b : ACTI} {f g : ACTI⟦a,b⟧} (α β : prebicat_cells _ f g)
     : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -> α = β.
@@ -277,6 +308,7 @@ Section EqualityLemmaHelpers.
     apply impred_isaprop ; intro.
     apply cellset_property.
   Qed.
+
   Lemma equality_of_ACTI_endofunctors
         {a b : psfunctor_bicat ACTI ACTI}
         {f g : (psfunctor_bicat ACTI ACTI)⟦a,b⟧}
@@ -298,6 +330,7 @@ Section EqualityLemmaHelpers.
     intro.
     apply p.
   Qed.
+
   Lemma equality_of_ACAT_endofunctors
         {a b : psfunctor_bicat ACAT ACAT}
         {f g : (psfunctor_bicat ACAT ACAT)⟦a,b⟧}
@@ -319,12 +352,17 @@ Section EqualityLemmaHelpers.
     intro.
     apply p.
   Qed.
+
 End EqualityLemmaHelpers.
 
+
 Section FromActegoriesToActionsInCat.
+
   Import MonoidalNotations.
+
   Definition acat_to_acti_on_ob : ob ACAT -> ob ACTI
     := λ act, actegory_to_object Mon_V (pr2 act).
+
   Lemma actegory_hom_preserves_unitor_inv
         {a1 a2 : ACAT} (f : ACAT ⟦ a1, a2 ⟧)
         (c : pr11 (actegory_to_object Mon_V (pr2 a1)))
@@ -342,6 +380,7 @@ Section FromActegoriesToActionsInCat.
     rewrite functor_id.
     apply (! id_right _).
   Qed.
+
   Definition acat_to_acti_on_mor_data_data
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     nat_trans_data (ActionBasedStrongFunctorsWhiskeredMonoidal.H(V:=V)(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f))
@@ -351,6 +390,7 @@ Section FromActegoriesToActionsInCat.
     exists (λ c, pr11 (pr2 f) v c).
     abstract (exact (λ c1 c2 g, pr1 (pr212 f) v c1 c2 g)).
   Defined.
+
   Definition acat_to_acti_on_mor_data_data_is_nat_trans
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     is_nat_trans _ _ (acat_to_acti_on_mor_data_data f).
@@ -362,11 +402,13 @@ Section FromActegoriesToActionsInCat.
     cbn.
     exact (pr12 (pr212 f) v w c g).
   Qed.
+
   Definition acat_to_acti_on_mor_data
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat(V:=V)
       (FA:=pr12(actegory_to_object Mon_V (pr2 a1)))(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f)
     := _,,acat_to_acti_on_mor_data_data_is_nat_trans f.
+
   Lemma acat_to_acti_on_mor_laws
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq (monoidal_swapped Mon_V)
@@ -397,6 +439,7 @@ Section FromActegoriesToActionsInCat.
         rewrite t ;
         apply idpath.
   Qed.
+
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
     : ACTI⟦actegory_to_object Mon_V (pr2 a1), actegory_to_object Mon_V (pr2 a2)⟧.
@@ -405,6 +448,7 @@ Section FromActegoriesToActionsInCat.
     exists (acat_to_acti_on_mor_data f).
     apply acat_to_acti_on_mor_laws.
   Defined.
+
   Definition acat_to_acti_data
     : psfunctor_data ACAT ACTI.
   Proof.
@@ -441,6 +485,7 @@ Section FromActegoriesToActionsInCat.
                   rewrite ! id_right;
                   apply idpath]).
   Defined.
+
   Definition acat_to_acti_laws
     : psfunctor_laws acat_to_acti_data.
   Proof.
@@ -452,6 +497,7 @@ Section FromActegoriesToActionsInCat.
     - rewrite id_left ; apply (! id_right _).
     - rewrite id_left ; apply (! id_right _).
   Qed.
+
   Definition acat_to_acti_invertible_cells
     : invertible_cells acat_to_acti_data.
   Proof.
@@ -483,6 +529,7 @@ Section FromActegoriesToActionsInCat.
           apply (! id_left _).
       + use tpair ; use equality_of_2cells_in_ACTI ; intro ; apply id_right.
   Qed.
+
   Definition acat_to_acti
     : psfunctor ACAT ACTI.
   Proof.
@@ -491,15 +538,20 @@ Section FromActegoriesToActionsInCat.
     - exact acat_to_acti_laws.
     - exact acat_to_acti_invertible_cells.
   Defined.
+
 End FromActegoriesToActionsInCat.
+
 Section FromActionInCatToActegories.
+
   Definition acti_to_acat_on_ob : (ob ACTI) -> (ob ACAT)
     := λ act, _ ,, actegory_from_object _ act.
+
   Definition acti_to_acat_on_mor_lineator_data
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     :  lineator_data Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
                      (actegory_from_object (monoidal_swapped Mon_V) a2) (pr1 f)
     := λ v c, pr1 (pr112 f v) c.
+
   Definition acti_to_acat_on_mor_lineator_lax_laws
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     :  lineator_laxlaws
@@ -578,6 +630,7 @@ Section FromActionInCatToActegories.
       rewrite (functor_id F _).
       apply id_right.
   Qed.
+
   Definition acti_to_acat_on_mor_lineator_lax
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     : lineator_lax Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
@@ -586,6 +639,7 @@ Section FromActionInCatToActegories.
     exists (acti_to_acat_on_mor_lineator_data f).
     exact (acti_to_acat_on_mor_lineator_lax_laws f).
   Defined.
+
   Definition acti_to_acat_on_mor_lineator_strong
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     :  lineator_strongly
@@ -597,7 +651,9 @@ Section FromActionInCatToActegories.
   Proof.
     intros v c.
     induction f as [f [δ [t p]]].
+
   Admitted.
+
   Definition acti_to_acat_on_mor
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     : ACAT ⟦ acti_to_acat_on_ob a1, acti_to_acat_on_ob a2⟧.
@@ -606,6 +662,7 @@ Section FromActionInCatToActegories.
     exists (acti_to_acat_on_mor_lineator_lax f).
     exact (acti_to_acat_on_mor_lineator_strong f).
   Defined.
+
   Definition acti_to_acat_data
     : psfunctor_data ACTI ACAT.
   Proof.
@@ -641,6 +698,7 @@ Section FromActionInCatToActegories.
         rewrite id_left.
         apply idpath.
   Defined.
+
   Definition acti_to_acat_laws
     : psfunctor_laws acti_to_acat_data.
   Proof.
@@ -652,6 +710,7 @@ Section FromActionInCatToActegories.
     - rewrite id_left ; apply (! id_right _).
     - rewrite id_left ; apply (! id_right _).
   Qed.
+
   Definition acti_to_acat_invertible_cells
     : invertible_cells acti_to_acat_data.
   Proof.
@@ -684,6 +743,7 @@ Section FromActionInCatToActegories.
           apply idpath.
       + use tpair ; use equality_of_2cells_in_ACAT ; intro ; apply id_right.
   Qed.
+
   Definition acti_to_acat
     : psfunctor ACTI ACAT.
   Proof.
@@ -692,8 +752,11 @@ Section FromActionInCatToActegories.
     - exact acti_to_acat_laws.
     - exact acti_to_acat_invertible_cells.
   Defined.
+
 End FromActionInCatToActegories.
+
 Section ActionInCatEquivActegories.
+
   Definition acti_to_acat_unit_data_on_ob (a : ACTI)
     : ACTI ⟦Composition.comp_psfunctor acat_to_acti acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
   Proof.
@@ -733,6 +796,7 @@ Section ActionInCatEquivActegories.
               rewrite (functor_id ((pr12 a) w)) ;
               apply (! id_left _)).
   Defined.
+
   Definition acti_to_acat_unit_data
     :  pstrans_data (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
@@ -785,6 +849,7 @@ Section ActionInCatEquivActegories.
          * use tpair ; use equality_of_2cells_in_ACTI ;
              intro ; simpl ; apply id_right.
   Defined.
+
   Lemma acti_to_acat_unit_is_pstrans
     : is_pstrans acti_to_acat_unit_data.
   Proof.
@@ -793,6 +858,7 @@ Section ActionInCatEquivActegories.
     - rewrite id_left ; apply (! id_left _).
     - rewrite ! id_left ; rewrite ! id_right ; apply (! functor_id _ _).
   Qed.
+
   Definition acti_to_acat_unit
     :  pstrans (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
@@ -800,6 +866,7 @@ Section ActionInCatEquivActegories.
     - exact acti_to_acat_unit_data.
     - exact acti_to_acat_unit_is_pstrans.
   Defined.
+
   Definition acti_to_acat_counit_data_on_ob (a : ACAT)
     : ACAT ⟦Composition.comp_psfunctor acti_to_acat acat_to_acti a, Identity.id_psfunctor ACAT a⟧.
   Proof.
@@ -818,6 +885,7 @@ Section ActionInCatEquivActegories.
             rewrite id_left ; apply idpath ]).
     + intro ; intro ; apply is_z_isomorphism_identity.
   Defined.
+
   Definition acti_to_acat_counit_data
     :  pstrans_data (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
   Proof.
@@ -867,6 +935,7 @@ Section ActionInCatEquivActegories.
         * use tpair ; use equality_of_2cells_in_ACAT ;
              intro ; simpl ; apply id_right.
   Defined.
+
   Lemma acti_to_acat_counit_is_pstrans
     : is_pstrans acti_to_acat_counit_data.
   Proof.

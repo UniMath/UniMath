@@ -179,9 +179,9 @@ Definition make_mnd_actegory
            (C : category)
            (M : Monad C)
            (Act : actegory Mon_V C)
-           (Ml : lineator Mon_V Act Act M)
-           (ηlinear : is_linear_nat_trans (identity_lineator Mon_V Act) Ml (η M))
-           (μlinear : is_linear_nat_trans (comp_lineator Mon_V Ml Ml) Ml (μ M))
+           (Ml : lineator_lax Mon_V Act Act M)
+           (ηlinear : is_linear_nat_trans (identity_lineator_lax Mon_V Act) Ml (η M))
+           (μlinear : is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml (μ M))
   : mnd (actbicat Mon_V).
 Proof.
   use make_mnd_total_bicat.
