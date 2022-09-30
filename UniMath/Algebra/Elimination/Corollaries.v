@@ -614,11 +614,9 @@ Section Inverse.
       2: { now rewrite left_inv_eq_right_app. }
       now apply gauss_mat.
     }
-    rewrite (@matrix_mult_assoc F _ _ A) in eq.
-    rewrite <- matrix_mult_assoc in invmat.
-    unfold D, CA in eq.
-    rewrite invmat in eq.
-    apply pathsinv0, eq.
+    refine (_ @ invmat).
+    rewrite <- matrix_mult_assoc. refine (!eq @ _).
+    unfold D. apply matrix_mult_assoc.
   Defined.
 
   Lemma right_inverse_implies_left

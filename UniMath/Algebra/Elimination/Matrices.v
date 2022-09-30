@@ -28,6 +28,14 @@ Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left assoc
 (** Purely structural facts about matrices over arbitary types *)
 Section Arbitrary_Types.
 
+  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n)
+    : (∏ i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
+  Proof.
+    intro H. apply funextfun; intro i; apply funextfun; intro j.
+    specialize (H j). apply toforallpaths in H. apply H.
+  Defined.
+
+  (** Vectors as column and row vectors *)
   Lemma weq_rowvec
     : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
   Proof.
@@ -180,29 +188,21 @@ Section Transposition.
     : transpose (transpose mat) = mat.
   Proof. easy. Defined.
 
-  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n):
-    transpose mat1 = transpose mat2 -> mat1 = mat2.
+  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n)
+    : transpose mat1 = transpose mat2 -> mat1 = mat2.
   Proof.
     intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
   Defined.
 
-  Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n)
-    : (∏ i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
-  Proof.
-    intro H. apply funextfun; intro i; apply funextfun; intro j.
-    specialize (H j). apply toforallpaths in H. apply H.
-  Defined.
-
-  (* Note: probably switch direction, for consistency *)
   Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
-    := mat = transpose mat.
+    := transpose mat = mat.
 
   Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
         (i : ⟦ n ⟧%stn)
     : is_symmetric_mat mat -> row mat i = col mat i.
   Proof.
     intros issymm_mat. unfold col.
-    rewrite <- issymm_mat. apply idpath.
+    rewrite issymm_mat. apply idpath.
   Defined.
 
   Lemma identity_matrix_symmetric  {n : nat}
@@ -228,12 +228,6 @@ Section Identity_Matrix.
   Proof.
     apply funextfun; intros j.
     apply stn_eq_or_neq_symm_nondep.
-  Defined.
-
-  Lemma id_mat_row_is_pf { n : nat } (r : ⟦ n ⟧%stn)
-    : is_pulse_function r (row (@identity_matrix R n) r).
-  Proof.
-    apply is_pulse_function_stdb_vector.
   Defined.
 
   Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
@@ -604,9 +598,9 @@ Section MatricesFld.
     intros [mat_inv [e_mi e_im]].
     exists (transpose mat_inv).
     split;
-      refine (!(identity_matrix_symmetric
-                  @ maponpaths _ (!_)
-                  @ matrix_product_transpose _ _));
+      refine (!matrix_product_transpose _ _
+               @ maponpaths _ _
+               @ identity_matrix_symmetric);
       assumption.
   Defined.
 
@@ -627,7 +621,7 @@ Section MatricesFld.
     exists (transpose inv).
     etrans. { apply pathsinv0, matrix_product_transpose. }
     etrans. { apply maponpaths, isinv. }
-    apply pathsinv0, identity_matrix_symmetric.
+    apply identity_matrix_symmetric.
   Defined.
 
   Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix F m n)
