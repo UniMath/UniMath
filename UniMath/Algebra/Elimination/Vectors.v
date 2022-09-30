@@ -71,7 +71,7 @@ Section Vectors.
     - apply riglunax1.
   Defined.
 
-  Lemma sum_is_ldistr :
+  Lemma vecsum_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
     op2 s (Σ vec) =  Σ (scalar_lmult_vec s vec).
   Proof.
@@ -83,7 +83,7 @@ Section Vectors.
       reflexivity.
   Defined.
 
-  Lemma sum_is_rdistr:
+  Lemma vecsum_rdistr:
     ∏ (n : nat) (vec : Vector R n) (s : R),
     op2 (Σ vec) s =  Σ (scalar_rmult_vec vec s).
   Proof.
@@ -95,33 +95,19 @@ Section Vectors.
       reflexivity.
   Defined.
 
-  Lemma rigsum_add :
-    ∏ (n : nat) (f1 f2 : (⟦ n ⟧)%stn -> R),
-    op1 (Σ (λ i: (⟦ n ⟧)%stn, f1 i))  (Σ (λ i : (⟦ n ⟧)%stn, f2 i))
-    = Σ (λ i: (⟦ n ⟧)%stn, op1 (f1 i) (f2 i)).
-  Proof.
-    intros.
-    induction n as [| n IH].
-    - assert ( sum0 : Σ (λ i : (⟦ 0 ⟧)%stn, f1 i) = 0%rig). {reflexivity. }
-      assert ( sum0': Σ (λ i : (⟦ 0 ⟧)%stn, f2 i) = 0%rig). {reflexivity. }
-      rewrite sum0, sum0'.
-      apply riglunax1.
-    - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite <- rigassoc1.
-      do 3 rewrite -> rigcomm1.
-      rewrite <- (rigcomm1 _ (f1 lastelement)).
-      rewrite rigassoc1, IH.
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite <- rigassoc1, rigcomm1.
-      now rewrite (rigcomm1 R (f2 lastelement) (f1 lastelement)).
-  Defined.
-
-  Lemma sum_pointwise_op1 { n : nat } (v1 v2 : Vector R n)
+  (* doesn’t use ring structure; could be generalised to commutative monoids *)
+  Lemma rigsum_add {n} (v1 v2 : (⟦ n ⟧)%stn -> R)
     : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
   Proof.
-    unfold pointwise.
-    apply pathsinv0, rigsum_add.
+    induction n as [| n IH].
+    - cbn. apply pathsinv0, riglunax1.
+    - do 3 (rewrite iterop_fun_step; [ | apply riglunax1 ]).
+      etrans. { apply maponpaths_2. apply IH. }
+      refine (rigassoc1 _ _ _ _ @ _ @ !rigassoc1 _ _ _ _).
+      apply maponpaths.
+      refine (!rigassoc1 _ _ _ _ @ _ @ rigassoc1 _ _ _ _).
+      apply maponpaths_2.
+      apply rigcomm1.
   Defined.
 
   Lemma interchange_sums :
@@ -139,7 +125,7 @@ Section Vectors.
       reflexivity.
     - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       unfold funcomp.
-      rewrite <- IH, rigsum_add.
+      rewrite <- IH, <- rigsum_add.
       apply maponpaths, funextfun; intros i.
       rewrite -> iterop_fun_step. 2: { apply riglunax1. }
       reflexivity.
@@ -396,9 +382,9 @@ Section Vectors.
         + rewrite rigmultx0; apply f_two_pulse; now apply issymm_natneq.
     }
     etrans. { apply maponpaths, H. }
-    etrans. { apply sum_pointwise_op1. }
+    etrans. { apply rigsum_add. }
     apply maponpaths_12;
-    rewrite <- sum_is_ldistr, stdb_vector_sums_to_1; apply rigrunax2.
+    rewrite <- vecsum_ldistr, stdb_vector_sums_to_1; apply rigrunax2.
   Defined.
 
   Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=

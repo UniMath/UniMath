@@ -83,10 +83,10 @@ Section General.
     etrans.
     2: { symmetry.
          apply maponpaths, funextfun. intros k.
-         apply sum_is_ldistr. }
+         apply vecsum_ldistr. }
     etrans.
       { apply maponpaths. apply funextfun. intros k.
-        apply sum_is_rdistr. }
+        apply vecsum_rdistr. }
     rewrite interchange_sums.
     apply maponpaths, funextfun; intros k.
     apply maponpaths, funextfun; intros l.
@@ -111,7 +111,7 @@ Section General.
       apply maponpaths, funextfun; intros k.
       rewrite rigldistr; apply idpath.
     }
-    apply pathsinv0, rigsum_add.
+    apply rigsum_add.
   Defined.
 
   Lemma matrix_mult_rdistr :
@@ -131,8 +131,9 @@ Section General.
       rewrite rigrdistr.
       exact (idpath _).
     }
-    apply pathsinv0, rigsum_add.
+    apply rigsum_add.
   Defined.
+
 
   Lemma matrix_mult_zero_vec_eq {m n : nat} {mat : Matrix R m n}
   : (@matrix_mult R _ _ mat _
