@@ -21,7 +21,7 @@ Require Import UniMath.Algebra.Elimination.Vectors.
 
 
 Local Notation Σ := (iterop_fun rigunel1 op1).
-Local Notation "A ** B" := (matrix_mult A B) (at level 80).
+Local Notation "A ** B" := (matrix_mult A B) (at level 40, left associativity).
 Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
 (** * Arbitrary types *)
@@ -66,8 +66,8 @@ Section Arbitrary_Types.
 
 End Arbitrary_Types.
 
-(* Matrix algebra facts that hold over an arbitrary rig,
-   not yet assumed commutative. *)
+(** * Arbitary rigs
+  Matrix algebra facts that hold over an arbitrary rig, not yet assumed commutative. *)
 
 Section General_Rigs.
 
@@ -75,13 +75,12 @@ Context {R : rig}.
 
 Section General.
 
-  Definition matrix_mult_unf  {m n : nat} (mat1 : Matrix R m n)
-    {p : nat} (mat2 : Matrix R n p) : (Matrix R m p) :=
-    λ i j, Σ (λ k, (mat1 i k * mat2 k j))%rig.
+  Definition matrix_mult_unf {m n p} (mat1 : Matrix R m n) (mat2 : Matrix R n p)
+    : Matrix R m p
+  := λ i j, Σ (λ k, (mat1 i k * mat2 k j))%rig.
 
-  Lemma matrix_mult_eq {m n : nat} (mat1 : Matrix R m n)
-    {p : nat} (mat2 : Matrix R n p) :
-    matrix_mult mat1 mat2 = matrix_mult_unf mat1 mat2.
+  Lemma matrix_mult_eq {m n p} (mat1 : Matrix R m n) (mat2 : Matrix R n p)
+    : (mat1 ** mat2) = matrix_mult_unf mat1 mat2.
   Proof.
     reflexivity.
   Defined.
@@ -92,6 +91,8 @@ Section General.
   (mat2 : Matrix R m n)
   : (Matrix R m n) :=
     entrywise _ _ op1 mat1 mat2.
+
+  Local Notation "A ++' B" := (matrix_add A B) (at level 50, left associativity).
 
   Lemma matrix_add_comm:
   ∏ {m n : nat} (mat1 : Matrix R m n)
@@ -135,8 +136,6 @@ Section General.
     apply rigassoc2.
   Defined.
 
-  Local Notation "A ++' B" := (matrix_add A B) (at level 80).
-
   Lemma matrix_mult_ldistr :
     ∏ (m n : nat) (mat1 : Matrix R m n)
       (p : nat) (mat2 : Matrix R n p)
@@ -175,7 +174,6 @@ Section General.
     }
     apply vecsum_add.
   Defined.
-
 
   Lemma matrix_mult_zero_vec_eq {m n : nat} {mat : Matrix R m n}
   : (@matrix_mult R _ _ mat _
@@ -568,6 +566,7 @@ End Misc.
 
 End General_Rigs.
 
+(** * Commutative rigs *)
 Section MatricesCommrig.
 
   Lemma row_vec_col_vec_mult_eq
@@ -596,9 +595,8 @@ End MatricesCommrig.
 Section MatricesFld.
 
   Context {F : fld}.
-  Local Notation Σ := (iterop_fun 0%ring op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2).
+
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B).
 
   Lemma matrix_product_transpose
   { m n k : nat } (A : Matrix F m n) (B : Matrix F n k)

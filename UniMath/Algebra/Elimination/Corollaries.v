@@ -46,7 +46,7 @@ Section BackSub.
   Context (F : fld).
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** output: a solution [x] to [mat ** x = b] if one exists
@@ -302,7 +302,7 @@ Section BackSubZero.
   Context {F : fld}.
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Local Notation "0" := (@ringunel1 F).
@@ -435,7 +435,7 @@ Section Locals.
   (** Helper functions *)
 
   Context {F: fld}.
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
 
   Local Definition flip_fld_bin
   (e : F) : F.
@@ -505,7 +505,7 @@ Section Inverse.
   Context (F : fld).
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** Construct the inverse,

@@ -49,7 +49,7 @@ Section Summary.
   Context (F: fld).
 
   Local Notation Σ := (iterop_fun (@rigunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Definition is_leading_entry {F : fld} {n : nat}
@@ -95,7 +95,7 @@ Section LeadingEntry.
   Context (R: ring).
   Context (F: fld).
 
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** The leading entry of a (dual <-> "flipped") vector:
@@ -409,7 +409,7 @@ Section Pivot.
   Context (F: fld).
 
   Local Notation Σ := (iterop_fun (@rigunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Definition select_pivot_row_coprod {m n : nat} (mat : Matrix F m n)
@@ -517,7 +517,7 @@ Section Gauss.
   Context (F : fld).
 
   Local Notation Σ := (iterop_fun (@ringunel1) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 80).
+  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** Clearing a target entry [i], if it does not equal the pivot row : [i] != [k_i]. *)
