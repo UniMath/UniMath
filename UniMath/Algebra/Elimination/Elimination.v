@@ -225,7 +225,7 @@ Section LeadingEntry.
     destruct (natlehchoice i iter) as [le | eq].
       {now apply natlthsntoleh. }
     - intros H; now apply IH in H.
-    - intros ?; now rewrite (stn_eq_2 _ _ eq p), eq0.
+    - intros ?. refine (_ @ eq0). apply maponpaths, stn_eq, eq.
   Defined.
 
   Definition leading_entry_compute_dual_internal_inv3
@@ -278,8 +278,7 @@ Section LeadingEntry.
         unfold leading_entry_compute_dual_internal.
         unfold p'; now rewrite eq.
       }
-      rewrite (stn_eq_2 _ _ eq' p).
-      now rewrite z.
+      refine (_ @ z). apply maponpaths, stn_eq, eq'.
     - intros ?; simpl; use tpair.
       { destruct (maybe_choice
         (leading_entry_compute_dual_internal v (S _,, p)))
@@ -1014,7 +1013,6 @@ Section Gauss.
             destruct (!eq).
             now apply natlehneggth in leh.
       }
-      rewrite <- (stn_eq_2 _ _ eq p).
       destruct (stn_eq_or_neq _ _) as [contr_eq | ?].
       { rewrite contr_eq in k_le_r. contradiction (isirreflnatgth _ k_le_r). }
       replace _ with (gauss_clear_column_step k_i k_j r mat r).
@@ -1052,6 +1050,7 @@ Section Gauss.
       }
       rewrite <- (@gauss_clear_column_inv0 m n k_i k_j (sep,, p')).
       2: { rewrite eq; apply isreflnatleh. }
+      rewrite <- (stn_eq_2 _ _ eq p).
       rewrite <- (stn_eq_2 _ _ eq p) in commute.
       now rewrite <- commute.
   Defined.

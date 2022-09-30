@@ -247,24 +247,16 @@ Section Stn.
     intros le_sn_m; exact le_sn_m.
   Defined.
 
-  Lemma stn_eq
-    {k : nat} (i j : stn k) (eq : pr1 i = pr1 j) : i = j.
+  Lemma stn_eq {k : nat} (i j : stn k) (eq : pr1 i = pr1 j)
+    : i = j.
   Proof.
     now apply subtypePath_prop.
   Defined.
 
-  Lemma stn_eq_2
-    {k : nat} (i: stn k) (j : nat) (eq : pr1 i = j)
-      : forall P : j < k, i = (j,, P).
+  Lemma stn_eq_2 {k : nat} (i: stn k) (j : nat) (eq : pr1 i = j) (P : j < k)
+    : i = (j,, P).
   Proof.
     intros; apply stn_eq, eq.
-  Defined.
-
-  Lemma stn_eq_3
-    {k : nat} (i: nat) (j : stn k) (eq : i = pr1 j)
-      : forall P : i < k, j = (i,, P).
-  Proof.
-    intros; apply stn_eq, pathsinv0, eq.
   Defined.
 
   (* perhaps generalise to a version for any [isincl], and use [isinclstntonat]? *)
