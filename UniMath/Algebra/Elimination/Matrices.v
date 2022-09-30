@@ -144,10 +144,8 @@ Section General.
     apply funextfun; intros i.
     unfold col_vec.
     apply funextfun; intros _.
-    rewrite vecsum_zero;
-      try (apply idpath).
-    unfold const_vec.
-    apply funextfun; intros k.
+    apply vecsum_eq_zero.
+    intros k.
     apply rigmultx0.
   Defined.
 
@@ -249,7 +247,7 @@ Section Identity_Matrix.
     { m n : nat } (mat : Matrix R m n) (v1 : Vector R n) (v2 : Vector R m)
     (e : (mat ** (col_vec v1)) = col_vec v2)
     : ∏ i : (stn m),
-    @iterop_fun R (@rigunel1 R) op1 n ((mat i) *pw v1) = v2 i.
+    Σ ((mat i) *pw v1) = v2 i.
   Proof.
     now apply toforallpaths; use col_vec_inj.
   Defined.
@@ -518,8 +516,8 @@ Section Misc.
   Proof.
     apply toforallpaths in Ai_zero.
     apply funextfun; intro k.
-    apply vecsum_zero.
-    apply funextfun; intro j; unfold pointwise.
+    apply vecsum_eq_zero.
+    intro j; unfold pointwise.
     etrans. { apply maponpaths_2, Ai_zero. }
     apply rigmult0x.
   Defined.
@@ -538,16 +536,11 @@ Section MatricesCommrig.
   Proof.
     intros; unfold transpose, flip, row_vec, col_vec, row, col; intros.
     do 2 (rewrite (matrix_mult_eq); unfold matrix_mult_unf).
-    assert (eq: ∏ x0 : (stn n), iterop_fun 0%rig op1
-        (λ k : (⟦ n ⟧)%stn, (x k * A x0 k)%rig)
-      = iterop_fun 0%rig op1 (λ k : (⟦ n ⟧)%stn, (A x0 k * x k )%rig)).
-    { intros x0.
-      assert (sum_pointwise_eq : ∏ (f g : (stn n) -> CR),
-      (∏ i : (stn n), f i = g i) ->
-        iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 g).
-      { intros f g H. apply maponpaths. apply funextfun. intros j. apply H. }
-      apply sum_pointwise_eq.
-      intros. rewrite (rigcomm2). reflexivity. }
+    assert (eq: ∏ x0 : (stn n),
+             Σ (λ k : (⟦ n ⟧)%stn, (x k * A x0 k)%rig)
+             = Σ (λ k : (⟦ n ⟧)%stn, (A x0 k * x k )%rig)).
+    { intro. apply vecsum_eq.
+      intro. apply rigcomm2. }
     assert (f_eq : ∏ f g: (stn n) -> (stn 1) -> CR,
       (∏ i : (stn n), ∏ j : (stn 1), f i j = g i j) -> f = g).
     { intros f g. intros H. apply funextfun; intros i.

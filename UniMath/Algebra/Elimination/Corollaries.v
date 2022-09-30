@@ -340,9 +340,9 @@ Section BackSubZero.
           apply funextfun; intros k.
           unfold col_vec, const_vec.
           etrans.
-          { rewrite vecsum_zero.
+          { rewrite vecsum_eq_zero.
             - apply idpath.
-            - apply funextfun; intros ?; apply rigmultx0. }
+            - intros ?; apply rigmultx0. }
           reflexivity.
         }
         assert (contr_eq' : (@ringunel1 F) != (@ringunel1 F)).
@@ -408,9 +408,8 @@ Section BackSubZero.
       + rewrite matrix_mult_eq; unfold matrix_mult_unf.
         unfold col_vec, const_vec.
         apply funextfun; intros ?.
-        rewrite vecsum_zero.
-        {reflexivity. }
-        apply funextfun; intros k.
+        eapply (@vecsum_eq_zero F).
+        intros k.
         destruct (natgthorleh j k) as [? | le].
         {rewrite ut; try assumption; apply rigmult0x. }
         destruct (stn_eq_or_neq (zero) k) as [eq | ?].

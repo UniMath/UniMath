@@ -40,6 +40,12 @@ Section Arbitrary_Vectors.
     intros eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
   Defined.
 
+  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
+    : v = const_vec e -> v i = e.
+  Proof.
+    intros eq. rewrite eq. reflexivity.
+  Defined.
+
   Lemma weq_rowvec
     : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
   Proof.
@@ -68,12 +74,6 @@ Section Arbitrary_Vectors.
     : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
   Proof.
     intros i eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
-  Defined.
-
-  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
-    : v = const_vec e -> v i = e.
-  Proof.
-    intros eq. rewrite eq. reflexivity.
   Defined.
 
   Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
@@ -150,7 +150,7 @@ Section Vector_Sums.
 
   Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
   Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
-  Local Notation  Σ := (iterop_fun rigunel1 op1).
+  Local Notation  Σ := (iterop_fun 0%rig op1).
 
   (** Many of the following are generalisations of versions for natural numbers, given in [Combinatorics.StandardFiniteSets] using the keyword [stnsum].
 
@@ -184,20 +184,20 @@ Section Vector_Sums.
       apply IH; intro x; apply H.
   Defined.
 
-  Lemma vecsum_zero:
-    ∏ (n : nat)
-      (f : (⟦ n ⟧)%stn -> R),
-    (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
-    (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%rig.
+  Lemma vecsum_zero {n} : Σ (@const_vec R n 0%rig) = 0%rig.
   Proof.
-    intros n f X.
-    rewrite X.
-    unfold const_vec.
-    induction n as [| n IH]. {apply idpath. }
-    intros. rewrite vecsum_step.
-    rewrite rigrunax1; unfold funcomp.
-    rewrite IH with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
-      try assumption; reflexivity.
+    induction n as [ | n IH].
+    { reflexivity. }
+    rewrite vecsum_step.
+    rewrite rigrunax1.
+    apply IH.
+  Defined.
+
+  Lemma vecsum_eq_zero {n} (v : Vector R n) (v_0 : v ~ const_vec 0%rig)
+    : (Σ v) = 0%rig.
+  Proof.
+    etrans. { apply vecsum_eq, v_0. }
+    apply vecsum_zero.
   Defined.
 
   Lemma vecsum_left_right :
@@ -281,18 +281,18 @@ Section Vector_Sums.
 
   Lemma vecsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (left_part_is_zero : (f ∘ stn_left m' n') = const_vec 0%rig):
-    iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_right m' n' ).
+    Σ f = Σ (f ∘ stn_right m' n' ).
   Proof.
-    rewrite vecsum_left_right, vecsum_zero.
+    rewrite vecsum_left_right, vecsum_eq_zero.
     - now rewrite riglunax1.
     - now rewrite (left_part_is_zero ).
   Defined.
 
   Lemma vecsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
     (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
-    iterop_fun 0%rig op1 f = iterop_fun 0%rig op1 (f ∘ stn_left m' n' ).
+    Σ f = Σ (f ∘ stn_left m' n' ).
   Proof.
-    rewrite vecsum_left_right, rigcomm1, vecsum_zero.
+    rewrite vecsum_left_right, rigcomm1, vecsum_eq_zero.
     - now rewrite riglunax1.
     - now rewrite right_part_is_zero.
   Defined.
@@ -345,7 +345,6 @@ Section Vector_Sums.
       change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
         with (@rigunel1 R).
       apply vecsum_zero.
-      reflexivity.
     - rewrite vecsum_step.
       unfold funcomp.
       rewrite <- IH, <- vecsum_add.
@@ -366,7 +365,7 @@ Section Pulse_Functions.
 
   Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
   Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
-  Local Notation  Σ := (iterop_fun rigunel1 op1).
+  Local Notation  Σ := (iterop_fun 0%rig op1).
 
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )
   (f : ⟦ n ⟧%stn -> R)
@@ -380,11 +379,11 @@ Section Pulse_Functions.
     destruct (stn_inhabited_implies_succ i) as [n' e_n_Sn'].
     destruct (!e_n_Sn').
     rewrite (vecsum_dni f i).
-    rewrite vecsum_zero.
+    rewrite vecsum_eq_zero.
     { rewrite riglunax1. apply idpath. }
-    apply funextfun; intros k.
+    intros k.
     unfold funcomp.
-    replace (const_vec 0%rig k) with (@rigunel1 R). 2: { reflexivity. }
+    unfold const_vec.
     assert (i_neq_dni : i ≠ dni i k). {exact (dni_neq_i i k). }
     intros; destruct (stn_eq_or_neq i (dni i k) ) as [eq | neq].
       - apply (stnneq_iff_nopath i (dni i k)) in eq.
