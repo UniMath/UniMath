@@ -28,13 +28,16 @@ Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left assoc
 (** Purely structural facts about matrices over arbitary types *)
 Section Arbitrary_Types.
 
+Section Misc.
   Lemma col_inj {X : UU} (m n : nat) (mat1 mat2 : Matrix X m n)
     : (∏ i : (stn n), col mat1 i = col mat2 i) -> mat1 = mat2.
   Proof.
     intro H. apply funextfun; intro i; apply funextfun; intro j.
     specialize (H j). apply toforallpaths in H. apply H.
   Defined.
+End Misc.
 
+Section Vectors_as_Matrices.
   (** Vectors as column and row vectors *)
   Lemma weq_rowvec
     : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
@@ -71,6 +74,33 @@ Section Arbitrary_Types.
   Proof.
     easy.
   Defined.
+
+End Vectors_as_Matrices.
+
+Section Transposition.
+
+  Definition transpose_transpose {X : UU} {m n : nat} (mat : Matrix X m n)
+    : transpose (transpose mat) = mat.
+  Proof. easy. Defined.
+
+  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n)
+    : transpose mat1 = transpose mat2 -> mat1 = mat2.
+  Proof.
+    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
+  Defined.
+
+  Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
+    := transpose mat = mat.
+
+  Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
+        (i : ⟦ n ⟧%stn)
+    : is_symmetric_mat mat -> row mat i = col mat i.
+  Proof.
+    intros issymm_mat. unfold col.
+    rewrite issymm_mat. apply idpath.
+  Defined.
+
+End Transposition.
 
 End Arbitrary_Types.
 
@@ -182,28 +212,7 @@ Section General.
 
 End General.
 
-Section Transposition.
-
-  Definition transpose_transpose {X : UU} {m n : nat} (mat : Matrix X m n)
-    : transpose (transpose mat) = mat.
-  Proof. easy. Defined.
-
-  Lemma transpose_inj {X : UU} {m n : nat} (mat1 mat2 : Matrix X m n)
-    : transpose mat1 = transpose mat2 -> mat1 = mat2.
-  Proof.
-    intros H; exact (invmaponpathsweq (make_weq _ (isweq_flipsec)) _ _ H).
-  Defined.
-
-  Definition is_symmetric_mat {X : UU} {n : nat} (mat : Matrix X n n)
-    := transpose mat = mat.
-
-  Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
-        (i : ⟦ n ⟧%stn)
-    : is_symmetric_mat mat -> row mat i = col mat i.
-  Proof.
-    intros issymm_mat. unfold col.
-    rewrite issymm_mat. apply idpath.
-  Defined.
+Section Identity_Matrix.
 
   Lemma identity_matrix_symmetric  {n : nat}
     : is_symmetric_mat (@identity_matrix R n).
@@ -214,10 +223,6 @@ Section Transposition.
     unfold identity_matrix, transpose, flip.
     apply stn_eq_or_neq_symm_nondep.
   Defined.
-
-End Transposition.
-
-Section Identity_Matrix.
 
   Definition id_row_stdb_vector {n} (i : ⟦n⟧%stn)
     : row (@identity_matrix R n) i = stdb_vector i.
@@ -334,6 +339,7 @@ Section Identity_Matrix.
   Proof.
     apply stdb_vector_sums_to_1.
   Defined.
+
 
 End Identity_Matrix.
 
@@ -556,40 +562,26 @@ Section MatricesCommrig.
 
   Context {CR : commrig }.
 
-  Lemma row_vec_col_vec_mult_eq {n} (A : Matrix CR n n) (x : Vector CR n)
-  : transpose ((row_vec x) ** (transpose A)) = A ** (col_vec x).
-  Proof.
-    intros; unfold transpose, flip, row_vec, col_vec, row, col; intros.
-    do 2 (rewrite (matrix_mult_eq); unfold matrix_mult_unf).
-    assert (eq: ∏ x0 : (stn n),
-             Σ (λ k : (⟦ n ⟧)%stn, (x k * A x0 k)%rig)
-             = Σ (λ k : (⟦ n ⟧)%stn, (A x0 k * x k )%rig)).
-    { intro. apply vecsum_eq.
-      intro. apply rigcomm2. }
-    assert (f_eq : ∏ f g: (stn n) -> (stn 1) -> CR,
-      (∏ i : (stn n), ∏ j : (stn 1), f i j = g i j) -> f = g).
-    { intros f g. intros H. apply funextfun; intros i.
-      apply funextfun; intros j. apply H. }
-    apply f_eq; intros i j; apply eq.
-  Defined.
-
   Lemma matrix_product_transpose
-      { m n k : nat } (A : Matrix CR m n) (B : Matrix CR n k)
+      { m n p : nat } (A : Matrix CR m n) (B : Matrix CR n p)
     : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
   Proof.
     intros.
-    unfold transpose, flip.
-    rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    symmetry; rewrite matrix_mult_eq; unfold matrix_mult_unf.
     apply funextfun. intros i.
-    apply funextfun. intros j.
-    etrans. {apply maponpaths. apply funextfun.
-      intros ?. rewrite rigcomm2. reflexivity. }
-    reflexivity.
+    apply funextfun. intros k.
+    apply vecsum_eq. intros j.
+    unfold col, row, pointwise, transpose, flip; cbn.
+    apply rigcomm2.
   Defined.
 
-  Lemma invertible_to_transpose_invertible
-      { n } (mat : Matrix CR n n)
+  Lemma row_vec_col_vec_mult_eq {n} (A : Matrix CR n n) (x : Vector CR n)
+  : transpose ((row_vec x) ** (transpose A)) = A ** (col_vec x).
+  Proof.
+    etrans. { apply matrix_product_transpose. }
+    apply idpath.
+  Defined.
+
+  Lemma invertible_to_transpose_invertible { n } (mat : Matrix CR n n)
     : (@matrix_inverse CR n mat)
     -> (@matrix_inverse CR n (transpose mat)).
   Proof.
@@ -604,10 +596,9 @@ Section MatricesCommrig.
 
   Lemma transpose_invertible_to_invertible { n } (mat : Matrix CR n n)
     : (@matrix_inverse CR n (transpose mat))
-  -> (@matrix_inverse CR n mat).
+    -> (@matrix_inverse CR n mat).
   Proof.
-    intros; rewrite <- transpose_transpose.
-    now apply invertible_to_transpose_invertible.
+    apply invertible_to_transpose_invertible.
   Defined.
 
   Lemma matrix_left_inverse_to_transpose_right_inverse
