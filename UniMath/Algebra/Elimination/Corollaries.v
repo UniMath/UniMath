@@ -330,7 +330,7 @@ Section BackSubZero.
       - unfold transpose, flip.
         rewrite ut; try reflexivity.
         now rewrite <- eq0_1.
-      - now apply matrix_left_inverse_to_transpose_right_inverse.
+      - now apply (@matrix_left_inverse_to_transpose_right_inverse F).
     }
     assert (contr_exists :  ∑ x : (Vector F n), (∑ i' : stn n,
       (x i' != 0) × (mat ** (col_vec x)) = (@col_vec F _ (const_vec 0)))).

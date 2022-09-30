@@ -489,6 +489,14 @@ Section Diagonal.
   Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
     ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
 
+  Lemma diagonal_nonzero_iff_transpose_nonzero
+    { n : nat } (A : Matrix R n n)
+    : diagonal_all_nonzero A
+    <-> diagonal_all_nonzero (transpose A).
+  Proof.
+    split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
+  Defined.
+
 End Diagonal.
 
 Section Triangular.
@@ -546,11 +554,10 @@ End General_Rigs.
 (** * Commutative rigs *)
 Section MatricesCommrig.
 
-  Lemma row_vec_col_vec_mult_eq
-  { n : nat } {CR: commrig}
-  (A : Matrix CR n n)
-  : ∏ x, transpose (matrix_mult (row_vec x) (transpose A))
-  = (matrix_mult A (col_vec x)).
+  Context {CR : commrig }.
+
+  Lemma row_vec_col_vec_mult_eq {n} (A : Matrix CR n n) (x : Vector CR n)
+  : transpose ((row_vec x) ** (transpose A)) = A ** (col_vec x).
   Proof.
     intros; unfold transpose, flip, row_vec, col_vec, row, col; intros.
     do 2 (rewrite (matrix_mult_eq); unfold matrix_mult_unf).
@@ -566,18 +573,9 @@ Section MatricesCommrig.
     apply f_eq; intros i j; apply eq.
   Defined.
 
-End MatricesCommrig.
-
-  (* Note: Some material can be moved to semirings section above *)
-Section MatricesFld.
-
-  Context {F : fld}.
-
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B).
-
   Lemma matrix_product_transpose
-  { m n k : nat } (A : Matrix F m n) (B : Matrix F n k)
-  : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
+      { m n k : nat } (A : Matrix CR m n) (B : Matrix CR n k)
+    : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
   Proof.
     intros.
     unfold transpose, flip.
@@ -586,14 +584,14 @@ Section MatricesFld.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {apply maponpaths. apply funextfun.
-      intros ?. rewrite ringcomm2. reflexivity. }
+      intros ?. rewrite rigcomm2. reflexivity. }
     reflexivity.
   Defined.
 
   Lemma invertible_to_transpose_invertible
-    { n : nat } (mat : Matrix F n n)
-    : (@matrix_inverse F n mat)
-    -> (@matrix_inverse F n (transpose mat)).
+      { n } (mat : Matrix CR n n)
+    : (@matrix_inverse CR n mat)
+    -> (@matrix_inverse CR n (transpose mat)).
   Proof.
     intros [mat_inv [e_mi e_im]].
     exists (transpose mat_inv).
@@ -604,18 +602,18 @@ Section MatricesFld.
       assumption.
   Defined.
 
-  Lemma transpose_invertible_to_invertible { n : nat } (mat : Matrix F n n)
-    : (@matrix_inverse F n (transpose mat))
-  -> (@matrix_inverse F n mat).
+  Lemma transpose_invertible_to_invertible { n } (mat : Matrix CR n n)
+    : (@matrix_inverse CR n (transpose mat))
+  -> (@matrix_inverse CR n mat).
   Proof.
     intros; rewrite <- transpose_transpose.
     now apply invertible_to_transpose_invertible.
   Defined.
 
   Lemma matrix_left_inverse_to_transpose_right_inverse
-    {m n : nat} (A : Matrix F m n)
-    (inv: @matrix_left_inverse F m n A)
-    : (@matrix_right_inverse F n m (@transpose F n m A)).
+    {m n} (A : Matrix CR m n)
+    (inv: @matrix_left_inverse CR m n A)
+    : (@matrix_right_inverse CR n m (@transpose CR n m A)).
   Proof.
     destruct inv as [inv isinv].
     exists (transpose inv).
@@ -624,23 +622,30 @@ Section MatricesFld.
     apply identity_matrix_symmetric.
   Defined.
 
-  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix F m n)
+End MatricesCommrig.
+
+Section MatricesIntDom.
+
+  Context {R : intdom}.
+
+  (** Note: these results don’t really require that R is an integral domain, just that R is non-trivial. *)
+  Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix R m n)
       (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%ring))
-    : (@matrix_right_inverse F m n A) -> empty.
+    : (@matrix_right_inverse R m n A) -> empty.
   Proof.
     intros [inv isrightinv].
-    contradiction (@nonzeroax F).
-    etrans. { apply pathsinv0, (@id_mat_ii F). }
+    contradiction (@nonzeroax R).
+    etrans. { apply pathsinv0, (@id_mat_ii R). }
     do 2 (apply toforallpaths in isrightinv; specialize (isrightinv i)).
     etrans. { apply pathsinv0, isrightinv. }
     refine (toforallpaths _ _ _ _ i).
-    apply (@zero_row_product F).
+    apply (@zero_row_product R).
     apply zero_row.
   Defined.
 
-  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix F n n)
+  Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix R n n)
     (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%ring)) :
-    (@matrix_inverse F n A) -> empty.
+    (@matrix_inverse R n A) -> empty.
   Proof.
     intros invA.
     apply matrix_inverse_to_right_and_left_inverse in invA.
@@ -648,24 +653,9 @@ Section MatricesFld.
     apply (zero_row_to_non_right_invertibility A i); assumption.
   Defined.
 
-  Lemma diagonal_nonzero_iff_transpose_nonzero
-    { n : nat } (A : Matrix F n n)
-    : @diagonal_all_nonzero F n A
-    <-> (@diagonal_all_nonzero F n (transpose A)).
-  Proof.
-    split ; intros H; unfold diagonal_all_nonzero, transpose, flip; apply H.
-  Defined.
+End MatricesIntDom.
 
-  Lemma upper_triangular_transpose_is_lower_triangular
-    { m n : nat } (A : Matrix F m n)
-    (H: @is_upper_triangular F m n A)
-    : (@is_lower_triangular F n m (transpose A)).
-  Proof.
-    intros i j lt; unfold is_upper_triangular; now apply H.
-  Defined.
-
-End MatricesFld.
-
+(** * Matrices representing permutations *)
 Section Transpositions.
 
   Context { R : rig }.
