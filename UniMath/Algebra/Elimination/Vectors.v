@@ -22,9 +22,8 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
 
-Section Misc.
-(** * Vectors sans algebra
-*)
+Section Arbitrary_Vectors.
+(** * Vectors in arbitrary types *)
   Lemma vector_fmap {X Y : UU} (f : X -> Y) {n} : Vector X n -> Vector Y n.
   Proof.
     intros ? ?; auto.
@@ -35,16 +34,65 @@ Section Misc.
     apply iscontrfunfromempty2. apply fromstn0.
   Defined.
 
-End Misc.
+  Lemma vector_1_inj { X : rig } { n : nat } (e1 e2 : X)
+    : (λ y : (⟦ 1 ⟧)%stn, e1) = (λ y : (⟦ 1 ⟧)%stn, e2) -> e1 = e2.
+  Proof.
+    intros eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
+  Defined.
 
-Section Vectors.
+  Lemma weq_rowvec
+    : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
+  Proof.
+    intros; apply weq_vector_1.
+  Defined.
 
-  (** Additional material on vectors --
-      facts for zero vectors, sums, products, standard basis vectors. *)
+  Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : row_vec v1 = row_vec v2 -> v1 = v2.
+  Proof.
+    intros H; apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
+  Defined.
+
+  Lemma weq_colvec
+    : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n 1).
+  Proof.
+    intros; apply weqffun, weq_vector_1.
+  Defined.
+
+  Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : col_vec v1 = col_vec v2 -> v1 = v2.
+  Proof.
+    intros H; apply (invmaponpathsweq (@weq_colvec X n)  _ _ H).
+  Defined.
+
+  Lemma col_vec_inj_pointwise { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
+  Proof.
+    intros i eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
+  Defined.
+
+  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
+    : v = const_vec e -> v i = e.
+  Proof.
+    intros eq. rewrite eq. reflexivity.
+  Defined.
+
+  Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
+  : ∏ i : (stn 1), v = col (col_vec v) i.
+  Proof.
+    easy.
+  Defined.
+
+End Arbitrary_Vectors.
+
+
+Section Basic_Vector_Algebra.
+(** * Basic vector algebra *)
+
+  (** First basic algebra on vectors in rigs:
+  pointwise operations, standard basis vectors, etc. *)
 
   Context { R : rig }.
 
-  Local Notation  Σ := (iterop_fun rigunel1 op1).
   Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
   Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
 
@@ -54,87 +102,72 @@ Section Vectors.
   Definition scalar_rmult_vec {n} (vec: Vector R n) (s : R)
     := vector_fmap (fun x => x * s)%rig vec.
 
-  Lemma zero_function_sums_to_zero:
-    ∏ (n : nat)
-      (f : (⟦ n ⟧)%stn -> R),
-    (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
-    (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%rig.
+  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector R n)
+    : (v1 +pw v2) *pw v3 = (v1 *pw v3) +pw (v2 *pw v3).
   Proof.
-    intros n f X.
-    rewrite X.
-    unfold const_vec.
-    induction n as [| n IH]. {apply idpath. }
-    intros. rewrite iterop_fun_step.
-    - rewrite rigrunax1; unfold funcomp.
-      rewrite IH with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
-      try assumption; reflexivity.
-    - apply riglunax1.
+    use (pointwise_rdistr (rigrdistr R)).
   Defined.
 
-  Lemma vecsum_ldistr :
-    ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 s (Σ vec) =  Σ (scalar_lmult_vec s vec).
+  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector R n)
+    : (v1 *pw v2) *pw v3 = v1 *pw (v2 *pw v3).
   Proof.
-    intros. induction n as [| n IH].
-    - simpl. apply rigmultx0.
-    - rewrite iterop_fun_step. 2: {apply riglunax1. }
-      rewrite rigldistr. rewrite IH.
-      rewrite iterop_fun_step. 2: {apply riglunax1. }
-      reflexivity.
+    use (pointwise_assoc (rigassoc2 R)).
   Defined.
 
-  Lemma vecsum_rdistr:
-    ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 (Σ vec) s =  Σ (scalar_rmult_vec vec s).
+  Lemma pointwise_comm2_vector {CR: commrig} { n : nat } (v1 v2 : Vector CR n)
+    : v1 *pw v2 = v2 *pw v1.
   Proof.
-    intros. induction n as [| n IH].
-    - apply rigmult0x.
-    - rewrite iterop_fun_step. 2: { apply riglunax1. }
-      rewrite rigrdistr. rewrite IH.
-      rewrite iterop_fun_step. 2: { apply riglunax1. }
-      reflexivity.
+    use (pointwise_comm (rigcomm2 CR)).
   Defined.
 
-  (* doesn’t use ring structure; could be generalised to commutative monoids *)
-  Lemma rigsum_add {n} (v1 v2 : (⟦ n ⟧)%stn -> R)
-    : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
+  Definition stdb_vector { n : nat } (i : ⟦ n ⟧%stn) : Vector R n.
   Proof.
-    induction n as [| n IH].
-    - cbn. apply pathsinv0, riglunax1.
-    - do 3 (rewrite iterop_fun_step; [ | apply riglunax1 ]).
-      etrans. { apply maponpaths_2. apply IH. }
-      refine (rigassoc1 _ _ _ _ @ _ @ !rigassoc1 _ _ _ _).
-      apply maponpaths.
-      refine (!rigassoc1 _ _ _ _ @ _ @ rigassoc1 _ _ _ _).
-      apply maponpaths_2.
-      apply rigcomm1.
+    intros j.
+    induction (stn_eq_or_neq i j).
+    - exact rigunel2.
+    - exact rigunel1.
   Defined.
 
-  Lemma interchange_sums :
-    ∏ (m n : nat)
-      (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),
-    Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
-    = Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, f j i)).
+  Definition stdb_ii {n : nat} (i : ⟦ n ⟧%stn)
+    : (stdb_vector i) i = rigunel2.
   Proof.
-    intros. induction n as [| n IH].
-    - induction m.
-      { reflexivity. }
-      change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
-        with (@rigunel1 R).
-      apply zero_function_sums_to_zero.
-      reflexivity.
-    - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
-      unfold funcomp.
-      rewrite <- IH, <- rigsum_add.
-      apply maponpaths, funextfun; intros i.
-      rewrite -> iterop_fun_step. 2: { apply riglunax1. }
-      reflexivity.
+    unfold stdb_vector; rewrite (stn_eq_or_neq_refl); apply idpath.
   Defined.
 
-  (** The following few lemmata are variants of existing proofs
-     for natural numbers. *)
+  Definition stdb_ij {n : nat} (i j : ⟦ n ⟧%stn)
+    : i ≠ j -> (stdb_vector i) j = rigunel1.
+  Proof.
+    intros i_neq_j. unfold stdb_vector.
+    now rewrite (stn_eq_or_neq_right i_neq_j).
+  Defined.
 
-  (** Identical to transport_stnsum but with Σ , R*)
+End Basic_Vector_Algebra.
+
+(** * Total sums of vectors *)
+Section Vector_Sums.
+
+  Context { R : rig }.
+
+  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
+  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
+  Local Notation  Σ := (iterop_fun rigunel1 op1).
+
+  (** Many of the following are generalisations of versions for natural numbers, given in [Combinatorics.StandardFiniteSets] using the keyword [stnsum].
+
+  For now they are given here for rigs; many use only the additive structure, so could be generalised to commutative monoids (or arbitrary monoids). Lemmas involving the least structure are given first. *)
+
+  Lemma empty_sum_eq_0 (v1 : Vector R 0) : Σ v1 = 0%rig.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Lemma rigsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
+    Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
+  Proof.
+    intros; apply iterop_fun_step; apply riglunax1.
+  Defined.
+
+  (** compare [transport_stnsum]*)
   Lemma transport_rigsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
      Σ g =  Σ (λ i, g (transportf stn e i)).
   Proof.
@@ -151,10 +184,21 @@ Section Vectors.
       apply IH; intro x; apply H.
   Defined.
 
-  Lemma rigsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
-    Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
+  Lemma zero_function_sums_to_zero:
+    ∏ (n : nat)
+      (f : (⟦ n ⟧)%stn -> R),
+    (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
+    (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%rig.
   Proof.
-    intros; apply iterop_fun_step; apply riglunax1.
+    intros n f X.
+    rewrite X.
+    unfold const_vec.
+    induction n as [| n IH]. {apply idpath. }
+    intros. rewrite iterop_fun_step.
+    - rewrite rigrunax1; unfold funcomp.
+      rewrite IH with ((λ _ : (⟦ n ⟧)%stn, 0%rig));
+      try assumption; reflexivity.
+    - apply riglunax1.
   Defined.
 
   Lemma rigsum_left_right :
@@ -254,13 +298,86 @@ Section Vectors.
     - now rewrite right_part_is_zero.
   Defined.
 
+  Lemma rigsum_add {n} (v1 v2 : (⟦ n ⟧)%stn -> R)
+    : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
+  Proof.
+    induction n as [| n IH].
+    - cbn. apply pathsinv0, riglunax1.
+    - do 3 (rewrite iterop_fun_step; [ | apply riglunax1 ]).
+      etrans. { apply maponpaths_2. apply IH. }
+      refine (rigassoc1 _ _ _ _ @ _ @ !rigassoc1 _ _ _ _).
+      apply maponpaths.
+      refine (!rigassoc1 _ _ _ _ @ _ @ rigassoc1 _ _ _ _).
+      apply maponpaths_2.
+      apply rigcomm1.
+  Defined.
+
+  (** From here on, we are really using the ring structure *)
+  Lemma vecsum_ldistr :
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 s (Σ vec) =  Σ (scalar_lmult_vec s vec).
+  Proof.
+    intros. induction n as [| n IH].
+    - simpl. apply rigmultx0.
+    - rewrite iterop_fun_step. 2: {apply riglunax1. }
+      rewrite rigldistr. rewrite IH.
+      rewrite iterop_fun_step. 2: {apply riglunax1. }
+      reflexivity.
+  Defined.
+
+  Lemma vecsum_rdistr:
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 (Σ vec) s =  Σ (scalar_rmult_vec vec s).
+  Proof.
+    intros. induction n as [| n IH].
+    - apply rigmult0x.
+    - rewrite iterop_fun_step. 2: { apply riglunax1. }
+      rewrite rigrdistr. rewrite IH.
+      rewrite iterop_fun_step. 2: { apply riglunax1. }
+      reflexivity.
+  Defined.
+
+  (* does this belong in matrices, perhaps? *)
+  Lemma interchange_sums :
+    ∏ (m n : nat)
+      (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),
+    Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
+    = Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, f j i)).
+  Proof.
+    intros. induction n as [| n IH].
+    - induction m.
+      { reflexivity. }
+      change (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, f i j) )))
+        with (@rigunel1 R).
+      apply zero_function_sums_to_zero.
+      reflexivity.
+    - rewrite -> iterop_fun_step. 2: { apply riglunax1. }
+      unfold funcomp.
+      rewrite <- IH, <- rigsum_add.
+      apply maponpaths, funextfun; intros i.
+      rewrite -> iterop_fun_step. 2: { apply riglunax1. }
+      reflexivity.
+  Defined.
+
+
+End Vector_Sums.
+
+Section Pulse_Functions.
+  (** * Pulse functions
+
+  Some lemmata on “pulse functions”, i.e. vectors with only one or two non-zero values;
+  this turns out to be a useful framework for arguments with elementary row operations. *)
+
+  Context { R : rig }.
+
+  Local Notation "v1 *pw v2" := ((pointwise _ op2) v1 v2) (at level 40, left associativity).
+  Local Notation "v1 +pw v2" := ((pointwise _ op1) v1 v2) (at level 50, left associativity).
+  Local Notation  Σ := (iterop_fun rigunel1 op1).
+
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )
   (f : ⟦ n ⟧%stn -> R)
     := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
 
-  (** Some lemmata on vectors with one or two non-zero values.
-      Useful later for computations using standard basis vectors,
-      identity matrix, elementary row operations. *)
   Lemma pulse_function_sums_to_point { n : nat }
     (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
     (f_pulse_function : is_pulse_function i f)
@@ -282,32 +399,6 @@ Section Vectors.
       - apply f_pulse_function; exact neq.
   Defined.
 
-  Lemma empty_sum_eq_0 (v1 : Vector R 0) : Σ v1 = 0%rig.
-  Proof.
-    reflexivity.
-  Defined.
-
-  Definition stdb_vector { n : nat } (i : ⟦ n ⟧%stn) : Vector R n.
-  Proof.
-    intros j.
-    induction (stn_eq_or_neq i j).
-    - exact rigunel2.
-    - exact rigunel1.
-  Defined.
-
-  Definition stdb_ii {n : nat} (i : ⟦ n ⟧%stn)
-    : (stdb_vector i) i = rigunel2.
-  Proof.
-    unfold stdb_vector; rewrite (stn_eq_or_neq_refl); apply idpath.
-  Defined.
-
-  Definition stdb_ij {n : nat} (i j : ⟦ n ⟧%stn)
-    : i ≠ j -> (stdb_vector i) j = rigunel1.
-  Proof.
-    intros i_neq_j. unfold stdb_vector.
-    now rewrite (stn_eq_or_neq_right i_neq_j).
-  Defined.
-
   Lemma is_pulse_function_stdb_vector
       { n : nat } (i : ⟦ n ⟧%stn)
     : is_pulse_function i (stdb_vector i).
@@ -318,7 +409,7 @@ Section Vectors.
   Defined.
 
   Lemma stdb_vector_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn)
-    : Σ (@stdb_vector n i) = 1%rig.
+    : Σ (@stdb_vector R n i) = 1%rig.
   Proof.
     etrans.
     { apply (pulse_function_sums_to_point _ i), is_pulse_function_stdb_vector. }
@@ -387,71 +478,4 @@ Section Vectors.
     rewrite <- vecsum_ldistr, stdb_vector_sums_to_1; apply rigrunax2.
   Defined.
 
-  Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
-    λ i : ⟦ n ⟧%stn, 0%nat.
-
-  Lemma vector_1_inj { X : rig } { n : nat } (e1 e2 : X)
-    : (λ y : (⟦ 1 ⟧)%stn, e1) = (λ y : (⟦ 1 ⟧)%stn, e2) -> e1 = e2.
-  Proof.
-    intros eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
-  Defined.
-
-  Lemma weq_rowvec
-    : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
-  Proof.
-    intros; apply weq_vector_1.
-  Defined.
-
-  Lemma weq_colvec
-    : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n 1).
-  Proof.
-    intros; apply weqffun, weq_vector_1.
-  Defined.
-
-  Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
-    : col_vec v1 = col_vec v2 -> v1 = v2.
-  Proof.
-    intros H; apply (invmaponpathsweq (@weq_colvec X n)  _ _ H).
-  Defined.
-
-  Lemma col_vec_inj_pointwise { X : rig } { n : nat } (v1 v2 : Vector X n)
-    : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
-  Proof.
-    intros i eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
-  Defined.
-
-  Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
-    : row_vec v1 = row_vec v2 -> v1 = v2.
-  Proof.
-    intros H; apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
-  Defined.
-
-  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
-    : v = const_vec e -> v i = e.
-  Proof.
-    intros eq. rewrite eq. reflexivity.
-  Defined.
-
-  Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
-  : ∏ i : (stn 1), v = col (col_vec v) i.
-  Proof. easy. Defined.
-
-  Lemma pointwise_rdistr_vector { n : nat } (v1 v2 v3 : Vector R n)
-    : (v1 +pw v2) *pw v3 = (v1 *pw v3) +pw (v2 *pw v3).
-  Proof.
-    use (pointwise_rdistr (rigrdistr R)).
-  Defined.
-
-  Lemma pointwise_assoc2_vector { n : nat } (v1 v2 v3 : Vector R n)
-    : (v1 *pw v2) *pw v3 = v1 *pw (v2 *pw v3).
-  Proof.
-    use (pointwise_assoc (rigassoc2 R)).
-  Defined.
-
-  Lemma pointwise_comm2_vector {CR: commrig} { n : nat } (v1 v2 : Vector CR n)
-    : v1 *pw v2 = v2 *pw v1.
-  Proof.
-    use (pointwise_comm (rigcomm2 CR)).
-  Defined.
-
-End Vectors.
+End Pulse_Functions.
