@@ -24,6 +24,48 @@ Local Notation Σ := (iterop_fun rigunel1 op1).
 Local Notation "A ** B" := (matrix_mult A B) (at level 80).
 Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
+(** * Arbitrary types *)
+(** Purely structural facts about matrices over arbitary types *)
+Section Arbitrary_Types.
+
+    Lemma weq_rowvec
+    : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X 1 n.
+  Proof.
+    intros; apply weq_vector_1.
+  Defined.
+
+  Lemma row_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : row_vec v1 = row_vec v2 -> v1 = v2.
+  Proof.
+    intros H; apply (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
+  Defined.
+
+  Lemma weq_colvec
+    : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n 1).
+  Proof.
+    intros; apply weqffun, weq_vector_1.
+  Defined.
+
+  Lemma col_vec_inj { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : col_vec v1 = col_vec v2 -> v1 = v2.
+  Proof.
+    intros H; apply (invmaponpathsweq (@weq_colvec X n)  _ _ H).
+  Defined.
+
+  Lemma col_vec_inj_pointwise { X : rig } { n : nat } (v1 v2 : Vector X n)
+    : forall i : (stn n), (col_vec v1 i) = (col_vec v2 i) -> (v1 i) = (v2 i).
+  Proof.
+    intros i eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
+  Defined.
+
+  Lemma col_vec_eq {X : UU} {n : nat} (v : Vector X n)
+  : ∏ i : (stn 1), v = col (col_vec v) i.
+  Proof.
+    easy.
+  Defined.
+
+End Arbitrary_Types.
+
 (* Matrix algebra facts that hold over an arbitrary rig,
    not yet assumed commutative. *)
 
