@@ -76,6 +76,12 @@ Section TheDefinitions.
   Definition lineator_laxlaws (ld : lineator_data) : UU :=
     lineator_nat_left ld × lineator_nat_right ld × preserves_actor ld × preserves_unitor ld.
 
+  Lemma isaprop_lineator_laxlaws (ld : lineator_data) : isaprop (lineator_laxlaws ld).
+  Proof.
+    apply isapropdirprod; [| apply isapropdirprod ; [| apply isapropdirprod]];
+      repeat (apply impred; intro); apply D.
+  Qed.
+
   Definition lineator_lax : UU := ∑ (ld : lineator_data), lineator_laxlaws ld.
 
   Definition lineator_lindata (ll : lineator_lax) : lineator_data := pr1 ll.
