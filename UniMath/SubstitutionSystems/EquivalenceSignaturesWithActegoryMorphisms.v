@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
+Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
 Import Bicat.Notations.
 Import MonoidalNotations.
@@ -70,6 +71,8 @@ Section A.
    := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
+ Section AA.
+
  Context (H : [C, D'] ⟶ [C, D]).
 
  Lemma weqABStrengthLaxMorphismActegories :
@@ -78,6 +81,17 @@ Section A.
    ≃ lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors D') (actegoryPtdEndosOnFunctors D) H.
  Proof.
    use weq_iso.
- Abort.
+ Admitted.
+
+End AA.
+
+ Lemma weqSignatureLaxMorphismActegories :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) ([C, D'],,actegoryPtdEndosOnFunctors D') ([C, D],,actegoryPtdEndosOnFunctors D).
+ Proof.
+   apply (weqcomp weqSignatureABStrength).
+   apply weqfibtototal.
+   intro H.
+   apply weqABStrengthLaxMorphismActegories.
+ Defined.
 
 End A.
