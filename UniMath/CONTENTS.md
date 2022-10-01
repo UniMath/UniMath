@@ -728,6 +728,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [CCS_alt.v](SubstitutionSystems/CCS_alt.v)
    - [PCF_alt.v](SubstitutionSystems/PCF_alt.v)
    - [ActionBasedStrengthOnHomsInBicat.v](SubstitutionSystems/ActionBasedStrengthOnHomsInBicat.v)
+   - [EquivalenceSignaturesWithActegoryMorphisms.v](SubstitutionSystems/EquivalenceSignaturesWithActegoryMorphisms.v)
    - [All.v](SubstitutionSystems/All.v)
 ## Package [Folds](Folds/README.md)
    - [UnicodeNotations.v](Folds/UnicodeNotations.v)

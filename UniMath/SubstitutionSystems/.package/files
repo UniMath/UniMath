@@ -32,3 +32,4 @@ CCS.v
 CCS_alt.v
 PCF_alt.v
 ActionBasedStrengthOnHomsInBicat.v
+EquivalenceSignaturesWithActegoryMorphisms.v
