@@ -58,8 +58,7 @@ Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
 
 (** A morphism of an F-algebras (F X, g : F X --> X) and (F Y, h : F Y --> Y)
     is a morphism f : X --> Y such that the following diagram commutes:
-
-    <<
+<<
          F f
     F x ----> F y
     |         |
@@ -67,7 +66,7 @@ Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
     V         V
     x ------> y
          f
-    >>
+>>
  *)
 Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier Y) : UU
   := alg_map X · f = #F f · alg_map Y.
@@ -448,15 +447,14 @@ Section Nats.
       so by the η-rule (UMP) for the coproduct, we can assume that it
       arises from a pair of maps [nat_ob_z,nat_ob_s] by composing with
       coproduct injections.
-
-      <<
+<<
                   in1         in2
                1 ----> 1 + N <---- N
                |         |         |
       nat_ob_z |         | alg_map | nat_ob_s
                |         V         |
                +-------> N <-------+
-      >>
+>>
    *)
   Definition nat_ob_z (N : nat_ob) : (1 --> N) :=
     BinCoproductIn1 (bc 1 (alg_carrier F (pr1 N))) · (alg_map _ (pr1 N)).
@@ -496,8 +494,7 @@ Section Nats.
 
     (** By initiality of N, there is a unique morphism making the following
         diagram commute:
-
-        <<
+<<
                inlN         identity 1 + nat_ob_rec
             1 -----> 1 + N -------------------------> 1 + X
                        |                                |
@@ -505,7 +502,7 @@ Section Nats.
                        V                                V
                        N   -------------------------->  X
                                    nat_ob_rec
-        >>
+>>
 
         This proof uses somewhat idiosyncratic "forward reasoning", transforming
         the term "diagram" rather than the goal.

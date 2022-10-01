@@ -29,12 +29,12 @@ Section Defn.
       + exact (∑ (a : ob C × ob C), dirprod_pr1 a --> dirprod_pr2 a).
       + intros x y.
         (** The commutative square
-            <<
+<<
               pr1 x   --->   pr1 y
                 |             |
                 |             |
             pr1 pr2 x ---> pr1 pr2 y
-            >>
+>>
          *)
         exact (∑ fg : dirprod_pr1 (pr1 x) --> dirprod_pr1 (pr1 y) ×
                       dirprod_pr2 (pr1 x) --> dirprod_pr2 (pr1 y),
@@ -46,13 +46,13 @@ Section Defn.
       exists (make_dirprod (dirprod_pr1 (pr1 f) · dirprod_pr1 (pr1 g))
                      (dirprod_pr2 (pr1 f) · dirprod_pr2 (pr1 g))).
       (** Composing commutative squares
-          <<
+<<
             pr1 x   --->   pr1 y    --->   pr1 z
               |             |                |
               |      f      |        g       |
               |             |                |
           pr1 pr2 x ---> pr1 pr2 y  ---> pr1 pr2 z
-          >>
+>>
         *)
       cbn.
       refine (assoc _ _ _ @ _).
