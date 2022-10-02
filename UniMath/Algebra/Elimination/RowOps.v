@@ -55,6 +55,7 @@ Section Add_Row.
     - exact ((mat r2 j) + (s * (mat r1 j)))%rig.
     - exact (mat i j).
   Defined.
+(* Note: There’s a tradeoff here (and similarly in other row-operations) between doing the case-split before or after introducing [j].  Putting the case-split first allows defining the rows as linear combinations of vectors, providing useful abstractions in some calculations later, but means the function isn’t in canonical form, which obstructs pointwise calculations. *)
 
   Definition add_row_matrix
     { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : R)
@@ -73,8 +74,7 @@ Section Add_Row.
     : (add_row_matrix r1 r2 s) **' mat = gauss_add_row mat r1 r2 s.
   Proof.
     intros.
-    apply funextfun. intros i.
-    apply funextfun. intros j.
+    apply funextfun; intros i; apply funextfun; intros j.
     unfold matrix_mult, add_row_matrix, gauss_add_row, col, row.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; simpl coprod_rect.
     - etrans. { apply maponpaths, (@pointwise_rdistr_vector R). }
