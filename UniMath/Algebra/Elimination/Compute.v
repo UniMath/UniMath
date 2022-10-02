@@ -70,7 +70,7 @@ Section Tests_1.
   (* Switch : [1, 0] -> [0, 1]
               [0, 1]    [1, 0]*)
 
-  Let eval7 := gauss_switch_row (@identity_matrix R 2) (0,, (natgthsnn 0)) (1,, (natgthsnn _)).
+  Let eval7 := @gauss_switch_row _ 2 2 (0,, (natgthsnn 0)) (1,, (natgthsnn _)) (@identity_matrix R 2).
 
   Local Lemma eq7 : (firstValue (firstValue eval7)) = (@rigunel1 R).
   Proof. apply idpath. Defined.

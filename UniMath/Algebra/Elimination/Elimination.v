@@ -545,8 +545,8 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i).
     - exact mat.
-    - exact (gauss_add_row mat k_i i
-        (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring).
+    - refine (gauss_add_row k_i i _ mat).
+      exact (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring.
   Defined.
 
   Lemma gauss_clear_column_step_eq {m n : nat}
@@ -680,7 +680,7 @@ Section Gauss.
       rewrite <- eq. apply isreflnatgeh. }
       rewrite add_row_mat_elementary.
       2 : { now apply issymm_natneq, natgthtoneq. }
-      apply pathsinv0, maponpaths.
+      apply pathsinv0, maponpaths_2.
       etrans.
       { replace (fldmultinv' (@matrix_mult F _ _ _ _ mat k_i k_j)%ring)
           with (fldmultinv' (mat k_i k_j)%ring); try reflexivity.
@@ -742,7 +742,7 @@ Section Gauss.
       as [[piv_col [? [piv_row ?]]] | none].
     2: {exact mat. }
     refine (gauss_clear_column _ row piv_col (m,, natlthnsn _)).
-    exact (@gauss_switch_row F _ _ mat row piv_row).
+    exact (@gauss_switch_row F _ _ row piv_row mat).
   Defined.
 
   Definition gauss_clear_row_as_left_matrix
@@ -755,7 +755,7 @@ Section Gauss.
     destruct (select_uncleared_column F mat row p)
       as [[piv_col [_ [piv_row _]]] | none].
     2 : {exact (@identity_matrix F _). }
-    set (mat_by_normal_op := (@gauss_switch_row F _ _ mat row piv_row)).
+    set (mat_by_normal_op := (@gauss_switch_row F _ _ row piv_row mat)).
     refine ((gauss_clear_column_as_left_matrix
       (m,, natgthsnn _) mat_by_normal_op row piv_col) ** _).
     refine (@switch_row_matrix _ _ row piv_row).
