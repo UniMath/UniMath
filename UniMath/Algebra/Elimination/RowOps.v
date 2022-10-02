@@ -46,7 +46,7 @@ Section Add_Row.
 
   Context { R : ring }.
 
-  Definition gauss_add_row
+  Definition add_row_mult
     { m n } (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
     : ( Matrix R m n ).
   Proof.
@@ -57,7 +57,7 @@ Section Add_Row.
   Defined.
 (* Note: There’s a tradeoff here (and similarly in other row-operations) between doing the case-split before or after introducing [j].  Putting the case-split first allows defining the rows as linear combinations of vectors, providing useful abstractions in some calculations later, but means the function isn’t in canonical form, which obstructs pointwise calculations. *)
 
-  Definition add_row_matrix
+  Definition add_row_mult_matrix
     { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : R)
     : Matrix R n n.
   Proof.
@@ -68,13 +68,13 @@ Section Add_Row.
     - refine (@stdb_vector R _ i).
   Defined.
 
-  Lemma add_row_mat_elementary
+  Lemma add_row_mult_as_matrix
     { m n } (r1 r2 : ⟦ m ⟧%stn) (ne : r1 ≠ r2) (s : R) (mat : Matrix R m n)
-    : (add_row_matrix r1 r2 s) **' mat = gauss_add_row r1 r2 s mat.
+    : (add_row_mult_matrix r1 r2 s) **' mat = add_row_mult r1 r2 s mat.
   Proof.
     intros.
     apply funextfun; intros i; apply funextfun; intros j.
-    unfold matrix_mult, add_row_matrix, gauss_add_row, col, row.
+    unfold matrix_mult, add_row_mult_matrix, add_row_mult, col, row.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; simpl coprod_rect.
     - etrans. { apply maponpaths, (@pointwise_rdistr_vector R). }
       etrans. { apply vecsum_add. }
@@ -86,14 +86,14 @@ Section Add_Row.
     - use sum_stdb_vector_pointwise_prod.
   Defined.
 
-  Lemma add_row_matrix_sum
+  Lemma add_row_mult_matrix_sum
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2) ( s1 s2 : R ) :
-    ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2))
-   = (add_row_matrix r1 r2 (s1 + s2)%ring).
+    ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2))
+   = (add_row_mult_matrix r1 r2 (s1 + s2)%ring).
   Proof.
-    rewrite add_row_mat_elementary; try assumption.
+    rewrite add_row_mult_as_matrix; try assumption.
     apply funextfun; intros i; apply funextfun; intros j.
-    unfold gauss_add_row, add_row_matrix.
+    unfold add_row_mult, add_row_mult_matrix.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: {apply idpath. }
     destruct i_eq_r2.
@@ -103,12 +103,12 @@ Section Add_Row.
     reflexivity.
   Defined.
 
-  Lemma add_row_matrix_zero
+  Lemma add_row_mult_matrix_zero
       { n } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
-    : add_row_matrix r1 r2 (@rigunel1 R) = @identity_matrix R _.
+    : add_row_mult_matrix r1 r2 (@rigunel1 R) = @identity_matrix R _.
   Proof.
     apply funextfun; intros i.
-    unfold add_row_matrix.
+    unfold add_row_mult_matrix.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
     2: { apply idpath. }
     destruct i_eq_r2. simpl.
@@ -118,49 +118,49 @@ Section Add_Row.
     apply (@rigrunax1 R).
   Defined.
 
-  Lemma add_row_matrix_commutes
+  Lemma add_row_mult_matrix_commutes
       {n} ( r1 r2 : ⟦ n ⟧%stn) (ne : r1 ≠ r2) ( s1 s2 : R )
-    : ((add_row_matrix r1 r2 s1 ) **' (add_row_matrix r1 r2 s2 ))
-    = ((add_row_matrix r1 r2 s2 ) **' (add_row_matrix r1 r2 s1 )).
+    : ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2 ))
+    = ((add_row_mult_matrix r1 r2 s2 ) **' (add_row_mult_matrix r1 r2 s1 )).
   Proof.
-    do 2 (rewrite add_row_matrix_sum; try assumption).
+    do 2 (rewrite add_row_mult_matrix_sum; try assumption).
     apply maponpaths, (@rigcomm1 R).
   Defined.
 
-  Lemma add_row_matrix_invertible
+  Lemma add_row_mult_matrix_invertible
     { n } (r1 r2 : ⟦ n ⟧%stn) (ne : r1 ≠ r2) (s : R)
-   : @matrix_inverse R n (add_row_matrix r1 r2 s).
+   : @matrix_inverse R n (add_row_mult_matrix r1 r2 s).
   Proof.
-    exists (add_row_matrix r1 r2 (- s)%ring).
+    exists (add_row_mult_matrix r1 r2 (- s)%ring).
     split;
-      refine (add_row_matrix_sum _ _ ne _ _ @ _);
-      refine (_ @ add_row_matrix_zero _ _ ne);
+      refine (add_row_mult_matrix_sum _ _ ne _ _ @ _);
+      refine (_ @ add_row_mult_matrix_zero _ _ ne);
       apply maponpaths.
     - apply (@ringrinvax1 R).
     - apply (@ringlinvax1 R).
   Defined.
 
   (** Some basic invariants of the add-row operation, used in Gaussian elimination. *)
-  Lemma gauss_add_row_inv0
+  Lemma add_row_mult_inv0
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> gauss_add_row r1 r2 s mat i = mat i.
+    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
   Proof.
     intros i r2_ne_i.
-    unfold gauss_add_row.
+    unfold add_row_mult.
     destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; try reflexivity.
     rewrite i_eq_r2 in r2_ne_i.
     apply isirrefl_natneq in r2_ne_i.
     apply fromempty; assumption.
   Defined.
 
-  Lemma gauss_add_row_inv1
+  Lemma add_row_mult_inv1
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
     : mat r1 = const_vec 0%ring
-      -> gauss_add_row r1 r2 s mat = mat.
+      -> add_row_mult r1 r2 s mat = mat.
   Proof.
     intros eq0.
     apply funextfun; intros i'; apply funextfun; intros j'.
-    unfold gauss_add_row.
+    unfold add_row_mult.
     destruct (stn_eq_or_neq _ _ ) as [i'_eq_j' | i'_neq_j'];
       simpl; try reflexivity.
     rewrite <- i'_eq_j', eq0.
@@ -169,12 +169,12 @@ Section Add_Row.
     apply (@rigrunax1 R).
   Defined.
 
-  Definition gauss_add_row_comp
+  Definition add_row_mult_comp
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
     (c : ⟦ n ⟧%stn)
-  : (gauss_add_row r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
+  : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
   Proof.
-    unfold gauss_add_row
+    unfold add_row_mult
     ; now rewrite stn_eq_or_neq_refl.
   Defined.
 
@@ -184,7 +184,7 @@ Section Mult_Row.
 
   Context { F : fld }.
 
-  Definition gauss_scalar_mult_row
+  Definition scalar_mult_row
     { m n : nat} (r : ⟦ m ⟧%stn) (s : F) (mat : Matrix F m n)
     : Matrix F m n.
   Proof.
@@ -194,7 +194,7 @@ Section Mult_Row.
     - exact (mat i j).
   Defined.
 
-  Definition mult_row_matrix {n : nat}
+  Definition scalar_mult_row_matrix {n : nat}
       (r : ⟦ n ⟧%stn) (s : F)
     : Matrix F n n.
   Proof.
@@ -204,12 +204,12 @@ Section Mult_Row.
     - exact (@stdb_vector F _ i).
   Defined.
 
-  Lemma scalar_mult_mat_elementary
+  Lemma scalar_mult_as_matrix
     {m n : nat} (r : ⟦ m ⟧%stn) (s : F) (mat : Matrix F m n)
-    : ((mult_row_matrix r s) **' mat) = gauss_scalar_mult_row r s mat.
+    : ((scalar_mult_row_matrix r s) **' mat) = scalar_mult_row r s mat.
   Proof.
     use funextfun; intros i; use funextfun; intros ?.
-    unfold matrix_mult, mult_row_matrix, gauss_scalar_mult_row, row.
+    unfold matrix_mult, scalar_mult_row_matrix, scalar_mult_row, row.
     destruct (stn_eq_or_neq i r) as [? | ?].
     - simpl coprod_rect.
       etrans.
@@ -223,12 +223,12 @@ Section Mult_Row.
 
   Lemma scalar_mult_matrix_product
     { n } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
-    : ((mult_row_matrix r s1 ) **' (mult_row_matrix r s2 ))
-      = (mult_row_matrix r (s1 * s2)%ring ).
+    : ((scalar_mult_row_matrix r s1 ) **' (scalar_mult_row_matrix r s2 ))
+      = (scalar_mult_row_matrix r (s1 * s2)%ring ).
   Proof.
-    rewrite scalar_mult_mat_elementary.
-    unfold gauss_scalar_mult_row.
-    unfold mult_row_matrix.
+    rewrite scalar_mult_as_matrix.
+    unfold scalar_mult_row.
+    unfold scalar_mult_row_matrix.
     apply funextfun; intros i.
     apply funextfun; intros j.
     destruct (stn_eq_or_neq i r);
@@ -240,9 +240,9 @@ Section Mult_Row.
 
   Lemma scalar_mult_matrix_one
     {n : nat} (r : ⟦ n ⟧%stn)
-    : mult_row_matrix r (@rigunel2 F) = @identity_matrix F _.
+    : scalar_mult_row_matrix r (@rigunel2 F) = @identity_matrix F _.
   Proof.
-    unfold mult_row_matrix.
+    unfold scalar_mult_row_matrix.
     apply funextfun; intros i.
     destruct (stn_eq_or_neq i r); simpl coprod_rect.
     2: { reflexivity. }
@@ -252,8 +252,8 @@ Section Mult_Row.
 
   Lemma scalar_mult_matrix_comm
     { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
-    : ((mult_row_matrix r s1) **' (mult_row_matrix r s2))
-    = ((mult_row_matrix r s2) **' (mult_row_matrix r s1)).
+    : ((scalar_mult_row_matrix r s1) **' (scalar_mult_row_matrix r s2))
+    = ((scalar_mult_row_matrix r s2) **' (scalar_mult_row_matrix r s1)).
   Proof.
     do 2 rewrite scalar_mult_matrix_product.
     apply maponpaths, (rigcomm2 F).
@@ -261,9 +261,9 @@ Section Mult_Row.
 
   Lemma scalar_mult_matrix_invertible
     { n } ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != (@rigunel1 F))
-  : @matrix_inverse F _ (mult_row_matrix i s).
+  : @matrix_inverse F _ (scalar_mult_row_matrix i s).
   Proof.
-    exists (mult_row_matrix i (fldmultinv s ne)).
+    exists (scalar_mult_row_matrix i (fldmultinv s ne)).
     split;
       refine (scalar_mult_matrix_product _ _ _ @ _);
       refine (_ @ scalar_mult_matrix_one i);
@@ -278,7 +278,7 @@ Section Switch_Row.
 
   Context { R : rig }.
 
-  Definition gauss_switch_row
+  Definition switch_row
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : Matrix R m n.
   Proof.
@@ -302,12 +302,12 @@ Section Switch_Row.
       + exact (@identity_matrix R n i).
   Defined.
 
-  Lemma switch_row_mat_elementary
+  Lemma switch_row_as_matrix
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ((switch_row_matrix r1 r2) ** mat) = gauss_switch_row r1 r2 mat.
+    : ((switch_row_matrix r1 r2) ** mat) = switch_row r1 r2 mat.
   Proof.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
-    unfold switch_row_matrix, gauss_switch_row.
+    unfold switch_row_matrix, switch_row.
     apply funextfun. intros i.
     apply funextfun. intros ?.
     destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
@@ -333,57 +333,13 @@ Section Switch_Row.
         apply idpath.
   Defined.
 
-  Lemma gauss_switch_row_inv0
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
-    -> (gauss_switch_row r1 r2 mat) i = mat i.
-  Proof.
-    intros i i_ne_r1 i_ne_r2.
-    unfold gauss_switch_row.
-    apply funextfun. intros i'.
-    destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1]
-    ; destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
-    - simpl. rewrite i_eq_r2; apply idpath.
-    - simpl. rewrite i_eq_r1 in i_ne_r1.
-        apply isirrefl_natneq in i_ne_r1. contradiction.
-    - simpl. rewrite i_eq_r2 in i_ne_r2.
-        apply isirrefl_natneq in i_ne_r2. contradiction.
-    - simpl. apply idpath.
-  Defined.
-
-  Lemma gauss_switch_row_inv1
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : (mat r1) = (mat r2) -> (gauss_switch_row r1 r2 mat) = mat.
-  Proof.
-    intros m_eq.
-    unfold gauss_switch_row.
-    apply funextfun. intros i'.
-    destruct (stn_eq_or_neq _ _) as [eq | neq];
-      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      try rewrite eq; try rewrite eq';
-      try rewrite m_eq; try reflexivity.
-  Defined.
-
-  Lemma gauss_switch_row_inv2
-    {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ∏ (j : ⟦ n ⟧%stn), (mat r1 j) = (mat r2 j) ->
-      ∏ (r3 : ⟦ m ⟧%stn), (gauss_switch_row r1 r2 mat) r3 j = mat r3 j.
-  Proof.
-    intros j m_eq r3.
-    unfold gauss_switch_row.
-    destruct (stn_eq_or_neq _ _) as [eq | neq];
-      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      try rewrite eq; try rewrite eq';
-      try rewrite m_eq; reflexivity.
-  Defined.
-
   Local Definition test_row_switch
     {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : gauss_switch_row r1 r2 (gauss_switch_row r1 r2 mat) = mat.
+    : switch_row r1 r2 (switch_row r1 r2 mat) = mat.
   Proof.
     use funextfun; intros i.
     use funextfun; intros j.
-    unfold gauss_switch_row.
+    unfold switch_row.
     destruct (stn_eq_or_neq i r1) as [ e_ir1 | ne_ir1 ].
     - destruct (stn_eq_or_neq r2 r1) as [ e_r1r2 | ne_r1r2 ].
       + destruct e_ir1, e_r1r2. apply idpath.
@@ -400,15 +356,15 @@ Section Switch_Row.
       + reflexivity.
   Defined.
 
-    Lemma switch_row_matrix_involution
+  Lemma switch_row_matrix_involution
     { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
     : ((switch_row_matrix r1 r2)
       ** (switch_row_matrix r1 r2))
       = @identity_matrix _ _.
   Proof.
     intros.
-    rewrite switch_row_mat_elementary.
-    unfold gauss_switch_row, switch_row_matrix.
+    rewrite switch_row_as_matrix.
+    unfold switch_row, switch_row_matrix.
     apply funextfun; intros i.
     destruct (stn_eq_or_neq i r1) as [eq | neq];
       destruct (stn_eq_or_neq r1 r2) as [eq' | neq'];
@@ -434,6 +390,50 @@ Section Switch_Row.
   Proof.
     exists (switch_row_matrix r1 r2).
     split; apply switch_row_matrix_involution.
+  Defined.
+
+  Lemma switch_row_inv0
+    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
+    -> (switch_row r1 r2 mat) i = mat i.
+  Proof.
+    intros i i_ne_r1 i_ne_r2.
+    unfold switch_row.
+    apply funextfun. intros i'.
+    destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1]
+    ; destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
+    - simpl. rewrite i_eq_r2; apply idpath.
+    - simpl. rewrite i_eq_r1 in i_ne_r1.
+        apply isirrefl_natneq in i_ne_r1. contradiction.
+    - simpl. rewrite i_eq_r2 in i_ne_r2.
+        apply isirrefl_natneq in i_ne_r2. contradiction.
+    - simpl. apply idpath.
+  Defined.
+
+  Lemma switch_row_inv1
+    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    : (mat r1) = (mat r2) -> (switch_row r1 r2 mat) = mat.
+  Proof.
+    intros m_eq.
+    unfold switch_row.
+    apply funextfun. intros i'.
+    destruct (stn_eq_or_neq _ _) as [eq | neq];
+      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
+      try rewrite eq; try rewrite eq';
+      try rewrite m_eq; try reflexivity.
+  Defined.
+
+  Lemma switch_row_inv2
+    {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    : ∏ (j : ⟦ n ⟧%stn), (mat r1 j) = (mat r2 j) ->
+      ∏ (r3 : ⟦ m ⟧%stn), (switch_row r1 r2 mat) r3 j = mat r3 j.
+  Proof.
+    intros j m_eq r3.
+    unfold switch_row.
+    destruct (stn_eq_or_neq _ _) as [eq | neq];
+      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
+      try rewrite eq; try rewrite eq';
+      try rewrite m_eq; reflexivity.
   Defined.
 
 End Switch_Row.

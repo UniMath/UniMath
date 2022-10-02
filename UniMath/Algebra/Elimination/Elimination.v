@@ -531,7 +531,7 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i).
     - exact mat.
-    - refine ((@add_row_matrix F _ k_i i _)%ring ** mat).
+    - refine ((@add_row_mult_matrix F _ k_i i _)%ring ** mat).
       exact (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring.
   Defined.
 
@@ -545,7 +545,7 @@ Section Gauss.
   Proof.
     destruct (stn_eq_or_neq i k_i).
     - exact mat.
-    - refine (gauss_add_row k_i i _ mat).
+    - refine (add_row_mult k_i i _ mat).
       exact (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%ring.
   Defined.
 
@@ -559,7 +559,7 @@ Section Gauss.
     unfold gauss_clear_column_step, gauss_clear_column_step'.
     destruct (stn_eq_or_neq i k_i).
     { apply idpath. }
-    rewrite add_row_mat_elementary.
+    rewrite add_row_mult_as_matrix.
     - apply idpath.
     - now apply issymm_natneq.
   Defined.
@@ -595,7 +595,7 @@ Section Gauss.
     { apply (istransnatlth _ _ _ (natgthsnn iter) lt). }
     destruct (natgthorleh iter k_i).
     2: { exact (@identity_matrix F m ** (IH p')). }
-    refine (@add_row_matrix F _ k_i (iter,, lt) (- (_ * _))%ring ** _).
+    refine (@add_row_mult_matrix F _ k_i (iter,, lt) (- (_ * _))%ring ** _).
     - exact (mat (iter,, lt) k_j).
     - exact (fldmultinv' (mat k_i k_j)).
     - exact (IH p').
@@ -619,9 +619,9 @@ Section Gauss.
     2: {rewrite matlunax2; now rewrite IH. }
     assert (lt: iter < S m). {apply (istransnatlth _ _ _ (natgthsnn iter) p). }
     rewrite <- (IH lt).
-    rewrite IH, matrix_mult_assoc, add_row_mat_elementary.
+    rewrite IH, matrix_mult_assoc, add_row_mult_as_matrix.
     2: {now apply issymm_natneq, natgthtoneq. }
-    rewrite gauss_add_row_inv0.
+    rewrite add_row_mult_inv0.
     2: {apply natgthtoneq. apply (natlehlthtrans _ _ _  i_leh_k gt).  }
     now rewrite IH.
   Defined.
@@ -646,7 +646,7 @@ Section Gauss.
       unfold gauss_clear_column in IH.
       now apply IH, natgthtogeh. }
     unfold gauss_clear_column in IH.
-    rewrite gauss_add_row_inv0. 2: {now apply natlthtoneq. }
+    rewrite add_row_mult_inv0. 2: {now apply natlthtoneq. }
     rewrite IH. { apply idpath. }
     apply natgthtogeh, r_gt_sep.
   Defined.
@@ -678,7 +678,7 @@ Section Gauss.
     destruct (stn_eq_or_neq _ _) as [eq | neq].
     { apply fromempty. apply neggth_logeq_leh in gt; try assumption.
       rewrite <- eq. apply isreflnatgeh. }
-      rewrite add_row_mat_elementary.
+      rewrite add_row_mult_as_matrix.
       2 : { now apply issymm_natneq, natgthtoneq. }
       apply pathsinv0, maponpaths_2.
       etrans.
@@ -716,7 +716,7 @@ Section Gauss.
     rewrite nat_rect_step.
     destruct (natgthorleh iter k_i).
     - apply inv_matrix_prod_invertible.
-      { apply add_row_matrix_invertible.
+      { apply add_row_mult_matrix_invertible.
         now apply natlthtoneq. }
       apply IH.
     - apply inv_matrix_prod_invertible.
@@ -742,7 +742,7 @@ Section Gauss.
       as [[piv_col [? [piv_row ?]]] | none].
     2: {exact mat. }
     refine (gauss_clear_column _ row piv_col (m,, natlthnsn _)).
-    exact (@gauss_switch_row F _ _ row piv_row mat).
+    exact (@switch_row F _ _ row piv_row mat).
   Defined.
 
   Definition gauss_clear_row_as_left_matrix
@@ -755,7 +755,7 @@ Section Gauss.
     destruct (select_uncleared_column F mat row p)
       as [[piv_col [_ [piv_row _]]] | none].
     2 : {exact (@identity_matrix F _). }
-    set (mat_by_normal_op := (@gauss_switch_row F _ _ row piv_row mat)).
+    set (mat_by_normal_op := (@switch_row F _ _ row piv_row mat)).
     refine ((gauss_clear_column_as_left_matrix
       (m,, natgthsnn _) mat_by_normal_op row piv_col) ** _).
     refine (@switch_row_matrix _ _ row piv_row).
@@ -776,7 +776,7 @@ Section Gauss.
     destruct (select_uncleared_column F mat r _).
     2: {apply matlunax2. }
     now rewrite matrix_mult_assoc,
-      switch_row_mat_elementary,
+      switch_row_as_matrix,
       clear_column_eq_matrix_def.
   Defined.
 
@@ -914,9 +914,9 @@ Section Gauss.
     intros; unfold gauss_clear_column_step.
     destruct (stn_eq_or_neq r r_pivot) as [p | _].
     { rewrite p in p_2. now apply isirrefl_natneq in p_2. }
-    rewrite add_row_mat_elementary.
+    rewrite add_row_mult_as_matrix.
     2: { now apply issymm_natneq. }
-    rewrite gauss_add_row_comp.
+    rewrite add_row_mult_comp.
     rewrite <- (@ringlmultminus F), ringassoc2.
     etrans. { now apply maponpaths, maponpaths, fldmultinvlax'. }
     rewrite (@rigrunax2 F); apply ringrinvax1.
@@ -937,7 +937,7 @@ Section Gauss.
     destruct (stn_eq_or_neq j k_i).
     { apply idpath. }
     apply funextfun; intros ?.
-    rewrite gauss_add_row_inv0; try reflexivity.
+    rewrite add_row_mult_inv0; try reflexivity.
     now apply issymm_natneq.
   Defined.
 
@@ -1028,7 +1028,7 @@ Section Gauss.
       { do 2 rewrite gauss_clear_column_step_eq.
         unfold gauss_clear_column_step'.
         destruct (stn_eq_or_neq _ _); try reflexivity.
-        unfold gauss_add_row.
+        unfold add_row_mult.
         rewrite gauss_clear_column_inv0; simpl; try apply natlthnsn.
         generalize p; generalize p'.
         rewrite <- eq.
@@ -1098,7 +1098,7 @@ Section Gauss.
       rewrite gauss_clear_column_step_eq.
       unfold gauss_clear_column_step'.
       destruct (stn_eq_or_neq _ _); try reflexivity.
-      unfold gauss_add_row.
+      unfold add_row_mult.
       destruct (stn_eq_or_neq _ _) as [eq | ?];
         try apply coprod_rect_compute_1; try apply coprod_rect_compute_2.
       + rewrite coprod_rect_compute_1.
@@ -1186,23 +1186,23 @@ Section Gauss.
      2 : { now apply natlthsntoleh. }
      destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq].
      { now apply natlthsntoleh. }
-     { rewrite gauss_switch_row_inv0 in is_le.
+     { rewrite switch_row_inv0 in is_le.
         3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
         2: { now apply natlthtoneq. }
         rewrite gauss_clear_column_inv4.
-        { rewrite gauss_switch_row_inv2.
+        { rewrite switch_row_inv2.
           - now rewrite (H1 i_1 i_2 j_1 j_2).
           - do 2 (rewrite (H1 i_1 _ j_1 j_2); try easy).
             refine (natlthlehtrans _ _ _ lt leh).
         }
-        rewrite gauss_switch_row_inv2.
+        rewrite switch_row_inv2.
           + rewrite (H1 i_1 _ j_1 j_2); easy.
           + do 2 (rewrite (H1 i_1 _ j_1 j_2); try easy).
             refine (natlthlehtrans _ _ _ lt leh).
     }
     destruct (natgthorleh piv_c j_1).
     { rewrite gauss_clear_column_inv4; try easy.
-      - unfold gauss_switch_row.
+      - unfold switch_row.
         destruct (stn_eq_or_neq _ _) as [eq' | neq]; simpl.
         + destruct (stn_eq_or_neq _ _) as [contr_eq | neq']; simpl.
           { now rewrite eq0. }
@@ -1213,7 +1213,7 @@ Section Gauss.
           rewrite eq0; try easy.
           rewrite <- (stn_eq_2 _ _ eq).
           now apply natgthtogeh.
-      - rewrite gauss_switch_row_inv2;
+      - rewrite switch_row_inv2;
         (rewrite eq0; try easy;
         try apply isreflnatleh).
         now rewrite eq0.
@@ -1222,7 +1222,7 @@ Section Gauss.
     2 : { replace j_1 with piv_c.
           2: { now rewrite (@subtypePath_prop _ _ _ _ eq'). }
           rewrite gauss_clear_column_inv3; try easy.
-          - unfold gauss_switch_row.
+          - unfold switch_row.
             rewrite stn_eq_or_neq_refl; simpl.
             apply neq0.
           - exact (pr2 i_2).
@@ -1231,7 +1231,7 @@ Section Gauss.
     contradiction neq0.
     destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq'].
       { now apply natlthsntoleh. }
-    - rewrite gauss_switch_row_inv0 in is_le.
+    - rewrite switch_row_inv0 in is_le.
       3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
       2: { now apply natlthtoneq. }
       refine (H1 _ _ _ _ lt is_le _ _).
@@ -1239,7 +1239,7 @@ Section Gauss.
       + now refine (istransnatleh _  j1_lt_j2).
     - rewrite eq in * |-.
       assert (is_le' : is_leading_entry (mat piv_r) j_2).
-      { unfold is_leading_entry, gauss_switch_row in * |-;
+      { unfold is_leading_entry, switch_row in * |-;
         destruct (stn_eq_or_neq _ _) as [? | ?];
           destruct (stn_eq_or_neq _ _) as [? | contr_neq]; simpl in is_le;
           try apply is_le;
@@ -1279,7 +1279,7 @@ Section Gauss.
       unfold exists_first_uncleared in some.
       set (leh := (pr1 (pr2 (pr2 (pr2 (some)))))).
       destruct (natgthorleh i_2 row_sep) as [i2_gt_rowsep | i2_le_rowsep].
-      + rewrite gauss_switch_row_inv1 in no_leading; try assumption.
+      + rewrite switch_row_inv1 in no_leading; try assumption.
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { now apply natlthtoleh. }
           rewrite gauss_clear_column_inv2; try assumption.
@@ -1288,34 +1288,34 @@ Section Gauss.
           destruct (stn_eq_or_neq _ _) as [contr_eq | ?].
           { contradiction (isirreflnatgth row_sep).
             now rewrite contr_eq in * |-. }
-          rewrite gauss_add_row_inv1; try assumption.
-          -- rewrite gauss_switch_row_inv1.
+          rewrite add_row_mult_inv1; try assumption.
+          -- rewrite switch_row_inv1.
              ++ now rewrite IH.
              ++ do 2 (rewrite IH; try easy).
                 apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
-          -- rewrite gauss_switch_row_inv1; try assumption.
+          -- rewrite switch_row_inv1; try assumption.
              ++ now rewrite IH.
              ++ do 2 (rewrite IH; try assumption; try reflexivity).
                 apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { now apply natlthtoleh. }
-          rewrite gauss_switch_row_inv0 in no_leading.
+          rewrite switch_row_inv0 in no_leading.
           3: { apply natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
           2: { now apply natlthtoneq. }
           do 2 (rewrite IH; try easy).
           apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
-      + rewrite gauss_switch_row_inv1 in no_leading; try assumption.
+      + rewrite switch_row_inv1 in no_leading; try assumption.
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { apply natgthtogeh in i1_lt_i2;
                apply (istransnatleh i1_lt_i2 i2_le_rowsep). }
           rewrite gauss_clear_column_inv1; try assumption.
-          rewrite gauss_switch_row_inv1; try assumption.
+          rewrite switch_row_inv1; try assumption.
           -- now rewrite IH.
           -- do 2 (rewrite IH; try easy).
              apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { now apply natlthtoleh in i1_lt_rowsep. }
-          rewrite gauss_switch_row_inv0 in no_leading.
+          rewrite switch_row_inv0 in no_leading.
           3: { apply natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
           2: {apply natlthtoneq, (natlthlehtrans _ _ _ i1_lt_i2 i2_le_rowsep). }
           do 2 (rewrite IH; try easy).
@@ -1333,7 +1333,7 @@ Section Gauss.
       contradiction neq0.
       refine (const_vec_eq _ _ _ _).
       rewrite <- no_leading.
-      unfold gauss_switch_row.
+      unfold switch_row.
       rewrite gauss_clear_column_inv1.
       2: { rewrite eq. apply isreflnatleh. }
       unfold gauss_clear_column_step'.
