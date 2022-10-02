@@ -277,10 +277,7 @@ Section Stn.
   Lemma issymm_stnneq {n : nat} {i j : stn n} (neq : i ≠ j)
     : (j ≠ i).
   Proof.
-    destruct (stn_eq_or_neq j i) as [contr_eq | ?].
-    - rewrite contr_eq in neq.
-      contradiction (isirrefl_natneq i).
-    - assumption.
+    apply issymm_natneq; assumption.
   Defined.
 
   Lemma prev_stn
@@ -296,7 +293,7 @@ Section Stn.
   Defined.
 
   (** General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)
-  (** Should also be generalisable, but non-unifiedness of definitions of ≠ makes that harder than it should be. *)
+  (** Should also be generalisable using [negProp], ideally *)
   Lemma stn_eq_or_neq_symm_nondep {n} {x y : ⟦n⟧%stn}
         (de_xy : (x = y) ⨿ (x ≠ y)%stn) (de_yx : (y = x) ⨿ (y ≠ x)%stn)
        {Z} (z1 z2 : Z)
