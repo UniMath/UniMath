@@ -43,24 +43,25 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 
 *)
 
+Local Notation Σ := (iterop_fun 0%rig op1).
+Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
+Local Notation "R1 +pw R2" := ((pointwise _ op1) R1 R2) (at level 50, left associativity).
+Local Notation "A ** B" := (@matrix_mult (_:ring) _ _ A _ B) (at level 40, left associativity).
+
 Section Summary.
 
-  Context (R: ring).
-  Context (F: fld).
+  Context {R: ring}.
 
-  Local Notation Σ := (iterop_fun (@rigunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
-
-  Definition is_leading_entry {F : fld} {n : nat}
-    (v : Vector F n) (i_1 : ⟦ n ⟧%stn)
+  Definition is_leading_entry {n : nat}
+    (v : Vector R n) (i_1 : ⟦ n ⟧%stn)
     := (v i_1 != 0%ring)
       × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> (v i_2) = 0%ring).
 
   (** 1 : any leading entry is strictly to the right of a previous leading entry
      2 : any zero row is below any non-zero row *)
 
-  Definition is_row_echelon {F : fld} {m n : nat} (mat : Matrix F m n) :=
+  Definition is_row_echelon {m n : nat} (mat : Matrix R m n)
+  :=
     ∏ i_1 i_2 : ⟦ m ⟧%stn,
     (∏ j_1 j_2 : ⟦ n ⟧%stn,
       is_leading_entry (mat i_1) j_1
@@ -79,24 +80,20 @@ Section Summary.
 
     (Shown later in this file) *)
 
-  Definition gaussian_elimination_stmt
-    {F : fld} {m n : nat} {A : Matrix _ m n}
-    := ∑ (B : Matrix _ _ _), (matrix_inverse B)
+  Definition gaussian_elimination_stmt {m n : nat} {A : Matrix R m n}
+    := ∑ (B : Matrix R _ _), (@matrix_inverse R _ B)
       × (is_row_echelon (B ** A)).
 
 End Summary.
 
-(** In the proceeding, we provide a sub-module
+(** In the following section, we provide a sub-module
     for calculating the leading entry of a vector,
     and provide suitable invness lemmata for it. *)
 
 Section LeadingEntry.
 
-  Context (R: ring).
   Context (F: fld).
-
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
+  (** This section doesn’t really require full field structure, just a ring with decidable equality *)
 
   (** The leading entry of a (dual <-> "flipped") vector:
      [... _ _ X 0 0 0] -> index of X  (Up to a separator variable) *)
@@ -405,12 +402,7 @@ End LeadingEntry.
 
 Section Pivot.
 
-  Context (R: ring).
   Context (F: fld).
-
-  Local Notation Σ := (iterop_fun (@rigunel1 F) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   Definition select_pivot_row_coprod {m n : nat} (mat : Matrix F m n)
     (row_sep : ⟦ m ⟧%stn) (k : ⟦ n ⟧%stn) :
@@ -513,12 +505,7 @@ Section Gauss.
         then segments of columns,
         then working over multiple such segments. *)
 
-  Context (R : rig).
   Context (F : fld).
-
-  Local Notation Σ := (iterop_fun (@ringunel1) op1).
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
-  Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
   (** Clearing a target entry [i], if it does not equal the pivot row : [i] != [k_i]. *)
   Definition gauss_clear_column_step
@@ -1534,7 +1521,7 @@ Section Gauss.
   Local Lemma gauss0
   {m n : nat} {A : Matrix F m n}
     {eq0 : 0 = n}
-  : @gaussian_elimination_stmt _ F _ _ A.
+  : @gaussian_elimination_stmt _ _ _ A.
   Proof.
     exists (@identity_matrix F m).
     use tpair. {apply identity_matrix_invertible. }
@@ -1544,7 +1531,7 @@ Section Gauss.
 
   Theorem gaussian_elimination
     {m n : nat} {A : Matrix F m n}
-    : @gaussian_elimination_stmt _ F _ _ A.
+    : @gaussian_elimination_stmt _ _ _ A.
   Proof.
     destruct (natchoice0 n) as [eq0 | gt]. { now refine gauss0. }
     exists (@gauss_clear_all_rows_as_left_matrix m n A gt).
