@@ -1186,7 +1186,7 @@ Section Gauss.
      2 : { now apply natlthsntoleh. }
      destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq].
      { now apply natlthsntoleh. }
-     { rewrite switch_row_other_row in is_le.
+     { rewrite switch_row_other_row' in is_le.
         3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
         2: { now apply natlthtoneq. }
         rewrite gauss_clear_column_inv4.
@@ -1231,7 +1231,7 @@ Section Gauss.
     contradiction neq0.
     destruct (natlehchoice i_1 (pr1 row_sep)) as [lt | eq'].
       { now apply natlthsntoleh. }
-    - rewrite switch_row_other_row in is_le.
+    - rewrite switch_row_other_row' in is_le.
       3: { apply natlthtoneq. refine (natlthlehtrans _ _ _ lt leh). }
       2: { now apply natlthtoneq. }
       refine (H1 _ _ _ _ lt is_le _ _).
@@ -1299,7 +1299,7 @@ Section Gauss.
                 apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { now apply natlthtoleh. }
-          rewrite switch_row_other_row in no_leading.
+          rewrite switch_row_other_row' in no_leading.
           3: { apply natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
           2: { now apply natlthtoneq. }
           do 2 (rewrite IH; try easy).
@@ -1315,7 +1315,7 @@ Section Gauss.
              apply (natgehgthtrans _ _ _ leh i1_lt_rowsep).
         * rewrite gauss_clear_column_inv1 in no_leading.
           2: { now apply natlthtoleh in i1_lt_rowsep. }
-          rewrite switch_row_other_row in no_leading.
+          rewrite switch_row_other_row' in no_leading.
           3: { apply natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
           2: {apply natlthtoneq, (natlthlehtrans _ _ _ i1_lt_i2 i2_le_rowsep). }
           do 2 (rewrite IH; try easy).

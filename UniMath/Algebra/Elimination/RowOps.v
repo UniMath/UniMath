@@ -57,6 +57,27 @@ Section Add_Row.
   Defined.
 (* Note: There’s a tradeoff here (and similarly in other row-operations) between doing the case-split before or after introducing [j].  Putting the case-split first allows defining the rows as linear combinations of vectors, providing useful abstractions in some calculations later, but means the function isn’t in canonical form, which obstructs pointwise calculations. *)
 
+  (** Basic properties of [add_row_mult] *)
+  Lemma add_row_mult_nontarget_row
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
+    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
+  Proof.
+    intros i r2_ne_i.
+    unfold add_row_mult.
+    now rewrite (stn_eq_or_neq_right (issymm_stnneq r2_ne_i)).
+  Defined.
+
+  Definition add_row_mult_target_row
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
+      (c : ⟦ n ⟧%stn)
+    : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
+  Proof.
+    unfold add_row_mult.
+    now rewrite stn_eq_or_neq_refl.
+  Defined.
+
+  (** The add-a-row-multiple operation as a matrix *)
+
   Definition add_row_mult_matrix
     { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : R)
     : Matrix R n n.
@@ -140,27 +161,7 @@ Section Add_Row.
     - apply (@ringlinvax1 R).
   Defined.
 
-  (** Some basic invariants of the add-row-multiple operation, used in Gaussian elimination. *)
-  Lemma add_row_mult_nontarget_row
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
-  Proof.
-    intros i r2_ne_i.
-    unfold add_row_mult.
-    destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2]; try reflexivity.
-    rewrite i_eq_r2 in r2_ne_i.
-    apply isirrefl_natneq in r2_ne_i.
-    apply fromempty; assumption.
-  Defined.
-
-  Definition add_row_mult_target_row
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-    (c : ⟦ n ⟧%stn)
-  : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
-  Proof.
-    unfold add_row_mult
-    ; now rewrite stn_eq_or_neq_refl.
-  Defined.
+  (** Miscellaneous properties of [add_row_mult], used in [Algebra.Elimination.Elimination] *)
 
   Lemma add_row_mult_source_row_zero
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
@@ -194,6 +195,7 @@ Section Mult_Row.
     - exact (mat i j).
   Defined.
 
+  (** The multiply-row operation as a matrix *)
   Definition scalar_mult_row_matrix {n : nat}
       (r : ⟦ n ⟧%stn) (s : F)
     : Matrix F n n.
@@ -290,6 +292,62 @@ Section Switch_Row.
       + exact (mat i j).
   Defined.
 
+  (** Basic properties of [switch_row] *)
+  Lemma switch_row_former_row
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n) (j : ⟦n⟧%stn)
+    : switch_row r1 r2 mat r1 j = mat r2 j.
+  Proof.
+    unfold switch_row. rewrite stn_eq_or_neq_refl; simpl.
+    reflexivity.
+  Defined.
+
+  Lemma switch_row_latter_row
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n) (j : ⟦n⟧%stn)
+    : switch_row r1 r2 mat r2 j = mat r1 j.
+  Proof.
+    unfold switch_row.
+    rewrite stn_eq_or_neq_refl; simpl.
+    destruct (stn_eq_or_neq r2 r1) as [ e | ? ];
+      simpl; try destruct e; reflexivity.
+  Defined.
+
+  Lemma switch_row_other_row
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+      (i : ⟦ m ⟧%stn) (ne1 : i ≠ r1) (ne2 : i ≠ r2) (j : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat i j.
+  Proof.
+    unfold switch_row.
+    rewrite (stn_eq_or_neq_right ne1), (stn_eq_or_neq_right ne2).
+    simpl; reflexivity.
+  Defined.
+
+  Lemma switch_row_former_row'
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+      (i : ⟦m⟧%stn) (e : i = r1) (j : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat r2 j.
+  Proof.
+    destruct e; apply switch_row_former_row.
+  Defined.
+
+  Lemma switch_row_latter_row'
+      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+      (i : ⟦m⟧%stn) (e : i = r2) (j : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat r1 j.
+  Proof.
+    destruct e; apply switch_row_latter_row.
+  Defined.
+
+  Lemma switch_row_other_row'
+    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
+    -> (switch_row r1 r2 mat) i = mat i.
+  Proof.
+    intros i i_ne_r1 i_ne_r2.
+    apply funextfun; intros j.
+    apply switch_row_other_row; assumption.
+  Defined.
+
+  (** The switch-row operation as a matrix *)
   Definition switch_row_matrix
     {n : nat} (r1 r2 : ⟦ n ⟧ %stn)
     : Matrix R n n.
@@ -306,54 +364,29 @@ Section Switch_Row.
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : ((switch_row_matrix r1 r2) ** mat) = switch_row r1 r2 mat.
   Proof.
+    apply funextfun; intros i; apply funextfun; intros j.
     rewrite matrix_mult_eq; unfold matrix_mult_unf.
     unfold switch_row_matrix, switch_row.
-    apply funextfun. intros i.
-    apply funextfun. intros ?.
-    destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1].
-    - simpl.
-      rewrite (@pulse_function_sums_to_point R m
-        (λ i : (⟦ m ⟧%stn), @identity_matrix R m r2 i * _)%ring r2).
-      + unfold identity_matrix.
-        rewrite stn_eq_or_neq_refl.
-        simpl.
-        apply (@riglunax2 R).
-      + intros k r2_neq_k.
-        rewrite (@id_mat_ij R m r2 k r2_neq_k).
-        apply (@rigmult0x R).
-    - simpl.
-      pose (H' := @sum_id_pointwise_prod R).
-      unfold pointwise in H'.
-      destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
-      + simpl.
-        destruct (stn_eq_or_neq i r1) as [? | ?].
-        * rewrite H'; apply idpath.
-        * rewrite H'; apply idpath.
-      + simpl; rewrite H'.
-        apply idpath.
+    destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1];
+      destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2];
+      simpl;
+      use sum_stdb_vector_pointwise_prod.
   Defined.
 
-  Local Definition test_row_switch
+  Definition switch_row_involution
     {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : switch_row r1 r2 (switch_row r1 r2 mat) = mat.
   Proof.
-    use funextfun; intros i.
-    use funextfun; intros j.
-    unfold switch_row.
-    destruct (stn_eq_or_neq i r1) as [ e_ir1 | ne_ir1 ].
-    - destruct (stn_eq_or_neq r2 r1) as [ e_r1r2 | ne_r1r2 ].
-      + destruct e_ir1, e_r1r2. apply idpath.
-      + destruct (stn_eq_or_neq r2 r2) as [ ? | absurd ].
-        * destruct e_ir1. apply idpath.
-        * set (H := isirrefl_natneq _ absurd). destruct H.
-    - destruct (stn_eq_or_neq i r2) as [ e_ir2 | ne_ir2 ].
-      + destruct e_ir2.
-        destruct (stn_eq_or_neq r1 r1) as [ ? | absurd ].
-        * reflexivity.
-        * destruct (stn_eq_or_neq r1 i) as [ e_ir1 | ne_ir1' ].
-        -- rewrite e_ir1. apply idpath.
-        -- set (H := isirrefl_natneq _ absurd). destruct H.
-      + reflexivity.
+    apply funextfun; intros i; apply funextfun; intros j.
+    destruct (stn_eq_or_neq i r1) as [ e_i_r1 | ne_i_r1 ];
+      [ | destruct (stn_eq_or_neq i r2) as [ e_i_r2 | ne_i_r2 ]].
+    - destruct e_i_r1.
+      etrans. { apply switch_row_former_row. }
+      apply switch_row_latter_row.
+    - destruct e_i_r2.
+      etrans. { apply switch_row_latter_row. }
+      apply switch_row_former_row.
+    - etrans; apply switch_row_other_row; assumption.
   Defined.
 
   Lemma switch_row_matrix_involution
@@ -392,24 +425,7 @@ Section Switch_Row.
     split; apply switch_row_matrix_involution.
   Defined.
 
-  Lemma switch_row_other_row
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
-    -> (switch_row r1 r2 mat) i = mat i.
-  Proof.
-    intros i i_ne_r1 i_ne_r2.
-    unfold switch_row.
-    apply funextfun. intros i'.
-    destruct (stn_eq_or_neq i r1) as [i_eq_r1 | i_neq_r1]
-    ; destruct (stn_eq_or_neq i r2) as [i_eq_r2 | i_neq_r2].
-    - simpl. rewrite i_eq_r2; apply idpath.
-    - simpl. rewrite i_eq_r1 in i_ne_r1.
-        apply isirrefl_natneq in i_ne_r1. contradiction.
-    - simpl. rewrite i_eq_r2 in i_ne_r2.
-        apply isirrefl_natneq in i_ne_r2. contradiction.
-    - simpl. apply idpath.
-  Defined.
-
+  (** Miscellaneous properties of [switch_row], used in [Algebra.Elimination.Elimination] *)
   Lemma switch_row_equal_rows
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : (mat r1) = (mat r2) -> (switch_row r1 r2 mat) = mat.
