@@ -112,8 +112,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Elimination/Matrices.v](Algebra/Elimination/Matrices.v)
    - [Elimination/RowOps.v](Algebra/Elimination/RowOps.v)
    - [Elimination/Elimination.v](Algebra/Elimination/Elimination.v)
-   - [Elimination/EliminationAlts.v](Algebra/Elimination/EliminationAlts.v)
    - [Elimination/Corollaries.v](Algebra/Elimination/Corollaries.v)
+   - [Elimination/Tests.v](Algebra/Elimination/Tests.v)
    - [All.v](Algebra/All.v)
 ## Package NumberSystems
    - [NaturalNumbersAlgebra.v](NumberSystems/NaturalNumbersAlgebra.v)

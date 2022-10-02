@@ -46,4 +46,4 @@ Elimination/Matrices.v
 Elimination/RowOps.v
 Elimination/Elimination.v
 Elimination/Corollaries.v
-Elimination/Compute.v
+Elimination/Tests.v
