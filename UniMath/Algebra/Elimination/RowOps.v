@@ -140,8 +140,8 @@ Section Add_Row.
     - apply (@ringlinvax1 R).
   Defined.
 
-  (** Some basic invariants of the add-row operation, used in Gaussian elimination. *)
-  Lemma add_row_mult_inv0
+  (** Some basic invariants of the add-row-multiple operation, used in Gaussian elimination. *)
+  Lemma add_row_mult_nontarget_row
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
     : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
   Proof.
@@ -153,7 +153,16 @@ Section Add_Row.
     apply fromempty; assumption.
   Defined.
 
-  Lemma add_row_mult_inv1
+  Definition add_row_mult_target_row
+    {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
+    (c : ⟦ n ⟧%stn)
+  : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
+  Proof.
+    unfold add_row_mult
+    ; now rewrite stn_eq_or_neq_refl.
+  Defined.
+
+  Lemma add_row_mult_source_row_zero
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
     : mat r1 = const_vec 0%ring
       -> add_row_mult r1 r2 s mat = mat.
@@ -167,15 +176,6 @@ Section Add_Row.
     unfold const_vec ; simpl.
     rewrite (@rigmultx0 R).
     apply (@rigrunax1 R).
-  Defined.
-
-  Definition add_row_mult_comp
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-    (c : ⟦ n ⟧%stn)
-  : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
-  Proof.
-    unfold add_row_mult
-    ; now rewrite stn_eq_or_neq_refl.
   Defined.
 
 End Add_Row.
@@ -392,7 +392,7 @@ Section Switch_Row.
     split; apply switch_row_matrix_involution.
   Defined.
 
-  Lemma switch_row_inv0
+  Lemma switch_row_other_row
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
     -> (switch_row r1 r2 mat) i = mat i.
@@ -410,7 +410,7 @@ Section Switch_Row.
     - simpl. apply idpath.
   Defined.
 
-  Lemma switch_row_inv1
+  Lemma switch_row_equal_rows
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : (mat r1) = (mat r2) -> (switch_row r1 r2 mat) = mat.
   Proof.
@@ -423,7 +423,7 @@ Section Switch_Row.
       try rewrite m_eq; try reflexivity.
   Defined.
 
-  Lemma switch_row_inv2
+  Lemma switch_row_equal_entries
     {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : ∏ (j : ⟦ n ⟧%stn), (mat r1 j) = (mat r2 j) ->
       ∏ (r3 : ⟦ m ⟧%stn), (switch_row r1 r2 mat) r3 j = mat r3 j.
