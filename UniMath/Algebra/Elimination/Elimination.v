@@ -86,9 +86,10 @@ Definition gaussian_elimination_stmt : UU
       ∑ (B : Matrix F _ _), (@matrix_inverse F _ B)
       × (is_row_echelon (B ** A)).
 
-(** In the following section, we provide a sub-module
-    for calculating the leading entry of a vector,
-    and provide suitable invness lemmata for it. *)
+(** * Leading entries
+
+In this section, give functions for finding the leading entry of a vector,
+and related lemmata *)
 
 Section LeadingEntry.
 
@@ -400,6 +401,7 @@ Section LeadingEntry.
 
 End LeadingEntry.
 
+(** * Pivot-selection *)
 Section Pivot.
 
   Context (F: fld).
@@ -495,6 +497,8 @@ Section Pivot.
     := select_uncleared_column_internal mat row_sep (n,, natgthsnn _) p.
 
 End Pivot.
+
+(** * Gaussian elimination *)
 
 Section Gauss.
 
