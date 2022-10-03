@@ -1,6 +1,7 @@
 (**
 
-the notion of strong monads w.r.t. monoidal actions (a generalization of the notion w.r.t. a monad
+- the notion of strong monads w.r.t. monoidal actions (a generalization of the notion w.r.t. a monad)
+- an instantiation to strong monads in monoidal categories
 
 see https://ncatlab.org/nlab/show/strong+monad for a general bicategorical formulation and for the one w.r.t. a monad,
 the present notion is intermediately abstract/general and only sketched on that page
@@ -21,6 +22,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
@@ -34,15 +36,15 @@ Section A.
 
 Context {V : category} {Mon_V : monoidal V} {C : category} (Act : actegory Mon_V C).
 
-Definition ηandμlinear {M: Monad C} (Ml : lineator Mon_V Act Act M) : UU :=
-  is_linear_nat_trans (identity_lineator Mon_V Act) Ml (η M) ×
-    is_linear_nat_trans (comp_lineator Mon_V Ml Ml) Ml (μ M).
+Definition ηandμlinear {M: Monad C} (Ml : lineator_lax Mon_V Act Act M) : UU :=
+  is_linear_nat_trans (identity_lineator_lax Mon_V Act) Ml (η M) ×
+    is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml (μ M).
 
-Definition ηandμlinearnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) : UU :=
-  ∏ (v : V) (x : C), η M (v ⊗_{Act} x) = v ⊗^{Act}_{l} η M x · Ml v x ×
-                     v ⊗^{Act}_{l} μ M x · Ml v x = Ml v (M x) · #M (Ml v x) · μ M (v ⊗_{Act} x).
+Definition ηandμlinearnicer {M: Monad C} (Ml : lineator_lax Mon_V Act Act M) : UU :=
+  ∏ (v : V) (x : C), η M (v ⊗_{Act} x) = v ⊗^{Act}_{l} η M x · Ml v x
+                   × v ⊗^{Act}_{l} μ M x · Ml v x = Ml v (M x) · #M (Ml v x) · μ M (v ⊗_{Act} x).
 
-Lemma ηandμlinearimpliesnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) (ηandμlin : ηandμlinear Ml) : ηandμlinearnicer Ml.
+Lemma ηandμlinearimpliesnicer {M: Monad C} (Ml : lineator_lax Mon_V Act Act M) (ηandμlin : ηandμlinear Ml) : ηandμlinearnicer Ml.
 Proof.
   split.
   - etrans.
@@ -51,7 +53,7 @@ Proof.
   - apply pathsinv0, ηandμlin.
 Qed.
 
-Lemma ηandμlinearfollowsfromnicer {M: Monad C} (Ml : lineator Mon_V Act Act M) (ηandμlinn : ηandμlinearnicer Ml) : ηandμlinear Ml.
+Lemma ηandμlinearfollowsfromnicer {M: Monad C} (Ml : lineator_lax Mon_V Act Act M) (ηandμlinn : ηandμlinearnicer Ml) : ηandμlinear Ml.
 Proof.
   split.
   - red; intros.
@@ -68,7 +70,7 @@ Proof.
   - use tpair.
     + use make_disp_cat_ob_mor.
       * intro M.
-        exact (∑ Ml : lineator Mon_V Act Act (M: Monad C), ηandμlinear Ml).
+        exact (∑ Ml : lineator_lax Mon_V Act Act (M: Monad C), ηandμlinear Ml).
       * intros M N [Ml islinM] [Nl islinN] α.
         exact (is_linear_nat_trans Ml Nl (nat_trans_from_monad_mor _ _ _ α)).
     + split.
@@ -83,3 +85,14 @@ Defined.
 Definition actionbasedstrongmonads_cat_total : category := total_category actionbasedstrongmonads_cat_disp.
 
 End A.
+
+Section StrongMonads.
+
+  Context {C : category} (M : monoidal C).
+
+Definition strongmonads_cat_disp : disp_cat (category_Monad C) :=
+  actionbasedstrongmonads_cat_disp (actegory_with_canonical_self_action M).
+
+Definition strongmonads_cat_total : category := total_category strongmonads_cat_disp.
+
+End StrongMonads.

@@ -1,5 +1,7 @@
 (** proves Theorem 4.7 in Fiore & Saville, List Objects with Algebraic Structures, FSCD'17
 
+    also instantiates it to present a variant of Lemma 4.8 in that paper
+
 author: Ralph Matthes
 formulation of Theorem 4.7 inspired by code provided by Ambroise Lafont available at https://github.com/amblafont/Skew-Monoidalcategories
 
@@ -102,7 +104,9 @@ Section B.
   Context {C : category } (Mon_V : monoidal C)
     (OC : Initial C) (chC : Colims_of_shape nat_graph C)
     {F : bifunctor C C C} (omegaF : ∏ c , is_omega_cocont (leftwhiskering_functor F c))
+    (** Lemma 4.8 in the paper asks for global omega-cocontinuity of [F] *)
     (p : C).
+    (** we formulate the statement for each [p] individually *)
 
   Let J : C ⟶ C := rightwhiskering_functor Mon_V p.
   Let G : bifunctor C C C := compose_functor_with_bifunctor J (functor_identity C) F.
@@ -124,7 +128,8 @@ Section B.
     (h: binat_trans (compose_bifunctor_with_functor F J)
           (compose_functor_with_bifunctor (functor_identity C) J G))
     (** the target functor of [h] is "morally" [compose_functor_with_bifunctor J J F],
-        hence [h] qualifies as strength data for [F] *)
+        hence [h] qualifies as strength data for [F], in the sense of p.3 of the paper, however
+        with only naturality in the arguments to [F] and w/o the coherence conditions  *)
     (z c : C) (γ : C ⟦ (z ⊗_{ Mon_V} p) ⊗_{ F} c, c ⟧).
 
   Definition statement_Lemma_48 : UU
