@@ -40,6 +40,7 @@ Core/Examples/FibSlice.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -61,6 +62,7 @@ DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
 DisplayedBicats/Examples/BicatOfInvertibles.v
+DisplayedBicats/Examples/EndoMap.v
 
 Core/Examples/StructuredCategories.v
 
@@ -122,6 +124,11 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
+PseudoFunctors/Biadjunction.v
+PseudoFunctors/UniversalArrow.v
+
+DisplayedBicats/DispBicatSection.v
+
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
 DisplayedBicats/Examples/Displayed2Inserter.v
@@ -141,6 +148,23 @@ DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
+DisplayedBicats/Examples/MonadsLax.v
+
+PseudoFunctors/Examples/MonadInclusion.v
+
+Monads/Examples/AdjunctionToMonad.v
+Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfCats.v
+Monads/Examples/MonadsInBicatOfUnivCats.v
+Monads/Examples/MonadsInOp1Bicat.v
+Monads/Examples/MonadsInOp2Bicat.v
+Monads/Examples/MonadsInTotalBicat.v
+Monads/Examples/MonadsInStructuredCategories.v
+Monads/DistributiveLaws.v
+Monads/Examples/MonadsInMonads.v
+Monads/Examples/Composition.v
+Monads/Examples/PsfunctorOnMonad.v
+
 Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
@@ -150,7 +174,9 @@ Limits/Products.v
 Limits/Pullbacks.v
 Limits/CommaObjects.v
 Limits/Inserters.v
+Limits/IsoInserters.v
 Limits/Equifiers.v
+Limits/EilenbergMooreObjects.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
@@ -165,7 +191,6 @@ Limits/Examples/LimitsStructuredCategories.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
-
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v
@@ -184,24 +209,20 @@ Morphisms/Examples/MorphismsInSliceBicat.v
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/KleisliObjects.v
+
+Limits/Examples/OpMorBicatLimits.v
+
 Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
 Colimits/CoproductEquivalences.v
 
 Morphisms/Properties/FromInitial.v
-PseudoFunctors/Preservation/Preservation.v
 
-PseudoFunctors/Biadjunction.v
-PseudoFunctors/Preservation/BiadjunctionPreservation.v
-PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
-PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
-PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
-PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
-PseudoFunctors/Preservation/ClosedUnderEquivalence.v
-PseudoFunctors/UniversalArrow.v
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
@@ -219,6 +240,14 @@ WkCatEnrichment/internal_equivalence.v
 WkCatEnrichment/bicategory.v
 WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
+
+PseudoFunctors/Preservation/Preservation.v
+PseudoFunctors/Preservation/BiadjunctionPreservation.v
+PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
+PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
+PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
+PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
+PseudoFunctors/Preservation/ClosedUnderEquivalence.v
 
 BicategoryOfBicat.v
 BicatOfBicategory.v

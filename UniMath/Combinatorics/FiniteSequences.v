@@ -15,6 +15,7 @@ Vectors and matrices defined in March 2018 by Langston Barrett (@siddharthist).
 
 Require Export UniMath.Combinatorics.FiniteSets.
 Require Export UniMath.Combinatorics.Lists.
+Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -159,12 +160,12 @@ End Lemmas.
 Local Open Scope stn.
 
 (** An m × n matrix is an m-length vector of n-length vectors (rows).
-    <<
+<<
         <--- n --->
       | [ * * * * ]
       m [ * * * * ]
       | [ * * * * ]
-    >>
+>>
     Since [Vector]s are encoded as functions ⟦n⟧ → X, a matrix is a function (of
     two arguments). Thus, the (i, j)-entry of a matrix Mat is simply Mat i j.
  *)
@@ -259,7 +260,7 @@ Definition weqListSequence {X} : list X ≃ Sequence X.
 Proof.
   intros.
   apply weqfibtototal; intro n.
-  apply weqlistfun.
+  apply weqvecfun.
 Defined.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :

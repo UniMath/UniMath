@@ -85,6 +85,7 @@ limits/Opp.v
 limits/Preservation.v
 
 limits/Examples/CategoryProductLimits.v
+limits/Examples/CategoryOfSetcategoriesLimits.v
 
 IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
@@ -106,6 +107,7 @@ FunctorAlgebras.v
 FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
+PrecompEquivalence.v
 rezk_completion.v
 UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
@@ -218,6 +220,10 @@ DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 
 categories/Dialgebras.v
+categories/CatIsoInserter.v
+categories/EilenbergMoore.v
+categories/KleisliCategory.v
+limits/Examples/EilenbergMooreLimits.v
 Elements.v
 Core.v
 
