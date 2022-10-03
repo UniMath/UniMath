@@ -18,4 +18,4 @@ order to run the program `coqide`, you may use the following command.
 ```bash
 $ sub/coq/bin/coqide <flags>
 ```
-where `<flags>` are the options passed to Coq as per the [Emacs configuration file](./UniMath/.dir-locals.el.in).
+where `<flags>` are the options passed to Coq as per the [Emacs configuration file](./UniMath/.dir-locals.el), which is made from the file [`UniMath/.dir-locals.el.in`](./UniMath/.dir-locals.el) as a result of running `make`..
