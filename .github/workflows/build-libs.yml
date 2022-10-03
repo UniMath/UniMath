@@ -57,7 +57,7 @@ jobs:
           coq_makefile -f _CoqProject -o Makefile
           make
           popd
-	  : build GrpdHITs
+          : build GrpdHITs
           git clone https://github.com/UniMath/GrpdHITs
           pushd GrpdHITs
           cd code
