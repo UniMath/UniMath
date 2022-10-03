@@ -541,14 +541,14 @@ Defined.
 (** The universal property of the quotient monoid. If X, Y are monoids, R is a congruence on X, and
     [f : X → Y] is a homomorphism which respects R, then there exists a unique homomorphism
     [f' : X/R → Y] making the following diagram commute:
-    <<
+<<
     X -π-> X/R
      \      |
        f    | ∃! f'
          \  |
           V V
            Y
-    >>
+>>
  *)
 
 Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)

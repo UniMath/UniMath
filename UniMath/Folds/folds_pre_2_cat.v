@@ -48,9 +48,6 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 
-(* Require Import FOLDS.aux_lemmas. *)
-
-
 Local Notation "p ## a" := (transportf _ p a) (at level 3, only parsing).
 
 
