@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.FunctorCoalgebras.
+Require Import UniMath.Induction.FunctorCoalgebras_legacy.
 
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Limits.
