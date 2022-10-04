@@ -161,7 +161,7 @@ Defined.
 
 Definition PL_fold {X : hSet} (vs : vars -> X)
            (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
-  PL -> X := mor_from_algebra_mor _ _ _ (PL_fold_alg_mor vs not and or impl).
+  PL -> X := mor_from_algebra_mor _ (PL_fold_alg_mor vs not and or impl).
 
 (** Some lemmas expressing the computational behavior of [PL_fold] *)
 Section FoldComputationLemmas.

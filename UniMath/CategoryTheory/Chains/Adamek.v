@@ -182,7 +182,7 @@ Local Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor
 
 End algebra_mor.
 
-Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F)
+Lemma colimAlgIsInitial_subproof (Aa : category_FunctorAlg F)
         (Fa' : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
 Proof.
 apply algebra_mor_eq; simpl.
