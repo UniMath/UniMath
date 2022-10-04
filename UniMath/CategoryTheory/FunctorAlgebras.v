@@ -41,8 +41,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
-
 (* The following are used for examples *)
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -97,7 +95,7 @@ Section Algebra_Definition.
   Definition category_FunctorAlg : category
     := total_category algebra_disp_cat.
 
-  Notation FunctorAlg := category_FunctorAlg.
+  Definition FunctorAlg := category_FunctorAlg.
 
   Definition algebra_ob : UU := ob FunctorAlg.
 
@@ -126,7 +124,7 @@ Section Algebra_Definition.
     := alg_map X · f = #F f · alg_map Y.
 
   Definition algebra_mor (X Y : algebra_ob) : UU := FunctorAlg⟦X,Y⟧.
-  Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : C⟦X, Y⟧ := pr1 f.
+  Coercion mor_from_algebra_mor {X Y : algebra_ob} (f : algebra_mor X Y) : C⟦X, Y⟧ := pr1 f.
 
   Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
     : alg_map X · f = #F f · alg_map Y.
@@ -182,12 +180,18 @@ Proof.
     apply C.
 Qed.*)
 
-Definition algebra_mor_eq {C : category} (F : functor C C) {X Y : algebra_ob F} {f g : algebra_mor F X Y}
+Definition algebra_mor_eq' {C : category} {F : functor C C} {X Y : algebra_ob F} (f g : algebra_mor F X Y)
   : (f : alg_carrier F X --> alg_carrier F Y) = g ≃ f = g.
 Proof.
   apply invweq.
   apply subtypeInjectivity.
   intro a. apply C.
+Defined.
+
+Definition algebra_mor_eq {C : category} {F : functor C C} {X Y : FunctorAlg F} (f g : (FunctorAlg F)⟦X,Y⟧)
+  : ((pr1 f : alg_carrier F X --> alg_carrier F Y) = (pr1 g)) -> f = g.
+Proof.
+  exact (algebra_mor_eq' f g).
 Defined.
 
 (* Lemma is_precategory_precategory_alg_data {C : category} (F : functor C C)
@@ -392,15 +396,15 @@ Proof.
 Defined.
 
 Lemma idtomor_FunctorAlg_commutes (X Y: FunctorAlg F) (e: X = Y)
-  : mor_from_dialgebra_mor (idtomor _ _ e) = idtomor _ _ (maponpaths dialgebra_carrier e).
+  : mor_from_algebra_mor F (idtomor _ _ e) = idtomor _ _ (maponpaths (alg_carrier F) e).
 Proof.
   induction e.
   apply idpath.
 Qed.
 
 Corollary idtoiso_FunctorAlg_commutes (X Y: FunctorAlg F) (e: X = Y)
-  : mor_from_dialgebra_mor (morphism_from_z_iso _ _ (idtoiso e))
-    = idtoiso (maponpaths dialgebra_carrier e).
+  : mor_from_algebra_mor F (morphism_from_z_iso _ _ (idtoiso e))
+    = idtoiso (maponpaths (alg_carrier F) e).
 Proof.
   unfold morphism_from_z_iso.
   rewrite eq_idtoiso_idtomor.
@@ -422,14 +426,14 @@ Variables (Aa : FunctorAlg F) (AaIsInitial : isInitial (FunctorAlg F) Aa).
 Local Definition AaInitial : Initial (FunctorAlg F) :=
   make_Initial _ AaIsInitial.
 
-Local Notation A := (dialgebra_carrier Aa).
-Local Notation a := (dialgebra_map Aa).
+Local Notation A := (alg_carrier _ Aa).
+Local Notation a := (alg_map _ Aa).
 
 (* (FA,Fa) is an F-algebra *)
 Local Definition FAa : FunctorAlg F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a).
 Local Definition Fa' := InitialArrow AaInitial FAa.
-Local Definition a' : C⟦A,F A⟧ := mor_from_dialgebra_mor Fa'.
-Local Definition Ha' := dialgebra_mor_commutes Fa'.
+Local Definition a' : C⟦A,F A⟧ := mor_from_algebra_mor F Fa'.
+Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
 
 Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
@@ -526,7 +530,7 @@ Section Nats.
       morphism in C. *)
   Definition nat_ob_rec (N : nat_ob) {X : ob C} :
     ∏ (f : 1 --> X) (g : X --> X), (N --> X) :=
-    fun f g => mor_from_algebra_mor _ _ _ (InitialArrow N (make_F_alg f g)).
+    fun f g => mor_from_algebra_mor F (InitialArrow N (make_F_alg f g)).
 
   (** When calling the recursor on 0, you get the base case.
       Specifically,

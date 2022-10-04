@@ -109,7 +109,7 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
   pr2 lambdaOmegaFunctor.
 
 Lemma lambdaFunctor_Initial :
-  Initial (precategory_FunctorAlg lambdaFunctor).
+  Initial (category_FunctorAlg lambdaFunctor).
 Proof.
 apply (colimAlgInitial InitialHSET2 is_omega_cocont_lambdaFunctor).
 apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
