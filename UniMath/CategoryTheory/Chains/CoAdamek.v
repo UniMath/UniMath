@@ -109,7 +109,7 @@ Local Definition is_z_iso_lim_algebra_mor : is_z_isomorphism lim_algebra_mor :=
 
 Let α : z_iso L (F L) := make_z_iso' _ is_z_iso_lim_algebra_mor.
 Let α_inv : z_iso (F L) L := z_iso_inv_from_z_iso α.
-Let α_alg : coalgebra F := tpair (λ X : C, C ⟦ X , F X⟧) L α.
+Let α_alg : coalgebra_ob F := tpair (λ X : C, C ⟦ X , F X⟧) L α.
 
 Lemma unfold_inv_from_z_iso_α :
   inv_from_z_iso α = limArrow shiftLimCone _ (limCone FHC).
@@ -136,10 +136,10 @@ Qed.
 *)
 Section coalgebra_mor.
 
-Variable (Aa : coalgebra F).
+Variable (Aa : coalgebra_ob F).
 
-Local Notation A := (coalgebra_ob _ Aa).
-Local Notation a := (coalgebra_mor _ Aa).
+Local Notation A := (coalg_carrier _ Aa).
+Local Notation a := (coalg_map _ Aa).
 
 Local Definition cone_over_coalg (n : nat) : C ⟦ A, iter_functor F n TerminalC⟧.
 Proof.
@@ -193,7 +193,7 @@ Proof.
     apply cancel_precomposition, maponpaths, (limArrowCommutes CC).
 Qed.
 
-Local Definition ad_mor : coalgebra_homo F Aa α_alg.
+Local Definition ad_mor : coalgebra_mor F Aa α_alg.
 Proof.
   exists ad.
   abstract (apply pathsinv0, z_iso_inv_to_right, pathsinv0, limArrowUnique; simpl; intro n ; apply ad_is_coalgebra_mor).
@@ -202,13 +202,14 @@ Defined.
 End coalgebra_mor.
 
 Lemma limCoAlgIsTerminal_subproof (Aa : CoAlg_category F)
-        (Fa' : coalgebra_homo F Aa α_alg) : Fa' = ad_mor Aa.
+        (Fa' : coalgebra_mor F Aa α_alg) : Fa' = ad_mor Aa.
 Proof.
-  apply coalgebra_homo_eq.
-  { apply homset_property. }
+  use total2_paths_f.
+  2: { apply homset_property. }
+
   apply limArrowUnique ; intro n.
   destruct Fa' as [f hf]; simpl.
-  unfold is_coalgebra_homo in hf; simpl in hf.
+  unfold is_coalgebra_mor in hf; simpl in hf.
   induction n as [|n IHn]; simpl.
   - apply TerminalArrowUnique.
   - rewrite <- IHn, functor_comp, assoc.
