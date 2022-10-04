@@ -97,6 +97,8 @@ Section A.
    unfold actionbased_strength_nat.
    unfold nat_trans.
    eapply weqcomp.
+   apply weqtotal2asstor.
+(*
    set (P := is_nat_trans (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)
                (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H)).
    set (Q := fun (ζ: actionbased_strength_nat Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')
@@ -110,6 +112,7 @@ Section A.
                     is_nat_trans (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)
              (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H) t  => Q ζ). *)
    exact (weqtotal2asstor P Q).
+*)
    cbn.
    unfold actionbased_strength_triangle_eq, actionbased_strength_pentagon_eq.
    cbn.
