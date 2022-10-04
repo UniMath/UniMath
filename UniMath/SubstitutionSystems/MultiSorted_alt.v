@@ -408,7 +408,7 @@ Proof.
 induction a as [xs t]; revert xs.
 use list_ind.
 - apply is_omega_cocont_post_comp_projSortToC.
-- intros x xs H; simpl.
+- intros x xs H.
   apply is_omega_cocont_functor_composite.
   + apply (is_omega_cocont_pre_composition_functor (option_list _)).
     apply (ColimsFunctorCategory_of_shape nat_graph sort_cat _ HC).

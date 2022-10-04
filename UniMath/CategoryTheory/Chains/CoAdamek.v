@@ -25,9 +25,11 @@ Require Import UniMath.CategoryTheory.Chains.Cochains.
 
 Local Open Scope cat.
 
+(*
 Definition is_omega_cont' {C D : category} (F : functor C D) : UU :=
   ∏ (c : cochain C) (L : C) (cc : cone c L),
     preserves_limit F c L cc.
+ *)
 
 Section lim_terminal_coalgebra.
 
@@ -117,20 +119,20 @@ Proof.
 apply idpath.
 Qed.
 
-(** Given an coalgebra:
+(** Given a coalgebra:
 <<
           a
       A ------> F A
 >>
  we now define a coalgebra morphism ad:
 <<
-        α
-   L ------>  F L
+        a
+    A ------>  F A
     |          |
+    | ad       |
     |          |
-    |          |
-    V   a      V
-   A ------>  F A
+    V   α      V
+    L ------>  F L
 >>
 
 *)
