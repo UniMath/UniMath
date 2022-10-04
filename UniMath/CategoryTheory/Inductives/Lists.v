@@ -147,7 +147,7 @@ Defined.
 Opaque is_omega_cocont_listFunctor.
 
 Lemma isalghom_pr1foldr :
-  is_algebra_mor _ List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
+  is_algebra_mor listFunctor List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
 - apply funextfun; intro x; induction x.
@@ -156,12 +156,18 @@ apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
 
+(* Transparent is_omega_cocont_listFunctor. *)
+
+Definition pr1foldr_algmor : algebra_mor listFunctor List_alg List_alg.
+Proof.
+  use tpair.
+  - exact (λ l, pr1 (foldr P'HSET P0' Pc' l)).
+  - hnf. apply isalghom_pr1foldr.
+Defined.
+
 Transparent is_omega_cocont_listFunctor.
 
-Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
-  tpair _ _ isalghom_pr1foldr.
-
-Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
+Lemma pr1foldr_algmor_identity : identity List_alg = pr1foldr_algmor.
 Proof.
 now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
@@ -169,8 +175,8 @@ Qed.
 (** The induction principle for lists *)
 Lemma listInd l : P l.
 Proof.
-assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
-  apply (toforallpaths _ _ _ (!pr1foldr_algmor_identity) l).
+  assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
+  apply (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
 rewrite <- H.
 apply (pr2 (foldr P'HSET P0' Pc' l)).
 Defined.
@@ -473,7 +479,7 @@ apply (is_omega_cocont_functor_composite).
 Defined.
 
 Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor).
+  Initial (category_FunctorAlg listFunctor).
 Proof.
 apply (colimAlgInitial InitialHSET omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
@@ -586,7 +592,7 @@ Qed.
 Lemma listInd l : P l.
 Proof.
 assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
-  apply (toforallpaths _ _ _ (!pr1foldr_algmor_identity) l).
+  apply (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
 rewrite <- H.
 apply (pr2 (foldr P'HSET P0' Pc' l)).
 Defined.
