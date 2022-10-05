@@ -13,6 +13,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 
@@ -189,7 +191,7 @@ Section translation_functor.
     TranslationMorphism C1 C2 (ComplexHomotMorphism A H).
   Proof.
     unfold TranslationHomot. cbn. use MorphismEq. intros i. cbn.
-    induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid. cbn. unfold idfun.
+    induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid. cbn.
     rewrite <- PreAdditive_invrcomp. rewrite <- transport_target_to_inv.
     rewrite PreAdditive_invlcomp. rewrite inv_inv_eq.
     rewrite <- transport_target_to_inv.
@@ -222,9 +224,9 @@ Section translation_functor.
                      @ maponpaths (λ i0 : pr1 hz, i0 + 1) (hzrplusminus (i - 1 + 1) 1))).
       assert (ee : tmp = (hzrplusminus (i - 1 + 1 + 1) 1)) by apply isasethz.
       unfold tmp in ee. cbn in ee. unfold tmp. cbn. rewrite ee. clear ee. clear tmp.
-      induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. unfold idfun. apply idpath.
+      induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. apply idpath.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     (* Show that the first elements of to_binop are the same *)
     set (tmp := @transport_hz_source_target A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
     rewrite tmp. clear tmp. rewrite transport_compose.
@@ -273,7 +275,7 @@ Section translation_functor.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     induction (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1).
-    induction (hzrminusplus i 1 @ ! hzrplusminus i 1). cbn. unfold idfun.
+    induction (hzrminusplus i 1 @ ! hzrplusminus i 1). cbn.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite inv_inv_eq. apply DSq.
   Qed.
@@ -320,7 +322,7 @@ Section translation_functor.
     - exact (maponpaths C2 (hzrplusminus i 1)).
     - rewrite transport_target_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
       rewrite <- path_assoc. rewrite pathsinv0l. rewrite pathscomp0rid.
-      induction (hzrminusplus i 1). cbn. unfold idfun.
+      induction (hzrminusplus i 1). cbn.
       rewrite transport_target_postcompose.
       set (tmp := transport_hz_double_section A C1 C2 (MMor f) _ _ (hzrplusminus (i - 1 + 1) 1)).
       cbn. cbn in tmp. rewrite tmp. clear tmp.
@@ -388,7 +390,7 @@ Section translation_functor.
     InvTranslationMorphism C1 C2 (ComplexHomotMorphism A H).
   Proof.
     unfold InvTranslationHomot. cbn. use MorphismEq. intros i. cbn.
-    induction (hzrplusminus i 1). cbn. unfold idfun. rewrite pathscomp0rid.
+    induction (hzrplusminus i 1). cbn. rewrite pathscomp0rid.
     rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invrcomp.
     rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
     rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invlcomp.
@@ -411,7 +413,7 @@ Section translation_functor.
       }
       rewrite e2. clear e2. apply maponpaths. apply isasethz.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     rewrite <- transport_target_postcompose. rewrite transport_f_f.
     assert (e2 : maponpaths (λ i0 : pr1 hz, C2 (i0 - 1)) (hzrminusplus (i + 1 - 1) 1) =
                  maponpaths C2 (maponpaths (λ i0 : hz, i0 - 1) (hzrminusplus (i + 1 - 1) 1))).
@@ -521,7 +523,7 @@ Section translation_functor.
                                        (to_inv (to_inv (Diff C (i - 1 + 1)))))) = Diff C i.
   Proof.
     rewrite inv_inv_eq.
-    induction (hzrminusplus i 1). cbn. unfold idfun.
+    induction (hzrminusplus i 1). cbn.
     rewrite transport_f_f.
     assert (e : maponpaths (λ i0 : pr1 hz, (C : Complex _) (i0 + 1))
                            (! hzrplusminus (i - 1 + 1) 1) =
@@ -555,7 +557,7 @@ Section translation_functor.
   Proof.
     use MorphismEq. intros i. Local Opaque ComplexEq. cbn.
     rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
-    induction (hzrminusplus i 1). cbn. unfold idfun. apply idpath.
+    induction (hzrminusplus i 1). cbn. apply idpath.
   Qed.
 
   Lemma TranslationInvTranslation :
@@ -604,7 +606,7 @@ Section translation_functor.
   Proof.
     Local Opaque ComplexEq. use MorphismEq. intros i. cbn.
     rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
-    induction (hzrplusminus i 1). cbn. unfold idfun. apply idpath.
+    induction (hzrplusminus i 1). cbn. apply idpath.
   Qed.
 
   Lemma InvTranslationTranslation :
@@ -636,7 +638,7 @@ Section translation_functor.
     rewrite <- transport_target_postcompose.
     rewrite id_right.
     rewrite transport_target_postcompose.
-    induction (hzrminusplus i 1). cbn. unfold idfun. rewrite id_left.
+    induction (hzrminusplus i 1). cbn. rewrite id_left.
     use transportf_paths.
     assert (e : maponpaths (λ i0 : pr1 hz, (x : Complex A) (i0 + 1))
                            (! hzrplusminus (i - 1 + 1) 1) =

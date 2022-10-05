@@ -30,7 +30,6 @@
 
 (** ** Preamble *)
 
-
 (** Settings *)
 
 (** The following line has to be removed for the file to compile with Coq8.2 *)
@@ -39,8 +38,10 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Algebra.BinaryOperations.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Sets.
 
+Local Open Scope logic.
 
 (** ** Standard Algebraic Structures *)
 
@@ -71,9 +72,9 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := make_dirprod (lunax X)
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
-(* Declare Scope addmonoid_scope. *)
+Declare Scope addmonoid_scope.
 Delimit Scope addmonoid_scope with addmonoid.
-(* Declare Scope multmonoid_scope. *)
+Declare Scope multmonoid_scope.
 Delimit Scope multmonoid_scope with multmonoid.
 
 Notation "x * y" := (op x y) : multmonoid_scope.
@@ -165,7 +166,7 @@ Lemma ismonoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
   ismonoidfun (funcomp (pr1 f) (pr1 g)).
 Proof.
   split with (isbinopfuncomp f g).
-  unfold funcomp. rewrite (pr2 (pr2 f)).
+  simpl. rewrite (pr2 (pr2 f)).
   apply (pr2 (pr2 g)).
 Defined.
 Opaque ismonoidfuncomp.
@@ -372,6 +373,13 @@ Definition make_submonoid {X : monoid} :
 
 Definition pr1submonoid (X : monoid) : submonoid X -> hsubtype X := @pr1 _ _.
 
+Lemma isaset_submonoid (A : monoid) : isaset (submonoid A).
+Proof.
+  apply isaset_total2.
+  - apply isasethsubtype.
+  - intro P. apply isasetaprop, isapropissubmonoid.
+Defined.
+
 Definition totalsubmonoid (X : monoid) : submonoid X.
 Proof.
   split with (totalsubtype X). split.
@@ -382,7 +390,7 @@ Defined.
 Definition trivialsubmonoid (X : monoid) : @submonoid X.
 Proof.
   intros.
-  exists (λ x, x = @unel X)%set.
+  exists (λ x, x = @unel X).
   split.
   - intros b c.
     induction b as [x p], c as [y q].
@@ -494,11 +502,11 @@ Proof.
   set (qsetwithop := setwithbinopquot R).
   split.
   - intro x.
-    apply (setquotunivprop R (λ x, @eqset qsetwithop ((@op qsetwithop) qun x) x)).
+    apply (setquotunivprop R (λ x, (@op qsetwithop) qun x = x)).
     simpl. intro x0.
     apply (maponpaths (setquotpr R) (lunax X x0)).
   - intro x.
-    apply (setquotunivprop R (λ x, @eqset qsetwithop ((@op qsetwithop) x qun) x)).
+    apply (setquotunivprop R (λ x, (@op qsetwithop) x qun = x)).
     simpl. intro x0. apply (maponpaths (setquotpr R) (runax X x0)).
 Defined.
 Opaque isunitquot.
@@ -533,14 +541,14 @@ Defined.
 (** The universal property of the quotient monoid. If X, Y are monoids, R is a congruence on X, and
     [f : X → Y] is a homomorphism which respects R, then there exists a unique homomorphism
     [f' : X/R → Y] making the following diagram commute:
-    <<
+<<
     X -π-> X/R
      \      |
        f    | ∃! f'
          \  |
           V V
            Y
-    >>
+>>
  *)
 
 Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
@@ -1006,7 +1014,7 @@ Proof.
     set (g := λ x0 : abmonoidfrac X A, prabmonoidfrac X A (pr1 a') a + x0).
     assert (egf : ∏ x0 : _, paths (g (f x0)) x0).
     {
-      apply (setquotunivprop R (λ x0 : abmonoidfrac X A, eqset (g (f x0)) x0)).
+      apply (setquotunivprop R (λ x, _ = _)).
       intro xb. simpl.
       apply (iscompsetquotpr
                R (@make_dirprod X A ((pr1 a') + ((pr1 a) + (pr1 xb)))
@@ -1026,7 +1034,7 @@ Proof.
     }
     assert (efg : ∏ x0 : _, paths (f (g x0)) x0).
     {
-      apply (setquotunivprop R (λ x0 : abmonoidfrac X A, eqset (f (g x0)) x0)).
+      apply (setquotunivprop R (λ x0, _ = _)).
       intro xb. simpl.
       apply (iscompsetquotpr
                R (@make_dirprod X A ((pr1 a) + ((pr1 a') + (pr1 xb)))
@@ -1080,7 +1088,7 @@ Definition ismonoidfuntoabmonoidfrac (X : abmonoid) (A : submonoid X) :
 (** **** Abelian monoid of fractions in the case when elements of the localziation submonoid are cancelable *)
 
 Definition hrel0abmonoidfrac (X : abmonoid) (A : submonoid X) : hrel (X × A) :=
-  λ xa yb : setdirprod X A, eqset ((pr1 xa) + (pr1 (pr2 yb))) ((pr1 yb) + (pr1 (pr2 xa))).
+  λ xa yb : setdirprod X A, (pr1 xa) + (pr1 (pr2 yb)) = (pr1 yb) + (pr1 (pr2 xa)).
 
 Lemma weqhrelhrel0abmonoidfrac (X : abmonoid) (A : submonoid X)
       (iscanc : ∏ a : A, isrcancelable (@op X) (pr1carrier _ a))
@@ -1088,7 +1096,7 @@ Lemma weqhrelhrel0abmonoidfrac (X : abmonoid) (A : submonoid X)
 Proof.
   unfold eqrelabmonoidfrac. unfold hrelabmonoidfrac. simpl.
   apply weqimplimpl.
-  apply (@hinhuniv _ (eqset (pr1 xa + pr1 (pr2 xa')) (pr1 xa' + pr1 (pr2 xa)))).
+  apply (@hinhuniv _ (pr1 xa + pr1 (pr2 xa') = pr1 xa' + pr1 (pr2 xa))).
   intro ae. destruct ae as [ a eq ].
   apply (invmaponpathsincl _ (iscanc a) _ _ eq).
   intro eq. apply hinhpr. split with (unel A). rewrite (runax X).
@@ -1124,7 +1132,7 @@ Proof.
   apply (isdecpropweqb (weqhrelhrel0abmonoidfrac X A iscanc xa xa')).
   apply isdecpropif. unfold isaprop. simpl.
   set (int := setproperty X (pr1 xa + pr1 (pr2 xa')) (pr1 xa' + pr1 (pr2 xa))).
-  simpl in int. apply int. unfold hrel0abmonoidfrac. unfold eqset.
+  simpl in int. apply int. unfold hrel0abmonoidfrac.
   simpl. apply (is _ _).
 Defined.
 

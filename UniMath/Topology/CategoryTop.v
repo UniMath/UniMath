@@ -11,13 +11,11 @@ Require Import UniMath.Algebra.ConstructiveStructures.
 Require Import UniMath.Topology.Topology.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 (** * Displayed category of topological spaces *)
 
-
-Definition top_disp_cat_ob_mor : disp_cat_ob_mor HSET.
+Definition top_disp_cat_ob_mor : disp_cat_ob_mor hset_category.
 Proof.
   use tpair.
   - intro X. exact (isTopologicalSet (pr1hSet X)).
@@ -25,7 +23,7 @@ Proof.
     apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
 Defined.
 
-Definition top_disp_cat_data : disp_cat_data HSET.
+Definition top_disp_cat_data : disp_cat_data hset_category.
 Proof.
   exists top_disp_cat_ob_mor.
   use tpair.
@@ -38,10 +36,10 @@ Proof.
       assumption.
 Defined.
 
-Definition top_disp_cat_axioms : disp_cat_axioms SET top_disp_cat_data.
+Definition top_disp_cat_axioms : disp_cat_axioms hset_category top_disp_cat_data.
 Proof.
   repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
   apply isasetaprop. apply isaprop_continuous.
 Defined.
 
-Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
+Definition disp_top : disp_cat hset_category := _ ,, top_disp_cat_axioms.

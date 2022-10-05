@@ -45,7 +45,7 @@ Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_pre
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
@@ -135,12 +135,20 @@ Proof.
   intros H.
   use make_z_iso.
   - exact (z_iso_mor H).
-  - exact (z_iso_inv_mor H).
+  - exact (inv_from_z_iso H).
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
 Defined.
 
+Definition z_iso_from_opp {C : precategory} {a b : C} (f : a --> b) :
+  @is_z_isomorphism C^op b a f → @is_z_isomorphism C a b f.
+Proof.
+  intros H.
+  exists (pr1 H).
+  split; [ apply (pr2 (pr2 H)) | apply (pr1 (pr2 H)) ].
+Qed.
+
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
-Proof. intros a b; apply hsC. Qed.
+Proof. intros a b; apply hsC. Defined.
 
 Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
 
@@ -183,14 +191,14 @@ Lemma opp_functor_essentially_surjective :
 Proof.
   intros HF d.
   set (TH := HF d).
-  set (X:=@hinhuniv  (∑ a : C, iso (F a) d)).
+  set (X:=@hinhuniv  (∑ a : C, z_iso (F a) d)).
   use (X _ _ TH).
   intro H. clear TH. clear X.
   apply hinhpr.
   destruct H as [a X].
   exists a. simpl in *.
-  apply  opp_iso.
-  apply (iso_inv_from_iso X).
+  apply  opp_z_iso.
+  apply (z_iso_inv_from_z_iso X).
 Qed.
 
 End opp_functor_properties.
@@ -282,24 +290,58 @@ Proof.
   - apply isaprop_is_iso.
 Defined.
 
-Definition op_is_univalent (C : univalent_category)
-  : is_univalent (C^op).
+Definition has_homsets_op (C : category) : has_homsets (C^op).
 Proof.
-  split.
-  - intros X Y.
-    use weqhomot.
-    + exact ((op_iso_is_cat_iso X Y)
-               ∘ make_weq (@idtoiso C Y X) (pr1(pr2 C) Y X)
-               ∘ weqpathsinv0 _ _)%weq.
-    + intros p.
-      induction p ; cbn.
-      apply subtypeEquality.
-      * intro ; apply isaprop_is_iso.
-      * reflexivity.
-  - intros X Y ; cbn.
-    apply C.
+  intros a b.
+  apply C.
+Defined.
+
+Definition op_category (C : category) : category := make_category C^op (has_homsets_op C).
+
+Definition op_z_iso_is_cat_z_iso
+           {C : category}
+           (X Y : C^op)
+  : @z_iso C Y X ≃ z_iso X Y.
+Proof.
+  use weqfibtototal.
+  intro f.
+  use weqimplimpl.
+  - apply opp_is_z_isomorphism.
+  - apply z_iso_from_opp.
+  - apply isaprop_is_z_isomorphism.
+  - apply (isaprop_is_z_isomorphism(C:=op_category C)).
+Defined.
+
+Definition from_op_op_to_op (A C : category)
+  : functor [op_category A, op_category C] (op_category [A,C])
+  := tpair _ _ (is_functor_from_opp_opp_to_opp A C C).
+
+Definition op_is_univalent (C : univalent_category)
+  : is_univalent (op_category C).
+Proof.
+  intros X Y.
+  use weqhomot.
+  + exact ((op_z_iso_is_cat_z_iso X Y)
+             ∘ make_weq (@idtoiso C Y X) (pr2( C) Y X)
+             ∘ weqpathsinv0 _ _)%weq.
+  + intros p.
+    induction p ; cbn.
+    apply subtypePath.
+    * intro ; apply (isaprop_is_z_isomorphism(C:=op_category C)).
+    * apply idpath.
 Defined.
 
 Definition op_unicat (C : univalent_category)
   : univalent_category
-  := (C^op ,, op_is_univalent C).
+  := (op_category C ,, op_is_univalent C).
+
+Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+
+
+Definition op_ob {C : category} (c : ob C) : ob C^op := c.
+
+Definition rm_op_ob {C : category} (cop : ob C^op) : ob C := cop.
+
+Definition op_mor {C : category} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b⟧ := f.
+
+Definition rm_op_mor {C : category} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.

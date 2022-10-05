@@ -127,7 +127,7 @@ Section BinaryOperations.
     rewrite append_vec_compute_2.
     apply (maponpaths (λ x, op (iterop_fun x) y)).
     apply funextfun; intro i.
-    unfold funcomp.
+    simpl.
     rewrite append_vec_compute_1.
     reflexivity.
   Defined.
@@ -197,7 +197,6 @@ Section Monoids.
      apply (maponpaths (λ a, a * m)).
      apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
      apply funextfun; intros [i b]; simpl.
-     unfold funcomp.
      now rewrite append_vec_compute_1.
   Defined.
 
@@ -332,7 +331,7 @@ Proof.
   set (x' := x ∘ r).
   intermediate_path (iterop_seq_mon (stnsum f,, x')).
   { induction B. apply iterop_seq_mon_homot. intros i. unfold x'.
-    unfold funcomp. apply maponpaths.
+    simpl. apply maponpaths.
     apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
     reflexivity. }
   unfold iterop_seq_mon. unfold iterop_seq.
@@ -340,9 +339,8 @@ Proof.
   unfold partition.
   rewrite 3 iterop_seq_seq_mon_step.
   change (iterop_seq_seq_mon (0,,_)) with (unel M); rewrite lunax.
-  unfold funcomp at 1 2.
   set (s0 := dni lastelement (dni lastelement (@lastelement 0))).
-  unfold funcomp at 1.
+  unfold funcomp at 1 2 3.
   set (s1 := dni lastelement (@lastelement 1)).
   set (s2 := @lastelement 2).
   unfold partition'. unfold inverse_lexicalEnumeration.
@@ -368,7 +366,7 @@ Proof.
       { unfold funcomp. set (s0' := dni lastelement (@lastelement 0)).
         unfold partition'. change (f' s0') with j.
         apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         change_lhs (stntonat _ i).
         unfold dni. unfold di.
         unfold stntonat.
@@ -379,19 +377,19 @@ Proof.
           exact (natlthtonegnatgeh _ _ (stnlt i) P). } }
       { unfold partition'. change (f' lastelement) with (n-j).
         apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
-        apply subtypeEquality_prop. change_lhs (j+1+i). unfold dni, di.
+        apply subtypePath_prop. change_lhs (j+1+i). unfold dni, di.
         unfold stntonat.
         match goal with |- context [ match ?x with _ => _ end ]
                         => induction x as [c|c] end.
         { apply fromempty. exact (negnatlthplusnmn j i c). }
         { change_rhs (1 + (j + i)). rewrite <- natplusassoc. rewrite (natpluscomm j 1).
           reflexivity. } } }
-    unfold x'. unfold funcomp. apply maponpaths.
-    apply subtypeEquality_prop. change (j+0 = j). apply natplusr0. }
+    unfold x'; simpl. apply maponpaths.
+    apply subtypePath_prop. change (j+0 = j). apply natplusr0. }
   { apply (maponpaths (λ k, k * _)). induction (!B').
     change_rhs (iterop_seq_mon (n,, x ∘ dni (j,, jlt))).
     apply iterop_seq_mon_homot; intros i.
-    unfold x''. unfold funcomp. apply maponpaths.
+    unfold x''; simpl. apply maponpaths.
     apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
     reflexivity. }
 Qed.
@@ -418,11 +416,10 @@ Proof.
       induction j as [j J]. unfold g, i, f', g', stntonat.
       rewrite <- (weqdnicompl_compute i').
       unfold pr1compl_ne.
-      unfold funcomp.
       rewrite homotweqinvweq.
       rewrite (weqoncompl_ne_compute f i (stnneq i) (stnneq i') _).
       apply maponpaths, maponpaths.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       unfold stntonat.
       now rewrite weqdnicompl_compute. }
     rewrite (IH (x ∘ dni i') h).
@@ -524,7 +521,7 @@ Proof.
   assert (w := commutativityOfProducts (m ∘ x') (invweq x' ∘ x)%weq).
   simple refine (_ @ ! w); clear w. unfold iterop_seq_mon, iterop_fun_mon, iterop_seq.
   apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
-  unfold funcomp. simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
+  simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
 Defined.
 
 Definition iterop_unoseq_abgr {G:abgr} : MultipleOperation G.

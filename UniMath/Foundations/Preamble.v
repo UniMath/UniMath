@@ -62,7 +62,7 @@ Inductive nat : UU :=
 
 Definition succ := S.
 
-(* Declare Scope nat_scope. *)
+Declare Scope nat_scope.
 Delimit Scope nat_scope with nat.
 Bind Scope nat_scope with nat.
 Arguments S _%nat.
@@ -138,6 +138,7 @@ Notation "1000" := (10 * 100) : nat_scope.
 (** Identity Types *)
 
 Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
+#[global]
 Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) : type_scope.
 Notation idpath := paths_refl .

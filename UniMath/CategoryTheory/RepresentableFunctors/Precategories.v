@@ -7,7 +7,8 @@ Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.Core.Univalence.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.HSET.Core.
+               UniMath.CategoryTheory.categories.HSET.Core
+               UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -62,7 +63,7 @@ Proof.
   exact (λ a b, pr2 C b a).
 Defined.
 
-Notation "C '^op'" := (oppositecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
+Notation "C '^op'" := (oppositecategory C) (at level 3, format "C ^op") : cat. (* this overwrites the previous definition *)
 
 
 Definition precategory_obmor (C:precategory) : precategory_ob_mor :=
@@ -81,8 +82,8 @@ Definition theUnivalenceProperty (C: univalent_category) := pr2 C : is_univalent
 Lemma category_eq (C D : category) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
 Proof.
-  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
-  apply subtypeEquality'.
+  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
+  apply subtypePath'.
   { assumption. }
   apply isaprop_is_precategory.
   apply homset_property.
@@ -150,13 +151,13 @@ Definition functor_mor_application {B C:category} {b b':B} (F:[B,C]) :
   := λ f, # (F:_⟶_) f.
 Notation "F ▭ f" := (functor_mor_application F f) : cat.
 
-Definition arrow {C:category} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
+Definition arrow {C:category} (c : C) (X : [C^op,HSET]) : hSet := X ◾ c.
 Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
 
-Definition arrow' {C:category} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
+Definition arrow' {C:category} (c : C) (X : [C^op^op,HSET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X) : cat. (* \l= *)
 
-Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,SET]} :
+Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,HSET]} :
   c'-->c -> c⇒X -> c'⇒X
   := λ f x, # (X:_⟶_) f x.
 Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associativity) : cat.
@@ -164,7 +165,7 @@ Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associ
 (* motivation for the notation:
    the morphisms of C act on the right of the elements of X *)
 
-Definition nattrans_arrow_composition {C:category} {X X':[C^op,SET]} {c:C} :
+Definition nattrans_arrow_composition {C:category} {X X':[C^op,HSET]} {c:C} :
   c⇒X -> X-->X' -> c⇒X'
   := λ x q, (q:_ ⟹ _) c (x:(X:_⟶_) c:hSet).
 Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associativity) : cat.
@@ -179,11 +180,11 @@ Definition nattrans_object_application {B C:category} {F F' : [B,C]} (b:B) :
 Notation "p ◽ b" := (nattrans_object_application b p) : cat.
 (* agda input : \sqw3 *)
 
-Definition arrow_mor_id {C:category} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+Definition arrow_mor_id {C:category} {c:C} {X:[C^op,HSET]} (x:c⇒X) :
   x ⟲ identity c = x
   := eqtohomot (functor_id X c) x.
 
-Definition arrow_mor_mor_assoc {C:category} {c c' c'':C} {X:[C^op,SET]}
+Definition arrow_mor_mor_assoc {C:category} {c c' c'':C} {X:[C^op,HSET]}
            (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
   := eqtohomot (functor_comp X f g) x.
@@ -194,28 +195,28 @@ Definition nattrans_naturality {B C:category} {F F':[B, C]} {b b':B}
   := nat_trans_ax p _ _ f.
 
 Definition comp_func_on_mor {A B C:category} (F:[A,B]) (G:[B,C]) {a a':A} (f:a-->a') :
-  G □ F ▭ f = G ▭ (F ▭ f).
+  F ∙ G ▭ f = G ▭ (F ▭ f).
 Proof.
   reflexivity.
 Defined.
 
-Definition nattrans_arrow_mor_assoc {C:category} {c' c:C} {X X':[C^op,SET]}
+Definition nattrans_arrow_mor_assoc {C:category} {c' c:C} {X X':[C^op,HSET]}
            (g:c'-->c) (x:c⇒X) (p:X-->X') :
   p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g
   := eqtohomot (nat_trans_ax p _ _ g) x.
 
-Definition nattrans_arrow_id {C:category} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+Definition nattrans_arrow_id {C:category} {c:C} {X:[C^op,HSET]} (x:c⇒X) :
   nat_trans_id _ ⟳ x = x
   := idpath _.
 
-Definition nattrans_nattrans_arrow_assoc {C:category} {c:C} {X X' X'':[C^op,SET]}
+Definition nattrans_nattrans_arrow_assoc {C:category} {c:C} {X X' X'':[C^op,HSET]}
            (x:c⇒X) (p:X-->X') (q:X'-->X'') :
   q ⟳ (p ⟳ x) = (q ∘ p) ⟳ x
   := idpath _.
 
 Definition nattrans_nattrans_object_assoc {A B C:category}
            (F:[A,B]) (G:[B, C]) {a a' : A} (f : a --> a') :
-  G □ F ▭ f = G ▭ (F ▭ f)
+  F ∙ G ▭ f = G ▭ (F ▭ f)
   := idpath _.
 
 Lemma functor_on_id {B C:category} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
@@ -233,7 +234,7 @@ Defined.
 
 (** natural transformations and isomorphisms *)
 
-Definition nat_iso {B C:category} (F G:[B,C]) := iso F G.
+Definition nat_iso {B C:category} (F G:[B,C]) := z_iso F G.
 
 Definition makeNattrans {C D:category} {F G:[C,D]}
            (mor : ∏ x : C, F ◾ x --> G ◾ x)
@@ -248,19 +249,19 @@ Definition makeNattrans_op {C D:category} {F G:[C^op,D]}
   := (mor,,eqn).
 
 Definition makeNatiso {C D:category} {F G:[C,D]}
-           (mor : ∏ x : C, iso (F ◾ x) (G ◾ x))
+           (mor : ∏ x : C, z_iso (F ◾ x) (G ◾ x))
            (eqn : ∏ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
   nat_iso F G.
 Proof.
-  refine (makeNattrans mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+  refine (makeNattrans mor eqn,,_). apply nat_trafo_z_iso_if_pointwise_z_iso; intro c. apply pr2.
 Defined.
 
 Definition makeNatiso_op {C D:category} {F G:[C^op,D]}
-           (mor : ∏ x : C, iso (F ◾ x) (G ◾ x))
+           (mor : ∏ x : C, z_iso (F ◾ x) (G ◾ x))
            (eqn : ∏ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
   nat_iso F G.
 Proof.
-  refine (makeNattrans_op mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+  refine (makeNattrans_op mor eqn,,_). apply nat_trafo_z_iso_if_pointwise_z_iso; intro c. apply pr2.
 Defined.
 
 Lemma move_inv {C:category} {a a' b' b:C} {f : a --> b} {f' : a' --> b'}
@@ -273,22 +274,23 @@ Proof.
   rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
 Defined.
 
-Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
+Lemma weq_iff_z_iso_SET {X Y:HSET} (f:X-->Y) : is_z_isomorphism f <-> isweq f.
 Proof.
   split.
-  - intro i. set (F := make_iso f i).
-    refine (isweq_iso f (inv_from_iso F)
-                   (λ x, eqtohomot (iso_inv_after_iso F) x)
-                   (λ y, eqtohomot (iso_after_iso_inv F) y)).
-  - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (make_weq f i))).
+  - intro i. set (F := make_z_iso' f i).
+    refine (isweq_iso f (inv_from_z_iso F)
+                   (λ x, eqtohomot (z_iso_inv_after_z_iso F) x)
+                   (λ y, eqtohomot (z_iso_after_z_iso_inv F) y)).
+  - intro i.
+    apply (hset_equiv_is_z_iso X Y (_,,i)).
 Defined.
 
-Lemma weq_to_iso_SET {X Y:SET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
-(* same as hset_iso_equiv_weq *)
+Lemma weq_to_iso_SET {X Y:HSET} : z_iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
+(* same as hset_iso_equiv_weq? -- this identifier does no longer exist *)
 Proof.
   intros. apply weqfibtototal; intro f. apply weqiff.
-  - apply weq_iff_iso_SET.
-  - apply isaprop_is_iso.
+  - apply weq_iff_z_iso_SET.
+  - apply isaprop_is_z_isomorphism.
   - apply isapropisweq.
 Defined.
 
@@ -431,22 +433,6 @@ Proof.
   unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
-(*  *)
-
-Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
-  b=b' -> tpair B a b = tpair B a b'.
-Proof.
-  intro e. induction e. reflexivity.
-Defined.
-
-Goal ∏ A : UU, ∏ B : A -> UU, ∏ p : (∑ a, B a), p = tpair B (pr1 p) (pr2 p).
-  induction p as [a b]. reflexivity.
-Defined.
-
-Goal ∏ X Y (f:X->Y), f = λ x, f x.
-  reflexivity.
-Defined.
-
 (* new categories from old *)
 
 Definition categoryWithStructure (C:category) (P:ob C -> UU) : category.
@@ -488,12 +474,12 @@ Proof.
   - abstract (intros b b' b'' f g; simpl; apply functor_comp) using _L_.
 Defined.
 
-Lemma identityFunction : ∏ (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
+Lemma identityFunction : ∏ (T:HSET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
 Proof.
   intros ? ? ? e. exact (eqtohomot e t).
 Defined.
 
-Lemma identityFunction' : ∏ (T:SET) (t:T:hSet), identity T t = t.
+Lemma identityFunction' : ∏ (T:HSET) (t:T:hSet), identity T t = t.
 Proof.
   reflexivity.
 Defined.
@@ -525,9 +511,9 @@ Definition functor_composite_functor {A B C:category} (F:A⟶B) :
   [B,C] ⟶ [A,C].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
-  - exact (λ G, G □ F).
+  - exact (λ G, F ∙ G).
   - intros G G' p; simpl.
-    unshelve refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
+    unshelve refine (@makeNattrans A C (F ∙ G) (F ∙ G') (λ a, p ◽ (F ◾ a)) _).
     abstract (
         intros a a' f; rewrite 2? nattrans_nattrans_object_assoc;
         exact (nattrans_naturality p (F ▭ f))) using _L_.

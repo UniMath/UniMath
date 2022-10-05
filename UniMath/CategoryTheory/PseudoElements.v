@@ -81,7 +81,6 @@ Here are the results we prove about pseudo elements :
 Section def_pseudo_element.
 
   Context {A : AbelianPreCat}.
-  Variable hs : has_homsets A.
 
   Local Opaque Abelian.Pullbacks.
 
@@ -131,7 +130,7 @@ Section def_pseudo_element.
   Defined.
 
   Local Lemma PEq_trans_eq {c : ob A} {E1 E2 E3 : PseudoElem c} (P1 : PEq E1 E2) (P2 : PEq E2 E3) :
-    let Pb := Abelian.Pullbacks A hs _ _ _ (PEqEpi1 P1) (PEqEpi2 P2) in
+    let Pb := Abelian.Pullbacks A _ _ _ (PEqEpi1 P1) (PEqEpi2 P2) in
     PullbackPr2 Pb · PEqEpi1 P2 · E3 = PullbackPr1 Pb · PEqEpi2 P1 · E1.
   Proof.
     intros Pb.
@@ -143,18 +142,18 @@ Section def_pseudo_element.
   Definition PEq_trans {c : ob A} {E1 E2 E3 : PseudoElem c} (P1 : PEq E1 E2) (P2 : PEq E2 E3) :
     PEq E1 E3.
   Proof.
-    set (Pb := Abelian.Pullbacks A hs _ _ _ (PEqEpi1 P1) (PEqEpi2 P2)).
+    set (Pb := Abelian.Pullbacks A _ _ _ (PEqEpi1 P1) (PEqEpi2 P2)).
     use make_PEq.
     * exact Pb.
     * use make_Epi.
       -- exact (PullbackPr2 Pb · PEqEpi1 P2).
       -- use isEpi_comp.
-         ++ use AbelianPullbackEpi2. exact hs.
+         ++ use AbelianPullbackEpi2.
          ++ apply EpiisEpi.
     * use make_Epi.
       -- exact (PullbackPr1 Pb · PEqEpi2 P1).
       -- use isEpi_comp.
-         ++ use AbelianPullbackEpi1. exact hs.
+         ++ use AbelianPullbackEpi1.
          ++ apply EpiisEpi.
     * cbn. exact (PEq_trans_eq P1 P2).
   Defined.
@@ -291,12 +290,12 @@ Section def_pseudo_element.
   Lemma PEq_Zero_Eq {c : A} (PE : PseudoElem c) :
     PEq_hrel PE (PZero (PseudoOb PE)) -> (PE : A⟦_,_⟧ ) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    intros H1. use (squash_to_prop H1). apply hs. intros X1. exact (PEq_Zero_Eq' _ PE X1).
+    intros H1. use (squash_to_prop H1). apply homset_property. intros X1. exact (PEq_Zero_Eq' _ PE X1).
   Qed.
 
   Definition PEq_Zeros' {c : A} (d1 d2 : A) : @PEq c (PZero d1) (PZero d2).
   Proof.
-    set (DS := to_BinDirectSums (AbelianToAdditive A hs) d1 d2).
+    set (DS := to_BinDirectSums (AbelianToAdditive A) d1 d2).
     use make_PEq.
     - exact DS.
     - use (make_Epi _ _ (to_Pr2_isEpi _ DS)).
@@ -361,7 +360,7 @@ Section def_pseudo_element.
       use (PEq_istrans _ _ (PZero d')).
       + exact (PEq_to_hrel _ _ X).
       + use PEq_Zeros.
-    - intros X. use (to_isMonic (AbelianToAdditive A hs)).
+    - intros X. use (to_isMonic (AbelianToAdditive A)).
       intros z g H.
       exact (! ( X z (make_PseudoElem g) (PEq_Eq_Zero (PseudoIm (make_PseudoElem g) f) H))).
   Qed.
@@ -391,8 +390,8 @@ Section def_pseudo_element.
     split.
     - intros isE b.
       set (E := make_Epi _ _ isE).
-      set (Pb := Abelian.Pullbacks A hs _ _ _ E b).
-      set (isEpi1 := AbelianPullbackEpi2 hs E b Pb).
+      set (Pb := Abelian.Pullbacks A _ _ _ E b).
+      set (isEpi1 := AbelianPullbackEpi2 E b Pb).
       set (E2 := make_Epi A _ isEpi1).
       use (make_PFiber _ _ (make_PseudoElem (PullbackPr1 Pb))).
       use make_PEq.
@@ -415,42 +414,41 @@ Section def_pseudo_element.
 
   Lemma PEq_isExact {x y z : ob A} (f : x --> y) (g : y --> z)
         (H : f · g = ZeroArrow (to_Zero A) _ _) :
-    isExact A hs f g H <->
+    isExact A f g H <->
     ∏ (b : PseudoElem y) (H : b · g = ZeroArrow (to_Zero A) _ _), PFiber f b.
   Proof.
     split.
     - intros isK b H'. unfold isExact in isK.
       set (K := make_Kernel _ _ _ _ isK).
       set (KI := KernelIn _ K (PseudoOb b) b H').
-      set (Pb := Abelian.Pullbacks A hs _ _ _ (factorization1_epi A hs f) KI).
+      set (Pb := Abelian.Pullbacks A _ _ _ (factorization1_epi A f) KI).
       use make_PFiber.
       + exact (make_PseudoElem (PullbackPr1 Pb)).
       + use make_PEq.
         * exact Pb.
-        * exact (make_Epi _ _ (AbelianPullbackEpi2 hs (factorization1_epi A hs f) KI Pb)).
+        * exact (make_Epi _ _ (AbelianPullbackEpi2 (factorization1_epi A f) KI Pb)).
         * use identity_Epi.
         * cbn. rewrite id_left. apply pathsinv0.
           set (tmp := PullbackSqrCommutes Pb).
-          set (tmp' := factorization1 hs f).
+          set (tmp' := factorization1 f).
           apply (maponpaths (λ gg : _, gg · (factorization1_monic A f))) in tmp.
           rewrite <- assoc in tmp. rewrite <- tmp' in tmp. clear tmp'.
           use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply cancel_precomposition.
           use (KernelCommutes (to_Zero A) K).
     - intros X.
-      set (fac := factorization1 hs f).
+      set (fac := factorization1 f).
       use make_isKernel.
-      + exact hs.
       + intros w h H'.
         set (P := X (make_PseudoElem h) H').
         set (PE := PFiber_Eq P).
-        set (Pb := Abelian.Pullbacks A hs _ _ _ h (factorization1_monic A f)).
+        set (Pb := Abelian.Pullbacks A _ _ _ h (factorization1_monic A f)).
         set (isM := MonicPullbackisMonic' _ _ _ Pb).
         assert (i : is_z_isomorphism (PullbackPr1 Pb)).
         {
           use monic_epi_is_iso.
           - exact isM.
           - assert (ee : PEqEpi1 PE · h =
-                         PEqEpi2 PE · P · factorization1_epi A hs f · factorization1_monic A f).
+                         PEqEpi2 PE · P · factorization1_epi A f · factorization1_monic A f).
             {
               cbn. set (ee := PEqEq PE). cbn in ee. rewrite ee.
               rewrite assoc. rewrite <- (assoc _ _ (KernelArrow (Abelian.Image f))).
@@ -458,10 +456,10 @@ Section def_pseudo_element.
             }
             set (tmp := PullbackArrow
                           Pb _ (PEqEpi1 PE)
-                          ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A hs f)) ee).
+                          ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A f)) ee).
             set (t := PullbackArrow_PullbackPr1
                         Pb _ (PEqEpi1 PE)
-                        ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A hs f)) ee).
+                        ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A f)) ee).
             use (isEpi_precomp _ tmp). unfold tmp. use (isEpi_path _ _ _ (! t)).
             apply EpiisEpi.
         }
@@ -477,7 +475,7 @@ Section def_pseudo_element.
         use unique_exists.
         * exact (inv_from_iso (make_iso (PullbackPr1 Pb) (is_iso_qinv _ _ i)) · PullbackPr2 Pb).
         * cbn. cbn in e1. rewrite <- e1. apply idpath.
-        * intros y0. apply hs.
+        * intros y0. apply homset_property.
         * intros y0 XX. cbn in XX.
           use (KernelArrowisMonic (to_Zero A) (Abelian.Image f)). rewrite XX.
           apply e1.
@@ -517,7 +515,7 @@ Section def_pseudo_element.
 
   Local Lemma PEq_Diff_Eq1 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) :
-    let PA := (AbelianToAdditive A hs) : PreAdditive in
+    let PA := (AbelianToAdditive A) : PreAdditive in
     @to_binop PA _ _ (PEqEpi2 H · a) (PEqEpi1 H · @to_inv PA _ _ a') · f =
     ZeroArrow (to_Zero A) _ _.
   Proof.
@@ -538,7 +536,7 @@ Section def_pseudo_element.
   Local Lemma PEq_Diff_Eq2 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) {z0 : A} {g : A ⟦ x, z0 ⟧}
         (X : a · g = ZeroArrow (to_Zero A) (PseudoOb a) z0) :
-    let PA := (AbelianToAdditive A hs) : PreAdditive in
+    let PA := (AbelianToAdditive A) : PreAdditive in
     identity (PEqOb H) · (@to_binop PA (PEqOb H) x (PEqEpi2 H · a)
                                      (PEqEpi1 H · @to_inv PA _ _ a') · g) =
     @to_inv PA _ _ (PEqEpi1 H) · (a' · g).
@@ -556,10 +554,10 @@ Section def_pseudo_element.
   Definition PEq_Diff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) : PDiff f H.
   Proof.
-    set (PA := (AbelianToAdditive A hs) : PreAdditive).
+    set (PA := (AbelianToAdditive A) : PreAdditive).
     use make_PDiff.
     - exact (make_PseudoElem (@to_binop PA _ _ (PEqEpi2 H · a)
-                                      (PEqEpi1 H · (@to_inv (AbelianToAdditive A hs) _ _ a')))).
+                                      (PEqEpi1 H · (@to_inv (AbelianToAdditive A) _ _ a')))).
     - exact (PEq_Diff_Eq1 f H).
     - intros z0 g X.
       use (make_PEq _ _ (identity_Epi _)).

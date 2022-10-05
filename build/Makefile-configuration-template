@@ -31,3 +31,9 @@ COQBIN =
 # List here any packages you'd like to try to build on a test basis.
 # When the packages work, add them to the list in ../Makefile.
 PACKAGES =
+
+# Memory limit, expressed as a multiple of 1024 bytes, for the command "ulimit -v".
+MEMORY_LIMIT = 2500000
+
+# Whether to apply the memory limit.  This will be set to "yes" when a pull request is tested.
+LIMIT_MEMORY = no

@@ -49,11 +49,11 @@ Local Open Scope cat.
 
 Section set_slicecat.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
+Local Notation "HSET / X" := (slice_cat HSET X) (only parsing).
 
 (** *** Terminal object ([Terminal_HSET_slice]) *)
 
-Lemma Terminal_HSET_slice X : Terminal (HSET / X).
+Lemma Terminal_HSET_slice X : Terminal (SET / X).
 Proof.
   now apply Terminal_slice_precat.
 Defined.
@@ -111,7 +111,7 @@ use make_Product.
   - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
   - abstract(simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
-    apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
+    apply funextsec; intro i; apply subtypePath; [intros w; apply setproperty|];
     destruct f as [f Hf]; cbn in *;
     rewrite y2;
     simpl;
@@ -156,16 +156,16 @@ Proof.
       - abstract (now apply funextsec).
       }
   + split.
-    - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    - intros x; apply (eq_mor_slicecat HSET); simpl.
       apply funextsec; intros [y hy].
       use total2_paths_f; [ apply idpath |].
-      apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
+      apply funextsec; intros w; apply subtypePath; [|apply idpath].
       now intros XX; apply setproperty.
-    - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    - intros x y z g h; apply (eq_mor_slicecat HSET); simpl.
       apply funextsec; intros [w hw].
       use total2_paths_f; [ apply idpath |].
       apply funextsec; intros w'.
-      apply subtypeEquality; [|apply idpath].
+      apply subtypePath; [|apply idpath].
       now intros XX; apply setproperty.
 Defined.
 
@@ -182,9 +182,9 @@ Proof.
       abstract (now apply (pr2 fgy)).
     * abstract (now apply funextsec).
   + intros [g Hg] [h Hh] [w Hw].
-    apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
+    apply (eq_mor_slicecat HSET), funextsec; intro x1.
     apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
-    repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+    repeat (apply subtypePath; [intros x; apply setproperty|]); cbn in *.
     now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
 Defined.
 
@@ -199,7 +199,7 @@ Proof.
     * abstract (cbn; apply funextsec; intros [[x1 [x2 x3]] x4]; simpl in *;
                 now rewrite (pr2 (x3 (x1,,x4))), x4).
   + intros g h w; simpl.
-    apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1; cbn.
+    apply (eq_mor_slicecat HSET), funextsec; intro x1; cbn.
     now repeat apply maponpaths; apply setproperty.
 Defined.
 
@@ -212,11 +212,11 @@ Proof.
   - apply eps.
   - split.
     + intros x; apply eq_mor_slicecat, funextsec; intro x1.
-      now apply subtypeEquality; [intro y; apply setproperty|]; reflexivity.
+      now apply subtypePath; [intro y; apply setproperty|]; reflexivity.
     + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
       use total2_paths_f; [apply idpath|]; cbn.
       apply funextsec; intro y.
-      use subtypeEquality.
+      use subtypePath.
       * intro z; apply setproperty.
       * simpl.
         apply maponpaths.
@@ -236,7 +236,7 @@ Defined.
 (** ** The forgetful functor [HSET/X --> HSET] is a left adjoint *)
 
 Lemma is_left_adjoint_slicecat_to_cat_HSET (X : HSET) :
-  is_left_adjoint (slicecat_to_cat has_homsets_HSET X).
+  is_left_adjoint (slicecat_to_cat HSET X).
 Proof.
 apply is_left_adjoint_slicecat_to_cat, BinProductsHSET.
 Defined.

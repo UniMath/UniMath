@@ -4,7 +4,7 @@ Auke Booij, December 2017
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -172,7 +172,7 @@ Section quotmod_def.
       (* We show this using the universal property of the set quotient. *)
       all: use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetsetquot|].
       (* Expand out some definitions. *)
-      all: intros m; simpl; unfold unel, quotmod_ringact, funcomp.
+      all: intros m; simpl; unfold unel, quotmod_ringact.
       (* Apply the computation rule of the universal property of the set quotient. *)
       all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
             | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].

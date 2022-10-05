@@ -28,9 +28,12 @@
   - Relations and the canonical homomorphism to [abgrdiff]
 *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
-Require Import UniMath.MoreFoundations.All.
+
+Local Open Scope logic.
 
 (** ** Groups *)
 
@@ -356,7 +359,7 @@ Defined.
 
 Definition trivialsubgr (X : gr) : subgr X.
 Proof.
-  exists (λ x, x = @unel X)%set.
+  exists (λ x, x = @unel X)%logic.
   split.
   - exact (pr2 (@trivialsubmonoid X)).
   - intro.
@@ -423,18 +426,12 @@ Lemma isinvongrquot {X : gr} (R : binopeqrel X) :
 Proof.
   split.
   - unfold islinv.
-    apply (setquotunivprop
-             R (λ x : setwithbinopquot R, eqset
-                                             (@op (setwithbinopquot R) (invongrquot R x) x)
-                                             (setquotpr R (unel X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro x.
     apply (@maponpaths _ _ (setquotpr R) (@op X (grinv X x) x) (unel X)).
     apply (grlinvax X).
   - unfold isrinv.
-    apply (setquotunivprop
-             R (λ x : setwithbinopquot R, eqset
-                                             (@op (setwithbinopquot R) x (invongrquot R x))
-                                             (setquotpr R (unel X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro x.
     apply (@maponpaths _ _ (setquotpr R) (@op X x (grinv X x)) (unel X)).
     apply (grrinvax X).
@@ -457,7 +454,7 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
     refine (!lunax _ _ @ _ @ lunax _ _).
     refine (maponpaths (λ z, z * _) (!grlinvax X x) @ _ @
@@ -470,7 +467,7 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_l (x y : X) : isaprop (∑ z : X, z * x = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
     refine (!runax _ _ @ _ @ runax _ _).
     refine (maponpaths (λ z, _ * z) (!grrinvax X x) @ _ @
@@ -487,9 +484,9 @@ Section GrCosets.
   Proof.
     unfold in_same_left_coset.
     apply invproofirrelevance; intros p q.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply propproperty. }
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
@@ -501,8 +498,8 @@ Section GrCosets.
   Proof.
     apply invproofirrelevance.
     intros p q.
-    apply subtypeEquality'; [|apply setproperty].
-    apply subtypeEquality'; [|apply propproperty].
+    apply subtypePath; [intros x; apply setproperty|].
+    apply subtypePath; [intros x; apply propproperty|].
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, y * x1 = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, y * x1 = x2).
     apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_l _ _ p' q'))).
@@ -738,7 +735,7 @@ Coercion abgrtoabmonoid : abgr >-> abmonoid.
 Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
   make_abgr X (make_isabgrop (pr2 X) H).
 
-(* Declare Scope abgr. *)
+Declare Scope abgr.
 Delimit Scope abgr with abgr.
 Notation "x - y" := (op x (grinv _ y)) : abgr.
 Notation   "- y" := (grinv _ y) : abgr.
@@ -1106,8 +1103,7 @@ Proof.
   assert (isl : islinv (@op (abgrdiffcarrier X)) (unel (abgrdiffcarrier X)) (abgrdiffinv X)).
   {
     unfold islinv.
-    apply (setquotunivprop
-             R (λ x : abgrdiffcarrier X, eqset (abgrdiffinv X x + x) (unel (abgrdiffcarrier X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro xs.
     set (x := pr1 xs). set (s := pr2 xs).
     apply (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) (unel _)).

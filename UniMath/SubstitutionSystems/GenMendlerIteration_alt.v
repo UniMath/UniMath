@@ -49,15 +49,15 @@ Local Notation "'chain'" := (diagram nat_graph).
 (** * Generalized Iteration in Mendler-style *)
 Section GenMenIt.
 
-Context {C : precategory} (hsC : has_homsets C) (IC : Initial C)
+Context {C : category} (IC : Initial C)
         (CC : Colims_of_shape nat_graph C) (F : functor C C)
         (HF : is_omega_cocont F).
 
 Local Notation "0" := (InitialObject IC).
 
-Let AF := FunctorAlg F hsC.
+Let AF := FunctorAlg F.
 Let chnF := initChain IC F.
-Let μF_Initial : Initial AF := colimAlgInitial hsC IC HF (CC chnF).
+Let μF_Initial : Initial AF := colimAlgInitial IC HF (CC chnF).
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
 Let e : ∏ (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
@@ -70,7 +70,7 @@ apply pathsinv0,
                           (isColimCocone_from_ColimCocone (CC chnF))))).
 Qed.
 
-Context {D : precategory} (hsD : has_homsets D).
+Context {D : category}.
 
 Section the_iteration_principle.
 
@@ -79,7 +79,7 @@ Variables (X : D) (L : functor C D) (IL : isInitial D (L 0)) (HL : is_omega_coco
 Let ILD : Initial D := tpair _ _ IL.
 Local Notation "'L0'" := (InitialObject ILD).
 
-Let Yon : functor D^op HSET := yoneda_objects D hsD X.
+Let Yon : functor D^op HSET := yoneda_objects D X.
 
 Definition ψ_source : functor C^op HSET := functor_composite (functor_opp L) Yon.
 Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ_source.
@@ -120,7 +120,7 @@ Proof.
 use make_cocone.
 - intro n.
   apply (pr1 (Pow n) _ z).
-- abstract (intros n m []; clear m; apply Pow_cocone_subproof).
+- abstract (intros n m k; induction k; apply Pow_cocone_subproof).
 Defined.
 
 Local Definition CC_LchnF : ColimCocone LchnF.
@@ -138,14 +138,14 @@ Proof.
 apply (colimArrowCommutes CC_LchnF).
 Qed.
 
-Local Lemma is_iso_inF : is_iso inF.
+Local Lemma is_z_iso_inF : is_z_isomorphism inF.
 Proof.
 (* Use Lambek's lemma, this could be extracted from the concrete proof as well *)
-apply (initialAlg_is_iso _ hsC), pr2.
+apply initialAlg_is_z_iso, pr2.
 Defined.
 
-Let inF_iso : iso (F μF) μF := make_iso _ is_iso_inF.
-Let inF_inv : C⟦μF,F μF⟧ := inv_from_iso inF_iso.
+Let inF_z_iso : z_iso (F μF) μF := make_z_iso' _ is_z_iso_inF.
+Let inF_inv : C⟦μF,F μF⟧ := inv_from_z_iso inF_z_iso.
 
 (* The direction * -> ** *)
 Lemma S_imp_SS h n : # L inF · h = ψ μF h → # L (e n) · h = Pow n IC z.
@@ -165,7 +165,7 @@ Local Lemma SS_imp_S (H : ∏ n, # L (e n) · preIt = Pow n IC z) : # L inF · p
 Proof.
 assert (H'' : # L inF · # L inF_inv = identity _).
 { rewrite <- functor_comp,  <- functor_id.
-   apply maponpaths, (iso_inv_after_iso inF_iso). }
+   apply maponpaths, (z_iso_inv_after_z_iso inF_z_iso). }
 assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n)) _ z).
 { intro n.
   rewrite e_comm, functor_comp.
@@ -195,7 +195,7 @@ Qed.
 
 Lemma preIt_uniq (t : ∑ h, # L inF · h = ψ μF h) : t = (preIt,,preIt_ok).
 Proof.
-apply subtypeEquality; [intros f; apply hsD|]; simpl.
+apply subtypePath; [intros f; apply homset_property|]; simpl.
 destruct t as [f Hf]; simpl.
 apply (colimArrowUnique CC_LchnF); intro n.
 now apply S_imp_SS, Hf.
@@ -253,8 +253,8 @@ Section fusion_law.
 
 Variables (X X' : D).
 
-Let Yon : functor D^op HSET := yoneda_objects D hsD X.
-Let Yon' : functor D^op HSET := yoneda_objects D hsD X'.
+Let Yon : functor D^op HSET := yoneda_objects D X.
+Let Yon' : functor D^op HSET := yoneda_objects D X'.
 
 Variables (L : functor C D) (HL : is_omega_cocont L) (IL : isInitial D (L 0)).
 Variables (ψ : ψ_source X L ⟹ ψ_target X L).

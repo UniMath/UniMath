@@ -22,7 +22,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.Core.Categories.
 
-Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 
 Local Open Scope cat.
@@ -133,7 +132,7 @@ Lemma folds_precat_from_precat_precat_from_folds_precat
   (C : folds_precat)(hs:has_folds_homsets C):
     folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
-  apply subtypeEquality'.
+  apply subtypePath'.
   2: { intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_T. apply hs.
@@ -149,7 +148,7 @@ Proof.
   apply pathsdirprod.
   +  apply funextsec.  intro a.
      apply funextsec. intro f. unfold id_pred. simpl.
-     apply subtypeEquality.
+     apply subtypePath.
      { intro. apply isapropisaprop. }
      simpl.
      apply weqtopaths.
@@ -169,7 +168,7 @@ Proof.
     apply funextsec; intro g.
     apply funextsec; intro fg.
     clear Hid.
-    apply subtypeEquality.
+    apply subtypePath.
     { intro; apply isapropisaprop. }
     apply weqtopaths. apply weqimplimpl.
     * intro H. simpl in *. rewrite <- H.
@@ -185,7 +184,7 @@ Qed.
 Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) :
      precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
-  apply subtypeEquality'.
+  apply subtypePath'.
   2: { intro; apply isaprop_is_precategory. assumption. }
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.

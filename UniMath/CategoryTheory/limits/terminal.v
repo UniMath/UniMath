@@ -7,10 +7,8 @@ Direct definition of terminal object together with:
 
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -44,7 +42,7 @@ Defined.
 
 Lemma TerminalEndo_is_identity {T : Terminal} (f : T --> T) : f = identity T.
 Proof.
-now apply proofirrelevance, isapropifcontr, (pr2 T T).
+apply proofirrelevancecontr, (pr2 T T).
 Qed.
 
 Lemma TerminalArrowEq {T : Terminal} {a : C} (f g : a --> T) : f = g.
@@ -63,34 +61,17 @@ Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_iso (TerminalArrow T T').
+Lemma isziso_from_Terminal_to_Terminal (T T' : Terminal) :
+   is_z_isomorphism (TerminalArrow T T').
 Proof.
-apply (is_iso_qinv _ (TerminalArrow T' T)).
-now split; apply TerminalEndo_is_identity.
+ exists (TerminalArrow T' T).
+ now split; apply TerminalEndo_is_identity.
 Defined.
 
-Definition iso_Terminals (T T' : Terminal) : iso T T' :=
-  (TerminalArrow T' T,,isiso_from_Terminal_to_Terminal T' T) .
+Definition z_iso_Terminals (T T' : Terminal) : z_iso T T' :=
+  (TerminalArrow T' T,,isziso_from_Terminal_to_Terminal T' T) .
 
 Definition hasTerminal := ishinh Terminal.
-
-Section Terminal_Unique.
-
-Hypothesis H : is_univalent C.
-
-Lemma isaprop_Terminal : isaprop Terminal.
-Proof.
-  apply invproofirrelevance.
-  intros T T'.
-  apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ).
-  apply proofirrelevance.
-  unfold isTerminal.
-  apply impred.
-  intro t ; apply isapropiscontr.
-Qed.
-
-End Terminal_Unique.
 
 End def_terminal.
 
@@ -102,10 +83,30 @@ Arguments TerminalArrowUnique {_} _ _ _.
 Arguments make_isTerminal {_} _ _ _.
 Arguments make_Terminal {_} _ _.
 
+
+Section Terminal_Unique.
+
+Variable C : category.
+Hypothesis H : is_univalent C.
+
+Lemma isaprop_Terminal : isaprop (Terminal C).
+Proof.
+  apply invproofirrelevance.
+  intros T T'.
+  apply (total2_paths_f (isotoid _ H (z_iso_Terminals T T')) ).
+  apply proofirrelevance.
+  unfold isTerminal.
+  apply impred.
+  intro t ; apply isapropiscontr.
+Qed.
+
+End Terminal_Unique.
+
+
 Section Terminal_and_EmptyProd.
 
   (** Construct Terminal from empty arbitrary product. *)
-  Definition terminal_from_empty_product (C : precategory) :
+  Definition terminal_from_empty_product (C : category) :
     Product empty C fromempty -> Terminal C.
   Proof.
     intros X.
@@ -165,9 +166,9 @@ End Terminal_and_EmptyProd.
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
-Variables (C D : precategory) (ID : Terminal D) (hsD : has_homsets D).
+Variables (C D : category) (ID : Terminal D).
 
-Definition Terminal_functor_precat : Terminal [C,D,hsD].
+Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
 - use make_functor.
@@ -184,7 +185,7 @@ use make_Terminal.
     * intros a b f; simpl.
       rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
       apply TerminalArrowUnique.
-  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply TerminalArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
 End TerminalFunctorCat.
@@ -192,7 +193,7 @@ End TerminalFunctorCat.
 (** Morphisms from the terminal object are monic *)
 Section monics_terminal.
 
-Context {C : precategory} (TC : Terminal C).
+Context {C : category} (TC : Terminal C).
 
 Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
 Proof.
@@ -201,3 +202,23 @@ now apply TerminalArrowEq.
 Qed.
 
 End monics_terminal.
+
+Definition iso_to_Terminal
+           {C : category}
+           (T : Terminal C)
+           (x : C)
+           (i : z_iso T x)
+  : isTerminal C x.
+Proof.
+  intros w.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       refine (!(id_right _) @ _ @ id_right _) ;
+       rewrite <- !(z_iso_after_z_iso_inv i) ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       apply TerminalArrowEq).
+  - exact (TerminalArrow T w · i).
+Defined.

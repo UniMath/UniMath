@@ -22,8 +22,7 @@ Local Open Scope cat.
 (** * Definition of pushouts in terms of colimits *)
 Section def_po.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
   Local Open Scope stn.
   Definition One : three := ● 0.
@@ -87,7 +86,7 @@ Section def_po.
      iscontr (total2 (fun hk : C⟦d, e⟧ => dirprod (i1 · hk = h)(i2 · hk = k)))) →
     isPushout f g i1 i2 H.
   Proof.
-    intros H' x cx; simpl in *.
+    intros H' x cx. unfold is_cocone_mor; simpl in *.
     set (H1 := H' x (coconeIn cx Two) (coconeIn cx Three)).
     use (let p : f · coconeIn cx Two = g · coconeIn cx Three
                        := _ in _ ).
@@ -103,8 +102,8 @@ Section def_po.
         apply cancel_precomposition, (pr1 (pr2 (pr1 H2)))).
       * abstract ( apply (pr1 (pr2 (pr1 H2)))).
       * abstract (now use (pathscomp0 _ (pr2 (pr2 (pr1 H2))))).
-    + abstract (intro t; apply subtypeEquality;
-               [ intro; apply impred; intro; apply hs
+    + abstract (intro t; apply subtypePath;
+               [ intro; apply impred; intro; apply C
                | destruct t as [t p0];
                  apply path_to_ctr; split; [ apply (p0 Two) | apply (p0 Three) ]]).
   Defined.
@@ -187,8 +186,8 @@ Section def_po.
         * apply PushoutArrow_PushoutIn1.
         * apply PushoutArrow_PushoutIn2.
     - intro t.
-      apply subtypeEquality.
-      + intro. apply isapropdirprod; apply hs.
+      apply subtypePath.
+      + intro. apply isapropdirprod; apply C.
       + destruct t as [t p]. simpl.
         use (PushoutArrowUnique _ _ P).
         * apply e.
@@ -294,9 +293,6 @@ Section def_po.
 
   End pushout_lemma.
 
-  Section Universal_Unique.
-
-    Hypothesis H : is_univalent C.
 
     Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧)
           (Po : Pushout f g) (Po' : Pushout f g):
@@ -307,8 +303,6 @@ Section def_po.
       set (T := are_inverses_from_Pushout_to_Pushout Po Po').
       apply (pr1 T).
     Qed.
-
-  End Universal_Unique.
 
 
   (** ** Connections to other colimits *)
@@ -326,8 +320,7 @@ End def_po.
   with the direct definition. *)
 Section pushout_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
 
   (** ** isPushout *)
@@ -350,7 +343,7 @@ Section pushout_coincide.
         apply (coconeInCommutes cc One Two tt).
       - apply (limits.pushouts.PushoutArrow_PushoutIn1 XR).
       - apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
-    + intros y; apply impred_isaprop; intros t; apply hs.
+    + intros y; apply impred_isaprop; intros t; apply C.
     + intros y T.
       use limits.pushouts.PushoutArrowUnique.
       - apply (T Two).
@@ -371,7 +364,7 @@ Section pushout_coincide.
     + split.
       - exact (PushoutArrow_PushoutIn1 C XR R k h HH).
       - exact (PushoutArrow_PushoutIn2 C XR R k h HH).
-    + intros y; apply isapropdirprod; apply hs.
+    + intros y; apply isapropdirprod; apply C.
     + intros y T.
       use (PushoutArrowUnique C _ _ XR).
       - exact R.
@@ -404,7 +397,7 @@ Section pushout_coincide.
              (PushoutIn1 C X)
              (PushoutIn2 C X)
              (PushoutSqrCommutes C X)
-             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C hs X))).
+             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C X))).
   Defined.
 
 End pushout_coincide.
