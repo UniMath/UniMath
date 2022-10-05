@@ -254,13 +254,13 @@ Defined.
     from [TerminalHSET], i.e. [unit].
 
     In particular, A pullback diagram of shape
-    <<
+<<
       Z --- ! --> unit
       |            |
       |            | y
       V            V
       X --- f -->  Y
-    >>
+>>
     makes [Z] (isomorphic to) the inverse image of a point [y : Y] under [f].
  *)
 

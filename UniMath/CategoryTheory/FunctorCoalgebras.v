@@ -72,8 +72,7 @@ Section Coalgebra_Definition.
 
   (** A homomorphism of F-coalgebras (F A, α : C ⟦A, F A⟧) and (F B, β : C ⟦B, F B⟧)
     is a morphism f : C ⟦A, B⟧ s.t. the below diagram commutes.
-
-  <<
+<<
          f
      A -----> B
      |        |
@@ -82,8 +81,8 @@ Section Coalgebra_Definition.
      V        V
     F A ---> F B
         F f
-  >>
-   *)
+>>
+*)
 
   Definition is_coalgebra_mor (X Y : coalgebra_ob) (f : coalg_carrier X --> coalg_carrier Y) : UU
     := coalg_map X · #F f = f · coalg_map Y.
@@ -127,7 +126,7 @@ Local Notation A := (coalg_carrier F (TerminalObject TerminalX)).
 Definition FX : ob F_CoAlg := tpair _ (F A) (#F α).
 
 (** By terminality there is an arrow α' : FA → A, s.t.:
-  <<
+<<
          α'
     FA ------> A
     |          |
@@ -135,7 +134,7 @@ Definition FX : ob F_CoAlg := tpair _ (F A) (#F α).
     V          V
    FFA ------> FA
          Fα'
-  >>
+>>
   commutes *)
 
 Definition f : F_CoAlg ⟦FX, TerminalX⟧ := (@TerminalArrow F_CoAlg TerminalX FX).

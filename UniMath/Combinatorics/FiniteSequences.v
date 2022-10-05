@@ -160,12 +160,12 @@ End Lemmas.
 Local Open Scope stn.
 
 (** An m × n matrix is an m-length vector of n-length vectors (rows).
-    <<
+<<
         <--- n --->
       | [ * * * * ]
       m [ * * * * ]
       | [ * * * * ]
-    >>
+>>
     Since [Vector]s are encoded as functions ⟦n⟧ → X, a matrix is a function (of
     two arguments). Thus, the (i, j)-entry of a matrix Mat is simply Mat i j.
  *)

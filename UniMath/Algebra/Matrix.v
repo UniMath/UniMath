@@ -235,9 +235,9 @@ Section MatrixMult.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (** If A is m × n (so B is n × p),
-      <<
+<<
         AB(i, j) = A(i, 1) * B(1, j) + A(i, 2) * B(2, j) + ⋯ + A(i, n) * B(n, j)
-      >>
+>>
       The order of the arguments allows currying the first matrix.
   *)
   Definition matrix_mult {m n : nat} (mat1 : Matrix R m n)

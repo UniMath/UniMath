@@ -914,13 +914,13 @@ Section Pullbacks.
   Qed.
 
   (** Pullback diagram:
-    <<
+<<
       PB -- PBPr1 -> A
       |              |
     PBPr2            k
       V              V
       B ---- l ----> C
-    >>
+>>
   *)
   Lemma pullback_to_slice_pullback
     (A B C : ob (E / I)) (k : A --> C) (l : B --> C)
