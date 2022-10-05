@@ -429,13 +429,13 @@ Proof.
 Qed.
 
 (** Existence of the pullback square
-    <<
+<<
       X -------> TerminalHSET
       V              V
     m |              | true
       V     ∃!       V
       Y - - - - -> hProp
-    >>
+>>
     Uniqueness proven below.
   *)
 Definition subobject_classifier_HSET_pullback {X Y : HSET}
@@ -548,13 +548,13 @@ Proof.
       * intro; apply isaprop_isPullback.
       * intros; apply proofirrelevance, setproperty.
     + (** If the following is a pullback square,
-          <<
+<<
             X ------- ! ---> unit
             |                 |
             |                 |
             V                 V
             Y -- pr1 O' --> hProp
-          >>
+>>
           then [pr1 O' = hfiber m].
        *)
 
@@ -576,14 +576,14 @@ Proof.
             [carrier (pr1 O') -> X], which commutes with the pullback projections.
             In particular, the following triangle commutes (where [m] is, by hypothesis,
             the first pullback projection of X):
-            <<
+<<
                                 ∃!
               carrier (pr1 O') ---> X
                             \       |
                    pr1carrier \     | m
                                 \   V
                                     Y
-            >>
+>>
          *)
 
         pose (PBO' := make_Pullback (pr1 (pr2 O')) (pr2 (pr2 O'))).

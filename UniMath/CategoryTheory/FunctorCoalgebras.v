@@ -27,8 +27,7 @@ Definition coalgebra_mor (X : coalgebra) : C ⟦X, F X ⟧ := pr2 X.
 
 (** A homomorphism of F-coalgebras (F A, α : C ⟦A, F A⟧) and (F B, β : C ⟦B, F B⟧)
     is a morphism f : C ⟦A, B⟧ s.t. the below diagram commutes.
-
-  <<
+<<
          f
      A -----> B
      |        |
@@ -37,7 +36,7 @@ Definition coalgebra_mor (X : coalgebra) : C ⟦X, F X ⟧ := pr2 X.
      V        V
     F A ---> F B
         F f
-  >>
+>>
 *)
 
 Definition is_coalgebra_homo {X Y : coalgebra} (f : C ⟦X, Y⟧) : UU
@@ -164,7 +163,7 @@ Local Notation A := (coalgebra_ob _ (TerminalObject TerminalX)).
 Definition FX : coalgebra F := tpair _ (F A) (#F α).
 
 (** By terminality there is an arrow α' : FA → A, s.t.:
-  <<
+<<
          α'
     FA ------> A
     |          |
@@ -172,7 +171,7 @@ Definition FX : coalgebra F := tpair _ (F A) (#F α).
     V          V
    FFA ------> FA
          Fα'
-  >>
+>>
   commutes *)
 
 Definition f : F_CoAlg ⟦FX, TerminalX⟧ := (@TerminalArrow F_CoAlg TerminalX FX).
