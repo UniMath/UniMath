@@ -103,14 +103,12 @@ yoneda.v
 Monads/Monads.v
 Monads/KleisliCategory.v
 Monads/LModules.v
-FunctorAlgebras.v
 FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
 rezk_completion.v
 UnitorsAndAssociatorsForEndofunctors.v
-CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
@@ -194,6 +192,13 @@ categories/CartesianCubicalSets.v
 
 Chains/Chains.v
 Chains/Cochains.v
+
+DisplayedCats/Examples/Opposite.v
+DisplayedCats/Fibrations.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions.v
+
+FunctorAlgebras.v
 Chains/Adamek.v
 Chains/OmegaCocontFunctors.v
 Chains/All.v
@@ -201,11 +206,8 @@ Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
+CategoricalRecursionSchemes.v
 
-DisplayedCats/Examples/Opposite.v
-DisplayedCats/Fibrations.v
-DisplayedCats/Examples/Reindexing.v
-DisplayedCats/Constructions.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
