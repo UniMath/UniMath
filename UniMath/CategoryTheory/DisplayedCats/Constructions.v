@@ -273,7 +273,7 @@ Lemma z_iso_disp_prod_weq
   (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2').
 Proof.
   exists (z_iso_disp_prod1 xx1 xx1' xx2 xx2').
-  use gradth.
+  use isweq_iso.
   - apply z_iso_disp_prod2.
   - apply z_iso_disp_prod21.
   - apply z_iso_disp_prod12.

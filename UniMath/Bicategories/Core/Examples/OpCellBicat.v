@@ -274,7 +274,7 @@ Definition weq_op2_left_adjequiv
 Proof.
   use make_weq.
   - exact (to_op2_left_adjequiv f).
-  - use gradth.
+  - use isweq_iso.
     + exact (from_op2_left_adjequiv f).
     + abstract
         (intros Hf ;

@@ -515,7 +515,7 @@ Definition hcomp_bicat_weq_prebicategory
 Proof.
   use make_weq.
   - exact hcomp_bicat_to_prebicategory.
-  - use gradth.
+  - use isweq_iso.
     + exact prebicategory_to_hcomp_bicat.
     + intros b.
       apply idpath.
@@ -830,7 +830,7 @@ Definition hcomp_bicat_weq_bicat
 Proof.
   use make_weq.
   - exact hcomp_bicat_to_bicat.
-  - use gradth.
+  - use isweq_iso.
     + exact bicat_to_hcomp_bicat.
     + exact hcomp_bicat_to_bicat_to_hcomp_bicat.
     + exact bicat_to_hcomp_bicat_to_bicat.
