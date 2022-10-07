@@ -17,7 +17,7 @@ Local Open Scope open.
 (* The category of open subsets of a topological space. *)
 
 Section open_category.
-  Context (X : TopologicalSet).
+  Context (X : TopologicalSpace).
 
   Definition open_po : po (@Open X) :=
     make_po _ (isporesrel _ _ (subtype_containment_ispreorder X)).
@@ -27,7 +27,7 @@ End open_category.
 
 
 Section sheaf_commring_prop.
-  Context {X : TopologicalSet}
+  Context {X : TopologicalSpace}
           (F' : functor_data (open_category X)^op commring_precategory).
 
   Definition F (U : Open) : commring := F' U.
@@ -51,7 +51,7 @@ End sheaf_commring_prop.
 
 
 Section sheaf_commring.
-  Context {X : TopologicalSet}.
+  Context {X : TopologicalSpace}.
 
   Definition sheaf_commring : UU :=
     ∑ F : (open_category X)^op ⟶ commring_precategory, locality F ∧ gluing F.
