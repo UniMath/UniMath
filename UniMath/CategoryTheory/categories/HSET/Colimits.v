@@ -55,8 +55,7 @@ Local Definition cobase : UU := ∑ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  make_hProp (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
-            (isapropishinh _).
+    ∥(∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb)∥.
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
 
