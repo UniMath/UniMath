@@ -110,10 +110,6 @@ Proof.
   exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
 
-Definition setcoprod (X Y : hSet) : hSet :=
-  make_hSet (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
-
-
 (** ** The equivalence relation of being in the same fiber *)
 
 Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
