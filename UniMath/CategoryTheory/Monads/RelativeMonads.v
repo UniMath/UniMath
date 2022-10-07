@@ -885,23 +885,6 @@ Proof.
   apply (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
 Defined.
 
-
-(** the following lemma should also be put upstream *)
-Lemma transportb_isotoid (C : category) (H : is_univalent C)
-   (a b b' : ob C) (p : z_iso b b') (f : a --> b') :
- transportb (λ b0 : C, a --> b0) (isotoid C H p) f = f · inv_from_z_iso p.
-Proof.
-  apply pathsinv0.
-  apply transportb_transpose_right.
-  change (precategory_morphisms a) with (λ b0 : C, a --> b0).
-  rewrite transportf_isotoid'.
-  rewrite <- assoc.
-  rewrite z_iso_after_z_iso_inv.
-  apply id_right.
-Qed.
-
-
-
 Definition bind_relmonadmor_eq_from_relmonadmor_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
            (α: z_iso(C := category_RelMonad D J) R R')
