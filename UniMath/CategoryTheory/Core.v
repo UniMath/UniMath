@@ -77,7 +77,7 @@ Section Core.
     - simple refine (λ i, _,,_).
       + exact i.
       + apply is_z_iso_core.
-    - use gradth.
+    - use isweq_iso.
       + exact (λ i, pr1 i).
       + abstract
           (intro i ;

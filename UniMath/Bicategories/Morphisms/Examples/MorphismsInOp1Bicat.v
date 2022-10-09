@@ -59,7 +59,7 @@ Definition op1_left_adjoint_weq_right_adjoint
 Proof.
   use make_weq.
   - exact op1_left_adjoint_to_right_adjoint.
-  - use gradth.
+  - use isweq_iso.
     + exact right_adjoint_to_op1_left_adjoint.
     + intro.
       apply idpath.

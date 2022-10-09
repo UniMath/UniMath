@@ -136,7 +136,7 @@ Definition mnd_bicat_of_cats_weq_Monad
 Proof.
   use make_weq.
   - exact (λ m, ob_of_mnd m ,, mnd_bicat_of_cats_to_Monad m).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ m, Monad_to_mnd_bicat_of_cats (pr2 m)).
     + exact mnd_bicat_of_cats_weq_Monad_inv₁.
     + abstract

@@ -67,7 +67,7 @@ Proof.
   intros c d.
   set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
   simpl in inv.
-  apply (gradth _ inv ).
+  apply (isweq_iso _ inv ).
   - intro f. simpl in f. unfold inv.
     assert (XR := nat_trans_ax ε). simpl in XR.
     rewrite <- assoc.

@@ -239,7 +239,7 @@ Lemma base_category_z_iso_weq (F₀ G₀ : base_category) :
   z_iso F₀ G₀ ≃ (∏ (x : C), z_iso (F₀ x) (G₀ x)).
 Proof.
   exists (base_category_z_iso_to_z_iso_fam F₀ G₀).
-  use gradth.
+  use isweq_iso.
   - apply base_category_z_iso_fam_to_z_iso.
   - intros x. apply z_iso_eq. apply idpath.
   - intros x. apply funextsec. intros y.
