@@ -386,8 +386,8 @@ Section InversesSet.
   Defined.
 End InversesSet.
 
-Definition make_isinv {X : UU} {opp : binop X} {is : ismonoidop opp} {inv0 : X -> X} (H1 : islinv opp (unel_is is) inv0)
-          (H2 : isrinv opp (unel_is is) inv0) : isinv opp (unel_is is) inv0 := make_dirprod H1 H2.
+Definition make_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
+          (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := make_dirprod H1 H2.
 
 Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
   total2 (fun inv0 : X -> X => isinv opp (unel_is is) inv0).
