@@ -10,6 +10,7 @@
   - Subobjects
   - Quotient objects
   - Cosets
+  - Normal Subgroups
   - Direct products
  - Abelian groups
   - Basic definitions
@@ -506,12 +507,25 @@ Section GrCosets.
 
   (** The property of being in the same coset defines an equivalence relation. *)
 
+  Definition in_same_left_coset_prop : X -> X -> hProp.
+  Proof.
+    intros x1 x2.
+    use make_hProp.
+    + exact (in_same_left_coset Y x1 x2).
+    + apply isaprop_in_same_left_coset.
+  Defined.
+
+  Definition in_same_right_coset_prop : X -> X -> hProp.
+  Proof.
+    intros x1 x2.
+    use make_hProp.
+    + exact (in_same_right_coset Y x1 x2).
+    + apply isaprop_in_same_right_coset.
+  Defined.
+
   Definition in_same_left_coset_eqrel : eqrel X.
     use make_eqrel.
-    - intros x1 x2.
-      use make_hProp.
-      + exact (in_same_left_coset Y x1 x2).
-      + apply isaprop_in_same_left_coset.
+    - exact in_same_left_coset_prop.
     - use iseqrelconstr.
       + (** Transitivity *)
         intros ? ? ?; cbn; intros inxy inyz.
@@ -565,6 +579,148 @@ Section GrCosets.
     - apply isaprop_in_same_left_coset.
   Defined.
 End GrCosets.
+
+
+(** *** Normal Subgroups *)
+
+Section NormalSubGroups.
+  Local Open Scope multmonoid.
+
+  Definition isnormalsubgr {X : gr} (N : subgr X) : hProp :=
+    ∀ g : X, ∀ n1 : N, N ((g * (pr1 n1)) * (grinv X g)).
+
+  Definition normalsubgr (X : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
+
+  Definition normalsubgrtosubgr (X : gr) : normalsubgr X -> subgr X := pr1.
+  Coercion normalsubgrtosubgr : normalsubgr >-> subgr.
+
+  Definition normalsubgrprop {X : gr} (N : normalsubgr X) : isnormalsubgr N := pr2 N.
+
+  Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
+  Definition lcoset_in_rcoset_witness {X : gr} {N : subgr X} :
+    lcoset_in_rcoset N -> (X -> N -> N) := fun H g n1 => pr1 (H g n1).
+  Definition lcoset_in_rcoset_property {X : gr} {N : subgr X}
+      (H : lcoset_in_rcoset N) (g : X) (n1 : N) :
+    N (pr1 (lcoset_in_rcoset_witness H g n1)) := pr2 (lcoset_in_rcoset_witness H g n1).
+  Definition lcoset_in_rcoset_equation {X : gr} {N : subgr X}
+      (H : lcoset_in_rcoset N) (g : X) (n1 : N) :
+    g * (pr1 n1) = (pr1 (lcoset_in_rcoset_witness H g n1)) * g := pr2 (H g n1).
+
+  Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
+  Definition rcoset_in_lcoset_witness {X : gr} {N : subgr X} :
+    rcoset_in_lcoset N -> (X -> N -> N) := fun H g n1 => pr1 (H g n1).
+  Definition rcoset_in_lcoset_property {X : gr} {N : subgr X}
+      (H : rcoset_in_lcoset N) (g : X) (n1 : N) :
+    N (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (rcoset_in_lcoset_witness H g n1).
+  Definition rcoset_in_lcoset_equation {X : gr} {N : subgr X}
+      (H : rcoset_in_lcoset N) (g : X) (n1 : N) :
+    (pr1 n1) * g = g * (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (H g n1).
+
+  Definition lcoset_equal_rcoset {X : gr} (N : subgr X) : UU :=
+    lcoset_in_rcoset N × rcoset_in_lcoset N.
+
+  Lemma lcoset_in_rcoset_impl_normal {X : gr} (N : subgr X) :
+    lcoset_in_rcoset N -> isnormalsubgr N.
+  Proof.
+    intros lcinrc.
+    unfold isnormalsubgr.
+    intros g n1.
+    refine (@transportb _ (fun x => N x) _ _ _ _).
+    { etrans. { apply maponpaths_2, (lcoset_in_rcoset_equation lcinrc). }
+      etrans. { apply assocax. }
+      etrans. { apply maponpaths, grrinvax. }
+      apply runax.
+    }
+    apply lcoset_in_rcoset_property.
+  Defined.
+
+  Lemma lcoset_equal_rcoset_impl_normal {X : gr} (N : subgr X) :
+    lcoset_equal_rcoset N -> isnormalsubgr N.
+  Proof.
+    intros H. apply lcoset_in_rcoset_impl_normal. exact (pr1 H).
+  Defined.
+
+  Lemma normal_lcoset_in_rcoset {X : gr} (N : normalsubgr X) : lcoset_in_rcoset N.
+  Proof.
+    unfold normalsubgr in N.
+    induction N as [N normalprop].
+    simpl.
+    unfold lcoset_in_rcoset.
+    intros g n1.
+    use tpair.
+    - exact (tpair _ (g * (pr1 n1) * (grinv X g)) (normalprop g n1)).
+    - simpl.
+      rewrite (assocax _ _ _ g).
+      rewrite (grlinvax X _).
+      rewrite (runax X).
+      reflexivity.
+  Defined.
+
+  Definition normal_rcoset_in_lcoset {X : gr} (N : normalsubgr X) : rcoset_in_lcoset N.
+  Proof.
+    induction N as [N normalprop].
+    simpl.
+    unfold rcoset_in_lcoset.
+    intros g n1.
+    use tpair.
+    - exists ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))). use normalprop.
+    - simpl.
+      rewrite (assocax _ (grinv X g) _ _).
+      rewrite (!assocax _ g _ _).
+      rewrite (grrinvax X).
+      rewrite (lunax X).
+      rewrite (grinvinv X).
+      reflexivity.
+  Defined.
+
+  Definition normal_lcoset_equal_rcoset {X : gr} (N : normalsubgr X) : lcoset_equal_rcoset N :=
+    (normal_lcoset_in_rcoset N,,normal_rcoset_in_lcoset N).
+
+  Lemma in_same_coset_isbinophrel {X : gr} (N : normalsubgr X) :
+    isbinophrel (in_same_left_coset_eqrel N).
+  Proof.
+    unfold isbinophrel.
+    split.
+    - intros a b c.
+      unfold in_same_left_coset_eqrel.
+      simpl.
+      unfold in_same_left_coset.
+      intros ab_same_lcoset.
+      use tpair.
+      + exact (pr1 ab_same_lcoset).
+      + simpl.
+        rewrite (assocax _ c _ _).
+        apply maponpaths.
+        exact (pr2 ab_same_lcoset).
+    - intros a b c.
+      unfold in_same_left_coset_eqrel.
+      simpl.
+      unfold in_same_left_coset.
+      intros ab_same_lcoset.
+      use tpair.
+      + refine (rcoset_in_lcoset_witness _ c (pr1 ab_same_lcoset));
+          apply normal_rcoset_in_lcoset.
+      + simpl.
+        rewrite (grinvinv _).
+        rewrite (assocax _ a _ _).
+        rewrite (assocax _ (grinv X c) _ _).
+        rewrite (!assocax _ c _ _).
+        rewrite (grrinvax _).
+        rewrite (lunax _).
+        rewrite (!assocax _ a _ _).
+        apply maponpaths_2.
+        exact (pr2 ab_same_lcoset).
+  Defined.
+
+  Definition in_same_coset_binopeqrel {X : gr} (N : normalsubgr X) : binopeqrel X :=
+    tpair _ (in_same_left_coset_eqrel N) (in_same_coset_isbinophrel N).
+
+  Definition grquot_by_normal_subgr (X : gr) (N : normalsubgr X) : gr :=
+    grquot (in_same_coset_binopeqrel N).
+
+End NormalSubGroups.
 
 (** *** Direct products *)
 
