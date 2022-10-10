@@ -36,8 +36,9 @@ This equality would not be needed if functional extensionality computed.
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -111,7 +112,7 @@ Proof.
     specialize (autreq v v' ed).
     rewrite  <- (pathsinv0inv0 (eqv v)) in autreq.
     apply pathsinv0 in autreq.
-    apply transportf_transpose in autreq.
+    apply transportf_transpose_right in autreq.
     unfold dmor in autreq.
     rewrite autreq.
     rewrite pathsinv0inv0.
@@ -154,9 +155,9 @@ Proof.
     apply pathsinv0;
     unfold transportb;
     rewrite pathsinv0inv0;
-    apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, dob d' v' ⟧)));
-    assert (eq_d2':=transportf_transpose (P:=(precategory_morphisms (dob d' v)))
-                                         _ _ _ (! eq_d2));
+    apply (transportf_transpose_right (P:=(λ obj : C, C ⟦ obj, dob d' v' ⟧)));
+    assert (eq_d2':=transportf_transpose_right
+                      (P:=(precategory_morphisms (dob d' v))) (! eq_d2));
     rewrite eq_d2';
     unfold transportb; rewrite pathsinv0inv0;
     apply (transport_swap (λ a b, C⟦b,a⟧))).
@@ -173,7 +174,7 @@ Proof.
   clear.
   intros.
   destruct heq_d as [heq heq2].
-  use mk_cocone.
+  use make_cocone.
   intro v.
   use (transportf (λ obj, C⟦obj,_⟧ ) (heq v)); simpl.
   apply (coconeIn cc).
@@ -207,7 +208,7 @@ Proof.
   intros.
   set (heq := pr1 heq_d).
   set (heq2 := pr2 heq_d).
-  use mk_cone.
+  use make_cone.
   intro v.
   apply (transportf (λ obj, C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
     abstract(
@@ -217,7 +218,7 @@ Proof.
         apply transport_compose|];
       rewrite transport_target_postcompose;
       apply cancel_precomposition;
-      apply transportf_transpose;
+      apply transportf_transpose_right;
       etrans;[
         apply (transport_swap (λ a b, C⟦a,b⟧))|];
       etrans;[
@@ -270,7 +271,7 @@ Proof.
     apply (path_to_ctr _ _ islimcone).
     intro v; specialize (hy v).
     cbn.
-    apply transportf_transpose.
+    apply transportf_transpose_right.
     rewrite <- hy.
     etrans.
     unfold transportb.
@@ -326,7 +327,7 @@ Proof.
     revert hy.
     cbn.
     intro hy.
-    apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, c' ⟧))).
+    apply (transportf_transpose_right (P:=(λ obj : C, C ⟦ obj, c' ⟧))).
     etrans.
     apply transport_source_precompose.
     unfold transportb.
@@ -340,7 +341,7 @@ Definition eq_diag_liftcolimcocone
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
-  := mk_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
+  := make_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
@@ -348,5 +349,5 @@ Definition eq_diag_liftlimcone
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'
-  := mk_LimCone _ _ _ (eq_diag_islimcone _ eq_d
+  := make_LimCone _ _ _ (eq_diag_islimcone _ eq_d
                                          (isLimCone_LimCone cc)).

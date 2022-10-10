@@ -17,12 +17,12 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -37,8 +37,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.ShortExactSequences.
@@ -102,7 +102,7 @@ Extension of triangles is given by the following morphism of triangles
 *)
 Section KAPreTriangulated.
 
-  Context {A : Additive}.
+  Context {A : CategoryWithAdditiveStructure}.
 
   Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
@@ -112,7 +112,7 @@ Section KAPreTriangulated.
              (f' : hfiber (# (ComplexHomotFunctor A)) f) :
     @Tri (ComplexHomot_Additive A) (TranslationHEquiv A).
   Proof.
-    use mk_Tri.
+    use make_Tri.
     - exact x.
     - exact y.
     - exact (MappingCone A (hfiberpr1 _ _ f')).
@@ -126,7 +126,7 @@ Section KAPreTriangulated.
                  hfiber (# (ComplexHomotFunctor A)) M),
           TriIso T (MappingConeTri (pr1 D) (pr2 D)).
 
-  Definition mk_KADTriData {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+  Definition make_KADTriData {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
              (M : @Morphisms.Morphism (ComplexHomot_Additive A))
              (M' : hfiber (# (ComplexHomotFunctor A)) M)
              (I : TriIso T (MappingConeTri M M')) : KADTriData T :=
@@ -148,7 +148,7 @@ Section KAPreTriangulated.
 
   Definition KAPreTriangData : PreTriangData.
   Proof.
-    use mk_PreTriangData.
+    use make_PreTriangData.
     - exact (ComplexHomot_Additive A).
     - exact (TranslationHEquiv A).
     - intros T. exact (KAisDTri T).
@@ -159,7 +159,7 @@ Section KAPreTriangulated.
     @isDTri KAPreTriangData (MappingConeTri M M').
   Proof.
     use hinhpr.
-    use mk_KADTriData.
+    use make_KADTriData.
     - exact M.
     - exact M'.
     - exact (TriIsoId _).
@@ -168,7 +168,7 @@ Section KAPreTriangulated.
   Definition KADTriDataDTri {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
              (D : KADTriData T) : @DTri KAPreTriangData.
   Proof.
-    use mk_DTri'.
+    use make_DTri'.
     - exact (MappingConeTri (KADTriDataMor D) (KADTriDataFiber D)).
     - exact (KAFiberisDTri (KADTriDataMor D) (KADTriDataFiber D)).
   Defined.
@@ -195,7 +195,7 @@ Section KAPreTriangulated.
 
   Definition KAFiber {x y : ob (ComplexPreCat_Additive A)} (f : x --> y) :
     hfiber (# (ComplexHomotFunctor A)) (# (ComplexHomotFunctor A) f) :=
-    hfiberpair (# (ComplexHomotFunctor A)) f (idpath _).
+    make_hfiber (# (ComplexHomotFunctor A)) f (idpath _).
 
   Definition KAFiberIsoMor {x y : KAPreTriangData} {f : x --> y}
              (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
@@ -204,7 +204,7 @@ Section KAPreTriangulated.
              (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
     MPMorMors (MappingConeTri f f') (MappingConeTri f f'').
   Proof.
-    use mk_MPMorMors.
+    use make_MPMorMors.
     - exact (identity _).
     - exact (identity _).
     - exact (# (ComplexHomotFunctor A) (FiberExt A f1 f2 Ho e)).
@@ -217,7 +217,7 @@ Section KAPreTriangulated.
              (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
     MPMorComms (KAFiberIsoMor f' f'' Ho e).
   Proof.
-    use mk_MPMorComms.
+    use make_MPMorComms.
     - exact (! (KAIdComm _ _ (idpath _))).
     - use KAIdComml.
       exact (! (FiberExt_Comm2H A f1 f2 Ho e)).
@@ -228,11 +228,11 @@ Section KAPreTriangulated.
         (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
         (Ho : ComplexHomot A x y)
         (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
-    (MPMor3 (mk_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))
+    (MPMor3 (make_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))
       · Mor3 (MappingConeTri f f'') =
     (Mor3 (MappingConeTri f f'))
       · (# (AddEquiv1 (@Trans KAPreTriangData))
-            (MPMor1 (mk_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))).
+            (MPMor1 (make_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))).
   Proof.
     cbn. rewrite functor_id. use (! (KAIdCommr _ _ _)).
     exact (FiberExt_Comm3H A f1 f2 Ho e).
@@ -245,13 +245,13 @@ Section KAPreTriangulated.
              (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
     TriIso (MappingConeTri f f') (MappingConeTri f f'').
   Proof.
-    use mk_TriIso.
-    - use mk_TriMor.
-      + use mk_MPMor.
+    use make_TriIso.
+    - use make_TriMor.
+      + use make_MPMor.
         * exact (KAFiberIsoMor f' f'' Ho e).
         * exact (KAFiberIsoMorComms f' f'' Ho e).
       + exact (KAFiberIsoMorComm3 f' f'' Ho e).
-    - use mk_TriMor_is_iso.
+    - use make_TriMor_is_iso.
       + exact (is_z_isomorphism_identity _).
       + exact (is_z_isomorphism_identity _).
       + exact (FiberExt_is_z_isomorphism A f1 f2 Ho e).
@@ -261,12 +261,12 @@ Section KAPreTriangulated.
   (** ** Trivial triangle is distinguished *)
 
   Definition KATrivialDistinguished_MPMorMors (x : ob KAPreTriangData)
-             (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
+             (i' := @make_hfiber _ _ (# (ComplexHomotFunctor A)) _ _
                                 (functor_id (ComplexHomotFunctor A) x)) :
     @MPMorMors KAPreTriangData (@TrivialTri _ (@Trans KAPreTriangData) x)
                (MappingConeTri (identity x) i').
   Proof.
-    use mk_MPMorMors.
+    use make_MPMorMors.
     - exact (# (ComplexHomotFunctor A) (identity _)).
     - exact (# (ComplexHomotFunctor A) (identity _)).
     - exact (ZeroArrow (to_Zero _) _ _).
@@ -275,7 +275,7 @@ Section KAPreTriangulated.
   Local Lemma KATrivialDistinguished_MPMorsComm (x : ob (ComplexPreCat_Additive A)) :
     MPMorComms (KATrivialDistinguished_MPMorMors x).
   Proof.
-    use mk_MPMorComms.
+    use make_MPMorComms.
     - apply idpath.
     - cbn. rewrite (functor_id (ComplexHomotFunctor A)).
       rewrite (@id_left (ComplexHomot_Additive A)).
@@ -285,12 +285,12 @@ Section KAPreTriangulated.
   Qed.
 
   Definition KATrivialDistinguished_TriMor (x : ob KAPreTriangData)
-             (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
+             (i' := @make_hfiber _ _ (# (ComplexHomotFunctor A)) _ _
                                 (functor_id (ComplexHomotFunctor A) x)) :
     TriMor (TrivialTri x) (MappingConeTri (identity x) i').
   Proof.
-    use mk_TriMor.
-    - exact (mk_MPMor (KATrivialDistinguished_MPMorMors x)
+    use make_TriMor.
+    - exact (make_MPMor (KATrivialDistinguished_MPMorMors x)
                       (KATrivialDistinguished_MPMorsComm x)).
     - cbn. rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)).
       rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)). apply idpath.
@@ -299,15 +299,15 @@ Section KAPreTriangulated.
   Lemma KATrivialDistinguished : ∏ x : KAPreTriangData, isDTri (TrivialTri x).
   Proof.
     intros x.
-    set (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
+    set (i' := @make_hfiber _ _ (# (ComplexHomotFunctor A)) _ _
                            (functor_id (ComplexHomotFunctor A) x)).
     use hinhpr.
-    use mk_KADTriData.
-    - exact (Morphisms.mk_Morphism (identity x)).
+    use make_KADTriData.
+    - exact (Morphisms.make_Morphism (identity x)).
     - exact i'.
-    - use mk_TriIso.
+    - use make_TriIso.
       + exact (KATrivialDistinguished_TriMor x).
-      + use mk_TriMor_is_iso.
+      + use make_TriMor_is_iso.
         * exact (functor_on_is_z_isomorphism
                    (ComplexHomotFunctor A)
                    (@is_z_isomorphism_identity (ComplexPreCat_Additive A) (x : Complex A))).
@@ -351,22 +351,22 @@ Section KAPreTriangulated.
              (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
     TriIso (RotTri D)
            (MappingConeTri
-              (Morphisms.mk_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I))))
+              (Morphisms.make_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I))))
               (KAFiber (MappingConeIn2 A I'))).
   Proof.
     use (TriIso_comp (RotTriIso (KADTriDataIso I))).
-    use mk_TriIso.
-    - use mk_TriMor.
-      + use mk_MPMor.
-        * use mk_MPMorMors.
+    use make_TriIso.
+    - use make_TriMor.
+      + use make_MPMor.
+        * use make_MPMorMors.
           -- exact (identity _).
           -- exact (identity _).
           -- exact (# (ComplexHomotFunctor A) (RotMorphism A I')).
-        * use mk_MPMorComms.
+        * use make_MPMorComms.
           -- exact (! (KAIdComm _ _ (idpath _))).
           -- exact (KARotDTris_Comm2 D I).
       + exact (KARotDTris_Comm3 D I).
-    - use mk_TriMor_is_iso.
+    - use make_TriMor_is_iso.
       + exact (is_z_isomorphism_identity _).
       + exact (is_z_isomorphism_identity _).
       + exact (RotMorphism_is_z_isomorphism A _).
@@ -377,8 +377,8 @@ Section KAPreTriangulated.
     intros D.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
     use hinhpr.
-    use mk_KADTriData.
-    - exact (Morphisms.mk_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I)))).
+    use make_KADTriData.
+    - exact (Morphisms.make_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I)))).
     - exact (KAFiber (MappingConeIn2 A (hfiberpr1 _ _ (KADTriDataFiber I)))).
     - exact (KARotDTris_Iso D I).
   Qed.
@@ -398,7 +398,7 @@ Section KAPreTriangulated.
     use (pathscomp0 _ (! (functor_comp
                             (ComplexHomotFunctor A)
                             (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                            (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                            (inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                             (Source (KADTriDataMor I))))))).
     set (tmp''' := @AdditiveFunctorInv
                      _ _ (ComplexHomotFunctor A)
@@ -406,7 +406,7 @@ Section KAPreTriangulated.
     apply (maponpaths
              (postcompose
                 (# (ComplexHomotFunctor A)
-                   (z_iso_inv_mor
+                   (inv_from_z_iso
                       (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
       in tmp'''.
     use (pathscomp0 _ (! tmp''')). clear tmp'''. unfold postcompose.
@@ -454,26 +454,26 @@ Section KAPreTriangulated.
            (MappingConeTri
               (# (ComplexHomotFunctor A)
                  ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                    · z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                    · inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                       (Source (KADTriDataMor I)))))
               (KAFiber
                  ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
-                    · z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                    · inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                       (Source (KADTriDataMor I)))))).
   Proof.
     use (TriIso_comp (InvRotTriIso (KADTriDataIso I))).
-    use mk_TriIso.
-    - use mk_TriMor.
-      + use mk_MPMor.
-        * use mk_MPMorMors.
+    use make_TriIso.
+    - use make_TriMor.
+      + use make_MPMor.
+        * use make_MPMorMors.
           -- exact (identity _).
           -- exact (identity _).
           -- exact (# (ComplexHomotFunctor A) (InvRotMorphismInv A I')).
-        * use mk_MPMorComms.
+        * use make_MPMorComms.
           -- exact (KAInvRotDTris_Comm1 D I).
           -- exact (KAInvRotDTris_Comm2 D I).
       + exact (KAInvRotDTris_Comm3 D I).
-    - use mk_TriMor_is_iso.
+    - use make_TriMor_is_iso.
       + exact (is_z_isomorphism_identity _).
       + exact (is_z_isomorphism_identity _).
       + exact (InvRotMorphism_is_z_isomorphism A _).
@@ -485,16 +485,16 @@ Section KAPreTriangulated.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
     set (i' := hfiberpr1 _ _ (KADTriDataFiber I)).
     use hinhpr.
-    use mk_KADTriData.
-    - exact (Morphisms.mk_Morphism
+    use make_KADTriData.
+    - exact (Morphisms.make_Morphism
                (# (ComplexHomotFunctor A)
                   (to_inv (# (InvTranslationFunctor A)
                              (MappingConePr1 A i')) ·
-                          z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                          inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                          (Source (KADTriDataMor I)))))).
     - exact (KAFiber (to_inv (# (InvTranslationFunctor A)
                              (MappingConePr1 A i')) ·
-                             z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                             inv_from_z_iso (AddEquivUnitIso (TranslationEquiv A)
                                                             (Source (KADTriDataMor I))))).
     - exact (KAInvRotDTris_Iso D I).
   Qed.
@@ -512,28 +512,28 @@ Section KAPreTriangulated.
     set (f'' := hfiberpr1 _ _ f').
     use hinhpr.
     use tpair.
-    - use mk_ConeData.
+    - use make_ConeData.
       + exact ((ComplexHomotFunctor A) (MappingCone A f'')).
       + exact (# (ComplexHomotFunctor A) (MappingConeIn2 A f'')).
       + exact (# (ComplexHomotFunctor A) (MappingConePr1 A f'')).
     - use hinhpr.
-      use mk_KADTriData.
-      + exact (Morphisms.mk_Morphism f).
+      use make_KADTriData.
+      + exact (Morphisms.make_Morphism f).
       + exact f'.
-      + use mk_TriIso.
-        * use mk_TriMor.
-          -- use mk_MPMor.
-             ++ use mk_MPMorMors.
+      + use make_TriIso.
+        * use make_TriMor.
+          -- use make_MPMor.
+             ++ use make_MPMorMors.
                 ** exact (identity _).
                 ** exact (identity _).
                 ** exact (identity _).
-             ++ use mk_MPMorComms.
+             ++ use make_MPMorComms.
                 ** exact (! (KAIdComm _ _ (idpath _))).
                 ** exact (! (KAIdComm _ _ (idpath _))).
           -- cbn. rewrite id_left.
              use (pathscomp0 (! (id_right _))). apply cancel_precomposition.
              apply (! (functor_id _ _)).
-        * use mk_TriMor_is_iso.
+        * use make_TriMor_is_iso.
           -- exact (is_z_isomorphism_identity _).
           -- exact (is_z_isomorphism_identity _).
           -- exact (is_z_isomorphism_identity _).
@@ -690,7 +690,7 @@ Section KAPreTriangulated.
     use (squash_to_prop I (propproperty _)). intros I'.
     use (squash_to_prop X0 (propproperty _)). intros I1. clear X0.
     use hinhpr.
-    use mk_KADTriData.
+    use make_KADTriData.
     - exact (KADTriDataMor I1).
     - exact (KADTriDataFiber I1).
     - exact (TriIso_comp (TriIsoInv I') (KADTriDataIso I1)).
@@ -698,9 +698,9 @@ Section KAPreTriangulated.
 
   Definition KAPreTriang : PreTriang.
   Proof.
-    use mk_PreTriang.
+    use make_PreTriang.
     - exact KAPreTriangData.
-    - use mk_isPreTriang.
+    - use make_isPreTriang.
       + exact KATrivialDistinguished.
       + exact KADTrisIsos.
       + exact KARotDTris.

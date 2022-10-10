@@ -1,17 +1,17 @@
-(** * AbelianPreCat is Additive *)
+(** * AbelianPreCat is CategoryWithAdditiveStructure *)
 (** ** Contents
-- AbelianPreCat is Additive
+- AbelianPreCat is CategoryWithAdditiveStructure
  - Preliminaries
- - AbelianPreCat is Additive
+ - AbelianPreCat is CategoryWithAdditiveStructure
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -35,11 +35,11 @@ Require Import UniMath.CategoryTheory.Abelian.
 
 Local Open Scope cat.
 
-(** * AbelianPreCat is Additive. *)
+(** * AbelianPreCat is CategoryWithAdditiveStructure. *)
 Section abelian_is_additive.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   (** ** Preliminaries *)
 
@@ -146,7 +146,7 @@ Section abelian_is_additive.
   Lemma KernelOfPr1_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (ZeroIdMap BinProd) (BinProductPr1 A BinProd) (KernelOfPr1_Eq BinProd).
   Proof.
-    use (mk_isKernel hs).
+    use (make_isKernel).
     intros w h H'.
     unfold ZeroIdMap.
     use unique_exists.
@@ -163,7 +163,7 @@ Section abelian_is_additive.
   Definition KernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
     kernels.Kernel (to_Zero A) (BinProductPr1 A BinProd).
   Proof.
-    exact (mk_Kernel (to_Zero A) (ZeroIdMap BinProd) _ (KernelOfPr1_Eq BinProd)
+    exact (make_Kernel (to_Zero A) (ZeroIdMap BinProd) _ (KernelOfPr1_Eq BinProd)
                      (KernelOfPr1_isKernel BinProd)).
   Defined.
 
@@ -202,7 +202,7 @@ Section abelian_is_additive.
   Definition KernelOfPr2_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (IdZeroMap BinProd) (BinProductPr2 A BinProd) (KernelOfPr2_Eq BinProd).
   Proof.
-    use (mk_isKernel hs).
+    use (make_isKernel).
     intros w h H'.
     unfold IdZeroMap.
     use unique_exists.
@@ -219,7 +219,7 @@ Section abelian_is_additive.
   Definition KernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
     kernels.Kernel (to_Zero A) (BinProductPr2 A BinProd).
   Proof.
-    exact (mk_Kernel (to_Zero A) (IdZeroMap BinProd) _ (KernelOfPr2_Eq BinProd)
+    exact (make_Kernel (to_Zero A) (IdZeroMap BinProd) _ (KernelOfPr2_Eq BinProd)
                      (KernelOfPr2_isKernel BinProd)).
   Defined.
 
@@ -228,14 +228,14 @@ Section abelian_is_additive.
   Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr1 BinProd)).
   Proof.
-    exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr1_isEpi BinProd))
+    exact (EpiToCokernel' A (make_Epi A _ (BinProductPr1_isEpi BinProd))
                           (KernelOfPr1 BinProd)).
   Defined.
 
   Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr2 BinProd)).
   Proof.
-    exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr2_isEpi BinProd))
+    exact (EpiToCokernel' A (make_Epi A _ (BinProductPr2_isEpi BinProd))
                           (KernelOfPr2 BinProd)).
   Defined.
 
@@ -248,12 +248,12 @@ Section abelian_is_additive.
     set (coker := Cokernel (DiagonalMap BinProd)).
     set (r := (BinProductArrow A BinProd (identity X) (ZeroArrow (to_Zero A) X X))
                 · (CokernelArrow coker)).
-    set (M := mk_Monic A _ (DiagonalMap_isMonic BinProd)).
+    set (M := make_Monic A _ (DiagonalMap_isMonic BinProd)).
     set (ker := MonicToKernel M).
     use monic_epi_is_iso.
     (* isMonic *)
-    - use (@KernelZeroisMonic A hs (to_Zero A) _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
-      use (mk_isKernel hs).
+    - use (@KernelZeroisMonic A (to_Zero A) _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
+      use (make_isKernel).
       intros w h H'.
       use unique_exists.
       (* The arrow *)
@@ -282,8 +282,8 @@ Section abelian_is_additive.
       (* Uniqueness *)
       + intros y H. apply ArrowsToZero.
     (* isEpi *)
-    - use (@CokernelZeroisEpi A hs _ _ (to_Zero A) _ (ZeroArrow_comp_right _ _ _ _ _ _)).
-      use (mk_isCokernel hs).
+    - use (@CokernelZeroisEpi A _ _ (to_Zero A) _ (ZeroArrow_comp_right _ _ _ _ _ _)).
+      use make_isCokernel.
       intros w h H'.
       use unique_exists.
       (* The arrow *)
@@ -315,8 +315,8 @@ Section abelian_is_additive.
   Definition CokernelOfDiagonal {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (DiagonalMap BinProd).
   Proof.
-    set (X0 := z_iso_inv (mk_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).
-    exact (Cokernel_up_to_iso A hs (to_Zero A) _
+    set (X0 := z_iso_inv (make_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).
+    exact (Cokernel_up_to_iso A (to_Zero A) _
                               (CokernelArrow (Cokernel (DiagonalMap BinProd)) · X0)
                               (Cokernel (DiagonalMap BinProd)) X0 (idpath _)).
   Defined.
@@ -333,7 +333,7 @@ Section abelian_is_additive.
   (** Construction of a precategory with binops from Abelian category. *)
   Definition AbelianToprecategoryWithBinops : precategoryWithBinOps.
   Proof.
-    use (mk_precategoryWithBinOps A).
+    use (make_precategoryWithBinOps A).
     unfold precategoryWithBinOpsData.
     intros x y. exact (Abelian_op x y).
   Defined.
@@ -367,7 +367,7 @@ Section abelian_is_additive.
   Proof.
     set (ar := (BinProductArrow A (to_BinProducts A X X) (identity X) (ZeroArrow (to_Zero A) X X))
                  · (CokernelArrow (Cokernel (DiagonalMap (to_BinProducts A X X))))).
-    set (r := mk_z_iso ar _ (CokernelOfDiagonal_is_iso (to_BinProducts A X X))).
+    set (r := make_z_iso ar _ (CokernelOfDiagonal_is_iso (to_BinProducts A X X))).
     cbn. fold ar. fold r. rewrite assoc. exact (is_inverse_in_precat1 r).
   Qed.
 
@@ -514,7 +514,7 @@ Section abelian_is_additive.
   Qed.
 
 
-  (** ** AbelianPreCat is Additive *)
+  (** ** AbelianPreCat is CategoryWithAdditiveStructure *)
 
   (** The zero element in a homset of A is given by the ZeroArrow. *)
   Definition AbelianPreCat_homset_zero (X Y : A) : A⟦X, Y⟧ := ZeroArrow (to_Zero A) X Y.
@@ -710,15 +710,15 @@ Section abelian_is_additive.
   Qed.
 
   Definition AbelianTocategoryWithAbgropsData :
-    categoryWithAbgropsData AbelianToprecategoryWithBinops hs.
+    categoryWithAbgropsData AbelianToprecategoryWithBinops.
   Proof.
     unfold categoryWithAbgropsData.
     intros x y.
     split.
-    - use isgroppair.
+    - use make_isgrop.
       + split.
         * intros f g h. apply AbelianPreCat_homset_assoc.
-        * use isunitalpair.
+        * use make_isunital.
           -- apply AbelianPreCat_homset_zero.
           -- split.
              ++ intros f. apply AbelianPreCat_homset_zero_left.
@@ -733,15 +733,15 @@ Section abelian_is_additive.
 
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
   Definition AbelianTocategoryWithAbgrops :
-    categoryWithAbgrops := mk_categoryWithAbgrops
-                                AbelianToprecategoryWithBinops  hs
-                                AbelianTocategoryWithAbgropsData.
+    categoryWithAbgrops := make_categoryWithAbgrops
+                             AbelianToprecategoryWithBinops
+                             AbelianTocategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)
   Lemma AbelianToisPreAdditive :
     isPreAdditive AbelianTocategoryWithAbgrops.
   Proof.
-    use mk_isPreAdditive.
+    use make_isPreAdditive.
     (* precomposition ismonoidfun *)
     - intros x y z f.
       split.
@@ -815,14 +815,14 @@ Section abelian_is_additive.
 
   (** We prove that Abelian_precategories are PreAddtitive. *)
   Definition AbelianToPreAdditive :
-    PreAdditive := mk_PreAdditive AbelianTocategoryWithAbgrops AbelianToisPreAdditive.
+    PreAdditive := make_PreAdditive AbelianTocategoryWithAbgrops AbelianToisPreAdditive.
 
-  (** Finally, we show that Abelian_precategories are Additive. *)
-  Definition AbelianToAdditive : Additive.
+  (** Finally, we show that Abelian_precategories are CategoryWithAdditiveStructure. *)
+  Definition AbelianToAdditive : CategoryWithAdditiveStructure.
   Proof.
-    use mk_Additive.
+    use make_Additive.
     - exact AbelianToPreAdditive.
-    - use mk_isAdditive.
+    - use make_AdditiveStructure.
       + exact (to_Zero A).
       + exact (BinDirectSums_from_BinProducts
                  AbelianToPreAdditive (to_Zero A) (to_BinProducts A)).

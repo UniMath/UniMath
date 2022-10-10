@@ -22,11 +22,12 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.Combinatorics.WellOrderedSets.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -41,7 +42,7 @@ Section wosetfuncat.
 
 Definition wosetfun_precategory : precategory.
 Proof.
-use mk_precategory.
+use make_precategory.
 - exists (WellOrderedSet,,wofun).
   split; simpl.
   + intros X.
@@ -75,9 +76,9 @@ Defined.
 
 Lemma Initial_wosetfuncat : Initial wosetfuncat.
 Proof.
-use mk_Initial.
+use make_Initial.
 - exact empty_woset.
-- apply mk_isInitial; intro a; simpl.
+- apply make_isInitial; intro a; simpl.
   use tpair.
   + exists fromempty.
     abstract (now split; intros []).
@@ -86,9 +87,9 @@ Defined.
 
 Lemma Terminal_wosetfuncat : Terminal wosetfuncat.
 Proof.
-use mk_Terminal.
+use make_Terminal.
 + exact unit_woset.
-+ apply mk_isTerminal; intro a.
++ apply make_isTerminal; intro a.
   use tpair.
   - exists (λ _, tt).
     abstract (split; [intros x y H|intros x [] []]; apply (WO_isrefl unit_woset)).
@@ -109,7 +110,7 @@ Variable isaset_WellOrderedSet : isaset WellOrderedSet.
 
 Definition WOSET_precategory : precategory.
 Proof.
-use mk_precategory.
+use make_precategory.
 - use tpair.
   + exists ((WellOrderedSet,,isaset_WellOrderedSet) : hSet).
     apply (λ X Y, pr11 X → pr11 Y).
@@ -136,9 +137,9 @@ Defined.
 
 Lemma Initial_WOSET : Initial WOSET.
 Proof.
-use mk_Initial.
+use make_Initial.
 - exact empty_woset.
-- apply mk_isInitial; intro a.
+- apply make_isInitial; intro a.
   use tpair.
   + simpl; intro e; induction e.
   + abstract (intro f; apply funextfun; intro e; induction e).
@@ -146,9 +147,9 @@ Defined.
 
 Lemma Terminal_WOSET : Terminal WOSET.
 Proof.
-use mk_Terminal.
+use make_Terminal.
 - exact unit_woset.
-- apply mk_isTerminal; intro a.
+- apply make_isTerminal; intro a.
   exists (λ _, tt).
   abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
@@ -162,7 +163,7 @@ intros A B.
 set (AB := BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B)) : hSet).
 apply (squash_to_hProp (@ZermeloWellOrdering AB AC)); intros R.
 apply hinhpr.
-use mk_BinProduct.
+use make_BinProduct.
 - exists AB.
   exact R.
 - apply (BinProductPr1 _ (BinProductsHSET _ _)).

@@ -6,8 +6,8 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Section def_terminal.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition empty_graph : graph.
 Proof.
@@ -33,20 +33,20 @@ Defined.
 
 Definition termCone (c : C) : cone termDiagram c.
 Proof.
-use mk_cone; intro v; induction v.
+use make_cone; intro v; induction v.
 Defined.
 
 Definition isTerminal (a : C) :=
   isLimCone termDiagram a (termCone a).
 
-Definition mk_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
+Definition make_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
 intros a ca.
 use tpair.
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [ intro f; apply impred; intro v; induction v|].
   apply (pr2 (H a)).
 Defined.
@@ -54,10 +54,10 @@ Defined.
 Definition Terminal : UU := LimCone termDiagram.
 (* Definition Terminal := total2 (λ a, isTerminal a). *)
 
-Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
+Definition make_Terminal (b : C) (H : isTerminal b) : Terminal.
 Proof.
-use (mk_LimCone _ b (termCone b)).
-apply mk_isTerminal.
+use (make_LimCone _ b (termCone b)).
+apply make_isTerminal.
 intro a.
 set (x := H a (termCone a)).
 use tpair.
@@ -123,7 +123,7 @@ Definition hasTerminal := ishinh Terminal.
 Definition isTerminal_Terminal (T : Terminal) :
   isTerminal (TerminalObject T).
 Proof.
-  use mk_isTerminal.
+  use make_isTerminal.
   intros a.
   use tpair.
   - exact (TerminalArrow T a).
@@ -136,7 +136,7 @@ Lemma equiv_isTerminal1 (c : C) :
   limits.terminal.isTerminal C c -> isTerminal c.
 Proof.
   intros X.
-  use mk_isTerminal.
+  use make_isTerminal.
   intros b.
   apply (X b).
 Qed.
@@ -145,7 +145,7 @@ Lemma equiv_isTerminal2 (c : C) :
   limits.terminal.isTerminal C c <- isTerminal c.
 Proof.
   intros X.
-  set (XT := mk_Terminal c X).
+  set (XT := make_Terminal c X).
   intros b.
   use tpair.
   - exact (TerminalArrow XT b).
@@ -156,14 +156,14 @@ Definition equiv_Terminal1 :
   limits.terminal.Terminal C -> Terminal.
 Proof.
   intros T.
-  exact (mk_Terminal T (equiv_isTerminal1 _ (pr2 T))).
+  exact (make_Terminal T (equiv_isTerminal1 _ (pr2 T))).
 Defined.
 
 Definition equiv_Terminal2 :
   limits.terminal.Terminal C <- Terminal.
 Proof.
   intros T.
-  exact (limits.terminal.mk_Terminal
+  exact (limits.terminal.make_Terminal
            (TerminalObject T)
            (equiv_isTerminal2 _ (isTerminal_Terminal T))).
 Defined.
@@ -173,7 +173,7 @@ End def_terminal.
 Arguments Terminal : clear implicits.
 Arguments isTerminal : clear implicits.
 
-Lemma Terminal_from_Lims (C : precategory) :
+Lemma Terminal_from_Lims (C : category) :
   Lims_of_shape empty_graph  C -> Terminal C.
 Proof.
 now intros H; apply H.

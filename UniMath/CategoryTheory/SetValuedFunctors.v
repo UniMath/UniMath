@@ -15,20 +15,24 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.EpiFacts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 Local Open Scope cat.
 
 
-Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
+Lemma is_pointwise_epi_from_set_nat_trans_epi (C:category)
       (F G : functor C hset_precategory) (f:nat_trans F G)
-      (h:isEpi (C:=functor_precategory C _ has_homsets_HSET) f)
+      (h:isEpi (C:=functor_category C HSET) f)
   : ∏ (x:C), isEpi (f x).
 Proof.
   apply (Pushouts_pw_epi (D:=hset_category)).
@@ -40,7 +44,7 @@ Qed.
 Let p be an epimorphic natural transformation where the target category is HSET
 
 Given the following diagram :
-<<<
+<<
     f
  A ---> C
  |
@@ -48,7 +52,7 @@ Given the following diagram :
  |
  v
  B
->>>
+>>
 there exists a unique natural transformation from B to C that makes the diagram
 commute provided that for any set X, any x,y in X, if [p x = p y] then [f x = f y]
 
@@ -56,8 +60,8 @@ This property comes from the fact that p is an effective epimorphism.
 *)
 Section LiftEpiNatTrans.
 
-  Context { CC:precategory}.
-  Local Notation C_SET :=  (functor_precategory CC HSET has_homsets_HSET).
+  Context {CC:category}.
+  Local Notation C_SET := (functor_category CC HSET).
 
 
   Context {A B C:functor CC HSET} (p:nat_trans A B)
@@ -83,7 +87,7 @@ Section LiftEpiNatTrans.
   Proof.
     apply EffectiveEpis_Functor_HSET in surjectivep.
     red in surjectivep.
-    set (coeq := limits.coequalizers.mk_Coequalizer _ _ _ _ (pr2 surjectivep)).
+    set (coeq := limits.coequalizers.make_Coequalizer _ _ _ _ (pr2 surjectivep)).
     apply (limits.coequalizers.CoequalizerOut coeq _ f).
     abstract(
     apply (nat_trans_eq (has_homsets_HSET));
@@ -100,7 +104,7 @@ Section LiftEpiNatTrans.
   Lemma univ_surj_nt_ax : nat_trans_comp _ _ _ p univ_surj_nt = f .
   Proof.
     unfold univ_surj_nt; cbn.
-    set (coeq := mk_Coequalizer _ _ _ _ _).
+    set (coeq := make_Coequalizer _ _ _ _ _).
     apply (CoequalizerCommutes coeq).
   Qed.
 
@@ -121,7 +125,7 @@ Section LiftEpiNatTrans.
     intros g hg b.
     apply nat_trans_eq_pointwise.
     unfold univ_surj_nt.
-    set (coeq := mk_Coequalizer _ _ _ _ _).
+    set (coeq := make_Coequalizer _ _ _ _ _).
     use (isCoequalizerOutUnique _ _ _ _ (isCoequalizer_Coequalizer coeq)).
     apply hg.
   Qed.
@@ -143,7 +147,7 @@ Moreover, there is an epimorphism [pr_quot_functor : R -> R']
  *)
 Section QuotientFunctor.
 
-  Context { D:precategory}.
+  Context {D:category}.
   Variable (R:functor D HSET).
 
   (** This is [tilde] *)

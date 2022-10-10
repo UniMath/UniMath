@@ -14,8 +14,8 @@ Require Import UniMath.Foundations.PartD.
 (* Require Import UniMath.Foundations.Propositions. *)
 (* Require Import UniMath.Foundations.Sets. *)
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 Local Open Scope cat.
 
@@ -70,12 +70,12 @@ Proof.
 Defined.
 
 Definition coslice_precat_data : precategory_data :=
-  precategory_data_pair _ id_coslice_precat (@comp_coslice_precat).
+  make_precategory_data _ id_coslice_precat (@comp_coslice_precat).
 
 Lemma is_precategory_coslice_precat_data (sets : ∏ y, isaset (x --> y)) :
   is_precategory coslice_precat_data.
 Proof.
-  use mk_is_precategory; intros; unfold comp_coslice_precat;
+  use make_is_precategory; intros; unfold comp_coslice_precat;
     cbn; apply subtypePairEquality.
   * intro; apply sets.
   * apply id_left.

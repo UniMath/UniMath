@@ -13,39 +13,18 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
 
 Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 25 *)
 
 (** Fixing some notation *)
 
-(** * Notation, terminology and very basic facts *)
+(** * Notation, terminology  *)
 
 Arguments tpair [ T P ].
 
-Lemma pathintotalfiber ( B : UU ) ( E : B -> UU ) ( b0 b1 : B )
-      ( e0 : E b0 ) ( e1 : E b1 ) ( p0 : b0 = b1 ) ( p1 : transportf E p0 e0 = e1 ) :
-  ( tpair b0 e0 ) = ( tpair b1 e1 ).
-Proof.
-  intros. destruct p0, p1. apply idpath.
-Defined.
-
 Definition neq ( X : UU ) : hrel X :=
-  fun x y : X => hProppair (neg (x = y)) (isapropneg (x = y)).
-
-Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v = w ) :
-  ( pr1 v ) = ( pr1 w ) := maponpaths ( fun x => pr1 x ) p.
-
-Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A }
-      ( f_eq : f a = f b ) : a = b.
-Proof.
-  intros.
-  set ( q := p ( f a )).
-  set ( a' := hfiberpair f a ( idpath ( f a ) ) ).
-  set ( b' := hfiberpair f b ( pathsinv0 f_eq ) ).
-  assert ( a' = b' ) as p1. apply (p ( f a ) ).
-  apply ( pathintotalpr1 p1 ).
-Defined.
+  fun x y : X => make_hProp (neg (x = y)) (isapropneg (x = y)).
 
 (** * I. Lemmas on natural numbers *)
 
@@ -283,7 +262,7 @@ Lemma natcofaceretractisretract ( i : nat ) :
   funcomp ( natcoface i ) ( natcofaceretract i ) = idfun nat.
 Proof.
   simpl. apply funextfun.
-  intro n. unfold funcomp.
+  intro n. simpl.
   set ( c := natlthorgeh n i ). destruct c as [ h | k ].
   - unfold natcoface. rewrite h. unfold natcofaceretract. rewrite h.  apply idpath.
   - assert ( natgtb i n = false ) as f.
@@ -303,7 +282,7 @@ Proof.
   rewrite <- ( natcofaceretractisretract i ).
   change y with ( idfun _ y ).
   rewrite <- ( natcofaceretractisretract i ).
-  unfold funcomp. rewrite p. apply idpath.
+  simpl. rewrite p. apply idpath.
 Defined.
 
 Lemma natlehdecomp ( b a : nat ) :
@@ -344,7 +323,7 @@ Defined.
 
 (** * II. Lemmas on rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Lemma ringminusdistr { X : commring } ( a b c : X ) :
   a * (b - c) = a * b - a * c.
@@ -414,7 +393,7 @@ Proof.
       change ( ( @ringunel2 X ) * c = c )%ring.
       apply ringlunax2.
     }
-    apply pathintotalfiber with ( p0 := f0 ).
+    apply (total2_paths2_f f0 ).
     assert ( isaprop ( c * a = ( @ringunel2 X )  ×
                        a * c = ( @ringunel2 X ) ) ) as is.
     { apply isofhleveldirprod.
@@ -441,7 +420,7 @@ Close Scope ring_scope.
 
 (** * III. Lemmas on hz *)
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) = ( - n ) + ( - m ).
 Proof.
@@ -634,7 +613,7 @@ Definition hzldistr ( a b c : hz ) : c * ( a + b ) = ( c * a ) + ( c * b ) :=
 
 Lemma hzabsvaland1 : hzabsval 1 = 1%nat.
 Proof.
-  apply ( isinclisinj isinclnattohz ).
+  apply ( invmaponpathsincl _ isinclnattohz ).
   rewrite hzabsvalgth0.
   - rewrite nattohzand1.
     apply idpath.
@@ -654,7 +633,7 @@ Proof.
       apply p.
     - assumption.
   }
-  apply ( isinclisinj isinclnattohz ).
+  apply ( invmaponpathsincl _ isinclnattohz ).
   rewrite nattohzandplus.
   rewrite hzabsvalgeh0. (* used to start with rewrite 3! hzabsvalgeh0 *)
   - rewrite hzabsvalgeh0.
@@ -678,7 +657,7 @@ Proof.
     - apply hzlth0andminus.
       assumption.
   }
-  apply ( isinclisinj isinclnattohz ).
+  apply ( invmaponpathsincl _ isinclnattohz ).
   rewrite nattohzandplus.
   rewrite hzabsvallth0.
   - rewrite hzabsvallth0.
@@ -796,14 +775,14 @@ Defined.
 
 (** * V. Apartness relations on rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Definition acommring := ∑ (X : commring) (R : apart X),
   isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ).
 
-Definition acommringpair := tpair ( P := fun X : commring =>
+Definition make_acommring := tpair ( P := fun X : commring =>
   ∑ R : apart X, isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ) ).
-Definition acommringconstr := acommringpair.
+Definition acommringconstr := make_acommring.
 
 Definition acommringtocommring : acommring -> commring := @pr1 _ _.
 Coercion acommringtocommring : acommring >-> commring.
@@ -833,10 +812,10 @@ Definition aintdom := ∑ A : acommring,
   ( ringunel2 ( X := A ) ) # 0 ×
   forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0.
 
-Definition aintdompair := tpair ( P := fun A : acommring =>
+Definition make_aintdom := tpair ( P := fun A : acommring =>
   ( ringunel2 ( X := A ) ) # 0 ×
   forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0 ).
-Definition aintdomconstr := aintdompair.
+Definition aintdomconstr := make_aintdom.
 
 Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.
 Coercion pr1aintdom : aintdom >-> acommring.
@@ -856,7 +835,7 @@ Definition isaafield ( A : acommring ) :=
   forall x : A, x # 0 -> multinvpair A x.
 
 Definition afld := ∑ A : acommring, isaafield A.
-Definition afldpair ( A : acommring ) ( is : isaafield A ) : afld := tpair A is .
+Definition make_afld ( A : acommring ) ( is : isaafield A ) : afld := tpair A is .
 Definition pr1afld : afld -> acommring := @pr1 _ _ .
 Coercion pr1afld : afld >-> acommring.
 

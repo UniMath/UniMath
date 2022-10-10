@@ -1,3 +1,5 @@
+(** * Lists *)
+
 (**
 
 This file contains a formalization of lists define as iterated products ([list]).
@@ -7,19 +9,8 @@ Written by: Anders Mörtberg, 2016 (inspired by a remark of Vladimir Voevodsky),
 *)
 
 Require Import UniMath.MoreFoundations.Tactics.
-
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-
-Section preamble.
-
-Definition iterprod (n : nat) (A : UU) : UU.
-Proof.
-induction n as [|n IHn].
-- apply unit.
-- apply (A × IHn).
-Defined.
-
-End preamble.
+Require Import UniMath.Combinatorics.Vectors.
 
 (** * Lists over an arbitrary type *)
 Section lists.
@@ -27,14 +18,14 @@ Section lists.
 Context {A : UU}.
 
 (** The type of lists *)
-Definition list : UU := ∑ n, iterprod n A.
+Definition list : UU := ∑ n, vec A n.
 
 (** The empty list *)
-Definition nil : list := (0,,tt).
+Definition nil : list := (0,, vnil).
 
 (** List cons *)
 Definition cons (x : A) (xs : list) : list :=
-  (S (pr1 xs),, (x,, pr2 xs)).
+  (S (pr1 xs),, vcons x (pr2 xs)).
 
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
@@ -83,32 +74,9 @@ Defined.
 
 (** The n-th element of a list *)
 
-Fixpoint nth'' n i : i < n -> iterprod n A -> A
-  (* eventually figure out how to use "induction" alone to define this *)
-  := match n, i with
-     |   0,   _ => λ r x, fromempty (nopathsfalsetotrue r)
-     | S n,   0 => λ r x, pr1 x
-     | S n, S i => λ r x, nth'' n i r (pr2 x)
-     end.
+Definition nth x : stn(length x) -> A := el (pr2 x).
 
-Definition nth' n : iterprod n A -> stn n -> A.
-Proof.
-  intros x i.
-  exact (nth'' n (pr1 i) (pr2 i) x).
-Defined.
-
-Lemma nth'_step n (x:iterprod (S n) A) i (I:i<n) :
-  nth' (S n) x (stnpair (S n) (S i) I) = nth' n (pr2 x) (stnpair n i I).
-Proof.
-  reflexivity.
-Defined.
-
-Definition nth x : stn(length x) -> A.
-Proof.
-  intros i. exact (nth' (length x) (pr2 x) i).
-Defined.
-
-Definition functionToList' n : (stn n -> A) -> iterprod n A.
+Definition functionToList' n : (stn n -> A) -> vec A n.
 Proof.
   intros f.
   induction n as [|n I].
@@ -120,7 +88,7 @@ Defined.
 Definition functionToList n : (stn n -> A) -> list.
 Proof.
   intros f.
-  exact (n ,, functionToList' n f).
+  exact (n ,, make_vec f).
 Defined.
 
 Section Test.
@@ -328,43 +296,9 @@ Proof.
   reflexivity.
 Defined.
 
-(** between ≃ lists and functions  *)
-
-Lemma isweqlistfun {A} n : isweq (@nth' A n).
-Proof.
-  simple refine (isweq_iso _ (functionToList' _) _ _).
-  - intros. induction n as [|n N].
-    + apply isapropunit.
-    + simpl in x. induction x as [a x]. apply dirprodeq.
-      * simpl. reflexivity.
-      * simpl. apply N.
-  - intros. apply funextfun; intro i.
-    induction n as [|n N].
-    + apply fromempty. now apply negstn0.
-    + induction i as [i I].
-      induction i as [|i IHi].
-      * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypeEquality_prop.
-      * change (hProptoType (i<n)) in I.
-        exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
-Defined.
-
-Corollary weqlistfun {A} n : (iterprod n A) ≃ (stn n -> A).
-Proof.
-  exact (weqpair _ (isweqlistfun _)).
-Defined.
-
-Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
-Proof.
-  induction k as [|k IH].
-  - apply isofhlevelcontr, iscontrunit.
-  - apply isofhleveldirprod.
-    + apply is1.
-    + apply IH.
-Qed.
-
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
-  - intro m. apply isofhleveliterprod, is1.
-Qed.
+  - intro m. apply isofhlevelvec, is1.
+Defined.

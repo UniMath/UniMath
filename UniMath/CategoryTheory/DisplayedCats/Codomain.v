@@ -9,15 +9,14 @@
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (** ** The displayed codomain
 
@@ -30,7 +29,7 @@ the components of the objects and morphisms will be arranged differently
 (* TODO: perhaps rename [slice_disp], and make [C] implicit? *)
 Section Codomain_Disp.
 
-Context (C:category).
+Context (C : category).
 
 Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -64,27 +63,27 @@ Definition cod_disp_data : disp_cat_data _
 Lemma cod_disp_axioms : disp_cat_axioms C cod_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_left.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. use (pr1_transportf (C⟦x,y⟧)).
+    etrans. use (pr1_transportf (A := C⟦x,y⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. use (pr1_transportf (C⟦x,y⟧)).
+    etrans. use (pr1_transportf (A := C⟦x,y⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. unfold mor_disp.
-    use (pr1_transportf (C⟦x,w⟧)).
+    use (pr1_transportf (A := C⟦x,w⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
   - apply (isofhleveltotal2 2).
     + apply homset_property.
@@ -103,7 +102,7 @@ Context {C:category}.
 Definition isPullback_cartesian_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+  : (isPullback (pr2 ff)) -> is_cartesian ff.
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
@@ -123,7 +122,7 @@ Proof.
     + intros. apply homsets_disp.
   - intros gg; split; intros H.
     + exists (pr2 H).
-      apply subtypeEquality.
+      apply subtypePath.
         intro; apply homset_property.
       exact (pr1 H).
     + split.
@@ -134,7 +133,7 @@ Qed.
 Definition cartesian_isPullback_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) <- is_cartesian ff.
+  : (isPullback (pr2 ff)) <- is_cartesian ff.
 Proof.
   intros cf c h k H.
   destruct p as [a x].
@@ -171,7 +170,7 @@ Proof.
     + use tpair.
       * rewrite id_right.
         exact (pr2 HRR).
-      * apply subtypeEquality.
+      * apply subtypePath.
         intro; apply homset_property.
       exact (pr1 HRR).
 Qed.
@@ -180,7 +179,7 @@ Qed.
 Definition cartesian_iff_isPullback
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) <-> is_cartesian ff.
+  : (isPullback (pr2 ff)) <-> is_cartesian ff.
 Proof.
   split.
   - apply isPullback_cartesian_in_cod_disp.

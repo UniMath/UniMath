@@ -11,23 +11,27 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.MoreFoundations.PartA.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
-
+Import AddNotation.
+Local Open Scope addmonoid_scope.
 
 (** * Definition of a PreAdditive precategory
    A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and
@@ -41,7 +45,7 @@ Section def_preadditive.
     (∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
       × (∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)).
 
-  Definition mk_isPreAdditive (PA : categoryWithAbgrops)
+  Definition make_isPreAdditive (PA : categoryWithAbgrops)
              (H1 : ∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
              (H2 : ∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)) :
     isPreAdditive PA.
@@ -49,7 +53,7 @@ Section def_preadditive.
     exact (H1,,H2).
   Defined.
 
-  Definition mk_isPreAdditive' (PA : categoryWithAbgrops)
+  Definition make_isPreAdditive' (PA : categoryWithAbgrops)
              (H1 : ∏ (x y z : PA) (f : x --> y) (g h : y --> z),
                    f · (to_binop _ _ g h) = to_binop _ _ (f · g) (f · h))
              (H1' : ∏ (x y z : PA) (f : x --> y), to_premor z f (to_unel y z) = to_unel x z)
@@ -58,7 +62,7 @@ Section def_preadditive.
              (H2' : ∏ (x y z : PA) (f : y --> z), to_premor z (to_unel x y) f = to_unel x z):
     isPreAdditive PA.
   Proof.
-    use mk_isPreAdditive.
+    use make_isPreAdditive.
     - intros x y z f.
       use tpair.
       + intros g h. exact (H1 x y z f g h).
@@ -89,7 +93,7 @@ Section def_preadditive.
   Definition PreAdditive_categoryWithAbgrops (A : PreAdditive) : categoryWithAbgrops := pr1 A.
   Coercion PreAdditive_categoryWithAbgrops : PreAdditive >-> categoryWithAbgrops.
 
-  Definition mk_PreAdditive (PA : categoryWithAbgrops) (H : isPreAdditive PA) : PreAdditive.
+  Definition make_PreAdditive (PA : categoryWithAbgrops) (H : isPreAdditive PA) : PreAdditive.
   Proof.
     exact (tpair _ PA H).
   Defined.
@@ -156,7 +160,8 @@ Section preadditive_with_zero.
   Proof.
     unfold ZeroArrow.
     rewrite <- (id_left (ZeroArrowFrom y)).
-    assert (X : identity Z = to_unel Z Z) by apply ZeroEndo_is_identity.
+    assert (X : identity Z = to_unel Z Z).
+    { apply ZeroEndo_is_identity. }
     rewrite -> X. clear X.
 
     set (Y := to_postmor_unel A Z (@ZeroArrowFrom A Z y)).
@@ -172,12 +177,12 @@ Section preadditive_with_zero.
 
   Lemma to_lunax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y (ZeroArrow Z x y) f = f.
   Proof.
-    rewrite <- to_lunax'. use to_lrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_lunax'. apply maponpaths_2, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_runax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y f (ZeroArrow Z x y) = f.
   Proof.
-    rewrite <- to_runax'. use to_rrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_runax'. apply maponpaths, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_linvax' {Z : Zero A} {x y : A} (f : A⟦x, y⟧) :
@@ -257,6 +262,7 @@ Section def_additive_kernel_cokernel.
     rewrite to_lunax'. apply idpath.
   Qed.
 
+
   Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
         (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
     KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
@@ -264,7 +270,7 @@ Section def_additive_kernel_cokernel.
   Proof.
     use KernelInsEq.
     rewrite KernelCommutes.
-    rewrite to_postmor_linear'.
+    rewrite (to_postmor_linear' (A:=A)).
     rewrite KernelCommutes.
     rewrite KernelCommutes.
     apply idpath.
@@ -301,15 +307,15 @@ Section monics_and_epis_in_preadditive.
 
   Lemma to_inv_isMonic {x y : PA} (f : x --> y) (isM : isMonic f) : isMonic (to_inv f).
   Proof.
-    use mk_isMonic.
+    use make_isMonic.
     intros x0 g h X.
-    rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
+    rewrite <- (PreAdditive_invrcomp PA) in X. rewrite <- (PreAdditive_invrcomp PA) in X.
     apply cancel_inv in X. use isM. exact X.
   Qed.
 
   Lemma to_inv_isEpi {x y : PA} (f : x --> y) (isE : isEpi f) : isEpi (to_inv f).
   Proof.
-    use mk_isEpi.
+    use make_isEpi.
     intros x0 g h X.
     rewrite <- PreAdditive_invlcomp in X. rewrite <- PreAdditive_invlcomp in X.
     apply cancel_inv in X. use isE. exact X.
@@ -360,12 +366,6 @@ Section preadditive_quotient.
   Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
     (λ a1 : A, λ a2 : A, (subgrhrel_hprop B a1 a2)).
 
-  (** Some equalities *)
-  Local Lemma ropeq (X : setwithbinop) (x y z : X) : x = y -> @op X x z = @op X y z.
-  Proof.
-    intros e. induction e. apply idpath.
-  Qed.
-
   (** Let B be a subgroup of A. Then the canonical map A -> A/B is a monoidfun. *)
   Local Lemma abgrquotpr_ismonoidfun {A : abgr} (H : @binopeqrel A) :
     @ismonoidfun A (abgrquot H) (λ a : A, setquotpr H a).
@@ -407,7 +407,7 @@ Section preadditive_quotient.
         * exact (op (pr1 t) (pr1 t0)).
         * exact (pr2subsetswithbinop B t t0).
       + cbn. rewrite p. rewrite p0. rewrite <- (assocax A).
-        apply ropeq. rewrite assocax. rewrite grlinvax. rewrite runax.
+        apply maponpaths_2. rewrite assocax. rewrite grlinvax. rewrite runax.
         apply idpath.
     (* isrefl *)
     - intros x.
@@ -428,7 +428,7 @@ Section preadditive_quotient.
   (** The relation we defined respects binary operations. Note that we use commax, thus the proof
       does not work for nonabelian groups. *)
   Lemma isbinopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) :
-    isbinophrel (eqrelpair (subgrhrel B) (iseqrel_subgrhrel A B)).
+    isbinophrel (make_eqrel (subgrhrel B) (iseqrel_subgrhrel A B)).
   Proof.
     use isbinophrelif.
     - apply (pr2 (pr2 A)).
@@ -446,8 +446,8 @@ Section preadditive_quotient.
   (** Thus the relation is a binopeqrel *)
   Lemma binopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) : @binopeqrel A.
   Proof.
-    use binopeqrelpair.
-    - exact (eqrelpair _ (iseqrel_subgrhrel A B)).
+    use make_binopeqrel.
+    - exact (make_eqrel _ (iseqrel_subgrhrel A B)).
     - exact (isbinopeqrel_subgr_eqrel B).
   Defined.
 
@@ -534,7 +534,7 @@ Section preadditive_quotient.
           (∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
              (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h).
 
-  Definition mk_QuotcategoryComp {A B C : ob PA} {f : Quotcategory_ob_mor⟦A, B⟧}
+  Definition make_QuotcategoryComp {A B C : ob PA} {f : Quotcategory_ob_mor⟦A, B⟧}
              {g : Quotcategory_ob_mor⟦B, C⟧} (h : Quotcategory_ob_mor⟦A, C⟧)
              (H : ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
                     (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h) :
@@ -591,7 +591,7 @@ Section preadditive_quotient.
     setquotpr _ (f' · g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 · g'1).
   Proof.
     intros f1 Hf g1 Hg. cbn.
-    apply (iscompsetquotpr (eqrelpair _ (iseqrel_subgrhrel (to_abgr A C) (PAS A C)))).
+    apply (iscompsetquotpr (make_eqrel _ (iseqrel_subgrhrel (to_abgr A C) (PAS A C)))).
     set (HH := @abgrquotpr_rels_to_unel
                  (to_abgr A B) f'1 f1 (binopeqrel_subgr_eqrel (PAS A B)) f f''1 Hf).
     set (HH' := @abgrquotpr_rels_to_unel
@@ -616,7 +616,7 @@ Section preadditive_quotient.
              (f' : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f)
              (g' : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS B C))) g) :
     ∏ t : QuotcategoryComp f g,
-          t = mk_QuotcategoryComp
+          t = make_QuotcategoryComp
                 (setquotpr (binopeqrel_subgr_eqrel (PAS A C))
                            (hfiberpr1 _ _ f' · hfiberpr1 _ _ g'))
                 (Quotcategory_comp_iscontr_eq
@@ -641,8 +641,8 @@ Section preadditive_quotient.
   Proof.
     use (squash_to_prop (Quotcategory_surj f) (isapropiscontr _)). intros f'.
     use (squash_to_prop (Quotcategory_surj g) (isapropiscontr _)). intros g'.
-    use iscontrpair.
-    - use mk_QuotcategoryComp.
+    use make_iscontr.
+    - use make_QuotcategoryComp.
       + exact (setquotpr
                  (binopeqrel_subgr_eqrel (PAS A C)) ((hfiberpr1 _ _ f') · (hfiberpr1 _ _ g'))).
       + exact (Quotcategory_comp_iscontr_eq
@@ -761,7 +761,7 @@ Section preadditive_quotient.
   (** ** Construction of the Quotcategory *)
 
   Definition Quotcategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       Quotcategory_ob_mor
       (λ (A : ob PA), setquotpr (binopeqrel_subgr_eqrel (PAS A A)) (identity A))
       (fun (A B C : ob PA) (f : Quotcategory_ob_mor⟦A, B⟧)
@@ -863,20 +863,21 @@ Section preadditive_quotient.
         rewrite assoc'. apply idpath.
   Defined.
 
-  Definition Quotcategory : precategory :=
+  Definition Quotprecategory : precategory :=
     tpair _ _ is_precategory_Quotcategory_data.
 
-  Lemma has_homsets_Quotcategory : has_homsets Quotcategory.
+  Lemma has_homsets_Quotcategory : has_homsets Quotprecategory.
   Proof.
     intros a b. apply isasetsetquot.
   Qed.
 
+  Definition Quotcategory : category := make_category Quotprecategory has_homsets_Quotcategory.
 
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
   Definition Quotcategory_binops : precategoryWithBinOps.
   Proof.
-    use mk_precategoryWithBinOps.
+    use make_precategoryWithBinOps.
     - exact Quotcategory.
     - intros x y. exact (@op (subabgr_quot (PAS x y))).
   Defined.
@@ -884,9 +885,8 @@ Section preadditive_quotient.
   Unset Kernel Term Sharing.
   Definition Quotcategory_abgrops : categoryWithAbgrops.
   Proof.
-    use mk_categoryWithAbgrops.
+    use make_categoryWithAbgrops.
     - exact Quotcategory_binops.
-    - exact has_homsets_Quotcategory.
     - intros x y. exact (pr2 (subabgr_quot (PAS x y))).
   Defined.
   Set Kernel Term Sharing.
@@ -941,7 +941,7 @@ Section preadditive_quotient.
 
   Lemma Quotcategory_isPreAdditive : isPreAdditive Quotcategory_abgrops.
   Proof.
-    use mk_isPreAdditive'.
+    use make_isPreAdditive'.
     - intros x y z f g h. exact (PreAdditive_pre_linear x y z f g h).
     - intros x y z f. exact (PreAdditive_pre_unel x y z f).
     - intros x y z f g h. exact (PreAdditive_post_linear x y z f g h).
@@ -950,7 +950,7 @@ Section preadditive_quotient.
 
   Definition Quotcategory_PreAdditive : PreAdditive.
   Proof.
-    use mk_PreAdditive.
+    use make_PreAdditive.
     - exact Quotcategory_abgrops.
     - exact Quotcategory_isPreAdditive.
   Defined.
@@ -999,9 +999,9 @@ Section preadditive_quotient.
 
   Variable Z : Zero PA.
 
-  Lemma Quotcategory_isZero : isZero Quotcategory Z.
+  Lemma Quotcategory_isZero : isZero (C:=Quotcategory) Z.
   Proof.
-    use mk_isZero.
+    use make_isZero.
     - intros a.
       use tpair.
       + exact (to_quot_mor (@ZeroArrowFrom PA Z a)).
@@ -1022,9 +1022,72 @@ Section preadditive_quotient.
 
   Definition Quotcategory_Zero : @Zero Quotcategory.
   Proof.
-    use mk_Zero.
+    use make_Zero.
     - exact Z.
     - exact Quotcategory_isZero.
   Defined.
 
 End preadditive_quotient.
+
+Definition oppositePreAdditive (M : PreAdditive) : PreAdditive.
+Proof.
+  exists (oppositeCategoryWithAbgrops M).
+  split.
+  - exact (λ a b c f, @to_postmor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+  - exact (λ a b c f, @to_premor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+Defined.
+
+Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
+Proof.
+  exists (induced_categoryWithAbgrops M j).
+  split.
+  - exact (λ a b c, @to_premor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+  - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+Defined.
+
+
+
+Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
+  oppositePreAdditive (induced_PreAdditive M j) =
+  induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
+Proof.
+  intros.
+  compute.                    (* the following line bogs down without this one *)
+  apply idpath.                (* but the computation may make this proof fragile *)
+Defined.
+
+Section RewritingAids.
+  Local Open Scope abgrcat.
+  Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
+  Proof.
+    apply to_postmor_unel'.
+  Defined.
+  Lemma zeroRight {M:PreAdditive} {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
+  Proof.
+    apply to_premor_unel'.
+  Defined.
+  Definition leftCompIsHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
+    := @to_premor_monoid _ M _ _ _ _.
+  Definition rightCompIsHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
+    := @to_postmor_monoid _ M _ _ _ _.
+  Definition leftCompHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
+    := to_premor c f,, to_premor_monoid M _ _ _ f.
+  Definition rightCompHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
+    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
+  Lemma rightDistribute {M:PreAdditive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
+  Proof.
+    apply leftCompIsHomo.
+  Qed.
+  Lemma leftDistribute {M:PreAdditive} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
+  Proof.
+    apply rightCompIsHomo.
+  Qed.
+  Lemma rightMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (leftCompHomo f c) g).
+  Qed.
+  Lemma leftMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (rightCompHomo a g) f).
+  Qed.
+End RewritingAids.

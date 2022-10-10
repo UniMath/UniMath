@@ -29,10 +29,9 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 
-Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 Require Import UniMath.Folds.from_precats_to_folds_and_back.
 
@@ -51,8 +50,8 @@ Local Notation "'id' a" := (identity (C:=C') a) (at level 30).
 
 
 Definition folds_iso_data (a b : C) : UU :=
-  ((∏ {x : C}, (x ⇒ a) ≃ (x ⇒ b))
- × (∏ {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
+  ((∏ (x : C), (x ⇒ a) ≃ (x ⇒ b))
+ × (∏ (z : C), (a ⇒ z) ≃ (b ⇒ z)))
 ×             ((a ⇒ a) ≃ (b ⇒ b)).
 
 Definition ϕ₁ {a b : C} (f : folds_iso_data a b) {x : C} : (x ⇒ a) ≃ (x ⇒ b) :=
@@ -90,7 +89,7 @@ Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
   folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
 Proof.
   intro H.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isaprop_folds_iso_prop.
   - assumption.
 Qed.
@@ -202,7 +201,7 @@ Proof.
     - rewrite H. apply ϕ₁_ϕ₂_id.
     - rewrite H. apply ϕ₂_ϕ₁_id. }
   assert (X : ϕ₂ i (id _ ) = ϕ₂ i' (id _ )).
-  { set (H1:= inverse_unique_precat C' _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
+  { set (H1:= inverse_unique_precat _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
     assumption.
   }
   rewrite X.
@@ -225,7 +224,7 @@ Proof.
   apply dirprodeq.
   - apply dirprodeq.
     + apply funextsec; intro.
-      apply subtypeEquality.
+      apply subtypePath.
       * intro. apply isapropisweq.
       * apply funextfun; intro f.
         eapply pathscomp0.
@@ -235,10 +234,10 @@ Proof.
         { apply ϕ₁_is_comp. }
         rewrite H. apply idpath.
     + apply funextsec; intro.
-      apply subtypeEquality.
+      apply subtypePath.
       * intro; apply isapropisweq.
       * apply funextfun. unfold homot. apply ϕ₂_determined.
-  - apply subtypeEquality.
+  - apply subtypePath.
     intro. apply isapropisweq.
     apply funextfun. intro t.
     apply ϕo_determined.
@@ -386,7 +385,7 @@ Variables a b : C.
 Variable f : z_iso (C:=C') a b.
 
 Definition folds_iso_data_from_z_iso : folds_iso_data a b :=
-  dirprodpair (dirprodpair (z_iso_comp_left_weq f)
+  make_dirprod (make_dirprod (z_iso_comp_left_weq f)
                            (z_iso_comp_right_weq (z_iso_inv_from_z_iso f)))
               (z_iso_conjug_weq f).
 
@@ -484,14 +483,14 @@ Proof.
   - simpl. apply logeqweq.
     + intro H. apply id_identity2.
       rewrite (id_identity2' H). rewrite (@id_left C').
-      apply (z_iso_after_z_iso_inv _ _ _ f).
+      apply (z_iso_after_z_iso_inv f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
-      set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
+      set (H2:=z_iso_inv_to_left _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.
       transitivity (f □ (inv_from_z_iso f)).
-      * apply (z_iso_inv_on_left C'), pathsinv0, H2.
-      * apply (z_iso_inv_after_z_iso C').
+      * apply (z_iso_inv_on_left (C:=C')), pathsinv0, H2.
+      * apply (z_iso_inv_after_z_iso (C := C')).
 Qed.
 
 Definition folds_iso_from_iso : folds_iso a b := tpair _ _ folds_iso_data_prop.
@@ -526,7 +525,7 @@ Context {a b : C} (i : z_iso (C:=C') a b).
 
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
-  apply eq_z_iso. apply hs.
+  apply (z_iso_eq(C:=C',,hs)).
   apply (@id_left C').
 Qed.
 

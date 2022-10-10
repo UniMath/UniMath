@@ -12,7 +12,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -22,8 +23,8 @@ Local Open Scope cat.
 (** Definition of kernels *)
 Section def_kernels.
 
-  Context {C : precategory}.
-  Hypothesis hs : has_homsets C.
+  Context {C : category}.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
 
@@ -38,7 +39,7 @@ Section def_kernels.
     induction e. exact isK.
   Qed.
 
-  Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
+  Definition make_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : w --> y) (H' : h · g = ZeroArrow Z w z),
                    ∃! ψ : w --> x, ψ · f = h) : isKernel f g H1.
   Proof.
@@ -55,7 +56,7 @@ Section def_kernels.
     ∑ D : (∑ x : ob C, x --> y),
           ∑ (e : (pr2 D) · g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
 
-  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z)
+  Definition make_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z)
              (isE : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
 
   Definition Kernels : UU := ∏ (y z : C) (g : y --> z), Kernel g.
@@ -126,8 +127,7 @@ Section def_kernels.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦K, K⟧ => φ' · _ = _)) φ H).
     assert (H2 : identity_is_KernelIn K = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (KernelisKernel K).
       apply KernelCompZero.
     - apply (base_paths _ _ H2).
@@ -158,14 +158,14 @@ Section def_kernels.
   Qed.
 
   Definition iso_from_Kernel_to_Kernel {y z : C} {g : y --> z} (K K' : Kernel g) : z_iso K K' :=
-    mk_z_iso (from_Kernel_to_Kernel K K') (from_Kernel_to_Kernel K' K)
+    make_z_iso (from_Kernel_to_Kernel K K') (from_Kernel_to_Kernel K' K)
              (are_inverses_from_Kernel_to_Kernel K K').
 
   (** Kernel of the ZeroArrow is given by identity *)
   Local Lemma KernelOfZeroArrow_isKernel (x y : C) :
     isKernel (identity x) (ZeroArrow Z x y) (id_left (ZeroArrow Z x y)).
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     intros w h H'.
     use unique_exists.
     - exact h.
@@ -176,7 +176,7 @@ Section def_kernels.
 
   Definition KernelofZeroArrow (x y : C) : Kernel (@ZeroArrow C Z x y).
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact x.
     - exact (identity x).
     - use id_left.
@@ -188,7 +188,7 @@ Section def_kernels.
     isKernel (ZeroArrowFrom x) (identity x)
              (ArrowsFromZero C Z x (ZeroArrowFrom x · identity x) (ZeroArrow Z Z x)).
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     intros w h H'.
     use unique_exists.
     - exact (ZeroArrowTo w).
@@ -199,7 +199,7 @@ Section def_kernels.
 
   Definition KernelOfIdentity (x : C) : Kernel (identity x).
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact Z.
     - exact (ZeroArrowFrom x).
     - use ArrowsFromZero.
@@ -210,20 +210,20 @@ Section def_kernels.
   Lemma KernelofZeroArrow_is_iso {x y : C} (K : Kernel (ZeroArrow Z x y)) :
     is_inverse_in_precat (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - use KernelInsEq. rewrite <- assoc. unfold from_Kernel_to_Kernel. rewrite KernelCommutes.
       rewrite id_left. cbn. rewrite id_right. apply idpath.
     - unfold from_Kernel_to_Kernel. rewrite KernelCommutes. apply idpath.
   Qed.
 
   Definition KernelofZeroArrow_iso (x y : C) (K : Kernel (@ZeroArrow C Z x y)) : z_iso K x :=
-    mk_z_iso (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K)
+    make_z_iso (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K)
              (KernelofZeroArrow_is_iso K).
 
   (** It follows that KernelArrow is monic. *)
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g) : isMonic (KernelArrow K).
   Proof.
-    apply mk_isMonic.
+    apply make_isMonic.
     intros z0 g0 h X.
     use KernelInsEq.
     exact X.
@@ -250,8 +250,8 @@ Arguments KernelArrow [C] [Z] [y] [z] [g] _.
 (** * Correspondence of kernels and equalizers *)
 Section kernel_equalizers.
 
-  Context {C : precategory}.
-  Hypothesis hs : has_homsets C.
+  Context (C : category).
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   (** ** Equalizer from Kernel *)
@@ -264,7 +264,7 @@ Section kernel_equalizers.
   Lemma KernelEqualizer_isEqualizer {x y : ob C} {f : x --> y} (K : Kernel Z f) :
     isEqualizer f (ZeroArrow Z x y) (KernelArrow K) (KernelEqualizer_eq K).
   Proof.
-    use mk_isEqualizer.
+    use make_isEqualizer.
     intros w h H'.
     use unique_exists.
     - use KernelIn.
@@ -278,7 +278,7 @@ Section kernel_equalizers.
   Definition KernelEqualizer {x y : ob C} {f : x --> y} (K : Kernel Z f) :
     Equalizer f (ZeroArrow Z _ _).
   Proof.
-    use mk_Equalizer.
+    use make_Equalizer.
     - exact K.
     - exact (KernelArrow K).
     - exact (KernelEqualizer_eq K).
@@ -296,7 +296,7 @@ Section kernel_equalizers.
   Lemma EqualizerKernel_isKernel {x y : ob C} {f : x --> y} (E : Equalizer f (ZeroArrow Z _ _)) :
     isKernel Z (EqualizerArrow E) f (EqualizerKernel_eq E).
   Proof.
-    use (mk_isKernel hs).
+    use (make_isKernel).
     intros w h H'.
     use unique_exists.
     - use EqualizerIn.
@@ -310,7 +310,7 @@ Section kernel_equalizers.
   Definition EqualizerKernel {x y : ob C} {f : x --> y} (E : Equalizer f (ZeroArrow Z _ _)) :
     Kernel Z f.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact E.
     - exact (EqualizerArrow E).
     - exact (EqualizerKernel_eq E).
@@ -323,8 +323,8 @@ End kernel_equalizers.
 (** * Kernel up to isomorphism *)
 Section kernels_iso.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition Kernel_up_to_iso_eq {x y z : C} (f : x --> y) (g : y --> z)
@@ -344,10 +344,10 @@ Section kernels_iso.
         (h : z_iso x K) (H : f = h · (KernelArrow K)) (H'' : f · g = ZeroArrow Z x z) :
     isKernel Z f g H''.
   Proof.
-    use (mk_isKernel hs).
+    use make_isKernel.
     intros w h0 H'.
     use unique_exists.
-    - exact (KernelIn Z K w h0 H' · z_iso_inv_mor h).
+    - exact (KernelIn Z K w h0 H' · inv_from_z_iso h).
     - cbn beta. rewrite H. rewrite assoc. rewrite <- (assoc _ _ h).
       cbn. rewrite (is_inverse_in_precat2 h). rewrite id_right.
       apply KernelCommutes.
@@ -363,7 +363,7 @@ Section kernels_iso.
 
   Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (K : Kernel Z g)
              (h : z_iso x K) (H : f = h · (KernelArrow K)) : Kernel Z g :=
-    mk_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
+    make_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
               (Kernel_up_to_iso_isKernel f g K h H (Kernel_up_to_iso_eq f g K h H)).
 
   Lemma Kernel_up_to_iso2_eq {x y z : C} {f1 : x --> y} {f2 : x --> z} (h : z_iso y z)
@@ -377,7 +377,7 @@ Section kernels_iso.
              (h : z_iso y z) (H : f1 · h = f2) (K : Kernel Z f1) :
     isKernel Z (KernelArrow K) f2 (Kernel_up_to_iso2_eq h H K).
   Proof.
-    use (mk_isKernel hs).
+    use make_isKernel.
     intros w h0 H'.
     use unique_exists.
     - use KernelIn.
@@ -394,7 +394,7 @@ Section kernels_iso.
 
   Definition Kernel_up_to_iso2 {x y z : C} {f1 : x --> y} {f2 : x --> z} {h : z_iso y z}
              (H : f1 · h = f2) (K : Kernel Z f1) : Kernel Z f2 :=
-    mk_Kernel Z (KernelArrow K) _ (Kernel_up_to_iso2_eq h H K)
+    make_Kernel Z (KernelArrow K) _ (Kernel_up_to_iso2_eq h H K)
               (Kernel_up_to_iso2_isKernel f1 f2 h H K).
 
 End kernels_iso.
@@ -407,8 +407,8 @@ End kernels_iso.
 *)
 Section kernels_monics.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Local Lemma KernelCompMonic_eq1 {x y z : C} (f : x --> y) (M : Monic C y z)
@@ -476,8 +476,7 @@ Section kernels_monics.
         (K : Kernel Z (f · M)) :
     isKernel Z (KernelArrow K) f (KernelCompMonic_eq f M K).
   Proof.
-    use mk_isKernel.
-    - exact hs.
+    use make_isKernel.
     - intros w h H'.
       use unique_exists.
       + use KernelIn.
@@ -488,14 +487,14 @@ Section kernels_monics.
       + intros y0. apply hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
-        use (MonicisMonic C (mk_Monic _ _ (KernelArrowisMonic Z K))). cbn.
+        use (MonicisMonic C (make_Monic _ _ (KernelArrowisMonic Z K))). cbn.
         rewrite KernelCommutes. apply pathsinv0. apply X.
   Qed.
 
   Definition KernelCompMonic {x y z : C} (f : x --> y) (M : Monic C y z) (K : Kernel Z (f · M)) :
     Kernel Z f.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact K.
     - use KernelArrow.
     - exact (KernelCompMonic_eq f M K).
@@ -508,8 +507,8 @@ End kernels_monics.
 (** * KernelIn of equal, not necessarily definitionally equal, morphisms is iso *)
 Section kernel_in_paths.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition KernelInPaths_is_iso_mor {x y : C} {f f' : x --> y} (e : f = f')
@@ -542,7 +541,7 @@ Section kernel_in_paths.
   (** Constructs a cokernel of f' from a cokernel of f in a natural way *)
   Definition KernelPath {x y : C} {f f' : x --> y} (e : f = f') (K : Kernel Z f) : Kernel Z f'.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact K.
     - use KernelArrow.
     - exact (KernelPath_eq e K).
@@ -555,8 +554,8 @@ End kernel_in_paths.
 (** * Transports of kernels *)
 Section transport_kernels.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z}
@@ -572,7 +571,7 @@ Section transport_kernels.
     KernelIn Z K _ (transportf (λ x' : ob C, precategory_morphisms x' y) e f)
              (transport_source_KernelIn_eq f K e H).
   Proof.
-    induction e. use KernelInsEq. cbn. unfold idfun.
+    induction e. use KernelInsEq. cbn.
     rewrite KernelCommutes. rewrite KernelCommutes.
     apply idpath.
   Qed.

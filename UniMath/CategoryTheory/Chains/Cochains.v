@@ -5,9 +5,9 @@ Cochains are diagrams of the form X₀ ← X₁ ← ⋯.
 Author: Langston Barrett (@siddharthist), Febuary 2018
  *)
 Require Import UniMath.Foundations.PartA.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -22,7 +22,7 @@ Local Open Scope cat.
 *)
 
 Definition conat_graph : graph :=
-    mk_graph nat (λ m n, S n = m).
+    make_graph nat (λ m n, S n = m).
 
 Notation "'cochain'" := (diagram conat_graph).
 
@@ -38,7 +38,7 @@ Proof.
     refine (_ · ars b).
     exact (transportf (λ o, C ⟦ obs o, obs (S b) ⟧) aeqSb (identity _)).
   - exact (λ ars n, ars (S n) n (idpath _)).
-  - intros ars; cbn; unfold idfun.
+  - intros ars; cbn.
     apply funextsec; intro n.
     apply id_left.
   - intros ars.
@@ -47,7 +47,7 @@ Proof.
     apply funextsec; intro b.
     apply funextsec; intro p.
     induction p.
-    cbn; unfold idfun.
+    cbn.
     apply id_left.
 Defined.
 
@@ -55,7 +55,7 @@ Definition mapcochain {C D : precategory} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
 
 (** Any j > i gives a morphism in the cochain via composition *)
-Definition cochain_mor {C : precategory} (c : cochain C) {i j} :
+Definition cochain_mor {C : category} (c : cochain C) {i j} :
   i < j -> C⟦dob c j, dob c i⟧.
 Proof.
 induction j as [|j IHj].

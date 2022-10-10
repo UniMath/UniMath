@@ -59,7 +59,7 @@ Require Export UniMath.Foundations.Sets.
 (* we will write m ≠ n for algorithmic inequality and ¬(m = n) for negation of
    equality *)
 
-Definition natnegpaths (x y : nat) : hProp := hProppair (x != y) (isapropneg _).
+Definition natnegpaths (x y : nat) : hProp := make_hProp (x != y) (isapropneg _).
 
 Fixpoint natneq_hProp (n m : nat) : hProp :=
   match n, m with
@@ -70,8 +70,6 @@ Fixpoint natneq_hProp (n m : nat) : hProp :=
 
 (* Provisional notation, to be replaced below: *)
 Notation " x ≠ y " := (natneq_hProp x y) (at level 70, no associativity) : nat_scope.
-
-Local Open Scope nat_scope. (* it's already open, but we want it first in line *)
 
 Lemma negpaths0sx (x : nat) : ¬ (0 = S x).
 Proof.
@@ -128,18 +126,6 @@ Proof.
   exact (pr1 (natneq_iff_neq n m)).
 Defined.
 
-Definition natneq (m n : nat) : negProp (m = n).
-Proof.
-  intros. exists (m ≠ n). split.
-  - apply propproperty.
-  - apply natneq_iff_neq.
-Defined.
-
-(* this replaces the provisional notation above: *)
-Notation " x ≠ y " := (natneq x y) (at level 70, no associativity) : nat_scope.
-
-Local Open Scope nat_scope. (* it's already open, but we want it first in line *)
-
 Lemma natneq0sx (x : nat) : 0 ≠ S x.
 Proof.
   apply nat_nopath_to_neq, negpaths0sx.
@@ -192,7 +178,7 @@ Proof.
   apply (isasetifdeceq _ isdeceqnat).
 Defined.
 
-Definition natset : hSet := hSetpair _ isasetnat.
+Definition natset : hSet := make_hSet _ isasetnat.
 
 Lemma nat_eq_or_neq (m n : nat) : (m = n) ⨿ (m ≠ n).
 Proof.
@@ -207,7 +193,7 @@ Proof.
       * apply ii2. assumption.
 Defined.
 
-Definition isdecrel_natneq : isdecrel (λ m n, negProp_to_hProp (natneq m n)).
+Definition isdecrel_natneq : isdecrel (λ m n, m ≠ n).
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -218,13 +204,13 @@ Proof.
     + exact (N m).
 Defined.
 
-Definition nateq (x y : nat) : hProp := hProppair (x = y) (isasetnat _ _).
+Definition nateq (x y : nat) : hProp := make_hProp (x = y) (isasetnat _ _).
 
 Definition isdecrelnateq : isdecrel nateq := λ a b, isdeceqnat a b.
 
-Definition natdeceq : decrel nat := decrelpair isdecrelnateq.
+Definition natdeceq : decrel nat := make_decrel isdecrelnateq.
 
-Definition natdecneq : decrel nat := decrelpair isdecrel_natneq.
+Definition natdecneq : decrel nat := make_decrel isdecrel_natneq.
 
 Definition natboolneq : brel nat := decreltobrel natdecneq.
 
@@ -244,7 +230,7 @@ Proof.
     + assert (nh : ¬ (hfiber S 0)).
       * intro hf. induction hf as [ m e ]. apply (negpathssx0 _ e).
       * apply (ii2 nh).
-    + apply (ii1 (hfiberpair _ n (idpath _))).
+    + apply (ii1 (make_hfiber _ n (idpath _))).
 Defined.
 
 
@@ -271,7 +257,7 @@ Fixpoint natgtb (n m : nat) : bool :=
    and then to rationals than it is to extend "less". *)
 
 
-Definition natgth (n m : nat) : hProp := hProppair (natgtb n m = true) (isasetbool _ _).
+Definition natgth (n m : nat) : hProp := make_hProp (natgtb n m = true) (isasetbool _ _).
 
 Notation " x > y " := (natgth x y) : nat_scope.
 
@@ -360,7 +346,7 @@ Proof.
   intros n m. apply (isdeceqbool (natgtb n m) true).
 Defined.
 
-Definition natgthdec := decrelpair isdecrelnatgth.
+Definition natgthdec := make_decrel isdecrelnatgth.
 
 Lemma isnegrelnatgth : isnegrel natgth.
 Proof.
@@ -423,7 +409,7 @@ Definition isantisymmnegnattth  (n m : nat) :
 
 Definition isdecrelnatlth : isdecrel natlth := λ n m, isdecrelnatgth m n.
 
-Definition natlthdec := decrelpair isdecrelnatlth.
+Definition natlthdec := make_decrel isdecrelnatlth.
 
 Definition isnegrelnatlth : isnegrel natlth := λ n m, isnegrelnatgth m n.
 
@@ -529,7 +515,7 @@ Proof.
       * assumption.
 Defined.
 
-Definition natlehdec : decrel nat := decrelpair isdecrelnatleh.
+Definition natlehdec : decrel nat := make_decrel isdecrelnatleh.
 
 Definition isnegrelnatleh : isnegrel natleh.
 Proof.
@@ -587,7 +573,7 @@ Definition isantisymmnatgeh (n m : nat) : n ≥ m -> m ≥ n -> n = m :=
 
 Definition isdecrelnatgeh : isdecrel natgeh := λ n m, isdecrelnatleh m n.
 
-Definition natgehdec : decrel nat := decrelpair isdecrelnatgeh.
+Definition natgehdec : decrel nat := make_decrel isdecrelnatgeh.
 
 Definition isnegrelnatgeh : isnegrel natgeh := λ n m, isnegrelnatleh m n.
 
@@ -815,6 +801,7 @@ Proof.
   - apply idpath.
   - simpl. apply (maponpaths S IH).
 Defined.
+#[global]
 Hint Resolve natplusr0: natarith.
 
 Lemma natplusnsm (n m : nat) : n + S m = S n + m.
@@ -824,7 +811,9 @@ Proof.
   - auto with natarith.
   - simpl. intro. apply (maponpaths S (IHn m)).
 Defined.
+#[global]
 Hint Resolve natplusnsm : natarith.
+#[global]
 Hint Resolve pathsinv0 : natarith.
 
 Lemma natpluscomm (n m : nat) : n + m = m + n.
@@ -840,6 +829,7 @@ Proof.
     set (int4 := pathscomp0 int2 int).
     apply (pathscomp0 int4 int3).
 Defined.
+#[global]
 Hint Resolve natpluscomm : natarith.
 
 Lemma natplusassoc (n m k : nat) : ((n + m) + k) = (n + (m + k)).
@@ -848,6 +838,7 @@ Proof.
   - auto with natarith.
   - intros. simpl. apply (maponpaths S (IHn m k)).
 Defined.
+#[global]
 Hint Resolve natplusassoc : natarith.
 
 
@@ -1636,6 +1627,7 @@ Lemma natmult0n (n : nat) : (0 * n) = 0.
 Proof.
   apply idpath.
 Defined.
+#[global]
 Hint Resolve natmult0n : natarith.
 
 Lemma natmultn0 (n : nat) : n * 0 = 0.
@@ -1644,12 +1636,14 @@ Proof.
   - apply idpath.
   - simpl. exact (natplusr0 _ @ IHn).
 Defined.
+#[global]
 Hint Resolve natmultn0 : natarith.
 
 Lemma multsnm (n m : nat) : S n * m = m + n * m.
 Proof.
   intros. simpl. apply natpluscomm.
 Defined.
+#[global]
 Hint Resolve multsnm : natarith.
 
 Lemma multnsm (n m : nat) : n * S m = n + n * m.
@@ -1666,6 +1660,7 @@ Proof.
     apply (maponpaths (λ x, x + S m)).
     apply IHn.
 Defined.
+#[global]
 Hint Resolve multnsm : natarith.
 
 Lemma natmultcomm (n m : nat) : (n * m) = (m * n).
@@ -1710,12 +1705,14 @@ Lemma natmultl1 (n : nat) : (1 * n) = n.
 Proof.
   simpl. auto with natarith.
 Defined.
+#[global]
 Hint Resolve natmultl1 : natarith.
 
 Lemma natmultr1 (n : nat) : (n * 1) = n.
 Proof.
   rewrite (natmultcomm n 1). auto with natarith.
 Defined.
+#[global]
 Hint Resolve natmultr1 : natarith.
 
 (** *** Cancellation properties of [mul] on [nat] *)
@@ -1845,10 +1842,10 @@ for all pairs (n,m) including pairs of the form (n,0). *)
 Definition natdivrem (n m : nat) : dirprod nat nat.
 Proof.
   intros. induction n as [ | n IHn ].
-  - intros. apply (dirprodpair 0 0).
+  - intros. apply (make_dirprod 0 0).
   - induction (natlthorgeh (S (pr2 IHn)) m).
-    + apply (dirprodpair (pr1 IHn) (S (pr2 IHn))).
-    + apply (dirprodpair (S (pr1 IHn)) 0).
+    + apply (make_dirprod (pr1 IHn) (S (pr2 IHn))).
+    + apply (make_dirprod (S (pr1 IHn)) 0).
 Defined.
 
 Definition natdiv (n m : nat) : nat := pr1 (natdivrem n m).
@@ -1924,7 +1921,7 @@ Proof.
       rewrite <- (natplusassoc j') in e.
       set (e' := invmaponpathsincl _ (isinclnatplusr m) _ _ e).
       set (ee := IHi j i' j' lj lj' e').
-      exact (dirprodpair (maponpaths S (pr1 ee)) (pr2 ee)).
+      exact (make_dirprod (maponpaths S (pr1 ee)) (pr2 ee)).
 Defined.
 Opaque natdivremunique.
 
@@ -2103,8 +2100,6 @@ Definition si (i : nat) (x : nat) : nat :=
     | ii2 _ => x
   end.
 
-Definition nat_compl (i : nat) := compl_ne _ i (λ j, i ≠ j).
-
 Lemma natleh_neq {i j : nat} : i ≤ j -> i ≠ j -> i < j.
 Proof.
   intros le ne.
@@ -2112,45 +2107,6 @@ Proof.
   - exact lt.
   - induction eq. apply fromempty. exact (isirrefl_natneq _ ne).
 Defined.
-
-Theorem weqdicompl (i : nat) : nat ≃ nat_compl i.
-Proof.
-  use weq_iso.
-  - intro j. exists (di i j). apply di_neq_i.
-  - intro j. exact (si i (pr1 j)).
-  - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
-    + unfold si. induction (natlthorgeh i j) as [lt'|ge'].
-      * contradicts (isasymmnatlth _ _ lt') lt.
-      * apply idpath.
-    + unfold si. induction (natlthorgeh i (S j)) as [lt'|ge'].
-      * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
-      * unfold natgeh,natleh in ge. contradicts (natlehneggth ge') ge.
-  - simpl. intro j. induction j as [j ne]; simpl.
-    apply subtypeEquality.
-    + intro k. apply negProp_to_isaprop.
-    + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
-      * clear ne.
-        induction (natlthorgeh i j) as [lt'|_].
-        { contradicts (isasymmnatlth _ _ lt') lt. }
-        { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-          - apply idpath.
-          - contradicts (natgehtonegnatlth _ _ ge') lt. }
-      * assert (lt := natleh_neq ge ne); clear ne ge.
-        induction (natlthorgeh i j) as [_|ge'].
-        { unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
-          - apply fromempty. induction j as [|j _].
-            + exact (negnatlthn0 _ lt).
-            + change (S j) with (1 + j) in lt'.
-                 rewrite natpluscomm in lt'.
-                 rewrite plusminusnmm in lt'.
-                 change (i < S j) with (i ≤ j) in lt.
-                 exact (natlehneggth lt lt').
-          - induction j as [|j _].
-            + contradicts (negnatlthn0 i) lt.
-            + simpl. apply maponpaths. apply natminuseqn. }
-        contradicts (natgehtonegnatlth _ _ ge') lt.
-Defined.
-
 
 (* more lemmas about natural numbers *)
 

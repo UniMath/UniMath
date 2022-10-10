@@ -9,14 +9,14 @@ Written by: Anders Mörtberg, 2018
 *)
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Open Scope cat.
 
 Section nno.
 
-Context {C : precategory} (TC : Terminal C).
+Context {C : category} (TC : Terminal C).
 
 Local Notation "1" := TC.
 
@@ -42,7 +42,7 @@ Proof.
 exact (pr2 (pr2 (pr2 n))).
 Qed.
 
-Definition mk_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
+Definition make_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
  (h : isNNO n z s) : NNO := (n,,z,,s,,h).
 
 Definition hasNNO : hProp := ∥ NNO ∥.

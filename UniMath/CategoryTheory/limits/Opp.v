@@ -20,7 +20,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -39,25 +39,27 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
+Local Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+
 (** * Translation of structures from C^op to C *)
 Section def_opposites.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
 
   (** ** Monic and Epi *)
 
-  Definition opp_isMonic {a b : C} (f : a --> b) (H : @isMonic (C^op) _ _ f) : @isEpi C _ _ f := H.
+  Definition opp_isMonic {a b : C} (f : a --> b) (H : @isMonic (op_category C) _ _ f) : @isEpi C _ _ f := H.
   Opaque opp_isMonic.
 
-  Definition opp_Monic {a b : C} (f : @Monic (C^op) a b) : @Epi C b a :=
-    @mk_Epi C _ _ f (opp_isMonic f (pr2 f)).
+  Definition opp_Monic {a b : C} (f : @Monic (op_category C) a b) : @Epi C b a :=
+    @make_Epi C _ _ f (opp_isMonic f (pr2 f)).
 
   Definition opp_isEpi {a b : C} (f : a --> b) (H : @isEpi (C^op) _ _ f) : @isMonic C _ _ f := H.
   Opaque opp_isEpi.
 
   Definition opp_Epi {a b : C} (f : @Epi (C^op) a b) : @Monic C b a :=
-    @mk_Monic C _ _ f (opp_isEpi f (pr2 f)).
+    @make_Monic C _ _ f (opp_isEpi f (pr2 f)).
 
 
   (** ** Initial, Terminal, and Zero *)
@@ -65,21 +67,21 @@ Section def_opposites.
   Definition opp_isInitial {x : C} (H : @isInitial (C^op) x) : @isTerminal C x := H.
 
   Definition opp_Initial (I : @Initial (C^op)) : @Terminal C :=
-    @mk_Terminal C _ (opp_isInitial (pr2 I)).
+    @make_Terminal C _ (opp_isInitial (pr2 I)).
 
   Definition opp_isTerminal {x : C} (H : @isTerminal (C^op) x) : @isInitial C x := H.
 
   Definition opp_Terminal (T : @Terminal (C^op)) : @Initial C :=
-    @mk_Initial C _ (opp_isTerminal (pr2 T)).
+    @make_Initial C _ (opp_isTerminal (pr2 T)).
 
   Lemma opp_isZero {x : C} (H : @isZero (C^op) x) : @isZero C x.
   Proof.
-    use mk_isZero.
+    use make_isZero.
     - intros a. exact (dirprod_pr2 H a).
     - intros a. exact (dirprod_pr1 H a).
   Qed.
 
-  Definition opp_Zero (Z : @Zero (C^op)) : @Zero C := @mk_Zero C _ (opp_isZero (pr2 Z)).
+  Definition opp_Zero (Z : @Zero (C^op)) : @Zero C := @make_Zero C _ (opp_isZero (pr2 Z)).
 
 
   (** ** Equality on ZeroArrows *)
@@ -111,7 +113,7 @@ Section def_opposites.
   (** ** Equalizers and Coequalizers *)
 
   Lemma opp_isEqualizer {x y z : C} (f g : (C^op)⟦y, z⟧) (e : (C^op)⟦x, y⟧) (H : e · f = e · g)
-    (H' : @isEqualizer (C^op) _ _ _ f g e H) : @isCoequalizer C _ _ _ f g e H.
+    (H' : @isEqualizer (op_category C) _ _ _ f g e H) : @isCoequalizer C _ _ _ f g e H.
   Proof.
     exact H'.
   Qed.
@@ -123,19 +125,19 @@ Section def_opposites.
     exact H'.
   Qed.
 
-  Definition opp_Equalizer {y z : C} (f g : (C^op)⟦y, z⟧) (E : @Equalizer (C^op) y z f g) :
-    @Coequalizer C z y f g := @mk_Coequalizer C _ _ _ f g (EqualizerArrow E) (EqualizerEqAr E)
+  Definition opp_Equalizer {y z : C} (f g : (C^op)⟦y, z⟧) (E : @Equalizer (op_category C) y z f g) :
+    @Coequalizer C z y f g := @make_Coequalizer C _ _ _ f g (EqualizerArrow E) (EqualizerEqAr E)
                                               (opp_isEqualizer f g (EqualizerArrow E)
                                                                (EqualizerEqAr E)
                                                                (isEqualizer_Equalizer E)).
 
   Definition opp_Coequalizer {y z : C} (f g : (C^op)⟦y, z⟧) (E : @Coequalizer (C^op) y z f g) :
-    @Equalizer C z y f g := @mk_Equalizer C _ _ _ f g (CoequalizerArrow E) (CoequalizerEqAr E)
+    @Equalizer C z y f g := @make_Equalizer C _ _ _ f g (CoequalizerArrow E) (CoequalizerEqAr E)
                                           (opp_isCoequalizer f g (CoequalizerArrow E)
                                                              (CoequalizerEqAr E)
                                                              (isCoequalizer_Coequalizer E)).
 
-  Definition opp_Equalizers (E : @Equalizers (C^op)) : @Coequalizers C.
+  Definition opp_Equalizers (E : @Equalizers (op_category C)) : @Coequalizers C.
   Proof.
     intros x y f g.
     use opp_Equalizer.
@@ -162,36 +164,34 @@ Section def_opposites.
   Qed.
 
   Lemma opp_isCokernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
-        {H : f · g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C} :
+        {H : f · g = ZeroArrow Z _ _} (K' : isKernel (C:=op_category C) Z f g H) {Z' : Zero C} :
     isCokernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
-    set (K := mk_Kernel _ _ _ _ K').
-    use mk_isCokernel.
-    - exact hs.
+    set (K := make_Kernel _ _ _ _ K').
+    use make_isCokernel.
     - intros w h H'.
       rewrite <- (ZerosArrowEq C (opp_Zero Z) Z' z w) in H'.
       rewrite <- opp_ZeroArrow in H'.
       use unique_exists.
-      + exact (KernelIn Z K w h H').
-      + use (KernelCommutes Z K).
+      + exact (KernelIn (C:=op_category _ )Z K w h H').
+      + use (KernelCommutes (C:=op_category _) Z K).
       + intros y0. apply hs.
-      + cbn. intros y0 X. use (KernelInsEq Z K). rewrite (KernelCommutes Z K). cbn. rewrite X.
+      + cbn. intros y0 X. use (KernelInsEq (C:=op_category _) Z K). rewrite (KernelCommutes (C:=op_category _) Z K). cbn. rewrite X.
         apply idpath.
   Qed.
 
   Local Lemma opp_Kernel_eq {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (K : @Kernel (C^op) Z y z f) :
+             (K : @Kernel (op_category C) Z y z f) :
     @compose C^op _ _ _ (KernelArrow K) f = ZeroArrow (opp_Zero Z) z K.
   Proof.
-    cbn. rewrite <- opp_ZeroArrow. apply (KernelCompZero Z K).
+    cbn. rewrite <- opp_ZeroArrow. apply (KernelCompZero (C:= op_category _) Z K).
   Qed.
 
   Lemma opp_Kernel_isCokernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
              (K : @Kernel (C^op) Z y z f) :
     isCokernel (opp_Zero Z) f (KernelArrow K) (opp_Kernel_eq f Z K).
   Proof.
-    use mk_isCokernel.
-    - exact hs.
+    use make_isCokernel.
     - intros w h H'. rewrite <- opp_ZeroArrow in H'.
       use unique_exists.
       + exact (KernelIn Z K w h H').
@@ -204,29 +204,28 @@ Section def_opposites.
   Definition opp_Kernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
              (K : @Kernel (C^op) Z y z f) : @Cokernel C (opp_Zero Z) z y f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact K.
     - exact (KernelArrow K).
     - exact (opp_Kernel_eq f Z K).
     - exact (opp_Kernel_isCokernel f Z K).
   Defined.
 
-  Lemma opp_isKernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
+  Lemma opp_isKernel {x y z : op_category C} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
         {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C} :
     isKernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
-    set (CK := mk_Cokernel _ _ _ _ CK').
-    use mk_isKernel.
-    - exact hs.
-    - intros w h H'.
-      rewrite <- (ZerosArrowEq C (opp_Zero Z) Z' w x) in H'.
-      rewrite <- opp_ZeroArrow in H'.
-      use unique_exists.
-      + exact (CokernelOut Z CK w h H').
-      + use (CokernelCommutes Z CK).
-      + intros y0. apply hs.
-      + cbn. intros y0 X. use (CokernelOutsEq _ CK). rewrite (CokernelCommutes Z CK). cbn. rewrite X.
-        apply idpath.
+    set (CK := make_Cokernel _ _ _ _ CK').
+    use make_isKernel.
+    intros w h H'.
+    rewrite <- (ZerosArrowEq C (opp_Zero Z) Z' w x) in H'.
+    rewrite <- opp_ZeroArrow in H'.
+    use unique_exists.
+    + exact (CokernelOut Z CK w h H').
+    + use (CokernelCommutes Z CK).
+    + intros y0. apply hs.
+    + cbn. intros y0 X. use (CokernelOutsEq _ CK). rewrite (CokernelCommutes Z CK). cbn. rewrite X.
+      apply idpath.
   Qed.
 
   Local Lemma opp_Cokernel_eq {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
@@ -240,21 +239,20 @@ Section def_opposites.
              (CK : @Cokernel (C^op) Z y z f) :
     isKernel (opp_Zero Z) (CokernelArrow CK) f (opp_Cokernel_eq f Z CK).
   Proof.
-    use mk_isKernel.
-    - exact hs.
-    - intros w h H'. rewrite <- opp_ZeroArrow in H'.
-      use unique_exists.
-      + exact (CokernelOut Z CK w h H').
-      + use (CokernelCommutes Z CK).
-      + intros y0. apply hs.
-      + cbn. intros y0 X. use (@CokernelOutsEq C^op). rewrite (CokernelCommutes Z CK). cbn. rewrite X.
-        apply idpath.
+    use make_isKernel.
+    intros w h H'. rewrite <- opp_ZeroArrow in H'.
+    use unique_exists.
+    + exact (CokernelOut Z CK w h H').
+    + use (CokernelCommutes Z CK).
+    + intros y0. apply hs.
+    + cbn. intros y0 X. use (@CokernelOutsEq C^op). rewrite (CokernelCommutes Z CK). cbn. rewrite X.
+      apply idpath.
   Qed.
 
   Definition opp_Cokernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
              (CK : @Cokernel (C^op) Z y z f) : @Kernel C (opp_Zero Z) z y f.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (opp_Cokernel_eq f Z CK).
@@ -341,8 +339,8 @@ End def_opposites.
 (** * Translation of structures from C to C^op *)
 Section def_opposites'.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
 
   (** ** Monic and Epi *)
 
@@ -350,13 +348,13 @@ Section def_opposites'.
   Opaque isMonic_opp.
 
   Definition Monic_opp {a b : C} (f : @Monic C a b) : @Epi (C^op) b a :=
-    @mk_Epi (C^op) b a f (isMonic_opp (pr2 f)).
+    @make_Epi (C^op) b a f (isMonic_opp (pr2 f)).
 
   Definition isEpi_opp {a b : C} {f : C⟦a, b⟧} (H : @isEpi C a b f) : @isMonic (C^op) b a f := H.
   Opaque isEpi_opp.
 
   Definition Epi_opp {a b : C} (f : @Epi C a b) : @Monic (C^op) b a :=
-    @mk_Monic (C^op) b a f (isEpi_opp (pr2 f)).
+    @make_Monic (C^op) b a f (isEpi_opp (pr2 f)).
 
 
   (** ** Initial, Terminal, and Zero *)
@@ -364,22 +362,21 @@ Section def_opposites'.
   Definition isInitial_opp {x : C} (H : @isInitial C x) : @isTerminal (C^op) x := H.
 
   Definition Initial_opp (I : @Initial C) : @Terminal (C^op) :=
-    @mk_Terminal (C^op) _ (isInitial_opp (pr2 I)).
+    @make_Terminal (C^op) _ (isInitial_opp (pr2 I)).
 
   Definition isTerminal_opp {x : C} (H : @isTerminal C x) : @isInitial (C^op) x := H.
 
   Definition Terminal_opp (T : @Terminal C) : @Initial (C^op) :=
-    @mk_Initial (C^op) _ (isTerminal_opp (pr2 T)).
+    @make_Initial (C^op) _ (isTerminal_opp (pr2 T)).
 
   Lemma isZero_opp {x : C} (H : @isZero C x) : @isZero (C^op) x.
   Proof.
-    use mk_isZero.
+    use make_isZero.
     - intros a. apply (pr2 H a).
     - intros a. apply (pr1 H a).
-  Qed.
+  Defined.
 
-  Definition Zero_opp (T : @Zero C) : @Zero (C^op) := @mk_Zero (C^op) _ (isZero_opp (pr2 T)).
-
+  Definition Zero_opp (T : @Zero C) : @Zero (C^op) := @make_Zero (C^op) _ (isZero_opp (pr2 T)).
 
   (** ** Equality on ZeroArrows *)
 
@@ -416,14 +413,14 @@ Section def_opposites'.
              (isC : @isCoequalizer C _ _ _ f g e H) : @isEqualizer (C^op) _ _ _ f g e H := isC.
 
   Definition Equalizer_opp {y z : C} (f g : C⟦y, z⟧) (E : @Equalizer C y z f g) :
-    @Coequalizer (C^op) z y f g := @mk_Coequalizer (C^op) _ _ _ f g (EqualizerArrow E)
+    @Coequalizer (C^op) z y f g := @make_Coequalizer (C^op) _ _ _ f g (EqualizerArrow E)
                                                    (EqualizerEqAr E)
                                                    (isEqualizer_opp f g (EqualizerArrow E)
                                                                     (EqualizerEqAr E)
                                                                     (isEqualizer_Equalizer E)).
 
   Definition Coequalizer_opp {y z : C} (f g : C⟦y, z⟧) (CE : @Coequalizer C y z f g) :
-    @Equalizer (C^op) z y f g := @mk_Equalizer (C^op) _ _ _ f g (CoequalizerArrow CE)
+    @Equalizer (C^op) z y f g := @make_Equalizer (C^op) _ _ _ f g (CoequalizerArrow CE)
                                                (CoequalizerEqAr CE)
                                                (isCoequalizer_opp f g (CoequalizerArrow CE)
                                                                   (CoequalizerEqAr CE)
@@ -454,20 +451,27 @@ Section def_opposites'.
     exact (ZerosArrowEq C^op (Zero_opp Z) Z' z x).
   Qed.
 
+
+
   Lemma isCokernel_opp {x y z : C} {f : C⟦x, y⟧} {g : C⟦y, z⟧} {Z : Zero C}
         {H : f · g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C^op} :
     isCokernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
   Proof.
-    set (K := mk_Kernel _ _ _ _ K').
-    use mk_isCokernel.
-    - exact (has_homsets_opp hs).
-    - intros w h H'. cbn in H'. rewrite <- (ZerosArrowEq C^op (Zero_opp Z) Z' z w) in H'.
+    set (K := make_Kernel _ _ _ _ K').
+    use make_isCokernel.
+    - intros w h H'. cbn in H'.
+      set (XXX := (ZerosArrowEq C^op (Zero_opp Z) Z' z w)).
       use unique_exists.
-      + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
+      + use (KernelIn Z K w h _).
+        rewrite ZeroArrow_opp.
+        rewrite XXX.
+        apply H'.
       + cbn. use (KernelCommutes Z K).
       + intros y0. apply (has_homsets_opp hs).
       + cbn. intros y0 X. use (KernelInsEq Z K). rewrite KernelCommutes. exact X.
   Qed.
+
+
 
   Local Lemma Kernel_opp_eq {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (K : @Kernel C Z y z f) :
     @compose C^op _ _ _ f (KernelArrow K) = ZeroArrow (Zero_opp Z) z K.
@@ -478,8 +482,7 @@ Section def_opposites'.
   Lemma Kernel_opp_isCokernel {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (K : @Kernel C Z y z f) :
     isCokernel (Zero_opp Z) f (KernelArrow K) (Kernel_opp_eq f Z K).
   Proof.
-    use mk_isCokernel.
-    - exact (has_homsets_opp hs).
+    use make_isCokernel.
     - intros w h H'. cbn in H'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
@@ -491,7 +494,7 @@ Section def_opposites'.
   Definition Kernel_opp {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (K : @Kernel C Z y z f) :
     @Cokernel (C^op) (Zero_opp Z) z y f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact K.
     - exact (KernelArrow K).
     - exact (Kernel_opp_eq f Z K).
@@ -502,9 +505,8 @@ Section def_opposites'.
         {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C^op} :
     isKernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
   Proof.
-    set (CK := mk_Cokernel _ _ _ _ CK').
-    use mk_isKernel.
-    - exact (has_homsets_opp hs).
+    set (CK := make_Cokernel _ _ _ _ CK').
+    use make_isKernel.
     - intros w h H'.
       rewrite <- (ZerosArrowEq C^op (Zero_opp Z) Z' w x) in H'.
       rewrite <- ZeroArrow_opp in H'.
@@ -526,8 +528,8 @@ Section def_opposites'.
         (CK : @Cokernel C Z y z f) :
     isKernel (Zero_opp Z) (CokernelArrow CK) f (Cokernel_opp_eq f Z CK).
   Proof.
-    use mk_isKernel.
-    - exact (has_homsets_opp hs).
+    use make_isKernel.
+
     - intros w h H'. cbn in H'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (CokernelOut Z CK w h H').
@@ -539,7 +541,7 @@ Section def_opposites'.
   Definition Cokernel_opp {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (CK : @Cokernel C Z y z f) :
     @Kernel (C^op) (Zero_opp Z) z y f.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (Cokernel_opp_eq f Z CK).
@@ -603,3 +605,9 @@ Section def_opposites'.
   Definition BinCoproducts_opp (BC : @BinCoproducts C) : @BinProducts (C^op) := BC.
 
 End def_opposites'.
+
+Definition opp_zero_lifts {C:category} {X:Type} (j : X -> ob C) :
+  zero_lifts C j -> zero_lifts C^op j.
+Proof.
+  apply hinhfun; intros [z iz]. exists z. exact (isZero_opp C iz).
+Defined.

@@ -1,8 +1,9 @@
 (** Authors Floris van Doorn, December 2017 *)
 
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 
 (** ** Contents
@@ -17,9 +18,9 @@ Definition issubsetwithsmul {R : hSet} {M : hSet} (smul : R → M → M) (A : hs
 Definition issubmodule {R : ring} {M : module R} (A : hsubtype M) : UU :=
   issubgr A × issubsetwithsmul (module_mult M) A.
 
-Definition issubmodulepair {R : ring} {M : module R} {A : hsubtype M}
+Definition make_issubmodule {R : ring} {M : module R} {A : hsubtype M}
            (H1 : issubgr A) (H2 : issubsetwithsmul (module_mult M) A) : issubmodule A :=
-  dirprodpair H1 H2.
+  make_dirprod H1 H2.
 
 Definition issubmodule_is {R : ring} {M : module R} (A : hsubtype M) : UU :=
   issubgr A × issubsetwithsmul (module_mult M) A.
@@ -38,12 +39,12 @@ Defined.
 
 Definition submodule {R : ring} (M : module R) : UU := total2 (λ A : hsubtype M, issubmodule A).
 
-Definition submodulepair {R : ring} {M : module R} :
+Definition make_submodule {R : ring} {M : module R} :
   ∏ (t : hsubtype M), (λ A : hsubtype M, issubmodule A) t → ∑ A : hsubtype M, issubmodule A :=
   tpair (λ A : hsubtype M, issubmodule A).
 
 Definition submoduletosubabgr {R : ring} {M : module R} : submodule M -> @subabgr M :=
-  λ A : _, subgrpair (pr1 A) (pr1 (pr2 A)).
+  λ A : _, make_subgr (pr1 A) (pr1 (pr2 A)).
 Coercion submoduletosubabgr : submodule >-> subabgr.
 
 Definition submodule_to_issubsetwithsmul {R : ring} {M : module R} (A : submodule M) :
@@ -76,20 +77,20 @@ Lemma intersection_submodule {R : ring} {M : module R} {I : UU} (S : I -> hsubty
   issubmodule (subtype_intersection S).
 Proof.
   intros.
-  use issubmodulepair.
+  use make_issubmodule.
   - exact (intersection_subgr S (λ i, (pr1 (each_is_submodule i)))).
   - intros r m a i. exact (pr2 (each_is_submodule i) r m (a i)).
 Qed.
 
 Lemma ismodulefun_pr1 {R : ring} {M : module R} (A : submodule M) : @ismodulefun R A M pr1.
 Proof.
-  use ismodulefunpair.
+  use make_ismodulefun.
   exact (pr1 (ismonoidfun_pr1 A)).
   intros r a. reflexivity.
 Defined.
 
 Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefun A M :=
-  modulefunpair _ (ismodulefun_pr1 A).
+  make_modulefun _ (ismodulefun_pr1 A).
 
 
 (* Kernel and image *)
@@ -106,7 +107,7 @@ Proof.
 Defined.
 
 Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submodule A :=
-  submodulepair _ (issubmodule_kernel f).
+  make_submodule _ (issubmodule_kernel f).
 
 Definition module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B := (pr2 x).
@@ -121,7 +122,7 @@ Proof.
 Defined.
 
 Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=
-  submodulepair _ (issubmodule_image f).
+  make_submodule _ (issubmodule_image f).
 
 Section submodule_helpers.
 
@@ -135,7 +136,7 @@ Section submodule_helpers.
   Definition submoduleadd (x y : M) : A x -> A y -> A (x + y).
   Proof.
     intros ax ay.
-    exact (pr1 (pr1 (pr1 (pr2 A))) (carrierpair A x ax) (carrierpair A y ay)).
+    exact (pr1 (pr1 (pr1 (pr2 A))) (make_carrier A x ax) (make_carrier A y ay)).
   Defined.
 
   Definition submodule0 : A (unel M) := pr2 (pr1 (pr1 (pr2 A))).

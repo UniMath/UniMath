@@ -12,9 +12,9 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -40,7 +40,7 @@ Commentationes Mathematicae Universitatis Carolinae 015.4 (1974): 589-602.
 *)
 Section colim_initial_algebra.
 
-Context {C : precategory} (hsC : has_homsets C) (InitC : Initial C).
+Context {C : category} (InitC : Initial C).
 
 (* It is important that these are not packaged together as it is
    sometimes necessary to control how opaque HF is. See
@@ -56,11 +56,11 @@ Let FFchain : chain C := mapchain F Fchain.
 Let Fa : cocone FFchain (F L) := mapcocone F _ (colimCocone CC).
 Let FHC' : isColimCocone FFchain (F L) Fa :=
   HF Fchain L (colimCocone CC) (isColimCocone_from_ColimCocone CC).
-Let FHC : ColimCocone FFchain := mk_ColimCocone _ _ _ FHC'.
+Let FHC : ColimCocone FFchain := make_ColimCocone _ _ _ FHC'.
 
 Local Definition shiftCocone : cocone FFchain L.
 Proof.
-use mk_cocone.
+use make_cocone.
 - intro n; apply (coconeIn (colimCocone CC) (S n)).
 - abstract (intros m n e; destruct e ;
             apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
@@ -68,7 +68,7 @@ Defined.
 
 Local Definition unshiftCocone (x : C) (cc : cocone FFchain x) : cocone Fchain x.
 Proof.
-use mk_cocone.
+use make_cocone.
 - simpl; intro n.
   induction n as [|n]; simpl.
   + apply InitialArrow.
@@ -85,28 +85,28 @@ use tpair.
 + use tpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
-+ abstract (intros p; apply subtypeEquality;
-             [ intro f; apply impred; intro; apply hsC
++ abstract (intros p; apply subtypePath;
+             [ intro f; apply impred; intro; apply homset_property
              | apply colimArrowUnique; intro n;
                destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
 
 Local Definition shiftColimCocone : ColimCocone FFchain :=
-  mk_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
+  make_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
 
 Definition colim_algebra_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
-Local Definition is_iso_colim_algebra_mor : is_iso colim_algebra_mor :=
-  isColim_is_iso _ FHC _ _ shiftIsColimCocone.
+Local Definition is_z_iso_colim_algebra_mor : is_z_isomorphism colim_algebra_mor :=
+  isColim_is_z_iso _ FHC _ _ shiftIsColimCocone.
 
-Let α : iso (F L) L := isopair _ is_iso_colim_algebra_mor.
-Let α_inv : iso L (F L) := iso_inv_from_iso α.
+Let α : z_iso (F L) L := make_z_iso' _ is_z_iso_colim_algebra_mor.
+Let α_inv : z_iso L (F L) := z_iso_inv_from_z_iso α.
 Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α.
 
-Lemma unfold_inv_from_iso_α :
-  inv_from_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
+Lemma unfold_inv_from_z_iso_α :
+  inv_from_z_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
 Proof.
-apply id_right.
+apply idpath.
 Qed.
 
 (** Given an algebra:
@@ -161,17 +161,17 @@ Qed.
 Local Definition ad : C⟦L,A⟧.
 Proof.
 apply colimArrow.
-use mk_cocone.
+use make_cocone.
 - apply cocone_over_alg.
-- apply isCoconeOverAlg.
+- red; apply isCoconeOverAlg.
 Defined.
 
 Lemma ad_is_algebra_mor : is_algebra_mor _ α_alg Aa ad.
 Proof.
-apply pathsinv0, iso_inv_to_left, colimArrowUnique; simpl; intro n.
+apply pathsinv0, z_iso_inv_to_left, colimArrowUnique; simpl; intro n.
 destruct n as [|n].
 - now apply InitialArrowUnique.
-- rewrite assoc, unfold_inv_from_iso_α.
+- rewrite assoc, unfold_inv_from_z_iso_α.
   eapply pathscomp0;
     [apply cancel_postcomposition, (colimArrowCommutes shiftColimCocone)|].
   simpl; rewrite assoc, <- functor_comp.
@@ -182,10 +182,10 @@ Local Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor
 
 End algebra_mor.
 
-Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F hsC)
+Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F)
         (Fa' : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
 Proof.
-apply (algebra_mor_eq _ hsC); simpl.
+apply algebra_mor_eq; simpl.
 apply colimArrowUnique; simpl; intro n.
 destruct Fa' as [f hf]; simpl.
 unfold is_algebra_mor in hf; simpl in hf.
@@ -194,19 +194,19 @@ induction n as [|n IHn]; simpl.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
-  rewrite unfold_inv_from_iso_α; apply pathsinv0.
+  apply cancel_postcomposition, pathsinv0, (z_iso_inv_to_right _ _ _ _ α).
+  rewrite unfold_inv_from_z_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
 
-Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
+Lemma colimAlgIsInitial : isInitial (category_FunctorAlg F) α_alg.
 Proof.
-apply mk_isInitial; intros Aa.
+apply make_isInitial; intros Aa.
 exists (ad_mor Aa).
 apply colimAlgIsInitial_subproof.
 Defined.
 
-Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
-  mk_Initial _ colimAlgIsInitial.
+Definition colimAlgInitial : Initial (category_FunctorAlg F) :=
+  make_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.

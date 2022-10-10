@@ -1,9 +1,10 @@
 (** Authors Floris van Doorn, December 2017 *)
 
-Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Combinatorics.Lists.
 
 (** ** Contents
@@ -24,17 +25,17 @@ Local Infix "::" := cons.
 (* Free monoid on a set *)
 Lemma ismonoidop_concatenate (X : UU) : ismonoidop (@concatenate X).
 Proof.
-  use mk_ismonoidop.
+  use make_ismonoidop.
   - use assoc_concatenate.
-  - use isunitalpair.
+  - use make_isunital.
     + exact [].
-    + use isunitpair.
+    + use make_isunit.
       * use nil_concatenate.
       * use concatenate_nil.
 Defined.
 
 Definition free_monoid (X : hSet) : monoid :=
-  monoidpair (setwithbinoppair (hSetpair (list X) (isofhlevellist 0 (pr2 X))) _)
+  make_monoid (make_setwithbinop (make_hSet (list X) (isofhlevellist 0 (pr2 X))) _)
              (ismonoidop_concatenate X).
 
 Definition free_monoid_unit {X : hSet} (x : X) : free_monoid X :=
@@ -44,7 +45,7 @@ Definition free_monoid_extend {X : hSet} {Y : monoid} (f : X → Y) : monoidfun 
 Proof.
   use monoidfunconstr.
   - intro l. exact (iterop_list_mon (map f l)).
-  - use mk_ismonoidfun.
+  - use make_ismonoidfun.
     + intros l1 l2. refine (maponpaths _ (map_concatenate _ _ _) @ _).
       apply iterop_list_mon_concatenate.
     + reflexivity.
@@ -79,7 +80,7 @@ Definition free_monoidfun {X Y : hSet} (f : X → Y) : monoidfun (free_monoid X)
 Proof.
   use monoidfunconstr.
   - intro l. exact (map f l).
-  - use mk_ismonoidfun.
+  - use make_ismonoidfun.
     + intros l1 l2. apply map_concatenate.
     + reflexivity.
 Defined.
@@ -93,13 +94,20 @@ Lemma free_monoid_extend_funcomp {X Y : hSet} {Z : monoid} (f : X → Y) (g : Y 
 Proof.
   unfold homot. simpl. apply list_ind.
     + reflexivity.
-    + intros x xs IH. unfold funcomp in *. now rewrite !map_cons, !iterop_list_mon_step, IH.
+    + intros x xs IH. now rewrite !map_cons, !iterop_list_mon_step, IH.
 Defined.
+
+(** Functoriality of the [free_monoidfun] *)
+Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X -> Y) (g : Y -> Z) :
+  (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.
+Proof.
+  intro; apply map_compose.
+Qed.
 
 Definition reverse_binopfun (X : hSet) :
   binopfun (free_monoid X) (setwithbinop_rev (free_monoid X)).
 Proof.
-  use binopfunpair.
+  use make_binopfun.
   - exact reverse.
   - intros x x'. apply reverse_concatenate.
 Defined.
@@ -184,7 +192,7 @@ Lemma free_abmonoid_hrel_univ {X : hSet} (P : free_monoid X → free_monoid X �
       (Hind : ∏ x y, P (x * y) (y * x)) (x y : free_monoid X) :
   free_abmonoid_hrel X x y → P x y.
 Proof.
-  apply (@hinhuniv _ (hProppair (P x y) (HP x y))). intro v.
+  apply (@hinhuniv _ (make_hProp (P x y) (HP x y))). intro v.
   induction v as (x',v). induction v as (y',v). induction v as (p1,p2).
   induction p1. induction p2. apply Hind.
 Defined.
@@ -350,7 +358,7 @@ Lemma free_gr_hrel_univ {X : hSet}
       (Hind : ∏ x, P (x::coprodcomm X X x::[]) [])
       (x y : free_monoid (setcoprod X X)) : free_gr_hrel X x y → P x y.
 Proof.
-  apply (@hinhuniv _ (hProppair (P x y) (HP x y))).
+  apply (@hinhuniv _ (make_hProp (P x y) (HP x y))).
   intro v. induction v as (x',v), v as (p1,p2), p1, p2. apply Hind.
 Defined.
 
@@ -399,14 +407,14 @@ Local Definition free_gr' (X : hSet) : monoid :=
 
 Definition invstruct_free_gr (X : hSet) : invstruct (@op (free_gr' X)) (pr2 (free_gr' X)).
 Proof.
-  use mk_invstruct.
+  use make_invstruct.
   - use setquotfun.
     + exact fginv.
     + refine (iscomprelrelfun_generated_binopeqrel_rev (fginv_binopfun X) _). unfold iscomprelrelfun.
       apply free_gr_hrel_univ.
       * intros. apply pr2.
       * intro x. rewrite fginv_binopfun_homot. apply free_gr_hrel_in_rev.
-  - apply mk_isinv.
+  - apply make_isinv.
     + refine (setquotunivprop' _ _ _).
       * intro. apply isasetmonoid.
       * intro l. refine (maponpaths (λ x, x * _) (setquotunivcomm _ _ _ _ _) @ _).
@@ -591,7 +599,7 @@ Lemma free_abgr_hrel_univ {X : hSet} (P : free_gr X → free_gr X → UU)
       (Hind : ∏ x y, P (x * y) (y * x)) (x y : free_gr X) :
   free_abgr_hrel X x y → P x y.
 Proof.
-  apply (@hinhuniv _ (hProppair (P x y) (HP x y))). intro v.
+  apply (@hinhuniv _ (make_hProp (P x y) (HP x y))). intro v.
   induction v as (x',v). induction v as (y',v). induction v as (p1,p2).
   induction p1. induction p2. apply Hind.
 Defined.

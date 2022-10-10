@@ -57,7 +57,7 @@ Section OneOp.
   Definition pointwise_unit (un : X) (unax : isunit op un) :
     isunit (pointwise n op) (const_vec un).
   Proof.
-    use isunitpair.
+    use make_isunit.
     - apply pointwise_lunit; exact (pr1 unax).
     - apply pointwise_runit; exact (pr2 unax).
   Defined.
@@ -70,9 +70,9 @@ Section OneOp.
   Definition pointwise_monoidop (monoidax : ismonoidop op) :
     ismonoidop (pointwise n op).
   Proof.
-    use mk_ismonoidop.
+    use make_ismonoidop.
     - apply pointwise_assoc, assocax_is; assumption.
-    - use isunitalpair.
+    - use make_isunital.
       + apply (const_vec (unel_is monoidax)).
       + apply pointwise_unit, unax_is.
   Defined.
@@ -80,7 +80,7 @@ Section OneOp.
   Definition pointwise_abmonoidop (abmonoidax : isabmonoidop op) :
     isabmonoidop (pointwise n op).
   Proof.
-    use mk_isabmonoidop.
+    use make_isabmonoidop.
     - apply pointwise_monoidop; exact (pr1isabmonoidop _ _ abmonoidax).
     - apply pointwise_comm; exact (pr2 abmonoidax).
   Defined.
@@ -107,7 +107,7 @@ Section TwoOps.
   Definition pointwise_distr (isdistrax : isdistr op op') :
     isdistr (pointwise n op) (pointwise n op').
   Proof.
-    use dirprodpair.
+    use make_dirprod.
     - apply pointwise_ldistr; apply (dirprod_pr1 isdistrax).
     - apply pointwise_rdistr; apply (dirprod_pr2 isdistrax).
   Defined.
@@ -120,7 +120,7 @@ Section Structures.
 
   Definition pointwise_hSet (X : hSet) (n : nat) : hSet.
   Proof.
-    use hSetpair.
+    use make_hSet.
     - exact (Vector X n).
     - change isaset with (isofhlevel 2).
       apply vector_hlevel, setproperty.
@@ -128,14 +128,14 @@ Section Structures.
 
   Definition pointwise_setwithbinop (X : setwithbinop) (n : nat) : setwithbinop.
   Proof.
-    use setwithbinoppair.
+    use make_setwithbinop.
     - apply pointwise_hSet; [exact X|assumption].
     - exact (pointwise n op).
   Defined.
 
   Definition pointwise_setwith2binop (X : setwith2binop) (n : nat) : setwith2binop.
   Proof.
-    use setwith2binoppair.
+    use make_setwith2binop.
     - apply pointwise_hSet; [exact X|assumption].
     - split.
       + exact (pointwise n op1).
@@ -144,14 +144,14 @@ Section Structures.
 
   Definition pointwise_monoid (X : monoid) (n : nat) : monoid.
   Proof.
-    use monoidpair.
+    use make_monoid.
     - apply pointwise_setwithbinop; [exact X|assumption].
     - apply pointwise_monoidop; exact (pr2 X).
   Defined.
 
   Definition pointwise_abmonoid (X : abmonoid) (n : nat) : abmonoid.
   Proof.
-    use abmonoidpair.
+    use make_abmonoid.
     - apply pointwise_setwithbinop; [exact X|assumption].
     - apply pointwise_abmonoidop; exact (pr2 X).
   Defined.
@@ -188,7 +188,7 @@ Section OneOpMat.
   Definition entrywise_unit (un : X) (unax : isunit op un) :
     isunit (entrywise n m op) (const_matrix un).
   Proof.
-    use isunitpair.
+    use make_isunit.
     - apply entrywise_lunit; exact (pr1 unax).
     - apply entrywise_runit; exact (pr2 unax).
   Defined.
@@ -201,9 +201,9 @@ Section OneOpMat.
   Definition entrywise_monoidop (monoidax : ismonoidop op) :
     ismonoidop (entrywise n m op).
   Proof.
-    use mk_ismonoidop.
+    use make_ismonoidop.
     - apply entrywise_assoc, assocax_is; assumption.
-    - use isunitalpair.
+    - use make_isunital.
       + apply (const_matrix (unel_is monoidax)).
       + apply entrywise_unit, unax_is.
   Defined.
@@ -211,7 +211,7 @@ Section OneOpMat.
   Definition entrywise_abmonoidop (abmonoidax : isabmonoidop op) :
     isabmonoidop (entrywise n m op).
   Proof.
-    use mk_isabmonoidop.
+    use make_isabmonoidop.
     - apply entrywise_monoidop; exact (pr1isabmonoidop _ _ abmonoidax).
     - apply entrywise_comm; exact (pr2 abmonoidax).
   Defined.
@@ -235,9 +235,9 @@ Section MatrixMult.
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
   (** If A is m × n (so B is n × p),
-      <<
+<<
         AB(i, j) = A(i, 1) * B(1, j) + A(i, 2) * B(2, j) + ⋯ + A(i, n) * B(n, j)
-      >>
+>>
       The order of the arguments allows currying the first matrix.
   *)
   Definition matrix_mult {m n : nat} (mat1 : Matrix R m n)
@@ -329,7 +329,5 @@ Section Weighting.
 
   Definition magnitude {n m : nat} (m : Matrix R m n) (has : has_magnitude m) : R :=
     Σ (pr1 (dirprod_pr1 has)).
-
-  Notation "| Mat |" := (magnitude Mat _) : magnitude.
 
 End Weighting.

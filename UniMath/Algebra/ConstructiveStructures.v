@@ -3,9 +3,9 @@
 
 Unset Kernel Term Sharing.
 
-Require Export UniMath.Algebra.Apartness.
 Require Export UniMath.Algebra.DivisionRig.
 Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.Apartness.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
@@ -40,8 +40,9 @@ Definition CDRone {X : ConstructiveDivisionRig} : X := 1%rig.
 Definition CDRplus {X : ConstructiveDivisionRig} : binop X := λ x y : X, op1 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
 Definition CDRmult {X : ConstructiveDivisionRig} : binop X := λ x y : X, op2 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
 
+Declare Scope CDR_scope.
 Delimit Scope CDR_scope with CDR.
-Open Scope CDR_scope.
+Local Open Scope CDR_scope.
 
 Notation "x ≠ y" := (CDRap x y) (at level 70, no associativity) : CDR_scope.
 Notation "0" := CDRzero : CDR_scope.
@@ -245,8 +246,9 @@ Definition CCDRone {X : ConstructiveCommutativeDivisionRig} : X := 1%rig.
 Definition CCDRplus {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y : X, CDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
 Definition CCDRmult {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y : X, CDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
 
+Declare Scope CCDR_scope.
 Delimit Scope CCDR_scope with CCDR.
-Open Scope CCDR_scope.
+Local Open Scope CCDR_scope.
 
 Notation "x ≠ y" := (CCDRap x y) (at level 70, no associativity) : CCDR_scope.
 Notation "0" := CCDRzero : CCDR_scope.
@@ -446,8 +448,9 @@ Definition CFopp {X : ConstructiveField} : unop X := λ x : X, (- x)%ring.
 Definition CFminus {X : ConstructiveField} : binop X := λ x y : X, CFplus x (CFopp y).
 Definition CFmult {X : ConstructiveField} : binop X := λ x y : X, CCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
 
+Declare Scope CF_scope.
 Delimit Scope CF_scope with CF.
-Open Scope CF_scope.
+Local Open Scope CF_scope.
 
 Notation "x ≠ y" := (CFap x y) (at level 70, no associativity) : CF_scope.
 Notation "0" := CFzero : CF_scope.

@@ -203,7 +203,7 @@ End Filter_pty.
 
 Lemma isasetPreFilter (X : UU) : isaset (PreFilter X).
 Proof.
-  simple refine (isaset_carrier_subset (hSetpair _ _) (λ _, hProppair _ _)).
+  simple refine (isaset_carrier_subset (make_hSet _ _) (λ _, make_hProp _ _)).
   apply impred_isaset ; intros _.
   apply isasethProp.
   apply isapropdirprod.
@@ -213,7 +213,7 @@ Qed.
 
 Lemma isasetFilter (X : UU) : isaset (Filter X).
 Proof.
-  simple refine (isaset_carrier_subset (hSetpair _ _) (λ _, hProppair _ _)).
+  simple refine (isaset_carrier_subset (make_hSet _ _) (λ _, make_hProp _ _)).
   apply impred_isaset ; intros _.
   apply isasethProp.
   apply isapropdirprod.
@@ -245,7 +245,7 @@ Lemma isantisymm_filter_le {X : UU} :
   ∏ F G : PreFilter X, filter_le F G → filter_le G F → F = G.
 Proof.
   intros F G Hle Hge.
-  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isaprop_isfilter_imply.
   apply isaprop_isfilter_finite_intersection.
@@ -255,11 +255,11 @@ Proof.
   now apply Hle.
 Qed.
 
-Definition PartialOrder_filter_le (X : UU) : PartialOrder (hSetpair (PreFilter _) (isasetPreFilter X)).
+Definition PartialOrder_filter_le (X : UU) : PartialOrder (make_hSet (PreFilter _) (isasetPreFilter X)).
 Proof.
-  simple refine (PartialOrderpair _ _).
+  simple refine (make_PartialOrder _ _).
   - intros F G.
-    simple refine (hProppair _ _).
+    simple refine (make_hProp _ _).
     apply (filter_le F G).
     apply impred_isaprop ; intros A.
     apply isapropimpl.
@@ -403,7 +403,7 @@ Context (dom : X → hProp)
         (Hdom : ∏ P, F P → ∃ x, dom x ∧ P x).
 
 Definition filterdom : (X → hProp) → hProp
-  := λ A : X → hProp, F (λ x : X, hProppair (dom x → A x) (isapropimpl _ _ (propproperty _))).
+  := λ A : X → hProp, F (λ x : X, make_hProp (dom x → A x) (isapropimpl _ _ (propproperty _))).
 
 Lemma filterdom_imply :
   isfilter_imply filterdom.
@@ -483,7 +483,7 @@ Context (dom : X → hProp)
 
 Definition filtersubtype : ((∑ x : X, dom x) → hProp) → hProp :=
   λ A : (∑ x : X, dom x) → hProp,
-        F (λ x : X, hProppair (∏ Hx : dom x, A (x,, Hx)) (impred_isaprop _ (λ _, propproperty _))).
+        F (λ x : X, make_hProp (∏ Hx : dom x, A (x,, Hx)) (impred_isaprop _ (λ _, propproperty _))).
 
 Lemma filtersubtype_imply :
   isfilter_imply filtersubtype.
@@ -778,7 +778,7 @@ Section filtertop.
 Context  {X : UU} (x0 : ∥ X ∥).
 
 Definition filtertop : (X → hProp) → hProp :=
-  λ A : X → hProp, hProppair (∏ x : X, A x) (impred_isaprop _ (λ _, propproperty _)).
+  λ A : X → hProp, make_hProp (∏ x : X, A x) (impred_isaprop _ (λ _, propproperty _)).
 
 Lemma filtertop_imply :
   isfilter_imply filtertop.
@@ -858,7 +858,7 @@ Context (FF : (∑ F : ((X → hProp) → hProp), is F) → hProp)
 Context (His : ∃ F, FF F).
 
 Definition filterintersection : (X → hProp) → hProp :=
-  λ A : X → hProp, hProppair (∏ F, FF F → (pr1 F) A)
+  λ A : X → hProp, make_hProp (∏ F, FF F → (pr1 F) A)
                              (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
 
 Lemma filterintersection_imply :
@@ -1457,7 +1457,7 @@ Defined.
 Lemma PreFilterBase_Generated {X : UU} (base : BaseOfPreFilter X) :
   PreFilterBase base = PreFilterGenerated base.
 Proof.
-  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isaprop_isfilter_imply.
   apply isaprop_isfilter_finite_intersection.
@@ -1471,7 +1471,7 @@ Qed.
 Lemma FilterBase_Generated {X : UU} (base : BaseOfFilter X) Hbase :
   FilterBase base = FilterGenerated base Hbase.
 Proof.
-  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
   apply isapropdirprod.
   apply isapropdirprod.
   apply isaprop_isfilter_imply.

@@ -15,8 +15,9 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.Monads.RelativeMonads.
 
@@ -44,7 +45,7 @@ Section RelModule_Definition.
   Definition RelModule_data (R : RelMonad_data J) : UU
     := ∑ F : C → D, ∏ c d, D ⟦J c, R d⟧ → D ⟦F c, F d⟧.
 
-  Definition mk_relmodule_data (R : RelMonad_data J) (F : C → D)
+  Definition make_relmodule_data (R : RelMonad_data J) (F : C → D)
              (mbind : ∏ c d, D ⟦J c, R d⟧ → D ⟦F c, F d⟧)
     : RelModule_data R
     := F,, mbind.
@@ -69,7 +70,7 @@ Section RelModule_Definition.
 
     Definition relmodule_functor_data (M : RelModule_data R)
       : functor_data C D
-      := mk_functor_data M (λ a b (f : a -->b), mlift M f).
+      := make_functor_data M (λ a b (f : a -->b), mlift M f).
 
     Definition RelModule_laws (M : RelModule_data R) : UU
       := RelMonad_axioms R
@@ -136,7 +137,7 @@ End Projections_and_Laws_2.
 Definition RelModule {C D : precategory_data} {J : C ⟶ D} (R : RelMonad_data J) : UU
   := ∑ M : RelModule_data R, RelModule_laws M.
 
-Definition mk_RelModule {C D : precategory_data} {J : C ⟶ D} (R : RelMonad_data J)
+Definition make_RelModule {C D : precategory_data} {J : C ⟶ D} (R : RelMonad_data J)
            (M : RelModule_data R) (HM : RelModule_laws M)
   : RelModule R
   := (M,, HM).
@@ -197,7 +198,7 @@ Section Functor_from_RelModule.
   Defined.
 
   Definition functor_from_relmodule : C ⟶ D
-    := mk_functor functor_data_from_relmodule is_functor_mlift.
+    := make_functor functor_data_from_relmodule is_functor_mlift.
 
 End Functor_from_RelModule.
 
@@ -253,7 +254,7 @@ Section Part2.
 
   Definition nat_trans_from_relmodule_mor {M N : RelModule R} (φ : RelModule_Mor M N)
     : functor_from_relmodule M ⟹ functor_from_relmodule N
-    := mk_nat_trans (functor_from_relmodule M) (functor_from_relmodule N)
+    := make_nat_trans (functor_from_relmodule M) (functor_from_relmodule N)
                     φ
                     (is_nat_trans_relmodule_mor φ).
 
@@ -300,10 +301,10 @@ Section RelModule_Category.
   Context {C : precategory_data} {D : precategory} {J : C ⟶ D} (R : RelMonad J).
 
   Definition relmodule_precategory_ob_mor : precategory_ob_mor
-    := precategory_ob_mor_pair (RelModule R) RelModule_Mor.
+    := make_precategory_ob_mor (RelModule R) RelModule_Mor.
 
   Definition relmodule_precategory_data : precategory_data
-    := precategory_data_pair
+    := make_precategory_data
          relmodule_precategory_ob_mor
          relmodule_mor_id
          (λ M N P (φ : RelModule_Mor M N) (ψ : RelModule_Mor N P),
@@ -327,7 +328,7 @@ Section RelModule_Category.
 
   Definition RelModule_Precategory (hs : has_homsets D)
     : precategory
-    := mk_precategory relmodule_precategory_data (is_precategory_relmodule hs).
+    := make_precategory relmodule_precategory_data (is_precategory_relmodule hs).
 
   Definition has_homsets_RelModule_Precategory (hs : has_homsets D)
     : has_homsets (RelModule_Precategory hs).
@@ -352,7 +353,7 @@ Section Tautological_RelModule.
   Context {C D : precategory_data} {J : C ⟶ D} (R : RelMonad J).
 
   Definition tautological_RelModule_data : RelModule_data R
-    := mk_relmodule_data R R (λ a b (f : D⟦J a, R b⟧), r_bind R f).
+    := make_relmodule_data R R (λ a b (f : D⟦J a, R b⟧), r_bind R f).
 
   Lemma tautological_RelModule_law  : RelModule_laws tautological_RelModule_data.
   Proof.
@@ -364,6 +365,6 @@ Section Tautological_RelModule.
   Qed.
 
   Definition tautological_RelModule : RelModule R
-    := mk_RelModule R tautological_RelModule_data tautological_RelModule_law.
+    := make_RelModule R tautological_RelModule_data tautological_RelModule_law.
 
 End Tautological_RelModule.

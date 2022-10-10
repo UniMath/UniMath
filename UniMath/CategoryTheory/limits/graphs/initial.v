@@ -6,16 +6,17 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition empty_graph : graph.
 Proof.
@@ -29,23 +30,30 @@ exists fromempty.
 intros u; induction u.
 Defined.
 
+(** All diagrams over the empty graph are equal *)
+Lemma empty_graph_eq_diag (d d' : diagram empty_graph C) :
+  eq_diag d d'.
+Proof.
+  use tpair; use empty_rect.
+Defined.
+
 Definition initCocone (c : C) : cocone initDiagram c.
 Proof.
-use mk_cocone; intro v; induction v.
+use make_cocone; intro v; induction v.
 Defined.
 
 Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
  (* ∏ b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
+Definition make_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.
 use tpair.
 - exists (pr1 (H b)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [intro; apply impred; intro v; induction v|].
   apply (pr2 (H b)).
 Defined.
@@ -53,10 +61,10 @@ Defined.
 Definition Initial : UU := ColimCocone initDiagram.
 (* total2 (λ a, isInitial a). *)
 
-Definition mk_Initial (a : C) (H : isInitial a) : Initial.
+Definition make_Initial (a : C) (H : isInitial a) : Initial.
 Proof.
-use (mk_ColimCocone _ a (initCocone a)).
-apply mk_isInitial.
+use (make_ColimCocone _ a (initCocone a)).
+apply make_isInitial.
 intro b.
 set (x := H b (initCocone b)).
 use tpair.
@@ -122,7 +130,7 @@ Definition hasInitial := ishinh Initial.
 Lemma isInitial_Initial (I : Initial) :
   isInitial (InitialObject I).
 Proof.
-  use mk_isInitial.
+  use make_isInitial.
   intros b.
   use tpair.
   - exact (InitialArrow I b).
@@ -135,7 +143,7 @@ Lemma equiv_isInitial1 (c : C) :
   limits.initial.isInitial C c -> isInitial c.
 Proof.
   intros X.
-  use mk_isInitial.
+  use make_isInitial.
   intros b.
   apply (X b).
 Qed.
@@ -144,7 +152,7 @@ Lemma equiv_isInitial2 (c : C) :
   limits.initial.isInitial C c <- isInitial c.
 Proof.
   intros X.
-  set (XI := mk_Initial c X).
+  set (XI := make_Initial c X).
   intros b.
   use tpair.
   - exact (InitialArrow XI b).
@@ -155,7 +163,7 @@ Definition equiv_Initial1 (c : C) :
   limits.initial.Initial C -> Initial.
 Proof.
   intros I.
-  use mk_Initial.
+  use make_Initial.
   - exact I.
   - use equiv_isInitial1.
     exact (pr2 I).
@@ -165,7 +173,7 @@ Definition equiv_Initial2 (c : C) :
   limits.initial.Initial C <- Initial.
 Proof.
   intros I.
-  use limits.initial.mk_Initial.
+  use limits.initial.make_Initial.
   - exact (InitialObject I).
   - use equiv_isInitial2.
     use (isInitial_Initial I).
@@ -176,7 +184,7 @@ End def_initial.
 Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
 
-Lemma Initial_from_Colims (C : precategory) :
+Lemma Initial_from_Colims (C : category) :
   Colims_of_shape empty_graph C -> Initial C.
 Proof.
 now intros H; apply H.

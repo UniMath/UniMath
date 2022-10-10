@@ -13,13 +13,17 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -34,9 +38,9 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -51,7 +55,7 @@ Require Import UniMath.HomologicalAlgebra.KA.
 
 Unset Kernel Term Sharing.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * Translation funtor for C(A) and for K(A) *)
@@ -81,7 +85,7 @@ homotopies, that is if f is homotopic to g, then T(f) is homotopic to T(g). In
 *)
 Section translation_functor.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
 
   (** ** Translation functor for C(A) *)
@@ -96,7 +100,7 @@ Section translation_functor.
 
   Definition TranslationComplex (C : Complex A) : Complex A.
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (C (i + 1)).
     - intros i. exact (to_inv (Diff C (i + 1))).
     - intros i. exact (TranslationFunctor_comp C i).
@@ -128,14 +132,14 @@ Section translation_functor.
 
   Definition TranslationMorphism (C1 C2 : Complex A) (f : Morphism C1 C2) :
     Morphism (TranslationComplex C1) (TranslationComplex C2) :=
-    mk_Morphism
+    make_Morphism
       A (TranslationComplex C1) (TranslationComplex C2)
       (λ i : hz, TranslationMorphism_mor f i) (λ i : hz, TranslationFunctor_comm f i).
 
   Definition TranslationFunctor_data :
     functor_data (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - intros C. exact (TranslationComplex C).
     - intros C1 C2 f. exact (TranslationMorphism C1 C2 f).
   Defined.
@@ -150,14 +154,14 @@ Section translation_functor.
   Definition TranslationFunctor :
     functor (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_functor.
+    use make_functor.
     - exact TranslationFunctor_data.
     - exact TranslationFunctor_isfunctor.
   Defined.
 
   Definition TranslationFunctor_isAdditive : isAdditiveFunctor TranslationFunctor.
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros C1 C2.
     split.
     - intros f g. cbn. use MorphismEq. intros i. cbn. apply idpath.
@@ -167,7 +171,7 @@ Section translation_functor.
   Definition TranslationFunctor_Additive :
     AdditiveFunctor (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact TranslationFunctor.
     - exact TranslationFunctor_isAdditive.
   Defined.
@@ -187,7 +191,7 @@ Section translation_functor.
     TranslationMorphism C1 C2 (ComplexHomotMorphism A H).
   Proof.
     unfold TranslationHomot. cbn. use MorphismEq. intros i. cbn.
-    induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid. cbn. unfold idfun.
+    induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid. cbn.
     rewrite <- PreAdditive_invrcomp. rewrite <- transport_target_to_inv.
     rewrite PreAdditive_invlcomp. rewrite inv_inv_eq.
     rewrite <- transport_target_to_inv.
@@ -220,9 +224,9 @@ Section translation_functor.
                      @ maponpaths (λ i0 : pr1 hz, i0 + 1) (hzrplusminus (i - 1 + 1) 1))).
       assert (ee : tmp = (hzrplusminus (i - 1 + 1 + 1) 1)) by apply isasethz.
       unfold tmp in ee. cbn in ee. unfold tmp. cbn. rewrite ee. clear ee. clear tmp.
-      induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. unfold idfun. apply idpath.
+      induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. apply idpath.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     (* Show that the first elements of to_binop are the same *)
     set (tmp := @transport_hz_source_target A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
     rewrite tmp. clear tmp. rewrite transport_compose.
@@ -271,14 +275,14 @@ Section translation_functor.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     induction (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1).
-    induction (hzrminusplus i 1 @ ! hzrplusminus i 1). cbn. unfold idfun.
+    induction (hzrminusplus i 1 @ ! hzrplusminus i 1). cbn.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite inv_inv_eq. apply DSq.
   Qed.
 
   Definition InvTranslationComplex (C : Complex A) : Complex A.
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (C (i - 1)).
     - intros i. exact (transportf
                          (precategory_morphisms (C (i - 1)))
@@ -318,7 +322,7 @@ Section translation_functor.
     - exact (maponpaths C2 (hzrplusminus i 1)).
     - rewrite transport_target_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
       rewrite <- path_assoc. rewrite pathsinv0l. rewrite pathscomp0rid.
-      induction (hzrminusplus i 1). cbn. unfold idfun.
+      induction (hzrminusplus i 1). cbn.
       rewrite transport_target_postcompose.
       set (tmp := transport_hz_double_section A C1 C2 (MMor f) _ _ (hzrplusminus (i - 1 + 1) 1)).
       cbn. cbn in tmp. rewrite tmp. clear tmp.
@@ -328,14 +332,14 @@ Section translation_functor.
 
   Definition InvTranslationMorphism (C1 C2 : Complex A) (f : Morphism C1 C2) :
     Morphism (InvTranslationComplex C1) (InvTranslationComplex C2) :=
-    mk_Morphism
+    make_Morphism
       A (InvTranslationComplex C1) (InvTranslationComplex C2)
       (λ i : hz, InvTranslationMorphism_mor f i) (λ i : hz, InvTranslationFunctor_comm f i).
 
   Definition InvTranslationFunctor_data :
     functor_data (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - intros C. exact (InvTranslationComplex C).
     - intros C1 C2 f. exact (InvTranslationMorphism C1 C2 f).
   Defined.
@@ -350,14 +354,14 @@ Section translation_functor.
   Definition InvTranslationFunctor :
     functor (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_functor.
+    use make_functor.
     - exact InvTranslationFunctor_data.
     - exact InvTranslationFunctor_isfunctor.
   Defined.
 
   Definition InvTranslationFunctor_isAdditive : isAdditiveFunctor InvTranslationFunctor.
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros C1 C2.
     split.
     - intros f g. cbn. use MorphismEq. intros i. cbn. apply idpath.
@@ -367,7 +371,7 @@ Section translation_functor.
   Definition InvTranslationFunctor_Additive :
     AdditiveFunctor (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact InvTranslationFunctor.
     - exact InvTranslationFunctor_isAdditive.
   Defined.
@@ -386,7 +390,7 @@ Section translation_functor.
     InvTranslationMorphism C1 C2 (ComplexHomotMorphism A H).
   Proof.
     unfold InvTranslationHomot. cbn. use MorphismEq. intros i. cbn.
-    induction (hzrplusminus i 1). cbn. unfold idfun. rewrite pathscomp0rid.
+    induction (hzrplusminus i 1). cbn. rewrite pathscomp0rid.
     rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invrcomp.
     rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
     rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invlcomp.
@@ -409,7 +413,7 @@ Section translation_functor.
       }
       rewrite e2. clear e2. apply maponpaths. apply isasethz.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     rewrite <- transport_target_postcompose. rewrite transport_f_f.
     assert (e2 : maponpaths (λ i0 : pr1 hz, C2 (i0 - 1)) (hzrminusplus (i + 1 - 1) 1) =
                  maponpaths C2 (maponpaths (λ i0 : hz, i0 - 1) (hzrminusplus (i + 1 - 1) 1))).
@@ -519,7 +523,7 @@ Section translation_functor.
                                        (to_inv (to_inv (Diff C (i - 1 + 1)))))) = Diff C i.
   Proof.
     rewrite inv_inv_eq.
-    induction (hzrminusplus i 1). cbn. unfold idfun.
+    induction (hzrminusplus i 1). cbn.
     rewrite transport_f_f.
     assert (e : maponpaths (λ i0 : pr1 hz, (C : Complex _) (i0 + 1))
                            (! hzrplusminus (i - 1 + 1) 1) =
@@ -553,7 +557,7 @@ Section translation_functor.
   Proof.
     use MorphismEq. intros i. Local Opaque ComplexEq. cbn.
     rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
-    induction (hzrminusplus i 1). cbn. unfold idfun. apply idpath.
+    induction (hzrminusplus i 1). cbn. apply idpath.
   Qed.
 
   Lemma TranslationInvTranslation :
@@ -602,7 +606,7 @@ Section translation_functor.
   Proof.
     Local Opaque ComplexEq. use MorphismEq. intros i. cbn.
     rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
-    induction (hzrplusminus i 1). cbn. unfold idfun. apply idpath.
+    induction (hzrplusminus i 1). cbn. apply idpath.
   Qed.
 
   Lemma InvTranslationTranslation :
@@ -634,7 +638,7 @@ Section translation_functor.
     rewrite <- transport_target_postcompose.
     rewrite id_right.
     rewrite transport_target_postcompose.
-    induction (hzrminusplus i 1). cbn. unfold idfun. rewrite id_left.
+    induction (hzrminusplus i 1). cbn. rewrite id_left.
     use transportf_paths.
     assert (e : maponpaths (λ i0 : pr1 hz, (x : Complex A) (i0 + 1))
                            (! hzrplusminus (i - 1 + 1) 1) =
@@ -649,7 +653,7 @@ Section translation_functor.
   Definition TranslationTranslationInvNatTrans_Mor (x : Complex A) :
     Morphism x (InvTranslationComplex (TranslationComplex x)).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       exact (transportf (precategory_morphisms ((x : Complex A) i))
                         (maponpaths (x : Complex A) (! hzrminusplus i 1))
@@ -671,7 +675,7 @@ Section translation_functor.
     nat_trans (functor_identity (ComplexPreCat_Additive A))
               (functor_composite TranslationFunctor_Additive InvTranslationFunctor_Additive).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intros x. exact (TranslationTranslationInvNatTrans_Mor x).
     - exact (TranslationTranslationInvNatTrans_isnattrans).
   Defined.
@@ -698,7 +702,7 @@ Section translation_functor.
   Definition InvTranslationTranslationNatTrans_Mor (x : Complex A) :
     Morphism (TranslationComplex (InvTranslationComplex x)) x.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       exact (transportf (precategory_morphisms ((x : Complex A) (i + 1 - 1)))
                         (maponpaths (x : Complex A) (hzrplusminus i 1))
@@ -719,7 +723,7 @@ Section translation_functor.
     nat_trans (functor_composite InvTranslationFunctor_Additive TranslationFunctor_Additive)
               (functor_identity (ComplexPreCat_Additive A)).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intros x. exact (InvTranslationTranslationNatTrans_Mor x).
     - exact InvTranslationTranslationNatTrans_isnattrans.
   Defined.
@@ -772,7 +776,7 @@ Section translation_functor.
     form_adjunction TranslationFunctor_Additive InvTranslationFunctor_Additive
                     TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans.
   Proof.
-    use mk_form_adjunction.
+    use make_form_adjunction.
     - intros x. exact (TranslationInvTranslation_adjunction_eq1 x).
     - intros x. exact (TranslationInvTranslation_adjunction_eq2 x).
   Qed.
@@ -806,7 +810,7 @@ Section translation_functor.
   Definition TranslationEquivUnitInv (a : ComplexPreCat_Additive A) :
     Morphism (InvTranslationFunctor (TranslationFunctor a)) a.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       exact (transportf (precategory_morphisms ((a : Complex A) (i - 1 + 1)))
                         (maponpaths (a : Complex A) (hzrminusplus i 1)) (identity _)).
@@ -815,7 +819,7 @@ Section translation_functor.
 
   Lemma TranslationEquiv_is_iso1_eq1 (a : ComplexPreCat_Additive A) :
     ((unit_from_left_adjoint
-          (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
+          (make_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) a)
       · (TranslationEquivUnitInv a) = identity _.
   Proof.
@@ -827,7 +831,7 @@ Section translation_functor.
   Lemma TranslationEquiv_is_iso1_eq2 (a : ComplexPreCat_Additive A) :
     ((TranslationEquivUnitInv a) : (ComplexPreCat_Additive A)⟦_, _⟧)
       · ((unit_from_left_adjoint
-            (mk_are_adjoints _ _ TranslationTranslationInvNatTrans
+            (make_are_adjoints _ _ TranslationTranslationInvNatTrans
                              InvTranslationTranslationNatTrans
                              TranslationInvTranslation_adjunction)) a) =
     identity _.
@@ -840,12 +844,12 @@ Section translation_functor.
   Definition TranslationEquiv_is_iso1 (a : ComplexPreCat_Additive A) :
     is_z_isomorphism
       ((unit_from_left_adjoint
-          (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
+          (make_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) a).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (TranslationEquivUnitInv a).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + exact (TranslationEquiv_is_iso1_eq1 a).
       + exact (TranslationEquiv_is_iso1_eq2 a).
   Defined.
@@ -875,7 +879,7 @@ Section translation_functor.
   Definition TranslationEquivCounitInv (a : ComplexPreCat_Additive A) :
     Morphism a (TranslationFunctor (InvTranslationFunctor a)).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       exact (transportf (precategory_morphisms ((a : Complex A) i))
                         (maponpaths (a : Complex A) (! hzrplusminus i 1)) (identity _)).
@@ -884,7 +888,7 @@ Section translation_functor.
 
   Lemma TranslationEquiv_is_iso2_eq1 (a : ComplexPreCat_Additive A) :
     ((counit_from_left_adjoint
-        (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
+        (make_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                          TranslationInvTranslation_adjunction)) a)
       · TranslationEquivCounitInv a = identity _.
   Proof.
@@ -894,7 +898,7 @@ Section translation_functor.
   Lemma TranslationEquiv_is_iso2_eq2 (a : ComplexPreCat_Additive A) :
     ((TranslationEquivCounitInv a) : (ComplexPreCat_Additive A)⟦_, _⟧)
       · ((counit_from_left_adjoint
-            (mk_are_adjoints _ _ TranslationTranslationInvNatTrans
+            (make_are_adjoints _ _ TranslationTranslationInvNatTrans
                              InvTranslationTranslationNatTrans
                              TranslationInvTranslation_adjunction)) a) =
     identity _.
@@ -905,22 +909,22 @@ Section translation_functor.
   Lemma TranslationEquiv_is_iso2 (b : ComplexPreCat_Additive A) :
     is_z_isomorphism
       ((counit_from_left_adjoint
-          (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
+          (make_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) b).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (TranslationEquivCounitInv b).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + exact (TranslationEquiv_is_iso2_eq1 b).
       + exact (TranslationEquiv_is_iso2_eq2 b).
   Defined.
 
   Definition TranslationEquiv : AddEquiv (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
   Proof.
-    use mk_AddEquiv.
+    use make_AddEquiv.
     - exact TranslationFunctor_Additive.
     - exact InvTranslationFunctor_Additive.
-    - use mk_are_adjoints.
+    - use make_are_adjoints.
       + exact TranslationTranslationInvNatTrans.
       + exact InvTranslationTranslationNatTrans.
       + exact TranslationInvTranslation_adjunction.
@@ -948,7 +952,7 @@ Section translation_functor.
              (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧) (H : # (ComplexHomotFunctor A) f' = f) :
     TranslationFunctorHImMor h = # (ComplexHomotFunctor A) (# TranslationFunctor f') := pr2 h f' H.
 
-  Definition mk_TranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
+  Definition make_TranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧}
              (h : (ComplexHomot_Additive A)⟦TranslationComplex C1, TranslationComplex C2⟧)
              (HH : ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -985,7 +989,7 @@ Section translation_functor.
              (f : ComplexHomot_Additive A ⟦C1, C2⟧) (H : hfiber # (ComplexHomotFunctor A) f) :
     TranslationFunctorHIm f.
   Proof.
-    use mk_TranslationFunctorHIm.
+    use make_TranslationFunctorHIm.
     - exact (# (ComplexHomotFunctor A) (# (TranslationFunctor) (hfiberpr1 _ _ H))).
     - intros f' H'. exact (TranslationFunctor_eq f H f' H').
   Defined.
@@ -995,7 +999,7 @@ Section translation_functor.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     apply isapropiscontr. intros H.
-    use iscontrpair.
+    use make_iscontr.
     - exact (TranslationFunctorH_Mor_data f H).
     - intros t. use TranslationFunctorHImEquality.
       use TranslationFunctorHImEq.
@@ -1014,7 +1018,7 @@ Section translation_functor.
   Definition TranslationFunctorH_data :
     functor_data (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - intros C. exact (TranslationComplex C).
     - intros C1 C2 f. exact (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor f))).
   Defined.
@@ -1062,7 +1066,7 @@ Section translation_functor.
   Definition TranslationFunctorH :
     functor (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_functor.
+    use make_functor.
     - exact TranslationFunctorH_data.
     - exact TranslationFunctorH_is_functor.
   Defined.
@@ -1105,7 +1109,7 @@ Section translation_functor.
 
   Lemma TranslationFunctorH_isAdditiveFunctor : isAdditiveFunctor TranslationFunctorH.
   Proof.
-    use mk_isAdditiveFunctor'.
+    use make_isAdditiveFunctor'.
     - intros C1 C2.
       use (pathscomp0 _ (@AdditiveFunctorZeroArrow
                            (ComplexPreCat_Additive A) (ComplexHomot_Additive A)
@@ -1140,7 +1144,7 @@ Section translation_functor.
   Definition TranslationFunctorH_AdditiveFunctor :
     AdditiveFunctor (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact TranslationFunctorH.
     - exact TranslationFunctorH_isAdditiveFunctor.
   Defined.
@@ -1164,7 +1168,7 @@ Section translation_functor.
     InvTranslationFunctorHImMor h = # (ComplexHomotFunctor A) (# InvTranslationFunctor f') :=
     pr2 h f' H.
 
-  Definition mk_InvTranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
+  Definition make_InvTranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧}
              (h : (ComplexHomot_Additive A)⟦InvTranslationComplex C1, InvTranslationComplex C2⟧)
              (HH : ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -1201,7 +1205,7 @@ Section translation_functor.
              (f : ComplexHomot_Additive A ⟦C1, C2⟧) (H : hfiber # (ComplexHomotFunctor A) f) :
     InvTranslationFunctorHIm f.
   Proof.
-    use mk_InvTranslationFunctorHIm.
+    use make_InvTranslationFunctorHIm.
     - exact (# (ComplexHomotFunctor A) (# (InvTranslationFunctor) (hfiberpr1 _ _ H))).
     - intros f' H'. exact (InvTranslationFunctor_eq f H f' H').
   Defined.
@@ -1211,7 +1215,7 @@ Section translation_functor.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     apply isapropiscontr. intros H.
-    use iscontrpair.
+    use make_iscontr.
     - exact (InvTranslationFunctorH_Mor_data f H).
     - intros t. use InvTranslationFunctorHImEquality.
       use InvTranslationFunctorHImEq.
@@ -1230,7 +1234,7 @@ Section translation_functor.
   Definition InvTranslationFunctorH_data :
     functor_data (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - intros C. exact (InvTranslationComplex C).
     - intros C1 C2 f.
       exact (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor f))).
@@ -1281,7 +1285,7 @@ Section translation_functor.
   Definition InvTranslationFunctorH :
     functor (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_functor.
+    use make_functor.
     - exact InvTranslationFunctorH_data.
     - exact InvTranslationFunctorH_is_functor.
   Defined.
@@ -1323,7 +1327,7 @@ Section translation_functor.
 
   Lemma InvTranslationFunctorH_isAdditiveFunctor : isAdditiveFunctor InvTranslationFunctorH.
   Proof.
-    use mk_isAdditiveFunctor'.
+    use make_isAdditiveFunctor'.
     - intros C1 C2.
       use (pathscomp0 _ (@AdditiveFunctorZeroArrow
                            (ComplexPreCat_Additive A) (ComplexHomot_Additive A)
@@ -1358,7 +1362,7 @@ Section translation_functor.
   Definition InvTranslationFunctorH_AdditiveFunctor :
     AdditiveFunctor (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact InvTranslationFunctorH.
     - exact InvTranslationFunctorH_isAdditiveFunctor.
   Defined.
@@ -1477,7 +1481,7 @@ Section translation_functor.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     use to_has_homsets. intros f'.
     cbn. set (tmp := TranslationFunctorH_Mor_Im f f'). cbn in tmp. rewrite tmp. clear tmp.
-    set (f'' := @hfiberpair
+    set (f'' := @make_hfiber
                   _ _ (# (ComplexHomotFunctor A))
                   (# (ComplexHomotFunctor A)
                      (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f')))
@@ -1508,7 +1512,7 @@ Section translation_functor.
               (functor_composite TranslationFunctorH_AdditiveFunctor
                                  InvTranslationFunctorH_AdditiveFunctor).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intros x.
       exact (# (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor x)).
     - exact TranslationHInvTranslationHNatTrans_isnattrans.
@@ -1528,7 +1532,7 @@ Section translation_functor.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     use to_has_homsets. intros f'.
     cbn. set (tmp := InvTranslationFunctorH_Mor_Im f f'). cbn in tmp. rewrite tmp. clear tmp.
-    set (f'' := @hfiberpair
+    set (f'' := @make_hfiber
                   _ _ (# (ComplexHomotFunctor A))
                   (# (ComplexHomotFunctor A)
                      (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f')))
@@ -1558,7 +1562,7 @@ Section translation_functor.
                                  TranslationFunctorH_AdditiveFunctor)
               (functor_identity (ComplexHomot_Additive A)).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intros x.
       exact (# (ComplexHomotFunctor A) (InvTranslationTranslationNatTrans_Mor x)).
     - exact InvTranslationHTranslationHNatTrans_isnattrans.
@@ -1579,7 +1583,7 @@ Section translation_functor.
     apply (maponpaths (# TranslationFunctorH_AdditiveFunctor)) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     cbn.
-    set (f' := @hfiberpair
+    set (f' := @make_hfiber
                  _ _ (# (ComplexHomotFunctor A))
                  (# (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor x))
                  (TranslationTranslationInvNatTrans_Mor x)
@@ -1589,7 +1593,7 @@ Section translation_functor.
                          (# (ComplexHomotFunctor A) (InvTranslationTranslationNatTrans_Mor
                                                        (TranslationFunctorH x))))) in tmp.
     use (pathscomp0 tmp). clear tmp. unfold postcompose.
-    set (id' := @hfiberpair
+    set (id' := @make_hfiber
                   _ _ (# (ComplexHomotFunctor A))
                   (# (ComplexHomotFunctor A) (identity _))
                   (identity (x : ob (ComplexPreCat_Additive A)))
@@ -1615,7 +1619,7 @@ Section translation_functor.
     set (tmp := functor_id (ComplexHomotFunctor A) x).
     apply (maponpaths (# InvTranslationFunctorH_AdditiveFunctor)) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
-    set (f' := @hfiberpair
+    set (f' := @make_hfiber
                  _ _ (# (ComplexHomotFunctor A))
                  (# (ComplexHomotFunctor A) (InvTranslationTranslationNatTrans_Mor x))
                  (InvTranslationTranslationNatTrans_Mor x)
@@ -1625,7 +1629,7 @@ Section translation_functor.
                          (# (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor
                                                        (InvTranslationFunctorH x))))) in tmp.
     use (pathscomp0 tmp). clear tmp.
-    set (id' := @hfiberpair
+    set (id' := @make_hfiber
                   _ _ (# (ComplexHomotFunctor A))
                   (# (ComplexHomotFunctor A) (identity _))
                   (identity (x : ob (ComplexPreCat_Additive A)))
@@ -1647,14 +1651,14 @@ Section translation_functor.
                     InvTranslationFunctorH_AdditiveFunctor
                     TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans.
   Proof.
-    use mk_form_adjunction.
+    use make_form_adjunction.
     - intros x. exact (TranslationHInvTranslationH_adjunction_eq1 x).
     - intros x. exact (TranslationHInvTranslationH_adjunction_eq2 x).
   Qed.
 
   Local Lemma TranslationHEquiv_is_iso1_eq1' (x : ComplexHomot_Additive A) :
     (unit_from_left_adjoint
-       (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
+       (make_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
                         TranslationHInvTranslationH_adjunction))
       x · # (ComplexHomotFunctor A) (TranslationEquivUnitInv x) =
     identity ((functor_identity (ComplexHomot_Additive A)) x).
@@ -1671,7 +1675,7 @@ Section translation_functor.
   Local Lemma TranslationHEquiv_is_iso1_eq2' (x : ComplexHomot_Additive A) :
     (# (ComplexHomotFunctor A) (TranslationEquivUnitInv x))
       · (unit_from_left_adjoint
-            (mk_are_adjoints
+            (make_are_adjoints
                _ _ TranslationHTranslationInvHNatTrans
                InvTranslationHTranslationHNatTrans
                TranslationHInvTranslationH_adjunction)) x =
@@ -1689,20 +1693,20 @@ Section translation_functor.
   Definition TranslationHEquiv_is_iso1 (x : ComplexHomot_Additive A) :
     is_z_isomorphism
       ((unit_from_left_adjoint
-          (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans
+          (make_are_adjoints _ _ TranslationHTranslationInvHNatTrans
                            InvTranslationHTranslationHNatTrans
                            TranslationHInvTranslationH_adjunction)) x).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (TranslationEquivUnitInv x)).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + exact (TranslationHEquiv_is_iso1_eq1' x).
       + exact (TranslationHEquiv_is_iso1_eq2' x).
   Defined.
 
   Local Lemma TranslationHEquiv_is_iso2_eq1' (x : ComplexHomot_Additive A) :
     (counit_from_left_adjoint
-       (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
+       (make_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
                         TranslationHInvTranslationH_adjunction))
       x · # (ComplexHomotFunctor A) (TranslationEquivCounitInv x) =
     identity _.
@@ -1719,7 +1723,7 @@ Section translation_functor.
   Local Lemma TranslationHEquiv_is_iso2_eq2' (x : ComplexHomot_Additive A) :
     (# (ComplexHomotFunctor A) (TranslationEquivCounitInv x))
       · (counit_from_left_adjoint
-            (mk_are_adjoints
+            (make_are_adjoints
                _ _ TranslationHTranslationInvHNatTrans
                InvTranslationHTranslationHNatTrans
                TranslationHInvTranslationH_adjunction)) x = identity _.
@@ -1736,23 +1740,23 @@ Section translation_functor.
   Definition TranslationHEquiv_is_iso2 (x : ComplexHomot_Additive A) :
     is_z_isomorphism
       ((counit_from_left_adjoint
-          (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans
+          (make_are_adjoints _ _ TranslationHTranslationInvHNatTrans
                            InvTranslationHTranslationHNatTrans
                            TranslationHInvTranslationH_adjunction)) x).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (TranslationEquivCounitInv x)).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + exact (TranslationHEquiv_is_iso2_eq1' x).
       + exact (TranslationHEquiv_is_iso2_eq2' x).
   Defined.
 
   Definition TranslationHEquiv : AddEquiv (ComplexHomot_Additive A) (ComplexHomot_Additive A).
   Proof.
-    use mk_AddEquiv.
+    use make_AddEquiv.
     - exact TranslationFunctorH_AdditiveFunctor.
     - exact InvTranslationFunctorH_AdditiveFunctor.
-    - use mk_are_adjoints.
+    - use make_are_adjoints.
       + exact TranslationHTranslationInvHNatTrans.
       + exact InvTranslationHTranslationHNatTrans.
       + exact TranslationHInvTranslationH_adjunction.

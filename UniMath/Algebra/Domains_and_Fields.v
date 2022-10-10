@@ -1,4 +1,5 @@
-(** * Algebra I. Part D. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
+(** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
+Require Import UniMath.Algebra.Groups.
 (** ** Contents
 - Integral domains and fields
  - Integral domains
@@ -17,6 +18,7 @@
   - Relations and the canonical homomorphism to the field of fractions
 *)
 
+Local Open Scope logic.
 
 (** ** Preamble *)
 
@@ -53,7 +55,7 @@ Defined.
 Definition iscancelableif {X : hSet} (opp : binop X) (x : X)
            (isl : ∏ a b : X, paths (opp x a) (opp x b) -> a = b)
            (isr : ∏ a b : X, paths (opp a x) (opp b x) -> a = b) :
-  iscancelable opp x := dirprodpair (islcancelableif opp x isl) (isrcancelableif opp x isr).
+  iscancelable opp x := make_dirprod (islcancelableif opp x isl) (isrcancelableif opp x isr).
 
 (** To monoids *)
 
@@ -308,7 +310,7 @@ Proof.
 Defined.
 
 Definition isintdom (X : commring) : UU :=
-  dirprod (isnonzerorig X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
+  dirprod (isnonzerorig X) (∏ (a1 a2 : X), (a1 * a2 = 0) -> (a1 = 0) ∨ (a2 = 0)).
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
@@ -327,7 +329,7 @@ Coercion pr1intdom : intdom >-> commring.
 Definition nonzeroax (X : intdom) : neg (@paths X 1 0) := pr1 (pr2 X).
 
 Definition intdomax (X : intdom) :
-  ∏ (a1 a2 : X), (a1 * a2) = 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
+  ∏ (a1 a2 : X), (a1 * a2) = 0 -> (a1 = 0) ∨ (a2 = 0) := pr2 (pr2 X).
 
 
 (** **** (X = Y) ≃ (ringiso X Y)
@@ -365,7 +367,7 @@ Opaque intdom_univalence_isweq.
 
 Definition intdom_univalence (X Y : intdom) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (intdom_univalence_map X Y).
   - exact (intdom_univalence_isweq X Y).
 Defined.
@@ -384,7 +386,7 @@ Proof.
     apply (setproperty X _ _).
   }
   generalize int. simpl.
-  apply (@hinhuniv _ (hProppair _ int')).
+  apply (@hinhuniv _ (make_hProp _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
   - destruct (ne e'').
   - intro. apply ne'.
@@ -399,7 +401,7 @@ Proof.
     apply impred. intro.
     apply (setproperty X _ _).
   }
-  generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
+  generalize int. simpl. apply (@hinhuniv _ (make_hProp _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
   - intro. apply e''.
   - destruct (ne ne').
@@ -424,7 +426,7 @@ Proof.
     apply impred. intro.
     apply (setproperty X _ _).
   }
-  generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
+  generalize int. simpl. apply (@hinhuniv _ (make_hProp _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
   - destruct (ne e'').
   - intro. apply ne'.
@@ -443,7 +445,7 @@ Proof.
     apply impred. intro.
     apply (setproperty X _ _).
   }
-  generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
+  generalize int. simpl. apply (@hinhuniv _ (make_hProp _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
   - intro. apply e''.
   - destruct (ne ne').
@@ -462,10 +464,10 @@ Defined.
 
 Definition intdomnonzerosubmonoid (X : intdom) : @subabmonoid (ringmultabmonoid X).
 Proof.
-  intros. split with (λ x : X, hProppair _ (isapropneg (x = 0))). split.
+  intros. split with (λ x : X, make_hProp _ (isapropneg (x = 0))). split.
   - intros a b. simpl in *. intro e.
     set (int := intdomax X (pr1 a) (pr1 b) e). clearbody int. generalize int.
-    apply toneghdisj. apply (dirprodpair (pr2 a) (pr2 b)).
+    apply toneghdisj. apply (make_dirprod (pr2 a) (pr2 b)).
   - simpl. apply (nonzeroax X).
 Defined.
 
@@ -515,7 +517,7 @@ Opaque isapropisafield.
 
 Definition fld : UU := total2 (λ X : commring, isafield X).
 
-Definition fldpair (X : commring) (is : isafield X) : fld := tpair _ X is.
+Definition make_fld (X : commring) (is : isafield X) : fld := tpair _ X is.
 
 Definition pr1fld : fld -> commring := @pr1 _ _.
 
@@ -577,7 +579,7 @@ Opaque fld_univalence_isweq.
 
 Definition fld_univalence (X Y : fld) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (fld_univalence_map X Y).
   - exact (fld_univalence_isweq X Y).
 Defined.
@@ -590,8 +592,8 @@ Definition fldfracmultinvint (X : intdom) (is : isdeceq X)
            (xa : dirprod X (intdomnonzerosubmonoid X)) : dirprod X (intdomnonzerosubmonoid X).
 Proof.
   intros. destruct (is (pr1 xa) 0) as [ e0 | ne0 ].
-  - apply (dirprodpair 1 (tpair (λ x, x != 0) 1 (nonzeroax X))).
-  - apply (dirprodpair (pr1 (pr2 xa)) (tpair (λ x, x != 0) (pr1 xa) ne0)).
+  - apply (make_dirprod 1 (tpair (λ x, x != 0) 1 (nonzeroax X))).
+  - apply (make_dirprod (pr1 (pr2 xa)) (tpair (λ x, x != 0) (pr1 xa) ne0)).
 Defined.
 
 (** Note: we choose a strange from the mathematicians perspective approach to the definition of the
@@ -644,7 +646,7 @@ Definition fldfracmultinv0 (X : intdom) (is : isdeceq X)
 
 Lemma nonzeroincommringfrac (X : commring) (S : @submonoid (ringmultmonoid X)) (xa : dirprod X S)
       (ne : (setquotpr (eqrelcommringfrac X S) xa !=
-             setquotpr _ (dirprodpair 0 (unel S)))) : (pr1 xa != 0).
+             setquotpr _ (make_dirprod 0 (unel S)))%type) : (pr1 xa != 0).
 Proof.
   intros. set (x := pr1 xa). set (aa := pr2 xa).
   assert (e' := negf (weqpathsinsetquot (eqrelcommringfrac X S) _ _) ne).
@@ -658,12 +660,12 @@ Opaque nonzeroincommringfrac.
 
 Lemma zeroincommringfrac (X : intdom) (S : @submonoid (ringmultmonoid X))
       (is : ∏ s : S, (pr1 s != 0)) (x : X) (aa : S)
-      (e : paths (setquotpr (eqrelcommringfrac X S) (dirprodpair x aa))
-                 (setquotpr _ (dirprodpair 0 (unel S)))) : x = 0.
+      (e : paths (setquotpr (eqrelcommringfrac X S) (make_dirprod x aa))
+                 (setquotpr _ (make_dirprod 0 (unel S)))) : x = 0.
 Proof.
   intros.
   set (e' := invweq (weqpathsinsetquot _ _ _) e). simpl in e'. generalize e'.
-  apply (@hinhuniv _ (hProppair _ (setproperty X _ _))).
+  apply (@hinhuniv _ (make_hProp _ (setproperty X _ _))).
   intro t2. simpl.
   set (aa0 := pr1 t2). set (a0 := pr1 aa0). set (a := pr1 aa).
   assert (e2 := pr2 t2). simpl in e2.
@@ -694,13 +696,13 @@ Proof.
     apply impred. intro.
     apply (setproperty (commringfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X is x0 * x0) _).
   }
-  apply (setquotunivprop _ (λ x0, hProppair _ (int x0))).
+  apply (setquotunivprop _ (λ x0, make_hProp _ (int x0))).
   simpl. intros xa ne.
   change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
-                           (dirprodpair ((pr1 (fldfracmultinvint X is xa)) * (pr1 xa))
+                           (make_dirprod ((pr1 (fldfracmultinvint X is xa)) * (pr1 xa))
                                         (@op (intdomnonzerosubmonoid X)
                                              (pr2 (fldfracmultinvint X is xa)) (pr2 xa))))
-                (setquotpr _ (dirprodpair 1 (tpair _ 1 (nonzeroax X))))).
+                (setquotpr _ (make_dirprod 1 (tpair _ 1 (nonzeroax X))))).
   apply (weqpathsinsetquot). unfold fldfracmultinvint. simpl.
   destruct (is (pr1 xa) 0 ) as [ e0 | ne0' ].
   - destruct (nonzeroincommringfrac X (intdomnonzerosubmonoid X) xa ne e0).
@@ -737,7 +739,7 @@ Defined.
 (** **** Canonical homomorphism to the field of fractions *)
 
 Definition tofldfrac (X : intdom) (is : isdeceq X) (x : X) : fldfrac X is :=
-  setquotpr _ (dirprodpair x (tpair (λ x, x != 0) 1 (nonzeroax X))).
+  setquotpr _ (make_dirprod x (tpair (λ x, x != 0) 1 (nonzeroax X))).
 
 Definition isbinop1funtofldfrac (X : intdom) (is : isdeceq X) :
   @isbinopfun X (fldfrac X is) (tofldfrac X is) := isbinop1funtocommringfrac X _.
@@ -749,7 +751,7 @@ Defined.
 
 Definition isaddmonoidfuntofldfrac (X : intdom) (is : isdeceq X) :
   @ismonoidfun X (fldfrac X is) (tofldfrac X is) :=
-  dirprodpair (isbinop1funtofldfrac X is) (isunital1funtofldfrac X is).
+  make_dirprod (isbinop1funtofldfrac X is) (isunital1funtofldfrac X is).
 
 Definition tofldfracandminus0 (X : intdom) (is : isdeceq X) (x : X) :
   paths (tofldfrac X is (- x)) (- tofldfrac X is x) :=
@@ -772,11 +774,11 @@ Opaque isunital2funtofldfrac.
 
 Definition ismultmonoidfuntofldfrac (X : intdom) (is : isdeceq X) :
   @ismonoidfun (ringmultmonoid X) (ringmultmonoid (fldfrac X is)) (tofldfrac X is) :=
-  dirprodpair (isbinop2funtofldfrac X is) (isunital2funtofldfrac X is).
+  make_dirprod (isbinop2funtofldfrac X is) (isunital2funtofldfrac X is).
 
 Definition isringfuntofldfrac (X : intdom) (is : isdeceq X) :
   @isringfun X (fldfrac X is) (tofldfrac X is) :=
-  dirprodpair (isaddmonoidfuntofldfrac X is) (ismultmonoidfuntofldfrac X is).
+  make_dirprod (isaddmonoidfuntofldfrac X is) (ismultmonoidfuntofldfrac X is).
 
 Definition isincltofldfrac (X : intdom) (is : isdeceq X) : isincl (tofldfrac X is) :=
   isincltocommringfrac X (intdomnonzerosubmonoid X)
@@ -803,7 +805,7 @@ Definition weqfldfracgtint_f (X : intdom) {R : hrel X} (is0 : @isbinophrel X R)
            (xa : dirprod X (intdomnonzerosubmonoid X)) : dirprod X (ringpossubmonoid X is1 is2).
 Proof.
   intros. destruct (nc (pr1 (pr2 xa)) 0 (pr2 (pr2 xa))) as [ g | l ].
-  - apply (dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) g)).
+  - apply (make_dirprod (pr1 xa) (tpair _ (pr1 (pr2 xa)) g)).
   - split with (- (pr1 xa)). split with (- (pr1 (pr2 xa))).
     simpl. apply (ringfromlt0 X is0 l).
 Defined.
@@ -850,7 +852,7 @@ Definition weqfldfracgt_f (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : @isb
 Definition weqfldfracgtint_b (X : intdom) {R : hrel X} (is1 : isringmultgt X R) (is2 : R 1 0)
            (ir : isirrefl R) (xa : dirprod X (ringpossubmonoid X is1 is2)) :
   dirprod X (intdomnonzerosubmonoid X) :=
-  dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) (rtoneq ir (pr2 (pr2 xa)))).
+  make_dirprod (pr1 xa) (tpair _ (pr1 (pr2 xa)) (rtoneq ir (pr2 (pr2 xa)))).
 
 Lemma weqfldfracgtintcomp_b (X : intdom) {R : hrel X} (is1 : isringmultgt X R) (is2 : R 1 0)
       (ir : isirrefl R) : iscomprelrelfun (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
@@ -878,7 +880,7 @@ Proof.
   assert (egf : ∏ a, paths (g (f a)) a).
   {
     unfold fldfrac. simpl.
-    apply (setquotunivprop _ (λ a, hProppair _ (isasetsetquot _ (g (f a)) a))).
+    apply (setquotunivprop _ (λ a, make_hProp _ (isasetsetquot _ (g (f a)) a))).
     intro xa. simpl.
     change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
                              (weqfldfracgtint_b
@@ -896,7 +898,7 @@ Proof.
   assert (efg : ∏ a, paths (f (g a)) a).
   {
     unfold fldfrac. simpl.
-    apply (setquotunivprop _ (λ a, hProppair _ (isasetsetquot _ (f (g a)) a))).
+    apply (setquotunivprop _ (λ a, make_hProp _ (isasetsetquot _ (f (g a)) a))).
     intro xa. simpl.
     change (paths (setquotpr _ (weqfldfracgtint_f
                                   X is0 is1 is2 nc (weqfldfracgtint_b X is1 is2 ir xa)))
@@ -928,7 +930,7 @@ Proof.
                        paths (g (x + x')) ((g x) + (g x'))).
       apply (setquotuniv2prop
                _ (λ x x' : commringfrac X (ringpossubmonoid X is1 is2),
-                    hProppair _ (setproperty (fldfrac X is) (g (x + x')) ((g x) + (g x'))))).
+                    make_hProp _ (setproperty (fldfrac X is) (g (x + x')) ((g x) + (g x'))))).
       intros xa1 xa2.
       change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
                                (g0 (commringfracop1int X (ringpossubmonoid X is1 is2) xa1 xa2)))
@@ -943,13 +945,13 @@ Proof.
         apply (invmaponpathsincl
                  (@pr1 _ _) (isinclpr1 _ (λ a, (isapropneg (a = 0))))
                  (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (carrierpair (λ x : pr1 X, hProppair (x = 0 -> empty) (isapropneg (x = 0)))
+                 (make_carrier (λ x : pr1 X, make_hProp (x = 0 -> empty) (isapropneg (x = 0)))
                               (a1 * a2) (fun e : paths (a1 * a2) 0 =>
-                                           toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
+                                           toneghdisj (make_dirprod (rtoneq ir ia1) (rtoneq ir ia2))
                                                       (intdomax X a1 a2 e))) (idpath _)).
     + change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
-                               (g0 (dirprodpair 0 (tpair _ 1 is2))))
-                    (setquotpr _ (dirprodpair 0 (tpair _ 1 (nonzeroax X))))).
+                               (g0 (make_dirprod 0 (tpair _ 1 is2))))
+                    (setquotpr _ (make_dirprod 0 (tpair _ 1 (nonzeroax X))))).
       apply (maponpaths (setquotpr _)).
       unfold g0. unfold weqfldfracgtint_b. simpl.
       apply pathsdirprod.
@@ -963,7 +965,7 @@ Proof.
                        paths (g (x * x')) ((g x) * (g x'))).
       apply (setquotuniv2prop
                _ (λ x x' : commringfrac X (ringpossubmonoid X is1 is2),
-                    hProppair _ (setproperty (fldfrac X is) (g (x * x')) ((g x) * (g x'))))).
+                    make_hProp _ (setproperty (fldfrac X is) (g (x * x')) ((g x) * (g x'))))).
       intros xa1 xa2.
       change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
                                (g0 (commringfracop2int X (ringpossubmonoid X is1 is2) xa1 xa2)))
@@ -980,13 +982,13 @@ Proof.
                  (@pr1 _ _)
                  (isinclpr1 _ (λ a, (isapropneg (a = 0))))
                  (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (carrierpair (λ x : pr1 X, hProppair (x = 0 -> empty) (isapropneg (x = 0)))
+                 (make_carrier (λ x : pr1 X, make_hProp (x = 0 -> empty) (isapropneg (x = 0)))
                               (a1 * a2) (fun e : paths (a1 * a2) 0 =>
-                                           toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
+                                           toneghdisj (make_dirprod (rtoneq ir ia1) (rtoneq ir ia2))
                                                       (intdomax X a1 a2 e))) (idpath _)).
     + change (paths (setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X))
-                               (g0 (dirprodpair 1 (tpair _ 1 is2))))
-                    (setquotpr _ (dirprodpair 1 (tpair _ 1 (nonzeroax X))))).
+                               (g0 (make_dirprod 1 (tpair _ 1 is2))))
+                    (setquotpr _ (make_dirprod 1 (tpair _ 1 (nonzeroax X))))).
       apply (maponpaths (setquotpr _)).
       unfold g0. unfold weqfldfracgtint_b. simpl.
       apply pathsdirprod.
@@ -1002,7 +1004,7 @@ Lemma isringfunweqfldfracgt_f (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : 
   isringfun (weqfldfracgt_f X is is0 is1 is2 nc).
 Proof.
   intros. unfold weqfldfracgt_f.
-  set (int := ringisopair (invweq (weqfldfracgt X is is0 is1 is2 nc ir))
+  set (int := make_ringiso (invweq (weqfldfracgt X is is0 is1 is2 nc ir))
                          (isringfunweqfldfracgt_b X is is1 is2 ir)).
   change (@isringfun (fldfrac X is) (commringfrac X (ringpossubmonoid X is1 is2)) (invmap int)).
   apply isringfuninvmap.
@@ -1128,12 +1130,12 @@ Proof.
     intros x.
     change (tocommringfrac X (ringpossubmonoid X is1 is2) x)
     with (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
-                    (dirprodpair x (tpair (λ a, L a 0) _ is2))).
+                    (make_dirprod x (tpair (λ a, L a 0) _ is2))).
     change (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x))
     with (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
                     (weqfldfracgtint_f
                        X is0 is1 is2 nc
-                       (dirprodpair x (tpair (λ a, a != 0) 1 (nonzeroax X))))).
+                       (make_dirprod x (tpair (λ a, a != 0) 1 (nonzeroax X))))).
     apply (maponpaths (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2)))).
     unfold weqfldfracgtint_f. simpl.
     destruct (nc 1 0 (nonzeroax X) ) as [ l' | nl ].

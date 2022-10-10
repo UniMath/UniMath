@@ -12,9 +12,12 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 
@@ -22,74 +25,54 @@ Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : precategory}.
+Definition isInitial {C : precategory} (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
-Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
+Definition Initial (C : precategory) : UU := ∑ a, @isInitial C a.
 
-Definition Initial : UU := ∑ a, isInitial a.
-
-Definition InitialObject (O : Initial) : C := pr1 O.
+Definition InitialObject {C : precategory} (O : Initial C) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
 
-Definition InitialArrow (O : Initial) (b : C) : O --> b := pr1 (pr2 O b).
+Definition InitialArrow {C : precategory} (O : Initial C) (b : C) : O --> b := pr1 (pr2 O b).
 
-Lemma InitialArrowUnique {I : Initial} {a : C} (f : C⟦InitialObject I,a⟧) :
+Lemma InitialArrowUnique {C : precategory} {I : Initial C} {a : C} (f : C⟦InitialObject I,a⟧) :
   f = InitialArrow I _.
 Proof.
 exact (pr2 (pr2 I _ ) _ ).
 Defined.
 
-Lemma InitialEndo_is_identity {O : Initial} (f : O --> O) : f = identity O.
+Lemma InitialEndo_is_identity {C : precategory} {O : Initial C} (f : O --> O) : f = identity O.
 Proof.
-now apply proofirrelevance, isapropifcontr, (pr2 O O).
+apply proofirrelevancecontr, (pr2 O O).
 Qed.
 
-Lemma InitialArrowEq {O : Initial} {a : C} (f g : O --> a) : f = g.
+Lemma InitialArrowEq {C : precategory} {O : Initial C} {a : C} (f g : O --> a) : f = g.
 Proof.
 now rewrite (InitialArrowUnique f), (InitialArrowUnique g).
 Qed.
 
-Definition mk_Initial (a : C) (H : isInitial a) : Initial.
+Definition make_Initial {C : precategory} (a : C) (H : isInitial a) : Initial C.
 Proof.
   exists a.
   exact H.
 Defined.
 
-Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
+Definition make_isInitial {C : precategory} (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-   is_iso (InitialArrow O O').
+Lemma isziso_from_Initial_to_Initial {C : precategory} (O O' : Initial C) :
+   is_z_isomorphism (InitialArrow O O').
 Proof.
-  apply (is_iso_qinv _ (InitialArrow O' O)).
+  exists (InitialArrow O' O).
   split; apply InitialEndo_is_identity.
 Defined.
 
-Definition iso_Initials (O O' : Initial) : iso O O' :=
-   (InitialArrow O O',,isiso_from_Initial_to_Initial O O').
+Definition ziso_Initials {C : precategory} (O O' : Initial C) : z_iso O O' :=
+   (InitialArrow O O',,isziso_from_Initial_to_Initial O O').
 
-Definition hasInitial := ishinh Initial.
-
-(** * Being initial is a property in a (saturated/univalent) category *)
-Section Initial_Unique.
-
-Hypothesis H : is_univalent C.
-
-Lemma isaprop_Initial : isaprop Initial.
-Proof.
-  apply invproofirrelevance.
-  intros O O'.
-  apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ).
-  apply proofirrelevance.
-  unfold isInitial.
-  apply impred.
-  intro t ; apply isapropiscontr.
-Qed.
-
-End Initial_Unique.
+Definition hasInitial {C : precategory} : UU := ishinh (Initial C).
 
 End def_initial.
 
@@ -98,22 +81,43 @@ Arguments isInitial : clear implicits.
 Arguments InitialObject {_} _.
 Arguments InitialArrow {_} _ _.
 Arguments InitialArrowUnique {_} _ _ _.
-Arguments mk_isInitial {_} _ _ _.
-Arguments mk_Initial {_} _ _.
+Arguments make_isInitial {_} _ _ _.
+Arguments make_Initial {_} _ _.
+
+
+(** * Being initial is a property in a (saturated/univalent) category *)
+Section Initial_Unique.
+
+  Variable C : category.
+  Hypothesis H : is_univalent C.
+
+Lemma isaprop_Initial : isaprop (Initial C).
+Proof.
+  apply invproofirrelevance.
+  intros O O'.
+  apply (total2_paths_f (isotoid _ H (ziso_Initials O O')) ).
+  apply proofirrelevance.
+  unfold isInitial.
+  apply impred.
+  intro t ; apply isapropiscontr.
+Qed.
+
+End Initial_Unique.
+
 
 Section Initial_and_EmptyCoprod.
 
   (** Construct Initial from empty arbitrary coproduct. *)
-  Definition initial_from_empty_coproduct (C : precategory):
+  Definition initial_from_empty_coproduct (C : category):
     Coproduct empty C fromempty -> Initial C.
   Proof.
     intros X.
-    use (mk_Initial (CoproductObject _ _ X)).
-    use mk_isInitial.
+    use (make_Initial (CoproductObject _ _ X)).
+    use make_isInitial.
     intros b.
     assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
-    apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
+    apply (make_iscontr (CoproductArrow _ _ X H)); intros t.
     apply CoproductArrowUnique; intros i; apply (fromempty i).
   Defined.
 
@@ -139,14 +143,14 @@ End Initial_and_EmptyCoprod.
 
 (* Definition initCocone (b : C) : cocone initDiagram b. *)
 (* Proof. *)
-(* simple refine (mk_cocone _ _); intros u; induction u. *)
+(* simple refine (make_cocone _ _); intros u; induction u. *)
 (* Defined. *)
 
 (* Lemma Initial_from_Colims : Colims C -> Initial C. *)
 (* Proof. *)
 (* intros H. *)
 (* case (H _ initDiagram); intros cc iscc; destruct cc as [c cc]. *)
-(* apply (mk_Initial c); apply mk_isInitial; intros b. *)
+(* apply (make_Initial c); apply make_isInitial; intros b. *)
 (* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* transparent assert (X : (∑ x : c --> b, ∏ v, *)
@@ -160,12 +164,12 @@ End Initial_and_EmptyCoprod.
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.
 
-Variables (C D : precategory) (ID : Initial D) (hsD : has_homsets D).
+Variables (C D : category) (ID : Initial D).
 
-Definition Initial_functor_precat : Initial [C, D, hsD].
+Definition Initial_functor_precat : Initial [C, D].
 Proof.
-use mk_Initial.
-- use mk_functor.
+use make_Initial.
+- use make_functor.
   + use tpair.
     * intros c; apply (InitialObject ID).
     * simpl; intros a b f; apply (InitialArrow ID).
@@ -174,12 +178,12 @@ use mk_Initial.
     * intros a b c f g; apply pathsinv0, InitialArrowUnique.
 - intros F.
   use tpair.
-  + use mk_nat_trans; simpl.
+  + use make_nat_trans; simpl.
     * intro a; apply InitialArrow.
     * intros a b f; simpl.
       rewrite (InitialEndo_is_identity (InitialArrow ID ID)), id_left.
       now apply pathsinv0, InitialArrowUnique.
-  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply InitialArrowUnique).
 Defined.
 
 End InitialFunctorCat.
@@ -191,8 +195,28 @@ Context {C : precategory} (IC : Initial C).
 
 Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
 Proof.
-apply mk_isEpi; intros b g h H.
+apply make_isEpi; intros b g h H.
 now apply InitialArrowEq.
 Qed.
 
 End epis_initial.
+
+Definition iso_to_Initial
+           {C : category}
+           (I : Initial C)
+           (x : C)
+           (i : z_iso I x)
+  : isInitial C x.
+Proof.
+  intros w.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       refine (!(id_left _) @ _ @ id_left _) ;
+       rewrite <- !(z_iso_after_z_iso_inv i) ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       apply InitialArrowEq).
+  - exact (z_iso_inv i · InitialArrow I w).
+Defined.

@@ -30,7 +30,7 @@ by (** RR1 *) or (** RR2 *) comment.
 One can achieve similar results with a combination of usual axioms which imitate
 the resizing rules. However unlike the usual axioms the resizing rules do not
 affect the computation/normalization abilities of Coq which makes them the
-prefrred choice in this situation.
+preferred choice in this situation.
 *)
 
 (** ** Contents
@@ -78,7 +78,7 @@ Require Export UniMath.Foundations.PartD.
 
 
 Definition hProp := total2 (λ X : UU, isaprop X).
-Definition hProppair (X : UU) (is : isaprop X) : hProp
+Definition make_hProp (X : UU) (is : isaprop X) : hProp
   := tpair (λ X : UU, isaprop X) X is.
 Definition hProptoType := @pr1 _ _ : hProp -> UU.
 Coercion hProptoType : hProp >-> UU.
@@ -88,13 +88,7 @@ Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
 (** ** The type [tildehProp] of pairs (P, p : P) where [P : hProp] *)
 
 Definition tildehProp := total2 (λ P : hProp, P).
-Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
-
-Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
-Proof.
-  intros. exists (negProp_to_type Q). apply negProp_to_isaprop.
-Defined.
-Coercion negProp_to_hProp : negProp >-> hProp.
+Definition make_tildehProp {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
@@ -105,7 +99,7 @@ Proof.
   intros. apply subtypeInjectivity. intro. apply propproperty.
 Defined.
 
-Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
+Corollary subtypePath_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   apply invmap. apply subtypeInjectivity_prop.
@@ -130,7 +124,7 @@ Proof.
 Defined.
 
 Definition forall_hProp {X : UU} (Y : X -> hProp) : hProp
-  := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
+  := make_hProp (∏ x, Y x) (isaprop_forall_hProp X Y).
 
 Notation "∀  x .. y , P"
   := (forall_hProp (λ x, .. (forall_hProp (λ y, P))..))
@@ -146,22 +140,22 @@ Notation "∀  x .. y , P"
 (** *** Re-definitions of some of the standard constructions of uu0.v which lift these contructions from UU to hProp. *)
 
 
-Definition iscontr (X : UU) : hProp := hProppair _ (isapropiscontr X).
+Definition iscontr (X : UU) : hProp := make_hProp _ (isapropiscontr X).
 
 Definition isweq {X Y : UU} (f : X -> Y) : hProp
-:= hProppair _ (isapropisweq f).
+:= make_hProp _ (isapropisweq f).
 
 Definition isofhlevel (n : nat) (X : UU) : hProp
-:= hProppair _ (isapropisofhlevel n X).
+:= make_hProp _ (isapropisofhlevel n X).
 
-Definition isaprop (X : UU) : hProp := hProppair (isaprop X) (isapropisaprop X).
+Definition isaprop (X : UU) : hProp := make_hProp (isaprop X) (isapropisaprop X).
 
-Definition isaset (X : UU) : hProp := hProppair _ (isapropisaset X).
+Definition isaset (X : UU) : hProp := make_hProp _ (isapropisaset X).
 
 Definition isisolated (X : UU) (x : X) : hProp
-:= hProppair _ (isapropisisolated X x).
+:= make_hProp _ (isapropisisolated X x).
 
-Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
+Definition isdecEq (X : UU) : hProp := make_hProp _ (isapropisdeceq X).
 
 *)
 
@@ -182,7 +176,7 @@ Proof.
   intro. apply (pr2 P).
 Qed.
 
-Definition ishinh (X : UU) : hProp := hProppair (ishinh_UU X) (isapropishinh X).
+Definition ishinh (X : UU) : hProp := make_hProp (ishinh_UU X) (isapropishinh X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -236,7 +230,7 @@ Proof.
   assert (lg : logeq (ishinh (neg X)) (neg X)).
   {
     split.
-    - simpl. apply (@hinhuniv _ (hProppair _ (isapropneg X))).
+    - simpl. apply (@hinhuniv _ (make_hProp _ (isapropneg X))).
       simpl. intro nx. apply nx.
     - apply hinhpr.
   }
@@ -250,7 +244,7 @@ Proof.
     split.
     - apply (negf (@hinhpr X)).
     - intro nx. unfold neg. simpl.
-      apply (@hinhuniv _ (hProppair _ isapropempty)).
+      apply (@hinhuniv _ (make_hProp _ isapropempty)).
       apply nx.
   }
   apply (weqimplimpl (pr2 lg) (pr1 lg) (isapropneg _) (isapropneg _)).
@@ -291,7 +285,7 @@ of connected components) **)
 
 Definition image {X Y : UU} (f : X -> Y) : UU
   := total2 (λ y : Y, ishinh (hfiber f y)).
-Definition imagepair {X Y : UU} (f : X -> Y) :
+Definition make_image {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
 Definition pr1image {X Y : UU} (f : X -> Y) :
@@ -301,7 +295,7 @@ Definition pr1image {X Y : UU} (f : X -> Y) :
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
 Proof.
   intros X0.
-  apply (imagepair _ (f X0) (hinhpr (hfiberpair f X0 (idpath _)))).
+  apply (make_image _ (f X0) (hinhpr (make_hfiber f X0 (idpath _)))).
 Defined.
 
 Definition issurjective {X Y : UU} (f : X -> Y) := ∏ y : Y, ishinh (hfiber f y).
@@ -356,7 +350,7 @@ Lemma isweqinclandsurj {X Y : UU} (f : X -> Y) :
 Proof.
   intros Hincl Hsurj.
   intro y.
-  set (H := hProppair (iscontr (hfiber f y)) (isapropiscontr _)).
+  set (H := make_hProp (iscontr (hfiber f y)) (isapropiscontr _)).
   apply (Hsurj y H).
   intro x.
   simpl.
@@ -380,12 +374,12 @@ Defined.
 (** *** Intuitionistic logic on [hProp]. *)
 
 
-Definition htrue : hProp := hProppair unit isapropunit.
+Definition htrue : hProp := make_hProp unit isapropunit.
 
-Definition hfalse : hProp := hProppair empty isapropempty.
+Definition hfalse : hProp := make_hProp empty isapropempty.
 
 Definition hconj (P Q : hProp) : hProp
-  := hProppair (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
+  := make_hProp (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
 
 Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope.
   (* precedence same as /\ *)
@@ -413,11 +407,12 @@ Proof.
   exact (P ⨿ Q,, isapropcoprod P Q (propproperty P) (propproperty Q) n).
 Defined.
 
-Definition hneg (P : UU) : hProp := hProppair (¬ P) (isapropneg P).
+Definition hneg (P : UU) : hProp := make_hProp (¬ P) (isapropneg P).
 (* uses funextemptyAxiom *)
 
 (* use scope "logic" for notations that might conflict with others *)
 
+Declare Scope logic.
 Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
   (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
@@ -508,7 +503,7 @@ Lemma hexistsnegtonegforall {X : UU} (F : X -> UU) :
   (∃ x : X, neg (F x)) -> neg (∏ x : X, F x).
 Proof.
   simpl.
-  apply (@hinhuniv _ (hProppair _ (isapropneg (∏ x : X, F x)))).
+  apply (@hinhuniv _ (make_hProp _ (isapropneg (∏ x : X, F x)))).
   simpl. intros t2 f2. induction t2 as [ x d2 ]. apply (d2 (f2 x)).
 Defined.
 
@@ -549,7 +544,7 @@ names [fromneganddecx] and [fromneganddecy]. *)
 Lemma tonegdirprod {X Y : UU} : ¬ X ∨ ¬ Y -> ¬ (X × Y).
 Proof.
   simpl.
-  apply (@hinhuniv _ (hProppair _ (isapropneg (X × Y)))).
+  apply (@hinhuniv _ (make_hProp _ (isapropneg (X × Y)))).
   intro c. induction c as [ nx | ny ].
   - simpl. intro xy. apply (nx (pr1 xy)).
   - simpl. intro xy. apply (ny (pr2 xy)).
@@ -609,7 +604,7 @@ Proof.
     apply impred. intro.
     apply (pr2 Q).
   }
-  simpl. apply (@hinhuniv _ (hProppair _ int)).
+  simpl. apply (@hinhuniv _ (make_hProp _ int)).
   simpl. intro pq. induction pq as [ p | q ].
   - intro np. induction (np p).
   - intro np. apply q.
@@ -630,7 +625,7 @@ Proof.
   - apply (ii1 (hinhpr (ii1 x))).
   - induction (pr1 isy) as [ y | ny ].
     + apply (ii1 (hinhpr (ii2 y))).
-    + apply (ii2 (toneghdisj (dirprodpair nx ny))).
+    + apply (ii2 (toneghdisj (make_dirprod nx ny))).
 Defined.
 
 
@@ -640,7 +635,7 @@ Defined.
 (** *** The double negation version of [hinhabited] (does not require RR1). *)
 
 
-Definition isinhdneg (X : UU) : hProp := hProppair (dneg X) (isapropdneg X).
+Definition isinhdneg (X : UU) : hProp := make_hProp (dneg X) (isapropdneg X).
 
 Definition inhdnegpr (X : UU) : X -> isinhdneg X := todneg X.
 
@@ -649,7 +644,7 @@ Definition inhdnegfun {X Y : UU} (f : X -> Y) : isinhdneg X -> isinhdneg Y
 
 Definition inhdneguniv (X : UU) (P : UU) (is : isweq (todneg P)) :
   (X -> P) -> ((isinhdneg X) -> P)
-  := λ xp : _, λ inx0 : _, (invmap (weqpair _ is) (dnegf  xp inx0)).
+  := λ xp : _, λ inx0 : _, (invmap (make_weq _ is) (dnegf  xp inx0)).
 
 Definition inhdnegand (X Y : UU) (inx0 : isinhdneg X) (iny0 : isinhdneg Y) :
   isinhdneg (X × Y) := dneganddnegimpldneg inx0 iny0.
@@ -664,7 +659,7 @@ Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
      "uahp" *)
 Proof.
   intros ? ? f g.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro X. apply isapropisaprop.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.
@@ -716,17 +711,17 @@ Proof.
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).
     assert (is : isweq h) by apply (isweqpr1pr1 hProp).
-    apply (invmaponpathsweq (weqpair h is) _ _ X').
+    apply (invmaponpathsweq (make_weq h is) _ _ X').
   }
   set (egf := λ a1, (egf1 _ _ (egf0 a1))).
   set (is2 := isweq_iso _ _ egf efg).
   apply (isweqtotaltofib P1 P2 (λ XY : hProp × hProp,
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
-                         (dirprodpair P P')).
+                         (make_dirprod P P')).
 Defined.
 
 Definition weqeqweqhProp (P P' : hProp) : P = P' ≃ (P ≃ P')
-  := weqpair _ (univfromtwoaxiomshProp P P').
+  := make_weq _ (univfromtwoaxiomshProp P P').
 
 Corollary isasethProp : isaset hProp.
 Proof.

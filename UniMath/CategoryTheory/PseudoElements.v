@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.pushouts.
@@ -20,7 +20,8 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.Opp.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Morphisms.
@@ -80,7 +81,6 @@ Here are the results we prove about pseudo elements :
 Section def_pseudo_element.
 
   Context {A : AbelianPreCat}.
-  Variable hs : has_homsets A.
 
   Local Opaque Abelian.Pullbacks.
 
@@ -88,7 +88,7 @@ Section def_pseudo_element.
 
   Definition PseudoElem (c : A) : UU := ∑ d : A, d --> c.
 
-  Definition mk_PseudoElem {c d : A} (f : d --> c) : PseudoElem c := tpair _ d f.
+  Definition make_PseudoElem {c d : A} (f : d --> c) : PseudoElem c := tpair _ d f.
 
   Definition PseudoOb {c : A} (P : PseudoElem c) : ob A := pr1 P.
 
@@ -96,13 +96,13 @@ Section def_pseudo_element.
   Coercion PseudoMor : PseudoElem >-> precategory_morphisms.
 
   Definition PseudoIm {c d : A} (P : PseudoElem c) (f : c --> d) : PseudoElem d :=
-    mk_PseudoElem (P · f).
+    make_PseudoElem (P · f).
 
   (** Pseudo equality *)
   Definition PEq {c : A} (PE1 PE2 : PseudoElem c) : UU :=
     ∑ (Y : ob A) (E1 : Epi A Y (PseudoOb PE2)) (E2 : Epi A Y (PseudoOb PE1)), E1 · PE2 = E2 · PE1.
 
-  Definition mk_PEq {c : A} (PE1 PE2 : PseudoElem c) {Y : ob A} (E1 : Epi A Y (PseudoOb PE2))
+  Definition make_PEq {c : A} (PE1 PE2 : PseudoElem c) {Y : ob A} (E1 : Epi A Y (PseudoOb PE2))
              (E2 : Epi A Y (PseudoOb PE1)) (H : E1 · PE2 = E2 · PE1) : PEq PE1 PE2 :=
     (Y,,(E1,,(E2,,H))).
 
@@ -120,9 +120,9 @@ Section def_pseudo_element.
   Definition PEq_hrel {c : A} : hrel (PseudoElem c) := λ (PE1 PE2 : PseudoElem c), ∥ PEq PE1 PE2 ∥.
 
   Definition PEq_precomp_Epi {c d : A} (P : PseudoElem c) (E : Epi A d (PseudoOb P)) :
-    PEq P (mk_PseudoElem (E · P)).
+    PEq P (make_PseudoElem (E · P)).
   Proof.
-    use mk_PEq.
+    use make_PEq.
     - exact d.
     - exact (identity_Epi _).
     - exact E.
@@ -130,7 +130,7 @@ Section def_pseudo_element.
   Defined.
 
   Local Lemma PEq_trans_eq {c : ob A} {E1 E2 E3 : PseudoElem c} (P1 : PEq E1 E2) (P2 : PEq E2 E3) :
-    let Pb := Abelian.Pullbacks A hs _ _ _ (PEqEpi1 P1) (PEqEpi2 P2) in
+    let Pb := Abelian.Pullbacks A _ _ _ (PEqEpi1 P1) (PEqEpi2 P2) in
     PullbackPr2 Pb · PEqEpi1 P2 · E3 = PullbackPr1 Pb · PEqEpi2 P1 · E1.
   Proof.
     intros Pb.
@@ -142,18 +142,18 @@ Section def_pseudo_element.
   Definition PEq_trans {c : ob A} {E1 E2 E3 : PseudoElem c} (P1 : PEq E1 E2) (P2 : PEq E2 E3) :
     PEq E1 E3.
   Proof.
-    set (Pb := Abelian.Pullbacks A hs _ _ _ (PEqEpi1 P1) (PEqEpi2 P2)).
-    use mk_PEq.
+    set (Pb := Abelian.Pullbacks A _ _ _ (PEqEpi1 P1) (PEqEpi2 P2)).
+    use make_PEq.
     * exact Pb.
-    * use mk_Epi.
+    * use make_Epi.
       -- exact (PullbackPr2 Pb · PEqEpi1 P2).
       -- use isEpi_comp.
-         ++ use AbelianPullbackEpi2. exact hs.
+         ++ use AbelianPullbackEpi2.
          ++ apply EpiisEpi.
-    * use mk_Epi.
+    * use make_Epi.
       -- exact (PullbackPr1 Pb · PEqEpi2 P1).
       -- use isEpi_comp.
-         ++ use AbelianPullbackEpi1. exact hs.
+         ++ use AbelianPullbackEpi1.
          ++ apply EpiisEpi.
     * cbn. exact (PEq_trans_eq P1 P2).
   Defined.
@@ -169,7 +169,7 @@ Section def_pseudo_element.
 
   Definition PEq_refl {c : ob A} (E1 : PseudoElem c) : PEq E1 E1.
   Proof.
-    use mk_PEq.
+    use make_PEq.
     - exact (PseudoOb E1).
     - use identity_Epi.
     - use identity_Epi.
@@ -184,7 +184,7 @@ Section def_pseudo_element.
 
   Definition PEq_symm {c : ob A} {E1 E2 : PseudoElem c} (P1 : PEq E1 E2) : PEq E2 E1.
   Proof.
-    use mk_PEq.
+    use make_PEq.
     - exact (PEqOb P1).
     - exact (PEqEpi2 P1).
     - exact (PEqEpi1 P1).
@@ -213,7 +213,7 @@ Section def_pseudo_element.
   Definition PFiber {c d : ob A} (f : c --> d) (b : PseudoElem d) : UU :=
     ∑ (a : PseudoElem c), PEq (PseudoIm a f) b.
 
-  Definition mk_PFiber {c d : ob A} (f : c --> d) (b : PseudoElem d) (a : PseudoElem c)
+  Definition make_PFiber {c d : ob A} (f : c --> d) (b : PseudoElem d) (a : PseudoElem c)
              (H : PEq (PseudoIm a f) b) : PFiber f b := tpair _ a H.
 
   Definition PFiber_Elem {c d : ob A} {f : c --> d} {b : PseudoElem d} (P : PFiber f b) :
@@ -239,7 +239,7 @@ Section def_pseudo_element.
   Definition PEq_Im {c d : A} (P1 P2 : PseudoElem c) (f : c --> d) (H : PEq P1 P2) :
     PEq (PseudoIm P1 f) (PseudoIm P2 f).
   Proof.
-    use mk_PEq.
+    use make_PEq.
     - exact (PEqOb H).
     - exact (PEqEpi1 H).
     - exact (PEqEpi2 H).
@@ -255,7 +255,7 @@ Section def_pseudo_element.
   Definition PEq_Comp {c d1 d2 : A} (P : PseudoElem c) (f : c --> d1) (g : d1 --> d2)  :
     PEq (PseudoIm (PseudoIm P f) g) (PseudoIm P (f · g)).
   Proof.
-    use mk_PEq.
+    use make_PEq.
     - exact (PseudoOb P).
     - use identity_Epi.
     - use identity_Epi.
@@ -276,7 +276,7 @@ Section def_pseudo_element.
     use PEq_Im_Paths. exact H.
   Qed.
 
-  Definition PZero {c : A} (d : A) : PseudoElem c := mk_PseudoElem (ZeroArrow (to_Zero A) d c).
+  Definition PZero {c : A} (d : A) : PseudoElem c := make_PseudoElem (ZeroArrow (to_Zero A) d c).
 
   Lemma PEq_Zero_Eq' {c : A} (d : A) (PE : PseudoElem c) :
     PEq PE (PZero d) -> (PE : A⟦_,_⟧ ) = ZeroArrow (to_Zero A) _ _.
@@ -290,16 +290,16 @@ Section def_pseudo_element.
   Lemma PEq_Zero_Eq {c : A} (PE : PseudoElem c) :
     PEq_hrel PE (PZero (PseudoOb PE)) -> (PE : A⟦_,_⟧ ) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    intros H1. use (squash_to_prop H1). apply hs. intros X1. exact (PEq_Zero_Eq' _ PE X1).
+    intros H1. use (squash_to_prop H1). apply homset_property. intros X1. exact (PEq_Zero_Eq' _ PE X1).
   Qed.
 
   Definition PEq_Zeros' {c : A} (d1 d2 : A) : @PEq c (PZero d1) (PZero d2).
   Proof.
-    set (DS := to_BinDirectSums (AbelianToAdditive A hs) d1 d2).
-    use mk_PEq.
+    set (DS := to_BinDirectSums (AbelianToAdditive A) d1 d2).
+    use make_PEq.
     - exact DS.
-    - use (mk_Epi _ _ (to_Pr2_isEpi _ DS)).
-    - use (mk_Epi _ _ (to_Pr1_isEpi _ DS)).
+    - use (make_Epi _ _ (to_Pr2_isEpi _ DS)).
+    - use (make_Epi _ _ (to_Pr1_isEpi _ DS)).
     - cbn. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. apply idpath.
   Defined.
 
@@ -311,7 +311,7 @@ Section def_pseudo_element.
   Definition PEq_ZeroIm (c d1 d2 d3 : A) (f : d1 --> d2) : PEq (PseudoIm (PZero c) f) (PZero d3).
   Proof.
     use (PEq_trans _ (PEq_Zeros' c d3)).
-    use mk_PEq.
+    use make_PEq.
     - exact c.
     - exact (identity_Epi _).
     - exact (identity_Epi _).
@@ -329,7 +329,7 @@ Section def_pseudo_element.
     (PE : A⟦_, c⟧) = ZeroArrow (to_Zero A) _ _ -> PEq PE (PZero (PseudoOb PE)).
   Proof.
     intros H.
-    use mk_PEq.
+    use make_PEq.
     - exact (PseudoOb PE).
     - use identity_Epi.
     - use identity_Epi.
@@ -344,7 +344,7 @@ Section def_pseudo_element.
   Proof.
     split.
     - intros H. intros a. rewrite H. apply ZeroArrow_comp_right.
-    - intros H. set (tmp := H (mk_PseudoElem (identity c))). cbn in tmp.
+    - intros H. set (tmp := H (make_PseudoElem (identity c))). cbn in tmp.
       rewrite <- tmp. rewrite id_left. apply idpath.
   Qed.
 
@@ -360,9 +360,9 @@ Section def_pseudo_element.
       use (PEq_istrans _ _ (PZero d')).
       + exact (PEq_to_hrel _ _ X).
       + use PEq_Zeros.
-    - intros X. use (to_isMonic (AbelianToAdditive A hs)).
+    - intros X. use (to_isMonic (AbelianToAdditive A)).
       intros z g H.
-      exact (! ( X z (mk_PseudoElem g) (PEq_Eq_Zero (PseudoIm (mk_PseudoElem g) f) H))).
+      exact (! ( X z (make_PseudoElem g) (PEq_Eq_Zero (PseudoIm (make_PseudoElem g) f) H))).
   Qed.
 
   Lemma PEq_isMonic' {c d : ob A} (f : c --> d) :
@@ -370,7 +370,7 @@ Section def_pseudo_element.
   Proof.
     split.
     - intros isM. intros a a' X.
-      use mk_PEq.
+      use make_PEq.
       + exact (PEqOb X).
       + exact (PEqEpi1 X).
       + exact (PEqEpi2 X).
@@ -389,18 +389,18 @@ Section def_pseudo_element.
   Proof.
     split.
     - intros isE b.
-      set (E := mk_Epi _ _ isE).
-      set (Pb := Abelian.Pullbacks A hs _ _ _ E b).
-      set (isEpi1 := AbelianPullbackEpi2 hs E b Pb).
-      set (E2 := mk_Epi A _ isEpi1).
-      use (mk_PFiber _ _ (mk_PseudoElem (PullbackPr1 Pb))).
-      use mk_PEq.
+      set (E := make_Epi _ _ isE).
+      set (Pb := Abelian.Pullbacks A _ _ _ E b).
+      set (isEpi1 := AbelianPullbackEpi2 E b Pb).
+      set (E2 := make_Epi A _ isEpi1).
+      use (make_PFiber _ _ (make_PseudoElem (PullbackPr1 Pb))).
+      use make_PEq.
       + exact Pb.
       + exact E2.
       + use identity_Epi.
       + cbn. rewrite id_left. exact (! PullbackSqrCommutes Pb).
     - intros H.
-      set (fib := H (mk_PseudoElem (identity _))).
+      set (fib := H (make_PseudoElem (identity _))).
       set (P1 := PFiber_Elem fib).
       set (e := PEqEq (PFiber_Eq fib)).
       use isEpi_precomp.
@@ -414,42 +414,41 @@ Section def_pseudo_element.
 
   Lemma PEq_isExact {x y z : ob A} (f : x --> y) (g : y --> z)
         (H : f · g = ZeroArrow (to_Zero A) _ _) :
-    isExact A hs f g H <->
+    isExact A f g H <->
     ∏ (b : PseudoElem y) (H : b · g = ZeroArrow (to_Zero A) _ _), PFiber f b.
   Proof.
     split.
     - intros isK b H'. unfold isExact in isK.
-      set (K := mk_Kernel _ _ _ _ isK).
+      set (K := make_Kernel _ _ _ _ isK).
       set (KI := KernelIn _ K (PseudoOb b) b H').
-      set (Pb := Abelian.Pullbacks A hs _ _ _ (factorization1_epi A hs f) KI).
-      use mk_PFiber.
-      + exact (mk_PseudoElem (PullbackPr1 Pb)).
-      + use mk_PEq.
+      set (Pb := Abelian.Pullbacks A _ _ _ (factorization1_epi A f) KI).
+      use make_PFiber.
+      + exact (make_PseudoElem (PullbackPr1 Pb)).
+      + use make_PEq.
         * exact Pb.
-        * exact (mk_Epi _ _ (AbelianPullbackEpi2 hs (factorization1_epi A hs f) KI Pb)).
+        * exact (make_Epi _ _ (AbelianPullbackEpi2 (factorization1_epi A f) KI Pb)).
         * use identity_Epi.
         * cbn. rewrite id_left. apply pathsinv0.
           set (tmp := PullbackSqrCommutes Pb).
-          set (tmp' := factorization1 hs f).
+          set (tmp' := factorization1 f).
           apply (maponpaths (λ gg : _, gg · (factorization1_monic A f))) in tmp.
           rewrite <- assoc in tmp. rewrite <- tmp' in tmp. clear tmp'.
           use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply cancel_precomposition.
           use (KernelCommutes (to_Zero A) K).
     - intros X.
-      set (fac := factorization1 hs f).
-      use mk_isKernel.
-      + exact hs.
+      set (fac := factorization1 f).
+      use make_isKernel.
       + intros w h H'.
-        set (P := X (mk_PseudoElem h) H').
+        set (P := X (make_PseudoElem h) H').
         set (PE := PFiber_Eq P).
-        set (Pb := Abelian.Pullbacks A hs _ _ _ h (factorization1_monic A f)).
+        set (Pb := Abelian.Pullbacks A _ _ _ h (factorization1_monic A f)).
         set (isM := MonicPullbackisMonic' _ _ _ Pb).
         assert (i : is_z_isomorphism (PullbackPr1 Pb)).
         {
           use monic_epi_is_iso.
           - exact isM.
           - assert (ee : PEqEpi1 PE · h =
-                         PEqEpi2 PE · P · factorization1_epi A hs f · factorization1_monic A f).
+                         PEqEpi2 PE · P · factorization1_epi A f · factorization1_monic A f).
             {
               cbn. set (ee := PEqEq PE). cbn in ee. rewrite ee.
               rewrite assoc. rewrite <- (assoc _ _ (KernelArrow (Abelian.Image f))).
@@ -457,26 +456,26 @@ Section def_pseudo_element.
             }
             set (tmp := PullbackArrow
                           Pb _ (PEqEpi1 PE)
-                          ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A hs f)) ee).
+                          ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A f)) ee).
             set (t := PullbackArrow_PullbackPr1
                         Pb _ (PEqEpi1 PE)
-                        ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A hs f)) ee).
+                        ((PEqEpi2 PE) · (PFiber_Elem P) · (factorization1_epi A f)) ee).
             use (isEpi_precomp _ tmp). unfold tmp. use (isEpi_path _ _ _ (! t)).
             apply EpiisEpi.
         }
         set (q := PullbackSqrCommutes Pb).
-        assert (e1 : h = (inv_from_iso (isopair _ (is_iso_qinv _ _ i)))
+        assert (e1 : h = (inv_from_iso (make_iso _ (is_iso_qinv _ _ i)))
                            · PullbackPr2 Pb · factorization1_monic A f).
         {
           rewrite <- assoc. rewrite <- q. rewrite assoc.
-          set (tmp := iso_after_iso_inv (isopair _ (is_iso_qinv _ _ i))).
+          set (tmp := iso_after_iso_inv (make_iso _ (is_iso_qinv _ _ i))).
           cbn in tmp. cbn. rewrite tmp.
           rewrite id_left. apply idpath.
         }
         use unique_exists.
-        * exact (inv_from_iso (isopair (PullbackPr1 Pb) (is_iso_qinv _ _ i)) · PullbackPr2 Pb).
+        * exact (inv_from_iso (make_iso (PullbackPr1 Pb) (is_iso_qinv _ _ i)) · PullbackPr2 Pb).
         * cbn. cbn in e1. rewrite <- e1. apply idpath.
-        * intros y0. apply hs.
+        * intros y0. apply homset_property.
         * intros y0 XX. cbn in XX.
           use (KernelArrowisMonic (to_Zero A) (Abelian.Image f)). rewrite XX.
           apply e1.
@@ -491,7 +490,7 @@ Section def_pseudo_element.
     ∏ (z : ob A) (g : x --> z),
     a · g = ZeroArrow (to_Zero A) _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g).
 
-  Definition mk_PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
+  Definition make_PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
              (H : PEq (PseudoIm a f) (PseudoIm a' f)) (a'' : PseudoElem x)
              (H' : a'' · f = ZeroArrow (to_Zero A) _ _)
              (H'' : ∏ (z : ob A) (g : x --> z),
@@ -516,7 +515,7 @@ Section def_pseudo_element.
 
   Local Lemma PEq_Diff_Eq1 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) :
-    let PA := (AbelianToAdditive A hs) : PreAdditive in
+    let PA := (AbelianToAdditive A) : PreAdditive in
     @to_binop PA _ _ (PEqEpi2 H · a) (PEqEpi1 H · @to_inv PA _ _ a') · f =
     ZeroArrow (to_Zero A) _ _.
   Proof.
@@ -537,7 +536,7 @@ Section def_pseudo_element.
   Local Lemma PEq_Diff_Eq2 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) {z0 : A} {g : A ⟦ x, z0 ⟧}
         (X : a · g = ZeroArrow (to_Zero A) (PseudoOb a) z0) :
-    let PA := (AbelianToAdditive A hs) : PreAdditive in
+    let PA := (AbelianToAdditive A) : PreAdditive in
     identity (PEqOb H) · (@to_binop PA (PEqOb H) x (PEqEpi2 H · a)
                                      (PEqEpi1 H · @to_inv PA _ _ a') · g) =
     @to_inv PA _ _ (PEqEpi1 H) · (a' · g).
@@ -555,14 +554,14 @@ Section def_pseudo_element.
   Definition PEq_Diff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) : PDiff f H.
   Proof.
-    set (PA := (AbelianToAdditive A hs) : PreAdditive).
-    use mk_PDiff.
-    - exact (mk_PseudoElem (@to_binop PA _ _ (PEqEpi2 H · a)
-                                      (PEqEpi1 H · (@to_inv (AbelianToAdditive A hs) _ _ a')))).
+    set (PA := (AbelianToAdditive A) : PreAdditive).
+    use make_PDiff.
+    - exact (make_PseudoElem (@to_binop PA _ _ (PEqEpi2 H · a)
+                                      (PEqEpi1 H · (@to_inv (AbelianToAdditive A) _ _ a')))).
     - exact (PEq_Diff_Eq1 f H).
     - intros z0 g X.
-      use (mk_PEq _ _ (identity_Epi _)).
-      + cbn. exact (mk_Epi _ _ (to_inv_isEpi PA _ (EpiisEpi PA (PEqEpi1 H)))).
+      use (make_PEq _ _ (identity_Epi _)).
+      + cbn. exact (make_Epi _ _ (to_inv_isEpi PA _ (EpiisEpi PA (PEqEpi1 H)))).
       + cbn. exact (PEq_Diff_Eq2 f H X).
   Defined.
 
@@ -606,14 +605,14 @@ Section def_pseudo_element.
   Proof.
     set (mor1 := PEqEpi1 H · b). set (mor2 := PEqEpi2 H · a).
     use tpair.
-    - exact (mk_PseudoElem (PullbackArrow Pb _ mor2 mor1 (PEq_Pullback_Eq f g Pb a b H))).
+    - exact (make_PseudoElem (PullbackArrow Pb _ mor2 mor1 (PEq_Pullback_Eq f g Pb a b H))).
     - cbn. split.
-      + use mk_PEq.
+      + use make_PEq.
         * exact (PEqOb H).
         * exact (PEqEpi2 H).
         * exact (identity_Epi _).
         * exact (PEq_Pullback_Eq1 f g Pb a b H).
-      + use mk_PEq.
+      + use make_PEq.
         * exact (PEqOb H).
         * exact (PEqEpi1 H).
         * exact (identity_Epi _).

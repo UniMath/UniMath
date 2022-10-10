@@ -4,26 +4,29 @@
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
 
-Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.AxiomOfChoice.
+Require Import UniMath.Combinatorics.OrderedSets.
 
 Local Open Scope logic.
-Local Open Scope prop.
 Local Open Scope set.
 Local Open Scope subtype.
 Local Open Scope poset.
 
+Declare Scope tosubset.
 Delimit Scope tosubset with tosubset. (* subsets equipped with a well ordering *)
 Local Open Scope tosubset.
 
+Declare Scope wosubset.
 Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
 Local Open Scope wosubset.
 
 (** ** Totally ordered subsets of a set *)
 
-Definition TotalOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isTotalOrder R.
+Definition TotalOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isTotalOrder R).
 
 Definition TOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_set S).
 
@@ -53,7 +56,7 @@ Defined.
 
 Definition TOeq_to_refl_1 {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, pr1 s = pr1 t ⇒ s ≤ t.
 Proof.
-  intros s t e. induction (subtypeEquality_prop e). apply TOrefl.
+  intros s t e. induction (subtypePath_prop e). apply TOrefl.
 Defined.
 
 Definition TOtrans {X:hSet} (S : TOSubset X) : istrans (TOSrel S).
@@ -63,7 +66,7 @@ Defined.
 
 Local Lemma h1'' {X:hSet} {S:TOSubset X} {r s t u:S} : (r ≤ t -> pr1 r = pr1 s -> pr1 t = pr1 u -> s ≤ u)%tosubset.
 Proof.
-  intros le p q. induction (subtypeEquality_prop p). induction (subtypeEquality_prop q). exact le.
+  intros le p q. induction (subtypePath_prop p). induction (subtypePath_prop q). exact le.
 Defined.
 
 Definition tosub_order_compat {X:hSet} {S T : TOSubset X} (le : S ⊆ T) : hProp
@@ -160,7 +163,7 @@ Proof.
     - exact c.
     - apply (TOeq_to_refl S s s'). assert (k := pr2 le _ _ c); clear c.
       assert (k' := TOanti T _ _ l k); clear k l.
-      apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
+      apply subtypePath_prop. exact (maponpaths pr1 k'). }
 Defined.
 
 (** *** Adding a point on top of a totally ordered subset *)
@@ -258,13 +261,13 @@ Proof.
         + induction (ishinh_irrel (ii1 Sy) Wy);
           change (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) in xy;
           change (hProptoType (TOSrel S (y,,Sy) (x,,Sx))) in yx.
-          apply subtypeEquality_prop; change (x=y).
+          apply subtypePath_prop; change (x=y).
           exact (maponpaths pr1 (TOanti S _ _ xy yx)).
         + induction ezy.
           induction (ishinh_irrel (ii2 (idpath z)) Wy);
           change unit in xy;
           change empty in yx.
-          apply subtypeEquality_prop; change (x=z).
+          apply subtypePath_prop; change (x=z).
           exact (fromempty yx).
       - induction ezx.
         induction (ishinh_irrel (ii2 (idpath z)) Wx).
@@ -272,10 +275,10 @@ Proof.
         + induction (ishinh_irrel (ii1 Sy) Wy);
           change unit in yx;
           change empty in xy.
-          apply subtypeEquality_prop; change (z=y).
+          apply subtypePath_prop; change (z=y).
           exact (fromempty xy).
         + induction ezy.
-          apply subtypeEquality_prop; change (z=z).
+          apply subtypePath_prop; change (z=z).
           reflexivity. } }
   {                             (* totality *)
     intros [x Wx] [y Wy].
@@ -334,7 +337,7 @@ Definition hasSmallest {X : UU} (R : hrel X) : hProp
 
 Definition isWellOrder {X : hSet} (R : hrel X) : hProp := isTotalOrder R ∧ hasSmallest R.
 
-Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isWellOrder R.
+Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isWellOrder R).
 
 Definition WOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), WellOrdering (carrier_set S).
 
@@ -467,7 +470,7 @@ Definition WOSubset_plus_point {X:hSet}
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
   intros e. induction e. unfold wosub_equal.
-  simple refine ((λ L, dirprodpair L L) _).
+  simple refine ((λ L, make_dirprod L L) _).
   use tpair.
   + intros x s. assumption.
   + split.
@@ -504,7 +507,7 @@ Proof.
                 { intros s t Ss St le. exact St. } } } }
           { simpl. unfold WOSrel. simpl. intros [[a [b _]] [d [e _]]].
             assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
-            { intros f s. apply subtypeEquality_prop. reflexivity. }
+            { intros f s. apply subtypePath_prop. reflexivity. }
             apply funextfun; intros s. apply funextfun; intros t.
             apply hPropUnivalence.
             { intros le. assert (q := b s t le). rewrite 2 triv in q. exact q. }
@@ -554,7 +557,7 @@ Proof.
       assert (k := com s' s c).
       assert (k' := Tanti _ _ l k); clear k.
       assert (p : s = s').
-      { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
+      { apply subtypePath_prop. exact (maponpaths pr1 k'). }
       induction p. apply (pr2 S). (* refl *) }
 Defined.
 
@@ -574,7 +577,7 @@ Proof.
       change (hProptoType ((u,,Uu) ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss)))) in l.
       set (uinT := u ,, wosub_le_subi j s u (pr1 i s Ss) Uu l : T).
       assert (p : subtype_inc (pr1 j) uinT = u,,Uu).
-      { now apply subtypeEquality_prop. }
+      { now apply subtypePath_prop. }
       assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss))).
       assert (r := pr2 (wosub_fidelity j _ _) q).
       assert (b := wosub_le_subi i _ _ _ _ r); simpl in b.
@@ -781,9 +784,9 @@ Lemma chain_union_rel_isantisymm {X : hSet} {I : UU} {S : I → WOSubset X}
   isantisymm (chain_union_rel chain).
 Proof.
   intros x y l m.
-  change (x=y)%set.
+  change (x=y)%logic.
   apply (squash_to_hProp (common_index2 chain x y)); intros [i [r s]].
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
   assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
   assert (anti : isantisymm (WOSrel (S i))).
@@ -857,10 +860,10 @@ Proof.
   apply (pr2 (tosub_fidelity (chain_union_tosub_le Schain j) t' (subtype_inc ij s))).
   clear com ini.
   assert (p : t = subtype_inc (pr1 (chain_union_tosub_le _ j)) t').
-  { now apply subtypeEquality_prop. }
+  { now apply subtypePath_prop. }
   induction p.
   assert (q : inc s = subtype_inc (pr1 (chain_union_tosub_le Schain j)) (subtype_inc ij s)).
-  { now apply subtypeEquality_prop. }
+  { now apply subtypePath_prop. }
   induction q.
   exact le.
 Defined.
@@ -889,7 +892,7 @@ Proof.
     set (q := chain_union_rel_initial chain j t0 t tle).
     set (t' := (pr1 t,,q) : S j).
     assert (E : subtype_inc (subtype_union_containedIn S j) t' = t).
-    { now apply subtypeEquality_prop. }
+    { now apply subtypePath_prop. }
     rewrite <- E. unfold t0'.
     apply (pr2 (chain_union_tosub_le chain j) t0 t'). apply (t0min t').
     unfold T'. rewrite E. exact tinT.
@@ -918,27 +921,27 @@ Proof.
     exact (chain_union_rel_initial Schain i (s,,Ss) (t,,Tt)).
 Defined.
 
-Definition proper_subtypes_set (X:UU) : hSet := ∑ S : subtype_set X, ∃ x, ¬ (S x).
+Definition proper_subtypes_set (X:UU) : hSet := ∑ S : subtype_set X, hProp_to_hSet (∃ x, ¬ (S x)).
 
 (* the interval up to c, as a proper subset of X *)
 Definition upto' {X:hSet} {C:WOSubset X} (c:C) : proper_subtypes_set X.
 Proof.
   exists (upto c). apply hinhpr. exists (pr1 c). intro n.
   simpl in n. induction n as [n o]. apply o; clear o.
-  apply (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
+  apply (TOeq_to_refl C _ _). now apply subtypePath_prop.
 Defined.
 
 (** ** Choice functions *)
 
 (** A choice function provides an element not in each proper subset.  *)
 
-Definition choice_fun (X:hSet) := ∏ S : proper_subtypes_set X, ∑ x : X, ¬ pr1 S x.
+Definition choice_fun (X:hSet) : hSet := ∏ S : proper_subtypes_set X, ∑ x : X, hProp_to_hSet (¬ pr1 S x).
 
 Lemma AC_to_choice_fun (X:hSet) : AxiomOfChoice ⇒ ∥ choice_fun X ∥.
 Proof.
   intros ac.
   exact (squash_to_hProp (ac (proper_subtypes_set X)
-                             (λ S, ∑ x, ¬ (pr1 S x)) pr2)
+                             (λ S, ∑ x, hProp_to_hSet (¬ (pr1 S x))) pr2)
                          hinhpr).
 Defined.
 
@@ -955,9 +958,9 @@ Lemma upto'_eqn {X:hSet} (g : choice_fun X) (C D : WOSubset X) (j : C ≼ D)
   pr1 (g (upto' c)) = pr1 (g (upto' d)).
 Proof.
   intros p. assert (e' : upto' c = upto' d).
-  { apply subtypeEquality_prop. change (upto c = upto d).
+  { apply subtypePath_prop. change (upto c = upto d).
     assert (q : subtype_inc (pr1 j) c = d).
-    { now apply subtypeEquality_prop. }
+    { now apply subtypePath_prop. }
     clear p. induction q.
     now apply upto_eqn. }
   now induction e'.
@@ -1001,7 +1004,7 @@ Proof.
     { now apply (invmap (hsubtype_univalence _ _)). }
     assert (cd := !ce @ de : upto c = upto d).
     assert (cd' : upto' c = upto' d).
-    { now apply subtypeEquality_prop. }
+    { now apply subtypePath_prop. }
     assert (p := gC c); simpl in p.
     assert (q := gD d); simpl in q.
     unfold choice_fun in g.
@@ -1020,16 +1023,16 @@ Proof.
       assert (cmax : ∏ (v : carrier W') (W'c : W' (pr1 c)),
                      subtype_inc W'C v ≤ subtype_inc W'C (pr1 c,,W'c)).
       { intros v W'c'. assert (e : c = subtype_inc W'C (pr1 c,, W'c')).
-        { now apply subtypeEquality_prop. }
+        { now apply subtypePath_prop. }
         induction e. clear W'c'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
           assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
           now apply(h1'' Q).
-        - use (TOeq_to_refl C). apply subtypeEquality_prop. simpl. exact (!k). }
+        - use (TOeq_to_refl C). apply subtypePath_prop. simpl. exact (!k). }
       assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
                      subtype_inc W'C (subtype_inc j w) < subtype_inc W'C (pr1 c,,W'c)).
       { intros w W'c'. assert (e : c = subtype_inc W'C (pr1 c,, W'c')).
-        { now apply subtypeEquality_prop. }
+        { now apply subtypePath_prop. }
         induction e. clear W'c'. induction w as [v Wv].
         assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
         assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
@@ -1042,16 +1045,16 @@ Proof.
       assert (dmax : ∏ (v : carrier W') (W'd : W' (pr1 d)),
                      subtype_inc W'D v ≤ subtype_inc W'D (pr1 d,,W'd)).
       { intros v W'd'. assert (e : d = subtype_inc W'D (pr1 d,, W'd')).
-        { now apply subtypeEquality_prop. }
+        { now apply subtypePath_prop. }
         induction e. clear W'd'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
           assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
           now apply(h1'' Q).
-        - use (TOeq_to_refl D). apply subtypeEquality_prop. simpl. exact (!k @ cd1). }
+        - use (TOeq_to_refl D). apply subtypePath_prop. simpl. exact (!k @ cd1). }
       assert (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
                      subtype_inc W'D (subtype_inc j w) < subtype_inc W'D (pr1 d,,W'd)).
       { intros w W'd'. assert (e : d = subtype_inc W'D (pr1 d,, W'd')).
-        { now apply subtypeEquality_prop. }
+        { now apply subtypePath_prop. }
         induction e. clear W'd'. induction w as [v Wv].
         assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
         assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
@@ -1098,16 +1101,16 @@ Proof.
                           (subtype_inc WD (v,, Wv) ≤ subtype_inc WD (w,, Ww))
                       )%tosubset) in Q.
             assert (e : subtype_inc W'C (v,, W'v) = subtype_inc WC (v,, Wv)).
-            { now apply subtypeEquality_prop. }
+            { now apply subtypePath_prop. }
             induction e.
             assert (e : subtype_inc W'C (w,, W'w) = subtype_inc WC (w,, Ww)).
-            { now apply subtypeEquality_prop. }
+            { now apply subtypePath_prop. }
             induction e.
             assert (e : subtype_inc W'D (v,, W'v) = subtype_inc WD (v,, Wv)).
-            { now apply subtypeEquality_prop. }
+            { now apply subtypePath_prop. }
             induction e.
             assert (e : subtype_inc W'D (w,, W'w) = subtype_inc WD (w,, Ww)).
-            { now apply subtypeEquality_prop. }
+            { now apply subtypePath_prop. }
             induction e.
             exact Q.
           + induction Ew. apply logeq_if_both_true.
@@ -1117,15 +1120,15 @@ Proof.
           + apply logeq_if_both_false.
             * assert (Q := cmax' (w,,Ww) W'v). unfold lt in Q.
               assert (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
-              { now apply subtypeEquality_prop. }
+              { now apply subtypePath_prop. }
               induction e.
               exact Q.
             * assert (Q := dmax' (w,,Ww) W'd). unfold lt in Q.
               assert (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
-              { now apply subtypeEquality_prop. }
+              { now apply subtypePath_prop. }
               induction e.
               assert (e : subtype_inc W'D (pr1 c,, W'v) = subtype_inc W'D (pr1 d,, W'd)).
-              { now apply subtypeEquality_prop. }
+              { now apply subtypePath_prop. }
               induction e.
               exact Q.
           + induction Ew. apply logeq_if_both_true ; now use TOeq_to_refl_1. } }
@@ -1135,7 +1138,7 @@ Proof.
     assert (L := pr1 (cE (pr1 c)) Wc). induction L as [Cc Q]. change (neg (c ≤ pr1 c,, Cc)) in Q.
     apply Q; clear Q.
     simple refine (transportf (λ c', c ≤ c') _ (TOrefl C c)).
-    now apply subtypeEquality_prop. }
+    now apply subtypePath_prop. }
   change (wosub_comparable C D). unfold wosub_comparable.
   apply (squash_to_hProp E); clear E; intros E. apply hinhpr.
   Set Printing Coercions.
@@ -1204,7 +1207,7 @@ Proof.
     assert (W'guided : is_guided_WOSubset g W').
     { unfold is_guided_WOSubset.
       intros [x W'x].
-      change (x = pr1 (g (@upto' X W' (x,, W'x))))%set.
+      change (x = pr1 (g (@upto' X W' (x,, W'x))))%logic.
       apply (squash_to_hProp W'x); intros [Wx|ezx].
       - assert (x_guided := Wguided (x,,Wx)).
         change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_guided.
@@ -1223,7 +1226,7 @@ Proof.
       - induction ezx.
         change (pr1 (g (pr1 W,, Q)) = pr1 (g (@upto' X W' (z,, W'x)))).
         assert (e : (pr1 W,, Q) = @upto' X W' (z,, W'x)).
-        { apply subtypeEquality_prop. apply (invmap (hsubtype_univalence _ _)).
+        { apply subtypePath_prop. apply (invmap (hsubtype_univalence _ _)).
           intros y.
           change (W y ⇔ @upto X W' (z,, W'x) y).
           split.
@@ -1269,9 +1272,10 @@ Definition WellOrderedSet_to_hSet : WellOrderedSet -> hSet := pr1.
 
 Coercion WellOrderedSet_to_hSet : WellOrderedSet >-> hSet.
 
+Declare Scope woset.
 Delimit Scope woset with woset.
 
-Open Scope woset.
+Local Open Scope woset.
 
 Definition WOrel (X:WellOrderedSet) : hrel X := pr12 X.
 
@@ -1283,11 +1287,11 @@ Notation "x < y" := (WOlt x y) : woset.
 
 Lemma isaprop_theSmallest {X : hSet}
       (R : hrel X) (total : isTotalOrder R) (S : hsubtype X) :
-  isaprop (∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t).
+  isaprop (∑ s:X, hProp_to_hSet (S s ∧ ∀ t:X, S t ⇒ R s t)).
 Proof.
   induction total as [[po anti] tot].
-  apply invproofirrelevance; intros s t. apply subtypeEquality_prop.
-  induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
+  apply invproofirrelevance; intros s t. apply subtypePath_prop.
+  induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%logic.
   apply (squash_to_hProp (tot x y)); intros [c|c].
   { apply anti. { exact c. } { exact (j x I). } }
   { apply anti. { exact (i y J). } { exact c. } }
@@ -1325,7 +1329,7 @@ Qed.
 (** Equivalent definition (assuming decidable equality) of the WOlt relation *)
 Definition WOlt' (X : WellOrderedSet) (x y : X) : hProp.
 Proof.
-exists ((x ≤ y) × (x != y)).
+exists ((x ≤ y) × (x != y))%type.
 abstract (now apply isapropdirprod; [ apply propproperty | apply isapropneg ]).
 Defined.
 
@@ -1361,8 +1365,8 @@ Qed.
 
 
 Definition theSmallest {X : WellOrderedSet} (S : hsubtype X) : hProp
-  := (∃ s, S s) ⇒ hProppair
-                (∑ s:X, S s ∧ ∀ t:X, S t ⇒ WOrel X s t)
+  := (∃ s, S s) ⇒ make_hProp
+                (∑ s:X, S s ∧ ∀ t:X, S t ⇒ WOrel X s t)%type
                 (isaprop_theSmallest _ (WO_isTotalOrder X) S).
 
 (** actually get the smallest element: *)
@@ -1403,7 +1407,7 @@ Definition pr1wofun (X Y : WellOrderedSet) : wofun X Y → (X → Y) := @pr1 _ _
 Lemma wofun_eq {X Y : WellOrderedSet} {f g : wofun X Y} : pr1 f = pr1 g → f = g.
 Proof.
 intros Heq.
-apply subtypeEquality; trivial.
+apply subtypePath; trivial.
 now intros h; apply isaprop_iswofun.
 Qed.
 
@@ -1498,7 +1502,7 @@ Proof.
 
 Abort.
 
-Lemma bigSet (X:Type) : ∑ Y:hSet, ∏ f : Y -> X, ¬ isincl f.
+Lemma bigSet (X:Type) : (∑ Y:hSet, ∏ f : Y -> X, ¬ isincl f)%type.
 Proof.
   (*
      This lemma is useful in arguments by contradiction, where one uses

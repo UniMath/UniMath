@@ -4,7 +4,9 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -14,8 +16,7 @@ Local Open Scope cat.
 
 Section def_pb.
 
-Variable C : precategory.
-Variable hs: has_homsets C.
+Variable C : category.
 
 Local Open Scope stn.
 Definition One : three := ● 0.
@@ -58,7 +59,7 @@ Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
            (H : f' · f = g'· g)
   : cone (pullback_diagram f g) d.
 Proof.
-  use mk_cone.
+  use make_cone.
   - use three_rec_dep; try assumption.
     apply (f' · f).
   - use three_rec_dep; use three_rec_dep.
@@ -81,7 +82,7 @@ Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       iscontr (total2 (fun hk : e --> d => dirprod (hk · p1 = h)(hk · p2 = k))).
  *)
 
-Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
+Definition make_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
   (∏ e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h · f = k · g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk · p1 = h)(hk · p2 = k))))
@@ -105,8 +106,8 @@ Proof.
         eapply cancel_postcomposition, (pr2 (pr1 H2)).
       apply (coneOutCommutes cx One Two tt).
     * apply (pr2 (pr2 (pr1 H2))).
-  + abstract (intro t; apply subtypeEquality;
-              [ intro; apply impred; intro; apply hs
+  + abstract (intro t; apply subtypePath;
+              [ intro; apply impred; intro; apply C
               | destruct t as [t p0];
                 apply path_to_ctr; split; [ apply (p0 One) | apply (p0 Three) ]]).
 Defined.
@@ -124,7 +125,7 @@ Qed.
 Definition Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧) :=
      LimCone (pullback_diagram f g).
 
-Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
+Definition make_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (d : C) (p1 : C⟦d,b⟧) (p2 : C ⟦d,c⟧)
     (H : p1 · f = p2 · g)
     (ispb : isPullback f g p1 p2 H)
@@ -215,7 +216,7 @@ Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
    (P : Pullback f g) :
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
-  apply mk_isPullback.
+  apply make_isPullback.
   intros e h k HK.
   use tpair.
   - use tpair.
@@ -224,8 +225,8 @@ Proof.
       * apply PullbackArrow_PullbackPr1.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
-    apply subtypeEquality.
-    + intro. apply isapropdirprod; apply hs.
+    apply subtypePath.
+    + intro. apply isapropdirprod; apply C.
     + destruct t as [t p]. simpl.
       use (PullbackArrowUnique _ _ P).
       * apply e.
@@ -240,11 +241,11 @@ Qed.
 
 Lemma equiv_isPullback_1 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
+  limits.pullbacks.isPullback (*f g p1 p2*) H -> isPullback f g p1 p2 H.
 Proof.
   intro X.
   intros R cc.
-  set (XR := limits.pullbacks.mk_Pullback _ _ _ _ _ _ X).
+  set (XR := limits.pullbacks.make_Pullback _ X).
   use tpair.
   - use tpair.
     + use (pullbacks.PullbackArrow XR).
@@ -267,8 +268,8 @@ Proof.
       * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
   - abstract (
     intro t;
-    apply subtypeEquality;
-    [intro; apply impred; intro; apply hs |];
+    apply subtypePath;
+    [intro; apply impred; intro; apply C |];
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
@@ -278,7 +279,7 @@ Definition equiv_Pullback_1 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
   limits.pullbacks.Pullback f g -> Pullback f g.
 Proof.
   intros X.
-  exact (mk_Pullback
+  exact (make_Pullback
            f g (limits.pullbacks.PullbackObject X)
            (limits.pullbacks.PullbackPr1 X)
            (limits.pullbacks.PullbackPr2 X)
@@ -290,7 +291,7 @@ Definition equiv_Pullbacks_1: @limits.pullbacks.Pullbacks C -> Pullbacks.
 Proof.
   intros X' a b c f g.
   set (X := X' a b c f g).
-  exact (mk_Pullback
+  exact (make_Pullback
            f g (limits.pullbacks.PullbackObject X)
            (limits.pullbacks.PullbackPr1 X)
            (limits.pullbacks.PullbackPr2 X)
@@ -300,10 +301,10 @@ Defined.
 
 Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
+  limits.pullbacks.isPullback (*f g p1 p2*) H <- isPullback f g p1 p2 H.
 Proof.
   intro X.
-  set (XR := mk_Pullback _ _ _ _ _  _ X).
+  set (XR := make_Pullback _ _ _ _ _  _ X).
   intros R k h HH.
   use tpair.
   - use tpair.
@@ -312,8 +313,8 @@ Proof.
     + apply (PullbackArrow_PullbackPr1 XR).
     + apply (PullbackArrow_PullbackPr2 XR).
   - abstract (
-    intro t; apply subtypeEquality;
-    [ intro; apply isapropdirprod; apply hs |] ;
+    intro t; apply subtypePath;
+    [ intro; apply isapropdirprod; apply C |] ;
     induction t as [x Hx]; simpl in * ;
     use (PullbackArrowUnique _ _ XR);
     [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
@@ -324,11 +325,12 @@ Definition equiv_Pullback_2 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
   limits.pullbacks.Pullback f g <- Pullback f g.
 Proof.
   intros X.
-  exact (limits.pullbacks.mk_Pullback
-           f g
+  exact (limits.pullbacks.make_Pullback
+           (*f g
            (PullbackObject X)
            (PullbackPr1 X)
            (PullbackPr2 X)
+            *)
            (PullbackSqrCommutes X)
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
@@ -337,11 +339,12 @@ Definition equiv_Pullbacks_2 : @limits.pullbacks.Pullbacks C <- Pullbacks.
 Proof.
   intros X' a b c f g.
   set (X := X' a b c f g).
-  exact (limits.pullbacks.mk_Pullback
-           f g
+  exact (limits.pullbacks.make_Pullback
+           (*f g
            (PullbackObject X)
            (PullbackPr1 X)
            (PullbackPr2 X)
+            *)
            (PullbackSqrCommutes X)
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
@@ -351,7 +354,7 @@ Definition identity_is_Pullback_input {a b c : C}{f : C⟦b, a⟧} {g : C⟦c, a
    dirprod (hk · PullbackPr1 Pb = PullbackPr1 Pb)(hk · PullbackPr2 Pb = PullbackPr2 Pb)).
 Proof.
   exists (identity (lim Pb)).
-  apply dirprodpair; apply id_left.
+  apply make_dirprod; apply id_left.
 Defined.
 
 (* was PullbackArrowUnique *)
@@ -446,7 +449,7 @@ Qed.
 (*
 Lemma isPullbackGluedSquare : isPullback (i · f) g m (j · k) glueSquares.
 Proof.
-  apply mk_isPullback.
+  apply make_isPullback.
   intros y p q.
   intro Hrt.
   assert (ex : (p· i)· f = q· g).
@@ -467,9 +470,9 @@ Proof.
            unfold awe. rewrite X.
            exact (pr2 (pr2 (pr1 rt))).
    }
-  exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
+  exists (tpair _ awe (make_dirprod Hawe1 Hawe2)).
   intro t.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro a0. apply isapropdirprod;
     apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -487,11 +490,6 @@ Qed.
  *)
 
 End pullback_lemma.
-
-Section Universal_Unique.
-
-Hypothesis H : is_univalent C.
-
 
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧)
   (Pb : Pullback f g) (Pb' : Pullback f g):
@@ -513,7 +511,7 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.
@@ -534,11 +532,10 @@ Proof.
 Qed.
  *)
 
-End Universal_Unique.
 
 End def_pb.
 
-Lemma Pullbacks_from_Lims (C : precategory) :
+Lemma Pullbacks_from_Lims (C : category) :
   Lims C -> Pullbacks C.
 Proof.
   intros H a b c f g; apply H.

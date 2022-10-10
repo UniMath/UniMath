@@ -10,14 +10,19 @@ Installation
 See
 [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
 
+Usage
+-----
+
+See [USAGE.md](./USAGE.md)
+
 Contents
 --------
 
 The [UniMath subdirectory](UniMath/) contains various packages of formalized
 mathematics. For more information, see the [UniMath Table of Contents](UniMath/CONTENTS.md).
 
-Some scientific articles describing the contents of the UniMath library are listed in the 
-[wiki](https://github.com/UniMath/UniMath/wiki/Documentation:-Articles-describing-UniMath).
+Some scientific articles describing the contents of the UniMath library or work using it are listed in the 
+[wiki](https://github.com/UniMath/UniMath/wiki/Articles-with-accompanying-formalization-in-UniMath).
 
 Contributing to UniMath
 -----------------------
@@ -31,8 +36,8 @@ Discussing UniMath & Getting Help
 ---------------------------------
 
 - **Questions** about the UniMath library, compilation, and installation of UniMath, etc.,
-should be sent to the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com), which is archived in the 
-[Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics).
+can be asked in the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register)
+or on the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com) (archived in a [Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics)).
 - **Bugs** should be reported in our [UniMath bug tracker on Github](https://github.com/UniMath/UniMath/issues).
 
 
@@ -45,13 +50,13 @@ To cite UniMath in your article, you can use the following bibtex item:
     author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
     title = {{UniMath --- a computer-checked library of univalent mathematics}},
     url = {https://github.com/UniMath/UniMath},
-    howpublished = {{available} at \url{https://github.com/UniMath/UniMath}}
+    howpublished = {available at \url{http://unimath.org}}
  }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 
 
-The UniMath Development Team
+The UniMath Coordinating Committee
 ----------------------------
 
 The UniMath project was started in 2014 by merging the repository
@@ -62,11 +67,13 @@ Benedikt Ahrens, and [Ktheory](https://github.com/DanGrayson/Ktheory), by
 Daniel Grayson.  Vladimir Voevodsky was a member of the team until his death in
 September, 2017.
 
-The current members of the UniMath Development Team are:
+The current members of the UniMath Coordinating Committee are:
 
 - Benedikt Ahrens
 - Daniel Grayson
-
+- Peter LeFanu Lumsdaine
+- Ralph Matthes
+- Niels van der Weide
 
 Acknowledgments
 ---------------

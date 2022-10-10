@@ -8,12 +8,17 @@ Contents : Equivalence of the categories PreShv ∫P and
            PreShv C / P for any P in PreShv C
 ************************************************************)
 
-Require Import UniMath.MoreFoundations.Tactics
-        UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.categories.category_hset
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import
+        UniMath.CategoryTheory.Equivalences.Core
+        UniMath.CategoryTheory.categories.HSET.Core
+        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf
@@ -24,25 +29,25 @@ Section elems_slice_equiv.
 
   Local Open Scope cat.
 
-  Local Notation "C / X" := (slice_precat C X (pr2 C)).
-  Local Definition ap_PreShv {X : precategory} := fun (P : PreShv X) (x : X) => pr1hSet ((pr1 P) x).
+  Local Notation "C / X" := (slice_cat C X).
+  Local Definition ap_PreShv {X : category} := fun (P : PreShv X) (x : X) => pr1hSet ((pr1 P) x).
   Local Notation "##" := ap_PreShv.
 
-  Variable (C : precategory) (P : PreShv C).
+  Variable (C : category) (P : PreShv C).
 
   (** ** Construction of the functor from PreShv ∫P to PreShv C / P *)
-  Local Definition mk_ob := @make_ob C P.
-  Local Definition mk_mor := @make_mor C P.
+  Local Definition make_ob := @make_ob C P.
+  Local Definition make_mor := @make_mor C P.
 
-  Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → SET :=
-    λ X, total2_hSet (fun p : ##P X => (pr1 F) (mk_ob X p)).
+  Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → HSET :=
+    λ X, total2_hSet (fun p : ##P X => (pr1 F) (make_ob X p)).
 
   Definition PreShv_to_slice_ob_funct_mor (F : PreShv ∫P) {X Y : C^op} (f : X --> Y) :
     PreShv_to_slice_ob_funct_fun F X --> PreShv_to_slice_ob_funct_fun F Y :=
     λ p, # (pr1 P) f (pr1 p) ,, # (pr1 F) (mor_to_el_mor (C:=C) f (pr1 p)) (pr2 p).
 
 
-  Definition PreShv_to_slice_ob_funct_data (F : PreShv ∫P) : functor_data C^op SET :=
+  Definition PreShv_to_slice_ob_funct_data (F : PreShv ∫P) : functor_data C^op HSET :=
     PreShv_to_slice_ob_funct_fun F ,, @PreShv_to_slice_ob_funct_mor F.
 
   (* Proof from Anders:
@@ -75,24 +80,24 @@ Section elems_slice_equiv.
 
     + set (T := ∑ p' : ## P X, p' = # (pr1 P) (identity X) p : UU).
       set (T' := ∑ p' : ## P X, (pr1 F) (X ,, p) --> (pr1 F) (X ,, p') : UU).
-      set (phi := λ (x : T), mk_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
+      set (phi := λ (x : T), make_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
       set (G := λ (x : T), pr1 x ,, # (pr1 F) (phi x) : T').
       set (e := fun (x : ∫P) => eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
       set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
 
       use (maponpaths (funcomp G h)
-                         (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
+                         (coconustot_isProofIrrelevant ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
       use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (X ,, x))) p).
       use (eqtohomot _ q @ eqtohomot (functor_id F (X ,, p)) q).
       use (maponpaths (# (pr1 F))).
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
-        now apply eqset.
+        now apply setproperty.
 
     + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).
       set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
-      set (phi := λ (x : T), mk_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
+      set (phi := λ (x : T), make_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
       set (G := λ (x : T), (pr1 x ,, # (pr1 F) (phi x)) : T').
       set (e := fun (z y x : ∫P) (f : z --> y) (g : y --> x) =>
                   ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
@@ -100,21 +105,21 @@ Section elems_slice_equiv.
       set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F Z)).
 
       use (maponpaths (funcomp G h)
-                         (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
+                         (coconustot_isProofIrrelevant (# (pr1 P) (g ∘ f) p ,, idpath _)
                                               (# (pr1 P) g (# (pr1 P) f p) ,,
-                                                 e (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
-                                                 (mk_ob Y (# (pr1 P) f p)) (mk_ob X p)
+                                                 e (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+                                                 (make_ob Y (# (pr1 P) f p)) (make_ob X p)
                                                  (g ,, idpath _) (f ,, idpath _))) @ _).
       use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p))).
-      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (mk_ob X p)
-                                                       (mk_ob Y (# (pr1 P) f p))
-                                                       (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (make_ob X p)
+                                                       (make_ob Y (# (pr1 P) f p))
+                                                       (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
                                                        (f ,, idpath _) (g,, idpath _)) q).
       use (maponpaths (# (pr1 F))).
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
-        now apply eqset.
+        now apply setproperty.
   Qed.
 
   Definition PreShv_to_slice_ob_funct (F : PreShv ∫P) : PreShv C :=
@@ -166,7 +171,7 @@ Section elems_slice_equiv.
     PreShv_to_slice_data ,, PreShv_to_slice_is_funct.
 
   (** ** Construction of the functor from PreShv C / P to PreShv ∫P *)
-  Definition slice_to_PreShv_ob_ob (Q : PreShv C / P) : (∫P)^op → SET :=
+  Definition slice_to_PreShv_ob_ob (Q : PreShv C / P) : (∫P)^op → HSET :=
     λ p,
       hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
              isaset_hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) (pr2 (((pr1 (pr1 Q)) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
@@ -184,7 +189,7 @@ Section elems_slice_equiv.
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
-  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) SET :=
+  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) HSET :=
     slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
 
   Definition slice_to_PreShv_ob_is_funct (Q : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).
@@ -195,7 +200,7 @@ Section elems_slice_equiv.
       apply funextsec; intro p;
         apply (invmaponpathsincl pr1);
         try (apply isofhlevelfpr1;
-             intros ?; exact (pr2 (eqset _ _))).
+             intros ?; apply setproperty).
     + exact (eqtohomot ((pr1 Qisfunct) x) (pr1 p)).
     + exact (eqtohomot ((pr2 Qisfunct) x y z f g) (pr1 p)).
   Qed.
@@ -224,7 +229,7 @@ Section elems_slice_equiv.
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
       intros ?.
-      exact (pr2 (eqset _ _)).
+      apply setproperty.
     + simpl.
       destruct peq.
       unfold hfiber.
@@ -250,10 +255,10 @@ Section elems_slice_equiv.
       apply (invmaponpathsincl pr1);
       try (apply isofhlevelfpr1;
            intros ?;
-                  exact (pr2 (eqset _ _)));
+                  apply setproperty);
       simpl;
       unfold hfiber;
-      unfold hfibersgftog; unfold hfiberpair;
+      unfold hfibersgftog; unfold make_hfiber;
       repeat (rewrite transportf_total2;
               simpl; unfold hfiber);
       now repeat rewrite transportf_const.
@@ -293,35 +298,26 @@ Section elems_slice_equiv.
     apply maponpaths. unfold hfiber.
     rewrite transportf_total2. simpl.
     rewrite transportf_const.
-    now unfold idfun.
+    reflexivity.
   Qed.
 
   Definition slice_counit : slice_to_PreShv ∙ PreShv_to_slice ⟹ functor_identity (PreShv C / P) :=
     slice_counit_fun ,, is_nat_trans_slice_counit.
 
-  Definition slice_all_iso : forall F : PreShv C / P, is_iso (slice_counit F).
+  Definition slice_all_z_iso : forall F : PreShv C / P, is_z_isomorphism (slice_counit F).
   Proof.
     intros [[[F Fmor] Fisfunct] [Fnat Fisnat]].
-    apply iso_to_slice_precat_iso.
-    apply functor_iso_if_pointwise_iso.
+    apply z_iso_to_slice_precat_z_iso.
+    apply nat_trafo_z_iso_if_pointwise_z_iso.
     intros X; simpl.
-    match goal with
-    | |- is_iso ?t => assert (eq : t =
-                                   (λ X0, pr1 (pr2 X0)))
-    end.
-    { apply funextsec. intros [p q]. simpl. reflexivity. }
-    rewrite eq.
     change (λ X0, pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
-    exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
+    exact (hset_equiv_is_z_iso (make_hSet (coconusf (Fnat X))
                                          (isaset_total2_hSet _ (λ y, (hfiber_hSet (Fnat X) y)))) _
                                (weqfromcoconusf (Fnat X))).
   Qed.
 
   Definition slice_unit : functor_identity (PreShv C / P) ⟹ slice_to_PreShv ∙ PreShv_to_slice :=
-    nat_trans_inv_from_pointwise_inv _ _
-                                     (has_homsets_slice_precat (pr2 (PreShv C)) P)
-                                     (slice_to_PreShv ∙ PreShv_to_slice) (functor_identity (PreShv C / P))
-                                     slice_counit slice_all_iso.
+    pr1 (nat_trafo_z_iso_if_pointwise_z_iso (has_homsets_slice_precat ((PreShv C)) P) (slice_counit) slice_all_z_iso).
 
   (** ** Construction of the natural isomorphism from the identity functor to (PreShv_to_slice ∙ slice_to_PreShv) *)
   Definition PreShv_unit_fun (F : PreShv ∫P) :
@@ -336,7 +332,7 @@ Section elems_slice_equiv.
       apply (invmaponpathsincl pr1).
       apply isofhlevelfpr1;
         intros ?;
-               exact (pr2 (eqset _ _)).
+               apply setproperty.
       induction (!feq).
       apply (total2_paths2_f (idpath _)).
       rewrite idpath_transportf.
@@ -354,7 +350,7 @@ Section elems_slice_equiv.
     apply (invmaponpathsincl pr1).
     apply isofhlevelfpr1;
       intros ?;
-             exact (pr2 (eqset _ _)).
+             apply setproperty.
     simpl. unfold hfiber.
     rewrite transportf_total2; simpl.
     now rewrite transportf_const.
@@ -363,10 +359,10 @@ Section elems_slice_equiv.
   Definition PreShv_unit : functor_identity (PreShv ∫P) ⟹ PreShv_to_slice ∙ slice_to_PreShv :=
     PreShv_unit_fun ,, is_nat_trans_PreShv_unit.
 
-  Definition PreShv_all_iso : forall F : PreShv ∫P, is_iso (PreShv_unit F).
+  Definition PreShv_all_iso : forall F : PreShv ∫P, is_z_isomorphism (PreShv_unit F).
   Proof.
     intros [[F Fmor] Fisfunct].
-    apply functor_iso_if_pointwise_iso.
+    apply nat_trafo_z_iso_if_pointwise_z_iso.
     intros [X p]; simpl.
     assert (H : isweq (λ x : pr1hSet (F (X,, p)) , (p,, x) ,, idpath p : pr1hSet (slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p)))).
     { unfold isweq. intros [[p' x'] e'].
@@ -379,7 +375,7 @@ Section elems_slice_equiv.
                exact (pr2 (@eqset
                              ((slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p'))) _ _)).
       assert (eq_id : base_paths (p',, x'') (p',, x') (maponpaths pr1 t) = idpath p').
-      { set (c := iscontraprop1 (pr2 (@eqset ((pr1 P) X) p' p')) (idpath p')).
+      { set (c := iscontraprop1 (setproperty _ _ _) (idpath p')).
         exact ((pr2 c) _ @ !((pr2 c) _)).
       }
       set (eq := fiber_paths (maponpaths pr1 t)).
@@ -387,17 +383,17 @@ Section elems_slice_equiv.
       rewrite (transportf_paths _ eq_id).
       now rewrite idpath_transportf.
     }
-    exact (hset_equiv_is_iso (F (X ,, p)) _ (_ ,, H)).
+    exact (hset_equiv_is_z_iso (F (X ,, p)) _ (_ ,, H)).
   Qed.
 
   Definition PreShv_counit : PreShv_to_slice ∙ slice_to_PreShv ⟹ functor_identity (PreShv ∫P) :=
-    nat_trans_inv_from_pointwise_inv _ _ (pr2 (PreShv ∫P)) _ _ PreShv_unit PreShv_all_iso.
+    pr1 (nat_trafo_z_iso_if_pointwise_z_iso (pr2 (PreShv ∫P)) PreShv_unit PreShv_all_iso).
 
   (** ** The equivalence of the categories PreShv ∫P and PreShv C / P *)
-  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_precats (PreShv ∫P) (PreShv C / P) :=
-    (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_iso).
+  Definition PreShv_of_elems_slice_of_PreShv_equiv : equivalence_of_cats (PreShv ∫P) (PreShv C / P) :=
+    (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_z_iso).
 
-  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_precats PreShv_to_slice :=
-    @adjointificiation (PreShv ∫P) (PreShv C / P ,, has_homsets_slice_precat (pr2 (PreShv C)) P) PreShv_of_elems_slice_of_PreShv_equiv.
+  Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_cats PreShv_to_slice :=
+    @adjointificiation (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
 
 End elems_slice_equiv.

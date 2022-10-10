@@ -4,9 +4,10 @@ Auke Booij, December 2017
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Submodule.
 
@@ -28,13 +29,13 @@ Section quotmod_rel.
   Definition hrelmodule_eqrel (E : module_eqrel) : eqrel M := pr1 E.
   Coercion hrelmodule_eqrel : module_eqrel >-> eqrel.
 
-  Definition binophrelmodule_eqrel (E : module_eqrel) : binopeqrel M := binopeqrelpair E (pr1 (pr2 E)).
+  Definition binophrelmodule_eqrel (E : module_eqrel) : binopeqrel M := make_binopeqrel E (pr1 (pr2 E)).
   Coercion binophrelmodule_eqrel : module_eqrel >-> binopeqrel.
 
   Definition isactionhrelmodule_eqrel (E : module_eqrel) : isactionhrel E := pr2 (pr2 E).
   Coercion isactionhrelmodule_eqrel : module_eqrel >-> isactionhrel.
 
-  Definition mk_module_eqrel (E : eqrel M) : isbinophrel E -> isactionhrel E -> module_eqrel :=
+  Definition make_module_eqrel (E : eqrel M) : isbinophrel E -> isactionhrel E -> module_eqrel :=
     λ H0 H1, (E,,(H0,,H1)).
 
 End quotmod_rel.
@@ -76,7 +77,7 @@ Section quotmod_submodule.
 
   Definition module_eqrelsubmodule : module_eqrel M.
   Proof.
-    use mk_module_eqrel.
+    use make_module_eqrel.
     - exact eqrelsubmodule.
     - split.
       + intros a b c.
@@ -136,9 +137,9 @@ Section quotmod_def.
   Proof.
     intros r. use tpair.
     + exact (quotmod_ringact r).
-    + use mk_ismonoidfun.
-      * use mk_isbinopfun.
-        use (setquotuniv2prop E (λ a b, hProppair _ _)); [use isasetsetquot|].
+    + use make_ismonoidfun.
+      * use make_isbinopfun.
+        use (setquotuniv2prop E (λ a b, make_hProp _ _)); [use isasetsetquot|].
         intros m m'.
         unfold quotmod_ringact, setquotfun2;
           rewrite (setquotunivcomm E), (setquotunivcomm E);
@@ -158,20 +159,20 @@ Section quotmod_def.
     unfold ringfun, rigfun.
     use rigfunconstr.
     - exact quotmod_ringmap.
-    - use mk_isrigfun.
+    - use make_isrigfun.
       (* To show that quotmod_ringmap is a ring action, we show it is a monoid homomorphism with
       respect to both monoids on R. *)
-      all: use mk_ismonoidfun;
+      all: use make_ismonoidfun;
         (* To show that a map is a monoid homomorphism, we show that it respects the binary
         operation, as well as that it preserves the unit. *)
-        [ use mk_isbinopfun; intros r r' | ].
+        [ use make_isbinopfun; intros r r' | ].
       (* It suffices to prove the underlying maps of the resulting automorphism of our group are
       equal. *)
       all: use monoidfun_paths; use funextfun.
       (* We show this using the universal property of the set quotient. *)
-      all: use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
+      all: use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetsetquot|].
       (* Expand out some definitions. *)
-      all: intros m; simpl; unfold unel, quotmod_ringact, funcomp.
+      all: intros m; simpl; unfold unel, quotmod_ringact.
       (* Apply the computation rule of the universal property of the set quotient. *)
       all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
             | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].
@@ -189,7 +190,7 @@ Section quotmod_def.
 
   Definition quotmod : module R.
   Proof.
-    use modulepair.
+    use make_module.
     - exact quotmod_abgr.
     - exact quotmod_mod_struct.
   Defined.
@@ -198,9 +199,9 @@ Section quotmod_def.
   Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
   Definition quotmod_quotmap : R-mod(M, quotmod).
   Proof.
-    use modulefunpair.
+    use make_modulefun.
     - exact (setquotpr E).
-    - now use (ismodulefunpair (mk_isbinopfun _)).
+    - now use (make_ismodulefun (make_isbinopfun _)).
   Defined.
 
   Definition quotmoduniv
@@ -209,11 +210,11 @@ Section quotmod_def.
              (is : iscomprelfun E f) :
     R-mod(quotmod, N).
   Proof.
-    use modulefunpair.
+    use make_modulefun.
     - now use (setquotuniv E _ f).
-    - use ismodulefunpair.
-      + use mk_isbinopfun.
-        use (setquotuniv2prop E (λ m n, hProppair _ _)); [use isasetmodule|].
+    - use make_ismodulefun.
+      + use make_isbinopfun.
+        use (setquotuniv2prop E (λ m n, make_hProp _ _)); [use isasetmodule|].
         intros m m'.
         simpl.
         unfold op, setquotfun2.
@@ -221,7 +222,7 @@ Section quotmod_def.
         do 3 rewrite (setquotunivcomm E).
         apply modulefun_to_isbinopfun.
       + intros r.
-        use (setquotunivprop E (λ m, hProppair _ _)); [use isasetmodule|].
+        use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetmodule|].
         intros m.
         assert (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)) by
             use (! modulefun_to_islinear _ _ _).

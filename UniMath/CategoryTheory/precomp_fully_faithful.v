@@ -25,8 +25,10 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 
@@ -42,30 +44,28 @@ Section pre_composition.
 
 (** Section variables *)
 
-Variables A B C : precategory.
-Variable hsB: has_homsets B.
-Variable hsC: has_homsets C.
+Variables A B C : category.
 Variable H : functor A B.
 
 (** * Precomposition with an essentially surjective functor is faithful. *)
 
 Lemma pre_composition_with_ess_surj_is_faithful (p : essentially_surjective H) :
-           faithful (pre_composition_functor A B C hsB hsC H).
+           faithful (pre_composition_functor A B C H).
 Proof.
   intros F G.
   apply isinclbetweensets.
-  - apply isaset_nat_trans. apply hsC.
-  - apply isaset_nat_trans. apply hsC.
+  - apply isaset_nat_trans. apply C.
+  - apply isaset_nat_trans. apply C.
   - simpl in *.
     intros gamma delta ex.
     apply nat_trans_eq.
-    + apply hsC.
+    + apply C.
     + intro b.
-      apply (p b (hProppair _ (hsC _ _ _ _))).
+      apply (p b (make_hProp _ (homset_property C _ _ _ _))).
       intro t; induction t as [a f]; simpl.
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (# F f)
-         (functor_on_iso_is_iso _ _ _ _ _ f)).
-      rewrite 2 nat_trans_ax.
+      apply (pre_comp_with_z_iso_is_inj (pr2(pr2(functor_on_z_iso _ f)))).
+      cbn.
+      do 2 rewrite nat_trans_ax.
       apply cancel_postcomposition.
       apply (nat_trans_eq_pointwise ex a).
 Defined.
@@ -97,22 +97,22 @@ Variable gamma : nat_trans
 
 Lemma iscontr_aux_space (b : B) :
    iscontr (total2 (fun g : F b --> G b =>
-      ∏ a : A, ∏ f : iso (H a) b,
-           g = functor_on_iso F (iso_inv_from_iso f) · gamma a · #G f)).
+      ∏ a : A, ∏ f : z_iso (H a) b,
+           g = functor_on_z_iso F (z_iso_inv_from_z_iso f) · gamma a · #G f)).
 Proof.
-  apply (p b (hProppair _ (isapropiscontr _))).
+  apply (p b (make_hProp _ (isapropiscontr _))).
   intro t; induction t as [anot h]; simpl.
-  set (g := functor_on_iso F (iso_inv_from_iso h) · gamma anot · #G h).
-  assert (gp : ∏ (a : A) (f : iso (H a) b),
-                 g = #F (inv_from_iso f) · gamma a · #G f).
+  set (g := functor_on_z_iso F (z_iso_inv_from_z_iso h) · gamma anot · #G h).
+  assert (gp : ∏ (a : A) (f : z_iso (H a) b),
+                 g = #F (inv_from_z_iso f) · gamma a · #G f).
   - intros a f.
-    apply (Hf _ _ (h · inv_from_iso f) (hProppair _ (hsC _ _ _ _))).
+    apply (Hf _ _ (h · inv_from_z_iso f) (make_hProp _ (homset_property C  _ _ _ _))).
     intro sur.
     simpl.
     unfold g.
-    rewrite functor_on_iso_inv; simpl.
+    rewrite functor_on_z_iso_inv; simpl.
     rewrite <- assoc.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     rewrite 2 assoc.
     simpl.
     rewrite <- functor_comp.
@@ -124,13 +124,13 @@ Proof.
     rewrite <- functor_comp.
     apply maponpaths.
     rewrite <- assoc.
-    rewrite iso_after_iso_inv.
+    rewrite z_iso_after_z_iso_inv.
     apply pathsinv0, id_right.
   - exists (g,, gp).
     intro t; induction t as [g' gp'].
-    apply subtypeEquality.
+    apply subtypePath.
     { intro; do 2 (apply impred; intro).
-      apply hsC. }
+      apply C. }
     simpl.
     rewrite (gp anot h).
     rewrite (gp' anot h).
@@ -144,21 +144,21 @@ Lemma is_nat_trans_pdelta :
      is_nat_trans F G pdelta.
 Proof.
   intros b b' f.
-  apply (p b (hProppair _ (hsC _ _ _ _) )).
+  apply (p b (make_hProp _ (homset_property C _ _ _ _) )).
   intro t; induction t as [a h]; simpl.
-  apply (p b' (hProppair _ (hsC _ _ _ _) )).
+  apply (p b' (make_hProp _ (homset_property C _ _ _ _) )).
   intro t; induction t as [a' h']; simpl.
   unfold pdelta.
   rewrite (pr2 ((pr1 (iscontr_aux_space b))) a h).
   rewrite (pr2 ((pr1 (iscontr_aux_space b'))) a' h').
   rewrite <- 3 assoc.
   apply pathsinv0.
-  rewrite functor_on_iso_inv.
-  apply iso_inv_on_right.
+  rewrite functor_on_z_iso_inv.
+  apply z_iso_inv_on_right.
   rewrite 4 assoc.
   simpl.
   rewrite <- 2 functor_comp.
-  apply (Hf _ _ (h · f · (inv_from_iso h')) (hProppair _ (hsC _ _ _ _))).
+  apply (Hf _ _ (h · f · (inv_from_z_iso h')) (make_hProp _ (homset_property C _ _ _ _))).
   intro sur.
   simpl.
   rewrite <- (pr2 sur).
@@ -168,7 +168,7 @@ Proof.
   rewrite <- 2 functor_comp.
   apply cancel_precomposition, maponpaths.
   rewrite <- 2 assoc.
-  rewrite iso_after_iso_inv.
+  rewrite z_iso_after_z_iso_inv.
   rewrite id_right.
   apply idpath.
 Defined.
@@ -179,12 +179,12 @@ Definition delta : nat_trans F G :=
 Lemma pdelta_preimage : pre_whisker H delta = gamma.
 Proof.
   apply nat_trans_eq.
-  - apply hsC.
+  - apply C.
   - intro a.
     intermediate_path (pr1 (pr1 (iscontr_aux_space (H a)))).
     + apply idpath.
-    + rewrite (pr2 (pr1 (iscontr_aux_space (H a))) a (identity_iso _)).
-      rewrite iso_inv_of_iso_id.
+    + rewrite (pr2 (pr1 (iscontr_aux_space (H a))) a (identity_z_iso _)).
+      rewrite z_iso_inv_of_z_iso_id.
       simpl.
       rewrite 2 functor_id.
       rewrite id_right.
@@ -196,7 +196,7 @@ End full.
 (** * Precomposition with an essentially surjective and full functor is fully faithful *)
 
 Lemma pre_composition_with_ess_surj_and_full_is_full :
-  full (pre_composition_functor A B C hsB hsC H).
+  full (pre_composition_functor A B C H).
 Proof.
   intros F G gamma.
   apply hinhpr.
@@ -205,7 +205,7 @@ Proof.
 Defined.
 
 Lemma pre_composition_with_ess_surj_and_full_is_full_and_faithful :
-   full_and_faithful (pre_composition_functor A B C hsB hsC H).
+   full_and_faithful (pre_composition_functor A B C H).
 Proof.
   split.
   apply pre_composition_with_ess_surj_and_full_is_full.
@@ -213,7 +213,7 @@ Proof.
 Defined.
 
 Lemma pre_composition_with_ess_surj_and_full_is_fully_faithful :
-   fully_faithful (pre_composition_functor A B C hsB hsC H).
+   fully_faithful (pre_composition_functor A B C H).
 Proof.
   apply full_and_faithful_implies_fully_faithful.
   apply pre_composition_with_ess_surj_and_full_is_full_and_faithful.
@@ -224,7 +224,7 @@ End precomp_with_ess_surj_full_functor_is_full.
 
 Lemma pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful
   (p : essentially_surjective H) (Hff : fully_faithful H):
-  fully_faithful (pre_composition_functor A B C hsB hsC H).
+  fully_faithful (pre_composition_functor A B C H).
 Proof.
   apply pre_composition_with_ess_surj_and_full_is_fully_faithful.
   - exact p.

@@ -7,8 +7,8 @@ Authors: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -22,15 +22,15 @@ Local Open Scope cat.
    with exactly one arrow from n to S n.
 *)
 
-Definition nat_graph : graph := mk_graph nat (λ m n, 1 + m = n).
+Definition nat_graph : graph := make_graph nat (λ m n, 1 + m = n).
 
 Notation "'chain'" := (diagram nat_graph).
 
-Definition mapchain {C D : precategory} (F : functor C D)
+Definition mapchain {C D : category} (F : functor C D)
            (c : chain C) : chain D := mapdiagram F c.
 
 (** Any i < j gives a morphism in the chain via composition *)
-Definition chain_mor {C : precategory} (c : chain C) {i j} :
+Definition chain_mor {C : category} (c : chain C) {i j} :
   i < j -> C⟦dob c i, dob c j⟧.
 Proof.
 induction j as [|j IHj].
@@ -42,15 +42,14 @@ induction j as [|j IHj].
 Defined.
 
 (** For any cocone `cc` under the chain, the following diagram commutes:
-
-    <<
+<<
      c i --> c j
       |       |
       |       V
       +----> cc
-    >>
+>>
  *)
-Lemma chain_mor_coconeIn {C : precategory} (c : chain C) (x : C)
+Lemma chain_mor_coconeIn {C : category} (c : chain C) (x : C)
   (cc : cocone c x) i : ∏ j (Hij : i < j),
   chain_mor c Hij · coconeIn cc j = coconeIn cc i.
 Proof.
@@ -66,7 +65,7 @@ Qed.
 
 (** One of the hypotheses of this lemma is redundant, however when stated this way the lemma can be
 used for any two proofs making it easier to apply. *)
-Lemma chain_mor_right {C : precategory} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
+Lemma chain_mor_right {C : category} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
   dmor c (idpath (S i)) · chain_mor c HSij = chain_mor c Hij.
 Proof.
 induction j as [|j IHj].
@@ -82,7 +81,7 @@ induction j as [|j IHj].
 Qed.
 
 (** See comment for [chain_mor_right] about the redundant hypothesis *)
-Lemma chain_mor_left {C : precategory} {c : chain C} {i j} (Hij : i < j) (HiSj : i < S j) :
+Lemma chain_mor_left {C : category} {c : chain C} {i j} (Hij : i < j) (HiSj : i < S j) :
   chain_mor c Hij · dmor c (idpath (S j)) = chain_mor c HiSj.
 Proof.
 destruct j.
@@ -104,7 +103,7 @@ Qed.
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
 >>
 *)
-Definition initChain {C : precategory} (InitC : Initial C) (F : functor C C) : chain C.
+Definition initChain {C : category} (InitC : Initial C) (F : functor C C) : chain C.
 Proof.
 exists (λ n, iter_functor F n InitC).
 intros m n Hmn. destruct Hmn. simpl.
@@ -117,7 +116,7 @@ Defined.
 
 Section cocont.
 
-Context {C D : precategory} (F : functor C D).
+Context {C D : category} (F : functor C D).
 
 Definition is_cocont : UU :=
   ∏ (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
@@ -131,14 +130,14 @@ Definition is_omega_cocont : UU :=
   ∏ (c : chain C) (L : C) (cc : cocone c L),
   preserves_colimit F c L cc.
 
-Definition is_omega_cont {C D : precategory} (F : functor C D) : UU :=
+Definition is_omega_cont {C D : category} (F : functor C D) : UU :=
   ∏ (c : chain C) (L : C) (cc : cone c L),
   preserves_limit F c L cc.
 
 End cocont.
 
-Definition omega_cocont_functor (C D : precategory) : UU :=
+Definition omega_cocont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cocont F.
 
-Definition omega_cont_functor (C D : precategory) : UU :=
+Definition omega_cont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cont F.

@@ -21,12 +21,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -41,7 +43,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -54,7 +56,7 @@ Require Import UniMath.CategoryTheory.AdditiveFunctors.
 Require Import UniMath.HomologicalAlgebra.Complexes.
 Require Import UniMath.HomologicalAlgebra.KA.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 Local Opaque hz isdecrelhzeq hzplus iscommringops ishinh.
 
 (** * Cohomology functor *)
@@ -82,32 +84,32 @@ Local Opaque hz isdecrelhzeq hzplus iscommringops ishinh.
 Section def_cohomology_complex.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   (** ** Cohomology complex *)
 
-  Local Lemma CohomologyComplex_KernelIn_eq' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplex_KernelIn_eq' (C : Complex (AbelianToAdditive A)) (i : hz) :
     (transportf (λ x : pr1 hz, A ⟦ C (i - 1), C x ⟧) (hzrminusplus i 1) (Diff C (i - 1)))
       · (Diff C i) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun.
-    apply (DSq (AbelianToAdditive A hs) C (i - 1)).
+    induction (hzrminusplus i 1). cbn.
+    apply (DSq (AbelianToAdditive A) C (i - 1)).
   Qed.
 
-  Local Lemma CohomologyComplex_KernelIn_eq (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplex_KernelIn_eq (C : Complex (AbelianToAdditive A)) (i : hz) :
       (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                   (Diff C (i - 1))) · (Diff C i) = ZeroArrow (to_Zero A) _ _.
   Proof.
     rewrite <- functtransportf. cbn.
-    induction (hzrminusplus i 1). cbn. unfold idfun.
-    apply (DSq (AbelianToAdditive A hs) C (i - 1)).
+    induction (hzrminusplus i 1). cbn.
+    apply (DSq (AbelianToAdditive A) C (i - 1)).
   Qed.
 
-  Definition CohomologyComplex (C : (ComplexPreCat_AbelianPreCat A hs)) :
-    ComplexPreCat_AbelianPreCat A hs.
+  Definition CohomologyComplex (C : (ComplexPreCat_AbelianPreCat A)) :
+    ComplexPreCat_AbelianPreCat A.
   Proof.
     cbn in *.
-    use mk_Complex.
+    use make_Complex.
     - intros i.
       exact (Abelian.Cokernel (KernelIn (to_Zero A) (Abelian.Kernel (Diff C i)) _ _
                                         (CohomologyComplex_KernelIn_eq C i))).
@@ -117,7 +119,7 @@ Section def_cohomology_complex.
 
   (** ** Cohomology morphism *)
 
-  Local Lemma CohomologyMorphism_KernelIn_comm {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Local Lemma CohomologyMorphism_KernelIn_comm {C1 C2 : Complex (AbelianToAdditive A)}
         (f : Morphism C1 C2) (i : hz) :
     KernelArrow (Kernel (Diff C1 i)) · MMor f i · Diff C2 i =
     ZeroArrow (to_Zero A) (Kernel (Diff C1 i)) (C2 (i + 1)).
@@ -126,7 +128,7 @@ Section def_cohomology_complex.
     rewrite assoc. rewrite KernelCompZero. apply ZeroArrow_comp_left.
   Qed.
 
-  Local Lemma CohomolohyMorphism_Ker_comm {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Local Lemma CohomolohyMorphism_Ker_comm {C1 C2 : Complex (AbelianToAdditive A)}
         (f : Morphism C1 C2) (i : hz) :
     (KernelIn (to_Zero A) (Kernel (Diff C1 i)) (C1 (i - 1))
               (transportf (precategory_morphisms (C1 (i - 1))) (maponpaths C1 (hzrminusplus i 1))
@@ -146,10 +148,10 @@ Section def_cohomology_complex.
     cbn. rewrite <- transport_target_postcompose. cbn.
     set (tmp := MComm f (i - 1)). cbn in tmp. rewrite tmp. clear tmp.
     rewrite assoc. rewrite KernelCommutes.
-    induction (hzrminusplus i 1). cbn. unfold idfun. apply idpath.
+    induction (hzrminusplus i 1). cbn. apply idpath.
   Qed.
 
-  Local Lemma CohomologyMorphism_Ker_Coker_Zero {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Local Lemma CohomologyMorphism_Ker_Coker_Zero {C1 C2 : Complex (AbelianToAdditive A)}
         (f : Morphism C1 C2) (i : hz) :
     (KernelIn (to_Zero A) (Kernel (Diff C1 i)) (C1 (i - 1))
               (transportf (precategory_morphisms (C1 (i - 1))) (maponpaths C1 (hzrminusplus i 1))
@@ -170,10 +172,10 @@ Section def_cohomology_complex.
     rewrite CokernelCompZero. apply ZeroArrow_comp_right.
   Qed.
 
-  Definition CohomologyMorphism_Mor {C1 C2 : Complex (AbelianToAdditive A hs)} (f : Morphism C1 C2)
+  Definition CohomologyMorphism_Mor {C1 C2 : Complex (AbelianToAdditive A)} (f : Morphism C1 C2)
              (i : hz) :
-    AbelianToAdditive A hs ⟦((CohomologyComplex C1) : Complex (AbelianToAdditive A hs)) i,
-                            ((CohomologyComplex C2) : Complex (AbelianToAdditive A hs)) i⟧.
+    AbelianToAdditive A ⟦((CohomologyComplex C1) : Complex (AbelianToAdditive A)) i,
+                            ((CohomologyComplex C2) : Complex (AbelianToAdditive A)) i⟧.
   Proof.
     cbn.
     use CokernelOut.
@@ -189,20 +191,20 @@ Section def_cohomology_complex.
     - apply CohomologyMorphism_Ker_Coker_Zero.
   Defined.
 
-  Local Lemma CohomologyMorphism_Mor_comm {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Local Lemma CohomologyMorphism_Mor_comm {C1 C2 : Complex (AbelianToAdditive A)}
         (f : Morphism C1 C2) (i : hz) :
     (CohomologyMorphism_Mor f i)
-      · (Diff ((CohomologyComplex C2) : Complex (AbelianToAdditive A hs)) i) =
-    (Diff ((CohomologyComplex C1) : Complex (AbelianToAdditive A hs)) i)
+      · (Diff ((CohomologyComplex C2) : Complex (AbelianToAdditive A)) i) =
+    (Diff ((CohomologyComplex C1) : Complex (AbelianToAdditive A)) i)
       · (CohomologyMorphism_Mor f (i + 1)).
   Proof.
     cbn. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Definition CohomologyMorphism {C1 C2 : Complex (AbelianToAdditive A hs)} (f : Morphism C1 C2) :
+  Definition CohomologyMorphism {C1 C2 : Complex (AbelianToAdditive A)} (f : Morphism C1 C2) :
     Morphism (CohomologyComplex C1) (CohomologyComplex C2).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (CohomologyMorphism_Mor f i).
     - intros i. exact (CohomologyMorphism_Mor_comm f i).
   Defined.
@@ -210,14 +212,14 @@ Section def_cohomology_complex.
   (** ** Cohomology functor *)
 
   Definition CohomologyFunctor_data :
-    functor_data (ComplexPreCat_AbelianPreCat A hs) (ComplexPreCat_AbelianPreCat A hs).
+    functor_data (ComplexPreCat_AbelianPreCat A) (ComplexPreCat_AbelianPreCat A).
   Proof.
     use tpair.
     - cbn. intros C. exact (CohomologyComplex C).
     - cbn. intros C1 C2 f. exact (CohomologyMorphism f).
   Defined.
 
-  Local Lemma CohomologyFunctor_id (C : (ComplexPreCat_AbelianPreCat A hs)) :
+  Local Lemma CohomologyFunctor_id (C : (ComplexPreCat_AbelianPreCat A)) :
     CohomologyMorphism (IdMor C) = IdMor (CohomologyComplex C).
   Proof.
     cbn in *.
@@ -229,9 +231,9 @@ Section def_cohomology_complex.
     rewrite id_left. rewrite id_right. apply idpath.
   Qed.
 
-  Local Lemma CohomologyFunctor_assoc {C1 C2 C3 : (ComplexPreCat_AbelianPreCat A hs)}
-        (f : (ComplexPreCat_AbelianPreCat A hs)⟦C1, C2⟧)
-        (g : (ComplexPreCat_AbelianPreCat A hs)⟦C2, C3⟧) :
+  Local Lemma CohomologyFunctor_assoc {C1 C2 C3 : (ComplexPreCat_AbelianPreCat A)}
+        (f : (ComplexPreCat_AbelianPreCat A)⟦C1, C2⟧)
+        (g : (ComplexPreCat_AbelianPreCat A)⟦C2, C3⟧) :
     # CohomologyFunctor_data (f · g) = # CohomologyFunctor_data f · # CohomologyFunctor_data g.
   Proof.
     cbn in *.
@@ -247,7 +249,7 @@ Section def_cohomology_complex.
   Qed.
 
   Definition CohomologyFunctor :
-    functor (ComplexPreCat_AbelianPreCat A hs) (ComplexPreCat_AbelianPreCat A hs).
+    functor (ComplexPreCat_AbelianPreCat A) (ComplexPreCat_AbelianPreCat A).
   Proof.
     use tpair.
     - exact CohomologyFunctor_data.
@@ -266,67 +268,66 @@ End def_cohomology_complex.
 Section def_cohomology'_complex.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
-  Definition CohomologyComplex' (C : (ComplexPreCat_AbelianPreCat A hs)) :
-    (ComplexPreCat_AbelianPreCat A hs).
+  Definition CohomologyComplex' (C : (ComplexPreCat_AbelianPreCat A)) :
+    (ComplexPreCat_AbelianPreCat A).
   Proof.
     cbn in *.
-    use mk_Complex.
+    use make_Complex.
     - intros i.
       exact (Kernel (CokernelOut
                        (to_Zero A) (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                          (maponpaths C (hzrminusplus i 1))
                                                          (Diff C (i - 1)))) _ (Diff C i)
-                       (CohomologyComplex_KernelIn_eq A hs C i))).
+                       (CohomologyComplex_KernelIn_eq A C i))).
     - intros i. exact (ZeroArrow (to_Zero A) _ _).
     - intros i. apply ZeroArrow_comp_left.
   Defined.
 
-  Local Lemma CohomologyComplexIso_eq1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_eq1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     (factorization1_monic
        A (transportf (precategory_morphisms (C (i - 1)))
                      (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
       · (Diff C i) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    use (EpiisEpi A (factorization1_epi A hs (transportf (precategory_morphisms (C (i - 1)))
+    use (EpiisEpi A (factorization1_epi A (transportf (precategory_morphisms (C (i - 1)))
                                                          (maponpaths C (hzrminusplus i 1))
                                                          (Diff C (i - 1))))).
     rewrite assoc. rewrite <- factorization1. rewrite ZeroArrow_comp_right.
-    exact (CohomologyComplex_KernelIn_eq A hs C i).
+    exact (CohomologyComplex_KernelIn_eq A C i).
   Qed.
 
-  Local Lemma CohomologyComplexIso_eq1' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_eq1' (C : Complex (AbelianToAdditive A)) (i : hz) :
     (factorization1_epi
-       A hs (transportf (precategory_morphisms (C (i - 1)))
+       A (transportf (precategory_morphisms (C (i - 1)))
                         (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
       · (factorization1_monic
             A (transportf (precategory_morphisms (C (i - 1)))
                           (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
       · (Diff C i) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    rewrite <- factorization1. exact (CohomologyComplex_KernelIn_eq A hs C i).
+    rewrite <- factorization1. exact (CohomologyComplex_KernelIn_eq A C i).
   Qed.
 
-  Local Lemma CohomologyComplexIso_eq2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_eq2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                 (Diff C (i - 1)))
       · (factorization2_epi A (Diff C i)) = ZeroArrow (to_Zero A) _ _.
   Proof.
-    use (MonicisMonic A (factorization2_monic A hs (Diff C i))).
+    use (MonicisMonic A (factorization2_monic A (Diff C i))).
     rewrite <- assoc.
-    set (tmp := factorization1 hs (Diff C i)). cbn in tmp. cbn. rewrite <- assoc in tmp.
+    set (tmp := factorization1 (Diff C i)). cbn in tmp. cbn. rewrite <- assoc in tmp.
     rewrite <- tmp. clear tmp. rewrite ZeroArrow_comp_left.
-    exact (CohomologyComplex_KernelIn_eq A hs C i).
+    exact (CohomologyComplex_KernelIn_eq A C i).
   Qed.
 
-  Local Lemma CohomologyComplexIso_eq2' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_eq2' (C : Complex (AbelianToAdditive A)) (i : hz) :
     (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                 (Diff C (i - 1)))
-      · ((factorization2_epi A (Diff C i)) · (factorization2_monic A hs (Diff C i))) =
+      · ((factorization2_epi A (Diff C i)) · (factorization2_monic A (Diff C i))) =
     ZeroArrow (to_Zero A) _ _.
   Proof.
-    rewrite <- factorization2. exact (CohomologyComplex_KernelIn_eq A hs C i).
+    rewrite <- factorization2. exact (CohomologyComplex_KernelIn_eq A C i).
   Qed.
 
   Local Lemma CohomologyComplexIso_KerCokerIso_eq1 {x y : A} {f : A⟦x, y⟧}
@@ -364,7 +365,7 @@ Section def_cohomology'_complex.
         (K1 : kernels.Kernel (to_Zero A) (CokernelArrow CK1))
         (K2 : kernels.Kernel (to_Zero A) (CokernelArrow CK2)) : iso K1 K2.
   Proof.
-    use isopair.
+    use make_iso.
     - use KernelIn.
       + use KernelArrow.
       + exact (CohomologyComplexIso_KerCokerIso_eq1 CK1 CK2 K1 K2).
@@ -414,7 +415,7 @@ Section def_cohomology'_complex.
         (CK1 : cokernels.Cokernel (to_Zero A) (KernelArrow K1))
         (CK2 : cokernels.Cokernel (to_Zero A) (KernelArrow K2)) : iso CK1 CK2.
   Proof.
-    use isopair.
+    use make_iso.
     - use CokernelOut.
       + use CokernelArrow.
       + exact (CohomologyComplexIso_CokerKerIso_eq1 K1 K2 CK1 CK2).
@@ -431,7 +432,7 @@ Section def_cohomology'_complex.
           rewrite id_right. apply idpath.
   Qed.
 
-  Local Lemma CohomologyComplexIso_isMonic (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isMonic (C : Complex (AbelianToAdditive A)) (i : hz) :
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
     isMonic K1.
   Proof.
@@ -442,7 +443,7 @@ Section def_cohomology'_complex.
     - unfold K1. rewrite KernelCommutes. apply MonicisMonic.
   Qed.
 
-  Local Lemma CohomologyComplexIso_isEpi (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isEpi (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK1 := CokernelOut
                  (to_Zero A)
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -457,12 +458,12 @@ Section def_cohomology'_complex.
     - unfold CK1. rewrite CokernelCommutes. apply EpiisEpi.
   Qed.
 
-  Local Lemma CohomologyComplexIso_mor_eq1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_mor_eq1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
     (factorization1_epi
-       A hs (transportf (precategory_morphisms (C (i - 1)))
+       A (transportf (precategory_morphisms (C (i - 1)))
                         (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1)))) · K1 =
-    KernelIn (to_Zero A) (Abelian.Kernel (Diff C i)) _ _ (CohomologyComplex_KernelIn_eq A hs C i).
+    KernelIn (to_Zero A) (Abelian.Kernel (Diff C i)) _ _ (CohomologyComplex_KernelIn_eq A C i).
   Proof.
     intros K1.
     unfold K1.
@@ -471,7 +472,7 @@ Section def_cohomology'_complex.
     apply pathsinv0. apply factorization1.
   Qed.
 
-  Local Lemma CohomologyComplexIso_mor_eq2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_mor_eq2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK1 := CokernelOut
                  (to_Zero A)
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -482,8 +483,8 @@ Section def_cohomology'_complex.
        (Cokernel
           (transportf (precategory_morphisms (C (i - 1)))
                       (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
-       (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A hs C i)) =
-    CK1 · (factorization2_monic A hs (Diff C i)).
+       (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A C i)) =
+    CK1 · (factorization2_monic A (Diff C i)).
   Proof.
     intros CK1.
     unfold CK1.
@@ -492,7 +493,7 @@ Section def_cohomology'_complex.
     apply factorization2.
   Qed.
 
-  Local Lemma CohomologyComplexIso_isKernel_Eq (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isKernel_Eq (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
@@ -502,16 +503,16 @@ Section def_cohomology'_complex.
   Proof.
     intros φ1 φ2 K1.
     rewrite assoc. unfold K1. unfold φ1. rewrite KernelCommutes.
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
     set (CK2 := CokernelPath A (to_Zero A) f1 (Cokernel _)).
-    set (CK2' := CokernelEpiComp A hs (to_Zero A) _ _ CK2).
-    set (K3 := MonicToKernel' A hs _ CK2').
+    set (CK2' := CokernelEpiComp A (to_Zero A) _ _ CK2).
+    set (K3 := MonicToKernel' A _ CK2').
     apply (KernelCompZero (to_Zero A) K3).
   Qed.
 
-  Local Lemma CohomologyComplexIso_isKernel (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isKernel (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
@@ -520,14 +521,13 @@ Section def_cohomology'_complex.
     isKernel (to_Zero A) K1 (φ1 · φ2) (CohomologyComplexIso_isKernel_Eq C i).
   Proof.
     intros φ1 φ2 K1.
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
     set (CK2 := CokernelPath A (to_Zero A) f1 (Cokernel _)).
-    set (CK2' := CokernelEpiComp A hs (to_Zero A) _ _ CK2).
-    set (K3 := MonicToKernel' A hs _ CK2').
-    use mk_isKernel.
-    - exact hs.
+    set (CK2' := CokernelEpiComp A (to_Zero A) _ _ CK2).
+    set (K3 := MonicToKernel' A _ CK2').
+    use make_isKernel.
     - intros w h H'. rewrite assoc in H'.
       use unique_exists.
       + exact (KernelIn (to_Zero A) K3 _ (h · φ1) H').
@@ -536,15 +536,15 @@ Section def_cohomology'_complex.
         rewrite <- assoc. rewrite KernelCommutes.
         fold φ1. rewrite <- (KernelCommutes (to_Zero A) K3 _ _ H').
         apply cancel_precomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. apply homset_property.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isMonic C i). fold K1. rewrite X.
         use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C i))). unfold K1.
         rewrite <- assoc. rewrite KernelCommutes.
         rewrite (KernelCommutes (to_Zero A) K3). apply idpath.
   Qed.
 
-  Local Lemma CohomologyComplexIso_KernelArrow (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+  Local Lemma CohomologyComplexIso_KernelArrow (C : Complex (AbelianToAdditive A)) (i : hz) :
+    let K4 := make_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                          (CohomologyComplexIso_isKernel C i) in
     KernelArrow K4 = KernelIn (to_Zero A) (Kernel (Diff C i))
                               (Image
@@ -560,7 +560,7 @@ Section def_cohomology'_complex.
     apply idpath.
   Qed.
 
-  Local Lemma CohomologyComplexIso_isCokernel_Eq (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isCokernel_Eq (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
@@ -574,14 +574,14 @@ Section def_cohomology'_complex.
   Proof.
     intros φ1 φ2 CK1.
     unfold CK1. unfold φ2. rewrite <- assoc. rewrite CokernelCommutes.
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K2 := KernelPath A (to_Zero A) f2 (Kernel _)).
-    set (K2' := KernelCompMonic A hs (to_Zero A) _ _ K2).
-    set (CK3 := EpiToCokernel' A hs _ K2').
+    set (K2' := KernelCompMonic A (to_Zero A) _ _ K2).
+    set (CK3 := EpiToCokernel' A _ K2').
     apply (CokernelCompZero (to_Zero A) CK3).
   Qed.
 
-  Local Lemma CohomologyComplexIso_isCokernel (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_isCokernel (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
@@ -594,12 +594,11 @@ Section def_cohomology'_complex.
     isCokernel (to_Zero A) (φ1 · φ2) CK1 (CohomologyComplexIso_isCokernel_Eq C i).
   Proof.
     intros φ1 φ2 CK1.
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K2 := KernelPath A (to_Zero A) f2 (Kernel _)).
-    set (K2' := KernelCompMonic A hs (to_Zero A) _ _ K2).
-    set (CK3 := EpiToCokernel' A hs _ K2').
-    use mk_isCokernel.
-    - exact hs.
+    set (K2' := KernelCompMonic A (to_Zero A) _ _ K2).
+    set (CK3 := EpiToCokernel' A _ K2').
+    use make_isCokernel.
     - intros w h H'. rewrite <- assoc in H'.
       use unique_exists.
       + exact (CokernelOut (to_Zero A) CK3 _ (φ2 · h) H').
@@ -611,7 +610,7 @@ Section def_cohomology'_complex.
         unfold CK1. rewrite assoc. rewrite CokernelCommutes. fold φ2.
         rewrite <- (CokernelCommutes (to_Zero A) CK3 _ _ H').
         apply cancel_postcomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. apply homset_property.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isEpi C i). fold CK1. rewrite X.
         use (CokernelArrowisEpi
                (to_Zero A) (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -622,8 +621,8 @@ Section def_cohomology'_complex.
         rewrite (CokernelCommutes (to_Zero A) CK3). apply idpath.
   Qed.
 
-  Local Lemma CohomologyComplexIso_CokernelArrow (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+  Local Lemma CohomologyComplexIso_CokernelArrow (C : Complex (AbelianToAdditive A)) (i : hz) :
+    let CK4 := make_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
                            (CohomologyComplexIso_isCokernel C i) in
     CokernelArrow CK4 =
     (CokernelOut (to_Zero A)
@@ -636,34 +635,34 @@ Section def_cohomology'_complex.
     apply idpath.
   Qed.
 
-  Definition CohomologyComplexIso_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
     A⟦Cokernel
         (factorization1_epi
-           A hs (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
+           A (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                             (Diff C (i - 1))) · K1),
        Cokernel
          (KernelIn (to_Zero A) (Kernel (Diff C i)) (C (i - 1))
                    (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
-                               (Diff C (i - 1))) (CohomologyComplex_KernelIn_eq A hs C i))⟧ :=
+                               (Diff C (i - 1))) (CohomologyComplex_KernelIn_eq A C i))⟧ :=
     @CokernelOutPaths_is_iso_mor
       A (to_Zero A) _ _ _ _ (CohomologyComplexIso_mor_eq1 C i) (Cokernel _) (Cokernel _).
 
-  Definition CohomologyComplexIso_Mor2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
     A ⟦Cokernel K1,
        Cokernel
          (factorization1_epi
-            A hs (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
+            A (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                              (Diff C (i - 1))) · K1)⟧ :=
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
     CokernelEpiComp_mor2
-      A (to_Zero A) (factorization1_epi A hs (transportf (precategory_morphisms (C (i - 1)))
+      A (to_Zero A) (factorization1_epi A (transportf (precategory_morphisms (C (i - 1)))
                                                      (maponpaths C (hzrminusplus i 1))
                                                      (Diff C (i - 1))))
       K1 (Cokernel _) (Cokernel _).
 
-  Definition CohomologyComplexIso_Mor3 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor3 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK1 := CokernelOut
                  (to_Zero A)
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -675,45 +674,45 @@ Section def_cohomology'_complex.
                       (transportf (precategory_morphisms (C (i - 1)))
                                   (maponpaths C (hzrminusplus i 1))
                                   (Diff C (i - 1)))) (C (i + 1)) (Diff C i)
-           (CohomologyComplex_KernelIn_eq A hs C i)),
-      Kernel (CK1 · factorization2_monic A hs (Diff C i))⟧ :=
+           (CohomologyComplex_KernelIn_eq A C i)),
+      Kernel (CK1 · factorization2_monic A (Diff C i))⟧ :=
     @KernelInPaths_is_iso_mor
       A (to_Zero A) _ _ _ _ (CohomologyComplexIso_mor_eq2 C i) (Kernel _) (Kernel _).
 
-  Definition CohomologyComplexIso_Mor4 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor4 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK1 := CokernelOut
                  (to_Zero A)
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                        (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
                  _ _ (CohomologyComplexIso_eq2 C i) in
-    A ⟦Kernel (CK1 · factorization2_monic A hs (Diff C i)), Kernel CK1⟧ :=
+    A ⟦Kernel (CK1 · factorization2_monic A (Diff C i)), Kernel CK1⟧ :=
     (KernelCompMonic_mor1 A (to_Zero A) _ _ (Kernel _) (Kernel _)).
 
-  Definition CohomologyComplexIso_Mor5 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor5 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
-    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    let K4 := make_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                          (CohomologyComplexIso_isKernel C i) in
     A⟦Cokernel (KernelArrow K4), Cokernel K1⟧ :=
     @CokernelOutPaths_is_iso_mor
       A (to_Zero A) _ _ _ _ (CohomologyComplexIso_KernelArrow C i) (Cokernel _) (Cokernel _).
 
-  Definition CohomologyComplexIso_Mor6 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor6 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    let K4 := make_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                         (CohomologyComplexIso_isKernel C i) in
     iso (CoImage (φ1 · φ2)) (Cokernel (KernelArrow K4)) :=
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    let K4 := make_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                         (CohomologyComplexIso_isKernel C i) in
     CohomologyComplexIso_CokerKerIso _ K4 (CoImage (φ1 · φ2)) (Cokernel (KernelArrow K4)).
 
-  Definition CohomologyComplexIso_Mor7 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor7 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK1 := CokernelOut
                  (to_Zero A)
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -722,7 +721,7 @@ Section def_cohomology'_complex.
     A⟦Kernel CK1,
       Kernel
         (CokernelArrow
-           (mk_Cokernel (to_Zero A)
+           (make_Cokernel (to_Zero A)
                         (KernelArrow (Kernel (Diff C i)) · CokernelArrow
                                      (Cokernel
                                         (transportf (precategory_morphisms (C (i - 1)))
@@ -733,25 +732,25 @@ Section def_cohomology'_complex.
     @KernelInPaths_is_iso_mor
       A (to_Zero A) _ _ _ _ (! (CohomologyComplexIso_CokernelArrow C i)) (Kernel _) (Kernel _).
 
-  Definition CohomologyComplexIso_Mor8 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CohomologyComplexIso_Mor8 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+    let CK4 := make_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
                            (CohomologyComplexIso_isCokernel C i) in
     iso (Kernel (CokernelArrow CK4)) (Image (φ1 · φ2)) :=
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+    let CK4 := make_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
                            (CohomologyComplexIso_isCokernel C i) in
     CohomologyComplexIso_KerCokerIso CK4 _ (Kernel (CokernelArrow CK4)) (Image (φ1 · φ2)).
 
-  Definition CohomologyComplexIso_Mor_i (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    AbelianToAdditive A hs ⟦((CohomologyComplex' C)  : Complex (AbelianToAdditive A hs)) i,
-                            ((CohomologyComplex A hs C) : Complex (AbelianToAdditive A hs)) i⟧.
+  Definition CohomologyComplexIso_Mor_i (C : Complex (AbelianToAdditive A)) (i : hz) :
+    AbelianToAdditive A ⟦((CohomologyComplex' C)  : Complex (AbelianToAdditive A)) i,
+                            ((CohomologyComplex A C) : Complex (AbelianToAdditive A)) i⟧.
   Proof.
     cbn.
     set (φ1 := KernelArrow (Kernel (Diff C i))).
@@ -761,10 +760,10 @@ Section def_cohomology'_complex.
     (* The idea is to pre- and postcompose with morphisms to reach inverse of
        [CoIm_to_Im_is_iso]. *)
     (* Change source and target by compose and postcompose with isomorphisms *)
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i)).
     set (CK1 := CokernelOut (to_Zero A) (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                           (maponpaths C (hzrminusplus i 1))
@@ -776,41 +775,41 @@ Section def_cohomology'_complex.
     use (compose (CohomologyComplexIso_Mor4 C i)).
     (* Postcompose *)
     set (CK2 := CokernelPath A (to_Zero A) f1 (Cokernel _)).
-    set (CK2' := CokernelEpiComp A hs (to_Zero A) _ _ CK2).
-    set (K3 := MonicToKernel' A hs _ CK2').
-    set (K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    set (CK2' := CokernelEpiComp A (to_Zero A) _ _ CK2).
+    set (K3 := MonicToKernel' A _ CK2').
+    set (K4 := make_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                          (CohomologyComplexIso_isKernel C i)).
     use (postcompose (CohomologyComplexIso_Mor5 C i)).
     use (postcompose (CohomologyComplexIso_Mor6 C i)).
     (* compose *)
     set (K2 := KernelPath A (to_Zero A) f2 (Kernel _)).
-    set (K2' := KernelCompMonic A hs (to_Zero A) _ _ K2).
-    set (CK3 := EpiToCokernel' A hs _ K2').
-    set (CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+    set (K2' := KernelCompMonic A (to_Zero A) _ _ K2).
+    set (CK3 := EpiToCokernel' A _ K2').
+    set (CK4 := make_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
                             (CohomologyComplexIso_isCokernel C i)).
     use (compose (CohomologyComplexIso_Mor7 C i)).
     use (compose (CohomologyComplexIso_Mor8 C i)).
-    exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso A hs (φ1 · φ2)))).
+    exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso A (φ1 · φ2)))).
   Defined.
 
-  Local Lemma CohomologyComplexIso_Mor_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CohomologyComplexIso_Mor_comm (C : Complex (AbelianToAdditive A)) (i : hz) :
     (CohomologyComplexIso_Mor_i C i) · ZeroArrow (to_Zero A) _ _ =
     ZeroArrow (to_Zero A) _ _ · (CohomologyComplexIso_Mor_i C (i + 1)).
   Proof.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Definition CohomologyComplexIso_Mor (C : Complex (AbelianToAdditive A hs)) :
-    ComplexPreCat_AbelianPreCat A hs ⟦CohomologyComplex' C, CohomologyComplex A hs C⟧.
+  Definition CohomologyComplexIso_Mor (C : Complex (AbelianToAdditive A)) :
+    ComplexPreCat_AbelianPreCat A ⟦CohomologyComplex' C, CohomologyComplex A C⟧.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (CohomologyComplexIso_Mor_i C i).
     - intros i. exact (CohomologyComplexIso_Mor_comm C i).
   Defined.
 
   Local Opaque is_iso_qinv.
 
-  Lemma CohomologyComplexIso_is_iso_i (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Lemma CohomologyComplexIso_is_iso_i (C : Complex (AbelianToAdditive A)) (i : hz) :
     is_iso (CohomologyComplexIso_Mor_i C i).
   Proof.
     unfold CohomologyComplexIso_Mor. cbn.
@@ -834,7 +833,7 @@ Section def_cohomology'_complex.
                                       (CokernelOut (to_Zero A) CK1 (CoImage (Diff C i))
                                                    (factorization2_epi A (Diff C i))
                                                    (CohomologyComplexIso_eq2 C i))
-                                      (factorization2_monic A hs (Diff C i)) (Kernel _) K1).
+                                      (factorization2_monic A (Diff C i)) (Kernel _) K1).
           -- use is_iso_comp_of_is_isos.
              ++ use is_iso_comp_of_is_isos.
                 ** use is_iso_comp_of_is_isos.
@@ -849,7 +848,7 @@ Section def_cohomology'_complex.
         set (K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i)).
         apply (CokernelEpiComp2 A (to_Zero A)
                                 (factorization1_epi
-                                   A hs (transportf (precategory_morphisms (C (i - 1)))
+                                   A (transportf (precategory_morphisms (C (i - 1)))
                                                     (maponpaths C (hzrminusplus i 1))
                                                     (Diff C (i - 1))))
                                 K1 (Cokernel _) (Cokernel _)).
@@ -858,16 +857,16 @@ Section def_cohomology'_complex.
 
   Local Transparent is_iso_qinv.
 
-  Local Lemma CohomologyComplexIso_is_iso (C : Complex (AbelianToAdditive A hs)) :
+  Local Lemma CohomologyComplexIso_is_iso (C : Complex (AbelianToAdditive A)) :
     is_iso (CohomologyComplexIso_Mor C).
   Proof.
     use ComplexIsoIndexIso. intros i. exact (CohomologyComplexIso_is_iso_i C i).
   Qed.
 
-  Definition CohomologyComplexIso (C : Complex (AbelianToAdditive A hs)) :
-    iso (CohomologyComplex' C) (CohomologyComplex A hs C).
+  Definition CohomologyComplexIso (C : Complex (AbelianToAdditive A)) :
+    iso (CohomologyComplex' C) (CohomologyComplex A C).
   Proof.
-    use isopair.
+    use make_iso.
     - exact (CohomologyComplexIso_Mor C).
     - exact (CohomologyComplexIso_is_iso C).
   Defined.
@@ -887,31 +886,30 @@ End def_cohomology'_complex.
 Section def_quasi_isomorphisms.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
-  Definition isQIS {C1 C2 : (ComplexPreCat_AbelianPreCat A hs)}
-             (f : (ComplexPreCat_AbelianPreCat A hs)⟦C1, C2⟧) : UU :=
-    is_iso (#(CohomologyFunctor A hs) f).
+  Definition isQIS {C1 C2 : (ComplexPreCat_AbelianPreCat A)}
+             (f : (ComplexPreCat_AbelianPreCat A)⟦C1, C2⟧) : UU :=
+    is_iso (#(CohomologyFunctor A) f).
 
-  Lemma isaprop_isQIS {C1 C2 : (ComplexPreCat_AbelianPreCat A hs)}
-        (f : (ComplexPreCat_AbelianPreCat A hs)⟦C1, C2⟧) : isaprop (isQIS f).
+  Lemma isaprop_isQIS {C1 C2 : (ComplexPreCat_AbelianPreCat A)}
+        (f : (ComplexPreCat_AbelianPreCat A)⟦C1, C2⟧) : isaprop (isQIS f).
   Proof.
     apply isaprop_is_iso.
   Qed.
 
-  Lemma IdentityIsQIS (C : (ComplexPreCat_AbelianPreCat A hs)) : isQIS (identity C).
+  Lemma IdentityIsQIS (C : (ComplexPreCat_AbelianPreCat A)) : isQIS (identity C).
   Proof.
-    exact (pr2 (functor_on_iso (CohomologyFunctor A hs) (identity_iso C))).
+    exact (pr2 (functor_on_iso (CohomologyFunctor A) (identity_iso C))).
   Qed.
 
-  Lemma CompIsQIS {C1 C2 C3 : (ComplexPreCat_AbelianPreCat A hs)}
-        (f1 : (ComplexPreCat_AbelianPreCat A hs)⟦C1, C2⟧) (H1 : isQIS f1)
-        (f2 : (ComplexPreCat_AbelianPreCat A hs)⟦C2, C3⟧) (H2 : isQIS f2) :
+  Lemma CompIsQIS {C1 C2 C3 : (ComplexPreCat_AbelianPreCat A)}
+        (f1 : (ComplexPreCat_AbelianPreCat A)⟦C1, C2⟧) (H1 : isQIS f1)
+        (f2 : (ComplexPreCat_AbelianPreCat A)⟦C2, C3⟧) (H2 : isQIS f2) :
     isQIS (f1 · f2).
   Proof.
     unfold isQIS. rewrite functor_comp.
-    apply (@is_iso_comp_of_isos (ComplexPreCat_AbelianPreCat A hs) _ _ _
-                                (isopair _ H1) (isopair _ H2)).
+    apply (@is_iso_comp_of_isos (ComplexPreCat_AbelianPreCat A) _ _ _
+                                (make_iso _ H1) (make_iso _ H2)).
   Qed.
 
 End def_quasi_isomorphisms.
@@ -924,16 +922,15 @@ End def_quasi_isomorphisms.
 Section def_cohomology_functor_additive.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   Local Lemma CohomologyFunctor_isAdditive :
-    @isAdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A hs)) (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                       (CohomologyFunctor A hs).
+    @isAdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A)) (ComplexPreCat_Additive (AbelianToAdditive A))
+                       (CohomologyFunctor A).
   (* note: with primitive projections off, the goal can be written more simply as
-            isAdditiveFunctor (CohomologyFunctor A hs)
+            isAdditiveFunctor (CohomologyFunctor A)
    *)
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros C1 C2.
     use tpair.
     - intros f1 f2.
@@ -943,23 +940,23 @@ Section def_cohomology_functor_additive.
                     (KernelIn (to_Zero A) (Kernel (Diff C1 i)) (C1 (i - 1))
                               (transportf (precategory_morphisms (C1 (i - 1)))
                                           (maponpaths C1 (hzrminusplus i 1)) (Diff C1 (i - 1)))
-                              (CohomologyComplex_KernelIn_eq A hs C1 i))).
+                              (CohomologyComplex_KernelIn_eq A C1 i))).
       cbn in CK1. fold CK1.
       set (CK2 := Cokernel
                     (KernelIn (to_Zero A) (Kernel (Diff C2 i)) (C2 (i - 1))
                               (transportf (precategory_morphisms (C2 (i - 1)))
                                           (maponpaths C2 (hzrminusplus i 1)) (Diff C2 (i - 1)))
-                              (CohomologyComplex_KernelIn_eq A hs C2 i))).
+                              (CohomologyComplex_KernelIn_eq A C2 i))).
       cbn in CK2. fold CK2.
-      set (tmp := CokernelOutOp (AbelianToAdditive A hs)).
+      set (tmp := CokernelOutOp (AbelianToAdditive A)).
       cbn in tmp. rewrite <- tmp. clear tmp.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite CokernelCommutes.
-      set (tmp := @to_postmor_linear' (AbelianToAdditive A hs)). cbn in tmp.
+      set (tmp := @to_postmor_linear' (AbelianToAdditive A)). cbn in tmp.
       rewrite <- tmp. clear tmp. apply cancel_postcomposition.
-      set (tmp := KernelInOp (AbelianToAdditive A hs)).
+      set (tmp := KernelInOp (AbelianToAdditive A)).
       cbn in tmp. rewrite <- tmp. clear tmp.
       use KernelInsEq. rewrite KernelCommutes. rewrite KernelCommutes.
-      set (tmp := @to_premor_linear' (AbelianToAdditive A hs)). cbn in tmp.
+      set (tmp := @to_premor_linear' (AbelianToAdditive A)). cbn in tmp.
       rewrite <- tmp. clear tmp. apply idpath.
     - cbn.
       use MorphismEq.
@@ -968,13 +965,13 @@ Section def_cohomology_functor_additive.
                     (KernelIn (to_Zero A) (Kernel (Diff C1 i)) (C1 (i - 1))
                               (transportf (precategory_morphisms (C1 (i - 1)))
                                           (maponpaths C1 (hzrminusplus i 1)) (Diff C1 (i - 1)))
-                              (CohomologyComplex_KernelIn_eq A hs C1 i))).
+                              (CohomologyComplex_KernelIn_eq A C1 i))).
       cbn in CK1. fold CK1.
       set (CK2 := Cokernel
                     (KernelIn (to_Zero A) (Kernel (Diff C2 i)) (C2 (i - 1))
                               (transportf (precategory_morphisms (C2 (i - 1)))
                                           (maponpaths C2 (hzrminusplus i 1)) (Diff C2 (i - 1)))
-                              (CohomologyComplex_KernelIn_eq A hs C2 i))).
+                              (CohomologyComplex_KernelIn_eq A C2 i))).
       cbn in CK2. fold CK2.
       use CokernelOutsEq.
       rewrite CokernelCommutes. rewrite ZeroArrow_comp_right.
@@ -986,11 +983,11 @@ Section def_cohomology_functor_additive.
   Qed.
 
   Definition CohomologyFunctor_Additive :
-    AdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                    (ComplexPreCat_Additive (AbelianToAdditive A hs)).
+    AdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A))
+                    (ComplexPreCat_Additive (AbelianToAdditive A)).
   Proof.
-    use mk_AdditiveFunctor.
-    - exact (CohomologyFunctor A hs).
+    use make_AdditiveFunctor.
+    - exact (CohomologyFunctor A).
     - exact CohomologyFunctor_isAdditive.
   Defined.
 
@@ -1029,27 +1026,26 @@ End def_cohomology_functor_additive.
 Section def_cohomology_homotopy.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
 
   (** ** Homotopic maps are mapped to equal morphisms by the cohomology functor C(A) -> C(A) *)
 
-  Lemma CohomologyFunctorHomotopy_eq1 {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Lemma CohomologyFunctorHomotopy_eq1 {C1 C2 : Complex (AbelianToAdditive A)}
         (H : ComplexHomot _ C1 C2) (i : hz) :
     KernelArrow (Kernel (Diff C1 i)) · transportf (precategory_morphisms (C1 i))
                 (maponpaths C2 (hzrminusplus i 1)) (H i · Diff C2 (i - 1)) ·
                 Diff C2 i = ZeroArrow (to_Zero A) (Kernel (Diff C1 i)) (C2 (i + 1)).
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc. rewrite <- assoc.
+    induction (hzrminusplus i 1). cbn. rewrite <- assoc. rewrite <- assoc.
     set (tmp := DSq _ C2 (i - 1)). cbn in tmp. rewrite tmp. clear tmp.
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
   (** Homotopy is mapped to ZeroArrow *)
-  Lemma CohomologyFunctorHomotopy {C1 C2 : Complex (AbelianToAdditive A hs)}
+  Lemma CohomologyFunctorHomotopy {C1 C2 : Complex (AbelianToAdditive A)}
         (H : ComplexHomot _ C1 C2) :
-    CohomologyMorphism A hs (ComplexHomotMorphism (AbelianToAdditive A hs) H) =
-    ZeroMorphism (AbelianToAdditive A hs) (CohomologyComplex A hs C1) (CohomologyComplex A hs C2).
+    CohomologyMorphism A (ComplexHomotMorphism (AbelianToAdditive A) H) =
+    ZeroMorphism (AbelianToAdditive A) (CohomologyComplex A C1) (CohomologyComplex A C2).
   Proof.
     use MorphismEq. intros i. cbn. unfold CohomologyMorphism_Mor.
     use CokernelOutsEq. rewrite CokernelCommutes.
@@ -1061,22 +1057,22 @@ Section def_cohomology_homotopy.
                                                    (H i · Diff C2 (i - 1))))
                           (CohomologyFunctorHomotopy_eq1 H i)).
     assert (e0 : KernelIn (to_Zero A) (Kernel (Diff C2 i)) (Kernel (Diff C1 i))
-    (KernelArrow (Kernel (Diff C1 i)) · Abelian_op A hs (C1 i) (C2 i)
+    (KernelArrow (Kernel (Diff C1 i)) · Abelian_op A (C1 i) (C2 i)
                                            (transportf (precategory_morphisms (C1 i))
                                                        (maponpaths C2 (hzrminusplus i 1))
                                                        (H i · Diff C2 (i - 1)))
                                            (transportf (precategory_morphisms (C1 i))
                                                        (maponpaths C2 (hzrplusminus i 1))
                                                        (Diff C1 i · H (i + 1))))
-    (CohomologyMorphism_KernelIn_comm A hs (ComplexHomotMorphism (AbelianToAdditive A hs) H) i) =
+    (CohomologyMorphism_KernelIn_comm A (ComplexHomotMorphism (AbelianToAdditive A) H) i) =
                  tmp).
     {
       unfold tmp. clear tmp. use KernelInsEq. rewrite KernelCommutes. rewrite KernelCommutes.
-      set (tmp := @to_premor_linear' (AbelianToAdditive A hs)). cbn in tmp. rewrite tmp. clear tmp.
+      set (tmp := @to_premor_linear' (AbelianToAdditive A)). cbn in tmp. rewrite tmp. clear tmp.
       rewrite transport_target_postcompose. rewrite transport_target_postcompose.
       rewrite assoc. rewrite assoc.
       rewrite KernelCompZero. rewrite ZeroArrow_comp_left. rewrite <- PreAdditive_unel_zero.
-      set (tmp :=  @to_runax' (AbelianToAdditive A hs)). cbn in tmp. rewrite tmp. clear tmp.
+      set (tmp :=  @to_runax' (AbelianToAdditive A)). cbn in tmp. rewrite tmp. clear tmp.
       apply idpath.
     }
     cbn. cbn in e0. rewrite e0. clear e0. unfold tmp. clear tmp.
@@ -1089,7 +1085,7 @@ Section def_cohomology_homotopy.
                  (KernelArrow (Kernel (Diff C1 i)))
                    · (H i)
                    · (KernelIn ((to_Zero A)) (Abelian.Kernel (Diff C2 i)) _ _
-                                (CohomologyComplex_KernelIn_eq A hs C2 i))).
+                                (CohomologyComplex_KernelIn_eq A C2 i))).
     {
       use KernelInsEq. rewrite KernelCommutes. rewrite <- assoc. rewrite <- assoc.
       apply cancel_precomposition. rewrite KernelCommutes.
@@ -1099,22 +1095,22 @@ Section def_cohomology_homotopy.
     rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Lemma CohomologyFunctorHomotopies {C1 C2 : Complex (AbelianToAdditive A hs)}
-        (f g : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦C1, C2⟧)
-        (H : subgrhrel (ComplexHomotSubgrp (AbelianToAdditive A hs) C1 C2) f g) :
-    # (CohomologyFunctor_Additive A hs) f = # (CohomologyFunctor_Additive A hs) g.
+  Lemma CohomologyFunctorHomotopies {C1 C2 : Complex (AbelianToAdditive A)}
+        (f g : (ComplexPreCat_Additive (AbelianToAdditive A))⟦C1, C2⟧)
+        (H : subgrhrel (ComplexHomotSubgrp (AbelianToAdditive A) C1 C2) f g) :
+    # (CohomologyFunctor_Additive A) f = # (CohomologyFunctor_Additive A) g.
   Proof.
-    set (inv := @to_inv (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _
-                        (# (CohomologyFunctor_Additive A hs) g)).
-    set (tmp := @grrcan (@to_abgr (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _)
-                        (# (CohomologyFunctor_Additive A hs) f)
-                        (# (CohomologyFunctor_Additive A hs) g) inv).
+    set (inv := @to_inv (ComplexPreCat_Additive (AbelianToAdditive A)) _ _
+                        (# (CohomologyFunctor_Additive A) g)).
+    set (tmp := @grrcan (@to_abgr (ComplexPreCat_Additive (AbelianToAdditive A)) _ _)
+                        (# (CohomologyFunctor_Additive A) f)
+                        (# (CohomologyFunctor_Additive A) g) inv).
     apply tmp. clear tmp. unfold inv. clear inv.
-    set (tmp := @rinvax (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _
-                        (# (CohomologyFunctor_Additive A hs) g)).
+    set (tmp := @rinvax (ComplexPreCat_Additive (AbelianToAdditive A)) _ _
+                        (# (CohomologyFunctor_Additive A) g)).
     use (pathscomp0 _ (! tmp)). clear tmp.
     rewrite <- AdditiveFunctorInv.
-    set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A hs) f (to_inv g)).
+    set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A) f (to_inv g)).
     apply pathsinv0 in tmp. use (pathscomp0 tmp). clear tmp.
     use (squash_to_prop H). apply has_homsets_ComplexPreCat_AbelianPreCat.
     intros H'. induction H' as [H1 H2]. induction H1 as [H11 H12]. cbn in H11. cbn in H2.
@@ -1127,38 +1123,38 @@ Section def_cohomology_homotopy.
 
   (** ** Structure for the image of a morphism to make type cheking faster *)
 
-  Definition CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧) : UU :=
-    ∑ (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
-                                                             CohomologyComplex A hs C2⟧),
-    ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-      (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
-    h = # (CohomologyFunctor A hs) f'.
+  Definition CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             (f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧) : UU :=
+    ∑ (h : (ComplexPreCat_Additive (AbelianToAdditive A))⟦CohomologyComplex A C1,
+                                                             CohomologyComplex A C2⟧),
+    ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+      (H : # (ComplexHomotFunctor (AbelianToAdditive A)) f' = f),
+    h = # (CohomologyFunctor A) f'.
 
-  Definition CohomologyFunctorHImMor {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             {f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧}
+  Definition CohomologyFunctorHImMor {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             {f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧}
              (h : CohomologyFunctorHIm f) :
-    (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
-                                                      CohomologyComplex A hs C2⟧ := pr1 h.
+    (ComplexPreCat_Additive (AbelianToAdditive A))⟦CohomologyComplex A C1,
+                                                      CohomologyComplex A C2⟧ := pr1 h.
 
-  Definition CohomologyFunctorHImEq {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             {f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧}
+  Definition CohomologyFunctorHImEq {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             {f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧}
              (h : CohomologyFunctorHIm f)
-             (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-             (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f) :
-    CohomologyFunctorHImMor h = # (CohomologyFunctor A hs) f' := pr2 h f' H.
+             (f' : ComplexPreCat_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+             (H : # (ComplexHomotFunctor (AbelianToAdditive A)) f' = f) :
+    CohomologyFunctorHImMor h = # (CohomologyFunctor A) f' := pr2 h f' H.
 
-  Definition mk_CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             (f : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧)
-             (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
-                                                                    CohomologyComplex A hs C2⟧)
-             (HH : ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-                     (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
-                   h = # (CohomologyFunctor A hs) f') : CohomologyFunctorHIm f :=
+  Definition make_CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             (f : (ComplexHomot_Additive (AbelianToAdditive A))⟦C1, C2⟧)
+             (h : (ComplexPreCat_Additive (AbelianToAdditive A))⟦CohomologyComplex A C1,
+                                                                    CohomologyComplex A C2⟧)
+             (HH : ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+                     (H : # (ComplexHomotFunctor (AbelianToAdditive A)) f' = f),
+                   h = # (CohomologyFunctor A) f') : CohomologyFunctorHIm f :=
     tpair _ h HH.
 
-  Lemma CohomologyFunctorHImEquality {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             {f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧}
+  Lemma CohomologyFunctorHImEquality {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             {f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧}
              (h : CohomologyFunctorHIm f) (h' : CohomologyFunctorHIm f)
              (e : CohomologyFunctorHImMor h = CohomologyFunctorHImMor h') : h = h'.
   Proof.
@@ -1170,69 +1166,69 @@ Section def_cohomology_homotopy.
 
   (** ** Construction of the functor and commutativity  *)
 
-  Lemma CohomologyFunctorH_Mor_eq {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-        (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-        (H : hfiber # (ComplexHomotFunctor (AbelianToAdditive A hs)) f)
-        (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-        (H' : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f) :
-    # (CohomologyFunctor A hs) (pr1 H) = # (CohomologyFunctor A hs) f'.
+  Lemma CohomologyFunctorH_Mor_eq {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+        (f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+        (H : hfiber # (ComplexHomotFunctor (AbelianToAdditive A)) f)
+        (f' : ComplexPreCat_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+        (H' : # (ComplexHomotFunctor (AbelianToAdditive A)) f' = f) :
+    # (CohomologyFunctor A) (pr1 H) = # (CohomologyFunctor A) f'.
   Proof.
     use CohomologyFunctorHomotopies.
     use (@abgrquotpr_rel_paths _ (binopeqrel_subgr_eqrel
-                                    (ComplexHomotSubgrp (AbelianToAdditive A hs) C1 C2))).
+                                    (ComplexHomotSubgrp (AbelianToAdditive A) C1 C2))).
     use (pathscomp0 (hfiberpr2 _ _ H)). apply pathsinv0. exact H'.
   Qed.
 
-  Definition CohomologyFunctorH_Mor {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧) :
+  Definition CohomologyFunctorH_Mor {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A)}
+             (f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧) :
     iscontr (CohomologyFunctorHIm f).
   Proof.
-    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
+    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
     apply isapropiscontr. intros H.
-    use iscontrpair.
-    - use mk_CohomologyFunctorHIm.
-      + exact ((# (CohomologyFunctor A hs) (hfiberpr1 _ _ H))).
+    use make_iscontr.
+    - use make_CohomologyFunctorHIm.
+      + exact ((# (CohomologyFunctor A) (hfiberpr1 _ _ H))).
       + intros f' H'. exact (CohomologyFunctorH_Mor_eq f H f' H').
     - intros t. use CohomologyFunctorHImEquality.
       use CohomologyFunctorHImEq.
       exact (hfiberpr2 _ _ H).
   Qed.
 
-  Lemma CohomologyFunctorH_Mor_Id (C : ComplexHomot_Additive (AbelianToAdditive A hs)) :
+  Lemma CohomologyFunctorH_Mor_Id (C : ComplexHomot_Additive (AbelianToAdditive A)) :
     CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor (identity C))) = identity _.
   Proof.
     use (pathscomp0 (CohomologyFunctorHImEq
                        (iscontrpr1 (CohomologyFunctorH_Mor (identity C)))
                        (identity _)
-                       (functor_id (ComplexHomotFunctor (AbelianToAdditive A hs)) _))).
+                       (functor_id (ComplexHomotFunctor (AbelianToAdditive A)) _))).
     rewrite functor_id. apply idpath.
   Qed.
 
-  Lemma CohomologyFunctorH_Mor_Comp {C1 C2 C3 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-             (g : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C2, C3⟧) :
+  Lemma CohomologyFunctorH_Mor_Comp {C1 C2 C3 : ComplexHomot_Additive (AbelianToAdditive A)}
+             (f : ComplexHomot_Additive (AbelianToAdditive A) ⟦C1, C2⟧)
+             (g : ComplexHomot_Additive (AbelianToAdditive A) ⟦C2, C3⟧) :
     (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor (f · g)))) =
     (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor f)))
       · (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor g))) .
   Proof.
-    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
+    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
     apply has_homsets_ComplexPreCat. intros f'.
-    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
+    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) g)).
     apply has_homsets_ComplexPreCat. intros g'.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (CohomologyFunctor A hs) (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp (CohomologyFunctor A) (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     use (pathscomp0 _ tmp). clear tmp.
     use (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor (f · g)))).
     rewrite functor_comp. rewrite (hfiberpr2 _ _ f'). rewrite (hfiberpr2 _ _ g'). apply idpath.
   Qed.
 
   Definition CohomologyFunctorH_functor_data :
-    functor_data (ComplexHomot_Additive (AbelianToAdditive A hs))
-                 (ComplexPreCat_Additive (AbelianToAdditive A hs)).
+    functor_data (ComplexHomot_Additive (AbelianToAdditive A))
+                 (ComplexPreCat_Additive (AbelianToAdditive A)).
   Proof.
     use tpair.
-    - intros C. exact (CohomologyComplex A hs C).
+    - intros C. exact (CohomologyComplex A C).
     - intros C1 C2 f. exact (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor f))).
   Defined.
 
@@ -1244,8 +1240,8 @@ Section def_cohomology_homotopy.
   Qed.
 
   Definition CohomologyFunctorH :
-    functor (ComplexHomot_Additive (AbelianToAdditive A hs))
-            (ComplexPreCat_Additive (AbelianToAdditive A hs)).
+    functor (ComplexHomot_Additive (AbelianToAdditive A))
+            (ComplexPreCat_Additive (AbelianToAdditive A)).
   Proof.
     use tpair.
     - exact CohomologyFunctorH_functor_data.
@@ -1253,8 +1249,8 @@ Section def_cohomology_homotopy.
   Defined.
 
   Lemma CohomologyFunctorHCommutes :
-    functor_composite (ComplexHomotFunctor (AbelianToAdditive A hs)) CohomologyFunctorH =
-    (CohomologyFunctor A hs).
+    functor_composite (ComplexHomotFunctor (AbelianToAdditive A)) CohomologyFunctorH =
+    (CohomologyFunctor A).
   Proof.
     use total2_paths_f.
     - use total2_paths_f.
@@ -1266,7 +1262,7 @@ Section def_cohomology_homotopy.
         use (CohomologyFunctorHImEq
                (iscontrpr1
                   (CohomologyFunctorH_Mor
-                     (# (ComplexHomotFunctor (AbelianToAdditive A hs)) f))) f
+                     (# (ComplexHomotFunctor (AbelianToAdditive A)) f))) f
                (idpath _)).
     - apply proofirrelevance. apply isaprop_is_functor.
       use has_homsets_ComplexPreCat.
@@ -1277,20 +1273,20 @@ Section def_cohomology_homotopy.
 
   Local Opaque to_binop.
   Local Lemma CohomologyFunctorH_Additive_zero
-        (C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A hs))) :
+        (C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A))) :
     # CohomologyFunctorH
-      (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A hs))) C1 C2) =
-    ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)))
+      (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A))) C1 C2) =
+    ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
               (CohomologyFunctorH C1) (CohomologyFunctorH C2).
   Proof.
     use (pathscomp0 _ (@AdditiveFunctorZeroArrow
-                         (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                         (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                         (CohomologyFunctor_Additive A hs) C1 C2)).
-    assert (e0 : # (ComplexHomotFunctor (AbelianToAdditive A hs))
-                   (ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)))
+                         (ComplexPreCat_Additive (AbelianToAdditive A))
+                         (ComplexPreCat_Additive (AbelianToAdditive A))
+                         (CohomologyFunctor_Additive A) C1 C2)).
+    assert (e0 : # (ComplexHomotFunctor (AbelianToAdditive A))
+                   (ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
                               _ _) =
-                 ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A hs)))
+                 ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A)))
                            C1 C2).
     {
       apply AdditiveFunctorZeroArrow.
@@ -1301,15 +1297,15 @@ Section def_cohomology_homotopy.
   Qed.
 
   Local Lemma CohomologyFunctorH_Additive_linear
-        {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A hs))}
-        (f g : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧) :
+        {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A))}
+        (f g : (ComplexHomot_Additive (AbelianToAdditive A))⟦C1, C2⟧) :
     # CohomologyFunctorH (to_binop C1 C2 f g) =
     to_binop (CohomologyFunctorH C1) (CohomologyFunctorH C2)
              (# CohomologyFunctorH f) (# CohomologyFunctorH g).
   Proof.
-    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
+    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
     apply has_homsets_ComplexPreCat. intros f'.
-    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
+    use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) g)).
     apply has_homsets_ComplexPreCat. intros g'.
     cbn.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f))
@@ -1317,11 +1313,11 @@ Section def_cohomology_homotopy.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g))
                                     (hfiberpr1 _ _ g') (hfiberpr2 _ _ g')).
     set (tmp := @AdditiveFunctorLinear
-                  (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                  (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                  (CohomologyFunctor_Additive A hs) C1 C2
-                  (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) f f')
-                  (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) g g')).
+                  (ComplexPreCat_Additive (AbelianToAdditive A))
+                  (ComplexPreCat_Additive (AbelianToAdditive A))
+                  (CohomologyFunctor_Additive A) C1 C2
+                  (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A)) f f')
+                  (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A)) g g')).
     use (pathscomp0 _ tmp). clear tmp.
     use (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor (to_binop C1 C2 f g)))).
     rewrite AdditiveFunctorLinear.
@@ -1330,18 +1326,18 @@ Section def_cohomology_homotopy.
 
   Local Lemma CohomologyFunctorH_isAdditive : isAdditiveFunctor CohomologyFunctorH.
   Proof.
-    refine (@mk_isAdditiveFunctor' (ComplexHomot_Additive (AbelianToAdditive A hs))
-                                   (ComplexPreCat_Additive (AbelianToAdditive A hs))
+    refine (@make_isAdditiveFunctor' (ComplexHomot_Additive (AbelianToAdditive A))
+                                   (ComplexPreCat_Additive (AbelianToAdditive A))
                                    CohomologyFunctorH _ _).
     - intros C1 C2. exact (CohomologyFunctorH_Additive_zero C1 C2).
     - intros C1 C2 f g. exact (CohomologyFunctorH_Additive_linear f g).
   Qed.
 
   Definition CohomologyFunctorH_Additive :
-    AdditiveFunctor (ComplexHomot_Additive (AbelianToAdditive A hs))
-                    (ComplexPreCat_Additive (AbelianToAdditive A hs)).
+    AdditiveFunctor (ComplexHomot_Additive (AbelianToAdditive A))
+                    (ComplexPreCat_Additive (AbelianToAdditive A)).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact CohomologyFunctorH.
     - exact CohomologyFunctorH_isAdditive.
   Defined.
@@ -1350,29 +1346,29 @@ Section def_cohomology_homotopy.
 
   (** ** Quasi-isomorphisms in K(A) *)
 
-  Definition isHQIS {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A hs))}
-             (f : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧) : UU :=
+  Definition isHQIS {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A))}
+             (f : (ComplexHomot_Additive (AbelianToAdditive A))⟦C1, C2⟧) : UU :=
     is_iso (# CohomologyFunctorH_Additive f).
 
-  Lemma isaprop_isHQIS {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A hs))}
-             (f : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧) : isaprop (isHQIS f).
+  Lemma isaprop_isHQIS {C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A))}
+             (f : (ComplexHomot_Additive (AbelianToAdditive A))⟦C1, C2⟧) : isaprop (isHQIS f).
   Proof.
     apply isaprop_is_iso.
   Qed.
 
-  Lemma IdentityIsHQIS (C : (ComplexHomot_Additive (AbelianToAdditive A hs))) : isHQIS (identity C).
+  Lemma IdentityIsHQIS (C : (ComplexHomot_Additive (AbelianToAdditive A))) : isHQIS (identity C).
   Proof.
     exact (pr2 (functor_on_iso CohomologyFunctorH (identity_iso C))).
   Qed.
 
-  Lemma CompIsHQIS {C1 C2 C3 : (ComplexHomot_Additive (AbelianToAdditive A hs))}
-        (f1 : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧) (H1 : isHQIS f1)
-        (f2 : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C2, C3⟧) (H2 : isHQIS f2) :
+  Lemma CompIsHQIS {C1 C2 C3 : (ComplexHomot_Additive (AbelianToAdditive A))}
+        (f1 : (ComplexHomot_Additive (AbelianToAdditive A))⟦C1, C2⟧) (H1 : isHQIS f1)
+        (f2 : (ComplexHomot_Additive (AbelianToAdditive A))⟦C2, C3⟧) (H2 : isHQIS f2) :
     isHQIS (f1 · f2).
   Proof.
     unfold isHQIS. rewrite functor_comp.
-    apply (@is_iso_comp_of_isos (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _ _
-                                (isopair _ H1) (isopair _ H2)).
+    apply (@is_iso_comp_of_isos (ComplexPreCat_Additive (AbelianToAdditive A)) _ _ _
+                                (make_iso _ H1) (make_iso _ H2)).
   Qed.
 
 End def_cohomology_homotopy.
@@ -1398,22 +1394,21 @@ End def_cohomology_homotopy.
 Section def_kernel_cokernel_complex.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   (** ** Construction of kernel and cokernel complexes *)
   (** *** Complex of kernels *)
 
-  Local Lemma KernelComplex_Kernel_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma KernelComplex_Kernel_comm (C : Complex (AbelianToAdditive A)) (i : hz) :
     KernelArrow (Kernel (Diff C i)) · Diff C i · Diff C (i + 1) =
     ZeroArrow (to_Zero A) (Kernel (Diff C i)) (C (i + 1 + 1)).
   Proof.
     rewrite <- assoc.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (KernelArrow (Kernel (Diff C i)))).
     apply cancel_precomposition.
-    exact (DSq (AbelianToAdditive A hs) C i).
+    exact (DSq (AbelianToAdditive A) C i).
   Qed.
 
-  Local Lemma KernelComplex_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma KernelComplex_comm (C : Complex (AbelianToAdditive A)) (i : hz) :
     (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (Kernel (Diff C i))
               (KernelArrow (Kernel (Diff C i)) · Diff C i)
               (KernelComplex_Kernel_comm C i))
@@ -1427,10 +1422,10 @@ Section def_kernel_cokernel_complex.
     rewrite ZeroArrow_comp_left. exact (KernelComplex_Kernel_comm C i).
   Qed.
 
-  Definition KernelComplex (C : Complex (AbelianToAdditive A hs)) :
-    Complex (AbelianToAdditive A hs).
+  Definition KernelComplex (C : Complex (AbelianToAdditive A)) :
+    Complex (AbelianToAdditive A).
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (Kernel (Diff C (i + 1))).
     - intros i. cbn.
       use KernelIn.
@@ -1445,19 +1440,19 @@ Section def_kernel_cokernel_complex.
 
   (** *** Complex of cokernels *)
 
-  Local Lemma CokernelComplex_Cokernel_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelComplex_Cokernel_comm (C : Complex (AbelianToAdditive A)) (i : hz) :
     (Diff C (i - 1))
       · (transportf (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
                      (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1)) (Diff C (i + 1 - 1)) ·
                      CokernelArrow (Cokernel (Diff C (i + 1 - 1)))) =
     ZeroArrow (to_Zero A) (C (i - 1)) (Cokernel (Diff C (i + 1 - 1))).
   Proof.
-    induction (hzrminusplus i 1 @ hzrplusminus' i 1). cbn. unfold idfun.
-    rewrite assoc. set (tmp := DSq (AbelianToAdditive A hs) C (i - 1)). cbn in tmp.
+    induction (hzrminusplus i 1 @ hzrplusminus' i 1). cbn.
+    rewrite assoc. set (tmp := DSq (AbelianToAdditive A) C (i - 1)). cbn in tmp.
     rewrite tmp. clear tmp. apply ZeroArrow_comp_left.
   Qed.
 
-  Local Lemma CokernelComplex_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelComplex_comm (C : Complex (AbelianToAdditive A)) (i : hz) :
     CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (Cokernel (Diff C (i + 1 - 1)))
                 (transportf (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
                             (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))
@@ -1486,17 +1481,17 @@ Section def_kernel_cokernel_complex.
     rewrite transport_f_f.
     assert (e0 : (! (hzrminusplus i 1 @ hzrplusminus' i 1)
                     @ ! (hzrplusminus i 1 @ hzrminusplus' i 1)) = idpath _) by apply isasethz.
-    cbn in e0. cbn. rewrite e0. clear e0. cbn. unfold idfun.
+    cbn in e0. cbn. rewrite e0. clear e0. cbn.
     rewrite transport_source_ZeroArrow.
     induction (hzrminusplus (i + 1) 1). cbn.
-    induction (hzrplusminus' (i + 1 - 1 + 1) 1). cbn. unfold idfun.
+    induction (hzrplusminus' (i + 1 - 1 + 1) 1). cbn.
     exact (DSq _ C (i + 1 - 1)).
   Qed.
 
-  Definition CokernelComplex (C : Complex (AbelianToAdditive A hs)) :
-    Complex (AbelianToAdditive A hs).
+  Definition CokernelComplex (C : Complex (AbelianToAdditive A)) :
+    Complex (AbelianToAdditive A).
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (Cokernel (Diff C (i - 1))).
     - intros i. cbn.
       use CokernelOut.
@@ -1515,16 +1510,16 @@ Section def_kernel_cokernel_complex.
   (** ** Construction of h^i and isomorphisms with cohomology *)
   (** *** Uniqueness and existence of h^i *)
 
-  Local Lemma CokernelKernelMorphism_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_comm1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     Diff C (i - 1) · transportf (λ x : A, A ⟦x, C (i + 1)⟧)
          (! maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow (to_Zero A) (C (i - 1)) (C (i + 1)).
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
+    induction (hzrminusplus i 1). cbn. exact (DSq _ C (i - 1)).
   Qed.
 
 
-  Local Lemma CokernelKernelMorphism_comm2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_comm2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (C (i + 1))
                 (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
                             (! maponpaths C (hzrminusplus i 1)) (Diff C i))
@@ -1533,13 +1528,13 @@ Section def_kernel_cokernel_complex.
   Proof.
     use CokernelOutsEq.
     rewrite assoc. rewrite CokernelCommutes. rewrite ZeroArrow_comp_right.
-    induction (hzrminusplus i 1). cbn. unfold idfun.
+    induction (hzrminusplus i 1). cbn.
     exact (DSq _ C (i - 1 + 1)).
   Qed.
 
-  Local Lemma CokernelKernelMorphism_comm3 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_comm3 (C : Complex (AbelianToAdditive A)) (i : hz) :
     KernelIn
-      (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq (AbelianToAdditive A hs) C i) =
+      (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq (AbelianToAdditive A) C i) =
     transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧) (hzrminusplus i 1)
                (CokernelArrow (Cokernel (Diff C (i - 1))))
                · KernelIn (to_Zero A) (Kernel (Diff C (i + 1)))
@@ -1567,15 +1562,15 @@ Section def_kernel_cokernel_complex.
     rewrite e2. apply idpath.
   Qed.
 
-  Local Lemma CokernelKernelMorphism_comm1' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_comm1' (C : Complex (AbelianToAdditive A)) (i : hz) :
     Diff C (i - 1) · transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
          (! maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow (to_Zero A) (C (i - 1)) (C (i + 1)).
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
+    induction (hzrminusplus i 1). cbn. exact (DSq _ C (i - 1)).
   Qed.
 
-  Local Lemma CokernelKernelMorphism_comm2' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_comm2' (C : Complex (AbelianToAdditive A)) (i : hz) :
     CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (C (i + 1))
                 (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
                             (! maponpaths C (hzrminusplus i 1)) (Diff C i))
@@ -1592,10 +1587,10 @@ Section def_kernel_cokernel_complex.
     rewrite CokernelCommutes. rewrite CokernelCommutes. apply idpath.
   Qed.
 
-  Local Lemma CokernelKernelMorphism_uni (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelMorphism_uni (C : Complex (AbelianToAdditive A)) (i : hz) :
     ∏ t : ∑ f : A ⟦Cokernel (Diff C (i - 1)), Kernel (Diff C (i + 1))⟧,
                 (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i)
-                          (DSq (AbelianToAdditive A hs) C i) =
+                          (DSq (AbelianToAdditive A) C i) =
                  transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
                             (hzrminusplus i 1) (CokernelArrow (Cokernel (Diff C (i - 1)))) · f)
                   × (CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (C (i + 1))
@@ -1621,18 +1616,18 @@ Section def_kernel_cokernel_complex.
       + rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathsinv0.
         rewrite <- maponpathscomp0.
         assert (e0 : (! hzrminusplus i 1 @ ! hzrminusplus' i 1) = idpath _) by apply isasethz.
-        cbn in e0. cbn. rewrite e0. clear e0. cbn. unfold idfun.
+        cbn in e0. cbn. rewrite e0. clear e0. cbn.
         rewrite transport_source_precompose. rewrite transport_source_precompose.
         rewrite <- functtransportf.
         assert (e1 : ! hzrminusplus' i 1 = hzrminusplus i 1) by apply isasethz.
         cbn in e1. rewrite e1. clear e1. rewrite <- t21.
         rewrite KernelCommutes. apply idpath.
     - apply proofirrelevance. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + apply homset_property.
+      + apply homset_property.
   Qed.
 
-  Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A)) (i : hz) :
     iscontr (∑ f : A⟦(CokernelComplex C) i, (KernelComplex C) i⟧,
                    ((KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq _ C i)) =
                     (transportf (λ (i0 : hz), A⟦C i0, (Cokernel (Diff C (i - 1)))⟧)
@@ -1661,7 +1656,7 @@ Section def_kernel_cokernel_complex.
 
   (** *** Kernel and cohomology *)
 
-  Local Lemma CokernelKernelCohomology1_eq (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_eq (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK := Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                    (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))) in
     (Diff C (i - 1))
@@ -1669,10 +1664,10 @@ Section def_kernel_cokernel_complex.
                      (! maponpaths C (hzrminusplus i 1)) (CokernelArrow CK)) =
     ZeroArrow (to_Zero A) _ _.
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. apply CokernelCompZero.
+    induction (hzrminusplus i 1). cbn. apply CokernelCompZero.
   Qed.
 
-  Local Lemma CokernelKernelCohomology1_Mor1_eq1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_Mor1_eq1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                 (Diff C (i - 1)))
       · (transportf (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
@@ -1682,7 +1677,7 @@ Section def_kernel_cokernel_complex.
     rewrite transport_compose'. use CokernelCompZero.
   Qed.
 
-  Local Lemma CokernelKernelCohomology1_Mor1_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_Mor1_comm1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     KernelArrow
       (Kernel
          (CokernelOut (to_Zero A)
@@ -1690,7 +1685,7 @@ Section def_kernel_cokernel_complex.
                          (transportf (precategory_morphisms (C (i - 1)))
                                      (maponpaths C (hzrminusplus i 1))
                                      (Diff C (i - 1)))) (C (i + 1)) (Diff C i)
-                      (CohomologyComplex_KernelIn_eq A hs C i))) ·
+                      (CohomologyComplex_KernelIn_eq A C i))) ·
       CokernelOut (to_Zero A)
       (Cokernel
          (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
@@ -1711,7 +1706,7 @@ Section def_kernel_cokernel_complex.
                              (Cokernel
                                 (transportf (precategory_morphisms (C (i - 1)))
                                             (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
-                             (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A hs C i))).
+                             (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A C i))).
     cbn. use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C (i + 1)))).
     rewrite <- assoc. rewrite <- assoc. rewrite KernelCommutes. rewrite ZeroArrow_comp_left.
     cbn. cbn in K. fold K. rewrite <- (KernelCompZero (to_Zero A) K). apply cancel_precomposition.
@@ -1725,11 +1720,11 @@ Section def_kernel_cokernel_complex.
       cbn in tmp. cbn. rewrite tmp. clear tmp. rewrite transport_f_f.
       rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
       assert (e0 : (hzrminusplus i 1 @ ! hzrminusplus i 1) = idpath _) by apply isasethz.
-      cbn. cbn in e0. rewrite e0. clear e0. cbn. unfold idfun. apply idpath.
+      cbn. cbn in e0. rewrite e0. clear e0. cbn. apply idpath.
   Qed.
 
-  Definition CokernelKernelCohomology1_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    A⟦(((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) i),
+  Definition CokernelKernelCohomology1_Mor1 (C : Complex (AbelianToAdditive A)) (i : hz) :
+    A⟦(((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) i),
       (Kernel (pr1 (pr1 (CokernelKernelMorphism C i))))⟧.
   Proof.
     set (K := Kernel
@@ -1737,8 +1732,8 @@ Section def_kernel_cokernel_complex.
                              (Cokernel
                                 (transportf (precategory_morphisms (C (i - 1)))
                                             (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
-                             (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A hs C i))).
-    use (compose (iso_inv_from_is_iso _ (CohomologyComplexIso_is_iso_i A hs C i))).
+                             (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A C i))).
+    use (compose (iso_inv_from_is_iso _ (CohomologyComplexIso_is_iso_i A C i))).
     use KernelIn.
     - cbn.
       use (compose (KernelArrow K)).
@@ -1750,7 +1745,7 @@ Section def_kernel_cokernel_complex.
     - exact (CokernelKernelCohomology1_Mor1_comm1 C i).
   Defined.
 
-  Local Lemma CokernelKernelCohomology1_Mor2_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_Mor2_comm1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     KernelArrow
       (Kernel
          (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
@@ -1777,7 +1772,7 @@ Section def_kernel_cokernel_complex.
                    (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                          (maponpaths C (hzrminusplus i 1))
                                          (Diff C (i - 1)))) (C (i + 1)) (Diff C i)
-                   (CohomologyComplex_KernelIn_eq A hs C i)) = ZeroArrow (to_Zero A) _ _.
+                   (CohomologyComplex_KernelIn_eq A C i)) = ZeroArrow (to_Zero A) _ _.
   Proof.
     set (CK := Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                     (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1)))).
@@ -1797,7 +1792,7 @@ Section def_kernel_cokernel_complex.
                                          (CokernelArrow CK))
                              (CokernelKernelCohomology1_eq C i) · CokernelOut (to_Zero A) CK
                              (C (i + 1)) (Diff C i)
-                             (CohomologyComplex_KernelIn_eq A hs C i) =
+                             (CohomologyComplex_KernelIn_eq A C i) =
                  (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
                            (CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (C (i + 1))
                                         (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
@@ -1817,14 +1812,14 @@ Section def_kernel_cokernel_complex.
           rewrite <- maponpathsinv0. rewrite <- maponpathscomp0. apply maponpaths.
           apply isasethz.
         }
-        cbn. cbn in e0. rewrite e0. clear e0. cbn. unfold idfun. rewrite CokernelCommutes.
+        cbn. cbn in e0. rewrite e0. clear e0. cbn. rewrite CokernelCommutes.
         cbn in tmp. rewrite <- tmp. clear tmp.
         use transport_source_path.
         * exact (C (i - 1 + 1)).
         * exact (! maponpaths C (hzrminusplus i 1)).
         * rewrite transport_source_precompose. rewrite transport_source_precompose.
           rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
-          rewrite pathsinv0r. cbn. unfold idfun. rewrite CokernelCommutes.
+          rewrite pathsinv0r. cbn. rewrite CokernelCommutes.
           rewrite maponpathsinv0. apply idpath.
     }
     rewrite <- assoc. cbn in e0. rewrite e0. clear e0.
@@ -1844,11 +1839,11 @@ Section def_kernel_cokernel_complex.
     apply pathsinv0. use KernelCommutes.
   Qed.
 
-  Definition CokernelKernelCohomology1_Mor2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CokernelKernelCohomology1_Mor2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     A⟦(Kernel (pr1 (pr1 (CokernelKernelMorphism C i)))),
-      (((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) i)⟧.
+      (((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) i)⟧.
   Proof.
-    use (postcompose (CohomologyComplexIso_Mor_i A hs C i)). cbn.
+    use (postcompose (CohomologyComplexIso_Mor_i A C i)). cbn.
     use KernelIn.
     - use (compose (KernelArrow _)).
       use CokernelOut.
@@ -1861,7 +1856,7 @@ Section def_kernel_cokernel_complex.
     - exact (CokernelKernelCohomology1_Mor2_comm1 C i).
   Defined.
 
-  Local Lemma CokernelKernelCohomology1_id1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_id1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     CokernelKernelCohomology1_Mor2 C i · CokernelKernelCohomology1_Mor1 C i =
     identity (Kernel (pr1 (pr1 (CokernelKernelMorphism C i)))).
   Proof.
@@ -1874,7 +1869,7 @@ Section def_kernel_cokernel_complex.
                                  (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))) (C (i + 1)) (Diff C i)
-                              (CohomologyComplex_KernelIn_eq A hs C i))).
+                              (CohomologyComplex_KernelIn_eq A C i))).
     cbn in K1. fold K1.
     set (K2 := (Kernel
                   (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
@@ -1892,10 +1887,10 @@ Section def_kernel_cokernel_complex.
     use KernelInsEq. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
     rewrite KernelCommutes. rewrite id_left.
     (* Get rid of the inv_from_iso stuff *)
-    assert (ee : ((CohomologyComplexIso_Mor_i A hs C i)
+    assert (ee : ((CohomologyComplexIso_Mor_i A C i)
                     · (inv_from_iso
-                          (CohomologyComplexIso_Mor_i A hs C i,,
-                                                      CohomologyComplexIso_is_iso_i A hs C i) ·
+                          (CohomologyComplexIso_Mor_i A C i,,
+                                                      CohomologyComplexIso_is_iso_i A C i) ·
                           (KernelArrow K1 · CokernelOut (to_Zero A) CK2 CK1
                                        (transportf
                                           (λ x' : A, A ⟦ x', CK1 ⟧)
@@ -1910,12 +1905,12 @@ Section def_kernel_cokernel_complex.
                               (CokernelKernelCohomology1_Mor1_eq1 C i))).
     {
       rewrite assoc. rewrite assoc. apply cancel_postcomposition.
-      assert (ee' : (CohomologyComplexIso_Mor_i A hs C i)
-                      · (inv_from_iso ((CohomologyComplexIso_Mor_i A hs C i)
-                                          ,, (CohomologyComplexIso_is_iso_i A hs C i))) =
+      assert (ee' : (CohomologyComplexIso_Mor_i A C i)
+                      · (inv_from_iso ((CohomologyComplexIso_Mor_i A C i)
+                                          ,, (CohomologyComplexIso_is_iso_i A C i))) =
                     identity _).
       {
-        apply (iso_inv_after_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))).
+        apply (iso_inv_after_iso (make_iso _ (CohomologyComplexIso_is_iso_i A C i))).
       }
       cbn beta in ee'. rewrite ee'. clear ee'. apply id_left.
     }
@@ -1938,11 +1933,11 @@ Section def_kernel_cokernel_complex.
     -- exact (! maponpaths C (! hzrminusplus i 1)).
     -- rewrite transport_source_precompose. rewrite transport_f_f.
        rewrite <- maponpathsinv0. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
-       rewrite pathsinv0inv0. rewrite pathsinv0l. cbn. unfold idfun.
+       rewrite pathsinv0inv0. rewrite pathsinv0l. cbn.
        apply CokernelCommutes.
   Qed.
 
-  Local Lemma CokernelKernelCohomology1_id2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology1_id2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     CokernelKernelCohomology1_Mor1 C i · CokernelKernelCohomology1_Mor2 C i =
     identity _.
   Proof.
@@ -1954,7 +1949,7 @@ Section def_kernel_cokernel_complex.
                                       (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))).
     cbn in CK2. fold CK2.
     set (K1 := Kernel (CokernelOut (to_Zero A) CK2 (C (i + 1)) (Diff C i)
-                                   (CohomologyComplex_KernelIn_eq A hs C i))).
+                                   (CohomologyComplex_KernelIn_eq A C i))).
     set (K2 := Kernel
                  (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) CK1
                            (CokernelOut (to_Zero A) CK1 (C (i + 1))
@@ -1982,27 +1977,27 @@ Section def_kernel_cokernel_complex.
     cbn in KI12. fold KI12.
     (* Begin to prove the equality *)
     (* Cancel the inv_from_iso *)
-    use (pre_comp_with_iso_is_inj _ _ _ _ _ (CohomologyComplexIso_is_iso_i A hs C i)).
+    use (pre_comp_with_iso_is_inj _ _ _ _ (CohomologyComplexIso_is_iso_i A C i)).
     rewrite assoc. rewrite assoc. rewrite assoc.
-    assert (e : (CohomologyComplexIso_Mor_i A hs C i)
-                  · (inv_from_iso ((CohomologyComplexIso_Mor_i A hs C i)
-                                      ,, (CohomologyComplexIso_is_iso_i A hs C i))) = identity _).
+    assert (e : (CohomologyComplexIso_Mor_i A C i)
+                  · (inv_from_iso ((CohomologyComplexIso_Mor_i A C i)
+                                      ,, (CohomologyComplexIso_is_iso_i A C i))) = identity _).
     {
-      apply (iso_inv_after_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))).
+      apply (iso_inv_after_iso (make_iso _ (CohomologyComplexIso_is_iso_i A C i))).
     }
     cbn beta in e. rewrite id_right.
-    apply (maponpaths (λ gg : _, gg · KI21 · KI12 · CohomologyComplexIso_Mor_i A hs C i))
+    apply (maponpaths (λ gg : _, gg · KI21 · KI12 · CohomologyComplexIso_Mor_i A C i))
       in e.
     use (pathscomp0 e). clear e. rewrite id_left.
     (* Cancel the last morphism *)
     use (post_comp_with_iso_is_inj
-           _ _ _ _  (is_iso_inv_from_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i)))).
+           _ _ _  (is_iso_inv_from_iso (make_iso _ (CohomologyComplexIso_is_iso_i A C i)))).
     rewrite <- assoc. rewrite <- assoc.
-    assert (ee : (CohomologyComplexIso_Mor_i A hs C i)
-                   · (inv_from_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))) =
+    assert (ee : (CohomologyComplexIso_Mor_i A C i)
+                   · (inv_from_iso (make_iso _ (CohomologyComplexIso_is_iso_i A C i))) =
                  identity _).
     {
-      apply (iso_inv_after_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))).
+      apply (iso_inv_after_iso (make_iso _ (CohomologyComplexIso_is_iso_i A C i))).
     }
     cbn beta in ee. rewrite ee.
     apply (maponpaths (λ gg : _, KI21 · (KI12 · gg))) in ee. use (pathscomp0 ee). clear ee.
@@ -2019,14 +2014,14 @@ Section def_kernel_cokernel_complex.
     - exact (! maponpaths C (hzrminusplus i 1)).
     - rewrite transport_source_precompose. rewrite transport_f_f.
       rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
-      rewrite pathsinv0r. cbn. unfold idfun. rewrite maponpathsinv0. apply CokernelCommutes.
+      rewrite pathsinv0r. cbn. rewrite maponpathsinv0. apply CokernelCommutes.
   Qed.
 
-  Definition CokernelKernelCohomology1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CokernelKernelCohomology1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     iso (Kernel (pr1 (pr1 (CokernelKernelMorphism C i))))
-        ((((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) i)).
+        ((((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) i)).
   Proof.
-    use isopair.
+    use make_iso.
     - exact (CokernelKernelCohomology1_Mor2 C i).
     - use is_iso_qinv.
       + exact (CokernelKernelCohomology1_Mor1 C i).
@@ -2038,12 +2033,12 @@ Section def_kernel_cokernel_complex.
 
   (** *** Cokernel and cohomology *)
 
-  Local Lemma CokernelKernelCohomology2_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology2_comm1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     let CK := Cokernel (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C (i + 1 - 1))
                                  (transportf (precategory_morphisms (C (i + 1 - 1)))
                                              (maponpaths C (hzrminusplus (i + 1) 1))
                                              (Diff C (i + 1 - 1)))
-                                 (CohomologyComplex_KernelIn_eq A hs C (i + 1))) in
+                                 (CohomologyComplex_KernelIn_eq A C (i + 1))) in
     pr1 (pr1 (CokernelKernelMorphism C i)) · CokernelArrow CK = ZeroArrow (to_Zero A) _ _.
   Proof.
     intros CK. cbn.
@@ -2072,20 +2067,20 @@ Section def_kernel_cokernel_complex.
       use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
-  Definition CokernelKernelCohomology2_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CokernelKernelCohomology2_Mor1 (C : Complex (AbelianToAdditive A)) (i : hz) :
     A⟦(Cokernel (pr1 (pr1 (CokernelKernelMorphism C i)))),
-      ((((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) (i + 1)))⟧.
+      ((((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) (i + 1)))⟧.
   Proof.
     use CokernelOut.
     - use CokernelArrow.
     - exact (CokernelKernelCohomology2_comm1 C i).
   Defined.
 
-  Local Lemma CokernelKernelCohomology2_comm2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology2_comm2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C (i + 1 - 1))
               (transportf (precategory_morphisms (C (i + 1 - 1)))
                           (maponpaths C (hzrminusplus (i + 1) 1))
-                          (Diff C (i + 1 - 1))) (CohomologyComplex_KernelIn_eq A hs C (i + 1)))
+                          (Diff C (i + 1 - 1))) (CohomologyComplex_KernelIn_eq A C (i + 1)))
       · (CokernelArrow (Cokernel (pr1 (pr1 (CokernelKernelMorphism C i))))) =
     ZeroArrow (to_Zero A) _ _.
   Proof.
@@ -2094,11 +2089,11 @@ Section def_kernel_cokernel_complex.
                           (transportf (precategory_morphisms (C (i + 1 - 1)))
                                       (maponpaths C (hzrminusplus (i + 1) 1))
                                       (Diff C (i + 1 - 1)))
-                          (CohomologyComplex_KernelIn_eq A hs C (i + 1)) =
+                          (CohomologyComplex_KernelIn_eq A C (i + 1)) =
                  transportf (λ x' : ob A, precategory_morphisms x' _)
                             (! maponpaths C (hzrplusminus i 1))
                             (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i)
-                                      (DSq (AbelianToAdditive A hs) C i))).
+                                      (DSq (AbelianToAdditive A) C i))).
     {
       rewrite transport_source_KernelIn.
       use KernelInsEq.
@@ -2112,8 +2107,8 @@ Section def_kernel_cokernel_complex.
     apply ZeroArrow_comp_right.
   Qed.
 
-  Definition CokernelKernelCohomology2_Mor2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    A⟦((((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) (i + 1))),
+  Definition CokernelKernelCohomology2_Mor2 (C : Complex (AbelianToAdditive A)) (i : hz) :
+    A⟦((((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) (i + 1))),
       (Cokernel (pr1 (pr1 (CokernelKernelMorphism C i))))⟧.
   Proof.
     use CokernelOut.
@@ -2121,7 +2116,7 @@ Section def_kernel_cokernel_complex.
     - exact (CokernelKernelCohomology2_comm2 C i).
   Defined.
 
-  Local Lemma CokernelKernelCohomology2_inverses (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Local Lemma CokernelKernelCohomology2_inverses (C : Complex (AbelianToAdditive A)) (i : hz) :
     is_inverse_in_precat (CokernelKernelCohomology2_Mor1 C i) (CokernelKernelCohomology2_Mor2 C i).
   Proof.
     split.
@@ -2135,11 +2130,11 @@ Section def_kernel_cokernel_complex.
       cbn. rewrite CokernelCommutes. rewrite id_right. apply idpath.
   Qed.
 
-  Definition CokernelKernelCohomology2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
+  Definition CokernelKernelCohomology2 (C : Complex (AbelianToAdditive A)) (i : hz) :
     iso (Cokernel (pr1 (pr1 (CokernelKernelMorphism C i))))
-        ((((CohomologyFunctor A hs C) : Complex (AbelianToAdditive A hs)) (i + 1))).
+        ((((CohomologyFunctor A C) : Complex (AbelianToAdditive A)) (i + 1))).
   Proof.
-    use isopair.
+    use make_iso.
     - exact (CokernelKernelCohomology2_Mor1 C i).
     - use is_iso_qinv.
       + exact (CokernelKernelCohomology2_Mor2 C i).

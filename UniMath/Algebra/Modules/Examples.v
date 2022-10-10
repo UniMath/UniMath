@@ -2,7 +2,8 @@
 
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Multimodules.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -32,9 +33,9 @@ Proof. easy. Defined.
 (** The identity function is a morphism of modules *)
 Definition idmoduleiso {R : ring} (M : module R) : moduleiso M M.
 Proof.
-   use mk_moduleiso.
+   use make_moduleiso.
    - exact (idweq (pr1module M)).
-   - apply dirprodpair.
+   - apply make_dirprod.
      + intros x y. apply idpath.
      + intros r x. apply idpath.
 Defined.
@@ -42,7 +43,7 @@ Defined.
 (** The identity function is a multimodule morphism *)
 Definition id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule rings)
   : @ismultimodulefun I rings MM MM (idfun MM) :=
-  (dirprodpair (λ x y : MM, idpath _) (fun i => idfun_linear (ith_module MM i))).
+  (make_dirprod (λ x y : MM, idpath _) (fun i => idfun_linear (ith_module MM i))).
 
 (** ** (Multi)modules *)
 
@@ -103,7 +104,7 @@ Local Open Scope ring.
 Definition bimodule (R S : ring) : UU := @multimodule _ (bool_rect _ R (S⁰)).
 
 (** The more immediate/intuitive description of a bimodule. Below, we provide a
-    way to construct a bimodule from this definition (mk_bimodule). *)
+    way to construct a bimodule from this definition (make_bimodule). *)
 Definition bimodule_struct' (R S : ring) (G : abgr) : UU :=
   (* A bimodule structure consists of two modules structures... *)
   ∑ (mr : module_struct R G) (ms : module_struct (S⁰) G),
@@ -112,7 +113,7 @@ Definition bimodule_struct' (R S : ring) (G : abgr) : UU :=
     let muls := module_mult (G,, ms) in
     ∏ (r : R) (s : S), mulr r ∘ muls s = muls s ∘ mulr r.
 
-Definition mk_bimodule (R S : ring) {G} (str : bimodule_struct' R S G) : bimodule R S.
+Definition make_bimodule (R S : ring) {G} (str : bimodule_struct' R S G) : bimodule R S.
   refine (G,, _).
 
   (** Index the module structs over bool *)
@@ -131,7 +132,7 @@ Defined.
 
 (** A commutative ring is a bimodule over itself *)
 Example commring_bimodule (R : commring) : bimodule R R.
-  apply (@mk_bimodule R R (@ringaddabgr R)).
+  apply (@make_bimodule R R (@ringaddabgr R)).
   unfold bimodule_struct'.
   refine (pr2module (ring_is_module R),, _).
 
@@ -140,12 +141,12 @@ Example commring_bimodule (R : commring) : bimodule R R.
             (ringfun_module
                (rigisotorigfun (invrigiso (iso_commring_opposite R)))),, _).
 
-  unfold funcomp; cbn.
+  simpl.
   intros r s.
   apply funextfun.
   intros x.
   exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@ringcomm2 R r s))
                       @ (rigassoc2 R s r x)).
-Defined. (* TODO: this line takes a while, not sure why *)
+  Defined. (* TODO: this line takes a while, not sure why *)
 
 Local Close Scope ring.

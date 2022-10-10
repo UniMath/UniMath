@@ -17,31 +17,9 @@ Require Import UniMath.NumberSystems.Integers.
 
 Unset Kernel Term Sharing. (** crucial for timely proof-checking, otherwise unbearable *)
 
-Section Upstream.
-  (* these lemmas are only used for pointing to a problem but could be worth
-     integrating into upstream *)
-Open Scope hz_scope.
-
-Lemma hzmultrmul (a b c : hz) (is : a = b) : a * c = b * c.
-Proof.
-  intros.
-  induction is.
-  apply idpath.
-Defined.
-
-Lemma hzmultlmul (a b c : hz) (is : a = b) : c * a = c * b.
-Proof.
-  intros.
-  apply maponpaths.
-  apply is.
-Defined.
-
-Close Scope hz_scope.
-End Upstream.
-
 (** * I. Several basic lemmas *)
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Lemma hzqrandnatsummation0r ( m : hz ) ( x : hzneq 0 m )
   ( a : nat -> hz ) ( upper : nat ) :
@@ -205,14 +183,7 @@ Proof.
       rewrite hzmultx0.
       rewrite hzplusl0.
       rewrite hzremaindermoditerated.
-      (* Coq hangs on this command on Oct. 29, 2017: apply idpath. Solution by Benedikt Ahrens : *)
-      exact (idpath _).
-(* a less pleasing solution was the following - together with interesting observations:
-      apply hzplusladd.
-      Fail (apply hzmultlmul).
-      Fail (apply hzmultrmul).
       apply idpath.
-*)
     }
     rewrite h.
     apply idpath.
@@ -226,7 +197,7 @@ formal power series *)
 (** A lemma that does not depend on a non-zero integer and that used to
     appear where needed below - the point has been marked by a comment. *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Lemma natsummationplusshift { R : commring } ( upper : nat )
   ( f g : nat -> R ) :
@@ -249,7 +220,7 @@ Close Scope hz_scope.
 
 Section carry.
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Variable m : hz.
 Variable is : hzneq 0 m.
@@ -295,7 +266,7 @@ Proof.
 Defined.
 
 Definition carryequiv0 : hrel ( fpscommring hz ) :=
-  fun a b : fpscommring hz => hProppair _ ( isapropcarryequiv a b ).
+  fun a b : fpscommring hz => make_hProp _ ( isapropcarryequiv a b ).
 
 Lemma carryequiviseqrel : iseqrel carryequiv0.
 Proof.
@@ -324,7 +295,7 @@ Proof.
 Defined.
 
 Definition carryequiv : eqrel ( fpscommring hz ) :=
-  eqrelpair _ carryequiviseqrel.
+  make_eqrel _ carryequiviseqrel.
 
 Lemma precarryandcarry_pointwise ( a : fpscommring hz ) :
   forall n : nat,
@@ -1092,6 +1063,8 @@ Defined.
 
 (** ** Definition of p-adic integers *)
 
+Section A.
+
 Variable p : hz.
 Variable is : isaprime p.
 
@@ -1519,7 +1492,7 @@ Proof.
     apply ( pr1 padicapart ).
   }
   apply ( setquotuniv3prop _ ( fun x x' x'' =>
-                                 hProppair _ ( int x x' x'' ) ) ).
+                                 make_hProp _ ( int x x' x'' ) ) ).
   intros a b c.
   change (pr1 padicapart
               (padicplus (setquotpr (ringcarryequiv p (isaprimetoneq0 is)) a)
@@ -1598,7 +1571,7 @@ Proof.
     rewrite i.
     apply idpath.
   - set ( Q := ( fun o : nat =>
-                   hProppair ( carry p ( isaprimetoneq0 is ) b o =
+                   make_hProp ( carry p ( isaprimetoneq0 is ) b o =
                                carry p ( isaprimetoneq0 is ) c o )
                              ( isasethz _ _ ) ) ).
     assert ( isdecnatprop Q ) as isdec'.
@@ -1680,7 +1653,7 @@ Proof.
     rewrite j.
     apply idpath.
   - set ( Q := ( fun o : nat =>
-                   hProppair ( carry p ( isaprimetoneq0 is ) b o =
+                   make_hProp ( carry p ( isaprimetoneq0 is ) b o =
                                carry p ( isaprimetoneq0 is ) c o )
                              ( isasethz _ _ ) ) ).
     assert ( isdecnatprop Q ) as isdec'.
@@ -1755,7 +1728,7 @@ Proof.
      apply ( pr1 padicapart ).
   }
   apply ( setquotuniv3prop _ ( fun x x' x'' =>
-                                 hProppair _ ( int x x' x'' ) ) ).
+                                 make_hProp _ ( int x x' x'' ) ) ).
   intros a b c.
   change (pr1 padicapart
               (padictimes (setquotpr (carryequiv p (isaprimetoneq0 is)) a)
@@ -2086,7 +2059,7 @@ Proof.
   }
   revert a b.
   apply ( setquotuniv2prop _ ( fun x y =>
-                                 hProppair _ ( int x y ) ) ).
+                                 make_hProp _ ( int x y ) ) ).
   intros a b.
   change (pr1 padicapart
               (setquotpr (carryequiv p (isaprimetoneq0 is)) a)
@@ -2311,6 +2284,8 @@ Proof.
 Defined.
 
 Definition padics : afld := afldfrac padicintegers.
+
+End A.
 
 Close Scope ring_scope.
 (** END OF FILE*)

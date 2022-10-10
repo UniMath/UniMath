@@ -14,12 +14,12 @@ Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -45,9 +45,9 @@ Let treeFunctor : functor HSET HSET := pr1 treeOmegaFunctor.
 Let is_omega_cocont_treeFunctor : is_omega_cocont treeFunctor := pr2 treeOmegaFunctor.
 
 Lemma treeFunctor_Initial :
-  Initial (precategory_FunctorAlg treeFunctor has_homsets_HSET).
+  Initial (category_FunctorAlg treeFunctor).
 Proof.
-apply (colimAlgInitial _ InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 (** The type of binary trees *)
@@ -85,7 +85,7 @@ Definition node : pr1 A × (pr1 Tree × pr1 Tree) -> pr1 Tree := node_map.
         foldr x f : Tree A -> X
 >>
 *)
-Definition mk_treeAlgebra (X : HSET) (x : pr1 X)
+Definition make_treeAlgebra (X : HSET) (x : pr1 X)
   (f : HSET⟦(A × X × X)%set,X⟧) : algebra_ob treeFunctor.
 Proof.
 set (x' := λ (_ : unit), x).
@@ -93,9 +93,9 @@ apply (tpair _ X (sumofmaps x' f) : algebra_ob treeFunctor).
 Defined.
 
 Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X × X)%set,X⟧) :
-  algebra_mor _ Tree_alg (mk_treeAlgebra X x f).
+  algebra_mor _ Tree_alg (make_treeAlgebra X x f).
 Proof.
-apply (InitialArrow treeFunctor_Initial (mk_treeAlgebra X x f)).
+apply (InitialArrow treeFunctor_Initial (make_treeAlgebra X x f)).
 Defined.
 
 Definition foldr (X : HSET) (x : pr1 X)
@@ -107,7 +107,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -116,7 +116,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _)· x)
+assert (F := maponpaths (λ x, BinCoproductIn2 (BinCoproductsHSET _ _)· x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.

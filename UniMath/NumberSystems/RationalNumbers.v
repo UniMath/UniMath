@@ -15,13 +15,11 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Export UniMath.NumberSystems.Integers .
 
 Opaque hz .
-
-(** Upstream *)
-
-
 
 
 (** ** The commutative ring [ hq ] of integres *)
@@ -34,7 +32,7 @@ Definition hqaddabgr : abgr := hq .
 Definition hqmultabmonoid : abmonoid := ringmultabmonoid hq .
 Definition hqtype : UU := hq .
 
-Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := λ x a, setquotpr _ ( dirprodpair x a ) .
+Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := λ x a, setquotpr _ ( make_dirprod x a ) .
 
 Definition hqplus : hq -> hq -> hq := @op1 hq.
 Definition hqsign : hq -> hq := grinv hqaddabgr .
@@ -44,6 +42,7 @@ Definition hqzero : hq := unel hqaddabgr .
 Definition hqmult : hq -> hq -> hq := @op2 hq .
 Definition hqone : hq := unel hqmultabmonoid .
 
+Declare Scope hq_scope.
 Bind Scope hq_scope with hq .
 Notation " x + y " := ( hqplus x y ) : hq_scope .
 Notation " 0 " := hqzero : hq_scope .
@@ -61,17 +60,17 @@ Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom isdeceqhz .
 
 Definition isasethq := setproperty hq .
 
-Definition hqeq ( x y : hq ) : hProp := hProppair ( x = y ) ( isasethq _ _  )  .
+Definition hqeq ( x y : hq ) : hProp := make_hProp ( x = y ) ( isasethq _ _  )  .
 Definition isdecrelhqeq : isdecrel hqeq  := λ a b, isdeceqhq a b .
-Definition hqdeceq : decrel hq := decrelpair isdecrelhqeq .
+Definition hqdeceq : decrel hq := make_decrel isdecrelhqeq .
 
 (* Canonical Structure hqdeceq. *)
 
 Definition hqbooleq := decreltobrel hqdeceq .
 
-Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( x = y ) ) ( isapropneg _  )  .
+Definition hqneq ( x y : hq ) : hProp := make_hProp ( neg ( x = y ) ) ( isapropneg _  )  .
 Definition isdecrelhqneq : isdecrel hqneq  := isdecnegrel _ isdecrelhqeq .
-Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq .
+Definition hqdecneq : decrel hq := make_decrel isdecrelhqneq .
 
 (* Canonical Structure hqdecneq. *)
 
@@ -102,10 +101,10 @@ Lemma hqrminus  ( x : hq ) : paths ( x - x ) 0 .
 Proof . apply ( ringrinvax1 hq x ) . Defined .
 
 Lemma isinclhqplusr ( n : hq ) : isincl ( λ m : hq, m + n ) .
-Proof. apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hqaddabgr n ) ) ) . Defined.
+Proof. apply ( pr2 ( weqtoincl ( weqrmultingr hqaddabgr n ) ) ) . Defined.
 
 Lemma isinclhqplusl ( n : hq ) : isincl ( λ m : hq, n + m ) .
-Proof.  intro.  apply ( pr2 ( weqtoincl _ _ ( weqlmultingr hqaddabgr n ) ) ) . Defined .
+Proof.  intro.  apply ( pr2 ( weqtoincl ( weqlmultingr hqaddabgr n ) ) ) . Defined .
 
 
 Lemma hqpluslcan ( a b c : hq ) ( is : paths ( c + a ) ( c + b ) ) : a = b .
@@ -167,9 +166,9 @@ Definition hqgth : hrel hq := fldfracgt hzintdom isdeceqhz isplushrelhzgth isrin
 
 Definition hqlth : hrel hq := λ a b, hqgth b a .
 
-Definition hqleh : hrel hq := λ a b, hProppair ( neg ( hqgth a b ) ) ( isapropneg _ )  .
+Definition hqleh : hrel hq := λ a b, make_hProp ( neg ( hqgth a b ) ) ( isapropneg _ )  .
 
-Definition hqgeh : hrel hq := λ a b, hProppair ( neg ( hqgth b a ) ) ( isapropneg _ )  .
+Definition hqgeh : hrel hq := λ a b, make_hProp ( neg ( hqgth b a ) ) ( isapropneg _ )  .
 
 
 
@@ -180,25 +179,25 @@ Definition hqgeh : hrel hq := λ a b, hProppair ( neg ( hqgth b a ) ) ( isapropn
 Lemma isdecrelhqgth : isdecrel hqgth .
 Proof . apply isdecfldfracgt . exact isasymmhzgth .   apply isdecrelhzgth . Defined .
 
-Definition hqgthdec := decrelpair isdecrelhqgth .
+Definition hqgthdec := make_decrel isdecrelhqgth .
 
 (* Canonical Structure hqgthdec . *)
 
 Definition isdecrelhqlth : isdecrel hqlth := λ x x', isdecrelhqgth x' x .
 
-Definition hqlthdec := decrelpair isdecrelhqlth .
+Definition hqlthdec := make_decrel isdecrelhqlth .
 
 (* Canonical Structure hqlthdec . *)
 
 Definition isdecrelhqleh : isdecrel hqleh := isdecnegrel _ isdecrelhqgth .
 
-Definition hqlehdec := decrelpair isdecrelhqleh .
+Definition hqlehdec := make_decrel isdecrelhqleh .
 
 (* Canonical Structure hqlehdec . *)
 
 Definition isdecrelhqgeh : isdecrel hqgeh := λ x x', isdecrelhqleh x' x .
 
-Definition hqgehdec := decrelpair isdecrelhqgeh .
+Definition hqgehdec := make_decrel isdecrelhqgeh .
 
 (* Canonical Structure hqgehdec . *)
 
@@ -700,7 +699,7 @@ Definition hztohqandgeh ( n m : hz ) ( is : hzgeh n m ) : hqgeh ( hztohq n ) ( h
 Definition intpartint0 ( xa : dirprod hz ( intdomnonzerosubmonoid hzintdom ) ) : nat := natdiv ( hzabsval (pr1 xa ) ) ( hzabsval ( pr1 ( pr2 xa ) ) )  .
 
 Lemma iscompintpartint0 : iscomprelfun ( eqrelabmonoidfrac hzmultabmonoid ( intdomnonzerosubmonoid hzintdom ) ) intpartint0 .
-Proof . Opaque hq.  unfold iscomprelfun .  intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( aa1 := pr2 xa1 ) . set ( a1 := pr1 aa1 ) .  set ( x2 := pr1 xa2 ) . set ( aa2 := pr2 xa2 ) . set ( a2 := pr1 aa2 ) . simpl .  apply ( @hinhuniv _ ( hProppair _ ( setproperty natset _ _ ) ) ) .  intro t2 .  assert ( e := pr2 t2 ) .
+Proof . Opaque hq.  unfold iscomprelfun .  intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( aa1 := pr2 xa1 ) . set ( a1 := pr1 aa1 ) .  set ( x2 := pr1 xa2 ) . set ( aa2 := pr2 xa2 ) . set ( a2 := pr1 aa2 ) . simpl .  apply ( @hinhuniv _ ( make_hProp _ ( setproperty natset _ _ ) ) ) .  intro t2 .  assert ( e := pr2 t2 ) .
 
 simpl in e .  assert ( e' := ( maponpaths hzabsval ( hzmultrcan _ _ _ ( pr2 ( pr1 t2 ) ) e ) ) : paths ( hzabsval ( x1 * a2 )%hz ) ( hzabsval ( x2 * a1 )%hz ) ) .  clear e . clear t2 . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' .
 

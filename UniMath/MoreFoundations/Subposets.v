@@ -18,7 +18,7 @@ Proof.
       { split.
         { intros s t u. exact (istrans_posetRelation _ _ _ _). }
         { intros s. exact (isrefl_posetRelation _ _). } }
-      { intros s t a b. apply subtypeEquality_prop. exact (isantisymm_posetRelation _ _ _ a b). }
+      { intros s t a b. apply subtypePath_prop. exact (isantisymm_posetRelation _ _ _ a b). }
   - simpl. use tpair.
     + exists (pr1carrier _).
       intros s t a. simpl in s,t. exact a.

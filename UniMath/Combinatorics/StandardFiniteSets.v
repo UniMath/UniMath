@@ -12,11 +12,12 @@ This file contains main constructions related to the standard finite sets define
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.NegativePropositions.
 
 (** ** Standard finite sets [ stn ]. *)
 
 Definition stn ( n : nat ) := ∑ m, m < n.
-Definition stnpair n m (l:m<n) := (m,,l) : stn n.
+Definition make_stn n m (l:m<n) := (m,,l) : stn n.
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat.
 Lemma stnlt {n : nat} (i:stn n) : i < n.
@@ -27,11 +28,12 @@ Defined.
 
 (* old way:
    Notation " 'stnel' ( i , j ) " :=
-      ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
+      ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
       ( at level 70 ). *)
 Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ).
 Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ).
 
+Declare Scope stn.
 Delimit Scope stn with stn.
 
 Notation "⟦ n ⟧" := (stn n) : stn.
@@ -47,7 +49,7 @@ Proof.
   apply ( pr2 ( natlth x n ) ).
 Defined.
 
-Definition stntonat_incl n := inclpair (stntonat n) (isinclstntonat n).
+Definition stntonat_incl n := make_incl (stntonat n) (isinclstntonat n).
 
 Lemma isdecinclstntonat ( n : nat ) : isdecincl ( stntonat n ).
 Proof.
@@ -74,7 +76,7 @@ Lemma iscontrhfiberstntonat ( n m : nat ) ( is : natlth m n ) :
   iscontr ( hfiber ( stntonat n ) m ).
 Proof.
   intros.
-  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( stnpair n m is ) ).
+  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( make_stn n m is ) ).
 Defined.
 
 Local Open Scope stn.
@@ -83,7 +85,7 @@ Lemma stn_ne_iff_neq {n : nat} (i j: ⟦n⟧ ) : ¬ (i = j) <-> stntonat _ i ≠
 Proof.
   intros. split.
   - intro ne. apply nat_nopath_to_neq. Set Printing Coercions. idtac.
-    intro e; apply ne; clear ne. apply subtypeEquality_prop. assumption.
+    intro e; apply ne; clear ne. apply subtypePath_prop. assumption.
   - simpl. intros neq e. apply (nat_neq_to_nopath neq), maponpaths. assumption.
   Unset Printing Coercions.
 Defined.
@@ -125,7 +127,7 @@ Defined.
 Lemma stn_eq_or_neq {n : nat} (i j: ⟦n⟧ ) : (i=j) ⨿ (i≠j).
 Proof.
   intros. induction (nat_eq_or_neq i j) as [eq|ne].
-  - apply ii1, subtypeEquality_prop. assumption.
+  - apply ii1, subtypePath_prop. assumption.
   - apply ii2. assumption.
 Defined.
 
@@ -145,7 +147,7 @@ Proof.
   apply ( isasetifdeceq _ ( isdeceqstn n ) ).
 Defined.
 
-Definition stnset n := hSetpair (⟦n⟧) (isasetstn n).
+Definition stnset n := make_hSet (⟦n⟧) (isasetstn n).
 
 Definition stn_to_nat n : stnset n -> natset := pr1.
 
@@ -214,13 +216,13 @@ Qed.
 Definition dualelement {n : nat} (i : ⟦n⟧ ) : ⟦n⟧.
 Proof.
   induction (natchoice0 n) as [H | H].
-  - exact (stnpair n (n - 1 - i) (fromempty (dualelement_0_empty i H))).
-  - exact (stnpair n (n - 1 - i) (dualelement_lt i n H)).
+  - exact (make_stn n (n - 1 - i) (fromempty (dualelement_0_empty i H))).
+  - exact (make_stn n (n - 1 - i) (dualelement_lt i n H)).
 Defined.
 
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : ⟦m⟧ -> ⟦n⟧ :=
   λ x : ⟦m⟧, match x with tpair _ i is
-                 => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end.
+                 => make_stn _ i ( natlthlehtrans i m n is isnatleh ) end.
 
 Definition stn_left (m n : nat) : ⟦m⟧ -> ⟦m+n⟧.
 Proof.
@@ -253,7 +255,7 @@ Defined.
 Lemma stn_left_0 {m:nat} {i:⟦m⟧} (e: m=m+0) : stn_left m 0 i = transportf stn e i.
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   induction e.
   apply idpath.
 Defined.
@@ -261,20 +263,20 @@ Defined.
 Definition stn_left' (m n : nat) : m ≤ n -> ⟦m⟧ -> ⟦n⟧.
 Proof.
   intros le i.
-  exact (stnpair _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
+  exact (make_stn _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
 Defined.
 
 Definition stn_left'' {m n : nat} : m < n -> ⟦m⟧ -> ⟦n⟧.
 Proof.
   intros le i.
-  exact (stnpair _ _ (istransnatlth _ _ _ (stnlt i) le)).
+  exact (make_stn _ _ (istransnatlth _ _ _ (stnlt i) le)).
 Defined.
 
 Lemma stn_left_compare (m n : nat) (r : m ≤ m+n) : stn_left' m (m+n) r = stn_left m n.
 Proof.
   intros.
   apply funextfun; intro i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -328,7 +330,7 @@ Definition replace_dni_first (n : nat) : dni (@firstelement n) = dni_firstelemen
 Proof.
   intros.
   apply funextfun; intros i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   exact (compute_pr1_dni_first n i).
 Defined.
 
@@ -344,7 +346,7 @@ Definition replace_dni_last (n : nat) : dni (@lastelement n) = dni_lastelement.
 Proof.
   intros.
   apply funextfun; intros i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   exact (compute_pr1_dni_last n i).
 Defined.
 
@@ -514,7 +516,7 @@ Definition weqdnicompl_compute {n : nat} (j: ⟦S n⟧ ) (i: ⟦n⟧ ) :
   pr1 (weqdnicompl j i) = dni j i.
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -542,14 +544,14 @@ Proof.
   intros.
   intros i.
   induction i as [i|i].
-  - apply subtypeEquality_prop. induction i as [i I]. apply idpath.
+  - apply subtypePath_prop. induction i as [i I]. apply idpath.
   - apply idpath.
 Defined.
 
 Definition weqdnicoprod (n : nat) (j : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit ≃ ⟦S n⟧.
 Proof.
   intros.
-  apply (weqpair (weqdnicoprod_map j)).
+  apply (make_weq (weqdnicoprod_map j)).
   apply (isweqhomot _ _ (weqdnicoprod_compute _)).
   apply weqproperty.
 Defined.
@@ -608,7 +610,7 @@ Proof.
               ** exact b.
            ++ apply natlthnsn.
       * induction b.
-        induction (ne (@subtypeEquality_prop _ _ (stnpair _ j I) (stnpair _ j J) (idpath j))).
+        induction (ne (@subtypePath_prop _ _ (make_stn _ j I) (make_stn _ j J) (idpath j))).
 Defined.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ). *)
@@ -634,7 +636,7 @@ Proof.
     intro t.
     destruct t as [ t l ].
     set ( e := natlth1tois0 _ l ).
-    apply ( invmaponpathsincl _ ( isinclstntonat 1 ) ( stnpair _ t l ) lastelement e ).
+    apply ( invmaponpathsincl _ ( isinclstntonat 1 ) ( make_stn _ t l ) lastelement e ).
   - apply iscontrunit.
 Defined.
 
@@ -666,8 +668,8 @@ Proof.
                           | ii2 _ => true
                           end ).
   set ( g := λ b : bool, match b with
-                        false => stnpair 2 0 ( idpath true )
-                      | true => stnpair 2 1 ( idpath true )
+                        false => make_stn 2 0 ( idpath true )
+                      | true => make_stn 2 1 ( idpath true )
                       end ).
   split with f.
   assert ( egf : ∏ j : _ , paths ( g ( f j ) ) j ).
@@ -699,7 +701,7 @@ Defined.
 Lemma isinjstntonat (n : nat) : isInjectiveFunction (pr1 : stnset n -> natset).
 Proof.
   intros i j.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
 Defined.
 
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
@@ -708,8 +710,8 @@ Definition weqfromcoprodofstn_invmap (n m : nat) : ⟦n + m⟧ -> (⟦n⟧ ⨿ �
 Proof.
   intros i.
   induction (natlthorgeh i n) as [i1 | i2].
-  - exact (ii1 (stnpair n i i1)).
-  - exact (ii2 (stnpair m (i - n) (nat_split (pr2 i) i2))).
+  - exact (ii1 (make_stn n i i1)).
+  - exact (ii2 (make_stn m (i - n) (nat_split (pr2 i) i2))).
 Defined.
 
 Lemma weqfromcoprodofstn_invmap_r0 (n : nat) (i : ⟦n+0⟧ ) :
@@ -719,7 +721,7 @@ Proof.
   unfold weqfromcoprodofstn_invmap.
   simpl.
   induction (natlthorgeh i n) as [I|J].
-  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl.
+  - simpl. apply maponpaths. apply subtypePath_prop. simpl.
     induction (natplusr0 n). apply idpath.
   - simpl. apply fromempty. induction (! natplusr0 n).
     exact (natgehtonegnatlth _ _ J (stnlt i)).
@@ -774,7 +776,7 @@ Defined.
 
 (** Associativity of [weqfromcoprodofstn] *)
 
-Definition pr1_eqweqmap (m n : nat) (e: m=n) (i: ⟦m⟧ ) :
+Definition pr1_eqweqmap_stn (m n : nat) (e: m=n) (i: ⟦m⟧ ) :
   pr1 (pr1weq (eqweqmap (maponpaths stn e)) i) = pr1 i.
 Proof.
   intros.
@@ -794,9 +796,9 @@ Definition coprod_stn_assoc (l m n : nat) : (
 Proof.
   intros.
   intros abc.
-  rewrite 4? weqcomp_to_funcomp.
+  simpl.
   apply (invmaponpathsincl pr1). apply isinclstntonat.
-  rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap.
+  rewrite pr1_eqweqmap_stn.
   induction abc as [[a|b]|c].
   - simpl. apply idpath.
   - simpl. apply idpath.
@@ -852,11 +854,11 @@ Proof.
 Defined.
 
 Lemma transport_stn {m n : nat} (e: m=n) (i: ⟦m⟧ ) :
-  transportf stn e i = stnpair n (pr1 i) (transportf (λ k, pr1 i < k) e (pr2 i)).
+  transportf stn e i = make_stn n (pr1 i) (transportf (λ k, pr1 i < k) e (pr2 i)).
 Proof.
   intros.
   induction e.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -867,23 +869,23 @@ Proof.
   intros. induction n as [|n IHn].
   { change (stnsum _) with 0 at 3. rewrite natplusr0.
     assert (e := ! natplusr0 m).
-    rewrite (transport_stnsum e). apply stnsum_eq; intro i. unfold funcomp.
+    rewrite (transport_stnsum e). apply stnsum_eq; intro i. simpl.
     apply maponpaths. apply pathsinv0. apply stn_left_0. }
   rewrite stnsum_step. assert (e : S (m+n) = m + S n).
   { apply pathsinv0. apply natplusnsm. }
   rewrite (transport_stnsum e).
   rewrite stnsum_step. rewrite <- natplusassoc. apply map_on_two_paths.
   { rewrite IHn; clear IHn. apply map_on_two_paths.
-    { apply stnsum_eq; intro i. unfold funcomp.
-      apply maponpaths. apply subtypeEquality_prop.
+    { apply stnsum_eq; intro i. simpl.
+      apply maponpaths. apply subtypePath_prop.
       rewrite stn_left_compute. induction e.
       rewrite idpath_transportf. rewrite dni_last.
       apply idpath. }
-    { apply stnsum_eq; intro i. unfold funcomp.
-      apply maponpaths. apply subtypeEquality_prop.
+    { apply stnsum_eq; intro i. simpl.
+      apply maponpaths. apply subtypePath_prop.
       rewrite stn_right_compute. unfold stntonat. induction e.
       rewrite idpath_transportf. rewrite 2? dni_last. apply idpath. } }
-  unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+  simpl. apply maponpaths. apply subtypePath_prop.
   induction e. apply idpath.
 Defined.
 
@@ -930,7 +932,7 @@ Proof.
     apply map_on_two_paths.
     + apply map_on_two_paths.
       * apply stnsum_eq; intro i. induction i as [i I].
-        apply maponpaths. apply subtypeEquality_prop.
+        apply maponpaths. apply subtypePath_prop.
         induction e. rewrite idpath_transportf. rewrite stn_left_compute.
         unfold dni,di, stntonat; simpl.
         induction (natlthorgeh i j) as [R|R].
@@ -946,10 +948,10 @@ Proof.
         unfold dni,di, stn_right, stntonat; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh (j+i) j) as [X|X].
         -- contradicts (negnatlthplusnmn j i) X.
-        -- apply subtypeEquality_prop. simpl. apply idpath.
+        -- apply subtypePath_prop. simpl. apply idpath.
     + apply maponpaths.
       rewrite transport_stn; simpl.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply idpath.
 Defined.
 
@@ -1035,10 +1037,10 @@ Proof.
     unfold m1 ; clear m1.
     apply two_arg_paths.
     + apply stnsum_eq. intro l.
-      unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop; simpl.
+      simpl. apply maponpaths.
+      apply subtypePath_prop; simpl.
       apply pathsinv0, di_eq1, stnlt.
-    + unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+    + simpl. apply maponpaths. apply subtypePath_prop.
       simpl. apply idpath.
 Defined.
 
@@ -1046,7 +1048,7 @@ Local Definition weqstnsum_map { n : nat } (m : ⟦n⟧ -> nat) :
   (∑ i, ⟦m i⟧) -> ⟦stnsum m⟧.
 Proof.
   intros ij.
-  exact (stnpair _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
+  exact (make_stn _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
 Defined.
 
 Local Definition weqstnsum_invmap {n : nat} (m : ⟦n⟧ -> nat) :
@@ -1101,16 +1103,16 @@ Proof.
             stnsum (m ∘ stn_left'' ltS ∘ dni lastelement)) as e. {
       apply stnsum_eq.
       intros k.
-      unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop. simpl.
+      simpl. apply maponpaths.
+      apply subtypePath_prop. simpl.
       apply pathsinv0, di_eq1.
       apply (stnlt k).
     }
     induction e.
     apply natlthandplusl.
     assert ((m ∘ stn_left'' ltS) lastelement = m i) as e. {
-      unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop, idpath.
+      simpl. apply maponpaths.
+      apply subtypePath_prop, idpath.
     }
     induction e.
     apply (stnlt j).
@@ -1118,8 +1120,8 @@ Proof.
             stnsum (m ∘ stn_left'' (stnlt i') ∘ stn_left' _ _ lt)) as e. {
       apply stnsum_eq.
       intros k.
-      unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop, idpath.
+      simpl. apply maponpaths.
+      apply subtypePath_prop, idpath.
     }
     rewrite e.
     apply stnsum_left_le'.
@@ -1136,7 +1138,7 @@ Proof.
   pose (e'' := e @ !e').
   assert (i = i') as p. {
     induction (nat_eq_or_neq i i') as [eq | ne].
-    + apply subtypeEquality_prop. assumption.
+    + apply subtypePath_prop. assumption.
     + apply fromempty.
       generalize e''.
       apply nat_neq_to_nopath.
@@ -1148,7 +1150,7 @@ Proof.
   apply total2_paths_f with p.
   - use total2_paths_f.
     + induction p. simpl.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply (natpluslcan _ _ _ e'').
     + apply isasetnat.
 Defined.
@@ -1168,7 +1170,7 @@ Proof.
     use tpair.
     + exists (dni_lastelement i). exists j.
       abstract (use (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
-      unfold m'; unfold funcomp; apply maponpaths; apply subtypeEquality_prop, idpath).
+      unfold m'; simpl; apply maponpaths; apply subtypePath_prop, idpath).
     + intro t.
       apply partial_sum_prop.
   - clear IH. set (j := l - len').
@@ -1185,16 +1187,16 @@ Proof.
       induction C. exact lt.
     * simpl. intermediate_path (stnsum m' + j).
       -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
-         unfold m'. unfold funcomp. apply maponpaths.
-         apply subtypeEquality_prop, idpath.
+         unfold m'. simpl. apply maponpaths.
+         apply subtypePath_prop, idpath.
       -- rewrite natpluscomm. exact K.
 Defined.
 
 Lemma stn_right_first (n i : nat) :
-  stn_right i (S n) firstelement = stnpair (i + S n) i (natltplusS n i).
+  stn_right i (S n) firstelement = make_stn (i + S n) i (natltplusS n i).
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   simpl.
   apply natplusr0.
 Defined.
@@ -1267,7 +1269,7 @@ Proof.
                                                 (idfun _) c))
             ).
       intros c.
-      unfold funcomp.
+      simpl.
       set (P := λ i, ⟦ f i ⟧).
       change (pr1weq (weqfromcoprodofstn (stnsum (λ x : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)))
       with (weqfromcoprodofstn_map (stnsum (λ x : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)).
@@ -1276,26 +1278,26 @@ Proof.
         induction jk as [j k].
         change (invmap (weqoverdnicoprod P) (ii1 (j,,k))) with (tpair P (dni lastelement j) k).
         unfold weqfromcoprodofstn_map. unfold coprod_rect. unfold weqstnsum_map.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         induction k as [k K]. simpl.
-        apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
+        apply (maponpaths (λ x, x+k)). unfold funcomp, stntonat, di.
         clear K k.
         induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
-           apply subtypeEquality_prop. simpl.
+           apply subtypePath_prop. simpl.
            apply pathsinv0, di_eq1.
            exact (istransnatlth _ _ _ (stnlt k) G).
         -- apply fromempty. exact (natlthtonegnatgeh _ _ (stnlt j) G').
       * change (invmap (weqoverdnicoprod P) (ii2 k)) with (tpair P lastelement k).
-        unfold coprodf, idfun. unfold weqfromcoprodofstn_map. unfold coprod_rect.
+        simpl.
         unfold weqstnsum_map.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)).
         apply maponpaths.
         apply funextfun; intro i. induction i as [i I].
-        unfold funcomp. apply maponpaths.
-        apply subtypeEquality_prop.
+        simpl. apply maponpaths.
+        apply subtypePath_prop.
         simpl.
         apply pathsinv0, di_eq1. assumption.
 Defined.
@@ -1428,7 +1430,7 @@ Proof.
     + set ( f := λ ij : ⟦n⟧ × ⟦m⟧,
                    match ij
                    with tpair _ i j =>
-                        stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
+                        make_stn ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
                    end ).
       split with f.
       assert ( isinf : isincl f ).
@@ -1442,10 +1444,10 @@ Proof.
         assert ( e' := maponpaths ( stntonat ( n * m ) ) e ). simpl in e'.
         assert ( eei : i = i' ).
         { apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ). }
-        set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ i li ) ( stnpair _ i' li' ) eei ).
+        set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( make_stn _ i li ) ( make_stn _ i' li' ) eei ).
         assert ( eej : j = j' ).
         { apply ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ). }
-        set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ j lj ) ( stnpair _ j' lj' ) eej ).
+        set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( make_stn _ j lj ) ( make_stn _ j' lj' ) eej ).
         apply ( pathsdirprod eeis eejs ).
       * intro xnm.
         apply iscontraprop1. apply ( isinf xnm ).
@@ -1454,7 +1456,7 @@ Proof.
         destruct xnm as [ xnm lxnm ].
         set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ).
         set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ).
-        split with ( dirprodpair ( stnpair n i li ) ( stnpair m j lj ) ).
+        split with ( make_dirprod ( make_stn n i li ) ( make_stn m j lj ) ).
         simpl.
         apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ).  simpl.
         apply e.
@@ -1501,7 +1503,7 @@ Proof.
       { assert ( is : iscontr ( hfiber fl true ) ).
         { apply iscontraprop1.
           * apply ( isinclfromstn1 fl isasetbool true ).
-          * apply ( hfiberpair _ lastelement i ).
+          * apply ( make_hfiber _ lastelement i ).
         }
         apply ( weqcontrcontr is iscontrstn1 ).
       }
@@ -1511,7 +1513,7 @@ Proof.
       { intro hf.
         destruct hf as [ j e ].
         assert ( ee : j = lastelement ).
-        { apply ( proofirrelevance _ ( isapropifcontr iscontrstn1 ) _ _ ). }
+        { apply proofirrelevancecontr, iscontrstn1. }
         destruct ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ).
       }
       apply ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  ).
@@ -1744,7 +1746,7 @@ Proof.
                 ( ∏ n : nat , natleh n n' -> F n ) × ( F ( S n' ) ) ).
   { split.
     - intro f.
-      apply ( dirprodpair ( λ n, λ l, ( f n ( natlehtolehs _ _ l ) ) )
+      apply ( make_dirprod ( λ n, λ l, ( f n ( natlehtolehs _ _ l ) ) )
                           ( f ( S n' ) ( isreflnatleh _ ) ) ).
     - intro d2.
       intro n. intro l.
@@ -1814,7 +1816,7 @@ Proof.
         apply ii1.
         apply hinhpr.
         split with n.
-        apply ( dirprodpair h p ).
+        apply ( make_dirprod h p ).
       + destruct nh.
         apply ( ii2 p ).
     - simpl.
@@ -1844,7 +1846,7 @@ Lemma isdecbexists ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n
   isdecprop ( hexists ( λ n', ( natleh n' n ) × ( P n' ) ) ).
 Proof.
   intros.
-  set ( P' := λ n' : nat, hProppair _ ( is n' ) ).
+  set ( P' := λ n' : nat, make_hProp _ ( is n' ) ).
   induction n as [ | n IHn ].
   - apply ( isdecpropweqb ( weqexistsnatlehn0 P' ) ).
     apply ( is 0 ).
@@ -1858,7 +1860,7 @@ Lemma isdecbforall ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n
   isdecprop ( ∏ n' , natleh n' n -> P n' ).
 Proof.
   intros.
-  set ( P' := λ n' : nat, hProppair _ ( is n' ) ).
+  set ( P' := λ n' : nat, make_hProp _ ( is n' ) ).
   induction n as [ | n IHn ].
   - apply ( isdecpropweqb ( weqforallnatlehn0 P' ) ).
     apply ( is 0 ).
@@ -1877,12 +1879,12 @@ Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU )
   ¬ ( ∏ n' : nat , natleh n' n -> P n' ) ->
   total2 ( λ n', ( natleh n' n ) × ¬ ( P n' ) ).
 Proof.
-  set ( P' := λ n' : nat, hProppair _ ( is n' ) ).
+  set ( P' := λ n' : nat, make_hProp _ ( is n' ) ).
   induction n as [ | n IHn ].
   - intro nf.
     set ( nf0 := negf ( invweq ( weqforallnatlehn0 P' ) ) nf ).
     split with 0.
-    apply ( dirprodpair ( isreflnatleh 0 ) nf0 ).
+    apply ( make_dirprod ( isreflnatleh 0 ) nf0 ).
   - intro nf.
     set ( nf2 := negf ( invweq ( weqforallnatlehnsn' n P' ) ) nf ).
     set ( nf3 := fromneganddecy ( is ( S n ) ) nf2 ).
@@ -1908,7 +1910,7 @@ Lemma isapropnatdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) :
   isaprop ( natdecleast F is ).
 Proof.
   intros.
-  set ( P := λ n' : nat, hProppair _ ( is n' ) ).
+  set ( P := λ n' : nat, make_hProp _ ( is n' ) ).
   assert ( int1 : ∏ n : nat, isaprop ( ( F n ) × ( ∏ n' : nat , F n' -> natleh n n' ) ) ).
   { intro n.
     apply isapropdirprod.
@@ -1919,7 +1921,7 @@ Proof.
       intro.
       apply ( pr2 ( natleh n t ) ).
   }
-  set ( int2 := ( λ n : nat, hProppair _ ( int1 n ) ) : nat -> hProp ).
+  set ( int2 := ( λ n : nat, make_hProp _ ( int1 n ) ) : nat -> hProp ).
   change ( isaprop ( total2 int2 ) ).
   apply isapropsubtype.
   intros x1 x2. intros c1 c2.
@@ -1936,7 +1938,7 @@ Theorem accth ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) )
 Proof.
   revert is'.
   simpl.
-  apply (@hinhuniv _ ( hProppair _ ( isapropnatdecleast F is ) ) ).
+  apply (@hinhuniv _ ( make_hProp _ ( isapropnatdecleast F is ) ) ).
   intro t2.
   destruct t2 as [ n l ].
   simpl.
@@ -1944,7 +1946,7 @@ Proof.
   assert ( X : ∏ n' , F' n' -> natdecleast F is ).
   { intro n'.
     induction n' as [ | n' IHn' ].
-    - apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ).
+    - apply ( @hinhuniv _  ( make_hProp _ ( isapropnatdecleast F is ) ) ).
       intro t2.
       destruct t2 as [ n'' is'' ].
       destruct is'' as [ l'' d'' ].
@@ -1955,13 +1957,13 @@ Proof.
         destruct e.
         apply d''.
       + apply ( λ n', λ f : _, natleh0n n' ).
-    - apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ).
+    - apply ( @hinhuniv _  ( make_hProp _ ( isapropnatdecleast F is ) ) ).
       intro t2.
       destruct t2 as [ n'' is'' ].
       set ( j := natlehchoice2 _ _ ( pr1 is'' ) ).
       destruct j as [ jl | je ].
       + simpl.
-        apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ).
+        apply ( IHn' ( hinhpr ( tpair _ n'' ( make_dirprod jl ( pr2 is'' ) ) ) ) ).
       + simpl.
         rewrite je in is''.
         destruct is'' as [ nn is'' ].
@@ -1974,10 +1976,10 @@ Proof.
           intros n0 fn0.
           destruct ( natlthorgeh n0 ( S n' ) )  as [ l' | g' ].
           -- set ( i' := natlthtolehsn _ _ l' ).
-             destruct ( nf ( hinhpr ( tpair _ n0 ( dirprodpair i' fn0 ) ) ) ).
+             destruct ( nf ( hinhpr ( tpair _ n0 ( make_dirprod i' fn0 ) ) ) ).
           -- apply g'.
   }
-  apply ( X n ( hinhpr ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ).
+  apply ( X n ( hinhpr ( tpair _ n ( make_dirprod ( isreflnatleh n ) l ) ) ) ).
 Defined.
 
 
@@ -1992,7 +1994,7 @@ Proof.
 Defined.
 
 Corollary dni_lastelement_eq : ∏ (n : nat) (i : ⟦S n⟧ ) (ie : pr1 i < n),
-    i = dni_lastelement (stnpair n (pr1 i) ie).
+    i = dni_lastelement (make_stn n (pr1 i) ie).
 Proof.
   intros n i ie.
   apply isinjstntonat.
@@ -2117,7 +2119,7 @@ Proof.
   intros inc ? ? e. induction (natlehchoice _ _ e) as [I|J]; clear e.
   + apply natlthtoleh. apply inc. exact I.
   + assert (J' : i = j).
-    { apply subtypeEquality_prop. exact J. }
+    { apply subtypePath_prop. exact J. }
     clear J. induction J'. apply isreflnatleh.
 Defined.
 
@@ -2161,7 +2163,7 @@ Proof.
     change ((λ i : ⟦ S m ⟧, f i + g i) ∘ dni lastelement)
     with (λ y : ⟦ m ⟧, f (dni lastelement y) + g (dni lastelement y)).
     rewrite I. rewrite natplusassoc.
-    rewrite natplusassoc. unfold funcomp. apply maponpaths. rewrite natpluscomm.
+    rewrite natplusassoc. simpl. apply maponpaths. rewrite natpluscomm.
     rewrite natplusassoc. apply maponpaths. rewrite natpluscomm. apply idpath.
 Defined.
 
@@ -2194,7 +2196,7 @@ Proof.
                      (f firstelement) _ _).
     + apply maponpaths.
       use (_ @ I (f ∘ dni_lastelement) _ @ _).
-      * unfold funcomp. apply stnsum_eq; intros i.
+      * simpl. apply stnsum_eq; intros i.
         rewrite replace_dni_last. apply idpath.
       * intros i j s. unfold funcomp. apply e. apply s.
       * apply idpath.
@@ -2245,35 +2247,35 @@ Proof.
       * exact (stnlt (f lastelement)). }
     assert (L : ∏ j, f (dni lastelement j) < n).
     { intros. induction M. apply strincr. apply dni_last_lt. }
-    (* set (f' := λ j : ⟦n⟧, stnpair n (stntonat _ (f (dni_lastelement j))) (L j)). *)
+    (* set (f' := λ j : ⟦n⟧, make_stn n (stntonat _ (f (dni_lastelement j))) (L j)). *)
     pose (f'' :=
-        inclcomp (inclcomp (inclpair _ (isincldni n lastelement)) f)
-                 (inclpair _ (isinclstntonat _))).
-    pose (f' := λ j : ⟦n⟧, stnpair n (f'' j) (L j)).
+        inclcomp (inclcomp (make_incl _ (isincldni n lastelement)) f)
+                 (make_incl _ (isinclstntonat _))).
+    pose (f' := λ j : ⟦n⟧, make_stn n (f'' j) (L j)).
     assert (J : isincl f').
     { unfold f'. intros x j j'.
       apply iscontraprop1.
       * apply isaset_hfiber; apply isasetstn.
-      * use subtypeEquality.
+      * use subtypePath.
         ** intros ?. apply isasetstn.
         ** induction j as [j e]. induction j' as [j' e']. simpl.
            apply (invmaponpathsincl f'' (pr2 f'')).
            apply (base_paths _ _ (e @ !e')). }
     assert (F : ∏ j : ⟦n⟧, f' j = j).
-    { apply (I (inclpair _ J)).
+    { apply (I (make_incl _ J)).
       intros j j' lt. apply inc.
       change (pr1 (dni lastelement j) ≤ pr1 (dni lastelement j')).
       rewrite 2?dni_last. assumption. }
 
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     change (stntonat _ (f i) = i).
     induction (natgehchoice _ _ (lastelement_ge i)) as [ge | eq].
-    + pose (p := maponpaths (stntonat _) (F (stnpair n i ge))).
+    + pose (p := maponpaths (stntonat _) (F (make_stn n i ge))).
       simpl in p. induction p.
-      change (stntonat _ (f i) = f (dni lastelement (stnpair n i ge))).
+      change (stntonat _ (f i) = f (dni lastelement (make_stn n i ge))).
       apply maponpaths, maponpaths, pathsinv0.
-      apply subtypeEquality_prop. apply dni_last.
-    + apply subtypeEquality_prop in eq.
+      apply subtypePath_prop. apply dni_last.
+    + apply subtypePath_prop in eq.
       rewrite <- eq.
       apply M.
 Defined.
@@ -2281,5 +2283,5 @@ Defined.
 Lemma stn_ord_bij {n : nat} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
   (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
 Proof.
-  apply (stn_ord_inj (weqtoincl _ _ f)).
+  apply (stn_ord_inj (weqtoincl f)).
 Defined.

@@ -1,7 +1,8 @@
 (** Authors Langston Barrett (@siddharthist), November-December 2017 *)
 
 Require Import UniMath.Algebra.Modules.Core.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.Sets.
@@ -94,7 +95,7 @@ Definition ismultilinear {I : UU} {rings : I -> ring} {MM NN : multimodule rings
 Definition multilinearfun {I : UU} {rings : I -> ring} (MM NN : multimodule rings)
   : UU := ∑ f : MM -> NN, ismultilinear f.
 
-Definition multilinearfunpair {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
+Definition make_multilinearfun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
            (f : MM -> NN) (is : ismultilinear f) : multilinearfun MM NN
   := tpair _ f is.
 
@@ -136,7 +137,7 @@ Defined.
 Definition multimodulefun {I : UU} {rings : I -> ring}
            (MM NN : multimodule rings) : UU := ∑ f : MM -> NN, ismultimodulefun f.
 
-Definition multimodulefunpair {I : UU} {rings : I -> ring}
+Definition make_multimodulefun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : MM -> NN) (is : ismultimodulefun f) :
   multimodulefun MM NN := tpair _ f is.
 
@@ -148,7 +149,7 @@ Coercion pr1multimodulefun : multimodulefun >-> Funclass.
 Definition ith_modulefun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
            (f : multimodulefun MM NN) (i : I) :
   modulefun (ith_module MM i) (ith_module NN i) :=
-  (pr1 f,, (dirprodpair (pr1 (pr2 f)) (pr2 (pr2 f) i))).
+  (pr1 f,, (make_dirprod (pr1 (pr2 f)) (pr2 (pr2 f) i))).
 
 Definition multimodulefun_to_isbinopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
@@ -156,7 +157,7 @@ Definition multimodulefun_to_isbinopfun {I : UU} {rings : I -> ring}
 
 Definition multimodulefun_to_binopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
-  binopfun MM NN := binopfunpair (pr1multimodulefun f)
+  binopfun MM NN := make_binopfun (pr1multimodulefun f)
                                    (multimodulefun_to_isbinopfun f).
 
 Definition multimodulefun_to_ith_islinear {I : UU} {rings : I -> ring}
@@ -166,7 +167,7 @@ Definition multimodulefun_to_ith_islinear {I : UU} {rings : I -> ring}
 Definition multimodulefun_to_ith_linearfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) (i : I) :
   linearfun (ith_module MM i) (ith_module NN i) :=
-  linearfunpair (ith_modulefun f i) (multimodulefun_to_ith_islinear f i).
+  make_linearfun (ith_modulefun f i) (multimodulefun_to_ith_islinear f i).
 
 (** Properties of the ring actions *)
 

@@ -14,6 +14,7 @@ This file contains the definition and main properties of finite sets. At the end
 
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 
@@ -123,7 +124,7 @@ Definition finstructToFunction {X} (S : finstruct X) := pr2 S : nelstruct (pr1 S
 
 Coercion finstructToFunction : finstruct >-> nelstruct.
 
-Definition finstructpair  ( X : UU )  := tpair ( λ n : nat, nelstruct n X ) .
+Definition make_finstruct  ( X : UU )  := tpair ( λ n : nat, nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) .
 
@@ -177,19 +178,19 @@ Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
 (* uses funextemptyAxiom *)
 Proof. intros isfin.
-       apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
+       apply (isfin (make_hProp _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).
        apply isdeceqstn.
 Defined.
 
 Lemma isfinite_isaset X : isfinite X -> isaset X.
 Proof.
-  intros isfin. apply (isfin (hProppair _ (isapropisaset X))); intro f; clear isfin; simpl.
+  intros isfin. apply (isfin (make_hProp _ (isapropisaset X))); intro f; clear isfin; simpl.
   apply (isofhlevelweqf 2 (pr2 f)). apply isasetstn.
 Defined.
 
 Definition FiniteSet_to_hSet : FiniteSet -> hSet.
-Proof. intro X. exact (hSetpair (pr1 X) (isfinite_isaset (pr1 X) (pr2 X))).
+Proof. intro X. exact (make_hSet (pr1 X) (isfinite_isaset (pr1 X) (pr2 X))).
 Defined.
 Coercion FiniteSet_to_hSet : FiniteSet >-> hSet.
 
@@ -240,6 +241,7 @@ Proof.
   - intros i. exact (pr2 (X i)).
 Defined.
 
+Declare Scope finset.
 Delimit Scope finset with finset.
 
 Notation "'∑' x .. y , P" := (FiniteSetSum (λ x,.. (FiniteSetSum (λ y, P))..))

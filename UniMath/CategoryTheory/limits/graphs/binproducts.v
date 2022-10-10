@@ -6,8 +6,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
@@ -15,7 +14,7 @@ Local Open Scope cat.
 
 Section binproduct_def.
 
-Variable (C : precategory).
+Variable (C : category).
 
 Definition two_graph : graph.
 Proof.
@@ -43,7 +42,7 @@ Defined.
 Definition isBinProductCone (c d p : C) (p1 : C⟦p,c⟧) (p2 : C⟦p,d⟧) :=
   isLimCone (binproduct_diagram c d) p (ProdCone p1 p2).
 
-Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
+Definition make_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
   (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
@@ -56,14 +55,14 @@ use tpair.
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
-- abstract (simpl; intros; apply subtypeEquality;
+- abstract (simpl; intros; apply subtypePath;
               [intro; apply impred;intro; apply hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.
 
 Definition BinProductCone (a b : C) := LimCone (binproduct_diagram a b).
 
-Definition mk_BinProductCone (a b : C) :
+Definition make_BinProductCone (a b : C) :
   ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
@@ -91,7 +90,7 @@ Definition BinProductArrow {a b : C} (P : BinProductCone a b) {c : C}
   (f : C⟦c,a⟧) (g : C⟦c,b⟧) : C⟦c,BinProductObject P⟧.
 Proof.
 apply (limArrow P).
-use mk_cone.
+use make_cone.
 - intro v; induction v; [ apply f | apply g ].
 - intros ? ? e; induction e. (* <- should not be opaque! otherwise BinProductPr1Commutes doesn't work *)
 Defined.
@@ -168,7 +167,7 @@ Qed.
 
 End binproduct_def.
 
-Lemma BinProducts_from_Lims (C : precategory) :
+Lemma BinProducts_from_Lims (C : category) :
   Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 now intros H a b; apply H.

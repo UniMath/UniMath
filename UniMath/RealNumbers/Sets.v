@@ -3,22 +3,12 @@
 (** Previous theorems about hSet and order *)
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Sets.
 
 Require Export UniMath.Foundations.Sets
-               UniMath.Ktheory.QuotientSet.
+               UniMath.MoreFoundations.QuotientSet.
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness.
-
-(** ** Subsets *)
-
-Lemma isaset_hsubtype {X : hSet} (Hsub : hsubtype X) : isaset (carrier Hsub).
-Proof.
-  apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
-Qed.
-Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
-  hSetpair (carrier Hsub) (isaset_hsubtype Hsub).
-Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
-  x,, Hx.
 
 (** ** Additional definitions *)
 
@@ -106,7 +96,7 @@ Proof.
   now apply isrefl_reverse, (pr2 H).
 Qed.
 Definition po_reverse {X : UU} (l : po X) :=
-  popair (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
+  make_po (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
 Lemma po_reverse_correct {X : UU} (l : po X) :
   ∏ x y : X, po_reverse l x y = l y x.
 Proof.
@@ -130,7 +120,7 @@ Proof.
   now apply issymm_reverse, (pr2 H).
 Qed.
 Definition eqrel_reverse {X : UU} (l : eqrel X) :=
-  eqrelpair (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
+  make_eqrel (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
 Lemma eqrel_reverse_correct {X : UU} (l : eqrel X) :
   ∏ x y : X, eqrel_reverse l x y = l y x.
 Proof.
@@ -212,7 +202,7 @@ Coercion pr1EffectivelyOrderedSet : EffectivelyOrderedSet >-> hSet.
 
 Definition EOle {X : EffectivelyOrderedSet} : po X :=
   let R := pr2 X in
-  popair (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
+  make_po (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
 Definition EOle_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOle.
 Arguments EOle_rel {X} x y: simpl never.
@@ -237,6 +227,7 @@ Arguments EOgt_rel {X} x y: simpl never.
 Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
   PreorderedSetPair _ (@EOle X).
 
+Declare Scope eo_scope.
 Delimit Scope eo_scope with eo.
 
 Notation "x <= y" := (EOle_rel x y) : eo_scope.
@@ -248,7 +239,7 @@ Section eo_pty.
 
 Context {X : EffectivelyOrderedSet}.
 
-Open Scope eo_scope.
+Local Open Scope eo_scope.
 
 Lemma not_EOlt_le :
   ∏ x y : X, (¬ (x < y)) <-> (y <= x).

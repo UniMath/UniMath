@@ -17,7 +17,7 @@ Unset Kernel Term Sharing.
 
 (** ** Usual definitions *)
 
-Open Scope hq_scope.
+Local Open Scope hq_scope.
 
 Definition isTwoSided (L U : hq → hProp) : UU :=
   ((∏ q : hq, L q <-> ∃ r : hq, L r ∧ hqlth q r)
@@ -116,7 +116,7 @@ Proof.
     + exact (pr2 r).
   - intros q Hq.
     generalize (pr1 Hq).
-    apply (hinhuniv (P := hProppair _ isapropempty)).
+    apply (hinhuniv (P := make_hProp _ isapropempty)).
     intros r.
     generalize (pr2 (pr2 H) _ _ (pr1 (pr2 r))).
     apply hinhuniv, sumofmaps.
@@ -150,7 +150,7 @@ Proof.
   - intros LU.
     change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
     +  apply isapropdirprod.
        apply isapropdirprod ;
          apply impred_isaprop ; intro q ;
@@ -184,7 +184,7 @@ Proof.
         apply (pr1 (pr2 r)).
         apply Lr.
   - intros S.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
       apply propproperty.
       apply isapropdirprod.
@@ -438,7 +438,7 @@ Proof.
         exact H0.
         exact hq1ge0.
       * assert (H1 : 1%NRat = (1 ,, H0))
-          by (apply subtypeEquality_prop ; reflexivity).
+          by (apply subtypePath_prop ; reflexivity).
         rewrite H1 in H.
         exact H.
     + rename H into q.
@@ -451,7 +451,7 @@ Proof.
         exact (pr2 (pr1 q)).
         exact hq1ge0.
       * assert (Hq1 : (pr1 q + 1)%NRat = (pr1 (pr1 q) + 1 ,, H0))
-          by (apply subtypeEquality_prop ; reflexivity).
+          by (apply subtypePath_prop ; reflexivity).
         generalize (pr2 (pr2 q)) ; intro Hq.
         rewrite Hq1 in Hq.
         exact Hq.
@@ -480,7 +480,7 @@ Proof.
         exact (pr2 (pr1 q)).
       * split.
         assert (Hq1 : pr1 q = (pr1 (pr1 q) ,, Hq))
-          by (apply subtypeEquality_prop ; reflexivity).
+          by (apply subtypePath_prop ; reflexivity).
         generalize (pr1 (pr2 q)) ; intro Hq'.
         rewrite Hq1 in Hq'.
         exact Hq'.
@@ -507,7 +507,7 @@ Lemma weqOneSidedDcuts :
   weq (∑ S : hq → hProp, isOneSided S × ∏ q : hq, q < 0 → S q) Dcuts.
 Proof.
   set (f := (λ (D : ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)),
-             mk_Dcuts (λ r : NonnegativeRationals, pr1 D (pr1 r))
+             make_Dcuts (λ r : NonnegativeRationals, pr1 D (pr1 r))
                      (isOneSided_Dcuts_bot (pr1 D) (pr1 (pr2 D)))
                      (isOneSided_Dcuts_open (pr1 D) (pr1 (pr2 D)))
                      (isOneSided_Dcuts_corr (pr1 D) (pr1 (pr2 D))))
@@ -532,7 +532,7 @@ set (g := (λ D : Dcuts,
           : Dcuts → ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)).
   apply (weq_iso f g).
   - intros D.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
       apply isapropdirprod.
       apply propproperty.
@@ -558,7 +558,7 @@ set (g := (λ D : Dcuts,
         exact tt.
         exact Dq.
   - intros D.
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     apply funextfun ; intros q.
     apply hPropUnivalence.
     + change (sumofmaps (λ _ : 0 > pr1 q, htrue)
@@ -571,7 +571,7 @@ set (g := (λ D : Dcuts,
       exact Hq.
       intros H.
       assert (Hq1 : q = (pr1 q,, Hq))
-        by (apply subtypeEquality_prop ; reflexivity).
+        by (apply subtypePath_prop ; reflexivity).
       rewrite Hq1 ; exact H.
     + change (pr1 D q
   → sumofmaps (λ _ : 0 > pr1 q, htrue)
@@ -583,6 +583,6 @@ set (g := (λ D : Dcuts,
       exact (pr2 q).
       exact Hq.
       assert (Hq1 : q = (pr1 q,, Hq))
-        by (apply subtypeEquality_prop ; reflexivity).
+        by (apply subtypePath_prop ; reflexivity).
       rewrite Hq1 in Dq ; exact Dq.
 Qed.
