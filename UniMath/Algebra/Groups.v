@@ -589,6 +589,13 @@ Section NormalSubGroups.
   Definition isnormalsubgr {X : gr} (N : subgr X) : hProp :=
     ∀ g : X, ∀ n1 : N, N ((g * (pr1 n1)) * (grinv X g)).
 
+  Definition normalsubgr (X : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
+
+  Definition normalsubgrtosubgr (X : gr) : normalsubgr X -> subgr X := pr1.
+  Coercion normalsubgrtosubgr : normalsubgr >-> subgr.
+
+  Definition normalsubgrprop {X : gr} (N : normalsubgr X) : isnormalsubgr N := pr2 N.
+
   Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU :=
     ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
 
@@ -615,13 +622,6 @@ Section NormalSubGroups.
     induction (!n2isconjn1).
     exact (pr2 n2).
   Defined.
-
-  Definition normalsubgr (X : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
-
-  Definition normalsubgrtosubgr (X : gr) : normalsubgr X -> subgr X := pr1.
-  Coercion normalsubgrtosubgr : normalsubgr >-> subgr.
-
-  Definition normalsubgrprop {X : gr} (N : normalsubgr X) : isnormalsubgr N := pr2 N.
 
   Lemma normal_lcoset_in_rcoset {X : gr} (N : normalsubgr X) : lcoset_in_rcoset N.
   Proof.
@@ -673,7 +673,7 @@ Section NormalSubGroups.
       + exact (pr1 pf).
       + simpl.
         rewrite (assocax _ c _ _).
-        apply (maponpaths (λ x, c * x)).
+        apply maponpaths.
         exact (pr2 pf).
     - intros a b c.
       unfold in_same_left_coset_eqrel.
@@ -690,7 +690,7 @@ Section NormalSubGroups.
         rewrite (grrinvax _).
         rewrite (lunax _).
         rewrite (!assocax _ a _ _).
-        apply (maponpaths (λ x, x * c)).
+        apply maponpaths_2.
         exact (pr2 pf1).
   Defined.
 
