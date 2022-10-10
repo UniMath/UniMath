@@ -598,29 +598,48 @@ Section NormalSubGroups.
 
   Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU :=
     ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
+  Definition lcoset_in_rcoset_witness {X : gr} {N : subgr X} :
+    lcoset_in_rcoset N -> (X -> N -> N) := fun H g n1 => pr1 (H g n1).
+  Definition lcoset_in_rcoset_property {X : gr} {N : subgr X}
+      (H : lcoset_in_rcoset N) (g : X) (n1 : N) :
+    N (pr1 (lcoset_in_rcoset_witness H g n1)) := pr2 (lcoset_in_rcoset_witness H g n1).
+  Definition lcoset_in_rcoset_equation {X : gr} {N : subgr X}
+      (H : lcoset_in_rcoset N) (g : X) (n1 : N) :
+    g * (pr1 n1) = (pr1 (lcoset_in_rcoset_witness H g n1)) * g := pr2 (H g n1).
 
   Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU :=
     ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
+  Definition rcoset_in_lcoset_witness {X : gr} {N : subgr X} :
+    rcoset_in_lcoset N -> (X -> N -> N) := fun H g n1 => pr1 (H g n1).
+  Definition rcoset_in_lcoset_property {X : gr} {N : subgr X}
+      (H : rcoset_in_lcoset N) (g : X) (n1 : N) :
+    N (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (rcoset_in_lcoset_witness H g n1).
+  Definition rcoset_in_lcoset_equation {X : gr} {N : subgr X}
+      (H : rcoset_in_lcoset N) (g : X) (n1 : N) :
+    (pr1 n1) * g = g * (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (H g n1).
 
   Definition lcoset_equal_rcoset {X : gr} (N : subgr X) : UU :=
     lcoset_in_rcoset N × rcoset_in_lcoset N.
 
+  Lemma lcoset_in_rcoset_impl_normal {X : gr} (N : subgr X) :
+    lcoset_in_rcoset N -> isnormalsubgr N.
+  Proof.
+    intros lcinrc.
+    unfold isnormalsubgr.
+    intros g n1.
+    refine (@transportb _ (fun x => N x) _ _ _ _).
+    { etrans. { apply maponpaths_2, (lcoset_in_rcoset_equation lcinrc). }
+      etrans. { apply assocax. }
+      etrans. { apply maponpaths, grrinvax. }
+      apply runax.
+    }
+    apply lcoset_in_rcoset_property.
+  Defined.
+
   Lemma lcoset_equal_rcoset_impl_normal {X : gr} (N : subgr X) :
     lcoset_equal_rcoset N -> isnormalsubgr N.
   Proof.
-    intros pf.
-    unfold isnormalsubgr.
-    intros g n1.
-    induction ((pr1 pf) g n1) as [n2 eq_n2].
-    assert (n2isconjn1 : g * pr1 n1 * (grinv X g) = pr1 n2).
-    { apply (grrcan X g).
-      rewrite (assocax _ _ _ _).
-      rewrite (grlinvax X _).
-      rewrite (runax X).
-      exact eq_n2.
-    }
-    induction (!n2isconjn1).
-    exact (pr2 n2).
+    intros H. apply lcoset_in_rcoset_impl_normal. exact (pr1 H).
   Defined.
 
   Lemma normal_lcoset_in_rcoset {X : gr} (N : normalsubgr X) : lcoset_in_rcoset N.
@@ -668,20 +687,21 @@ Section NormalSubGroups.
       unfold in_same_left_coset_eqrel.
       simpl.
       unfold in_same_left_coset.
-      intros pf.
+      intros ab_same_lcoset.
       use tpair.
-      + exact (pr1 pf).
+      + exact (pr1 ab_same_lcoset).
       + simpl.
         rewrite (assocax _ c _ _).
         apply maponpaths.
-        exact (pr2 pf).
+        exact (pr2 ab_same_lcoset).
     - intros a b c.
       unfold in_same_left_coset_eqrel.
       simpl.
       unfold in_same_left_coset.
-      intros pf1.
+      intros ab_same_lcoset.
       use tpair.
-      + exact (pr1 (normal_rcoset_in_lcoset N c (pr1 pf1))).
+      + refine (rcoset_in_lcoset_witness _ c (pr1 ab_same_lcoset));
+          apply normal_rcoset_in_lcoset.
       + simpl.
         rewrite (grinvinv _).
         rewrite (assocax _ a _ _).
@@ -691,7 +711,7 @@ Section NormalSubGroups.
         rewrite (lunax _).
         rewrite (!assocax _ a _ _).
         apply maponpaths_2.
-        exact (pr2 pf1).
+        exact (pr2 ab_same_lcoset).
   Defined.
 
   Definition in_same_coset_binopeqrel {X : gr} (N : normalsubgr X) : binopeqrel X :=
