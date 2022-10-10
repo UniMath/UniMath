@@ -91,7 +91,6 @@ IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 
-Actions.v
 SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
@@ -140,6 +139,7 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 LatticeObject.v
+Actions.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
