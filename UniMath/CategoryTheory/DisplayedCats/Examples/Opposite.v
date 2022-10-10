@@ -162,7 +162,7 @@ Definition z_iso_disp_weq_op_disp_cat
 Proof.
   use make_weq.
   - exact z_iso_disp_from_op_disp_cat.
-  - use gradth.
+  - use isweq_iso.
     + exact z_iso_disp_to_op_disp_cat.
     + abstract
         (intro f ;

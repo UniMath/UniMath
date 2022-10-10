@@ -744,7 +744,7 @@ Section SigmaDisplayedUnivalent.
   Proof.
     use make_weq.
     - apply pair_disp_invertible_to_sigma_disp_invertible.
-    - use gradth.
+    - use isweq_iso.
       + apply sigma_disp_invertible_to_pair_disp_invertible.
       + intro p.
         induction p as [p1 p2].
@@ -969,7 +969,7 @@ Section SigmaDisplayedUnivalent.
   Proof.
     use make_weq.
     - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy).
-    - use gradth.
+    - use isweq_iso.
       + exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy).
       + exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_weq_help xx yy).
       + intros p.
@@ -1046,7 +1046,7 @@ Section SigmaDisplayedUnivalent.
   Proof.
     use make_weq.
     - exact (disp_adjequiv_sigma_help x xx1 xx2 yy2).
-    - use gradth.
+    - use isweq_iso.
       + exact (disp_adjequiv_sigma_help_inv x xx1 xx2 yy2).
       + intros p.
         use subtypePath.
