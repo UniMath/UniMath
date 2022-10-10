@@ -25,16 +25,10 @@ Require Import UniMath.CategoryTheory.Chains.Cochains.
 
 Local Open Scope cat.
 
-(*
-Definition is_omega_cont' {C D : category} (F : functor C D) : UU :=
-  ∏ (c : cochain C) (L : C) (cc : cone c L),
-    preserves_limit F c L cc.
- *)
-
 Section lim_terminal_coalgebra.
 
 Context {C : category} (TerminalC : Terminal C).
-Context {F : functor C C} (HF : is_omega_cont' F).
+Context {F : functor C C} (HF : is_omega_cont F).
 
 Let Fcochain : cochain C := termCochain TerminalC F.
 

@@ -200,6 +200,7 @@ DisplayedCats/Constructions.v
 
 FunctorAlgebras.v
 Chains/Adamek.v
+Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
 Chains/All.v
 Inductives/Lists.v
