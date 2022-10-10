@@ -586,15 +586,20 @@ End GrCosets.
 Section NormalSubGroups.
   Local Open Scope multmonoid.
 
-  Definition isnormalsubgr {X : gr} (N : subgr X) : hProp := ∀ g : X, ∀ n1 : N, N ((g * (pr1 n1)) * (grinv X g)).
+  Definition isnormalsubgr {X : gr} (N : subgr X) : hProp :=
+    ∀ g : X, ∀ n1 : N, N ((g * (pr1 n1)) * (grinv X g)).
 
-  Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU := ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
+  Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
 
-  Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU := ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
+  Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
 
-  Definition lcoset_equal_rcoset {X : gr} (N : subgr X) : UU := lcoset_in_rcoset N × rcoset_in_lcoset N.
+  Definition lcoset_equal_rcoset {X : gr} (N : subgr X) : UU :=
+    lcoset_in_rcoset N × rcoset_in_lcoset N.
 
-  Lemma lcoset_equal_rcoset_impl_normal {X : gr} (N : subgr X) : lcoset_equal_rcoset N -> isnormalsubgr N.
+  Lemma lcoset_equal_rcoset_impl_normal {X : gr} (N : subgr X) :
+    lcoset_equal_rcoset N -> isnormalsubgr N.
   Proof.
     intros pf.
     unfold isnormalsubgr.
@@ -641,7 +646,7 @@ Section NormalSubGroups.
     unfold rcoset_in_lcoset.
     intros g n1.
     use tpair.
-    - exact (tpair _ ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))) (normalprop (grinv X g) n1)).
+    - exists ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))). use normalprop.
     - simpl.
       rewrite (assocax _ (grinv X g) _ _).
       rewrite (!assocax _ g _ _).
@@ -654,7 +659,8 @@ Section NormalSubGroups.
   Definition normal_lcoset_equal_rcoset {X : gr} (N : normalsubgr X) : lcoset_equal_rcoset N :=
     (normal_lcoset_in_rcoset N,,normal_rcoset_in_lcoset N).
 
-  Lemma in_same_coset_isbinophrel {X : gr} (N : normalsubgr X) : isbinophrel (in_same_left_coset_eqrel N).
+  Lemma in_same_coset_isbinophrel {X : gr} (N : normalsubgr X) :
+    isbinophrel (in_same_left_coset_eqrel N).
   Proof.
     unfold isbinophrel.
     split.
@@ -691,7 +697,9 @@ Section NormalSubGroups.
   Definition in_same_coset_binopeqrel {X : gr} (N : normalsubgr X) : binopeqrel X :=
     tpair _ (in_same_left_coset_eqrel N) (in_same_coset_isbinophrel N).
 
-  Definition grquot_by_normal_subgr (X : gr) (N : normalsubgr X) : gr := grquot (in_same_coset_binopeqrel N).
+  Definition grquot_by_normal_subgr (X : gr) (N : normalsubgr X) : gr :=
+    grquot (in_same_coset_binopeqrel N).
+
 End NormalSubGroups.
 
 (** *** Direct products *)
