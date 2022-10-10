@@ -35,6 +35,7 @@
 (** Imports *)
 
 Require Export UniMath.Foundations.Sets.
+Require Export UniMath.MoreFoundations.Propositions.
 
 Local Open Scope logic.
 
@@ -172,8 +173,8 @@ Section ElementsWithInverses.
 
   (** Is this element x0 the left/right inverse of x? *)
 
-  Definition islinvel (x : X) : X -> UU := fun x0 => x0 * x = u.
-  Definition isrinvel (x : X) : X -> UU := fun x0 => x * x0 = u.
+  Definition islinvel (x : X) : X -> UU := fun x0 => paths (x0 * x) u.
+  Definition isrinvel (x : X) : X -> UU := fun x0 => paths (x * x0) u.
   Definition isinvel (x : X) : X -> UU := fun x0 => (islinvel x x0) × (isrinvel x x0).
 
   (** Is there some element x0 that is the left/right inverse of x? *)
@@ -195,7 +196,7 @@ Section ElementsWithInverses.
 
   (** The inverse of an element's two-sided inverse is just that element *)
   Definition is_inv_inv : ∏ (x x0 : X), (isinvel x x0 -> isinvel x0 x) :=
-    fun x x0 isinv => (dirprodpair (pr2 isinv) (pr1 isinv)).
+    fun x x0 isinv => (make_dirprod (pr2 isinv) (pr1 isinv)).
 
   (** If two elements have left inverses, so does their product. *)
   Lemma invop_l :
@@ -232,7 +233,7 @@ Section ElementsWithInverses.
       (isinvel x x' -> isinvel y y' -> isinvel (x * y) (y' * x')).
   Proof.
     intros x y x' y' xinv yinv.
-    use dirprodpair.
+    use make_dirprod.
     - apply invop_l.
       + exact (dirprod_pr1 xinv).
       + exact (dirprod_pr1 yinv).
@@ -333,7 +334,7 @@ Section ElementsWithInversesSet.
   Definition invertible_elements (can : ∏ x, iscancelable opp x) : hsubtype X.
   Proof.
     intro x.
-    use hProppair.
+    use make_hProp.
     - exact (hasinv opp is x).
     - apply isaprop_hasinv, can.
   Defined.
@@ -385,8 +386,8 @@ Section InversesSet.
   Defined.
 End InversesSet.
 
-Definition mk_isinv {X : UU} {opp : binop X} {is : ismonoidop opp} {inv0 : X -> X} (H1 : islinv opp (unel_is is) inv0)
-          (H2 : isrinv opp (unel_is is) inv0) : isinv opp (unel_is is) inv0 := dirprodpair H1 H2.
+Definition make_isinv {X : UU} {opp : binop X} {is : ismonoidop opp} {inv0 : X -> X} (H1 : islinv opp (unel_is is) inv0)
+          (H2 : isrinv opp (unel_is is) inv0) : isinv opp (unel_is is) inv0 := make_dirprod H1 H2.
 
 Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
   total2 (fun inv0 : X -> X => isinv opp (unel_is is) inv0).

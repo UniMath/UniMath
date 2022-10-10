@@ -462,7 +462,7 @@ Proof.
     apply mere_invop.
     + exact (pr2 xpair).
     + exact (pr2 ypair).
-  - apply hinhpr; exact (1,, dirprodpair (lunax _ 1) (lunax _ 1)).
+  - apply hinhpr; exact (1,, make_dirprod (lunax _ 1) (lunax _ 1)).
 Defined.
 
 (** This submonoid is closed under inversion *)

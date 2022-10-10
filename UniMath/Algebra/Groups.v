@@ -11,6 +11,7 @@
   - Quotient objects
   - Cosets
   - Direct products
+  - Group of invertible elements in a monoid
  - Abelian groups
   - Basic definitions
   - Univalence for abelian groups
@@ -607,7 +608,7 @@ Proof.
   unfold haslinv.
   apply hinhpr.
   refine ((pr1 xinv,, inverse_in_submonoid _ x (pr1 xinv) (pr2 xpair) (pr2 xinv)),, _).
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   exact (pr2 (pr2 xinv)).
 Defined.
 

@@ -32,16 +32,17 @@
 (** TODO:
  1. Rephrase definitions, prove equivalences with the originals:
    - Modules as abelian groups with a ring  action
-   - Group actions (Ktheory/GroupAction) as sets with a group action
+   - Group actions (Algebra/GroupAction) as sets with a group action
  2. Prove equivalence of rings as one-object categories
  *)
 
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.catiso.
 
 (* For the endomorphism ring  *)
@@ -51,7 +52,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
 (* For the symmetric group *)
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Local Open Scope cat.
 
@@ -65,13 +66,13 @@ Definition endomorphisms {C : precategory} (X : ob C) : UU := (X --> X).
 (** When the hom-types of C are sets, we can form the endomorphism monoid *)
 Definition endomorphism_monoid {C : category} (X : ob C) : monoid.
 Proof.
-  use monoidpair.
-  - use setwithbinoppair.
-    + use hSetpair.
+  use make_monoid.
+  - use make_setwithbinop.
+    + use make_hSet.
       * exact (X --> X).
       * apply homset_property.
     + exact (@compose C X X X).
-  - use dirprodpair.
+  - use make_dirprod.
     + exact (fun x x' x'' => !(@assoc C _ _ _ _ x x' x'')).
     + refine (identity X,, _).
       split.
@@ -89,15 +90,15 @@ Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
 
 (** *** The endomorphism ring in an additive category *)
 
-Definition endomorphism_ring {C : Additive}
-           (_ : ob (categoryWithAbgrops_category C)) : ring.
+Definition endomorphism_ring {C : AdditiveCategory}
+           (_ : ob (PreAdditive_categoryWithAbgrops C)) : ring.
 Proof.
   (** The multiplication operation is composition, we reuse the proof
       from the endomorphism monoid. The addition operation is the addition
       on homsets, we extract this with to_binop *)
-  pose (end_monoid := @endomorphism_monoid (categoryWithAbgrops_category C) X).
+  pose (end_monoid := @endomorphism_monoid (PreAdditive_categoryWithAbgrops C) X).
   refine ((pr1 (pr1 end_monoid),,
-          dirprodpair (to_binop X X) (pr2 (pr1 end_monoid))),, _).
+          make_dirprod (to_binop X X) (pr2 (pr1 end_monoid))),, _).
 
   split; split.
   (** We know by assumption on C that + is an abgrop.*)
@@ -164,7 +165,7 @@ Section ContrCatLemmas.
              (f : C ⟦ contr_cat_center C, contr_cat_center C ⟧ ->
                   D ⟦ contr_cat_center D, contr_cat_center D ⟧) : functor_data C D.
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - apply weqcontrcontr; apply contr_cat_iscontr.
     - intros a b g.
       apply f.
@@ -175,7 +176,7 @@ Section ContrCatLemmas.
   Lemma contr_cat_fully_faithful_to_isiso {F : functor C D} (ff : fully_faithful F) :
     is_catiso F.
   Proof.
-    use dirprodpair; [assumption|].
+    use make_dirprod; [assumption|].
     apply isweqcontrcontr; apply contr_cat_iscontr.
   Defined.
 
@@ -183,12 +184,12 @@ Section ContrCatLemmas.
       functor between them. *)
   Lemma contr_cat_eq {F : functor C D} (ff : fully_faithful F) : C = D.
   Proof.
-    apply subtypeEquality'.
+    apply subtypePath.
+    - intro; apply isapropiscontr.
     - apply catiso_to_category_path.
       use tpair.
       + exact F.
       + apply contr_cat_fully_faithful_to_isiso; assumption.
-    - apply isapropiscontr.
   Defined.
 
 End ContrCatLemmas.
@@ -211,23 +212,24 @@ Proof.
     + intros; apply lunax.
     + intros; apply runax.
     + intros; cbn; symmetry; apply assocax.
+    + intros; cbn; apply assocax.
   - apply iscontrunit.
 Defined.
 
 Definition contr_category_to_monoid (C : category) (is : iscontr (ob C)) : monoid.
 Proof.
   pose (center := iscontrpr1 is).
-  use monoidpair.
-  - use setwithbinoppair.
-    + use hSetpair.
+  use make_monoid.
+  - use make_setwithbinop.
+    + use make_hSet.
       * use (center --> center).
       * apply homset_property.
     + exact (@compose _ center center center).
-  - use mk_ismonoidop.
+  - use make_ismonoidop.
     + unfold isassoc; symmetry; apply assoc.
-    + use isunitalpair.
+    + use make_isunital.
       * apply identity.
-      * use isunitpair;
+      * use make_isunit;
           [ unfold islunit; apply id_left | unfold isrunit; apply id_right ].
 Defined.
 
@@ -241,15 +243,15 @@ Proof.
     intros Mon; apply monoid_univalence.
     use tpair.
     + apply idweq.
-    + use dirprodpair.
+    + use make_dirprod.
       * intros ? ?; apply idpath.
       * apply idpath.
   - intros contrcat.
     use contr_cat_eq.
-    + use mk_functor.
+    + use make_functor.
       * apply contr_cat_functor_data.
         apply idfun.
-      * use dirprodpair; cbn.
+      * use make_dirprod; cbn.
         { unfold functor_idax.
           intros a; cbn in *.
           abstract (induction a; reflexivity).
@@ -269,10 +271,10 @@ Defined.
 Definition monoidfun_to_functor {Mon1 Mon2 : monoid} (monfun : monoidfun Mon1 Mon2) :
   functor (monoid_weq_contr_category Mon1) (monoid_weq_contr_category Mon2).
 Proof.
-  use mk_functor.
+  use make_functor.
   - apply contr_cat_functor_data.
     exact monfun.
-  - use dirprodpair.
+  - use make_dirprod.
     + intros a.
       abstract (induction a;
                 apply monoidfununel).
@@ -310,7 +312,7 @@ Proof.
     apply (contr_cat_hom_weq (funct (iscontrpr1 (pr2 CC1)))
                              (funct (iscontrpr1 (pr2 CC1)))).
     exact (# funct endo).
-  - use mk_ismonoidfun.
+  - use make_ismonoidfun.
     + intros a b; cbn.
       abstract (rewrite functor_comp;
                 rewrite <- transport_compose;
@@ -338,7 +340,7 @@ Proof.
       exact (!(pr2 iscontrunit _)).
     + intros c1 c2 ?.
       (** Compare to proof of [contr_cat_hom_weq] *)
-      abstract (induction c1, c2; cbn;
+      abstract (induction c1, c2; unfold Univalence.double_transport; cbn;
                 do 2 (rewrite (transport_f_f _ (isProofIrrelevantUnit _ _)
                                              (! (isProofIrrelevantUnit _ _)) _);
                       rewrite pathsinv0r; cbn; unfold idfun);
@@ -384,7 +386,7 @@ Definition monaction_equivariant_map
 
 (** **** Ring actions *)
 
-Definition ringaction_as_morphism {C : Additive} (R : ring) (X : ob C) :=
+Definition ringaction_as_morphism {C : AdditiveCategory } (R : ring) (X : ob C) :=
   ringfun R (endomorphism_ring X).
 
 (** *** As functors *)
@@ -429,9 +431,9 @@ Definition translation_groupoid_precat {CC : contr_cat}
            (F : contr_cat_action CC hset_category) : precategory.
 Proof.
   pose (center := contr_cat_center CC).
-  use mk_precategory.
-  - use precategory_data_pair.
-    + use precategory_ob_mor_pair.
+  use make_precategory_one_assoc.
+  - use make_precategory_data.
+    + use make_precategory_ob_mor.
       * exact (pr1 (F center)).
       * intros x1 x2; exact (∑ c : CC ⟦center, center⟧, # F c x1 = x2).
     + intros c; exists (identity center).
@@ -443,16 +445,14 @@ Proof.
       refine (maponpaths (λ z, z _) (functor_comp F (pr1 f) (pr1 g)) @ _); cbn.
       refine (maponpaths _ (pr2 f) @ _).
       exact (pr2 g).
-  - use dirprodpair.
-    + use dirprodpair;
+  - use make_dirprod.
+    + use make_dirprod;
         intros ? ? ?;
-        apply subtypeEquality'.
+        apply subtypePath; try (intro; apply setproperty).
       * apply id_left.
-      * apply setproperty.
       * apply id_right.
-      * apply setproperty.
     + cbn.
       intros a b c d f g h.
-      apply subtypeEquality'; [|apply setproperty].
+      apply subtypePath; [intro; apply setproperty | ].
       apply assoc.
-Defined.
+ Defined.
