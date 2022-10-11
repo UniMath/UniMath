@@ -73,7 +73,7 @@ Qed.
 Local Definition hnnq_lt : hrel hnnq_set := resrel hqlth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_lt : isStrongOrder hnnq_lt.
 Proof.
-  mkStrongOrder.
+  repeat split.
   - intros x y z.
     now apply istranshqlth.
   - intros x y z Hxz.
@@ -92,7 +92,7 @@ Local Definition hnnq_gt : hrel hnnq_set := resrel hqgth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
   set (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
-  mkStrongOrder.
+  repeat split.
   - intros x y z.
     apply (istrans_isStrongOrder H).
   - intros x y z.

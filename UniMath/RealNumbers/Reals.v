@@ -469,11 +469,12 @@ Qed.
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
   apply isStrongOrder_abgrdiff.
-  mkStrongOrder.
+  repeat split.
   - exact istrans_ltNonnegativeReals.
   - exact iscotrans_ltNonnegativeReals.
   - exact isirrefl_ltNonnegativeReals.
 Qed.
+
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.

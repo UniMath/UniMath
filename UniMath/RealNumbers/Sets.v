@@ -113,13 +113,13 @@ Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
   isStrongOrder l → isStrongOrder (hrel_reverse l).
 Proof.
   intros H.
-  mkStrongOrder.
+  repeat split.
   - apply istrans_reverse, (istrans_StrongOrder (_,,H)).
   - apply iscotrans_reverse,(iscotrans_StrongOrder (_,,H)).
   - apply isirrefl_reverse, (isirrefl_StrongOrder (_,,H)).
 Qed.
 Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
-  pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
+  make_StrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
 Lemma StrongOrder_reverse_correct {X : UU} (l : StrongOrder X) :
   ∏ x y : X, StrongOrder_reverse l x y = l y x.
 Proof.
@@ -182,7 +182,7 @@ Arguments EOge_rel {X} x y: simpl never.
 
 Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   let R := pr2 X in
-  pairStrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
+  make_StrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
 Definition EOlt_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOlt.
 Arguments EOlt_rel {X} x y: simpl never.

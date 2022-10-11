@@ -1435,7 +1435,7 @@ Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
   isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
 Proof.
   intros H.
-  split ; [ | split].
+  repeat split.
   - apply istransabgrdiffrel, (istrans_isStrongOrder H).
   - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
   - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
