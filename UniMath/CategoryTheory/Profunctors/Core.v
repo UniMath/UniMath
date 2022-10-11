@@ -89,7 +89,7 @@ Section Dinatural.
     use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b),
                lmap F f · data a · rmap G f = rmap F f · data b · lmap G f).
-    - abstract (do 3 (apply impred; intro); apply setproperty).
+    - abstract (do 3 (apply impred; intro); apply homset_property).
   Defined.
 
   Definition dinatural_transformation (f : C ↛ C) (g : C ↛ C) : UU :=
@@ -195,7 +195,7 @@ Section Ends.
   Proof.
     use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b), pi a · rmap F f = pi b · lmap F f).
-    - abstract (do 3 (apply impred; intro); apply setproperty).
+    - abstract (do 3 (apply impred; intro); apply homset_property).
   Defined.
 
   (** Following the convention for limits, the tip is explicit in the type. *)
