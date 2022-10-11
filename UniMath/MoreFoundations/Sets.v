@@ -72,6 +72,9 @@ Proof.
   intros x x' r. exact (Hg _ _ (Hf x x' r)).
 Defined.
 
+Definition fun_hrel_comp {X Y : UU} (f : X → Y) (gt : hrel Y) : hrel X :=
+  λ x y : X, gt (f x) (f y).
+
 (** ** Other universal properties for [setquot] *)
 
 Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
@@ -212,3 +215,138 @@ Proof.
   induction e.
   apply eqrelrefl.
 Defined.
+
+
+(** * Additional theorems about relations *)
+
+Lemma isaprop_isirrefl {X : UU} (rel : hrel X) :
+  isaprop (isirrefl rel).
+Proof.
+  apply impred_isaprop ; intro.
+  now apply isapropneg.
+Qed.
+Lemma isaprop_issymm {X : UU} (rel : hrel X) :
+  isaprop (issymm rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply isapropimpl.
+  now apply pr2.
+Qed.
+Lemma isaprop_iscotrans {X : UU} (rel : hrel X) :
+  isaprop (iscotrans rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply impred_isaprop ; intro z.
+  apply isapropimpl.
+  now apply pr2.
+Qed.
+
+(** * Strong orders *)
+
+Definition isStrongOrder {X : UU} (R : hrel X) : UU :=
+  istrans R × iscotrans R × isirrefl R.
+
+Lemma isapropisStrongOrder {X : hSet} (R : hrel X) :
+  isaprop (isStrongOrder R).
+Proof.
+  apply isapropdirprod.
+  - apply isaprop_istrans.
+  - apply isapropdirprod.
+    + apply isaprop_iscotrans.
+    + apply isaprop_isirrefl.
+Defined.
+
+Section isso_pty.
+
+Context {X : UU}.
+Context {R : hrel X}
+        (is : isStrongOrder R).
+
+Definition istrans_isStrongOrder : istrans R :=
+  pr1 is.
+Definition iscotrans_isStrongOrder : iscotrans R :=
+  pr1 (pr2 is).
+Definition isirrefl_isStrongOrder : isirrefl R :=
+  pr2 (pr2 is).
+Definition isasymm_isStrongOrder : isasymm R :=
+  istransandirrefltoasymm
+    istrans_isStrongOrder
+    isirrefl_isStrongOrder.
+
+End isso_pty.
+
+Lemma isStrongOrder_hnegispreorder :
+  ∏ (X : hSet) (R : hrel X),
+  isStrongOrder R → ispreorder (λ x y : X, (¬ R x y)%logic).
+Proof.
+  intros X R is.
+  split.
+  - intros x y z Hxy Hyz Hxz.
+    generalize (iscotrans_isStrongOrder is _ y _ Hxz).
+    apply toneghdisj.
+    split.
+    + exact Hxy.
+    + exact Hyz.
+  - exact (isirrefl_isStrongOrder is).
+Defined.
+
+Lemma isStrongOrder_bck {X Y : UU} (f : Y → X) (gt : hrel X) :
+  isStrongOrder gt → isStrongOrder (fun_hrel_comp f gt).
+Proof.
+  intros is.
+  split ; [ | split ].
+  - intros x y z.
+    apply (istrans_isStrongOrder is).
+  - intros x y z.
+    apply (iscotrans_isStrongOrder is).
+  - intros x.
+    apply (isirrefl_isStrongOrder is).
+Qed.
+
+Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
+Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
+  R,,is.
+Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
+Coercion  pr1StrongOrder : StrongOrder >-> hrel.
+
+Ltac mkStrongOrder :=
+  match goal with
+    | |- StrongOrder _ => simple refine (pairStrongOrder _ _) ;
+        [ | mkStrongOrder]
+    | |- isStrongOrder _ => split ; [ | split]
+  end.
+
+Section so_pty.
+
+Context {X : UU}.
+Context (R : StrongOrder X).
+
+Definition istrans_StrongOrder : istrans R :=
+  istrans_isStrongOrder (pr2 R).
+Definition iscotrans_StrongOrder : iscotrans R :=
+  iscotrans_isStrongOrder (pr2 R).
+Definition isirrefl_StrongOrder : isirrefl R :=
+  isirrefl_isStrongOrder (pr2 R).
+Definition isasymm_StrongOrder : isasymm R :=
+  isasymm_isStrongOrder (pr2 R).
+
+End so_pty.
+
+Definition StrongOrder_bck {X Y : UU} (f : Y → X)
+           (gt : StrongOrder X) : StrongOrder Y :=
+  (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
+
+Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
+  isStrongOrder L → isStrongOrder (quotrel is).
+Proof.
+  intros H.
+  split ; [ | split].
+  - apply istransquotrel, (istrans_isStrongOrder H).
+  - apply iscotransquotrel, (iscotrans_isStrongOrder H).
+  - apply isirreflquotrel, (isirrefl_isStrongOrder H).
+Qed.
+Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X}
+           (is : iscomprelrel R L) : StrongOrder (setquot R) :=
+  quotrel is,, isStrongOrder_setquot is (pr2 L).

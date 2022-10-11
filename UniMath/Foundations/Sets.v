@@ -478,9 +478,6 @@ Identity Coercion idhrel : hrel >-> Funclass.
 Definition brel (X : UU) : UU := X -> X -> bool.
 Identity Coercion idbrel : brel >-> Funclass.
 
-Definition fun_hrel_comp {X Y : UU} (f : X → Y) (gt : hrel Y) : hrel X :=
-  λ x y : X, gt (f x) (f y).
-
 (** *** Standard properties of relations *)
 
 
@@ -517,9 +514,6 @@ Definition iscotrans {X : UU} (R : hrel X) : UU
 
 Definition isdeccotrans {X : UU} (R : hrel X) : UU
   := ∏ x1 x2 x3, R x1 x3 -> R x1 x2 ⨿ R x2 x3.
-
-Definition isStrongOrder {X : UU} (R : hrel X) : UU :=
-  istrans R × iscotrans R × isirrefl R.
 
 Definition isdecrel {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ⨿ ¬ R x1 x2.
 
@@ -566,26 +560,11 @@ Proof.
   intros. apply impred; intro. apply propproperty.
 Defined.
 
-Lemma isaprop_isirrefl {X : hSet} (R : hrel X) : isaprop (isirrefl R).
-Proof.
-  apply impred_isaprop ; intro x.
-  apply isapropneg.
-Defined.
-
 Lemma isaprop_istotal {X : hSet} (R : hrel X) : isaprop (istotal R).
 Proof.
-  unfold istotal.
+  intros. unfold istotal.
   apply impred; intro x.
   apply impred; intro y.
-  apply propproperty.
-Defined.
-
-Lemma isaprop_iscotrans {X : hSet} (R : hrel X) : isaprop (iscotrans R).
-Proof.
-  apply impred_isaprop ; intro x.
-  apply impred_isaprop ; intro y.
-  apply impred_isaprop ; intro z.
-  apply isapropimpl.
   apply propproperty.
 Defined.
 
@@ -602,16 +581,6 @@ Proof.
   apply isapropdirprod.
   { apply isaprop_istrans. }
   { apply isaprop_isrefl. }
-Defined.
-
-Lemma isaprop_isStrongOrder {X : hSet} (R : hrel X) :
-  isaprop (isStrongOrder R).
-Proof.
-  apply isapropdirprod.
-  - apply isaprop_istrans.
-  - apply isapropdirprod.
-    + apply isaprop_iscotrans.
-    + apply isaprop_isirrefl.
 Defined.
 
 Lemma isaprop_isPartialOrder {X : hSet} (R : hrel X) :
@@ -668,54 +637,6 @@ Proof.
   intros. intro e. rewrite e in r. apply (is b r).
 Defined.
 
-(* lemmas about isStrongOrder *)
-
-Section isso_pty.
-
-Context {X : UU}.
-Context {R : hrel X}
-        (is : isStrongOrder R).
-
-Definition istrans_isStrongOrder : istrans R :=
-  pr1 is.
-Definition iscotrans_isStrongOrder : iscotrans R :=
-  pr1 (pr2 is).
-Definition isirrefl_isStrongOrder : isirrefl R :=
-  pr2 (pr2 is).
-Definition isasymm_isStrongOrder : isasymm R :=
-  istransandirrefltoasymm
-    istrans_isStrongOrder
-    isirrefl_isStrongOrder.
-
-End isso_pty.
-
-Lemma isStrongOrder_hnegispreorder :
-  ∏ (X : hSet) (R : hrel X),
-  isStrongOrder R → ispreorder (λ x y : X, (¬ R x y)%logic).
-Proof.
-  intros X R is.
-  split.
-  - intros x y z Hxy Hyz Hxz.
-    generalize (iscotrans_isStrongOrder is _ y _ Hxz).
-    apply toneghdisj.
-    split.
-    + exact Hxy.
-    + exact Hyz.
-  - exact (isirrefl_isStrongOrder is).
-Defined.
-
-Lemma isStrongOrder_bck {X Y : UU} (f : Y → X) (gt : hrel X) :
-  isStrongOrder gt → isStrongOrder (fun_hrel_comp f gt).
-Proof.
-  intros is.
-  split ; [ | split ].
-  - intros x y z.
-    apply (istrans_isStrongOrder is).
-  - intros x y z.
-    apply (iscotrans_isStrongOrder is).
-  - intros x.
-    apply (isirrefl_isStrongOrder is).
-Qed.
 
 (** *** Standard properties of relations and logical equivalences *)
 
@@ -858,41 +779,6 @@ Definition PreorderedSetPair (X : hSet) (R :po X) : PreorderedSet
 Definition carrierofPreorderedSet : PreorderedSet -> hSet := pr1.
 Coercion carrierofPreorderedSet : PreorderedSet >-> hSet.
 Definition PreorderedSetRelation (X : PreorderedSet) : hrel X := pr1 (pr2 X).
-
-(* Strong Order *)
-
-Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
-Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
-  R,,is.
-Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
-Coercion  pr1StrongOrder : StrongOrder >-> hrel.
-
-Ltac mkStrongOrder :=
-  match goal with
-    | |- StrongOrder _ => simple refine (pairStrongOrder _ _) ;
-        [ | mkStrongOrder]
-    | |- isStrongOrder _ => split ; [ | split]
-  end.
-
-Section so_pty.
-
-Context {X : UU}.
-Context (R : StrongOrder X).
-
-Definition istrans_StrongOrder : istrans R :=
-  istrans_isStrongOrder (pr2 R).
-Definition iscotrans_StrongOrder : iscotrans R :=
-  iscotrans_isStrongOrder (pr2 R).
-Definition isirrefl_StrongOrder : isirrefl R :=
-  isirrefl_isStrongOrder (pr2 R).
-Definition isasymm_StrongOrder : isasymm R :=
-  isasymm_isStrongOrder (pr2 R).
-
-End so_pty.
-
-Definition StrongOrder_bck {X Y : UU} (f : Y → X)
-           (gt : StrongOrder X) : StrongOrder Y :=
-  (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
 
 (* partial orderings *)
 Definition PartialOrder (X : hSet) : UU := ∑ R : hrel X, isPartialOrder R.
@@ -2528,19 +2414,6 @@ Proof.
   intros x x'. intros r r'.
   apply (maponpaths (setquotpr R) (isl x x' r r')).
 Defined.
-
-Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
-  isStrongOrder L → isStrongOrder (quotrel is).
-Proof.
-  intros H.
-  split ; [ | split].
-  - apply istransquotrel, (istrans_isStrongOrder H).
-  - apply iscotransquotrel, (iscotrans_isStrongOrder H).
-  - apply isirreflquotrel, (isirrefl_isStrongOrder H).
-Qed.
-Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X}
-           (is : iscomprelrel R L) : StrongOrder (setquot R) :=
-  quotrel is,, isStrongOrder_setquot is (pr2 L).
 
 (** We do not have a lemma for [neqchoicequotrel] since [neqchoice] is not a
 property and since even when it is a property such as under the additional

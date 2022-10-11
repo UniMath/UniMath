@@ -65,6 +65,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
+Require Import UniMath.MoreFoundations.Sets.
 Require Export UniMath.Algebra.Monoids.
 
 Local Open Scope logic.

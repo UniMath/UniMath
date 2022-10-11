@@ -37,6 +37,7 @@ Define new lattices using:
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.Domains_and_Fields.
+Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids.
