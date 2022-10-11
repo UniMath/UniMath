@@ -28,12 +28,14 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.CommaCategories.
 
 Local Open Scope cat.
@@ -41,21 +43,16 @@ Local Open Scope cat.
 (** * Definition of global right Kan extension as right adjoint to precomposition *)
 Section RightKanExtension.
 
-Variables C D : precategory.
-Variable F : functor C D.
-Variable E : precategory.
-(* Variable hsC : has_homsets C. *)
-Variable hsD : has_homsets D.
-Variable hsE : has_homsets E.
+Context (C D : category) (F : functor C D) (E : category).
 
-Let PrecompWithF : functor _ _
-  := pre_composition_functor _ _ E hsD hsE F.
+Let PrecompWithF : [D, E] ⟶ [C, E]
+  := pre_composition_functor C D E F.
 
 Definition GlobalRightKanExtensionExists : UU
   := is_left_adjoint PrecompWithF.
 
 Definition GlobalRan (H : GlobalRightKanExtensionExists)
-  : functor _ _ := right_adjoint H.
+  : [C, E] ⟶ [D, E] := right_adjoint H.
 
 End RightKanExtension.
 
@@ -63,16 +60,15 @@ End RightKanExtension.
 (** * Construction of right Kan extensions when the target category has limits *)
 Section RightKanExtensionFromLims.
 
-Context {M C A : precategory} (K : functor M C) (hsC : has_homsets C)
-        (hsA : has_homsets A) (LA : Lims A).
+Context (M C A : category) (K : functor M C) (LA : Lims A).
 
-Local Notation "c ↓ K" := (cComma hsC K c) (at level 30).
+Local Notation "c ↓ K" := (cComma _ _ K c) (at level 30).
 
 Section fix_T.
 
 Variable (T : functor M A).
 
-Local Definition Q (c : C) : functor (c ↓ K) M := cComma_pr1 hsC K c.
+Local Definition Q (c : C) : functor (c ↓ K) M := cComma_pr1 _ _ K c.
 
 Local Definition QT (c : C) : diagram (c ↓ K) A :=
   diagram_from_functor _ _ (functor_composite (Q c) T).
@@ -83,7 +79,7 @@ Local Definition lambda (c : C) : cone (QT c) (R c) := limCone (LA _ (QT c)).
 
 Local Definition Rmor_cone (c c' : C) (g : C⟦c,c'⟧) : cone (QT c') (R c).
 Proof.
-use mk_cone.
+use make_cone.
 - intro m1f1.
   transparent assert (m1gf1 : (c ↓ K)).
   { use tpair.
@@ -144,13 +140,13 @@ transparent assert (e : (K n ↓ K ⟦ Kid n, v ⟧)).
 now apply pathsinv0; eapply pathscomp0; [apply (coneOutCommutes (lambda (K n)) _ _ e)|].
 Qed.
 
-Local Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧ :=
+Local Definition eps : [M, A]⟦functor_composite K R_functor, T⟧ :=
   tpair _ eps_n eps_is_nat_trans.
 
 End fix_T.
 
 (** Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
-Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
+Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K A.
 Proof.
 unfold GlobalRightKanExtensionExists.
 use left_adjoint_from_partial.
@@ -160,7 +156,7 @@ use left_adjoint_from_partial.
 
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
-    use mk_cone.
+    use make_cone.
     + intro mf; apply (# S (pr2 mf) · α (pr1 mf)).
     + abstract (intros fm fm' h; simpl; rewrite <- assoc;
                 eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
@@ -190,7 +186,7 @@ use left_adjoint_from_partial.
   assert (is_nat_trans_σ : is_nat_trans S (R_data T) σ).
   { intros c c' g; simpl.
     transparent assert (ccc : (cone (QT T c') (S c))).
-    { use mk_cone.
+    { use make_cone.
       - intro mf'; apply (σ c · Rmor T c c' g · limOut (LA (c' ↓ K) (QT T c')) mf').
       - abstract (intros u v e; simpl; rewrite <- !assoc;
                   apply maponpaths, maponpaths, (limOutCommutes (LA (c' ↓ K) (QT T c')) u v e)).
@@ -201,12 +197,12 @@ use left_adjoint_from_partial.
 
   use tpair.
   + apply (tpair _ (tpair _ σ is_nat_trans_σ)).
-    apply (nat_trans_eq hsA); intro n; cbn.
+    apply nat_trans_eq; [apply homset_property | intro n; cbn].
     generalize (limArrowCommutes (LA (K n ↓ K) (QT T (K n))) _ (cc _) (Kid n)); simpl.
     now rewrite functor_id, id_left.
   + intro x.
-    apply subtypeEquality; [intros xx; apply (isaset_nat_trans hsA)|].
-    apply subtypeEquality; [intros xx; apply (isaprop_is_nat_trans _ _ hsA)|]; simpl.
+    apply subtypePath; [intros xx; apply (isaset_nat_trans (homset_property A))|].
+    apply subtypePath; [intros xx; apply (isaprop_is_nat_trans _ _ (homset_property A))|]; simpl.
     apply funextsec; intro c.
     apply limArrowUnique; intro u; simpl.
     destruct x as [t p]; simpl.

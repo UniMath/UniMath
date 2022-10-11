@@ -12,6 +12,19 @@ http://arxiv.org/abs/1401.0053.
 
 For any question about this library, send an email to Benedikt Ahrens.
 
+## Terminology
+
+The terminology in this package differs from that
+of [the HoTT book](https://homotopytypetheory.org/book/).
+The following table offers a comparison.
+
+| UniMath                      | HoTT Book       | Ob C | Hom_C | Univalence |
+|------------------------------|-----------------|------|-------|------------|
+| Precategory                  | n/a             | Type | Type  | No         |
+| Category                     | Precategory     | Type | Set   | No         |
+| Univalent/saturated category | Category        | Type | Set   | Yes        |
+| Set category                 | Strict category | Set  | Set   | No         |
+
 ## Contents
 
 ### The files containing the formalization of the Rezk Completion:
@@ -64,7 +77,6 @@ For any question about this library, send an email to Benedikt Ahrens.
 * *CommaCategories.v* --- special comma categories (c ↓ K)
 * *Complexes.v*c --- category of complexes over an additive category
 * *covyoneda.v* --- covariant Yoneda functor
-* *DiscretePrecategory.v*
 * *EndofunctorsMonoidal.v*
   * Definition of the (weak) monoidal structure on endofunctors
 * *Epis.v*
@@ -83,11 +95,10 @@ For any question about this library, send an email to Benedikt Ahrens.
 * *exponentials.v*
 * *FunctorAlgebras.v* --- algebras of an endofunctor, Lambek's lemma
 * *GrothendieckTopos.v*
+* *Groupoids.v* --- Basic definitions of groupoids and discrete categories
 * *HorizontalComposition.v*
   * Definition of horizontal composition for natural transformations
-* *Kleisli.v* --- the "Kleisli" definition of monad and its equivalence to the "monoidal" definition
 * *LocalizingClass.v* --- localizing class and localization of categories
-* *Monads.v* --- monads, bind operation and substitution
 * *Monics.v* --- monics, their subcategory and their construction in functor categories
 * *Morphisms.v*
   *pair of morphisms*
@@ -108,7 +119,6 @@ For any question about this library, send an email to Benedikt Ahrens.
 * *Quotobjects.v* --- quotient objects
 * *RightKanExtension.v*
   * Definition of global right Kan extension as right adjoint to precomposition
-* *RModules.v* --- right modules over a monad
 * *ShortExactSequences.v*
 * *slicecat.v* --- slice precategories and colimits therein
 * *Subobjects.v*
@@ -126,3 +136,4 @@ For any question about this library, send an email to Benedikt Ahrens.
   * with 6 .v files there: notations.v, bicategory.v, Cat.v, internal_equivalence.v, prebicategory.v, whiskering.v
 * *Inductives* by Anders Mörtberg
   * with three case studies: Lists.v, Trees.v, LambdaCalculus.v
+* *Monads* --- developments about monads (incl. relative monads, modules for monads), see its own doc

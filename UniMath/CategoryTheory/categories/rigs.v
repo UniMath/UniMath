@@ -10,23 +10,25 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.RigsAndRings.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 
 
 (** * Precategory of rigs *)
 Section def_rig_precategory.
 
-  Definition rig_fun_space (A B : rig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
+  Definition rig_fun_space (A B : rig) : hSet := make_hSet (rigfun A B) (isasetrigfun A B).
 
   Definition rig_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) rig (λ A B : rig, rig_fun_space A B).
 
   Definition rig_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       rig_precategory_ob_mor (λ (X : rig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : rig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
@@ -53,14 +55,14 @@ Section def_rig_precategory.
 
   Lemma is_precategory_rig_precategory_data : is_precategory rig_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use make_is_precategory_one_assoc.
     - intros a b f. use rig_id_left.
     - intros a b f. use rig_id_right.
     - intros a b c d f g h. use rig_assoc.
   Qed.
 
   Definition rig_precategory : precategory :=
-    mk_precategory rig_precategory_data is_precategory_rig_precategory_data.
+    make_precategory rig_precategory_data is_precategory_rig_precategory_data.
 
   Lemma has_homsets_rig_precategory : has_homsets rig_precategory.
   Proof.
@@ -73,110 +75,111 @@ End def_rig_precategory.
 (** * Category of rigs *)
 Section def_rig_category.
 
+  Definition rig_category : category := make_category _ has_homsets_rig_precategory.
+
   (** ** (rigiso X Y) ≃ (iso X Y) *)
 
-  Lemma rig_iso_is_equiv (A B : ob rig_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  Lemma rig_iso_is_equiv (A B : ob rig_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
-    - exact (pr1rigfun _ _ (inv_from_iso f)).
+    use isweq_iso.
+    - exact (pr1rigfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropisrigfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropisrigfun.
   Defined.
   Opaque rig_iso_is_equiv.
 
-  Lemma rig_iso_equiv (X Y : ob rig_precategory) : iso X Y -> rigiso (X : rig) (Y : rig).
+  Lemma rig_iso_equiv (X Y : ob rig_category) : z_iso X Y -> rigiso (X : rig) (Y : rig).
   Proof.
     intro f.
-    use rigisopair.
-    - exact (weqpair (pr1 (pr1 f)) (rig_iso_is_equiv X Y f)).
+    use make_rigiso.
+    - exact (make_weq (pr1 (pr1 f)) (rig_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma rig_equiv_is_iso (X Y : ob rig_precategory) (f : rigiso (X : rig) (Y : rig)) :
-    @is_iso rig_precategory X Y (rigfunconstr (pr2 f)).
+  Lemma rig_equiv_is_z_iso (X Y : ob rig_category) (f : rigiso (X : rig) (Y : rig)) :
+    @is_z_isomorphism rig_precategory X Y (rigfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (rigfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
-      + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (rigfunconstr (pr2 (invrigiso f))).
+    use make_is_inverse_in_precat.
+    - use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque rig_equiv_is_iso.
+  Opaque rig_equiv_is_z_iso.
 
-  Lemma rig_equiv_iso (X Y : ob rig_precategory) : rigiso (X : rig) (Y : rig) -> iso X Y.
+  Lemma rig_equiv_z_iso (X Y : ob rig_category) : rigiso (X : rig) (Y : rig) -> z_iso X Y.
   Proof.
-    intros f. exact (@isopair rig_precategory X Y (rigfunconstr (pr2 f))
-                              (rig_equiv_is_iso X Y f)).
+    intros f.
+    exists (rigfunconstr (pr2 f)).
+    exact (rig_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma rig_iso_equiv_is_equiv (X Y : rig_precategory) : isweq (rig_iso_equiv X Y).
+  Lemma rig_iso_equiv_is_equiv (X Y : rig_category) : isweq (rig_iso_equiv X Y).
   Proof.
-    use gradth.
-    - exact (rig_equiv_iso X Y).
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    use isweq_iso.
+    - exact (rig_equiv_z_iso X Y).
+    - intros x. use z_iso_eq. use rigfun_paths. use idpath.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
   Opaque rig_iso_equiv_is_equiv.
 
-  Definition rig_iso_equiv_weq (X Y : ob rig_precategory) :
-    weq (iso X Y) (rigiso (X : rig) (Y : rig)).
+  Definition rig_iso_equiv_weq (X Y : ob rig_category) :
+    weq (z_iso X Y) (rigiso (X : rig) (Y : rig)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (rig_iso_equiv X Y).
     - exact (rig_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma rig_equiv_iso_is_equiv (X Y : ob rig_precategory) : isweq (rig_equiv_iso X Y).
+  Lemma rig_equiv_iso_is_equiv (X Y : ob rig_category) : isweq (rig_equiv_z_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (rig_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. use idpath.
   Defined.
   Opaque rig_equiv_iso_is_equiv.
 
-  Definition rig_equiv_iso_weq (X Y : ob rig_precategory) :
-    (rigiso (X : rig) (Y : rig)) ≃ (iso X Y).
+  Definition rig_equiv_weq_iso (X Y : ob rig_category) :
+    (rigiso (X : rig) (Y : rig)) ≃ (z_iso X Y).
   Proof.
-    use weqpair.
-    - exact (rig_equiv_iso X Y).
+    use make_weq.
+    - exact (rig_equiv_z_iso X Y).
     - exact (rig_equiv_iso_is_equiv X Y).
   Defined.
 
 
   (** ** Category of rigs *)
 
-  Definition rig_precategory_isweq (X Y : ob rig_precategory) : isweq (λ p : X = Y, idtoiso p).
+  Definition rig_category_isweq (X Y : ob rig_category) : isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
-           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_iso_weq X Y)))
+           (X = Y) (z_iso X Y)
+           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (rig_univalence X Y)
-                                     (rig_equiv_iso_weq X Y)))).
+                                     (rig_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque rig_precategory_isweq.
+  Opaque rig_category_isweq.
 
-  Definition rig_precategory_is_univalent : is_univalent rig_precategory.
+
+  Definition rig_category_is_univalent : is_univalent rig_category.
   Proof.
-    use mk_is_univalent.
-    - intros X Y. exact (rig_precategory_isweq X Y).
-    - exact has_homsets_rig_precategory.
+    intros X Y. exact (rig_category_isweq X Y).
   Defined.
 
-  Definition rig_category : univalent_category :=
-    mk_category rig_precategory rig_precategory_is_univalent.
+  Definition rig_univalent_category : univalent_category :=
+    make_univalent_category rig_category rig_category_is_univalent.
 
 End def_rig_category.

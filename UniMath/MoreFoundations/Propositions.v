@@ -1,7 +1,10 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.PartA.
+Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
+Local Open Scope type.
 
 Lemma ishinh_irrel {X:UU} (x:X) (x':∥X∥) : hinhpr x = x'.
 Proof.
@@ -77,7 +80,7 @@ Proof.
   apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
 Defined.
 
-Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).
+Definition hrel_set (X : hSet) : hSet := make_hSet (hrel X) (isaset_hrel X).
 
 Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
 Proof.
@@ -98,6 +101,7 @@ Proof.
   apply idpath.
 Defined.
 
+(* this is the dependent eliminator for propositional truncation *)
 Lemma squash_rec {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
 Proof.
   intros xp x'. simple refine (hinhuniv _ x'). intro x.
@@ -105,6 +109,23 @@ Proof.
   { apply propproperty. }
   induction q. exact (xp x).
 Defined.
+
+(* here we show that the dependent eliminator does not compute judgmentally *)
+Goal ∏ {X:UU} {P:∥X∥ -> hProp} (h : ∏ x, P (hinhpr x)) (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+Proof.
+  Fail reflexivity.             (* too bad! *)
+Abort.
+
+(* here's another version *)
+Goal ∏ (X:Type)
+     (P := λ x':∥X∥, ∃ x, (x' = hinhpr x))
+     (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
+     (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+Proof.
+  Fail reflexivity.             (* too bad! *)
+Abort.
 
 Lemma logeq_if_both_true (P Q : hProp) : P -> Q -> ( P ⇔ Q ).
 Proof.
@@ -127,11 +148,11 @@ Definition proofirrelevance_hProp (X : hProp) : isProofIrrelevant X
 
 Ltac induction_hProp x y := induction (proofirrelevance_hProp _ x y).
 
-Definition iscontr_hProp (X:UU) : hProp := hProppair (iscontr X) (isapropiscontr X).
+Definition iscontr_hProp (X:UU) : hProp := make_hProp (iscontr X) (isapropiscontr X).
 
 Notation "'∃!' x .. y , P"
   := (iscontr_hProp (∑ x, .. (∑ y, P) ..))
-       (at level 200, x binder, y binder, right associativity) : type_scope.
+       (at level 200, x binder, y binder, right associativity) : logic.
 (* type this in emacs in agda-input method with \ex ! *)
 
 
@@ -259,3 +280,156 @@ now apply hPropUnivalence; apply islogeqhhtrue_hconj.
 Qed.
 
 End hProp_logic.
+
+(** ** Factoring maps through squash *)
+
+Lemma squash_uniqueness {X} (x:X) (h:∥ X ∥) : squash_element x = h.
+Proof. intros. apply propproperty. Qed.
+
+Goal ∏ X Q (i:isaprop Q) (f:X -> Q) (x:X),
+   factor_through_squash i f (squash_element x) = f x.
+Proof. reflexivity. Defined.
+
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} :
+  (∏ h, isaprop (Q h)) ->
+  (∏ x, Q(squash_element x)) ->
+  (∏ h, Q h).
+Proof.
+  intros i f ?.  apply (h (make_hProp (Q h) (i h))).
+  intro x. simpl. induction (squash_uniqueness x h). exact (f x).
+Defined.
+
+Lemma factor_through_squash_hProp {X} : ∏ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
+Proof. intros [Q i] f h. refine (h _ _). assumption. Defined.
+
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
+Proof. intros is. apply (impredfun 2). assumption. Defined.
+
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
+Proof.
+  intros h.
+  set ( Q := λ y, g y = g' y ).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
+Qed.
+
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ squash_element = g'∘ squash_element -> g = g'.
+Proof.
+  intros e.
+  apply funextsec.
+  apply squash_map_uniqueness. exact ip.
+  intro x. induction e. apply idpath.
+Qed.
+
+Lemma uniqueExists {A : UU} {P : A -> UU} {a b : A}
+  (Hexists : ∃! a, P a) (Ha : P a) (Hb : P b) : a = b.
+Proof.
+  assert (H : tpair _ _ Ha = tpair _ _ Hb).
+  { now apply proofirrelevancecontr. }
+  exact (base_paths _ _ H).
+Defined.
+
+(** ** Connected types *)
+
+Definition isConnected X : hProp := ∥ X ∥ ∧ ∀ (x y:X), ∥ x = y ∥.
+
+Lemma predicateOnConnectedType {X:Type} (i : isConnected X) {P:X->hProp} (x0:X) (p:P x0) :
+   ∏ x, P x.
+Proof.
+  intros x. apply (squash_to_hProp (pr2 i x x0)); intros e. now induction e.
+Defined.
+
+Definition isBaseConnected (X:PointedType) : hProp := ∀ (y:X), ∥ basepoint X = y ∥.
+
+Lemma isConnected_isBaseConnected (X:PointedType) : isConnected X <-> isBaseConnected X.
+Proof.
+  split.
+  - intros [_ ic] x. use ic.
+  - intros ibc. split.
+    + exact (hinhpr (basepoint X)).
+    + intros x y.
+      apply (squash_to_hProp (ibc x)); intros p; apply (squash_to_hProp (ibc y)); intros q.
+      exact (hinhpr (!p @ q)).
+Defined.
+
+Definition BasePointComponent (X:PointedType) : PointedType :=
+  pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
+
+Definition basePointComponent_inclusion {X:PointedType} (x : BasePointComponent X) : X
+  := pr1 x.
+
+Lemma BasePointComponent_isBaseConnected (X:PointedType) : isBaseConnected (BasePointComponent X).
+Proof.
+  intros [x' c'].
+  change (basepoint (BasePointComponent X))
+    with (tpair (λ (y:X), ∥ basepoint X = y ∥) (basepoint X) (hinhpr (idpath (basepoint X)))).
+  use (hinhfun _ c'); intro q. induction q.
+  apply maponpaths. apply propproperty.
+Defined.
+
+Lemma BasePointComponent_isincl {X:PointedType} : isincl (@basePointComponent_inclusion X).
+Proof.
+  use isinclpr1. intros x. apply propproperty.
+Defined.
+
+Lemma BasePointComponent_isweq {X:PointedType} (bc : isBaseConnected X) :
+  isweq (@basePointComponent_inclusion X).
+Proof.
+  use isweqpr1.
+  intros x.
+  apply iscontraprop1.
+  - apply propproperty.
+  - exact (bc x).
+Defined.
+
+Definition BasePointComponent_weq {X:PointedType} (bc : isBaseConnected X) :
+  BasePointComponent X ≃ X
+  := make_weq (@basePointComponent_inclusion X) (BasePointComponent_isweq bc).
+
+Lemma baseConnectedness X : isBaseConnected X -> isConnected X.
+Proof.
+  intros p. split.
+  - exact (hinhpr (basepoint X)).
+  - intros x y. assert (a := p x); assert (b := p y); clear p.
+    apply (squash_to_prop a); [apply propproperty|]; clear a; intros a.
+    apply (squash_to_prop b); [apply propproperty|]; clear b; intros b.
+    apply hinhpr. exact (!a@b).
+Defined.
+
+Lemma predicateOnBaseConnectedType (X:PointedType) (b:isBaseConnected X)
+      (P:X->hProp) (p:P (basepoint X)) :
+   ∏ x, P x.
+Proof.
+  intros x. apply (squash_to_hProp (b x)); intros e. now induction e.
+Defined.
+
+Goal ∏ (X:PointedType) (b:isBaseConnected X) (P:X->hProp) (p:P (basepoint X)),
+       predicateOnBaseConnectedType X b P p (basepoint X) = p.
+Proof.
+  Fail reflexivity.
+  intros.
+  (* stuck *)
+Abort.
+
+Lemma predicateOnBasePointComponent
+      (X:PointedType) (X' := BasePointComponent X) (pt' := basepoint X')
+      (P:X'->hProp) (p:P pt') :
+   ∏ x, P x.
+Proof.
+  intros x.
+  apply (squash_to_hProp (BasePointComponent_isBaseConnected _ x)); intros e.
+  now induction e.
+Defined.
+
+Goal ∏ (X:PointedType)
+     (X' := BasePointComponent X) (pt' := basepoint X')
+     (P:X'->hProp) (p:P pt'),
+   predicateOnBasePointComponent X P p pt' = p.
+Proof.
+  Fail reflexivity.
+  intros.
+  unfold pt', basepoint, X', BasePointComponent, pointedType, pr2; cbn beta.
+Abort.

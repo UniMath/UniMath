@@ -6,18 +6,19 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Import UniMath.Algebra.Rigs_and_Rings .
-Require Import UniMath.Algebra.DivisionRig .
-Require Import UniMath.Algebra.Domains_and_Fields .
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Import UniMath.Algebra.Monoids.AddNotation.
 
 (** ** The standard function from the natural numbers to a monoid *)
 
@@ -29,8 +30,8 @@ Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=
   end.
 Definition nattorig {X : rig} (n : nat) : X :=
   natmult (X := rigaddabmonoid X) n 1%rig.
-Definition nattorng {X : rng} (n : nat) : X :=
-  nattorig (X := rngtorig X) n.
+Definition nattoring {X : ring} (n : nat) : X :=
+  nattorig (X := ringtorig X) n.
 
 Lemma natmultS :
   ∏ {X : monoid} (n : nat) (x : X),
@@ -63,9 +64,10 @@ Lemma natmult_plus :
     natmult (n + m) x = (natmult n x + natmult m x)%addmonoid.
 Proof.
   induction n as [|n IHn] ; intros m x.
-  - rewrite plus_O_n, lunax.
+  - rewrite lunax.
     reflexivity.
-  - rewrite plus_Sn_m, !natmultS, IHn, assocax.
+  - change (S n + m)%nat with (S (n + m))%nat.
+    rewrite !natmultS, IHn, assocax.
     reflexivity.
 Qed.
 Lemma nattorig_plus :
@@ -84,7 +86,7 @@ Proof.
   - reflexivity.
   - simpl (_ * _)%nat.
     assert (H : S n = (n + 1)%nat).
-    { rewrite <- plus_n_Sm, <- plus_n_O.
+    { rewrite <- plus_n_Sm, natplusr0.
       reflexivity. }
     rewrite H ; clear H.
     rewrite !natmult_plus, IHn.
@@ -125,7 +127,7 @@ Lemma natmult_binophrel {X : monoid} (R : hrel X) :
   istrans R -> isbinophrel R ->
   ∏ (n : nat) (x y : X), R x y -> R (natmult (S n) x) (natmult (S n) y).
 Proof.
-  intros X R Hr Hop n x y H.
+  intros Hr Hop n x y H.
   induction n as [|n IHn].
   exact H.
   rewrite !(natmultS (S _)).
@@ -144,7 +146,7 @@ Definition setquot_aux {X : monoid} (R : hrel X) : hrel X :=
 Lemma istrans_setquot_aux {X : abmonoid} (R : hrel X) :
   istrans R -> isbinophrel R -> istrans (setquot_aux R).
 Proof.
-  intros X R Hr Hop.
+  intros Hr Hop.
   intros x y z.
   apply hinhfun2.
   intros (c1,Hc1) (c2,Hc2).
@@ -161,7 +163,7 @@ Qed.
 Lemma isbinophrel_setquot_aux {X : abmonoid} (R : hrel X) :
   isbinophrel R -> isbinophrel (setquot_aux R).
 Proof.
-  intros X R Hop.
+  intros Hop.
   split.
   - intros x y z.
     apply hinhfun.
@@ -183,7 +185,7 @@ Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
   isinvbinophrel R ->
   ∏ x y : X, (setquot_aux R) x y <-> R x y.
 Proof.
-  intros X R H x y.
+  intros H x y.
   split.
   apply hinhuniv.
   intros (c,H').
@@ -229,7 +231,7 @@ Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
   ∏ (n : nat) (x y1 y2 : X),
     R (natmult n y1 * grinv X x)%multmonoid (natmult n y2) -> R (natmult n y1) (natmult n y2 * x)%multmonoid.
 Proof.
-  intros X R Hop.
+  intros Hop.
   intros n x y1 y2 Hy.
   apply (pr2 (isinvbinophrelgr _ Hop) _ _ (grinv X x)).
   rewrite assocax, (grrinvax X), runax.
@@ -240,7 +242,7 @@ Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
   isarchgr R ->
   isarchmonoid (X := abgrtoabmonoid X) R.
 Proof.
-  intros X R Hop H x y1 y2 Hy.
+  intros Hop H x y1 y2 Hy.
   split.
   - now apply H.
   - generalize (H (grinv X x) _ _ Hy).
@@ -256,7 +258,7 @@ Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
   isarchmonoid (X := abgrtoabmonoid X) R ->
   isarchgr R.
 Proof.
-  intros X R H x y1 y2 Hy.
+  intros H x y1 y2 Hy.
   apply (isarchmonoid_1 _ H x y1 y2 Hy).
 Defined.
 
@@ -332,7 +334,7 @@ Lemma isarchabgrdiff {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
   isarchmonoid (setquot_aux R) ->
   isarchgr (X := abgrdiff X) (abgrdiffrel X (L := R) Hr).
 Proof.
-  intros X R Hr Hr' H.
+  intros Hr' H.
   simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrdiffrel X Hr y1 y2 ->
     ∃ n : nat, abgrdiffrel X Hr (natmult (X := abgrdiff X) n y1 * x)%multmonoid (natmult (X := abgrdiff X) n y2)) ,, _) _).
   abstract apply isapropimpl, propproperty.
@@ -374,7 +376,7 @@ Lemma isarchrig_setquot_aux {X : rig} (R : hrel X) :
   → isarchrig R
   → isarchrig (setquot_aux (X := rigaddabmonoid X) R).
 Proof.
-  intros X R Hr H.
+  intros Hr H.
   split ; [ | split].
   - intros y1 y2.
     apply hinhuniv.
@@ -413,9 +415,9 @@ Local Lemma isarchrig_isarchmonoid_1_aux {X : rig} (R : hrel X)
       (Hop1 : isbinophrel (X := rigaddabmonoid X) R)
       (x y1 y2 : rigaddabmonoid X)
       (m : nat)
-      (Hm : R (nattorig m * y1)%rng (1%rig + nattorig m * y2)%rng)
+      (Hm : R (nattorig m * y1)%ring (1%rig + nattorig m * y2)%ring)
       (n : nat)
-      (Hn : R (nattorig n + x)%rng 0%rig) :
+      (Hn : R (nattorig n + x)%ring 0%rig) :
    R (natmult (max 1 n * m) y1 * x)%multmonoid
      (natmult (max 1 n * m) y2).
 Proof.
@@ -455,7 +457,7 @@ Local Lemma isarchrig_isarchmonoid_2_aux {X : rig} (R : hrel X)
       (Hop1 : isbinophrel (X := rigaddabmonoid X) R)
       (x y1 y2 : rigaddabmonoid X)
       (m : nat)
-      (Hm : R (nattorig m * y1)%rng (1%rig + nattorig m * y2)%rng)
+      (Hm : R (nattorig m * y1)%ring (1%rig + nattorig m * y2)%ring)
       (n : nat)
       (Hn : R (nattorig n) x) :
   R (natmult (max 1 n * m) y1)
@@ -490,7 +492,7 @@ Lemma isarchrig_isarchmonoid {X : rig} (R : hrel X) :
   istrans R -> isbinophrel (X := rigaddabmonoid X) R ->
   isarchrig R -> isarchmonoid (X := rigaddabmonoid X) R.
 Proof.
-  intros X R Hr1 Hr Hop1 H x y1 y2 Hy.
+  intros Hr1 Hr Hop1 H x y1 y2 Hy.
   split.
   - generalize (isarchrig_diff _ H _ _ Hy) (isarchrig_pos _ H x).
     apply hinhfun2.
@@ -519,7 +521,7 @@ Lemma isarchmonoid_isarchrig {X : rig} (R : hrel X) :
   -> isarchmonoid (X := rigaddabmonoid X) R
   -> isarchrig R.
 Proof.
-  intros X R H01 H.
+  intros H01 H.
   repeat split.
   - intros y1 y2 Hy.
     generalize (isarchmonoid_2 _ H 1%rig y1 y2 Hy).
@@ -553,105 +555,105 @@ Defined.
 
 (** ** Archimedean property in a ring *)
 
-Definition isarchrng {X : rng} (R : hrel X) :=
-  (∏ x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng)
-    × (∏ x : X, ∃ n : nat, R (nattorng n) x).
+Definition isarchring {X : ring} (R : hrel X) :=
+  (∏ x : X, R x 0%ring -> ∃ n : nat, R (nattoring n * x)%ring 1%ring)
+    × (∏ x : X, ∃ n : nat, R (nattoring n) x).
 
-Definition isarchrng_1 {X : rng} (R : hrel X) :
-  isarchrng R ->
-  ∏ x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng := pr1.
-Definition isarchrng_2 {X : rng} (R : hrel X) :
-  isarchrng R ->
-  ∏ x : X, ∃ n : nat, R (nattorng n) x := pr2.
+Definition isarchring_1 {X : ring} (R : hrel X) :
+  isarchring R ->
+  ∏ x : X, R x 0%ring -> ∃ n : nat, R (nattoring n * x)%ring 1%ring := pr1.
+Definition isarchring_2 {X : ring} (R : hrel X) :
+  isarchring R ->
+  ∏ x : X, ∃ n : nat, R (nattoring n) x := pr2.
 
-Lemma isarchrng_isarchrig {X : rng} (R : hrel X) :
+Lemma isarchring_isarchrig {X : ring} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
-  isarchrng R -> isarchrig (X := rngtorig X) R.
+  isarchring R -> isarchrig (X := ringtorig X) R.
 Proof.
-  intros X R Hop1 H.
+  intros Hop1 H.
   repeat split.
   - intros y1 y2 Hy.
-    assert (X0 : R (y1 - y2)%rng 0%rng).
+    assert (X0 : R (y1 - y2)%ring 0%ring).
     abstract (apply (pr2 (isinvbinophrelgr X Hop1)) with y2 ;
                change BinaryOperations.op with (@BinaryOperations.op1 X) ;
-               rewrite rngassoc1, rnglinvax1, rnglunax1, rngrunax1 ;
+               rewrite ringassoc1, ringlinvax1, ringlunax1, ringrunax1 ;
                exact Hy).
-    generalize (isarchrng_1 _ H _ X0).
+    generalize (isarchring_1 _ H _ X0).
     apply hinhfun.
     intros n.
     exists (pr1 n).
     abstract
-      (rewrite <- (rngrunax1 _ (nattorig (pr1 n) * y1)%rng), <- (rnglinvax1 _ (nattorig (pr1 n) * y2)%rng), <- rngassoc1 ;
+      (rewrite <- (ringrunax1 _ (nattorig (pr1 n) * y1)%ring), <- (ringlinvax1 _ (nattorig (pr1 n) * y2)%ring), <- ringassoc1 ;
         apply (pr2 Hop1) ;
-        rewrite <- rngrmultminus, <- rngldistr ;
+        rewrite <- ringrmultminus, <- ringldistr ;
         exact (pr2 n)).
-  - apply isarchrng_2.
+  - apply isarchring_2.
     exact H.
   - intros x.
-    generalize (isarchrng_2 _ H (- x)%rng).
+    generalize (isarchring_2 _ H (- x)%ring).
     apply hinhfun.
     intros n.
     exists (pr1 n).
-    abstract (change 0%rig with (0%rng : X) ;
-               rewrite <- (rnglinvax1 _ x) ;
+    abstract (change 0%rig with (0%ring : X) ;
+               rewrite <- (ringlinvax1 _ x) ;
                apply (pr2 Hop1) ;
                exact (pr2 n)).
 Defined.
 
-Lemma isarchrig_isarchrng {X : rng} (R : hrel X) :
+Lemma isarchrig_isarchring {X : ring} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
-  isarchrig (X := rngtorig X) R -> isarchrng R.
+  isarchrig (X := ringtorig X) R -> isarchring R.
 Proof.
-  intros X R Hr H.
+  intros Hr H.
   split.
   - intros x Hx.
     generalize (isarchrig_diff _ H _ _ Hx).
     apply hinhfun.
     intros (n,Hn).
     exists n.
-    rewrite <- (rngrunax1 _ 1%rng), <- (rngmultx0 _ (nattorng n)).
+    rewrite <- (ringrunax1 _ 1%ring), <- (ringmultx0 _ (nattoring n)).
     exact Hn.
-  - apply (isarchrig_gt (X := rngtorig X)).
+  - apply (isarchrig_gt (X := ringtorig X)).
     exact H.
 Defined.
 
-Lemma isarchrng_isarchgr {X : rng} (R : hrel X) :
-  R 1%rng 0%rng ->
+Lemma isarchring_isarchgr {X : ring} (R : hrel X) :
+  R 1%ring 0%ring ->
   istrans R ->
   isbinophrel (X := X) R ->
-  isarchrng R -> isarchgr (X := X) R.
+  isarchring R -> isarchgr (X := X) R.
 Proof.
-  intros X R Hr0 Hr Hop1 H.
+  intros Hr0 Hr Hop1 H.
   apply isarchmonoid_isarchgr.
   apply (isarchrig_isarchmonoid (X := X)).
   exact Hr0.
   exact Hr.
   exact Hop1.
-  now apply isarchrng_isarchrig.
+  now apply isarchring_isarchrig.
 Defined.
 
-Lemma isarchgr_isarchrng {X : rng} (R : hrel X) :
-  R 1%rng 0%rng ->
+Lemma isarchgr_isarchring {X : ring} (R : hrel X) :
+  R 1%ring 0%ring ->
   istrans R ->
   isbinophrel (X := X) R ->
-  isarchgr (X := X) R -> isarchrng R.
+  isarchgr (X := X) R -> isarchring R.
 Proof.
-  intros X R Hr0 Hr Hop1 H.
-  apply isarchrig_isarchrng.
+  intros Hr0 Hr Hop1 H.
+  apply isarchrig_isarchring.
   exact Hop1.
   apply isarchmonoid_isarchrig.
   exact Hr0.
   now apply (isarchgr_isarchmonoid (X := X)).
 Defined.
 
-Theorem isarchrigtorng :
+Theorem isarchrigtoring :
   ∏ (X : rig) (R : hrel X) (Hr : R 1%rig 0%rig)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R)
     (Htra : istrans R)
-    (Harch : isarchrig (setquot_aux (X := rigaddabmonoid X) R)), isarchrng (X := rigtorng X) (rigtorngrel X Hadd).
+    (Harch : isarchrig (setquot_aux (X := rigaddabmonoid X) R)), isarchring (X := rigtoring X) (rigtoringrel X Hadd).
 Proof.
   intros.
-  apply isarchgr_isarchrng.
+  apply isarchgr_isarchring.
   abstract (apply hinhpr ; simpl ;
   exists 0%rig ; rewrite !rigrunax1 ;
   exact Hr).
@@ -676,16 +678,16 @@ Proof.
     2: apply (isarchrig_diff _ Harch (pr1 x) (pr2 x)).
     intros (n,Hn).
     exists n.
-    assert ((nattorng (X := rigtorng X) n * setquotpr
-    (binopeqrelabgrdiff (rigaddabmonoid X)) x)%rng = (setquotpr
+    assert ((nattoring (X := rigtoring X) n * setquotpr
+    (binopeqrelabgrdiff (rigaddabmonoid X)) x)%ring = (setquotpr
     (binopeqrelabgrdiff (rigaddabmonoid X)) (nattorig n * pr1 x ,,
-    nattorig n * pr2 x))%rng).
+    nattorig n * pr2 x))%ring).
     { clear.
       induction n as [|n IHn].
-      - rewrite !rigmult0x, rngmult0x.
+      - rewrite !rigmult0x, ringmult0x.
         reflexivity.
-      - unfold nattorng.
-        rewrite !nattorigS, !rigrdistr, rngrdistr, !riglunax2, rnglunax2.
+      - unfold nattoring.
+        rewrite !nattorigS, !rigrdistr, ringrdistr, !riglunax2, ringlunax2.
         simpl.
         eapply pathscomp0.
         apply maponpaths.
@@ -713,13 +715,13 @@ Proof.
     intros (n1,Hn1) (n2,Hn2).
     exists (n1 + n2)%nat.
     revert Hn1 Hn2.
-    assert (nattorng (X := rigtorng X) (n1 + n2) = setquotpr
+    assert (nattoring (X := rigtoring X) (n1 + n2) = setquotpr
     (binopeqrelabgrdiff (rigaddabmonoid X)) (nattorig (n1 + n2) ,,
     0%rig)).
     { generalize (n1 + n2) ; clear.
       induction n as [|n IHn].
       - reflexivity.
-      - unfold nattorng ; rewrite !nattorigS.
+      - unfold nattoring ; rewrite !nattorigS.
         rewrite <- (riglunax1 _ 0%rig).
         eapply pathscomp0.
         apply maponpaths.
@@ -748,94 +750,94 @@ Proof.
     exact Hc2.*)
 Defined.
 
-Lemma natmult_commrngfrac {X : commrng} {S : subabmonoid} :
-  ∏ n (x : X × S), natmult (X := commrngfrac X S) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
+Lemma natmult_commringfrac {X : commring} {S : subabmonoid _} :
+  ∏ n (x : X × S), natmult (X := commringfrac X S) n (setquotpr (eqrelcommringfrac X S) x) = setquotpr (eqrelcommringfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
 Proof.
-  simpl ; intros X S n x.
+  simpl ; intros n x.
   induction n as [|n IHn].
-  - apply (iscompsetquotpr (eqrelcommrngfrac X S)).
+  - apply (iscompsetquotpr (eqrelcommringfrac X S)).
     apply hinhpr ; simpl.
     exists (pr2 x).
-    rewrite !(rngmult0x X).
+    rewrite !(ringmult0x X).
     reflexivity.
   - rewrite !natmultS, IHn.
-    apply (iscompsetquotpr (eqrelcommrngfrac X S)).
+    apply (iscompsetquotpr (eqrelcommringfrac X S)).
     apply hinhpr ; simpl.
     exists (pr2 x) ; simpl.
-    rewrite <- (rngldistr X).
-    rewrite (rngcomm2 X (pr1 (pr2 x))).
-    rewrite !(rngassoc2 X).
+    rewrite <- (ringldistr X).
+    rewrite (ringcomm2 X (pr1 (pr2 x))).
+    rewrite !(ringassoc2 X).
     reflexivity.
 Qed.
 
-Lemma isarchcommrngfrac {X : commrng} {S : subabmonoid} (R : hrel X) Hop1 Hop2 Hs:
-  R 1%rng 0%rng ->
+Lemma isarchcommringfrac {X : commring} {S : subabmonoid _} (R : hrel X) Hop1 Hop2 Hs:
+  R 1%ring 0%ring ->
   istrans R ->
-  isarchrng R -> isarchrng (X := commrngfrac X S) (commrngfracgt X S (R := R) Hop1 Hop2 Hs).
+  isarchring R -> isarchring (X := commringfrac X S) (commringfracgt X S (R := R) Hop1 Hop2 Hs).
 Proof.
-  intros X S R Hop1 Hop2 Hs H0 Htra Hr.
+  intros H0 Htra Hr.
   split.
   - simple refine (setquotunivprop _ (λ _, (_,,_)) _).
     apply isapropimpl, propproperty.
     intros x Hx.
     revert Hx ; apply hinhuniv ; intros (c,Hx) ; simpl in Hx.
-    rewrite !(rngmult0x X), (rngrunax2 X) in Hx.
-    apply (hinhfun (X := ∑ n, commrngfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommrngfrac X S) ((nattorng n * pr1 x)%rng,, pr2 x)) 1%rng)).
+    rewrite !(ringmult0x X), (ringrunax2 X) in Hx.
+    apply (hinhfun (X := ∑ n, commringfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommringfrac X S) ((nattoring n * pr1 x)%ring,, pr2 x)) 1%ring)).
     intros H.
     eexists (pr1 H).
-    unfold nattorng.
-    rewrite (nattorig_natmult (X := commrngfrac X S)).
-    rewrite (natmult_commrngfrac (X := X) (S := S)).
+    unfold nattoring.
+    rewrite (nattorig_natmult (X := commringfrac X S)).
+    rewrite (natmult_commringfrac (X := X) (S := S)).
     rewrite <- (nattorig_natmult (X := X)).
     now apply (pr2 H).
-    generalize (isarchrng_1 _ Hr _ Hx) (isarchrng_2 _ Hr (pr1 (pr2 x) * pr1 c)%rng).
+    generalize (isarchring_1 _ Hr _ Hx) (isarchring_2 _ Hr (pr1 (pr2 x) * pr1 c)%ring).
     apply hinhfun2.
     intros (m,Hm) (n,Hn).
     exists (max 1 n * m)%nat.
     destruct n ; simpl max.
     + apply hinhpr ; simpl.
       exists c.
-      rewrite (rngrunax2 X), (rnglunax2 X), (rngassoc2 X).
+      rewrite (ringrunax2 X), (ringlunax2 X), (ringassoc2 X).
       eapply Htra.
       exact Hm.
       eapply Htra.
       exact H0.
       exact Hn.
-    + unfold nattorng.
+    + unfold nattoring.
       rewrite (nattorig_natmult (X := X)), natmult_mult.
       apply hinhpr ; simpl.
       exists c.
       change (R
-                (natmult (Datatypes.S n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
-                (1 * pr1 (pr2 x) * pr1 c)%rng).
-      rewrite <- (nattorig_natmult (X := X)), (rngrunax2 X), (rnglunax2 X), (rngassoc2 X), (nattorig_natmult (X := X)).
+                (natmult (succ n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%ring
+                (1 * pr1 (pr2 x) * pr1 c)%ring).
+      rewrite <- (nattorig_natmult (X := X)), (ringrunax2 X), (ringlunax2 X), (ringassoc2 X), (nattorig_natmult (X := X)).
       eapply Htra.
       apply (natmult_binophrel (X := X) R).
       exact Htra.
       exact Hop1.
-      rewrite <- (nattorig_natmult (X := X)), (rngassoc2 X).
+      rewrite <- (nattorig_natmult (X := X)), (ringassoc2 X).
       exact Hm.
       exact Hn.
   - simple refine (setquotunivprop _ _ _).
     intros x.
-    apply (hinhfun (X := ∑ n : nat, commrngfracgt X S Hop1 Hop2 Hs
-     (setquotpr (eqrelcommrngfrac X S) (nattorng n,, unel S))
-     (setquotpr (eqrelcommrngfrac X S) x))).
+    apply (hinhfun (X := ∑ n : nat, commringfracgt X S Hop1 Hop2 Hs
+     (setquotpr (eqrelcommringfrac X S) (nattoring n,, unel S))
+     (setquotpr (eqrelcommringfrac X S) x))).
     intros (n,Hn).
     exists n.
-    unfold nattorng, nattorig.
-    change 1%rig with (setquotpr (eqrelcommrngfrac X S)
-                                (1%rng,, unel S)).
-    rewrite (natmult_commrngfrac (X := X) (S := S) n).
+    unfold nattoring, nattorig.
+    change 1%rig with (setquotpr (eqrelcommringfrac X S)
+                                (1%ring,, unel S)).
+    rewrite (natmult_commringfrac (X := X) (S := S) n).
     exact Hn.
-    generalize (isarchrng_1 _ Hr _ (Hs (pr1 (pr2 x)) (pr2 (pr2 x)))) (isarchrng_2 _ Hr (pr1 x)%rng).
+    generalize (isarchring_1 _ Hr _ (Hs (pr1 (pr2 x)) (pr2 (pr2 x)))) (isarchring_2 _ Hr (pr1 x)%ring).
     apply hinhfun2.
     intros (m,Hm) (n,Hn).
     exists (max 1 n * m)%nat.
     destruct n ; simpl max.
     + apply hinhpr ; simpl.
       exists (pr2 x).
-      apply (isrngmultgttoisrrngmultgt X).
+      apply (isringmultgttoisrringmultgt X).
       exact Hop1.
       exact Hop2.
       apply Hs.
@@ -844,18 +846,18 @@ Proof.
       exact Hm.
       eapply Htra.
       exact H0.
-      rewrite (rngrunax2 X).
+      rewrite (ringrunax2 X).
       exact Hn.
     + apply hinhpr ; simpl.
       exists (pr2 x).
-      change (n * m + m)%nat with (Datatypes.S n * m)%nat.
-      unfold nattorng.
-      apply (isrngmultgttoisrrngmultgt X).
+      change (n * m + m)%nat with (succ n * m)%nat.
+      unfold nattoring.
+      apply (isringmultgttoisrringmultgt X).
       exact Hop1.
       exact Hop2.
       apply Hs.
       apply (pr2 (pr2 x)).
-      rewrite (rngrunax2 X), (nattorig_natmult (X := X)), natmult_mult.
+      rewrite (ringrunax2 X), (nattorig_natmult (X := X)), natmult_mult.
       eapply Htra.
       apply (natmult_binophrel (X := X) R).
       exact Htra.
@@ -868,14 +870,14 @@ Qed.
 (** ** Archimedean property in a field *)
 
 Definition isarchfld {X : fld} (R : hrel X) :=
-  ∏ x : X, ∃ n : nat, R (nattorng n) x.
+  ∏ x : X, ∃ n : nat, R (nattoring n) x.
 
-Lemma isarchfld_isarchrng {X : fld} (R : hrel X) :
-  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
+Lemma isarchfld_isarchring {X : fld} (R : hrel X) :
+  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
     (Hirr : isirrefl R),
-    isarchfld R -> isarchrng R.
+    isarchfld R -> isarchring R.
 Proof.
-  intros X R Hadd Hmult Hirr H.
+  intros Hadd Hmult Hirr H.
   split.
   - intros x Hx.
     case (fldchoice x) ; intros x'.
@@ -883,9 +885,9 @@ Proof.
       apply hinhfun.
       intros n.
       exists (pr1 n).
-      abstract (pattern (1%rng : X) at 1 ;
+      abstract (pattern (1%ring : X) at 1 ;
                  rewrite <- (pr1 (pr2 x')) ;
-                apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
+                apply (isringmultgttoisrringmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
     + apply hinhpr.
       exists O.
       abstract (apply fromempty ;
@@ -894,43 +896,43 @@ Proof.
                  apply Hx).
   - exact H.
 Defined.
-Lemma isarchrng_isarchfld {X : fld} (R : hrel X) :
-    isarchrng R -> isarchfld R.
+Lemma isarchring_isarchfld {X : fld} (R : hrel X) :
+    isarchring R -> isarchfld R.
 Proof.
-  intros X R H.
+  intros H.
   intros x.
-  apply (isarchrng_2 R H x).
+  apply (isarchring_2 R H x).
 Defined.
 
-Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
-  isarchrng R -> isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
+Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isringmultgt X R ) ( is2 : R 1%ring 0%ring ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
+  isarchring R -> isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.
   intros.
-  apply isarchrng_isarchfld.
+  apply isarchring_isarchfld.
   unfold fldfracgt.
-  generalize (isarchcommrngfrac (X := X) (S := rngpossubmonoid X is1 is2) R is0 is1 (λ (c : X) (r : (rngpossubmonoid X is1 is2) c), r) is2 tra X0).
+  generalize (isarchcommringfrac (X := X) (S := ringpossubmonoid X is1 is2) R is0 is1 (λ (c : X) (r : (ringpossubmonoid X is1 is2) c), r) is2 tra X0).
   intros.
-  assert (H_f : ∏ n x, (weqfldfracgt_f X is is0 is1 is2 nc (nattorng n * x)%rng) = (nattorng n * weqfldfracgt_f X is is0 is1 is2 nc x)%rng).
+  assert (H_f : ∏ n x, (weqfldfracgt_f X is is0 is1 is2 nc (nattoring n * x)%ring) = (nattoring n * weqfldfracgt_f X is is0 is1 is2 nc x)%ring).
   { clear -irr.
     intros n x.
-    unfold nattorng.
-    rewrite (nattorig_natmult (X := fldfrac X is)), (nattorig_natmult (X := commrngfrac X (@rngpossubmonoid X R is1 is2))).
+    unfold nattoring.
+    rewrite (nattorig_natmult (X := fldfrac X is)), (nattorig_natmult (X := commringfrac X (@ringpossubmonoid X R is1 is2))).
     induction n as [|n IHn].
-    - refine (pr2 (pr1 (isrngfunweqfldfracgt_f _ _ _ _ _ _ _))).
+    - refine (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
       exact irr.
     - rewrite !natmultS, <- IHn.
-      refine (pr1 (pr1 (isrngfunweqfldfracgt_f _ _ _ _ _ _ _)) _ _).
+      refine (pr1 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _)) _ _).
       exact irr. }
-  assert (H_0 : (weqfldfracgt_f X is is0 is1 is2 nc 0%rng) = 0%rng).
-  { refine (pr2 (pr1 (isrngfunweqfldfracgt_f _ _ _ _ _ _ _))).
+  assert (H_0 : (weqfldfracgt_f X is is0 is1 is2 nc 0%ring) = 0%ring).
+  { refine (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
     exact irr. }
-  assert (H_1 : (weqfldfracgt_f X is is0 is1 is2 nc 1%rng) = 1%rng).
-  { refine (pr2 (pr2 (isrngfunweqfldfracgt_f _ _ _ _ _ _ _))).
+  assert (H_1 : (weqfldfracgt_f X is is0 is1 is2 nc 1%ring) = 1%ring).
+  { refine (pr2 (pr2 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
     exact irr. }
   split.
   - intros x Hx.
     eapply hinhfun.
-    2: apply (isarchrng_1 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
+    2: apply (isarchring_1 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
     intros (n,Hn).
     exists n.
     rewrite H_f, H_1.
@@ -939,44 +941,44 @@ Proof.
     exact Hx.
   - intros x.
     eapply hinhfun.
-    2: apply (isarchrng_2 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
+    2: apply (isarchring_2 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
     intros (n,Hn).
     exists n.
-    rewrite <- (rngrunax2 _ (nattorng n)), H_f, H_1, rngrunax2.
+    rewrite <- (ringrunax2 _ (nattoring n)), H_f, H_1, ringrunax2.
     exact Hn.
 Defined.
 
 (** ** Archimedean property in a constructive field *)
 
 Definition isarchCF {X : ConstructiveField} (R : hrel X) :=
-  ∏ x : X, ∃ n : nat, R (nattorng n) x.
+  ∏ x : X, ∃ n : nat, R (nattoring n) x.
 
-Lemma isarchCF_isarchrng {X : ConstructiveField} (R : hrel X) :
-  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
+Lemma isarchCF_isarchring {X : ConstructiveField} (R : hrel X) :
+  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
     (Hirr : isirrefl R),
     (∏ x : X, R x 0%CF -> (x ≠ 0)%CF) ->
-    isarchCF R -> isarchrng R.
+    isarchCF R -> isarchring R.
 Proof.
-  intros X R Hadd Hmult Hirr H0 H.
+  intros Hadd Hmult Hirr H0 H.
   split.
   - intros x Hx.
     generalize (H (CFinv x (H0 _ Hx))).
     apply hinhfun.
     intros (n,Hn).
     exists n.
-    change 1%rng with (1%CF : X).
+    change 1%ring with (1%CF : X).
     rewrite <- (islinv_CFinv x (H0 x Hx)).
-    apply isrngmultgttoisrrngmultgt.
+    apply isringmultgttoisrringmultgt.
     exact Hadd.
     exact Hmult.
     exact Hx.
     exact Hn.
   - exact H.
 Defined.
-Lemma isarchrng_isarchCF {X : ConstructiveField} (R : hrel X) :
-    isarchrng R -> isarchCF R.
+Lemma isarchring_isarchCF {X : ConstructiveField} (R : hrel X) :
+    isarchring R -> isarchCF R.
 Proof.
-  intros X R H.
+  intros H.
   intros x.
-  apply (isarchrng_2 R H x).
+  apply (isarchring_2 R H x).
 Defined.

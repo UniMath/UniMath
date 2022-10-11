@@ -2,9 +2,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 
@@ -48,7 +51,7 @@ Defined.
 Definition catiso_ob_weq {A B : precategory_data}
   (F : catiso A B)
   : (ob A) ≃ (ob B)
-  := weqpair (functor_on_objects F) (pr2 (pr2 F)).
+  := make_weq (functor_on_objects F) (pr2 (pr2 F)).
 
 Definition catiso_to_precategory_ob_path {A B : precategory_data}
   (F : catiso A B)
@@ -58,7 +61,7 @@ Definition catiso_to_precategory_ob_path {A B : precategory_data}
 Definition catiso_fully_faithful_weq {A B : precategory_data}
   (F : catiso A B)
   : forall a a' : A, (a --> a') ≃ (F a --> F a')
-  := λ a a', (weqpair (functor_on_morphisms F) (pr1 (pr2 F) a a')).
+  := λ a a', (make_weq (functor_on_morphisms F) (pr1 (pr2 F) a a')).
 
 Lemma catiso_fully_faithful_path {A B : precategory_data}
   (F : catiso A B)
@@ -91,7 +94,7 @@ Lemma correct_hom {A B : precategory_data}
         (eqweqmap (catiso_to_precategory_ob_path F) a').
 Proof.
   intros a a'.
-  set (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
+  assert (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
   exact (maponpaths (λ T, (pr1weq T) a --> (pr1weq T) a') W ).
 Defined.
 
@@ -101,14 +104,23 @@ Lemma eqweq_ob_path_is_functor_app {A B : precategory_data}
   : forall a : A, eqweqmap (catiso_to_precategory_ob_path F) a = F a.
 Proof.
   intros a.
-  unfold catiso_to_precategory_ob_path.
-
-  set (W := (@homotweqinvweq _ _  (univalence (ob A) (ob B)))).
-  simpl in W.
-  rewrite W.
-
-  reflexivity.
+  exact (! toforallpaths (λ _ : A, B) F
+    (pr1 (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+    (maponpaths pr1 (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a).
 Defined.
+
+Lemma eqweq_ob_path_is_functor_app_compute
+  (A B : precategory)
+  (F : catiso A B)
+  (a a' : A)
+  (f : B ⟦ F a, F a' ⟧):
+  eqweq_ob_path_is_functor_app F a =
+  ! toforallpaths (λ _ : A, B) F
+      (pr1weq (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+      (maponpaths pr1weq (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a.
+Proof.
+  unfold eqweq_ob_path_is_functor_app.
+Abort.
 
 Lemma eqweq_maponpaths_mor {A B : precategory}
   (F G : A ≃ B) (p : F = G) (a a' : A) (f : F a --> F a')
@@ -132,22 +144,12 @@ Lemma eqweq_correct_hom_is_comp {A B : precategory}
       · (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
 Proof.
   intros a a' f.
-  unfold correct_hom.
-
-  rewrite (eqweq_maponpaths_mor
-             _
-             _
+  rewrite (eqweq_maponpaths_mor _ _
              (! homotweqinvweq (univalence A B) (catiso_ob_weq F))
              a a').
-
-  unfold catiso_to_precategory_ob_path.
+  apply maponpaths. apply maponpaths.
   unfold eqweq_ob_path_is_functor_app.
-  simpl.
-
-  set (W := (@homotweqinvweq _ _  (univalence (ob A) (ob B)))(catiso_ob_weq F)).
-  simpl in W.
-  rewrite W.
-
+  rewrite pathsinv0inv0.
   reflexivity.
 Defined.
 
@@ -160,7 +162,7 @@ Proof.
   intros a a'.
   unfold catiso_fully_faithful_path.
 
-  set (W := (@homotweqinvweq _ _  (univalence (a --> a') (F a --> F a')))).
+  assert (W := (@homotweqinvweq _ _  (univalence (a --> a') (F a --> F a')))).
   simpl in W.
   rewrite W.
 
@@ -223,8 +225,11 @@ Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
                @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a))
     (idB (eqweqmap p0 a)).
 Proof.
+  intro.
   induction p0.
-  rewrite p1.
+  change (transportb _ _ _) with B1 in p1.
+  induction p1.
+  simpl.
   reflexivity.
 Defined.
 
@@ -239,9 +244,9 @@ Proof.
   apply pathsinv0.
   eapply pathscomp0. apply eqweq_correct_hom_is_comp.
 
-  rewrite (eqweq_ob_path_is_functor_app F).
-  rewrite !id_left.
-
+  induction (eqweq_ob_path_is_functor_app F a).
+  simpl.
+  rewrite 2 id_right.
   reflexivity.
 Defined.
 
@@ -328,8 +333,10 @@ Lemma transport_comp {A0 B0 : UU} (p0 : A0 = B0)
     = transport_comp_target p0 A1 B1 p1 a a' a''
         (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'')).
 Proof.
+  intros.
   induction p0.
-  rewrite p1.
+  change (A1 = B1) in p1.
+  induction p1.
   reflexivity.
 Defined.
 
@@ -341,12 +348,13 @@ Lemma correct_hom_on_comp {A B : precategory}
     =  (eqweqmap (correct_hom F _ _)) (f · g).
 Proof.
   intros a a' a'' f g.
-
   rewrite !eqweq_correct_hom_is_comp.
-  rewrite !(eqweq_ob_path_is_functor_app F).
-  rewrite !id_left.
-  rewrite !id_right.
-
+  induction (eqweq_ob_path_is_functor_app F a).
+  induction (eqweq_ob_path_is_functor_app F a').
+  induction (eqweq_ob_path_is_functor_app F a'').
+  rewrite 3 id_left.
+  simpl.
+  rewrite 3 id_right.
   reflexivity.
 Defined.
 
@@ -436,22 +444,22 @@ Proof.
   destruct A as [[[Ao Am] [Ai Ac]] Aax].
   destruct B as [[[Bo Bm] [Bi Bc]] Bax].
 
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
-  - exact (catiso_to_precategory_ob_mor_path F).
-  - apply pathsinv0.
-    eapply pathscomp0.
-    apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
-    apply dirprodeq.
-    + apply funextsec.
-      intros a.
-      apply (catiso_to_precategory_id_path F).
-    + apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply (catiso_to_precategory_comp_path F).
+  eapply total2_paths_b. Unshelve.
+  2: { simpl. exact (catiso_to_precategory_ob_mor_path F). }
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
+  apply dirprodeq.
+  - apply funextsec.
+    intros a.
+    apply (catiso_to_precategory_id_path F).
+  - apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply (catiso_to_precategory_comp_path F).
 Defined.
 
 Lemma catiso_to_precategory_path {A B : precategory}
@@ -459,9 +467,67 @@ Lemma catiso_to_precategory_path {A B : precategory}
   (F : catiso A B)
   : A = B.
 Proof.
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
-  - exact (catiso_to_precategory_data_path F).
-  - apply proofirrelevance.
-    apply isaprop_is_precategory.
-    apply hs.
+  eapply total2_paths_b. Unshelve.
+  2: { simpl. exact (catiso_to_precategory_data_path F). }
+  apply proofirrelevance.
+  apply isaprop_is_precategory.
+  apply hs.
+Defined.
+
+Definition inv_catiso
+           {C D : category}
+           (F : catiso C D)
+  : D ⟶ C.
+Proof.
+  use make_functor.
+  - use tpair.
+    + exact (invweq (catiso_ob_weq F)).
+    + intros X Y f ; cbn.
+      refine (invmap
+                (catiso_fully_faithful_weq F
+                                           (invmap (catiso_ob_weq F) X)
+                                           (invmap (catiso_ob_weq F) Y))
+                _).
+      exact ((idtoiso (homotweqinvweq (catiso_ob_weq F) X))
+               · f
+               · idtoiso (!(homotweqinvweq (catiso_ob_weq F) Y))).
+  - split.
+    + intro X ; cbn.
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(maponpaths pr1
+                            (idtoiso_concat D _ _ _
+                                            (homotweqinvweq (catiso_ob_weq F) X)
+                                            (! homotweqinvweq (catiso_ob_weq F) X)))).
+      }
+      rewrite pathsinv0r ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_id.
+      reflexivity.
+    + intros X Y Z f g ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_comp.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) X)
+                                         (invmap (catiso_ob_weq F) Y))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) Y)
+                                         (invmap (catiso_ob_weq F) Z))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      rewrite <- !assoc.
+      repeat (apply (maponpaths (λ z, _ · (f · z)))).
+      refine (!(id_left _) @ _).
+      rewrite !assoc.
+      repeat (apply (maponpaths (λ z, z · _))).
+      rewrite idtoiso_inv.
+      cbn.
+      rewrite z_iso_after_z_iso_inv.
+      reflexivity.
 Defined.

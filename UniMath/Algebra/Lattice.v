@@ -35,12 +35,12 @@ Define new lattices using:
 - abmonoidfrac
 *)
 
-Require Export UniMath.Foundations.Sets.
-Require Export UniMath.Algebra.Domains_and_Fields.
-
-Require Import UniMath.MoreFoundations.All.
-
-Unset Automatic Introduction.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Algebra.Domains_and_Fields.
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Propositions.
+Require Export UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 (** ** Definition *)
 
@@ -139,13 +139,11 @@ Definition islunit_Lmin_Ltop : islunit (Lmin l) (Ltop l) :=
 
 Lemma Lmin_Lbot (x : X) : Lmin l (Lbot l) x = Lbot l.
 Proof.
-intros x.
 now rewrite <- (islunit_Lmax_Lbot x), Lmin_absorb.
 Qed.
 
 Lemma Lmax_Ltop (x : X) : Lmax l (Ltop l) x = Ltop l.
 Proof.
-intros x.
 now rewrite <- (islunit_Lmin_Ltop x), Lmax_absorb.
 Qed.
 
@@ -232,12 +230,15 @@ Proof.
   apply Lmax_le_l.
 Qed.
 Lemma Lmax_le_case :
-  isrdistr (Lmax lat) (Lmin lat)
-  → ∏ x y z : X, Lle lat x z → Lle lat y z → Lle lat (Lmax lat x y) z.
+  ∏ x y z : X, Lle lat x z → Lle lat y z → Lle lat (Lmax lat x y) z.
 Proof.
-  intros H x y z <- <-.
-  rewrite <- H.
-  apply Lmin_le_r.
+  intros x y z <- <-.
+  set (w := Lmax _ (Lmin _ x z) (Lmin _ y z)).
+  assert (c : z = (Lmax is w z)).
+  - unfold w.
+    now rewrite isassoc_Lmax, (iscomm_Lmax _ (Lmin _ y z) _),
+    (iscomm_Lmin _ y z), Lmax_absorb, iscomm_Lmax, iscomm_Lmin, Lmax_absorb.
+  - rewrite c. use (Lmin_absorb is).
 Qed.
 
 Lemma Lmin_le_eq_l :
@@ -326,9 +327,8 @@ Definition Lmax_ge_r :
   ∏ (x y : X), Lge lat (Lmax lat x y) y :=
   Lmax_le_r lat.
 Definition Lmax_ge_case :
-  isrdistr (Lmax lat) (Lmin lat)
-  → ∏ x y z : X, Lge lat z x → Lge lat z y → Lge lat z (Lmax lat x y) :=
-  Lmax_le_case lat.
+  ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
+  Lmax_le_case is.
 
 Definition Lmin_ge_eq_l :
   ∏ (x y : X), Lge lat y x → Lmin lat x y = x :=
@@ -624,6 +624,7 @@ End latticedec_gt.
 (** ** Lattice in an abmonoid *)
 
 Local Open Scope addmonoid.
+Import UniMath.Algebra.Monoids.AddNotation.
 
 Section lattice_abmonoid.
 
@@ -656,7 +657,6 @@ Definition istruncminus {X : abmonoid} (lat : lattice X) (minus : binop X) :=
 Lemma isaprop_istruncminus {X : abmonoid} (lat : lattice X) (minus : binop X) :
   isaprop (istruncminus lat minus).
 Proof.
-  intros X lat minus.
   apply impred_isaprop ; intros x.
   apply impred_isaprop ; intros y.
   apply setproperty.
@@ -668,23 +668,22 @@ Lemma isaprop_extruncminus {X : abmonoid} (lat : lattice X)
       (Hop : isinvbinophrel (λ x y : X, (x = y)%set)) :
   isaprop (extruncminus lat).
 Proof.
-  intros X lat Hop.
   intros minus1 minus2 ; simpl.
-  rewrite (subtypeEquality' (s := minus1) (s' := minus2)).
-  - apply iscontrloopsifisaset.
-    apply isaset_total2.
+  apply iscontraprop1.
+  - apply isaset_total2.
     apply impred_isaset ; intros _.
     apply impred_isaset ; intros _.
     apply setproperty.
     intros minus.
     apply isasetaprop.
     apply isaprop_istruncminus.
-  - apply weqfunextsec ; intros x.
-    apply weqfunextsec ; intros y.
-    apply (pr2 Hop _ _ y).
-    rewrite (pr2 minus1).
-    apply pathsinv0, (pr2 minus2).
-  - apply isaprop_istruncminus.
+  - apply subtypePath.
+    + intros f. apply isaprop_istruncminus.
+    + apply weqfunextsec ; intros x.
+      apply weqfunextsec ; intros y.
+      apply (Hop y).
+      rewrite (pr2 minus1).
+      apply pathsinv0, (pr2 minus2).
 Qed.
 
 Definition truncminus {X : abmonoid} {lat : lattice X} (ex : extruncminus lat) : binop X :=
@@ -693,7 +692,6 @@ Definition truncminus {X : abmonoid} {lat : lattice X} (ex : extruncminus lat) :
 Lemma istruncminus_ex {X : abmonoid} {lat : lattice X} (ex : extruncminus lat) :
   ∏ x y : X, truncminus ex x y + y = Lmax lat x y.
 Proof.
-  intros X lat ex.
   apply (pr2 ex).
 Qed.
 
@@ -761,7 +759,6 @@ Proof.
   apply (op_le_r' _ is1 is3 y).
   rewrite istruncminus_ex.
   apply Lmax_le_case.
-  - apply is5.
   - apply istrans_Lle with (0 + x).
     + rewrite (lunax _ x).
       apply isrefl_Lle.
@@ -902,7 +899,7 @@ Lemma abgr_truncminus {X : abgr} (lat : lattice X) :
   isrdistr (Lmax lat) op →
   istruncminus (X := abgrtoabmonoid X) lat (λ x y : X, Lmax lat 0 (x + grinv X y)).
 Proof.
-  intros X lat H x y.
+  intros H x y.
   rewrite H, assocax, grlinvax, lunax, runax.
   apply iscomm_Lmax.
 Qed.

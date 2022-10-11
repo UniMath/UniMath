@@ -11,10 +11,14 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Core.Functors.
+
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.sub_precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
 
 (** * Definition of Epis *)
 Section def_epi.
@@ -26,7 +30,7 @@ Section def_epi.
   Definition isEpi {x y : C} (f : x --> y) : UU :=
     ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h.
 
-  Definition mk_isEpi {x y : C} (f : x --> y)
+  Definition make_isEpi {x y : C} (f : x --> y)
              (H : ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h) : isEpi f := H.
 
   Lemma isapropisEpi {y z : C} (f : y --> z) : isaprop (isEpi f).
@@ -40,7 +44,7 @@ Section def_epi.
 
   (** Definition and construction of Epi. *)
   Definition Epi (x y : C) : UU := ∑ f : x --> y, isEpi f.
-  Definition mk_Epi {x y : C} (f : x --> y) (H : isEpi f) :
+  Definition make_Epi {x y : C} (f : x --> y) (H : isEpi f) :
     Epi x y := tpair _ f H.
 
   (** Gets the arrow out of Epi. *)
@@ -52,7 +56,7 @@ Section def_epi.
   (** Isomorphism to isEpi and Epi. *)
   Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : isEpi f.
   Proof.
-    apply mk_isEpi.
+    apply make_isEpi.
     intros z g h X.
     apply (pre_comp_with_z_iso_is_inj H).
     exact X.
@@ -60,7 +64,7 @@ Section def_epi.
 
   Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : Epi x y.
   Proof.
-    apply (mk_Epi f (is_iso_isEpi f H)).
+    apply (make_Epi f (is_iso_isEpi f H)).
   Defined.
 
   (** Identity to isEpi and Epi. *)
@@ -115,17 +119,26 @@ Section def_epi.
 End def_epi.
 Arguments isEpi [C] [x] [y] _.
 
+Lemma precomp_with_epi_isincl {C : category} {A B : ob C} {f : A --> B} :
+  isEpi f -> ∏ c, isincl (@precomp_with _ _ _ f c).
+Proof.
+  intros is_epi ? ?.
+  apply invproofirrelevance.
+  intros z w.
+  apply subtypePath; [intros ? ?; apply homset_property|].
+  apply (is_epi _ (hfiberpr1 _ _ z) (hfiberpr1 _ _ w)).
+  exact (hfiberpr2 _ _ z @ !hfiberpr2 _ _ w).
+Qed.
 
 (** * Construction of the subcategory consisting of all epis. *)
 Section epis_subcategory.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
-  Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, hProppair _ isapropunit).
+  Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, make_hProp _ isapropunit).
 
   Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => make_hProp _ (isapropisEpi C C f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
   Proof.
@@ -143,7 +156,6 @@ Section epis_subcategory.
   Proof.
     intros a b.
     apply is_set_sub_precategory_morphisms.
-    exact hs.
   Qed.
 
   Definition subprecategory_of_epis_ob (c : C) : ob (subprecategory_of_epis) := tpair _ c tt.

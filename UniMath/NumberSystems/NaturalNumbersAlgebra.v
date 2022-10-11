@@ -1,30 +1,34 @@
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
-Require Export UniMath.Algebra.Archimedean.
-Require Export UniMath.Algebra.Domains_and_Fields.
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.NegativePropositions.
+
+Require Export UniMath.Algebra.Archimedean.
+Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.IteratedBinaryOperations.
 
 Definition nataddabmonoid : abmonoid :=
-  abmonoidpair (setwithbinoppair natset (λ n m : nat, n + m))
-               (dirprodpair
-                  (dirprodpair natplusassoc
-                               (@isunitalpair natset _ 0 (dirprodpair natplusl0 natplusr0)))
+  make_abmonoid (make_setwithbinop natset (λ n m : nat, n + m))
+               (make_dirprod
+                  (make_dirprod natplusassoc
+                               (@make_isunital natset _ 0 (make_dirprod natplusl0 natplusr0)))
                   natpluscomm).
 
 
 Definition natmultabmonoid : abmonoid :=
-  abmonoidpair
-    (setwithbinoppair natset (λ n m : nat, n * m))
-    (dirprodpair
-       (dirprodpair natmultassoc (@isunitalpair natset _ 1 (dirprodpair natmultl1 natmultr1)))
+  make_abmonoid
+    (make_setwithbinop natset (λ n m : nat, n * m))
+    (make_dirprod
+       (make_dirprod natmultassoc (@make_isunital natset _ 1 (make_dirprod natmultl1 natmultr1)))
        natmultcomm).
 
 (** *** Submonoid of non-zero elements in [nat] *)
 
+Local Open Scope nat_scope.
 Definition natnonzero : @subabmonoid natmultabmonoid.
 Proof.
-  split with (λ a, a ≠ 0). unfold issubmonoid. split.
+  split with (λ a : natset, a ≠ 0). unfold issubmonoid. split.
   - unfold issubsetwithbinop. intros a a'.
     apply (natneq0andmult _ _ (pr2 a) (pr2 a')).
   - apply (ct (natneq, isdecrel_natneq, 1, 0)).
@@ -38,21 +42,53 @@ Proof.
   simpl. apply natmultcomm.
 Defined.
 
+Theorem nat_plus_commutativity : isCommutative_fun_mon nataddabmonoid.
+Proof.
+  intros ? ? ?. apply weqtoeqstn.
+  intermediate_weq (∑ i, stn (x i)).
+  - intermediate_weq (∑ i, stn (x(f i))).
+    + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
+    + apply (weqfp _ (stn∘x)).
+  - rewrite iterop_fun_nat. apply weqstnsum1.
+Defined.
+
+Arguments nat_plus_commutativity {_} _ _.
+
+Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
+Proof.
+  intros.
+  unfold isfinite,finstruct,nelstruct in fin.
+  simple refine (squash_to_set
+                    isasetnat
+                    (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nataddabmonoid) (f ∘ pr2 x))
+                    _ fin).
+  intros.
+  induction x as [n x].
+  induction x' as [n' x'].
+  assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+  induction p.
+  assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+  simple refine (_ @ w).
+  unfold iterop_fun_mon.
+  apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
+  simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
+Defined.
+
 (** *** [nat] as a commutative rig *)
 
 Definition natcommrig : commrig.
 Proof.
-  split with (setwith2binoppair natset (dirprodpair (λ n m : nat, n + m) (λ n m : nat, n * m))).
+  split with (make_setwith2binop natset (make_dirprod (λ n m : nat, n + m) (λ n m : nat, n * m))).
   split.
   - split.
     + split with
-      (dirprodpair
-         (dirprodpair
-            (dirprodpair natplusassoc (@isunitalpair natset _ 0 (dirprodpair natplusl0 natplusr0)))
+      (make_dirprod
+         (make_dirprod
+            (make_dirprod natplusassoc (@make_isunital natset _ 0 (make_dirprod natplusl0 natplusr0)))
             natpluscomm)
-         (dirprodpair natmultassoc (@isunitalpair natset _ 1 (dirprodpair natmultl1 natmultr1)))).
-      apply (dirprodpair natmult0n natmultn0).
-    + apply (dirprodpair natldistr natrdistr).
+         (make_dirprod natmultassoc (@make_isunital natset _ 1 (make_dirprod natmultl1 natmultr1)))).
+      apply (make_dirprod natmult0n natmultn0).
+    + apply (make_dirprod natldistr natrdistr).
   - unfold iscomm. apply natmultcomm.
 Defined.
 
@@ -96,11 +132,10 @@ Proof.
   - intros ? ? ? rab rcd.
     induction b as [|b IHb].
     + simpl.
-      rewrite <- 2? plus_n_O.
-      simpl in IHa.
-      rewrite 2? (natmult0n) in IHa.
-      rewrite <- 2? plus_n_O in IHa.
-      apply (natlthandmultl _ _ _ (natgthtoneq _ _ rab) rcd).
+      rewrite 2 natplusr0.
+      apply natlthandmultl.
+      * exact tt.
+      * exact rcd.
     + simpl.
       set (rer := abmonoidrer nataddabmonoid).
       unfold op1, op2; simpl.

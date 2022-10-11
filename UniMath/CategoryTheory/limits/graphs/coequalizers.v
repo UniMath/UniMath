@@ -7,11 +7,16 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 Local Open Scope cat.
@@ -19,8 +24,7 @@ Local Open Scope cat.
 (** * Definition of coequalizers in terms of colimits *)
 Section def_coequalizers.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
   Local Open Scope stn.
   Definition One : two := ● 0.
@@ -50,24 +54,24 @@ Section def_coequalizers.
   Definition Coequalizer_cocone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f · h = g · h) : cocone (Coequalizer_diagram f g) d.
   Proof.
-    use mk_cocone.
+    use make_cocone.
     - use two_rec_dep.
       + exact (f · h).
       + exact h.
     - use two_rec_dep; use two_rec_dep.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro e. induction e.
         * apply idpath.
         * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Definition isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f · h = g · h) : UU := isColimCocone (Coequalizer_diagram f g) d
                                                          (Coequalizer_cocone f g d h H).
 
-  Definition mk_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
+  Definition make_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f · h = g · h) :
     (∏ e (h' : C⟦b, e⟧) (H' : f · h' = g · h'),
      iscontr (total2 (fun hk : C⟦d, e⟧ => h · hk = h'))) ->
@@ -90,14 +94,14 @@ Section def_coequalizers.
         rewrite <- assoc.
         apply cancel_precomposition, (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
-    - abstract (intro t; apply subtypeEquality;
-               [intros y; apply impred; intros t0; apply hs
+    - abstract (intro t; apply subtypePath;
+               [intros y; apply impred; intros t0; apply C
                |induction t as [t p]; apply path_to_ctr, (p Two)]).
   Defined.
 
   Definition Coequalizer {a b : C} (f g : C⟦a, b⟧) : UU := ColimCocone (Coequalizer_diagram f g).
 
-  Definition mk_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f · h = g · h)
+  Definition make_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f · h = g · h)
              (isCEq : isCoequalizer f g d h H) : Coequalizer f g.
   Proof.
     use tpair.
@@ -158,17 +162,51 @@ Section def_coequalizers.
     isCoequalizer f g (CoequalizerObject E) (CoequalizerArrow E)
                   (CoequalizerArrowEq E).
   Proof.
-    apply mk_isCoequalizer.
+    apply make_isCoequalizer.
     intros e h H.
     use (unique_exists (CoequalizerOut E e h H)).
     (* Commutativity *)
     - exact (CoequalizerArrowComm E e h H).
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y t. cbn in t.
       use CoequalizerOutUnique.
       exact t.
+  Qed.
+
+  Definition CoequalizerOfArrows
+             {a a' b b' : C} {f g : a --> b}
+             {f' g' : a' --> b'}
+             (cfg : Coequalizer f g)
+             (cfg' : Coequalizer f' g')
+             (u : a --> a')
+             (v : b --> b')
+             (eqf : f · v = u · f')
+             (eqg : g · v = u · g')
+    :
+      CoequalizerObject cfg --> CoequalizerObject cfg'.
+  Proof.
+    unshelve eapply CoequalizerOut.
+    - refine (v · _).
+      apply CoequalizerArrow.
+    - abstract (rewrite ! assoc, eqf , eqg, ! assoc' ;
+                 apply cancel_precomposition, CoequalizerArrowEq).
+  Defined.
+  Lemma CoequalizerOfArrowsEq
+        {a a' b b' : C} {f g : a --> b}
+        {f' g' : a' --> b'}
+        (cfg : Coequalizer f g)
+        (cfg' : Coequalizer f' g')
+        (u : a --> a')
+        (v : b --> b')
+        (eqf : f · v = u · f')
+        (eqg : g · v = u · g')
+    :
+      CoequalizerArrow cfg · CoequalizerOfArrows cfg cfg' u v eqf eqg  =
+      v · CoequalizerArrow cfg'.
+  Proof.
+    apply  CoequalizerArrowComm.
   Qed.
 
   (** ** Coequalizers to coequalizers *)
@@ -257,8 +295,7 @@ End def_coequalizers.
     direct definition. *)
 Section coequalizers_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
 
   (** ** isCoequalizers *)
@@ -267,14 +304,14 @@ Section coequalizers_coincide.
     limits.coequalizers.isCoequalizer f g h H -> isCoequalizer C f g e h H.
   Proof.
     intros X.
-    set (E := limits.coequalizers.mk_Coequalizer f g h H X).
-    use (mk_isCoequalizer C hs).
+    set (E := limits.coequalizers.make_Coequalizer f g h H X).
+    use (make_isCoequalizer C).
     intros e' h' H'.
     use (unique_exists (limits.coequalizers.CoequalizerOut E e' h' H')).
     (* Commutativity *)
     - exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (limits.coequalizers.CoequalizerOutsEq E).
@@ -286,13 +323,13 @@ Section coequalizers_coincide.
     limits.coequalizers.isCoequalizer f g h H <- isCoequalizer C f g e h H.
   Proof.
     intros X.
-    set (E := mk_Coequalizer C f g e h H X).
+    set (E := make_Coequalizer C f g e h H X).
     intros e' h' H'.
     use (unique_exists (CoequalizerOut C E e' h' H')).
     (* Commutativity *)
     - exact (CoequalizerArrowComm C E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. apply C.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (CoequalizerOutUnique C E).
@@ -305,7 +342,7 @@ Section coequalizers_coincide.
     limits.coequalizers.Coequalizer f g -> Coequalizer C f g.
   Proof.
     intros E.
-    exact (mk_Coequalizer
+    exact (make_Coequalizer
              C f g _ _ _
              (equiv_isCoequalizer1
                 (limits.coequalizers.CoequalizerObject E)
@@ -318,7 +355,7 @@ Section coequalizers_coincide.
     limits.coequalizers.Coequalizer f g <- Coequalizer C f g.
   Proof.
     intros E.
-    exact (@limits.coequalizers.mk_Coequalizer
+    exact (@limits.coequalizers.make_Coequalizer
              C a b (CoequalizerObject C E) f g
              (CoequalizerArrow C E)
              (CoequalizerArrowEq C E)
@@ -326,7 +363,23 @@ Section coequalizers_coincide.
                 a b f g (CoequalizerObject C E)
                 (CoequalizerArrow C E)
                 (CoequalizerArrowEq C E)
-                (isCoequalizer_Coequalizer C hs E))).
+                (isCoequalizer_Coequalizer C E))).
   Defined.
 
 End coequalizers_coincide.
+
+(** Post-composing a coequalizer diagram with a functor yields a
+     coequalizer diagram. *)
+Lemma mapdiagram_coequalizer_eq_diag {C : category}{D : category}
+      (F : functor C D){a b : C}(f g : a --> b)  :
+  eq_diag (C := D)
+          (mapdiagram F (Coequalizer_diagram _ f g))
+          (Coequalizer_diagram _ (# F f) (# F g)).
+Proof.
+  use tpair.
+  -  use StandardFiniteSets.two_rec_dep; cbn; apply idpath.
+  -  use StandardFiniteSets.two_rec_dep;  use StandardFiniteSets.two_rec_dep;
+       try exact (empty_rect _ ).
+     intro e.
+     induction e; apply idpath.
+Defined.

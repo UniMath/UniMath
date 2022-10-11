@@ -4,6 +4,20 @@ Univalent Mathematics Coq files
 Each subdirectory of this directory consists of a separate package, with
 various authors, as recorded in the README (or README.md) file in it.
 
+## Contributing code to UniMath
+
+Volunteers may look at unassigned issues at github and volunteer to be assigned
+one of them.  New proposals and ideas may be submitted as issues at github for
+discussion and feedback.
+
+Contributions are submitted in the form of pull requests at github and are
+subject to approval by the UniMath Development Team.
+
+Changes to the package "Foundations" are normally not accepted, for we are
+trying to keep it in a state close to what Vladimir Voevodsky originally
+intended.  A warning is issued if you run `make` or `make all` and have changed
+a file in the Foundations package.
+
 ## Adding a file to a package
 
 Each package contains a subdirectory called ".package".  The file
@@ -23,6 +37,46 @@ accidentally commit and push, add its name to the head of the list in
 "../build/Makefile-configuration", which is created from
 "../build/Makefile-configuration-template".
 
+## The UniMath formal language
+
+The formal language used in the UniMath project is based on Martin-Löf type
+theory, as present in MLTT79 below.  We are currently on version 2.
+
+UniMath-1 is MLTT79 except:
+
+- the bound variable in a λ-expression is annotated with its type
+- we omit W-types
+- just the finite types of cardinality 0, 1, and 2 are used, although there would be no problem with introducing further ones
+- we omit reflection from identities to judgmental equalities
+- we add the resizing rules from the [slides](https://www.math.ias.edu/vladimir/sites/math.ias.edu.vladimir/files/2011_Bergen.pdf) of Voevodsky's 2011 talk in Bergen
+
+UniMath-2 is UniMath-1 except:
+
+- we add η for pairs
+
+The axioms accepted are: the univalence axiom, the law of excluded middle, the
+axiom of choice, and a few new variants of the axiom of choice, validated by
+the semantic model.
+
+MLTT79 is this paper:
+```
+@incollection {MLTT79,
+    AUTHOR = {Martin-L\"of, Per},
+     TITLE = {Constructive mathematics and computer programming},
+ BOOKTITLE = {Logic, methodology and philosophy of science, {VI} ({H}annover, 1979)},
+    SERIES = {Stud. Logic Found. Math.},
+    VOLUME = {104},
+     PAGES = {153--175},
+ PUBLISHER = {North-Holland, Amsterdam},
+      YEAR = {1982},
+   MRCLASS = {03F50 (03B70 03F55 68Q45)},
+  MRNUMBER = {682410},
+MRREVIEWER = {B. H. Mayoh},
+       DOI = {10.1016/S0049-237X(09)70189-2},
+       URL = {http://dx.doi.org/10.1016/S0049-237X(09)70189-2},
+}
+```
+
 ## UniMath coding style
 
 In the following rules, we purposely restrict our use of Coq to a subset whose
@@ -30,16 +84,17 @@ semantics is more likely to be rigorously verifiable and portable to new proof
 checking systems, and we follow a style of coding designed to render proofs
 less fragile and to make the files have a more uniform and pleasing appearance.
 
+* Constructing identifiers:
+    * form the identifier by concatenating English words or existing identifiers, separating them by underscores
 * Do not use `Admitted` or introduce new axioms.
 * Do not use `apply` with a term that needs no additional arguments filled in,
   because using `exact` would be clearer.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
-* Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
-  Use `UU` instead.  If higher universes are needed, they should be
-  added to `Foundations/Basics/Preamble.v`.
-* Do not use `Inductive` or `Record`, except in `Foundations/Basics/Preamble.v`.
-* Do not use `Module` or `Structure`.
+* Do not use `Inductive` or `Record`.  Their use is limited to just a few basic
+  types, which are defined in `Foundations/Preamble.v`.
+* Do not use `Structure`.
+* Use `Module` only naively, to create blocks of code that can be imported.  Do not use `Module Type`.
 * Do not use `Fixpoint`.
 * Do not use `destruct`, `match`, `case`, square brackets with `intros`, or
   nested square brackets with `induction`.  (The goal is to prevent generation of
@@ -51,15 +106,20 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   because different names might be used by Coq when the definition of the type
   is changed.  Name all variables introduced by `assert`, if they are used by
   name later, with `as` or to the left of a colon.
-* Do not end a proof with `Qed.`, except with `Goal`, for that may prevent later computations.
+* Avoid ending proofs with `Qed`, because that may prevent future computation. If you decide to make a proof opaque,
+  then make sure that its type is a proposition. It is undesirable to write multiple opaque proofs of properties, for then proofs of equality of objects containing them cannot be accomplished by reflexivity.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
 * Use `Lemma`, `Proposition`, or `Theorem` for proofs of propositions;
   for defining elements of types that are not propositions, use
   `Definition`.
-* Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
-  putting them into a scope.
+* Use Unicode notation freely, but make the parsing conventions uniform across files.
+  All notations, except for certain notations in the Foundations package used everywhere,
+  should be local or in a scope.  All scopes, if opened, should be opened only locally.
+  Consider also putting them into a submodule, for then they won't be activated even
+  for printing.
+* When introducing a notation using Unicode characters, document in a comment how to input that character using the Agda input method.
 * Each line should be limited to at most 100 (unicode) characters.  The
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the
@@ -67,10 +127,6 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Always use Coq's proof structuring syntax ( ` { } + - * ` ) to focus on a
   single goal immediately after a tactic creates additional goals.
 * Indentation should normally be that produced automatically by emacs' `coq-mode`.
-* Within the core `Foundations` package:
-  * Do not start lines with `:` or with `:=`.
-  * One should normally put an extra blank line between units.  Exceptions may
-    be made for closely related items.
 * When using `abstract` in a proof, it is unsound to refer later by name to the
   abstracted lemma (whose name typically ends with `_subproof`), because
   its type may vary from one version of Coq to another.  Coq's current behavior is also

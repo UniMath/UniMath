@@ -11,7 +11,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -21,8 +22,8 @@ Local Open Scope cat.
 (** * Definition of cokernels *)
 Section def_cokernels.
 
-  Context {C : precategory}.
-  Hypothesis hs : has_homsets C.
+  Context {C : category}.
+  Let hs : has_homsets C := homset_property C.
   Hypothesis Z : Zero C.
 
   (** Definition and construction of Cokernels *)
@@ -36,7 +37,7 @@ Section def_cokernels.
     induction e. exact isC.
   Qed.
 
-  Local Lemma mk_isCokernel_uniqueness {x y z : C} (f : x --> y) (g : y --> z)
+  Local Lemma make_isCokernel_uniqueness {x y z : C} (f : x --> y) (g : y --> z)
         (H1 : f · g = ZeroArrow Z x z)
         (H2 : ∏ (w : C) (h : C ⟦ y, w ⟧),
               f · h = ZeroArrow Z x w → ∃! ψ : C ⟦ z, w ⟧, g · ψ = h)
@@ -46,7 +47,7 @@ Section def_cokernels.
     intros y0 H. apply (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 H))).
   Qed.
 
-  Definition mk_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
+  Definition make_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : y --> w) (H' : f · h = ZeroArrow Z x w),
                    ∃! ψ : z --> w, g · ψ = h) : isCokernel f g H1.
   Proof.
@@ -63,7 +64,7 @@ Section def_cokernels.
     ∑ D : (∑ z : ob C, y --> z),
           ∑ (e : f · (pr2 D) = ZeroArrow Z x (pr1 D)), isCokernel f (pr2 D) e.
 
-  Definition mk_Cokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
+  Definition make_Cokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
              (isCK : isCokernel f g H) : Cokernel f := ((z,,g),,(H,,isCK)).
 
   Definition Cokernels : UU := ∏ (x y : C) (f : x --> y), Cokernel f.
@@ -130,8 +131,7 @@ Section def_cokernels.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦CK, CK⟧ => _ · φ' = _)) φ H).
     assert (H2 : identity_is_CokernelOut CK = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (CokernelisCokernel CK).
       apply CokernelCompZero.
     - apply (base_paths _ _ H2).
@@ -155,14 +155,14 @@ Section def_cokernels.
   Qed.
 
   Definition iso_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} (CK CK' : Cokernel g) :
-    z_iso CK CK' := mk_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
+    z_iso CK CK' := make_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
                              (are_inverses_from_Cokernel_to_Cokernel CK CK').
 
   (** Cokernel of the ZeroArrow is given by the identity. *)
   Lemma CokernelOfZeroArrow_isCokernel (x y : C) :
     isCokernel (ZeroArrow Z x y) (identity y) (id_right (ZeroArrow Z x y)).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     intros w h H'.
     use unique_exists.
     - exact h.
@@ -172,14 +172,14 @@ Section def_cokernels.
   Qed.
 
   Definition CokernelofZeroArrow (x y : C) : Cokernel (ZeroArrow Z x y) :=
-    mk_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
+    make_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
 
   (** Cokernel of identity is given by arrow to zero *)
   Local Lemma CokernelOfIdentity_isCokernel (x : C) :
     isCokernel (identity x) (ZeroArrowTo x)
                (ArrowsToZero C Z x (identity x · ZeroArrowTo x) (ZeroArrow Z x Z)).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     intros w h H'.
     use unique_exists.
     - exact (ZeroArrowFrom w).
@@ -190,7 +190,7 @@ Section def_cokernels.
 
   Definition CokernelOfIdentity (x : C) : Cokernel (identity x).
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact Z.
     - exact (ZeroArrowTo x).
     - use ArrowsToZero.
@@ -203,7 +203,7 @@ Section def_cokernels.
     is_inverse_in_precat (CokernelArrow CK)
                          (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - unfold from_Cokernel_to_Cokernel. rewrite CokernelCommutes. apply idpath.
     - unfold from_Cokernel_to_Cokernel. cbn.
       use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes.
@@ -211,7 +211,7 @@ Section def_cokernels.
   Qed.
 
   Definition CokernelofZeroArrow_iso (x y : C) (CK : Cokernel (ZeroArrow Z x y)) : z_iso y CK :=
-    mk_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
+    make_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
              (CokernelofZeroArrow_is_iso CK).
 
   (** It follows that CokernelArrow is an epi. *)
@@ -239,13 +239,17 @@ Section def_cokernels.
 
 End def_cokernels.
 Arguments CokernelArrow [C] [Z] [x] [y] [f] _.
-
+Arguments Cokernel [_] _ {_ _}.
+Arguments isCokernel [_] _ {x y z}.
+Arguments CokernelOut [_] _ {y z g}.
+Arguments make_Cokernel [_] _ {x y z}.
+Arguments CokernelCompZero [_] _ {x y f}.
 
 (** * Correspondence of cokernels and coequalizers *)
 Section cokernels_coequalizers.
 
-  Context {C : precategory}.
-  Hypothesis hs : has_homsets C.
+  Context (C : category).
+  Let hs : has_homsets C := homset_property C.
   Hypothesis Z : Zero C.
 
 
@@ -259,7 +263,7 @@ Section cokernels_coequalizers.
   Lemma CokernelCoequalizer_isCokernel {x y : ob C} {f : x --> y} (CK : Cokernel Z f) :
     isCoequalizer f (ZeroArrow Z x y) (CokernelArrow CK) (CokernelCoequalizer_eq CK).
   Proof.
-    use mk_isCoequalizer.
+    use make_isCoequalizer.
     intros w0 h H'.
     use unique_exists.
     - use CokernelOut.
@@ -273,7 +277,7 @@ Section cokernels_coequalizers.
   Definition CokernelCoequalizer {x y : ob C} {f : x --> y} (CK : Cokernel Z f) :
     Coequalizer f (ZeroArrow Z _ _).
   Proof.
-    use mk_Coequalizer.
+    use make_Coequalizer.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (CokernelCoequalizer_eq CK).
@@ -294,7 +298,7 @@ Section cokernels_coequalizers.
         (CE : Coequalizer f (ZeroArrow Z _ _)) :
     isCokernel Z f (CoequalizerArrow CE) (CoequalizerCokernel_eq CE).
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel).
     intros w h H'.
     use unique_exists.
     - use CoequalizerOut.
@@ -308,7 +312,7 @@ Section cokernels_coequalizers.
   Definition CoequalizerCokernel {x y : ob C} {f : x --> y} (CE : Coequalizer f (ZeroArrow Z _ _)) :
     Cokernel Z f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CE.
     - exact (CoequalizerArrow CE).
     - exact (CoequalizerCokernel_eq CE).
@@ -321,8 +325,8 @@ End cokernels_coequalizers.
 (** * Cokernels up to iso*)
 Section cokernels_iso.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
 
@@ -342,10 +346,10 @@ Section cokernels_iso.
         (h : z_iso CK z) (H : g = (CokernelArrow CK) · h) (H'' : f · g = ZeroArrow Z x z) :
     isCokernel Z f g H''.
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel).
     intros w h0 H'.
     use unique_exists.
-    - exact ((z_iso_inv_mor h) · (CokernelOut Z CK w h0 H')).
+    - exact ((inv_from_z_iso h) · (CokernelOut Z CK w h0 H')).
     - cbn. rewrite H. rewrite assoc. rewrite <- (assoc _ h).
       rewrite (is_inverse_in_precat1 h).
       rewrite id_right. use CokernelCommutes.
@@ -362,7 +366,7 @@ Section cokernels_iso.
 
   Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
              (h : z_iso CK z) (H : g = (CokernelArrow CK) · h) : Cokernel Z f :=
-    mk_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
+    make_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
                 (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
 
   Definition Cokernel_up_to_iso2_eq {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
@@ -376,7 +380,7 @@ Section cokernels_iso.
              (h : z_iso y x) (H : h · f1 = f2) (CK : Cokernel Z f1) :
     isCokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK).
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel).
     intros w h0 H'.
     use unique_exists.
     - use CokernelOut.
@@ -392,7 +396,7 @@ Section cokernels_iso.
 
   Definition Cokernel_up_to_iso2 {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
              (H : h · f1 = f2) (CK : Cokernel Z f1) : Cokernel Z f2 :=
-    mk_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
+    make_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
                 (Cokernel_up_to_iso2_isCoequalizer f1 f2 h H CK).
 
 End cokernels_iso.
@@ -405,8 +409,8 @@ End cokernels_iso.
 *)
 Section cokernels_epis.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Local Lemma CokernelEpiComp_eq1 {x y z : C} (E : Epi C x y) (f : y --> z)
@@ -475,8 +479,7 @@ Section cokernels_epis.
   Local Lemma CokernelEpiComp_isCoequalizer {x y z : C} (E : Epi C x y) (f : y --> z)
         (CK : Cokernel Z (E · f)) : isCokernel Z f (CokernelArrow CK) (CokernelEpiComp_eq E f CK).
   Proof.
-    use mk_isCokernel.
-    - exact hs.
+    use make_isCokernel.
     - intros w h H'.
       use unique_exists.
       + use CokernelOut.
@@ -487,14 +490,14 @@ Section cokernels_epis.
       + intros y0. apply hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
-        use (EpiisEpi C (mk_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.
+        use (EpiisEpi C (make_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.
         rewrite CokernelCommutes. apply pathsinv0. apply X.
   Qed.
 
   Definition CokernelEpiComp {x y z : C} (E : Epi C x y) (f : y --> z) (CK : Cokernel Z (E · f)) :
     Cokernel Z f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CK.
     - use CokernelArrow.
     - exact (CokernelEpiComp_eq E f CK).
@@ -507,8 +510,8 @@ End cokernels_epis.
 (** * CokernelOut of equal, not necessarily definitionally equal, morphisms is iso *)
 Section cokernel_out_paths.
 
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition CokernelOutPaths_is_iso_mor {x y : C} {f f' : x --> y} (e : f = f')
@@ -542,7 +545,7 @@ Section cokernel_out_paths.
   Definition CokernelPath {x y : C} {f f' : x --> y} (e : f = f') (CK : Cokernel Z f) :
     Cokernel Z f'.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CK.
     - use CokernelArrow.
     - exact (CokernelPath_eq e CK).

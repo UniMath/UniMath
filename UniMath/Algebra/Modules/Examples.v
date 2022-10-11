@@ -2,9 +2,11 @@
 
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Multimodules.
-Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Foundations.Preamble.
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Contents
 - Morphisms
@@ -13,43 +15,43 @@ Require Import UniMath.Foundations.Preamble.
 *)
 
 (** ** Morphisms *)
-Local Open Scope rng_scope.
+Local Open Scope ring_scope.
 
 (** The identity function is linear *)
-Definition idfun_linear {R : rng} (M : module R) : islinear (idfun M).
+Definition idfun_linear {R : ring} (M : module R) : islinear (idfun M).
 Proof. easy. Defined.
 
 (** The identity function is multilinear *)
-Definition idfun_multilinear {I : UU} {rngs : I -> rng} (MM : multimodule rngs) :
-  @ismultilinear I rngs MM MM (idfun MM) :=
+Definition idfun_multilinear {I : UU} {rings : I -> ring} (MM : multimodule rings) :
+  @ismultilinear I rings MM MM (idfun MM) :=
   (fun i => idfun_linear (ith_module MM i)).
 
 (** The identity function is a morphism of modules *)
-Definition id_modulefun {R : rng} (M : module R) : ismodulefun (idfun M).
+Definition id_modulefun {R : ring} (M : module R) : ismodulefun (idfun M).
 Proof. easy. Defined.
 
 (** The identity function is a morphism of modules *)
-Definition idmoduleiso {R : rng} (M : module R) : moduleiso M M.
+Definition idmoduleiso {R : ring} (M : module R) : moduleiso M M.
 Proof.
-   use mk_moduleiso.
+   use make_moduleiso.
    - exact (idweq (pr1module M)).
-   - apply dirprodpair.
+   - apply make_dirprod.
      + intros x y. apply idpath.
      + intros r x. apply idpath.
 Defined.
 
 (** The identity function is a multimodule morphism *)
-Definition id_multimodulefun {I : UU} {rngs : I -> rng} (MM : multimodule rngs)
-  : @ismultimodulefun I rngs MM MM (idfun MM) :=
-  (dirprodpair (λ x y : MM, idpath _) (fun i => idfun_linear (ith_module MM i))).
+Definition id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule rings)
+  : @ismultimodulefun I rings MM MM (idfun MM) :=
+  (make_dirprod (λ x y : MM, idpath _) (fun i => idfun_linear (ith_module MM i))).
 
 (** ** (Multi)modules *)
 
 (** The left action of a ring through a ring homomorphism
     See Bourbaki's Algebra, II §1.4, no. 1, Example 1.
  *)
-Definition rngfun_left_mult {R S : rng} (f : rngfun R S) (r : R)
-: rngofendabgr S.
+Definition ringfun_left_mult {R S : ring} (f : ringfun R S) (r : R)
+: ringofendabgr S.
 Proof.
   refine
   (* This is the actual definition of the function *)
@@ -60,19 +62,19 @@ Proof.
 Defined.
 
 (** An important special case: the left action of a ring on itself *)
-Example rng_left_mult {R : rng} : R -> rngofendabgr R :=
-  rngfun_left_mult (rigisotorigfun (idrigiso R)).
+Example ring_left_mult {R : ring} : R -> ringofendabgr R :=
+  ringfun_left_mult (rigisotorigfun (idrigiso R)).
 
 
 (** A ring morphism R -> S defines an R-module structure on the additive abelian
     group of S *)
-Definition ringfun_module {R S : rng} (f : rngfun R S) : module R.
-  refine (@rngaddabgr S,, _).
-  apply (@mult_to_module_struct R S (pr1 ∘ rngfun_left_mult f)%functions);
-    unfold funcomp, pr1, rngfun_left_mult.
-  - exact (fun r x y => rngldistr S x y (f r)).
+Definition ringfun_module {R S : ring} (f : ringfun R S) : module R.
+  refine (@ringaddabgr S,, _).
+  apply (@mult_to_module_struct R S (pr1 ∘ ringfun_left_mult f)%functions);
+    unfold funcomp, pr1, ringfun_left_mult.
+  - exact (fun r x y => ringldistr S x y (f r)).
   - exact (fun r s x => (maponpaths (λ x, x * _) ((pr1 (pr1 (pr2 f))) r s)) @
-                        (rngrdistr _ (f r) (f s) x)).
+                        (ringrdistr _ (f r) (f s) x)).
   - exact (fun r s x => ((maponpaths (fun y => y * x) ((pr1 (pr2 (pr2 f))) r s) @
                          (rigassoc2 S (f r) (f s) x)))).
   - exact (fun x => maponpaths (fun y => y * x) (pr2 (pr2 (pr2 f))) @
@@ -80,12 +82,12 @@ Definition ringfun_module {R S : rng} (f : rngfun R S) : module R.
 Defined.
 
 (** An important special case: a ring is a module over itself *)
-Definition ring_is_module (R : rng) : module R :=
+Definition ring_is_module (R : ring) : module R :=
   ringfun_module (rigisotorigfun (idrigiso R)).
 
 (** The zero module is the unique R-module structure on the zero group (the
     group with a single element) *)
-Definition zero_module (R : rng) : module R.
+Definition zero_module (R : ring) : module R.
 Proof.
   refine (unitabgr,, _).
   apply (@mult_to_module_struct _ _ (λ _ u, u));
@@ -94,16 +96,16 @@ Defined.
 
 (** *** Bimodules *)
 
-Local Open Scope rng.
+Local Open Scope ring.
 
 (** An R-S-bimodule is a left R module and a right S module, that is
     With our definitions, this means a multimodule over bool with an R-module
     structre, an S⁰-module structure, and some compatibility between them. *)
-Definition bimodule (R S : rng) : UU := @multimodule _ (bool_rect _ R (S⁰)).
+Definition bimodule (R S : ring) : UU := @multimodule _ (bool_rect _ R (S⁰)).
 
 (** The more immediate/intuitive description of a bimodule. Below, we provide a
-    way to construct a bimodule from this definition (mk_bimodule). *)
-Definition bimodule_struct' (R S : rng) (G : abgr) : UU :=
+    way to construct a bimodule from this definition (make_bimodule). *)
+Definition bimodule_struct' (R S : ring) (G : abgr) : UU :=
   (* A bimodule structure consists of two modules structures... *)
   ∑ (mr : module_struct R G) (ms : module_struct (S⁰) G),
     (* ...and a notion of compatibility between them. *)
@@ -111,7 +113,7 @@ Definition bimodule_struct' (R S : rng) (G : abgr) : UU :=
     let muls := module_mult (G,, ms) in
     ∏ (r : R) (s : S), mulr r ∘ muls s = muls s ∘ mulr r.
 
-Definition mk_bimodule (R S : rng) {G} (str : bimodule_struct' R S G) : bimodule R S.
+Definition make_bimodule (R S : ring) {G} (str : bimodule_struct' R S G) : bimodule R S.
   refine (G,, _).
 
   (** Index the module structs over bool *)
@@ -129,22 +131,22 @@ Definition mk_bimodule (R S : rng) {G} (str : bimodule_struct' R S G) : bimodule
 Defined.
 
 (** A commutative ring is a bimodule over itself *)
-Example commrng_bimodule (R : commrng) : bimodule R R.
-  apply (@mk_bimodule R R (@rngaddabgr R)).
+Example commring_bimodule (R : commring) : bimodule R R.
+  apply (@make_bimodule R R (@ringaddabgr R)).
   unfold bimodule_struct'.
   refine (pr2module (ring_is_module R),, _).
 
   (** We transport the module structure across the isomorphism R ≅ R⁰ *)
   refine (pr2module
             (ringfun_module
-               (rigisotorigfun (invrigiso (iso_commrng_opposite R)))),, _).
+               (rigisotorigfun (invrigiso (iso_commring_opposite R)))),, _).
 
-  unfold funcomp; cbn.
+  simpl.
   intros r s.
   apply funextfun.
   intros x.
-  exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@rngcomm2 R r s))
+  exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@ringcomm2 R r s))
                       @ (rigassoc2 R s r x)).
-Defined. (* TODO: this line takes a while, not sure why *)
+  Defined. (* TODO: this line takes a while, not sure why *)
 
-Local Close Scope rng.
+Local Close Scope ring.

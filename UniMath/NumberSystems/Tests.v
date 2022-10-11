@@ -1,19 +1,20 @@
-Unset Automatic Introduction.
-
 Require UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Algebra.Groups.
 Require UniMath.MoreFoundations.DecidablePropositions.
+Require UniMath.MoreFoundations.NegativePropositions.
 
 Module Test_nat.
 
   Import UniMath.Foundations.NaturalNumbers.
   Import UniMath.MoreFoundations.DecidablePropositions.
+  Import UniMath.MoreFoundations.NegativePropositions.
 
   Local Open Scope nat_scope.
 
-  Goal 3 ≠ 5. easy. Defined.
-  Goal ¬ (3 ≠ 3). easy. Defined.
+  Goal 3 ≠ 5. exact tt. Defined.
+  Goal ¬ (3 ≠ 3). intro n. apply n. Defined.
 
-  Module Test_A.
+  Section Test_A.
     Let C  := compl nat 0.
     Let C' := compl_ne nat 0 (λ m, 0 ≠ m).
     Let w := compl_ne_weq_compl nat 0 (λ m, 0 ≠ m) : C ≃ C'.
@@ -50,7 +51,7 @@ Module Test_nat.
   Goal si 3 4 = 3. reflexivity. Defined.
   Goal si 3 5 = 4. reflexivity. Defined.
 
-  Module Test_weqdicompl.
+  Section Test_weqdicompl.
 
     Let w := weqdicompl 3 : nat ≃ nat_compl 3.
     Goal w 2 = (2,,tt). reflexivity. Defined.
@@ -68,6 +69,64 @@ Module Test_nat.
 
 End Test_nat.
 
+
+Require UniMath.Algebra.IteratedBinaryOperations.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.NumberSystems.NaturalNumbersAlgebra.
+
+Module Test_finsum.
+
+  Import UniMath.Algebra.IteratedBinaryOperations.
+  Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.NumberSystems.NaturalNumbersAlgebra.
+
+  Goal ∏ X (fin : finstruct X) (f : X -> nat),
+    finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+  Proof.
+    intros.
+    intermediate_path (iterop_fun_mon (M := nataddabmonoid) (f ∘ pr1weq (pr2 fin))).
+    - reflexivity.
+    - apply iterop_fun_nat.
+  Qed.
+
+  Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
+  Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
+  Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
+                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+    reflexivity.            (* fixed *)
+  Qed.
+
+  Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
+  Goal 20 = finsum' isfinitebool (λ i:bool, 10). reflexivity. Qed.
+  Goal 21 = finsum' (isfinitecoprod isfinitebool isfinitebool)
+                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+    try reflexivity.            (* fails, for some reason *)
+  Abort.
+
+  Section Iteration.
+    Local Notation "s □ x" := (append s x) (at level 64, left associativity).
+    Context (G:abgr) (R:ring) (S:commring) (g g' g'':G) (r r' r'':R) (s s' s'':S).
+    Local Open Scope multmonoid.
+    Goal iterop_unoseq_abgr (nil : Sequence G) = 1. reflexivity. Qed.
+    Goal iterop_unoseq_abgr (nil □ g □ g') = g*g'. reflexivity. Qed.
+    Goal iterop_unoseq_abgr (nil □ g □ g' □ g'') = g*g'*g''. reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g □ g') □ sequenceToUnorderedSequence(nil □ g □ g' □ g''))) = (g*g') * (g*g'*g''). reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g) □ sequenceToUnorderedSequence(nil))) = g * 1. reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil) □ sequenceToUnorderedSequence(nil □ g))) = 1 * g. reflexivity. Qed.
+    Close Scope multmonoid.
+
+    Local Open Scope ring.
+    Goal sum_unoseq_ring (nil : Sequence R) = 0. reflexivity. Qed.
+    Goal sum_unoseq_ring (nil □ r □ r') = r+r'. reflexivity. Qed.
+    Goal sum_unoseq_ring (nil □ r □ r' □ r'') = r+r'+r''. reflexivity. Qed.
+    Goal product_unoseq_ring (nil : Sequence S) = 1. reflexivity. Qed.
+    Goal product_unoseq_ring (nil □ s □ s') = s*s'. reflexivity. Qed.
+    Goal product_unoseq_ring (nil □ s □ s' □ s'') = s*s'*s''. reflexivity. Qed.
+  End Iteration.
+
+End Test_finsum.
+
+
 Require UniMath.NumberSystems.Integers.
 
 Module Test_int.
@@ -76,10 +135,10 @@ Module Test_int.
 
   Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
-  Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
+  Goal 2 * 100 + 7 * 10 + 4 = (hzabsval (natnattohz (5 * 10 + 8) (3 * 100 + 3 * 10 + 2))) . reflexivity. Qed.
   Goal O = (hzabsval (hzplus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
   Goal 2 = (hzabsval (hzminus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  Goal 300 =  (hzabsval (hzmult (natnattohz 20 50) (natnattohz 30 20))) . reflexivity. Qed.
+  Goal 3 * 100 =  (hzabsval (hzmult (natnattohz (2 * 10) (5 * 10)) (natnattohz (3 * 10) (2 * 10)))) . reflexivity. Qed.
 
 End Test_int.
 

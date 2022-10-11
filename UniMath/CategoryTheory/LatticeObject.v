@@ -18,10 +18,11 @@ Written by: Anders Mörtberg, 2017
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.Lattice.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -31,9 +32,9 @@ Local Open Scope cat.
 (** * Definition of lattice objects and bounded lattice objects *)
 Section LatticeObject_def.
 
-Context {C : precategory} {BPC : BinProducts C}.
+Context {C : category} {BPC : BinProducts C}.
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
 Local Notation "1" := (identity _) : cat.
 
@@ -114,7 +115,7 @@ Definition latticeop_cat {L} (meet_mor join_mor : C⟦L ⊗ L,L⟧) :=
 Definition latticeob (L : C) : UU :=
   ∑ (meet_mor join_mor : C⟦L ⊗ L,L⟧), latticeop_cat meet_mor join_mor.
 
-Definition mk_latticeob {L : C} {meet_mor join_mor : C⟦L ⊗ L,L⟧} :
+Definition make_latticeob {L : C} {meet_mor join_mor : C⟦L ⊗ L,L⟧} :
   latticeop_cat meet_mor join_mor → latticeob L :=
     λ (isL : latticeop_cat meet_mor join_mor), meet_mor,, join_mor ,, isL.
 
@@ -149,7 +150,7 @@ Definition bounded_latticeop_cat {L} (l : latticeob L) (bot top : C⟦TC,L⟧) :
 Definition bounded_latticeob (L : C) : UU :=
   ∑ (l : latticeob L) (bot top : C⟦TC,L⟧), bounded_latticeop_cat l bot top.
 
-Definition mk_bounded_latticeob {L} {l : latticeob L} {bot top : C⟦TC,L⟧} :
+Definition make_bounded_latticeob {L} {l : latticeob L} {bot top : C⟦TC,L⟧} :
   bounded_latticeop_cat l bot top → bounded_latticeob L := λ bl, l,, bot,, top,, bl.
 
 Definition bounded_latticeob_to_latticeob X : bounded_latticeob X → latticeob X := pr1.
@@ -165,7 +166,7 @@ Arguments bounded_latticeob {_} _ _ _.
 
 Section LatticeObject_accessors.
 
-Context {C : precategory} (BPC : BinProducts C) {L : C} (isL : latticeob BPC L).
+Context {C : category} (BPC : BinProducts C) {L : C} (isL : latticeob BPC L).
 
 Definition isassoc_meet_mor : isassoc_cat (meet_mor isL) :=
   pr1 (pr1 (pr2 (pr2 isL))).
@@ -184,7 +185,7 @@ End LatticeObject_accessors.
 
 Section BoundedLatticeObject_accessors.
 
-Context {C : precategory} (BPC : BinProducts C) (TC : Terminal C).
+Context {C : category} (BPC : BinProducts C) (TC : Terminal C).
 Context {L : C} (l : bounded_latticeob BPC TC L).
 
 Definition islunit_join_mor_bot_mor : islunit_cat (join_mor l) (bot_mor l) :=
@@ -199,10 +200,10 @@ End BoundedLatticeObject_accessors.
 (** * Definition of sublattice objects  *)
 Section SublatticeObject.
 
-Context {C : precategory} (BPC : BinProducts C) {M L : C}.
+Context {C : category} (BPC : BinProducts C) {M L : C}.
 Context {i : C⟦M,L⟧} (Hi : isMonic i) (l : latticeob BPC L).
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
 (** This asserts that i is a lattice homomorphism internally *)
@@ -211,7 +212,7 @@ Context {join_mor_M : C⟦M ⊗ M,M⟧} (Hjoin : join_mor_M · i = (i ×× i) ·
 
 Local Lemma identity_comm : identity M · i = i · identity L.
 Proof.
-now rewrite id_left, id_right.
+  rewrite id_left, id_right. reflexivity.
 Qed.
 
 Local Lemma binprod_assoc_comm :
@@ -221,16 +222,19 @@ Proof.
 unfold binprod_assoc; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique.
 - rewrite <-assoc, BinProductPr1Commutes.
-  now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
+  rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
+  reflexivity.
 - rewrite postcompWithBinProductArrow.
   apply BinProductArrowUnique.
   + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
     rewrite <- assoc, BinProductPr1Commutes.
-    now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
+    rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
+    reflexivity.
   + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
-    now rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
+    rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
+    reflexivity.
 Qed.
 
 Local Lemma binprod_delta_comm :
@@ -238,8 +242,8 @@ Local Lemma binprod_delta_comm :
 Proof.
 unfold binprod_delta; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique.
-now rewrite <-assoc, BinProductPr1Commutes, identity_comm.
-now rewrite <-assoc, BinProductPr2Commutes, identity_comm.
+- rewrite <-assoc, BinProductPr1Commutes, identity_comm. reflexivity.
+- rewrite <-assoc, BinProductPr2Commutes, identity_comm. reflexivity.
 Qed.
 
 Local Lemma isassoc_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :
@@ -250,7 +254,8 @@ rewrite <-!assoc, !Hfg, !assoc, BinProductOfArrows_comp, Hfg, <- !assoc, identit
 rewrite <- BinProductOfArrows_comp, <- assoc, H, !assoc.
 apply cancel_postcomposition.
 rewrite <-!assoc, BinProductOfArrows_comp, Hfg, identity_comm.
-now rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+reflexivity.
 Qed.
 
 Local Lemma iscomm_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :
@@ -286,7 +291,7 @@ Qed.
 
 Definition sub_latticeob : latticeob BPC M.
 Proof.
-use mk_latticeob.
+use make_latticeob.
 - apply meet_mor_M.
 - apply join_mor_M.
 - repeat split.
@@ -302,10 +307,10 @@ End SublatticeObject.
 
 Section SubboundedlatticeObject.
 
-Context {C : precategory} (BPC : BinProducts C) (TC : Terminal C).
+Context {C : category} (BPC : BinProducts C) (TC : Terminal C).
 Context {M L : C} {i : C⟦M,L⟧} (Hi : isMonic i) (l : bounded_latticeob BPC TC L).
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
 Context {meet_mor_M : C⟦M ⊗ M,M⟧} (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor l).
@@ -332,7 +337,7 @@ Qed.
 
 Definition sub_bounded_latticeob : bounded_latticeob BPC TC M.
 Proof.
-use mk_bounded_latticeob.
+use make_bounded_latticeob.
 - exact (sub_latticeob BPC Hi l Hmeet Hjoin).
 - exact bot_mor_M.
 - exact top_mor_M.

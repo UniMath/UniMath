@@ -10,16 +10,11 @@ This file contains the definition and main properties of finite sets. At the end
 
 (** ** Preamble *)
 
-(** Settings *)
-
-Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
-
-
-
 (** Imports. *)
 
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 
@@ -55,7 +50,7 @@ Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X
 
 Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
 Proof.
-  intros ? ? ? sx.
+  intros sx.
   refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl (invweq sx x))%weq.
   apply compl_weq_compl_ne.
 Defined.
@@ -129,7 +124,7 @@ Definition finstructToFunction {X} (S : finstruct X) := pr2 S : nelstruct (pr1 S
 
 Coercion finstructToFunction : finstruct >-> nelstruct.
 
-Definition finstructpair  ( X : UU )  := tpair ( λ n : nat, nelstruct n X ) .
+Definition make_finstruct  ( X : UU )  := tpair ( λ n : nat, nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) .
 
@@ -182,20 +177,20 @@ Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
 (* uses funextemptyAxiom *)
-Proof. intros ? isfin.
-       apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
+Proof. intros isfin.
+       apply (isfin (make_hProp _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).
        apply isdeceqstn.
 Defined.
 
 Lemma isfinite_isaset X : isfinite X -> isaset X.
 Proof.
-  intros ? isfin. apply (isfin (hProppair _ (isapropisaset X))); intro f; clear isfin; simpl.
+  intros isfin. apply (isfin (make_hProp _ (isapropisaset X))); intro f; clear isfin; simpl.
   apply (isofhlevelweqf 2 (pr2 f)). apply isasetstn.
 Defined.
 
 Definition FiniteSet_to_hSet : FiniteSet -> hSet.
-Proof. intro X. exact (hSetpair (pr1 X) (isfinite_isaset (pr1 X) (pr2 X))).
+Proof. intro X. exact (make_hSet (pr1 X) (isfinite_isaset (pr1 X) (pr2 X))).
 Defined.
 Coercion FiniteSet_to_hSet : FiniteSet >-> hSet.
 
@@ -246,6 +241,7 @@ Proof.
   - intros i. exact (pr2 (X i)).
 Defined.
 
+Declare Scope finset.
 Delimit Scope finset with finset.
 
 Notation "'∑' x .. y , P" := (FiniteSetSum (λ x,.. (FiniteSetSum (λ y, P))..))
@@ -295,7 +291,7 @@ Proof. intros. *)
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
 Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
-  intros ? fin x y.
+  intros fin x y.
   exact (@isdecprop_to_DecidableProposition
                   (x=y)
                   (isdecpropif (x=y)
@@ -314,10 +310,10 @@ Proof.
 Defined.
 
 Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
-Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
+Proof. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
 
 Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
-Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
+Proof. exact (fincard (subsetFiniteness is P)). Defined.
 
 Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
 Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.

@@ -47,10 +47,6 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-
-(* Require Import FOLDS.aux_lemmas. *)
-
 
 Local Notation "p ## a" := (transportf _ p a) (at level 3, only parsing).
 
@@ -60,16 +56,16 @@ Local Notation "p ## a" := (transportf _ p a) (at level 3, only parsing).
 (** ** Objects and a dependent type of morphisms *)
 
 Definition folds_3_ob_mor := ∑ a : UU, a → a → UU.
-Definition folds_3_ob_mor_pair (ob : UU)(mor : ob → ob → UU) : folds_3_ob_mor
+Definition make_folds_3_ob_mor (ob : UU)(mor : ob → ob → UU) : folds_3_ob_mor
   := tpair _ ob mor.
 
 Definition ob (C : folds_3_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_3_ob_mor >-> UU.
 
 Definition folds_3_morphisms {C : folds_3_ob_mor} : C → C → UU := pr2 C.
-Local Notation "a ⇒ b" := (folds_3_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_3_morphisms a b).
 
-Definition double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
+Definition folds_double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a ⇒ b) : a' ⇒ b' :=
   transportf (λ c, a' ⇒ c) q (transportf (λ c, c ⇒ b) p f).
 
@@ -111,11 +107,11 @@ Definition folds_ax_id (C : folds_3_id_comp_eq) :=
 (** ** The axioms for composition *)
 
 Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
-     (∏ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
                                                         (* there is a composite *)
- × ( (∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c}, T f g h → T f g k → E h k )
+ × ( (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c), T f g h → T f g k → E h k )
                                                         (* composite is unique mod E *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) (fg : a ⇒ c)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) (fg : a ⇒ c)
                       (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
        T f g fg → T g h gh → T fg h fg_h → T f gh f_gh → E f_gh fg_h)).
                                                         (* composition is assoc mod E *)
@@ -166,12 +162,12 @@ Definition folds_iso {C: folds_pre_3_cat} {a b : C} (f g : a ⇒ b) : UU :=
                                    T (transportf (λ a, a ⇒ b) p g) u g))
     × ((∏ (u : a ⇒ a) (p : b = b), T u p ## f f ≃ T u p ## g g)
        × (∏ (p : a = a) (q : b = a) (r : b = b),
-          T (double_transport p q f) r ## f f
-          ≃ T (double_transport p q g) r ## g g)))
+          T (folds_double_transport p q f) r ## f f
+          ≃ T (folds_double_transport p q g) r ## g g)))
    × (((∏ p : b = a, I p ## f ≃ I p ## g) × (∏ u : a ⇒ b, E f u ≃ E g u))
       × ((∏ u : a ⇒ b, E u f ≃ E u g)
          × (∏ (p : a = a) (q : b = b),
-            E (double_transport p q f) f ≃ E (double_transport p q g) g)))).
+            E (folds_double_transport p q f) f ≃ E (folds_double_transport p q g) g)))).
 
 Lemma isaprop_folds_2_iso (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) :
   isaprop (folds_iso f g).
@@ -230,10 +226,10 @@ Proof.
     try apply E_transport_target; auto.
   - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p ## f) g f);
     try apply E_transport_target; auto.
-  - apply (ET _ _ _ (double_transport p q f) (double_transport p q g)
+  - apply (ET _ _ _ (folds_double_transport p q f) (folds_double_transport p q g)
                           (transportf (λ c, a ⇒ c) r f) (r ## g) f g);
     try apply E_transport_target; try apply E_transport_source; auto.
-  - apply (ET _ _ _ (double_transport p q g) (double_transport p q f)
+  - apply (ET _ _ _ (folds_double_transport p q g) (folds_double_transport p q f)
                           (transportf (λ c, a ⇒ c) r g) (r ## f) g f);
     try apply E_transport_target; try apply E_transport_source; auto.
   - destruct p. apply (EI _ f); auto.
@@ -246,12 +242,12 @@ Proof.
   - apply (Etrans _ _ u g f).
     + auto.
     + apply Esym; auto.
-  - apply (Etrans _ _ (double_transport p q g) (double_transport p q f) g).
+  - apply (Etrans _ _ (folds_double_transport p q g) (folds_double_transport p q f) g).
     + apply E_transport_target. apply E_transport_source. apply Esym; auto.
-    + apply (Etrans _ _ (double_transport p q f) f g); auto.
-  - apply (Etrans _ _ (double_transport p q f) (double_transport p q g) f).
+    + apply (Etrans _ _ (folds_double_transport p q f) f g); auto.
+  - apply (Etrans _ _ (folds_double_transport p q f) (folds_double_transport p q g) f).
     + apply E_transport_target. apply E_transport_source. auto.
-    + apply (Etrans _ _ (double_transport p q g) g f); auto.
+    + apply (Etrans _ _ (folds_double_transport p q g) g f); auto.
 Qed.
 
 Lemma folds_iso_implies_E (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : folds_iso f g → E f g.
@@ -287,7 +283,7 @@ Qed.
 
 Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
   (a b : C) (f g : a ⇒ b) : folds_iso f g → f = g :=
-  invmap (weqpair _ (H a b f g)).
+  invmap (make_weq _ (H a b f g)).
 
 (** * FOLDS precategories *)
 (** We define them as special FOLDS pre-2-categories, namely such that
@@ -297,9 +293,9 @@ Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
 
 Definition is_folds_precategory (C : folds_pre_2_cat) : UU :=
      (∏ a b : C, isaset (a ⇒ b))
- ×  ((∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
                   T f g h → T f g k → h = k )       (* T is unique mod identity *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
                T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* T is assoc mod identity *)
@@ -343,11 +339,11 @@ Hypothesis H : is_univalent_folds_pre_2_cat C.
 
 Lemma is_univalent_implies_is_folds_precat : is_folds_precategory C.
 Proof.
-  apply dirprodpair.
+  apply make_dirprod.
   - intros a b f g.
-    apply (isofhlevelweqb _ (weqpair _ (H a b f g))).
+    apply (isofhlevelweqb _ (make_weq _ (H a b f g))).
     apply isaprop_folds_2_iso.
-  - apply dirprodpair.
+  - apply make_dirprod.
     + intros. apply (isotoid2 _ H).
       apply E_implies_folds_iso.
       set (T_unique := pr1 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))).

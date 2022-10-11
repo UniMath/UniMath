@@ -1,10 +1,10 @@
 (** Catherine Lelay. Sep. 2015 *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Sets.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
@@ -14,7 +14,7 @@ Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.
 
-Open Scope hq_scope.
+Local Open Scope hq_scope.
 
 (** * Definition of non-negative rational numbers *)
 
@@ -106,8 +106,8 @@ Proof.
   split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
-  - easy.
-  - easy.
+  - intros. assumption.
+  - intros. assumption.
   - intros x y z.
     now apply hqlthlehtrans.
   - intros x y z.
@@ -120,21 +120,21 @@ Local Lemma iscomm_hnnq_plus:
   iscomm hnnq_plus.
 Proof.
   intros x y.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqpluscomm.
 Qed.
 Local Lemma isassoc_hnnq_plus :
   isassoc hnnq_plus.
 Proof.
   intros x y z.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqplusassoc.
 Qed.
 Local Lemma islunit_hnnq_zero_plus:
   islunit hnnq_plus hnnq_zero.
 Proof.
   intros x.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqplusl0.
 Qed.
 Local Lemma isrunit_hnnq_zero_plus:
@@ -148,21 +148,21 @@ Local Lemma iscomm_hnnq_mult:
   iscomm hnnq_mult.
 Proof.
   intros x y.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqmultcomm.
 Qed.
 Local Lemma isassoc_hnnq_mult:
   isassoc hnnq_mult.
 Proof.
   intros x y z.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqmultassoc.
 Qed.
 Local Lemma islunit_hnnq_one_mult:
   islunit hnnq_mult hnnq_one.
 Proof.
   intros x.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqmultl1.
 Qed.
 Local Lemma isrunit_hnnq_one_mult:
@@ -181,7 +181,7 @@ Proof.
   change (hqlehchoice 0 (pr1 (pr1 (x,, Hx0))) (pr2 (pr1 (x,, Hx0)))) with (hqlehchoice 0 (pr1 x) (pr2 x)).
   generalize (hqlehchoice 0 (pr1 x) (pr2 x)).
   apply coprod_rect ; intros Hx0'.
-  - apply subtypeEquality_prop.
+  - apply subtypePath_prop.
     apply hqislinvmultinv.
     now apply (hqgth_hqneq (pr1 x) 0), Hx0'.
   - apply fromempty.
@@ -200,7 +200,7 @@ Local Lemma isldistr_hnnq_plus_mult:
   isldistr hnnq_plus hnnq_mult.
 Proof.
   intros x y z.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply hqldistr.
 Qed.
 Local Lemma isrdistr_hnnq_plus_mult:
@@ -234,10 +234,10 @@ Proof.
   repeat split.
   - exists (isabmonoidop_hnnq_plus,,ismonoidop_hnnq_mult) ; split.
     + intro x.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply hqmult0x.
     + intro x.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply hqmultx0.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
@@ -256,7 +256,7 @@ Proof.
     assert (Hx' : hnnq_lt hnnq_zero x).
     { apply neghqlehtogth.
       intro Hx0 ; apply Hx.
-      apply subtypeEquality.
+      apply subtypePath.
       - now intro ;apply pr2.
       - apply isantisymmhqleh.
         apply Hx0.
@@ -274,6 +274,7 @@ Definition NonnegativeRationals_to_Rationals : NonnegativeRationals → hq :=
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
   tpair _ r Hr.
 
+Declare Scope NRat_scope.
 Delimit Scope NRat_scope with NRat.
 
 (** ** Definitions *)
@@ -325,26 +326,26 @@ Notation "x * y" := (multNonnegativeRationals x y) (at level 40, left associativ
 Notation "/ x" := (invNonnegativeRationals x) (at level 35, right associativity) : NRat_scope.
 Notation "x / y" := (divNonnegativeRationals x y) (at level 40, left associativity) : NRat_scope.
 
-Open Scope NRat_scope.
+Local Open Scope NRat_scope.
 
 (** *** Correctness of definitions *)
 
 Lemma zeroNonnegativeRationals_correct :
   0 = Rationals_to_NonnegativeRationals 0%hq (isreflhqleh 0%hq).
 Proof.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma oneNonnegativeRationals_correct :
   1 = Rationals_to_NonnegativeRationals 1%hq hq1ge0.
 Proof.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma twoNonnegativeRationals_correct :
   2 = Rationals_to_NonnegativeRationals 2%hq (hqlthtoleh _ _ hq2_gt0).
 Proof.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma plusNonnegativeRationals_correct :
@@ -352,7 +353,7 @@ Lemma plusNonnegativeRationals_correct :
     x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
 Proof.
   intros x y.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_correct :
@@ -360,7 +361,7 @@ Lemma minusNonnegativeRationals_correct :
     x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus _ _ Hminus).
 Proof.
   intros x y H.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   unfold minusNonnegativeRationals, hnnq_minus.
   generalize (hqgthorleh (pr1 x) (pr1 y)).
   apply coprod_rect ; [intros Hgt | intros Hle].
@@ -377,7 +378,7 @@ Lemma multNonnegativeRationals_correct :
     x * y = Rationals_to_NonnegativeRationals (pr1 x * pr1 y)%hq ( hq0lehandmult _ _ (pr2 x) (pr2 y)).
 Proof.
   intros x y.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma invNonnegativeRationals_correct :
@@ -385,7 +386,7 @@ Lemma invNonnegativeRationals_correct :
     / x = Rationals_to_NonnegativeRationals (/ pr1 x)%hq (hqlthtoleh _ _ (hqinv_gt0 _ Hx)).
 Proof.
   intros x Hx0.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   unfold invNonnegativeRationals, hnnq_inv.
   generalize (hqlehchoice 0%hq (pr1 x) (pr2 x)).
   apply coprod_rect ; [intros Hlt | intros Heq].
@@ -433,7 +434,7 @@ Proof.
   generalize (isdeceqhq (pr1 x) (pr1 y)) ;
   apply sumofmaps ; intros H.
   - left.
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     exact H.
   - right.
     intros H0 ; apply H.
@@ -461,7 +462,7 @@ Proof.
     apply sumofmaps ; [intros Hlt | intros Heq].
   - right ; exact Hlt.
   - left.
-    now apply subtypeEquality_prop, Heq.
+    now apply subtypePath_prop, Heq.
 Qed.
 Lemma noteq_ltorgtNonnegativeRationals :
   ∏ x y : NonnegativeRationals, x != y -> (x < y) ⨿ (x > y).
@@ -516,7 +517,7 @@ Lemma isantisymm_leNonnegativeRationals :
   ∏ x y : NonnegativeRationals, x <= y -> y <= x -> x = y.
 Proof.
   intros x y Hle Hge.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   now apply isantisymmhqleh.
 Qed.
 
@@ -578,7 +579,7 @@ Lemma NonnegativeRationals_eq0_le0 :
   ∏ r : NonnegativeRationals, (r <= 0) -> (r = 0).
 Proof.
   intros r Hr0.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply isantisymmhqleh.
   apply Hr0.
   apply (pr2 r).
@@ -783,14 +784,14 @@ Proof.
   generalize (hqgthorleh (pr1 q) (pr1 r)).
   apply coprod_rect ; intros H'.
   - rewrite coprod_rect_compute_1.
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     unfold hqminus.
     pattern r at 4.
     simpl.
     generalize (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; intros r' q' Hr Hrq.
     now rewrite hqplusassoc, hqlminus, hqplusr0.
   - rewrite coprod_rect_compute_2.
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     generalize (isantisymmhqleh _ _ H H').
     simpl.
     generalize (pr1 r) (pr2 r) (pr1 q) ; intros r' Hr' q' Heq.
@@ -804,7 +805,7 @@ Proof.
   change r with (pr1 r,,pr2 r).
   generalize (pr1 r) (pr2 r) (pr1 q) (pr2 q) ; intros r' Hr q' Hq.
   rewrite (minusNonnegativeRationals_correct _ _ (plusNonnegativeRationals_le_l _ _)).
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   simpl pr1.
   unfold hqminus.
   rewrite hqplusassoc.
@@ -862,7 +863,7 @@ Proof.
   rewrite (minusNonnegativeRationals_correct _ _ Hxy), (minusNonnegativeRationals_correct _ _ Hxzy).
   revert Hxy Hxzy.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   change (pr1 x - pr1 y + pr1 z = (pr1 x + pr1 z) - pr1 y)%hq.
   now unfold hqminus ; rewrite !hqplusassoc, (hqpluscomm (pr1 z)).
 Qed.
@@ -1486,7 +1487,7 @@ Proof.
   unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; simpl pr1 ; simpl pr2.
   generalize (hqlehchoice 0%hq 2%hq (hqlthtoleh 0%hq 2%hq hq2_gt0)) ;
   apply coprod_rect ; intros H2.
-  apply subtypeEquality_prop ; simpl pr1.
+  apply subtypePath_prop ; simpl pr1.
   rewrite !(hqmultcomm x), <- hqldistr, hqmultcomm.
   apply hqplusdiv2.
   apply fromempty ; generalize hq2_gt0.
@@ -1599,14 +1600,14 @@ Defined.
 Lemma nat_to_NonnegativeRationals_O :
   nat_to_NonnegativeRationals O = 0.
 Proof.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   reflexivity.
 Qed.
 Lemma nat_to_NonnegativeRationals_Sn :
   ∏ n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + 1.
 Proof.
   intro n.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   simpl.
   rewrite nattohzandS, hztohqandplus.
   apply hqpluscomm.
@@ -1616,8 +1617,8 @@ Definition isarchNonnegativeRationals :
   isarchrig gtNonnegativeRationals.
 Proof.
   set (H := isarchhq).
-  apply isarchfld_isarchrng in H.
-  apply isarchrng_isarchrig in H.
+  apply isarchfld_isarchring in H.
+  apply isarchring_isarchrig in H.
   assert (∏ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
   { induction n as [|n IHn].
     - reflexivity.
@@ -1648,9 +1649,9 @@ Proof.
     generalize (pr2 n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
-  - exact isrngaddhzgth.
-  - exact isrngaddhzgth.
-  - exact isrngmulthqgth.
+  - exact isringaddhzgth.
+  - exact isringaddhzgth.
+  - exact isringmulthqgth.
   - exact isirreflhqgth.
 Qed.
 

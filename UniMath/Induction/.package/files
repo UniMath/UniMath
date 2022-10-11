@@ -1,0 +1,11 @@
+PolynomialFunctors.v
+ImpredicativeInductiveSets.v
+M/Core.v
+M/Limits.v
+M/Uniqueness.v
+W/Core.v
+W/Fibered.v
+W/Naturals.v
+W/Uniqueness.v
+M/Chains.v
+M/ComputationalM.v

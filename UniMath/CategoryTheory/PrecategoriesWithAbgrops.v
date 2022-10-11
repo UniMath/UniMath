@@ -3,84 +3,77 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
-
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
-  Definition categoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
-    ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y).
+  Definition categoryWithAbgropsData (PB : precategoryWithBinOps) : UU :=
+    ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property PB x y)) (@to_binop _ x y).
 
-  Definition mk_categoryWithAbgropsData {PB : precategoryWithBinOps} (hs : has_homsets PB)
-             (H : ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y)) :
-    categoryWithAbgropsData PB hs := H.
+  Definition make_categoryWithAbgropsData {PB : precategoryWithBinOps}
+             (H : ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property _  x y)) (@to_binop _ x y)) :
+    categoryWithAbgropsData PB := H.
 
   Definition categoryWithAbgrops : UU :=
-    ∑ PA : (∑ PB : precategoryWithBinOps, has_homsets PB),
-           categoryWithAbgropsData (pr1 PA) (pr2 PA).
+    ∑ PA : precategoryWithBinOps,
+           categoryWithAbgropsData PA.
+
 
   Definition categoryWithAbgrops_precategoryWithBinOps (PB : categoryWithAbgrops) :
-    precategoryWithBinOps := pr1 (pr1 PB).
+    precategoryWithBinOps := (pr1 PB).
+
   Coercion categoryWithAbgrops_precategoryWithBinOps :
     categoryWithAbgrops >-> precategoryWithBinOps.
 
-  (* category with abgrops to category *)
-  Definition categoryWithAbgrops_category (PWA : categoryWithAbgrops) : category.
+  Definition make_categoryWithAbgrops (PB : precategoryWithBinOps)
+             (H : categoryWithAbgropsData PB) : categoryWithAbgrops.
   Proof.
-    use tpair.
-    - exact PWA.
-    - exact (pr2 (pr1 PWA)).
-  Defined.
-  Coercion categoryWithAbgrops_category : categoryWithAbgrops >-> category.
-
-
-  Definition mk_categoryWithAbgrops (PB : precategoryWithBinOps) (hs : has_homsets PB)
-             (H : categoryWithAbgropsData PB hs) : categoryWithAbgrops.
-  Proof.
-    exact (tpair _ (tpair _ PB hs) H).
+    exact (tpair _ PB H).
   Defined.
 
 
   Variable PA : categoryWithAbgrops.
 
   (** Definitions to access the structure of a precategory with abelian groups. *)
-  Definition to_has_homsets : has_homsets PA := pr2 (pr1 PA).
+  Definition to_has_homsets : has_homsets PA := (pr1 PA).
 
-  Definition to_homset (x y : PA) : hSet := hSetpair (PA⟦x, y⟧) (to_has_homsets x y).
+  Definition to_homset (x y : PA) : hSet := make_hSet (PA⟦x, y⟧) (to_has_homsets x y).
 
-  Definition to_setwithbinoppair (x y : PA) := setwithbinoppair (to_homset x y) (to_binop x y).
+  Definition to_setwithbinop (x y : PA) := make_setwithbinop (to_homset x y) (to_binop x y).
 
   Definition to_isabgrop (x y : PA) := (pr2 PA) x y.
 
-  Definition to_abgrop (x y : PA) : abgr := abgrpair (to_setwithbinoppair x y) (to_isabgrop x y).
+  Definition to_abgr (x y : PA) : abgr := make_abgr (to_setwithbinop x y) (to_isabgrop x y).
 
-  Definition to_unel (x y : PA) := unel (to_abgrop x y).
+  Definition to_unel (x y : PA) := unel (to_abgr x y).
 
-  Definition to_lunax (x y : PA) := lunax (to_abgrop x y).
+  Definition to_lunax (x y : PA) := lunax (to_abgr x y).
 
   Definition to_lunax' (x y : PA) (f : x --> y) : to_binop x y (to_unel x y) f = f.
   Proof.
     apply to_lunax.
   Qed.
 
-  Definition to_runax (x y : PA) : isrunit op 1%multmonoid := runax (to_abgrop x y).
+  Definition to_runax (x y : PA) : isrunit op 1%multmonoid := runax (to_abgr x y).
 
   Definition to_runax' (x y : PA) (f : x --> y) : to_binop x y f (to_unel x y) = f.
   Proof.
     apply to_runax.
   Qed.
 
-  Definition to_inv {x y : PA} : PA⟦x, y⟧ -> PA⟦x, y⟧ := grinv (to_abgrop x y).
+  Definition to_inv {x y : PA} : PA⟦x, y⟧ -> PA⟦x, y⟧ := grinv (to_abgr x y).
 
-  Definition to_commax (x y : PA) := commax (to_abgrop x y).
+  Definition to_commax (x y : PA) := commax (to_abgr x y).
 
   Definition to_commax' {x y : ob PA} (f g : x --> y) : to_binop x y f g = to_binop x y g f.
   Proof.
@@ -90,59 +83,53 @@ Section def_precategory_with_abgrops.
   (** The following definition gives maps between abgrops homsets by precomposing and postcomposing
       with a morphism. Note that we have not required these to be abelian group morphisms of abelian
       groups. *)
-  Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgrop y z -> to_abgrop x z :=
-    fun (g : (to_abgrop y z)) => f · g.
+  Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgr y z -> to_abgr x z :=
+    fun (g : (to_abgr y z)) => f · g.
 
-  Definition to_postmor (x : PA) {y z : PA} (f : y --> z) : to_abgrop x y -> to_abgrop x z :=
-    fun (g : (to_abgrop x y)) => g · f.
+  Definition to_postmor (x : PA) {y z : PA} (f : y --> z) : to_abgr x y -> to_abgr x z :=
+    fun (g : (to_abgr x y)) => g · f.
 
-
-  (** Some equatios on inverses *)
+  (** Some equations on inverses *)
   Lemma inv_inv_eq {x y : PA} (f : PA⟦x, y⟧) : to_inv (to_inv f) = f.
   Proof.
     unfold to_inv.
-    apply (grinvinv (to_abgrop x y) f).
+    apply (grinvinv (to_abgr x y) f).
   Qed.
 
   Lemma cancel_inv {x y : PA} (f g : PA⟦x, y⟧) (H : (to_inv f) = (to_inv g)) : f = g.
   Proof.
-    apply (grinvmaponpathsinv (to_abgrop x y) H).
-  Qed.
-
-  Lemma to_apply_inv {x y : PA} (f g : PA⟦x, y⟧) (H : f = g) : (to_inv f) = (to_inv g).
-  Proof.
-    apply maponpaths. apply H.
+    apply (grinvmaponpathsinv (to_abgr x y) H).
   Qed.
 
   Lemma to_inv_unel {x y : PA} : to_inv (to_unel x y) = to_unel x y.
   Proof.
     unfold to_unel.
-    set (tmp := grinvunel (to_abgrop x y)). cbn in tmp. unfold to_inv.
+    set (tmp := grinvunel (to_abgr x y)). cbn in tmp. unfold to_inv.
     apply tmp.
   Qed.
 
   Lemma linvax {x y : PA} (f : PA⟦x, y⟧) : to_binop x y (to_inv f) f = to_unel x y.
   Proof.
-    apply (grlinvax (to_abgrop x y)).
+    apply (grlinvax (to_abgr x y)).
   Qed.
 
   Lemma rinvax {x y : PA} (f : PA⟦x, y⟧) : to_binop x y f (to_inv f) = to_unel x y.
   Proof.
-    apply (grrinvax (to_abgrop x y)).
+    apply (grrinvax (to_abgr x y)).
   Qed.
 
   Lemma to_lcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
     to_binop x y h f = to_binop x y h g -> f = g.
   Proof.
     intros H.
-    apply (grlcan (to_abgrop x y) h H).
+    apply (grlcan (to_abgr x y) h H).
   Qed.
 
   Lemma to_rcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
     to_binop x y f h = to_binop x y g h -> f = g.
   Proof.
     intros H.
-    apply (grrcan (to_abgrop x y) h H).
+    apply (grrcan (to_abgr x y) h H).
   Qed.
 
   Lemma to_lrw {x y : PA} (f g h : PA⟦x, y⟧) (e : f = g) : to_binop x y f h = to_binop x y g h.
@@ -158,7 +145,7 @@ Section def_precategory_with_abgrops.
   Lemma to_assoc {x y : PA} (f g h : PA⟦x, y⟧) :
     to_binop _ _ (to_binop _ _ f g) h = to_binop _ _ f (to_binop _ _ g h).
   Proof.
-    apply (assocax (to_abgrop x y)).
+    apply (assocax (to_abgr x y)).
   Qed.
 
   Lemma to_binop_inv_inv {x y : PA} (f g : PA⟦x, y⟧) :
@@ -184,11 +171,12 @@ Section def_precategory_with_abgrops.
   Qed.
 
 End def_precategory_with_abgrops.
+
 Arguments to_has_homsets [PA] _ _ _ _ _ _.
 Arguments to_homset [PA] _ _.
-Arguments to_setwithbinoppair [PA] _ _.
+Arguments to_setwithbinop [PA] _ _.
 Arguments to_isabgrop [PA] _ _.
-Arguments to_abgrop [PA] _ _.
+Arguments to_abgr [PA] _ _.
 Arguments to_unel [PA] _ _.
 Arguments to_lunax [PA] _ _ _.
 Arguments to_runax [PA] _ _ _.
@@ -198,6 +186,22 @@ Arguments to_inv [PA] [x] [y] _.
 Arguments inv_inv_eq [PA] [x] [y] _.
 Arguments cancel_inv [PA] [x] [y] _ _ _.
 
+Declare Scope abgrcat.
+Delimit Scope abgrcat with abgrcat.
+Notation "b <-- a" := (to_abgr a b) : abgrcat.
+Notation "a --> b" := (to_abgr a b) : abgrcat.
+Notation "1"     := (@identity (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _) : abgrcat.
+Notation "0"     := (unel (grtomonoid (abgrtogr _))) : abgrcat.
+Notation "0"     := (unel (grtomonoid (abgrtogr (to_abgr _ _)))) : abgrcat.
+Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f g) : abgrcat.
+Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f g) : abgrcat.
+Notation "  - g" := (@grinv (abgrtogr _) g) : abgrcat.
+Notation "  - g" := (@grinv (abgrtogr (to_abgr _ _)) g) : abgrcat.
+Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+Notation "g ∘ f" := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+Notation "f · g" := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+Notation "f = g" := (@eqset (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _))))) f g) : abgrcat.
 
 Section transport_morphisms.
 
@@ -234,3 +238,18 @@ Section transport_morphisms.
   Qed.
 
 End transport_morphisms.
+
+Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops.
+Proof.
+  use tpair.
+  - exact (oppositePrecategoryWithBinOps M).
+  - exact (λ a b, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
+Defined.
+
+Definition induced_categoryWithAbgrops (M : categoryWithAbgrops) {X:Type} (j : X -> ob M)
+  : categoryWithAbgrops.
+Proof.
+  use tpair.
+  - exact (induced_precategoryWithBinOps M j).
+  - exact (λ a b, @to_isabgrop M (j a) (j b)).
+Defined.

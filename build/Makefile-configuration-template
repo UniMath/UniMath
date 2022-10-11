@@ -21,6 +21,9 @@ BUILD_COQ = yes
 # When coq is being built, whether also to build coqide.
 BUILD_COQIDE = no
 
+# When coq is being built, whether also to build it in a way useful for debugging Coq
+DEBUG_COQ = no
+
 # When BUILD_COQ is "no", give the path to the coq binary "coqtop", including the
 # final "/" (if nonempty), unless it is on the PATH:
 COQBIN =
@@ -28,3 +31,9 @@ COQBIN =
 # List here any packages you'd like to try to build on a test basis.
 # When the packages work, add them to the list in ../Makefile.
 PACKAGES =
+
+# Memory limit, expressed as a multiple of 1024 bytes, for the command "ulimit -v".
+MEMORY_LIMIT = 2500000
+
+# Whether to apply the memory limit.  This will be set to "yes" when a pull request is tested.
+LIMIT_MEMORY = no

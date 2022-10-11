@@ -105,7 +105,7 @@ Definition weqtoforallpathsStatement :=
 
 Theorem funextsecImplication : isweqtoforallpathsStatement -> funextsecStatement.
 Proof.
-  intros fe ? ? ? ?. exact (invmap (weqpair _ (fe _ _ f g))).
+  intros fe ? ? ? ?. exact (invmap (make_weq _ (fe _ _ f g))).
 Defined.
 
 Theorem funextfunImplication : funextsecStatement -> funextfunStatement.
@@ -128,7 +128,7 @@ Proof.
     set ( g := totalfun _ _ ( λ XY : UU × UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
     assert (efg : funcomp g f ~ idfun _) .
     - intro z2 . induction z2 as [ XY e ] .
-      unfold funcomp . unfold idfun . unfold g . unfold f . unfold totalfun . simpl .
+      unfold g . unfold f . unfold totalfun . simpl .
       apply ( maponpaths ( fun w : ( pr1 XY) ≃ (pr2 XY) =>  tpair P2 XY w )
                        ( weqpathsweq ( pr1 XY ) ( pr2 XY ) e )) .
     - set ( h := λ a1 : Z1,  pr1 ( pr1 a1 ) ) .
@@ -139,15 +139,15 @@ Proof.
           set ( X' :=  maponpaths pr1 X ).
           assert ( is : isweq h ).
           { simpl in h .  apply isweqpr1pr1 . }
-          apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
+          apply ( invmaponpathsweq ( make_weq h is ) _ _ X' ).
         * set ( egf := λ a1 , egf1 _ _ ( egf0 a1 ) ).
-          set ( is2 := gradth _ _ egf efg ).
-          apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( dirprodpair T1 T2 ) ).
+          set ( is2 := isweq_iso _ _ egf efg ).
+          apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( make_dirprod T1 T2 ) ).
           }
   { intros ua.
     simple refine (_,,_).
-    - intros ? ?. exact (invmap (weqpair _ (ua _ _))).
-    - intros ? ?. exact (homotweqinvweq (weqpair _ (ua _ _))). }
+    - intros ? ?. exact (invmap (make_weq _ (ua _ _))).
+    - intros ? ?. exact (homotweqinvweq (make_weq _ (ua _ _))). }
 Defined.
 
 (** Conjecture :  the pair [weqtopaths] and [weqtopathsweq] in the proof above is well defined up to a canonical equality. **)
@@ -165,7 +165,7 @@ Section UnivalenceImplications.
 
   Theorem univalenceUAH (X Y:UU) : (X=Y) ≃ (X≃Y).
   Proof.
-    exact (weqpair _ (univalenceAxiom X Y)).
+    exact (make_weq _ (univalenceAxiom X Y)).
   Defined.
 
   Definition weqtopathsUAH : weqtopathsStatement.
@@ -184,7 +184,7 @@ Section UnivalenceImplications.
   Proof.
     unfold propositionalUnivalenceStatement; intros ? ? i j f g.
     apply weqtopathsUAH.
-    simple refine (weqpair f (gradth f g _ _)).
+    simple refine (make_weq f (isweq_iso f g _ _)).
     - intro p. apply proofirrelevance, i.
     - intro q. apply proofirrelevance, j.
   Defined.
@@ -251,12 +251,12 @@ Section UnivalenceImplications.
   Lemma eqcor0UAH { X X' : UU } ( w :  X ≃ X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) :
     (λ x : X, f1 ( w x )) = (λ x : X, f2 ( w x ) ) -> f1 = f2.
   Proof.
-    apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ).
+    apply ( invmaponpathsweq ( make_weq _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ).
   Defined.
 
   Lemma apathpr1toprUAH ( T : UU ) : paths ( λ z :  pathsspace T, pr1 z ) ( λ z : pathsspace T, pr1 ( pr2 z ) ).
   Proof.
-    apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( λ z :  pathsspace T, pr1 z ) ( λ z :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) .
+    apply ( eqcor0UAH ( make_weq _ ( isweqdeltap T ) ) _ ( λ z :  pathsspace T, pr1 z ) ( λ z :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) .
   Defined.
 
   Theorem funextfunPreliminaryUAH : funextfunStatement.
@@ -284,7 +284,7 @@ Section UnivalenceImplications.
   Lemma isweqlcompwithweqUAH {X X' : UU} (w: X ≃ X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
   (* this lemma is currently unused *)
   Proof.
-    simple refine (gradth _ _ _ _).
+    simple refine (isweq_iso _ _ _ _).
     exact (λ b x', b (invweq w x')).
     exact (λ a, funextfunPreliminaryUAH _ a (λ x', maponpaths a (homotweqinvweq w x'))).
     exact (λ a, funextfunPreliminaryUAH _ a (λ x , maponpaths a (homotinvweqweq w x ))).
@@ -293,7 +293,7 @@ Section UnivalenceImplications.
   Lemma isweqrcompwithweqUAH { Y Y':UU } (w: Y ≃ Y')(X:UU) :
     isweq (fun a:X->Y => (λ x, w (a x))).
   Proof.
-    simple refine (gradth _ _ _ _).
+    simple refine (isweq_iso _ _ _ _).
     exact (fun a':X->Y' => λ x, (invweq  w (a' x))).
     exact (fun a :X->Y  => funextfunPreliminaryUAH _ a (λ x, homotinvweqweq w (a x))).
     exact (fun a':X->Y' => funextfunPreliminaryUAH _ a' (λ x, homotweqinvweq w (a' x))).
@@ -307,7 +307,7 @@ Section UnivalenceImplications.
     set (T2 := (hfiber (fun f: (X -> total2 P)  => λ x: X, pr1  (f x)) (λ x:X, x))).
     assert (is1:isweq (@pr1 X P)).
     - apply isweqpr1. assumption.
-    - set (w1:= weqpair  (@pr1 X P) is1).
+    - set (w1:= make_weq  (@pr1 X P) is1).
       assert (X1:iscontr T2).
       + apply (isweqrcompwithweqUAH w1 X (λ x:X, x)).
       + apply (iscontrretract _ _ (sectohfibertosec P) X1).
@@ -398,7 +398,7 @@ Definition isweqtoforallpaths : isweqtoforallpathsStatement := isweqtoforallpath
 Arguments isweqtoforallpaths {_} _ _ _ _.
 
 Definition weqtoforallpaths : weqtoforallpathsStatement
-  := λ X P f g, weqpair _ (@isweqtoforallpaths X P f g).
+  := λ X P f g, make_weq _ (@isweqtoforallpaths X P f g).
 Arguments weqtoforallpaths {_} _ _ _.
 (* Print Assumptions weqtoforallpaths. (* isweqtoforallpathsAxiom *) *)
 

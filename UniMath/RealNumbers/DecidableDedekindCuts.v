@@ -3,6 +3,7 @@
 (** Additional results about Dedekind cuts which cannot be proved *)
 (** without decidability *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.RealNumbers.Prelim.
@@ -10,22 +11,20 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
-Unset Automatic Introduction.
-
-Open Scope Dcuts_scope.
+Local Open Scope Dcuts_scope.
+Local Open Scope DC_scope.
 
 (** ** Definition *)
 
 Lemma isboolDcuts_isaprop (x : Dcuts) :
   isaprop (∏ r, (r ∈ x) ∨ (neg (r ∈ x))).
 Proof.
-  intros x.
   apply impred_isaprop.
   intros r.
   apply pr2.
 Qed.
 Definition isboolDcuts : hsubtype Dcuts :=
-  (λ x : Dcuts, hProppair _ (isboolDcuts_isaprop x)).
+  (λ x : Dcuts, make_hProp _ (isboolDcuts_isaprop x)).
 
 Lemma isaset_boolDcuts : isaset isboolDcuts.
 Proof.
@@ -37,10 +36,10 @@ Proof.
 Qed.
 Definition boolDcuts : hSet.
 Proof.
-  apply (hSetpair (carrier isboolDcuts)).
+  apply (make_hSet (carrier isboolDcuts)).
   exact isaset_boolDcuts.
 Defined.
-Definition mk_boolDcuts (x : Dcuts) (Hdec : ∏ r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
+Definition make_boolDcuts (x : Dcuts) (Hdec : ∏ r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
   x,, (λ r : NonnegativeRationals, hinhpr (Hdec r)).
 
 Lemma is_zero_dec :

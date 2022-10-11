@@ -10,6 +10,7 @@ Contents:
         - left module over a monad T obtained by composing a monad having a distributive
           law with T [LModule_comp_laws]
           - in particular: the derivative of a left module over a monad [LModule_deriv]
+        - Commutation of module derivation with pullback [pb_LModule_deriv_iso]
 
 Written by: Joseph Helfer (May 2017)
 
@@ -21,8 +22,10 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -36,7 +39,8 @@ Local Open Scope cat.
  cf. Beck "Distributive laws" (1969) *)
 Section comp_def.
 
-Context {C : precategory} {S T : Monad C}.
+Section DistrLaws.
+Context {C : precategory_data} {S T : Monad_data C}.
 
 (** distributivity law for a pair of monads *)
 Definition monad_dist_laws (a : T ∙ S ⟹ S ∙ T) :=
@@ -50,15 +54,20 @@ Definition monad_dist_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := 
 Definition monad_dist_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := (pr2 (pr1 l)).
 Definition monad_dist_law4 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := pr2 l.
 
+End DistrLaws.
+
 (** composition of monads with a distributive law *)
-Definition monad_comp_mu (a : T ∙ S ⟹ S ∙ T) : (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
+Definition monad_comp_mu {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+  (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
   nat_trans_comp _ _ _ (post_whisker (pre_whisker S a) T)
                        (nat_trans_comp _ _ _ (pre_whisker (S ∙ S) (μ T)) (post_whisker (μ S) T)).
 
-Definition monad_comp_eta (a : T ∙ S ⟹ S ∙ T): functor_identity C ⟹ S ∙ T :=
+Definition monad_comp_eta {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T):
+  functor_identity C ⟹ S ∙ T :=
   nat_trans_comp _ _ _ (η S) (pre_whisker S (η T)).
 
-Definition monad_comp_data (a : T ∙ S ⟹ S ∙ T) : Monad_data C :=
+Definition monad_comp_data {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+  Monad_data C :=
   (tpair _ (tpair _ (S ∙ T) (monad_comp_mu a)) (monad_comp_eta a)).
 
 (** Below are the proofs of the monad laws for the composition of monads. We prove them as separate
@@ -88,7 +97,9 @@ TSTSx ---------------> TTSSx ----------->  TSSx  ------------> TSx
   | _________________/                                /
   |/                               id                /
  TSx ------------------------------------------------
-*)
+ *)
+
+Context {C : precategory} {S T : Monad C}.
 Local Lemma monad_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   (η S (T (S x))) · (η T (S (T (S x)))) · (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
   identity (T (S x)).
@@ -257,7 +268,7 @@ Defined.
 
 Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C :=
   (monad_comp_data a,,
-  dirprodpair (dirprodpair (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
+  make_dirprod (make_dirprod (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
 
 (** morphism from the factor T to the composite S ∙ T of two monads *)
 Definition monad_to_comp_data {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
@@ -333,17 +344,20 @@ Defined.
 
 Definition monad_to_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   Monad_Mor T (monad_comp l) :=
-  (monad_to_comp_data l,, dirprodpair (monad_to_comp_law1 l) (monad_to_comp_law2 l)).
+  (monad_to_comp_data l,, make_dirprod (monad_to_comp_law1 l) (monad_to_comp_law2 l)).
 
 End comp_def.
 
 (** * Definition of the "Maybe" monad (coproduct with a fixed object) *)
 Section maybe_def.
 
-Context {C : precategory} (o : C) (co : BinCoproducts C).
+Context {C : category} (o : C) (co : BinCoproducts C).
 
 Definition maybe_functor : functor C C :=
   constcoprod_functor1 co o.
+(** [maybe_functor] is the same as [UniMath.SubstitutionSystems.SignatureExamples.genopt],
+    which is introduced there only by [Let], and a different notion of distributive law
+    is studied *)
 
 Definition maybe_mu : maybe_functor ∙ maybe_functor ⟹ maybe_functor :=
   coproduct_nat_trans C C co (constant_functor C C o) maybe_functor maybe_functor
@@ -360,8 +374,8 @@ Definition maybe_monad_data : Monad_data C := (maybe_functor,, maybe_mu),, maybe
     near the beginning of the file *)
 
 Local Lemma maybe_monad_law1 : ∏ c : C,
-BinCoproductIn2 C (co o (co o c)) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
+BinCoproductIn2 (co o (co o c)) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
 identity (co o c).
 Proof.
   intro c.
@@ -370,22 +384,22 @@ Defined.
 
 Local Lemma maybe_monad_law2 : ∏ c : C,
 BinCoproductOfArrows C (co o c) (co o (co o c))
-  (identity o) (BinCoproductIn2 C (co o c)) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
+  (identity o) (BinCoproductIn2 (co o c)) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
 identity (co o c).
 Proof.
   intro c.
   now rewrite precompWithBinCoproductArrow, id_left,
-              <- (id_right (BinCoproductIn1 C (co o c))), <- BinCoproductArrowEta.
+              <- (id_right (BinCoproductIn1 (co o c))), <- BinCoproductArrowEta.
 Defined.
 
 Local Lemma maybe_monad_law3 : ∏ c : C,
 BinCoproductOfArrows C (co o (co o (co o c))) (co o (co o c))
  (identity o)
- (BinCoproductArrow C (co o (co o c)) (BinCoproductIn1 C (co o c)) (identity (co o c))) ·
-BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)) =
-BinCoproductArrow C _ (BinCoproductIn1 C (co o (co o c))) (identity (co o (co o c))) ·
- BinCoproductArrow C _ (BinCoproductIn1 C (co o c)) (identity (co o c)).
+ (BinCoproductArrow (co o (co o c)) (BinCoproductIn1 (co o c)) (identity (co o c))) ·
+BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)) =
+BinCoproductArrow _ (BinCoproductIn1 (co o (co o c))) (identity (co o (co o c))) ·
+ BinCoproductArrow _ (BinCoproductIn1 (co o c)) (identity (co o c)).
 Proof.
   intro c.
   now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
@@ -395,7 +409,7 @@ Defined.
 
 Definition maybe_monad : Monad C :=
   (maybe_monad_data,,
-  dirprodpair (dirprodpair maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
+  make_dirprod (make_dirprod maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
 
 (** Definition of the derivative of a monad, i.e. precomposing with the maybe monad *)
 Section deriv_def.
@@ -419,9 +433,9 @@ Definition deriv_dist (T : Monad C) : (T ∙ maybe_monad) ⟹ (maybe_monad ∙ T
     near the beginning of the file *)
 
 Local Lemma deriv_dist_law1 (T : Monad C) : ∏ x : C,
-  BinCoproductIn2 C (co o (T x)) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T _) (#T (BinCoproductIn2 C _)) =
-  #T (BinCoproductIn2 C (co o x)).
+  BinCoproductIn2 (co o (T x)) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T _) (#T (BinCoproductIn2 _)) =
+  #T (BinCoproductIn2 (co o x)).
 Proof.
   intro x.
   now rewrite BinCoproductIn2Commutes.
@@ -429,7 +443,7 @@ Defined.
 
 Local Lemma deriv_dist_law2 (T : Monad C) : ∏ x : C,
   BinCoproductOfArrows C (co o x) (co o (T x)) (identity o) (η T x) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _)) =
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _)) =
   η T (co o x).
 Proof.
   intro x.
@@ -443,19 +457,19 @@ Proof.
 Defined.
 
 Local Lemma deriv_dist_law3 (T : Monad C) : ∏ x : C,
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o (T x))) (#T (BinCoproductIn2 C _)) ·
-  #T (BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _))) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o (T x))) (#T (BinCoproductIn2 _)) ·
+  #T (BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _))) ·
   μ T (co o x) =
   BinCoproductOfArrows C (co o (T (T x))) (co o (T x)) (identity o) (μ T x) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x)) (#T (BinCoproductIn2 C _)).
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x)) (#T (BinCoproductIn2 _)).
 Proof.
   intro x.
   do 2 rewrite postcompWithBinCoproductArrow.
   rewrite <- functor_comp.
   rewrite BinCoproductIn2Commutes.
-  rewrite <- (assoc (BinCoproductIn1 C (co o (T x)))).
+  rewrite <- (assoc (BinCoproductIn1 (co o (T x)))).
   rewrite <- (nat_trans_ax (η T) (co o (T x))).
-  rewrite (assoc (BinCoproductIn1 C (co o (T x)))).
+  rewrite (assoc (BinCoproductIn1 (co o (T x)))).
   rewrite <- (assoc _ ((η T) (T (co o x)))).
   rewrite Monad_law1.
   simpl.
@@ -468,18 +482,18 @@ Defined.
 
 Local Lemma deriv_dist_law4 (T : Monad C) : ∏ x : C,
   BinCoproductOfArrows C (co o (co o (T x))) (co o (T (co o x))) (identity o)
-                         (BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o x))
-                                                (#T (BinCoproductIn2 C _))) ·
-  BinCoproductArrow C _ (BinCoproductIn1 C _ · η T (co o (co o x))) (#T (BinCoproductIn2 C _)) ·
-  #T (BinCoproductArrow C _ (BinCoproductIn1 C _) (identity _)) =
-  BinCoproductArrow C (co o (co o (T x))) (BinCoproductIn1 C _) (identity (co o (T x))) ·
-  BinCoproductArrow C (co o (T x)) (BinCoproductIn1 C (co o x) · η T (co o x))
-                                   (#T (BinCoproductIn2 C _)).
+                         (BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o x))
+                                                (#T (BinCoproductIn2 _))) ·
+  BinCoproductArrow _ (BinCoproductIn1 _ · η T (co o (co o x))) (#T (BinCoproductIn2 _)) ·
+  #T (BinCoproductArrow _ (BinCoproductIn1 _) (identity _)) =
+  BinCoproductArrow (co o (co o (T x))) (BinCoproductIn1 _) (identity (co o (T x))) ·
+  BinCoproductArrow (co o (T x)) (BinCoproductIn1 (co o x) · η T (co o x))
+                                   (#T (BinCoproductIn2 _)).
 Proof.
   intro x.
   rewrite precompWithBinCoproductArrow.
   rewrite postcompWithBinCoproductArrow.
-  rewrite <- (assoc _ (# T (BinCoproductIn2 C (co o (co o x))))).
+  rewrite <- (assoc _ (# T (BinCoproductIn2 (co o (co o x))))).
   rewrite <- functor_comp.
   rewrite BinCoproductIn2Commutes.
   rewrite functor_id.
@@ -496,7 +510,7 @@ Proof.
 Defined.
 
 Definition deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T) :=
-  dirprodpair (dirprodpair (dirprodpair (deriv_dist_law1 T) (deriv_dist_law2 T))
+  make_dirprod (make_dirprod (make_dirprod (deriv_dist_law1 T) (deriv_dist_law2 T))
                            (deriv_dist_law3 T))
               (deriv_dist_law4 T).
 
@@ -543,7 +557,7 @@ Definition LModule_comp_data {D : precategory} {T : Monad C} {S : Monad C} (a : 
 
 Definition LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) :
-  (LModule_laws T (LModule_comp_data a L)) := dirprodpair (LModule_comp_law1 l L)
+  (LModule_laws T (LModule_comp_data a L)) := make_dirprod (LModule_comp_law1 l L)
                                                           (LModule_comp_law2 l L).
 
 Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LModule T D :=
@@ -552,3 +566,60 @@ Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LMo
 End deriv_def.
 
 End maybe_def.
+
+(**
+Derivation on modules commutes with the pullback: if m is a monad morphism, then m*(M')
+ is isomorphic to m*(M)'
+ *)
+Section pullback_deriv.
+  Context {C : category}
+          (o : C) (* derivation X ↦ X + o *)
+          (bcpC : limits.bincoproducts.BinCoproducts C )
+          {D : category}.
+
+
+
+  Let MOD (R : Monad C) := (precategory_LModule R D).
+  Context {R S : Monad C} (f : Monad_Mor R S) (M : LModule S D).
+  Local Notation "M '" := (LModule_deriv o bcpC M) (at level 30).
+
+
+  Local Notation pb_d := (pb_LModule f (M ')).
+  Local Notation d_pb := ((pb_LModule f M ) ').
+
+  (** Pointwise equality of the involved multiplication *)
+  Lemma pb_LModule_deriv_eq_mult c :
+    # M (BinCoproductOfArrows C (bcpC o (R c)) (bcpC o (S c)) (identity o) (pr1 f c)) ·
+      (# (pr1 M)
+         (BinCoproductArrow (bcpC o (S c)) (BinCoproductIn1 (bcpC o c) · pr1 (η S) (bcpC o c))
+                            (# (pr1 S) (BinCoproductIn2 (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
+    # (pr1 M)
+      (BinCoproductArrow (bcpC o (R c)) (BinCoproductIn1 (bcpC o c) · pr1 (η R) (bcpC o c))
+                         (# (pr1 R) (BinCoproductIn2 (bcpC o c)))) · (# (pr1 M) (pr1 f (bcpC o c)) ·
+                                                                          (lm_mult S M) (bcpC o c)).
+  Proof.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    do 2 rewrite <- functor_comp.
+    apply maponpaths.
+    etrans;[ apply precompWithBinCoproductArrow|].
+    rewrite id_left.
+    rewrite postcompWithBinCoproductArrow.
+    apply map_on_two_paths.
+    - rewrite <- assoc.
+      apply cancel_precomposition.
+      apply pathsinv0.
+      apply Monad_Mor_η.
+    - apply pathsinv0.
+      apply nat_trans_ax.
+  Qed.
+  Definition pb_LModule_deriv_iso :
+    iso (C := MOD R) pb_d d_pb :=
+    LModule_same_func_iso
+      (pb_LModule_laws f (M '))
+                      (LModule_comp_laws (deriv_dist_is_monad_dist o bcpC R) (pb_LModule f M))
+                      pb_LModule_deriv_eq_mult
+                      (homset_property D) .
+
+
+End pullback_deriv.

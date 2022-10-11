@@ -11,12 +11,13 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -29,8 +30,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -47,8 +48,8 @@ Local Open Scope cat.
 Unset Kernel Term Sharing.
 Global Opaque hz.
 
-Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh.
+Local Open Scope hz_scope.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishinh.
 
 (** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
 (** ** Introduction
@@ -76,7 +77,7 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh
 *)
 Section complexes_homotopies.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition ComplexHomot (C1 C2 : Complex A) : UU := ∏ (i : hz), A⟦C1 i, C2 (i - 1)⟧.
 
@@ -100,7 +101,7 @@ Section complexes_homotopies.
                              (H i · Diff C2 (i - 1)) ·
                              Diff C2 i) = ZeroArrow (Additive.to_Zero A) _ _).
     {
-      induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc.
+      induction (hzrminusplus i 1). cbn. rewrite <- assoc.
       rewrite (@DSq A C2 (i - 1)). apply ZeroArrow_comp_right.
     }
     rewrite e0. clear e0.
@@ -132,7 +133,7 @@ Section complexes_homotopies.
       these to C2 i. *)
   Definition ComplexHomotMorphism {C1 C2 : Complex A} (H : ComplexHomot C1 C2) : Morphism C1 C2.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i.
       use (@to_binop A (C1 i) (C2 i)).
       + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) · (Diff C2 (i - 1)))).
@@ -150,7 +151,7 @@ Section complexes_homotopies.
 
   (** This lemma shows that the subset [ComplexHomotSubset] satisfies the axioms of a subgroup. *)
   Lemma ComplexHomotisSubgrop (C1 C2 : Complex A) :
-    @issubgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
+    @issubgr (@to_abgr (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
   Proof.
     use tpair.
     - use tpair.
@@ -198,10 +199,10 @@ Section complexes_homotopies.
             induction (hzrminusplus i 1). apply idpath.
           }
           cbn in e1. rewrite e1. clear e1.
-          set (tmp := @assocax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp.
+          set (tmp := @assocax (@to_abgr A (C1 i) (C2 i))). cbn in tmp.
           rewrite tmp. rewrite tmp. apply maponpaths.
           rewrite <- tmp. rewrite <- tmp.
-          set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'.
+          set (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). cbn in tmp'.
           rewrite tmp'.
           rewrite (tmp' _ (transportf (precategory_morphisms (C1 i))
                                       (maponpaths C2 (hzrplusminus i 1))
@@ -219,13 +220,13 @@ Section complexes_homotopies.
     - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
       induction H' as [homot eq]. use hinhpr.
       use tpair.
-      + intros i. exact (grinv (to_abgrop (C1 i) (C2 (i - 1))) (homot i)).
+      + intros i. exact (grinv (to_abgr (C1 i) (C2 (i - 1))) (homot i)).
       + cbn. rewrite <- eq. use MorphismEq. intros i. cbn.
         set (tmp := @PreAdditive_invrcomp A _ _ _ (Diff C1 i) (homot (i + 1))).
         unfold to_inv in tmp. cbn in tmp. cbn. rewrite <- tmp. clear tmp.
         assert (e0 : (transportf (precategory_morphisms (C1 i))
                                  (maponpaths C2 (hzrplusminus i 1))
-                                 (grinv (to_abgrop (C1 i) (C2 (i + 1 - 1)))
+                                 (grinv (to_abgr (C1 i) (C2 (i + 1 - 1)))
                                         (Diff C1 i · homot (i + 1)))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrplusminus i 1))
@@ -235,27 +236,27 @@ Section complexes_homotopies.
         }
         cbn in e0. rewrite e0. clear e0.
         assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                                 (grinv (to_abgrop (C1 i) (C2 (i - 1)))
+                                 (grinv (to_abgr (C1 i) (C2 (i - 1)))
                                         (homot i) · Diff C2 (i - 1))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrminusplus i 1))
                                         (homot i · Diff C2 (i - 1)))).
         {
-          unfold to_inv. cbn. induction (hzrminusplus i 1). cbn. unfold idfun.
+          unfold to_inv. cbn. induction (hzrminusplus i 1). cbn.
           set (tmp := @PreAdditive_invlcomp A (C1 i) (C2 (i - 1)) (C2 (i - 1 + 1))
                                             (homot i) (Diff C2 (i - 1))).
           apply pathsinv0. unfold to_inv in tmp.
           apply tmp.
         }
         cbn in e1. rewrite e1. clear e1.
-        set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'. rewrite tmp'. clear tmp'.
-        set (tmp := @grinvop (@to_abgrop A (C1 i) (C2 i))). cbn in tmp. unfold to_inv.
+        set (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). cbn in tmp'. rewrite tmp'. clear tmp'.
+        set (tmp := @grinvop (@to_abgr A (C1 i) (C2 i))). cbn in tmp. unfold to_inv.
         apply pathsinv0.
         apply tmp.
   Qed.
 
   Definition ComplexHomotSubgrp (C1 C2 : Complex A) :
-    @subabgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
+    @subabgr (@to_abgr (ComplexPreCat_Additive A) C1 C2).
   Proof.
     use subgrconstr.
     - exact (ComplexHomotSubset C1 C2).
@@ -332,7 +333,7 @@ Section complexes_homotopies.
   Qed.
 
   (** Here we construct K(A). *)
-  Definition ComplexHomot_Additive : Additive :=
+  Definition ComplexHomot_Additive : CategoryWithAdditiveStructure :=
     Quotcategory_Additive
       (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
 
