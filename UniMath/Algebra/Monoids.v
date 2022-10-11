@@ -1467,6 +1467,8 @@ Proof.
   - apply iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).
   - apply isirreflabmonoidfracrel, (isirrefl_isStrongOrder H).
 Defined.
+Opaque isStrongOrder_abmonoidfrac.
+
 Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X)
            (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
   abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).

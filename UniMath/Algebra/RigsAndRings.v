@@ -2752,13 +2752,7 @@ Proof.
   apply funextfun ; intros x.
   apply funextfun ; intros y.
   apply (maponpaths (λ H, abmonoidfracrel (ringmultabmonoid X) Y H x y)).
-  assert (H : isaprop (ispartbinophrel Y gt)).
-  { apply isapropdirprod ;
-    apply impred_isaprop ; intros a ;
-    apply impred_isaprop ; intros b ;
-    apply impred_isaprop ; intros c ;
-    apply isapropimpl, isapropimpl, (pr2 (gt _ _)). }
-  apply H.
+  apply isaprop_ispartbinophrel.
 Defined.
 
 (** **** Realations and the canonical homomorphism to the ring of fractions *)
