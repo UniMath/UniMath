@@ -137,8 +137,11 @@ Section ActegoryToObject.
       apply actegory_unitorisolaw]).
   Defined.
 
+  Context (ax1 : actionbicat_ax1 (monoidal_swapped Mon_V) bicat_of_cats)
+          (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats ax1).
+
   Definition actegory_to_object (Act : actegory Mon_V C)
-    : bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats.
+    : bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats ax1 ax2.
   Proof.
     exists C.
     exists (bifunctor_to_functorintoendofunctorcat Act).
@@ -152,7 +155,11 @@ Section ActegoryFromObject.
 
   Context {V : category}.
   Context (Mon_V : monoidal V).
-  Context (C : bicatactionbicat Mon_V bicat_of_cats).
+
+  Context (ax1 : actionbicat_ax1 Mon_V bicat_of_cats)
+          (ax2 : actionbicat_ax2 Mon_V bicat_of_cats ax1).
+
+  Context (C : bicatactionbicat Mon_V bicat_of_cats ax1 ax2).
 
   Local Definition action_C := pr12 C.
   Local Definition action_fmon_lax := pr122 C.
@@ -271,8 +278,11 @@ Context {V : category} (Mon_V : monoidal V).
 Local Definition ACAT
   : bicat := actbicat Mon_V.
 
+Context (ax1 : actionbicat_ax1 (monoidal_swapped Mon_V) bicat_of_cats)
+        (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats ax1).
+
 Local Definition ACTI
-  : bicat := bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats.
+  : bicat := bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats ax1 ax2.
 
 Section EqualityLemmaHelpers.
 
@@ -360,12 +370,14 @@ Section FromActegoriesToActionsInCat.
 
   Import MonoidalNotations.
 
+  Context (ax1 : actionbicat_ax1 (monoidal_swapped Mon_V) bicat_of_cats)
+        (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats ax1).
   Definition acat_to_acti_on_ob : ob ACAT -> ob ACTI
-    := λ act, actegory_to_object Mon_V (pr2 act).
+    := λ act, actegory_to_object Mon_V ax1 ax2 (pr2 act).
 
   Lemma actegory_hom_preserves_unitor_inv
         {a1 a2 : ACAT} (f : ACAT ⟦ a1, a2 ⟧)
-        (c : pr11 (actegory_to_object Mon_V (pr2 a1)))
+        (c : pr11 (actegory_to_object Mon_V ax1 ax2 (pr2 a1)))
     : actegory_unitorinvdata (pr2 a2 : actegory _ _) (pr1 (pr1 f) c) · (pr12 f) I_{ Mon_V} c
       = # (pr11 f) (actegory_unitorinvdata (pr2 a1 : actegory _ _) c).
   Proof.
@@ -383,8 +395,8 @@ Section FromActegoriesToActionsInCat.
 
   Definition acat_to_acti_on_mor_data_data
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
-    nat_trans_data (ActionBasedStrongFunctorsWhiskeredMonoidal.H(V:=V)(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f))
-      (ActionBasedStrongFunctorsWhiskeredMonoidal.H'(FA:=pr12(actegory_to_object Mon_V (pr2 a1))) (pr1 f)).
+    nat_trans_data (ActionBasedStrongFunctorsWhiskeredMonoidal.H(V:=V)(FA':=pr12(actegory_to_object Mon_V ax1 ax2 (pr2 a2))) (pr1 f))
+      (ActionBasedStrongFunctorsWhiskeredMonoidal.H'(FA:=pr12(actegory_to_object Mon_V ax1 ax2 (pr2 a1))) (pr1 f)).
   Proof.
     intro v.
     exists (λ c, pr1 (pr2 f) v c).
@@ -406,15 +418,15 @@ Section FromActegoriesToActionsInCat.
   Definition acat_to_acti_on_mor_data
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat(V:=V)
-      (FA:=pr12(actegory_to_object Mon_V (pr2 a1)))(FA':=pr12(actegory_to_object Mon_V (pr2 a2))) (pr1 f)
+      (FA:=pr12(actegory_to_object Mon_V ax1 ax2 (pr2 a1)))(FA':=pr12(actegory_to_object Mon_V ax1 ax2 (pr2 a2))) (pr1 f)
     := _,,acat_to_acti_on_mor_data_data_is_nat_trans f.
 
   Lemma acat_to_acti_on_mor_laws
     {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧) :
     ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq (monoidal_swapped Mon_V)
-      (pr22 (actegory_to_object Mon_V (pr2 a1))) (pr22 (actegory_to_object Mon_V (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f)
+      (pr22 (actegory_to_object Mon_V ax1 ax2 (pr2 a1))) (pr22 (actegory_to_object Mon_V ax1 ax2 (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f)
       × ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_pentagon_eq (monoidal_swapped Mon_V)
-      (pr22 (actegory_to_object Mon_V (pr2 a1))) (pr22 (actegory_to_object Mon_V (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f).
+      (pr22 (actegory_to_object Mon_V ax1 ax2 (pr2 a1))) (pr22 (actegory_to_object Mon_V ax1 ax2 (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f).
   Proof.
     split.
     - use nat_trans_eq.
@@ -442,7 +454,7 @@ Section FromActegoriesToActionsInCat.
 
   Definition acat_to_acti_on_mor
              {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
-    : ACTI⟦actegory_to_object Mon_V (pr2 a1), actegory_to_object Mon_V (pr2 a2)⟧.
+    : ACTI⟦actegory_to_object Mon_V ax1 ax2 (pr2 a1), actegory_to_object Mon_V ax1 ax2 (pr2 a2)⟧.
   Proof.
     exists (pr1 f).
     exists (acat_to_acti_on_mor_data f).
@@ -544,20 +556,20 @@ End FromActegoriesToActionsInCat.
 Section FromActionInCatToActegories.
 
   Definition acti_to_acat_on_ob : (ob ACTI) -> (ob ACAT)
-    := λ act, _ ,, actegory_from_object _ act.
+    := λ act, _ ,, actegory_from_object _ ax1 ax2 act.
 
   Definition acti_to_acat_on_mor_lineator_data
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    :  lineator_data Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
-                     (actegory_from_object (monoidal_swapped Mon_V) a2) (pr1 f)
+    :  lineator_data Mon_V (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a1)
+                     (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a2) (pr1 f)
     := λ v c, pr1 (pr112 f v) c.
 
   Definition acti_to_acat_on_mor_lineator_lax_laws
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
     :  lineator_laxlaws
          Mon_V
-         (actegory_from_object (monoidal_swapped Mon_V) a1)
-         (actegory_from_object (monoidal_swapped Mon_V) a2)
+         (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a1)
+         (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a2)
          (pr1 f)
          (acti_to_acat_on_mor_lineator_data f).
   Proof.
@@ -633,8 +645,8 @@ Section FromActionInCatToActegories.
 
   Definition acti_to_acat_on_mor_lineator_lax
              {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    : lineator_lax Mon_V (actegory_from_object (monoidal_swapped Mon_V) a1)
-                   (actegory_from_object (monoidal_swapped Mon_V) a2) (pr1 f).
+    : lineator_lax Mon_V (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a1)
+                   (actegory_from_object (monoidal_swapped Mon_V) ax1 ax2 a2) (pr1 f).
   Proof.
     exists (acti_to_acat_on_mor_lineator_data f).
     exact (acti_to_acat_on_mor_lineator_lax_laws f).
@@ -742,8 +754,11 @@ End FromActionInCatToActegories.
 
 Section ActionInCatEquivActegories.
 
+  Context (ax1 : actionbicat_ax1 (monoidal_swapped Mon_V) bicat_of_cats)
+          (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats ax1).
+
   Definition acti_to_acat_unit_data_on_ob (a : ACTI)
-    : ACTI ⟦Composition.comp_psfunctor acat_to_acti acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
+    : ACTI ⟦Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
   Proof.
     exists (identity _).
     use tpair.
@@ -783,7 +798,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_unit_data
-    :  pstrans_data (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
+    :  pstrans_data (Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
     use make_pstrans_data.
     - exact (λ a, acti_to_acat_unit_data_on_ob a).
@@ -845,7 +860,7 @@ Section ActionInCatEquivActegories.
   Qed.
 
   Definition acti_to_acat_unit
-    :  pstrans (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
+    :  pstrans (Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
     use make_pstrans.
     - exact acti_to_acat_unit_data.
@@ -853,7 +868,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_counit_data_on_ob (a : ACAT)
-    : ACAT ⟦Composition.comp_psfunctor acti_to_acat acat_to_acti a, Identity.id_psfunctor ACAT a⟧.
+    : ACAT ⟦Composition.comp_psfunctor acti_to_acat (acat_to_acti ax1 ax2) a, Identity.id_psfunctor ACAT a⟧.
   Proof.
     exists (identity _).
     exists (λ _ _, identity _).
@@ -870,7 +885,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_counit_data
-    :  pstrans_data (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
+    :  pstrans_data (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax1 ax2)) (Identity.id_psfunctor ACAT).
   Proof.
     use make_pstrans_data.
     - exact (λ a, acti_to_acat_counit_data_on_ob a).
@@ -929,7 +944,7 @@ Section ActionInCatEquivActegories.
   Qed.
 
   Definition acti_to_acat_counit
-    :  pstrans (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
+    :  pstrans (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax1 ax2)) (Identity.id_psfunctor ACAT).
   Proof.
     use make_pstrans.
     - exact acti_to_acat_counit_data.
@@ -937,7 +952,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_biequiv_unit_counit_acat
-    : is_biequivalence_unit_counit acti_to_acat acat_to_acti.
+    : is_biequivalence_unit_counit acti_to_acat (acat_to_acti ax1 ax2).
   Proof.
     exists acti_to_acat_unit.
     exact acti_to_acat_counit.
@@ -945,7 +960,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_base_ACTI
     :  Base.ps_base ACTI ACTI ⟦ pr111 (Identity.id_psfunctor ACTI),
-  pr111 (Composition.comp_psfunctor acat_to_acti acti_to_acat) ⟧.
+  pr111 (Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat) ⟧.
   Proof.
     intro.
     exists (functor_identity _).
@@ -985,7 +1000,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_base_ACAT
     :  Base.ps_base ACAT ACAT ⟦ pr111 (Identity.id_psfunctor ACAT),
-                                pr111 (Composition.comp_psfunctor acti_to_acat acat_to_acti) ⟧.
+                                pr111 (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax1 ax2)) ⟧.
   Proof.
     intro.
     exists (functor_identity _).
@@ -1013,7 +1028,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition ACAT_invertible_2cell {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
-    : invertible_2cell (ps_base_ACAT a1 · acti_to_acat_on_mor (acat_to_acti_on_mor f)) (f · ps_base_ACAT a2).
+    : invertible_2cell (ps_base_ACAT a1 · acti_to_acat_on_mor (acat_to_acti_on_mor ax1 ax2 f)) (f · ps_base_ACAT a2).
   Proof.
     repeat (use tpair).
     - exact (λ _, identity _).
@@ -1058,7 +1073,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition ACTI_invertible_2cell {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    :   invertible_2cell (ps_base_ACTI a1 · acat_to_acti_on_mor (acti_to_acat_on_mor f)) (f · ps_base_ACTI a2).
+    :   invertible_2cell (ps_base_ACTI a1 · acat_to_acti_on_mor ax1 ax2 (acti_to_acat_on_mor f)) (f · ps_base_ACTI a2).
   Proof.
     use tpair.
     - use tpair.
@@ -1108,7 +1123,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_functor_ACTI
     : psfunctor_bicat ACTI ACTI ⟦ Identity.id_psfunctor ACTI,
-                                  Composition.comp_psfunctor acat_to_acti acti_to_acat ⟧.
+                                  Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat ⟧.
   Proof.
     refine (_ ,, tt).
     use tpair.
@@ -1126,7 +1141,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_functor_ACAT
     :  psfunctor_bicat ACAT ACAT ⟦ Identity.id_psfunctor ACAT,
-  Composition.comp_psfunctor acti_to_acat acat_to_acti ⟧.
+  Composition.comp_psfunctor acti_to_acat (acat_to_acti ax1 ax2) ⟧.
   Proof.
     refine (_ ,, tt).
     use tpair.

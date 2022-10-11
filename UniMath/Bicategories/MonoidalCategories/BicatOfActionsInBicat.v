@@ -386,7 +386,6 @@ Section FixMoncatAndBicat.
     apply lwhisker_id2.
   Qed.
 
-
   Lemma disp_actionbicat_disp_comp_pentagon {a0 a1 a2 : B}
     {g1 : B ⟦ a0, a1 ⟧}
     {g2 : B ⟦ a1, a2 ⟧}
@@ -420,12 +419,24 @@ Section FixMoncatAndBicat.
       repeat rewrite vassocr.
       do 10 apply maponpaths_2.
       apply pathsinv0, lwhisker_lwhisker_rassociator. }
+  Abort.
 
+  Definition actionbicat_ax1 : UU :=
+    ∏ (a0 a1 a2 : B)
+    (g1 : B ⟦ a0, a1 ⟧)
+    (g2 : B ⟦ a1, a2 ⟧)
+    (FA : V ⟶ category_from_bicat_and_ob a0)
+    (FAm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA)
+    (FA' : V ⟶ category_from_bicat_and_ob a1)
+    (FA'm : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA')
+    (FA'' : V ⟶ category_from_bicat_and_ob a2)
+    (FA''m : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA'')
+    (Hyp1 : disp_actionbicat_disp_mor FAm FA'm g1)
+    (Hyp2 : disp_actionbicat_disp_mor FA'm FA''m g2),
+      param_distr_bicat_pentagon_eq Mon_V FAm FA''m (g1 · g2) (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
 
-
-
-
-    Admitted.
+  (** instead of a proven [disp_actionbicat_disp_comp_pentagon]: *)
+  Context (ax1 : actionbicat_ax1).
 
   Definition disp_actionbicat_disp_id_comp : disp_cat_id_comp B disp_actionbicat_disp_ob_mor.
   Proof.
@@ -436,7 +447,7 @@ Section FixMoncatAndBicat.
       + split; [apply disp_actionbicat_disp_id_triangle | apply disp_actionbicat_disp_id_pentagon]; assumption.
     - intros a0 a1 a2 g1 g2 [FA FAm] [FA' FA'm] [FA'' FA''m] Hyp1 Hyp2. cbn in Hyp1, Hyp2.
       exists (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
-      + split; [apply disp_actionbicat_disp_comp_triangle | apply disp_actionbicat_disp_comp_pentagon]; assumption.
+      + split; [apply disp_actionbicat_disp_comp_triangle | apply ax1]; assumption.
   Defined.
 
   Definition disp_actionbicat_disp_catdata : disp_cat_data B
@@ -491,17 +502,60 @@ Section FixMoncatAndBicat.
     :  disp_prebicat_1_id_comp_cells B
     := (disp_actionbicat_disp_catdata,, bidisp_actionbicat_disp_2cell_struct).
 
-  Lemma bidisp_actionbicat_disp_prebicat_ops :
-    disp_prebicat_ops bidisp_actionbicat_disp_prebicat_1_id_comp_cells.
-  Proof.
-    repeat split; intros; red; cbn;
+  Ltac aux_bidisp_actionbicat_disp_prebicat_ops :=
+      intros; red; cbn;
       unfold bidisp_actionbicat_disp_2cell_struct, bidisp_actionbicat_disp_2cell_eq_body;
       intro v;
       unfold disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data;
       cbn; show_id_type.
-    - rewrite lwhisker_id2. rewrite id2_right.
+
+  Definition actionbicat_ax2 : UU :=
+  (∏ (a b c d : B) (f : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (h : B ⟦ c, d ⟧)
+  (w : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+  (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+  (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c)
+  (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells d) (ff : w -->[ f] x)
+  (gg : x -->[ g] y) (hh : y -->[ h] z),
+  disp_2cells (rassociator f g h) (ff ;; gg ;; hh) (ff ;; (gg ;; hh)))
+ × (∏ (a b c d : B) (f : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (h : B ⟦ c, d ⟧)
+    (w : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+    (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+    (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c)
+    (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells d) (ff : w -->[ f] x)
+    (gg : x -->[ g] y) (hh : y -->[ h] z),
+    disp_2cells (lassociator f g h) (ff ;; (gg ;; hh)) (ff ;; gg ;; hh))
+   × (∏ (a b : B) (f g h : B ⟦ a, b ⟧) (r : f ==> g) (s : g ==> h)
+      (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+      (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b) (ff : x -->[ f] y)
+      (gg : x -->[ g] y) (hh : x -->[ h] y),
+      disp_2cells r ff gg → disp_2cells s gg hh → disp_2cells (r • s) ff hh)
+     × (∏ (a b c : B) (f : B ⟦ a, b ⟧) (g1 g2 : B ⟦ b, c ⟧) (r : g1 ==> g2)
+        (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+        (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+        (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c) (ff : x -->[ f] y)
+        (gg1 : y -->[ g1] z) (gg2 : y -->[ g2] z),
+        disp_2cells r gg1 gg2 → disp_2cells (f ◃ r) (ff ;; gg1) (ff ;; gg2))
+       × (∏ (a b c : B) (f1 f2 : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (r : f1 ==> f2)
+          (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+          (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+          (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c) (ff1 : x -->[ f1] y)
+          (ff2 : x -->[ f2] y) (gg : y -->[ g] z),
+         disp_2cells r ff1 ff2 → disp_2cells (r ▹ g) (ff1 ;; gg) (ff2 ;; gg)).
+
+  Context (ax2 : actionbicat_ax2).
+
+  Lemma bidisp_actionbicat_disp_prebicat_ops :
+    disp_prebicat_ops bidisp_actionbicat_disp_prebicat_1_id_comp_cells.
+  Proof.
+    split; [| split; [| split ; [| split ; [| split]]]].
+    (*repeat split; intros; red ; cbn;
+      unfold bidisp_actionbicat_disp_2cell_struct, bidisp_actionbicat_disp_2cell_eq_body;
+      intro v;
+      unfold disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data;
+      cbn; show_id_type. *)
+    - aux_bidisp_actionbicat_disp_prebicat_ops. rewrite lwhisker_id2. rewrite id2_right.
       rewrite id2_rwhisker. apply pathsinv0, id2_left.
-    - rewrite <- rwhisker_vcomp.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. rewrite <- rwhisker_vcomp.
       etrans.
       { repeat rewrite vassocl. do 5 apply maponpaths.
         apply lunitor_lwhisker. }
@@ -516,7 +570,7 @@ Section FixMoncatAndBicat.
       apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
       cbn.
       apply pathsinv0, lunitor_triangle.
-    - rewrite <- lwhisker_vcomp.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. rewrite <- lwhisker_vcomp.
       etrans.
       {
         repeat rewrite vassocl.
@@ -540,7 +594,7 @@ Section FixMoncatAndBicat.
       rewrite vassocr.
       apply maponpaths_2.
       apply lunitor_lwhisker.
-    - etrans.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. etrans.
       2: {
         do 3 apply maponpaths.
         apply maponpaths_2.
@@ -569,7 +623,7 @@ Section FixMoncatAndBicat.
       rewrite (! hcomp_identity_right _ _ _ _).
       rewrite (! hcomp_identity_left _ _ _ _).
       apply triangle_r_inv.
-    - rewrite <- lwhisker_vcomp.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. rewrite <- lwhisker_vcomp.
       etrans.
       2: {
         apply maponpaths.
@@ -602,13 +656,9 @@ Section FixMoncatAndBicat.
       rewrite rinvunitor_natural.
       apply maponpaths.
       apply hcomp_identity_right.
-    - admit.
-    - admit.
-    - admit.
-    - admit.
-    - admit.
+    - exact ax2.
 
-  (* probably not useful:
+  (* probably not useful for 10th goal after splitting:
       induction x as [FA FAm].
       induction y as [FA' FA'm].
       induction f' as [δ [tria penta]].
@@ -619,7 +669,7 @@ Section FixMoncatAndBicat.
       rewrite hcomp_identity_left in δnat; rewrite hcomp_identity_right in δnat. *)
        *)
 
-  Admitted.
+  Qed.
 
   Definition bidisp_actionbicat_disp_prebicat_data : disp_prebicat_data B
     := (bidisp_actionbicat_disp_prebicat_1_id_comp_cells,, bidisp_actionbicat_disp_prebicat_ops).
