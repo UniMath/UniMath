@@ -1900,7 +1900,6 @@ Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU
 Lemma isaprop_ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) :
   isaprop (ispartbinophrel S R).
 Proof.
-  intros X S R.
   apply isapropdirprod ;
   apply impred_isaprop ; intros a ;
   apply impred_isaprop ; intros b ;

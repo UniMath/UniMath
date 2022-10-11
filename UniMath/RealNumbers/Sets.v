@@ -112,6 +112,7 @@ Qed.
 Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
   isStrongOrder l → isStrongOrder (hrel_reverse l).
 Proof.
+  intros H.
   mkStrongOrder.
   - apply istrans_reverse, (istrans_StrongOrder (_,,H)).
   - apply iscotrans_reverse,(iscotrans_StrongOrder (_,,H)).

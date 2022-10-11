@@ -52,7 +52,6 @@ Definition islatticeop {X : hSet} (min max : binop X) : UU :=
 Lemma isaprop_islatticeop {X : hSet} (min max : binop X) :
   isaprop (islatticeop min max).
 Proof.
-  intros X min max.
   apply isapropdirprod ;
     [ | apply isapropdirprod] ;
     apply isapropdirprod.
@@ -154,7 +153,7 @@ End bounded_lattice_pty.
 (** [Lle] *)
 
 Definition Lle {X : hSet} (lat : lattice X) : hrel X :=
-  λ (x y : X), (Lmin lat x y = x)%set.
+  λ (x y : X), (Lmin lat x y = x)%logic.
 
 Section lattice_le.
 
@@ -234,11 +233,11 @@ Lemma Lmax_le_case :
 Proof.
   intros x y z <- <-.
   set (w := Lmax _ (Lmin _ x z) (Lmin _ y z)).
-  assert (c : z = (Lmax is w z)).
+  assert (c : z = (Lmax lat w z)).
   - unfold w.
     now rewrite isassoc_Lmax, (iscomm_Lmax _ (Lmin _ y z) _),
     (iscomm_Lmin _ y z), Lmax_absorb, iscomm_Lmax, iscomm_Lmin, Lmax_absorb.
-  - rewrite c. use (Lmin_absorb is).
+  - rewrite c. use (Lmin_absorb lat).
 Qed.
 
 Lemma Lmin_le_eq_l :
@@ -327,8 +326,8 @@ Definition Lmax_ge_r :
   ∏ (x y : X), Lge lat (Lmax lat x y) y :=
   Lmax_le_r lat.
 Definition Lmax_ge_case :
-  ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
-  Lmax_le_case is.
+  ∏ x y z : X, Lge lat z x → Lge lat z y → Lge lat z (Lmax lat x y) :=
+  Lmax_le_case lat.
 
 Definition Lmin_ge_eq_l :
   ∏ (x y : X), Lge lat y x → Lmin lat x y = x :=
@@ -630,7 +629,7 @@ Section lattice_abmonoid.
 
 Context {X : abmonoid}
         (lat : lattice X)
-        (is0 : isinvbinophrel (λ x y : X, (x = y)%set))
+        (is0 : isinvbinophrel (λ x y : X, (x = y)%logic))
         (is2 : isrdistr (Lmin lat) op).
 
 Lemma op_le_r :
@@ -665,7 +664,7 @@ Qed.
 Definition extruncminus {X : abmonoid} (lat : lattice X) :=
   ∑ minus : binop X, istruncminus lat minus.
 Lemma isaprop_extruncminus {X : abmonoid} (lat : lattice X)
-      (Hop : isinvbinophrel (λ x y : X, (x = y)%set)) :
+      (Hop : isinvbinophrel (λ x y : X, (x = y)%logic)) :
   isaprop (extruncminus lat).
 Proof.
   intros minus1 minus2 ; simpl.
@@ -681,7 +680,7 @@ Proof.
     + intros f. apply isaprop_istruncminus.
     + apply weqfunextsec ; intros x.
       apply weqfunextsec ; intros y.
-      apply (Hop y).
+      apply (pr2 Hop _ _ y).
       rewrite (pr2 minus1).
       apply pathsinv0, (pr2 minus2).
 Qed.
@@ -700,7 +699,7 @@ Section truncminus_pty.
 Context {X : abmonoid}
         {lat : lattice X}
         (ex : extruncminus lat)
-        (is1 : isinvbinophrel (λ x y : X, (x = y)%set))
+        (is1 : isinvbinophrel (λ x y : X, (x = y)%logic))
         (is2 : isrdistr (Lmax lat) op)
         (is3 : isrdistr (Lmin lat) op)
         (is4 : isrdistr (Lmin lat) (Lmax lat))
@@ -964,7 +963,6 @@ Qed.
 
 Definition lattice_weq {X Y : hSet} (H : weq Y X) (lat : lattice X) : lattice Y.
 Proof.
-  intros X Y H lat.
   exists (binop_weq_bck H (Lmin lat)), (binop_weq_bck H (Lmax lat)).
   apply islatticeop_weq.
   apply (pr2 (pr2 lat)).
@@ -975,7 +973,6 @@ Defined.
 Lemma Lle_correct_weq {X Y : hSet} (H : weq Y X) (lat : lattice X) :
   fun_hrel_comp H (Lle lat) = Lle (lattice_weq H lat).
 Proof.
-  intros X Y H lat.
   apply funextfun ; intros x.
   apply funextfun ; intros y.
   apply hPropUnivalence ; intros Hle.
@@ -991,7 +988,7 @@ Lemma islatticewithgtrel_weq {X Y : hSet} (H : weq Y X) {gt : StrongOrder X} (la
   islatticewithgtrel lat gt →
   islatticewithgtrel (lattice_weq H lat) (StrongOrder_bck H gt).
 Proof.
-  intros X Y H gt lat Hgt.
+  intros Hgt.
   split ; split.
   - intros Hngt.
     unfold Lle ; simpl.
@@ -1020,7 +1017,6 @@ Qed.
 Definition latticewithgt_weq {X Y : hSet} (H : weq Y X) (lat : latticewithgt X) :
   latticewithgt Y.
 Proof.
-  intros X Y H lat.
   exists (lattice_weq H lat), (StrongOrder_bck H (Lgt lat)).
   apply islatticewithgtrel_weq.
   apply (pr2 (pr2 lat)).
@@ -1032,7 +1028,6 @@ Lemma istotal_Lle_weq {X Y : hSet} (H : weq Y X)
       (lat : lattice X) (is' : istotal (Lle lat)) :
   istotal (Lle (lattice_weq H lat)).
 Proof.
-  intros X Y H lat is'.
   intros x y.
   generalize (is' (H x) (H y)).
   apply hinhfun, sumofmaps ; intros Hmin.
@@ -1043,7 +1038,6 @@ Lemma isdecrel_Lle_weq {X Y : hSet} (H : weq Y X)
       (lat : lattice X) (is' : isdecrel (Lle lat)) :
   isdecrel (Lle (lattice_weq H lat)).
 Proof.
-  intros X Y H lat is'.
   intros x y.
   generalize (is' (H x) (H y)).
   apply sumofmaps ; intros Hmin.
@@ -1056,7 +1050,7 @@ Qed.
 Definition latticedec_weq {X Y : hSet} (H : weq Y X) :
   latticedec X → latticedec Y.
 Proof.
-  intros X Y H lat.
+  intros lat.
   exists (lattice_weq H (lattice_latticedec lat)).
   split.
   - apply istotal_Lle_weq.
@@ -1073,7 +1067,7 @@ Lemma abmonoidfrac_setquotpr_equiv {X : abmonoid} {Y : @submonoid X} :
   ∏ (k : Y) (x : X) (y : Y),
   setquotpr (binopeqrelabmonoidfrac X Y) (x,,y) = setquotpr (binopeqrelabmonoidfrac X Y) (x * pr1 k,, @op Y y k).
 Proof.
-  intros X Y k x y.
+  intros k x y.
   apply iscompsetquotpr, hinhpr.
   exists y ; simpl.
   rewrite !(assocax X) ;
@@ -1279,7 +1273,7 @@ Lemma abmonoidfrac_islatticeop (X : abmonoid) (Y : @submonoid X) (lat : lattice 
   ∏ (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op),
   islatticeop (abmonoidfrac_min X Y Hmin) (abmonoidfrac_max X Y Hmax).
 Proof.
-  intros X Y lat Hmin Hmax.
+  intros Hmin Hmax.
   repeat split.
   - apply isassoc_abmonoidfrac_min, isassoc_Lmin.
   - apply iscomm_abmonoidfrac_min, iscomm_Lmin.
@@ -1292,7 +1286,6 @@ Qed.
 Definition abmonoidfrac_lattice (X : abmonoid) (Y : @submonoid X) (lat : lattice X)
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) : lattice (abmonoidfrac X Y).
 Proof.
-  intros X Y lat Hmin Hmax.
   exists (abmonoidfrac_min X Y Hmin).
   exists (abmonoidfrac_max X Y Hmax).
   apply abmonoidfrac_islatticeop.
@@ -1302,7 +1295,6 @@ Lemma ispartbinophrel_Lle (X : abmonoid) (Y : @submonoid X) (lat : lattice X)
       (Hmin : ispartrdistr Y (Lmin lat) op) :
   ispartbinophrel Y (Lle lat).
 Proof.
-  intros X Y lat Hmin.
   split.
   - intros a b c Yc.
     rewrite !(commax _ c).
@@ -1323,7 +1315,6 @@ Lemma abmonoidfrac_Lle_1 (X : abmonoid) (Y : @submonoid X) (lat : lattice X)
                    (setquotpr (binopeqrelabmonoidfrac X Y) y) =
   setquotpr (binopeqrelabmonoidfrac X Y) x.
 Proof.
-  intros X Y lat Hmin.
   intros x y.
   unfold abmonoidfracrel, quotrel, abmonoidfrac_min.
   rewrite setquotuniv2comm, setquotfun2comm.
@@ -1354,7 +1345,6 @@ Lemma abmonoidfrac_Lle_2 (X : abmonoid) (Y : @submonoid X) (lat : lattice X)
                     (setquotpr (binopeqrelabmonoidfrac X Y) x)
                     (setquotpr (binopeqrelabmonoidfrac X Y) y).
 Proof.
-  intros X Y lat Hmin.
   intros x y.
   unfold abmonoidfracrel, quotrel, abmonoidfrac_min.
   rewrite setquotuniv2comm, setquotfun2comm.
@@ -1381,7 +1371,6 @@ Lemma abmonoidfrac_Lle (X : abmonoid) (Y : @submonoid X) (lat : lattice X)
       (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) :
   ∏ x y : abmonoidfrac X Y, abmonoidfracrel X Y (ispartbinophrel_Lle X Y lat Hmin) x y <-> Lle (abmonoidfrac_lattice X Y lat Hmin Hmax) x y.
 Proof.
-  intros X Y lat Hmin Hmax.
   simple refine (setquotuniv2prop _ (λ x y, _ ,, _) _).
   - apply isapropdirprod ;
     apply isapropimpl, propproperty.
@@ -1449,7 +1438,7 @@ Proof.
     revert H.
     unfold abmonoidfracrel, quotrel.
     do 2 rewrite setquotuniv2comm.
-    apply (hinhuniv2 (P := hProppair _ isapropempty)).
+    apply (hinhuniv2 (P := make_hProp _ isapropempty)).
     intros c c'.
     refine (Hlenotgt _ _ _ _).
     2: apply (pr2 c').
@@ -1578,7 +1567,6 @@ Definition abmonoidfrac_latticewithgt (X : abmonoid) (Y : @submonoid X) (lat : l
            (Hop : ∏ (x : Y) (y z : X), y * pr1 x = z * pr1 x → y = z)
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) : latticewithgt (abmonoidfrac X Y).
 Proof.
-  intros X Y lat Hgt Hop Hmin Hmax.
   simple refine (tpair _ _ _).
   refine (abmonoidfrac_lattice _ _ _ _ _).
   exact Hmin.
@@ -1605,7 +1593,6 @@ Lemma istotal_Lle_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (lat : lattice 
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) :
   istotal (Lle (abmonoidfrac_lattice X Y lat Hmin Hmax)).
 Proof.
-  intros X Y lat is' Hmin Hmax.
   refine (istotallogeqf _ _).
   - apply abmonoidfrac_Lle.
   - apply istotalabmonoidfracrel, is'.
@@ -1615,7 +1602,6 @@ Lemma isdecrel_Lle_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (lat : lattice
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) :
   isdecrel (Lle (abmonoidfrac_lattice X Y lat Hmin Hmax)).
 Proof.
-  intros X Y lat is' Hop Hmin Hmax.
   refine (isdecrellogeqf _ _).
   - apply abmonoidfrac_Lle.
   - apply isdecabmonoidfracrel.
@@ -1639,7 +1625,6 @@ Definition abmonoidfrac_latticedec {X : abmonoid} (Y : @submonoid X) (lat : latt
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) :
   latticedec (abmonoidfrac X Y).
 Proof.
-  intros X Y lat Hop Hmin Hmax.
   exists (abmonoidfrac_lattice X Y lat Hmin Hmax).
   split.
   - apply istotal_Lle_abmonoidfrac.

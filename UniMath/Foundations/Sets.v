@@ -568,14 +568,13 @@ Defined.
 
 Lemma isaprop_isirrefl {X : hSet} (R : hrel X) : isaprop (isirrefl R).
 Proof.
-  intros X R.
   apply impred_isaprop ; intro x.
   apply isapropneg.
 Defined.
 
 Lemma isaprop_istotal {X : hSet} (R : hrel X) : isaprop (istotal R).
 Proof.
-  intros. unfold istotal.
+  unfold istotal.
   apply impred; intro x.
   apply impred; intro y.
   apply propproperty.
@@ -583,7 +582,6 @@ Defined.
 
 Lemma isaprop_iscotrans {X : hSet} (R : hrel X) : isaprop (iscotrans R).
 Proof.
-  intros X R.
   apply impred_isaprop ; intro x.
   apply impred_isaprop ; intro y.
   apply impred_isaprop ; intro z.
@@ -609,7 +607,6 @@ Defined.
 Lemma isaprop_isStrongOrder {X : hSet} (R : hrel X) :
   isaprop (isStrongOrder R).
 Proof.
-  intros X R.
   apply isapropdirprod.
   - apply isaprop_istrans.
   - apply isapropdirprod.
@@ -710,7 +707,7 @@ Defined.
 Lemma isStrongOrder_bck {X Y : UU} (f : Y → X) (gt : hrel X) :
   isStrongOrder gt → isStrongOrder (fun_hrel_comp f gt).
 Proof.
-  intros X Y H gt is.
+  intros is.
   split ; [ | split ].
   - intros x y z.
     apply (istrans_isStrongOrder is).
@@ -2535,7 +2532,7 @@ Defined.
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
 Proof.
-  intros X R L is H.
+  intros H.
   split ; [ | split].
   - apply istransquotrel, (istrans_isStrongOrder H).
   - apply iscotransquotrel, (iscotrans_isStrongOrder H).

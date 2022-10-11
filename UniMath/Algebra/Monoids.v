@@ -1461,7 +1461,7 @@ Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
       (Hgt : ispartbinophrel Y gt) :
   isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
 Proof.
-  intros X Y gt Hgt H.
+  intros H.
   split ; [ | split].
   - apply istransabmonoidfracrel, (istrans_isStrongOrder H).
   - apply iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).

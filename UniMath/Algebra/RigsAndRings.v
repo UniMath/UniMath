@@ -2743,15 +2743,14 @@ Proof.
            (ringmultabmonoid X) S (ispartbinopcommringfracgt X S is0 is1 is2) is' isd).
 Defined.
 
-Lemma StrongOrder_correct_commrngfrac (X : commrng) (Y : @subabmonoid (rngmultabmonoid X))
+Lemma StrongOrder_correct_commrngfrac (X : commring) (Y : @subabmonoid (ringmultabmonoid X))
       (gt : StrongOrder X)
       Hgt Hle Hmult Hpos :
-  commrngfracgt X Y (R := gt) Hle Hmult Hpos = StrongOrder_abmonoidfrac Y gt Hgt.
+  commringfracgt X Y (R := gt) Hle Hmult Hpos = StrongOrder_abmonoidfrac Y gt Hgt.
 Proof.
-  intros X Y gt Hgt Hle Hmult Hpos.
   apply funextfun ; intros x.
   apply funextfun ; intros y.
-  apply (maponpaths (λ H, abmonoidfracrel (rngmultabmonoid X) Y H x y)).
+  apply (maponpaths (λ H, abmonoidfracrel (ringmultabmonoid X) Y H x y)).
   assert (H : isaprop (ispartbinophrel Y gt)).
   { apply isapropdirprod ;
     apply impred_isaprop ; intros a ;
