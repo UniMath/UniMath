@@ -1066,10 +1066,8 @@ Section ActionInCatEquivActegories.
           rewrite functor_id ;
           apply idpath
         ).
-    - abstract (use equality_of_2cells_in_ACAT ;
-        intro ; simpl ; apply id_right).
-    - abstract (use equality_of_2cells_in_ACAT ;
-             intro ; simpl ; apply id_right).
+    - abstract (use equality_of_2cells_in_ACAT; intro; cbn; apply id_right).
+    - abstract (use equality_of_2cells_in_ACAT; intro; cbn; apply id_right).
   Defined.
 
   Definition ACTI_invertible_2cell {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
@@ -1293,7 +1291,7 @@ Section ActionInCatEquivActegories.
   Definition invertible_2cell_unit_data (a : ACTI)
     :  prebicat_cells ACTI
     ((pr111 (acti_to_acat_unit · Adjunctions.left_adjoint_right_adjoint unit_left_adjoint_data)) a)
-    ((pr111 (identity (Composition.comp_psfunctor acat_to_acti acti_to_acat))) a).
+    ((pr111 (identity (Composition.comp_psfunctor (acat_to_acti ax1 ax2) acti_to_acat))) a).
   Proof.
     use tpair.
       + exists (λ _, identity _).
@@ -1524,7 +1522,7 @@ Section ActionInCatEquivActegories.
   Definition acti_is_biequiv_acat
     : is_biequivalence acti_to_acat.
   Proof.
-    exists acat_to_acti.
+    exists (acat_to_acti ax1 ax2).
     exists acti_biequiv_unit_counit_acat.
     exact acti_biequiv_adj_acat.
   Defined.
