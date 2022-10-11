@@ -1440,6 +1440,8 @@ Proof.
   - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
   - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
 Defined.
+Opaque isStrongOrder_abgrdiff.
+
 Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
            (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
   abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
