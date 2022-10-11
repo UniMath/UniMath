@@ -559,8 +559,8 @@ Qed.
 
 Definition latticedec_gt_so : StrongOrder X.
 Proof.
-  use make_StrongOrder; repeat split.
-  - apply latticedec_gt_rel.
+  exists latticedec_gt_rel.
+  repeat split.
   - apply istrans_latticedec_gt_rel.
   - apply iscotrans_latticedec_gt_rel.
   - intros x Hx.
