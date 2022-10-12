@@ -52,7 +52,19 @@ Definition unop (X : UU) : UU := X -> X.
 
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x x0).
 
+Definition lcancel {X : UU} {opp : binop X} {x : X} (H_x : islcancelable opp x) (y z : X) :
+  opp x y = opp x z -> y = z.
+Proof.
+  apply invmaponpathsincl, H_x.
+Defined.
+
 Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x0 x).
+
+Definition rcancel {X : UU} {opp : binop X} {x : X} (H_x : isrcancelable opp x) (y z : X) :
+  opp y x = opp z x -> y = z.
+Proof.
+  apply (invmaponpathsincl (fun y => opp y x)), H_x.
+Defined.
 
 Definition iscancelable {X : UU} (opp : binop X) (x : X) : UU :=
   (islcancelable opp x) × (isrcancelable opp x).
@@ -88,6 +100,14 @@ Proof.
   apply impred. intro x''.
   simpl. apply (setproperty X).
 Defined.
+
+(** cancellativity *)
+
+Definition isrcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, isrcancelable opp x.
+
+Definition islcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, islcancelable opp x.
 
 (** *)
 

@@ -631,7 +631,7 @@ Section lattice_abmonoid.
 
 Context {X : abmonoid}
         (lat : lattice X)
-        (is0 : isinvbinophrel (λ x y : X, (x = y)%logic))
+        (is0 : isrcancellative (@op X))
         (is2 : isrdistr (Lmin lat) op).
 
 Lemma op_le_r :
@@ -645,7 +645,7 @@ Lemma op_le_r' :
   ∏ k x y : X, Lle lat (x + k) (y + k) → Lle lat x y.
 Proof.
   intros k x y H.
-  apply (pr2 is0 _ _ k).
+  eapply rcancel. { apply is0. }
   now rewrite is2, H.
 Qed.
 
@@ -666,7 +666,7 @@ Qed.
 Definition extruncminus {X : abmonoid} (lat : lattice X) :=
   ∑ minus : binop X, istruncminus lat minus.
 Lemma isaprop_extruncminus {X : abmonoid} (lat : lattice X)
-      (Hop : isinvbinophrel (λ x y : X, (x = y)%logic)) :
+              (Hop : isrcancellative (@op X)) :
   isaprop (extruncminus lat).
 Proof.
   intros minus1 minus2 ; simpl.
@@ -682,7 +682,7 @@ Proof.
     + intros f. apply isaprop_istruncminus.
     + apply weqfunextsec ; intros x.
       apply weqfunextsec ; intros y.
-      apply (pr2 Hop _ _ y).
+      eapply rcancel. { apply Hop. }
       rewrite (pr2 minus1).
       apply pathsinv0, (pr2 minus2).
 Qed.
@@ -701,7 +701,7 @@ Section truncminus_pty.
 Context {X : abmonoid}
         {lat : lattice X}
         (ex : extruncminus lat)
-        (is1 : isinvbinophrel (λ x y : X, (x = y)%logic))
+        (is1 : isrcancellative (@op X))
         (is2 : isrdistr (Lmax lat) op)
         (is3 : isrdistr (Lmin lat) op)
         (is4 : isrdistr (Lmin lat) (Lmax lat))
@@ -719,7 +719,7 @@ Lemma truncminus_eq_0 :
   ∏ x y : X, Lle lat x y → truncminus ex x y = 0.
 Proof.
   intros x y H.
-  apply (pr2 is1 _ _ y).
+  eapply rcancel. { apply is1. }
   simpl.
   refine (pathscomp0 _ _).
   apply istruncminus_ex.
@@ -775,9 +775,9 @@ Lemma truncminus_truncminus :
   ∏ x y, Lle lat 0 x → Lle lat x y → truncminus ex y (truncminus ex y x) = x.
 Proof.
   intros x y Hx Hxy.
-  apply (pr2 is1 _ _ (truncminus ex y x)).
+  eapply rcancel. { apply is1. }
   simpl.
-  rewrite (commax _ x), istruncminus_ex.
+  erewrite (commax _ x), istruncminus_ex.
   refine (pathscomp0 _ _).
   apply istruncminus_ex.
   rewrite !Lmax_le_eq_l.
@@ -794,7 +794,7 @@ Lemma truncminus_le_r :
   ∏ k x y : X, Lle lat x y → Lle lat (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y <-.
-  apply (pr2 is1 _ _ k).
+  eapply rcancel. { apply is1. }
   simpl.
   rewrite is3, 2!istruncminus_ex.
   rewrite is4, isassoc_Lmin, Lmin_id.
@@ -805,13 +805,9 @@ Lemma truncminus_le_l :
   ∏ k x y : X, Lle lat y x → Lle lat (truncminus ex k x) (truncminus ex k y).
 Proof.
   intros k x y H.
-  apply (pr2 is1 _ _ y).
-  change ((Lmin lat (truncminus ex k x) (truncminus ex k y) * y)%multmonoid =
-     (truncminus ex k x * y)%multmonoid).
+  apply (rcancel (is1 y)).
   rewrite is3, istruncminus_ex.
-  apply (pr2 is1 _ _ x).
-  change ((Lmin lat (truncminus ex k x * y) (Lmax lat k y) * x)%multmonoid =
-     (truncminus ex k x * y * x)%multmonoid).
+  apply (rcancel (is1 x)).
   rewrite is3, assocax, (commax _ y), <- assocax, istruncminus_ex.
   rewrite !is2, (commax _ y), <- is4, !(commax _ k), <- is3, H.
   reflexivity.
@@ -822,9 +818,7 @@ Lemma truncminus_Lmax_l :
   truncminus ex (Lmax lat x y) k = Lmax lat (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y.
-  apply (pr2 is1 _ _ k).
-  change ((truncminus ex (Lmax lat x y) k * k)%multmonoid =
-     (Lmax lat (truncminus ex x k) (truncminus ex y k) * k)%multmonoid).
+  apply (rcancel (is1 k)).
   rewrite is2, !istruncminus_ex.
   rewrite !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
   reflexivity.
@@ -835,9 +829,7 @@ Lemma truncminus_Lmax_r :
   truncminus ex k (Lmax lat x y) = Lmin lat (truncminus ex k x) (truncminus ex k y).
 Proof.
   intros k x y H.
-  apply (pr2 is1 _ _ (Lmax lat x y)).
-  change ((truncminus ex k (Lmax lat x y) * Lmax lat x y)%multmonoid =
-     (Lmin lat (truncminus ex k x) (truncminus ex k y) * Lmax lat x y)%multmonoid).
+  eapply rcancel. { apply is1. }
   rewrite is3, istruncminus_ex.
   rewrite !(commax _ _ (Lmax _ _ _)), !is2.
   rewrite !(commax _ _ (truncminus _ _ _)), !istruncminus_ex.
@@ -845,21 +837,12 @@ Proof.
   rewrite !isassoc_Lmax, !(iscomm_Lmax _ k).
   rewrite <- is4.
 
-  apply (pr2 is1 _ _ x).
-  change ((Lmax lat (Lmax lat x y) k * x)%multmonoid =
-     (Lmax lat
-        (Lmin lat (Lmax lat x (truncminus ex k x * y))
-           (Lmax lat y (truncminus ex k y * x))) k * x)%multmonoid).
+  eapply rcancel. { apply is1. }
   rewrite !is2, is3, !is2.
   rewrite assocax, (commax _ y x), <- assocax.
   rewrite istruncminus_ex, is2.
 
-  apply (pr2 is1 _ _ y).
-  change ((Lmax lat (Lmax lat (x * x) (x * y)) (k * x) * y)%multmonoid =
-     (Lmax lat
-        (Lmin lat (Lmax lat (x * x) (Lmax lat (k * y) (x * y)))
-           (Lmax lat (x * y) (truncminus ex k y * x * x)))
-        (k * x) * y)%multmonoid).
+  eapply rcancel. { apply (is1 y). }
   rewrite !is2, is3, !is2.
   rewrite !assocax, (commax _ (truncminus _ _ _)), !assocax, (commax _ _ (truncminus _ _ _)).
   rewrite istruncminus_ex.
@@ -887,7 +870,7 @@ Lemma truncminus_Lmin_l :
   ∏ k x y : X, truncminus ex (Lmin lat x y) k = Lmin lat (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y.
-  apply (pr2 is1 _ _ k).
+  eapply rcancel. { apply (is1 k). }
   simpl.
   rewrite is3, 2!istruncminus_ex.
   apply (pathscomp0 (istruncminus_ex _ _ _)).
