@@ -5,6 +5,9 @@ Require Import UniMath.MoreFoundations.Sets.
 
 
 (** * Strong orders *)
+(** A _strong ordering_ is a transitive, irreflexive, and cotransitive relation.
+
+The terminology is our own, and the definition is not very well-established.  Classically, this is nearly equivalent to the more established _strict total order_ (transitive, irreflexive, trichotomous).  Constructively/computationally, cotransitivity is generally better than trichotomy — in particular, it is constructively provable for the reals — so it is more used in such settings.   *)
 
 Definition isStrongOrder {X : UU} (R : hrel X) : UU :=
   istrans R × iscotrans R × isirrefl R.
@@ -101,6 +104,7 @@ Proof.
   - apply iscotransquotrel, (iscotrans_isStrongOrder H).
   - apply isirreflquotrel, (isirrefl_isStrongOrder H).
 Qed.
+
 Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X}
            (is : iscomprelrel R L) : StrongOrder (setquot R) :=
   quotrel is,, isStrongOrder_setquot is (pr2 L).
