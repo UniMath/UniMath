@@ -379,13 +379,13 @@ Definition Lle_notLgt :
   λ x y : X, pr2 (pr1 (pr2 (pr2 lat)) x y).
 
 Definition isirrefl_Lgt : isirrefl (Lgt lat) :=
-  isirrefl_StrongOrder (Lgt lat).
+  isirrefl_isStrongOrder (Lgt lat).
 Definition istrans_Lgt : istrans (Lgt lat) :=
-  istrans_StrongOrder (Lgt lat).
+  istrans_isStrongOrder (Lgt lat).
 Definition iscotrans_Lgt : iscotrans (Lgt lat) :=
-  iscotrans_StrongOrder (Lgt lat).
+  iscotrans_isStrongOrder (Lgt lat).
 Definition isasymm_Lgt : isasymm (Lgt lat) :=
-  isasymm_StrongOrder (Lgt lat).
+  isasymm_isStrongOrder (Lgt lat).
 
 Lemma Lgt_Lge :
   ∏ x y : X, Lgt lat x y → Lge lat x y.

@@ -74,22 +74,8 @@ Definition make_StrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : Stron
   R,,is.
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
-
-Section so_pty.
-
-Context {X : UU}.
-Context (R : StrongOrder X).
-
-Definition istrans_StrongOrder : istrans R :=
-  istrans_isStrongOrder (pr2 R).
-Definition iscotrans_StrongOrder : iscotrans R :=
-  iscotrans_isStrongOrder (pr2 R).
-Definition isirrefl_StrongOrder : isirrefl R :=
-  isirrefl_isStrongOrder (pr2 R).
-Definition isasymm_StrongOrder : isasymm R :=
-  isasymm_isStrongOrder (pr2 R).
-
-End so_pty.
+Definition pr2StrongOrder {X : UU} {R : StrongOrder X} : isStrongOrder R := pr2 R.
+Coercion pr2StrongOrder : StrongOrder >-> isStrongOrder.
 
 Definition StrongOrder_bck {X Y : UU} (f : Y → X)
            (gt : StrongOrder X) : StrongOrder Y :=

@@ -478,7 +478,7 @@ Qed.
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.
-  refine (iscotrans_StrongOrder (_,,_)).
+  apply iscotrans_isStrongOrder.
   apply isStrongOrder_hr_lt.
 Qed.
 
@@ -1572,12 +1572,12 @@ Qed.
 Lemma isirrefl_Rlt :
   ∏ x : Reals, ¬ (x < x).
 Proof.
-  exact (isirrefl_StrongOrder (_,, isStrongOrder_hr_lt)).
+  exact (isirrefl_isStrongOrder (isStrongOrder_hr_lt)).
 Qed.
 Lemma istrans_Rlt :
   ∏ x y z : Reals, x < y -> y < z -> x < z.
 Proof.
-  exact (istrans_StrongOrder (_,, isStrongOrder_hr_lt)).
+  exact (istrans_isStrongOrder (isStrongOrder_hr_lt)).
 Qed.
 Lemma iscotrans_Rlt :
   ∏ (x y z : Reals), (x < z) -> (x < y) ∨ (y < z).

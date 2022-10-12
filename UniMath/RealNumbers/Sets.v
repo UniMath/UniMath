@@ -116,9 +116,9 @@ Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
 Proof.
   intros H.
   repeat split.
-  - apply istrans_reverse, (istrans_StrongOrder (_,,H)).
-  - apply iscotrans_reverse,(iscotrans_StrongOrder (_,,H)).
-  - apply isirrefl_reverse, (isirrefl_StrongOrder (_,,H)).
+  - apply istrans_reverse, (istrans_isStrongOrder H).
+  - apply iscotrans_reverse,(iscotrans_isStrongOrder H).
+  - apply isirrefl_reverse, (isirrefl_isStrongOrder H).
 Qed.
 Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
   make_StrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
@@ -236,17 +236,17 @@ Definition istrans_EOle:
 
 Definition isirrefl_EOgt:
   ∏ x : X, ¬ (x > x)
-  := isirrefl_StrongOrder EOgt.
+  := isirrefl_isStrongOrder EOgt.
 Definition istrans_EOgt:
   ∏ x y z : X, x > y -> y > z -> x > z
-  := istrans_StrongOrder EOgt.
+  := istrans_isStrongOrder EOgt.
 
 Definition isirrefl_EOlt:
   ∏ x : X, ¬ (x < x)
-  := isirrefl_StrongOrder EOlt.
+  := isirrefl_isStrongOrder EOlt.
 Definition istrans_EOlt:
   ∏ x y z : X, x < y -> y < z -> x < z
-  := istrans_StrongOrder EOlt.
+  := istrans_isStrongOrder EOlt.
 
 Lemma EOlt_le :
   ∏ x y : X, x < y -> x <= y.
