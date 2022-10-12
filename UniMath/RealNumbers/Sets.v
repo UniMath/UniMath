@@ -1,4 +1,4 @@
-(** * Additionnals theorems for Sets.v *)
+(** * Additional theorems for Sets.v *)
 
 (** Previous theorems about hSet and order *)
 

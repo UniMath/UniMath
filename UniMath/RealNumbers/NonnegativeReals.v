@@ -2543,7 +2543,7 @@ Proof.
     + exact (isrinv_Dcuts_inv x Hx).
 Defined.
 
-(** ** Additional usefull definitions *)
+(** ** Additional useful definitions *)
 (** *** Dcuts_minus *)
 
 Section Dcuts_minus.
@@ -5316,7 +5316,7 @@ Definition Cauchy_lim_seq (u : nat → NonnegativeReals) (Cu : Cauchy_seq u) : N
 Definition Cauchy_seq_impl_ex_lim_seq (u : nat → NonnegativeReals) (Cu : Cauchy_seq u) : is_lim_seq u (Cauchy_lim_seq u Cu)
   := (Dcuts_Cauchy_seq_impl_ex_lim_seq u Cu).
 
-(** Additionals theorems and definitions about limits *)
+(** Additional theorems and definitions about limits *)
 
 Lemma is_lim_seq_unique_aux (u : nat → NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l → is_lim_seq u l' → l < l' → empty.

@@ -1917,7 +1917,7 @@ Defined.
 Opaque isinvringrigtoringmultgt.
 
 
-(** **** Realations and the canonical homomorphism to the ring associated with a rig (ring of differences) *)
+(** **** Relations and the canonical homomorphism to the ring associated with a rig (ring of differences) *)
 
 Definition iscomptoringdiff (X : rig) {L : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) L) :
   iscomprelrelfun L (rigtoringrel X is0) (toringdiff X) := iscomptoabgrdiff (rigaddabmonoid X) is0.
@@ -2756,7 +2756,7 @@ Proof.
   apply isaprop_ispartbinophrel.
 Defined.
 
-(** **** Realations and the canonical homomorphism to the ring of fractions *)
+(** **** Relations and the canonical homomorphism to the ring of fractions *)
 
 Definition iscomptocommringfrac (X : commring) (S : @submonoid (ringmultabmonoid X)) {L : hrel X}
            (is0 : @isbinophrel (rigaddabmonoid X) L) (is1 : isringmultgt X L)
