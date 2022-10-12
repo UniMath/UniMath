@@ -12,8 +12,8 @@ A lattice is a set with two binary operators min and max such that:
 In a lattice, we can define a partial order:
 - le := λ (x y : X), min lat x y = x
 
-Lattice with a strict order:
-A lattice with a strict order gt is lattice such that:
+Lattice with a strong order:
+A lattice equipped with a strong order gt such that additionally:
 - ∏ (x y : X), (¬ gt x y) <-> le x y
 - ∏ x y z : X, gt x z → gt y z → gt (min x y) z
 - ∏ x y z : X, gt z x → gt z y → gt z (max lat x y)
