@@ -283,7 +283,7 @@ Definition op1_mnd_weq_mnd
 Proof.
   use make_weq.
   - exact op1_mnd_to_mnd.
-  - use gradth.
+  - use isweq_iso.
     + exact mnd_to_op1_mnd.
     + exact op1_mnd_weq_mnd_inv₁.
     + exact op1_mnd_weq_mnd_inv₂.
@@ -374,7 +374,7 @@ Definition op1_mnd_mor_weq_mnd_opmor
 Proof.
   use make_weq.
   - exact op1_mnd_mor_to_mnd_opmor.
-  - use gradth.
+  - use isweq_iso.
     + exact mnd_opmor_to_op1_mnd_mor.
     + exact op1_mnd_mor_weq_mnd_opmor_inv₁.
     + exact op1_mnd_mor_weq_mnd_opmor_inv₂.
@@ -420,7 +420,7 @@ Definition op1_mnd_cell_weq_mnd_opcell
 Proof.
   use make_weq.
   - exact op1_mnd_cell_to_mnd_opcell.
-  - use gradth.
+  - use isweq_iso.
     + exact mnd_opcell_to_op1_mnd_cell.
     + abstract
         (intro α ;

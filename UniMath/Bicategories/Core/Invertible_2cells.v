@@ -510,7 +510,7 @@ Section InvertibleIsIso.
              (f g : hom a b)
     : isweq (@inv2cell_to_z_iso _ _ f g).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact z_iso_to_inv2cell.
     - abstract
         (intro i ;

@@ -197,7 +197,7 @@ Definition one_types_fully_faithful_isInjective
   : isInjective f.
 Proof.
   intros x y ; cbn in *.
-  use gradth.
+  use isweq_iso.
   - intro p.
     exact (pr1 (pr2 Hf X (λ _, x) (λ _, y) (λ _, p)) x).
   - intro p ; simpl.

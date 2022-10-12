@@ -258,7 +258,7 @@ Section DispDepprod.
   Proof.
     use make_weq.
     - exact (disp_depprod_bicat_disp_invertible_2cell_map ff gg).
-    - use gradth.
+    - use isweq_iso.
       + exact (disp_depprod_bicat_disp_invertible_2cell_inv_map ff gg).
       + intros x.
         use funextsec.
@@ -384,7 +384,7 @@ Section DispDepprod.
   Proof.
     use make_weq.
     - exact (disp_depprod_bicat_disp_adjequiv_map aa bb).
-    - use gradth.
+    - use isweq_iso.
       + exact (disp_depprod_bicat_disp_adjequiv_inv aa bb).
       + intros f.
         use funextsec.

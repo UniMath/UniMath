@@ -48,7 +48,7 @@ Proof.
     refine (α • linvunitor _ ,, _).
     is_iso.
     apply α.
-  - use gradth.
+  - use isweq_iso.
     + intro α.
       use make_invertible_2cell.
       * exact (α • lunitor _).
@@ -686,7 +686,7 @@ Section UnivalenceOfCodomain.
   Proof.
     use make_weq.
     - exact cod_invertible_2_cell_to_disp_invertible.
-    - use gradth.
+    - use isweq_iso.
       + exact cod_disp_invertible_invertible_2_cell.
       + abstract
           (intro α ;
@@ -1233,7 +1233,7 @@ Section UnivalenceOfCodomain.
   Proof.
     use make_weq.
     - exact cod_adj_equiv_to_disp_adj_equiv.
-    - use gradth.
+    - use isweq_iso.
       + exact cod_disp_adj_equiv_to_adj_equiv.
       + exact (cod_adj_equiv_to_disp_to_adj HB_2_1).
       + exact (cod_disp_adj_to_adj_to_disp HB_2_1).

@@ -292,7 +292,7 @@ Proof.
   pose (ε := is_biequivalence_adjoint_counit (pr2 e)).
   use make_weq.
   - exact (λ x, F x).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ x, G x).
     + intro x.
       cbn.
