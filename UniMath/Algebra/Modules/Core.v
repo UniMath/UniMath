@@ -143,7 +143,7 @@ Defined.
 Local Open Scope abgr_scope.
 
 Lemma islinv_setofendabgr_inv {G : abgr} :
-  islinv (@ringofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+  islinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -153,7 +153,7 @@ Proof.
 Defined.
 
 Lemma isrinv_setofendabgr_inv {G : abgr} :
-  isrinv (@ringofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+  isrinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.

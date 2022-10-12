@@ -17,6 +17,7 @@ Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
+Require Import UniMath.MoreFoundations.Subtypes.
 
 
 
@@ -341,3 +342,41 @@ Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
   { apply natlthtolehsn. exact (pr2 i). }
   exact k.
 Defined.
+
+Section finite_subsets.
+  Local Open Scope subtype.
+
+  Definition finite_subset (X : hSet) : UU
+    := ∑ (A : hsubtype X),
+      isfinite (carrier A).
+
+  Definition make_finite_subset {X : hSet} (A : hsubtype X) (P : isfinite (carrier A))
+    : finite_subset X
+    := (A ,, P).
+
+  Definition subtype_from_finite_subset {X : hSet} (A : finite_subset X) : hsubtype X
+    := pr1 A.
+  Coercion subtype_from_finite_subset : finite_subset >-> hsubtype.
+
+  Lemma isfinite_singleton {X : hSet} {x : X} : isfinite (singleton x).
+  Proof.
+    apply isfinitecontr.
+    apply iscontr_singleton.
+  Qed.
+
+  Definition finite_singleton {X : hSet} (x : X) : finite_subset X.
+  Proof.
+    use make_finite_subset.
+    - exact(singleton x).
+    - exact isfinite_singleton.
+  Defined.
+
+  Definition finite_singleton_is_in {X : hSet}
+    (A : hsubtype X)
+    (a : A)
+    : finite_singleton (pr1 a) ⊆ A.
+  Proof.
+    apply singleton_is_in.
+  Defined.
+
+End finite_subsets.
