@@ -32,6 +32,9 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
@@ -265,11 +268,6 @@ Section EMToConstructionOfAlgs.
         is_iso.
   Defined.
 End EMToConstructionOfAlgs.
-
-Require Import UniMath.Bicategories.Core.AdjointUnique.
-Require Import UniMath.Bicategories.Morphisms.Adjunctions.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-
 
 Definition has_construction_of_algs_weq_has_em_inv₁
            {B : bicat}

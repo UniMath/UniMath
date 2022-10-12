@@ -556,6 +556,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/EilenbergMooreObjects.v](Bicategories/Limits/EilenbergMooreObjects.v)
    - [Limits/EilenbergMooreComonad.v](Bicategories/Limits/EilenbergMooreComonad.v)
    - [Monads/ConstructionOfAlgebras.v](Bicategories/Monads/ConstructionOfAlgebras.v)
+   - [Monads/MonadToAdjunction.v](Bicategories/Monads/MonadToAdjunction.v)
    - [Limits/Examples/OneTypesLimits.v](Bicategories/Limits/Examples/OneTypesLimits.v)
    - [Limits/Examples/BicatOfCatsLimits.v](Bicategories/Limits/Examples/BicatOfCatsLimits.v)
    - [Limits/Examples/BicatOfUnivCatsLimits.v](Bicategories/Limits/Examples/BicatOfUnivCatsLimits.v)

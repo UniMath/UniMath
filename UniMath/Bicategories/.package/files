@@ -180,6 +180,7 @@ Limits/EilenbergMooreObjects.v
 Limits/EilenbergMooreComonad.v
 
 Monads/ConstructionOfAlgebras.v
+Monads/MonadToAdjunction.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
