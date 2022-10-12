@@ -447,7 +447,38 @@ Proof.
 Defined.
 
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=
-monoidfunconstr (ismonoidfun_pr1 A).
+  monoidfunconstr (ismonoidfun_pr1 A).
+
+(** Every monoid has a submonoid which is a group, the collection of elements
+    with inverses. This is used to construct the automorphism group from the
+    endomorphism monoid, for instance. *)
+Local Open Scope multmonoid.
+
+Definition invertible_submonoid (X : monoid) : @submonoid X.
+Proof.
+  refine (merely_invertible_elements (@op X) (pr2 X),, _).
+  split.
+  (** This is a similar statement to [grinvop] *)
+  - intros xpair ypair.
+    apply mere_invop.
+    + exact (pr2 xpair).
+    + exact (pr2 ypair).
+  - apply hinhpr; exact (1,, make_dirprod (lunax _ 1) (lunax _ 1)).
+Defined.
+
+(** This submonoid is closed under inversion *)
+Lemma inverse_in_submonoid (X : monoid) :
+  ∏ (x x0 : X), merely_invertible_elements (@op X) (pr2 X) x ->
+                isinvel (@op X) (pr2 X) x x0 ->
+                merely_invertible_elements (@op X) (pr2 X) x0.
+Proof.
+  intros x x0 _ x0isxinv.
+  unfold merely_invertible_elements, hasinv.
+  apply hinhpr.
+  exact (x,, is_inv_inv (@op X) _ _ _ x0isxinv).
+Defined.
+
+Local Close Scope multmonoid.
 
 (** **** Kernels *)
 
