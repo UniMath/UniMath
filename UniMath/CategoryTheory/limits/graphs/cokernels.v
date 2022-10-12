@@ -6,7 +6,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.limits.cokernels.
 (** * Definition of cokernels in terms of colimits *)
 Section def_cokernels.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition Cokernel {a b : C} (f : C⟦a, b⟧) := Coequalizer C f (ZeroArrow Z a b).
@@ -37,7 +37,7 @@ Section def_cokernels.
         (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel1_eq f CK).
   Proof.
-    use (mk_isCoequalizer _ hs).
+    use (make_isCoequalizer _).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)
@@ -60,7 +60,7 @@ Section def_cokernels.
   Definition equiv_Cokernel1 {a b : C} (f : C⟦a, b⟧)
              (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
   Proof.
-    use mk_Coequalizer.
+    use make_Coequalizer.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (equiv_Cokernel1_eq f CK).
@@ -80,7 +80,7 @@ Section def_cokernels.
         (CK : cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel2_eq f CK).
   Proof.
-    use (mk_isCoequalizer _ hs).
+    use (make_isCoequalizer _ ).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)
@@ -99,7 +99,7 @@ Section def_cokernels.
   Definition equiv_Cokernel2 {a b : C} (f : C⟦a, b⟧)
              (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
   Proof.
-    use mk_Coequalizer.
+    use make_Coequalizer.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (equiv_Cokernel2_eq f CK).

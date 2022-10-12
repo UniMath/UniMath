@@ -2,9 +2,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 
@@ -48,7 +51,7 @@ Defined.
 Definition catiso_ob_weq {A B : precategory_data}
   (F : catiso A B)
   : (ob A) ≃ (ob B)
-  := weqpair (functor_on_objects F) (pr2 (pr2 F)).
+  := make_weq (functor_on_objects F) (pr2 (pr2 F)).
 
 Definition catiso_to_precategory_ob_path {A B : precategory_data}
   (F : catiso A B)
@@ -58,7 +61,7 @@ Definition catiso_to_precategory_ob_path {A B : precategory_data}
 Definition catiso_fully_faithful_weq {A B : precategory_data}
   (F : catiso A B)
   : forall a a' : A, (a --> a') ≃ (F a --> F a')
-  := λ a a', (weqpair (functor_on_morphisms F) (pr1 (pr2 F) a a')).
+  := λ a a', (make_weq (functor_on_morphisms F) (pr1 (pr2 F) a a')).
 
 Lemma catiso_fully_faithful_path {A B : precategory_data}
   (F : catiso A B)
@@ -441,32 +444,112 @@ Proof.
   destruct A as [[[Ao Am] [Ai Ac]] Aax].
   destruct B as [[[Bo Bm] [Bi Bc]] Bax].
 
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
-  - exact (catiso_to_precategory_ob_mor_path F).
-  - apply pathsinv0.
-    eapply pathscomp0.
-    apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
-    apply dirprodeq.
-    + apply funextsec.
-      intros a.
-      apply (catiso_to_precategory_id_path F).
-    + apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply (catiso_to_precategory_comp_path F).
+  eapply total2_paths_b. Unshelve.
+  2: { simpl. exact (catiso_to_precategory_ob_mor_path F). }
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
+  apply dirprodeq.
+  - apply funextsec.
+    intros a.
+    apply (catiso_to_precategory_id_path F).
+  - apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply (catiso_to_precategory_comp_path F).
 Defined.
 
-Lemma catiso_to_precategory_path {A B : precategory}
+(** If either precategory has homsets, then an isomorphism between them
+    becomes a path. This is essentially one half of univalence for categories.
+ *)
+Lemma catiso_to_precategory_path_f {A B : precategory}
   (hs : has_homsets A)
   (F : catiso A B)
   : A = B.
 Proof.
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
+  use total2_paths_b.
   - exact (catiso_to_precategory_data_path F).
-  - apply proofirrelevance.
-    apply isaprop_is_precategory.
+  - apply proofirrelevance, isaprop_is_precategory.
     apply hs.
+Defined.
+
+Lemma catiso_to_precategory_path_b {A B : precategory}
+  (hs : has_homsets B)
+  (F : catiso A B)
+  : A = B.
+Proof.
+  use total2_paths_f.
+  - exact (catiso_to_precategory_data_path F).
+  - apply proofirrelevance, isaprop_is_precategory.
+    apply hs.
+Defined.
+
+(** A special case is that they both have homsets *)
+Corollary catiso_to_category_path {A B : category}
+  (F : catiso A B) : A = B.
+Proof.
+  apply category_eq.
+  apply catiso_to_precategory_data_path.
+  assumption.
+Defined.
+
+Definition inv_catiso
+           {C D : category}
+           (F : catiso C D)
+  : D ⟶ C.
+Proof.
+  use make_functor.
+  - use tpair.
+    + exact (invweq (catiso_ob_weq F)).
+    + intros X Y f ; cbn.
+      refine (invmap
+                (catiso_fully_faithful_weq F
+                                           (invmap (catiso_ob_weq F) X)
+                                           (invmap (catiso_ob_weq F) Y))
+                _).
+      exact ((idtoiso (homotweqinvweq (catiso_ob_weq F) X))
+               · f
+               · idtoiso (!(homotweqinvweq (catiso_ob_weq F) Y))).
+  - split.
+    + intro X ; cbn.
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(maponpaths pr1
+                            (idtoiso_concat D _ _ _
+                                            (homotweqinvweq (catiso_ob_weq F) X)
+                                            (! homotweqinvweq (catiso_ob_weq F) X)))).
+      }
+      rewrite pathsinv0r ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_id.
+      reflexivity.
+    + intros X Y Z f g ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_comp.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) X)
+                                         (invmap (catiso_ob_weq F) Y))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) Y)
+                                         (invmap (catiso_ob_weq F) Z))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      rewrite <- !assoc.
+      repeat (apply (maponpaths (λ z, _ · (f · z)))).
+      refine (!(id_left _) @ _).
+      rewrite !assoc.
+      repeat (apply (maponpaths (λ z, z · _))).
+      rewrite idtoiso_inv.
+      cbn.
+      rewrite z_iso_after_z_iso_inv.
+      reflexivity.
 Defined.

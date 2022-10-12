@@ -1,6 +1,8 @@
 (** * Additional theorems about fields *)
 
 Require Export UniMath.Algebra.Domains_and_Fields.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 Lemma isapropmultinvpair :
   ∏ (X : rig) (x : X), isaprop (multinvpair X x).
@@ -15,12 +17,12 @@ Section fld_proj.
 
 Context {X : fld}.
 
-Definition zero_fld : X := 0%rng.
-Definition one_fld : X := 1%rng.
-Definition plus_fld (x y : X) : X := (x + y)%rng.
-Definition opp_fld (x : X) : X := (- x)%rng.
-Definition minus_fld (x y : X) : X := (x - y)%rng.
-Definition mult_fld (x y : X) : X := (x * y)%rng.
+Definition zero_fld : X := 0%ring.
+Definition one_fld : X := 1%ring.
+Definition plus_fld (x y : X) : X := (x + y)%ring.
+Definition opp_fld (x : X) : X := (- x)%ring.
+Definition minus_fld (x y : X) : X := (x - y)%ring.
+Definition mult_fld (x y : X) : X := (x * y)%ring.
 Definition inv_fld (x : X) : X.
 Proof.
   apply sumofmaps with (3 := fldchoice x) ; intro x'.
@@ -44,6 +46,6 @@ Definition fld_to_monoid1 : monoid :=
   grtomonoid fld_to_gr1.
 
 Definition fld_to_monoid2 : monoid :=
-  rngmultmonoid (pr1fld X).
+  ringmultmonoid (pr1fld X).
 
 End fld_struct.

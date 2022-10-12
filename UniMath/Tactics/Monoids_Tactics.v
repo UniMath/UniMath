@@ -2,8 +2,8 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for monoids.*)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
-               UniMath.Tactics.Utilities.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=
   repeat

@@ -7,8 +7,6 @@
 
 (** ADD: Disclaimer regarding connection with other tactics files.*)
 
-Unset Automatic Introduction.
-
 Require Import
         UniMath.Foundations.NaturalNumbers
         UniMath.Tactics.Utilities
@@ -95,14 +93,14 @@ Definition minus0r : ∏ n, n - 0 = n :=
 
 Definition minusnn0 n : n - n = 0.
 Proof.
-  intro n. induction n as [|n IHn]; [exact (idpath 0) | exact IHn].
+  induction n as [|n IHn]; [exact (idpath 0) | exact IHn].
 Defined.
 
 (** minus0l and Lemma minussn1 n : (S n) - 1 change to n - 0 should be changed in tactics.*)
 
 Definition minusgeh n m : n >= (n - m).
 Proof.
-  intro n. induction n as [|n IHn]; intros. apply isreflnatgeh.
+  revert m. induction n as [|n IHn]; intros. apply isreflnatgeh.
   destruct m. rewrite minus0r. apply isreflnatgeh.
   apply (istransnatgeh _ n _). apply natgthtogeh. apply natgthsnn.
   apply IHn.

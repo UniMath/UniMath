@@ -20,3 +20,11 @@
 /latex/coqdoc.sty
 /COQC.log
 /.*.okay
+.vscode
+_CoqProject
+*.zip
+*.vos
+*.vok
+*.v~
+/..coq_makefile_output.d
+/UniMath/.dir-locals.el

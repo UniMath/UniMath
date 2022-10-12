@@ -15,15 +15,9 @@ numbers from the univalent perspecive. *)
 
 (** Settings *)
 
-(* The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
-
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
-
-
 
 (** ** Inductive types [le] with values in [UU].
 
@@ -42,7 +36,7 @@ Lemma leFiter {T : UU} (F : T -> T) (t : T) (n : nat) : leF F t (iteration F n t
 Proof.
   intros. induction n as [ | n IHn ].
   - apply leF_O.
-  - simpl. unfold funcomp. apply leF_S. assumption.
+  - simpl. apply leF_S. assumption.
 Defined.
 
 Lemma leFtototal2withnat {T : UU} (F : T -> T) (t t' : T) (a : leF F t t') :
@@ -97,7 +91,7 @@ Defined.
 
 Definition weqleFtototalwithnat { T : UU } (F : T -> T) (t t' : T) :
   weq (leF F t t') (total2 (λ n : nat, (iteration F n t) = t')) :=
-  weqpair _ (isweqleFtototal2withnat F t t').
+  make_weq _ (isweqleFtototal2withnat F t t').
 
 
 (** *** Inductive types [le] with values in [UU] are in [hProp] *)
@@ -130,14 +124,14 @@ Defined.
 
 Lemma letoleh (n m : nat) : le n m -> n ≤ m.
 Proof.
-  intros n m H. induction H as [ | m H0 IHH0 ].
+  intros H. induction H as [ | m H0 IHH0 ].
   - apply isreflnatleh.
   - apply natlehtolehs. assumption.
 Defined.
 
 Lemma natlehtole (n m : nat) : n ≤ m ->  le n m.
 Proof.
-  intros n m H. induction m as [|m IHm].
+  intros H. induction m as [|m IHm].
   - assert (int := natleh0tois0 H). clear H. destruct int. apply le_n.
   - set (int2 := natlehchoice2 n (S m) H).
     destruct int2 as [ isnatleh | iseq ].
@@ -152,4 +146,4 @@ Proof.
   apply (isweqimplimpl (letoleh n m) (natlehtole n m) is1 is2).
 Defined.
 
-Definition weqletoleh (n m : nat) : le n m ≃ n ≤ m := weqpair _ (isweqletoleh n m).
+Definition weqletoleh (n m : nat) : le n m ≃ n ≤ m := make_weq _ (isweqletoleh n m).

@@ -2,9 +2,10 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for abelian monoids.*)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
-               UniMath.Tactics.Utilities
-               UniMath.Tactics.Monoids_Tactics.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Tactics.Monoids_Tactics.
+Require Import UniMath.Tactics.Utilities.
 
 (** * I. Definitions.*)
 
@@ -14,7 +15,7 @@ Definition isabsemigrop {X : hSet} (opp : binop X) :=
   (isassoc opp) ** (iscomm opp).
 
 Definition abmonoid_to_absemigr (M : abmonoid) : isabsemigrop (@op M) :=
-  dirprodpair (@assocax M) (@commax M).
+  make_dirprod (@assocax M) (@commax M).
 
 Definition absemigr_perm021 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
@@ -121,7 +122,7 @@ Ltac absemigr_ternary_perm X opp is s t u :=
 Ltac abmonoid_ternary_perm M :=
   absemigr_ternary_perm M (@op M) (abmonoid_to_absemigr M).
 
-Open Scope addmonoid.
+Local Open Scope addmonoid.
 
 Ltac abmonoid_not_word M s :=
   match s with

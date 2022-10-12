@@ -3,8 +3,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 
 Section def_underprecategories.
@@ -16,7 +16,7 @@ Section def_underprecategories.
   (* Objects *)
   Definition Under_ob : UU := ∑ d, C⟦c, d⟧.
 
-  Definition mk_Under_ob {d : ob C} (f : C⟦c, d⟧) : Under_ob := tpair _ d f.
+  Definition make_Under_ob {d : ob C} (f : C⟦c, d⟧) : Under_ob := tpair _ d f.
 
   (* Accessor functions *)
   Definition Under_ob_cod (X : Under_ob) : ob C := pr1 X.
@@ -27,7 +27,7 @@ Section def_underprecategories.
   Definition Under_mor (X Y : Under_ob) : UU :=
     ∑ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X · f = Under_ob_mor Y.
 
-  Definition mk_Under_mor (X Y : Under_ob) (f : C⟦Under_ob_cod X, Under_ob_cod Y⟧)
+  Definition make_Under_mor (X Y : Under_ob) (f : C⟦Under_ob_cod X, Under_ob_cod Y⟧)
              (H : Under_ob_mor X · f = Under_ob_mor Y) : Under_mor X Y := tpair _ f H.
 
   (* Accessor functions *)
@@ -50,13 +50,13 @@ Section def_underprecategories.
   Definition Under_mor_equality (X Y : Under_ob) (f f' : Under_mor X Y) : pr1 f = pr1 f' -> f = f'.
   Proof.
     intro H.
-    apply subtypeEquality.
+    apply subtypePath.
     intro x.
     apply hs.
     exact H.
   Qed.
 
-  Definition Under_id (X : Under_ob) : Under_mor X X := mk_Under_mor X X (identity _) (id_right _ ).
+  Definition Under_id (X : Under_ob) : Under_mor X X := make_Under_mor X X (identity _) (id_right _ ).
 
   Local Lemma Under_comp_eq {X Y Z : Under_ob} (f : Under_mor X Y) (g : Under_mor Y Z) :
     Under_ob_mor X · (Under_mor_mor f · Under_mor_mor g) = Under_ob_mor Z.
@@ -69,7 +69,7 @@ Section def_underprecategories.
   Definition Under_comp (X Y Z : Under_ob) : Under_mor X Y -> Under_mor Y Z -> Under_mor X Z.
   Proof.
     intros f g.
-    exact (mk_Under_mor X Z (Under_mor_mor f · Under_mor_mor g) (Under_comp_eq f g)).
+    exact (make_Under_mor X Z (Under_mor_mor f · Under_mor_mor g) (Under_comp_eq f g)).
   Defined.
 
   Definition Undercategory_ob_mor : precategory_ob_mor.
@@ -92,6 +92,7 @@ Section def_underprecategories.
     - intros. apply Under_mor_equality. apply id_left.
     - intros. apply Under_mor_equality. apply id_right.
     - intros. apply Under_mor_equality. apply assoc.
+    - intros. apply Under_mor_equality. apply assoc'.
   Defined.
 
   Definition Undercategory : precategory.

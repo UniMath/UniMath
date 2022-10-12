@@ -29,11 +29,10 @@ Lattice in an abelian monoid:
 Truncated minus is a lattice:
 - a function minus such that: ∏ (x y : X), (minus x y) + y = max x y *)
 
-Require Export UniMath.Algebra.Monoids_and_Groups.
-
-Require Import UniMath.MoreFoundations.All.
-
-Unset Automatic Introduction.
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Propositions.
+Require Export UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 (** ** Strong Order *)
 (* todo : move it into UniMath.Foundations.Sets *)
@@ -66,7 +65,7 @@ End so_pty.
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
 Proof.
-  intros X R L is H.
+  intros H.
   split ; [ | split].
   - apply istransquotrel, (pr1 H).
   - apply iscotransquotrel, (pr1 (pr2 H)).
@@ -158,13 +157,11 @@ Definition islunit_Lmin_Ltop : islunit (Lmin l) (Ltop l) :=
 
 Lemma Lmin_Lbot (x : X) : Lmin l (Lbot l) x = Lbot l.
 Proof.
-intros x.
 now rewrite <- (islunit_Lmax_Lbot x), Lmin_absorb.
 Qed.
 
 Lemma Lmax_Ltop (x : X) : Lmax l (Ltop l) x = Ltop l.
 Proof.
-intros x.
 now rewrite <- (islunit_Lmin_Ltop x), Lmax_absorb.
 Qed.
 
@@ -175,7 +172,7 @@ End bounded_lattice_pty.
 (** [Lle] *)
 
 Definition Lle {X : hSet} (is : lattice X) : hrel X :=
-  λ (x y : X), hProppair (Lmin is x y = x) ((pr2 X) (Lmin is x y) x).
+  λ (x y : X), make_hProp (Lmin is x y = x) ((pr2 X) (Lmin is x y) x).
 
 Section lattice_le.
 
@@ -251,12 +248,15 @@ Proof.
   apply Lmax_le_l.
 Qed.
 Lemma Lmax_le_case :
-  isrdistr (Lmax is) (Lmin is)
-  → ∏ x y z : X, Lle is x z → Lle is y z → Lle is (Lmax is x y) z.
+  ∏ x y z : X, Lle is x z → Lle is y z → Lle is (Lmax is x y) z.
 Proof.
-  intros H x y z <- <-.
-  rewrite <- H.
-  apply Lmin_le_r.
+  intros x y z <- <-.
+  set (w := Lmax _ (Lmin _ x z) (Lmin _ y z)).
+  assert (c : z = (Lmax is w z)).
+  - unfold w.
+    now rewrite isassoc_Lmax, (iscomm_Lmax _ (Lmin _ y z) _),
+    (iscomm_Lmin _ y z), Lmax_absorb, iscomm_Lmax, iscomm_Lmin, Lmax_absorb.
+  - rewrite c. use (Lmin_absorb is).
 Qed.
 
 Lemma Lmin_le_eq_l :
@@ -345,8 +345,7 @@ Definition Lmax_ge_r :
   ∏ (x y : X), Lge is (Lmax is x y) y :=
   Lmax_le_r is.
 Definition Lmax_ge_case :
-  isrdistr (Lmax is) (Lmin is)
-  → ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
+  ∏ x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
   Lmax_le_case is.
 
 Definition Lmin_ge_eq_l :
@@ -643,6 +642,7 @@ End latticedec_gt.
 (** ** Lattice in an abmonoid *)
 
 Local Open Scope addmonoid.
+Import UniMath.Algebra.Monoids.AddNotation.
 
 Section lattice_abmonoid.
 
@@ -675,7 +675,6 @@ Definition istruncminus {X : abmonoid} (is : lattice X) (minus : binop X) :=
 Lemma isaprop_istruncminus {X : abmonoid} (is : lattice X) (minus : binop X) :
   isaprop (istruncminus is minus).
 Proof.
-  intros X is minus.
   apply impred_isaprop ; intros x.
   apply impred_isaprop ; intros y.
   apply (pr2 (pr1 (pr1 X))).
@@ -687,23 +686,22 @@ Lemma isaprop_extruncminus {X : abmonoid} (is : lattice X)
       (Hop : ∏ x y z : X, y + x = z + x → y = z) :
   isaprop (extruncminus is).
 Proof.
-  intros X is Hop.
   intros minus1 minus2 ; simpl.
-  rewrite (subtypeEquality' (s := minus1) (s' := minus2)).
-  - apply iscontrloopsifisaset.
-    apply isaset_total2.
+  apply iscontraprop1.
+  - apply isaset_total2.
     apply impred_isaset ; intros _.
     apply impred_isaset ; intros _.
     apply (pr2 (pr1 (pr1 X))).
     intros minus.
     apply isasetaprop.
     apply isaprop_istruncminus.
-  - apply weqfunextsec ; intros x.
-    apply weqfunextsec ; intros y.
-    apply (Hop y).
-    rewrite (pr2 minus1).
-    apply pathsinv0, (pr2 minus2).
-  - apply isaprop_istruncminus.
+  - apply subtypePath.
+    + intros f. apply isaprop_istruncminus.
+    + apply weqfunextsec ; intros x.
+      apply weqfunextsec ; intros y.
+      apply (Hop y).
+      rewrite (pr2 minus1).
+      apply pathsinv0, (pr2 minus2).
 Qed.
 
 Definition truncminus {X : abmonoid} {is : lattice X} (ex : extruncminus is) : binop X :=
@@ -712,7 +710,6 @@ Definition truncminus {X : abmonoid} {is : lattice X} (ex : extruncminus is) : b
 Lemma istruncminus_ex {X : abmonoid} {is : lattice X} (ex : extruncminus is) :
   ∏ x y : X, truncminus ex x y + y = Lmax is x y.
 Proof.
-  intros X is ex.
   apply (pr2 ex).
 Qed.
 
@@ -776,7 +773,6 @@ Proof.
   apply (op_le_r' _ is1 is3 y).
   rewrite istruncminus_ex.
   apply Lmax_le_case.
-  - apply is5.
   - apply istrans_Lle with (0 + x).
     + rewrite (lunax _ x).
       apply isrefl_Lle.
@@ -893,7 +889,7 @@ Lemma abgr_truncminus {X : abgr} (is : lattice X) :
   isrdistr (Lmax is) op →
   istruncminus (X := abgrtoabmonoid X) is (λ x y : X, Lmax is 0 (x + grinv X y)).
 Proof.
-  intros X is H x y.
+  intros H x y.
   rewrite H, assocax, grlinvax, lunax, runax.
   apply iscomm_Lmax.
 Qed.

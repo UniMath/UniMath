@@ -1,6 +1,7 @@
 (** * Axiom of choice *)
 
 Require Export UniMath.MoreFoundations.DecidablePropositions.
+Require Export UniMath.MoreFoundations.Sets.
 
 (** ** Preliminaries  *)
 
@@ -49,8 +50,6 @@ Defined.
 
 Local Open Scope logic.
 
-Local Open Scope set.
-
 (** We write these axioms as types rather than as axioms, which would assert them to be true, to
     force them to be mentioned as explicit hypotheses whenever they are used. *)
 
@@ -80,6 +79,37 @@ Proof.
     induction (pr2 sec x). exact (pr2 (pr1 sec x)).
 Defined.
 
+(** ** The Axiom of Choice implies a type receives a surjective map from a set *)
+
+Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
+Proof.
+  (** We use the axiom of choice to find a splitting f of the projection map g from X
+     onto its set [pi0 X] of connected components.  Since the image of f contains one
+     point in every component of X, f is surjective.
+   *)
+  intros ac.
+  assert (ac' := pr1 AC_impl2 ac); clear ac; unfold AxiomOfChoice_surj in ac'.
+  set (S := pi0 X : hSet).
+  set (g := pi0pr X : X -> S).
+  assert (f := ac' _ _ g (issurjsetquotpr _)); clear ac'.
+  apply (squash_to_prop f).
+  { apply propproperty. }
+  clear f; intros [f eqn].
+  apply hinhpr.
+  exists S.
+  exists f.
+  intros x.
+  use (@squash_to_prop (f (g x) = x)%type).
+  { apply (invmap (weqpathsinsetquot (pathseqrel X) _ _)).
+    change (g (f (g x)) = g x)%type.
+    exact (eqn (g x)). }
+  { apply propproperty. }
+  intros e.
+  apply hinhpr.
+  exists (g x).
+  exact e.
+Defined.
+
 (** ** The Axiom of Choice implies the Law of the Excluded Middle  *)
 
 (** This result is covered in the HoTT book, is due to Radu Diaconescu, "Axiom of choice and
@@ -107,35 +137,23 @@ Proof.
   apply (retract_dec f g h isdeceqbool).
 Defined.
 
-(** ** The Axiom of Choice implies a type receives a surjective map from a set *)
+(** A weaker Axiom of Choice *)
 
-Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
+(** Having proved above that the Axiom of Choice implies the Law of the Excluded Middle, we would
+    like to formulate a weaker axiom of choice that would be usable in formalization, but without
+    implying the Law of the Excluded Middle, thus making it a more acceptable omniscience principle.
+    Our idea here is to add the hypothesis that the base set have decidable equality.  Classically,
+    there is no difference between the two axioms.  Recall from [isasetifdeceq] that a type with
+    decidable equality is a set, so we don't include being a set explicitly in the statement of the
+    axiom. *)
 
-Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
+Definition AxiomOfDecidableChoice : hProp := ∀ (X:UU), isdeceq X ⇒ ischoicebase X.
+
+Theorem AC_iff_ADC_and_LEM : AxiomOfChoice ⇔ AxiomOfDecidableChoice ∧ LEM.
 Proof.
-  (** We use the axiom of choice to find a splitting f of the projection map g from X
-     onto its set [pi0 X] of connected components.  Since the image of f contains one
-     point in every component of X, f is surjective.
-   *)
-  intros ac.
-  assert (ac' := pr1 AC_impl2 ac); clear ac; unfold AxiomOfChoice_surj in ac'.
-  set (S := pi0 X).
-  set (g := pi0pr X : X -> S).
-  assert (f := ac' _ _ g (issurjsetquotpr _)); clear ac'.
-  apply (squash_to_prop f).
-  { apply propproperty. }
-  clear f; intros [f eqn].
-  apply hinhpr.
-  exists S.
-  exists f.
-  intros x.
-  use (@squash_to_prop (f (g x) = x)%type).
-  { apply (invmap (weqpathsinsetquot (pathseqrel X) _ _)).
-    change (g (f (g x)) = g x)%type.
-    exact (eqn (g x)). }
-  { apply propproperty. }
-  intros e.
-  apply hinhpr.
-  exists (g x).
-  exact e.
+  split.
+  - intros AC. split.
+    + intros X i. exact (AC (make_hSet X (isasetifdeceq X i))).
+    + exact (AC_to_LEM AC).
+  - intros [adc lem] X. refine (adc X _). intros x y. exact (lem (x = y)).
 Defined.

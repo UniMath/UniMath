@@ -17,21 +17,20 @@ Require Import UniMath.Folds.UnicodeNotations.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.total2_paths.
 
 (** * The definition of a FOLDS precategory *)
 
 (** ** Objects and a dependent type of morphisms *)
 
 Definition folds_ob_mor := ∑ a : UU, a → a → UU.
-Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → UU) :
+Definition make_folds_ob_mor (ob : UU)(mor : ob → ob → UU) :
     folds_ob_mor := tpair _ ob mor.
 
 Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_ob_mor >-> UU.
 
 Definition folds_morphisms {C : folds_ob_mor} : C → C → UU := pr2 C.
-Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_morphisms a b).
 
 Definition has_folds_homsets (C : folds_ob_mor) : UU := ∏ a b: C, isaset (a ⇒ b).
 
@@ -65,10 +64,10 @@ Proof.
 Qed.
 
 Definition folds_ax_T (C : folds_id_T) :=
-     (∏ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
- ×  ((∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
                   T f g h → T f g k → h = k )       (* composite is unique *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
                T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
@@ -113,12 +112,12 @@ Lemma I_contr : ∏ a : C, iscontr (∑ f : a ⇒ a, I f).
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (∑ f : a ⇒ a, I f))
+  set (H' := make_hProp (iscontr (∑ f : a ⇒ a, I f))
                       (isapropiscontr _ )).
   apply (H H'); simpl.
   intro t; exists t.
   intro t'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro b; apply pr2.
   - destruct t; destruct t';
     apply I_unique; assumption.
@@ -134,12 +133,12 @@ Defined.
 Lemma T_contr : ∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (∑ h, T f g h).
 Proof.
   intros a b c f g.
-  set (H' := hProppair (iscontr (∑ h : a ⇒ c, T f g h))
+  set (H' := make_hProp (iscontr (∑ h : a ⇒ c, T f g h))
                       (isapropiscontr _ )).
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
   intro t'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply pr2.
   - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
@@ -148,7 +147,7 @@ Defined.
 Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
      pr1 (pr1 (T_contr a b c f g)).
 
-Local Notation "f ∘ g" := (T_func f g).  (*at level 30*)
+Local Notation "f ∘ g" := (T_func f g).
 
 Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.

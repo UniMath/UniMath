@@ -2,22 +2,27 @@
 
 Direct implementation of equalizers together with:
 
+- Definition
 - Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])
+- Alternative universal property
 
 Written by Tomi Pannila
+Extended by Langston Barrett (Nov 2018)
 
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 
+(** ** Definition *)
 Section def_equalizers.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   (** Definition and construction of isEqualizer. *)
   Definition isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
@@ -25,7 +30,7 @@ Section def_equalizers.
     ∏ (w : C) (h : w --> y) (H : h · f = h · g),
       ∃! φ : w --> x, φ · e = h.
 
-  Definition mk_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
+  Definition make_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) :
     (∏ (w : C) (h : w --> y) (H' : h · f = h · g),
         ∃! ψ : w --> x, ψ · e = h) -> isEqualizer f g e H.
@@ -45,7 +50,7 @@ Section def_equalizers.
         {H H' : e · f = e · g} (iC : isEqualizer f g e H) :
     isEqualizer f g e H'.
   Proof.
-    use mk_isEqualizer.
+    use make_isEqualizer.
     intros w0 h H'0.
     use unique_exists.
     - exact (pr1 (pr1 (iC w0 h H'0))).
@@ -72,7 +77,7 @@ Section def_equalizers.
     ∑ e : (∑ w : C, w --> y),
           (∑ H : (pr2 e) · f = (pr2 e) · g, isEqualizer f g (pr2 e) H).
 
-  Definition mk_Equalizer {x y z : C} (f g : y --> z) (e : x --> y)
+  Definition make_Equalizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) (isE : isEqualizer f g e H) :
     Equalizer f g.
   Proof.
@@ -125,7 +130,7 @@ Section def_equalizers.
   Proof.
     assert (H'1 : φ1 · e · f = φ1 · e · g).
     rewrite <- assoc. rewrite H. rewrite assoc. apply idpath.
-    set (E' := mk_Equalizer _ _ _ _ E).
+    set (E' := make_Equalizer _ _ _ _ E).
     set (E'ar := EqualizerIn E' w (φ1 · e) H'1).
     intermediate_path E'ar.
     apply isEqualizerInUnique. apply idpath.
@@ -165,8 +170,7 @@ Section def_equalizers.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦E, E⟧ => φ' · _ = _)) φ H).
     assert (H2 : identity_is_EqualizerIn E = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (isEqualizer_Equalizer E).
       apply EqualizerEqAr.
     - apply (base_paths _ _ H2).
@@ -205,7 +209,7 @@ Section def_equalizers.
         (E E' : Equalizer f g) :
     is_inverse_in_precat (from_Equalizer_to_Equalizer E E') (from_Equalizer_to_Equalizer E' E).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - apply pathsinv0. use EqualizerEndo_is_identity.
       rewrite <- assoc. unfold from_Equalizer_to_Equalizer. rewrite EqualizerCommutes.
       rewrite EqualizerCommutes. apply idpath.
@@ -217,17 +221,19 @@ Section def_equalizers.
   Definition z_iso_from_Equalizer_to_Equalizer {y z : C} {f g : y --> z}
              (E E' : Equalizer f g) : z_iso E E'.
   Proof.
-    use mk_z_iso.
+    use make_z_iso.
     - exact (from_Equalizer_to_Equalizer E E').
     - exact (from_Equalizer_to_Equalizer E' E).
     - exact (z_iso_from_Equalizer_to_Equalizer_inverses E E').
   Defined.
 
+  (** ** Proof that the equalizer arrow is monic ([EqualizerArrowisMonic]) *)
+
   (** We prove that EqualizerArrow is a monic. *)
   Lemma EqualizerArrowisMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     isMonic (EqualizerArrow E).
   Proof.
-    apply mk_isMonic.
+    apply make_isMonic.
     intros z0 g0 h X.
     apply (EqualizerInsEq E).
     apply X.
@@ -236,9 +242,88 @@ Section def_equalizers.
   Lemma EqualizerArrowMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     Monic _ E y.
   Proof.
-    exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
+    exact (make_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
+
+
 End def_equalizers.
 
 (** Make the C not implicit for Equalizers *)
 Arguments Equalizers : clear implicits.
+
+(** ** Alternative universal property *)
+
+Section Equalizers'.
+
+  Context {C : category} {c d : ob C} (f g : C⟦c, d⟧).
+  Context (E : ob C) (h : E --> c) (H : h · f = h · g).
+
+  (** A map into an equalizer can be turned into a map into [c]
+      such that its composites with [f] and [g] are equal. *)
+  Definition postcomp_with_equalizer_mor (a : ob C) (j : a --> E) :
+    ∑ (k : a --> c), (k · f = k · g).
+  Proof.
+    exists (j · h).
+    refine (!assoc _ _ _ @ _).
+    refine (_ @ assoc _ _ _).
+    apply maponpaths.
+    assumption.
+  Defined.
+
+  Definition isEqualizer' : UU :=
+    ∏ (a : ob C), isweq (postcomp_with_equalizer_mor a).
+
+  Definition isEqualizer'_weq (is : isEqualizer') :
+    ∏ a, (a --> E) ≃ (∑ k : a --> c, (k · f = k · g)) :=
+    λ a, make_weq (postcomp_with_equalizer_mor a) (is a).
+
+  Lemma isaprop_isEqualizer' : isaprop isEqualizer'.
+  Proof.
+    unfold isEqualizer'.
+    apply impred; intro.
+    apply isapropisweq.
+  Qed.
+
+  (** Can [isEqualizer'_to_isEqualizer] be generalized to arbitrary precategories?
+
+      Compare to [isBinProduct'_to_isBinProduct].
+   *)
+  Lemma isEqualizer'_to_isEqualizer :
+    isEqualizer' -> isEqualizer f g h H.
+  Proof.
+    intros isEq' E' h' H'.
+    apply (@iscontrweqf (hfiber (isEqualizer'_weq isEq' _) (h',, H'))).
+    - cbn; unfold hfiber.
+      use weqfibtototal; intros j; cbn.
+      unfold postcomp_with_equalizer_mor.
+      apply subtypeInjectivity.
+      intro; apply C.
+    - apply weqproperty.
+  Defined.
+
+  Lemma isEqualizer_to_isEqualizer' :
+    isEqualizer f g h H -> isEqualizer'.
+  Proof.
+    intros isEq E'.
+    unfold postcomp_with_equalizer_mor.
+    unfold isweq, hfiber.
+    intros hH'.
+    apply (@iscontrweqf (∑ u : C ⟦ E', E ⟧, u · h = pr1 hH')).
+    - use weqfibtototal; intro; cbn.
+      apply invweq.
+      use subtypeInjectivity.
+      intro; apply C.
+    - exact (isEq E' (pr1 hH') (pr2 hH')).
+  Defined.
+
+  Lemma isEqualizer'_weq_isEqualizer :
+    isEqualizer f g h H ≃ isEqualizer'.
+  Proof.
+    apply weqimplimpl.
+    - apply isEqualizer_to_isEqualizer'; assumption.
+    - apply isEqualizer'_to_isEqualizer; assumption.
+    - apply isaprop_isEqualizer.
+    - apply isaprop_isEqualizer'.
+  Qed.
+
+End Equalizers'.

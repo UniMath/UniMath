@@ -1,7 +1,6 @@
 (** Author: Michael A. Warren (maw@mawarren.net).*)
 (** Date: Spring 2015.*)
 (** Description: Some helper tactics.*)
-Unset Automatic Introduction.
 
 (** Imports *)
 
@@ -22,7 +21,7 @@ Module Export Notation.
 End Notation.
 
 Definition neq (X : UU) : X -> X -> hProp
-  := λ x y : X, hProppair (x != y) (isapropneg (x = y)).
+  := λ x y : X, make_hProp (x != y) (isapropneg (x = y)).
 
 Ltac check_cons f g :=
   let h T :=

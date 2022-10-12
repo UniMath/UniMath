@@ -1,7 +1,6 @@
 [submodule "sub/coq"]
 	path = sub/coq
 	url = https://github.com/coq/coq.git
-	branch = v8.5
 [submodule "sub/coq-tools"]
 	path = sub/coq-tools
 	url = https://github.com/JasonGross/coq-tools

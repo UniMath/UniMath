@@ -26,15 +26,16 @@ Contents :
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
@@ -49,12 +50,9 @@ Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "�
 
 Section GenMenIt.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Context (C : category) (F : functor C C).
 
-Variable F : functor C C.
-
-Let AF := FunctorAlg F hsC.
+Let AF := FunctorAlg F.
 
 Definition AlgConstr (A : C) (α : F A --> A) : AF.
 Proof.
@@ -73,15 +71,13 @@ Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
 Let iter {A : C} (α : F A --> A) : μF --> A :=
   ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
-Variable C' : precategory.
-Variable hsC' : has_homsets C'.
-
+Context (C' : category).
 
 Section the_iteration_principle.
 
 Variable X : C'.
 
-Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
+Let Yon : functor C'^op HSET := yoneda_objects C' X.
 
 Variable L : functor C C'.
 
@@ -133,8 +129,7 @@ Proof.
   rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
   apply maponpaths.
   eapply pathscomp0.
-Focus 2.
-  apply ψ_naturality.
+  2: apply ψ_naturality.
   apply maponpaths.
   rewrite truth_about_ε.
   rewrite <- (φ_adj_inv_natural_precomp (pr2 is_left_adj_L)).
@@ -174,15 +169,12 @@ Lemma preIt_uniq (t : ∑ h : L μF --> X, # L inF· h = ψ μF h):
 Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
-Focus 2.
-    apply subtypeEquality.
-    + intro.
-      simpl.
-      apply hsC'.
-Focus 2.
-    simpl.
-    exact same.
-
+    2: {
+      apply subtypePath.
+      + intro. apply homset_property.
+      + simpl.
+        exact same.
+    }
     apply cancel_φ.
     unfold preIt.
     rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
@@ -266,8 +258,8 @@ End the_iteration_principle.
 (** * Fusion law for Generalized Iteration in Mendler-style *)
 
 Variable X X': C'.
-Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
-Let Yon' : functor C'^op HSET := yoneda_objects C' hsC' X'.
+Let Yon : functor C'^op HSET := yoneda_objects C' X.
+Let Yon' : functor C'^op HSET := yoneda_objects C' X'.
 Variable L : functor C C'.
 Variable is_left_adj_L : is_left_adjoint L.
 Variable ψ : ψ_source X L ⟹ ψ_target X L.

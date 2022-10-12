@@ -17,9 +17,12 @@ Ported to CT by: Anders Mörtberg
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 
@@ -27,7 +30,7 @@ Local Open Scope cat.
 
 Section cat_of_elems_def.
 
-Context {C : precategory} (X : C^op ⟶ HSET).
+Context {C : category} (X : C^op ⟶ HSET).
 
 Definition cat_of_elems_ob_mor : precategory_ob_mor.
 Proof.
@@ -55,40 +58,46 @@ Lemma cat_of_elems_mor_eq (x y : cat_of_elems_data) (f g : _⟦x,y⟧) :
   get_mor f = get_mor g → f = g.
 Proof.
 intros p.
-apply subtypeEquality.
+apply subtypePath.
 - intro r; apply setproperty.
 - exact p.
 Qed.
 
 Lemma is_precategory_cat_of_elems_data : is_precategory cat_of_elems_data.
 Proof.
-split; [split|]; intros; apply cat_of_elems_mor_eq.
+split; [split|split]; intros; apply cat_of_elems_mor_eq.
 + apply id_left.
 + apply id_right.
 + apply assoc.
-Qed.
++ apply assoc'.
+Defined.
 
-Definition cat_of_elems : precategory :=
+Definition precat_of_elems : precategory :=
   (cat_of_elems_data,,is_precategory_cat_of_elems_data).
 
-Lemma has_homsets_cat_of_elems (hsC : has_homsets C) : has_homsets cat_of_elems.
-Proof.
-intros a b.
-apply isaset_total2.
-- apply hsC.
-- intro f. apply isasetaprop, setproperty.
-Qed.
 
 End cat_of_elems_def.
 
 Arguments get_mor {_ _ _ _} _.
+
+Lemma has_homsets_cat_of_elems {C : category} (X : C^op ⟶ HSET)
+  : has_homsets (precat_of_elems X).
+Proof.
+intros a b.
+apply isaset_total2.
+- apply C.
+- intro f. apply isasetaprop, setproperty.
+Qed.
+
+Definition cat_of_elems {C : category} (X : C^op ⟶ HSET) : category
+  := make_category _ (has_homsets_cat_of_elems X).
 
 (** Type as \int in Agda mode *)
 Notation "∫ X" := (cat_of_elems X) (at level 3) : cat.
 
 Section cat_of_elems_theory.
 
-Context {C : precategory} {X Y : C^op ⟶ HSET}.
+Context {C : category} {X Y : C^op ⟶ HSET}.
 
 Definition get_ob (x : ∫ X) : C := pr1 x.
 Definition get_el (x : ∫ X) : X (get_ob x) : hSet := pr2 x.
@@ -134,7 +143,7 @@ Lemma mor_to_el_mor_id {I : C} (ρ : pr1 (pr1 X I)) :
   mor_to_el_mor (identity I) ρ =
   transportb (λ Z, ∫ X⟦Z, make_ob I ρ⟧) (make_ob_identity_eq ρ) (identity _).
 Proof.
-apply (@transportf_transpose _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
+apply (@transportf_transpose_right _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
 unfold transportb; rewrite pathsinv0inv0.
 rewrite transportf_total2; simpl; rewrite transportf_make_ob_eq.
 now unfold make_ob_identity_eq; rewrite base_paths_maponpaths_make_ob, idpath_transportf.
@@ -151,7 +160,7 @@ Lemma mor_to_el_mor_comp {I J K} (ρ : pr1 (pr1 X I)) (f : C^op⟦I,J⟧) (g : C
   transportb (λ Z, ∫ X⟦Z,_⟧) (make_ob_comp_eq ρ f g)
              (mor_to_el_mor g (# (pr1 X) f ρ) · mor_to_el_mor f ρ).
 Proof.
-apply (@transportf_transpose _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
+apply (@transportf_transpose_right _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
 unfold transportb; rewrite pathsinv0inv0.
 rewrite transportf_total2; simpl; rewrite transportf_make_ob_eq.
 now unfold make_ob_comp_eq; rewrite base_paths_maponpaths_make_ob, idpath_transportf.
@@ -184,7 +193,7 @@ Definition cat_of_elems_on_nat_trans (α : X ⟹ Y) : ∫ X ⟶ ∫ Y :=
 (** The forgetful functor from the category of elements to C *)
 Definition cat_of_elems_forgetful : ∫ X ⟶ C.
 Proof.
-use mk_functor.
+use make_functor.
 - exists pr1.
   intros a b; apply pr1.
 - now split.
@@ -193,9 +202,7 @@ Defined.
 Lemma reflects_isos_cat_of_elems_forgetful : reflects_isos cat_of_elems_forgetful.
 Proof.
 intros [c x] [d y] f Hf.
-apply is_iso_from_is_z_iso.
-assert (H := is_z_iso_from_is_iso _ Hf); clear Hf.
-destruct f as [f i]; destruct H as [f' j].
+destruct f as [f i]; destruct Hf as [f' j].
 assert (i' : y = #X f' x).
 { intermediate_path (#X (identity d) y).
   - exact (eqtohomot (!functor_id X d) y).

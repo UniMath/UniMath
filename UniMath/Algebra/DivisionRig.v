@@ -7,12 +7,10 @@
 
 (** Catherine Lelay. Sep. 2015 *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.Sets.
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -26,7 +24,6 @@ Definition isDivRig (X : rig) : UU :=
 
 Lemma isaprop_isDivRig (X : rig) : isaprop (isDivRig X).
 Proof.
-  intro X.
   apply isofhleveldirprod.
   - now apply isapropneg.
   - apply impred_isaprop ; intro.
@@ -87,6 +84,7 @@ Definition DivRig_isDivRig (F : DivRig) :
 Definition isDivRig_DivRig {X : rig} : isDivRig X -> DivRig :=
 λ is : isDivRig X, X ,, is.
 
+Declare Scope dr_scope.
 Delimit Scope dr_scope with dr.
 Local Open Scope dr_scope.
 
@@ -149,7 +147,7 @@ Coercion CommDivRig_DivRig : CommDivRig >-> DivRig.
 
 Section CommDivRig_pty.
 
-Open Scope dr_scope.
+Local Open Scope dr_scope.
 
 Context {F : CommDivRig}.
 

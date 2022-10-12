@@ -1,0 +1,97 @@
+## This file allows joining different accounts of a single person.
+## Cf for instance: git shortlog -nse. More details via: man git shortlog
+
+# having the same name <email> name <email> on a line will fix capitalization
+Alex Kavvos <alex.kavvos@cs.ox.ac.uk>                             Alex Kavvos <alex.kavvos@cs.ox.ac.uk>
+Alex Kavvos <alex.kavvos@cs.ox.ac.uk>                             Alex Kavvos <alex@Computatrum.local>
+Ambroise <chaster_killer@hotmail.fr>                              Ambroise <chaster_killer@hotmail.fr>
+Ambroise <chaster_killer@hotmail.fr>                              Jack <chaster_killer@hotmail.fr>
+Ambroise Lafont <Ambroise.Lafont@data61.csiro.au>                 Ambroise Lafont <Ambroise.Lafont@data61.csiro.au>
+Anders Mörtberg <andersmortberg@gmail.com>                        Anders <mortberg@chalmers.se>
+Anders Mörtberg <andersmortberg@gmail.com>                        Anders Mörtberg <amortber@marstag2.inria.fr>
+Anders Mörtberg <andersmortberg@gmail.com>                        Anders Mörtberg <amortberg@somf408.math.ias.edu>
+Anders Mörtberg <andersmortberg@gmail.com>                        Anders Mörtberg <andersmortberg@gmail.com>
+Anders Mörtberg <andersmortberg@gmail.com>                        Anders Mörtberg <mortberg@chalmers.se>
+Anders Mörtberg <andersmortberg@gmail.com>                        Hoi Nguyen <andersmortberg@gmail.com>
+Anders Mörtberg <andersmortberg@gmail.com>                        anders mortberg <amortber@marstag2.inria.fr>
+Anthony Bordg <bordg.anthony@gmail.com>                           Anthony Bordg <bordg.anthony@gmail.com>
+Auke Booij <auke@tulcod.com>                                      Auke Booij <auke@tulcod.com>
+Benedikt Ahrens <benedikt.ahrens@gmx.net>                         Benedikt Ahrens <benedikt.ahrens@gmail.com>
+Benedikt Ahrens <benedikt.ahrens@gmx.net>                         Benedikt Ahrens <benedikt.ahrens@gmx.net>
+Benedikt Ahrens <benedikt.ahrens@gmx.net>                         benediktahrens <benedikt.ahrens@gmx.net>
+Catherine Lelay <clelay@ias.edu>                                  Catherine Lelay <clelay@ias.edu>
+Catherine Lelay <clelay@ias.edu>                                  Catherine Lelay <clelay@somf403.math.ias.edu>
+Catherine Lelay <clelay@ias.edu>                                  Catherine LelayC <clelay@ias.edu>
+Catherine Lelay <clelay@ias.edu>                                  cathlelay <clelay@ias.edu>
+Christian Graulund <christiangraulund@gmail.com>                  Chgrau <34510751+Chgrau@users.noreply.github.com>
+Christian Graulund <christiangraulund@gmail.com>                  Christian Graulund <34510751+Chgrau@users.noreply.github.com>
+Christian Graulund <christiangraulund@gmail.com>                  Christian Graulund <cgra@itu.dk>
+Christian Graulund <christiangraulund@gmail.com>                  Christian Graulund <christiangraulund@gmail.com>
+Christian Graulund <christiangraulund@gmail.com>                  Christian Uldal Graulund <cgra@itu.dk>
+Cosimo Perini <cosimo.logic@protonmail.com>                       Cosimo <cosimo.logic@protonmail.com>
+Cosimo Perini <cosimo.logic@protonmail.com>                       Cosimo Perini <33255888+logicosimo@users.noreply.github.com>
+Cosimo Perini <cosimo.logic@protonmail.com>                       Cosimo Perini <cosimo.logic@protonmail.com>
+Dan Frumin <dfrumin@cs.ru.nl>                                     Dan Frumin <dfrumin@cs.ru.nl>
+Daniel R. Grayson <dan@math.uiuc.edu>                             Daniel R. Grayson <dan@math.uiuc.edu>
+Daniel R. Grayson <dan@math.uiuc.edu>                             Daniel R. Grayson <danielrichardgrayson@gmail.com>
+Dimitris Tsementzis <dtsement@princeton.edu>                      Dimitris Tsementzis <dtsement@princeton.edu>
+Dimitris Tsementzis <dtsement@princeton.edu>                      Unknown <dtsement@princeton.edu>
+Dominik Kirst <kirst@ps.uni-saarland.de>                          Dominik Kirst <dominik@deepgreen.bham.ac.uk>
+Dominik Kirst <kirst@ps.uni-saarland.de>                          Dominik Kirst <kirst@ps.uni-saarland.de>
+Dominik Kirst <kirst@ps.uni-saarland.de>                          dominik-kirst <kirst@ps.uni-saarland.de>
+Elisabeth Bonnevier <elbo@math.su.se>                             Elisabeth Bonnevier <elbo@math.su.se>
+Emil Skoeldberg <emil@skoeldberg.net>                             Emil Skoeldberg <emil@skoeldberg.net>
+Emilio Jesus Gallego Arias <e+git@x80.org>                        Emilio Jesus Gallego Arias <e+git@x80.org>
+Enrico Tassi <Enrico.Tassi@Inria.fr>                              Enrico Tassi <Enrico.Tassi@Inria.fr>
+Enrico Tassi <Enrico.Tassi@Inria.fr>                              Enrico Tassi <gares@fettunta.org>
+Felix Rech <s9ferech@gmail.com>                                   Felix Rech <s9ferech@gmail.com>
+Floris van Doorn <fpv@andrew.cmu.edu>                             Floris van Doorn <fpv@andrew.cmu.edu>
+Gaëtan Gilbert <gaetan.gilbert@skyskimmer.net>                    Gaëtan Gilbert <gaetan.gilbert@skyskimmer.net>
+Hichem Saghrouni <saghrounihichem@hotmail.fr>                     Hichem Saghrouni <saghrounihichem@hotmail.fr>
+Hichem Saghrouni <saghrounihichem@hotmail.fr>                     Marmann <saghrounihichem@hotmail.fr>
+Hugo Herbelin <Hugo.Herbelin@inria.fr>                            Hugo Herbelin <Hugo.Herbelin@inria.fr>
+Jannis Limperg <jannis@limperg.de>                                Jannis Limperg <jannis@limperg.de>
+Jason Gross <jgross@mit.edu>                                      Jason Gross <jasongross9@gmail.com>
+Jason Gross <jgross@mit.edu>                                      Jason Gross <jgross@mit.edu>
+Joseph Helfer <joj@stanford.edu>                                  Joseph Helfer <joj@stanford.edu>
+Karl Palmskog <palmskog@gmail.com>                                Karl Palmskog <palmskog@gmail.com>
+Langston Barrett <langston.barrett@gmail.com>                     Langston Barrett <langston.barrett@gmail.com>
+Luis Scoccola <luis.scoccola@gmail.com>                           Luis Scoccola <luis.scoccola@gmail.com>
+Marco Maggesi <marco.maggesi@unifi.it>                            Marco Maggesi <1809783+maggesi@users.noreply.github.com>
+Marco Maggesi <marco.maggesi@unifi.it>                            Marco Maggesi <marco.maggesi@unifi.it>
+Marcus Aloysius Bezem <marc.bezem@uib.no>                         Marcus Aloysius Bezem <marc.bezem@uib.no>
+Mario Román <mromang08@gmail.com>                                 Mario Román <5337877+mroman42@users.noreply.github.com>
+Mario Román <mromang08@gmail.com>                                 Mario Román <mromang08@gmail.com>
+Matthew Weaver <mzw@cs.princeton.edu>                             Matthew Weaver <mzw@cs.princeton.edu>
+Matthew Weaver <mzw@cs.princeton.edu>                             mweav <mweav@sas.upenn.edu>
+Matthew Weaver <mzw@cs.princeton.edu>                             mweav <mzw@cs.princeton.edu>
+Maxime Dénès <maxime.denes@inria.fr>                              Maxime Dénès <maxime.denes@inria.fr>
+Michael A. Warren <mwarren@alumni.cmu.edu>                        Michael A. Warren <mwarren@alumni.cmu.edu>
+Mike Shulman <viritrilbia@gmail.com>                              Mike Shulman <viritrilbia@gmail.com>
+Mike Shulman <viritrilbia@gmail.com>                              mikeshulman <viritrilbia@gmail.com>
+Mitchell Riley <mitchell.v.riley@gmail.com>                       Mitchell Riley <mitchell.v.riley@gmail.com>
+N. Raghavendra <raghu@hri.res.in>                                 N. Raghavendra <raghu@hri.res.in>
+Niccolo Veltri <niccolo.veltri@gmail.com>                         Niccolo Veltri <niccolo.veltri@gmail.com>
+Niccolo Veltri <niccolo.veltri@gmail.com>                         niccoloveltri <niccolo.veltri@gmail.com>
+Niels van der Weide <n.vanderweide@science.ru.nl>                 Niels van der Weide <n.vanderweide@science.ru.nl>
+Niels van der Weide <n.vanderweide@science.ru.nl>                 Niels van der Weide <nnmvdw@gmail.com>
+Nikolai Kudasov <nickolay.kudasov@gmail.com>                      Nikolai Kudasov <nickolay.kudasov@gmail.com>
+Peter LeFanu Lumsdaine <p.l.lumsdaine@gmail.com>                  Peter LeFanu Lumsdaine <p.l.lumsdaine@gmail.com>
+Ralph Matthes <Ralph.Matthes@irit.fr>                             Ralph Matthes <Ralph.Matthes@irit.fr>
+Ralph Matthes <Ralph.Matthes@irit.fr>                             Ralph Matthes <matthes@irit.fr>
+Ralph Matthes <Ralph.Matthes@irit.fr>                             Ralph Matthes <rmatthes@users.noreply.github.com>
+Ralph Matthes <Ralph.Matthes@irit.fr>                             rmatthes <matthes@irit.fr>
+Tamara von Glehn <tamara.vonglehn@gmail.com>                      Tamara von Glehn <tamara.vonglehn@gmail.com>
+Théo Zimmermann <theo.zimmermann@univ-paris-diderot.fr>           Théo Zimmermann <theo.zimmermann@univ-paris-diderot.fr>
+Tom de Jong <tdejong.ac@gmail.com>                                Tom de Jong <tdejong.ac@gmail.com>
+Tomi Pannila <tpannila@gmail.com>                                 Tomi Pannila <tpannila@gmail.com>
+Tony Beta Lambda <tonybetalambda@gmail.com>                       Tony Beta Lambda <tonybetalambda@gmail.com>
+Vincent Laporte <Vincent.Laporte@fondation-inria.fr>              Vincent Laporte <Vincent.Laporte@fondation-inria.fr>
+Vladimir Voevodsky <vladimir@ias.edu>                             Vladimir Voevodsky <vladimir @ ias . edu>
+Vladimir Voevodsky <vladimir@ias.edu>                             Vladimir Voevodsky <vladimir@ias.edu>
+amblaf <tamere@tonpere.com>                                       amblaf <tamere@tonpere.com>
+amblaf <tamere@tonpere.com>                                       amblaf <you@example.com>
+bcldoherty <34450242+bcldoherty@users.noreply.github.com>         bcldoherty <34450242+bcldoherty@users.noreply.github.com>
+sspeight93 <samuel.speight@cs.ox.ac.uk>                           sspeight93 <samuel.speight@cs.ox.ac.uk>
+tamaravonglehn <34451125+tamaravonglehn@users.noreply.github.com> tamaravonglehn <34451125+tamaravonglehn@users.noreply.github.com>
+varkor <github@varkor.com>                                        varkor <github@varkor.com>

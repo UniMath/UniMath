@@ -12,7 +12,8 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.equalizers.
@@ -22,8 +23,8 @@ Local Open Scope cat.
 (** * Definition of equalizers in terms of limits *)
 Section def_equalizers.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
 
   Open Scope stn.
   Definition One : two := ● 0.
@@ -54,13 +55,13 @@ Section def_equalizers.
   Definition Equalizer_cone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
     cone (Equalizer_diagram f g) d.
   Proof.
-    use mk_cone.
+    use make_cone.
     - use two_rec_dep.
       + exact h.
       + exact (h · f).
     - use two_rec_dep; use two_rec_dep.
       + exact (empty_rect _).
-      + intro e. unfold idfun. induction e.
+      + intro e. induction e.
         * apply idpath.
         * apply (! H).
       + exact (empty_rect _).
@@ -70,7 +71,7 @@ Section def_equalizers.
   Definition isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
     UU := isLimCone (Equalizer_diagram f g) d (Equalizer_cone f g d h H).
 
-  Definition mk_isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
+  Definition make_isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
     (∏ e (h' : C⟦e, a⟧) (H' : h' · f = h' · g),
      iscontr (total2 (fun hk : C⟦e, d⟧ => hk · h = h'))) -> isEqualizer f g d h H.
   Proof.
@@ -90,14 +91,14 @@ Section def_equalizers.
         change (coneOut (Equalizer_cone f g d h H) (● 1)%stn) with (h · f).
         rewrite assoc.
         apply cancel_postcomposition, (pr2 (pr1 H2)).
-    - abstract (intro t; apply subtypeEquality;
+    - abstract (intro t; apply subtypePath;
                 [ intros y; apply impred; intros t0; apply hs
                 | induction t as [t p]; apply path_to_ctr, (p One)]).
   Defined.
 
   Definition Equalizer {a b : C} (f g : C⟦a, b⟧) := LimCone (Equalizer_diagram f g).
 
-  Definition mk_Equalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧)
+  Definition make_Equalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧)
              (H : h · f = h · g) (isEq : isEqualizer f g d h H) :
     Equalizer f g.
   Proof.
@@ -157,7 +158,7 @@ Section def_equalizers.
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
     isEqualizer f g (EqualizerObject E) (EqualizerArrow E) (EqualizerArrowEq E).
   Proof.
-    apply mk_isEqualizer.
+    apply make_isEqualizer.
     intros e h H.
     use (unique_exists (EqualizerIn E e h H)).
     (* Commutativity *)
@@ -254,8 +255,8 @@ End def_equalizers.
   coincides with the direct definition. *)
 Section equalizers_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
 
 
   (** ** isEqualizers *)
@@ -264,8 +265,8 @@ Section equalizers_coincide.
     limits.equalizers.isEqualizer f g h H -> isEqualizer C f g e h H.
   Proof.
     intros X.
-    set (E := limits.equalizers.mk_Equalizer f g h H X).
-    use (mk_isEqualizer C hs).
+    set (E := limits.equalizers.make_Equalizer f g h H X).
+    use (make_isEqualizer C).
     intros e' h' H'.
     use (unique_exists (limits.equalizers.EqualizerIn E e' h' H')).
     (* Commutativity *)
@@ -283,7 +284,7 @@ Section equalizers_coincide.
     limits.equalizers.isEqualizer f g h H <- isEqualizer C f g e h H.
   Proof.
     intros X.
-    set (E := mk_Equalizer C f g e h H X).
+    set (E := make_Equalizer C f g e h H X).
     intros e' h' H'.
     use (unique_exists (EqualizerIn C E e' h' H')).
     (* Commutativity *)
@@ -303,7 +304,7 @@ Section equalizers_coincide.
     limits.equalizers.Equalizer f g -> Equalizer C f g.
   Proof.
     intros E.
-    exact (mk_Equalizer
+    exact (make_Equalizer
              C f g _ _ _
              (equiv_isEqualizer1
                 (limits.equalizers.EqualizerObject E)
@@ -316,7 +317,7 @@ Section equalizers_coincide.
   Proof.
     intros E' a b f g.
     set (E := E' a b f g).
-    exact (mk_Equalizer
+    exact (make_Equalizer
              C f g _ _ _
              (equiv_isEqualizer1
                 (limits.equalizers.EqualizerObject E)
@@ -329,7 +330,7 @@ Section equalizers_coincide.
     limits.equalizers.Equalizer f g <- Equalizer C f g.
   Proof.
     intros E.
-    exact (@limits.equalizers.mk_Equalizer
+    exact (@limits.equalizers.make_Equalizer
              C (EqualizerObject C E) a b f g
              (EqualizerArrow C E)
              (EqualizerArrowEq C E)
@@ -337,14 +338,14 @@ Section equalizers_coincide.
                 a b f g (EqualizerObject C E)
                 (EqualizerArrow C E)
                 (EqualizerArrowEq C E)
-                (isEqualizer_Equalizer C hs E))).
+                (isEqualizer_Equalizer C E))).
   Defined.
 
   Definition equiv_Equalizers2 : @limits.equalizers.Equalizers C <- Equalizers C.
   Proof.
     intros E' a b f g.
     set (E := E' a b f g).
-    exact (@limits.equalizers.mk_Equalizer
+    exact (@limits.equalizers.make_Equalizer
              C (EqualizerObject C E) a b f g
              (EqualizerArrow C E)
              (EqualizerArrowEq C E)
@@ -352,7 +353,7 @@ Section equalizers_coincide.
                 a b f g (EqualizerObject C E)
                 (EqualizerArrow C E)
                 (EqualizerArrowEq C E)
-                (isEqualizer_Equalizer C hs E))).
+                (isEqualizer_Equalizer C E))).
   Defined.
 
 End equalizers_coincide.

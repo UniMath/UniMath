@@ -12,7 +12,7 @@ Contents:
 ***********************************************)
 
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Groups.
 
 (** * Types with operators *)
 
@@ -176,7 +176,7 @@ Coercion pr1abgrwithoperators : abgrwithoperators >-> grwithoperators.
 
 Lemma ismonoidfun_homothety {Ω : UU} (G : grwithoperators Ω) (α : Ω) : ismonoidfun (homothety G α).
 Proof.
-  apply dirprodpair.
+  apply make_dirprod.
   - intros x y.
     apply (pr2 G).
   - assert (p : homothety G α (unel G) = homothety G α (@op G (unel G) (unel G))).
@@ -238,7 +238,7 @@ Definition stable_subgr {Ω : UU} (G : grwithoperators Ω) : UU := ∑ A : hsubt
 (** A few access functions for stable subgroups *)
 
 Definition stable_subgr_to_gr {Ω : UU} {G : grwithoperators Ω} (H : stable_subgr G) : gr :=
-  carrierofasubgr (subgrpair (pr1 H)  (dirprod_pr1 (pr2 H))).
+  carrierofasubgr (make_subgr (pr1 H)  (dirprod_pr1 (pr2 H))).
 
 Definition stable_subgr_to_action {Ω : UU} {G : grwithoperators Ω} (H : stable_subgr G) : action Ω (stable_subgr_to_gr H).
 Proof.
