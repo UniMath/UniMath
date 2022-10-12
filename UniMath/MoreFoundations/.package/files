@@ -15,6 +15,7 @@ NullHomotopies.v
 Interval.v
 NegativePropositions.v
 Sets.v
+Orders.v
 Equivalences.v
 MoreEquivalences.v
 QuotientSet.v

@@ -29,6 +29,7 @@
   - Relations and the canonical homomorphism to [abgrdiff]
 *)
 
+Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
@@ -1462,6 +1463,22 @@ Proof.
                                   isl (weqabgrdiff X a) (weqabgrdiff X b) (weqabgrdiff X c)).
 Defined.
 Opaque iscotransabgrdiffrel.
+
+Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
+      (Hgt : isbinophrel gt) :
+  isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
+Proof.
+  intros H.
+  repeat split.
+  - apply istransabgrdiffrel, (istrans_isStrongOrder H).
+  - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
+Defined.
+Opaque isStrongOrder_abgrdiff.
+
+Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
+           (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+  abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
 
 Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
       (impl : ∏ x x', L x x' -> L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :
