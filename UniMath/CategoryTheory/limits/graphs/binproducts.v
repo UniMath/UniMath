@@ -14,7 +14,7 @@ Local Open Scope cat.
 
 Section binproduct_def.
 
-Variable (C : precategory).
+Variable (C : category).
 
 Definition two_graph : graph.
 Proof.
@@ -55,7 +55,7 @@ use tpair.
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
-- abstract (simpl; intros; apply subtypeEquality;
+- abstract (simpl; intros; apply subtypePath;
               [intro; apply impred;intro; apply hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.
@@ -167,7 +167,7 @@ Qed.
 
 End binproduct_def.
 
-Lemma BinProducts_from_Lims (C : precategory) :
+Lemma BinProducts_from_Lims (C : category) :
   Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 now intros H a b; apply H.

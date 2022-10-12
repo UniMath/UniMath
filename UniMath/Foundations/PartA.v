@@ -158,9 +158,15 @@ Definition termfun {X : UU} (x : X) : unit -> X := λ _, x.
 
 Definition idfun (T : UU) := λ t:T, t.
 
+(** makes [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun X ]: *)
+Arguments idfun _ _ /.
+
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
-(* Declare Scope functions. *)
+(** make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+Arguments funcomp {_ _ _} _ _ _/.
+
+Declare Scope functions.
 Delimit Scope functions with functions.
 
 Open Scope functions.
@@ -232,7 +238,7 @@ Definition neg (X : UU) : UU := X -> empty.
 Notation "'¬' X" := (neg X).
 (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)).
+Notation "x != y" := (neg (x = y)) : type_scope.
 
 Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
@@ -341,6 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
+#[global]
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
@@ -366,6 +373,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+#[global]
 Hint Resolve @pathsinv0 : pathshints.
 
 Definition path_assoc {X} {a b c d:X}
@@ -627,7 +635,7 @@ Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-(* Declare Scope transport. *)
+Declare Scope transport.
 Notation "p #  x" := (transportf _ p x) (only parsing) : transport.
 Notation "p #' x" := (transportb _ p x) (only parsing) : transport.
 Delimit Scope transport with transport.
@@ -960,10 +968,9 @@ Definition famhomotfun {X : UU} {P Q : X -> UU}
            (h : P ~ Q) (xp : total2 P) : total2 Q.
 Proof.
   intros.
-  induction xp as [ x p ].
-  split with x.
-  induction (h x).
-  apply p.
+  exists (pr1 xp).
+  induction (h (pr1 xp)).
+  apply (pr2 xp).
 Defined.
 
 Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
@@ -971,10 +978,8 @@ Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
 Proof.
   intros.
   intro xp.
-  induction xp as [x p].
-  simpl.
-  apply (maponpaths (λ q, tpair Q x q)).
-  induction (H x).
+  apply (maponpaths (λ q, tpair Q (pr1 xp) q)).
+  induction (H (pr1 xp)).
   apply idpath.
 Defined.
 
@@ -1008,8 +1013,7 @@ Defined.
 Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X) : x = x'.
 Proof.
   intros.
-  induction is as [y fe].
-  apply (fe x @ !(fe x')).
+  apply ((pr2 is) x @ !(pr2 is x')).
 Defined.
 
 Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : ∃! a, B a)
@@ -1126,7 +1130,6 @@ in a coconus, namely the one that is given by the pair of t and the path that
 starts at t and ends at t, the coconuses are contractible. *)
 
 Lemma coconustot_isProofIrrelevant {T : UU} {t : T} (c1 c2 : coconustot T t) : c1 = c2.
-(* should rename this, since the property is not connectedness *)
 Proof.
   intros.
   induction c1 as [x0 x].
@@ -1229,7 +1232,7 @@ Defined.
 
 Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
 
-Notation "X ≃ Y" := (weq X Y) : type_scope.
+Notation "X ≃ Y" := (weq X%type Y%type) : type_scope.
 (* written \~- or \simeq in Agda input method *)
 
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
@@ -1378,14 +1381,14 @@ Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ in
 Proof.
   intros p y.
   simple refine (p (invmap w y) @ _); clear p.
-  unfold funcomp. apply maponpaths. apply homotweqinvweq.
+  simpl. apply maponpaths. apply homotweqinvweq.
 Defined.
 
 Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
 Proof.
   intros q x.
   simple refine (_ @ q (w x)).
-  unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
+  simpl. apply maponpaths, pathsinv0. apply homotinvweqweq.
 Defined.
 
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
@@ -1763,9 +1766,8 @@ Defined.
 
 (** This is kept to preserve compatibility with publications that use the
     name "gradth" for the "grad theorem". *)
-Definition gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-        (egf: ∏ x : X, g (f x) = x)
-        (efg: ∏ y : Y, f (g y) = y) : isweq f := isweq_iso f g egf efg.
+#[deprecated(note="Use isweq_iso instead.")]
+Notation gradth := isweq_iso (only parsing).
 
 Definition weq_iso {X Y : UU} (f : X -> Y) (g : Y -> X)
            (egf: ∏ x : X, g (f x) = x)
@@ -2181,7 +2183,7 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) : X ≃ 
 Definition weqcomp {X Y Z : UU} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
   make_weq (λ (x : X), w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)).
 
-(* Declare Scope weq_scope. *)
+Declare Scope weq_scope.
 Notation "g ∘ f" := (weqcomp f g) : weq_scope.
 
 Delimit Scope weq_scope with weq.
@@ -2286,9 +2288,7 @@ Proof.
   intros xpq.
   exists (pr1 (pr1 xpq)).
   exists (pr2 (pr1 xpq)).
-  induction xpq as [ xp q ].
-  induction xp as [ x p ].
-  assumption.
+  exact (pr2 xpq).
 Defined.
 
 Lemma total2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
@@ -2299,9 +2299,7 @@ Proof.
   - use tpair.
     + apply (pr1 xpq).
     + apply (pr1 (pr2 xpq)).
-  - induction xpq as [ x pq ].
-    induction pq as [ p q ].
-    assumption.
+  - exact (pr2 (pr2 xpq)).
 Defined.
 
 
@@ -2312,9 +2310,9 @@ Proof.
   set (f := total2asstor P Q). set (g:= total2asstol P Q).
   split with f.
   assert (egf : ∏ xpq : _ , (g (f xpq)) = xpq).
-  intro. induction xpq as [ xp q ]. induction xp as [ x p ]. apply idpath.
+  intro. apply idpath.
   assert (efg : ∏ xpq : _ , (f (g xpq)) = xpq).
-  intro. induction xpq as [ x pq ]. induction pq as [ p q ]. apply idpath.
+  intro. apply idpath.
   apply (isweq_iso _ _ egf efg).
 Defined.
 
@@ -2349,13 +2347,13 @@ Definition weqtotal2dirprodcomm {X Y : UU} (P : X × Y -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact ((y,,x),,p).
-  - intros yxp. induction yxp as [yx p]. induction yx as [y x].
-    exact ((x,,y),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact ((pr2 (pr1 xyp),, pr1 (pr1 xyp)),,pr2 xyp).
+  - intros yxp.
+    exact (((pr2 (pr1 yxp)),, (pr1 (pr1 yxp))),, pr2 yxp).
+  - intros xyp.
     apply idpath.
-  - intros yxp. induction yxp as [yx p]. induction yx as [y x].
+  - intros yxp.
     apply idpath.
 Defined.
 
@@ -2363,13 +2361,13 @@ Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact (x,,y,,p).
-  - intros xyp. induction xyp as [x yp]. induction yp as [y p].
-    exact ((x,,y),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact (pr1 (pr1 xyp),,pr2 (pr1 xyp),, pr2 xyp).
+  - intros xyp.
+    exact (((pr1 xyp),, pr1 (pr2 xyp)),, pr2 (pr2 xyp)).
+  - intros xyp.
     apply idpath.
-  - intros xyp. induction xyp as [x yp]. induction yp as [y p].
+  - intros xyp.
     apply idpath.
 Defined.
 
@@ -2378,13 +2376,13 @@ Definition weqtotal2dirprodassoc' {X Y : UU} (P : X × Y -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact (y,,x,,p).
-  - intros yxp. induction yxp as [x yp]. induction yp as [y p].
-    exact ((y,,x),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact (pr2 (pr1 xyp),,pr1 (pr1 xyp),,pr2 xyp).
+  - intros yxp.
+    exact ((pr1 (pr2 yxp),,pr1 yxp),,pr2 (pr2 yxp)).
+  - intros xyp.
     apply idpath.
-  - intros yxp. induction yxp as [x yp]. induction yp as [y p].
+  - intros yxp.
     apply idpath.
 Defined.
 
@@ -2393,10 +2391,10 @@ Definition weqtotal2comm12 {X} (P Q : X -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros [[x p] q]. exact ((x,,q),,p).
-  - intros [[x q] p]. exact ((x,,p),,q).
-  - intros [[x p] q]. apply idpath.
-  - intros [[x q] p]. apply idpath.
+  - intro xpq. exact ((pr1 (pr1 xpq),,pr2 xpq),, pr2 (pr1 xpq)).
+  - intro xqp. exact ((pr1 (pr1 xqp),, pr2 xqp),, pr2 (pr1 xqp)).
+  - intro. apply idpath.
+  - intro. apply idpath.
 Defined.
 
 (** ** Binary coproducts and their basic properties *)
@@ -3421,8 +3419,24 @@ Proof.
   apply (iscontrweqf (make_weq intmap (isweqinvezmaphf fpq pr1q x xqe)) isint).
 Defined.
 
+Theorem isweqfibtototal' {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x ≃ Q x) :
+  isweq (totalfun _ _ f).
+Proof.
+  use isweq_iso.
+  - use totalfun.
+    intro x. apply (invmap (f x)).
+  - intro xp.
+    use total2_paths_f.
+    + apply idpath.
+    + apply homotinvweqweq.
+  - intro xp.
+    use total2_paths_f.
+    + apply idpath.
+    + apply homotweqinvweq.
+Defined.
+
 Definition weqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x, P x ≃ Q x) :
-  (∑ x, P x) ≃ (∑ x, Q x) := make_weq _ (isweqfibtototal P Q f).
+  (∑ x, P x) ≃ (∑ x, Q x) := make_weq _ (isweqfibtototal' P Q f).
 
 
 (** *** Function [ fpmap ] between the total spaces from a function between the bases
@@ -3647,7 +3661,7 @@ Proof.
   set (f2:= fpmap w Q).
   set (is2:= isweqfpmap w Q).
   assert (h: ∏ xp: total2 P, (f2 (f1 xp)) = (bandfmap w P Q fw xp)).
-  intro. induction xp. apply idpath.
+  { intro. apply idpath. }
   apply (isweqhomot _ _ h (twooutof3c f1 f2 is1 is2)).
 Defined.
 

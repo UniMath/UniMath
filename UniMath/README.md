@@ -106,7 +106,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   because different names might be used by Coq when the definition of the type
   is changed.  Name all variables introduced by `assert`, if they are used by
   name later, with `as` or to the left of a colon.
-* Do not end a proof with `Qed.`, except with `Goal`, for that may prevent later computations.
+* Avoid ending proofs with `Qed`, because that may prevent future computation. If you decide to make a proof opaque,
+  then make sure that its type is a proposition. It is undesirable to write multiple opaque proofs of properties, for then proofs of equality of objects containing them cannot be accomplished by reflexivity.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
@@ -118,6 +119,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   should be local or in a scope.  All scopes, if opened, should be opened only locally.
   Consider also putting them into a submodule, for then they won't be activated even
   for printing.
+* When introducing a notation using Unicode characters, document in a comment how to input that character using the Agda input method.
 * Each line should be limited to at most 100 (unicode) characters.  The
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the

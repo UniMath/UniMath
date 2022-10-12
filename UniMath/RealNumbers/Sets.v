@@ -227,7 +227,7 @@ Arguments EOgt_rel {X} x y: simpl never.
 Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
   PreorderedSetPair _ (@EOle X).
 
-(* Declare Scope eo_scope. *)
+Declare Scope eo_scope.
 Delimit Scope eo_scope with eo.
 
 Notation "x <= y" := (EOle_rel x y) : eo_scope.

@@ -726,7 +726,7 @@ Defined.
 Definition weqcomp_assoc {W X Y Z : UU} (f : W ≃ X) (g: X ≃ Y) (h : Y ≃ Z) :
   (h ∘ (g ∘ f) = (h ∘ g) ∘ f)%weq.
 Proof.
-  intros. apply subtypeEquality.
+  intros. apply subtypePath.
   - intros p. apply isapropisweq.
   - simpl. apply idpath.
 Defined.
@@ -1004,7 +1004,7 @@ Proof.
                   t t' is is'
                   (recompl T t (coprodf w (λ x0 : unit, x0)
                                         (invmap (weqrecompl T t is) x)))).
-      unfold funcomp,idfun in e.
+      simpl in e.
       rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
       induction (is x) as [ etx | netx' ].
       * induction (netx etx).

@@ -1,7 +1,11 @@
 StandardFiniteSets.v
+Vectors.v
+VectorsTests.v
 Lists.v
 FiniteSets.v
-Graphs.v
+Graph.v
+CGraph.v
+GraphPaths.v
 Equivalence_Relations.v
 OrderedSets.v
 WellFoundedRelations.v
@@ -11,3 +15,6 @@ FiniteSequences.v
 BoundedSearch.v
 MetricTree.v
 Tests.v
+DecSet.v
+Maybe.v
+MoreLists.v

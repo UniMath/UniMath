@@ -32,12 +32,12 @@ Local Open Scope cat.
 (** * Definition of the category of subobjects (monos) of c *)
 Section def_subobjects.
 
-  Context {C : precategory} (hsC : has_homsets C).
+  Context (C : category).
+  Let hsC : has_homsets C := homset_property C.
 
-  Definition Subobjectscategory (c : C) : precategory :=
-    slice_precat (subprecategory_of_monics C hsC)
-                 (subprecategory_of_monics_ob C hsC c)
-                 (has_homsets_subprecategory_of_monics C hsC).
+  Definition Subobjectscategory (c : C) : category :=
+    slice_cat (subcategory_of_monics C)
+                 (subprecategory_of_monics_ob C c).
 
   Lemma has_homsets_Subobjectscategory (c : C) :
     has_homsets (Subobjectscategory c).
@@ -47,7 +47,7 @@ Section def_subobjects.
 
   (** Construction of a subobject from a monic *)
   Definition Subobjectscategory_ob {c c' : C} (h : C⟦c', c⟧) (isM : isMonic h) :
-    Subobjectscategory c := (subprecategory_of_monics_ob C hsC c',,(h,,isM)).
+    Subobjectscategory c := (subprecategory_of_monics_ob C c',,(h,,isM)).
 
   (** Given any subobject S of c and a morphism h : c' -> c, by taking then pullback of S by h we
       obtain a subobject of c'. *)
@@ -66,15 +66,15 @@ End def_subobjects.
 (** * Definition of subobjects as equivalence classes of monos *)
 Section subobj.
 
-Context {C : precategory} (hsC : has_homsets C).
+Context (C : category).
 
 (** Equivalence classes of subobjects defined by identifying monos into c
     with isomorphic source *)
 Definition SubObj (c : C) : HSET :=
-  make_hSet (setquot (iso_eqrel (Subobjectscategory hsC c))) (isasetsetquot _).
+  make_hSet (setquot (z_iso_eqrel (C:=Subobjectscategory C c))) (isasetsetquot _).
 
 (* For f and g monics into c: f <= g := ∃ h, f = h · g *)
-Definition monorel c : hrel (Subobjectscategory hsC c) :=
+Definition monorel c : hrel (Subobjectscategory C c) :=
   λ f g, ∃ h, pr1 (pr2 f) = h · pr1 (pr2 g).
 
 Lemma isrefl_monorel (c : C) : isrefl (monorel c).
@@ -98,18 +98,18 @@ Proof.
 exact (istrans_monorel c,,isrefl_monorel c).
 Qed.
 
-Lemma are_isomorphic_monorel {c : C} {x1 y1 x2 y2 : Subobjectscategory hsC c}
-  (h1 : are_isomorphic _ x1 y1) (h2 : are_isomorphic _ x2 y2) :
+Lemma are_z_isomorphic_monorel {c : C} {x1 y1 x2 y2 : Subobjectscategory C c}
+  (h1 : are_z_isomorphic x1 y1) (h2 : are_z_isomorphic x2 y2) :
   monorel c x1 x2 → monorel c y1 y2.
 Proof.
 apply hinhuniv; intros f.
-change (ishinh_UU (iso x1 y1)) in h1.
-change (ishinh_UU (iso x2 y2)) in h2.
+change (ishinh_UU (z_iso x1 y1)) in h1.
+change (ishinh_UU (z_iso x2 y2)) in h2.
 apply h1; clear h1; intro h1.
 apply h2; clear h2; intro h2.
 intros P H; apply H; clear P H.
-set (h1_inv := inv_from_iso h1).
-set (Hh1 := iso_after_iso_inv h1).
+set (h1_inv := inv_from_z_iso h1).
+set (Hh1 := z_iso_after_z_iso_inv h1).
 exists (pr1 (pr1 h1_inv) · pr1 f · pr1 (pr1 (pr1 h2))).
 set (Htemp := maponpaths pr1 (pr2 (pr1 h2))).
 apply pathsinv0; simpl in *.
@@ -129,9 +129,9 @@ use quotrel.
 - apply monorel.
 - intros x1 y1 x2 y2 h1 h2.
   apply hPropUnivalence.
-  + apply (are_isomorphic_monorel h1 h2).
-  + apply (are_isomorphic_monorel (eqrelsymm (iso_eqrel _) _ _ h1)
-                                  (eqrelsymm (iso_eqrel _) _ _ h2)).
+  + apply (are_z_isomorphic_monorel h1 h2).
+  + apply (are_z_isomorphic_monorel (eqrelsymm (z_iso_eqrel) _ _ h1)
+                                  (eqrelsymm (z_iso_eqrel) _ _ h2)).
 Defined.
 
 Lemma istrans_SubObj_rel (c : C) : istrans (SubObj_rel c).
@@ -160,10 +160,10 @@ assert (int : ∏ x1 x2, isaprop (SubObj_rel c x1 x2 → SubObj_rel c x2 x1 -> x
 apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
 intros x y h1 h2.
 simpl in *. (* This is slow *)
-apply (iscompsetquotpr (iso_eqrel (Subobjectscategory hsC c))).
+apply (iscompsetquotpr (z_iso_eqrel (C:=Subobjectscategory C c))).
 generalize h1; clear h1; apply hinhuniv; intros [h1 Hh1].
 generalize h2; clear h2; apply hinhuniv; intros [h2 Hh2].
-apply hinhpr, (invmap (weq_iso _ (subprecategory_of_monics_ob C hsC c) _ _)).
+apply hinhpr, (invmap (weq_z_iso _ (subprecategory_of_monics_ob C c) _ _)).
 induction x as [[x []] [fx Hfx]].
 induction y as [[y []] [fy Hfy]].
 simpl in *.
@@ -173,15 +173,16 @@ assert (mon_h2 : isMonic h2).
 { apply (isMonic_postcomp _ h2 fx); rewrite <- Hh2; apply Hfy. }
 use tpair.
 - exists (h1,,mon_h1).
-  apply (@is_iso_from_is_z_iso (subprecategory_of_monics C hsC)).
   exists (h2,,mon_h2).
-  split; apply subtypeEquality; try (intros xx; apply isapropisMonic, hsC).
+  split; apply subtypePath.
+  + intros xx. apply isapropisMonic.
   + simpl; apply Hfx.
     now rewrite <- assoc, <- Hh2, <- Hh1, id_left.
+  + intros xx. apply isapropisMonic.
   + simpl; apply Hfy.
     now rewrite <- assoc, <- Hh1, <- Hh2, id_left.
-- apply subtypeEquality; simpl; try apply Hh1.
-  now intros xx; apply isapropisMonic, hsC.
+- apply subtypePath; simpl; try apply Hh1.
+  now intros xx; apply isapropisMonic.
 Qed.
 
 Definition SubObjPoset (c : C) : Poset :=

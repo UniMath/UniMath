@@ -122,7 +122,9 @@ Proof.
   destruct H as [f Hf].
   generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
   unfold compose, from_cobase; simpl; intro H.
-  now rewrite <- H, Hf.
+  rewrite <- H.
+  rewrite <- Hf.
+  apply idpath.
 Qed.
 
 Lemma rel_impl a b (Hab : rel a b) : from_cobase_eqrel a b.
@@ -165,7 +167,7 @@ Definition ColimCoconeHSET : ColimCocone D.
 Proof.
   apply (make_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
   exists (ColimHSETArrow _ cc).
-  abstract (intro f; apply subtypeEquality;
+  abstract (intro f; apply subtypePath;
             [ intro; now apply impred; intro i; apply has_homsets_HSET
             | apply funextfun; intro x; simpl;
               apply (surjectionisepitosets (setquotpr eqr));
@@ -192,27 +194,27 @@ Defined.
 (** ** Binary coproducs [BinCoproductsHSET] *)
 
 (* rules for coproducts in HSET *)
-Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
+Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproduct A B)(C : HSET)
       (f : A --> C)(g: B --> C) (a:pr1 A):
-  BinCoproductArrow HSET CC f g (BinCoproductIn1 HSET CC a)  = f a.
+  BinCoproductArrow CC f g (BinCoproductIn1 CC a)  = f a.
 Proof.
   set (H1 := BinCoproductIn1Commutes _ _ _ CC _ f g).
   apply toforallpaths in H1.
   now apply H1.
 Qed.
 
-Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
+Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproduct A B)(C : HSET)
       (f : A --> C)(g: B --> C) (b:pr1 B):
-  BinCoproductArrow HSET CC f g (BinCoproductIn2 HSET CC b)  = g b.
+  BinCoproductArrow CC f g (BinCoproductIn2 CC b)  = g b.
 Proof.
   set (H1 := BinCoproductIn2Commutes _ _ _ CC _ f g).
   apply toforallpaths in H1.
   now apply H1.
 Qed.
 
-Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproduct HSET A B) {C : HSET}
+Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproduct A B) {C : HSET}
     (f : A --> C) (g : B --> C) {X : HSET} (k : C --> X) z:
-       k (BinCoproductArrow _ CCAB f g z) = BinCoproductArrow _ CCAB (f · k) (g · k) z.
+       k (BinCoproductArrow CCAB f g z) = BinCoproductArrow CCAB (f · k) (g · k) z.
 Proof.
   set (H1 := postcompWithBinCoproductArrow _ CCAB f g k).
   apply toforallpaths in H1.
@@ -227,11 +229,11 @@ Proof.
   - apply (setcoprod A B).
   - simpl in *; apply ii1.
   - simpl in *; intros x; apply (ii2 x).
-  - apply (make_isBinCoproduct _ has_homsets_HSET).
+  - apply (make_isBinCoproduct _ HSET).
     intros C f g; simpl in *.
     use tpair.
     * exists (sumofmaps f g); abstract (split; apply idpath).
-    * abstract (intros h; apply subtypeEquality;
+    * abstract (intros h; apply subtypePath;
       [ intros x; apply isapropdirprod; apply has_homsets_HSET
       | destruct h as [t [ht1 ht2]]; simpl;
                 apply funextfun; intro x;
@@ -248,11 +250,11 @@ Proof.
   - exists (∑ i, pr1 (A i)).
     apply (isaset_total2 _ HI); intro i; apply setproperty.
   - simpl; apply tpair.
-  - apply (make_isCoproduct _ _ has_homsets_HSET).
+  - apply (make_isCoproduct _ _ HSET).
     intros C f; simpl in *.
     use tpair.
     * exists (λ X, f (pr1 X) (pr2 X)); abstract (intro i; apply idpath).
-    * abstract (intros h; apply subtypeEquality; simpl;
+    * abstract (intros h; apply subtypePath; simpl;
         [ intro; apply impred; intro; apply has_homsets_HSET
         | destruct h as [t ht]; simpl; apply funextfun;
           intro x; rewrite <- ht; destruct x; apply idpath]).

@@ -64,10 +64,10 @@ Proof.
 Qed.
 
 Definition folds_ax_T (C : folds_id_T) :=
-     (∏ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
- ×  ((∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
                   T f g h → T f g k → h = k )       (* composite is unique *)
-  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
                T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
@@ -117,7 +117,7 @@ Proof.
   apply (H H'); simpl.
   intro t; exists t.
   intro t'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro b; apply pr2.
   - destruct t; destruct t';
     apply I_unique; assumption.
@@ -138,7 +138,7 @@ Proof.
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
   intro t'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply pr2.
   - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.

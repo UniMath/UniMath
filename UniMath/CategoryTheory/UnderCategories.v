@@ -50,7 +50,7 @@ Section def_underprecategories.
   Definition Under_mor_equality (X Y : Under_ob) (f f' : Under_mor X Y) : pr1 f = pr1 f' -> f = f'.
   Proof.
     intro H.
-    apply subtypeEquality.
+    apply subtypePath.
     intro x.
     apply hs.
     exact H.

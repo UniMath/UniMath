@@ -1,6 +1,6 @@
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
@@ -45,7 +45,7 @@ Proof.
   apply (monoidfuncomp g f).
 Defined.
 
-(* Declare Scope abgr_scope. *)
+Declare Scope abgr_scope.
 Notation "f + g" := (ringofendabgr_op1 f g) : abgr_scope.
 
 (** The underlying set of the ring of endomorphisms of an abelian group *)
@@ -143,7 +143,7 @@ Defined.
 Local Open Scope abgr_scope.
 
 Lemma islinv_setofendabgr_inv {G : abgr} :
-  islinv (@ringofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+  islinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -153,7 +153,7 @@ Proof.
 Defined.
 
 Lemma isrinv_setofendabgr_inv {G : abgr} :
-  isrinv (@ringofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+  isrinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -300,7 +300,7 @@ Defined.
 Definition module_mult {R : ring} (M : module R) : R -> M -> M :=
   λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
 
-(* Declare Scope module_scope. *)
+Declare Scope module_scope.
 Notation "r * x" := (module_mult _ r x) : module_scope.
 
 Delimit Scope module_scope with module.
@@ -442,8 +442,7 @@ Definition linearfun_islinear {R} {M N : module R} (f : linearfun M N) :
 Lemma islinearfuncomp {R : ring} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
   islinear (funcomp f g).
 Proof.
-  intros r x.
-  unfold funcomp.
+  intros r x; simpl.
   rewrite (linearfun_islinear f).
   rewrite (linearfun_islinear g).
   apply idpath.

@@ -6,7 +6,8 @@ Unset Kernel Term Sharing.
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -15,6 +16,7 @@ Require Import UniMath.NumberSystems.Integers
                UniMath.SyntheticHomotopyTheory.AffineLine
                UniMath.Algebra.GroupAction
                UniMath.MoreFoundations.MoreEquivalences.
+Declare Scope paths_scope.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
 Local Open Scope action_scope.

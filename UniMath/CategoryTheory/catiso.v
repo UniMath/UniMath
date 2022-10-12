@@ -462,16 +462,38 @@ Proof.
     apply (catiso_to_precategory_comp_path F).
 Defined.
 
-Lemma catiso_to_precategory_path {A B : precategory}
+(** If either precategory has homsets, then an isomorphism between them
+    becomes a path. This is essentially one half of univalence for categories.
+ *)
+Lemma catiso_to_precategory_path_f {A B : precategory}
   (hs : has_homsets A)
   (F : catiso A B)
   : A = B.
 Proof.
-  eapply total2_paths_b. Unshelve.
-  2: { simpl. exact (catiso_to_precategory_data_path F). }
-  apply proofirrelevance.
-  apply isaprop_is_precategory.
-  apply hs.
+  use total2_paths_b.
+  - exact (catiso_to_precategory_data_path F).
+  - apply proofirrelevance, isaprop_is_precategory.
+    apply hs.
+Defined.
+
+Lemma catiso_to_precategory_path_b {A B : precategory}
+  (hs : has_homsets B)
+  (F : catiso A B)
+  : A = B.
+Proof.
+  use total2_paths_f.
+  - exact (catiso_to_precategory_data_path F).
+  - apply proofirrelevance, isaprop_is_precategory.
+    apply hs.
+Defined.
+
+(** A special case is that they both have homsets *)
+Corollary catiso_to_category_path {A B : category}
+  (F : catiso A B) : A = B.
+Proof.
+  apply category_eq.
+  apply catiso_to_precategory_data_path.
+  assumption.
 Defined.
 
 Definition inv_catiso
@@ -528,6 +550,6 @@ Proof.
       repeat (apply (maponpaths (λ z, z · _))).
       rewrite idtoiso_inv.
       cbn.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       reflexivity.
 Defined.

@@ -75,23 +75,25 @@ End def_commring_precategory.
 (** * Category of commrings *)
 Section def_commring_category.
 
-  (** ** (ringiso X Y) ≃ (iso X Y) *)
+  Definition commring_category : category := make_category _ has_homsets_commring_precategory.
 
-  Lemma commring_iso_is_equiv (A B : ob commring_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  (** ** (ringiso X Y) ≃ (z_iso X Y) *)
+
+  Lemma commring_iso_is_equiv (A B : ob commring_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1rigfun _ _ (inv_from_iso f)).
+    - exact (pr1rigfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropisrigfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropisrigfun.
   Defined.
   Opaque commring_iso_is_equiv.
 
-  Lemma commring_iso_equiv (X Y : ob commring_precategory) :
-    iso X Y -> ringiso (X : commring) (Y : commring).
+  Lemma commring_iso_equiv (X Y : ob commring_category) :
+    z_iso X Y -> ringiso (X : commring) (Y : commring).
   Proof.
     intro f.
     use make_ringiso.
@@ -99,57 +101,55 @@ Section def_commring_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma commring_equiv_is_iso (X Y : ob commring_precategory)
+  Lemma commring_equiv_is_z_iso (X Y : ob commring_category)
         (f : ringiso (X : commring) (Y : commring)) :
-    @is_iso commring_precategory X Y (ringfunconstr (pr2 f)).
+    @is_z_isomorphism commring_category X Y (ringfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use make_is_inverse_in_precat.
-      + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (ringfunconstr (pr2 (invrigiso f))).
+    use make_is_inverse_in_precat.
+    - use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque commring_equiv_is_iso.
+  Opaque commring_equiv_is_z_iso.
 
-  Lemma commring_equiv_iso (X Y : ob commring_precategory) :
-    ringiso (X : commring) (Y : commring) -> iso X Y.
+  Lemma commring_equiv_iso (X Y : ob commring_category) :
+    ringiso (X : commring) (Y : commring) -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso commring_precategory X Y (ringfunconstr (pr2 f))
-                              (commring_equiv_is_iso X Y f)).
+    intros f. exact (_,,commring_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma commring_iso_equiv_is_equiv (X Y : commring_precategory) : isweq (commring_iso_equiv X Y).
+  Lemma commring_iso_equiv_is_equiv (X Y : commring_category) : isweq (commring_iso_equiv X Y).
   Proof.
     use isweq_iso.
     - exact (commring_equiv_iso X Y).
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
+      + apply idpath.
   Defined.
   Opaque commring_iso_equiv_is_equiv.
 
-  Definition commring_iso_equiv_weq (X Y : ob commring_precategory) :
-    weq (iso X Y) (ringiso (X : commring) (Y : commring)).
+  Definition commring_iso_equiv_weq (X Y : ob commring_category) :
+    weq (z_iso X Y) (ringiso (X : commring) (Y : commring)).
   Proof.
     use make_weq.
     - exact (commring_iso_equiv X Y).
     - exact (commring_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma commring_equiv_iso_is_equiv (X Y : ob commring_precategory) : isweq (commring_equiv_iso X Y).
+  Lemma commring_equiv_iso_is_equiv (X Y : ob commring_category) : isweq (commring_equiv_iso X Y).
   Proof.
     use isweq_iso.
     - exact (commring_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+      + apply idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
   Defined.
   Opaque commring_equiv_iso_is_equiv.
 
-  Definition commring_equiv_weq_iso (X Y : ob commring_precategory) :
-    (ringiso (X : commring) (Y : commring)) ≃ (iso X Y).
+  Definition commring_equiv_weq_iso (X Y : ob commring_category) :
+    (ringiso (X : commring) (Y : commring)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
     - exact (commring_equiv_iso X Y).
@@ -159,29 +159,29 @@ Section def_commring_category.
 
   (** ** Category of commrings *)
 
-  Definition commring_precategory_isweq (X Y : ob commring_precategory) :
+  Definition commring_category_isweq (X Y : ob commring_category) :
     isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (commring_univalence X Y) (commring_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (commring_univalence X Y) (commring_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
-    - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - apply idpath.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque commring_precategory_isweq.
+  Opaque commring_category_isweq.
 
-  Definition commring_precategory_is_univalent : is_univalent commring_precategory.
+
+
+  Definition commring_category_is_univalent : is_univalent commring_category.
   Proof.
-    use make_is_univalent.
-    - intros X Y. exact (commring_precategory_isweq X Y).
-    - exact has_homsets_commring_precategory.
+    intros X Y. exact (commring_category_isweq X Y).
   Defined.
 
-  Definition commring_category : univalent_category :=
-    make_univalent_category commring_precategory commring_precategory_is_univalent.
+  Definition commring_univalent_category : univalent_category :=
+    make_univalent_category commring_category commring_category_is_univalent.
 
 End def_commring_category.

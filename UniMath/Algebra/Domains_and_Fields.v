@@ -18,6 +18,7 @@ Require Import UniMath.Algebra.Groups.
   - Relations and the canonical homomorphism to the field of fractions
 *)
 
+Local Open Scope logic.
 
 (** ** Preamble *)
 
@@ -57,6 +58,9 @@ Definition iscancelableif {X : hSet} (opp : binop X) (x : X)
   iscancelable opp x := make_dirprod (islcancelableif opp x isl) (isrcancelableif opp x isr).
 
 (** To monoids *)
+
+(** TODO: this has now been upstreamed to BinaryOperations.v, these should be
+    expunged. *)
 
 Local Open Scope multmonoid_scope.
 
@@ -306,7 +310,7 @@ Proof.
 Defined.
 
 Definition isintdom (X : commring) : UU :=
-  dirprod (isnonzerorig X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
+  dirprod (isnonzerorig X) (∏ (a1 a2 : X), (a1 * a2 = 0) -> (a1 = 0) ∨ (a2 = 0)).
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
@@ -325,7 +329,7 @@ Coercion pr1intdom : intdom >-> commring.
 Definition nonzeroax (X : intdom) : neg (@paths X 1 0) := pr1 (pr2 X).
 
 Definition intdomax (X : intdom) :
-  ∏ (a1 a2 : X), (a1 * a2) = 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
+  ∏ (a1 a2 : X), (a1 * a2) = 0 -> (a1 = 0) ∨ (a2 = 0) := pr2 (pr2 X).
 
 
 (** **** (X = Y) ≃ (ringiso X Y)
@@ -642,7 +646,7 @@ Definition fldfracmultinv0 (X : intdom) (is : isdeceq X)
 
 Lemma nonzeroincommringfrac (X : commring) (S : @submonoid (ringmultmonoid X)) (xa : dirprod X S)
       (ne : (setquotpr (eqrelcommringfrac X S) xa !=
-             setquotpr _ (make_dirprod 0 (unel S)))) : (pr1 xa != 0).
+             setquotpr _ (make_dirprod 0 (unel S)))%type) : (pr1 xa != 0).
 Proof.
   intros. set (x := pr1 xa). set (aa := pr2 xa).
   assert (e' := negf (weqpathsinsetquot (eqrelcommringfrac X S) _ _) ne).

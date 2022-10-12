@@ -122,7 +122,7 @@ Defined.
 
 Lemma has_homsets_WOSET : has_homsets WOSET_precategory.
 Proof.
-now intros X Y; apply hset_fun_space.
+  red ; intros ; apply isaset_set_fun_space.
 Qed.
 
 Definition WOSET : category := (WOSET_precategory,,has_homsets_WOSET).
