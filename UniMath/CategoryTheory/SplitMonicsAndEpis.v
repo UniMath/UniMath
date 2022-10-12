@@ -27,7 +27,7 @@ Local Open Scope cat.
   *)
 
 Section SplitMonic.
-  Context {C : precategory} {A B : ob C}.
+  Context {C : category} {A B : ob C}.
 
   (** A choice of a section for the given morphism *)
   Definition is_split_monic (m : A --> B) : UU :=
@@ -166,7 +166,7 @@ Arguments split_monic {_} _ _.
 Arguments merely_split_monic {_} _ _.
 
 (** Functors preserve merely split monomorphisms *)
-Lemma functor_preserves_merely_split_monic {C D : precategory} (F : functor C D)
+Lemma functor_preserves_merely_split_monic {C D : category} (F : functor C D)
       {A B : ob C} (f : C⟦A,B⟧) :
   is_merely_split_monic f -> is_merely_split_monic (# F f).
 Proof.
@@ -178,7 +178,7 @@ Proof.
 Qed.
 
 (** Functors preserve split monomorphisms *)
-Lemma functor_preserves_split_monic {C D : precategory} (F : functor C D)
+Lemma functor_preserves_split_monic {C D : category} (F : functor C D)
       {A B : ob C} (f : C⟦A,B⟧) :
   is_split_monic f -> is_split_monic (# F f).
 Proof.
@@ -189,11 +189,13 @@ Proof.
 Qed.
 
 (** An epic split monic is an iso. *)
-Lemma merely_split_monic_is_epi_to_is_iso
+Lemma merely_split_monic_is_epi_to_is_z_iso
       {C : category} {A B : ob C} (m : A --> B) :
-      is_merely_split_monic m -> isEpi m -> is_iso m.
+      is_merely_split_monic m -> isEpi m -> is_z_isomorphism m.
 Proof.
-  intros is_monic is_epi c.
+  intros is_monic is_epi.
+  apply is_z_iso_from_is_iso. (* such an operation should rather be avoided *)
+  intro c.
   apply isweqinclandsurj.
   - apply precomp_with_epi_isincl; assumption.
   - apply is_merely_split_monic_weq_precomp_is_surjection.

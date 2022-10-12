@@ -30,7 +30,7 @@ by (** RR1 *) or (** RR2 *) comment.
 One can achieve similar results with a combination of usual axioms which imitate
 the resizing rules. However unlike the usual axioms the resizing rules do not
 affect the computation/normalization abilities of Coq which makes them the
-prefrred choice in this situation.
+preferred choice in this situation.
 *)
 
 (** ** Contents
@@ -99,7 +99,7 @@ Proof.
   intros. apply subtypeInjectivity. intro. apply propproperty.
 Defined.
 
-Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
+Corollary subtypePath_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   apply invmap. apply subtypeInjectivity_prop.
@@ -412,7 +412,7 @@ Definition hneg (P : UU) : hProp := make_hProp (¬ P) (isapropneg P).
 
 (* use scope "logic" for notations that might conflict with others *)
 
-(* Declare Scope logic. *)
+Declare Scope logic.
 Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
   (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
@@ -659,7 +659,7 @@ Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
      "uahp" *)
 Proof.
   intros ? ? f g.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro X. apply isapropisaprop.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.

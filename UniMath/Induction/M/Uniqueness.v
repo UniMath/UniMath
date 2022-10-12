@@ -146,7 +146,7 @@ Section Uniqueness.
   Lemma isaprop_M : isaprop (M B).
     apply invproofirrelevance.
     intros X Y.
-    apply subtypeEquality.
+    apply subtypePath.
     - exact isaprop_is_final.
     - exact (M_coalg_eq X Y).
   Defined.

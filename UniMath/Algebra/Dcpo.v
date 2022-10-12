@@ -82,7 +82,7 @@ Definition directeduntruncated (f : I -> X) (i j : I) : UU :=
 
 Definition isdirected_inhabited {f : I -> X} :
   isdirected f -> ∥ I  ∥ := pr1.
-Definition isdirected_order {f : I -> X} :
+Definition isdirected_compatible {f : I -> X} :
   isdirected f -> ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k∥ := pr2.
 
 End directedfamily.
@@ -176,7 +176,7 @@ Proof.
       split with k. split.
       * apply dcpomorphism_preservesorder. exact (pr1 ineqs).
       * apply dcpomorphism_preservesorder. exact (pr2 ineqs).
-    + exact (isdirected_order isdirec i j).
+    + exact (isdirected_compatible isdirec i j).
 Qed.
 
 Lemma dcpomorphism_preserveslub {D D' : dcpo} (f : dcpomorphism D D')
@@ -238,7 +238,7 @@ Proof.
   use mkdcpomorphism.
   - exact (λ _, e).
   - intros I u isdirec v islubv. split.
-    + intro i. unfold funcomp; simpl. apply isrefl_posetRelation.
+    + intro i. simpl. apply isrefl_posetRelation.
     + intros d' ineqs. apply (@factor_through_squash I).
       * apply propproperty.
       * intro i. exact (ineqs i).
@@ -322,7 +322,7 @@ Proof.
       induction ineqs as [ineq1 ineq2]. split.
       * use ineq1.
       * use ineq2.
-    + apply (isdirected_order isdirec).
+    + apply (isdirected_compatible isdirec).
 Qed.
 
 Definition pointwiselub {D D' : dcpo} {I : UU}
@@ -442,6 +442,7 @@ Defined.
 
 End dcpowithbottom.
 
+Declare Scope DCPO.
 Delimit Scope DCPO with DCPO.
 Local Open Scope DCPO.
 Notation "A --> B" := (dcpowithbottom_ofdcpomorphisms A B) : DCPO.
@@ -503,12 +504,12 @@ Proof.
           split.
           * apply iter_preservesorder. exact (pr1 ineqs').
           * apply iter_preservesorder. exact (pr2 ineqs').
-        + apply (isdirected_order isdirec).
+        + apply (isdirected_compatible isdirec).
     }
     eapply dcpomorphism_preserveslub.
     + exact isdirec'.
     + exact islubu'.
-    + intro j; unfold funcomp.
+    + intro j. simpl.
       use factor_through_squash.
       * exact (directeduntruncated F i j).
       * apply propproperty.
@@ -520,7 +521,7 @@ Proof.
         -- eapply istrans_posetRelation.
            ++ use (pr1 ineqs').
            ++ exact (ineqs k).
-      * apply (isdirected_order isdirec).
+      * apply (isdirected_compatible isdirec).
 Qed.
 
 Lemma iter_isdcpomorphism' (D : dcpowithbottom) :
@@ -529,7 +530,7 @@ Proof.
   intros n I F isdirec g islubg.
   induction n as [| m IH].
   - split.
-    + intro i. unfold funcomp; simpl. apply dcpowithbottom_isMinimal.
+    + intro i. simpl. apply dcpowithbottom_isMinimal.
     + intros y ineqs. apply dcpowithbottom_isMinimal.
   - simpl. eapply doublelubdirected.
     + exact isdirec.
@@ -600,7 +601,7 @@ Proof.
     eapply dcpomorphism_preserveslub.
     + exact isdirec.
     + apply pointwiselub_islubpointwise.
-    + intro n. unfold funcomp.
+    + intro n. simpl.
       eapply (istrans_posetRelation _ _ (pointwisefamily iter' f (S n)) _).
       * apply isrefl_posetRelation.
       * apply pointwiselub_islubpointwise.

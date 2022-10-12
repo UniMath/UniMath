@@ -50,12 +50,9 @@ Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "�
 
 Section GenMenIt.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Context (C : category) (F : functor C C).
 
-Variable F : functor C C.
-
-Let AF := FunctorAlg F hsC.
+Let AF := FunctorAlg F.
 
 Definition AlgConstr (A : C) (α : F A --> A) : AF.
 Proof.
@@ -74,15 +71,13 @@ Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
 Let iter {A : C} (α : F A --> A) : μF --> A :=
   ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
-Variable C' : precategory.
-Variable hsC' : has_homsets C'.
-
+Context (C' : category).
 
 Section the_iteration_principle.
 
 Variable X : C'.
 
-Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
+Let Yon : functor C'^op HSET := yoneda_objects C' X.
 
 Variable L : functor C C'.
 
@@ -175,10 +170,8 @@ Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
     2: {
-      apply subtypeEquality.
-      + intro.
-        simpl.
-        apply hsC'.
+      apply subtypePath.
+      + intro. apply homset_property.
       + simpl.
         exact same.
     }
@@ -265,8 +258,8 @@ End the_iteration_principle.
 (** * Fusion law for Generalized Iteration in Mendler-style *)
 
 Variable X X': C'.
-Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
-Let Yon' : functor C'^op HSET := yoneda_objects C' hsC' X'.
+Let Yon : functor C'^op HSET := yoneda_objects C' X.
+Let Yon' : functor C'^op HSET := yoneda_objects C' X'.
 Variable L : functor C C'.
 Variable is_left_adj_L : is_left_adjoint L.
 Variable ψ : ψ_source X L ⟹ ψ_target X L.

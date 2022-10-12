@@ -59,7 +59,7 @@ Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
 Arguments apSet_pr1 X: simpl never.
 Definition apSet_pr2 (X : apSet) : aprel X := pr2 X.
-(* Declare Scope ap_scope. *)
+Declare Scope ap_scope.
 Notation "x # y" := (apSet_pr2 _ x y) : ap_scope.
 
 Delimit Scope ap_scope with ap.
@@ -102,7 +102,7 @@ Definition tightapSet_apSet (X : tightapSet) : apSet := pr1 X ,, (tightap_aprel 
 Coercion tightapSet_apSet : tightapSet >-> apSet.
 
 Definition tightapSet_rel (X : tightapSet) : hrel X := (pr1 (pr2 X)).
-(* Declare Scope tap_scope. *)
+Declare Scope tap_scope.
 Notation "x ≠ y" := (tightapSet_rel _ x y) (at level 70, no associativity) : tap_scope.
 
 Delimit Scope tap_scope with tap.

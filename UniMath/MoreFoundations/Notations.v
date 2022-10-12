@@ -4,16 +4,14 @@ Require Export UniMath.Foundations.All.
 
 Notation "A ⇒ B" := (himpl A B) : logic.
 
-Local Open Scope logic.
-
-Definition hequiv (P Q:hProp) : hProp := (P ⇒ Q) ∧ (Q ⇒ P).
+Definition hequiv (P Q:hProp) : hProp := ((P ⇒ Q) ∧ (Q ⇒ P))%logic.
 
 Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 
 Definition total2_hProp {X : hProp} (Y : X -> hProp) : hProp
   := make_hProp (∑ x, Y x) (isaprop_total2 X Y).
 
-(* Declare Scope prop. *)
+Declare Scope prop.
 Delimit Scope prop with prop.
 
 Notation "'∑' x .. y , P" := (total2_hProp (λ x,.. (total2_hProp (λ y, P))..))

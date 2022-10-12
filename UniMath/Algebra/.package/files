@@ -1,4 +1,6 @@
+
 Dcpo.v
+FixedPointTheorems.v
 BinaryOperations.v
 Monoids.v
 Groups.v
@@ -28,3 +30,20 @@ Modules/Examples.v
 Modules/Quotient.v
 Modules.v
 Matrix.v
+Universal/HVectors.v
+Universal/SortedTypes.v
+Universal/Signatures.v
+Universal/Algebras.v
+Universal/Terms.v
+Universal/TermAlgebras.v
+Universal/VTerms.v
+Universal/FreeAlgebras.v
+Universal/Equations.v
+Universal/EqAlgebras.v
+Universal/Examples/Nat.v
+Universal/Examples/Bool.v
+Universal/Examples/Monoid.v
+Universal/Examples/Group.v
+Universal/Examples/ListDataType.v
+Universal/Examples/Tests.v
+Universal.v

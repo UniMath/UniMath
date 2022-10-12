@@ -33,9 +33,9 @@ and it is not very well tested at the moment.
    [more detailed instructions](https://nixos.org/nix/download.html).)
 2. Start a "nix-shell" with the following command:
    ```bash
-   $ nix-shell -p ocaml ocamlPackages.findlib ocamlPackages.camlp4 ocamlPackages.camlp5 ocamlPackages.num gnumake git
+   $ nix-shell -p ocaml ocamlPackages.findlib ocamlPackages.camlp5 ocamlPackages.num gnumake git
    ```
-   (This may require some time to download and deploy the ocaml
+   (This may require some time to download and deploy the OCaml
    environment into the Nix storage.)
 3. Clone UniMath, move to the top directory and launch the build:
    ```bash

@@ -15,32 +15,26 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 (** * Displayed category of topological spaces *)
 
-
-Definition top_disp_cat_ob_mor : disp_cat_ob_mor HSET.
+Definition top_disp_cat_ob_mor : disp_cat_ob_mor hset_category.
 Proof.
-  use tpair.
-  - intro X. exact (isTopologicalSet (pr1hSet X)).
-  - cbn. intros X Y T U f.
-    apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
+  use make_disp_cat_ob_mor.
+  - intro X. exact (isTopologicalSpace X).
+  - intros X Y T U f.
+    exact (@continuous (X,,T) (Y,,U) f).
 Defined.
 
-Definition top_disp_cat_data : disp_cat_data HSET.
+Definition top_disp_cat_data : disp_cat_data hset_category.
 Proof.
   exists top_disp_cat_ob_mor.
-  use tpair.
-  - intros X XX. cbn. unfold continuous. intros.
-    unfold continuous_at. cbn. unfold is_lim. cbn.
-    unfold filterlim. cbn. unfold filter_le. cbn.
-    intros. assumption.
-  - intros X Y Z f g XX YY ZZ Hf Hg.
-    use (@continuous_funcomp (pr1hSet X,,XX) (pr1hSet Y,,YY) (pr1hSet Z,,ZZ) f g);
-      assumption.
+  split.
+  - do 5 intro. assumption.
+  - intros *. apply continuous_funcomp.
 Defined.
 
-Definition top_disp_cat_axioms : disp_cat_axioms SET top_disp_cat_data.
+Definition top_disp_cat_axioms : disp_cat_axioms hset_category top_disp_cat_data.
 Proof.
-  repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
-  apply isasetaprop. apply isaprop_continuous.
+  do 3 (split ; intros ; try (apply proofirrelevance, isaprop_continuous)).
+  apply isasetaprop, isaprop_continuous.
 Defined.
 
-Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
+Definition disp_top : disp_cat hset_category := _ ,, top_disp_cat_axioms.

@@ -9,64 +9,64 @@ Require Import
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
-        UniMath.CategoryTheory.RepresentableFunctors.Precategories
-        UniMath.CategoryTheory.RepresentableFunctors.Bifunctor.
+        UniMath.CategoryTheory.RepresentableFunctors.Bifunctor
+        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope cat.
 Local Open Scope Cat.
 
-Definition isUniversal {C:category} {X:[C^op,SET]} {c:C} (x:c ⇒ X)
+Definition isUniversal {C:category} {X:[C^op,HSET]} {c:C} (x:c ⇒ X)
   := ∏ (c':C), isweq (λ f : c' --> c, x ⟲ f).
 
-Definition Universal {C:category} (X:[C^op,SET]) (c:C)
+Definition Universal {C:category} (X:[C^op,HSET]) (c:C)
   := ∑ (x:c ⇒ X), isUniversal x.
 
-Lemma iso_Universal_weq {C:category} {X Y:[C^op,SET]} (c:C) :
-  iso X Y -> Universal X c ≃ Universal Y c.
+Lemma z_iso_Universal_weq {C:category} {X Y:[C^op,HSET]} (c:C) :
+  z_iso X Y -> Universal X c ≃ Universal Y c.
 Proof.
   intro i.
-  set (I := (functor_iso_pointwise_if_iso
-             C^op SET (homset_property SET) X Y (pr1 i) (pr2 i))).
+  set (I := (functor_z_iso_pointwise_if_z_iso
+             C^op HSET (homset_property HSET) X Y (pr1 i) (pr2 i))).
   unshelve refine (weqbandf _ _ _ _).
-  - apply hset_iso_equiv_weq. unfold arrow, functor_object_application. exact (I c).
+  - apply hset_z_iso_equiv_weq. unfold arrow, functor_object_application. exact (I c).
   - simpl; intros x. apply weqonsecfibers; intro b. apply weqiff.
     + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
-      * intro f; unfold funcomp; simpl.
+      * intro f; simpl.
         exact (eqtohomot (nat_trans_ax (pr1 i) _ _ f) x).
-      * exact (hset_iso_is_equiv _ _ (I b)).
+      * exact (hset_z_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.
     + apply isapropisweq.
 Defined.
 
-Definition Representation {C:category} (X:[C^op,SET]) : UU
+Definition Representation {C:category} (X:[C^op,HSET]) : UU
   := ∑ (c:C), Universal X c.
 
-Definition isRepresentable {C:category} (X:[C^op,SET]) := ∥ Representation X ∥.
+Definition isRepresentable {C:category} (X:[C^op,HSET]) := ∥ Representation X ∥.
 
-Lemma isaprop_Representation {C: univalent_category} (X:[C^op,SET]) :
+Lemma isaprop_Representation {C: univalent_category} (X:[C^op,HSET]) :
   isaprop (@Representation C X).
 Proof.
 
 Abort.
 
-Definition iso_Representation_weq {C:category} {X Y:[C^op,SET]} :
-  iso X Y -> Representation X ≃ Representation Y.
+Definition z_iso_Representation_weq {C:category} {X Y:[C^op,HSET]} :
+  z_iso X Y -> Representation X ≃ Representation Y.
 Proof.
-  intros i. apply weqfibtototal; intro c. apply iso_Universal_weq; assumption.
+  intros i. apply weqfibtototal; intro c. apply z_iso_Universal_weq; assumption.
 Defined.
 
 (* categories of functors with representations *)
 
 Definition RepresentedFunctor (C:category) : category
-  := categoryWithStructure [C^op,SET] Representation.
+  := categoryWithStructure [C^op,HSET] Representation.
 
 Definition toRepresentation {C:category} (X : RepresentedFunctor C) :
   Representation (pr1 X)
   := pr2 X.
 
 Definition RepresentableFunctor (C:category) : category
-  := categoryWithStructure [C^op,SET] isRepresentable.
+  := categoryWithStructure [C^op,HSET] isRepresentable.
 
 Definition toRepresentableFunctor {C:category} :
   RepresentedFunctor C ⟶ RepresentableFunctor C :=
@@ -74,7 +74,7 @@ Definition toRepresentableFunctor {C:category} :
 
 (* make a representation of a functor *)
 
-Definition makeRepresentation {C:category} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
+Definition makeRepresentation {C:category} {c:C} {X:[C^op,HSET]} (x:c ⇒ X) :
   (∏ (c':C), UniqueConstruction (λ f : c' --> c, x ⟲ f)) -> Representation X.
 Proof.
   intros bij. exists c. exists x. intros c'. apply set_bijection_to_weq.
@@ -84,59 +84,59 @@ Defined.
 
 (* universal aspects of represented functors *)
 
-Definition universalObject {C:category} {X:[C^op,SET]} (r:Representation X) : C
+Definition universalObject {C:category} {X:[C^op,HSET]} (r:Representation X) : C
   := pr1 r.
 
-Definition universalElement {C:category} {X:[C^op,SET]} (r:Representation X) :
+Definition universalElement {C:category} {X:[C^op,HSET]} (r:Representation X) :
   universalObject r ⇒ X
   := pr1 (pr2 r).
 
 Coercion universalElement : Representation >-> pr1hSet.
 
-Definition universalProperty {C:category} {X:[C^op,SET]} (r:Representation X) (c:C) :
+Definition universalProperty {C:category} {X:[C^op,HSET]} (r:Representation X) (c:C) :
   c --> universalObject r ≃ (c ⇒ X)
   := make_weq (λ f : c --> universalObject r, r ⟲ f)
              (pr2 (pr2 r) c).
 
-Definition universalMap {C:category} {X:[C^op,SET]} (r:Representation X) {c:C} :
+Definition universalMap {C:category} {X:[C^op,HSET]} (r:Representation X) {c:C} :
   c ⇒ X -> c --> universalObject r
   := invmap (universalProperty _ _).
 
 Notation "r \\ x" := (universalMap r x) (at level 50, left associativity) : cat.
 
-Definition universalMap' {C:category} {X:[C^op^op,SET]} (r:Representation X) {c:C} :
+Definition universalMap' {C:category} {X:[C^op^op,HSET]} (r:Representation X) {c:C} :
   X ⇐ c -> c <-- universalObject r
   := invmap (universalProperty _ _).
 
 Notation "x // r" := (universalMap' r x) (at level 50, left associativity) : cat.
 
-Definition universalMapProperty {C:category} {X:[C^op,SET]} (r:Representation X)
+Definition universalMapProperty {C:category} {X:[C^op,HSET]} (r:Representation X)
       {c:C} (x : c ⇒ X) :
   r ⟲ (r \\ x) = x
   := homotweqinvweq (universalProperty r c) x.
 
-Definition mapUniqueness {C:category} (X:[C^op,SET]) (r : Representation X) (c:C)
+Definition mapUniqueness {C:category} (X:[C^op,HSET]) (r : Representation X) (c:C)
            (f g: c --> universalObject r) :
   r ⟲ f = r ⟲ g -> f = g
   := invmaponpathsweq (universalProperty _ _) _ _.
 
-Definition universalMapUniqueness {C:category} {X:[C^op,SET]} {r:Representation X}
+Definition universalMapUniqueness {C:category} {X:[C^op,HSET]} {r:Representation X}
       {c:C} (x : c ⇒ X) (f : c --> universalObject r) :
   r ⟲ f = x -> f = r \\ x
   := pathsweq1 (universalProperty r c) f x.
 
-Definition universalMapIdentity {C:category} {X:[C^op,SET]} (r:Representation X) :
+Definition universalMapIdentity {C:category} {X:[C^op,HSET]} (r:Representation X) :
   r \\ r = identity _.
 Proof.
   apply pathsinv0. apply universalMapUniqueness. apply arrow_mor_id.
 Qed.
 
-Definition universalMapUniqueness' {C:category} {X:[C^op,SET]} {r:Representation X}
+Definition universalMapUniqueness' {C:category} {X:[C^op,HSET]} {r:Representation X}
       {c:C} (x : c ⇒ X) (f : c --> universalObject r) :
   f = r \\ x -> r ⟲ f = x
   := pathsweq1' (universalProperty r c) f x.
 
-Lemma univ_arrow_mor_assoc {C:category} {a b:C} {Z:[C^op,SET]}
+Lemma univ_arrow_mor_assoc {C:category} {a b:C} {Z:[C^op,HSET]}
       (f : a --> b) (z : b ⇒ Z) (t : Representation Z) :
   (t \\ z) ∘ f = t \\ (z ⟲ f).
 Proof.
@@ -148,7 +148,7 @@ Qed.
 
 (*  *)
 
-Lemma uOF_identity {C:category} {X:[C^op,SET]} (r:Representation X) :
+Lemma uOF_identity {C:category} {X:[C^op,HSET]} (r:Representation X) :
   r \\ (identity X ⟳ r) = identity _.
 Proof.
   unfold nat_trans_id; simpl.
@@ -156,7 +156,7 @@ Proof.
   apply universalMapIdentity.
 Qed.
 
-Lemma uOF_comp {C:category} {X Y Z:[C^op,SET]}
+Lemma uOF_comp {C:category} {X Y Z:[C^op,HSET]}
       (r:Representation X)
       (s:Representation Y)
       (t:Representation Z)
@@ -196,8 +196,8 @@ Defined.
 
 (** transferring universal properties between isomorphic objects *)
 
-Definition isUniversal_isom {C:category} {X:[C^op,SET]} {c c':C}
-           (x:c ⇒ X) (f : iso c' c) :
+Definition isUniversal_isom {C:category} {X:[C^op,HSET]} {c c':C}
+           (x:c ⇒ X) (f : z_iso c' c) :
   isUniversal x <-> isUniversal (x ⟲ f).
 Proof.
 
@@ -207,14 +207,14 @@ Abort.
 (** transferring representability via embeddings and isomorphisms of categories  *)
 
 Definition embeddingRepresentability {C D:category}
-           {X:[C^op,SET]} {Y:[D^op,SET]}
+           {X:[C^op,HSET]} {Y:[D^op,HSET]}
            (s:Representation Y)
            (i:categoryEmbedding C D) :
-  iso (Y □ functorOp (opp_ob (pr1 i))) X ->
+  z_iso (Y □ functorOp (opp_ob (pr1 i))) X ->
   (∑ c, i c = universalObject s) -> Representation X.
 Proof.
   intros j ce.
-  apply (iso_Representation_weq j).
+  apply (z_iso_Representation_weq j).
   exists (pr1 ce).
   exists (transportf (λ d, Y ◾ d : hSet) (!pr2 ce) s).
   intro c'. apply (twooutof3c (# i) (λ g, _ ⟲ g)).
@@ -223,17 +223,17 @@ Proof.
 Defined.
 
 Definition isomorphismRepresentability {C D:category}
-           {X:[C^op,SET]} {Y:[D^op,SET]}
+           {X:[C^op,HSET]} {Y:[D^op,HSET]}
            (s:Representation Y)
            (i:categoryIsomorphism C D) :
-  iso (Y □ functorOp (opp_ob (pr1 (pr1 i)))) X -> Representation X
+  z_iso (Y □ functorOp (opp_ob (pr1 (pr1 i)))) X -> Representation X
   := λ j, embeddingRepresentability s i j (iscontrpr1 (pr2 i (universalObject s))).
 
 (*** Some standard functors to consider representing *)
 
 (** the functor represented by an object *)
 
-Definition Hom1 {C:category} (c:C) : [C^op,SET].
+Definition Hom1 {C:category} (c:C) : [C^op,HSET].
 Proof.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intro b. exact (Hom C b c).
@@ -246,19 +246,19 @@ Defined.
 Lemma Hom1_Representation {C:category} (c:C) : Representation (Hom1 c).
 Proof.
   exists c. exists (identity c). intro b. apply (isweqhomot (idweq _)).
-  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1, idfun; simpl;
+  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1; simpl;
               apply pathsinv0, id_right) using _R_.
   - abstract (apply weqproperty) using _T_.
 Defined.
 
 (** maps from Hom1 to functors *)
 
-Lemma compose_SET {X Y Z:SET} (f:X-->Y) (g:Y-->Z) : g∘f = λ x, g(f x).
+Lemma compose_SET {X Y Z:HSET} (f:X-->Y) (g:Y-->Z) : g∘f = λ x, g(f x).
 Proof.
   reflexivity.
 Defined.
 
-Definition element_to_nattrans {C:category} (X:[C^op,SET]) (c:C) :
+Definition element_to_nattrans {C:category} (X:[C^op,HSET]) (c:C) :
   c ⇒ X -> Hom1 c --> X.
 Proof.
   intros x. unshelve refine (makeNattrans_op _ _).
@@ -268,11 +268,11 @@ Defined.
 
 (** representable functors are isomorphic to one represented by an object  *)
 
-Theorem Representation_to_iso {C:category} (X:[C^op,SET]) (r:Representation X) :
-  iso (Hom1 (universalObject r)) X.
+Theorem Representation_to_z_iso {C:category} (X:[C^op,HSET]) (r:Representation X) :
+  z_iso (Hom1 (universalObject r)) X.
 Proof.
-  apply (functor_iso_from_pointwise_iso _ _ _ _ _ (element_to_nattrans X (universalObject r) (universalElement r))).
-  intro b. apply (pr2 (weq_iff_iso_SET _)). exact (pr2 (pr2 r) b).
+  refine (z_iso_from_nat_z_iso _ ((element_to_nattrans X (universalObject r) (universalElement r)),,_)).
+  intro b. apply (pr2 (weq_iff_z_iso_SET _)). exact (pr2 (pr2 r) b).
 Defined.
 
 (** initial and final objects and zero maps  *)
@@ -546,12 +546,12 @@ Proof.
   - intros b a e w; simpl in *. exists (pr1 w ∘ e).
     abstract (rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using _M_.
   - abstract (
-        intros b; apply funextsec; intro w; apply subtypeEquality;
+        intros b; apply funextsec; intro w; apply subtypePath;
         [ intro; apply homset_property
         | simpl; apply id_left]) using _N_.
   - abstract (
         intros a'' a' a r s; apply funextsec;
-        intro w; apply subtypeEquality;
+        intro w; apply subtypePath;
         [ intro; apply homset_property
         | apply pathsinv0, assoc ]) using _O_.
 Defined.
@@ -653,11 +653,11 @@ Proof.
             apply (pr2 (pr2 zero) _ _ _ _)) using _M_. } } }
   { abstract (split;
     [ intros x; apply funextsec; intros [r rf0];
-      apply subtypeEquality;
+      apply subtypePath;
       [ intro; apply homset_property
       | simpl; unfold opp_mor; apply id_left ]
     | intros w x y t u; apply funextsec; intros [r rf0];
-      apply subtypeEquality;
+      apply subtypePath;
       [ intro; apply homset_property
       | simpl; unfold opp_mor; apply pathsinv0, assoc ] ]) using _N_. }
 Defined.
@@ -732,7 +732,7 @@ Definition cone {I C:category} (c:C) (D: [I,C]) : UU
 Lemma cone_eq {C I:category} (c:C^op) (D: I⟶C) (p q:cone (C:=C) c D) :
   pr1 p ~ pr1 q -> p = q.
 Proof.
-  intros h. apply subtypeEquality.
+  intros h. apply subtypePath.
   { intro r.
     apply impred_isaprop; intro i;
     apply impred_isaprop; intro j;
@@ -884,16 +884,16 @@ Theorem functorcategoryTerminalObject (B C:category) :
   TerminalObject C -> TerminalObject [B,C].
 Proof.
   intro t.
-  apply (@iso_Representation_weq _ (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
+  apply (@z_iso_Representation_weq _ (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
   { unshelve refine (makeNatiso _ _).
-    { intros F. apply hset_equiv_iso.
+    { intros F. apply hset_equiv_z_iso.
       unfold bifunctor_assoc; simpl.
       unshelve refine (weq_iso _ _ _ _).
       - intros _. exact tt.
       - intros x. unshelve refine (_,,_).
         + unfold θ_1; simpl. intro b. exact tt.
         + eqn_logic.
-      - simpl. intros w. apply subtypeEquality.
+      - simpl. intros w. apply subtypePath.
         { intros f. apply impred; intro b; apply impred; intro b'; apply impred; intro g. apply isasetunit. }
         apply funextfun; intro b. apply isapropunit.
       - eqn_logic. }
@@ -930,11 +930,10 @@ Defined.
 Lemma BinaryProductFunctorAssoc {B C : category}
       (prod : BinaryProducts C)
       (F G : [B, C]) :
-  iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
+  z_iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
-  set (ISO := @iso).
   unshelve refine (makeNatiso (C := [B, C]^op) _ _).
-  { intro H. apply hset_equiv_iso.
+  { intro H. apply hset_equiv_z_iso.
     unshelve refine (weq_iso _ _ _ _).
     { intros w.
       unshelve refine (_,,_).
@@ -970,7 +969,7 @@ Defined.
 Theorem functorBinaryProduct {B C:category} :
   BinaryProducts C -> BinaryProducts [B,C].
 Proof.
-  intros prod F G. unshelve refine (iso_Representation_weq _ _).
+  intros prod F G. unshelve refine (z_iso_Representation_weq _ _).
   { exact (bifunctor_assoc (binaryProductFunctor F G)). }
   { now apply BinaryProductFunctorAssoc. }
   { apply bifunctor_assoc_repn. intro b. apply prod. }
@@ -995,7 +994,7 @@ Proof.
 Defined.
 
 Lemma HomPairOp {B C : category} (F G : [B, C]) :
-  iso (HomPair (functorOp F) (functorOp G) □ functorOp')
+  z_iso (HomPair (functorOp F) (functorOp G) □ functorOp')
       (HomPair (opp_ob F) (opp_ob G)).
 (* This should be replaced by a general statement where [B,C]^op and
    [B^op,C^op] are replaced by arbitrary isomorphic categories.  And there
@@ -1003,7 +1002,7 @@ Lemma HomPairOp {B C : category} (F G : [B, C]) :
    isomorphisms of categories. *)
 Proof.
   unshelve refine (makeNatiso _ _).
-  { intros H. apply hset_equiv_iso.
+  { intros H. apply hset_equiv_z_iso.
     apply weqdirprodf; exact (invweq (isomorphismOnMor functorOpIso H _)). }
   { abstract (intros H J p; apply funextsec; intro w;
               apply dirprodeq;

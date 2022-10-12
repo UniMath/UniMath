@@ -75,9 +75,9 @@ use make_LimCone.
     * intro x; exists (λ u, coneOut CC u x).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
-  + abstract (intros [t p]; apply subtypeEquality;
+  + abstract (intros [t p]; apply subtypePath;
               [ intro; apply impred; intro; apply isaset_set_fun_space
-              | apply funextfun; intro; apply subtypeEquality];
+              | apply funextfun; intro; apply subtypePath];
                 [ intro; repeat (apply impred; intro); apply setproperty
                 | apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
@@ -128,9 +128,9 @@ use make_LimCone.
     * intro x; exists (λ u, coneOut CC u x).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
-  + abstract (intros [t p]; apply subtypeEquality;
+  + abstract (intros [t p]; apply subtypePath;
      [ intro; apply impred; intro; apply isaset_set_fun_space
-     | apply funextfun; intro x; apply subtypeEquality];
+     | apply funextfun; intro x; apply subtypePath];
        [ intro; repeat (apply impred; intro); apply setproperty
        | simpl; apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
@@ -142,7 +142,7 @@ Proof.
 now intros g d; apply cats_LimConeHSET.
 Defined.
 
-Lemma cats_LimsHSET_of_shape (g : precategory) : cats.limits.Lims_of_shape g HSET.
+Lemma cats_LimsHSET_of_shape (g : category) : cats.limits.Lims_of_shape g HSET.
 Proof.
 now intros d; apply cats_LimConeHSET.
 Defined.
@@ -156,10 +156,10 @@ use make_BinProduct.
 - apply (A × B)%set.
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (make_isBinProduct _ has_homsets_HSET).
+- apply make_isBinProduct.
   intros C f g; use tpair.
   * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
-  * abstract (intros [t [ht1 ht2]]; apply subtypeEquality;
+  * abstract (intros [t [ht1 ht2]]; apply subtypePath;
              [ intros x; apply isapropdirprod; apply has_homsets_HSET
              | now apply funextfun; intro x; rewrite <- ht2, <- ht1 ]).
 Defined.
@@ -181,11 +181,11 @@ intros A.
 use make_Product.
 - exists (∏ i, pr1 (A i)); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (make_isProduct _ _ has_homsets_HSET).
+- apply make_isProduct; try apply homset_property.
   intros C f; simpl in *.
   use tpair.
   * exists (λ c i, f i c); intro i; apply idpath.
-   * abstract (intros h; apply subtypeEquality; simpl;
+   * abstract (intros h; apply subtypePath; simpl;
        [ intro; apply impred; intro; apply has_homsets_HSET
        | destruct h as [t ht]; simpl; apply funextfun; intro x;
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
@@ -235,7 +235,7 @@ use make_Pullback.
     - abstract (now split).
     - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
     - abstract (intros h [H1 H2]; apply funextsec; intro x;
-      apply subtypeEquality; [intros H; apply setproperty|]; simpl;
+      apply subtypePath; [intros H; apply setproperty|]; simpl;
       now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x)).
 Defined.
 
@@ -254,13 +254,13 @@ Defined.
     from [TerminalHSET], i.e. [unit].
 
     In particular, A pullback diagram of shape
-    <<
+<<
       Z --- ! --> unit
       |            |
       |            | y
       V            V
       X --- f -->  Y
-    >>
+>>
     makes [Z] (isomorphic to) the inverse image of a point [y : Y] under [f].
  *)
 
@@ -290,7 +290,7 @@ Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
 
 Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
-  ∑ H, isPullback f y' (hfiber_hSet_pr1 f y)
+  ∑ H, @isPullback _ _ _ _ _ f y' (hfiber_hSet_pr1 f y)
                        (TerminalArrow TerminalHSET _) H.
 Proof.
   use tpair.
@@ -307,10 +307,9 @@ Proof.
       apply invweq.
       apply dirprod_with_contr_r.
       use make_iscontr.
-      * apply proofirrelevance.
-        apply hlevelntosn.
-        apply (pr2 TerminalHSET). (** TODO: should be an accessor *)
-      * intro; apply proofirrelevance; apply setproperty.
+      * apply isapropifcontr.
+        apply TerminalHSET.
+      * intro; apply proofirrelevance; apply homset_property.
     + unfold hfiber_hSet, hfiber; cbn.
       use make_iscontr.
       * use tpair.
@@ -322,13 +321,13 @@ Proof.
            specialize (pbH pb0); cbn in pbH.
            refine (pbH @ _).
            apply tosecoverunit_compute.
-        -- apply funextfun; intro; reflexivity.
+        -- apply idpath.
       * intros t.
-        apply subtypeEquality.
+        apply subtypePath.
         -- intro; apply has_homsets_HSET.
         -- cbn.
            apply funextfun; intro; cbn.
-           apply subtypeEquality.
+           apply subtypePath.
            ++ intro; apply setproperty.
            ++ apply (toforallpaths _ _ _ (pr2 t)).
 Defined.
@@ -346,9 +345,9 @@ Defined.
 Section HSET_Structures.
 
   Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
-    equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET_from_Lims.
+    equiv_Pullbacks_2 HSET PullbacksHSET_from_Lims.
 
   Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
-    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET_from_Lims.
+    equiv_Equalizers2 HSET EqualizersHSET_from_Lims.
 
 End HSET_Structures.

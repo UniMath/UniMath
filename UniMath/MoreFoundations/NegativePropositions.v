@@ -332,7 +332,7 @@ Proof.
       * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
       * unfold natgeh,natleh in ge. contradicts (natlehneggth ge') ge.
   - simpl. intro j. induction j as [j ne]; simpl.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro k. apply negProp_to_isaprop.
     + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
       * clear ne.

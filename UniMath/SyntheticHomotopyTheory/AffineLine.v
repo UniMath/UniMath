@@ -1,5 +1,4 @@
-
-Unset Kernel Term Sharing.
+Local Unset Kernel Term Sharing.
 
 (** * Construction of affine lines
 
@@ -12,7 +11,13 @@ Unset Kernel Term Sharing.
 (** ** Preliminaries *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.NullHomotopies.
+Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.MoreEquivalences.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Nat.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.GroupAction
@@ -589,7 +594,7 @@ Defined.
 
 Lemma affine_line_path {T:Torsor ℤ} (t u:affine_line T) : t = u.
 Proof.
-  intros. apply proofirrelevance, isapropifcontr, iscontr_affine_line.
+  intros. apply proofirrelevancecontr, iscontr_affine_line.
 Defined.
 
 Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :

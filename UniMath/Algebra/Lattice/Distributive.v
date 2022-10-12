@@ -42,7 +42,8 @@ Section Bounded.
     is_distributive L -> ∏ x, isaprop (complement L x).
   Proof.
     intros is_distr x; apply invproofirrelevance; intros b a.
-    apply subtypeEquality'.
+    apply subtypePath.
+    - intro. apply isapropdirprod; apply setproperty.
     - refine (!islunit_Lmin_Ltop L (pr1 b) @ _ @ islunit_Lmin_Ltop L (pr1 a)).
       refine (_ @ maponpaths (fun z => Lmin L z _) (complement_top_axiom _ _ b)).
       refine (iscomm_Lmin _ _ _ @ _ @ iscomm_Lmin _ _ _).
@@ -55,7 +56,6 @@ Section Bounded.
       refine (_ @ !maponpaths _ (complement_bottom_axiom _ _ a)).
       refine (_ @ maponpaths (fun z => Lmax L z _) (iscomm_Lmin _ _ _)).
       reflexivity.
-    - apply isapropdirprod; apply setproperty.
   Qed.
 
 End Bounded.

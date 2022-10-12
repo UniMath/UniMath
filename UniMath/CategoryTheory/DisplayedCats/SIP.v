@@ -10,8 +10,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope mor_disp_scope.
@@ -49,11 +51,11 @@ Proof.
   apply isweqimplimpl.
   - intro i. apply Hstandard.
     * apply i.
-    * apply (inv_mor_disp_from_iso i).
+    * apply (inv_mor_disp_from_z_iso i).
   - apply Pisset.
   - apply isofhleveltotal2.
     + apply Hisprop.
-    + intro. apply (@isaprop_is_iso_disp _ disp_cat_from_SIP_data).
+    + intro. apply (@isaprop_is_z_iso_disp _ disp_cat_from_SIP_data).
 Defined.
 
 (** ** The conclusion of SIP: total category is univalent *)

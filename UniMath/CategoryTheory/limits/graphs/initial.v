@@ -9,13 +9,14 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition empty_graph : graph.
 Proof.
@@ -27,6 +28,13 @@ Definition initDiagram : diagram empty_graph C.
 Proof.
 exists fromempty.
 intros u; induction u.
+Defined.
+
+(** All diagrams over the empty graph are equal *)
+Lemma empty_graph_eq_diag (d d' : diagram empty_graph C) :
+  eq_diag d d'.
+Proof.
+  use tpair; use empty_rect.
 Defined.
 
 Definition initCocone (c : C) : cocone initDiagram c.
@@ -45,7 +53,7 @@ intros b cb.
 use tpair.
 - exists (pr1 (H b)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [intro; apply impred; intro v; induction v|].
   apply (pr2 (H b)).
 Defined.
@@ -176,7 +184,7 @@ End def_initial.
 Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
 
-Lemma Initial_from_Colims (C : precategory) :
+Lemma Initial_from_Colims (C : category) :
   Colims_of_shape empty_graph C -> Initial C.
 Proof.
 now intros H; apply H.
