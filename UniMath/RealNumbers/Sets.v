@@ -2,11 +2,13 @@
 
 (** Previous theorems about hSet and order *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Sets.
-
 Require Export UniMath.Foundations.Sets
                UniMath.MoreFoundations.QuotientSet.
+
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
+
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness
                UniMath.Algebra.Lattice.

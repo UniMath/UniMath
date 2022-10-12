@@ -40,6 +40,7 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
 
 Local Open Scope logic.
 
