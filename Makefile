@@ -48,8 +48,12 @@ everything: TAGS all html install
 .PHONY sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files		\
 		check-for-change-to-Foundations		\
-		check-for-submodule-changes
+		check-for-submodule-changes		\
+		check-for-changes-to-CONTENTS.md
 .PHONY other-checks:   check-max-line-length
+
+check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
+	test -z `git diff UniMath/CONTENTS.md`
 
 # empty target prevents implicit rule search, saving time
 Makefile :;
