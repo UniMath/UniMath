@@ -206,14 +206,14 @@ Section Complement.
 
   Definition subtype_complement : hsubtype X := fun x => hneg (S x).
 
-  (** Something can't be in a subset and its complement. *)
+  (** Something can't be in a subtype and its complement. *)
   Lemma not_in_subtype_and_complement :
     ∏ x, S x -> subtype_complement x -> empty.
   Proof.
     intros x in_S in_neg_S; exact (in_neg_S in_S).
   Defined.
 
-  (** An intersection containing a set and its complement is empty. *)
+  (** The intersection of a family containing a set and its complement is empty. *)
   Lemma subtype_complement_intersection_empty {I : UU} {f : I -> hsubtype X} :
     (∑ i : I, f i = S) ->
     (∑ i : I, f i = subtype_complement) ->
@@ -235,7 +235,7 @@ Section Complement.
     - intros empt; induction empt.
   Qed.
 
-  (** A union containing a set and its complement is the whole set (assuming LEM). *)
+  (** The union of a family containing a set and its complement is the whole set (assuming LEM). *)
   Lemma subtype_complement_union (lem : LEM) {I : UU} {f : I -> hsubtype X} :
     (∑ i : I, f i = S) ->
     (∑ i : I, f i = subtype_complement) ->
