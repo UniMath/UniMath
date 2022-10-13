@@ -52,9 +52,6 @@ everything: TAGS all html install
 		check-for-changes-to-CONTENTS.md
 .PHONY other-checks:   check-max-line-length
 
-check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
-	test -z "`git diff UniMath/CONTENTS.md`"
-
 # empty target prevents implicit rule search, saving time
 Makefile :;
 
@@ -429,6 +426,14 @@ check-for-submodule-changes:
 	git fetch origin
 	test -z "`git diff origin/master sub`"
 	@echo "check succeeded: no changes to submodules"
+
+# Here we check that the CONTENTS.md file has been correctly updated,
+# and committed if any changes have occurred.
+# One step of the travis job will fail if there are outstanding changes, see .travis.yml
+check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
+	@echo "--- checking that CONTENTS.md is up-to-date ---"
+	test -z "`git diff UniMath/CONTENTS.md`"
+	@echo "check succeeded: CONTENTS.md is up-to-date"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
