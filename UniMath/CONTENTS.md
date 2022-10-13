@@ -33,6 +33,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Interval.v](MoreFoundations/Interval.v)
    - [NegativePropositions.v](MoreFoundations/NegativePropositions.v)
    - [Sets.v](MoreFoundations/Sets.v)
+   - [Orders.v](MoreFoundations/Orders.v)
    - [Equivalences.v](MoreFoundations/Equivalences.v)
    - [MoreEquivalences.v](MoreFoundations/MoreEquivalences.v)
    - [QuotientSet.v](MoreFoundations/QuotientSet.v)

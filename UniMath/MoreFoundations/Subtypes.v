@@ -428,3 +428,31 @@ Lemma total_hsubtype_preserving {X Y : UU} (f : X → Y)
 Proof.
   exact (λ _ _, tt).
 Qed.
+
+Section singletons.
+  Definition singleton {X : UU} (x : X) : hsubtype X
+    := λ (a : X), ∥ a = x ∥.
+
+  (* The canonical element of the singleton subtype. *)
+  Definition singleton_point {X : UU} {x : X} : singleton x
+    := (x ,, hinhpr (idpath x)).
+
+  Definition iscontr_singleton {X : hSet} (x : X) : iscontr (singleton x).
+  Proof.
+    use make_iscontr.
+    - exact singleton_point.
+    - intros t.
+      apply subtypePath_prop.
+      apply(squash_to_prop (pr2 t)).
+      apply setproperty.
+      intro ; assumption.
+  Defined.
+
+  Definition singleton_is_in {X : UU} (A : hsubtype X) (a : A)
+    : (singleton (pr1 a)) ⊆ A.
+  Proof.
+    intro y.
+    use hinhuniv.
+    exact(λ (p : y = (pr1 a)), transportb A p (pr2 a)).
+  Defined.
+End singletons.
