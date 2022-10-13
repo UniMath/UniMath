@@ -5,7 +5,7 @@ Require Export UniMath.Algebra.Groups.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Lattice.
+Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
