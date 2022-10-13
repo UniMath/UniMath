@@ -2930,13 +2930,4 @@ Proof.
   intros x y; exact (op _ (bool_rect (fun _ => X) x y)).
 Defined.
 
-(** TODO: How to prove this? Is it true? *)
-Lemma isassoc_infinitary_op_to_binop
-      {X : hSet} (op : ∏ I : UU, (I -> X) -> X) :
-  isassoc (infinitary_op_to_binop op).
-Proof.
-  intros x y z.
-  unfold infinitary_op_to_binop.
-Abort.
-
 (* End of file *)
