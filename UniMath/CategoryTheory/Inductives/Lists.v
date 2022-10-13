@@ -347,7 +347,7 @@ Module AltList.
    moment as it needs that the category is cartesian closed *)
 Section constprod_functor.
 
-Variables (x : HSET).
+Variables (x : hSet).
 
 Definition constprod_functor : functor HSET HSET :=
   BinProduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
@@ -357,7 +357,7 @@ Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 use tpair.
-- transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
+- transparent assert (HX : (cocone hF (funset x HcL))).
   {  use make_cocone.
     * simpl; intro n; apply flip, (curry (Z := λ _,_)), (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
@@ -366,7 +366,7 @@ use tpair.
   }
   use tpair.
   + simpl; apply uncurry, flip.
-    apply (colimArrow (make_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+    apply (colimArrow (make_ColimCocone _ _ _ ccL) (funset x HcL)).
     apply HX.
   + cbn.
     destruct cc as [f hf]; simpl; intro n.
@@ -384,7 +384,7 @@ use tpair.
   | destruct p as [t p]; simpl;
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
     use (let g : HSET⟦colim (make_ColimCocone hF c L ccL),
-                                hset_fun_space x HcL⟧ := _ in _);
+                                funset x HcL⟧ := _ in _);
     [ simpl; apply flip, (curry (Z := λ _,_)), t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
       destruct cc as [f hf]; unfold is_cocone_mor in p; simpl in *;

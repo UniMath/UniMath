@@ -21,6 +21,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Foundations.HLevels.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -30,12 +31,10 @@ Local Open Scope cat.
 (** ** Category HSET of [hSet]s ([hset_category]) *)
 Section HSET_precategory.
 
-Definition hset_fun_space (A B : hSet) : hSet :=
-  make_hSet _ (isaset_set_fun_space A B).
-
-Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (λ ob : UU, ob -> ob -> UU) hSet
-        (λ A B : hSet, hset_fun_space A B).
+  Definition hset_precategory_ob_mor : precategory_ob_mor :=
+    make_precategory_ob_mor
+      hSet
+      (λ A B : hSet, A -> B).
 
 Definition hset_precategory_data : precategory_data :=
   make_precategory_data hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)

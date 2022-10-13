@@ -6,34 +6,10 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Foundations.Propositions.
 
+Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 
-(** ** Additionals theorems about relations *)
-
-Lemma isapropisirrefl {X : UU} (rel : hrel X) :
-  isaprop (isirrefl rel).
-Proof.
-  apply impred_isaprop ; intro.
-  now apply isapropneg.
-Qed.
-Lemma isapropissymm {X : UU} (rel : hrel X) :
-  isaprop (issymm rel).
-Proof.
-  apply impred_isaprop ; intro x.
-  apply impred_isaprop ; intro y.
-  apply isapropimpl.
-  now apply pr2.
-Qed.
-Lemma isapropiscotrans {X : UU} (rel : hrel X) :
-  isaprop (iscotrans rel).
-Proof.
-  apply impred_isaprop ; intro x.
-  apply impred_isaprop ; intro y.
-  apply impred_isaprop ; intro z.
-  apply isapropimpl.
-  now apply pr2.
-Qed.
 
 (** ** Apartness *)
 
@@ -44,10 +20,10 @@ Lemma isaprop_isaprel {X : UU} (ap : hrel X) :
   isaprop (isaprel ap).
 Proof.
   apply isapropdirprod.
-  apply isapropisirrefl.
+  apply isaprop_isirrefl.
   apply isapropdirprod.
-  apply isapropissymm.
-  apply isapropiscotrans.
+  apply isaprop_issymm.
+  apply isaprop_iscotrans.
 Qed.
 
 Definition aprel (X : UU) := ∑ ap : hrel X, isaprel ap.

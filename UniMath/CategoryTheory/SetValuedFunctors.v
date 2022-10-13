@@ -44,7 +44,7 @@ Qed.
 Let p be an epimorphic natural transformation where the target category is HSET
 
 Given the following diagram :
-<<<
+<<
     f
  A ---> C
  |
@@ -52,7 +52,7 @@ Given the following diagram :
  |
  v
  B
->>>
+>>
 there exists a unique natural transformation from B to C that makes the diagram
 commute provided that for any set X, any x,y in X, if [p x = p y] then [f x = f y]
 

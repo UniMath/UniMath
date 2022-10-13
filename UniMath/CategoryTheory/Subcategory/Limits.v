@@ -157,12 +157,12 @@ Proof.
     cbn beta.
     (** The following line works because of the computational behavior of
         [lift_diagram_full_subcategory], namely:
-        <<
+<<
         (∏ v : vertex g, C' (dob (lift_diagram_full_subcategory d) v))
         → C' c
         → ∏ v : vertex g,
             pr1 (dob d v) = dob (lift_diagram_full_subcategory d) v
-        >>
+>>
       *)
     apply (@weq_hom_in_subcat_from_hom_in_precat C C' (c,, tip) (dob d x)).
   - intro legs.

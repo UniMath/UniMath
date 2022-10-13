@@ -42,13 +42,12 @@ induction j as [|j IHj].
 Defined.
 
 (** For any cocone `cc` under the chain, the following diagram commutes:
-
-    <<
+<<
      c i --> c j
       |       |
       |       V
       +----> cc
-    >>
+>>
  *)
 Lemma chain_mor_coconeIn {C : category} (c : chain C) (x : C)
   (cc : cocone c x) i : ∏ j (Hij : i < j),

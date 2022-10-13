@@ -936,7 +936,7 @@ Qed.
 Definition weq_iso_z_iso {C : category} {b c : C} : iso b c ≃ z_iso b c.
 Proof.
   exists iso_to_z_iso.
-  use gradth.
+  use isweq_iso.
   - apply z_iso_to_iso.
   - apply roundtrip1_iso_z_iso.
   - apply roundtrip2_iso_z_iso.

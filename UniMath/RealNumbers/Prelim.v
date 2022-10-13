@@ -1,4 +1,4 @@
-(** * Additionals theorems and definitions *)
+(** * Additional theorems and definitions *)
 
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.

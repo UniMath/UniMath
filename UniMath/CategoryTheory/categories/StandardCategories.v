@@ -358,7 +358,7 @@ Definition nat_trans_from_unit_weq_morphisms
 Proof.
   use make_weq.
   - exact nat_trans_from_unit.
-  - use gradth.
+  - use isweq_iso.
     + exact (λ n, n tt).
     + abstract
         (intro f ;

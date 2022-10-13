@@ -397,7 +397,7 @@ Definition internal_sopfib_weq_internal_sfib
 Proof.
   use make_weq.
   - exact internal_sfib_is_internal_sopfib.
-  - use gradth.
+  - use isweq_iso.
     + exact internal_sopfib_is_internal_sfib.
     + exact internal_sopfib_weq_internal_sfib_inv_left.
     + exact internal_sopfib_weq_internal_sfib_inv_right.

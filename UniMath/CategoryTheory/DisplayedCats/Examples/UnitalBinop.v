@@ -207,7 +207,7 @@ Definition point_disp_cat_disp_univalent
 Proof.
   use is_univalent_disp_from_fibers.
   intros X x y.
-  use gradth.
+  use isweq_iso.
   - intros f.
     exact (pr1 f).
   - intros e.
