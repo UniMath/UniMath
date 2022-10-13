@@ -53,7 +53,7 @@ everything: TAGS all html install
 .PHONY other-checks:   check-max-line-length
 
 check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
-	test -z `git diff UniMath/CONTENTS.md`
+	test -z "`git diff UniMath/CONTENTS.md`"
 
 # empty target prevents implicit rule search, saving time
 Makefile :;
