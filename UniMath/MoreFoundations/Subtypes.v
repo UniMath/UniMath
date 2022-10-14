@@ -105,6 +105,14 @@ Definition subtype_union {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, �
 
 Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype.
 
+Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
+  := fun x => A x ∨ B x.
+
+Notation "A ∪ B" := (subtype_binaryunion A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cup or ∪ *)
+
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   make_hSet (carrier S) (isaset_carrier_subset _ S).
 
