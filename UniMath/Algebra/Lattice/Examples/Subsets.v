@@ -163,12 +163,12 @@ Section Subsets.
     exists (subtype_complement sub).
     use make_dirprod.
     - apply (invweq (hsubtype_univalence _ _)).
-      apply (subtype_complement_union sub lem).
+      eapply (subtype_complement_union lem).
       + exists true; reflexivity.
       + exists false; reflexivity.
     - (** We don't need [LEM] for this branch. *)
       apply (invweq (hsubtype_univalence _ _)).
-      apply (subtype_complement_intersection_empty sub).
+      eapply subtype_complement_intersection_empty.
       + exists true; reflexivity.
       + exists false; reflexivity.
   Defined.

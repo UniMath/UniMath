@@ -202,21 +202,21 @@ Defined.
 
 Section Complement.
 
-  Context {X : UU} (S : hsubtype X).
+  Context {X : UU}.
 
-  Definition subtype_complement : hsubtype X := fun x => hneg (S x).
+  Definition subtype_complement (S : hsubtype X) : hsubtype X := fun x => hneg (S x).
 
   (** Something can't be in a subtype and its complement. *)
-  Lemma not_in_subtype_and_complement :
-    ∏ x, S x -> subtype_complement x -> empty.
+  Lemma not_in_subtype_and_complement (S : hsubtype X) :
+    ∏ x, S x -> subtype_complement S x -> empty.
   Proof.
     intros x in_S in_neg_S; exact (in_neg_S in_S).
   Defined.
 
   (** The intersection of a family containing a set and its complement is empty. *)
-  Lemma subtype_complement_intersection_empty {I : UU} {f : I -> hsubtype X} :
+  Lemma subtype_complement_intersection_empty {S} {I : UU} {f : I -> hsubtype X} :
     (∑ i : I, f i = S) ->
-    (∑ i : I, f i = subtype_complement) ->
+    (∑ j : I, f j = subtype_complement S) ->
     subtype_intersection f ≡ emptysubtype _.
   Proof.
     intros has_S has_neg_S x; use make_dirprod.
@@ -228,7 +228,7 @@ Section Complement.
       pose (in_S' := (eqtohomot (pr2 has_S)) x).
       pose (in_neg_S' := (eqtohomot (pr2 has_neg_S)) x).
 
-      apply (not_in_subtype_and_complement x).
+      apply (not_in_subtype_and_complement S x).
       + abstract (induction in_S'; assumption).
       + abstract (induction in_neg_S'; assumption).
 
@@ -236,9 +236,9 @@ Section Complement.
   Qed.
 
   (** The union of a family containing a set and its complement is the whole set (assuming LEM). *)
-  Lemma subtype_complement_union (lem : LEM) {I : UU} {f : I -> hsubtype X} :
+  Lemma subtype_complement_union {S} (lem : LEM) {I : UU} {f : I -> hsubtype X} :
     (∑ i : I, f i = S) ->
-    (∑ i : I, f i = subtype_complement) ->
+    (∑ j : I, f j = subtype_complement S) ->
     subtype_union f ≡ totalsubtype _.
   Proof.
     intros has_S has_neg_S x; use make_dirprod.
