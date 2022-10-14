@@ -11,8 +11,8 @@
  two notions are indeed equivalent.
 
  Contents
- 1. Definition
- 2. Equivalence with having Eilenberg-Moore objects
+ 1. Definition of having the construction of algebras
+ 2. Having the construction of algebras is equivalent to having Eilenberg-Moore objects
 
  ****************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -48,7 +48,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 Local Open Scope cat.
 
 (**
- 1. Definition
+ 1. Definition of having the construction of algebras
  *)
 Definition has_construction_of_algs
            (B : bicat)
@@ -56,7 +56,7 @@ Definition has_construction_of_algs
   := right_universal_arrow (mnd_incl B).
 
 (**
- 2. Equivalence with having Eilenberg-Moore objects
+ 2. Having the construction of algebras is equivalent to having Eilenberg-Moore objects
  *)
 Section ConstructionOfAlgsToEM.
   Context {B : bicat}

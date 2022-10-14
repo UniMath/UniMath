@@ -11,7 +11,7 @@
 
  Contents
  1. Adjunction from monad
- 2. Equivalence
+ 2. The monad from the adjunction from a monad is equivalent to the original monad
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -478,7 +478,7 @@ Section MonadToAdjunction.
     := free_alg_1cell ,, mnd_to_left_adjoint.
 
   (**
-   2. Equivalence
+   2. The monad from the adjunction from a monad is equivalent to the original monad
    *)
   Definition mnd_to_adjunction_to_mnd_data
     : mnd_mor_data

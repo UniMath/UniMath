@@ -2,9 +2,14 @@
 
  Eilenberg-Moore objects of comonads
 
+ In this file, we define the notion of Eilenberg-Moore object for
+ comonads.
+ The main purpose of this notion, is that Eilenberg-Moore objects for
+ comonads in `B` give rise to Eilenberg-Moore objects in `op2_bicat B`.
+
  Contents
  1. Eilenberg-Moore objects of comonads via universal mapping properties
- 2. It is a proposition
+ 2. Being an Eilenberg-Moore object for a comonad is a proposition
  3. Bicategories with Eilenberg-Moore objects for comonads
 
  *************************************************************************)
@@ -402,7 +407,7 @@ Section EilenbergMooreComonad.
   End Projections.
 
   (**
-   2. It is a proposition
+   2. Being an Eilenberg-Moore object for a comonad is a proposition
    *)
   Definition isaprop_has_em_comnd_ump
              (HB : is_univalent_2_1 B)
