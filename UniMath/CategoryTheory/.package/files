@@ -195,13 +195,14 @@ ExponentiationLeftAdjoint.v
 categories/CartesianCubicalSets.v
 
 OppositeCategory/OppositeAdjunction.v
-OppositeCategory/LimitsAsColimits.v
 OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
 Chains/Cochains.v
 Chains/Adamek.v
 Chains/OmegaCocontFunctors.v
+OppositeCategory/LimitsAsColimits.v
+Chains/OmegaContFunctors.v
 Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v

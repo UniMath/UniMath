@@ -53,6 +53,10 @@ Require Import UniMath.CategoryTheory.OppositeCategory.OppositeOfFunctorCategory
 
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
 
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
+
 Local Open Scope cat.
 
 (** ** Right adjoints preserve limits *)
@@ -174,8 +178,6 @@ End cont_iso.
       it is both continuous and cocontinuous *)
 Section equivalence_of_categories.
 
-  Require Import UniMath.CategoryTheory.Equivalences.Core.
-  Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
   Lemma is_cont_equivalence_of_cats
         {C D : category} {F : functor C D} (e : adj_equivalence_of_cats F)
     : is_cont F.
