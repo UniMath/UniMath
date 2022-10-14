@@ -3,7 +3,7 @@
  Every monad gives rise to an adjunction
 
  If a bicategory has Eilenberg-Moore objects, then every monad arises from an
- adjunction. This is the so-called free-algebra adjunction with
+ adjunction. This is the so-called free-algebra adjunction.
 
  This generalizes the construction in Monads.MonadAlgebras.v.
  Note: since we can instantiate this construction for Kleisli objects as well, the
