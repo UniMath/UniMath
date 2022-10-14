@@ -10,6 +10,7 @@
   - Pushouts from colimits [PushoutsHSET_from_Colims]
   - Initial object [InitialHSET]
     - Initial object from colimits [InitialHSET_from_Colims]
+  - Every set is the colimit of its finite subsets [is_colimit_finite_subsets_cocone]
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -38,6 +39,9 @@ Require Import UniMath.CategoryTheory.limits.initial.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
+(* For colimits of finite subsets. *)
+Require Import UniMath.Combinatorics.FiniteSets.
+Require Import UniMath.MoreFoundations.Subtypes.
 Local Open Scope cat.
 
 (** ** General colimits [ColimsHSET] *)
@@ -295,3 +299,66 @@ Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
   apply initial.Initial_from_Colims, ColimsHSET_of_shape.
 Defined.
+
+Section finite_subsets.
+  (* This section proves that every set is the colimit of its finite subsets
+     by showing that it satisfies the universal property. *)
+
+  Local Open Scope subtype.
+  Local Open Scope logic.
+
+  Definition finite_subsets_graph (X : hSet) : graph.
+  Proof.
+    use make_graph.
+    - exact(finite_subset X).
+    - exact(λ (A B : finite_subset X), A ⊆ B).
+  Defined.
+
+  Definition finite_subsets_diagram (X : hSet)
+    : diagram (finite_subsets_graph X) HSET.
+  Proof.
+    use make_diagram.
+    - exact(λ (A : finite_subset X), carrier_set A).
+    - exact(λ (A B : finite_subset X)
+              (E : A ⊆ B),
+             subtype_inc E).
+  Defined.
+
+  (* Construct the cocone with apex X over the finite subsets diagram
+     with injections taken to be the projections from the carriers of the subsets. *)
+  Definition finite_subsets_cocone (X : hSet)
+    : cocone (finite_subsets_diagram X) X.
+  Proof.
+    use make_cocone.
+    - exact(λ (A : finite_subset X), pr1carrier A).
+    - red ; intros ; apply idpath.
+  Defined.
+
+  (* Every set is the colimit of its finite subsets. *)
+  Definition is_colimit_finite_subsets_cocone (X : hSet)
+    : isColimCocone (finite_subsets_diagram X) X (finite_subsets_cocone X).
+  Proof.
+    set (D := finite_subsets_diagram X).
+    intros Y CC.
+    (* Construct the unique cocone morphism X --> Y by mapping x : X to
+       whatever coconeIn CC maps the unique inhabitant of {x} to. *)
+    use unique_exists.
+    - exact(λ (x : X), coconeIn CC (finite_singleton x) singleton_point).
+    - intros A.
+      apply funextfun ; intro a.
+
+      (* {a} ⊆ A *)
+      set (a_in_A := finite_singleton_is_in (A : finite_subset X) a).
+
+      (* {a} -⊆-> A ---> Y commutes with {a} -(inj)-> Y by the cocone property of CC. *)
+      assert(p : dmor D a_in_A · coconeIn CC A = coconeIn CC (finite_singleton (pr1 a)))
+        by apply coconeInCommutes.
+
+      apply(eqtohomot (!p)).
+    - intro ; apply isaprop_is_cocone_mor.
+    - intros f fmor.
+      apply funextfun ; intro x.
+      exact(eqtohomot (fmor (finite_singleton x)) singleton_point).
+  Defined.
+
+End finite_subsets.

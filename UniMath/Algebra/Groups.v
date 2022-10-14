@@ -12,6 +12,7 @@
   - Cosets
   - Normal Subgroups
   - Direct products
+  - Group of invertible elements in a monoid
  - Abelian groups
   - Basic definitions
   - Univalence for abelian groups
@@ -28,6 +29,7 @@
   - Relations and the canonical homomorphism to [abgrdiff]
 *)
 
+Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
@@ -740,6 +742,39 @@ Defined.
 Definition grdirprod (X Y : gr) : gr.
 Proof. split with (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
+(** *** Group of invertible elements in a monoid *)
+
+Local Open Scope multmonoid.
+
+Definition invertible_submonoid_grop X : isgrop (@op (invertible_submonoid X)).
+Proof.
+  pose (submon := invertible_submonoid X).
+  pose (submon_carrier := ismonoidcarrier submon).
+
+  (** We know that if each element has an inverse, it's a grop *)
+  apply (isgropif submon_carrier).
+
+  intros xpair.
+  pose (x := pr1 xpair).
+  pose (unel := (unel_is submon_carrier)).
+
+  (** We can use other hProps when proving an hProp (assume it has an inverse) *)
+  apply (squash_to_prop (pr2 xpair) (propproperty _)).
+
+  intros xinv.
+  unfold haslinv.
+  apply hinhpr.
+  refine ((pr1 xinv,, inverse_in_submonoid _ x (pr1 xinv) (pr2 xpair) (pr2 xinv)),, _).
+  apply subtypePath_prop.
+  exact (pr2 (pr2 xinv)).
+Defined.
+
+Local Close Scope multmonoid.
+
+Definition gr_merely_invertible_elements : monoid -> gr :=
+  fun X => (carrierofasubsetwithbinop
+             (submonoidtosubsetswithbinop
+                _ (invertible_submonoid X)),, invertible_submonoid_grop X).
 
 (** ** Abelian groups *)
 
@@ -1428,6 +1463,22 @@ Proof.
                                   isl (weqabgrdiff X a) (weqabgrdiff X b) (weqabgrdiff X c)).
 Defined.
 Opaque iscotransabgrdiffrel.
+
+Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
+      (Hgt : isbinophrel gt) :
+  isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
+Proof.
+  intros H.
+  repeat split.
+  - apply istransabgrdiffrel, (istrans_isStrongOrder H).
+  - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
+Defined.
+Opaque isStrongOrder_abgrdiff.
+
+Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
+           (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+  abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
 
 Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
       (impl : ∏ x x', L x x' -> L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :
