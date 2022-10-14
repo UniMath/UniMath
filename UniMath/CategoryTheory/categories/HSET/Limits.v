@@ -254,13 +254,13 @@ Defined.
     from [TerminalHSET], i.e. [unit].
 
     In particular, A pullback diagram of shape
-    <<
+<<
       Z --- ! --> unit
       |            |
       |            | y
       V            V
       X --- f -->  Y
-    >>
+>>
     makes [Z] (isomorphic to) the inverse image of a point [y : Y] under [f].
  *)
 
@@ -307,10 +307,9 @@ Proof.
       apply invweq.
       apply dirprod_with_contr_r.
       use make_iscontr.
-      * apply proofirrelevance.
-        apply hlevelntosn.
-        apply (pr2 TerminalHSET). (** TODO: should be an accessor *)
-      * intro; apply proofirrelevance; apply setproperty.
+      * apply isapropifcontr.
+        apply TerminalHSET.
+      * intro; apply proofirrelevance; apply homset_property.
     + unfold hfiber_hSet, hfiber; cbn.
       use make_iscontr.
       * use tpair.
@@ -322,7 +321,7 @@ Proof.
            specialize (pbH pb0); cbn in pbH.
            refine (pbH @ _).
            apply tosecoverunit_compute.
-        -- apply funextfun; intro; apply idpath.
+        -- apply idpath.
       * intros t.
         apply subtypePath.
         -- intro; apply has_homsets_HSET.

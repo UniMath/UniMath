@@ -1819,7 +1819,7 @@ Section DisplayedInserter.
   Proof.
     use make_weq.
     - exact inv2_cell_to_disp_adjequiv.
-    - use gradth.
+    - use isweq_iso.
       + exact disp_adjequiv_to_inv2cell.
       + exact inv2_cell_to_disp_adjequiv_weq_left.
       + intros.

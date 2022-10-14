@@ -48,7 +48,8 @@ everything: TAGS all html install
 .PHONY sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files		\
 		check-for-change-to-Foundations		\
-		check-for-submodule-changes
+		check-for-submodule-changes		\
+		check-for-changes-to-CONTENTS.md
 .PHONY other-checks:   check-max-line-length
 
 # empty target prevents implicit rule search, saving time
@@ -165,7 +166,7 @@ TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
 FILES_FILTER := grep -vE '^[ \t]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[ \t]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: make-summary-files build/CoqMakefile.make;								\
+	$(eval $P: make-summary-files build/CoqMakefile.make UniMath/.dir-locals.el;								\
 		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ;									\
 		  $(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
@@ -384,7 +385,7 @@ clean::; rm -f .check-travis.okay
 # except for those listed in $GRANDFATHER_UNLISTED (currently none)
 GRANDFATHER_UNLISTED = 
 check-listing-of-proof-files:
-	@ echo --- checking every proof file is listed in one of the packages ---
+	@ echo "--- checking every proof file is listed in one of the packages ---"
 	@ if declare -A islisted 2>/dev/null ;										\
 	  then for i in $(VFILES) $(GRANDFATHER_UNLISTED) ;								\
 	       do islisted[$$i]=yes ;											\
@@ -405,26 +406,34 @@ check-listing-of-proof-files:
 	       if [ $$m != 0 ] ;											\
 	       then echo "error: *** $$m unlisted proof files encountered" >&2 ;					\
 		    exit 1 ;												\
-	       else echo "check succeeded: all proof files listed in packages" ;						\
+	       else echo "check succeeded: all proof files listed in packages" ;					\
 	       fi ;													\
 	  else echo "make: *** skipping checking the listing of proof files, because 'bash' is too old" ;		\
 	  fi
 
 # Here we check for changes to UniMath/Foundations, which normally does not change.
-# One step of the travis job will fail, if a change is made, see .travis.yml
+# One step of the travis job will fail if a change is made, see .travis.yml
 check-for-change-to-Foundations:
-	@echo --- checking for changes to the Foundations package ---
+	@echo "--- checking for changes to the Foundations package ---"
 	git fetch origin
 	test -z "`git diff --stat origin/master -- UniMath/Foundations`"
 	@echo "check succeeded: no changes to Foundations"
 
 # Here we check for changes to sub/coq, which normally does not change.
-# One step of the travis job will fail, if a change is made, see .travis.yml
+# One step of the travis job will fail if a change is made, see .travis.yml
 check-for-submodule-changes:
 	@echo "--- checking for submodule changes ---"
 	git fetch origin
 	test -z "`git diff origin/master sub`"
 	@echo "check succeeded: no changes to submodules"
+
+# Here we check that the CONTENTS.md file has been correctly updated,
+# and committed if any changes have occurred.
+# One step of the travis job will fail if there are outstanding changes, see .travis.yml
+check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
+	@echo "--- checking that CONTENTS.md is up-to-date ---"
+	test -z "`git diff UniMath/CONTENTS.md`"
+	@echo "check succeeded: CONTENTS.md is up-to-date"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
@@ -484,6 +493,7 @@ ifeq ($(BUILD_COQ),yes)
 else
 	sed -e "s/@LOCAL@ /;;/" <$< >$@
 endif
+distclean::; rm -f UniMath/.dir-locals.el
 
 # make *.vo files by calling the coq makefile
 %.vo : always; $(MAKE) -f build/CoqMakefile.make $@

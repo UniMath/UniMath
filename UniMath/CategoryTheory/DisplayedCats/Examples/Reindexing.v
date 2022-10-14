@@ -303,7 +303,7 @@ Definition z_iso_disp_weq_z_iso_disp_reindex
 Proof.
   use make_weq.
   - exact z_iso_disp_to_z_iso_disp_reindex.
-  - use gradth.
+  - use isweq_iso.
     + exact z_iso_disp_reindex_to_z_iso_disp.
     + abstract
         (intros i ;

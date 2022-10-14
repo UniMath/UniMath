@@ -1,4 +1,4 @@
-(** * Additionals theorems *)
+(** * Additional theorems *)
 
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.

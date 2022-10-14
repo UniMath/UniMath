@@ -108,6 +108,7 @@ FunctorAlgebras.v
 FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
+PrecompEquivalence.v
 rezk_completion.v
 UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
@@ -139,6 +140,7 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 LatticeObject.v
+Actions.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
@@ -225,6 +227,9 @@ DisplayedCats/StreetOpFibration.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
+categories/EilenbergMoore.v
+categories/KleisliCategory.v
+limits/Examples/EilenbergMooreLimits.v
 Elements.v
 Core.v
 
