@@ -318,7 +318,7 @@ Definition has_construction_of_algs_weq_has_em
 Proof.
   use make_weq.
   - exact has_construction_of_algs_to_em.
-  - use gradth.
+  - use isweq_iso.
     + exact em_to_has_construction_of_algs.
     + apply has_construction_of_algs_weq_has_em_inv₁.
       exact HB.
