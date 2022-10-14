@@ -588,7 +588,7 @@ Section FixMoncatAndBicat.
       + split; [apply disp_actionbicat_disp_id_triangle | apply disp_actionbicat_disp_id_pentagon]; assumption.
     - intros a0 a1 a2 g1 g2 [FA FAm] [FA' FA'm] [FA'' FA''m] Hyp1 Hyp2. cbn in Hyp1, Hyp2.
       exists (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
-      + split; [apply disp_actionbicat_disp_comp_triangle | apply ax1]; assumption.
+      + split; [apply disp_actionbicat_disp_comp_triangle | apply disp_actionbicat_disp_comp_pentagon]; assumption.
   Defined.
 
   Definition disp_actionbicat_disp_catdata : disp_cat_data B
