@@ -412,6 +412,10 @@ Section FixMoncatAndBicat.
     rewrite aux1, aux2.
     clear aux1 aux2.
     unfold param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+    induction Hyp1 as [δ1 [trieq1 pentaeq1]].
+    induction Hyp2 as [δ2 [trieq2 pentaeq2]].
+    cbn.
+    clear trieq1 trieq2 pentaeq1 pentaeq2.
     repeat rewrite rwhisker_vcomp.
     repeat rewrite <- lwhisker_vcomp.
     etrans.
@@ -420,12 +424,161 @@ Section FixMoncatAndBicat.
       repeat rewrite vassocr.
       do 10 apply maponpaths_2.
       apply pathsinv0, lwhisker_lwhisker_rassociator. }
-
-
-
-
-
-    Admitted.
+    etrans.
+    { repeat rewrite vassocl.
+      do 2 apply maponpaths.
+      repeat rewrite vassocr.
+      do 9 apply maponpaths_2.
+      etrans.
+      { rewrite lwhisker_vcomp.
+        apply maponpaths.
+        rewrite lwhisker_vcomp.
+        apply maponpaths.
+        apply (pr2 (fmonoidal_preservestensorstrongly FA''m v w)). }
+      cbn.
+      rewrite lwhisker_id2.
+      apply lwhisker_id2.
+    }
+    rewrite id2_left.
+    etrans.
+    { repeat rewrite vassocr.
+      apply idpath. }
+    apply pathsinv0.
+    apply (vcomp_move_L_Vp _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+    etrans.
+    { repeat rewrite vassocl.
+      do 8 apply maponpaths.
+      apply pathsinv0, rwhisker_rwhisker. }
+    repeat rewrite <- rwhisker_vcomp.
+    repeat rewrite vassocr.
+    apply maponpaths_2.
+    etrans.
+    2: { do 5 apply maponpaths_2.
+         repeat rewrite vassocl.
+         do 7 apply maponpaths.
+         etrans.
+         2: { rewrite vassocr.
+              apply maponpaths_2.
+              apply pathsinv0, rwhisker_lwhisker. }
+         rewrite vassocl.
+         apply maponpaths.
+         rewrite rwhisker_vcomp.
+         apply maponpaths.
+         rewrite lwhisker_vcomp.
+         apply maponpaths.
+         apply pathsinv0, (pr2 (fmonoidal_preservestensorstrongly FA'm v w)). }
+    cbn.
+    rewrite lwhisker_id2.
+    rewrite id2_rwhisker.
+    rewrite id2_right.
+    (* the equation is now free from the preservation of the tensor by the given strong monoidal functors;
+       both sides of the equation are chains of 13 two-cells *)
+    etrans.
+    2: { repeat rewrite vassocl.
+         do 6 apply maponpaths.
+         repeat rewrite vassocr.
+         do 4 apply maponpaths_2.
+         apply pathsinv0, lassociator_lassociator. }
+    etrans.
+    { repeat rewrite vassocl.
+      do 4 apply maponpaths.
+      repeat rewrite vassocr.
+      do 6 apply maponpaths_2.
+      apply rassociator_rassociator. }
+    (* both sides of the equation are chains of 12 two-cells *)
+    etrans.
+    2: { repeat rewrite vassocr.
+         do 10 apply maponpaths_2.
+         apply rassociator_rassociator. }
+    repeat rewrite vassocl.
+    apply maponpaths.
+    etrans.
+    2: { repeat rewrite vassocr.
+         do 8 apply maponpaths_2.
+         etrans.
+         2: { apply maponpaths_2.
+              rewrite vassocl.
+              etrans.
+              2: { apply maponpaths.
+                   rewrite lwhisker_vcomp.
+                   apply maponpaths.
+                   apply pathsinv0, rassociator_lassociator. }
+              rewrite lwhisker_id2.
+              apply pathsinv0, id2_right. }
+         apply pathsinv0, rwhisker_lwhisker_rassociator.
+    }
+    repeat rewrite vassocl.
+    apply maponpaths.
+    (* two occurrences of [δ2] vanished *)
+    etrans.
+    { apply maponpaths.
+      repeat rewrite vassocr.
+      do 5 apply maponpaths_2.
+      rewrite rwhisker_rwhisker_alt.
+        rewrite vassocl.
+        rewrite lwhisker_lwhisker_rassociator.
+        rewrite vassocl.
+        apply maponpaths.
+        rewrite vassocr.
+        apply maponpaths_2.
+        apply vcomp_whisker. }
+    etrans.
+    2: { do 2 apply maponpaths.
+         repeat rewrite vassocr.
+         do 3 apply maponpaths_2.
+         rewrite lwhisker_lwhisker.
+         rewrite vassocl.
+         rewrite rwhisker_rwhisker.
+         apply idpath.
+    }
+    assert (Haux: (lassociator g1 (FA' v) g2 ▹ FA'' w) • rassociator (g1 · FA' v) g2 (FA'' w) =
+                    rassociator g1 (FA' v · g2) (FA'' w) • (g1 ◃ rassociator (FA' v) g2 (FA'' w)) • lassociator g1 (FA' v) (g2 · FA'' w)).
+    { etrans.
+      2: { rewrite vassocl.
+           apply inverse_pentagon_2. }
+      apply maponpaths_2.
+      apply pathsinv0, hcomp_identity_right. }
+    etrans.
+    { repeat rewrite vassocr.
+      do 8 apply maponpaths_2.
+      apply Haux. }
+    clear Haux.
+    repeat rewrite vassocl.
+    do 5 apply maponpaths.
+    (* two occurrences of [δ1] and [δ2] vanished
+       ten two-cells remain, one occurrence of [δ1] on both sides *)
+    assert (Haux2: rassociator (FA v) g1 (FA' w · g2) • (FA v ◃ lassociator g1 (FA' w) g2) =
+                     lassociator (FA v · g1) (FA' w) g2 • ((rassociator (FA v) g1 (FA' w) ▹ g2) • rassociator (FA v) (g1 · FA' w) g2)).
+    { rewrite <- hcomp_identity_right.
+      etrans.
+      2: { apply inverse_pentagon_4. }
+      rewrite hcomp_identity_left.
+      apply idpath.
+    }
+    etrans.
+    { repeat rewrite vassocr.
+      do 4 apply maponpaths_2.
+      exact Haux2. }
+    clear Haux2.
+    repeat rewrite vassocl.
+    do 2 apply maponpaths.
+    etrans.
+    { repeat rewrite vassocr.
+      do 3 apply maponpaths_2.
+      apply rwhisker_lwhisker_rassociator. }
+    repeat rewrite vassocl.
+    apply maponpaths.
+    (* no more [δ1] nor [δ2] *)
+    etrans.
+    { repeat rewrite vassocr.
+      apply maponpaths_2.
+      rewrite vassocl.
+      apply pathsinv0, inverse_pentagon_2. }
+    rewrite vassocl.
+    rewrite rassociator_lassociator.
+    rewrite hcomp_identity_right.
+    apply id2_right.
+  Qed.
 
   Definition disp_actionbicat_disp_id_comp : disp_cat_id_comp B disp_actionbicat_disp_ob_mor.
   Proof.
