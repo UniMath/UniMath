@@ -37,6 +37,7 @@ Core/Examples/BicategoryFromMonoidal.v
 Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
 
+Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
@@ -177,6 +178,10 @@ Limits/Inserters.v
 Limits/IsoInserters.v
 Limits/Equifiers.v
 Limits/EilenbergMooreObjects.v
+Limits/EilenbergMooreComonad.v
+
+Monads/ConstructionOfAlgebras.v
+Monads/MonadToAdjunction.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
@@ -188,6 +193,8 @@ Limits/Examples/TotalBicategoryLimits.v
 Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
+
+Morphisms/Monadic.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
