@@ -182,7 +182,6 @@ Limits/EilenbergMooreComonad.v
 
 Monads/ConstructionOfAlgebras.v
 Monads/MonadToAdjunction.v
-Morphisms/Monadic.v
 
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
@@ -194,6 +193,8 @@ Limits/Examples/TotalBicategoryLimits.v
 Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
+
+Morphisms/Monadic.v
 
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
