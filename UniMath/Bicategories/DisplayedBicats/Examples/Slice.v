@@ -331,7 +331,7 @@ Section SliceBicat.
   Proof.
     use make_weq.
     - exact slice_inv2cell_to_disp_adj_equiv.
-    - use gradth.
+    - use isweq_iso.
       + exact slice_disp_adj_equiv_to_inv2cell.
       + abstract
           (intros α ;

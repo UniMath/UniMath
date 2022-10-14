@@ -275,7 +275,7 @@ Definition trivial_invertible_2cell_weq_disp_invertible
 Proof.
   use make_weq.
   - exact trivial_invertible_2cell_to_disp_invertible.
-  - use gradth.
+  - use isweq_iso.
     + exact trivial_disp_invertible_to_invertible_2cell.
     + exact trivial_invertible_to_disp_invertible_to_invertible.
     + exact trivial_disp_invertible_to_invertible_to_disp_invertible.
@@ -419,7 +419,7 @@ Definition trivial_adj_equiv_weq_disp_adj_equiv
 Proof.
   use make_weq.
   - exact trivial_adj_equiv_to_disp_adj_equiv.
-  - use gradth.
+  - use isweq_iso.
     + exact trivial_disp_adj_equiv_to_adj_equiv.
     + exact (trivial_adj_equiv_to_disp_to_adj HC_2_1).
     + exact (trivial_disp_adj_equiv_to_adj_to_disp HB_2_1 HC_2_1).

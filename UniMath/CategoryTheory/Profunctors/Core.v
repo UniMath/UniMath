@@ -89,7 +89,7 @@ Section Dinatural.
     use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b),
                lmap F f · data a · rmap G f = rmap F f · data b · lmap G f).
-    - abstract (do 3 (apply impred; intro); apply setproperty).
+    - abstract (do 3 (apply impred; intro); apply homset_property).
   Defined.
 
   Definition dinatural_transformation (f : C ↛ C) (g : C ↛ C) : UU :=
@@ -131,7 +131,7 @@ Section Dinatural.
     - intros a b h.
       (**
        Have:
-       <<
+<<
                   F (i, j)
          F(a, b) --------> F(c, d)
             |                 |
@@ -139,15 +139,15 @@ Section Dinatural.
             V                 V
          G(a, b) --------> G(c, d)
                   G (i, j)
-       >>
+>>
        Want:
-       <<
+<<
                   F(a, a) -- alpha --> G(a, a)
           lmap /                        \ rmap
           F(b, a)                    G(a, b)
           rmap \                        / lmap
                   F(b, b) -- alpha --> G(b, b)
-       >>
+>>
        *)
       unfold lmap, rmap.
       do 2 rewrite id_left.
@@ -182,20 +182,20 @@ Section Ends.
   (** *** Wedges *)
 
   (** Wedge diagram:
-      <<
+<<
           w -----> F(a, a)
           |           |
           | F(f, id)  | F(id, f)
           V           V
         F(b, b) --> F(a, b)
-      >>
+>>
   *)
 
   Definition is_wedge (w : ob HSET_univalent_category) (pi : ∏ a : ob C, w --> F (a ⊗ a)) : hProp.
   Proof.
     use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b), pi a · rmap F f = pi b · lmap F f).
-    - abstract (do 3 (apply impred; intro); apply setproperty).
+    - abstract (do 3 (apply impred; intro); apply homset_property).
   Defined.
 
   (** Following the convention for limits, the tip is explicit in the type. *)

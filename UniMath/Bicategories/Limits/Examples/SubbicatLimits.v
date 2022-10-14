@@ -9,6 +9,7 @@
  1. Final objects
  2. Products
  3. Pullbacks
+ 4. Eilenberg-Moore categories
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -20,10 +21,17 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 
 Local Open Scope cat.
 
@@ -210,5 +218,69 @@ Section LimitsSubbicat.
       + exact Hπ₁.
       + exact Hπ₂.
       + exact H_ump_mor.
+  Defined.
+
+
+  (**
+   4. Eilenberg-Moore objects
+   *)
+  Definition subbicat_disp_has_em
+             (HB : bicat_has_em B)
+             (Hcone : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
+                      P₀ (pr11 (HB (pr1_of_mnd_total_bicat m))))
+             (Hmor : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
+                     P₁ _ _
+                        (mor_of_mnd_mor
+                           (mor_of_em_cone
+                              _
+                              (pr1 (HB (pr1_of_mnd_total_bicat m))))))
+             (Hump : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp)))
+                       (q : em_cone m),
+                     P₁ _ _
+                       (em_ump_1_mor
+                          (pr1_of_mnd_total_bicat m)
+                          (pr2 (HB (pr1_of_mnd_total_bicat m)))
+                          (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
+    : disp_has_em (disp_subbicat P₀ P₁ Pid Pcomp) HB.
+  Proof.
+    intro m.
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact (tt ,, Hcone m).
+    - exact (Hmor m ,, tt).
+    - exact (tt ,, tt).
+    - exact (λ q, Hump m q ,, tt).
+  Defined.
+
+  Definition subbicat_has_em
+             (HB : bicat_has_em B)
+             (HB' : is_univalent_2 B)
+             (Hcone : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
+                      P₀ (pr11 (HB (pr1_of_mnd_total_bicat m))))
+             (Hmor : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
+                     P₁ _ _
+                        (mor_of_mnd_mor
+                           (mor_of_em_cone
+                              _
+                              (pr1 (HB (pr1_of_mnd_total_bicat m))))))
+             (Hump : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp)))
+                       (q : em_cone m),
+                     P₁ _ _
+                       (em_ump_1_mor
+                          (pr1_of_mnd_total_bicat m)
+                          (pr2 (HB (pr1_of_mnd_total_bicat m)))
+                          (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
+    : bicat_has_em (subbicat P₀ P₁ Pid Pcomp).
+  Proof.
+    use total_bicat_has_em.
+    - apply disp_2cells_isaprop_subbicat.
+    - intros.
+      apply subbicat_disp_2cell_over.
+    - use disp_locally_groupoid_subbicat.
+      exact HB'.
+    - exact HB.
+    - apply subbicat_disp_has_em.
+      + exact Hcone.
+      + exact Hmor.
+      + exact Hump.
   Defined.
 End LimitsSubbicat.

@@ -9,6 +9,7 @@ Require Export UniMath.Foundations.Sets.
   - Other universal properties for [setquot]
   - The equivalence relation of being in the same fiber
   - Subsets
+  - Binary relations
  *)
 
 Local Open Scope logic.
@@ -71,6 +72,9 @@ Lemma iscomprelfun_funcomp {X Y Z : UU} {R : hrel X} {S : hrel Y}
 Proof.
   intros x x' r. exact (Hg _ _ (Hf x x' r)).
 Defined.
+
+Definition fun_hrel_comp {X Y : UU} (f : X → Y) (gt : hrel Y) : hrel X :=
+  λ x y : X, gt (f x) (f y).
 
 (** ** Other universal properties for [setquot] *)
 
@@ -212,3 +216,30 @@ Proof.
   induction e.
   apply eqrelrefl.
 Defined.
+
+
+(** * Additional lemmas on binary relations *)
+
+Lemma isaprop_isirrefl {X : UU} (rel : hrel X) :
+  isaprop (isirrefl rel).
+Proof.
+  apply impred_isaprop ; intro.
+  now apply isapropneg.
+Qed.
+Lemma isaprop_issymm {X : UU} (rel : hrel X) :
+  isaprop (issymm rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply isapropimpl.
+  now apply pr2.
+Qed.
+Lemma isaprop_iscotrans {X : UU} (rel : hrel X) :
+  isaprop (iscotrans rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply impred_isaprop ; intro z.
+  apply isapropimpl.
+  now apply pr2.
+Qed.

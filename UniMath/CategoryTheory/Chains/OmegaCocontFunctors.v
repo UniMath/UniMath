@@ -1444,7 +1444,8 @@ Proof.
     apply funextsec; intro x; cbn.
     now etrans; [apply maponpaths,
         (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
-  - intros z; apply impred_isaprop; intro n; apply setproperty.
+  - intro ; apply impred_isaprop.
+    intro ; apply homset_property.
   - simpl; intros f Hf.
     apply funextsec; intro l.
     transparent assert (k : (HSET/X⟦colim CC,c⟧)).
@@ -1456,7 +1457,7 @@ Proof.
     }
     assert (Hk : (∏ n, colimIn CC n · k = coconeIn cc n)).
     { intros n.
-      apply subtypePath; [intros x; apply setproperty|].
+      apply subtypePath; [intros x; apply homset_property|].
       apply funextsec; intro z.
       use total2_paths_f; [apply idpath|].
       now rewrite idpath_transportf; cbn; rewrite <- (toforallpaths _ _ _ (Hf n) z).

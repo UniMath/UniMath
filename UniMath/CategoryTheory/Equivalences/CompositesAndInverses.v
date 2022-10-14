@@ -5,6 +5,8 @@
   - Preliminaries
   - Composition
   - Inverses
+  - 2 out of 3 property
+  - Pairing equivalences
  *)
 
 (** Ported from UniMath/TypeTheory, could use more cleanup *)
@@ -65,7 +67,7 @@ Proof.
   intros c d.
   set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
   simpl in inv.
-  apply (gradth _ inv ).
+  apply (isweq_iso _ inv ).
   - intro f. simpl in f. unfold inv.
     assert (XR := nat_trans_ax ε). simpl in XR.
     rewrite <- assoc.
@@ -299,6 +301,92 @@ Definition nat_iso_adj_equivalence_of_cats
   : adj_equivalence_of_cats G
   := adjointificiation (nat_z_iso_equivalence_of_cats α Hα HF).
 
+(**
+ 2 out of 3 property
+ *)
+Section TwoOutOfThree.
+  Context {C₁ C₂ C₃ : category}
+          (F : C₁ ⟶ C₂)
+          (G : C₂ ⟶ C₃)
+          (H : C₁ ⟶ C₃)
+          (ν : nat_z_iso (F ∙ G) H).
+
+  Definition two_out_of_three_first
+             (HG : adj_equivalence_of_cats G)
+             (HH : adj_equivalence_of_cats H)
+    : adj_equivalence_of_cats F.
+  Proof.
+    pose (ζ := make_nat_z_iso
+                 (F ∙ functor_identity _)
+                 (F ∙ (G ∙ right_adjoint HG))
+                 _
+                 (pre_whisker_on_nat_z_iso
+                    F
+                    (unit_nat_z_iso_from_adj_equivalence_of_cats HG)
+                    (pr2 (unit_nat_z_iso_from_adj_equivalence_of_cats HG)))).
+    use (nat_iso_adj_equivalence_of_cats
+           _
+           _
+           (comp_adj_equivalence_of_cats
+              HH
+              (adj_equivalence_of_cats_inv HG))).
+    - exact (nat_trans_comp
+               (H ∙ right_adjoint HG)
+               ((F ∙ G) ∙ right_adjoint HG)
+               _
+               (post_whisker
+                  (nat_z_iso_inv ν)
+                  (right_adjoint HG))
+               (nat_z_iso_inv ζ)).
+    - use is_nat_z_iso_comp.
+      + use post_whisker_z_iso_is_z_iso.
+        apply (nat_z_iso_inv ν).
+      + apply (nat_z_iso_inv ζ).
+  Defined.
+
+  Definition two_out_of_three_second
+             (HF : adj_equivalence_of_cats F)
+             (HH : adj_equivalence_of_cats H)
+    : adj_equivalence_of_cats G.
+  Proof.
+    use (nat_iso_adj_equivalence_of_cats
+           _
+           _
+           (comp_adj_equivalence_of_cats
+              (adj_equivalence_of_cats_inv HF)
+              HH)).
+    - exact (nat_trans_comp
+               (right_adjoint HF ∙ H)
+               (right_adjoint HF ∙ F ∙ G)
+               G
+               (pre_whisker
+                  (right_adjoint HF)
+                  (nat_z_iso_inv ν))
+               (post_whisker
+                  (counit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                  G)).
+    - use is_nat_z_iso_comp.
+      + apply (pre_whisker_on_nat_z_iso (right_adjoint HF) (nat_z_iso_inv ν)).
+        apply (nat_z_iso_inv ν).
+      + apply (post_whisker_z_iso_is_z_iso
+                 (counit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                 G).
+        apply (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  Defined.
+
+  Definition two_out_of_three_comp
+             (HF : adj_equivalence_of_cats F)
+             (HG : adj_equivalence_of_cats G)
+    : adj_equivalence_of_cats H.
+  Proof.
+    use (nat_iso_adj_equivalence_of_cats ν (pr2 ν)).
+    exact (comp_adj_equivalence_of_cats HF HG).
+  Defined.
+End TwoOutOfThree.
+
+(**
+ Pairing equivalences
+ *)
 Section PairEquivalence.
   Context {C₁ C₁' C₂ C₂' : category}
           {F : C₁ ⟶ C₁'}
