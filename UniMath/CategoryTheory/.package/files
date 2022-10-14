@@ -23,6 +23,7 @@ DisplayedCats/Fiber.v
 categories/CategoryOfSetCategories.v
 categories/HSET/Core.v
 opp_precat.v
+OppositeCategory/Core.v
 Groupoids.v
 ProductCategory.v
 PrecategoryBinProduct.v
@@ -190,6 +191,10 @@ YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
 
 categories/CartesianCubicalSets.v
+
+OppositeCategory/OppositeAdjunction.v
+OppositeCategory/LimitsAsColimits.v
+OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
 Chains/Cochains.v
