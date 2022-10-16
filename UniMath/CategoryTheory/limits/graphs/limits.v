@@ -706,7 +706,7 @@ Qed.
 Definition isLimCone_LimCone {g : graph} {d : diagram g C^op}
     (CC : LimCone d)
   : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
-  := isColimCocone_ColimCocone CC.
+  := isColimCocone_from_ColimCocone CC.
 
 Definition limArrow {g : graph} {d : diagram g C^op} (CC : LimCone d)
   (c : C) (cc : cone d c) : C⟦c, lim CC⟧.
