@@ -953,7 +953,7 @@ Definition TopologySubtype {T : TopologicalSpace}
   : TopologicalSpace.
 Proof.
   simple refine (TopologyFromNeighborhood _ _).
-  - exact (Subtypes.carrier_set dom).
+  - exact (carrier_subset dom).
   - apply topologysubtype.
   - repeat split.
     + apply topologysubtype_imply.

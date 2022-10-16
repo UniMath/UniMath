@@ -318,7 +318,7 @@ Section finite_subsets.
     : diagram (finite_subsets_graph X) HSET.
   Proof.
     use make_diagram.
-    - exact(λ (A : finite_subset X), carrier_set A).
+    - exact(λ (A : finite_subset X), carrier_subset A).
     - exact(λ (A B : finite_subset X)
               (E : A ⊆ B),
              subtype_inc E).
