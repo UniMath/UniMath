@@ -129,12 +129,6 @@ Defined.
 
 (** ** Subsets *)
 
-Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
-  make_hSet (carrier Hsub) (isaset_carrier_subset _ Hsub).
-
-Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
-  x,, Hx.
-
 Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
 
 Section Pi0.
