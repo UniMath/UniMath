@@ -484,6 +484,34 @@ Proof.
 now intros d; apply LimFunctorCone.
 Defined.
 
+Lemma pointwise_Lim_is_isLimFunctor
+  {A C : category} {g : graph}
+  (d : diagram g [A,C]) (G : [A,C]) (cG : cone d G)
+  (H : ∏ a, isLimCone _ _ (cone_pointwise d G cG a)) :
+  isLimCone d G cG.
+Proof.
+ set (CC a := make_LimCone _ _ _ (H a)).
+ set (D' := LimFunctorCone _ CC).
+ use is_z_iso_isLim.
+ - apply D'.
+ - use tpair.
+   + use make_nat_trans.
+     * intros a; apply identity.
+     * abstract (
+           intros a b f; rewrite id_left, id_right;
+           apply pathsinv0 ;
+           apply (limArrowUnique (CC b) (lim (CC a))) ; intro u ; cbn ;
+           now rewrite <- (nat_trans_ax (coneOut cG u))
+         ).
+   + abstract (split;
+               [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
+                 apply pathsinv0, (limArrowUnique (CC x)); intros v;
+                 now rewrite id_left
+               | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
+                 apply pathsinv0, (limArrowUnique (CC x)); intro u;
+                 now rewrite id_left]).
+Defined.
+
 Section map.
 
 Context {C D : category} (F : functor C D).
