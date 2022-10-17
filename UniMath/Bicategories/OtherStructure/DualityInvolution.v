@@ -6,6 +6,7 @@
  2. Counit of duality involution
  3. Laws of duality involutions
  4. Duality involutions
+ 5. Accessors for duality involutions
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -480,10 +481,10 @@ Definition duality_involution
   := ∑ (d : duality_involution_data L),
      duality_involution_laws d.
 
-Definition duality_involution_to_data
-           {B : bicat}
-           {L : psfunctor (op2_bicat B) B}
-           (d : duality_involution L)
+Coercion duality_involution_to_data
+         {B : bicat}
+         {L : psfunctor (op2_bicat B) B}
+         (d : duality_involution L)
   : duality_involution_data L
   := pr1 d.
 
@@ -493,3 +494,63 @@ Definition duality_involution_to_laws
            (d : duality_involution L)
   : duality_involution_laws (duality_involution_to_data d)
   := pr2 d.
+
+(**
+ 5. Accessors for duality involutions
+ *)
+Section DualityInvolutionAccessors.
+  Context {B : bicat}
+          (L : psfunctor (op2_bicat B) B)
+          (HL : duality_involution L).
+
+  Let R : psfunctor B (op2_bicat B) := op2_psfunctor L.
+  Let ε : pstrans (comp_psfunctor R L) (id_psfunctor _) := duality_counit HL.
+
+  Definition duality_transpose
+             {x y : B}
+             (f : x --> L y)
+    : L x --> y
+    := #L f · ε y.
+
+  Definition duality_transpose_cell
+             {x y : B}
+             {f₁ f₂ : x --> L y}
+             (τ : f₂ ==> f₁)
+    : duality_transpose f₁ ==> duality_transpose f₂
+    := ##L τ ▹ ε y.
+
+  Definition duality_transpose_functor_data
+             (x y : B)
+    : functor_data
+        (@hom (op2_bicat B) x (L y))
+        (hom (L x) y).
+  Proof.
+    use make_functor_data.
+    - exact duality_transpose.
+    - exact (λ _ _ τ, duality_transpose_cell τ).
+  Defined.
+
+  Definition duality_transpose_is_functor
+             (x y : B)
+    : is_functor (duality_transpose_functor_data x y).
+  Proof.
+    split.
+    - intro f ; cbn.
+      refine (_ @ id2_rwhisker _ _).
+      apply maponpaths.
+      apply (psfunctor_id2 L).
+    - intros f₁ f₂ f₃ τ₁ τ₂ ; cbn.
+      refine (_ @ !(rwhisker_vcomp _ _ _)).
+      apply maponpaths.
+      apply (psfunctor_vcomp L).
+  Qed.
+
+  Definition duality_transpose_functor
+             (x y : B)
+    : @hom (op2_bicat B) x (L y) ⟶ hom (L x) y.
+  Proof.
+    use make_functor.
+    - exact (duality_transpose_functor_data x y).
+    - exact (duality_transpose_is_functor x y).
+  Defined.
+End DualityInvolutionAccessors.

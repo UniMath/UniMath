@@ -10,7 +10,7 @@ Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Algebra.DivisionRig.
-Require Import UniMath.Algebra.Lattice.
+Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.

@@ -91,7 +91,7 @@ Definition is_cont {C D : category} (F : functor C D) : UU :=
 
 Definition is_omega_cont {C D : category} (F : functor C D) : UU :=
   ∏ (c : cochain C) (L : C) (cc : cone c L),
-  preserves_limit F c L cc.
+    preserves_limit F c L cc.
 
 Definition omega_cont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cont F.

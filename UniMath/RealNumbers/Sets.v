@@ -11,7 +11,7 @@ Require Import UniMath.MoreFoundations.Orders.
 
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness
-               UniMath.Algebra.Lattice.
+               UniMath.Algebra.Lattice.Lattice.
 
 (** ** Additional definitions *)
 
