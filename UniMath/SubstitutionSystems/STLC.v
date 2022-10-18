@@ -20,32 +20,18 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Slice.
-Require Import UniMath.CategoryTheory.Chains.Chains.
-Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
-Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
-Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 
