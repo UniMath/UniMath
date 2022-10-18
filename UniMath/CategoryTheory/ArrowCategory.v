@@ -29,12 +29,12 @@ Section Defn.
       + exact (∑ (a : ob C × ob C), dirprod_pr1 a --> dirprod_pr2 a).
       + intros x y.
         (** The commutative square
-            <<
+<<
               pr1 x   --->   pr1 y
                 |             |
                 |             |
             pr1 pr2 x ---> pr1 pr2 y
-            >>
+>>
          *)
         exact (∑ fg : dirprod_pr1 (pr1 x) --> dirprod_pr1 (pr1 y) ×
                       dirprod_pr2 (pr1 x) --> dirprod_pr2 (pr1 y),
@@ -46,13 +46,13 @@ Section Defn.
       exists (make_dirprod (dirprod_pr1 (pr1 f) · dirprod_pr1 (pr1 g))
                      (dirprod_pr2 (pr1 f) · dirprod_pr2 (pr1 g))).
       (** Composing commutative squares
-          <<
+<<
             pr1 x   --->   pr1 y    --->   pr1 z
               |             |                |
               |      f      |        g       |
               |             |                |
           pr1 pr2 x ---> pr1 pr2 y  ---> pr1 pr2 z
-          >>
+>>
         *)
       cbn.
       refine (assoc _ _ _ @ _).
@@ -94,25 +94,25 @@ Section Defn.
     Context {C : category}
             {x y : arrow_category C}
             (f : x --> y)
-            (Hf1 : is_iso (pr11 f))
-            (Hf2 : is_iso (pr21 f)).
+            (Hf1 : is_z_isomorphism (pr11 f))
+            (Hf2 : is_z_isomorphism (pr21 f)).
 
     Definition inv_arrow
       : y --> x.
     Proof.
-      refine ((inv_from_iso (make_iso _ Hf1) ,, inv_from_iso (make_iso _ Hf2)) ,, _).
+      refine ((inv_from_z_iso (_,, Hf1) ,, inv_from_z_iso (_,, Hf2)) ,, _).
       abstract
         (cbn ;
          refine (!_) ;
-         use iso_inv_on_left ;
+         use z_iso_inv_on_left ;
          rewrite assoc' ;
          refine (!_) ;
-         use iso_inv_on_right ;
+         use z_iso_inv_on_right ;
          cbn ;
          exact (pr2 f)).
     Defined.
 
-    Lemma is_iso_arrow_left_inv
+    Lemma is_z_iso_arrow_left_inv
       : f · inv_arrow = identity x.
     Proof.
       use subtypePath.
@@ -121,11 +121,11 @@ Section Defn.
         apply homset_property.
       }
       use pathsdirprod ; cbn.
-      - exact (iso_inv_after_iso (make_iso _ Hf1)).
-      - exact (iso_inv_after_iso (make_iso _ Hf2)).
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf1)).
+      - exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf2)).
     Qed.
 
-    Lemma is_iso_arrow_right_inv
+    Lemma is_z_iso_arrow_right_inv
       : inv_arrow · f = identity y.
     Proof.
       use subtypePath.
@@ -134,18 +134,17 @@ Section Defn.
         apply homset_property.
       }
       use pathsdirprod ; cbn.
-      - exact (iso_after_iso_inv (make_iso _ Hf1)).
-      - exact (iso_after_iso_inv (make_iso _ Hf2)).
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf1)).
+      - exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf2)).
     Qed.
 
-    Definition is_iso_arrow
-      : is_iso f.
+    Definition is_z_iso_arrow
+      : is_z_isomorphism f.
     Proof.
-      use is_iso_qinv.
-      - exact inv_arrow.
-      - split.
-        + exact is_iso_arrow_left_inv.
-        + exact is_iso_arrow_right_inv.
+      exists inv_arrow.
+      split.
+      - exact is_z_iso_arrow_left_inv.
+      - exact is_z_iso_arrow_right_inv.
     Defined.
   End IsIsoArrow.
 End Defn.
@@ -162,7 +161,7 @@ Section ArrowCategoryEquivCommaCategory.
     use make_functor_data.
     - exact (λ f, f).
     - cbn.
-      exact (λ f g p, pr1 p ,, !(pr2 p)).
+      exact (λ f g p, p).
   Defined.
 
   Definition arrow_category_to_comma_category_is_functor
@@ -193,7 +192,7 @@ Section ArrowCategoryEquivCommaCategory.
     use make_functor_data.
     - exact (λ f, f).
     - cbn.
-      exact (λ f g p, pr1 p ,, !(pr2 p)).
+      exact (λ f g p, p).
   Defined.
 
   Definition comma_category_to_arrow_category_is_functor
@@ -338,12 +337,12 @@ Section ArrowCategoryEquivCommaCategory.
     - exact arrow_category_comma_category_adjunction.
     - split.
       + intro ; cbn.
-        use is_iso_arrow.
-        * apply identity_is_iso.
-        * apply identity_is_iso.
+        use is_z_iso_arrow.
+        * apply identity_is_z_iso.
+        * apply identity_is_z_iso.
       + intro ; cbn.
-        use is_iso_comma.
-        * apply identity_is_iso.
-        * apply identity_is_iso.
+        use is_z_iso_comma.
+        * apply identity_is_z_iso.
+        * apply identity_is_z_iso.
   Defined.
 End ArrowCategoryEquivCommaCategory.

@@ -29,7 +29,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 
 Local Open Scope cat.
@@ -369,7 +369,7 @@ Section DispMapSliceBicat.
   Proof.
     use make_weq.
     - exact (disp_map_slice_inv2cell_to_disp_adj_equiv HB).
-    - use gradth.
+    - use isweq_iso.
       + exact disp_map_slice_disp_adj_equiv_to_inv2cell.
       + abstract
           (intros α ;
@@ -761,43 +761,50 @@ Proof.
     exact HD₂.
 Defined.
 
+Definition discrete_disp_map_slice
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {D : arrow_subbicat B}
+           (HD₁ : arrow_subbicat_props D)
+           (HD₂ : contained_in_discrete D)
+           (b : B)
+  : category
+  := discrete_bicat_to_category
+       (is_discrete_disp_map_slice HB HD₁ HD₂ b).
+
 (**
  7. Instantiations
  *)
 Definition sfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (b : B)
   : bicat
   := disp_map_slice_bicat (sfib_subbicat B) b.
 
 Definition sopfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (b : B)
   : bicat
   := disp_map_slice_bicat (sopfib_subbicat B) b.
 
 Definition disc_sfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
-  := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sfib_disp_map_bicat B) b)
-       (is_discrete_disp_map_slice
-          HB
-          (discrete_sfib_subbicat_props B HB)
-          (discrete_sfib_disp_map_bicat_in_discrete B)
-          b).
+  := discrete_disp_map_slice
+       HB
+       (discrete_sfib_subbicat_props B HB)
+       (discrete_sfib_disp_map_bicat_in_discrete B)
+       b.
 
 Definition disc_sopfib_slice
-           {B : bicat_with_pb}
+           {B : bicat}
            (HB : is_univalent_2_1 B)
            (b : B)
   : category
-  := @discrete_bicat_to_category
-       (disp_map_slice_bicat (discrete_sopfib_disp_map_bicat B) b)
-       (is_discrete_disp_map_slice
-          HB
-          (discrete_sopfib_subbicat_props B HB)
-          (discrete_sopfib_disp_map_bicat_in_discrete B)
-          b).
+  := discrete_disp_map_slice
+       HB
+       (discrete_sopfib_subbicat_props B HB)
+       (discrete_sopfib_disp_map_bicat_in_discrete B)
+       b.

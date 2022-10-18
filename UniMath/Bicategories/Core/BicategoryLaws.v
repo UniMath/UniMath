@@ -1,10 +1,10 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
-Local Open Scope bicategory_scope.
+
 Local Open Scope cat.
 
 Section laws.
@@ -524,3 +524,39 @@ Section laws.
   Qed.
 
 End laws.
+
+Lemma inverse_pentagon_7
+      {B : bicat}
+      {v w x y z : B}
+      (k : y --> z) (h : x --> y)
+      (g : w --> x) (f : v --> w)
+  : lassociator (f · g) h k • (rassociator f g h ▹ k)
+    =
+    rassociator f g (h · k) • (f ◃ lassociator g h k) • lassociator f (g · h) k.
+Proof.
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  cbn.
+  rewrite !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  cbn.
+  rewrite <- lassociator_lassociator.
+  rewrite !vassocl.
+  apply idpath.
+Qed.
+
+Lemma pentagon_6
+      {B : bicat}
+      {v w x y z : B}
+      (k : y --> z) (h : x --> y)
+      (g : w --> x) (f : v --> w)
+  : lassociator f (g · h) k • (lassociator f g h ▹ k)
+    =
+    (f ◃ rassociator g h k) • lassociator f g (h · k) • lassociator (f · g) h k.
+Proof.
+  rewrite !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  cbn.
+  rewrite !vassocr.
+  rewrite <- lassociator_lassociator.
+  apply idpath.
+Qed.

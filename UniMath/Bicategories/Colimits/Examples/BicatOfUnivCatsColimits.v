@@ -6,6 +6,7 @@
  1. Initial object
  2. Coproducts
  3. Extensivity
+ 4. Kleisli objects
 
  *********************************************************************************)
 
@@ -17,25 +18,39 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.categories.KleisliCategory.
 Require Import UniMath.CategoryTheory.CategorySum.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
+Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
 Require Import UniMath.Bicategories.Colimits.Initial.
 Require Import UniMath.Bicategories.Colimits.Coproducts.
 Require Import UniMath.Bicategories.Colimits.Extensive.
+Require Import UniMath.Bicategories.Colimits.KleisliObjects.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInOp1Bicat.
 
 Local Open Scope cat.
 
@@ -68,9 +83,9 @@ Proof.
   - exact (functor_from_empty _).
   - apply nat_trans_to_empty.
   - exact (nat_trans_from_empty _ _).
-  - use is_nat_iso_to_is_invertible_2cell.
-    apply nat_trans_to_empty_is_nat_iso.
-  - use is_nat_iso_to_is_invertible_2cell.
+  - use is_nat_z_iso_to_is_invertible_2cell.
+    apply nat_trans_to_empty_is_nat_z_iso.
+  - use is_nat_z_iso_to_is_invertible_2cell.
     intro z.
     apply (fromempty z).
 Defined.
@@ -99,12 +114,12 @@ Section BincoprodUMP.
     - exact (sum_of_functors
                (bincoprod_cocone_inl Q)
                (bincoprod_cocone_inr Q)).
-    - use nat_iso_to_invertible_2cell.
-      exact (sum_of_functor_inl_nat_iso
+    - use nat_z_iso_to_invertible_2cell.
+      exact (sum_of_functor_inl_nat_z_iso
                (bincoprod_cocone_inl Q)
                (bincoprod_cocone_inr Q)).
-    - use nat_iso_to_invertible_2cell.
-      exact (sum_of_functor_inr_nat_iso
+    - use nat_z_iso_to_invertible_2cell.
+      exact (sum_of_functor_inr_nat_z_iso
                (bincoprod_cocone_inl Q)
                (bincoprod_cocone_inr Q)).
   Defined.
@@ -228,11 +243,11 @@ Section DisjointCoproducts.
     Defined.
 
     Definition bicat_of_univ_cats_inl_inr_1cell_pr1
-      : nat_iso
+      : nat_z_iso
           (bicat_of_univ_cats_inl_inr_1cell_functor · comma_cone_pr1 R)
           (comma_cone_pr1 Q).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact bicat_of_univ_cats_inl_inr_1cell_pr1_nat_trans.
       - intro q.
         exact (fromempty (pr1 (comma_cone_cell Q) q)).
@@ -252,11 +267,11 @@ Section DisjointCoproducts.
     Defined.
 
     Definition bicat_of_univ_cats_inl_inr_1cell_pr2
-      : nat_iso
+      : nat_z_iso
           (bicat_of_univ_cats_inl_inr_1cell_functor · comma_cone_pr2 R)
           (comma_cone_pr2 Q).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact bicat_of_univ_cats_inl_inr_1cell_pr2_nat_trans.
       - intro q.
         exact (fromempty (pr1 (comma_cone_cell Q) q)).
@@ -267,9 +282,9 @@ Section DisjointCoproducts.
     Proof.
       use make_comma_1cell.
       + exact bicat_of_univ_cats_inl_inr_1cell_functor.
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact bicat_of_univ_cats_inl_inr_1cell_pr1.
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact bicat_of_univ_cats_inl_inr_1cell_pr2.
       + abstract
           (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -366,11 +381,11 @@ Section DisjointCoproducts.
     Defined.
 
     Definition bicat_of_univ_cats_inr_inl_1cell_pr1
-      : nat_iso
+      : nat_z_iso
           (bicat_of_univ_cats_inr_inl_1cell_functor · comma_cone_pr1 R')
           (comma_cone_pr1 Q).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact bicat_of_univ_cats_inr_inl_1cell_pr1_nat_trans.
       - intro q.
         exact (fromempty (pr1 (comma_cone_cell Q) q)).
@@ -390,11 +405,11 @@ Section DisjointCoproducts.
     Defined.
 
     Definition bicat_of_univ_cats_inr_inl_1cell_pr2
-      : nat_iso
+      : nat_z_iso
           (bicat_of_univ_cats_inr_inl_1cell_functor · comma_cone_pr2 R')
           (comma_cone_pr2 Q).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact bicat_of_univ_cats_inr_inl_1cell_pr2_nat_trans.
       - intro q.
         exact (fromempty (pr1 (comma_cone_cell Q) q)).
@@ -405,9 +420,9 @@ Section DisjointCoproducts.
     Proof.
       use make_comma_1cell.
       + exact bicat_of_univ_cats_inr_inl_1cell_functor.
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact bicat_of_univ_cats_inr_inl_1cell_pr1.
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact bicat_of_univ_cats_inr_inl_1cell_pr2.
       + abstract
           (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -475,7 +490,7 @@ Section UniversalCoproducts.
     Local Definition pb_of_sum_cats_ob
           {z : pr1 Z}
           {q : pr111 (bincoprod_of ∁ C₁ C₂)}
-          (i : iso q (pr1 F z))
+          (i : z_iso q (pr1 F z))
       : pr11 W.
     Proof.
       induction q as [ x | y ].
@@ -492,8 +507,8 @@ Section UniversalCoproducts.
           (f : z₁ --> z₂)
           {q₁ q₂ : pr111 (bincoprod_of ∁ C₁ C₂)}
           (g : q₁ --> q₂)
-          (i₁ : iso q₁ (pr1 F z₁))
-          (i₂ : iso q₂ (pr1 F z₂))
+          (i₁ : z_iso q₁ (pr1 F z₁))
+          (i₂ : z_iso q₂ (pr1 F z₂))
           (p : g · i₂ = i₁ · # (pr1 F) f)
       : H₀ i₁ --> H₀ i₂.
     Proof.
@@ -514,8 +529,8 @@ Section UniversalCoproducts.
           {q₁ q₂ : pr111 (bincoprod_of ∁ C₁ C₂)}
           {g₁ g₂ : q₁ --> q₂}
           (p : g₁ = g₂)
-          (i₁ : iso q₁ (pr1 F z₁))
-          (i₂ : iso q₂ (pr1 F z₂))
+          (i₁ : z_iso q₁ (pr1 F z₁))
+          (i₂ : z_iso q₂ (pr1 F z₂))
           (r₁ : g₁ · i₂ = i₁ · # (pr1 F) f)
           (r₂ : g₂ · i₂ = i₁ · # (pr1 F) f)
       : H₁ f g₁ i₁ i₂ r₁
@@ -531,9 +546,9 @@ Section UniversalCoproducts.
       : functor_data (pr1 Z) (pr11 W).
     Proof.
       use make_functor_data.
-      - exact (λ z, H₀ (identity_iso (pr1 F z))).
+      - exact (λ z, H₀ (identity_z_iso (pr1 F z))).
       - refine (λ z₁ z₂ f,
-                H₁ f (#(pr1 F) f) (identity_iso _) (identity_iso _) _).
+                H₁ f (#(pr1 F) f) (identity_z_iso _) (identity_z_iso _) _).
         abstract
           (rewrite id_left, id_right ;
            apply idpath).
@@ -542,7 +557,7 @@ Section UniversalCoproducts.
     Local Lemma pb_of_sum_cats_id
           (z : pr1 Z)
           (q : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i : iso q (pr1 F z))
+          (i : z_iso q (pr1 F z))
           (p : id₁ q · i = i · # (pr1 F) (id₁ z))
       : H₁ (identity z) (identity q) i i p
         =
@@ -572,9 +587,9 @@ Section UniversalCoproducts.
           {q₁ q₂ q₃ : pr111 (bincoprod_of ∁ C₁ C₂)}
           (ff : q₁ --> q₂)
           (gg : q₂ --> q₃)
-          (i₁ : iso q₁ (pr1 F z₁))
-          (i₂ : iso q₂ (pr1 F z₂))
-          (i₃ : iso q₃ (pr1 F z₃))
+          (i₁ : z_iso q₁ (pr1 F z₁))
+          (i₂ : z_iso q₂ (pr1 F z₂))
+          (i₃ : z_iso q₃ (pr1 F z₃))
           (p₁ : ff · gg · i₃ = i₁ · # (pr1 F) (f · g))
           (p₂ : ff · i₂ = i₁ · # (pr1 F) f)
           (p₃ : gg · i₃ = i₂ · # (pr1 F) g)
@@ -606,7 +621,7 @@ Section UniversalCoproducts.
     Proof.
       split.
       - intro z ; cbn.
-        simple refine (_ @ pb_of_sum_cats_id z (pr1 F z) (identity_iso _) _).
+        simple refine (_ @ pb_of_sum_cats_id z (pr1 F z) (identity_z_iso _) _).
         + use pb_of_sum_cats_mor_eq.
           apply functor_id.
         + exact (id_left _ @ !(functor_id _ _) @ !(id_left _)).
@@ -629,8 +644,8 @@ Section UniversalCoproducts.
     Local Definition pb_of_cats_iso_mor
           (z : pr1 Z)
           (q₁ q₂ : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i₁ : iso q₁ (pr1 F z))
-          (i₂ : iso q₂ (pr1 F z))
+          (i₁ : z_iso q₁ (pr1 F z))
+          (i₂ : z_iso q₂ (pr1 F z))
           (k : q₁ --> q₂)
           (p : k · i₂ = i₁)
       : H₀ i₁ --> H₀ i₂.
@@ -645,9 +660,9 @@ Section UniversalCoproducts.
            refine (_ @ !(id_right _)) ;
            exact p).
       - apply fromempty.
-        exact (pr1 i₁ · inv_from_iso i₂).
+        exact (pr1 i₁ · inv_from_z_iso i₂).
       - apply fromempty.
-        exact (pr1 i₁ · inv_from_iso i₂).
+        exact (pr1 i₁ · inv_from_z_iso i₂).
       - cbn.
         refine (#(pr1 (bincoprod_cocone_inr W)) _).
         simple refine ((k ,, identity _) ,, _).
@@ -658,59 +673,59 @@ Section UniversalCoproducts.
            exact p).
     Defined.
 
-    Local Definition pb_of_cats_is_iso
+    Local Definition pb_of_cats_is_z_iso
           (z : pr1 Z)
           (q₁ q₂ : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i₁ : iso q₁ (pr1 F z))
-          (i₂ : iso q₂ (pr1 F z))
-          (k : iso q₁ q₂)
+          (i₁ : z_iso q₁ (pr1 F z))
+          (i₂ : z_iso q₂ (pr1 F z))
+          (k : z_iso q₁ q₂)
           (p : pr1 k · i₂ = i₁)
-      : is_iso (pb_of_cats_iso_mor z q₁ q₂ i₁ i₂ k p).
+      : is_z_isomorphism (pb_of_cats_iso_mor z q₁ q₂ i₁ i₂ k p).
     Proof.
       induction q₁ as [ x₁ | y₁ ] ; induction q₂ as [ x₂ | y₂ ].
-      - use functor_on_is_iso_is_iso.
-        use is_iso_iso_comma.
+      - use functor_on_is_z_isomorphism.
+        use is_z_iso_iso_comma.
         + cbn.
-          use is_iso_qinv ; [ | split ].
-          * exact (inv_from_iso k).
-          * apply (iso_inv_after_iso k).
-          * apply (iso_after_iso_inv k).
+          use tpair; [ | split ].
+          * exact (inv_from_z_iso k).
+          * apply (z_iso_inv_after_z_iso k).
+          * apply (z_iso_after_z_iso_inv k).
         + cbn.
-          apply identity_is_iso.
+          apply identity_is_z_iso.
       - apply fromempty.
-        exact (pr1 i₁ · inv_from_iso i₂).
+        exact (pr1 i₁ · inv_from_z_iso i₂).
       - apply fromempty.
-        exact (pr1 i₁ · inv_from_iso i₂).
-      - use functor_on_is_iso_is_iso.
-        use is_iso_iso_comma.
+        exact (pr1 i₁ · inv_from_z_iso i₂).
+      - use functor_on_is_z_isomorphism.
+        use is_z_iso_iso_comma.
         + cbn.
-          use is_iso_qinv ; [ | split ].
-          * exact (inv_from_iso k).
-          * apply (iso_inv_after_iso k).
-          * apply (iso_after_iso_inv k).
+          use tpair; [ | split ].
+          * exact (inv_from_z_iso k).
+          * apply (z_iso_inv_after_z_iso k).
+          * apply (z_iso_after_z_iso_inv k).
         + cbn.
-          apply identity_is_iso.
+          apply identity_is_z_iso.
     Defined.
 
-    Local Definition pb_of_sum_cats_iso
+    Local Definition pb_of_sum_cats_z_iso
           (z : pr1 Z)
           (q : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i : iso q (pr1 F z))
-      : iso (H₀ (identity_iso (pr1 F z))) (H₀ i).
+          (i : z_iso q (pr1 F z))
+      : z_iso (H₀ (identity_z_iso (pr1 F z))) (H₀ i).
     Proof.
-      use make_iso.
+      use make_z_iso'.
       - use pb_of_cats_iso_mor.
-        + exact (iso_inv_from_iso i).
+        + exact (z_iso_inv_from_z_iso i).
         + simpl.
-          exact (iso_after_iso_inv i).
-      - apply pb_of_cats_is_iso.
+          exact (z_iso_after_z_iso_inv i).
+      - apply pb_of_cats_is_z_iso.
     Defined.
 
     Local Definition pb_of_sum_cats_inl_data
       : nat_trans_data
           (κ₁ ∙ pb_of_sum_cats)
           (pr1 (bincoprod_cocone_inl W))
-      := λ z, pb_of_sum_cats_iso (pr21 z) _ (pr2 z).
+      := λ z, pb_of_sum_cats_z_iso (pr21 z) _ (pr2 z).
 
     Local Lemma pb_of_sum_cats_nat_trans_help
           {z₁ z₂ : pr1 Z}
@@ -719,10 +734,10 @@ Section UniversalCoproducts.
           (g₁ : q₁ --> q₂)
           (g₂ : q₂ --> q₃)
           (g₃ : q₃ --> q₄)
-          (i₁ : iso q₁ (pr1 F z₁))
-          (i₂ : iso q₂ (pr1 F z₁))
-          (i₃ : iso q₃ (pr1 F z₂))
-          (i₄ : iso q₄ (pr1 F z₂))
+          (i₁ : z_iso q₁ (pr1 F z₁))
+          (i₂ : z_iso q₂ (pr1 F z₁))
+          (i₃ : z_iso q₃ (pr1 F z₂))
+          (i₄ : z_iso q₄ (pr1 F z₂))
           (p₁ : g₁ · i₂ = i₁)
           (p₂ : g₃ · i₄ = i₃)
           (r₁ : g₁ · g₂ · i₃ = i₁ · # (pr1 F) f)
@@ -776,31 +791,31 @@ Section UniversalCoproducts.
       simple refine (maponpaths (λ z, z · _) _
                      @ pb_of_sum_cats_nat_trans_help
                          (pr21 f)
-                         (inv_from_iso (pr2 x))
+                         (inv_from_z_iso (pr2 x))
                          (pr12 x · # (pr1 F) (pr21 f))
-                         (inv_from_iso (pr2 y))
-                         (identity_iso (pr1 F (pr21 x)))
+                         (inv_from_z_iso (pr2 y))
+                         (identity_z_iso (pr1 F (pr21 x)))
                          (pr2 x)
-                         (identity_iso (pr1 F (pr21 y)))
+                         (identity_z_iso (pr1 F (pr21 y)))
                          (pr2 y)
-                         (iso_after_iso_inv _)
-                         (iso_after_iso_inv _)
+                         (z_iso_after_z_iso_inv _)
+                         (z_iso_after_z_iso_inv _)
                          _
                          _
                      @ maponpaths (λ z, _ · z) _).
       - use pb_of_sum_cats_mor_eq.
         rewrite !assoc.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         rewrite id_left.
         apply idpath.
       - abstract
           (rewrite id_left, id_right ;
            rewrite assoc ;
-           rewrite iso_after_iso_inv ;
+           rewrite z_iso_after_z_iso_inv ;
            apply id_left).
       - abstract
           (rewrite !assoc' ;
-           rewrite iso_after_iso_inv ;
+           rewrite z_iso_after_z_iso_inv ;
            rewrite id_right ;
            apply idpath).
       - use pb_of_sum_cats_mor_eq.
@@ -812,7 +827,7 @@ Section UniversalCoproducts.
           exact (!p).
         }
         rewrite !assoc'.
-        rewrite iso_inv_after_iso.
+        rewrite z_iso_inv_after_z_iso.
         apply id_right.
     Qed.
 
@@ -825,21 +840,21 @@ Section UniversalCoproducts.
     Defined.
 
     Local Definition pb_of_sum_cats_inl
-      : nat_iso
+      : nat_z_iso
           (κ₁ ∙ pb_of_sum_cats)
           (bincoprod_cocone_inl W).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact pb_of_sum_cats_inl_nat_trans.
       - intro.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
 
     Local Definition pb_of_sum_cats_inr_data
       : nat_trans_data
           (κ₂ ∙ pb_of_sum_cats)
           (pr1 (bincoprod_cocone_inr W))
-      := λ z, pb_of_sum_cats_iso (pr21 z) _ (pr2 z).
+      := λ z, pb_of_sum_cats_z_iso (pr21 z) _ (pr2 z).
 
     Local Lemma pb_of_sum_cats_inr_is_nat_trans
       : is_nat_trans _ _ pb_of_sum_cats_inr_data.
@@ -849,31 +864,31 @@ Section UniversalCoproducts.
       simple refine (maponpaths (λ z, z · _) _
                      @ pb_of_sum_cats_nat_trans_help
                          (pr21 f)
-                         (inv_from_iso (pr2 x))
+                         (inv_from_z_iso (pr2 x))
                          (pr12 x · # (pr1 F) (pr21 f))
-                         (inv_from_iso (pr2 y))
-                         (identity_iso (pr1 F (pr21 x)))
+                         (inv_from_z_iso (pr2 y))
+                         (identity_z_iso (pr1 F (pr21 x)))
                          (pr2 x)
-                         (identity_iso (pr1 F (pr21 y)))
+                         (identity_z_iso (pr1 F (pr21 y)))
                          (pr2 y)
-                         (iso_after_iso_inv _)
-                         (iso_after_iso_inv _)
+                         (z_iso_after_z_iso_inv _)
+                         (z_iso_after_z_iso_inv _)
                          _
                          _
                      @ maponpaths (λ z, _ · z) _).
       - use pb_of_sum_cats_mor_eq.
         rewrite !assoc.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         rewrite id_left.
         apply idpath.
       - abstract
           (rewrite id_left, id_right ;
            rewrite assoc ;
-           rewrite iso_after_iso_inv ;
+           rewrite z_iso_after_z_iso_inv ;
            apply id_left).
       - abstract
           (rewrite !assoc' ;
-           rewrite iso_after_iso_inv ;
+           rewrite z_iso_after_z_iso_inv ;
            rewrite id_right ;
            apply idpath).
       - use pb_of_sum_cats_mor_eq.
@@ -885,7 +900,7 @@ Section UniversalCoproducts.
           exact (!p).
         }
         rewrite !assoc'.
-        rewrite iso_inv_after_iso.
+        rewrite z_iso_inv_after_z_iso.
         apply id_right.
     Qed.
 
@@ -898,14 +913,14 @@ Section UniversalCoproducts.
     Defined.
 
     Local Definition pb_of_sum_cats_inr
-      : nat_iso
+      : nat_z_iso
           (κ₂ ∙ pb_of_sum_cats)
           (bincoprod_cocone_inr W).
     Proof.
-      use make_nat_iso.
+      use make_nat_z_iso.
       - exact pb_of_sum_cats_inr_nat_trans.
       - intro.
-        apply iso_is_iso.
+        apply z_iso_is_z_isomorphism.
     Defined.
   End UniversalCoproductsOne.
 
@@ -918,7 +933,7 @@ Section UniversalCoproducts.
     Local Definition pb_of_sum_cats_nat_trans_ob
           (z : pr1 Z)
           (q : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i : iso q (pr1 F z))
+          (i : z_iso q (pr1 F z))
       : pr1 φ z --> pr1 ψ z.
     Proof.
       induction q as [ x | y ].
@@ -928,15 +943,15 @@ Section UniversalCoproducts.
 
     Local Definition pb_of_sum_cats_nat_trans_data
       : nat_trans_data (pr1 φ) (pr1 ψ)
-      := λ z, pb_of_sum_cats_nat_trans_ob z (pr1 F z) (identity_iso _).
+      := λ z, pb_of_sum_cats_nat_trans_ob z (pr1 F z) (identity_z_iso _).
 
     Local Definition pb_of_sum_cats_is_nat_trans_help
           {z₁ z₂ : pr1 Z}
           (f : z₁ --> z₂)
           {q₁ q₂ : pr111 (bincoprod_of ∁ C₁ C₂)}
           (g : q₁ --> q₂)
-          (i₁ : iso q₁ (pr1 F z₁))
-          (i₂ : iso q₂ (pr1 F z₂))
+          (i₁ : z_iso q₁ (pr1 F z₁))
+          (i₂ : z_iso q₂ (pr1 F z₂))
           (p : g · i₂ = i₁ · # (pr1 F) f)
       : # (pr1 φ) f · pb_of_sum_cats_nat_trans_ob _ _ i₂
         =
@@ -948,8 +963,8 @@ Section UniversalCoproducts.
                  ((x₁ ,, z₁) ,, i₁)
                  ((x₂ ,, z₂) ,, i₂)
                  ((g ,, _) ,, p)).
-      - exact (fromempty (i₁ · # (pr1 F) f · inv_from_iso i₂)).
-      - exact (fromempty (i₁ · # (pr1 F) f · inv_from_iso i₂)).
+      - exact (fromempty (i₁ · # (pr1 F) f · inv_from_z_iso i₂)).
+      - exact (fromempty (i₁ · # (pr1 F) f · inv_from_z_iso i₂)).
       - exact (nat_trans_ax
                  β
                  ((y₁ ,, z₁) ,, i₁)
@@ -978,8 +993,8 @@ Section UniversalCoproducts.
     Local Lemma pb_of_sum_cats_nat_trans_ob_id
           (z : pr1 Z)
           (q : pr111 (bincoprod_of ∁ C₁ C₂))
-          (i : iso q (pr1 F z))
-      : pb_of_sum_cats_nat_trans_ob z _ (identity_iso _)
+          (i : z_iso q (pr1 F z))
+      : pb_of_sum_cats_nat_trans_ob z _ (identity_z_iso _)
         =
         pb_of_sum_cats_nat_trans_ob z q i.
     Proof.
@@ -1002,7 +1017,7 @@ Section UniversalCoproducts.
                 (identity z)
                 i
                 i
-                (identity_iso _)
+                (identity_z_iso _)
                 _).
       rewrite (functor_id F).
       rewrite !id_right.
@@ -1048,7 +1063,7 @@ Section UniversalCoproducts.
       }
       intro z ; cbn in z.
       pose (q := pr1 F z).
-      assert (i := identity_iso _ : iso q (pr1 F z)).
+      assert (i := identity_z_iso _ : z_iso q (pr1 F z)).
       induction q as [ x | y] ; cbn.
       - refine (nat_trans_eq_pointwise (pr12 τ₁) ((x ,, z) ,, i) @ !_).
         exact (nat_trans_eq_pointwise (pr12 τ₂) ((x ,, z) ,, i)).
@@ -1064,9 +1079,9 @@ Section UniversalCoproducts.
     - intro W.
       use make_bincoprod_1cell.
       + exact (pb_of_sum_cats W).
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact (pb_of_sum_cats_inl W).
-      + use nat_iso_to_invertible_2cell.
+      + use nat_z_iso_to_invertible_2cell.
         exact (pb_of_sum_cats_inr W).
     - intros W φ ψ α β.
       use iscontraprop1.
@@ -1094,4 +1109,97 @@ Proof.
     + apply has_pb_bicat_of_univ_cats.
     + intros Z F.
       exact (universal_bicat_of_univ_cats F).
+Defined.
+
+(**
+ 4. Kleisli objects
+ *)
+Section KleisliCategoryUMP.
+  Context (m : mnd (op1_bicat bicat_of_univ_cats)).
+
+  Let C : univalent_category := ob_of_mnd m.
+  Let M : Monad C := mnd_bicat_of_univ_cats_to_Monad (mnd_op1_to_mnd m).
+
+  Definition bicat_of_univ_cats_has_kleisli_cocone
+    : kleisli_cocone m.
+  Proof.
+    use make_kleisli_cocone.
+    - exact (univalent_kleisli_cat M).
+    - exact (kleisli_incl M).
+    - exact (kleisli_nat_trans M).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         use eq_mor_kleisli_cat ;
+         exact (@Monad_law2 _ M x)).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         use eq_mor_kleisli_cat ;
+         cbn ;
+         rewrite id_left ;
+         apply (!(@Monad_law3 _ M x))).
+  Defined.
+
+  Definition bicat_of_univ_cats_has_kleisli_ump_1
+    : has_kleisli_ump_1 m bicat_of_univ_cats_has_kleisli_cocone.
+  Proof.
+    intro q.
+    pose (F := mor_of_kleisli_cocone _ q).
+    pose (γ := cell_of_kleisli_cocone _ q).
+    pose (p₁ := nat_trans_eq_pointwise (kleisli_cocone_unit _ q)).
+    assert (p₂ : ∏ (x : C), pr1 γ (M x) · pr1 γ x = # (pr1 F) (μ M x) · pr1 γ x).
+    {
+      intro x.
+      pose (p₂ := nat_trans_eq_pointwise (kleisli_cocone_mult _ q) x).
+      cbn in p₂.
+      rewrite !id_left in p₂.
+      exact p₂.
+    }
+    use make_kleisli_cocone_mor.
+    - exact (functor_from_univalent_kleisli_cat M F γ p₁ p₂).
+    - exact (functor_from_univalent_kleisli_cat_nat_trans M F γ p₁ p₂).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         refine (_ @ maponpaths (λ z, z · _) (!(id_left _))) ;
+         exact (functor_from_univalent_kleisli_cat_eq M F γ p₁ p₂ x)).
+    - use is_nat_z_iso_to_is_invertible_2cell.
+      exact (functor_from_univalent_kleisli_cat_nat_trans_is_z_iso M F γ p₁ p₂).
+  Defined.
+
+  Definition bicat_of_univ_cats_has_kleisli_ump_2
+    : has_kleisli_ump_2 m bicat_of_univ_cats_has_kleisli_cocone.
+  Proof.
+    intros C' G₁ G₂ α p.
+    assert (p' : ∏ (x : C),
+                 # (pr1 G₁) (kleisli_nat_trans M x) · pr1 α x
+                 =
+                 pr1 α (M x) · # (pr1 G₂) (kleisli_nat_trans M x)).
+    {
+      intro x.
+      pose (q := nat_trans_eq_pointwise p x).
+      cbn in q.
+      rewrite !id_left, !id_right in q.
+      exact q.
+    }
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros β₁ β₂.
+      use subtypePath ; [ intro ; apply cellset_property | ].
+      exact (nat_trans_from_univalent_kleisli_cat_unique M α (pr2 β₁) (pr2 β₂)).
+    - simple refine (_ ,, _).
+      + exact (nat_trans_from_univalent_kleisli_cat M α p').
+      + exact (pre_whisker_nat_trans_from_univalent_kleisli_cat M α p').
+  Defined.
+End KleisliCategoryUMP.
+
+Definition bicat_of_univ_cats_has_kleisli
+  : has_kleisli bicat_of_univ_cats.
+Proof.
+  intro m.
+  simple refine (_ ,, _ ,, _).
+  - exact (bicat_of_univ_cats_has_kleisli_cocone m).
+  - exact (bicat_of_univ_cats_has_kleisli_ump_1 m).
+  - exact (bicat_of_univ_cats_has_kleisli_ump_2 m).
 Defined.

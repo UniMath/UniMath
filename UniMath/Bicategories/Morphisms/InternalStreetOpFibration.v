@@ -397,7 +397,7 @@ Definition internal_sopfib_weq_internal_sfib
 Proof.
   use make_weq.
   - exact internal_sfib_is_internal_sopfib.
-  - use gradth.
+  - use isweq_iso.
     + exact internal_sopfib_is_internal_sfib.
     + exact internal_sopfib_weq_internal_sfib_inv_left.
     + exact internal_sopfib_weq_internal_sfib_inv_right.
@@ -538,6 +538,33 @@ Proof.
   - exact q.
 Defined.
 
+Definition locally_grpd_internal_sopfib
+           {B : bicat}
+           (HB : locally_groupoid B)
+           {e b : B}
+           (p : e --> b)
+  : internal_sopfib p.
+Proof.
+  split.
+  - intros x f g α.
+    refine (f
+            ,,
+            id2 _
+            ,,
+            inv_of_invertible_2cell (make_invertible_2cell (HB _ _ _ _ α))
+            ,,
+            locally_grpd_opcartesian HB _ _
+            ,,
+            _).
+    abstract
+      (cbn ;
+       rewrite id2_rwhisker ;
+       rewrite vcomp_rinv ;
+       apply idpath).
+  - intro ; intros.
+    apply (locally_grpd_opcartesian HB).
+Defined.
+
 (**
  4. Morphisms of internal Street opfibrations
  *)
@@ -657,7 +684,25 @@ Proof.
     is_iso.
 Qed.
 
-Definition invertible_2cell_between_preserves_opcartesian
+Definition is_opcartesian_2cell_sopfib_inv2cell
+           {B : bicat}
+           {x e b : B}
+           {p p' : e --> b}
+           (α : invertible_2cell p p')
+           {f g : x --> e}
+           {β : f ==> g}
+           (Hβ : is_opcartesian_2cell_sopfib p β)
+  : is_opcartesian_2cell_sopfib p' β.
+Proof.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  use (is_cartesian_2cell_sfib_inv2cell
+         (inv_of_invertible_2cell
+            (weq_op2_invertible_2cell _ _ α))).
+  apply is_opcartesian_to_is_cartesian_sfib.
+  exact Hβ.
+Defined.
+
+Definition invertible_2cell_mor_between_preserves_opcartesian
            {B : bicat}
            {e₁ e₂ b₁ b₂ : B}
            {p₁ : e₁ --> b₁}
@@ -682,6 +727,25 @@ Proof.
     + use invertible_is_opcartesian_2cell_sopfib.
       is_iso.
       apply property_from_invertible_2cell.
+Defined.
+
+Definition invertible_2cell_between_preserves_opcartesian
+           {B : bicat}
+           {e₁ e₂ b₁ b₂ : B}
+           {p₁ p₁' : e₁ --> b₁}
+           {p₂ p₂' : e₂ --> b₂}
+           {fe fe' : e₁ --> e₂}
+           (α : invertible_2cell p₁ p₁')
+           (β : invertible_2cell p₂ p₂')
+           (γ : invertible_2cell fe fe')
+           (H : mor_preserves_opcartesian p₁ p₂ fe)
+  : mor_preserves_opcartesian p₁' p₂' fe'.
+Proof.
+  intros w h₁ h₂ ζ Hζ.
+  use (is_opcartesian_2cell_sopfib_inv2cell β).
+  use (invertible_2cell_mor_between_preserves_opcartesian γ H).
+  use (is_opcartesian_2cell_sopfib_inv2cell (inv_of_invertible_2cell α)).
+  exact Hζ.
 Defined.
 
 Definition locally_grpd_preserves_opcartesian

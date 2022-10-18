@@ -55,11 +55,11 @@ Definition po_category (PO : po X) : category
 Context (xisaset : isaset X).
 
 Lemma antisymm_po_category_isoiseq (PO : po X) {A B : (po_category PO)}
-  (poasymm : isantisymm PO) (isoAB : iso A B) : A = B.
+  (poasymm : isantisymm PO) (isoAB : z_iso A B) : A = B.
 Proof.
   apply poasymm.
-  apply (morphism_from_iso isoAB).
-  apply (inv_from_iso isoAB).
+  apply (z_iso_mor isoAB).
+  apply (inv_from_z_iso isoAB).
 Defined.
 
 
@@ -72,7 +72,7 @@ Proof.
     apply proofirrelevance.
     apply xisaset.
   - intro iso.
-    use eq_iso.
+    use z_iso_eq.
     apply proofirrelevance.
     apply propproperty.
 Defined.
@@ -83,8 +83,8 @@ Proof.
   split.
   - intros isuni a b relab relba.
     apply (isotoid _ isuni).
-    apply (@make_iso (po_precategory PO) _ _ relab).
-    apply (@is_iso_qinv (po_precategory PO) _ _  relab relba).
+    exists relab.
+    exists relba.
     apply make_is_inverse_in_precat; apply po_homsets_isaprop.
   - intro poasymm.
     intros ? ?.

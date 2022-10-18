@@ -111,15 +111,15 @@ Section cocont_iso.
 (* As this section is proving a proposition, the hypothesis can be weakened from a specified iso to
 F and G being isomorphic. *)
 Context {C D : category} {F G : functor C D}
-        (αiso : @iso [C, D] F G).
+        (αiso : @z_iso [C, D] F G).
 
 Section preserves_colimit_iso.
 
 Context {g : graph} (d : diagram g C) (L : C) (cc : cocone d L) (HF : preserves_colimit F d L cc).
 
-Let αinv := inv_from_iso αiso.
+Let αinv := inv_from_z_iso αiso.
 Let α := pr1 αiso.
-Let Hα : is_iso α := pr2 αiso.
+Let Hα : is_z_isomorphism α := pr2 αiso.
 
 Local Definition ccFy y (ccGy : cocone (mapdiagram G d) y) : cocone (mapdiagram F d) y.
 Proof.
@@ -138,7 +138,7 @@ eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|].
 rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc.
 eapply pathscomp0.
   apply cancel_postcomposition.
-  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C, D] _ _ (make_iso _ Hα))).
+  apply (nat_trans_eq_pointwise (@z_iso_after_z_iso_inv [C, D] _ _ (make_z_iso' _ Hα))).
 now rewrite id_left.
 Qed.
 
@@ -158,11 +158,11 @@ generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
 rewrite <- Htemp; simpl; rewrite assoc.
 eapply pathscomp0.
   apply cancel_postcomposition.
-  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C, D] _ _ (make_iso _ Hα))).
+  apply (nat_trans_eq_pointwise (@z_iso_after_z_iso_inv [C, D] _ _ (make_z_iso' _ Hα))).
 now apply id_left.
 Qed.
 
-Lemma preserves_colimit_iso  : preserves_colimit G d L cc.
+Lemma preserves_colimit_z_iso  : preserves_colimit G d L cc.
 Proof.
 intros HccL y ccGy.
 set (H := HF HccL y (ccFy y ccGy)).
@@ -177,14 +177,14 @@ Defined.
 
 End preserves_colimit_iso.
 
-Lemma is_cocont_iso : is_cocont F -> is_cocont G.
+Lemma is_cocont_z_iso : is_cocont F -> is_cocont G.
 Proof.
-now intros H g d c cc; apply (preserves_colimit_iso).
+now intros H g d c cc; apply (preserves_colimit_z_iso).
 Defined.
 
-Lemma is_omega_cocont_iso : is_omega_cocont F -> is_omega_cocont G.
+Lemma is_omega_cocont_z_iso : is_omega_cocont F -> is_omega_cocont G.
 Proof.
-now intros H g d c cc; apply (preserves_colimit_iso).
+now intros H g d c cc; apply (preserves_colimit_z_iso).
 Defined.
 
 End cocont_iso.
@@ -927,7 +927,7 @@ Variable omega_cocont_constprod_functor1 :
 Let omega_cocont_constprod_functor2 :
   ∏ x : C, is_omega_cocont (constprod_functor2 PC x).
 Proof.
-now intro x; apply (is_omega_cocont_iso (flip_iso PC x)).
+now intro x; apply (is_omega_cocont_z_iso (flip_z_iso PC x)).
 Defined.
 
 Local Definition fun_lt (cAB : chain (category_binproduct C C)) :
@@ -1444,7 +1444,8 @@ Proof.
     apply funextsec; intro x; cbn.
     now etrans; [apply maponpaths,
         (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
-  - intros z; apply impred_isaprop; intro n; apply setproperty.
+  - intro ; apply impred_isaprop.
+    intro ; apply homset_property.
   - simpl; intros f Hf.
     apply funextsec; intro l.
     transparent assert (k : (HSET/X⟦colim CC,c⟧)).
@@ -1456,7 +1457,7 @@ Proof.
     }
     assert (Hk : (∏ n, colimIn CC n · k = coconeIn cc n)).
     { intros n.
-      apply subtypePath; [intros x; apply setproperty|].
+      apply subtypePath; [intros x; apply homset_property|].
       apply funextsec; intro z.
       use total2_paths_f; [apply idpath|].
       now rewrite idpath_transportf; cbn; rewrite <- (toforallpaths _ _ _ (Hf n) z).

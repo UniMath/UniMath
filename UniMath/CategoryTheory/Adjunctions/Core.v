@@ -282,12 +282,12 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       + apply (pr2 H2).
   Defined.
 
-  Lemma is_left_adjoint_iso {A B : category}
-        (F G : functor A B) (αiso : @iso [A,B] F G) (HF : is_left_adjoint F) :
+  Lemma is_left_adjoint_z_iso {A B : category}
+        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
     is_left_adjoint G.
   Proof.
     set (α := pr1 αiso : nat_trans F G).
-    set (αinv := inv_from_iso αiso : nat_trans G F).
+    set (αinv := inv_from_z_iso αiso : nat_trans G F).
     destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
     use tpair.
     - apply F'.
@@ -306,13 +306,13 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
           rewrite assoc.
           etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                     apply maponpaths, HF1|].
-          now rewrite id_right; apply (nat_trans_eq_pointwise (iso_after_iso_inv αiso)).
+          now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
         * unfold triangle_2_statement in *.
           simpl; intro b; rewrite functor_comp, assoc.
           etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                     eapply maponpaths, pathsinv0, functor_comp|].
           etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
-                    (nat_trans_eq_pointwise (iso_inv_after_iso αiso))|].
+                    (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
           cbn. rewrite (functor_id F'), id_right. apply (HF2 b).
   Defined.
 
@@ -394,7 +394,7 @@ Proof.
      now rewrite HHH.
 Defined.
 
-Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
+Local Definition counit : nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
   * red. apply eps.
@@ -581,6 +581,51 @@ Proof.
 Defined.
 
 End postcomp.
+
+(** * Post-composition with a right adjoint is a right adjoint *)
+Section postcomp_right.
+
+Context {C D E : category}
+        (F : functor D E) (HF : is_right_adjoint F).
+
+Let G : functor E D := left_adjoint HF.
+Let H : are_adjoints G F := pr2 HF.
+Let ε : nat_trans (functor_composite F G) (functor_identity D) := counit_from_left_adjoint H.
+Let η : nat_trans (functor_identity E) (functor_composite G F) := unit_from_left_adjoint H.
+Check triangle_id_right_ad H.
+Let H1 : ∏ d : D, _ = identity (F d) := triangle_id_right_ad H.
+Let H2 : ∏ e : E, _ = identity (G e) := triangle_id_left_ad H.
+
+Lemma is_right_adjoint_post_composition_functor :
+  is_right_adjoint (post_composition_functor C D E F).
+Proof.
+  exists (post_composition_functor _ _ _ G).
+  use tpair.
+  - split.
+    + use make_nat_trans.
+      * simpl; intros F'. simpl in F'.
+        apply (nat_trans_comp _ _ _
+                              (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
+                                              (pre_whisker F' η))
+                              (nat_trans_functor_assoc_inv _ _ _)).
+      * abstract (intros F1 F2 α; apply (nat_trans_eq E); intro c; simpl in *;
+                    now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
+    + use make_nat_trans.
+      * simpl; intros F'. simpl in F'.
+        apply (nat_trans_comp _ _ _
+                              (nat_trans_functor_assoc _ _ _)
+                              (nat_trans_comp _ _ _ (pre_whisker F' ε)
+                                              (nat_trans_functor_id_left _))).
+      * abstract (intros F1 F2 α; apply (nat_trans_eq D); intro c; simpl in *;
+                    now rewrite !id_right, !id_left; apply (nat_trans_ax ε _ _ (α c))).
+  - abstract (split; simpl; intro F';
+              [ apply (nat_trans_eq D); simpl; intro c;
+                now rewrite !id_right, !id_left; apply H2
+              | apply (nat_trans_eq E); simpl; intro c;
+                now rewrite !id_left, !id_right; apply H1]).
+Defined.
+
+End postcomp_right.
 
 End adjunctions.
 
@@ -1066,11 +1111,11 @@ Section AdjunctionLemmas.
     - apply fullG.
   Qed.
 
-  Lemma counit_is_iso_if_right_adjoint_is_fully_faithful :
-    fully_faithful G -> ∏ x, is_iso (ε x).
+  Lemma counit_is_z_iso_if_right_adjoint_is_fully_faithful :
+    fully_faithful G -> ∏ x, is_z_isomorphism (ε x).
   Proof.
     intros ? ?.
-    apply merely_split_monic_is_epi_to_is_iso.
+    apply merely_split_monic_is_epi_to_is_z_iso.
     - apply counit_is_split_monic_if_right_adjoint_is_full.
       apply fully_faithful_implies_full_and_faithful; assumption.
     - apply counit_is_epi_if_right_adjoint_is_faithful.

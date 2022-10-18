@@ -8,14 +8,16 @@
  4. Fully faithful 1-cells are closed under invertible 2-cells
  5. Conservative 1-cells are closed under invertible 2-cells
  6. Discrete 1-cells are closed under invertible 2-cells
- 7. Internal Street fibrations are closed under invertible 2-cells
+ 7. Pseudomonic 1-cells are closed under invertible 2-cells
+ 8. Internal Street fibrations are closed under invertible 2-cells
+ 9. Adjunctions are closed under invertible 2-cells
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -170,7 +172,41 @@ Proof.
 Defined.
 
 (**
- 7. Internal Street fibrations are closed under invertible 2-cells
+ 7. Pseudomonic 1-cells are closed under invertible 2-cells
+ *)
+Definition pseudomonic_invertible
+           {B : bicat}
+           {a b : B}
+           {f₁ f₂ : a --> b}
+           (β : f₁ ==> f₂)
+           (Hβ : is_invertible_2cell β)
+           (Hf₁ : pseudomonic_1cell f₁)
+  : pseudomonic_1cell f₂.
+Proof.
+  use make_pseudomonic.
+  - apply (faithful_invertible β Hβ).
+    apply pseudomonic_1cell_faithful.
+    exact Hf₁.
+  - intros z g₁ g₂ αf Hαf.
+    simple refine (_ ,, _ ,, _).
+    + refine (pseudomonic_1cell_inv_map Hf₁ ((_ ◃ β) • αf • (_ ◃ Hβ^-1)) _).
+      is_iso.
+    + apply is_invertible_2cell_pseudomonic_1cell_inv_map.
+    + abstract
+        (simpl ;
+         use (vcomp_lcancel (_ ◃ β)) ; [ is_iso | ] ;
+         rewrite <- vcomp_whisker ;
+         rewrite pseudomonic_1cell_inv_map_eq ;
+         rewrite !vassocl ;
+         rewrite lwhisker_vcomp ;
+         rewrite vcomp_linv ;
+         rewrite lwhisker_id2 ;
+         rewrite id2_right ;
+         apply idpath).
+Defined.
+
+(**
+ 8. Internal Street fibrations are closed under invertible 2-cells
  *)
 Section Cartesian2CellInvertible.
   Context {B : bicat}
@@ -310,3 +346,109 @@ Section InvertibleFromInternalSFib.
     - exact lwhisker_is_cartesian_invertible.
   Defined.
 End InvertibleFromInternalSFib.
+
+(**
+ 9. Adjunctions are closed under invertible 2-cells
+ *)
+Section AdjunctionInvertible.
+  Context {B : bicat}
+          {x y : B}
+          {l l' : x --> y}
+          (α : invertible_2cell l l')
+          (Hl : left_adjoint l).
+
+  Let r : y --> x := left_adjoint_right_adjoint Hl.
+  Let η : id₁ x ==> l · r := left_adjoint_unit Hl.
+  Let ε : r · l ==> id₁ y := left_adjoint_counit Hl.
+
+  Let trl : linvunitor _ • (η ▹ _) • rassociator _ _ _ • (_ ◃ ε) • runitor _ = id₂ _
+      := pr12 Hl.
+  Let trr : rinvunitor _ • (_ ◃ η) • lassociator _ _ _ • (ε ▹ _) • lunitor _ = id₂ _
+      := pr22 Hl.
+
+  Definition left_adjoint_data_invertible
+    : left_adjoint_data l'
+    := r ,, (η • (α ▹ r) ,, (_ ◃ α^-1) • ε).
+
+  Definition left_adjoint_axioms_invertible
+    : left_adjoint_axioms left_adjoint_data_invertible.
+  Proof.
+    split ; cbn.
+    - rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        rewrite vcomp_runitor.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite lwhisker_hcomp.
+        rewrite <- linvunitor_natural.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      use vcomp_move_R_pM ; [ is_iso | ].
+      cbn.
+      rewrite id2_right.
+      refine (_ @ id2_left _).
+      rewrite !vassocr.
+      apply maponpaths_2.
+      exact trl.
+    - rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_rinv.
+        rewrite lwhisker_id2.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      exact trr.
+  Qed.
+
+  Definition left_adjoint_invertible
+    : left_adjoint l'
+    := left_adjoint_data_invertible ,, left_adjoint_axioms_invertible.
+End AdjunctionInvertible.

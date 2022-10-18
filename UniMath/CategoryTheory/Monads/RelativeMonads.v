@@ -174,7 +174,7 @@ Arguments RelMonad_data {C} {D} J.
 Arguments RelMonad {C} {D} J.
 
 
-(** analogue of [UniMath.CategoryTheory.functor_categories.functor_eq_eq_from_functor_ob_eq *)
+(** analogue of [UniMath.CategoryTheory.functor_categories.functor_eq_eq_from_functor_ob_eq] *)
 Definition relmonad_eq_eq_from_relmonad_ob_eq {C: precategory_data} {D: precategory} (hs: has_homsets D)
            {J : functor C D} (R R' : RelMonad J) (p q : R = R')
     (H : base_paths _ _ (base_paths _ _ p) =
@@ -457,9 +457,9 @@ End PrecategoryOfRelativeMonads.
 
 Section RelativeMonads_saturated.
 
-Definition relmonadmor_weq_nat_trans_fails {C : precategory_data} {D : precategory} (hs: has_homsets D)
-           (J : functor C D)(R R': RelMonad J) :
-  (precategory_RelMonad hs J ⟦R, R'⟧) ≃ [C, D, hs] ⟦R_functor R, R_functor R'⟧.
+  Definition relmonadmor_weq_nat_trans_fails {C : precategory_data} (D : category)
+    (J : functor C D) (R R': RelMonad J) :
+  (category_RelMonad D J ⟦R, R'⟧) ≃ [C, D] ⟦R_functor R, R_functor R'⟧.
 Proof.
   apply (make_weq nat_trans_RelMonadMor).
   use isweq_iso.
@@ -470,10 +470,10 @@ Proof.
 Abort.
 
 
-Definition relmonadmor_eq_type  {C : precategory_data} {D : precategory} (hs: has_homsets D)
+Definition relmonadmor_eq_type  {C : precategory_data} (D : category)
       (J : functor C D)(R R': RelMonad J) : UU
-  := ∑ p : iso (C := [C, D, hs]) (R_functor R) (R_functor R'),
-           RelMonadMor_axioms (nat_trans_data_from_nat_trans (morphism_from_iso p)).
+  := ∑ p : z_iso (C := [C, D]) (R_functor R) (R_functor R'),
+           RelMonadMor_axioms (nat_trans_data_from_nat_trans (morphism_from_z_iso _ _ p)).
 
 Definition relmonadmor_ob_eq  {C : precategory_data} {D : category} (H: is_univalent D)
       (J : functor C D)(R R': RelMonad J) :
@@ -486,184 +486,187 @@ Abort.
 
 
 (** better upstream *)
-Definition functor_iso_pointwise_if_iso' (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C')
- (F G : ob [C, C',hs]) (α: iso F G) :
+Definition functor_z_iso_pointwise_if_z_iso' (C : precategory_data) (C' : category)
+ (F G : ob [C, C']) (α: z_iso F G) :
      ∏ a : ob C,
-       iso (pr1 F a) (pr1 G a) :=
-  λ a, tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G (pr1 α) (pr2 α) a).
+       z_iso (pr1 F a) (pr1 G a) :=
+  λ a, tpair _ _ (is_functor_z_iso_pointwise_if_z_iso C C' _ F G (pr1 α) (pr2 α) a).
 
-Lemma idtoiso_functorcat_compute_pointwise' (C : precategory_data) (D : precategory)
-  (hs: has_homsets D) (F G : ob [C, D, hs])
-     (p : F = G) (a : ob C) :
-  functor_iso_pointwise_if_iso' C D _ F G (idtoiso p) a =
+Lemma idtoiso_functorcat_compute_pointwise' (C : precategory_data) (D : category)
+  (F G : ob [C, D]) (p : F = G) (a : ob C) :
+  functor_z_iso_pointwise_if_z_iso' C D F G (idtoiso p) a =
 idtoiso
   (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  apply eq_iso. apply idpath.
+  apply z_iso_eq. apply idpath.
 Qed.
 (** end of better upstream *)
 
 
 (** a rather trivial observation *)
-Definition is_iso_from_is_relmonadmor_iso  {C : precategory_data} {D : precategory} (hs: has_homsets D)
-      (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R')
-  : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor (pr1 α)).
+Definition is_z_iso_from_is_relmonadmor_z_iso  {C : precategory_data} (D : category)
+      (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R')
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor (pr1 α)).
 Proof.
-  apply is_iso_from_is_z_iso.
-  set (H' := iso_inv_after_iso α).
-  set (H'':= iso_after_iso_inv α).
-  set (α' := inv_from_iso α).
+  set (H' := z_iso_inv_after_z_iso α).
+  set (H'':= z_iso_after_z_iso_inv α).
+  set (α' := inv_from_z_iso α).
   exists (nat_trans_RelMonadMor α').
   split; simpl.
   - unfold α'. unfold R_functor.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply (nat_trans_eq hs).
+    apply (nat_trans_eq D).
     set (aux := maponpaths pr1 H'). apply toforallpaths in aux.
     exact aux.
   - unfold α'. unfold R_functor.
-    apply (nat_trans_eq hs).
+    apply (nat_trans_eq D).
     set (aux := maponpaths pr1 H''). apply toforallpaths in aux.
     exact aux.
 Defined.
 
 (** its immediate consequence *)
-Definition iso_from_is_relmonadmor_iso  {C : precategory_data} {D : precategory} (hs: has_homsets D)
-      (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R')
-  : iso(C := [C, D, hs]) (R_functor R) (R_functor R').
-Proof.
-  use (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor (pr1 α))).
-  exact (is_iso_from_is_relmonadmor_iso hs J α).
-Defined.
+Definition z_iso_from_is_relmonadmor_z_iso  {C : precategory_data} (D : category)
+      (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R')
+  : z_iso(C := [C, D]) (R_functor R) (R_functor R') :=
+  (_,, is_z_iso_from_is_relmonadmor_z_iso D J α).
 
-Corollary iso_from_is_relmonadmor_iso_p  {C : precategory_data} {D : precategory} (hs: has_homsets D)
-          (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R') (c : C) :
+
+Corollary z_iso_from_is_relmonadmor_z_iso_p  {C : precategory_data} (D : category)
+          (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R') (c : C) :
   pr1 (pr1 α) c =
-        functor_iso_pointwise_if_iso' C D
-          hs (R_functor R) (R_functor R') (iso_from_is_relmonadmor_iso
-            hs J α) c.
+        functor_z_iso_pointwise_if_z_iso' C D
+          (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+            D J α) c.
 Proof.
   apply idpath.
 Defined.
 
 
-Lemma iso_from_is_relmonadmor_iso_idtoiso {C : precategory_data} {D : precategory} (hs: has_homsets D)
-      (J : functor C D) {R R': RelMonad J} (p : @paths (precategory_RelMonad hs J) R R'):
-  iso_from_is_relmonadmor_iso hs J (idtoiso p) =
-  idtoiso(C := [C, D, hs]) (maponpaths (@R_functor C D J) p).
+Lemma z_iso_from_is_relmonadmor_z_iso_idtoiso {C : precategory_data} (D : category)
+      (J : functor C D) {R R': RelMonad J} (p : @paths (category_RelMonad D J) R R'):
+  z_iso_from_is_relmonadmor_z_iso D J (idtoiso p) =
+  idtoiso(C := [C, D]) (maponpaths (@R_functor C D J) p).
 Proof.
-  unfold iso_from_is_relmonadmor_iso.
+  unfold z_iso_from_is_relmonadmor_z_iso.
   simpl.
-  apply eq_iso.
+  apply (z_iso_eq(C := [C, D])).
   simpl.
-  apply nat_trans_eq.
-  - exact hs.
-  - intro c.
-    induction p.
-    apply idpath.
+  apply (nat_trans_eq D).
+  intro c.
+  induction p.
+  apply idpath.
 Qed.
 
 
-Definition alternative_inv_to_relmonadmor_iso {C : precategory_data} {D : precategory} (hs: has_homsets D)
-           (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R')
-  : precategory_RelMonad hs J ⟦R', R⟧.
+Definition alternative_inv_to_relmonadmor_z_iso {C : precategory_data} (D : category)
+           (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R')
+  : precategory_RelMonad D J ⟦R', R⟧.
 Proof.
   use tpair.
   - intro c.
-    exact (inv_from_iso (functor_iso_pointwise_if_iso' C D
-          hs (R_functor R) (R_functor R') (iso_from_is_relmonadmor_iso
-            hs J α) c)).
+    exact (inv_from_z_iso (functor_z_iso_pointwise_if_z_iso' C D
+                             (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+                                                             D J α) c)).
   - split.
     + intro c.
       apply pathsinv0.
-      apply iso_inv_on_left.
-      rewrite <- iso_from_is_relmonadmor_iso_p.
+      apply z_iso_inv_on_left.
+      rewrite <- z_iso_from_is_relmonadmor_z_iso_p.
       apply pathsinv0.
       apply (r_eta_α (RelMonadMor_axioms_from_RelMonadMor (pr1 α))).
     + intros c d f.
-      apply iso_inv_on_left.
+      apply z_iso_inv_on_left.
       rewrite <- assoc.
       apply pathsinv0.
-      apply iso_inv_on_right.
-      do 2 rewrite <- iso_from_is_relmonadmor_iso_p.
-      intermediate_path (pr1 (pr1 α) c · r_bind R' ((f · (inv_from_iso
-           (functor_iso_pointwise_if_iso' C D hs (R_functor R)
-              (R_functor R') (iso_from_is_relmonadmor_iso hs J α) d) )) ·
-                  (functor_iso_pointwise_if_iso' C D hs (R_functor R)
-                      (R_functor R') (iso_from_is_relmonadmor_iso hs J α) d ))).
+      apply z_iso_inv_on_right.
+      do 2 rewrite <- z_iso_from_is_relmonadmor_z_iso_p.
+      intermediate_path (pr1 (pr1 α) c · r_bind R' ((f · (inv_from_z_iso
+           (functor_z_iso_pointwise_if_z_iso' C D (R_functor R)
+              (R_functor R') (z_iso_from_is_relmonadmor_z_iso D J α) d) )) ·
+                  (functor_z_iso_pointwise_if_z_iso' C D (R_functor R)
+                      (R_functor R') (z_iso_from_is_relmonadmor_z_iso D J α) d ))).
       2: { apply cancel_precomposition.
            apply maponpaths.
            rewrite <- assoc.
-           rewrite iso_after_iso_inv.
+           rewrite z_iso_after_z_iso_inv.
            apply id_right.
       }
       apply pathsinv0.
-      rewrite <- iso_from_is_relmonadmor_iso_p.
+      rewrite <- z_iso_from_is_relmonadmor_z_iso_p.
       apply (α_r_bind (RelMonadMor_axioms_from_RelMonadMor (pr1 α))).
 Defined.
 
-Lemma alternative_inv_to_relmonadmor_iso_is_inv {C : precategory_data} {D : precategory} (hs: has_homsets D)
-      (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R'):
-  alternative_inv_to_relmonadmor_iso hs J α = inv_from_iso α.
+Lemma alternative_inv_to_relmonadmor_z_iso_is_inv {C : precategory_data} (D : category)
+      (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R'):
+  alternative_inv_to_relmonadmor_z_iso D J α = inv_from_z_iso α.
 Proof.
-  apply inv_iso_unique'.
+  apply inv_z_iso_unique'.
   unfold precomp_with.
   apply RelMonadMor_equiv.
-  - exact hs.
+  - apply D.
   - apply funextsec.
     intro c.
-    unfold alternative_inv_to_relmonadmor_iso.
+    unfold alternative_inv_to_relmonadmor_z_iso.
     simpl.
     apply pathsinv0.
-    apply iso_inv_on_left.
+    apply z_iso_inv_on_left.
     rewrite id_left.
     intermediate_path (pr1 (pr1 α) c).
     { apply idpath. }
-    rewrite iso_from_is_relmonadmor_iso_p.
+    rewrite z_iso_from_is_relmonadmor_z_iso_p.
     apply idpath.
 Qed.
 
-Corollary iso_from_is_relmonadmor_iso_inv_p  {C : precategory_data} {D : precategory} (hs: has_homsets D)
-          (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R') (c : C) :
-  pr1 (inv_from_iso α) c =
-        inv_from_iso (functor_iso_pointwise_if_iso' C D
-          hs (R_functor R) (R_functor R') (iso_from_is_relmonadmor_iso
-            hs J α) c).
+Corollary z_iso_from_is_relmonadmor_z_iso_inv_p  {C : precategory_data} (D : category)
+          (J : functor C D) {R R': RelMonad J} (α : z_iso(C := category_RelMonad D J) R R') (c : C) :
+  pr1 (inv_from_z_iso α) c =
+        inv_from_z_iso (functor_z_iso_pointwise_if_z_iso' C D
+          (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+            D J α) c).
 Proof.
-  rewrite <- alternative_inv_to_relmonadmor_iso_is_inv.
+  rewrite <- alternative_inv_to_relmonadmor_z_iso_is_inv.
   apply idpath.
 Qed.
 
 
 (** the other direction, first the inverse monad morphism *)
-Definition inv_relmonadmor_from_is_iso {C : precategory_data} {D : precategory}
-           (hs: has_homsets D) (J : functor C D){R R': RelMonad J}
-           (α : precategory_RelMonad hs J ⟦R, R'⟧)
-  : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) → precategory_RelMonad hs J ⟦R', R⟧.
+Definition inv_relmonadmor_from_is_z_iso {C : precategory_data} (D : category)
+  (J : functor C D){R R': RelMonad J} (α : category_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → category_RelMonad D J ⟦R', R⟧.
 Proof.
   intro T.
-  set (fiso := make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T).
-  set (finv := inv_from_iso fiso).
+  set (fiso := (_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R')).
+  set (finv := inv_from_z_iso fiso).
   exists (pr1 finv).
   unfold finv.
   split.
   - intros c.
     unfold fiso.
-    rewrite <- nat_trans_inv_pointwise_inv_after_p.
+    etrans.
+    { apply maponpaths, pathsinv0.
+      apply (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
     apply pathsinv0.
-    apply iso_inv_on_left.
+    apply z_iso_inv_on_left.
     simpl.
     apply pathsinv0.
     apply (r_eta_α (RelMonadMor_axioms_from_RelMonadMor α)).
   - intros a b f.
     unfold fiso.
-    do 2 rewrite <- nat_trans_inv_pointwise_inv_after_p.
-    apply iso_inv_on_left.
+    etrans.
+    { apply cancel_postcomposition, pathsinv0.
+      apply (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    etrans.
+    { do 3 apply maponpaths. apply pathsinv0.
+      apply (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    etrans.
+    2: { apply maponpaths.
+         apply (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    apply z_iso_inv_on_left.
     rewrite <- assoc.
     apply pathsinv0.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     simpl.
     etrans.
     { apply pathsinv0.
@@ -674,71 +677,67 @@ Proof.
     etrans.
     2: { apply id_right. }
     apply cancel_precomposition.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     apply pathsinv0.
     apply id_right.
 Defined.
 
 (** verification that the proposed inverse monad morphism is suitable *)
-Definition is_relmonadmor_iso_from_is_iso {C : precategory_data} {D : precategory}
-           (hs: has_homsets D) (J : functor C D) {R R': RelMonad J}
-           (α : precategory_RelMonad hs J ⟦R, R'⟧)
-  : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) → is_iso α.
+Definition is_relmonadmor_z_iso_from_is_z_iso {C : precategory_data} (D : category)
+  (J : functor C D) {R R': RelMonad J} (α : category_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → is_z_isomorphism α.
 Proof.
   intro T.
-  apply is_iso_from_is_z_iso.
-  exists (inv_relmonadmor_from_is_iso hs J α T).
+  exists (inv_relmonadmor_from_is_z_iso D J α T).
   split; simpl.
   - (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     apply RelMonadMor_equiv.
-    + exact hs.
+    + apply D.
     + simpl.
-      set (aux := iso_inv_after_iso (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
+      set (aux := z_iso_inv_after_z_iso ((_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R'))).
       apply (maponpaths pr1) in aux.
       exact aux.
   - apply RelMonadMor_equiv.
-    + exact hs.
+    + apply D.
     + simpl.
-      set (aux := iso_after_iso_inv (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
+      set (aux := z_iso_after_z_iso_inv ((_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R'))).
       apply (maponpaths pr1) in aux.
       exact aux.
 Defined.
 
 (** its immediate consequence *)
-Definition relmonadmor_iso_from_is_iso {C : precategory_data} {D : precategory}
-           (hs: has_homsets D) (J : functor C D)(R R': RelMonad J)
-           (α : precategory_RelMonad hs J ⟦R, R'⟧)
-  : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) → iso(C := precategory_RelMonad hs J) R R'.
+Definition relmonadmor_iso_from_is_z_iso {C : precategory_data} (D : category)
+  (J : functor C D)(R R': RelMonad J) (α : precategory_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → z_iso(C := category_RelMonad D J) R R'.
 Proof.
   intro T.
-  use (make_iso α).
-  exact (is_relmonadmor_iso_from_is_iso hs J α T).
+  exists α.
+  exact (is_relmonadmor_z_iso_from_is_z_iso D J α T).
 Defined.
 
 
-Definition relmonadmor_iso_first_iso {C : precategory_data} {D : precategory}
-           (hs: has_homsets D) (J : functor C D)(R R': RelMonad J)
-  : iso(C := precategory_RelMonad hs J) R R' ≃ ∑ α : R_functor R ⟹ R_functor R', is_iso(C := [C, D, hs]) α.
+Definition relmonadmor_z_iso_first_z_iso {C : precategory_data} (D : category)
+  (J : functor C D)(R R': RelMonad J)
+  : z_iso(C := category_RelMonad D J) R R' ≃ ∑ α : R_functor R ⟹ R_functor R', is_z_isomorphism(C := [C, D]) α.
 Proof.
-  unfold iso.
+  unfold z_iso.
 Abort.
 
-Definition pr1_pr1_relmonadmor_eq_from_relmonadmor_iso {C : precategory_data} {D : category}
+Definition pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso {C : precategory_data} {D : category}
    (H: is_univalent D) (J : functor C D) {R R': RelMonad J} :
-  iso(C := precategory_RelMonad D J) R R' -> pr1 (pr1 R) = pr1 (pr1 R').
+  z_iso(C := category_RelMonad D J) R R' -> pr1 (pr1 R) = pr1 (pr1 R').
 Proof.
   intro α.
   change (pr1 (pr1 (R_functor R)) = pr1 (pr1 (R_functor R'))).
   do 2 apply maponpaths.
   set (H1 := make_weq _ ((is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
   apply H1.
-  apply (iso_from_is_relmonadmor_iso D J α).
+  apply (z_iso_from_is_relmonadmor_z_iso D J α).
 Defined.
 
 
-Lemma pr1_pr1_relmonadmor_eq_from_relmonadmor_iso_idtoiso_aux {C : precategory_data} {D : precategory}
-      (hs: has_homsets D) (J : functor C D) {R R': RelMonad J}
-      (p: @paths (precategory_RelMonad hs J) R R'):
+Lemma pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux {C : precategory_data} (D : category) (J : functor C D) {R R': RelMonad J}
+      (p: @paths (category_RelMonad D J) R R'):
   base_paths (pr1 (R_functor R)) (pr1 (R_functor R'))
              (base_paths (R_functor R) (R_functor R') (maponpaths R_functor p)) =
   base_paths (pr1 R) (pr1 R') (base_paths R R' p).
@@ -758,17 +757,17 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma pr1_pr1_relmonadmor_eq_from_relmonadmor_iso_idtoiso {C : precategory_data} {D : category}
+Lemma pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso {C : precategory_data} {D : category}
       (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-      (p: @paths (precategory_RelMonad D J) R R'):
-  pr1_pr1_relmonadmor_eq_from_relmonadmor_iso H J (idtoiso p) =
+      (p: @paths (category_RelMonad D J) R R'):
+  pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J (idtoiso p) =
   base_paths (pr1 R) (pr1 R') (base_paths R R' p).
 Proof.
-  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_iso.
+  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
   simpl.
-  rewrite (iso_from_is_relmonadmor_iso_idtoiso D J).
-  rewrite functor_eq_from_functor_iso_idtoiso.
-  apply pr1_pr1_relmonadmor_eq_from_relmonadmor_iso_idtoiso_aux.
+  rewrite (z_iso_from_is_relmonadmor_z_iso_idtoiso D J).
+  rewrite functor_eq_from_functor_z_iso_idtoiso.
+  apply pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux.
 Qed.
 
 
@@ -809,11 +808,11 @@ Lemma isotoid_functorcat_pointwise_aux (C : precategory_data) (D : category)
           (isotoid (functor_category C D)
                    (is_univalent_functor_category C D H) α))) c
    = isotoid D H
-             (functor_iso_pointwise_if_iso C D D F G α (pr2 α) c).
+             (functor_z_iso_pointwise_if_z_iso C D D F G α (pr2 α) c).
 Proof.
   induction p.
   cbn delta in *.
-  unfold functor_iso_pointwise_if_iso.
+  unfold functor_z_iso_pointwise_if_z_iso.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   rewrite isotoid_idtoiso.
   unfold idtoiso.
@@ -822,7 +821,7 @@ Proof.
   rewrite idtoiso_isotoid.
   simpl.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-  apply eq_iso.
+  apply z_iso_eq.
   apply idpath.
 Defined.
 
@@ -831,14 +830,14 @@ Defined.
 
 
 Lemma isotoid_functorcat_pointwise (C : precategory_data) (D : category) (H : is_univalent D)
-      (F G : ob [C, D, D]) (α: iso F G) (c: C) :
+      (F G : ob [C, D, D]) (α: z_iso F G) (c: C) :
    toforallpaths (fun _ : ob C => ob D) (pr1 (pr1 F)) (pr1 (pr1 G))
     (maponpaths pr1
        (maponpaths pr1
           (isotoid (functor_category C D)
                    (is_univalent_functor_category C D H) α))) c
    = isotoid D H
-             (functor_iso_pointwise_if_iso' C D D F G α c).
+             (functor_z_iso_pointwise_if_z_iso' C D F G α c).
 Proof.
   assert (aux := isotoid_functorcat_pointwise_aux C D H F G
                       (isotoid (functor_category C D) (is_univalent_functor_category C D H) α)).
@@ -848,16 +847,16 @@ Proof.
 Qed.
 
 
-Definition η_relmonadmor_eq_from_relmonadmor_iso {C : precategory_data} {D : category}
+Definition η_relmonadmor_eq_from_relmonadmor_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-           (α: iso(C := precategory_RelMonad D J) R R')
+           (α: z_iso(C := category_RelMonad D J) R R')
   : transportf (fun x : ob C -> ob D => ∏ c, D ⟦J c, x c⟧)
-               (pr1_pr1_relmonadmor_eq_from_relmonadmor_iso H J α) (pr1 (pr2 (pr1 R))) =
+               (pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α) (pr1 (pr2 (pr1 R))) =
     pr1 (pr2 (pr1 R')).
 Proof.
   apply funextsec; intro c.
   rewrite transport_of_relmonad_η_is_pointwise.
-  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_iso.
+  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
   simpl.
   rewrite <- idtoiso_postcompose.
   simpl.
@@ -869,8 +868,8 @@ Proof.
        (* does not terminate: apply (r_eta_α X). *)
   }
   apply cancel_precomposition.
-  set (isor := iso_from_is_relmonadmor_iso D J α).
-  set (isor_p := functor_iso_pointwise_if_iso' C D D _ _ isor c).
+  set (isor := z_iso_from_is_relmonadmor_z_iso D J α).
+  set (isor_p := functor_z_iso_pointwise_if_z_iso' C D _ _ isor c).
   change (pr1 (pr1 α) c) with (pr1 isor_p).
   apply maponpaths.
   unfold precategory_data_from_precategory in isor.
@@ -880,7 +879,7 @@ Proof.
   intermediate_path (idtoiso (isotoid _ H isor_p)).
   2: { apply idtoiso_isotoid. }
   apply maponpaths.
-  change (functor_eq_from_functor_iso
+  change (functor_eq_from_functor_z_iso
              H  (R_functor R)
              (R_functor R') isor) with (isotoid _ (is_univalent_functor_category C D H) isor).
   apply (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
@@ -889,39 +888,39 @@ Defined.
 
 (** the following lemma should also be put upstream *)
 Lemma transportb_isotoid (C : category) (H : is_univalent C)
-   (a b b' : ob C) (p : iso b b') (f : a --> b') :
- transportb (λ b0 : C, a --> b0) (isotoid C H p) f = f · inv_from_iso p.
+   (a b b' : ob C) (p : z_iso b b') (f : a --> b') :
+ transportb (λ b0 : C, a --> b0) (isotoid C H p) f = f · inv_from_z_iso p.
 Proof.
   apply pathsinv0.
   apply transportb_transpose_right.
   change (precategory_morphisms a) with (λ b0 : C, a --> b0).
   rewrite transportf_isotoid'.
   rewrite <- assoc.
-  rewrite iso_after_iso_inv.
+  rewrite z_iso_after_z_iso_inv.
   apply id_right.
 Qed.
 
 
 
-Definition bind_relmonadmor_eq_from_relmonadmor_iso {C : precategory_data} {D : category}
+Definition bind_relmonadmor_eq_from_relmonadmor_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-           (α: iso(C := precategory_RelMonad D J) R R')
+           (α: z_iso(C := category_RelMonad D J) R R')
   : transportf (fun x : ob C -> ob D => ∏ c d, D ⟦J c, x d⟧ → D ⟦x c, x d⟧)
-               (pr1_pr1_relmonadmor_eq_from_relmonadmor_iso H J α) (pr2 (pr2 (pr1 R))) =
+               (pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α) (pr2 (pr2 (pr1 R))) =
     pr2 (pr2 (pr1 R')).
 Proof.
   apply funextsec; intro c. apply funextsec; intro d. apply funextsec; intro f.
   rewrite transport_of_relmonad_bind_is_pointwise.
-  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_iso.
+  unfold pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
   simpl.
   rewrite double_transport_idtoiso.
   rewrite <- assoc.
-  set (isor := iso_from_is_relmonadmor_iso D J α).
+  set (isor := z_iso_from_is_relmonadmor_z_iso D J α).
   unfold precategory_data_from_precategory in isor.
   simpl in isor.
   unfold precategory_data_from_precategory; simpl.
   fold isor.
-  change (functor_eq_from_functor_iso
+  change (functor_eq_from_functor_z_iso
              H  (R_functor R)
              (R_functor R') isor) with (isotoid _ (is_univalent_functor_category C D H) isor).
   do 2 rewrite (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
@@ -929,9 +928,9 @@ Proof.
   change (pr2 (pr2 (pr1 R')) c d f) with (r_bind R' f).
   change (pr2 (pr2 (pr1 R)) c d) with (r_bind(c:=c)(d:=d) R).
   rewrite (transportb_isotoid D H).
-  do 2 rewrite <- (iso_from_is_relmonadmor_iso_inv_p D J α).
-  rewrite <- (iso_from_is_relmonadmor_iso_p D J α).
-  assert (aux := α_r_bind (RelMonadMor_axioms_from_RelMonadMor (inv_from_iso α)) c d f).
+  do 2 rewrite <- (z_iso_from_is_relmonadmor_z_iso_inv_p D J α).
+  rewrite <- (z_iso_from_is_relmonadmor_z_iso_p D J α).
+  assert (aux := α_r_bind (RelMonadMor_axioms_from_RelMonadMor (inv_from_z_iso α)) c d f).
   etrans.
   { apply assoc. }
   etrans.
@@ -943,7 +942,7 @@ Proof.
   etrans.
   { apply pathsinv0. apply assoc. }
   apply cancel_precomposition.
-  assert (aux2 := iso_after_iso_inv α).
+  assert (aux2 := z_iso_after_z_iso_inv α).
   apply (maponpaths pr1) in aux2.
   apply toforallpaths in aux2.
   apply aux2.
@@ -953,37 +952,37 @@ Defined.
 
 
 
-Definition relmonad_eq_from_relmonad_iso {C : precategory_data} {D : category}
+Definition relmonad_eq_from_relmonad_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-           (α : iso(C := precategory_RelMonad D J) R R')
+           (α : z_iso(C := category_RelMonad D J) R R')
   : R = R'.
 Proof.
   apply RelMonad_eq.
   - exact D.
-  - set (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_iso H J α).
+  - set (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α).
     apply (total2_paths_f Hob).
     apply dirprodeq.
     + intermediate_path (transportf (λ F : C → D, ∏ c : C, D ⟦ J c, F c ⟧) Hob
                                     (pr1 (pr2 (pr1 R)))).
       { apply pathsinv0. apply (transport_map (fun F => dirprod_pr1(X := ∏ c : C, D ⟦ J c, F c ⟧)(Y := ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧))). }
-      apply (η_relmonadmor_eq_from_relmonadmor_iso H J α).
+      apply (η_relmonadmor_eq_from_relmonadmor_z_iso H J α).
     + intermediate_path (transportf (λ F : C → D, ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧) Hob
                                     (pr2 (pr2 (pr1 R)))).
       { apply pathsinv0. apply (transport_map (fun F => dirprod_pr2(X := ∏ c : C, D ⟦ J c, F c ⟧)(Y := ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧))). }
-      apply (bind_relmonadmor_eq_from_relmonadmor_iso H J α).
+      apply (bind_relmonadmor_eq_from_relmonadmor_z_iso H J α).
 Defined.
 
 
 (* former more destructive proof: *)
 
-Definition relmonad_eq_from_relmonad_iso_obsolete {C : precategory_data} {D : category}
+Definition relmonad_eq_from_relmonad_z_iso_obsolete {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-           (α : iso(C := precategory_RelMonad D J) R R')
+           (α : z_iso(C := category_RelMonad D J) R R')
   : R = R'.
 Proof.
-  set (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_iso H J α).
-  assert (η_eq := η_relmonadmor_eq_from_relmonadmor_iso H J α).
-  assert (bind_eq := bind_relmonadmor_eq_from_relmonadmor_iso H J α).
+  set (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+  assert (η_eq := η_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+  assert (bind_eq := bind_relmonadmor_eq_from_relmonadmor_z_iso H J α).
   fold Hob in η_eq, bind_eq.
   induction R as [[F [e b]] a].
   induction R' as [[F' [e' b']] a'].
@@ -999,72 +998,70 @@ Defined.
 
 
 
-Lemma relmonad_eq_from_relmonad_iso_idtoiso {C : precategory_data} {D : category}
+Lemma relmonad_eq_from_relmonad_z_iso_idtoiso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J} (p: R = R') :
-  relmonad_eq_from_relmonad_iso H J (idtoiso(C := precategory_RelMonad D J) p) = p.
+  relmonad_eq_from_relmonad_z_iso H J (idtoiso(C := category_RelMonad D J) p) = p.
 Proof.
   apply relmonad_eq_eq_from_relmonad_ob_eq.
   - apply D.
-  - unfold relmonad_eq_from_relmonad_iso.
+  - unfold relmonad_eq_from_relmonad_z_iso.
     unfold RelMonad_eq.
     rewrite base_total2_paths.
     rewrite base_total2_paths.
-    apply pr1_pr1_relmonadmor_eq_from_relmonadmor_iso_idtoiso.
+    apply pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso.
 Qed.
 
 
 
 
-Lemma idtoiso_relmonad_eq_from_relmonad_iso {C : precategory_data} {D : category}
+Lemma idtoiso_relmonad_eq_from_relmonad_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
-           (α : iso(C := precategory_RelMonad D J) R R') :
-        idtoiso(C := precategory_RelMonad D J) (relmonad_eq_from_relmonad_iso H J α) = α.
+           (α : z_iso(C := category_RelMonad D J) R R') :
+        idtoiso(C := category_RelMonad D J) (relmonad_eq_from_relmonad_z_iso H J α) = α.
 Proof.
-  apply eq_iso.
+  apply (z_iso_eq(C := category_RelMonad D J)).
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply RelMonadMor_equiv.
-  - exact D.
+  - apply D.
   - (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     apply funextsec; intro c.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     etrans.
-    { apply iso_from_is_relmonadmor_iso_p. }
-    rewrite (iso_from_is_relmonadmor_iso_idtoiso D J (relmonad_eq_from_relmonad_iso H J α)).
+    { apply z_iso_from_is_relmonadmor_z_iso_p. }
+    rewrite (z_iso_from_is_relmonadmor_z_iso_idtoiso D J (relmonad_eq_from_relmonad_z_iso H J α)).
     rewrite idtoiso_functorcat_compute_pointwise'.
-    unfold relmonad_eq_from_relmonad_iso.
+    unfold relmonad_eq_from_relmonad_z_iso.
     unfold RelMonad_eq.
-    rewrite pr1_pr1_relmonadmor_eq_from_relmonadmor_iso_idtoiso_aux; try apply (pr2 H).
+    rewrite pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux.
     rewrite base_total2_paths.
     rewrite base_total2_paths.
     intermediate_path (pr1 (idtoiso
-     (isotoid D H (functor_iso_pointwise_if_iso' C D D _ _ (iso_from_is_relmonadmor_iso D J α) c)))).
+     (isotoid D H (functor_z_iso_pointwise_if_z_iso' C D _ _ (z_iso_from_is_relmonadmor_z_iso D J α) c)))).
     2: { rewrite idtoiso_isotoid.
          apply idpath.
     }
     apply maponpaths.
     apply maponpaths.
     apply isotoid_functorcat_pointwise.
-
-    apply D.
 Qed.
 
 
 Definition relmonadmor_idtoiso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D)(R R': RelMonad J) :
-  (R = R') ≃ iso(C := precategory_RelMonad D J) R R'.
+  (R = R') ≃ z_iso(C := category_RelMonad D J) R R'.
 Proof.
-  apply (make_weq (@idtoiso (precategory_RelMonad D J) R R')).
+  apply (make_weq (@idtoiso (category_RelMonad D J) R R')).
   use isweq_iso.
-  - exact (relmonad_eq_from_relmonad_iso H J).
-  - intro p. exact (relmonad_eq_from_relmonad_iso_idtoiso H J p).
-  - intro α. exact (idtoiso_relmonad_eq_from_relmonad_iso H J α).
+  - exact (relmonad_eq_from_relmonad_z_iso H J).
+  - intro p. exact (relmonad_eq_from_relmonad_z_iso_idtoiso H J p).
+  - intro α. exact (idtoiso_relmonad_eq_from_relmonad_z_iso H J α).
 Defined.
 
 
 
 Lemma isweq_idtoiso_RelMonad {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D)(R R': RelMonad J)
-  : isweq (@idtoiso (precategory_RelMonad D J) R R').
+  : isweq (@idtoiso (category_RelMonad D J) R R').
 Proof.
   apply (isweqhomot (relmonadmor_idtoiso H J R R')).
   - intro p. induction p.
@@ -1074,7 +1071,7 @@ Qed.
 
 
 Lemma is_univalent_RelMonad {C : precategory_data} {D : category}
-      (H: is_univalent D) (J : functor C D)(*R R': RelMonad J*)
+      (H: is_univalent D) (J : functor C D)
   : is_univalent (category_RelMonad D J).
 Proof.
   intros R R'.

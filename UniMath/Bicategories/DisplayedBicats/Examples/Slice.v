@@ -331,7 +331,7 @@ Section SliceBicat.
   Proof.
     use make_weq.
     - exact slice_inv2cell_to_disp_adj_equiv.
-    - use gradth.
+    - use isweq_iso.
       + exact slice_disp_adj_equiv_to_inv2cell.
       + abstract
           (intros α ;
@@ -503,6 +503,21 @@ Proof.
   - apply (disp_locally_groupoid_slice_disp_bicat
              _ _ _ _ _
              (make_invertible_2cell Hα)).
+Defined.
+
+Definition from_is_invertible_2cell_in_slice_bicat
+           {B : bicat}
+           {b : B}
+           {f₁ f₂ : slice_bicat b}
+           {g₁ g₂ : f₁ --> f₂}
+           {α : g₁ ==> g₂}
+           (Hα : is_invertible_2cell α)
+  : is_invertible_2cell (pr1 α).
+Proof.
+  use make_is_invertible_2cell.
+  - exact (pr1 (Hα^-1)).
+  - exact (maponpaths pr1 (vcomp_rinv Hα)).
+  - exact (maponpaths pr1 (vcomp_linv Hα)).
 Defined.
 
 (**

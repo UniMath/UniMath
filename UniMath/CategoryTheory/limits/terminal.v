@@ -7,10 +7,8 @@ Direct definition of terminal object together with:
 
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -63,15 +61,15 @@ Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_iso (TerminalArrow T T').
+Lemma isziso_from_Terminal_to_Terminal (T T' : Terminal) :
+   is_z_isomorphism (TerminalArrow T T').
 Proof.
-apply (is_iso_qinv _ (TerminalArrow T' T)).
-now split; apply TerminalEndo_is_identity.
+ exists (TerminalArrow T' T).
+ now split; apply TerminalEndo_is_identity.
 Defined.
 
-Definition iso_Terminals (T T' : Terminal) : iso T T' :=
-  (TerminalArrow T' T,,isiso_from_Terminal_to_Terminal T' T) .
+Definition z_iso_Terminals (T T' : Terminal) : z_iso T T' :=
+  (TerminalArrow T' T,,isziso_from_Terminal_to_Terminal T' T) .
 
 Definition hasTerminal := ishinh Terminal.
 
@@ -95,7 +93,7 @@ Lemma isaprop_Terminal : isaprop (Terminal C).
 Proof.
   apply invproofirrelevance.
   intros T T'.
-  apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ).
+  apply (total2_paths_f (isotoid _ H (z_iso_Terminals T T')) ).
   apply proofirrelevance.
   unfold isTerminal.
   apply impred.
@@ -204,3 +202,23 @@ now apply TerminalArrowEq.
 Qed.
 
 End monics_terminal.
+
+Definition iso_to_Terminal
+           {C : category}
+           (T : Terminal C)
+           (x : C)
+           (i : z_iso T x)
+  : isTerminal C x.
+Proof.
+  intros w.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       refine (!(id_right _) @ _ @ id_right _) ;
+       rewrite <- !(z_iso_after_z_iso_inv i) ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       apply TerminalArrowEq).
+  - exact (TerminalArrow T w · i).
+Defined.

@@ -196,5 +196,6 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   exact (((λ g:G, g) : T -> G) x).
 
 Create HintDb rewrite discriminated.
+#[global]
 Hint Variables Opaque : rewrite.
 Create HintDb typeclass_instances discriminated.

@@ -43,6 +43,13 @@ Definition make_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
 Definition diagram (g : graph) (C : precategory) : UU :=
   ∑ (f : vertex g -> C), ∏ (a b : vertex g), edge a b -> C⟦f a, f b⟧.
 
+Definition make_diagram {g : graph} {C : precategory}
+  (f : vertex g -> C)
+  (P : (∏ (a b : vertex g),
+         edge a b -> C⟦f a, f b⟧))
+  : diagram g C
+  := (f ,, P).
+
 Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :=
   pr1 d.
 
@@ -106,6 +113,14 @@ Defined.
 Definition is_cocone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C}
            (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), coconeIn cc1 v · x = coconeIn cc2 v.
+
+Lemma isaprop_is_cocone_mor {C : category} {g : graph} {d : diagram g C}
+  {c1 : C} (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (f : c1 --> c2)
+  : isaprop (is_cocone_mor cc1 cc2 f).
+Proof.
+  apply impred_isaprop ; intro.
+  apply homset_property.
+Qed.
 
 (** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
@@ -328,11 +343,10 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 
-Lemma isColim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
-  isColimCocone D d cd -> is_iso (colimArrow CC d cd).
+Lemma isColim_is_z_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+  isColimCocone D d cd -> is_z_isomorphism (colimArrow CC d cd).
 Proof.
 intro H.
-apply is_iso_from_is_z_iso.
 set (CD := make_ColimCocone D d cd H).
 apply (tpair _ (colimArrow (make_ColimCocone D d cd H) (colim CC) (colimCocone CC))).
 abstract (split;
@@ -346,21 +360,19 @@ abstract (split;
       apply colimArrowCommutes ]).
 Defined.
 
-Lemma inv_isColim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
+Lemma inv_isColim_is_z_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
   (cd : cocone D d) (H : isColimCocone D d cd) :
-  inv_from_iso (make_iso _ (isColim_is_iso D CC d cd H)) =
+  inv_from_z_iso (_,,isColim_is_z_iso D CC d cd H) =
   colimArrow (make_ColimCocone D d cd H) _ (colimCocone CC).
 Proof.
-cbn. (* why??? *)
-unfold precomp_with.
-apply id_right.
+  apply idpath.
 Qed.
 
-Lemma is_iso_isColim {C : category} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
-  is_iso (colimArrow CC d cd) -> isColimCocone D d cd.
+Lemma is_z_iso_isColim {C : category} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+  is_z_isomorphism (colimArrow CC d cd) -> isColimCocone D d cd.
 Proof.
 intro H.
-set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+set (iinv := z_iso_inv_from_is_z_iso _ H).
 intros x cx.
 use tpair.
 - use tpair.
@@ -376,14 +388,13 @@ use tpair.
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
 Defined.
 
-Definition iso_from_colim_to_colim {C : precategory} {g : graph} {d : diagram g C}
-  (CC CC' : ColimCocone d) : iso (colim CC) (colim CC').
+Definition z_iso_from_colim_to_colim {C : precategory} {g : graph} {d : diagram g C}
+  (CC CC' : ColimCocone d) : z_iso (colim CC) (colim CC').
 Proof.
-use make_iso.
+use make_z_iso.
 - apply colimArrow, colimCocone.
-- use is_iso_qinv.
-  + apply colimArrow, colimCocone.
-  + abstract (now split; apply pathsinv0, colim_endo_is_identity; intro u;
+- apply colimArrow, colimCocone.
+- abstract (now split; apply pathsinv0, colim_endo_is_identity; intro u;
               rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
 Defined.
 
@@ -412,7 +423,7 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypePath.
 - intro; apply isaprop_isColimCocone.
-- apply (total2_paths_f (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (z_iso_from_colim_to_colim Hccx Hccy))).
   set (B c := ∏ v, C⟦dob cc v,c⟧).
   set (C' (c : C) f := forms_cocone(c:=c) cc f).
   rewrite (@transportf_total2 _ B C').
@@ -530,9 +541,9 @@ Definition isColimFunctor_is_pointwise_Colim
   : ∏ a, isColimCocone (diagram_pointwise a) _ (cocone_pointwise X R a).
 Proof.
   intro a.
-  apply (is_iso_isColim  _ (HCg a)).
-  set (XR := isColim_is_iso D ColimFunctorCocone X R H).
-  apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
+  apply (is_z_iso_isColim  _ (HCg a)).
+  set (XR := isColim_is_z_iso D ColimFunctorCocone X R H).
+  apply  (is_functor_z_iso_pointwise_if_z_iso _ _ _ _ _ _ XR).
 Defined.
 
 End ColimFunctor.
@@ -555,23 +566,23 @@ Lemma pointwise_Colim_is_isColimFunctor
   (H : ∏ a, isColimCocone _ _ (cocone_pointwise d G ccG a)) :
   isColimCocone d G ccG.
 Proof.
-set (CC a := make_ColimCocone _ _ _ (H a)).
-set (D' := ColimFunctorCocone _ CC).
-use is_iso_isColim.
-- apply D'.
-- use is_iso_qinv.
-  + use tpair.
-    * intros a; apply identity.
-    * abstract (intros a b f; rewrite id_left, id_right; simpl;
-                apply (colimArrowUnique (CC a)); intro u; cbn;
-                now rewrite <- (nat_trans_ax (coconeIn ccG u))).
-  + abstract (split;
-    [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
-      apply pathsinv0, colimArrowUnique; intros v;
-      now rewrite id_right
-    | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
-      apply pathsinv0, (colimArrowUnique (CC x)); intro u;
-      now rewrite id_right]).
+ set (CC a := make_ColimCocone _ _ _ (H a)).
+ set (D' := ColimFunctorCocone _ CC).
+ use is_z_iso_isColim.
+ - apply D'.
+ - use tpair.
+   + use make_nat_trans.
+     * intros a; apply identity.
+     * abstract (intros a b f; rewrite id_left, id_right; simpl;
+                 apply (colimArrowUnique (CC a)); intro u; cbn;
+                 now rewrite <- (nat_trans_ax (coconeIn ccG u))).
+   + abstract (split;
+               [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
+                 apply pathsinv0, colimArrowUnique; intros v;
+                 now rewrite id_right
+               | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
+                 apply pathsinv0, (colimArrowUnique (CC x)); intro u;
+                 now rewrite id_right]).
 Defined.
 
 Section map.

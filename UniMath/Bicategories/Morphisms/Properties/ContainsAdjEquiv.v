@@ -14,15 +14,17 @@
  8. Adjoint equivalences are fully faithful
  9. Adjoint equivalences are conservative
  10. Adjoint equivalences are discrete
- 11. Adjoint equivalences preserve cartesian cells
+ 11. Adjoint equivalences are pseudomonic
  12. Adjoint equivalences preserve cartesian cells
+ 13. Adjoint equivalences preserve cartesian cells
+ 14. Morphism to identity preserves (op)cartesians
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -67,6 +69,28 @@ Proof.
   - intros z g₁ g₂ αf.
     simple refine (_ ,, _).
     + exact (rinvunitor _ • αf • runitor _).
+    + abstract
+        (cbn ;
+         use (vcomp_rcancel (runitor _)) ; [ is_iso | ] ;
+         rewrite !vassocl ;
+         rewrite vcomp_runitor ;
+         rewrite !vassocr ;
+         rewrite runitor_rinvunitor ;
+         rewrite id2_left ;
+         apply idpath).
+Defined.
+
+Definition id1_pseudomonic
+           {B : bicat}
+           (a : B)
+  : pseudomonic_1cell (id₁ a).
+Proof.
+  use make_pseudomonic.
+  - apply id1_faithful.
+  - intros z g₁ g₂ αf Hαf.
+    simple refine (_ ,, (_ ,, _)).
+    + exact (rinvunitor _ • αf • runitor _).
+    + is_iso.
     + abstract
         (cbn ;
          use (vcomp_rcancel (runitor _)) ; [ is_iso | ] ;
@@ -145,13 +169,13 @@ Section IdentityInternalSFib.
     apply idpath.
   Qed.
 
-  Definition identity_lift
+  Definition identity_is_cartesian_2cell_sfib
              {x : B}
              {f g : x --> b}
-             (α : f ==> g · id₁ b)
-    : is_cartesian_2cell_sfib (id₁ b) (α • runitor g).
+             (α : f ==> g)
+    : is_cartesian_2cell_sfib (id₁ b) α.
   Proof.
-    intros h β δp q.
+    intros h β δp r.
     use iscontraprop1.
     - abstract
         (use invproofirrelevance ;
@@ -164,26 +188,13 @@ Section IdentityInternalSFib.
       + apply identity_help.
       + abstract
           (rewrite !vassocl ;
-           etrans ;
-           [ do 2 apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite <- vcomp_runitor ;
-             rewrite !vassocl ;
-             rewrite <- vcomp_runitor ;
-             rewrite !vassocr ;
-             rewrite rwhisker_vcomp ;
-             apply idpath
-           | ] ;
-           etrans ;
-           [ apply maponpaths ;
-             rewrite !vassocr ;
-             apply maponpaths_2 ;
-             exact (!q)
-           | ] ;
-           rewrite vcomp_runitor ;
+           rewrite <- vcomp_runitor ;
+           use vcomp_move_R_pM ; [ is_iso | ] ;
+           cbn ;
+           rewrite <- vcomp_runitor ;
            rewrite !vassocr ;
-           rewrite rinvunitor_runitor ;
-           apply id2_left).
+           apply maponpaths_2 ;
+           exact (!r)).
   Defined.
 
   Definition identity_internal_cleaving
@@ -199,7 +210,7 @@ Section IdentityInternalSFib.
             _
             ,,
             _) ; cbn.
-    - apply identity_lift.
+    - apply identity_is_cartesian_2cell_sfib.
     - abstract
         (rewrite <- vcomp_runitor ;
          rewrite <- rwhisker_vcomp ;
@@ -215,29 +226,8 @@ Section IdentityInternalSFib.
   Definition identity_lwhisker_cartesian
     : lwhisker_is_cartesian (id₁ b).
   Proof.
-    intros x y h f g γ Hγ k α δp q.
-    use iscontraprop1.
-    - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ;
-         [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
-         use id1_faithful ;
-         exact (pr12 φ₁ @ !(pr12 φ₂))).
-    - refine (rinvunitor _ • δp • runitor _ ,, _ ,, _).
-      + apply identity_help.
-      + abstract
-          (rewrite !vassocl ;
-           rewrite <- vcomp_runitor ;
-           etrans ;
-           [ apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite <- q ;
-             apply vcomp_runitor
-           | ] ;
-           rewrite !vassocr ;
-           rewrite rinvunitor_runitor ;
-           apply id2_left).
+    intros x y h f g γ Hγ.
+    apply identity_is_cartesian_2cell_sfib.
   Defined.
 
   Definition identity_internal_sfib
@@ -252,6 +242,21 @@ End IdentityInternalSFib.
 (**
  6. The identity Street opfibration
  *)
+Definition identity_is_opcartesian_2cell_sopfib
+           {B : bicat}
+           {b x : B}
+           {f g : x --> b}
+           (α : f ==> g)
+  : is_opcartesian_2cell_sopfib (id₁ b) α.
+Proof.
+  apply is_cartesian_to_is_opcartesian_sfib.
+  exact (@identity_is_cartesian_2cell_sfib
+           (op2_bicat B)
+           b x
+           g f
+           α).
+Defined.
+
 Definition identity_internal_sopfib
            {B : bicat}
            (b : B)
@@ -515,7 +520,22 @@ Proof.
 Defined.
 
 (**
- 11. Adjoint equivalences preserve cartesian cells
+ 11. Adjoint equivalences are pseudomonic
+ *)
+Definition adj_equiv_pseudomonic
+           {B : bicat}
+           {a b : B}
+           {l : a --> b}
+           (Hl : left_adjoint_equivalence l)
+  : pseudomonic_1cell l.
+Proof.
+  apply fully_faithful_is_pseudomonic.
+  apply adj_equiv_fully_faithful.
+  exact Hl.
+Defined.
+
+(**
+ 12. Adjoint equivalences preserve cartesian cells
  *)
 Definition equivalence_preserves_cartesian
            {B : bicat}
@@ -557,7 +577,7 @@ Proof.
 Defined.
 
 (**
- 12. Adjoint equivalences preserve cartesian cells
+ 13. Adjoint equivalences preserve cartesian cells
  *)
 Definition equivalence_preserves_opcartesian
            {B : bicat}
@@ -596,4 +616,27 @@ Proof.
             c).
   intros.
   apply id_mor_preserves_opcartesian.
+Defined.
+
+(**
+ 14. Morphism to identity preserves (op)cartesians
+ *)
+Definition mor_to_id_preserves_cartesian
+           {B : bicat}
+           {e b : B}
+           (h : e --> b)
+  : mor_preserves_cartesian h (id₁ b) h.
+Proof.
+  intros x f g γ Hγ.
+  apply identity_is_cartesian_2cell_sfib.
+Defined.
+
+Definition mor_to_id_preserves_opcartesian
+           {B : bicat}
+           {e b : B}
+           (h : e --> b)
+  : mor_preserves_opcartesian h (id₁ b) h.
+Proof.
+  intros x f g γ Hγ.
+  apply identity_is_opcartesian_2cell_sopfib.
 Defined.

@@ -10,6 +10,8 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
@@ -282,6 +284,66 @@ Definition pstrans_to_is_pstrans
            (α : pstrans F₁ F₂)
   : is_pstrans (pstrans_to_pstrans_data α)
   := pr21 α.
+
+(** A pointwise adjoint equivalence is an adjoint equivalence *)
+Section PointwiseAdjequivIsAdjequiv.
+  Context {B₁ B₂ : bicat}
+          (HB₂ : is_univalent_2 B₂)
+          {F₁ F₂ : psfunctor B₁ B₂}
+          (σ : pstrans F₁ F₂)
+          (Hf : ∏ (x : B₁), left_adjoint_equivalence (σ x)).
+
+  Definition pointwise_adjequiv_to_adjequiv_base
+    : left_adjoint_equivalence (pr111 σ).
+  Proof.
+    apply all_is_adjequiv_to_is_adjequiv.
+    exact Hf.
+  Defined.
+
+  Definition pointwise_adjequiv_to_adjequiv_1cell
+    : left_adjoint_equivalence (pr11 σ).
+  Proof.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    - exact pointwise_adjequiv_to_adjequiv_base.
+    - apply map1cells_disp_left_adjoint_equivalence.
+      exact HB₂.
+  Qed.
+
+  Definition pointwise_adjequiv_to_adjequiv_data
+    : left_adjoint_equivalence (pr1 σ).
+  Proof.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    - exact pointwise_adjequiv_to_adjequiv_1cell.
+    - use (pair_left_adjoint_equivalence
+               (map2cells_disp_cat B₁ B₂)
+               (disp_dirprod_bicat
+                  (identitor_disp_cat B₁ B₂)
+                  (compositor_disp_cat B₁ B₂))
+               (_ ,, pointwise_adjequiv_to_adjequiv_1cell)).
+      simple refine (_ ,, _).
+      + apply map2cells_disp_left_adjequiv.
+        exact HB₂.
+      + use (pair_left_adjoint_equivalence
+               (identitor_disp_cat B₁ B₂)
+               (compositor_disp_cat B₁ B₂)).
+        simple refine (_ ,, _).
+        * apply identitor_disp_left_adjequiv.
+          exact HB₂.
+        * apply compositor_disp_left_adjequiv.
+          exact HB₂.
+  Defined.
+
+  Definition pointwise_adjequiv_to_adjequiv
+    : left_adjoint_equivalence σ.
+  Proof.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    - exact pointwise_adjequiv_to_adjequiv_data.
+    - apply disp_left_adjoint_equivalence_fullsubbicat.
+  Qed.
+End PointwiseAdjequivIsAdjequiv.
 
 (** Pseudotansformations between psfunctor data *)
 Definition pstrans_data_on_data

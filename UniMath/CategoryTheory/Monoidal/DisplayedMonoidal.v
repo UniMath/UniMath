@@ -199,7 +199,7 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
  Definition fully_faithful_reord1_functor : fully_faithful reord1_functor.
  Proof.
    intros a b.
-   use gradth.
+   use isweq_iso.
    - exact (reord1_hom_inverse a b).
    - intros. apply idpath.
    - intros; apply idpath.
@@ -217,7 +217,7 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
  Proof.
    split.
    - exact fully_faithful_reord1_functor.
-   - use gradth.
+   - use isweq_iso.
      + exact reord1_ob_inverse.
      + intro; apply idpath.
      + intro; apply idpath.
@@ -720,8 +720,8 @@ Section section_tensor.
 
   Definition monoidal_tensor_section_data : UU
     := ∏ (c c' : C),
-      iso_disp
-        (identity_iso (T (c,,c')))
+      z_iso_disp
+        (identity_z_iso (T (c,,c')))
         (S (T (c,,c')))
         (TT _ ((S c,, S c') : (D ⊠⊠ D)(c,,c'))).
 

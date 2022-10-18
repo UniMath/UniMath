@@ -133,18 +133,18 @@ Section CorestrictImage.
             (intros a b g ;
              use subtypePath ; [ intro ; apply isapropunit | ] ;
              exact (pr2 (left_adjoint_counit (F_local_equiv x y)) _ _ (pr1 g))).
-      - apply is_nat_iso_to_is_invertible_2cell.
+      - apply is_nat_z_iso_to_is_invertible_2cell.
         intro z.
-        exact (is_invertible_2cell_to_is_nat_iso
+        exact (is_invertible_2cell_to_is_nat_z_iso
                  _
                  (left_equivalence_unit_iso (F_local_equiv x y)) z).
-      - apply is_nat_iso_to_is_invertible_2cell.
+      - apply is_nat_z_iso_to_is_invertible_2cell.
         intro z.
-        apply is_inv2cell_to_is_iso.
+        apply is_inv2cell_to_is_z_iso.
         apply bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell.
-        apply (iso_to_inv2cell
+        apply (z_iso_to_inv2cell
                 (_ ,,
-                   is_invertible_2cell_to_is_nat_iso
+                   is_invertible_2cell_to_is_nat_z_iso
                    _
                    (left_equivalence_counit_iso (F_local_equiv x y)) (pr1 z))).
     Defined.

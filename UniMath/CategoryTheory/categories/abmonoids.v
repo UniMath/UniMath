@@ -76,23 +76,25 @@ End def_abmonoid_precategory.
 (** * Category of abmonoids *)
 Section def_abmonoid_category.
 
+  Definition abmonoid_category : category := make_category _ has_homsets_abmonoid_precategory.
+
   (** ** (monoidsiso X Y) ≃ (iso X Y) *)
 
-  Lemma abmonoid_iso_is_equiv (A B : ob abmonoid_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  Lemma abmonoid_iso_is_equiv (A B : ob abmonoid_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1monoidfun _ _ (inv_from_iso f)).
+    - exact (pr1monoidfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropismonoidfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropismonoidfun.
   Defined.
   Opaque abmonoid_iso_is_equiv.
 
-  Lemma abmonoid_iso_equiv (X Y : ob abmonoid_precategory) :
-    iso X Y -> monoidiso (X : abmonoid) (Y : abmonoid).
+  Lemma abmonoid_iso_equiv (X Y : ob abmonoid_category) :
+    z_iso X Y -> monoidiso (X : abmonoid) (Y : abmonoid).
   Proof.
     intro f.
     use make_monoidiso.
@@ -100,88 +102,88 @@ Section def_abmonoid_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma abmonoid_equiv_is_iso (X Y : ob abmonoid_precategory)
+  Lemma abmonoid_equiv_is_z_iso (X Y : ob abmonoid_category)
         (f : monoidiso (X : abmonoid) (Y : abmonoid)) :
-    @is_iso abmonoid_precategory X Y (monoidfunconstr (pr2 f)).
+    @is_z_isomorphism abmonoid_category X Y (monoidfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use make_is_inverse_in_precat.
-      + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (monoidfunconstr (pr2 (invmonoidiso f))).
+    use make_is_inverse_in_precat.
+    - use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque abmonoid_equiv_is_iso.
+  Opaque abmonoid_equiv_is_z_iso.
 
-  Lemma abmonoid_equiv_iso (X Y : ob abmonoid_precategory) :
-    monoidiso (X : abmonoid) (Y : abmonoid) -> iso X Y.
+  Lemma abmonoid_equiv_z_iso (X Y : ob abmonoid_category) :
+    monoidiso (X : abmonoid) (Y : abmonoid) -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso abmonoid_precategory X Y (monoidfunconstr (pr2 f))
-                              (abmonoid_equiv_is_iso X Y f)).
+    intros f.
+    exists (monoidfunconstr (pr2 f)).
+    exact (abmonoid_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma abmonoid_iso_equiv_is_equiv (X Y : ob abmonoid_precategory) :
+  Lemma abmonoid_iso_equiv_is_equiv (X Y : ob abmonoid_category) :
     isweq (abmonoid_iso_equiv X Y).
   Proof.
     use isweq_iso.
-    - exact (abmonoid_equiv_iso X Y).
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - exact (abmonoid_equiv_z_iso X Y).
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
   Opaque abmonoid_iso_equiv_is_equiv.
 
-  Definition abmonoid_iso_equiv_weq (X Y : ob abmonoid_precategory) :
-    weq (iso X Y) (monoidiso (X : abmonoid) (Y : abmonoid)).
+  Definition abmonoid_iso_equiv_weq (X Y : ob abmonoid_category) :
+    weq (z_iso X Y) (monoidiso (X : abmonoid) (Y : abmonoid)).
   Proof.
     use make_weq.
     - exact (abmonoid_iso_equiv X Y).
     - exact (abmonoid_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma abmonoid_equiv_iso_is_equiv (X Y : ob abmonoid_precategory) :
-    isweq (abmonoid_equiv_iso X Y).
+  Lemma abmonoid_equiv_iso_is_equiv (X Y : ob abmonoid_category) :
+    isweq (abmonoid_equiv_z_iso X Y).
   Proof.
     use isweq_iso.
     - exact (abmonoid_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
   Defined.
   Opaque abmonoid_equiv_iso_is_equiv.
 
-  Definition abmonoid_equiv_weq_iso (X Y : ob abmonoid_precategory) :
-    (monoidiso (X : abmonoid) (Y : abmonoid)) ≃ (iso X Y).
+  Definition abmonoid_equiv_weq_iso (X Y : ob abmonoid_category) :
+    (monoidiso (X : abmonoid) (Y : abmonoid)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
-    - exact (abmonoid_equiv_iso X Y).
+    - exact (abmonoid_equiv_z_iso X Y).
     - exact (abmonoid_equiv_iso_is_equiv X Y).
   Defined.
 
 
   (** ** Category of abmonoids *)
 
-  Definition abmonoid_precategory_isweq (X Y : ob abmonoid_precategory) :
+  Definition abmonoid_category_isweq (X Y : ob abmonoid_category) :
     isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque abmonoid_precategory_isweq.
+  Opaque abmonoid_category_isweq.
 
-  Definition abmonoid_category : category := make_category _ has_homsets_abmonoid_precategory.
+
 
   Definition abmonoid_category_is_univalent : is_univalent abmonoid_category.
   Proof.
-    intros X Y. exact (abmonoid_precategory_isweq X Y).
+    intros X Y. exact (abmonoid_category_isweq X Y).
   Defined.
 
   Definition abmonoid_univalent_category : univalent_category :=

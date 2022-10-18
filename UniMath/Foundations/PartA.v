@@ -347,6 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
+#[global]
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
@@ -372,6 +373,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+#[global]
 Hint Resolve @pathsinv0 : pathshints.
 
 Definition path_assoc {X} {a b c d:X}
@@ -1764,9 +1766,8 @@ Defined.
 
 (** This is kept to preserve compatibility with publications that use the
     name "gradth" for the "grad theorem". *)
-Definition gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-        (egf: ∏ x : X, g (f x) = x)
-        (efg: ∏ y : Y, f (g y) = y) : isweq f := isweq_iso f g egf efg.
+#[deprecated(note="Use isweq_iso instead.")]
+Notation gradth := isweq_iso (only parsing).
 
 Definition weq_iso {X Y : UU} (f : X -> Y) (g : Y -> X)
            (egf: ∏ x : X, g (f x) = x)

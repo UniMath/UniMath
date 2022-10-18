@@ -5,6 +5,8 @@
  - Binary operations
   - General definitions
   - Standard conditions on one binary operation on a set
+   - Elements with inverses
+   - Group operations
   - Standard conditions on a pair of binary operations on a set
  - Sets with one binary operation
   - General definitions
@@ -25,6 +27,7 @@
   - Subobjects
   - Quotient objects
   - Direct products
+ - Infinitary operations
 *)
 
 
@@ -33,6 +36,7 @@
 (** Imports *)
 
 Require Export UniMath.Foundations.Sets.
+Require Export UniMath.MoreFoundations.Propositions.
 
 Local Open Scope logic.
 
@@ -52,7 +56,19 @@ Definition unop (X : UU) : UU := X -> X.
 
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x x0).
 
+Definition lcancel {X : UU} {opp : binop X} {x : X} (H_x : islcancelable opp x) (y z : X) :
+  opp x y = opp x z -> y = z.
+Proof.
+  apply invmaponpathsincl, H_x.
+Defined.
+
 Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x0 x).
+
+Definition rcancel {X : UU} {opp : binop X} {x : X} (H_x : isrcancelable opp x) (y z : X) :
+  opp y x = opp z x -> y = z.
+Proof.
+  apply (invmaponpathsincl (fun y => opp y x)), H_x.
+Defined.
 
 Definition iscancelable {X : UU} (opp : binop X) (x : X) : UU :=
   (islcancelable opp x) × (isrcancelable opp x).
@@ -88,6 +104,22 @@ Proof.
   apply impred. intro x''.
   simpl. apply (setproperty X).
 Defined.
+
+(** Compare to [CategoryTheory.Categories.assoc4] *)
+Lemma assoc4 {X : UU} (opp : binop X) (isa : isassoc opp) :
+  ∏ w x y z : X, opp (opp (opp w x) y) z = opp (opp w (opp x y)) z.
+Proof.
+  intros.
+  repeat rewrite isa; exact (idpath _).
+Qed.
+
+(** cancellativity *)
+
+Definition isrcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, isrcancelable opp x.
+
+Definition islcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, islcancelable opp x.
 
 (** *)
 
@@ -153,47 +185,238 @@ Proof.
   apply isapropisunital.
 Defined.
 
-(** *)
+(** ***** Elements with inverses  *)
 
-Definition islinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
-  ∏ x : X, paths (opp (inv0 x) x) un0.
+Section ElementsWithInverses.
+  Context {X : UU} (opp : binop X) (is : ismonoidop opp).
+  Local Notation "x * y" := (opp x y).
+  Local Notation u := (unel_is is).
 
-Lemma isapropislinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
-  isaprop (islinv opp un0 inv0).
-Proof.
-  apply impred. intro x.
-  apply (setproperty X (opp (inv0 x) x) un0).
-Defined.
+  (** Is this element x0 the left/right inverse of x? *)
 
-Definition isrinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
-  ∏ x : X, paths (opp x (inv0 x)) un0.
+  Definition islinvel (x : X) : X -> UU := fun x0 => paths (x0 * x) u.
+  Definition isrinvel (x : X) : X -> UU := fun x0 => paths (x * x0) u.
+  Definition isinvel (x : X) : X -> UU := fun x0 => (islinvel x x0) × (isrinvel x x0).
 
-Lemma isapropisrinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
-  isaprop (isrinv opp un0 inv0).
-Proof.
-  apply impred. intro x.
-  apply (setproperty X).
-Defined.
+  (** Is there some element x0 that is the left/right inverse of x? *)
 
-Definition isinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
-  (islinv opp un0 inv0) × (isrinv opp un0 inv0).
+  Definition haslinv (x : X) : UU := ∑ x0 : X, islinvel x x0.
+  Definition hasrinv (x : X) : UU := ∑ x0 : X, isrinvel x x0.
+  Definition hasinv (x : X) : UU := ∑ x0 : X, isinvel x x0.
+
+  (** Accessor functions *)
+  Definition haslinv_to_linvel {x : X} : haslinv x → X := pr1.
+  Definition hasrinv_to_rinvel {x : X} : hasrinv x → X := pr1.
+  Definition hasinv_to_invel {x : X} : hasinv x → X := pr1.
+
+  Definition merely_haslinv (x : X) : hProp := ∥ haslinv x ∥.
+  Definition merely_hasrinv (x : X) : hProp := ∥ hasrinv x ∥.
+  Definition merely_hasinv (x : X) : hProp := ∥ hasinv x ∥.
+
+  (** Lemmas for elements with inverses *)
+
+  (** The inverse of an element's two-sided inverse is just that element *)
+  Definition is_inv_inv : ∏ (x x0 : X), (isinvel x x0 -> isinvel x0 x) :=
+    fun x x0 isinv => (make_dirprod (pr2 isinv) (pr1 isinv)).
+
+  (** If two elements have left inverses, so does their product. *)
+  Lemma invop_l :
+    ∏ (x y x' y' : X),
+      (islinvel x x' -> islinvel y y' -> islinvel (x * y) (y' * x')).
+  Proof.
+    intros x y x' y' xinv yinv.
+    unfold islinvel.
+    pose (assoc := pr1 is).
+    cbn; unfold islinvel.
+    rewrite <- assoc.
+    rewrite (assoc4 opp assoc), xinv.
+    rewrite (runax_is is).
+    exact yinv.
+  Qed.
+
+  (** If two elements have right inverses, so does their product. *)
+  Lemma invop_r :
+    ∏ (x y x' y' : X),
+      (isrinvel x x' -> isrinvel y y' -> isrinvel (x * y) (y' * x')).
+  Proof.
+    intros x y x' y' xinv yinv.
+    pose (assoc := pr1 is).
+    cbn; unfold isrinvel.
+    rewrite <- assoc.
+    rewrite (assoc4 opp assoc), yinv.
+    rewrite (runax_is is).
+    exact xinv.
+  Qed.
+
+  (** This is a similar statement to [grinvop] *)
+  Lemma invop :
+    ∏ (x y x' y' : X),
+      (isinvel x x' -> isinvel y y' -> isinvel (x * y) (y' * x')).
+  Proof.
+    intros x y x' y' xinv yinv.
+    use make_dirprod.
+    - apply invop_l.
+      + exact (dirprod_pr1 xinv).
+      + exact (dirprod_pr1 yinv).
+    - apply invop_r.
+      + exact (dirprod_pr2 xinv).
+      + exact (dirprod_pr2 yinv).
+  Defined.
+
+  Lemma mere_invop :
+    ∏ (x y : X), (merely_hasinv x -> merely_hasinv y -> merely_hasinv (x * y)).
+  Proof.
+    intros x y.
+    apply hinhfun2.
+    intros xinv yinv.
+    exists ((hasinv_to_invel yinv) * (hasinv_to_invel xinv)).
+    apply invop.
+    - exact (pr2 xinv).
+    - exact (pr2 yinv).
+  Defined.
+
+  (** If an element has both left and right inverses, they're equal. *)
+  Lemma linv_eq_rinv (x lx rx : X) (lxlinv : islinvel x lx) (rxrinv : isrinvel x rx) :
+    lx = rx.
+  Proof.
+    intros.
+    refine (!runax_is is _ @ _).
+    refine (!maponpaths (λ z, lx * z) rxrinv @ _).
+    refine (!assocax_is is _ _ _ @ _).
+    refine (maponpaths (λ z, z * rx) lxlinv @ _).
+    apply lunax_is.
+  Defined.
+
+End ElementsWithInverses.
+
+Section InverseOperations.
+  Context {X : UU} (opp : binop X) (u : X) (inv : X -> X).
+  Local Notation "x * y" := (opp x y).
+
+  Definition islinv : UU := ∏ x : X, ((inv x) * x) = u.
+  Definition isrinv : UU := ∏ x : X, (x * (inv x)) = u.
+  Definition isinv : UU := islinv × isrinv.
+End InverseOperations.
+
+Section ElementsWithInversesSet.
+  (** When working with an hSet instead of a general type, many of the above
+      statements become propositions *)
+
+  Context {X : hSet} (opp : binop X) (is : ismonoidop opp).
+  Local Notation "x * y" := (opp x y).
+
+  Definition isapropislinvel (x x0 : X) : isaprop (islinvel opp is x x0) := setproperty X _ _.
+  Definition isapropisrinvel (x x0 : X) : isaprop (isrinvel opp is x x0) := setproperty X _ _.
+  Definition isapropisinvel (x x0 : X) : isaprop (isinvel opp is x x0) := isapropdirprod _ _ (isapropislinvel _ _) (isapropisrinvel _ _).
+
+  (** If the operation is left cancellable, right inverses are unique. *)
+  Definition isaprop_haslinv (x : X) (can : islcancelable opp x) :
+    isaprop (hasrinv opp is x).
+  Proof.
+    apply isaproptotal2.
+    - intro; apply isapropislinvel.
+    - intros x' x'' islinvx' islinvx''.
+      apply (Injectivity (λ x0 : X, x * x0)).
+      + apply incl_injectivity; assumption.
+      + exact (islinvx' @ !islinvx'').
+  Defined.
+
+  (** If the operation is right cancellable, left inverses are unique. *)
+  Definition isaprop_hasrinv (x : X) (can : isrcancelable opp x) :
+    isaprop (haslinv opp is x).
+  Proof.
+    apply isaproptotal2.
+    - intro; apply isapropisrinvel.
+    - intros x' x'' isrinvx' isrinvx''.
+      apply (Injectivity (λ x0 : X, x0 * x)).
+      + apply incl_injectivity; assumption.
+      + exact (isrinvx' @ !isrinvx'').
+  Defined.
+
+  (** For the two-sided case, we can just reuse the argument from the
+      left-cancellable case. *)
+  Definition isaprop_hasinv (x : X) (can : iscancelable opp x) :
+    isaprop (hasinv opp is x).
+  Proof.
+    apply isaproptotal2.
+    - intro; apply isapropdirprod.
+      + apply isapropislinvel.
+      + apply isapropisrinvel.
+    - intros x' x'' isinvx' isinvx''.
+      apply (Injectivity (λ x0 : X, x * x0)).
+      + apply incl_injectivity; apply (pr1 can).
+      + exact (pr2 isinvx' @ !pr2 isinvx'').
+  Defined.
+
+  (** The subset of elements that have inverses *)
+
+  Definition merely_invertible_elements : hsubtype X := merely_hasinv opp is.
+
+  Definition invertible_elements (can : ∏ x, iscancelable opp x) : hsubtype X.
+  Proof.
+    intro x.
+    use make_hProp.
+    - exact (hasinv opp is x).
+    - apply isaprop_hasinv, can.
+  Defined.
+
+  (** If an element has an inverse, then it is cancellable *)
+
+  Definition lcanfromlinv (a b c : X) (c' : haslinv opp is c) :
+    (c * a) = (c * b) → a = b.
+  Proof.
+    intros e.
+    refine (!lunax_is is a @ _ @ lunax_is is b).
+    refine (!maponpaths (λ z, z * _) (pr2 c') @ _ @
+             maponpaths (λ z, z * _) (pr2 c')).
+    refine (assocax_is is _ _ _ @ _ @ !assocax_is is _ _ _).
+    apply maponpaths.
+    assumption.
+  Defined.
+
+  Definition rcanfromrinv (a b c : X) (c' : hasrinv opp is c) :
+    (a * c) = (b * c) → a = b.
+  Proof.
+    intros e.
+    refine (!runax_is is a @ _ @ runax_is is b).
+    refine (!maponpaths (λ z, _ * z) (pr2 c') @ _ @
+             maponpaths (λ z, _ * z) (pr2 c')).
+    refine (!assocax_is is _ _ _ @ _ @ assocax_is is _ _ _).
+    apply (maponpaths (λ z, z * _)).
+    assumption.
+  Defined.
+End ElementsWithInversesSet.
+
+Section InversesSet.
+  (** Similarly, these are propositions for hSets *)
+  Context {X : hSet} (opp : binop X) (u : X) (inv : X -> X).
+
+  Lemma isapropislinv : isaprop (islinv opp u inv).
+  Proof.
+    intros; apply impred; intro; apply setproperty.
+  Defined.
+
+  Lemma isapropisrinv : isaprop (isrinv opp u inv).
+  Proof.
+    intros; apply impred; intro; apply setproperty.
+  Defined.
+
+  Lemma isapropisinv : isaprop (isinv opp u inv).
+  Proof.
+    exact (isofhleveldirprod 1 _ _ isapropislinv isapropisrinv).
+  Defined.
+End InversesSet.
 
 Definition make_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
-           (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := make_dirprod H1 H2.
-
-Lemma isapropisinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
-  isaprop (isinv opp un0 inv0).
-Proof.
-  apply (isofhleveldirprod 1).
-  apply isapropislinv.
-  apply isapropisrinv.
-Defined.
+          (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := make_dirprod H1 H2.
 
 Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
   total2 (fun inv0 : X -> X => isinv opp (unel_is is) inv0).
 
 Definition make_invstruct {X : UU} {opp : binop X} {is : ismonoidop opp} (inv0 : X -> X)
            (H : isinv opp (unel_is is) inv0) : invstruct opp is := tpair _ inv0 H.
+
+(** ***** Group operations *)
 
 Definition isgrop {X : UU} (opp : binop X) : UU :=
   total2 (λ is : ismonoidop opp, invstruct opp is).
@@ -207,10 +430,10 @@ Coercion pr1isgrop : isgrop >-> ismonoidop.
 Definition grinv_is {X : UU} {opp : binop X} (is : isgrop opp) : X -> X := pr1 (pr2 is).
 
 Definition grlinvax_is {X : UU} {opp : binop X} (is : isgrop opp) :
-  islinv opp (unel_is (pr1 is)) (pr1 (pr2 is)) := pr1 (pr2 (pr2 is)).
+  islinv opp (unel_is is) (pr1 (pr2 is)) := pr1 (pr2 (pr2 is)).
 
 Definition grrinvax_is {X : UU} {opp : binop X} (is : isgrop opp) :
-  isrinv opp (unel_is (pr1 is)) (pr1 (pr2 is)) := pr2 (pr2 (pr2 is)).
+  isrinv opp (unel_is is) (pr1 (pr2 is)) := pr2 (pr2 (pr2 is)).
 
 Lemma isweqrmultingr_is {X : UU} {opp : binop X} (is : isgrop opp) (x0 : X) :
   isrinvertible opp x0.
@@ -303,7 +526,7 @@ Definition allinvvertibleinv {X : hSet} {opp : binop X} (is : ismonoidop opp)
 (** The following lemma is an analog of [Bourbaki, Alg. 1, ex. 2, p. 132] *)
 
 Lemma isgropif {X : hSet} {opp : binop X} (is0 : ismonoidop opp)
-      (is : ∏ x : X, hexists (λ x0 : X, (opp x x0) = (unel_is is0))) : isgrop opp.
+      (is : ∏ x : X, merely_hasrinv opp is0 x) : isgrop opp.
 Proof.
   split with is0.
   destruct is0 as [ assoc isun0 ].
@@ -1898,6 +2121,16 @@ Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU
   dirprod (∏ a b c : X, S c -> R a b -> R (op c a) (op c b))
           (∏ a b c : X, S c -> R a b -> R (op a c) (op b c)).
 
+Lemma isaprop_ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) :
+  isaprop (ispartbinophrel S R).
+Proof.
+  apply isapropdirprod ;
+  apply impred_isaprop ; intros a ;
+  apply impred_isaprop ; intros b ;
+  apply impred_isaprop ; intros c ;
+  apply isapropimpl, isapropimpl, propproperty.
+Defined.
+
 Definition isbinoptoispartbinop {X : setwithbinop} (S : hsubtype X) (L : hrel X)
            (d2 : isbinophrel L) : ispartbinophrel S L.
 Proof.
@@ -2685,6 +2918,16 @@ Proof.
            (λ xy xy' : dirprod X Y, make_dirprod (op1 (pr1 xy) (pr1 xy')) (op1 (pr2 xy) (pr2 xy')))
            (λ xy xy' : dirprod X Y, make_dirprod (op2 (pr1 xy) (pr1 xy'))
                                                  (op2 (pr2 xy) (pr2 xy')))).
+Defined.
+
+
+(** ** Infinitary operations *)
+
+(** Limit a more general infinitary operation to a binary operation *)
+
+Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I -> X) -> X) : binop X.
+Proof.
+  intros x y; exact (op _ (bool_rect (fun _ => X) x y)).
 Defined.
 
 (* End of file *)

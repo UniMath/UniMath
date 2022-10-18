@@ -192,49 +192,49 @@ Definition  eq_mor_slicecat_weq (af bg : C / x) (f g : C/x⟦af,bg⟧) :
 
 (** ** Isos in slice categories *)
 
-Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
+Lemma eq_z_iso_slicecat (af bg : C / x) (f g : z_iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 induction f as [f fP]; induction g as [g gP]; intro eq.
 use (subtypePairEquality _ eq).
-intro; apply isaprop_is_iso.
+intro; apply isaprop_is_z_isomorphism.
 Qed.
 
 (** It suffices that the underlying morphism is an iso to get an iso in
     the slice category *)
-Lemma iso_to_slice_precat_iso (af bg : C / x) (h : af --> bg)
-  (isoh : is_iso (pr1 h)) : is_iso h.
+Lemma z_iso_to_slice_precat_z_iso (af bg : C / x) (h : af --> bg)
+  (isoh : is_z_isomorphism (pr1 h)) : is_z_isomorphism h.
 Proof.
-induction (is_z_iso_from_is_iso _ isoh) as [hinv [h1 h2]].
+induction isoh as [hinv [h1 h2]].
 assert (pinv : hinv · pr2 af = pr2 bg).
 { rewrite <- id_left, <- h2, <- assoc, (!(pr2 h)); apply idpath. }
-apply is_iso_from_is_z_iso.
 exists (hinv,,!pinv).
 split; (apply subtypePairEquality; [ intro; apply C |]); assumption.
 Defined.
 
 (** An iso in the slice category gives an iso in the base category *)
-Lemma slice_precat_iso_to_iso  (af bg : C / x) (h : af --> bg)
-  (p : is_iso h) : is_iso (pr1 h).
+Lemma slice_precat_z_iso_to_z_iso  (af bg : C / x) (h : af --> bg)
+  (p : is_z_isomorphism h) : is_z_isomorphism (pr1 h).
 Proof.
-induction (is_z_iso_from_is_iso _ p) as [hinv [h1 h2]].
-apply is_iso_from_is_z_iso.
+induction p as [hinv [h1 h2]].
 exists (pr1 hinv); split.
 - apply (maponpaths pr1 h1).
 - apply (maponpaths pr1 h2).
 Defined.
 
-Lemma weq_iso (af bg : C / x) :
-  iso af bg ≃ ∑ h : iso (pr1 af) (pr1 bg), pr2 af = h · pr2 bg.
+Lemma weq_z_iso (af bg : C / x) :
+  z_iso af bg ≃ ∑ h : z_iso (pr1 af) (pr1 bg), pr2 af = h · pr2 bg.
 Proof.
-apply (weqcomp (weqtotal2asstor _ _)).
-apply invweq.
-apply (weqcomp (weqtotal2asstor _ _)).
-apply weqfibtototal; intro h; simpl.
-apply (weqcomp (weqdirprodcomm _ _)).
-apply weqfibtototal; intro p.
-apply weqimplimpl; try apply isaprop_is_iso.
-- intro hp; apply iso_to_slice_precat_iso; assumption.
-- intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
+  apply (weqcomp (weqtotal2asstor _ _)).
+  apply invweq.
+  apply (weqcomp (weqtotal2asstor _ _)).
+  apply weqfibtototal; intro h; simpl.
+  apply (weqcomp (weqdirprodcomm _ _)).
+  apply weqfibtototal; intro p.
+  apply weqimplimpl.
+  - intro hp; apply z_iso_to_slice_precat_z_iso; assumption.
+  - intro hp; apply (slice_precat_z_iso_to_z_iso _ _ _ hp).
+  - apply isaprop_is_z_isomorphism.
+  - apply (isaprop_is_z_isomorphism(C:= C / x)).
 Defined.
 
 (** ** Monics in slice categories *)
@@ -346,44 +346,38 @@ Context {C : category} (is_catC : is_univalent C) (x : C).
 
 Local Notation "C / x" := (slice_cat C x).
 
-Lemma id_weq_iso_slicecat (af bg : C / x) : (af = bg) ≃ (iso af bg).
+Lemma id_weq_z_iso_slicecat (af bg : C / x) : (af = bg) ≃ (z_iso af bg).
 Proof.
-set (a := pr1 af); set (f := pr2 af); set (b := pr1 bg); set (g := pr2 bg).
-
-assert (weq1 : weq (af = bg)
+  set (a := pr1 af); set (f := pr2 af); set (b := pr1 bg); set (g := pr2 bg).
+  assert (weq1 : weq (af = bg)
                    (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))).
- { apply (total2_paths_equiv _ af bg). }
-
-assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
+  { apply (total2_paths_equiv _ af bg). }
+  assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
                    (total2 (fun (p : a = b) => idtoiso (! p) · f = g))).
-{  apply weqfibtototal; intro p.
-  rewrite idtoiso_precompose.
-   apply idweq.
-}
-
-assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
-                   (total2 (λ h : iso a b, f = h · g))).
-{  apply (weqbandf (make_weq _ (is_catC a b))); intro p.
-  rewrite idtoiso_inv; simpl.
-  apply weqimplimpl; simpl; try apply (C); intro Hp.
-    rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
-  rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
-}
-assert (weq4 : weq (total2 (λ h : iso a b, f = h · g)) (iso af bg)).
-{
-  apply invweq; apply weq_iso.
-}
-
-apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
+  {  apply weqfibtototal; intro p.
+     rewrite idtoiso_precompose.
+     apply idweq.
+  }
+  assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
+                   (total2 (λ h : z_iso a b, f = h · g))).
+  {  apply (weqbandf (make_weq _ (is_catC a b))); intro p.
+     rewrite idtoiso_inv; simpl.
+     apply weqimplimpl; simpl; try apply (C); intro Hp.
+     rewrite <- Hp, assoc, z_iso_inv_after_z_iso, id_left; apply idpath.
+     rewrite Hp, assoc, z_iso_after_z_iso_inv, id_left; apply idpath.
+  }
+  assert (weq4 : weq (total2 (λ h : z_iso a b, f = h · g)) (z_iso af bg)).
+  { apply invweq; apply weq_z_iso. }
+  apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
 Defined.
 
 Lemma is_univalent_slicecat : is_univalent (C / x).
 Proof.
 intros a b.
-set (h := id_weq_iso_slicecat a b).
+set (h := id_weq_z_iso_slicecat a b).
 apply (isweqhomot h); [intro p|induction h; trivial].
 induction p.
-apply eq_iso, eq_mor_slicecat, idpath.
+apply z_iso_eq, eq_mor_slicecat, idpath.
 Qed.
 
 End slicecat_theory.
@@ -920,13 +914,13 @@ Section Pullbacks.
   Qed.
 
   (** Pullback diagram:
-    <<
+<<
       PB -- PBPr1 -> A
       |              |
     PBPr2            k
       V              V
       B ---- l ----> C
-    >>
+>>
   *)
   Lemma pullback_to_slice_pullback
     (A B C : ob (E / I)) (k : A --> C) (l : B --> C)

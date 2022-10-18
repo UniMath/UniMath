@@ -542,7 +542,7 @@ Definition local_fib_weq_local_cleaving
 Proof.
   use make_weq.
   - exact local_cleaving_to_local_fib.
-  - use gradth.
+  - use isweq_iso.
     + exact local_fib_to_local_cleaving.
     + abstract
         (intro HD ;
@@ -618,7 +618,7 @@ Definition invertible_is_cartesian_2cell
   : is_cartesian_2cell D αα.
 Proof.
   apply cartesian_to_cartesian_2cell.
-  apply (is_cartesian_iso_disp (disp_hom_disp_invertible_2cell_to_iso _ Hαα)).
+  apply (is_cartesian_z_iso_disp (disp_hom_disp_invertible_2cell_to_z_iso _ Hαα)).
 Defined.
 
 Section Cartesian2CellUnique.
@@ -1021,7 +1021,7 @@ Definition local_opfib_weq_local_opcleaving
 Proof.
   use make_weq.
   - exact local_opcleaving_to_local_opfib.
-  - use gradth.
+  - use isweq_iso.
     + exact local_opfib_to_local_opcleaving.
     + abstract
         (intro HD ;
@@ -1096,7 +1096,7 @@ Definition invertible_is_opcartesian_2cell
   : is_opcartesian_2cell D αα.
 Proof.
   apply opcartesian_to_opcartesian_2cell.
-  apply (is_opcartesian_iso_disp (disp_hom_disp_invertible_2cell_to_iso _ Hαα)).
+  apply (is_opcartesian_z_iso_disp (disp_hom_disp_invertible_2cell_to_z_iso _ Hαα)).
 Defined.
 
 Definition lwhisker_opcartesian

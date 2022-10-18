@@ -35,21 +35,21 @@ Section def_ring_precategory.
   Local Lemma ring_id_left (X Y : ring) (f : ringfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque ring_id_left.
 
   Local Lemma ring_id_right (X Y : ring) (f : ringfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque ring_id_right.
 
   Local Lemma ring_assoc (X Y Z W : ring) (f : ringfun X Y) (g : ringfun Y Z) (h : ringfun Z W) :
     rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
-    use rigfun_paths. use idpath.
+    use rigfun_paths. apply idpath.
   Defined.
   Opaque ring_assoc.
 
@@ -75,22 +75,24 @@ End def_ring_precategory.
 (** * Category of rings *)
 Section def_ring_category.
 
-  (** ** (ringiso X Y) ≃ (iso X Y) *)
+  Definition ring_category : category := make_category _ has_homsets_ring_precategory.
 
-  Lemma ring_iso_is_equiv (A B : ob ring_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  (** ** (ringiso X Y) ≃ (z_iso X Y) *)
+
+  Lemma ring_iso_is_equiv (A B : ob ring_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1rigfun _ _ (inv_from_iso f)).
+    - exact (pr1rigfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropisrigfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropisrigfun.
   Defined.
   Opaque ring_iso_is_equiv.
 
-  Lemma ring_iso_equiv (X Y : ob ring_precategory) : iso X Y -> ringiso (X : ring) (Y : ring).
+  Lemma ring_iso_equiv (X Y : ob ring_category) : z_iso X Y -> ringiso (X : ring) (Y : ring).
   Proof.
     intro f.
     use make_ringiso.
@@ -98,55 +100,53 @@ Section def_ring_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma ring_equiv_is_iso (X Y : ob ring_precategory) (f : ringiso (X : ring) (Y : ring)) :
-    @is_iso ring_precategory X Y (ringfunconstr (pr2 f)).
+  Lemma ring_equiv_is_z_iso (X Y : ob ring_category) (f : ringiso (X : ring) (Y : ring)) :
+    @is_z_isomorphism ring_category X Y (ringfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use make_is_inverse_in_precat.
-      + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (ringfunconstr (pr2 (invrigiso f))).
+    use make_is_inverse_in_precat.
+    - use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque ring_equiv_is_iso.
+  Opaque ring_equiv_is_z_iso.
 
-  Lemma ring_equiv_iso (X Y : ob ring_precategory) : ringiso (X : ring) (Y : ring) -> iso X Y.
+  Lemma ring_equiv_iso (X Y : ob ring_category) : ringiso (X : ring) (Y : ring) -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso ring_precategory X Y (ringfunconstr (pr2 f))
-                              (ring_equiv_is_iso X Y f)).
+    intros f. exact (_,,ring_equiv_is_z_iso X Y f).
   Defined.
 
-  Lemma ring_iso_equiv_is_equiv (X Y : ring_precategory) : isweq (ring_iso_equiv X Y).
+  Lemma ring_iso_equiv_is_equiv (X Y : ring_category) : isweq (ring_iso_equiv X Y).
   Proof.
     use isweq_iso.
     - exact (ring_equiv_iso X Y).
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
+      + apply idpath.
   Defined.
   Opaque ring_iso_equiv_is_equiv.
 
-  Definition ring_iso_equiv_weq (X Y : ob ring_precategory) :
-    weq (iso X Y) (ringiso (X : ring) (Y : ring)).
+  Definition ring_iso_equiv_weq (X Y : ob ring_category) :
+    weq (z_iso X Y) (ringiso (X : ring) (Y : ring)).
   Proof.
     use make_weq.
     - exact (ring_iso_equiv X Y).
     - exact (ring_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma ring_equiv_iso_is_equiv (X Y : ob ring_precategory) : isweq (ring_equiv_iso X Y).
+  Lemma ring_equiv_iso_is_equiv (X Y : ob ring_category) : isweq (ring_equiv_iso X Y).
   Proof.
     use isweq_iso.
     - exact (ring_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
-      + use idpath.
-    - intros x. use eq_iso. use rigfun_paths. use idpath.
+      + apply idpath.
+    - intros x. use z_iso_eq. use rigfun_paths. apply idpath.
   Defined.
   Opaque ring_equiv_iso_is_equiv.
 
-  Definition ring_equiv_weq_iso (X Y : ob ring_precategory) :
-    (ringiso (X : ring) (Y : ring)) ≃ (iso X Y).
+  Definition ring_equiv_weq_iso (X Y : ob ring_category) :
+    (ringiso (X : ring) (Y : ring)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
     - exact (ring_equiv_iso X Y).
@@ -156,25 +156,23 @@ Section def_ring_category.
 
   (** ** Category of rings *)
 
-  Definition ring_precategory_isweq (X Y : ob ring_precategory) : isweq (λ p : X = Y, idtoiso p).
+  Definition ring_category_isweq (X Y : ob ring_category) : isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (ring_univalence X Y) (ring_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (ring_univalence X Y) (ring_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
-    - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - apply idpath.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
-  Opaque ring_precategory_isweq.
-
-  Definition ring_category : category := make_category _ has_homsets_ring_precategory.
+  Opaque ring_category_isweq.
 
   Definition ring_category_is_univalent : is_univalent ring_category.
   Proof.
-    intros X Y. exact (ring_precategory_isweq X Y).
+    intros X Y. exact (ring_category_isweq X Y).
   Defined.
 
   Definition ring_univalent_category : univalent_category :=

@@ -8,14 +8,25 @@
  3. Pullbacks
  4. Strict pullbacks
  5. Comma objects
+ 6. Inserters
+ 7. Equifiers
+ 8. Iso-inserters
+ 9. Eilenberg-Moore objects
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.categories.CatIsoInserter.
+Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.CommaCategories.
@@ -25,44 +36,27 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
+Require Import UniMath.Bicategories.Limits.Inserters.
+Require Import UniMath.Bicategories.Limits.Equifiers.
+Require Import UniMath.Bicategories.Limits.IsoInserters.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
 
 Local Open Scope cat.
 
 (**
  1. Final object
  *)
-
-(** MOVE??? *)
-Definition unit_category_nat_trans
-           {C : category}
-           (F G : C ⟶ unit_category)
-  : F ⟹ G.
-Proof.
-  use make_nat_trans.
-  - exact (λ _, pr1 (isapropunit _ _)).
-  - abstract
-      (intro ; intros ;
-       apply isasetunit).
-Defined.
-
-Lemma nat_trans_to_unit_eq
-      {X : category}
-      (F G : X ⟶ unit_category)
-      (α β : F ⟹ G)
-  : α = β.
-Proof.
-  apply nat_trans_eq.
-  - apply homset_property.
-  - intro z. apply isasetunit.
-Qed.
-
 Definition bifinal_cats
   : @is_bifinal bicat_of_univ_cats unit_category.
 Proof.
@@ -95,10 +89,10 @@ Section CatsBinprodUMP.
     intro q.
     use make_binprod_1cell.
     - exact (bindelta_pair_functor (binprod_cone_pr1 q) (binprod_cone_pr2 q)).
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr1_iso.
-    - apply nat_iso_to_invertible_2cell.
-      apply bindelta_pair_pr2_iso.
+    - apply nat_z_iso_to_invertible_2cell.
+      apply bindelta_pair_pr1_z_iso.
+    - apply nat_z_iso_to_invertible_2cell.
+      apply bindelta_pair_pr2_z_iso.
   Defined.
 
   Definition binprod_ump_2_cell_univ_cat
@@ -189,7 +183,7 @@ Proof.
   - exact (univalent_iso_comma F G).
   - exact (iso_comma_pr1 F G).
   - exact (iso_comma_pr2 F G).
-  - apply nat_iso_to_invertible_2cell.
+  - apply nat_z_iso_to_invertible_2cell.
     exact (iso_comma_commute F G).
 Defined.
 
@@ -206,11 +200,11 @@ Section IsoCommaUMP.
     - use iso_comma_ump1.
       + exact (pb_cone_pr1 q).
       + exact (pb_cone_pr2 q).
-      + apply invertible_2cell_to_nat_iso.
+      + apply invertible_2cell_to_nat_z_iso.
         exact (pb_cone_cell q).
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply iso_comma_ump1_pr1.
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply iso_comma_ump1_pr2.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -316,10 +310,10 @@ Section ReindexingPullback.
   Let π₂ : pb --> tot_D₂
     := total_functor (reindex_disp_cat_disp_functor F D₂).
   Let γ : invertible_2cell (π₁ · F) (π₂ · pr1_category D₂)
-    := nat_iso_to_invertible_2cell
+    := nat_z_iso_to_invertible_2cell
          (π₁ · F)
          (π₂ · pr1_category D₂)
-         (total_functor_commute_iso (reindex_disp_cat_disp_functor F (pr1 D₂))).
+         (total_functor_commute_z_iso (reindex_disp_cat_disp_functor F (pr1 D₂))).
   Let cone : pb_cone F (pr1_category _ : tot_D₂ --> C₂)
     := make_pb_cone pb π₁ π₂ γ.
 
@@ -331,7 +325,7 @@ Section ReindexingPullback.
     - exact HD₂.
     - exact (pb_cone_pr2 q).
     - exact (pb_cone_pr1 q).
-    - apply invertible_2cell_to_nat_iso.
+    - apply invertible_2cell_to_nat_z_iso.
       exact (pb_cone_cell q).
   Defined.
 
@@ -341,12 +335,12 @@ Section ReindexingPullback.
         (reindexing_has_pb_ump_1_cell q · pb_cone_pr1 cone)
         (pb_cone_pr1 q).
   Proof.
-    use nat_iso_to_invertible_2cell.
+    use nat_z_iso_to_invertible_2cell.
     exact (reindex_pb_ump_1_pr1_nat_iso
              F D₂ HD₂
              (pb_cone_pr2 q)
              (pb_cone_pr1 q)
-             (invertible_2cell_to_nat_iso
+             (invertible_2cell_to_nat_z_iso
                 _ _
                 (pb_cone_cell q))).
   Defined.
@@ -357,12 +351,12 @@ Section ReindexingPullback.
         (reindexing_has_pb_ump_1_cell q · pb_cone_pr2 cone)
         (pb_cone_pr2 q).
   Proof.
-    use nat_iso_to_invertible_2cell.
-    exact (reindex_pb_ump_1_pr2_nat_iso
+    use nat_z_iso_to_invertible_2cell.
+    exact (reindex_pb_ump_1_pr2_nat_z_iso
              F D₂ HD₂
              (pb_cone_pr2 q)
              (pb_cone_pr1 q)
-             (invertible_2cell_to_nat_iso
+             (invertible_2cell_to_nat_z_iso
                 _ _
                 (pb_cone_cell q))).
   Defined.
@@ -399,14 +393,9 @@ Section ReindexingPullback.
     etrans.
     {
       apply maponpaths.
-      exact (inv_from_iso_in_total
-               (is_invertible_2cell_to_is_nat_iso _ (pr2 (pb_cone_cell q)) x)
+      exact (inv_from_z_iso_in_total
+               (is_invertible_2cell_to_is_nat_z_iso _ (pr2 (pb_cone_cell q)) x)
                _).
-    }
-    etrans.
-    {
-      apply maponpaths.
-      apply id_right.
     }
     exact (nat_trans_eq_pointwise
              (vcomp_rinv
@@ -493,9 +482,9 @@ Section CommaObject.
       + exact (comma_cone_pr1 q).
       + exact (comma_cone_pr2 q).
       + exact (comma_cone_cell q).
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply comma_ump1_pr1.
-    - apply nat_iso_to_invertible_2cell.
+    - apply nat_z_iso_to_invertible_2cell.
       apply comma_ump1_pr2.
     - abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
@@ -580,3 +569,474 @@ End CommaObject.
 Definition has_comma_bicat_of_univ_cats
   : has_comma bicat_of_univ_cats
   := λ C₁ C₂ C₃ F G, comma_comma_cone F G ,, comma_has_ump F G.
+
+(**
+ 6. Inserters
+ *)
+Definition dialgebra_inserter_cone
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F G : C₁ --> C₂)
+  : inserter_cone F G.
+Proof.
+  use make_inserter_cone.
+  - exact (univalent_dialgebra F G).
+  - exact (dialgebra_pr1 F G).
+  - exact (dialgebra_nat_trans F G).
+Defined.
+
+Definition dialgebra_inserter_ump_1
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F G : C₁ --> C₂)
+  : has_inserter_ump_1 (dialgebra_inserter_cone F G).
+Proof.
+  intros q.
+  use make_inserter_1cell.
+  - exact (nat_trans_to_dialgebra
+             (inserter_cone_pr1 q)
+             (inserter_cone_cell q)).
+  - use nat_z_iso_to_invertible_2cell.
+    exact (nat_trans_to_dialgebra_pr1_nat_z_iso
+             (inserter_cone_pr1 q)
+             (inserter_cone_cell q)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !(functor_id F), !(functor_id G) ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+Definition dialgebra_inserter_ump_2
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F G : C₁ --> C₂)
+  : has_inserter_ump_2 (dialgebra_inserter_cone F G).
+Proof.
+  intros C₀ K₁ K₂ α p.
+  simple refine (_ ,, _).
+  - apply (build_nat_trans_to_dialgebra K₁ K₂ α).
+    abstract
+      (intro x ;
+       pose (nat_trans_eq_pointwise p x) as p' ;
+       cbn in p' ;
+       rewrite !id_left, !id_right in p' ;
+       exact p').
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       apply idpath).
+Defined.
+
+Definition dialgebra_inserter_ump_eq
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F G : C₁ --> C₂)
+  : has_inserter_ump_eq (dialgebra_inserter_cone F G).
+Proof.
+  intros C₀ K₁ K₂ α p n₁ n₂ q₁ q₂.
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro x.
+  use eq_dialgebra.
+  exact (nat_trans_eq_pointwise q₁ x @ !(nat_trans_eq_pointwise q₂ x)).
+Qed.
+
+Definition has_inserters_bicat_of_univ_cats
+  : has_inserters bicat_of_univ_cats.
+Proof.
+  intros C₁ C₂ F G.
+  simple refine (univalent_dialgebra F G ,, _ ,, _ ,, _).
+  - exact (dialgebra_pr1 F G).
+  - exact (dialgebra_nat_trans F G).
+  - refine (_ ,, _ ,, _).
+    + exact (dialgebra_inserter_ump_1 F G).
+    + exact (dialgebra_inserter_ump_2 F G).
+    + exact (dialgebra_inserter_ump_eq F G).
+Defined.
+
+(**
+ 7. Equifiers
+ *)
+Section EquifiersCat.
+  Context {C₁ C₂ : bicat_of_univ_cats}
+          {F G : C₁ --> C₂}
+          (n₁ n₂ : F ==> G).
+
+  Definition equifier_bicat_of_univ_cats
+    : bicat_of_univ_cats.
+  Proof.
+    use (subcategory_univalent C₁).
+    intro x.
+    use make_hProp.
+    - exact (pr1 n₁ x = pr1 n₂ x).
+    - apply homset_property.
+  Defined.
+
+  Definition equifier_bicat_of_univ_cats_pr1
+    : equifier_bicat_of_univ_cats --> C₁
+    := sub_precategory_inclusion _ _.
+
+  Definition equifier_bicat_of_univ_cats_eq
+    : equifier_bicat_of_univ_cats_pr1 ◃ n₁
+      =
+      equifier_bicat_of_univ_cats_pr1 ◃ n₂.
+  Proof.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    exact (pr2 x).
+  Qed.
+
+  Definition equifier_bicat_of_univ_cats_cone
+    : equifier_cone F G n₁ n₂
+    := make_equifier_cone
+         equifier_bicat_of_univ_cats
+         equifier_bicat_of_univ_cats_pr1
+         equifier_bicat_of_univ_cats_eq.
+
+  Section EquifierUMP1.
+    Context (q : equifier_cone F G n₁ n₂).
+
+    Definition equifier_bicat_of_univ_cats_ump_1_mor_data
+      : functor_data
+          (pr11 q)
+          (pr1 equifier_bicat_of_univ_cats).
+    Proof.
+      use make_functor_data.
+      - refine (λ x, pr1 (equifier_cone_pr1 q) x ,, _).
+        exact (nat_trans_eq_pointwise (equifier_cone_eq q) x).
+      - exact (λ x y f, # (pr1 (equifier_cone_pr1 q)) f ,, tt).
+    Defined.
+
+    Definition equifier_bicat_of_univ_cats_ump_1_mor_is_functor
+      : is_functor equifier_bicat_of_univ_cats_ump_1_mor_data.
+    Proof.
+      split ; intro ; intros.
+      - use subtypePath ; [ intro ; apply isapropunit | ] ; cbn.
+        apply functor_id.
+      - use subtypePath ; [ intro ; apply isapropunit | ] ; cbn.
+        apply functor_comp.
+    Qed.
+
+    Definition equifier_bicat_of_univ_cats_ump_1_mor
+      : q --> equifier_bicat_of_univ_cats_cone.
+    Proof.
+      use make_functor.
+      - exact equifier_bicat_of_univ_cats_ump_1_mor_data.
+      - exact equifier_bicat_of_univ_cats_ump_1_mor_is_functor.
+    Defined.
+
+    Definition equifier_bicat_of_univ_cats_ump_1_pr1
+      : equifier_bicat_of_univ_cats_ump_1_mor ∙ equifier_bicat_of_univ_cats_pr1
+        ⟹
+        pr1 (equifier_cone_pr1 q).
+    Proof.
+      use make_nat_trans.
+      - exact (λ _, identity _).
+      - abstract
+          (intros x y f ; cbn ;
+           rewrite id_left, id_right ;
+           apply idpath).
+    Defined.
+
+    Definition equifier_bicat_of_univ_cats_ump_1_pr1_nat_z_iso
+      : nat_z_iso
+          (equifier_bicat_of_univ_cats_ump_1_mor ∙ equifier_bicat_of_univ_cats_pr1)
+          (equifier_cone_pr1 q).
+    Proof.
+      use make_nat_z_iso.
+      - exact equifier_bicat_of_univ_cats_ump_1_pr1.
+      - intro.
+        apply identity_is_z_iso.
+    Defined.
+  End EquifierUMP1.
+
+  Definition equifier_bicat_of_univ_cats_ump_1
+    : has_equifier_ump_1 equifier_bicat_of_univ_cats_cone.
+  Proof.
+    intro q.
+    use make_equifier_1cell.
+    - exact (equifier_bicat_of_univ_cats_ump_1_mor q).
+    - apply nat_z_iso_to_invertible_2cell.
+      exact (equifier_bicat_of_univ_cats_ump_1_pr1_nat_z_iso q).
+  Defined.
+
+  Section EquifierUMP2.
+    Context {C₀ : bicat_of_univ_cats}
+            {K₁ K₂ : C₀ --> equifier_bicat_of_univ_cats_cone}
+            (α : K₁ · equifier_cone_pr1 equifier_bicat_of_univ_cats_cone
+                 ==>
+                 K₂ · equifier_cone_pr1 equifier_bicat_of_univ_cats_cone).
+
+    Definition equifier_bicat_of_univ_cats_ump_2_cell
+      : K₁ ==> K₂.
+    Proof.
+      use make_nat_trans.
+      - exact (λ x, pr1 α x ,, tt).
+      - abstract
+          (intros x y f ;
+           use subtypePath ; [ intro ; apply isapropunit | ] ;
+           cbn ;
+           exact (nat_trans_ax α _ _ f)).
+    Defined.
+
+    Definition equifier_bicat_of_univ_cats_ump_2_eq
+      : equifier_bicat_of_univ_cats_ump_2_cell ▹ _  = α.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      apply idpath.
+    Qed.
+  End EquifierUMP2.
+
+  Definition equifier_bicat_of_univ_cats_ump_2
+    : has_equifier_ump_2 equifier_bicat_of_univ_cats_cone.
+  Proof.
+    intros C₀ K₁ K₂ α.
+    simple refine (_ ,, _).
+    - exact (equifier_bicat_of_univ_cats_ump_2_cell α).
+    - exact (equifier_bicat_of_univ_cats_ump_2_eq α).
+  Defined.
+
+  Definition equifier_bicat_of_univ_cats_ump_eq
+    : has_equifier_ump_eq equifier_bicat_of_univ_cats_cone.
+  Proof.
+    intros C₀ K₁ K₂ α β₁ β₂ p₁ p₂.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use subtypePath.
+    {
+      intro.
+      apply isapropunit.
+    }
+    exact (nat_trans_eq_pointwise p₁ x @ !(nat_trans_eq_pointwise p₂ x)).
+  Qed.
+End EquifiersCat.
+
+Definition has_equifiers_bicat_of_univ_cats
+  : has_equifiers bicat_of_univ_cats.
+Proof.
+  intros C₁ C₂ F G n₁ n₂.
+  simple refine (_ ,, _ ,, _ ,, _).
+  - exact (equifier_bicat_of_univ_cats n₁ n₂).
+  - exact (equifier_bicat_of_univ_cats_pr1 n₁ n₂).
+  - exact (equifier_bicat_of_univ_cats_eq n₁ n₂).
+  - simple refine (_ ,, _ ,, _).
+    + exact (equifier_bicat_of_univ_cats_ump_1 n₁ n₂).
+    + exact (equifier_bicat_of_univ_cats_ump_2 n₁ n₂).
+    + exact (equifier_bicat_of_univ_cats_ump_eq n₁ n₂).
+Defined.
+
+(**
+ 8. Iso-inserters
+ *)
+Definition iso_inserter_cone_bicat_of_univ_cats
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : @iso_inserter_cone bicat_of_univ_cats _ _ F G.
+Proof.
+  use make_iso_inserter_cone.
+  - exact (univalent_cat_iso_inserter F G).
+  - exact (cat_iso_inserter_pr1 F G).
+  - use nat_z_iso_to_invertible_2cell.
+    exact (cat_iso_inserter_nat_iso F G).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_1
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_1
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros q.
+  use make_iso_inserter_1cell.
+  - refine (functor_to_cat_iso_inserter
+              (iso_inserter_cone_pr1 q)
+              _).
+    apply invertible_2cell_to_nat_z_iso.
+    exact (iso_inserter_cone_cell q).
+  - apply nat_z_iso_to_invertible_2cell.
+    apply functor_to_cat_iso_inserter_pr1_nat_z_iso.
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite (functor_id F), (functor_id G) ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_2
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_2
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros C₀ H₁ H₂ α p.
+  simple refine (_ ,, _).
+  - refine (nat_trans_to_cat_iso_inserter α _).
+    abstract
+      (intro x ;
+       pose (nat_trans_eq_pointwise p x) as q ; cbn in q ;
+       rewrite !id_left, !id_right in q ;
+       exact q).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       apply idpath).
+Defined.
+
+Definition iso_inserter_cone_bicat_of_univ_cats_ump_eq
+           {C₁ C₂ : univalent_category}
+           (F G : C₁ ⟶ C₂)
+  : has_iso_inserter_ump_eq
+      (iso_inserter_cone_bicat_of_univ_cats F G).
+Proof.
+  intros C₀ H₁ H₂ α p ζ₁ ζ₂ q₁ q₂.
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro x.
+  use eq_cat_iso_inserter.
+  refine (nat_trans_eq_pointwise q₁ x @ !_).
+  exact (nat_trans_eq_pointwise q₂ x).
+Qed.
+
+Definition has_iso_inserters_bicat_of_univ_cats
+  : has_iso_inserters bicat_of_univ_cats.
+Proof.
+  intros C₁ C₂ F G.
+  simple refine (_ ,, _ ,, _ ,, _).
+  - exact (univalent_cat_iso_inserter F G).
+  - exact (cat_iso_inserter_pr1 F G).
+  - use nat_z_iso_to_invertible_2cell.
+    exact (cat_iso_inserter_nat_iso F G).
+  - simple refine (_ ,, _ ,, _).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_1 F G).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_2 F G).
+    + exact (iso_inserter_cone_bicat_of_univ_cats_ump_eq F G).
+Defined.
+
+(**
+ 9. Eilenberg-Moore objects
+ *)
+Section EilenbergMooreUMP.
+  Context (m : mnd bicat_of_univ_cats).
+
+  Let C : univalent_category := ob_of_mnd m.
+  Let mC : Monad C := mnd_bicat_of_univ_cats_to_Monad m.
+
+  Definition eilenberg_moore_cat_cone
+    : em_cone m.
+  Proof.
+    use make_em_cone.
+    - exact (eilenberg_moore_univalent_cat _ mC).
+    - exact (eilenberg_moore_pr mC).
+    - exact (eilenberg_moore_nat_trans mC).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         rewrite id_left ;
+         exact (!(pr12 x))).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         rewrite (functor_id (endo_of_mnd m)) ;
+         rewrite id_left, id_right ;
+         exact (!(pr22 x))).
+  Defined.
+
+  Definition eilenberg_moore_cat_ump_1
+    : em_ump_1 m eilenberg_moore_cat_cone.
+  Proof.
+    intro q.
+    use make_em_cone_mor.
+    - use functor_to_eilenberg_moore_cat.
+      + exact (mor_of_mnd_mor (mor_of_em_cone _ q)).
+      + exact (mnd_mor_endo (mor_of_em_cone _ q)).
+      + abstract
+          (intro x ;
+           pose (nat_trans_eq_pointwise
+                   (mnd_mor_unit (mor_of_em_cone _ q))
+                   x) as p ;
+           cbn in p ;
+           rewrite (functor_id (mor_of_mnd_mor (mor_of_em_cone m q))) in p ;
+           rewrite !id_left in p ;
+           exact (!p)).
+      + abstract
+          (intro x ;
+           pose (nat_trans_eq_pointwise
+                   (mnd_mor_mu (mor_of_em_cone _ q))
+                   x) as p ;
+           cbn in p ;
+           rewrite (functor_id (mor_of_mnd_mor (mor_of_em_cone m q))) in p ;
+           rewrite !id_left, !id_right in p ;
+           exact p).
+    - use make_invertible_2cell.
+      + use make_mnd_cell.
+        * apply functor_to_eilenberg_moore_cat_pr.
+        * abstract
+            (use nat_trans_eq ; [ apply homset_property | ] ;
+             intro x ; cbn ;
+             rewrite (functor_id (endo_of_mnd m)) ;
+             rewrite !id_left, !id_right ;
+             apply idpath).
+      + use is_invertible_mnd_2cell.
+        use is_nat_z_iso_to_is_invertible_2cell.
+        apply functor_to_eilenberg_moore_cat_pr_is_nat_z_iso.
+  Defined.
+
+  Definition eilenberg_moore_cat_ump_2
+    : em_ump_2 m eilenberg_moore_cat_cone.
+  Proof.
+    intros C' F₁ F₂ α.
+    use iscontraprop1.
+    - abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply cellset_property | ] ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 (pr2 φ₁)) x) as p₁ ;
+         pose (nat_trans_eq_pointwise (maponpaths pr1 (pr2 φ₂)) x) as p₂ ;
+         use eq_mor_eilenberg_moore ;
+         exact (p₁ @ (!p₂))).
+    - simple refine (_ ,, _).
+      + use nat_trans_to_eilenberg_moore_cat.
+        * exact (cell_of_mnd_cell α).
+        * abstract
+            (intro x ;
+             pose (nat_trans_eq_pointwise (mnd_cell_endo α) x) as p ;
+             simpl in p ;
+             rewrite !id_left, !id_right in p ;
+             unfold mor_of_eilenberg_moore_mor in p ;
+             simpl in p ;
+             rewrite !id_left, !id_right in p ;
+             exact p).
+      + abstract
+          (use eq_mnd_cell ;
+           use nat_trans_eq ; [ apply homset_property | ] ;
+           intro x ;
+           apply idpath).
+  Defined.
+
+  Definition eilenberg_moore_cat_ump
+    : has_em_ump m eilenberg_moore_cat_cone.
+  Proof.
+    split.
+    - exact eilenberg_moore_cat_ump_1.
+    - exact eilenberg_moore_cat_ump_2.
+  Defined.
+End EilenbergMooreUMP.
+
+Definition has_em_bicat_of_univ_cats
+  : bicat_has_em bicat_of_univ_cats
+  := λ m, eilenberg_moore_cat_cone m ,, eilenberg_moore_cat_ump m.

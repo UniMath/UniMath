@@ -234,10 +234,7 @@ Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C D D')
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) :
   is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.
-  destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
-  destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
-  unfold H.
-  apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
+  apply is_omega_cocont_BinCoproduct_of_functors; assumption.
 Defined.
 
 End binsum_of_signatures.

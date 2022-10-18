@@ -19,7 +19,7 @@ Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetFibration.
 Require Import UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
-Require Import UniMath.Bicategories.DisplayMapBicat.
+Require Import UniMath.Bicategories.Logic.DisplayMapBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
@@ -486,6 +486,23 @@ Section ArrowSubBicatToDispBicat.
       apply cellset_property.
   Defined.
 
+  Definition disp_2cells_isaprop_if_contained_in_faithful
+             (HD : contained_in_faithful D)
+    : disp_2cells_isaprop disp_map_bicat_to_disp_bicat.
+  Proof.
+    intros x y f g α xx yy ff gg.
+    use invproofirrelevance.
+    intros αα ββ.
+    use subtypePath.
+    {
+      intro.
+      apply cellset_property.
+    }
+    apply (faithful_1cell_eq_cell (HD _ _ _ (pr22 yy))).
+    use (vcomp_lcancel (pr22 ff)) ; [ apply property_from_invertible_2cell | ].
+    exact (pr2 αα @ !(pr2 ββ)).
+  Qed.
+
   (** Displayed invertible 2-cells *)
   Definition is_invertible_to_is_disp_invertible
              {x y : B}
@@ -609,7 +626,7 @@ Section ArrowSubBicatToDispBicat.
   Proof.
     use make_weq.
     - exact disp_map_inv_2cell_to_disp_invertible_2cell.
-    - use gradth.
+    - use isweq_iso.
       + exact disp_map_disp_invertible_2cell_to_inv_2cell.
       + abstract
           (intro α ;
@@ -639,7 +656,7 @@ Section ArrowSubBicatToDispBicat.
   Proof.
     use make_weq.
     - exact (λ α, ((pr11 α ,, pr2 α) ,, pr21 α)).
-    - use gradth.
+    - use isweq_iso.
       + exact (λ α, (pr11 α ,, pr2 α) ,, pr21 α).
       + intro ; apply idpath.
       + intro ; apply idpath.
@@ -1234,7 +1251,7 @@ Section ArrowSubBicatToDispBicat.
   Proof.
     use make_weq.
     - exact (λ e, disp_map_bicat_adj_equiv_to_disp_adj_equiv HB (pr1 e) (pr2 e)).
-    - use gradth.
+    - use isweq_iso.
       + exact disp_map_bicat_disp_adj_equiv_to_adj_equiv_pair.
       + exact (adj_equiv_to_disp_adj_equiv_to_adj_equiv HB).
       + exact (disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv HB HD).

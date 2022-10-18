@@ -81,8 +81,6 @@ Definition identity {C : precategory_data}
   : ∏ c : C, c --> c
   := pr1 (pr2 C).
 
-Local Notation "1" := (identity _) : cat.
-
 Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
   := pr2 (pr2 C) a b c.
@@ -202,6 +200,15 @@ Proof.
   { intros. repeat (apply impred; intro). apply hs. }
 Qed.
 
+Lemma category_eq (C D : category) :
+  (C:precategory_data) = (D:precategory_data) -> C=D.
+Proof.
+  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
+  apply subtypePath'.
+  { assumption. }
+  apply isaprop_is_precategory.
+  apply homset_property.
+Defined.
 
 Definition id_left (C : precategory) :
    ∏ (a b : C) (f : a --> b),

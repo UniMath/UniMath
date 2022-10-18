@@ -90,11 +90,9 @@ Section Algebras.
   following the example of the proof of univalence of the functor category.
   *)
 
-  Lemma shSet_iso_fiber {A B : shSet_category} (i : iso A B): ∏ s, @iso HSET (A s) (B s).
+  Lemma shSet_iso_fiber {A B : shSet_category} (i : z_iso A B): ∏ s, @z_iso HSET (A s) (B s).
   Proof.
     intro s.
-    apply z_iso_to_iso.
-    apply iso_to_z_iso in i.
     induction i as [i [i' [p q]]].
     simpl in *.
     use make_z_iso.
@@ -105,7 +103,7 @@ Section Algebras.
       + exact (eqtohomot q s).
   Defined.
 
-  Definition shSet_eq_from_shSet_iso (F G : shSet_category) (i : iso F G) : F = G.
+  Definition shSet_eq_from_shSet_z_iso (F G : shSet_category) (i : z_iso F G) : F = G.
   Proof.
     apply funextsec.
     intro s.
@@ -118,13 +116,13 @@ Section Algebras.
     : shSet_iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) F G p s).
   Proof.
     induction p.
-    apply eq_iso. apply idpath.
+    apply z_iso_eq. apply idpath.
   Qed.
 
-  Lemma shSet_eq_from_shSet_iso_idtoiso  (F G : shSet_category) (p : F = G)
-    : shSet_eq_from_shSet_iso F G (idtoiso p) = p.
+  Lemma shSet_eq_from_shSet_z_iso_idtoiso  (F G : shSet_category) (p : F = G)
+    : shSet_eq_from_shSet_z_iso F G (idtoiso p) = p.
   Proof.
-    unfold shSet_eq_from_shSet_iso.
+    unfold shSet_eq_from_shSet_z_iso.
     apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
     simpl (pr1weq (weqtoforallpaths (λ _ : sorts σ, hSet) F G)).
     rewrite (toforallpaths_funextsec).
@@ -135,14 +133,14 @@ Section Algebras.
     apply idpath.
   Defined.
 
-  Lemma idtoiso_shSet_eq_from_shSet_iso (F G : shSet_category) (i : iso F G)
-    : idtoiso (shSet_eq_from_shSet_iso F G i) = i.
+  Lemma idtoiso_shSet_eq_from_shSet_z_iso (F G : shSet_category) (i : z_iso F G)
+    : idtoiso (shSet_eq_from_shSet_z_iso F G i) = i.
   Proof.
-    apply eq_iso.
+    apply z_iso_eq.
     apply funextsec.
     intro s.
-    unfold shSet_eq_from_shSet_iso.
-    assert (H' := idtoiso_shSet_category_compute_pointwise (shSet_eq_from_shSet_iso F G i) s).
+    unfold shSet_eq_from_shSet_z_iso.
+    assert (H' := idtoiso_shSet_category_compute_pointwise (shSet_eq_from_shSet_z_iso F G i) s).
     simpl in *.
     assert (H2 := maponpaths (@pr1 _ _ ) H').
     simpl in H2.
@@ -151,7 +149,7 @@ Section Algebras.
     intermediate_path (pr1 (idtoiso (isotoid HSET is_univalent_HSET (shSet_iso_fiber i s)))).
     - apply maponpaths.
       apply maponpaths.
-      unfold shSet_eq_from_shSet_iso.
+      unfold shSet_eq_from_shSet_z_iso.
       rewrite toforallpaths_funextsec.
       apply idpath.
     - rewrite idtoiso_isotoid.
@@ -161,9 +159,9 @@ Section Algebras.
   Definition is_univalent_shSet_category : is_univalent shSet_category.
   Proof.
     intros F G.
-    apply (isweq_iso _ (shSet_eq_from_shSet_iso F G)).
-    - apply shSet_eq_from_shSet_iso_idtoiso.
-    - apply idtoiso_shSet_eq_from_shSet_iso.
+    apply (isweq_iso _ (shSet_eq_from_shSet_z_iso F G)).
+    - apply shSet_eq_from_shSet_z_iso_idtoiso.
+    - apply idtoiso_shSet_eq_from_shSet_z_iso.
   Defined.
 
   Definition category_algebras : category := total_category algebras_disp.

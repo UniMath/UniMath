@@ -209,11 +209,10 @@ use (uniqueExists (limUnivProp CC _ _)).
 Qed.
 
 
-Lemma isLim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
-  isLimCone D d cd -> is_iso (limArrow CC d cd).
+Lemma isLim_is_z_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+  isLimCone D d cd -> is_z_isomorphism (limArrow CC d cd).
 Proof.
 intro H.
-apply is_iso_from_is_z_iso.
 set (CD := make_LimCone D d cd H).
 apply (tpair _ (limArrow (make_LimCone D d cd H) (lim CC) (limCone CC))).
 split.
@@ -230,20 +229,19 @@ split.
 Defined.
 
 
-Lemma inv_isLim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C)
+Lemma inv_isLim_is_z_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C)
   (cd : cone D d) (H : isLimCone D d cd) :
-  inv_from_iso (make_iso _ (isLim_is_iso D CC d cd H)) =
+  inv_from_z_iso (_,,isLim_is_z_iso D CC d cd H) =
   limArrow (make_LimCone D d cd H) _ (limCone CC).
 Proof.
-cbn. unfold precomp_with.
-apply id_right.
+  apply idpath.
 Qed.
 
-Lemma is_iso_isLim {C : category} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
-  is_iso (limArrow CC d cd) -> isLimCone D d cd.
+Lemma is_z_iso_isLim {C : category} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+  is_z_isomorphism (limArrow CC d cd) -> isLimCone D d cd.
 Proof.
 intro H.
-set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+set (iinv := z_iso_inv_from_is_z_iso _ H).
 intros x cx.
 use tpair.
 - use tpair.
@@ -322,14 +320,13 @@ split.
 Defined.
 *)
 
-Definition iso_from_lim_to_lim {C : precategory} {g : graph} {d : diagram g C}
-  (CC CC' : LimCone d) : iso (lim CC) (lim CC').
+Definition z_iso_from_lim_to_lim {C : precategory} {g : graph} {d : diagram g C}
+  (CC CC' : LimCone d) : z_iso (lim CC) (lim CC').
 Proof.
-use make_iso.
+use make_z_iso.
 - apply limArrow, limCone.
-- use is_iso_qinv.
-  + apply limArrow, limCone.
-  + abstract (now split; apply pathsinv0, lim_endo_is_identity; intro u;
+- apply limArrow, limCone.
+- abstract (now split; apply pathsinv0, lim_endo_is_identity; intro u;
               rewrite <- assoc, limArrowCommutes; eapply pathscomp0; try apply limArrowCommutes).
 Defined.
 
@@ -359,7 +356,7 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypePath.
 - intro; apply isaprop_isLimCone.
-- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (z_iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
   set (C' (c : C) f := forms_cone(c:=c) cc f).
   rewrite (@transportf_total2 _ B C').
@@ -367,7 +364,7 @@ apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
-              cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
+              cbn; apply limArrowCommutes).
 Qed.
 
 End Universal_Unique.
@@ -467,9 +464,9 @@ Definition isLimFunctor_is_pointwise_Lim
   : ∏ a, isLimCone (diagram_pointwise D a) _ (cone_pointwise X R a).
 Proof.
   intro a.
-  apply (is_iso_isLim _ (HCg a)).
-  set (XR := isLim_is_iso D LimFunctorCone X R H).
-  apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
+  apply (is_z_iso_isLim _ (HCg a)).
+  set (XR := isLim_is_z_iso D LimFunctorCone X R H).
+  apply  (nat_trafo_pointwise_z_iso_if_z_iso _ _ XR).
 Defined.
 
 
@@ -485,6 +482,34 @@ Lemma LimsFunctorCategory_of_shape (g : graph) (A C : category)
   (HC : Lims_of_shape g C) : Lims_of_shape g [A,C].
 Proof.
 now intros d; apply LimFunctorCone.
+Defined.
+
+Lemma pointwise_Lim_is_isLimFunctor
+  {A C : category} {g : graph}
+  (d : diagram g [A,C]) (G : [A,C]) (cG : cone d G)
+  (H : ∏ a, isLimCone _ _ (cone_pointwise d G cG a)) :
+  isLimCone d G cG.
+Proof.
+ set (CC a := make_LimCone _ _ _ (H a)).
+ set (D' := LimFunctorCone _ CC).
+ use is_z_iso_isLim.
+ - apply D'.
+ - use tpair.
+   + use make_nat_trans.
+     * intros a; apply identity.
+     * abstract (
+           intros a b f; rewrite id_left, id_right;
+           apply pathsinv0 ;
+           apply (limArrowUnique (CC b) (lim (CC a))) ; intro u ; cbn ;
+           now rewrite <- (nat_trans_ax (coneOut cG u))
+         ).
+   + abstract (split;
+               [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
+                 apply pathsinv0, (limArrowUnique (CC x)); intros v;
+                 now rewrite id_left
+               | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
+                 apply pathsinv0, (limArrowUnique (CC x)); intro u;
+                 now rewrite id_left]).
 Defined.
 
 Section map.
@@ -847,11 +872,10 @@ split.
 Defined.
 *)
 
-Lemma isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
-  isLimCone D d cd -> is_iso (limArrow CC d cd).
+Lemma isLim_is_z_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  isLimCone D d cd -> is_z_isomorphism (limArrow CC d cd).
 Proof.
 intro H.
-apply is_iso_from_is_z_iso.
 set (CD := make_LimCone D d cd H).
 apply (tpair _ (limArrow (make_LimCone D d cd H) (lim CC) (limCone CC))).
 split.
@@ -870,18 +894,17 @@ Defined.
 
 Lemma inv_isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C)
   (cd : cone D d) (H : isLimCone D d cd) :
-  inv_from_iso (make_iso _ (isLim_is_iso D CC d cd H)) =
+  inv_from_z_iso (_,,isLim_is_z_iso D CC d cd H) =
   limArrow (make_LimCone D d cd H) _ (limCone CC).
 Proof.
-cbn. unfold precomp_with.
-apply id_right.
+  apply idpath.
 Qed.
 
-Lemma is_iso_isLim {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
-  is_iso (limArrow CC d cd) -> isLimCone D d cd.
+Lemma is_z_iso_isLim {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  is_z_isomorphism (limArrow CC d cd) -> isLimCone D d cd.
 Proof.
 intro H.
-set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+set (iinv := z_iso_inv_from_is_z_iso _ H).
 intros x cx.
 use tpair.
 - use tpair.

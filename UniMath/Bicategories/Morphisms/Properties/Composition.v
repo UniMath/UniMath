@@ -7,15 +7,17 @@
  3. Composition of faithful 1-cells
  4. Composition of fully faithful 1-cells
  5. Composition of discrete 1-cells
- 6. Composition of Street fibrations
- 6. Composition of Street opfibrations
+ 6. Composition of pseudomonic 1-cells
+ 7. Composition of Street fibrations
+ 8. Composition of Street opfibrations
+ 9. Composition of adjunctions
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Bicategories.Core.Bicat.
-Import Notations.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -100,6 +102,18 @@ Proof.
   use comp_equiv.
   - exact l₁.
   - exact l₂.
+Defined.
+
+Definition comp_left_adjoint_equivalence
+           {B : bicat}
+           {a b c : B}
+           {l₁ : a --> b}
+           (Hl₁ : left_adjoint_equivalence l₁)
+           {l₂ : b --> c}
+           (Hl₂ : left_adjoint_equivalence l₂)
+  : left_adjoint_equivalence (l₁ · l₂).
+Proof.
+  exact (comp_adjequiv (l₁ ,, Hl₁) (l₂ ,, Hl₂)).
 Defined.
 
 Lemma unique_adjoint_equivalence_comp
@@ -235,7 +249,45 @@ Proof.
 Defined.
 
 (**
- 6. Composition of Street fibrations
+ 6. Composition of pseudomonic 1-cells
+ *)
+Definition comp_pseudomonic
+           {B : bicat}
+           {a b c : B}
+           {f : a --> b}
+           {g : b --> c}
+           (Hf : pseudomonic_1cell f)
+           (Hg : pseudomonic_1cell g)
+  : pseudomonic_1cell (f · g).
+Proof.
+  use make_pseudomonic.
+  - apply comp_faithful.
+    + apply pseudomonic_1cell_faithful.
+      exact Hf.
+    + apply pseudomonic_1cell_faithful.
+      exact Hg.
+  - intros z g₁ g₂ αf Hαf.
+    simple refine (_ ,, _).
+    + simple refine (pseudomonic_1cell_inv_map Hf _ _).
+      * apply (pseudomonic_1cell_inv_map
+                 Hg
+                 (rassociator _ _ _ • αf • lassociator _ _ _)).
+        is_iso.
+      * apply is_invertible_2cell_pseudomonic_1cell_inv_map.
+    + split.
+      * apply is_invertible_2cell_pseudomonic_1cell_inv_map.
+      * abstract
+          (use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ] ;
+           rewrite <- rwhisker_rwhisker_alt ;
+           rewrite !pseudomonic_1cell_inv_map_eq ;
+           rewrite !vassocl ;
+           rewrite lassociator_rassociator ;
+           rewrite id2_right ;
+           apply idpath).
+Defined.
+
+(**
+ 7. Composition of Street fibrations
  *)
 Section CompositionOfSFib.
   Context {B : bicat}
@@ -592,9 +644,48 @@ Section CompositionOfSFib.
   Defined.
 End CompositionOfSFib.
 
+Definition comp_mor_preserves_cartesian
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           (Hf : internal_sfib f)
+           {g : y --> z}
+           (Hg : internal_sfib g)
+  : mor_preserves_cartesian (f · g) g f.
+Proof.
+  intros w h₁ h₂ γ Hγ.
+  apply from_is_cartesian_2cell_comp_rwhisker.
+  - exact Hf.
+  - exact Hg.
+  - exact Hγ.
+Defined.
+
 (**
- 7. Composition of Street opfibrations
+ 8. Composition of Street opfibrations
  *)
+Definition from_is_opcartesian_2cell_comp_rwhisker
+           {B : bicat}
+           {a b c : B}
+           {f : a --> b}
+           (Hf : internal_sopfib f)
+           {g : b --> c}
+           (Hg : internal_sopfib g)
+           {z : B}
+           {h₁ h₂ : z --> a}
+           {α : h₁ ==> h₂}
+           (Hα : is_opcartesian_2cell_sopfib (f · g) α)
+  : is_opcartesian_2cell_sopfib g (α ▹ f).
+Proof.
+  use is_cartesian_to_is_opcartesian_sfib.
+  use from_is_cartesian_2cell_comp_rwhisker.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hf.
+  - apply internal_sopfib_is_internal_sfib.
+    exact Hg.
+  - use is_opcartesian_to_is_cartesian_sfib.
+    exact Hα.
+Defined.
+
 Definition comp_sopfib
            {B : bicat}
            {a b c : B}
@@ -611,3 +702,460 @@ Proof.
   - apply internal_sopfib_is_internal_sfib.
     exact Hg.
 Defined.
+
+Definition comp_mor_preserves_opcartesian
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           (Hf : internal_sopfib f)
+           {g : y --> z}
+           (Hg : internal_sopfib g)
+  : mor_preserves_opcartesian (f · g) g f.
+Proof.
+  intros w h₁ h₂ γ Hγ.
+  apply from_is_opcartesian_2cell_comp_rwhisker.
+  - exact Hf.
+  - exact Hg.
+  - exact Hγ.
+Defined.
+
+(**
+ 9. Composition of adjunctions
+ *)
+Section CompositionAdjunction.
+  Context {B : bicat}
+          {x y z : B}
+          (l₁ : x --> y)
+          (l₂ : y --> z)
+          (Hl₁ : left_adjoint l₁)
+          (Hl₂ : left_adjoint l₂).
+
+  Let r₁ : y --> x := left_adjoint_right_adjoint Hl₁.
+  Let η₁ : id₁ x ==> l₁ · r₁ := left_adjoint_unit Hl₁.
+  Let ε₁ : r₁ · l₁ ==> id₁ y := left_adjoint_counit Hl₁.
+
+  Let r₂ : z --> y := left_adjoint_right_adjoint Hl₂.
+  Let η₂ : id₁ y ==> l₂ · r₂ := left_adjoint_unit Hl₂.
+  Let ε₂ : r₂ · l₂ ==> id₁ z := left_adjoint_counit Hl₂.
+
+  Let ηη : id₁ x ==> l₁ · l₂ · (r₂ · r₁)
+      := η₁
+         • (_ ◃ (linvunitor _ • (η₂ ▹ _) • rassociator _ _ _))
+         • lassociator _ _ _.
+
+  Let εε : r₂ · r₁ · (l₁ · l₂) ==> id₁ z
+      := rassociator _ _ _
+         • (_ ◃ (lassociator _ _ _ • (ε₁ ▹ _) • lunitor _))
+         • ε₂.
+
+  Let trl₁ : linvunitor _ • (η₁ ▹ _) • rassociator _ _ _ • (_ ◃ ε₁) • runitor _ = id₂ _
+      := pr12 Hl₁.
+  Let trl₂ : linvunitor _ • (η₂ ▹ _) • rassociator _ _ _ • (_ ◃ ε₂) • runitor _ = id₂ _
+      := pr12 Hl₂.
+
+  Let trr₁ : rinvunitor _ • (_ ◃ η₁) • lassociator _ _ _ • (ε₁ ▹ _) • lunitor _ = id₂ _
+      := pr22 Hl₁.
+  Let trr₂ : rinvunitor _ • (_ ◃ η₂) • lassociator _ _ _ • (ε₂ ▹ _) • lunitor _ = id₂ _
+      := pr22 Hl₂.
+
+  Definition comp_left_adjoint_data
+    : left_adjoint_data (l₁ · l₂)
+    := r₂ · r₁ ,, (ηη ,, εε).
+
+  Proposition comp_left_adjoint_axioms
+    : left_adjoint_axioms comp_left_adjoint_data.
+  Proof.
+    split ; cbn.
+    - unfold ηη, εε.
+      rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite linvunitor_assoc.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      refine (_ @ id2_rwhisker _ _).
+      rewrite <- trl₁.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      refine (_ @ id2_right _).
+      rewrite <- lwhisker_id2.
+      rewrite <- trl₂.
+      rewrite <- !lwhisker_vcomp.
+      rewrite <- runitor_triangle.
+      etrans.
+      {
+        do 10 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 9 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 8 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocr.
+      do 2 apply maponpaths_2.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 6 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite <- lwhisker_lwhisker_rassociator.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rassociator_rassociator.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 4 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite lassociator_rassociator.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite <- rwhisker_lwhisker_rassociator.
+          rewrite !vassocl.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !lwhisker_vcomp.
+        apply maponpaths.
+        rewrite <- !lwhisker_vcomp.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite rassociator_rassociator.
+          rewrite !vassocl.
+          apply maponpaths.
+          rewrite !lwhisker_vcomp.
+          rewrite lwhisker_lwhisker_rassociator.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker_alt.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocr.
+      do 2 apply maponpaths_2.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rassociator_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite !lwhisker_vcomp.
+        rewrite <- rassociator_rassociator.
+        rewrite !vassocl.
+        rewrite !lwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite rassociator_lassociator.
+        rewrite id2_left.
+        rewrite <- !lwhisker_vcomp.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite lwhisker_vcomp.
+        rewrite <- linvunitor_assoc.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !lwhisker_vcomp.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite <- lwhisker_vcomp.
+          rewrite !vassocr.
+          rewrite rwhisker_lwhisker_rassociator.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite lwhisker_hcomp.
+        rewrite <- linvunitor_natural.
+        apply idpath.
+      }
+      rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite rwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite lunitor_V_id_is_left_unit_V_id.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_r_inv.
+        rewrite <- lwhisker_hcomp.
+        rewrite !lwhisker_vcomp.
+        rewrite linvunitor_lunitor.
+        rewrite !lwhisker_id2.
+        apply idpath.
+      }
+      rewrite id2_right.
+      use vcomp_move_L_Mp ; [ is_iso | ].
+      cbn.
+      rewrite lunitor_lwhisker.
+      apply idpath.
+    - unfold εε, ηη.
+      rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite <- rinvunitor_triangle.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      refine (_ @ lwhisker_id2 _ _).
+      rewrite <- trr₁.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      refine (_ @ id2_right _).
+      rewrite <- id2_rwhisker.
+      rewrite <- trr₂.
+      rewrite <- !rwhisker_vcomp.
+      rewrite <- lunitor_triangle.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 9 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite <-  rwhisker_rwhisker.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite <-  rwhisker_rwhisker.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      do 2 apply maponpaths_2.
+      rewrite !vassocl.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lassociator_lassociator.
+        rewrite !vassocl.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite lassociator_rassociator.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite rwhisker_rwhisker.
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker.
+        rewrite !vassocl.
+        rewrite <- lassociator_lassociator.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !lwhisker_vcomp.
+      rewrite !vassocl.
+      use vcomp_move_R_Mp ; [ is_iso | ].
+      cbn.
+      rewrite !vassocl.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_r_inv.
+        rewrite <- lwhisker_hcomp.
+        apply idpath.
+      }
+      rewrite !lwhisker_vcomp.
+      apply maponpaths.
+      etrans.
+      {
+        rewrite !vassocl.
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lunitor_linvunitor.
+        apply id2_left.
+      }
+      refine (!_).
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        rewrite !vassocr.
+        rewrite lassociator_lassociator.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite !lwhisker_vcomp.
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lunitor_triangle.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      rewrite rassociator_lassociator.
+      rewrite id2_right.
+      rewrite !vassocr.
+      rewrite lunitor_linvunitor.
+      apply id2_left.
+  Qed.
+
+  Definition comp_left_adjoint
+    : left_adjoint (l₁ · l₂)
+    := comp_left_adjoint_data ,, comp_left_adjoint_axioms.
+End CompositionAdjunction.

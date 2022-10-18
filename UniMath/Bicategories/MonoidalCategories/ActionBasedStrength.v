@@ -24,6 +24,14 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
+
+Require UniMath.Bicategories.Core.Bicat.
+Require UniMath.Bicategories.Core.Examples.BicatOfCats.
+
 Local Open Scope cat.
 
 Section A.
@@ -635,6 +643,224 @@ End Param_Distr.
 End Alternative_Definition.
 
 End A.
+
+
+Section Alternative_Definition_Whiskered.
+  Import BifunctorNotations.
+  Import MonoidalNotations.
+
+  Context {V : category}.
+  Context (Mon_V : monoidal V).
+
+  Notation "X ⊗ Y" := (X ⊗_{ Mon_V } Y).
+
+  Context (A A' : category).
+
+  Let Mon_EndA : monoidal (cat_of_endofunctors A) := monoidal_of_endofunctors A.
+  Let Mon_EndA' : monoidal (cat_of_endofunctors A') := monoidal_of_endofunctors A'.
+
+  Context {FA: functor V (cat_of_endofunctors A)}.
+  Context {FA': functor V (cat_of_endofunctors A')}.
+
+  Context (FAm: fmonoidal Mon_V Mon_EndA FA).
+  Context (FA'm: fmonoidal Mon_V Mon_EndA' FA').
+
+Section Param_Distr.
+
+  Context (F : [A, A']).
+
+  (** the expected definitions:
+  Local Definition precomp'F := pre_composition_functor _ A' A' F.
+  Local Definition postcomp'F {C: category} := post_composition_functor C A A' F.
+   *)
+
+  (** the definitions that are more compatible with the bicategorical scenario
+  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (functorial_composition _ _ A') F.
+  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (functorial_composition C _ A') F.
+   *)
+
+  (** the definitions that force full compatibility with the bicategorical scenario *)
+  Local Definition precomp'F := UniMath.Bicategories.Core.Bicat.lwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A') F.
+  Local Definition postcomp'F {C: category} := UniMath.Bicategories.Core.Bicat.rwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A') F.
+
+  (** a parameterized form of distributivity as strength *)
+  Definition param_distributivity'_dom : functor V [A, A'] :=
+    functor_compose FA' precomp'F.
+
+  Goal ∏ v, param_distributivity'_dom v = functor_compose F (FA' v).
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
+
+  Definition param_distributivity'_codom : functor V [A, A'] :=
+    functor_compose FA postcomp'F.
+
+  Goal ∏ v, param_distributivity'_codom v = functor_compose (FA v) F.
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
+
+  Definition parameterized_distributivity'_nat : UU := param_distributivity'_dom ⟹ param_distributivity'_codom.
+
+  Definition parameterized_distributivity'_nat_funclass (δ : parameterized_distributivity'_nat):
+    ∏ v : V, param_distributivity'_dom v --> param_distributivity'_codom v
+    := pr1 δ.
+  Coercion parameterized_distributivity'_nat_funclass : parameterized_distributivity'_nat >-> Funclass.
+
+Section The_Laws.
+
+  Context (δ : parameterized_distributivity'_nat).
+
+  Definition param_distr'_triangle_eq : UU :=
+      # precomp'F (fmonoidal_preservesunit FA'm) · (δ I_{Mon_V}) = # postcomp'F (fmonoidal_preservesunit FAm).
+
+    (** the type of the following def. is the same as that of [δ I_{Mon_V}], as seen from the definition that comes
+        directly afterwards *)
+  Definition param_distr'_triangle_eq_variant0_RHS :
+    [A, A'] ⟦ precomp'F (FA' I_{ Mon_V}), postcomp'F (FA I_{ Mon_V}) ⟧ :=
+    # precomp'F (pr1 (fmonoidal_preservesunitstrongly FA'm)) · # postcomp'F (fmonoidal_preservesunit FAm).
+
+    Definition param_distr'_triangle_eq_variant0 : UU := δ I_{Mon_V} = param_distr'_triangle_eq_variant0_RHS.
+
+    Definition prewhisker_with_ϵ_inv_z_iso' :
+      z_iso (precomp'F (FA' I_{Mon_V})) (precomp'F (I_{Mon_EndA'})).
+    Proof.
+      apply functor_on_z_iso.
+      use tpair.
+      - exact (pr1 (fmonoidal_preservesunitstrongly FA'm)).
+      - cbn beta in |- *.
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Lemma param_distr'_triangle_eq_variant0_follows :
+      param_distr'_triangle_eq -> param_distr'_triangle_eq_variant0.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr'_triangle_eq_variant0_RHS.
+      apply pathsinv0 in Hyp.
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso').
+      apply pathsinv0.
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr'_triangle_eq_variant0_implies :
+      param_distr'_triangle_eq_variant0 -> param_distr'_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr'_triangle_eq_variant0_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso') in Hyp.
+      red.
+      exact Hyp.
+    Qed.
+
+    (** we also abstract over the constituent distributivities *)
+    Definition param_distr'_pentagon_eq_body_RHS (v w : V)
+               (dv: [A, A'] ⟦ param_distributivity'_dom v, param_distributivity'_codom v ⟧)
+               (dw: [A, A'] ⟦ param_distributivity'_dom w, param_distributivity'_codom w ⟧) :
+      [A, A'] ⟦ precomp'F ((FA' v) ⊗_{Mon_EndA'} (FA' w)), postcomp'F (FA (v ⊗_{Mon_V} w))⟧.
+    Proof.
+      set (aux1 := # (post_comp_functor (FA' w)) dv).
+      set (aux2 := # (pre_comp_functor (FA v)) dw).
+      set (aux3 := # postcomp'F (fmonoidal_preservestensordata FAm v w)).
+      set (auxr := aux1 · aux2).
+      exact (auxr · aux3).
+    Defined.
+
+    Definition param_distr'_pentagon_eq_body (v w : V) : UU.
+    Proof.
+      set (aux := # precomp'F (fmonoidal_preservestensordata FA'm v w)).
+      exact (aux · δ (v ⊗ w) = param_distr'_pentagon_eq_body_RHS v w (δ v) (δ w)).
+    Defined.
+
+    Definition param_distr'_pentagon_eq : UU := ∏ (v w : V), param_distr'_pentagon_eq_body v w.
+
+    Definition param_distr'_pentagon_eq_body_variant_RHS (v w : V)
+               (dv: [A, A'] ⟦ param_distributivity'_dom v, param_distributivity'_codom v ⟧)
+               (dw: [A, A'] ⟦ param_distributivity'_dom w, param_distributivity'_codom w ⟧) :
+      [A, A'] ⟦ param_distributivity'_dom (v ⊗ w), param_distributivity'_codom (v ⊗ w) ⟧.
+    Proof.
+      set (aux1inv := # precomp'F (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
+      exact (aux1inv · (param_distr'_pentagon_eq_body_RHS v w dv dw)).
+    Defined.
+
+    Definition param_distr'_pentagon_eq_body_variant (v w : V): UU :=
+      δ (v ⊗ w) = param_distr'_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    Definition param_distr'_pentagon_eq_variant: UU :=
+      ∏ (v w : V), param_distr'_pentagon_eq_body_variant v w.
+
+    Definition prewhisker_with_μ_inv_z_iso' (v w : V):
+      z_iso (precomp'F (FA' (v ⊗ w)))
+            (precomp'F ((FA' v) ⊗_{Mon_EndA'} (FA' w))).
+    Proof.
+      use tpair.
+      - exact (# precomp'F (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
+      - cbn beta in |- *.
+        apply functor_on_is_z_isomorphism.
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Lemma param_distr'_pentagon_eq_body_variant_follows (v w : V):
+      param_distr'_pentagon_eq_body v w -> param_distr'_pentagon_eq_body_variant v w.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr'_pentagon_eq_body_variant_RHS.
+      apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso' v w)).
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr'_pentagon_eq_body_variant_implies (v w : V):
+      param_distr'_pentagon_eq_body_variant v w -> param_distr'_pentagon_eq_body v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr'_pentagon_eq_body_variant_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso' v w)) in Hyp.
+      exact Hyp.
+    Qed.
+
+    Lemma isaprop_param_distr'_triangle_eq : isaprop param_distr'_triangle_eq.
+    Proof.
+      apply homset_property.
+    Qed.
+
+    Lemma isaprop_param_distr'_pentagon_eq : isaprop param_distr'_pentagon_eq.
+    Proof.
+      red.
+      apply impred; intros v.
+      apply impred; intros w.
+      apply isaset_nat_trans, homset_property.
+    Qed.
+
+End The_Laws.
+
+   Definition parameterized_distributivity' : UU := ∑ (δ : parameterized_distributivity'_nat),
+     (param_distr'_triangle_eq δ) × (param_distr'_pentagon_eq δ).
+
+   Lemma parameterized_distributivity'_eq (sδ sδ': parameterized_distributivity') :
+     pr1 sδ = pr1 sδ' -> sδ = sδ'.
+   Proof.
+     intro Heq.
+     apply subtypePath; trivial.
+     intro δ. apply isapropdirprod.
+     - apply isaprop_param_distr'_triangle_eq.
+     - apply isaprop_param_distr'_pentagon_eq.
+   Qed.
+
+Definition parameterized_distributivity'_to_nat (sδ : parameterized_distributivity') :
+  parameterized_distributivity'_nat
+  := pr1 sδ.
+Coercion parameterized_distributivity'_to_nat : parameterized_distributivity' >-> parameterized_distributivity'_nat.
+
+Identity Coercion parameterized_distributivity'_nat_to_nat_trans : parameterized_distributivity'_nat >-> nat_trans.
+
+End Param_Distr.
+End Alternative_Definition_Whiskered.
 
 Section B.
 (** following the TYPES'15 post-proceedings paper by Ahrens and Matthes - will be identified as an instance of the previous *)

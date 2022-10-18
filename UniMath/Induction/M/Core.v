@@ -16,7 +16,7 @@
   *)
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.FunctorCoalgebras.
+Require Import UniMath.Induction.FunctorCoalgebras_legacy.
 Require Import UniMath.Induction.PolynomialFunctors.
 
 Section M.

@@ -7,7 +7,8 @@ Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.Core.Univalence.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.HSET.Core.
+               UniMath.CategoryTheory.categories.HSET.Core
+               UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -77,16 +78,6 @@ Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
 
 Definition theUnivalenceProperty (C: univalent_category) := pr2 C : is_univalent C.
-
-Lemma category_eq (C D : category) :
-  (C:precategory_data) = (D:precategory_data) -> C=D.
-Proof.
-  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
-  apply subtypePath'.
-  { assumption. }
-  apply isaprop_is_precategory.
-  apply homset_property.
-Defined.
 
 (** embeddings and isomorphism of categories  *)
 
@@ -233,7 +224,7 @@ Defined.
 
 (** natural transformations and isomorphisms *)
 
-Definition nat_iso {B C:category} (F G:[B,C]) := iso F G.
+Definition nat_iso {B C:category} (F G:[B,C]) := z_iso F G.
 
 Definition makeNattrans {C D:category} {F G:[C,D]}
            (mor : ∏ x : C, F ◾ x --> G ◾ x)
@@ -248,19 +239,19 @@ Definition makeNattrans_op {C D:category} {F G:[C^op,D]}
   := (mor,,eqn).
 
 Definition makeNatiso {C D:category} {F G:[C,D]}
-           (mor : ∏ x : C, iso (F ◾ x) (G ◾ x))
+           (mor : ∏ x : C, z_iso (F ◾ x) (G ◾ x))
            (eqn : ∏ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
   nat_iso F G.
 Proof.
-  refine (makeNattrans mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+  refine (makeNattrans mor eqn,,_). apply nat_trafo_z_iso_if_pointwise_z_iso; intro c. apply pr2.
 Defined.
 
 Definition makeNatiso_op {C D:category} {F G:[C^op,D]}
-           (mor : ∏ x : C, iso (F ◾ x) (G ◾ x))
+           (mor : ∏ x : C, z_iso (F ◾ x) (G ◾ x))
            (eqn : ∏ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
   nat_iso F G.
 Proof.
-  refine (makeNattrans_op mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+  refine (makeNattrans_op mor eqn,,_). apply nat_trafo_z_iso_if_pointwise_z_iso; intro c. apply pr2.
 Defined.
 
 Lemma move_inv {C:category} {a a' b' b:C} {f : a --> b} {f' : a' --> b'}
@@ -273,22 +264,23 @@ Proof.
   rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
 Defined.
 
-Lemma weq_iff_iso_SET {X Y:HSET} (f:X-->Y) : is_iso f <-> isweq f.
+Lemma weq_iff_z_iso_SET {X Y:HSET} (f:X-->Y) : is_z_isomorphism f <-> isweq f.
 Proof.
   split.
-  - intro i. set (F := make_iso f i).
-    refine (isweq_iso f (inv_from_iso F)
-                   (λ x, eqtohomot (iso_inv_after_iso F) x)
-                   (λ y, eqtohomot (iso_after_iso_inv F) y)).
-  - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (make_weq f i))).
+  - intro i. set (F := make_z_iso' f i).
+    refine (isweq_iso f (inv_from_z_iso F)
+                   (λ x, eqtohomot (z_iso_inv_after_z_iso F) x)
+                   (λ y, eqtohomot (z_iso_after_z_iso_inv F) y)).
+  - intro i.
+    apply (hset_equiv_is_z_iso X Y (_,,i)).
 Defined.
 
-Lemma weq_to_iso_SET {X Y:HSET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
-(* same as hset_iso_equiv_weq *)
+Lemma weq_to_iso_SET {X Y:HSET} : z_iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
+(* same as hset_iso_equiv_weq? -- this identifier does no longer exist *)
 Proof.
   intros. apply weqfibtototal; intro f. apply weqiff.
-  - apply weq_iff_iso_SET.
-  - apply isaprop_is_iso.
+  - apply weq_iff_z_iso_SET.
+  - apply isaprop_is_z_isomorphism.
   - apply isapropisweq.
 Defined.
 

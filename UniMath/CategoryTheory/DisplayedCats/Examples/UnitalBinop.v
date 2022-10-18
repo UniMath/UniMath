@@ -207,7 +207,7 @@ Definition point_disp_cat_disp_univalent
 Proof.
   use is_univalent_disp_from_fibers.
   intros X x y.
-  use gradth.
+  use isweq_iso.
   - intros f.
     exact (pr1 f).
   - intros e.
@@ -215,7 +215,7 @@ Proof.
     apply idpath.
   - intros e.
     use subtypePath.
-    { intro ; apply isaprop_is_iso_disp. }
+    { intro ; apply isaprop_is_z_iso_disp. }
     cbn.
     induction (pr1 e).
     apply idpath.
@@ -297,7 +297,7 @@ Proof.
     + use invproofirrelevance.
       intros f g.
       use subtypePath.
-      { intro ; apply isaprop_is_iso_disp. }
+      { intro ; apply isaprop_is_z_iso_disp. }
       use subtypePath.
       { intro ; apply isapropunit. }
       apply setproperty.

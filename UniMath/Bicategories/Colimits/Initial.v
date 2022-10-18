@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -190,9 +190,9 @@ Section Initial.
     intros f g.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
-    pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
+    pose (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    pose (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    pose (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
     exact (comp_of_invertible_2cell θ₁ (inv_of_invertible_2cell θ₂)).
   Defined.
 
@@ -205,9 +205,9 @@ Section Initial.
     intros f g α β.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
-    pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
+    pose (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    pose (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    pose (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
     use (invmaponpathsincl
            _
            (isinclweq
@@ -354,7 +354,7 @@ Section Initial.
     - exact (biinitial_inv_counit HX Y).
     - intros f.
       cbn ; unfold biinitial_inv_unit_data.
-      apply is_inv2cell_to_is_iso.
+      apply is_inv2cell_to_is_z_iso.
       apply is_biinitial_invertible_2cell_property.
     - intro g.
       cbn.

@@ -7,7 +7,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
 
@@ -458,79 +458,77 @@ Defined.
 Section InvertibleIsIso.
   Context {B : bicat}.
 
-  Definition is_inv2cell_to_is_iso
+  Definition is_inv2cell_to_is_z_iso
              {a b : B}
              {f g : hom a b}
              (α : f ==> g)
              (Hα : is_invertible_2cell α)
-    : is_iso α.
+    : is_z_isomorphism α.
   Proof.
-    use is_iso_qinv.
-    - exact (Hα^-1).
-    - abstract
-        (split ; [ apply vcomp_rinv | apply vcomp_linv]).
+    exists (Hα^-1).
+    abstract (split ; [ apply vcomp_rinv | apply vcomp_linv]).
   Defined.
 
-  Definition inv2cell_to_iso
+  Definition inv2cell_to_z_iso
              {a b : B}
              {f g : hom a b}
              (α : invertible_2cell f g)
-    : iso f g.
+    : z_iso f g.
   Proof.
-    use make_iso.
+    use make_z_iso'.
     - apply α.
-    - apply is_inv2cell_to_is_iso.
+    - apply is_inv2cell_to_is_z_iso.
       apply property_from_invertible_2cell.
   Defined.
 
-  Definition is_iso_to_is_inv2cell
+  Definition is_z_iso_to_is_inv2cell
              {a b : B}
              {f g : hom a b}
              (α : f ==> g)
-             (Hα : is_iso α)
+             (Hα : is_z_isomorphism α)
     : is_invertible_2cell α.
   Proof.
     use make_is_invertible_2cell.
-    - exact (inv_from_iso (α ,, Hα)).
-    - exact (iso_inv_after_iso (α ,, Hα)).
-    - exact (iso_after_iso_inv (α ,, Hα)).
+    - exact (inv_from_z_iso (α ,, Hα)).
+    - exact (z_iso_inv_after_z_iso (α ,, Hα)).
+    - exact (z_iso_after_z_iso_inv (α ,, Hα)).
   Defined.
 
-  Definition iso_to_inv2cell
+  Definition z_iso_to_inv2cell
              {a b : B}
              {f g : hom a b}
-             (α : iso f g)
+             (α : z_iso f g)
     : invertible_2cell f g.
   Proof.
     use make_invertible_2cell.
     - exact (pr1 α).
-    - exact (is_iso_to_is_inv2cell _ (pr2 α)).
+    - exact (is_z_iso_to_is_inv2cell _ (pr2 α)).
   Defined.
 
-  Definition inv2cell_to_iso_isweq
+  Definition inv2cell_to_z_iso_isweq
              {a b : B}
              (f g : hom a b)
-    : isweq (@inv2cell_to_iso _ _ f g).
+    : isweq (@inv2cell_to_z_iso _ _ f g).
   Proof.
-    use gradth.
-    - exact iso_to_inv2cell.
+    use isweq_iso.
+    - exact z_iso_to_inv2cell.
     - abstract
         (intro i ;
          apply cell_from_invertible_2cell_eq ;
          apply idpath).
     - abstract
         (intro i ;
-         apply eq_iso ;
+         apply z_iso_eq ;
          apply idpath).
   Defined.
 
-  Definition inv2cell_to_iso_weq
+  Definition inv2cell_to_z_iso_weq
              {a b : B}
              (f g : hom a b)
-    : invertible_2cell f g ≃ iso f g.
+    : invertible_2cell f g ≃ z_iso f g.
   Proof.
     use make_weq.
-    - exact (λ α, inv2cell_to_iso α).
-    - exact (inv2cell_to_iso_isweq f g).
+    - exact (λ α, inv2cell_to_z_iso α).
+    - exact (inv2cell_to_z_iso_isweq f g).
   Defined.
 End InvertibleIsIso.

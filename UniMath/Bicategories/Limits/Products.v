@@ -19,8 +19,9 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -146,7 +147,6 @@ Section Product.
     rewrite id2_rwhisker, id2_left in r₃.
     exact r₃.
   Qed.
-
 
   (** Statements of universal mapping properties of products *)
   Section UniversalMappingPropertyStatements.
@@ -365,7 +365,6 @@ Section Product.
                (γ δ : φ ==> ψ)
                (ppr1 : γ ▹ binprod_cone_pr1 p = δ ▹ binprod_cone_pr1 p)
                (ppr2 : γ ▹ binprod_cone_pr2 p = δ ▹ binprod_cone_pr2 p)
-
       : γ = δ.
     Proof.
       exact (maponpaths
@@ -539,15 +538,156 @@ Section Product.
     - intros f g.
       use hinhpr.
       simple refine (binprod_ump_1cell H (pr1 f) (pr2 f) ,, _).
-      use make_iso.
+      use make_z_iso'.
       + exact (pr1 (binprod_ump_1cell_pr1 H _ (pr1 f) (pr2 f))
                ,,
                pr1 (binprod_ump_1cell_pr2 H _ (pr1 f) (pr2 f))).
-      + use is_iso_binprod_iso.
-        * apply is_inv2cell_to_is_iso.
+      + use is_z_iso_binprod_z_iso.
+        * apply is_inv2cell_to_is_z_iso.
           apply property_from_invertible_2cell.
-        * apply is_inv2cell_to_is_iso.
+        * apply is_inv2cell_to_is_z_iso.
           apply property_from_invertible_2cell.
+  Defined.
+
+  Section BinProdUMPCatUMP1.
+    Context (HB_2_1 : is_univalent_2_1 B)
+            (p : binprod_cone)
+            (H : binprod_cat_ump HB_2_1 p)
+            (q : binprod_cone).
+
+    Definition has_binprod_cat_ump_binprod_ump_1_mor
+      : q --> p.
+    Proof.
+      apply (left_adjoint_right_adjoint (H (pr1 q))).
+      simple refine (_ ,, _).
+      - exact (binprod_cone_pr1 q).
+      - exact (binprod_cone_pr2 q).
+    Defined.
+
+    Definition has_binprod_cat_ump_binprod_ump_1_pr1
+      : invertible_2cell
+          (has_binprod_cat_ump_binprod_ump_1_mor · binprod_cone_pr1 p)
+          (binprod_cone_pr1 q).
+    Proof.
+      apply z_iso_to_inv2cell.
+      exact (pr1 (category_binproduct_z_iso_inv
+                    _ _
+                    (nat_z_iso_pointwise_z_iso
+                       (invertible_2cell_to_nat_z_iso
+                          _ _
+                          (left_equivalence_counit_iso
+                             (H (pr1 q))))
+                       (binprod_cone_pr1 q ,, binprod_cone_pr2 q)))).
+    Defined.
+
+    Definition has_binprod_cat_ump_binprod_ump_1_pr2
+      : invertible_2cell
+          (has_binprod_cat_ump_binprod_ump_1_mor · binprod_cone_pr2 p)
+          (binprod_cone_pr2 q).
+    Proof.
+      apply z_iso_to_inv2cell.
+      exact (pr2 (category_binproduct_z_iso_inv
+                    _ _
+                    (nat_z_iso_pointwise_z_iso
+                       (invertible_2cell_to_nat_z_iso
+                          _ _
+                          (left_equivalence_counit_iso
+                             (H (pr1 q))))
+                       (binprod_cone_pr1 q ,, binprod_cone_pr2 q)))).
+    Defined.
+  End BinProdUMPCatUMP1.
+
+  Section BinProdUMPCatUMP2.
+    Context (HB_2_1 : is_univalent_2_1 B)
+            (p : binprod_cone)
+            (H : binprod_cat_ump HB_2_1 p)
+            {x : B}
+            {φ ψ : x --> p}
+            (α : φ · binprod_cone_pr1 p ==> ψ · binprod_cone_pr1 p)
+            (β : φ · binprod_cone_pr2 p ==> ψ · binprod_cone_pr2 p).
+
+    Definition has_binprod_cat_ump_binprod_ump_2_unique
+      : isaprop (∑ (γ : φ ==> ψ),
+                 γ ▹ binprod_cone_pr1 p = α
+                 ×
+                 γ ▹ binprod_cone_pr2 p = β).
+    Proof.
+      use invproofirrelevance.
+      intros ζ₁ ζ₂.
+      use subtypePath.
+      {
+        intro.
+        apply isapropdirprod ; apply cellset_property.
+      }
+      pose (pr2 (fully_faithful_implies_full_and_faithful
+                   _ _ _
+                   (fully_faithful_from_equivalence
+                      _ _ _
+                      (adj_equiv_to_equiv_cat _ (H x))))
+                φ ψ
+                (α ,, β))
+        as Hf.
+      refine (maponpaths pr1 (proofirrelevance _ Hf (pr1 ζ₁ ,, _) (pr1 ζ₂ ,, _))).
+      - use pathsdirprod ; cbn.
+        + exact (pr12 ζ₁).
+        + exact (pr22 ζ₁).
+      - use pathsdirprod ; cbn.
+        + exact (pr12 ζ₂).
+        + exact (pr22 ζ₂).
+    Qed.
+
+    Definition has_binprod_cat_ump_binprod_ump_2_iscontr
+      : iscontr (∑ (γ : φ ==> ψ),
+                 γ ▹ binprod_cone_pr1 p = α
+                 ×
+                 γ ▹ binprod_cone_pr2 p = β).
+    Proof.
+      pose (pr1 (fully_faithful_implies_full_and_faithful
+                   _ _ _
+                   (fully_faithful_from_equivalence
+                      _ _ _
+                      (adj_equiv_to_equiv_cat _ (H x))))
+                φ ψ
+                (α ,, β))
+        as m.
+      use (factor_through_squash _ _ m).
+      - apply isapropiscontr.
+      - intro fib.
+        use iscontraprop1.
+        + apply has_binprod_cat_ump_binprod_ump_2_unique.
+        + refine (pr1 fib ,, _ ,, _).
+          * exact (maponpaths pr1 (pr2 fib)).
+          * exact (maponpaths dirprod_pr2 (pr2 fib)).
+    Defined.
+  End BinProdUMPCatUMP2.
+
+  Definition has_binprod_cat_ump_binprod_ump
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : binprod_cone)
+             (H : binprod_cat_ump HB_2_1 p)
+    : has_binprod_ump p.
+  Proof.
+    split.
+    - intro q.
+      use make_binprod_1cell.
+      + exact (has_binprod_cat_ump_binprod_ump_1_mor HB_2_1 p H q).
+      + exact (has_binprod_cat_ump_binprod_ump_1_pr1 HB_2_1 p H q).
+      + exact (has_binprod_cat_ump_binprod_ump_1_pr2 HB_2_1 p H q).
+    - intros x φ ψ α β.
+      exact (has_binprod_cat_ump_binprod_ump_2_iscontr HB_2_1 p H α β).
+  Defined.
+
+  Definition has_binprod_ump_weq_binprod_cat_ump
+             (HB_2_1 : is_univalent_2_1 B)
+             (p : binprod_cone)
+    : has_binprod_ump p ≃ binprod_cat_ump HB_2_1 p.
+  Proof.
+    use weqimplimpl.
+    - exact (has_binprod_ump_binprod_cat_ump HB_2_1 p).
+    - exact (has_binprod_cat_ump_binprod_ump HB_2_1 p).
+    - apply isaprop_has_binprod_ump.
+      exact HB_2_1.
+    - apply isaprop_binprod_cat_ump.
   Defined.
 End Product.
 

@@ -34,10 +34,15 @@ Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
+Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
 
-Morphisms/Examples/MorphismsInOneTypes.v
+Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
+Morphisms/Examples/FibrationsInBicatOfUnivCats.v
+Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
+Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
@@ -57,17 +62,39 @@ DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
+DisplayedBicats/Examples/BicatOfInvertibles.v
+DisplayedBicats/Examples/EndoMap.v
+
+Core/Examples/StructuredCategories.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
 MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
+MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v
+MonoidalCategories/BicatOfWhiskeredMonCats.v
+MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
+MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
+MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
+MonoidalCategories/BicatOfActegories.v
+MonoidalCategories/BicatOfActionsInBicat.v
+
+MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
+MonoidalCategories/UnivalenceMonCat/UnitLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorLayer.v
+MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
+MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
+MonoidalCategories/UnivalenceMonCat/FinalLayer.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
@@ -103,6 +130,13 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
+MonoidalCategories/EquivalenceActegoriesAndActions.v
+
+PseudoFunctors/Biadjunction.v
+PseudoFunctors/UniversalArrow.v
+
+DisplayedBicats/DispBicatSection.v
+
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
 DisplayedBicats/Examples/Displayed2Inserter.v
@@ -112,6 +146,7 @@ DisplayedBicats/Examples/ContravariantFunctor.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CwF.v
 DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
@@ -121,6 +156,22 @@ DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
+DisplayedBicats/Examples/MonadsLax.v
+
+PseudoFunctors/Examples/MonadInclusion.v
+
+Monads/Examples/AdjunctionToMonad.v
+Monads/Examples/ToMonadInCat.v
+Monads/Examples/MonadsInBicatOfUnivCats.v
+Monads/Examples/MonadsInBicatOfCats.v
+Monads/Examples/MonadsInOp1Bicat.v
+Monads/Examples/MonadsInOp2Bicat.v
+Monads/Examples/MonadsInTotalBicat.v
+Monads/DistributiveLaws.v
+Monads/Examples/MonadsInMonads.v
+Monads/Examples/Composition.v
+Monads/Examples/PsfunctorOnMonad.v
+
 Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
 Core/YonedaLemma.v
@@ -129,24 +180,64 @@ Limits/Final.v
 Limits/Products.v
 Limits/Pullbacks.v
 Limits/CommaObjects.v
+Limits/Inserters.v
+Limits/IsoInserters.v
+Limits/Equifiers.v
+Limits/EilenbergMooreObjects.v
+Limits/EilenbergMooreComonad.v
+
+Monads/ConstructionOfAlgebras.v
+Monads/MonadToAdjunction.v
+
 Limits/Examples/OneTypesLimits.v
+Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
-Limits/PullbackFunctions.v
+Limits/Examples/TotalBicategoryLimits.v
+Limits/Examples/DispConstructionsLimits.v
+Limits/Examples/SubbicatLimits.v
+Limits/Examples/LimitsStructuredCategories.v
 
+MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
+Morphisms/Monadic.v
+MonoidalCategories/MonoidalDialgebrasInserters.v
+MonoidalCategories/BicatOfActegoriesFinalObject.v
+Monads/Examples/MonadsInStructuredCategories.v
+
+Limits/ProductEquivalences.v
+Limits/PullbackFunctions.v
+Limits/PullbackEquivalences.v
+Limits/InserterEquivalences.v
+Limits/EquifierEquivalences.v
+
+Morphisms/Eso.v
 Morphisms/Properties/Projections.v
 Morphisms/Properties/ClosedUnderPullback.v
+Morphisms/Properties/EsoProperties.v
+Morphisms/Examples/MorphismsInOneTypes.v
+Morphisms/Examples/EsosInBicatOfUnivCats.v
+Morphisms/Examples/MorphismsInSliceBicat.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v
+Colimits/KleisliObjects.v
+
+Limits/Examples/OpMorBicatLimits.v
+
+Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
+Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
-PseudoFunctors/Biadjunction.v
+Colimits/CoproductEquivalences.v
+
+Morphisms/Properties/FromInitial.v
+
+PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
 DisplayedBicats/DispBiadjunction.v
@@ -164,35 +255,68 @@ WkCatEnrichment/bicategory.v
 WkCatEnrichment/hcomp_bicat.v
 PseudoFunctors/Examples/Strictify.v
 
+PseudoFunctors/Preservation/Preservation.v
+PseudoFunctors/Preservation/BiadjunctionPreservation.v
+PseudoFunctors/Preservation/BiadjunctionPreserveProducts.v
+PseudoFunctors/Preservation/BiadjunctionPreserveInserters.v
+PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v
+PseudoFunctors/Preservation/BiadjunctionPreserveCoproducts.v
+PseudoFunctors/Preservation/ClosedUnderEquivalence.v
+
 BicategoryOfBicat.v
 BicatOfBicategory.v
 
 DisplayedBicats/Cartesians.v
 DisplayedBicats/EquivalenceBetweenCartesians.v
+DisplayedBicats/CleavingOfBicatIsAProp.v
 DisplayedBicats/CartesianPseudoFunctor.v
 DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
 DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/FunctorsIntoCatCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
 DisplayedBicats/ExamplesOfCleavings/OpFibrationCleaving.v
 
+DisplayedBicats/FiberBicategory/FunctorFromCleaving.v
+
 PseudoFunctors/Examples/Reindexing.v
 
-DisplayMapBicat.v
+Logic/DisplayMapBicat.v
 DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v
 DisplayedBicats/Examples/DisplayMapBicatSlice.v
 DisplayedBicats/ExamplesOfCleavings/DisplayMapBicatCleaving.v
 
 PseudoFunctors/Examples/PullbackFunctor.v
+PseudoFunctors/Examples/CompositionPseudoFunctor.v
+
+PseudoFunctors/Preservation/PullbackPreservation.v
+
+Limits/Examples/DisplayMapSliceLimits.v
+Colimits/Examples/DisplayMapSliceColimits.v
 
 DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
+DisplayedBicats/FiberBicategory/DomainFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
-ComprehensionBicat.v
+Logic/ComprehensionBicat.v
+
+Logic/Examples/TrivialComprehensionBicat.v
+Logic/Examples/PullbackComprehensionBicat.v
+Logic/Examples/FibrationsComprehensionBicat.v
+Logic/Examples/OpfibrationsComprehensionBicat.v
+Logic/Examples/DisplayMapComprehensionBicat.v
+Logic/Examples/FunctorsIntoCatComprehensionBicat.v
+
 
 DualityInvolution.v
 
 EnrichedCategories/BicatOfEnrichedCat.v
 EnrichedCategories/ChangeOfBase.v
 EnrichedCategories/HSETEnriched.v
+OtherStructure/DualityInvolution.v
+OtherStructure/ClassifyingDiscreteOpfib.v
+OtherStructure/Exponentials.v
+OtherStructure/Cores.v
+OtherStructure/Examples/StructureBicatOfUnivCats.v
+OtherStructure/Examples/StructureOneTypes.v

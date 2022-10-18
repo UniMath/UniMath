@@ -332,7 +332,7 @@ Defined.
 
 Let is_omega_cocont_Id_H' := LiftingInitial_alt.is_omega_cocont_Id_H C CP H HH.
 
-Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
+Local Notation j_mor := ((mor_from_algebra_mor _ j):nat_trans _ _).
 
 (**
   Following Ralph's proof : we want to prove the square diagram for the
@@ -613,7 +613,7 @@ Proof.
     apply id_left.
 Qed.
 
-Lemma j_mon_laws : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
+Lemma j_mon_laws : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ j).
 Proof.
   split.
   - apply (nat_trans_eq_pointwise (a:= compose (C:=EndC)  (μ T_mon) j_mor)

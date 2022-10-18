@@ -28,29 +28,29 @@ jobs:
       
       # Install everything needed for building UniMath (and more)
       - name: Install build dependencies
-        run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
-
-      # Change into UniMath directory and build UniMath
-      - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
         run: |
-          pushd $GITHUB_WORKSPACE
-          make build-coq
+          sudo apt-get update
+          sudo apt-get install coq
+          type coqc
+          coqc --version
+
+      - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
+        ### we don't use "make install", because the user-contrib directory might be write-protected
+        run: |
           make -j2
-          make install
-          export PATH=$PATH:$PWD/sub/coq/bin/
-          echo $PATH
-          popd
-          # build TypeTheory
+          : set the Coq path
+          export COQPATH="$GITHUB_WORKSPACE"
+          : build TypeTheory
           git clone https://github.com/UniMath/TypeTheory
           pushd TypeTheory
           make
           popd
-          # build largecatmodules
+          : build largecatmodules
           git clone https://github.com/UniMath/largecatmodules
           pushd largecatmodules
           make
           popd
-          # build SetHITS
+          : build SetHITS
           git clone https://github.com/UniMath/SetHITs
           pushd SetHITs
           cd code

@@ -63,7 +63,7 @@ Definition is_univalent_2_1_discrete_bicat
   : is_univalent_2_1 (discrete_bicat C).
 Proof.
   intros x y f g.
-  use gradth.
+  use isweq_iso.
   - exact (λ p, pr1 p).
   - abstract
       (intro p ; cbn ;
@@ -163,61 +163,60 @@ Defined.
 (**
  Adjoint equivalences in discrete bicategories
  *)
-Definition discrete_left_adj_equiv_to_iso
+Definition discrete_left_adj_equiv_to_z_iso
            {B : bicat}
            (HB : is_discrete_bicat B)
            {x y : B}
            {f : x --> y}
            (Hf : left_adjoint_equivalence f)
-  : @is_iso (discrete_bicat_to_category HB) x y f.
+  : @is_z_isomorphism (discrete_bicat_to_category HB) x y f.
 Proof.
-  use is_iso_qinv.
-  - exact (left_adjoint_right_adjoint Hf).
-  - split.
-    + abstract
-        (use (isotoid_2_1 (pr1 HB)) ;
-         exact (inv_of_invertible_2cell (left_equivalence_unit_iso Hf))).
-    + abstract
-        (use (isotoid_2_1 (pr1 HB)) ;
-         exact (left_equivalence_counit_iso Hf)).
+  exists (left_adjoint_right_adjoint Hf).
+  split.
+  + abstract
+      (use (isotoid_2_1 (pr1 HB)) ;
+       exact (inv_of_invertible_2cell (left_equivalence_unit_iso Hf))).
+  + abstract
+      (use (isotoid_2_1 (pr1 HB)) ;
+       exact (left_equivalence_counit_iso Hf)).
 Defined.
 
-Definition iso_to_discrete_left_adj_equiv
+Definition z_iso_to_discrete_left_adj_equiv
            {B : bicat}
            (HB : is_discrete_bicat B)
            {x y : B}
            {f : x --> y}
-           (Hf : @is_iso (discrete_bicat_to_category HB) x y f)
+           (Hf : @is_z_isomorphism (discrete_bicat_to_category HB) x y f)
   : left_adjoint_equivalence f.
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
-  - exact (inv_from_iso (make_iso _ Hf)).
+  - exact (inv_from_z_iso (make_z_iso' _ Hf)).
   - abstract
       (apply idtoiso_2_1 ;
        refine (!_) ;
-       exact (iso_inv_after_iso (make_iso _ Hf))).
+       exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf))).
   - abstract
       (apply idtoiso_2_1 ;
-       exact (iso_after_iso_inv (make_iso _ Hf))).
+       exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf))).
   - apply HB.
   - apply HB.
   - apply HB.
   - apply HB.
 Defined.
 
-Definition discrete_left_adj_equiv_weq_iso
+Definition discrete_left_adj_equiv_weq_z_iso
            {B : bicat}
            (HB : is_discrete_bicat B)
            (x y : B)
-  : @iso (discrete_bicat_to_category HB) x y ≃ adjoint_equivalence x y.
+  : @z_iso (discrete_bicat_to_category HB) x y ≃ adjoint_equivalence x y.
 Proof.
   use make_weq.
-  - exact (λ f, _ ,, iso_to_discrete_left_adj_equiv HB (pr2 f)).
-  - use gradth.
-    + exact (λ f, make_iso _ (discrete_left_adj_equiv_to_iso HB f)).
+  - exact (λ f, _ ,, z_iso_to_discrete_left_adj_equiv HB (pr2 f)).
+  - use isweq_iso.
+    + exact (λ f, make_z_iso' _ (discrete_left_adj_equiv_to_z_iso HB f)).
     + abstract
         (intro Hf ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          apply idpath).
     + abstract
         (intro Hf ;
@@ -237,7 +236,7 @@ Definition discrete_bicat_univalent_2_0
 Proof.
   intros x y.
   use weqhomot.
-  - exact (discrete_left_adj_equiv_weq_iso HB x y ∘ make_weq _ (H x y))%weq.
+  - exact (discrete_left_adj_equiv_weq_z_iso HB x y ∘ make_weq _ (H x y))%weq.
   - abstract
       (intro p ;
        induction p ;
@@ -257,13 +256,13 @@ Definition discrete_bicat_to_category_is_univalent
 Proof.
   intros x y.
   use weqhomot.
-  - exact (invweq (discrete_left_adj_equiv_weq_iso HB x y) ∘ make_weq _ (H x y))%weq.
+  - exact (invweq (discrete_left_adj_equiv_weq_z_iso HB x y) ∘ make_weq _ (H x y))%weq.
   - abstract
       (intro p ;
        induction p ;
        use subtypePath ;
        [ intro ;
-         apply isaprop_is_iso
+         apply isaprop_is_z_isomorphism
        | ] ;
        apply idpath).
 Defined.

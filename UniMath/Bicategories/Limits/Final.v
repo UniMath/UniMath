@@ -11,6 +11,7 @@
    3. Equivalence between the two definitions
    4. Bicategories with bifinal objects
    5. Bifinal objects are unique
+   6. Being bifinal is preserved under equivalence
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -25,10 +26,12 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
+Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
+Require Import UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -187,9 +190,9 @@ Section Final.
     intros f g.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
-    pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
+    pose (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    pose (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    pose (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
     exact (comp_of_invertible_2cell θ₁ (inv_of_invertible_2cell θ₂)).
   Defined.
 
@@ -202,9 +205,9 @@ Section Final.
     intros f g α β.
     pose (L := functor_to_unit (hom Y X)).
     pose (R := right_adjoint (HX Y)).
-    pose (η := unit_nat_iso_from_adj_equivalence_of_cats (HX Y)).
-    pose (θ₁ := iso_to_inv2cell (nat_iso_pointwise_iso η f)).
-    pose (θ₂ := iso_to_inv2cell (nat_iso_pointwise_iso η g)).
+    pose (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    pose (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    pose (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
     use (invmaponpathsincl
            _
            (isinclweq
@@ -288,9 +291,9 @@ Section Final.
              {X : B}
              (HX : is_bifinal X)
              (Y : B)
-    : (functor_identity (hom Y X))
-        ⟹
-        functor_composite
+    : functor_identity (hom Y X)
+      ⟹
+      functor_composite
         (functor_to_unit (hom Y X))
         (bifinal_inv HX Y).
   Proof.
@@ -327,11 +330,11 @@ Section Final.
              {X : B}
              (HX : is_bifinal X)
              (Y : B)
-    : (functor_composite
-         (bifinal_inv HX Y)
-         (functor_to_unit (hom Y X)))
-        ⟹
-        (functor_identity _).
+    : functor_composite
+        (bifinal_inv HX Y)
+        (functor_to_unit (hom Y X))
+      ⟹
+      functor_identity _.
   Proof.
     use make_nat_trans.
     - exact (bifinal_inv_counit_data HX Y).
@@ -351,7 +354,7 @@ Section Final.
     - exact (bifinal_inv_counit HX Y).
     - intros f.
       cbn ; unfold bifinal_inv_unit_data.
-      apply is_inv2cell_to_is_iso.
+      apply is_inv2cell_to_is_z_iso.
       apply is_bifinal_invertible_2cell_property.
     - intro g.
       cbn.
@@ -439,3 +442,60 @@ Section Uniqueness.
   Definition bifinal_unique : X = Y
     := isotoid_2_0 HC0 (_ ,, bifinal_unique_adj_eqv).
 End Uniqueness.
+
+(**
+ 6. Being bifinal is preserved under equivalence
+ *)
+Section FinalEquivalence.
+  Context {B : bicat}
+          {x y : B}
+          (l : x --> y)
+          (Hl : left_adjoint_equivalence l)
+          (Hx : is_bifinal x).
+
+  Let r : y --> x
+    := left_adjoint_right_adjoint Hl.
+  Let η : invertible_2cell (id₁ _) (l · r)
+    := left_equivalence_unit_iso Hl.
+  Let ε : invertible_2cell (r · l) (id₁ _)
+    := left_equivalence_counit_iso Hl.
+
+  Definition is_bifinal_1cell_left_adjoint_equivalence
+    : bifinal_1cell_property y
+    := λ z, is_bifinal_1cell_property Hx z · l.
+
+  Definition is_bifinal_2cell_left_adjoint_equivalence
+             (z : B)
+    : bifinal_2cell_property y z
+    := λ f g,
+       rinvunitor _
+       • (_ ◃ ε^-1)
+       • lassociator _ _ _
+       • (is_bifinal_2cell_property Hx z (f · r) (g · r) ▹ l)
+       • rassociator _ _ _
+       • (_ ◃ ε)
+       • runitor _.
+
+  Definition is_bifinal_eq_left_adjoint_equivalence
+             (z : B)
+    : bifinal_eq_property y z.
+  Proof.
+    intros f g α β.
+    enough (α ▹ r = β ▹ r) as H.
+    {
+      use (faithful_1cell_eq_cell
+             (pr1 (adj_equiv_fully_faithful (inv_adjequiv (_ ,, Hl))))).
+      exact H.
+    }
+    exact (is_bifinal_eq_property Hx z (f · r) (g · r) (α ▹ r) (β ▹ r)).
+  Qed.
+
+  Definition is_bifinal_left_adjoint_equivalence
+    : is_bifinal y.
+  Proof.
+    use make_is_bifinal.
+    - exact is_bifinal_1cell_left_adjoint_equivalence.
+    - exact is_bifinal_2cell_left_adjoint_equivalence.
+    - exact is_bifinal_eq_left_adjoint_equivalence.
+  Defined.
+End FinalEquivalence.

@@ -310,12 +310,10 @@ Section Adjunction.
       unfold eps. apply id_left.
   Defined.
 
-  Definition is_iso_eps_morph (T : KleisliMonad C) :
-    is_iso (eps_morph T :
+  Definition is_z_iso_eps_morph (T : KleisliMonad C) :
+    is_z_isomorphism (eps_morph T :
               category_Kleisli C ⟦ T,(kleislify (unkleislify T))⟧) :=
-    is_iso_from_is_z_iso
-      (eps_morph T : category_Kleisli C ⟦T, kleislify (unkleislify T)⟧)
-      (epsinv_morph T,, is_inverse_epsinv T).
+      epsinv_morph T,, is_inverse_epsinv T.
 
   Lemma is_natural_eps :
     is_nat_trans (functor_identity (category_Kleisli C))
@@ -462,12 +460,10 @@ Section Adjunction.
       unfold eta_arrow. apply id_left.
   Defined.
 
-  Definition is_iso_eta_morph (T : Monad C) :
-    is_iso (eta_morph T :
+  Definition is_z_iso_eta_morph (T : Monad C) :
+    is_z_isomorphism (eta_morph T :
               category_Monad C ⟦unkleislify (kleislify T), T⟧)
-   := is_iso_from_is_z_iso
-      (eta_morph T : category_Monad C ⟦unkleislify (kleislify T), T⟧)
-      (etainv_morph T,, is_inverse_etainv T).
+   := etainv_morph T,, is_inverse_etainv T.
 
   Lemma is_natural_eta :
     is_nat_trans
@@ -519,8 +515,8 @@ Section Adjunction.
     forms_equivalence is_left_adjoint_functor_unkleislify.
   Proof.
     split; simpl.
-    - intros T. apply is_iso_eps_morph.
-    - intros T. apply is_iso_eta_morph.
+    - intros T. apply is_z_iso_eps_morph.
+    - intros T. apply is_z_iso_eta_morph.
   Defined.
 
   Lemma is_catiso : is_catiso (functor_unkleislify(C:=C)).
@@ -528,7 +524,7 @@ Section Adjunction.
     split.
     - apply fully_faithful_from_equivalence.
       use (is_left_adjoint_functor_unkleislify,, form_equivalence_unkleislify).
-    - apply (gradth _ (λ T : Monad C, kleislify T)).
+    - apply (isweq_iso _ (λ T : Monad C, kleislify T)).
       + intro T. simpl. apply kleislify_unkleislify.
       + simpl. apply unkleislify_kleislify.
   Defined.

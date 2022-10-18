@@ -42,13 +42,12 @@ induction j as [|j IHj].
 Defined.
 
 (** For any cocone `cc` under the chain, the following diagram commutes:
-
-    <<
+<<
      c i --> c j
       |       |
       |       V
       +----> cc
-    >>
+>>
  *)
 Lemma chain_mor_coconeIn {C : category} (c : chain C) (x : C)
   (cc : cocone c x) i : ∏ j (Hij : i < j),
@@ -113,7 +112,7 @@ induction m as [|m IHm]; simpl.
 - exact (# F IHm).
 Defined.
 
-(** ** Definition of (ω-)(co)continuous functors *)
+(** ** Definition of (ω-)cocontinuous functors *)
 
 Section cocont.
 
@@ -123,22 +122,11 @@ Definition is_cocont : UU :=
   ∏ (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
     preserves_colimit F d L cc.
 
-Definition is_cont : UU :=
-  ∏ (g : graph) (d : diagram g C) (L : C) (cc : cone d L),
-    preserves_limit F d L cc.
-
 Definition is_omega_cocont : UU :=
   ∏ (c : chain C) (L : C) (cc : cocone c L),
-  preserves_colimit F c L cc.
-
-Definition is_omega_cont {C D : category} (F : functor C D) : UU :=
-  ∏ (c : chain C) (L : C) (cc : cone c L),
-  preserves_limit F c L cc.
+    preserves_colimit F c L cc.
 
 End cocont.
 
 Definition omega_cocont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cocont F.
-
-Definition omega_cont_functor (C D : category) : UU :=
-  ∑ (F : functor C D), is_omega_cont F.

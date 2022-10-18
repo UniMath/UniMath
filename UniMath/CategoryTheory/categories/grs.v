@@ -74,22 +74,24 @@ End def_gr_precategory.
 (** * Category of grs *)
 Section def_gr_category.
 
+  Definition gr_category : category := make_category _ has_homsets_gr_precategory.
+
   (** ** (monoidiso X Y) ≃ (iso X Y) *)
 
-  Lemma gr_iso_is_equiv (A B : ob gr_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  Lemma gr_iso_is_equiv (A B : ob gr_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
-    - exact (pr1monoidfun _ _ (inv_from_iso f)).
+    - exact (pr1monoidfun _ _ (inv_from_z_iso f)).
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
       intros x0. use isapropismonoidfun.
     - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
       intros x0. use isapropismonoidfun.
   Defined.
   Opaque gr_iso_is_equiv.
 
-  Lemma gr_iso_equiv (X Y : ob gr_precategory) : iso X Y -> monoidiso (X : gr) (Y : gr).
+  Lemma gr_iso_equiv (X Y : ob gr_category) : z_iso X Y -> monoidiso (X : gr) (Y : gr).
   Proof.
     intro f.
     use make_monoidiso.
@@ -97,55 +99,53 @@ Section def_gr_category.
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma gr_equiv_is_iso (X Y : ob gr_precategory) (f : monoidiso (X : gr) (Y : gr)) :
-    @is_iso gr_precategory X Y (monoidfunconstr (pr2 f)).
+  Lemma gr_equiv_is_iso (X Y : ob gr_category) (f : monoidiso (X : gr) (Y : gr)) :
+    @is_z_isomorphism gr_precategory X Y (monoidfunconstr (pr2 f)).
   Proof.
-    use is_iso_qinv.
-    - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use make_is_inverse_in_precat.
-      + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
-      + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
+    exists (monoidfunconstr (pr2 (invmonoidiso f))).
+    use make_is_inverse_in_precat.
+    - use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
+    - use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
   Opaque gr_equiv_is_iso.
 
-  Lemma gr_equiv_iso (X Y : ob gr_precategory) : monoidiso (X : gr) (Y : gr) -> iso X Y.
+  Lemma gr_equiv_iso (X Y : ob gr_category) : monoidiso (X : gr) (Y : gr) -> z_iso X Y.
   Proof.
-    intros f. exact (@make_iso gr_precategory X Y (monoidfunconstr (pr2 f))
-                              (gr_equiv_is_iso X Y f)).
+    intros f. exact (_,,gr_equiv_is_iso X Y f).
   Defined.
 
-  Lemma gr_iso_equiv_is_equiv (X Y : gr_precategory) : isweq (gr_iso_equiv X Y).
+  Lemma gr_iso_equiv_is_equiv (X Y : gr_category) : isweq (gr_iso_equiv X Y).
   Proof.
     use isweq_iso.
     - exact (gr_equiv_iso X Y).
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
   Opaque gr_iso_equiv_is_equiv.
 
-  Definition gr_iso_equiv_weq (X Y : ob gr_precategory) :
-    weq (iso X Y) (monoidiso (X : gr) (Y : gr)).
+  Definition gr_iso_equiv_weq (X Y : ob gr_category) :
+    weq (z_iso X Y) (monoidiso (X : gr) (Y : gr)).
   Proof.
     use make_weq.
     - exact (gr_iso_equiv X Y).
     - exact (gr_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma gr_equiv_iso_is_equiv (X Y : ob gr_precategory) : isweq (gr_equiv_iso X Y).
+  Lemma gr_equiv_iso_is_equiv (X Y : ob gr_category) : isweq (gr_equiv_iso X Y).
   Proof.
     use isweq_iso.
     - exact (gr_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
-    - intros x. use eq_iso. use monoidfun_paths. use idpath.
+    - intros x. apply z_iso_eq. use monoidfun_paths. use idpath.
   Defined.
   Opaque gr_equiv_iso_is_equiv.
 
-  Definition gr_equiv_weq_iso (X Y : ob gr_precategory) :
-    (monoidiso (X : gr) (Y : gr)) ≃ (iso X Y).
+  Definition gr_equiv_weq_iso (X Y : ob gr_category) :
+    (monoidiso (X : gr) (Y : gr)) ≃ (z_iso X Y).
   Proof.
     use make_weq.
     - exact (gr_equiv_iso X Y).
@@ -155,21 +155,21 @@ Section def_gr_category.
 
   (** ** Category of grs *)
 
-  Definition gr_precategory_isweq (X Y : ob gr_precategory) : isweq (λ p : X = Y, idtoiso p).
+  Definition gr_precategory_isweq (X Y : ob gr_category) : isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
-           (X = Y) (iso X Y)
+           (X = Y) (z_iso X Y)
            (pr1weq (weqcomp (gr_univalence X Y) (gr_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (gr_univalence X Y) (gr_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
   Defined.
   Opaque gr_precategory_isweq.
 
-  Definition gr_category : category := make_category _ has_homsets_gr_precategory.
+
 
   Definition gr_category_is_univalent : is_univalent gr_category.
   Proof.

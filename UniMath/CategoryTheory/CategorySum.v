@@ -37,7 +37,7 @@ Definition inl_eq_weq
 Proof.
   use make_weq.
   - apply ii1_injectivity.
-  -  use gradth.
+  -  use isweq_iso.
      + exact (maponpaths inl).
      + abstract
          (intro p ;
@@ -55,7 +55,7 @@ Definition inr_eq_weq
 Proof.
   use make_weq.
   - apply ii2_injectivity.
-  -  use gradth.
+  -  use isweq_iso.
      + exact (maponpaths inr).
      + abstract
          (intro p ;
@@ -175,98 +175,94 @@ Defined.
 Definition inl_iso_map
            {C₁ C₂ : category}
            {x₁ x₂ : C₁}
-           (f : iso x₁ x₂)
-  : @iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂).
+           (f : z_iso x₁ x₂)
+  : @z_iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂).
 Proof.
-  use make_iso.
+  use make_z_iso.
   - exact f.
-  - use is_iso_qinv.
-    + exact (inv_from_iso f).
-    + split.
-      * exact (iso_inv_after_iso f).
-      * exact (iso_after_iso_inv f).
+  - exact (inv_from_z_iso f).
+  - split.
+    + exact (z_iso_inv_after_z_iso f).
+    + exact (z_iso_after_z_iso_inv f).
 Defined.
 
 Definition inl_iso_inv
            {C₁ C₂ : category}
            {x₁ x₂ : C₁}
-           (f : @iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂))
-  : iso x₁ x₂.
+           (f : @z_iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂))
+  : z_iso x₁ x₂.
 Proof.
-  use make_iso.
+  use make_z_iso.
   - exact f.
-  - use is_iso_qinv.
-    + exact (inv_from_iso f).
-    + split.
-      * exact (iso_inv_after_iso f).
-      * exact (iso_after_iso_inv f).
+  - exact (inv_from_z_iso f).
+  - split.
+    + exact (z_iso_inv_after_z_iso f).
+    + exact (z_iso_after_z_iso_inv f).
 Defined.
 
 Definition inl_iso
            {C₁ C₂ : category}
            (x₁ x₂ : C₁)
-  : iso x₁ x₂ ≃ @iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂).
+  : z_iso x₁ x₂ ≃ @z_iso (bincoprod_of_category C₁ C₂) (inl x₁) (inl x₂).
 Proof.
   use make_weq.
   - exact inl_iso_map.
-  - use gradth.
+  - use isweq_iso.
     + exact inl_iso_inv.
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          apply idpath).
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          apply idpath).
 Defined.
 
 Definition inr_iso_map
            {C₁ C₂ : category}
            {x₁ x₂ : C₂}
-           (f : iso x₁ x₂)
-  : @iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂).
+           (f : z_iso x₁ x₂)
+  : @z_iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂).
 Proof.
-  use make_iso.
+  use make_z_iso.
   - exact f.
-  - use is_iso_qinv.
-    + exact (inv_from_iso f).
-    + split.
-      * exact (iso_inv_after_iso f).
-      * exact (iso_after_iso_inv f).
+  - exact (inv_from_z_iso f).
+  - split.
+      + exact (z_iso_inv_after_z_iso f).
+      + exact (z_iso_after_z_iso_inv f).
 Defined.
 
 Definition inr_iso_inv
            {C₁ C₂ : category}
            {x₁ x₂ : C₂}
-           (f : @iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂))
-  : iso x₁ x₂.
+           (f : @z_iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂))
+  : z_iso x₁ x₂.
 Proof.
-  use make_iso.
+  use make_z_iso.
   - exact f.
-  - use is_iso_qinv.
-    + exact (inv_from_iso f).
-    + split.
-      * exact (iso_inv_after_iso f).
-      * exact (iso_after_iso_inv f).
+  - exact (inv_from_z_iso f).
+  - split.
+    + exact (z_iso_inv_after_z_iso f).
+    + exact (z_iso_after_z_iso_inv f).
 Defined.
 
 Definition inr_iso
            {C₁ C₂ : category}
            (x₁ x₂ : C₂)
-  : iso x₁ x₂ ≃ @iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂).
+  : z_iso x₁ x₂ ≃ @z_iso (bincoprod_of_category C₁ C₂) (inr x₁) (inr x₂).
 Proof.
   use make_weq.
   - exact inr_iso_map.
-  - use gradth.
+  - use isweq_iso.
     + exact inr_iso_inv.
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          apply idpath).
     + abstract
         (intro f ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          apply idpath).
 Defined.
 
@@ -316,18 +312,18 @@ Proof.
              ∘ inl_eq_weq x₁ x₂)%weq.
     + abstract
         (intro p ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          cbn -[equality_by_case] ;
          refine (@idtoiso_in_bincoprod_inl C₁ C₂ _ _ (ii1_injectivity x₁ x₂ p) @ _) ;
          do 2 apply maponpaths ;
          apply (@inv_equality_by_case_equality_by_case C₁ C₂ (inl x₁) (inl x₂) p)).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ f, fromempty (pr1 f)).
     + intro p ; cbn.
       exact (fromempty (negpathsii1ii2 _ _ p)).
     + intro p ; cbn.
       exact (fromempty (pr1 p)).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ f, fromempty (pr1 f)).
     + intro p ; cbn.
       exact (fromempty (negpathsii2ii1 _ _ p)).
@@ -339,7 +335,7 @@ Proof.
              ∘ inr_eq_weq y₁ y₂)%weq.
     + abstract
         (intro p ;
-         use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          cbn -[equality_by_case] ;
          refine (@idtoiso_in_bincoprod_inr C₁ C₂ _ _ (ii2_injectivity y₁ y₂ p) @ _) ;
          do 2 apply maponpaths ;
@@ -494,27 +490,27 @@ Proof.
        apply idpath).
 Defined.
 
-Definition sum_of_functor_inl_is_nat_iso
+Definition sum_of_functor_inl_is_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inl F G).
+  : is_nat_z_iso (sum_of_functor_inl F G).
 Proof.
   intro.
-  apply identity_is_iso.
+  apply identity_is_z_iso.
 Defined.
 
-Definition sum_of_functor_inl_nat_iso
+Definition sum_of_functor_inl_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : nat_iso
+  : nat_z_iso
       (inl_functor C₁ C₂ ∙ sum_of_functors F G)
       F.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (sum_of_functor_inl F G).
-  - exact (sum_of_functor_inl_is_nat_iso F G).
+  - exact (sum_of_functor_inl_is_nat_z_iso F G).
 Defined.
 
 Definition sum_of_functor_inr
@@ -531,27 +527,27 @@ Proof.
        apply idpath).
 Defined.
 
-Definition sum_of_functor_inr_is_nat_iso
+Definition sum_of_functor_inr_is_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : is_nat_iso (sum_of_functor_inr F G).
+  : is_nat_z_iso (sum_of_functor_inr F G).
 Proof.
   intro.
-  apply identity_is_iso.
+  apply identity_is_z_iso.
 Defined.
 
-Definition sum_of_functor_inr_nat_iso
+Definition sum_of_functor_inr_nat_z_iso
            {Q C₁ C₂ : category}
            (F : C₁ ⟶ Q)
            (G : C₂ ⟶ Q)
-  : nat_iso
+  : nat_z_iso
       (inr_functor C₁ C₂ ∙ sum_of_functors F G)
       G.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact (sum_of_functor_inr F G).
-  - exact (sum_of_functor_inr_is_nat_iso F G).
+  - exact (sum_of_functor_inr_is_nat_z_iso F G).
 Defined.
 
 (**

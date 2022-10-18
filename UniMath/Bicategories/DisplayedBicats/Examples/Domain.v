@@ -24,15 +24,15 @@ Section DomainArrow.
   Proof.
     use tpair.
     - exact (λ c, c --> a).
-    - exact (λ c₁ c₂ t₁ t₂ s, s · t₂ ==> t₁).
+    - exact (λ c₁ c₂ t₁ t₂ s, t₁ ==> s · t₂).
   Defined.
 
   Definition dom_disp_cat_id_comp
     : disp_cat_id_comp B dom_disp_cat_ob_mor.
   Proof.
     use tpair.
-    - exact (λ c t, lunitor _).
-    - exact (λ c₁ c₂ c₃ s₁ s₂ t₁ t₂ t₃ α β, rassociator _ _ _ • (s₁ ◃ β) • α).
+    - exact (λ c t, linvunitor _).
+    - exact (λ c₁ c₂ c₃ s₁ s₂ t₁ t₂ t₃ α β, α • (s₁ ◃ β) • lassociator _ _ _).
   Defined.
 
   Definition dom_disp_cat_data
@@ -48,7 +48,7 @@ Section DomainArrow.
   Proof.
     use tpair.
     - exact dom_disp_cat_data.
-    - exact (λ c₁ c₂ s₁ s₂ α t₁ t₂ ss₁ ss₂, ss₁ = (α ▹ t₂) • ss₂).
+    - exact (λ c₁ c₂ s₁ s₂ α t₁ t₂ ss₁ ss₂, ss₁ • (α ▹ t₂) = ss₂).
   Defined.
 
   Definition dom_disp_prebicat_ops
@@ -57,110 +57,92 @@ Section DomainArrow.
     repeat split ; cbn.
     - intros.
       rewrite id2_rwhisker.
-      rewrite id2_left.
+      rewrite id2_right.
       apply idpath.
     - intros.
       rewrite !vassocl.
-      rewrite vcomp_lunitor.
-      rewrite !vassocr.
-      apply maponpaths_2.
+      use vcomp_move_R_pM ; [ is_iso | ] ;cbn.
+      rewrite <- vcomp_lunitor.
       rewrite <- lunitor_triangle.
-      rewrite !vassocr.
-      rewrite rassociator_lassociator.
-      apply id2_left.
-    - intros.
-      apply maponpaths_2.
-      rewrite lwhisker_hcomp.
-      rewrite triangle_l.
-      rewrite <- rwhisker_hcomp.
       apply idpath.
     - intros.
       rewrite !vassocl.
-      use vcomp_move_L_pM.
-      {
-        is_iso.
-      }
-      cbn.
-      rewrite vcomp_lunitor.
+      refine (_ @ id2_right _).
+      apply maponpaths.
+      rewrite runitor_rwhisker.
+      rewrite lwhisker_vcomp.
+      rewrite linvunitor_lunitor.
+      rewrite lwhisker_id2.
+      apply idpath.
+    - intros.
+      rewrite !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ] ; cbn.
       rewrite !vassocr.
-      apply maponpaths_2.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
+      rewrite <- vcomp_lunitor.
+      rewrite !vassocl.
       rewrite <- lunitor_triangle.
-      rewrite !vassocr.
-      rewrite rassociator_lassociator.
-      rewrite id2_left.
       apply idpath.
     - intros.
       rewrite !vassocl.
-      use vcomp_move_L_pM.
-      {
-        is_iso.
-      }
-      cbn.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite lwhisker_hcomp.
-      rewrite triangle_l.
-      rewrite <- rwhisker_hcomp.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
+      rewrite !vassocl.
+      rewrite runitor_rwhisker.
+      rewrite lwhisker_vcomp.
+      rewrite linvunitor_lunitor.
+      rewrite lwhisker_id2.
+      rewrite id2_right.
       apply idpath.
     - intros.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite !vassocl.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite !vassocr.
-        rewrite <- lwhisker_lwhisker_rassociator.
-        apply idpath.
-      }
       rewrite <- !lwhisker_vcomp.
-      rewrite !vassocr.
-      do 2 apply maponpaths_2.
-      rewrite rassociator_rassociator.
-      apply idpath.
-    - intros.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite <- !lwhisker_vcomp.
-      rewrite !vassocr.
-      apply maponpaths_2.
       rewrite !vassocl.
-      rewrite <- lwhisker_lwhisker_rassociator.
+      do 2 apply maponpaths.
       rewrite !vassocr.
-      apply maponpaths_2.
+      rewrite <- lwhisker_lwhisker.
       rewrite !vassocl.
-      rewrite <- rassociator_rassociator.
+      apply maponpaths.
       rewrite !vassocr.
-      apply maponpaths_2.
+      rewrite <- lassociator_lassociator.
+      rewrite !vassocl.
+      apply maponpaths.
       rewrite rwhisker_vcomp.
       rewrite lassociator_rassociator.
       rewrite id2_rwhisker.
-      rewrite id2_left.
-      apply idpath.
+      apply id2_right.
+    - intros.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      apply lassociator_lassociator.
     - intros ? ? ? ? ? ? ? ? ? ? ? ? α β.
       rewrite <- rwhisker_vcomp.
-      rewrite !vassocl.
+      rewrite !vassocr.
       rewrite α.
       rewrite β.
       apply idpath.
     - intros ? ? ? ? ? ? ? ? ? ? ? ? ? α.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- rwhisker_lwhisker.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite lwhisker_vcomp.
       rewrite α.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite <- lwhisker_vcomp.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite rwhisker_lwhisker_rassociator.
       apply idpath.
     - intros ? ? ? ? ? ? ? ? ? ? ? ? ? α.
-      rewrite α.
+      rewrite !vassocl.
+      rewrite rwhisker_rwhisker.
       rewrite !vassocr.
       apply maponpaths_2.
       rewrite !vassocl.
       rewrite <- vcomp_whisker.
       rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite rwhisker_rwhisker_alt.
+      rewrite α.
       apply idpath.
   Qed.
 
@@ -207,13 +189,8 @@ Section DomainArrow.
     : disp_locally_sym dom_disp_bicat.
   Proof.
     intros c₁ c₂ s₁ s₂ α t₁ t₂ φ₁ φ₂ p ; cbn in *.
-    rewrite p.
-    rewrite !vassocr.
-    rewrite rwhisker_vcomp.
-    rewrite vcomp_linv.
-    rewrite id2_rwhisker.
-    rewrite id2_left.
-    apply idpath.
+    use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.
+    exact (!p).
   Qed.
 
   Definition dom_disp_locally_groupoid
@@ -233,7 +210,7 @@ Section DomainArrow.
     - intros α.
       pose (pr1 α) as p ; cbn in p.
       rewrite id2_rwhisker in p.
-      rewrite id2_left in p.
+      rewrite id2_right in p.
       exact p.
     - apply B.
     - use isaproptotal2.
@@ -242,6 +219,53 @@ Section DomainArrow.
       + intros.
         apply B.
   Qed.
+
+  Definition dom_invertible_2cell_is_left_disp_adj_equiv
+             {c : B}
+             {t₁ t₂ : dom_disp_bicat c}
+             (f : t₁ -->[ id₁ _ ] t₂)
+             (Hf : is_invertible_2cell f)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity c) f.
+  Proof.
+    simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+    - exact (linvunitor _ • Hf^-1 • linvunitor _).
+    - abstract
+        (cbn ;
+         rewrite <- !lwhisker_vcomp ;
+         rewrite !vassocl ;
+         rewrite !lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- !lwhisker_hcomp, <- rwhisker_hcomp ;
+         rewrite lunitor_V_id_is_left_unit_V_id ;
+         rewrite !vassocr ;
+         apply maponpaths_2 ;
+         use vcomp_move_L_Mp ; [ is_iso | ] ; cbn ;
+         rewrite lwhisker_hcomp ;
+         rewrite <- linvunitor_natural ;
+         apply maponpaths ;
+         rewrite linvunitor_assoc ;
+         rewrite lunitor_V_id_is_left_unit_V_id ;
+         rewrite rwhisker_hcomp ;
+         rewrite <- triangle_l_inv ;
+         rewrite <- lwhisker_hcomp ;
+         rewrite !vassocl ;
+         rewrite lassociator_rassociator ;
+         apply id2_right).
+    - abstract
+        (cbn ;
+         rewrite !vassocl ;
+         refine (_ @ id2_right _) ;
+         apply maponpaths ;
+         do 2 (use vcomp_move_R_pM ; [ is_iso | ]) ; cbn ;
+         rewrite id2_right ;
+         rewrite <- vcomp_lunitor ;
+         rewrite lunitor_triangle ;
+         apply idpath).
+    - apply dom_disp_2cells_isaprop.
+    - apply dom_disp_2cells_isaprop.
+    - apply dom_disp_locally_groupoid.
+    - apply dom_disp_locally_groupoid.
+  Defined.
 
   Definition dom_invertible_2cell_to_disp_adj_equiv
              {c : B}
@@ -252,53 +276,43 @@ Section DomainArrow.
   Proof.
     intros α.
     simple refine (_ ,, ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _)))).
-    - exact (lunitor _ • α^-1).
-    - exact (lunitor _ • α).
+    - exact (α • linvunitor _).
+    - exact (α^-1 • linvunitor _).
     - abstract
         (cbn ;
-         rewrite <- !lwhisker_vcomp ;
+         rewrite linvunitor_natural ;
+         rewrite <- lwhisker_hcomp ;
          rewrite !vassocl ;
-         refine (!_) ;
-         etrans ;
-         [ do 3 apply maponpaths ;
-           rewrite !vassocr ;
-           rewrite vcomp_lunitor ;
-           rewrite !vassocl ;
-           rewrite vcomp_rinv ;
-           apply id2_right
-         | ] ;
+         apply maponpaths ;
          rewrite !vassocr ;
-         refine (_ @ id2_left _) ;
-         apply maponpaths_2 ;
+         rewrite lwhisker_vcomp ;
+         rewrite !vassocr ;
+         rewrite vcomp_rinv ;
+         rewrite id2_left ;
+         rewrite lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- rwhisker_hcomp ;
+         apply maponpaths ;
+         apply lunitor_V_id_is_left_unit_V_id).
+    - abstract
+        (cbn ;
+         rewrite linvunitor_natural ;
+         rewrite <- lwhisker_hcomp ;
          rewrite !vassocl ;
-         rewrite <- runitor_rwhisker ;
-         etrans ;
-         [ apply maponpaths ;
-           rewrite !vassocr ;
-           rewrite rassociator_lassociator ;
-           apply id2_left
-         | ] ;
+         refine (_ @ id2_right _) ;
+         apply maponpaths ;
+         rewrite !vassocr ;
+         rewrite lwhisker_vcomp ;
+         rewrite !vassocr ;
+         rewrite vcomp_linv ;
+         rewrite id2_left ;
+         rewrite lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- rwhisker_hcomp ;
          rewrite rwhisker_vcomp ;
-         rewrite runitor_lunitor_identity ;
-         rewrite linvunitor_lunitor ;
-         apply id2_rwhisker).
-    - abstract
-        (cbn ;
-         rewrite <- !lwhisker_vcomp ;
-         rewrite !vassocl ;
-         etrans ;
-         [ do 2 apply maponpaths ;
-           rewrite !vassocr ;
-           rewrite vcomp_lunitor ;
-           rewrite !vassocl ;
-           rewrite vcomp_linv ;
-           apply id2_right
-         | ] ;
-         rewrite !vassocr ;
-         apply maponpaths_2 ;
-         rewrite lunitor_lwhisker ;
          rewrite lunitor_runitor_identity ;
-         apply idpath).
+         rewrite rinvunitor_runitor ;
+         apply id2_rwhisker).
     - apply dom_disp_2cells_isaprop.
     - apply dom_disp_2cells_isaprop.
     - apply dom_disp_locally_groupoid.
@@ -314,43 +328,32 @@ Section DomainArrow.
   Proof.
     intros e.
     use make_invertible_2cell.
-    - exact (linvunitor _ • pr112 e).
+    - exact (pr1 e • lunitor _).
     - use make_is_invertible_2cell.
-      + exact (linvunitor _ • pr1 e).
+      + exact (pr112 e • lunitor _).
       + abstract
           (pose (pr1 (pr212 e)) as m ;
            cbn in m ;
-           rewrite !vassocr in m ;
-           rewrite <- linvunitor_assoc in m ;
+           rewrite !vassocl in m ;
+           rewrite !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+           rewrite id2_left ;
            rewrite !vassocl ;
-           etrans ;
-           [ apply maponpaths ;
-             rewrite !vassocr ;
-             rewrite linvunitor_natural ;
-             rewrite <- lwhisker_hcomp ;
-             apply idpath
-           | ] ;
-           use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
-           rewrite id2_right ;
-           rewrite m ;
-           apply idpath).
+           rewrite <- vcomp_lunitor ;
+           rewrite <- lunitor_triangle ;
+           rewrite !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+           rewrite !vassocl ;
+           exact (!m)).
       + abstract
           (pose (pr2 (pr212 e)) as m ;
            cbn in m ;
+           rewrite !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+           rewrite id2_left ;
            rewrite !vassocl ;
-           etrans ;
-             [ apply maponpaths ;
-               rewrite !vassocr ;
-               rewrite linvunitor_natural ;
-               rewrite <- lwhisker_hcomp ;
-               apply idpath
-             | ] ;
-           use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
-           rewrite !vassocl ;
-           rewrite !id2_right ;
-           rewrite linvunitor_assoc ;
-           rewrite !vassocl ;
-           use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
+           rewrite <- vcomp_lunitor ;
+           rewrite <- lunitor_triangle ;
            rewrite !vassocr ;
            exact m).
   Defined.
@@ -365,15 +368,15 @@ Section DomainArrow.
   Proof.
     use make_weq.
     - exact dom_invertible_2cell_to_disp_adj_equiv.
-    - use gradth.
+    - use isweq_iso.
       + exact dom_disp_adj_equiv_to_invertible_2cell.
       + abstract
           (intros α ;
            use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
            cbn ;
-           rewrite vassocr ;
+           rewrite vassocl ;
            rewrite linvunitor_lunitor ;
-           apply id2_left).
+           apply id2_right).
       + abstract
           (intros α ;
            use subtypePath ;
@@ -383,9 +386,9 @@ Section DomainArrow.
              |  apply dom_disp_univalent_2_1 ]
            | ] ;
            cbn ;
-           rewrite vassocr ;
+           rewrite vassocl ;
            rewrite lunitor_linvunitor ;
-           apply id2_left).
+           apply id2_right).
   Defined.
 
   Definition dom_disp_univalent_2_0
@@ -407,6 +410,6 @@ Section DomainArrow.
              [ exact HB_2_1
              |  apply dom_disp_univalent_2_1 ]
            | ] ;
-           apply id2_right).
+           apply id2_left).
   Qed.
 End DomainArrow.

@@ -336,10 +336,10 @@ use make_nat_trans.
   intro z; apply setproperty.
 Defined.
 
-Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
-  @is_iso [HSET/sort,HSET] _ _ (nat_trans_proj_functor s).
+Local Lemma is_z_iso_nat_trans_proj_functor (s : sort) :
+  @is_z_isomorphism [HSET/sort,HSET] _ _ (nat_trans_proj_functor s).
 Proof.
-use is_iso_qinv.
+use tpair.
 + use make_nat_trans.
   - simpl; intros x xy.
     exists (tt,,pr1 xy).
@@ -364,7 +364,7 @@ Defined.
 
 Local Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
 Proof.
-apply (is_left_adjoint_iso _ _ (_,,is_iso_nat_trans_proj_functor s)).
+apply (is_left_adjoint_z_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
 apply is_left_adjoint_proj_functor'.
 Defined.
 
@@ -409,8 +409,8 @@ induction xs as [[|n] xs].
     use is_omega_cocont_functor_composite.
     * apply is_omega_cocont_pre_composition_functor, H.
     * apply is_omega_cocont_post_comp_proj.
-  + induction xs as [m k]; simpl.
-    use (@is_omega_cocont_functor_composite _ _ _ (ℓ (option_list _))).
+  + induction xs as [m k].
+    apply (@is_omega_cocont_functor_composite _ _ _ (ℓ (option_list _))).
     * apply is_omega_cocont_pre_composition_functor, H.
     * apply is_omega_cocont_post_comp_proj.
 Defined.

@@ -318,6 +318,17 @@ Definition empty_HLevel
   : HLevel (n + 1)
   := empty ,, empty_hlevel n.
 
+Definition HLevel_fun
+           {n : nat}
+           (X Y : HLevel n)
+  : HLevel n.
+Proof.
+  simple refine (_ ,, _).
+  - exact (pr1 X → pr1 Y).
+  - apply impredfun.
+    exact (pr2 Y).
+Defined.
+
 (** The subtypes of a type of hlevel S n are also of hlevel S n.
     This doesn't work for types of hlevel 0: a subtype of a contractible
     type might be empty, not contractible! *)
@@ -807,8 +818,8 @@ Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     (ec : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
   : transportf _ ea bc1 = bc2.
 Proof.
-  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
-  cbn in *; destruct eb, ec.
+  destruct bc1 as [b1 c1], bc2 as [b2 c2]; simpl in *.
+  destruct ea. destruct eb. simpl in *. destruct ec.
   apply idpath.
 Defined.
 
@@ -819,7 +830,7 @@ Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
     (ec : pr2 bc1 = transportb C (total2_paths2_b ea eb) (pr2 bc2))
-  : bc1 = transportb _ ea bc2.
+  : bc1 = transportb BC ea bc2.
 Proof.
   destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
   cbn in eb; destruct eb; cbn in ec; destruct ec.
@@ -1233,6 +1244,49 @@ Proof.
   apply idpath.
 Defined.
 
+Definition paths_pathsdirprod
+           {X Y : UU}
+           {x₁ x₂ : X}
+           {y₁ y₂ : Y}
+           {p₁ p₂ : x₁ = x₂}
+           {q₁ q₂ : y₁ = y₂}
+           (r₁ : p₁ = p₂)
+           (r₂ : q₁ = q₂)
+  : pathsdirprod p₁ q₁
+    =
+    pathsdirprod p₂ q₂.
+Proof.
+  induction r₁, r₂.
+  apply idpath.
+Defined.
+
+(** Paths on functions *)
+Definition app_fun
+           {X Y : UU}
+  : (X → Y) × X → Y
+  := λ fx, pr1 fx (pr2 fx).
+
+Definition app_homot
+           {X Y₁ Y₂ : UU}
+           {f g : Y₁ → X → Y₂}
+           (p : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (y : Y₁)
+  : f y = g y
+  := funextsec _ _ _ (λ x, p (y ,, x)).
+
+Definition maponpaths_app_fun
+           {X Y : UU}
+           {fx gx : (X → Y) × X}
+           (p : fx = gx)
+  : maponpaths (λ (fx : (X → Y) × X), app_fun fx) p
+    =
+    maponpaths (λ z, z (pr2 fx)) (maponpaths dirprod_pr1 p)
+    @
+    maponpaths (pr1 gx) (maponpaths dirprod_pr2 p).
+Proof.
+  induction p.
+  apply idpath.
+Defined.
 
 
 

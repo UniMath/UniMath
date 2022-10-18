@@ -12,7 +12,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
@@ -39,6 +38,14 @@ Definition adds_properties
            (D : disp_cat C)
   : UU
   := full_and_faithful (pr1_category D).
+
+Definition discrete_pr1_category
+           {C : category}
+           (D : disp_cat C)
+  : UU
+  := faithful (pr1_category D)
+     ×
+     conservative (pr1_category D).
 
 (**
 Now we give some conditions to check whether structure or properties are being added via the hlevel of the displayed morphisms.
@@ -96,6 +103,38 @@ Proof.
 Defined.
 
 (**
+
+ *)
+Definition groupoidal_disp_cat
+           {C : category}
+           (D : disp_cat C)
+  : UU
+  := ∏ (x y : C)
+       (f : x --> y)
+       (Hf : is_z_isomorphism f)
+       (xx : D x) (yy : D y)
+       (ff : xx -->[ f ] yy),
+     is_z_iso_disp (make_z_iso' f Hf) ff.
+
+Definition isaprop_groupoidal_disp_cat
+           {C : category}
+           (D : disp_cat C)
+  : isaprop (groupoidal_disp_cat D).
+Proof.
+  do 7 (use impred ; intro).
+  apply isaprop_is_z_iso_disp.
+Qed.
+
+(**
+
+ *)
+Definition discrete_disp_cat
+           {C : category}
+           (D : disp_cat C)
+  : UU
+  := locally_propositional D × groupoidal_disp_cat D.
+
+(**
 Now let us look at the relations between these three properties.
  *)
 Definition locally_propositional_if_locally_contractible
@@ -147,7 +186,7 @@ Proof.
   use isofhleveltotal2.
   - apply HD₂.
   - intro.
-    apply isaprop_is_iso_disp.
+    apply isaprop_is_z_iso_disp.
 Defined.
 
 (**
@@ -159,11 +198,11 @@ Definition locally_contractible_disp_iso
            {C : category}
            (D : disp_cat C)
            {x y : C}
-           {f : iso x y}
+           {f : z_iso x y}
            {xx : D x} {yy : D y}
            (ff : xx -->[ f ] yy)
            (HD : locally_contractible D)
-  : is_iso_disp f ff.
+  : is_z_iso_disp f ff.
 Proof.
   simple refine (_ ,, _ ,, _).
   - apply HD.
@@ -185,7 +224,7 @@ Proof.
   - apply HD₂.
   - intro f.
     apply iscontraprop1.
-    + apply isaprop_is_iso_disp.
+    + apply isaprop_is_z_iso_disp.
     + apply locally_contractible_disp_iso.
       apply HD₂.
 Defined.
@@ -325,4 +364,62 @@ Proof.
   - exact (pr1_category_fully_faithful D).
   - apply isaprop_full_and_faithful.
   - apply isaprop_locally_contractible.
+Defined.
+
+(**
+ *)
+Definition groupoidal_disp_cat_to_conservative
+           {C : category}
+           {D : disp_cat C}
+           (HD : groupoidal_disp_cat D)
+  : conservative (pr1_category D).
+Proof.
+  intros x y f Hf.
+  use is_z_iso_total.
+  - exact Hf.
+  - apply HD.
+Defined.
+
+Definition conservative_to_groupoidal_disp_cat
+           {C : category}
+           {D : disp_cat C}
+           (HD : conservative (pr1_category D))
+  : groupoidal_disp_cat D.
+Proof.
+  intros x y f Hf xx yy ff.
+  assert (@is_z_isomorphism (total_category D) (_ ,, _) (_ ,, _) (f ,, ff)) as Hff.
+  {
+    apply HD.
+    apply Hf.
+  }
+  refine (transportf
+            (λ z, is_z_iso_disp (make_z_iso' f z) ff)
+            _
+            (is_z_iso_disp_from_total Hff)).
+  apply isaprop_is_z_isomorphism.
+Defined.
+
+Definition groupoidal_disp_cat_weq_conservative
+           {C : category}
+           (D : disp_cat C)
+  : groupoidal_disp_cat D ≃ conservative (pr1_category D).
+Proof.
+  use weqimplimpl.
+  - exact groupoidal_disp_cat_to_conservative.
+  - exact conservative_to_groupoidal_disp_cat.
+  - exact (isaprop_groupoidal_disp_cat D).
+  - apply isaprop_conservative.
+Defined.
+
+(**
+
+ *)
+Definition discrete_disp_cat_weq_discrete_projection
+           {C : category}
+           (D : disp_cat C)
+  : discrete_disp_cat D ≃ discrete_pr1_category D.
+Proof.
+  use weqdirprodf.
+  - exact (invweq (adds_structure_weq_locally_propositional D)).
+  - exact (groupoidal_disp_cat_weq_conservative D).
 Defined.

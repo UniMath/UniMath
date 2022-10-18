@@ -33,7 +33,7 @@ Definition transportf_functor_isotoid'
            (F : C₁ ⟶ C₂)
            {y : C₂}
            {x₁ x₂ : C₁}
-           (i : iso x₁ x₂)
+           (i : z_iso x₁ x₂)
            (f : y --> F x₁)
   : transportf
       (λ z, y --> F z)
@@ -47,7 +47,6 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
-
 
 (**
 The definition of a Street opfibration of categories
@@ -141,11 +140,202 @@ Section StreetOpFibration.
          (b : B)
          (f : F e --> b),
        ∑ (bb : E)
-         (ff_i : e --> bb × iso b (F bb)),
+         (ff_i : e --> bb × z_iso b (F bb)),
        # F (pr1 ff_i) = f · pr2 ff_i
        ×
        is_opcartesian_sopfib (pr1 ff_i).
 End StreetOpFibration.
+
+(**
+The projection of an opfibration is a Street opfibration
+ *)
+Section OpcleavingToStreetOpFib.
+  Context {B : category}
+          {D : disp_cat B}.
+
+  Let E : category := total_category D.
+  Let P : E ⟶ B := pr1_category D.
+
+  Local Definition is_opcartesian_to_unique_sopfib
+        {e₁ e₂ : E}
+        (f : e₁ --> e₂)
+        (H : is_opcartesian (pr2 f))
+        {z : E}
+        (g : e₁ --> z)
+        (h : P e₂ --> P z)
+        (p : # P g = # P f · h)
+    : isaprop (∑ φ : E ⟦ e₂, z ⟧, # P φ = h × f · φ = g).
+  Proof.
+    pose (lift := H (pr1 z) (pr2 z) h (transportf (λ z, _ -->[ z ] _) p (pr2 g))).
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply isapropdirprod ; apply homset_property.
+    }
+    use (total2_paths_f (pr12 φ₁ @ !(pr12 φ₂))).
+    pose (φφ₁ := transportf (λ z, _ -->[ z ] _) (pr12 φ₁) (pr21 φ₁)).
+    pose (φφ₂ := transportf (λ z, _ -->[ z ] _) (pr12 φ₂) (pr21 φ₂)).
+    simpl in φφ₁, φφ₂.
+    assert ((pr2 f ;; φφ₁)%mor_disp
+            =
+            transportf (λ w, pr2 e₁ -->[ w ] pr2 z) p (pr2 g))
+      as H₁.
+    {
+      unfold φφ₁.
+      rewrite mor_disp_transportf_prewhisker.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right (fiber_paths (pr22 φ₁))).
+      }
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    }
+    assert ((pr2 f ;; φφ₂)%mor_disp
+            =
+            transportf (λ w, pr2 e₁ -->[ w ] pr2 z) p (pr2 g))
+      as H₂.
+    {
+      unfold φφ₂.
+      rewrite mor_disp_transportf_prewhisker.
+      etrans.
+      {
+        apply maponpaths.
+        exact (transportb_transpose_right (fiber_paths (pr22 φ₂))).
+      }
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    }
+    pose (proofirrelevance _ (isapropifcontr lift)) as q.
+    assert (r := maponpaths pr1 (q (φφ₁ ,, H₁) (φφ₂ ,, H₂))).
+    cbn in r.
+    unfold φφ₁, φφ₂ in r.
+    simple refine (_ @ maponpaths (transportb _ (pr12 φ₂)) r @ _)
+    ; unfold transportb
+    ; rewrite transport_f_f.
+    + apply maponpaths_2.
+      apply homset_property.
+    + apply transportf_set.
+      apply homset_property.
+  Qed.
+
+  Definition is_opcartesian_to_is_opcartesian_sopfib
+             {e₁ e₂ : E}
+             (f : e₁ --> e₂)
+             (H : is_opcartesian (pr2 f))
+    : is_opcartesian_sopfib P f.
+  Proof.
+    intros z g h p.
+    pose (lift := H (pr1 z) (pr2 z) h (transportf (λ z, _ -->[ z ] _) p (pr2 g))).
+    use iscontraprop1.
+    - exact (is_opcartesian_to_unique_sopfib _ H _ _ p).
+    - simple refine ((h ,, pr11 lift) ,, (idpath _ ,, _)) ; cbn.
+      abstract
+        (pose (pr21 lift) as q ; cbn in q ;
+         use total2_paths_f ;
+         [ exact (!p)
+         | cbn ;
+           rewrite q ;
+           rewrite transport_f_f ;
+           apply transportf_set ;
+           apply homset_property ]).
+  Defined.
+
+  Local Definition is_opcartesian_sopfib_to_unique_opcartesian
+        {e₁ e₂ : E}
+        (f : e₁ --> e₂)
+        (H : is_opcartesian_sopfib P f)
+        {z : B}
+        (g : pr1 e₂ --> z)
+        (zz : D z)
+        (gf : pr2 e₁ -->[ pr1 f · g ] zz)
+    : isaprop (∑ gg, (pr2 f ;; gg)%mor_disp = gf).
+  Proof.
+    pose (lift := H (z ,, zz) (pr1 f · g ,, gf) g (idpath _)).
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply D.
+    }
+    pose (φφ₁ := (g ,, pr1 φ₁) : E ⟦ e₂ , z,, zz ⟧).
+    assert (# P φφ₁ = g × f · φφ₁ = pr1 f · g ,, gf) as H₁.
+    {
+      split ; cbn.
+      - apply idpath.
+      - apply maponpaths.
+        exact (pr2 φ₁).
+    }
+    pose (φφ₂ := (g ,, pr1 φ₂) : E ⟦ e₂ , z,, zz ⟧).
+    assert (# P φφ₂ = g × f · φφ₂ = pr1 f · g ,, gf) as H₂.
+    {
+      split ; cbn.
+      - apply idpath.
+      - apply maponpaths.
+        exact (pr2 φ₂).
+    }
+    assert (q := maponpaths
+                   (λ z, pr1 z)
+                   (proofirrelevance
+                      _
+                      (isapropifcontr lift)
+                      (φφ₁ ,, H₁) (φφ₂ ,, H₂))).
+    cbn in q.
+    refine (!_ @ fiber_paths q).
+    apply transportf_set.
+    apply homset_property.
+  Qed.
+
+  Definition is_opcartesian_sopfib_to_is_opcartesian
+             {e₁ e₂ : E}
+             (f : e₁ --> e₂)
+             (H : is_opcartesian_sopfib P f)
+    : is_opcartesian (pr2 f).
+  Proof.
+    intros z zz g gf.
+    pose (lift := H (z ,, zz) (pr1 f · g ,, gf) g (idpath _)).
+    use iscontraprop1.
+    - apply is_opcartesian_sopfib_to_unique_opcartesian.
+      exact H.
+    - simple refine (_ ,, _).
+      + exact (transportf
+                 (λ z, _ -->[ z ] _)
+                 (pr121 lift)
+                 (pr211 lift)).
+      + abstract
+          (simpl ;
+           pose (transportb_transpose_right (fiber_paths (pr221 lift))) as p ;
+           rewrite mor_disp_transportf_prewhisker ;
+           cbn in p ;
+           refine (maponpaths _ p @ _) ;
+           unfold transportb ;
+           rewrite transport_f_f ;
+           apply transportf_set ;
+           apply homset_property).
+  Defined.
+
+  Definition opfibration_is_street_opfib
+             (HD : opcleaving D)
+    : street_opfib (pr1_category D).
+  Proof.
+    intros e b f.
+    pose (HD (pr1 e) b (pr2 e) f) as c.
+    refine ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_z_iso b) ,, _).
+    simpl.
+    split.
+    - apply (!(id_right _)).
+    - apply is_opcartesian_to_is_opcartesian_sopfib.
+      exact (pr22 c).
+  Defined.
+End OpcleavingToStreetOpFib.
+
 
 (**
  *)
@@ -157,22 +347,22 @@ Definition lift_unique_sopfib_map
            (f : F e --> b)
            (bb₁ bb₂ : E)
            (ff₁ : e --> bb₁)
-           (β₁ : iso b (F bb₁))
+           (β₁ : z_iso b (F bb₁))
            (ff₂ :  e --> bb₂)
-           (β₂ : iso b (F bb₂))
+           (β₂ : z_iso b (F bb₂))
            (over₁ : # F (ff₁) = f · β₁)
            (over₂ : # F (ff₂) = f · β₂)
            (cart₁ : is_opcartesian_sopfib F ff₁)
            (cart₂ : is_opcartesian_sopfib F ff₂)
   : bb₁ --> bb₂.
 Proof.
-  use (opcartesian_factorization_sopfib F cart₁ ff₂ (inv_from_iso β₁ · β₂) _).
+  use (opcartesian_factorization_sopfib F cart₁ ff₂ (inv_from_z_iso β₁ · β₂) _).
   abstract
     (rewrite over₁, over₂ ;
      rewrite !assoc' ;
      apply maponpaths ;
      rewrite !assoc ;
-     rewrite iso_inv_after_iso ;
+     rewrite z_iso_inv_after_z_iso ;
      rewrite id_left ;
      apply idpath).
 Defined.
@@ -185,9 +375,9 @@ Section UniqueLifts.
           (f : F e --> b)
           (bb₁ bb₂ : E)
           (ff₁ : e --> bb₁)
-          (β₁ : iso b (F bb₁))
+          (β₁ : z_iso b (F bb₁))
           (ff₂ :  e --> bb₂)
-          (β₂ : iso b (F bb₂))
+          (β₂ : z_iso b (F bb₂))
           (over₁ : # F (ff₁) = f · β₁)
           (over₂ : # F (ff₂) = f · β₂)
           (cart₁ : is_opcartesian_sopfib F ff₁)
@@ -213,9 +403,9 @@ Section UniqueLifts.
       rewrite !opcartesian_factorization_sopfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc.
@@ -239,9 +429,9 @@ Section UniqueLifts.
       rewrite !opcartesian_factorization_sopfib_over.
       rewrite !assoc'.
       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      rewrite iso_inv_after_iso.
+      rewrite z_iso_inv_after_z_iso.
       rewrite id_left.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply idpath.
     - apply functor_id.
     - rewrite !assoc.
@@ -251,15 +441,13 @@ Section UniqueLifts.
   Qed.
 
   Definition lift_unique_sopfib
-    : iso bb₁ bb₂.
+    : z_iso bb₁ bb₂.
   Proof.
-    use make_iso.
-    - exact ζ.
-    - use is_iso_qinv.
-      + exact ζinv.
-      + split.
-        * exact lift_unique_sopfib_inv₁.
-        * exact lift_unique_sopfib_inv₂.
+    exists ζ.
+    exists  ζinv.
+    split.
+    - exact lift_unique_sopfib_inv₁.
+    - exact lift_unique_sopfib_inv₂.
   Defined.
 End UniqueLifts.
 
@@ -295,7 +483,7 @@ Proof.
     use dirprod_paths.
     + etrans.
       {
-        apply (@pr1_transportf E (λ x, e --> x) (λ x _, iso _ (F x))).
+        apply (@pr1_transportf E (λ x, e --> x) (λ x _, z_iso _ (F x))).
       }
       rewrite transportf_isotoid'.
       apply opcartesian_factorization_sopfib_commute.
@@ -303,9 +491,9 @@ Proof.
       use subtypePath.
       {
         intro.
-        apply isaprop_is_iso.
+        apply isaprop_is_z_isomorphism.
       }
-      unfold iso.
+      unfold z_iso.
       rewrite pr1_transportf.
       rewrite transportf_functor_isotoid'.
       etrans.
@@ -317,7 +505,7 @@ Proof.
       etrans.
       {
         apply maponpaths_2.
-        apply iso_inv_after_iso.
+        apply z_iso_inv_after_z_iso.
       }
       apply id_left.
 Qed.
@@ -343,10 +531,10 @@ Definition iso_is_opcartesian_sopfib
            (F : C₁ ⟶ C₂)
            {x₁ x₂ : C₁}
            (i : x₁ --> x₂)
-           (Hi : is_iso i)
+           (Hi : is_z_isomorphism i)
   : is_opcartesian_sopfib F i.
 Proof.
-  pose (i_iso := make_iso _ Hi).
+  pose (i_iso := make_z_iso' _ Hi).
   intros w g h p.
   use iscontraprop1.
   - abstract
@@ -354,13 +542,13 @@ Proof.
        intros φ₁ φ₂ ;
        use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
        refine (!(id_left _) @ _ @ id_left _) ;
-       rewrite <- (iso_after_iso_inv i_iso) ;
+       rewrite <- (z_iso_after_z_iso_inv i_iso) ;
        cbn ;
        rewrite !assoc' ;
        rewrite (pr22 φ₁), (pr22 φ₂) ;
        apply idpath).
   - simple refine (_ ,, _ ,, _).
-    + exact (inv_from_iso i_iso · g).
+    + exact (inv_from_z_iso i_iso · g).
     + abstract
         (rewrite functor_comp ;
          rewrite p ;
@@ -369,7 +557,7 @@ Proof.
          etrans ;
            [ apply maponpaths_2 ;
              apply maponpaths ;
-             exact (iso_after_iso_inv i_iso)
+             exact (z_iso_after_z_iso_inv i_iso)
            | ] ;
          rewrite functor_id ;
          apply id_left).
@@ -378,7 +566,7 @@ Proof.
          rewrite !assoc ;
          refine (_ @ id_left _) ;
          apply maponpaths_2 ;
-         exact (iso_inv_after_iso i_iso)).
+         exact (z_iso_inv_after_z_iso i_iso)).
 Defined.
 
 Section CompositionOpCartesian.

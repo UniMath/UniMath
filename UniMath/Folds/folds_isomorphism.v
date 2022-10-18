@@ -32,7 +32,6 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
-Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 Require Import UniMath.Folds.from_precats_to_folds_and_back.
 
@@ -526,7 +525,7 @@ Context {a b : C} (i : z_iso (C:=C') a b).
 
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
-  apply (eq_z_iso(C:=C',,hs)).
+  apply (z_iso_eq(C:=C',,hs)).
   apply (@id_left C').
 Qed.
 

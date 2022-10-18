@@ -40,7 +40,7 @@ Section ReindexFib.
         (fib_slice_bicat C₁).
   Proof.
     use make_psfunctor_data.
-    - exact (λ D, cleaving_of_fibs_lift_obj D F).
+    - exact (λ D, cleaving_of_cleaving_lift_obj D F).
     - exact (λ D₁ D₂ G, reindex_of_cartesian_disp_functor F G (pr2 D₁)).
     - exact (λ D₁ D₂ G₁ G₂ α, reindex_of_disp_nat_trans F α).
     - exact (λ D, reindex_of_disp_functor_identity F (pr1 D)).
@@ -217,11 +217,11 @@ Section ReindexFib.
     - intro D.
       use is_invertible_2cell_fib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
     - intros D₁ D₂ D₃ G₁ G₂.
       use is_invertible_2cell_fib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
   Defined.
 
   Definition reindex_fib_psfunctor
@@ -246,7 +246,7 @@ Section ReindexOpFib.
         (opfib_slice_bicat C₁).
   Proof.
     use make_psfunctor_data.
-    - exact (λ D, cleaving_of_opfibs_lift_obj D F).
+    - exact (λ D, cleaving_of_opcleaving_lift_obj D F).
     - exact (λ D₁ D₂ G, reindex_of_opcartesian_disp_functor F G (pr2 D₁)).
     - exact (λ D₁ D₂ G₁ G₂ α, reindex_of_disp_nat_trans F α).
     - exact (λ D, reindex_of_disp_functor_identity F (pr1 D)).
@@ -423,11 +423,11 @@ Section ReindexOpFib.
     - intro D.
       use is_invertible_2cell_opfib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
     - intros D₁ D₂ D₃ G₁ G₂.
       use is_invertible_2cell_opfib_slice.
       intros x xx.
-      apply (@id_is_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+      apply (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
   Defined.
 
   Definition reindex_opfib_psfunctor
