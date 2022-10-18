@@ -200,10 +200,8 @@ Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
-
 MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
 Morphisms/Monadic.v
-MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegoriesFinalObject.v
 Monads/Examples/MonadsInStructuredCategories.v
