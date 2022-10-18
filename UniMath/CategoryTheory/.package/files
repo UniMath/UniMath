@@ -104,14 +104,12 @@ yoneda.v
 Monads/Monads.v
 Monads/KleisliCategory.v
 Monads/LModules.v
-FunctorAlgebras.v
 FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
 rezk_completion.v
 UnitorsAndAssociatorsForEndofunctors.v
-CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
@@ -199,7 +197,15 @@ OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
 Chains/Cochains.v
+
+DisplayedCats/Examples/Opposite.v
+DisplayedCats/Fibrations.v
+DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions.v
+
+FunctorAlgebras.v
 Chains/Adamek.v
+Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
 OppositeCategory/LimitsAsColimits.v
 Chains/OmegaContFunctors.v
@@ -208,11 +214,8 @@ Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
+CategoricalRecursionSchemes.v
 
-DisplayedCats/Examples/Opposite.v
-DisplayedCats/Fibrations.v
-DisplayedCats/Examples/Reindexing.v
-DisplayedCats/Constructions.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
@@ -239,12 +242,17 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/Actegories.v
 Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
 Monoidal/TotalDisplayedMonoidalWhiskered.v
+Monoidal/Examples/MonoidalPointedObjects.v
+Monoidal/ConstructionOfActegories.v
+Monoidal/MorphismsOfActegories.v
+Monoidal/ActionBasedStrongMonads.v
 Monoidal/MonoidalSectionsWhiskered.v
 Monoidal/BraidedMonoidalCategoriesWhiskered.v
 Monoidal/ClosedMonoidalCategoriesWhiskered.v

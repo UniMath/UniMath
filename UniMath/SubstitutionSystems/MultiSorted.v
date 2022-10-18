@@ -409,8 +409,8 @@ induction xs as [[|n] xs].
     use is_omega_cocont_functor_composite.
     * apply is_omega_cocont_pre_composition_functor, H.
     * apply is_omega_cocont_post_comp_proj.
-  + induction xs as [m k]; simpl.
-    use (@is_omega_cocont_functor_composite _ _ _ (ℓ (option_list _))).
+  + induction xs as [m k].
+    apply (@is_omega_cocont_functor_composite _ _ _ (ℓ (option_list _))).
     * apply is_omega_cocont_pre_composition_functor, H.
     * apply is_omega_cocont_post_comp_proj.
 Defined.

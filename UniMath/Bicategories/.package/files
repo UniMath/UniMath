@@ -73,14 +73,19 @@ MonoidalCategories/PointedFunctorsMonoidal.v
 MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
+MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v
+MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
+MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v
 MonoidalCategories/ActionBasedStrength.v
 MonoidalCategories/ActionBasedStrongFunctorsMonoidal.v
 MonoidalCategories/ActionOfEndomorphismsInBicat.v
 MonoidalCategories/ActionBasedStrongFunctorCategory.v
 MonoidalCategories/ActionsFormBicategory.v
 MonoidalCategories/ActionBasedStrongFunctorsWhiskeredMonoidal.v
+MonoidalCategories/BicatOfActegories.v
+MonoidalCategories/BicatOfActionsInBicat.v
 
 MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v
@@ -125,6 +130,8 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
+MonoidalCategories/EquivalenceActegoriesAndActions.v
+
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
 
@@ -155,12 +162,11 @@ PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
 Monads/Examples/ToMonadInCat.v
-Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInBicatOfUnivCats.v
+Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
 Monads/Examples/MonadsInTotalBicat.v
-Monads/Examples/MonadsInStructuredCategories.v
 Monads/DistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
@@ -194,10 +200,13 @@ Limits/Examples/DispConstructionsLimits.v
 Limits/Examples/SubbicatLimits.v
 Limits/Examples/LimitsStructuredCategories.v
 
-Morphisms/Monadic.v
 
+MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
+Morphisms/Monadic.v
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
+MonoidalCategories/BicatOfActegoriesFinalObject.v
+Monads/Examples/MonadsInStructuredCategories.v
 
 Limits/ProductEquivalences.v
 Limits/PullbackFunctions.v

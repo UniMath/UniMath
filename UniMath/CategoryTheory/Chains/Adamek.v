@@ -25,7 +25,7 @@ Local Open Scope cat.
 
 (** * Adámek's theorem for constructing initial algebras of omega-cocontinuous functors *)
 (** This section proves that (L,α : F L -> L) is the initial algebra
-    where L is the colimit of the inital chain:
+    where L is the colimit of the initial chain:
 <<
          !          F !           F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
@@ -44,7 +44,7 @@ Context {C : category} (InitC : Initial C).
 
 (* It is important that these are not packaged together as it is
    sometimes necessary to control how opaque HF is. See
-   isalghom_pr1foldr in lists.v *)
+   [isalghom_pr1foldr] in Lists.v *)
 Context {F : functor C C} (HF : is_omega_cocont F).
 
 Let Fchain : chain C := initChain InitC F.
@@ -182,7 +182,7 @@ Local Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor
 
 End algebra_mor.
 
-Lemma colimAlgIsInitial_subproof (Aa : FunctorAlg F)
+Lemma colimAlgIsInitial_subproof (Aa : category_FunctorAlg F)
         (Fa' : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
 Proof.
 apply algebra_mor_eq; simpl.

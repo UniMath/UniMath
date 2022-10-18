@@ -1,5 +1,5 @@
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.Induction.FunctorAlgebras_legacy.
 Require Import UniMath.Induction.PolynomialFunctors.
 
 (** The W-type associated to (A, B) is the initial algebra of the associated

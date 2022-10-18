@@ -112,7 +112,7 @@ induction m as [|m IHm]; simpl.
 - exact (# F IHm).
 Defined.
 
-(** ** Definition of (ω-)(co)continuous functors *)
+(** ** Definition of (ω-)cocontinuous functors *)
 
 Section cocont.
 
@@ -124,7 +124,7 @@ Definition is_cocont : UU :=
 
 Definition is_omega_cocont : UU :=
   ∏ (c : chain C) (L : C) (cc : cocone c L),
-  preserves_colimit F c L cc.
+    preserves_colimit F c L cc.
 
 End cocont.
 
