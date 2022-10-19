@@ -5,8 +5,8 @@
  ********************************************************************************* *)
 
 (* ========================================================================= *)
-(* Every (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment is a      *)
-(* (pre)bicategory of UniMath.Bicategories.Bicat.             *)
+(* Every (pre)bicategory of UniMath.Bicategories.WkCatEnrichment is a      *)
+(* (pre)bicategory of UniMath.Bicategories.Core.Bicat.             *)
 (* ========================================================================= *)
 
 (* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
