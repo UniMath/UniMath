@@ -76,7 +76,7 @@ Local Notation "'1'" := (functor_identity HSET).
 
 (** The signature of the lambda calculus: { [0,0], [1] } *)
 Definition LamSig : BindingSig :=
-  mkBindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
+  make_BindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
 
 (** The signature with strength for the lambda calculus *)
 Definition LamSignature : Signature HSET _ _ :=
