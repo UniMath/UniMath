@@ -1939,7 +1939,7 @@ Section Main.
     Qed.
 
     Definition montrafotargetbicat_moncat: monoidal_cat :=
-      mk_monoidal_cat montrafotargetbicat_cat
+      make_monoidal_cat montrafotargetbicat_cat
                       montrafotargetbicat_tensor
                       montrafotargetbicat_unit
                       montrafotargetbicat_left_unitor
@@ -2064,7 +2064,7 @@ Section Main.
       Qed.
 
       Definition lmf_from_param_distr_bicat: lax_monoidal_functor Mon_V montrafotargetbicat_moncat :=
-        mk_lax_monoidal_functor _ _
+        make_lax_monoidal_functor _ _
                                 lmf_from_param_distr_bicat_functor
                                 lmf_from_param_distr_bicat_ε
                                 lmf_from_param_distr_bicat_μ

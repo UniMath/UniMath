@@ -63,7 +63,7 @@ Qed.
 Definition lattice (X : hSet) :=
   ∑ min max : binop X, islatticeop min max.
 
-Definition mklattice {X : hSet} {min max : binop X} : islatticeop min max → lattice X :=
+Definition make_lattice {X : hSet} {min max : binop X} : islatticeop min max → lattice X :=
   λ (is : islatticeop min max), min,, max ,, is.
 
 Definition Lmin {X : hSet} (lat : lattice X) : binop X := pr1 lat.
@@ -1581,7 +1581,7 @@ Section hProp_lattice.
 
 Definition hProp_lattice : lattice (hProp,,isasethProp).
 Proof.
-use mklattice.
+use make_lattice.
 - intros P Q; exact (P ∧ Q).
 - simpl; intros P Q; exact (P ∨ Q).
 - repeat split.

@@ -81,7 +81,7 @@ Definition lax_monoidal_functor : UU :=
   ∑ F : Mon_C ⟶ Mon_D, ∑ ϵ : I_D --> F I_C, ∑ μ : monoidal_functor_map F,
   (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
 
-Definition mk_lax_monoidal_functor (F : Mon_C ⟶ Mon_D) (ϵ : I_D --> F I_C)
+Definition make_lax_monoidal_functor (F : Mon_C ⟶ Mon_D) (ϵ : I_D --> F I_C)
   (μ : monoidal_functor_map F) (Hass: monoidal_functor_associativity F μ)
   (Hunit: monoidal_functor_unitality F ϵ μ): lax_monoidal_functor :=
   (F,, (ϵ,, (μ,, (Hass,, Hunit)))).
@@ -192,7 +192,7 @@ Definition swapping_of_lax_monoidal_functor: lax_monoidal_functor Mon Mon' ->
 Proof.
   intro lmF.
   induction lmF as [F [ϵ [μ [Hass Hunit]]]].
-  use mk_lax_monoidal_functor.
+  use make_lax_monoidal_functor.
   - exact F.
   - exact ϵ.
   - exact (pre_whisker binswap_pair_functor μ).

@@ -109,14 +109,14 @@ Coercion dcpoposet : dcpo >-> Poset.
 Definition dcpoisdirectedcomplete (D : dcpo) : isdirectedcomplete D := pr2 D.
 Definition make_dcpo (X : Poset) (i : isdirectedcomplete X) : dcpo := (X,,i).
 
-Definition dcpo_mklub {D : dcpo} {I : UU} {f : I -> D} : isdirected f -> D.
+Definition dcpo_make_lub {D : dcpo} {I : UU} {f : I -> D} : isdirected f -> D.
 Proof.
   intro isdirec.
   exact (pr1 (dcpoisdirectedcomplete D I f isdirec)).
 Defined.
 
-Definition dcpo_mklub_islub {D : dcpo} {I : UU} {f : I -> D}
-           (isdirec : isdirected f) : islub f (dcpo_mklub isdirec).
+Definition dcpo_make_lub_islub {D : dcpo} {I : UU} {f : I -> D}
+           (isdirec : isdirected f) : islub f (dcpo_make_lub isdirec).
 Proof.
   exact (pr2 (dcpoisdirectedcomplete D I f isdirec)).
 Defined.
@@ -225,7 +225,7 @@ Proof.
   - exact preservesdireclub.
 Qed.
 
-Definition mkdcpomorphism {D D' : dcpo}
+Definition make_dcpomorphism {D D' : dcpo}
            (f : D -> D') (i : isdcpomorphism' f) : dcpomorphism D D'.
 Proof.
   exists f.
@@ -233,9 +233,9 @@ Proof.
 Defined.
 
 (** Constant functions between dcpos are continuous *)
-Definition mkconst_dcpomor (D E : dcpo) (e : E) : dcpomorphism D E.
+Definition const_dcpomor (D E : dcpo) (e : E) : dcpomorphism D E.
 Proof.
-  use mkdcpomorphism.
+  use make_dcpomorphism.
   - exact (λ _, e).
   - intros I u isdirec v islubv. split.
     + intro i. simpl. apply isrefl_posetRelation.
@@ -330,7 +330,7 @@ Definition pointwiselub {D D' : dcpo} {I : UU}
 Proof.
   intro d.
   set (ptfamdir := pointwisefamily_isdirected F isdir d).
-  exact (dcpo_mklub ptfamdir).
+  exact (dcpo_make_lub ptfamdir).
 Defined.
 
 Lemma pointwiselub_islubpointwise {D D' : dcpo} {I : UU}
@@ -339,7 +339,7 @@ Lemma pointwiselub_islubpointwise {D D' : dcpo} {I : UU}
 Proof.
   intro d.
   set (ptfamdir := pointwisefamily_isdirected F isdirec d).
-  exact (dcpo_mklub_islub ptfamdir).
+  exact (dcpo_make_lub_islub ptfamdir).
 Qed.
 
 Lemma pointwiselub_preservesorder {D D' : dcpo} {I : UU}
@@ -380,7 +380,7 @@ Qed.
 
 Lemma pointwiselub_islub {D D' : dcpo} {I : UU}
       (F : I -> posetofdcpomorphisms D D') (isdirec : isdirected F) :
-  islub F (mkdcpomorphism (pointwiselub F isdirec)
+  islub F (make_dcpomorphism (pointwiselub F isdirec)
                             (pointwiselub_isdcpomorphism' F isdirec)).
 Proof.
   split.
@@ -396,7 +396,7 @@ Lemma islub_islubpointwise {D D' : dcpo} {I : UU} {g : posetofdcpomorphisms D D'
   islub F g -> ∏ (d : D), islub (pointwisefamily F d) (pr1 g d).
 Proof.
   intros islubFg d.
-  set (ptlub := mkdcpomorphism (pointwiselub F isdirec)
+  set (ptlub := make_dcpomorphism (pointwiselub F isdirec)
                                (pointwiselub_isdcpomorphism' F isdirec)).
   assert (lubeq : g = ptlub).
   { apply (lubsareunique F islubFg).
@@ -409,7 +409,7 @@ Lemma posetofdcpomorphisms_isdirectedcomplete (D D' : dcpo) :
   isdirectedcomplete (posetofdcpomorphisms D D').
 Proof.
   intros I F isdirec.
-  exists (mkdcpomorphism (pointwiselub F isdirec)
+  exists (make_dcpomorphism (pointwiselub F isdirec)
                          (pointwiselub_isdcpomorphism' F isdirec)).
   apply pointwiselub_islub.
 Qed.
@@ -434,7 +434,7 @@ Definition dcpowithbottom_ofdcpomorphisms (D D' : dcpowithbottom) :
 Proof.
   exists (dcpoofdcpomorphisms D D').
   set (leastD' := dcpowithbottom_bottom D').
-  set (l := mkconst_dcpomor D D' leastD').
+  set (l := const_dcpomor D D' leastD').
   exists l.
   intro f. simpl. intro d.
   apply dcpowithbottom_isMinimal.
@@ -544,7 +544,7 @@ Qed.
 (** Iter as dcpo morphism *)
 Definition iter' {D : dcpowithbottom} (n : nat) : (D --> D) --> D.
 Proof.
-  eapply mkdcpomorphism.
+  eapply make_dcpomorphism.
   exact (iter_isdcpomorphism' D n).
 Defined.
 
@@ -584,7 +584,7 @@ Qed.
 
 Definition leastfixedpoint {D : dcpowithbottom} : (D --> D) --> D.
 Proof.
-  use mkdcpomorphism.
+  use make_dcpomorphism.
   - eapply pointwiselub.
     apply iter'_isdirected.
   - apply pointwiselub_isdcpomorphism'.
