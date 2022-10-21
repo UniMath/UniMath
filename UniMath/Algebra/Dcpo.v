@@ -109,14 +109,14 @@ Coercion dcpoposet : dcpo >-> Poset.
 Definition dcpoisdirectedcomplete (D : dcpo) : isdirectedcomplete D := pr2 D.
 Definition make_dcpo (X : Poset) (i : isdirectedcomplete X) : dcpo := (X,,i).
 
-Definition dcpo_make_lub {D : dcpo} {I : UU} {f : I -> D} : isdirected f -> D.
+Definition make_dcpo_lub {D : dcpo} {I : UU} {f : I -> D} : isdirected f -> D.
 Proof.
   intro isdirec.
   exact (pr1 (dcpoisdirectedcomplete D I f isdirec)).
 Defined.
 
-Definition dcpo_make_lub_islub {D : dcpo} {I : UU} {f : I -> D}
-           (isdirec : isdirected f) : islub f (dcpo_make_lub isdirec).
+Definition make_dcpo_lub_islub {D : dcpo} {I : UU} {f : I -> D}
+           (isdirec : isdirected f) : islub f (make_dcpo_lub isdirec).
 Proof.
   exact (pr2 (dcpoisdirectedcomplete D I f isdirec)).
 Defined.
@@ -330,7 +330,7 @@ Definition pointwiselub {D D' : dcpo} {I : UU}
 Proof.
   intro d.
   set (ptfamdir := pointwisefamily_isdirected F isdir d).
-  exact (dcpo_make_lub ptfamdir).
+  exact (make_dcpo_lub ptfamdir).
 Defined.
 
 Lemma pointwiselub_islubpointwise {D D' : dcpo} {I : UU}
@@ -339,7 +339,7 @@ Lemma pointwiselub_islubpointwise {D D' : dcpo} {I : UU}
 Proof.
   intro d.
   set (ptfamdir := pointwisefamily_isdirected F isdirec d).
-  exact (dcpo_make_lub_islub ptfamdir).
+  exact (make_dcpo_lub_islub ptfamdir).
 Qed.
 
 Lemma pointwiselub_preservesorder {D D' : dcpo} {I : UU}
