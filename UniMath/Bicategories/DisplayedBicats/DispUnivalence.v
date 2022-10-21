@@ -598,7 +598,7 @@ Section DispLocallyUnivalent.
   Proof.
     use make_weq.
     - exact disp_inv2cell_to_disp_z_iso.
-    - use gradth.
+    - use isweq_iso.
       + exact disp_z_iso_to_disp_inv2cell.
       + abstract
           (intro α ;

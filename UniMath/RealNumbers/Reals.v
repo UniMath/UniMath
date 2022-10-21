@@ -3,8 +3,9 @@
 
 Require Export UniMath.Algebra.Groups.
 Require Import UniMath.Foundations.Preamble.
+Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
-
+Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
@@ -467,19 +468,18 @@ Qed.
 
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
+  apply isStrongOrder_abgrdiff.
   repeat split.
-  - apply istransabgrdiffrel.
-    exact istrans_ltNonnegativeReals.
-  - apply iscotransabgrdiffrel.
-    exact iscotrans_ltNonnegativeReals.
-  - apply isirreflabgrdiffrel.
-    exact isirrefl_ltNonnegativeReals.
+  - exact istrans_ltNonnegativeReals.
+  - exact iscotrans_ltNonnegativeReals.
+  - exact isirrefl_ltNonnegativeReals.
 Qed.
+
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.
-  apply iscotransabgrdiffrel.
-  exact iscotrans_ltNonnegativeReals.
+  apply iscotrans_isStrongOrder.
+  apply isStrongOrder_hr_lt.
 Qed.
 
 Lemma hr_to_NR_nonnegative :
@@ -1572,12 +1572,12 @@ Qed.
 Lemma isirrefl_Rlt :
   ∏ x : Reals, ¬ (x < x).
 Proof.
-  exact (pr2 (pr2 isStrongOrder_hr_lt)).
+  exact (isirrefl_isStrongOrder (isStrongOrder_hr_lt)).
 Qed.
 Lemma istrans_Rlt :
   ∏ x y z : Reals, x < y -> y < z -> x < z.
 Proof.
-  exact (pr1 isStrongOrder_hr_lt).
+  exact (istrans_isStrongOrder (isStrongOrder_hr_lt)).
 Qed.
 Lemma iscotrans_Rlt :
   ∏ (x y z : Reals), (x < z) -> (x < y) ∨ (y < z).

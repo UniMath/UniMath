@@ -1,6 +1,6 @@
 (***********************************************************************
 
- Monads in the bicategory of univalent categories
+ Monads in the bicategory of categories
 
  In this file, we relate the concept of monad internal to a bicategory
  to the concept of monad given in category theory
@@ -9,6 +9,8 @@
  1. Monads internal to `bicat_of_cats` to monads
  2. The inverse
  3. The equivalence
+
+this is a copy from the respective code for the bicategory of univalent categories
 
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -134,7 +136,7 @@ Definition mnd_bicat_of_cats_weq_Monad
 Proof.
   use make_weq.
   - exact (λ m, ob_of_mnd m ,, mnd_bicat_of_cats_to_Monad m).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ m, Monad_to_mnd_bicat_of_cats (pr2 m)).
     + exact mnd_bicat_of_cats_weq_Monad_inv₁.
     + abstract

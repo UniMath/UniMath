@@ -1086,6 +1086,43 @@ Definition hcomp_functor
     hom a c
   := make_functor hcomp_functor_data is_functor_hcomp.
 
+(** and the two whiskering functors separately so as to avoid [category_binproduct] *)
+
+Definition lwhisker_functor_data (f : C⟦a, b⟧)
+  : functor_data (hom b c) (hom a c).
+Proof.
+  exists (fun g => f · g).
+  exact (fun g1 g2 x => f ◃ x).
+Defined.
+
+Lemma is_functor_lwhisker (f : C⟦a, b⟧) : is_functor (lwhisker_functor_data f).
+Proof.
+  split; red; cbn.
+  - intro g. apply lwhisker_id2.
+  - intros g1 g2 g3 x y. apply pathsinv0, lwhisker_vcomp.
+Qed.
+
+Definition lwhisker_functor (f : C⟦a, b⟧) : functor (hom b c) (hom a c)
+  := make_functor (lwhisker_functor_data f) (is_functor_lwhisker f).
+
+Definition rwhisker_functor_data (g : C⟦b, c⟧)
+  : functor_data (hom a b) (hom a c).
+Proof.
+  exists (fun f => f · g).
+  exact (fun f1 f2 x => x ▹ g).
+Defined.
+
+Lemma is_functor_rwhisker (g : C⟦b, c⟧) : is_functor (rwhisker_functor_data g).
+Proof.
+  split; red; cbn.
+  - intro f. apply id2_rwhisker.
+  - intros f1 f2 f3 x y. apply pathsinv0, rwhisker_vcomp.
+Qed.
+
+Definition rwhisker_functor (g : C⟦b, c⟧) : functor (hom a b) (hom a c)
+  := make_functor (rwhisker_functor_data g) (is_functor_rwhisker g).
+
+
 End hcomp_functor.
 
 (* ----------------------------------------------------------------------------------- *)

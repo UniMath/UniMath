@@ -5,10 +5,12 @@ Unset Kernel Term Sharing.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.
@@ -92,12 +94,12 @@ Local Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
   set (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
   repeat split.
-  intros x y z.
-  now apply (pr1 H).
-  intros x y z.
-  now apply (pr1 (pr2 H)).
-  intros x.
-  now apply (pr2 (pr2 H)).
+  - intros x y z.
+    apply (istrans_isStrongOrder H).
+  - intros x y z.
+    apply (iscotrans_isStrongOrder H).
+  - intros x.
+    apply (isirrefl_isStrongOrder H).
 Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.

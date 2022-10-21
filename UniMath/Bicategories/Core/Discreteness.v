@@ -63,7 +63,7 @@ Definition is_univalent_2_1_discrete_bicat
   : is_univalent_2_1 (discrete_bicat C).
 Proof.
   intros x y f g.
-  use gradth.
+  use isweq_iso.
   - exact (λ p, pr1 p).
   - abstract
       (intro p ; cbn ;
@@ -212,7 +212,7 @@ Definition discrete_left_adj_equiv_weq_z_iso
 Proof.
   use make_weq.
   - exact (λ f, _ ,, z_iso_to_discrete_left_adj_equiv HB (pr2 f)).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ f, make_z_iso' _ (discrete_left_adj_equiv_to_z_iso HB f)).
     + abstract
         (intro Hf ;

@@ -2,7 +2,7 @@
 
 Cochains are diagrams of the form X₀ ← X₁ ← ⋯.
 
-Author: Langston Barrett (@siddharthist), Febuary 2018
+Author: Langston Barrett (@siddharthist), February 2018
  *)
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -82,3 +82,16 @@ Proof.
     * exact (TerminalArrow TermC _).
     * exact (# F IHn).
 Defined.
+
+(** ** Definition of (ω-)continuous functors *)
+
+Definition is_cont {C D : category} (F : functor C D) : UU :=
+  ∏ (g : graph) (d : diagram g C) (L : C) (cc : cone d L),
+    preserves_limit F d L cc.
+
+Definition is_omega_cont {C D : category} (F : functor C D) : UU :=
+  ∏ (c : cochain C) (L : C) (cc : cone c L),
+    preserves_limit F c L cc.
+
+Definition omega_cont_functor (C D : category) : UU :=
+  ∑ (F : functor C D), is_omega_cont F.

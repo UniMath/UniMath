@@ -194,6 +194,15 @@ Proof.
   - apply functor_id.
 Defined.
 
+Lemma functor_comp_id (A B : precategory) (G : functor A B) (a a' : A) (f : a --> a') (g : a' --> a)
+  : f · g = identity _ -> #G f · #G g = identity _ .
+Proof.
+  intro e.
+  intermediate_path (#G (identity a )).
+  - rewrite <- e. apply (! functor_comp _ _ _).
+  - apply functor_id_id.
+    apply idpath.
+Qed.
 
 
 

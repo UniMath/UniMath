@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Unitors.
 
 Local Open Scope cat.
 
@@ -23,6 +24,7 @@ Section Monoidal_Cat_From_Bicat.
 
 Local Open Scope bicategory_scope.
 Import Bicat.Notations.
+Import MonoidalNotations.
 
 Context {C : bicat}.
 Context (c0: ob C).
@@ -117,6 +119,17 @@ Defined.
 Local Lemma triangle_identity_from_bicat_and_ob: triangle_identity lu_{MD} ru_{MD} α_{MD}.
 Proof.
   red; cbn. apply lunitor_lwhisker.
+Qed.
+
+(** the next two lemmas only for illustration that the extra triangle laws are already available in bicategories *)
+Local Lemma triangle_identity'_from_bicat_and_ob: triangle_identity' lu_{MD} α_{MD}.
+Proof.
+  red; intros x y; cbn. rewrite <- lunitor_triangle. rewrite vassocr. rewrite rassociator_lassociator. apply id2_left.
+Qed.
+
+Local Lemma triangle_identity''_from_bicat_and_ob: triangle_identity'' ru_{MD} α_{MD}.
+Proof.
+  red; intros x y; cbn. apply runitor_triangle.
 Qed.
 
 Local Lemma pentagon_identity_from_bicat_and_ob: pentagon_identity α_{MD}.
