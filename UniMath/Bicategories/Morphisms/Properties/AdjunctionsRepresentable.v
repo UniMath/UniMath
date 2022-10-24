@@ -320,11 +320,6 @@ Section LeftAdjointReprToLeftAdjoint.
     : invertible_2cell (l · r) (id₁ x).
   Proof.
     apply z_iso_to_inv2cell.
-    pose ((nat_z_iso_pointwise_z_iso
-                       (unit_nat_z_iso_from_adj_equivalence_of_cats
-                          (Hl x))
-                       (id₁ x))).
-    cbn in z.
     refine (z_iso_comp
               (nat_z_iso_pointwise_z_iso
                  (unit_nat_z_iso_from_adj_equivalence_of_cats
