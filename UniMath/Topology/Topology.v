@@ -99,7 +99,7 @@ Definition isTopologicalSpace (X : hSet) :=
   ∑ O : (X → hProp) → hProp, isSetOfOpen O.
 Definition TopologicalSpace := ∑ X : hSet, isTopologicalSpace X.
 
-Definition mkTopologicalSpace (X : hSet) (O : (X → hProp) → hProp)
+Definition make_TopologicalSpace (X : hSet) (O : (X → hProp) → hProp)
            (is : isSetOfOpen_union O)
            (is0 : isSetOfOpen_htrue O)
            (is1 : isSetOfOpen_and O) : TopologicalSpace :=
@@ -308,7 +308,7 @@ End Neighborhood.
 
 Definition locally {T : TopologicalSpace} (x : T) : Filter T.
 Proof.
-  simple refine (mkFilter _ _ _ _ _).
+  simple refine (make_Filter _ _ _ _ _).
   - apply (neighborhood x).
   - abstract (intros A B ;
               apply neighborhood_imply).
@@ -468,7 +468,7 @@ Definition TopologyFromNeighborhood {X : hSet}
   (H : isNeighborhood N)
   : TopologicalSpace.
 Proof.
-  use mkTopologicalSpace.
+  use make_TopologicalSpace.
   - apply X.
   - intros A.
     simple refine (make_hProp _ _).
@@ -1001,7 +1001,7 @@ End locally_base.
 
 Definition locally_base {T : TopologicalSpace} (x : T) (base : base_of_neighborhood x) : Filter T.
 Proof.
-  simple refine (mkFilter _ _ _ _ _).
+  simple refine (make_Filter _ _ _ _ _).
   - apply (neighborhood' x base).
   - apply locally_base_imply.
   - apply locally_base_htrue.

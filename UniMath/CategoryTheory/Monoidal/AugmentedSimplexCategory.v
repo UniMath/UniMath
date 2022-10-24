@@ -872,7 +872,7 @@ Qed.
 
 Definition AugmentedSimplexCategory : monoidal_cat.
 Proof.
-  use mk_monoidal_cat.
+  use make_monoidal_cat.
   + exact Δ.
   + exact tensor_functor_ord.
   + exact tensor_unit.
@@ -885,7 +885,7 @@ Defined.
 
 Definition FinCard : monoidal_cat.
 Proof.
-  use mk_monoidal_cat.
+  use make_monoidal_cat.
   + exact Δ_sdg.
   + exact tensor_functor_card.
   + exact tensor_unit.
@@ -966,7 +966,7 @@ Qed.
 
 Definition U_Mon_Lax : lax_monoidal_functor AugmentedSimplexCategory FinCard.
 Proof.
-  use mk_lax_monoidal_functor.
+  use make_lax_monoidal_functor.
   + exact U.
   + exact U_ε.
   + exact U_μ.

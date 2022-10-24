@@ -33,7 +33,7 @@ Local Open Scope list_scope.
 (** ** Proofs that [cons] is injective on both arguments.
 
 Introduces the [head] and [tail] operations on lists, using the maybe monad defined in
-[UniMath.Algebra.Universal.Maybe] for dealing with invalid function applications. Then, proves
+[UniMath.Combinatorics.Maybe] for dealing with invalid function applications. Then, proves
 that [cons] is injective on both arguments and that there are no paths between [cons] and [nil].
 *)
 

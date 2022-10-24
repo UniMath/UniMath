@@ -136,7 +136,7 @@ Infix "∨" := (PL_or) : PL.
 Infix "⇒" := (PL_impl) : PL.
 Infix "⇔" := (PL_iff_fun) (at level 90) : PL.
 
-Definition PL_mk_algebra (X : hSet) (vs : vars -> X) (not : X -> X)
+Definition make_PL_algebra (X : hSet) (vs : vars -> X) (not : X -> X)
            (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
   algebra_ob PL_functor'.
 Proof.
@@ -154,9 +154,9 @@ Defined.
     other set, we can construct an interpretation of PL in that set. *)
 Definition PL_fold_alg_mor {X : hSet} (vs : vars -> X)
            (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
-  algebra_mor PL_functor' PL_alg (PL_mk_algebra X vs not and or impl).
+  algebra_mor PL_functor' PL_alg (make_PL_algebra X vs not and or impl).
 Proof.
-  apply (InitialArrow PL_functor_initial (PL_mk_algebra X vs not and or impl)).
+  apply (InitialArrow PL_functor_initial (make_PL_algebra X vs not and or impl)).
 Defined.
 
 Definition PL_fold {X : hSet} (vs : vars -> X)

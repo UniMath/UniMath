@@ -114,7 +114,7 @@ Section spec.
   Defined.
 
   Definition Spec : TopologicalSpace :=
-    mkTopologicalSpace (make_hSet (prime_ideal R) isaset_prime_ideal)
+    make_TopologicalSpace (make_hSet (prime_ideal R) isaset_prime_ideal)
                        zariski_topology
                        zariski_topology_union
                        zariski_topology_htrue
