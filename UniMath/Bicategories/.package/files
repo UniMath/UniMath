@@ -41,6 +41,7 @@ Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
+Morphisms/Examples/MorphismsInStructuredCat.v
 Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 

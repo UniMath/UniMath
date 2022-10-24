@@ -66,12 +66,12 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 Local Open Scope cat.
 
 Definition idtoiso_mnd_incl
-           {B : bicat}
-           {a b : B}
-           {f g : a --> b}
-           (p : f = g)
-           (m : mnd B)
-           (h : mnd_incl B b --> m)
+          {B : bicat}
+          {a b : B}
+          {f g : a --> b}
+          (p : f = g)
+          (m : mnd B)
+          (h : mnd_incl B b --> m)
   : pr1 (idtoiso_2_1
            _
            _
@@ -93,7 +93,7 @@ Qed.
 
 Section EMObject.
   Context {B : bicat}
-          (m : mnd B).
+         (m : mnd B).
 
   (**
    1. Definition via universal properties
@@ -108,16 +108,16 @@ Section EMObject.
 
   Section MakeCone.
     Context (x : B)
-            (f : x --> ob_of_mnd m)
-            (fm : f · endo_of_mnd m ==> id₁ x · f)
-            (fη : linvunitor f = rinvunitor f • (f ◃ unit_of_mnd m) • fm)
-            (fμ : lassociator _ _ _
-                  • (fm ▹ endo_of_mnd m)
-                  • (lunitor f ▹ endo_of_mnd m)
-                  • fm
-                  =
-                  (f ◃ mult_of_mnd m)
-                  • fm).
+           (f : x --> ob_of_mnd m)
+           (fm : f · endo_of_mnd m ==> id₁ x · f)
+           (fη : linvunitor f = rinvunitor f • (f ◃ unit_of_mnd m) • fm)
+           (fμ : lassociator _ _ _
+                 • (fm ▹ endo_of_mnd m)
+                 • (lunitor f ▹ endo_of_mnd m)
+                 • fm
+                 =
+                 (f ◃ mult_of_mnd m)
+                 • fm).
 
     Definition make_em_cone_mnd_mor_data
       : mnd_mor_data (mnd_incl B x) m.
@@ -168,7 +168,7 @@ Section EMObject.
   Definition mor_of_em_cone (e : em_cone) : mnd_incl B e --> m := pr2 e.
 
   Definition em_cone_mor
-             (e₁ e₂ : em_cone)
+            (e₁ e₂ : em_cone)
     : UU
     := ∑ (g : e₁ --> e₂),
        invertible_2cell
@@ -176,34 +176,34 @@ Section EMObject.
          (mor_of_em_cone e₁).
 
   Definition make_em_cone_mor
-             {e₁ e₂ : em_cone}
-             (g : e₁ --> e₂)
-             (α : invertible_2cell
-                    (# (mnd_incl B) g · mor_of_em_cone e₂)
-                    (mor_of_em_cone e₁))
+            {e₁ e₂ : em_cone}
+            (g : e₁ --> e₂)
+            (α : invertible_2cell
+                   (# (mnd_incl B) g · mor_of_em_cone e₂)
+                   (mor_of_em_cone e₁))
     : em_cone_mor e₁ e₂
     := g ,, α.
 
   Coercion mor_of_em_cone_mor
-           {e₁ e₂ : em_cone}
-           (f : em_cone_mor e₁ e₂)
+          {e₁ e₂ : em_cone}
+          (f : em_cone_mor e₁ e₂)
     : e₁ --> e₂
     := pr1 f.
 
   Definition cell_of_em_cone_mor
-             {e₁ e₂ : em_cone}
-             (f : em_cone_mor e₁ e₂)
+            {e₁ e₂ : em_cone}
+            (f : em_cone_mor e₁ e₂)
     : invertible_2cell
         (# (mnd_incl B) f · mor_of_em_cone e₂)
         (mor_of_em_cone e₁)
     := pr2 f.
 
   Definition path_em_cone_mor
-             (HB : is_univalent_2_1 B)
-             {e₁ e₂ : em_cone}
-             {f₁ f₂ : em_cone_mor e₁ e₂}
-             (α : invertible_2cell f₁ f₂)
-             (p : (## (mnd_incl B) α ▹ mor_of_em_cone e₂) • pr12 f₂ = pr12 f₁)
+            (HB : is_univalent_2_1 B)
+            {e₁ e₂ : em_cone}
+            {f₁ f₂ : em_cone_mor e₁ e₂}
+            (α : invertible_2cell f₁ f₂)
+            (p : (## (mnd_incl B) α ▹ mor_of_em_cone e₂) • pr12 f₂ = pr12 f₁)
     : f₁ = f₂.
   Proof.
     use total2_paths_f.
@@ -236,12 +236,12 @@ Section EMObject.
    1.2 The mapping properties
    *)
   Definition em_ump_1
-             (e : em_cone)
+            (e : em_cone)
     : UU
     := ∏ (q : em_cone), em_cone_mor q e.
 
   Definition em_ump_2
-             (e : em_cone)
+            (e : em_cone)
     : UU
     := ∏ (x : B)
          (g₁ g₂ : x --> e)
@@ -251,53 +251,53 @@ Section EMObject.
       ∃! (β : g₁ ==> g₂), ## (mnd_incl B) β ▹ _ = α.
 
   Definition has_em_ump
-             (e : em_cone)
+            (e : em_cone)
     : UU
     := em_ump_1 e × em_ump_2 e.
 
   Section MappingProperties.
     Context {e : em_cone}
-            (He : has_em_ump e).
+           (He : has_em_ump e).
 
     Definition em_ump_1_mor
-               (q : em_cone)
+              (q : em_cone)
       : q --> e
       := pr1 He q.
 
     Definition em_ump_1_inv2cell
-               (q : em_cone)
+              (q : em_cone)
       : invertible_2cell
           (# (mnd_incl B) (em_ump_1_mor q) · mor_of_em_cone e)
           (mor_of_em_cone q)
       := cell_of_em_cone_mor (pr1 He q).
 
     Definition em_ump_2_cell
-               {x : B}
-               {g₁ g₂ : x --> e}
-               (α : # (mnd_incl B) g₁ · mor_of_em_cone e
-                    ==>
-                    # (mnd_incl B) g₂ · mor_of_em_cone e)
+              {x : B}
+              {g₁ g₂ : x --> e}
+              (α : # (mnd_incl B) g₁ · mor_of_em_cone e
+                   ==>
+                   # (mnd_incl B) g₂ · mor_of_em_cone e)
       : g₁ ==> g₂
       := pr11 (pr2 He x g₁ g₂ α).
 
     Definition em_ump_2_eq
-               {x : B}
-               {g₁ g₂ : x --> e}
-               (α : # (mnd_incl B) g₁ · mor_of_em_cone e
-                    ==>
-                    # (mnd_incl B) g₂ · mor_of_em_cone e)
+              {x : B}
+              {g₁ g₂ : x --> e}
+              (α : # (mnd_incl B) g₁ · mor_of_em_cone e
+                   ==>
+                   # (mnd_incl B) g₂ · mor_of_em_cone e)
       : ## (mnd_incl B) (em_ump_2_cell α) ▹ _ = α
       := pr21 (pr2 He x g₁ g₂ α).
 
     Definition em_ump_eq
-               {x : B}
-               {g₁ g₂ : x --> e}
-               (α : # (mnd_incl B) g₁ · mor_of_em_cone e
-                    ==>
-                    # (mnd_incl B) g₂ · mor_of_em_cone e)
-               (β₁ β₂ : g₁ ==> g₂)
-               (Hβ₁ : ## (mnd_incl B) β₁ ▹ _ = α)
-               (Hβ₂ : ## (mnd_incl B) β₂ ▹ _ = α)
+              {x : B}
+              {g₁ g₂ : x --> e}
+              (α : # (mnd_incl B) g₁ · mor_of_em_cone e
+                   ==>
+                   # (mnd_incl B) g₂ · mor_of_em_cone e)
+              (β₁ β₂ : g₁ ==> g₂)
+              (Hβ₁ : ## (mnd_incl B) β₁ ▹ _ = α)
+              (Hβ₂ : ## (mnd_incl B) β₂ ▹ _ = α)
       : β₁ = β₂.
     Proof.
       exact (maponpaths
@@ -306,12 +306,12 @@ Section EMObject.
     Qed.
 
     Definition em_ump_2_cell_is_invertible
-               {x : B}
-               {g₁ g₂ : x --> e}
-               (α : # (mnd_incl B) g₁ · mor_of_em_cone e
-                    ==>
-                    # (mnd_incl B) g₂ · mor_of_em_cone e)
-               (Hα : is_invertible_2cell α)
+              {x : B}
+              {g₁ g₂ : x --> e}
+              (α : # (mnd_incl B) g₁ · mor_of_em_cone e
+                   ==>
+                   # (mnd_incl B) g₂ · mor_of_em_cone e)
+              (Hα : is_invertible_2cell α)
       : is_invertible_2cell (em_ump_2_cell α).
     Proof.
       use make_is_invertible_2cell.
@@ -337,11 +337,11 @@ Section EMObject.
     Defined.
 
     Definition em_ump_2_inv2cell
-               {x : B}
-               {g₁ g₂ : x --> e}
-               (α : invertible_2cell
-                      (# (mnd_incl B) g₁ · mor_of_em_cone e)
-                      (# (mnd_incl B) g₂ · mor_of_em_cone e))
+              {x : B}
+              {g₁ g₂ : x --> e}
+              (α : invertible_2cell
+                     (# (mnd_incl B) g₁ · mor_of_em_cone e)
+                     (# (mnd_incl B) g₂ · mor_of_em_cone e))
       : invertible_2cell g₁ g₂.
     Proof.
       use make_invertible_2cell.
@@ -354,8 +354,8 @@ Section EMObject.
    1.3 It is a proposition
    *)
   Definition isaprop_has_em_ump
-             (HB : is_univalent_2_1 B)
-             (e : em_cone)
+            (HB : is_univalent_2_1 B)
+            (e : em_cone)
     : isaprop (has_em_ump e).
   Proof.
     use invproofirrelevance.
@@ -397,10 +397,10 @@ Section EMObject.
    *)
   Section EilenbergMooreFunctor.
     Context (e : em_cone)
-            (x : B).
+           (x : B).
 
     Definition em_hom_functor_ob_data
-               (f : x --> e)
+              (f : x --> e)
       : mnd_mor_data (mnd_incl B x) m.
     Proof.
       use make_mnd_mor_data.
@@ -412,7 +412,7 @@ Section EMObject.
     Defined.
 
     Definition em_hom_functor_ob_laws
-               (f : x --> e)
+              (f : x --> e)
       : mnd_mor_laws (em_hom_functor_ob_data f).
     Proof.
       split.
@@ -511,7 +511,7 @@ Section EMObject.
     Qed.
 
     Definition em_hom_functor_ob
-               (f : x --> e)
+              (f : x --> e)
       : mnd_incl B x --> m.
     Proof.
       use make_mnd_mor.
@@ -520,14 +520,14 @@ Section EMObject.
     Defined.
 
     Definition em_hom_functor_mor_data
-               {f g : x --> e}
-               (α : f ==> g)
+              {f g : x --> e}
+              (α : f ==> g)
       : mnd_cell_data (em_hom_functor_ob f) (em_hom_functor_ob g)
       := α ▹ _.
 
     Definition em_hom_functor_mor_is_mnd_cell
-               {f g : x --> e}
-               (α : f ==> g)
+              {f g : x --> e}
+              (α : f ==> g)
       : is_mnd_cell (em_hom_functor_mor_data α).
     Proof.
       unfold is_mnd_cell ; cbn.
@@ -553,8 +553,8 @@ Section EMObject.
     Qed.
 
     Definition em_hom_functor_mor
-               {f g : x --> e}
-               (α : f ==> g)
+              {f g : x --> e}
+              (α : f ==> g)
       : em_hom_functor_ob f ==> em_hom_functor_ob g.
     Proof.
       use make_mnd_cell.
@@ -587,8 +587,8 @@ Section EMObject.
   End EilenbergMooreFunctor.
 
   Definition em_hom_functor
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : hom x e ⟶ hom (mnd_incl B x) m.
   Proof.
     use make_functor.
@@ -600,7 +600,7 @@ Section EMObject.
    2.2 The definition
    *)
   Definition is_universal_em_cone
-             (e : em_cone)
+            (e : em_cone)
     : UU
     := ∏ (x : B), adj_equivalence_of_cats (em_hom_functor e x).
 
@@ -608,8 +608,8 @@ Section EMObject.
    2.3 It is a proposition
    *)
   Definition isaprop_is_universal_em_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             (e : em_cone)
+            (HB_2_1 : is_univalent_2_1 B)
+            (e : em_cone)
     : isaprop (is_universal_em_cone e).
   Proof.
     use impred ; intro x.
@@ -632,8 +632,8 @@ Section EMObject.
    *)
   Section UMPIsUniversal.
     Context {e : em_cone}
-            (He : has_em_ump e)
-            (x : B).
+           (He : has_em_ump e)
+           (x : B).
 
     Definition has_em_ump_right_adjoint_data
       : functor_data (hom (mnd_incl B x) m) (hom x e).
@@ -714,14 +714,14 @@ Section EMObject.
     Defined.
 
     Definition unit_help_data
-               (f : x --> e)
+              (f : x --> e)
       : mnd_cell_data
           (# (mnd_incl B) (functor_identity (hom x e) f) · mor_of_em_cone e)
           (mor_of_em_cone (x,, em_hom_functor_ob e x f))
       := id2 _.
 
     Definition unit_help_is_mnd_cell
-               (f : x --> e)
+              (f : x --> e)
       : is_mnd_cell (unit_help_data f).
     Proof.
       red ; unfold unit_help_data.
@@ -740,7 +740,7 @@ Section EMObject.
     Qed.
 
     Definition unit_help
-               (f : x --> e)
+              (f : x --> e)
       : # (mnd_incl B) f · mor_of_em_cone e
         ==>
         mor_of_em_cone (x,, em_hom_functor_ob e x f).
@@ -853,14 +853,14 @@ Section EMObject.
     Defined.
 
     Definition counit_help_data
-               (f : hom (mnd_incl B x) m)
+              (f : hom (mnd_incl B x) m)
       : mnd_cell_data
           (em_hom_functor e x (em_ump_1_mor He (x,, f)))
           (# (mnd_incl B) (em_ump_1_mor He (x,, f)) · mor_of_em_cone e)
       := id2 _.
 
     Definition counit_help_is_mnd_cell
-               (f : hom (mnd_incl B x) m)
+              (f : hom (mnd_incl B x) m)
       : is_mnd_cell (counit_help_data f).
     Proof.
       unfold is_mnd_cell.
@@ -896,7 +896,7 @@ Section EMObject.
     Qed.
 
     Definition counit_help
-               (f : hom (mnd_incl B x) m)
+              (f : hom (mnd_incl B x) m)
       : em_hom_functor e x (em_ump_1_mor He (x ,, f))
         ==>
         # (mnd_incl B) (em_ump_1_mor He (x,, f)) · mor_of_em_cone e.
@@ -1007,8 +1007,8 @@ Section EMObject.
   End UMPIsUniversal.
 
   Definition has_em_ump_is_universal
-             {e : em_cone}
-             (He : has_em_ump e)
+            {e : em_cone}
+            (He : has_em_ump e)
     : is_universal_em_cone e.
   Proof.
     intro x.
@@ -1017,17 +1017,17 @@ Section EMObject.
 
   Section IsUniversalHasUMP.
     Context {e : em_cone}
-            (He : is_universal_em_cone e).
+           (He : is_universal_em_cone e).
 
     Definition is_universal_has_em_ump_1_help_cell_data
-               (q : em_cone)
+              (q : em_cone)
       : mnd_cell_data
           (# (mnd_incl B) (right_adjoint (He q) (mor_of_em_cone q)) · mor_of_em_cone e)
           (em_hom_functor_ob e q (right_adjoint (He q) (mor_of_em_cone q)))
       := id2 _.
 
     Definition is_universal_has_em_ump_1_help_cell_is_mnd_cell
-               (q : em_cone)
+              (q : em_cone)
       : is_mnd_cell (is_universal_has_em_ump_1_help_cell_data q).
     Proof.
       unfold is_mnd_cell, is_universal_has_em_ump_1_help_cell_data.
@@ -1047,7 +1047,7 @@ Section EMObject.
     Qed.
 
     Definition is_universal_has_em_ump_1_help_cell
-               (q : em_cone)
+              (q : em_cone)
       : # (mnd_incl B) (right_adjoint (He q) (mor_of_em_cone q)) · mor_of_em_cone e
         ==>
         em_hom_functor_ob e q (right_adjoint (He q) (mor_of_em_cone q)).
@@ -1078,10 +1078,10 @@ Section EMObject.
 
     Section UMP2.
       Context {x : B}
-              {g₁ g₂ : x --> e}
-              (α : # (mnd_incl B) g₁ · mor_of_em_cone e
-                   ==>
-                   # (mnd_incl B) g₂ · mor_of_em_cone e).
+             {g₁ g₂ : x --> e}
+             (α : # (mnd_incl B) g₁ · mor_of_em_cone e
+                  ==>
+                  # (mnd_incl B) g₂ · mor_of_em_cone e).
 
       Let H : fully_faithful (em_hom_functor e x)
         := fully_faithful_from_equivalence _ _ _ (He x).
@@ -1183,8 +1183,8 @@ Section EMObject.
   End IsUniversalHasUMP.
 
   Definition has_em_ump_weq_is_universal_em_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             (e : em_cone)
+            (HB_2_1 : is_univalent_2_1 B)
+            (e : em_cone)
     : has_em_ump e ≃ is_universal_em_cone e.
   Proof.
     use weqimplimpl.
@@ -1204,9 +1204,9 @@ Section EMObject.
    4.1 The functor
    *)
   Definition is_em_universal_em_cone_functor_ob
-             {e : em_cone}
-             {x : B}
-             (f : x --> e)
+            {e : em_cone}
+            {x : B}
+            (f : x --> e)
     : eilenberg_moore_cat (mnd_to_cat_Monad m x).
   Proof.
     use make_ob_eilenberg_moore.
@@ -1278,10 +1278,10 @@ Section EMObject.
   Defined.
 
   Definition is_em_universal_em_cone_functor_mor
-             {e : em_cone}
-             {x : B}
-             {f g : x --> e}
-             (α : f ==> g)
+            {e : em_cone}
+            {x : B}
+            {f g : x --> e}
+            (α : f ==> g)
     : is_em_universal_em_cone_functor_ob f
       -->
       is_em_universal_em_cone_functor_ob g.
@@ -1299,8 +1299,8 @@ Section EMObject.
   Defined.
 
   Definition is_em_universal_em_cone_functor_data
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : functor_data
         (hom x e)
         (eilenberg_moore_cat (mnd_to_cat_Monad m x)).
@@ -1311,8 +1311,8 @@ Section EMObject.
   Defined.
 
   Definition is_em_universal_em_cone_functor_is_functor
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : is_functor (is_em_universal_em_cone_functor_data e x).
   Proof.
     split.
@@ -1327,8 +1327,8 @@ Section EMObject.
   Qed.
 
   Definition is_em_universal_em_cone_functor
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : hom x e ⟶ eilenberg_moore_cat (mnd_to_cat_Monad m x).
   Proof.
     use make_functor.
@@ -1340,7 +1340,7 @@ Section EMObject.
    4.2 The definition
    *)
   Definition is_em_universal_em_cone
-             (e : em_cone)
+            (e : em_cone)
     : UU
     := ∏ (x : B), adj_equivalence_of_cats (is_em_universal_em_cone_functor e x).
 
@@ -1348,8 +1348,8 @@ Section EMObject.
    4.3 It is a proposition
    *)
   Definition isaprop_is_em_universal_em_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             (e : em_cone)
+            (HB_2_1 : is_univalent_2_1 B)
+            (e : em_cone)
     : isaprop (is_em_universal_em_cone e).
   Proof.
     use impred ; intro x.
@@ -1376,7 +1376,7 @@ Section EMObject.
     Context (x : B).
 
     Definition eilenberg_moore_to_hom_ob_data
-               (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
+              (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
       : mnd_mor_data (mnd_incl B x) m.
     Proof.
       use make_mnd_mor_data.
@@ -1385,7 +1385,7 @@ Section EMObject.
     Defined.
 
     Definition eilenberg_moore_to_hom_ob_laws
-               (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
+              (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
       : mnd_mor_laws (eilenberg_moore_to_hom_ob_data h).
     Proof.
       repeat split ; cbn.
@@ -1428,7 +1428,7 @@ Section EMObject.
     Qed.
 
     Definition eilenberg_moore_to_hom_ob
-               (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
+              (h : eilenberg_moore_cat (mnd_to_cat_Monad m x))
       : mnd_incl B x --> m.
     Proof.
       use make_mnd_mor.
@@ -1437,8 +1437,8 @@ Section EMObject.
     Defined.
 
     Definition eilenberg_moore_to_hom_mor
-               {h₁ h₂ : eilenberg_moore_cat (mnd_to_cat_Monad m x)}
-               (α : h₁ --> h₂)
+              {h₁ h₂ : eilenberg_moore_cat (mnd_to_cat_Monad m x)}
+              (α : h₁ --> h₂)
       : eilenberg_moore_to_hom_ob h₁ ==> eilenberg_moore_to_hom_ob h₂.
     Proof.
       use make_mnd_cell.
@@ -1486,7 +1486,7 @@ Section EMObject.
     Defined.
 
     Definition hom_to_eilenberg_moore_ob
-               (f : mnd_incl B x --> m)
+              (f : mnd_incl B x --> m)
       : eilenberg_moore_cat (mnd_to_cat_Monad m x).
     Proof.
       use make_ob_eilenberg_moore.
@@ -1525,8 +1525,8 @@ Section EMObject.
     Defined.
 
     Definition hom_to_eilenberg_moore_mor
-               {f g : mnd_incl B x --> m}
-               (α : f ==> g)
+              {f g : mnd_incl B x --> m}
+              (α : f ==> g)
       : hom_to_eilenberg_moore_ob f --> hom_to_eilenberg_moore_ob g.
     Proof.
       use make_mor_eilenberg_moore.
@@ -1608,7 +1608,7 @@ Section EMObject.
     Defined.
 
     Definition is_z_iso_hom_to_eilenberg_moore_unit
-               (f : eilenberg_moore_cat (mnd_to_cat_Monad m x))
+              (f : eilenberg_moore_cat (mnd_to_cat_Monad m x))
       : is_z_isomorphism (hom_to_eilenberg_moore_unit f).
     Proof.
       use is_z_iso_eilenberg_moore.
@@ -1653,7 +1653,7 @@ Section EMObject.
     Defined.
 
     Definition is_z_iso_hom_to_eilenberg_moore_counit
-               (f : mnd_incl B x --> m)
+              (f : mnd_incl B x --> m)
       : is_z_isomorphism (hom_to_eilenberg_moore_counit f).
     Proof.
       use is_inv2cell_to_is_z_iso.
@@ -1664,7 +1664,7 @@ Section EMObject.
   End EilenbergMooreEquivalence.
 
   Definition eilenberg_moore_equiv_mnd_incl
-             (x : B)
+            (x : B)
     : equivalence_of_cats
         (eilenberg_moore_cat (mnd_to_cat_Monad m x))
         (hom (mnd_incl B x) m).
@@ -1681,13 +1681,13 @@ Section EMObject.
   Defined.
 
   Definition eilenberg_moore_adj_equiv_mnd_incl
-             (x : B)
+            (x : B)
     : adj_equivalence_of_cats (eilenberg_moore_to_hom x)
     := adjointificiation (eilenberg_moore_equiv_mnd_incl x).
 
   Definition eilenberg_moore_adj_mnd_incl_nat_trans
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : is_em_universal_em_cone_functor e x ∙ eilenberg_moore_to_hom x
       ⟹
       em_hom_functor e x.
@@ -1712,8 +1712,8 @@ Section EMObject.
   Defined.
 
   Definition eilenberg_moore_adj_mnd_incl_nat_z_iso
-             (e : em_cone)
-             (x : B)
+            (e : em_cone)
+            (x : B)
     : nat_z_iso
         (is_em_universal_em_cone_functor e x ∙ eilenberg_moore_to_hom x)
         (em_hom_functor e x).
@@ -1728,8 +1728,8 @@ Section EMObject.
   Defined.
 
   Definition is_universal_em_cone_weq_is_em_universal_em_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             (e : em_cone)
+            (HB_2_1 : is_univalent_2_1 B)
+            (e : em_cone)
     : is_universal_em_cone e ≃ is_em_universal_em_cone e.
   Proof.
     use weqimplimpl.
@@ -1760,7 +1760,7 @@ End EMObject.
  6. Bicategories with Eilenberg-Moore objects
  *)
 Definition bicat_has_em
-           (B : bicat)
+          (B : bicat)
   : UU
   := ∏ (m : mnd B),
      ∑ (e : em_cone m), has_em_ump m e.

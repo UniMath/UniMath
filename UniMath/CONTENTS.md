@@ -451,6 +451,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Morphisms/Examples/MorphismsInBicatOfUnivCats.v](Bicategories/Morphisms/Examples/MorphismsInBicatOfUnivCats.v)
    - [Morphisms/Examples/FibrationsInBicatOfUnivCats.v](Bicategories/Morphisms/Examples/FibrationsInBicatOfUnivCats.v)
    - [Morphisms/Examples/FibrationsInStrictCats.v](Bicategories/Morphisms/Examples/FibrationsInStrictCats.v)
+   - [Morphisms/Examples/MorphismsInStructuredCat.v](Bicategories/Morphisms/Examples/MorphismsInStructuredCat.v)
    - [Morphisms/Examples/MorphismsInOp1Bicat.v](Bicategories/Morphisms/Examples/MorphismsInOp1Bicat.v)
    - [Morphisms/Examples/MorphismsInOp2Bicat.v](Bicategories/Morphisms/Examples/MorphismsInOp2Bicat.v)
    - [DisplayedBicats/DispBicat.v](Bicategories/DisplayedBicats/DispBicat.v)
