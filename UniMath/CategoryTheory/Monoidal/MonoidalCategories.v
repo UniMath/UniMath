@@ -156,12 +156,12 @@ Definition monoidal_precat_struct : UU :=
   ∑ ρ' : right_unitor tensor I,
   ∑ α' : associator tensor, unit.
 
-Definition mk_monoidal_precat_struct (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
+Definition make_monoidal_precat_struct (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
   (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor): monoidal_precat_struct :=
   (C,, (tensor,, (I,, (λ',, (ρ',, (α',, tt)))))).
 *)
 
-Definition mk_monoidal_cat (C: category)(tensor: C ⊠ C ⟶ C)(I: C)
+Definition make_monoidal_cat (C: category)(tensor: C ⊠ C ⟶ C)(I: C)
   (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor)
   (eq1: triangle_eq tensor I λ' ρ' α')(eq2: pentagon_eq tensor α'): monoidal_cat :=
   (C,, (tensor,, (I,, (λ',, (ρ',, (α',, (eq1,, eq2))))))).
@@ -292,7 +292,7 @@ Qed.
 
 Definition swapping_of_monoidal_cat: monoidal_cat.
 Proof.
-  use (mk_monoidal_cat M swapping_of_tensor).
+  use (make_monoidal_cat M swapping_of_tensor).
   - exact (monoidal_cat_unit M).
   - apply monoidal_cat_right_unitor.
   - apply monoidal_cat_left_unitor.

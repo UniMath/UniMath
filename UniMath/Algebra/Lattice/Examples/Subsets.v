@@ -104,7 +104,7 @@ Section Subsets.
 
   Lemma subset_lattice : lattice (subtype_set X).
   Proof.
-    use mklattice.
+    use make_lattice.
     - exact intersection_binop. (** [Lmin] *)
     - exact union_binop. (** [Lmax] *)
     - (** TODO: constructor for this *)
@@ -157,7 +157,7 @@ Section Subsets.
 
   (** Using [LEM], we can show the lattice is complemented *)
   Lemma subset_lattice_is_complemented :
-    LEM -> complemented_structure (mkbounded_lattice subset_lattice_is_bounded).
+    LEM -> complemented_structure (make_bounded_lattice subset_lattice_is_bounded).
   Proof.
     intros lem sub.
     exists (subtype_complement sub).
@@ -175,7 +175,7 @@ Section Subsets.
 
   Definition subset_bounded_lattice : bounded_lattice (subtype_set X).
   Proof.
-    use mkbounded_lattice.
+    use make_bounded_lattice.
     - exact subset_lattice.
     - exact (emptysubtype X).
     - exact (totalsubtype X).

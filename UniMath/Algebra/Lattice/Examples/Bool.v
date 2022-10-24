@@ -12,7 +12,7 @@ Require Import UniMath.Algebra.Lattice.Boolean.
 
 Lemma boolset_lattice : lattice boolset.
 Proof.
-  use mklattice.
+  use make_lattice.
   - exact andb. (** [Lmin] *)
   - exact orb. (** [Lmax] *)
   - (** TODO: constructor for this *)
@@ -32,7 +32,7 @@ Proof.
 Qed.
 
 Lemma boolset_lattice_is_complemented :
-  complemented_structure (mkbounded_lattice boolset_lattice_is_bounded).
+  complemented_structure (make_bounded_lattice boolset_lattice_is_bounded).
 Proof.
   intros b.
   exists (negb b).
@@ -43,7 +43,7 @@ Qed.
 
 Definition boolset_bounded_lattice : bounded_lattice boolset.
 Proof.
-  use mkbounded_lattice.
+  use make_bounded_lattice.
   - exact boolset_lattice.
   - exact false.
   - exact true.

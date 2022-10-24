@@ -43,11 +43,11 @@ Section set_slice_fam_equiv.
   Local Definition fam (A : hSet) : category :=
     functor_category (discrete A) HSET.
 
-  Local Definition mkfam (f : X → hSet) : functor (discrete X) HSET :=
+  Local Definition make_fam (f : X → hSet) : functor (discrete X) HSET :=
     functor_path_pregroupoid _ (f : X → ob HSET).
 
   Definition slice_to_fam_fun (a : slice X) : fam X :=
-    mkfam (λ x : X, hfiber_hSet (pr2 a) x).
+    make_fam (λ x : X, hfiber_hSet (pr2 a) x).
 
   Local Notation s_to_f := slice_to_fam_fun.
 
