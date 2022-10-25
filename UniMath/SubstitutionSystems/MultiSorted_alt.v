@@ -115,7 +115,7 @@ Definition ops (M : MultiSortedSig) : hSet := pr1 M.
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
   λ x, pr2 M x.
 
-Definition mkMultiSortedSig {I : hSet}
+Definition make_MultiSortedSig {I : hSet}
   (ar : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
 
 (** Sum of multisorted binding signatures *)

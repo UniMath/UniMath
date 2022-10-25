@@ -102,7 +102,7 @@ Definition isPreFilter {X : UU} (F : (X → hProp) → hProp) :=
   isfilter_imply F × isfilter_finite_intersection F.
 Definition PreFilter (X : UU) :=
   ∑ (F : (X → hProp) → hProp), isPreFilter F.
-Definition mkPreFilter {X : UU} (F : (X → hProp) → hProp)
+Definition make_PreFilter {X : UU} (F : (X → hProp) → hProp)
            (Himpl : isfilter_imply F)
            (Htrue : isfilter_htrue F)
            (Hand : isfilter_and F) : PreFilter X :=
@@ -117,7 +117,7 @@ Definition Filter (X : UU) := ∑ F : (X → hProp) → hProp, isFilter F.
 Definition pr1Filter (X : UU) (F : Filter X) : PreFilter X :=
   pr1 F,, pr1 (pr2 F).
 Coercion pr1Filter : Filter >-> PreFilter.
-Definition mkFilter {X : UU} (F : (X → hProp) → hProp)
+Definition make_Filter {X : UU} (F : (X → hProp) → hProp)
            (Himp : isfilter_imply F)
            (Htrue : isfilter_htrue F)
            (Hand : isfilter_and F)
@@ -321,7 +321,7 @@ End filterim.
 
 Definition PreFilterIm {X Y : UU} (f : X → Y) (F : PreFilter X) : PreFilter Y.
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   exact (filterim f F).
   apply filterim_imply, filter_imply.
   apply filterim_htrue, filter_htrue.
@@ -447,7 +447,7 @@ End filterdom.
 
 Definition PreFilterDom {X : UU} (F : PreFilter X) (dom : X → hProp) : PreFilter X.
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - exact (filterdom F dom).
   - apply filterdom_imply, filter_imply.
   - apply filterdom_htrue.
@@ -526,7 +526,7 @@ End filtersubtype.
 
 Definition PreFilterSubtype {X : UU} (F : PreFilter X) (dom : X → hProp) : PreFilter (∑ x : X, dom x).
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - exact (filtersubtype F dom).
   - apply filtersubtype_imply, filter_imply.
   - apply filtersubtype_htrue.
@@ -634,7 +634,7 @@ End filterdirprod.
 
 Definition PreFilterDirprod {X Y : UU} (Fx : PreFilter X) (Fy : PreFilter Y) : PreFilter (X × Y).
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - exact (filterdirprod Fx Fy).
   - apply filterdirprod_imply.
   - apply filterdirprod_htrue.
@@ -763,7 +763,7 @@ End filternat.
 
 Definition FilterNat : Filter nat.
 Proof.
-  simple refine (mkFilter _ _ _ _ _).
+  simple refine (make_Filter _ _ _ _ _).
   - apply filternat.
   - apply filternat_imply.
   - apply filternat_htrue.
@@ -816,7 +816,7 @@ End filtertop.
 
 Definition PreFilterTop {X : UU} : PreFilter X.
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - exact filtertop.
   - exact filtertop_imply.
   - exact filtertop_htrue.
@@ -902,7 +902,7 @@ End filterintersection.
 Definition PreFilterIntersection {X : UU} (FF : PreFilter X → hProp) : PreFilter X.
 Proof.
   intros.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - apply (filterintersection _ FF).
   - apply filterintersection_imply.
     intros F _.
@@ -918,7 +918,7 @@ Defined.
 Definition FilterIntersection {X : UU} (FF : Filter X → hProp)
            (Hff : ∃ F : Filter X, FF F) : Filter X.
 Proof.
-  simple refine (mkFilter _ _ _ _ _).
+  simple refine (make_Filter _ _ _ _ _).
   - apply (filterintersection _ FF).
   - apply filterintersection_imply.
     intros F _.
@@ -1043,7 +1043,7 @@ End filtergenerated.
 
 Definition PreFilterGenerated {X : UU} (L : (X → hProp) → hProp) : PreFilter X.
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - apply (filtergenerated L).
   - apply filtergenerated_imply.
   - apply filtergenerated_htrue.
@@ -1433,7 +1433,7 @@ End filterbase.
 
 Definition PreFilterBase {X : UU} (base : BaseOfPreFilter X) : PreFilter X.
 Proof.
-  simple refine (mkPreFilter _ _ _ _).
+  simple refine (make_PreFilter _ _ _ _).
   - apply (filterbase base).
   - apply filterbase_imply.
   - apply filterbase_htrue, BaseOfPreFilter_notempty.

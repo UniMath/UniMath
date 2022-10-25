@@ -235,7 +235,7 @@ Section PointedFunctors_as_monoidal_category.
 
   Definition monoidal_cat_of_pointedfunctors : monoidal_cat.
   Proof.
-    use mk_monoidal_cat.
+    use make_monoidal_cat.
     - exact Ptd.
     - apply tensor_pointedfunctors.
     - apply id_Ptd.
@@ -252,7 +252,7 @@ Section PointedFunctors_as_monoidal_category.
         (monoidal_cat_of_endofunctors C).
   Proof.
     use tpair.
-    - apply (mk_lax_monoidal_functor
+    - apply (make_lax_monoidal_functor
                monoidal_cat_of_pointedfunctors
                (monoidal_cat_of_endofunctors C)
                (functor_ptd_forget C)

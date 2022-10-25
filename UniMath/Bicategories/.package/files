@@ -219,6 +219,7 @@ Morphisms/Properties/EsoProperties.v
 Morphisms/Examples/MorphismsInOneTypes.v
 Morphisms/Examples/EsosInBicatOfUnivCats.v
 Morphisms/Examples/MorphismsInSliceBicat.v
+Morphisms/Examples/MorphismsInStructuredCat.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v

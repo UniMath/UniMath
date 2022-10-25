@@ -117,7 +117,7 @@ Qed.
 
 Definition monoidal_cat_of_endofunctors: monoidal_cat.
 Proof.
-  use mk_monoidal_cat.
+  use make_monoidal_cat.
   - exact EndC.
   - apply functorial_composition.
   - apply functor_identity.
