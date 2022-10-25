@@ -80,6 +80,7 @@ ifneq "$(INCLUDE)" "no"
 include .coq_makefile_output.conf
 VFILES := $(COQMF_VFILES)
 VOFILES := $(VFILES:.v=.vo)
+GLOBFILES := $(VFILES:.v=.glob)
 endif
 
 ifeq ($(BUILD_COQ),yes)
@@ -92,9 +93,16 @@ else
 EFFECTIVE_MEMORY_LIMIT = unlimited
 endif
 
-install: build/CoqMakefile.make
+install: build/CoqMakefile.make all
 	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
-all html uninstall: build/CoqMakefile.make
+## in this next step, we add the target "html" so the *.glob files will be built
+## without that, the install step will fail
+## see the issue at https://github.com/UniMath/UniMath/issues/1577
+## it's a little bit sad that we have to make the html files always, but the dependencies in Coq's makefile, build/CoqMakefile.make, are not right
+## the install target doesn't depend on the glob files, even though it needs them
+all: build/CoqMakefile.make
+	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make all html
+html uninstall: build/CoqMakefile.make
 	ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
 clean:: build/CoqMakefile.make
 	$(MAKE) -f build/CoqMakefile.make $@
@@ -171,8 +179,6 @@ $(foreach P,$(PACKAGES),												\
 		  $(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
-
-$(foreach v,$(VFILES), $(eval $v.vo: $v.v; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
 
 install:all
 coqwc:; coqwc $(VFILES)
@@ -496,7 +502,7 @@ endif
 distclean::; rm -f UniMath/.dir-locals.el
 
 # make *.vo files by calling the coq makefile
-%.vo : always; $(MAKE) -f build/CoqMakefile.make $@
+%.glob %.vo : always; $(MAKE) -f build/CoqMakefile.make $@
 always:
 .PHONY: always 
 
