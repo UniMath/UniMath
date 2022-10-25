@@ -610,6 +610,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Morphisms/Examples/MorphismsInOneTypes.v](Bicategories/Morphisms/Examples/MorphismsInOneTypes.v)
    - [Morphisms/Examples/EsosInBicatOfUnivCats.v](Bicategories/Morphisms/Examples/EsosInBicatOfUnivCats.v)
    - [Morphisms/Examples/MorphismsInSliceBicat.v](Bicategories/Morphisms/Examples/MorphismsInSliceBicat.v)
+   - [Morphisms/Examples/MorphismsInStructuredCat.v](Bicategories/Morphisms/Examples/MorphismsInStructuredCat.v)
    - [Colimits/Initial.v](Bicategories/Colimits/Initial.v)
    - [Colimits/Coproducts.v](Bicategories/Colimits/Coproducts.v)
    - [Colimits/Extensive.v](Bicategories/Colimits/Extensive.v)

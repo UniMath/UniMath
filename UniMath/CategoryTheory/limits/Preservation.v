@@ -1,8 +1,6 @@
-Require Import UniMath.Foundations.All.
 (*********************************************************
 
  Preservation of (co)limits
-
 
  Content
  1. Preservation of terminal objects
@@ -10,17 +8,23 @@ Require Import UniMath.Foundations.All.
  3. Preservation of pullbacks
  4. Preservation of initial objects
  5. Preservation of binary coproducts
+ 6. Adjunctions and preservation
+ 6.1 Right adjoints preserve limits
+ 6.2 Left adjoints preserve colimits
 
  *********************************************************)
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
 
@@ -408,3 +412,382 @@ Proof.
        apply maponpaths ;
        apply BinCoproductIn2Commutes).
 Defined.
+
+(**
+ 6. Adjunctions and preservation
+ *)
+Section AdjunctionPreservation.
+  Context {C₁ C₂ : category}
+          (L : C₁ ⟶ C₂)
+          (HL : is_left_adjoint L).
+
+  Let R : C₂ ⟶ C₁ := right_adjoint HL.
+  Let η : functor_identity _ ⟹ L ∙ R := unit_from_left_adjoint HL.
+  Let ε : R ∙ L ⟹ functor_identity _ := counit_from_left_adjoint HL.
+
+  Local Lemma triangle_1_help
+              (x : C₁)
+    : #L (η x) · ε (L x) = identity (L x).
+  Proof.
+    exact (pr122 HL x).
+  Qed.
+
+  Local Lemma triangle_2_help
+              (x : C₂)
+    : η (R x) · #R (ε x) = identity (R x).
+  Proof.
+    exact (pr222 HL x).
+  Qed.
+
+  (**
+   6.1 Right adjoints preserve limits
+   *)
+  Definition right_adjoint_preserves_terminal
+    : preserves_terminal R.
+  Proof.
+    intros T HT x.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      refine (!(id_right _) @ _ @ id_right _).
+      rewrite <- !triangle_2_help.
+      rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ g₁).
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ g₂).
+      }
+      rewrite !assoc' ; cbn -[η].
+      rewrite <- !functor_comp.
+      do 2 apply maponpaths.
+      apply (@TerminalArrowEq _ (T ,, HT)).
+    - exact (η x · #R (TerminalArrow (_ ,, HT) _)).
+  Qed.
+
+  Definition right_adjoint_preserves_binproduct
+    : preserves_binproduct R.
+  Proof.
+    intros x y p π₁ π₂ Hp c f g.
+    pose (P := make_BinProduct _ _ _ _ _ _ Hp : BinProduct _ _ _).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      use subtypePath.
+      {
+        intro ; apply isapropdirprod ; apply homset_property.
+      }
+      refine (!(id_right _) @ _ @ id_right _).
+      rewrite <- !triangle_2_help.
+      rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ (pr1 g₁)).
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ (pr1 g₂)).
+      }
+      rewrite !assoc' ; cbn -[η].
+      rewrite <- !functor_comp.
+      do 2 apply maponpaths.
+      use (BinProductArrowsEq _ _ _ P).
+      + cbn.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+        apply maponpaths.
+        exact (pr12 g₁ @ !(pr12 g₂)).
+      + cbn.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+        apply maponpaths.
+        exact (pr22 g₁ @ !(pr22 g₂)).
+    - simple refine (_ ,, _ ,, _).
+      + exact (η c · #R (BinProductArrow _ P (#L f · ε x) (#L g · ε y))).
+      + rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!(functor_comp R _ _) @ _).
+          apply maponpaths.
+          apply BinProductPr1Commutes.
+        }
+        rewrite functor_comp.
+        rewrite !assoc.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (!(nat_trans_ax η _ _ f)).
+        }
+        rewrite !assoc'.
+        rewrite triangle_2_help.
+        apply id_right.
+      + cbn.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!(functor_comp R _ _) @ _).
+          apply maponpaths.
+          apply (BinProductPr2Commutes _ _ _ P).
+        }
+        rewrite functor_comp.
+        rewrite !assoc.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (!(nat_trans_ax η _ _ g)).
+        }
+        rewrite !assoc'.
+        rewrite triangle_2_help.
+        apply id_right.
+  Qed.
+
+  Definition right_adjoint_preserves_pullback
+    : preserves_pullback R.
+  Proof.
+    intros x y z p f g π₁ π₂ q Fq Hp w h₁ h₂ r.
+    pose (P := make_Pullback _ Hp).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      use subtypePath.
+      {
+        intro ; apply isapropdirprod ; apply homset_property.
+      }
+      refine (!(id_right _) @ _ @ id_right _).
+      rewrite <- !triangle_2_help.
+      rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ (pr1 g₁)).
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η _ _ (pr1 g₂)).
+      }
+      rewrite !assoc' ; cbn -[η].
+      rewrite <- !functor_comp.
+      do 2 apply maponpaths.
+      use (MorphismsIntoPullbackEqual Hp).
+      + cbn.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+        apply maponpaths.
+        exact (pr12 g₁ @ !(pr12 g₂)).
+      + cbn.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply (nat_trans_ax ε).
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+        apply maponpaths.
+        exact (pr22 g₁ @ !(pr22 g₂)).
+    - simple refine (_ ,, _ ,, _).
+      + refine (η w · #R (PullbackArrow P _ (#L h₁ · ε x) (#L h₂ · ε y) _)).
+        abstract
+          (rewrite !assoc' ;
+           refine (maponpaths (λ z, _ · z) (!(nat_trans_ax ε _ _ f)) @ _) ;
+           refine (_ @ maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ g)) ;
+           rewrite !assoc ;
+           apply maponpaths_2 ;
+           refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _) ;
+           apply maponpaths ;
+           exact r).
+      + rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!(functor_comp R _ _) @ _).
+          apply maponpaths.
+          apply PullbackArrow_PullbackPr1.
+        }
+        rewrite (functor_comp R).
+        rewrite !assoc.
+        refine (maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ h₁)) @ _).
+        refine (_ @ id_right _).
+        rewrite !assoc'.
+        apply maponpaths.
+        apply triangle_2_help.
+      + cbn -[η].
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          refine (!(functor_comp R _ _) @ _).
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 P).
+        }
+        rewrite (functor_comp R).
+        rewrite !assoc.
+        refine (maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ h₂)) @ _).
+        refine (_ @ id_right _).
+        rewrite !assoc'.
+        apply maponpaths.
+        apply triangle_2_help.
+  Qed.
+
+  (**
+   6.2 Left adjoints preserve colimits
+   *)
+  Definition left_adjoint_preserves_initial
+    : preserves_initial L.
+  Proof.
+    intros x Hx y.
+    pose (I := make_Initial x Hx).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      refine (!(id_left _) @ _ @ id_left _).
+      rewrite <- !triangle_1_help.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(nat_trans_ax ε _ _ g₁)).
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(nat_trans_ax ε _ _ g₂)).
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp _ _ _) @ _ @ functor_comp _ _ _).
+      apply maponpaths.
+      apply (@InitialArrowEq _ I).
+    - exact (#L (InitialArrow I _) · ε y).
+  Qed.
+
+  Definition left_adjoint_preserves_bincoproduct
+    : preserves_bincoproduct L.
+  Proof.
+    intros x y s ι₁ ι₂ Hs z f g.
+    pose (S := make_BinCoproduct _ _ _ _ _ _ Hs).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      use subtypePath.
+      {
+        intro ; apply isapropdirprod ; apply homset_property.
+      }
+      refine (!(id_left _) @ _ @ id_left _).
+      rewrite <- !triangle_1_help.
+      rewrite !assoc'.
+      refine (maponpaths (λ z, _ · z) (!(nat_trans_ax ε _ _ (pr1 g₁))) @ _).
+      refine (_ @ maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ (pr1 g₂))).
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+      apply maponpaths.
+      use (BinCoproductArrowsEq _ _ _ S).
+      + rewrite !assoc.
+        refine (maponpaths (λ z, z · _) (nat_trans_ax η _ _ _) @ _).
+        refine (_ @ maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ _))).
+        rewrite !assoc'.
+        apply maponpaths.
+        refine (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+        apply maponpaths.
+        exact (pr12 g₁ @ !(pr12 g₂)).
+      + rewrite !assoc.
+        refine (maponpaths (λ z, z · _) (nat_trans_ax η _ _ _) @ _).
+        refine (_ @ maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ _))).
+        rewrite !assoc'.
+        apply maponpaths.
+        refine (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+        apply maponpaths.
+        exact (pr22 g₁ @ !(pr22 g₂)).
+    - simple refine (_ ,, _ ,, _).
+      + exact (#L (BinCoproductArrow S (η x · #R f) (η y · #R g)) · ε z).
+      + rewrite !assoc.
+        rewrite <- (functor_comp L).
+        rewrite (BinCoproductIn1Commutes _ _ _  S).
+        rewrite functor_comp.
+        rewrite !assoc'.
+        refine (maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ f) @ _).
+        rewrite !assoc.
+        refine (_ @ id_left _).
+        apply maponpaths_2.
+        apply triangle_1_help.
+      + cbn.
+        rewrite !assoc.
+        rewrite <- (functor_comp L).
+        rewrite (BinCoproductIn2Commutes _ _ _  S).
+        rewrite functor_comp.
+        rewrite !assoc'.
+        refine (maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ g) @ _).
+        rewrite !assoc.
+        refine (_ @ id_left _).
+        apply maponpaths_2.
+        apply triangle_1_help.
+  Qed.
+End AdjunctionPreservation.
