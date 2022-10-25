@@ -34,6 +34,8 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
+Export Set Default Goal Selector "!".
+
 Local Open Scope cat.
 
 Section MonadInSortToC.

@@ -32,6 +32,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 
+Export Set Default Goal Selector "!".
 
 Import Bicat.Notations.
 

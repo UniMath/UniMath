@@ -26,6 +26,8 @@ Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.slicecat.
 
+Export Set Default Goal Selector "!".
+
 Local Open Scope cat.
 
 Local Notation "C / X" := (slicecat_ob C X).

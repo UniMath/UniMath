@@ -36,6 +36,8 @@ Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredM
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
+Export Set Default Goal Selector "!".
+
 Import Bicat.Notations.
 Import MonoidalNotations.
 
@@ -97,7 +99,7 @@ Section A.
    unfold actionbased_strength_nat.
    unfold nat_trans.
    eapply weqcomp.
-   apply weqtotal2asstor.
+   { apply weqtotal2asstor. }
 (*
    set (P := is_nat_trans (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)
                (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H)).

@@ -35,6 +35,8 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
 
+Export Set Default Goal Selector "!".
+
 Local Open Scope cat.
 
 Arguments functor_composite {_ _ _} _ _ .
@@ -111,7 +113,7 @@ induction n as [|n IHn].
 + change (pr1 (Pow (S (S n))) _ z) with (ψ (iter_functor F (S n) 0) (Pow (S n) _ z)).
   assert (H : dmor LchnF (idpath (S (S n))) · ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
               ψ (iter_functor F n 0) (dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) _ z)).
-    apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))).
+  { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))). }
   now rewrite H, IHn.
 Qed.
 
@@ -156,7 +158,7 @@ induction n.
   apply (InitialArrowUnique ILD).
 - rewrite e_comm, functor_comp, <- assoc, Hh.
   assert (H : # L (# F (e n)) · ψ μF h = ψ (iter_functor F n 0) (# L (e n) · h)).
-    apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))).
+  { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }
   now rewrite H, IHn.
 Qed.
 
@@ -169,22 +171,22 @@ assert (H'' : # L inF · # L inF_inv = identity _).
 assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n)) _ z).
 { intro n.
   rewrite e_comm, functor_comp.
-  eapply pathscomp0;
+  etrans;
    [apply cancel_postcomposition; rewrite <-assoc;  apply maponpaths, H''|].
   rewrite id_right.
   assert (H1 : # L (# F (e n)) · ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) · preIt)).
   { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }
-  eapply pathscomp0; [ apply H1|].
+  etrans; [ apply H1|].
   now rewrite H.
 }
 assert (HH : preIt = # L inF_inv · ψ μF preIt).
 { apply pathsinv0, (colimArrowUnique CC_LchnF); simpl; intro n.
   destruct n.
   - apply (InitialArrowUnique ILD).
-  - simpl; eapply pathscomp0; [| apply H'].
+  - simpl; etrans; [| apply H'].
     now apply assoc.
 }
-eapply pathscomp0; [ apply maponpaths, HH|].
+etrans; [ apply maponpaths, HH|].
 now rewrite assoc, H'', id_left.
 Qed.
 

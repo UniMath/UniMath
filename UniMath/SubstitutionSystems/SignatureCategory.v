@@ -197,7 +197,7 @@ Qed.
   Proof.
     change isaset with (isofhlevel 2).
     apply isofhleveltotal2.
-    apply (functor_category_has_homsets ([C, D'] ⊠ category_Ptd C) ([C, D]) (functor_category_has_homsets _ _ _)).
+    { apply (functor_category_has_homsets ([C, D'] ⊠ category_Ptd C) ([C, D]) (functor_category_has_homsets _ _ _)). }
     intro θ.
     apply isasetaprop.
     apply isapropdirprod.

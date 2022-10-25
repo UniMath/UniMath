@@ -311,8 +311,8 @@ Local Definition M_alg : Alg.
 Proof.
   apply (tpair (λ x, EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
   apply BinCoproductArrow.
-  apply Monads.η.
-  apply τ_M.
+  - apply Monads.η.
+  - apply τ_M.
 Defined.
 
 (** j : T --> M is the initial Id+H-algebra morphism *)
@@ -404,8 +404,8 @@ Proof.
     apply cancel_postcomposition.
     etrans; [ apply assoc |].
     etrans.
-    apply cancel_postcomposition.
-    apply (θ_nat_1_pw _ _ a (p T_alg)).
+    { apply cancel_postcomposition.
+      apply (θ_nat_1_pw _ _ a (p T_alg)). }
     rewrite <- assoc.
     apply cancel_precomposition.
     etrans; revgoals.
@@ -418,7 +418,7 @@ Proof.
     intro c'.
     etrans; [| apply id_right ].
     apply cancel_precomposition.
-    apply (functor_id   x).
+    apply (functor_id x).
 Qed.
 
 Local Definition ψ  : (PreShv EndC)⟦ψ_source(D:=[C,C]) X L , ψ_target(D:=[C,C]) Id_H X L⟧ :=
