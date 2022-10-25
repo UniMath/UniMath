@@ -128,8 +128,8 @@ Section Cofunctormaps.
   Definition morphisms_of_presheaves_display : disp_bicat bicat_of_univ_cats.
   Proof.
     use sigma_bicat.
-    apply disp_two_presheaves.
-    exact disp_cofunctormaps_bicat.
+    - apply disp_two_presheaves.
+    - exact disp_cofunctormaps_bicat.
   Defined.
 
   Definition morphisms_of_presheaves : bicat

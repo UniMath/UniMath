@@ -56,30 +56,30 @@ Section OpCell.
     - use lhs_left_invert_cell; [ apply is_invertible_2cell_linvunitor |].
       cbn.
       apply pathsinv0.
-      etrans. apply vassocr.
+      etrans. { apply vassocr. }
       use lhs_right_invert_cell; [ apply is_invertible_2cell_linvunitor |].
       cbn.
       apply pathsinv0. apply vcomp_lunitor.
     - use lhs_left_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
       cbn.
       apply pathsinv0.
-      etrans. apply vassocr.
+      etrans. { apply vassocr. }
       use lhs_right_invert_cell; [ apply is_invertible_2cell_rinvunitor |].
       cbn.
       apply pathsinv0. apply vcomp_runitor.
     - apply lassociator_to_rassociator_pre.
       apply pathsinv0.
-      etrans. apply (vassocr _ _ _ ).
+      etrans. { apply (vassocr _ _ _ ). }
       apply lassociator_to_rassociator_post.
       apply pathsinv0. apply lwhisker_lwhisker.
     - apply lassociator_to_rassociator_pre.
       apply pathsinv0.
-      etrans. apply (vassocr _ _ _ ).
+      etrans. { apply (vassocr _ _ _ ). }
       apply lassociator_to_rassociator_post.
       apply pathsinv0. apply rwhisker_lwhisker.
     - apply pathsinv0, lassociator_to_rassociator_pre.
       apply pathsinv0.
-      etrans. apply (vassocr _ _ _ ).
+      etrans. { apply (vassocr _ _ _ ). }
       apply lassociator_to_rassociator_post.
       apply rwhisker_rwhisker.
     - apply (!vcomp_whisker _ _  ).
@@ -106,7 +106,7 @@ Section OpCell.
         apply is_invertible_2cell_rassociator.
       } cbn.
       apply pathsinv0.
-      etrans. apply vassocr.
+      etrans. { apply vassocr. }
       use lhs_right_invert_cell.
       { apply is_invertible_2cell_rassociator.
       } cbn.
