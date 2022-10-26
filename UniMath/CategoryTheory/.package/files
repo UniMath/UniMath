@@ -47,6 +47,7 @@ categories/HSET/Univalence.v
 Profunctors/Core.v
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
+covyoneda.v
 limits/cones.v
 limits/equalizers.v
 limits/graphs/colimits.v
@@ -87,7 +88,8 @@ limits/Preservation.v
 
 limits/Examples/CategoryProductLimits.v
 limits/Examples/CategoryOfSetcategoriesLimits.v
-
+limits/StandardDiagrams.v
+limits/Filtered.v
 IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
@@ -118,7 +120,6 @@ RightKanExtension.v
 slicecat.v
 coslicecat.v
 limits/pullbacks_slice_products_equiv.v
-covyoneda.v
 catiso.v
 CategoryEquality.v
 Additive.v
