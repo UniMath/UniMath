@@ -173,6 +173,7 @@ categories/Type/Univalence.v
 
 categories/HSET/Limits.v
 categories/HSET/Colimits.v
+categories/HSET/FilteredColimits.v
 categories/HSET/Slice.v
 categories/HSET/Structures.v
 categories/HSET/SliceFamEquiv.v

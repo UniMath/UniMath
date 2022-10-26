@@ -90,10 +90,10 @@ Section properties.
   Lemma isaprop_is_filtered_alt {J : category}
     : isaprop (is_filtered_alt J).
   Proof.
-    apply isapropdirprod.
-    apply propproperty.
     apply isapropdirprod;
-      repeat (apply impred_isaprop; intro; try apply propproperty).
+      [apply propproperty
+      |apply isapropdirprod;
+       repeat (apply impred_isaprop; intro; try apply propproperty)].
   Qed.
 
   Lemma isaprop_iscompact {C : category} (X : C) : isaprop (is_compact X).
@@ -234,12 +234,13 @@ Section alternate_formulation.
       + exact(coconeIn Dcc (● 1) · coconeIn Qcc (● 1)).
       + apply(weqonsecbase _ (weqdnicoprod n lastelement)).
         apply coprod_rect.
-        * intro k. etrans. apply assoc.
+        * intro.
+          etrans;[apply assoc |].
           apply cancel_postcomposition.
           apply(coconeInCommutes Dcc (● 0) (● 1)).
         * apply unit_rect.
-          etrans. apply assoc.
-          etrans. apply(coconeInCommutes Qcc (● 0) (● 1) (inr tt)).
+          etrans;[apply assoc |].
+          etrans;[apply (coconeInCommutes Qcc (● 0) (● 1) (inr tt)) |].
           exact(!coconeInCommutes Qcc (● 0) (● 1) (inl tt)).
   Qed.
 
@@ -300,14 +301,13 @@ Section alternate_formulation.
         * exact(unit_rect _ (coconeIn Pcc (inr tt))).
     }
 
-    use(filtered_alt_has_parallell_cocones filtalt (X ⨿ unit) (S n) r
-          edge_diagram).
+    use(filtered_alt_has_parallell_cocones filtalt (X ⨿ unit) (S n) r edge_diagram).
     intros [Q Qcc]; apply hinhpr.
     exists Q.
     use make_multispan_cocone.
     - exact(coconeIn Qcc (● 0)).
     - exact(λ x : X, coconeIn Pcc (inl x) · coconeIn Qcc (● 1)).
-    - intro x. etrans. apply assoc.
+    - intro x. etrans;[apply assoc |].
       exact(coconeInCommutes Qcc (● 0) (● 1) (inl x)).
   Qed.
 
@@ -372,6 +372,7 @@ Section alternate_formulation.
 
     (* The objects D(u, v) together with their cocone injections from P is a finite multi
        span. Since J is filtered there is a cocone [Q Qcc] over this span. *)
+
     use(filtered_alt_has_finite_multispan_cocones filtalt (vertex g × vertex g) (n * n)).
     - apply(weqcomp (invweq (weqdirprodf w w))).
       apply weqfromprodofstn.
@@ -385,16 +386,18 @@ Section alternate_formulation.
       + exact(λ v : vertex g, coconeIn Pcc v · coconeIn Qcc (inr tt)).
       + intros u v e.
 
-        etrans. apply maponpaths. apply maponpaths.
-        apply(!coconeInCommutes Qcc (inr tt) (inl (u ,, v)) tt).
-        etrans. apply assoc.
+        etrans. {
+          apply maponpaths; apply maponpaths.
+          exact(!coconeInCommutes Qcc (inr tt) (inl (u ,, v)) tt).
+        }
+
+        etrans;[apply assoc |].
+        etrans;[apply assoc |].
         set (Duv := pr2 (D u v)).
 
-        etrans. apply assoc.
-        etrans. apply maponpaths_2.
-        apply(coconeInCommutes Duv (stnpr 0) (stnpr 1) (inl e)).
-        etrans. apply maponpaths_2. apply(!coconeInCommutes Duv (stnpr 0) (stnpr 1) (inr tt)).
-        etrans. apply assoc'.
+        etrans. { apply maponpaths_2. exact(coconeInCommutes Duv (● 0) (● 1) (inl e)). }
+        etrans. { apply maponpaths_2. exact(!coconeInCommutes Duv (● 0) (● 1) (inr tt)). }
+        etrans;[apply assoc'|].
         apply cancel_precomposition.
         exact(coconeInCommutes Qcc (inr tt) (inl (u ,, v)) tt).
   Qed.
