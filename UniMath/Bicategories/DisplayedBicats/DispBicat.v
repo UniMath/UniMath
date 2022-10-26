@@ -709,7 +709,7 @@ Proof.
   apply (transportf_transpose_right (P := λ x', _ ==>[x'] _)).
   apply pathsinv0.
   etrans.
-  apply disp_vassocr.
+  { apply disp_vassocr. }
   apply maponpaths_2.
   unfold vassocl.
   apply pathsinv0, pathsinv0inv0.
@@ -822,18 +822,18 @@ Section Display_Invertible_2cell.
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     set (yy' := (yy,,H) : disp_invertible_2cell _ _ _).
-    etrans. apply maponpaths_2. apply pp.
-    etrans. apply disp_mor_transportf_postwhisker.
-    etrans. apply maponpaths. apply disp_vassocl.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
-    etrans. apply maponpaths. apply maponpaths.
-    apply disp_vcomp_linv.
-    etrans. apply maponpaths.
-    apply disp_mor_transportf_prewhisker.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
-    etrans. apply maponpaths.
-    apply disp_id2_right.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
+    etrans. { apply maponpaths_2. apply pp. }
+    etrans. { apply disp_mor_transportf_postwhisker. }
+    etrans. { apply maponpaths. apply disp_vassocl. }
+    etrans. { unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)). }
+    etrans. { apply maponpaths. apply maponpaths.
+              apply disp_vcomp_linv. }
+    etrans. { apply maponpaths.
+              apply disp_mor_transportf_prewhisker. }
+    etrans. { unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)). }
+    etrans. { apply maponpaths.
+              apply disp_id2_right. }
+    etrans. { unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)). }
     unfold transportb.
     apply maponpaths_2.
     apply cellset_property.
@@ -859,7 +859,7 @@ Section Display_Invertible_2cell.
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     etrans.
-    use (disp_lhs_right_invert_cell' _ _ _ _ pp).
+    { use (disp_lhs_right_invert_cell' _ _ _ _ pp). }
     apply maponpaths_2.
     apply cellset_property.
   Qed.
@@ -882,20 +882,20 @@ Section Display_Invertible_2cell.
                 (disp_inv_cell ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) ff gg) •• zz))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
-    etrans. apply maponpaths. apply pp.
+    etrans. { apply maponpaths. apply pp. }
     etrans.
-    apply disp_mor_transportf_prewhisker.
-    etrans. apply maponpaths.
-    apply disp_vassocr.
-    etrans. apply (transport_f_f (λ x, _ ==>[x] _)).
-    etrans. apply maponpaths.
-    apply maponpaths_2.
-    apply (disp_vcomp_rinv
-             ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) _ _)).
-    etrans. apply maponpaths. apply disp_mor_transportf_postwhisker.
-    etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
-    etrans. apply maponpaths. apply disp_id2_left.
-    etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
+    { apply disp_mor_transportf_prewhisker. }
+    etrans. { apply maponpaths.
+              apply disp_vassocr. }
+    etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
+    etrans. { apply maponpaths.
+              apply maponpaths_2.
+              apply (disp_vcomp_rinv
+                       ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) _ _)). }
+    etrans. { apply maponpaths. apply disp_mor_transportf_postwhisker. }
+    etrans. { unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)). }
+    etrans. { apply maponpaths. apply disp_id2_left. }
+    etrans. { unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)). }
     unfold transportb.
     apply maponpaths_2. apply cellset_property.
   Qed.
@@ -957,16 +957,17 @@ Lemma disp_lassociator_to_rassociator_post' {a b c d : C}
   : xx •• disp_rassociator ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_lhs_right_invert_cell.
-  - exact y.
-  - apply is_invertible_2cell_rassociator.
-  - exact yy.
-  - apply is_disp_invertible_2cell_rassociator.
-  - apply lassociator_to_rassociator_post. exact p.
-  - cbn. etrans. apply pp.
-    apply maponpaths_2.
-    apply cellset_property.
-  - apply maponpaths_2. apply cellset_property.
+  { use disp_lhs_right_invert_cell.
+    - exact y.
+    - apply is_invertible_2cell_rassociator.
+    - exact yy.
+    - apply is_disp_invertible_2cell_rassociator.
+    - apply lassociator_to_rassociator_post. exact p.
+    - cbn. etrans. { apply pp. }
+      apply maponpaths_2.
+      apply cellset_property.
+  }
+  apply maponpaths_2. apply cellset_property.
 Qed.
 
 Lemma disp_lassociator_to_rassociator_post {a b c d : C}
@@ -986,12 +987,13 @@ Lemma disp_lassociator_to_rassociator_post {a b c d : C}
   : xx •• disp_rassociator ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_lassociator_to_rassociator_post'.
-  - exact y.
-  - exact p.
-  - exact yy.
-  - exact pp.
-  - apply maponpaths_2. apply cellset_property.
+  { use disp_lassociator_to_rassociator_post'.
+    - exact y.
+    - exact p.
+    - exact yy.
+    - exact pp.
+  }
+  apply maponpaths_2. apply cellset_property.
 Qed.
 
 Lemma disp_lassociator_to_rassociator_pre {a b c d : C}
@@ -1011,17 +1013,18 @@ Lemma disp_lassociator_to_rassociator_pre {a b c d : C}
   : disp_rassociator ff gg hh •• xx = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_lhs_left_invert_cell.
-  - exact y.
-  - apply is_invertible_2cell_rassociator.
-  - exact yy.
-  - apply is_disp_invertible_2cell_rassociator.
-  - apply lassociator_to_rassociator_pre. exact p.
-  - cbn. etrans. apply pp.
-    apply maponpaths_2.
-    apply cellset_property.
-  - apply maponpaths_2.
-    apply cellset_property.
+  { use disp_lhs_left_invert_cell.
+    - exact y.
+    - apply is_invertible_2cell_rassociator.
+    - exact yy.
+    - apply is_disp_invertible_2cell_rassociator.
+    - apply lassociator_to_rassociator_pre. exact p.
+    - cbn. etrans. { apply pp. }
+      apply maponpaths_2.
+      apply cellset_property.
+  }
+  apply maponpaths_2.
+  apply cellset_property.
 Qed.
 
 Lemma disp_lunitor_lwhisker {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
@@ -1033,18 +1036,19 @@ Lemma disp_lunitor_lwhisker {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
                (disp_runitor ff ▹▹ gg).
 Proof.
   etrans.
-  use disp_lassociator_to_rassociator_pre.
-  - exact (runitor f ▹ g).
-  - exact (disp_runitor ff ▹▹ gg).
-  - apply lunitor_lwhisker.
-  - apply pathsinv0.
-    etrans.
-    apply maponpaths. apply disp_runitor_rwhisker.
-    etrans.
-    apply (transport_f_f (λ α, _ ==>[α] _)).
-    apply (transportf_set (λ α, _ ==>[α] _)).
-    apply cellset_property.
-  - apply maponpaths_2, cellset_property.
+  { use disp_lassociator_to_rassociator_pre.
+    - exact (runitor f ▹ g).
+    - exact (disp_runitor ff ▹▹ gg).
+    - apply lunitor_lwhisker.
+    - apply pathsinv0.
+      etrans.
+      { apply maponpaths. apply disp_runitor_rwhisker. }
+      etrans.
+      { apply (transport_f_f (λ α, _ ==>[α] _)). }
+      apply (transportf_set (λ α, _ ==>[α] _)).
+      apply cellset_property.
+  }
+  apply maponpaths_2, cellset_property.
 Qed.
 
 
@@ -1471,9 +1475,9 @@ cbn.
 intros.
 unfold total_prebicat_cell_struct.
 apply isaset_total2.
-apply cellset_property.
-intros.
-apply disp_cellset_property.
+- apply cellset_property.
+- intros.
+  apply disp_cellset_property.
 Qed.
 
 Definition total_bicat (D : disp_bicat) : bicat

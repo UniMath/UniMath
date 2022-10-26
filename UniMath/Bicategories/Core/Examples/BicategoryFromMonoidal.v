@@ -82,7 +82,7 @@ Proof.
   split. {
     intros ? ? ? f g h i x y.
     etrans.
-    exact (!(functor_comp tensor (id f #, x) (id f #, y))).
+    { exact (!(functor_comp tensor (id f #, x) (id f #, y))). }
     exact (maponpaths (fun z => z #⊗ (x · y)) (id_left _)).
   }
 
@@ -90,7 +90,7 @@ Proof.
   split. {
     intros ? ? ? f g h i x y.
     etrans.
-    exact (!(functor_comp tensor _ _)).
+    { exact (!(functor_comp tensor _ _)). }
     exact (maponpaths (fun z => (x · y) #⊗ z) (id_left _)).
   }
 
@@ -102,7 +102,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, id g) #, x)).
+    { exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, id g) #, x)). }
     exact (maponpaths (fun z => _ · (z #⊗ _)) (functor_id tensor (f , g))).
   }
 
@@ -110,7 +110,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, x) #, id i)).
+    { exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, x) #, id i)). }
     apply idpath.
   }
 
@@ -118,20 +118,20 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (!(pr21 (nat_z_iso_inv α) _ _ ((x #, id h) #, id i))).
+    { exact (!(pr21 (nat_z_iso_inv α) _ _ ((x #, id h) #, id i))). }
     exact (maponpaths (fun z => (_ #⊗ z) · _) (functor_id tensor (h , i))).
   }
 
   (* 11. Vertical composition and whiskering *)
   split. {
     intros.
-    etrans. exact (!(functor_comp tensor _ _)).
-    etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_left _)).
-    etrans. exact (maponpaths (fun z => (z #⊗ _)) (id_right _)).
+    etrans. { exact (!(functor_comp tensor _ _)). }
+    etrans. { exact (maponpaths (fun z => (_ #⊗ z)) (id_left _)). }
+    etrans. { exact (maponpaths (fun z => (z #⊗ _)) (id_right _)). }
     apply pathsinv0.
-    etrans. exact (!(functor_comp tensor _ _)).
-    etrans. exact (maponpaths (fun z => (z #⊗ _)) (id_left _)).
-    etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
+    etrans. { exact (!(functor_comp tensor _ _)). }
+    etrans. { exact (maponpaths (fun z => (z #⊗ _)) (id_left _)). }
+    etrans. { exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)). }
     apply idpath.
   }
 
@@ -150,9 +150,9 @@ Proof.
   (* 15. Right unitor whiskering. *)
   split. {
     intros ? ? ? f g.
-    etrans. exact (maponpaths (fun z => _ · z) (triangle_equality _ _)).
-    etrans. exact (assoc _ _ _).
-    etrans. exact (maponpaths (fun z => z · _) (z_iso_after_z_iso_inv (α ((f, I), g) ,, pr2 α ((f, I), g) ))).
+    etrans. { exact (maponpaths (fun z => _ · z) (triangle_equality _ _)). }
+    etrans. { exact (assoc _ _ _). }
+    etrans. { exact (maponpaths (fun z => z · _) (z_iso_after_z_iso_inv (α ((f, I), g) ,, pr2 α ((f, I), g) ))). }
     exact (id_left _).
   }
 
@@ -164,29 +164,29 @@ Proof.
   apply (pre_comp_with_z_iso_is_inj'(f := α ((f, g), h ⊗ i)) (pr2 α _)).
   apply (pre_comp_with_z_iso_is_inj'(f := α (((f ⊗ g), h) , i)) (pr2 α _)).
   apply pathsinv0.
-  etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (α ((f, g), _) ,, pr2 α _ ))).
-  etrans. exact (maponpaths (fun z => _ · z) (id_left _)).
-  etrans. exact (z_iso_inv_after_z_iso (α ((f ⊗ g, h), _) ,, pr2 α _ )).
+  etrans. { exact (maponpaths (fun z => _ · z) (assoc _ _ _)). }
+  etrans. { exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (α ((f, g), _) ,, pr2 α _ ))). }
+  etrans. { exact (maponpaths (fun z => _ · z) (id_left _)). }
+  etrans. { exact (z_iso_inv_after_z_iso (α ((f ⊗ g, h), _) ,, pr2 α _ )). }
   apply pathsinv0.
-  etrans. exact (assoc _ _ _).
-  etrans. exact (assoc _ _ _).
-  etrans. exact (maponpaths (fun z => (z · _) · _) (pentagon_equation _ _ _ _)).
-  etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). cbn.
-  etrans. exact (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (z_iso_inv_after_z_iso (α ((g, h), i) ,, pr2 α _))).
+  etrans. { exact (assoc _ _ _). }
+  etrans. { exact (assoc _ _ _). }
+  etrans. { exact (maponpaths (fun z => (z · _) · _) (pentagon_equation _ _ _ _)). }
+  etrans. { exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))). }
+  etrans. { exact (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)). }
+  etrans. { exact (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). } cbn.
+  etrans. { exact (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)). }
+  etrans. { exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (z_iso_inv_after_z_iso (α ((g, h), i) ,, pr2 α _))). }
   assert (aux: # tensor (id (f, (assoc_left (pr12 M)) ((g, h), i))) = id (f ⊗ (assoc_left (pr12 M)) ((g, h), i))) by
-  exact (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))).
-  etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) aux).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (z_iso_inv_after_z_iso (α ((f,g ⊗ h),i) ,, pr2 α _))).
-  etrans. exact (maponpaths (fun z => (z · _)) (id_right _)).
-  etrans. exact (!(functor_comp tensor _ _)).
-  etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
-  etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (α ((f,g),h) ,, pr2 α _))).
+    exact (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))).
+  etrans. { exact (maponpaths (fun z => (_ · (z · _) · _)) aux). }
+  etrans. { exact (maponpaths (fun z => (_ · z · _)) (id_left _)). }
+  etrans. { exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))). }
+  etrans. { exact (maponpaths (fun z => (_ · z · _)) (z_iso_inv_after_z_iso (α ((f,g ⊗ h),i) ,, pr2 α _))). }
+  etrans. { exact (maponpaths (fun z => (z · _)) (id_right _)). }
+  etrans. { exact (!(functor_comp tensor _ _)). }
+  etrans. { exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)). }
+  etrans. { exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (α ((f,g),h) ,, pr2 α _))). }
   apply (functor_id tensor).
 Qed.
 

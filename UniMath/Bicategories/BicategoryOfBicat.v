@@ -89,8 +89,7 @@ Lemma bicate_transfs :
   (∏ a b : bicate_id_comp, left_unitor_trans_type a b) ×
   (∏ a b : bicate_id_comp, right_unitor_trans_type a b).
 Proof.
-  repeat split.
-  red. cbn.
+  repeat split; red; cbn.
   - exact lassociator_transf.
   - exact lunitor_transf.
   - exact runitor_transf.

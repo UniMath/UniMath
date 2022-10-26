@@ -656,13 +656,13 @@ Section Map1Cells.
         simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
         apply idweq.
       + refine (_ ∘ weqonsecfibers _ _ _)%weq.
-        intro X ; cbn.
-        refine (weqonsecfibers _ _ _).
-        intro Y ; cbn.
-        simple refine (weqonsecfibers _ _ _).
-        * exact (λ f, invertible_2cell (F₁ X Y f) (F₁' X Y f)).
-        * intro f ; cbn.
-          exact (make_weq (idtoiso_2_1 (F₁ X Y f) (F₁' X Y f)) (HD_2_1 _ _ _ _)).
+        * intro X ; cbn.
+          refine (weqonsecfibers _ _ _).
+          intro Y ; cbn.
+          simple refine (weqonsecfibers _ _ _).
+          -- exact (λ f, invertible_2cell (F₁ X Y f) (F₁' X Y f)).
+          -- intro f ; cbn.
+             exact (make_weq (idtoiso_2_1 (F₁ X Y f) (F₁' X Y f)) (HD_2_1 _ _ _ _)).
         * exact (all_invertible_2cell_is_disp_adjoint_equivalence HD_2_1 F₀ F₁ F₁').
     - intro p.
       induction p.

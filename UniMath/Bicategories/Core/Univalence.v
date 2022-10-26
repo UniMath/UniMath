@@ -133,8 +133,8 @@ Lemma isaprop_is_univalent_2 (C : bicat)
   : isaprop (is_univalent_2 C).
 Proof.
   apply isapropdirprod.
-  apply isaprop_is_univalent_2_0.
-  apply isaprop_is_univalent_2_1.
+  - apply isaprop_is_univalent_2_0.
+  - apply isaprop_is_univalent_2_1.
 Qed.
 
 Definition isotoid_2_1
