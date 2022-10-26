@@ -113,6 +113,12 @@ Notation "A ∪ B" := (subtype_binaryunion A B)
   (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
   (* in agda-input method, type \cup or ∪ *)
 
+Definition subtype_binaryunion_leq1 {X} (A B : hsubtype X) : A ⊆ (A ∪ B)
+  := fun x => hdisj_in1.
+
+Definition subtype_binaryunion_leq2 {X} (A B : hsubtype X) : B ⊆ (A ∪ B)
+  := fun x => hdisj_in2.
+
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   make_hSet (carrier S) (isaset_carrier_subset _ S).
 
@@ -464,3 +470,28 @@ Section singletons.
     exact(λ (p : y = (pr1 a)), transportb A p (pr2 a)).
   Defined.
 End singletons.
+
+(* Map from the coproduct of carriers to the carrier of the binary union. *)
+Definition coprod_carrier_binary_union {X}
+  (A B : hsubtype X)
+  : A ⨿ B -> A ∪ B.
+Proof.
+  apply sumofmaps; apply subtype_inc.
+  - apply subtype_binaryunion_leq1.
+  - apply subtype_binaryunion_leq2.
+Defined.
+
+Lemma issurjective_coprod_carrier_binary_union {X}
+  (A B : hsubtype X)
+  : issurjective (coprod_carrier_binary_union A B).
+Proof.
+  intros [x aub].
+  use(hinhfun _ aub).
+  apply sumofmaps
+  ; (intro y; use make_hfiber)
+  ; try (apply subtypePath_prop).
+  - exact(inl (x ,, y)).
+  - apply idpath.
+  - exact(inr (x ,, y)).
+  - apply idpath.
+Qed.
