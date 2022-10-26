@@ -708,6 +708,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DecidableDedekindCuts.v](RealNumbers/DecidableDedekindCuts.v)
    - [All.v](RealNumbers/All.v)
 ## Package Tactics
+   - [EnsureStructuredProofs.v](Tactics/EnsureStructuredProofs.v)
    - [Utilities.v](Tactics/Utilities.v)
    - [Monoids_Tactics.v](Tactics/Monoids_Tactics.v)
    - [Abmonoids_Tactics.v](Tactics/Abmonoids_Tactics.v)

@@ -4,7 +4,8 @@
 
 Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)
 
-*)
+ *)
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
@@ -33,8 +34,6 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
-
-Export Set Default Goal Selector "!".
 
 Local Open Scope cat.
 

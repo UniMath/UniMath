@@ -48,8 +48,6 @@ Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.STLC_alt.
 
-Export Set Default Goal Selector "!".
-
 Local Open Scope cat.
 
 Section pcf.
