@@ -36,6 +36,8 @@ Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredM
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
+Export Set Default Goal Selector "!".
+
 Import Bicat.Notations.
 Import MonoidalNotations.
 

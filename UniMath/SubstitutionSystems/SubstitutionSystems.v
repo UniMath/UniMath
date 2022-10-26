@@ -610,13 +610,13 @@ Proof.
   assert (X:=pr2 β).
   assert (X':= nat_trans_eq_pointwise X c).
   simpl in *.
-  eapply pathscomp0. apply maponpaths. apply X'.
+  etrans. { apply maponpaths. apply X'. }
   unfold coproduct_nat_trans_in1_data.
   repeat rewrite assoc.
   unfold coproduct_nat_trans_data.
-  eapply pathscomp0.
-  apply cancel_postcomposition.
-  apply BinCoproductIn1Commutes.
+  etrans.
+  { apply cancel_postcomposition.
+    apply BinCoproductIn1Commutes. }
   simpl.
   repeat rewrite <- assoc.
   apply id_left.
@@ -759,13 +759,13 @@ Proof.
   intros Z f.
   eapply pathscomp0; [apply assoc|].
   (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
-  eapply pathscomp0.
-    apply cancel_postcomposition.
-    apply isbracketMor_hssMor.
+  etrans.
+  { apply cancel_postcomposition.
+    apply isbracketMor_hssMor. }
   rewrite <- assoc.
-  eapply pathscomp0.
-    apply maponpaths.
-    apply isbracketMor_hssMor.
+  etrans.
+  { apply maponpaths.
+    apply isbracketMor_hssMor. }
   rewrite assoc.
   rewrite functor_comp.
   rewrite assoc.

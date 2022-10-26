@@ -47,6 +47,8 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 
+Export Set Default Goal Selector "!".
+
 Local Open Scope cat.
 
 (** * The simply typed lambda calculus from a multisorted binding signature *)

@@ -552,8 +552,8 @@ Section relative_strength_instantiates_to_signature.
       rewrite <- assoc.
       apply maponpaths.
       etrans.
-      apply pathsinv0.
-      apply id_left.
+      { apply pathsinv0.
+        apply id_left. }
       apply cancel_postcomposition.
       apply pathsinv0.
       apply (nat_trans_eq_weq (homset_property C) _ _ (auxH1 H X) c).
@@ -576,11 +576,12 @@ Section relative_strength_instantiates_to_signature.
       apply maponpaths.
       apply pathsinv0.
       etrans.
-      use (maponpaths (fun x => pr1 (# H x) c)).
-      + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
-      + apply auxH2aux.
-      + rewrite functor_id.
-        apply idpath.
+      { use (maponpaths (fun x => pr1 (# H x) c)).
+        + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
+        + apply auxH2aux.
+      }
+      rewrite functor_id.
+      apply idpath.
   Qed.
 
   Definition signature_from_rel_strength : Signature C C C.
@@ -645,11 +646,11 @@ Section strength_in_signature_is_a_relative_strength.
       apply maponpaths.
       (** now identical reasoning as in [signature_from_rel_strength_laws] *)
       etrans.
-      use (maponpaths (fun x => pr1 (# H x) c)).
-      + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
-      + apply auxH2aux.
-      + rewrite functor_id.
-        apply idpath.
+      { use (maponpaths (fun x => pr1 (# H x) c)).
+        + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
+        + apply auxH2aux. }
+      rewrite functor_id.
+      apply idpath.
   Qed.
 
   Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).

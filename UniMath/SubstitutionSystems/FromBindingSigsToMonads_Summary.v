@@ -45,6 +45,8 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
+Export Set Default Goal Selector "!".
+
 Local Open Scope cat.
 
 Local Notation "[ C , D ]" := (functor_category C D).
