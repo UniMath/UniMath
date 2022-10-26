@@ -602,8 +602,8 @@ Section TensorLayer.
       use subtypePath.
       + intro f.
         apply isaprop_disp_left_adjoint_equivalence.
-        apply univalent_cat_is_univalent_2_1.
-        apply bidisp_tensor_disp_bicat_is_locally_univalent.
+        * apply univalent_cat_is_univalent_2_1.
+        * apply bidisp_tensor_disp_bicat_is_locally_univalent.
       + apply idpath.
   Defined.
 

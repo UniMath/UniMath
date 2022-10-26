@@ -91,7 +91,7 @@ Proof.
       apply is_invertible_2cell_rassociator.
   - cbn.
     apply pathsinv0.
-    etrans. apply vassocr.
+    etrans. { apply vassocr. }
     apply lassociator_lassociator.
 Qed.
 
@@ -102,7 +102,7 @@ Proof.
   intro H.
   apply (vcomp_lcancel (runitor _)).
   - apply is_invertible_2cell_runitor.
-  - etrans. apply pathsinv0, vcomp_runitor.
+  - etrans. { apply pathsinv0, vcomp_runitor. }
     etrans. 2: apply vcomp_runitor.
     apply maponpaths_2. apply H.
 Qed.
@@ -114,7 +114,7 @@ Proof.
   intro H.
   apply (vcomp_lcancel (lunitor _)).
   - apply is_invertible_2cell_lunitor.
-  - etrans. apply pathsinv0, vcomp_lunitor.
+  - etrans. { apply pathsinv0, vcomp_lunitor. }
     etrans. 2: apply vcomp_lunitor.
     apply maponpaths_2. apply H.
 Qed.
