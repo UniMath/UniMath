@@ -11,6 +11,7 @@
 - Useful transports for complexes
 *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
