@@ -1,20 +1,20 @@
-(**********************************************************************)
-(** * Filtered categories
 
-    Definition of filtered categories and compact/finitely presentable
-    objects. Two definitions of filtered categories are given,
-             [is_filtered]
-             [is_filtered_alt]
-    and a proof that they are equivalent in [weq_filtered].
-
-    Contents
-    1) Filtered categories
-    2) Compact objects
-    3) Properties
-    4) Equivalence between [is_filtered] and [is_filtered_alt].
-
-*)
-(**********************************************************************)
+(** ***********************************************************************
+ *   Filtered Categories                                                  *
+ *                                                                        *
+ *     Definition of filtered categories and compact/finitely presentable *
+ *     objects. Two definitions of filtered categories are given,         *
+ *              [is_filtered]                                             *
+ *              [is_filtered_alt]                                         *
+ *     and a proof that they are equivalent is given in [weq_filtered].   *
+ *                                                                        *
+ *     Contents                                                           *
+ *     1) Filtered categories                                             *
+ *     2) Compact objects                                                 *
+ *     3) Properties                                                      *
+ *     4) Equivalence between [is_filtered] and [is_filtered_alt].        *
+ *                                                                        *
+ *************************************************************************)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -192,8 +192,6 @@ Section alternate_formulation.
         exact(coconeIn Pcc (w x)).
   Qed.
 
-  Local Arguments dmor {_} {_} _ _ _ _.
-
   Definition filtered_alt_has_parallell_stn {J : category}
     (filtalt : is_filtered_alt J)
     (n : nat)
@@ -203,7 +201,7 @@ Section alternate_formulation.
     destruct filtalt as [inhab [bool_cc pair_cc]].
 
     induction n as [|n IHn].
-    - set (d₁ := make_bool_diagram (dob d (● 0)) (dob d (● 1))).
+    - set (d₁ := make_bool_diagram (dob d parallell_start) (dob d parallell_end)).
       use(hinhfun _ (bool_cc d₁)); intros [P Pcc].
       exists P.
       use make_parallell_cocone.
@@ -214,34 +212,34 @@ Section alternate_formulation.
       (* dₙ is the restriction of d to ⟦ n ⟧ *)
       transparent assert(dₙ : (diagram (parallell_graph (⟦ n ⟧)) J)). {
         use make_parallell_diagram.
-        - exact(dob d (● 0)).
-        - exact(dob d (● 1)).
-        - exact(λ k : ⟦ n ⟧, dmor d (● 0) (● 1) (dni lastelement k)).
+        - exact(dob d parallell_start).
+        - exact(dob d parallell_end).
+        - exact(λ k : ⟦ n ⟧, dmor d (parallell_edge (dni lastelement k))).
       }
 
       use(IHn dₙ); intros [Dₙ Dcc]. (* Dₙ/Dcc is the cocone over the parallell arrows {0, ..., n} *)
       transparent assert(pairing: (diagram pair_graph J)). {
         use make_pair_diagram.
-        - exact(dob d (● 0)).
+        - exact(dob d parallell_start).
         - exact Dₙ.
-        - exact(coconeIn Dcc (● 0)).
-        - exact(dmor d (● 0) (● 1) lastelement · coconeIn Dcc (● 1)).
+        - exact(coconeIn Dcc parallell_start).
+        - exact(dmor d (parallell_edge lastelement) · coconeIn Dcc parallell_end).
       }
       use(hinhfun _ (pair_cc pairing)); intros [Q Qcc].
       exists Q.
       use make_parallell_cocone.
-      + exact(coconeIn Dcc (● 0) · coconeIn Qcc (● 1)).
-      + exact(coconeIn Dcc (● 1) · coconeIn Qcc (● 1)).
+      + exact(coconeIn Dcc parallell_start · coconeIn Qcc pair_dst).
+      + exact(coconeIn Dcc parallell_end · coconeIn Qcc pair_dst).
       + apply(weqonsecbase _ (weqdnicoprod n lastelement)).
         apply coprod_rect.
         * intro.
           etrans;[apply assoc |].
           apply cancel_postcomposition.
-          apply(coconeInCommutes Dcc (● 0) (● 1)).
+          exact(parallell_cocone_commutes Dcc _).
         * apply unit_rect.
-          etrans;[apply assoc |].
-          etrans;[apply (coconeInCommutes Qcc (● 0) (● 1) (inr tt)) |].
-          exact(!coconeInCommutes Qcc (● 0) (● 1) (inl tt)).
+          etrans;[apply assoc |]. cbn.
+          etrans;[exact(pair_cocone_commutes Qcc pair_right) |].
+          exact(!pair_cocone_commutes Qcc pair_left).
   Qed.
 
   Lemma filtered_alt_has_parallell_cocones {J : category}
@@ -253,18 +251,18 @@ Section alternate_formulation.
     : ∃ z : J, cocone d z.
   Proof.
     set (dₙ := make_parallell_diagram (⟦ n ⟧)
-                 (dob d (● 0))
-                 (dob d (● 1))
-                 (λ k : ⟦ n ⟧, dmor d (● 0) (● 1) (invmap w k))).
+                 (dob d parallell_start)
+                 (dob d parallell_end)
+                 (λ k : ⟦ n ⟧, dmor d (parallell_edge (invmap w k)))).
 
     use(hinhfun _ (filtered_alt_has_parallell_stn filtalt n dₙ)).
     intros [P Pcc].
     exists P.
     use make_parallell_cocone.
-    - exact(coconeIn Pcc (● 0)).
-    - exact(coconeIn Pcc (● 1)).
+    - exact(coconeIn Pcc parallell_start).
+    - exact(coconeIn Pcc parallell_end).
     - apply(weqonsecbase _ (invweq w)).
-      exact(λ k : ⟦ n ⟧, coconeInCommutes Pcc (● 0) (● 1) k).
+      exact(λ k : ⟦ n ⟧, parallell_cocone_commutes Pcc k).
   Qed.
 
   Lemma filtered_alt_has_finite_multispan_cocones {J : category}
@@ -275,21 +273,16 @@ Section alternate_formulation.
     (d : diagram (multispan_graph X) J)
     : ∃ z : J, cocone d z.
   Proof.
-    set (base := dob d (inr tt)).
+    set (base := dob d multispan_base).
 
-    transparent assert(point_diagram : (diagram (discrete_graph (X ⨿ unit)) J)). {
-      use make_discrete_diagram.
-      - apply sumofmaps.
-        * exact(λ x : X, dob d (inl x)).
-        * exact(unit_rect _ base).
-    }
+    set (point_diagram := make_discrete_diagram' d).
 
     assert(r : (X ⨿ unit) ≃ ⟦ (S n) ⟧). {
       use(weqcomp (weqcoprodf1 w)).
       exact(weqdnicoprod n lastelement).
     }
 
-    use(filtered_alt_has_discrete_cocones filtalt (X ⨿ unit) point_diagram (S n) r).
+    use(filtered_alt_has_discrete_cocones filtalt _ point_diagram (S n) r).
     intros [P Pcc].
 
     transparent assert(edge_diagram : (diagram (parallell_graph (X ⨿ unit)) J)). {
@@ -297,18 +290,18 @@ Section alternate_formulation.
       - exact base.
       - exact P.
       - apply sumofmaps.
-        * exact(λ x : X, dmor d (inr tt) (inl x) tt · coconeIn Pcc (inl x)).
-        * exact(unit_rect _ (coconeIn Pcc (inr tt))).
+        * exact(λ x : X, dmor d (multispan_edge x) · (coconeIn Pcc (multispan_vertex x))).
+        * exact(unit_rect _ (coconeIn Pcc multispan_base)).
     }
 
     use(filtered_alt_has_parallell_cocones filtalt (X ⨿ unit) (S n) r edge_diagram).
     intros [Q Qcc]; apply hinhpr.
     exists Q.
     use make_multispan_cocone.
-    - exact(coconeIn Qcc (● 0)).
-    - exact(λ x : X, coconeIn Pcc (inl x) · coconeIn Qcc (● 1)).
+    - exact(coconeIn Qcc parallell_start).
+    - exact(λ x : X, coconeIn Pcc (multispan_vertex x) · coconeIn Qcc parallell_end).
     - intro x. etrans;[apply assoc |].
-      exact(coconeInCommutes Qcc (● 0) (● 1) (inl x)).
+      exact(parallell_cocone_commutes Qcc (inl x)).
   Qed.
 
   Definition filtered_alt_to_filtered {J : category}
@@ -338,7 +331,7 @@ Section alternate_formulation.
       intros a b.
       use(make_parallell_diagram _ (dob d a) P).
       apply sumofmaps.
-      - exact(λ e, dmor d a b e · coconeIn Pcc b).
+      - exact(λ e, dmor d e · coconeIn Pcc b).
       - exact(unit_rect _ (coconeIn Pcc a)).
     }
 
@@ -366,8 +359,7 @@ Section alternate_formulation.
       use make_multispan_diagram.
       - exact P.
       - intros [a b]. exact(pr1 (D a b)).
-      - intros [a b].
-        exact(coconeIn (pr2 (D a b)) (● 1)).
+      - intros [a b]. exact(coconeIn (pr2 (D a b)) parallell_end).
     }
 
     (* The objects D(u, v) together with their cocone injections from P is a finite multi
@@ -383,23 +375,24 @@ Section alternate_formulation.
          with apex Q. *)
       exists Q.
       use make_cocone.
-      + exact(λ v : vertex g, coconeIn Pcc v · coconeIn Qcc (inr tt)).
+      + exact(λ v : vertex g, coconeIn Pcc v · coconeIn Qcc multispan_base).
       + intros u v e.
 
         etrans. {
           apply maponpaths; apply maponpaths.
-          exact(!coconeInCommutes Qcc (inr tt) (inl (u ,, v)) tt).
+          exact(!multispan_cocone_commutes Qcc (u ,, v)).
         }
 
         etrans;[apply assoc |].
         etrans;[apply assoc |].
         set (Duv := pr2 (D u v)).
 
-        etrans. { apply maponpaths_2. exact(coconeInCommutes Duv (● 0) (● 1) (inl e)). }
-        etrans. { apply maponpaths_2. exact(!coconeInCommutes Duv (● 0) (● 1) (inr tt)). }
+        etrans. { apply maponpaths_2. exact(parallell_cocone_commutes Duv (inl e)). }
+        etrans. { apply maponpaths_2. exact(!parallell_cocone_commutes Duv (inr tt)). }
+
         etrans;[apply assoc'|].
         apply cancel_precomposition.
-        exact(coconeInCommutes Qcc (inr tt) (inl (u ,, v)) tt).
+        exact(multispan_cocone_commutes Qcc (u ,, v)).
   Qed.
 
   Definition weq_filtered (J : category)

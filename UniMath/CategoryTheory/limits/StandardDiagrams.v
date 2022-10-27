@@ -35,15 +35,6 @@ Section graphs.
   Definition bool_graph : graph
     := make_graph bool (λ _ _, empty).
 
-  (* Two verticies (● 0) and (● 1), and two parallell edges (inl tt) and (inr tt) *)
-  Definition pair_graph : graph.
-  Proof.
-    use make_graph.
-    - exact(⟦ 2 ⟧).
-    - apply(two_rec (two_rec empty (unit ⨿ unit))).
-      exact(λ _, empty).
-  Defined.
-
     (* The interval graph: true ---tt---> false *)
   Definition interval_graph : graph.
   Proof.
@@ -90,6 +81,36 @@ Section graphs.
       + exact(λ _, empty).
   Defined.
 
+  Definition parallell_start {X : UU}
+    : vertex (parallell_graph X)
+    := (● 0).
+
+  Definition parallell_end {X : UU}
+    : vertex (parallell_graph X)
+    := (● 1).
+
+  Definition parallell_edge {X : UU}
+    (e : X)
+    : @edge (parallell_graph X) parallell_start parallell_end
+    := e.
+
+  (* Two parallell edges, pair_left, pair_right : : pair_src --> pair_end. *)
+
+  Definition pair_graph : graph
+    := parallell_graph (unit ⨿ unit).
+
+  Definition pair_src : vertex pair_graph
+    := (● 0).
+
+  Definition pair_dst : vertex pair_graph
+    := (● 1).
+
+  Definition pair_left : @edge pair_graph pair_src pair_dst
+    := inl tt.
+
+  Definition pair_right : @edge pair_graph pair_src pair_dst
+    := inr tt.
+
   (* Multi span: One base vertex (inr tt) and X verticies
      with one unique edge from the base each, no other edges. *)
   Definition multispan_graph (X : UU) : graph.
@@ -103,6 +124,21 @@ Section graphs.
         * exact(λ _, unit).     (* One edge unit --> x *)
         * exact(λ _, empty).    (* No edge unit --> unit *)
   Defined.
+
+  Definition multispan_vertex {X : UU}
+    (x : X)
+    : vertex (multispan_graph X)
+    := (inl x).
+
+  Definition multispan_base {X : UU}
+    : vertex (multispan_graph X)
+    := (inr tt).
+
+  Definition multispan_edge {X : UU}
+    (x : X)
+    : edge multispan_base (multispan_vertex x)
+    := tt.
+
 End graphs.
 
 Section diagrams.
@@ -132,17 +168,6 @@ Section diagrams.
     use make_diagram.
     - exact(bool_rect _ a b).
     - intros *; exact fromempty.
-  Defined.
-
-  Definition make_pair_diagram {C : category}
-    (a b : C)
-    (f g : a --> b)
-    : diagram pair_graph C.
-  Proof.
-    use make_diagram.
-    - exact(two_rec a b).
-    - use two_rec_dep; use two_rec_dep; try exact(empty_rect _).
-      exact(sumofmaps (λ _, f) (λ _, g)).
   Defined.
 
   Definition make_interval_diagram {C : category}
@@ -179,6 +204,17 @@ Section diagrams.
     - exact(λ _ _, empty_rect _).
   Defined.
 
+  (* Given any diagram we can obtain a new diagram, forgetting the edges in the original graph. *)
+  Definition make_discrete_diagram' {J : category}
+    {g : graph}
+    (d : diagram g J)
+    : diagram (discrete_graph (vertex g)) J.
+  Proof.
+    use make_diagram.
+    - exact(dob d).
+    - exact(λ _ _, empty_rect _).
+  Defined.
+
   Definition make_parallell_diagram {C : category}
     (X : UU)
     (x y : C)
@@ -190,6 +226,15 @@ Section diagrams.
     - use two_rec_dep.
       + use(two_rec_dep _ (empty_rect _) f).
       + exact(λ _, empty_rect _).
+  Defined.
+
+  Definition make_pair_diagram {C : category}
+    (a b : C)
+    (f g : a --> b)
+    : diagram pair_graph C.
+  Proof.
+    apply(make_parallell_diagram (unit ⨿ unit) a b).
+    exact(sumofmaps (λ _, f) (λ _, g)).
   Defined.
 
   Definition make_multispan_diagram {J : category}
@@ -225,8 +270,7 @@ Section cocones.
     - exact(λ _ _, empty_rect _).
   Defined.
 
-  Definition make_discrete_cocone {J : category}
-    {X : UU}
+  Definition make_discrete_cocone {J : category} {X : UU}
     (d : diagram (discrete_graph X) J)
     (z : J)
     (f : ∏ (x : X), J⟦dob d x, z⟧)
@@ -237,8 +281,7 @@ Section cocones.
     - exact(λ _ _, empty_rect _).
   Defined.
 
-  Definition make_parallell_cocone {J : category}
-    {X : UU}
+  Definition make_parallell_cocone {J : category} {X : UU}
     (d : diagram (parallell_graph X) J)
     (z : J)
     (in₀ : dob d (stnpr 0) --> z)
@@ -251,12 +294,47 @@ Section cocones.
     - abstract(use(two_rec_dep _ (two_rec_dep _ (empty_rect _) commutes)); exact(λ _, empty_rect _)).
   Defined.
 
+  Lemma parallell_cocone_commutes {J : category} {X : UU}
+    {d : diagram (parallell_graph X) J}
+    {j : J}
+    (cc : cocone d j)
+    (x : X)
+    : dmor d (parallell_edge x) · coconeIn cc parallell_end = coconeIn cc parallell_start.
+  Proof.
+    exact(coconeInCommutes cc parallell_start parallell_end (parallell_edge x)).
+  Qed.
+
+  Definition make_pair_cocone {J : category} {X : UU}
+    (d : diagram pair_graph J)
+    (j : J)
+    (src_in : J⟦dob d pair_src, j⟧)
+    (dst_in : J⟦dob d pair_dst, j⟧)
+    (com_left : dmor d pair_left · dst_in = src_in)
+    (com_right : dmor d pair_right · dst_in = src_in)
+    : cocone d j.
+  Proof.
+    use make_parallell_cocone.
+    - exact src_in.
+    - exact dst_in.
+    - abstract(use coprod_rect; apply unit_rect; assumption).
+  Defined.
+
+  Lemma pair_cocone_commutes {J : category}
+    {d : diagram pair_graph J}
+    {j : J}
+    (cc : cocone d j)
+    (e : edge pair_src pair_dst)
+    : dmor d e · coconeIn cc pair_dst = coconeIn cc pair_src.
+  Proof.
+    exact(coconeInCommutes cc pair_src pair_dst e).
+  Qed.
+
   Definition make_multispan_cocone {J : category} {X : UU}
     (d : diagram (multispan_graph X) J)
     (apex : J)
-    (base_inject : J⟦ dob d (inr tt), apex ⟧)
-    (inject : ∏ (x : X), J⟦ dob d (inl x), apex ⟧)
-    (commutes : ∏ (x : X), @dmor _ _ d (inr tt) (inl x) tt · inject x = base_inject)
+    (base_inject : J⟦ dob d multispan_base, apex ⟧)
+    (inject : ∏ (x : X), J⟦ dob d (multispan_vertex x), apex ⟧)
+    (commutes : ∏ (x : X), dmor d (multispan_edge x) · inject x = base_inject)
     : cocone d apex.
   Proof.
     use make_cocone.
@@ -268,6 +346,16 @@ Section cocones.
                use coprod_rect; cbn; [exact(λ a, unit_rect _ (commutes a))
                                        |exact(λ _, empty_rect _)]).
   Defined.
+
+  Lemma multispan_cocone_commutes {J : category} {X : UU}
+    {d : diagram (multispan_graph X) J}
+    {apex : J}
+    (cc : cocone d apex)
+    (z : X)
+    : (dmor d (multispan_edge z)) · coconeIn cc (multispan_vertex z) =  coconeIn cc multispan_base.
+  Proof.
+    exact(coconeInCommutes cc multispan_base (multispan_vertex z) tt).
+  Qed.
 
 End cocones.
 
