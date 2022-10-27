@@ -116,6 +116,14 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/Examples/Tests.v](Algebra/Universal/Examples/Tests.v)
    - [Universal.v](Algebra/Universal.v)
    - [All.v](Algebra/All.v)
+## Package Tactics
+   - [EnsureStructuredProofs.v](Tactics/EnsureStructuredProofs.v)
+   - [Utilities.v](Tactics/Utilities.v)
+   - [Monoids_Tactics.v](Tactics/Monoids_Tactics.v)
+   - [Abmonoids_Tactics.v](Tactics/Abmonoids_Tactics.v)
+   - [Groups_Tactics.v](Tactics/Groups_Tactics.v)
+   - [Nat_Tactics.v](Tactics/Nat_Tactics.v)
+   - [All.v](Tactics/All.v)
 ## Package NumberSystems
    - [NaturalNumbersAlgebra.v](NumberSystems/NaturalNumbersAlgebra.v)
    - [NaturalNumbers_le_Inductive.v](NumberSystems/NaturalNumbers_le_Inductive.v)
@@ -707,13 +715,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DedekindCuts.v](RealNumbers/DedekindCuts.v)
    - [DecidableDedekindCuts.v](RealNumbers/DecidableDedekindCuts.v)
    - [All.v](RealNumbers/All.v)
-## Package Tactics
-   - [Utilities.v](Tactics/Utilities.v)
-   - [Monoids_Tactics.v](Tactics/Monoids_Tactics.v)
-   - [Abmonoids_Tactics.v](Tactics/Abmonoids_Tactics.v)
-   - [Groups_Tactics.v](Tactics/Groups_Tactics.v)
-   - [Nat_Tactics.v](Tactics/Nat_Tactics.v)
-   - [All.v](Tactics/All.v)
 ## Package [SubstitutionSystems](SubstitutionSystems/README.md)
    - [Notation.v](SubstitutionSystems/Notation.v)
    - [Signatures.v](SubstitutionSystems/Signatures.v)

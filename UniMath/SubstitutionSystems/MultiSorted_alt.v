@@ -58,8 +58,6 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
-Export Set Default Goal Selector "!".
-
 Local Open Scope cat.
 
 (* These should be global *)

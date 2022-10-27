@@ -16,6 +16,7 @@ Based on a note by Ralph Matthes.
 
 ************************************************************)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -34,8 +35,6 @@ Require Import UniMath.CategoryTheory.Chains.Adamek.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
-
-Export Set Default Goal Selector "!".
 
 Local Open Scope cat.
 

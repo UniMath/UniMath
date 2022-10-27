@@ -10,6 +10,7 @@ Written by Ralph Matthes, 2017.
 
 *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 (* Require Import UniMath.Foundations.PartD. *)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -25,8 +26,6 @@ Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.slicecat.
-
-Export Set Default Goal Selector "!".
 
 Local Open Scope cat.
 
