@@ -71,8 +71,8 @@ Proof.
            @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) in p.
   assert ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) # 0 ) as v.
   { apply A.
-    assumption.
-    apply ( pr2 ( pr2 ef ) ).
+    - assumption.
+    - apply ( pr2 ( pr2 ef ) ).
   }
   rewrite p in v.
   apply ( pr1 ( timesazero v ) ).

@@ -1,3 +1,4 @@
+EnsureStructuredProofs.v
 Utilities.v
 Monoids_Tactics.v
 Abmonoids_Tactics.v

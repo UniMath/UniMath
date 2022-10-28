@@ -32,7 +32,6 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 
-
 Import Bicat.Notations.
 
 Local Open Scope cat.

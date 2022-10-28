@@ -4,7 +4,8 @@
 
 Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)
 
-*)
+ *)
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.

@@ -24,7 +24,7 @@ Contents :
 
 ************************************************************)
 
-
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

@@ -478,11 +478,11 @@ Section Total_invertible_2cells.
     apply weqimplimpl.
     3: apply isaprop_is_invertible_2cell.
     3: { apply isofhleveltotal2.
-         apply isaprop_is_invertible_2cell.
+         { apply isaprop_is_invertible_2cell. }
          intro Hα.
          pose (α' := (α,,Hα) : invertible_2cell _ _).
          apply (isaprop_is_disp_invertible_2cell (x:=α') αα). }
-    apply is_invertible_total_to_disp.
+    { apply is_invertible_total_to_disp. }
     apply is_invertible_disp_to_total.
   Defined.
 
@@ -707,9 +707,9 @@ Definition vcomp_disp_invertible
   : disp_invertible_2cell (comp_of_invertible_2cell α β) ff hh.
 Proof.
   use tpair.
-  repeat use tpair.
-  - exact (αα •• ββ).
-  - apply vcomp_disp_is_invertible.
+  { repeat use tpair.
+    exact (αα •• ββ). }
+  apply vcomp_disp_is_invertible.
 Defined.
 
 Definition is_disp_invertible_2cell_lunitor

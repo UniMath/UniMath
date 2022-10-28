@@ -113,8 +113,8 @@ Proof.
     use subtypePath.
     { intros y y'.
       apply (isaprop_disp_left_adjoint_equivalence (D:=p1types_disp)).
-      apply one_types_is_univalent_2.
-      apply p1types_disp_univalent_2_1. }
+      + apply one_types_is_univalent_2.
+      + apply p1types_disp_univalent_2_1. }
     cbn ; cbn in f.
     induction f.
     apply idpath.
