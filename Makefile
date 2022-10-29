@@ -48,8 +48,12 @@ everything: TAGS all html install
 .PHONY sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files		\
 		check-for-change-to-Foundations		\
-		check-for-submodule-changes
+		check-for-submodule-changes		\
+		check-for-changes-to-CONTENTS.md
 .PHONY other-checks:   check-max-line-length
+
+check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
+	test -z "`git diff UniMath/CONTENTS.md`"
 
 # empty target prevents implicit rule search, saving time
 Makefile :;
@@ -165,7 +169,7 @@ TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
 FILES_FILTER := grep -vE '^[ \t]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[ \t]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: make-summary-files build/CoqMakefile.make;								\
+	$(eval $P: make-summary-files build/CoqMakefile.make UniMath/.dir-locals.el;								\
 		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ;									\
 		  $(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
@@ -484,6 +488,7 @@ ifeq ($(BUILD_COQ),yes)
 else
 	sed -e "s/@LOCAL@ /;;/" <$< >$@
 endif
+distclean::; rm -f UniMath/.dir-locals.el
 
 # make *.vo files by calling the coq makefile
 %.vo : always; $(MAKE) -f build/CoqMakefile.make $@

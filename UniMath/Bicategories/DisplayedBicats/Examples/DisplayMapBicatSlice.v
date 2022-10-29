@@ -369,7 +369,7 @@ Section DispMapSliceBicat.
   Proof.
     use make_weq.
     - exact (disp_map_slice_inv2cell_to_disp_adj_equiv HB).
-    - use gradth.
+    - use isweq_iso.
       + exact disp_map_slice_disp_adj_equiv_to_inv2cell.
       + abstract
           (intros α ;

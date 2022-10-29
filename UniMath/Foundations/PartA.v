@@ -1766,9 +1766,8 @@ Defined.
 
 (** This is kept to preserve compatibility with publications that use the
     name "gradth" for the "grad theorem". *)
-Definition gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-        (egf: ∏ x : X, g (f x) = x)
-        (efg: ∏ y : Y, f (g y) = y) : isweq f := isweq_iso f g egf efg.
+#[deprecated(note="Use isweq_iso instead.")]
+Notation gradth := isweq_iso (only parsing).
 
 Definition weq_iso {X Y : UU} (f : X -> Y) (g : Y -> X)
            (egf: ∏ x : X, g (f x) = x)

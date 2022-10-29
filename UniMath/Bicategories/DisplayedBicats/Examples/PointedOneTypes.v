@@ -89,7 +89,7 @@ Lemma p1types_disp_univalent_2_1 : disp_univalent_2_1 p1types_disp.
 Proof.
   apply fiberwise_local_univalent_is_univalent_2_1.
   intros X Y f x y. cbn. intros p q.
-  use gradth.
+  use isweq_iso.
   - intro α. apply α.
   - intros α. apply Y.
   - intros α. cbn in  *.
@@ -104,7 +104,7 @@ Lemma p1types_disp_univalent_2_0 : disp_univalent_2_0 p1types_disp.
 Proof.
   apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros X x x'. cbn in *.
-  use gradth.
+  use isweq_iso.
   - intros f. apply f.
   - intro p.
     induction p.

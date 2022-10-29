@@ -524,7 +524,7 @@ Section Adjunction.
     split.
     - apply fully_faithful_from_equivalence.
       use (is_left_adjoint_functor_unkleislify,, form_equivalence_unkleislify).
-    - apply (gradth _ (λ T : Monad C, kleislify T)).
+    - apply (isweq_iso _ (λ T : Monad C, kleislify T)).
       + intro T. simpl. apply kleislify_unkleislify.
       + simpl. apply unkleislify_kleislify.
   Defined.

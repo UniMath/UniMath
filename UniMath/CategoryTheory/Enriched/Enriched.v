@@ -105,14 +105,13 @@ Section Def.
     Context (e : enriched_precat_data).
 
     (** Associativity axiom for enriched categories:
-
-        <<
+<<
           (C(c, d) ⊗ C(b, c)) ⊗ C(a, b) --------> C(c, d) ⊗ (C(b, c) ⊗ C(a, b))
                         |                                        |
                 ∘ ⊗ id  |                                id ⊗ ∘  |
                         V                                        V
                 C(b, d) ⊗ C(a, b) -----> C(a, d) <------ C(c, d) ⊗ C(a, c)
-        >>
+>>
     *)
 
     Definition enriched_assoc_ax : UU :=
@@ -130,13 +129,12 @@ Section Def.
     Defined.
 
     (** Identity axiom(s) for enriched categories:
-
-        <<
+<<
           I ⊗ C(a, b) ---> C(b, b) ⊗ C(a, b)
                       \         |
                        \        V
                            C(a, b)
-        >>
+>>
         (And the symmetrized version.)
     *)
     Definition enriched_id_ax : UU :=
@@ -164,7 +162,7 @@ Section Def.
   Definition enriched_id_left {A : enriched_precat} (a b : A) : enriched_cat_id b #⊗ (identity _) · enriched_cat_comp a b b = pr1 l_unitor _ := pr1 (pr1 (pr2 A) _ _).
 
   Definition enriched_id_right {A : enriched_precat} (a b : A) : (identity _ #⊗ enriched_cat_id a) · enriched_cat_comp a a b = pr1 r_unitor _ := pr2 (pr1 (pr2 A) _ _).
-  
+
   Definition enriched_assoc {A : enriched_precat} (a b c d : A) : (enriched_cat_comp b c d #⊗ (identity _)) · enriched_cat_comp a _ _ = pr1 α ((_, _) , _) · ((identity _ #⊗ enriched_cat_comp _ _ _) · enriched_cat_comp _ _ _) := pr2 (pr2 A) a b c d.
 
 End Def.

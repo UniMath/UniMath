@@ -370,7 +370,7 @@ Definition op2_mnd_weq_comnd
 Proof.
   use make_weq.
   - exact op2_mnd_to_comnd.
-  - use gradth.
+  - use isweq_iso.
     + exact comnd_to_op2_mnd.
     + exact op2_mnd_weq_comnd_inv₁.
     + exact op2_mnd_weq_comnd_inv₂.
@@ -460,7 +460,7 @@ Definition op2_mnd_mor_weq_comnd_mor
 Proof.
   use make_weq.
   - exact op2_mnd_mor_to_comnd_mor.
-  - use gradth.
+  - use isweq_iso.
     + exact comnd_mor_to_op2_mnd_mor.
     + exact op2_mnd_mor_weq_comnd_mor_inv₁.
     + exact op2_mnd_mor_weq_comnd_mor_inv₂.
@@ -501,7 +501,7 @@ Definition op2_mnd_cell_weq_comnd_cell
 Proof.
   use make_weq.
   - exact op2_mnd_cell_to_comnd_cell.
-  - use gradth.
+  - use isweq_iso.
     + exact comnd_cell_to_op2_mnd_cell.
     + abstract
         (intro ;

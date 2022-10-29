@@ -888,7 +888,7 @@ Definition is_cartesian_weq_is_opcartesian
 Proof.
   use make_weq.
   - exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
     + intro ; apply idpath.
     + intro ; apply idpath.
@@ -906,7 +906,7 @@ Definition is_opcartesian_weq_is_cartesian
 Proof.
   use make_weq.
   - exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ Hff c₃ cc₃ g hh, Hff c₃ g cc₃ hh).
     + intro ; apply idpath.
     + intro ; apply idpath.
@@ -1024,7 +1024,7 @@ Proof.
              (tpair
                 (@is_opcartesian _ _ _ _ _ cc₁ ℓ) (pr12 ℓ)
                 (pr1weq (is_cartesian_weq_is_opcartesian ℓ) ℓ))).
-  - use gradth.
+  - use isweq_iso.
     + refine (λ HD c₁ c₂ cc₁ f,
               let ℓ := HD c₁ c₂ f cc₁ in
               pr1 ℓ ,, pr12 ℓ ,, _).
@@ -1050,7 +1050,7 @@ Proof.
                 (pr1weq
                    (@is_opcartesian_weq_is_cartesian _ D _ _ _ _ _ (pr12 ℓ))
                    (pr22 ℓ)))).
-  - use gradth.
+  - use isweq_iso.
     + refine (λ HD c₁ c₂ cc₁ f,
               let ℓ := HD c₁ c₂ f cc₁ in
               pr1 ℓ ,, pr12 ℓ ,, _).

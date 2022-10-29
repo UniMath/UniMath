@@ -37,7 +37,7 @@ Definition inl_eq_weq
 Proof.
   use make_weq.
   - apply ii1_injectivity.
-  -  use gradth.
+  -  use isweq_iso.
      + exact (maponpaths inl).
      + abstract
          (intro p ;
@@ -55,7 +55,7 @@ Definition inr_eq_weq
 Proof.
   use make_weq.
   - apply ii2_injectivity.
-  -  use gradth.
+  -  use isweq_iso.
      + exact (maponpaths inr).
      + abstract
          (intro p ;
@@ -207,7 +207,7 @@ Definition inl_iso
 Proof.
   use make_weq.
   - exact inl_iso_map.
-  - use gradth.
+  - use isweq_iso.
     + exact inl_iso_inv.
     + abstract
         (intro f ;
@@ -254,7 +254,7 @@ Definition inr_iso
 Proof.
   use make_weq.
   - exact inr_iso_map.
-  - use gradth.
+  - use isweq_iso.
     + exact inr_iso_inv.
     + abstract
         (intro f ;
@@ -317,13 +317,13 @@ Proof.
          refine (@idtoiso_in_bincoprod_inl C₁ C₂ _ _ (ii1_injectivity x₁ x₂ p) @ _) ;
          do 2 apply maponpaths ;
          apply (@inv_equality_by_case_equality_by_case C₁ C₂ (inl x₁) (inl x₂) p)).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ f, fromempty (pr1 f)).
     + intro p ; cbn.
       exact (fromempty (negpathsii1ii2 _ _ p)).
     + intro p ; cbn.
       exact (fromempty (pr1 p)).
-  - use gradth.
+  - use isweq_iso.
     + exact (λ f, fromempty (pr1 f)).
     + intro p ; cbn.
       exact (fromempty (negpathsii2ii1 _ _ p)).

@@ -1181,7 +1181,7 @@ Section CategoryBinproductIsoWeq.
   Proof.
     use make_weq.
     - exact category_binproduct_z_iso_map.
-    - use gradth.
+    - use isweq_iso.
       + exact category_binproduct_z_iso_inv.
       + abstract
           (intros i ;
@@ -1214,7 +1214,7 @@ Section CategoryBinproductIsoWeq.
   Proof.
     use make_weq.
     - exact category_binproduct_iso_map.
-    - use gradth.
+    - use isweq_iso.
       + exact category_binproduct_iso_inv.
       + abstract
           (intros i ;

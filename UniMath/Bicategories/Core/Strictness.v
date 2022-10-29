@@ -1010,7 +1010,7 @@ Definition two_cat_equiv_strict_bicat
 Proof.
   use make_weq.
   - exact two_cat_to_strict_bicat.
-  - use gradth.
+  - use isweq_iso.
     + exact strict_bicat_to_two_cat.
     + exact two_cat_to_strict_bicat_to_two_cat.
     + exact strict_bicat_to_two_cat_to_strict_bicat.

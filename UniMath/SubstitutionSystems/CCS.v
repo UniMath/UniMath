@@ -90,7 +90,6 @@ Defined.
 Let HSET_over_sort2 := [HSET/sort,HSET_over_sort].
 
 (** The grammar of expressions and objects from page 157:
-
 <<
 E ::= (Πx:E) E                product of types
     | Prop                    type of propositions
@@ -104,7 +103,6 @@ t ::= x                       variable
 
 We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
 follows:
-
 <<
 A,B ::= Π(A,x.B)              product of types
       | Prop                  type of propositions

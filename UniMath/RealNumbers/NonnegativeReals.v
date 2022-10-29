@@ -1,11 +1,13 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
+Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Algebra.ConstructiveStructures.
+Require Import UniMath.Algebra.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 
@@ -817,7 +819,7 @@ Proof.
         apply sumofmaps ; intros Hx'.
       generalize (isdecrel_ltNonnegativeRationals (pr2 (pr1 xy)) (c / 2)%NRat) ;
         apply sumofmaps ; intros Hy'.
-      * apply (isirrefl_StrongOrder ltNonnegativeRationals c).
+      * apply (isirrefl_isStrongOrder ltNonnegativeRationals c).
         pattern c at 2 ; rewrite (NQhalf_double c).
         pattern c at 1 ; rewrite (pr1 (pr2 xy)).
         apply plusNonnegativeRationals_ltcompat.
@@ -847,7 +849,7 @@ Proof.
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_r.
     + intros xy.
-      apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 q + c)).
+      apply (isirrefl_isStrongOrder ltNonnegativeRationals (pr1 q + c)).
       pattern c at 2;
         rewrite (NQhalf_double c).
       pattern (pr1 q + c) at 1 ; rewrite (pr1 (pr2 xy)).
@@ -878,7 +880,7 @@ Proof.
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_l.
     + intros xy.
-      apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 q + c)).
+      apply (isirrefl_isStrongOrder ltNonnegativeRationals (pr1 q + c)).
       pattern c at 2; rewrite (NQhalf_double c).
       pattern (pr1 q + c) at 1 ; rewrite (pr1 (pr2 xy)).
       rewrite <- isassoc_plusNonnegativeRationals.
@@ -915,7 +917,7 @@ Proof.
         eapply istrans_leNonnegativeRationals, plusNonnegativeRationals_le_r.
         apply plusNonnegativeRationals_le_l.
       * intros xy.
-        apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 qx + pr1 qy + c)).
+        apply (isirrefl_isStrongOrder ltNonnegativeRationals (pr1 qx + pr1 qy + c)).
         pattern c at 2; rewrite (NQhalf_double c).
         pattern (pr1 qx + pr1 qy + c) at 1 ; rewrite (pr1 (pr2 xy)).
         rewrite <- isassoc_plusNonnegativeRationals.
@@ -1151,7 +1153,7 @@ Proof.
   intros xy.
   generalize (isdecrel_ltNonnegativeRationals (pr1 (pr1 xy)) (pr1 x)) ; apply sumofmaps ; intros Hx'.
   generalize (isdecrel_ltNonnegativeRationals (pr2 (pr1 xy)) (pr1 y)) ; apply sumofmaps ; intros Hy'.
-  - apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 x * pr1 y)).
+  - apply (isirrefl_isStrongOrder ltNonnegativeRationals (pr1 x * pr1 y)).
     pattern (pr1 x * pr1 y) at 1 ; rewrite (pr1 (pr2 xy)).
     now apply multNonnegativeRationals_ltcompat.
   - apply (pr2 y).
@@ -2541,7 +2543,7 @@ Proof.
     + exact (isrinv_Dcuts_inv x Hx).
 Defined.
 
-(** ** Additional usefull definitions *)
+(** ** Additional useful definitions *)
 (** *** Dcuts_minus *)
 
 Section Dcuts_minus.
@@ -5314,7 +5316,7 @@ Definition Cauchy_lim_seq (u : nat → NonnegativeReals) (Cu : Cauchy_seq u) : N
 Definition Cauchy_seq_impl_ex_lim_seq (u : nat → NonnegativeReals) (Cu : Cauchy_seq u) : is_lim_seq u (Cauchy_lim_seq u Cu)
   := (Dcuts_Cauchy_seq_impl_ex_lim_seq u Cu).
 
-(** Additionals theorems and definitions about limits *)
+(** Additional theorems and definitions about limits *)
 
 Lemma is_lim_seq_unique_aux (u : nat → NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l → is_lim_seq u l' → l < l' → empty.

@@ -247,7 +247,7 @@ Section DispHomSetIso_from_Adjunction.
       (d -->[g] GG _ d') ≃ (FF _ d -->[# F g · ε _] d').
   Proof.
     exists (homset_conj_inv _ _ _).
-    apply (gradth _ (homset_conj _ _ _)).
+    apply (isweq_iso _ (homset_conj _ _ _)).
     - apply homset_conj_after_conj_inv.
     - apply homset_conj_inv_after_conj.
   Defined.
@@ -256,7 +256,7 @@ Section DispHomSetIso_from_Adjunction.
        (FF _ d -->[f] d') ≃ (d -->[η _ · # G f] GG _ d').
   Proof.
     exists (homset_conj' _ _ _).
-    apply (gradth _ (homset_conj'_inv _ _ _)).
+    apply (isweq_iso _ (homset_conj'_inv _ _ _)).
     - apply homset_conj'_inv_after_conj'.
     - apply homset_conj'_after_conj'_inv.
   Defined.

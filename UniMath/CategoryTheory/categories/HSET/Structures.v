@@ -64,7 +64,7 @@ Proof.
     * exact (z tt).
     * exact (s n).
   + now split; apply funextfun; intros [].
-  + now intros; apply isapropdirprod; apply setproperty.
+  + now intros; apply isapropdirprod; apply homset_property.
   + intros q [hq1 hq2].
     apply funextfun; intros n.
     induction n as [|n IH].
@@ -88,8 +88,8 @@ Section exponentials.
 (** Define the functor: A -> _^A *)
 Definition exponential_functor (A : HSET) : functor HSET HSET.
 Proof.
-use tpair.
-+ exists (hset_fun_space A); simpl.
+use make_functor.
++ exists (funset (A : hSet)); simpl.
   intros b c f g; apply (λ x, f (g x)).
 + abstract (use tpair;
   [ intro x; now (repeat apply funextfun; intro)
@@ -429,13 +429,13 @@ Proof.
 Qed.
 
 (** Existence of the pullback square
-    <<
+<<
       X -------> TerminalHSET
       V              V
     m |              | true
       V     ∃!       V
       Y - - - - -> hProp
-    >>
+>>
     Uniqueness proven below.
   *)
 Definition subobject_classifier_HSET_pullback {X Y : HSET}
@@ -478,8 +478,8 @@ Proof.
       apply subtypePath.
       -- intro.
           apply isapropdirprod.
-          ++ apply (setproperty (hset_fun_space _ _)).
-          ++ apply (setproperty (hset_fun_space _ unitset)).
+         ++ apply funspace_isaset, setproperty.
+         ++ apply funspace_isaset, isasetunit.
       -- cbn.
           apply funextsec; intro; cbn.
           (** Precompose with [m] and use the commutative square *)
@@ -515,7 +515,7 @@ Proof.
       * split; [apply idpath|].
         apply proofirrelevance, hlevelntosn, iscontrfuntounit.
     + intro t.
-      apply subtypePath; [intro; apply isapropdirprod; apply setproperty|].
+      apply subtypePath; [intro; apply isapropdirprod; apply isaset_set_fun_space|].
       apply funextfun; intro.
       apply subtypePath; [intro; apply propproperty|].
       refine (_ @ toforallpaths _ _ _ (pr1 (pr2 t)) x).
@@ -546,15 +546,15 @@ Proof.
     + intro.
       apply Propositions.isaproptotal2.
       * intro; apply isaprop_isPullback.
-      * intros; apply proofirrelevance, setproperty.
+      * intros; apply proofirrelevance, homset_property.
     + (** If the following is a pullback square,
-          <<
+<<
             X ------- ! ---> unit
             |                 |
             |                 |
             V                 V
             Y -- pr1 O' --> hProp
-          >>
+>>
           then [pr1 O' = hfiber m].
        *)
 
@@ -576,14 +576,14 @@ Proof.
             [carrier (pr1 O') -> X], which commutes with the pullback projections.
             In particular, the following triangle commutes (where [m] is, by hypothesis,
             the first pullback projection of X):
-            <<
+<<
                                 ∃!
               carrier (pr1 O') ---> X
                             \       |
                    pr1carrier \     | m
                                 \   V
                                     Y
-            >>
+>>
          *)
 
         pose (PBO' := make_Pullback (pr1 (pr2 O')) (pr2 (pr2 O'))).

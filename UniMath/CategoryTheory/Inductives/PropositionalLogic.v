@@ -55,14 +55,14 @@ Local Infix "⊗" := times.
 Variable (vars : hSet).
 
 (**
-  <<
+<<
     PL_functor Var Rec :=
         Var            (* -- arity 1, sentences *)
       + Rec            (* -- arity 1, ¬ (not) *)
       + (Rec × Rec)    (* -- arity 2, ∧ (and) *)
       + (Rec × Rec)    (* -- arity 2, ∨ (or) *)
       + (Rec × Rec)    (* -- arity 2, → (implies) *)
-   >>
+>>
  *)
 
 Definition PL_functor : omega_cocont_functor HSET HSET :=

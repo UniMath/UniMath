@@ -306,7 +306,7 @@ Section InternalStreetFibration.
   Proof.
     use make_weq.
     - exact rep_internal_sfib_to_internal_sfib.
-    - use gradth.
+    - use isweq_iso.
       + exact internal_sfib_to_rep_internal_sfib.
       + exact internal_sfib_to_rep_to_sfib.
       + exact rep_sfib_to_internal_to_rep.

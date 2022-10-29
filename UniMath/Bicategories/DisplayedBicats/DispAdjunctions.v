@@ -525,7 +525,7 @@ Definition left_adjoint_data_total_weq
   ∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff.
 Proof.
   exists (left_adjoint_data_total_to_disp ff).
-  use gradth.
+  use isweq_iso.
   - exact (left_adjoint_data_disp_to_total ff).
   - intros ?. reflexivity.
   - intros ?. reflexivity.
