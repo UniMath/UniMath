@@ -345,27 +345,39 @@ End Identity_Matrix.
 
 Section Inverses.
 
-  Definition matrix_right_inverse {m n : nat} (A : Matrix R m n) :=
-    ∑ (B : Matrix R n m), ((A ** B) = identity_matrix).
-
   Definition matrix_left_inverse {m n : nat} (A : Matrix R m n) :=
     ∑ (B : Matrix R n m), ((B ** A) = identity_matrix).
+
+  Definition matrix_right_inverse {m n : nat} (A : Matrix R m n) :=
+    ∑ (B : Matrix R n m), ((A ** B) = identity_matrix).
 
   Definition matrix_inverse {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n),
       ((A ** B) = identity_matrix)
     × ((B ** A) = identity_matrix).
 
+  Coercion matrix_left_inverse_of_inverse {n : nat}
+    (A : Matrix R n n)
+    : @matrix_inverse n A -> @matrix_left_inverse n n A.
+  Proof.
+    intros [y [xy yx]]. esplit; eauto.
+  Defined.
+
+  Coercion matrix_right_inverse_of_inverse {n : nat}
+    (A : Matrix R n n)
+    : @matrix_inverse n A -> @matrix_right_inverse n n A.
+  Proof.
+    intros [y [xy yx]]. esplit; eauto.
+  Defined.
+
   Lemma matrix_inverse_to_right_and_left_inverse
     {n : nat} (A : Matrix R n n)
     : (matrix_inverse A)
       -> matrix_left_inverse A × matrix_right_inverse A.
   Proof.
-    intros inv.
-    destruct inv as [inv isinv].
-    split; exists inv.
-    - exact (pr2 isinv).
-    - exact (pr1 isinv).
+    intros inv; split.
+    - apply matrix_left_inverse_of_inverse; exact inv.
+    - apply matrix_right_inverse_of_inverse; exact inv.
   Defined.
 
   Lemma make_matrix_left_inverse
@@ -373,18 +385,14 @@ Section Inverses.
     (A : Matrix R m n) (B : Matrix R n m)
     (eq : matrix_mult A B = identity_matrix)
     : matrix_left_inverse B.
-  Proof.
-    now exists A.
-  Defined.
+  Proof. now exists A. Defined.
 
   Lemma make_matrix_right_inverse
     {m n k: nat}
     (A : Matrix R m n) (B : Matrix R n m)
     (eq : matrix_mult A B = identity_matrix)
     : matrix_right_inverse A.
-  Proof.
-    now exists B.
-  Defined.
+  Proof. now exists B. Defined.
 
   Lemma matrix_left_inverse_equals_right_inverse
   {m n k: nat} (A : Matrix R n n)
@@ -404,8 +412,8 @@ Section Inverses.
     intros lft rght.
     use tpair; simpl. {apply lft. }
     split. 2: {apply lft. }
-    pose (H0 := @matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
-    rewrite H0; apply rght.
+    rewrite (@matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
+    apply rght.
   Defined.
 
   Lemma matrix_inverse_unique {n : nat} (A : Matrix R n n)
@@ -518,8 +526,7 @@ Section Triangular.
 
   Lemma upper_triangular_iff_transpose_lower_triangular
   { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix R m n)
-  : is_upper_triangular mat
-  <-> is_lower_triangular (transpose mat).
+  : is_upper_triangular mat <-> is_lower_triangular (transpose mat).
   Proof.
     unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
     split.

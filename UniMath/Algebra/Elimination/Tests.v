@@ -3,6 +3,8 @@ Require Import UniMath.Algebra.Elimination.RowOps.
 
 Require Import UniMath.Algebra.Matrix.
 
+Require Import UniMath.Combinatorics.Maybe.
+
 Require Import UniMath.RealNumbers.Prelim.
 
 (** Observing/testing the extent that it is
@@ -77,6 +79,11 @@ Section Tests_1.
 
   Local Lemma eq8 : (firstValue (lastValue eval7)) = (@rigunel2 R).
   Proof. apply idpath. Defined.
+
+  Let v9 := (append_vec (append_vec empty_vec (@rigunel1 F)) (@rigunel2 F)).
+
+  (* Slow, not computing. Neither is the dual. *)
+  (* Let eval9 := Eval native_compute in leading_entry_compute _ v9. *)
 
 End Tests_1.
 
