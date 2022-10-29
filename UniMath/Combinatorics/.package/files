@@ -3,6 +3,8 @@ Vectors.v
 VectorsTests.v
 Lists.v
 FiniteSets.v
+KFiniteTypes.v
+KFiniteSubtypes.v
 Graph.v
 CGraph.v
 GraphPaths.v
