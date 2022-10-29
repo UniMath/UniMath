@@ -277,7 +277,7 @@ Section FixADisplayedCategory.
     - exact DCM_associatorinv_data.
   Defined.
 
-Set Default Goal Selector "1".
+(* Set Default Goal Selector "1". *)
 
   Lemma DCM_leftunitor_law : disp_leftunitor_law DCM_leftunitor_data DCM_leftunitorinv_data.
   Proof.
@@ -349,7 +349,7 @@ Set Default Goal Selector "1".
       rewrite <- assoc. rewrite BinProductPr1Commutes. apply id_right.
   Qed.
 
-Export Set Default Goal Selector "!".
+(* Export Set Default Goal Selector "!". *)
 
   Lemma DCM_associator_law : disp_associator_law DCM_associator_data DCM_associatorinv_data.
   Proof.

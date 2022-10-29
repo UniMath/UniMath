@@ -1,4 +1,4 @@
-Require Export UniMath.Tactics.EnsureStructuredProofs.
+(* Require Export UniMath.Tactics.EnsureStructuredProofs. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
