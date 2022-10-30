@@ -310,3 +310,5 @@ Monoidal/RezkCompletion/DisplayedCategoriesLemmas.v
 Monoidal/RezkCompletion/CategoriesLemmas.v
 Monoidal/RezkCompletion/LiftedTensor.v
 Monoidal/RezkCompletion/LiftedTensorUnit.v
+Monoidal/RezkCompletion/LiftedUnitors.v
+Monoidal/RezkCompletion/LiftedAssociator.v
