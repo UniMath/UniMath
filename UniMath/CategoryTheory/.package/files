@@ -286,6 +286,8 @@ Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 
+Monoidal/MonoidalFunctorCategory.v
+
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
