@@ -38,7 +38,7 @@ Section TensorRezk.
           (tri : triangle_eq TC I lu ru α)
           (pent : pentagon_eq TC α).
 
-  Context (TE : functor (E ⊠ E) E) (IE : E)
+   Context (TE : functor (E ⊠ E) E) (IE : E)
           (luE : left_unitor TE IE)
           (ruE : right_unitor TE IE)
           (αE : associator TE)

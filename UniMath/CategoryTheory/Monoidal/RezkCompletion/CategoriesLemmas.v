@@ -71,6 +71,40 @@ Local Definition pair_with_object_right {C : category} (I : C)
   : functor C (C ⊠ C)
   := pair_with_object_right_data I ,, pair_with_object_right_is_functor I.
 
+Local Lemma PairingWithObjectCommutesLeft
+      {C D : category} (H : functor C D) (I : C)
+  :  nat_z_iso (H ∙ pair_with_object_left (H I)) (pair_with_object_left I ∙ (pair_functor H H)).
+Proof.
+  use make_nat_z_iso.
+  - exists (λ _, identity (H I, H _)).
+    abstract (
+        intro ; intros ;
+        refine (id_right  (id (H I) #, # H f) @ _) ;
+        refine (_ @ ! id_left  (# H (id I) #, # H f)) ;
+        apply maponpaths_2 ;
+        apply (! functor_id H _)).
+  - intro.
+    exists (identity _).
+    abstract (split ; apply (id_right (id (H I, H _)))).
+Defined.
+
+Local Lemma PairingWithObjectCommutesRight
+      {C D : category} (H : functor C D) (I : C)
+  : nat_z_iso (H ∙ pair_with_object_right (H I)) (pair_with_object_right I ∙ (pair_functor H H)).
+Proof.
+  use make_nat_z_iso.
+  - exists (λ _, identity (H _, H I)).
+    abstract (
+        intro ; intros ;
+        refine (id_right  (# H f #, id (H I)) @ _) ;
+        refine (_ @ ! id_left  (# H f #, # H (id I))) ;
+        apply maponpaths ;
+        apply (! functor_id H _)).
+  - intro.
+    exists (identity _).
+    abstract (split ; apply (id_right (id (H _, H I)))).
+Defined.
+
 Local Definition tensor_after_pair_with_object_right
       {C : category} (T : functor (C ⊠ C) C) (I : C)
   : nat_z_iso (I_posttensor T I)
