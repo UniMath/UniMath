@@ -16,7 +16,6 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 
-(* Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas. *)
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -57,8 +56,6 @@ Section LiftedUnit.
     apply (! id_right _).
   Defined.
 
-
-
   Definition HU
     : disp_functor (pre_composition_functor _ _ E H)
                    (functor_unit_disp_cat ID IE)
@@ -67,8 +64,6 @@ Section LiftedUnit.
     exists precompU_data.
     abstract (split ; intro ; intros ; apply homset_property).
   Defined.
-
-
 
   Definition HU_eso : disp_functor_disp_ess_split_surj HU.
   Proof.
@@ -88,8 +83,6 @@ Section LiftedUnit.
         apply (! id_right _).
       + split ; apply homset_property.
   Qed.
-
-
 
   Definition HU_is_faithful
              {G1 G2 : [D, E]}
@@ -113,8 +106,6 @@ Section LiftedUnit.
     + intro ; apply p.
   Qed.
 
-
-
   Definition HU_is_full
              {G1 G2 : [D, E]}
              (GG1 : functor_unit_disp_cat ID IE G1)
@@ -135,8 +126,6 @@ Section LiftedUnit.
     exact βHH.
   Qed.
 
-
-
   Definition HU_ff : disp_functor_ff HU.
   Proof.
     intro ; intros.
@@ -144,6 +133,36 @@ Section LiftedUnit.
     - apply HU_is_faithful.
     - apply HU_is_full.
   Qed.
+
+  Definition precomp_unit_is_ff
+    : fully_faithful (total_functor HU).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply precomp_fully_faithful.pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
+      + exact H_eso.
+      + exact H_ff.
+    - exact HU_ff.
+  Qed.
+
+  Definition precomp_unit_is_eso
+    : essentially_surjective (total_functor HU).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply precomp_ess_surj.pre_composition_essentially_surjective.
+      + exact Euniv.
+      + exact H_eso.
+      + exact H_ff.
+    - exact HU_eso.
+  Qed.
+
+  Definition precomp_unit_adj_equiv
+    : adj_equivalence_of_cats (total_functor HU).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - admit.
+    - exact precomp_unit_is_ff.
+    - exact precomp_unit_is_eso.
+  Admitted.
 
 End LiftedUnit.
 
@@ -156,18 +175,7 @@ Section LiftedTensorUnit.
           (H_ff : fully_faithful H).
 
   Context (TC : functor (C ⊠ C) C) (I : C)
-          (lu : left_unitor TC I)
-          (ru : right_unitor TC I)
-          (α : associator TC)
-          (tri : triangle_eq TC I lu ru α)
-          (pent : pentagon_eq TC α).
-
-  Context (TE : functor (E ⊠ E) E) (IE : E)
-          (luE : left_unitor TE IE)
-          (ruE : right_unitor TE IE)
-          (αE : associator TE)
-          (triE : triangle_eq TE IE luE ruE αE)
-          (pentE : pentagon_eq TE αE).
+          (TE : functor (E ⊠ E) E) (IE : E).
 
   Let TD := TransportedTensor Duniv H_eso H_ff TC.
   Let ID := H I.
@@ -201,10 +209,16 @@ Section LiftedTensorUnit.
     - apply is_univalent_total_category.
       { apply is_univalent_functor_category, Euniv. }
       exact is_disp_univalent_functor_tensorunit_disp_cat.
-    - (* Need lemmas : fully_faithful (total_functor (_ × _)). *)
-      admit.
-    - (* Need lemma : essentially_surjective (total_functor (_ × _)). *)
-      admit.
+    - apply disp_functor_ff_to_total_ff.
+      + admit.
+      + apply disp_prod_functor_over_fixed_base_ff.
+        * exact (HT_ff Duniv Euniv H_eso H_ff TC TE).
+        * exact (HU_ff I IE).
+    - apply disp_functor_eso_to_total_eso.
+      + admit.
+      + apply disp_prod_functor_over_fixed_base_eso.
+        * exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
+        * exact (HU_eso I IE).
   Admitted.
 
 End LiftedTensorUnit.

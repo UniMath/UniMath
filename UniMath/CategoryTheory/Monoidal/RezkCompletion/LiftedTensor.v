@@ -20,6 +20,9 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+
+Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 
 Local Open Scope cat.
 
@@ -31,19 +34,8 @@ Section TensorRezk.
           (H_eso : essentially_surjective H)
           (H_ff : fully_faithful H).
 
-  Context (TC : functor (C ⊠ C) C) (I : C)
-          (lu : left_unitor TC I)
-          (ru : right_unitor TC I)
-          (α : associator TC)
-          (tri : triangle_eq TC I lu ru α)
-          (pent : pentagon_eq TC α).
-
-   Context (TE : functor (E ⊠ E) E) (IE : E)
-          (luE : left_unitor TE IE)
-          (ruE : right_unitor TE IE)
-          (αE : associator TE)
-          (triE : triangle_eq TE IE luE ruE αE)
-          (pentE : pentagon_eq TE αE).
+  Context (TC : functor (C ⊠ C) C)
+          (TE : functor (E ⊠ E) E).
 
   Local Notation HH := (pair_functor H H).
   Let HH_eso := pair_functor_eso H H H_eso H_eso.
@@ -239,30 +231,6 @@ Section TensorRezk.
     intro cc.
 
     set (t := βHH (pr1 cc) (pr2 cc)).
-    simpl in t.
-    simpl.
-
-
-    (* intros d1 d2.
-    use (factor_through_squash _ _ (H_eso d1)).
-    { apply homset_property. }
-    intro c1.
-    use (factor_through_squash _ _ (H_eso d2)).
-    { apply homset_property. }
-    intro c2.
-
-    set (t := βHH (pr1 c1) (pr1 c2)).
-    simpl in t.
-
-    induction (isotoid _ Duniv (pr2 c1)).
-    induction (isotoid _ Duniv (pr2 c2)).
-
-    set (s := pr2 β _ _ (pr1 H_ptensor (pr1 c1, pr1 c2))).
-    simpl in s.
-
-    rewrite !  assoc' in t.
-    rewrite <- s in t.*)
-
 
   Admitted.
 
@@ -273,5 +241,35 @@ Section TensorRezk.
     - apply HT_is_faithful.
     - apply HT_is_full.
   Qed.
+
+  Definition precomp_tensor_is_ff
+    : fully_faithful (total_functor HT).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply precomp_fully_faithful.pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
+      + exact H_eso.
+      + exact H_ff.
+    - exact HT_ff.
+  Qed.
+
+  Definition precomp_tensor_is_eso
+    : essentially_surjective (total_functor HT).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply precomp_ess_surj.pre_composition_essentially_surjective.
+      + exact Euniv.
+      + exact H_eso.
+      + exact H_ff.
+    - exact HT_eso.
+  Qed.
+
+  Definition precomp_tensor_adj_equiv
+    : adj_equivalence_of_cats (total_functor HT).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - admit.
+    - exact precomp_tensor_is_ff.
+    - exact precomp_tensor_is_eso.
+  Admitted.
 
 End TensorRezk.
