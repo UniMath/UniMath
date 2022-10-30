@@ -10,7 +10,7 @@ Require Import UniMath.RealNumbers.Prelim.
 (** Observing/testing the extent that it is
     possible to compute some of the Elimination material.
 
-    Primary author: Daniel @Skantz (September 2022) *)
+    Primary author: Daniel @Skantz (November 2022) *)
 
 (** This section tests just the matrix/vector operations, avoiding use of the ring operations as far as possible. *)
 Section Tests_1.
@@ -62,9 +62,9 @@ Section Tests_1.
 
   Local Lemma eq5 : eval5 = 10. Proof. apply idpath. Defined.
 
-  Let eval6 := Eval cbn in
-    (@matrix_mult _ _ _ (@identity_matrix natcommrig 10)
-      _ (@identity_matrix natcommrig 10)).
+  Let m5 := (@identity_matrix natcommrig 10).
+
+  Let eval6 := Eval cbn in (@matrix_mult _ _ _ m5 _ m5).
 
   Local Lemma eq6 : firstValue (firstValue eval6) = (@nattorig natcommrig 1).
   Proof. apply idpath. Defined.
@@ -80,10 +80,15 @@ Section Tests_1.
   Local Lemma eq8 : (firstValue (lastValue eval7)) = (@rigunel2 R).
   Proof. apply idpath. Defined.
 
-  Let v9 := (append_vec (append_vec empty_vec (@rigunel1 F)) (@rigunel2 F)).
+  Let m9 := (@identity_matrix natcommrig 2).
 
-  (* Slow, not computing. Neither is the dual. *)
-  (* Let eval9 := Eval native_compute in leading_entry_compute _ v9. *)
+  Let v9 := @iterop_fun (Matrix natcommrig 2 2) m9 (λ X : Matrix natcommrig 2 2, matrix_mult X).
+
+  (* [ [I_2 * I_2 * I_2]_{1, 1}*)
+  Let eval9 := Eval vm_compute in (firstValue (firstValue (v9 3 (λ X : stn 3, m9)))).
+
+  Let eq9 : eval9 = (@rigunel2 natcommrig).
+  Proof. apply idpath. Defined.
 
 End Tests_1.
 
@@ -109,6 +114,11 @@ Section Tests_2.
     (* < 1 second, not computing. *)
     (* Eval cbn in
         firstValue (firstValue (@matrix_mult hz _ _ (row_vec v3) _ (col_vec v3))). *)
+
+    Let v9 := (append_vec (append_vec empty_vec (@rigunel1 hq)) (@rigunel2 hq)).
+
+    (* Slow, not computing. Neither is the dual. *)
+    (* Let eval9 := Eval native_compute in leading_entry_compute _ v9. *)
 
     (* A minute - and not computing *)
     (* Let eval6 := Eval cbn in

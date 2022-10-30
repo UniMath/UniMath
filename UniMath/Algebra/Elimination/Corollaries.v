@@ -23,7 +23,7 @@ Require Import UniMath.Algebra.Elimination.Elimination.
   We use this procedure to show that any nxn matrix either not invertible,
   or calculate its inverse.
 
-  Author: Daniel @Skantz (September 2022)
+  Primary Author: Daniel @Skantz (November 2022)
 *)
 
 Definition matrix_inverse_or_non_invertible_stmt
@@ -50,8 +50,8 @@ Section BackSub.
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
 
-  (** output: a solution [x] to [mat ** x = b] if one exists
-     - given mat upper triangular, non-zero diagonal. *)
+  (** output: a solution [x]_[row] to [mat ** x = b]_[row] if one exists
+     - given mat upper triangular, non-zero diagonal. Later applied inductively in [back_sub]. *)
   Definition back_sub_step { n : nat } ( row : (⟦ n ⟧)%stn )
     (mat : Matrix F n n) (x : Vector F n) (b : Vector F n) : Vector F n.
   Proof.
@@ -165,7 +165,8 @@ Section BackSub.
   Defined.
 
   (** Back-substituting repeatedly using step procedure defined earlier.
-     Carries an additional [row] parameter for proof reasons. *)
+      Carries an additional [row] parameter that allows for partially applying the substition,
+      that is used later for showing that diagonal must be non-zero. *)
   Definition back_sub_internal
     { n : nat }
     (mat : Matrix F n n)
@@ -295,18 +296,76 @@ Section BackSub.
 
 End BackSub.
 
+
 Section BackSubZero.
 
-  (** Showing that right invertible matrix, upper triangular,
-     must have all non-zero diagonal. *)
+  (** First, Helper functions for finding first zero value in a vector.
+      Then proof we can't have invertible, upper triangular matrix unless
+      non-zero diagonal *)
 
-  Context {F : fld}.
+  Context (F : fld).
 
   Local Notation Σ := (iterop_fun (@ringunel1 F) op1).
   Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
   Local Notation "R1 *pw R2" := ((pointwise _ op2) R1 R2) (at level 40, left associativity).
+  Local Notation "0" := (@rigunel1 F).
 
-  Local Notation "0" := (@ringunel1 F).
+  (* For using nonzeroax *)
+  Local Definition flip_fld_bin
+    (e : F) : F.
+  Proof.
+  destruct (fldchoice0 e).
+  - exact 1%ring.
+  - exact 0%ring.
+  Defined.
+
+  Local Definition flip_fld_bin_vec
+  {n : nat} (v : Vector F n) := λ i : (stn n), flip_fld_bin (v i).
+
+  (* Below, we find the first zero value in a vector [v] by looking for the leading element
+     in the transformed vector. Perhaps not a pretty solution, maybe we instead want to generalize
+     the notion of leading entry. *)
+
+  Local Definition vector_all_nonzero_compute_internal
+  {n : nat} (v : Vector F n)
+  : coprod (∏ j : (stn n), (v j) != 0%ring)
+          (∑ i : (stn n), ((v i) = 0%ring)
+        × (forall j : stn n, (j < (pr1 i) -> (v j) != 0%ring))).
+  Proof.
+  pose (leading_entry := leading_entry_compute F (flip_fld_bin_vec v)).
+  destruct (maybe_choice' leading_entry) as [some | none].
+  - right; use tpair; simpl. {apply some. }
+    destruct (@leading_entry_compute_inv2 F _ (flip_fld_bin_vec v) (pr1 some) (pr2 some))
+      as [some_neq_0 prev_eq_0].
+    unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in * |-.
+    destruct (fldchoice0 (v _)); try contradiction.
+    use tpair; try assumption.
+    intros ? lt.
+    specialize (prev_eq_0 _ lt).
+    now destruct (fldchoice0 (v j)).
+  - left; intros j.
+    rewrite <- (@leading_entry_compute_inv1 _ _ (flip_fld_bin_vec v) none j).
+    try apply (pr2 (dualelement j)).
+    destruct (fldchoice0 (v j)) as [eq | neq];
+      unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in *
+      ; destruct (fldchoice0 _); try assumption.
+    + rewrite eq; intros contr_neq.
+      contradiction (nonzeroax _ (pathsinv0 contr_neq)).
+    + destruct (fldchoice0 (v j)) as [contr_eq | ?]; try assumption.
+      now rewrite contr_eq in neq.
+  Defined.
+
+  Local Definition vector_all_nonzero_compute
+  {n : nat} (v : Vector F n)
+  : coprod (∏ j : (stn n), (v j) != 0%ring)
+           (∑ i : (stn n), (v i)  = 0%ring).
+  Proof.
+    destruct (@vector_all_nonzero_compute_internal n v) as [l | r]. {now left. }
+    right; exists (pr1 r); exact (pr1 (pr2 r)).
+  Defined.
+
+  (** Showing that right invertible matrix, upper triangular,
+     must have all non-zero diagonal. *)
 
   (** Ax = 0 would have two solutions for x, but A invertible... *)
   Lemma back_sub_zero
@@ -314,7 +373,7 @@ Section BackSubZero.
     (mat : Matrix F n n)
     (ut : @is_upper_triangular F _ _ mat)
     (zero: ∑ i : stn n, (mat i i = 0)%ring
-      × (forall j : stn n, j < i -> ((mat j j) != 0)%ring)) (* This parameter could possibly be factored out. *)
+      × (forall j : stn n, j < i -> ((mat j j) != 0)%ring))
     (inv : @matrix_left_inverse F _ _ mat)
     : empty.
   Proof.
@@ -358,7 +417,6 @@ Section BackSubZero.
         {now rewrite eqz. }
         rewrite <- matrix_mult_assoc, isinv, matlunax2 in eq.
         pose (eq' := @matrix_mult_zero_vec_eq _ _ _ inv).
-        change 0%ring with (@rigunel1 F) in * |-.
         unfold col_vec, const_vec in * |-.
         rewrite eq' in eq.
         destruct zero as [zero iszero].
@@ -369,7 +427,6 @@ Section BackSubZero.
           (λ (_ : _) (_ : (⟦ 1 ⟧)%stn), x1 x2) idx0
         ). { now rewrite eq. }
         apply toforallpaths in contr_eq'.
-        change 0%rig with (@rigunel1 F) in * |-.
         rewrite contr_eq' in x3.
         2: { exact (make_stn _ _ (natgthsnn 0)). }
         contradiction.
@@ -425,69 +482,6 @@ Section BackSubZero.
   Defined.
 
 End BackSubZero.
-
-Section Locals.
-
-  (** Helper functions for finding first zero value in a vector *)
-
-  (* Would not be necessary with a more general definition of leading entry. *)
-
-  Context {F: fld}.
-  Local Notation "A ** B" := (@matrix_mult F _ _ A _ B) (at level 40, left associativity).
-
-  Local Definition flip_fld_bin
-    (e : F) : F.
-  Proof.
-  destruct (fldchoice0 e).
-  - exact 1%ring.
-  - exact 0%ring.
-  Defined.
-
-  Local Definition flip_fld_bin_vec
-  {n : nat} (v : Vector F n) := λ i : (stn n), flip_fld_bin (v i).
-
-  Local Definition vector_all_nonzero_compute_internal
-  {n : nat} (v : Vector F n)
-  : coprod (∏ j : (stn n), (v j) != 0%ring)
-          (∑ i : (stn n), ((v i) = 0%ring)
-        × (forall j : stn n, (j < (pr1 i) -> (v j) != 0%ring))).
-  Proof.
-  pose (leading_entry := leading_entry_compute F (flip_fld_bin_vec v)).
-  destruct (maybe_choice' leading_entry) as [some | none].
-  - right; use tpair; simpl. {apply some. }
-    pose (leading_entry_inv := @leading_entry_compute_inv2 F _
-      (flip_fld_bin_vec v) (pr1 some) (pr2 some)).
-    destruct leading_entry_inv as [some_neq_0 prev_eq_0].
-    unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in * |-.
-    destruct (fldchoice0 (v _)); try contradiction.
-    use tpair; try assumption.
-    intros j lt.
-    pose (eq := prev_eq_0 _ lt).
-    generalize eq; clear eq prev_eq_0.
-    now destruct (fldchoice0 (v j)).
-  - left; intros j.
-    pose (prev_eq_0 := @leading_entry_compute_inv1 _ _ (flip_fld_bin_vec v) none j).
-    rewrite <- prev_eq_0; try apply (pr2 (dualelement j)); clear prev_eq_0.
-    destruct (fldchoice0 (v j)) as [eq | neq];
-      unfold is_leading_entry, flip_fld_bin_vec, flip_fld_bin in *.
-    + destruct (fldchoice0 _); try assumption.
-      rewrite eq; intros contr_neq.
-      contradiction (nonzeroax _ (pathsinv0 contr_neq)).
-    + destruct (fldchoice0 (v j)) as [contr_eq | ?]; try assumption.
-      now rewrite contr_eq in neq.
-  Defined.
-
-  Local Definition vector_all_nonzero_compute
-  {n : nat} (v : Vector F n)
-  : coprod (∏ j : (stn n), (v j) != 0%ring)
-           (∑ i : (stn n), (v i)  = 0%ring).
-  Proof.
-    destruct (@vector_all_nonzero_compute_internal n v) as [l | r]. {now left. }
-    right; exists (pr1 r); exact (pr1 (pr2 r)).
-  Defined.
-
-End Locals.
-
 
 (** Some results that are useful in the next section. *)
 Section Misc.
@@ -607,13 +601,12 @@ Section Inverse.
     (p': @matrix_left_inverse F _ _ A)
     : (@diagonal_all_nonzero F _ A).
   Proof.
-    destruct (@vector_all_nonzero_compute_internal _ _ (@diagonal_sq F _ A))
-      as [l | r].
+    destruct (@vector_all_nonzero_compute_internal _ _ (@diagonal_sq F _ A)) as [l | r].
     { unfold diagonal_all_nonzero; intros; unfold diagonal_sq in l; apply l. }
     unfold diagonal_sq in r; apply fromempty; now apply (@back_sub_zero _ _ A p).
   Defined.
 
-  Lemma right_inverse_construction_inv
+  Lemma matrix_right_inverse_construction_inv
     { n : nat } (mat : Matrix F n n)
     (ut : @is_upper_triangular F _ _ mat)
     (df: @diagonal_all_nonzero F _ mat)
@@ -636,7 +629,7 @@ Section Inverse.
       apply (back_sub_inv _ _ _ _ ut df).
   Defined.
 
-  Lemma left_inverse_implies_right { n : nat } (A B: Matrix F n n)
+  Lemma matrix_left_inverse_implies_right { n : nat } (A B: Matrix F n n)
     : (B ** A) = (@identity_matrix F n)
     -> (@matrix_right_inverse F n n A).
   Proof.
@@ -658,10 +651,9 @@ Section Inverse.
         apply (pr2 (pr2 inv)).
       - now exists B.
     }
-    pose (invmat := @right_inverse_construction_inv _ _ CA_ut nonz).
+    pose (invmat := @matrix_right_inverse_construction_inv _ _ CA_ut nonz).
     unfold CA in invmat.
     rewrite matrix_mult_assoc in invmat.
-    pose (CM := @gauss_clear_all_rows_matrix_invertible _ _ _ A gt).
     assert (eq : (C ** A ** D) = (A ** D ** C)).
     { unfold CA in invmat. unfold D, CA.
       rewrite matrix_mult_assoc. rewrite invmat.
@@ -672,22 +664,21 @@ Section Inverse.
       destruct gauss_mat_invertible as [gauss_mat gauss_mat_invertible].
       pose (left_inv_eq_right_app
         := left_inv_eq_right F n _ n C gauss_mat ((A ** D),, invmat)).
-      replace (@matrix_mult F _ _ A _ (_ _))
-      with (pr1 gauss_mat); simpl.
-      - try now apply gauss_mat.
+      replace (@matrix_mult F _ _ A _ (_ _)) with (pr1 gauss_mat); simpl.
+      - now apply gauss_mat.
       - now rewrite left_inv_eq_right_app.
     }
     refine (_ @ invmat); rewrite <- matrix_mult_assoc; refine (!eq @ _).
     apply matrix_mult_assoc.
   Defined.
 
-  Lemma right_inverse_implies_left
+  Lemma matrix_right_inverse_implies_left
     { n : nat } (A B: Matrix F n n)
     : @matrix_right_inverse F _ _ A -> (@matrix_left_inverse F _ _ A).
   Proof.
     intros [rinv isrinv].
     pose (linv := @make_matrix_left_inverse F _ _ n A rinv isrinv).
-    pose (linv_to_rinv := @left_inverse_implies_right _ _ _ isrinv).
+    pose (linv_to_rinv := @matrix_left_inverse_implies_right _ _ _ isrinv).
     exists rinv.
     pose (inv_eq := @matrix_left_inverse_equals_right_inverse _ n _ n _ linv linv_to_rinv).
     simpl in inv_eq; rewrite inv_eq;
@@ -709,14 +700,11 @@ Section Inverse.
       pose (is_echelon := @gauss_clear_all_rows_inv3 F _ _ A gt).
       rewrite <- (gauss_clear_all_rows_as_matrix_eq _ _ gt) in is_echelon.
       now apply row_echelon_to_upper_triangular. }
-    destruct (vector_all_nonzero_compute (λ i : stn n, BA i i)) as [nz | [idx isnotz]].
+    destruct (vector_all_nonzero_compute _ (λ i : stn n, BA i i)) as [nz | [idx isnotz]].
     - left.
-      set (BAC_id := @right_inverse_construction_inv _ _ ut nz).
+      set (BAC_id := @matrix_right_inverse_construction_inv _ _ ut nz).
       assert (rinv_eq : (C ** BA) = identity_matrix).
-      { pose (linv := @right_inverse_implies_left _ _ C (C,, BAC_id)).
-        pose (eq := @matrix_left_inverse_equals_right_inverse _ n _ n _ linv (_,, BAC_id)).
-        change (pr1 (C,, _)) with C in eq.
-        apply linv. }
+      { apply (@matrix_right_inverse_implies_left _ _ C (C,, BAC_id)). }
       exists (C ** B); simpl; use tpair.
       2: { simpl; rewrite matrix_mult_assoc; apply rinv_eq. }
       rewrite <- matrix_mult_assoc.
@@ -726,7 +714,7 @@ Section Inverse.
         unfold C in *; clear C;
         set (C := (upper_triangular_right_inverse_construction BA)).
         pose (B_rinv := @make_matrix_right_inverse F _ _ n B (A ** C) BAC_id).
-        pose (linv := @right_inverse_implies_left _ _ C B_rinv).
+        pose (linv := @matrix_right_inverse_implies_left _ _ C B_rinv).
         pose (eq := @matrix_left_inverse_equals_right_inverse F n _ n B linv ((A ** C),, BAC_id)).
         replace (A ** C) with (pr1 B_rinv); try reflexivity.
         rewrite (pr2 B_rinv).

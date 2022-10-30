@@ -2,7 +2,7 @@
 
   Miscellaneous background lemmas for [Elimination.Elimination]
 
-  Author: Daniel @Skantz (September 2022)
+  Primary Author: Daniel @Skantz (November 2022)
 *)
 
 Require Import UniMath.Foundations.All.
