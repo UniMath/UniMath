@@ -286,8 +286,6 @@ Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 
-Monoidal/MonoidalFunctorCategory.v
-
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
@@ -305,3 +303,9 @@ RepresentableFunctors/Representation.v
 RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
+
+# Monoidal Rezk Completion
+Monoidal/MonoidalFunctorCategory.v
+Monoidal/RezkCompletion/DisplayedCategoriesLemmas.v
+Monoidal/RezkCompletion/CategoriesLemmas.v
+Monoidal/RezkCompletion/LiftedTensor.v
