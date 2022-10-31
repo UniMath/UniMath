@@ -206,21 +206,30 @@ Section LiftedTensorUnit.
     :  fully_faithful precomp_tensorunit_functor.
   Proof.
     apply disp_functor_ff_to_total_ff.
-    { admit. }
+    {
+      apply precomp_fully_faithful.pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
+      - exact H_eso.
+      - exact H_ff.
+    }
     apply disp_prod_functor_over_fixed_base_ff.
     - exact (HT_ff Duniv Euniv H_eso H_ff TC TE).
     - exact (HU_ff I IE).
-  Admitted.
+  Qed.
 
   Lemma precomp_tensorunit_is_eso
     :  essentially_surjective precomp_tensorunit_functor.
   Proof.
     apply disp_functor_eso_to_total_eso.
-    { admit. }
+    {
+      apply precomp_ess_surj.pre_composition_essentially_surjective.
+      - exact Euniv.
+      - exact H_eso.
+      - exact H_ff.
+    }
     apply disp_prod_functor_over_fixed_base_eso.
     - exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
     - exact (HU_eso I IE).
-  Admitted.
+  Qed.
 
   Definition precomp_tensorunit_cat_is_weak_equivalence
     : adj_equivalence_of_cats precomp_tensorunit_functor.
