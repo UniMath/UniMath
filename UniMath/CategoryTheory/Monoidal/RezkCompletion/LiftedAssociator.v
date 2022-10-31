@@ -18,8 +18,10 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
+Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 
@@ -132,11 +134,20 @@ Section RezkAssociator.
 
   Let αD := TransportedAssociator.
 
+  Context (I : C).
+
+  Definition H_pα
+    : (functor_ass_disp_cat (IC := I) α αD)
+        (H ,, (pr1 (TransportedTensorComm Duniv H_eso H_ff TC) ,, identity _)).
+  Proof.
+
+  Admitted.
+
   Context {E : category} (Euniv : is_univalent E)
           (TE : functor (E ⊠ E) E)
           (αE : associator TE).
 
-  Context (I : C) (IE : E).
+  Context (IE : E).
 
   Definition precompA
     : disp_functor (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE)
@@ -212,6 +223,31 @@ Section RezkAssociator.
     - exists tt.
       exists tt.
       split ; apply isapropunit.
+  Admitted.
+
+  Definition precomp_associator_is_ff
+    : fully_faithful (total_functor precompA).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply (precomp_tensorunit_is_ff Duniv Euniv).
+    - exact precompA_ff.
+  Qed.
+
+  Definition precomp_associator_is_eso
+    : essentially_surjective (total_functor precompA).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply (precomp_tensorunit_is_eso Duniv Euniv).
+    - exact precompA_eso.
+  Qed.
+
+  Definition precomp_associator_adj_equiv
+    : adj_equivalence_of_cats (total_functor precompA).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - admit.
+    - exact precomp_associator_is_ff.
+    - exact precomp_associator_is_eso.
   Admitted.
 
 End RezkAssociator.

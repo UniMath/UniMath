@@ -202,23 +202,35 @@ Section LiftedTensorUnit.
   Proof.
   Admitted.
 
-  Definition precomp_tensor_cat_is_weak_equivalence
+  Lemma precomp_tensorunit_is_ff
+    :  fully_faithful precomp_tensorunit_functor.
+  Proof.
+    apply disp_functor_ff_to_total_ff.
+    { admit. }
+    apply disp_prod_functor_over_fixed_base_ff.
+    - exact (HT_ff Duniv Euniv H_eso H_ff TC TE).
+    - exact (HU_ff I IE).
+  Admitted.
+
+  Lemma precomp_tensorunit_is_eso
+    :  essentially_surjective precomp_tensorunit_functor.
+  Proof.
+    apply disp_functor_eso_to_total_eso.
+    { admit. }
+    apply disp_prod_functor_over_fixed_base_eso.
+    - exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
+    - exact (HU_eso I IE).
+  Admitted.
+
+  Definition precomp_tensorunit_cat_is_weak_equivalence
     : adj_equivalence_of_cats precomp_tensorunit_functor.
   Proof.
     apply rad_equivalence_of_cats.
     - apply is_univalent_total_category.
       { apply is_univalent_functor_category, Euniv. }
       exact is_disp_univalent_functor_tensorunit_disp_cat.
-    - apply disp_functor_ff_to_total_ff.
-      + admit.
-      + apply disp_prod_functor_over_fixed_base_ff.
-        * exact (HT_ff Duniv Euniv H_eso H_ff TC TE).
-        * exact (HU_ff I IE).
-    - apply disp_functor_eso_to_total_eso.
-      + admit.
-      + apply disp_prod_functor_over_fixed_base_eso.
-        * exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
-        * exact (HU_eso I IE).
-  Admitted.
+    - exact precomp_tensorunit_is_ff.
+    - exact precomp_tensorunit_is_eso.
+  Defined.
 
 End LiftedTensorUnit.

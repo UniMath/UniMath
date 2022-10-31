@@ -18,8 +18,10 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
+Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 
@@ -258,6 +260,31 @@ Section RezkLeftUnitor.
       split ; apply isapropunit.
   Qed.
 
+  Definition precomp_lunitor_is_ff
+    : fully_faithful (total_functor precompLU).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply (precomp_tensorunit_is_ff Duniv Euniv).
+    - exact precompLU_ff.
+  Qed.
+
+  Definition precomp_lunitor_is_eso
+    : essentially_surjective (total_functor precompLU).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply (precomp_tensorunit_is_eso Duniv Euniv).
+    - exact precompLU_eso.
+  Qed.
+
+  Definition precomp_unit_adj_equiv
+    : adj_equivalence_of_cats (total_functor precompLU).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - admit.
+    - exact precomp_lunitor_is_ff.
+    - exact precomp_lunitor_is_eso.
+  Admitted.
+
 End RezkLeftUnitor.
 
 Section RezkRightUnitor.
@@ -339,6 +366,30 @@ Section RezkRightUnitor.
        we should have that lift_nat_z_iso_along should be defined
        w.r.t. lift_nat_trans_along *)
   Admitted.
+
+  Definition H_pru
+    : (functor_ru_disp_cat ru ruD)
+        (H ,, (pr1 (TransportedTensorComm Duniv H_eso H_ff TC) ,, identity _)).
+  Proof.
+    intro c.
+    set (t := toforallpaths _ _ _ (base_paths _ _ TransportedRightUnitorEq) c).
+    refine (t @ _).
+    clear t.
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      exact (! functor_id TD (H c , H I)).
+    }
+    rewrite id_left.
+
+    simpl.
+    rewrite ! id_left.
+    rewrite functor_id.
+    rewrite ! id_right.
+    rewrite (functor_id (lift_functor_along (D,, Duniv) HH HH_eso HH_ff (TC ∙ H))).
+    rewrite id_left.
+    apply idpath.
+  Qed.
 
   Lemma TransportedRightUnitorOnOb
         (c : C)
@@ -447,5 +498,30 @@ Section RezkRightUnitor.
       exists tt.
       split ; apply isapropunit.
   Qed.
+
+  Definition precomp_runitor_is_ff
+    : fully_faithful (total_functor precompRU).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply (precomp_tensorunit_is_ff Duniv Euniv).
+    - exact precompRU_ff.
+  Qed.
+
+  Definition precomp_runitor_is_eso
+    : essentially_surjective (total_functor precompRU).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply (precomp_tensorunit_is_eso Duniv Euniv).
+    - exact precompRU_eso.
+  Qed.
+
+  Definition precomp_runitor_adj_equiv
+    : adj_equivalence_of_cats (total_functor precompRU).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - admit.
+    - exact precomp_runitor_is_ff.
+    - exact precomp_runitor_is_eso.
+  Admitted.
 
 End RezkRightUnitor.
