@@ -222,7 +222,6 @@ Section TensorRezk.
     apply hinhpr.
     use tpair.
     2: apply isaprop_nat_trans_tensor.
-    simpl in βHH.
 
     use nat_trans_tensor_to_characterization.
     use (lift_nat_trans_eq_along (_,,Euniv) _ HH_eso HH_ff).
@@ -231,8 +230,58 @@ Section TensorRezk.
     intro cc.
 
     set (t := βHH (pr1 cc) (pr2 cc)).
+    simpl.
 
-  Admitted.
+    transparent assert ( ff : (E ⟦ functor_tensor_map_codom TC (pre_composition_functor C D E H G2) (pr1 cc, pr2 cc),
+                                   functor_tensor_map_codom TD G2 (H (pr1 cc), H (pr2 cc)) ⟧) ).
+    {
+      apply #(pr1 G2).
+      exact (pr1 (pr2 TransportedTensorComm  (pr1 cc, pr2 cc))).
+    }
+
+    assert (p : pr1 GG2 (H (pr1 cc), H (pr2 cc)) = (pr1 (HT G2 GG2) (pr1 cc, pr2 cc)) · ff).
+    {
+      etrans.
+      2: {
+        simpl.
+        rewrite assoc'.
+        apply maponpaths.
+        unfold ff.
+        rewrite <- (functor_comp G2).
+        apply maponpaths.
+        simpl.
+        apply (! pr12 (pr2 TransportedTensorComm _)).
+      }
+      rewrite (functor_id G2).
+      apply (! id_right _).
+    }
+
+    etrans. { apply maponpaths ; exact p. }
+    clear p.
+    rewrite assoc.
+    etrans. { apply maponpaths_2 ; exact t. }
+    clear t.
+    simpl.
+    do 2 rewrite assoc'.
+    apply maponpaths.
+    unfold ff.
+    set (q := pr2 β _ _ (pr1 (pr2 TransportedTensorComm (pr1 cc, pr2 cc)))).
+    etrans. {
+      apply maponpaths.
+      exact (! q).
+    }
+    clear q.
+
+    rewrite assoc.
+    rewrite <- (functor_comp G1).
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (pr2 TransportedTensorComm).
+    }
+    rewrite functor_id.
+    apply id_left.
+  Qed.
 
   Definition HT_ff : disp_functor_ff HT.
   Proof.
