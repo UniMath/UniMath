@@ -38,8 +38,6 @@ Definition precategory_morphisms { C : precategory_ob_mor } :
 Declare Scope cat.
 Delimit Scope cat with cat.     (* for precategories *)
 Delimit Scope cat with Cat.     (* a slight enhancement for categories *)
-Declare Scope cat_deprecated.
-Delimit Scope cat_deprecated with cat_deprecated.
 Local Open Scope cat.
 
 Notation "a --> b" := (precategory_morphisms a b) : cat.
@@ -84,8 +82,6 @@ Definition identity {C : precategory_data}
 Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
   := pr2 (pr2 C) a b c.
-
-Notation "f ;; g" := (compose f g) (at level 50, left associativity, format "f  ;;  g") : cat_deprecated.
 
 Notation "f · g" := (compose f g) : cat.
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
