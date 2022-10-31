@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
@@ -125,6 +126,46 @@ Section TensorFunctorCategory.
     := total_category functor_tensor_disp_cat.
 
 End TensorFunctorCategory.
+
+Section TensorFunctorCategoryUnivalence.
+
+  Context {C D : category}
+          (TC : functor (C ⊠ C) C)
+          (TD : functor (D ⊠ D) D).
+
+  Lemma isaset_functor_tensor_disp_cat (F : functor C D)
+    :  isaset (functor_tensor_disp_cat TC TD F).
+  Proof.
+    apply isaset_nat_trans.
+    { apply homset_property. }
+  Qed.
+
+  Lemma functor_tensor_disp_cat_is_univalent
+    : is_univalent_disp (functor_tensor_disp_cat TC TD).
+  Proof.
+    apply is_univalent_disp_from_fibers.
+    intros F pt1 pt2.
+    use isweqimplimpl.
+    - intro i.
+      use total2_paths_f.
+      + apply funextsec ; intro.
+        set (ix := (pr1 i) (pr1 x) (pr2 x)).
+        cbn in ix.
+        rewrite binprod_id in ix.
+        rewrite (functor_id TD) in ix.
+        rewrite id_right in ix.
+        rewrite id_left in ix.
+        exact (! ix).
+      + do 2 (apply funextsec ; intro).
+        repeat (apply impred_isaprop ; intro).
+        apply homset_property.
+    - apply isaset_functor_tensor_disp_cat.
+    - apply isaproptotal2.
+      + intro ; apply Isos.isaprop_is_z_iso_disp.
+      + do 4 intro ; apply isaprop_nat_trans_tensor.
+  Qed.
+
+End TensorFunctorCategoryUnivalence.
 
 Section TensorFunctorProperties.
 
@@ -288,18 +329,49 @@ Section UnitFunctorCategory.
 
 End UnitFunctorCategory.
 
-Local Definition functor_tensorunit_disp_cat
-      {C D : category}
-      (TC : functor (C ⊠ C) C) (TD : functor (D ⊠ D) D)
-      (IC : C) (ID : D)
-  : disp_cat [C,D]
-  := dirprod_disp_cat (functor_tensor_disp_cat TC TD) (functor_unit_disp_cat IC ID).
+Section UnitFunctorCategoryUnivalence.
 
-Local Definition functor_tensorunit_cat {C D : category}
-      (TC : functor (C ⊠ C) C) (TD : functor (D ⊠ D) D)
-      (IC : C) (ID : D)
-  : category
-  := total_category (functor_tensorunit_disp_cat TC TD IC ID).
+  Context {C D : category} (IC : C) (ID : D).
+
+  Lemma functor_unit_disp_cat_is_univalent
+    : is_univalent_disp (functor_unit_disp_cat IC ID).
+  Proof.
+    apply is_univalent_disp_from_fibers.
+    intros F pt1 pt2.
+    use isweqimplimpl.
+    - intro i.
+      refine (_ @ pr1 i).
+      apply (! id_right _).
+    - apply homset_property.
+    - apply isaproptotal2.
+      + intro ; apply Isos.isaprop_is_z_iso_disp.
+      + do 4 intro ; apply homset_property.
+  Qed.
+
+End UnitFunctorCategoryUnivalence.
+
+Section FunctorTensorUnit.
+
+  Context {C D : category}
+          (TC : functor (C ⊠ C) C) (TD : functor (D ⊠ D) D)
+          (IC : C) (ID : D).
+
+  Definition functor_tensorunit_disp_cat
+    : disp_cat [C,D]
+    := dirprod_disp_cat (functor_tensor_disp_cat TC TD) (functor_unit_disp_cat IC ID).
+
+  Lemma functor_tensorunit_disp_cat_is_univalent
+    : is_univalent_disp functor_tensorunit_disp_cat.
+  Proof.
+    apply dirprod_disp_cat_is_univalent.
+    - apply functor_tensor_disp_cat_is_univalent.
+    - apply functor_unit_disp_cat_is_univalent.
+  Qed.
+
+  Definition functor_tensorunit_cat
+    : category := total_category functor_tensorunit_disp_cat.
+
+End FunctorTensorUnit.
 
 Section MonoidalFunctorCategory.
 
@@ -339,6 +411,30 @@ Section MonoidalFunctorCategory.
             =
               αD ((pr1 F x, pr1 F y), pr1 F z) · id (pr1 F x) #⊗_D pr1 FT (y, z) · pr1 FT (x, y ⊗_C z)).
   Defined.
+
+  Lemma functor_lu_disp_cat_is_univalent
+    : is_univalent_disp functor_lu_disp_cat.
+  Proof.
+    apply disp_full_sub_univalent.
+    intro.
+    apply impred_isaprop ; intro ; apply homset_property.
+  Qed.
+
+  Lemma functor_ru_disp_cat_is_univalent
+    : is_univalent_disp functor_ru_disp_cat.
+  Proof.
+    apply disp_full_sub_univalent.
+    intro.
+    apply impred_isaprop ; intro ; apply homset_property.
+  Qed.
+
+  Lemma functor_ass_disp_cat_is_univalent
+    : is_univalent_disp functor_ass_disp_cat.
+  Proof.
+    apply disp_full_sub_univalent.
+    intro.
+    do 3 (apply impred_isaprop ; intro) ; apply homset_property.
+  Qed.
 
   Definition functor_monoidal_disp_cat
     : disp_cat (functor_tensorunit_cat TC TD IC ID)

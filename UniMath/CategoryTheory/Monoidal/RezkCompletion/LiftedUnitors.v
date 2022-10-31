@@ -280,10 +280,14 @@ Section RezkLeftUnitor.
     : adj_equivalence_of_cats (total_functor precompLU).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_total_category.
+        * apply (is_univalent_functor_category _ _ Euniv).
+        * apply is_disp_univalent_functor_tensorunit_disp_cat.
+      + apply functor_lu_disp_cat_is_univalent.
     - exact precomp_lunitor_is_ff.
     - exact precomp_lunitor_is_eso.
-  Admitted.
+  Defined.
 
 End RezkLeftUnitor.
 
@@ -519,9 +523,13 @@ Section RezkRightUnitor.
     : adj_equivalence_of_cats (total_functor precompRU).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_total_category.
+        * apply (is_univalent_functor_category _ _ Euniv).
+        * apply is_disp_univalent_functor_tensorunit_disp_cat.
+      + apply functor_ru_disp_cat_is_univalent.
     - exact precomp_runitor_is_ff.
     - exact precomp_runitor_is_eso.
-  Admitted.
+  Defined.
 
 End RezkRightUnitor.

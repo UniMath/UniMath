@@ -159,10 +159,13 @@ Section LiftedUnit.
     : adj_equivalence_of_cats (total_functor HU).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_functor_category.
+        exact Euniv.
+      + apply functor_unit_disp_cat_is_univalent.
     - exact precomp_unit_is_ff.
     - exact precomp_unit_is_eso.
-  Admitted.
+  Defined.
 
 End LiftedUnit.
 
@@ -200,7 +203,10 @@ Section LiftedTensorUnit.
   Lemma is_disp_univalent_functor_tensorunit_disp_cat
     : Univalence.is_univalent_disp (MonoidalFunctorCategory.functor_tensorunit_disp_cat TD TE ID IE).
   Proof.
-  Admitted.
+    apply Constructions.dirprod_disp_cat_is_univalent.
+    - apply functor_tensor_disp_cat_is_univalent.
+    - apply functor_unit_disp_cat_is_univalent.
+  Qed.
 
   Lemma precomp_tensorunit_is_ff
     :  fully_faithful precomp_tensorunit_functor.

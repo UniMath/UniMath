@@ -140,6 +140,8 @@ Section RezkAssociator.
     : (functor_ass_disp_cat (IC := I) α αD)
         (H ,, (pr1 (TransportedTensorComm Duniv H_eso H_ff TC) ,, identity _)).
   Proof.
+    intros x y z.
+
 
   Admitted.
 
@@ -245,9 +247,13 @@ Section RezkAssociator.
     : adj_equivalence_of_cats (total_functor precompA).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_total_category.
+        * apply (is_univalent_functor_category _ _ Euniv).
+        * apply is_disp_univalent_functor_tensorunit_disp_cat.
+      + apply functor_ass_disp_cat_is_univalent.
     - exact precomp_associator_is_ff.
     - exact precomp_associator_is_eso.
-  Admitted.
+  Defined.
 
 End RezkAssociator.

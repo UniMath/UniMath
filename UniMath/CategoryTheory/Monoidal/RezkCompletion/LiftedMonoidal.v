@@ -135,9 +135,19 @@ Section RezkMonoidal.
     : adj_equivalence_of_cats (total_functor precompMonoidal).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_total_category.
+        * apply (is_univalent_functor_category _ _ Euniv).
+        * apply is_disp_univalent_functor_tensorunit_disp_cat.
+      + apply Constructions.dirprod_disp_cat_is_univalent.
+        {
+          apply Constructions.dirprod_disp_cat_is_univalent.
+          apply functor_lu_disp_cat_is_univalent.
+          apply functor_ru_disp_cat_is_univalent.
+        }
+        apply functor_ass_disp_cat_is_univalent.
     - exact precomp_monoidal_is_ff.
     - exact precomp_monoidal_is_eso.
-  Admitted.
+  Defined.
 
 End RezkMonoidal.

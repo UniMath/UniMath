@@ -267,9 +267,12 @@ Section TensorRezk.
     : adj_equivalence_of_cats (total_functor HT).
   Proof.
     apply rad_equivalence_of_cats.
-    - admit.
+    - apply is_univalent_total_category.
+      + apply is_univalent_functor_category.
+        exact Euniv.
+      + apply functor_tensor_disp_cat_is_univalent.
     - exact precomp_tensor_is_ff.
     - exact precomp_tensor_is_eso.
-  Admitted.
+  Defined.
 
 End TensorRezk.
