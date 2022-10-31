@@ -169,7 +169,38 @@ End TensorFunctorCategoryUnivalence.
 
 Section TensorFunctorProperties.
 
-  Lemma TODO_JOKER' (A : UU) : A. Proof. Admitted.
+  Lemma functor_tensor_composition_is_nat_trans
+        {C D E : category}
+        {TC : functor (C ⊠ C) C}
+        {TD : functor (D ⊠ D) D}
+        {TE : functor (E ⊠ E) E}
+        {F : functor C D} {G : functor D E}
+        (FF : functor_tensor TC TD F) (GG : functor_tensor TD TE G)
+    : is_nat_trans
+        (functor_tensor_map_dom TE (F ∙ G))
+        (functor_tensor_map_codom TC (F ∙ G))
+        (λ cc : ∑ _ : C, C, GG (F (pr1 cc), F (pr2 cc)) · # G (FF cc)).
+  Proof.
+    intros cc1 cc2 f.
+    etrans. {
+      rewrite assoc.
+      apply maponpaths_2.
+      exact (pr2 GG ((pair_functor F F) cc1) (pair_functor F F cc2) (# (pair_functor F F) f)).
+    }
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      simpl.
+      rewrite <- (functor_comp G).
+      do 2 apply maponpaths.
+      exact (pr2 FF cc1 cc2 f).
+    }
+    rewrite assoc'.
+    apply maponpaths.
+    apply (! functor_comp G _ _).
+  Qed.
+
   Definition functor_tensor_composition
              {C D E : category}
              {TC : functor (C ⊠ C) C}
@@ -180,7 +211,7 @@ Section TensorFunctorProperties.
     : functor_tensor TC TE (functor_composite F G).
   Proof.
     exists (λ cc, GG (F (pr1 cc) , F (pr2 cc)) · #G (FF cc)).
-    abstract (intros cc1 cc2 ff ; apply TODO_JOKER').
+    apply functor_tensor_composition_is_nat_trans.
   Defined.
 
   (* A characterization of the tensor property of monoidal natural transformations
