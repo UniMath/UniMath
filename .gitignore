@@ -28,3 +28,4 @@ _CoqProject
 *.v~
 /..coq_makefile_output.d
 /UniMath/.dir-locals.el
+/_build/
