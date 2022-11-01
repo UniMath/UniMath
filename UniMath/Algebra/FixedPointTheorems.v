@@ -169,14 +169,6 @@ Proof.
   use (negexists_to_forallneg_restricted H_nex); assumption.
 Defined.
 
-Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
-  := fun x => A x ∨ B x.
-
-Notation "A ∪ B" := (subtype_binaryunion A B)
-                              (at level 40, left associativity) : subtype.
-  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
-  (* in agda-input method, type \cup or ∪ *)
-
 Definition subtype_binaryintersection {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∧ B x.
 
