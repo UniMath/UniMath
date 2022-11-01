@@ -92,7 +92,6 @@ Section RezkMonoidal.
       + apply precompLU.
       + apply precompRU.
     - apply precompA.
-      exact Euniv.
   Defined.
 
   Definition precompMonoidal_ff
@@ -113,6 +112,7 @@ Section RezkMonoidal.
       + apply precompLU_eso.
       + apply precompRU_eso.
     - apply precompA_eso.
+      exact Euniv.
   Qed.
 
   Definition precomp_monoidal_is_ff
