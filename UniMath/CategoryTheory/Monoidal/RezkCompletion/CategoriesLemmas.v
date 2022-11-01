@@ -192,3 +192,20 @@ Proof.
     exists (identity _).
     abstract (split ; apply id_right).
 Defined.
+
+Local Lemma nat_z_iso_comp_assoc
+      {C D : category} {F1 F2 F3 F4 : functor C D}
+      (α1 : nat_z_iso F1 F2)
+      (α2 : nat_z_iso F2 F3)
+      (α3 : nat_z_iso F3 F4)
+  : nat_z_iso_comp α1 (nat_z_iso_comp α2 α3)
+    = nat_z_iso_comp (nat_z_iso_comp α1 α2) α3.
+Proof.
+  use total2_paths_f.
+  2: { apply isaprop_is_nat_z_iso. }
+
+  use nat_trans_eq.
+  { apply homset_property. }
+  intro.
+  apply assoc.
+Qed.

@@ -171,29 +171,7 @@ Section RezkLeftUnitor.
     use tpair.
     - use tpair.
       2: intro ; intros ; exact tt.
-      intros G GG x.
-      refine (GG (H x) @ _).
-      simpl.
-      rewrite (functor_id (pr1 G)).
-      rewrite id_right.
-      do 2 rewrite assoc'.
-      apply maponpaths.
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite <- functor_comp.
-      apply maponpaths.
-      refine (TransportedLeftUnitorOnOb x @ _).
-      apply maponpaths_2.
-      unfold LiftPreservesPretensor.
-      simpl.
-      rewrite ! id_left.
-      rewrite functor_id.
-      rewrite ! id_right.
-      etrans. {
-        apply maponpaths_2.
-        apply functor_id.
-      }
-      apply id_left.
+      exact (λ G GG, functor_lu_composition H_plu GG).
     - split ; intro ; intros ; apply isapropunit.
   Qed.
 
@@ -414,29 +392,7 @@ Section RezkRightUnitor.
     use tpair.
     - use tpair.
       2: intro ; intros ; exact tt.
-      intros G GG x.
-      refine (GG (H x) @ _).
-      simpl.
-      rewrite (functor_id (pr1 G)).
-      rewrite id_right.
-      do 2 rewrite assoc'.
-      apply maponpaths.
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite <- functor_comp.
-      apply maponpaths.
-      refine (TransportedRightUnitorOnOb x @ _).
-      apply maponpaths_2.
-      unfold LiftPreservesPretensor.
-      simpl.
-      rewrite ! id_left.
-      rewrite functor_id.
-      rewrite ! id_right.
-      etrans. {
-        apply maponpaths_2.
-        apply functor_id.
-      }
-      apply id_left.
+      exact (λ G GG, functor_ru_composition H_pru GG).
     - split ; intro ; intros ; apply isapropunit.
   Qed.
 

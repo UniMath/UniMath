@@ -381,6 +381,19 @@ Section UnitFunctorCategoryUnivalence.
 
 End UnitFunctorCategoryUnivalence.
 
+Section UnitFunctorProperties.
+
+  Definition functor_unit_composition
+             {C D E : category}
+             {IC : C} {ID : D} {IE : E}
+             {F : functor C D} {G : functor D E}
+             (FF : functor_unit IC ID F) (GG : functor_unit ID IE G)
+    : functor_unit IC IE (functor_composite F G)
+    := GG · #G FF.
+
+End UnitFunctorProperties.
+
+
 Section FunctorTensorUnit.
 
   Context {C D : category}
@@ -403,6 +416,25 @@ Section FunctorTensorUnit.
     : category := total_category functor_tensorunit_disp_cat.
 
 End FunctorTensorUnit.
+
+Section TensorUnitFunctorProperties.
+
+  Context {C D E : category}
+          {TC : functor (C ⊠ C) C} {TD : functor (D ⊠ D) D}
+          {TE : functor (E ⊠ E) E}
+          {IC : C} {ID : D} {IE : E}.
+
+  Definition functor_tensorunit_composition
+             {F : functor C D} {G : functor D E}
+             (FF : functor_tensorunit_disp_cat TC TD IC ID F)
+             (GG : functor_tensorunit_disp_cat TD TE ID IE G)
+    : functor_tensorunit_disp_cat TC TE IC IE (functor_composite F G).
+  Proof.
+    exists (functor_tensor_composition (pr1 FF) (pr1 GG)).
+    exact (functor_unit_composition (pr2 FF) (pr2 GG)).
+  Defined.
+
+End TensorUnitFunctorProperties.
 
 Section MonoidalFunctorCategory.
 
@@ -478,3 +510,66 @@ Section MonoidalFunctorCategory.
     := total_category functor_monoidal_disp_cat.
 
 End MonoidalFunctorCategory.
+
+Section FunctorMonoidalProperties.
+
+  Context {C D E : category}
+          {TC : functor (C ⊠ C) C} {TD : functor (D ⊠ D) D}
+          {TE : functor (E ⊠ E) E}
+          {IC : C} {ID : D} {IE : E}.
+
+  Notation "X ⊗_C Y" := (TC (X , Y)) (at level 31).
+  Notation "f #⊗_C g" := (# TC (f #, g)) (at level 31).
+  Notation "X ⊗_D Y" := (TD (X , Y)) (at level 31).
+  Notation "f #⊗_D g" := (# TD (f #, g)) (at level 31).
+  Notation "X ⊗_E Y" := (TE (X , Y)) (at level 31).
+  Notation "f #⊗_E g" := (# TE (f #, g)) (at level 31).
+
+  Definition functor_lu_composition
+             {luC : left_unitor TC IC} {luD : left_unitor TD ID} {luE : left_unitor TE IE}
+             {F : functor C D} {G : functor D E}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             {GG : functor_tensorunit_disp_cat TD TE ID IE G}
+             (FFF : functor_lu_disp_cat luC luD (_,,FF))
+             (GGG : functor_lu_disp_cat luD luE (_,,GG))
+    : functor_lu_disp_cat luC luE (_,, functor_tensorunit_composition FF GG).
+  Proof.
+    intro x.
+    refine (GGG (F x) @ _).
+  Admitted.
+
+  Definition functor_ru_composition
+             {ruC : right_unitor TC IC} {ruD : right_unitor TD ID} {ruE : right_unitor TE IE}
+             {F : functor C D} {G : functor D E}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             {GG : functor_tensorunit_disp_cat TD TE ID IE G}
+             (FFF : functor_ru_disp_cat ruC ruD (_,,FF))
+             (GGG : functor_ru_disp_cat ruD ruE (_,,GG))
+    : functor_ru_disp_cat ruC ruE (_,, functor_tensorunit_composition FF GG).
+  Proof.
+    intro x.
+    refine (GGG (F x) @ _).
+    unfold functor_tensorunit_composition.
+    unfold functor_unit_composition.
+    unfold functor_tensor_composition.
+    simpl.
+
+
+  Admitted.
+
+  Definition functor_ass_composition
+             {αC : associator TC} {αD : associator TD} {αE : associator TE}
+             {F : functor C D} {G : functor D E}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             {GG : functor_tensorunit_disp_cat TD TE ID IE G}
+             (FFF : functor_ass_disp_cat αC αD (_,,FF))
+             (GGG : functor_ass_disp_cat αD αE (_,,GG))
+    : functor_ass_disp_cat αC αE (_,, functor_tensorunit_composition FF GG).
+  Proof.
+    intros x y z.
+    simpl.
+
+  Admitted.
+
+
+End FunctorMonoidalProperties.
