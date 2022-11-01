@@ -143,7 +143,7 @@ Section RezkAssociator.
 
   Let αD := TransportedAssociator.
 
-  (* Definition TransportedAssociatorEq
+  Definition TransportedAssociatorEq
     : pre_whisker HHH TransportedAssociator
       = nat_z_iso_comp
           (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
@@ -159,15 +159,22 @@ Section RezkAssociator.
     refine (_ @ t @ _).
     clear t.
     - apply maponpaths.
-      (* again the issue of pr1 lift_nat_z_iso_along = lift_nat_trans_along *)
-      admit.
-    - set (s := nat_trans_comp_assoc (homset_property _)
+      apply (maponpaths (lift_nat_trans_along (D,, Duniv) HHH HHH_eso HHH_ff)).
+      apply nat_trans_comp_assoc'.
+      apply homset_property.
+    - exact (nat_trans_comp_assoc (homset_property _)
                                      _ _ _ _
               (pr1 TransportedAssocLeft)
               (CategoriesLemmas.post_whisker_nat_z_iso α H)
               (nat_z_iso_inv TransportedAssocRight)).
-      exact s.
-  Admitted. *)
+  Qed.
+
+  Definition TransportedAssociatorOnOb
+    : ∏ x : (C ⊠ C) ⊠ C,
+        αD (HHH x) = TransportedAssocLeft x · #H (α x) · nat_z_iso_inv TransportedAssocRight x.
+  Proof.
+    exact (λ x, toforallpaths _ _ _ (base_paths _ _ TransportedAssociatorEq) x).
+  Qed.
 
   Context (I : C).
 
@@ -194,24 +201,59 @@ Section RezkAssociator.
     }
     clear p0.
 
+    assert (p1' : (# TD (id pr1 H x #, (pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (y, z))
+                     · (pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (x, TC (y, z))) = TransportedAssocRight ((x,y),z)).
+    {
+
+      admit.
+    }
+
     assert (p1 : (nat_z_iso_inv TransportedAssocRight) ((x,y),z)
                  · (# TD (id pr1 H x #, (pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (y, z))
              · (pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (x, TC (y, z))) = identity _).
     {
+      (* Here use p1' *)
+
       admit.
     }
 
     set (cc := lift_nat_z_iso_along (D,, Duniv) HHH HHH_eso HHH_ff
+               (nat_z_iso_comp
+       (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
+       (nat_z_iso_inv TransportedAssocRight))).
+
+    set (cc1 := (CategoriesLemmas.post_whisker_nat_z_iso α H)).
+    set (cc0 := TransportedAssocLeft).
+    set (cc2 := (nat_z_iso_inv TransportedAssocRight)).
+    set (dd := nat_z_iso_comp cc0 (nat_z_iso_comp cc1 cc2)).
+    assert (p2' : dd = CategoriesLemmas.pre_whisker_nat_z_iso HHH cc).
+    {
+      use total2_paths_f.
+      2: { apply isaprop_is_nat_z_iso. }
+
+      etrans. {
+        apply (! lift_nat_trans_along_comm (_,,Duniv) _ HHH_eso HHH_ff _).
+      }
+
+      apply (maponpaths (pre_whisker HHH)).
+      apply (maponpaths (lift_nat_trans_along (D,, Duniv) HHH HHH_eso HHH_ff)).
+      apply nat_trans_comp_assoc.
+      apply homset_property.
+    }
+
+    set (cc' := lift_nat_z_iso_along (D,, Duniv) HHH HHH_eso HHH_ff
     (nat_z_iso_comp
        (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
        (nat_z_iso_inv TransportedAssocRight)) (HHH ((x,y),z))).
 
-    set (cc1 := (CategoriesLemmas.post_whisker_nat_z_iso α H) ((x,y),z)).
-    set (cc0 := TransportedAssocLeft ((x,y),z)).
-    set (cc2 := (nat_z_iso_inv TransportedAssocRight) ((x,y),z)).
-    set (dd := cc0 · cc1 · cc2).
-    assert (p2 : dd = cc).
+    set (cc1' := (CategoriesLemmas.post_whisker_nat_z_iso α H) ((x,y),z)).
+    set (cc0' := TransportedAssocLeft ((x,y),z)).
+    set (cc2' := (nat_z_iso_inv TransportedAssocRight) ((x,y),z)).
+    set (dd' := cc0' · cc1' · cc2').
+    assert (p2 : dd' = cc').
     {
+      set (q := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ p2')) ((x,y),z)).
+      (* Have to see what goes wrong in here, this should be exactly the same *)
       admit.
     }
 
@@ -221,8 +263,8 @@ Section RezkAssociator.
       exact p2.
     }
     clear p2.
-    unfold dd, cc0, cc1, cc2.
-    clear dd cc0 cc1 cc2 cc.
+    unfold dd', cc0', cc1', cc2'.
+    clear dd' cc0' cc1' cc2'.
     rewrite ! assoc'.
     apply maponpaths.
     etrans.
@@ -279,6 +321,10 @@ Section RezkAssociator.
     : disp_functor_disp_ess_split_surj precompA.
   Proof.
     intros G GG.
+    unfold functor_tensorunit_cat in G.
+    simpl in G.
+    unfold functor_ass_disp_cat in GG.
+
     use tpair.
     - intros d1 d2 d3.
       use factor_through_squash.
@@ -303,9 +349,20 @@ Section RezkAssociator.
       induction (isotoid _ Duniv (pr2 cd3)).
 
       set (t := GG (pr1 cd1) (pr1 cd2) (pr1 cd3)).
-      (* refine (_ @ t @ _). *)
 
-      admit.
+      transparent assert (m : (E⟦ pr1 G (H (TC (pr1 cd1, TC (pr1 cd2,, pr1 cd3))))
+                                  ,  (pr11 G) (TD (H (pr1 cd1), TD (H (pr1 cd2),, H (pr1 cd3))))⟧)).
+      {
+        apply #(pr1 G).
+
+
+        admit.
+      }
+
+      set (tt := cancel_postcomposition _ _ m t).
+      refine (_ @ tt @ _).
+      + admit.
+      + admit.
     - exists tt.
       exists tt.
       split ; apply isapropunit.

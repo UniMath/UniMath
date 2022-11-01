@@ -127,21 +127,22 @@ Section PrecompEquivalence.
              (α : nat_z_iso (F ∙ G₁) (F ∙ G₂))
     : nat_z_iso G₁ G₂.
   Proof.
-    use nat_z_iso_from_z_iso.
+    exists (lift_nat_trans_along α).
+
+    use is_functor_z_iso_pointwise_if_z_iso.
     { apply homset_property. }
 
-    refine (z_iso_comp _ (z_iso_comp (functor_on_z_iso R (z_iso_from_nat_z_iso _ α)) _)).
-    - apply (nat_z_iso_pointwise_z_iso η G₁).
-    - apply (z_iso_inv (nat_z_iso_pointwise_z_iso η G₂)).
+    set (β := (z_iso_from_nat_z_iso (homset_property _) α)).
+    set (ff_precomp := (fully_faithful_from_equivalence
+                          [C₂, pr1 D] [C₁, pr1 D]
+                          (pre_composition_functor C₁ C₂ (pr1 D) F)
+                          precomp_adjoint_equivalence)).
 
-
-    (* use is_functor_z_iso_pointwise_if_z_iso.
-    { apply homset_property. }
-    use is_z_isomorphism_comp.
-    { apply (nat_z_iso_pointwise_z_iso η G₁). }
-    use is_z_isomorphism_comp.
-    { apply (functor_on_z_iso R (z_iso_from_nat_z_iso _ α)). }
-    apply (z_iso_inv (nat_z_iso_pointwise_z_iso η G₂)). *)
+    exact (fully_faithful_reflects_iso_proof
+             [C₂, pr1 D] [C₁, pr1 D]
+             (pre_composition_functor _ _ D F)
+             ff_precomp _ _ β
+          ).
   Defined.
 
 End PrecompEquivalence.

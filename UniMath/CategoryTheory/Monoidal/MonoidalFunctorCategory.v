@@ -16,6 +16,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
+Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
+
 Local Open Scope cat.
 
 Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
@@ -571,5 +573,298 @@ Section FunctorMonoidalProperties.
 
   Admitted.
 
-
 End FunctorMonoidalProperties.
+
+Section AssociatorMonoidalProperty.
+
+  Definition pair_nat_trans
+             {C1 C2 D1 D2 : category}
+             {F1 G1 : functor C1 D1}
+             {F2 G2 : functor C2 D2}
+             (α : nat_trans F1 G1)
+             (β : nat_trans F2 G2)
+    : nat_trans (pair_functor F1 F2) (pair_functor G1 G2).
+  Proof.
+    use make_nat_trans.
+    - intro x.
+      use catbinprodmor.
+      + exact (α (pr1 x)).
+      + exact (β (pr2 x)).
+    - abstract (intro ; intros ; use total2_paths_f ;
+                   [ apply (pr2 α) | rewrite transportf_const ; apply (pr2 β) ]
+               ).
+  Defined.
+
+  Definition pair_nat_z_iso
+             {C1 C2 D1 D2 : category}
+             {F1 G1 : functor C1 D1}
+             {F2 G2 : functor C2 D2}
+             (α : nat_z_iso F1 G1)
+             (β : nat_z_iso F2 G2)
+    : nat_z_iso (pair_functor F1 F2) (pair_functor G1 G2).
+  Proof.
+    use make_nat_z_iso.
+    { exact (pair_nat_trans α β). }
+    intro x.
+    use tpair.
+    - use catbinprodmor.
+      + exact (pr1 (pr2 α (pr1 x))).
+      + exact (pr1 (pr2 β (pr2 x))).
+    - abstract (
+          split ; (use total2_paths_f ;
+                   [ apply (pr2 α) | rewrite transportf_const ; apply (pr2 β) ]
+                  )
+        ).
+  Defined.
+
+  Require Import UniMath.CategoryTheory.whiskering.
+
+  Lemma unassoc_commutes
+        {C D : category} (F : functor C D)
+    : nat_z_iso ((pair_functor (pair_functor F F) F) ∙ (precategory_binproduct_unassoc D D D))
+                ((precategory_binproduct_unassoc C C C) ∙ (pair_functor F (pair_functor F F))).
+  Proof.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + intro ; use catbinprodmor ; apply identity.
+      + intro ; intros.
+        use total2_paths_f.
+        * exact (id_right _ @ ! id_left _).
+        * abstract (rewrite transportf_const ; exact (id_right _ @ ! id_left _)).
+    - intro.
+      use tpair.
+      * use catbinprodmor ; apply identity.
+      * abstract (split ; (use total2_paths_f ; [ apply id_right | rewrite transportf_const ; apply id_right ])).
+  Defined.
+
+  Lemma assoc_right_commutes_with_triple_pairing
+        {C D : category}
+        (F : functor C D)
+        {TC : functor (C ⊠ C) C}
+        {TD : functor (D ⊠ D) D}
+        {FF : functor_tensor TC TD F}
+        (FF_iso : is_nat_z_iso FF)
+    : nat_z_iso
+        (pair_functor (pair_functor F F) F ∙ assoc_right TD) (assoc_right TC ∙ F).
+  Proof.
+    (* This commuting diagram can be split in 3 commuting diagrams stacked together *)
+    (* Step 1: The top commuting diagram is unassoc_commutes *)
+    use nat_z_iso_comp.
+    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.post_whisker_nat_z_iso.
+      2: apply unassoc_commutes.
+    }
+    use nat_z_iso_comp.
+    2: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    apply CategoriesLemmas.pre_whisker_nat_z_iso.
+
+    (* Step 2: The lowest commuting diagram is the tensor preserving commuting one *)
+    use nat_z_iso_comp.
+    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    3: {
+      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply (FF ,, FF_iso).
+    }
+
+    use nat_z_iso_comp.
+    3: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    apply CategoriesLemmas.post_whisker_nat_z_iso.
+
+    (* Step 3: The middle commuting square is the tensor preserving commuting one
+               but tensored with the identity functor on the left *)
+
+    use CategoriesLemmas.product_of_commuting_squares.
+    { apply (make_nat_z_iso _ _ _ (is_nat_z_iso_nat_trans_id F)). }
+    apply (FF ,, FF_iso).
+  Defined.
+
+  Lemma pair_functor_composite
+        {C1 C2 C3 D1 D2 D3 : category}
+        (F1 : functor C1 C2)
+        (G1 : functor D1 D2)
+        (F2 : functor C2 C3)
+        (G2 : functor D2 D3)
+    : nat_z_iso
+        (functor_composite (pair_functor F1 G1) (pair_functor F2 G2))
+        (pair_functor (functor_composite F1 F2) (functor_composite G1 G2)).
+  Proof.
+    use make_nat_z_iso.
+    { apply nat_trans_id. }
+    intro.
+    use tpair.
+    - use catbinprodmor ; apply identity.
+    - split ; apply id_right.
+  Defined.
+
+  Lemma assoc_left_commutes_with_triple_pairing
+        {C D : category}
+        (F : functor C D)
+        {TC : functor (C ⊠ C) C}
+        {TD : functor (D ⊠ D) D}
+        {FF : functor_tensor TC TD F}
+        (FF_iso : is_nat_z_iso FF)
+    :  nat_z_iso ((pair_functor (pair_functor F F) F) ∙ assoc_left TD) (assoc_left TC ∙ F).
+  Proof.
+    unfold assoc_left.
+    use nat_z_iso_comp.
+    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.post_whisker_nat_z_iso.
+      2: apply pair_functor_composite.
+    }
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.post_whisker_nat_z_iso.
+      2: {
+        use pair_nat_z_iso.
+        3: {
+          exists FF.
+          apply FF_iso.
+        }
+        2: {
+          exists (nat_trans_id _).
+          apply is_nat_z_iso_nat_trans_id.
+        }
+      }
+    }
+    unfold functor_tensor_map_codom.
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.post_whisker_nat_z_iso.
+      2: {
+        use pair_nat_z_iso.
+        3: {
+          exists (nat_trans_id _).
+          apply is_nat_z_iso_nat_trans_id.
+        }
+        2: apply CategoriesLemmas.functor_commutes_with_id.
+      }
+    }
+
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.post_whisker_nat_z_iso.
+      2: apply (nat_z_iso_inv (pair_functor_composite _ _ _ _)).
+    }
+    use nat_z_iso_comp.
+    2: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    2: {
+      use CategoriesLemmas.pre_whisker_nat_z_iso.
+      2: {
+        exists FF.
+        apply FF_iso.
+      }
+    }
+    apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+  Defined.
+
+  Context {C D : category}
+          {TC : functor (C ⊠ C) C} {TD : functor (D ⊠ D) D}
+          {IC : C} {ID : D}.
+
+  Notation "X ⊗_C Y" := (TC (X , Y)) (at level 31).
+  Notation "f #⊗_C g" := (# TC (f #, g)) (at level 31).
+  Notation "X ⊗_D Y" := (TD (X , Y)) (at level 31).
+  Notation "f #⊗_D g" := (# TD (f #, g)) (at level 31).
+
+
+  Definition functor_ass_ntrans1
+             (αC : associator TC) (αD : associator TD)
+             {F : functor C D}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             (FF_iso : is_nat_z_iso (pr11 FF))
+    : nat_trans
+        (functor_composite
+           (pair_functor (pair_functor F F) F)
+           (functor_composite (pair_functor TD (functor_identity _)) TD)
+        )
+        (functor_composite (assoc_right TC) F).
+  Proof.
+
+    set (pF := pair_functor F F).
+    set (pFF := pair_functor pF F).
+
+    use nat_trans_comp.
+    2: { exact (pre_whisker pFF αD). }
+    use assoc_right_commutes_with_triple_pairing.
+    - exact (pr1 FF).
+    - exact FF_iso.
+  Defined.
+
+  Definition functor_ass_ntrans2
+             (αC : associator TC) (αD : associator TD)
+             {F : functor C D}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             (FF_iso : is_nat_z_iso (pr11 FF))
+    : nat_trans
+        (functor_composite
+           (pair_functor (pair_functor F F) F)
+           (functor_composite (pair_functor TD (functor_identity _)) TD)
+        )
+        (functor_composite (assoc_right TC) F).
+  Proof.
+
+    use nat_trans_comp.
+    3: exact (post_whisker αC F).
+    use assoc_left_commutes_with_triple_pairing.
+    - exact (pr1 FF).
+    - exact FF_iso.
+  Defined.
+
+  Definition functor_nat_trans_preserves
+             (αC : associator TC) (αD : associator TD)
+             {F : functor C D}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             (FF_iso : is_nat_z_iso (pr11 FF))
+    : UU := functor_ass_ntrans2 αC αD FF_iso = functor_ass_ntrans1 αC αD FF_iso.
+
+  Definition functor_ass_to_nat_trans_ass
+             {αC : associator TC} {αD : associator TD}
+             {F : functor C D}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             (FF_iso : is_nat_z_iso (pr11 FF))
+             (FFF : functor_ass_disp_cat αC αD (_,,FF))
+    : functor_nat_trans_preserves αC αD FF_iso.
+  Proof.
+    use nat_trans_eq.
+    { apply homset_property. }
+    intro x.
+    set (p := FFF (pr11 x) (pr21 x) (pr2 x)).
+    simpl.
+    rewrite assoc.
+    rewrite ! (functor_id TD).
+    rewrite ! id_left.
+    rewrite ! id_right.
+    refine (p @ _).
+    apply assoc'.
+  Qed.
+
+  Definition functor_ass_from_nat_trans_ass
+             {αC : associator TC} {αD : associator TD}
+             {F : functor C D}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             {FF_iso : is_nat_z_iso (pr11 FF)}
+             (FFF : functor_nat_trans_preserves αC αD FF_iso)
+    : functor_ass_disp_cat αC αD (_,,FF).
+  Proof.
+    intros x y z.
+    simpl.
+    set (t := toforallpaths _ _ _ (base_paths _ _ FFF) ((x,y),z)).
+    simpl in t.
+    rewrite ! (functor_id TD) in t.
+    rewrite ! id_left in t.
+    rewrite ! id_right in t.
+    refine (t @ _).
+    apply assoc.
+  Qed.
+
+End AssociatorMonoidalProperty.

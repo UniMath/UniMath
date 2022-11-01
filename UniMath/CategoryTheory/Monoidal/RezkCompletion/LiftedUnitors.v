@@ -36,7 +36,6 @@ Section RezkLeftUnitor.
 
   Context (TC : functor (C ⊠ C) C) (I : C)
           (lu : left_unitor TC I).
-          (*(ru : right_unitor TC I).*)
 
   Let TD := TransportedTensor Duniv H_eso H_ff TC.
 
@@ -111,14 +110,15 @@ Section RezkLeftUnitor.
 
     refine (_ @ t @ _).
     - apply maponpaths.
-      (** The issue here is currently with the definition of
-          lift_nat_z_iso_along, one would expect that
-          pr1 lift_nat_z_iso_along = lift_nat_trans_along (by definition),
-          however, I currently have a different definition.
-          If that is solved, then this will be straightforward normally
-          by applying nat_trans_eq and then probably "apply (! id_right _)".
-          *)
-      admit.
+      apply (maponpaths ( lift_nat_trans_along (D,, Duniv) H H_eso H_ff)).
+      do 2 apply maponpaths.
+      use total2_paths_f.
+      2: apply isaprop_is_nat_z_iso.
+
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro.
+      apply (! id_right _).
     - do 2 apply maponpaths.
       use total2_paths_f.
       2: { apply isaprop_is_nat_z_iso. }
@@ -126,7 +126,7 @@ Section RezkLeftUnitor.
       { apply homset_property. }
       intro.
       apply id_right.
-  Admitted.
+  Qed.
 
   Definition H_plu
     : (functor_lu_disp_cat lu luD)
@@ -340,14 +340,13 @@ Section RezkRightUnitor.
     etrans.
     2: { apply (lift_nat_trans_along_comm (_,,Duniv) _ H_eso H_ff). }
     apply maponpaths.
+    apply (maponpaths ( lift_nat_trans_along (D,, Duniv) H H_eso H_ff)).
+
+
     use nat_trans_eq.
     { apply homset_property. }
-    intro.
-
-    (* Again same issue as with TransportedLeftUnitorEq,
-       we should have that lift_nat_z_iso_along should be defined
-       w.r.t. lift_nat_trans_along *)
-  Admitted.
+    intro ; apply idpath.
+  Qed.
 
   Definition H_pru
     : (functor_ru_disp_cat ru ruD)
