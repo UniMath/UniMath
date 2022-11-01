@@ -29,10 +29,10 @@ Definition isboolDcuts : hsubtype Dcuts :=
 Lemma isaset_boolDcuts : isaset isboolDcuts.
 Proof.
   apply isasetsubset with pr1.
-  apply pr2.
-  apply isinclpr1.
-  intro x.
-  apply pr2.
+  - apply pr2.
+  - apply isinclpr1.
+    intro x.
+    apply pr2.
 Qed.
 Definition boolDcuts : hSet.
 Proof.
@@ -56,8 +56,8 @@ Proof.
       apply fromempty.
       apply Hx0.
       apply (is_Dcuts_bot x r).
-      now apply Hr.
-      apply isnonnegative_NonnegativeRationals.
+      * now apply Hr.
+      * apply isnonnegative_NonnegativeRationals.
     + intros Hr.
       now apply Dcuts_zero_empty in Hr.
 Qed.
