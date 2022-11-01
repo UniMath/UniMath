@@ -1,0 +1,12 @@
+
+(include_subdirs qualified)
+
+(coq.theory
+  (name UniMath)
+  (package coq-unimath)
+  (flags -verbose
+         -noinit
+         -indices-matter
+         -type-in-type
+         -w -notation-overridden))
+
