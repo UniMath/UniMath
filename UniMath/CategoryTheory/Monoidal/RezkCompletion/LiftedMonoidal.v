@@ -53,11 +53,151 @@ Section RezkMonoidal.
   Lemma TransportedTriangleEq
     :  triangle_eq TD (H I) luD ruD αD.
   Proof.
+    intros y1 y2.
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y1). }
+    { apply homset_property. }
+    2: exact (H_eso y1).
+    intros [x1 xx1].
+    induction (isotoid _ Duniv xx1).
+    clear xx1.
+
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y2). }
+    { apply homset_property. }
+    2: exact (H_eso y2).
+    intros [x2 xx2].
+    induction (isotoid _ Duniv xx2).
+    clear xx2.
+
+    etrans. {
+      apply maponpaths.
+      apply maponpaths_2.
+      exact (TransportedRightUnitorOnOb Duniv H_eso H_ff TC I ru x1).
+    }
+
+    etrans.
+    2: {
+      do 3 apply maponpaths.
+      exact (! TransportedLeftUnitorOnOb Duniv H_eso H_ff TC I lu x2).
+    }
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (! TransportedAssociatorOnOb Duniv H_eso H_ff TC α ((x1,I),x2)).
+    }
+
+    rewrite (! id_right (id H x2)).
+    rewrite (! id_right (id H x1)).
+
+    do 2 rewrite binprod_comp.
+    rewrite (functor_comp TD).
+    rewrite <- functor_id.
+
+    assert (p0 : #TD (#H (ru x1) #, #H (id x2))
+                 =
+                   (pr11 (TransportedTensorComm Duniv H_eso H_ff TC))
+                     (I_posttensor TC I x1, x2)
+                     · # (TC ∙ H) (ru x1 #, id x2)
+                     · (pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1, x2)))).
+    {
+      apply pathsinv0.
+
+      transparent assert (pi : (is_z_isomorphism (pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1, x2))))).
+      {
+        apply (pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, x2)).
+      }
+      use (z_iso_inv_to_right _ _ _ _ (_,,pi)).
+      exact (! pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ (ru x1 #, id x2)).
+    }
+
+    etrans. {
+      apply maponpaths.
+      exact p0.
+    }
+    clear p0.
+    etrans. {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (maponpaths #H (tri x1 x2)).
+    }
+    rewrite (functor_comp H).
+
+    assert (p0 : # TD (LiftPreservesPostTensor Duniv H_eso H_ff TC I x1 #, # H (id x2))
+               · ((pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (I_posttensor TC I x1, x2))
+             =  TransportedAssocLeft Duniv H_eso H_ff TC ((x1, I), x2)).
+    {
+      admit.
+    }
+
+    rewrite ! assoc.
+    etrans. {
+      do 3 apply maponpaths_2.
+      exact p0.
+    }
+    clear p0.
+    rewrite ! assoc'.
+    do 2 apply maponpaths.
+
+    rewrite functor_comp.
+
+    etrans. {
+      apply (pr21 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC))).
+    }
+    rewrite assoc.
+    rewrite <- functor_id.
+    apply maponpaths_2.
+
   Admitted.
 
   Lemma TransportedPentagonEq
     : pentagon_eq TD αD.
   Proof.
+    intros y1 y2 y3 y4.
+
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y1). }
+    { apply homset_property. }
+    2: exact (H_eso y1).
+    intros [x1 xx1].
+    induction (isotoid _ Duniv xx1).
+    clear xx1.
+
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y2). }
+    { apply homset_property. }
+    2: exact (H_eso y2).
+    intros [x2 xx2].
+    induction (isotoid _ Duniv xx2).
+    clear xx2.
+
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y3). }
+    { apply homset_property. }
+    2: exact (H_eso y3).
+    intros [x3 xx3].
+    induction (isotoid _ Duniv xx3).
+    clear xx3.
+
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) y4). }
+    { apply homset_property. }
+    2: exact (H_eso y4).
+    intros [x4 xx4].
+    induction (isotoid _ Duniv xx4).
+    clear xx4.
+
+    set (pentH := maponpaths #H (pent x1 x2 x3 x4)).
+    rewrite ! functor_comp in pentH.
+
+    set (tαD := TransportedAssociatorOnOb Duniv H_eso H_ff TC α).
+
+    (* pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ _. *)
+
+
+
   Admitted.
 
   Definition TransportedMonoidal
