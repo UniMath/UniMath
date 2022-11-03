@@ -1,0 +1,7 @@
+(rule
+ (target All.v)
+ (deps (source_tree .))
+ (action
+  (with-stdout-to All.v
+   (run %{project_root}/util/generate-exports UniMath.CategoryTheory "%{deps}"))))
+

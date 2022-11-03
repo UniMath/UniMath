@@ -2,11 +2,16 @@
 (include_subdirs qualified)
 
 (coq.theory
-  (name UniMath)
-  (package coq-unimath)
-  (flags -verbose
-         -noinit
-         -indices-matter
-         -type-in-type
-         -w -notation-overridden))
+ (name UniMath)
+ (package coq-unimath)
+ (flags -verbose
+        -noinit
+        -indices-matter
+        -type-in-type
+        -w -notation-overridden))
 
+(rule
+ (deps (source_tree .))
+ (action
+  (with-stdout-to All.v
+   (run %{project_root}/util/generate-exports UniMath "%{deps}"))))
