@@ -7,6 +7,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    # Based on https://github.com/marketplace/actions/set-up-ocaml
+    # Prime the caches every Monday
+    - cron: 0 1 * * MON
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,6 +40,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
+      - uses: ocaml/setup-ocaml@v2 # to enable dune cache
+        with:
+          ocaml-compiler: ocaml-base-compiler.4.14.0
+          dune-cache: true
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -43,9 +51,8 @@ jobs:
           type coqc
           coqc --version
       - name: Build UniMath
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make -j2 TIMECMD=time
+        run: opam exec -- dune build --display=short --cache=enabled
+
 
   build-coq-and-Unimath-ubuntu:
     name: Build-coq-and-UniMath-Ubuntu
@@ -66,16 +73,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ocaml-base-compiler.4.14.0
+          dune-cache: true
       - name: Install build dependencies
-        run: |
-           brew install coq ocaml-findlib
-           brew config --verbose
-           type coqc
-           coqc --version
+        run: opam install . --deps-only
       - name: Build UniMath
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make -j2 TIMECMD=time
+        run: opam exec -- dune build --display=short --cache=enabled
+
 
 #### ocaml 4.12 is currently too modern to compile this version of coq, and that's what homebrew provides.  So we use opam.  This is a good way to test the opam install instructions, anyway.
   build-macos-with-coq:
