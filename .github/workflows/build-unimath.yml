@@ -54,19 +54,19 @@ jobs:
         run: opam exec -- dune build --display=short --cache=enabled
 
 
-  build-coq-and-Unimath-ubuntu:
-    name: Build-coq-and-UniMath-Ubuntu
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
-      - name: Build UniMath
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make -j2 TIMECMD=time BUILD_COQ=yes
+  # build-coq-and-Unimath-ubuntu:
+  #   name: Build-coq-and-UniMath-Ubuntu
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Install build dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
+  #     - name: Build UniMath
+  #       run: |
+  #         cd $GITHUB_WORKSPACE
+  #         time make -j2 TIMECMD=time BUILD_COQ=yes
 
   build-macos:
     name: Build-UniMath-on-MacOS
@@ -83,23 +83,23 @@ jobs:
         run: opam exec -- dune build --display=short --cache=enabled
 
 
-#### ocaml 4.12 is currently too modern to compile this version of coq, and that's what homebrew provides.  So we use opam.  This is a good way to test the opam install instructions, anyway.
-  build-macos-with-coq:
-    name: Build-coq-and-UniMath-on-MacOS-with-opam
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install build dependencies using opam
-        run: |
-           brew install opam gtksourceview3 expat gtk+ gtksourceview libxml2
-           brew config --verbose
-           opam init --bare -n
-           opam switch create with-coq 4.07.1+flambda
-           opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5 zarith
-      - name: Build UniMath
-        run: |
-          eval `opam env`
-          type ocamlc
-          ocamlc --version
-          cd $GITHUB_WORKSPACE
-          time make -j2 TIMECMD=time BUILD_COQ=yes
+        #### ocaml 4.12 is currently too modern to compile this version of coq, and that's what homebrew provides.  So we use opam.  This is a good way to test the opam install instructions, anyway.
+  # build-macos-with-coq:
+  #   name: Build-coq-and-UniMath-on-MacOS-with-opam
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Install build dependencies using opam
+  #       run: |
+  #          brew install opam gtksourceview3 expat gtk+ gtksourceview libxml2
+  #          brew config --verbose
+  #          opam init --bare -n
+  #          opam switch create with-coq 4.07.1+flambda
+  #          opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5 zarith
+  #     - name: Build UniMath
+  #       run: |
+  #         eval `opam env`
+  #         type ocamlc
+  #         ocamlc --version
+  #         cd $GITHUB_WORKSPACE
+  #         time make -j2 TIMECMD=time BUILD_COQ=yes
