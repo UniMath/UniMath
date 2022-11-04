@@ -1,66 +1,89 @@
-# This is a basic workflow to help you get started with Actions
 
-name: CI-Build-Satellites
+name: CI Build Satellites
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    # Prime the caches every Monday
+    - cron: 0 1 * * MON
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    # This builds all the satellites in parallel. They all build what they need
+    # from UniMath and use dune cache to (hopefully) not having to rebuild more
+    # than necessary.
+
+    # The satellites currently breaks when using a modern version of Coq,
+    # that's why we use the one in Ubuntu 20.04, which is 8.11.0.
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  build-satellite-typetheory:
+    name: Build TypeTheory
+    runs-on: ubuntu-20.04
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      
-      # Install everything needed for building UniMath (and more)
-      - name: Install build dependencies
-        run: |
+      - uses: actions/checkout@v3
+      - name: Install OCaml
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ocaml-base-compiler.4.14.0
+          dune-cache: true
+      - run: |
           sudo apt-get update
           sudo apt-get install coq
-          type coqc
-          coqc --version
-
-      - name: Build UniMath and libraries TypeTheory, Largecatmodules, and SetHITs
-        ### we don't use "make install", because the user-contrib directory might be write-protected
+      - run: opam pin add dune 3.5.0
+      - name: Clone TypeTheory
         run: |
-          make -j2
-          : set the Coq path
-          export COQPATH="$GITHUB_WORKSPACE"
-          : build TypeTheory
-          git clone https://github.com/UniMath/TypeTheory
+          git clone https://github.com/m-lindgren/TypeTheory.git
           pushd TypeTheory
-          make
+          git checkout dune-support
           popd
-          : build largecatmodules
-          git clone https://github.com/UniMath/largecatmodules
-          pushd largecatmodules
-          make
-          popd
-          : build SetHITS
-          git clone https://github.com/UniMath/SetHITs
+      - name: Compile TypeTheory
+        run: opam exec -- dune build TypeTheory --display=short --cache=enabled
+
+  build-satellite-sethits:
+    name: Build SetHITs
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install OCaml
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ocaml-base-compiler.4.14.0
+          dune-cache: true
+      - run: |
+          sudo apt-get update
+          sudo apt-get install coq
+      - run: opam pin add dune 3.5.0
+      - name: Clone SetHITs
+        run: |
+          git clone https://github.com/m-lindgren/SetHITs.git
           pushd SetHITs
-          cd code
-          coq_makefile -f _CoqProject -o Makefile
-          make
+          git checkout dune-support
           popd
-          : build GrpdHITs
-          git clone https://github.com/UniMath/GrpdHITs
-          pushd GrpdHITs
-          cd code
-          coq_makefile -f _CoqProject -o Makefile
-          make
+      - name: Compile SetHITs
+        run: opam exec -- dune build SetHITs --display=short --cache=enabled
+
+  build-satellite-largecatmodules:
+    name: Build Large Cat Modules
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ocaml-base-compiler.4.14.0
+          dune-cache: true
+      - run: |
+          sudo apt-get update
+          sudo apt-get install coq
+      - run: opam pin add dune 3.5.0
+      - name: Clone largecatmodules
+        run: |
+          git clone https://github.com/m-lindgren/largecatmodules.git
+          pushd largecatmodules
+          git checkout dune-support
           popd
+      - name: Compile largecatmodules
+        run: opam exec -- dune build largecatmodules --display=short --cache=enabled
+
