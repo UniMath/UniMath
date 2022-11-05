@@ -125,7 +125,7 @@ Section RezkMonoidal.
              =  TransportedAssocLeft Duniv H_eso H_ff TC ((x1, I), x2)).
     {
       symmetry.
-      refine (TransportedAssocLeftOnOb Duniv H_eso H_ff TC α x1 I x2 @ _).
+      refine (TransportedAssocLeftOnOb Duniv H_eso H_ff TC x1 I x2 @ _).
       apply maponpaths_2.
       unfold LiftPreservesPostTensor.
       rewrite functor_id.
@@ -418,13 +418,6 @@ Section RezkMonoidal.
     unfold h_s.
     unfold g_s.
     unfold h_t.
-
-
-    rewrite <- ! functor_comp.
-
-
-
-
 
   Admitted.
 
