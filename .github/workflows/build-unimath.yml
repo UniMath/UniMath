@@ -39,7 +39,7 @@ jobs:
     name: Build UniMath (Ubuntu)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ocaml/setup-ocaml@v2 # to enable dune cache
         with:
           ocaml-compiler: ocaml-base-compiler.4.14.0
@@ -72,7 +72,7 @@ jobs:
     name: Build UniMath (MacOS)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: ocaml-base-compiler.4.14.0
