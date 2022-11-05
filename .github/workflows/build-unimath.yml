@@ -20,7 +20,7 @@ jobs:
   # This workflow contains two jobs, called "build-ubuntu" and "build-macos"
 
   sanity-checks:
-    name: Sanity-Checks-Ubuntu
+    name: Sanity Checks
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +36,7 @@ jobs:
           time make -k sanity-checks
 
   build-Unimath-ubuntu:
-    name: Build-UniMath-Ubuntu
+    name: Build UniMath (Ubuntu)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
@@ -55,7 +55,7 @@ jobs:
 
 
   build-coq-and-Unimath-ubuntu:
-    name: Build-coq-and-UniMath-Ubuntu
+    name: Build Coq and UniMath (Ubuntu)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -69,7 +69,7 @@ jobs:
           time make -j2 TIMECMD=time BUILD_COQ=yes
 
   build-macos:
-    name: Build-UniMath-on-MacOS
+    name: Build UniMath (MacOS)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
