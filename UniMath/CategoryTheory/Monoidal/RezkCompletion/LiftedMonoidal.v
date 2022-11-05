@@ -103,12 +103,7 @@ Section RezkMonoidal.
                      · (pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1, x2)))).
     {
       apply pathsinv0.
-
-      transparent assert (pi : (is_z_isomorphism (pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1, x2))))).
-      {
-        apply (pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, x2)).
-      }
-      use (z_iso_inv_to_right _ _ _ _ (_,,pi)).
+      use (z_iso_inv_to_right _ _ _ _ (_,,(pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, x2)))).
       exact (! pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ (ru x1 #, id x2)).
     }
 
@@ -149,6 +144,51 @@ Section RezkMonoidal.
     rewrite assoc.
     rewrite <- functor_id.
     apply maponpaths_2.
+
+    set (q := LiftPreservesPretensor Duniv H_eso H_ff TC I x2).
+    assert (p0 : q = (TransportedTensorComm Duniv H_eso H_ff TC) (I,x2)). {
+      simpl in q.
+      unfold q.
+      rewrite ! functor_id.
+      rewrite ! id_left.
+      rewrite ! id_right.
+      etrans. {
+        apply maponpaths_2.
+        apply functor_id.
+      }
+      apply id_left.
+    }
+    rewrite p0.
+    clear p0.
+
+    set (i := pr2 (nat_z_iso_inv ((TransportedAssocRight Duniv H_eso H_ff TC))) ((x1, I), x2)).
+    use (z_iso_inv_to_left _ _ _ (_,,i)).
+    etrans. {
+      apply maponpaths_2.
+      assert (p0 : inv_from_z_iso (pr1 (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC)) ((x1, I), x2),, i) = (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, I), x2)).
+      {
+        apply idpath.
+      }
+      exact p0.
+    }
+    clear i.
+
+    set (i := pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, I_pretensor TC I x2)).
+    use (z_iso_inv_to_right _ _ _ _ (_,,i)).
+
+    etrans.
+    2: {
+      apply maponpaths.
+      use pathscomp0.
+      - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x1, I_pretensor TC I x2)).
+      - apply idpath.
+      - apply idpath.
+    }
+
+
+
+
+
 
   Admitted.
 
@@ -194,7 +234,206 @@ Section RezkMonoidal.
 
     set (tαD := TransportedAssociatorOnOb Duniv H_eso H_ff TC α).
 
-    (* pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ _. *)
+    transparent assert (f_t
+                         : (D ⟦ H (assoc_right TC ((x1, x2), TC (x3, x4))),
+                                assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((H x1, H x2), TD (H x3, H x4)) ⟧)).
+    {
+      use (_ · _).
+      2: {
+        set (t := nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC)).
+        apply t.
+      }
+      use (# TD).
+      use catbinprodmor.
+      - apply identity.
+      - use (# TD).
+        use catbinprodmor.
+        + apply identity.
+        + apply TransportedTensorComm.
+    }
+
+    transparent assert ( f_s : (D ⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((H x1, H x2), TD (H x3, H x4)),
+                                    H (assoc_left TC ((x1, x2), TC (x3, x4))) ⟧) ).
+    {
+      use (_ · _).
+      3: { apply (TransportedAssocLeft Duniv H_eso H_ff TC). }
+      simpl.
+      use (# TD).
+      use catbinprodmor.
+      - apply identity.
+      - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x3,x4)).
+    }
+
+    assert (p0 : αD ((H x1, H x2), TD (H x3, H x4))
+            = f_s · #H (α ((x1,x2) , TC (x3,x4))) · f_t).
+    {
+      admit.
+    }
+
+    etrans. {
+      apply maponpaths.
+      exact p0.
+    }
+    clear p0.
+
+    transparent assert (g_t : (D ⟦ H (assoc_right TC ((TC (x1, x2), x3), x4)),
+                                   assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((TD (H x1, H x2), H x3), H x4)⟧)).
+    {
+      use (_ · _).
+      2: { apply (TransportedAssocRight Duniv H_eso H_ff TC). }
+      use (# TD).
+      use catbinprodmor.
+      2: apply identity.
+      exact (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
+    }
+
+    transparent assert (g_s : (D ⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((TD (H x1, H x2), H x3), H x4),
+                                   H (assoc_left TC ((TC (x1, x2), x3), x4)) ⟧)).
+    {
+      use (_ · _).
+      3: apply (TransportedAssocLeft Duniv H_eso H_ff TC).
+      use (# TD).
+      use catbinprodmor.
+      2: apply identity.
+      use (# TD).
+      use catbinprodmor.
+      1: exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
+      apply identity.
+    }
+
+    assert (p0 : αD ((TD (H x1, H x2), H x3), H x4)
+                 = g_s · #H (α ((TC (x1,x2),x3),x4)) · g_t).
+    {
+      admit.
+    }
+
+    etrans. { apply maponpaths_2 ; exact p0. }
+    clear p0.
+
+    assert (p0 : g_t · f_s = identity _).
+    {
+      admit.
+    }
+
+    etrans. {
+      rewrite assoc'.
+      apply maponpaths.
+      do 2 rewrite assoc.
+      do 2 apply maponpaths_2.
+      exact p0.
+    }
+    clear p0.
+    clear g_t f_s.
+    rewrite id_left.
+    etrans. {
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      exact pentH.
+    }
+
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      apply maponpaths.
+      apply maponpaths_2.
+      exact (! tαD ((x1,x2),x3)).
+    }
+
+    unfold f_t.
+    unfold g_s.
+
+    set (l1 :=  # TD
+    (# TD (TransportedTensorComm Duniv H_eso H_ff TC (x1, x2) #, id H (pr21 ((TC (x1, x2), x3), x4)))
+       #, id functor_identity D (pr2 (pair_functor (pair_functor H H) H ((TC (x1, x2), x3), x4))))).
+    set (l2 :=  (pr11 (TransportedAssocLeft Duniv H_eso H_ff TC)) ((TC (x1, x2), x3), x4)).
+    set (l3 :=  (# H (# TC (pr1 α ((x1, x2), x3) #, id x4)) · # H (pr1 α ((x1, TC (x2, x3)), x4))
+                   · # H (# TC (id x1 #, pr1 α ((x2, x3), x4))))).
+
+    set (l4 := (pr11 (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC))) ((x1, x2), TC (x3, x4))).
+    set (l5 :=  # TD
+         (id functor_identity D
+               (pr1 (precategory_binproduct_unassoc D D D ((H x1, H x2), TD (H x3, H x4))))
+         #, # TD
+              (id pr21 ((H x1, H x2), TD (H x3, H x4))
+                  #, pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x3, x4))))).
+
+    refine (idpath (l1 · l2 · l3 · (l4 · l5)) @ _).
+
+    set (r1 :=   # TD
+    (TransportedAssocLeft Duniv H_eso H_ff TC ((x1, x2), x3) · # H (α ((x1, x2), x3))
+     · nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, x2), x3) #, id
+     H x4)).
+    set (r2 := pr1 αD ((H x1, TD (H x2, H x3)), H x4)).
+    set (r3 :=  # TD (id H x1 #, pr1 αD ((H x2, H x3), H x4))).
+    refine (_ @ idpath (r1 · r2 · r3)).
+
+
+
+
+
+
+    transparent assert ( h_t : (D ⟦ H (assoc_right TC ((x1, TC (x2, x3)), x4)),
+                                    assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((H x1, TD (H x2, H x3)), H x4) ⟧)).
+    {
+      use (_ · _).
+      3: {
+        use (# (assoc_right TD)).
+        2: {
+          use catbinprodmor.
+          4: apply identity.
+          2: {
+            use catbinprodmor.
+            3: apply identity.
+            2: apply (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
+          }
+        }
+      }
+      exact (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1,TC (x2,x3)),x4)).
+    }
+
+    transparent assert (h_s : (D⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((H x1, TD (H x2, H x3)), H x4), H (assoc_left TC ((x1, TC (x2, x3)), x4)) ⟧)).
+    {
+      use (_ · _).
+      3: apply (TransportedAssocLeft Duniv H_eso H_ff TC).
+      use (# TD).
+      use catbinprodmor.
+      2: apply identity.
+      simpl.
+      apply (#TD).
+      use catbinprodmor.
+      1: apply identity.
+      apply ((TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
+    }
+
+    assert (p0 :  αD ((H x1, TD (H x2, H x3)), H x4)
+                  = h_s · #H (α ((x1, TC (x2,x3)),x4)) · h_t).
+    {
+      admit.
+    }
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (! p0).
+    }
+    clear p0.
+    etrans.
+    2: {
+      do 3 apply maponpaths.
+      exact (! tαD ((x2,x3),x4)).
+    }
+
+    unfold h_s.
+    unfold g_s.
+    unfold h_t.
+
+
+    rewrite <- ! functor_comp.
+
+
 
 
 
