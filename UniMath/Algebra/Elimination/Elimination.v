@@ -378,8 +378,7 @@ Section Pivot.
                 _ _ (col mat k) (m,, natgthsnn _) t ist) as [H3 H4].
       intros i ke_le_i.
       unfold col, transpose, flip in * |-.
-      rewrite H4; try easy.
-      now apply (natlthlehtrans _ row_sep i).
+      rewrite H4; try easy; try now apply (natlthlehtrans _ row_sep i).
       exact (pr2 i).
     - apply ii2; intros.
       pose (H' := @leading_entry_compute_dual_internal_inv2).
@@ -540,7 +539,7 @@ Section Gauss.
     destruct (natgthorleh iter k_i).
     2: { exact (@identity_matrix F m ** (IH p')). }
     refine (@add_row_mult_matrix F _ k_i (iter,, lt) (- (_ * _))%ring ** _).
-    exact (mat (iter,, lt) k_j).
+    - exact (mat (iter,, lt) k_j).
     - exact (fldmultinv' (mat k_i k_j)).
     - exact (IH p').
   Defined.
@@ -1005,13 +1004,13 @@ Section Gauss.
     : ∏ r : (⟦ m ⟧%stn), r < iter -> r > k_i
     -> ((gauss_clear_column mat k_i k_j iter) r k_j = 0%ring).
   Proof.
-    destruct iter as [sep p].
+    destruct iter as [sep p]. 
     intros r r_le_sep r_gt_k.
     rewrite (gauss_clear_column_inv2  k_i k_j (sep ,, p) mat r r_le_sep)
       , <- gauss_clear_column_step_eq.
+    2: {exact r_gt_k. }
     rewrite (gauss_clear_column_step_inv1 k_i k_j r mat); try easy.
-    - now apply natgthtoneq.
-    - apply r_gt_k.
+    now apply natgthtoneq.
   Defined.
 
   (** 0 in pivot row -> corresponding col is unchanged after gcc *)

@@ -104,11 +104,11 @@ Section BackSub.
     }
     etrans.
     { apply maponpaths; apply map_on_two_paths.
-      rewrite <- (@rigassoc2 F), (@fldmultinvrax F).
+      - rewrite <- (@rigassoc2 F), (@fldmultinvrax F).
       { now rewrite (@riglunax2 F). }
-      apply maponpaths.
-      rewrite <- (@rigassoc2 F), (@fldmultinvrax F).
-      apply (@riglunax2 F). }
+      - apply maponpaths.
+        rewrite <- (@rigassoc2 F), (@fldmultinvrax F).
+        apply (@riglunax2 F). }
     etrans.
     { do 3 apply maponpaths.
       now rewrite (@rigcomm2 F), (@ringplusminus F). }
@@ -286,12 +286,11 @@ Section BackSub.
     { apply funextfun. intros i. apply fromstn0. now rewrite eq0. }
     apply funextfun; intros i.
     apply back_sub_internal_inv2;
-      try assumption; unfold dualelement.
+      try assumption; unfold dualelement; try easy.
+    2: {exact (pr2 i). }
     destruct (natchoice0 _) as [eq0 | ?].
     { apply fromempty; now apply negpaths0sx in eq0. }
     simpl; now rewrite minus0r, minusnn0.
-    apply df.
-    exact (pr2 i).
   Defined.
 
 End BackSub.
@@ -351,8 +350,9 @@ Section BackSubZero.
       ; destruct (fldchoice0 _); try assumption.
     + rewrite eq; intros contr_neq.
       contradiction (nonzeroax _ (pathsinv0 contr_neq)).
-    + destruct (fldchoice0 (v j)) as [contr_eq | ?]; try assumption.
-      now rewrite contr_eq in neq.
+    + destruct (fldchoice0 (v j)) as [contr_eq | ?].
+      * now rewrite contr_eq in neq.
+      * contradiction.
   Defined.
 
   Local Definition vector_all_nonzero_compute
@@ -381,6 +381,7 @@ Section BackSubZero.
     destruct (natchoice0 (pr1 zero)) as [eq0_1 | gt].
     { apply (zero_row_to_non_right_invertibility (transpose mat) (pr1 zero));
         try assumption.
+      2: { now apply (@matrix_left_inverse_to_transpose_right_inverse F). }
       apply funextfun; intros k.
       destruct (natchoice0 k) as [eq0_2 | ?].
       - rewrite <- (pr1 (pr2 zero)).
@@ -390,7 +391,6 @@ Section BackSubZero.
       - unfold transpose, flip.
         rewrite ut; try reflexivity.
         now rewrite <- eq0_1.
-      - now apply (@matrix_left_inverse_to_transpose_right_inverse F).
     }
     assert (contr_exists :  ∑ x : (Vector F n), (∑ i' : stn n,
       (x i' != 0) × (mat ** (col_vec x)) = (@col_vec F _ (const_vec 0)))).
@@ -529,12 +529,12 @@ Section Misc.
         as [[prev eq''] | none_prev].
       + pose (H2 := (leading_entry_compute_inv2 _ _ _ eq'')).
         contradiction (pr1 H2); rewrite (IH iter_lt_sn); try easy.
-        use tpair; simpl.
-        * intros i_1 i_2 j_1 j_2 i1_lt_iter H' ? ?.
-          rewrite (re_1 i_1 i_2 j_1 j_2); try easy.
-          apply (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
-        * intros i_1 i_2 i1_lt_iter ? ?; rewrite (re_2 i_1 i_2); try easy.
-          apply (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
+        * use tpair; simpl.
+          -- intros i_1 i_2 j_1 j_2 i1_lt_iter H' ? ?.
+             rewrite (re_1 i_1 i_2 j_1 j_2); try easy.
+             apply (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
+          -- intros i_1 i_2 i1_lt_iter ? ?; rewrite (re_2 i_1 i_2); try easy.
+             apply (istransnatlth _ _ _ i1_lt_iter (natgthsnn _)).
         * destruct (natgthorleh u prev) as [gt | leh]; try assumption.
           contradiction (pr1 H1); rewrite (re_1 u i t prev); try easy.
           -- apply natgehsntogth; rewrite u_lt, eq'; apply natgehsnn.
@@ -724,15 +724,15 @@ Section Inverse.
       }
       simpl in * |- ;
       now rewrite <- BAC_id, <- linv_eq.
-  - right.
-    intros [invM [isl isr]].
-    pose (isinv := @make_matrix_left_inverse _ _ _ n _ _ isr).
-    assert (isinvprod : (matrix_left_inverse BA)).
-    { apply left_inv_matrix_prod_is_left_inv; try assumption.
-      apply (@matrix_inverse_to_right_and_left_inverse F _ B),
-        gauss_clear_all_rows_matrix_invertible. }
-    pose (contr_eq := @left_invertible_upper_triangular_to_diagonal_all_nonzero _ _ ut isinvprod idx).
-    now rewrite isnotz in contr_eq.
+    - right.
+      intros [invM [isl isr]].
+      pose (isinv := @make_matrix_left_inverse _ _ _ n _ _ isr).
+      assert (isinvprod : (matrix_left_inverse BA)).
+      { apply left_inv_matrix_prod_is_left_inv; try assumption.
+        apply (@matrix_inverse_to_right_and_left_inverse F _ B),
+          gauss_clear_all_rows_matrix_invertible. }
+      pose (contr_eq := @left_invertible_upper_triangular_to_diagonal_all_nonzero _ _ ut isinvprod idx).
+      now rewrite isnotz in contr_eq.
   Defined.
 
 End Inverse.
