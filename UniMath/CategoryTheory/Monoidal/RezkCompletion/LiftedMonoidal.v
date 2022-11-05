@@ -124,7 +124,21 @@ Section RezkMonoidal.
                · ((pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (I_posttensor TC I x1, x2))
              =  TransportedAssocLeft Duniv H_eso H_ff TC ((x1, I), x2)).
     {
-      admit.
+      symmetry.
+      refine (TransportedAssocLeftOnOb Duniv H_eso H_ff TC α x1 I x2 @ _).
+      apply maponpaths_2.
+      unfold LiftPreservesPostTensor.
+      rewrite functor_id.
+      apply maponpaths.
+      apply maponpaths_2.
+      unfold TransportedTensorComm.
+      simpl.
+      rewrite ! id_left.
+      rewrite ! id_right.
+      rewrite (functor_id (lift_functor_along (D,, Duniv) (pair_functor H H) (pair_functor_eso H H H_eso H_eso) (pair_functor_ff H H H_ff H_ff) (TC ∙ H))).
+      rewrite functor_id.
+      rewrite id_right.
+      apply (! id_left _).
     }
 
     rewrite ! assoc.
@@ -145,10 +159,8 @@ Section RezkMonoidal.
     rewrite <- functor_id.
     apply maponpaths_2.
 
-    set (q := LiftPreservesPretensor Duniv H_eso H_ff TC I x2).
-    assert (p0 : q = (TransportedTensorComm Duniv H_eso H_ff TC) (I,x2)). {
-      simpl in q.
-      unfold q.
+    assert (p0 : LiftPreservesPretensor Duniv H_eso H_ff TC I x2 = (TransportedTensorComm Duniv H_eso H_ff TC) (I,x2)). {
+      simpl.
       rewrite ! functor_id.
       rewrite ! id_left.
       rewrite ! id_right.
@@ -163,34 +175,11 @@ Section RezkMonoidal.
 
     set (i := pr2 (nat_z_iso_inv ((TransportedAssocRight Duniv H_eso H_ff TC))) ((x1, I), x2)).
     use (z_iso_inv_to_left _ _ _ (_,,i)).
-    etrans. {
-      apply maponpaths_2.
-      assert (p0 : inv_from_z_iso (pr1 (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC)) ((x1, I), x2),, i) = (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, I), x2)).
-      {
-        apply idpath.
-      }
-      exact p0.
-    }
-    clear i.
+    set (j := pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, I_pretensor TC I x2)).
+    use (z_iso_inv_to_right _ _ _ _ (_,,j)).
 
-    set (i := pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, I_pretensor TC I x2)).
-    use (z_iso_inv_to_right _ _ _ _ (_,,i)).
-
-    etrans.
-    2: {
-      apply maponpaths.
-      use pathscomp0.
-      - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x1, I_pretensor TC I x2)).
-      - apply idpath.
-      - apply idpath.
-    }
-
-
-
-
-
-
-  Admitted.
+    exact (TransportedAssocRightOnOb Duniv H_eso H_ff TC α x1 I x2).
+  Qed.
 
   Lemma TransportedPentagonEq
     : pentagon_eq TD αD.

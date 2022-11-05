@@ -72,6 +72,15 @@ Section RezkAssociator.
     apply (lift_functor_along_comm (_,,Duniv) _ HHH_eso HHH_ff).
   Defined.
 
+  Check TransportedTensorComm.
+
+  Lemma TransportedAssocLeftOnOb (x y z : C)
+    : TransportedAssocLeft ((x,y),z)
+      = # TD (TransportedTensorComm Duniv H_eso H_ff TC (x,y) #, identity (H z))
+          · (TransportedTensorComm Duniv H_eso H_ff TC (TC (x,y) , z)).
+  Proof.
+  Admitted.
+
   Lemma unassoc_commutes
     : nat_z_iso (HHH ∙ (precategory_binproduct_unassoc D D D))
                 ((precategory_binproduct_unassoc C C C) ∙ (pair_functor H HH)).
@@ -129,6 +138,13 @@ Section RezkAssociator.
     { apply (make_nat_z_iso _ _ _ (is_nat_z_iso_nat_trans_id H)). }
     apply TransportedTensorComm.
   Defined.
+
+  Lemma TransportedAssocRightOnOb (x y z : C)
+    : TransportedAssocRight ((x,y),z)
+      =  # TD (# H (id x) #, TransportedTensorComm Duniv H_eso H_ff TC (y, z))
+           · TransportedTensorComm Duniv H_eso H_ff TC (x, TC (y,z)).
+  Proof.
+  Admitted.
 
   Definition TransportedAssociator
     : associator TD.
