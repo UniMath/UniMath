@@ -299,7 +299,7 @@ Proof.
           apply disp_mor_transportf_prewhisker. }
         etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
         etrans.
-        apply maponpaths. apply disp_vassocl.
+        { apply maponpaths. apply disp_vassocl. }
         etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
         etrans.
         { apply maponpaths. apply maponpaths.
@@ -508,12 +508,12 @@ Proof.
     use tpair.
     + (* Units *)
       use tpair; simpl.
-      apply (left_adjoint_unit j).
-      apply (disp_left_adjoint_unit _ jj).
+      * apply (left_adjoint_unit j).
+      * apply (disp_left_adjoint_unit _ jj).
     + (* Counits *)
       use tpair; simpl.
-      apply (left_adjoint_counit j).
-      apply (disp_left_adjoint_counit _ jj).
+      * apply (left_adjoint_counit j).
+      * apply (disp_left_adjoint_counit _ jj).
 Defined.
 
 Definition left_adjoint_data_total_weq

@@ -311,8 +311,8 @@ Local Definition M_alg : Alg.
 Proof.
   apply (tpair (λ x, EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
   apply BinCoproductArrow.
-  apply Monads.η.
-  apply τ_M.
+  - apply Monads.η.
+  - apply τ_M.
 Defined.
 
 (** j : T --> M is the initial Id+H-algebra morphism *)
@@ -332,7 +332,7 @@ Defined.
 
 Let is_omega_cocont_Id_H' := LiftingInitial_alt.is_omega_cocont_Id_H C CP H HH.
 
-Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
+Local Notation j_mor := ((mor_from_algebra_mor _ j):nat_trans _ _).
 
 (**
   Following Ralph's proof : we want to prove the square diagram for the
@@ -404,8 +404,8 @@ Proof.
     apply cancel_postcomposition.
     etrans; [ apply assoc |].
     etrans.
-    apply cancel_postcomposition.
-    apply (θ_nat_1_pw _ _ a (p T_alg)).
+    { apply cancel_postcomposition.
+      apply (θ_nat_1_pw _ _ a (p T_alg)). }
     rewrite <- assoc.
     apply cancel_precomposition.
     etrans; revgoals.
@@ -418,7 +418,7 @@ Proof.
     intro c'.
     etrans; [| apply id_right ].
     apply cancel_precomposition.
-    apply (functor_id   x).
+    apply (functor_id x).
 Qed.
 
 Local Definition ψ  : (PreShv EndC)⟦ψ_source(D:=[C,C]) X L , ψ_target(D:=[C,C]) Id_H X L⟧ :=
@@ -613,7 +613,7 @@ Proof.
     apply id_left.
 Qed.
 
-Lemma j_mon_laws : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
+Lemma j_mon_laws : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ j).
 Proof.
   split.
   - apply (nat_trans_eq_pointwise (a:= compose (C:=EndC)  (μ T_mon) j_mor)

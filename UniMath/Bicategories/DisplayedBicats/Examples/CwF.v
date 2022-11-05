@@ -205,7 +205,7 @@ Section CwFRepresentation.
   Proof.
     apply pathsinv0.
     etrans. 2: apply yy_natural.
-    etrans. apply yy_comp_nat_trans.
+    etrans. { apply yy_comp_nat_trans. }
     apply maponpaths, e.
   Qed.
 
@@ -271,7 +271,7 @@ Section CwFRepresentation.
         cbn in XR'.
         assert (XR'':= toforallpaths _ _  _ XR').
         cbn in XR''.
-        etrans. apply XR''.
+        etrans. { apply XR''. }
         apply id_left.
       + unfold TT; clear TT.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
@@ -289,9 +289,9 @@ Section CwFRepresentation.
         rewrite inv_from_z_iso_iso_from_fully_faithful_reflection.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful
                                       (yoneda_fully_faithful _) ΓA' ΓA )).
-        etrans. apply maponpaths_2. apply XX.
+        etrans. { apply maponpaths_2. apply XX. }
         clear XX.
-        etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
+        etrans. { apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath. }
         pose (XR' := PullbackArrow_PullbackPr2
                        (make_Pullback _ isP)
                        (yoneda_objects C ΓA')

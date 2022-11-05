@@ -60,7 +60,7 @@ Section DisplayedBifunctor.
 
   (** Remark:: No make_disp_functor exists in Displayedcats.Functors **)
   Lemma leftwhiskering_dispfunctor {A B C : category} {F : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} (DF : disp_bifunctor_data F DA DB DC) (dbli : disp_bifunctor_leftidax DF) (dblc : disp_bifunctor_leftcompax DF) :
-    ∏ (x : A) (xx : DA x), disp_functor (leftwhiskering_functor F (bifunctor_leftid F) (bifunctor_leftcomp F) x) DB DC.
+    ∏ (x : A) (xx : DA x), disp_functor (leftwhiskering_functor F x) DB DC.
   Proof.
     intros x xx.
     (* use make_disp_functor. *)
@@ -79,7 +79,7 @@ Section DisplayedBifunctor.
   Defined.
 
   Lemma rightwhiskering_dispfunctor {A B C : category} {F : bifunctor A B C} {DA : disp_cat A} {DB : disp_cat B} {DC : disp_cat C} (DF : disp_bifunctor_data F DA DB DC) (dbri : disp_bifunctor_rightidax DF) (dbrc : disp_bifunctor_rightcompax DF) :
-    ∏ (y : B) (yy : DB y), disp_functor (rightwhiskering_functor F (bifunctor_rightid F) (bifunctor_rightcomp F) y) DA DC.
+    ∏ (y : B) (yy : DB y), disp_functor (rightwhiskering_functor F y) DA DC.
   Proof.
     intros y yy.
     (* use make_disp_functor. *)

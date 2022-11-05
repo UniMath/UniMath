@@ -105,8 +105,8 @@ Section BraidedSymmetricMonoidalCategories.
   Definition symmetric_whiskers_swap_nat_trans_data
         {C : category} {M : monoidal C} (B : symmetric M) (x : C)
     : nat_trans_data
-        (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) x)
-        (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) x)
+        (leftwhiskering_functor M x)
+        (rightwhiskering_functor M x)
     := λ y, (monoidal_braiding_data B) x y.
 
   Lemma symmetric_whiskers_swap_is_nat_trans
@@ -120,8 +120,8 @@ Section BraidedSymmetricMonoidalCategories.
   Definition symmetric_whiskers_swap_nat_trans
         {C : category} {M : monoidal C} (B : symmetric M) (x : C)
     : nat_trans
-        (leftwhiskering_functor M (bifunctor_leftid M) (bifunctor_leftcomp M) x)
-        (rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) x)
+        (leftwhiskering_functor M x)
+        (rightwhiskering_functor M x)
     := symmetric_whiskers_swap_nat_trans_data B x ,, symmetric_whiskers_swap_is_nat_trans B x.
 
   Lemma symmetric_whiskers_swap_is_nat_iso

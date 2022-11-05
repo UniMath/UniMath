@@ -448,12 +448,12 @@ Proof.
       unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
       rewrite <- @assoc in h'_eq1_inst.
       etrans.
-      eapply pathsinv0. exact h'_eq1_inst.
+      { eapply pathsinv0; exact h'_eq1_inst. }
       clear h'_eq1_inst.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       apply BinCoproductIn1Commutes_right_dir.
-        apply idpath.
+      apply idpath.
     + destruct h'_eq as [_ h'_eq2]. (*clear h'_eq2.*)
       assert (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
         clear h'_eq2.
@@ -710,7 +710,7 @@ Proof.
             assert (Hyp := τ_part_of_alg_mor _ CP _ _ _ (InitialArrow IA (pr1 T'))).
             assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
             simpl in Hyp_c.
-            eapply pathscomp0. eapply pathsinv0. exact Hyp_c.
+            etrans; [ eapply pathsinv0; exact Hyp_c |].
             clear Hyp_c.
             apply maponpaths.
             apply pathsinv0.

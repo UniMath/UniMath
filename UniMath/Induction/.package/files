@@ -1,3 +1,6 @@
+FunctorAlgebras_legacy.v
+FunctorCoalgebras_legacy.v
+
 PolynomialFunctors.v
 ImpredicativeInductiveSets.v
 M/Core.v

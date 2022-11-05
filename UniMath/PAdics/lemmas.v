@@ -7,6 +7,8 @@
 
 (** Imports *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
+
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.NaturalNumbers.
@@ -69,9 +71,9 @@ Proof.
   - auto.
   - intros m p q r. destruct m.
     + apply fromempty. exact (isirreflnatlth 0%nat q ).
-    + assert ( natleh n m ) as a. apply r.
+    + assert ( natleh n m ) as a. { apply r. }
       assert ( natleh ( sub n 0%nat ) m ) as a0.
-        exact (transportf ( fun x : nat => natleh x m ) ( pathsinv0 ( minus0r n ) ) a).
+      { exact (transportf ( fun x : nat => natleh x m ) ( pathsinv0 ( minus0r n ) ) a). }
       exact ( transportf ( fun x : nat => natleh ( sub n 0 ) x ) (pathsinv0 ( minus0r m ) ) a0 ).
 Defined.
 
@@ -210,11 +212,15 @@ Proof.
     + change ( sub ( S n ) (sub n m ) = S m ).
       rewrite <- pathssminus.
       * rewrite IHn.
-        ++  apply idpath.
-        ++ assumption.
+        --  apply idpath.
+        -- assumption.
       * apply ( minuslth ( S n ) ( S m ) ).
-        ++ apply (natlehlthtrans _ n ). apply natleh0n. apply natlthnsn.
-        ++ apply (natlehlthtrans _ m ). apply natleh0n. apply natlthnsn.
+        -- apply (natlehlthtrans _ n ).
+           ++ apply natleh0n.
+           ++ apply natlthnsn.
+        -- apply (natlehlthtrans _ m ).
+           ++ apply natleh0n.
+           ++ apply natlthnsn.
 Defined.
 
 Lemma boolnegtrueimplfalse ( v : bool ) ( p : neg ( v = true ) ) : v = false.
@@ -237,8 +243,9 @@ Proof.
   intros.
   unfold natcoface.
   destruct ( natgtb i n ).
-  - apply natlthtoleh.  apply (natlehlthtrans _ upper ).
-    assumption. apply natlthnsn.
+  - apply natlthtoleh. apply (natlehlthtrans _ upper ).
+    + assumption.
+    + apply natlthnsn.
   - apply p.
 Defined.
 
@@ -271,8 +278,9 @@ Proof.
     assert ( natgtb i ( S n ) = false ) as ff.
     { apply natgehimplnatgtbfalse.
       apply ( istransnatgeh _ n ).
-      apply natgthtogeh. apply natgthsnn. assumption. }
-    rewrite ff.  rewrite minussn1.  apply idpath.
+      + apply natgthtogeh. apply natgthsnn.
+      + assumption. }
+    rewrite ff. rewrite minussn1. apply idpath.
 Defined.
 
 Lemma isinjnatcoface ( i x y : nat ) : natcoface i x = natcoface i y -> x = y.
@@ -694,11 +702,11 @@ Proof.
     apply ( isirreflhzlth m ).
     apply ( hzlehlthtrans _ n _ ).
     + rewrite <- ( hzabsvalgeh0 ).
-      rewrite <- ( hzabsvalgeh0 p ).
-      apply nattohzandleh.
-      apply k.
-      apply hzgthtogeh.
-      apply ( hzgthgehtrans _ n _ ); assumption.
+      * rewrite <- ( hzabsvalgeh0 p ).
+        apply nattohzandleh.
+        apply k.
+      * apply hzgthtogeh.
+        apply ( hzgthgehtrans _ n _ ); assumption.
     + assumption.
 Defined.
 

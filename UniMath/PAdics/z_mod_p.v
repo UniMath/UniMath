@@ -198,17 +198,17 @@ Proof.
   change 0 with ( nattohz 0%nat ).
   apply nattohzandlth.
   apply ( istransnatlth _ 1 ).
-  apply natlthnsn.
-  apply natlthnsn.
+  - apply natlthnsn.
+  - apply natlthnsn.
 Defined.
 
 Local Lemma testlemma3 : hzlth 0 ( nattohz 3 ).
 Proof.
   apply ( istranshzlth _ ( nattohz 2 ) ).
-  apply testlemma21.
-  change 0 with ( nattohz 0%nat ).
-  apply nattohzandlth.
-  apply natlthnsn.
+  - apply testlemma21.
+  - change 0 with ( nattohz 0%nat ).
+    apply nattohzandlth.
+    apply natlthnsn.
 Defined.
 
 Lemma testlemma9 : hzlth 0 ( nattohz 9 ).
@@ -293,9 +293,9 @@ Proof.
            ++ unfold R.
               assert ( hzlth r ( - m ) ) as u.
               { rewrite <- hzabsvalleh0.
-                apply ( pr2 ( pr2 ( pr2 ( a ) ) ) ).
-                apply hzlthtoleh.
-                assumption.
+                ** apply ( pr2 ( pr2 ( pr2 ( a ) ) ) ).
+                ** apply hzlthtoleh.
+                   assumption.
               }
               rewrite <- ( hzlminus m ).
               change ( pr2 ( make_dirprod Q ( - m - r ) ) ) with ( - m - r ).
@@ -433,9 +433,9 @@ Proof.
                 rewrite <- equal.
                 rewrite hzplusr0.
                 rewrite hzabsvalgeh0.
-                apply pathsinv0.
-                apply ringrmultminus.
-                assumption.
+                ** apply pathsinv0.
+                   apply ringrmultminus.
+                ** assumption.
               }
               rewrite f0, f1.
               assumption.
@@ -1280,7 +1280,7 @@ Proof.
                 apply x0.
           -- assumption.
         * apply ( istranshzleh _ 0 _ ).
-          assumption.
+          { assumption. }
           change 0 with ( nattohz 0%nat ).
           apply nattohzandleh.
           assumption.
@@ -1334,8 +1334,8 @@ Proof.
           -- apply hzdivandmultr.
              exact ( pr1 c0 ).
           -- rewrite hzabsvalgeh0 in c0.
-             exact ( pr2 c0 ).
-             assumption.
+             ++ exact ( pr2 c0 ).
+             ++ assumption.
         * exact ( pr1 c0 ).
       + intros l o.
         apply c1.
@@ -1687,8 +1687,8 @@ Proof.
         apply i.
         apply pathsinv0.
         rewrite hzabsvaleq0.
-        apply idpath.
-        assumption.
+        -- apply idpath.
+        -- assumption.
     + apply ( gcdisgreatest n m i ).
       split.
       * apply hzdivisrefl.
@@ -1939,11 +1939,11 @@ Proof.
                 ** apply hzdivisrefl.
                 ** assumption.
              ++ rewrite hzabsvalleh0.
-                rewrite <- ( ringminusminus hz m ).
-                apply hzdivandminus.
-                rewrite ( ringminusminus hz m ).
-                apply hzdivisrefl.
-                assumption.
+                ** rewrite <- ( ringminusminus hz m ).
+                   apply hzdivandminus.
+                   rewrite ( ringminusminus hz m ).
+                   apply hzdivisrefl.
+                ** assumption.
     - apply isantisymmhzleh.
       + apply gcdisgreatest.
         split.

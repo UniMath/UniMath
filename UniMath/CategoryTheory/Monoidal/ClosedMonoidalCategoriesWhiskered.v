@@ -16,7 +16,7 @@ Section ClosedMonoidalCategories.
   Definition monoidal_leftclosed {C : category} (M : monoidal C) : UU
     := ∏ X : C, ∑ homX : functor C C,
           are_adjoints
-            (rightwhiskering_functor M (bifunctor_rightid _) (bifunctor_rightcomp _) X)
+            (rightwhiskering_functor M X)
             homX.
 
   Definition monoidal_leftclosed_exp {C : category} {M : monoidal C}
@@ -26,7 +26,7 @@ Section ClosedMonoidalCategories.
   Definition monoidal_rightclosed {C : category} (M : monoidal C) : UU
     := ∏ X : C, ∑ homX : functor C C,
           are_adjoints
-            (leftwhiskering_functor M (bifunctor_leftid _) (bifunctor_leftcomp _) X)
+            (leftwhiskering_functor M X)
             homX.
 
   Definition monoidal_biclosed {C : category} (M : monoidal C) : UU
@@ -182,7 +182,7 @@ Section ClosedMonoidalCategories.
     intros B LC.
     intro x.
     exists (monoidal_leftclosed_exp LC x).
-    apply (adj_unique_up_to_nat_z_iso (F2 := rightwhiskering_functor M (bifunctor_rightid M) (bifunctor_rightcomp M) x)).
+    apply (adj_unique_up_to_nat_z_iso (F2 := rightwhiskering_functor M x)).
     - apply symmetric_whiskers_swap_nat_z_iso.
       exact B.
     - exact (pr2 (LC x)).

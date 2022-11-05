@@ -174,7 +174,7 @@ Arguments RelMonad_data {C} {D} J.
 Arguments RelMonad {C} {D} J.
 
 
-(** analogue of [UniMath.CategoryTheory.functor_categories.functor_eq_eq_from_functor_ob_eq] *)
+(** analogue of [UniMath.CategoryTheory.Core.Functors.functor_eq_eq_from_functor_ob_eq] *)
 Definition relmonad_eq_eq_from_relmonad_ob_eq {C: precategory_data} {D: precategory} (hs: has_homsets D)
            {J : functor C D} (R R' : RelMonad J) (p q : R = R')
     (H : base_paths _ _ (base_paths _ _ p) =

@@ -1,4 +1,6 @@
 (** Grothendieck groups of exact categories  *)
+Require Export UniMath.Tactics.EnsureStructuredProofs.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.CategoryTheory.ExactCategories.ExactCategories.

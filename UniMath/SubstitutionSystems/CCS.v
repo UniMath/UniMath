@@ -129,7 +129,7 @@ el is 0 and ty is 1) and to the right as a multisorted signature:
 (** The multisorted signature of CC-S *)
 Definition CCS_Sig : MultiSortedSig sort.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - exact (stn 6,,isasetstn 6).
 - apply six_rec.
   + exact ((([],,ty) :: (cons el [],,ty) :: nil),,ty).

@@ -324,7 +324,7 @@ Proof.
       set (Tη := ptd_from_alg _ ).
 
       destruct Z as [Z e]. simpl in *.
-      set (T := ` Lam).
+      set (T := Lam).
 
       (* now we want to rewrite with T3 in 3 places *)
 
@@ -343,7 +343,7 @@ Proof.
       clear T3'.
       apply pathsinv0.
 
-      assert (T3':= nat_trans_eq_pointwise T3 (T c)).
+      assert (T3' := nat_trans_eq_pointwise T3 (pr1 T c)).
       simpl in T3'. rewrite id_right in T3'.
       etrans. { apply cancel_postcomposition. apply maponpaths. exact T3'. }
       clear T3'.
@@ -353,14 +353,14 @@ Proof.
 
       repeat rewrite assoc.
 
-      rewrite <- (functor_comp T).
+      rewrite <- (functor_comp (pr1 T)).
       repeat rewrite <- assoc.
       etrans.
       2: { apply cancel_postcomposition. apply maponpaths. apply (nat_trans_ax e). }
       repeat rewrite assoc.
-      rewrite <- (functor_comp T).
+      rewrite <- (functor_comp (pr1 T)).
 
-      assert (X := fptdmor (T c)). clear T3 fptdmor.
+      assert (X := fptdmor ((pr1 T) c)). clear T3 fptdmor.
       unfold functor_identity_data. simpl.
 
       apply pathsinv0.
@@ -368,7 +368,7 @@ Proof.
       do 2 apply maponpaths. apply X. }
       clear X.
 
-      assert (X := Monad_law_2_from_hss _ CC Lam_S LamHSS (T c)).
+      assert (X := Monad_law_2_from_hss _ CC Lam_S LamHSS ((pr1 T) c)).
       unfold μ_0 in X. unfold μ_2 in X.
 
       change (pr1 ⦃ identity (ptd_from_alg (pr1 LamHSS)) ⦄ c) with (prejoin_from_hetsubst LamHSS c).
@@ -376,7 +376,7 @@ Proof.
 
       etrans.
       { do 2 apply cancel_postcomposition. apply maponpaths. apply assoc. }
-      rewrite (functor_comp T).
+      rewrite (functor_comp (pr1 T)).
       repeat rewrite <- assoc.
 
       match goal with |[ X : ?e = _ |- _ · (?a · (?b · _))  = _ ] =>
@@ -391,7 +391,7 @@ Proof.
       rewrite id_left.
 
       assert (μ_2_nat := nat_trans_ax (μ_2 C CC Lam_S LamHSS)).
-      assert (X := μ_2_nat _ _ (f c · identity (pr1 `Lam c))).
+      assert (X := μ_2_nat _ _ (f c · identity (pr1 Lam c))).
       unfold μ_2 in X.
 
       etrans. 2: { rewrite assoc. apply cancel_postcomposition. apply X. }

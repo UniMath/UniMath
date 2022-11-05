@@ -77,6 +77,9 @@ Proof.
   + apply ii2, hinhpr. exists x. now apply negimpl_to_conj.
 Defined.
 
+Definition emptysubtype (X : UU) : hsubtype X
+  := λ x, hfalse.
+
 Definition subtype_difference {X:UU} (S T : hsubtype X) : hsubtype X := λ x, S x ∧ ¬ (T x).
 
 Notation " S - T " := (subtype_difference S T) : subtype.
@@ -101,6 +104,20 @@ Defined.
 Definition subtype_union {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, ∃ i, S i x.
 
 Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype.
+
+Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
+  := fun x => A x ∨ B x.
+
+Notation "A ∪ B" := (subtype_binaryunion A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cup or ∪ *)
+
+Definition subtype_binaryunion_leq1 {X} (A B : hsubtype X) : A ⊆ (A ∪ B)
+  := fun x => hdisj_in1.
+
+Definition subtype_binaryunion_leq2 {X} (A B : hsubtype X) : B ⊆ (A ∪ B)
+  := fun x => hdisj_in2.
 
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   make_hSet (carrier S) (isaset_carrier_subset _ S).
@@ -197,6 +214,61 @@ Proof.
   - induction e. exact Tz.
 Defined.
 
+Section Complement.
+
+  Context {X : UU}.
+
+  Definition subtype_complement (S : hsubtype X) : hsubtype X := fun x => hneg (S x).
+
+  (** Something can't be in a subtype and its complement. *)
+  Lemma not_in_subtype_and_complement (S : hsubtype X) :
+    ∏ x, S x -> subtype_complement S x -> empty.
+  Proof.
+    intros x in_S in_neg_S; exact (in_neg_S in_S).
+  Defined.
+
+  (** The intersection of a family containing a set and its complement is empty. *)
+  Lemma subtype_complement_intersection_empty {S} {I : UU} {f : I -> hsubtype X} :
+    (∑ i : I, f i = S) ->
+    (∑ j : I, f j = subtype_complement S) ->
+    subtype_intersection f ≡ emptysubtype _.
+  Proof.
+    intros has_S has_neg_S x; use make_dirprod.
+    - intros in_intersection.
+      pose (in_S := in_intersection (pr1 has_S)).
+      pose (in_neg_S := in_intersection (pr1 has_neg_S)).
+      cbn in *.
+
+      pose (in_S' := (eqtohomot (pr2 has_S)) x).
+      pose (in_neg_S' := (eqtohomot (pr2 has_neg_S)) x).
+
+      apply (not_in_subtype_and_complement S x).
+      + abstract (induction in_S'; assumption).
+      + abstract (induction in_neg_S'; assumption).
+
+    - intros empt; induction empt.
+  Qed.
+
+  (** The union of a family containing a set and its complement is the whole set (assuming LEM). *)
+  Lemma subtype_complement_union {S} (lem : LEM) {I : UU} {f : I -> hsubtype X} :
+    (∑ i : I, f i = S) ->
+    (∑ j : I, f j = subtype_complement S) ->
+    subtype_union f ≡ totalsubtype _.
+  Proof.
+    intros has_S has_neg_S x; use make_dirprod.
+    - intros ?; exact tt.
+    - intros ?.
+      induction (lem (S x)).
+      + apply hinhpr.
+        exists (pr1 has_S).
+        abstract (rewrite (pr2 has_S); assumption).
+      + apply hinhpr.
+        exists (pr1 has_neg_S).
+        abstract (rewrite (pr2 has_neg_S); assumption).
+  Qed.
+
+End Complement.
+
 (* We could define the intersection as follows but this makes it more complicated than it should be *)
 Definition binary_intersection' {X : UU} (U V : hsubtype X) : hsubtype X
   := subtype_intersection (λ b,  bool_rect (λ _ : bool, hsubtype X) U V b).
@@ -210,9 +282,6 @@ Proof.
   intros ? p.
   exact (transportf _ (iscomm_hconj (U x) (V x)) p).
 Qed.
-
-Definition emptysubtype (X : UU) : hsubtype X
-  := λ x, hfalse.
 
 Definition intersection_contained_l {X : UU} (U V : hsubtype X)
   : subtype_containedIn (binary_intersection U V) U.
@@ -401,3 +470,28 @@ Section singletons.
     exact(λ (p : y = (pr1 a)), transportb A p (pr2 a)).
   Defined.
 End singletons.
+
+(* Map from the coproduct of carriers to the carrier of the binary union. *)
+Definition coprod_carrier_binary_union {X}
+  (A B : hsubtype X)
+  : A ⨿ B -> A ∪ B.
+Proof.
+  apply sumofmaps; apply subtype_inc.
+  - apply subtype_binaryunion_leq1.
+  - apply subtype_binaryunion_leq2.
+Defined.
+
+Lemma issurjective_coprod_carrier_binary_union {X}
+  (A B : hsubtype X)
+  : issurjective (coprod_carrier_binary_union A B).
+Proof.
+  intros [x aub].
+  use(hinhfun _ aub).
+  apply sumofmaps
+  ; (intro y; use make_hfiber)
+  ; try (apply subtypePath_prop).
+  - exact(inl (x ,, y)).
+  - apply idpath.
+  - exact(inr (x ,, y)).
+  - apply idpath.
+Qed.

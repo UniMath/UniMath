@@ -98,13 +98,13 @@ Proof.
   (* very slow with library elements:
   set (aux := rassociator_transf(C := C) c0 c0 c0 c0).
   set (aux' := pre_whisker (precategory_binproduct_unassoc _ _ _) aux).
-  use mk_nat_trans.
+  use make_nat_trans.
   - intro c. exact (pr1 aux' c).
   - apply (pr2 aux').
    *)
   (* still very slow with new additions to library:
   set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).
-  use mk_nat_trans.
+  use make_nat_trans.
   - intro c. exact (pr1 aux c).
   - abstract ( apply (pr2 aux) ).
    *)
@@ -122,7 +122,7 @@ Defined.
 
 Definition monoidal_cat_from_bicat_and_ob: monoidal_cat.
 Proof.
-  use (mk_monoidal_cat category_from_bicat_and_ob tensor_from_bicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
+  use (make_monoidal_cat category_from_bicat_and_ob tensor_from_bicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
   - abstract ( intros a b; apply pathsinv0; apply unit_triangle ).
   - abstract ( intros a b c d; apply pathsinv0; apply associativity_pentagon ).
 Defined.

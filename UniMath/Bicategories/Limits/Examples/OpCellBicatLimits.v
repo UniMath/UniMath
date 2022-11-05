@@ -8,19 +8,32 @@
  3. Mirroring pullbacks
  4. Pullbacks in op2 bicat
  5. Comma objects
+ 6. Eilenberg-Moore objects
 
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.Unitors.
+Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Products.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.CommaObjects.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreObjects.
+Require Import UniMath.Bicategories.Limits.EilenbergMooreComonad.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 
 Local Open Scope cat.
 
@@ -401,3 +414,374 @@ Section Op2Comma.
     - exact op2_comma_has_comma_ump_2.
   Defined.
 End Op2Comma.
+
+(**
+ 6. Eilenberg-Moore objects
+ *)
+Definition em_comnd_cone_to_op2_em_cone
+           {B : bicat}
+           {m : mnd (op2_bicat B)}
+           (e : em_comnd_cone m)
+  : em_cone m.
+Proof.
+  use make_em_cone.
+  - exact e.
+  - exact (mor_of_em_comnd_cone _ e).
+  - exact (lunitor _ • cell_of_em_comnd_cone _ e).
+  - abstract
+      (cbn ;
+       rewrite !vassocr ;
+       use vcomp_move_L_Mp ; [ is_iso | ] ; cbn ;
+       rewrite !vassocl ;
+       apply maponpaths ;
+       exact (!(em_comnd_cone_counit _ e))).
+  - abstract
+      (cbn ;
+       rewrite !vassocl ;
+       apply maponpaths ;
+       refine (_ @ em_comnd_cone_comult _ e) ;
+       rewrite !vassocl ;
+       apply maponpaths ;
+       rewrite !vassocr ;
+       rewrite rwhisker_vcomp ;
+       rewrite !vassocr ;
+       rewrite linvunitor_lunitor ;
+       rewrite id2_left ;
+       apply idpath).
+Defined.
+
+Section ComonadEilenbergMoore.
+  Context {B : bicat}
+          {m : mnd (op2_bicat B)}
+          {e : em_comnd_cone m}
+          (He : has_em_comnd_ump m e).
+
+  Section UMP1.
+    Context (q : em_cone m).
+
+    Let f : B ⟦ q , ob_of_mnd m ⟧ := mor_of_mnd_mor (mor_of_em_cone _ q).
+    Let γ : id₁ _ · f
+            ==>
+            f · endo_of_mnd m
+      := mnd_mor_endo (mor_of_em_cone _ q).
+
+    Definition op2_bicat_has_em_ump_1_mor_unit
+      : (linvunitor f • γ) • (f ◃ unit_of_mnd m) = rinvunitor f.
+    Proof.
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; cbn.
+      use vcomp_move_L_Mp ; [ is_iso | ] ; cbn.
+      rewrite !vassocl.
+      refine (!(mnd_mor_unit (mor_of_em_cone _ q)) @ _).
+      refine (_ @ id2_right _).
+      apply maponpaths.
+      apply id2_rwhisker.
+    Qed.
+
+    Definition op2_bicat_has_em_ump_1_mor_mult
+      : ((linvunitor f • γ)
+        • ((linvunitor f • γ) ▹ endo_of_mnd m))
+        • rassociator f (endo_of_mnd m) (endo_of_mnd m)
+        =
+        (linvunitor f
+        • γ)
+        • (f ◃ mult_of_mnd m).
+    Proof.
+      rewrite !vassocl.
+      apply maponpaths.
+      assert (γ
+              • (((linvunitor _ • γ) ▹ _)
+              • rassociator _ _ _)
+              =
+              (linvunitor _ ▹ _)
+              • (rassociator _ _ _
+              • ((_ ◃ γ)
+              • (lassociator _ _ _
+              • ((γ ▹ _)
+              • rassociator _ _ _)))))
+        as p.
+      {
+        rewrite <- !rwhisker_vcomp.
+        rewrite !vassocr.
+        do 2 apply maponpaths_2.
+        rewrite <- linvunitor_assoc.
+        rewrite lwhisker_hcomp.
+        rewrite <- linvunitor_natural.
+        rewrite !vassocl.
+        rewrite linvunitor_assoc.
+        rewrite !vassocl.
+        rewrite rassociator_lassociator.
+        rewrite id2_right.
+        apply idpath.
+      }
+      exact (p @ mnd_mor_mu (mor_of_em_cone _ q)).
+    Qed.
+
+    Definition op2_bicat_has_em_ump_1_mor
+      : q --> em_comnd_cone_to_op2_em_cone e.
+    Proof.
+      use (em_comnd_ump_mor m He).
+      - exact f.
+      - exact (linvunitor _ • γ).
+      - exact op2_bicat_has_em_ump_1_mor_unit.
+      - exact op2_bicat_has_em_ump_1_mor_mult.
+    Defined.
+
+    Definition op2_bicat_has_em_ump_1_cell_data
+      : mnd_cell_data
+          (# (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_1_mor
+           · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e))
+          (mor_of_em_cone m q)
+      := em_comnd_ump_mor_cell
+           m He
+           f
+           (linvunitor _ • γ)
+           op2_bicat_has_em_ump_1_mor_unit
+           op2_bicat_has_em_ump_1_mor_mult.
+
+    Let δ : (mor_of_mnd_mor (mor_of_em_cone m q) : B ⟦ _ , _ ⟧)
+            ==>
+            op2_bicat_has_em_ump_1_mor · mor_of_em_comnd_cone m e
+      := op2_bicat_has_em_ump_1_cell_data.
+
+    Definition op2_bicat_has_em_ump_1_cell_is_mnd_cell
+      : is_mnd_cell op2_bicat_has_em_ump_1_cell_data.
+    Proof.
+      pose (p := em_comnd_ump_mor_cell_endo
+                   m He
+                   f
+                   (linvunitor _ • γ)
+                   op2_bicat_has_em_ump_1_mor_unit
+                   op2_bicat_has_em_ump_1_mor_mult).
+      use (vcomp_lcancel (linvunitor _)) ; [ is_iso | ].
+      refine (_ @ vassocl _ _ _).
+      refine (_ @ !p) ; clear p.
+      assert (linvunitor _
+              • ((_ ◃ δ)
+              • (lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)))))
+              =
+              (δ
+              • (_ ◃ cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)
+        as p.
+      {
+        rewrite !vassocr.
+        rewrite lwhisker_hcomp.
+        rewrite <- linvunitor_natural.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        etrans.
+        {
+          do 5 apply maponpaths_2.
+          apply (@linvunitor_assoc B).
+        }
+        rewrite !vassocl.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite (@rassociator_lassociator B).
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite (@rwhisker_vcomp B).
+        rewrite !vassocr.
+        rewrite linvunitor_lunitor.
+        rewrite id2_left.
+        rewrite rwhisker_hcomp.
+        rewrite <- (@triangle_r_inv B).
+        rewrite <- lwhisker_hcomp.
+        rewrite (@lwhisker_vcomp B).
+        rewrite !vassocr.
+        rewrite linvunitor_lunitor.
+        rewrite id2_left.
+        apply idpath.
+      }
+      exact p.
+    Qed.
+
+    Definition op2_bicat_has_em_ump_1_cell
+      : # (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_1_mor
+        · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)
+        ==>
+        mor_of_em_cone m q.
+    Proof.
+      use make_mnd_cell.
+      - exact op2_bicat_has_em_ump_1_cell_data.
+      - exact op2_bicat_has_em_ump_1_cell_is_mnd_cell.
+    Defined.
+
+    Definition op2_bicat_has_em_ump_1
+      : em_cone_mor m q (em_comnd_cone_to_op2_em_cone e).
+    Proof.
+      use make_em_cone_mor.
+      - exact op2_bicat_has_em_ump_1_mor.
+      - use make_invertible_2cell.
+        + exact op2_bicat_has_em_ump_1_cell.
+        + use is_invertible_mnd_2cell.
+          apply to_op2_is_invertible_2cell.
+          apply (em_comnd_ump_mor_cell_is_invertible m He).
+    Defined.
+  End UMP1.
+
+  Section UMP2.
+    Context {x : op2_bicat B}
+            {g₁ g₂ : x --> em_comnd_cone_to_op2_em_cone e}
+            (α : # (mnd_incl (op2_bicat B)) g₁
+                 · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)
+                 ==>
+                 # (mnd_incl (op2_bicat B)) g₂
+                 · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)).
+
+    Let αcell : (g₂ · mor_of_em_comnd_cone m e : B ⟦ _ , _ ⟧)
+                ==>
+                g₁ · mor_of_em_comnd_cone m e
+        := cell_of_mnd_cell α.
+
+    Definition op2_bicat_has_em_ump_2_help
+      : αcell
+        • (_ ◃ cell_of_em_comnd_cone m e)
+        • lassociator _ _ _
+        =
+        (_ ◃ cell_of_em_comnd_cone m e)
+        • lassociator _ _ _
+        • (αcell ▹ endo_of_mnd m).
+    Proof.
+      use (vcomp_lcancel (lunitor _)) ; [ is_iso | ].
+      assert (lunitor _
+              • ((αcell
+              • (_ ◃ cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)
+              =
+              (_ ◃ αcell)
+              • (lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)))))
+        as p₁.
+      {
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          rewrite <- rwhisker_vcomp.
+          rewrite !vassocr.
+          rewrite lunitor_triangle.
+          rewrite !vassocl.
+          refine (maponpaths (λ z, _ • z) _).
+          rewrite !vassocr.
+          rewrite rwhisker_hcomp.
+          rewrite <- triangle_r_inv.
+          rewrite <- lwhisker_hcomp.
+          rewrite lwhisker_vcomp.
+          rewrite !vassocr.
+          rewrite linvunitor_lunitor.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        do 2 apply maponpaths_2.
+        rewrite vcomp_lunitor.
+        apply idpath.
+      }
+      assert ((lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _))))
+              • (αcell ▹ _)
+              =
+              lunitor _
+              • (((_ ◃ cell_of_em_comnd_cone m e)
+              • lassociator _ _ _)
+              • (αcell ▹ endo_of_mnd m)))
+        as p₂.
+      {
+        rewrite <- !lwhisker_vcomp.
+        rewrite !vassocr.
+        do 3 apply maponpaths_2.
+        rewrite <- rwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite lunitor_triangle.
+        rewrite !vassocl.
+        refine (_ @ id2_right _).
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_r_inv.
+        rewrite <- lwhisker_hcomp.
+        rewrite lwhisker_vcomp.
+        rewrite linvunitor_lunitor.
+        apply lwhisker_id2.
+      }
+      exact (p₁ @ mnd_cell_endo α @ p₂).
+    Qed.
+
+    Definition op2_bicat_has_em_ump_2_unique
+      : isaprop (∑ β : g₁ ==> g₂, ## (mnd_incl (op2_bicat B)) β ▹ _ = α).
+    Proof.
+      use invproofirrelevance.
+      intros β₁ β₂.
+      use subtypePath.
+      {
+        intro.
+        apply cellset_property.
+      }
+      use (em_comnd_ump_eq m He).
+      - exact (pr1 β₁ ▹ mor_of_em_comnd_cone m e).
+      - rewrite vcomp_whisker.
+        rewrite !vassocl.
+        rewrite rwhisker_rwhisker.
+        apply idpath.
+      - apply idpath.
+      - exact (!(maponpaths pr1 (pr2 β₁ @ !(pr2 β₂)))).
+    Qed.
+
+    Definition op2_bicat_has_em_ump_2_cell
+      : g₁ ==> g₂.
+    Proof.
+      use (em_comnd_ump_cell m He).
+      - exact αcell.
+      - exact op2_bicat_has_em_ump_2_help.
+    Defined.
+
+    Definition op2_bicat_has_em_ump_2_cell_eq
+      : ## (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_2_cell ▹ _ = α.
+    Proof.
+      use eq_mnd_cell.
+      apply (em_comnd_ump_cell_eq m He).
+    Qed.
+  End UMP2.
+
+  Definition op2_bicat_has_em_ump_2
+    : em_ump_2 m (em_comnd_cone_to_op2_em_cone e).
+  Proof.
+    intros x g₁ g₂ α.
+    use iscontraprop1.
+    - apply op2_bicat_has_em_ump_2_unique.
+    - exact (op2_bicat_has_em_ump_2_cell α ,, op2_bicat_has_em_ump_2_cell_eq α).
+  Defined.
+
+  Definition op2_bicat_has_em_ump
+    : has_em_ump m (em_comnd_cone_to_op2_em_cone e).
+  Proof.
+    split.
+    - exact op2_bicat_has_em_ump_1.
+    - exact op2_bicat_has_em_ump_2.
+  Defined.
+End ComonadEilenbergMoore.
+
+Definition op2_bicat_has_em
+           {B : bicat}
+           (HB : has_em_comnd B)
+  : bicat_has_em (op2_bicat B)
+  := λ m,
+     let e := HB m
+     in em_comnd_cone_to_op2_em_cone (pr1 e) ,, op2_bicat_has_em_ump (pr2 e).

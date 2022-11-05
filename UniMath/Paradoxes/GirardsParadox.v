@@ -3,6 +3,7 @@
 used is (in the most obvious way) inconsistent. **)
 
 Require Import UniMath.Foundations.All.
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 
 (* This section has an arbitrary type instead of False *)
 Section girard.
@@ -79,9 +80,9 @@ Definition wfs_wf_wfp_shift (f : nat -> wfs) (b : ∏ n : nat, wfs_wf_uord (f (S
 Proof.
   intro n.
   induction n.
-  intro a; exact a.
-  intro x.
-  exact (IHn (ufun (b n) x)).
+  - intro a; exact a.
+  - intro x.
+    exact (IHn (ufun (b n) x)).
 Defined.
 
 (* thus obtain a sequence in (f 0) *)
@@ -99,10 +100,10 @@ Definition wfs_wf_wfp_compshift (f : nat -> wfs) (b : ∏ n : nat, wfs_wf_uord (
 Proof.
   intros n.
   induction n.
-  intros x y p.
-  exact p.
-  intros x y p.
-  exact (IHn _ _ (homo (b n) x y p)).
+  - intros x y p.
+    exact p.
+  - intros x y p.
+    exact (IHn _ _ (homo (b n) x y p)).
 Qed.
 
 (* show that the resulting sequence on (f 0) is descending *)
@@ -118,10 +119,10 @@ Definition wfs_wf : wf wfs.
 Proof.
   exists wfs_wf_uord.
   split.
-  exact wfs_wf_trans.
-  intro h.
-  intro b.
-  exact (wfp _ (wfs_wf_wfp_seq h b) (wfs_wf_wfp_desc  h b)).
+  - exact wfs_wf_trans.
+  - intro h.
+    intro b.
+    exact (wfp _ (wfs_wf_wfp_seq h b) (wfs_wf_wfp_desc  h b)).
 Defined.
 
 (* the wf on wfs as an element of wfs *)

@@ -27,7 +27,9 @@ Written by: Anders Mörtberg, 2017-2019
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.Algebra.Lattice.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Lattice.Lattice.
+Require Import UniMath.Algebra.Lattice.Bounded.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -236,7 +238,7 @@ Defined.
 
 Definition sieve_lattice (c : C) : lattice (sieve c).
 Proof.
-use mklattice.
+use make_lattice.
 - apply intersection_sieve.
 - apply union_sieve.
 - repeat split; intros S1; intros;
@@ -251,7 +253,7 @@ Defined.
 
 Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
 Proof.
-use mkbounded_lattice.
+use make_bounded_lattice.
 - apply sieve_lattice.
 - apply empty_sieve.
 - apply maximal_sieve.

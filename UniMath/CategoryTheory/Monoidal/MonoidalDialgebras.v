@@ -465,7 +465,7 @@ Section FixTwoMonoidalFunctors.
     2: { rewrite assoc. apply cancel_postcomposition. apply pathsinv0, bifunctor_equalwhiskers. }
     rewrite <- bifunctor_equalwhiskers.
     etrans.
-    2: { apply pathsinv0, (associatorinv_nat2 W). }
+    2: { apply pathsinv0, (monoidal_associatorinv_nat2 W). }
     repeat rewrite assoc'.
     apply maponpaths.
     etrans.
@@ -528,7 +528,7 @@ Section FixTwoMonoidalFunctors.
   Proof.
     exists dialgebra_disp_monoidal_data.
     split.
-    exact dialgebra_disp_leftunitor_law.
+    { exact dialgebra_disp_leftunitor_law. }
     split; [ exact dialgebra_disp_rightunitor_law |].
     split; [ exact dialgebra_disp_associator_law |].
     (** now we benefit from working in a displayed monoidal category *)

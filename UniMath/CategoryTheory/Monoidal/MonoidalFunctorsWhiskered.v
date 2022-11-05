@@ -181,8 +181,105 @@ Section MonoidalFunctors.
     apply pathsinv0, id_right.
   Qed.
 
-  Definition preserves_tensor_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU
+  Definition preserves_tensor_strongly
+             {C D : category} {M : monoidal C} {N : monoidal D}
+             {F : functor C D} (pt : preserves_tensordata M N F) : UU
     := ∏ (x y : C), is_z_isomorphism (pt x y).
+
+  Definition pointwise_z_iso_from_preserves_tensor_strongly
+             {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+             {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (x y : C) :
+    z_iso (F x ⊗_{ N} F y) (F (x ⊗_{ M} y)) := pt x y ,, pts x y.
+
+  Lemma preserves_associativity_of_inverse_preserves_tensor
+        {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+        {pt : preserves_tensordata M N F}
+        (ptα : preserves_associativity pt)
+        (pts : preserves_tensor_strongly pt) (x y z : C) :
+    (is_z_isomorphism_mor (pts (x ⊗_{M} y) z))
+      · ((is_z_isomorphism_mor (pts x y)) ⊗^{N}_{r} (F z))
+      · α^{N}_{F x, F y, F z} =
+    (#F (α^{M}_{x,y,z}))
+      · (is_z_isomorphism_mor (pts x (y ⊗_{M} z)))
+      · ((F x) ⊗^{N}_{l} (is_z_isomorphism_mor (pts y z))).
+  Proof.
+    set (ptsx_yz := pointwise_z_iso_from_preserves_tensor_strongly pts x (y ⊗_{M} z)).
+    set (ptsxy_z := pointwise_z_iso_from_preserves_tensor_strongly pts (x ⊗_{M} y) z).
+    set (ptsfx := functor_on_z_iso
+          (leftwhiskering_functor N (F x))
+          (pointwise_z_iso_from_preserves_tensor_strongly pts y z)).
+    set (ptsfz := functor_on_z_iso
+          (rightwhiskering_functor N (F z))
+          (pointwise_z_iso_from_preserves_tensor_strongly pts x y)).
+
+    apply (z_iso_inv_on_left _ _ _ _ ptsfx).
+    apply pathsinv0.
+    apply (z_iso_inv_on_left _ _ _ _ ptsx_yz).
+    rewrite assoc'.
+    rewrite assoc'.
+    etrans.
+    2: {
+      apply maponpaths.
+      rewrite assoc.
+      exact (ptα x y z).
+    }
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc.
+      apply maponpaths_2.
+      exact (! pr222 ptsfz).
+    }
+    rewrite id_left.
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      exact (! pr222 ptsxy_z).
+    }
+    apply (! id_left _).
+  Qed.
+
+  Lemma preserves_tensorinv_nat_right {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_right pt)
+    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
+       (is_z_isomorphism_mor (pts x1 y)) · # F f ⊗^{ N}_{r} F y = # F (f ⊗^{ M}_{r} y) · (is_z_isomorphism_mor (pts x2 y)).
+  Proof.
+    set (ptiso := pt x1 y ,, pts x1 y : z_iso _ _).
+    apply (z_iso_inv_on_right _ _ _ ptiso).
+    rewrite assoc.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply ptrn.
+    }
+    rewrite assoc'.
+    unfold is_z_isomorphism_mor.
+    rewrite (pr12 (pts x2 y)).
+    apply (! id_right _).
+  Qed.
+
+  Lemma preserves_tensorinv_nat_left {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D}
+    {pt : preserves_tensordata M N F} (pts : preserves_tensor_strongly pt) (ptrn : preserves_tensor_nat_left pt)
+    (x1 x2 y : C) (f : C⟦x1,x2⟧) :
+      (is_z_isomorphism_mor (pts y x1)) · F y ⊗^{ N}_{l} # F f = # F (y ⊗^{ M}_{l} f) · (is_z_isomorphism_mor (pts y x2)).
+  Proof.
+    set (ptiso := pt y x1 ,, pts y x1 : z_iso _ _).
+    apply (z_iso_inv_on_right _ _ _ ptiso).
+    rewrite assoc.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply ptrn.
+    }
+    rewrite assoc'.
+    unfold is_z_isomorphism_mor.
+    rewrite (pr12 (pts y x2)).
+    apply (! id_right _).
+  Qed.
 
   Definition preserves_unit_strongly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pu : preserves_unit M N F) : UU
     := is_z_isomorphism pu.
@@ -283,7 +380,39 @@ Section MonoidalFunctors.
     apply pru.
   Qed.
 
+  Definition preserves_leftunitality'' {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             {F : functor C D} (Fm : fmonoidal M N F) :
+    ∏ (x : C), (pr1 (fmonoidal_preservestensorstrongly Fm I_{M} x))
+                 · (pr1 (fmonoidal_preservesunitstrongly Fm) ⊗^{N} (identity (F x)))
+                 · lu^{N}_{F x}
+               = #F (lu^{M}_{x}).
+  Proof.
+    intro x.
+    set (plu := preserves_leftunitality' (fmonoidal_preservesleftunitality (pr1 Fm)) x).
+    rewrite (! plu).
+    rewrite ! assoc.
 
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      unfold functoronmorphisms1.
+      do 2 rewrite bifunctor_leftid.
+      do 2 rewrite id_right.
+      rewrite <- bifunctor_rightcomp.
+      apply maponpaths.
+      apply (fmonoidal_preservesunitstrongly Fm).
+    }
+    rewrite bifunctor_rightid.
+    rewrite id_right.
+    etrans. {
+      apply maponpaths_2.
+      apply (fmonoidal_preservestensorstrongly Fm).
+    }
+    apply id_left.
+  Qed.
 
   (* Strictly preserving monoidal functors *)
   Definition preserves_tensor_strictly {C D : category} {M : monoidal C} {N : monoidal D} {F : functor C D} (pt : preserves_tensordata M N F) : UU
@@ -507,7 +636,7 @@ Section MonoidalFunctors.
           { apply maponpaths.
             apply (pr22 (fmonoidal_preservesunitstrongly Fm)). }
           apply functor_id.
-  Qed.
+  Defined.
 
   Definition comp_fmonoidal {C D E : category} {M : monoidal C} {N : monoidal D} {O : monoidal E}
     {F : C ⟶ D} {G : D ⟶ E} (Fm : fmonoidal M N F) (Gm : fmonoidal N O G) : fmonoidal M O (F ∙ G)
