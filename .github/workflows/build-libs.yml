@@ -33,12 +33,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install coq
       - run: opam pin add dune 3.5.0
+
       - name: Clone TypeTheory
-        run: |
-          git clone https://github.com/m-lindgren/TypeTheory.git
-          pushd TypeTheory
-          git checkout dune-support
-          popd
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/TypeTheory
+          path: TypeTheory
+
       - name: Compile TypeTheory
         run: opam exec -- dune build TypeTheory --display=short --cache=enabled
 
@@ -56,12 +57,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install coq
       - run: opam pin add dune 3.5.0
+
       - name: Clone SetHITs
-        run: |
-          git clone https://github.com/m-lindgren/SetHITs.git
-          pushd SetHITs
-          git checkout dune-support
-          popd
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/SetHITs
+          path: SetHITs
+
       - name: Compile SetHITs
         run: opam exec -- dune build SetHITs --display=short --cache=enabled
 
@@ -79,12 +81,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install coq
       - run: opam pin add dune 3.5.0
+
       - name: Clone largecatmodules
-        run: |
-          git clone https://github.com/m-lindgren/largecatmodules.git
-          pushd largecatmodules
-          git checkout dune-support
-          popd
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/largecatmodules
+          path: largecatmodules
+
       - name: Compile largecatmodules
         run: opam exec -- dune build largecatmodules --display=short --cache=enabled
 
@@ -103,10 +106,9 @@ jobs:
           sudo apt-get install coq
       - run: opam pin add dune 3.5.0
       - name: Clone GrpdHITs
-        run: |
-          git clone https://github.com/m-lindgren/GrpdHITs.git
-          pushd GrpdHITs
-          git checkout dune-support
-          popd
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/GrpdHITs
+          path: GrpdHITs
       - name: Compile GrpdHITs
         run: opam exec -- dune build GrpdHITs --display=short --cache=enabled
