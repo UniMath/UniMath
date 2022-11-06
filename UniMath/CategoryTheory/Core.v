@@ -193,7 +193,7 @@ Section Core.
   Defined.
 
   (**
-   3. Factoring via the code
+   3. Factoring via the core
    *)
   Section FactorCore.
     Context {G : groupoid}
