@@ -947,18 +947,6 @@ Proof.
            ++ intros k s. rewrite right in s. apply ( IHn k ). assumption.
 Defined.
 
-Lemma setquotprpathsandR { X : UU } ( R : eqrel X ) :
-  forall x y : X, setquotpr R x = setquotpr R y -> R x y.
-Proof.
-  intros.
-  assert ( pr1 ( setquotpr R x ) y ) as i.
-  { assert ( pr1 ( setquotpr R y ) y ) as i0.
-    { unfold setquotpr. simpl. apply (pr2 (pr1 (pr2 R))). }
-    destruct X0. assumption.
-  }
-  apply i.
-Defined.
-
 (* Some lemmas on decidable properties of natural numbers. *)
 
 Definition isdecnatprop ( P : nat -> hProp ) :=
