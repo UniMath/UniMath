@@ -145,7 +145,7 @@ DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v
 DisplayedBicats/Examples/Cofunctormap.v
 DisplayedBicats/Examples/CwF.v
-DisplayedBicats/Examples/Domain.v
+DisplayedBicats/Examples/LaxSlice.v
 DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
@@ -168,6 +168,7 @@ Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
 Monads/Examples/MonadsInTotalBicat.v
 Monads/DistributiveLaws.v
+Monads/MixedDistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
 Monads/Examples/PsfunctorOnMonad.v
@@ -272,7 +273,7 @@ DisplayedBicats/EquivalenceBetweenCartesians.v
 DisplayedBicats/CleavingOfBicatIsAProp.v
 DisplayedBicats/CartesianPseudoFunctor.v
 DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v
-DisplayedBicats/ExamplesOfCleavings/DomainCleaving.v
+DisplayedBicats/ExamplesOfCleavings/SliceCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FunctorsIntoCatCleaving.v
 DisplayedBicats/ExamplesOfCleavings/CodomainCleaving.v
 DisplayedBicats/ExamplesOfCleavings/FibrationCleaving.v
@@ -297,7 +298,7 @@ Colimits/Examples/DisplayMapSliceColimits.v
 
 DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
-DisplayedBicats/FiberBicategory/DomainFiber.v
+DisplayedBicats/FiberBicategory/SliceFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
 Logic/ComprehensionBicat.v
