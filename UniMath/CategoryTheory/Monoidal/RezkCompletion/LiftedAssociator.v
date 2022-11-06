@@ -1,3 +1,13 @@
+(* In LiftedTensor.v and LiftedTensor.v, we have shown that given a category C equipped with a binary operation T and an object I (called the tensor and unit resp.),
+then, this structures 'transport' to a weakly equivalent univalent category D, by a weak equivalence H:C->D, making this univalent category D with a tensor and unit,
+the free univalent category equipped with a tensor and a unit.
+In this file, we show that if we equip (C,T) with an associator, then
+1: the associator also transports to D.
+2: H preserves the associator as a monoidal functor preserves the associator.
+3: H makes D the free univalent category equipped with tensor, unit and the associator.
+More details about the universality and the Rezk-completion can be found in LiftedMonoidal.v
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -190,6 +200,15 @@ Section RezkAssociator.
     apply id_left.
   Qed.
 
+  Lemma TransportedAssocRightInvOnOb (x y z : C)
+    : nat_z_iso_inv TransportedAssocRight ((x,y),z)
+      = nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)
+          (x, TC (y,z))
+          · # TD (# H (id x) #, (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (y, z))).
+  Proof.
+  Admitted.
+
+
   Definition TransportedAssociator
     : associator TD.
   Proof.
@@ -247,7 +266,6 @@ Section RezkAssociator.
     unfold αD.
     unfold TransportedAssociator.
 
-
     etrans. {
       apply maponpaths_2.
       exact (! TransportedAssocLeftOnOb x y z).
@@ -304,8 +322,8 @@ Section RezkAssociator.
     assert (p2 : cc0' · cc1' · cc2' = cc').
     {
       set (q := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ p2')) ((x,y),z)).
-      (* Have to see what goes wrong in here, this should be exactly the same *)
-      admit.
+      refine (_ @ q).
+      apply assoc'.
     }
 
     etrans.
@@ -324,8 +342,7 @@ Section RezkAssociator.
       exact (! p1).
     }
     apply (! id_right _).
-
-  Admitted.
+  Qed.
 
   Context {E : category} (Euniv : is_univalent E)
           (TE : functor (E ⊠ E) E)
@@ -372,9 +389,6 @@ Section RezkAssociator.
     : disp_functor_disp_ess_split_surj precompA.
   Proof.
     intros G GG.
-    unfold functor_tensorunit_cat in G.
-    simpl in G.
-    unfold functor_ass_disp_cat in GG.
 
     use tpair.
     - intros d1 d2 d3.
@@ -382,38 +396,109 @@ Section RezkAssociator.
       { exact (∑ a : C, z_iso (H a) d1). }
       { apply homset_property. }
       2: exact (H_eso d1).
-      intro cd1.
-      induction (isotoid _ Duniv (pr2 cd1)).
+      intros [c1 i1].
+      induction (isotoid _ Duniv i1).
+      clear i1.
 
       use factor_through_squash.
       { exact (∑ a : C, z_iso (H a) d2). }
       { apply homset_property. }
       2: exact (H_eso d2).
-      intro cd2.
-      induction (isotoid _ Duniv (pr2 cd2)).
+      intros [c2 i2].
+      induction (isotoid _ Duniv i2).
+      clear i2.
 
       use factor_through_squash.
       { exact (∑ a : C, z_iso (H a) d3). }
       { apply homset_property. }
       2: exact (H_eso d3).
-      intro cd3.
-      induction (isotoid _ Duniv (pr2 cd3)).
+      intros [c3 i3].
+      induction (isotoid _ Duniv i3).
+      clear i3.
 
-      set (t := GG (pr1 cd1) (pr1 cd2) (pr1 cd3)).
+      etrans. {
+        do 2 apply maponpaths.
+        exact (TransportedAssociatorOnOb ((c1,c2), c3)).
+      }
 
-      transparent assert (m : (E⟦ pr1 G (H (TC (pr1 cd1, TC (pr1 cd2,, pr1 cd3))))
-                                  ,  (pr11 G) (TD (H (pr1 cd1), TD (H (pr1 cd2),, H (pr1 cd3))))⟧)).
+      set (t := GG c1 c2 c3).
+
+      transparent assert (m : (E⟦ pr11 G (H (TC (c1, TC (c2,, c3))))
+                                  ,  (pr11 G) (TD (H c1, TD (H c2,, H c3)))⟧)).
       {
-        apply #(pr1 G).
+        apply #(pr11 G).
+        refine (_ · _).
+        - apply (TransportedTensorComm Duniv H_eso H_ff).
+        - apply (#TD).
+          use catbinprodmor.
+          + apply identity.
+          + apply (TransportedTensorComm Duniv H_eso H_ff).
+      }
+
+
+
+      set (ptG := pr112 G).
+      set (ptH := pr1 (TransportedTensorComm Duniv H_eso H_ff TC)).
+
+      set (pt_GH := (pr112 (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))).
+
+      set (tt := cancel_postcomposition _ _ m t :
+       # TE (pt_GH (c1, c2) #, id  pr11 G (H c3))
+         · pt_GH (TC (c1, c2), c3)
+         · # (functor_composite H (pr1 G)) (α ((c1, c2), c3)) · m
+       = αE ((pr11 G (H ( c1)), (pr11 G (H (c2)))), (pr11 G (H (c3))))
+            · # TE (id pr11 G (H (c1)) #, pt_GH (c2, c3)) · pt_GH (c1, TC (c2,c3)) · m).
+
+      refine (_ @ tt @ _) ; unfold m.
+      + rewrite ! assoc'.
+        rewrite TransportedAssocLeftOnOb.
+        rewrite TransportedAssocRightInvOnOb.
+
+        rewrite (! id_right (id (pr11 G) (H c3))).
+        etrans.
+        2: {
+          apply maponpaths_2.
+          assert (pp : pt_GH (c1, c2)
+                       = ptG (H c1, H c2) · #(pr11 G) (ptH (c1,c2))).
+          {
+            apply idpath.
+          }
+          rewrite pp, binprod_comp.
+          apply (! functor_comp TE _ _).
+        }
+        etrans.
+        2: {
+
+
+          set (q := pr212 G (TD (H c1, H c2), H c3)).
+          simpl in q.
+
+        etrans
+
+
+        apply maponpaths.
+
+
+        rewrite (functor_comp (pr1 G)).
+        rewrite assoc.
+        etrans. {
+          apply maponpaths_2.
+
+          simpl.
+          Check pr212 G _ _ (TransportedTensorComm Duniv H_eso H_ff TC (c1, c2) #, id H c3).
+
+
+
+
+
 
 
         admit.
-      }
+      + rewrite ! assoc'.
+        apply maponpaths.
+        rewrite assoc.
 
-      set (tt := cancel_postcomposition _ _ m t).
-      refine (_ @ tt @ _).
-      + admit.
-      + admit.
+        admit.*)
     - exists tt.
       exists tt.
       split ; apply isapropunit.

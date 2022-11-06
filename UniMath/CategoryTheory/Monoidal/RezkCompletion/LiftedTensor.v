@@ -1,3 +1,11 @@
+(* This file is the first file with the purpose of showing that any monoidal category admits a 'Monoidal Rezk-completion'.
+More precisely: Assume that a category C is weakly equivalent to a univalent category D, by a functor H : C → D.
+Then, given a product/tensor T : C ⊠ C → C, we construct a product TD on D such that H preserves the product in a 'strong sense'.
+Then, we show that (D,TD) is universal along univalent categories with a product in the sense that
+(D,TD) is the free univalent category equipped with a tensor of (C,T).
+A more detailled explanation of the universality and the Rezk-completion is in LiftedMonoidal.v
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 

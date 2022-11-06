@@ -1,3 +1,33 @@
+(*
+In this file we conclude that any monoidal category has a "Monoidal Rezk-completion".  More precisely:
+Let (C,T,I,lu,ru,α) be a monoidal category.
+Then, there is a univalent monoidal category (D,TD,ID,luD,ruD,αD) which is the free univalent monoidal category/replacement of (C,T,I,lu,ru,α), i.e.
+There is a strong monoidal functor H: (C,T,I,lu,ru,α) → (D,TD,ID,luD,ruD,αD)
+such that for any univalent monoidal category (E,TE,IE,luE,ruE,αD), there is an (adjoint) equivalence of categories between (lax-)monoidal functor categories:
+H · (-) : LaxMon(D,E) → LaxMon(C,E).
+
+In order to show this, we assume that the underlying category, i.e. C, has a Rezk-completion.
+However, the specific constructions of the Rezk-completion of (ordinary) categories has some issues:
+1. The copresheaf construction increases the universe level
+2. The inductive definition, as the name suggests, uses inductive types, which is not directly allowed in UniMath.
+In order to solve this issue, we are given a univalent category D and a weak equivalence H:C->D
+
+Remark:
+That H might be choosen to be a weak equivalence is motivated by the copresheaf construction.
+We explicitely use that H is a weak equivalence (as seen in LiftedTensor.v) because
+in order to show the adjoint equivalence of the corresponding monoidal functor categories,
+we use that the functor categories are univalent and hence it suffices to show
+that precomposition with H is a weak equivalence which reduces to H being an equivalence.
+
+Notice that by the universal property of the Rezk-completion,
+both D and H are unique (at first sight up to isomorphism, but even up to equality since the bicategory of univalent categories is univalent.
+
+Then, using the universal property of D as the Rezk-completion of C (i.e. the free univalent category of C),
+that D can be equipped with a monoidal structure such that H becomes a strong monoidal functor.
+By the universal property of (D,H) we have an (adjoint) equivalence of categories H · (-) : [D,E] → [C,E] (for any univalent category E).
+We show that this equivalence of categories lifts to (lax-)monoidal functors.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -31,9 +61,8 @@ Local Open Scope cat.
 
 Section RezkMonoidal.
 
-  Context {C D E : category} {H : functor C D}
+  Context {C D : category} {H : functor C D}
           (Duniv : is_univalent D)
-          (Euniv : is_univalent E)
           (H_eso : essentially_surjective H)
           (H_ff : fully_faithful H).
 
@@ -436,12 +465,12 @@ Section RezkMonoidal.
     - exact (H_pα Duniv H_eso H_ff TC α I).
   Defined.
 
-  Context (TE : functor (E ⊠ E) E) (IE : E)
+  Context {E : category}
+          (Euniv : is_univalent E)
+          (TE : functor (E ⊠ E) E) (IE : E)
           (luE : left_unitor TE IE)
           (ruE : right_unitor TE IE)
           (αE : associator TE).
-
-
 
   Definition precompMonoidal
     : disp_functor (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE)

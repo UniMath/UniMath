@@ -1,3 +1,15 @@
+(* This file is the second file with the purpose of showing that any monoidal category admits a 'Monoidal Rezk-completion'.
+More precisely: Assume that a category C is weakly equivalent to a univalent category D, by a functor H : C → D.
+In the first section, we show that a fixed object I of C,
+we show that (D, (H I)) is the free univalent category equipped with an object for (C,I).
+
+In LiftedTensor.v, we have showed that if C is equipped with a tensor, then it admits a free univalent category equipped with a tensor.
+In the second section of this file, we combine these results to show that a category equipped with a tensor and a fixed object admits
+a free univalent category equipped with a tensor and unit.
+
+A more detailled explanation of the universality and the Rezk-completion is in LiftedMonoidal.v
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
