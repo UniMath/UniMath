@@ -1,3 +1,18 @@
+(*********************************************************************
+
+ Cores of categories
+
+ In this file we study cores of categories. The core of a category is
+ the subcategory whose morphisms are the isomorphisms in the original
+ category.
+
+ Contents
+ 1. The core
+ 2. Functor from the core to the category
+ 3. Factoring via the code
+ 4. Functors between cores
+
+ *********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -12,6 +27,9 @@ Local Open Scope cat.
 Section Core.
   Context (C : category).
 
+  (**
+   1. The core
+   *)
   Definition core_precategory_ob_mor : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
@@ -104,6 +122,9 @@ Section Core.
          apply idpath).
   Defined.
 
+  (**
+   2. Functor from the core to the category
+   *)
   Definition functor_core_data
     : functor_data core C.
   Proof.
@@ -171,6 +192,9 @@ Section Core.
     - exact functor_core_full_on_iso.
   Defined.
 
+  (**
+   3. Factoring via the code
+   *)
   Section FactorCore.
     Context {G : groupoid}
             (F : G ⟶ C).
@@ -261,3 +285,39 @@ Proof.
   - apply is_univalent_core.
     exact (pr2 C).
 Defined.
+
+(**
+ 4. Functors between cores
+ *)
+Section CoreFunctor.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂).
+
+  Definition core_functor_data
+    : functor_data (core C₁) (core C₂).
+  Proof.
+    use make_functor_data.
+    - exact (λ x, F x).
+    - exact (λ x y f, functor_on_z_iso F f).
+  Defined.
+
+  Definition core_functor_is_functor
+    : is_functor core_functor_data.
+  Proof.
+    split.
+    - intro x.
+      use z_iso_eq ; cbn.
+      apply functor_id.
+    - intros x y z f g.
+      use z_iso_eq ; cbn.
+      apply functor_comp.
+  Qed.
+
+  Definition core_functor
+    : core C₁ ⟶ core C₂.
+  Proof.
+    use make_functor.
+    - exact core_functor_data.
+    - exact core_functor_is_functor.
+  Defined.
+End CoreFunctor.
