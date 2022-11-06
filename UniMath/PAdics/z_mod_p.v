@@ -2344,7 +2344,7 @@ Proof.
     change ( 0%ring ) with
     ( setquotpr ( hzmodisringeqrel p ( isaprimetoneq0 y ) ) 0%hz ).
     assert ( hzmodisringeqrel p ( isaprimetoneq0 y ) 1%hz 0%hz ) as o.
-    { apply ( setquotprpathsandR
+    { apply ( weqpathsinsetquot
                 ( hzmodisringeqrel p ( isaprimetoneq0 y ) ) 1%hz 0%hz ).
       assumption.
     }
