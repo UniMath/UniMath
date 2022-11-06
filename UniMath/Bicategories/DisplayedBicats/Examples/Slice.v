@@ -259,6 +259,62 @@ Section SliceBicat.
       apply disp_2cells_isaprop_slice.
   Qed.
 
+  Definition slice_is_inv2cell_to_is_disp_adj_equiv
+             {x : B}
+             {f g : slice_disp_bicat x}
+             (α : f -->[ internal_adjoint_equivalence_identity x ] g)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity x) α.
+  Proof.
+    simple refine (((_ ,, (_ ,, _)) ,, (_ ,, _))).
+    - exact (comp_of_invertible_2cell
+                (comp_of_invertible_2cell
+                   (linvunitor_invertible_2cell _)
+                   (inv_of_invertible_2cell α))
+                (linvunitor_invertible_2cell _)).
+    - abstract
+        (cbn ;
+         rewrite <- !lwhisker_vcomp ;
+         rewrite !vassocl ;
+         rewrite !lwhisker_hcomp ;
+         rewrite triangle_l_inv ;
+         rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp ;
+         rewrite !vassocr ;
+         rewrite lunitor_V_id_is_left_unit_V_id ;
+         apply maponpaths_2 ;
+         refine (!(id2_left _) @ _) ;
+         rewrite !vassocl ;
+         rewrite !lwhisker_vcomp ;
+         use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
+         rewrite !vassocl ;
+         rewrite vcomp_lunitor ;
+         rewrite !vassocr ;
+         do 2 (use vcomp_move_L_Mp ; [ is_iso | ]) ; cbn ;
+         rewrite id2_left ;
+         apply idpath).
+    - abstract
+        (cbn ;
+         rewrite !vassocl ;
+         refine (_ @ id2_right _) ;
+         apply maponpaths ;
+         use vcomp_move_R_pM ; [ is_iso | ] ; cbn ;
+         rewrite id2_right ;
+         rewrite !vassocr ;
+         rewrite lwhisker_hcomp ;
+         rewrite <- linvunitor_natural ;
+         rewrite !vassocl ;
+         rewrite linvunitor_assoc ;
+         rewrite !vassocl ;
+         rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+         rewrite rassociator_lassociator ;
+         rewrite id2_left ;
+         rewrite rwhisker_vcomp ;
+         rewrite linvunitor_lunitor ;
+         rewrite id2_rwhisker ;
+         apply id2_right).
+    - split ; apply disp_2cells_isaprop_slice.
+    - split ; apply disp_locally_groupoid_slice_disp_bicat.
+  Defined.
+
   Definition slice_inv2cell_to_disp_adj_equiv
              {x : B}
              {f g : slice_disp_bicat x}
