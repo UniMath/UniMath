@@ -207,7 +207,7 @@ Section RezkMonoidal.
     set (j := pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, I_pretensor TC I x2)).
     use (z_iso_inv_to_right _ _ _ _ (_,,j)).
 
-    exact (TransportedAssocRightOnOb Duniv H_eso H_ff TC α x1 I x2).
+    exact (TransportedAssocRightOnOb Duniv H_eso H_ff TC x1 I x2).
   Qed.
 
   Lemma TransportedPentagonEq

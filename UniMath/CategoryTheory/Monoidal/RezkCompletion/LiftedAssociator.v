@@ -466,17 +466,15 @@ Section RezkAssociator.
           rewrite pp, binprod_comp.
           apply (! functor_comp TE _ _).
         }
-        etrans.
+        (* etrans.
         2: {
 
 
           set (q := pr212 G (TD (H c1, H c2), H c3)).
           simpl in q.
 
-        etrans
 
-
-        apply maponpaths.
+          apply maponpaths.
 
 
         rewrite (functor_comp (pr1 G)).
@@ -488,7 +486,7 @@ Section RezkAssociator.
           Check pr212 G _ _ (TransportedTensorComm Duniv H_eso H_ff TC (c1, c2) #, id H c3).
 
 
-
+*)
 
 
 
@@ -498,7 +496,7 @@ Section RezkAssociator.
         apply maponpaths.
         rewrite assoc.
 
-        admit.*)
+        admit.
     - exists tt.
       exists tt.
       split ; apply isapropunit.
