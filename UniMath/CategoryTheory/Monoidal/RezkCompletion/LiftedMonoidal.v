@@ -502,7 +502,7 @@ Section RezkMonoidal.
       + apply precompLU_eso.
       + apply precompRU_eso.
     - apply precompA_eso.
-      exact Euniv.
+      (* exact Euniv. *)
   Qed.
 
   Definition precomp_monoidal_is_ff
