@@ -31,9 +31,8 @@ Local Open Scope cat.
 
 Section RezkMonoidal.
 
-  Context {C D E : category} {H : functor C D}
+  Context {C D : category} {H : functor C D}
           (Duniv : is_univalent D)
-          (Euniv : is_univalent E)
           (H_eso : essentially_surjective H)
           (H_ff : fully_faithful H).
 
@@ -215,7 +214,9 @@ Section RezkMonoidal.
     - exact (H_pα Duniv H_eso H_ff TC α I).
   Defined.
 
-  Context (TE : functor (E ⊠ E) E) (IE : E)
+
+  Context {E : category} (Euniv : is_univalent E)
+          (TE : functor (E ⊠ E) E) (IE : E)
           (luE : left_unitor TE IE)
           (ruE : right_unitor TE IE)
           (αE : associator TE).
