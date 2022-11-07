@@ -1549,7 +1549,7 @@ Section Main.
     Proof.
       exists montrafotargetbicat_disp_monoidal_data.
       split.
-      exact montrafotargetbicat_disp_leftunitor_law.
+      { exact montrafotargetbicat_disp_leftunitor_law. }
       split; [ exact montrafotargetbicat_disp_rightunitor_law |].
       split; [ exact montrafotargetbicat_disp_associator_law |].
       (** now we benefit from working in a displayed monoidal category *)

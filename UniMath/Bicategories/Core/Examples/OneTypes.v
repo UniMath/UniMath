@@ -97,7 +97,7 @@ Proof.
   - intros X Y f g p ; cbn in *.
     apply funextsec. intro x.
     unfold homotcomp, homotfun. simpl.
-    etrans. apply pathscomp0rid.
+    etrans. { apply pathscomp0rid. }
     apply maponpathsidfun.
   - intros W X Y Z f g h i p ; cbn in *.
     apply funextsec. intro x.
@@ -109,7 +109,7 @@ Proof.
   - intros W X Y Z f g h i p ; cbn in *.
     apply funextsec. intro x.
     unfold homotcomp, homotfun. simpl.
-    etrans. apply maponpathscomp.
+    etrans. { apply maponpathscomp. }
     apply (! pathscomp0rid _).
   - intros X Y Z f g h i p q ; cbn in *.
     apply funextsec. intro x.

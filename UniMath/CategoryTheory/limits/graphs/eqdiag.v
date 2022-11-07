@@ -23,7 +23,7 @@ J and J' are not definitionnally equal.
 Let co a cone of J based on c.
 
 Using a (not too stupid) proof (e : eq_diag J J'), we can transport the cone co
-with eq_diag_mkcone to get a cone co' of J' based on c that satisfies the
+with make_eq_diag_cone to get a cone co' of J' based on c that satisfies the
 definitional equalities :
   coneOut co' true  ≡ coneOut co true
   coneOut co' false ≡ coneOut co false
@@ -164,7 +164,7 @@ Proof.
 
 Defined.
 
-Lemma eq_diag_mkcocone  :
+Lemma make_eq_diag_cocone  :
   ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
@@ -197,7 +197,7 @@ Defined.
 
 
 (* The dual proof *)
-Lemma eq_diag_mkcone  :
+Lemma make_eq_diag_cone  :
   ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
@@ -238,7 +238,7 @@ Lemma eq_diag_islimcone:
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
     (islimcone : isLimCone _ _ cc) ,
-  isLimCone _ _ (eq_diag_mkcone d' eq_d cc).
+  isLimCone _ _ (make_eq_diag_cone d' eq_d cc).
 Proof.
 
   intros.
@@ -249,7 +249,7 @@ Proof.
   set (eq_d2' := pr2 eq_d').
     red.
   intros c' cc'.
-  set (cc'2 := eq_diag_mkcone _ eq_d' cc').
+  set (cc'2 := make_eq_diag_cone _ eq_d' cc').
   specialize (islimcone c' cc'2).
   apply (unique_exists (pr1 (pr1 islimcone))).
   - intro v.
@@ -290,7 +290,7 @@ Lemma eq_diag_iscolimcocone:
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}
     (islimcone : isColimCocone _ _ cc) ,
-  isColimCocone _ _ (eq_diag_mkcocone d' eq_d cc).
+  isColimCocone _ _ (make_eq_diag_cocone d' eq_d cc).
 Proof.
   intros.
   destruct eq_d as [eq_d1 eq_d2].
@@ -301,7 +301,7 @@ Proof.
   set (eq_d'  := (eq_d1',,eq_d2'):eq_diag d' d).
   red.
   intros c' cc'.
-  set (cc'2 := eq_diag_mkcocone _ eq_d' cc').
+  set (cc'2 := make_eq_diag_cocone _ eq_d' cc').
   specialize (islimcone c' cc'2).
   apply (unique_exists (pr1 (pr1 islimcone))).
   - intro v.

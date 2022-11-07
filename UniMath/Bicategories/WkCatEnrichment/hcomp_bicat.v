@@ -839,6 +839,6 @@ Defined.
 Definition weq_bicat_prebicategory : bicat ≃ prebicategory.
 Proof.
   eapply weqcomp.
-  apply (invweq hcomp_bicat_weq_bicat).
-  apply hcomp_bicat_weq_prebicategory.
+  - apply (invweq hcomp_bicat_weq_bicat).
+  - apply hcomp_bicat_weq_prebicategory.
 Defined.

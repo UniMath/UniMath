@@ -96,7 +96,7 @@ Defined.
 (** The signature of the simply typed lambda calculus *)
 Definition STLC_Sig : MultiSortedSig sort.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - apply ((sort × sort) + (sort × sort))%set.
 - intros H; induction H as [st|st]; induction st as [s t].
   + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).

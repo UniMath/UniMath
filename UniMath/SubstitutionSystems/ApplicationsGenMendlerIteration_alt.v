@@ -30,7 +30,6 @@ Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 
-
 Import BifunctorNotations.
 
 Local Open Scope cat.

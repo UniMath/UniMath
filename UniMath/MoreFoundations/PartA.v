@@ -1311,3 +1311,100 @@ Proof.
   - apply idweq.
   - apply weqdirprodcomm.
 Defined.
+
+Section surjectivity.
+  Lemma issurjective_idfun (X : UU) : issurjective (idfun X).
+  Proof.
+    exact(λ (x : X), hinhpr (x ,, idpath x)).
+  Qed.
+
+  Lemma issurjective_to_contr {X Y : UU}
+    (x : X)
+    (f : X → Y)
+    (contr : iscontr Y) : issurjective f.
+  Proof.
+    intro; apply hinhpr.
+    apply(make_hfiber f x).
+    apply proofirrelevancecontr, contr.
+  Qed.
+
+  Lemma issurjective_tounit {X : UU} : X -> issurjective (@tounit X).
+  Proof.
+    intro x.
+    apply(issurjective_to_contr x).
+    apply iscontrunit.
+  Qed.
+
+  Lemma issurjective_coprodf {X Y W Z : UU}
+    {f : X → W}
+    {g : Y → Z}
+    (fsurjective : issurjective f)
+    (gsurjective : issurjective g)
+    : issurjective (coprodf f g).
+  Proof.
+    red; apply coprod_rect.
+    - intro w.
+      apply(hinhfun (weqhfibercoprodf1 f g w)).
+      exact(fsurjective w).
+    - intro z.
+      apply(hinhfun (weqhfibercoprodf2 f g z)).
+      exact(gsurjective z).
+  Qed.
+
+  Lemma issurjective_dirprodf {X Y U W}
+    {f : X → U}
+    {g : Y → W}
+    (fsurjective : issurjective f)
+    (gsurjective : issurjective g)
+    : issurjective (dirprodf f g).
+  Proof.
+    intros [u w].
+    use(hinhfun2 _ (fsurjective u) (gsurjective w)).
+    intros ffiber gfiber.
+    use make_hfiber.
+    - exact(hfiberpr1 f u ffiber
+              ,, hfiberpr1 g w gfiber).
+    - apply dirprodeq
+      ; apply hfiberpr2.
+  Qed.
+
+  Lemma issurjective_totalfun
+    {X : UU}
+    (P Q : X → UU)
+    (f : ∏ (x : X), P x → Q x)
+    (fsurjective : ∏ (x : X), issurjective (f x))
+    : issurjective (totalfun P Q f).
+  Proof.
+    intros [x qx].
+    use(hinhfun _ (fsurjective x qx)).
+
+    intros [px pathpx]. (* pathpx : f x px = qx, in (Q x) *)
+    use make_hfiber.
+    - exact(x ,, px).
+    - exact(pair_path_in2 Q pathpx).
+  Qed.
+
+  Lemma issurjective_sumofmaps_1 {X A B : UU}
+    (f : A -> X)
+    (g : B -> X)
+    (fsurjective : issurjective f)
+    : issurjective (sumofmaps f g).
+  Proof.
+    intro x.
+    use(hinhfun _ (fsurjective x)).
+    intro ffiber; apply coprodofhfiberstohfiber.
+    exact(inl ffiber).
+  Qed.
+
+  Lemma issurjective_sumofmaps_2 {X A B : UU}
+    (f : A -> X)
+    (g : B -> X)
+    (gsurjective : issurjective g)
+    : issurjective (sumofmaps f g).
+  Proof.
+    intro x.
+    use(hinhfun _ (gsurjective x)).
+    intro gfiber; apply coprodofhfiberstohfiber.
+    exact(inr gfiber).
+  Qed.
+End surjectivity.

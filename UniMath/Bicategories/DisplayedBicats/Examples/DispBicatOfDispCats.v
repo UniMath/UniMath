@@ -92,15 +92,15 @@ Proof.
   ; unfold transportb
   ; (etrans ; [ apply disp_nat_trans_transportf | ]).
   - apply pathsinv0.
-    etrans. apply id_left_disp.
+    etrans. { apply id_left_disp. }
     apply pathsinv0; unfold transportb.
     apply maponpaths_2. apply homset_property.
   - apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     apply pathsinv0; unfold transportb.
     apply maponpaths_2. apply homset_property.
   - apply pathsinv0.
-    etrans. apply assoc_disp.
+    etrans. { apply assoc_disp. }
     apply pathsinv0; unfold transportb.
     apply maponpaths_2. apply homset_property.
   - apply transportf_set. apply homset_property.
@@ -119,7 +119,7 @@ Proof.
       apply maponpaths.
       apply disp_functor_comp.
     }
-    etrans. apply transport_f_f.
+    etrans. { apply transport_f_f. }
     apply transportf_set. apply homset_property.
   - cbn.
     etrans.
@@ -127,15 +127,15 @@ Proof.
       apply maponpaths.
       apply id_left_disp.
     }
-    etrans. apply transport_f_f.
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
+    etrans. { apply maponpaths. apply id_left_disp. }
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     etrans.
@@ -143,70 +143,69 @@ Proof.
       apply maponpaths.
       apply id_left_disp.
     }
-    etrans. apply transport_f_f.
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
+    etrans. { apply maponpaths. apply id_left_disp. }
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
-    etrans. apply maponpaths. apply id_right_disp.
-    etrans. apply transport_f_f.
+    etrans. { apply maponpaths. apply id_right_disp. }
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply id_left_disp.
+    etrans. { apply id_left_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     set (RR := @disp_nat_trans_ax_var _ _ _ _ _ _ _ _ _ φφ).
-    etrans. apply maponpaths. apply RR.
-    etrans. apply transport_f_f.
+    etrans. { apply maponpaths. apply RR. }
+    etrans. { apply transport_f_f. }
     apply transportf_set. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_right_disp.
+    etrans. { apply id_right_disp. }
     unfold transportb. apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply id_left_disp.
-    etrans. apply maponpaths. apply disp_functor_id.
-    etrans. apply transport_f_f.
+    etrans. { apply id_left_disp. }
+    etrans. { apply maponpaths. apply disp_functor_id. }
+    etrans. { apply transport_f_f. }
     apply maponpaths_2. apply homset_property.
   - cbn.
     apply pathsinv0.
-    etrans. apply assoc_disp_var.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply disp_functor_id.
-    etrans. apply transport_f_f.
-
+    etrans. { apply assoc_disp_var. }
+    etrans. { apply maponpaths. apply id_left_disp. }
+    etrans. { apply transport_f_f. }
+    etrans. { apply maponpaths. apply id_left_disp. }
+    etrans. { apply transport_f_f. }
+    etrans. { apply maponpaths. apply disp_functor_id. }
+    etrans. { apply transport_f_f. }
     apply pathsinv0.
-    etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f.
+    etrans. { apply maponpaths. apply id_left_disp. }
+    etrans. { apply transport_f_f. }
     apply maponpaths_2. apply homset_property.
 Qed.
 

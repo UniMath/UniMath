@@ -238,7 +238,7 @@ Proof.
       * intro; apply isapropisweq.
       * apply funextfun. unfold homot. apply ϕ₂_determined.
   - apply subtypePath.
-    intro. apply isapropisweq.
+    { intro. apply isapropisweq. }
     apply funextfun. intro t.
     apply ϕo_determined.
 Qed.
@@ -400,21 +400,24 @@ Proof.
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
       eapply post_comp_with_z_iso_is_inj.
-      apply (z_iso_is_inverse_in_precat f). apply H2.
+      * apply (z_iso_is_inverse_in_precat f).
+      * apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
       apply pathsinv0. eapply pathscomp0.
       * apply (pathsinv0 (comp_compose2' H)).
       * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).
-        rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
-        repeat rewrite assoc; apply idpath.
+        ** rewrite z_iso_inv_after_z_iso.
+           rewrite id_right.
+           apply idpath.
+        ** repeat rewrite assoc; apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H). apply pathsinv0.
       eapply pathscomp0.
       * apply (pathsinv0 H2).
       * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).
-        repeat rewrite assoc; apply idpath.
-        rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
+        ** repeat rewrite assoc; apply idpath.
+        ** rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
       rewrite <- assoc. rewrite (comp_compose2' H). apply idpath.

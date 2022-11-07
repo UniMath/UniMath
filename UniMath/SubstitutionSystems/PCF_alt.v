@@ -142,7 +142,7 @@ then taking the sum of the signatures.
 
 Definition PCF_Consts : MultiSortedSig type.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - exact ((nat,,isasetnat) + (stn 6,,isasetstn 6))%set.
 - induction 1 as [n|i].
   + exact ([],,Nat).                                   (* Nat (one for each nat) *)
@@ -158,7 +158,7 @@ Defined.
 (* We could define PCF as follows, but we instead get App and Lam from the STLC signature *)
 (* Definition PCF : MultiSortedSig type. *)
 (* Proof. *)
-(* use mkMultiSortedSig. *)
+(* use make_MultiSortedSig. *)
 (* - apply (type + (type × type) + (type × type) + type)%set. *)
 (* - intros [[[t|[t s]]|[t s]]|t]. *)
 (*   * exact ([],,t).                                  (* Bottom *) *)
@@ -169,7 +169,7 @@ Defined.
 
 Definition PCF_Bot_Y : MultiSortedSig type.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - apply (type + type)%set.
 - intros [t|t].
   * exact ([],,t).                                  (* Bottom *)

@@ -32,7 +32,6 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 
-
 Import Bicat.Notations.
 
 Local Open Scope cat.
@@ -281,7 +280,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
                                               (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C).
   Proof.
     use tpair.
-    - apply (mk_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
+    - apply (make_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
                        (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C)
                        functor_ptd_forget_alt (nat_trans_id _) aux).
       + abstract

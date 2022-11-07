@@ -13,7 +13,7 @@ Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=
 Definition bounded_lattice (X : hSet) :=
   ∑ (l : lattice X) (bot top : X), bounded_latticeop l bot top.
 
-Definition mkbounded_lattice {X : hSet} {l : lattice X} {bot top : X} :
+Definition make_bounded_lattice {X : hSet} {l : lattice X} {bot top : X} :
   bounded_latticeop l bot top → bounded_lattice X := λ bl, l,, bot,, top,, bl.
 
 Definition bounded_lattice_to_lattice X : bounded_lattice X → lattice X := pr1.
@@ -46,7 +46,7 @@ End bounded_lattice_pty.
 
 Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
 Proof.
-use mkbounded_lattice.
+use make_bounded_lattice.
 - exact hProp_lattice.
 - exact hfalse.
 - exact htrue.

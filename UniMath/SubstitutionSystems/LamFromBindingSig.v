@@ -76,7 +76,7 @@ Local Notation "'1'" := (functor_identity HSET).
 
 (** The signature of the lambda calculus: { [0,0], [1] } *)
 Definition LamSig : BindingSig :=
-  mkBindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
+  make_BindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
 
 (** The signature with strength for the lambda calculus *)
 Definition LamSignature : Signature HSET _ _ :=
@@ -166,24 +166,24 @@ Proof.
                                                                      _ _ _ _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
-eapply pathscomp0; [apply F|].
+etrans; [apply F|].
 rewrite assoc.
-eapply pathscomp0.
-  eapply cancel_postcomposition.
+etrans.
+{ eapply cancel_postcomposition.
   rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2.
+  eapply maponpaths, BinCoproductOfArrowsIn2. }
 rewrite assoc.
-eapply pathscomp0.
-  eapply @cancel_postcomposition. eapply @cancel_postcomposition.
+etrans.
+{ eapply @cancel_postcomposition. eapply @cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
-                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
+                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
 rewrite <- assoc.
-eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
+etrans; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
-eapply pathscomp0; eapply maponpaths.
-  exact (CoproductInCommutes _ _ _ _ _ _ true).
-apply idpath.
+etrans; eapply maponpaths.
+- exact (CoproductInCommutes _ _ _ _ _ _ true).
+- apply idpath.
 Defined.
 
 Lemma foldr_lam X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
@@ -195,25 +195,25 @@ Proof.
                                                                      _ _ _ _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
-eapply pathscomp0; [apply F|].
+etrans; [apply F|].
 rewrite assoc.
-eapply pathscomp0.
-  eapply cancel_postcomposition.
+etrans.
+{ eapply cancel_postcomposition.
   rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2.
+  eapply maponpaths, BinCoproductOfArrowsIn2. }
 rewrite assoc.
-eapply pathscomp0.
-  eapply @cancel_postcomposition, @cancel_postcomposition.
+etrans.
+{ eapply @cancel_postcomposition, @cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
-                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
+                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
 rewrite <- assoc.
-eapply pathscomp0.
-  eapply maponpaths, BinCoproductIn2Commutes.
+etrans.
+{ eapply maponpaths, BinCoproductIn2Commutes. }
 rewrite <- assoc.
-eapply pathscomp0; eapply maponpaths.
-  exact (CoproductInCommutes _ _ _ _ _ _ false).
-apply idpath.
+etrans; eapply maponpaths.
+- exact (CoproductInCommutes _ _ _ _ _ _ false).
+- apply idpath.
 Defined.
 
 

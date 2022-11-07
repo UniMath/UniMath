@@ -29,7 +29,7 @@ jobs:
       - name: Run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
-          time make sanity-checks
+          time make -k sanity-checks
 
   build-Unimath-ubuntu:
     name: Build-UniMath-Ubuntu

@@ -84,8 +84,8 @@ Local Lemma is_nat_trans_θ_ob_fun (X : [C, D']) (Z : category_Ptd C):
    is_nat_trans _ _ (θ_ob_fun X Z).
 Proof.
   intros x x' f.
-  eapply pathscomp0; [ apply BinCoproductOfArrows_comp | ].
-  eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
+  etrans; [ apply BinCoproductOfArrows_comp | ].
+  etrans; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
   apply maponpaths_12.
   * apply (nat_trans_ax (θ1 (X ⊗ Z))).
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
@@ -112,9 +112,9 @@ Proof.
     destruct αβ as [α β]. simpl in *.
     (* on the right-hand side, there is a second but unfolded BinCoproductOfArrows in the row -
        likewise a first such on the left-hand side, to be treater further below *)
-    eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
-    eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductOfArrows_comp.
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
+    etrans; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
+    etrans. { apply cancel_postcomposition. apply BinCoproductOfArrows_comp. }
+    etrans. { apply BinCoproductOfArrows_comp. }
     apply maponpaths_12.
     + apply (nat_trans_eq_pointwise Hyp1 c).
     + apply (nat_trans_eq_pointwise Hyp2 c).
@@ -133,7 +133,7 @@ Proof.
   intro X.
   apply nat_trans_eq_alt.
   intro x; simpl.
-  eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
+  etrans; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0, BinCoproduct_endo_is_identity.
   + rewrite BinCoproductOfArrowsIn1.
     unfold θ_Strength1 in S11.
@@ -153,10 +153,10 @@ Lemma SumStrength2 : θ_Strength2 θ.
 Proof.
   intros X Z Z' Y α.
   apply nat_trans_eq_alt; intro x.
-  eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
+  etrans; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
-  eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
-  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  etrans. { apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp. }
+  etrans; [apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
   apply maponpaths_12.
   - assert (Ha:=S12 X Z Z' Y α).
@@ -178,18 +178,18 @@ Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.
   clear S11 S12 S21 S22 S12' S22'; intro X.
   apply nat_trans_eq_alt; intro x.
-  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  etrans; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0, BinCoproduct_endo_is_identity.
   + rewrite BinCoproductOfArrowsIn1.
     assert (Ha := nat_trans_eq_pointwise (S11' X) x).
     simpl in Ha.
-    eapply pathscomp0; [ | apply id_left].
+    etrans; [ | apply id_left].
     apply cancel_postcomposition.
     apply Ha.
   + rewrite BinCoproductOfArrowsIn2.
     assert (Ha := nat_trans_eq_pointwise (S21' X) x).
     simpl in Ha.
-    eapply pathscomp0; [ | apply id_left].
+    etrans; [ | apply id_left].
     apply cancel_postcomposition.
     apply Ha.
 Qed.
@@ -198,9 +198,9 @@ Lemma SumStrength2' : θ_Strength2_int θ.
 Proof.
   clear S11 S12 S21 S22 S11' S21'; intros X Z Z'.
   apply nat_trans_eq_alt; intro x; simpl; rewrite id_left.
-  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  etrans; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
-  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  etrans; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
   apply maponpaths_12.
   - assert (Ha:=S12' X Z Z').

@@ -534,9 +534,9 @@ Lemma total_is_univalent_2
 Proof.
   intros UD UC.
   split.
-  - apply total_is_univalent_2_0. apply UC.
+  - apply total_is_univalent_2_0. { apply UC. }
     apply disp_univalent_2_0_of_2. assumption.
-  - apply total_is_univalent_2_1. apply UC.
+  - apply total_is_univalent_2_1. { apply UC. }
     apply disp_univalent_2_1_of_2. assumption.
 Defined.
 

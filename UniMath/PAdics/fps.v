@@ -741,7 +741,7 @@ Proof.
               apply ( natlehlthtrans _ n ).
               ** assumption.
               ** apply ( istransnatlth _ ( S n ) ).
-                 apply natlthnsn.
+                 { apply natlthnsn. }
                  unfold natcoface in f0.
                  rewrite ( natgehimplnatgtbfalse v n r' ) in f0.
                  rewrite f0.
@@ -1763,8 +1763,8 @@ Proof.
     + apply s.
       split with ( S upper ).
       split.
-      apply isreflnatleh.
-      assumption.
+      * apply isreflnatleh.
+      * assumption.
 Defined.
 
 Definition fpsapart0 ( R : acommring ) : hrel ( fpscommring R ) :=

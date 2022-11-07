@@ -24,7 +24,7 @@ Section laws.
       etrans. { apply maponpaths.
                 apply lwhisker_id2. }
               apply id2_right. }
-    etrans. apply runitor_rwhisker.
+    etrans. { apply runitor_rwhisker. }
     apply pathsinv0.
     etrans. { apply maponpaths_2. apply id2_rwhisker. }
             apply id2_left.

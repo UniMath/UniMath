@@ -26,32 +26,9 @@ Section MonadToCatMonad.
           (m : mnd B)
           (x : B).
 
-  Definition mnd_to_functor_data
-    : functor_data (hom x (pr1 m)) (hom x (pr1 m)).
-  Proof.
-    use make_functor_data.
-    - exact (λ f, f · endo_of_mnd m).
-    - exact (λ _ _ α, α ▹ _).
-  Defined.
-
-  Definition mnd_to_functor_is_functor
-    : is_functor mnd_to_functor_data.
-  Proof.
-    split.
-    - intro f ; cbn.
-      apply id2_rwhisker.
-    - intros f g h α β ; cbn.
-      rewrite rwhisker_vcomp.
-      apply idpath.
-  Qed.
-
   Definition mnd_to_functor
-    : hom x (pr1 m) ⟶ hom x (pr1 m).
-  Proof.
-    use make_functor.
-    - exact mnd_to_functor_data.
-    - exact mnd_to_functor_is_functor.
-  Defined.
+    : hom x (pr1 m) ⟶ hom x (pr1 m)
+    := post_comp x (endo_of_mnd m).
 
   Definition mnd_to_cat_mu
     : mnd_to_functor ∙ mnd_to_functor ⟹ mnd_to_functor.
