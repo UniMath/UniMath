@@ -206,8 +206,45 @@ Section RezkAssociator.
           (x, TC (y,z))
           · # TD (# H (id x) #, (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (y, z))).
   Proof.
-  Admitted.
-
+    use (z_iso_inv_to_left _ _ _
+                           (_,,pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x, TC (y,z)))).
+    use (z_iso_inv_to_right _ _ _ _
+                            (_,, pr2 (nat_z_iso_inv TransportedAssocRight) ((x, y), z))).
+    set (t := TransportedAssocRightOnOb x y z).
+    etrans.
+    2: {
+      apply maponpaths.
+      apply (! t).
+    }
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      apply (functor_comp TD).
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply binprod_comp.
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite (functor_id H).
+      rewrite id_right.
+      apply maponpaths.
+      apply (! pr22 ((pr2 (TransportedTensorComm Duniv H_eso H_ff TC)) (y, z))).
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite binprod_id.
+      apply (! functor_id TD _).
+    }
+    apply (! id_left _).
+  Qed.
 
   Definition TransportedAssociator
     : associator TD.
@@ -421,8 +458,14 @@ Section RezkAssociator.
         exact (TransportedAssociatorOnOb ((c1,c2), c3)).
       }
 
-      set (t := GG c1 c2 c3).
+      rewrite TransportedAssocLeftOnOb.
+      rewrite TransportedAssocRightInvOnOb.
 
+
+      set (t := GG c1 c2 c3).
+      set (ptG := pr112 G).
+      set (ptH := pr1 (TransportedTensorComm Duniv H_eso H_ff TC)).
+      set (pt_GH := (pr112 (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))).
       transparent assert (m : (E⟦ pr11 G (H (TC (c1, TC (c2,, c3))))
                                   ,  (pr11 G) (TD (H c1, TD (H c2,, H c3)))⟧)).
       {
@@ -434,14 +477,6 @@ Section RezkAssociator.
           + apply identity.
           + apply (TransportedTensorComm Duniv H_eso H_ff).
       }
-
-
-
-      set (ptG := pr112 G).
-      set (ptH := pr1 (TransportedTensorComm Duniv H_eso H_ff TC)).
-
-      set (pt_GH := (pr112 (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))).
-
       set (tt := cancel_postcomposition _ _ m t :
        # TE (pt_GH (c1, c2) #, id  pr11 G (H c3))
          · pt_GH (TC (c1, c2), c3)
@@ -449,58 +484,97 @@ Section RezkAssociator.
        = αE ((pr11 G (H ( c1)), (pr11 G (H (c2)))), (pr11 G (H (c3))))
             · # TE (id pr11 G (H (c1)) #, pt_GH (c2, c3)) · pt_GH (c1, TC (c2,c3)) · m).
 
-      refine (_ @ tt @ _) ; unfold m.
-      + rewrite ! assoc'.
-        rewrite TransportedAssocLeftOnOb.
-        rewrite TransportedAssocRightInvOnOb.
+      set (ptF := (TransportedTensorComm Duniv H_eso H_ff TC)).
+      assert (pp : pt_GH (c1, c2)
+                   = ptG (H c1, H c2) · #(pr11 G) (ptH (c1,c2))).
+      {
+        apply idpath.
+      }
 
-        rewrite (! id_right (id (pr11 G) (H c3))).
-        etrans.
-        2: {
-          apply maponpaths_2.
-          assert (pp : pt_GH (c1, c2)
-                       = ptG (H c1, H c2) · #(pr11 G) (ptH (c1,c2))).
-          {
-            apply idpath.
-          }
-          rewrite pp, binprod_comp.
-          apply (! functor_comp TE _ _).
+      refine (_ @ tt @ _) ; unfold m ; clear tt.
+      + rewrite pp.
+        rewrite ! (functor_comp (pr1 G)).
+        assert (qq :  pt_GH (TC (c1, c2), c3)
+                      = ptG (H (TC (c1,c2)), H c3) · #(pr11 G) (ptH (TC (c1,c2),c3))).
+        {
+          apply idpath.
         }
-        (* etrans.
-        2: {
+        rewrite qq.
+        fold ptF.
+        rewrite <- (id_right (id (pr11 G) (H c3))).
+        rewrite binprod_comp.
+        rewrite (functor_comp TE _ _).
 
-
-          set (q := pr212 G (TD (H c1, H c2), H c3)).
-          simpl in q.
-
-
-          apply maponpaths.
-
-
-        rewrite (functor_comp (pr1 G)).
-        rewrite assoc.
-        etrans. {
-          apply maponpaths_2.
-
-          simpl.
-          Check pr212 G _ _ (TransportedTensorComm Duniv H_eso H_ff TC (c1, c2) #, id H c3).
-
-
-*)
-
-
-
-
-        admit.
+        rewrite ! assoc'.
+        apply maponpaths.
+        rewrite ! assoc.
+        rewrite (functor_id H).
+        do 4 apply maponpaths_2.
+        rewrite <- (functor_id (pr1 G)).
+        exact (! pr212 G _ _ (ptF (c1, c2) #, id H c3)).
       + rewrite ! assoc'.
         apply maponpaths.
-        rewrite assoc.
+        assert (qq' :  (pt_GH (c1, TC (c2, c3))
+                        = ptG (H c1, H (TC (c2,c3))) · #(pr11 G) (ptH (c1, TC (c2,c3))))).
+        {
+          apply idpath.
+        }
+        rewrite qq'.
+        fold ptF.
+        assert (qq'' :  pt_GH (c2, c3)
+                        = ptG (H c2, H c3) · #(pr11 G) (ptH (c2,c3))).
+        { apply idpath. }
+        rewrite qq''.
+        rewrite (! id_right (id (pr11 G) (H c1))).
+        rewrite binprod_comp.
+        rewrite (functor_comp TE _ _).
+        rewrite ! assoc'.
+        apply maponpaths.
 
-        admit.
+        etrans. {
+          do 2 apply maponpaths.
+          rewrite (functor_comp (pr1 G)).
+          rewrite assoc.
+          apply maponpaths_2.
+          rewrite <- (functor_comp (pr1 G)  (ptH (c1, TC (c2, c3)))).
+          etrans. {
+            apply maponpaths.
+            apply (pr12 (pr2 ptF (c1, TC (c2,c3)))).
+          }
+          apply (functor_id (pr1 G)).
+        }
+        rewrite id_left.
+        etrans. {
+          apply maponpaths.
+          apply (! pr212 G _ _ ((id H c1 #, pr1 (pr2 ptF (c2,, c3))))).
+        }
+        unfold functor_tensor_map_dom.
+        unfold functor_composite.
+        simpl.
+        rewrite <- (functor_id (pr1 G)).
+        rewrite assoc.
+        rewrite <- (functor_comp TE).
+        rewrite <- binprod_comp.
+        rewrite (functor_id (pr1 G)).
+        rewrite id_right.
+        rewrite <- (functor_id (pr1 G)).
+        rewrite <- (functor_comp (pr1 G)).
+
+        etrans. {
+          apply maponpaths_2.
+          do 3 apply maponpaths.
+          apply (pr12 (pr2 ptF (c2,c3))).
+        }
+        etrans. {
+          apply maponpaths_2.
+          do 2 rewrite (functor_id (pr1 G)).
+          apply (functor_id TE).
+        }
+        apply id_left.
     - exists tt.
       exists tt.
       split ; apply isapropunit.
-  Admitted.
+  Qed.
 
   Definition precomp_associator_is_ff
     : fully_faithful (total_functor precompA).
