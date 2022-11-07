@@ -465,7 +465,6 @@ Section RezkMonoidal.
     - exact (H_pα Duniv H_eso H_ff TC α I).
   Defined.
 
-
   Context {E : category}
           (Euniv : is_univalent E)
           (TE : functor (E ⊠ E) E) (IE : E)
