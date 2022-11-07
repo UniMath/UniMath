@@ -787,7 +787,7 @@ Section ProductsBool.
       apply ProductPr.
     - use make_isBinProduct; cbn.
       intros z f g; use make_iscontr.
-      pose (indexz := bool_rec (fun b => C⟦ z, index b ⟧) f g).
+      pose (indexz := bool_rect (fun b => C⟦ z, index b ⟧) f g).
       use tpair.
       + apply ProductArrow; exact indexz.
       + split.
