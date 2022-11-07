@@ -282,9 +282,13 @@ Section RezkMonoidal.
       - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x3,x4)).
     }
 
+    Check TransportedAssociatorOnOb Duniv H_eso H_ff TC α.
+
     assert (p0 : αD ((H x1, H x2), TD (H x3, H x4))
             = f_s · #H (α ((x1,x2) , TC (x3,x4))) · f_t).
     {
+      Check (TransportedAssociatorOnOb Duniv H_eso H_ff TC α ((x1,x2),TC (x3,x4))).
+
       admit.
     }
 
@@ -330,6 +334,28 @@ Section RezkMonoidal.
 
     assert (p0 : g_t · f_s = identity _).
     {
+      unfold g_t, f_s.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        apply (! functor_comp TD _ _).
+      }
+      etrans. {
+        apply maponpaths_2.
+        do 2 apply maponpaths.
+        apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+      }
+      etrans. {
+        apply maponpaths_2.
+        do 2 apply maponpaths.
+        rewrite id_right.
+        rewrite id_left.
+        apply idpath.
+      }
+
+
       admit.
     }
 
@@ -465,6 +491,15 @@ Section RezkMonoidal.
     - exact (H_pα Duniv H_eso H_ff TC α I).
   Defined.
 
+  Definition H_strong_monoidal
+    : strong_functor_monoidal_cat lu luD ru ruD α αD.
+  Proof.
+    exists H_monoidal.
+    split.
+    - apply (TransportedTensorComm Duniv H_eso H_ff TC).
+    - apply identity_is_z_iso.
+  Defined.
+
   Context {E : category}
           (Euniv : is_univalent E)
           (TE : functor (E ⊠ E) E) (IE : E)
@@ -484,6 +519,17 @@ Section RezkMonoidal.
     - apply precompA.
   Defined.
 
+  Definition precompStrongMonoidal
+    : disp_functor (total_functor precompMonoidal)
+                   (functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE)
+                   (functor_strong_monoidal_disp_cat lu luE ru ruE α αE).
+  Proof.
+    use tpair.
+    - exists (λ F pFi, strong_functor_composition (pr2 H_strong_monoidal) pFi).
+      intro ; intros ; exact tt.
+    - abstract (split ; intro ; intros ; apply isapropunit).
+  Defined.
+
   Definition precompMonoidal_ff
     : disp_functor_ff precompMonoidal.
   Proof.
@@ -492,6 +538,14 @@ Section RezkMonoidal.
       + apply precompLU_ff.
       + apply precompRU_ff.
     - apply precompA_ff.
+  Qed.
+
+  Definition precompStrongMonoidal_ff
+    : disp_functor_ff precompStrongMonoidal.
+  Proof.
+    intro ; intros.
+    apply isweqcontrtounit.
+    apply iscontrunit.
   Qed.
 
   Definition precompMonoidal_eso
@@ -505,12 +559,36 @@ Section RezkMonoidal.
       (* exact Euniv. *)
   Qed.
 
+  Definition precompStrongMonoidal_eso
+    :  disp_functor_disp_ess_split_surj precompStrongMonoidal.
+  Proof.
+    intro ; intros.
+    use tpair.
+    - use tpair.
+      + admit.
+      + set (a := pr2 xx).
+        simpl in a.
+        rewrite (functor_id (pr11 x)) in a.
+        rewrite id_right in a.
+        exact a.
+    - refine (tt ,, tt ,, _).
+      split ; apply isapropunit.
+  Admitted.
+
   Definition precomp_monoidal_is_ff
     : fully_faithful (total_functor precompMonoidal).
   Proof.
     use disp_functor_ff_to_total_ff.
     - apply (precomp_tensorunit_is_ff Duniv Euniv).
     - exact precompMonoidal_ff.
+  Qed.
+
+  Definition precomp_strongmonoidal_is_ff
+    : fully_faithful (total_functor precompStrongMonoidal).
+  Proof.
+    use disp_functor_ff_to_total_ff.
+    - apply precomp_monoidal_is_ff.
+    - exact precompStrongMonoidal_ff.
   Qed.
 
   Definition precomp_monoidal_is_eso
@@ -521,23 +599,57 @@ Section RezkMonoidal.
     - exact precompMonoidal_eso.
   Qed.
 
+  Definition precomp_strongmonoidal_is_eso
+    : essentially_surjective (total_functor precompStrongMonoidal).
+  Proof.
+    use disp_functor_eso_to_total_eso.
+    - apply precomp_monoidal_is_eso.
+    - exact precompStrongMonoidal_eso.
+  Qed.
+
+  Lemma is_univalent_LaxMonoidalFunctorCategory
+    : is_univalent (total_category (functor_monoidal_disp_cat luD luE ruD ruE αD αE)).
+  Proof.
+    apply is_univalent_total_category.
+    - apply is_univalent_total_category.
+      + apply (is_univalent_functor_category _ _ Euniv).
+      + apply is_disp_univalent_functor_tensorunit_disp_cat.
+    - apply Constructions.dirprod_disp_cat_is_univalent.
+      {
+        apply Constructions.dirprod_disp_cat_is_univalent.
+        apply functor_lu_disp_cat_is_univalent.
+        apply functor_ru_disp_cat_is_univalent.
+      }
+      apply functor_ass_disp_cat_is_univalent.
+  Qed.
+
+  Lemma is_univalent_StrongMonoidalFunctorCategory
+    : is_univalent (total_category (functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE)).
+  Proof.
+    apply is_univalent_total_category.
+    - apply is_univalent_LaxMonoidalFunctorCategory.
+    - apply Constructions.disp_full_sub_univalent.
+      intro ; apply isapropdirprod.
+      apply isaprop_is_nat_z_iso.
+      apply isaprop_is_z_isomorphism.
+  Qed.
+
   Definition precomp_monoidal_adj_equiv
     : adj_equivalence_of_cats (total_functor precompMonoidal).
   Proof.
     apply rad_equivalence_of_cats.
-    - apply is_univalent_total_category.
-      + apply is_univalent_total_category.
-        * apply (is_univalent_functor_category _ _ Euniv).
-        * apply is_disp_univalent_functor_tensorunit_disp_cat.
-      + apply Constructions.dirprod_disp_cat_is_univalent.
-        {
-          apply Constructions.dirprod_disp_cat_is_univalent.
-          apply functor_lu_disp_cat_is_univalent.
-          apply functor_ru_disp_cat_is_univalent.
-        }
-        apply functor_ass_disp_cat_is_univalent.
+    - apply is_univalent_LaxMonoidalFunctorCategory.
     - exact precomp_monoidal_is_ff.
     - exact precomp_monoidal_is_eso.
+  Defined.
+
+  Definition precomp_strongmonoidal_adj_equiv
+    : adj_equivalence_of_cats (total_functor precompStrongMonoidal).
+  Proof.
+    apply rad_equivalence_of_cats.
+    - apply is_univalent_StrongMonoidalFunctorCategory.
+    - exact precomp_strongmonoidal_is_ff.
+    - exact precomp_strongmonoidal_is_eso.
   Defined.
 
 End RezkMonoidal.

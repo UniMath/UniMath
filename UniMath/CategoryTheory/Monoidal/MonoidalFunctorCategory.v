@@ -6,6 +6,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
@@ -513,6 +514,55 @@ Section MonoidalFunctorCategory.
 
 End MonoidalFunctorCategory.
 
+Section StrongMonoidalFunctorCategory.
+
+  Context {C D : category}
+          {TC : functor (C ⊠ C) C} {TD : functor (D ⊠ D) D}
+          {IC : C} {ID : D}
+          (luC : left_unitor TC IC) (luD : left_unitor TD ID)
+          (ruC : right_unitor TC IC) (ruD : right_unitor TD ID)
+          (αC : associator TC) (αD : associator TD).
+
+  Notation "X ⊗_C Y" := (TC (X , Y)) (at level 31).
+  Notation "f #⊗_C g" := (# TC (f #, g)) (at level 31).
+  Notation "X ⊗_D Y" := (TD (X , Y)) (at level 31).
+  Notation "f #⊗_D g" := (# TD (f #, g)) (at level 31).
+
+  Definition functor_strong_monoidal_disp_cat
+    : disp_cat (functor_monoidal_cat luC luD ruC ruD αC αD)
+    := disp_full_sub (functor_monoidal_cat luC luD ruC ruD αC αD)
+                     (λ F,
+                       is_nat_z_iso (pr121 F : nat_trans _ _)
+                                    × is_z_isomorphism (pr221 F)).
+
+  Definition strong_functor_monoidal_cat
+    : category
+    := total_category functor_strong_monoidal_disp_cat.
+
+End StrongMonoidalFunctorCategory.
+
+Definition LaxMonoidalFunctorCat
+           (M N : monoidal_cat)
+  : category
+  := functor_monoidal_cat
+       (monoidal_cat_left_unitor M)
+       (monoidal_cat_left_unitor N)
+       (monoidal_cat_right_unitor M)
+       (monoidal_cat_right_unitor N)
+       (monoidal_cat_associator M)
+       (monoidal_cat_associator N).
+
+Definition StrongMonoidalFunctorCat
+           (M N : monoidal_cat)
+  : category
+  := strong_functor_monoidal_cat
+       (monoidal_cat_left_unitor M)
+       (monoidal_cat_left_unitor N)
+       (monoidal_cat_right_unitor M)
+       (monoidal_cat_right_unitor N)
+       (monoidal_cat_associator M)
+       (monoidal_cat_associator N).
+
 Section FunctorMonoidalProperties.
 
   Context {C D E : category}
@@ -573,6 +623,32 @@ Section FunctorMonoidalProperties.
 
   Admitted.
 
+  Definition functor_monoidal_composition
+             {luC : left_unitor TC IC} {luD : left_unitor TD ID} {luE : left_unitor TE IE}
+             {ruC : right_unitor TC IC} {ruD : right_unitor TD ID} {ruE : right_unitor TE IE}
+             {αC : associator TC} {αD : associator TD} {αE : associator TE}
+             {F : functor C D} {G : functor D E}
+             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+             {GG : functor_tensorunit_disp_cat TD TE ID IE G}
+             (FFF : functor_monoidal_disp_cat luC luD ruC ruD αC αD (_,,FF))
+             (GGG : functor_monoidal_disp_cat luD luE ruD ruE αD αE (_,,GG))
+    : functor_monoidal_disp_cat luC luE ruC ruE αC αE (_,, functor_tensorunit_composition FF GG).
+  Proof.
+    repeat split.
+    - use functor_lu_composition.
+      exact luD.
+      exact (pr11 FFF).
+      exact (pr11 GGG).
+    - use functor_ru_composition.
+      exact ruD.
+      exact (pr21 FFF).
+      exact (pr21 GGG).
+    - use functor_ass_composition.
+      exact αD.
+      exact (pr2 FFF).
+      exact (pr2 GGG).
+  Defined.
+
 End FunctorMonoidalProperties.
 
 Section AssociatorMonoidalProperty.
@@ -616,8 +692,6 @@ Section AssociatorMonoidalProperty.
                   )
         ).
   Defined.
-
-  Require Import UniMath.CategoryTheory.whiskering.
 
   Lemma unassoc_commutes
         {C D : category} (F : functor C D)
@@ -868,3 +942,40 @@ Section AssociatorMonoidalProperty.
   Qed.
 
 End AssociatorMonoidalProperty.
+
+Section StrongMonoidalProperty.
+
+  Context {C D E : category}
+          {TC : functor (C ⊠ C) C} {TD : functor (D ⊠ D) D} {TE : functor (E ⊠ E) E}
+          {IC : C} {ID : D} {IE : E}
+          {luC : left_unitor TC IC} {luD : left_unitor TD ID} {luE : left_unitor TE IE}
+          {ruC : right_unitor TC IC} {ruD : right_unitor TD ID} {ruE : right_unitor TE IE}
+          {αC : associator TC} {αD : associator TD} {αE : associator TE}.
+
+  Notation "X ⊗_C Y" := (TC (X , Y)) (at level 31).
+  Notation "f #⊗_C g" := (# TC (f #, g)) (at level 31).
+  Notation "X ⊗_D Y" := (TD (X , Y)) (at level 31).
+  Notation "f #⊗_D g" := (# TD (f #, g)) (at level 31).
+  Notation "X ⊗_E Y" := (TE (X , Y)) (at level 31).
+  Notation "f #⊗_E g" := (# TE (f #, g)) (at level 31).
+
+  Definition strong_functor_composition
+             {F : functor_monoidal_cat luC luD ruC ruD αC αD}
+             {G : functor_monoidal_cat luD luE ruD ruE αD αE}
+             (FF : functor_strong_monoidal_disp_cat luC luD ruC ruD αC αD F)
+             (GG : functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE G)
+    : functor_strong_monoidal_disp_cat
+        luC luE ruC ruE αC αE
+        (_,, functor_monoidal_composition (pr2 F) (pr2 G)).
+  Proof.
+    split.
+    - intro cc.
+      use is_z_isomorphism_comp.
+      2: apply (pr2 (functor_on_z_iso (pr11 G) (_,, pr1 FF cc))).
+      exact (pr1 GG  ((pr111 F) (pr1 cc), (pr111 F) (pr2 cc))).
+    - use is_z_isomorphism_comp.
+      + exact (pr2 GG).
+      + exact (pr2 (functor_on_z_iso (pr11 G) (make_z_iso' _ (pr2 FF)))).
+  Defined.
+
+End StrongMonoidalProperty.
