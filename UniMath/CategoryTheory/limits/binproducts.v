@@ -822,7 +822,7 @@ Section ProductsBool.
       unfold Product in *.
       use total2_paths_f; [|apply isaprop_isProduct].
       use total2_paths_f; cbn.
-      + assert (xeq : x = (bool_rec (λ _ : bool, C) (x true) (x false))).
+      + assert (xeq : x = (bool_rect (λ _ : bool, C) (x true) (x false))).
         * abstract (apply funextfun; intros i; now case i).
         * abstract (now rewrite <- xeq).
       + apply proofirrelevance.
