@@ -1,0 +1,6 @@
+(rule
+ (deps (source_tree .))
+ (action
+  (with-stdout-to All.v
+   (run %{project_root}/util/generate-exports UniMath.Foundations "%{deps}"))))
+
