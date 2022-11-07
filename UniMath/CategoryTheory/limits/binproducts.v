@@ -777,7 +777,7 @@ Section ProductsBool.
   Proof.
     intros x y.
     (** The indexing function *)
-    pose (index := bool_rec (fun _ => C) x y).
+    pose (index := bool_rect (fun _ => C) x y).
     use make_BinProduct.
     - eapply ProductObject.
       apply (PBC index).
