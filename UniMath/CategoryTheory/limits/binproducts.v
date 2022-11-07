@@ -909,11 +909,9 @@ Section Assoc3.
 
   Local Definition three_rec {T : UU} (x y z : T) : three -> T.
   Proof.
-    refine (coprod_rec _ _ _ _ _).
+    use coprod_rect.
     - intro; exact x.
-    - refine (bool_rec _ _ _).
-      + exact y.
-      + exact z.
+    - exact(bool_rect _ y z).
   Defined.
 
   Local Definition three_ind {T : UU} {a b c : T} {P : T -> UU}
