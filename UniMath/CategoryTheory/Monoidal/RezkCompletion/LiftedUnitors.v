@@ -1,3 +1,13 @@
+(* In LiftedTensor.v and LiftedTensor.v, we have shown that given a category C equipped with a binary operation T and an object I (called the tensor and unit resp.),
+then, this structures 'transport' to a weakly equivalent univalent category D, by a weak equivalence H:C->D, making this univalent category D with a tensor and unit,
+the free univalent category equipped with a tensor and a unit.
+In this file, we show that if we equip (C,T,I) with a left and/or right unitor, then
+1: the unitor(s) also transports to D.
+2: H preserves the unitor(s) as a monoidal functor preserves the unitor(s).
+3: H makes D the free univalent category equipped with tensor, unit and the unitors.
+More details about the universality and the Rezk-completion can be found in LiftedMonoidal.v
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
