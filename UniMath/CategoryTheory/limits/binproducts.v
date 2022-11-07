@@ -918,11 +918,9 @@ Section Assoc3.
     (pa : P a) (pb : P b) (pc : P c) :
     ∏ i : three, P (three_rec a b c i).
   Proof.
-    refine (coprod_rec _ _ _ _ _).
+    use coprod_rect.
     - intro; exact pa.
-    - refine (bool_rec _ _ _).
-      + exact pb.
-      + exact pc.
+    - exact(bool_rect _ pb pc).
   Defined.
 
   Local Definition l_pr1 {x y z : C} : C ⟦(x ⊠ y) ⊠ z, x⟧ := π1 · π1.
