@@ -422,67 +422,66 @@ Section RezkAssociator.
       apply isapropunit.
   Qed.
 
-  Lemma precompA_eso
-    : disp_functor_disp_ess_split_surj precompA.
+  Lemma lift_preserves_associator
+        {G : functor_tensorunit_cat (TransportedTensor Duniv H_eso H_ff TC) TE (H I) IE}
+        ( GG : functor_ass_disp_cat α αE (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))
+    : functor_ass_disp_cat αD αE G.
   Proof.
-    intros G GG.
+    intros d1 d2 d3.
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) d1). }
+    { apply homset_property. }
+    2: exact (H_eso d1).
+    intros [c1 i1].
+    induction (isotoid _ Duniv i1).
+    clear i1.
 
-    use tpair.
-    - intros d1 d2 d3.
-      use factor_through_squash.
-      { exact (∑ a : C, z_iso (H a) d1). }
-      { apply homset_property. }
-      2: exact (H_eso d1).
-      intros [c1 i1].
-      induction (isotoid _ Duniv i1).
-      clear i1.
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) d2). }
+    { apply homset_property. }
+    2: exact (H_eso d2).
+    intros [c2 i2].
+    induction (isotoid _ Duniv i2).
+    clear i2.
 
-      use factor_through_squash.
-      { exact (∑ a : C, z_iso (H a) d2). }
-      { apply homset_property. }
-      2: exact (H_eso d2).
-      intros [c2 i2].
-      induction (isotoid _ Duniv i2).
-      clear i2.
+    use factor_through_squash.
+    { exact (∑ a : C, z_iso (H a) d3). }
+    { apply homset_property. }
+    2: exact (H_eso d3).
+    intros [c3 i3].
+    induction (isotoid _ Duniv i3).
+    clear i3.
 
-      use factor_through_squash.
-      { exact (∑ a : C, z_iso (H a) d3). }
-      { apply homset_property. }
-      2: exact (H_eso d3).
-      intros [c3 i3].
-      induction (isotoid _ Duniv i3).
-      clear i3.
+    etrans. {
+      do 2 apply maponpaths.
+      exact (TransportedAssociatorOnOb ((c1,c2), c3)).
+    }
 
-      etrans. {
-        do 2 apply maponpaths.
-        exact (TransportedAssociatorOnOb ((c1,c2), c3)).
-      }
-
-      rewrite TransportedAssocLeftOnOb.
-      rewrite TransportedAssocRightInvOnOb.
+    rewrite TransportedAssocLeftOnOb.
+    rewrite TransportedAssocRightInvOnOb.
 
 
-      set (t := GG c1 c2 c3).
-      set (ptG := pr112 G).
-      set (ptH := pr1 (TransportedTensorComm Duniv H_eso H_ff TC)).
-      set (pt_GH := (pr112 (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))).
-      transparent assert (m : (E⟦ pr11 G (H (TC (c1, TC (c2,, c3))))
-                                  ,  (pr11 G) (TD (H c1, TD (H c2,, H c3)))⟧)).
-      {
-        apply #(pr11 G).
-        refine (_ · _).
-        - apply (TransportedTensorComm Duniv H_eso H_ff).
-        - apply (#TD).
-          use catbinprodmor.
-          + apply identity.
+    set (t := GG c1 c2 c3).
+    set (ptG := pr112 G).
+    set (ptH := pr1 (TransportedTensorComm Duniv H_eso H_ff TC)).
+    set (pt_GH := (pr112 (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE G))).
+    transparent assert (m : (E⟦ pr11 G (H (TC (c1, TC (c2,, c3))))
+                                ,  (pr11 G) (TD (H c1, TD (H c2,, H c3)))⟧)).
+    {
+      apply #(pr11 G).
+      refine (_ · _).
+      - apply (TransportedTensorComm Duniv H_eso H_ff).
+      - apply (#TD).
+        use catbinprodmor.
+        + apply identity.
           + apply (TransportedTensorComm Duniv H_eso H_ff).
-      }
-      set (tt := cancel_postcomposition _ _ m t :
-       # TE (pt_GH (c1, c2) #, id  pr11 G (H c3))
+    }
+    set (tt := cancel_postcomposition _ _ m t :
+           # TE (pt_GH (c1, c2) #, id  pr11 G (H c3))
          · pt_GH (TC (c1, c2), c3)
          · # (functor_composite H (pr1 G)) (α ((c1, c2), c3)) · m
-       = αE ((pr11 G (H ( c1)), (pr11 G (H (c2)))), (pr11 G (H (c3))))
-            · # TE (id pr11 G (H (c1)) #, pt_GH (c2, c3)) · pt_GH (c1, TC (c2,c3)) · m).
+           = αE ((pr11 G (H ( c1)), (pr11 G (H (c2)))), (pr11 G (H (c3))))
+                · # TE (id pr11 G (H (c1)) #, pt_GH (c2, c3)) · pt_GH (c1, TC (c2,c3)) · m).
 
       set (ptF := (TransportedTensorComm Duniv H_eso H_ff TC)).
       assert (pp : pt_GH (c1, c2)
@@ -492,88 +491,94 @@ Section RezkAssociator.
       }
 
       refine (_ @ tt @ _) ; unfold m ; clear tt.
-      + rewrite pp.
-        rewrite ! (functor_comp (pr1 G)).
-        assert (qq :  pt_GH (TC (c1, c2), c3)
-                      = ptG (H (TC (c1,c2)), H c3) · #(pr11 G) (ptH (TC (c1,c2),c3))).
-        {
-          apply idpath.
-        }
-        rewrite qq.
-        fold ptF.
-        rewrite <- (id_right (id (pr11 G) (H c3))).
-        rewrite binprod_comp.
-        rewrite (functor_comp TE _ _).
+    + rewrite pp.
+      rewrite ! (functor_comp (pr1 G)).
+      assert (qq :  pt_GH (TC (c1, c2), c3)
+                    = ptG (H (TC (c1,c2)), H c3) · #(pr11 G) (ptH (TC (c1,c2),c3))).
+      {
+        apply idpath.
+      }
+      rewrite qq.
+      fold ptF.
+      rewrite <- (id_right (id (pr11 G) (H c3))).
+      rewrite binprod_comp.
+      rewrite (functor_comp TE _ _).
 
-        rewrite ! assoc'.
-        apply maponpaths.
-        rewrite ! assoc.
-        rewrite (functor_id H).
-        do 4 apply maponpaths_2.
-        rewrite <- (functor_id (pr1 G)).
-        exact (! pr212 G _ _ (ptF (c1, c2) #, id H c3)).
-      + rewrite ! assoc'.
-        apply maponpaths.
-        assert (qq' :  (pt_GH (c1, TC (c2, c3))
-                        = ptG (H c1, H (TC (c2,c3))) · #(pr11 G) (ptH (c1, TC (c2,c3))))).
-        {
-          apply idpath.
-        }
-        rewrite qq'.
-        fold ptF.
-        assert (qq'' :  pt_GH (c2, c3)
-                        = ptG (H c2, H c3) · #(pr11 G) (ptH (c2,c3))).
-        { apply idpath. }
-        rewrite qq''.
-        rewrite (! id_right (id (pr11 G) (H c1))).
-        rewrite binprod_comp.
-        rewrite (functor_comp TE _ _).
-        rewrite ! assoc'.
-        apply maponpaths.
+      rewrite ! assoc'.
+      apply maponpaths.
+      rewrite ! assoc.
+      rewrite (functor_id H).
+      do 4 apply maponpaths_2.
+      rewrite <- (functor_id (pr1 G)).
+      exact (! pr212 G _ _ (ptF (c1, c2) #, id H c3)).
+    + rewrite ! assoc'.
+      apply maponpaths.
+      assert (qq' :  (pt_GH (c1, TC (c2, c3))
+                      = ptG (H c1, H (TC (c2,c3))) · #(pr11 G) (ptH (c1, TC (c2,c3))))).
+      {
+        apply idpath.
+      }
+      rewrite qq'.
+      fold ptF.
+      assert (qq'' :  pt_GH (c2, c3)
+                      = ptG (H c2, H c3) · #(pr11 G) (ptH (c2,c3))).
+      { apply idpath. }
+      rewrite qq''.
+      rewrite (! id_right (id (pr11 G) (H c1))).
+      rewrite binprod_comp.
+      rewrite (functor_comp TE _ _).
+      rewrite ! assoc'.
+      apply maponpaths.
 
-        etrans. {
-          do 2 apply maponpaths.
-          rewrite (functor_comp (pr1 G)).
-          rewrite assoc.
-          apply maponpaths_2.
-          rewrite <- (functor_comp (pr1 G)  (ptH (c1, TC (c2, c3)))).
-          etrans. {
-            apply maponpaths.
-            apply (pr12 (pr2 ptF (c1, TC (c2,c3)))).
-          }
-          apply (functor_id (pr1 G)).
-        }
-        rewrite id_left.
+      etrans. {
+        do 2 apply maponpaths.
+        rewrite (functor_comp (pr1 G)).
+        rewrite assoc.
+        apply maponpaths_2.
+        rewrite <- (functor_comp (pr1 G)  (ptH (c1, TC (c2, c3)))).
         etrans. {
           apply maponpaths.
-          apply (! pr212 G _ _ ((id H c1 #, pr1 (pr2 ptF (c2,, c3))))).
+          apply (pr12 (pr2 ptF (c1, TC (c2,c3)))).
         }
-        unfold functor_tensor_map_dom.
-        unfold functor_composite.
-        simpl.
-        rewrite <- (functor_id (pr1 G)).
-        rewrite assoc.
-        rewrite <- (functor_comp TE).
-        rewrite <- binprod_comp.
-        rewrite (functor_id (pr1 G)).
-        rewrite id_right.
-        rewrite <- (functor_id (pr1 G)).
-        rewrite <- (functor_comp (pr1 G)).
+        apply (functor_id (pr1 G)).
+        }
+        rewrite id_left.
+      etrans. {
+        apply maponpaths.
+        apply (! pr212 G _ _ ((id H c1 #, pr1 (pr2 ptF (c2,, c3))))).
+      }
+      unfold functor_tensor_map_dom.
+      unfold functor_composite.
+      simpl.
+      rewrite <- (functor_id (pr1 G)).
+      rewrite assoc.
+      rewrite <- (functor_comp TE).
+      rewrite <- binprod_comp.
+      rewrite (functor_id (pr1 G)).
+      rewrite id_right.
+      rewrite <- (functor_id (pr1 G)).
+      rewrite <- (functor_comp (pr1 G)).
 
-        etrans. {
-          apply maponpaths_2.
-          do 3 apply maponpaths.
-          apply (pr12 (pr2 ptF (c2,c3))).
-        }
-        etrans. {
-          apply maponpaths_2.
-          do 2 rewrite (functor_id (pr1 G)).
-          apply (functor_id TE).
-        }
-        apply id_left.
-    - exists tt.
-      exists tt.
-      split ; apply isapropunit.
+      etrans. {
+        apply maponpaths_2.
+        do 3 apply maponpaths.
+        apply (pr12 (pr2 ptF (c2,c3))).
+      }
+      etrans. {
+        apply maponpaths_2.
+        do 2 rewrite (functor_id (pr1 G)).
+        apply (functor_id TE).
+      }
+      apply id_left.
+  Qed.
+
+  Lemma precompA_eso
+    : disp_functor_disp_ess_split_surj precompA.
+  Proof.
+    intros G GG.
+    exists (lift_preserves_associator GG).
+    refine (tt,,tt,,_).
+    split ; apply isapropunit.
   Qed.
 
   Definition precomp_associator_is_ff
