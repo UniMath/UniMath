@@ -23,7 +23,17 @@ Section DisplayedToTotalEsoFF.
              (FF_ff : disp_functor_ff FF)
     : fully_faithful (total_functor FF).
   Proof.
-  Admitted.
+    intros a b.
+    cbn.
+    set (TF := F_ff (pr1 a) (pr1 b)).
+    set (TFF := FF_ff (pr1 a) (pr1 b) (pr2 a) (pr2 b)).
+    set (TF' := make_weq _ TF).
+    set (H := @weqtotal2  _ _ _ _ TF' (λ f, make_weq _ (TFF f))).
+    apply (isweqhomot H).
+    - intro.
+      apply idpath.
+    - apply H.
+  Qed.
 
   Definition disp_functor_eso_to_total_eso
              (F_eso : essentially_surjective F)
