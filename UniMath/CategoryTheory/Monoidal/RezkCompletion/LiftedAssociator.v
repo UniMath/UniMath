@@ -595,6 +595,11 @@ Section RezkAssociator.
     use disp_functor_eso_to_total_eso.
     - apply (precomp_tensorunit_is_eso Duniv Euniv).
     - exact precompA_eso.
+    - apply is_univalent_total_category.
+      + apply is_univalent_functor_category.
+        exact Euniv.
+      + apply functor_tensorunit_disp_cat_is_univalent.
+    - apply functor_ass_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_associator_adj_equiv
