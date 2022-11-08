@@ -9,7 +9,7 @@
  Contents
  1. The core
  2. Functor from the core to the category
- 3. Factoring via the code
+ 3. Factoring via the core
  4. Functors between cores
 
  *********************************************************************)
@@ -193,7 +193,7 @@ Section Core.
   Defined.
 
   (**
-   3. Factoring via the code
+   3. Factoring via the core
    *)
   Section FactorCore.
     Context {G : groupoid}
