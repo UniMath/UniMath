@@ -6,6 +6,7 @@ Morphisms/FullyFaithful.v
 Morphisms/DiscreteMorphisms.v
 
 Core/Examples/OpMorBicat.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Core/Examples/OpCellBicat.v
 Core/Unitors.v
 Core/BicategoryLaws.v
@@ -41,7 +42,6 @@ Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
-Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -238,6 +238,9 @@ Colimits/Examples/SliceBicategoryColimits.v
 Colimits/CoproductEquivalences.v
 
 Morphisms/Properties/FromInitial.v
+
+Objects/CartesianObject.v
+Objects/CocartesianObject.v
 
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
