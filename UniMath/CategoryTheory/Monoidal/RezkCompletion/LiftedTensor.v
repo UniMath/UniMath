@@ -54,7 +54,7 @@ Section TensorRezk.
     := lift_functor_along (_,,Duniv) HH HH_eso HH_ff (functor_composite TC H).
 
   Definition TransportedTensorComm
-    : nat_z_iso (HH ∙ lift_functor_along (D,, Duniv) HH HH_eso HH_ff (functor_composite TC H))
+    : nat_z_iso (HH ∙ TransportedTensor)
                 (functor_composite TC H)
     := lift_functor_along_comm (_,,Duniv) HH HH_eso HH_ff (functor_composite TC H).
 
