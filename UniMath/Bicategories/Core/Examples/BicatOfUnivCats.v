@@ -647,3 +647,142 @@ Proof.
   - apply is_nat_z_iso_to_is_invertible_2cell.
     exact (pr2 (counit_nat_z_iso_from_adj_equivalence_of_cats A)).
 Defined.
+
+(** Left adjoints and right adjoints of categories *)
+Definition left_adjoint_to_is_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {L : C₁ --> C₂}
+           (HL : left_adjoint L)
+  : is_left_adjoint L.
+Proof.
+  simple refine (left_adjoint_right_adjoint HL
+                 ,,
+                 ((left_adjoint_unit HL
+                   ,,
+                   left_adjoint_counit HL)
+                 ,,
+                 _)).
+  split.
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (internal_triangle1 HL) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (internal_triangle2 HL) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+Defined.
+
+Definition is_left_adjoint_to_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {L : C₁ --> C₂}
+           (HL : is_left_adjoint L)
+  : left_adjoint L.
+Proof.
+  simple refine ((right_functor HL ,, (adjunit HL ,, adjcounit HL)) ,, _).
+  split.
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       apply (pr122 HL)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       apply (pr222 HL)).
+Defined.
+
+Definition left_adjoint_weq_is_left_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           (L : C₁ --> C₂)
+  : left_adjoint L ≃ is_left_adjoint L.
+Proof.
+  use make_weq.
+  - exact left_adjoint_to_is_left_adjoint.
+  - use isweq_iso.
+    + exact is_left_adjoint_to_left_adjoint.
+    + abstract
+        (intro HL ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
+    + abstract
+        (intro HL ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         use subtypePath ; [ | apply idpath ] ;
+         intro ;
+         apply isapropdirprod ; use impred ; intro ; apply homset_property).
+Defined.
+
+Definition right_adjoint_to_is_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {R : C₁ --> C₂}
+           (HR : internal_right_adj R)
+  : is_right_adjoint R.
+Proof.
+  simple refine (pr11 HR
+                 ,,
+                 ((pr121 HR
+                   ,,
+                   pr221 HR)
+                 ,,
+                 _)).
+  split.
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr12 HR) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr22 HR) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+Defined.
+
+Definition is_right_adjoint_to_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {R : C₁ --> C₂}
+           (HR : is_right_adjoint R)
+  : internal_right_adj R.
+Proof.
+  simple refine ((pr1 HR ,, (pr112 HR ,, pr212 HR)) ,, _).
+  split.
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       apply (pr122 HR)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       apply (pr222 HR)).
+Defined.
+
+Definition right_adjoint_weq_is_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           (R : C₁ --> C₂)
+  : internal_right_adj R ≃ is_right_adjoint R.
+Proof.
+  use make_weq.
+  - exact right_adjoint_to_is_right_adjoint.
+  - use isweq_iso.
+    + exact is_right_adjoint_to_right_adjoint.
+    + abstract
+        (intro HL ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
+    + abstract
+        (intro HL ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         use subtypePath ; [ | apply idpath ] ;
+         intro ;
+         apply isapropdirprod ; use impred ; intro ; apply homset_property).
+Defined.

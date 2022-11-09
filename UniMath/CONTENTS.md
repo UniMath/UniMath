@@ -639,6 +639,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Morphisms/Properties/FromInitial.v](Bicategories/Morphisms/Properties/FromInitial.v)
    - [Objects/CartesianObject.v](Bicategories/Objects/CartesianObject.v)
    - [Objects/CocartesianObject.v](Bicategories/Objects/CocartesianObject.v)
+   - [Objects/Examples/BicatOfUnivCatsObjects.v](Bicategories/Objects/Examples/BicatOfUnivCatsObjects.v)
    - [PseudoFunctors/Examples/ConstProduct.v](Bicategories/PseudoFunctors/Examples/ConstProduct.v)
    - [PseudoFunctors/Examples/CurryingInBicatOfCats.v](Bicategories/PseudoFunctors/Examples/CurryingInBicatOfCats.v)
    - [PseudoFunctors/PseudoFunctorLimits.v](Bicategories/PseudoFunctors/PseudoFunctorLimits.v)

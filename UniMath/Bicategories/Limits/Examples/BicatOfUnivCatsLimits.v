@@ -57,7 +57,7 @@ Local Open Scope cat.
 (**
  1. Final object
  *)
-Definition bifinal_cats
+Definition is_bifinal_cats
   : @is_bifinal bicat_of_univ_cats unit_category.
 Proof.
   use make_is_bifinal.
@@ -66,6 +66,10 @@ Proof.
   - intros Y f g α β.
     apply nat_trans_to_unit_eq.
 Defined.
+
+Definition bifinal_cats
+  : bifinal_obj bicat_of_univ_cats
+  := unit_category ,, is_bifinal_cats.
 
 (**
  2. Products
