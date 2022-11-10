@@ -9,6 +9,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+
 Local Open Scope mor_disp_scope.
 
 Section DisplayedToTotalEsoFF.
@@ -45,8 +49,38 @@ Section DisplayedToTotalEsoFF.
              (FF_eso : disp_functor_disp_ess_split_surj FF)
              (CC2 : is_univalent C2)
              (DD2 : is_univalent_disp D2)
+             (I : iso_cleaving D2)
     : essentially_surjective (total_functor FF).
   Proof.
+    intros [b bb].
+    set (F_eso_bb := F_eso b).
+    unfold disp_functor_disp_ess_split_surj in FF_eso.
+    apply (squash_to_prop F_eso_bb).
+    - apply propproperty.
+    - clear F_eso_bb F_eso.
+      intros [a i].
+      apply hinhpr.
+      set (XR := FF_eso a).
+      clearbody XR; clear FF_eso.
+      set (II := I _ _ i bb).
+      set (cc := pr1 II).
+      set (ii := pr2 II).
+      cbn in ii.
+      set (XR2 := XR cc).
+      set (aa := pr1 XR2).
+      set (jj := pr2 XR2).
+      use tpair.
+      + use tpair.
+        * exact a.
+        * cbn.
+          apply aa.
+      + cbn.
+        cbn in jj.
+        apply total_z_iso_equiv_map; cbn.
+        use tpair.
+        * apply i.
+        * cbn.
+          set (XRr := z_iso_disp_comp jj ii).
   Admitted.
 
 End DisplayedToTotalEsoFF.
@@ -96,13 +130,29 @@ Section ProductOfDisplayedFunctorsOverFixedBase.
              (FF'_ff : disp_functor_ff FF')
     : disp_functor_ff disp_prod_functor_over_fixed_base.
   Proof.
-  Admitted.
+    unfold disp_functor_ff in *.
+    intros a b [x x'] [y y'] f.
+    use isweqhomot.
+    - apply (weqdirprodf (make_weq _ (FF_ff _ _ _ _ _ )) (make_weq _ (FF'_ff _ _ _ _ _ ))).
+    - intro. apply idpath.
+    - apply weqproperty.
+  Qed.
 
   Definition disp_prod_functor_over_fixed_base_eso
              (FF_ff : disp_functor_disp_ess_split_surj FF)
              (FF'_ff : disp_functor_disp_ess_split_surj FF')
     : disp_functor_disp_ess_split_surj disp_prod_functor_over_fixed_base.
   Proof.
-  Admitted.
+    unfold disp_functor_disp_ess_split_surj in *.
+    intros a [x x'].
+    specialize (FF_ff a x).
+    induction FF_ff as [y i].
+    specialize (FF'_ff a x').
+    induction FF'_ff as [y' i'].
+    exists (y,,y').
+    cbn.
+    apply z_iso_disp_prod2.
+    exact (make_dirprod i i').
+  Qed.
 
 End ProductOfDisplayedFunctorsOverFixedBase.
