@@ -165,9 +165,9 @@ Section LiftedUnit.
       + exact H_eso.
       + exact H_ff.
     - exact HU_eso.
-    - apply is_univalent_functor_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_functor_category.
       exact Euniv.
-    - apply functor_unit_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_unit_adj_equiv
@@ -250,9 +250,9 @@ Section LiftedTensorUnit.
     apply disp_prod_functor_over_fixed_base_eso.
     - exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
     - exact (HU_eso I IE).
-    - apply is_univalent_functor_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_functor_category.
       exact Euniv.
-    - apply functor_tensorunit_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_tensorunit_cat_is_weak_equivalence

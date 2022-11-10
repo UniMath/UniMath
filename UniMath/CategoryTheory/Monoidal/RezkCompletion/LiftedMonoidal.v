@@ -607,6 +607,22 @@ Section RezkMonoidal.
       apply functor_ass_disp_cat_is_univalent.
   Qed.
 
+  Lemma is_univalent_LaxMonoidalFunctorCategory'
+    : is_univalent (total_category (functor_monoidal_disp_cat lu luE ru ruE α αE)).
+  Proof.
+    apply is_univalent_total_category.
+    - apply is_univalent_total_category.
+      + apply (is_univalent_functor_category _ _ Euniv).
+      + apply functor_tensorunit_disp_cat_is_univalent.
+    - apply Constructions.dirprod_disp_cat_is_univalent.
+      {
+        apply Constructions.dirprod_disp_cat_is_univalent.
+        apply functor_lu_disp_cat_is_univalent.
+        apply functor_ru_disp_cat_is_univalent.
+      }
+      apply functor_ass_disp_cat_is_univalent.
+  Qed.
+
   Lemma is_univalent_StrongMonoidalFunctorCategory
     : is_univalent (total_category (functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE)).
   Proof.
@@ -624,17 +640,11 @@ Section RezkMonoidal.
     use disp_functor_eso_to_total_eso.
     - apply (precomp_tensorunit_is_eso Duniv Euniv).
     - exact precompMonoidal_eso.
-    - apply is_univalent_total_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_total_category.
       + apply is_univalent_functor_category.
         exact Euniv.
       + apply functor_tensorunit_disp_cat_is_univalent.
-    - apply Constructions.dirprod_disp_cat_is_univalent.
-      {
-        apply Constructions.dirprod_disp_cat_is_univalent.
-        apply functor_lu_disp_cat_is_univalent.
-        apply functor_ru_disp_cat_is_univalent.
-      }
-      apply functor_ass_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_strongmonoidal_is_eso
@@ -643,24 +653,8 @@ Section RezkMonoidal.
     use disp_functor_eso_to_total_eso.
     - apply precomp_monoidal_is_eso.
     - exact precompStrongMonoidal_eso.
-    - apply is_univalent_total_category.
-      + apply is_univalent_total_category.
-        {
-          apply is_univalent_functor_category.
-          exact Euniv.
-        }
-        apply functor_tensorunit_disp_cat_is_univalent.
-      + apply Constructions.dirprod_disp_cat_is_univalent.
-        {
-          apply Constructions.dirprod_disp_cat_is_univalent.
-          apply functor_lu_disp_cat_is_univalent.
-          apply functor_ru_disp_cat_is_univalent.
-        }
-        apply functor_ass_disp_cat_is_univalent.
-    - apply Constructions.disp_full_sub_univalent.
-      intro ; apply isapropdirprod.
-      apply isaprop_is_nat_z_iso.
-      apply isaprop_is_z_isomorphism.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_LaxMonoidalFunctorCategory'.
   Qed.
 
   Definition precomp_monoidal_adj_equiv

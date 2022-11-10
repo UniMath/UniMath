@@ -262,11 +262,11 @@ Section RezkLeftUnitor.
     use disp_functor_eso_to_total_eso.
     - apply (precomp_tensorunit_is_eso Duniv Euniv).
     - exact precompLU_eso.
-    - apply is_univalent_total_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_total_category.
       + apply is_univalent_functor_category.
         exact Euniv.
       + apply functor_tensorunit_disp_cat_is_univalent.
-    - apply functor_lu_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_unit_adj_equiv
@@ -487,11 +487,11 @@ Section RezkRightUnitor.
     use disp_functor_eso_to_total_eso.
     - apply (precomp_tensorunit_is_eso Duniv Euniv).
     - exact precompRU_eso.
-    - apply is_univalent_total_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_total_category.
       + apply is_univalent_functor_category.
         exact Euniv.
       + apply functor_tensorunit_disp_cat_is_univalent.
-    - apply functor_ru_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_runitor_adj_equiv

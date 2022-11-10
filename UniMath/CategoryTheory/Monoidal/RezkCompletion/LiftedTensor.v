@@ -318,9 +318,9 @@ Section TensorRezk.
       + exact H_eso.
       + exact H_ff.
     - exact HT_eso.
-    - apply is_univalent_functor_category.
+    - use Fibrations.iso_cleaving_category.
+      apply is_univalent_functor_category.
       exact Euniv.
-    - apply functor_tensor_disp_cat_is_univalent.
   Qed.
 
   Definition precomp_tensor_adj_equiv

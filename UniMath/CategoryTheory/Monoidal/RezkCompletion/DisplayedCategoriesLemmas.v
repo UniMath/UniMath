@@ -39,16 +39,9 @@ Section DisplayedToTotalEsoFF.
     - apply H.
   Qed.
 
-  Require Import UniMath.CategoryTheory.Core.Univalence.
-  Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-
-  Search "disp_univalent".
-
   Definition disp_functor_eso_to_total_eso
              (F_eso : essentially_surjective F)
              (FF_eso : disp_functor_disp_ess_split_surj FF)
-             (CC2 : is_univalent C2)
-             (DD2 : is_univalent_disp D2)
              (I : iso_cleaving D2)
     : essentially_surjective (total_functor FF).
   Proof.
