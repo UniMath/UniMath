@@ -9,10 +9,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
@@ -25,8 +21,8 @@ Definition op1_left_adjoint_to_right_adjoint
            {B : bicat}
            {x y : B}
            {f : x --> y}
-           (Hf : @left_adjoint B _ _ f)
-  : @internal_right_adj (op1_bicat B) _ _ f.
+           (Hf : @left_adjoint (op1_bicat B) _ _ f)
+  : @internal_right_adj B _ _ f.
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
   - exact (left_adjoint_right_adjoint Hf).
@@ -40,8 +36,8 @@ Definition right_adjoint_to_op1_left_adjoint
            {B : bicat}
            {x y : B}
            {f : x --> y}
-           (Hf : @internal_right_adj (op1_bicat B) _ _ f)
-  : @left_adjoint B _ _ f.
+           (Hf : @internal_right_adj B _ _ f)
+  : @left_adjoint (op1_bicat B) _ _ f.
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
   - exact (internal_right_adj_left_adjoint Hf).
@@ -55,7 +51,7 @@ Definition op1_left_adjoint_weq_right_adjoint
            {B : bicat}
            {x y : B}
            {f : x --> y}
-  : @left_adjoint B _ _ f ≃ @internal_right_adj (op1_bicat B) _ _ f.
+  : @left_adjoint (op1_bicat B) _ _ f ≃ @internal_right_adj B _ _ f.
 Proof.
   use make_weq.
   - exact op1_left_adjoint_to_right_adjoint.
