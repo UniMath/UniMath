@@ -316,7 +316,7 @@ End Stn.
 (** Lemmas on the “dual” function on the standard finite sets, reversing the order *)
 
 (** Note: the definition of [dualelement] upstream has an unnecessary case split.
-    We provide an alternative tosimpify proofs in this section, that could potentially be upstreamed. *)
+    We provide an alternative to simplify proofs in this section, that could potentially be upstreamed. *)
 Section Dual.
 
   Definition dualelement' {n : nat} (i : ⟦ n ⟧%stn) : ⟦ n ⟧%stn.
@@ -579,24 +579,6 @@ Section Rings_and_Fields.
     destruct (fldchoice0 _).
     - contradiction.
     - apply fldmultinvrax.
-  Defined.
-
-  Lemma isdecpropfld0
-    {X: fld} (e : X) : isdecprop (e = (@rigunel1 X)).
-  Proof.
-    apply isdecpropif. 2: {apply fldchoice0. }
-    apply isaproppathstoisolated; intros x.
-    destruct (fldchoice0 x) as [eq' | neq]; try contradiction.
-    - left; rewrite eq'; apply idpath.
-    - right; intros ?; contradiction neq; easy.
-  Defined.
-
-  Lemma isdecpropfldnot0
-    {X: fld} (e : X) : isdecprop (e != (@rigunel1 X)).
-  Proof.
-    apply isdecpropif. {apply isapropneg. }
-    destruct (fldchoice0 e) as [eq | ?]. 2: {left; assumption. }
-    right; rewrite eq; intros x; contradiction.
   Defined.
 
 End Rings_and_Fields.
