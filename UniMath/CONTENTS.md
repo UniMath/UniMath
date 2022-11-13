@@ -260,6 +260,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [HorizontalComposition.v](CategoryTheory/HorizontalComposition.v)
    - [PointedFunctorsComposition.v](CategoryTheory/PointedFunctorsComposition.v)
    - [ArrowCategory.v](CategoryTheory/ArrowCategory.v)
+   - [LeftKanExtension.v](CategoryTheory/LeftKanExtension.v)
    - [RightKanExtension.v](CategoryTheory/RightKanExtension.v)
    - [slicecat.v](CategoryTheory/slicecat.v)
    - [coslicecat.v](CategoryTheory/coslicecat.v)
