@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInOp1Bicat.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
@@ -148,3 +149,19 @@ Proof.
   - apply op2_bicat_is_univalent_2_0 ; apply C_is_univalent_2.
   - apply op2_bicat_is_univalent_2_1 ; apply C_is_univalent_2.
 Defined.
+
+(**
+ Being a right-adjoint is a property
+ *)
+Definition isaprop_internal_right_adj
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {x y : B}
+           (f : x --> y)
+  : isaprop (internal_right_adj f).
+Proof.
+  apply (isofhlevelweqf 1 (@op1_left_adjoint_weq_right_adjoint B x y f)).
+  apply isaprop_left_adjoint.
+  apply op1_bicat_is_univalent_2_1.
+  exact HB.
+Qed.

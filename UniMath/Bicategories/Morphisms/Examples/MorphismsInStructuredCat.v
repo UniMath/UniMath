@@ -350,7 +350,6 @@ Section DispAdjunctionInitial.
   Defined.
 End DispAdjunctionInitial.
 
-Print univ_cat_with_bincoprod.
 (**
  5. Adjunctions of categories with binary coproducts
  *)
