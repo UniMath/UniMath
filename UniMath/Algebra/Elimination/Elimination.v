@@ -22,11 +22,6 @@ Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Matrix.
 
-Require Import UniMath.Tactics.Nat_Tactics.
-
-Require Import UniMath.PAdics.z_mod_p.
-Require Import UniMath.PAdics.lemmas.
-
 Require Import UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.Algebra.Elimination.Auxiliary.
@@ -327,7 +322,7 @@ Section LeadingEntry.
     destruct (natchoice0 n) as [eq | ?]; simpl.
     - apply fromstn0; now rewrite eq.
     - refine (natlehlthtrans (n - 1 - i) (n - 1) n _ _ ).
-      + apply minusleh.
+      + apply natminuslehn.
       + now apply natminus1lthn.
   Defined.
 

@@ -4,8 +4,6 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.Matrix.
 
-Require Import UniMath.PAdics.lemmas.
-
 Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.RigsAndRings.
@@ -100,7 +98,7 @@ Section BackSub.
         rewrite (@ringcomm2 F).
         apply maponpaths.
         now rewrite (@ringcomm2 F). }
-      apply (@ringminusdistr F (mat row row)).
+      apply (@ringminusdistr' F (mat row row)).
     }
     etrans.
     { apply maponpaths; apply map_on_two_paths.
@@ -290,7 +288,7 @@ Section BackSub.
     2: {exact (pr2 i). }
     destruct (natchoice0 _) as [eq0 | ?].
     { apply fromempty; now apply negpaths0sx in eq0. }
-    simpl; now rewrite minus0r, minusnn0.
+    simpl; now rewrite natminuseqn, minuseq0'.
   Defined.
 
 End BackSub.

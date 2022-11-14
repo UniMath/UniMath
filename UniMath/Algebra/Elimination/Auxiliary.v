@@ -10,12 +10,10 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Combinatorics.Maybe.
 
-Require Import UniMath.PAdics.lemmas.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.NumberSystems.RationalNumbers.
-
-Require Import UniMath.RealNumbers.Prelim.
-
+Require Import UniMath.Algebra.Domains_and_Fields.
+Require Import UniMath.Algebra.RigsAndRings.
 
 (** Results of this file are required for the [Elimination] subpackage but aren’t specifically part of the topic; probably could/should be upstreamed within [UniMath] *)
 
@@ -47,10 +45,27 @@ Section Nat.
     - reflexivity.
   Defined.
 
-  Lemma eq_to_natleh (m n : nat) : m = n -> m ≤ n.
+  (* Next two lemmas are from PAdics.lemmas, restated here for accessibility.
+     They are only used in this file, in the dualelement section. *)
+
+  Lemma minussn1' ( n : nat ) : ( S n ) - 1 = n.
   Proof.
-    intros e; destruct e. apply isreflnatleh.
-  Qed.
+    destruct n; apply idpath.
+  Defined.
+
+  Local Lemma pathssminus' ( n m : nat ) ( p : natlth m ( S n ) ) :
+    S ( n - m ) = ( S n ) - m.
+  Proof.
+    revert m p; induction n.
+    intros m p; destruct m. {auto. }
+    apply fromempty.
+    apply nopathstruetofalse. apply pathsinv0. assumption.
+    - intros m p. destruct m.
+        + auto.
+        + apply IHn. apply p.
+  Defined.
+
+  (* End duplicated proofs. *)
 
   Lemma eq_of_le_le {a b : nat} (le_a_b : a ≤ b) (le_b_a : b ≤ a)
     : a = b.
@@ -60,24 +75,11 @@ Section Nat.
     apply fromempty. eapply natlthtonegnatgeh; eassumption.
   Qed.
 
-
-  Lemma minussn1'
-    ( n : nat ) : n ≤ ( S n ) - 1.
-  Proof.
-    apply eq_to_natleh, pathsinv0, minussn1.
-  Defined.
-
   Lemma prev_nat
     (n : nat) (p : n > 0): ∑ m, S m = n.
   Proof.
     destruct n as [| n]. { contradiction (negnatlthn0 _ p). }
     exists n; reflexivity.
-  Defined.
-
-  (* alias for searchability *)
-  Lemma isdeceqnatcommrig : isdeceq natcommrig.
-  Proof.
-    apply isdeceqnat.
   Defined.
 
   Lemma from_natneq_eq
@@ -331,9 +333,7 @@ Section Dual.
   Proof.
     unfold dualelement', dualelement.
     apply subtypePath_prop; simpl.
-    destruct (natchoice0 _) as [eq0 | gt]; simpl.
-    - apply (fromstn0); rewrite eq0; assumption.
-    - apply idpath.
+    destruct (natchoice0 _) as [eq0 | gt]; reflexivity.
   Defined.
 
   Lemma dualelement_2x
@@ -342,8 +342,8 @@ Section Dual.
     do 2 rewrite dualelement_defs_eq; unfold dualelement'.
     unfold make_stn.
     apply subtypePath_prop; simpl.
-    rewrite (doubleminuslehpaths (n - 1) i); try reflexivity.
-    apply minusnleh1; apply (pr2 i).
+    rewrite minusminusmmn; try reflexivity.
+    apply natgthtogehm1, (pr2 i).
   Defined.
 
   Lemma dualelement_eq
@@ -356,9 +356,7 @@ Section Dual.
     intros eq; rewrite <- eq; simpl.
     rewrite minusminusmmn; try reflexivity.
     apply natlthsntoleh.
-    rewrite minussn1non0; try assumption.
-    - exact (pr2 i).
-    - now apply stn_implies_ngt0.
+    apply natgthtogehm1, (pr2 i).
   Defined.
 
   Lemma dualelement_lt_comp
@@ -453,7 +451,7 @@ Section Dual.
     intros lt gt.
     rewrite dualelement_defs_eq in gt; unfold dualelement' in gt.
     simpl in gt.
-    do 2 rewrite minus0r in gt.
+    do 2 rewrite natminuseqn in gt.
     contradiction (natgthtonegnatleh _ _ (pr2 i)).
   Defined.
 
@@ -462,7 +460,7 @@ Section Dual.
   Proof.
     rewrite dualelement_defs_eq.
     simpl.
-    rewrite (@minus0r _), (minusnn0).
+    rewrite (@natminuseqn _), minuseq0'.
     apply idpath.
   Defined.
 
@@ -475,11 +473,11 @@ Section Dual.
   Proof.
     rewrite dualelement_defs_eq; rewrite dualelement_defs_eq in leh;
     unfold dualelement' in leh |- *; simpl in leh |- *.
-    rewrite minus0r.
+    rewrite natminuseqn.
     apply natgthtogehsn in leh.
-    rewrite pathssminus in leh.
-    2: { rewrite pathssminus.
-         - now rewrite minussn1.
+    rewrite pathssminus' in leh.
+    2: { rewrite pathssminus'.
+         - now rewrite minussn1'.
          - now apply (stn_implies_ngt0 i). }
     assert (e : n = S (n - 1)).
     { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
@@ -521,6 +519,12 @@ Section Rings_and_Fields.
     rewrite ringassoc1.
     rewrite ringrinvax1.
     apply (rigrunax1 R).
+  Defined.
+
+  Lemma ringminusdistr' { X : commring } ( a b c : X ) :
+    (a * (b - c))%ring = (a * b - a * c)%ring.
+  Proof.
+    intros. rewrite ringldistr. rewrite ringrmultminus. apply idpath.
   Defined.
 
   Lemma fldchoice0 {X : fld} (e : X) : coprod (e = 0%ring) (e != 0%ring).
@@ -583,8 +587,8 @@ Section Rings_and_Fields.
 
 End Rings_and_Fields.
 
-(** * Rationals *)
-Section Rationals.
+(** * Rationals. Commented out to respect import dependency ordering. Could be downstreamed or removed. *)
+(* Section Rationals.
 
   Lemma hqone_neq_hqzero : 1%hq != 0%hq.
   Proof.
@@ -605,7 +609,7 @@ Section Rationals.
     apply (@ringplusminus hq).
   Defined.
 
-End Rationals.
+End Rationals. *)
 
 (** * Maybe *)
 
