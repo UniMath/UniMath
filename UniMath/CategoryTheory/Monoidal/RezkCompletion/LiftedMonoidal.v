@@ -565,7 +565,42 @@ Section RezkMonoidal.
     intro ; intros.
     use tpair.
     - use tpair.
-      + admit.
+      + transparent assert (i : (nat_z_iso (functor_tensor_map_dom TE (pr11 x))
+                              (functor_tensor_map_codom (TransportedTensor Duniv H_eso H_ff TC) (pr11 x)))).
+        {
+
+          use (lift_nat_z_iso_along (_,,Euniv) _ (pair_functor_eso _ _ H_eso H_eso)
+                                    (pair_functor_ff _ _ H_ff H_ff)).
+
+          use (nat_z_iso_comp (make_nat_z_iso _ _ _ (pr1 xx)) _).
+          exact (CategoriesLemmas.post_whisker_nat_z_iso (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x)).
+        }
+
+        assert (p : pr1 i = pr121 x).
+        {
+          use (lift_nat_trans_eq_along (_,,Euniv) _
+                                       (pair_functor_eso _ _ H_eso H_eso)
+                                       (pair_functor_ff _ _ H_ff H_ff)).
+          etrans. { apply lift_nat_trans_along_comm. }
+          refine (idpath (nat_trans_comp _ _ _
+                                  (pr121 (total_functor precompMonoidal x))
+                                  (post_whisker (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x))) @ _).
+
+          use nat_trans_eq.
+          { apply homset_property. }
+          intro cc.
+          simpl.
+          rewrite assoc'.
+          rewrite <- (functor_comp (pr11 x)).
+          etrans. {
+            do 2 apply maponpaths.
+            apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+          }
+          rewrite (functor_id (pr11 x)).
+          apply id_right.
+        }
+        rewrite <- p.
+        exact (pr2 i).
       + set (a := pr2 xx).
         simpl in a.
         rewrite (functor_id (pr11 x)) in a.
@@ -573,7 +608,7 @@ Section RezkMonoidal.
         exact a.
     - refine (tt ,, tt ,, _).
       split ; apply isapropunit.
-  Admitted.
+  Qed.
 
   Definition precomp_monoidal_is_ff
     : fully_faithful (total_functor precompMonoidal).
