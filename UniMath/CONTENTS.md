@@ -117,6 +117,13 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/Examples/ListDataType.v](Algebra/Universal/Examples/ListDataType.v)
    - [Universal/Examples/Tests.v](Algebra/Universal/Examples/Tests.v)
    - [Universal.v](Algebra/Universal.v)
+   - [GaussianElimination/Auxiliary.v](Algebra/GaussianElimination/Auxiliary.v)
+   - [GaussianElimination/Vectors.v](Algebra/GaussianElimination/Vectors.v)
+   - [GaussianElimination/Matrices.v](Algebra/GaussianElimination/Matrices.v)
+   - [GaussianElimination/RowOps.v](Algebra/GaussianElimination/RowOps.v)
+   - [GaussianElimination/Elimination.v](Algebra/GaussianElimination/Elimination.v)
+   - [GaussianElimination/Corollaries.v](Algebra/GaussianElimination/Corollaries.v)
+   - [GaussianElimination/Tests.v](Algebra/GaussianElimination/Tests.v)
    - [All.v](Algebra/All.v)
 ## Package Tactics
    - [EnsureStructuredProofs.v](Tactics/EnsureStructuredProofs.v)
