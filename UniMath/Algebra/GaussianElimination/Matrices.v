@@ -1,6 +1,6 @@
  (** * Matrices
 
-Some matrix background material for [Algebra.Elimination]
+Some matrix background material for [Algebra.GaussianElimination]
 
 Primary Author: Daniel @Skantz (November 2022)
 *)
@@ -16,8 +16,8 @@ Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.Algebra.Elimination.Auxiliary.
-Require Import UniMath.Algebra.Elimination.Vectors.
+Require Import UniMath.Algebra.GaussianElimination.Auxiliary.
+Require Import UniMath.Algebra.GaussianElimination.Vectors.
 
 
 Local Notation Σ := (iterop_fun rigunel1 op1).

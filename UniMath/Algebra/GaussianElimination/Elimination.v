@@ -24,10 +24,10 @@ Require Import UniMath.Algebra.Matrix.
 
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.Algebra.Elimination.Auxiliary.
-Require Import UniMath.Algebra.Elimination.Vectors.
-Require Import UniMath.Algebra.Elimination.Matrices.
-Require Import UniMath.Algebra.Elimination.RowOps.
+Require Import UniMath.Algebra.GaussianElimination.Auxiliary.
+Require Import UniMath.Algebra.GaussianElimination.Vectors.
+Require Import UniMath.Algebra.GaussianElimination.Matrices.
+Require Import UniMath.Algebra.GaussianElimination.RowOps.
 
 
 (** In this module we formalize Gaussian elimination,

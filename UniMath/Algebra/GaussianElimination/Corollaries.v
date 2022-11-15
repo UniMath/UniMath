@@ -9,10 +9,10 @@ Require Import UniMath.Algebra.Matrix.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
-Require Import UniMath.Algebra.Elimination.Auxiliary.
-Require Import UniMath.Algebra.Elimination.Vectors.
-Require Import UniMath.Algebra.Elimination.Matrices.
-Require Import UniMath.Algebra.Elimination.Elimination.
+Require Import UniMath.Algebra.GaussianElimination.Auxiliary.
+Require Import UniMath.Algebra.GaussianElimination.Vectors.
+Require Import UniMath.Algebra.GaussianElimination.Matrices.
+Require Import UniMath.Algebra.GaussianElimination.Elimination.
 
 (**
   In this module, we define a back-substitution procedure that works on

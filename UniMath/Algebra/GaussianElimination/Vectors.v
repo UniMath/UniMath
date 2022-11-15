@@ -1,6 +1,6 @@
  (** * Matrices
 
-Background on vectors, for [Algebra.Elimination.Elimination]
+Background on vectors, for [Algebra.GaussianElimination.Elimination]
 
 Author: Daniel @Skantz (September 2022)
 *)
@@ -18,7 +18,7 @@ Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Matrix.
 
-Require Import UniMath.Algebra.Elimination.Auxiliary.
+Require Import UniMath.Algebra.GaussianElimination.Auxiliary.
 
 
 Section Arbitrary_Vectors.

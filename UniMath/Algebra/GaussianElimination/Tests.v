@@ -1,5 +1,5 @@
-Require Import UniMath.Algebra.Elimination.Elimination.
-Require Import UniMath.Algebra.Elimination.RowOps.
+Require Import UniMath.Algebra.GaussianElimination.Elimination.
+Require Import UniMath.Algebra.GaussianElimination.RowOps.
 
 Require Import UniMath.Algebra.Matrix.
 

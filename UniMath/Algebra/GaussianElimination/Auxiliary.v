@@ -1,6 +1,6 @@
 (** * Matrices
 
-  Miscellaneous background lemmas for [Elimination.Elimination]
+  Miscellaneous background lemmas for [GaussianElimination.Elimination]
 
   Primary Author: Daniel @Skantz (November 2022)
 *)

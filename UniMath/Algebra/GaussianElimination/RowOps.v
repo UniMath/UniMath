@@ -16,10 +16,10 @@ Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.Algebra.Elimination.Auxiliary.
-Require Import UniMath.Algebra.Elimination.Vectors.
+Require Import UniMath.Algebra.GaussianElimination.Auxiliary.
+Require Import UniMath.Algebra.GaussianElimination.Vectors.
 
-Require Import UniMath.Algebra.Elimination.Matrices.
+Require Import UniMath.Algebra.GaussianElimination.Matrices.
 
 
 (** This file defines the traditional elementary row operations on matrices over a ring, as used in Gaussian elimination and related procedures:
@@ -161,7 +161,7 @@ Section Add_Row.
     - apply (@ringlinvax1 R).
   Defined.
 
-  (** Miscellaneous properties of [add_row_mult], used in [Algebra.Elimination.Elimination] *)
+  (** Miscellaneous properties of [add_row_mult], used in [Algebra.GaussianElimination.Elimination] *)
 
   Lemma add_row_mult_source_row_zero
     {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
@@ -425,7 +425,7 @@ Section Switch_Row.
     split; apply switch_row_matrix_involution.
   Defined.
 
-  (** Miscellaneous properties of [switch_row], used in [Algebra.Elimination.Elimination] *)
+  (** Miscellaneous properties of [switch_row], used in [Algebra.GaussianElimination.Elimination] *)
   Lemma switch_row_equal_rows
     {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
     : (mat r1) = (mat r2) -> (switch_row r1 r2 mat) = mat.
