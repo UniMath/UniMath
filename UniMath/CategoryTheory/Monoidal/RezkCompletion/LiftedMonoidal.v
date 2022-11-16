@@ -252,89 +252,22 @@ Section RezkMonoidal.
 
     set (tαD := TransportedAssociatorOnOb Duniv H_eso H_ff TC α).
 
-    transparent assert (f_t
-                         : (D ⟦ H (assoc_right TC ((x1, x2), TC (x3, x4))),
-                                assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((H x1, H x2), TD (H x3, H x4)) ⟧)).
-    {
-      use (_ · _).
-      2: {
-        set (t := nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC)).
-        apply t.
-      }
-      use (# TD).
-      use catbinprodmor.
-      - apply identity.
-      - use (# TD).
-        use catbinprodmor.
-        + apply identity.
-        + apply TransportedTensorComm.
-    }
-
-    transparent assert ( f_s : (D ⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((H x1, H x2), TD (H x3, H x4)),
-                                    H (assoc_left TC ((x1, x2), TC (x3, x4))) ⟧) ).
-    {
-      use (_ · _).
-      3: { apply (TransportedAssocLeft Duniv H_eso H_ff TC). }
-      simpl.
-      use (# TD).
-      use catbinprodmor.
-      - apply identity.
-      - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x3,x4)).
-    }
-
-    Check TransportedAssociatorOnOb Duniv H_eso H_ff TC α.
-
-    assert (p0 : αD ((H x1, H x2), TD (H x3, H x4))
-            = f_s · #H (α ((x1,x2) , TC (x3,x4))) · f_t).
-    {
-      Check (TransportedAssociatorOnOb Duniv H_eso H_ff TC α ((x1,x2),TC (x3,x4))).
-
-      admit.
+    etrans. {
+      apply maponpaths.
+      apply TransportedAssociator_tensor_r_on_ob.
     }
 
     etrans. {
-      apply maponpaths.
-      exact p0.
-    }
-    clear p0.
-
-    transparent assert (g_t : (D ⟦ H (assoc_right TC ((TC (x1, x2), x3), x4)),
-                                   assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((TD (H x1, H x2), H x3), H x4)⟧)).
-    {
-      use (_ · _).
-      2: { apply (TransportedAssocRight Duniv H_eso H_ff TC). }
-      use (# TD).
-      use catbinprodmor.
-      2: apply identity.
-      exact (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
+      apply maponpaths_2.
+      apply TransportedAssociator_tensor_l_on_ob.
     }
 
-    transparent assert (g_s : (D ⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((TD (H x1, H x2), H x3), H x4),
-                                   H (assoc_left TC ((TC (x1, x2), x3), x4)) ⟧)).
+    assert (p0 :
+             assoc_right_tensor_l Duniv H_eso H_ff TC x1 x2 x3 x4
+                                  · assoc_left_tensor_r Duniv H_eso H_ff TC x1 x2 x3 x4
+           = identity _).
     {
-      use (_ · _).
-      3: apply (TransportedAssocLeft Duniv H_eso H_ff TC).
-      use (# TD).
-      use catbinprodmor.
-      2: apply identity.
-      use (# TD).
-      use catbinprodmor.
-      1: exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
-      apply identity.
-    }
-
-    assert (p0 : αD ((TD (H x1, H x2), H x3), H x4)
-                 = g_s · #H (α ((TC (x1,x2),x3),x4)) · g_t).
-    {
-      admit.
-    }
-
-    etrans. { apply maponpaths_2 ; exact p0. }
-    clear p0.
-
-    assert (p0 : g_t · f_s = identity _).
-    {
-      unfold g_t, f_s.
+      unfold assoc_right_tensor_l, assoc_left_tensor_r.
       rewrite assoc.
       etrans. {
         apply maponpaths_2.
@@ -355,8 +288,46 @@ Section RezkMonoidal.
         apply idpath.
       }
 
+      etrans. {
+        do 2 apply maponpaths_2.
+        exact (TransportedAssocRightInvOnOb Duniv H_eso H_ff TC (TC (x1,x2)) x3 x4).
+      }
 
-      admit.
+      etrans. {
+        apply maponpaths.
+        exact (TransportedAssocLeftOnOb Duniv H_eso H_ff TC x1 x2 (TC (x3,x4))).
+      }
+
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        etrans. apply (! functor_comp TD _ _).
+        apply maponpaths.
+
+        etrans. apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        rewrite functor_id.
+        rewrite id_left.
+        apply maponpaths.
+        apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+      }
+
+      etrans. {
+        rewrite assoc.
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        etrans. apply (! functor_comp TD _ _).
+        apply maponpaths.
+        etrans. apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        rewrite id_right.
+        apply maponpaths_2.
+        apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+      }
+      rewrite binprod_id.
+      rewrite functor_id.
+      rewrite id_right.
+      apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
     }
 
     etrans. {
@@ -366,8 +337,8 @@ Section RezkMonoidal.
       do 2 apply maponpaths_2.
       exact p0.
     }
+
     clear p0.
-    clear g_t f_s.
     rewrite id_left.
     etrans. {
       rewrite assoc.
@@ -385,94 +356,104 @@ Section RezkMonoidal.
       exact (! tαD ((x1,x2),x3)).
     }
 
-    unfold f_t.
-    unfold g_s.
-
-    set (l1 :=  # TD
-    (# TD (TransportedTensorComm Duniv H_eso H_ff TC (x1, x2) #, id H (pr21 ((TC (x1, x2), x3), x4)))
-       #, id functor_identity D (pr2 (pair_functor (pair_functor H H) H ((TC (x1, x2), x3), x4))))).
-    set (l2 :=  (pr11 (TransportedAssocLeft Duniv H_eso H_ff TC)) ((TC (x1, x2), x3), x4)).
-    set (l3 :=  (# H (# TC (pr1 α ((x1, x2), x3) #, id x4)) · # H (pr1 α ((x1, TC (x2, x3)), x4))
-                   · # H (# TC (id x1 #, pr1 α ((x2, x3), x4))))).
-
-    set (l4 := (pr11 (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC))) ((x1, x2), TC (x3, x4))).
-    set (l5 :=  # TD
-         (id functor_identity D
-               (pr1 (precategory_binproduct_unassoc D D D ((H x1, H x2), TD (H x3, H x4))))
-         #, # TD
-              (id pr21 ((H x1, H x2), TD (H x3, H x4))
-                  #, pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x3, x4))))).
-
-    refine (idpath (l1 · l2 · l3 · (l4 · l5)) @ _).
-
-    set (r1 :=   # TD
-    (TransportedAssocLeft Duniv H_eso H_ff TC ((x1, x2), x3) · # H (α ((x1, x2), x3))
-     · nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, x2), x3) #, id
-     H x4)).
-    set (r2 := pr1 αD ((H x1, TD (H x2, H x3)), H x4)).
-    set (r3 :=  # TD (id H x1 #, pr1 αD ((H x2, H x3), H x4))).
-    refine (_ @ idpath (r1 · r2 · r3)).
-
-
-
-
-
-
-    transparent assert ( h_t : (D ⟦ H (assoc_right TC ((x1, TC (x2, x3)), x4)),
-                                    assoc_right (TransportedTensor Duniv H_eso H_ff TC) ((H x1, TD (H x2, H x3)), H x4) ⟧)).
-    {
-      use (_ · _).
-      3: {
-        use (# (assoc_right TD)).
-        2: {
-          use catbinprodmor.
-          4: apply identity.
-          2: {
-            use catbinprodmor.
-            3: apply identity.
-            2: apply (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
-          }
-        }
-      }
-      exact (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1,TC (x2,x3)),x4)).
-    }
-
-    transparent assert (h_s : (D⟦ assoc_left (TransportedTensor Duniv H_eso H_ff TC) ((H x1, TD (H x2, H x3)), H x4), H (assoc_left TC ((x1, TC (x2, x3)), x4)) ⟧)).
-    {
-      use (_ · _).
-      3: apply (TransportedAssocLeft Duniv H_eso H_ff TC).
-      use (# TD).
-      use catbinprodmor.
-      2: apply identity.
-      simpl.
-      apply (#TD).
-      use catbinprodmor.
-      1: apply identity.
-      apply ((TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
-    }
-
-    assert (p0 :  αD ((H x1, TD (H x2, H x3)), H x4)
-                  = h_s · #H (α ((x1, TC (x2,x3)),x4)) · h_t).
-    {
-      admit.
-    }
-
-    etrans.
-    2: {
-      apply maponpaths_2.
-      apply maponpaths.
-      exact (! p0).
-    }
-    clear p0.
     etrans.
     2: {
       do 3 apply maponpaths.
       exact (! tαD ((x2,x3),x4)).
     }
 
-    unfold h_s.
-    unfold g_s.
-    unfold h_t.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (! TransportedAssociator_tensor_m_on_ob _ _ _ _ _ x1 x2 x3 x4).
+    }
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite <- (id_right (id H x4)).
+      rewrite binprod_comp.
+      rewrite (functor_comp TD).
+      rewrite <- (id_right (id H x4)).
+      rewrite binprod_comp.
+      rewrite (functor_comp TD).
+      rewrite id_right.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+
+      assert (p :   # TD (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, x2), x3) #, id H x4) · assoc_left_tensor_m Duniv H_eso H_ff TC x1 x2 x3 x4 = TransportedTensorComm Duniv H_eso H_ff TC (TC (x1,(TC (x2,x3))),x4)).
+      {
+        admit.
+      }
+
+      exact (! p).
+    }
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite <- (id_left (id H x1)).
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite binprod_comp.
+        apply (! functor_comp TD _ _).
+      }
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite <- (id_left (id H x1)).
+      rewrite binprod_comp.
+      rewrite functor_comp.
+      rewrite assoc.
+      apply maponpaths_2.
+
+      assert (p :  assoc_right_tensor_m Duniv H_eso H_ff TC x1 x2 x3 x4
+                                        · # TD (id H x1 #, TransportedAssocLeft Duniv H_eso H_ff TC ((x2, x3), x4))
+                   = nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1 , TC (TC (x2,x3), x4))).
+      {
+        admit.
+      }
+      exact (! p).
+    }
+
+    unfold assoc_left_tensor_l.
+    rewrite TransportedAssocLeftOnOb.
+    rewrite ! assoc'.
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite <- (id_right (id H x4)).
+      rewrite binprod_comp.
+      apply (! functor_comp TD _ _).
+    }
+    rewrite assoc'.
+    apply maponpaths.
+    etrans. {
+      apply maponpaths_2.
+      exact (TransportedAssocLeftOnOb Duniv H_eso H_ff TC (TC (x1,x2)) x3 x4).
+    }
+    rewrite assoc'.
+    apply maponpaths.
+    rewrite assoc.
+    etrans. {
+      apply maponpaths_2.
+      exact (! pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ (α ((x1,x2),x3) #, id x4)).
+    }
+
+    rewrite ! assoc'.
+    rewrite <- functor_id.
+    do 3 apply maponpaths.
+
+
+
+
 
   Admitted.
 

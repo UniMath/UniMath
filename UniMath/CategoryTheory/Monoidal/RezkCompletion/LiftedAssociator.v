@@ -292,6 +292,128 @@ Section RezkAssociator.
     exact (λ x, toforallpaths _ _ _ (base_paths _ _ TransportedAssociatorEq) x).
   Qed.
 
+  Definition assoc_left_tensor_l
+    : ∏ x1 x2 x3 x4 : C,
+        D⟦assoc_left TD ((TD (H x1, H x2), H x3), H x4)
+           , H (assoc_left TC ((TC (x1, x2), x3), x4))⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    3: apply TransportedAssocLeft.
+    use (# TD).
+    use catbinprodmor.
+    2: apply identity.
+    use (# TD).
+    use catbinprodmor.
+    1: exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
+    apply identity.
+  Defined.
+
+  Definition assoc_left_tensor_m
+    : ∏ x1 x2 x3 x4 : C,
+        D ⟦assoc_left TD ((H x1, TD (H x2, H x3)), H x4)
+            , H (assoc_left TC ((x1, TC (x2, x3)), x4))⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    3: apply TransportedAssocLeft.
+    use (# TD).
+    use catbinprodmor.
+    2: apply identity.
+    apply (#TD).
+    use catbinprodmor.
+    1: apply identity.
+    apply ((TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
+  Defined.
+
+  Definition assoc_left_tensor_r
+    : ∏ x1 x2 x3 x4 : C,
+        D ⟦assoc_left TD ((H x1, H x2), TD (H x3, H x4))
+            , H (assoc_left TC ((x1, x2), TC (x3, x4))) ⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    3: apply TransportedAssocLeft.
+    use (# TD).
+    use catbinprodmor.
+    - apply identity.
+    - exact ((TransportedTensorComm Duniv H_eso H_ff TC) (x3,x4)).
+  Defined.
+
+  Definition assoc_right_tensor_l
+    : ∏ x1 x2 x3 x4 : C,
+        D⟦ H (assoc_right TC ((TC (x1, x2), x3), x4))
+           , assoc_right TD ((TD (H x1, H x2), H x3), H x4)⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    2: apply TransportedAssocRight.
+    use (# TD).
+    use catbinprodmor.
+    2: apply identity.
+    exact (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2)).
+  Defined.
+
+  Definition assoc_right_tensor_m
+    : ∏ x1 x2 x3 x4 : C,
+        D⟦H (assoc_right TC ((x1, TC (x2, x3)), x4))
+           , assoc_right TD ((H x1, TD (H x2, H x3)), H x4)⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    3: {
+      use (# (assoc_right TD)).
+      2: {
+        use catbinprodmor.
+        4: apply identity.
+        2: {
+          use catbinprodmor.
+          3: apply identity.
+          2: apply (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3)).
+        }
+      }
+    }
+    exact (nat_z_iso_inv TransportedAssocRight ((x1,TC (x2,x3)),x4)).
+  Defined.
+
+  Definition assoc_right_tensor_r
+    : ∏ x1 x2 x3 x4 : C,
+        D⟦H (assoc_right TC ((x1, x2), TC (x3, x4)))
+           , assoc_right TD ((H x1, H x2), TD (H x3, H x4)) ⟧.
+  Proof.
+    do 4 intro.
+    use (_ · _).
+    2: apply (nat_z_iso_inv TransportedAssocRight).
+    use (# TD).
+    use catbinprodmor.
+    - apply identity.
+    - use (# TD).
+      use catbinprodmor.
+      + apply identity.
+      + apply TransportedTensorComm.
+  Defined.
+
+  Lemma TransportedAssociator_tensor_l_on_ob
+    : ∏ x1 x2 x3 x4 : C,
+        αD ((TD (H x1, H x2), H x3), H x4)
+        = assoc_left_tensor_l x1 x2 x3 x4 · #H (α ((TC (x1,x2) , x3),x4)) · assoc_right_tensor_l x1 x2 x3 x4.
+  Proof.
+  Admitted.
+
+  Lemma TransportedAssociator_tensor_m_on_ob
+    : ∏ x1 x2 x3 x4 : C,
+        αD ((H x1, TD (H x2, H x3)), H x4)
+        = assoc_left_tensor_m x1 x2 x3 x4 · #H (α ((x1, TC (x2,x3)),x4)) · assoc_right_tensor_m x1 x2 x3 x4.
+  Proof.
+  Admitted.
+
+  Lemma TransportedAssociator_tensor_r_on_ob
+    : ∏ x1 x2 x3 x4 : C,
+        αD ((H x1, H x2), TD (H x3, H x4))
+        = assoc_left_tensor_r x1 x2 x3 x4 · #H (α ((x1,x2) , TC (x3,x4))) · assoc_right_tensor_r x1 x2 x3 x4.
+  Proof.
+  Admitted.
+
   Context (I : C).
 
   Definition H_pα
