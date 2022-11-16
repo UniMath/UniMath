@@ -74,7 +74,17 @@ Section DisplayedToTotalEsoFF.
         * apply i.
         * cbn.
           set (XRr := z_iso_disp_comp jj ii).
-  Admitted.
+
+          assert (p : Isos.z_iso_comp (Isos.identity_z_iso (F a)) i = i).
+          {
+            use total2_paths_f.
+            - apply id_left.
+            - apply Isos.isaprop_is_z_isomorphism.
+          }
+          induction p.
+          exact XRr.
+  Qed.
+
 
 End DisplayedToTotalEsoFF.
 
