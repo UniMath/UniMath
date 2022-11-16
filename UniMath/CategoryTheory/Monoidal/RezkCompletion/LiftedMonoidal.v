@@ -479,7 +479,48 @@ Section RezkMonoidal.
                                         · # TD (id H x1 #, TransportedAssocLeft Duniv H_eso H_ff TC ((x2, x3), x4))
                    = nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1 , TC (TC (x2,x3), x4))).
       {
-        admit.
+        rewrite TransportedAssocLeftOnOb.
+        unfold assoc_right_tensor_m.
+        rewrite TransportedAssocRightInvOnOb.
+        rewrite ! assoc'.
+        etrans.
+        2: apply id_right.
+        apply maponpaths.
+
+
+        simpl.
+
+        etrans. {
+          apply maponpaths.
+          rewrite <- (functor_comp TD).
+          apply maponpaths.
+          rewrite <- binprod_comp.
+          apply maponpaths.
+          rewrite assoc.
+          apply maponpaths_2.
+          rewrite <- (functor_comp TD).
+          apply maponpaths.
+          etrans. apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+          apply maponpaths_2.
+          apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        rewrite ! id_left.
+        rewrite binprod_id.
+        rewrite (functor_id TD).
+        rewrite <- (id_left (id H x1)).
+        rewrite binprod_comp.
+        rewrite (functor_comp TD).
+        rewrite binprod_id.
+        rewrite (functor_id TD).
+        rewrite id_left.
+        rewrite <- (functor_comp TD).
+        rewrite <- (functor_id TD).
+        apply maponpaths.
+        rewrite <- binprod_comp.
+        rewrite id_right.
+        rewrite functor_id.
+        etrans. apply maponpaths, (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        apply binprod_id.
       }
       exact (! p).
     }
@@ -542,7 +583,7 @@ Section RezkMonoidal.
     do 2 apply maponpaths.
     apply maponpaths_2.
     apply (! functor_id _ _).
-  Admitted.
+  Qed.
 
   Definition TransportedMonoidal
     : monoidal_cat
