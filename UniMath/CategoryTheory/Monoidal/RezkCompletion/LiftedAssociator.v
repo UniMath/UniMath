@@ -412,7 +412,42 @@ Section RezkAssociator.
       exact (TransportedAssociatorOnOb ((TC (x1,x2),x3),x4)).
     }
 
-  Admitted.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (! pr21 αD _ _   ((TransportedTensorComm Duniv H_eso H_ff TC (x1, x2)
+                                                     #, id H (pr21 ((TC (x1, x2), x3), x4))) #, id functor_identity D (pr2 (HHH ((TC (x1, x2), x3), x4))))).
+    }
+
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      etrans. 2: apply (functor_comp TD).
+      apply maponpaths.
+      etrans. 2: apply binprod_comp.
+      etrans.
+      2: {
+        apply maponpaths.
+        etrans.
+        2: apply maponpaths_2, maponpaths, (! binprod_id _ _).
+        rewrite functor_id.
+        apply (! id_left _).
+      }
+
+      apply maponpaths_2.
+      exact (! pr12 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1,x2))).
+    }
+    etrans.
+    2: {
+      apply maponpaths.
+      rewrite binprod_id.
+      apply (! functor_id TD _).
+    }
+    apply (! id_right _).
+  Qed.
+
 
   Lemma TransportedAssociator_tensor_m_on_ob
     : ∏ x1 x2 x3 x4 : C,
@@ -433,7 +468,42 @@ Section RezkAssociator.
       exact (TransportedAssociatorOnOb ((x1, TC (x2,x3)),x4)).
     }
 
-  Admitted.
+    etrans.
+    2: {
+      apply maponpaths_2.
+
+      exact (! pr21 αD _ _  ((id H (pr11 ((x1, TC (x2, x3)), x4)) #, TransportedTensorComm Duniv H_eso H_ff TC (x2, x3))
+    #, id functor_identity D (pr2 (HHH ((x1, TC (x2, x3)), x4))))).
+    }
+
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      etrans. 2: apply (functor_comp TD).
+      etrans. 2: apply maponpaths, binprod_comp.
+
+      (* simpl. *)
+      rewrite id_left.
+      do 2 apply maponpaths.
+      etrans. 2: apply (functor_comp TD).
+      apply maponpaths.
+      etrans. 2: apply binprod_comp.
+      apply maponpaths_2.
+      exact (! pr12 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x2,x3))).
+    }
+    etrans.
+    2: {
+      apply maponpaths.
+      rewrite id_right.
+      rewrite (functor_id TD).
+      simpl.
+      rewrite binprod_id.
+      apply (! functor_id TD _).
+    }
+    apply (! id_right _).
+  Qed.
 
   Lemma TransportedAssociator_tensor_r_on_ob
     : ∏ x1 x2 x3 x4 : C,
@@ -454,7 +524,41 @@ Section RezkAssociator.
       exact (TransportedAssociatorOnOb (((x1,x2), TC (x3,x4)))).
     }
 
-  Admitted.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite <- (functor_id TD).
+      exact (! pr21 αD _ _  (id  (pr1 (HHH ((x1, x2), TC (x3, x4)))) #, TransportedTensorComm Duniv H_eso H_ff TC (x3, x4))).
+    }
+
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      etrans. 2: apply (functor_comp TD).
+      etrans. 2: apply maponpaths, binprod_comp.
+
+      (* simpl. *)
+      rewrite id_left.
+      do 2 apply maponpaths.
+      etrans. 2: apply (functor_comp TD).
+      apply maponpaths.
+      etrans. 2: apply binprod_comp.
+      apply maponpaths.
+      exact (! pr12 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x3,x4))).
+    }
+    etrans.
+    2: {
+      apply maponpaths.
+      rewrite id_right.
+      rewrite (functor_id TD).
+      simpl.
+      rewrite binprod_id.
+      apply (! functor_id TD _).
+    }
+    apply (! id_right _).
+  Qed.
 
   Context (I : C).
 
