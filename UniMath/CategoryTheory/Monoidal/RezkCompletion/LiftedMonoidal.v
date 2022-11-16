@@ -450,11 +450,36 @@ Section RezkMonoidal.
     rewrite ! assoc'.
     rewrite <- functor_id.
     do 3 apply maponpaths.
+    unfold assoc_right_tensor_r.
 
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite <- (functor_id H).
+      exact (pr21 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) _ _ (id x1 #, α ((x2,x3),x4))).
+    }
 
+    rewrite ! assoc'.
+    apply maponpaths.
+    etrans. {
+      apply maponpaths_2.
+      apply (TransportedAssocRightInvOnOb Duniv H_eso H_ff TC).
+    }
 
+    rewrite ! assoc'.
+    apply maponpaths.
+    etrans. apply (! functor_comp TD _ _).
+    apply maponpaths.
+    rewrite functor_id.
+    etrans. apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+    rewrite id_left.
+    apply maponpaths.
 
-
+    refine (_ @ ! TransportedAssocRightInvOnOb Duniv H_eso H_ff TC _ _ _).
+    do 2 apply maponpaths.
+    apply maponpaths_2.
+    apply (! functor_id _ _).
   Admitted.
 
   Definition TransportedMonoidal
