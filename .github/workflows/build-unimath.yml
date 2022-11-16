@@ -1,23 +1,31 @@
 name: CI Build UniMath
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
   schedule:
     # Based on https://github.com/marketplace/actions/set-up-ocaml
     # Prime the caches every Monday
-    - cron: 0 1 * * MON
+    - cron: '0 1 * * MON'
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  # This is only used by the MacOS build.
+  coq-version: 8.16.0
+  dune-version: 3.5.0
+  ocaml-version: ocaml-base-compiler.4.14.0
+  # ocaml-version: ocaml-variants.4.14.0+options,ocaml-option-flambda
+  DUNE_CACHE_STORAGE_MODE: copy
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains two jobs, called "build-ubuntu" and "build-macos"
+  # This workflow contains four jobs:
+  #   - sanity-checks
+  #   - build-unimath: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
+  #   - build-macos: (MacOS, Opam, Coq 8.16.0, cache using actions/setup-ocaml)
+  #   - build-satellites: (Linux, docker-coq, Coq 8.16.x, manual cache)
 
   sanity-checks:
     name: Sanity Checks
@@ -35,35 +43,152 @@ jobs:
           cd $GITHUB_WORKSPACE
           time make -k sanity-checks
 
-  build-Unimath-ubuntu:
-    name: Build UniMath (Ubuntu)
-    runs-on: ubuntu-22.04
+  # Build the current PR/branch with the latest stable release of Coq.
+  build-unimath:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+        # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
+        coq-version: [latest]
+        # coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
+        ocaml-version: [default]
+
+    name: Build on Linux (Coq ${{ matrix.coq-version }})
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: ocaml/setup-ocaml@v2 # to enable dune cache
-        with:
-          ocaml-compiler: ocaml-base-compiler.4.14.0
-          dune-cache: true
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install coq
-          type coqc
-          coqc --version
-      - name: Build UniMath
-        run: opam exec -- dune build --display=short --cache=enabled
 
+      # Grab the cache if available and extract it to dune-cache/. We tell dune
+      # to use $(pwd)/dune-cache/ in the custom_script when initiating the
+      # docker run.
+      - uses: actions/cache@v3
+        with:
+          path: dune-cache
+          # Example key: UniMath-Linux-coq-8.16-123456789-10
+          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
+            UniMath-${{ runner.os }}-coq-
+
+      - name: Build UniMath
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: ${{ matrix.coq-version }}
+          ocaml_version: ${{ matrix.ocaml-version }}
+          custom_script: |
+            startGroup "Workaround permission issue"
+            sudo chown -R coq:coq .
+            endGroup
+
+            startGroup "Print versions"
+            opam --version
+            opam exec -- dune --version
+            opam exec -- coqc --version
+            endGroup
+
+            startGroup "Build UniMath"
+            export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+            opam exec -- dune build -j 2 --display=short \
+                         --cache=enabled --error-reporting=twice
+            endGroup
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
+
+  # Build UniMath on MacOS using Coq 8.16.0 installed with Opam. This uses
+  # actions/setup-ocaml to cache both the ocaml build and the UniMath build. The
+  # interaction between Opam and dune cache is however not perfect, so usually
+  # some parts of Coq needs to be rebuilt on each run.
   build-macos:
-    name: Build UniMath (MacOS)
+    name: Build on macOS (Coq 8.16)
+
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ocaml/setup-ocaml@v2
+      - name: Install OCaml
+        uses: ocaml/setup-ocaml@v2
         with:
-          ocaml-compiler: ocaml-base-compiler.4.14.0
+          ocaml-compiler: ${{ env.ocaml-version }}
           dune-cache: true
-      - name: Install build dependencies
-        run: opam install . --deps-only
-      - name: Build UniMath
-        run: opam exec -- dune build --display=short --cache=enabled
+          opam-disable-sandboxing: true
+      - name: Install Dune ${{ env.dune-version }}
+        run: opam pin add dune ${{ env.dune-version }}
 
+      - name: Install Coq ${{ env.coq-version }}
+        run: opam pin add coq ${{ env.coq-version }}
+
+      - name: Build UniMath
+        run: |
+          opam --version
+          opam exec -- dune --version
+          opam exec -- coqc --version
+          opam exec -- dune build -j 3 --display=short --error-reporting=twice
+
+  # Build the satellites in parallel using docker-coq images with the latest
+  # stable patch-release of Coq 8.16, except for TypeTheory, which is built
+  # using the latest stable 8.15 release.
+  build-satellites:
+    strategy:
+      fail-fast: false
+      matrix:
+        satellite: [SetHITs, largecatmodules, GrpdHITs]
+        coq-version: [8.16]
+        ocaml-version: [4.14-flambda]
+        # Once TypeTheory compiles with 8.16 remove the following section and
+        # add TypeTheory to matrix.satellite above.
+        include:
+          - satellite: TypeTheory
+            coq-version: 8.15
+            ocaml-version: 4.14-flambda
+    name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
+    runs-on: ubuntu-22.04
+
+    steps:
+      # Check out the current branch of UniMath in the current directory.
+      - uses: actions/checkout@v3
+
+      # Check out the satellite we want to build in Satellite/.
+      - name: Clone ${{ matrix.satellite }}
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/${{ matrix.satellite }}
+          path: Satellite
+
+      # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
+      # the custom_script below.
+      - uses: actions/cache@v3
+        with:
+          path: dune-cache
+          # Example key: SetHITs-coq-8.15-123456789-10
+          key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
+            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}
+            ${{ matrix.satellite }}-coq
+
+      - name: Build ${{ matrix.satellite }}
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: ${{ matrix.coq-version }}
+          ocaml_version: ${{ matrix.ocaml-version }}
+          custom_script: |
+            startGroup "Workaround permission issue"
+            sudo chown -R coq:coq .
+            endGroup
+
+            startGroup "Print versions"
+            opam --version
+            opam exec -- dune --version
+            opam exec -- coqc --version
+            endGroup
+
+            startGroup "Build Satellite"
+            export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+            opam exec -- dune build -j 2 Satellite --display=short \
+                         --cache=enabled --error-reporting=twice
+            endGroup
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
