@@ -398,6 +398,20 @@ Section RezkAssociator.
         αD ((TD (H x1, H x2), H x3), H x4)
         = assoc_left_tensor_l x1 x2 x3 x4 · #H (α ((TC (x1,x2) , x3),x4)) · assoc_right_tensor_l x1 x2 x3 x4.
   Proof.
+    do 4 intro.
+    unfold assoc_left_tensor_l.
+    unfold assoc_right_tensor_l.
+
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      do 2 rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      exact (TransportedAssociatorOnOb ((TC (x1,x2),x3),x4)).
+    }
+
   Admitted.
 
   Lemma TransportedAssociator_tensor_m_on_ob
@@ -405,6 +419,20 @@ Section RezkAssociator.
         αD ((H x1, TD (H x2, H x3)), H x4)
         = assoc_left_tensor_m x1 x2 x3 x4 · #H (α ((x1, TC (x2,x3)),x4)) · assoc_right_tensor_m x1 x2 x3 x4.
   Proof.
+    do 4 intro.
+    unfold assoc_left_tensor_m.
+    unfold assoc_right_tensor_m.
+
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      do 2 rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      exact (TransportedAssociatorOnOb ((x1, TC (x2,x3)),x4)).
+    }
+
   Admitted.
 
   Lemma TransportedAssociator_tensor_r_on_ob
@@ -412,6 +440,20 @@ Section RezkAssociator.
         αD ((H x1, H x2), TD (H x3, H x4))
         = assoc_left_tensor_r x1 x2 x3 x4 · #H (α ((x1,x2) , TC (x3,x4))) · assoc_right_tensor_r x1 x2 x3 x4.
   Proof.
+    do 4 intro.
+    unfold assoc_left_tensor_r.
+    unfold assoc_right_tensor_r.
+
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      do 2 rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      exact (TransportedAssociatorOnOb (((x1,x2), TC (x3,x4)))).
+    }
+
   Admitted.
 
   Context (I : C).
