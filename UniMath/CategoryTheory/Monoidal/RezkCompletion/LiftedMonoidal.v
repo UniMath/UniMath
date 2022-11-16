@@ -388,7 +388,69 @@ Section RezkMonoidal.
 
       assert (p :   # TD (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, x2), x3) #, id H x4) · assoc_left_tensor_m Duniv H_eso H_ff TC x1 x2 x3 x4 = TransportedTensorComm Duniv H_eso H_ff TC (TC (x1,(TC (x2,x3))),x4)).
       {
-        admit.
+        rewrite TransportedAssocRightInvOnOb.
+        unfold assoc_left_tensor_m.
+        rewrite assoc.
+        etrans. apply maponpaths_2, (! functor_comp TD _ _).
+        unfold TransportedAssocLeft.
+
+        simpl.
+        do 2 rewrite id_right.
+        rewrite ! assoc.
+        etrans.
+        2: apply id_left.
+        apply maponpaths_2.
+        rewrite id_right.
+        fold TD.
+        set (ptH :=  (TransportedTensorComm Duniv H_eso H_ff TC)).
+        etrans. apply (! functor_comp TD _ _).
+        rewrite <- (functor_id TD).
+        apply maponpaths.
+
+        rewrite (id_left (C := D ⊠ D)).
+        rewrite (id_right (C := D ⊠ D)).
+
+        etrans. {
+          rewrite assoc'.
+          apply maponpaths.
+          apply binprod_comp.
+        }
+
+        etrans. {
+          apply maponpaths_2.
+          rewrite <- (id_left (id H x4)).
+          apply binprod_comp.
+        }
+
+        rewrite assoc.
+        etrans. {
+          apply maponpaths_2.
+          rewrite assoc'.
+          apply maponpaths.
+          rewrite <- binprod_comp.
+          rewrite id_left.
+          simpl.
+          apply maponpaths_2.
+          rewrite <- (functor_comp TD).
+          apply maponpaths.
+          rewrite <- binprod_comp.
+          rewrite id_right.
+          rewrite functor_id.
+          apply maponpaths.
+          apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        rewrite binprod_id.
+        rewrite (functor_id TD).
+        rewrite binprod_id.
+        rewrite id_right.
+        simpl.
+        etrans. apply (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        rewrite id_right.
+        etrans. {
+          apply maponpaths_2.
+          apply (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        apply binprod_id.
       }
 
       exact (! p).
