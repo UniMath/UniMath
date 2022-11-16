@@ -53,21 +53,6 @@ jobs:
       - name: Build UniMath
         run: opam exec -- dune build --display=short --cache=enabled
 
-
-  build-coq-and-Unimath-ubuntu:
-    name: Build Coq and UniMath (Ubuntu)
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
-      - name: Build UniMath
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make -j2 TIMECMD=time BUILD_COQ=yes
-
   build-macos:
     name: Build UniMath (MacOS)
     runs-on: macos-latest
