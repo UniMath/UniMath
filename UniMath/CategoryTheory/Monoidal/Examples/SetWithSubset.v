@@ -156,7 +156,9 @@ Section SetWithSubsetMonoidal.
       use (factor_through_squash _ _ xyzinUVW_prop).
       {
         repeat (apply isapropdirprod).
-        apply U. apply V. apply W.
+        + apply U.
+        + apply V.
+        + apply W.
       }
       intro xyzinUVW.
       rewrite (! pr12 xyzinUVW).
@@ -165,7 +167,9 @@ Section SetWithSubsetMonoidal.
       use (factor_through_squash _ _ xyzinUVW_prop).
       {
         repeat (apply isapropdirprod).
-        apply U. apply V. apply W.
+        + apply U.
+        + apply V.
+        + apply W.
       }
       intro xyzinUVW.
       rewrite (! pr12 xyzinUVW).

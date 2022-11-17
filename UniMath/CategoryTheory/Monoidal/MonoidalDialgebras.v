@@ -528,7 +528,7 @@ Section FixTwoMonoidalFunctors.
   Proof.
     exists dialgebra_disp_monoidal_data.
     split.
-    exact dialgebra_disp_leftunitor_law.
+    { exact dialgebra_disp_leftunitor_law. }
     split; [ exact dialgebra_disp_rightunitor_law |].
     split; [ exact dialgebra_disp_associator_law |].
     (** now we benefit from working in a displayed monoidal category *)

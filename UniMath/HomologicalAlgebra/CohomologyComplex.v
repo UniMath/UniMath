@@ -1112,10 +1112,16 @@ Section def_cohomology_homotopy.
     rewrite <- AdditiveFunctorInv.
     set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A) f (to_inv g)).
     apply pathsinv0 in tmp. use (pathscomp0 tmp). clear tmp.
-    use (squash_to_prop H). apply has_homsets_ComplexPreCat_AbelianPreCat.
+    use (squash_to_prop H).
+    {
+      apply has_homsets_ComplexPreCat_AbelianPreCat.
+    }
     intros H'. induction H' as [H1 H2]. induction H1 as [H11 H12]. cbn in H11. cbn in H2.
     cbn. rewrite <- H2. clear H.
-    use (squash_to_prop H12). apply has_homsets_ComplexPreCat_AbelianPreCat.
+    use (squash_to_prop H12).
+    {
+      apply has_homsets_ComplexPreCat_AbelianPreCat.
+    }
     intros G. induction G as [G1 G2]. rewrite <- G2. clear H11 H12 H2 G2.
     apply CohomologyFunctorHomotopy.
   Qed.
@@ -1184,7 +1190,10 @@ Section def_cohomology_homotopy.
     iscontr (CohomologyFunctorHIm f).
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
-    apply isapropiscontr. intros H.
+    {
+      apply isapropiscontr.
+    }
+    intros H.
     use make_iscontr.
     - use make_CohomologyFunctorHIm.
       + exact ((# (CohomologyFunctor A) (hfiberpr1 _ _ H))).
@@ -1212,9 +1221,15 @@ Section def_cohomology_homotopy.
       · (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
-    apply has_homsets_ComplexPreCat. intros f'.
+    {
+      apply has_homsets_ComplexPreCat.
+    }
+    intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) g)).
-    apply has_homsets_ComplexPreCat. intros g'.
+    {
+      apply has_homsets_ComplexPreCat.
+    }
+    intros g'.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
     set (tmp := functor_comp (CohomologyFunctor A) (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
@@ -1304,9 +1319,15 @@ Section def_cohomology_homotopy.
              (# CohomologyFunctorH f) (# CohomologyFunctorH g).
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) f)).
-    apply has_homsets_ComplexPreCat. intros f'.
+    {
+      apply has_homsets_ComplexPreCat.
+    }
+    intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A) g)).
-    apply has_homsets_ComplexPreCat. intros g'.
+    {
+      apply has_homsets_ComplexPreCat.
+    }
+    intros g'.
     cbn.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f))
                                     (hfiberpr1 _ _ f') (hfiberpr2 _ _ f')).
