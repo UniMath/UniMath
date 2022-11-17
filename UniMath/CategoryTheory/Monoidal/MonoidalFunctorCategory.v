@@ -58,7 +58,7 @@ Section TensorFunctorCategory.
              (α : nat_trans F G)
     : isaprop (nat_trans_tensor FF GG α).
   Proof.
-    do 2 (apply impred_isaprop ; intro) ; apply homset_property.
+    do 2 (apply impred_isaprop ; intro) ; apply D.
   Qed.
 
   Definition nat_trans_tensor_id
@@ -138,7 +138,7 @@ Section TensorFunctorCategoryUnivalence.
     :  isaset (functor_tensor_disp_cat TC TD F).
   Proof.
     apply isaset_nat_trans.
-    { apply homset_property. }
+    { apply D. }
   Qed.
 
   Lemma functor_tensor_disp_cat_is_univalent
@@ -159,7 +159,7 @@ Section TensorFunctorCategoryUnivalence.
         exact (! ix).
       + do 2 (apply funextsec ; intro).
         repeat (apply impred_isaprop ; intro).
-        apply homset_property.
+        apply D.
     - apply isaset_functor_tensor_disp_cat.
     - apply isaproptotal2.
       + intro ; apply Isos.isaprop_is_z_iso_disp.
@@ -180,7 +180,7 @@ Section TensorFunctorProperties.
     : is_nat_trans
         (functor_tensor_map_dom TE (F ∙ G))
         (functor_tensor_map_codom TC (F ∙ G))
-        (λ cc : ∑ _ : C, C, GG (F (pr1 cc), F (pr2 cc)) · # G (FF cc)).
+        (λ cc : C × C, GG (F (pr1 cc), F (pr2 cc)) · # G (FF cc)).
   Proof.
     intros cc1 cc2 f.
     etrans. {
@@ -234,7 +234,7 @@ Section TensorFunctorProperties.
     :  is_nat_trans
          (functor_tensor_map_dom TD F)
          (functor_tensor_map_codom TC G)
-         (λ cc : _, # TD (α (pr1 cc) #, α (pr2 cc)) · GG cc).
+         (λ cc : C × C, # TD (α (pr1 cc) #, α (pr2 cc)) · GG cc).
   Proof.
     intros cc1 cc2 ff.
     simpl.
@@ -257,7 +257,7 @@ Section TensorFunctorProperties.
     : is_nat_trans
         (functor_tensor_map_dom TD F)
         (functor_tensor_map_codom TC G)
-        (λ cc : C ⊠ C, FF cc · α (pr1 cc ⊗_C pr2 cc)).
+        (λ cc : C × C, FF cc · α (pr1 cc ⊗_C pr2 cc)).
   Proof.
     intros cc1 cc2 ff.
     simpl.
@@ -290,7 +290,7 @@ Section TensorFunctorProperties.
     : nat_trans_tensor'.
   Proof.
     use nat_trans_eq.
-    { apply homset_property. }
+    { apply D. }
     exact (λ cc, p (pr1 cc) (pr2 cc)).
   Qed.
 
@@ -348,9 +348,9 @@ Section UnitFunctorCategory.
   Definition functor_unit_disp_cat_axioms
     : disp_cat_axioms _ functor_unit_disp_cat_data.
   Proof.
-    repeat split ; intro ; intros ; try (apply homset_property).
+    repeat split ; intro ; intros ; try (apply D).
     use isasetaprop.
-    apply homset_property.
+    apply D.
   Qed.
 
   Definition functor_unit_disp_cat : disp_cat [C,D]
@@ -374,10 +374,10 @@ Section UnitFunctorCategoryUnivalence.
     - intro i.
       refine (_ @ pr1 i).
       apply (! id_right _).
-    - apply homset_property.
+    - apply D.
     - apply isaproptotal2.
       + intro ; apply Isos.isaprop_is_z_iso_disp.
-      + do 4 intro ; apply homset_property.
+      + do 4 intro ; apply D.
   Qed.
 
 End UnitFunctorCategoryUnivalence.
@@ -481,7 +481,7 @@ Section MonoidalFunctorCategory.
   Proof.
     apply disp_full_sub_univalent.
     intro.
-    apply impred_isaprop ; intro ; apply homset_property.
+    apply impred_isaprop ; intro ; apply D.
   Qed.
 
   Lemma functor_ru_disp_cat_is_univalent
@@ -489,7 +489,7 @@ Section MonoidalFunctorCategory.
   Proof.
     apply disp_full_sub_univalent.
     intro.
-    apply impred_isaprop ; intro ; apply homset_property.
+    apply impred_isaprop ; intro ; apply D.
   Qed.
 
   Lemma functor_ass_disp_cat_is_univalent
@@ -497,7 +497,7 @@ Section MonoidalFunctorCategory.
   Proof.
     apply disp_full_sub_univalent.
     intro.
-    do 3 (apply impred_isaprop ; intro) ; apply homset_property.
+    do 3 (apply impred_isaprop ; intro) ; apply D.
   Qed.
 
   Definition functor_monoidal_disp_cat
@@ -586,7 +586,31 @@ Section FunctorMonoidalProperties.
   Proof.
     intro x.
     refine (GGG (F x) @ _).
-  Admitted.
+    cbn.
+    unfold functor_unit_composition.
+    assert (aux : (pr2 GG · # G (pr2 FF) #, id G (F x)) =
+                    (pr2 GG #, id pr1 G (F x)) ·  (# G (pr2 FF) #, id pr1 G (F x))).
+    { cbn. rewrite id_left. apply idpath. }
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         etrans.
+         2: { apply maponpaths. exact (! aux). }
+         apply pathsinv0, functor_comp.
+    }
+    clear aux.
+    repeat rewrite assoc'. apply maponpaths.
+    assert (aux1 := nat_trans_ax (pr1 GG) (ID,, F x) (F IC,, F x) (pr2 FF,, id (F x))).
+    cbn in aux1.
+    rewrite functor_id in aux1.
+    etrans.
+    2: { repeat rewrite assoc. do 2 apply cancel_postcomposition.
+         exact (! aux1). }
+    repeat rewrite assoc'. apply maponpaths.
+    do 2 rewrite <- functor_comp.
+    apply maponpaths.
+    rewrite assoc.
+    apply (FFF x).
+  Qed.
 
   Definition functor_ru_composition
              {ruC : right_unitor TC IC} {ruD : right_unitor TD ID} {ruE : right_unitor TE IE}
@@ -599,13 +623,30 @@ Section FunctorMonoidalProperties.
   Proof.
     intro x.
     refine (GGG (F x) @ _).
-    unfold functor_tensorunit_composition.
+    cbn.
     unfold functor_unit_composition.
-    unfold functor_tensor_composition.
-    simpl.
-
-
-  Admitted.
+    assert (aux : (id G (F x) #, pr2 GG · # G (pr2 FF)) = (id G (F x) #, pr2 GG) · (id G (F x) #, # G (pr2 FF))).
+    { cbn. rewrite id_left. apply idpath. }
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         etrans.
+         2: { apply maponpaths. exact (! aux). }
+         apply pathsinv0, functor_comp.
+    }
+    clear aux.
+    repeat rewrite assoc'. apply maponpaths.
+    assert (aux1 := nat_trans_ax (pr1 GG) (F x,, ID) (F x,, F IC) (id (F x),, pr2 FF)).
+    cbn in aux1.
+    rewrite functor_id in aux1.
+    etrans.
+    2: { repeat rewrite assoc. do 2 apply cancel_postcomposition.
+         exact (! aux1). }
+    repeat rewrite assoc'. apply maponpaths.
+    do 2 rewrite <- functor_comp.
+    apply maponpaths.
+    rewrite assoc.
+    apply (FFF x).
+  Qed.
 
   Definition functor_ass_composition
              {αC : associator TC} {αD : associator TD} {αE : associator TE}
@@ -616,10 +657,66 @@ Section FunctorMonoidalProperties.
              (GGG : functor_ass_disp_cat αD αE (_,,GG))
     : functor_ass_disp_cat αC αE (_,, functor_tensorunit_composition FF GG).
   Proof.
-    intros x y z.
-    simpl.
-
-  Admitted.
+    intros x y z. cbn.
+    assert (aux : (id G (F x) #, pr11 GG (F y, F z) · # G (pr11 FF (y, z))) =
+                    (id G (F x) #, pr11 GG (F y, F z)) ·  (id G (F x) #, # G (pr11 FF (y, z)))).
+    { cbn. rewrite id_left. apply idpath. }
+    etrans.
+    2: { apply cancel_postcomposition. apply maponpaths.
+         etrans.
+         2: { apply maponpaths.
+              exact (! aux). }
+         apply pathsinv0, functor_comp.
+    }
+    clear aux.
+    assert (auxnat := nat_trans_ax (pr1 GG) (F x,, _) (F x,, F (y ⊗_C z)) (id (F x),, (pr11 FF) (y, z))).
+    cbn in auxnat.
+    rewrite functor_id in auxnat.
+    etrans.
+    2: { repeat rewrite assoc. apply cancel_postcomposition.
+         repeat rewrite assoc'. do 2 apply maponpaths.
+         apply pathsinv0, auxnat. }
+    clear auxnat.
+    assert (GGGinst := GGG (F x) (F y) (F z)).
+    cbn in GGGinst.
+    etrans.
+    2: { apply cancel_postcomposition.
+         repeat rewrite assoc.
+         apply cancel_postcomposition.
+         exact GGGinst.
+    }
+    clear GGGinst.
+    assert (aux' : (pr11 GG (F x, F y) · # G (pr11 FF (x, y)) #, id G (F z)) =
+                     (pr11 GG (F x, F y) #, id G (F z)) · (# G (pr11 FF (x, y)) #, id G (F z))).
+    { cbn. rewrite id_left. apply idpath. }
+    etrans.
+    { do 2 apply cancel_postcomposition.
+      etrans.
+      { apply maponpaths.
+        exact aux'. }
+      apply functor_comp.
+    }
+    clear aux'.
+    repeat rewrite assoc'. apply maponpaths.
+    etrans.
+    2: { apply maponpaths.
+         do 2 rewrite <- functor_comp.
+         apply maponpaths.
+         rewrite assoc.
+         apply (FFF x y z).
+    }
+    assert (auxnat' := nat_trans_ax (pr1 GG) (F x ⊗_D F y,, F z) (F (x ⊗_C y),, F z) ((pr11 FF) (x, y),, id (F z))).
+    cbn in auxnat'.
+    rewrite functor_id in auxnat'.
+    etrans.
+    { rewrite assoc. apply cancel_postcomposition.
+      exact auxnat'. }
+    clear auxnat'.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    do 2 rewrite <- functor_comp.
+    apply idpath.
+  Qed.
 
   Definition functor_monoidal_composition
              {luC : left_unitor TC IC} {luD : left_unitor TD ID} {luE : left_unitor TE IE}
