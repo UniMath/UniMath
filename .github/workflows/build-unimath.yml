@@ -23,7 +23,7 @@ env:
 jobs:
   # This workflow contains four jobs:
   #   - sanity-checks
-  #   - build-unimath: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
+  #   - build-Unimath-ubuntu: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
   #   - build-macos: (MacOS, Opam, Coq 8.16.0, cache using actions/setup-ocaml)
   #   - build-satellites: (Linux, docker-coq, Coq 8.16.x, manual cache)
 
@@ -44,7 +44,7 @@ jobs:
           time make -k sanity-checks
 
   # Build the current PR/branch with the latest stable release of Coq.
-  build-unimath:
+  build-Unimath-ubuntu:
     strategy:
       fail-fast: false
       matrix:
