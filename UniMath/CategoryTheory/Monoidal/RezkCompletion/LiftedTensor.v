@@ -82,7 +82,7 @@ Section TensorRezk.
                    (functor_tensor_disp_cat TC TE).
   Proof.
     exists precompT_data.
-    abstract (split ; intro ; intros ; apply isaprop_nat_trans_tensor).
+    abstract (split ; intro ; intros ; apply isaprop_is_nat_trans_tensor).
   Defined.
 
   Definition lifted_functor_tensor
@@ -150,7 +150,7 @@ Section TensorRezk.
       rewrite functor_id.
       apply (! id_right _).
     - use tpair.
-      2: { split ; apply isaprop_nat_trans_tensor. }
+      2: { split ; apply isaprop_is_nat_trans_tensor. }
       intros c1 c2.
       simpl.
       rewrite id_right.
@@ -207,15 +207,15 @@ Section TensorRezk.
     do 3 intro.
     assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff) y)).
     {
-      use isaset_hfiber ; use isasetaprop ; apply isaprop_nat_trans_tensor.
+      use isaset_hfiber ; use isasetaprop ; apply isaprop_is_nat_trans_tensor.
     }
 
     use tpair.
     + use total2_paths_f.
-      { apply isaprop_nat_trans_tensor. }
+      { apply isaprop_is_nat_trans_tensor. }
       use proofirrelevance.
       use hlevelntosn.
-      apply isaprop_nat_trans_tensor.
+      apply isaprop_is_nat_trans_tensor.
     + intro ; apply p.
   Qed.
 
@@ -229,9 +229,9 @@ Section TensorRezk.
     intro βHH.
     apply hinhpr.
     use tpair.
-    2: apply isaprop_nat_trans_tensor.
+    2: apply isaprop_is_nat_trans_tensor.
 
-    use nat_trans_tensor_to_characterization.
+    use is_nat_trans_tensor_to_characterization.
     use (lift_nat_trans_eq_along (_,,Euniv) _ HH_eso HH_ff).
     use nat_trans_eq.
     { apply homset_property. }
