@@ -17,8 +17,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
-
 Local Open Scope cat.
 
 Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
@@ -724,37 +722,37 @@ Section AssociatorMonoidalProperty.
     (* This commuting diagram can be split in 3 commuting diagrams stacked together *)
     (* Step 1: The top commuting diagram is unassoc_commutes *)
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    2: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: apply unassoc_commutes.
     }
     use nat_z_iso_comp.
-    2: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    2: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
     use nat_z_iso_comp.
-    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
-    apply CategoriesLemmas.pre_whisker_nat_z_iso.
+    3: apply nat_z_iso_functor_comp_assoc.
+    apply pre_whisker_nat_z_iso.
 
     (* Step 2: The lowest commuting diagram is the tensor preserving commuting one *)
     use nat_z_iso_comp.
-    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    3: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     3: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply pre_whisker_nat_z_iso.
       apply (FF ,, FF_iso).
     }
 
     use nat_z_iso_comp.
-    3: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    3: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
-    apply CategoriesLemmas.post_whisker_nat_z_iso.
+    2: apply nat_z_iso_functor_comp_assoc.
+    apply post_whisker_nat_z_iso.
 
     (* Step 3: The middle commuting square is the tensor preserving commuting one
                but tensored with the identity functor on the left *)
 
-    use CategoriesLemmas.product_of_commuting_squares.
+    use product_of_commuting_squares.
     { apply (make_nat_z_iso _ _ _ (is_nat_z_iso_nat_trans_id F)). }
     apply (FF ,, FF_iso).
   Defined.
@@ -788,15 +786,15 @@ Section AssociatorMonoidalProperty.
   Proof.
     unfold assoc_left.
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    2: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: apply pair_functor_composite.
     }
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: {
         use pair_nat_z_iso.
         3: {
@@ -812,33 +810,33 @@ Section AssociatorMonoidalProperty.
     unfold functor_tensor_map_codom.
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: {
         use pair_nat_z_iso.
         3: {
           exists (nat_trans_id _).
           apply is_nat_z_iso_nat_trans_id.
         }
-        2: apply CategoriesLemmas.functor_commutes_with_id.
+        2: apply functor_commutes_with_id.
       }
     }
 
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: apply (nat_z_iso_inv (pair_functor_composite _ _ _ _)).
     }
     use nat_z_iso_comp.
-    2: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    2: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.pre_whisker_nat_z_iso.
+      use pre_whisker_nat_z_iso.
       2: {
         exists FF.
         apply FF_iso.
       }
     }
-    apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    apply nat_z_iso_functor_comp_assoc.
   Defined.
 
   Context {C D : category}

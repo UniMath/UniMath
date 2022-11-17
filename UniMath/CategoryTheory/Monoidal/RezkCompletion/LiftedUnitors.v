@@ -30,8 +30,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 
@@ -58,33 +57,33 @@ Section RezkLeftUnitor.
   Proof.
     use nat_z_iso_comp.
     2: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
-      apply CategoriesLemmas.tensor_after_pair_with_object_left.
+      apply pre_whisker_nat_z_iso.
+      apply tensor_after_pair_with_object_left.
     }
     use nat_z_iso_comp.
     3: {
       apply nat_z_iso_inv.
-      use CategoriesLemmas.post_whisker_nat_z_iso.
-      2: apply CategoriesLemmas.tensor_after_pair_with_object_left.
+      use post_whisker_nat_z_iso.
+      2: apply tensor_after_pair_with_object_left.
     }
 
     use nat_z_iso_comp.
-    3: { apply CategoriesLemmas.nat_z_iso_functor_comp_assoc. }
+    3: { apply nat_z_iso_functor_comp_assoc. }
 
     use nat_z_iso_comp.
     3: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply pre_whisker_nat_z_iso.
       exact (TransportedTensorComm Duniv H_eso H_ff TC).
     }
 
     use nat_z_iso_comp.
-    2: { apply CategoriesLemmas.nat_z_iso_functor_comp_assoc. }
+    2: { apply nat_z_iso_functor_comp_assoc. }
 
     use nat_z_iso_comp.
-    3: { apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)). }
+    3: { apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)). }
 
-    apply CategoriesLemmas.post_whisker_nat_z_iso.
-    apply CategoriesLemmas.PairingWithObjectCommutesLeft.
+    apply post_whisker_nat_z_iso.
+    apply PairingWithObjectCommutesLeft.
   Defined.
 
   Definition TransportedLeftUnitor
@@ -93,7 +92,7 @@ Section RezkLeftUnitor.
     use (lift_nat_z_iso_along (_,,Duniv) H H_eso H_ff).
     use nat_z_iso_comp.
     2: exact LiftPreservesPretensor.
-    exact (CategoriesLemmas.post_whisker_nat_z_iso lu H).
+    exact (post_whisker_nat_z_iso lu H).
   Defined.
 
   Let luD := TransportedLeftUnitor.
@@ -105,15 +104,15 @@ Section RezkLeftUnitor.
     : pre_whisker H TransportedLeftUnitor
       = nat_z_iso_comp
           LiftPreservesPretensor
-          (CategoriesLemmas.post_whisker_nat_z_iso lu H).
+          (post_whisker_nat_z_iso lu H).
   Proof.
     set (t := lift_nat_trans_along_comm
              (_,,Duniv) _ H_eso H_ff
              (nat_z_iso_comp
                 LiftPreservesPretensor
                 (nat_z_iso_comp
-                   (CategoriesLemmas.post_whisker_nat_z_iso lu H)
-                   (nat_z_iso_inv (CategoriesLemmas.functor_commutes_with_id H))
+                   (post_whisker_nat_z_iso lu H)
+                   (nat_z_iso_inv (functor_commutes_with_id H))
                 )
              )
         ).
@@ -305,33 +304,33 @@ Section RezkRightUnitor.
   Proof.
     use nat_z_iso_comp.
     2: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
-      apply CategoriesLemmas.tensor_after_pair_with_object_right.
+      apply pre_whisker_nat_z_iso.
+      apply tensor_after_pair_with_object_right.
     }
     use nat_z_iso_comp.
     3: {
       apply nat_z_iso_inv.
-      use CategoriesLemmas.post_whisker_nat_z_iso.
-      2: apply CategoriesLemmas.tensor_after_pair_with_object_right.
+      use post_whisker_nat_z_iso.
+      2: apply tensor_after_pair_with_object_right.
     }
 
     use nat_z_iso_comp.
-    3: { apply CategoriesLemmas.nat_z_iso_functor_comp_assoc. }
+    3: { apply nat_z_iso_functor_comp_assoc. }
 
     use nat_z_iso_comp.
     3: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply pre_whisker_nat_z_iso.
       exact (TransportedTensorComm Duniv H_eso H_ff TC).
     }
 
     use nat_z_iso_comp.
-    2: { apply CategoriesLemmas.nat_z_iso_functor_comp_assoc. }
+    2: { apply nat_z_iso_functor_comp_assoc. }
 
     use nat_z_iso_comp.
-    3: { apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)). }
+    3: { apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)). }
 
-    apply CategoriesLemmas.post_whisker_nat_z_iso.
-    apply CategoriesLemmas.PairingWithObjectCommutesRight.
+    apply post_whisker_nat_z_iso.
+    apply PairingWithObjectCommutesRight.
   Defined.
 
   Definition TransportedRightUnitor
@@ -340,7 +339,7 @@ Section RezkRightUnitor.
     use (lift_nat_z_iso_along (_,,Duniv) H H_eso H_ff).
     use nat_z_iso_comp.
     2: exact LiftPreservesPostTensor.
-    exact (CategoriesLemmas.post_whisker_nat_z_iso ru H).
+    exact (post_whisker_nat_z_iso ru H).
   Defined.
 
   Let ruD := TransportedRightUnitor.
@@ -349,7 +348,7 @@ Section RezkRightUnitor.
     : pre_whisker H TransportedRightUnitor
       = nat_trans_comp _ _ _
           LiftPreservesPostTensor
-          (CategoriesLemmas.post_whisker_nat_z_iso ru H).
+          (post_whisker_nat_z_iso ru H).
   Proof.
     unfold TransportedRightUnitor.
     etrans.

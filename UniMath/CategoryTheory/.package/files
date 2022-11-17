@@ -230,6 +230,7 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+DisplayedCats/TotalCategoryFacts.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
@@ -306,8 +307,6 @@ RepresentableFunctors/Test.v
 
 # Monoidal Rezk Completion
 Monoidal/MonoidalFunctorCategory.v
-Monoidal/RezkCompletion/DisplayedCategoriesLemmas.v
-Monoidal/RezkCompletion/CategoriesLemmas.v
 Monoidal/RezkCompletion/LiftedTensor.v
 Monoidal/RezkCompletion/LiftedTensorUnit.v
 Monoidal/RezkCompletion/LiftedUnitors.v

@@ -28,11 +28,10 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
-
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 

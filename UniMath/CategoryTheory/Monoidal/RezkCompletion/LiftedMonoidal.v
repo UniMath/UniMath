@@ -48,10 +48,10 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedUnitors.
@@ -682,7 +682,7 @@ Section RezkMonoidal.
                                     (pair_functor_ff _ _ H_ff H_ff)).
 
           use (nat_z_iso_comp (make_nat_z_iso _ _ _ (pr1 xx)) _).
-          exact (CategoriesLemmas.post_whisker_nat_z_iso (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x)).
+          exact (post_whisker_nat_z_iso (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x)).
         }
 
         assert (p : pr1 i = pr121 x).

@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
 Local Open Scope cat.
 

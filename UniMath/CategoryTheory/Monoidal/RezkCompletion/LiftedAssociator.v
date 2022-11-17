@@ -29,9 +29,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.CategoriesLemmas.
-Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.DisplayedCategoriesLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 
@@ -75,17 +74,17 @@ Section RezkAssociator.
     :  nat_z_iso (HHH ∙ assoc_left TD) (assoc_left TC ∙ H).
   Proof.
     use nat_z_iso_comp.
-    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    3: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    2: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     3: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply pre_whisker_nat_z_iso.
       apply ((TransportedTensorComm Duniv H_eso H_ff _)).
     }
     use nat_z_iso_comp.
-    3: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
-    use (CategoriesLemmas.post_whisker_nat_z_iso _ TD).
+    3: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
+    use (post_whisker_nat_z_iso _ TD).
 
     use nat_z_iso_comp.
     3: apply PrecompEquivalence.nat_z_iso_pair.
@@ -94,14 +93,7 @@ Section RezkAssociator.
 
     use pair_nat_z_iso.
     - apply TransportedTensorComm.
-    - apply CategoriesLemmas.functor_commutes_with_id.
-
-
-
-    (* use nat_z_iso_comp.
-    3: apply (lift_functor_along_comm (_,,Duniv) _ HHH_eso HHH_ff).
-    use CategoriesLemmas.pre_whisker_nat_z_iso.
-    exact (nat_z_iso_inv (lift_functor_along_comm_prod (_,,Duniv) H H_eso H_ff TC)). *)
+    - apply functor_commutes_with_id.
   Defined.
 
   Lemma TransportedAssocLeftOnOb (x y z : C)
@@ -139,37 +131,37 @@ Section RezkAssociator.
     (* This commuting diagram can be split in 3 commuting diagrams stacked together *)
     (* Step 1: The top commuting diagram is unassoc_commutes *)
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    2: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     2: {
-      use CategoriesLemmas.post_whisker_nat_z_iso.
+      use post_whisker_nat_z_iso.
       2: exact unassoc_commutes.
     }
     use nat_z_iso_comp.
-    2: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    2: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
     use nat_z_iso_comp.
-    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
-    apply CategoriesLemmas.pre_whisker_nat_z_iso.
+    3: apply nat_z_iso_functor_comp_assoc.
+    apply pre_whisker_nat_z_iso.
 
     (* Step 2: The lowest commuting diagram is the tensor preserving commuting one *)
     use nat_z_iso_comp.
-    3: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
+    3: apply nat_z_iso_functor_comp_assoc.
     use nat_z_iso_comp.
     3: {
-      apply CategoriesLemmas.pre_whisker_nat_z_iso.
+      apply pre_whisker_nat_z_iso.
       apply TransportedTensorComm.
     }
 
     use nat_z_iso_comp.
-    3: apply (nat_z_iso_inv (CategoriesLemmas.nat_z_iso_functor_comp_assoc _ _ _)).
+    3: apply (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
     use nat_z_iso_comp.
-    2: apply CategoriesLemmas.nat_z_iso_functor_comp_assoc.
-    apply CategoriesLemmas.post_whisker_nat_z_iso.
+    2: apply nat_z_iso_functor_comp_assoc.
+    apply post_whisker_nat_z_iso.
 
     (* Step 3: The middle commuting square is the tensor preserving commuting one
                but tensored with the identity functor on the left *)
 
-    use CategoriesLemmas.product_of_commuting_squares.
+    use product_of_commuting_squares.
     { apply (make_nat_z_iso _ _ _ (is_nat_z_iso_nat_trans_id H)). }
     apply TransportedTensorComm.
   Defined.
@@ -254,7 +246,7 @@ Section RezkAssociator.
     3: apply (nat_z_iso_inv (TransportedAssocRight)).
     use nat_z_iso_comp.
     2: exact TransportedAssocLeft.
-    exact (CategoriesLemmas.post_whisker_nat_z_iso α H).
+    exact (post_whisker_nat_z_iso α H).
   Defined.
 
   Let αD := TransportedAssociator.
@@ -262,13 +254,13 @@ Section RezkAssociator.
   Definition TransportedAssociatorEq
     : pre_whisker HHH TransportedAssociator
       = nat_z_iso_comp
-          (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
+          (nat_z_iso_comp TransportedAssocLeft (post_whisker_nat_z_iso α H))
           (nat_z_iso_inv (TransportedAssocRight)).
   Proof.
     set (t := lift_nat_trans_along_comm (_,,Duniv) _ HHH_eso HHH_ff
           (nat_z_iso_comp TransportedAssocLeft
                           (nat_z_iso_comp
-                             (CategoriesLemmas.post_whisker_nat_z_iso α H)
+                             (post_whisker_nat_z_iso α H)
                              (nat_z_iso_inv TransportedAssocRight)
                           )
         )).
@@ -281,7 +273,7 @@ Section RezkAssociator.
     - exact (nat_trans_comp_assoc (homset_property _)
                                      _ _ _ _
               (pr1 TransportedAssocLeft)
-              (CategoriesLemmas.post_whisker_nat_z_iso α H)
+              (post_whisker_nat_z_iso α H)
               (nat_z_iso_inv TransportedAssocRight)).
   Qed.
 
@@ -594,14 +586,14 @@ Section RezkAssociator.
 
     set (cc := lift_nat_z_iso_along (D,, Duniv) HHH HHH_eso HHH_ff
                (nat_z_iso_comp
-       (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
+       (nat_z_iso_comp TransportedAssocLeft (post_whisker_nat_z_iso α H))
        (nat_z_iso_inv TransportedAssocRight))).
 
-    set (cc1 := (CategoriesLemmas.post_whisker_nat_z_iso α H)).
+    set (cc1 := (post_whisker_nat_z_iso α H)).
     set (cc0 := TransportedAssocLeft).
     set (cc2 := (nat_z_iso_inv TransportedAssocRight)).
     set (dd := nat_z_iso_comp cc0 (nat_z_iso_comp cc1 cc2)).
-    assert (p2' : dd = CategoriesLemmas.pre_whisker_nat_z_iso HHH cc).
+    assert (p2' : dd = pre_whisker_nat_z_iso HHH cc).
     {
       use total2_paths_f.
       2: { apply isaprop_is_nat_z_iso. }
@@ -618,10 +610,10 @@ Section RezkAssociator.
 
     set (cc' := lift_nat_z_iso_along (D,, Duniv) HHH HHH_eso HHH_ff
     (nat_z_iso_comp
-       (nat_z_iso_comp TransportedAssocLeft (CategoriesLemmas.post_whisker_nat_z_iso α H))
+       (nat_z_iso_comp TransportedAssocLeft (post_whisker_nat_z_iso α H))
        (nat_z_iso_inv TransportedAssocRight)) (HHH ((x,y),z))).
 
-    set (cc1' := (CategoriesLemmas.post_whisker_nat_z_iso α H) ((x,y),z)).
+    set (cc1' := (post_whisker_nat_z_iso α H) ((x,y),z)).
     set (cc0' := TransportedAssocLeft ((x,y),z)).
     set (cc2' := (nat_z_iso_inv TransportedAssocRight) ((x,y),z)).
     assert (p2 : cc0' · cc1' · cc2' = cc').
