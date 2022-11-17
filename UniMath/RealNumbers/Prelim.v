@@ -78,13 +78,13 @@ Qed.
 Lemma hqplusdiv2 : ∏ x : hq, x = (x + x) / 2.
   intros x.
   apply hqmultrcan with 2.
-  now apply hqgth_hqneq, hq2_gt0.
-  unfold hqdiv.
-  rewrite hqmultassoc.
-  rewrite (hqislinvmultinv 2).
-  2: now apply hqgth_hqneq, hq2_gt0.
-  rewrite (hqmultr1 (x + x)).
-  apply hqmult2r.
+  - now apply hqgth_hqneq, hq2_gt0.
+  - unfold hqdiv.
+    rewrite hqmultassoc.
+    rewrite (hqislinvmultinv 2).
+    2: now apply hqgth_hqneq, hq2_gt0.
+    rewrite (hqmultr1 (x + x)).
+    apply hqmult2r.
 Qed.
 
 Lemma hqlth_between :
@@ -92,10 +92,10 @@ Lemma hqlth_between :
 Proof.
   assert (H0 : / 2 > 0).
   { apply hqgthandmultlinv with 2.
-    apply hq2_gt0.
-    rewrite hqisrinvmultinv, hqmultx0.
-    now apply hq1_gt0.
-    now apply hqgth_hqneq, hq2_gt0.
+    - apply hq2_gt0.
+    - rewrite hqisrinvmultinv, hqmultx0.
+      + now apply hq1_gt0.
+      + now apply hqgth_hqneq, hq2_gt0.
   }
   intros x y Hlt.
   exists ((x + y) / 2).
@@ -104,14 +104,14 @@ Proof.
     rewrite (hqplusdiv2 x).
     unfold hqdiv.
     apply (hqlthandmultr _ _ (/ 2)).
-    exact H0.
-    now apply (hqlthandplusl _ _ x Hlt).
+    + exact H0.
+    + now apply (hqlthandplusl _ _ x Hlt).
   - pattern y at 2.
     rewrite (hqplusdiv2 y).
     unfold hqdiv.
     apply (hqlthandmultr _ _ (/ 2)).
-    exact H0.
-    now apply (hqlthandplusr _ _ y Hlt).
+    + exact H0.
+    + now apply (hqlthandplusr _ _ y Hlt).
 Qed.
 
 Lemma hq0lehandplus:

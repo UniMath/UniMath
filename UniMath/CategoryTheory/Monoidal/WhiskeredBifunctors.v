@@ -1,3 +1,4 @@
+(* Require Export UniMath.Tactics.EnsureStructuredProofs. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -267,8 +268,8 @@ Section Bifunctors.
       etrans.
       { apply pathsinv0, functor_comp. }
       rewrite whiskerscommutes.
-      apply functor_comp.
-      apply bifunctor_equalwhiskers.
+      + apply functor_comp.
+      + apply bifunctor_equalwhiskers.
   Qed.
 
   Definition compose_bifunctor_with_functor {A B C D : category} (F : bifunctor A B C) (G : functor C D)
@@ -403,12 +404,12 @@ Section FunctorsFromProductCategory.
   Proof.
     split.
     - intro ; apply bifunctor_distributes_over_id.
-      exact (bifunctor_leftid F).
-      exact (bifunctor_rightid F).
+      + exact (bifunctor_leftid F).
+      + exact (bifunctor_rightid F).
     - intro ; intros ; apply bifunctor_distributes_over_comp.
-      exact (bifunctor_leftcomp F).
-      exact (bifunctor_rightcomp F).
-      exact (bifunctor_equalwhiskers F).
+      + exact (bifunctor_leftcomp F).
+      + exact (bifunctor_rightcomp F).
+      + exact (bifunctor_equalwhiskers F).
   Qed.
 
   Definition bifunctor_to_functorfromproductcat {C D E : category}

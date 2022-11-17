@@ -61,8 +61,8 @@ Proof.
       intros Ls.
       apply (H0 s).
       split.
-      exact Us.
-      exact Ls.
+      * exact Us.
+      * exact Ls.
 Qed.
 
 Lemma isOneSided_TwoSided :
@@ -76,10 +76,10 @@ Proof.
     + apply hinhuniv ; intros r.
       generalize (pr2 (pr2 H) _ _ (pr2 (pr2 r))).
       apply hinhuniv, sumofmaps.
-      intros Sq ; apply Sq.
-      intros Sr.
-      apply fromempty.
-      apply Sr, (pr1 (pr2 r)).
+      * intros Sq ; apply Sq.
+      * intros Sr.
+        apply fromempty.
+        apply Sr, (pr1 (pr2 r)).
   - intros q ; split.
     + apply hinhfun.
       intros r.
@@ -101,8 +101,8 @@ Proof.
       exists (pr1 s).
       split.
       * apply istranshqlth with (pr1 r).
-        exact (pr1 (pr2 s)).
-        exact (pr2 (pr2 r)).
+        ** exact (pr1 (pr2 s)).
+        ** exact (pr2 (pr2 r)).
       * exact (pr2 (pr2 s)).
   - exact (pr1 (pr1 H)).
   - generalize (pr2 (pr1 H)).
@@ -151,25 +151,25 @@ Proof.
     change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
     simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
-    +  apply isapropdirprod.
-       apply isapropdirprod ;
-         apply impred_isaprop ; intro q ;
+    + apply isapropdirprod.
+      * apply isapropdirprod ;
+          apply impred_isaprop ; intro q ;
          apply isapropdirprod ; apply isapropimpl, propproperty.
-       apply isapropdirprod.
-       apply isapropdirprod ; apply propproperty.
-       apply isapropdirprod.
-       apply impred_isaprop ; intro q.
-       apply isapropneg.
-       apply impred_isaprop ; intro q.
-       apply impred_isaprop ; intro r.
-       apply isapropimpl, propproperty.
+      * apply isapropdirprod.
+        ** apply isapropdirprod ; apply propproperty.
+        ** apply isapropdirprod.
+           *** apply impred_isaprop ; intro q.
+               apply isapropneg.
+           *** apply impred_isaprop ; intro q.
+               apply impred_isaprop ; intro r.
+               apply isapropimpl, propproperty.
     + apply funextfun ; intros q.
       apply hPropUnivalence.
       * apply hinhuniv.
         intros r.
         generalize (pr2 (pr2 (pr2 (pr2 (pr2 LU)))) _ _ (pr1 (pr2 r))).
         apply hinhuniv, sumofmaps.
-        intro Lr ; apply fromempty, (pr2 (pr2 r)), Lr.
+        { intro Lr ; apply fromempty, (pr2 (pr2 r)), Lr. }
         intros Uq ; apply Uq.
       * intros Uq.
         generalize (pr1 (pr2 (pr1 (pr2 (pr2 LU))) _) Uq).
@@ -177,22 +177,22 @@ Proof.
         intros r.
         exists (pr1 r).
         split.
-        apply (pr2 (pr2 r)).
-        intros Lr.
-        apply (pr1 (pr2 (pr2 (pr2 (pr2 LU)))) (pr1 r)).
-        split.
-        apply (pr1 (pr2 r)).
-        apply Lr.
+        ** apply (pr2 (pr2 r)).
+        ** intros Lr.
+           apply (pr1 (pr2 (pr2 (pr2 (pr2 LU)))) (pr1 r)).
+           split.
+           *** apply (pr1 (pr2 r)).
+           *** apply Lr.
   - intros S.
     simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
-      apply propproperty.
-      apply isapropdirprod.
-      apply impred_isaprop ; intro r.
-      apply isapropimpl, propproperty.
-      apply impred_isaprop ; intro r.
-      apply impred_isaprop ; intro s.
-      apply isapropimpl, propproperty.
+      * apply propproperty.
+      * apply isapropdirprod.
+        ** apply impred_isaprop ; intro r.
+           apply isapropimpl, propproperty.
+        ** apply impred_isaprop ; intro r.
+           apply impred_isaprop ; intro s.
+           apply isapropimpl, propproperty.
     + reflexivity.
 Qed.
 
@@ -221,7 +221,7 @@ Proof.
   intros q.
   assert (Hq : 0 <= pr1 q).
   { apply istranshqleh with (pr1 r).
-    exact (pr2 r).
+    { exact (pr2 r). }
     apply hqlthtoleh, (pr2 (pr2 q)). }
   exists (pr1 q,,Hq).
   split.
@@ -279,7 +279,7 @@ Proof.
   apply hinhuniv ; intros H0.
   apply coprodcomm in H0.
   revert H0 ; apply sumofmaps ; intros H0.
-  apply hinhpr, ii1, H0.
+  { apply hinhpr, ii1, H0. }
   enough (Hq : ∃ q : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
   { revert Hq.
     apply hinhfun, ii2. }
@@ -292,11 +292,11 @@ Proof.
   intros n.
   assert (Hc' : hqdiv (pr1 c) 2 > 0).
   { apply hqmultgth0gth0.
-    exact Hc.
+    { exact Hc. }
     apply hqgthandmultlinv with 2.
-    exact hq2_gt0.
+    { exact hq2_gt0. }
     rewrite hqmultx0, hqisrinvmultinv.
-    exact hq1_gt0.
+    { exact hq1_gt0. }
     apply hqgth_hqneq, hq2_gt0. }
   assert (H1 : hqlth (pr1 r) (nattoring (pr1 n) * (hqdiv (pr1 c) 2))).
   { unfold hqlth in Hc.
@@ -304,18 +304,18 @@ Proof.
     - apply hqgthandmultlinv with (hqdiv (pr1 c) 2).
       + exact Hc'.
       + rewrite hqmultx0, hqisrinvmultinv.
-        exact hq1_gt0.
+        { exact hq1_gt0. }
         apply hqgth_hqneq, Hc'.
     - rewrite hqmultassoc, hqisrinvmultinv.
-      rewrite hqmultr1.
-      unfold hqdiv in n.
-      exact (pr2 n).
-      apply hqgth_hqneq, Hc'. }
+      + rewrite hqmultr1.
+        unfold hqdiv in n.
+        exact (pr2 n).
+      + apply hqgth_hqneq, Hc'. }
   assert (Hn : ¬ D (nattoring (pr1 n) * hqdiv (pr1 c) 2)).
   { generalize (pr2 (pr2 H) _ _ H1).
     apply (hinhuniv (P := hneg _)), sumofmaps ; intro H2.
-    apply fromempty, (pr2 r), H2.
-    apply H2. }
+    - apply fromempty, (pr2 r), H2.
+    - apply H2. }
   assert (H2 : ∏ (m : nat),
                nattoring m * hqdiv (pr1 c) 2 + pr1 c = nattoring (m + 2) * hqdiv (pr1 c) 2).
   { intros m.
@@ -327,8 +327,8 @@ Proof.
     unfold hqdiv.
     rewrite <- hqmult2r, hqmultassoc.
     rewrite hqislinvmultinv.
-    apply pathsinv0, hqmultr1.
-    apply hqgth_hqneq, hq2_gt0. }
+    - apply pathsinv0, hqmultr1.
+    - apply hqgth_hqneq, hq2_gt0. }
 
   generalize (pr1 n) Hn.
   clear -H H0 Hc Hc' H2 ; intros n Hn.
@@ -348,68 +348,68 @@ Proof.
   induction n as [ | n IHn] ; intros D H m Hm Hn.
   - apply hinhpr.
     use tpair.
-    use tpair.
-    apply (nattoring m * hqdiv (pr1 c) 2).
-    abstract (apply hq0lehandmult ;
-              [ clear ;
-                induction m ;
-                [ apply isreflhqleh
-                | unfold nattoring ;
-                  rewrite nattorigS ;
-                  apply hq0lehandplus ;
-                  [ exact hq1ge0 | exact IHm ]]
-              | apply hqlthtoleh, Hc' ]).
-    simpl.
-    split.
-    exact Hm.
-    change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
-    intros H0.
-    refine (hinhuniv' _ _ _).
-    apply isapropempty.
-    2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring m * hqdiv (pr1 c) 2 + pr1 c)).
-    apply sumofmaps.
-    exact Hn.
-    intros H1 ; apply H1, H0.
-    rewrite H2.
-    apply hqlthandmultr.
-    exact Hc'.
-    unfold nattoring.
-    rewrite <- (plus_n_Sm m 1%nat).
-    rewrite nattorigS, hqpluscomm.
-    apply hqlthnsn.
+    + use tpair.
+      * apply (nattoring m * hqdiv (pr1 c) 2).
+      * abstract (apply hq0lehandmult ;
+                  [ clear ;
+                    induction m ;
+                    [ apply isreflhqleh
+                    | unfold nattoring ;
+                      rewrite nattorigS ;
+                      apply hq0lehandplus ;
+                      [ exact hq1ge0 | exact IHm ]]
+                  | apply hqlthtoleh, Hc' ]).
+    + simpl.
+      split.
+      * exact Hm.
+      * change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
+        intros H0.
+        refine (hinhuniv' _ _ _).
+        { apply isapropempty. }
+        2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring m * hqdiv (pr1 c) 2 + pr1 c)).
+        ** apply sumofmaps.
+           *** exact Hn.
+           *** intros H1 ; apply H1, H0.
+        ** rewrite H2.
+           apply hqlthandmultr.
+           *** exact Hc'.
+           *** unfold nattoring.
+               rewrite <- (plus_n_Sm m 1%nat).
+               rewrite nattorigS, hqpluscomm.
+               apply hqlthnsn.
   - refine (hinhuniv _ _).
     2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring (m + 2) * hqdiv (pr1 c) 2)).
-    apply sumofmaps ; intros Hm'.
-    + apply IHn with (m + 1)%nat.
-      * exact H.
-      * exact Hm'.
-      * rewrite natplusassoc.
-        exact Hn.
-    + apply hinhpr.
-      use tpair.
-      use tpair.
-      apply (nattoring m * hqdiv (pr1 c) 2).
-      abstract (apply hq0lehandmult ;
-                [ clear ;
-                  induction m ;
-                  [ apply isreflhqleh
-                  | unfold nattoring ;
-                    rewrite nattorigS ;
-                    apply hq0lehandplus ;
-                    [ exact hq1ge0 | exact IHm ]]
-                | apply hqlthtoleh, Hc' ]).
-      simpl.
-      split.
-      exact Hm.
-      change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
-      rewrite H2.
-      exact Hm'.
+    + apply sumofmaps ; intros Hm'.
+      * apply IHn with (m + 1)%nat.
+        ** exact H.
+        ** exact Hm'.
+        ** rewrite natplusassoc.
+           exact Hn.
+      * apply hinhpr.
+        use tpair.
+        ** use tpair.
+           *** apply (nattoring m * hqdiv (pr1 c) 2).
+           *** abstract (apply hq0lehandmult ;
+                         [ clear ;
+                           induction m ;
+                           [ apply isreflhqleh
+                           | unfold nattoring ;
+                             rewrite nattorigS ;
+                             apply hq0lehandplus ;
+                             [ exact hq1ge0 | exact IHm ]]
+                         | apply hqlthtoleh, Hc' ]).
+        ** simpl.
+           split.
+           *** exact Hm.
+           *** change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
+               rewrite H2.
+               exact Hm'.
     + apply hqlthandmultr.
-      exact Hc'.
-      unfold nattoring.
-      rewrite <- (plus_n_Sm m 1%nat).
-      rewrite nattorigS, hqpluscomm.
-      apply hqlthnsn.
+      * exact Hc'.
+      * unfold nattoring.
+        rewrite <- (plus_n_Sm m 1%nat).
+        rewrite nattorigS, hqpluscomm.
+        apply hqlthnsn.
 Qed.
 
 Lemma isDcuts_OneSided :
@@ -425,18 +425,18 @@ Proof.
     + exact tt.
     + apply fromempty.
       refine (hqlehtoneghqgth _ _ _ _).
-      apply H.
-      apply hqgthandplusrinv with 1.
-      rewrite hqlminus, hqplusl0.
-      exact hq1_gt0.
+      * apply H.
+      * apply hqgthandplusrinv with 1.
+        rewrite hqlminus, hqplusl0.
+        exact hq1_gt0.
   - generalize (Hcorr _ ispositive_oneNonnegativeRationals).
     apply hinhfun, sumofmaps ; intros H.
     + exists 1.
       induction (hqgthorleh 0 1) as [H0 | H0].
       * apply fromempty.
         refine (hqgthtoneghqleh _ _ _ _).
-        exact H0.
-        exact hq1ge0.
+        ** exact H0.
+        ** exact hq1ge0.
       * assert (H1 : 1%NRat = (1 ,, H0))
           by (apply subtypePath_prop ; reflexivity).
         rewrite H1 in H.
@@ -446,10 +446,10 @@ Proof.
       induction (hqgthorleh 0 (pr1 (pr1 q) + 1)) as [H0 | H0].
       * apply fromempty.
         refine (hqgthtoneghqleh _ _ _ _).
-        apply H0.
-        apply hq0lehandplus.
-        exact (pr2 (pr1 q)).
-        exact hq1ge0.
+        ** apply H0.
+        ** apply hq0lehandplus.
+           *** exact (pr2 (pr1 q)).
+           *** exact hq1ge0.
       * assert (Hq1 : (pr1 q + 1)%NRat = (pr1 (pr1 q) + 1 ,, H0))
           by (apply subtypePath_prop ; reflexivity).
         generalize (pr2 (pr2 q)) ; intro Hq.
@@ -461,13 +461,13 @@ Proof.
       apply hinhpr.
       exists (pr1 q).
       split.
-      induction (hqgthorleh 0 (pr1 q)) as [Hq | Hq].
-      * exact tt.
-      * apply fromempty.
-        refine (hqlehtoneghqgth _ _ _ _).
-        exact Hq.
-        unfold hqlth in q.
-        exact (pr2 (pr2 q)).
+      * induction (hqgthorleh 0 (pr1 q)) as [Hq | Hq].
+        ** exact tt.
+        ** apply fromempty.
+           refine (hqlehtoneghqgth _ _ _ _).
+           *** exact Hq.
+           *** unfold hqlth in q.
+               exact (pr2 (pr2 q)).
       * exact (pr1 (pr2 q)).
     + generalize (Hopen _ Dr).
       apply hinhfun.
@@ -476,28 +476,28 @@ Proof.
       induction (hqgthorleh 0 (pr1 (pr1 q))) as [Hq | Hq].
       * apply fromempty.
         refine (hqgthtoneghqleh _ _ _ _).
-        apply Hq.
-        exact (pr2 (pr1 q)).
+        ** apply Hq.
+        ** exact (pr2 (pr1 q)).
       * split.
-        assert (Hq1 : pr1 q = (pr1 (pr1 q) ,, Hq))
-          by (apply subtypePath_prop ; reflexivity).
-        generalize (pr1 (pr2 q)) ; intro Hq'.
-        rewrite Hq1 in Hq'.
-        exact Hq'.
-        generalize (pr2 (pr2 q)) ; intro Hq'.
-        rewrite ltNonnegativeRationals_correct in Hq'.
-        exact Hq'.
+        ** assert (Hq1 : pr1 q = (pr1 (pr1 q) ,, Hq))
+             by (apply subtypePath_prop ; reflexivity).
+           generalize (pr1 (pr2 q)) ; intro Hq'.
+           rewrite Hq1 in Hq'.
+           exact Hq'.
+        ** generalize (pr2 (pr2 q)) ; intro Hq'.
+           rewrite ltNonnegativeRationals_correct in Hq'.
+           exact Hq'.
   -intros r q Hrq.
     induction (hqgthorleh 0 r) as [Hr | Hr].
-    apply hinhpr, ii1, tt.
+    { apply hinhpr, ii1, tt. }
     induction (hqgthorleh 0 q) as [Hq | Hq].
     + apply fromempty.
       refine (hqlehtoneghqgth _ _ _ _).
-      apply Hr.
-      apply istranshqgth with q.
-      exact Hq.
-      unfold hqlth in Hrq.
-      exact Hrq.
+      * apply Hr.
+      * apply istranshqgth with q.
+        ** exact Hq.
+        ** unfold hqlth in Hrq.
+           exact Hrq.
     + apply (Dcuts_locatedness (D,,Hbot,,Hopen,,Hcorr)).
       rewrite ltNonnegativeRationals_correct.
       exact Hrq.
@@ -517,12 +517,12 @@ Proof.
                → sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, pr1 D (q,, Hq)) (hqgthorleh 0 q)).
   { intros D q Hq.
     induction (hqgthorleh 0 q) as [Hq' | Hq'].
-    exact tt.
+    { exact tt. }
     apply fromempty.
     refine (hqlehtoneghqgth _ _ _ _).
-    apply Hq'.
-    unfold hqlth in Hq.
-    exact Hq. }
+    - apply Hq'.
+    - unfold hqlth in Hq.
+      exact Hq. }
 set (g := (λ D : Dcuts,
     (λ q : hq,
      sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, pr1 D (q,, Hq))
@@ -534,29 +534,29 @@ set (g := (λ D : Dcuts,
   - intros D.
     simple refine (subtypePath_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
-      apply isapropdirprod.
-      apply propproperty.
-      apply isapropdirprod.
-      apply impred_isaprop ; intro r.
-      apply isapropimpl, propproperty.
-      apply impred_isaprop ; intro r.
-      apply impred_isaprop ; intro s.
-      apply isapropimpl, propproperty.
-      apply impred_isaprop ; intro q.
-      apply isapropimpl, propproperty.
+      * apply isapropdirprod.
+        ** apply propproperty.
+        ** apply isapropdirprod.
+           *** apply impred_isaprop ; intro r.
+               apply isapropimpl, propproperty.
+           *** apply impred_isaprop ; intro r.
+               apply impred_isaprop ; intro s.
+               apply isapropimpl, propproperty.
+      * apply impred_isaprop ; intro q.
+        apply isapropimpl, propproperty.
     + apply funextfun ; intros q.
       apply hPropUnivalence.
       * change (sumofmaps (λ _ : 0 > q, htrue) (λ _ : ¬ (0 > q), pr1 D q) (hqgthorleh 0 q) → pr1 D q).
         induction (hqgthorleh 0 q) as [Hq | Hq].
-        intros _.
-        apply (pr2 (pr2 D)).
-        exact Hq.
-        intros H ; apply H.
+        ** intros _.
+           apply (pr2 (pr2 D)).
+           exact Hq.
+        ** intros H ; apply H.
       * change (pr1 D q → sumofmaps (λ _ : 0 > q, htrue) (λ _ : ¬ (0 > q), pr1 D q) (hqgthorleh 0 q)).
         intros Dq.
         induction (hqgthorleh 0 q) as [Hq | Hq].
-        exact tt.
-        exact Dq.
+        ** exact tt.
+        ** exact Dq.
   - intros D.
     apply subtypePath_prop.
     apply funextfun ; intros q.
@@ -565,24 +565,24 @@ set (g := (λ D : Dcuts,
                         (λ Hq : ¬ (0 > pr1 q), pr1 D (pr1 q,, Hq)) (hqgthorleh 0 (pr1 q))
               → pr1 D q).
       induction (hqgthorleh 0 (pr1 q)) as [Hq | Hq].
-      apply fromempty.
-      refine (hqlehtoneghqgth _ _ _ _).
-      exact (pr2 q).
-      exact Hq.
-      intros H.
-      assert (Hq1 : q = (pr1 q,, Hq))
-        by (apply subtypePath_prop ; reflexivity).
-      rewrite Hq1 ; exact H.
+      * apply fromempty.
+        refine (hqlehtoneghqgth _ _ _ _).
+        ** exact (pr2 q).
+        ** exact Hq.
+      * intros H.
+        assert (Hq1 : q = (pr1 q,, Hq))
+          by (apply subtypePath_prop ; reflexivity).
+        rewrite Hq1 ; exact H.
     + change (pr1 D q
   → sumofmaps (λ _ : 0 > pr1 q, htrue)
               (λ Hq : ¬ (0 > pr1 q), pr1 D (pr1 q,, Hq)) (hqgthorleh 0 (pr1 q))).
       intros Dq.
       induction (hqgthorleh 0 (pr1 q)) as [Hq | Hq].
-      apply fromempty.
-      refine (hqlehtoneghqgth _ _ _ _).
-      exact (pr2 q).
-      exact Hq.
-      assert (Hq1 : q = (pr1 q,, Hq))
-        by (apply subtypePath_prop ; reflexivity).
-      rewrite Hq1 in Dq ; exact Dq.
+      * apply fromempty.
+        refine (hqlehtoneghqgth _ _ _ _).
+        ** exact (pr2 q).
+        ** exact Hq.
+      * assert (Hq1 : q = (pr1 q,, Hq))
+          by (apply subtypePath_prop ; reflexivity).
+        rewrite Hq1 in Dq ; exact Dq.
 Qed.

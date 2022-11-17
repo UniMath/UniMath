@@ -47,3 +47,10 @@ Universal/Examples/Group.v
 Universal/Examples/ListDataType.v
 Universal/Examples/Tests.v
 Universal.v
+GaussianElimination/Auxiliary.v
+GaussianElimination/Vectors.v
+GaussianElimination/Matrices.v
+GaussianElimination/RowOps.v
+GaussianElimination/Elimination.v
+GaussianElimination/Corollaries.v
+GaussianElimination/Tests.v
