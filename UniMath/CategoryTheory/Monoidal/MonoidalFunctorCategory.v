@@ -61,7 +61,7 @@ Section TensorFunctorCategory.
     do 2 (apply impred_isaprop ; intro) ; apply D.
   Qed.
 
-  Definition is_nat_trans_tensor_id
+  Lemma is_nat_trans_tensor_id
              {F : functor C D} (FF : functor_tensor F)
     : is_nat_trans_tensor FF FF (nat_trans_id F).
   Proof.
@@ -71,7 +71,7 @@ Section TensorFunctorCategory.
     exact (id_left _ @ ! id_right _).
   Qed.
 
-  Definition is_nat_trans_tensor_comp
+  Lemma is_nat_trans_tensor_comp
              {F G H : functor C D}
              (FF : functor_tensor F) (GG : functor_tensor G) (HH : functor_tensor H)
              {α : nat_trans F G} {β : nat_trans G H}
@@ -996,12 +996,12 @@ Section AssociatorMonoidalProperty.
              (FF_iso : is_nat_z_iso (pr11 FF))
     : UU := functor_ass_ntrans2 αC αD FF_iso = functor_ass_ntrans1 αC αD FF_iso.
 
-  Definition functor_ass_to_nat_trans_ass
-             {αC : associator TC} {αD : associator TD}
-             {F : functor C D}
-             {FF : functor_tensorunit_disp_cat TC TD IC ID F}
-             (FF_iso : is_nat_z_iso (pr11 FF))
-             (FFF : functor_ass_disp_cat αC αD (_,,FF))
+  Lemma functor_ass_to_nat_trans_ass
+    {αC : associator TC} {αD : associator TD}
+    {F : functor C D}
+    {FF : functor_tensorunit_disp_cat TC TD IC ID F}
+    (FF_iso : is_nat_z_iso (pr11 FF))
+    (FFF : functor_ass_disp_cat αC αD (_,,FF))
     : functor_nat_trans_preserves αC αD FF_iso.
   Proof.
     use nat_trans_eq.
