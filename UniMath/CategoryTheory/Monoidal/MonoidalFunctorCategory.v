@@ -47,23 +47,23 @@ Section TensorFunctorCategory.
     : UU := nat_trans (functor_tensor_map_dom F) (functor_tensor_map_codom F).
   Identity Coercion functor_tensor_c : functor_tensor >-> nat_trans.
 
-  Definition nat_trans_tensor {F G : functor C D}
+  Definition is_nat_trans_tensor {F G : functor C D}
              (FF : functor_tensor F) (GG : functor_tensor G)
              (α : nat_trans F G) : UU
     := ∏ x y : C, (α x #⊗_D α y) · GG (x, y)
                   = FF (x, y) · α (x ⊗_C y).
 
-  Lemma isaprop_nat_trans_tensor {F G : functor C D}
+  Lemma isaprop_is_nat_trans_tensor {F G : functor C D}
              (FF : functor_tensor F) (GG : functor_tensor G)
              (α : nat_trans F G)
-    : isaprop (nat_trans_tensor FF GG α).
+    : isaprop (is_nat_trans_tensor FF GG α).
   Proof.
     do 2 (apply impred_isaprop ; intro) ; apply D.
   Qed.
 
-  Definition nat_trans_tensor_id
+  Definition is_nat_trans_tensor_id
              {F : functor C D} (FF : functor_tensor F)
-    : nat_trans_tensor FF FF (nat_trans_id F).
+    : is_nat_trans_tensor FF FF (nat_trans_id F).
   Proof.
     intros x y.
     simpl.
@@ -71,13 +71,13 @@ Section TensorFunctorCategory.
     exact (id_left _ @ ! id_right _).
   Qed.
 
-  Definition nat_trans_tensor_comp
+  Definition is_nat_trans_tensor_comp
              {F G H : functor C D}
              (FF : functor_tensor F) (GG : functor_tensor G) (HH : functor_tensor H)
              {α : nat_trans F G} {β : nat_trans G H}
-             (αα : nat_trans_tensor FF GG α)
-             (ββ : nat_trans_tensor GG HH β)
-    : nat_trans_tensor FF HH (nat_trans_comp _ _ _ α β).
+             (αα : is_nat_trans_tensor FF GG α)
+             (ββ : is_nat_trans_tensor GG HH β)
+    : is_nat_trans_tensor FF HH (nat_trans_comp _ _ _ α β).
   Proof.
     intros x y.
     simpl.
@@ -99,13 +99,13 @@ Section TensorFunctorCategory.
     : disp_cat_ob_mor [C,D].
   Proof.
     exists (λ F, functor_tensor F).
-    exact (λ F G FF GG α, nat_trans_tensor FF GG α).
+    exact (λ F G FF GG α, is_nat_trans_tensor FF GG α).
   Defined.
 
   Definition functor_tensor_disp_cat_id_comp
     : disp_cat_id_comp _ functor_tensor_disp_cat_ob_mor.
   Proof.
-    split ; intro ; intros ; [apply nat_trans_tensor_id | use nat_trans_tensor_comp ; assumption ].
+    split ; intro ; intros ; [apply is_nat_trans_tensor_id | use is_nat_trans_tensor_comp ; assumption ].
   Qed.
 
   Definition functor_tensor_disp_cat_data
@@ -115,9 +115,9 @@ Section TensorFunctorCategory.
   Definition functor_tensor_disp_cat_axioms
     : disp_cat_axioms _ functor_tensor_disp_cat_data.
   Proof.
-    repeat split ; intro ; intros ; try (apply isaprop_nat_trans_tensor).
+    repeat split ; intro ; intros ; try (apply isaprop_is_nat_trans_tensor).
     use isasetaprop.
-    apply isaprop_nat_trans_tensor.
+    apply isaprop_is_nat_trans_tensor.
   Qed.
 
   Definition functor_tensor_disp_cat : disp_cat [C,D]
@@ -163,7 +163,7 @@ Section TensorFunctorCategoryUnivalence.
     - apply isaset_functor_tensor_disp_cat.
     - apply isaproptotal2.
       + intro ; apply Isos.isaprop_is_z_iso_disp.
-      + do 4 intro ; apply isaprop_nat_trans_tensor.
+      + do 4 intro ; apply isaprop_is_nat_trans_tensor.
   Qed.
 
 End TensorFunctorCategoryUnivalence.
@@ -274,20 +274,20 @@ Section TensorFunctorProperties.
     : nat_trans (functor_tensor_map_dom TD F) (functor_tensor_map_codom TC G)
     := _ ,, nat_trans_tensor_ntrans2_is_nat_trans.
 
-  Definition nat_trans_tensor' : UU
+  Definition is_nat_trans_tensor' : UU
     := nat_trans_tensor_ntrans1 = nat_trans_tensor_ntrans2.
 
-  Lemma nat_trans_tensor_to_characterization
-        (p : nat_trans_tensor')
-    : nat_trans_tensor TC TD FF GG α.
+  Lemma is_nat_trans_tensor_to_characterization
+        (p : is_nat_trans_tensor')
+    : is_nat_trans_tensor TC TD FF GG α.
   Proof.
     intros x y.
     exact (toforallpaths _ _ _ (base_paths _ _ p) (x,y)).
   Qed.
 
-  Lemma nat_trans_tensor_from_characterization
-        (p : nat_trans_tensor TC TD FF GG α)
-    : nat_trans_tensor'.
+  Lemma is_nat_trans_tensor_from_characterization
+        (p : is_nat_trans_tensor TC TD FF GG α)
+    : is_nat_trans_tensor'.
   Proof.
     use nat_trans_eq.
     { apply D. }
@@ -303,7 +303,7 @@ Section UnitFunctorCategory.
   Definition functor_unit (F : functor C D) : UU
     := D⟦ID, pr1 F IC⟧.
 
-  Definition nat_trans_unit
+  Definition is_nat_trans_unit
              {F G : functor C D} (FF : functor_unit F) (GG : functor_unit G)
              (α : nat_trans F G) : UU
     := FF · α IC = GG.
@@ -312,23 +312,23 @@ Section UnitFunctorCategory.
     : disp_cat_ob_mor [C,D].
   Proof.
     exists (λ F, functor_unit F).
-    exact (λ F G FF GG α, nat_trans_unit FF GG α).
+    exact (λ F G FF GG α, is_nat_trans_unit FF GG α).
   Defined.
 
-  Definition nat_trans_unit_id
+  Lemma is_nat_trans_unit_id
              {F : functor C D} (FF : functor_unit F)
-    : nat_trans_unit FF FF (nat_trans_id F).
+    : is_nat_trans_unit FF FF (nat_trans_id F).
   Proof.
     apply id_right.
   Qed.
 
-  Definition nat_trans_unit_comp
+  Lemma is_nat_trans_unit_comp
              {F G H : functor C D}
              (FF : functor_unit F) (GG : functor_unit G) (HH : functor_unit H)
              {α : nat_trans F G} {β : nat_trans G H}
-             (αα : nat_trans_unit FF GG α)
-             (ββ : nat_trans_unit GG HH β)
-    : nat_trans_unit FF HH (nat_trans_comp _ _ _ α β).
+             (αα : is_nat_trans_unit FF GG α)
+             (ββ : is_nat_trans_unit GG HH β)
+    : is_nat_trans_unit FF HH (nat_trans_comp _ _ _ α β).
   Proof.
     etrans. { apply assoc. }
     etrans. { apply maponpaths_2 ; exact αα. }
@@ -338,7 +338,7 @@ Section UnitFunctorCategory.
   Definition functor_unit_disp_cat_id_comp
     : disp_cat_id_comp _ functor_unit_disp_cat_ob_mor.
   Proof.
-    split ; intro ; intros ; [apply nat_trans_unit_id | use nat_trans_unit_comp ; assumption ].
+    split ; intro ; intros ; [apply is_nat_trans_unit_id | use is_nat_trans_unit_comp ; assumption ].
   Qed.
 
   Definition functor_unit_disp_cat_data

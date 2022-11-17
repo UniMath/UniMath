@@ -58,7 +58,7 @@ Section LiftedUnit.
     exists (λ G GG, GG · #(pr1 G) (identity _)).
     intros G1 G2 GG1 GG2 β ββ.
     simpl.
-    unfold nat_trans_unit.
+    unfold is_nat_trans_unit.
     simpl.
     rewrite (functor_id G1).
     rewrite id_right.
@@ -82,13 +82,13 @@ Section LiftedUnit.
     exists HGG.
     use Isos.make_z_iso_disp.
     - simpl.
-      unfold nat_trans_unit.
+      unfold is_nat_trans_unit.
       rewrite id_right.
       rewrite (functor_id G).
       apply id_right.
     - use tpair.
       + simpl.
-        unfold nat_trans_unit.
+        unfold is_nat_trans_unit.
         rewrite id_right.
         rewrite (functor_id G).
         apply (! id_right _).
@@ -129,7 +129,7 @@ Section LiftedUnit.
     use tpair.
     2: apply homset_property.
     simpl in βHH.
-    unfold nat_trans_unit in βHH.
+    unfold is_nat_trans_unit in βHH.
     simpl in βHH.
     rewrite (functor_id G1) in βHH.
     rewrite (functor_id G2) in βHH.
