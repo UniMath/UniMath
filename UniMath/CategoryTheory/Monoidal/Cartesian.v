@@ -84,7 +84,7 @@ Section CartesianMonoidal.
 
   Lemma cartesian_monoidal : monoidal_cat.
   Proof.
-    use mk_monoidal_cat.
+    use make_monoidal_cat.
     - exact C.
     - (** Tensor functor [C ⊠ C ⟶ C] *)
       apply binproduct_functor; assumption.
