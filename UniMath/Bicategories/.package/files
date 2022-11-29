@@ -95,6 +95,7 @@ MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
 MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
 MonoidalCategories/UnivalenceMonCat/FinalLayer.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatNonCurried.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
