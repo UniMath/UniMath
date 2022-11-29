@@ -4,7 +4,7 @@
 (coq.theory
  (name UniMath)
  (package coq-unimath)
- (flags -verbose
+ (flags :standard
         -noinit
         -indices-matter
         -type-in-type
