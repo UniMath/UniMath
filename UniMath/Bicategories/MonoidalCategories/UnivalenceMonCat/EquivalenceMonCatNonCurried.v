@@ -234,7 +234,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
       + use tpair.
         * intro ; apply (pr1 (pr112 F)).
         * intros [x1 x2] [y1 y2] [f g].
-          etrans. { apply maponpaths_2, (! tensor_on_hom_eq N _ _). }.
+          etrans. { apply maponpaths_2, (! tensor_on_hom_eq N _ _). }
           refine (! pr21 (pr112 F) x1 y1 x2 y2 f g @ _).
           simpl.
           do 2 apply maponpaths.
@@ -252,7 +252,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
             do 2 apply maponpaths_2 ;
             apply (tensor_on_hom_eq N)).
       + intros x y z.
-        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }.
+        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
         refine ((pr2 (pr212 F) x y z) @ _).
         apply maponpaths_2.
         apply maponpaths.
