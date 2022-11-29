@@ -12,6 +12,10 @@ on:
     # Prime the caches every Monday
     - cron: '0 1 * * MON'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # This is only used by the MacOS build.
   coq-version: 8.16.0
