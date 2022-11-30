@@ -48,7 +48,6 @@ Section RezkAssociator.
 
   Definition DDDuniv : is_univalent ((D ⊠ D) ⊠ D).
   Proof.
-    (* Search (is_univalent (_ ⊠ _)). *)
     apply is_univalent_category_binproduct.
     2: exact Duniv.
     apply is_univalent_category_binproduct.
