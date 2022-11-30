@@ -3,7 +3,7 @@
     Benedikt Ahrens, Marco Maggesi
     February 2018
 
-   Dependent product of displayed bicategories
+   Dependent sum of displayed bicategories
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
