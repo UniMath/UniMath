@@ -271,26 +271,15 @@ Proof.
   apply weqfunfromunit.
 Defined.
 
-(** The [hfiber] of a function between sets is also a set. *)
-Definition hfiber_hSet {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) : hSet.
-Proof.
-  use make_hSet.
-  - exact (hfiber f y).
-  - apply isaset_hfiber; apply setproperty.
-Defined.
-
 Local Lemma tosecoverunit_compute {X : UU} {x : X} :
   ∏ t, tosecoverunit (λ _ : unit, X) x t = x.
 Proof.
   abstract (induction t; reflexivity).
 Qed.
 
-Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
-    HSET⟦hfiber_hSet f y, X⟧ := hfiberpr1 f y.
-
 Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
-  ∑ H, @isPullback _ _ _ _ _ f y' (hfiber_hSet_pr1 f y)
+  ∑ H, @isPullback _ _ _ _ _ f y' (hfiberpr1 f y : HSET⟦hfiber_hSet f y , X⟧)
                        (TerminalArrow TerminalHSET _) H.
 Proof.
   use tpair.
@@ -302,7 +291,7 @@ Proof.
         Part of the condition is trivial. *)
     use iscontrweqb.
     + exact (∑ hk : HSET ⟦ pb, hfiber_hSet f y ⟧,
-              hk · hfiber_hSet_pr1 f y = pbpr1).
+              hk · hfiberpr1 f y = pbpr1).
     + apply weqfibtototal; intro.
       apply invweq.
       apply dirprod_with_contr_r.
