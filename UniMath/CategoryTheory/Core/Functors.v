@@ -992,13 +992,9 @@ Defined.
 Lemma isaprop_full_and_faithful (C D : precategory_data) (F : functor C D) :
    isaprop (full_and_faithful F).
 Proof.
-  apply isofhleveldirprod.
-  apply impred; intro.
-  apply impred; intro.
-  apply impred; intro.
-  simpl. repeat (apply impred; intro).
-  apply isapropishinh.
-  apply isaprop_faithful.
+  apply isapropdirprod.
+  - apply isaprop_full.
+  - apply isaprop_faithful.
 Qed.
 
 
