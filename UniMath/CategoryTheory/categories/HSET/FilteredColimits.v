@@ -281,7 +281,7 @@ Section category_of_kfinite_subsets.
     : functor_data (kfinite_subsets_category X) SET.
   Proof.
     use make_functor_data.
-    - exact(λ (A : kfinite_subtype X), carrier_set A).
+    - exact(λ (A : kfinite_subtype X), carrier_subset A).
     - exact(λ _ _ E, subtype_inc E).
   Defined.
 

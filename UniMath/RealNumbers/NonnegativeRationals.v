@@ -19,7 +19,7 @@ Local Open Scope hq_scope.
 
 (** * Definition of non-negative rational numbers *)
 
-Definition hnnq_set := subset (hqleh 0).
+Definition hnnq_set := carrier_subset (hqleh 0).
 
 Local Definition hnnq_set_to_hq (r : hnnq_set) : hq := pr1 r.
 
@@ -175,7 +175,7 @@ Proof.
 Qed.
 Local Lemma islinv'_hnnq_inv:
   islinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
-          (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+          (λ x : carrier_subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
 Proof.
   intros x Hx0.
   unfold hnnq_inv.
@@ -191,7 +191,7 @@ Proof.
 Qed.
 Local Lemma isrinv'_hnnq_inv:
  isrinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
-         (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+         (λ x : carrier_subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
 Proof.
   intros x Hx.
   rewrite iscomm_hnnq_mult.

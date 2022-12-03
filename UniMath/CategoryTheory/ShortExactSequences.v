@@ -363,13 +363,10 @@ Arguments CoImage_Eq [A] _.
 Arguments make_ShortShortExact [A] _ _.
 Arguments ShortShortExact_isKernel [A] _ _ _ _.
 Arguments ShortShortExact_Kernel [A] _.
-Arguments LeftShortExact _.
 Arguments make_LeftShortExact [A] _ _.
 Arguments isMonic [A] _ _ _ _ _.
-Arguments RightShortExact _.
 Arguments make_RightShortExact [A] _ _ .
 Arguments isEpi [A] _ _ _ _ _ .
-Arguments ShortShortExact _.
 Arguments make_ShortShortExact [A] _ _.
 
 

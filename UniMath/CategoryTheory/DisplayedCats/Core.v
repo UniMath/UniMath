@@ -40,9 +40,6 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
-Local Open Scope cat_deprecated.
-
-
 Local Open Scope type_scope.
 
 (* Undelimit Scope transport. *)
@@ -60,7 +57,7 @@ Definition disp_cat' (C : category) : UU :=
     (id_disp : ∏ {x : C} (xx : ob_disp x), mor_disp (identity x) xx xx)
     (comp_disp : ∏ {x y z : C} {f : x --> y} {g : y --> z}
                    {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z},
-                 mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz)
+                 mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f · g) xx zz)
     (id_left_disp : ∏ {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy),
                     comp_disp (id_disp xx) ff
                     = transportb (λ g, mor_disp g xx yy) (id_left _) ff)
@@ -121,7 +118,7 @@ Definition disp_cat_id_comp (C : precategory_data)
   : UU
 := (forall (x:C) (xx : D x), xx -->[identity x] xx)
   × (forall (x y z : C) (f : x --> y) (g : y --> z) (xx:D x) (yy:D y) (zz:D z),
-           (xx -->[f] yy) -> (yy -->[g] zz) -> (xx -->[f ;; g] zz)).
+           (xx -->[f] yy) -> (yy -->[g] zz) -> (xx -->[f · g] zz)).
 
 Definition disp_cat_data C := total2 (disp_cat_id_comp C).
 
@@ -140,7 +137,7 @@ Definition id_disp {C: precategory_data} {D : disp_cat_data C} {x:C} (xx : D x)
 Definition comp_disp {C: precategory_data} {D : disp_cat_data C}
   {x y z : C} {f : x --> y} {g : y --> z}
   {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg : yy -->[g] zz)
-  : xx -->[f;;g] zz
+  : xx -->[f · g] zz
 := pr2 (pr2 D) _ _ _ _ _ _ _ _ ff gg.
 
 Declare Scope mor_disp_scope.

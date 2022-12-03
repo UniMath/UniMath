@@ -592,7 +592,6 @@ Let G : functor E D := left_adjoint HF.
 Let H : are_adjoints G F := pr2 HF.
 Let ε : nat_trans (functor_composite F G) (functor_identity D) := counit_from_left_adjoint H.
 Let η : nat_trans (functor_identity E) (functor_composite G F) := unit_from_left_adjoint H.
-Check triangle_id_right_ad H.
 Let H1 : ∏ d : D, _ = identity (F d) := triangle_id_right_ad H.
 Let H2 : ∏ e : E, _ = identity (G e) := triangle_id_left_ad H.
 

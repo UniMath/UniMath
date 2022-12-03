@@ -131,7 +131,7 @@ Proof.
   intros F Hf.
   generalize (isfilter_finite_intersection_htrue _ (pr2 (pr1 Hf))) ; intros Htrue.
   generalize (pr2 Hf _ Htrue).
-  apply hinhuniv'.
+  apply factor_through_squash.
   - apply isapropempty.
   - intros x.
     apply (pr1 x).
@@ -193,7 +193,7 @@ Lemma filter_const :
 Proof.
   intros A Fa Ha.
   generalize (filter_notempty _ Fa).
-  apply hinhuniv'.
+  apply factor_through_squash.
   - apply isapropempty.
   - intros x ; generalize (pr2 x); clear x.
     exact Ha.

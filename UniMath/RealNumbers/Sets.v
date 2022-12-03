@@ -15,11 +15,11 @@ Require Import UniMath.Algebra.BinaryOperations
 
 (** * Partially-defined inverse functions *)
 
-Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
+Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X) :=
   ∏ (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
-Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
+Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X) :=
   ∏ (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
-Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X)  :=
+Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X)  :=
   islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
 (** * Effective Orders *)

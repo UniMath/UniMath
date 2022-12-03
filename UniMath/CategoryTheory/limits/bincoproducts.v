@@ -285,15 +285,6 @@ Hypothesis H : is_univalent C.
 
 Variables a b : C.
 
-(* TODO: upstream *)
-Lemma transportf_isotoid' (c d d': C) (p : z_iso d d') (f : c --> d) :
-  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
-Proof.
-  rewrite <- idtoiso_postcompose.
-  rewrite idtoiso_isotoid.
-  apply idpath.
-Defined.
-
 Lemma isaprop_BinCoproduct : isaprop (BinCoproduct a b).
 Proof.
   apply invproofirrelevance.
