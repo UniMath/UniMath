@@ -342,7 +342,7 @@ Definition eq_diag_liftcolimcocone
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
   := make_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
-                                                 (isColimCocone_ColimCocone cc)).
+                                                 (isColimCocone_from_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
            {C : category} {g : graph} {d : diagram g C}

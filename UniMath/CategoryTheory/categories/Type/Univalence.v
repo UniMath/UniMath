@@ -18,9 +18,6 @@ Require Import UniMath.CategoryTheory.categories.Type.MonoEpiIso.
 
 Local Open Scope cat.
 
-Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
-   tpair _ _ (univalenceAxiom X X').
-
 (*
 Definition type_id_weq_iso (A B : ob type_precat) :
   (A = B) ≃ (iso A B) :=

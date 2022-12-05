@@ -1235,7 +1235,7 @@ Section Univalence.
           (HC : is_univalent C)
           (HD : is_univalent D).
 
-  Definition is_unvialent_category_binproduct
+  Definition is_univalent_category_binproduct
     : is_univalent (category_binproduct C D).
   Proof.
     intros x y.
@@ -1260,7 +1260,7 @@ Definition univalent_category_binproduct
 Proof.
   use make_univalent_category.
   - exact (category_binproduct C₁ C₂).
-  - use is_unvialent_category_binproduct.
+  - use is_univalent_category_binproduct.
     + exact (pr2 C₁).
     + exact (pr2 C₂).
 Defined.

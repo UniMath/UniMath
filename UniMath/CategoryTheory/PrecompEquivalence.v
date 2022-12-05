@@ -380,7 +380,7 @@ Section LiftedFunctorsPairFunctor.
   Let FF_eso := pair_functor_eso _ _ F1_eso F2_eso.
   Let FF_ff := pair_functor_ff _ _ F1_ff F2_ff.
 
-  Let DD' := (_ ,, is_unvialent_category_binproduct (pr2 D1') (pr2 D2')) : univalent_category.
+  Let DD' := (_ ,, is_univalent_category_binproduct (pr2 D1') (pr2 D2')) : univalent_category.
 
   Definition lift_functor_along_pair
              (H1 : functor C1 C1') (H2 : functor C2 C2')
@@ -428,9 +428,9 @@ Section LiftedFunctorsProperties.
   Let FFF'_ff := pair_functor_ff _ _ F1_ff FF_ff.
   Let FFF'_eso := pair_functor_eso _ _ F1_eso FF_eso.
 
-  Let DD := (_ ,, is_unvialent_category_binproduct (pr2 D) (pr2 D)) : univalent_category.
-  Let DDD := (_ ,, is_unvialent_category_binproduct (pr2 DD) (pr2 D)) : univalent_category.
-  Let DDD' := (_ ,, is_unvialent_category_binproduct (pr2 D) (pr2 DD)) : univalent_category.
+  Let DD := (_ ,, is_univalent_category_binproduct (pr2 D) (pr2 D)) : univalent_category.
+  Let DDD := (_ ,, is_univalent_category_binproduct (pr2 DD) (pr2 D)) : univalent_category.
+  Let DDD' := (_ ,, is_univalent_category_binproduct (pr2 D) (pr2 DD)) : univalent_category.
 
   Lemma lift_functor_along_comm_prod
         (H : functor (category_binproduct C C) C)

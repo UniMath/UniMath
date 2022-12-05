@@ -364,8 +364,7 @@ Proof.
       * exact Hm.
       * change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
         intros H0.
-        refine (hinhuniv' _ _ _).
-        { apply isapropempty. }
+        refine (factor_through_squash isapropempty _ _).
         2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring m * hqdiv (pr1 c) 2 + pr1 c)).
         ** apply sumofmaps.
            *** exact Hn.

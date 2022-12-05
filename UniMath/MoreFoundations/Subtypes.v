@@ -119,9 +119,6 @@ Definition subtype_binaryunion_leq1 {X} (A B : hsubtype X) : A ⊆ (A ∪ B)
 Definition subtype_binaryunion_leq2 {X} (A B : hsubtype X) : B ⊆ (A ∪ B)
   := fun x => hdisj_in2.
 
-Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
-  make_hSet (carrier S) (isaset_carrier_subset _ S).
-
 Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
   := λ x s, hinhpr (i,,s).
 
