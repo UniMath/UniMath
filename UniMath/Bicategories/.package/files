@@ -97,6 +97,8 @@ MonoidalCategories/UnivalenceMonCat/FinalLayer.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatNonCurried.v
 
+MonoidalCategories/MonoidalRezkCompletion.v
+
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
 PseudoFunctors/Display/Map1Cells.v
