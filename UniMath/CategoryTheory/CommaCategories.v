@@ -293,7 +293,7 @@ Section CommaCategory.
     : is_univalent comma.
   Proof.
     use is_univalent_total_category.
-    - apply is_unvialent_category_binproduct.
+    - apply is_univalent_category_binproduct.
       + exact HC₁.
       + exact HC₂.
     - exact (is_univalent_disp_comma_disp_cat HC₃).

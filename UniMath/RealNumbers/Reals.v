@@ -53,7 +53,7 @@ Lemma iscomprelfun_hr_to_NR :
                       pr1 x - pr2 x ,, pr2 x - pr1 x).
 Proof.
   intros x y.
-  apply hinhuniv'.
+  apply factor_through_squash.
   { refine (isasetdirprod _ _ _ _ _ _) ;
     apply (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))).
   }
@@ -196,7 +196,7 @@ Proof.
     apply_pr2 plusNonnegativeReals_eqcompat_l.
     exact H.
   - generalize (invmap (weqpathsinsetquot _ _ _) H) ; clear H.
-    apply hinhuniv'.
+    apply factor_through_squash.
     { apply (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))). }
     intros (c,p); generalize p; clear p.
     apply plusNonnegativeReals_eqcompat_l.
@@ -1656,7 +1656,7 @@ Proof.
   intros x y z Hxy Hyz.
   apply notRlt_Rle ; intro H.
   generalize (iscotrans_Rlt _ y _ H).
-  apply hinhuniv'.
+  apply factor_through_squash.
   { exact isapropempty. }
   apply sumofmaps.
   + apply_pr2 notRlt_Rle.
