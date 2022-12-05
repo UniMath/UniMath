@@ -268,7 +268,7 @@ Section RezkLeftUnitor.
       + apply functor_tensorunit_disp_cat_is_univalent.
   Qed.
 
-  Definition precomp_unit_adj_equiv
+  Definition precomp_lunitor_adj_equiv
     : adj_equivalence_of_cats (total_functor precompLU).
   Proof.
     apply rad_equivalence_of_cats.
