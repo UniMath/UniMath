@@ -137,6 +137,7 @@ MonoidalCategories/EquivalenceActegoriesAndActions.v
 
 PseudoFunctors/Biadjunction.v
 PseudoFunctors/UniversalArrow.v
+PseudoFunctors/DisplayedUniversalArrow.v
 
 DisplayedBicats/DispBicatSection.v
 
