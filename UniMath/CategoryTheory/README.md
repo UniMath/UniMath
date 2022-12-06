@@ -125,7 +125,7 @@ The following table offers a comparison.
 * *total2_paths.v* --- paths in total spaces are equivalent to pairs of paths (for fibrations over the universe)
 * *UnderPrecategories.v*
 * *UnicodeNotations.v* --- very few notations: -->, ;;, #F, C ⟦ a , b ⟧
-  
+
 ### The subdirectories
 
 * *limits*
@@ -137,3 +137,4 @@ The following table offers a comparison.
 * *Inductives* by Anders Mörtberg
   * with three case studies: Lists.v, Trees.v, LambdaCalculus.v
 * *Monads* --- developments about monads (incl. relative monads, modules for monads), see its own doc
+* *Monoidal* --- developments about monoidal categories

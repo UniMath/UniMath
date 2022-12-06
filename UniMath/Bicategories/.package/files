@@ -318,6 +318,12 @@ Logic/Examples/OpfibrationsComprehensionBicat.v
 Logic/Examples/DisplayMapComprehensionBicat.v
 Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
+
+DualityInvolution.v
+
+EnrichedCategories/BicatOfEnrichedCat.v
+EnrichedCategories/ChangeOfBase.v
+EnrichedCategories/HSETEnriched.v
 OtherStructure/DualityInvolution.v
 OtherStructure/ClassifyingDiscreteOpfib.v
 OtherStructure/Exponentials.v
