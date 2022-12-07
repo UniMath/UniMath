@@ -11,6 +11,10 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
 (******************************************************************************)
 (** * Isomorphism of (pre)categories *)
 (* (as defined in the paper) *)
@@ -552,4 +556,17 @@ Proof.
       cbn.
       rewrite z_iso_after_z_iso_inv.
       reflexivity.
+Defined.
+
+(* Any adjoint equivalence between univalent categories is an isomorphism of categories *)
+Definition adj_equivalence_of_cats_to_cat_iso
+      {C D : category} (Cuniv : is_univalent C) (Duniv : is_univalent D)
+      {F : functor C D}
+      (Fa : adj_equivalence_of_cats F)
+  : catiso C D.
+Proof.
+  exists F.
+  split.
+  - apply fully_faithful_from_equivalence, Fa.
+  - apply(weq_on_objects_from_adj_equiv_of_cats C D Cuniv Duniv F Fa).
 Defined.

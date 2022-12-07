@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -181,6 +182,16 @@ Section LiftedUnit.
     - exact precomp_unit_is_eso.
   Defined.
 
+  Definition precomp_unit_catiso
+    : catiso (total_category (functor_unit_disp_cat (H I) IE))
+             (total_category (functor_unit_disp_cat I IE)).
+  Proof.
+    use adj_equivalence_of_cats_to_cat_iso.
+    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
+    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
+    2: exact precomp_unit_adj_equiv.
+  Defined.
+
 End LiftedUnit.
 
 Section LiftedTensorUnit.
@@ -263,6 +274,16 @@ Section LiftedTensorUnit.
       exact is_disp_univalent_functor_tensorunit_disp_cat.
     - exact precomp_tensorunit_is_ff.
     - exact precomp_tensorunit_is_eso.
+  Defined.
+
+  Definition precomp_tensorunit_catiso
+    : catiso (total_category (functor_tensorunit_disp_cat TD TE (H I) IE))
+             (total_category (functor_tensorunit_disp_cat TC TE I IE)).
+  Proof.
+    use adj_equivalence_of_cats_to_cat_iso.
+    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+    2: exact precomp_tensorunit_cat_is_weak_equivalence.
   Defined.
 
 End LiftedTensorUnit.
