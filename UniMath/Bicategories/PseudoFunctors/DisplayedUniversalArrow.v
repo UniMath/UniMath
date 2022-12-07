@@ -48,19 +48,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Lemma total2_paths2_b'
+Lemma fiber_paths_transposed
       {A : UU} {B : A → UU} {a1 : A} {a2 : A} (b1 : B a1)  (b2 : B a2)
-  : ∏ p : a1,, b1 = a2,, b2, isaset A -> b1 = transportb B (base_paths _ _ p) b2 .
+  : ∏ p : a1,, b1 = a2,, b2, b1 = transportb B (base_paths _ _ p) b2 .
 Proof.
-  intros q Aset.
+  intro q.
   use transportb_transpose_right.
-  set(t := fiber_paths q).
-  cbn in t.
-  refine (_ @ t).
-  cbn.
-  unfold base_paths.
-  apply maponpaths_2.
-  apply Aset.
+  apply (fiber_paths q).
 Qed.
 
 Section DisplayedLeftUniversalArrow.
@@ -106,16 +100,13 @@ Section DisplayedLeftUniversalArrow.
     split.
     - intros f ff.
       set (p := pr12 lur (f,,ff)).
-      set (s := total2_paths2_b' _ _ p).
-      set (ss := s (cellset_property _ _)).
-      refine (ss @ _).
+      refine (fiber_paths_transposed _ _ p @ _).
       apply maponpaths_2.
       apply cellset_property.
     - intros f g h ff gg hh α β αα ββ.
       set (p := pr22 lur (f,,ff) (g,,gg) (h,,hh) (α,,αα) (β,,ββ)).
-      set (s := total2_paths2_b' _ _ p).
-      set (ss := s (cellset_property _ _)).
-      refine (ss @ _).
+      set (s := fiber_paths_transposed _ _ p).
+      refine (s @ _).
       apply maponpaths_2.
       apply cellset_property.
   Qed.
@@ -133,24 +124,15 @@ Section DisplayedLeftUniversalArrow.
              (dLURu : disp_left_universal_arrow_universality)
     : left_universal_arrow (total_psfunctor D1 D2 R RR).
   Proof.
-    use tpair.
-    {
-      intros [x xx].
-      exact (L x,, LL _ xx).
-    }
-    use tpair.
-    {
-      cbn.
-      intros [x xx].
-      exact (η x ,, ηη _ xx).
-    }
+    exists (λ x, L (pr1 x),, LL _ (pr2 x)).
+    exists (λ x, η (pr1 x) ,, ηη _ (pr2 x)).
     intros [x xx] [y yy].
 
     use nat_iso_adj_equivalence_of_cats.
-    { exact (total_functor (disp_left_universal_arrow_functor xx yy)). }
-    { apply nat_trans_id. }
-    { use is_nat_z_iso_nat_trans_id. }
-    exact (total_adj_equivalence_of_cats (dLURu x xx y yy)).
+    - exact (total_functor (disp_left_universal_arrow_functor xx yy)).
+    - apply nat_trans_id.
+    - use is_nat_z_iso_nat_trans_id.
+    - exact (total_adj_equivalence_of_cats (dLURu x xx y yy)).
   Defined.
 
 End DisplayedLeftUniversalArrow.
