@@ -324,3 +324,5 @@ OtherStructure/Exponentials.v
 OtherStructure/Cores.v
 OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
+
+PseudoFunctors/DisplayedUniversalArrow.v
