@@ -12,10 +12,14 @@ on:
     # Prime the caches every Monday
     - cron: '0 1 * * MON'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # This is only used by the MacOS build.
-  coq-version: 8.16.0
-  dune-version: 3.5.0
+  coq-version: 8.16.1
+  dune-version: 3.6.1
   ocaml-version: ocaml-base-compiler.4.14.0
   # ocaml-version: ocaml-variants.4.14.0+options,ocaml-option-flambda
   DUNE_CACHE_STORAGE_MODE: copy
@@ -97,7 +101,7 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-  # Build UniMath on MacOS using Coq 8.16.0 installed with Opam. This uses
+  # Build UniMath on MacOS using Coq 8.16.1 installed with Opam. This uses
   # actions/setup-ocaml to cache both the ocaml build and the UniMath build. The
   # interaction between Opam and dune cache is however not perfect, so usually
   # some parts of Coq needs to be rebuilt on each run.
