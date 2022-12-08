@@ -258,7 +258,7 @@ Section MonoidalFunctorLifting.
         functorlifting_preserves_rightunitality (flmonoidal_preserves_rightunitality ml)
        ).
 
-  Definition flfunctor_fmonoidal_lax (ms : flmonoidal_lax)
+  Definition functorlifting_fmonoidal_lax (ms : flmonoidal_lax)
     : fmonoidal_lax M' TM (lifted_functor sd)
     := _ ,, functorlifting_monoidal_laxlaws (flmonoidal_lax_to_laxlaws ms).
 
