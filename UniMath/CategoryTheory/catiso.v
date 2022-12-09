@@ -560,9 +560,10 @@ Defined.
 
 (* Any adjoint equivalence between univalent categories is an isomorphism of categories *)
 Definition adj_equivalence_of_cats_to_cat_iso
-      {C D : category} (Cuniv : is_univalent C) (Duniv : is_univalent D)
+      {C D : category}
       {F : functor C D}
       (Fa : adj_equivalence_of_cats F)
+      (Cuniv : is_univalent C) (Duniv : is_univalent D)
   : catiso C D.
 Proof.
   exists F.

@@ -821,8 +821,7 @@ Section RezkMonoidal.
                                 lu luE ru ruE α αE
              )).
   Proof.
-    use adj_equivalence_of_cats_to_cat_iso.
-    4: use precomp_monoidal_adj_equiv.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_monoidal_adj_equiv _ _).
     - apply is_univalent_LaxMonoidalFunctorCategory.
     - apply is_univalent_LaxMonoidalFunctorCategory'.
   Defined.
@@ -846,8 +845,7 @@ Section RezkMonoidal.
                                 lu luE ru ruE α αE
              )).
   Proof.
-    use adj_equivalence_of_cats_to_cat_iso.
-    4: exact precomp_strongmonoidal_adj_equiv.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_strongmonoidal_adj_equiv _ _).
     - apply is_univalent_StrongMonoidalFunctorCategory.
     - apply is_univalent_total_category.
       + apply is_univalent_LaxMonoidalFunctorCategory'.

@@ -186,10 +186,9 @@ Section LiftedUnit.
     : catiso (total_category (functor_unit_disp_cat (H I) IE))
              (total_category (functor_unit_disp_cat I IE)).
   Proof.
-    use adj_equivalence_of_cats_to_cat_iso.
-    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
-    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
-    2: exact precomp_unit_adj_equiv.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_unit_adj_equiv).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
   Defined.
 
 End LiftedUnit.
@@ -265,7 +264,7 @@ Section LiftedTensorUnit.
       exact Euniv.
   Qed.
 
-  Definition precomp_tensorunit_cat_is_weak_equivalence
+  Definition precomp_tensorunit_adj_equiv
     : adj_equivalence_of_cats precomp_tensorunit_functor.
   Proof.
     apply rad_equivalence_of_cats.
@@ -280,10 +279,9 @@ Section LiftedTensorUnit.
     : catiso (total_category (functor_tensorunit_disp_cat TD TE (H I) IE))
              (total_category (functor_tensorunit_disp_cat TC TE I IE)).
   Proof.
-    use adj_equivalence_of_cats_to_cat_iso.
-    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
-    1: apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
-    2: exact precomp_tensorunit_cat_is_weak_equivalence.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_tensorunit_adj_equiv _ _).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
   Defined.
 
 End LiftedTensorUnit.
