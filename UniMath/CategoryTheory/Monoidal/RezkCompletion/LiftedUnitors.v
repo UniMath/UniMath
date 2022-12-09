@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
@@ -281,6 +282,19 @@ Section RezkLeftUnitor.
     - exact precomp_lunitor_is_eso.
   Defined.
 
+  Definition precomp_lunitor_catiso
+    : catiso (total_category (functor_lu_disp_cat TransportedLeftUnitor luE))
+             (total_category (functor_lu_disp_cat lu luE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_lunitor_adj_equiv _ _).
+    - apply is_univalent_total_category.
+      + apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+      + apply functor_lu_disp_cat_is_univalent.
+    - apply is_univalent_total_category.
+      + apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+      + apply functor_lu_disp_cat_is_univalent.
+  Defined.
+
 End RezkLeftUnitor.
 
 Section RezkRightUnitor.
@@ -504,6 +518,19 @@ Section RezkRightUnitor.
       + apply functor_ru_disp_cat_is_univalent.
     - exact precomp_runitor_is_ff.
     - exact precomp_runitor_is_eso.
+  Defined.
+
+  Definition precomp_runitor_catiso
+    : catiso (total_category (functor_ru_disp_cat TransportedRightUnitor ruE))
+             (total_category (functor_ru_disp_cat ru ruE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_runitor_adj_equiv _ _).
+    - apply is_univalent_total_category.
+      + apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+      + apply functor_ru_disp_cat_is_univalent.
+    - apply is_univalent_total_category.
+      + apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+      + apply functor_ru_disp_cat_is_univalent.
   Defined.
 
 End RezkRightUnitor.

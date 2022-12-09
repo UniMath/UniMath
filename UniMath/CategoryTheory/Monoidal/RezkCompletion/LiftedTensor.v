@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -333,6 +334,15 @@ Section TensorRezk.
       + apply functor_tensor_disp_cat_is_univalent.
     - exact precomp_tensor_is_ff.
     - exact precomp_tensor_is_eso.
+  Defined.
+
+  Definition precomp_tensor_catiso
+    : catiso (total_category (functor_tensor_disp_cat TransportedTensor TE))
+             (total_category (functor_tensor_disp_cat TC TE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_tensor_adj_equiv _ _).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
   Defined.
 
 End TensorRezk.
