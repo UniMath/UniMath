@@ -231,6 +231,7 @@ DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 DisplayedCats/TotalCategoryFacts.v
+DisplayedCats/TotalAdjunction.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
