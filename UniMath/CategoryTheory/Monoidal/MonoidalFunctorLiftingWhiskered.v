@@ -33,8 +33,6 @@ Section MonoidalFunctorLifting.
           (DM : disp_monoidal D M).
   Local Notation TM := (total_monoidal DM).
 
-  Check functor_lifting.
-
   Context (sd : functor_lifting D F).
 
   Definition fl_preserves_tensor_data : UU
@@ -116,15 +114,6 @@ Section MonoidalFunctorLifting.
     - exact (sptnl x1 x2 y f).
   Qed.
 
-  (* This equality I should have somewhere, have to check in different files *)
-  (* Definition equality_for_leftunitality (x : C) : identity I_{ M} ⊗^{ M}_{r} x · identity (I_{ M} ⊗_{ M} x) · lu^{ M }_{ x} = lu^{ M }_{ x}.
-  Proof.
-    rewrite assoc'.
-    rewrite bifunctor_rightid.
-    rewrite id_left.
-    apply id_left.
-  Qed. *)
-
   Definition fl_preserves_leftunitality
              (spt : fl_preserves_tensor_data)
              (spu : fl_preserves_unit) : UU
@@ -145,16 +134,6 @@ Section MonoidalFunctorLifting.
     - exact (fmonoidal_preservesleftunitality Fm x).
     - exact (splu x).
   Qed.
-
-  (* This equality I should have somewhere, have to check in different files *)
-  (* Definition equality_for_rightunitality (x : C) :
-    x ⊗^{ M}_{l} identity I_{ M} · identity (x ⊗_{ M} I_{ M}) · ru^{ M }_{ x} = ru^{ M }_{ x}.
-  Proof.
-    rewrite assoc'.
-    rewrite bifunctor_leftid.
-    rewrite id_left.
-    apply id_left.
-  Qed. *)
 
   Definition fl_preserves_rightunitality
              (spt : fl_preserves_tensor_data)
@@ -177,20 +156,6 @@ Section MonoidalFunctorLifting.
     - exact (fmonoidal_preservesrightunitality Fm x).
     - exact (spru x).
   Qed.
-
-  (* This equality I should have somewhere, have to check in different files *)
-  (* Definition equality_for_associativity (x y z : C) :
-    identity (x ⊗_{ M} y) ⊗^{ M}_{r} z · identity ((x ⊗_{ M} y) ⊗_{ M} z) · α^{ M }_{ x, y, z} =
-   α^{ M }_{ x, y, z} · x ⊗^{ M}_{l} identity (y ⊗_{ M} z) · identity (x ⊗_{ M} (y ⊗_{ M} z)).
-  Proof.
-    rewrite assoc'.
-    rewrite bifunctor_leftid.
-    rewrite id_left.
-    rewrite id_right.
-    rewrite id_right.
-    rewrite bifunctor_rightid.
-    apply id_left.
-  Qed. *)
 
   Definition fl_preserves_associativity
              (spt : fl_preserves_tensor_data ) : UU
@@ -262,71 +227,121 @@ Section MonoidalFunctorLifting.
     : fmonoidal_lax M' TM (lifted_functor sd)
     := _ ,, functorlifting_monoidal_laxlaws (flmonoidal_lax_to_laxlaws ms).
 
-  (* We now define a strong monoidal fl and show that each such fl induces a strong monoidal functor *)
-  (* Definition smonoidal_strongtensor {sd : fl_disp D} (spt : fl_preserves_tensor_data sd) : UU
-    := ∏ (x y : C), is_z_iso_disp
-                        (Isos.identity_z_iso (x⊗_{M} y))
+  (* We now define functor liftings of strong monoidal functors and show that they induce a strong monoidal functor *)
+  Definition fl_strongtensor
+             (spt : fl_preserves_tensor_data)
+             (Fs : preserves_tensor_strongly (fmonoidal_preservestensordata Fm))
+    : UU
+    := ∏ (x y : C'), is_z_iso_disp
+                        (_ ,, Fs x y)
                         (spt x y).
 
-  Definition smonoidal_strongunit   {sd : fl_disp D} (spu : fl_preserves_unit sd) : UU
-    := is_z_iso_disp
-                        (Isos.identity_z_iso (I_{M}))
-                        spu.
+  Definition fl_strongunit
+             (spu : fl_preserves_unit)
+             (Fs : preserves_unit_strongly (fmonoidal_preservesunit Fm))
+    : UU
+    := is_z_iso_disp (_,, Fs) spu.
 
-  Definition smonoidal_stronglaws {sd : fl_disp D} (ms : smonoidal_data sd) : UU
-    := smonoidal_strongtensor (smonoidal_preserves_tensor ms)
-                              × smonoidal_strongunit (smonoidal_preserves_unit ms).
+  Definition fl_stronglaws
+             (ms : flmonoidal_lax)
+             (Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm))
+    : UU
+    := fl_strongtensor
+         (flmonoidal_preserves_tensor_data ms)
+         (fmonoidal_preservestensorstrongly ((Fm,,Fs) : fmonoidal M' M F))
+         ×
+         fl_strongunit
+         (flmonoidal_preserves_unit ms)
+         (fmonoidal_preservesunitstrongly ((Fm,,Fs) : fmonoidal M' M F)).
 
-  Definition smonoidal (sd : fl_disp D) : UU
-    := ∑ (ms : smonoidal_lax sd), smonoidal_stronglaws ms.
+  Definition flmonoidal
+             (Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm))
+    : UU
+    := ∑ ms : flmonoidal_lax, fl_stronglaws ms Fs.
 
-  Definition smonoidal_smonoidallax {sd : fl_disp D} (sm : smonoidal sd)
-    : smonoidal_lax sd := pr1 sm.
-  Coercion smonoidal_smonoidallax : smonoidal >-> smonoidal_lax.
+  Definition flmonoidal_to_flmonoidal_lax
+             {Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (sm : flmonoidal Fs)
+    : flmonoidal_lax := pr1 sm.
+  Coercion flmonoidal_to_flmonoidal_lax : flmonoidal >-> flmonoidal_lax.
 
-  Definition smonoidal_smonoidalstronglaws {sd : fl_disp D} (sm : smonoidal sd)
-    : smonoidal_stronglaws sm := pr2 sm.
-  Definition smonoidal_smonoidalstrongtensor {sd : fl_disp D} (sm : smonoidal sd)
-    : smonoidal_strongtensor (smonoidal_preserves_tensor sm) := pr1 (smonoidal_smonoidalstronglaws sm).
-  Definition smonoidal_smonoidalstrongunit {sd : fl_disp D} (sm : smonoidal sd)
-    : smonoidal_strongunit (smonoidal_preserves_unit sm) := pr2 (smonoidal_smonoidalstronglaws sm).
+  Definition flmonoidal_to_fl_stronglaws
+             {Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (sm : flmonoidal Fs)
+    : fl_stronglaws sm Fs := pr2 sm.
 
-  Definition flfunctor_preservestensorstrongly {sd : fl_disp D} {ms : smonoidal sd} (pfstrong : smonoidal_strongtensor (smonoidal_preserves_tensor ms))
-    : preserves_tensor_strongly (flfunctor_preserves_tensordata (smonoidal_preserves_tensor ms)).
+  Definition flmonoidal_to_flmonoidalstrongtensor
+             {Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (sm : flmonoidal Fs)
+    : fl_strongtensor
+         (flmonoidal_preserves_tensor_data sm)
+         (fmonoidal_preservestensorstrongly ((Fm,,Fs) : fmonoidal M' M F))
+    := pr1 (flmonoidal_to_fl_stronglaws sm).
+  Definition flmonoidal_to_flmonoidalstrongunit
+             {Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (sm : flmonoidal Fs)
+    : fl_strongunit
+         (flmonoidal_preserves_unit sm)
+         (fmonoidal_preservesunitstrongly ((Fm,,Fs) : fmonoidal M' M F))
+    := pr2 (flmonoidal_to_fl_stronglaws sm).
+
+  Definition functorlifting_preservestensorstrongly
+             {Fs : preserves_tensor_strongly (fmonoidal_preservestensordata Fm)}
+             {ms : flmonoidal_lax}
+             (pfstrong : fl_strongtensor (flmonoidal_preserves_tensor_data ms) Fs)
+    : preserves_tensor_strongly (functorlifting_preserves_tensordata (flmonoidal_preserves_tensor_data ms)).
   Proof.
     intros x y.
     use tpair.
-    - use tpair.
-      + apply identity.
-      + exact (pr1 (pfstrong x y)).
+    - exists (pr1 (Fs x y)).
+      exact (pr1 (pfstrong x y)).
     - use tpair.
       + use total2_paths_b.
-        * apply id_left.
-        * apply (pr2 (pr2 (pfstrong x y))).
+        * exact (pr12 (Fs x y)).
+        * exact (pr2 (pr2 (pfstrong x y))).
       + use total2_paths_b.
-        * apply id_left.
-        * apply (pr1 (pr2 (pfstrong x y))).
+        * exact (pr22 (Fs x y)).
+        * exact (pr12 (pfstrong x y)).
   Defined.
 
-  Definition flfunctor_preservesunitstrongly {sd : fl_disp D} {ms : smonoidal sd} (pfstrong : smonoidal_strongunit (smonoidal_preserves_unit ms))
-    : preserves_unit_strongly (flfunctor_preserves_unit (smonoidal_preserves_unit ms)).
+  Definition functorlifting_preservesunitstrongly
+             {Fs : preserves_unit_strongly (fmonoidal_preservesunit Fm)}
+             {ms : flmonoidal_lax}
+             (pfstrong : fl_strongunit (flmonoidal_preserves_unit ms) Fs)
+    : preserves_unit_strongly (functorlifting_preserves_unit (flmonoidal_preserves_unit ms)).
   Proof.
     use tpair.
-    - use tpair.
-      + apply identity.
-      + exact (pr1 pfstrong).
+    - exists (pr1 Fs).
+      exact (pr1 pfstrong).
     - use tpair.
       + use total2_paths_b.
-        * apply id_left.
-        * apply (pr22 pfstrong).
+        * exact (pr12 Fs).
+        * exact (pr22 pfstrong).
       + use total2_paths_b.
-        * apply id_left.
-        * apply (pr1 (pr2 pfstrong)).
+        * exact (pr22 Fs).
+        * exact (pr12 pfstrong).
   Defined.
 
-  Definition flmonoidal {sd : fl_disp D} (ms : smonoidal sd)  : fmonoidal M TM (fl_functor sd)
-    := (flfunctor_fmonoidal_lax ms ,,
-        flfunctor_preservestensorstrongly (smonoidal_smonoidalstrongtensor ms) ,,
-        flfunctor_preservesunitstrongly (smonoidal_smonoidalstrongunit ms)). *)
+  Definition functorlifting_fmonoidal
+             {Fs : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (fls : flmonoidal Fs)
+    : fmonoidal M' TM (lifted_functor sd).
+  Proof.
+    exists (functorlifting_fmonoidal_lax fls).
+    use tpair.
+    - use functorlifting_preservestensorstrongly.
+      + apply Fs.
+      + apply fls.
+    - use functorlifting_preservesunitstrongly.
+      + apply Fs.
+      + apply fls.
+  Defined.
 
 End MonoidalFunctorLifting.

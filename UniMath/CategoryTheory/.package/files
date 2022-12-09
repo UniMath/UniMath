@@ -258,6 +258,7 @@ Monoidal/ConstructionOfActegories.v
 Monoidal/MorphismsOfActegories.v
 Monoidal/ActionBasedStrongMonads.v
 Monoidal/MonoidalSectionsWhiskered.v
+Monoidal/MonoidalFunctorLiftingWhiskered.v
 Monoidal/BraidedMonoidalCategoriesWhiskered.v
 Monoidal/ClosedMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalCategoriesReordered.v

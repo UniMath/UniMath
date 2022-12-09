@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalSectionsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLiftingWhiskered.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -764,6 +765,110 @@ Section FixTwoMonoidalFunctors.
             apply base_disp_cells_isaprop.
       Qed.
 
-    End RoundtripForSDData.
+  End RoundtripForSDData.
 
 End FixTwoMonoidalFunctors.
+
+Section MonoidalNatTransToDiAlgebra.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}
+          {α : K ∙ F ⟹ K ∙ G}
+          (αm : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α).
+
+  Definition monoidal_nat_trans_to_dialgebra_lifting_data
+    : flmonoidal_data Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  Proof.
+    use tpair.
+    - intros x y.
+      cbn.
+      unfold dialgebra_disp_tensor_op.
+      rewrite ! assoc'.
+      etrans. {
+        apply maponpaths.
+        exact (! pr1 αm x y).
+      }
+      cbn.
+
+      etrans. {
+        do 2 rewrite assoc.
+        do 2 apply maponpaths_2.
+        apply (pr2 (fmonoidal_preservestensorstrongly Fm (K x) (K y))).
+      }
+      rewrite assoc'.
+      apply id_left.
+    - cbn.
+      unfold dialgebra_disp_unit.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr2 αm).
+      }
+
+      cbn.
+
+      etrans. {
+        do 2 rewrite assoc.
+        do 2 apply maponpaths_2.
+        apply (pr2 (fmonoidal_preservesunitstrongly Fm)).
+      }
+      rewrite assoc'.
+      apply id_left.
+  Qed.
+
+  Lemma monoidal_nat_trans_to_dialgebra_lifting_laxlaws
+    :  flmonoidal_laxlaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α)
+                          monoidal_nat_trans_to_dialgebra_lifting_data.
+  Proof.
+    repeat split ; intro ; intros ; apply homset_property.
+  Qed.
+
+  Definition monoidal_nat_trans_to_dialgebra_lifting
+    : flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  Proof.
+    exists monoidal_nat_trans_to_dialgebra_lifting_data.
+    exact monoidal_nat_trans_to_dialgebra_lifting_laxlaws.
+  Defined.
+
+  Definition monoidal_nat_trans_to_dialgebra
+    : fmonoidal_lax _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal_lax _ _ _ monoidal_nat_trans_to_dialgebra_lifting.
+
+End MonoidalNatTransToDiAlgebra.
+
+Section MonoidalDiAlgebraToNatTrans.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}
+          {fl : functor_lifting (dialgebra_disp_cat F G) K}
+          (Fl : flmonoidal_lax Km
+                               (dialgebra_disp_monoidal Fm Gm)
+                               fl).
+
+  Let α : K ∙ F ⟹ K ∙ G := dialgebra_lifting_to_nat_trans _ fl.
+
+  Definition monoidal_dialgebra_lifting_to_monoidal_nat_trans
+    : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+  Proof.
+    split.
+    - intros x y.
+      cbn.
+      admit.
+    - cbn.
+  Admitted.
+
+End MonoidalDiAlgebraToNatTrans.
