@@ -824,7 +824,7 @@ Section MonoidalNatTransToDiAlgebraLifting.
   Qed.
 
   Lemma monoidal_nat_trans_to_dialgebra_lifting_laxlaws
-    :  flmonoidal_laxlaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α)
+    : flmonoidal_laxlaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α)
                           monoidal_nat_trans_to_dialgebra_lifting_data.
   Proof.
     repeat split ; intro ; intros ; apply homset_property.
