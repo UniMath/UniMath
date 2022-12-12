@@ -907,3 +907,50 @@ Section MonoidalDiAlgebraLiftingToNatTrans.
   Qed.
 
 End MonoidalDiAlgebraLiftingToNatTrans.
+
+Section RoundtripForLiftingData.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}.
+
+
+  Local Definition source_type': UU
+    := ∑ α : K ∙ F ⟹ K ∙ G,
+        is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+
+  Local Definition target_type': UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) fl.
+
+  Local Definition source_to_target'
+    : source_type' -> target_type'
+    := λ α, _ ,, monoidal_nat_trans_to_dialgebra_lifting (pr2 α).
+
+  Local Definition target_to_source'
+    : target_type' -> source_type'
+    := λ fl, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
+  Local Lemma roundtrip1' (ass: source_type')
+    : target_to_source' (source_to_target' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply isaprop_is_mon_nat_trans.
+  Qed.
+
+  Local Lemma roundtrip2' (ass: target_type')
+    : source_to_target' (target_to_source' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_equality ; intros ; apply homset_property.
+  Qed.
+
+End RoundtripForLiftingData.

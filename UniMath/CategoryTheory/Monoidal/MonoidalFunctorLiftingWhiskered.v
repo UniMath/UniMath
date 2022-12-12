@@ -344,4 +344,24 @@ Section MonoidalFunctorLifting.
       + apply fls.
   Defined.
 
+  Lemma isaprop_flmonoidal_laxlaws (fl : flmonoidal_data)
+    : isaprop (flmonoidal_laxlaws fl).
+  Proof.
+    repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homsets_disp.
+  Qed.
+
+  Lemma flmonoidal_equality (fl1 fl2 : flmonoidal_lax)
+    : (∏ x y : C', pr11 fl1 x y = pr11 fl2 x y) -> (pr21 fl1 = pr21 fl2) -> fl1 = fl2.
+  Proof.
+    intros pT pU.
+    use total2_paths_f.
+    2: apply isaprop_flmonoidal_laxlaws.
+    use total2_paths_f.
+    - do 2 (apply funextsec ; intro).
+      apply pT.
+    - cbn.
+      rewrite transportf_const.
+      exact pU.
+  Qed.
+
 End MonoidalFunctorLifting.
