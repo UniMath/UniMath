@@ -49,9 +49,23 @@ Local Open Scope mor_disp_scope.
 Import BifunctorNotations.
 Import MonoidalNotations.
 
+Local Lemma equality_2cells_monbicat
+      {Mon_V Mon_W : monbicat} {Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧}
+      (αm βm : (hom Mon_V Mon_W)⟦Fm, Gm⟧)
+  : (∏ x : pr11 Mon_V,  (pr11 αm) x = (pr11 βm) x) -> αm = βm.
+Proof.
+  intro p.
+  use total2_paths_f.
+  2: apply isaprop_is_mon_nat_trans.
+  use total2_paths_f.
+  - apply funextsec ; intro ; apply p.
+  - apply isaprop_is_nat_trans.
+    apply homset_property.
+Qed.
+
 Section FixTwoMonoidalFunctors.
 
-  Context {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧).
+Context {Mon_V Mon_W : monbicat} (Fm Gm : monbicat ⟦ Mon_V, Mon_W ⟧).
 
   Definition monbicat_inserter_cone :
     inserter_cone Fm Gm.
@@ -325,6 +339,23 @@ Section FixTwoMonoidalFunctors.
       unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit, fmonoidal_preservesunit.
       rewrite id_left.
       apply id_right.
+  Qed.
+
+  Definition monbicat_inserter_ump_1_inv_2cell
+             (q : inserter_cone Fm Gm)
+    : invertible_2cell
+    ((_,, fmonoidal_underlying_inserter_1cell' q : monbicat ⟦ q, monbicat_inserter_cone ⟧)
+       · inserter_cone_pr1 monbicat_inserter_cone) (inserter_cone_pr1 q).
+  Proof.
+    use tpair.
+    - exists (pr112 (underlying_inserter_1cell q)).
+      apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+    - use tpair.
+      + use tpair.
+        * exact (pr12 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
+        * apply is_mon_nat_trans_pointwise_inverse.
+          apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+      + abstract (split ; use equality_2cells_monbicat ; intro ; apply id_left).
   Defined.
 
   Definition monbicat_inserter_ump_1 :
@@ -334,39 +365,17 @@ Section FixTwoMonoidalFunctors.
     use make_inserter_1cell.
     - exists (underlying_inserter_1cell q).
       exact (fmonoidal_underlying_inserter_1cell' q).
-    - use tpair.
-      + exists (pr112 (underlying_inserter_1cell q)).
-        apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
-      + use tpair.
-        * use tpair.
-          -- exact (pr12 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
-          -- apply is_mon_nat_trans_pointwise_inverse.
-             apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
-        * split.
-          -- use total2_paths_f.
-             ++ cbn. apply nat_trans_eq; try apply (pr1 Mon_V).
-                intro x. cbn.
-                apply id_left.
-             ++ apply isaprop_is_mon_nat_trans.
-          -- use total2_paths_f.
-             ++ cbn. apply nat_trans_eq; try apply (pr1 Mon_V).
-                intro x. cbn.
-                apply id_left.
-             ++ apply isaprop_is_mon_nat_trans.
-    - use total2_paths_f.
-      + cbn. apply nat_trans_eq; try apply (pr1 Mon_W).
-        intro x. cbn.
-        rewrite id_right.
-        rewrite id_left.
-        etrans.
-        { apply maponpaths.
-          apply functor_id. }
-        rewrite id_right.
-        etrans.
-        2: { apply cancel_postcomposition.
-             apply pathsinv0, functor_id. }
-        apply pathsinv0, id_left.
-      + apply isaprop_is_mon_nat_trans.
+    - exact (monbicat_inserter_ump_1_inv_2cell q).
+    - abstract (
+          use equality_2cells_monbicat ;
+          intro ;
+          cbn ;
+          rewrite id_right, id_left ;
+          etrans ;
+          [ apply maponpaths ;
+            apply functor_id | rewrite id_right] ;
+          refine (! id_left _ @ _) ;
+          apply maponpaths_2, pathsinv0, functor_id).
   Defined.
 
   Section UMP2Prep.
@@ -395,7 +404,8 @@ Section FixTwoMonoidalFunctors.
                      underlying_inserter_ump_cell.
   Proof.
     split.
-    - intros x y. use total2_paths_f; [cbn | apply (pr1 Mon_W)].
+    - intros x y.
+      use total2_paths_f; [cbn | apply (pr1 Mon_W)].
       assert (aux := pr12 α x y). cbn in aux.
       unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata in aux.
       do 2 rewrite id_left in aux.
@@ -414,10 +424,8 @@ Section FixTwoMonoidalFunctors.
   Proof.
     intros Mon_U Hm H'm α Hyp.
     exists (underlying_inserter_ump_cell α Hyp,,
-         is_mon_nat_trans_underlying_inserter_ump_cell α Hyp).
-    use total2_paths_f; [cbn | apply isaprop_is_mon_nat_trans].
-    apply nat_trans_eq; try apply (pr1 Mon_V).
-    intro x. apply idpath.
+                                    is_mon_nat_trans_underlying_inserter_ump_cell α Hyp).
+    abstract (use equality_2cells_monbicat ; intro ; apply idpath).
   Defined.
 
   Definition monbicat_inserter_ump_eq :
@@ -429,7 +437,7 @@ Section FixTwoMonoidalFunctors.
          (pr1 α) (maponpaths pr1 Hyp)).
     - exact (maponpaths pr1 eqϕ1).
     - exact (maponpaths pr1 eqϕ2).
-  Defined.
+  Qed.
 
 End FixTwoMonoidalFunctors.
 

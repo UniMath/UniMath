@@ -690,3 +690,48 @@ Section InverseMonoidalNaturalTransformation.
 
 
 End InverseMonoidalNaturalTransformation.
+
+Section EqualityMonoidalFunctorsAndTransformations.
+
+  Context {C D : category} {M : monoidal C} {N : monoidal D}
+          {F G : functor C D}.
+
+  Lemma isaprop_fmonoidal_laxlaws (Fm : fmonoidal_data M N F)
+    : isaprop (fmonoidal_laxlaws Fm).
+  Proof.
+    repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
+  Qed.
+
+  Lemma isaprop_fmonoidal_stronglaws (Fm : fmonoidal_data M N F)
+    : isaprop (fmonoidal_stronglaws (pr1 Fm) (pr2 Fm)).
+  Proof.
+    apply isapropdirprod ; repeat (apply impred_isaprop ; intro) ; apply isaprop_is_z_isomorphism.
+  Qed.
+
+  Lemma fmonoidal_lax_equality
+        (Fm1 Fm2 : fmonoidal_lax M N F)
+    : (∏ x y : C,  (pr11 Fm1) x y = (pr11 Fm2) x y) -> pr21 Fm1 = pr21 Fm2 ->  Fm1 = Fm2.
+  Proof.
+    intros pT pU.
+    use total2_paths_f.
+    2: apply isaprop_fmonoidal_laxlaws.
+
+    use total2_paths_f.
+    - do 2 (apply funextsec ; intro) ; apply pT.
+    - rewrite transportf_const.
+      apply pU.
+  Qed.
+
+  Lemma fmonoidal_equality
+        (Fm1 Fm2 : fmonoidal M N F)
+    : (∏ x y : C,  (pr111 Fm1) x y = (pr111 Fm2) x y) -> pr211 Fm1 = pr211 Fm2 ->  Fm1 = Fm2.
+  Proof.
+    intros pT pU.
+    use total2_paths_f.
+    2: apply isaprop_fmonoidal_stronglaws.
+    apply fmonoidal_lax_equality.
+    - exact pT.
+    - exact pU.
+  Qed.
+
+End EqualityMonoidalFunctorsAndTransformations.
