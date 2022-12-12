@@ -769,7 +769,7 @@ Section FixTwoMonoidalFunctors.
 
 End FixTwoMonoidalFunctors.
 
-Section MonoidalNatTransToDiAlgebra.
+Section MonoidalNatTransToDiAlgebraLifting.
 
   Context {C1 C2 C3 : category}
           {M1 : monoidal C1}
@@ -841,9 +841,9 @@ Section MonoidalNatTransToDiAlgebra.
     : fmonoidal_lax _ _ (nat_trans_to_dialgebra K α)
     := functorlifting_fmonoidal_lax _ _ _ monoidal_nat_trans_to_dialgebra_lifting.
 
-End MonoidalNatTransToDiAlgebra.
+End MonoidalNatTransToDiAlgebraLifting.
 
-Section MonoidalDiAlgebraToNatTrans.
+Section MonoidalDiAlgebraLiftingToNatTrans.
 
   Context {C1 C2 C3 : category}
           {M1 : monoidal C1}
@@ -867,8 +867,43 @@ Section MonoidalDiAlgebraToNatTrans.
     split.
     - intros x y.
       cbn.
-      admit.
-    - cbn.
-  Admitted.
 
-End MonoidalDiAlgebraToNatTrans.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr11 Fl x y).
+      }
+
+      cbn.
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      unfold dialgebra_disp_tensor_op.
+      cbn.
+      do 2 rewrite assoc.
+      etrans. {
+        do 2 apply maponpaths_2.
+        apply (fmonoidal_preservestensorstrongly Fm (K x) (K y)).
+      }
+      rewrite assoc'.
+      apply id_left.
+    - cbn.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr21 Fl).
+      }
+
+      rewrite assoc.
+      apply maponpaths_2.
+
+      cbn.
+      unfold dialgebra_disp_unit.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        apply  (fmonoidal_preservesunitstrongly Fm).
+      }
+      apply id_left.
+  Qed.
+
+End MonoidalDiAlgebraLiftingToNatTrans.
