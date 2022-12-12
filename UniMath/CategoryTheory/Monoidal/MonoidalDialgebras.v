@@ -837,9 +837,69 @@ Section MonoidalNatTransToDiAlgebraLifting.
     exact monoidal_nat_trans_to_dialgebra_lifting_laxlaws.
   Defined.
 
+  Definition monoidal_nat_trans_to_dialgebra_lifting_strong
+    : flmonoidal Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α) (pr2 Km).
+  Proof.
+    exists monoidal_nat_trans_to_dialgebra_lifting.
+    split.
+    - intros x y.
+      use tpair.
+      + cbn.
+
+        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%Cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfG_is_z_iso)).
+
+        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%Cat
+    (inv_from_z_iso
+       (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        rewrite assoc'.
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfF_is_z_iso)).
+        exact (! pr1 monoidal_nat_trans_to_dialgebra_lifting_data x y).
+      + repeat (apply funextsec ; intro).
+        split ; apply base_disp_cells_isaprop.
+    - use tpair.
+      + cbn.
+
+        transparent assert (pfL_is_z_iso :
+                             (is_z_isomorphism ( (# F)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
+                           ).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfL_is_z_iso)).
+
+        transparent assert (pfR_is_z_iso
+                             : (is_z_isomorphism
+                                  ((# G)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        rewrite assoc.
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfR_is_z_iso)).
+        exact (! pr2 monoidal_nat_trans_to_dialgebra_lifting_data).
+      + split ; apply base_disp_cells_isaprop.
+  Defined.
+
   Definition monoidal_nat_trans_to_dialgebra
     : fmonoidal_lax _ _ (nat_trans_to_dialgebra K α)
     := functorlifting_fmonoidal_lax _ _ _ monoidal_nat_trans_to_dialgebra_lifting.
+
+  Definition monoidal_nat_trans_to_dialgebra_strong
+    : fmonoidal _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal _ _ _ monoidal_nat_trans_to_dialgebra_lifting_strong.
 
 End MonoidalNatTransToDiAlgebraLifting.
 
@@ -906,6 +966,8 @@ Section MonoidalDiAlgebraLiftingToNatTrans.
       apply id_left.
   Qed.
 
+  (* Definition monoidal_dialgebra_lifting_to_invertible_monoidal_nat_trans *)
+
 End MonoidalDiAlgebraLiftingToNatTrans.
 
 Section RoundtripForLiftingData.
@@ -920,7 +982,6 @@ Section RoundtripForLiftingData.
           {K : C1 ⟶ C2}
           {Km : fmonoidal M1 M2 K}.
 
-
   Local Definition source_type': UU
     := ∑ α : K ∙ F ⟹ K ∙ G,
         is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
@@ -928,6 +989,10 @@ Section RoundtripForLiftingData.
   Local Definition target_type': UU
     := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
         flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) fl.
+
+  Local Definition target_type_s': UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal Km (dialgebra_disp_monoidal Fm Gm) fl (pr2 Km).
 
   Local Definition source_to_target'
     : source_type' -> target_type'
@@ -937,8 +1002,28 @@ Section RoundtripForLiftingData.
     : target_type' -> source_type'
     := λ fl, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
 
+  Local Definition source_to_target_s'
+    : source_type' -> target_type_s'.
+  Proof.
+    intro α.
+    use tpair.
+    2: apply (monoidal_nat_trans_to_dialgebra_lifting_strong (pr2 α)).
+  Defined.
+
+  Local Definition target_to_source_s'
+    : target_type_s' -> source_type'
+    := λ fl, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
   Local Lemma roundtrip1' (ass: source_type')
     : target_to_source' (source_to_target' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply isaprop_is_mon_nat_trans.
+  Qed.
+
+  Local Lemma roundtrip1_s' (ass: source_type')
+    : target_to_source_s' (source_to_target_s' ass) = ass.
   Proof.
     use total2_paths_f.
     - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
@@ -951,6 +1036,14 @@ Section RoundtripForLiftingData.
     use total2_paths_f.
     - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
     - use flmonoidal_equality ; intros ; apply homset_property.
+  Qed.
+
+  Local Lemma roundtrip2_s' (ass: target_type_s')
+    : source_to_target_s' (target_to_source_s' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_strong_equality ; intros ; apply homset_property.
   Qed.
 
 End RoundtripForLiftingData.

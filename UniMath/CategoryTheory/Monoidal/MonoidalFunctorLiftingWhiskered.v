@@ -350,6 +350,14 @@ Section MonoidalFunctorLifting.
     repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homsets_disp.
   Qed.
 
+  Lemma isaprop_flmonoidal_stronglaws
+        {Fm_strong : fmonoidal_stronglaws (pr11 Fm) (pr21 Fm)}
+        (fl : flmonoidal Fm_strong)
+    : isaprop (fl_stronglaws (pr1 fl) Fm_strong).
+  Proof.
+    apply isapropdirprod ; repeat (apply impred_isaprop ; intro) ; apply Isos.isaprop_is_z_iso_disp.
+  Qed.
+
   Lemma flmonoidal_equality (fl1 fl2 : flmonoidal_lax)
     : (∏ x y : C', pr11 fl1 x y = pr11 fl2 x y) -> (pr21 fl1 = pr21 fl2) -> fl1 = fl2.
   Proof.
@@ -362,6 +370,19 @@ Section MonoidalFunctorLifting.
     - cbn.
       rewrite transportf_const.
       exact pU.
+  Qed.
+
+  Lemma flmonoidal_strong_equality
+        {Fm_strong : fmonoidal_stronglaws (pr11 Fm) (pr21 Fm)}
+        (fl1 fl2 : flmonoidal Fm_strong)
+    : (∏ x y : C', pr111 fl1 x y = pr111 fl2 x y) -> (pr211 fl1 = pr211 fl2) -> fl1 = fl2.
+  Proof.
+    intros pT pU.
+    use total2_paths_f.
+    - use flmonoidal_equality.
+      + exact pT.
+      + exact pU.
+    - apply isaprop_flmonoidal_stronglaws.
   Qed.
 
 End MonoidalFunctorLifting.

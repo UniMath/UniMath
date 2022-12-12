@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalDialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLiftingWhiskered.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
@@ -76,7 +77,64 @@ Section FixTwoMonoidalFunctors.
     inserter_1cell (underlying_inserter_cone q) (dialgebra_inserter_cone (pr1 Fm) (pr1 Gm))
     := dialgebra_inserter_ump_1 (pr1 Fm) (pr1 Gm) (underlying_inserter_cone q).
 
-  Local Definition fmonoidal_underlying_inserter_1cell (q : inserter_cone Fm Gm) :
+  (* Local Definition fmonoidal_underlying_inserter_1cell'_fmonoidal_data
+        (q : inserter_cone Fm Gm)
+    : fmonoidal_data (pr21 q) (pr2 Mon_V) (inserter_cone_pr1 (underlying_inserter_cone q)).
+  Proof.
+    induction q as [Mon_U [Hm α]].
+    split.
+    - intros x y.
+      apply (fmonoidal_preservestensordata (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm))).
+    - apply (fmonoidal_preservesunit (pr2 Hm : fmonoidal (pr2 Mon_U) (pr2 Mon_V) (pr1 Hm))).
+  Defined.
+
+  Local Definition fmonoidal_underlying_inserter_1cell'_fmonoidal_laxlaws
+        (q : inserter_cone Fm Gm)
+    : fmonoidal_laxlaws (fmonoidal_underlying_inserter_1cell'_fmonoidal_data q).
+  Proof.
+    repeat split ; red ; cbn ; intros.
+    - apply fmonoidal_preservestensornatleft.
+    - apply fmonoidal_preservestensornatright.
+    - apply fmonoidal_preservesassociativity.
+    - apply fmonoidal_preservesleftunitality.
+    - apply fmonoidal_preservesrightunitality.
+  Qed.
+
+  Local Definition fmonoidal_underlying_inserter_1cell'_laxmonoidal (q : inserter_cone Fm Gm)
+    : fmonoidal_lax (pr21 q) (pr2 Mon_V) (inserter_cone_pr1 (underlying_inserter_cone q)).
+  Proof.
+    exists (fmonoidal_underlying_inserter_1cell'_fmonoidal_data q).
+    exact (fmonoidal_underlying_inserter_1cell'_fmonoidal_laxlaws q).
+  Defined.
+
+  Local Definition fmonoidal_underlying_inserter_1cell'_fmonoidal_stronglaws (q : inserter_cone Fm Gm)
+    :  fmonoidal_stronglaws
+         (fmonoidal_preservestensordata (fmonoidal_underlying_inserter_1cell'_laxmonoidal q))
+         (fmonoidal_preservesunit (fmonoidal_underlying_inserter_1cell'_laxmonoidal q)).
+  Proof.
+    induction q as [Mon_U [Hm α]].
+    split.
+    - do 2 intro ; apply (pr2 Hm).
+    - apply (pr2 Hm).
+  Defined. *)
+
+  (** The following definition replaces fmonoidal_underlying_inserter_1cell **)
+  Local Definition fmonoidal_underlying_inserter_1cell' (q : inserter_cone Fm Gm) :
+    fmonoidal (pr21 q)
+              (dialgebra_monoidal (pr2 Fm) ((pr12 Gm): fmonoidal_lax (pr2 Mon_V) (pr2 Mon_W) _))
+              (pr1 (underlying_inserter_1cell q)).
+  Proof.
+    use functorlifting_fmonoidal.
+    3: {
+      use monoidal_nat_trans_to_dialgebra_lifting_strong.
+      + use tpair.
+        * apply (pr12 q).
+        * apply (pr212 q).
+      + apply (pr22 q).
+    }
+  Defined.
+
+  (* Local Definition fmonoidal_underlying_inserter_1cell (q : inserter_cone Fm Gm) :
     fmonoidal (pr21 q)
               (dialgebra_monoidal (pr2 Fm) ((pr12 Gm): fmonoidal_lax (pr2 Mon_V) (pr2 Mon_W) _))
               (pr1 (underlying_inserter_1cell q)).
@@ -239,10 +297,14 @@ Section FixTwoMonoidalFunctors.
           -- use total2_paths_f; [cbn | apply (pr1 Mon_W)].
              apply (pr22 (fmonoidal_preservesunitstrongly (pr2 Hm))).
              Time Defined.
+*)
 
+
+  (* If we replace fmonoidal_underlying_inserter_1cell by fmonoidal_underlying_inserter_1cell',
+     everything still works perfectly *)
   Lemma is_mon_nat_trans_underlying_inserter_1cell_pr1 (q : inserter_cone Fm Gm) :
     is_mon_nat_trans
-      (comp_fmonoidal (fmonoidal_underlying_inserter_1cell q) (dialgebra_monoidal_pr1 (pr2 Fm) (pr12 Gm)))
+      (comp_fmonoidal (fmonoidal_underlying_inserter_1cell' q) (dialgebra_monoidal_pr1 (pr2 Fm) (pr12 Gm)))
       (pr12 (inserter_cone_pr1 q))
       (pr1 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
   Proof.
@@ -270,13 +332,11 @@ Section FixTwoMonoidalFunctors.
   Proof.
     intro q.
     use make_inserter_1cell.
+    - exists (underlying_inserter_1cell q).
+      exact (fmonoidal_underlying_inserter_1cell' q).
     - use tpair.
-      + exact (underlying_inserter_1cell q).
-      + exact (fmonoidal_underlying_inserter_1cell q).
-    - use tpair.
-      + use tpair.
-        * exact (pr112 (underlying_inserter_1cell q)).
-        * apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+      + exists (pr112 (underlying_inserter_1cell q)).
+        apply (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
       + use tpair.
         * use tpair.
           -- exact (pr12 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
