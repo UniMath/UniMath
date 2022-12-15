@@ -26,13 +26,12 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
-Local Open Scope cat_deprecated.
 
 (** ** Preliminaries *)
 
 Lemma is_z_iso_comp_is_z_iso {C : category} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧)
-  : is_z_isomorphism f -> is_z_isomorphism g -> is_z_isomorphism (f ;; g).
+  : is_z_isomorphism f -> is_z_isomorphism g -> is_z_isomorphism (f · g).
 Proof.
   intros Hf Hg.
   apply (is_z_iso_comp_of_is_z_isos f g Hf Hg).
@@ -65,7 +64,7 @@ Let εinv a := z_iso_inv_from_z_iso (counit_pointwise_z_iso_from_adj_equivalence
 Lemma right_adj_equiv_is_ff : fully_faithful G.
 Proof.
   intros c d.
-  set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
+  set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ · #F f · ε _ )).
   simpl in inv.
   apply (isweq_iso _ inv ).
   - intro f. simpl in f. unfold inv.
@@ -78,7 +77,7 @@ Proof.
   - intro g.
     unfold inv.
     do 2 rewrite functor_comp.
-    intermediate_path ((# G (inv_from_z_iso (counit_pointwise_z_iso_from_adj_equivalence GG c)) ;; ηinv _ ) ;; (η _ ;; # G (# F g)) ;; # G (ε d)).
+    intermediate_path ((# G (inv_from_z_iso (counit_pointwise_z_iso_from_adj_equivalence GG c)) · ηinv _ ) · (η _ · # G (# F g)) · # G (ε d)).
     + do 4 rewrite <- assoc.
       apply maponpaths.
       do 2 rewrite assoc.

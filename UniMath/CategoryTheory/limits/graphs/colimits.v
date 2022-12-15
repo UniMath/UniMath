@@ -172,18 +172,14 @@ repeat (apply impred; intro).
 apply isapropiscontr.
 Qed.
 
-Definition isColimCocone_ColimCocone {C : precategory} {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) :
-  isColimCocone d (colim CC) (tpair _ (colimIn CC) (colimInCommutes CC)) := pr2 CC.
-
 Definition colimArrow {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_ColimCocone CC c cc)).
+  (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_from_ColimCocone CC c cc)).
 
 Lemma colimArrowCommutes {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (cc : cocone d c) (u : vertex g) :
   colimIn CC u · colimArrow CC c cc = coconeIn cc u.
 Proof.
-exact ((pr2 (pr1 (isColimCocone_ColimCocone CC _ cc))) u).
+exact ((pr2 (pr1 (isColimCocone_from_ColimCocone CC _ cc))) u).
 Qed.
 
 Lemma colimArrowUnique {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)

@@ -1235,7 +1235,7 @@ Section Univalence.
           (HC : is_univalent C)
           (HD : is_univalent D).
 
-  Definition is_unvialent_category_binproduct
+  Definition is_univalent_category_binproduct
     : is_univalent (category_binproduct C D).
   Proof.
     intros x y.
@@ -1260,7 +1260,145 @@ Definition univalent_category_binproduct
 Proof.
   use make_univalent_category.
   - exact (category_binproduct C₁ C₂).
-  - use is_unvialent_category_binproduct.
+  - use is_univalent_category_binproduct.
     + exact (pr2 C₁).
     + exact (pr2 C₂).
 Defined.
+
+Definition product_of_commuting_squares
+           {C1 C2 C3 C4 : category}
+           {D1 D2 D3 D4 : category}
+           {F1 : functor C1 C2} {F2 : functor C2 C4}
+           {F1' : functor C1 C3} {F2' : functor C3 C4}
+           {G1 : functor D1 D2} {G2 : functor D2 D4}
+           {G1' : functor D1 D3} {G2' : functor D3 D4}
+           (α : nat_z_iso (F1  ∙ F2) (F1'  ∙ F2'))
+           (β : nat_z_iso (G1  ∙ G2) (G1'  ∙ G2'))
+  : nat_z_iso (pair_functor F1 G1  ∙ pair_functor F2 G2)
+              (pair_functor F1' G1'  ∙ pair_functor F2' G2').
+Proof.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + intro.
+      use catbinprodmor.
+      * apply α.
+      * apply β.
+    + abstract
+        (intro ; intros ; use total2_paths_f ;
+         [ apply (pr21 α) |
+           rewrite transportf_const ;
+           apply (pr21 β)
+        ]).
+  - intro.
+    use is_z_iso_binprod_z_iso.
+    + apply (pr2 α (pr1 _)).
+    + apply (pr2 β (pr2 _)).
+Defined.
+
+Section PairingWithAnObject.
+
+  Definition pair_with_object_left_data {C : category} (I : C)
+    : functor_data C (C × C).
+  Proof.
+    exists (λ x, (I,x)).
+    exact (λ x y f, (identity I #, f)).
+  Defined.
+
+  Definition pair_with_object_left_is_functor {C : category} (I : C)
+    : is_functor (pair_with_object_left_data I).
+  Proof.
+    split ; intro ; intros ; simpl.
+    - apply idpath.
+    - etrans.
+      2: { apply binprod_comp. }
+      apply maponpaths_2.
+      apply (! id_right _).
+  Qed.
+
+  Definition pair_with_object_left {C : category} (I : C)
+    : functor C (C × C)
+    := pair_with_object_left_data I ,, pair_with_object_left_is_functor I.
+
+  Definition pair_with_object_right_data {C : category} (I : C)
+    : functor_data C (C × C).
+  Proof.
+    exists (λ x, (x,I)).
+    exact (λ x y f, (f #, identity I)).
+  Defined.
+
+  Definition pair_with_object_right_is_functor {C : category} (I : C)
+    : is_functor (pair_with_object_right_data I).
+  Proof.
+    split ; intro ; intros ; simpl.
+    - apply idpath.
+    - etrans.
+      2: { apply binprod_comp. }
+      apply maponpaths.
+      apply (! id_right _).
+  Qed.
+
+  Definition pair_with_object_right {C : category} (I : C)
+    : functor C (C × C)
+    := pair_with_object_right_data I ,, pair_with_object_right_is_functor I.
+
+  Lemma PairingWithObjectCommutesLeft
+        {C D : category} (H : functor C D) (I : C)
+    :  nat_z_iso (H ∙ pair_with_object_left (H I)) (pair_with_object_left I ∙ (pair_functor H H)).
+  Proof.
+    use make_nat_z_iso.
+    - exists (λ _, identity (H I, H _)).
+      abstract (
+          intro ; intros ;
+          refine (id_right  (identity (H I) #, # H f) @ _) ;
+          refine (_ @ ! id_left  (# H (identity I) #, # H f)) ;
+          apply maponpaths_2 ;
+          apply (! functor_id H _)).
+    - intro.
+      exists (identity _).
+      abstract (split ; apply (id_right (identity (H I, H _)))).
+  Defined.
+
+  Lemma PairingWithObjectCommutesRight
+        {C D : category} (H : functor C D) (I : C)
+    : nat_z_iso (H ∙ pair_with_object_right (H I)) (pair_with_object_right I ∙ (pair_functor H H)).
+  Proof.
+    use make_nat_z_iso.
+    - exists (λ _, identity (H _, H I)).
+      abstract (
+          intro ; intros ;
+          refine (id_right  (# H f #, identity (H I)) @ _) ;
+          refine (_ @ ! id_left  (# H f #, # H (identity I))) ;
+          apply maponpaths ;
+          apply (! functor_id H _)).
+    - intro.
+      exists (identity _).
+      abstract (split ; apply (id_right (identity (H _, H I)))).
+  Defined.
+
+  Definition tensor_after_pair_with_object_left
+             {C : category} (T : functor (C × C) C) (I : C)
+    : nat_z_iso (functor_fix_fst_arg _ _ _ T I)
+                (functor_composite (pair_with_object_left I) T).
+  Proof.
+    use make_nat_z_iso.
+    - exists (λ _, identity _).
+      abstract (intro ; intros ; exact (id_right _ @ ! id_left _)).
+    - intro x.
+      exists (identity _).
+      abstract (split ; apply id_right).
+  Defined.
+
+  Definition tensor_after_pair_with_object_right
+             {C : category} (T : functor (C × C) C) (I : C)
+    : nat_z_iso (functor_fix_snd_arg _ _ _ T I)
+                (functor_composite (pair_with_object_right I) T).
+  Proof.
+    use make_nat_z_iso.
+    - exists (λ _, identity _).
+      abstract (intro ; intros ; exact (id_right _ @ ! id_left _)).
+    - intro x.
+      exists (identity _).
+      abstract (split ; apply id_right).
+  Defined.
+
+End PairingWithAnObject.
