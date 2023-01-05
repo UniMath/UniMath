@@ -426,8 +426,7 @@ Section TransformationsOfActegories.
 
   Definition is_linear_nat_trans {F G : functor C D}
     (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)(ξ : F ⟹ G) : UU :=
-    ∏ (v : V) (x : C), lineator_lindata Mon_V ActC ActD F Fl v x · ξ (v ⊗_{ActC} x) =
-                         v ⊗^{ActD}_{l} ξ x · lineator_lindata Mon_V ActC ActD G Gl v x.
+    ∏ (v : V) (x : C), Fl v x · ξ (v ⊗_{ActC} x) = v ⊗^{ActD}_{l} ξ x · Gl v x.
 
   Lemma isaprop_is_linear_nat_trans {F G : functor C D}
     (Fl : lineator_lax Mon_V ActC ActD F) (Gl : lineator_lax Mon_V ActC ActD G)
