@@ -4,6 +4,9 @@ The coslice objects have a morphism from the monoidal unit I to an object of V. 
 one cannot speak of pointed objects here; I suggest to call them monoidal-pointed objects.
 
 author: Ralph Matthes 2022
+
+in 2022 Kobe Wullaert added the part in preparation of showing that taking the category of monoidal-pointed objects is an idempotent operation (strong monoidal functors are constructed between one and two applications of that operation to some argument) - the continuation is found in the package [Bicategories]
+
  *)
 
 Require Import UniMath.MoreFoundations.All.
@@ -32,12 +35,12 @@ Section A.
 
 Context {V : category} (Mon_V : monoidal V).
 
-Let cosliced : disp_cat V := coslice_cat_disp V I_{ Mon_V}.
+Let cosliced : disp_cat V := coslice_cat_disp V I_{Mon_V}.
 
 Definition monoidal_pointed_objects_disp_tensor_data : disp_bifunctor_data Mon_V cosliced cosliced cosliced.
 Proof.
   use make_disp_bifunctor_data.
-  - intros v w pv pw. exact (luinv^{Mon_V}_{I_{ Mon_V}} · pv ⊗^{Mon_V} pw).
+  - intros v w pv pw. exact (luinv^{Mon_V}_{I_{Mon_V}} · pv ⊗^{Mon_V} pw).
   - intros v w w' g pv pw pw' Hypg. cbn in Hypg. cbn.
     rewrite assoc'.
     apply maponpaths.
@@ -66,10 +69,10 @@ Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
   := monoidal_pointed_objects_disp_tensor_data,,monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor.
 
 Lemma monoidal_pointed_objects_disp_data_verif :
-  disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
-    × disp_leftunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
-    × disp_rightunitor_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
-    × disp_rightunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{ Mon_V})
+  disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
+    × disp_leftunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
+    × disp_rightunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
+    × disp_rightunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
     × disp_associator_data monoidal_pointed_objects_disp_tensor
     × disp_associatorinv_data monoidal_pointed_objects_disp_tensor.
 Proof.
@@ -217,10 +220,10 @@ Section PointedObjectFixpoint.
      taking the category of monoidal-pointed objects is idempotent.
    *)
 
-  Local Definition ptd_ob {V : category} (Mon_V : monoidal V)
+  Local Definition ptd_ob {V : category} (Mon_V : monoidal V) : category
     := coslice_cat_total V I_{ Mon_V}.
 
-  Local Definition ptd_ob_mon {V : category} (Mon_V : monoidal V)
+  Local Definition ptd_ob_mon {V : category} (Mon_V : monoidal V) : monoidal (ptd_ob Mon_V)
     := monoidal_pointed_objects Mon_V.
 
   Context {V : category} (Mon_V : monoidal V).
@@ -341,7 +344,7 @@ End PointedObjectFixpoint.
 
 Section PointedObjectFixpointMonoidal.
 
-  (* In this section, we show that the data defined in the previous section "Pointedobjectfixpoint" is monoidal *)
+  (* In this section, we show that the data defined in the previous section "PointedObjectFixpoint" is monoidal *)
 
   Context {V : category} (Mon_V : monoidal V).
 
