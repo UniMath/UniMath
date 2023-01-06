@@ -71,6 +71,15 @@ Section A.
    := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
+ Local Lemma actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
+   actegoryPtdEndosOnFunctors C = actegory_with_canonical_pointed_action Mon_endo.
+ Proof.
+   unfold actegoryPtdEndosOnFunctors.
+   unfold actegoryfromprecomp.
+   rewrite actegory_from_precomp_as_self_action.
+   apply idpath.
+ Qed.
+
  Section AA.
 
    Context (H : [C, D'] ⟶ [C, D]).
