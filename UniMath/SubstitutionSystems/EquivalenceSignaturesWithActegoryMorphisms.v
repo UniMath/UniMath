@@ -43,10 +43,10 @@ Local Open Scope cat.
 
 Section A.
 
-  Context (C D D' : category).
+ Context (C D D' : category).
 
-  Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
-  Local Definition domain_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
+ Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
+ Local Definition domain_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
     := ActionBasedStrengthOnHomsInBicat.ab_strength_domain_action(C:=bicat_of_cats) C D' (ActionBasedStrengthOnHomsInBicat.forget C).
  Local Definition target_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D)
     := ActionBasedStrengthOnHomsInBicat.ab_strength_target_action(C:=bicat_of_cats) C D (ActionBasedStrengthOnHomsInBicat.forget C).
@@ -82,19 +82,19 @@ Section A.
 
  Section AA.
 
-   Context (H : [C, D'] ⟶ [C, D]).
+ Context (H : [C, D'] ⟶ [C, D]).
 
-   Lemma functor_comp_id_lax_specialized (F F' : C ⟶ D') (α: F ⟹ F') (β: F' ⟹ F)
-     : nat_trans_comp α β  = nat_trans_id F -> nat_trans_comp (#H α) (#H β) =  nat_trans_id (pr1 (H F)).
-   Proof.
-     intro e.
-     intermediate_path (#H (nat_trans_id F)).
-     - rewrite <- e.
-       change ( (# H α) · (# H β) = # H ((α:[C,D']⟦ F, F' ⟧) · (β:[C,D']⟦ F', F ⟧)) ).
-       apply (! functor_comp _ _ _).
-     - apply functor_id_id.
-       apply idpath.
-   Qed.
+ Lemma functor_comp_id_lax_specialized (F F' : C ⟶ D') (α: F ⟹ F') (β: F' ⟹ F)
+   : nat_trans_comp α β  = nat_trans_id F -> nat_trans_comp (#H α) (#H β) =  nat_trans_id (pr1 (H F)).
+ Proof.
+   intro e.
+   intermediate_path (#H (nat_trans_id F)).
+   - rewrite <- e.
+     change ( (# H α) · (# H β) = # H ((α:[C,D']⟦ F, F' ⟧) · (β:[C,D']⟦ F', F ⟧)) ).
+     apply (! functor_comp _ _ _).
+   - apply functor_id_id.
+     apply idpath.
+ Qed.
 
  Lemma weqABStrengthLaxMorphismActegories :
    actionbased_strength Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')
@@ -421,6 +421,7 @@ Section A.
 
 End AA.
 
+
  Lemma weqSignatureLaxMorphismActegories :
    Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) ([C, D'],,actegoryPtdEndosOnFunctors D') ([C, D],,actegoryPtdEndosOnFunctors D).
  Proof.
@@ -430,4 +431,54 @@ End AA.
    apply weqABStrengthLaxMorphismActegories.
  Defined.
 
+ Lemma weqSignatureLaxMorphismActegories_alt :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
+ Proof.
+   apply (weqcomp weqSignatureLaxMorphismActegories).
+   apply weqfibtototal.
+   intro H.
+   cbn.
+   apply idweq. (* very slow *)
+ Defined. (* very slow *)
+
+ (* a direct proof without going through weqSignatureLaxMorphismActegories:
+ Lemma weqSignatureLaxMorphismActegories_alt_alt :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
+ Proof.
+   apply (weqcomp weqSignatureABStrength).
+   apply weqfibtototal.
+   intro H.
+   apply weqABStrengthLaxMorphismActegories. (* very slow *)
+ Defined. (* very slow *)
+*)
+
 End A.
+
+Section B.
+
+ Context (C : category).
+
+ Corollary weqSignatureLaxMorphismActegoriesHomogeneous :
+   Signature C C C ≃ ∑ H : endofrombicat C ⟶ endofrombicat C, pointedtensorialstrength (Mon_endo C) H.
+ Proof.
+   eapply weqcomp.
+   { apply weqSignatureLaxMorphismActegories_alt. }
+   cbn.
+   apply weqfibtototal.
+   intro H.
+   unfold pointedtensorialstrength.
+   rewrite (actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action C).
+   apply idweq.
+ Defined.
+
+ Corollary weqSignatureLaxMorphismActegoriesHomogeneous_alt :
+   Signature C C C ≃ ∑ H : [C, C] ⟶ [C, C], pointedtensorialstrength (Mon_endo C) H.
+ Proof.
+   cbn.
+   apply (weqcomp weqSignatureLaxMorphismActegoriesHomogeneous).
+   apply weqfibtototal.
+   intro H.
+   apply idweq.
+ Defined.
+
+End B.
