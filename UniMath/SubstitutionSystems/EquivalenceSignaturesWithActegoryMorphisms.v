@@ -63,8 +63,7 @@ Section A.
  (* Local Definition endo : category := [C,C]. would not be okay for convertibility *)
  Local Definition endofrombicat : category := ActionOfEndomorphismsInBicatWhiskered.endocat(C:=bicat_of_cats) C.
  Local Definition Mon_endo : monoidal endofrombicat := ActionOfEndomorphismsInBicatWhiskered.Mon_endo(C:=bicat_of_cats) C.
- Local Definition ptdendo : category := coslice_cat_total (ActionOfEndomorphismsInBicatWhiskered.endocat(C:=bicat_of_cats) C)
-                                          I_{Mon_endo}.
+ Local Definition ptdendo : category := coslice_cat_total endofrombicat I_{Mon_endo}.
  Local Definition Mon_ptdendo : monoidal ptdendo
    := monoidal_pointed_objects Mon_endo.
 

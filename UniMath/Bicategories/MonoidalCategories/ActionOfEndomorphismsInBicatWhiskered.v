@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
@@ -73,6 +74,29 @@ Proof.
 Defined.
 
 End Action_From_Precomposition.
+
+Section TheHomogeneousCase.
+
+Context {C : bicat}.
+Context (c0 : ob C).
+
+Lemma actegory_from_precomp_as_self_action :
+  actegory_from_precomp c0 c0 = actegory_with_canonical_self_action (Mon_endo c0).
+Proof.
+  use total2_paths_f.
+  2: { apply isaprop_actegory_laws. }
+  use total2_paths_f.
+  { apply idpath. }
+  cbn.
+  use total2_paths_f.
+  { apply idpath. }
+  cbn.
+  use total2_paths_f.
+  { apply idpath. }
+  apply idpath.
+Qed.
+
+End TheHomogeneousCase.
 
 Section Instantiation_To_Bicategory_Of_Categories.
 
