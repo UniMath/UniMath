@@ -11,14 +11,17 @@ GenMendlerIteration.v
 GenMendlerIteration_alt.v
 ApplicationsGenMendlerIteration_alt.v
 LiftingInitial.v
+SimplifiedHSS/LiftingInitial.v
 LiftingInitial_alt.v
 SimplifiedHSS/LiftingInitial_alt.v
 ModulesFromSignatures.v
 LamSignature.v
 Lam.v
+SimplifiedHSS/Lam.v
 SignatureExamples.v
 SignatureCategory.v
 SubstitutionSystems_Summary.v
+SimplifiedHSS/SubstitutionSystems_Summary.v
 LamHSET.v
 BindingSigToMonad.v
 SimplifiedHSS/BindingSigToMonad.v
