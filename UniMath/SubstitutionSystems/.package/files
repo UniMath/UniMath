@@ -34,11 +34,17 @@ SimplifiedHSS/FromBindingSigsToMonads_Summary.v
 MonadsMultiSorted.v
 MonadsMultiSorted_alt.v
 MultiSorted.v
+MultiSortedMonadConstruction.v
+SimplifiedHSS/MultiSortedMonadConstruction.v
 MultiSorted_alt.v
+MultiSortedMonadConstruction_alt.v
+SimplifiedHSS/MultiSortedMonadConstruction_alt.v
 MonadicSubstitution_alt.v
 STLC.v
+SimplifiedHSS/STLC.v
 STLC_alt.v
 CCS.v
+SimplifiedHSS/CCS.v
 CCS_alt.v
 PCF_alt.v
 ActionBasedStrengthOnHomsInBicat.v

@@ -6,6 +6,9 @@ binding signature.
 
 Written by: Anders Mörtberg, 2021 (adapted from CCS.v)
 
+version for simplified notion of HSS by Ralph Matthes (2022, 2023)
+the file is identical to the homonymous file in the parent directory, except for importing files from the present directory
+
 *)
 
 Require Import UniMath.Foundations.PartD.
@@ -43,12 +46,12 @@ Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
+Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
-Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
+Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 
 Local Open Scope cat.
