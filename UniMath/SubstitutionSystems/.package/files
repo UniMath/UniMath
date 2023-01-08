@@ -15,6 +15,7 @@ SimplifiedHSS/LiftingInitial.v
 LiftingInitial_alt.v
 SimplifiedHSS/LiftingInitial_alt.v
 ModulesFromSignatures.v
+SimplifiedHSS/ModulesFromSignatures.v
 LamSignature.v
 Lam.v
 SimplifiedHSS/Lam.v
