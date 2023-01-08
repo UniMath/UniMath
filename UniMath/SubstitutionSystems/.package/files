@@ -23,6 +23,7 @@ SignatureCategory.v
 SubstitutionSystems_Summary.v
 SimplifiedHSS/SubstitutionSystems_Summary.v
 LamHSET.v
+SimplifiedHSS/LamHSET.v
 BindingSigToMonad.v
 SimplifiedHSS/BindingSigToMonad.v
 LamFromBindingSig.v
@@ -40,12 +41,16 @@ MultiSorted_alt.v
 MultiSortedMonadConstruction_alt.v
 SimplifiedHSS/MultiSortedMonadConstruction_alt.v
 MonadicSubstitution_alt.v
+SimplifiedHSS/MonadicSubstitution_alt.v
 STLC.v
 SimplifiedHSS/STLC.v
 STLC_alt.v
+SimplifiedHSS/STLC_alt.v
 CCS.v
 SimplifiedHSS/CCS.v
 CCS_alt.v
+SimplifiedHSS/CCS_alt.v
 PCF_alt.v
+SimplifiedHSS/PCF_alt.v
 ActionBasedStrengthOnHomsInBicat.v
 EquivalenceSignaturesWithActegoryMorphisms.v
