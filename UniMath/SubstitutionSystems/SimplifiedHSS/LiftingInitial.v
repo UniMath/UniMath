@@ -645,7 +645,7 @@ Proof.
     set (T4 := T3 Psi').
     set (Φ := (Phi_fusion Z T' β)).
     set (T5 := T4 Φ).
-    intermediate_path (Φ _ (fbracket InitHSS f)).
+    intermediate_path (Φ _ (fbracket InitHSS Z f)).
     + apply idpath.
     + eapply pathscomp0.
       2: { apply T5.
@@ -804,11 +804,11 @@ Proof.
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  (theta H) ((alg_carrier _  T') ⊗ Z)·
-                 # H (fbracket T' (f · #U(ptd_from_alg_mor C CP H β0)))
+                 # H (fbracket T' _ (f · #U(ptd_from_alg_mor C CP H β0)))
                  =
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
-                 fbracket T' (f · #U(ptd_from_alg_mor C CP H β0))))).
+                 fbracket T' _ (f · #U(ptd_from_alg_mor C CP H β0))))).
       2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
            exact Hyp_c. }
       clear c. clear X. clear rhohat.

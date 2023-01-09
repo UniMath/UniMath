@@ -523,7 +523,7 @@ intermediate_path (pr1 (pr1 X)).
   set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
-  intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
+  intermediate_path (Φ _ (fbracket InitHSS Z f)); trivial.
   etrans; [| apply T5 ]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)
@@ -630,11 +630,11 @@ intermediate_path (pr1 (pr1 X)).
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  θ ((alg_carrier _  T') ⊗ Z)·
-                 # H (fbracket T' (f · #U(ptd_from_alg_mor C CP H β0)))
+                 # H (fbracket T' _ (f · #U(ptd_from_alg_mor C CP H β0)))
                  =
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
-                 fbracket T' (f · #U(ptd_from_alg_mor C CP H β0))))).
+                 fbracket T' _ (f · #U(ptd_from_alg_mor C CP H β0))))).
       2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
            exact Hyp_c. }
       clear c. clear X. clear rhohat.

@@ -348,11 +348,11 @@ Proof.
   - apply (pr2 T).
 Defined.
 
-Definition fbracket (T : hss) {Z : Ptd} (f : U Z --> `T)
+Definition fbracket (T : hss) (Z : Ptd) (f : U Z --> `T)
   : `T • (U Z) --> `T
   := pr1 (pr1 (pr2 T Z f)).
 
-Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
+Notation "⦃ f ⦄_{ Z }" := (fbracket _ Z f)(at level 0).
 
 (** The bracket operation [fbracket] is unique *)
 
@@ -362,7 +362,7 @@ Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : U Z --> `T)
      (∏ c : C, pr1 (θ (`T ⊗ Z))  c · pr1 (#H α) c · pr1 (τ T) c =
         pr1 (τ T) (pr1 (U Z) c) · α c)
      →
-     α = ⦃f⦄.
+     α = ⦃f⦄_{Z}.
 Proof.
   intros α H1 H2.
   apply path_to_ctr.
@@ -376,7 +376,7 @@ Definition fbracket_unique (T : hss) {Z : Ptd} (f : U Z --> `T)
 : ∏ α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
     bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
-   α = ⦃f⦄.
+   α = ⦃f⦄_{Z}.
 Proof.
   intros α [H1 H2].
   apply path_to_ctr.
@@ -388,7 +388,7 @@ Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : U Z --> `T)
   : ∏ α : `T • U Z --> `T,
         bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
-   ∏ c, pr1 α c =  pr1 ⦃ f ⦄ c.
+   ∏ c, pr1 α c =  pr1 ⦃f⦄_{Z} c.
 Proof.
   intros α H12.
   set (t:= fbracket_unique _ _ α H12).
@@ -398,7 +398,7 @@ Qed.
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∏ {Z : Ptd} (f : U Z --> `T),
-   f = η T •• U Z · ⦃f⦄.
+   f = η T •• U Z · ⦃f⦄_{Z}.
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
@@ -406,9 +406,9 @@ Proof.
 Qed.
 
 Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : U Z --> `T),
-    θ (`T ⊗ Z) · #H ⦃f⦄ · τ T
+    θ (`T ⊗ Z) · #H ⦃f⦄_{Z} · τ T
     =
-    τ T •• U Z · ⦃f⦄.
+    τ T •• U Z · ⦃f⦄_{Z}.
 Proof.
   intros Z f.
   exact (pr2 (parts_from_whole _ _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
@@ -417,7 +417,7 @@ Qed.
 (** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z --> Z') (g : U Z' --> `T)
-:  (` T ∘ #U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ #U f · g ⦄.
+:  (`T ∘ #U f : EndC⟦ `T • U Z , `T • U Z' ⟧) · ⦃g⦄_{Z'} = ⦃#U f · g⦄_{Z}.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
@@ -443,7 +443,7 @@ Proof.
     rewrite  <- assoc.
     rewrite  <- assoc.
     transitivity (  # (pr1 (H ((`T)))) (pr1 f c) ·
-                     (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (τ T) c).
+                     (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H ⦃g⦄_{Z'}) c· pr1 (τ T) c).
     2: { rewrite <- assoc.
          rewrite <- assoc.
          apply maponpaths.
@@ -474,7 +474,7 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
-    ⦃ #U f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (ptd_from_alg T) ⟧) · ⦃ identity (U (ptd_from_alg T)) ⦄.
+    ⦃#U f⦄_{Z} = (`T ∘ # U f : EndC⟦`T • U Z , `T • U (ptd_from_alg T)⟧) · ⦃identity (U (ptd_from_alg T))⦄_{ptd_from_alg T}.
 Proof.
   intros Z f.
   assert (A : f = f · identity _ ).
@@ -671,10 +671,10 @@ Definition ptd_from_alg_functor: functor (category_FunctorAlg Id_H) Ptd :=
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
     ∏ (Z : Ptd) (f : U Z --> `T),
-      ⦃ f ⦄ · β = β •• U Z · ⦃  f · #U (# ptd_from_alg_functor β) ⦄.
+      ⦃f⦄_{Z} · β = β •• U Z · ⦃f · #U (# ptd_from_alg_functor β)⦄_{Z}.
 
 
-Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
+Lemma isaprop_isbracketMor (T T' : hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
 Proof.
   do 2 (apply impred; intro).
   apply isaset_nat_trans.
@@ -828,7 +828,7 @@ End fix_a_category.
 
 Arguments hss {_} _ _ .
 Arguments hssMor {_ _ _ } _ _ .
-Arguments fbracket {_ _ _} _ {_} _ .
+Arguments fbracket {_ _ _} _ _ _ .
 Arguments fbracket_η {_ _ _} _ {_} _ .
 Arguments fbracket_τ {_ _ _} _ {_} _ .
 Arguments fbracket_unique_target_pointwise {_ _ _ } _ {_ _ _} _ _.

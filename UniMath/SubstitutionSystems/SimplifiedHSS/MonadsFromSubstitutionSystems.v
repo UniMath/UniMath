@@ -55,6 +55,8 @@ Local Open Scope subsys.
 
 Section monad_from_hss.
 
+Notation "⦃ f ⦄_{ Z }" := (fbracket _ Z f)(at level 0).
+
 (** ** Some variables and assumptions *)
 
 Context (C : category).
@@ -106,7 +108,7 @@ Defined.
 
 (** the bracket of the "degenerate" argument [η T] *)
 Definition μ_1 : functor_composite (U (id_Ptd C)) (`T) ⟹ functor_data_from_functor _ _ `T
-  := fbracket _ (#U (μ_0_ptd)).
+  := ⦃μ_0⦄_{id_Ptd C}.
 
 (** using uniqueness of bracket for [η T] *)
 Lemma μ_1_identity : μ_1 = identity `T .
@@ -161,7 +163,7 @@ Qed.
 Definition μ_2 : functor_composite (`T) (`T) ⟹ pr1 (`T)
   := prejoin_from_hetsubst T.
 
-Goal μ_2 = fbracket T (# U (identity (ptd_from_alg T))).
+Goal μ_2 = ⦃identity `T⦄_{ptd_from_alg T}.
 Proof.
   apply idpath.
 Qed.
@@ -194,7 +196,7 @@ Proof.
   intermediate_path (μ_1 c).
   - unfold μ_1.
     assert (H' := @fbracket_unique_target_pointwise _ _ _ T).
-    assert (H1 := H'  _ (#U μ_0_ptd)).
+    assert (H1 := H' (id_Ptd C) μ_0).
     set (x := post_whisker μ_0 (`T)
              : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
     set (x' := x · μ_2).
@@ -289,7 +291,7 @@ Proof.
   apply μ_2_is_ptd_mor.
 Defined.
 
-Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T (#U μ_2_ptd).
+Definition μ_3 : EndC ⟦U T_squared • `T, `T⟧ := ⦃μ_2⦄_{T_squared}.
 
 
 (** *** Proof of the third monad law via transitivity *)
@@ -297,10 +299,10 @@ Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T (#U μ_2_ptd
 
 (** using uniqueness of bracket for the prejoin *)
 Lemma μ_3_T_μ_2_μ_2 : μ_3 =
-                      (`T ∘ μ_2 : EndC ⟦ `T • _  , `T • `T ⟧ ) · μ_2.
+                      (`T ∘ μ_2 : EndC ⟦`T • _  , `T • `T⟧ ) · μ_2.
 Proof.
   apply pathsinv0.
-  apply (fbracket_unique T (#U μ_2_ptd)).
+  apply (fbracket_unique(Z:=T_squared) T μ_2).
   split.
   - apply nat_trans_eq_alt.
     intro c.
@@ -370,7 +372,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                     ((functor_ptd_forget C hs) T) --> _*) ) μ_2 :
             (*TtimesTthenT'*) T•T² --> `T) = μ_3.
 Proof.
-  apply (fbracket_unique (*_pointwise*) T (#U μ_2_ptd)).
+  apply (fbracket_unique(Z:=T_squared) (*_pointwise*) T μ_2).
   split.
   - apply nat_trans_eq_alt; intro c.
     simpl.
@@ -471,7 +473,7 @@ Proof.
   intermediate_path μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.
   (** we only aim at a proof alternative to [μ_3_μ_2_T_μ_2] *)
-  apply (fbracket_unique (*_pointwise*) T  (#U μ_2_ptd)).
+  apply (fbracket_unique(Z:=T_squared) (*_pointwise*) T  μ_2).
   split.
   - apply nat_trans_eq_alt; intro c.
     simpl.

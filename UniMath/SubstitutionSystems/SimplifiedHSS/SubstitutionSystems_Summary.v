@@ -51,7 +51,7 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
-Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
+Notation "⦃ f ⦄_{ Z }" := (fbracket _ Z f)(at level 0).
 Notation "G • F" := (functor_composite F G).
 
 
@@ -111,7 +111,7 @@ Lemma fbracket_natural
        (H : Presignature C C C) (T : hss CP H) (Z Z' : category_Ptd C)
        (f : category_Ptd C ⟦ Z, Z' ⟧)
        (g : [C,C] ⟦ U Z', `T ⟧),
-       (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ #U f · g ⦄ .
+       (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃g⦄_{Z'} = ⦃#U f · g⦄_{Z} .
 Proof.
   apply fbracket_natural.
 Qed.
@@ -120,7 +120,7 @@ Lemma compute_fbracket
      : ∏ (C : category) (CP : BinCoproducts C)
        (H : Presignature C C C) (T : hss CP H) (Z : category_Ptd C)
        (f : category_Ptd C ⟦ Z, ptd_from_alg T ⟧),
-       ⦃ #U f ⦄ = (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (U (ptd_from_alg T)) ⦄.
+       ⦃#U f⦄_{Z} = (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (U (ptd_from_alg T)) ⦄_{ptd_from_alg T}.
 Proof.
   apply compute_fbracket.
 Qed.
