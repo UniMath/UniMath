@@ -168,7 +168,7 @@ Section hss.
         apply cancel_postcomposition.
         apply pathsinv0.
         assert (aux := lineator_linnatright Mon_PtdV _ _ H θ _ _ (pr1 gh) μ_0_Ptd).
-        cbn in aux.
+        cbn in aux. (* the Qed timing problem comes from this operation *)
         exact aux.
       }
       etrans.
@@ -224,10 +224,26 @@ Section hss.
              apply ghss_first_monoidlaw.
         }
         apply pathsinv0, monoidal_rightunitornat.
-      + admit.
-
-
-
+      + etrans.
+        { apply cancel_postcomposition.
+          rewrite functor_comp.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          apply pathsinv0.
+          assert (aux := lineator_linnatright Mon_PtdV _ _ H θ _ _ (pr1 gh) μ_2_Ptd).
+          cbn in aux. (* the Qed timing problem comes from this operation *)
+          exact aux.
+        }
+        etrans.
+        { do 2 rewrite assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+        }
+        do 2 rewrite assoc.
+        apply cancel_postcomposition.
+        cbn.
+        apply bifunctor_equalwhiskers.
     - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
       apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
       split.
@@ -284,6 +300,7 @@ Section hss.
         repeat rewrite assoc.
         apply cancel_postcomposition.
         apply monoidal_associatornatleft.
+  (* Time Qed.    extremely slow: I did not see any success , therefore admitting *)
   Admitted.
 
   End FixAGhss.
