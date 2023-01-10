@@ -8,7 +8,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-(* Require Import UniMath.CategoryTheory.Core.Isos. *)
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 (* Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered. *)
@@ -109,7 +109,7 @@ Section hss.
 
   Definition μ_0 : I_{Mon_V} --> gh := η.
 
-  Definition μ_0_ptd : I_{Mon_PtdV} --> Ptd_from_ghss.
+  Definition μ_0_Ptd : I_{Mon_PtdV} --> Ptd_from_ghss.
   Proof.
     exists μ_0.
     cbn. apply id_left.
@@ -136,14 +136,23 @@ Section hss.
   Lemma ghss_first_monoidlaw : ru^{Mon_V}_{gh} = gh ⊗^{Mon_V}_{l} η · μ.
   Proof.
     etrans.
-    2: { apply (gfbracket_η(Z:=(pr1 gh,,η))). }
+    2: { apply (gfbracket_η(Z:=Ptd_from_ghss)). }
     apply pathsinv0, id_right.
   Qed.
 
 
-  Lemma ghss_second_monoidlaw_aux : ru^{ Mon_V }_{ I_{ Mon_V}} · η = I_{ Mon_V} ⊗^{ Mon_V}_{l} η · (η ⊗^{ Mon_V}_{r} gh · μ).
+  Lemma ghss_second_monoidlaw_aux :
+    ru^{ Mon_V }_{ I_{ Mon_V}} · η = I_{ Mon_V} ⊗^{ Mon_V}_{l} η · (η ⊗^{ Mon_V}_{r} gh · μ).
   Proof.
-  Admitted.
+    rewrite assoc.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply bifunctor_equalwhiskers. }
+    unfold functoronmorphisms1.
+    rewrite assoc'.
+    rewrite <- ghss_first_monoidlaw.
+    apply pathsinv0, monoidal_rightunitornat.
+  Qed.
 
   Lemma ghss_second_monoidlaw : lu^{Mon_V}_{gh} = η ⊗^{Mon_V}_{r} gh · μ.
   Proof.
@@ -152,32 +161,83 @@ Section hss.
     apply pathsinv0, (gfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
     - exact ghss_second_monoidlaw_aux.
-    - admit.
+    - rewrite functor_comp.
+      etrans.
+      { apply cancel_postcomposition.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        apply pathsinv0.
+        assert (aux := lineator_linnatright Mon_PtdV _ _ H θ _ _ (pr1 gh) μ_0_Ptd).
+        cbn in aux.
+        exact aux.
+      }
+      etrans.
+      { do 2 rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+      }
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      cbn.
+      apply bifunctor_equalwhiskers.
+  (* Time Qed.    very slow: close to one minute on a stationary AMD processor, therefore admitting *)
   Admitted.
+
 
   Definition gh_squared : PtdV := Ptd_from_ghss ⊗_{Mon_PtdV} Ptd_from_ghss.
 
   Definition μ_2 : gh ⊗_{Mon_V} gh --> gh := μ.
 
-  Definition μ_2_ptd : gh_squared --> Ptd_from_ghss.
+  Lemma μ_2_is_Ptd_mor : luinv^{Mon_V}_{I_{Mon_V}} · η ⊗^{Mon_V} η · μ_2 = η.
   Proof.
-    exists μ_2.
-    cbn. unfold μ_2.
-    (* use [ghss_second_monoidlaw_aux] *)
-  Admitted.
+    rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (leftunitor_nat_z_iso Mon_V) I_{ Mon_V})).
+    cbn.
+    rewrite unitors_coincide_on_unit.
+    etrans.
+    2: { apply pathsinv0, ghss_second_monoidlaw_aux. }
+    rewrite assoc.
+    apply cancel_postcomposition.
+    apply bifunctor_equalwhiskers.
+  Qed.
+
+  Definition μ_2_Ptd : gh_squared --> Ptd_from_ghss := μ_2,,μ_2_is_Ptd_mor.
 
   Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{gh_squared}.
 
   Lemma ghss_third_monoidlaw : μ ⊗^{Mon_V}_{r} gh · μ = α_{Mon_V} gh gh gh · gh ⊗^{Mon_V}_{l} μ · μ.
   Proof.
-    transitivity  μ_3.
+    transitivity μ_3.
     - apply (gfbracket_unique(Z:=gh_squared)).
       split.
-      + admit.
+      + cbn.
+        etrans.
+        2: { rewrite assoc.
+             apply cancel_postcomposition.
+             apply bifunctor_equalwhiskers. }
+        unfold functoronmorphisms1.
+        etrans.
+        2: { rewrite assoc'.
+             apply maponpaths.
+             apply ghss_first_monoidlaw.
+        }
+        apply pathsinv0, monoidal_rightunitornat.
       + admit.
     - apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
       split.
-      + admit.
+      + cbn.
+        etrans.
+        2: { rewrite assoc.
+             apply cancel_postcomposition.
+             rewrite assoc.
+             rewrite <- monoidal_associatornatleft.
+             rewrite assoc'.
+             apply maponpaths.
+             apply bifunctor_leftcomp. }
+        rewrite <- ghss_first_monoidlaw.
+        apply cancel_postcomposition.
+        apply pathsinv0, left_whisker_with_runitor.
       + admit.
   Admitted.
 
