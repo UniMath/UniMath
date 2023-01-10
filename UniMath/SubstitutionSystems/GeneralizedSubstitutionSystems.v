@@ -142,7 +142,7 @@ Section hss.
 
 
   Lemma ghss_second_monoidlaw_aux :
-    ru^{ Mon_V }_{ I_{ Mon_V}} · η = I_{ Mon_V} ⊗^{ Mon_V}_{l} η · (η ⊗^{ Mon_V}_{r} gh · μ).
+    ru^{Mon_V}_{I_{Mon_V}} · η = I_{Mon_V} ⊗^{Mon_V}_{l} η · (η ⊗^{Mon_V}_{r} gh · μ).
   Proof.
     rewrite assoc.
     etrans.
@@ -209,7 +209,8 @@ Section hss.
   Lemma ghss_third_monoidlaw : μ ⊗^{Mon_V}_{r} gh · μ = α_{Mon_V} gh gh gh · gh ⊗^{Mon_V}_{l} μ · μ.
   Proof.
     transitivity μ_3.
-    - apply (gfbracket_unique(Z:=gh_squared)).
+    - (** this case is the monoidal generalization of the second item on p.168 of Matthes & Uustalu, TCS 2004 *)
+      apply (gfbracket_unique(Z:=gh_squared)).
       split.
       + cbn.
         etrans.
@@ -224,7 +225,11 @@ Section hss.
         }
         apply pathsinv0, monoidal_rightunitornat.
       + admit.
-    - apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
+
+
+
+    - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
+      apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
       split.
       + cbn.
         etrans.
@@ -238,7 +243,47 @@ Section hss.
         rewrite <- ghss_first_monoidlaw.
         apply cancel_postcomposition.
         apply pathsinv0, left_whisker_with_runitor.
-      + admit.
+      + etrans.
+        { apply cancel_postcomposition.
+          rewrite assoc'.
+          rewrite functor_comp.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          apply pointedtensorialstrength_preserves_actor.
+          apply lineator_preservesactor. }
+        cbn.
+        etrans.
+        { repeat rewrite assoc'.
+          do 2 apply maponpaths.
+          etrans.
+          { rewrite assoc.
+            apply cancel_postcomposition.
+            rewrite functor_comp.
+            rewrite assoc.
+            apply cancel_postcomposition.
+            apply pathsinv0, (lineator_linnatleft Mon_PtdV _ _ H θ Ptd_from_ghss _ _ μ).
+          }
+          repeat rewrite assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+        }
+        cbn.
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { repeat rewrite assoc'.
+          apply maponpaths.
+          do 2 rewrite <- bifunctor_leftcomp.
+          apply maponpaths.
+          rewrite assoc.
+          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+        }
+        cbn.
+        rewrite bifunctor_leftcomp.
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply monoidal_associatornatleft.
   Admitted.
 
   End FixAGhss.
