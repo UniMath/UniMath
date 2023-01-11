@@ -162,14 +162,19 @@ Section hss.
     split.
     - exact ghss_second_monoidlaw_aux.
     - rewrite functor_comp.
-      etrans.
+      transitivity (μ_0 ⊗^{ Mon_V}_{r} H (pr1 gh) · θ Ptd_from_ghss (pr1 gh) · # H μ · τ). (* give this term due to efficiency problems *)
       { apply cancel_postcomposition.
         rewrite assoc.
         apply cancel_postcomposition.
         apply pathsinv0.
-        assert (aux := lineator_linnatright Mon_PtdV _ _ H θ _ _ (pr1 gh) μ_0_Ptd).
-        cbn in aux. (* the Qed timing problem comes from this operation *)
-        exact aux.
+        set (aux := lineator_linnatright Mon_PtdV
+                      (actegory_with_canonical_pointed_action Mon_V)
+                      (actegory_with_canonical_pointed_action Mon_V)
+                      H θ I_{ Mon_PtdV} Ptd_from_ghss (pr1 gh) μ_0_Ptd).
+        cbn in aux.
+        etrans.
+        { exact aux. }
+        apply idpath.
       }
       etrans.
       { do 2 rewrite assoc'.
@@ -181,9 +186,7 @@ Section hss.
       apply cancel_postcomposition.
       cbn.
       apply bifunctor_equalwhiskers.
-  (* Time Qed.    very slow: close to one minute on a stationary AMD processor, therefore admitting *)
-  Admitted.
-
+  Time Qed. (* slow *)
 
   Definition gh_squared : PtdV := Ptd_from_ghss ⊗_{Mon_PtdV} Ptd_from_ghss.
 
@@ -205,6 +208,20 @@ Section hss.
   Definition μ_2_Ptd : gh_squared --> Ptd_from_ghss := μ_2,,μ_2_is_Ptd_mor.
 
   Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{gh_squared}.
+
+  Lemma ghss_third_monoidlaw_aux : θ (pr1 gh_squared,, pr2 gh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
+                                     μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_ghss gh.
+  Proof.
+    apply pathsinv0.
+    assert (aux := lineator_linnatright Mon_PtdV
+                     (actegory_with_canonical_pointed_action Mon_V)
+                     (actegory_with_canonical_pointed_action Mon_V)
+                     H θ gh_squared Ptd_from_ghss gh μ_2_Ptd).
+    simpl in aux. (* simpl not cbn *)
+    etrans.
+    { exact aux. }
+    apply idpath.
+  Qed.
 
   Lemma ghss_third_monoidlaw : μ ⊗^{Mon_V}_{r} gh · μ = α_{Mon_V} gh gh gh · gh ⊗^{Mon_V}_{l} μ · μ.
   Proof.
@@ -229,10 +246,7 @@ Section hss.
           rewrite functor_comp.
           rewrite assoc.
           apply cancel_postcomposition.
-          apply pathsinv0.
-          assert (aux := lineator_linnatright Mon_PtdV _ _ H θ _ _ (pr1 gh) μ_2_Ptd).
-          cbn in aux. (* the Qed timing problem comes from this operation *)
-          exact aux.
+          exact ghss_third_monoidlaw_aux.
         }
         etrans.
         { do 2 rewrite assoc'.
@@ -300,8 +314,7 @@ Section hss.
         repeat rewrite assoc.
         apply cancel_postcomposition.
         apply monoidal_associatornatleft.
-  (* Time Qed.    extremely slow: I did not see any success , therefore admitting *)
-  Admitted.
+  Qed.
 
   End FixAGhss.
 
