@@ -303,6 +303,24 @@ GrothendieckConstruction/Projection.v
 GrothendieckConstruction/IsOpfibration.v
 GrothendieckConstruction/IsPullback.v
 
+# Twosided displayed categories
+TwoSidedDisplayedCats/TwoSidedDispCat.v
+TwoSidedDisplayedCats/Isos.v
+TwoSidedDisplayedCats/Univalence.v
+TwoSidedDisplayedCats/Discrete.v
+TwoSidedDisplayedCats/Total.v
+TwoSidedDisplayedCats/TwoSidedFibration.v
+TwoSidedDisplayedCats/Fiber.v
+TwoSidedDisplayedCats/Examples/Arrow.v
+TwoSidedDisplayedCats/Examples/Comma.v
+TwoSidedDisplayedCats/Examples/Constant.v
+TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
+TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
+TwoSidedDisplayedCats/Examples/IsoComma.v
+TwoSidedDisplayedCats/Examples/Product.v
+TwoSidedDisplayedCats/Examples/Relations.v
+TwoSidedDisplayedCats/Examples/Representable.v
+
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
 RepresentableFunctors/Bifunctor.v
