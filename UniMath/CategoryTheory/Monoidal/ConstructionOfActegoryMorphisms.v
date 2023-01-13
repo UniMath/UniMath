@@ -242,8 +242,66 @@ Section ActegoryMorphismFromLiftedDistributivity.
       }
       rewrite id_left.
       apply idpath.
-    - admit.
-  Admitted.
+    - etrans.
+      { apply maponpaths.
+        apply (functor_comp (leftwhiskering_functor ActV v0)). }
+      cbn.
+      etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        repeat rewrite assoc'.
+        do 2 apply maponpaths.
+        apply actegory_actornatleftright.
+      }
+      etrans.
+      { repeat rewrite assoc.
+        do 2 apply cancel_postcomposition.
+        repeat rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (rightwhiskering_functor ActV x)).
+      }
+      cbn.
+      etrans.
+      { do 2 apply cancel_postcomposition.
+        do 2 apply maponpaths.
+        rewrite (lifteddistributivity_ldunit δ).
+        repeat rewrite assoc'.
+        do 3 apply maponpaths.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v0)). }
+        apply (functor_id_id _ _ (leftwhiskering_functor Mon_V v0)).
+        apply (pr2 (fmonoidal_preservesunitstrongly U)).
+      }
+      rewrite id_right.
+      etrans.
+      { do 2 apply cancel_postcomposition.
+        etrans.
+        { apply maponpaths.
+          apply (functor_comp (rightwhiskering_functor ActV x)). }
+        cbn.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        apply pathsinv0, actorinv_nat_rightwhisker.
+      }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      (* the extra effort for having an abstract strong monoidal functor has now been accomplished *)
+      etrans.
+      { repeat rewrite assoc'.
+        do 2 apply maponpaths.
+        apply actegory_triangleidentity. }
+      etrans.
+      { apply maponpaths.
+        apply pathsinv0, (functor_comp (rightwhiskering_functor ActV x)). }
+      cbn.
+      rewrite assoc'.
+      rewrite (pr2 (monoidal_rightunitorisolaw Mon_V v0)).
+      rewrite id_right.
+      rewrite <- actegory_triangleidentity'.
+      rewrite assoc.
+      rewrite (pr2 (actegory_actorisolaw Mon_V ActV _ _ _)).
+      apply id_left.
+  Qed.
 
 
 End ActegoryMorphismFromLiftedDistributivity.
