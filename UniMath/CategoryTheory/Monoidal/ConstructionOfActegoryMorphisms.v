@@ -86,7 +86,42 @@ Section ActegoryMorphismFromLiftedDistributivity.
     do 2 red in δ_nat. cbn in δ_nat.
     repeat split; red; intros; unfold lineator_data_from_δ; try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn;
       try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn.
-  Abort.
+    - etrans.
+      { repeat rewrite assoc.
+        do 2 apply cancel_postcomposition.
+        apply actorinv_nat_leftwhisker. }
+      etrans.
+      2: { repeat rewrite assoc'.
+           do 2 apply maponpaths.
+           apply pathsinv0, actegory_actornatleft.
+      }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0, bifunctor_equalwhiskers.
+    - etrans.
+      { repeat rewrite assoc.
+        do 2 apply cancel_postcomposition.
+        apply actorinv_nat_rightwhisker. }
+      etrans.
+      2: { repeat rewrite assoc'.
+           do 2 apply maponpaths.
+           apply pathsinv0, actegory_actornatleftright.
+      }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      etrans.
+      { apply pathsinv0, (functor_comp (rightwhiskering_functor ActV x)). }
+      etrans.
+      2: { apply (functor_comp (rightwhiskering_functor ActV x)). }
+      apply maponpaths.
+      apply δ_nat.
+    - admit.
+    - admit.
+  Admitted.
 
 
 End ActegoryMorphismFromLiftedDistributivity.
