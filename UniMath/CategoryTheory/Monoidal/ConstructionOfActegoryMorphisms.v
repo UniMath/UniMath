@@ -29,8 +29,11 @@ Section LiftedDistributivity.
 
   Context {V : category} (Mon_V : monoidal V)
           {W : category} (Mon_W : monoidal W)
-          {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F)
-          (v0 : V).
+          {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
+
+Section FixAnObject.
+
+  Context {v0 : V}.
 
   Definition lifteddistributivity_data: UU := ∏ (w: W), F w ⊗_{Mon_V} v0 --> v0 ⊗_{Mon_V} F w.
 
@@ -66,6 +69,8 @@ Coercion lifteddistributivity_lddata : lifteddistributivity >-> lifteddistributi
 Definition lifteddistributivity_ldnat (δ : lifteddistributivity): lifteddistributivity_nat δ := pr12 δ.
 Definition lifteddistributivity_ldtensor (δ : lifteddistributivity): lifteddistributivity_tensor δ := pr122 δ.
 Definition lifteddistributivity_ldunit (δ : lifteddistributivity): lifteddistributivity_unit δ := pr222 δ.
+
+
 
 Section ActegoryMorphismFromLiftedDistributivity.
 
@@ -303,7 +308,95 @@ Section ActegoryMorphismFromLiftedDistributivity.
       apply id_left.
   Qed.
 
+  Definition lineator_lax_from_δ: lineator_lax Mon_W ActW ActW FF :=
+    lineator_data_from_δ,,lineator_laxlaws_from_δ.
 
 End ActegoryMorphismFromLiftedDistributivity.
+
+End FixAnObject.
+
+Arguments lifteddistributivity _ : clear implicits.
+Arguments lifteddistributivity_data _ : clear implicits.
+
+Section CompositionOfLiftedDistributivities.
+
+  Context (v1 v2: V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
+
+  Definition composedlifteddistributivity_data: lifteddistributivity_data (v1 ⊗_{Mon_V} v2).
+  Proof.
+    red; intros.
+    exact (αinv_{Mon_V} _ _ _ · δ1 w ⊗^{Mon_V}_{r} v2 · α_{Mon_V} _ _ _
+             · v1 ⊗^{Mon_V}_{l} δ2 w · αinv_{Mon_V} _ _ _).
+  Defined.
+
+  Lemma composedlifteddistributivity_nat: lifteddistributivity_nat composedlifteddistributivity_data.
+  Proof.
+    do 2 red; intros; unfold composedlifteddistributivity_data; cbn.
+    assert (δ1_nat := lifteddistributivity_ldnat δ1).
+    assert (δ2_nat := lifteddistributivity_ldnat δ2).
+    do 2 red in δ1_nat, δ2_nat; cbn in δ1_nat, δ2_nat.
+    etrans.
+    { repeat rewrite assoc.
+      do 4 apply cancel_postcomposition.
+      apply monoidal_associatorinvnatright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { rewrite assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V v2)). }
+    cbn.
+    rewrite δ1_nat.
+    etrans.
+    { rewrite assoc.
+      do 2 apply cancel_postcomposition.
+      apply (functor_comp (rightwhiskering_functor Mon_V v2)). }
+    cbn.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { do 2 apply maponpaths.
+         apply monoidal_associatorinvnatleft. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    2: { rewrite assoc'.
+         apply maponpaths.
+         apply (functor_comp (leftwhiskering_functor Mon_V v1)). }
+    cbn.
+    rewrite <- δ2_nat.
+    etrans.
+    2: { apply maponpaths.
+         apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v1)). }
+    cbn.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0, monoidal_associatornatleftright.
+  Qed.
+
+  Lemma composedlifteddistributivity_tensor: lifteddistributivity_tensor composedlifteddistributivity_data.
+  Proof.
+    do 2 red; intros; unfold composedlifteddistributivity_data; cbn.
+    rewrite (lifteddistributivity_ldtensor δ1).
+    rewrite (lifteddistributivity_ldtensor δ2).
+  Admitted.
+
+  Lemma composedlifteddistributivity_unit: lifteddistributivity_unit composedlifteddistributivity_data.
+  Proof.
+    red; unfold composedlifteddistributivity_data; cbn.
+    rewrite (lifteddistributivity_ldunit δ1).
+    rewrite (lifteddistributivity_ldunit δ2).
+  Admitted.
+
+  Definition composedlifteddistributivity: lifteddistributivity (v1 ⊗_{Mon_V} v2).
+  Proof.
+    exists composedlifteddistributivity_data.
+    exact (composedlifteddistributivity_nat,,
+           composedlifteddistributivity_tensor,,
+           composedlifteddistributivity_unit).
+  Defined.
+
+End CompositionOfLiftedDistributivities.
+
 
 End LiftedDistributivity.
