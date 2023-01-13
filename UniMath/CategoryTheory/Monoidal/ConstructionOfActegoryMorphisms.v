@@ -119,7 +119,129 @@ Section ActegoryMorphismFromLiftedDistributivity.
       2: { apply (functor_comp (rightwhiskering_functor ActV x)). }
       apply maponpaths.
       apply δ_nat.
-    - admit.
+    - etrans.
+      { apply maponpaths.
+        apply (functor_comp (leftwhiskering_functor ActV v0)). }
+      cbn.
+      etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        repeat rewrite assoc'.
+        do 2 apply maponpaths.
+        apply actegory_actornatleftright.
+      }
+      etrans.
+      { repeat rewrite assoc.
+        do 2 apply cancel_postcomposition.
+        repeat rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (rightwhiskering_functor ActV x)).
+      }
+      cbn.
+      etrans.
+      { do 2 apply cancel_postcomposition.
+        do 2 apply maponpaths.
+        rewrite (lifteddistributivity_ldtensor δ).
+        repeat rewrite assoc'.
+        do 6 apply maponpaths.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v0)). }
+        apply (functor_id_id _ _ (leftwhiskering_functor Mon_V v0)).
+        apply (pr2 (fmonoidal_preservestensorstrongly U v w)).
+      }
+      rewrite id_right.
+      etrans.
+      { do 2 apply cancel_postcomposition.
+        etrans.
+        { apply maponpaths.
+          apply (functor_comp (rightwhiskering_functor ActV x)). }
+        cbn.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        apply pathsinv0, actorinv_nat_rightwhisker.
+      }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      (* the extra effort for having an abstract strong monoidal functor has now been accomplished *)
+      apply (z_iso_inv_on_right _ _ _ (z_iso_from_actor_iso Mon_V ActV _ _ _)).
+      etrans.
+      { apply cancel_postcomposition.
+        repeat rewrite assoc.
+        apply (functor_comp (rightwhiskering_functor ActV x)). }
+      cbn.
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        apply actegory_pentagonidentity.
+      }
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      rewrite <- actegory_pentagonidentity.
+      etrans.
+      { apply cancel_postcomposition.
+        repeat rewrite assoc'.
+        apply (functor_comp (rightwhiskering_functor ActV x)). }
+      cbn.
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      2: { apply maponpaths.
+           etrans.
+           2: { apply maponpaths.
+                apply cancel_postcomposition.
+                apply pathsinv0, (functor_comp (leftwhiskering_functor ActV (F v))). }
+           cbn.
+           repeat rewrite assoc.
+           do 3 apply cancel_postcomposition.
+           etrans.
+           2: { apply (functor_comp (leftwhiskering_functor ActV (F v))). }
+           apply pathsinv0, (functor_id_id _ _ (leftwhiskering_functor ActV (F v))).
+           apply (pr1 (actegory_actorisolaw Mon_V ActV _ _ _)).
+      }
+      rewrite id_left.
+      etrans.
+      2: { apply maponpaths.
+           rewrite assoc'.
+           apply cancel_postcomposition.
+           apply pathsinv0, (functor_comp (leftwhiskering_functor ActV (F v))).
+      }
+      cbn.
+      etrans.
+      2: { repeat rewrite assoc.
+           do 3 apply cancel_postcomposition.
+           apply pathsinv0, actegory_actornatleftright. }
+      etrans.
+      { apply cancel_postcomposition.
+        apply (functor_comp (rightwhiskering_functor ActV x)). }
+      cbn.
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (functor_comp (rightwhiskering_functor ActV x)). }
+      cbn.
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, actegory_actornatright. }
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      (* only a variant of the pentagon law with some inverses is missing here *)
+      apply (z_iso_inv_on_left _ _ _ _ (z_iso_from_actor_iso Mon_V ActV _ _ _)).
+      cbn.
+      rewrite assoc'.
+      rewrite <- actegory_pentagonidentity.
+      etrans.
+      2: { repeat rewrite assoc.
+           do 2 apply cancel_postcomposition.
+           etrans.
+           2: { apply (functor_comp (rightwhiskering_functor ActV x)). }
+           apply pathsinv0, (functor_id_id  _ _ (rightwhiskering_functor ActV x)).
+           apply (pr2 (monoidal_associatorisolaw Mon_V _ _ _)).
+      }
+      rewrite id_left.
+      apply idpath.
     - admit.
   Admitted.
 
