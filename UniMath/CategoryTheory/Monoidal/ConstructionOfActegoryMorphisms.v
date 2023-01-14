@@ -386,7 +386,86 @@ Section CompositionOfLiftedDistributivities.
     red; unfold composedlifteddistributivity_data; cbn.
     rewrite (lifteddistributivity_ldunit δ1).
     rewrite (lifteddistributivity_ldunit δ2).
-  Admitted.
+    etrans.
+    { do 3 apply cancel_postcomposition.
+      apply maponpaths.
+      etrans.
+      { apply (functor_comp (rightwhiskering_functor Mon_V v2)). }
+      do 2 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    { apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      do 6 apply maponpaths.
+      etrans.
+      { apply (functor_comp (leftwhiskering_functor Mon_V v1)). }
+      do 2 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    { repeat rewrite assoc.
+      do 9 apply cancel_postcomposition.
+      apply pathsinv0, monoidal_associatorinvnatright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { repeat rewrite assoc.
+      do 8 apply cancel_postcomposition.
+      rewrite <- monoidal_triangleidentity'.
+      rewrite assoc.
+      apply cancel_postcomposition.
+      apply (pr2 (monoidal_associatorisolaw Mon_V _ _ _)).
+    }
+    rewrite id_left.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { do 6 apply maponpaths.
+      apply monoidal_associatorinvnatleft. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { do 4 apply cancel_postcomposition.
+      rewrite assoc'.
+      apply maponpaths.
+      apply pathsinv0, monoidal_associatornatleftright.
+    }
+    etrans.
+    { do 3 apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      etrans.
+      { apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v1)). }
+      apply maponpaths.
+      etrans.
+      { apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V v2)). }
+      apply (functor_id_id _ _ (rightwhiskering_functor Mon_V v2)).
+      apply (pr2 (fmonoidal_preservesunitstrongly U)).
+    }
+    rewrite functor_id.
+    rewrite id_right.
+    etrans.
+    { repeat rewrite assoc'.
+      do 3 apply maponpaths.
+      apply monoidal_triangle_identity''_inv. }
+    etrans.
+    { apply maponpaths.
+      rewrite assoc.
+      apply cancel_postcomposition.
+      apply monoidal_triangleidentity. }
+    rewrite assoc.
+    etrans.
+    { apply cancel_postcomposition.
+      etrans.
+      { apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V v2)). }
+      apply (functor_id_id _ _ (rightwhiskering_functor Mon_V v2)).
+      apply (monoidal_rightunitorisolaw Mon_V).
+    }
+    apply id_left.
+  Qed.
 
   Definition composedlifteddistributivity: lifteddistributivity (v1 ⊗_{Mon_V} v2).
   Proof.

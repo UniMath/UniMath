@@ -733,6 +733,21 @@ Section UnitorsCoincide.
 
   Definition monoidal_triangleidentity' := right_whisker_with_lunitor.
 
+  Lemma monoidal_triangle_identity'_inv (x y : C)
+  : luinv_{M} (x ⊗_{M} y) · αinv_{M} I_{M} x y = luinv_{M} x ⊗^{M}_{r} y.
+  Proof.
+    apply pathsinv0.
+    apply (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+    cbn.
+    set (luix := make_z_iso _ _ (monoidal_leftunitorisolaw M x)).
+    set (luixy := functor_on_z_iso (rightwhiskering_functor M y) luix).
+    set (luipxy := make_z_iso _ _ (monoidal_leftunitorisolaw M (x ⊗_{ M} y))).
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ luixy).
+    apply (z_iso_inv_on_left _ _ _ _ luipxy).
+    exact (! monoidal_triangleidentity' x y).
+  Qed.
+
   Lemma lunitor_preserves_leftwhiskering_with_unit
     :  lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
   Proof.
@@ -875,4 +890,19 @@ Proof.
   { apply cancel_postcomposition.
     apply monoidal_associatorisolaw. }
   apply id_left.
+Qed.
+
+Lemma monoidal_triangle_identity''_inv {C : category} (M : monoidal C) (x y : C)
+  : x ⊗^{M}_{l} (ruinv_{M} y) · αinv_{M} x y I_{M} = ruinv_{M} (x ⊗_{M} y).
+Proof.
+  apply pathsinv0.
+  apply (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+  cbn.
+  set (ruiy := make_z_iso _ _ (monoidal_rightunitorisolaw M y)).
+  set (ruiyx := functor_on_z_iso (leftwhiskering_functor M x) ruiy).
+  set (ruipxy := make_z_iso _ _ (monoidal_rightunitorisolaw M (x ⊗_{ M} y))).
+  apply pathsinv0.
+  apply (z_iso_inv_on_right _ _ _ ruipxy).
+  apply (z_iso_inv_on_left _ _ _ _ ruiyx).
+  exact (! (left_whisker_with_runitor M) x y).
 Qed.
