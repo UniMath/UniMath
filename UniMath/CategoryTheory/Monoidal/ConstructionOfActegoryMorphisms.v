@@ -379,7 +379,187 @@ Section CompositionOfLiftedDistributivities.
     do 2 red; intros; unfold composedlifteddistributivity_data; cbn.
     rewrite (lifteddistributivity_ldtensor δ1).
     rewrite (lifteddistributivity_ldtensor δ2).
-  Admitted.
+    etrans.
+    { do 3 apply cancel_postcomposition.
+      apply maponpaths.
+      etrans.
+      { apply (functor_comp (rightwhiskering_functor Mon_V v2)). }
+      do 5 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    { apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      do 9 apply maponpaths.
+      etrans.
+      { apply (functor_comp (leftwhiskering_functor Mon_V v1)). }
+      do 5 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    { repeat rewrite assoc.
+      do 15 apply cancel_postcomposition.
+      apply pathsinv0, monoidal_associatorinvnatright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { do 14 apply maponpaths.
+      apply monoidal_associatorinvnatleft. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    2: { do 3 apply cancel_postcomposition.
+         apply maponpaths.
+         etrans.
+         2: { apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V (F w))). }
+      do 3 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         repeat rewrite assoc'.
+         do 7 apply maponpaths.
+         etrans.
+         2: { apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V (F w'))). }
+      do 3 rewrite functor_comp.
+      cbn.
+      apply idpath.
+    }
+    etrans.
+    { do 6 apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      do 6 apply maponpaths.
+      etrans.
+      { apply maponpaths.
+        apply monoidal_associatornatleftright. }
+      rewrite assoc.
+      apply cancel_postcomposition.
+      etrans.
+      { apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V v2)). }
+      apply maponpaths.
+      etrans.
+      { apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v1)). }
+      apply (functor_id_id _ _ (leftwhiskering_functor Mon_V v1)).
+      apply (pr2 (fmonoidal_preservestensorstrongly U w w')).
+    }
+    rewrite functor_id.
+    rewrite id_left.
+    etrans.
+    { repeat rewrite assoc'. apply idpath. }
+    apply (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 11 apply cancel_postcomposition.
+         etrans.
+         2: { apply cancel_postcomposition.
+              apply monoidal_pentagonidentity. }
+         repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         etrans.
+         2: { apply (functor_comp (leftwhiskering_functor Mon_V (F w))). }
+         apply pathsinv0, (functor_id_id _ _ (leftwhiskering_functor Mon_V (F w))).
+         apply (pr1 (monoidal_associatorisolaw Mon_V _ _ _)).
+    }
+    rewrite id_right.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 10 apply cancel_postcomposition.
+         apply pathsinv0, monoidal_associatornatleftright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    apply (z_iso_inv_on_right _ _ _ (functor_on_z_iso (rightwhiskering_functor Mon_V v2) (z_iso_from_associator_iso Mon_V _ _ _))).
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 9 apply cancel_postcomposition.
+         apply pathsinv0, monoidal_pentagonidentity. }
+    etrans.
+    { repeat rewrite assoc. apply idpath. }
+    apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc'.
+         do 9 apply maponpaths.
+         etrans.
+         2: { apply maponpaths.
+              apply monoidal_pentagonidentity. }
+         repeat rewrite assoc.
+         do 2 apply cancel_postcomposition.
+         etrans.
+         2: { apply (functor_comp (rightwhiskering_functor Mon_V _)). }
+         apply pathsinv0, (functor_id_id _ _ (rightwhiskering_functor Mon_V (F w'))).
+         apply (pr2 (monoidal_associatorisolaw Mon_V _ _ _)).
+    }
+    rewrite id_left.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { do 3 apply cancel_postcomposition.
+      repeat rewrite assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      apply monoidal_pentagonidentity. }
+    etrans.
+    { repeat rewrite assoc.
+      do 4 apply cancel_postcomposition.
+      apply pathsinv0, monoidal_associatornatright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { apply maponpaths.
+      repeat rewrite assoc.
+      do 2 apply cancel_postcomposition.
+      apply monoidal_associatornatleft. }
+    etrans.
+    { repeat rewrite assoc.
+      do 3 apply cancel_postcomposition.
+      apply bifunctor_equalwhiskers. }
+    unfold functoronmorphisms2.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 7 apply cancel_postcomposition.
+         apply pathsinv0, monoidal_associatornatleft. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 4 apply cancel_postcomposition.
+         etrans.
+         2: { repeat rewrite assoc'.
+              apply maponpaths.
+              rewrite assoc.
+              apply pathsinv0, monoidal_pentagon_identity_inv. }
+         rewrite assoc.
+         apply cancel_postcomposition.
+         apply pathsinv0, (pr1 (monoidal_associatorisolaw Mon_V _ _ _)).
+    }
+    rewrite id_left.
+    etrans.
+    2: { repeat rewrite assoc'.
+         do 3 apply maponpaths.
+         apply monoidal_associatornatleftright. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    repeat rewrite assoc'.
+    apply pathsinv0, (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc.
+         do 2 apply cancel_postcomposition.
+         apply pathsinv0, monoidal_associatornatright. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    rewrite assoc.
+    apply (z_iso_inv_on_left _ _ _ _ (functor_on_z_iso (leftwhiskering_functor Mon_V v1) (z_iso_from_associator_iso Mon_V _ _ _))).
+    cbn.
+    apply pathsinv0, monoidal_pentagonidentity.
+  Qed.
 
   Lemma composedlifteddistributivity_unit: lifteddistributivity_unit composedlifteddistributivity_data.
   Proof.
