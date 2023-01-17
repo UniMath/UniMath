@@ -524,11 +524,33 @@ Section StrongFunctors.
     apply idpath.
   Qed.
 
+Section LiftedStrength.
+
+  Context {V : category} (Mon_V : monoidal V)
+          {W : category} (Mon_W : monoidal W)
+          {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F)
+          {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D) (FF :  C ⟶ D).
+
+  Definition liftedstrength : UU :=
+    lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U) (lifted_actegory Mon_V ActD Mon_W U) FF.
+
+  Identity Coercion id_liftedstrength : liftedstrength >-> lineator_lax.
+
+End LiftedStrength.
+
   Definition pointedtensorialstrength {C : category} (M : monoidal C) (F : functor C C) : UU :=
+    liftedstrength M (monoidal_pointed_objects M) (forget_monoidal_pointed_objects_monoidal M)
+                   (actegory_with_canonical_self_action M) (actegory_with_canonical_self_action M) F.
+
+  Goal ∏ (C : category)(M : monoidal C) (F : functor C C), pointedtensorialstrength M F =
     lineator_lax (monoidal_pointed_objects M) (actegory_with_canonical_pointed_action M)
                                               (actegory_with_canonical_pointed_action M) F.
+  Proof.
+    intros.
+    apply idpath.
+  Qed.
 
-  Identity Coercion id_pointedtensorialstrength : pointedtensorialstrength >-> lineator_lax.
+  Identity Coercion id_pointedtensorialstrength : pointedtensorialstrength >-> liftedstrength.
 
   Lemma pointedtensorialstrength_lineator_nat_left {C : category} (M : monoidal C)
     {F : functor C C} (pts : pointedtensorialstrength M F):

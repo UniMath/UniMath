@@ -308,7 +308,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
       apply id_left.
   Qed.
 
-  Definition lineator_lax_from_δ: lineator_lax Mon_W ActW ActW FF :=
+  Definition liftedstrength_from_δ: liftedstrength Mon_V Mon_W U ActV ActV FF :=
     lineator_data_from_δ,,lineator_laxlaws_from_δ.
 
 End ActegoryMorphismFromLiftedDistributivity.
