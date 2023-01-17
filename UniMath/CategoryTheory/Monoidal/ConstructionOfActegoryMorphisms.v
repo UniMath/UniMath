@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 
 Local Open Scope cat.
 
@@ -659,3 +660,218 @@ End CompositionOfLiftedDistributivities.
 
 
 End LiftedDistributivity.
+
+Section PointwiseBinaryProductOfLinearFunctors.
+
+  Context  {V : category} (Mon_V : monoidal V)
+    {C D : category} (BPD : BinProducts D)
+    (ActC : actegory Mon_V C) (ActD : actegory Mon_V D)
+    {F1 F2: functor C D}
+    (ll1 : lineator_lax Mon_V ActC ActD F1)
+    (ll2 : lineator_lax Mon_V ActC ActD F2).
+
+  Let FF: functor C D := BinProduct_of_functors _ _ BPD F1 F2.
+
+  Definition lineator_data_binprod: lineator_data Mon_V ActC ActD FF.
+  Proof.
+    intros v x.
+    cbn.
+    unfold BinProduct_of_functors_ob.
+    use (BinProductArrow _ (BPD _ _)).
+    - exact (v ⊗^{ActD}_{l} (BinProductPr1 _ (BPD _ _)) · ll1 v x).
+    - exact (v ⊗^{ActD}_{l} (BinProductPr2 _ (BPD _ _)) · ll2 v x).
+  Defined.
+
+  Lemma lineator_laxlaws_binprod: lineator_laxlaws Mon_V ActC ActD FF lineator_data_binprod.
+  Proof.
+    repeat split; red; intros; unfold lineator_data_binprod.
+    - use BinProductArrowsEq.
+      + etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinProductPr1Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply pathsinv0, (pr2 (binproduct_nat_trans_pr1 _ _ BPD _ _)). }
+        repeat rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinProductPr1Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply (lineator_linnatleft _ _ _ _ ll1). }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)). }
+        etrans.
+        2: {  apply (functor_comp (leftwhiskering_functor ActD v)). }
+        apply maponpaths.
+        apply (pr2 (binproduct_nat_trans_pr1 _ _ BPD _ _)).
+      + (* analogous proof for second projection *)
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinProductPr2Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply pathsinv0, (pr2 (binproduct_nat_trans_pr2 _ _ BPD _ _)). }
+        repeat rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinProductPr2Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply (lineator_linnatleft _ _ _ _ ll2). }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)). }
+        etrans.
+        2: {  apply (functor_comp (leftwhiskering_functor ActD v)). }
+        apply maponpaths.
+        apply (pr2 (binproduct_nat_trans_pr2 _ _ BPD _ _)).
+    - use BinProductArrowsEq.
+      + etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinProductPr1Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply pathsinv0, (pr2 (binproduct_nat_trans_pr1 _ _ BPD _ _)). }
+        repeat rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinProductPr1Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply (lineator_linnatright _ _ _ _ ll1). }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply bifunctor_equalwhiskers.
+      + (* analogous proof for second projection *)
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinProductPr2Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply pathsinv0, (pr2 (binproduct_nat_trans_pr2 _ _ BPD _ _)). }
+        repeat rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinProductPr2Commutes. }
+        repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply (lineator_linnatright _ _ _ _ ll2). }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply bifunctor_equalwhiskers.
+    - (* tensor *)
+      use BinProductArrowsEq.
+      + etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (pr2 (binproduct_nat_trans_pr1 _ _ BPD _ _)). }
+        etrans.
+        { rewrite assoc.
+          apply cancel_postcomposition.
+          apply BinProductPr1Commutes. }
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (lineator_preservesactor _ _ _ _ ll1). }
+        etrans.
+        2: { repeat rewrite assoc'.
+             do 2 apply maponpaths.
+             apply pathsinv0, BinProductPr1Commutes. }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        2: { rewrite assoc'.
+             apply maponpaths.
+             etrans.
+             2: { apply (functor_comp (leftwhiskering_functor ActD v)). }
+             apply maponpaths.
+             apply pathsinv0, BinProductPr1Commutes.
+        }
+        rewrite <- actegory_actornatleft.
+        repeat rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)).
+      + (* analogous proof for second projection *)
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (pr2 (binproduct_nat_trans_pr2 _ _ BPD _ _)). }
+        etrans.
+        { rewrite assoc.
+          apply cancel_postcomposition.
+          apply BinProductPr2Commutes. }
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (lineator_preservesactor _ _ _ _ ll2). }
+        etrans.
+        2: { repeat rewrite assoc'.
+             do 2 apply maponpaths.
+             apply pathsinv0, BinProductPr2Commutes. }
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        2: { rewrite assoc'.
+             apply maponpaths.
+             etrans.
+             2: { apply (functor_comp (leftwhiskering_functor ActD v)). }
+             apply maponpaths.
+             apply pathsinv0, BinProductPr2Commutes.
+        }
+        rewrite <- actegory_actornatleft.
+        repeat rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)).
+    - (* unit *)
+      use BinProductArrowsEq.
+      + etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (pr2 (binproduct_nat_trans_pr1 _ _ BPD _ _)). }
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinProductPr1Commutes. }
+        rewrite assoc'.
+        etrans.
+        { apply maponpaths.
+          apply (lineator_preservesunitor _ _ _ _ ll1). }
+        apply actegory_unitornat.
+      + (* analogous proof for second projection *)
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply (pr2 (binproduct_nat_trans_pr2 _ _ BPD _ _)). }
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinProductPr2Commutes. }
+        rewrite assoc'.
+        etrans.
+        { apply maponpaths.
+          apply (lineator_preservesunitor _ _ _ _ ll2). }
+        apply actegory_unitornat.
+  Qed.
+
+  Definition lineator_binprod: lineator_lax Mon_V ActC ActD FF :=
+    lineator_data_binprod,,lineator_laxlaws_binprod.
+
+End PointwiseBinaryProductOfLinearFunctors.
+
+(* TODO: same with pointwise binary and arbitrary sums *)
