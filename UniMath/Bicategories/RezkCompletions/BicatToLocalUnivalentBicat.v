@@ -146,8 +146,6 @@ End Aux.
 
 Section LocalUnivalenceRezk.
 
-  (**)
-
   Context (RC : RezkCat).
 
   Let R : category -> univalent_category := λ C, pr1 (RC C).
@@ -548,7 +546,7 @@ Section LocalUnivalenceRezk.
     apply (lift_nat_trans_along_comm _ _ _ _ (LRB_associator_nat_z_iso_pre x y z w)).
   Defined.
 
-  Lemma test {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
+  Lemma LRB_associator_pre0' {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
     : R (hom x w)
  ⟦ (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
     ∙ ((precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w))
@@ -571,10 +569,10 @@ Section LocalUnivalenceRezk.
   Lemma LRB_associator_pre0
         {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
     : pr1 (LRB_associator_nat_z_iso_pre x y z w) (f : hom _ _, (g : hom _ _, h : hom _ _))
-      = test f g h.
+      = LRB_associator_pre0' f g h.
   Proof.
     cbn.
-    unfold test.
+    unfold LRB_associator_pre0'.
     rewrite ! id_left.
     rewrite ! id_right.
     rewrite ! assoc.
@@ -682,7 +680,7 @@ Section LocalUnivalenceRezk.
         (f : B ⟦ x, y ⟧)
         (g : B ⟦ y, z ⟧)
         (h : B ⟦ z, w ⟧)
-    : pr1 (LRB_associator (η_{x,y} f) (η_{y,z} g) (η (hom z w) h)) = test f g h.
+    : pr1 (LRB_associator (η_{x,y} f) (η_{y,z} g) (η (hom z w) h)) = LRB_associator_pre0' f g h.
   Proof.
     refine ((toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f : hom _ _, (g : hom _ _, h : hom _ _))) @ _).
     apply (LRB_associator_pre0 f g h).
@@ -994,7 +992,7 @@ Section LocalUnivalenceRezk.
       apply p.
     }
 
-    unfold test.
+    unfold LRB_associator_pre0'.
     cbn.
 
     etrans. {
@@ -1140,7 +1138,7 @@ Section LocalUnivalenceRezk.
     etrans.
     2: { apply maponpaths, (! LRB_associator_pre0 f0 h0 i0). }
 
-    unfold test ; cbn.
+    unfold LRB_associator_pre0' ; cbn.
     unfold functor_fix_snd_arg_mor.
 
     etrans.
@@ -1316,7 +1314,7 @@ Section LocalUnivalenceRezk.
     { apply maponpaths_2, (LRB_associator_pre0 f0 h0 i0). }
     etrans.
     2: { apply maponpaths, (! LRB_associator_pre0 g0 h0 i0). }
-    unfold test ; cbn.
+    unfold LRB_associator_pre0' ; cbn.
     unfold functor_fix_snd_arg_mor.
 
     etrans.
@@ -1469,7 +1467,7 @@ Section LocalUnivalenceRezk.
 
     cbn.
     unfold functor_fix_snd_arg_mor.
-    unfold test.
+    unfold LRB_associator_pre0'.
     cbn.
 
     etrans.
@@ -1674,7 +1672,7 @@ Section LocalUnivalenceRezk.
       apply maponpaths, maponpaths_2.
       exact (! prewhisker_LRB_associator' (f0 · g0) h0 i0).
     }
-    unfold test.
+    unfold LRB_associator_pre0'.
 
     etrans.
     2: {
@@ -2253,7 +2251,7 @@ Section LocalUnivalenceRezk.
       exact (prewhisker_LRB_associator' f0 g0 h0).
     }
 
-    unfold test.
+    unfold LRB_associator_pre0'.
     simpl.
     unfold functor_fix_snd_arg_mor.
     unfold LRB_lassociator_rwhisker, LRB_lassociator_rwhisker'.
@@ -2395,7 +2393,7 @@ Section LocalUnivalenceRezk.
       exact (prewhisker_LRB_associator' g0 h0 i0).
     }
 
-    unfold test.
+    unfold LRB_associator_pre0'.
     simpl.
     unfold functor_fix_snd_arg_mor.
     unfold LRB_lassociator_lwhisker, LRB_lassociator_lwhisker'.
