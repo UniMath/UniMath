@@ -1,4 +1,13 @@
-(** Generalization of pointed distributivity laws to lifted distributivity laws in general monads
+(** Construction of actegory morphisms
+
+Part Generalization of pointed distributivity laws to lifted distributivity laws in general monads
+- definition
+- construction of actegory morphism from it
+- composition
+
+Part Closure of the notion of actegory morphisms under
+- the pointwise binary product of functors
+
 
 author: Ralph Matthes 2022
  *)
@@ -660,6 +669,7 @@ End CompositionOfLiftedDistributivities.
 
 
 End LiftedDistributivity.
+
 
 Section PointwiseBinaryProductOfLinearFunctors.
 
