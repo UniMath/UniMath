@@ -111,6 +111,74 @@ Definition iso_after_inv_twosided_disp
          (id_two_disp _))
   := pr22 Hfg.
 
+Definition inv_after_iso_twosided_disp_alt
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
+           {f : x₁ --> x₂}
+           {g : y₁ --> y₂}
+           {Hf : is_z_isomorphism f}
+           {Hg : is_z_isomorphism g}
+           {fg : xy₁ -->[ f ][ g ] xy₂}
+           (Hfg : is_iso_twosided_disp Hf Hg fg)
+  : id_two_disp _
+    =
+    transportf
+      (λ z, _ -->[ z ][ _ ] _)
+      (z_iso_inv_after_z_iso (f ,, Hf))
+      (transportf
+         (λ z, _ -->[ _ ][ z ] _)
+         (z_iso_inv_after_z_iso (g ,, Hg))
+         (fg ;;2 iso_inv_twosided_disp Hfg)).
+Proof.
+  use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
+  use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
+  refine (!_).
+  etrans.
+  {
+    apply inv_after_iso_twosided_disp.
+  }
+  refine (!_).
+  apply twosided_swap_transport.
+Qed.
+
+Definition iso_after_inv_twosided_disp_alt
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
+           {f : x₁ --> x₂}
+           {g : y₁ --> y₂}
+           {Hf : is_z_isomorphism f}
+           {Hg : is_z_isomorphism g}
+           {fg : xy₁ -->[ f ][ g ] xy₂}
+           (Hfg : is_iso_twosided_disp Hf Hg fg)
+  : id_two_disp _
+    =
+    transportf
+      (λ z, _ -->[ z ][ _ ] _)
+      (z_iso_after_z_iso_inv (f ,, Hf))
+      (transportf
+         (λ z, _ -->[ _ ][ z ] _)
+         (z_iso_after_z_iso_inv (g ,, Hg))
+         (iso_inv_twosided_disp Hfg ;;2 fg)).
+Proof.
+  use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
+  use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
+  refine (!_).
+  etrans.
+  {
+    apply iso_after_inv_twosided_disp.
+  }
+  refine (!_).
+  apply twosided_swap_transport.
+Qed.
+
 Definition isaprop_is_iso_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -132,7 +200,62 @@ Proof.
     intro.
     use isapropdirprod ; apply isaset_disp_mor.
   }
-Admitted.
+  etrans.
+  {
+    apply id_two_disp_right_alt.
+  }
+  refine (twosided_prod_transport _ _ _ @ _).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_after_iso_twosided_disp_alt φ₂).
+  }
+  rewrite two_disp_post_whisker_left.
+  rewrite two_disp_post_whisker_right.
+  etrans.
+  {
+    apply maponpaths.
+    apply twosided_prod_transport.
+  }
+  rewrite transport_f_f.
+  rewrite assoc_two_disp.
+  unfold transportb.
+  etrans.
+  {
+    apply maponpaths.
+    apply twosided_prod_transport.
+  }
+  rewrite transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply (iso_after_inv_twosided_disp φ₁).
+  }
+  unfold transportb.
+  rewrite two_disp_pre_whisker_left.
+  rewrite two_disp_pre_whisker_right.
+  etrans.
+  {
+    apply maponpaths.
+    apply twosided_prod_transport.
+  }
+  rewrite transport_f_f.
+  rewrite id_two_disp_left.
+  unfold transportb.
+  etrans.
+  {
+    apply maponpaths.
+    apply twosided_prod_transport.
+  }
+  rewrite transport_f_f.
+  unfold iso_inv_twosided_disp.
+  use (@transportf_set
+         _
+         (λ z, xy₂ -->[ pr1 z ][ dirprod_pr2 z ] xy₁)
+         (_ ,, _)).
+  apply isasetdirprod ; apply homset_property.
+Qed.
 
 Definition iso_twosided_disp
            {C₁ C₂ : category}

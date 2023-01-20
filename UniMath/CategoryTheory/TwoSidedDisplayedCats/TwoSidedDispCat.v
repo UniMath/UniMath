@@ -397,6 +397,291 @@ Section TwoSidedDispCat.
   Proof.
     exact (pr2 (pr222 D) _ _ _ _ xy₁ xy₂ f g).
   Qed.
+
+  Definition twosided_swap_transport
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (p : f₁ = f₂)
+             (q : g₁ = g₂)
+    : transportf
+        (λ z, _ -->[ _ ][ z ] _)
+        q
+        (transportf
+           (λ z, _ -->[ z ][ _ ] _)
+           p
+           fg)
+      =
+      transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        p
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           q
+           fg).
+  Proof.
+    induction p, q.
+    apply idpath.
+  Qed.
+
+  Definition twosided_prod_transport
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (p : f₁ = f₂)
+             (q : g₁ = g₂)
+    : transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        p
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           q
+           fg)
+      =
+      transportf
+        (λ z, _ -->[ pr1 z ][ pr2 z ] _)
+        (pathsdirprod p q)
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  Definition twosided_prod_transport_alt
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (p : f₁ = f₂)
+             (q : g₁ = g₂)
+    : transportf
+        (λ z, _ -->[ _ ][ z ] _)
+        q
+        (transportf
+           (λ z, _ -->[ z ][ _ ] _)
+           p
+           fg)
+      =
+      transportf
+        (λ z, _ -->[ pr1 z ][ pr2 z ] _)
+        (pathsdirprod p q)
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  Definition id_two_disp_left_alt
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f : x₁ --> x₂}
+             {g : y₁ --> y₂}
+             (fg : xy₁ -->[ f ][ g ] xy₂)
+    : fg
+      =
+      transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        (id_left _)
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           (id_left _)
+           (id_two_disp xy₁ ;;2 fg)).
+  Proof.
+    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
+    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
+    refine (!_).
+    etrans.
+    {
+      apply id_two_disp_left.
+    }
+    refine (!_).
+    apply twosided_swap_transport.
+  Qed.
+
+  Definition id_two_disp_right_alt
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f : x₁ --> x₂}
+             {g : y₁ --> y₂}
+             (fg : xy₁ -->[ f ][ g ] xy₂)
+    : fg
+      =
+      transportf
+        (λ z, _ -->[ z ][ _] _)
+        (id_right _)
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           (id_right _)
+           (fg ;;2 id_two_disp xy₂)).
+  Proof.
+    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
+    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
+    refine (!_).
+    etrans.
+    {
+      apply id_two_disp_right.
+    }
+    refine (!_).
+    apply twosided_swap_transport.
+  Qed.
+
+  Definition assoc_two_disp_alt
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ x₄ : C₁}
+             {y₁ y₂ y₃ y₄ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {xy₄ : D x₄ y₄}
+             {f₁ : x₁ --> x₂}
+             {f₂ : x₂ --> x₃}
+             {f₃ : x₃ --> x₄}
+             {g₁ : y₁ --> y₂}
+             {g₂ : y₂ --> y₃}
+             {g₃ : y₃ --> y₄}
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+             (fg₃ : xy₃ -->[ f₃ ][ g₃ ] xy₄)
+    : ((fg₁ ;;2 fg₂) ;;2 fg₃)
+      =
+      transportf
+        (λ z, _ -->[ z ][ _] _)
+        (assoc _ _ _)
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           (assoc _ _ _)
+           (fg₁ ;;2 (fg₂ ;;2 fg₃))).
+  Proof.
+    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
+    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
+    refine (!_).
+    etrans.
+    {
+      apply assoc_two_disp.
+    }
+    refine (!_).
+    apply twosided_swap_transport.
+  Qed.
+
+  Definition two_disp_post_whisker_left
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {f₂ f₂' : x₂ --> x₃}
+             (p : f₂' = f₂)
+             {g₁ : y₁ --> y₂}
+             {g₂ : y₂ --> y₃}
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂' ][ g₂ ] xy₃)
+    : fg₁ ;;2 transportf (λ z, _ -->[ z ][ _ ] _) p fg₂
+      =
+      transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        (maponpaths (λ z, _ · z) p)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition two_disp_post_whisker_right
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {f₂ : x₂ --> x₃}
+             {g₁ : y₁ --> y₂}
+             {g₂ g₂' : y₂ --> y₃}
+             (p : g₂' = g₂)
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂' ] xy₃)
+    : fg₁ ;;2 transportf (λ z, _ -->[ _ ][ z ] _) p fg₂
+      =
+      transportf
+        (λ z, _ -->[ _ ][ z ] _)
+        (maponpaths (λ z, _ · z) p)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition two_disp_pre_whisker_left
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ f₁' : x₁ --> x₂}
+             (p : f₁' = f₁)
+             {f₂ : x₂ --> x₃}
+             {g₁ : y₁ --> y₂}
+             {g₂ : y₂ --> y₃}
+             (fg₁ : xy₁ -->[ f₁' ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+    : transportf (λ z, _ -->[ z ][ _ ] _) p fg₁ ;;2 fg₂
+      =
+      transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        (maponpaths (λ z, z · _) p)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition two_disp_pre_whisker_right
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {f₂ : x₂ --> x₃}
+             {g₁ g₁' : y₁ --> y₂}
+             (p : g₁' = g₁)
+             {g₂ : y₂ --> y₃}
+             (fg₁ : xy₁ -->[ f₁ ][ g₁' ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+    : transportf (λ z, _ -->[ _ ][ z ] _) p fg₁ ;;2 fg₂
+      =
+      transportf
+        (λ z, _ -->[ _ ][ z ] _)
+        (maponpaths (λ z, z · _) p)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
 End TwoSidedDispCat.
 
 Arguments twosided_disp_cat_ob_mor _ _ : clear implicits.

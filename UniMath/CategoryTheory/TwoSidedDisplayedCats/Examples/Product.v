@@ -5,6 +5,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
@@ -54,4 +55,40 @@ Section ProductTwoSidedDispCat.
     - exact prod_twosided_disp_cat_data.
     - exact prod_twosided_disp_cat_axioms.
   Defined.
+
+  Definition constant_twosided_disp_cat_is_iso
+    : all_disp_mor_iso prod_twosided_disp_cat.
+  Proof.
+    intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g Hf Hg fg.
+    simple refine (_ ,, _ ,, _).
+    - exact tt.
+    - apply isapropunit.
+    - apply isapropunit.
+  Defined.
+
+  Definition is_univalent_prod_twosided_disp_cat
+    : is_univalent_twosided_disp_cat prod_twosided_disp_cat.
+  Proof.
+    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    - intros f.
+      apply isapropunit.
+    - apply isasetunit.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_iso_twosided_disp.
+      + intros.
+        apply isapropunit.
+  Qed.
+
+  Definition discrete_prod_twosided_disp_cat
+    : discrete_twosided_disp_cat prod_twosided_disp_cat.
+  Proof.
+    repeat split.
+    - intro ; intros.
+      apply isapropunit.
+    - exact constant_twosided_disp_cat_is_iso.
+    - exact is_univalent_prod_twosided_disp_cat.
+  Qed.
 End ProductTwoSidedDispCat.

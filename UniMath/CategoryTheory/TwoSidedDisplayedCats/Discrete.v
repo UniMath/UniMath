@@ -99,3 +99,24 @@ Proof.
     + exact HD₂.
   - exact HD₃.
 Defined.
+
+Definition isaset_discrete_twosided_cat_ob
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           (HD : discrete_twosided_disp_cat D)
+           (x : C₁)
+           (y : C₂)
+  : isaset (D x y).
+Proof.
+  pose (HD₁ := pr1 HD).
+  pose (HD₂ := pr22 HD).
+  intros xy₁ xy₂.
+  use (isofhlevelweqb
+         _
+         (_ ,, HD₂ x x y y (idpath x) (idpath y) xy₁ xy₂)).
+  use isaproptotal2.
+  - intro.
+    apply isaprop_is_iso_twosided_disp.
+  - intros.
+    apply HD₁.
+Qed.

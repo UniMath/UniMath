@@ -311,15 +311,19 @@ TwoSidedDisplayedCats/Discrete.v
 TwoSidedDisplayedCats/Total.v
 TwoSidedDisplayedCats/TwoSidedFibration.v
 TwoSidedDisplayedCats/Fiber.v
-TwoSidedDisplayedCats/Examples/Arrow.v
-TwoSidedDisplayedCats/Examples/Comma.v
+
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
+
+TwoSidedDisplayedCats/Examples/Arrow.v
+TwoSidedDisplayedCats/Examples/Bimodules.v
+TwoSidedDisplayedCats/Examples/Comma.v
 TwoSidedDisplayedCats/Examples/IsoComma.v
+TwoSidedDisplayedCats/Examples/Lenses.v
 TwoSidedDisplayedCats/Examples/Product.v
 TwoSidedDisplayedCats/Examples/Relations.v
-TwoSidedDisplayedCats/Examples/Representable.v
+TwoSidedDisplayedCats/Examples/Spans.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v

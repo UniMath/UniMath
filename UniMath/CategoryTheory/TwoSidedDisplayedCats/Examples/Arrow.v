@@ -5,6 +5,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
@@ -91,13 +92,37 @@ Section ArrowTwoSidedDispCat.
     - apply isaprop_arrow_twosided_mor.
     - apply isaprop_arrow_twosided_mor.
   Qed.
-End ArrowTwoSidedDispCat.
 
-Section ArrowTwoSidedFibration.
-  Context (C : category).
+  Definition is_univalent_arrow_twosided_disp_cat
+    : is_univalent_twosided_disp_cat arrow_twosided_disp_cat.
+  Proof.
+    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    - intros f.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite id_left, id_right in p.
+      exact (!p).
+    - apply homset_property.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_iso_twosided_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
+  Definition discrete_arrow_twosided_disp_cat
+    : discrete_twosided_disp_cat arrow_twosided_disp_cat.
+  Proof.
+    repeat split.
+    - intro ; intros.
+      apply homset_property.
+    - exact arrow_twosided_disp_cat_is_iso.
+    - exact is_univalent_arrow_twosided_disp_cat.
+  Qed.
 
   Definition arrow_twosided_opcleaving
-    : twosided_opcleaving (arrow_twosided_disp_cat C).
+    : twosided_opcleaving arrow_twosided_disp_cat.
   Proof.
     intros x₁ x₂ x₃ f g ; cbn in *.
     simple refine (f · g ,, _ ,, _) ; cbn.
@@ -120,7 +145,7 @@ Section ArrowTwoSidedFibration.
   Qed.
 
   Definition arrow_twosided_cleaving
-    : twosided_cleaving (arrow_twosided_disp_cat C).
+    : twosided_cleaving arrow_twosided_disp_cat.
   Proof.
     intros x₁ x₂ x₃ f g ; cbn in *.
     simple refine (g · f ,, _ ,, _) ; cbn.
@@ -144,7 +169,7 @@ Section ArrowTwoSidedFibration.
   Qed.
 
   Definition arrow_twosided_fibration
-    : twosided_fibration (arrow_twosided_disp_cat C).
+    : twosided_fibration arrow_twosided_disp_cat.
   Proof.
     simple refine (_ ,, _ ,, _).
     - exact arrow_twosided_opcleaving.
@@ -152,4 +177,4 @@ Section ArrowTwoSidedFibration.
     - intro ; intros.
       apply arrow_twosided_disp_cat_is_iso.
   Defined.
-End ArrowTwoSidedFibration.
+End ArrowTwoSidedDispCat.

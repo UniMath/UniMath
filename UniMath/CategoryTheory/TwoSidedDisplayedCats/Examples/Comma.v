@@ -5,6 +5,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
@@ -96,15 +97,38 @@ Section CommaTwoSidedDispCat.
     - apply isaprop_comma_twosided_mor.
     - apply isaprop_comma_twosided_mor.
   Qed.
-End CommaTwoSidedDispCat.
 
-Section CommaTwoSidedFibration.
-  Context {C₁ C₂ C₃ : category}
-          (F : C₁ ⟶ C₃)
-          (G : C₂ ⟶ C₃).
+  Definition is_univalent_comma_twosided_disp_cat
+    : is_univalent_twosided_disp_cat comma_twosided_disp_cat.
+  Proof.
+    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    - intros f.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite !functor_id in p.
+      rewrite id_left, id_right in p.
+      exact (!p).
+    - apply homset_property.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_iso_twosided_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
+  Definition discrete_comma_twosided_disp_cat
+    : discrete_twosided_disp_cat comma_twosided_disp_cat.
+  Proof.
+    repeat split.
+    - intro ; intros.
+      apply homset_property.
+    - exact comma_twosided_disp_cat_is_iso.
+    - exact is_univalent_comma_twosided_disp_cat.
+  Qed.
 
   Definition comma_twosided_opcleaving
-    : twosided_opcleaving (comma_twosided_disp_cat F G).
+    : twosided_opcleaving comma_twosided_disp_cat.
   Proof.
     intros x₁ x₂ x₃ f g ; cbn in *.
     simple refine (f · #G g ,, _ ,, _) ; cbn.
@@ -129,7 +153,7 @@ Section CommaTwoSidedFibration.
   Qed.
 
   Definition comma_twosided_cleaving
-    : twosided_cleaving (comma_twosided_disp_cat F G).
+    : twosided_cleaving comma_twosided_disp_cat.
   Proof.
     intros x₁ x₂ x₃ f g ; cbn in *.
     simple refine (#F g · f ,, _ ,, _) ; cbn.
@@ -154,7 +178,7 @@ Section CommaTwoSidedFibration.
   Qed.
 
   Definition comma_twosided_fibration
-    : twosided_fibration (comma_twosided_disp_cat F G).
+    : twosided_fibration comma_twosided_disp_cat.
   Proof.
     simple refine (_ ,, _ ,, _).
     - exact comma_twosided_opcleaving.
@@ -162,4 +186,16 @@ Section CommaTwoSidedFibration.
     - intro ; intros.
       apply comma_twosided_disp_cat_is_iso.
   Defined.
-End CommaTwoSidedFibration.
+End CommaTwoSidedDispCat.
+
+Definition left_repr_twosided_disp_cat
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : twosided_disp_cat C₁ C₂
+  := comma_twosided_disp_cat F (functor_identity _).
+
+Definition right_repr_twosided_disp_cat
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : twosided_disp_cat C₂ C₁
+  := comma_twosided_disp_cat (functor_identity _) F.

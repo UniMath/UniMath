@@ -4,16 +4,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Profunctors.Core.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
 Local Open Scope cat.
 
@@ -26,7 +21,7 @@ Section IsoCommaTwoSidedDispCat.
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
     simple refine (_ ,, _).
-    - exact (λ x y, iso (F x) (G y)).
+    - exact (λ x y, z_iso (F x) (G y)).
     - exact (λ x₁ x₂ y₁ y₂ h₁ h₂ f g, #F f · h₂ = h₁ · #G g).
   Defined.
 
@@ -102,5 +97,35 @@ Section IsoCommaTwoSidedDispCat.
       exact fg.
     - apply isaprop_iso_comma_twosided_mor.
     - apply isaprop_iso_comma_twosided_mor.
+  Qed.
+
+  Definition is_univalent_iso_comma_twosided_disp_cat
+    : is_univalent_twosided_disp_cat iso_comma_twosided_disp_cat.
+  Proof.
+    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    - intros f.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite !functor_id in p.
+      rewrite id_left, id_right in p.
+      use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ].
+      exact (!p).
+    - apply isaset_z_iso.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_iso_twosided_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
+  Definition discrete_iso_comma_twosided_disp_cat
+    : discrete_twosided_disp_cat iso_comma_twosided_disp_cat.
+  Proof.
+    repeat split.
+    - intro ; intros.
+      apply homset_property.
+    - exact iso_comma_twosided_disp_cat_is_iso.
+    - exact is_univalent_iso_comma_twosided_disp_cat.
   Qed.
 End IsoCommaTwoSidedDispCat.
