@@ -206,6 +206,7 @@ MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
 Morphisms/Monadic.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegoriesFinalObject.v
+MonoidalCategories/MonadsAsMonoidsWhiskered.v
 Monads/Examples/MonadsInStructuredCategories.v
 
 Limits/ProductEquivalences.v
