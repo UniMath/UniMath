@@ -1,4 +1,4 @@
-(** In this file, the category of monoids internal to a monoidal category has been defined **)
+(** In this file, the category of monoids internal to a monoidal category is defined **)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

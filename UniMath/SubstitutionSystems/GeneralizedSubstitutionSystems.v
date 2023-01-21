@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-(* Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered. *)
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
@@ -133,11 +133,14 @@ Section hss.
       apply pathsinv0, monoidal_leftunitornat.
   Qed.
 
-  Lemma ghss_first_monoidlaw : ru^{Mon_V}_{gh} = gh ⊗^{Mon_V}_{l} η · μ.
+  Definition ghss_monoid_data : monoid_data Mon_V gh := μ,,μ_0.
+
+  Lemma ghss_first_monoidlaw : monoid_laws_unit_right Mon_V ghss_monoid_data.
   Proof.
+    red. cbn.
     etrans.
-    2: { apply (gfbracket_η(Z:=Ptd_from_ghss)). }
-    apply pathsinv0, id_right.
+    { apply pathsinv0, (gfbracket_η(Z:=Ptd_from_ghss)). }
+    apply id_right.
   Qed.
 
 
@@ -150,15 +153,18 @@ Section hss.
          apply bifunctor_equalwhiskers. }
     unfold functoronmorphisms1.
     rewrite assoc'.
-    rewrite <- ghss_first_monoidlaw.
+    etrans.
+    2: { apply maponpaths.
+         apply pathsinv0, ghss_first_monoidlaw. }
     apply pathsinv0, monoidal_rightunitornat.
   Qed.
 
-  Lemma ghss_second_monoidlaw : lu^{Mon_V}_{gh} = η ⊗^{Mon_V}_{r} gh · μ.
+  Lemma ghss_second_monoidlaw : monoid_laws_unit_left Mon_V ghss_monoid_data.
   Proof.
+    red. cbn.
     etrans.
-    { apply pathsinv0, μ_1_is_instance_of_left_unitor. }
-    apply pathsinv0, (gfbracket_unique(Z:=I_{Mon_PtdV})).
+    2: { apply μ_1_is_instance_of_left_unitor. }
+    apply (gfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
     - exact ghss_second_monoidlaw_aux.
     - rewrite functor_comp.
@@ -223,8 +229,9 @@ Section hss.
     apply idpath.
   Qed.
 
-  Lemma ghss_third_monoidlaw : μ ⊗^{Mon_V}_{r} gh · μ = α_{Mon_V} gh gh gh · gh ⊗^{Mon_V}_{l} μ · μ.
+  Lemma ghss_third_monoidlaw : monoid_laws_assoc Mon_V ghss_monoid_data.
   Proof.
+    red. cbn. apply pathsinv0.
     transitivity μ_3.
     - (** this case is the monoidal generalization of the second item on p.168 of Matthes & Uustalu, TCS 2004 *)
       apply (gfbracket_unique(Z:=gh_squared)).
@@ -238,7 +245,7 @@ Section hss.
         etrans.
         2: { rewrite assoc'.
              apply maponpaths.
-             apply ghss_first_monoidlaw.
+             apply pathsinv0, ghss_first_monoidlaw.
         }
         apply pathsinv0, monoidal_rightunitornat.
       + etrans.
@@ -270,7 +277,10 @@ Section hss.
              rewrite assoc'.
              apply maponpaths.
              apply bifunctor_leftcomp. }
-        rewrite <- ghss_first_monoidlaw.
+        etrans.
+        2: { apply cancel_postcomposition.
+             do 2 apply maponpaths.
+             apply pathsinv0, ghss_first_monoidlaw. }
         apply cancel_postcomposition.
         apply pathsinv0, left_whisker_with_runitor.
       + etrans.
@@ -315,6 +325,12 @@ Section hss.
         apply cancel_postcomposition.
         apply monoidal_associatornatleft.
   Qed.
+
+  Definition ghss_monoid : monoid Mon_V gh.
+  Proof.
+    exists ghss_monoid_data.
+    exact (ghss_second_monoidlaw,,ghss_first_monoidlaw,,ghss_third_monoidlaw).
+  Defined.
 
   End FixAGhss.
 

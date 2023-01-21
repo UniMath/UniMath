@@ -25,7 +25,7 @@ Section MonoidToMonad.
   Let ENDO := monoidal_of_endofunctors C.
   Let MON := category_of_monoids_in_monoidal_cat ENDO.
 
-  Context {M : MON}.
+  Context (M : MON).
 
   Let x := monoid_carrier _ M.
   Let η := monoid_unit _ M.
