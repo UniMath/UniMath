@@ -262,6 +262,7 @@ Monoidal/BraidedMonoidalCategoriesWhiskered.v
 Monoidal/ClosedMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalCategoriesReordered.v
 Monoidal/MonoidalDialgebras.v
+Monoidal/CategoriesOfMonoidsWhiskered.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
