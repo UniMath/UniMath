@@ -66,6 +66,18 @@ Section Category_of_Monoids.
     : monoid_data x := pr1 m.
   Coercion monoid_to_monoid_data : monoid >-> monoid_data.
 
+  Definition monoid_to_monoid_laws {x : C} (m : monoid x)
+    : monoid_laws m := pr2 m.
+
+  Definition monoid_to_unit_left_law {x : C} (m : monoid x)
+    : monoid_laws_unit_left m := pr1 (monoid_to_monoid_laws m).
+
+  Definition monoid_to_unit_right_law {x : C} (m : monoid x)
+    : monoid_laws_unit_right m := pr12 (monoid_to_monoid_laws m).
+
+  Definition monoid_to_assoc_law {x : C} (m : monoid x)
+    : monoid_laws_assoc m := pr22 (monoid_to_monoid_laws m).
+
   Definition is_monoid_mor_mult {x y : C}
              (mx : monoid x) (my : monoid y) (f : C⟦x,y⟧) : UU
     := (f ⊗⊗ f) · μ_{my} = μ_{mx} · f.
@@ -166,5 +178,35 @@ Section Category_of_Monoids.
 
   Definition category_of_monoids_in_monoidal_cat : category
     := total_category monoid_disp_cat.
+
+  Let MON := category_of_monoids_in_monoidal_cat.
+
+  Definition monoid_carrier
+             (X : MON)
+    : ob C := pr1 X.
+
+  Definition monoid_struct (X : MON)
+    : monoid (monoid_carrier X)
+    := pr2 X.
+
+  Definition monoid_multiplication (X : MON)
+    : C⟦monoid_carrier X ⊗_{ M} monoid_carrier X, monoid_carrier X⟧
+    := monoid_data_multiplication (monoid_struct X).
+
+  Definition monoid_unit (X : MON)
+    : C⟦I, monoid_carrier X⟧
+    := monoid_data_unit (monoid_struct X).
+
+  Definition monoid_left_unit_law (X : MON)
+    : monoid_laws_unit_left (monoid_struct X)
+    := monoid_to_unit_left_law (monoid_struct X).
+
+  Definition monoid_right_unit_law (X : MON)
+    : monoid_laws_unit_right (monoid_struct X)
+    := monoid_to_unit_right_law (monoid_struct X).
+
+  Definition monoid_assoc_law (X : MON)
+    : monoid_laws_assoc (monoid_struct X)
+    := monoid_to_assoc_law (monoid_struct X).
 
 End Category_of_Monoids.
