@@ -1,3 +1,15 @@
+(**********************************************************************************
+
+ The two-sided displayed category of spans
+
+ A span in a category `C` is a diagram `x₁ <-- y --> x₂`. We construct a two-sided
+ displayed category whose displayed objects are spans.
+
+ Contents
+ 1. The definition
+ 2. The univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -20,6 +32,9 @@ Local Open Scope cat.
 Section Spans.
   Context (C : category).
 
+  (**
+   1. The definition
+   *)
   Definition spans_ob
     : twosided_disp_cat C C
     := constant_twosided_disp_cat C C C.
@@ -85,24 +100,6 @@ Section Spans.
     - exact spans_mor_left_axioms.
   Defined.
 
-  Definition is_univalent_disp_spans_mor_left
-    : is_univalent_disp spans_mor_left.
-  Proof.
-    intros x y p l₁ l₂.
-    induction p.
-    use isweqimplimpl.
-    - intro f ; cbn in *.
-      pose (p := pr1 f) ; cbn in p.
-      rewrite id_left, id_right in p.
-      exact p.
-    - apply homset_property.
-    - use isaproptotal2.
-      + intro.
-        apply isaprop_is_z_iso_disp.
-      + intros.
-        apply homset_property.
-  Qed.
-
   Definition spans_mor_right_ob_mor
     : disp_cat_ob_mor (total_twosided_disp_category spans_ob).
   Proof.
@@ -164,6 +161,37 @@ Section Spans.
     - exact spans_mor_right_axioms.
   Defined.
 
+  Definition spans_mors
+    : disp_cat (total_twosided_disp_category spans_ob)
+    := dirprod_disp_cat
+         spans_mor_left
+         spans_mor_right.
+
+  Definition twosided_disp_cat_of_spans
+    : twosided_disp_cat C C
+    := sigma_twosided_disp_cat _ spans_mors.
+
+  (**
+   2. The univalence
+   *)
+  Definition is_univalent_disp_spans_mor_left
+    : is_univalent_disp spans_mor_left.
+  Proof.
+    intros x y p l₁ l₂.
+    induction p.
+    use isweqimplimpl.
+    - intro f ; cbn in *.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite id_left, id_right in p.
+      exact p.
+    - apply homset_property.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_z_iso_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
   Definition is_univalent_disp_spans_mor_right
     : is_univalent_disp spans_mor_right.
   Proof.
@@ -181,16 +209,6 @@ Section Spans.
       + intros.
         apply homset_property.
   Qed.
-
-  Definition spans_mors
-    : disp_cat (total_twosided_disp_category spans_ob)
-    := dirprod_disp_cat
-         spans_mor_left
-         spans_mor_right.
-
-  Definition twosided_disp_cat_of_spans
-    : twosided_disp_cat C C
-    := sigma_twosided_disp_cat _ spans_mors.
 
   Definition is_univalent_spans_twosided_disp_cat
              (HC : is_univalent C)

@@ -1,3 +1,12 @@
+(**********************************************************************************
+
+ The iso-comma category
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Discreteness and univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -17,6 +26,9 @@ Section IsoCommaTwoSidedDispCat.
           (F : C₁ ⟶ C₃)
           (G : C₂ ⟶ C₃).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition iso_comma_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -85,6 +97,9 @@ Section IsoCommaTwoSidedDispCat.
     - exact iso_comma_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Discreteness and univalence
+   *)
   Definition iso_comma_twosided_disp_cat_is_iso
     : all_disp_mor_iso iso_comma_twosided_disp_cat.
   Proof.

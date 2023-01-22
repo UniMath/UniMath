@@ -1,3 +1,17 @@
+(**********************************************************************************
+
+ Isos in two-sided displayed categories
+
+ We define isomorphisms in two-sided displayed categories.
+
+ Contents
+ 1. Isos in two-sided displayed categories
+ 2. Accessors for isos
+ 3. Derived laws
+ 4. Being an iso is a proposition
+ 5. The identity iso
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -7,6 +21,9 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 
 Local Open Scope cat.
 
+(**
+ 1. Isos in two-sided displayed categories
+ *)
 Definition is_iso_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -45,6 +62,22 @@ Definition is_iso_twosided_disp
            (z_iso_after_z_iso_inv g_z_iso)
            (id_two_disp _))).
 
+Definition iso_twosided_disp
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (f : z_iso x₁ x₂)
+           (g : z_iso y₁ y₂)
+           (xy₁ : D x₁ y₁)
+           (xy₂ : D x₂ y₂)
+  : UU
+  := ∑ (fg : xy₁ -->[ f ][ g ] xy₂),
+     is_iso_twosided_disp (pr2 f) (pr2 g) fg.
+
+(**
+ 2. Accessors for isos
+ *)
 Definition iso_inv_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -111,6 +144,23 @@ Definition iso_after_inv_twosided_disp
          (id_two_disp _))
   := pr22 Hfg.
 
+Definition make_iso_twosided_disp
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {f : z_iso x₁ x₂}
+           {g : z_iso y₁ y₂}
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
+           (fg : xy₁ -->[ f ][ g ] xy₂)
+           (Hfg : is_iso_twosided_disp (pr2 f) (pr2 g) fg)
+  : iso_twosided_disp f g xy₁ xy₂
+  := fg ,, Hfg.
+
+(**
+ 3. Derived laws
+ *)
 Definition inv_after_iso_twosided_disp_alt
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -179,6 +229,9 @@ Proof.
   apply twosided_swap_transport.
 Qed.
 
+(**
+ 4. Being an iso is a proposition
+ *)
 Definition isaprop_is_iso_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -257,33 +310,9 @@ Proof.
   apply isasetdirprod ; apply homset_property.
 Qed.
 
-Definition iso_twosided_disp
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           {x₁ x₂ : C₁}
-           {y₁ y₂ : C₂}
-           (f : z_iso x₁ x₂)
-           (g : z_iso y₁ y₂)
-           (xy₁ : D x₁ y₁)
-           (xy₂ : D x₂ y₂)
-  : UU
-  := ∑ (fg : xy₁ -->[ f ][ g ] xy₂),
-     is_iso_twosided_disp (pr2 f) (pr2 g) fg.
-
-Definition make_iso_twosided_disp
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           {x₁ x₂ : C₁}
-           {y₁ y₂ : C₂}
-           {f : z_iso x₁ x₂}
-           {g : z_iso y₁ y₂}
-           {xy₁ : D x₁ y₁}
-           {xy₂ : D x₂ y₂}
-           (fg : xy₁ -->[ f ][ g ] xy₂)
-           (Hfg : is_iso_twosided_disp (pr2 f) (pr2 g) fg)
-  : iso_twosided_disp f g xy₁ xy₂
-  := fg ,, Hfg.
-
+(**
+ 5. The identity iso
+ *)
 Definition id_iso_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}

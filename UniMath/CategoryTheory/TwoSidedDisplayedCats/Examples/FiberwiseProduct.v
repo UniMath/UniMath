@@ -1,3 +1,17 @@
+(**********************************************************************************
+
+ The fiberwise product of two-sided displayed categories
+
+ If we have two two-sided displayed categories over the same `C₁` and `C₂`, then
+ we can form their product to obtain a new two-sided displayed category over `C₁`
+ and `C₂`.
+
+ Contents
+ 1. The definition
+ 2. Isomorphisms
+ 3. Univalence and discreteness
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -32,6 +46,9 @@ Section FiberwiseProduct.
   Context {C₁ C₂ : category}
           (D₁ D₂ : twosided_disp_cat C₁ C₂).
 
+  (**
+   1. The definition
+   *)
   Definition prod_of_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -91,6 +108,9 @@ Section FiberwiseProduct.
     - exact prod_of_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Isomorphisms
+   *)
   Definition make_is_iso_prod_of_twosided_disp_cat
              {x₁ x₂ : C₁}
              {y₁ y₂ : C₂}
@@ -298,6 +318,9 @@ Section FiberwiseProduct.
          apply idpath).
   Defined.
 
+  (**
+   3. Univalence and discreteness
+   *)
   Definition prod_twosided_disp_cat_all_disp_mor_iso
              (HD₁ : all_disp_mor_iso D₁)
              (HD₂ : all_disp_mor_iso D₂)

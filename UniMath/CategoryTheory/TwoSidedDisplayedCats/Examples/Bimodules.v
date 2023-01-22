@@ -1,3 +1,16 @@
+(**********************************************************************************
+
+ The category of bimodules
+
+ Let `R₁` and `R₂` be rings. A bimodule `B` from `R₁` to `R₂` is an abelian group
+ together with a linear biaction of `R₁` and `R₂` on `B`. In this file, we define
+ the category of bimodules using two-sided displayed categories.
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.RigsAndRings.
@@ -21,6 +34,9 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTw
 
 Local Open Scope cat.
 
+(**
+ 1. Definition via two-sided displayed categories
+ *)
 Definition bimodule_abgr
   : twosided_disp_cat commring_category commring_category
   := constant_twosided_disp_cat _ _ abgr_category.
@@ -103,27 +119,6 @@ Proof.
   - exact action_on_bimodule_axioms.
 Defined.
 
-Definition is_univalent_action_on_bimodule
-  : is_univalent_disp action_on_bimodule.
-Proof.
-  intros B₁ B₂ p μ₁ μ₂.
-  induction p.
-  use isweqimplimpl.
-  - cbn ; intro f.
-    use funextsec ; intro x.
-    use funextsec ; intro y.
-    use funextsec ; intro z.
-    exact (pr1 f x y z).
-  - cbn in * ; repeat (use funspace_isaset).
-    apply (pr11 (pr22 B₁)).
-  - use isaproptotal2.
-    + intro.
-      apply isaprop_is_z_iso_disp.
-    + intros.
-      repeat (use funextsec ; intro).
-      apply (pr11 (pr22 B₁)).
-Qed.
-
 Definition bimodule_action
   : twosided_disp_cat commring_category commring_category
   := sigma_twosided_disp_cat _ action_on_bimodule.
@@ -173,6 +168,34 @@ Proof.
   exact (λ X, bimodule_laws (pr222 X)).
 Defined.
 
+Definition bimodule_twosided_disp_cat
+  : twosided_disp_cat commring_category commring_category
+  := sigma_twosided_disp_cat _ disp_cat_bimodule_laws.
+
+(**
+ 2. Univalence
+ *)
+Definition is_univalent_action_on_bimodule
+  : is_univalent_disp action_on_bimodule.
+Proof.
+  intros B₁ B₂ p μ₁ μ₂.
+  induction p.
+  use isweqimplimpl.
+  - cbn ; intro f.
+    use funextsec ; intro x.
+    use funextsec ; intro y.
+    use funextsec ; intro z.
+    exact (pr1 f x y z).
+  - cbn in * ; repeat (use funspace_isaset).
+    apply (pr11 (pr22 B₁)).
+  - use isaproptotal2.
+    + intro.
+      apply isaprop_is_z_iso_disp.
+    + intros.
+      repeat (use funextsec ; intro).
+      apply (pr11 (pr22 B₁)).
+Qed.
+
 Definition is_univalent_disp_cat_bimodule_laws
   : is_univalent_disp disp_cat_bimodule_laws.
 Proof.
@@ -180,10 +203,6 @@ Proof.
   intro.
   apply isaprop_bimodule_laws.
 Defined.
-
-Definition bimodule_twosided_disp_cat
-  : twosided_disp_cat commring_category commring_category
-  := sigma_twosided_disp_cat _ disp_cat_bimodule_laws.
 
 Definition is_univalent_bimodule_twosided_disp_cat
   : is_univalent_twosided_disp_cat bimodule_twosided_disp_cat.

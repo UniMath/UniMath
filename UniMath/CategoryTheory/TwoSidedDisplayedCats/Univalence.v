@@ -1,3 +1,12 @@
+(**********************************************************************************
+
+ Univalence two-sided displayed categories
+
+ We define univalent two-sided displayed categories. To do so, we first define the
+ map that sends identities to isomorphisms. Univalence is then expressed the usual
+ way.
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -37,3 +46,12 @@ Definition is_univalent_twosided_disp_cat
        (xy₁ : D x₁ y₁)
        (xy₂ : D x₂ y₂),
      isweq (idtoiso_twosided_disp p q xy₁ xy₂).
+
+Definition isaprop_is_univalent_twosided_disp_cat
+           {C₁ C₂ : category}
+           (D : twosided_disp_cat C₁ C₂)
+  : isaprop (is_univalent_twosided_disp_cat D).
+Proof.
+  do 8 (use impred ; intro).
+  apply isapropisweq.
+Qed.

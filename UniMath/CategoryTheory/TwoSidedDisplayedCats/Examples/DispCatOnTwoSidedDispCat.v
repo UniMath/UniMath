@@ -1,3 +1,23 @@
+(**********************************************************************************
+
+ Composing a two-sided displayed category with a displayed category
+
+ We show how to compose a two-sided displayed category with a displayed category.
+ The idea is basically as follows: a two-sided displayed category represents a
+ span and a displayed category represents a functor. Both legs of the span get
+ composed with this functor to obtain a new span.
+
+ More precisely, we have a two-sided displayed category and a displayed category
+ over the total category of that two-sided displayed category. This displayed
+ category represents structures/properties to be added to our two-sided displayed
+ category. We then form a new two-sided displayed category by taking sigma-types.
+
+ Contents
+ 1. The definition
+ 2. Isomorphisms
+ 3. Univalence and discreteness
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -29,12 +49,14 @@ Proof.
   apply Xisaset.
 Qed.
 
-
 Section DispCatOnTwoSidedDispCat.
   Context {C₁ C₂ : category}
           (D₁ : twosided_disp_cat C₁ C₂)
           (D₂ : disp_cat (total_twosided_disp_category D₁)).
 
+  (**
+   1. The definition
+   *)
   Definition sigma_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -280,6 +302,9 @@ Section DispCatOnTwoSidedDispCat.
     apply idpath.
   Qed.
 
+  (**
+   2. Isomorphisms
+   *)
   Definition to_iso_sigma_of_twosided_disp_cat
              {x : C₁}
              {y : C₂}
@@ -545,6 +570,9 @@ Section DispCatOnTwoSidedDispCat.
          apply idpath).
   Defined.
 
+  (**
+   3. Univalence and discreteness
+   *)
   Definition is_univalent_sigma_of_twosided_disp_cat_help
              (HD₂ : is_univalent_disp D₂)
              {x₁ : C₁}

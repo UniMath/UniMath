@@ -1,3 +1,13 @@
+(**********************************************************************************
+
+ The arrow category
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Discreteness and univalence
+ 3. It is a two-sided fibration
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -14,6 +24,9 @@ Local Open Scope cat.
 Section ArrowTwoSidedDispCat.
   Context (C : category).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition arrow_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C C.
   Proof.
@@ -80,6 +93,9 @@ Section ArrowTwoSidedDispCat.
     - exact arrow_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Discreteness and univalence
+   *)
   Definition arrow_twosided_disp_cat_is_iso
     : all_disp_mor_iso arrow_twosided_disp_cat.
   Proof.
@@ -121,6 +137,9 @@ Section ArrowTwoSidedDispCat.
     - exact is_univalent_arrow_twosided_disp_cat.
   Qed.
 
+  (**
+   3. It is a two-sided fibration
+   *)
   Definition arrow_twosided_opcleaving
     : twosided_opcleaving arrow_twosided_disp_cat.
   Proof.

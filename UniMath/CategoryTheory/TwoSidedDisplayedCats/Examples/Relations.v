@@ -1,3 +1,22 @@
+(**********************************************************************************
+
+ The two-sided displayed category of relations
+
+ We define two two-sided displayed categories of relations of sets. The first one
+ has as displayed objects relations that are valued in `hProp`, while the second
+ one, is about relations that are valued in `hSet`.
+
+ Contents
+ 1. Relations in `hProp`
+ 1.1. The definition
+ 1.2. Isomorphisms
+ 1.3. Univalence
+ 2. Relations in `hSet`
+ 2.1. The definition
+ 2.2. Isomorphisms
+ 2.3. Univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -12,6 +31,78 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
 Local Open Scope cat.
 
+Definition to_rel_weq
+           {X Y : UU}
+           {R₁ R₂ : X → Y → hProp}
+           (p : R₁ = R₂)
+  : ((∏ (x : X) (y : Y), R₁ x y → R₂ x y)
+    ×
+    ∏ (x : X) (y : Y), R₂ x y → R₁ x y).
+Proof.
+  induction p.
+  split.
+  - exact (λ _ _ r, r).
+  - exact (λ _ _ r, r).
+Defined.
+
+Definition hProp_weq
+           (X Y : hProp)
+  : (X ≃ Y) ≃ ((X → Y) × (Y → X)).
+Proof.
+  use weq_iso.
+  - exact (λ w, pr1 w ,, invmap w).
+  - exact (λ f, weqimplimpl (pr1 f) (pr2 f) (pr2 X) (pr2 Y)).
+  - abstract
+      (intro w ; cbn ;
+       use subtypePath ; [ intro ; apply isapropisweq | ] ; cbn ;
+       apply idpath).
+  - abstract
+      (intro w ; apply idpath).
+Defined.
+
+Definition rel_weq
+           {X Y : UU}
+           (R₁ R₂ : X → Y → hProp)
+  : (R₁ = R₂)
+    ≃
+    ∏ (x : X) (y : Y),
+    (R₁ x y → R₂ x y)
+    ×
+    (R₂ x y → R₁ x y)
+  := (weqonsecfibers
+        _ _
+        (λ x,
+         weqonsecfibers
+           _ _
+           (λ y,
+            hProp_weq _ _ ∘ UA_for_HLevels _ _ _))
+      ∘ weqonsecfibers
+          _ _
+          (λ x, invweq (weqfunextsec (λ _, hProp) (R₁ x) (R₂ x)))
+      ∘ invweq (weqfunextsec (λ _, Y → hProp) R₁ R₂))%weq.
+
+Definition set_rel_weq
+           {X Y : UU}
+           (R₁ R₂ : X → Y → hSet)
+  : (R₁ = R₂)
+    ≃
+    ∏ (x : X) (y : Y), R₁ x y ≃ R₂ x y
+  := (weqonsecfibers
+        _ _
+        (λ x,
+         weqonsecfibers
+           _ _
+           (λ y, UA_for_HLevels 2 _ _)
+         ∘ invweq (weqfunextsec (λ _, hSet) (R₁ x) (R₂ x)))
+      ∘ invweq (weqfunextsec (λ _, Y → hSet) R₁ R₂))%weq.
+
+(**
+ 1. Relations in `hProp`
+ *)
+
+(**
+ 1.1. The definition
+ *)
 Definition rel_disp_cat_ob_mor
   : twosided_disp_cat_ob_mor SET SET.
 Proof.
@@ -73,56 +164,9 @@ Proof.
   - exact rel_disp_cat_axioms.
 Defined.
 
-Definition to_rel_weq
-           {X Y : UU}
-           {R₁ R₂ : X → Y → hProp}
-           (p : R₁ = R₂)
-  : ((∏ (x : X) (y : Y), R₁ x y → R₂ x y)
-    ×
-    ∏ (x : X) (y : Y), R₂ x y → R₁ x y).
-Proof.
-  induction p.
-  split.
-  - exact (λ _ _ r, r).
-  - exact (λ _ _ r, r).
-Defined.
-
-Definition hProp_weq
-           (X Y : hProp)
-  : (X ≃ Y) ≃ ((X → Y) × (Y → X)).
-Proof.
-  use weq_iso.
-  - exact (λ w, pr1 w ,, invmap w).
-  - exact (λ f, weqimplimpl (pr1 f) (pr2 f) (pr2 X) (pr2 Y)).
-  - abstract
-      (intro w ; cbn ;
-       use subtypePath ; [ intro ; apply isapropisweq | ] ; cbn ;
-       apply idpath).
-  - abstract
-      (intro w ; apply idpath).
-Defined.
-
-Definition rel_weq
-           {X Y : UU}
-           (R₁ R₂ : X → Y → hProp)
-  : (R₁ = R₂)
-    ≃
-    ∏ (x : X) (y : Y),
-    (R₁ x y → R₂ x y)
-    ×
-    (R₂ x y → R₁ x y)
-  := (weqonsecfibers
-        _ _
-        (λ x,
-         weqonsecfibers
-           _ _
-           (λ y,
-            hProp_weq _ _ ∘ UA_for_HLevels _ _ _))
-      ∘ weqonsecfibers
-          _ _
-          (λ x, invweq (weqfunextsec (λ _, hProp) (R₁ x) (R₂ x)))
-      ∘ invweq (weqfunextsec (λ _, Y → hProp) R₁ R₂))%weq.
-
+(**
+ 1.2. Isomoprhisms
+ *)
 Definition to_iso_rel_disp_cat
            {X Y : SET}
            (R₁ R₂ : rel_disp_cat X Y)
@@ -180,6 +224,9 @@ Proof.
          apply idpath).
 Defined.
 
+(**
+ 1.3. Univalence
+ *)
 Definition is_univalent_rel_twosided_disp_cat
   : is_univalent_twosided_disp_cat rel_disp_cat.
 Proof.
@@ -195,8 +242,13 @@ Proof.
        apply idpath).
 Defined.
 
+(**
+ 2. Relations in `hSet`
+ *)
 
-
+(**
+ 2.1. The definition
+ *)
 Definition set_rel_disp_cat_ob_mor
   : twosided_disp_cat_ob_mor SET SET.
 Proof.
@@ -369,22 +421,9 @@ Proof.
   - exact set_rel_disp_cat_axioms.
 Defined.
 
-
-Definition set_rel_weq
-           {X Y : UU}
-           (R₁ R₂ : X → Y → hSet)
-  : (R₁ = R₂)
-    ≃
-    ∏ (x : X) (y : Y), R₁ x y ≃ R₂ x y
-  := (weqonsecfibers
-        _ _
-        (λ x,
-         weqonsecfibers
-           _ _
-           (λ y, UA_for_HLevels 2 _ _)
-         ∘ invweq (weqfunextsec (λ _, hSet) (R₁ x) (R₂ x)))
-      ∘ invweq (weqfunextsec (λ _, Y → hSet) R₁ R₂))%weq.
-
+(**
+ 2.2. Isomorphisms
+ *)
 Definition to_iso_set_rel_disp_cat
            {X Y : SET}
            (R₁ R₂ : set_rel_disp_cat X Y)
@@ -475,6 +514,9 @@ Proof.
          apply idpath).
 Defined.
 
+(**
+ 2.3. Univalence
+ *)
 Definition is_univalent_set_rel_twosided_disp_cat
   : is_univalent_twosided_disp_cat set_rel_disp_cat.
 Proof.

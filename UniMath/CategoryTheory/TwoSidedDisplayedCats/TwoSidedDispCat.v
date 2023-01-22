@@ -1,3 +1,23 @@
+(**********************************************************************************
+
+ Two-sided displayed categories
+
+ In this file, we define two-sided displayed categories. These are rather similar
+ to displayed categories, but they are displayed over 2 categories instead of
+ just one.
+
+ More specifically, given two categories `C₁` and `C₂` a two-sided displayed
+ category `D` over `C₁` and `C₂` has displayed objects `xy` over every `x : C₁`
+ and `y : C₂`. For morphisms `f : C₁ ⟦ x₁ , x₂ ⟧`, `g : C₂ ⟦ y₁ , y₂ ⟧` and
+ displayed objects `xy₁ : D x₁ y₁` and `xy₂ : D x₂ y₂`, we have a set of
+ displayed morhisms.
+
+ Contents
+ 1.1. Definition of two-sided displayed categories
+ 1.2. Derived laws
+ 2. Two-sided displayed categories are displayed categories over the product
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -86,6 +106,9 @@ Defined.
 Section TwoSidedDispCat.
   Context {C₁ C₂ : category}.
 
+  (**
+   1.1. Definition of two-sided displayed categories
+   *)
   Definition twosided_disp_cat_ob_mor
     : UU
     := ∑ (D : C₁ → C₂ → UU),
@@ -398,6 +421,9 @@ Section TwoSidedDispCat.
     exact (pr2 (pr222 D) _ _ _ _ xy₁ xy₂ f g).
   Qed.
 
+  (**
+   1.2. Derived laws
+   *)
   Definition twosided_swap_transport
              {D : twosided_disp_cat}
              {x₁ x₂ : C₁}
@@ -477,6 +503,62 @@ Section TwoSidedDispCat.
            fg)
       =
       transportf
+        (λ z, _ -->[ pr1 z ][ pr2 z ] _)
+        (pathsdirprod p q)
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  Definition twosided_prod_transportb
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (p : f₂ = f₁)
+             (q : g₂ = g₁)
+    : transportb
+        (λ z, _ -->[ z ][ _ ] _)
+        p
+        (transportb
+           (λ z, _ -->[ _ ][ z ] _)
+           q
+           fg)
+      =
+      transportb
+        (λ z, _ -->[ pr1 z ][ pr2 z ] _)
+        (pathsdirprod p q)
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  Definition twosided_prod_transportb_alt
+             {D : twosided_disp_cat}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (p : f₂ = f₁)
+             (q : g₂ = g₁)
+    : transportb
+        (λ z, _ -->[ _ ][ z ] _)
+        q
+        (transportb
+           (λ z, _ -->[ z ][ _ ] _)
+           p
+           fg)
+      =
+      transportb
         (λ z, _ -->[ pr1 z ][ pr2 z ] _)
         (pathsdirprod p q)
         fg.
@@ -696,6 +778,9 @@ Notation "fg₁ ;;2 fg₂"
   := (comp_two_disp fg₁ fg₂)
        (at level 50, left associativity, format "fg₁  ;;2  fg₂") : cat.
 
+(**
+ 2. Two-sided displayed categories are displayed categories over the product
+ *)
 Section TwoSidedDispCatVersusDispCat.
   Context (C₁ C₂ : category).
 

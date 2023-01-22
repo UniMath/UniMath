@@ -1,3 +1,17 @@
+(**********************************************************************************
+
+ The constant two-sided displayed category
+
+ Given categories `C₁, C₂, D`, we define the constant two-sided displayed category
+ over `C₁` and `C₂` as follows: the displayed objects are objects in `D` while the
+ displayed morphisms are morphisms in `D`.
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Isomorphisms
+ 3. Univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -14,6 +28,9 @@ Local Open Scope cat.
 Section ConstantTwoSidedDispCat.
   Context (C₁ C₂ D : category).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition constant_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -63,6 +80,9 @@ Section ConstantTwoSidedDispCat.
     - exact constant_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Isomorphisms
+   *)
   Definition to_is_twosided_disp_cat_iso_constant
              (x : C₁)
              (y : C₂)
@@ -167,6 +187,9 @@ Section ConstantTwoSidedDispCat.
            apply idpath).
   Defined.
 
+  (**
+   3. Univalence
+   *)
   Definition is_univalent_constant_twosided_disp_cat
              (HD : is_univalent D)
     : is_univalent_twosided_disp_cat constant_twosided_disp_cat.

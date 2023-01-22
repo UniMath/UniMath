@@ -1,3 +1,17 @@
+(**********************************************************************************
+
+ The two-sided displayed category of lenses
+
+ Reference for lenses:
+   https://ncatlab.org/nlab/show/lens+%28in+computer+science%29
+
+ We define the two-sided displayed category of lenses.
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Discreteness and univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -23,6 +37,9 @@ Section Lenses.
   Context (C : category)
           (prodC : BinProducts C).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition twosided_disp_cat_of_lenses_get_ob_mor
     : twosided_disp_cat_ob_mor C C.
   Proof.
@@ -73,48 +90,6 @@ Section Lenses.
     - exact twosided_disp_cat_of_lenses_get_data.
     - exact twosided_disp_cat_of_lenses_get_axioms.
   Defined.
-
-  Definition lenses_get_twosided_disp_cat_is_iso
-    : all_disp_mor_iso twosided_disp_cat_of_lenses_get.
-  Proof.
-    intro ; intros.
-    simple refine (_ ,, _ ,, _) ; cbn in *.
-    - refine (!_).
-      use z_iso_inv_on_right.
-      rewrite assoc.
-      use z_iso_inv_on_left ; cbn.
-      exact (!fg).
-    - apply homset_property.
-    - apply homset_property.
-  Qed.
-
-  Definition is_univalent_lenses_get_twosided_disp_cat
-    : is_univalent_twosided_disp_cat twosided_disp_cat_of_lenses_get.
-  Proof.
-    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
-    induction p₁, p₂ ; cbn.
-    use isweqimplimpl.
-    - intros f.
-      pose (p := pr1 f) ; cbn in p.
-      rewrite id_left, id_right in p.
-      exact p.
-    - apply homset_property.
-    - use isaproptotal2.
-      + intro.
-        apply isaprop_is_iso_twosided_disp.
-      + intros.
-        apply homset_property.
-  Qed.
-
-  Definition discrete_lenses_get_twosided_disp_cat
-    : discrete_twosided_disp_cat twosided_disp_cat_of_lenses_get.
-  Proof.
-    repeat split.
-    - intro ; intros.
-      apply homset_property.
-    - exact lenses_get_twosided_disp_cat_is_iso.
-    - exact is_univalent_lenses_get_twosided_disp_cat.
-  Qed.
 
   Definition twosided_disp_cat_of_lenses_put_ob_mor
     : twosided_disp_cat_ob_mor C C.
@@ -182,6 +157,95 @@ Section Lenses.
     - exact twosided_disp_cat_of_lenses_put_axioms.
   Defined.
 
+  Definition twosided_disp_cat_of_lawless_lenses
+    : twosided_disp_cat C C
+    := prod_of_twosided_disp_cat
+         twosided_disp_cat_of_lenses_get
+         twosided_disp_cat_of_lenses_put.
+
+  Definition lenses_laws
+             {s v : C}
+             (l : twosided_disp_cat_of_lawless_lenses s v)
+    : UU
+    := let g := pr1 l in
+       let p := pr2 l in
+       (p · g = BinProductPr1 _ _)
+       ×
+       (BinProductArrow _ _ g (identity s) · p = identity s)
+       ×
+       (BinProductOfArrows
+          _
+          (prodC v _)
+          (prodC _ _)
+          (identity v)
+          p
+        · p
+        =
+        BinProductArrow
+          _ _
+          (BinProductPr1 _ _)
+          (BinProductPr2 _ _ · BinProductPr2 _ _)
+        · p).
+
+  Definition disp_cat_of_lenses_laws
+    : disp_cat
+        (total_twosided_disp_category twosided_disp_cat_of_lawless_lenses).
+  Proof.
+    use (disp_full_sub).
+    exact (λ x, lenses_laws (pr22 x)).
+  Defined.
+
+  Definition twosided_disp_cat_of_lenses
+    : twosided_disp_cat C C
+    := sigma_twosided_disp_cat
+         twosided_disp_cat_of_lawless_lenses
+         disp_cat_of_lenses_laws.
+
+  (**
+   2. Discreteness and univalence
+   *)
+  Definition lenses_get_twosided_disp_cat_is_iso
+    : all_disp_mor_iso twosided_disp_cat_of_lenses_get.
+  Proof.
+    intro ; intros.
+    simple refine (_ ,, _ ,, _) ; cbn in *.
+    - refine (!_).
+      use z_iso_inv_on_right.
+      rewrite assoc.
+      use z_iso_inv_on_left ; cbn.
+      exact (!fg).
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+  Definition is_univalent_lenses_get_twosided_disp_cat
+    : is_univalent_twosided_disp_cat twosided_disp_cat_of_lenses_get.
+  Proof.
+    intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    - intros f.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite id_left, id_right in p.
+      exact p.
+    - apply homset_property.
+    - use isaproptotal2.
+      + intro.
+        apply isaprop_is_iso_twosided_disp.
+      + intros.
+        apply homset_property.
+  Qed.
+
+  Definition discrete_lenses_get_twosided_disp_cat
+    : discrete_twosided_disp_cat twosided_disp_cat_of_lenses_get.
+  Proof.
+    repeat split.
+    - intro ; intros.
+      apply homset_property.
+    - exact lenses_get_twosided_disp_cat_is_iso.
+    - exact is_univalent_lenses_get_twosided_disp_cat.
+  Qed.
+
   Definition lenses_put_twosided_disp_cat_is_iso
     : all_disp_mor_iso twosided_disp_cat_of_lenses_put.
   Proof.
@@ -231,50 +295,6 @@ Section Lenses.
     - exact lenses_put_twosided_disp_cat_is_iso.
     - exact is_univalent_lenses_put_twosided_disp_cat.
   Qed.
-
-  Definition twosided_disp_cat_of_lawless_lenses
-    : twosided_disp_cat C C
-    := prod_of_twosided_disp_cat
-         twosided_disp_cat_of_lenses_get
-         twosided_disp_cat_of_lenses_put.
-
-  Definition lenses_laws
-             {s v : C}
-             (l : twosided_disp_cat_of_lawless_lenses s v)
-    : UU
-    := let g := pr1 l in
-       let p := pr2 l in
-       (p · g = BinProductPr1 _ _)
-       ×
-       (BinProductArrow _ _ g (identity s) · p = identity s)
-       ×
-       (BinProductOfArrows
-          _
-          (prodC v _)
-          (prodC _ _)
-          (identity v)
-          p
-        · p
-        =
-        BinProductArrow
-          _ _
-          (BinProductPr1 _ _)
-          (BinProductPr2 _ _ · BinProductPr2 _ _)
-        · p).
-
-  Definition disp_cat_of_lenses_laws
-    : disp_cat
-        (total_twosided_disp_category twosided_disp_cat_of_lawless_lenses).
-  Proof.
-    use (disp_full_sub).
-    exact (λ x, lenses_laws (pr22 x)).
-  Defined.
-
-  Definition twosided_disp_cat_of_lenses
-    : twosided_disp_cat C C
-    := sigma_twosided_disp_cat
-         twosided_disp_cat_of_lawless_lenses
-         disp_cat_of_lenses_laws.
 
   Definition is_univalent_lenses_twosided_disp_cat
     : is_univalent_twosided_disp_cat twosided_disp_cat_of_lenses.

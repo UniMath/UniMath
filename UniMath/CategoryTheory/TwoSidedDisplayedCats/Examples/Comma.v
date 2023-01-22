@@ -1,3 +1,14 @@
+(**********************************************************************************
+
+ The comma category
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Discreteness and univalence
+ 3. It is a two-sided fibration
+ 4. The representable profunctors
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -16,6 +27,9 @@ Section CommaTwoSidedDispCat.
           (F : C₁ ⟶ C₃)
           (G : C₂ ⟶ C₃).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition comma_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -84,6 +98,9 @@ Section CommaTwoSidedDispCat.
     - exact comma_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Discreteness and univalence
+   *)
   Definition comma_twosided_disp_cat_is_iso
     : all_disp_mor_iso comma_twosided_disp_cat.
   Proof.
@@ -127,6 +144,9 @@ Section CommaTwoSidedDispCat.
     - exact is_univalent_comma_twosided_disp_cat.
   Qed.
 
+  (**
+   3. It is a two-sided fibration
+   *)
   Definition comma_twosided_opcleaving
     : twosided_opcleaving comma_twosided_disp_cat.
   Proof.
@@ -188,6 +208,9 @@ Section CommaTwoSidedDispCat.
   Defined.
 End CommaTwoSidedDispCat.
 
+(**
+ 4. The representable profunctors
+ *)
 Definition left_repr_twosided_disp_cat
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)

@@ -1,3 +1,19 @@
+(**********************************************************************************
+
+ Reindexing two-sided displayed categories
+
+ Suppose, we have a two-sided displayed category `D` over `C₁'` and `C₂'`. Suppose
+ that we also have functors `F : C₁ ⟶ C₁'` and `G : C₂ ⟶ C₂'`. Then we can
+ construct a two-sided displayed category over `C₁` and `C₂`.
+
+ Contents
+ 1. Transport lemmas
+ 2. The definition
+ 3. Isomorphisms
+ 4. The univalence
+ 5. Discreteness
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -18,6 +34,70 @@ Section Reindexing.
           (G : C₂ ⟶ C₂')
           (D : twosided_disp_cat C₁' C₂').
 
+  (**
+   1. Transport lemmas
+   *)
+  Definition twosided_prod_transport_reindex
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D (F x₁) (G y₁)}
+             {xy₂ : D (F x₂) (G y₂)}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ #F f₁ ][ #G g₁ ] xy₂)
+             (p : f₁ = f₂)
+             (q : g₁ = g₂)
+    : transportf
+        (λ z, _ -->[ #F z ][ _ ] _)
+        p
+        (transportf
+           (λ z, _ -->[ _ ][ #G z ] _)
+           q
+           fg)
+      =
+      transportf
+        (λ z, _ -->[ pr1 z ][ dirprod_pr2 z ] _)
+        (pathsdirprod
+           (maponpaths (λ z, #F z) p)
+           (maponpaths (λ z, #G z) q))
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  Definition twosided_prod_transport_alt
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D (F x₁) (G y₁)}
+             {xy₂ : D (F x₂) (G y₂)}
+             {f₁ f₂ : x₁ --> x₂}
+             {g₁ g₂ : y₁ --> y₂}
+             (fg : xy₁ -->[ #F f₁ ][ #G g₁ ] xy₂)
+             (p : f₁ = f₂)
+             (q : g₁ = g₂)
+    : transportf
+        (λ z, _ -->[ _ ][ #G z ] _)
+        q
+        (transportf
+           (λ z, _ -->[ #F z ][ _ ] _)
+           p
+           fg)
+      =
+      transportf
+        (λ z, _ -->[ pr1 z ][ dirprod_pr2 z ] _)
+        (pathsdirprod
+           (maponpaths (λ z, #F z) p)
+           (maponpaths (λ z, #G z) q))
+        fg.
+  Proof.
+    induction p ; induction q.
+    apply idpath.
+  Qed.
+
+  (**
+   2. The definition
+   *)
   Definition reindex_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -62,8 +142,106 @@ Section Reindexing.
     repeat split.
     - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; cbn.
       unfold transportb.
-      admit.
-  Admitted.
+      etrans.
+      {
+        apply twosided_prod_transport.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite two_disp_pre_whisker_left.
+        rewrite two_disp_pre_whisker_right.
+        etrans.
+        {
+          apply twosided_prod_transport.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply id_two_disp_left.
+        }
+        unfold transportb.
+        apply maponpaths.
+        apply twosided_prod_transport.
+      }
+      rewrite !transport_f_f.
+      rewrite twosided_prod_transport_reindex.
+      apply maponpaths_2.
+      apply isaset_dirprod ; apply homset_property.
+    - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; cbn.
+      unfold transportb.
+      etrans.
+      {
+        apply twosided_prod_transport.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite two_disp_post_whisker_left.
+        rewrite two_disp_post_whisker_right.
+        etrans.
+        {
+          apply twosided_prod_transport.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply id_two_disp_right.
+        }
+        unfold transportb.
+        apply maponpaths.
+        apply twosided_prod_transport.
+      }
+      rewrite !transport_f_f.
+      rewrite twosided_prod_transport_reindex.
+      apply maponpaths_2.
+      apply isaset_dirprod ; apply homset_property.
+    - intros x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ xy₁ xy₂ xy₃ xy₄ f₁ f₂ f₃ g₁ g₂ g₃ fg₁ fg₂ fg₃.
+      cbn.
+      unfold transportb.
+      etrans.
+      {
+        apply twosided_prod_transport.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite two_disp_post_whisker_left.
+        rewrite two_disp_post_whisker_right.
+        etrans.
+        {
+          apply twosided_prod_transport.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply assoc_two_disp.
+        }
+        unfold transportb.
+        apply maponpaths.
+        apply twosided_prod_transport.
+      }
+      rewrite !transport_f_f.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        etrans.
+        {
+          apply twosided_prod_transport.
+        }
+        apply maponpaths.
+        rewrite two_disp_pre_whisker_left.
+        rewrite two_disp_pre_whisker_right.
+        apply twosided_prod_transport.
+      }
+      rewrite !twosided_prod_transport_reindex.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply isaset_dirprod ; apply homset_property.
+    - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
+      apply isaset_disp_mor.
+  Qed.
 
   Definition reindex_twosided_disp_cat
     : twosided_disp_cat C₁ C₂.
@@ -73,6 +251,9 @@ Section Reindexing.
     - exact reindex_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   3. Isomorphisms
+   *)
   Section MakeReindexIso.
     Context {x₁ x₂ : C₁}
             {y₁ y₂ : C₂}
@@ -97,7 +278,33 @@ Section Reindexing.
            Hg
            fg.
     Proof.
-    Admitted.
+      simple refine (_ ,, _ ,, _).
+      - exact (iso_inv_twosided_disp Hfg).
+      - abstract
+          (cbn ; unfold transportb ;
+           etrans ; [ apply twosided_prod_transport | ] ;
+           etrans ; [ apply maponpaths ; exact (inv_after_iso_twosided_disp Hfg) | ] ;
+           etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+           rewrite transport_f_f ;
+           refine (!_) ;
+           etrans ; [ do 2 apply maponpaths ; apply twosided_prod_transport | ] ;
+           etrans ; [ apply twosided_prod_transport_reindex | ] ;
+           rewrite transport_f_f ;
+           apply maponpaths_2 ;
+           apply isaset_dirprod ; apply homset_property).
+      - abstract
+          (cbn ; unfold transportb ;
+           etrans ; [ apply twosided_prod_transport | ] ;
+           etrans ; [ apply maponpaths ; exact (iso_after_inv_twosided_disp Hfg) | ] ;
+           etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+           rewrite transport_f_f ;
+           refine (!_) ;
+           etrans ; [ do 2 apply maponpaths ; apply twosided_prod_transport | ] ;
+           etrans ; [ apply twosided_prod_transport_reindex | ] ;
+           rewrite transport_f_f ;
+           apply maponpaths_2 ;
+           apply isaset_dirprod ; apply homset_property).
+    Defined.
 
     Definition iso_reindex_twosided_disp_cat
       : @iso_twosided_disp
@@ -135,7 +342,49 @@ Section Reindexing.
           (functor_on_is_z_isomorphism G Hg)
           fg.
     Proof.
-    Admitted.
+      simple refine (_ ,, _ ,, _).
+      - exact (iso_inv_twosided_disp Hfg).
+      - abstract
+          (cbn ; unfold transportb ;
+           pose (p := inv_after_iso_twosided_disp Hfg) ;
+           cbn in p ;
+           rewrite twosided_prod_transportb in p ;
+           pose (@transportf_transpose_right
+                   _
+                   (λ z, _ -->[ pr1 z ][ dirprod_pr2 z ] _)
+                   _ _
+                   (pathsdirprod _ _)
+                   _ _
+                   p)
+             as p' ;
+           refine (p' @ _) ;
+           unfold transportb ;
+           rewrite twosided_prod_transport_reindex ;
+           rewrite !twosided_prod_transport ;
+           rewrite !transport_f_f ;
+           apply maponpaths_2 ;
+           apply isaset_dirprod ; apply homset_property).
+      - abstract
+          (cbn ; unfold transportb ;
+           pose (p := iso_after_inv_twosided_disp Hfg) ;
+           cbn in p ;
+           rewrite twosided_prod_transportb in p ;
+           pose (@transportf_transpose_right
+                   _
+                   (λ z, _ -->[ pr1 z ][ dirprod_pr2 z ] _)
+                   _ _
+                   (pathsdirprod _ _)
+                   _ _
+                   p)
+             as p' ;
+           refine (p' @ _) ;
+           unfold transportb ;
+           rewrite twosided_prod_transport_reindex ;
+           rewrite !twosided_prod_transport ;
+           rewrite !transport_f_f ;
+           apply maponpaths_2 ;
+           apply isaset_dirprod ; apply homset_property).
+    Defined.
 
     Definition iso_from_is_iso_reindex_twosided_disp_cat
       : @iso_twosided_disp
@@ -189,9 +438,6 @@ Section Reindexing.
          apply idpath).
   Defined.
 
-  Definition TODO { A : UU } : A.
-  Admitted.
-
   Definition is_univalent_reindex_twosided_disp_cat_help_to
              {x₁ : C₁}
              {y₁ : C₂}
@@ -204,7 +450,7 @@ Section Reindexing.
         (_ ,, functor_on_is_z_isomorphism G (identity_is_z_iso y₁))
         xy₁ xy₂.
   Proof.
-    simple refine (_ ,, _).
+    simple refine (_ ,, _ ,, _ ,, _).
     - exact (transportb
                (λ z, _ -->[ z ][ _] _)
                (functor_id _ _)
@@ -212,9 +458,54 @@ Section Reindexing.
                   (λ z, _ -->[ _ ][ z ] _)
                   (functor_id _ _)
                   (pr1 fg))).
-    - apply TODO.
+    - exact (transportb
+               (λ z, _ -->[ z ][ _] _)
+               (functor_id _ _)
+               (transportb
+                  (λ z, _ -->[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (iso_inv_twosided_disp (pr2 fg)))).
+    - abstract
+        (cbn ;
+         unfold transportb ;
+         rewrite two_disp_pre_whisker_left ;
+         rewrite two_disp_pre_whisker_right ;
+         rewrite two_disp_post_whisker_left ;
+         rewrite two_disp_post_whisker_right ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         etrans ; [ apply maponpaths ;apply (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
+         unfold transportb ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         refine (!_) ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
+    - abstract
+        (cbn ;
+         unfold transportb ;
+         rewrite two_disp_pre_whisker_left ;
+         rewrite two_disp_pre_whisker_right ;
+         rewrite two_disp_post_whisker_left ;
+         rewrite two_disp_post_whisker_right ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         etrans ; [ apply maponpaths ;apply (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
+         unfold transportb ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         refine (!_) ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
   Defined.
 
+  (**
+   4. The univalence
+   *)
   Definition is_univalent_reindex_twosided_disp_cat_help_from
              {x₁ : C₁}
              {y₁ : C₂}
@@ -228,7 +519,7 @@ Section Reindexing.
         (identity_z_iso (G y₁))
         xy₁ xy₂.
   Proof.
-    simple refine (_ ,, _).
+    simple refine (_ ,, _ ,, _ ,, _).
     - exact (transportf
                (λ z, _ -->[ z ][ _] _)
                (functor_id _ _)
@@ -236,7 +527,48 @@ Section Reindexing.
                   (λ z, _ -->[ _ ][ z ] _)
                   (functor_id _ _)
                   (pr1 fg))).
-    - apply TODO.
+    - exact (transportf
+               (λ z, _ -->[ z ][ _] _)
+               (functor_id _ _)
+               (transportf
+                  (λ z, _ -->[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (iso_inv_twosided_disp (pr2 fg)))).
+    - abstract
+        (cbn ;
+         rewrite two_disp_pre_whisker_left ;
+         rewrite two_disp_pre_whisker_right ;
+         rewrite two_disp_post_whisker_left ;
+         rewrite two_disp_post_whisker_right ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         etrans ; [ apply maponpaths ;apply (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
+         unfold transportb ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         refine (!_) ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
+    - abstract
+        (cbn ;
+         unfold transportb ;
+         rewrite two_disp_pre_whisker_left ;
+         rewrite two_disp_pre_whisker_right ;
+         rewrite two_disp_post_whisker_left ;
+         rewrite two_disp_post_whisker_right ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         etrans ; [ apply maponpaths ;apply (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
+         unfold transportb ;
+         etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
+         rewrite transport_f_f ;
+         refine (!_) ;
+         etrans ; [ apply twosided_prod_transport | ] ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
   Defined.
 
   Definition is_univalent_reindex_twosided_disp_cat_help_weq
@@ -253,8 +585,32 @@ Section Reindexing.
     use weq_iso.
     - exact (is_univalent_reindex_twosided_disp_cat_help_to xy₁ xy₂).
     - exact (is_univalent_reindex_twosided_disp_cat_help_from xy₁ xy₂).
-    - apply TODO.
-    - apply TODO.
+    - abstract
+        (intros f ;
+         use subtypePath ; [ intro ; apply isaprop_is_iso_twosided_disp | ] ;
+         cbn in * ; unfold transportb ;
+         rewrite !twosided_prod_transport ;
+         rewrite transport_f_f ;
+         refine (_ @ @idpath_transportf
+                        _
+                        (λ z, xy₁ -->[ pr1 z ][ dirprod_pr2 z ] xy₂)
+                        (_ ,, _)
+                        (pr1 f)) ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
+    - abstract
+        (intros f ;
+         use subtypePath ; [ intro ; apply isaprop_is_iso_twosided_disp | ] ;
+         cbn in * ; unfold transportb ;
+         rewrite !twosided_prod_transport ;
+         rewrite transport_f_f ;
+         refine (_ @ @idpath_transportf
+                        _
+                        (λ z, xy₁ -->[ pr1 z ][ dirprod_pr2 z ] xy₂)
+                        (_ ,, _)
+                        (pr1 f)) ;
+         apply maponpaths_2 ;
+         apply isasetdirprod ; apply homset_property).
   Defined.
 
   Definition is_univalent_reindex_twosided_disp_cat
@@ -274,6 +630,9 @@ Section Reindexing.
          apply idpath).
   Defined.
 
+  (**
+   5. Discreteness
+   *)
   Definition isaprop_disp_twosided_mor_reindex_twosided_disp_cat
              (HD₁ : isaprop_disp_twosided_mor D)
     : isaprop_disp_twosided_mor reindex_twosided_disp_cat.

@@ -1,3 +1,20 @@
+(**********************************************************************************
+
+ Total categories
+
+ We prove that every two-sided displayed category gives rise to a span of
+ categories. More specifically, every two-sided displayed category `D` over `C₁`
+ and `C₂` gives rise to a total category `∫ D`, a first projection `∫ D ⟶ C₁`, and
+ a second projection `∫ D ⟶ C₂`. In addition, the univalence of `∫ D` follows from
+ the displayed univalence of `D` and the univalence of both `C₁` and `D₂`.
+
+ Contents
+ 1. Total category
+ 2. First and second projection
+ 3. Isos in the total category
+ 4. Univalence of the total category
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -7,7 +24,6 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 
 Local Open Scope cat.
 
@@ -15,6 +31,9 @@ Section TotalOfTwoSidedDispCat.
   Context {C₁ C₂ : category}
           (D : twosided_disp_cat C₁ C₂).
 
+  (**
+   1. Total category
+   *)
   Definition total_twosided_disp_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
@@ -113,6 +132,9 @@ Section TotalOfTwoSidedDispCat.
     apply idpath.
   Qed.
 
+  (**
+   2. First and second projection
+   *)
   Definition twosided_disp_category_pr1_data
     : functor_data total_twosided_disp_category C₁.
   Proof.
@@ -161,6 +183,9 @@ Section TotalOfTwoSidedDispCat.
     - exact twosided_disp_category_pr2_is_functor.
   Defined.
 
+  (**
+   3. Isos in the total category
+   *)
   Section IsoTotal.
     Context {x₁ x₂ : C₁}
             {y₁ y₂ : C₂}
@@ -360,6 +385,9 @@ Section TotalOfTwoSidedDispCat.
          apply idpath).
   Defined.
 
+  (**
+   4. Univalence of the total category
+   *)
   Definition is_univalent_total_twosided_disp_category
              (HC₁ : is_univalent C₁)
              (HC₂ : is_univalent C₂)
@@ -369,15 +397,15 @@ Section TotalOfTwoSidedDispCat.
     intros x y.
     use weqhomot.
     - refine (weq_z_iso_total_twosided_disp_cat _ _
-                     ∘ weqtotal2
-                         (_ ,, HC₁ _ _)
-                         (λ p,
-                          weqtotal2
-                            (_ ,, HC₂ _ _)
-                            (λ q, (_ ,, HD _ _ _ _ p q _ _))
-                          ∘ _
-                          ∘ total2_paths_equiv _ _ _)
-                     ∘ total2_paths_equiv _ _ _)%weq ; cbn.
+              ∘ weqtotal2
+                  (_ ,, HC₁ _ _)
+                  (λ p,
+                  weqtotal2
+                    (_ ,, HC₂ _ _)
+                    (λ q, (_ ,, HD _ _ _ _ p q _ _))
+              ∘ _
+              ∘ total2_paths_equiv _ _ _)
+              ∘ total2_paths_equiv _ _ _)%weq ; cbn.
       induction x, y.
       cbn in *.
       induction p.

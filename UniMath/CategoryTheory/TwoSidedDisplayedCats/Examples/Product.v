@@ -1,3 +1,15 @@
+(**********************************************************************************
+
+ The product via two-sided displayed categories
+
+ By taking the displayed objects and displayed morphisms to be inhabitants of the
+ unit type, we obtain the product of two categories.
+
+ Contents
+ 1. Definition via two-sided displayed categories
+ 2. Discreteness and univalence
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -14,6 +26,9 @@ Local Open Scope cat.
 Section ProductTwoSidedDispCat.
   Context (C₁ C₂ : category).
 
+  (**
+   1. Definition via two-sided displayed categories
+   *)
   Definition prod_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor C₁ C₂.
   Proof.
@@ -56,6 +71,9 @@ Section ProductTwoSidedDispCat.
     - exact prod_twosided_disp_cat_axioms.
   Defined.
 
+  (**
+   2. Discreteness and univalence
+   *)
   Definition constant_twosided_disp_cat_is_iso
     : all_disp_mor_iso prod_twosided_disp_cat.
   Proof.
