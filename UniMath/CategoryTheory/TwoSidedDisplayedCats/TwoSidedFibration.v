@@ -1,3 +1,31 @@
+(**********************************************************************************
+
+ Two-sided fibrations
+
+ In this file, we study two-sided fibrations and we use two-sided displayed
+ categories to define them. Note that the 'two-sided' in the name
+ 'two-sided displayed categories' is taken from two-sided fibrations, and defining
+ two-sided fibrations is one of the main goal.
+
+ Our definition is based on Definition 2.3.4 in
+    https://arxiv.org/pdf/1806.06129.pdf
+ Let's say we have the span `C₁ ⟵ D ⟶ C₂`. In the definition by Loregian and Riehl,
+ the functor `D ⟶ C₂` has a cleaving and the functor `D ⟶ C₁` has an opcleaving.
+ However, in our definition, it is the other way around. For us, the functor
+ `D ⟶ C₁` has a cleaving and `D ⟶ C₂` has an opcleaving. This change has minor
+ consequence. For example, if we consider the arrow category on a category `C`,
+ then we have a two-sided fibration `C ⟵ Arr(C) ⟶ C` where the left functor is the
+ domain and the right functor is the codomain. In the definition by Loregian and
+ Riehl, this would be the other way around. If we would use their definition in our
+ setting, then we would need to reveres the arrows when defining the arrow category.
+
+ Contents
+ 1. Opcartesian morphisms
+ 2. Cartesian morphisms
+ 3. Cleavings
+ 4. Two-sided fibrations
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -13,6 +41,9 @@ Section TwoSidedFibration.
   Context {C₁ C₂ : category}
           (D : twosided_disp_cat C₁ C₂).
 
+  (**
+   1. Opcartesian morphisms
+   *)
   Definition twosided_opcartesian
              {x₁ x₂ : C₁}
              {y₁ y₂ : C₂}
@@ -67,6 +98,9 @@ Section TwoSidedFibration.
     : fg ;;2 twosided_opcartesian_factorisation H fg' = fg'
     := pr21 (H _ _ _ _ _ fg').
 
+  (**
+   2. Cartesian morphisms
+   *)
   Definition twosided_cartesian
              {x₁ x₂ : C₁}
              {y₁ y₂ : C₂}
@@ -121,6 +155,9 @@ Section TwoSidedFibration.
     : twosided_cartesian_factorisation H fg' ;;2 fg = fg'
     := pr21 (H _ _ _ _ _ fg').
 
+  (**
+   3. Cleavings
+   *)
   Definition twosided_opcleaving
     : UU
     := ∏ (x : C₁)
@@ -240,6 +277,9 @@ Section TwoSidedFibration.
          (identity_is_z_iso _)
          (twosided_commute H₁ H₂ xy f g).
 
+  (**
+   4. Two-sided fibrations
+   *)
   Definition twosided_fibration
     : UU
     := ∑ (H₁ : twosided_opcleaving)

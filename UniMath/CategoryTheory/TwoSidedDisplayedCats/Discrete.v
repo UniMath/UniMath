@@ -1,3 +1,13 @@
+(**********************************************************************************
+
+ Discrete two-sided displayed categories
+
+ Discreteness for two-sided displayed categories is defined in much the same way
+ as for categories and displayed categories. We require univalence, and that all
+ morphisms are equal and invertible. Note that from this, one can conclude that the
+ displayed objects actually form a set.
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
