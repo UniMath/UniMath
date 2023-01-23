@@ -230,6 +230,8 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+DisplayedCats/TotalCategoryFacts.v
+DisplayedCats/TotalAdjunction.v
 
 categories/Dialgebras.v
 categories/CatIsoInserter.v
@@ -303,6 +305,15 @@ RepresentableFunctors/Representation.v
 RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
+
+# Monoidal Rezk Completion
+Monoidal/MonoidalFunctorCategory.v
+Monoidal/RezkCompletion/LiftedTensor.v
+Monoidal/RezkCompletion/LiftedTensorUnit.v
+Monoidal/RezkCompletion/LiftedUnitors.v
+Monoidal/RezkCompletion/LiftedAssociator.v
+Monoidal/RezkCompletion/LiftedMonoidal.v
+Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 
 PowerObject.v
 elementary_topos.v

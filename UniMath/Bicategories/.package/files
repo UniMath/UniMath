@@ -6,6 +6,7 @@ Morphisms/FullyFaithful.v
 Morphisms/DiscreteMorphisms.v
 
 Core/Examples/OpMorBicat.v
+Morphisms/Examples/MorphismsInOp1Bicat.v
 Core/Examples/OpCellBicat.v
 Core/Unitors.v
 Core/BicategoryLaws.v
@@ -41,7 +42,6 @@ Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInBicatOfUnivCats.v
 Morphisms/Examples/FibrationsInStrictCats.v
-Morphisms/Examples/MorphismsInOp1Bicat.v
 Morphisms/Examples/MorphismsInOp2Bicat.v
 
 DisplayedBicats/DispBicat.v
@@ -95,6 +95,7 @@ MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v
 MonoidalCategories/UnivalenceMonCat/AssociatorUnitorsLayer.v
 MonoidalCategories/UnivalenceMonCat/FinalLayer.v
 MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v
+MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatNonCurried.v
 
 Core/Examples/Groupoids.v
 PseudoFunctors/Display/Base.v
@@ -239,6 +240,11 @@ Colimits/CoproductEquivalences.v
 
 Morphisms/Properties/FromInitial.v
 
+Objects/CartesianObject.v
+Objects/CocartesianObject.v
+
+Objects/Examples/BicatOfUnivCatsObjects.v
+
 PseudoFunctors/Examples/ConstProduct.v
 PseudoFunctors/Examples/CurryingInBicatOfCats.v
 PseudoFunctors/PseudoFunctorLimits.v
@@ -316,3 +322,5 @@ OtherStructure/Exponentials.v
 OtherStructure/Cores.v
 OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
+
+PseudoFunctors/DisplayedUniversalArrow.v

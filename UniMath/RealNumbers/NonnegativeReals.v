@@ -677,7 +677,7 @@ Lemma Dcuts_notlt_0 :
 Proof.
   intros x.
   unfold neg.
-  apply hinhuniv'.
+  apply factor_through_squash.
   - exact isapropempty.
   - intros r.
     exact (Dcuts_zero_empty _ (pr2 (pr2 r))).
@@ -4130,7 +4130,7 @@ Proof.
   apply isapfun_NonnegativeRationals_to_Dcuts_aux in Hc.
   apply hinhuniv ; apply sumofmaps ; [intros He | ].
   - apply hinhpr ; left.
-    unfold neg ; apply hinhuniv'.
+    use factor_through_squash.
     { exact isapropempty. }
     intros X.
     apply He.
@@ -4148,7 +4148,7 @@ Proof.
     generalize (is_Dcuts_corr (pr1 X) _ Hc).
     apply hinhfun ; apply sumofmaps ; [intros Xc | ].
     + left.
-      unfold neg ; apply hinhuniv'.
+      use factor_through_squash.
       { exact isapropempty. }
       intros Y.
       apply (pr2 (pr2 X)).
@@ -4185,7 +4185,7 @@ Proof.
         exists (pr1 X) ; split.
         ** exact (pr1 (pr2 X)).
         ** exact (pr1 (pr2 q)).
-      * unfold neg ; apply hinhuniv'.
+      * use factor_through_squash.
         { exact isapropempty. }
         intros Y.
         apply (pr2 (pr2 X)).
@@ -4301,7 +4301,7 @@ Proof.
   apply hinhfun.
   apply sumofmaps ; [intros Ec | intros q].
   - left.
-    unfold neg ; apply hinhuniv'.
+    use factor_through_squash.
     { exact isapropempty. }
     intros r.
     apply Ec.

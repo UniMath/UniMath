@@ -118,8 +118,6 @@ Definition makecategory_data
   := make_precategory_data (makecategory_ob_mor obj mor) identity compose.
 
 
-Local Open Scope cat_deprecated.
-
 Definition makeFunctor {C D:category}
            (obj : C -> D)
            (mor : ∏ c c' : C, c --> c' -> obj c --> obj c')

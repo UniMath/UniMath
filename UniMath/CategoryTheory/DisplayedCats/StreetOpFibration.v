@@ -11,43 +11,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
 
-Lemma idtoiso_functor_precompose'
-      {C₁ C₂ : category}
-      (F : C₁ ⟶ C₂)
-      {y : C₂}
-      {x₁ x₂ : C₁}
-      (p : x₁ = x₂)
-      (f : y --> F x₁)
-  : f · idtoiso (maponpaths (λ z, F z) p)
-    =
-    transportf (λ z, y --> F z) p f.
-Proof.
-  induction p.
-  cbn.
-  apply id_right.
-Qed.
-
-Definition transportf_functor_isotoid'
-           {C₁ C₂ : category}
-           (HC₁ : is_univalent C₁)
-           (F : C₁ ⟶ C₂)
-           {y : C₂}
-           {x₁ x₂ : C₁}
-           (i : z_iso x₁ x₂)
-           (f : y --> F x₁)
-  : transportf
-      (λ z, y --> F z)
-      (isotoid _ HC₁ i)
-      f
-    =
-    f · #F i.
-Proof.
-  rewrite <- idtoiso_functor_precompose'.
-  rewrite maponpaths_idtoiso.
-  rewrite idtoiso_isotoid.
-  apply idpath.
-Qed.
-
 (**
 The definition of a Street opfibration of categories
  *)

@@ -339,13 +339,6 @@ Proof.
   intros. unfold nil. apply maponpaths. apply isapropifcontr. apply iscontr_vector_0.
 Defined.
 
-Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
-  transportf P e p = p.
-(* move upstream *)
-Proof. induction (pr1 ((setproperty _) _ _ (idpath _) e)).
-       reflexivity.
-Defined.
-
 (* induction principle for contractible types, as a warmup *)
 
 (* Three ways.  Use induction: *)

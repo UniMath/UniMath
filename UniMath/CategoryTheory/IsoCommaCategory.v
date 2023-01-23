@@ -194,7 +194,7 @@ Section IsoCommaCategory.
     : is_univalent iso_comma.
   Proof.
     use is_univalent_total_category.
-    - apply is_unvialent_category_binproduct.
+    - apply is_univalent_category_binproduct.
       + exact HC₁.
       + exact HC₂.
     - exact (is_univalent_disp_iso_comma_disp_cat HC₃).

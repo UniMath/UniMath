@@ -1,0 +1,27 @@
+
+name: Scheduled build
+
+on:
+  schedule:
+    # This job will run at 02:05 UTC on the 1st and 15th every month
+    - cron: '5 2 1,15 * *'
+
+  workflow_dispatch:
+
+jobs:
+  # This build UniMath using UniMaths Makefile and the bundled Coq version,
+  # i.e. with `make BUILD_COQ=yes`.
+  build-coq-and-Unimath-ubuntu:
+    name: Build Coq and UniMath (Ubuntu)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
+      - name: Build UniMath
+        run: |
+          cd $GITHUB_WORKSPACE
+          time make -j2 TIMECMD=time BUILD_COQ=yes
+
