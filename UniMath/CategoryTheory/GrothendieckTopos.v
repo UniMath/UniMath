@@ -47,7 +47,7 @@ Section def_grothendiecktopology.
 
   (** A sieve on c is a subobject of the yoneda functor. *)
   Definition sieve (c : C) : UU :=
-    Subobjectscategory _ (yoneda C c).
+    Subobjectscategory (yoneda C c).
 
   (* Coq does not automatically convert the following types *)
   Definition FunctorPrecatObToFunctor (c : [C^op, HSET])
@@ -72,14 +72,12 @@ Section def_grothendiecktopology.
 
   Definition isGrothendieckTopology_maximal_sieve (COS : collection_of_sieves) : UU :=
     ∏ (c : C), COS c (Subobjectscategory_ob
-                        _
                         (identity (yoneda C c)) (identity_isMonic _)).
 
   Definition isGrothendieckTopology_stability (COS : collection_of_sieves) : UU :=
     ∏ (c c' : C) (h : c' --> c) (s : sieve c),
     COS c s ->
     COS c' (PullbackSubobject
-              _
               (FunctorcategoryPullbacks C^op HSET HSET_Pullbacks)
               s (yoneda_morphisms C  _ _ h)).
 
@@ -87,7 +85,6 @@ Section def_grothendiecktopology.
     ∏ (c : C) (s : sieve c),
     (∏ (c' : C) (h : c' --> c),
      COS c' (PullbackSubobject
-               _
                (FunctorcategoryPullbacks C^op HSET HSET_Pullbacks)
                s (yoneda_morphisms C  _ _ h))
      -> COS c s).

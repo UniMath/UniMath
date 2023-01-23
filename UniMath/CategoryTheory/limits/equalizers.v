@@ -4,6 +4,8 @@ Direct implementation of equalizers together with:
 
 - Definition
 - Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])
+- Proof that the equalizer arrow of equal morphism
+  is an isomorphism ([z_iso_Equalizer_of_same_map])
 - Alternative universal property
 
 Written by Tomi Pannila
@@ -245,6 +247,35 @@ Section def_equalizers.
     exact (make_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 
+  (*
+  The equalizer is a z-isomorphism if f = g
+  *)
+  Lemma z_iso_Equalizer_of_same_map {y z : C} {f g : y --> z} (E : Equalizer f g) (p:f = g) : is_z_isomorphism (EqualizerArrow E).
+  Proof.
+    induction p.
+    transparent assert (E_id : (Equalizer f f) ). {
+      use make_Equalizer.
+      + exact y.
+      + exact (identity y).
+      + apply idpath.
+      + use make_isEqualizer.
+        intros x h p.
+        use make_iscontr.
+        - split with h.
+          use id_right.
+        - intro t.
+          induction t as (t,t_tri).
+          use subtypePath.
+          * unfold isPredicate.
+            intro.
+            use homset_property.
+          * cbn.
+            rewrite <-(id_right t).
+            exact t_tri.
+    }
+    use (make_is_z_isomorphism _ (from_Equalizer_to_Equalizer E_id E)).
+    use z_iso_from_Equalizer_to_Equalizer_inverses.
+  Defined.
 
 End def_equalizers.
 

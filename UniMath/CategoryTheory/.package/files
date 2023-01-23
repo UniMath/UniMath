@@ -303,3 +303,6 @@ RepresentableFunctors/Representation.v
 RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
+
+PowerObject.v
+elementary_topos.v

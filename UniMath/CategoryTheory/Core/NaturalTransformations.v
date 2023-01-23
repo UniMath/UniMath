@@ -381,6 +381,9 @@ Definition nat_z_iso_to_trans {C D : precategory_data} {F G : C ⟶ D} (μ : nat
 
 Coercion nat_z_iso_to_trans : nat_z_iso >-> nat_trans.
 
+Definition pr2_nat_z_iso {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) : is_nat_z_iso μ :=
+  pr2 μ.
+
 Definition nat_z_iso_pointwise_z_iso {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) (c: C): z_iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
 
 (* ⁻¹ *)
