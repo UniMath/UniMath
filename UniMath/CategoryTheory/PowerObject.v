@@ -26,7 +26,6 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.TesiTopo.HomSetFunctor.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
