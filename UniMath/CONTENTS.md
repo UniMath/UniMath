@@ -448,6 +448,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [TwoSidedDisplayedCats/Examples/IsoComma.v](CategoryTheory/TwoSidedDisplayedCats/Examples/IsoComma.v)
    - [TwoSidedDisplayedCats/Examples/Lenses.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Lenses.v)
    - [TwoSidedDisplayedCats/Examples/Product.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Product.v)
+   - [TwoSidedDisplayedCats/Examples/Profunctor.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Profunctor.v)
    - [TwoSidedDisplayedCats/Examples/Reindex.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Reindex.v)
    - [TwoSidedDisplayedCats/Examples/Relations.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Relations.v)
    - [TwoSidedDisplayedCats/Examples/Spans.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Spans.v)

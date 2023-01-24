@@ -8,9 +8,14 @@
  over the identity. The difference is that we have to take the two-sidedness into
  account.
 
+ We also show that if we have a discrete two-sided fibration, then every morphism
+ in the base gives rise to a function between the fibers. Using that, we conclude
+ that every discrete two-sided fibration gives rise to a profunctor.
+
  Contents
  1. Fiber set of a discrete two-sided fibration
  2. Fiber category of a two-sided fibration
+ 3. Fiber functor in a two-sided fibration
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -134,7 +139,7 @@ Section FiberCat.
 End FiberCat.
 
 (**
-
+ 3. Fiber functor in a two-sided fibration
  *)
 Section TwoSidedDiscreteFibrationToProfunctor.
   Context {C₁ C₂ : category}
