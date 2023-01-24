@@ -15,6 +15,9 @@
  Contents
  1. Fiber set of a discrete two-sided fibration
  2. Fiber category of a two-sided fibration
+ 2.1. Definition of the fiber category
+ 2.2. Isos in the fiber
+ 2.3. Univalence of the fiber
  3. Fiber functor in a two-sided fibration
 
  **********************************************************************************)
@@ -22,6 +25,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
@@ -30,6 +34,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
@@ -60,6 +65,9 @@ Section FiberCat.
           (x : C₁)
           (y : C₂).
 
+  (**
+   2.1. Definition of the fiber category
+   *)
   Definition fiber_twosided_disp_precat_ob_mor
     : precategory_ob_mor.
   Proof.
@@ -135,6 +143,105 @@ Section FiberCat.
     - exact fiber_twosided_disp_precat.
     - intros xy₁ xy₂ ; cbn.
       apply isaset_disp_mor.
+  Defined.
+
+  (**
+   2.2. Isos in the fiber
+   *)
+  Definition make_z_iso_in_fiber
+             {xy₁ xy₂ : fiber_twosided_disp_cat}
+             (f : z_iso xy₁ xy₂)
+    : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂.
+  Proof.
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact (pr1 f).
+    - exact (inv_from_z_iso f).
+    - abstract
+        (cbn ;
+         pose (p := z_iso_inv_after_z_iso f) ;
+         cbn in p ;
+         rewrite <- p ;
+         unfold transportb ;
+         rewrite !twosided_swap_transport ;
+         refine (!_) ;
+         refine (transportbfinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
+         exact (transportbfinv (λ z, _ -->[ _ ][ z ] _) _ _)).
+    - abstract
+        (cbn ;
+         pose (p := z_iso_after_z_iso_inv f) ;
+         cbn in p ;
+         rewrite <- p ;
+         unfold transportb ;
+         rewrite !twosided_swap_transport ;
+         refine (!_) ;
+         refine (transportbfinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
+         exact (transportbfinv (λ z, _ -->[ _ ][ z ] _) _ _)).
+  Defined.
+
+  Definition from_z_iso_in_fiber
+             {xy₁ xy₂ : fiber_twosided_disp_cat}
+             (f : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂)
+    : z_iso xy₁ xy₂.
+  Proof.
+    use make_z_iso.
+    - exact (pr1 f).
+    - exact (iso_inv_twosided_disp (pr2 f)).
+    - split.
+      + abstract
+          (cbn ;
+           pose (p := inv_after_iso_twosided_disp (pr2 f)) ;
+           cbn in p ;
+           rewrite p ;
+           unfold transportb ;
+           rewrite !twosided_swap_transport ;
+           refine (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
+           exact (transportfbinv (λ z, _ -->[ _ ][ z ] _) _ _)).
+      + abstract
+          (cbn ;
+           pose (p := iso_after_inv_twosided_disp (pr2 f)) ;
+           cbn in p ;
+           rewrite p ;
+           unfold transportb ;
+           rewrite !twosided_swap_transport ;
+           refine (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
+           exact (transportfbinv (λ z, _ -->[ _ ][ z ] _) _ _)).
+  Defined.
+
+  Definition z_iso_in_fiber
+             (xy₁ xy₂ : fiber_twosided_disp_cat)
+    : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂
+      ≃
+      z_iso xy₁ xy₂.
+  Proof.
+    use weq_iso.
+    - exact from_z_iso_in_fiber.
+    - exact make_z_iso_in_fiber.
+    - abstract
+        (intro f ;
+         use subtypePath ; [ intro ; apply isaprop_is_iso_twosided_disp | ] ;
+         apply idpath).
+    - abstract
+        (intro f ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
+         apply idpath).
+  Defined.
+
+  (**
+   2.3. Univalence of the fiber
+   *)
+  Definition is_univalent_fiber_twosided_disp_cat
+             (HD : is_univalent_twosided_disp_cat D)
+    : is_univalent fiber_twosided_disp_cat.
+  Proof.
+    intros xy₁ xy₂.
+    use weqhomot.
+    - exact (z_iso_in_fiber xy₁ xy₂
+             ∘ make_weq _ (HD x x y y (idpath _) (idpath _) xy₁ xy₂))%weq.
+    - abstract
+        (intro p ;
+         induction p ;
+         use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
+         apply idpath).
   Defined.
 End FiberCat.
 

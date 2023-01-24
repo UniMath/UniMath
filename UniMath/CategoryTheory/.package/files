@@ -312,6 +312,8 @@ TwoSidedDisplayedCats/Total.v
 TwoSidedDisplayedCats/TwoSidedFibration.v
 TwoSidedDisplayedCats/Fiber.v
 
+TwoSidedDisplayedCats/DisplayedFunctor.v
+
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
