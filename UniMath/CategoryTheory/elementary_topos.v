@@ -165,7 +165,6 @@ Proof.
       fold y12 in r2.
       use make_iscontr.
       - split with y12.
-        Print tpair.
         use (tpair _ _ r2).
         use BinProductArrowsEq.
         * fold y11.
