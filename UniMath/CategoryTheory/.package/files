@@ -21,12 +21,12 @@ DisplayedCats/Total.v
 DisplayedCats/Fiber.v
 
 categories/CategoryOfSetCategories.v
-categories/HSET/Core.v
 opp_precat.v
 OppositeCategory/Core.v
 Groupoids.v
 ProductCategory.v
 PrecategoryBinProduct.v
+categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
@@ -94,7 +94,6 @@ IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 
-SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
 EpiFacts.v
@@ -134,6 +133,7 @@ AdditiveFunctors.v
 LocalizingClass.v
 UnderCategories.v
 Subobjects.v
+SubobjectClassifier.v
 Quotobjects.v
 AbelianPushoutPullback.v
 PseudoElements.v
