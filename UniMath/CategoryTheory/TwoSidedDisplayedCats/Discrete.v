@@ -130,3 +130,18 @@ Proof.
   - intros.
     apply HD₁.
 Qed.
+
+Definition mortoid_discrete_twosided_disp
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           (HD : discrete_twosided_disp_cat D)
+           {x : C₁}
+           {y : C₂}
+           (xy₁ xy₂ : D x y)
+           (r : xy₁ -->[ identity x ][ identity y ] xy₂)
+  : xy₁ = xy₂.
+Proof.
+  use (isotoid_twosided_disp (pr22 HD) (idpath _) (idpath _) xy₁ xy₂).
+  simple refine (r ,, _).
+  apply HD.
+Defined.

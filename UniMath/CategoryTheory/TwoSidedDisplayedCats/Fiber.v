@@ -134,81 +134,171 @@ Section FiberCat.
 End FiberCat.
 
 (**
-To do
-Definition fiber_fun_hset_twosided_disp_cat
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           (HD : discrete_twosided_disp_cat D)
-           (HD' : twosided_fibration D)
-           {x₁ x₂ : C₁}
-           (f : x₁ --> x₂)
-           {y₁ y₂ : C₂}
-           (g : y₂ --> y₁)
-  : fiber_hset_twosided_disp_cat HD x₂ y₂
-    →
-    fiber_hset_twosided_disp_cat HD x₁ y₁
-  := λ xy,
-     twosided_opcleaving_ob
-       _
-       (pr1 HD')
-       (twosided_cleaving_ob
-          _
-          (pr12 HD')
-          xy
-          f)
-       g.
 
-Definition fiber_fun_hset_twosided_disp_cat_id
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           (HD : discrete_twosided_disp_cat D)
-           (HD' : twosided_fibration D)
-           (x : C₁)
-           (y : C₂)
-  : fiber_fun_hset_twosided_disp_cat HD HD' (identity x) (identity y)
+ *)
+Section TwoSidedDiscreteFibrationToProfunctor.
+  Context {C₁ C₂ : category}
+          (D : discrete_twosided_fibration C₁ C₂).
+
+  Let HD : discrete_twosided_disp_cat D := pr12 D.
+  Let HD' : is_discrete_twosided_fibration (pr12 D) := pr22 D.
+
+  Definition fiber_fun_hset_twosided_disp_cat
+             {x₁ x₂ : C₁}
+             (f : x₁ --> x₂)
+             {y₁ y₂ : C₂}
+             (g : y₂ --> y₁)
+    : fiber_hset_twosided_disp_cat HD x₂ y₂
+      →
+      fiber_hset_twosided_disp_cat HD x₁ y₁
+    := λ xy,
+       discrete_twosided_opcleaving_ob
+         _
+         (pr2 HD')
+         (discrete_twosided_cleaving_ob
+            _
+            (pr1 HD')
+            xy
+            f)
+         g.
+
+  Definition discrete_twosided_fibration_to_profunctor_data
+    : functor_data
+        (category_binproduct C₁^op C₂)
+        HSET.
+  Proof.
+    use make_functor_data.
+    - exact (λ xy, fiber_hset_twosided_disp_cat HD (pr1 xy) (pr2 xy)).
+    - exact (λ _ _ fg, fiber_fun_hset_twosided_disp_cat (pr1 fg) (pr2 fg)).
+  Defined.
+
+  Definition fiber_fun_hset_twosided_disp_cat_id_map
+             {x : C₁}
+             {y : C₂}
+             (xy : fiber_hset_twosided_disp_cat HD x y)
+  : fiber_fun_hset_twosided_disp_cat (identity x) (identity y) xy
+    -->[ identity _ ][ identity _ ]
+    xy.
+  Proof.
+    unfold fiber_fun_hset_twosided_disp_cat.
+    use discrete_twosided_opcleaving_opcartesian.
+    refine (transportb
+              (λ z, _ -->[ z ][ _ ] _)
+              _
+              (transportb
+                 (λ z, _ -->[ _ ][ z ] _)
+                 _
+                 (discrete_twosided_cleaving_mor _ (pr1 HD') xy (identity x)))).
+    - exact (id_right _).
+    - exact (id_right _).
+  Defined.
+
+  Definition fiber_fun_hset_twosided_disp_cat_id
+             {x : C₁}
+             {y : C₂}
+             (xy : fiber_hset_twosided_disp_cat HD x y)
+  : fiber_fun_hset_twosided_disp_cat (identity x) (identity y) xy
     =
-    idfun _.
-Proof.
-  use funextsec.
-  intro xy.
-  cbn.
-Admitted.
+    xy.
+  Proof.
+    use (mortoid_discrete_twosided_disp HD).
+    exact (fiber_fun_hset_twosided_disp_cat_id_map xy).
+  Qed.
 
-Definition fiber_fun_hset_twosided_disp_cat_comp
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           (HD : discrete_twosided_disp_cat D)
-           (HD' : twosided_fibration D)
-           {x₁ x₂ x₃ : C₁}
-           (f₁ : x₃ --> x₂)
-           (f₂ : x₂ --> x₁)
-           {y₁ y₂ y₃ : C₂}
-           (g₁ : y₁ --> y₂)
-           (g₂ : y₂ --> y₃)
-  : (λ xy,
-     fiber_fun_hset_twosided_disp_cat
-       HD HD'
-       f₁ g₂
-       (fiber_fun_hset_twosided_disp_cat
-          HD HD'
-          f₂ g₁
-          xy))
-    =
-    fiber_fun_hset_twosided_disp_cat HD HD' (f₁ · f₂) (g₁ · g₂).
-Proof.
-Admitted.
+  Definition fiber_fun_hset_twosided_disp_cat_comp_map
+             {x₁ x₂ x₃ : C₁}
+             (f₁ : x₃ --> x₂)
+             (f₂ : x₂ --> x₁)
+             {y₁ y₂ y₃ : C₂}
+             (g₁ : y₁ --> y₂)
+             (g₂ : y₂ --> y₃)
+             (xy : fiber_hset_twosided_disp_cat HD x₁ y₁)
+    : fiber_fun_hset_twosided_disp_cat (f₁ · f₂) (g₁ · g₂) xy
+      -->[ identity _ ][ identity _ ]
+      fiber_fun_hset_twosided_disp_cat
+        f₁ g₂
+        (fiber_fun_hset_twosided_disp_cat
+           f₂ g₁
+           xy).
+  Proof.
+    unfold fiber_fun_hset_twosided_disp_cat.
+    use discrete_twosided_opcleaving_opcartesian.
+    pose (h₁ := discrete_twosided_opcleaving_mor
+                  _
+                  (pr2 HD')
+                  (discrete_twosided_cleaving_ob (pr1 D)
+                     (pr1 HD')
+                     (discrete_twosided_opcleaving_ob (pr1 D)
+                        (pr2 HD')
+                        (discrete_twosided_cleaving_ob (pr1 D) (pr1 HD') xy f₂) g₁)
+                     f₁)
+                  g₂).
+    refine (transportb
+              (λ z, _ -->[ _ ][ z ] _)
+              (id_right _)
+              (_ ;;2 h₁)).
+    use discrete_twosided_cleaving_cartesian.
+    pose (h₂ := discrete_twosided_opcleaving_mor
+                  _
+                  (pr2 HD')
+                  (discrete_twosided_cleaving_ob (pr1 D) (pr1 HD') xy f₂) g₁).
+    refine (transportb
+              (λ z, _ -->[ z ][ _ ] _)
+              (id_left _ @ !(id_right _))
+              (transportb
+                 (λ z, _ -->[ _ ][ z ] _)
+                 (id_right _ @ !(id_left _))
+                 (_ ;;2 h₂))).
+    use discrete_twosided_cleaving_cartesian.
+    pose (h₃ := discrete_twosided_cleaving_mor
+                  _
+                  (pr1 HD')
+                  xy
+                  (f₁ · f₂)).
+    exact (transportb
+             (λ z, _ -->[ _ ][ z ] _)
+             (id_right _)
+             h₃).
+  Defined.
 
-Definition discrete_twosided_fibration_to_profunctor
-           {C₁ C₂ : category}
-           {D : twosided_disp_cat C₁ C₂}
-           (HD : discrete_twosided_disp_cat D)
-           (HD' : twosided_fibration D)
-  : profunctor C₂ C₁.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + exact (λ x, fiber_hset_twosided_disp_cat HD (pr1 x) (pr2 x)).
-    + exact (λ x y f, fiber_fun_hset_twosided_disp_cat HD HD' (pr1 f) (pr2 f)).
-  - admit.
-Admitted.
-*)
+  Definition fiber_fun_hset_twosided_disp_cat_comp
+             {x₁ x₂ x₃ : C₁}
+             (f₁ : x₃ --> x₂)
+             (f₂ : x₂ --> x₁)
+             {y₁ y₂ y₃ : C₂}
+             (g₁ : y₁ --> y₂)
+             (g₂ : y₂ --> y₃)
+             (xy : fiber_hset_twosided_disp_cat HD x₁ y₁)
+    : fiber_fun_hset_twosided_disp_cat (f₁ · f₂) (g₁ · g₂) xy
+      =
+      fiber_fun_hset_twosided_disp_cat
+        f₁ g₂
+        (fiber_fun_hset_twosided_disp_cat
+           f₂ g₁
+           xy).
+  Proof.
+    use (mortoid_discrete_twosided_disp HD).
+    exact (fiber_fun_hset_twosided_disp_cat_comp_map f₁ f₂ g₁ g₂ xy).
+  Qed.
+
+  Definition discrete_twosided_fibration_to_profunctor_is_functor
+    : is_functor
+        discrete_twosided_fibration_to_profunctor_data.
+  Proof.
+    repeat split.
+    - intros z.
+      use funextsec.
+      exact fiber_fun_hset_twosided_disp_cat_id.
+    - intros z₁ z₂ z₃ f g.
+      use funextsec.
+      exact (fiber_fun_hset_twosided_disp_cat_comp _ _ _ _).
+  Qed.
+
+  Definition discrete_twosided_fibration_to_profunctor
+    : profunctor C₂ C₁.
+  Proof.
+    use make_functor.
+    - exact discrete_twosided_fibration_to_profunctor_data.
+    - exact discrete_twosided_fibration_to_profunctor_is_functor.
+  Defined.
+End TwoSidedDiscreteFibrationToProfunctor.

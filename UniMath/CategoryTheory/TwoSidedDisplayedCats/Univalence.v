@@ -55,3 +55,17 @@ Proof.
   do 8 (use impred ; intro).
   apply isapropisweq.
 Qed.
+
+Definition isotoid_twosided_disp
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           (HD : is_univalent_twosided_disp_cat D)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (p : x₁ = x₂)
+           (q : y₁ = y₂)
+           (xy₁ : D x₁ y₁)
+           (xy₂ : D x₂ y₂)
+           (r : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂)
+  : transportf (λ z, D z _) p (transportf (λ z, D _ z) q xy₁) = xy₂
+  := invmap (_ ,, HD x₁ x₂ y₁ y₂ p q xy₁ xy₂) r.
