@@ -3,14 +3,17 @@
 Contents:
  - Category of coalgebras over an endofunctor.
  - Dual of Lambek's lemma: if (A,α) is terminal coalgebra, α is an isomorphism.
+ - Primitive corecursion.
 
 ******************************************************************)
 
 Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -174,4 +177,159 @@ Defined.
 
 Definition terminalcoalgebra_iso : iso A (F A) := make_iso α terminalcoalgebra_isiso.
 
+Definition terminalcoalgebra_z_iso : z_iso A (F A) := iso_to_z_iso (terminalcoalgebra_iso).
+
 End Lambek_dual.
+
+Section PrimitiveCorecursion.
+
+  Context {C : category} (CP : BinCoproducts C)
+          {F : functor C C} {νF : coalgebra_ob F}
+          (isTerminalνF : isTerminal (CoAlg_category F) νF).
+
+  Context {x : C} (ϕ : C⟦x, F(CP x (pr1 νF))⟧).
+
+  Definition X_coproduct_νF_coalgebra : coalgebra_ob F.
+  Proof.
+    exists (CP x (pr1 νF)).
+    exact (BinCoproductArrow (CP x (pr1 νF)) ϕ (pr2 νF · #F (BinCoproductIn2 (CP x (pr1 νF))))).
+  Defined.
+
+  Let h : C⟦x, pr1 νF⟧
+      := (BinCoproductIn1 (CP x (pr1 νF)) · pr1 (@TerminalArrow (CoAlg_category F) (νF,,isTerminalνF) X_coproduct_νF_coalgebra)).
+
+  Definition X_coproduct_νF_coalgebra_morphism_into_μF
+    : (CoAlg_category F ⟦ X_coproduct_νF_coalgebra, νF⟧).
+  Proof.
+    exists (BinCoproductArrow (CP x (pr1 νF)) h (identity (pr1 νF))).
+
+    cbn.
+
+    etrans.
+    1: apply postcompWithBinCoproductArrow.
+    etrans.
+    2: apply pathsinv0, postcompWithBinCoproductArrow.
+
+    assert (p0 : ϕ · # F (BinCoproductArrow (CP x (pr1 νF)) h (identity (pr1 νF))) = h · pr2 νF).
+    {
+      unfold h.
+      set (t := pr2 (TerminalArrow (νF,, isTerminalνF) X_coproduct_νF_coalgebra)).
+      cbn in t.
+
+      etrans.
+      2: apply assoc.
+      etrans.
+      2: apply maponpaths, t.
+      etrans.
+      2: apply assoc'.
+      etrans.
+      2: apply maponpaths_2, pathsinv0, BinCoproductIn1Commutes.
+      do 2 apply maponpaths.
+
+      assert (p1 : identity (pr1 νF) = BinCoproductIn2 (CP x (pr1 νF)) ·  pr1 (TerminalArrow (νF,, isTerminalνF) X_coproduct_νF_coalgebra)).
+      {
+        etrans.
+        1: apply (base_paths _ _ (TerminalArrowUnique (νF,,isTerminalνF) νF (identity _))).
+
+        transparent assert (f : ((CoAlg_category F)⟦νF,νF⟧)).
+        {
+          refine (_ · (TerminalArrow (νF,, isTerminalνF) X_coproduct_νF_coalgebra)).
+          exists (BinCoproductIn2 (CP x (pr1 νF))).
+          apply pathsinv0, BinCoproductIn2Commutes.
+        }
+        exact (! base_paths _ _ (TerminalArrowUnique (νF,,isTerminalνF) νF f)).
+      }
+      rewrite p1.
+      apply pathsinv0, BinCoproductArrowEta.
+    }
+
+    rewrite p0.
+    apply maponpaths.
+
+    etrans.
+    1: apply assoc'.
+    etrans. {
+      apply maponpaths.
+      etrans.
+      1: apply pathsinv0, functor_comp.
+      apply maponpaths.
+      apply BinCoproductIn2Commutes.
+    }
+    etrans. {
+      apply maponpaths.
+      apply functor_id.
+    }
+    exact (id_right _ @ ! id_left _).
+  Defined.
+
+  Lemma primitive_corecursion_existence
+    : h · (pr2 νF) = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)).
+  Proof.
+    etrans. { apply assoc'. }
+    etrans. {
+      apply maponpaths.
+      exact (! pr2 (@TerminalArrow (CoAlg_category F) (νF,,isTerminalνF) X_coproduct_νF_coalgebra)).
+    }
+    cbn.
+    etrans. { apply assoc. }
+    etrans. {
+      apply maponpaths_2.
+      apply BinCoproductIn1Commutes.
+    }
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    exact (base_paths _ _ (TerminalArrowUnique (νF,, isTerminalνF) _ X_coproduct_νF_coalgebra_morphism_into_μF)).
+  Qed.
+
+  Definition primitive_corecursion
+    : ∃! h : C⟦x, pr1 νF⟧, h · (pr2 νF) = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)).
+  Proof.
+    exists (h ,, primitive_corecursion_existence).
+    intro p.
+    use total2_paths_f.
+    - assert (q : (pr1 p = BinCoproductIn1 (CP x (pr1 νF)) · (BinCoproductArrow (CP _ _) (pr1 p) (identity _)))).
+      {
+        apply pathsinv0, BinCoproductIn1Commutes.
+      }
+
+      etrans.
+      1: exact q.
+      simpl.
+      apply maponpaths.
+
+      transparent assert ( f : ( CoAlg_category F ⟦ X_coproduct_νF_coalgebra, νF⟧)).
+      {
+        exists ( BinCoproductArrow (CP x (pr1 νF)) (pr1 p) (identity (pr1 νF))).
+        cbn.
+
+        etrans.
+        1: apply postcompWithBinCoproductArrow.
+        etrans.
+        2: apply pathsinv0, postcompWithBinCoproductArrow.
+
+        use (BinCoproductArrowUnique _ _ _ (CP x (pr1 νF)) (F (pr1 νF))).
+        - etrans.
+          1: apply BinCoproductIn1Commutes.
+          exact (! pr2 p).
+        - etrans.
+          1: apply BinCoproductIn2Commutes.
+          etrans.
+          1: apply assoc'.
+          etrans. {
+            apply maponpaths.
+            etrans.
+            1: apply pathsinv0, functor_comp.
+            apply maponpaths.
+            apply BinCoproductIn2Commutes.
+          }
+          etrans. {
+            apply maponpaths.
+            apply functor_id.
+          }
+          exact (id_right _ @ ! id_left _).
+      }
+      exact (base_paths _ _ (TerminalArrowUnique  (νF,, isTerminalνF)  X_coproduct_νF_coalgebra f)).
+    - apply homset_property.
+  Defined.
+
+End PrimitiveCorecursion.
