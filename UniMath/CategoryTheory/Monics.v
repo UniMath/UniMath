@@ -159,7 +159,7 @@ Section monics_subcategory.
   (*A morphism (f,,s) in subcategory_of_monics is a z_iso if the underlying morphism is also a z_iso,
   because the inverse must be monic.
   Here p is redundant (it can be derived by H)*)
-  Lemma is_z_iso_in_subcategory_of_monics_from_is_z_iso {a b : subcategory_of_monics}
+  Lemma is_z_iso_in_subcategory_of_monics_from_is_z_iso (a b : subcategory_of_monics)
     (f : C⟦ pr1 a , pr1 b ⟧)
     (p : isMonic f) (H : is_z_isomorphism f)
     : is_z_isomorphism (precategory_morphisms_in_subcat f p).
