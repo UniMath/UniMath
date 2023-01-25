@@ -167,17 +167,17 @@ Proof.
   apply (coalgebra_mor_commutes F f).
 Defined.
 
-Lemma terminalcoalgebra_isiso : is_iso α.
+Lemma terminalcoalgebra_is_z_iso : is_z_isomorphism α.
 Proof.
-  apply (is_iso_qinv α α').
+  exists α'.
   split.
   - exact αα'_idA.
   - exact α'α_idFA.
 Defined.
 
-Definition terminalcoalgebra_iso : iso A (F A) := make_iso α terminalcoalgebra_isiso.
+Definition terminalcoalgebra_z_iso : z_iso A (F A) := α,, terminalcoalgebra_is_z_iso.
 
-Definition terminalcoalgebra_z_iso : z_iso A (F A) := iso_to_z_iso (terminalcoalgebra_iso).
+Definition terminalcoalgebra_iso : iso A (F A) := z_iso_to_iso terminalcoalgebra_z_iso.
 
 End Lambek_dual.
 
@@ -198,11 +198,9 @@ Section PrimitiveCorecursion.
   Let h : C⟦x, pr1 νF⟧
       := (BinCoproductIn1 (CP x (pr1 νF)) · pr1 (@TerminalArrow (CoAlg_category F) (νF,,isTerminalνF) X_coproduct_νF_coalgebra)).
 
-  Definition X_coproduct_νF_coalgebra_morphism_into_μF
-    : (CoAlg_category F ⟦ X_coproduct_νF_coalgebra, νF⟧).
+  Lemma X_coproduct_νF_coalgebra_morphism_into_νF_aux :
+    pr2 X_coproduct_νF_coalgebra -->[ BinCoproductArrow (CP x (pr1 νF)) h (identity (pr1 νF))] pr2 νF.
   Proof.
-    exists (BinCoproductArrow (CP x (pr1 νF)) h (identity (pr1 νF))).
-
     cbn.
 
     etrans.
@@ -260,10 +258,18 @@ Section PrimitiveCorecursion.
       apply functor_id.
     }
     exact (id_right _ @ ! id_left _).
+  Qed.
+
+  Definition X_coproduct_νF_coalgebra_morphism_into_νF : (CoAlg_category F ⟦ X_coproduct_νF_coalgebra, νF⟧).
+  Proof.
+    exists (BinCoproductArrow (CP x (pr1 νF)) h (identity (pr1 νF))).
+    exact X_coproduct_νF_coalgebra_morphism_into_νF_aux.
   Defined.
 
-  Lemma primitive_corecursion_existence
-    : h · (pr2 νF) = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)).
+  Definition primitive_corecursion_characteristic_formula (h :  C⟦x, pr1 νF⟧) : UU :=
+    h · (pr2 νF) = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)).
+
+  Lemma primitive_corecursion_existence : primitive_corecursion_characteristic_formula h.
   Proof.
     etrans. { apply assoc'. }
     etrans. {
@@ -278,14 +284,12 @@ Section PrimitiveCorecursion.
     }
     do 2 apply maponpaths.
     apply pathsinv0.
-    exact (base_paths _ _ (TerminalArrowUnique (νF,, isTerminalνF) _ X_coproduct_νF_coalgebra_morphism_into_μF)).
+    exact (base_paths _ _ (TerminalArrowUnique (νF,, isTerminalνF) _ X_coproduct_νF_coalgebra_morphism_into_νF)).
   Qed.
 
-  Definition primitive_corecursion
-    : ∃! h : C⟦x, pr1 νF⟧, h · (pr2 νF) = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)).
+  Lemma primitive_corecursion_aux (p : ∑ h : C ⟦ x, pr1 νF ⟧, primitive_corecursion_characteristic_formula h) :
+    p = h,, primitive_corecursion_existence.
   Proof.
-    exists (h ,, primitive_corecursion_existence).
-    intro p.
     use total2_paths_f.
     - assert (q : (pr1 p = BinCoproductIn1 (CP x (pr1 νF)) · (BinCoproductArrow (CP _ _) (pr1 p) (identity _)))).
       {
@@ -330,6 +334,13 @@ Section PrimitiveCorecursion.
       }
       exact (base_paths _ _ (TerminalArrowUnique  (νF,, isTerminalνF)  X_coproduct_νF_coalgebra f)).
     - apply homset_property.
+  Qed.
+
+  Definition primitive_corecursion
+    : ∃! h : C⟦x, pr1 νF⟧, primitive_corecursion_characteristic_formula h.
+  Proof.
+    exists (h ,, primitive_corecursion_existence).
+    apply primitive_corecursion_aux.
   Defined.
 
 End PrimitiveCorecursion.
