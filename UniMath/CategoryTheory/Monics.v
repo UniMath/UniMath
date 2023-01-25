@@ -156,10 +156,11 @@ Section monics_subcategory.
     subcategory_of_monics⟦subprecategory_of_monics_ob c', subprecategory_of_monics_ob c⟧ :=
     tpair _ f isM.
 
-  (*A morphism (f,,s) in subcategory_of_monics is a z_iso if the underlying morphism is also a z_iso,
+  (*A morphism (f,,s) in subcategory_of_monics is a z_iso 
+  if the underlying morphism is also a z_iso,
   because the inverse must be monic.
-  Here p is redundant (it can be derived by H)*)
-  Lemma is_z_iso_in_subcategory_of_monics_from_is_z_iso (a b : subcategory_of_monics)
+  *)
+  Local Lemma is_z_iso_in_subcategory_of_monics_from_is_z_iso (a b : subcategory_of_monics)
     (f : C⟦ pr1 a , pr1 b ⟧)
     (p : isMonic f) (H : is_z_isomorphism f)
     : is_z_isomorphism (precategory_morphisms_in_subcat f p).
@@ -177,6 +178,18 @@ Section monics_subcategory.
         exact H2.
   Defined.
 
+  (*The converse of the previous result is always true, see [is_z_iso_from_is_z_iso_in_subcategory]*)
+  Definition is_z_iso_in_subcategory_of_monics_weq (a b : subcategory_of_monics)
+  (f : a --> b)
+  : (is_z_isomorphism (pr1 f)) ≃ (is_z_isomorphism f).
+  Proof.
+    use weqiff.
+    + split.
+      - use is_z_iso_in_subcategory_of_monics_from_is_z_iso.
+      - use is_z_iso_from_is_z_iso_in_subcategory.
+    + use (isaprop_is_z_isomorphism).
+    + use (isaprop_is_z_isomorphism).
+  Defined.
 End monics_subcategory.
 
 

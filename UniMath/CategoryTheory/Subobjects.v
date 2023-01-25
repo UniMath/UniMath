@@ -106,7 +106,7 @@ Section def_subobjects.
       - use eq_in_sub_precategory.
         exact tri.
     + use z_iso_to_slice_precat_z_iso.
-      use is_z_iso_in_subcategory_of_monics_from_is_z_iso.
+      use is_z_iso_in_subcategory_of_monics_weq.
       exact is_z_iso.
   Defined.
 
