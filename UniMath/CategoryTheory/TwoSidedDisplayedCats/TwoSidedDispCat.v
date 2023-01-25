@@ -51,7 +51,7 @@ Proof.
   induction p, q ; cbn in *.
   induction r.
   apply idpath.
-Qed.
+Defined.
 
 Definition transportb_dirprodeq
            {X Y : UU}

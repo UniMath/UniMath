@@ -44,6 +44,8 @@ Local Open Scope cat.
 
 (**
  1. Pointwise definition of the left Kan extension
+
+ Note: we assume `C₁` below to be small.
  *)
 Section LeftKanExtension.
   Context {C₁ C₂ D : category}

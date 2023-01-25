@@ -674,7 +674,7 @@ Qed.
 End mapcocone_functor_composite.
 
 (**
- Some functors to construct morphisms using colimits
+ Some functions to construct morphisms using colimits
  *)
 Definition colim_mor
            {C : category}
