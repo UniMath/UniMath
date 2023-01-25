@@ -442,7 +442,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/RezkCompletion/LiftedMonoidal.v](CategoryTheory/Monoidal/RezkCompletion/LiftedMonoidal.v)
    - [Monoidal/RezkCompletion/MonoidalRezkCompletion.v](CategoryTheory/Monoidal/RezkCompletion/MonoidalRezkCompletion.v)
    - [PowerObject.v](CategoryTheory/PowerObject.v)
-   - [elementary_topos.v](CategoryTheory/elementary_topos.v)
+   - [ElementaryTopos.v](CategoryTheory/ElementaryTopos.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Bicategories](Bicategories/README.md)
    - [Core/Bicat.v](Bicategories/Core/Bicat.v)

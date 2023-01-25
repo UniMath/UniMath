@@ -316,4 +316,4 @@ Monoidal/RezkCompletion/LiftedMonoidal.v
 Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 
 PowerObject.v
-elementary_topos.v
+ElementaryTopos.v
