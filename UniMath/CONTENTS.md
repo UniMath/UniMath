@@ -246,7 +246,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [IsoCommaCategory.v](CategoryTheory/IsoCommaCategory.v)
    - [limits/Examples/IsoCommaLimits.v](CategoryTheory/limits/Examples/IsoCommaLimits.v)
    - [CommaCategories.v](CategoryTheory/CommaCategories.v)
-   - [FinalAndInitialFunctors.v](CategoryTheory/FinalAndInitialFunctors.v)
    - [Connected.v](CategoryTheory/Connected.v)
    - [SubobjectClassifier.v](CategoryTheory/SubobjectClassifier.v)
    - [NNO.v](CategoryTheory/NNO.v)

@@ -95,8 +95,6 @@ IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 
-FinalAndInitialFunctors.v
-
 Connected.v
 SubobjectClassifier.v
 NNO.v

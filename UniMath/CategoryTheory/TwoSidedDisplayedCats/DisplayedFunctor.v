@@ -166,6 +166,35 @@ Section DisplayedFunctor.
            (functor_comp G g₁ g₂)
            (#2 FG fg₁ ;;2 #2 FG fg₂))
     := pr22 FG _ _ _ _ _ _ _ _ _ _ _ fg₁ _ _ fg₂.
+
+  Definition twosided_disp_functor_comp_alt
+             (FG : twosided_disp_functor)
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D₁ x₁ y₁}
+             {xy₂ : D₁ x₂ y₂}
+             {xy₃ : D₁ x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {g₁ : y₁ --> y₂}
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             {f₂ : x₂ --> x₃}
+             {g₂ : y₂ --> y₃}
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+    : #2 FG fg₁ ;;2 #2 FG fg₂
+      =
+      transportf
+        (λ z, _ -->[ z ][ _] _)
+        (functor_comp F f₁ f₂)
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           (functor_comp G g₁ g₂)
+           (#2 FG (fg₁ ;;2 fg₂))).
+  Proof.
+    rewrite twosided_disp_functor_comp.
+    rewrite <- twosided_swap_transport.
+    rewrite !transportfbinv.
+    apply idpath.
+  Qed.
 End DisplayedFunctor.
 
 Arguments twosided_disp_functor_data_mor
@@ -173,7 +202,7 @@ Arguments twosided_disp_functor_data_mor
             FG
             {x₁ x₂ y₁ y₂ xy₁ xy₂ f g}
             fg.
-Notation "'#2' F" := (twosided_disp_functor_data_mor F) (at level 10).
+Notation "'#2' F" := (twosided_disp_functor_data_mor F) (at level 10) : cat.
 
 (**
  2. Some laws
