@@ -278,7 +278,7 @@ Defined.
 End KroneckerDelta.
 
 (*In this section we show that an elementary topos has exponentials*)
-Section Exponenitals.
+Section Exponentials.
 
 Local Notation "'δ' B" := (KroneckerDelta B)(at level 8).
 Local Notation "'{⋅}' B" := (SingletonArrow B)(at level 8).
@@ -592,6 +592,6 @@ Proof.
     use (universality b c).
 Defined.
 
-End Exponenitals.
+End Exponentials.
 
 End Topos.
