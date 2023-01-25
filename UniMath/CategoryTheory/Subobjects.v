@@ -288,7 +288,7 @@ Definition SubObjPoset (c : C) : Poset :=
 
 End subobj.
 
-(*Definition of the functor C^op -> HSET which maps c on SubObj c and mpas morphism "by pullback"*)
+(*Definition of the functor C^op -> HSET which maps c on SubObj c and maps morphism "by pullback"*)
 Section SubObj_functor.
 
 Context (C : category) (PB : Pullbacks C).
