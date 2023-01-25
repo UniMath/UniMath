@@ -95,7 +95,6 @@ IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 
-Connected.v
 SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
@@ -118,7 +117,6 @@ PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
 ArrowCategory.v
-LeftKanExtension.v
 RightKanExtension.v
 slicecat.v
 coslicecat.v
@@ -194,6 +192,9 @@ ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
+
+Connected.v
+LeftKanExtension.v
 
 categories/CartesianCubicalSets.v
 
