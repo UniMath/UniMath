@@ -4,7 +4,7 @@
   Chapter IV.1 and IV.2
   
   Contents :
-  - definition of elemnetary topos ([Topos]) as a category which has:
+  - definition of elementary topos ([Topos]) as a category which has:
     -) finite limits meaning:
       --) Terminal Object
       --) Binary Pullbacks
@@ -37,7 +37,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Local Open Scope cat.
 
 (*
-An elemnetary topos is a category which has:
+An elementary topos is a category which has:
   -) finite limits meaning:
     --) Terminal Object
     --) Binary Pullbacks
@@ -277,7 +277,7 @@ Proof.
 Defined.
 End KroneckerDelta.
 
-(*In this section we show that an elemntary topos has exponentials*)
+(*In this section we show that an elementary topos has exponentials*)
 Section Exponenitals.
 
 Local Notation "'δ' B" := (KroneckerDelta B)(at level 8).
