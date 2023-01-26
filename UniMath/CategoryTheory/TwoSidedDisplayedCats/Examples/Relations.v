@@ -4,7 +4,8 @@
 
  We define two two-sided displayed categories of relations of sets. The first one
  has as displayed objects relations that are valued in `hProp`, while the second
- one, is about relations that are valued in `hSet`.
+ one, is about relations that are valued in `hSet`. Relations valued in `hSet` are
+ also known as pseudo relations.
 
  Contents
  1. Relations in `hProp`
