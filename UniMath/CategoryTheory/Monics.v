@@ -183,10 +183,9 @@ Section monics_subcategory.
   (f : a --> b)
   : (is_z_isomorphism (pr1 f)) ≃ (is_z_isomorphism f).
   Proof.
-    use weqiff.
-    + split.
-      - use is_z_iso_in_subcategory_of_monics_from_is_z_iso.
-      - use is_z_iso_from_is_z_iso_in_subcategory.
+    use weqimplimpl.
+    + use is_z_iso_in_subcategory_of_monics_from_is_z_iso.
+    + use is_z_iso_from_is_z_iso_in_subcategory.
     + use (isaprop_is_z_isomorphism).
     + use (isaprop_is_z_isomorphism).
   Defined.
