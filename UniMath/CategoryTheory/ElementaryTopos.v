@@ -87,20 +87,6 @@ the chraracteristic morphis of the [diagonalMap],
 The [SingletonArrow] is defined as
 the [PowerObject_transpose] of the [KroneckerDelta]*)
 
-Local Definition diagonalMap (B:C) : Monic C B (B ⨉ B).
-Proof.
-  use make_Monic.
-  + use BinProductArrow.
-    - exact (identity B).
-    - exact (identity B).
-  + use make_isMonic.
-    intros x g h p.
-    set (p' := (maponpaths (λ f, compose f (BinProductPr1 C (BinProd B B))) p)).
-    simpl in p'.
-    rewrite !assoc', BinProductPr1Commutes , !id_right in p'.
-    exact p'.
-Defined.
-
 Definition KroneckerDelta (B:C) : C⟦ B ⨉ B , Ω⟧.
 Proof.
   use characteristic_morphism.
@@ -119,7 +105,7 @@ Local Notation "'{⋅}' B" := (SingletonArrow B)(at level 8).
 (*Proof that [SingletonArrow] is Monic and
   definition of his characteristic map [SingletonPred]*)
 
-Local Definition auxpb {X B:C} (b:C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap B).
+Local Definition auxpb {X B:C} (b:C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap BinProd B).
 Proof.
   use make_Pullback.
     + exact X.
@@ -131,12 +117,14 @@ Proof.
       - rewrite !assoc',
           !BinProductOfArrowsPr1.
         simpl.
+        unfold diagonalMap'.
         now rewrite BinProductPr1Commutes,
           assoc,
           BinProductPr1Commutes.
       - rewrite !assoc',
           !BinProductOfArrowsPr2.
         simpl.
+        unfold diagonalMap'.
         now rewrite BinProductPr2Commutes,
           assoc,
           BinProductPr2Commutes,
@@ -149,6 +137,7 @@ Proof.
       assert (r1 := maponpaths (λ f, compose f (BinProductPr1 C (BinProd B B))) r).
       assert (r2 := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B B))) r).
       simpl in r1, r2.
+      unfold diagonalMap' in r1, r2.
       rewrite
         !assoc',
         BinProductOfArrowsPr1,
@@ -225,7 +214,7 @@ Proof.
     using [q] we note b x id and b' x id are [pullbackPr1]
     of the same diagram, thus they differ by an isomorphism [h]
   *)
-  set (pbr := subobject_classifier_pullback Ω (diagonalMap B)).
+  set (pbr := subobject_classifier_pullback Ω (diagonalMap BinProd B)).
   set (pbl := auxpb b).
   set (pbl' := auxpb b').
   set (pb := pullback_glue_pullback C (homset_property C) pbr pbl).

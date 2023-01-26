@@ -15,7 +15,9 @@ Extended by: Langston Barrett (@siddharthist), 2018
 - Binary products from limits ([BinProducts_from_Lims])
 - Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 - Terminal object as the unit (up to isomorphism) of binary products
-
+- Definition of the "associative" z-isomorphism [BinProduct_assoc]
+- Definition of the diagonal map [diagonalMap]
+  
  *)
 
 Require Import UniMath.Foundations.PartD.
@@ -31,6 +33,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -1096,3 +1099,34 @@ Section BinProduct_OfArrows_assoc.
   Defined.
 
 End BinProduct_OfArrows_assoc.
+
+Section diagonalMap.
+
+  Context {C:category} (P : BinProducts C) (B:C).
+
+  Definition diagonalMap' : C ⟦ B, BinProductObject C (P B B) ⟧.
+  Proof.
+    use BinProductArrow.
+    - exact (identity B).
+    - exact (identity B).
+  Defined.
+
+  Lemma diagonalMap_isMonic : isMonic (diagonalMap').
+  Proof.
+    use make_isMonic.
+    intros x g h p.
+    assert (p' :=
+      (maponpaths (λ f, compose f (BinProductPr1 C (P B B))) p)).
+    unfold diagonalMap' in p'.
+    rewrite !assoc', BinProductPr1Commutes , !id_right in p'.
+    exact p'.  
+  Qed.
+
+  Definition diagonalMap : Monic _ B (BinProductObject C (P B B)).
+  Proof.
+    use make_Monic.
+    + exact diagonalMap'.
+    + exact diagonalMap_isMonic.
+  Defined.
+
+End diagonalMap.
