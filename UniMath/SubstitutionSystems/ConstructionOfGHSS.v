@@ -127,12 +127,9 @@ Section TerminalCoalgebraToGHSS.
         etrans.
         2: apply assoc.
         apply maponpaths.
-        unfold precomp_with.
-        etrans.
-        2: apply maponpaths_2, pathsinv0, id_right.
-        apply pathsinv0.
         unfold  α'.
         unfold FunctorCoalgebras.f.
+
 
         (* exact (pr122 (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH)). *)
 
