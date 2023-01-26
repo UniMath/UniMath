@@ -113,7 +113,7 @@ Definition const_true {C : category} {T : Terminal C} (X : ob C)
            (O : subobject_classifier T) : X --> subobject_classifier_object O :=
   TerminalArrow T X · true O.
 
-(*A category with subobjectclassifier is balnced: if a morphism is mono and epi then it is iso*)
+(*A category with subobjectclassifier is balanced: if a morphism is mono and epi then it is iso*)
 Section balanced.
   Context {C : category} {T : Terminal C} (O : subobject_classifier T)
   {c' c : C} (f : C⟦ c' , c ⟧) (f_isM : isMonic f) (f_isE : isEpi f).
