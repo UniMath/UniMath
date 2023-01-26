@@ -109,15 +109,17 @@ Section TerminalCoalgebraToGHSS.
 
   Let νH_inv := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
 
+  Let PtdV := GeneralizedSubstitutionSystems.PtdV Mon_V.
+
   Definition to_change_tensor_distributes_over_coproduct
-             (Z : PtdV Mon_V)
+             (Z : PtdV)
     : V ⟦ pr1 Z ⊗_{ Mon_V} CP I_{ Mon_V} (H (pr1 νH)) ,
           CP ((pr1 Z) ⊗_{Mon_V} I_{Mon_V}) ((pr1 Z) ⊗_{Mon_V} (H (pr1 νH)))⟧.
   Proof.
   Admitted.
 
   Definition terminal_coalg_to_ghss_gbracket_parts_at_data
-             {Z : PtdV Mon_V} (f : V ⟦ pr1 Z, pr1 νH ⟧)
+             {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     : V ⟦ pr1 Z ⊗_{ Mon_V} pr1 νH, Id_H (CP (pr1 Z ⊗_{ Mon_V} pr1 νH) (pr1 νH)) ⟧.
   Proof.
 
@@ -136,13 +138,13 @@ Section TerminalCoalgebraToGHSS.
   Let η := BinCoproductIn1 (CP I_{Mon_V} (H (pr1 νH))) · νH_inv.
   Let τ := BinCoproductIn2 (CP I_{Mon_V} (H (pr1 νH))) · νH_inv.
 
-  Local Definition ϕ {Z : PtdV Mon_V} (f : V ⟦ pr1 Z, pr1 νH ⟧)
+  Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     := terminal_coalg_to_ghss_gbracket_parts_at_data f.
-  Local Definition Corec_ϕ {Z : PtdV Mon_V} (f : V ⟦ pr1 Z, pr1 νH ⟧)
+  Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     := primitive_corecursion CP isTerminalνH (x :=  pr1 Z ⊗_{ Mon_V} pr1 νH) (ϕ f).
 
   Lemma terminal_coalg_to_ghss_gbracket_property_parts
-        {Z : PtdV Mon_V} (f : V ⟦ pr1 Z, pr1 νH ⟧)
+        {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     : gbracket_property_parts Mon_V H θ (pr1 νH) η τ (pr2 Z) f
                               (pr11 (Corec_ϕ f)).
   Proof.
@@ -201,5 +203,6 @@ Section TerminalCoalgebraToGHSS.
     exists τ.
     intros Z f.
     exists (pr11 (Corec_ϕ f),, terminal_coalg_to_ghss_gbracket_property_parts f).
+  Admitted.
 
 End TerminalCoalgebraToGHSS.
