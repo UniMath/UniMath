@@ -805,6 +805,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ActionBasedStrengthOnHomsInBicat.v](SubstitutionSystems/ActionBasedStrengthOnHomsInBicat.v)
    - [EquivalenceSignaturesWithActegoryMorphisms.v](SubstitutionSystems/EquivalenceSignaturesWithActegoryMorphisms.v)
    - [SigmaMonoids.v](SubstitutionSystems/SigmaMonoids.v)
+   - [ConstructionOfGHSS.v](SubstitutionSystems/ConstructionOfGHSS.v)
    - [All.v](SubstitutionSystems/All.v)
 ## Package [Folds](Folds/README.md)
    - [UnicodeNotations.v](Folds/UnicodeNotations.v)

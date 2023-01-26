@@ -57,3 +57,4 @@ SimplifiedHSS/PCF_alt.v
 ActionBasedStrengthOnHomsInBicat.v
 EquivalenceSignaturesWithActegoryMorphisms.v
 SigmaMonoids.v
+ConstructionOfGHSS.v
