@@ -672,3 +672,55 @@ Proof.
 Qed.
 
 End mapcocone_functor_composite.
+
+(**
+ Some functions to construct morphisms using colimits
+ *)
+Definition colim_mor
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           (g : ∏ (v : vertex G), dob D v --> y)
+           (p : forms_cocone D g)
+  : colim c --> y
+  := pr11 (pr2 c y (make_cocone g p)).
+
+Definition colim_mor_commute
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           (g : ∏ (v : vertex G), dob D v --> y)
+           (p : forms_cocone D g)
+           (v : vertex G)
+  : colimIn c v · colim_mor c y g p = g v
+  := pr21 (pr2 c y (make_cocone g p)) v.
+
+Definition colim_mor_eq
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           {f₁ f₂ : colim c --> y}
+           (H : ∏ (v : vertex G), colimIn c v · f₁ = colimIn c v · f₂)
+  : f₁ = f₂.
+Proof.
+  assert (forms_cocone D (λ v : vertex G, colimIn c v · f₂)) as Hf₂.
+  {
+    unfold forms_cocone.
+    cbn.
+    unfold dmor.
+    intros.
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply colimInCommutes.
+  }
+  pose (pr2 (pr2 c y (make_cocone (λ v, colimIn c v · f₂) Hf₂)) (f₁ ,, H)) as p.
+  refine (maponpaths pr1 p @ _).
+  pose (pr2 (pr2 c y (make_cocone (λ v, colimIn c v · f₂) Hf₂)) (f₂ ,, λ _, idpath _)) as q.
+  exact (!(maponpaths pr1 q)).
+Qed.
