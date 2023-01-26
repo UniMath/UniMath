@@ -252,7 +252,7 @@ Proof.
   use cancel_precomposition.
   use pathsinv0.
   use PowerObject_transpose_tri.
-Defined.
+Qed.
 
 Definition PowerObject_nattrans : nat_trans HomxO HomP.
 Proof.
