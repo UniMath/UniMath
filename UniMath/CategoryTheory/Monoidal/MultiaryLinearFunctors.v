@@ -1,4 +1,9 @@
-(** the morphisms of actegories extended to multiary functors *)
+(** the morphisms of actegories extended to multiary functors
+
+OBSOLETE - should be deleted as soon as I-indexed product of actegories is defined
+*)
+
+
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
