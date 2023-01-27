@@ -150,7 +150,7 @@ Section LeftKanExtension.
       use colim_mor_eq.
       intros v.
       rewrite id_right.
-      rewrite lan_mor_colimIn.
+      refine (lan_mor_colimIn (identity x) (pr11 v) (pr2 v) _ @ _).
       rewrite id_right.
       apply idpath.
     - intros x y z f g.
