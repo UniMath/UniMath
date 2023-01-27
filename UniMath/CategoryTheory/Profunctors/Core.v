@@ -73,6 +73,135 @@ Proof.
     * exact f.
 Defined.
 
+(** Laws for `rmap` and `lmap` *)
+Definition lmap_id
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x : C₁}
+           {y : C₂}
+           (z : P (y ,, x) : hSet)
+  : lmap P (identity y) z = z.
+Proof.
+  exact (eqtohomot (functor_id P (y ,, x)) z).
+Qed.
+
+Definition rmap_id
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x : C₁}
+           {y : C₂}
+           (z : P (y ,, x) : hSet)
+  : rmap P (identity x) z = z.
+Proof.
+  exact (eqtohomot (functor_id P (y ,, x)) z).
+Qed.
+
+Definition lmap_comp
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x : C₁}
+           {y₁ y₂ y₃ : C₂}
+           (g₁ : y₁ --> y₂)
+           (g₂ : y₂ --> y₃)
+           (z : P (y₃ ,, x) : hSet)
+  : lmap P (g₁ · g₂) z
+    =
+    lmap P g₁ (lmap P g₂ z).
+Proof.
+  pose (eqtohomot
+          (@functor_comp
+             _ _
+             P
+             (y₃ ,, x) (y₂ ,, x) (y₁ ,, x)
+             (g₂ ,, identity _) (g₁ ,, identity _))
+          z)
+    as p.
+  cbn in p.
+  refine (_ @ p).
+  unfold lmap.
+  cbn.
+  refine (maponpaths (λ w, #P (_ ,, w) z) _).
+  refine (!_).
+  cbn.
+  apply id_left.
+Qed.
+
+Definition rmap_comp
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x₁ x₂ x₃ : C₁}
+           {y : C₂}
+           (f₁ : x₁ --> x₂)
+           (f₂ : x₂ --> x₃)
+           (z : P (y ,, x₁) : hSet)
+  : rmap P (f₁ · f₂) z
+    =
+    rmap P f₂ (rmap P f₁ z).
+Proof.
+  pose (eqtohomot
+          (@functor_comp
+             _ _
+             P
+             (y ,, x₁) (y ,, x₂) (y ,, x₃)
+             (identity _ ,, f₁) (identity _ ,, f₂))
+          z)
+    as p.
+  cbn in p.
+  refine (_ @ p).
+  unfold rmap.
+  cbn.
+  refine (maponpaths (λ w, #P (w ,, _) z) _).
+  refine (!_).
+  cbn.
+  apply id_left.
+Qed.
+
+Definition lmap_rmap
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (f : x₁ --> x₂)
+           (g : y₂ --> y₁)
+           (z : P (y₁ ,, x₁) : hSet)
+  : lmap P g (rmap P f z) = rmap P f (lmap P g z).
+Proof.
+  pose (eqtohomot
+          (@functor_comp
+             _ _
+             P
+             (y₁ ,, x₁) (y₂ ,, x₁) (y₂ ,, x₂)
+             (g ,, identity _) (identity _ ,, f))
+          z)
+    as p.
+  refine (_ @ p) ; clear p.
+  pose (eqtohomot
+          (@functor_comp
+             _ _
+             P
+             (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
+             (identity _ ,, f) (g ,, identity _))
+          z)
+    as p.
+  refine (!p @ _).
+  cbn.
+  rewrite !id_left, !id_right.
+  apply idpath.
+Qed.
+
+Definition rmap_lmap
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (f : x₁ --> x₂)
+           (g : y₂ --> y₁)
+           (z : P (y₁ ,, x₁) : hSet)
+  : rmap P f (lmap P g z) = lmap P g (rmap P f z).
+Proof.
+  rewrite lmap_rmap.
+  apply idpath.
+Qed.
 
 (** ** Dinatural transformations *)
 
