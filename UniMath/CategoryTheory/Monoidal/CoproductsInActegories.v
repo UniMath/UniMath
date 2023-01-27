@@ -44,9 +44,9 @@ Section BinaryCoproduct.
     use BinCoproductArrow; apply leftwhiskering_on_morphisms; [apply BinCoproductIn1 | apply BinCoproductIn2 ].
   Defined.
 
-  Lemma bincoprod_antidistributor_nat_left (v : V) (x1 x2 : category_binproduct C C) (g : category_binproduct C C ⟦ x1, x2 ⟧) :
-    bincoprod_antidistributor_data v (pr1 x1) (pr2 x1) · v ⊗^{Act}_{l} #(bincoproduct_functor BCP) g =
-     #(bincoproduct_functor BCP) (v ⊗^{actegory_binprod Mon_V Act Act}_{l} g) · bincoprod_antidistributor_data v (pr1 x2) (pr2 x2).
+  Lemma bincoprod_antidistributor_nat_left (v : V) (cd1 cd2 : category_binproduct C C) (g : category_binproduct C C ⟦ cd1, cd2 ⟧) :
+    bincoprod_antidistributor_data v (pr1 cd1) (pr2 cd1) · v ⊗^{Act}_{l} #(bincoproduct_functor BCP) g =
+    #(bincoproduct_functor BCP) (v ⊗^{actegory_binprod Mon_V Act Act}_{l} g) · bincoprod_antidistributor_data v (pr1 cd2) (pr2 cd2).
   Proof.
     use BinCoproductArrowsEq.
     - etrans.
@@ -89,9 +89,128 @@ Section BinaryCoproduct.
       apply BinCoproductOfArrowsIn2.
   Qed.
 
+  Lemma bincoprod_antidistributor_nat_right (v1 v2 : V) (cd : category_binproduct C C) (f : V ⟦ v1, v2 ⟧) :
+    bincoprod_antidistributor_data v1 (pr1 cd) (pr2 cd) · f ⊗^{ Act}_{r} bincoproduct_functor BCP cd  =
+    #(bincoproduct_functor BCP) (f ⊗^{ actegory_binprod Mon_V Act Act}_{r} cd) · bincoprod_antidistributor_data v2 (pr1 cd) (pr2 cd).
+  Proof.
+    use BinCoproductArrowsEq.
+    - etrans.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        apply BinCoproductIn1Commutes. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           cbn.
+           apply pathsinv0,  BinCoproductOfArrowsIn1. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply pathsinv0, BinCoproductIn1Commutes. }
+      apply pathsinv0, bifunctor_equalwhiskers.
+    - etrans.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        apply BinCoproductIn2Commutes. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           cbn.
+           apply pathsinv0,  BinCoproductOfArrowsIn2. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      apply pathsinv0, bifunctor_equalwhiskers.
+  Qed.
+
+  Lemma bincoprod_antidistributor_pentagon_identity (v w : V) (cd : category_binproduct C C) :
+    # (bincoproduct_functor BCP) aα^{actegory_binprod Mon_V Act Act}_{v, w, cd} ·
+                                      bincoprod_antidistributor_data v (w ⊗_{Act} pr1 cd) (w ⊗_{ Act} pr2 cd) ·
+                                      v ⊗^{Act}_{l} bincoprod_antidistributor_data w (pr1 cd) (pr2 cd) =
+      bincoprod_antidistributor_data (v ⊗_{Mon_V} w) (pr1 cd) (pr2 cd)
+        · aα^{Act}_{v, w, bincoproduct_functor BCP cd}.
+  Proof.
+    use BinCoproductArrowsEq.
+    - etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductOfArrowsIn1. }
+        rewrite assoc'.
+        apply maponpaths.
+        apply BinCoproductIn1Commutes.
+      }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn1Commutes. }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      unfold bincoprod_antidistributor_data.
+      rewrite BinCoproductIn1Commutes.
+      etrans.
+      2: { apply actegory_actornatleft. }
+      apply idpath.
+    - etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductOfArrowsIn2. }
+        rewrite assoc'.
+        apply maponpaths.
+        apply BinCoproductIn2Commutes.
+      }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      unfold bincoprod_antidistributor_data.
+      rewrite BinCoproductIn2Commutes.
+      etrans.
+      2: { apply actegory_actornatleft. }
+      apply idpath.
+  Qed.
+
+  Lemma bincoprod_antidistributor_triangle_identity (cd : category_binproduct C C) :
+    #(bincoproduct_functor BCP) au^{actegory_binprod Mon_V Act Act}_{cd} =
+      bincoprod_antidistributor_data I_{Mon_V} (pr1 cd) (pr2 cd) · au^{Act}_{bincoproduct_functor BCP cd}.
+  Proof.
+    use BinCoproductArrowsEq.
+    - etrans.
+      { apply BinCoproductOfArrowsIn1. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn1Commutes. }
+      etrans.
+      2: { apply pathsinv0, actegory_unitornat. }
+      apply idpath.
+    - etrans.
+      { apply BinCoproductOfArrowsIn2. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      etrans.
+      2: { apply pathsinv0, actegory_unitornat. }
+      apply idpath.
+  Qed.
+
+  (** axiomatize extra requirements *)
 
   Definition bincoprod_distributor_data : UU := ∏ (v : V) (c d : C),
       v ⊗_{Act} (BCP c d) --> BCP (v ⊗_{Act} c) (v ⊗_{Act} d).
+
+  Identity Coercion bincoprod_distributor_data_funclass: bincoprod_distributor_data >-> Funclass.
 
   Definition bincoprod_distributor_iso_law (δ : bincoprod_distributor_data) : UU :=
     ∏ (v : V) (c d : C), is_inverse_in_precat (δ v c d) (bincoprod_antidistributor_data v c d).
@@ -103,33 +222,60 @@ Section BinaryCoproduct.
     exact (δ v (pr1 cd) (pr2 cd)).
   Defined.
 
-  Definition bincoprod_functor_lineator_strongly (δ : bincoprod_distributor_data) (δisinverse : bincoprod_distributor_iso_law δ) :
+  Definition bincoprod_distributor : UU := ∑ δ : bincoprod_distributor_data, bincoprod_distributor_iso_law δ.
+
+  Definition bincoprod_distributor_to_data (δ : bincoprod_distributor) : bincoprod_distributor_data := pr1 δ.
+  Coercion bincoprod_distributor_to_data : bincoprod_distributor >-> bincoprod_distributor_data.
+
+  Definition bincoprod_functor_lineator_strongly (δ : bincoprod_distributor) :
     lineator_strongly _ _ _ _ (bincoprod_functor_lineator_data δ).
   Proof.
     intros v cd.
     exists (bincoprod_antidistributor_data v (pr1 cd) (pr2 cd)).
-    apply δisinverse.
+    apply (pr2 δ).
   Defined.
 
-  Lemma bincoprod_functor_lineator_laxlaws (δ : bincoprod_distributor_data) (δisinverse : bincoprod_distributor_iso_law δ)  :
+  Lemma bincoprod_functor_lineator_laxlaws (δ : bincoprod_distributor) :
     lineator_laxlaws _ _ _ _ (bincoprod_functor_lineator_data δ).
   Proof.
     red; repeat split.
     - red.
-      intros v x1 x2 g.
-      apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ δisinverse v _)).
+      intros v cd1 cd2 g.
+      apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
       rewrite assoc'.
-      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ δisinverse v _)).
+      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
       apply bincoprod_antidistributor_nat_left.
+    - red.
+      intros v1 v2 cd f.
+      apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc'.
+      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      apply bincoprod_antidistributor_nat_right.
+    - red.
+      intros v w cd.
+      apply pathsinv0, (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc'.
+      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc.
+      apply (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (leftwhiskering_functor Act v)
+                                           (_,,bincoprod_functor_lineator_strongly δ _ _))).
+      apply pathsinv0, bincoprod_antidistributor_pentagon_identity.
+    - red.
+      intro cd.
+      apply pathsinv0, (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      apply pathsinv0, bincoprod_antidistributor_triangle_identity.
+  Qed.
 
-
-
-
-      Abort.
+  Definition bincoprod_functor_lineator (δ : bincoprod_distributor) :
+    lineator Mon_V (actegory_binprod Mon_V Act Act) Act (bincoproduct_functor BCP).
+  Proof.
+    use tpair.
+    - exists (bincoprod_functor_lineator_data δ).
+      exact (bincoprod_functor_lineator_laxlaws δ).
+    - apply bincoprod_functor_lineator_strongly.
+  Defined.
 
 
 End BinaryCoproduct.
-
-
 
 End FixAMonoidalCategory.
