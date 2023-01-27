@@ -27,41 +27,29 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.whiskering.
+
+Require Import UniMath.CategoryTheory.RezkCompletion.
+
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.YonedaLemma.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 
 Local Open Scope cat.
 
-Section Aux.
-
-  Definition RezkCat : UU
-    := ∏ C : category,
-        ∑ D : univalent_category,
-          ∑ H : functor C D,
-            Functors.essentially_surjective H × fully_faithful H.
-
-  Definition weak_local_equivalence
-             {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-    := ∏ (x y : B1),
-      Functors.essentially_surjective (Fmor F x y)
-                                      × fully_faithful (Fmor F x y).
-
-  Definition is_weak_biequivalence
-             {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-    := essentially_surjective F × weak_local_equivalence F.
-
-  Lemma comp_weak_local_equivalence
+Section FunctorCompositionWeakBiequivalences.
+  Lemma comp_local_weak_equivalence
         {B1 B2 B3 : bicat}
         {F : psfunctor B1 B2}
         {G : psfunctor B2 B3}
-        (Feso : weak_local_equivalence F)
-        (Geso : weak_local_equivalence G)
-    : weak_local_equivalence (comp_psfunctor G F).
+        (Feso : local_weak_equivalence F)
+        (Geso : local_weak_equivalence G)
+    : local_weak_equivalence (comp_psfunctor G F).
   Proof.
     intros x y.
     split.
@@ -72,17 +60,6 @@ Section Aux.
       + exact (pr2 (Feso x y)).
       + apply (pr2 (Geso _ _)).
   Defined.
-
-  Lemma functor_preserve_adj_equiv {C D : bicat}
-        (F : psfunctor C D) (x y : C)
-    : Adjunctions.adjoint_equivalence x y -> Adjunctions.adjoint_equivalence (pr111 F x) (pr111 F y).
-  Proof.
-    intro a.
-    exists (pr211 F _ _ (pr1 a)).
-    use psfunctor_preserves_adjequiv'.
-    exact (pr2 a).
-  Defined.
-
   Lemma comp_essentially_surjective
   {B1 B2 B3 : bicat}
         {F : psfunctor B1 B2}
@@ -99,77 +76,41 @@ Section Aux.
     apply hinhpr.
     exists x.
     use (Composition.comp_adjequiv _ yp).
-    use (functor_preserve_adj_equiv G).
+    use (psfunctor_preserve_adj_equiv G).
     exact xp.
   Qed.
-
-  Lemma comp_is_weak_biequivalence
+  Lemma comp_weak_biequivalence
         {B1 B2 B3 : bicat}
         {F : psfunctor B1 B2}
         {G : psfunctor B2 B3}
-        (Fw : is_weak_biequivalence F)
-        (Gw : is_weak_biequivalence G)
-    : is_weak_biequivalence (comp_psfunctor G F).
+        (Fw : weak_biequivalence F)
+        (Gw : weak_biequivalence G)
+    : weak_biequivalence (comp_psfunctor G F).
   Proof.
     split.
     - apply (comp_essentially_surjective (pr1 Fw) (pr1 Gw)).
-    - apply (comp_weak_local_equivalence (pr2 Fw) (pr2 Gw)).
+    - apply (comp_local_weak_equivalence (pr2 Fw) (pr2 Gw)).
   Defined.
-
-  (* The naming here is 'inconsistent' because of the original naming convention used in
-     the file on biequivalences.
-     In there, they defined weak_biequivalence as being the property, instead of is_weak_biequivalence.
-     However, here one would suspect weak_biequivalence to be a sigma type.
-   *)
-
-  Definition weak_biequivalence' (B1 B2 : bicat)
-    := ∑ F : psfunctor B1 B2, is_weak_biequivalence F.
-
-  Lemma weak_equivalence_to_is_weak_biequivalence
-        {B1 B2 : bicat}
-        {u1 : is_univalent_2_1 B1}
-        {u2 : is_univalent_2_1 B2}
-        (F : psfunctor B1 B2)
-    : weak_equivalence u1 u2 F -> is_weak_biequivalence F.
-  Proof.
-    intro w.
-    exists (pr2 w).
-    intros x y.
-    set (a := pr1 w x y).
-    split ;
-      [apply FullyFaithful.functor_from_equivalence_is_essentially_surjective |
-       apply FullyFaithful.fully_faithful_from_equivalence
-      ] ; apply (adj_equiv_to_equiv_cat (Fmor_univ F x y u1 u2)) ; exact (pr1 w x y).
-  Defined.
-
-End Aux.
-
+End FunctorCompositionWeakBiequivalences.
 Section LocalUnivalenceRezk.
-
   Context (RC : RezkCat).
-
   Let R : category -> univalent_category := λ C, pr1 (RC C).
   Let η : ∏ C : category, functor C (R C) := λ C, pr12 (RC C).
   Let eso : ∏ C : category, Functors.essentially_surjective (η C) := λ C, pr122 (RC C).
   Let ff : ∏ C : category, Functors.fully_faithful (η C) := λ C, pr222 (RC C).
-
   Notation "η_{ x , y }" := (η (hom x y)).
   Notation "eso_{ x , y }" := (eso (hom x y)).
   Notation "ff_{ x , y }" := (ff (hom x y)).
-
   Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
   Notation "( c , d )" := (make_catbinprod c d).
   Notation "( f #, g )" := (catbinprodmor f g).
-
   Context (B : bicat).
-
   Definition LRB_precat_ob_mor
     : precategory_ob_mor.
   Proof.
     exists (ob B).
     exact (λ x y, ob (R (hom x y))).
   Defined.
-
   Definition LRB_composition (x y z : B)
     : functor (R (hom x y) ⊠ R (hom y z)) (R (hom x z)).
   Proof.
@@ -180,23 +121,19 @@ Section LocalUnivalenceRezk.
     - apply pair_functor_ff ; apply ff.
     - exact (functor_composite hcomp_functor (η (hom x z))).
   Defined.
-
   Definition LRB_composition_comm (x y z : B)
     : nat_z_iso
         (functor_composite (pair_functor (η (hom _ _)) (η (hom _ _))) (LRB_composition x y z))
         (functor_composite hcomp_functor (η (hom x z)))
     := lift_functor_along_comm _ _ _ _ _.
-
   Definition LRB_composition_curry1 (x y z : B)
     : functor (R (hom x y))
               (FunctorCategory.functor_category (R (hom y z)) (R (hom x z)))
     := curry_functor' (LRB_composition x y z).
-
   Definition LRB_composition_curry2 (x y z : B)
     : functor (R (hom y z))
               (FunctorCategory.functor_category (R (hom x y)) (R (hom x z)))
     := curry_functor _ _ _ (LRB_composition x y z).
-
   Definition LRB_precat_data
     : precategory_data.
   Proof.
@@ -205,18 +142,15 @@ Section LocalUnivalenceRezk.
     - exact (λ x, η (hom x x) (identity x)).
     - exact (λ x y z f g, LRB_composition x y z (f , g)).
   Defined.
-
   Definition LRB_prebicat_2cell_struct
     : prebicat_2cell_struct LRB_precat_data
     := λ x y f g, (R (hom x y))⟦f,g⟧.
-
   Definition LRB_prebicat_1_id_comp_cells
     : prebicat_1_id_comp_cells.
   Proof.
     exists LRB_precat_data.
     exact LRB_prebicat_2cell_struct.
   Defined.
-
   Local Definition LRB_functor_lcomp_id (x y : B)
     : functor (R (hom x y)) (R (hom x y)).
   Proof.
@@ -230,7 +164,6 @@ Section LocalUnivalenceRezk.
       + apply functor_identity.
     - apply hcomp_functor.
   Defined.
-
   Definition LRB_lunitor_nat_z_iso_pre (x y : B)
     : nat_z_iso
     (η_{x,y}
@@ -261,21 +194,18 @@ Section LocalUnivalenceRezk.
           apply (! functor_id (η (hom x x)) _).
       - intro ; apply (identity_is_z_iso (C := _ ⊠ _)).
     }
-
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-    use (nat_z_iso_comp (whiskering.post_whisker_nat_z_iso p _) _).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
     use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-
-    use (nat_z_iso_comp (whiskering.pre_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
     2: apply lift_functor_along_comm.
     use (nat_z_iso_comp _ (nat_z_iso_inv (functor_commutes_with_id _))).
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-    use whiskering.post_whisker_nat_z_iso.
+    use post_whisker_nat_z_iso.
     use make_nat_z_iso.
     - apply lunitor_transf.
     - intro ; apply is_z_iso_lunitor.
   Defined.
-
   Definition LRB_runitor_nat_z_iso_pre (x y : B)
     :  nat_z_iso
     (η_{x,y}
@@ -291,9 +221,7 @@ Section LocalUnivalenceRezk.
                    (constant_functor (R (hom x y)) (R (hom y y)) (η (hom y y) (id₁ y)))
                 ))
                             (bindelta_pair_functor
-
                                (functor_identity (hom x y))
-
                                (constant_functor (hom x y) (hom y y) (id₁ y))
                                ∙ (pair_functor (η_{x,y}) (η (hom y y)))))
            ).
@@ -309,21 +237,18 @@ Section LocalUnivalenceRezk.
           apply (! functor_id (η (hom y y)) _).
       - intro ; apply (identity_is_z_iso (C := _ ⊠ _)).
     }
-
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-    use (nat_z_iso_comp (whiskering.post_whisker_nat_z_iso p _) _).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
     use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-
-    use (nat_z_iso_comp (whiskering.pre_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
     2: apply lift_functor_along_comm.
     use (nat_z_iso_comp _ (nat_z_iso_inv (functor_commutes_with_id _))).
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-    use whiskering.post_whisker_nat_z_iso.
+    use post_whisker_nat_z_iso.
     use make_nat_z_iso.
     - apply runitor_transf.
     - intro ; apply is_z_iso_runitor.
   Defined.
-
   Definition LRB_lunitor_nat_z_iso (x y : B)
     : nat_z_iso (functor_composite
                    (bindelta_pair_functor (constant_functor _ _ (η (hom x x) (identity x))) (functor_identity _))
@@ -334,16 +259,12 @@ Section LocalUnivalenceRezk.
     apply (lift_nat_z_iso_along  (R (hom x y)) _ (eso (hom x y)) (ff_{x,y})).
     apply LRB_lunitor_nat_z_iso_pre.
   Defined.
-
   Definition LRB_lunitor {x y : B} (f : R (hom x y))
-    : z_iso (C := R (hom x y))
-                       (LRB_composition x x y (η (hom x x) (identity x) , f))
-                       f.
+    : z_iso (LRB_composition x x y (η (hom x x) (identity x) , f)) f.
   Proof.
     use make_z_iso ; try (apply (LRB_lunitor_nat_z_iso x y)).
     split ; apply (pr2 (LRB_lunitor_nat_z_iso x y)).
   Defined.
-
   Definition LRB_runitor_nat_z_iso (x y : B)
     : nat_z_iso (functor_composite
                    (bindelta_pair_functor
@@ -357,31 +278,26 @@ Section LocalUnivalenceRezk.
     apply (lift_nat_z_iso_along  (R (hom x y)) _ (eso (hom x y)) (ff_{x,y})).
     apply LRB_runitor_nat_z_iso_pre.
   Defined.
-
   Definition LRB_runitor {x y : B} (f : R (hom x y))
-    : z_iso (C := R (hom x y)) (LRB_composition x y y (f, η (hom y y) (identity y))) f.
+    : z_iso (LRB_composition x y y (f, η (hom y y) (identity y))) f.
   Proof.
     use make_z_iso ; try (apply (LRB_runitor_nat_z_iso x y)).
     split ; apply (pr2 (LRB_runitor_nat_z_iso x y)).
   Defined.
-
   Let LRB_lunitor_comm := λ x y : B, lift_nat_trans_along_comm (R (hom x y)) _ (eso (hom x y)) (ff_{x,y}) (LRB_lunitor_nat_z_iso_pre x y).
   Let LRB_runitor_comm := λ x y : B, lift_nat_trans_along_comm (R (hom x y)) _ (eso (hom x y)) (ff_{x,y}) (LRB_runitor_nat_z_iso_pre x y).
-
   Definition LRB_lwhisker {x y z : B}
              (f : R (hom x y))
              {g1 g2 : R (hom y z)}
              (α : R (hom y z) ⟦ g1, g2 ⟧)
     : R (hom x z) ⟦LRB_composition _ _ _ (f, g1), LRB_composition _ _ _ (f, g2)⟧
     := #(LRB_composition_curry1 x y z f : functor _ _) α.
-
   Definition LRB_rwhisker {x y z : B}
              {f1 f2 : R (hom x y)}
              (α : R (hom x y) ⟦ f1, f2 ⟧)
              (g: R (hom y z))
     : R (hom x z) ⟦LRB_composition _ _ _ (f1, g), LRB_composition _ _ _ (f2, g)⟧
     := #(LRB_composition_curry2 x y z g : functor _ _) α.
-
   Definition LRB_associator_nat_z_iso_pre
              (x y z w : B)
     : nat_z_iso
@@ -399,7 +315,6 @@ Section LocalUnivalenceRezk.
                            ∙ LRB_composition x y w)).
   Proof.
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-
     transparent assert (p : (nat_z_iso
                    (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
                                  ∙ precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w)))
@@ -416,7 +331,6 @@ Section LocalUnivalenceRezk.
           now do 3 rewrite id_right.
       - intro ; apply (identity_is_z_iso (C := _ ⊠ _)).
     }
-
     transparent assert (q :
                          (nat_z_iso
                             (pair_functor (pair_functor (η_{x,y}) (η_{y,z})) (η (hom z w))
@@ -431,7 +345,6 @@ Section LocalUnivalenceRezk.
       - apply LRB_composition_comm.
       - apply functor_commutes_with_id.
     }
-
     transparent assert ( q' :
                          (nat_z_iso
                             ((pair_functor (functor_identity (hom x y)) hcomp_functor)
@@ -444,25 +357,24 @@ Section LocalUnivalenceRezk.
       - apply functor_commutes_with_id.
       - apply nat_z_iso_inv, LRB_composition_comm.
     }
-
-    use (nat_z_iso_comp (whiskering.post_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso _ _) _).
     2: {
       use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-      use (nat_z_iso_comp (whiskering.post_whisker_nat_z_iso p _) _).
+      use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
       use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-      apply (whiskering.pre_whisker_nat_z_iso _ q).
+      apply (pre_whisker_nat_z_iso _ q).
     }
     use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-    use (nat_z_iso_comp (whiskering.pre_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
     2: {
       use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-      use (whiskering.pre_whisker_nat_z_iso _ _).
+      use (pre_whisker_nat_z_iso _ _).
       2: apply LRB_composition_comm.
     }
-    use (nat_z_iso_comp (whiskering.pre_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
     2: apply (nat_z_iso_functor_comp_assoc _ _ _).
     use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
-    use (nat_z_iso_comp (whiskering.post_whisker_nat_z_iso _ _) _).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso _ _) _).
     2: {
       use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
       use tpair.
@@ -470,13 +382,12 @@ Section LocalUnivalenceRezk.
       - intro ; apply is_z_iso_rassociator.
     }
     use (nat_z_iso_comp _ (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
-    use (nat_z_iso_comp _ (whiskering.post_whisker_nat_z_iso q' _)).
+    use (nat_z_iso_comp _ (post_whisker_nat_z_iso q' _)).
     use (nat_z_iso_comp _ (nat_z_iso_functor_comp_assoc _ _ _)).
-    use (nat_z_iso_comp _ (whiskering.pre_whisker_nat_z_iso _ _)).
+    use (nat_z_iso_comp _ (pre_whisker_nat_z_iso _ _)).
     3: apply nat_z_iso_inv, LRB_composition_comm.
     apply nat_z_iso_inv, nat_z_iso_functor_comp_assoc.
   Defined.
-
   Lemma LRB_lunitor_pre0 {x y : B} (f : B⟦x,y⟧)
     :  pr1 (LRB_lunitor_nat_z_iso_pre x y) f = (pr1 (LRB_composition_comm x x y) (id₁ x : hom _ _, f : hom _ _) · #(η_{x,y}) (lunitor f)).
   Proof.
@@ -487,7 +398,6 @@ Section LocalUnivalenceRezk.
     refine (id_left _ @ _).
     now rewrite id_right.
   Qed.
-
   Lemma LRB_runitor_pre0 {x y : B} (f : B⟦x,y⟧)
     :  pr1 (LRB_runitor_nat_z_iso_pre x y) f
        = (pr1 (LRB_composition_comm x y y) (_,_)) · #(η_{x,y}) (runitor f).
@@ -499,7 +409,6 @@ Section LocalUnivalenceRezk.
     refine (id_left _ @ _).
     now rewrite id_right.
   Qed.
-
   Definition LRB_associator_nat_z_iso
              (x y z w : B)
     : nat_z_iso
@@ -529,12 +438,10 @@ Section LocalUnivalenceRezk.
     - repeat (apply pair_functor_ff) ; apply ff.
     - exact (LRB_associator_nat_z_iso_pre x y z w).
   Defined.
-
   Let eso3 := λ C1 C2 C3 : category, pair_functor_eso _ _ (eso C1) (pair_functor_eso _ _ (eso C2) (eso C3)).
   Let ff3 := λ C1 C2 C3 : category, pair_functor_ff _ _ (ff C1) (pair_functor_ff _ _ (ff C2) (ff C3)).
-
   Lemma LRB_associator_comm (x y z w : B)
-    : whiskering.pre_whisker (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))))
+    : pre_whisker (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))))
          (lift_nat_trans_along (R (hom x w))
             (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))))
             (eso3 _ _ _)
@@ -545,7 +452,6 @@ Section LocalUnivalenceRezk.
   Proof.
     apply (lift_nat_trans_along_comm _ _ _ _ (LRB_associator_nat_z_iso_pre x y z w)).
   Defined.
-
   Lemma LRB_associator_pre0' {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
     : R (hom x w)
  ⟦ (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
@@ -559,13 +465,11 @@ Section LocalUnivalenceRezk.
     refine (#(LRB_composition x z w) (pr1 (LRB_composition_comm x y z) (f : hom _ _ , g : hom _ _) #, identity _) · _).
     refine (_ · #( LRB_composition x y w) (identity _ #, pr1 (nat_z_iso_inv (LRB_composition_comm y z w)) (g : hom _ _ , h : hom _ _))).
     cbn.
-
     refine (pr1 (LRB_composition_comm x z w) (f · g : hom _ _ , h : hom _ _) · _).
     refine (_ · pr1 (nat_z_iso_inv (LRB_composition_comm x y w)) (f : hom _ _ , g · h : hom _ _)).
     apply (#(η (hom x w))).
     exact (rassociator f g h).
   Defined.
-
   Lemma LRB_associator_pre0
         {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
     : pr1 (LRB_associator_nat_z_iso_pre x y z w) (f : hom _ _, (g : hom _ _, h : hom _ _))
@@ -2881,7 +2785,7 @@ Section LocalUnivalenceRezk.
   Qed.
 
   Definition psfunctor_B_to_LRB_invertible_cells
-    : PseudoFunctorBicat.invertible_cells psfunctor_B_to_LRB_data.
+    : invertible_cells psfunctor_B_to_LRB_data.
   Proof.
     split.
     - exact (λ x, is_invertible_2cell_id₂ (C := LRB)  (η (hom x x) (id₁ x))).
@@ -2898,7 +2802,7 @@ Section LocalUnivalenceRezk.
   Defined.
 
   Definition psfunctor_B_to_LRB_is_weak_biequivalence
-    : is_weak_biequivalence psfunctor_B_to_LRB.
+    : weak_biequivalence psfunctor_B_to_LRB.
   Proof.
     split.
     - intro x.

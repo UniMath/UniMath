@@ -262,6 +262,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [precomp_ess_surj.v](CategoryTheory/precomp_ess_surj.v)
    - [PrecompEquivalence.v](CategoryTheory/PrecompEquivalence.v)
    - [rezk_completion.v](CategoryTheory/rezk_completion.v)
+   - [RezkCompletion.v](CategoryTheory/RezkCompletion.v)
    - [UnitorsAndAssociatorsForEndofunctors.v](CategoryTheory/UnitorsAndAssociatorsForEndofunctors.v)
    - [PointedFunctors.v](CategoryTheory/PointedFunctors.v)
    - [HorizontalComposition.v](CategoryTheory/HorizontalComposition.v)

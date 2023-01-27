@@ -111,6 +111,7 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
 rezk_completion.v
+RezkCompletion.v
 UnitorsAndAssociatorsForEndofunctors.v
 PointedFunctors.v
 HorizontalComposition.v
