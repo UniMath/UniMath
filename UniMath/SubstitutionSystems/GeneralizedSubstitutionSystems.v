@@ -52,6 +52,12 @@ Section hss.
   Definition gbracket : UU :=
     ∏ (Z : PtdV) (f : pr1 Z --> t), gbracket_parts_at (pr2 Z) f.
 
+  Lemma isaprop_gbracket_property_parts {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    isaprop (gbracket_property_parts e f h).
+  Proof.
+    apply isapropdirprod; apply V.
+  Qed.
+
   Lemma isaprop_gbracket : isaprop gbracket.
   Proof.
     apply impred_isaprop; intro Z.
@@ -64,7 +70,6 @@ Section hss.
     Context (CP : BinCoproducts V).
 
   Definition Const_plus_H (v : V) : functor V V := BinCoproduct_of_functors _ _ CP (constant_functor _ _ v) H.
-  (* Definition Id_H : functor V V := Const_plus_H I_{Mon_V}. *)
 
   Definition gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
     bincoprod_antidistributor_data Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
@@ -72,9 +77,123 @@ Section hss.
     BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} z) (θ (z,,e) t) ·
       #(Const_plus_H z) h · BinCoproductArrow (CP _ _) f τ.
 
-  Context (δ : bincoprod_distributor Mon_PtdV CP Act).
+  Lemma isaprop_gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    isaprop (gbracket_property_single e f h).
+  Proof.
+    apply V.
+  Qed.
 
-  (* TODO: prove equivalence with def. with two parts *)
+  Lemma gbracket_property_single_equivalent {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    gbracket_property_parts e f h <-> gbracket_property_single e f h.
+  Proof.
+    split.
+    - intros [Hη Hτ].
+      use BinCoproductArrowsEq.
+      + etrans.
+        { repeat rewrite assoc.
+          do 2 apply cancel_postcomposition.
+          apply BinCoproductIn1Commutes. }
+        etrans.
+        { apply cancel_postcomposition.
+          apply pathsinv0, (functor_comp (leftwhiskering_functor Act (z,,e))). }
+        rewrite BinCoproductIn1Commutes.
+        etrans.
+        2: { repeat rewrite assoc.
+             do 2 apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn1. }
+        etrans.
+        { apply pathsinv0, Hη. }
+        repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn1. }
+        rewrite assoc'.
+        rewrite id_left.
+        apply pathsinv0, BinCoproductIn1Commutes.
+      + etrans.
+        { repeat rewrite assoc.
+          do 2 apply cancel_postcomposition.
+          apply BinCoproductIn2Commutes. }
+        etrans.
+        { apply cancel_postcomposition.
+          apply pathsinv0, (functor_comp (leftwhiskering_functor Act (z,,e))). }
+        rewrite BinCoproductIn2Commutes.
+        etrans.
+        2: { repeat rewrite assoc.
+             do 2 apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn2. }
+        etrans.
+        { apply pathsinv0, Hτ. }
+        repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn2. }
+        rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, BinCoproductIn2Commutes.
+    - intro H1.
+      split.
+      + apply (maponpaths (fun m => BinCoproductIn1 (CP _ _) · m)) in H1.
+        unfold bincoprod_antidistributor_data in H1.
+        repeat rewrite assoc in H1.
+        rewrite BinCoproductIn1Commutes in H1.
+        assert (aux := functor_comp (leftwhiskering_functor Act (z,,e))
+                         (BinCoproductIn1 (CP I_{ Mon_V} (H t)))
+                         (BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ)).
+        cbn in aux.
+        apply (maponpaths (fun m => m · h)) in aux.
+        assert (H1' := aux @ H1).
+        clear H1 aux.
+        rewrite BinCoproductIn1Commutes in H1'.
+        etrans.
+        2: { apply pathsinv0, H1'. }
+        clear H1'.
+        etrans.
+        2: { repeat rewrite assoc.
+             do 2 apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn1. }
+        repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn1. }
+        rewrite assoc'.
+        rewrite id_left.
+        apply pathsinv0, BinCoproductIn1Commutes.
+      + apply (maponpaths (fun m => BinCoproductIn2 (CP _ _) · m)) in H1.
+        unfold bincoprod_antidistributor_data in H1.
+        repeat rewrite assoc in H1.
+        rewrite BinCoproductIn2Commutes in H1.
+        assert (aux := functor_comp (leftwhiskering_functor Act (z,,e))
+                         (BinCoproductIn2 (CP I_{ Mon_V} (H t)))
+                         (BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ)).
+        cbn in aux.
+        apply (maponpaths (fun m => m · h)) in aux.
+        assert (H1' := aux @ H1).
+        clear H1 aux.
+        rewrite BinCoproductIn2Commutes in H1'.
+        etrans.
+        2: { apply pathsinv0, H1'. }
+        clear H1'.
+        etrans.
+        2: { repeat rewrite assoc.
+             do 2 apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn2. }
+        repeat rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn2. }
+        rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, BinCoproductIn2Commutes.
+  Qed.
 
   End PropertyAsOneEquation.
 
