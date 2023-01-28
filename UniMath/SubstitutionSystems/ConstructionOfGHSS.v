@@ -49,38 +49,46 @@ Section TerminalCoalgebraToGHSS.
   Context (νH : coalgebra_ob Id_H)
           (isTerminalνH : isTerminal (CoAlg_category Id_H) νH).
 
-  Let νH_inv := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
+  Let t : V := pr1 νH.
+  Let out : t --> Id_H t := pr2 νH.
+  Let out_inv : Id_H t --> t := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
 
   Definition terminal_coalg_to_ghss_step_term
-             {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    : V ⟦ Z ⊗_{Act} pr1 νH, Id_H (CP (Z ⊗_{Act} pr1 νH) (pr1 νH)) ⟧.
+             {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
+    : V ⟦ Z ⊗_{Act} t, Id_H (CP (Z ⊗_{Act} t) t) ⟧.
   Proof.
-    refine (Z ⊗^{Act}_{l} (pr2 νH) · _).
+    refine (Z ⊗^{Act}_{l} out · _).
     refine (δ _ _ _ · _).
-    refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} _) (pr1 θ Z (pr1 νH)) · _).
-    refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (identity (pr1 Z)) (#H (BinCoproductIn1 (CP _ (pr1 νH)))) · _).
-    use (BinCoproductArrow (CP _ _) _ (BinCoproductIn2 _)).
-    refine (f · (pr2 νH) · _).
-    use (BinCoproductOfArrows _ _ _ (identity _)).
-    exact (#H (BinCoproductIn2 (CP _ _))).
+    refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} _) (pr1 θ Z t) · _).
+    refine (# (Const_plus_H (pr1 Z)) (BinCoproductIn1 (CP _ t)) · _).
+    exact (BinCoproductArrow (CP _ _) (f · out · #Id_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
   Defined.
 
-  Let η := BinCoproductIn1 (CP I_{Mon_V} (H (pr1 νH))) · νH_inv.
-  Let τ := BinCoproductIn2 (CP I_{Mon_V} (H (pr1 νH))) · νH_inv.
+  Let η := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
+  Let τ := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
 
-  Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
+  Lemma ητ_is_out_inv : BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ = out_inv.
+  Proof.
+    apply pathsinv0, BinCoproductArrowEta.
+  Qed.
+
+  Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
     := terminal_coalg_to_ghss_step_term f.
-  Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} pr1 νH) (ϕ f).
+  Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
+    := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
   Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
-    {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧) (h : V ⟦ Z ⊗_{ Act} pr1 νH, pr1 νH ⟧) :
+    {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧) (h : V ⟦ Z ⊗_{ Act} t, t ⟧) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h <->
-      gbracket_property_parts Mon_V H θ (pr1 νH) η τ (pr2 Z) f h.
+      gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
     split.
-    - intro Heq.
+    - intro Hcorec.
       apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
+      red.
+      red in Hcorec.
+      fold out t in Hcorec.
+      rewrite ητ_is_out_inv.
       admit.
     - intro Heq.
       apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Heq.
@@ -145,7 +153,7 @@ Section TerminalCoalgebraToGHSS.
 
   Definition terminal_coalg_to_ghss : ghss Mon_V H θ.
   Proof.
-    exists (pr1 νH).
+    exists t.
     exists η.
     exists τ.
     intros Z f.
