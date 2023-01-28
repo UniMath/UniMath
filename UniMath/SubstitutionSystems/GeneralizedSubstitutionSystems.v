@@ -15,7 +15,9 @@ Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 
@@ -31,6 +33,7 @@ Section hss.
 
   Local Definition PtdV : category := coslice_cat_total V I_{Mon_V}.
   Local Definition Mon_PtdV : monoidal PtdV := monoidal_pointed_objects Mon_V.
+  Local Definition Act : actegory Mon_PtdV V := actegory_with_canonical_pointed_action Mon_V.
 
   Context (H : V ⟶ V).
   Context (θ : pointedtensorialstrength Mon_V H).
@@ -55,6 +58,25 @@ Section hss.
     apply impred_isaprop; intro f.
     apply isapropiscontr.
   Qed.
+
+  Section PropertyAsOneEquation.
+
+    Context (CP : BinCoproducts V).
+
+  Definition Const_plus_H (v : V) : functor V V := BinCoproduct_of_functors _ _ CP (constant_functor _ _ v) H.
+  (* Definition Id_H : functor V V := Const_plus_H I_{Mon_V}. *)
+
+  Definition gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
+    bincoprod_antidistributor_data Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
+      (z,,e) ⊗^{Act}_{l} (BinCoproductArrow (CP _ _) η τ) · h =
+    BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} z) (θ (z,,e) t) ·
+      #(Const_plus_H z) h · BinCoproductArrow (CP _ _) f τ.
+
+  Context (δ : bincoprod_distributor Mon_PtdV CP Act).
+
+  (* TODO: prove equivalence with def. with two parts *)
+
+  End PropertyAsOneEquation.
 
   End TheProperty.
 

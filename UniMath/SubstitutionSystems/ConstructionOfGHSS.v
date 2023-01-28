@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
@@ -35,10 +36,11 @@ Section TerminalCoalgebraToGHSS.
   Context {V : category} {Mon_V : monoidal V}
           {H : V ⟶ V} (θ : pointedtensorialstrength Mon_V H).
 
+  Let PtdV : category := GeneralizedSubstitutionSystems.PtdV Mon_V.
+  Let Mon_PtdV : monoidal PtdV := GeneralizedSubstitutionSystems.Mon_PtdV Mon_V.
+  Let Act : actegory Mon_PtdV V:= GeneralizedSubstitutionSystems.Act Mon_V.
 
-
-
-  Context  (CP : BinCoproducts V).
+  Context  (CP : BinCoproducts V) (δ : bincoprod_distributor Mon_PtdV CP Act).
 
   Definition Const_plus_H (X : V) : functor V V
   := BinCoproduct_of_functors _ _ CP (constant_functor _ _ X) H.
@@ -51,27 +53,15 @@ Section TerminalCoalgebraToGHSS.
 
   Let νH_inv := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
 
-  Let PtdV := GeneralizedSubstitutionSystems.PtdV Mon_V.
-
-  Definition to_change_tensor_distributes_over_coproduct
-             (Z : PtdV)
-    : V ⟦ pr1 Z ⊗_{ Mon_V} CP I_{ Mon_V} (H (pr1 νH)) ,
-          CP ((pr1 Z) ⊗_{Mon_V} I_{Mon_V}) ((pr1 Z) ⊗_{Mon_V} (H (pr1 νH)))⟧.
-  Proof.
-  Admitted.
-
   Definition terminal_coalg_to_ghss_gbracket_parts_at_data
              {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    : V ⟦ pr1 Z ⊗_{ Mon_V} pr1 νH, Id_H (CP (pr1 Z ⊗_{ Mon_V} pr1 νH) (pr1 νH)) ⟧.
+    : V ⟦ Z ⊗_{Act} pr1 νH, Id_H (CP (Z ⊗_{Act} pr1 νH) (pr1 νH)) ⟧.
   Proof.
-
-    refine ((pr1 Z) ⊗^{Mon_V}_{l} (pr2 νH) · _).
-    refine (to_change_tensor_distributes_over_coproduct Z · _).
-
+    refine (Z ⊗^{Act}_{l} (pr2 νH) · _).
+    refine (δ _ _ _ · _).
     refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} _) (pr1 θ Z (pr1 νH)) · _).
     refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (identity (pr1 Z)) (#H (BinCoproductIn1 (CP _ (pr1 νH)))) · _).
     use (BinCoproductArrow (CP _ _) _ (BinCoproductIn2 _)).
-
     refine (f · (pr2 νH) · _).
     use (BinCoproductOfArrows _ _ _ (identity _)).
     exact (#H (BinCoproductIn2 (CP _ _))).
@@ -83,7 +73,7 @@ Section TerminalCoalgebraToGHSS.
   Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     := terminal_coalg_to_ghss_gbracket_parts_at_data f.
   Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    := primitive_corecursion CP isTerminalνH (x :=  pr1 Z ⊗_{ Mon_V} pr1 νH) (ϕ f).
+    := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} pr1 νH) (ϕ f).
 
   Lemma terminal_coalg_to_ghss_gbracket_property_parts
         {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
