@@ -205,6 +205,9 @@ Section BinaryCoproduct.
       apply idpath.
   Qed.
 
+(** The following four items should be placed upstream into [UniMath.CategoryTheory.limits.bincoproducts], maybe without asking
+    for all binary coproducts but only those involved *)
+
   Definition bincoprod_associator_data (c d e : C) : BCP (BCP c d) e --> BCP c (BCP d e).
   Proof.
     use BinCoproductArrow.
@@ -491,7 +494,29 @@ Section BinaryCoproduct.
     - apply bincoprod_functor_lineator_strongly.
   Defined.
 
-(* TODO: Lemma bincoprod_distributor_commutes_with_associativity_of_coproduct *)
+
+  Lemma bincoprod_distributor_commutes_with_associativity_of_coproduct (δ : bincoprod_distributor) (v : V) (c d e : C) :
+    v ⊗^{Act}_{l} bincoprod_associator_data c d e ·
+      δ v c (BCP d e) ·
+      #(bincoproduct_functor BCP) (catbinprodmor (identity (v ⊗_{Act} c)) (δ v d e)) =
+    δ v (BCP c d) e ·
+      #(bincoproduct_functor BCP) (catbinprodmor (δ v c d) (identity (v ⊗_{Act} e))) ·
+      bincoprod_associator_data (v ⊗_{Act} c) (v ⊗_{Act} d) (v ⊗_{Act} e).
+  Proof.
+    repeat rewrite assoc'.
+    apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ v (((BCP c d): C),, e))).
+    repeat rewrite assoc.
+    apply (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (functor_fix_fst_arg _ _ _
+                                                           (bincoproduct_functor BCP) (v ⊗_{ Act} c))
+                                         (_,,bincoprod_functor_lineator_strongly δ v (d,,e)))).
+    apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ v (c,,((BCP d e): C)))).
+    repeat rewrite assoc'.
+    apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (functor_fix_snd_arg _ _ _
+                                                           (bincoproduct_functor BCP) (v ⊗_{ Act} e))
+                                      (_,,bincoprod_functor_lineator_strongly δ v (c,,d)))).
+    repeat rewrite assoc.
+    apply bincoprod_antidistributor_commutes_with_associativity_of_coproduct.
+  Qed.
 
 
 End BinaryCoproduct.
