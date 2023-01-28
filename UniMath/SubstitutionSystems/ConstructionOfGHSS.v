@@ -42,18 +42,16 @@ Section TerminalCoalgebraToGHSS.
 
   Context  (CP : BinCoproducts V) (δ : bincoprod_distributor Mon_PtdV CP Act).
 
-  Definition Const_plus_H (X : V) : functor V V
-  := BinCoproduct_of_functors _ _ CP (constant_functor _ _ X) H.
+  Let Const_plus_H (v : V) : functor V V := GeneralizedSubstitutionSystems.Const_plus_H H CP v.
 
-  Definition Id_H :  functor V V
-    := Const_plus_H I_{Mon_V}.
+  Definition Id_H : functor V V := Const_plus_H I_{Mon_V}.
 
   Context (νH : coalgebra_ob Id_H)
           (isTerminalνH : isTerminal (CoAlg_category Id_H) νH).
 
   Let νH_inv := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
 
-  Definition terminal_coalg_to_ghss_gbracket_parts_at_data
+  Definition terminal_coalg_to_ghss_step_term
              {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     : V ⟦ Z ⊗_{Act} pr1 νH, Id_H (CP (Z ⊗_{Act} pr1 νH) (pr1 νH)) ⟧.
   Proof.
@@ -71,10 +69,25 @@ Section TerminalCoalgebraToGHSS.
   Let τ := BinCoproductIn2 (CP I_{Mon_V} (H (pr1 νH))) · νH_inv.
 
   Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    := terminal_coalg_to_ghss_gbracket_parts_at_data f.
+    := terminal_coalg_to_ghss_step_term f.
   Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} pr1 νH) (ϕ f).
 
+  Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
+    {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧) (h : V ⟦ Z ⊗_{ Act} pr1 νH, pr1 νH ⟧) :
+    primitive_corecursion_characteristic_formula CP (ϕ f) h <->
+      gbracket_property_parts Mon_V H θ (pr1 νH) η τ (pr2 Z) f h.
+  Proof.
+    split.
+    - intro Heq.
+      apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
+      admit.
+    - intro Heq.
+      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Heq.
+      admit.
+  Admitted.
+
+(*
   Lemma terminal_coalg_to_ghss_gbracket_property_parts
         {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
     : gbracket_property_parts Mon_V H θ (pr1 νH) η τ (pr2 Z) f
@@ -128,6 +141,7 @@ Section TerminalCoalgebraToGHSS.
 
 
   Admitted.
+*)
 
   Definition terminal_coalg_to_ghss : ghss Mon_V H θ.
   Proof.
@@ -135,8 +149,16 @@ Section TerminalCoalgebraToGHSS.
     exists η.
     exists τ.
     intros Z f.
-    exists (pr11 (Corec_ϕ f),, terminal_coalg_to_ghss_gbracket_property_parts f).
-  Admitted.
+    simple refine (iscontrretract _ _ _ (Corec_ϕ f)).
+    - intros [h Hyp].
+      exists h. apply terminal_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+    - intros [h Hyp].
+      exists h. apply terminal_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+    - intros [h Hyp].
+      use total2_paths_f.
+      + apply idpath.
+      + apply isaprop_gbracket_property_parts.
+  Defined.
 
 
 End TerminalCoalgebraToGHSS.
