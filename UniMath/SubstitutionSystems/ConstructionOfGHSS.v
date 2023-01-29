@@ -51,7 +51,8 @@ Section TerminalCoalgebraToGHSS.
 
   Let t : V := pr1 νH.
   Let out : t --> Id_H t := pr2 νH.
-  Let out_inv : Id_H t --> t := inv_from_z_iso (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH).
+  Let out_z_iso : z_iso t (Id_H t) := terminalcoalgebra_z_iso _ Id_H νH isTerminalνH.
+  Let out_inv : Id_H t --> t := inv_from_z_iso out_z_iso.
 
   Definition terminal_coalg_to_ghss_step_term
              {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
@@ -77,6 +78,49 @@ Section TerminalCoalgebraToGHSS.
   Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
+  Local Lemma changing_the_constant_Const_plus_H (x y v w : V)
+    (f : v --> w) (fm : w --> v) (g : x --> Const_plus_H y w) (fmf : fm · f = identity _) :
+    # (Const_plus_H x) f · BinCoproductArrow (CP _ _) g (BinCoproductIn2 _) =
+      BinCoproductArrow (CP _ _) (g · # (Const_plus_H y) fm) (BinCoproductIn2 _) · # (Const_plus_H y) f.
+  Proof.
+    use BinCoproductArrowsEq.
+    - etrans.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        apply BinCoproductOfArrowsIn1. }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply BinCoproductIn1Commutes. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn1Commutes. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply functor_comp. }
+      rewrite fmf.
+      rewrite functor_id.
+      rewrite id_right.
+      apply id_left.
+    - etrans.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        apply BinCoproductOfArrowsIn2. }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply BinCoproductIn2Commutes. }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      etrans.
+      2: { apply pathsinv0, BinCoproductOfArrowsIn2. }
+      apply idpath.
+  Qed.
+
   Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
     {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧) (h : V ⟦ Z ⊗_{ Act} t, t ⟧) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h <->
@@ -89,7 +133,57 @@ Section TerminalCoalgebraToGHSS.
       red in Hcorec.
       fold out t in Hcorec.
       rewrite ητ_is_out_inv.
-      admit.
+      apply pathsinv0, (z_iso_inv_on_left _ _ _ _ out_z_iso) in Hcorec.
+      etrans.
+      { apply maponpaths.
+        exact Hcorec. }
+      unfold ϕ, terminal_coalg_to_ghss_step_term.
+      etrans.
+      { repeat rewrite assoc.
+        do 6 apply cancel_postcomposition.
+        rewrite assoc'.
+        apply maponpaths.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor Act Z)). }
+        etrans.
+        { apply maponpaths.
+          apply (pr222 out_z_iso). }
+        apply (functor_id (leftwhiskering_functor Act Z)).
+      }
+      rewrite id_right.
+      etrans.
+      { do 5 apply cancel_postcomposition.
+        apply (pr2 δ). }
+      rewrite id_left.
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply maponpaths.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        rewrite (assoc f out).
+        apply pathsinv0.
+        use changing_the_constant_Const_plus_H.
+        apply BinCoproductIn2Commutes.
+      }
+      etrans.
+      { repeat rewrite assoc.
+        do 2 apply cancel_postcomposition.
+        etrans.
+        { apply pathsinv0, (functor_comp (Const_plus_H (pr1 Z))). }
+        apply maponpaths.
+        apply BinCoproductIn1Commutes.
+      }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply postcompWithBinCoproductArrow. }
+      rewrite assoc'.
+      apply maponpaths_2.
+      etrans.
+      { apply maponpaths.
+        apply (pr122 out_z_iso). }
+      apply id_right.
     - intro Heq.
       apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Heq.
       admit.
