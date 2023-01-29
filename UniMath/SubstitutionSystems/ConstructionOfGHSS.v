@@ -137,6 +137,7 @@ Section TerminalCoalgebraToGHSS.
       etrans.
       { apply maponpaths.
         exact Hcorec. }
+      clear Hcorec.
       unfold ϕ, terminal_coalg_to_ghss_step_term.
       etrans.
       { repeat rewrite assoc.
@@ -184,66 +185,48 @@ Section TerminalCoalgebraToGHSS.
       { apply maponpaths.
         apply (pr122 out_z_iso). }
       apply id_right.
-    - intro Heq.
-      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Heq.
-      admit.
-  Admitted.
-
-(*
-  Lemma terminal_coalg_to_ghss_gbracket_property_parts
-        {Z : PtdV} (f : V ⟦ pr1 Z, pr1 νH ⟧)
-    : gbracket_property_parts Mon_V H θ (pr1 νH) η τ (pr2 Z) f
-                              (pr11 (Corec_ϕ f)).
-  Proof.
-    unfold gbracket_property_parts.
-    Check pr21 (Corec_ϕ f).
-    split.
-    2: {
+    - intro Hghss.
+      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hghss.
+      red.
+      red in Hghss.
+      fold out t.
+      rewrite ητ_is_out_inv in Hghss.
+      rewrite assoc' in Hghss.
+      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly
+                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hghss.
+      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hghss.
+      etrans.
+      { apply cancel_postcomposition.
+        exact Hghss. }
+      clear Hghss.
+      unfold ϕ, terminal_coalg_to_ghss_step_term.
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      etrans.
+      2: { do 2 apply maponpaths.
+           rewrite (assoc f out).
+           use changing_the_constant_Const_plus_H.
+           apply BinCoproductIn2Commutes. }
+      apply maponpaths.
+      etrans.
+      2: { repeat rewrite assoc.
+           apply cancel_postcomposition.
+           etrans.
+           2: { apply (functor_comp (Const_plus_H (pr1 Z))). }
+           apply maponpaths.
+           apply pathsinv0, BinCoproductIn1Commutes.
+      }
+      apply maponpaths.
+      etrans.
+      { apply postcompWithBinCoproductArrow. }
+      apply maponpaths.
       unfold τ.
       etrans.
-      1: apply assoc.
-      apply pathsinv0.
-      apply z_iso_inv_on_left.
-      etrans.
-      2: apply assoc.
-      etrans.
-      2: {
+      { rewrite assoc'.
         apply maponpaths.
-        exact (! pr21 (Corec_ϕ f)).
-      }
-
-      unfold ϕ.
-      unfold terminal_coalg_to_ghss_gbracket_parts_at_data.
-      cbn.
-
-      etrans.
-      2: apply assoc'.
-      etrans.
-      2: {
-        apply maponpaths_2.
-        etrans.
-        2: apply assoc'.
-        apply maponpaths_2.
-        refine (idpath (pr1 Z ⊗^{Mon_V}_{l} (BinCoproductIn2 (CP I_{ Mon_V} (H (pr1 νH))))) @ _).
-        etrans.
-        2: apply bifunctor_leftcomp.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        etrans.
-        2: apply assoc.
-        apply maponpaths.
-        unfold  α'.
-        unfold FunctorCoalgebras.f.
-
-
-        (* exact (pr122 (terminalcoalgebra_z_iso _ Id_H νH isTerminalνH)). *)
-
-        admit.
-      }
-
-
-  Admitted.
-*)
+        apply (pr222 out_z_iso). }
+      apply id_right.
+  Qed.
 
   Definition terminal_coalg_to_ghss : ghss Mon_V H θ.
   Proof.
