@@ -1,5 +1,5 @@
 (*
-In this file, it is proven how any bicategory is weakly biequivalent to a locally univalent bicategory.
+In this file, it is shown how any bicategory is weakly biequivalent to a locally univalent bicategory.
 From any bicategory B, we construct a locally univalent bicategory LRB "local Rezk completion of B", which is defined by the following data:
 ob LRB := ob B.
 hom x y := RC(hom x y),
@@ -11,7 +11,7 @@ its action on morphisms is induced by the unit of the rezk completion of RC(hom 
 Most work lies in showing how LRB is indeed a bicategory.
 In essence, this follows since all pieces of data (at level 1 and 2) of a bicategory correspond with a functor between some hom-categories. Those pieces of data can then be constructed using the universal property of the Rezk completion.
 
-As a consequence, we can conclude that any bicategory admit a Rezk completion (this is formulated in Bicategories/RezkCompletions/RezkCompletion.v
+As a consequence, we can conclude that any bicategory admits a Rezk completion (this is formulated in Bicategories/RezkCompletions/RezkCompletion.v
 *)
 
 Require Import UniMath.Foundations.All.

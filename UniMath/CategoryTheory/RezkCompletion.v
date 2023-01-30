@@ -16,6 +16,3 @@ Section DefinitionRezkCompletion.
 
 End DefinitionRezkCompletion.
 
-Section RezkCompletionUsingYoneda.
-
-End RezkCompletionUsingYoneda.
