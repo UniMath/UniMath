@@ -161,7 +161,7 @@ Section balanced.
         * use TerminalArrowUnique.
   Defined.
 
-  Let path_from_fepi : (characteristic_morphism O f_asMonic) = (TerminalArrow T c · (true O)).
+  Local Lemma path_from_fepi : (characteristic_morphism O f_asMonic) = (TerminalArrow T c · (true O)).
   Proof.
     use (EpiisEpi _ f_asEpi).
     cbn.

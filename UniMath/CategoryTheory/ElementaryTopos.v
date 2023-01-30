@@ -317,7 +317,7 @@ Proof.
   - use u.
 Defined.
 
-Let G0_Sqr (b c : C) : (Subobject_mor (G0 b c) · (u b c) = (TerminalArrow T _ ) · (name_true b c)).
+Local Lemma G0_Sqr (b c : C) : (Subobject_mor (G0 b c) · (u b c) = (TerminalArrow T _ ) · (name_true b c)).
 Proof.
   cbn.
   rewrite PullbackSqrCommutes.
@@ -348,7 +348,7 @@ Qed.
   Every square commutes.
   We define [ev] as the [PullbackArrow] of the right-hand square
 *)
-Local Definition ev (b c: C) : C ⟦ b ⨉ (Subobject_dom (G0 b c)), c ⟧.
+Let ev (b c: C) : C ⟦ b ⨉ (Subobject_dom (G0 b c)), c ⟧.
 Proof.
   assert (p : PullbackObject (subobject_classifier_pullback Ω (SingletonArrow_Monic c)) = c).
   { apply idpath. }
@@ -385,7 +385,7 @@ Proof.
     use TerminalArrowUnique.
 Defined.
 
-Let ev_tri (b c : C) : (ev b c · SingletonArrow_Monic c = (identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c)).
+Local Lemma ev_tri (b c : C) : (ev b c · SingletonArrow_Monic c = (identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c)).
 Proof.
   use (PullbackArrow_PullbackPr1 (subobject_classifier_pullback Ω (SingletonArrow_Monic c))).
 Qed.
@@ -410,7 +410,7 @@ Qed.
 *)
 Let h {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) := PowerObject_transpose P ((z_iso_inv (BinProduct_assoc BinProd c b a))·(identity c)⨱f ·(δ c)).
 
-Let h_sq {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) : f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
+Local Lemma h_sq {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) : f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
 Proof.
   use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (b ⨉ a,,c)))).
     simpl. fold BinProd.
@@ -490,13 +490,13 @@ Proof.
     use h_sq.
 Defined.
 
-Let h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧): (g c b a f
+Local Lemma h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧): (g c b a f
 · Subobject_mor (G0 b c) = h f).
 Proof.
   use PullbackArrow_PullbackPr1.
 Qed.
 
-Let g_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) :
+Local Lemma g_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) :
   f = (identity b) ⨱ (g c b a f) · ev b c.
 Proof.
   use (MonicisMonic _ (SingletonArrow_Monic c)).
@@ -508,7 +508,7 @@ Proof.
     h_sq.
 Qed.
 
-Let universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
+Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
 Proof.
   intros a f.
   use make_iscontr.
