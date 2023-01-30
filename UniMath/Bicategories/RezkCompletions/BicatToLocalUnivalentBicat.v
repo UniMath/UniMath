@@ -367,9 +367,9 @@ Section LocalUnivalenceRezk.
                          )
                        ).
     {
-      use (nat_z_iso_comp (nat_z_iso_inv (PrecompEquivalence.nat_z_iso_pair _ _ _ _))).
-      use (nat_z_iso_comp _ (PrecompEquivalence.nat_z_iso_pair _ _ _ _)).
-      use PrecompEquivalence.nat_z_iso_between_pair.
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_pair _ _ _ _))).
+      use (nat_z_iso_comp _ (nat_z_iso_pair _ _ _ _)).
+      use nat_z_iso_between_pair.
       - apply LRB_composition_comm.
       - apply functor_commutes_with_id.
     }
@@ -379,9 +379,9 @@ Section LocalUnivalenceRezk.
                             ∙ pair_functor (η (hom _ _)) (η (hom _ _)))
                                           (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))) ∙ pair_functor (functor_identity (R (hom x y))) (LRB_composition y z w)))).
     {
-      use (nat_z_iso_comp (nat_z_iso_inv (PrecompEquivalence.nat_z_iso_pair _ _ _ _))).
-      use (nat_z_iso_comp _ (PrecompEquivalence.nat_z_iso_pair _ _ _ _)).
-      use PrecompEquivalence.nat_z_iso_between_pair.
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_pair _ _ _ _))).
+      use (nat_z_iso_comp _ (nat_z_iso_pair _ _ _ _)).
+      use nat_z_iso_between_pair.
       - apply functor_commutes_with_id.
       - apply nat_z_iso_inv, LRB_composition_comm.
     }
@@ -486,7 +486,7 @@ Section LocalUnivalenceRezk.
     apply (lift_nat_trans_along_comm _ _ _ _ (LRB_associator_nat_z_iso_pre x y z w)).
   Defined.
 
-  Lemma LRB_associator_pre_simpl_mor {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
+  Definition LRB_associator_pre_simpl_mor {x y z w : B} (f : B⟦x,y⟧) (g : B⟦y,z⟧) (h : B⟦z,w⟧)
     : R (hom x w)
  ⟦ (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
     ∙ ((precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w))
@@ -1077,7 +1077,7 @@ Section LocalUnivalenceRezk.
     etrans.
     2: { apply maponpaths, (! LRB_associator_pre_simpl f0 h0 i0). }
 
-    unfold LRB_associator_pre_simpl ; cbn.
+    unfold LRB_associator_pre_simpl_mor ; cbn.
     unfold functor_fix_snd_arg_mor.
 
     etrans.
