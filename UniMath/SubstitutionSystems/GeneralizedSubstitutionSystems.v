@@ -209,6 +209,8 @@ Section hss.
   Definition eta_from_alg : I_{Mon_V} --> gh := pr12 gh.
   Definition tau_from_alg : H gh --> gh := pr122 gh.
 
+  Definition ptd_from_gh : PtdV := (pr1 gh,,eta_from_alg).
+
   Local Notation η := eta_from_alg.
   Local Notation τ := tau_from_alg.
 
@@ -238,7 +240,49 @@ Section hss.
     exact (pr2 ((pr2 (pr1 (pr222 gh Z f))))).
   Qed.
 
-  (* TODO: state and prove analogues of fbracket_natural and compute_fbracket *)
+  (** there is a restricted form of naturality in the [f] argument, only for pointed [f] *)
+  Lemma gfbracket_natural {Z Z' : PtdV} (f : Z --> Z') (g : pr1 Z' --> gh) :
+    pr1 f ⊗^{ Mon_V}_{r} gh · ⦃g⦄_{Z'} = ⦃pr1 f · g⦄_{Z}.
+  Proof.
+    apply gfbracket_unique.
+    split.
+    - etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply bifunctor_equalwhiskers. }
+      unfold functoronmorphisms1.
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply gfbracket_η. }
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0, monoidal_rightunitornat.
+    - etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply (bifunctor_equalwhiskers Mon_V). }
+      unfold functoronmorphisms1.
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply gfbracket_τ. }
+      rewrite functor_comp.
+      repeat rewrite assoc.
+      do 2 apply cancel_postcomposition.
+      apply pathsinv0, (lineator_linnatright Mon_PtdV Act Act).
+  Qed.
+
+  (** As a consequence of naturality, we can compute [gfbracket f] from [gfbracket identity] for
+      pointed morphisms [f] *)
+  Lemma compute_gfbracket {Z : PtdV} (f : Z --> ptd_from_gh) :
+    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{ptd_from_gh}.
+  Proof.
+    etrans.
+    { rewrite <- (id_right (pr1 f)).
+      apply pathsinv0, gfbracket_natural. }
+    apply idpath.
+  Qed.
 
   (** we are constructing a monoid in the monoidal base category *)
 
