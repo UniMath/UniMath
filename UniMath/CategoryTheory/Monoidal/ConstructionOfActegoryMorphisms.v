@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 
 Local Open Scope cat.
 
@@ -887,40 +888,35 @@ End PointwiseBinaryProductOfLinearFunctors.
 
 (* TODO: same with pointwise binary and arbitrary sums *)
 
-(* Section PointwiseBinaryCoproductOfLinearFunctors.
+Section PointwiseBinaryCoproductOfLinearFunctors.
 
   Context  {V : category} (Mon_V : monoidal V)
     {C D : category} (BCD : BinCoproducts D)
     (ActC : actegory Mon_V C) (ActD : actegory Mon_V D)
+    (δ : bincoprod_distributor Mon_V BCD ActD)
     {F1 F2: functor C D}
     (ll1 : lineator_lax Mon_V ActC ActD F1)
     (ll2 : lineator_lax Mon_V ActC ActD F2).
 
   Let FF: functor C D := BinCoproduct_of_functors _ _ BCD F1 F2.
 
-  Context (distributivity_actegories_coproducts
-            : ∏ (v : V) (x y : D), D ⟦ v ⊗_{ ActD} BCD x y, BCD (v ⊗_{ ActD} x) (v ⊗_{ ActD} y) ⟧
-          ).
-
   Definition lineator_data_bincoprod: lineator_data Mon_V ActC ActD FF.
   Proof.
     intros v x.
     cbn.
-
     unfold BinCoproduct_of_functors_ob.
-    refine (_ · _).
-    2: {
-      use (BinCoproductArrow (BCD _ _)).
-      3: exact (ll1 v x · BinCoproductIn1 (BCD _ _)).
-      2: exact (ll2 v x · BinCoproductIn2 (BCD _ _)).
-    }
-    exact (distributivity_actegories_coproducts v (F1 x) (F2 x)).
+    refine (δ v (F1 x) (F2 x) · _).
+    use (BinCoproductArrow (BCD _ _)).
+    - exact (ll1 v x · BinCoproductIn1 (BCD _ _)).
+    - exact (ll2 v x · BinCoproductIn2 (BCD _ _)).
   Defined.
 
   Lemma lineator_laxlaws_bincoprod
     : lineator_laxlaws Mon_V ActC ActD FF lineator_data_bincoprod.
   Proof.
     repeat split; red; intros; unfold lineator_data_bincoprod.
+  Admitted.
+  (*
     - cbn.
 
 
@@ -1107,8 +1103,9 @@ End PointwiseBinaryProductOfLinearFunctors.
           apply (lineator_preservesunitor _ _ _ _ ll2). }
         apply actegory_unitornat.
   Qed.
+*)
 
-  Definition lineator_binprod: lineator_lax Mon_V ActC ActD FF :=
-    lineator_data_binprod,,lineator_laxlaws_binprod.
+  Definition lineator_bincoprod: lineator_lax Mon_V ActC ActD FF :=
+    lineator_data_bincoprod,,lineator_laxlaws_bincoprod.
 
-End PointwiseBinaryProductOfLinearFunctors. *)
+End PointwiseBinaryCoproductOfLinearFunctors.
