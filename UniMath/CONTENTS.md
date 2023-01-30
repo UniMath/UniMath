@@ -749,7 +749,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [OtherStructure/Examples/StructureOneTypes.v](Bicategories/OtherStructure/Examples/StructureOneTypes.v)
    - [PseudoFunctors/DisplayedUniversalArrow.v](Bicategories/PseudoFunctors/DisplayedUniversalArrow.v)
    - [RezkCompletions/BicatToLocalUnivalentBicat.v](Bicategories/RezkCompletions/BicatToLocalUnivalentBicat.v)
-   - [RezkCompletions/RezkCompletion.v](Bicategories/RezkCompletions/RezkCompletion.v)
+   - [RezkCompletions/RezkCompletionOfBicategory.v](Bicategories/RezkCompletions/RezkCompletionOfBicategory.v)
    - [All.v](Bicategories/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [GrothendieckGroup.v](Ktheory/GrothendieckGroup.v)

@@ -326,4 +326,4 @@ OtherStructure/Examples/StructureOneTypes.v
 PseudoFunctors/DisplayedUniversalArrow.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
-RezkCompletions/RezkCompletion.v
+RezkCompletions/RezkCompletionOfBicategory.v
