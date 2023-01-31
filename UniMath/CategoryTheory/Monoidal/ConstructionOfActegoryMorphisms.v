@@ -1141,7 +1141,16 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
                         (ll1 w x · BinCoproductIn1 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))
                         (ll2 w x · BinCoproductIn2 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))))  = ll1 _ _ · BinCoproductIn1 _).
         {
-          admit.
+          etrans.
+          1: apply assoc.
+          etrans.
+          1: {
+            apply maponpaths_2.
+            refine (_ @ idpath (BinCoproductIn1 _)).
+            use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
+            apply pathsinv0, BinCoproductIn1Commutes.
+          }
+          apply BinCoproductIn1Commutes.
         }
 
         etrans.
@@ -1159,11 +1168,105 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
         apply maponpaths.
 
         (* apply here same proof as for p *)
-        admit.
-      + (* Same proof as the previous (sub)goal, modulo small details *)
-        admit.
+        apply pathsinv0.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: {
+          apply maponpaths_2.
+          refine (_ @ idpath (BinCoproductIn1 _)).
+          use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
+          apply pathsinv0, BinCoproductIn1Commutes.
+        }
+        apply BinCoproductIn1Commutes.
+      + etrans.
+        1: apply BinCoproductIn2Commutes.
+        etrans.
+        2: apply pathsinv0, BinCoproductIn2Commutes.
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, BinCoproductIn2Commutes.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: apply maponpaths_2, (pr1 (pr222 ll2)).
 
+        etrans.
+        2: apply assoc'.
+        etrans.
+        2: apply maponpaths_2, assoc'.
+        etrans.
+        2: {
+          do 2 apply maponpaths_2.
+          apply actegory_actornatleft.
+        }
 
+        etrans.
+        2: apply assoc'.
+        etrans.
+        2: {
+          do 2 apply maponpaths_2.
+          etrans.
+          2: apply assoc.
+          apply maponpaths, bifunctor_leftcomp.
+        }
+
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply assoc'.
+
+        etrans.
+        2: apply assoc.
+        etrans.
+        2: apply assoc.
+        apply maponpaths.
+
+        assert (p :  w ⊗^{ ActD}_{l} BinCoproductIn2 (BCD (F1 x) (F2 x))
+  · (δ w (F1 x) (F2 x)
+     · BinCoproductArrow (BCD (w ⊗_{ ActD} F1 x) (w ⊗_{ ActD} F2 x))
+         (ll1 w x · BinCoproductIn1 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))
+         (ll2 w x · BinCoproductIn2 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x)))))  = ll2 _ _ · BinCoproductIn2 _).
+        {
+          etrans.
+          1: apply assoc.
+          etrans.
+          1: {
+            apply maponpaths_2.
+            refine (_ @ idpath (BinCoproductIn2 _)).
+            use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
+            apply pathsinv0, BinCoproductIn2Commutes.
+          }
+          apply BinCoproductIn2Commutes.
+        }
+
+        etrans.
+        2: {
+          apply maponpaths_2, maponpaths.
+          exact (! p).
+        }
+        clear p.
+
+        etrans.
+        2: apply maponpaths_2, pathsinv0, bifunctor_leftcomp.
+
+        etrans.
+        2: apply assoc.
+        apply maponpaths.
+
+        (* apply here same proof as for p *)
+        apply pathsinv0.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: {
+          apply maponpaths_2.
+          refine (_ @ idpath (BinCoproductIn2 _)).
+          use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
+          apply pathsinv0, BinCoproductIn2Commutes.
+        }
+        apply BinCoproductIn2Commutes.
     - etrans.
       1: apply assoc'.
       apply (z_iso_inv_on_right _ _ _ (z_iso_inv (make_z_iso _ _ (pr2 δ I_{Mon_V} (F1 x) (F2 x))))).
@@ -1199,7 +1302,7 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
         etrans.
         1: apply maponpaths_2, lineator_preservesunitor.
         apply pathsinv0, actegory_unitornat.
-  Admitted.
+  Qed.
   (*
     - cbn.
 
