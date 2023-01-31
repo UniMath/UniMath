@@ -1,3 +1,10 @@
+(** construction of generalized heterogeneous substitution systems from arbitrary final coalgebras
+   and from initial algebras arising from iteration in omega-cocontinuous functors
+
+authors: Ralph Matthes, Kobe Wullaert, 2023
+*)
+
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -9,6 +16,12 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 Require Import UniMath.CategoryTheory.coslicecat.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Chains.Chains.
+Require Import UniMath.CategoryTheory.Chains.Adamek.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -25,13 +38,14 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.ActionScenarioForGenMendlerIteration_alt.
 
 Local Open Scope cat.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
 
-Section TerminalCoalgebraToGHSS.
+Section FixTheContext.
 
   Context {V : category} {Mon_V : monoidal V}
           {H : V ⟶ V} (θ : pointedtensorialstrength Mon_V H).
@@ -44,25 +58,27 @@ Section TerminalCoalgebraToGHSS.
 
   Let Const_plus_H (v : V) : functor V V := GeneralizedSubstitutionSystems.Const_plus_H H CP v.
 
-  Definition Id_H : functor V V := Const_plus_H I_{Mon_V}.
+  Definition I_H : functor V V := Const_plus_H I_{Mon_V}.
 
-  Context (νH : coalgebra_ob Id_H)
-          (isTerminalνH : isTerminal (CoAlg_category Id_H) νH).
+Section TerminalCoalgebraToGHSS.
+
+  Context (νH : coalgebra_ob I_H)
+          (isTerminalνH : isTerminal (CoAlg_category I_H) νH).
 
   Let t : V := pr1 νH.
-  Let out : t --> Id_H t := pr2 νH.
-  Let out_z_iso : z_iso t (Id_H t) := terminalcoalgebra_z_iso _ Id_H νH isTerminalνH.
-  Let out_inv : Id_H t --> t := inv_from_z_iso out_z_iso.
+  Let out : t --> I_H t := pr2 νH.
+  Let out_z_iso : z_iso t (I_H t) := terminalcoalgebra_z_iso _ I_H νH isTerminalνH.
+  Let out_inv : I_H t --> t := inv_from_z_iso out_z_iso.
 
   Definition terminal_coalg_to_ghss_step_term
-             {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
-    : V ⟦ Z ⊗_{Act} t, Id_H (CP (Z ⊗_{Act} t) t) ⟧.
+             {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
+    : V ⟦ Z ⊗_{Act} t, I_H (CP (Z ⊗_{Act} t) t) ⟧.
   Proof.
     refine (Z ⊗^{Act}_{l} out · _).
     refine (δ _ _ _ · _).
     refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} _) (pr1 θ Z t) · _).
     refine (# (Const_plus_H (pr1 Z)) (BinCoproductIn1 (CP _ t)) · _).
-    exact (BinCoproductArrow (CP _ _) (f · out · #Id_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
+    exact (BinCoproductArrow (CP _ _) (f · out · #I_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
   Defined.
 
   Let η := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
@@ -73,9 +89,9 @@ Section TerminalCoalgebraToGHSS.
     apply pathsinv0, BinCoproductArrowEta.
   Qed.
 
-  Local Definition ϕ {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
+  Local Definition ϕ {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
     := terminal_coalg_to_ghss_step_term f.
-  Local Definition Corec_ϕ {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧)
+  Local Definition Corec_ϕ {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
   Local Lemma changing_the_constant_Const_plus_H (x y v w : V)
@@ -122,7 +138,7 @@ Section TerminalCoalgebraToGHSS.
   Qed.
 
   Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
-    {Z : PtdV} (f : V ⟦ pr1 Z, t ⟧) (h : V ⟦ Z ⊗_{ Act} t, t ⟧) :
+    {Z : PtdV} (f : V⟦ pr1 Z, t ⟧) (h : V⟦ Z ⊗_{Act} t, t ⟧) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h <->
       gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
@@ -247,3 +263,49 @@ Section TerminalCoalgebraToGHSS.
 
 
 End TerminalCoalgebraToGHSS.
+
+Section InitialAlgebraToGHSS.
+
+  Context (IV : Initial V) (CV : Colims_of_shape nat_graph V) (HH : is_omega_cocont H).
+
+  Let AF := FunctorAlg I_H.
+  Let chnF := initChain IV I_H.
+
+  Let t_Initial : Initial AF := colimAlgInitial IV (ActionScenarioForGenMendlerIteration_alt.HF CP H HH I_{Mon_V})  (CV chnF).
+  Let t : V := alg_carrier _ (InitialObject t_Initial).
+  Let α : I_H t --> t := alg_map I_H (pr1 t_Initial).
+
+  Let η := BinCoproductIn1 (CP _ _) · α.
+  Let τ := BinCoproductIn2 (CP _ _) · α.
+
+  Context (initial_annihilates : ∏ (v : V), isInitial V (v ⊗_{Mon_V} (InitialObject IV))).
+  Context (left_whiskering_omega_cocont : ∏ (v : V), is_omega_cocont (leftwhiskering_functor Mon_V v)).
+
+  Definition initial_alg_to_ghss : ghss Mon_V H θ.
+  Proof.
+    exists t.
+    exists η.
+    exists τ.
+    intros Z f.
+    red.
+    unfold gbracket_property_parts.
+    set (Mendler_inst := SpecialGenMendlerIterationWithActegoryAndStrength Mon_PtdV IV CV Act
+                           Z CP H HH I_{Mon_V} t θ τ (ru^{Mon_V}_{ pr1 Z} · f)
+                           (initial_annihilates (pr1 Z)) (left_whiskering_omega_cocont (pr1 Z)) δ).
+    simple refine (iscontrretract _ _ _ Mendler_inst).
+    - intros [h [Hyp1 Hyp2]].
+      exists h.
+      split; apply pathsinv0; assumption.
+    - intros [h [Hyp1 Hyp2]].
+      exists h.
+      split; apply pathsinv0; assumption.
+    - intros [h Hyp].
+      use total2_paths_f.
+      + apply idpath.
+      + cbn. do 2 rewrite pathsinv0inv0.
+        apply idpath.
+  Defined.
+
+End InitialAlgebraToGHSS.
+
+End FixTheContext.
