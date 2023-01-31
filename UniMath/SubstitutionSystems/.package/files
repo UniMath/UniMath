@@ -10,6 +10,7 @@ MonadsFromSubstitutionSystems.v
 SimplifiedHSS/MonadsFromSubstitutionSystems.v
 GenMendlerIteration.v
 GenMendlerIteration_alt.v
+ActionScenarioForGenMendlerIteration_alt.v
 ApplicationsGenMendlerIteration_alt.v
 LiftingInitial.v
 SimplifiedHSS/LiftingInitial.v
