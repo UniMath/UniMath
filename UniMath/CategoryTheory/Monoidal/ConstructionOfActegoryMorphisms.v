@@ -1104,13 +1104,6 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
         etrans.
         1: apply maponpaths_2, (pr1 (pr222 ll1)).
 
-        assert (p : (v ⊗_{ Mon_V} w) ⊗^{ ActD}_{l} BinCoproductIn1 (BCD (F1 x) (F2 x))
-              · aα^{ ActD }_{ v, w, BCD (F1 x) (F2 x)}
-                = aα^{ ActD }_{ v, w, F1 x} · v ⊗^{ ActD}_{l} (w ⊗^{ActD}_{l} BinCoproductIn1 _)).
-        {
-          admit.
-        }
-
         etrans.
         2: apply assoc'.
         etrans.
@@ -1118,9 +1111,8 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
         etrans.
         2: {
           do 2 apply maponpaths_2.
-          exact (! p).
+          apply actegory_actornatleft.
         }
-        clear p.
 
         etrans.
         2: apply assoc'.
@@ -1149,7 +1141,6 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
                         (ll1 w x · BinCoproductIn1 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))
                         (ll2 w x · BinCoproductIn2 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))))  = ll1 _ _ · BinCoproductIn1 _).
         {
-
           admit.
         }
 
@@ -1190,23 +1181,24 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
         1: apply assoc'.
         etrans.
         1: apply maponpaths, BinCoproductIn1Commutes.
-
-        unfold lineator_lax in ll1.
-        unfold lineator_laxlaws in ll1.
-        unfold preserves_unitor in ll1.
         etrans.
         1: apply assoc.
         etrans.
         1: apply maponpaths_2, lineator_preservesunitor.
-
-        (* as a final step, we apply actegory_unitornat Mon_V ActD, but we first need that au commutes with BinCoproductIn1 *)
-
-
-
-      admit.
-
-
-
+        apply pathsinv0, actegory_unitornat.
+      + etrans.
+        1: apply BinCoproductIn2Commutes.
+        etrans.
+        2: apply pathsinv0, BinCoproductIn2Commutes.
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, BinCoproductIn2Commutes.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: apply maponpaths_2, lineator_preservesunitor.
+        apply pathsinv0, actegory_unitornat.
   Admitted.
   (*
     - cbn.
