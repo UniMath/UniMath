@@ -7,6 +7,7 @@ Part Generalization of pointed distributivity laws to lifted distributivity laws
 
 Part Closure of the notion of actegory morphisms under
 - the pointwise binary product of functors
+- the pointwise binary coproduct of functors
 
 
 author: Ralph Matthes 2022
@@ -886,8 +887,6 @@ Section PointwiseBinaryProductOfLinearFunctors.
 
 End PointwiseBinaryProductOfLinearFunctors.
 
-(* TODO: same with pointwise binary and arbitrary sums *)
-
 Section PointwiseBinaryCoproductOfLinearFunctors.
 
   Context  {V : category} (Mon_V : monoidal V)
@@ -978,3 +977,5 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
     lineator_data_bincoprod,,lineator_laxlaws_bincoprod.
 
 End PointwiseBinaryCoproductOfLinearFunctors.
+
+(* TODO: same with arbitrary sums *)

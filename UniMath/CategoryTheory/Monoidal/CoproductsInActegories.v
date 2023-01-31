@@ -48,80 +48,40 @@ Section BinaryCoproduct.
     bincoprod_antidistributor_data v (pr1 cd1) (pr2 cd1) · v ⊗^{Act}_{l} #(bincoproduct_functor BCP) g =
     #(bincoproduct_functor BCP) (v ⊗^{actegory_binprod Mon_V Act Act}_{l} g) · bincoprod_antidistributor_data v (pr1 cd2) (pr2 cd2).
   Proof.
-    use BinCoproductArrowsEq.
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
     - etrans.
-      { rewrite assoc.
-        apply cancel_postcomposition.
-        apply BinCoproductIn1Commutes. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           cbn.
-           apply pathsinv0,  BinCoproductOfArrowsIn1. }
-      etrans.
-      2: { rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, BinCoproductIn1Commutes. }
-      etrans.
       { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
       etrans.
-      2: { apply (functor_comp (leftwhiskering_functor Act v)). }
+      2: { cbn. apply (functor_comp (leftwhiskering_functor Act v)). }
       apply maponpaths.
-      apply BinCoproductOfArrowsIn1.
+      apply BinCoproductIn1Commutes.
     - etrans.
-      { rewrite assoc.
-        apply cancel_postcomposition.
-        apply BinCoproductIn2Commutes. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           cbn.
-           apply pathsinv0,  BinCoproductOfArrowsIn2. }
-      etrans.
-      2: { rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, BinCoproductIn2Commutes. }
-      etrans.
       { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
       etrans.
-      2: { apply (functor_comp (leftwhiskering_functor Act v)). }
+      2: { cbn. apply (functor_comp (leftwhiskering_functor Act v)). }
       apply maponpaths.
-      apply BinCoproductOfArrowsIn2.
+      apply BinCoproductIn2Commutes.
   Qed.
 
   Lemma bincoprod_antidistributor_nat_right (v1 v2 : V) (cd : category_binproduct C C) (f : V ⟦ v1, v2 ⟧) :
     bincoprod_antidistributor_data v1 (pr1 cd) (pr2 cd) · f ⊗^{ Act}_{r} bincoproduct_functor BCP cd  =
     #(bincoproduct_functor BCP) (f ⊗^{ actegory_binprod Mon_V Act Act}_{r} cd) · bincoprod_antidistributor_data v2 (pr1 cd) (pr2 cd).
   Proof.
-    use BinCoproductArrowsEq.
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
     - etrans.
-      { rewrite assoc.
-        apply cancel_postcomposition.
-        apply BinCoproductIn1Commutes. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           cbn.
-           apply pathsinv0,  BinCoproductOfArrowsIn1. }
-      etrans.
-      2: { rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, BinCoproductIn1Commutes. }
-      apply pathsinv0, bifunctor_equalwhiskers.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
     - etrans.
-      { rewrite assoc.
-        apply cancel_postcomposition.
-        apply BinCoproductIn2Commutes. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           cbn.
-           apply pathsinv0,  BinCoproductOfArrowsIn2. }
-      etrans.
-      2: { rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, BinCoproductIn2Commutes. }
-      apply pathsinv0, bifunctor_equalwhiskers.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
   Qed.
 
   Lemma bincoprod_antidistributor_pentagon_identity (v w : V) (cd : category_binproduct C C) :
@@ -131,78 +91,50 @@ Section BinaryCoproduct.
       bincoprod_antidistributor_data (v ⊗_{Mon_V} w) (pr1 cd) (pr2 cd)
         · aα^{Act}_{v, w, bincoproduct_functor BCP cd}.
   Proof.
-    use BinCoproductArrowsEq.
+    etrans.
+    { rewrite assoc'.
+      apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, postcompWithBinCoproductArrow. }
+    apply maponpaths_12.
     - etrans.
       { repeat rewrite assoc.
         apply cancel_postcomposition.
-        etrans.
-        { apply cancel_postcomposition.
-          apply BinCoproductOfArrowsIn1. }
         rewrite assoc'.
         apply maponpaths.
-        apply BinCoproductIn1Commutes.
-      }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn1Commutes. }
-      etrans.
-      { rewrite assoc'.
-        apply maponpaths.
-        apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
-      unfold bincoprod_antidistributor_data.
-      rewrite BinCoproductIn1Commutes.
+        apply BinCoproductIn1Commutes. }
       etrans.
       2: { apply actegory_actornatleft. }
-      apply idpath.
+      rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      apply maponpaths.
+      apply BinCoproductIn1Commutes.
     - etrans.
       { repeat rewrite assoc.
         apply cancel_postcomposition.
-        etrans.
-        { apply cancel_postcomposition.
-          apply BinCoproductOfArrowsIn2. }
         rewrite assoc'.
         apply maponpaths.
-        apply BinCoproductIn2Commutes.
-      }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn2Commutes. }
-      etrans.
-      { rewrite assoc'.
-        apply maponpaths.
-        apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
-      unfold bincoprod_antidistributor_data.
-      rewrite BinCoproductIn2Commutes.
+        apply BinCoproductIn2Commutes. }
       etrans.
       2: { apply actegory_actornatleft. }
-      apply idpath.
+      rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      apply maponpaths.
+      apply BinCoproductIn2Commutes.
   Qed.
 
   Lemma bincoprod_antidistributor_triangle_identity (cd : category_binproduct C C) :
     #(bincoproduct_functor BCP) au^{actegory_binprod Mon_V Act Act}_{cd} =
       bincoprod_antidistributor_data I_{Mon_V} (pr1 cd) (pr2 cd) · au^{Act}_{bincoproduct_functor BCP cd}.
   Proof.
-    use BinCoproductArrowsEq.
-    - etrans.
-      { apply BinCoproductOfArrowsIn1. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn1Commutes. }
-      etrans.
-      2: { apply pathsinv0, actegory_unitornat. }
-      apply idpath.
-    - etrans.
-      { apply BinCoproductOfArrowsIn2. }
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn2Commutes. }
-      etrans.
-      2: { apply pathsinv0, actegory_unitornat. }
-      apply idpath.
+    etrans.
+    2: { apply pathsinv0, postcompWithBinCoproductArrow. }
+    cbn. unfold BinCoproductOfArrows.
+    apply maponpaths_12; apply pathsinv0, actegory_unitornat.
   Qed.
 
 (** The following four items should be placed upstream into [UniMath.CategoryTheory.limits.bincoproducts], maybe without asking
@@ -211,10 +143,9 @@ Section BinaryCoproduct.
   Definition bincoprod_associator_data (c d e : C) : BCP (BCP c d) e --> BCP c (BCP d e).
   Proof.
     use BinCoproductArrow.
-    - use BinCoproductArrow.
+    - use BinCoproductOfArrows.
+      + exact (identity c).
       + apply BinCoproductIn1.
-      + refine (_ · BinCoproductIn2 _).
-        apply BinCoproductIn1.
     - refine (_ · BinCoproductIn2 _).
       apply BinCoproductIn2.
   Defined.
@@ -224,10 +155,9 @@ Section BinaryCoproduct.
     use BinCoproductArrow.
     - refine (_ · BinCoproductIn1 _).
       apply BinCoproductIn1.
-    - use BinCoproductArrow.
-      + refine (_ · BinCoproductIn1 _).
-        apply BinCoproductIn2.
+    - use BinCoproductOfArrows.
       + apply BinCoproductIn2.
+      + exact (identity e).
   Defined.
 
   Lemma bincoprod_associator_inverses (c d e : C) :
@@ -244,6 +174,7 @@ Section BinaryCoproduct.
            etrans.
            { apply cancel_postcomposition.
              apply BinCoproductIn1Commutes. }
+           rewrite id_left.
            etrans.
            { apply BinCoproductIn1Commutes. }
            apply idpath.
@@ -255,7 +186,7 @@ Section BinaryCoproduct.
            { rewrite assoc'.
              apply maponpaths.
              apply BinCoproductIn2Commutes. }
-           apply BinCoproductIn1Commutes.
+           apply BinCoproductOfArrowsIn1.
       * rewrite assoc.
         etrans.
         { apply cancel_postcomposition.
@@ -264,7 +195,8 @@ Section BinaryCoproduct.
         { rewrite assoc'.
           apply maponpaths.
           apply BinCoproductIn2Commutes. }
-        apply BinCoproductIn2Commutes.
+        rewrite BinCoproductOfArrowsIn2.
+        apply id_left.
     + apply pathsinv0, BinCoproduct_endo_is_identity.
       * rewrite assoc.
         etrans.
@@ -274,7 +206,8 @@ Section BinaryCoproduct.
         { rewrite assoc'.
           apply maponpaths.
           apply BinCoproductIn1Commutes. }
-        apply BinCoproductIn1Commutes.
+        rewrite BinCoproductOfArrowsIn1.
+        apply id_left.
       * rewrite assoc.
         etrans.
         { apply cancel_postcomposition.
@@ -283,16 +216,17 @@ Section BinaryCoproduct.
         -- repeat rewrite assoc.
            etrans.
            { apply cancel_postcomposition.
-             apply BinCoproductIn1Commutes. }
+             apply BinCoproductOfArrowsIn1. }
            etrans.
            { rewrite assoc'.
              apply maponpaths.
              apply BinCoproductIn1Commutes. }
-           apply BinCoproductIn2Commutes.
+           apply BinCoproductOfArrowsIn2.
         -- repeat rewrite assoc.
            etrans.
            { apply cancel_postcomposition.
-             apply BinCoproductIn2Commutes. }
+             apply BinCoproductOfArrowsIn2. }
+           rewrite id_left.
            etrans.
            { apply BinCoproductIn2Commutes. }
            apply idpath.
@@ -310,117 +244,65 @@ Section BinaryCoproduct.
       #(bincoproduct_functor BCP) (catbinprodmor (identity (v ⊗_{Act} c)) (bincoprod_antidistributor_data v d e)) ·
       bincoprod_antidistributor_data v c (BCP d e).
   Proof.
-    use BinCoproductArrowsEq.
+    etrans.
+    { apply cancel_postcomposition.
+      apply precompWithBinCoproductArrow. }
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, precompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, postcompWithBinCoproductArrow. }
+    apply maponpaths_12.
     - etrans.
-      { repeat rewrite assoc.
-        do 2 apply cancel_postcomposition.
-        apply BinCoproductOfArrowsIn1. }
-      cbn.
+      2: { apply pathsinv0, precompWithBinCoproductArrow. }
       etrans.
-      2: { repeat rewrite assoc.
-           do 2 apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn1Commutes. }
-      use BinCoproductArrowsEq.
-      + etrans.
-        { repeat rewrite assoc.
-          do 3 apply cancel_postcomposition.
-          apply BinCoproductIn1Commutes. }
-        etrans.
-        { apply cancel_postcomposition.
-          rewrite assoc'.
-          apply maponpaths.
-          apply BinCoproductIn1Commutes. }
-        etrans.
-        2: { repeat rewrite assoc.
-             do 2 apply cancel_postcomposition.
-             apply pathsinv0, BinCoproductIn1Commutes. }
-        etrans.
-        2: { apply cancel_postcomposition.
-             apply pathsinv0, BinCoproductOfArrowsIn1. }
-        rewrite id_left.
-        etrans.
-        2: { apply pathsinv0, BinCoproductIn1Commutes. }
-        etrans.
-        { apply cancel_postcomposition.
-          apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      { rewrite assoc'.
+        apply maponpaths.
         etrans.
         { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
         apply maponpaths.
-        rewrite assoc'.
-        unfold bincoprod_associator_data.
-        do 2 rewrite BinCoproductIn1Commutes.
-        apply idpath.
-      + etrans.
-        { repeat rewrite assoc.
-          do 3 apply cancel_postcomposition.
-          apply BinCoproductIn2Commutes. }
+        apply BinCoproductIn1Commutes.
+      }
+      etrans.
+      { cbn. apply postcompWithBinCoproductArrow. }
+      apply maponpaths_12.
+      + cbn.
+        do 2 rewrite id_left.
         etrans.
-        { apply cancel_postcomposition.
-          rewrite assoc'.
-          apply maponpaths.
-          apply BinCoproductIn1Commutes. }
-        etrans.
-        2: { repeat rewrite assoc.
-             do 2 apply cancel_postcomposition.
-             apply pathsinv0, BinCoproductIn2Commutes. }
-        etrans.
-        2: { apply cancel_postcomposition.
-             rewrite assoc'.
-             apply maponpaths.
-             apply pathsinv0, BinCoproductOfArrowsIn2. }
-        etrans.
-        2: { repeat rewrite assoc.
-             do 2 apply cancel_postcomposition.
-             apply pathsinv0, BinCoproductIn1Commutes. }
-        etrans.
-        2: { rewrite assoc'.
-             apply maponpaths.
-             apply pathsinv0, BinCoproductIn2Commutes. }
-        etrans.
-        { apply cancel_postcomposition.
-          apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+        apply maponpaths.
+        rewrite BinCoproductOfArrowsIn1.
+        apply id_left.
+      + cbn.
         etrans.
         { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
         etrans.
-        2: { apply (functor_comp (leftwhiskering_functor Act v)). }
-        apply maponpaths.
-        rewrite assoc'.
-        unfold bincoprod_associator_data.
-        rewrite BinCoproductIn1Commutes.
-        rewrite BinCoproductIn2Commutes.
-        apply idpath.
+        { apply maponpaths.
+          apply BinCoproductOfArrowsIn2. }
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductIn1Commutes. }
+        apply (functor_comp (leftwhiskering_functor Act v)).
     - etrans.
-      { repeat rewrite assoc.
-        do 2 apply cancel_postcomposition.
-        apply BinCoproductOfArrowsIn2. }
-      cbn.
-      rewrite id_left.
-      etrans.
-      2: { repeat rewrite assoc.
-           do 2 apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn2Commutes. }
-      etrans.
-      { apply cancel_postcomposition.
-        apply BinCoproductIn2Commutes. }
-      etrans.
-      2: { apply cancel_postcomposition.
-           rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, BinCoproductOfArrowsIn2. }
-      etrans.
-      2: { repeat rewrite assoc.
-           do 2 apply cancel_postcomposition.
-           apply pathsinv0, BinCoproductIn2Commutes. }
+      { cbn. rewrite id_left.
+        apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
       etrans.
       2: { rewrite assoc'.
            apply maponpaths.
            apply pathsinv0, BinCoproductIn2Commutes. }
+      cbn.
+      rewrite assoc.
       etrans.
-      { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn2Commutes. }
       etrans.
-      2: { apply (functor_comp (leftwhiskering_functor Act v)). }
-      apply maponpaths.
-      apply BinCoproductIn2Commutes.
+      { apply maponpaths.
+        apply BinCoproductIn2Commutes. }
+      apply (functor_comp (leftwhiskering_functor Act v)).
   Qed.
 
 
