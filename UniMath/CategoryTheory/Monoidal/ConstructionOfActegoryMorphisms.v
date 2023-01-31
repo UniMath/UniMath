@@ -903,12 +903,7 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
   Definition lineator_data_bincoprod: lineator_data Mon_V ActC ActD FF.
   Proof.
     intros v x.
-    cbn.
-    unfold BinCoproduct_of_functors_ob.
-    refine (δ v (F1 x) (F2 x) · _).
-    use (BinCoproductArrow (BCD _ _)).
-    - exact (ll1 v x · BinCoproductIn1 (BCD _ _)).
-    - exact (ll2 v x · BinCoproductIn2 (BCD _ _)).
+    exact (δ v (F1 x) (F2 x) · (BinCoproductOfArrows _ (BCD _ _) (BCD _ _) (ll1 v x) (ll2 v x))).
   Defined.
 
   Let δll := bincoprod_functor_lineator Mon_V BCD ActD δ.
@@ -924,26 +919,10 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
       repeat rewrite assoc'.
       apply maponpaths.
       etrans.
-      { apply precompWithBinCoproductArrow. }
+      { apply BinCoproductOfArrows_comp. }
       etrans.
-      2: { apply pathsinv0, postcompWithBinCoproductArrow. }
-      apply maponpaths_12.
-      + cbn.
-        etrans.
-        { rewrite assoc.
-          apply cancel_postcomposition.
-          apply lineator_linnatleft. }
-        repeat rewrite assoc'.
-        apply maponpaths.
-        apply coproduct_nat_trans_in1.
-      + cbn.
-        etrans.
-        { rewrite assoc.
-          apply cancel_postcomposition.
-          apply lineator_linnatleft. }
-        repeat rewrite assoc'.
-        apply maponpaths.
-        apply coproduct_nat_trans_in2.
+      2: { apply pathsinv0, BinCoproductOfArrows_comp. }
+      apply maponpaths_12; apply lineator_linnatleft.
     - etrans.
       { repeat rewrite assoc.
         apply cancel_postcomposition.
@@ -951,251 +930,48 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
       repeat rewrite assoc'.
       apply maponpaths.
       etrans.
-      { apply precompWithBinCoproductArrow. }
+      { apply BinCoproductOfArrows_comp. }
       etrans.
-      2: { apply pathsinv0, postcompWithBinCoproductArrow. }
-      apply maponpaths_12.
-      + cbn.
-        etrans.
-        { rewrite assoc.
-          apply cancel_postcomposition.
-          apply lineator_linnatright. }
-        repeat rewrite assoc'.
-        apply maponpaths.
-        apply coproduct_nat_trans_in1.
-      + cbn.
-        etrans.
-        { rewrite assoc.
-          apply cancel_postcomposition.
-          apply lineator_linnatright. }
-        repeat rewrite assoc'.
-        apply maponpaths.
-        apply coproduct_nat_trans_in2.
+      2: { apply pathsinv0, BinCoproductOfArrows_comp. }
+      apply maponpaths_12; apply lineator_linnatright.
     - etrans.
-
-      1: apply assoc'.
-      use (z_iso_inv_on_right _ _ _ (z_iso_inv (make_z_iso _ _ (pr2 δ (v ⊗_{Mon_V} w) (F1 x) (F2 x))))).
-      cbn.
-      unfold BinCoproduct_of_functors_mor.
-      unfold BinCoproduct_of_functors_ob.
-      cbn.
-
+      { rewrite assoc'.
+        apply maponpaths.
+        etrans.
+        { apply BinCoproductOfArrows_comp. }
+        apply maponpaths_12; apply lineator_preservesactor.
+      }
       etrans.
-      1: apply postcompWithBinCoproductArrow.
+      { apply maponpaths.
+        repeat rewrite assoc'.
+        apply pathsinv0, BinCoproductOfArrows_comp. }
       etrans.
-      2: apply pathsinv0, postcompWithBinCoproductArrow.
-      use BinCoproductArrowsEq.
-      + etrans.
-        1: apply BinCoproductIn1Commutes.
-        etrans.
-        2: apply pathsinv0, BinCoproductIn1Commutes.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, BinCoproductIn1Commutes.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: apply maponpaths_2, (pr1 (pr222 ll1)).
-
-        etrans.
-        2: apply assoc'.
-        etrans.
-        2: apply maponpaths_2, assoc'.
-        etrans.
-        2: {
-          do 2 apply maponpaths_2.
-          apply actegory_actornatleft.
-        }
-
-        etrans.
-        2: apply assoc'.
-        etrans.
-        2: {
-          do 2 apply maponpaths_2.
-          etrans.
-          2: apply assoc.
-          apply maponpaths, bifunctor_leftcomp.
-        }
-
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply assoc'.
-
-        etrans.
-        2: apply assoc.
-        etrans.
-        2: apply assoc.
-        apply maponpaths.
-
-        assert (p : (w ⊗^{ ActD}_{l} BinCoproductIn1 (BCD (F1 x) (F2 x))
-                 · (δ w (F1 x) (F2 x)
-                    · BinCoproductArrow (BCD (w ⊗_{ ActD} F1 x) (w ⊗_{ ActD} F2 x))
-                        (ll1 w x · BinCoproductIn1 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))
-                        (ll2 w x · BinCoproductIn2 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))))  = ll1 _ _ · BinCoproductIn1 _).
-        {
-          etrans.
-          1: apply assoc.
-          etrans.
-          1: {
-            apply maponpaths_2.
-            refine (_ @ idpath (BinCoproductIn1 _)).
-            use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
-            apply pathsinv0, BinCoproductIn1Commutes.
-          }
-          apply BinCoproductIn1Commutes.
-        }
-
-        etrans.
-        2: {
-          apply maponpaths_2, maponpaths.
-          exact (! p).
-        }
-        clear p.
-
-        etrans.
-        2: apply maponpaths_2, pathsinv0, bifunctor_leftcomp.
-
-        etrans.
-        2: apply assoc.
-        apply maponpaths.
-
-        (* apply here same proof as for p *)
-        apply pathsinv0.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: {
-          apply maponpaths_2.
-          refine (_ @ idpath (BinCoproductIn1 _)).
-          use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
-          apply pathsinv0, BinCoproductIn1Commutes.
-        }
-        apply BinCoproductIn1Commutes.
-      + etrans.
-        1: apply BinCoproductIn2Commutes.
-        etrans.
-        2: apply pathsinv0, BinCoproductIn2Commutes.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, BinCoproductIn2Commutes.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: apply maponpaths_2, (pr1 (pr222 ll2)).
-
-        etrans.
-        2: apply assoc'.
-        etrans.
-        2: apply maponpaths_2, assoc'.
-        etrans.
-        2: {
-          do 2 apply maponpaths_2.
-          apply actegory_actornatleft.
-        }
-
-        etrans.
-        2: apply assoc'.
-        etrans.
-        2: {
-          do 2 apply maponpaths_2.
-          etrans.
-          2: apply assoc.
-          apply maponpaths, bifunctor_leftcomp.
-        }
-
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply assoc'.
-
-        etrans.
-        2: apply assoc.
-        etrans.
-        2: apply assoc.
-        apply maponpaths.
-
-        assert (p :  w ⊗^{ ActD}_{l} BinCoproductIn2 (BCD (F1 x) (F2 x))
-  · (δ w (F1 x) (F2 x)
-     · BinCoproductArrow (BCD (w ⊗_{ ActD} F1 x) (w ⊗_{ ActD} F2 x))
-         (ll1 w x · BinCoproductIn1 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x))))
-         (ll2 w x · BinCoproductIn2 (BCD (F1 (w ⊗_{ ActC} x)) (F2 (w ⊗_{ ActC} x)))))  = ll2 _ _ · BinCoproductIn2 _).
-        {
-          etrans.
-          1: apply assoc.
-          etrans.
-          1: {
-            apply maponpaths_2.
-            refine (_ @ idpath (BinCoproductIn2 _)).
-            use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
-            apply pathsinv0, BinCoproductIn2Commutes.
-          }
-          apply BinCoproductIn2Commutes.
-        }
-
-        etrans.
-        2: {
-          apply maponpaths_2, maponpaths.
-          exact (! p).
-        }
-        clear p.
-
-        etrans.
-        2: apply maponpaths_2, pathsinv0, bifunctor_leftcomp.
-
-        etrans.
-        2: apply assoc.
-        apply maponpaths.
-
-        (* apply here same proof as for p *)
-        apply pathsinv0.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: {
-          apply maponpaths_2.
-          refine (_ @ idpath (BinCoproductIn2 _)).
-          use (z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (pr2 δ _ _ _))).
-          apply pathsinv0, BinCoproductIn2Commutes.
-        }
-        apply BinCoproductIn2Commutes.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        apply (lineator_preservesactor _ _ _ _ δll v w (_,,_)). }
+      etrans.
+      2: { apply cancel_postcomposition.
+           apply maponpaths.
+           apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)). }
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      repeat rewrite assoc.
+      etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, (lineator_linnatleft _ _ _ _ δll v (_,,_) (_,,_) (_,,_)). }
+      rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      2: { apply pathsinv0, BinCoproductOfArrows_comp. }
+      apply idpath.
     - etrans.
-      1: apply assoc'.
-      apply (z_iso_inv_on_right _ _ _ (z_iso_inv (make_z_iso _ _ (pr2 δ I_{Mon_V} (F1 x) (F2 x))))).
-
+      2: { apply (lineator_preservesunitor _ _ _ _ δll (_,,_)). }
+      rewrite assoc'.
+      apply maponpaths.
       etrans.
-      1: apply postcompWithBinCoproductArrow.
-      etrans.
-      2: apply pathsinv0, postcompWithBinCoproductArrow.
-      use BinCoproductArrowsEq.
-      + etrans.
-        1: apply BinCoproductIn1Commutes.
-        etrans.
-        2: apply pathsinv0, BinCoproductIn1Commutes.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, BinCoproductIn1Commutes.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: apply maponpaths_2, lineator_preservesunitor.
-        apply pathsinv0, actegory_unitornat.
-      + etrans.
-        1: apply BinCoproductIn2Commutes.
-        etrans.
-        2: apply pathsinv0, BinCoproductIn2Commutes.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, BinCoproductIn2Commutes.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: apply maponpaths_2, lineator_preservesunitor.
-        apply pathsinv0, actegory_unitornat.
+      { apply BinCoproductOfArrows_comp. }
+      cbn.
+      apply maponpaths_12; apply lineator_preservesunitor.
   Qed.
 
   Definition lineator_bincoprod: lineator_lax Mon_V ActC ActD FF :=
