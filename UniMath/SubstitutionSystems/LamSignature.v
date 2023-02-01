@@ -292,7 +292,6 @@ Proof.
 *)
   simpl.
   apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
-  unfold BinCoproduct_of_functors_ob.
   unfold constant_functor.
 (*
   destruct Z as [Z e].
@@ -312,7 +311,6 @@ Proof.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   apply maponpaths.
-  unfold BinCoproduct_of_functors_mor.
   etrans.
   { apply precompWithBinCoproductArrow. }
   etrans; [| apply (!(postcompWithBinCoproductArrow _ _ _ _ _)) ].
@@ -400,7 +398,6 @@ Proof.
   intro c.
   simpl.
   unfold constant_functor.
-  unfold BinCoproduct_of_functors_ob.
   simpl.
   rewrite assoc.
   unfold Abs_θ_data_data. simpl.
@@ -409,13 +406,12 @@ Proof.
   2: { apply cancel_postcomposition.
        apply functor_comp. }
   rewrite (nat_trans_ax α).
-  unfold BinCoproduct_of_functors_ob.
   rewrite <- assoc.
   apply maponpaths.
   etrans.
   { apply pathsinv0, functor_comp. }
   apply maponpaths.
-  unfold BinCoproduct_of_functors_mor, constant_functor_data.
+  unfold constant_functor_data.
   simpl.
   etrans; [ apply precompWithBinCoproductArrow |].
   rewrite id_left.

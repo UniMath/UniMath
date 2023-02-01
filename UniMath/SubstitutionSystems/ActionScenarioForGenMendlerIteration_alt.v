@@ -228,7 +228,6 @@ Section Const_H_AsFunctor.
     repeat rewrite assoc'.
     apply maponpaths.
     cbn.
-    unfold BinCoproduct_of_functors_mor.
     etrans.
     { apply BinCoproductOfArrows_comp. }
     etrans.
