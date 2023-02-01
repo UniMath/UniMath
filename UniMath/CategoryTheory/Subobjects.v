@@ -7,6 +7,9 @@ Contents:
 - Category of subobjects (monos) of c ([Subobjectscategory])
 - Set of subobjects as equivalence classes of monos ([SubObj])
 - Proof that the set of subobjects of an object is a poset ([SubObjPoset])
+- The definition of the functor from C^op to hset_category
+	which maps c to the set of the subobject (module z_isomorphism) of c
+	and maps morphism "by pullback" ([SubObj_Functor])
 
 Written by: Tomi Pannila and Anders Mörtberg, 2016-2017
 
@@ -26,13 +29,14 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Open Scope cat.
 
 (** * Definition of the category of subobjects (monos) of c *)
 Section def_subobjects.
 
-  Context (C : category).
+  Context {C : category}.
   Let hsC : has_homsets C := homset_property C.
 
   Definition Subobjectscategory (c : C) : category :=
@@ -49,16 +53,75 @@ Section def_subobjects.
   Definition Subobjectscategory_ob {c c' : C} (h : C⟦c', c⟧) (isM : isMonic h) :
     Subobjectscategory c := (subprecategory_of_monics_ob C c',,(h,,isM)).
 
+  (** Accessor for an object of Subobjectscategory*)
+  Section obAccessor.
+
+  Context {c:C} (S : Subobjectscategory c).
+
+  Definition Subobject_dom : C := pr1 (pr1 S).
+  Definition Subobject_Monic := pr2 S.
+  Definition Subobject_mor : C⟦ Subobject_dom , c ⟧ := pr1 (pr2 S).
+  Definition Subobject_isM : isMonic(Subobject_mor) := pr2 (pr2 S).
+
+  End obAccessor.
+
+  (** Accessor for a morphism of Subobjectscategory*)
+  Section morAccessor.
+
+  Context {c:C} {S S' : Subobjectscategory c} (h : S --> S').
+
+
+  Definition Subobjectmor_Cmor : C⟦ Subobject_dom S, Subobject_dom S' ⟧ := pr1 (pr1 h).
+  Definition Subobjectmor_isM : isMonic(Subobjectmor_Cmor) := pr2 (pr1 h).
+  Definition Subobjectmor_tri := maponpaths (pr1) (pr2 h).
+
+  End morAccessor.
+
   (** Given any subobject S of c and a morphism h : c' -> c, by taking then pullback of S by h we
       obtain a subobject of c'. *)
   Definition PullbackSubobject (PB : Pullbacks C) {c : C} (S : Subobjectscategory c) {c' : C} (h : C⟦c', c⟧) :
     Subobjectscategory c'.
   Proof.
-    set (pb := PB _ _ _ h (pr1 (pr2 S))).
+    set (pb := PB _ _ _ h (Subobject_mor S)).
     use Subobjectscategory_ob.
     - exact pb.
     - exact (PullbackPr1 pb).
     - use MonicPullbackisMonic'.
+  Defined.
+
+  (*a z_iso in Subobjectscategory can be obtained by
+  a z_iso on the underlying category C which makes the triangle commute*)
+  Definition make_z_iso_in_Subobjectscategory {c : C} {S S' : Subobjectscategory c}
+  (h : C ⟦Subobject_dom S ,Subobject_dom S'⟧)
+  (is_z_iso : is_z_isomorphism h)
+  (tri : Subobject_mor S = h · Subobject_mor S')
+  : z_iso S S'.
+  Proof.
+    use make_z_iso'.
+    + use tpair.
+      - use precategory_morphisms_in_subcat.
+        * exact h.
+        * use is_iso_isMonic.
+          exact is_z_iso.
+      - use eq_in_sub_precategory.
+        exact tri.
+    + use z_iso_to_slice_precat_z_iso.
+      use is_z_iso_in_subcategory_of_monics_weq.
+      exact is_z_iso.
+  Defined.
+
+  (** a z_iso is Subobjectcategory gives, in particular, a z_iso of C between domains*)
+  Definition z_iso_from_z_iso_in_Subobjectcategory {c : C}
+  {S S' : Subobjectscategory c} (h : z_iso S S')
+  : (z_iso (Subobject_dom S) (Subobject_dom S')).
+  Proof.
+    use make_z_iso.
+    + exact (Subobjectmor_Cmor h).
+    + exact (Subobjectmor_Cmor (inv_from_z_iso h)).
+    + induction h as (h, (g,(hg,gh))).
+      use make_is_inverse_in_precat.
+      - exact (maponpaths Subobjectmor_Cmor hg).
+      - exact (maponpaths Subobjectmor_Cmor gh).
   Defined.
 
 End def_subobjects.
@@ -66,15 +129,50 @@ End def_subobjects.
 (** * Definition of subobjects as equivalence classes of monos *)
 Section subobj.
 
-Context (C : category).
+Context {C : category}.
 
 (** Equivalence classes of subobjects defined by identifying monos into c
     with isomorphic source *)
-Definition SubObj (c : C) : HSET :=
-  make_hSet (setquot (z_iso_eqrel (C:=Subobjectscategory C c))) (isasetsetquot _).
+Definition SubObj (c : C) : hSet :=
+  make_hSet (setquot (z_iso_eqrel (C:=Subobjectscategory c))) (isasetsetquot _).
+
+Definition SubObj_iseqc {c:C} (S : SubObj c) := pr2 S.
+
+Definition PullbackSubObj (PB : Pullbacks C) {c : C} (S : SubObj c)
+  {c' : C} (h : C⟦c', c⟧)
+  : SubObj c'.
+Proof.
+  use (setquotfun (z_iso_eqrel (C:=Subobjectscategory c))).
+  + intro s.
+    use (PullbackSubobject PB s h).
+  + intros u v.
+    use hinhfun.
+    intro uv.
+    use make_z_iso_in_Subobjectscategory.
+    - use (iso_between_pullbacks
+        (PullbackSqrCommutes (PB _ _ _ h (Subobject_mor u)))
+        (PullbackSqrCommutes (PB _ _ _ h (Subobject_mor v)))
+        (isPullback_Pullback (PB _ _ _ h (Subobject_mor u)))
+        (isPullback_Pullback (PB _ _ _ h (Subobject_mor v)))
+      ).
+      * exact (identity_z_iso c').
+      * use z_iso_from_z_iso_in_Subobjectcategory.
+        exact uv.
+      * exact (identity_z_iso c).
+      * rewrite id_left, id_right.
+        apply idpath.
+      * rewrite id_right.
+        apply pathsinv0.
+        use Subobjectmor_tri.
+    - use z_iso_is_z_isomorphism.
+    - rewrite <-(id_right (Subobject_mor _)).
+      use pathsinv0.
+      use PullbackArrow_PullbackPr1.
+  + exact S.
+Defined.
 
 (* For f and g monics into c: f <= g := ∃ h, f = h · g *)
-Definition monorel c : hrel (Subobjectscategory C c) :=
+Definition monorel (c : C) : hrel (Subobjectscategory c) :=
   λ f g, ∃ h, pr1 (pr2 f) = h · pr1 (pr2 g).
 
 Lemma isrefl_monorel (c : C) : isrefl (monorel c).
@@ -98,7 +196,7 @@ Proof.
 exact (istrans_monorel c,,isrefl_monorel c).
 Qed.
 
-Lemma are_z_isomorphic_monorel {c : C} {x1 y1 x2 y2 : Subobjectscategory C c}
+Lemma are_z_isomorphic_monorel {c : C} {x1 y1 x2 y2 : Subobjectscategory c}
   (h1 : are_z_isomorphic x1 y1) (h2 : are_z_isomorphic x2 y2) :
   monorel c x1 x2 → monorel c y1 y2.
 Proof.
@@ -160,7 +258,7 @@ assert (int : ∏ x1 x2, isaprop (SubObj_rel c x1 x2 → SubObj_rel c x2 x1 -> x
 apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
 intros x y h1 h2.
 simpl in *. (* This is slow *)
-apply (iscompsetquotpr (z_iso_eqrel (C:=Subobjectscategory C c))).
+apply (iscompsetquotpr (z_iso_eqrel (C:=Subobjectscategory c))).
 generalize h1; clear h1; apply hinhuniv; intros [h1 Hh1].
 generalize h2; clear h2; apply hinhuniv; intros [h2 Hh2].
 apply hinhpr, (invmap (weq_z_iso _ (subprecategory_of_monics_ob C c) _ _)).
@@ -189,3 +287,102 @@ Definition SubObjPoset (c : C) : Poset :=
   (SubObj c,,SubObj_rel c,,ispreorder_SubObj_rel c,,isantisymm_SubObj_rel c).
 
 End subobj.
+
+(*Definition of the functor C^op -> HSET which maps c on SubObj c and maps morphism "by pullback"*)
+Section SubObj_functor.
+
+Context (C : category) (PB : Pullbacks C).
+
+Definition SubObj_Functor_data : functor_data (op_cat C) hset_category.
+Proof.
+  use make_functor_data.
+    + intro c.
+      cbn in c.
+      exact (SubObj c).
+    + intros c c' f Sm.
+      use PullbackSubObj.
+      - exact PB.
+      - exact c.
+      - exact Sm.
+      - exact f.
+Defined.
+
+Theorem SubObj_Functor_isfunctor : is_functor (SubObj_Functor_data).
+Proof.
+  split.
+  + intro c.
+    cbn in c.
+    use funextfun.
+    intro S.
+    change (pr1hSet (SubObj c)) in S.
+    use (squash_to_prop (X:=pr1setquot _ S)).
+    { exact (eqax0 (SubObj_iseqc S)). }
+    { use isasetsetquot. }
+    intro m.
+    induction (setquotl0 _ S m).
+    cbn.
+    use (weqpathsinsetquot (z_iso_eqrel (C:=Subobjectscategory c))).
+    use hinhpr.
+    use make_z_iso_in_Subobjectscategory.
+    - use PullbackPr2.
+    - use Pullback_of_z_iso'.
+      exact (identity_is_z_iso c).
+    - cbn.
+      rewrite <- PullbackSqrCommutes, id_right.
+      apply idpath.
+  + intros c c' c'' f f'.
+    cbn in c, c', c'', f, f'.
+    use funextfun.
+    intro S.
+    use (squash_to_prop (X:=pr1setquot _ S)).
+    { exact (eqax0 (SubObj_iseqc S)). }
+    { use isasetsetquot. }
+    intro m.
+    induction (setquotl0 _ S m).
+    use weqpathsinsetquot.
+    use hinhpr.
+    induction m as (m,Sm).
+    cbn.
+    set (pb := (PB _ _ _ f ((Subobject_mor m)))).
+    set (pbpb := PB _ _ _ f' (PullbackPr1 pb)).
+    transparent assert (pb_glued : (Pullback (f'·f) (Subobject_mor m))). {
+      use make_Pullback.
+      - exact pbpb.
+      - exact (PullbackPr1 pbpb).
+      - exact ((PullbackPr2 pbpb)·(PullbackPr2 pb)).
+      - use glueSquares.
+        * exact (PullbackPr1 pb).
+        * use PullbackSqrCommutes.
+        * use PullbackSqrCommutes.
+      - use (isPullbackGluedSquare
+          (isPullback_Pullback pb)
+          (isPullback_Pullback pbpb)).
+        use homset_property.
+    }
+    use make_z_iso_in_Subobjectscategory.
+    - cbn.
+      fold pb.
+      fold pbpb.
+      assert (H : PullbackObject pb_glued = PullbackObject pbpb). {
+        apply idpath.
+      }
+      induction H.
+      use z_iso_from_Pullback_to_Pullback.
+    - use z_iso_is_z_isomorphism.
+    - cbn.
+      fold pb.
+      fold pbpb.
+      assert (H : PullbackPr1 pb_glued = PullbackPr1 pbpb). { apply idpath. }
+      induction H.
+      apply pathsinv0.
+      use (PullbackArrow_PullbackPr1 pb_glued).
+Defined.
+
+Definition SubObj_Functor : C^op ⟶ hset_category.
+Proof.
+  use make_functor.
+    + exact SubObj_Functor_data.
+    + exact SubObj_Functor_isfunctor.
+Defined.
+
+End SubObj_functor.
