@@ -5,6 +5,7 @@ Direct implementation of pullbacks together with:
 - Proof that pullbacks form a property in a (saturated/univalent) category ([isaprop_Pullbacks])
 - The pullback of a monic is monic ([MonicPullbackisMonic])
 - A square isomorphic to a pullback is a pullback (case 1) ([isPullback_iso_of_morphisms])
+- The pullback of a z_iso is a z_iso ([Pullback_of_z_iso])
 - Symmetry ([is_symmetric_isPullback])
 - Construction of pullbacks from equalizers and binary products
   ([Pullbacks_from_Equalizers_BinProducts])
@@ -328,6 +329,21 @@ Qed.
 
 End pullback_lemma.
 
+Definition pullback_glue_pullback {a b c e : C} {f : b --> a} {g : c --> a} {h : e --> b} (pbr : Pullback f g) (pbl : Pullback h (PullbackPr1 pbr)) : Pullback (h·f) g.
+Proof.
+  use make_Pullback.
+  + exact pbl.
+  + exact (PullbackPr1 pbl).
+  + exact ((PullbackPr2 pbl)·(PullbackPr2 pbr)).
+  + use glueSquares.
+    - exact (PullbackPr1 pbr).
+    - use (PullbackSqrCommutes pbr).
+    - use PullbackSqrCommutes.
+  + use (isPullbackGluedSquare _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+      (isPullback_Pullback pbr)
+      (isPullback_Pullback pbl)).
+Defined.
+
 End def_pb.
 
 Arguments isPullback [_ _ _ _ _ _ _ _ _] _.
@@ -431,6 +447,7 @@ Section monic_pb.
 End monic_pb.
 
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
+Arguments isPullbackGluedSquare [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _] _ _ [_ _ _] _.
 
 
 (** * Criteria for existence of pullbacks. *)
@@ -755,6 +772,74 @@ Definition switchPullback {C:category} {A B D:C} {f : A --> D} {g : B --> D} (pb
 Proof.
   induction pb as [[P [r s]] [e ip]]; simpl in e.
   use (make_Pullback (!e) (is_symmetric_isPullback (homset_property C) _ ip)).
+Defined.
+
+(** In this section we prove that the pullback of a z_iso is a
+  z_iso. *)
+Section pb_of_ziso.
+
+Lemma Pullback_of_z_iso {C:category} {a b c : C} {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} (gis : is_z_isomorphism g) (pb : Pullback f g) : is_z_isomorphism (PullbackPr1 pb).
+Proof.
+  use make_is_z_isomorphism.
+  + use PullbackArrow.
+    - exact (identity b).
+    - exact (f · (is_z_isomorphism_mor gis)).
+    - now rewrite
+        assoc',
+        (is_inverse_in_precat2
+          (is_z_isomorphism_is_inverse_in_precat
+            gis)),
+        id_left,
+        id_right.
+  + use make_is_inverse_in_precat.
+    - use pathsinv0.
+      use PullbackEndo_is_identity.
+      * now rewrite
+          (assoc' (PullbackPr1 pb)),
+          PullbackArrow_PullbackPr1,
+          id_right.
+      * now rewrite
+          (assoc' (PullbackPr1 pb)),
+          PullbackArrow_PullbackPr2,
+          assoc,
+          PullbackSqrCommutes,
+          assoc',
+          (is_inverse_in_precat1
+          (is_z_isomorphism_is_inverse_in_precat
+            gis)),
+          id_right.
+    - use PullbackArrow_PullbackPr1.
+Defined.
+
+(*same with the other map*)
+Lemma Pullback_of_z_iso' {C:category} {a b c : C} {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} (fis : is_z_isomorphism f) (pb : Pullback f g) : is_z_isomorphism (PullbackPr2 pb).
+Proof.
+  use (Pullback_of_z_iso _ (switchPullback pb)).
+  exact fis.
+Defined.
+
+End pb_of_ziso.
+
+(*reformulateion of [isPullback_z_iso_of_morphisms] with data packaged in Pullback*)
+Definition Pullback_z_iso_of_morphisms {C:category} {a b c : C} {f : b --> a} {g : c --> a} (pb : Pullback f g)
+  {b' pb' : C}
+  (i : C⟦b', b⟧) (i' : C⟦pb', pb⟧) (h : C⟦pb', b'⟧)
+  (xi : is_z_isomorphism i) (xi' : is_z_isomorphism i')
+  (Hi : h · i = i' · (PullbackPr1 pb))
+  : (Pullback (i · f) g).
+Proof.
+  assert (H' : h · (i · f) = i' · PullbackPr2 pb · g). {
+    rewrite assoc, Hi, !assoc'.
+    use cancel_precomposition.
+    use PullbackSqrCommutes.
+  }
+  use (make_Pullback (p1:=h) (p2:=(i' · (PullbackPr2 pb))) H').
+  use (isPullback_z_iso_of_morphisms _ (PullbackSqrCommutes pb)).
+  - use homset_property.
+  - exact xi.
+  - exact xi'.
+  - exact Hi.
+  - use isPullback_Pullback.
 Defined.
 
 (** * A fully faithful functor reflects limits *)
@@ -1274,6 +1359,31 @@ Section pullback_paths.
     induction e5.
     exact iPb.
   Qed.
+
+  Lemma isPullback_mor_paths' {a b c d : C} {f1 f2 : b --> a} {g1 g2 : c --> a} {p11 p21 : d --> b}
+    {p12 p22 : d --> c} (e1 : f1 = f2) (e2 : g1 = g2) (e3 : p11 = p21) (e4 : p12 = p22)
+    (H1 : p11 · f1 = p12 · g1)
+    (iPb : isPullback (*f1 g1 p11 p12*) H1)
+    : ∑ (H2 : p21 · f2 = p22 · g2), isPullback H2.
+  Proof.
+    induction e1, e2, e3, e4.
+    use tpair.
+    + exact H1.
+    + exact iPb.
+  Defined.
+
+  Definition Pullback_mor_paths {a b c : C} {f1 f2 : b --> a} {g1 g2 : c --> a} (e1 : f1 = f2) (e2 : g1 = g2) (pb : Pullback f1 g1) : Pullback f2 g2.
+  Proof.
+    use make_Pullback.
+    + exact pb.
+    + exact (PullbackPr1 pb).
+    + exact (PullbackPr2 pb).
+    + rewrite <-e1, <-e2.
+      use PullbackSqrCommutes.
+    + use (isPullback_mor_paths e1 e2 (idpath _) (idpath _)).
+      - use PullbackSqrCommutes.
+      - use isPullback_Pullback.
+  Defined.
 
 End pullback_paths.
 
