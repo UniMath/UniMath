@@ -257,6 +257,7 @@ Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/ConstructionOfActegories.v
 Monoidal/MorphismsOfActegories.v
 Monoidal/ProductActegory.v
+Monoidal/ProductsInActegories.v
 Monoidal/CoproductsInActegories.v
 Monoidal/ConstructionOfActegoryMorphisms.v
 Monoidal/ActionBasedStrongMonads.v

@@ -64,6 +64,8 @@ Definition BinProducts : UU := ∏ (c d : C), BinProduct c d.
 Definition hasBinProducts : UU := ∏ (c d : C), ∥ BinProduct c d ∥.
 
 Definition BinProductObject {c d : C} (P : BinProduct c d) : C := pr1 (pr1 P).
+Coercion BinProductObject : BinProduct >-> ob.
+
 Definition BinProductPr1 {c d : C} (P : BinProduct c d): BinProductObject P --> c :=
   pr1 (pr2 (pr1 P)).
 Definition BinProductPr2 {c d : C} (P : BinProduct c d) : BinProductObject P --> d :=
