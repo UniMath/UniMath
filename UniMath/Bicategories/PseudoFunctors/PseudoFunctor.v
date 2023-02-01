@@ -528,7 +528,6 @@ Lemma weak_equivalence_to_is_weak_biequivalence
       (F : psfunctor B1 B2)
   : weak_equivalence u1 u2 F -> weak_biequivalence F.
 Proof.
-  About FullyFaithful.
   intro w.
   exists (pr2 w).
   intros x y.
