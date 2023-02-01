@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
@@ -32,6 +33,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ProductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.ProductActegory.
 
 Local Open Scope cat.
 
@@ -675,24 +677,55 @@ End CompositionOfLiftedDistributivities.
 End LiftedDistributivity.
 
 
-Section PointwiseBinaryProductOfLinearFunctors.
+Section PointwiseBinaryOperationsOnLinearFunctors.
 
   Context  {V : category} (Mon_V : monoidal V)
-    {C D : category} (BPD : BinProducts D)
+    {C D : category}
     (ActC : actegory Mon_V C) (ActD : actegory Mon_V D)
-    {F1 F2: functor C D}
+    {F1 F2 : functor C D}
     (ll1 : lineator_lax Mon_V ActC ActD F1)
     (ll2 : lineator_lax Mon_V ActC ActD F2).
 
-  Let FF: functor C D := BinProduct_of_functors _ _ BPD F1 F2.
+Section PointwiseBinaryProductOfLinearFunctors.
 
+  Context (BPD : BinProducts D).
+
+  Let FF : functor C D := BinProduct_of_functors _ _ BPD F1 F2.
+  Let FF' : functor C D := BinProduct_of_functors_alt BPD F1 F2.
+
+  Definition lax_lineator_binprod_aux: lineator_lax Mon_V ActC ActD FF'.
+  Proof.
+    use comp_lineator_lax.
+    - apply actegory_binprod; assumption.
+    - apply actegory_binprod_delta_lineator.
+    - use comp_lineator_lax.
+      + apply actegory_binprod; assumption.
+      + apply actegory_pair_functor_lineator; assumption.
+      + apply binprod_functor_lax_lineator.
+  Defined.
+
+  Definition lax_lineator_binprod_indirect: lineator_lax Mon_V ActC ActD FF.
+  Proof.
+    unfold FF.
+    rewrite <- BinProduct_of_functors_alt_eq_BinProduct_of_functors.
+    apply lax_lineator_binprod_aux.
+  Defined.
+
+  Lemma lax_lineator_binprod_indirect_data_ok (v : V) (c : C):
+    lax_lineator_binprod_indirect v c =
+      binprod_collector_data Mon_V BPD ActD v (F1 c) (F2 c) ·
+        BinProductOfArrows _ (BPD _ _) (BPD _ _) (ll1 v c) (ll2 v c).
+  Proof.
+    unfold lax_lineator_binprod_indirect.
+  Abort.
+  (* how could one use the equality proof? *)
+
+  (** now an alternative concrete construction *)
   Definition lineator_data_binprod: lineator_data Mon_V ActC ActD FF.
   Proof.
-    intros v x.
-    refine (binprod_collector_data Mon_V BPD ActD v (F1 x) (F2 x) · _).
-    use (BinProductOfArrows _ (BPD _ _) (BPD _ _)).
-    - exact (ll1 v x).
-    - exact (ll2 v x).
+    intros v c.
+    exact (binprod_collector_data Mon_V BPD ActD v (F1 c) (F2 c) ·
+        BinProductOfArrows _ (BPD _ _) (BPD _ _) (ll1 v c) (ll2 v c)).
   Defined.
 
   Let cll := binprod_functor_lax_lineator Mon_V BPD ActD.
@@ -762,27 +795,48 @@ Section PointwiseBinaryProductOfLinearFunctors.
       apply maponpaths_12; apply lineator_preservesunitor.
   Qed.
 
-  Definition lineator_binprod: lineator_lax Mon_V ActC ActD FF :=
+  Definition lax_lineator_binprod: lineator_lax Mon_V ActC ActD FF :=
     lineator_data_binprod,,lineator_laxlaws_binprod.
 
 End PointwiseBinaryProductOfLinearFunctors.
 
 Section PointwiseBinaryCoproductOfLinearFunctors.
 
-  Context  {V : category} (Mon_V : monoidal V)
-    {C D : category} (BCD : BinCoproducts D)
-    (ActC : actegory Mon_V C) (ActD : actegory Mon_V D)
-    (δ : bincoprod_distributor Mon_V BCD ActD)
-    {F1 F2: functor C D}
-    (ll1 : lineator_lax Mon_V ActC ActD F1)
-    (ll2 : lineator_lax Mon_V ActC ActD F2).
+  Context (BCD : BinCoproducts D) (δ : bincoprod_distributor Mon_V BCD ActD).
 
-  Let FF: functor C D := BinCoproduct_of_functors _ _ BCD F1 F2.
+  Let FF : functor C D := BinCoproduct_of_functors _ _ BCD F1 F2.
+  Let FF' : functor C D := BinCoproduct_of_functors_alt2 BCD F1 F2.
 
+  Definition lax_lineator_bincoprod_aux : lineator_lax Mon_V ActC ActD FF'.
+  Proof.
+    use comp_lineator_lax.
+    - apply actegory_binprod; assumption.
+    - apply actegory_binprod_delta_lineator.
+    - use comp_lineator_lax.
+      + apply actegory_binprod; assumption.
+      + apply actegory_pair_functor_lineator; assumption.
+      + apply (bincoprod_functor_lineator Mon_V BCD ActD δ).
+  Defined.
+
+  Definition lax_lineator_bincoprod_indirect : lineator_lax Mon_V ActC ActD FF.
+  Proof.
+    unfold FF.
+    rewrite <- BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors.
+    apply lax_lineator_bincoprod_aux.
+  Defined.
+
+  Lemma lax_lineator_bincoprod_data_ok (v : V) (c : C) : lax_lineator_bincoprod_indirect v c =
+    δ v (F1 c) (F2 c) · (BinCoproductOfArrows _ (BCD _ _) (BCD _ _) (ll1 v c) (ll2 v c)).
+  Proof.
+    unfold lax_lineator_bincoprod_indirect.
+  Abort.
+  (* how could one use the equality proof? *)
+
+  (** now an alternative concrete construction *)
   Definition lineator_data_bincoprod: lineator_data Mon_V ActC ActD FF.
   Proof.
-    intros v x.
-    exact (δ v (F1 x) (F2 x) · (BinCoproductOfArrows _ (BCD _ _) (BCD _ _) (ll1 v x) (ll2 v x))).
+    intros v c.
+    exact (δ v (F1 c) (F2 c) · (BinCoproductOfArrows _ (BCD _ _) (BCD _ _) (ll1 v c) (ll2 v c))).
   Defined.
 
   Let δll := bincoprod_functor_lineator Mon_V BCD ActD δ.
@@ -857,5 +911,7 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
     lineator_data_bincoprod,,lineator_laxlaws_bincoprod.
 
 End PointwiseBinaryCoproductOfLinearFunctors.
+
+End PointwiseBinaryOperationsOnLinearFunctors.
 
 (* TODO: same with arbitrary sums *)
