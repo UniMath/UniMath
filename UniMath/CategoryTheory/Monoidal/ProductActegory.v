@@ -14,11 +14,9 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-(* Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.coslicecat. *)
+(* Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories. *)
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
-(* Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects. *)
 
 Local Open Scope cat.
 
@@ -31,6 +29,8 @@ Section FixAMonoidalCategory.
   Context {V : category} (Mon_V : monoidal V). (** given the monoidal category that acts upon categories *)
 
 Section BinaryProduct.
+
+Section OneProduct.
 
   Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D).
 
@@ -95,8 +95,145 @@ Section BinaryProduct.
 
   Definition actegory_binprod : actegory Mon_V CD := _,,actegory_binprod_laws.
 
-  (* TODO: projections are linear *)
+  Definition actegory_binprod_pr1_lineator_data :
+    lineator_data Mon_V actegory_binprod ActC (pr1_functor C D).
+  Proof.
+    intros v cd. apply identity.
+  Defined.
 
+  Lemma actegory_binprod_pr1_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_binprod_pr1_lineator_data.
+  Proof.
+    red; repeat split; red; intros.
+    - rewrite id_left. apply id_right.
+    - rewrite id_left. apply id_right.
+    - cbn. unfold actegory_binprod_pr1_lineator_data.
+      rewrite id_left, id_right.
+      etrans.
+      2: { apply maponpaths.
+           apply pathsinv0, (functor_id (leftwhiskering_functor ActC v)). }
+      apply pathsinv0, id_right.
+    - apply id_left.
+  Qed.
+
+  Definition actegory_binprod_pr1_lineator :
+    lineator Mon_V actegory_binprod ActC (pr1_functor C D).
+  Proof.
+    use tpair.
+    - exists actegory_binprod_pr1_lineator_data.
+      exact actegory_binprod_pr1_lineator_lax_laws.
+    - intros v vd.
+      use tpair.
+      + apply identity.
+      + red; split; apply id_left.
+  Defined.
+
+  Definition actegory_binprod_pr2_lineator_data :
+    lineator_data Mon_V actegory_binprod ActD (pr2_functor C D).
+  Proof.
+    intros v cd. apply identity.
+  Defined.
+
+  Lemma actegory_binprod_pr2_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_binprod_pr2_lineator_data.
+  Proof.
+    red; repeat split; red; intros.
+    - rewrite id_left. apply id_right.
+    - rewrite id_left. apply id_right.
+    - cbn. unfold actegory_binprod_pr2_lineator_data.
+      rewrite id_left, id_right.
+      etrans.
+      2: { apply maponpaths.
+           apply pathsinv0, (functor_id (leftwhiskering_functor ActD v)). }
+      apply pathsinv0, id_right.
+    - apply id_left.
+  Qed.
+
+  Definition actegory_binprod_pr2_lineator :
+    lineator Mon_V actegory_binprod ActD (pr2_functor C D).
+  Proof.
+    use tpair.
+    - exists actegory_binprod_pr2_lineator_data.
+      exact actegory_binprod_pr2_lineator_lax_laws.
+    - intros v cd.
+      use tpair.
+      + apply identity.
+      + red; split; apply id_left.
+  Defined.
+
+End OneProduct.
+
+Section SelfProduct.
+
+  Context {C : category} (Act : actegory Mon_V C).
+
+  Definition actegory_binprod_delta_lineator_data :
+    lineator_data Mon_V Act (actegory_binprod Act Act) (bindelta_functor C).
+  Proof.
+    intros v c. apply identity.
+  Defined.
+
+  Lemma actegory_binprod_delta_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_binprod_delta_lineator_data.
+  Proof.
+    red; repeat split; red; intros.
+    - cbn. apply maponpaths_12; (rewrite id_left; apply id_right).
+    - cbn. apply maponpaths_12; (rewrite id_left; apply id_right).
+    - cbn.
+      apply maponpaths_12; unfold actegory_binprod_pr2_lineator_data;
+        (rewrite id_left, id_right);
+        (etrans; [| apply maponpaths;
+                   apply pathsinv0, (functor_id (leftwhiskering_functor Act v))];
+        apply pathsinv0, id_right).
+    - cbn. apply maponpaths_12; apply id_left.
+  Qed.
+
+  Definition actegory_binprod_delta_lineator :
+    lineator Mon_V Act (actegory_binprod Act Act) (bindelta_functor C).
+  Proof.
+    use tpair.
+    - exists actegory_binprod_delta_lineator_data.
+      exact actegory_binprod_delta_lineator_lax_laws.
+    - intros v c.
+      use tpair.
+      + apply identity.
+      + red; split; apply id_left.
+  Defined.
+
+End SelfProduct.
+
+Section TwoProducts.
+
+  Context {C1 C2 D1 D2 : category} (ActC1 : actegory Mon_V C1) (ActC2 : actegory Mon_V C2)
+    (ActD1 : actegory Mon_V D1) (ActD2 : actegory Mon_V D2)
+    {F1 : functor C1 D1} {F2 : functor C2 D2 }
+    (Fll1 : lineator_lax Mon_V ActC1 ActD1 F1) (Fll2 : lineator_lax Mon_V ActC2 ActD2 F2).
+
+  Let ActC12 : actegory Mon_V (category_binproduct C1 C2) := actegory_binprod ActC1 ActC2.
+  Let ActD12 : actegory Mon_V (category_binproduct D1 D2) := actegory_binprod ActD1 ActD2.
+
+  Definition actegory_pair_functor_lineator_data :
+    lineator_data Mon_V ActC12 ActD12 (pair_functor F1 F2).
+  Proof.
+    intros v c12. cbn. unfold precategory_binproduct_mor. cbn.
+    exact (catbinprodmor (Fll1 v (pr1 c12)) (Fll2 v (pr2 c12))).
+  Defined.
+
+  Lemma actegory_pair_functor_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_pair_functor_lineator_data.
+  Proof.
+    red; repeat split; red; intros.
+    - cbn. apply maponpaths_12; apply lineator_linnatleft.
+    - cbn. apply maponpaths_12; apply lineator_linnatright.
+    - cbn. apply maponpaths_12; apply lineator_preservesactor.
+    - cbn. apply maponpaths_12; apply lineator_preservesunitor.
+  Qed.
+
+  Definition actegory_pair_functor_lineator :
+    lineator_lax Mon_V ActC12 ActD12 (pair_functor F1 F2) :=
+    _,,actegory_pair_functor_lineator_lax_laws.
+
+End TwoProducts.
 
 End BinaryProduct.
 
@@ -166,7 +303,7 @@ Definition actegory_prod_action_data : bifunctor_data V PC PC.
 
   Definition actegory_prod : actegory Mon_V PC := _,,actegory_prod_laws.
 
-  (* TODO: projections are linear *)
+  (* TODO: projections, delta_functor and family_functor are linear *)
 
 End Product.
 
