@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 
 Local Open Scope cat.
 
@@ -197,3 +198,47 @@ Section ArrowTwoSidedDispCat.
       apply arrow_twosided_disp_cat_is_iso.
   Defined.
 End ArrowTwoSidedDispCat.
+
+Section ArrowTwoSidedDispCatFunctor.
+  Context {C : category}
+          (D : discrete_twosided_fibration C C)
+          (idD : ∏ (x : C), D x x)
+          (f_idD : ∏ (x₁ x₂ : C) (f : x₁ --> x₂), idD x₁ -->[ f ][ f ] idD x₂).
+
+  Definition arrow_to_discrete_twosided_fibration_data
+    : twosided_disp_functor_data
+        (functor_identity C) (functor_identity C)
+        (arrow_twosided_disp_cat C) D.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x y f, discrete_twosided_cleaving_ob _ (pr122 D) (idD y) f).
+    - cbn ; intros x₁ x₂ y₁ y₂ g₁ g₂ f₁ f₂ p.
+      use discrete_twosided_cleaving_cartesian.
+      refine (transportb
+                (λ z, _ -->[ z ][ _ ] _)
+                p
+                (transportb
+                   (λ z, _ -->[ _ ][ z ] _)
+                   (id_right _ @ !(id_left _))
+                   (discrete_twosided_cleaving_mor (pr1 D) (pr122 D) (idD y₁) g₁ ;;2 _))).
+      apply f_idD.
+  Defined.
+
+  Definition arrow_to_discrete_twosided_fibration_laws
+    : twosided_disp_functor_laws
+        _ _ _ _
+        arrow_to_discrete_twosided_fibration_data.
+  Proof.
+    split ; intro ; intros ; apply D.
+  Qed.
+
+  Definition arrow_to_discrete_twosided_fibration
+    : twosided_disp_functor
+        (functor_identity C) (functor_identity C)
+        (arrow_twosided_disp_cat C) D.
+  Proof.
+    simple refine (_ ,, _).
+    - exact arrow_to_discrete_twosided_fibration_data.
+    - exact arrow_to_discrete_twosided_fibration_laws.
+  Defined.
+End ArrowTwoSidedDispCatFunctor.
