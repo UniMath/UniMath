@@ -22,6 +22,7 @@ Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 
 Local Open Scope cat.
 
@@ -201,6 +202,22 @@ Definition precategory_morphisms_in_subcat {C : category} {C':sub_precategories 
    {a b : ob C'}(f : pr1 a --> pr1 b)
    (p : sub_precategory_predicate_morphisms C' (pr1 a) (pr1 b) (f)) :
        precategory_morphisms (C:=C') a b := tpair _ f p.
+
+(** A (z-)isomorphism of a subprecategory is also a (z-)isomorphism of the original precategory. *)
+Lemma is_z_iso_from_is_z_iso_in_subcategory (C:category) (C':sub_precategories C)
+  (a b : C') (f : C'⟦ a , b ⟧)
+  (H: is_z_isomorphism f)
+  : is_z_isomorphism 
+    (precategory_morphism_from_sub_precategory_morphism _ _ _ _ f).
+Proof.
+  induction H as (g,(gl,gr)).
+  induction g as (g_und,?).
+  use make_is_z_isomorphism.
+  + exact g_und.
+  + split.
+    - exact (maponpaths pr1 gl).
+    - exact (maponpaths pr1 gr).
+Defined.
 
 (** *** (Inclusion) functor from a sub-precategory to the ambient precategory *)
 

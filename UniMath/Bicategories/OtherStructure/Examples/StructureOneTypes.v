@@ -601,12 +601,19 @@ Proof.
        unfold homotfun ;
        use funextsec ;
        intro yx ;
-       rewrite one_types_pair_2cell ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (@one_types_pair_2cell
+                  Y₁ X (HLevel_fun X Y₂) X
+                  f g (idfun X) (idfun X)
+                  (app_homot p) (homotrefl _)
+                  (pr1 yx) (pr2 yx))
+       | ] ;
        rewrite maponpaths_app_fun ;
        etrans ;
        [ do 2 apply maponpaths ;
          apply maponpaths_pr2_pathsdirprod
-      | ] ;
+       | ] ;
        etrans ;
        [ apply maponpaths_2 ;
          apply maponpaths ;

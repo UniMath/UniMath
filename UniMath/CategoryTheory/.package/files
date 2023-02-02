@@ -21,13 +21,13 @@ DisplayedCats/Total.v
 DisplayedCats/Fiber.v
 
 categories/CategoryOfSetCategories.v
-categories/HSET/Core.v
 opp_precat.v
 OppositeCategory/Core.v
 Groupoids.v
 ZigZag.v
 ProductCategory.v
 PrecategoryBinProduct.v
+categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
@@ -95,7 +95,6 @@ IsoCommaCategory.v
 limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 
-SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
 EpiFacts.v
@@ -112,6 +111,7 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
 rezk_completion.v
+RezkCompletion.v
 UnitorsAndAssociatorsForEndofunctors.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -135,6 +135,7 @@ AdditiveFunctors.v
 LocalizingClass.v
 UnderCategories.v
 Subobjects.v
+SubobjectClassifier.v
 Quotobjects.v
 AbelianPushoutPullback.v
 PseudoElements.v
@@ -194,7 +195,6 @@ YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
 
 Connected.v
-LeftKanExtension.v
 
 categories/CartesianCubicalSets.v
 
@@ -347,3 +347,6 @@ Monoidal/RezkCompletion/LiftedUnitors.v
 Monoidal/RezkCompletion/LiftedAssociator.v
 Monoidal/RezkCompletion/LiftedMonoidal.v
 Monoidal/RezkCompletion/MonoidalRezkCompletion.v
+
+PowerObject.v
+ElementaryTopos.v
