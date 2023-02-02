@@ -31,6 +31,7 @@ Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ProductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ProductActegory.
@@ -673,16 +674,17 @@ Section CompositionOfLiftedDistributivities.
 
 End CompositionOfLiftedDistributivities.
 
-
 End LiftedDistributivity.
 
+Section PointwiseOperationsOnLinearFunctors.
+
+  Context {V : category} (Mon_V : monoidal V)
+    {C D : category}
+    (ActC : actegory Mon_V C) (ActD : actegory Mon_V D).
 
 Section PointwiseBinaryOperationsOnLinearFunctors.
 
-  Context  {V : category} (Mon_V : monoidal V)
-    {C D : category}
-    (ActC : actegory Mon_V C) (ActD : actegory Mon_V D)
-    {F1 F2 : functor C D}
+  Context {F1 F2 : functor C D}
     (ll1 : lineator_lax Mon_V ActC ActD F1)
     (ll2 : lineator_lax Mon_V ActC ActD F2).
 
@@ -907,11 +909,127 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
       apply maponpaths_12; apply lineator_preservesunitor.
   Qed.
 
-  Definition lineator_bincoprod: lineator_lax Mon_V ActC ActD FF :=
+  Definition lax_lineator_bincoprod: lineator_lax Mon_V ActC ActD FF :=
     lineator_data_bincoprod,,lineator_laxlaws_bincoprod.
 
 End PointwiseBinaryCoproductOfLinearFunctors.
 
 End PointwiseBinaryOperationsOnLinearFunctors.
 
-(* TODO: same with arbitrary sums *)
+Section PointwiseCoproductOfLinearFunctors.
+
+  Context {I : UU} {F : I -> functor C D}
+    (ll : ∏ (i: I), lineator_lax Mon_V ActC ActD (F i))
+    (CD : Coproducts I D) (δ : coprod_distributor Mon_V CD ActD).
+
+  Let FF : functor C D := coproduct_of_functors _ _ _ CD F.
+  Let FF' : functor C D := coproduct_of_functors_alt_old _ CD F.
+
+  Definition lax_lineator_coprod_aux : lineator_lax Mon_V ActC ActD FF'.
+  Proof.
+    use comp_lineator_lax.
+    - apply actegory_power; assumption.
+    - apply actegory_prod_delta_lineator.
+    - use comp_lineator_lax.
+      + apply actegory_power; assumption.
+      + apply actegory_family_functor_lineator; assumption.
+      + apply (coprod_functor_lineator Mon_V CD ActD δ).
+  Defined.
+
+  Definition lax_lineator_coprod_indirect : lineator_lax Mon_V ActC ActD FF.
+  Proof.
+    unfold FF.
+    rewrite <- coproduct_of_functors_alt_old_eq_coproduct_of_functors.
+    apply lax_lineator_coprod_aux.
+  Defined.
+
+  Lemma lax_lineator_coprod_data_ok (v : V) (c : C) : lax_lineator_coprod_indirect v c =
+    δ v (fun i => F i c) · (CoproductOfArrows I _ (CD _) (CD _) (fun i => ll i v c)).
+  Proof.
+    unfold lax_lineator_coprod_indirect.
+  Abort.
+  (* how could one use the equality proof? *)
+
+  (** now an alternative concrete construction *)
+  Definition lineator_data_coprod: lineator_data Mon_V ActC ActD FF.
+  Proof.
+    intros v c.
+    exact (δ v (fun i => F i c) · (CoproductOfArrows I _ (CD _) (CD _) (fun i => ll i v c))).
+  Defined.
+
+  Let δll := coprod_functor_lineator Mon_V CD ActD δ.
+
+  Lemma lineator_laxlaws_coprod
+    : lineator_laxlaws Mon_V ActC ActD FF lineator_data_coprod.
+  Proof.
+    repeat split; red; intros; unfold lineator_data_coprod.
+    - etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply (lineator_linnatleft _ _ _ _ δll v). }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply CoproductOfArrows_comp. }
+      etrans.
+      2: { apply pathsinv0, CoproductOfArrows_comp. }
+      apply maponpaths, funextsec; intro i; apply lineator_linnatleft.
+    - etrans.
+      { repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply (lineator_linnatright _ _ _ _ δll v1 v2 _ f). }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply CoproductOfArrows_comp. }
+      etrans.
+      2: { apply pathsinv0, CoproductOfArrows_comp. }
+      apply maponpaths, funextsec; intro i; apply lineator_linnatright.
+    - etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        etrans.
+        { apply CoproductOfArrows_comp. }
+        apply maponpaths, funextsec; intro i; apply lineator_preservesactor.
+      }
+      etrans.
+      { apply maponpaths.
+        repeat rewrite assoc'.
+        apply pathsinv0, CoproductOfArrows_comp. }
+      etrans.
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        admit.
+        (* apply (lineator_preservesactor _ _ _ _ δll v w (_,,_)). *)
+}
+      (* etrans.
+      2: { apply cancel_postcomposition.
+           apply maponpaths.
+           apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)). }
+      repeat rewrite assoc'.
+      do 2 apply maponpaths.
+      repeat rewrite assoc.
+      etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, (lineator_linnatleft _ _ _ _ δll v (_,,_) (_,,_) (_,,_)). }
+      rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      2: { apply pathsinv0, CoproductOfArrows_comp. }
+      apply idpath. *)admit.
+    - etrans.
+      2: { apply (lineator_preservesunitor _ _ _ _ δll). }
+      rewrite assoc'.
+      apply maponpaths.
+      etrans.
+      { apply CoproductOfArrows_comp. }
+      cbn.
+      apply maponpaths, funextsec; intro i; apply lineator_preservesunitor.
+  Admitted.
+
+  Definition lax_lineator_coprod: lineator_lax Mon_V ActC ActD FF :=
+    lineator_data_coprod,,lineator_laxlaws_coprod.
+
+End PointwiseCoproductOfLinearFunctors.
+
+End PointwiseOperationsOnLinearFunctors.
