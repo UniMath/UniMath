@@ -1,3 +1,24 @@
+(*****************************************************************
+
+ The bicategory of univalent enriched categories
+
+ We construct the bicategory of univalent enriched categories and
+ we prove that this bicategory is univalent. Note that in order to
+ prove the univalence, we need to assume that the involved
+ monoidal category is univalent as well.
+
+ To define this bicategory, we use displayed bicategories. The
+ base bicategory is the bicategory of univalent categories. Note
+ that we cannot split this displayed bicategory into smaller
+ parts. That is because to define natural transformations, we
+ need to use composition of enriched categories.
+
+ Contents
+ 1. The displayed bicategory
+ 2. Local univalence
+ 3. Global univalence
+
+ *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -9,10 +30,13 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Enriched.Enrichment.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -25,9 +49,12 @@ Local Open Scope moncat.
 
 Opaque mon_linvunitor mon_rinvunitor.
 
-Section EnrichedMors.
+Section EnrichedCats.
   Context (V : monoidal_cat).
 
+  (**
+   1. The displayed bicategory
+   *)
   Definition disp_cat_ob_mor_of_enriched_cats
     : disp_cat_ob_mor bicat_of_univ_cats.
   Proof.
@@ -121,21 +148,9 @@ Section EnrichedMors.
     apply isaprop_nat_trans_enrichment.
   Qed.
 
-  Definition disp_locally_sym_enriched_cats
-    : disp_locally_sym disp_bicat_of_enriched_cats.
-  Proof.
-    intros C₁ C₂ F G τ E₁ E₂ FE GE τE x y ; cbn in *.
-    pose ( p := τE x y).
-  Admitted.
-
-  Definition disp_locally_groupoid_enriched_cats
-    : disp_locally_groupoid disp_bicat_of_enriched_cats.
-  Proof.
-    use make_disp_locally_groupoid.
-    - exact disp_locally_sym_enriched_cats.
-    - exact disp_2cell_isapprop_enriched_cats.
-  Defined.
-
+  (**
+   2. Local univalence
+   *)
   Definition disp_univalent_2_1_enriched_cats
     : disp_univalent_2_1 disp_bicat_of_enriched_cats.
   Proof.
@@ -200,3 +215,681 @@ Section EnrichedMors.
       + intros.
         apply isaprop_nat_trans_enrichment.
   Qed.
+
+  (**
+   3. Global univalence
+   *)
+  Section DispAdjointEquivalence.
+    Context {C : bicat_of_univ_cats}
+            (E₁ E₂ : disp_bicat_of_enriched_cats C).
+
+    Definition make_disp_adjequiv_enriched
+               (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+               (F₂ : functor_enrichment (functor_identity _) E₂ E₁)
+               (η : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₁)
+                      (functor_comp_enrichment F₁ F₂))
+               (ηinv : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₁ F₂)
+                      (functor_id_enrichment E₁))
+               (ε : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₂ F₁)
+                      (functor_id_enrichment E₂))
+               (εinv : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₂)
+                      (functor_comp_enrichment F₂ F₁))
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity C)
+          E₁ E₂.
+    Proof.
+      simple refine (F₁ ,, (F₂ ,, (η ,, ε)) ,, (_ ,, _)).
+      - abstract
+          (split ; apply disp_2cell_isapprop_enriched_cats).
+      - split.
+        + refine (ηinv ,, _ ,,  _) ; apply disp_2cell_isapprop_enriched_cats.
+        + refine (εinv ,, _ ,,  _) ; apply disp_2cell_isapprop_enriched_cats.
+    Defined.
+
+    Definition from_disp_adjequiv_enriched
+               (F : disp_adjoint_equivalence
+                      (internal_adjoint_equivalence_identity C)
+                      E₁ E₂)
+      : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+          (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_id_enrichment E₁)
+           (functor_comp_enrichment F₁ F₂))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_comp_enrichment F₂ F₁)
+           (functor_id_enrichment E₂))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_comp_enrichment F₁ F₂)
+           (functor_id_enrichment E₁))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_id_enrichment E₂)
+           (functor_comp_enrichment F₂ F₁)).
+    Proof.
+      simple refine (_ ,, _ ,, _ ,, _ ,, _ ,, _).
+      - exact (pr1 F).
+      - exact (pr112 F).
+      - exact (pr1 (pr212 F)).
+      - exact (pr2 (pr212 F)).
+      - exact (pr11 (pr222 F)).
+      - exact (pr12 (pr222 F)).
+    Defined.
+
+    Definition weq_disp_adjequiv_enriched
+      : (∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+           (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_id_enrichment E₁)
+            (functor_comp_enrichment F₁ F₂))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_comp_enrichment F₂ F₁)
+            (functor_id_enrichment E₂))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_comp_enrichment F₁ F₂)
+            (functor_id_enrichment E₁))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_id_enrichment E₂)
+            (functor_comp_enrichment F₂ F₁)))
+        ≃
+        disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity C)
+          E₁ E₂.
+    Proof.
+      use weq_iso.
+      - exact (λ F,
+               make_disp_adjequiv_enriched
+                 (pr1 F)
+                 (pr12 F) (pr122 F)
+                 (pr12 (pr222 F))
+                 (pr1 (pr222 F))
+                 (pr22 (pr222 F))).
+      - exact from_disp_adjequiv_enriched.
+      - intros F.
+        apply idpath.
+      - abstract
+          (intro F ;
+           refine (maponpaths (λ z, _ ,, z) _) ;
+           refine (maponpaths (λ z, _ ,, z) _) ;
+           repeat (apply isapropdirprod) ;
+           try (apply isaprop_is_disp_invertible_2cell) ;
+           apply disp_bicat_of_enriched_cats).
+    Defined.
+  End DispAdjointEquivalence.
+
+  Section FromEnrichmentPath.
+    Context {C : bicat_of_univ_cats}
+            {E₁ E₂ : disp_bicat_of_enriched_cats C}
+            (F : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂)).
+
+    Definition from_enrichment_path_functor_data
+      : functor_enrichment_data (functor_identity _) E₁ E₂
+      := λ x y, pr1 F x y.
+
+    Definition from_enrichment_path_functor_is_functor
+      : is_functor_enrichment from_enrichment_path_functor_data.
+    Proof.
+      repeat split.
+      - intro x.
+        exact (pr12 F x).
+      - intros x y z.
+        exact (pr122 F x y z).
+      - intros x y f.
+        exact (!(pr1 (pr222 F) x y f)).
+    Qed.
+
+    Definition from_enrichment_path_functor
+      : functor_enrichment (functor_identity _) E₁ E₂
+      := from_enrichment_path_functor_data
+         ,,
+         from_enrichment_path_functor_is_functor.
+
+    Definition from_enrichment_path_functor_inv_data
+      : functor_enrichment_data (functor_identity _) E₂ E₁
+      := λ x y, inv_from_z_iso (pr1 F x y).
+
+    Definition from_enrichment_path_functor_inv_is_functor
+      : is_functor_enrichment from_enrichment_path_functor_inv_data.
+    Proof.
+      repeat split.
+      - intros x.
+        cbn ; unfold from_enrichment_path_functor_inv_data.
+        refine (!_).
+        use z_iso_inv_on_left.
+        refine (!_).
+        exact (pr12 F x).
+      - intros x y z.
+        cbn ; unfold from_enrichment_path_functor_inv_data.
+        refine (!_).
+        use z_iso_inv_on_left.
+        rewrite !assoc'.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths.
+          exact (pr122 F x y z).
+        }
+        rewrite !assoc.
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (!_).
+          apply tensor_comp_mor.
+        }
+        rewrite !z_iso_after_z_iso_inv.
+        rewrite tensor_id_id.
+        apply id_left.
+      - intros x y f.
+        cbn ; unfold from_enrichment_path_functor_inv_data.
+        use z_iso_inv_on_left.
+        refine (!_).
+        exact (pr1 (pr222 F) x y f).
+    Qed.
+
+    Definition from_enrichment_path_functor_inv
+      : functor_enrichment (functor_identity _) E₂ E₁
+      := from_enrichment_path_functor_inv_data
+         ,,
+         from_enrichment_path_functor_inv_is_functor.
+
+    Definition from_enrichment_path_unit
+      : nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_id_enrichment E₁)
+          (functor_comp_enrichment
+             from_enrichment_path_functor
+             from_enrichment_path_functor_inv).
+    Proof.
+      intros x y.
+      cbn.
+      unfold functor_comp_enrichment_data.
+      cbn.
+      unfold from_enrichment_path_functor_data.
+      unfold functor_id_enrichment_data.
+      unfold from_enrichment_path_functor_inv_data.
+      rewrite !z_iso_inv_after_z_iso.
+      rewrite !enriched_from_arr_id.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      etrans.
+      {
+        apply mon_rinvunitor_runitor.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      apply mon_linvunitor_lunitor.
+    Qed.
+
+    Definition from_enrichment_path_unit_inv
+      : nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_comp_enrichment
+             from_enrichment_path_functor
+             from_enrichment_path_functor_inv)
+          (functor_id_enrichment E₁).
+    Proof.
+      intros x y.
+      cbn.
+      unfold functor_comp_enrichment_data.
+      cbn.
+      unfold from_enrichment_path_functor_data.
+      unfold functor_id_enrichment_data.
+      unfold from_enrichment_path_functor_inv_data.
+      rewrite !z_iso_inv_after_z_iso.
+      rewrite !enriched_from_arr_id.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      etrans.
+      {
+        apply mon_rinvunitor_runitor.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      apply mon_linvunitor_lunitor.
+    Qed.
+
+    Definition from_enrichment_path_counit
+      : nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment
+             from_enrichment_path_functor_inv
+             from_enrichment_path_functor)
+          (functor_id_enrichment E₂).
+    Proof.
+      intros x y.
+      cbn.
+      unfold functor_comp_enrichment_data.
+      cbn.
+      unfold from_enrichment_path_functor_data.
+      unfold functor_id_enrichment_data.
+      unfold from_enrichment_path_functor_inv_data.
+      rewrite !enriched_from_arr_id.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      etrans.
+      {
+        apply mon_rinvunitor_runitor.
+      }
+      refine (!_).
+      rewrite z_iso_after_z_iso_inv.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      apply mon_linvunitor_lunitor.
+    Qed.
+
+    Definition from_enrichment_path_counit_inv
+      : nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_id_enrichment E₂)
+          (functor_comp_enrichment
+             from_enrichment_path_functor_inv
+             from_enrichment_path_functor).
+    Proof.
+      intros x y.
+      cbn.
+      unfold functor_comp_enrichment_data.
+      cbn.
+      unfold from_enrichment_path_functor_data.
+      unfold functor_id_enrichment_data.
+      unfold from_enrichment_path_functor_inv_data.
+      rewrite !enriched_from_arr_id.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      etrans.
+      {
+        apply mon_linvunitor_lunitor.
+      }
+      refine (!_).
+      rewrite z_iso_after_z_iso_inv.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      apply mon_rinvunitor_runitor.
+    Qed.
+
+    Definition from_enrichment_path
+      : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+          (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+        nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_id_enrichment E₁)
+          (functor_comp_enrichment F₁ F₂)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment F₂ F₁)
+          (functor_id_enrichment E₂)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment F₁ F₂)
+          (functor_id_enrichment E₁)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_id_enrichment E₂)
+          (functor_comp_enrichment F₂ F₁)
+      := from_enrichment_path_functor
+         ,,
+         from_enrichment_path_functor_inv
+         ,,
+         from_enrichment_path_unit
+         ,,
+         from_enrichment_path_counit
+         ,,
+         from_enrichment_path_unit_inv
+         ,,
+         from_enrichment_path_counit_inv.
+  End FromEnrichmentPath.
+
+  Section ToEnrichmentPath.
+    Context {C : bicat_of_univ_cats}
+            {E₁ E₂ : disp_bicat_of_enriched_cats C}
+            (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+            (F₂ : functor_enrichment (functor_identity _) E₂ E₁)
+            (η : nat_trans_enrichment
+                   (nat_trans_id (functor_identity _))
+                   (functor_id_enrichment E₁)
+                   (functor_comp_enrichment F₁ F₂))
+            (ε : nat_trans_enrichment
+                   (nat_trans_id _)
+                   (functor_comp_enrichment F₂ F₁)
+                   (functor_id_enrichment E₂)).
+
+    Definition to_enrichment_path_inv_left
+               (x y : (C : univalent_category))
+      : pr1 F₁ x y · pr1 F₂ x y = identity _.
+    Proof.
+      pose (p := η x y).
+      cbn in p.
+      unfold functor_comp_enrichment_data in p.
+      unfold functor_id_enrichment_data in p.
+      cbn in p.
+      rewrite !enriched_from_arr_id in p.
+      rewrite !assoc' in p.
+      assert (mon_rinvunitor _
+              · ((F₁ x y · F₂ x y) #⊗ enriched_id _ x
+              · enriched_comp _ x x y)
+              =
+              identity _)
+        as p'.
+      {
+        refine (p @ _).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply enrichment_id_left.
+        }
+        apply mon_linvunitor_lunitor.
+      }
+      refine (_ @ p').
+      rewrite tensor_comp_r_id_l.
+      rewrite !assoc.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        refine (!_).
+        apply tensor_rinvunitor.
+      }
+      rewrite !assoc' ; cbn.
+      apply maponpaths.
+      rewrite tensor_split'.
+      rewrite !assoc.
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        refine (!_).
+        apply tensor_rinvunitor.
+      }
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      apply mon_rinvunitor_runitor.
+    Qed.
+
+    Definition to_enrichment_path_inv_right
+               (x y : (C : univalent_category))
+      : pr1 F₂ x y · pr1 F₁ x y = identity _.
+    Proof.
+      pose (p := ε x y).
+      cbn in p.
+      unfold functor_comp_enrichment_data in p.
+      unfold functor_id_enrichment_data in p.
+      cbn in p.
+      rewrite !enriched_from_arr_id in p.
+      rewrite !assoc' in p.
+      assert (mon_linvunitor _
+              · (enriched_id _ y #⊗ (F₂ x y · F₁ x y)
+              · enriched_comp _ x y y)
+              =
+              identity _)
+        as p'.
+      {
+        refine (!p @ _).
+        etrans.
+        {
+          apply maponpaths.
+          refine (!_).
+          apply enrichment_id_right.
+        }
+        apply mon_rinvunitor_runitor.
+      }
+      refine (_ @ p').
+      rewrite tensor_comp_l_id_l.
+      rewrite !assoc.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        refine (!_).
+        apply tensor_linvunitor.
+      }
+      rewrite !assoc' ; cbn.
+      apply maponpaths.
+      rewrite tensor_split.
+      rewrite !assoc.
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        refine (!_).
+        apply tensor_linvunitor.
+      }
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      apply mon_linvunitor_lunitor.
+    Qed.
+
+    Definition to_enrichment_path
+      : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂).
+    Proof.
+      simple refine (_ ,, _ ,, _ ,, _ ,, _).
+      - refine (λ x y, _).
+        use make_z_iso.
+        + exact (pr1 F₁ x y).
+        + exact (pr1 F₂ x y).
+        + split.
+          * exact (to_enrichment_path_inv_left x y).
+          * exact (to_enrichment_path_inv_right x y).
+      - abstract
+          (intros x ; cbn ;
+           exact (pr12 F₁ x)).
+      - abstract
+          (intros x y z ; cbn ;
+           exact (pr122 F₁ x y z)).
+      - abstract
+          (intros x y f ; cbn ;
+           exact (!(pr222 F₁ x y f))).
+      - abstract
+          (intros x y f ; cbn ;
+           use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E₂ x y))) ;
+           cbn ;
+           rewrite !(enriched_from_to_arr E₂) ;
+           refine (pr222 F₁ x y (enriched_to_arr (pr1 E₁) f) @ _) ;
+           apply maponpaths_2 ;
+           rewrite !(enriched_from_to_arr E₁) ;
+           apply idpath).
+    Defined.
+  End ToEnrichmentPath.
+
+  Definition disp_univalent_2_0_enriched_cats_help_path
+             {C : bicat_of_univ_cats}
+             {E₁ E₂ : disp_bicat_of_enriched_cats C}
+             (F G : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+                      (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+                    nat_trans_enrichment
+                      (nat_trans_id (functor_identity _))
+                      (functor_id_enrichment E₁)
+                      (functor_comp_enrichment F₁ F₂)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₂ F₁)
+                      (functor_id_enrichment E₂)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₁ F₂)
+                      (functor_id_enrichment E₁)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₂)
+                      (functor_comp_enrichment F₂ F₁))
+             (p : pr11 F = pr11 G)
+             (q : pr112 F = pr112 G)
+    : F = G.
+  Proof.
+    induction F as [ F₁ F₂ ].
+    induction F₁ as [ F₁ HF₁ ].
+    induction F₂ as [ F₂ R ].
+    induction F₂ as [ F₂ HF₂ ].
+    induction G as [ G₁ G₂ ].
+    induction G₁ as [ G₁ HG₁ ].
+    induction G₂ as [ G₂ Q ].
+    induction G₂ as [ G₂ HG₂ ].
+    cbn in *.
+    induction p.
+    induction q.
+    assert (p : HF₁ = HG₁).
+    {
+      apply isaprop_is_functor_enrichment.
+    }
+    induction p.
+    apply maponpaths.
+    assert (p : HF₂ = HG₂).
+    {
+      apply isaprop_is_functor_enrichment.
+    }
+    induction p.
+    apply maponpaths.
+    repeat (apply isapropdirprod) ; apply isaprop_nat_trans_enrichment.
+  Qed.
+
+  Definition disp_univalent_2_0_enriched_cats_help
+             {C : bicat_of_univ_cats}
+             (E₁ E₂ : disp_bicat_of_enriched_cats C)
+    : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂)
+      ≃
+      (∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+         (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+       nat_trans_enrichment
+         (nat_trans_id (functor_identity _))
+         (functor_id_enrichment E₁)
+         (functor_comp_enrichment F₁ F₂)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_comp_enrichment F₂ F₁)
+         (functor_id_enrichment E₂)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_comp_enrichment F₁ F₂)
+         (functor_id_enrichment E₁)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_id_enrichment E₂)
+         (functor_comp_enrichment F₂ F₁)).
+  Proof.
+    use weq_iso.
+    - exact from_enrichment_path.
+    - exact (λ F, to_enrichment_path (pr1 F) (pr12 F) (pr122 F) (pr1 (pr222 F))).
+    - abstract
+        (intros F ;
+         use subtypePath ;
+         [ intro ;
+           repeat (apply isapropdirprod) ;
+           repeat (use impred ; intro) ;
+           apply homset_property
+         | ] ;
+         use funextsec ; intro x ;
+         use funextsec ; intro y ;
+         use z_iso_eq ;
+         apply idpath).
+    - abstract
+        (intros F ;
+         use disp_univalent_2_0_enriched_cats_help_path ;
+         apply idpath).
+  Defined.
+
+  Definition disp_univalent_2_0_enriched_cats
+             (HV : is_univalent V)
+    : disp_univalent_2_0 disp_bicat_of_enriched_cats.
+  Proof.
+    intros C₁ C₂ p E₁ E₂.
+    induction p.
+    use weqhomot.
+    - exact (weq_disp_adjequiv_enriched _ _
+             ∘ disp_univalent_2_0_enriched_cats_help E₁ E₂
+             ∘ enrichment_data_hom_path HV _ _
+             ∘ total2_paths_equiv _ _ _
+             ∘ path_sigma_hprop _ _ _ (isaprop_enrichment_laws _))%weq.
+    - abstract
+        (intro p ;
+         cbn in p ;
+         induction p ;
+         use subtypePath ;
+         [ intro ;
+           apply isaprop_disp_left_adjoint_equivalence ;
+           [ apply univalent_cat_is_univalent_2_1 | ] ;
+           exact disp_univalent_2_1_enriched_cats
+         | ] ;
+         use subtypePath ;
+         [ intro ; apply isaprop_is_functor_enrichment | ] ;
+         apply idpath).
+  Defined.
+End EnrichedCats.

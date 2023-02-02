@@ -8,21 +8,37 @@
  properties, whereas the standard definition of enriched category
  does not do so.
 
+ There are a couple of reasons for this choice:
+ - It will help use prove the univalence of the bicategory of
+   univalent enriched categories. That is because in the whole
+   prove, we don't have to prove equality of the type of objects.
+ - If we would use the usual definition of enriched categories,
+   then in order to access the morphisms, we would first need to
+   take the underlying category. With this definition, we can use
+   a coercion instead.
+
+ The examples of natural transformations that we considered, are
+ precisely those that are needed to construct the bicategory of
+ enriched categories.
+
  Contents
  1. Enrichments of categories
  2. Functors with enrichments
  3. Examples of functors with enrichments
  4. Natural transformations with enrichments
  5. Examples of natural transformations with enrichments
+ 6. Equality of enrichments
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Opaque mon_lunitor mon_linvunitor.
@@ -39,9 +55,11 @@ Definition enrichment_data
            (C : precategory_data)
            (V : monoidal_cat)
   : UU
-  := ∑ (arr : C → C → V)
-       (eI : ∏ (x : C), 𝟙 --> arr x x)
-       (eC : ∏ (x y z : C), arr y z ⊗ arr x y --> arr x z),
+  := ∑ (arr : C → C → V),
+     (∏ (x : C), 𝟙 --> arr x x)
+     ×
+     (∏ (x y z : C), arr y z ⊗ arr x y --> arr x z)
+     ×
      (∏ (x y : C), x --> y → 𝟙 --> arr x y)
      ×
      (∏ (x y : C), 𝟙 --> arr x y → x --> y).
@@ -288,6 +306,25 @@ Section EnrichmentLaws.
     apply maponpaths.
     apply enriched_to_arr_comp.
   Qed.
+
+  Definition isweq_enriched_from_arr
+             (x y : C)
+    : isweq (@enriched_from_arr _ _ E x y).
+  Proof.
+    use isweq_iso.
+    - exact (enriched_to_arr E).
+    - intro f.
+      apply enriched_to_from_arr.
+    - intro f.
+      apply enriched_from_to_arr.
+  Defined.
+
+  Definition isweq_enriched_to_arr
+             (x y : C)
+    : isweq (@enriched_to_arr _ _ E x y).
+  Proof.
+    exact (pr2 (invweq (_ ,, isweq_enriched_from_arr x y))).
+  Defined.
 End EnrichmentLaws.
 
 Definition cat_with_enrichment
@@ -733,7 +770,54 @@ Definition linvunitor_enrichment
       FE
       (functor_comp_enrichment (functor_id_enrichment _) FE).
 Proof.
-Admitted.
+  intros x y ; cbn.
+  unfold functor_comp_enrichment_data, functor_id_enrichment, functor_id_enrichment_data.
+  cbn.
+  rewrite !enriched_from_arr_id.
+  rewrite <- !(functor_enrichment_id FE).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply maponpaths.
+    apply tensor_comp_mor.
+  }
+  rewrite !assoc'.
+  rewrite <- functor_enrichment_comp.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_right.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply mon_rinvunitor_runitor.
+  }
+  refine (id_left _ @ _).
+  refine (!_).
+  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
+  rewrite !assoc'.
+  rewrite <- functor_enrichment_comp.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_left.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply mon_linvunitor_lunitor.
+  }
+  apply id_left.
+Qed.
 
 Definition runitor_enrichment
            {V : monoidal_cat}
@@ -784,7 +868,30 @@ Definition rinvunitor_enrichment
       FE
       (functor_comp_enrichment FE (functor_id_enrichment _)).
 Proof.
-Admitted.
+  intros x y ; cbn.
+  unfold functor_comp_enrichment_data, functor_id_enrichment, functor_id_enrichment_data.
+  cbn.
+  rewrite !enriched_from_arr_id.
+  rewrite <- !(functor_enrichment_id FE).
+  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
+  rewrite !assoc'.
+  rewrite <- functor_enrichment_comp.
+  rewrite id_right.
+  rewrite (tensor_comp_l_id_l (FE x y)).
+  rewrite !assoc'.
+  rewrite <- functor_enrichment_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  rewrite <- enrichment_id_left.
+  rewrite <- enrichment_id_right.
+  etrans.
+  {
+    apply mon_rinvunitor_runitor.
+  }
+  refine (!_).
+  apply mon_linvunitor_lunitor.
+Qed.
 
 Definition lassociator_enrichment
            {V : monoidal_cat}
@@ -811,7 +918,98 @@ Proof.
   rewrite <- !(functor_enrichment_id HE).
   rewrite <- !(functor_enrichment_id GE).
   rewrite <- !(functor_enrichment_id FE).
-Admitted.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite !assoc.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    apply tensor_comp_l_id_l.
+  }
+  rewrite !assoc'.
+  rewrite <- (functor_enrichment_comp HE).
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc.
+        rewrite <- (functor_enrichment_comp GE).
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- (functor_enrichment_comp FE).
+      apply idpath.
+    }
+    rewrite !assoc.
+    do 3 apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_right.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_rinvunitor_runitor.
+    }
+    apply id_left.
+  }
+  refine (!_).
+  etrans.
+  {
+    rewrite !assoc'.
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite !assoc.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    apply tensor_comp_r_id_l.
+  }
+  rewrite !assoc'.
+  rewrite <- (functor_enrichment_comp HE).
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc.
+        rewrite <- (functor_enrichment_comp GE).
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- (functor_enrichment_comp FE).
+      apply idpath.
+    }
+    rewrite !assoc.
+    do 3 apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_left.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    do 3 apply maponpaths_2.
+    apply mon_linvunitor_lunitor.
+  }
+  rewrite id_left.
+  apply idpath.
+Qed.
 
 Definition rassociator_enrichment
            {V : monoidal_cat}
@@ -831,7 +1029,105 @@ Definition rassociator_enrichment
       (functor_comp_enrichment FE (functor_comp_enrichment GE HE))
       (functor_comp_enrichment (functor_comp_enrichment FE GE) HE).
 Proof.
-Admitted.
+  intros x y ; cbn.
+  unfold functor_comp_enrichment, functor_comp_enrichment_data ; cbn.
+  rewrite !enriched_from_arr_id.
+  rewrite !assoc'.
+  rewrite <- !(functor_enrichment_id HE).
+  rewrite <- !(functor_enrichment_id GE).
+  rewrite <- !(functor_enrichment_id FE).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite !assoc.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    apply tensor_comp_l_id_l.
+  }
+  rewrite !assoc'.
+  rewrite <- (functor_enrichment_comp HE).
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc.
+        rewrite <- (functor_enrichment_comp GE).
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- (functor_enrichment_comp FE).
+      apply idpath.
+    }
+    rewrite !assoc.
+    do 3 apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_right.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_rinvunitor_runitor.
+    }
+    apply id_left.
+  }
+  refine (!_).
+  etrans.
+  {
+    rewrite !assoc'.
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite !assoc.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    refine (tensor_comp_mor _ _ _ _ @ _).
+    apply maponpaths_2.
+    apply tensor_comp_r_id_l.
+  }
+  rewrite !assoc'.
+  rewrite <- (functor_enrichment_comp HE).
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc.
+        rewrite <- (functor_enrichment_comp GE).
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- (functor_enrichment_comp FE).
+      apply idpath.
+    }
+    rewrite !assoc.
+    do 3 apply maponpaths_2.
+    refine (!_).
+    apply enrichment_id_left.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    do 3 apply maponpaths_2.
+    apply mon_linvunitor_lunitor.
+  }
+  rewrite id_left.
+  apply idpath.
+Qed.
 
 Definition comp_trans_enrichment
            {V : monoidal_cat}
@@ -1183,3 +1479,107 @@ Proof.
   rewrite <- functor_enrichment_comp.
   apply idpath.
 Qed.
+
+
+(**
+ 6. Equality of enrichments
+ *)
+Definition enrichment_data_hom_weq
+           {C : precategory_data}
+           {V : monoidal_cat}
+           (HV : is_univalent V)
+           (E₁ E₂ : enrichment_data C V)
+  : (pr1 E₁ = pr1 E₂) ≃ ∏ (x y : C), z_iso (pr1 E₁ x y) (pr1 E₂ x y)
+  := (weqonsecfibers
+        _ _
+        (λ x, weqonsecfibers _ _ (λ y, _ ,, HV _ _)
+      ∘ weqtoforallpaths _ _ _) ∘ weqtoforallpaths _ _ _)%weq.
+
+Definition enrichment_data_hom_path_help
+           {C : precategory_data}
+           {V : monoidal_cat}
+           (E₁ E₂ : enrichment_data C V)
+  : UU
+  := ∑ (fs : ∏ (x y : C), z_iso (pr1 E₁ x y) (pr1 E₂ x y)),
+     (∏ (x : C),
+      enriched_id E₁ x · fs x x
+      =
+      enriched_id E₂ x)
+     ×
+     (∏ (x y z : C),
+      enriched_comp E₁ x y z · fs x z
+      =
+      fs y z #⊗ fs x y · enriched_comp E₂ x y z)
+     ×
+     (∏ (x y : C) (f : x --> y),
+      enriched_from_arr E₁ f · fs x y
+      =
+      enriched_from_arr E₂ f)
+     ×
+     (∏ (x y : C) (f : 𝟙 --> E₁ ⦃ x , y ⦄),
+      enriched_to_arr E₁ f
+      =
+      enriched_to_arr E₂ (f · fs x y)).
+
+Definition enrichment_data_hom_path
+           {C : category}
+           {V : monoidal_cat}
+           (HV : is_univalent V)
+           (E₁ E₂ : enrichment_data C V)
+  : E₁ ╝ E₂ ≃ enrichment_data_hom_path_help E₁ E₂.
+Proof.
+  use (weqbandf (enrichment_data_hom_weq HV E₁ E₂)).
+  intros p.
+  induction E₁ as [ M₁ E₁ ].
+  induction E₂ as [ M₂ E₂ ].
+  cbn in *.
+  induction p.
+  cbn.
+  use weqimplimpl.
+  - intro p.
+    induction p.
+    repeat split ; intros.
+    + rewrite id_right.
+      apply idpath.
+    + rewrite id_right.
+      rewrite tensor_id_id.
+      rewrite id_left.
+      apply idpath.
+    + apply id_right.
+    + rewrite id_right.
+      apply idpath.
+  - intros p.
+    repeat (use pathsdirprod).
+    + use funextsec ; intro x.
+      pose (pr1 p x) as q.
+      rewrite id_right in q.
+      exact q.
+    + use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro z.
+      pose (pr12 p x y z) as q.
+      rewrite id_right in q.
+      rewrite tensor_id_id in q.
+      rewrite id_left in q.
+      exact q.
+    + use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro f.
+      pose (pr122 p x y f) as q.
+      cbn in q.
+      rewrite id_right in q.
+      exact q.
+    + use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro f.
+      pose (pr222 p x y f) as q.
+      cbn in q.
+      rewrite id_right in q.
+      exact q.
+  - repeat (apply isaset_dirprod) ;
+    repeat (use impred_isaset ; intro) ;
+    apply homset_property.
+  - repeat (apply isapropdirprod) ;
+      repeat (use impred ; intro) ;
+      apply homset_property.
+Defined.

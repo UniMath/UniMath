@@ -530,6 +530,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/Examples/BicatOfInvertibles.v](Bicategories/DisplayedBicats/Examples/BicatOfInvertibles.v)
    - [DisplayedBicats/Examples/EndoMap.v](Bicategories/DisplayedBicats/Examples/EndoMap.v)
    - [Core/Examples/StructuredCategories.v](Bicategories/Core/Examples/StructuredCategories.v)
+   - [DisplayedBicats/Examples/EnrichedCats.v](Bicategories/DisplayedBicats/Examples/EnrichedCats.v)
    - [MonoidalCategories/MonoidalFromBicategory.v](Bicategories/MonoidalCategories/MonoidalFromBicategory.v)
    - [MonoidalCategories/EndofunctorsMonoidal.v](Bicategories/MonoidalCategories/EndofunctorsMonoidal.v)
    - [MonoidalCategories/PointedFunctorsMonoidal.v](Bicategories/MonoidalCategories/PointedFunctorsMonoidal.v)
