@@ -195,7 +195,6 @@ YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
 
 Connected.v
-LeftKanExtension.v
 
 categories/CartesianCubicalSets.v
 
