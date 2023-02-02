@@ -46,6 +46,8 @@ Definition Coproducts := ∏ (a : I -> C), Coproduct a.
 Definition hasCoproducts :=  ∏ (a : I -> C), ∥ Coproduct a ∥.
 
 Definition CoproductObject {a : I -> C} (CC : Coproduct a) : C := pr1 (pr1 CC).
+Coercion CoproductObject : Coproduct >-> ob.
+
 Definition CoproductIn {a : I -> C} (CC : Coproduct a): ∏ i, a i --> CoproductObject CC :=
   pr2 (pr1 CC).
 

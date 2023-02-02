@@ -403,4 +403,157 @@ Section BinaryCoproduct.
 
 End BinaryCoproduct.
 
+Section Coproduct.
+
+  Context {I : UU} {C : category} (CP : Coproducts I C) (Act : actegory Mon_V C).
+
+  Definition coprod_antidistributor_data (v : V) (cs : power_category I C):
+    CP (fun i => v ⊗_{Act} (cs i)) --> v ⊗_{Act} (CP cs).
+  Proof.
+    use CoproductArrow; intro i; apply leftwhiskering_on_morphisms. apply CoproductIn.
+  Defined.
+
+  Lemma coprod_antidistributor_nat_left (v : V) (cs1 cs2 : power_category I C) (g : power_category I C ⟦ cs1, cs2 ⟧) :
+    coprod_antidistributor_data v cs1 · v ⊗^{Act}_{l} #(coproduct_functor I CP) g =
+    #(coproduct_functor I CP) (v ⊗^{actegory_power Mon_V I Act}_{l} g) · coprod_antidistributor_data v cs2.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths.
+    apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+    etrans.
+    2: { cbn. apply (functor_comp (leftwhiskering_functor Act v)). }
+    apply maponpaths.
+    apply CoproductInCommutes.
+  Qed.
+
+  Lemma coprod_antidistributor_nat_right (v1 v2 : V) (cs : power_category I C) (f : V ⟦ v1, v2 ⟧) :
+    coprod_antidistributor_data v1 cs · f ⊗^{ Act}_{r} coproduct_functor I CP cs  =
+    #(coproduct_functor I CP) (f ⊗^{actegory_power Mon_V I Act}_{r} cs) · coprod_antidistributor_data v2 cs.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths; apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, bifunctor_equalwhiskers. }
+    apply idpath.
+  Qed.
+
+  Lemma coprod_antidistributor_pentagon_identity (v w : V) (cs : power_category I C) :
+    # (coproduct_functor I CP) aα^{actegory_power Mon_V I Act}_{v, w, cs} ·
+                                      coprod_antidistributor_data v (fun i => w ⊗_{Act} (cs i)) ·
+                                      v ⊗^{Act}_{l} coprod_antidistributor_data w cs =
+      coprod_antidistributor_data (v ⊗_{Mon_V} w) cs
+        · aα^{Act}_{v, w, coproduct_functor I CP cs}.
+  Proof.
+    etrans.
+    { rewrite assoc'.
+      apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, postcompWithCoproductArrow. }
+    apply maponpaths; apply funextsec; intro i.
+    etrans.
+    { repeat rewrite assoc.
+      apply cancel_postcomposition.
+      rewrite assoc'.
+      apply maponpaths.
+      apply CoproductInCommutes. }
+    etrans.
+    2: { apply actegory_actornatleft. }
+    rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { apply pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+    apply maponpaths.
+    apply CoproductInCommutes.
+  Qed.
+
+  Lemma coprod_antidistributor_triangle_identity (cs : power_category I C) :
+    #(coproduct_functor I CP) au^{actegory_power Mon_V I Act}_{cs} =
+      coprod_antidistributor_data I_{Mon_V} cs · au^{Act}_{coproduct_functor I CP cs}.
+  Proof.
+    etrans.
+    2: { apply pathsinv0, postcompWithCoproductArrow. }
+    cbn. unfold CoproductOfArrows.
+    apply maponpaths, funextsec; intro i; apply pathsinv0, actegory_unitornat.
+  Qed.
+
+  (** axiomatize extra requirements *)
+
+  Definition coprod_distributor_data : UU := ∏ (v : V) (cs : power_category I C),
+      v ⊗_{Act} (CP cs) --> CP (fun i => v ⊗_{Act} (cs i)).
+
+  Identity Coercion coprod_distributor_data_funclass: coprod_distributor_data >-> Funclass.
+
+  Definition coprod_distributor_iso_law (δ : coprod_distributor_data) : UU :=
+    ∏ (v : V) (cs : power_category I C), is_inverse_in_precat (δ v cs) (coprod_antidistributor_data v cs).
+
+  Definition coprod_functor_lineator_data (δ : coprod_distributor_data) :
+    lineator_data Mon_V (actegory_power Mon_V I Act) Act (coproduct_functor I CP).
+  Proof.
+    intros v cs.
+    exact (δ v cs).
+  Defined.
+
+  Definition coprod_distributor : UU := ∑ δ : coprod_distributor_data, coprod_distributor_iso_law δ.
+
+  Definition coprod_distributor_to_data (δ : coprod_distributor) : coprod_distributor_data := pr1 δ.
+  Coercion coprod_distributor_to_data : coprod_distributor >-> coprod_distributor_data.
+
+  Definition coprod_functor_lineator_strongly (δ : coprod_distributor) :
+    lineator_strongly _ _ _ _ (coprod_functor_lineator_data δ).
+  Proof.
+    intros v cs.
+    exists (coprod_antidistributor_data v cs).
+    apply (pr2 δ).
+  Defined.
+
+  Lemma coprod_functor_lineator_laxlaws (δ : coprod_distributor) :
+    lineator_laxlaws _ _ _ _ (coprod_functor_lineator_data δ).
+  Proof.
+    red; repeat split.
+    - red.
+      intros v cs1 cs2 g.
+      apply (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ v _)).
+      rewrite assoc'.
+      apply (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ v _)).
+      apply coprod_antidistributor_nat_left.
+    - red.
+      intros v1 v2 cs f.
+      apply (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc'.
+      apply (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      apply coprod_antidistributor_nat_right.
+    - red.
+      intros v w cs.
+      apply pathsinv0, (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc'.
+      apply (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      rewrite assoc.
+      apply (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (leftwhiskering_functor Act v)
+                                           (_,,coprod_functor_lineator_strongly δ _ _))).
+      apply pathsinv0, coprod_antidistributor_pentagon_identity.
+    - red.
+      intro cs.
+      apply pathsinv0, (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      apply pathsinv0, coprod_antidistributor_triangle_identity.
+  Qed.
+
+  Definition coprod_functor_lineator (δ : coprod_distributor) :
+    lineator Mon_V (actegory_power Mon_V I Act) Act (coproduct_functor I CP).
+  Proof.
+    use tpair.
+    - exists (coprod_functor_lineator_data δ).
+      exact (coprod_functor_lineator_laxlaws δ).
+    - apply coprod_functor_lineator_strongly.
+  Defined.
+
+End Coproduct.
+
 End FixAMonoidalCategory.
