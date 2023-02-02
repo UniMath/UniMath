@@ -11,7 +11,9 @@
  There are a couple of reasons for this choice:
  - It will help use prove the univalence of the bicategory of
    univalent enriched categories. That is because in the whole
-   prove, we don't have to prove equality of the type of objects.
+   proof, we don't have to prove equality of the type of objects.
+   As such, we can reuse the proof that the bicategory of
+   univalent categories is univalent.
  - If we would use the usual definition of enriched categories,
    then in order to access the morphisms, we would first need to
    take the underlying category. With this definition, we can use

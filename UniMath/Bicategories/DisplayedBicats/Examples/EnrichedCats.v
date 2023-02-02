@@ -4,8 +4,8 @@
 
  We construct the bicategory of univalent enriched categories and
  we prove that this bicategory is univalent. Note that in order to
- prove the univalence, we need to assume that the involved
- monoidal category is univalent as well.
+ prove the univalence, it is sufficient to assume that the
+ involved monoidal category is univalent as well.
 
  To define this bicategory, we use displayed bicategories. The
  base bicategory is the bicategory of univalent categories. Note
@@ -154,8 +154,8 @@ Section EnrichedCats.
   Definition disp_univalent_2_1_enriched_cats
     : disp_univalent_2_1 disp_bicat_of_enriched_cats.
   Proof.
-    intros C₁ C₂ F G p E₁ E₂ FE GE.
-    induction p.
+    use fiberwise_local_univalent_is_univalent_2_1.
+    intros C F G E₁ E₂ FE GE.
     use isweqimplimpl.
     - cbn in * ; intro τ.
       use subtypePath.
@@ -870,8 +870,8 @@ Section EnrichedCats.
              (HV : is_univalent V)
     : disp_univalent_2_0 disp_bicat_of_enriched_cats.
   Proof.
-    intros C₁ C₂ p E₁ E₂.
-    induction p.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros C₁ E₁ E₂.
     use weqhomot.
     - exact (weq_disp_adjequiv_enriched _ _
              ∘ disp_univalent_2_0_enriched_cats_help E₁ E₂
