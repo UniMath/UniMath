@@ -329,7 +329,7 @@ End LiftedFunctorsComposition.
 
 Section LiftedFunctorsPairFunctor.
 
-  Local Lemma nat_z_iso_pair {C1 C2 D1 D2 E1 E2 : category}
+  Lemma nat_z_iso_pair {C1 C2 D1 D2 E1 E2 : category}
         (F1 : functor C1 D1) (F2 : functor D1 E1)
         (G1 : functor C2 D2) (G2 : functor D2 E2)
     : nat_z_iso (pair_functor (F1 ∙ F2) (G1 ∙ G2))
@@ -346,7 +346,7 @@ Section LiftedFunctorsPairFunctor.
       + abstract (split ; (use total2_paths_f ; [ apply id_right | rewrite transportf_const ; apply id_right ])).
   Defined.
 
-  Local Lemma nat_z_iso_between_pair {C1 C2 D1 D2 : category}
+  Lemma nat_z_iso_between_pair {C1 C2 D1 D2 : category}
         {F1 F1' : functor C1 D1}
         {G1 G1' : functor C2 D2}
         (α : nat_z_iso F1 F1') (β : nat_z_iso G1 G1')
@@ -403,7 +403,7 @@ End LiftedFunctorsPairFunctor.
 
 Section LiftedFunctorsProperties.
 
-  Local Lemma post_whisker_nat_z_iso {C D E : category}
+  Lemma post_whisker_nat_z_iso {C D E : category}
         {F1 F2 : functor C D} (α : nat_z_iso F1 F2) (G : functor D E)
     : nat_z_iso (F1 ∙ G) (F2 ∙ G).
   Proof.
