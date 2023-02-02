@@ -990,19 +990,22 @@ Section PointwiseCoproductOfLinearFunctors.
         apply maponpaths.
         etrans.
         { apply CoproductOfArrows_comp. }
+        cbn.
         apply maponpaths, funextsec; intro i; apply lineator_preservesactor.
       }
       etrans.
       { apply maponpaths.
-        repeat rewrite assoc'.
+        assert (aux : (fun i => aα^{ ActD }_{ v, w, F i x} · v ⊗^{ ActD}_{l} ll i w x · ll i v (w ⊗_{ ActC} x))
+                      = (fun i => aα^{ ActD }_{ v, w, F i x} · (v ⊗^{ ActD}_{l} ll i w x · ll i v (w ⊗_{ ActC} x)))).
+        { apply funextsec; intro i; apply assoc'. }
+        rewrite aux.
         apply pathsinv0, CoproductOfArrows_comp. }
       etrans.
       { rewrite assoc.
         apply cancel_postcomposition.
-        admit.
-        (* apply (lineator_preservesactor _ _ _ _ δll v w (_,,_)). *)
-}
-      (* etrans.
+        apply (lineator_preservesactor _ _ _ _ δll v w).
+      }
+      etrans.
       2: { apply cancel_postcomposition.
            apply maponpaths.
            apply pathsinv0, (functor_comp (leftwhiskering_functor ActD v)). }
@@ -1011,12 +1014,12 @@ Section PointwiseCoproductOfLinearFunctors.
       repeat rewrite assoc.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, (lineator_linnatleft _ _ _ _ δll v (_,,_) (_,,_) (_,,_)). }
+           apply pathsinv0, (lineator_linnatleft _ _ _ _ δll v). }
       rewrite assoc'.
       apply maponpaths.
       etrans.
       2: { apply pathsinv0, CoproductOfArrows_comp. }
-      apply idpath. *)admit.
+      apply idpath.
     - etrans.
       2: { apply (lineator_preservesunitor _ _ _ _ δll). }
       rewrite assoc'.
@@ -1025,7 +1028,7 @@ Section PointwiseCoproductOfLinearFunctors.
       { apply CoproductOfArrows_comp. }
       cbn.
       apply maponpaths, funextsec; intro i; apply lineator_preservesunitor.
-  Admitted.
+  Qed.
 
   Definition lax_lineator_coprod: lineator_lax Mon_V ActC ActD FF :=
     lineator_data_coprod,,lineator_laxlaws_coprod.
