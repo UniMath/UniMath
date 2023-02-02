@@ -39,6 +39,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ActionScenarioForGenMendlerIteration_alt.
+Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 
 Local Open Scope cat.
 
@@ -278,6 +279,59 @@ Section InitialAlgebraToGHSS.
   Let η := BinCoproductIn1 (CP _ _) · α.
   Let τ := BinCoproductIn2 (CP _ _) · α.
 
+  (** a more comfortable presentation of the standard iteration scheme *)
+  Definition Iteration_I_H (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av) : ∃! h : V⟦t,av⟧, τ · h = # H h · aτ × η · h = aη.
+  Proof.
+    transparent assert (aα : (ob AF)).
+    { use tpair.
+      - exact av.
+      - cbn. unfold BinCoproduct_of_functors_ob, constant_functor.
+        cbn.
+        exact (BinCoproductArrow (CP _ _) aη aτ).
+    }
+    simple refine (iscontrretract _ _ _ (pr2 t_Initial aα)).
+    - intros [h Hyp].
+      exists h.
+      cbn in Hyp.
+      split.
+      + apply (maponpaths (fun x => BinCoproductIn2 _ · x)) in Hyp.
+        rewrite assoc in Hyp.
+        etrans.
+        { exact Hyp. }
+        etrans.
+        { apply maponpaths.
+          apply precompWithBinCoproductArrow. }
+        apply BinCoproductIn2Commutes.
+      + apply (maponpaths (fun x => BinCoproductIn1 _ · x)) in Hyp.
+        rewrite assoc in Hyp.
+        etrans.
+        { exact Hyp. }
+        etrans.
+        { apply maponpaths.
+          apply precompWithBinCoproductArrow. }
+        cbn.
+        rewrite id_left.
+        apply BinCoproductIn1Commutes.
+    - intros [h [Hyp1 Hyp2]].
+      exists h.
+      cbn.
+      etrans.
+      { apply cancel_postcomposition.
+        apply BinCoproductArrowEta. }
+      etrans.
+      { apply postcompWithBinCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, precompWithBinCoproductArrow. }
+      apply maponpaths_12.
+      + cbn. rewrite id_left. exact Hyp2.
+      + cbn. exact Hyp1.
+    - intros [h Hyp].
+      use total2_paths_f.
+      + apply idpath.
+      + apply isapropdirprod; apply V.
+  Defined.
+
+
   Context (initial_annihilates : ∏ (v : V), isInitial V (v ⊗_{Mon_V} (InitialObject IV))).
   Context (left_whiskering_omega_cocont : ∏ (v : V), is_omega_cocont (leftwhiskering_functor Mon_V v)).
 
@@ -305,6 +359,127 @@ Section InitialAlgebraToGHSS.
       + cbn. do 2 rewrite pathsinv0inv0.
         apply idpath.
   Defined.
+
+  Let σ : SigmaMonoid θ := ghhs_to_sigma_monoid θ initial_alg_to_ghss.
+  Let μ : V ⟦ pr1 σ ⊗_{ Mon_V} pr1 σ, pr1 σ ⟧ := pr11 (pr212 σ).
+
+  Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.
+  Proof.
+    intro asigma.
+    induction asigma as [av [[aτ [[aμ aη] Hμη]] Hτ]].
+    red in Hτ. cbn in Hτ.
+    set (It_inst := Iteration_I_H av aη aτ).
+    set (h := pr11 It_inst).
+    use tpair.
+    - exists h.
+      use tpair.
+      2: { exact tt. }
+      assert (aux := pr21 It_inst).
+      hnf in aux.
+      split.
+      + exact (pr1 aux).
+      + red. split.
+        2: { red. exact (pr2 aux). }
+        red.
+        change (h ⊗^{ Mon_V} h · aμ = μ · h).
+        destruct aux as [auxτ auxη].
+        fold h in auxτ, auxη.
+        (** both sides are identical as unique morphism from the Mendler iteration scheme *)
+        set (Mendler_inst := SpecialGenMendlerIterationWithActegoryAndStrength Mon_PtdV IV CV Act
+                           (t,,η) CP H HH I_{Mon_V} av θ aτ (ru^{Mon_V}_{t} · h)
+                           (initial_annihilates t) (left_whiskering_omega_cocont t) δ).
+        intermediate_path (pr11 Mendler_inst).
+        * apply path_to_ctr.
+          red; split.
+          -- change (t ⊗^{Mon_V}_{l} η · (h ⊗^{ Mon_V} h · aμ) = ru^{ Mon_V }_{ t} · h).
+             etrans.
+             2: { apply monoidal_rightunitornat. }
+             etrans.
+             2: { apply maponpaths.
+                  apply (pr12 Hμη). }
+             repeat rewrite assoc.
+             apply cancel_postcomposition.
+             rewrite bifunctor_equalwhiskers.
+             unfold functoronmorphisms2.
+             rewrite assoc.
+             etrans.
+             { apply cancel_postcomposition.
+               apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
+             rewrite auxη.
+             apply pathsinv0, bifunctor_equalwhiskers.
+          -- change (t ⊗^{Mon_V}_{l} τ · (h ⊗^{ Mon_V} h · aμ) = θ (t,, η) t · # H (h ⊗^{ Mon_V} h · aμ) · aτ).
+             etrans.
+             2: { apply cancel_postcomposition.
+                  rewrite functor_comp.
+                  rewrite assoc.
+                  apply cancel_postcomposition.
+                  transparent assert (h_ptd : (PtdV⟦(t,,η),(av,,aη)⟧)).
+                  { exists h.
+                    exact auxη.
+                  }
+                  apply (lineator_is_nattrans_full Mon_PtdV Act Act H
+                           (lineator_linnatleft _ _ _ _ θ) (lineator_linnatright _ _ _ _ θ)_ _ _ _ h_ptd h). }
+             etrans.
+             2: { repeat rewrite assoc'.
+                  apply maponpaths.
+                  rewrite assoc.
+                  apply pathsinv0, Hτ. }
+             repeat rewrite assoc.
+             apply cancel_postcomposition.
+             change (t ⊗^{Mon_V}_{l} τ · h ⊗^{Mon_V} h = h ⊗^{Mon_V} #H h · av ⊗^{Mon_V}_{l} aτ).
+             etrans.
+             2: { unfold functoronmorphisms1.
+                  rewrite assoc'.
+                  apply maponpaths.
+                  apply (functor_comp (leftwhiskering_functor Mon_V av)). }
+             rewrite <- auxτ.
+             etrans.
+             { rewrite bifunctor_equalwhiskers.
+               unfold functoronmorphisms2.
+               rewrite assoc.
+               apply cancel_postcomposition.
+               apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
+             apply pathsinv0, bifunctor_equalwhiskers.
+        * apply pathsinv0, path_to_ctr.
+          red; split.
+          -- change (t ⊗^{Mon_V}_{l} η · (μ · h) = ru^{ Mon_V }_{ t} · h).
+             rewrite assoc.
+             etrans.
+             { apply cancel_postcomposition.
+               apply (monoid_to_unit_right_law Mon_V (pr212 σ)). }
+             apply idpath.
+          -- change (t ⊗^{Mon_V}_{l} τ · (μ · h) = θ (t,, η) t · # H (μ · h) · aτ).
+             rewrite assoc.
+             etrans.
+             { apply cancel_postcomposition.
+               apply pathsinv0, (pr22 σ). }
+             repeat rewrite assoc'.
+             apply maponpaths.
+             etrans.
+             2: { apply cancel_postcomposition.
+                  apply pathsinv0, functor_comp. }
+             rewrite assoc'.
+             apply maponpaths.
+             exact auxτ.
+    - hnf.
+      intros [ah Hyp].
+      use total2_paths_f.
+      { apply (path_to_ctr _ _ It_inst).
+        cbn in Hyp.
+        split.
+        + exact (pr11 Hyp).
+        + exact (pr221 Hyp).
+      }
+      show_id_type.
+      assert (aux: isaprop TYPE).
+      { apply isapropdirprod.
+        + apply isapropdirprod.
+          * apply V.
+          * apply isaprop_is_monoid_mor.
+        + apply isapropunit.
+      }
+      apply aux.
+  Qed.
 
 End InitialAlgebraToGHSS.
 

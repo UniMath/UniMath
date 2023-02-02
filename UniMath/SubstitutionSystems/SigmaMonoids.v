@@ -39,9 +39,9 @@ Section SigmaMonoid.
     set (x := pr1 X).
     set (η := monoid_data_unit _ (pr22 X : monoid _ _)).
     set (μ := monoid_data_multiplication _ (pr22 X : monoid _ _)).
-    set (α := pr12 X : H x --> x).
+    set (τ := pr12 X : H x --> x).
     set (st := pr1 θ (x ,, η) x).
-    exact (st · (#H μ) · α = x ⊗^{Mon_V}_{l} α · μ).
+    exact (st · (#H μ) · τ = x ⊗^{Mon_V}_{l} τ · μ).
   Defined.
 
   Definition SigmaMonoid_disp_cat_without_sigma_constr
