@@ -138,7 +138,7 @@ jobs:
       fail-fast: false
       matrix:
         satellite: [SetHITs, largecatmodules, GrpdHITs]
-        coq-version: [8.16]
+        coq-version: [latest, dev]
         ocaml-version: [4.14-flambda]
         # Once TypeTheory compiles with 8.16 remove the following section and
         # add TypeTheory to matrix.satellite above.
