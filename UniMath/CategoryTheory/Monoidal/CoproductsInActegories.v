@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ProductActegory.
-(* Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.coslicecat. *)
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+(* Require Import UniMath.CategoryTheory.coslicecat. *)
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -557,3 +557,57 @@ Section Coproduct.
 End Coproduct.
 
 End FixAMonoidalCategory.
+
+Section TwoMonoidalCategories.
+
+  Context {V : category} (Mon_V : monoidal V) {C : category} (Act : actegory Mon_V C)
+    {W : category} (Mon_W : monoidal W)
+    {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
+
+  Let ActW : actegory Mon_W C := lifted_actegory Mon_V Act Mon_W U.
+
+Section BinaryCase.
+
+  Context (BCP : BinCoproducts C) (δ : bincoprod_distributor Mon_V BCP Act).
+
+  Definition lifted_bincoprod_distributor_data : bincoprod_distributor_data Mon_W BCP ActW.
+  Proof.
+    intros w c c'.
+    apply (δ (F w)).
+  Defined.
+
+  Lemma lifted_bincoprod_distributor_law :
+    bincoprod_distributor_iso_law _ _ _ lifted_bincoprod_distributor_data.
+  Proof.
+    intros w c c'.
+    split; unfold lifted_bincoprod_distributor_data; apply (pr2 δ).
+  Qed.
+
+  Definition lifted_bincoprod_distributor : bincoprod_distributor Mon_W BCP ActW :=
+    _,,lifted_bincoprod_distributor_law.
+
+End BinaryCase.
+
+Section IndexedCase.
+
+  Context {I : UU} (CP : Coproducts I C) (δ : coprod_distributor Mon_V CP Act).
+
+  Definition lifted_coprod_distributor_data : coprod_distributor_data Mon_W CP ActW.
+  Proof.
+    intros w cs.
+    apply (δ (F w)).
+  Defined.
+
+  Lemma lifted_coprod_distributor_law :
+    coprod_distributor_iso_law _ _ _ lifted_coprod_distributor_data.
+  Proof.
+    intros w cs.
+    split; unfold lifted_coprod_distributor_data; apply (pr2 δ).
+  Qed.
+
+  Definition lifted_coprod_distributor : coprod_distributor Mon_W CP ActW :=
+    _,,lifted_coprod_distributor_law.
+
+End IndexedCase.
+
+End TwoMonoidalCategories.
