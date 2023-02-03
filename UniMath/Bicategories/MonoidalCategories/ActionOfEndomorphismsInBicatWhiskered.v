@@ -18,6 +18,10 @@ Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+
 Import Bicat.Notations.
 Import BifunctorNotations.
 
@@ -111,5 +115,106 @@ Section Instantiation_To_Bicategory_Of_Categories.
     cbn.
     apply idpath.
   Qed.
+
+Section DistributionOfCoproducts.
+
+Section BinaryCoproduct.
+
+  Context (BCP : BinCoproducts D).
+
+  Definition BCP_homcat_CAT : BinCoproducts (homcat(C:=bicat_of_cats) C D).
+  Proof.
+    apply BinCoproducts_functor_precat.
+    exact BCP.
+  Defined.
+
+  Definition actfromprecomp_bincoprod_distributor_data :
+    bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
+  Proof.
+    intros F G1 G2.
+    cbn.
+    use make_nat_trans.
+    - intro c. apply identity.
+    - intros c c' f.
+      rewrite id_left; apply id_right.
+  Defined.
+
+  Lemma actfromprecomp_bincoprod_distributor_law :
+    bincoprod_distributor_iso_law _ _ _ actfromprecomp_bincoprod_distributor_data.
+  Proof.
+    intros F G.
+    split.
+    - apply nat_trans_eq; [apply D |].
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, BinCoproduct_endo_is_identity.
+      + apply BinCoproductIn1Commutes.
+      + apply BinCoproductIn2Commutes.
+    - etrans.
+      { apply postcompWithBinCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, BinCoproductArrowEta. }
+      apply maponpaths_12;
+        (rewrite id_right; apply nat_trans_eq; [apply D |]; intro c; apply id_right).
+  Qed.
+
+  Definition actfromprecomp_bincoprod_distributor :
+    bincoprod_distributor (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp :=
+    _,,actfromprecomp_bincoprod_distributor_law.
+
+End BinaryCoproduct.
+
+Section Coproduct.
+
+  Context {I : UU} (CP : Coproducts I D).
+
+  Definition CP_homcat_CAT : Coproducts I (homcat(C:=bicat_of_cats) C D).
+  Proof.
+    apply Coproducts_functor_precat.
+    exact CP.
+  Defined.
+
+  Definition actfromprecomp_coprod_distributor_data :
+    coprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp.
+  Proof.
+    intros F Gs.
+    cbn.
+    use make_nat_trans.
+    - intro c. apply identity.
+    - intros c c' f.
+      rewrite id_left; apply id_right.
+  Defined.
+
+  Lemma actfromprecomp_coprod_distributor_law :
+    coprod_distributor_iso_law _ _ _ actfromprecomp_coprod_distributor_data.
+  Proof.
+    intros F Gs.
+    split.
+    - apply nat_trans_eq; [apply D |].
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, Coproduct_endo_is_identity.
+      intro i.
+      unfold coproduct_nat_trans_data.
+      cbn in Gs.
+      apply (CoproductInCommutes I D (λ i0 : I, Gs i0 (pr1 F c)) (CP _) _
+               (λ i0 : I, coproduct_nat_trans_in_data I C D CP Gs i0 (pr1 F c)) i).
+    - etrans.
+      { apply postcompWithCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, CoproductArrowEta. }
+      apply maponpaths, funextsec; intro i;
+        (rewrite id_right; apply nat_trans_eq; [apply D |]; intro c; apply id_right).
+  Qed.
+
+  Definition actfromprecomp_coprod_distributor :
+    coprod_distributor (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp :=
+    _,,actfromprecomp_coprod_distributor_law.
+
+End Coproduct.
+
+End DistributionOfCoproducts.
 
 End Instantiation_To_Bicategory_Of_Categories.
