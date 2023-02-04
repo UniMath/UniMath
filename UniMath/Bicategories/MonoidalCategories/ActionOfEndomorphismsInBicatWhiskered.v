@@ -51,6 +51,29 @@ Proof.
     + intros v1 v2 f1 f2 α β. cbn. apply vcomp_whisker.
 Defined.
 
+(* we explicitly do not opacify the definitions in the following way:
+Definition action_from_precomp_data : bifunctor_data endocat homcat homcat.
+Proof.
+  use make_bifunctor_data.
+  - intros v f. exact (v · f).
+  - intros v f1 f2 β. exact (v ◃ β).
+  - intros f v1 v2 α. exact (α ▹ f).
+Defined.
+
+Lemma action_from_precomp_laws : is_bifunctor action_from_precomp_data.
+Proof.
+  repeat split.
+  - intros v f. cbn. apply lwhisker_id2.
+  - intros f v. cbn. apply id2_rwhisker.
+  - intros v f1 f2 f3 β1 β2. cbn. apply pathsinv0, lwhisker_vcomp.
+  - intros f v1 v2 v3 α1 α2. cbn. apply pathsinv0, rwhisker_vcomp.
+  - intros v1 v2 f1 f2 α β. cbn. apply vcomp_whisker.
+Qed.
+
+Definition action_from_precomp : bifunctor endocat homcat homcat :=
+  make_bifunctor action_from_precomp_data action_from_precomp_laws.
+*)
+
 Definition actegory_from_precomp_data : actegory_data Mon_endo homcat.
 Proof.
   exists action_from_precomp.
@@ -61,9 +84,8 @@ Proof.
   - intros v w f. cbn. apply lassociator.
 Defined.
 
-Definition actegory_from_precomp : actegory Mon_endo homcat.
+Lemma actegory_from_precomp_laws : actegory_laws Mon_endo actegory_from_precomp_data.
 Proof.
-  exists actegory_from_precomp_data.
   repeat split.
   - intros f g β. cbn. apply vcomp_lunitor.
   - cbn. apply lunitor_linvunitor.
@@ -77,6 +99,9 @@ Proof.
   - intros w v v' f. cbn. apply rassociator_rassociator.
 Defined.
 
+Definition actegory_from_precomp : actegory Mon_endo homcat :=
+  actegory_from_precomp_data,,actegory_from_precomp_laws.
+
 End Action_From_Precomposition.
 
 Section TheHomogeneousCase.
@@ -84,6 +109,7 @@ Section TheHomogeneousCase.
 Context {C : bicat}.
 Context (c0 : ob C).
 
+(** requires [action_from_precomp] with known proofs of the laws *)
 Definition action_in_actegory_from_precomp_as_self_action :
   actegory_action (Mon_endo c0) (actegory_from_precomp c0 c0) = actegory_action (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)).
 Proof.
@@ -105,7 +131,7 @@ Proof.
   use total2_paths_f.
   { apply idpath. }
   apply idpath.
-Qed.
+Qed. (* slow *)
 
 End TheHomogeneousCase.
 
