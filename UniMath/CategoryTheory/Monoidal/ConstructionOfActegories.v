@@ -34,22 +34,27 @@ Section A.
 
 Context {V : category} (Mon_V : monoidal V).
 
-Definition actegory_with_canonical_self_action: actegory Mon_V V.
+Definition actegory_with_canonical_self_action_data: actegory_data Mon_V V.
 Proof.
-  use tpair.
-  - use make_actegory_data.
-    + exact (monoidal_tensor Mon_V).
-    + exact (lu_{Mon_V}).
-    + exact (luinv_{Mon_V}).
-    + exact (α_{Mon_V}).
-    + exact (αinv_{Mon_V}).
-  - split; [| split; [| split]].
-    + apply monoidal_leftunitorlaw.
-    + apply monoidal_associatorlaw.
-    + apply monoidal_triangleidentity.
-    + apply monoidal_pentagonidentity.
+  use make_actegory_data.
+  - exact (monoidal_tensor Mon_V).
+  - exact (lu_{Mon_V}).
+  - exact (luinv_{Mon_V}).
+  - exact (α_{Mon_V}).
+  - exact (αinv_{Mon_V}).
 Defined.
 
+Lemma actegory_with_canonical_self_action_laws: actegory_laws Mon_V actegory_with_canonical_self_action_data.
+Proof.
+  split; [| split; [| split]].
+  - apply monoidal_leftunitorlaw.
+  - apply monoidal_associatorlaw.
+  - apply monoidal_triangleidentity.
+  - apply monoidal_pentagonidentity.
+Qed.
+
+Definition actegory_with_canonical_self_action: actegory Mon_V V :=
+  actegory_with_canonical_self_action_data,,actegory_with_canonical_self_action_laws.
 
 Context {C : category} (Act : actegory Mon_V C)
   {W : category} (Mon_W : monoidal W).

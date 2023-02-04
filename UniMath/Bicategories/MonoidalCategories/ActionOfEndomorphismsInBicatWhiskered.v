@@ -36,22 +36,7 @@ Local Definition endocat : category := hom c0 c0.
 Local Definition Mon_endo: monoidal endocat := monoidal_from_bicat_and_ob c0.
 Local Definition homcat : category := hom c0 d0.
 
-Definition action_from_precomp : bifunctor endocat homcat homcat.
-Proof.
-  use make_bifunctor.
-  - use make_bifunctor_data.
-    + intros v f. exact (v · f).
-    + intros v f1 f2 β. exact (v ◃ β).
-    + intros f v1 v2 α. exact (α ▹ f).
-  - repeat split.
-    + intros v f. cbn. apply lwhisker_id2.
-    + intros f v. cbn. apply id2_rwhisker.
-    + intros v f1 f2 f3 β1 β2. cbn. apply pathsinv0, lwhisker_vcomp.
-    + intros f v1 v2 v3 α1 α2. cbn. apply pathsinv0, rwhisker_vcomp.
-    + intros v1 v2 f1 f2 α β. cbn. apply vcomp_whisker.
-Defined.
 
-(* we explicitly do not opacify the definitions in the following way:
 Definition action_from_precomp_data : bifunctor_data endocat homcat homcat.
 Proof.
   use make_bifunctor_data.
@@ -60,28 +45,28 @@ Proof.
   - intros f v1 v2 α. exact (α ▹ f).
 Defined.
 
-Lemma action_from_precomp_laws : is_bifunctor action_from_precomp_data.
+(** we explicitly do not opacify the following definition: *)
+Definition action_from_precomp_laws : is_bifunctor action_from_precomp_data.
 Proof.
   repeat split.
-  - intros v f. cbn. apply lwhisker_id2.
-  - intros f v. cbn. apply id2_rwhisker.
-  - intros v f1 f2 f3 β1 β2. cbn. apply pathsinv0, lwhisker_vcomp.
-  - intros f v1 v2 v3 α1 α2. cbn. apply pathsinv0, rwhisker_vcomp.
-  - intros v1 v2 f1 f2 α β. cbn. apply vcomp_whisker.
-Qed.
+  - intros v f. apply lwhisker_id2.
+  - intros f v. apply id2_rwhisker.
+  - intros v f1 f2 f3 β1 β2. apply pathsinv0, lwhisker_vcomp.
+  - intros f v1 v2 v3 α1 α2. apply pathsinv0, rwhisker_vcomp.
+  - intros v1 v2 f1 f2 α β. apply vcomp_whisker.
+Defined.
 
 Definition action_from_precomp : bifunctor endocat homcat homcat :=
   make_bifunctor action_from_precomp_data action_from_precomp_laws.
-*)
 
 Definition actegory_from_precomp_data : actegory_data Mon_endo homcat.
 Proof.
   exists action_from_precomp.
   repeat split.
-  - intro f. cbn. apply lunitor.
-  - intro f. cbn. apply linvunitor.
-  - intros v w f. cbn. apply rassociator.
-  - intros v w f. cbn. apply lassociator.
+  - intro f. apply lunitor.
+  - intro f. apply linvunitor.
+  - intros v w f. apply rassociator.
+  - intros v w f. apply lassociator.
 Defined.
 
 Lemma actegory_from_precomp_laws : actegory_laws Mon_endo actegory_from_precomp_data.
@@ -97,7 +82,7 @@ Proof.
   - cbn. apply lassociator_rassociator.
   - intros v f. cbn. apply lunitor_lwhisker.
   - intros w v v' f. cbn. apply rassociator_rassociator.
-Defined.
+Qed.
 
 Definition actegory_from_precomp : actegory Mon_endo homcat :=
   actegory_from_precomp_data,,actegory_from_precomp_laws.
@@ -124,14 +109,15 @@ Proof.
   2: { apply isaprop_actegory_laws. }
   use total2_paths_f.
   { apply action_in_actegory_from_precomp_as_self_action. }
-  cbn.
   use total2_paths_f.
   { apply idpath. }
-  cbn.
   use total2_paths_f.
   { apply idpath. }
   apply idpath.
 Qed. (* slow *)
+
+(** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
+Opaque action_from_precomp_laws.
 
 End TheHomogeneousCase.
 
@@ -143,7 +129,8 @@ Section Instantiation_To_Bicategory_Of_Categories.
                                            (homcat(C:=bicat_of_cats) C D)
     := actegory_from_precomp(C:=bicat_of_cats) C D.
 
-  Lemma actegoryfromprecomp_action_pointwise_ok (v : functor C C) (f : functor C D) : v ⊗_{actegoryfromprecomp} f = functor_compose v f.
+  Lemma actegoryfromprecomp_action_pointwise_ok (v : functor C C) (f : functor C D) :
+    v ⊗_{actegoryfromprecomp} f = functor_compose v f.
   Proof.
     cbn.
     apply idpath.
