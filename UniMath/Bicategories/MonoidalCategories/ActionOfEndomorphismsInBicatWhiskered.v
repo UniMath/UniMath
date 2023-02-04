@@ -84,13 +84,20 @@ Section TheHomogeneousCase.
 Context {C : bicat}.
 Context (c0 : ob C).
 
+Definition action_in_actegory_from_precomp_as_self_action :
+  actegory_action (Mon_endo c0) (actegory_from_precomp c0 c0) = actegory_action (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)).
+Proof.
+  change (pr11 (actegory_from_precomp c0 c0) = pr11 (actegory_with_canonical_self_action (Mon_endo c0))).
+  apply idpath.
+Defined.
+
 Lemma actegory_from_precomp_as_self_action :
   actegory_from_precomp c0 c0 = actegory_with_canonical_self_action (Mon_endo c0).
 Proof.
   use total2_paths_f.
   2: { apply isaprop_actegory_laws. }
   use total2_paths_f.
-  { apply idpath. }
+  { apply action_in_actegory_from_precomp_as_self_action. }
   cbn.
   use total2_paths_f.
   { apply idpath. }
@@ -115,6 +122,8 @@ Section Instantiation_To_Bicategory_Of_Categories.
     cbn.
     apply idpath.
   Qed.
+
+
 
 Section DistributionOfCoproducts.
 
