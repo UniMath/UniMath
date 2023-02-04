@@ -295,6 +295,9 @@ Monoidal/Examples/SetWithSubset.v
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
+Enriched/Enrichment.v
+Enriched/UnderlyingCategory.v
+Enriched/EnrichmentEquiv.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
