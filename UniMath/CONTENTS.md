@@ -428,6 +428,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Enriched/Opposite.v](CategoryTheory/Enriched/Opposite.v)
    - [Enriched/Enrichment.v](CategoryTheory/Enriched/Enrichment.v)
    - [Enriched/UnderlyingCategory.v](CategoryTheory/Enriched/UnderlyingCategory.v)
+   - [Enriched/EnrichmentEquiv.v](CategoryTheory/Enriched/EnrichmentEquiv.v)
    - [GrothendieckConstruction/TotalCategory.v](CategoryTheory/GrothendieckConstruction/TotalCategory.v)
    - [GrothendieckConstruction/IsosInTotal.v](CategoryTheory/GrothendieckConstruction/IsosInTotal.v)
    - [GrothendieckConstruction/Projection.v](CategoryTheory/GrothendieckConstruction/Projection.v)
