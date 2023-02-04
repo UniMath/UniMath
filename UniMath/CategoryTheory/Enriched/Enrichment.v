@@ -23,6 +23,15 @@
  precisely those that are needed to construct the bicategory of
  enriched categories.
 
+ Our definition is loosely inspired by the one given by McDermott
+ and Uustalu in "What makes a strong monad?"
+
+ https://arxiv.org/pdf/2207.00851.pdf
+
+ However, since their definition seems to be focussed at
+ self-enriched categories, they add extra functoriality
+ requirements, which are not present in ours.
+
  Contents
  1. Enrichments of categories
  2. Functors with enrichments

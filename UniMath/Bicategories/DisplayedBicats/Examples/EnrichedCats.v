@@ -13,6 +13,16 @@
  parts. That is because to define natural transformations, we
  need to use composition of enriched categories.
 
+ Note that the construction of the bicategories of enriched
+ categories as a displayed bicategory, provides some explanation
+ of what are notion of enrichment means. With the usual definition
+ of enriched category, one has a pseudofunctor `V-Cat -> Cat`,
+ which sends every enriched category to its underlying category.
+ The projection pseudofunctor of the displayed bicategory defined
+ in this file, is precisely this pseudofunctor. The notion of
+ enrichment given in `Enrichment.v` represents the fibers of the
+ underlying category pseudofunctor.
+
  Contents
  1. The displayed bicategory
  2. Local univalence
