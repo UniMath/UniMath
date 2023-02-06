@@ -171,12 +171,21 @@ Section BinaryCoproduct.
     actegory_bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
   Proof.
     intros F G1 G2.
-    cbn.
     use make_nat_trans.
     - intro c. apply identity.
-    - intros c c' f.
-      rewrite id_left; apply id_right.
+    - abstract (intros c c' f; rewrite id_left; apply id_right).
   Defined.
+
+  Definition actfromprecomp_bincoprod_distributor_data_is_instance_up_to_eq :
+    actfromprecomp_bincoprod_distributor_data = fun F => precomp_bincoprod_distributor_data BCP F.
+  Proof.
+    apply funextsec; intro F.
+    apply funextsec; intro v.
+    apply funextsec; intro x.
+    apply nat_trans_eq; [ apply D |].
+    intro x'.
+    apply idpath.
+  Qed.
 
   Lemma actfromprecomp_bincoprod_distributor_law :
     actegory_bincoprod_distributor_iso_law _ _ _ actfromprecomp_bincoprod_distributor_data.
