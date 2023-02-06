@@ -920,7 +920,7 @@ Section PointwiseCoproductOfLinearFunctors.
 
   Context {I : UU} {F : I -> functor C D}
     (ll : ∏ (i: I), lineator_lax Mon_V ActC ActD (F i))
-    (CD : Coproducts I D) (δ : coprod_distributor Mon_V CD ActD).
+    (CD : Coproducts I D) (δ : actegory_coprod_distributor Mon_V CD ActD).
 
   Let FF : functor C D := coproduct_of_functors _ _ _ CD F.
   Let FF' : functor C D := coproduct_of_functors_alt_old _ CD F.

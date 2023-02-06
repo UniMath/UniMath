@@ -180,10 +180,10 @@ Section BinaryCoproduct.
     actfromprecomp_bincoprod_distributor_data = fun F => precomp_bincoprod_distributor_data BCP F.
   Proof.
     apply funextsec; intro F.
-    apply funextsec; intro v.
-    apply funextsec; intro x.
+    apply funextsec; intro G1.
+    apply funextsec; intro G2.
     apply nat_trans_eq; [ apply D |].
-    intro x'.
+    intro x.
     apply idpath.
   Qed.
 
@@ -224,18 +224,27 @@ Section Coproduct.
   Defined.
 
   Definition actfromprecomp_coprod_distributor_data :
-    coprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp.
+    actegory_coprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp.
   Proof.
     intros F Gs.
     cbn.
     use make_nat_trans.
     - intro c. apply identity.
-    - intros c c' f.
-      rewrite id_left; apply id_right.
+    - abstract (intros c c' f; rewrite id_left; apply id_right).
   Defined.
 
+  Definition actfromprecomp_coprod_distributor_data_is_instance_up_to_eq :
+    actfromprecomp_coprod_distributor_data = fun F => precomp_coprod_distributor_data CP F.
+  Proof.
+    apply funextsec; intro F.
+    apply funextsec; intro Gs.
+    apply nat_trans_eq; [ apply D |].
+    intro x.
+    apply idpath.
+  Qed.
+
   Lemma actfromprecomp_coprod_distributor_law :
-    coprod_distributor_iso_law _ _ _ actfromprecomp_coprod_distributor_data.
+    actegory_coprod_distributor_iso_law _ _ _ actfromprecomp_coprod_distributor_data.
   Proof.
     intros F Gs.
     split.
@@ -258,7 +267,7 @@ Section Coproduct.
   Qed.
 
   Definition actfromprecomp_coprod_distributor :
-    coprod_distributor (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp :=
+    actegory_coprod_distributor (Mon_endo(C:=bicat_of_cats) C) CP_homcat_CAT actegoryfromprecomp :=
     _,,actfromprecomp_coprod_distributor_law.
 
 End Coproduct.
