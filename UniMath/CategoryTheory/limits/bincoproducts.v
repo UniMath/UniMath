@@ -1445,8 +1445,7 @@ Section DistributionForPrecompositionFunctor.
     cbn.
     use make_nat_trans.
     - intro a. apply identity.
-    - intros a a' f.
-      rewrite id_left; apply id_right.
+    - abstract (intros a a' f; rewrite id_left; apply id_right).
   Defined.
 
   Lemma precomp_bincoprod_distributor_law :
