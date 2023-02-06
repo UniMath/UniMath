@@ -24,7 +24,7 @@ Contents :
 
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -37,8 +37,6 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
@@ -502,9 +500,7 @@ Proof.
   set (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
   set (h' :=  F1' · F2').
   set (obsolete := nat_trans_comp (α_functors_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
-  set (F3' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((pr1 (pr2 XZ),, pr1 XZ),, pr1 XZ))).
-  unfold MonoidalCategories.assoc_right, MonoidalCategories.assoc_left in F3'.
-  unfold precategory_binproduct_unassoc, pair_functor, functorial_composition in F3'.
+  set (F3' := α_functors_funcat (pr12 XZ) (pr1 XZ) (pr1 XZ)).
   set (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
   exact (F3' · F4').
 Defined.

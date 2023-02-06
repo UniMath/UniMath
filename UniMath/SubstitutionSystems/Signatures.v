@@ -35,10 +35,14 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.SubstitutionSystems.Notation.
+
+
+(** only needed for Section [homogeneous_case]: *)
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
-Require Import UniMath.SubstitutionSystems.Notation.
+
 
 Local Open Scope subsys.
 
@@ -485,10 +489,6 @@ Section homogeneous_case.
 
 Context (C : category).
 
-Local Definition ptd := monoidal_cat_of_pointedfunctors C.
-Local Definition endo := monoidal_cat_of_endofunctors C.
-Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
-
 Local Lemma auxH1 (H : functor [C, C] [C, C]) (X : functor C C) :
   # H
     (nat_trans_comp
@@ -518,6 +518,10 @@ Proof.
   rewrite id_right.
   apply functor_id.
 Qed.
+
+Local Definition ptd := monoidal_cat_of_pointedfunctors C.
+Local Definition endo := monoidal_cat_of_endofunctors C.
+Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
 
 Section relative_strength_instantiates_to_signature.
 
