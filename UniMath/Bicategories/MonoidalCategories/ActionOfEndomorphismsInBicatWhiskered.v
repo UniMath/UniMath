@@ -150,6 +150,23 @@ Section BinaryCoproduct.
     exact BCP.
   Defined.
 
+  (*
+  Definition actfromprecomp_bincoprod_distributor_data :
+    actegory_bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
+  Proof.
+    intro F.
+    apply precomp_bincoprod_distributor_data. (* slow *)
+  Defined.
+
+  Lemma actfromprecomp_bincoprod_distributor_law :
+    actegory_bincoprod_distributor_iso_law _ _ _ actfromprecomp_bincoprod_distributor_data.
+  Proof.
+    intro F.
+    apply precomp_bincoprod_distributor_law. (* very slow *)
+  Qed.
+
+  Because type checking is so slow, we redo the construction and proof: *)
+
   Definition actfromprecomp_bincoprod_distributor_data :
     actegory_bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
   Proof.

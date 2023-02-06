@@ -40,6 +40,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.ProductCategory.
 
 Local Open Scope cat.
@@ -1429,3 +1430,47 @@ Section DistributionThroughFunctor.
   Coercion bincoprod_distributor_to_data : bincoprod_distributor >-> bincoprod_distributor_data.
 
 End DistributionThroughFunctor.
+
+Section DistributionForPrecompositionFunctor.
+
+  Context {A B C : category} (BCPC : BinCoproducts C) (H : functor A B).
+
+  Let BCPAC : BinCoproducts [A,C] := BinCoproducts_functor_precat A C BCPC.
+  Let BCPBC : BinCoproducts [B,C] := BinCoproducts_functor_precat B C BCPC.
+  Let precomp : functor [B,C] [A,C] := pre_composition_functor A B C H.
+
+  Definition precomp_bincoprod_distributor_data :  bincoprod_distributor_data BCPBC BCPAC precomp.
+  Proof.
+    intros G1 G2.
+    cbn.
+    use make_nat_trans.
+    - intro a. apply identity.
+    - intros a a' f.
+      rewrite id_left; apply id_right.
+  Defined.
+
+  Lemma precomp_bincoprod_distributor_law :
+    bincoprod_distributor_iso_law _ _ _ precomp_bincoprod_distributor_data.
+  Proof.
+    intros F G.
+    split.
+    - apply nat_trans_eq; [apply C |].
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, BinCoproduct_endo_is_identity.
+      + apply BinCoproductIn1Commutes.
+      + apply BinCoproductIn2Commutes.
+    - etrans.
+      { apply postcompWithBinCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, BinCoproductArrowEta. }
+      apply maponpaths_12;
+        (rewrite id_right; apply nat_trans_eq; [apply C |]; intro c; apply id_right).
+  Qed.
+
+  Definition precomp_bincoprod_distributor :  bincoprod_distributor BCPBC BCPAC precomp :=
+    _,,precomp_bincoprod_distributor_law.
+
+
+End DistributionForPrecompositionFunctor.
