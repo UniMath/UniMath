@@ -804,7 +804,7 @@ End PointwiseBinaryProductOfLinearFunctors.
 
 Section PointwiseBinaryCoproductOfLinearFunctors.
 
-  Context (BCD : BinCoproducts D) (δ : bincoprod_distributor Mon_V BCD ActD).
+  Context (BCD : BinCoproducts D) (δ : actegory_bincoprod_distributor Mon_V BCD ActD).
 
   Let FF : functor C D := BinCoproduct_of_functors _ _ BCD F1 F2.
   Let FF' : functor C D := BinCoproduct_of_functors_alt2 BCD F1 F2.

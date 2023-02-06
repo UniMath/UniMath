@@ -72,7 +72,7 @@ Section hss.
   Definition Const_plus_H (v : V) : functor V V := BinCoproduct_of_functors _ _ CP (constant_functor _ _ v) H.
 
   Definition gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
-    bincoprod_antidistributor_data Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
+    actegory_bincoprod_antidistributor Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
       (z,,e) ⊗^{Act}_{l} (BinCoproductArrow (CP _ _) η τ) · h =
     BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} z) (θ (z,,e) t) ·
       #(Const_plus_H z) h · BinCoproductArrow (CP _ _) f τ.
@@ -138,7 +138,7 @@ Section hss.
     - intro H1.
       split.
       + apply (maponpaths (fun m => BinCoproductIn1 (CP _ _) · m)) in H1.
-        unfold bincoprod_antidistributor_data in H1.
+        unfold actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor in H1.
         repeat rewrite assoc in H1.
         rewrite BinCoproductIn1Commutes in H1.
         assert (aux := functor_comp (leftwhiskering_functor Act (z,,e))
@@ -166,7 +166,7 @@ Section hss.
         rewrite id_left.
         apply pathsinv0, BinCoproductIn1Commutes.
       + apply (maponpaths (fun m => BinCoproductIn2 (CP _ _) · m)) in H1.
-        unfold bincoprod_antidistributor_data in H1.
+        unfold actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor in H1.
         repeat rewrite assoc in H1.
         rewrite BinCoproductIn2Commutes in H1.
         assert (aux := functor_comp (leftwhiskering_functor Act (z,,e))

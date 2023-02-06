@@ -13,6 +13,7 @@ Require Import  UniMath.CategoryTheory.PrecategoryBinProduct.
 (** the following are needed for the connection with functors into the functor category *)
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 
 Open Scope cat.
@@ -626,3 +627,57 @@ Section FunctorsIntoEndofunctorCategory.
   Defined.
 
 End FunctorsIntoEndofunctorCategory.
+
+Section DistributionOfBinaryCoproducts.
+  Import BifunctorNotations.
+
+  Context {A C D : category} (BCPC : BinCoproducts C) (BCPD : BinCoproducts D) (F : bifunctor A C D).
+
+  Definition bifunctor_bincoprod_antidistributor (a : A) (c c' : C) :=
+    bincoprod_antidistributor BCPC BCPD (leftwhiskering_functor F a) c c'.
+
+  Lemma bincoprod_antidistributor_nat_left (a : A) (cc'1 cc'2 : category_binproduct C C)
+    (g : category_binproduct C C ⟦ cc'1, cc'2 ⟧) :
+    bifunctor_bincoprod_antidistributor a (pr1 cc'1) (pr2 cc'1) · a ⊗^{F}_{l} #(bincoproduct_functor BCPC) g =
+      #(bincoproduct_functor BCPD) (#(pair_functor (leftwhiskering_functor F a) (leftwhiskering_functor F a)) g) ·
+        bifunctor_bincoprod_antidistributor a (pr1 cc'2) (pr2 cc'2).
+  Proof.
+    apply bincoprod_antidistributor_nat.
+  Qed.
+
+  Lemma bincoprod_antidistributor_nat_right (a1 a2 : A) (cc' : category_binproduct C C) (f : A ⟦ a1, a2 ⟧) :
+    bifunctor_bincoprod_antidistributor a1 (pr1 cc') (pr2 cc') · f ⊗^{F}_{r} bincoproduct_functor BCPC cc'  =
+      #(bincoproduct_functor BCPD) (catbinprodmor (f ⊗^{F}_{r} (pr1 cc')) (f ⊗^{F}_{r} (pr2 cc'))) ·
+        bifunctor_bincoprod_antidistributor a2 (pr1 cc') (pr2 cc').
+  Proof.
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
+    - etrans.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
+    - etrans.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
+  Qed.
+
+
+  Definition bifunctor_bincoprod_distributor_data : UU :=
+    ∏ (a : A), bincoprod_distributor_data BCPC BCPD (leftwhiskering_functor F a).
+
+  Identity Coercion bifunctor_bincoprod_distributor_data_funclass: bifunctor_bincoprod_distributor_data >-> Funclass.
+
+  Definition bifunctor_bincoprod_distributor_iso_law (δ : bifunctor_bincoprod_distributor_data) : UU
+    := ∏ (a : A), bincoprod_distributor_iso_law BCPC BCPD (leftwhiskering_functor F a) (δ a).
+
+  Definition bifunctor_bincoprod_distributor : UU := ∑ δ : bifunctor_bincoprod_distributor_data,
+        bifunctor_bincoprod_distributor_iso_law δ.
+
+  Definition bifunctor_bincoprod_distributor_to_data (δ : bifunctor_bincoprod_distributor) :
+    bifunctor_bincoprod_distributor_data := pr1 δ.
+  Coercion bifunctor_bincoprod_distributor_to_data :
+    bifunctor_bincoprod_distributor >-> bifunctor_bincoprod_distributor_data.
+
+End DistributionOfBinaryCoproducts.

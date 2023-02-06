@@ -151,7 +151,7 @@ Section BinaryCoproduct.
   Defined.
 
   Definition actfromprecomp_bincoprod_distributor_data :
-    bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
+    actegory_bincoprod_distributor_data (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp.
   Proof.
     intros F G1 G2.
     cbn.
@@ -162,7 +162,7 @@ Section BinaryCoproduct.
   Defined.
 
   Lemma actfromprecomp_bincoprod_distributor_law :
-    bincoprod_distributor_iso_law _ _ _ actfromprecomp_bincoprod_distributor_data.
+    actegory_bincoprod_distributor_iso_law _ _ _ actfromprecomp_bincoprod_distributor_data.
   Proof.
     intros F G.
     split.
@@ -182,7 +182,7 @@ Section BinaryCoproduct.
   Qed.
 
   Definition actfromprecomp_bincoprod_distributor :
-    bincoprod_distributor (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp :=
+    actegory_bincoprod_distributor (Mon_endo(C:=bicat_of_cats) C) BCP_homcat_CAT actegoryfromprecomp :=
     _,,actfromprecomp_bincoprod_distributor_law.
 
 End BinaryCoproduct.
