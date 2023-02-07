@@ -16,14 +16,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # This is only used by the MacOS build.
-  coq-version: 8.16.1
-  dune-version: 3.6.1
-  ocaml-version: ocaml-base-compiler.4.14.0
-  # ocaml-version: ocaml-variants.4.14.0+options,ocaml-option-flambda
-  DUNE_CACHE_STORAGE_MODE: copy
-
 jobs:
   # This workflow contains four jobs:
   #   - sanity-checks
@@ -101,34 +93,33 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-  # Build UniMath on MacOS using Coq 8.16.1 installed with Opam. This uses
-  # actions/setup-ocaml to cache both the ocaml build and the UniMath build. The
-  # interaction between Opam and dune cache is however not perfect, so usually
-  # some parts of Coq needs to be rebuilt on each run.
+  # Build UniMath on MacOS using latest stable release of Coq installed with
+  # Homebrew (currently 8.16.1). Build files are cached.
   build-macos:
     name: Build on macOS (Coq 8.16)
 
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install OCaml
-        uses: ocaml/setup-ocaml@v2
-        with:
-          ocaml-compiler: ${{ env.ocaml-version }}
-          dune-cache: true
-          opam-disable-sandboxing: true
-      - name: Install Dune ${{ env.dune-version }}
-        run: opam pin add dune ${{ env.dune-version }}
+      - name: Install Coq
+        run: |
+          brew install coq ocaml-findlib dune
 
-      - name: Install Coq ${{ env.coq-version }}
-        run: opam pin add coq ${{ env.coq-version }}
+          coqc --version
+          dune --version
+
+      - uses: actions/cache@v3
+        with:
+          path: dune-cache
+          key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            UniMath-MacOS-${{ github.run_id }}
+            UniMath-MacOS
 
       - name: Build UniMath
         run: |
-          opam --version
-          opam exec -- dune --version
-          opam exec -- coqc --version
-          opam exec -- dune build -j 3 --display=short --error-reporting=twice
+          export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+          dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
   # Build the satellites in parallel using docker-coq images with the latest
   # stable patch-release of Coq 8.16, except for TypeTheory, which is built
