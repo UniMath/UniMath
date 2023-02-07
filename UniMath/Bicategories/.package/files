@@ -195,6 +195,7 @@ Monads/MonadToAdjunction.v
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
+Limits/Examples/BicatOfEnrichedCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
@@ -223,6 +224,7 @@ Morphisms/Examples/MorphismsInOneTypes.v
 Morphisms/Examples/EsosInBicatOfUnivCats.v
 Morphisms/Examples/MorphismsInSliceBicat.v
 Morphisms/Examples/MorphismsInStructuredCat.v
+Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v

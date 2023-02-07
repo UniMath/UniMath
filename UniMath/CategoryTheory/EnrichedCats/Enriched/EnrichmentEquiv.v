@@ -15,9 +15,9 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Enriched.Enriched.
-Require Import UniMath.CategoryTheory.Enriched.Enrichment.
-Require Import UniMath.CategoryTheory.Enriched.UnderlyingCategory.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.UnderlyingCategory.
 
 Local Open Scope cat.
 Local Open Scope moncat.
