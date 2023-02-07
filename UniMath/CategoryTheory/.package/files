@@ -11,6 +11,7 @@ Core/Prelude.v
 
 FunctorCategory.v
 whiskering.v
+BicatOfCatsElementary.v
 
 DisplayedCats/Core.v
 DisplayedCats/Isos.v

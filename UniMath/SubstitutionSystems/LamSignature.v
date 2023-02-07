@@ -39,7 +39,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -243,12 +243,10 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -270,12 +268,10 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -495,12 +491,12 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functors_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  set (h:= nat_trans_comp (linvunitor_CAT (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
   set (F1' := pr1 (pr2 (left_unit_as_nat_z_iso _ _) (pr1 XZ))).
   set (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
   set (h' :=  F1' · F2').
-  set (obsolete := nat_trans_comp (α_functors_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
-  set (F3' := α_functors_funcat (pr12 XZ) (pr1 XZ) (pr1 XZ)).
+  set (obsolete := nat_trans_comp (rassociator_CAT (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (F3' := lassociator_CAT (pr12 XZ) (pr1 XZ) (pr1 XZ)).
   set (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
   exact (F3' · F4').
 Defined.

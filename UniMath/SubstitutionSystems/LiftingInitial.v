@@ -50,7 +50,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -118,7 +118,7 @@ Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (runitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt.
@@ -147,7 +147,7 @@ Definition aux_iso_1 (Z : Ptd)
 Proof.
   use tpair.
   - intro X.
-    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functors (U Z))
+    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (runitor_CAT (U Z))
             (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_is_nat_trans Z).
 Defined.
@@ -162,7 +162,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (lunitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt.
@@ -189,7 +189,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
 Proof.
   use tpair.
   - intro X.
-    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functors (U Z))
+    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (lunitor_CAT (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_inv_is_nat_trans Z).
 Defined.
@@ -307,10 +307,10 @@ Proof.
     unfold coproduct_nat_trans_in1_data ; simpl.
     repeat rewrite <- assoc .
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    unfold λ_functors; simpl.
+    simpl.
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    unfold ρ_functors; simpl.
+    simpl.
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
     rewrite (@id_left EndC).
@@ -322,7 +322,7 @@ Proof.
   - rewrite <- h_eq1'_inst.
     clear h_eq1'_inst.
     apply BinCoproductIn1Commutes_left_in_ctx_dir.
-    unfold λ_functors, nat_trans_id; simpl.
+    unfold nat_trans_id; simpl.
     rewrite id_left.
     repeat rewrite (id_left EndEndC).
     repeat rewrite (id_left EndC).

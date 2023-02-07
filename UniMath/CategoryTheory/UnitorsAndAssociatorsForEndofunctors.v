@@ -200,6 +200,7 @@ Qed.
 
 End Monoidal_Structure_on_Endofunctors.
 
+(*
 Section InFunctorCategories.
 
   Context {C D E F : category}.
@@ -213,3 +214,4 @@ Section InFunctorCategories.
     := nat_trans_id ((X ∙ Y) ∙ Z).
 
 End InFunctorCategories.
+*)
