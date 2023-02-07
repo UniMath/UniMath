@@ -232,7 +232,25 @@ Proof.
 Qed.
 
 (** now for convenience *)
-Lemma lassociator_CAT_pointwise_is_z_iso {C D E F : category} (X : functor C D)(Y : functor D E)(Z : functor E F) :
+Lemma lunitor_CAT_pointwise_is_z_iso {C D : category} (F : [C, D]) :
+  is_z_isomorphism (lunitor_CAT F).
+Proof.
+  exists (linvunitor_CAT F).
+  split.
+  - apply lunitor_linvunitor_CAT.
+  - apply linvunitor_lunitor_CAT.
+Defined.
+
+Lemma runitor_CAT_pointwise_is_z_iso {C D : category} (F : [C, D]) :
+  is_z_isomorphism (runitor_CAT F).
+Proof.
+  exists (rinvunitor_CAT F).
+  split.
+  - apply runitor_rinvunitor_CAT.
+  - apply rinvunitor_runitor_CAT.
+Defined.
+
+Definition lassociator_CAT_pointwise_is_z_iso {C D E F : category} (X : functor C D)(Y : functor D E)(Z : functor E F) :
   is_z_isomorphism (lassociator_CAT X Y Z).
 Proof.
   exists (rassociator_CAT X Y Z).
@@ -240,3 +258,57 @@ Proof.
   - apply lassociator_rassociator_CAT.
   - apply rassociator_lassociator_CAT.
 Defined.
+
+(** laws that are instances of derivable rules in bicategories; here, we just prove them directly *)
+
+Lemma lwhisker_lwhisker_rassociator_CAT {A B C D : category} {F : [A, B]} {G : [B, C]} {H I : [C, D]}
+  (α : [C, D]⟦H, I⟧) :
+   rassociator_CAT _ _ _ · lwhisker_CAT F (lwhisker_CAT G α) =
+    lwhisker_CAT (functor_compose F G) α · lassociator_CAT _ _ _ .
+Proof.
+  apply (nat_trans_eq D); intro c.
+  cbn.
+  rewrite id_right; apply id_left.
+Qed.
+
+Lemma rwhisker_lwhisker_rassociator_CAT {A B C D : category} {F : [A, B]} {G H : [B, C]} {I : [C, D]}
+  (α : [B, C]⟦G, H⟧) :
+  rassociator_CAT _ _ _ · lwhisker_CAT F (rwhisker_CAT I α) =
+    rwhisker_CAT I (lwhisker_CAT F α) · rassociator_CAT _ _ _.
+Proof.
+  apply (nat_trans_eq D); intro c.
+  cbn.
+  rewrite id_right; apply id_left.
+Qed.
+
+Lemma rwhisker_rwhisker_alt_CAT {A B C D : category} {F : [B, A]} {G : [C, B]} {H I : [D, C]}
+  (α : [D, C]⟦H, I⟧) :
+  rwhisker_CAT F (rwhisker_CAT G α) · rassociator_CAT _ _ _ =
+    rassociator_CAT _ _ _ · rwhisker_CAT (functor_compose G F) α.
+Proof.
+  apply (nat_trans_eq A); intro d.
+  cbn.
+  rewrite id_left; apply id_right.
+Qed.
+
+Lemma lunitor_lwhisker_CAT {A B C : category} (F : [A, B]) (G : [B, C]) :
+  rassociator_CAT F (id1_CAT B) G · (lwhisker_CAT F (lunitor_CAT G)) =
+    rwhisker_CAT G (runitor_CAT F).
+Proof.
+  apply (nat_trans_eq C); intro c.
+  cbn.
+  rewrite id_left.
+  apply pathsinv0, functor_id.
+Qed.
+
+Lemma rassociator_rassociator_CAT {A B C D E : category}
+  (F : [A, B]) (G : [B, C]) (H : [C, D]) (I : [D, E]) :
+  rwhisker_CAT I (rassociator_CAT F G H) · rassociator_CAT _ (functor_compose G H)  _ ·
+    (lwhisker_CAT F (rassociator_CAT _ _ _)) =
+    rassociator_CAT (functor_compose F G) H I · rassociator_CAT F G (functor_compose H I).
+Proof.
+  apply (nat_trans_eq E); intro c.
+  cbn.
+  do 3 rewrite id_right.
+  apply functor_id.
+Qed.
