@@ -126,7 +126,40 @@ Section CoproductOfFunctorsContinuity.
       -> ∏ C : category, ω_limits_distribute_over_I_coproducts [C,D] I (ω_complete_functor_cat C) (coproduct_functor_cat C).
   Proof.
     intros distr C ind.
-  Admitted.
+    use nat_trafo_z_iso_if_pointwise_z_iso.
+    intro c.
+
+    transparent assert (ind_c : (pr1 I -> cochain D)).
+    {
+      intro i.
+      exists (λ n, pr1 (pr1 (ind i) n) c).
+      exact (λ n m p, pr1 (pr2 (ind i) n m p) c).
+    }
+
+    exists (pr1 (distr ind_c)).
+    split.
+    - refine (_ @ pr12 (distr ind_c)).
+      apply maponpaths_2.
+      use limArrowUnique ; intro.
+      use CoproductArrowUnique ; intro.
+      etrans.
+      1: {
+        apply maponpaths.
+        apply (limArrowCommutes (ω_lim (diagram_pointwise (coproduct_n_cochain [C, D] (coproduct_functor_cat C) ind) c))).
+      }
+      apply (CoproductInCommutes _ _ _ (CP (λ i0 : pr1 I, lim (ω_lim (ind_c i0))))).
+    - refine (_ @ pr22 (distr ind_c)).
+      apply maponpaths.
+      use limArrowUnique ; intro.
+      use CoproductArrowUnique ; intro.
+      etrans.
+      1: {
+        apply maponpaths.
+        apply (limArrowCommutes (ω_lim (diagram_pointwise (coproduct_n_cochain [C, D] (coproduct_functor_cat C) ind) c))).
+      }
+      apply (CoproductInCommutes _ _ _ (CP (λ i0 : pr1 I, lim (ω_lim (ind_c i0))))).
+  Defined.
+
 
   Definition coproduct_of_functors_omega_cont
              (C : category)
