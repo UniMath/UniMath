@@ -226,34 +226,31 @@ Section CoproductOfFunctorsContinuity.
         cbn.
 
         etrans.
-        1: {
-          do 2 apply maponpaths_2.
-
-          transparent assert (f : (D ⟦ CoproductObject (pr1 I) D (CP (λ j : pr1 I, F j l)),
-                                       CoproductObject (pr1 I) D (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0)))) ⟧)).
-          {
-            use CoproductOfArrows.
-            exact (λ j, limArrow (ω_lim (ind j)) (F j l) (mapcone (F j) coch l_cone)).
-          }
-
-          assert (p : limArrow (ω_lim (ind i)) (F i l) (mapcone (F i) coch l_cone) · CoproductIn (pr1 I) D (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0)))) i
-                  = (CoproductIn (pr1 I) D (CP (λ j : pr1 I, F j l)) i · f)).
-          {
-            admit.
-          }
-
-          exact p.
-        }
+        1: apply assoc'.
         etrans.
         1: {
-          do 2 apply maponpaths_2.
-
-
-
-          admit.
+          apply maponpaths.
+          set (t := limArrowCommutes (ω_lim (mapdiagram (coproduct_of_functors (pr1 I) C D CP F) coch))).
+          exact (t (pr11 (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))) (limit_of_coproduct_as_cone_of_coproduct_to_limit D ω_lim CP ind) n).
         }
 
-        admit.
+        cbn.
+        unfold CoproductOfArrows.
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))).
+        }
+
+        etrans.
+        2: apply pathsinv0, (CoproductInCommutes _ _ _  (CP (λ j : pr1 I, F j l))).
+        etrans.
+        1: apply assoc.
+
+        apply maponpaths_2.
+        exact (limArrowCommutes (ω_lim (ind i))  (F i l) (mapcone (F i) coch l_cone) n).
       + cbn.
         admit.
   Admitted.
