@@ -69,14 +69,14 @@ Section FixACategory.
     - apply lunitor_CAT_pointwise_is_z_iso.
   Qed.
 
-  Local Lemma monendocat_rightunitor_law: rightunitor_law ru_{MD} ruinv_{MD}.
+  Local Lemma monendocat_rightunitor_law : rightunitor_law ru_{MD} ruinv_{MD}.
   Proof.
     split; red; cbn; intros.
     - apply vcomp_runitor_CAT.
     - apply runitor_CAT_pointwise_is_z_iso.
   Qed.
 
-  Local Lemma monendocat_associator_law: associator_law α_{MD} αinv_{MD}.
+  Local Lemma monendocat_associator_law : associator_law α_{MD} αinv_{MD}.
   Proof.
     repeat split; try red; cbn; intros.
     - apply lwhisker_lwhisker_rassociator_CAT.
@@ -86,17 +86,17 @@ Section FixACategory.
     - apply lassociator_CAT_pointwise_is_z_iso.
   Qed.
 
-  Local Lemma monendocat_triangle_identity: triangle_identity lu_{MD} ru_{MD} α_{MD}.
+  Local Lemma monendocat_triangle_identity : triangle_identity lu_{MD} ru_{MD} α_{MD}.
   Proof.
     red; cbn. apply lunitor_lwhisker_CAT.
   Qed.
 
-  Local Lemma monendocat_pentagon_identity: pentagon_identity α_{MD}.
+  Local Lemma monendocat_pentagon_identity : pentagon_identity α_{MD}.
   Proof.
     red; cbn; apply rassociator_rassociator_CAT.
   Qed.
 
-  Definition monendocat_monoidal: monoidal [C, C].
+  Definition monendocat_monoidal : monoidal [C, C].
   Proof.
     exists monendocat_monoidal_data.
     red.

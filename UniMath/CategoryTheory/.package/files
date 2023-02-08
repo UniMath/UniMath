@@ -261,6 +261,7 @@ Monoidal/MorphismsOfActegories.v
 Monoidal/ProductActegory.v
 Monoidal/ProductsInActegories.v
 Monoidal/CoproductsInActegories.v
+Monoidal/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
 Monoidal/ConstructionOfActegoryMorphisms.v
 Monoidal/ActionBasedStrongMonads.v
 Monoidal/MonoidalSectionsWhiskered.v
