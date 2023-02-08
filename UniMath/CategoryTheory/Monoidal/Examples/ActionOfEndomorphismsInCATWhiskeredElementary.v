@@ -95,7 +95,8 @@ Section TheHomogeneousCase.
 
 (** requires [action_from_precomp_CAT] with known proofs of the laws *)
 Definition action_in_actegory_from_precomp_CAT_as_self_action :
-  actegory_action (Mon_endo C) (actegory_from_precomp_CAT C C) = actegory_action (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C)).
+  actegory_action (Mon_endo C) (actegory_from_precomp_CAT C C) =
+    actegory_action (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C)).
 Proof.
   apply idpath.
 Defined.
@@ -121,6 +122,58 @@ End TheHomogeneousCase.
 
 Section DistributionOfCoproducts.
 
-  (* TODO *)
+  Context (C D : category).
+
+Section BinaryCoproduct.
+
+  Context (BCP : BinCoproducts D).
+
+  Let BCPCD : BinCoproducts [C, D] := BinCoproducts_functor_precat C D BCP.
+
+  Definition actegory_from_precomp_CAT_bincoprod_distributor_data :
+    actegory_bincoprod_distributor_data (Mon_endo C) BCPCD (actegory_from_precomp_CAT C D).
+  Proof.
+    intro F.
+    apply precomp_bincoprod_distributor_data.
+  Defined.
+
+  Lemma actegory_from_precomp_CAT_bincoprod_distributor_law :
+    actegory_bincoprod_distributor_iso_law _ _ _ actegory_from_precomp_CAT_bincoprod_distributor_data.
+  Proof.
+    intro F.
+    apply precomp_bincoprod_distributor_law.
+  Qed.
+
+  Definition actegory_from_precomp_CAT_bincoprod_distributor :
+    actegory_bincoprod_distributor (Mon_endo C) BCPCD (actegory_from_precomp_CAT C D) :=
+    _,,actegory_from_precomp_CAT_bincoprod_distributor_law.
+
+End BinaryCoproduct.
+
+Section Coproduct.
+
+  Context {I : UU} (CP : Coproducts I D).
+
+  Let CPCD : Coproducts I [C, D] := Coproducts_functor_precat I C D CP.
+
+  Definition actegory_from_precomp_CAT_coprod_distributor_data :
+    actegory_coprod_distributor_data (Mon_endo C) CPCD (actegory_from_precomp_CAT C D).
+  Proof.
+    intros F Gs.
+    apply precomp_coprod_distributor_data.
+  Defined.
+
+  Lemma actegory_from_precomp_CAT_coprod_distributor_law :
+    actegory_coprod_distributor_iso_law _ _ _ actegory_from_precomp_CAT_coprod_distributor_data.
+  Proof.
+    intros F Gs.
+    apply precomp_coprod_distributor_law.
+  Qed.
+
+  Definition actegory_from_precomp_CAT_coprod_distributor :
+    actegory_coprod_distributor (Mon_endo C) CPCD (actegory_from_precomp_CAT C D) :=
+    _,,actegory_from_precomp_CAT_coprod_distributor_law.
+
+End Coproduct.
 
 End DistributionOfCoproducts.
