@@ -35,189 +35,51 @@ Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-(* Require Import UniMath.SubstitutionSystems.SignatureExamples. *)
-
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
 
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
+
 Local Open Scope cat.
 
-Section OmegaLimitsCommutingWithCoproducts.
+(*
+The following lemmas has to be moved accordingly,
+e.g. in the file CategoryTheory.Chains.Omegacontfunctors
+ *)
 
-  (* We ask for the canonical morphism from canonical : ∐ ω-lim -> ω-lim ∐ to be an isomorphism. *)
-  Context (C : category).
-
-  Context (ω_lim_given : ∏ (coch : cochain C), LimCone coch).
-  Context {I : UU} (Iset : isaset I).
-  Context (coproducts_given : Coproducts I C).
-
-  Variable (ind : I → cochain C).
-
-  Let coproduct_n (n : nat) := coproducts_given (λ i, pr1 (ind i) n).
-  Definition coproduct_n_cochain : cochain C.
-  Proof.
-    exists (λ n, pr11 (coproduct_n n)).
-    intros n m f.
-    use CoproductArrow.
-    exact (λ j, pr2 (ind j) n m f · CoproductIn I C (coproducts_given (λ i0 : I, pr1 (ind i0) m)) j).
-  Defined.
-
-  Definition limit_of_coproduct
-    := ω_lim_given coproduct_n_cochain.
-
-  Definition coproduct_of_limit
-    := coproducts_given (λ i, pr11 (ω_lim_given (ind i))).
-
-  Definition limit_of_coproduct_as_cone_of_coproduct_to_limit
-    : cone coproduct_n_cochain (pr11 coproduct_of_limit).
-  Proof.
-    use tpair.
-    - intro n.
-      use CoproductOfArrows.
-      exact (λ i, pr1 (pr21 (ω_lim_given (ind i))) n).
-    - intros n m p.
-      cbn.
-      etrans.
-      1: apply precompWithCoproductArrow.
-      use CoproductArrowUnique.
-      intro i.
-      etrans.
-      1: apply (CoproductInCommutes _ _ _ coproduct_of_limit _ ( (λ i0 : I, (pr121 (ω_lim_given (ind i0))) n · (pr2 (ind i0) n m p · CoproductIn I C (coproducts_given (λ i1 : I, pr1 (ind i1) m)) i0)))).
-      etrans.
-      1: apply assoc.
-      apply maponpaths_2.
-      exact (pr221 (ω_lim_given (ind i)) n m p).
-  Defined.
-
-  Definition coproduct_of_limit_to_limit_of_coproduct
-    : pr11 coproduct_of_limit --> pr11 limit_of_coproduct
-    := pr11 (pr2 limit_of_coproduct _ limit_of_coproduct_as_cone_of_coproduct_to_limit).
-
-  Definition coproduct_distribute_over_omega_limits
-    := is_z_isomorphism coproduct_of_limit_to_limit_of_coproduct.
-
-End OmegaLimitsCommutingWithCoproducts.
-
-Definition ω_limits_distribute_over_I_coproducts
-           (C : category) (I : HSET)
-           (ω_lim : (∏ coch : cochain C, LimCone coch))
-           (coprd : Coproducts (pr1 I) C)
-  : UU := ∏ ind, coproduct_distribute_over_omega_limits C ω_lim coprd ind.
-
-Section OmegaLimitsCommutingWithCoproductsHSET.
-
-  Definition HSET_ω_limits : ∏ coch : cochain HSET, LimCone coch.
-  Proof.
-    intro coch.
-    apply LimConeHSET.
-  Defined.
-
-  Definition I_coproduct_distribute_over_omega_limits_HSET (I : HSET)
-    : ω_limits_distribute_over_I_coproducts HSET I HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)).
-  Proof.
-    intro ind.
-    use make_is_z_isomorphism.
-    - intros [f p].
-      assert (q0 : ∏ n : nat, S n = n + 1 ).
-      {
-        intro n ; induction n.
-        - apply idpath.
-        - admit.
-      }
-
-      assert (q : ∏ n : nat, pr1 (f n) = pr1 (f (n + 1))).
-      { exact (λ n, ! base_paths _ _ (p (n+1) n (q0 n))). }
-
-      assert (q' : ∏ n : nat, pr1 (f n) = pr1 (f (S n))).
-      {
-        intro n.
-        admit.
-      }
-
-      (* From this extract the i *)
-      exists (pr1 (f 0)).
-      use tpair.
-      + intro n.
-        assert (h : pr1 (f 0) = pr1 (f n)).
-        {
-          induction n.
-          - apply idpath.
-          - exact (IHn @ q' n).
-        }
-        induction (! h).
-        exact (pr2 (f n)).
-      + intros n m h.
-        cbn in p.
-        cbn in f.
-        admit.
-    - split ; apply funextsec ; intro x ; use total2_paths_f ; admit.
-  Admitted.
-
-End OmegaLimitsCommutingWithCoproductsHSET.
-
-Definition CoproductOfArrowsIsos
-           (I : UU) (C : category) (a : I -> C) (CC : Coproduct I C a)
-           (c : I -> C) (CC' : Coproduct I C c) (f : ∏ i : I, C⟦a i, c i⟧)
-  : (∏ i : I, is_z_isomorphism (f i)) -> is_z_isomorphism (CoproductOfArrows I C CC CC' f).
+Lemma nat_trans_preserve_cone
+      {A B : category}
+      {F G : functor A B}
+      (α : nat_trans F G)
+      {coch : cochain A}
+      {b : B} (b_con : cone (mapdiagram F coch) b)
+  : cone (mapdiagram G coch) b.
 Proof.
-  intro fi_iso.
-  use make_is_z_isomorphism.
-  - use CoproductOfArrows.
-    exact (λ i, pr1 (fi_iso i)).
-  - split.
-    + etrans. { apply precompWithCoproductArrow. }
-      apply pathsinv0, CoproductArrowUnique.
-      intro i.
-      refine (id_right _ @ ! id_left _ @ _).
-      refine (_ @ assoc' _ _ _).
-      apply maponpaths_2.
-      apply pathsinv0, (pr2 (fi_iso i)).
-    + etrans. { apply precompWithCoproductArrow. }
-      apply pathsinv0, CoproductArrowUnique.
-      intro i.
-      refine (id_right _ @ ! id_left _ @ _).
-      refine (_ @ assoc' _ _ _).
-      apply maponpaths_2.
-      apply pathsinv0, (pr2 (fi_iso i)).
-Defined.
-
-Lemma constant_functor_composition_nat_trans
-      (A B C : category) (b : B) (F : functor B C)
-  : nat_trans (functor_composite (constant_functor A B b) F)
-              (constant_functor A C (F b)).
-Proof.
-  use make_nat_trans.
-  + intro ; apply identity.
-  + intro ; intros.
-    apply maponpaths_2.
-    exact (functor_id F b).
+  exists (λ v, pr1 b_con v · α (dob coch v)).
+  intros u v p.
+  etrans.
+  1: apply assoc'.
+  cbn.
+  etrans.
+  1: apply maponpaths, pathsinv0, (pr2 α).
+  etrans.
+  1: apply assoc.
+  apply maponpaths_2.
+  exact (pr2 b_con u v p).
 Defined.
 
 Lemma nat_z_iso_preserve_ωlimits {A B : category}
       (F G : functor A B)
   : is_omega_cont F -> nat_z_iso F G -> is_omega_cont G.
 Proof.
-  (* This lemma should be split up in data and property and there is also a repeat of proof, need a more "general, but easy" lemma. *)
+  (* This lemma should be split up in data and property and there is also a repeat of proof, need a more "general, but easy" lemma.
+ *)
   intros Fc i.
   intros coch a a_con a_lim.
   intros b b_con.
-
-  transparent assert (b'_con : (cone (mapdiagram F coch) b)).
-  {
-    exists (λ v, pr1 b_con v · pr1 (pr2 i (dob coch v))).
-    intros u v p.
-    etrans.
-    1: apply assoc'.
-    cbn.
-    etrans.
-    1: apply maponpaths, pathsinv0, (pr21 (nat_z_iso_inv i)).
-    etrans.
-    1: apply assoc.
-    apply maponpaths_2.
-    exact (pr2 b_con u v p).
-  }
-
+  set (b'_con := nat_trans_preserve_cone (nat_z_iso_inv i) b_con).
   set (t := Fc coch a a_con a_lim b b'_con).
   use tpair.
   - exists (pr11 t · pr1 i a).
@@ -263,68 +125,19 @@ Proof.
     + apply (impred_isaprop) ; intro ; apply homset_property.
 Defined.
 
-Lemma constant_functor_composition_nat_z_iso (A B C : category) (b : B) (F : functor B C)
-  : nat_z_iso (functor_composite (constant_functor A B b) F)
-              (constant_functor A C (F b)).
-Proof.
-  exists (constant_functor_composition_nat_trans A B C b F).
-  intro ; apply identity_is_z_iso.
-Defined.
+Definition LimFunctor_is_pointwise_Lim:
+  ∏ (A C : category) (g : graph) (D : diagram g [A, C]),
+    (∏ a : A, LimCone (diagram_pointwise D a))
+    → ∏ (X : [A, C]) (R : cone D X),
+    isLimCone D X R
+    → ∏ a : A, LimCone (diagram_pointwise D a)
+  := λ A C g D la F F_cone F_lim a, make_LimCone _ _ _ (isLimFunctor_is_pointwise_Lim D la F F_cone F_lim a).
 
-Lemma coproduct_of_functors_nat_trans
-      {I : UU} {C D : category} (CP : Coproducts I D) {F G : I → C ⟶ D}
-      (α : ∏ i : I, nat_trans (F i) (G i))
-  : nat_trans (coproduct_of_functors I C D CP F) (coproduct_of_functors I C D CP G).
-Proof.
-  use make_nat_trans.
-  - intro c.
-    use CoproductOfArrows.
-    exact (λ i, α i c).
-  - intros c1 c2 f.
-    etrans.
-    1: apply precompWithCoproductArrow.
-    etrans.
-    2: apply pathsinv0, precompWithCoproductArrow.
-    apply maponpaths.
-    apply funextsec ; intro i.
-    etrans.
-    1: apply assoc.
-    etrans.
-    2: apply assoc'.
-    apply maponpaths_2.
-    exact (pr2 (α i) _ _ f).
-Defined.
-
-Lemma coproduct_of_functors_nat_z_iso
-      {I : UU} {C D : category} (CP : Coproducts I D) {F G : I → C ⟶ D}
-      (α : ∏ i : I, nat_z_iso (F i) (G i))
-  : nat_z_iso (coproduct_of_functors I C D CP F) (coproduct_of_functors I C D CP G).
-Proof.
-  exists (coproduct_of_functors_nat_trans CP α).
-  intro c.
-  use tpair.
-  - use CoproductOfArrows.
-    exact (λ i, pr1 (pr2 (α i) c)).
-  - split.
-    + etrans.
-      1: apply precompWithCoproductArrow.
-      apply pathsinv0, CoproductArrowUnique.
-      intro i.
-      etrans.
-      2: apply assoc'.
-      etrans.
-      2: apply maponpaths_2, pathsinv0, (pr2 (pr2 (α i) c)).
-      exact (id_right _ @ ! id_left _).
-    + etrans.
-      1: apply precompWithCoproductArrow.
-      apply pathsinv0, CoproductArrowUnique.
-      intro i.
-      etrans.
-      2: apply assoc'.
-      etrans.
-      2: apply maponpaths_2, pathsinv0, (pr2 (pr2 (α i) c)).
-      exact (id_right _ @ ! id_left _).
-Defined.
+Definition LimFunctor_is_pointwise_Lim':
+  ∏ (A C : category) (g : graph) (D : diagram g [A, C]),
+    (∏ a : A, LimCone (diagram_pointwise D a))
+    → LimCone D → ∏ a : A, LimCone (diagram_pointwise D a)
+  := λ A C g D la F_l, LimFunctor_is_pointwise_Lim _ _ _ _ la _ _ (pr2 F_l).
 
 Section OmegaContinuityOfSignatureFunctor.
 
@@ -342,6 +155,19 @@ Section OmegaContinuityOfSignatureFunctor.
 
   Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
   Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+  Lemma sortToC_hasbinproducts
+    : BinProducts [sortToC, sortToC].
+  Proof.
+    repeat (apply BinProducts_functor_precat) ; exact BP.
+  Defined.
+
+  Lemma sortToC_hascoproducts
+    : ∏ I : UU, isaset I -> Coproducts I [sortToC, sortToC].
+  Proof.
+    intros I Iset.
+    repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
+  Defined.
 
   Definition hat_exp_functor_list'_piece
              (xst : (list sort × sort) × sort)
@@ -376,19 +202,6 @@ Section OmegaContinuityOfSignatureFunctor.
       repeat (apply BinProducts_functor_precat) ; exact BP.
   Defined.
 
-  Lemma sortToC_hasbinproducts
-    : BinProducts [sortToC, sortToC].
-  Proof.
-    repeat (apply BinProducts_functor_precat) ; exact BP.
-  Defined.
-
-  Lemma sortToC_hascoproducts
-    : ∏ I : UU, isaset I -> Coproducts I [sortToC, sortToC].
-  Proof.
-    intros I Iset.
-    repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
-  Defined.
-
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
     : nat_z_iso (hat_exp_functor_list sort Hsort C TC BP BC CC xst)
@@ -415,20 +228,9 @@ Section OmegaContinuityOfSignatureFunctor.
                 refine (_ · Univalence.idtoiso (! p)).
                 clear p.
 
-                (* How to apply IHN? We need to do #(BinProduct_of_functors _ IHn _) *)
-                unfold BinProduct_of_functors.
-                unfold BinProduct_of_functors_data.
-                Search BinProduct_of_functors_ob.
-                unfold BinProduct_of_functors_ob.
-                simpl.
-                unfold BinProduct_of_functors_ob.
-                simpl.
-                use BinProductArrow.
-                ** refine (_ · pr1 (pr1 (IHn F) G) H).
-                   admit.
-                ** use CoproductArrow.
-                   intro q.
-                   admit.
+                unfold hat_exp_functor_list.
+                (* pr1 (pr1 (IHn F) G) H *)
+                admit.
              ++ intros H1 H2 α.
                 admit.
           -- intros G1 G2 α.
@@ -472,52 +274,13 @@ Section OmegaContinuityOfSignatureFunctor.
     apply hat_exp_functor_list'_test.
   Defined.
 
-End OmegaContinuityOfSignatureFunctor.
-
-(* This is currently in a seperate because of testing,
-the two have to become merged *)
-Section OmegaContinuityOfSignatureFunctor.
-
-  (* Let C := HSET.
-
-  Let TC := TerminalHSET.
-  Let IC := InitialHSET.
-  Let BP := BinProductsHSET.
-  Let BC := BinCoproductsHSET.
-
-  Let PC := ProductsHSET.
-  Let CC := CoproductsHSET. *)
-
-  Variables (sort : UU) (Hsort : isofhlevel 3 sort).
-  Variables (C : category) (TC : Terminal C) (IC : Initial C)
-          (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
-
-  (** Define the discrete category of sorts *)
-  Let sort_cat : category := path_pregroupoid sort Hsort.
-
-  (** This represents "sort → C" *)
-  Let sortToC : category := [sort_cat,C].
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
-
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-  Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
-
   Variable (LC : ∏ coch : cochain C, LimCone coch).
-  (* Definition LC : ∏ coch : cochain C, graphs.limits.LimCone coch.
-  Proof.
-    intro coch.
-    apply LimConeHSET.
-  Defined. *)
-
   Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
 
-  (* Not sure why I just can't write A := sortToC *)
+  (* Should also be split up into multiple definitions/lemmas *)
   Lemma post_comp_with_pr_and_hat_is_omega_cont (s t : sort)
     :  is_omega_cont (post_comp_functor
-                        (A := functor_category
-                    ((sort,, (λ x y : sort, x = y)),,
-                     make_dirprod (λ c : sort, idpath c) (λ a b c : sort, pathscomp0)) C)
+                        (A := sortToC)
                         (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t)
                      ).
   Proof.
@@ -530,7 +293,8 @@ Section OmegaContinuityOfSignatureFunctor.
     { apply LC. }
 
     use make_is_z_isomorphism.
-    - transparent assert (x : (t = G → cochain C)).
+    - cbn.
+      transparent assert (x : (t = G → cochain C)).
       {
         intro p.
         use tpair.
@@ -542,7 +306,7 @@ Section OmegaContinuityOfSignatureFunctor.
 
       refine (pr1 (distr (_,,Hsort t G) x) · _).
 
-      assert (bla : (∏ a : [(sort,, (λ x y : sort, x = y)),,make_dirprod (λ c : sort, idpath c) (λ a b c : sort, pathscomp0), C], LimCone (diagram_pointwise coch a))).
+      assert (bla : (∏ a : sortToC, LimCone (diagram_pointwise coch a))).
       { admit. }
 
       assert (bla' : (∏ a : path_pregroupoid sort Hsort, LimCone (diagram_pointwise (diagram_pointwise coch F) a))).
@@ -602,12 +366,10 @@ Section OmegaContinuityOfSignatureFunctor.
   Proof.
   Admitted.
 
-
   Lemma is_omega_cont_hat_exp_functor_list_piece
   (xst : (list sort × sort) × sort)
-    :  is_omega_cont (hat_exp_functor_list'_piece _ Hsort C TC BC CC xst).
+    :  is_omega_cont (hat_exp_functor_list'_piece xst).
   Proof.
-    (*  [sortToC, sortToC] ⟶ [sortToC, sortToC] *)
     apply is_omega_cont_functor_composite.
     - exact (pre_comp_option_list_omega_cont xst).
     - exact (post_comp_with_pr_and_hat_is_omega_cont (pr21 xst) (pr2 xst)).
@@ -615,7 +377,7 @@ Section OmegaContinuityOfSignatureFunctor.
 
   Lemma is_omega_cont_hat_exp_functor_list
         (xst : list (list sort × sort) × sort) :
-    is_omega_cont (hat_exp_functor_list' _ Hsort C TC BP BC CC xst).
+    is_omega_cont (hat_exp_functor_list' xst).
   Proof.
     induction xst as [a t] ; revert a.
     use list_ind.
@@ -630,21 +392,31 @@ Section OmegaContinuityOfSignatureFunctor.
 
   (** The functor obtained from a multisorted binding signature is omega-continuous *)
   Lemma is_omega_cont_MultiSortedSigToFunctor' (M : MultiSortedSig sort)
-    : is_omega_cont (MultiSortedSigToFunctor' _ Hsort C TC BP BC CC M).
+        (ω_distr : ω_limits_distribute_over_I_coproducts C (ops sort M) LC (CC (ops sort M) (setproperty (ops sort M))))
+    : is_omega_cont (MultiSortedSigToFunctor' M).
   Proof.
-    (* apply is_omega_cont_product_of_functors.
-    -
-    - intros op; apply is_omega_cont_hat_exp_functor_list. *)
-    (* Defined. *)
-  Admitted.
+    (* The following lemma/definition already existed, so
+       I have done the work of commuting with limits
+       in a sense for nothing ..
+     *)
+    (* apply is_omega_cont_coproduct_of_functors.
+    - intro ; apply is_omega_cont_hat_exp_functor_list.
+    - admit. *)
+
+    use coproduct_of_functors_omega_cont.
+    - do 2 apply ω_complete_functor_cat ; exact LC.
+    - do 2 apply functor_category_ω_limits_distribute_over_I_coproducts ; exact ω_distr.
+    - intro ; apply is_omega_cont_hat_exp_functor_list.
+  Defined.
 
   (** The functor obtained from a multisorted binding signature is omega-continuous *)
   Lemma is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort)
+        (ω_distr : ω_limits_distribute_over_I_coproducts C (ops sort M) LC (CC (ops sort M) (setproperty (ops sort M))))
     : is_omega_cont (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M).
   Proof.
     use nat_z_iso_preserve_ωlimits.
-    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test _ Hsort C TC IC BP BC PC CC M)).
-    exact (is_omega_cont_MultiSortedSigToFunctor' M).
+    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test M)).
+    apply (is_omega_cont_MultiSortedSigToFunctor' M) ; exact ω_distr.
   Defined.
 
 End OmegaContinuityOfSignatureFunctor.

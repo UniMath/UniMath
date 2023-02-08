@@ -59,3 +59,8 @@ ActionBasedStrengthOnHomsInBicat.v
 EquivalenceSignaturesWithActegoryMorphisms.v
 SigmaMonoids.v
 ConstructionOfGHSS.v
+
+ContinuitySignature/GeneralLemmas.v
+ContinuitySignature/CommutingOfOmegaLimitsAndCoproducts.v
+ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v
+ContinuitySignature/InstantiateHSET.v
