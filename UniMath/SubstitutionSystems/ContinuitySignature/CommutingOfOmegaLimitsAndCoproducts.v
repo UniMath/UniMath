@@ -252,7 +252,40 @@ Section CoproductOfFunctorsContinuity.
         apply maponpaths_2.
         exact (limArrowCommutes (ω_lim (ind i))  (F i l) (mapcone (F i) coch l_cone) n).
       + cbn.
-        admit.
-  Admitted.
+        etrans.
+        1: apply assoc'.
+        apply pathsinv0.
+        use (z_iso_inv_to_left _ _ _ (_,,_)).
+        {
+          unfold coproduct_distribute_over_omega_limits in distr.
+          apply (pr2 (z_iso_inv (_,,distr))).
+        }
+        etrans.
+        1: apply id_right.
+
+        apply pathsinv0.
+        use limArrowUnique.
+        intro n.
+
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply (limArrowCommutes  (ω_lim (mapdiagram (coproduct_of_functors (pr1 I) C D CP F) coch))).
+        }
+
+        etrans.
+        1: apply CoproductOfArrows_comp.
+        use CoproductArrowUnique.
+        intro i.
+
+        etrans.
+        1: apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))).
+        apply maponpaths_2.
+
+        exact (limArrowCommutes ( (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim))) _ (pr21 (ω_lim (ind i))) n).
+  Defined.
+
 
 End CoproductOfFunctorsContinuity.
