@@ -19,50 +19,50 @@ Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 
 
-Definition id1_CAT (C : category) : [C, C] := functor_identity_as_ob C C.
+Definition id1_CAT (C : category) : [C, C] := functor_identity C.
 
 (** the data of a [prebicat_2_id_comp_struct] *)
-Definition id2_CAT {C D : category} (F : [C, D]) : [C, D]⟦F, F⟧ := identity F.
+Definition id2_CAT {C D : category} (F : [C, D]) : [C, D]⟦F, F⟧ := nat_trans_id (F : functor _ _).
 
 Definition lunitor_CAT {C D : category} (F : [C, D])
   : [C, D]⟦functor_compose (id1_CAT C) F, F⟧
-  := identity F.
+  := nat_trans_id (F : functor _ _).
 
 Definition runitor_CAT {C D : category} (F : [C, D])
   : [C, D]⟦functor_compose F (id1_CAT D), F⟧
-  := identity F.
+  := nat_trans_id (F : functor _ _).
 
 Definition linvunitor_CAT {C D : category} (F : [C, D])
   : [C, D]⟦F, functor_compose (id1_CAT C) F⟧
-  := identity F.
+  := nat_trans_id (F : functor _ _).
 
 Definition rinvunitor_CAT {C D : category} (F : [C, D])
   : [C, D]⟦F, functor_compose F (id1_CAT D)⟧
-  := identity F.
+  := nat_trans_id (F : functor _ _).
 
 Definition lassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
     [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
-    := nat_trans_id ((X ∙ Y) ∙ Z).
+    := nat_trans_id (functor_composite (functor_composite X Y) Z).
 
 Definition rassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
     [C, F] ⟦functor_compose X (functor_compose Y Z), functor_compose (functor_compose X Y) Z⟧
-    := nat_trans_id ((X ∙ Y) ∙ Z).
+    := nat_trans_id (functor_composite X (functor_composite Y Z)).
 
 Definition vcomp2_CAT {C D : category} (F G H : [C, D]) : [C,D]⟦F, G⟧ -> [C,D]⟦G, H⟧ -> [C,D]⟦F, H⟧.
 Proof.
-  intros α β. exact (α · β).
+  intros α β. exact (nat_trans_comp _ _ _ α β).
 Defined.
 
 Definition lwhisker_CAT {C D E : category} (F : [C, D]) {G1 G2 : [D, E]}
   : [D, E]⟦G1, G2⟧ -> [C, E]⟦functor_compose F G1, functor_compose F G2⟧.
 Proof.
-  intro α. exact (pre_whisker_in_funcat _ _ _ F α).
+  intro α. exact (pre_whisker (F : functor _ _) α).
 Defined.
 
 Definition rwhisker_CAT {C D E : category} {F1 F2 : [C, D]} (G : [D, E])
   : [C, D]⟦F1, F2⟧ -> [C, E]⟦functor_compose F1 G, functor_compose F2 G⟧.
 Proof.
-  intro α. exact (post_whisker_in_funcat _ _ _ α G).
+  intro α. exact (post_whisker α (G : functor _ _)).
 Defined.
 
 (** the proofs required in [prebicat_laws] *)

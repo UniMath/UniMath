@@ -71,6 +71,7 @@ Section A.
    := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
+ (* not possible without some transparent proofs
  Local Lemma actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
    actegoryPtdEndosOnFunctors C = actegory_with_canonical_pointed_action Mon_endo.
  Proof.
@@ -79,6 +80,26 @@ Section A.
    rewrite actegory_from_precomp_as_self_action.
    apply idpath.
  Qed.
+*)
+
+ Local Lemma action_in_actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
+   actegory_action Mon_ptdendo (actegoryPtdEndosOnFunctors C) =
+     actegory_action Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo).
+ Proof.
+   use total2_paths_f.
+   2: { apply WhiskeredBifunctors.isaprop_is_bifunctor. }
+   cbn.
+   apply idpath.
+ Qed. (* slow *)
+
+ (*
+ Local Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (F : functor [C, C] [C, C]) :
+   lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors C) (actegoryPtdEndosOnFunctors C) F ≃
+     lineator_lax Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo)
+       (actegory_with_canonical_pointed_action Mon_endo) F.
+ Proof.
+   use weqfibtototal. (* not seen to terminate *)
+ *)
 
  Section AA.
 
@@ -457,7 +478,8 @@ End A.
 Section B.
 
  Context (C : category).
-
+ (** this section can be resurrected with some transparent proofs, or hopefully by moving to pointed tensorial strength that is not instantiated from bicategories *)
+ (*
  Corollary weqSignatureLaxMorphismActegoriesHomogeneous :
    Signature C C C ≃ ∑ H : endofrombicat C ⟶ endofrombicat C, pointedtensorialstrength (Mon_endo C) H.
  Proof.
@@ -480,5 +502,5 @@ Section B.
    intro H.
    apply idweq.
  Defined.
-
+*)
 End B.

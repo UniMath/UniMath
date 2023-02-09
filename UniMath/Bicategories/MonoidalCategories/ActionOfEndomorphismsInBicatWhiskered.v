@@ -1,6 +1,6 @@
 (** Constructs the actegory with the action of the endomorphisms by precomposition on a fixed hom-category of a bicategory
 
-Author: Ralph Matthes 2022
+Author: Ralph Matthes 2022, extended in 2023
 
  *)
 
@@ -16,6 +16,9 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
@@ -46,16 +49,16 @@ Proof.
   - intros f v1 v2 α. exact (α ▹ f).
 Defined.
 
-(** we explicitly do not opacify the following definition: *)
+(* (** we explicitly do not opacify the following definition: *) *)
 Definition action_from_precomp_laws : is_bifunctor action_from_precomp_data.
 Proof.
-  repeat split.
+  split5.
   - intros v f. apply lwhisker_id2.
   - intros f v. apply id2_rwhisker.
   - intros v f1 f2 f3 β1 β2. apply pathsinv0, lwhisker_vcomp.
   - intros f v1 v2 v3 α1 α2. apply pathsinv0, rwhisker_vcomp.
   - intros v1 v2 f1 f2 α β. apply vcomp_whisker.
-Defined.
+Qed. (* Defined. *)
 
 Definition action_from_precomp : bifunctor endocat homcat homcat :=
   make_bifunctor action_from_precomp_data action_from_precomp_laws.
@@ -63,7 +66,7 @@ Definition action_from_precomp : bifunctor endocat homcat homcat :=
 Definition actegory_from_precomp_data : actegory_data Mon_endo homcat.
 Proof.
   exists action_from_precomp.
-  repeat split.
+  split4.
   - intro f. apply lunitor.
   - intro f. apply linvunitor.
   - intros v w f. apply rassociator.
@@ -72,15 +75,19 @@ Defined.
 
 Lemma actegory_from_precomp_laws : actegory_laws Mon_endo actegory_from_precomp_data.
 Proof.
-  repeat split.
-  - intros f g β. cbn. apply vcomp_lunitor.
-  - cbn. apply lunitor_linvunitor.
-  - cbn. apply linvunitor_lunitor.
-  - intros v w f f' β. cbn. apply lwhisker_lwhisker_rassociator.
-  - intros v v' w f α. cbn. apply pathsinv0, rwhisker_rwhisker_alt.
-  - intros v w w' f α. cbn. apply rwhisker_lwhisker_rassociator.
-  - cbn. apply rassociator_lassociator.
-  - cbn. apply lassociator_rassociator.
+  split4.
+  - split.
+    + intros f g β. cbn. apply vcomp_lunitor.
+    + split.
+      * cbn. apply lunitor_linvunitor.
+      * cbn. apply linvunitor_lunitor.
+  - split4.
+    + intros v w f f' β. cbn. apply lwhisker_lwhisker_rassociator.
+    + intros v v' w f α. cbn. apply pathsinv0, rwhisker_rwhisker_alt.
+    + intros v w w' f α. cbn. apply rwhisker_lwhisker_rassociator.
+    + split.
+      * cbn. apply rassociator_lassociator.
+      * cbn. apply lassociator_rassociator.
   - intros v f. cbn. apply lunitor_lwhisker.
   - intros w v v' f. cbn. apply rassociator_rassociator.
 Qed.
@@ -95,14 +102,17 @@ Section TheHomogeneousCase.
 Context {C : bicat}.
 Context (c0 : ob C).
 
-(** requires [action_from_precomp] with known proofs of the laws *)
+(** requires [action_from_precomp] with known proofs of the laws to hold with convertibility *)
 Definition action_in_actegory_from_precomp_as_self_action :
   actegory_action (Mon_endo c0) (actegory_from_precomp c0 c0) = actegory_action (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)).
 Proof.
   change (pr11 (actegory_from_precomp c0 c0) = pr11 (actegory_with_canonical_self_action (Mon_endo c0))).
+  use total2_paths_f.
+  2: { apply isaprop_is_bifunctor. }
   apply idpath.
 Defined.
 
+(*
 Lemma actegory_from_precomp_as_self_action :
   actegory_from_precomp c0 c0 = actegory_with_canonical_self_action (Mon_endo c0).
 Proof.
@@ -118,7 +128,18 @@ Proof.
 Qed. (* slow *)
 
 (** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
-Opaque action_from_precomp_laws.
+(* Opaque action_from_precomp_laws. *)
+*)
+
+(** on the way to what we really need is the following convertibility: *)
+Lemma lax_lineators_for_actegory_from_precomp_and_self_action_agree (F : functor (endocat c0) (endocat c0)) :
+  lineator_lax (Mon_endo c0) (actegory_from_precomp c0 c0) (actegory_from_precomp c0 c0) F =
+    lineator_lax (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0))
+      (actegory_with_canonical_self_action (Mon_endo c0)) F.
+Proof.
+  apply idpath. (* very slow: 63s on a modern Intel machine *)
+Qed. (* 44s on a modern Intel machine *)
+(** in fact, we need this with lifted actegories everywhere *)
 
 End TheHomogeneousCase.
 
@@ -133,11 +154,38 @@ Section Instantiation_To_Bicategory_Of_Categories.
   Lemma actegoryfromprecomp_action_pointwise_ok (v : functor C C) (f : functor C D) :
     v ⊗_{actegoryfromprecomp} f = functor_compose v f.
   Proof.
-    cbn.
     apply idpath.
   Qed.
 
+  (* Transparent action_from_precomp_CAT_laws. *)
 
+  Definition actegoryfromprecomp_actions_equal_statement : UU :=
+    actegory_action (monendocat_monoidal C) (actegory_from_precomp_CAT C D) =
+      actegory_action (monendocat_monoidal C) actegoryfromprecomp. (* slow *)
+
+Lemma actegoryfromprecomp_actions_equal : actegoryfromprecomp_actions_equal_statement.
+Proof.
+  cbn.
+  use total2_paths_f.
+  { apply idpath. }
+  cbn.
+  apply isaprop_is_bifunctor.
+Qed. (* very slow *)
+
+(*
+(** on the way to what we really need is the following convertibility: *)
+Definition lax_lineators_for_actegoryfromprecomp_and_CAT_version_agree_statement (F : functor [C, D] [C, D]) : UU :=
+  lineator_lax (monendocat_monoidal C) actegoryfromprecomp actegoryfromprecomp F =
+    lineator_lax (monendocat_monoidal C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C D) F.
+(* type-checking not seen to terminate!! *)
+
+Lemma lax_lineators_for_actegoryfromprecomp_and_CAT_version_agree (F : functor [C, D] [C, D]) :
+  lax_lineators_for_actegoryfromprecomp_and_CAT_version_agree_statement F.
+Proof.
+  Time (apply idpath). (* very slow: __ on a modern Intel machine *)
+Time Qed. (* __ on a modern Intel machine *)
+(** in fact, we need this with lifted actegories everywhere *)
+*)
 
 Section DistributionOfCoproducts.
 

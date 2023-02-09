@@ -309,7 +309,7 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
   Lemma identity_lineator_laxlaws {C : category} (Act : actegory Mon_V C) :
     lineator_laxlaws (identity_lineator_data Act).
   Proof.
-    repeat split; red; unfold identity_lineator_data; cbn; intros.
+    split4; intros x1; unfold identity_lineator_data; intros.
     - rewrite id_left. apply id_right.
     - rewrite id_left. apply id_right.
     - rewrite id_right.
@@ -349,7 +349,7 @@ Section CompositionOfLaxLineators.
 
   Lemma comp_lineator_laxlaws : lineator_laxlaws comp_lineator_data.
   Proof.
-    repeat split; red; cbn; unfold comp_lineator_data; cbn; intros.
+    split4; intros ?; unfold comp_lineator_data; intros; cbn.
     - etrans.
       2: { rewrite assoc'. apply maponpaths. apply functor_comp. }
       etrans.

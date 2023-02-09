@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -40,21 +41,21 @@ Local Definition Mon_endo: monoidal [C, C] := monendocat_monoidal C.
 Definition action_from_precomp_CAT_data : bifunctor_data [C, C] [C, D] [C, D].
 Proof.
   use make_bifunctor_data.
-  - intros v f. exact (functor_compose v f).
-  - intros v f1 f2 β. exact (lwhisker_CAT v  β).
+  - intros v f. exact (functor_composite v f).
+  - intros v f1 f2 β. exact (lwhisker_CAT v β).
   - intros f v1 v2 α. exact (rwhisker_CAT f α).
 Defined.
 
-(** we explicitly do not opacify the following definition: *)
+(* (** we explicitly do not opacify the following definition: *) *)
 Definition action_from_precomp_CAT_laws : is_bifunctor action_from_precomp_CAT_data.
 Proof.
-  repeat split.
+  split5.
   - intros v f. apply lwhisker_id2_CAT.
   - intros f v. apply id2_rwhisker_CAT.
   - intros v f1 f2 f3 β1 β2. apply pathsinv0, lwhisker_vcomp_CAT.
   - intros f v1 v2 v3 α1 α2. apply pathsinv0, rwhisker_vcomp_CAT.
   - intros v1 v2 f1 f2 α β. apply vcomp_whisker_CAT.
-Defined.
+Qed. (* Defined. *)
 
 Definition action_from_precomp_CAT : bifunctor [C, C] [C, D] [C, D] :=
   make_bifunctor action_from_precomp_CAT_data action_from_precomp_CAT_laws.
@@ -62,7 +63,7 @@ Definition action_from_precomp_CAT : bifunctor [C, C] [C, D] [C, D] :=
 Definition actegory_from_precomp_CAT_data : actegory_data Mon_endo [C, D].
 Proof.
   exists action_from_precomp_CAT.
-  repeat split.
+  split4.
   - intro f. apply lunitor_CAT.
   - intro f. apply linvunitor_CAT.
   - intros v w f. apply rassociator_CAT.
@@ -71,17 +72,20 @@ Defined.
 
 Lemma actegory_from_precomp_CAT_laws : actegory_laws Mon_endo actegory_from_precomp_CAT_data.
 Proof.
-  repeat split.
-  - intros f g β. cbn. apply vcomp_lunitor_CAT.
-  - cbn. apply lunitor_linvunitor_CAT.
-  - cbn. apply linvunitor_lunitor_CAT.
-  - intros v w f f' β. cbn. apply lwhisker_lwhisker_rassociator_CAT.
-  - intros v v' w f α. cbn. apply pathsinv0, rwhisker_rwhisker_alt_CAT.
-  - intros v w w' f α. cbn. apply rwhisker_lwhisker_rassociator_CAT.
-  - cbn. apply rassociator_lassociator_CAT.
-  - cbn. apply lassociator_rassociator_CAT.
+  split4.
+  - split3.
+    + intros f g β. cbn. apply vcomp_lunitor_CAT.
+    + cbn. apply lunitor_linvunitor_CAT.
+    + cbn. apply linvunitor_lunitor_CAT.
+  - split4.
+    + intros v w f f' β. cbn. apply lwhisker_lwhisker_rassociator_CAT.
+    + intros v v' w f α. cbn. apply pathsinv0, rwhisker_rwhisker_alt_CAT.
+    + intros v w w' f α. cbn. apply rwhisker_lwhisker_rassociator_CAT.
+    + split.
+      * cbn. apply rassociator_lassociator_CAT.
+      * cbn. apply lassociator_rassociator_CAT.
   - intros v f. cbn. apply lunitor_lwhisker_CAT.
-  - intros w v v' f. cbn. apply rassociator_rassociator_CAT.
+  - intros w v v' f. cbn. apply rassociator_rassociator_CAT. (* slow *)
 Qed.
 
 Definition actegory_from_precomp_CAT : actegory Mon_endo [C, D] :=
@@ -93,14 +97,17 @@ Section TheHomogeneousCase.
 
   Context (C : category).
 
-(** requires [action_from_precomp_CAT] with known proofs of the laws *)
+(* (** requires [action_from_precomp_CAT] with known proofs of the laws to be even convertibility *) *)
 Definition action_in_actegory_from_precomp_CAT_as_self_action :
   actegory_action (Mon_endo C) (actegory_from_precomp_CAT C C) =
     actegory_action (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C)).
 Proof.
+  use total2_paths_f.
+  2: { apply isaprop_is_bifunctor. }
   apply idpath.
 Defined.
 
+(* (** only possible if the previous is convertibility *)
 Lemma actegory_from_precomp_CAT_as_self_action :
   actegory_from_precomp_CAT C C = actegory_with_canonical_self_action (Mon_endo C).
 Proof.
@@ -113,10 +120,20 @@ Proof.
   use total2_paths_f.
   { apply idpath. }
   apply idpath.
-Qed.
+Qed. *)
 
-(** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
-Opaque action_from_precomp_CAT_laws.
+(* (** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
+Opaque action_from_precomp_CAT_laws. *)
+
+(** on the way to what we really need is the following convertibility: *)
+Lemma lax_lineators_for_actegory_from_precomp_CAT_and_self_action_agree (F : functor [C, C] [C, C]) :
+  lineator_lax (Mon_endo C) (actegory_from_precomp_CAT C C) (actegory_from_precomp_CAT C C) F =
+    lineator_lax (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C))
+      (actegory_with_canonical_self_action (Mon_endo C)) F.
+Proof.
+  apply idpath.
+Qed.
+(** in fact, we need this with lifted actegories everywhere *)
 
 End TheHomogeneousCase.
 
@@ -136,6 +153,12 @@ Section BinaryCoproduct.
     intro F.
     apply precomp_bincoprod_distributor_data.
   Defined.
+
+  Goal ∏ F G1 G2 c, pr1 (actegory_from_precomp_CAT_bincoprod_distributor_data F G1 G2) c = identity _.
+  Proof.
+    intros.
+    apply idpath.
+  Qed.
 
   Lemma actegory_from_precomp_CAT_bincoprod_distributor_law :
     actegory_bincoprod_distributor_iso_law _ _ _ actegory_from_precomp_CAT_bincoprod_distributor_data.
