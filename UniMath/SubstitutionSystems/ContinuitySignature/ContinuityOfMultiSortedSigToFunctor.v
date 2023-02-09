@@ -402,7 +402,10 @@ Section OmegaContinuityOfSignatureFunctor.
         (xst : (list sort × sort) × sort)
     : is_omega_cont (pre_comp_functor (C := sortToC) (option_list sort Hsort C TC BC CC (pr11 xst))).
   Proof.
-  Admitted.
+    apply is_omega_cont_pre_composition_functor'.
+    intro.
+    apply ω_complete_functor_cat ; exact LC.
+  Defined.
 
   Lemma is_omega_cont_hat_exp_functor_list_piece
   (xst : (list sort × sort) × sort)
