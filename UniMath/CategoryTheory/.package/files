@@ -304,6 +304,7 @@ EnrichedCats/Enriched/EnrichmentEquiv.v
 
 EnrichedCats/Examples/UnitEnriched.v
 EnrichedCats/Examples/FullSubEnriched.v
+EnrichedCats/Examples/DialgebraEnriched.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v

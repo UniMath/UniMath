@@ -6,7 +6,8 @@
 
  Contents:
  1. Final object
- 2. Equifiers
+ 2. Inserters
+ 3. Equifiers
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -19,13 +20,16 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.UnitEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -34,6 +38,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
 Require Import UniMath.Bicategories.Limits.Final.
+Require Import UniMath.Bicategories.Limits.Inserters.
 Require Import UniMath.Bicategories.Limits.Equifiers.
 
 Local Open Scope cat.
@@ -86,7 +91,156 @@ Section LimitsEnrichedCats.
   End FinalObject.
 
   (**
-   2. Equifiers
+   2. Inserters
+   *)
+  Section Inserters.
+    Context (HV : Equalizers V)
+            {E₁ E₂ : bicat_of_enriched_cats V}
+            (F G : E₁ --> E₂).
+
+    Definition enriched_inserter_cat
+      : bicat_of_enriched_cats V
+      := univalent_dialgebra (pr1 F) (pr1 G)
+         ,,
+         dialgebra_enrichment _ HV (pr2 F) (pr2 G).
+
+    Definition enriched_inserter_pr1
+      : enriched_inserter_cat --> E₁
+      := dialgebra_pr1 (pr1 F) (pr1 G)
+         ,,
+         dialgebra_pr1_enrichment _ HV (pr2 F) (pr2 G).
+
+    Definition enriched_inserter_cell
+      : enriched_inserter_pr1 · F ==> enriched_inserter_pr1 · G
+      := dialgebra_nat_trans (pr1 F) (pr1 G)
+         ,,
+         dialgebra_nat_trans_enrichment _ HV (pr2 F) (pr2 G).
+
+    Definition enriched_inserter_cone
+      : inserter_cone F G.
+    Proof.
+      use make_inserter_cone.
+      - exact enriched_inserter_cat.
+      - exact enriched_inserter_pr1.
+      - exact enriched_inserter_cell.
+    Defined.
+
+    Definition enriched_inserter_ump_1
+      : has_inserter_ump_1 enriched_inserter_cone.
+    Proof.
+      intros q.
+      use make_inserter_1cell.
+      - simple refine (_ ,, _).
+        + exact (nat_trans_to_dialgebra
+                   (pr1 (inserter_cone_pr1 q))
+                   (pr1 (inserter_cone_cell q))).
+        + exact (nat_trans_to_dialgebra_enrichment
+                   _
+                   HV
+                   (pr2 F) (pr2 G)
+                   (pr1 (inserter_cone_cell q))
+                   (pr2 (inserter_cone_cell q))).
+      - use make_invertible_2cell.
+        + simple refine (_ ,, _).
+          * exact (nat_trans_to_dialgebra_pr1
+                     (pr1 (inserter_cone_pr1 q))
+                     (pr1 (inserter_cone_cell q))).
+          * exact (nat_trans_to_dialgebra_pr1_enrichment
+                     _
+                     HV
+                     (pr2 F) (pr2 G)
+                     (pr1 (inserter_cone_cell q))
+                     (pr2 (inserter_cone_cell q))).
+        + use make_is_invertible_2cell.
+          * simple refine (_ ,, _).
+            ** cbn.
+               exact (nat_z_iso_inv
+                        (nat_trans_to_dialgebra_pr1_nat_z_iso
+                           (pr1 (inserter_cone_pr1 q))
+                           (pr1 (inserter_cone_cell q)))).
+            ** exact (nat_trans_to_dialgebra_pr1_enrichment_inv
+                        _
+                        HV
+                        (pr2 F) (pr2 G)
+                        (pr1 (inserter_cone_cell q))
+                        (pr2 (inserter_cone_cell q))).
+          * abstract
+              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
+               use nat_trans_eq ; [ apply homset_property | ] ;
+               intro x ; cbn ;
+               apply id_left).
+          * abstract
+              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
+               use nat_trans_eq ; [ apply homset_property | ] ;
+               intro x ; cbn ;
+               apply id_left).
+      - abstract
+          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
+           use nat_trans_eq ; [ apply homset_property | ] ;
+           intro x ; cbn ;
+           rewrite !(functor_id (pr1 F)), !(functor_id (pr1 G)) ;
+           rewrite !id_left, !id_right ;
+           apply idpath).
+    Defined.
+
+    Definition enriched_inserter_ump_2
+      : has_inserter_ump_2 enriched_inserter_cone.
+    Proof.
+      intros E₀ K₁ K₂ α p.
+      simple refine (_ ,, _).
+      - simple refine (_ ,, _).
+        + apply (build_nat_trans_to_dialgebra (pr1 K₁) (pr1 K₂) (pr1 α)).
+          abstract
+            (intro x ;
+             pose (maponpaths (λ z, pr11 z x) p) as p' ;
+             cbn in p' ;
+             rewrite !id_left, !id_right in p' ;
+             exact p').
+        + apply build_nat_trans_to_dialgebra_enrichment.
+          exact (pr2 α).
+      - abstract
+          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
+           use nat_trans_eq ; [ apply homset_property | ] ;
+           intro x ; cbn ;
+           apply idpath).
+    Defined.
+
+    Definition enriched_inserter_ump_eq
+      : has_inserter_ump_eq enriched_inserter_cone.
+    Proof.
+      intros E₀ K₁ K₂ α p n₁ n₂ q₁ q₂.
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_nat_trans_enrichment.
+      }
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use eq_dialgebra.
+      exact (maponpaths (λ z, pr11 z x) (q₁ @ !q₂)).
+    Qed.
+  End Inserters.
+
+  Definition has_inserters_bicat_of_enriched_cats
+             (HV : Equalizers V)
+    : has_inserters (bicat_of_enriched_cats V).
+  Proof.
+    intros E₁ E₂ F G.
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact (enriched_inserter_cat HV F G).
+    - exact (enriched_inserter_pr1 HV F G).
+    - exact (enriched_inserter_cell HV F G).
+    - simple refine (_ ,, _ ,, _).
+      + exact (enriched_inserter_ump_1 HV F G).
+      + exact (enriched_inserter_ump_2 HV F G).
+      + exact (enriched_inserter_ump_eq HV F G).
+  Defined.
+
+  (**
+   3. Equifiers
    *)
   Section EquifierEnrichedCat.
     Context {E₁ E₂ : bicat_of_enriched_cats V}

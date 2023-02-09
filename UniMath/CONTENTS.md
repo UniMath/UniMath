@@ -433,6 +433,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Enriched/EnrichmentEquiv.v](CategoryTheory/EnrichedCats/Enriched/EnrichmentEquiv.v)
    - [EnrichedCats/Examples/UnitEnriched.v](CategoryTheory/EnrichedCats/Examples/UnitEnriched.v)
    - [EnrichedCats/Examples/FullSubEnriched.v](CategoryTheory/EnrichedCats/Examples/FullSubEnriched.v)
+   - [EnrichedCats/Examples/DialgebraEnriched.v](CategoryTheory/EnrichedCats/Examples/DialgebraEnriched.v)
    - [GrothendieckConstruction/TotalCategory.v](CategoryTheory/GrothendieckConstruction/TotalCategory.v)
    - [GrothendieckConstruction/IsosInTotal.v](CategoryTheory/GrothendieckConstruction/IsosInTotal.v)
    - [GrothendieckConstruction/Projection.v](CategoryTheory/GrothendieckConstruction/Projection.v)

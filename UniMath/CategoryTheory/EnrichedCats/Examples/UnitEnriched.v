@@ -1,3 +1,27 @@
+(**********************************************************************
+
+ The unit enriched category
+
+ We construct the unit enriched category and we define some functors
+ and natural transformations related to it.
+
+ We write `𝟙` for the unit of the monoidal category. The objects of the
+ unit enriched category and inhabitants of the unit type and the
+ enrichment is the `𝟙`. As a consequence, the morphisms in this enriched
+ category should be isomorphic to `𝟙 --> 𝟙`.
+
+ Note that in this definition we assume that the unit of the involved
+ monoidal category `V` is a terminal object, which is usually not
+ required in textbooks. The reason for that is that if we don't require
+ the unit to be terminal, there could be multiple isomorphisms from `𝟙`
+ to `𝟙`. The resulting enriched category is then not guaranteed to be
+ univalent.
+
+ Contents
+ 1. The enrichment of the unit category
+ 2. Enrichment for functors/natural transformations to the unit
+
+ **********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -21,6 +45,9 @@ Section UnitEnrichment.
   Context (V : monoidal_cat)
           (HV : isTerminal V 𝟙).
 
+  (**
+   1. The enrichment of the unit category
+   *)
   Definition unit_enrichment_data
     : enrichment_data unit_category V.
   Proof.
@@ -78,6 +105,9 @@ Section UnitEnrichment.
     : cat_with_enrichment V
     := pr1 unit_category ,, unit_enrichment.
 
+  (**
+   2. Enrichment for functors/natural transformations to the unit
+   *)
   Definition functor_to_unit_enrichment
              {C : category}
              (E : enrichment C V)

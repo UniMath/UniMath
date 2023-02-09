@@ -1,3 +1,16 @@
+(**********************************************************************
+
+ The full subcategory of enriched category
+
+ We show that the full subcategory of an enriched category is again
+ enriched over the same monoidal category. We also show that the
+ inclusion is an enriched functor.
+
+ Contents
+ 1. The enrichment over the full subcategory
+ 2. The enrichment of the inclusion
+
+ **********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -20,6 +33,9 @@ Section FullSub.
           (E : enrichment C V)
           (P : C → hProp).
 
+  (**
+   1. The enrichment over the full subcategory
+   *)
   Definition fullsub_enrichment_data
     : enrichment_data
         (subcategory C (full_sub_precategory P))
@@ -71,6 +87,9 @@ Section FullSub.
     - exact fullsub_enrichment_laws.
   Defined.
 
+  (**
+   2. The enrichment of the inclusion
+   *)
   Definition fullsub_inclusion_enrichment
     : functor_enrichment
         (sub_precategory_inclusion _ _)
