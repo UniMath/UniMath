@@ -436,14 +436,6 @@ Section OmegaContinuityOfSignatureFunctor.
         (ω_distr : ω_limits_distribute_over_I_coproducts C (ops sort M) LC (CC (ops sort M) (setproperty (ops sort M))))
     : is_omega_cont (MultiSortedSigToFunctor' M).
   Proof.
-    (* The following lemma/definition already existed, so
-       I have done the work of commuting with limits
-       in a sense for nothing ..
-     *)
-    (* apply is_omega_cont_coproduct_of_functors.
-    - intro ; apply is_omega_cont_hat_exp_functor_list.
-    - admit. *)
-
     use coproduct_of_functors_omega_cont.
     - do 2 apply ω_complete_functor_cat ; exact LC.
     - do 2 apply functor_category_ω_limits_distribute_over_I_coproducts ; exact ω_distr.
