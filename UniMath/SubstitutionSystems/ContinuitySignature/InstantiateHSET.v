@@ -101,5 +101,5 @@ Proof.
   - exact ProductsHSET.
   - intro ; apply LimConeHSET.
   - exact I_coproduct_distribute_over_omega_limits_HSET.
-  - admit.
-Admitted.
+  - apply I_coproduct_distribute_over_omega_limits_HSET.
+Defined.
