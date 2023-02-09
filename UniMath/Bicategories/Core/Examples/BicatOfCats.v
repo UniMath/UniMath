@@ -46,7 +46,7 @@ Defined.
 
 Lemma cat_prebicat_nouniv_laws : prebicat_laws cat_prebicat_nouniv_data.
 Proof.
-  repeat split; cbn.
+  split21; cbn.
   - intros C D F G η.
     apply nat_trans_eq; try apply D.
     intros ; cbn.
