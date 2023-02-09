@@ -292,25 +292,24 @@ Section OmegaContinuityOfSignatureFunctor.
     use limits.is_z_iso_isLim.
     { apply LC. }
 
-    use make_is_z_isomorphism.
-    - cbn.
-      transparent assert (x : (t = G → cochain C)).
-      {
-        intro p.
-        use tpair.
-        - intro n.
-          exact (pr1 (pr1 (dob coch n) F) s).
-        - intros n m q.
-          exact (pr1 (pr1 (dmor coch q) F) s).
-      }
+    transparent assert (x : (t = G → cochain C)).
+    {
+      intro p.
+      use tpair.
+      - intro n.
+        exact (pr1 (pr1 (dob coch n) F) s).
+      - intros n m q.
+        exact (pr1 (pr1 (dmor coch q) F) s).
+    }
 
-      refine (pr1 (distr (_,,Hsort t G) x) · _).
+    use make_is_z_isomorphism.
+    - refine (pr1 (distr (_,,Hsort t G) x) · _).
 
       assert (bla : (∏ a : sortToC, LimCone (diagram_pointwise coch a))).
-      { admit. }
+      { intro ; apply ω_complete_functor_cat ; exact LC. }
 
       assert (bla' : (∏ a : path_pregroupoid sort Hsort, LimCone (diagram_pointwise (diagram_pointwise coch F) a))).
-      { admit. }
+      { intro ; apply LC. }
 
       set (LF_lim := limits.isLimFunctor_is_pointwise_Lim coch bla _ _ isLimcon F).
       set (LFs_lim := limits.isLimFunctor_is_pointwise_Lim _ bla' _ _ LF_lim s).
@@ -332,10 +331,8 @@ Section OmegaContinuityOfSignatureFunctor.
         rewrite ! id_left.
 
         use (z_iso_inv_to_right _ _ _ _ (z_iso_inv (make_z_iso _ _ (pr2 (distr _ _))))).
-
         apply pathsinv0, limArrowUnique.
         intro n.
-        unfold coproduct_of_limit_to_limit_of_coproduct.
 
         rewrite assoc'.
         etrans.
@@ -344,20 +341,61 @@ Section OmegaContinuityOfSignatureFunctor.
           apply limArrowCommutes.
         }
 
-        cbn.
+
         etrans.
         1: { apply precompWithCoproductArrow. }
 
+        cbn.
         unfold CoproductOfArrows.
         apply maponpaths.
         apply funextsec ; intro p.
         rewrite ! assoc.
         apply maponpaths_2.
+        apply (graphs.limits.limArrowCommutes (LC (x p))).
+      + etrans.
+        1: apply assoc'.
+        apply pathsinv0.
 
-        (* exact (graphs.limits.limArrowCommutes _ _ _ _). This is the final step, just doesn't type check, I have to define the cochain out of here that is uses the lemma whose output is cochain *)
-        admit.
-      + admit.
-  Admitted.
+        transparent assert (d_i : (is_z_isomorphism ( pr1 (distr ((t = G),, Hsort t G) x)))).
+        {
+          exists (coproduct_of_limit_to_limit_of_coproduct C LC (CC (t = G) (Hsort t G)) x).
+          set (q := distr ((t = G),, Hsort t G) x).
+          split ; apply (pr2 q).
+        }
+
+        use (z_iso_inv_to_left _ _ _ (_,,d_i)).
+        refine (id_right _ @ _).
+        use (z_iso_inv_to_left _ _ _ (CoproductOfArrows _ _ _ _ _,, _ : z_iso _ _)).
+        {
+          use CoproductOfArrowsIsos ; intro.
+          apply is_z_iso_inv_from_z_iso.
+        }
+        apply limArrowUnique.
+        intro n.
+
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply (limArrowCommutes  (LC
+         (diagram_pointwise
+            (diagram_pointwise
+               (mapdiagram
+                  (post_comp_functor (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t))
+                  coch) F) G))).
+        }
+        etrans.
+        1: { apply precompWithCoproductArrow. }
+
+        cbn.
+        unfold CoproductOfArrows.
+        apply maponpaths.
+        apply funextsec ; intro p.
+        rewrite ! assoc.
+        apply maponpaths_2.
+        apply (graphs.limits.limArrowCommutes (LC (x p))).
+  Defined.
 
   (* In case no constructors were given, i.e. just H := Id. *)
   Lemma pre_comp_option_list_omega_cont
