@@ -23,6 +23,9 @@ Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
@@ -68,7 +71,7 @@ Section A.
    := monoidal_pointed_objects Mon_endo.
 
  Local Definition actegoryPtdEndosOnFunctors (E : category) : actegory Mon_ptdendo [C,E]
-   := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
+   := lifted_actegory Mon_endo (actegoryfromprecomp C E) Mon_ptdendo
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
  (* not possible without some transparent proofs
@@ -100,6 +103,124 @@ Section A.
  Proof.
    use weqfibtototal. (* not seen to terminate *)
  *)
+
+(** now with the concrete reimplementation *)
+ Local Definition endoCAT : category := [C, C].
+ Local Definition Mon_endo_CAT : monoidal endoCAT := monendocat_monoidal C.
+ Local Definition ptdendo_CAT : category := coslice_cat_total endoCAT I_{Mon_endo_CAT}.
+ Local Definition Mon_ptdendo_CAT : monoidal ptdendo_CAT := monoidal_pointed_objects Mon_endo_CAT.
+
+ Local Definition actegoryPtdEndosOnFunctors_CAT (E : category) : actegory Mon_ptdendo_CAT [C,E]
+   := lifted_actegory Mon_endo_CAT (actegory_from_precomp_CAT C E) Mon_ptdendo_CAT
+        (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT).
+
+ (* not possible without some transparent proofs
+ Local Lemma actegoryPtdEndosOnFunctors_CAT_as_actegory_with_canonical_pointed_action :
+   actegoryPtdEndosOnFunctors_CAT C = actegory_with_canonical_pointed_action Mon_endo_CAT.
+ Proof.
+   unfold actegoryPtdEndosOnFunctors_CAT.
+   unfold actegory_from_precomp_CAT.
+   rewrite actegory_from_precomp_as_self_action_CAT.
+   apply idpath.
+ Qed.
+*)
+
+ Local Lemma action_in_actegoryPtdEndosOnFunctors_CAT_as_actegory_with_canonical_pointed_action :
+   actegory_action Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) =
+     actegory_action Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT).
+ Proof.
+   use total2_paths_f.
+   2: { apply WhiskeredBifunctors.isaprop_is_bifunctor. }
+   cbn.
+   apply idpath.
+ Qed. (* > 16 times faster than for [action_in_actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action] *)
+
+
+Local Lemma lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
+   lineator_data Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
+     lineator_data Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
+       (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
+Proof.
+  use weq_iso.
+  - intro ld.
+    intros Z F.
+    cbn.
+    set (ldinst := ld Z F).
+    cbn in ldinst.
+    exact ldinst.
+  - intro ld.
+    intros Z F.
+    cbn.
+    set (ldinst := ld Z F).
+    cbn in ldinst.
+    exact ldinst.
+  - abstract (intro ld; apply idpath).
+  - abstract (intro ld; apply idpath). (* both cases are very slow *)
+Defined. (* 57s on modern Intel machine *)
+
+ Local Lemma lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
+   lineator_lax Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
+     lineator_lax Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
+       (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
+ Proof.
+   use (weqbandf (lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree H)).
+   intro ld.
+   use weqimplimpl.
+   4: { apply isaprop_lineator_laxlaws. }
+   3: { apply isaprop_lineator_laxlaws. }
+   - intro Hyps.
+     split4.
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypnatleft_inst := toforallpaths _ _ _ (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
+       cbn; cbn in Hypnatleft_inst;
+         exact Hypnatleft_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypnatright_inst := toforallpaths _ _ _ (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
+       cbn; cbn in Hypnatright_inst;
+         exact Hypnatright_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypactor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr122 Hyps v w x)) c);
+       cbn; cbn in Hypactor_inst;
+         exact Hypactor_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypunitor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr222 Hyps x)) c);
+       cbn; cbn in Hypunitor_inst;
+         exact Hypunitor_inst).
+   - intro Hyps.
+     split4.
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypnatleft_inst := toforallpaths _ _ _ (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
+       cbn; cbn in Hypnatleft_inst;
+         exact Hypnatleft_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypnatright_inst := toforallpaths _ _ _ (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
+       cbn; cbn in Hypnatright_inst;
+         exact Hypnatright_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypactor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr122 Hyps v w x)) c);
+       cbn; cbn in Hypactor_inst;
+         exact Hypactor_inst).
+     + abstract (intros ?; intros;
+       apply (nat_trans_eq C);
+       intro c;
+       assert (Hypunitor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr222 Hyps x)) c);
+       cbn; cbn in Hypunitor_inst;
+         exact Hypunitor_inst).
+ Defined. (* instantaneous, but the abstracted parts require 26min on a modern Intel machine *)
 
  Section AA.
 
