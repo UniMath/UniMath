@@ -247,6 +247,27 @@ Section FixACategory.
              (map (precomp_option_iter BCC TC) xs)).
   Defined.
 
+  (** the functor is that previously found in the semantic signature - but not w.r.t. convertibility *)
+  Lemma Arity_to_functor_agrees (TC : Terminal C) (xs : list nat) :
+    Arity_to_functor TC xs = Signature_Functor (Arity_to_Signature BPC BCC TC xs).
+  Proof.
+    induction xs as [[|n] xs].
+    - induction xs. apply idpath.
+    - induction n as [|n IH].
+      + induction xs as [m []]. apply idpath.
+      + induction xs as [m [k xs]].
+        assert (IHinst := IH (k,,xs)).
+        change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
+        unfold Arity_to_functor.
+        do 2 rewrite map_cons.
+        rewrite foldr1_cons.
+        change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
+        etrans.
+        { apply maponpaths.
+          exact IHinst. }
+        apply idpath.
+  Defined.
+
   Definition Arity_to_strengthCAT (TC : Terminal C) (xs : list nat) : ptdtensorialstrength_CAT (Arity_to_functor TC xs).
   Proof.
     induction xs as [[|n] xs].
@@ -257,7 +278,7 @@ Section FixACategory.
         exact (precomp_option_iter_strengthCAT BCC TC m).
       + induction xs as [m [k xs]].
         refine (lax_lineator_binprod _ _ _ (precomp_option_iter_strengthCAT BCC TC _) (IH (k,,xs)) _).
-Defined.
+  Defined.
 
   Definition BindingSigToFunctor (TC : Terminal C)
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) : functor [C, C] [C, C].
@@ -265,6 +286,21 @@ Defined.
     exact (coproduct_of_functors (BindingSigIndex sig) _ _ (Coproducts_functor_precat (BindingSigIndex sig) C C CC)
              (fun i => Arity_to_functor TC (BindingSigMap sig i))).
   Defined.
+
+   (** the functor is that previously found in the semantic signature - but not w.r.t. convertibility *)
+  Lemma BindingSigToFunctor_agrees (TC : Terminal C)
+    (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
+    BindingSigToFunctor TC sig CC = Signature_Functor (BindingSigToSignature BPC BCC TC sig CC).
+  Proof.
+    unfold BindingSigToFunctor, BindingSigToSignature.
+    assert (aux : (λ i : BindingSigIndex sig, Arity_to_functor TC (BindingSigMap sig i)) =
+                  (λ i : BindingSigIndex sig, Arity_to_Signature BPC BCC TC (BindingSigMap sig i))).
+    { apply funextsec.
+      intro i.
+      apply Arity_to_functor_agrees. }
+    rewrite aux.
+    apply idpath.
+  Qed.
 
   Definition BindingSigToStrengthCAT (TC : Terminal C)
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
