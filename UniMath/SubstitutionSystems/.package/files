@@ -28,6 +28,7 @@ SimplifiedHSS/SubstitutionSystems_Summary.v
 LamHSET.v
 SimplifiedHSS/LamHSET.v
 BindingSigToMonad.v
+BindingSigToMonad_actegorical.v
 SimplifiedHSS/BindingSigToMonad.v
 LamFromBindingSig.v
 SimplifiedHSS/LamFromBindingSig.v

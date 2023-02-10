@@ -55,7 +55,7 @@ Local Notation "[]" := (@nil nat) (at level 0, format "[]").
 Local Notation "'HSET2'":= [HSET, HSET].
 Local Notation "'Id'" := (functor_identity _).
 Local Notation "F * G" := (H HSET HSET HSET BinProductsHSET F G).
-Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ _ _ BinCoproductsHSET F G).
+(* Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ _ _ BinCoproductsHSET F G). *)
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor BinCoproductsHSET TerminalHSET)) (at level 10).
 
