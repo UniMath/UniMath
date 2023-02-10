@@ -35,14 +35,17 @@ Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
 Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsWhiskeredElementary.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
@@ -54,6 +57,11 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+
+Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.ConstructionOfGHSS.
+Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -73,6 +81,13 @@ Section FixACategory.
   Local Definition ptdendo_CAT : category := coslice_cat_total endoCAT I_{Mon_endo_CAT}.
   Local Definition Mon_ptdendo_CAT : monoidal ptdendo_CAT := monoidal_pointed_objects Mon_endo_CAT.
 
+
+  Local Definition precomp_omegacocont_CAT  (CLC : Colims_of_shape nat_graph C) (F : endoCAT) :
+    is_omega_cocont (leftwhiskering_functor Mon_endo_CAT F).
+  Proof.
+    apply is_omega_cocont_pre_composition_functor, CLC.
+  Defined.
+
   Local Definition ptdtensorialstrength_CAT := pointedtensorialstrength Mon_endo_CAT.
 
   Local Definition coprod_distributor_CAT {I : UU} (CP : Coproducts I C) :
@@ -90,6 +105,23 @@ Section FixACategory.
   Proof.
     apply lifted_coprod_distributor.
     apply coprod_distributor_CAT.
+  Defined.
+
+  Local Definition bincoprod_distributor_CAT (BCP : BinCoproducts C) :
+    actegory_bincoprod_distributor Mon_endo_CAT (BinCoproducts_functor_precat C C BCP)
+      (actegory_with_canonical_self_action Mon_endo_CAT).
+  Proof.
+    use tpair.
+    - intro F. apply precomp_bincoprod_distributor_data.
+    - intro F. apply precomp_bincoprod_distributor_law.
+  Defined.
+
+  Local Definition bincoprod_distributor_pointed_CAT (BCP : BinCoproducts C) :
+    actegory_bincoprod_distributor Mon_ptdendo_CAT (BinCoproducts_functor_precat C C BCP)
+      (actegory_with_canonical_pointed_action Mon_endo_CAT).
+  Proof.
+    apply lifted_bincoprod_distributor.
+    apply bincoprod_distributor_CAT.
   Defined.
 
   Local Definition ptdlifteddistributivity_CAT (G : functor C C) :=
@@ -139,7 +171,7 @@ Section FixACategory.
     apply δ_genoption.
   Defined.
 
-(* the data part with an interactive definition:
+(* the data part of the previous item with an interactive definition, could be put upstream:
     intros Ze. use make_nat_trans.
     - intro c.
       use BinCoproductArrow.
@@ -237,7 +269,7 @@ Section FixACategory.
   Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
   Let BPC2 := BinProducts_functor_precat C C BPC.
-  (* Let BCC2 := BinCoproducts_functor_precat C C BCC. *)
+  Let BCC2 := BinCoproducts_functor_precat C C BCC.
 
   (** [nat] to a Signature *)
   Definition Arity_to_functor (TC : Terminal C) (xs : list nat) : functor [C, C] [C, C].
@@ -302,6 +334,19 @@ Section FixACategory.
     apply idpath.
   Qed.
 
+  Let Id_H := Id_H C BCC.
+  Let constprod_functor1 := constprod_functor1 BPC2.
+
+  Lemma is_omega_cocont_BindingSigToFunctor
+    (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
+    (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+    (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
+    is_omega_cocont (BindingSigToFunctor TC sig CC).
+  Proof.
+    rewrite BindingSigToFunctor_agrees.
+    apply is_omega_cocont_BindingSigToSignature; assumption.
+  Defined. (* notice that it depends on an opaque proof of equality of types *)
+
   Definition BindingSigToStrengthCAT (TC : Terminal C)
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
     ptdtensorialstrength_CAT (BindingSigToFunctor TC sig CC).
@@ -310,8 +355,51 @@ Section FixACategory.
               (Coproducts_functor_precat (BindingSigIndex sig) C C CC) (coprod_distributor_pointed_CAT CC)).
   Qed.
 
+Section PuttingAllTogether.
 
-(* THIS WAS ONLY THE STRENGTH DEF. - REST OF PROMISE IN HEADER TO BE DONE *)
+    Context (IC : Initial C) (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
+    (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+    (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C).
 
+  (** Construction of initial algebra for the omega-cocontinuous signature functor with lax lineator *)
+  Definition DatatypeOfBindingSig_CAT :
+    Initial (FunctorAlg (Id_H (BindingSigToFunctor TC sig CC))).
+  Proof.
+    use colimAlgInitial.
+    - apply (Initial_functor_precat _ _ IC).
+    - apply (is_omega_cocont_Id_H _ _ _ (is_omega_cocont_BindingSigToFunctor TC CLC HF sig CC)).
+    - apply ColimsFunctorCategory_of_shape, CLC.
+  Defined.
+
+  (** the associated GHSS *)
+  Definition GHSSOfBindingSig_CAT :
+    ghss Mon_endo_CAT (BindingSigToFunctor TC sig CC) (BindingSigToStrengthCAT TC sig CC).
+  Proof.
+    use (initial_alg_to_ghss (BindingSigToStrengthCAT TC sig CC) BCC2 (bincoprod_distributor_pointed_CAT BCC)).
+    - apply (Initial_functor_precat _ _ IC).
+    - apply ColimsFunctorCategory_of_shape, CLC.
+    - apply (is_omega_cocont_BindingSigToFunctor TC CLC HF sig CC).
+    - intro F. apply Initial_functor_precat.
+    - exact (precomp_omegacocont_CAT CLC).
+  Defined.
+
+  (** the associated Sigma-monoid *)
+  Definition SigmaMonoidOfBindingSig_CAT : SigmaMonoid (BindingSigToStrengthCAT TC sig CC).
+  Proof.
+    apply ghhs_to_sigma_monoid.
+    exact GHSSOfBindingSig_CAT.
+  Defined.
+
+  (** the associated monad *)
+  Definition MonadOfBindingSig_CAT : Monad C.
+  Proof.
+    use monoid_to_monad_CAT.
+    use SigmaMonoid_to_monoid.
+    - exact (BindingSigToFunctor TC sig CC).
+    - exact (BindingSigToStrengthCAT TC sig CC).
+    - exact SigmaMonoidOfBindingSig_CAT.
+  Defined.
+
+End PuttingAllTogether.
 
 End FixACategory.
