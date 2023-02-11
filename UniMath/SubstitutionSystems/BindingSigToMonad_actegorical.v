@@ -403,3 +403,22 @@ Section PuttingAllTogether.
 End PuttingAllTogether.
 
 End FixACategory.
+
+Section InstanceHSET.
+
+Definition BindingSigToMonadHSET_viaCAT : BindingSig → Monad HSET.
+Proof.
+intros sig; use (MonadOfBindingSig_CAT _ _ _ _ _ _ sig).
+- apply BinProductsHSET.
+- apply BinCoproductsHSET.
+- apply InitialHSET.
+- apply TerminalHSET.
+- apply ColimsHSET_of_shape.
+- intro F.
+  apply is_omega_cocont_constprod_functor1.
+  apply Exponentials_functor_HSET.
+- apply CoproductsHSET.
+  apply BindingSigIsaset.
+Defined.
+
+End InstanceHSET.
