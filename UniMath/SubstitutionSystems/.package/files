@@ -42,6 +42,7 @@ MultiSorted.v
 MultiSortedMonadConstruction.v
 SimplifiedHSS/MultiSortedMonadConstruction.v
 MultiSorted_alt.v
+MultiSorted_actegorical.v
 MultiSortedMonadConstruction_alt.v
 SimplifiedHSS/MultiSortedMonadConstruction_alt.v
 MonadicSubstitution_alt.v
@@ -60,3 +61,4 @@ ActionBasedStrengthOnHomsInBicat.v
 EquivalenceSignaturesWithActegoryMorphisms.v
 SigmaMonoids.v
 ConstructionOfGHSS.v
+MultiSortedMonadConstruction_actegorical.v
