@@ -80,10 +80,6 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     - exact (q' n @ IHn).
   Defined.
 
-  (* Definition test' {I : HSET} (ind : pr1 I -> cochain SET)
-    : pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind)
-      = ∑ i : I,  *)
-
   Definition I_coproduct_distribute_over_omega_limit_HSET_inverse
              {I : HSET} (ind : pr1 I → cochain SET)
     :  SET ⟦ pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind),
@@ -99,24 +95,27 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
       apply maponpaths.
       exact (fiber_paths (p n m h)).
     }
+
     rewrite transport_f_f.
     cbn.
 
-    induction h.
-    induction m.
-    - unfold test.
-      simpl.
-      cbn.
-      rewrite pathscomp0rid.
+    set (q := base_paths (pr1 (f n),, pr2 (ind (pr1 (f n))) n m h (pr2 (f n))) (f m) (p n m h) @
+                         test ind (f,, p) m).
+    set (q' := test ind (f,,p) n).
 
+    assert (q0 : q = q').
+    { apply (pr2 I). }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (! q0).
+    }
 
-
+    unfold q'.
+    clear q0 q' q.
 
     apply TODO_JOKER.
   Defined.
-
-
-  Let can := (λ I ind, coproduct_of_limit_to_limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind).
 
   Definition I_coproduct_distribute_over_omega_limits_HSET (I : HSET)
     : ω_limits_distribute_over_I_coproducts HSET I HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)).
@@ -142,12 +141,12 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
         use total2_paths_f.
         * apply funextsec ; intro n.
           use total2_paths_f.
-          { exact (test ind (f,,p) n). }
+          { exact (! test ind (f,,p) n). }
           cbn.
           etrans.
           1: apply (transport_f_f (λ x : pr1 I, pr1 (pr1 (ind x) n))).
           etrans.
-          1: apply maponpaths_2, pathsinv0l.
+          1: apply maponpaths_2, pathsinv0r.
           apply (idpath_transportf (λ x : pr1 I, pr1 (pr1 (ind x) n))).
         * repeat (apply funextsec ; intro).
           apply ( dob (coproduct_n_cochain SET (CoproductsHSET (pr1 I) (pr2 I)) ind) _).
