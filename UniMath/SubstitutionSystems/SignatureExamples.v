@@ -66,11 +66,11 @@ Variable δ : δ_source ⟹ δ_target.
 (* Should be ρ_G^-1 ∘ λ_G ? *)
 Definition δ_law1 : UU := δ (id_Ptd C) = identity G.
 Let D' Ze Ze' :=
-  nat_trans_comp (lassociator_CAT (pr1 Ze) (pr1 Ze') G)
+  nat_trans_comp (rassociator_CAT (pr1 Ze) (pr1 Ze') G)
  (nat_trans_comp (lwhisker_CAT (pr1 Ze) (δ Ze'))
- (nat_trans_comp (rassociator_CAT (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (lassociator_CAT (pr1 Ze) G (pr1 Ze'))
  (nat_trans_comp (rwhisker_CAT (pr1 Ze') (δ Ze))
-                 (lassociator_CAT G (pr1 Ze) (pr1 Ze'))))).
+                 (rassociator_CAT G (pr1 Ze) (pr1 Ze'))))).
 Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 
 (** the following variant is more suitable for communication about the results *)
@@ -153,9 +153,9 @@ Definition θ_from_δ_mor (XZe : [C, C] ⊠ Ptd) :
   [C, C] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-  set (F1 := lassociator_CAT G Z X).
+  set (F1 := rassociator_CAT G Z X).
   set (F2 := rwhisker_CAT X (δ G DL (pr2 XZe))).
-  set (F3 := rassociator_CAT Z G X).
+  set (F3 := lassociator_CAT Z G X).
   exact (F3 · (F2 · F1)).
 Defined.
 
@@ -221,11 +221,11 @@ Section δ_mul.
                                                         pr1 (δ_target (functor_compose G1 G2)) Ze⟧.
 Proof.
   set (Z := pr1 Ze).
-  set (F1 := rassociator_CAT Z G1 G2).
+  set (F1 := lassociator_CAT Z G1 G2).
   set (F2 := rwhisker_CAT G2 (δ G1 DL1 Ze)).
-  set (F3 := lassociator_CAT G1 Z G2).
+  set (F3 := rassociator_CAT G1 Z G2).
   set (F4 := lwhisker_CAT G1 (δ G2 DL2 Ze)).
-  set (F5 := rassociator_CAT G1 G2 Z).
+  set (F5 := lassociator_CAT G1 G2 Z).
   exact (F1 · (F2 · (F3 · (F4 · F5)))).
 Defined.
 
@@ -531,7 +531,7 @@ Let GH : functor [C, D'] [C, E] := functor_composite H (post_comp_functor G).
 Definition Gθ_mor (XZe : [C, D'] ⊠ Ptd) : [C, E] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe) : [C, C]).
-  set (F1 := rassociator_CAT Z (H X) G).
+  set (F1 := lassociator_CAT Z (H X) G).
   set (F2 := rwhisker_CAT G (θ XZe)).
   exact (F1 · F2).
 Defined.

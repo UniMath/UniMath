@@ -495,8 +495,8 @@ Proof.
   set (F1' := pr1 (pr2 (left_unit_as_nat_z_iso _ _) (pr1 XZ))).
   set (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
   set (h' :=  F1' · F2').
-  set (obsolete := nat_trans_comp (rassociator_CAT (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
-  set (F3' := lassociator_CAT (pr12 XZ) (pr1 XZ) (pr1 XZ)).
+  set (obsolete := nat_trans_comp (lassociator_CAT (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (F3' := rassociator_CAT (pr12 XZ) (pr1 XZ) (pr1 XZ)).
   set (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
   exact (F3' · F4').
 Defined.

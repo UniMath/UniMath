@@ -78,23 +78,23 @@ Section FixACategory.
 
   Local Lemma monendocat_associator_law : associator_law α_{MD} αinv_{MD}.
   Proof.
-    split4. (* now slow proofs of the first three cases *)
+    split4.
     - intros ?; intros; apply lwhisker_lwhisker_rassociator_CAT.
     - intros ?; intros; apply pathsinv0, rwhisker_rwhisker_alt_CAT.
     - intros ?; intros; apply rwhisker_lwhisker_rassociator_CAT.
     - split.
-      + apply lassociator_CAT_pointwise_is_z_iso.
       + apply (pr22 (lassociator_CAT_pointwise_is_z_iso _ _ _)).
+      + apply lassociator_CAT_pointwise_is_z_iso.
   Qed.
 
   Local Lemma monendocat_triangle_identity : triangle_identity lu_{MD} ru_{MD} α_{MD}.
   Proof.
-    intros ?; intros. cbn. apply lunitor_lwhisker_CAT. (* cbn is needed, even simpl is not enough *)
+    intros ?; intros. apply lunitor_lwhisker_CAT.
   Qed.
 
   Local Lemma monendocat_pentagon_identity : pentagon_identity α_{MD}.
   Proof.
-    intros ?; intros. cbn. apply rassociator_rassociator_CAT. (* slow, cbn is needed, even simpl is not enough *)
+    intros ?; intros. apply rassociator_rassociator_CAT.
   Qed.
 
   Definition monendocat_monoidal : monoidal [C, C].

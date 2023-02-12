@@ -202,7 +202,7 @@ Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D']) (Z Z' : Ptd),
-      θ (X ⊗ (Z p• Z')) · #H (lassociator_CAT (U Z) (U Z') X )  =
+      θ (X ⊗ (Z p• Z')) · #H (rassociator_CAT (U Z) (U Z') X )  =
         (lassociator_CAT (U Z) (U Z') (H X) :
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
@@ -231,7 +231,7 @@ Proof.
   cbn. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  assert (functor_comp_H := functor_comp H (lassociator_CAT (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H (rassociator_CAT (pr1 Z) (pr1 Z') X)
            (a : functor_compose (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   cbn in functor_comp_H_c.
@@ -279,7 +279,7 @@ Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
              θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
-             #H (rassociator_CAT (U Z) (U Z') X ).
+             #H (lassociator_CAT (U Z) (U Z') X ).
 
 
 Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
@@ -287,7 +287,7 @@ Proof.
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
   assumption.
 Qed.
@@ -296,7 +296,7 @@ Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer ->
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply (z_iso_inv_to_right _ _ _ _ auxiso).
   assumption.
 Qed.
@@ -305,7 +305,7 @@ Definition θ_Strength2_int_nicest : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
       θ (X ⊗ Z') •• (U Z) ·
         θ ((functor_compose (U Z') X) ⊗ Z) ·
-        #H (rassociator_CAT (U Z) (U Z') X ).
+        #H (lassociator_CAT (U Z) (U Z') X ).
 
 Lemma θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer: θ_Strength2_int_nicest -> θ_Strength2_int_nicer.
 Proof.

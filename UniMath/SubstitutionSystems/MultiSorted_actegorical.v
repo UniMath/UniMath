@@ -164,7 +164,7 @@ Section strength_through_actegories.
     - exact (ActPtd_CAT C).
     - apply StrengthCAT_exp_functor_list.
     - use lifted_lax_lineator.
-      apply lax_lineator_postcomp_actegories_from_precomp.
+      apply lax_lineator_postcomp_actegories_from_precomp_CAT.
   Defined.
 
   Definition MultiSortedSigToStrengthCAT (M : MultiSortedSig sort) :

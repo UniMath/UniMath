@@ -41,12 +41,12 @@ Definition rinvunitor_CAT {C D : category} (F : [C, D])
   := nat_trans_id (F : functor _ _).
 
 Definition lassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
-    [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
-    := nat_trans_id (functor_composite (functor_composite X Y) Z).
-
-Definition rassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
     [C, F] ⟦functor_compose X (functor_compose Y Z), functor_compose (functor_compose X Y) Z⟧
     := nat_trans_id (functor_composite X (functor_composite Y Z)).
+
+Definition rassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
+    [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
+    := nat_trans_id (functor_composite (functor_composite X Y) Z).
 
 Definition vcomp2_CAT {C D : category} (F G H : [C, D]) : [C,D]⟦F, G⟧ -> [C,D]⟦G, H⟧ -> [C,D]⟦F, H⟧.
 Proof.
@@ -264,7 +264,7 @@ Defined.
 Lemma lwhisker_lwhisker_rassociator_CAT {A B C D : category} {F : [A, B]} {G : [B, C]} {H I : [C, D]}
   (α : [C, D]⟦H, I⟧) :
    rassociator_CAT _ _ _ · lwhisker_CAT F (lwhisker_CAT G α) =
-    lwhisker_CAT (functor_compose F G) α · lassociator_CAT _ _ _ .
+    lwhisker_CAT (functor_compose F G) α · rassociator_CAT _ _ _ .
 Proof.
   apply (nat_trans_eq D); intro c.
   cbn.

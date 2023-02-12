@@ -74,18 +74,18 @@ Lemma actegory_from_precomp_CAT_laws : actegory_laws Mon_endo actegory_from_prec
 Proof.
   split4.
   - split3.
-    + intros f g β. cbn. apply vcomp_lunitor_CAT.
-    + cbn. apply lunitor_linvunitor_CAT.
-    + cbn. apply linvunitor_lunitor_CAT.
+    + intros f g β. apply vcomp_lunitor_CAT.
+    + apply lunitor_linvunitor_CAT.
+    + apply linvunitor_lunitor_CAT.
   - split4.
-    + intros v w f f' β. cbn. apply lwhisker_lwhisker_rassociator_CAT.
-    + intros v v' w f α. cbn. apply pathsinv0, rwhisker_rwhisker_alt_CAT.
-    + intros v w w' f α. cbn. apply rwhisker_lwhisker_rassociator_CAT.
+    + intros v w f f' β. apply lwhisker_lwhisker_rassociator_CAT.
+    + intros v v' w f α. apply pathsinv0, rwhisker_rwhisker_alt_CAT.
+    + intros v w w' f α. apply rwhisker_lwhisker_rassociator_CAT.
     + split.
-      * cbn. apply rassociator_lassociator_CAT.
-      * cbn. apply lassociator_rassociator_CAT.
-  - intros v f. cbn. apply lunitor_lwhisker_CAT.
-  - intros w v v' f. cbn. apply rassociator_rassociator_CAT. (* slow *)
+      * apply rassociator_lassociator_CAT.
+      * apply lassociator_rassociator_CAT.
+  - intros v f. apply lunitor_lwhisker_CAT.
+  - intros w v v' f. apply rassociator_rassociator_CAT.
 Qed.
 
 Definition actegory_from_precomp_CAT : actegory Mon_endo [C, D] :=
@@ -141,16 +141,16 @@ Section LineatorForPostcomposition.
 
   Context (C D E : category) (G : functor D E).
 
-  Definition lax_lineator_postcomp_actegories_from_precomp_data :
+  Definition lax_lineator_postcomp_actegories_from_precomp_CAT_data :
     lineator_data (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G).
   Proof.
-    intros F K.
+    intros F K. cbn.
     apply rassociator_CAT.
   Defined.
 
-  Lemma lax_lineator_postcomp_actegories_from_precomp_laws :
+  Lemma lax_lineator_postcomp_actegories_from_precomp_CAT_laws :
     lineator_laxlaws (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G)
-      lax_lineator_postcomp_actegories_from_precomp_data.
+      lax_lineator_postcomp_actegories_from_precomp_CAT_data.
   Proof.
     split4.
     - intros ?; intros.
@@ -177,9 +177,9 @@ Section LineatorForPostcomposition.
       apply functor_id.
   Qed.
 
-  Definition lax_lineator_postcomp_actegories_from_precomp :
+  Definition lax_lineator_postcomp_actegories_from_precomp_CAT :
     lineator_lax (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G) :=
-    _,,lax_lineator_postcomp_actegories_from_precomp_laws.
+    _,,lax_lineator_postcomp_actegories_from_precomp_CAT_laws.
 
 End LineatorForPostcomposition.
 
