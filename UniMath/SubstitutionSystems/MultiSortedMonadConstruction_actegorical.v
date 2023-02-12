@@ -54,7 +54,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
-Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms.
+Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.

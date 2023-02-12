@@ -60,7 +60,8 @@ Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
-Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms.
+(* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
+Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 
@@ -130,17 +131,21 @@ Local Definition CoproductsMultiSortedSig : ∏ M : MultiSortedSig sort,
       derived from a multisorted signature *)
 Section strength_through_actegories.
 
-  Local Definition endoCAT : category := EquivalenceSignaturesWithActegoryMorphisms.endoCAT sortToC.
-  Local Definition Mon_endo_CAT : monoidal endoCAT := EquivalenceSignaturesWithActegoryMorphisms.Mon_endo_CAT sortToC.
-  Local Definition ptdendo_CAT : category := EquivalenceSignaturesWithActegoryMorphisms.ptdendo_CAT sortToC.
+  Local Definition endoCAT : category := EquivalenceLaxLineatorsHomogeneousCase.endoCAT sortToC.
+  Local Definition Mon_endo_CAT : monoidal endoCAT := EquivalenceLaxLineatorsHomogeneousCase.Mon_endo_CAT sortToC.
+  Local Definition ptdendo_CAT : category := EquivalenceLaxLineatorsHomogeneousCase.ptdendo_CAT sortToC.
   Local Definition Mon_ptdendo_CAT : monoidal ptdendo_CAT := monoidal_pointed_objects Mon_endo_CAT.
 
   Local Definition ActPtd_CAT (E : category) : actegory Mon_ptdendo_CAT [sortToC,E] :=
-    EquivalenceSignaturesWithActegoryMorphisms.actegoryPtdEndosOnFunctors_CAT sortToC E.
+    EquivalenceLaxLineatorsHomogeneousCase.actegoryPtdEndosOnFunctors_CAT sortToC E.
   Local Definition ActPtd_CAT_Endo := ActPtd_CAT sortToC.
+  Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC1
+    := actegory_with_canonical_pointed_action Mon_endo_CAT.
 
   Local Definition pointedstrengthfromprecomp_CAT (E : category) := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
   (** we are only interested in [E] to have value either [sortToC] or [C] *)
+
+  Local Definition pointedstrengthfromselfaction_CAT := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
 
   Local Definition δCCCATEndo (M : MultiSortedSig sort) : actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
@@ -175,6 +180,15 @@ Section strength_through_actegories.
     apply (lax_lineator_coprod Mon_ptdendo_CAT ActPtd_CAT_Endo ActPtd_CAT_Endo Hyps (CoproductsMultiSortedSig M)).
     apply δCCCATEndo.
   Defined.
+
+  Definition MultiSortedSigToStrengthFromSelfCAT (M : MultiSortedSig sort) :
+    pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor M).
+  Proof.
+    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree.
+    apply MultiSortedSigToStrengthCAT.
+  Defined.
+
+
 
   (* can the following be preserved somehow?
   (** this yields an alternative definition for the semantic signature *)
