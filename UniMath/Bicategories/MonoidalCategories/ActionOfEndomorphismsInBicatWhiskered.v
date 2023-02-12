@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -97,6 +99,34 @@ Definition actegory_from_precomp : actegory Mon_endo homcat :=
 
 End Action_From_Precomposition.
 
+Section LineatorForPostcomposition.
+
+Context {C : bicat}.
+Context (c0 d0 e0 : ob C) (g : hom d0 e0).
+
+Definition lax_lineator_postcomp_actegories_from_precomp_data :
+  lineator_data (Mon_endo c0) (actegory_from_precomp c0 d0) (actegory_from_precomp c0 e0) (post_comp c0 g).
+Proof.
+  intros f k. apply lassociator.
+Defined.
+
+Lemma lax_lineator_postcomp_actegories_from_precomp_laws :
+  lineator_laxlaws (Mon_endo c0) (actegory_from_precomp c0 d0) (actegory_from_precomp c0 e0)
+    (post_comp c0 g) lax_lineator_postcomp_actegories_from_precomp_data.
+Proof.
+  split4; intros ?; intros; cbn; unfold lax_lineator_postcomp_actegories_from_precomp_data.
+  - apply rwhisker_lwhisker.
+  - apply pathsinv0, rwhisker_rwhisker.
+  - apply inverse_pentagon_7.
+  - apply lunitor_triangle.
+Qed.
+
+Definition lax_lineator_postcomp_actegories_from_precomp :
+  lineator_lax (Mon_endo c0) (actegory_from_precomp c0 d0) (actegory_from_precomp c0 e0) (post_comp c0 g) :=
+  _,,lax_lineator_postcomp_actegories_from_precomp_laws.
+
+End LineatorForPostcomposition.
+
 Section TheHomogeneousCase.
 
 Context {C : bicat}.
@@ -142,6 +172,8 @@ Qed. (* 44s on a modern Intel machine *)
 (** in fact, we need this with lifted actegories everywhere *)
 
 End TheHomogeneousCase.
+
+
 
 Section Instantiation_To_Bicategory_Of_Categories.
 
