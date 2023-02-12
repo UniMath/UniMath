@@ -57,6 +57,26 @@ Section SigmaMonoid.
   Definition SigmaMonoid : category
     := total_category SigmaMonoid_disp_cat.
 
+  Let MON := category_of_monoids_in_monoidal_cat Mon_V.
+
+  (** the following should be an instance of general results on projection into constituents *)
+  Definition SigmaMonoid_to_monoid_data : functor_data SigmaMonoid MON.
+  Proof.
+    use make_functor_data.
+    - intro σ. exact (pr1 σ,, pr212 σ).
+    - intros σ1 σ2 m. exact (pr1 m,, pr212 m).
+  Defined.
+
+  Lemma SigmaMonoid_to_monoid_laws : is_functor SigmaMonoid_to_monoid_data.
+  Proof.
+    split.
+    - intros ?. apply idpath.
+    - intros ?; intros. apply idpath.
+  Qed.
+
+  Definition SigmaMonoid_to_monoid : functor SigmaMonoid MON :=
+    SigmaMonoid_to_monoid_data,,SigmaMonoid_to_monoid_laws.
+
 End SigmaMonoid.
 
 Section GHSS_to_SigmaMonoid.

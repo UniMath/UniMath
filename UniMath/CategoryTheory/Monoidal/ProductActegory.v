@@ -239,7 +239,9 @@ End BinaryProduct.
 
 Section Product.
 
-  Context {I: UU} {C : I -> category} {D : category} (ActC : ∏ i: I, actegory Mon_V (C i)) (ActD : actegory Mon_V D).
+Section OneProduct.
+
+  Context {I: UU} {C : I -> category} (ActC : ∏ i: I, actegory Mon_V (C i)).
 
   Let PC : category := product_category C.
 
@@ -303,7 +305,114 @@ Definition actegory_prod_action_data : bifunctor_data V PC PC.
 
   Definition actegory_prod : actegory Mon_V PC := _,,actegory_prod_laws.
 
-  (* TODO: projections, delta_functor and family_functor are linear *)
+  Definition actegory_prod_pr_lineator_data (i : I) :
+    lineator_data Mon_V actegory_prod (ActC i) (pr_functor I C i).
+  Proof.
+    intros v cs. apply identity.
+  Defined.
+
+  Lemma actegory_prod_pr_lineator_lax_laws (i : I) :
+    lineator_laxlaws _ _ _ _ (actegory_prod_pr_lineator_data i).
+  Proof.
+    red; repeat split; red; intros.
+    - rewrite id_left. apply id_right.
+    - rewrite id_left. apply id_right.
+    - cbn. unfold actegory_prod_pr_lineator_data.
+      rewrite id_left, id_right.
+      etrans.
+      2: { apply maponpaths.
+           apply pathsinv0, (functor_id (leftwhiskering_functor (ActC i) v)). }
+      apply pathsinv0, id_right.
+    - apply id_left.
+  Qed.
+
+  Definition actegory_prod_pr_lineator (i : I) :
+    lineator Mon_V actegory_prod (ActC i) (pr_functor I C i).
+  Proof.
+    use tpair.
+    - exists (actegory_prod_pr_lineator_data i).
+      apply actegory_prod_pr_lineator_lax_laws.
+    - intros v cs.
+      use tpair.
+      + apply identity.
+      + red; split; apply id_left.
+  Defined.
+
+End OneProduct.
+
+Section Power.
+
+  Context (I : UU) {C : category} (Act : actegory Mon_V C).
+
+  Definition actegory_power : actegory Mon_V (power_category I C) :=
+    actegory_prod (fun _ => Act).
+
+  Definition actegory_prod_delta_lineator_data :
+    lineator_data Mon_V Act actegory_power (delta_functor I C).
+  Proof.
+    intros v c. apply identity.
+  Defined.
+
+  Lemma actegory_prod_delta_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_prod_delta_lineator_data.
+  Proof.
+    red; repeat split; red; intros; cbn; apply funextfun; intro i.
+    - rewrite id_left; apply id_right.
+    - rewrite id_left; apply id_right.
+    - rewrite id_left, id_right;
+        (etrans; [| apply maponpaths;
+                   apply pathsinv0, (functor_id (leftwhiskering_functor Act v))];
+        apply pathsinv0, id_right).
+    - apply id_left.
+  Qed.
+
+  Definition actegory_prod_delta_lineator :
+    lineator Mon_V Act actegory_power (delta_functor I C).
+  Proof.
+    use tpair.
+    - exists actegory_prod_delta_lineator_data.
+      exact actegory_prod_delta_lineator_lax_laws.
+    - intros v c.
+      use tpair.
+      + apply identity.
+      + red; split; apply id_left.
+  Defined.
+
+End Power.
+
+Section TwoProducts.
+
+  Context {I: UU} {C : I -> category} (ActC : ∏ i: I, actegory Mon_V (C i))
+    {D : I -> category} (ActD : ∏ i: I, actegory Mon_V (D i))
+    {F : ∏ i : I, functor (C i) (D i)}
+    (Fll : ∏ i : I, lineator_lax Mon_V (ActC i) (ActD i) (F i)).
+
+  Let ActCs : actegory Mon_V (product_category C) := actegory_prod ActC.
+  Let ActDs : actegory Mon_V (product_category D) := actegory_prod ActD.
+
+  Definition actegory_family_functor_lineator_data :
+    lineator_data Mon_V ActCs ActDs (family_functor I F).
+  Proof.
+    intros v cs. cbn. intro i.
+    exact (Fll i v (cs i)).
+  Defined.
+
+  Lemma actegory_family_functor_lineator_lax_laws :
+    lineator_laxlaws _ _ _ _ actegory_family_functor_lineator_data.
+  Proof.
+    red; repeat split; red; intros; apply funextsec; intro i;
+      cbn; unfold actegory_family_functor_lineator_data.
+    - apply lineator_linnatleft.
+    - apply lineator_linnatright.
+    - apply lineator_preservesactor.
+    - apply lineator_preservesunitor.
+  Qed.
+
+  Definition actegory_family_functor_lineator :
+    lineator_lax Mon_V ActCs ActDs (family_functor I F) :=
+    _,,actegory_family_functor_lineator_lax_laws.
+
+End TwoProducts.
 
 End Product.
 

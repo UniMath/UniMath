@@ -228,24 +228,32 @@ Section TheDefinitions.
   Definition lineator_is_nattrans_type : UU
     := binat_trans functor_actionofrightimage functor_imageofaction.
 
+Section LineatorNatural.
+
   (* I really don't know how to call the following lemma *)
-  Definition lineator_is_nattrans {ld : lineator_data}
-    (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld) : lineator_is_nattrans_type.
+
+  Context {ld : lineator_data} (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld).
+
+  Definition lineator_is_nattrans_data : binat_trans_data functor_actionofrightimage functor_imageofaction.
   Proof.
-    use make_binat_trans.
-    - use make_binat_trans_data.
-      intros v x.
-      apply ld.
-    - use tpair.
-      + intros v x1 x2 g.
-        apply lnl.
-      + intros v1 v2 x f.
-        apply lnr.
+    use make_binat_trans_data.
+    intros v x.
+    apply ld.
   Defined.
 
-  Lemma lineator_is_nattrans_full {ld : lineator_data}
-    (lnl : lineator_nat_left ld) (lnr : lineator_nat_right ld) :
-    ∏ (v1 v2 : V) (x1 x2 : C) (f : V⟦v1,v2⟧) (g : C⟦x1,x2⟧),
+  Lemma lineator_is_nattrans_law : is_binat_trans lineator_is_nattrans_data.
+  Proof.
+    use tpair.
+    - intros v x1 x2 g.
+      apply lnl.
+    - intros v1 v2 x f.
+      apply lnr.
+  Qed.
+
+  Definition lineator_is_nattrans : lineator_is_nattrans_type :=
+    lineator_is_nattrans_data,,lineator_is_nattrans_law.
+
+  Lemma lineator_is_nattrans_full (v1 v2 : V) (x1 x2 : C) (f : V⟦v1,v2⟧) (g : C⟦x1,x2⟧) :
       f ⊗^{ActD} # F g · ld v2 x2 = ld v1 x1 · # F (f ⊗^{ActC} g).
   Proof.
     intros.
@@ -259,6 +267,8 @@ Section TheDefinitions.
     apply maponpaths.
     apply pathsinv0, functor_comp.
   Qed.
+
+ End LineatorNatural.
 
   Definition lineator_inv_is_nattrans_type : UU
     := binat_trans functor_imageofaction functor_actionofrightimage.
@@ -299,7 +309,7 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
   Lemma identity_lineator_laxlaws {C : category} (Act : actegory Mon_V C) :
     lineator_laxlaws (identity_lineator_data Act).
   Proof.
-    repeat split; red; unfold identity_lineator_data; cbn; intros.
+    split4; intros x1; unfold identity_lineator_data; intros.
     - rewrite id_left. apply id_right.
     - rewrite id_left. apply id_right.
     - rewrite id_right.
@@ -322,19 +332,24 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
   Definition identity_lineator {C : category} (Act : actegory Mon_V C) : lineator Act Act (functor_identity C)
     := identity_lineator_lax Act ,, identity_lineator_strongly Act.
 
-  Definition comp_lineator_data {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
-    lineator_data ActC ActE (F ∙ G).
+Section Composition.
+
+    Context {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
+    {F : C ⟶ D} {G : D ⟶ E}.
+
+Section CompositionOfLaxLineators.
+
+  Context (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G).
+
+  Definition comp_lineator_data : lineator_data ActC ActE (F ∙ G).
   Proof.
     intros v x.
     exact (lineator_lindata Gl v (F x) · #G (lineator_lindata Fl v x)).
   Defined.
 
-  Lemma comp_lineator_laxlaws {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
-    lineator_laxlaws (comp_lineator_data Fl Gl).
+  Lemma comp_lineator_laxlaws : lineator_laxlaws comp_lineator_data.
   Proof.
-    repeat split; red; cbn; unfold comp_lineator_data; cbn; intros.
+    split4; intros ?; unfold comp_lineator_data; intros; cbn.
     - etrans.
       2: { rewrite assoc'. apply maponpaths. apply functor_comp. }
       etrans.
@@ -378,20 +393,25 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
       apply pathsinv0, functor_comp.
   Qed.
 
-  Definition comp_lineator_lax {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator_lax ActC ActD F) (Gl : lineator_lax ActD ActE G) :
-    lineator_lax ActC ActE (F ∙ G) := comp_lineator_data Fl Gl ,, comp_lineator_laxlaws Fl Gl.
+  Definition comp_lineator_lax : lineator_lax ActC ActE (F ∙ G) := comp_lineator_data,,comp_lineator_laxlaws.
 
-  Definition comp_lineator_strongly {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator ActC ActD F) (Gl : lineator ActD ActE G) :
-    lineator_strongly (comp_lineator_lax Fl Gl).
+End CompositionOfLaxLineators.
+
+Section CompositionOfLineators.
+
+  Context (Fl : lineator ActC ActD F) (Gl : lineator ActD ActE G).
+
+  Definition comp_lineator_strongly_inverse (v : V) (x : C) : E ⟦ G (F (v ⊗_{ ActC} x)), v ⊗_{ ActE} G (F x) ⟧ :=
+    #G (pr1 (lineator_linstrongly Fl v x)) · pr1 (lineator_linstrongly Gl v (F x)).
+
+  Lemma comp_lineator_strongly_inverse_is_inverse (v : V) (x : C) :
+    is_inverse_in_precat (comp_lineator_lax Fl Gl v x) (comp_lineator_strongly_inverse v x).
   Proof.
-    intros v x.
-    exists (#G (pr1 (lineator_linstrongly Fl v x)) · pr1 (lineator_linstrongly Gl v (F x))).
     split; cbn; unfold comp_lineator_data.
     - etrans.
       { repeat rewrite assoc'.
         apply maponpaths.
+        unfold comp_lineator_strongly_inverse.
         rewrite assoc.
         apply cancel_postcomposition.
         rewrite <- functor_comp.
@@ -400,7 +420,8 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
       rewrite functor_id.
       rewrite id_left.
       apply (pr12 (lineator_linstrongly Gl v (F x))).
-    - etrans.
+    - unfold comp_lineator_strongly_inverse.
+      etrans.
       { repeat rewrite assoc'.
         apply maponpaths.
         rewrite assoc.
@@ -412,11 +433,21 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
       { apply maponpaths.
         apply (pr22 (lineator_linstrongly Fl v x)). }
       apply functor_id.
+  Qed.
+
+
+  Definition comp_lineator_strongly : lineator_strongly (comp_lineator_lax Fl Gl).
+  Proof.
+    intros v x.
+    exact (comp_lineator_strongly_inverse v x,,comp_lineator_strongly_inverse_is_inverse v x).
   Defined.
 
-  Definition comp_lineator {C D E : category} {ActC : actegory Mon_V C} {ActD : actegory Mon_V D} {ActE : actegory Mon_V E}
-    {F : C ⟶ D} {G : D ⟶ E} (Fl : lineator ActC ActD F) (Gl : lineator ActD ActE G) : lineator ActC ActE (F ∙ G)
-    := comp_lineator_lax Fl Gl ,, comp_lineator_strongly Fl Gl.
+  Definition comp_lineator : lineator ActC ActE (F ∙ G)
+    := comp_lineator_lax Fl Gl ,, comp_lineator_strongly.
+
+End CompositionOfLineators.
+
+End Composition.
 
 End LinearFunctors.
 

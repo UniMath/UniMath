@@ -43,7 +43,6 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.

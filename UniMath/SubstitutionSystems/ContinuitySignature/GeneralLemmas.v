@@ -110,3 +110,88 @@ Proof.
       2: apply maponpaths_2, pathsinv0, (pr2 (pr2 (α i) c)).
       exact (id_right _ @ ! id_left _).
 Defined.
+
+
+(*
+The following lemmas has to be moved accordingly,
+e.g. in the file CategoryTheory.Chains.Omegacontfunctors
+ *)
+
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Chains.All.
+Lemma nat_trans_preserve_cone
+      {A B : category}
+      {F G : functor A B}
+      (α : nat_trans F G)
+      {coch : cochain A}
+      {b : B} (b_con : cone (mapdiagram F coch) b)
+  : cone (mapdiagram G coch) b.
+Proof.
+  exists (λ v, pr1 b_con v · α (dob coch v)).
+  intros u v p.
+  etrans.
+  1: apply assoc'.
+  cbn.
+  etrans.
+  1: apply maponpaths, pathsinv0, (pr2 α).
+  etrans.
+  1: apply assoc.
+  apply maponpaths_2.
+  exact (pr2 b_con u v p).
+Defined.
+
+Lemma nat_z_iso_preserve_ωlimits {A B : category}
+      (F G : functor A B)
+  : is_omega_cont F -> nat_z_iso F G -> is_omega_cont G.
+Proof.
+  (* This lemma should be split up in data and property and there is also a repeat of proof, need a more "general, but easy" lemma.
+ *)
+  intros Fc i.
+  intros coch a a_con a_lim.
+  intros b b_con.
+  set (b'_con := nat_trans_preserve_cone (nat_z_iso_inv i) b_con).
+  set (t := Fc coch a a_con a_lim b b'_con).
+  use tpair.
+  - exists (pr11 t · pr1 i a).
+    intro v.
+    etrans.
+    1: apply assoc'.
+    etrans.
+    1: apply maponpaths, pathsinv0, (pr21 i).
+    etrans.
+    1: apply assoc.
+    etrans.
+    1: apply maponpaths_2, (pr21 t v).
+    etrans.
+    1: apply assoc'.
+    etrans.
+    1: apply maponpaths, (pr2 i (dob coch v)).
+    apply id_right.
+  - intro f.
+    use total2_paths_f.
+    + use (cancel_z_iso _ _ (_ ,, pr2 (nat_z_iso_inv i) a)).
+      etrans.
+      2: apply assoc.
+      etrans.
+      2: apply maponpaths, pathsinv0, (pr2 (pr2 i a)).
+      etrans.
+      2: apply pathsinv0, id_right.
+
+      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, limits.is_cone_mor b'_con (limits.mapcone F coch a_con) x)).
+      {
+        exists (pr1 f · pr1 (pr2 i a)).
+        intro v.
+        cbn.
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, pathsinv0, (pr21 (nat_z_iso_inv i)).
+        etrans.
+        1: apply assoc.
+        apply maponpaths_2, (pr2 f v).
+      }
+
+      exact (base_paths _ _ (pr2 t c')).
+    + apply (impred_isaprop) ; intro ; apply homset_property.
+Defined.

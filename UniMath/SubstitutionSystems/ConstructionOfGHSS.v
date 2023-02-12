@@ -55,7 +55,7 @@ Section FixTheContext.
   Let Mon_PtdV : monoidal PtdV := GeneralizedSubstitutionSystems.Mon_PtdV Mon_V.
   Let Act : actegory Mon_PtdV V:= GeneralizedSubstitutionSystems.Act Mon_V.
 
-  Context  (CP : BinCoproducts V) (δ : bincoprod_distributor Mon_PtdV CP Act).
+  Context  (CP : BinCoproducts V) (δ : actegory_bincoprod_distributor Mon_PtdV CP Act).
 
   Let Const_plus_H (v : V) : functor V V := GeneralizedSubstitutionSystems.Const_plus_H H CP v.
 

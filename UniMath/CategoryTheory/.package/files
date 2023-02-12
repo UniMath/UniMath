@@ -11,6 +11,7 @@ Core/Prelude.v
 
 FunctorCategory.v
 whiskering.v
+BicatOfCatsElementary.v
 
 DisplayedCats/Core.v
 DisplayedCats/Isos.v
@@ -246,6 +247,8 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
+Monoidal/Examples/EndofunctorsWhiskeredMonoidalElementary.v
+Monoidal/Examples/MonadsAsMonoidsWhiskeredElementary.v
 Monoidal/Actegories.v
 Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
@@ -259,6 +262,7 @@ Monoidal/MorphismsOfActegories.v
 Monoidal/ProductActegory.v
 Monoidal/ProductsInActegories.v
 Monoidal/CoproductsInActegories.v
+Monoidal/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
 Monoidal/ConstructionOfActegoryMorphisms.v
 Monoidal/ActionBasedStrongMonads.v
 Monoidal/MonoidalSectionsWhiskered.v

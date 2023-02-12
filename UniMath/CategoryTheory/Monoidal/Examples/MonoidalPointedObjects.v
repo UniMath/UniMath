@@ -37,32 +37,46 @@ Context {V : category} (Mon_V : monoidal V).
 
 Let cosliced : disp_cat V := coslice_cat_disp V I_{Mon_V}.
 
+Lemma monoidal_pointed_objects_disp_tensor_data_aux1 (v w w' : V) (g : V ⟦ w, w' ⟧)
+  (pv : cosliced v) (pw : cosliced w) (pw' : cosliced w') (Hypg : pw · g = pw') :
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw · v ⊗^{ Mon_V}_{l} g =
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw'.
+Proof.
+  rewrite assoc'.
+  apply maponpaths.
+  rewrite <- Hypg.
+  unfold functoronmorphisms1.
+  rewrite assoc'.
+  apply maponpaths.
+  apply pathsinv0, bifunctor_leftcomp.
+Qed.
+
+Lemma monoidal_pointed_objects_disp_tensor_data_aux2 (v v' w : V) (f : V ⟦ v, v' ⟧)
+  (pv : cosliced v) (pv' : cosliced v') (pw : cosliced w) (Hypf : pv · f = pv') :
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw · f ⊗^{ Mon_V}_{r} w =
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv' ⊗^{ Mon_V} pw.
+Proof.
+  rewrite assoc'.
+  apply maponpaths.
+  rewrite <- Hypf.
+  do 2 rewrite bifunctor_equalwhiskers.
+  unfold functoronmorphisms2.
+  rewrite assoc'.
+  apply maponpaths.
+  apply pathsinv0, bifunctor_rightcomp.
+Qed.
+
 Definition monoidal_pointed_objects_disp_tensor_data : disp_bifunctor_data Mon_V cosliced cosliced cosliced.
 Proof.
   use make_disp_bifunctor_data.
   - intros v w pv pw. exact (luinv^{Mon_V}_{I_{Mon_V}} · pv ⊗^{Mon_V} pw).
-  - intros v w w' g pv pw pw' Hypg. cbn in Hypg. cbn.
-    rewrite assoc'.
-    apply maponpaths.
-    rewrite <- Hypg.
-    unfold functoronmorphisms1.
-    rewrite assoc'.
-    apply maponpaths.
-    apply pathsinv0, bifunctor_leftcomp.
-  - intros v v' w f pv pv' pw Hypf. cbn.
-    rewrite assoc'.
-    apply maponpaths.
-    rewrite <- Hypf.
-    do 2 rewrite bifunctor_equalwhiskers.
-    unfold functoronmorphisms2.
-    rewrite assoc'.
-    apply maponpaths.
-     apply pathsinv0, bifunctor_rightcomp.
+  - exact monoidal_pointed_objects_disp_tensor_data_aux1.
+  - exact monoidal_pointed_objects_disp_tensor_data_aux2.
 Defined.
 
 Lemma monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor : is_disp_bifunctor monoidal_pointed_objects_disp_tensor_data.
 Proof.
-  repeat split; red; intros; apply V.
+  split5; intros ?; intros; apply V.
 Qed.
 
 Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
@@ -76,7 +90,7 @@ Lemma monoidal_pointed_objects_disp_data_verif :
     × disp_associator_data monoidal_pointed_objects_disp_tensor
     × disp_associatorinv_data monoidal_pointed_objects_disp_tensor.
 Proof.
-  repeat split; red.
+  split6.
   - intros v pv. cbn.
     unfold functoronmorphisms1.
     rewrite bifunctor_rightid.
@@ -171,7 +185,7 @@ Defined.
 
 Lemma monoidal_pointed_objects_disp_laws : disp_monoidal_laws monoidal_pointed_objects_disp_data.
 Proof.
-  red; repeat split; try red; intros; apply V.
+  repeat split; try intros ?; intros; apply V.
 Qed.
 
 Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V
@@ -182,30 +196,34 @@ Definition monoidal_pointed_objects : monoidal (coslice_cat_total V I_{Mon_V})
 
 Definition forget_monoidal_pointed_objects_data : fmonoidal_data monoidal_pointed_objects Mon_V (pr1_category cosliced).
 Proof.
-  split; red; intros; cbn; apply identity.
+  split; try intros ?; intros; apply identity.
 Defined.
 
 Lemma forget_monoidal_pointed_objects_laxlaws : fmonoidal_laxlaws forget_monoidal_pointed_objects_data.
 Proof.
-  repeat split; red; intros; cbn.
+  split5; intros ?; intros.
   - rewrite id_left; apply id_right.
   - rewrite id_left; apply id_right.
-  - do 2 rewrite id_right.
+  - do 2 rewrite id_right. cbn.
     rewrite bifunctor_leftid.
     rewrite bifunctor_rightid.
     rewrite id_right; apply id_left.
-  - rewrite bifunctor_rightid. rewrite id_left. apply id_left.
-  - rewrite bifunctor_leftid. rewrite id_left. apply id_left.
+  - cbn. rewrite bifunctor_rightid. rewrite id_left. apply id_left.
+  - cbn. rewrite bifunctor_leftid. rewrite id_left. apply id_left.
 Qed.
 
 Definition forget_monoidal_pointed_objects_lax_monoidal : fmonoidal_lax monoidal_pointed_objects Mon_V (pr1_category cosliced)
   := forget_monoidal_pointed_objects_data,,forget_monoidal_pointed_objects_laxlaws.
 
-Definition forget_monoidal_pointed_objects_monoidal : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced).
+Definition forget_monoidal_pointed_objects_monoidal_stronglaws :
+  fmonoidal_stronglaws (fmonoidal_preservestensordata forget_monoidal_pointed_objects_lax_monoidal)
+    (fmonoidal_preservesunit forget_monoidal_pointed_objects_lax_monoidal).
 Proof.
-  exists forget_monoidal_pointed_objects_lax_monoidal.
-  split; red; intros; apply identity_is_z_iso.
+  split; try intros ?; intros; apply identity_is_z_iso.
 Defined.
+
+Definition forget_monoidal_pointed_objects_monoidal : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced) :=
+  forget_monoidal_pointed_objects_lax_monoidal,,forget_monoidal_pointed_objects_monoidal_stronglaws.
 
 End A.
 
@@ -449,27 +467,28 @@ Section PointedObjectFixpointMonoidal.
               ]).
   Defined.
 
+
   Definition ptdob_to_ptdptdob_fmonoidal_stronglaws
     : fmonoidal_stronglaws (fmonoidal_preservestensordata ptdob_to_ptdptdob_fmonoidal_lax)
                            (fmonoidal_preservesunit ptdob_to_ptdptdob_fmonoidal_lax).
   Proof.
-    split ; (
+    split; (
               (try intro ; intros) ;
               repeat (use tpair) ;
               [ exact (identity _)
               | apply id_right
-              | abstract (
-                    use total2_paths_f ;
-                    [ apply id_right | apply homset_property ]
-                  )
-              | abstract (
-                    use total2_paths_f ;
-                    [ apply id_right | apply homset_property ]
-                  )
               | abstract (use total2_paths_f ;
                 [ apply id_right | apply homset_property ])
+              | abstract (
+                    use total2_paths_f ;
+                    [ use total2_paths_f ; [apply id_right | apply V] | apply homset_property ]
+                  )
+              | abstract (
+                    use total2_paths_f ;
+                    [ use total2_paths_f ; [apply id_right | apply V] | apply homset_property ])
               ]).
   Defined.
+
 
   Definition ptdptdob_to_ptdob_fmonoidal
     : fmonoidal (ptd_ob_mon (ptd_ob_mon Mon_V)) (ptd_ob_mon Mon_V) (ptdptdob_to_ptdob Mon_V).

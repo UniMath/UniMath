@@ -39,7 +39,6 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.

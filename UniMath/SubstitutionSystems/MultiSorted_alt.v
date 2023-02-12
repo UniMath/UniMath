@@ -16,7 +16,9 @@ instantiation of MultiSortedSigToMonad for C = Set are now found in
 
 
 Written by: Anders Mörtberg, 2021. The formalization is an adaptation of
-Multisorted.v
+Multisorted.
+
+some adaptions in preparation of actegorical approach done in 2023 by Ralph Matthes
 
 *)
 Require Import UniMath.Foundations.PartD.
@@ -109,6 +111,17 @@ Definition MultiSortedSig : UU :=
   ∑ (I : hSet), I → list (list sort × sort) × sort.
 
 Definition ops (M : MultiSortedSig) : hSet := pr1 M.
+
+Definition CoproductsMultiSortedSig_base (M : MultiSortedSig) : Coproducts (ops M) sortToC.
+Proof.
+  apply Coproducts_functor_precat, CC, setproperty.
+Defined.
+
+Definition CoproductsMultiSortedSig (M : MultiSortedSig) : Coproducts (ops M) [sortToC, sortToC].
+Proof.
+  apply Coproducts_functor_precat, CoproductsMultiSortedSig_base.
+Defined.
+
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
   λ x, pr2 M x.
 
@@ -244,9 +257,8 @@ Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
   functor [sortToC,sortToC] [sortToC,sortToC].
 Proof.
-use (coproduct_of_functors (ops M)).
-+ apply Coproducts_functor_precat, Coproducts_functor_precat, CC, setproperty.
-+ intros op.
+  use (coproduct_of_functors (ops M) _ _ (CoproductsMultiSortedSig M)).
+  intros op.
   exact (hat_exp_functor_list (arity M op)).
 Defined.
 
@@ -331,8 +343,7 @@ Qed.
 Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature sortToC sortToC sortToC.
 Proof.
 set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
-use (Sum_of_Signatures (ops M) _ Hyps).
-apply Coproducts_functor_precat, CC, setproperty.
+apply (Sum_of_Signatures (ops M) (CoproductsMultiSortedSig_base M) Hyps).
 Defined.
 
 Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :

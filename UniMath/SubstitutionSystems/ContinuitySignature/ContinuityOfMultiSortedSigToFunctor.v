@@ -44,101 +44,6 @@ Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaL
 
 Local Open Scope cat.
 
-(*
-The following lemmas has to be moved accordingly,
-e.g. in the file CategoryTheory.Chains.Omegacontfunctors
- *)
-
-Lemma nat_trans_preserve_cone
-      {A B : category}
-      {F G : functor A B}
-      (α : nat_trans F G)
-      {coch : cochain A}
-      {b : B} (b_con : cone (mapdiagram F coch) b)
-  : cone (mapdiagram G coch) b.
-Proof.
-  exists (λ v, pr1 b_con v · α (dob coch v)).
-  intros u v p.
-  etrans.
-  1: apply assoc'.
-  cbn.
-  etrans.
-  1: apply maponpaths, pathsinv0, (pr2 α).
-  etrans.
-  1: apply assoc.
-  apply maponpaths_2.
-  exact (pr2 b_con u v p).
-Defined.
-
-Lemma nat_z_iso_preserve_ωlimits {A B : category}
-      (F G : functor A B)
-  : is_omega_cont F -> nat_z_iso F G -> is_omega_cont G.
-Proof.
-  (* This lemma should be split up in data and property and there is also a repeat of proof, need a more "general, but easy" lemma.
- *)
-  intros Fc i.
-  intros coch a a_con a_lim.
-  intros b b_con.
-  set (b'_con := nat_trans_preserve_cone (nat_z_iso_inv i) b_con).
-  set (t := Fc coch a a_con a_lim b b'_con).
-  use tpair.
-  - exists (pr11 t · pr1 i a).
-    intro v.
-    etrans.
-    1: apply assoc'.
-    etrans.
-    1: apply maponpaths, pathsinv0, (pr21 i).
-    etrans.
-    1: apply assoc.
-    etrans.
-    1: apply maponpaths_2, (pr21 t v).
-    etrans.
-    1: apply assoc'.
-    etrans.
-    1: apply maponpaths, (pr2 i (dob coch v)).
-    apply id_right.
-  - intro f.
-    use total2_paths_f.
-    + use (cancel_z_iso _ _ (_ ,, pr2 (nat_z_iso_inv i) a)).
-      etrans.
-      2: apply assoc.
-      etrans.
-      2: apply maponpaths, pathsinv0, (pr2 (pr2 i a)).
-      etrans.
-      2: apply pathsinv0, id_right.
-
-      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, limits.is_cone_mor b'_con (limits.mapcone F coch a_con) x)).
-      {
-        exists (pr1 f · pr1 (pr2 i a)).
-        intro v.
-        cbn.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, pathsinv0, (pr21 (nat_z_iso_inv i)).
-        etrans.
-        1: apply assoc.
-        apply maponpaths_2, (pr2 f v).
-      }
-
-      exact (base_paths _ _ (pr2 t c')).
-    + apply (impred_isaprop) ; intro ; apply homset_property.
-Defined.
-
-Definition LimFunctor_is_pointwise_Lim:
-  ∏ (A C : category) (g : graph) (D : diagram g [A, C]),
-    (∏ a : A, LimCone (diagram_pointwise D a))
-    → ∏ (X : [A, C]) (R : cone D X),
-    isLimCone D X R
-    → ∏ a : A, LimCone (diagram_pointwise D a)
-  := λ A C g D la F F_cone F_lim a, make_LimCone _ _ _ (isLimFunctor_is_pointwise_Lim D la F F_cone F_lim a).
-
-Definition LimFunctor_is_pointwise_Lim':
-  ∏ (A C : category) (g : graph) (D : diagram g [A, C]),
-    (∏ a : A, LimCone (diagram_pointwise D a))
-    → LimCone D → ∏ a : A, LimCone (diagram_pointwise D a)
-  := λ A C g D la F_l, LimFunctor_is_pointwise_Lim _ _ _ _ la _ _ (pr2 F_l).
-
 Section OmegaContinuityOfSignatureFunctor.
 
   Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
@@ -168,6 +73,8 @@ Section OmegaContinuityOfSignatureFunctor.
     intros I Iset.
     repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
   Defined.
+
+  Section DefinitionOfMultiSortedSigToFunctor.
 
   Definition hat_exp_functor_list'_piece
              (xst : (list sort × sort) × sort)
@@ -202,59 +109,6 @@ Section OmegaContinuityOfSignatureFunctor.
       repeat (apply BinProducts_functor_precat) ; exact BP.
   Defined.
 
-  Definition hat_exp_functor_list'_test
-             (xst : list (list sort × sort) × sort)
-    : nat_z_iso (hat_exp_functor_list sort Hsort C TC BP BC CC xst)
-                (hat_exp_functor_list' xst).
-  Proof.
-    induction xst as [a t] ; revert a.
-    use list_ind.
-    - use tpair.
-      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
-      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
-    - intros x xs IHn.
-      use make_nat_z_iso.
-      + use make_nat_trans.
-        * intro F.
-          use make_nat_trans.
-          -- intro G.
-             use make_nat_trans.
-             ++ intro H.
-                assert (p :  pr1 (pr1 (hat_exp_functor_list' (cons x xs,, t) F) G) H = pr1 (pr1 (pr1 (BinProduct_of_functors sortToC_hasbinproducts (hat_exp_functor_list' (xs,, t)) (hat_exp_functor_list'_piece (x,,t))) F) G) H).
-                {
-                  apply idpath.
-                }
-
-                refine (_ · Univalence.idtoiso (! p)).
-                clear p.
-
-                unfold hat_exp_functor_list.
-                (* pr1 (pr1 (IHn F) G) H *)
-                admit.
-             ++ intros H1 H2 α.
-                admit.
-          -- intros G1 G2 α.
-             use nat_trans_eq.
-             { apply homset_property. }
-             intro H.
-             admit.
-        * intros F1 F2 α.
-          use nat_trans_eq.
-          { apply homset_property. }
-          intro G.
-          use nat_trans_eq.
-          { apply homset_property. }
-          admit.
-      + intro F.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        intro G.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        intro H.
-        use make_is_z_isomorphism.
-        * admit.
-        * split ; admit.
-  Admitted.
-
   Lemma MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
     functor [sortToC,sortToC] [sortToC,sortToC].
   Proof.
@@ -264,15 +118,9 @@ Section OmegaContinuityOfSignatureFunctor.
       exact (hat_exp_functor_list' (arity sort M op)).
   Defined.
 
-  Definition MultiSortedSigToFunctor_test
-       (M : MultiSortedSig sort)
-    : nat_z_iso (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M)
-                (MultiSortedSigToFunctor' M).
-  Proof.
-    use coproduct_of_functors_nat_z_iso.
-    intro i.
-    apply hat_exp_functor_list'_test.
-  Defined.
+  End DefinitionOfMultiSortedSigToFunctor.
+
+  Section OmegaContinuityOfMultiSortedSigToFunctor.
 
   Variable (LC : ∏ coch : cochain C, LimCone coch).
   Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
@@ -433,23 +281,15 @@ Section OmegaContinuityOfSignatureFunctor.
 
   (** The functor obtained from a multisorted binding signature is omega-continuous *)
   Lemma is_omega_cont_MultiSortedSigToFunctor' (M : MultiSortedSig sort)
-        (ω_distr : ω_limits_distribute_over_I_coproducts C (ops sort M) LC (CC (ops sort M) (setproperty (ops sort M))))
     : is_omega_cont (MultiSortedSigToFunctor' M).
   Proof.
     use coproduct_of_functors_omega_cont.
     - do 2 apply ω_complete_functor_cat ; exact LC.
-    - do 2 apply functor_category_ω_limits_distribute_over_I_coproducts ; exact ω_distr.
+    - do 2 apply functor_category_ω_limits_distribute_over_I_coproducts ; apply distr.
     - intro ; apply is_omega_cont_hat_exp_functor_list.
   Defined.
 
-  (** The functor obtained from a multisorted binding signature is omega-continuous *)
-  Lemma is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort)
-        (ω_distr : ω_limits_distribute_over_I_coproducts C (ops sort M) LC (CC (ops sort M) (setproperty (ops sort M))))
-    : is_omega_cont (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M).
-  Proof.
-    use nat_z_iso_preserve_ωlimits.
-    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test M)).
-    apply (is_omega_cont_MultiSortedSigToFunctor' M) ; exact ω_distr.
-  Defined.
+  End OmegaContinuityOfMultiSortedSigToFunctor.
+
 
 End OmegaContinuityOfSignatureFunctor.

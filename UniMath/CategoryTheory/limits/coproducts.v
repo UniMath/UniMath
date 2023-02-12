@@ -9,6 +9,8 @@ Direct implementation of indexed coproducts together with:
 
 Written by: Anders Mörtberg 2016
 
+Extended by Ralph Matthes 2023 for the distributors
+
 *)
 
 Require Import UniMath.Foundations.PartD.
@@ -25,6 +27,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
@@ -46,6 +49,8 @@ Definition Coproducts := ∏ (a : I -> C), Coproduct a.
 Definition hasCoproducts :=  ∏ (a : I -> C), ∥ Coproduct a ∥.
 
 Definition CoproductObject {a : I -> C} (CC : Coproduct a) : C := pr1 (pr1 CC).
+Coercion CoproductObject : Coproduct >-> ob.
+
 Definition CoproductIn {a : I -> C} (CC : Coproduct a): ∏ i, a i --> CoproductObject CC :=
   pr2 (pr1 CC).
 
@@ -385,3 +390,94 @@ use make_Coproduct.
 Defined.
 
 End coproducts_from_colimits.
+
+Section DistributionThroughFunctor.
+
+  Context {I : UU} {C D : category}
+    (CPC : Coproducts I C) (CPD : Coproducts I D) (F : functor C D).
+
+  Definition coprod_antidistributor (cs : power_category I C):
+    CPD (fun i => F (cs i)) --> F (CPC cs).
+  Proof.
+    use CoproductArrow; intro i; apply (#F). apply CoproductIn.
+  Defined.
+
+  Lemma coprod_antidistributor_nat (cs1 cs2 : power_category I C) (g : power_category I C ⟦ cs1, cs2 ⟧) :
+    coprod_antidistributor cs1 · #F (#(coproduct_functor I CPC) g) =
+    #(coproduct_functor I CPD) (#(family_functor I (fun _ => F)) g) · coprod_antidistributor cs2.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths.
+    apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, functor_comp. }
+    etrans.
+    2: { cbn. apply functor_comp. }
+    apply maponpaths.
+    apply CoproductInCommutes.
+  Qed.
+
+   (** axiomatize extra requirements *)
+
+  Definition coprod_distributor_data : UU := ∏ (cs : power_category I C),
+     F (CPC cs) --> CPD (fun i => F (cs i)).
+
+  Identity Coercion coprod_distributor_data_funclass: coprod_distributor_data >-> Funclass.
+
+  Definition coprod_distributor_iso_law (δ : coprod_distributor_data) : UU :=
+    ∏ (cs : power_category I C), is_inverse_in_precat (δ cs) (coprod_antidistributor cs).
+
+  Definition coprod_distributor : UU := ∑ δ : coprod_distributor_data, coprod_distributor_iso_law δ.
+
+  Definition coprod_distributor_to_data (δ : coprod_distributor) : coprod_distributor_data := pr1 δ.
+  Coercion coprod_distributor_to_data : coprod_distributor >-> coprod_distributor_data.
+
+End DistributionThroughFunctor.
+
+Section DistributionForPrecompositionFunctor.
+
+  Context {I : UU} {A B C : category} (CPC : Coproducts I C) (H : functor A B).
+
+  Let CPAC : Coproducts I [A,C] := Coproducts_functor_precat I A C CPC.
+  Let CPBC : Coproducts I [B,C] := Coproducts_functor_precat I B C CPC.
+  Let precomp : functor [B,C] [A,C] := pre_composition_functor A B C H.
+
+  Definition precomp_coprod_distributor_data : coprod_distributor_data CPBC CPAC precomp.
+  Proof.
+    intro Gs.
+    cbn.
+    use make_nat_trans.
+    - intro a. apply identity.
+    - abstract (intros a a' f; rewrite id_left; apply id_right).
+  Defined.
+
+  Lemma precomp_coprod_distributor_law :
+    coprod_distributor_iso_law _ _ _ precomp_coprod_distributor_data.
+  Proof.
+    intros Gs.
+    split.
+    - apply nat_trans_eq; [apply C |].
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, Coproduct_endo_is_identity.
+      intro i.
+      unfold coproduct_nat_trans_data.
+      cbn in Gs.
+      apply (CoproductInCommutes I C (λ i0 : I, Gs i0 (H c)) (CPC _) _
+               (λ i0 : I, coproduct_nat_trans_in_data I B C CPC Gs i0 (H c)) i).
+    - etrans.
+      { apply postcompWithCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, CoproductArrowEta. }
+      apply maponpaths; apply funextsec; intro i;
+        (rewrite id_right; apply nat_trans_eq; [apply C |]; intro c; apply id_right).
+  Qed.
+
+  Definition precomp_coprod_distributor :  coprod_distributor CPBC CPAC precomp :=
+    _,,precomp_coprod_distributor_law.
+
+End DistributionForPrecompositionFunctor.

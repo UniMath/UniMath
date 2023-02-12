@@ -103,10 +103,10 @@ Section Const_H_AsFunctor.
   Qed.
 
   Definition singleeq_SpecialGenMendlerIterationWithActegoryAndStrength (h : C ⟦v ⊗_{Act} μF, y⟧) : UU :=
-    bincoprod_antidistributor_data Mon_V CP Act _ _ _ · v ⊗^{Act}_{l} α · h =
+    actegory_bincoprod_antidistributor Mon_V CP Act _ _ _ · v ⊗^{Act}_{l} α · h =
                                      BinCoproductArrow (CP _ _) f (θ v μF · #H h · ρ).
 
-  Context (δ : bincoprod_distributor Mon_V CP Act).
+  Context (δ : actegory_bincoprod_distributor Mon_V CP Act).
 
   Definition instance_SpecialGenMendlerIterationWithActegory (h : C ⟦v ⊗_{Act} μF, y⟧) : UU :=
     v ⊗^{Act}_{l} α · h = δ v c0 (H μF) · BinCoproductOfArrows _ (CP _ _) (CP _ _) f (θ v μF) ·
@@ -143,7 +143,7 @@ Section Const_H_AsFunctor.
       red in Hsingle.
       split.
       + apply (maponpaths (fun m => BinCoproductIn1 (CP _ _) · m)) in Hsingle.
-        unfold bincoprod_antidistributor_data in Hsingle.
+        unfold actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor in Hsingle.
         repeat rewrite assoc in Hsingle.
         rewrite BinCoproductIn1Commutes in Hsingle.
         assert (aux := functor_comp (leftwhiskering_functor Act v)
@@ -156,7 +156,7 @@ Section Const_H_AsFunctor.
         rewrite BinCoproductIn1Commutes in Hsingle'.
         exact Hsingle'.
       + apply (maponpaths (fun m => BinCoproductIn2 (CP _ _) · m)) in Hsingle.
-        unfold bincoprod_antidistributor_data in Hsingle.
+        unfold actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor in Hsingle.
         repeat rewrite assoc in Hsingle.
         rewrite BinCoproductIn2Commutes in Hsingle.
         assert (aux := functor_comp (leftwhiskering_functor Act v)

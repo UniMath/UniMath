@@ -72,6 +72,16 @@ Proof.
     + intros _ _ _. exact (f a' fl).
 Defined.
 
+(** Variation of foldr1 with embedded mapping, see below for [foldr1_foldr1_map] *)
+Definition foldr1_map {B : UU} (f : B -> B -> B) (b : B) (h : A -> B) : list → B.
+Proof.
+  apply list_ind.
+  - exact b.
+  - intros a' l fl. revert l. apply list_ind.
+    + exact (h a').
+    + intros _ _ _. exact (f (h a') fl).
+Defined.
+
 (** The n-th element of a list *)
 
 Definition nth x : stn(length x) -> A := el (pr2 x).
@@ -173,6 +183,27 @@ Lemma foldr1_cons {A : UU} (f : A -> A -> A) (a : A) (x y : A) (xs : list A) :
   foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
 Proof.
 apply idpath.
+Qed.
+
+Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
+  foldr1_map f b h xs = foldr1 f b (map h xs).
+Proof.
+  revert xs.
+  induction xs as [[|n] xs].
+  - induction xs. cbn.
+    apply idpath.
+  - induction n as [|n IH].
+    + induction xs as [m []]. cbn.
+      apply idpath.
+    + induction xs as [m [k xs]].
+      assert (IHinst := IH (k,,xs)).
+      change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
+      do 2 rewrite map_cons.
+      rewrite foldr1_cons.
+      change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
+      rewrite map_cons in IHinst.
+      rewrite <- IHinst.
+      apply idpath.
 Qed.
 
 End more_lists.
