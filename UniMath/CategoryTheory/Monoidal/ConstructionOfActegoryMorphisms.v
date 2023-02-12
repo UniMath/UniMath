@@ -42,11 +42,66 @@ Import BifunctorNotations.
 Import MonoidalNotations.
 Import ActegoryNotations.
 
-Section LiftedDistributivity.
+Section LiftedLineatorAndLiftedDistributivity.
 
   Context {V : category} (Mon_V : monoidal V)
           {W : category} (Mon_W : monoidal W)
           {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
+
+
+Section LiftedLaxLineator.
+
+  Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D) {H : functor C D}
+    (ll : lineator_lax Mon_V ActC ActD H).
+
+  Definition lifted_lax_lineator_data : lineator_data Mon_W (lifted_actegory Mon_V ActC Mon_W U)
+                                                            (lifted_actegory Mon_V ActD Mon_W U) H.
+  Proof.
+    intros w c. exact (ll (F w) c).
+  Defined.
+
+  Lemma lifted_lax_lineator_laws : lineator_laxlaws Mon_W (lifted_actegory Mon_V ActC Mon_W U)
+                                     (lifted_actegory Mon_V ActD Mon_W U) H lifted_lax_lineator_data.
+  Proof.
+    split4.
+    - intros ?; intros. apply (lineator_linnatleft _ _ _ _ ll).
+    - intros ?; intros. apply (lineator_linnatright _ _ _ _ ll).
+    - intros ?; intros. cbn. unfold lifted_lax_lineator_data, lifted_actor_data.
+      etrans.
+      2: { repeat rewrite assoc'. apply maponpaths.
+           rewrite assoc.
+           apply (lineator_preservesactor _ _ _ _ ll). }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, lineator_linnatright. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply functor_comp. }
+      apply idpath.
+    - intros ?; intros. cbn. unfold lifted_lax_lineator_data, lifted_action_unitor_data.
+      etrans.
+      2: { apply maponpaths.
+           apply (lineator_preservesunitor _ _ _ _ ll). }
+      etrans.
+      2: { rewrite assoc.
+           apply cancel_postcomposition.
+           apply pathsinv0, lineator_linnatright. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply functor_comp. }
+      apply idpath.
+  Qed.
+
+  Definition lifted_lax_lineator : lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U)
+                                                      (lifted_actegory Mon_V ActD Mon_W U) H :=
+    _,,lifted_lax_lineator_laws.
+
+End LiftedLaxLineator.
+
+Section LiftedDistributivity.
 
 Section FixAnObject.
 
@@ -675,6 +730,8 @@ Section CompositionOfLiftedDistributivities.
 End CompositionOfLiftedDistributivities.
 
 End LiftedDistributivity.
+
+End LiftedLineatorAndLiftedDistributivity.
 
 Section PointwiseOperationsOnLinearFunctors.
 

@@ -137,6 +137,52 @@ Qed.
 
 End TheHomogeneousCase.
 
+Section LineatorForPostcomposition.
+
+  Context (C D E : category) (G : functor D E).
+
+  Definition lax_lineator_postcomp_actegories_from_precomp_data :
+    lineator_data (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G).
+  Proof.
+    intros F K.
+    apply rassociator_CAT.
+  Defined.
+
+  Lemma lax_lineator_postcomp_actegories_from_precomp_laws :
+    lineator_laxlaws (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G)
+      lax_lineator_postcomp_actegories_from_precomp_data.
+  Proof.
+    split4.
+    - intros ?; intros.
+      apply (nat_trans_eq E).
+      intro c.
+      cbn.
+      rewrite id_left; apply id_right.
+    - intros ?; intros.
+      apply (nat_trans_eq E).
+      intro c.
+      cbn.
+      rewrite id_left; apply id_right.
+    - intros ?; intros.
+      apply (nat_trans_eq E).
+      intro c.
+      cbn.
+      do 3 rewrite id_left.
+      apply functor_id.
+    - intros ?; intros.
+      apply (nat_trans_eq E).
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply functor_id.
+  Qed.
+
+  Definition lax_lineator_postcomp_actegories_from_precomp :
+    lineator_lax (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G) :=
+    _,,lax_lineator_postcomp_actegories_from_precomp_laws.
+
+End LineatorForPostcomposition.
+
 Section DistributionOfCoproducts.
 
   Context (C D : category).

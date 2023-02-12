@@ -117,6 +117,8 @@ Local Definition sortToC1C := [sortToC1, sortToCC].
 Let ops := ops sort.
 Let arity := arity sort.
 
+Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
+  := exp_functor_list sort Hsort C TC BP BC CC.
 Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC2
   := hat_exp_functor_list sort Hsort C TC BP BC CC.
 Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
@@ -147,12 +149,23 @@ Section strength_through_actegories.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
+  Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
+    pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
+  Proof.
+  Admitted. (* this requires the development of all the constituents before TODO! *)
+
+
+
   (* the strength for hat_exp_functor_list *)
   Definition StrengthCAT_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
     pointedstrengthfromprecomp_CAT sortToC (hat_exp_functor_list xst).
   Proof.
-  (* TODO: adapt to new setting     apply (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))). *)
-  Admitted. (* this requires the development of all the constituents before TODO! *)
+    use comp_lineator_lax.
+    - exact (ActPtd_CAT C).
+    - apply StrengthCAT_exp_functor_list.
+    - use lifted_lax_lineator.
+      apply lax_lineator_postcomp_actegories_from_precomp.
+  Defined.
 
   Definition MultiSortedSigToStrengthCAT (M : MultiSortedSig sort) :
     pointedstrengthfromprecomp_CAT sortToC (MultiSortedSigToFunctor M).
