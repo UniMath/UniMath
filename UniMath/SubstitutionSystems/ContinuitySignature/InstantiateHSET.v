@@ -38,8 +38,35 @@ Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.MultiSortedSignatureFunctorEquivalence.
 
 Local Open Scope cat.
+
+Section CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
+
+  Definition propcoproducts_commute_binproductsHSET
+    : propcoproducts_commute_binproducts HSET BinProductsHSET (λ p, CoproductsHSET p (isasetaprop (pr2 p))).
+  Proof.
+    intros p x y.
+    use make_is_z_isomorphism.
+    - intros [ix iy].
+      exists (pr1 ix).
+      exact (pr2 ix,,pr2 iy).
+    - split.
+      + apply funextsec ; intro ixy.
+        use total2_paths_f ; apply idpath.
+      + apply funextsec ; intros [ix iy].
+        use total2_paths_f.
+        * apply idpath.
+        * use total2_paths_f.
+          -- apply (pr2 p).
+          -- cbn.
+             induction (pr1 (pr2 p (pr1 ix) (pr1 iy))).
+             rewrite idpath_transportf.
+             apply idpath.
+  Defined.
+
+End CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
 
 Section OmegaLimitsCommutingWithCoproductsHSET.
 
