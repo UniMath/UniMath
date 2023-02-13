@@ -88,7 +88,7 @@ Defined. (* 57s on modern Intel machine *)
      lineator_lax Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
        (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
  Proof.
-Admitted. (* commented for reasons of time consumption
+(* Admitted. (* commented for reasons of time consumption *) *)
    use (weqbandf (lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree H)).
    intro ld.
    use weqimplimpl.
@@ -147,6 +147,6 @@ Admitted. (* commented for reasons of time consumption
        cbn; cbn in Hypunitor_inst;
          exact Hypunitor_inst).
  Defined. (* instantaneous, but the abstracted parts require 26min on a modern Intel machine *)
-*)
+(* *)
 
 End FixACategory.

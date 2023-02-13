@@ -23,6 +23,12 @@ Local Open Scope cat.
 
 Import BifunctorNotations.
 
+Definition SigmaMonoid_characteristic_equation {V : category} {Mon_V : monoidal V} {H : V ⟶ V}
+    (x : V) (η : V ⟦ monoidal_unit Mon_V, x ⟧)
+    (μ : V ⟦ x ⊗_{ Mon_V} x, x ⟧) (τ :  V ⟦ H x, x ⟧)
+    (st : V ⟦ x ⊗_{ Mon_V} H x, H (x ⊗_{ Mon_V} x) ⟧) : UU
+    := st · #H μ · τ = x ⊗^{Mon_V}_{l} τ · μ.
+
 Section SigmaMonoid.
 
   Context {V : category}
@@ -41,7 +47,7 @@ Section SigmaMonoid.
     set (μ := monoid_data_multiplication _ (pr22 X : monoid _ _)).
     set (τ := pr12 X : H x --> x).
     set (st := pr1 θ (x ,, η) x).
-    exact (st · (#H μ) · τ = x ⊗^{Mon_V}_{l} τ · μ).
+    exact (SigmaMonoid_characteristic_equation x η μ τ st).
   Defined.
 
   Definition SigmaMonoid_disp_cat_without_sigma_constr
@@ -56,6 +62,23 @@ Section SigmaMonoid.
 
   Definition SigmaMonoid : category
     := total_category SigmaMonoid_disp_cat.
+
+  Definition SigmaMonoid_carrier (σ : SigmaMonoid) : V := pr1 σ.
+  Definition SigmaMonoid_η (σ : SigmaMonoid) : V ⟦ monoidal_unit Mon_V, SigmaMonoid_carrier σ ⟧
+    := monoid_data_unit _ (pr212 σ : monoid _ _).
+  Definition SigmaMonoid_μ (σ : SigmaMonoid) :
+    V ⟦ SigmaMonoid_carrier σ ⊗_{ Mon_V} SigmaMonoid_carrier σ, SigmaMonoid_carrier σ ⟧
+    := monoid_data_multiplication _ (pr212 σ : monoid _ _).
+  Definition SigmaMonoid_τ (σ : SigmaMonoid) : V ⟦ H (SigmaMonoid_carrier σ), SigmaMonoid_carrier σ⟧
+    := pr112 σ.
+
+  Lemma SigmaMonoid_is_compatible (σ : SigmaMonoid) :
+    SigmaMonoid_characteristic_equation (SigmaMonoid_carrier σ)
+      (SigmaMonoid_η σ) (SigmaMonoid_μ σ) (SigmaMonoid_τ σ)
+      (pr1 θ (SigmaMonoid_carrier σ ,, SigmaMonoid_η σ) (SigmaMonoid_carrier σ)).
+  Proof.
+    exact (pr22 σ).
+  Qed.
 
   Let MON := category_of_monoids_in_monoidal_cat Mon_V.
 
