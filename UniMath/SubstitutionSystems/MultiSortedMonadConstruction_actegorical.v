@@ -76,7 +76,7 @@ Import MonoidalNotations.
 Section MBindingSig.
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
@@ -217,3 +217,24 @@ End CharEq.
 End monad.
 
 End MBindingSig.
+
+Section InstanceHSET.
+
+  Context (sort : UU) (Hsort : isofhlevel 3 sort).
+
+  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+
+  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Proof.
+    intros sig; simple refine (MonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ _ _ sig).
+    - apply TerminalHSET.
+    - apply InitialHSET.
+    - apply BinProductsHSET.
+    - apply BinCoproductsHSET.
+    - apply ProductsHSET.
+    - apply CoproductsHSET.
+    - apply Exponentials_functor_HSET.
+    - apply ColimsHSET_of_shape.
+  Defined.
+
+End InstanceHSET.
