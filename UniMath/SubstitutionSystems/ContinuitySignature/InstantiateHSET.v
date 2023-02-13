@@ -76,19 +76,13 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     apply LimConeHSET.
   Defined.
 
-  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
-
   Lemma test {I : HSET} (ind : pr1 I → cochain SET)
         (f : pr111 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind))
     : ∏ n : nat, pr1 (pr1 f n) = pr1 (pr1 f 0).
   Proof.
     induction f as [f p].
     assert (q0 : ∏ n : nat, S n = n + 1).
-    {
-      intro n ; induction n.
-      - apply idpath.
-      - apply TODO_JOKER.
-    }
+    { exact (λ n, ! natpluscomm n 1). }
 
     assert (q : ∏ n : nat, pr1 (f (n+1)) = pr1 (f n)).
     { exact (λ n, base_paths _ _ (p (n+1) n (q0 n))). }
@@ -107,6 +101,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     - exact (q' n @ IHn).
   Defined.
 
+  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
   Definition I_coproduct_distribute_over_omega_limit_HSET_inverse
              {I : HSET} (ind : pr1 I → cochain SET)
     :  SET ⟦ pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind),
@@ -140,7 +135,6 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
 
     unfold q'.
     clear q0 q' q.
-
     apply TODO_JOKER.
   Defined.
 
