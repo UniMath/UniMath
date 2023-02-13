@@ -1,5 +1,17 @@
 (**********************************************************************
 
+ The enriched Eilenberg-Moore category
+
+ In this file, we construct an enrichment for the Eilenberg-Moore
+ category. To do so, we make use of the fact that we already
+ constructed enrichments for the full subcategory and for the category
+ of dialgebras. In addition, we construct the relevant functors and
+ natural transformation to prove the universal property.
+
+ Contents
+ 1. The enrichment of the Eilenberg-Moore category
+ 2. The cone
+ 3. The universal property
 
  **********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -37,6 +49,9 @@ Section EnrichedEilenbergMoore.
           {M : Monad C}
           (EM : monad_enrichment E M).
 
+  (**
+   1. The enrichment of the Eilenberg-Moore category
+   *)
   Definition eilenberg_moore_enrichment
     : enrichment (eilenberg_moore_cat M) V.
   Proof.
@@ -48,6 +63,9 @@ Section EnrichedEilenbergMoore.
     - exact (functor_id_enrichment E).
   Defined.
 
+  (**
+   2. The cone
+   *)
   Definition eilenberg_moore_pr_enrichment
     : functor_enrichment
         (eilenberg_moore_pr M)
@@ -91,6 +109,9 @@ Section EnrichedEilenbergMoore.
     apply idpath.
   Qed.
 
+  (**
+   3. The universal property
+   *)
   Section EilenbergMooreUMP1.
     Context {C' : category}
             {E' : enrichment C' V}
