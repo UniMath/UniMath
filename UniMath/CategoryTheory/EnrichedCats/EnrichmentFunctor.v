@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
 Opaque mon_lunitor mon_linvunitor.
 Opaque mon_runitor mon_rinvunitor.
@@ -328,4 +329,52 @@ Proof.
   use is_z_iso_comp_of_is_z_isos.
   - apply HF₁.
   - apply HF₂.
+Defined.
+
+(**
+
+ *)
+Definition functor_constant_enrichment
+           {V : monoidal_cat}
+           (HV : isTerminal V 𝟙)
+           {C₁ C₂ : category}
+           (a : C₂)
+           (E₁ : enrichment C₁ V)
+           (E₂ : enrichment C₂ V)
+  : functor_enrichment (constant_functor _ _ a) E₁ E₂.
+Proof.
+  simple refine (_ ,, _ ,, _ ,, _).
+  - exact (λ x y, TerminalArrow (_ ,, HV) _ · enriched_id E₂ a).
+  - abstract
+      (intros x ; cbn ;
+       rewrite !assoc ;
+       refine (_ @ id_left _) ;
+       apply maponpaths_2 ;
+       apply (@TerminalArrowEq _ (_ ,, HV))).
+  - abstract
+      (intros x y z ; cbn ;
+       refine (!_) ;
+       etrans ;
+       [ apply maponpaths_2 ;
+         apply tensor_comp_mor
+       | ] ;
+       rewrite !assoc' ;
+       etrans ;
+       [ apply maponpaths ;
+         rewrite tensor_split ;
+         rewrite !assoc' ;
+         rewrite <- enrichment_id_left ;
+         rewrite tensor_lunitor ;
+         apply idpath
+       | ] ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       apply (@TerminalArrowEq _ (_ ,, HV))).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite enriched_from_arr_id ;
+       refine (!(id_left _) @ _) ;
+       rewrite !assoc ;
+       apply maponpaths_2 ;
+       apply (@TerminalArrowEq _ (_ ,, HV))).
 Defined.

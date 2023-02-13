@@ -169,6 +169,7 @@ Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
 Monads/Examples/MonadsInTotalBicat.v
+Monads/Examples/MonadsInBicatOfEnrichedCats.v
 Monads/DistributiveLaws.v
 Monads/MixedDistributiveLaws.v
 Monads/Examples/MonadsInMonads.v

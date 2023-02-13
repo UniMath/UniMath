@@ -295,6 +295,7 @@ Monoidal/Examples/SetWithSubset.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/EnrichmentMonad.v
 
 EnrichedCats/Enriched/Enriched.v
 EnrichedCats/Enriched/ChangeOfBase.v
@@ -305,6 +306,8 @@ EnrichedCats/Enriched/EnrichmentEquiv.v
 EnrichedCats/Examples/UnitEnriched.v
 EnrichedCats/Examples/FullSubEnriched.v
 EnrichedCats/Examples/DialgebraEnriched.v
+EnrichedCats/Examples/SliceEnriched.v
+EnrichedCats/Examples/EilenbergMooreEnriched.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
