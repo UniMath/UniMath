@@ -63,6 +63,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInC
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 
 
 Local Open Scope cat.
@@ -118,6 +119,8 @@ Local Definition sortToC1C := [sortToC1, sortToCC].
 Let ops := ops sort.
 Let arity := arity sort.
 
+Local Definition projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
+Local Definition option_list : list sort → sortToC1 := option_list sort Hsort C TC BC CC.
 Local Definition exp_functor : list sort × sort -> sortToC1C
   := exp_functor sort Hsort C TC BC CC.
 Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
@@ -144,22 +147,44 @@ Section strength_through_actegories.
   Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC1
     := actegory_with_canonical_pointed_action Mon_endo_CAT.
 
-  Local Definition pointedstrengthfromprecomp_CAT (E : category) := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
+  Local Definition pointedstrengthfromprecomp_CAT (E : category) :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
   (** we are only interested in [E] to have value either [sortToC] or [C] *)
 
-  Local Definition pointedstrengthfromselfaction_CAT := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
+  Local Definition pointedstrengthfromselfaction_CAT :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
+  Let ptdlifteddistributivity_CAT (G : sortToC1) :=
+        BindingSigToMonad_actegorical.ptdlifteddistributivity_CAT G.
 
-  Local Definition δCCCATEndo (M : MultiSortedSig sort) : actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
+  Local Definition δCCCATEndo (M : MultiSortedSig sort) :
+    actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
   Proof.
     use lifted_coprod_distributor.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
+  Definition lifteddistrCAT_option_list (xs : list sort) :
+    ptdlifteddistributivity_CAT (option_list xs).
+  Proof.
+  Admitted. (* this requires the development of all the constituents before TODO! *)
+
   Definition StrengthCAT_exp_functor (lt : list sort × sort) :
     pointedstrengthfromprecomp_CAT C (exp_functor lt).
   Proof.
-  Admitted. (* this requires the development of all the constituents before TODO! *)
+    induction lt as [l t]; revert l.
+    use list_ind.
+    - cbn.
+      use lifted_lax_lineator.
+      exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
+    - intros x xs H; simpl.
+      use comp_lineator_lax.
+      3: { use lifted_lax_lineator.
+           2: { exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
+      }
+      use liftedstrength_from_δ.
+      exact (lifteddistrCAT_option_list (cons x xs)).
+  Defined.
 
   Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
     pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
