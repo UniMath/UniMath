@@ -118,6 +118,8 @@ Local Definition sortToC1C := [sortToC1, sortToCC].
 Let ops := ops sort.
 Let arity := arity sort.
 
+Local Definition exp_functor : list sort × sort -> sortToC1C
+  := exp_functor sort Hsort C TC BC CC.
 Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
   := exp_functor_list sort Hsort C TC BP BC CC.
 Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC2
@@ -154,12 +156,26 @@ Section strength_through_actegories.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
-  Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
-    pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
+  Definition StrengthCAT_exp_functor (lt : list sort × sort) :
+    pointedstrengthfromprecomp_CAT C (exp_functor lt).
   Proof.
   Admitted. (* this requires the development of all the constituents before TODO! *)
 
-
+  Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
+    pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
+  Proof.
+    induction xs as [[|n] xs].
+    - induction xs.
+      use lifted_lax_lineator.
+      apply constconst_functor_lax_lineator.
+    - induction n as [|n IH].
+      + induction xs as [m []].
+        exact (StrengthCAT_exp_functor m).
+      + induction xs as [m [k xs]].
+        apply (lax_lineator_binprod Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT C)).
+        * apply StrengthCAT_exp_functor.
+        * exact (IH (k,,xs)).
+  Defined.
 
   (* the strength for hat_exp_functor_list *)
   Definition StrengthCAT_hat_exp_functor_list (xst : list (list sort × sort) × sort) :

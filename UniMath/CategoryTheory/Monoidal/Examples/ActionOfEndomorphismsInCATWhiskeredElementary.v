@@ -183,6 +183,32 @@ Section LineatorForPostcomposition.
 
 End LineatorForPostcomposition.
 
+Section LineatorForConstConstFunctor.
+
+  Context {C D E : category} (ActD : actegory (Mon_endo C) D) (e0: E).
+
+  Definition constconst_functor_lax_lineator_data : lineator_data (Mon_endo C)
+    ActD (actegory_from_precomp_CAT C E) (constant_functor D [C,E] (constant_functor C E e0)).
+  Proof.
+    intros F d. apply nat_trans_id.
+  Defined.
+
+  Lemma constconst_functor_lax_lineator_laws :
+    lineator_laxlaws _ _ _  _ constconst_functor_lax_lineator_data.
+  Proof.
+    split4.
+    - intros ?; intros; apply (nat_trans_eq E); intro c; apply idpath.
+    - intros ?; intros; apply (nat_trans_eq E); intro c; apply idpath.
+    - intros ?; intros; apply (nat_trans_eq E); intro c. apply pathsinv0, id_right.
+    - intros ?; intros; apply (nat_trans_eq E); intro c. apply id_right.
+  Qed.
+
+  Definition constconst_functor_lax_lineator : lineator_lax (Mon_endo C)
+    ActD (actegory_from_precomp_CAT C E) (constant_functor D [C,E] (constant_functor C E e0))
+    := _,,constconst_functor_lax_lineator_laws.
+
+End LineatorForConstConstFunctor.
+
 Section DistributionOfCoproducts.
 
   Context (C D : category).
