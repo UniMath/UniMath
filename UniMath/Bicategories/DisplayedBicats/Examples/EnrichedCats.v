@@ -923,6 +923,59 @@ Section EnrichedCats.
   Defined.
 
   Definition underlying_cat
-  : psfunctor bicat_of_enriched_cats bicat_of_univ_cats
-  := pr1_psfunctor _.
+    : psfunctor bicat_of_enriched_cats bicat_of_univ_cats
+    := pr1_psfunctor _.
+
+  Definition eq_2cell_enriched
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             {τ₁ τ₂ : F ==> G}
+             (p : ∏ x, pr11 τ₁ x = pr11 τ₂ x)
+    : τ₁ = τ₂.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_nat_trans_enrichment.
+    }
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    exact p.
+  Qed.
+
+  Definition from_is_invertible_2cell_enriched
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             (τ : invertible_2cell F G)
+    : nat_z_iso (pr1 F) (pr1 G).
+  Proof.
+    use invertible_2cell_to_nat_z_iso.
+    exact (_ ,, psfunctor_is_iso underlying_cat τ).
+  Defined.
+
+  Definition make_is_invertible_2cell_enriched
+             (HV : faithful_moncat V)
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             (τ : F ==> G)
+             (Hτ : is_nat_z_iso (pr11 τ))
+    : is_invertible_2cell τ.
+  Proof.
+    use make_is_invertible_2cell.
+    - simple refine (_ ,, _).
+      + exact (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ))).
+      + apply (faithful_moncat_nat_trans_enrichment
+                 HV
+                 (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ)))).
+    - abstract
+        (use eq_2cell_enriched ;
+         intro x ;
+         apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+    - abstract
+        (use eq_2cell_enriched ;
+         intro x ;
+         apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+  Defined.
 End EnrichedCats.

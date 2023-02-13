@@ -11,6 +11,8 @@
  Contents:
  1. Faithful 1-cells
  2. Fully faithful 1-cells
+ 3. Conservative 1-cells
+ 4. Discrete 1-cells
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -304,4 +306,89 @@ Section MorphismsEnrichedCats.
       + exact (enriched_cat_fully_faithful_to_fully_faithful_1cell_cell HF β).
       + exact (enriched_cat_fully_faithful_to_fully_faithful_1cell_eq HF β).
   Defined.
+
+  (**
+   3. Conservative 1-cells
+   *)
+  Definition enriched_cat_conservative_to_conservative_1cell
+             (HV : faithful_moncat V)
+             {E₁ E₂ : bicat_of_enriched_cats V}
+             {F : E₁ --> E₂}
+             (HF : conservative (pr1 F))
+     : conservative_1cell F.
+   Proof.
+     intros E₀ G₁ G₂ τ Hτ.
+     use (make_is_invertible_2cell_enriched _ HV).
+     intro x.
+     apply HF.
+     apply (from_is_invertible_2cell_enriched _ (_ ,, Hτ)).
+   Defined.
+
+   Definition enriched_cat_conservative_1cell_to_conservative
+              (HV : isTerminal V 𝟙)
+              (HV' : faithful_moncat V)
+              {E₁ E₂ : bicat_of_enriched_cats V}
+              {F : E₁ --> E₂}
+              (HF : conservative_1cell F)
+     : conservative (pr1 F).
+   Proof.
+     intros x y f Hf.
+     pose (unit_category ,, unit_enrichment V HV : bicat_of_enriched_cats V)
+       as unit_enriched.
+     pose (constant_functor unit_category (pr11 E₁) x
+           ,,
+           constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) x
+           : unit_enriched --> E₁)
+       as G₁.
+     pose (constant_functor unit_category (pr11 E₁) y
+           ,,
+           constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) y
+           : unit_enriched --> E₁)
+       as G₂.
+     pose (constant_nat_trans _ f
+           ,,
+           constant_nat_trans_enrichment _ _ _ _
+           : G₁ ==> G₂)
+       as τ.
+     assert (is_invertible_2cell (τ ▹ F)) as H.
+     {
+       use (make_is_invertible_2cell_enriched _ HV').
+       intro.
+       exact Hf.
+     }
+     pose (nat_z_iso_pointwise_z_iso
+             (from_is_invertible_2cell_enriched _ (_ ,, HF _ _ _ _ H))
+             tt)
+       as p.
+     exact (pr2 p).
+   Qed.
+
+   Definition enriched_cat_conservative_weq_conservative_1cell
+              (HV : isTerminal V 𝟙)
+              (HV' : faithful_moncat V)
+              {E₁ E₂ : bicat_of_enriched_cats V}
+              (F : E₁ --> E₂)
+    : conservative (pr1 F) ≃ conservative_1cell F.
+  Proof.
+    use weqimplimpl.
+    - exact (enriched_cat_conservative_to_conservative_1cell HV').
+    - exact (enriched_cat_conservative_1cell_to_conservative HV HV').
+    - apply isaprop_conservative.
+    - apply isaprop_conservative_1cell.
+  Qed.
+
+  (**
+   4. Discrete 1-cells
+   *)
+  Definition enriched_cat_discretee_weq_discrete_1cell
+             (HV : isTerminal V 𝟙)
+             (HV' : faithful_moncat V)
+             {E₁ E₂ : bicat_of_enriched_cats V}
+             (F : E₁ --> E₂)
+    : faithful (pr1 F) × conservative (pr1 F) ≃ discrete_1cell F.
+  Proof.
+    use weqdirprodf.
+    - exact (enriched_cat_faithful_weq_faithful_1cell HV F).
+    - exact (enriched_cat_conservative_weq_conservative_1cell HV HV' F).
+  Qed.
 End MorphismsEnrichedCats.
