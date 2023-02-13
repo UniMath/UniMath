@@ -131,7 +131,7 @@ Section monad.
     := is_omega_cocont_MultiSortedSigToFunctor sort Hsort C TC BP BC PC CC expSortToCC HC.
   Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
-    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC IC BP BC PC CC expSortToCC HC.
+    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC BP BC CC.
 
   Let Id_H := LiftingInitial_alt.Id_H sortToC BCsortToC.
 
@@ -175,15 +175,13 @@ Section CharEq.
                          (pr1 (MultiSortedSigToFunctor sig) (SigmaMonoid_carrier _ σ)),
                 pr1 (MultiSortedSigToFunctor sig) ((SigmaMonoid_carrier _ σ) ⊗_{monendocat_monoidal sortToC}
                                                      (SigmaMonoid_carrier _ σ)) ⟧
-      := pr1 (MultiSortedSigToStrengthCAT sort Hsort C TC IC BP BC PC CC expSortToCC HC sig)
+      := pr1 (MultiSortedSigToStrengthCAT sort Hsort C TC BP BC CC sig)
            (SigmaMonoid_carrier _ σ ,, SigmaMonoid_η _ σ) (SigmaMonoid_carrier _ σ).
 
   Lemma SigmaMonoidOfMultiSortedSig_CAT_char_eq_ok :
     SigmaMonoid_characteristic_equation (SigmaMonoid_carrier _ σ) (SigmaMonoid_η _ σ) (SigmaMonoid_μ _ σ) (SigmaMonoid_τ _ σ) st'.
   Proof.
-    (* set (st := pr1 (MultiSortedSigToStrengthFromSelfCAT sig) (SigmaMonoid_carrier _ σ ,, SigmaMonoid_η _ σ) (SigmaMonoid_carrier _ σ)).
-    hnf.
-    unfold st'.*)
+   (* Admitted. the proof depends on [lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree] to be defined! *)
     assert (Hyp := SigmaMonoid_is_compatible (MultiSortedSigToStrengthFromSelfCAT sig) σ).
     hnf.
     hnf in Hyp.

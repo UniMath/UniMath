@@ -119,6 +119,8 @@ Local Definition sortToC1C := [sortToC1, sortToCC].
 Let ops := ops sort.
 Let arity := arity sort.
 
+
+Local Definition sorted_option_functor := sorted_option_functor sort Hsort C TC BC CC.
 Local Definition projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
 Local Definition option_list : list sort → sortToC1 := option_list sort Hsort C TC BC CC.
 Local Definition exp_functor : list sort × sort -> sortToC1C
@@ -164,17 +166,34 @@ Section strength_through_actegories.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
+  Definition lifteddistrCAT_option_functor (s : sort) :
+    ptdlifteddistributivity_CAT (sorted_option_functor s).
+  Proof.
+    use BindingSigToMonad_actegorical.lifteddistr_genopt.
+  Defined.
+
   Definition lifteddistrCAT_option_list (xs : list sort) :
     ptdlifteddistributivity_CAT (option_list xs).
   Proof.
-  Admitted. (* this requires the development of all the constituents before TODO! *)
+    induction xs as [[|n] xs].
+    + induction xs.
+      apply unit_lifteddistributivity.
+    + induction n as [|n IH].
+      * induction xs as [m []].
+        apply lifteddistrCAT_option_functor.
+      * induction xs as [m [k xs]].
+        use composedlifteddistributivity.
+        -- exact (lifteddistrCAT_option_functor m).
+        -- exact (IH (k,,xs)).
+  Defined.
 
   Definition StrengthCAT_exp_functor (lt : list sort × sort) :
     pointedstrengthfromprecomp_CAT C (exp_functor lt).
   Proof.
     induction lt as [l t]; revert l.
     use list_ind.
-    - cbn.
+    - cbn. (* in [MultiSorted_alt], the analogous construction [Sig_exp_functor] has a composition
+              with the strength of the identity functor since [Gθ_Signature] needs a composition *)
       use lifted_lax_lineator.
       exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
     - intros x xs H; simpl.

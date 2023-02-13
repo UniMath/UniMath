@@ -390,9 +390,49 @@ End FixAnObject.
 Arguments lifteddistributivity _ : clear implicits.
 Arguments lifteddistributivity_data _ : clear implicits.
 
+
+  Definition unit_lifteddistributivity_data: lifteddistributivity_data I_{Mon_V}.
+  Proof.
+    intro w.
+    exact (ru^{Mon_V}_{F w} · luinv^{Mon_V}_{F w}).
+  Defined.
+
+  Lemma unit_lifteddistributivity_nat: lifteddistributivity_nat unit_lifteddistributivity_data.
+  Proof.
+    intros ?; intros. unfold unit_lifteddistributivity_data.
+    cbn.
+    etrans.
+    { rewrite assoc.
+      apply cancel_postcomposition.
+      apply monoidal_rightunitornat. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    apply pathsinv0, monoidal_leftunitorinvnat.
+  Qed.
+
+  Lemma unit_lifteddistributivity_tensor: lifteddistributivity_tensor unit_lifteddistributivity_data.
+  Proof.
+    intros ?; intros. unfold lifteddistributivity_tensor_body, unit_lifteddistributivity_data.
+  Admitted.
+
+  Lemma unit_lifteddistributivity_unit: lifteddistributivity_unit unit_lifteddistributivity_data.
+  Proof.
+    unfold lifteddistributivity_unit, unit_lifteddistributivity_data. cbn.
+  Admitted.
+
+  Definition unit_lifteddistributivity: lifteddistributivity I_{Mon_V}.
+  Proof.
+    use tpair.
+    - exact  unit_lifteddistributivity_data.
+    - split3.
+      + exact unit_lifteddistributivity_nat.
+      + exact unit_lifteddistributivity_tensor.
+      + exact unit_lifteddistributivity_unit.
+  Defined.
+
 Section CompositionOfLiftedDistributivities.
 
-  Context (v1 v2: V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
+  Context (v1 v2 : V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
 
   Definition composedlifteddistributivity_data: lifteddistributivity_data (v1 ⊗_{Mon_V} v2).
   Proof.
