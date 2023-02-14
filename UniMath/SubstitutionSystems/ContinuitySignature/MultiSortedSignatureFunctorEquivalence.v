@@ -301,11 +301,12 @@ End A.
 
 Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunctor.
 
-  Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+  Variables (sort : UU) (Hsort_set : isaset sort) (C : category).
   Variables (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
+  Let Hsort := hlevelntosn 2 _ Hsort_set.
   (** Define the discrete category of sorts *)
   Let sort_cat : category := path_pregroupoid sort Hsort.
 
@@ -391,7 +392,6 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
 
   Definition hat_functor_preserves_binproducts (t : sort)
-             (Hsort_set : isaset sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : preserves_binproduct (hat_functor sort Hsort C CC t).
   Proof.
@@ -419,8 +419,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
-             (Hsort_set : isaset sort)
-             (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
+              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : nat_z_iso (hat_exp_functor_list0 xst)
                 (hat_exp_functor_list'0 xst).
   Proof.
@@ -451,13 +450,11 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       + apply BP.
       + apply (BinProducts_functor_precat _ C BP).
       + apply hat_functor_preserves_binproducts.
-        * exact Hsort_set.
-        * exact c.
+        exact c.
   Admitted.
 
   Definition MultiSortedSigToFunctor_test
              (M : MultiSortedSig sort)
-             (Hsort_set : isaset sort)
              (c : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p))))
     : nat_z_iso (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M)
                 (MultiSortedSigToFunctor' sort Hsort C TC BP BC CC M).
@@ -465,20 +462,18 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     use coproduct_of_functors_nat_z_iso.
     intro i.
     apply hat_exp_functor_list'_test.
-    - exact Hsort_set.
-    - exact c.
+    exact c.
   Defined.
 
   (** The functor obtained from a multisorted binding signature is omega-continuous *)
   Lemma is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort)
-        (Hsort_set : isaset sort)
-        (l : ∏ coch : cochain C, LimCone coch)
+        (l : Lims_of_shape conat_graph C)
         (c : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p))))
         (d : ∏ I : SET, ω_limits_distribute_over_I_coproducts C I l (CC (pr1 I) (pr2 I)))
     : is_omega_cont (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M).
   Proof.
     use nat_z_iso_preserve_ωlimits.
-    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test M Hsort_set c)).
+    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test M c)).
     apply (is_omega_cont_MultiSortedSigToFunctor' sort Hsort C TC BP BC CC _ d M).
   Defined.
 

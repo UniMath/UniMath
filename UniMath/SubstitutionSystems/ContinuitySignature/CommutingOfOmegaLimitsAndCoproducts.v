@@ -44,7 +44,7 @@ Section OmegaLimitsCommutingWithCoproducts.
   (* We ask for the canonical morphism from canonical : ∐ ω-lim -> ω-lim ∐ to be an isomorphism. *)
   Context (C : category).
 
-  Context (ω_lim_given : ∏ (coch : cochain C), LimCone coch).
+  Context (ω_lim_given : Lims_of_shape conat_graph C).
   Context {I : UU} (Iset : isaset I).
   Context (coproducts_given : Coproducts I C).
 
@@ -97,7 +97,7 @@ End OmegaLimitsCommutingWithCoproducts.
 
 Definition ω_limits_distribute_over_I_coproducts
            (C : category) (I : HSET)
-           (ω_lim : (∏ coch : cochain C, LimCone coch))
+           (ω_lim : Lims_of_shape conat_graph C)
            (coprd : Coproducts (pr1 I) C)
   : UU := ∏ ind, coproduct_distribute_over_omega_limits C ω_lim coprd ind.
 
@@ -107,14 +107,12 @@ This boils down to the commutativity of ω-limits and coproducts.
 *)
 Section CoproductOfFunctorsContinuity.
 
-  Context (D : category) (I : HSET) (ω_lim : (∏ coch : cochain D, LimCone coch)) (CP : Coproducts (pr1 I) D).
+  Context (D : category) (I : HSET) (ω_lim : Lims_of_shape conat_graph D) (CP : Coproducts (pr1 I) D).
 
   Definition ω_complete_functor_cat
-    : ∏ C : category, ∏ coch : cochain [C,D], LimCone coch.
+    : ∏ C : category, Lims_of_shape conat_graph [C, D].
   Proof.
-    intros C coch.
-    use LimFunctorCone ; intro.
-    apply ω_lim.
+    intro C; apply LimsFunctorCategory_of_shape, ω_lim.
   Defined.
 
   Let coproduct_functor_cat
