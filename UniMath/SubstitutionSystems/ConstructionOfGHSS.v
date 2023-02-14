@@ -481,6 +481,9 @@ Section InitialAlgebraToGHSS.
       apply aux.
   Qed.
 
+  Definition SigmaMonoidFromInitialAlgebraInitial : Initial (SigmaMonoid θ)
+    := σ,,SigmaMonoidFromInitialAlgebra_is_initial.
+
 End InitialAlgebraToGHSS.
 
 End FixTheContext.

@@ -158,7 +158,19 @@ Section monad.
     - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
   Defined.
 
-  (** the associated Sigma-monoid *)
+  (** the associated initial Sigma-monoid *)
+  Definition InitialSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : Initial (SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig)).
+  Proof.
+    use (SigmaMonoidFromInitialAlgebraInitial (MultiSortedSigToStrengthFromSelfCAT sig) BCsortToC1).
+    - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
+    - exact ICsortToC1.
+    - apply HCsortToC1.
+    - apply (is_omega_cocont_MultiSortedSigToFunctor sig).
+    - intro F. apply Initial_functor_precat.
+    - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
+  Defined.
+
+  (** the associated Sigma-monoid - defined separately *)
   Definition SigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig).
   Proof.
     apply ghhs_to_sigma_monoid.

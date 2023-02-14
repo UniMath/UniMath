@@ -210,6 +210,4 @@ Section InstanceHSET.
     - apply I_coproduct_distribute_over_omega_limits_HSET.
   Defined.
 
-      (* TODO : define the Sigma-monoid morphism from the inductive to the coinductive syntax in HSET *)
-
 End InstanceHSET.
