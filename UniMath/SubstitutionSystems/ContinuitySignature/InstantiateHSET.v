@@ -38,8 +38,35 @@ Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.MultiSortedSignatureFunctorEquivalence.
 
 Local Open Scope cat.
+
+Section CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
+
+  Definition propcoproducts_commute_binproductsHSET
+    : propcoproducts_commute_binproducts HSET BinProductsHSET (λ p, CoproductsHSET p (isasetaprop (pr2 p))).
+  Proof.
+    intros p x y.
+    use make_is_z_isomorphism.
+    - intros [ix iy].
+      exists (pr1 ix).
+      exact (pr2 ix,,pr2 iy).
+    - split.
+      + apply funextsec ; intro ixy.
+        use total2_paths_f ; apply idpath.
+      + apply funextsec ; intros [ix iy].
+        use total2_paths_f.
+        * apply idpath.
+        * use total2_paths_f.
+          -- apply (pr2 p).
+          -- cbn.
+             induction (pr1 (pr2 p (pr1 ix) (pr1 iy))).
+             rewrite idpath_transportf.
+             apply idpath.
+  Defined.
+
+End CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
 
 Section OmegaLimitsCommutingWithCoproductsHSET.
 
@@ -49,19 +76,13 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     apply LimConeHSET.
   Defined.
 
-  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
-
   Lemma test {I : HSET} (ind : pr1 I → cochain SET)
         (f : pr111 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind))
     : ∏ n : nat, pr1 (pr1 f n) = pr1 (pr1 f 0).
   Proof.
     induction f as [f p].
     assert (q0 : ∏ n : nat, S n = n + 1).
-    {
-      intro n ; induction n.
-      - apply idpath.
-      - apply TODO_JOKER.
-    }
+    { exact (λ n, ! natpluscomm n 1). }
 
     assert (q : ∏ n : nat, pr1 (f (n+1)) = pr1 (f n)).
     { exact (λ n, base_paths _ _ (p (n+1) n (q0 n))). }
@@ -80,6 +101,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     - exact (q' n @ IHn).
   Defined.
 
+  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
   Definition I_coproduct_distribute_over_omega_limit_HSET_inverse
              {I : HSET} (ind : pr1 I → cochain SET)
     :  SET ⟦ pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind),
@@ -113,7 +135,6 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
 
     unfold q'.
     clear q0 q' q.
-
     apply TODO_JOKER.
   Defined.
 
@@ -155,11 +176,15 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
 End OmegaLimitsCommutingWithCoproductsHSET.
 
 Lemma is_omega_cont_MultiSortedSigToFunctor_HSET
-       (sort : UU) (Hsort : isofhlevel 3 sort)
+       (sort : UU) (Hsort : isofhlevel 2 sort)
       (M : MultiSortedSig sort)
-  : is_omega_cont (MultiSortedSigToFunctor' sort Hsort HSET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET M).
+  : is_omega_cont (MultiSortedSigToFunctor sort (hlevelntosn _ _ Hsort) HSET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET M).
 Proof.
-  use is_omega_cont_MultiSortedSigToFunctor'.
-  - intro ; apply LimConeHSET.
+  use is_omega_cont_MultiSortedSigToFunctor.
+  - exact InitialHSET.
+  - exact ProductsHSET.
+  - exact Hsort.
+  - exact HSET_ω_limits.
+  - exact propcoproducts_commute_binproductsHSET.
   - exact I_coproduct_distribute_over_omega_limits_HSET.
 Defined.

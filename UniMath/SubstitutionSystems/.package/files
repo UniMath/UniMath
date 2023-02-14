@@ -68,4 +68,5 @@ MultiSortedMonadConstruction_actegorical.v
 ContinuitySignature/GeneralLemmas.v
 ContinuitySignature/CommutingOfOmegaLimitsAndCoproducts.v
 ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v
+ContinuitySignature/MultiSortedSignatureFunctorEquivalence.v
 ContinuitySignature/InstantiateHSET.v
