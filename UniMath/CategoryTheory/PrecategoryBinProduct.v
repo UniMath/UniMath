@@ -348,11 +348,31 @@ Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟹ functor_fix_
 
 End nat_trans_fix_fst_arg.
 
-Section functor_fix_snd_arg.
+Section nat_z_iso_fix_fst_arg.
 
 Variable C D E : category.
-Variable F: (C × D) ⟶ E.
-Variable d: D.
+Variable F F' : (C × D) ⟶ E.
+Variable α : nat_z_iso F F'.
+Variable c : C.
+
+Let nattrans := (nat_trans_fix_fst_arg _ _ _ _ _ α c).
+
+Lemma nat_z_iso_fix_fst_arg_ax: is_nat_z_iso (nat_trans_fix_fst_arg _ _ _ _ _ α c).
+Proof.
+  intro d.
+  use (pr2_nat_z_iso α).
+Defined.
+
+Definition nat_z_iso_fix_fst_arg: nat_z_iso (functor_fix_fst_arg C D E F c) (functor_fix_fst_arg C D E F' c)
+  := make_nat_z_iso _ _ nattrans nat_z_iso_fix_fst_arg_ax.
+
+End nat_z_iso_fix_fst_arg.
+
+Section functor_fix_snd_arg.
+
+Variable C D E : precategory.
+Variable F : functor (precategory_binproduct C D) E.
+Variable d : D.
 
 Definition functor_fix_snd_arg_ob (c: C): E := F (tpair _ c d).
 Definition functor_fix_snd_arg_mor (c c': C)(f: c --> c'): functor_fix_snd_arg_ob c --> functor_fix_snd_arg_ob c'.
@@ -1414,3 +1434,18 @@ Section PairingWithAnObject.
   Defined.
 
 End PairingWithAnObject.
+
+
+Definition category_op_binproduct {C D:category}: ((C^op) × (D^op)) ⟶ (C × D)^op.
+Proof.
+  use make_functor.
+  + use make_functor_data.
+    - use idfun.
+    - intros (c,d) (c',d').
+      use idfun.
+  + split.
+    - intro.
+      apply idpath.
+    - repeat intro.
+      apply idpath.
+Defined.

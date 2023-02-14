@@ -15,7 +15,9 @@ Extended by: Langston Barrett (@siddharthist), 2018
 - Binary products from limits ([BinProducts_from_Lims])
 - Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 - Terminal object as the unit (up to isomorphism) of binary products
-
+- Definition of the "associative" z-isomorphism [BinProduct_assoc]
+- Definition of the diagonal map [diagonalMap]
+  
  *)
 
 Require Import UniMath.Foundations.PartD.
@@ -31,6 +33,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -211,9 +214,8 @@ Section BinProducts.
 
 Variable C : category.
 Variable CC : BinProducts C.
-Variables a b c d x y : C.
 
-Definition BinProductOfArrows_comp (f : a --> c) (f' : b --> d) (g : c --> x) (g' : d --> y)
+Definition BinProductOfArrows_comp (a b c d x y : C) (f : a --> c) (f' : b --> d) (g : c --> x) (g' : d --> y)
   : BinProductOfArrows _ (CC c d) (CC a b) f f' ·
     BinProductOfArrows _ (CC _ _) (CC _ _) g g'
     =
@@ -234,6 +236,34 @@ Proof.
     apply assoc.
 Qed.
 
+Lemma BinProductOfArrows_idxcomp {a b c d : C} (f:C⟦ b, c ⟧) (g:C⟦ c, d ⟧)
+  :   BinProductOfArrows _ (CC a c) (CC a b) (identity a) f ·
+      BinProductOfArrows _ (CC _ _) (CC _ _) (identity a) g
+  =
+  BinProductOfArrows _ (CC _ _) (CC _ _)(identity a) (f·g).
+Proof.
+  now rewrite BinProductOfArrows_comp, id_right.
+Defined.
+
+Lemma BinProductOfArrows_compxid {a b c d : C} (f:C⟦ b, c ⟧) (g:C⟦ c, d ⟧)
+  :   BinProductOfArrows _ (CC c a) (CC b a) f (identity a) ·
+      BinProductOfArrows _ (CC _ _) (CC _ _) g (identity a)
+      =
+      BinProductOfArrows _ (CC _ _) (CC _ _) (f·g) (identity a).
+Proof.
+  now rewrite BinProductOfArrows_comp, id_right.
+Defined.
+
+Lemma BinProductOfArrows_id {a b:C}
+  : BinProductOfArrows _ (CC a b) (CC a b) (identity a) (identity b)
+    = identity _ .
+Proof.
+  unfold BinProductOfArrows.
+  use pathsinv0.
+  use BinProductArrowUnique.
+  + now rewrite id_left, id_right.
+  + now rewrite id_left, id_right.
+Defined.
 End BinProducts.
 
 Section BinProduct_unique.
@@ -927,3 +957,178 @@ Section BinProductOfIsos.
     - exact binproduct_of_z_iso_inv.
   Defined.
 End BinProductOfIsos.
+
+(*
+Definition of the "associative" z-isomorphism
+*)
+Section BinProduct_assoc_z_iso.
+
+  Context {C : category}
+          (P : BinProducts C)
+          (a b c : C).
+
+  Let Pbc := P b c.
+  Let Pa_bc := P a (BinProductObject _ Pbc).
+  Let Pab := P a b.
+  Let Pab_c := P (BinProductObject _ Pab) c.
+
+  Definition BinProduct_assoc_mor : C ⟦ BinProductObject C Pa_bc , BinProductObject C Pab_c ⟧.
+  Proof.
+    use BinProductArrow.
+    + use BinProductOfArrows.
+      - exact (identity a).
+      - use BinProductPr1.
+    + use (compose (b := BinProductObject C Pbc)).
+      - use BinProductPr2.
+      - use BinProductPr2.
+  Defined.
+
+  Definition BinProduct_assoc_invmor : C ⟦ BinProductObject C Pab_c , BinProductObject C Pa_bc ⟧.
+  Proof.
+    use BinProductArrow.
+    + use (compose (b := BinProductObject C Pab)).
+      - use BinProductPr1.
+      - use BinProductPr1.
+    + use BinProductOfArrows.
+      - use BinProductPr2.
+      - exact (identity c).
+  Defined.
+
+  Lemma BinProduct_assoc_is_z_iso : is_z_isomorphism (BinProduct_assoc_mor).
+  Proof.
+    use make_is_z_isomorphism.
+    + exact BinProduct_assoc_invmor.
+    + use make_is_inverse_in_precat.
+      - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
+        use BinProductArrowsEq.
+        * now rewrite
+            id_left,
+            assoc',
+            BinProductPr1Commutes,
+            assoc,
+            BinProductPr1Commutes,
+            BinProductOfArrowsPr1,
+            id_right.
+        * now rewrite
+            id_left,
+            assoc',
+            BinProductPr2Commutes,
+            postcompWithBinProductArrow,
+            id_right,
+            BinProductOfArrowsPr2,
+            <-precompWithBinProductArrow,
+            <-(id_left (BinProductPr1 C Pbc)),
+            <-(id_left (BinProductPr2 C Pbc)),
+            <-BinProductArrowEta,
+            id_right.
+      - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
+        use BinProductArrowsEq.
+        * now rewrite
+            id_left,
+            assoc',
+            BinProductPr1Commutes,
+            postcompWithBinProductArrow,
+            id_right,
+            BinProductOfArrowsPr1,
+            <-precompWithBinProductArrow,
+            <-(id_left (BinProductPr1 C Pab)),
+            <-(id_left (BinProductPr2 C Pab)),
+            <-BinProductArrowEta, id_right.
+        * now rewrite
+            id_left,
+            assoc',
+            BinProductPr2Commutes,
+            assoc,
+            BinProductPr2Commutes,
+            BinProductOfArrowsPr2,
+            id_right.
+  Defined.
+
+  Definition BinProduct_assoc : z_iso (BinProductObject C Pa_bc) (BinProductObject C Pab_c).
+  Proof.
+    use make_z_iso'.
+    + exact BinProduct_assoc_mor.
+    + exact BinProduct_assoc_is_z_iso.
+  Defined.
+
+End BinProduct_assoc_z_iso.
+
+Section BinProduct_OfArrows_assoc.
+  Context {C : category}
+  (P : BinProducts C)
+  {a a' b b' c c' : C}
+  (f : C ⟦ a', a ⟧) (g : C ⟦ b', b ⟧) (h : C ⟦ c', c ⟧).
+  Let Pbc := P b c.
+  Let Pa_bc := P a (BinProductObject _ Pbc).
+  Let Pab := P a b.
+  Let Pab_c := P (BinProductObject _ Pab) c.
+  Let Pbc' := P b' c'.
+  Let Pa_bc' := P a' (BinProductObject _ Pbc').
+  Let Pab' := P a' b'.
+  Let Pab_c' := P (BinProductObject _ Pab') c'.
+
+  Lemma BinProduct_OfArrows_assoc
+  : BinProductOfArrows _ Pa_bc Pa_bc' f
+      (BinProductOfArrows _ Pbc Pbc' g h) ·
+    (BinProduct_assoc P a b c) =
+    (BinProduct_assoc P a' b' c') ·
+    BinProductOfArrows _ Pab_c Pab_c'
+      (BinProductOfArrows _ Pab Pab' f g)
+      h.
+  Proof.
+    unfold BinProduct_assoc, BinProduct_assoc_mor.
+    simpl.
+    use BinProductArrowsEq.
+    + rewrite !assoc', (BinProductPr1Commutes), BinProductOfArrowsPr1, assoc, BinProductPr1Commutes.
+      use BinProductArrowsEq.
+      - now rewrite !assoc',
+          !BinProductOfArrowsPr1,
+          !assoc,
+          !BinProductOfArrowsPr1,
+          id_right, !assoc', id_left.
+      - now rewrite !assoc',
+          !BinProductOfArrowsPr2,
+          !assoc,
+          !BinProductOfArrowsPr2,
+          !assoc',
+          !BinProductOfArrowsPr1.
+    + now rewrite !assoc',
+        !BinProductOfArrowsPr2, !BinProductPr2Commutes,
+        !assoc,
+        !BinProductOfArrowsPr2, !BinProductPr2Commutes,
+        !assoc',
+        !BinProductOfArrowsPr2.
+  Defined.
+
+End BinProduct_OfArrows_assoc.
+
+Section diagonalMap.
+
+  Context {C:category} (P : BinProducts C) (B:C).
+
+  Definition diagonalMap' : C ⟦ B, BinProductObject C (P B B) ⟧.
+  Proof.
+    use BinProductArrow.
+    - exact (identity B).
+    - exact (identity B).
+  Defined.
+
+  Lemma diagonalMap_isMonic : isMonic (diagonalMap').
+  Proof.
+    use make_isMonic.
+    intros x g h p.
+    assert (p' :=
+      (maponpaths (λ f, compose f (BinProductPr1 C (P B B))) p)).
+    unfold diagonalMap' in p'.
+    rewrite !assoc', BinProductPr1Commutes , !id_right in p'.
+    exact p'.  
+  Qed.
+
+  Definition diagonalMap : Monic _ B (BinProductObject C (P B B)).
+  Proof.
+    use make_Monic.
+    + exact diagonalMap'.
+    + exact diagonalMap_isMonic.
+  Defined.
+
+End diagonalMap.

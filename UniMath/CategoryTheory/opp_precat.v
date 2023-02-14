@@ -274,6 +274,22 @@ Proof.
        apply (! (nat_trans_ax a _ _ _ ))).
 Defined.
 
+Lemma op_nt_is_z_iso {C D : category} {f g : functor C D} (a : nat_trans f g) (is : is_nat_z_iso a)
+  : is_nat_z_iso (op_nt a).
+Proof.
+  intro c.
+  use opp_is_z_isomorphism.
+  exact (is c).
+Defined.
+
+Lemma op_nt_is_iso {C D : category} {f g : functor C D} (a : nat_trans f g) (is : is_nat_iso a) : is_nat_iso (op_nt a).
+Proof.
+  intro c.
+  use opp_is_iso.
+  exact (is c).
+Defined.
+
+
 (** It's univalent *)
 
 Definition op_iso_is_cat_iso
