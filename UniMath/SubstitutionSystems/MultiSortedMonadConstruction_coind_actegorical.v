@@ -161,7 +161,6 @@ Section ToBeMoved.
           induction b ; refine (_ @ ! id_left _) ; apply pathsinv0, id_left.
   Defined.
 
-  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
   Definition Colims_from_BinCoproducts
              {C : category} (CC : BinCoproducts C)
     : Colims_of_shape two_graph C.
@@ -189,8 +188,21 @@ Section ToBeMoved.
       use tpair.
       + exists (pr11 (pr2 c co (pr1 cc true) (pr1 cc false))).
         intro b.
-        apply TODO_JOKER.
-      + apply TODO_JOKER.
+        induction b.
+        * exact (pr121 (pr2 c co (pr1 cc true) (pr1 cc false))).
+        * exact (pr221 (pr2 c co (pr1 cc true) (pr1 cc false))).
+      + intro t.
+        transparent assert (ϕ : (∑ fg : C ⟦ pr11 c, co ⟧, pr121 c · fg = pr1 cc true × pr221 c · fg = pr1 cc false)).
+        {
+          use tpair.
+          - exact (pr1 t).
+          - split ; apply (pr2 t).
+        }
+
+        set (p := pr2 (pr2 c co (pr1 cc true) (pr1 cc false)) ϕ).
+        use total2_paths_f.
+        * apply (base_paths _ _ p).
+        * apply isaprop_is_cocone_mor.
   Defined.
 
 End ToBeMoved.
