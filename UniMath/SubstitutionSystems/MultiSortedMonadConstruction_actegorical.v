@@ -76,7 +76,7 @@ Import MonoidalNotations.
 Section MBindingSig.
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
@@ -131,7 +131,7 @@ Section monad.
     := is_omega_cocont_MultiSortedSigToFunctor sort Hsort C TC BP BC PC CC expSortToCC HC.
   Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
-    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC IC BP BC PC CC expSortToCC HC.
+    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC BP BC CC.
 
   Let Id_H := LiftingInitial_alt.Id_H sortToC BCsortToC.
 
@@ -158,7 +158,19 @@ Section monad.
     - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
   Defined.
 
-  (** the associated Sigma-monoid *)
+  (** the associated initial Sigma-monoid *)
+  Definition InitialSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : Initial (SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig)).
+  Proof.
+    use (SigmaMonoidFromInitialAlgebraInitial (MultiSortedSigToStrengthFromSelfCAT sig) BCsortToC1).
+    - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
+    - exact ICsortToC1.
+    - apply HCsortToC1.
+    - apply (is_omega_cocont_MultiSortedSigToFunctor sig).
+    - intro F. apply Initial_functor_precat.
+    - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
+  Defined.
+
+  (** the associated Sigma-monoid - defined separately *)
   Definition SigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig).
   Proof.
     apply ghhs_to_sigma_monoid.
@@ -175,15 +187,13 @@ Section CharEq.
                          (pr1 (MultiSortedSigToFunctor sig) (SigmaMonoid_carrier _ σ)),
                 pr1 (MultiSortedSigToFunctor sig) ((SigmaMonoid_carrier _ σ) ⊗_{monendocat_monoidal sortToC}
                                                      (SigmaMonoid_carrier _ σ)) ⟧
-      := pr1 (MultiSortedSigToStrengthCAT sort Hsort C TC IC BP BC PC CC expSortToCC HC sig)
+      := pr1 (MultiSortedSigToStrengthCAT sort Hsort C TC BP BC CC sig)
            (SigmaMonoid_carrier _ σ ,, SigmaMonoid_η _ σ) (SigmaMonoid_carrier _ σ).
 
   Lemma SigmaMonoidOfMultiSortedSig_CAT_char_eq_ok :
     SigmaMonoid_characteristic_equation (SigmaMonoid_carrier _ σ) (SigmaMonoid_η _ σ) (SigmaMonoid_μ _ σ) (SigmaMonoid_τ _ σ) st'.
   Proof.
-    (* set (st := pr1 (MultiSortedSigToStrengthFromSelfCAT sig) (SigmaMonoid_carrier _ σ ,, SigmaMonoid_η _ σ) (SigmaMonoid_carrier _ σ)).
-    hnf.
-    unfold st'.*)
+   (* Admitted. the proof depends on [lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree] to be defined! *)
     assert (Hyp := SigmaMonoid_is_compatible (MultiSortedSigToStrengthFromSelfCAT sig) σ).
     hnf.
     hnf in Hyp.
@@ -217,3 +227,24 @@ End CharEq.
 End monad.
 
 End MBindingSig.
+
+Section InstanceHSET.
+
+  Context (sort : UU) (Hsort : isofhlevel 3 sort).
+
+  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+
+  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Proof.
+    intros sig; simple refine (MonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ _ _ sig).
+    - apply TerminalHSET.
+    - apply InitialHSET.
+    - apply BinProductsHSET.
+    - apply BinCoproductsHSET.
+    - apply ProductsHSET.
+    - apply CoproductsHSET.
+    - apply Exponentials_functor_HSET.
+    - apply ColimsHSET_of_shape.
+  Defined.
+
+End InstanceHSET.

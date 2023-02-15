@@ -122,7 +122,7 @@ Section OmegaContinuityOfSignatureFunctor.
 
   Section OmegaContinuityOfMultiSortedSigToFunctor.
 
-  Variable (LC : ∏ coch : cochain C, LimCone coch).
+  Variable (LC : Lims_of_shape conat_graph C).
   Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
 
   (* Should also be split up into multiple definitions/lemmas *)

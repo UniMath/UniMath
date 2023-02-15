@@ -63,6 +63,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInC
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 
 
 Local Open Scope cat.
@@ -76,11 +77,11 @@ Section MBindingSig.
 (** Preamble copied from [Multisorted_alt] *)
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
-Variables (TC : Terminal C) (IC : Initial C)
+Context (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
@@ -98,7 +99,7 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Variables (expSortToCC : Exponentials BPC)
+Context (expSortToCC : Exponentials BPC)
           (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
@@ -118,6 +119,12 @@ Local Definition sortToC1C := [sortToC1, sortToCC].
 Let ops := ops sort.
 Let arity := arity sort.
 
+
+Local Definition sorted_option_functor := sorted_option_functor sort Hsort C TC BC CC.
+Local Definition projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
+Local Definition option_list : list sort → sortToC1 := option_list sort Hsort C TC BC CC.
+Local Definition exp_functor : list sort × sort -> sortToC1C
+  := exp_functor sort Hsort C TC BC CC.
 Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
   := exp_functor_list sort Hsort C TC BP BC CC.
 Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC2
@@ -142,24 +149,77 @@ Section strength_through_actegories.
   Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC1
     := actegory_with_canonical_pointed_action Mon_endo_CAT.
 
-  Local Definition pointedstrengthfromprecomp_CAT (E : category) := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
+  Local Definition pointedstrengthfromprecomp_CAT (E : category) :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
   (** we are only interested in [E] to have value either [sortToC] or [C] *)
 
-  Local Definition pointedstrengthfromselfaction_CAT := lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
+  Local Definition pointedstrengthfromselfaction_CAT :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
+  Let ptdlifteddistributivity_CAT (G : sortToC1) :=
+        BindingSigToMonad_actegorical.ptdlifteddistributivity_CAT G.
 
-  Local Definition δCCCATEndo (M : MultiSortedSig sort) : actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
+  Local Definition δCCCATEndo (M : MultiSortedSig sort) :
+    actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
   Proof.
     use lifted_coprod_distributor.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
+  Definition lifteddistrCAT_option_functor (s : sort) :
+    ptdlifteddistributivity_CAT (sorted_option_functor s).
+  Proof.
+    use BindingSigToMonad_actegorical.lifteddistr_genopt.
+  Defined.
+
+  Definition lifteddistrCAT_option_list (xs : list sort) :
+    ptdlifteddistributivity_CAT (option_list xs).
+  Proof.
+    induction xs as [[|n] xs].
+    + induction xs.
+      apply unit_lifteddistributivity.
+    + induction n as [|n IH].
+      * induction xs as [m []].
+        apply lifteddistrCAT_option_functor.
+      * induction xs as [m [k xs]].
+        use composedlifteddistributivity.
+        -- exact (lifteddistrCAT_option_functor m).
+        -- exact (IH (k,,xs)).
+  Defined.
+
+  Definition StrengthCAT_exp_functor (lt : list sort × sort) :
+    pointedstrengthfromprecomp_CAT C (exp_functor lt).
+  Proof.
+    induction lt as [l t]; revert l.
+    use list_ind.
+    - cbn. (* in [MultiSorted_alt], the analogous construction [Sig_exp_functor] has a composition
+              with the strength of the identity functor since [Gθ_Signature] needs a composition *)
+      use lifted_lax_lineator.
+      exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
+    - intros x xs H; simpl.
+      use comp_lineator_lax.
+      3: { use lifted_lax_lineator.
+           2: { exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
+      }
+      use liftedstrength_from_δ.
+      exact (lifteddistrCAT_option_list (cons x xs)).
+  Defined.
+
   Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
     pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
   Proof.
-  Admitted. (* this requires the development of all the constituents before TODO! *)
-
-
+    induction xs as [[|n] xs].
+    - induction xs.
+      use lifted_lax_lineator.
+      apply constconst_functor_lax_lineator.
+    - induction n as [|n IH].
+      + induction xs as [m []].
+        exact (StrengthCAT_exp_functor m).
+      + induction xs as [m [k xs]].
+        apply (lax_lineator_binprod Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT C)).
+        * apply StrengthCAT_exp_functor.
+        * exact (IH (k,,xs)).
+  Defined.
 
   (* the strength for hat_exp_functor_list *)
   Definition StrengthCAT_hat_exp_functor_list (xst : list (list sort × sort) × sort) :

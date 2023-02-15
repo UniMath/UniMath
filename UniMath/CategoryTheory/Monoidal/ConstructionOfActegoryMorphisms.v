@@ -390,9 +390,122 @@ End FixAnObject.
 Arguments lifteddistributivity _ : clear implicits.
 Arguments lifteddistributivity_data _ : clear implicits.
 
+
+  Definition unit_lifteddistributivity_data: lifteddistributivity_data I_{Mon_V}.
+  Proof.
+    intro w.
+    exact (ru^{Mon_V}_{F w} · luinv^{Mon_V}_{F w}).
+  Defined.
+
+  Lemma unit_lifteddistributivity_nat: lifteddistributivity_nat unit_lifteddistributivity_data.
+  Proof.
+    intros ?; intros. unfold unit_lifteddistributivity_data.
+    cbn.
+    etrans.
+    { rewrite assoc.
+      apply cancel_postcomposition.
+      apply monoidal_rightunitornat. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    apply pathsinv0, monoidal_leftunitorinvnat.
+  Qed.
+
+  Lemma unit_lifteddistributivity_tensor: lifteddistributivity_tensor unit_lifteddistributivity_data.
+  Proof.
+    intros ?; intros. unfold lifteddistributivity_tensor_body, unit_lifteddistributivity_data.
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         etrans.
+         2: { do 2 apply cancel_postcomposition.
+              rewrite assoc'.
+              do 2 apply maponpaths.
+              apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V _)). }
+         apply maponpaths.
+         apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V _)).
+    }
+    cbn.
+    etrans.
+    2: { repeat rewrite assoc'.
+         apply maponpaths.
+         repeat rewrite assoc.
+         do 6 apply cancel_postcomposition.
+         apply pathsinv0, left_whisker_with_runitor. }
+    etrans.
+    2: { repeat rewrite assoc.
+         do 4 apply cancel_postcomposition.
+         repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         apply pathsinv0, monoidal_triangle_identity_inv. }
+    etrans.
+    2: { repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         repeat rewrite assoc.
+         do 3 apply cancel_postcomposition.
+         etrans.
+         2: { apply (functor_comp (rightwhiskering_functor Mon_V _)). }
+         apply maponpaths.
+         apply pathsinv0, monoidal_rightunitorisolaw.
+    }
+    rewrite functor_id, id_left.
+    etrans.
+    2: { do 2 apply maponpaths.
+         apply cancel_postcomposition.
+         rewrite <- monoidal_triangle_identity'_inv.
+         rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, monoidal_associatorisolaw.
+    }
+    rewrite id_right.
+    etrans.
+    2: { repeat rewrite assoc'.
+         do 2 apply maponpaths.
+         apply pathsinv0, monoidal_leftunitorinvnat. }
+    do 2 rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0, monoidal_rightunitornat. }
+    etrans.
+    2: { rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, fmonoidal_preservestensorstrongly.
+    }
+    apply pathsinv0, id_right.
+  Qed.
+
+  Lemma unit_lifteddistributivity_unit: lifteddistributivity_unit unit_lifteddistributivity_data.
+  Proof.
+    unfold lifteddistributivity_unit, unit_lifteddistributivity_data.
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         rewrite unitors_coincide_on_unit.
+         apply pathsinv0, monoidal_rightunitornat. }
+    repeat rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    2: { apply maponpaths.
+         rewrite <- unitorsinv_coincide_on_unit.
+         apply pathsinv0, monoidal_leftunitorinvnat. }
+    rewrite assoc.
+    etrans.
+    2: {apply cancel_postcomposition.
+        apply pathsinv0, (pr22 (fmonoidal_preservesunitstrongly U)). }
+    apply pathsinv0, id_left.
+  Qed.
+
+  Definition unit_lifteddistributivity: lifteddistributivity I_{Mon_V}.
+  Proof.
+    use tpair.
+    - exact  unit_lifteddistributivity_data.
+    - split3.
+      + exact unit_lifteddistributivity_nat.
+      + exact unit_lifteddistributivity_tensor.
+      + exact unit_lifteddistributivity_unit.
+  Defined.
+
 Section CompositionOfLiftedDistributivities.
 
-  Context (v1 v2: V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
+  Context (v1 v2 : V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
 
   Definition composedlifteddistributivity_data: lifteddistributivity_data (v1 ⊗_{Mon_V} v2).
   Proof.

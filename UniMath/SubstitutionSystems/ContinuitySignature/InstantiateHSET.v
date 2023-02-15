@@ -70,7 +70,7 @@ End CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
 
 Section OmegaLimitsCommutingWithCoproductsHSET.
 
-  Definition HSET_ω_limits : ∏ coch : cochain HSET, LimCone coch.
+  Definition HSET_ω_limits : Lims_of_shape conat_graph HSET.
   Proof.
     intro coch.
     apply LimConeHSET.
@@ -176,14 +176,13 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
 End OmegaLimitsCommutingWithCoproductsHSET.
 
 Lemma is_omega_cont_MultiSortedSigToFunctor_HSET
-       (sort : UU) (Hsort : isofhlevel 2 sort)
+       (sort : UU) (Hsort_set : isaset sort)
       (M : MultiSortedSig sort)
-  : is_omega_cont (MultiSortedSigToFunctor sort (hlevelntosn _ _ Hsort) HSET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET M).
+  : is_omega_cont (MultiSortedSigToFunctor sort (hlevelntosn 2 _ Hsort_set) HSET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET M).
 Proof.
   use is_omega_cont_MultiSortedSigToFunctor.
   - exact InitialHSET.
   - exact ProductsHSET.
-  - exact Hsort.
   - exact HSET_ω_limits.
   - exact propcoproducts_commute_binproductsHSET.
   - exact I_coproduct_distribute_over_omega_limits_HSET.
