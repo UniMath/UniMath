@@ -597,16 +597,21 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     exact c.
   Defined.
 
-  (** The functor obtained from a multisorted binding signature is omega-continuous *)
-  Lemma is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort)
-        (l : Lims_of_shape conat_graph C)
-        (c : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p))))
-        (d : ∏ I : SET, ω_limits_distribute_over_I_coproducts C I l (CC (pr1 I) (pr2 I)))
-    : is_omega_cont (MultiSortedSigToFunctor sort Hsort C TC BP BC CC M).
-  Proof.
-    use nat_z_iso_preserve_ωlimits.
-    3: exact (nat_z_iso_inv (MultiSortedSigToFunctor_test M c)).
-    apply (is_omega_cont_MultiSortedSigToFunctor' sort Hsort C TC BP BC CC _ d M).
-  Defined.
-
 End EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunctor.
+
+(** The functor obtained from a multisorted binding signature is omega-continuous *)
+Lemma is_omega_cont_MultiSortedSigToFunctor
+      (sort : UU) (Hsort_set : isaset sort) (C : category)
+      (TC : Terminal C) (IC : Initial C)
+      (BP : BinProducts C) (BC : BinCoproducts C)
+      (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C)
+      (M : MultiSortedSig sort)
+      (l : Lims_of_shape conat_graph C)
+      (c : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p))))
+      (d : ∏ I : SET, ω_limits_distribute_over_I_coproducts C I l (CC (pr1 I) (pr2 I)))
+  : is_omega_cont (MultiSortedSigToFunctor sort (hlevelntosn 2 _ Hsort_set) C TC BP BC CC M).
+Proof.
+  use nat_z_iso_preserve_ωlimits.
+  3: apply (nat_z_iso_inv (MultiSortedSigToFunctor_test _ _ _ _ IC _ _ PC _ M c)).
+  apply (is_omega_cont_MultiSortedSigToFunctor' sort (hlevelntosn 2 _ Hsort_set) C TC BP BC CC _ d M).
+Defined.

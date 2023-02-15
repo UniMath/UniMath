@@ -67,17 +67,171 @@ Local Open Scope cat.
 Import BifunctorNotations.
 Import MonoidalNotations.
 
+Section ToBeMoved.
+
+  Definition BinProduct_of_functors_BinProducts_of_shape
+             {C D : category}
+             (BC :  Colims_of_shape two_graph D)
+             (F G : functor C D)
+    : nat_z_iso (BinCoproduct_of_functors C D (BinCoproducts_from_Colims _ BC) F G)
+                (coproduct_of_functors bool C D (Coproducts_from_Colims _ _ BC) (λ x : bool, if x then F else G)).
+  Proof.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + intro c.
+        use colimOfArrows.
+        * intro b.
+          induction b ; apply identity.
+        * intros b1 b2 e.
+          apply fromempty.
+          exact e.
+      + intros c1 c2 f.
+        cbn.
+        etrans.
+        2: apply pathsinv0, precompWithColimOfArrows.
+        etrans.
+        1: apply postcompWithColimArrow.
+        apply colimArrowUnique.
+        intro b.
+        cbn.
+        etrans.
+        1: apply (colimArrowCommutes (BC (bincoproduct_diagram D (F c1) (G c1)))).
+        cbn.
+        induction b.
+        * cbn.
+          etrans.
+          1: apply assoc'.
+          etrans.
+          1: { apply maponpaths.
+               apply (colimArrowCommutes  (BC (bincoproduct_diagram D (F c2) (G c2))) _ _ true).
+          }
+          cbn.
+          etrans.
+          1: apply maponpaths, id_left.
+          apply pathsinv0, id_left.
+        * cbn.
+          etrans.
+          1: apply assoc'.
+          etrans.
+          1: { apply maponpaths.
+               apply (colimArrowCommutes  (BC (bincoproduct_diagram D (F c2) (G c2))) _ _ false).
+          }
+          cbn.
+          etrans.
+          1: apply maponpaths, id_left.
+          apply pathsinv0, id_left.
+    - intro c.
+      use tpair.
+      + use colimOfArrows.
+        * intro b.
+          induction b ; apply identity.
+        * intros b1 b2 e.
+          apply fromempty.
+          exact e.
+      + split ; cbn.
+        * etrans.
+          1: apply postcompWithColimArrow.
+          apply pathsinv0.
+          use colimArrowUnique.
+          intro b.
+          etrans.
+          1: apply id_right.
+          cbn.
+          etrans.
+          2: apply assoc.
+          etrans.
+          2: { apply maponpaths, pathsinv0.
+               apply (colimArrowCommutes (BC (coproducts_diagram bool D (λ i : bool, (if i then F else G) c))) ).
+          }
+          induction b ; refine (_ @ ! id_left _) ; apply pathsinv0, id_left.
+        * etrans.
+          1: apply postcompWithColimArrow.
+          apply pathsinv0.
+          use colimArrowUnique.
+          intro b.
+          etrans.
+          1: apply id_right.
+          cbn.
+          etrans.
+          2: apply assoc.
+          etrans.
+          2: { apply maponpaths, pathsinv0.
+               apply (colimArrowCommutes (BC (bincoproduct_diagram D (F c) (G c))) ).
+          }
+          induction b ; refine (_ @ ! id_left _) ; apply pathsinv0, id_left.
+  Defined.
+
+  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
+  Definition Colims_from_BinCoproducts
+             {C : category} (CC : BinCoproducts C)
+    : Colims_of_shape two_graph C.
+  Proof.
+    unfold Colims_of_shape.
+    intro d.
+    unfold diagram in d.
+    cbn in d.
+
+    set (c := CC (pr1 d true) (pr1 d false)).
+    unfold BinCoproduct in c.
+    use make_ColimCocone.
+    - exact (pr11 c).
+    - use tpair.
+      + intro b.
+        induction b.
+        * exact (pr121 c).
+        * exact (pr221 c).
+      + intros b1 b2 e.
+        apply fromempty.
+        exact e.
+    - intros co cc.
+      unfold cocone in cc.
+
+      use tpair.
+      + exists (pr11 (pr2 c co (pr1 cc true) (pr1 cc false))).
+        intro b.
+        apply TODO_JOKER.
+      + apply TODO_JOKER.
+  Defined.
+
+End ToBeMoved.
+
 Section Upstream.
 
   Context (C : category) (BC : BinCoproducts C).
   Local Definition Id_H := LiftingInitial_alt.Id_H C BC.
 
+  Context (L : ∏ coch : cochain [C, C], LimCone coch).
+  Context (distr :  ω_limits_distribute_over_I_coproducts [C, C] (bool,, isasetbool) L
+    (Coproducts_from_Colims bool [C, C]
+       (Colims_from_BinCoproducts (BinCoproducts_functor_precat C C BC)))).
+
   Definition is_omega_cont_Id_H (H: [C, C] ⟶ [C, C]) :
     is_omega_cont H -> is_omega_cont (Id_H H).
   Proof.
-    (* apply is_omega_cont_BinCoproduct_of_functors.  does not exist since it requires distributivity *)
-    (* then apply is_omega_cont_constant_functor *)
-  Admitted.
+    intro Hc.
+    use is_omega_cont_z_iso.
+    2: {
+      use z_iso_from_nat_z_iso.
+      use nat_z_iso_inv.
+
+      transparent assert (BC0 : (Colims_of_shape two_graph [C,C])).
+      {
+        use Colims_from_BinCoproducts.
+        apply BinCoproducts_functor_precat.
+        exact BC.
+      }
+
+      exact (BinProduct_of_functors_BinProducts_of_shape BC0 (constant_functor [C, C] [C, C] (functor_identity C)) H).
+    }
+
+    use (coproduct_of_functors_omega_cont [C,C] (bool,,isasetbool)).
+    - exact L.
+    - exact distr.
+    - intro b.
+      induction b.
+      + apply is_omega_cont_constant_functor.
+      + exact Hc.
+  Defined.
 
 End Upstream.
 
@@ -137,12 +291,20 @@ Section monad.
 
   Local Definition is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
     is_omega_cont (MultiSortedSigToFunctor M) :=
-    is_omega_cont_MultiSortedSigToFunctor sort Hsort_set C TC IC
-      BP BC PC CC M HcoC HCcommuteBP HCcommuteCC.
+    is_omega_cont_MultiSortedSigToFunctor sort (hlevelntosn _ _ (Hsort_set : isofhlevel 2 sort)) C TC IC
+                                          BP BC PC CC M Hsort_set HcoC HCcommuteBP HCcommuteCC.
+
+  Context (sortToC_exp : Exponentials (BinProducts_functor_precat [path_pregroupoid sort Hsort, C] C BP)).
+
+  Local Definition C_omega
+    : Colims_of_shape Chains.nat_graph C.
+  Proof.
+    (* apply HcoC. *)
+  Admitted.
 
   Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
-    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC BP BC CC.
+    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC IC BP BC PC CC sortToC_exp C_omega.
 
   Let Id_H := Id_H sortToC BCsortToC.
 
@@ -153,8 +315,12 @@ Section monad.
   Proof.
     use limCoAlgTerminal.
     - exact TCsortToC1.
-    - apply is_omega_cont_Id_H.
-      apply (is_omega_cont_MultiSortedSigToFunctor sig).
+    - use is_omega_cont_Id_H.
+      + apply HcoCsortToC1.
+      + (* apply functor_category_ω_limits_distribute_over_I_coproducts.
+        apply HCcommuteCC. *)
+        apply TODO_JOKER.
+      + exact (is_omega_cont_MultiSortedSigToFunctor sig).
     - apply HcoCsortToC1.
   Defined.
 
@@ -198,7 +364,7 @@ Section InstanceHSET.
 
   Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
   Proof.
-    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ sig).
+    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ _ sig).
     - apply TerminalHSET.
     - apply InitialHSET.
     - apply BinProductsHSET.
@@ -208,6 +374,7 @@ Section InstanceHSET.
     - apply LimsHSET_of_shape.
     - apply propcoproducts_commute_binproductsHSET.
     - apply I_coproduct_distribute_over_omega_limits_HSET.
+    - apply Exponentials_functor_HSET.
   Defined.
 
 End InstanceHSET.
