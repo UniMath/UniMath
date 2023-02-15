@@ -45,24 +45,33 @@ Local Open Scope cat.
 
 Section B.
 
-  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
   Lemma make_isBinProduct'
         {C : category} {x y : C}
         (Pxy : BinProduct _ x y)
     : ∏ z : C, ∏ (zx : C⟦z,x⟧) (zy : C⟦z,y⟧),
-        is_z_isomorphism (BinProductArrow C Pxy zx zy) -> isBinProduct C x y z zx zy.
+        (∑ i : is_z_isomorphism (BinProductArrow C Pxy zx zy),
+            pr1 i · zx = BinProductPr1 _ Pxy × pr1 i · zy = BinProductPr2 _ Pxy)
+          -> isBinProduct C x y z zx zy.
   Proof.
-    intros z zx zy i.
+    intros z zx zy [i [px py]].
     use make_isBinProduct.
     intros c f g.
     use tpair.
-    - exists (BinProductArrow _ Pxy f g · (pr1 i)).
-      split ; apply TODO_JOKER.
-    - simpl.
-      intro co.
+    - exists (BinProductArrow _ Pxy f g · pr1 i).
+      split.
+      + etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, px.
+        apply BinProductPr1Commutes.
+      + etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, py.
+        apply BinProductPr2Commutes.
+    - intro co.
       use total2_paths_f.
-      + simpl.
-        apply pathsinv0.
+      + apply pathsinv0.
         use (z_iso_inv_to_right _ _ _ _ (z_iso_inv (_,,i))).
         apply pathsinv0.
         use BinProductArrowUnique.
@@ -202,15 +211,46 @@ Section A.
        we have that P(c × d) ≅ Pc × Pd.
      *)
 
-    use make_isBinProduct.
-    intros Q Q1 Q2.
+    use make_isBinProduct'.
+    {
+      apply functor_precat_binproduct_cone.
+      exact BPE.
+    }
     use tpair.
-    - use tpair.
-      + use make_nat_trans.
-        * intro c.
+    - use nat_trafo_z_iso_if_pointwise_z_iso.
+      intro c.
+      use make_is_z_isomorphism.
+      + transparent assert (FPp : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
+        { apply BPD. }
+
+        transparent assert (HFp : (BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)))).
+        { exact (make_BinProduct _ _ _ _ _ _ (Fp (pr1 F1 c) (pr1 F2 c) _ _ _ (pr2 FPp))). }
+
+        transparent assert (P_p : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
+        {
+          use make_BinProduct.
+          - exact (pr1 P c).
+          - exact (pr1 P1 c).
+          - exact (pr1 P2 c).
+          - use make_isBinProduct.
+            admit.
+        }
+
+        refine (pr11 (pr2 HFp _ _ _) · _).
+        { apply BinProductPr1. }
+        { apply BinProductPr2. }
+        apply (#F).
+        * use (BinProductArrow _ P_p).
+          -- apply BinProductPr1.
+          -- apply BinProductPr2.
+      + split.
+        * cbn.
+          unfold binproduct_nat_trans_data.
           cbn.
-          set (Q1c := pr1 Q1 c) ; cbn in Q1c.
-          set (Q2c := pr1 Q2 c) ; cbn in Q2c.
+          unfold preserves_binproduct in Fp.
+
+          etrans.
+          1: apply assoc.
 
           transparent assert (FPp : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
           { apply BPD. }
@@ -218,28 +258,30 @@ Section A.
           transparent assert (HFp : (BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)))).
           { exact (make_BinProduct _ _ _ _ _ _ (Fp (pr1 F1 c) (pr1 F2 c) _ _ _ (pr2 FPp))). }
 
-          transparent assert (HFp' : (BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)))).
-          { apply BPE. }
 
-          refine (pr11 (pr2 HFp _ Q1c Q2c) · _).
-          apply (#F).
+          etrans.
+          1: {
+            apply maponpaths_2.
+            refine (_ @ idpath (#F _)).
+            Search BinProductArrow.
+            Check (postcompWithBinProductArrow _ HFp (BPE (F (pr1 F1 c)) (F (pr1 F2 c))) (_ · # (pr1 F) (pr1 P1 c)) (_ · # (pr1 F) (pr1 P2 c))).
+            admit.
+          }
+          etrans.
+          1: apply pathsinv0, functor_comp.
 
-
-          (* use (BinProductArrow _ (pr1 (make_BinProducInFunctorCat out of (_,,P_prod)))). *)
           admit.
         * admit.
-      + split ; (use nat_trans_eq ; [apply homset_property | intro c ; cbn ]).
-        * etrans.
-          1: apply assoc'.
-          etrans.
-          1: apply maponpaths, pathsinv0, (functor_comp F).
-          admit.
-        * etrans.
-          1: apply assoc'.
-          etrans.
-          1: apply maponpaths, pathsinv0, (functor_comp F).
-          admit.
-    - intro.
+    - split.
+      + cbn.
+        use nat_trans_eq.
+        { apply homset_property. }
+        intro c.
+        cbn.
+        unfold binproduct_nat_trans_pr1_data.
+        cbn.
+
+
 
 
 
@@ -301,10 +343,17 @@ End A.
 
 Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunctor.
 
-  Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+  Variables (sort : UU) (*(Hsort_set : isofhlevel 2 sort)*) (Hsort_set : isaset sort) (C : category).
   Variables (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+
+
+  Lemma Hsort : isofhlevel 3 sort.
+  Proof.
+    use hlevelntosn.
+    apply Hsort_set.
+  Qed.
 
   (** Define the discrete category of sorts *)
   Let sort_cat : category := path_pregroupoid sort Hsort.
@@ -391,7 +440,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
 
   Definition hat_functor_preserves_binproducts (t : sort)
-             (Hsort_set : isaset sort)
+             (* (Hsort_set : isaset sort) *)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : preserves_binproduct (hat_functor sort Hsort C CC t).
   Proof.
@@ -399,27 +448,116 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
     use make_isBinProduct'.
     { use functor_precat_binproduct_cone ; exact BP. }
-    use nat_trafo_z_iso_if_pointwise_z_iso.
-    intro F.
-    use make_is_z_isomorphism.
-    - assert (ts_pr : isaprop (t = F)).
-      { apply Hsort_set. }
+    use tpair.
+    - use nat_trafo_z_iso_if_pointwise_z_iso.
+      intro F.
+      use make_is_z_isomorphism.
+      + assert (ts_pr : isaprop (t = F)).
+        { apply Hsort_set. }
 
-      refine (_ · pr1 (c (_,,ts_pr) x y) · _).
-      ++ use BinProductOfArrows ; use CoproductOfArrows ; intro ; apply identity.
-      ++ use CoproductOfArrows.
-         intro i.
-         exact (BinProductOfArrows _ (make_BinProduct _ _ _ _ _ _ p_prod) (BP x y) (identity _) (identity _)).
+        refine (_ · pr1 (c (_,,ts_pr) x y) · _).
+        ++ use BinProductOfArrows ; use CoproductOfArrows ; intro ; apply identity.
+        ++ use CoproductOfArrows.
+           intro i.
+           exact (BinProductOfArrows _ (make_BinProduct _ _ _ _ _ _ p_prod) (BP x y) (identity _) (identity _)).
+      + split.
+        * cbn.
+          unfold binproduct_nat_trans_data.
+          cbn.
+          Search BinProductArrow.
+
+          etrans.
+          1: apply assoc.
+
+
+
+
+          etrans.
+          1: {
+            apply maponpaths_2.
+            unfold propcoproducts_commute_binproducts in c.
+            unfold coproducts_commute_binproducts_mor in c.
+            apply maponpaths.
+            unfold BinProductOfArrows.
+            Check (pr12 (c ((t = F),, Hsort_set t F) x y)).
+
+          etrans.
+          1: {
+            apply maponpaths_2.
+            etrans.
+            1: apply assoc.
+            apply maponpaths_2.
+            apply postcompWithBinProductArrow.
+          }
+          etrans.
+          1: {
+            apply maponpaths_2.
+            unfold propcoproducts_commute_binproducts in c.
+            unfold coproducts_commute_binproducts_mor in c.
+
+            apply (pr12 (c ((t = F),, Hsort_set t F) x y)).
+
+
+          Check CoproductArrowUnique _ _ _ (CC (t = F) (Hsort t F) (λ _ : t = F, p)).
+        admit.
+        *
+          admit.
     - split.
-      + Check CoproductArrowUnique _ _ _ (CC (t = F) (Hsort t F) (λ _ : t = F, p)).
-        admit.
-      +
-        admit.
+      + simpl.
+        use nat_trans_eq.
+        { apply homset_property. }
+        intro s.
+        cbn.
+        unfold binproduct_nat_trans_pr1_data.
+        cbn.
+
+        assert (pf : (CC (t = s) (isasetaprop (Hsort_set t s)) (λ _ : t = s, BP x y))
+                     = (CC (t = s) (Hsort t s) (λ _ : t = s, BP x y))).
+        {
+          use (maponpaths (λ g, CC (t = s) g (λ _ : t = s, BP x y))).
+          apply (isapropisaset (t = s)).
+        }
+
+        assert (pf0 : pr11 (CC (t = s) (isasetaprop (Hsort_set t s)) (λ _ : t = s, BP x y))
+                     = pr11 (CC (t = s) (Hsort t s) (λ _ : t = s, BP x y))).
+        {
+          use (maponpaths (λ g, pr11 (CC (t = s) g (λ _ : t = s, BP x y)))).
+          apply (isapropisaset (t = s)).
+        }
+
+        etrans.
+        1: {
+          do 3 apply maponpaths_2.
+          (* this is the identity, it is just not recognized... *)
+
+          admit.
+        }
+
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply precompWithCoproductArrow.
+        }
+        cbn.
+
+        unfold propcoproducts_commute_binproducts in c.
+        unfold coproducts_commute_binproducts_mor in c.
+        (* If the above issue is solved, use that
+            pr1 (c ((t = s),, Hsort_set t s) x y)
+            is an inverse.
+            Then we get on the righthandside BinProductArrow.
+            Then, use BinProductPr1Commutes.
+         *)
+
+
+
+
   Admitted.
 
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
-             (Hsort_set : isaset sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : nat_z_iso (hat_exp_functor_list0 xst)
                 (hat_exp_functor_list'0 xst).
