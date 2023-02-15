@@ -291,8 +291,8 @@ Section monad.
 
   Local Definition is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
     is_omega_cont (MultiSortedSigToFunctor M) :=
-    is_omega_cont_MultiSortedSigToFunctor sort (hlevelntosn _ _ (Hsort_set : isofhlevel 2 sort)) C TC IC
-                                          BP BC PC CC M Hsort_set HcoC HCcommuteBP HCcommuteCC.
+    is_omega_cont_MultiSortedSigToFunctor sort Hsort_set C TC IC
+                                          BP BC PC CC M HcoC HCcommuteBP HCcommuteCC.
 
   Context (sortToC_exp : Exponentials (BinProducts_functor_precat [path_pregroupoid sort Hsort, C] C BP)).
 
@@ -304,7 +304,7 @@ Section monad.
 
   Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
-    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC IC BP BC PC CC sortToC_exp C_omega.
+    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC BP BC CC.
 
   Let Id_H := Id_H sortToC BCsortToC.
 
@@ -364,7 +364,7 @@ Section InstanceHSET.
 
   Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
   Proof.
-    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ _ sig).
+    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ sig).
     - apply TerminalHSET.
     - apply InitialHSET.
     - apply BinProductsHSET.
@@ -374,7 +374,6 @@ Section InstanceHSET.
     - apply LimsHSET_of_shape.
     - apply propcoproducts_commute_binproductsHSET.
     - apply I_coproduct_distribute_over_omega_limits_HSET.
-    - apply Exponentials_functor_HSET.
   Defined.
 
 End InstanceHSET.
