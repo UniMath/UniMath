@@ -101,7 +101,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     - exact (q' n @ IHn).
   Defined.
 
-  Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
+  Local Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
   Definition I_coproduct_distribute_over_omega_limit_HSET_inverse
              {I : HSET} (ind : pr1 I → cochain SET)
     :  SET ⟦ pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind),

@@ -308,11 +308,16 @@ Section monad.
 
   Context (sortToC_exp : Exponentials (BinProducts_functor_precat [path_pregroupoid sort Hsort, C] C BP)).
 
-  Local Definition C_omega
+  (* Local Definition C_omega
     : Colims_of_shape Chains.nat_graph C.
   Proof.
-    (* apply HcoC. *)
-  Admitted.
+    intro d.
+    use (LimitsAsColimits.LimCone_op (d := (LimitsAsColimits.diagram_op d))).
+
+    Check HcoC.
+
+    assert (
+  Defined. *)
 
   Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
@@ -320,6 +325,8 @@ Section monad.
 
   Let Id_H := Id_H sortToC BCsortToC.
 
+  Local Lemma TODO_JOKER (A : UU) : A.
+  Proof. Admitted.
 
   (** Construction of terminal coalgebra for the omega-continuous signature functor with lax lineator *)
   Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) :
@@ -329,12 +336,13 @@ Section monad.
     - exact TCsortToC1.
     - use is_omega_cont_Id_H.
       + apply HcoCsortToC1.
-      + (* apply functor_category_ω_limits_distribute_over_I_coproducts.
+      + (* Check (functor_category_ω_limits_distribute_over_I_coproducts sortToC  (bool,, isasetbool) HcoCsortToC _ _ sortToC).
         apply HCcommuteCC. *)
         apply TODO_JOKER.
       + exact (is_omega_cont_MultiSortedSigToFunctor sig).
     - apply HcoCsortToC1.
   Defined.
+
 
   Definition coindGHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) :
     ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor sig) (MultiSortedSigToStrengthFromSelfCAT sig).
