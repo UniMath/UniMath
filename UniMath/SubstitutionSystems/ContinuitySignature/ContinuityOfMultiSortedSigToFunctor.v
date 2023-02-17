@@ -42,9 +42,10 @@ Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 
+
 Local Open Scope cat.
 
-Section OmegaContinuityOfSignatureFunctor.
+Section FixTheContext.
 
   Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
   Variables (TC : Terminal C) (IC : Initial C)
@@ -74,7 +75,7 @@ Section OmegaContinuityOfSignatureFunctor.
     repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
   Defined.
 
-  Section DefinitionOfMultiSortedSigToFunctor.
+  Section DefinitionOfMultiSortedSigToFunctorPrime.
 
   Definition hat_exp_functor_list'_piece
              (xst : (list sort × sort) × sort)
@@ -118,9 +119,57 @@ Section OmegaContinuityOfSignatureFunctor.
       exact (hat_exp_functor_list' (arity sort M op)).
   Defined.
 
-  End DefinitionOfMultiSortedSigToFunctor.
+  End DefinitionOfMultiSortedSigToFunctorPrime.
 
-  Section OmegaContinuityOfMultiSortedSigToFunctor.
+  (** * the following is a deviation from the main topic of this file *)
+  Section OmegaCocontinuityOfMultiSortedSigToFunctorPrime.
+
+    Let BPCsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
+    Let BPC1 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPCsortToC.
+    Context (expSortToC1 : Exponentials BPC1) (** this requires exponentials in a higher space than before *)
+      (HC : Colims_of_shape nat_graph C).
+
+    Local Lemma is_omega_cocont_hat_exp_functor_list'_piece  (xst : (list sort × sort) × sort) :
+      is_omega_cocont (hat_exp_functor_list'_piece xst).
+    Proof.
+      apply is_omega_cocont_functor_composite.
+      - apply is_omega_cocont_pre_composition_functor.
+        apply (ColimsFunctorCategory_of_shape nat_graph sort_cat _ HC).
+      - use is_omega_cocont_post_composition_functor.
+        apply is_left_adjoint_functor_composite.
+        + apply MultiSorted_alt.is_left_adjoint_projSortToC, PC.
+        + apply MultiSorted_alt.is_left_adjoint_hat.
+    Defined.
+
+    Local Lemma is_omega_cocont_hat_exp_functor_list' (xst : list (list sort × sort) × sort) :
+      is_omega_cocont (hat_exp_functor_list' xst).
+    Proof.
+      induction xst as [xs t].
+      revert t.
+      use (list_ind (fun xs => ∏ t : sort, is_omega_cocont (hat_exp_functor_list' (xs,, t))) _ _ xs).
+      - intro t.
+        apply is_omega_cocont_functor_composite.
+        + apply is_omega_cocont_constant_functor.
+        + apply is_omega_cocont_post_composition_functor, MultiSorted_alt.is_left_adjoint_hat.
+      - intros ap ap1 ap_func t.
+        apply is_omega_cocont_BinProduct_of_functors.
+        * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
+        * apply is_omega_cocont_constprod_functor1.
+          apply expSortToC1.
+        * apply (ap_func t).
+        * apply is_omega_cocont_hat_exp_functor_list'_piece.
+    Defined.
+
+    Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
+      is_omega_cocont (MultiSortedSigToFunctor' M).
+    Proof.
+      apply is_omega_cocont_coproduct_of_functors.
+      intros op; apply is_omega_cocont_hat_exp_functor_list'.
+    Defined.
+
+  End OmegaCocontinuityOfMultiSortedSigToFunctorPrime.
+
+  Section OmegaContinuityOfMultiSortedSigToFunctorPrime.
 
   Variable (LC : Lims_of_shape conat_graph C).
   Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
@@ -289,7 +338,7 @@ Section OmegaContinuityOfSignatureFunctor.
     - intro ; apply is_omega_cont_hat_exp_functor_list.
   Defined.
 
-  End OmegaContinuityOfMultiSortedSigToFunctor.
+  End OmegaContinuityOfMultiSortedSigToFunctorPrime.
 
 
-End OmegaContinuityOfSignatureFunctor.
+End FixTheContext.
