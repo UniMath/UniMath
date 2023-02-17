@@ -182,22 +182,6 @@ Section A.
       apply (i c).
   Defined.
 
-
-  (* Definition BinProduct_functor_cat_to_codomain
-     {C D : category}
-     (F1 F2 : [C,D])
-     (BP : BinProducts [C,D])
-     : BinProducts D.
-     Proof.
-     intros d1 d2.
-     use make_BinProduct.
-     - set (cd1 := constant_functor C D d1).
-     set (cd2 := constant_functor C D d2).
-     set (cd := BP cd1 cd2).
-     Check pr11 cd.
-
-     Defined. *)
-
   Definition post_comp_functor_preserves_binproduct
              (C : category) {D E : category} (F : functor D E)
              (BPD : BinProducts D)
@@ -228,11 +212,17 @@ Section A.
 
         transparent assert (P_p : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
         {
+          (* This should become a definition on its own which says that
+             every limit in a functor category is computed objectwise if the codomain is complete.
+             I.e., in the notation of the context,
+             if P is a product of F1 and F2, then we also have that P(c) becomes the product of F1(c) and F2(c). *)
           use make_BinProduct.
           - exact (pr1 P c).
           - exact (pr1 P1 c).
           - exact (pr1 P2 c).
           - use make_isBinProduct.
+            intros d f1 f2.
+
             admit.
         }
 
@@ -262,13 +252,49 @@ Section A.
           etrans.
           1: {
             apply maponpaths_2.
-            refine (_ @ idpath (#F _)).
-            Search BinProductArrow.
-            Check (postcompWithBinProductArrow _ HFp (BPE (F (pr1 F1 c)) (F (pr1 F2 c))) (_ · # (pr1 F) (pr1 P1 c)) (_ · # (pr1 F) (pr1 P2 c))).
-            admit.
+
+            etrans.
+            1: {
+              exact (precompWithBinProductArrow E HFp (BinProductPr1 E (BPE (pr1 (functor_compose F1 F) c) (pr1 (functor_compose F2 F) c)))
+                                                (BinProductPr2 E (BPE (pr1 (functor_compose F1 F) c) (pr1 (functor_compose F2 F) c))) (BinProductArrow E (BPE (F (pr1 F1 c)) (F (pr1 F2 c))) (# (pr1 F) (pr1 P1 c)) (# (pr1 F) (pr1 P2 c)))).
+            }
+
+            etrans.
+            1: apply maponpaths, BinProductPr2Commutes.
+            etrans.
+            1: apply maponpaths_2, BinProductPr1Commutes.
+
+            refine (_ @ idpath (#F (BinProductArrow D _ _ _ ))).
+
+            apply pathsinv0.
+            use (BinProductArrowUnique _ _ _  (make_BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)) (F (pr11 FPp)) (# F (pr121 FPp)) (# F (pr221 FPp)) (Fp (pr1 F1 c) (pr1 F2 c) (pr11 FPp) (pr121 FPp) (pr221 FPp) (pr2 FPp)))).
+            - etrans.
+              1: apply pathsinv0, functor_comp.
+              apply maponpaths.
+
+              admit.
+            - etrans.
+              1: apply pathsinv0, functor_comp.
+              apply maponpaths.
+              admit.
           }
+
           etrans.
           1: apply pathsinv0, functor_comp.
+          etrans.
+          1: {
+            apply maponpaths.
+            apply (precompWithBinProductArrow D (make_BinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c)
+         (make_isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c)
+                            (λ (d : D) (f1 : D ⟦ d, pr1 F1 c ⟧) (f2 : D ⟦ d, pr1 F2 c ⟧), _)))).
+          }
+
+          etrans.
+          1: do 2 apply maponpaths ; apply BinProductPr2Commutes.
+          etrans.
+          1: apply maponpaths, maponpaths_2, BinProductPr1Commutes.
+          refine (_ @ functor_id F _).
+          apply maponpaths.
 
           admit.
         * admit.
@@ -281,11 +307,10 @@ Section A.
         unfold binproduct_nat_trans_pr1_data.
         cbn.
 
-
-
-
-
-
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: apply maponpaths, pathsinv0, functor_comp.
 
   Admitted.
 
@@ -390,48 +415,25 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     induction xst as [[x s] t].
     revert x.
     use list_ind.
-    - simpl.
-      (* assert (p : exp_functor sort Hsort C TC BC CC (nil,, s)
+    - simpl. (* assert (p : exp_functor sort Hsort C TC BC CC (nil,, s)
                   = (post_comp_functor (projSortToC sort Hsort C s))).
       { apply idpath. } *)
-      unfold hat_exp_functor_list'_piece0.
-      unfold hat_exp_functor_list'_piece.
-
       use make_nat_z_iso.
       + use make_nat_trans.
         * intro ; apply (nat_trans_id (C := sortToC) (C' := sortToC)).
         * intro ; intros.
-          (* assert (p : nat_trans_id
-      (pr1 (functor_composite (pre_comp_functor (option_list sort Hsort C TC BC CC nil))
-                          (post_comp_functor (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t)) : functor_data [sortToC,sortToC] [sortToC,sortToC]) x' : functor sortToC sortToC)
-                  = identity (C := [sortToC,sortToC]) _).
-          {
-            apply idpath.
-          }
-          etrans.
-          1: {
-            apply maponpaths.
-            exact p.
-          }
-          etrans.
-          1:  apply (id_right (C := [sortToC,sortToC])). *)
-          admit.
-          (* This should just be: exact (id_right (C := [sortToC,sortToC]) _ @ ! id_left (C := [sortToC,sortToC]) _).
-           But I can't get it to type check... *)
-
+          use nat_trans_eq.
+          { exact (pr2 sortToC). }
+          exact (λ _, id_right _ @ ! id_left _).
       + intro.
-        (* Search is_z_isomorphism.
-        apply (identity_is_z_iso (C := [sortToC,sortToC])). *)
-
-
-
-      admit.
+        use nat_trafo_z_iso_if_pointwise_z_iso.
+        { apply (pr2 sortToC). }
+        intro.
+        apply identity_is_z_iso.
     - intro ; intros.
       use nat_z_iso_inv.
       apply post_comp_functor_of_comp.
-  Admitted.
-
-
+  Defined.
 
   Definition hat_functor_preserves_binproducts (t : sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
