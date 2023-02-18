@@ -182,6 +182,92 @@ Section A.
       apply (i c).
   Defined.
 
+  Lemma BinProductArrowId
+        {C : category} {c d : C} (P : BinProduct C c d)
+    : identity _ = BinProductArrow C P (BinProductPr1 C P) (BinProductPr2 C P).
+  Proof.
+    refine (BinProductArrowEta _ _ _ P _ (identity _) @ _).
+    etrans.
+    1: apply maponpaths_2, id_left.
+    apply maponpaths, id_left.
+  Qed.
+
+  Definition isBinProduct_is_objectwise
+             {C D : category}
+             {F1 F2 P : [C, D]}
+             {P1 : [C, D] ⟦ P, F1 ⟧}
+             {P2 : [C, D] ⟦ P, F2 ⟧}
+             (Pc_prod : ∏ c: C, isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c))
+    : BinProducts D -> isBinProduct [C, D] F1 F2 P P1 P2.
+  Proof.
+    intro BP.
+    use make_isBinProduct'.
+    { apply functor_precat_binproduct_cone ; exact BP. }
+    use tpair.
+    - use nat_trafo_z_iso_if_pointwise_z_iso.
+      intro c.
+      set (Pc := make_BinProduct _ _ _ _ _ _ (Pc_prod c)).
+      use make_is_z_isomorphism.
+      + use (BinProductArrow _ Pc).
+        * apply BinProductPr1.
+        * apply BinProductPr2.
+      + split.
+        * etrans.
+          1: apply (precompWithBinProductArrow D Pc).
+
+          etrans.
+          1: apply maponpaths, BinProductPr2Commutes.
+          etrans.
+          1: apply maponpaths_2, BinProductPr1Commutes.
+          exact (! BinProductArrowId Pc).
+        * etrans.
+          1: apply (precompWithBinProductArrow D (BP _ _)).
+          etrans.
+          1: apply maponpaths, (BinProductPr2Commutes D _ _ Pc).
+          etrans.
+          1: apply maponpaths_2, (BinProductPr1Commutes D _ _ Pc).
+          exact (! BinProductArrowId (BP _ _)).
+    - split.
+      + use nat_trans_eq.
+        { apply homset_property. }
+        intro c.
+        set (Pc := make_BinProduct _ _ _ _ _ _ (Pc_prod c)).
+        apply (BinProductPr1Commutes D _ _ Pc).
+      + use nat_trans_eq.
+        { apply homset_property. }
+        intro c.
+        set (Pc := make_BinProduct _ _ _ _ _ _ (Pc_prod c)).
+        apply (BinProductPr2Commutes D _ _ Pc).
+  Defined.
+
+  Definition isBinProduct_to_objectwise
+             {C D : category}
+             {F1 F2 P : [C, D]}
+             {P1 : [C, D] ⟦ P, F1 ⟧}
+             {P2 : [C, D] ⟦ P, F2 ⟧}
+             (P_prod : isBinProduct [C, D] F1 F2 P P1 P2)
+    : BinProducts D -> ∏ c: C, isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c).
+  Proof.
+    intros BP c.
+    use make_isBinProduct'.
+    { apply BP. }
+
+    set (i := iso_between_BinProduct
+                (make_BinProduct _ _ _ _ _ _ P_prod)
+                (functor_precat_binproduct_cone C D BP F1 F2)).
+    set (ni := nat_z_iso_from_z_iso _ i).
+
+    use tpair.
+    { apply (pr2 ni c). }
+    split.
+    - set (p := BinProductPr1Commutes [C,D] _ _  (make_BinProduct [C, D] F1 F2 P P1 P2 P_prod)).
+      set (p' := p _ (binproduct_nat_trans_pr1 C D BP F1 F2) (binproduct_nat_trans_pr2 C D BP F1 F2)).
+      exact (toforallpaths _ _ _ (base_paths _ _ p') c).
+    - set (p := BinProductPr2Commutes [C,D] _ _  (make_BinProduct [C, D] F1 F2 P P1 P2 P_prod)).
+      set (p' := p _ (binproduct_nat_trans_pr1 C D BP F1 F2) (binproduct_nat_trans_pr2 C D BP F1 F2)).
+      exact (toforallpaths _ _ _ (base_paths _ _ p') c).
+  Defined.
+
   Definition post_comp_functor_preserves_binproduct
              (C : category) {D E : category} (F : functor D E)
              (BPD : BinProducts D)
@@ -190,129 +276,11 @@ Section A.
     : preserves_binproduct (post_comp_functor (A := C) F).
   Proof.
     intros F1 F2 P P1 P2 P_prod.
-
-    (* By assumption of D having binary products,
-       we have that P(c × d) ≅ Pc × Pd.
-     *)
-
-    use make_isBinProduct'.
-    {
-      apply functor_precat_binproduct_cone.
-      exact BPE.
-    }
-    use tpair.
-    - use nat_trafo_z_iso_if_pointwise_z_iso.
-      intro c.
-      use make_is_z_isomorphism.
-      + transparent assert (FPp : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
-        { apply BPD. }
-
-        transparent assert (HFp : (BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)))).
-        { exact (make_BinProduct _ _ _ _ _ _ (Fp (pr1 F1 c) (pr1 F2 c) _ _ _ (pr2 FPp))). }
-
-        transparent assert (P_p : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
-        {
-          (* This should become a definition on its own which says that
-             every limit in a functor category is computed objectwise if the codomain is complete.
-             I.e., in the notation of the context,
-             if P is a product of F1 and F2, then we also have that P(c) becomes the product of F1(c) and F2(c). *)
-          use make_BinProduct.
-          - exact (pr1 P c).
-          - exact (pr1 P1 c).
-          - exact (pr1 P2 c).
-          - use make_isBinProduct.
-            intros d f1 f2.
-
-            admit.
-        }
-
-        refine (pr11 (pr2 HFp _ _ _) · _).
-        { apply BinProductPr1. }
-        { apply BinProductPr2. }
-        apply (#F).
-        * use (BinProductArrow _ P_p).
-          -- apply BinProductPr1.
-          -- apply BinProductPr2.
-      + split.
-        * cbn.
-          unfold binproduct_nat_trans_data.
-          cbn.
-          unfold preserves_binproduct in Fp.
-
-          etrans.
-          1: apply assoc.
-
-          transparent assert (FPp : (BinProduct D (pr1 F1 c) (pr1 F2 c))).
-          { apply BPD. }
-
-          transparent assert (HFp : (BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)))).
-          { exact (make_BinProduct _ _ _ _ _ _ (Fp (pr1 F1 c) (pr1 F2 c) _ _ _ (pr2 FPp))). }
-
-
-          etrans.
-          1: {
-            apply maponpaths_2.
-
-            etrans.
-            1: {
-              exact (precompWithBinProductArrow E HFp (BinProductPr1 E (BPE (pr1 (functor_compose F1 F) c) (pr1 (functor_compose F2 F) c)))
-                                                (BinProductPr2 E (BPE (pr1 (functor_compose F1 F) c) (pr1 (functor_compose F2 F) c))) (BinProductArrow E (BPE (F (pr1 F1 c)) (F (pr1 F2 c))) (# (pr1 F) (pr1 P1 c)) (# (pr1 F) (pr1 P2 c)))).
-            }
-
-            etrans.
-            1: apply maponpaths, BinProductPr2Commutes.
-            etrans.
-            1: apply maponpaths_2, BinProductPr1Commutes.
-
-            refine (_ @ idpath (#F (BinProductArrow D _ _ _ ))).
-
-            apply pathsinv0.
-            use (BinProductArrowUnique _ _ _  (make_BinProduct E (F (pr1 F1 c)) (F (pr1 F2 c)) (F (pr11 FPp)) (# F (pr121 FPp)) (# F (pr221 FPp)) (Fp (pr1 F1 c) (pr1 F2 c) (pr11 FPp) (pr121 FPp) (pr221 FPp) (pr2 FPp)))).
-            - etrans.
-              1: apply pathsinv0, functor_comp.
-              apply maponpaths.
-
-              admit.
-            - etrans.
-              1: apply pathsinv0, functor_comp.
-              apply maponpaths.
-              admit.
-          }
-
-          etrans.
-          1: apply pathsinv0, functor_comp.
-          etrans.
-          1: {
-            apply maponpaths.
-            apply (precompWithBinProductArrow D (make_BinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c)
-         (make_isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c)
-                            (λ (d : D) (f1 : D ⟦ d, pr1 F1 c ⟧) (f2 : D ⟦ d, pr1 F2 c ⟧), _)))).
-          }
-
-          etrans.
-          1: do 2 apply maponpaths ; apply BinProductPr2Commutes.
-          etrans.
-          1: apply maponpaths, maponpaths_2, BinProductPr1Commutes.
-          refine (_ @ functor_id F _).
-          apply maponpaths.
-
-          admit.
-        * admit.
-    - split.
-      + cbn.
-        use nat_trans_eq.
-        { apply homset_property. }
-        intro c.
-        cbn.
-        unfold binproduct_nat_trans_pr1_data.
-        cbn.
-
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, pathsinv0, functor_comp.
-
-  Admitted.
+    use (isBinProduct_is_objectwise _ BPE).
+    intro c.
+    apply Fp.
+    exact (isBinProduct_to_objectwise P_prod BPD c).
+  Defined.
 
   Definition BinProductOfArrows_is_z_iso
         {C : category}
