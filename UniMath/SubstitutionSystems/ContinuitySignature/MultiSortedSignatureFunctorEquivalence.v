@@ -192,6 +192,18 @@ Section A.
     apply maponpaths, id_left.
   Qed.
 
+  (* Lemma BinProductOfArrowsId
+        {C : category} {x y : C} (p q : BinProduct C x y)
+    : BinProductOfArrows C p q (identity _) (identity _) = _.
+  Proof.
+    unfold BinProductOfArrows.
+    etrans.
+    1: apply maponpaths, id_right.
+    etrans.
+    1: apply maponpaths_2, id_right.
+    apply pathsinv0, BinProductArrowId.
+  Qed. *)
+
   Definition isBinProduct_is_objectwise
              {C D : category}
              {F1 F2 P : [C, D]}
@@ -403,121 +415,277 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       apply post_comp_functor_of_comp.
   Defined.
 
+
+
   Definition hat_functor_preserves_binproducts (t : sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : preserves_binproduct (hat_functor sort Hsort C CC t).
   Proof.
     intros x y p p1 p2 p_prod.
+    use (isBinProduct_is_objectwise _ BP).
+    intro F.
+    simpl.
+
+    assert (ts_pr : isaprop (t = F)).
+    { apply Hsort_set. }
 
     use make_isBinProduct'.
-    { use functor_precat_binproduct_cone ; exact BP. }
+    { apply BP. }
     use tpair.
-    - use nat_trafo_z_iso_if_pointwise_z_iso.
-      intro F.
-      use make_is_z_isomorphism.
-      + assert (ts_pr : isaprop (t = F)).
-        { apply Hsort_set. }
-
-        refine (_ · pr1 (c (_,,ts_pr) x y) · _).
+    - use make_is_z_isomorphism.
+      + refine (_ · pr1 (c (_,,ts_pr) x y) · _).
         ++ use BinProductOfArrows ; use CoproductOfArrows ; intro ; apply identity.
         ++ use CoproductOfArrows.
-           intro i.
-           exact (BinProductOfArrows _ (make_BinProduct _ _ _ _ _ _ p_prod) (BP x y) (identity _) (identity _)).
+           exact (λ _, BinProductOfArrows _ (make_BinProduct _ _ _ _ _ _ p_prod) (BP x y) (identity _) (identity _)).
       + split.
-        * cbn.
-          unfold binproduct_nat_trans_data.
-          cbn.
-          Search BinProductArrow.
-
-          etrans.
+        * etrans.
           1: apply assoc.
-
-
-
-
-          (* etrans.
-          1: {
-            apply maponpaths_2.
-            unfold propcoproducts_commute_binproducts in c.
-            unfold coproducts_commute_binproducts_mor in c.
-            apply maponpaths.
-            unfold BinProductOfArrows.
-            Check (pr12 (c ((t = F),, Hsort_set t F) x y)).
-
           etrans.
-          1: {
-            apply maponpaths_2.
-            etrans.
-            1: apply assoc.
-            apply maponpaths_2.
-            apply postcompWithBinProductArrow.
+          1: apply maponpaths_2, assoc.
+          etrans.
+          1: do 2 apply maponpaths_2 ; apply postcompWithBinProductArrow.
+
+          transparent assert (ii : (is_z_isomorphism (CoproductOfArrows (t = F) C
+      (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, BP x y))
+      (CC (t = F) (Hsort t F) (λ _ : t = F, p))
+      (λ _ : t = F,
+       BinProductOfArrows C (make_BinProduct C x y p p1 p2 p_prod) (BP x y)
+                          (identity x) (identity y))))).
+          {
+            apply CoproductOfArrowsIsos.
+            intro.
+            exact (BinProductOfArrows_is_z_iso (BP x y) (make_BinProduct C x y p p1 p2 p_prod) (identity _) (identity _) (identity_is_z_iso _) (identity_is_z_iso _)).
           }
+
+          apply (z_iso_inv_to_right _ _ _ _ (_,,ii)).
           etrans.
-          1: {
-            apply maponpaths_2.
-            unfold propcoproducts_commute_binproducts in c.
-            unfold coproducts_commute_binproducts_mor in c.
+          2: apply pathsinv0, id_left.
+          apply pathsinv0.
+          apply (z_iso_inv_on_left _ _ _ _ (_ ,, c ((t = F),, ts_pr) x y)).
 
-            apply (pr12 (c ((t = F),, Hsort_set t F) x y)).
+          etrans.
+          2: apply pathsinv0, precompWithBinProductArrow.
+          use BinProductArrowUnique.
+          -- etrans.
+             1: apply BinProductPr1Commutes.
+             simpl.
+             unfold inv_from_z_iso.
+             simpl.
 
+             etrans.
+             1: apply precompWithCoproductArrow.
+             etrans.
+             2: apply pathsinv0, precompWithCoproductArrow.
+             use CoproductArrowUnique.
+             intro.
+             etrans.
+             1: apply (CoproductInCommutes _ _ _ (CC (t = F) (Hsort t F) (λ _ : t = F, p))).
+             etrans.
+             2: apply assoc'.
+             etrans.
+             2: apply maponpaths_2, pathsinv0, BinProductPr1Commutes.
+             apply assoc.
+          -- etrans.
+             1: apply BinProductPr2Commutes.
+             simpl.
+             unfold inv_from_z_iso.
+             simpl.
 
-          Check CoproductArrowUnique _ _ _ (CC (t = F) (Hsort t F) (λ _ : t = F, p)). *)
-        admit.
-        *
-          admit.
+             etrans.
+             1: apply precompWithCoproductArrow.
+             etrans.
+             2: apply pathsinv0, precompWithCoproductArrow.
+             use CoproductArrowUnique.
+             intro.
+             etrans.
+             1: apply (CoproductInCommutes _ _ _ (CC (t = F) (Hsort t F) (λ _ : t = F, p))).
+             etrans.
+             2: apply assoc'.
+             etrans.
+             2: apply maponpaths_2, pathsinv0, BinProductPr2Commutes.
+             apply assoc.
+        * transparent assert (ii : (is_z_isomorphism (BinProductOfArrows C
+    (BP (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, y)))
+    (BP (CC (t = F) (Hsort t F) (λ _ : t = F, x)) (CC (t = F) (Hsort t F) (λ _ : t = F, y)))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, x))
+       (λ _ : t = F, identity x))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, y))
+       (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, y))
+       (λ _ : t = F, identity y))))).
+          {
+            apply BinProductOfArrows_is_z_iso ;
+              (apply CoproductOfArrowsIsos ; intro ; apply identity_is_z_iso).
+          }
+
+          rewrite ! assoc'.
+          apply pathsinv0.
+          apply (z_iso_inv_to_left _ _ _ ((_,,ii))).
+          etrans.
+          1: apply id_right.
+
+          apply (z_iso_inv_to_left _ _ _ (z_iso_inv (_ ,, c ((t = F),, ts_pr) x y))).
+          etrans.
+          1: apply postcompWithBinProductArrow.
+          etrans.
+          2: apply pathsinv0, precompWithBinProductArrow.
+
+          use BinProductArrowUnique.
+          -- etrans.
+             1: apply BinProductPr1Commutes.
+             etrans.
+             1: apply precompWithCoproductArrow.
+             etrans.
+             2: apply pathsinv0, precompWithCoproductArrow.
+             use CoproductArrowUnique.
+             intro.
+             etrans.
+             1: apply (CoproductInCommutes _ _ _ (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, BP x y))).
+
+             etrans.
+             1: apply maponpaths, id_left.
+             unfold BinProductOfArrows.
+             etrans.
+             2: apply assoc'.
+             apply maponpaths_2.
+             etrans.
+             2: apply pathsinv0, (BinProductPr1Commutes _ _ _ ((make_BinProduct C x y p p1 p2 p_prod))).
+             apply pathsinv0, id_right.
+          -- etrans.
+             1: apply BinProductPr2Commutes.
+             etrans.
+             1: apply precompWithCoproductArrow.
+             etrans.
+             2: apply pathsinv0, precompWithCoproductArrow.
+             use CoproductArrowUnique.
+             intro.
+             etrans.
+             1: apply (CoproductInCommutes _ _ _ (CC (t = F) (isasetaprop (pr2 ((t = F),, ts_pr))) (λ _ : t = F, BP x y))).
+
+             etrans.
+             1: apply maponpaths, id_left.
+             unfold BinProductOfArrows.
+             etrans.
+             2: apply assoc'.
+             apply maponpaths_2.
+             etrans.
+             2: apply pathsinv0, (BinProductPr2Commutes _ _ _ ((make_BinProduct C x y p p1 p2 p_prod))).
+             apply pathsinv0, id_right.
     - split.
-      + simpl.
-        use nat_trans_eq.
-        { apply homset_property. }
-        intro s.
-        cbn.
-        unfold binproduct_nat_trans_pr1_data.
-        cbn.
-
-        assert (pf : (CC (t = s) (isasetaprop (Hsort_set t s)) (λ _ : t = s, BP x y))
-                     = (CC (t = s) (Hsort t s) (λ _ : t = s, BP x y))).
-        {
-          use (maponpaths (λ g, CC (t = s) g (λ _ : t = s, BP x y))).
-          apply (isapropisaset (t = s)).
-        }
-
-        assert (pf0 : pr11 (CC (t = s) (isasetaprop (Hsort_set t s)) (λ _ : t = s, BP x y))
-                     = pr11 (CC (t = s) (Hsort t s) (λ _ : t = s, BP x y))).
-        {
-          use (maponpaths (λ g, pr11 (CC (t = s) g (λ _ : t = s, BP x y)))).
-          apply (isapropisaset (t = s)).
-        }
-
-        etrans.
-        1: {
-          do 3 apply maponpaths_2.
-          (* this is the identity, it is just not recognized... *)
-
-          admit.
-        }
-
-        etrans.
+      + etrans.
         1: apply assoc'.
         etrans.
         1: {
           apply maponpaths.
           apply precompWithCoproductArrow.
         }
-        cbn.
 
-        unfold propcoproducts_commute_binproducts in c.
-        unfold coproducts_commute_binproducts_mor in c.
-        (* If the above issue is solved, use that
-            pr1 (c ((t = s),, Hsort_set t s) x y)
-            is an inverse.
-            Then we get on the righthandside BinProductArrow.
-            Then, use BinProductPr1Commutes.
-         *)
+        transparent assert (i : (is_z_isomorphism (BinProductOfArrows C
+    (BP (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, y)))
+    (BP (CC (t = F) (Hsort t F) (λ _ : t = F, x)) (CC (t = F) (Hsort t F) (λ _ : t = F, y)))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, x)) (λ _ : t = F, identity x))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, y))
+                       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, y)) (λ _ : t = F, identity y))))).
+        {
+          use BinProductOfArrows_is_z_iso ; (use CoproductOfArrowsIsos ; intro ; apply identity_is_z_iso).
+        }
 
+        apply pathsinv0.
+        etrans.
+        2: apply assoc.
+        use (z_iso_inv_to_left _ _ _ (_,,i)).
+        etrans.
+        1: apply BinProductPr1Commutes.
+        use (z_iso_inv_to_left _ _ _ (z_iso_inv (_,,(c ((t = F),, ts_pr) x y)))).
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: apply maponpaths_2, BinProductPr1Commutes.
 
+        use CoproductArrowUnique.
+        intro.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: {
+          apply maponpaths_2.
+          apply (CoproductInCommutes _ _ _ ((CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, BP x y)))).
+        }
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply (CoproductInCommutes _ _ _ (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, x))).
+        }
+        etrans.
+        2: apply assoc'.
+        etrans.
+        2: {
+          apply maponpaths_2, pathsinv0.
+          apply (BinProductPr1Commutes _ _ _  (make_BinProduct C x y p p1 p2 p_prod)).
+        }
+        apply assoc.
+      + etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply precompWithCoproductArrow.
+        }
 
+        transparent assert (i : (is_z_isomorphism (BinProductOfArrows C
+    (BP (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, y)))
+    (BP (CC (t = F) (Hsort t F) (λ _ : t = F, x)) (CC (t = F) (Hsort t F) (λ _ : t = F, y)))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, x))
+       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, x)) (λ _ : t = F, identity x))
+    (CoproductOfArrows (t = F) C (CC (t = F) (Hsort t F) (λ _ : t = F, y))
+                       (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, y)) (λ _ : t = F, identity y))))).
+        {
+          use BinProductOfArrows_is_z_iso ; (use CoproductOfArrowsIsos ; intro ; apply identity_is_z_iso).
+        }
 
-  Admitted.
+        apply pathsinv0.
+        etrans.
+        2: apply assoc.
+        use (z_iso_inv_to_left _ _ _ (_,,i)).
+        etrans.
+        1: apply BinProductPr2Commutes.
+        use (z_iso_inv_to_left _ _ _ (z_iso_inv (_,,(c ((t = F),, ts_pr) x y)))).
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: apply maponpaths_2, BinProductPr2Commutes.
+
+        use CoproductArrowUnique.
+        intro.
+        etrans.
+        1: apply assoc.
+        etrans.
+        1: {
+          apply maponpaths_2.
+          apply (CoproductInCommutes _ _ _ ((CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, BP x y)))).
+        }
+        etrans.
+        1: apply assoc'.
+        etrans.
+        1: {
+          apply maponpaths.
+          apply (CoproductInCommutes _ _ _ (CC (t = F) (isasetaprop ts_pr) (λ _ : t = F, y))).
+        }
+        etrans.
+        2: apply assoc'.
+        etrans.
+        2: {
+          apply maponpaths_2, pathsinv0.
+          apply (BinProductPr2Commutes _ _ _  (make_BinProduct C x y p p1 p2 p_prod)).
+        }
+        apply assoc.
+  Defined.
 
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
