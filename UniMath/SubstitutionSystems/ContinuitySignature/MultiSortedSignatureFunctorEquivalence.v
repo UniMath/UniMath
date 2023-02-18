@@ -192,18 +192,6 @@ Section A.
     apply maponpaths, id_left.
   Qed.
 
-  (* Lemma BinProductOfArrowsId
-        {C : category} {x y : C} (p q : BinProduct C x y)
-    : BinProductOfArrows C p q (identity _) (identity _) = _.
-  Proof.
-    unfold BinProductOfArrows.
-    etrans.
-    1: apply maponpaths, id_right.
-    etrans.
-    1: apply maponpaths_2, id_right.
-    apply pathsinv0, BinProductArrowId.
-  Qed. *)
-
   Definition isBinProduct_is_objectwise
              {C D : category}
              {F1 F2 P : [C, D]}
@@ -395,9 +383,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     induction xst as [[x s] t].
     revert x.
     use list_ind.
-    - simpl. (* assert (p : exp_functor sort Hsort C TC BC CC (nil,, s)
-                  = (post_comp_functor (projSortToC sort Hsort C s))).
-      { apply idpath. } *)
+    - simpl. (* This is necessary *)
       use make_nat_z_iso.
       + use make_nat_trans.
         * intro ; apply (nat_trans_id (C := sortToC) (C' := sortToC)).
