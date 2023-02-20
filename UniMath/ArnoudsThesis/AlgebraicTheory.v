@@ -14,17 +14,17 @@ Local Open Scope cat.
 
 Section AlgebraicTheoryData.
 
-  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ hset_precategory),
+  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ hset_category),
     (∏ {n}, stn n → (T n : hSet)) × (∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)).
 
-  Definition make_algebraic_theory_data (T: nat_po_category ⟶ hset_precategory) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
+  Definition make_algebraic_theory_data (T: nat_po_category ⟶ hset_category) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
   Proof.
     exact (T ,, (proj ,, comp)).
   Defined.
 
   Variable T : algebraic_theory_data.
 
-  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ hset_precategory) := pr1 d.
+  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ hset_category) := pr1 d.
   Coercion f_T : algebraic_theory_data >-> functor.
 
   Local Definition pr : ∏ {n}, stn n → (T n : hSet) := pr1 (pr2 T).
@@ -101,7 +101,7 @@ Section AlgebraicTheory.
 
   Lemma ispredicate_is_algebraic_theory : isPredicate is_algebraic_theory.
   Proof.
-    intros T.
+    intros ?.
     repeat apply isapropdirprod;
       repeat (apply impred_isaprop; intros);
       try apply setproperty.
@@ -145,7 +145,7 @@ Section AlgebraicTheoryMorphism.
 
   Lemma ispredicate_is_algebraic_theory_morphism {T T' : algebraic_theory} : isPredicate (@is_algebraic_theory_morphism T T').
   Proof.
-    intros F.
+    intros ?.
     repeat apply isapropdirprod;
       repeat (apply impred_isaprop; intros);
       apply setproperty.
@@ -161,15 +161,15 @@ Section AlgebraicTheoryMorphism.
     apply make_is_algebraic_theory_morphism;
       unfold preserves_projections, preserves_composition;
       intros;
-      use idpath.
+      apply idpath.
   Defined.
 
   Definition algebraic_theory_morphism_comp (T1 T2 T3 : algebraic_theory) (F1 : algebraic_theory_morphism T1 T2) (F2 : algebraic_theory_morphism T2 T3) : algebraic_theory_morphism T1 T3.
   Proof.
     destruct F1 as [F1 [F1proj F1comp]].
     destruct F2 as [F2 [F2proj F2comp]].
-    use (make_algebraic_theory_morphism (nat_trans_comp _ _ _ F1 F2)).
-    use make_is_algebraic_theory_morphism; unfold preserves_projections, preserves_composition; simpl; intros.
+    apply (make_algebraic_theory_morphism (nat_trans_comp _ _ _ F1 F2)).
+    apply make_is_algebraic_theory_morphism; unfold preserves_projections, preserves_composition; simpl; intros.
     - unfold compose.
       simpl.
       rewrite F1proj, F2proj.
@@ -186,9 +186,7 @@ Section AlgebraicTheoryCategory.
 
   Definition algebraic_theory_precat : precategory.
   Proof.
-    pose (hset_has_homset := (λ x y, isaset_set_fun_space (pr1 x) y) : (has_homsets hset_precategory)).
-
-    use (make_precategory (make_precategory_data
+    apply (make_precategory (make_precategory_data
       (algebraic_theory ,,
       algebraic_theory_morphism)
       algebraic_theory_morphism_id
@@ -196,12 +194,22 @@ Section AlgebraicTheoryCategory.
 
     repeat split;
       intros;
-      use (subtypePath ispredicate_is_algebraic_theory_morphism).
-    - use (nat_trans_comp_id_left hset_has_homset).
-    - use (nat_trans_comp_id_right hset_has_homset).
-    - use (nat_trans_comp_assoc hset_has_homset).
+      apply (subtypePath ispredicate_is_algebraic_theory_morphism).
+    - apply (nat_trans_comp_id_left has_homsets_HSET).
+    - apply (nat_trans_comp_id_right has_homsets_HSET).
+    - apply (nat_trans_comp_assoc has_homsets_HSET).
     - symmetry.
-      use (nat_trans_comp_assoc hset_has_homset).
+      apply (nat_trans_comp_assoc has_homsets_HSET).
+  Defined.
+
+  Definition algebraic_theory_category : category.
+  Proof.
+    apply (make_category algebraic_theory_precat).
+    intros ? ?.
+    apply isaset_total2.
+    - apply (isaset_nat_trans has_homsets_HSET).
+    - intros ?.
+      exact (isasetaprop (ispredicate_is_algebraic_theory_morphism _)).
   Defined.
 
 End AlgebraicTheoryCategory.
