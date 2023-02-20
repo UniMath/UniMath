@@ -14,17 +14,17 @@ Local Open Scope cat.
 
 Section AlgebraicTheoryData.
 
-  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ hset_category),
+  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ HSET),
     (∏ {n}, stn n → (T n : hSet)) × (∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)).
 
-  Definition make_algebraic_theory_data (T: nat_po_category ⟶ hset_category) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
+  Definition make_algebraic_theory_data (T: nat_po_category ⟶ HSET) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
   Proof.
     exact (T ,, (proj ,, comp)).
   Defined.
 
   Variable T : algebraic_theory_data.
 
-  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ hset_category) := pr1 d.
+  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ HSET) := pr1 d.
   Coercion f_T : algebraic_theory_data >-> functor.
 
   Local Definition pr : ∏ {n}, stn n → (T n : hSet) := pr1 (pr2 T).
@@ -169,15 +169,16 @@ Section AlgebraicTheoryMorphism.
     destruct F1 as [F1 [F1proj F1comp]].
     destruct F2 as [F2 [F2proj F2comp]].
     apply (make_algebraic_theory_morphism (nat_trans_comp _ _ _ F1 F2)).
-    apply make_is_algebraic_theory_morphism; unfold preserves_projections, preserves_composition; simpl; intros.
-    - unfold compose.
-      simpl.
-      rewrite F1proj, F2proj.
-      apply idpath.
-    - unfold compose.
-      simpl.
-      rewrite F1comp, F2comp.
-      apply idpath.
+    apply make_is_algebraic_theory_morphism;
+      unfold preserves_projections, preserves_composition;
+      simpl;
+      unfold compose;
+      simpl;
+      intros.
+    - rewrite F1proj.
+      apply F2proj.
+    - rewrite F1comp.
+      apply F2comp.
   Defined.
 
 End AlgebraicTheoryMorphism.
