@@ -99,8 +99,9 @@ Section AlgebraicTheory.
     (H4 : comp_is_natural_l T)
     (H5 : comp_is_natural_r T) : is_algebraic_theory T := (H1 ,, H2 ,, H3 ,, H4 ,, H5).
 
-  Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
+  Lemma ispredicate_is_algebraic_theory : isPredicate is_algebraic_theory.
   Proof.
+    intros T.
     repeat apply isapropdirprod;
       repeat (apply impred_isaprop; intros);
       try apply setproperty.
@@ -142,19 +143,19 @@ Section AlgebraicTheoryMorphism.
 
   Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory} (F : algebraic_theory_morphism_data T T') (H1 : preserves_projections F) (H2 : preserves_composition F) := (H1 ,, H2).
 
-  Lemma isaprop_is_algebraic_theory_morphism {T T' : algebraic_theory} {F : algebraic_theory_morphism_data T T'} : isaprop (is_algebraic_theory_morphism F).
+  Lemma ispredicate_is_algebraic_theory_morphism {T T' : algebraic_theory} : isPredicate (@is_algebraic_theory_morphism T T').
   Proof.
+    intros F.
     repeat apply isapropdirprod;
       repeat (apply impred_isaprop; intros);
       apply setproperty.
   Qed.
 
-  Definition algebraic_theory_morphism (T T' : algebraic_theory) : UU :=
-    ∑ (F : algebraic_theory_morphism_data T T'), is_algebraic_theory_morphism F.
+  Definition algebraic_theory_morphism (T T' : algebraic_theory) : UU := total2 (@is_algebraic_theory_morphism T T').
 
   Definition make_algebraic_theory_morphism {T T' : algebraic_theory} (F : algebraic_theory_morphism_data T T') (H : is_algebraic_theory_morphism F) : algebraic_theory_morphism T T' := (F ,, H).
 
-  Definition identity_morphism (T : algebraic_theory) : algebraic_theory_morphism T T.
+  Definition algebraic_theory_morphism_id (T : algebraic_theory) : algebraic_theory_morphism T T.
   Proof.
     apply (make_algebraic_theory_morphism (nat_trans_id T)).
     apply make_is_algebraic_theory_morphism;
@@ -163,7 +164,7 @@ Section AlgebraicTheoryMorphism.
       use idpath.
   Defined.
 
-  Definition compose_morphisms (T1 T2 T3 : algebraic_theory) (F1 : algebraic_theory_morphism T1 T2) (F2 : algebraic_theory_morphism T2 T3) : algebraic_theory_morphism T1 T3.
+  Definition algebraic_theory_morphism_comp (T1 T2 T3 : algebraic_theory) (F1 : algebraic_theory_morphism T1 T2) (F2 : algebraic_theory_morphism T2 T3) : algebraic_theory_morphism T1 T3.
   Proof.
     destruct F1 as [F1 [F1proj F1comp]].
     destruct F2 as [F2 [F2proj F2comp]].
@@ -185,24 +186,22 @@ Section AlgebraicTheoryCategory.
 
   Definition algebraic_theory_precat : precategory.
   Proof.
-    use (make_precategory (make_precategory_data (algebraic_theory ,, algebraic_theory_morphism) identity_morphism compose_morphisms)).
-    (repeat split);
+    pose (hset_has_homset := (λ x y, isaset_set_fun_space (pr1 x) y) : (has_homsets hset_precategory)).
+
+    use (make_precategory (make_precategory_data
+      (algebraic_theory ,,
+      algebraic_theory_morphism)
+      algebraic_theory_morphism_id
+      algebraic_theory_morphism_comp)).
+
+    repeat split;
       intros;
-      use (subtypePairEquality' _ isaprop_is_algebraic_theory_morphism);
-      simpl.
-    - use nat_trans_comp_id_left.
-      intros x y.
-      apply isaset_set_fun_space.
-    - use nat_trans_comp_id_right.
-      intros x y.
-      apply isaset_set_fun_space.
-    - use nat_trans_comp_assoc.
-      intros x y.
-      apply isaset_set_fun_space.
+      use (subtypePath ispredicate_is_algebraic_theory_morphism).
+    - use (nat_trans_comp_id_left hset_has_homset).
+    - use (nat_trans_comp_id_right hset_has_homset).
+    - use (nat_trans_comp_assoc hset_has_homset).
     - symmetry.
-      use nat_trans_comp_assoc.
-      intros x y.
-      apply isaset_set_fun_space.
+      use (nat_trans_comp_assoc hset_has_homset).
   Defined.
 
 End AlgebraicTheoryCategory.
