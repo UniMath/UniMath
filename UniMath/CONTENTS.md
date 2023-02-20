@@ -823,6 +823,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v](SubstitutionSystems/ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v)
    - [ContinuitySignature/MultiSortedSignatureFunctorEquivalence.v](SubstitutionSystems/ContinuitySignature/MultiSortedSignatureFunctorEquivalence.v)
    - [ContinuitySignature/InstantiateHSET.v](SubstitutionSystems/ContinuitySignature/InstantiateHSET.v)
+   - [MultiSortedMonadConstruction_coind_actegorical.v](SubstitutionSystems/MultiSortedMonadConstruction_coind_actegorical.v)
+   - [MultiSortedEmbeddingIndCoindHSET.v](SubstitutionSystems/MultiSortedEmbeddingIndCoindHSET.v)
    - [All.v](SubstitutionSystems/All.v)
 ## Package [Folds](Folds/README.md)
    - [UnicodeNotations.v](Folds/UnicodeNotations.v)
