@@ -673,6 +673,12 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         apply assoc.
   Defined.
 
+
+  Lemma foldr1_nil {A: UU} (f : A -> A -> A) (a : A) :  foldr1 f a nil = a.
+  Proof.
+    apply idpath.
+  Qed.
+
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
@@ -696,6 +702,19 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
       transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
       {
+        induction xs as [[|n] xs].
+        - induction xs. unfold exp_functor_list at 1. rewrite map_cons. rewrite map_nil. rewrite foldr1_cons_nil.
+          unfold exp_functor_list at 1. rewrite map_nil. rewrite foldr1_nil.
+          (* this looks very reasonable *)
+          admit.
+        - induction xs.
+          change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
+          unfold exp_functor_list at 1.
+          do 2 rewrite map_cons.
+          rewrite foldr1_cons.
+          rewrite <- map_cons.
+          change (nat_z_iso (BinProduct_of_functors BPC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
+          (* this looks very reasonable *)
         admit.
       }
 
