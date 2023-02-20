@@ -1,12 +1,11 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.categories.preorder_categories.
-Require Import UniMath.CategoryTheory.categories.Type.Core.
-(* Require Import UniMath.CategoryTheory.categories.HSET.Core. *)
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 (* Define a preorder category over the natural numbers *)
 Definition nat_po_category : category := po_category (make_po natleh (@istransnatleh ,, isreflnatleh)).
@@ -15,51 +14,51 @@ Local Open Scope cat.
 
 Section AlgebraicTheoryData.
 
-  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ type_precat),
-    (∏ {n}, stn n → T n) × (∏ {m n}, T n → (stn n → T m) → T m).
+  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ hset_precategory),
+    (∏ {n}, stn n → (T n : hSet)) × (∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)).
 
-  Definition make_algebraic_theory_data (T: nat_po_category ⟶ type_precat) (proj: ∏ {n}, stn n → T n) (comp: ∏ {m n}, T n → (stn n → T m) → T m) : algebraic_theory_data.
+  Definition make_algebraic_theory_data (T: nat_po_category ⟶ hset_precategory) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
   Proof.
     exact (T ,, (proj ,, comp)).
   Defined.
 
   Variable T : algebraic_theory_data.
 
-  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ type_precat) := pr1 d.
+  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ hset_precategory) := pr1 d.
   Coercion f_T : algebraic_theory_data >-> functor.
 
-  Local Definition pr : ∏ {n}, stn n → T n := pr1 (pr2 T).
-  Local Definition comp: ∏ {m n}, T n → (stn n → T m) → T m := pr2 (pr2 T).
+  Local Definition pr : ∏ {n}, stn n → (T n : hSet) := pr1 (pr2 T).
+  Local Definition comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet) := pr2 (pr2 T).
 
-  Local Definition id : T 1 := pr (@firstelement 0).
+  Local Definition id : (T 1 : hSet) := pr (@firstelement 0).
 
   (* Define the associativity property of the algebraic theory *)
   Definition comp_is_assoc : Prop := ∏
     (l m n : nat)
-    (f_l : T l)
-    (f_m : stn l → T m)
-    (f_n : stn m → T n),
+    (f_l : (T l : hSet))
+    (f_m : stn l → (T m : hSet))
+    (f_n : stn m → (T n : hSet)),
       (comp (comp f_l f_m) f_n) = (comp f_l (λ t_l, comp (f_m t_l) f_n)).
 
   (* Define the unitality property of the algebraic theory *)
   Definition comp_is_unital : Prop := ∏
     (n : nat)
-    (f_n : T n),
+    (f_n : (T n : hSet)),
       (comp f_n (λ t, pr t)) = f_n.
 
   (* Define the compatibility of the projection function with composition *)
   Definition comp_is_compatible_with_projections : Prop := ∏
     (m n : nat)
     (l : stn m)
-    (f_n : stn m → T n),
+    (f_n : stn m → (T n : hSet)),
       (comp (pr l) f_n) = f_n l.
 
   (* Define naturality of the composition in the first argument *)
   Definition comp_is_natural_l : Prop := ∏
     (s t n : nat_po_category)
     (f: nat_po_category⟦s, t⟧)
-    (f_s : T s)
-    (f_n : stn s → T n),
+    (f_s : (T s : hSet))
+    (f_n : stn s → (T n : hSet)),
     unit.
   (* Proof.
     destruct (natgtb s m) eqn:hm.
@@ -77,8 +76,8 @@ Section AlgebraicTheoryData.
   Definition comp_is_natural_r := ∏
     (m s t : nat_po_category)
     (f: nat_po_category⟦s, t⟧)
-    (f_m : T m)
-    (f_s : stn m → T s),
+    (f_m : (T m : hSet))
+    (f_s : stn m → (T s : hSet)),
       ((comp f_m (λ x, #T f (f_s x))) = (#T f) (comp f_m f_s)).
     
 End AlgebraicTheoryData.
@@ -102,10 +101,11 @@ Section AlgebraicTheory.
 
   Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
   Proof.
-Admitted.
-    (* repeat apply isapropdirprod.
-    unfold comp_is_assoc.
-  Qed. *)
+    repeat apply isapropdirprod;
+      repeat (apply impred_isaprop; intros);
+      try apply setproperty.
+    exact isapropunit.
+  Qed.
 
   Definition algebraic_theory := total2 is_algebraic_theory.
 
@@ -130,8 +130,8 @@ Section AlgebraicTheoryMorphismData.
 
   Definition preserves_composition : Prop := ∏
     (m n : nat_po_category)
-    (f_m : T m)
-    (f_n : stn m → T n),
+    (f_m : (T m : hSet))
+    (f_n : stn m → (T n : hSet)),
     ((F : nat_trans _ _) n (comp T f_m f_n)) = (comp T' ((F : nat_trans _ _) m f_m) (λ i, (F : nat_trans _ _) n (f_n i))).
 
 End AlgebraicTheoryMorphismData.
@@ -144,7 +144,10 @@ Section AlgebraicTheoryMorphism.
 
   Lemma isaprop_is_algebraic_theory_morphism {T T' : algebraic_theory} {F : algebraic_theory_morphism_data T T'} : isaprop (is_algebraic_theory_morphism F).
   Proof.
-Admitted.
+    repeat apply isapropdirprod;
+      repeat (apply impred_isaprop; intros);
+      apply setproperty.
+  Qed.
 
   Definition algebraic_theory_morphism (T T' : algebraic_theory) : UU :=
     ∑ (F : algebraic_theory_morphism_data T T'), is_algebraic_theory_morphism F.
@@ -188,8 +191,18 @@ Section AlgebraicTheoryCategory.
       use (subtypePairEquality' _ isaprop_is_algebraic_theory_morphism);
       simpl.
     - use nat_trans_comp_id_left.
-      unfold has_homsets.
-      Search (has_homsets type_precat).
-Abort.
+      intros x y.
+      apply isaset_set_fun_space.
+    - use nat_trans_comp_id_right.
+      intros x y.
+      apply isaset_set_fun_space.
+    - use nat_trans_comp_assoc.
+      intros x y.
+      apply isaset_set_fun_space.
+    - symmetry.
+      use nat_trans_comp_assoc.
+      intros x y.
+      apply isaset_set_fun_space.
+  Defined.
 
 End AlgebraicTheoryCategory.
