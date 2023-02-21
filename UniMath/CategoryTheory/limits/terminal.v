@@ -188,6 +188,18 @@ use make_Terminal.
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
+Definition Terminal_functor_precat_alt : Terminal [C,D].
+Proof.
+use make_Terminal.
+- exact (constant_functor _ _ ID).
+- intros F.
+  use tpair.
+  + use make_nat_trans; simpl.
+    * intro a; apply TerminalArrow.
+    * intros a b f; apply TerminalArrowEq.
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
+Defined.
+
 End TerminalFunctorCat.
 
 (** Morphisms from the terminal object are monic *)

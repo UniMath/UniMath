@@ -53,7 +53,7 @@ Lemma list_ind_compute_2
       (f := list_ind P p0 ind) :
   f (x::xs) = ind x xs (f xs).
 Proof.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Definition foldr {B : UU} (f : A -> B -> B) (b : B) : list -> B :=
@@ -107,12 +107,12 @@ Section Test.
 
   Context {a b c d:A}.
   Let x := a::b::c::d::[].
-  Goal nth x (●0) = a. reflexivity. Qed.
-  Goal nth x (●1) = b. reflexivity. Qed.
-  Goal nth x (●2) = c. reflexivity. Qed.
-  Goal nth x (●3) = d. reflexivity. Qed.
+  Goal nth x (●0) = a. apply idpath. Qed.
+  Goal nth x (●1) = b. apply idpath. Qed.
+  Goal nth x (●2) = c. apply idpath. Qed.
+  Goal nth x (●3) = d. apply idpath. Qed.
 
-  Goal functionToList _ (nth x) = x. reflexivity. Qed.
+  Goal functionToList _ (nth x) = x. apply idpath. Qed.
 
 End Test.
 
@@ -128,14 +128,19 @@ Definition map {A B : UU} (f : A -> B) : list A -> list B :=
 
 Lemma mapStep {A B : UU} (f : A -> B) (a:A) (x:list A) : map f (cons a x) = cons (f a) (map f x).
 Proof.
-  reflexivity.
+  apply idpath.
 Defined.
 
 (** Various unfolding lemmas *)
+Lemma foldr_nil {A B : UU} (f : A -> B -> B) (b : B) : foldr f b nil = b.
+Proof.
+  apply idpath.
+Qed.
+
 Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
   foldr f b (cons x xs) = f x (foldr f b xs).
 Proof.
- reflexivity.
+  apply idpath.
 Qed.
 
 Lemma map_nil {A B : UU} (f : A -> B) : map f nil = nil.
@@ -153,7 +158,7 @@ Lemma map_compose {A B C : UU} (f : A → B) (g : B → C) (xs : list A) :
   map (g ∘ f) xs = map g (map f xs).
 Proof.
   revert xs. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs IH. now rewrite !map_cons, IH.
 Defined.
 
@@ -161,7 +166,7 @@ Lemma map_idfun {A : UU} (xs : list A) :
   map (idfun A) xs = xs.
 Proof.
   revert xs. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs IH. now rewrite !map_cons, IH.
 Defined.
 
@@ -169,9 +174,14 @@ Lemma map_homot {A B : UU} {f g : A → B} (h : f ~ g) (xs : list A) :
   map f xs = map g xs.
 Proof.
   revert xs. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs IH. now rewrite !map_cons, h, IH.
 Defined.
+
+Lemma foldr1_nil {A: UU} (f : A -> A -> A) (a : A) : foldr1 f a nil = a.
+Proof.
+  apply idpath.
+Qed.
 
 Lemma foldr1_cons_nil {A : UU} (f : A -> A -> A) (a : A) (x : A) :
   foldr1 f a (cons x nil) = x.
@@ -185,15 +195,36 @@ Proof.
 apply idpath.
 Qed.
 
+Lemma foldr1_map_nil {A : UU} {B : UU} (f : B -> B -> B) (b : B) (h : A -> B) :
+  foldr1_map f b h nil = b.
+Proof.
+  apply idpath.
+Qed.
+
+Lemma foldr1_map_cons_nil {A : UU} {B : UU} (f : B -> B -> B) (b : B) (h : A -> B)
+  (x : A) : foldr1_map f b h (cons x nil) = h x.
+Proof.
+  apply idpath.
+Qed.
+
+Lemma foldr1_map_cons {A : UU} {B : UU} (f : B -> B -> B) (b : B) (h : A -> B)
+  (x y : A) (xs : list A) :
+  foldr1_map f b h (cons x (cons y xs)) = f (h x) (foldr1_map f b h (cons y xs)).
+Proof.
+  apply idpath.
+Qed.
+
 Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
   foldr1_map f b h xs = foldr1 f b (map h xs).
 Proof.
   revert xs.
   induction xs as [[|n] xs].
-  - induction xs. cbn.
+  - induction xs.
+    rewrite foldr1_map_nil. rewrite map_nil. rewrite foldr1_nil. (* these steps could be done by cbn *)
     apply idpath.
   - induction n as [|n IH].
-    + induction xs as [m []]. cbn.
+    + induction xs as [m []].
+      change (1,, m,, tt) with (cons m nil). rewrite foldr1_map_cons_nil. rewrite map_cons. rewrite map_nil. rewrite foldr1_cons_nil. (* these steps could all be done by cbn *)
       apply idpath.
     + induction xs as [m [k xs]].
       assert (IHinst := IH (k,,xs)).
@@ -203,7 +234,7 @@ Proof.
       change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
       rewrite map_cons in IHinst.
       rewrite <- IHinst.
-      apply idpath.
+      apply foldr1_map_cons. (* this steps could be done by cbn and reflexivity *)
 Qed.
 
 End more_lists.
@@ -221,26 +252,26 @@ Local Infix "++" := concatenate.
 Lemma concatenateStep {X} (x:X) (r s:list X) :
   (x::r) ++ s = x :: (r ++ s).
 Proof.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma nil_concatenate {X} (r : list X) : nil ++ r = r.
-Proof. reflexivity. Defined.
+Proof. apply idpath. Defined.
 
 Lemma concatenate_nil {X} (r : list X) : r ++ nil = r.
-Proof. revert r. apply list_ind. reflexivity. intros x xs p. exact (maponpaths (cons x) p). Defined.
+Proof. revert r. apply list_ind. apply idpath. intros x xs p. exact (maponpaths (cons x) p). Defined.
 
 Lemma assoc_concatenate {X} (r s t : list X) : (r ++ s) ++ t = r ++ (s ++ t).
 Proof.
   revert r. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs p. now rewrite !concatenateStep, p.
 Defined.
 
 Lemma map_concatenate {X Y} (f : X → Y) (r s : list X) : map f (r ++ s) = map f r ++ map f s.
 Proof.
   revert r. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs p. now rewrite mapStep, !concatenateStep, mapStep, p.
 Defined.
 
@@ -248,7 +279,7 @@ Lemma foldr_concatenate {X Y : UU} (f : X → Y) (l : list X) :
   foldr concatenate [] (map (λ x, f x::[]) l) = map f l.
 Proof.
   revert l. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x l IH. now rewrite !map_cons, foldr_cons, IH.
 Defined.
 
@@ -256,9 +287,9 @@ Lemma foldr1_concatenate {X Y : UU} (f : X → Y) (l : list X) :
   map f l = foldr1 concatenate [] (map (λ x, f x::[]) l).
 Proof.
   revert l. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x. refine (list_ind _ _ _).
-    + reflexivity.
+    + intro. apply idpath.
     + intros x' l _ IH. exact (maponpaths (cons (f x)) IH).
 Defined.
 
@@ -268,7 +299,7 @@ Definition append {X} (x : X) (l : list X) : list X :=
   l ++ x::[].
 
 Lemma appendStep {X} (x y : X) (l : list X) : append x (y::l) = y::append x l.
-  Proof. reflexivity. Defined.
+  Proof. apply idpath. Defined.
 
 Lemma append_concatenate {X} (x : X) (l s : list X) : append x (l ++ s) = l ++ append x s.
   Proof. apply assoc_concatenate. Defined.
@@ -282,15 +313,15 @@ Definition reverse {X} : list X → list X :=
   foldr append [].
 
 Lemma reverse_nil (X : Type) : reverse (@nil X) = [].
-Proof. reflexivity. Defined.
+Proof. apply idpath. Defined.
 
 Lemma reverseStep {X} (x : X) (r : list X) : reverse (x::r) = append x (reverse r).
-Proof. reflexivity. Defined.
+Proof. apply idpath. Defined.
 
 Lemma map_reverse {X Y} (f : X → Y) (r : list X) : map f (reverse r) = reverse (map f r).
 Proof.
   revert r. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs p. now rewrite mapStep, !reverseStep, map_append, p.
 Defined.
 
@@ -307,7 +338,7 @@ Proof. unfold append. now rewrite reverse_concatenate, reverseStep, reverse_nil.
 Lemma reverse_reverse {X} (r : list X) : reverse (reverse r) = r.
 Proof.
   revert r. apply list_ind.
-  - reflexivity.
+  - apply idpath.
   - intros x xs p. now rewrite !reverseStep, reverse_append, p.
 Defined.
 
@@ -324,7 +355,7 @@ Lemma flattenStep {X} (x:list X) (m : list(list X)) : flatten (x::m) = concatena
 Proof.
   unfold flatten.
   rewrite list_ind_compute_2.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).

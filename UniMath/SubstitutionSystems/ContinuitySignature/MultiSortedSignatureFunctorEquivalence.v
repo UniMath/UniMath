@@ -352,6 +352,9 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
   Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
+  Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat_alt _ _ TC.
+
+
   Lemma sortToC_hasbinproducts
     : BinProducts [sortToC, sortToC].
   Proof.
@@ -372,6 +375,8 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       := hat_exp_functor_list sort Hsort C TC BP BC CC.
   Let hat_exp_functor_list'0
       := hat_exp_functor_list' sort Hsort C TC BP BC CC.
+  Let hat_exp_functor_list'_optimized0
+      := hat_exp_functor_list'_optimized sort Hsort C TC BP BC CC.
 
   Definition hat_exp_functor_list'_piece_test
              (xst : (list sort × sort) × sort)
@@ -400,8 +405,6 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       use nat_z_iso_inv.
       apply post_comp_functor_of_comp.
   Defined.
-
-
 
   Definition hat_functor_preserves_binproducts (t : sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
@@ -673,12 +676,6 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         apply assoc.
   Defined.
 
-
-  Lemma foldr1_nil {A: UU} (f : A -> A -> A) (a : A) :  foldr1 f a nil = a.
-  Proof.
-    apply idpath.
-  Qed.
-
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
@@ -703,19 +700,16 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
       {
         induction xs as [[|n] xs].
-        - induction xs. unfold exp_functor_list at 1. rewrite map_cons. rewrite map_nil. rewrite foldr1_cons_nil.
-          unfold exp_functor_list at 1. rewrite map_nil. rewrite foldr1_nil.
-          (* this looks very reasonable *)
-          admit.
+        - induction xs. unfold exp_functor_list at 1. rewrite foldr1_map_cons_nil.
+          unfold exp_functor_list at 1. rewrite foldr1_map_nil.
+          apply nat_z_iso_inv.
+          exact (terminal_BinProduct_of_functors_unit_l _ _ BPC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
         - induction xs.
           change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
           unfold exp_functor_list at 1.
-          do 2 rewrite map_cons.
-          rewrite foldr1_cons.
-          rewrite <- map_cons.
+          rewrite foldr1_map_cons.
           change (nat_z_iso (BinProduct_of_functors BPC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
-          (* this looks very reasonable *)
-        admit.
+          apply BinProduct_of_functors_commutes.
       }
 
       use (nat_z_iso_comp (post_whisker_nat_z_iso q _)).
@@ -726,7 +720,56 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       + apply (BinProducts_functor_precat _ C BP).
       + apply hat_functor_preserves_binproducts.
         exact c.
-  Admitted.
+  Defined.  (* the result will not be needed in the sequel *)
+
+
+  Definition hat_exp_functor_list'_optimized_test
+             (xst : list (list sort × sort) × sort)
+             (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
+    : nat_z_iso (hat_exp_functor_list0 xst)
+                (hat_exp_functor_list'_optimized0 xst).
+  Proof.
+    induction xst as [xs t]; revert t.
+    induction xs as [[|n] xs].
+    - induction xs.
+      intro t.
+      use tpair.
+      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
+      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
+    - induction n as [|n IH].
+      + induction xs as [m []].
+        change (1,, m,, tt) with (cons m nil).
+        intro t.
+        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
+        rewrite foldr1_map_cons_nil.
+        (* unfold hat_exp_functor_list0, hat_exp_functor_list. *)
+        exact (hat_exp_functor_list'_piece_test (m,,t)).
+      + induction xs as [m [k xs]].
+        intro t.
+        assert (IHinst := IH (k,,xs) t).
+        change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
+        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
+        rewrite foldr1_map_cons.
+        change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
+        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized in IHinst.
+        use nat_z_iso_comp.
+        3: {
+          use nat_z_iso_BinProduct_of_functors.
+          4: exact IHinst.
+          2: exact (hat_exp_functor_list'_piece_test (m ,, t)).
+        }
+        clear IH IHinst.
+        unfold hat_exp_functor_list0, hat_exp_functor_list.
+        unfold exp_functor_list.
+        change (pr1 (cons m (cons k (n,, xs)),, t)) with (cons m (cons k (n,, xs))).
+        rewrite foldr1_map_cons.
+        apply BinProduct_of_functors_distr.
+        apply post_comp_functor_preserves_binproduct.
+        * apply BP.
+        * apply (BinProducts_functor_precat _ C BP).
+        * apply hat_functor_preserves_binproducts.
+          exact c.
+  Defined.
 
   Definition MultiSortedSigToFunctor_test
              (M : MultiSortedSig sort)
@@ -736,7 +779,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Proof.
     use coproduct_of_functors_nat_z_iso.
     intro i.
-    apply hat_exp_functor_list'_test.
+    apply hat_exp_functor_list'_optimized_test.
     exact c.
   Defined.
 
@@ -755,6 +798,6 @@ Lemma is_omega_cont_MultiSortedSigToFunctor
   : is_omega_cont (MultiSortedSigToFunctor sort (hlevelntosn 2 _ Hsort_set) C TC BP BC CC M).
 Proof.
   use nat_z_iso_preserve_ωlimits.
-  3: apply (nat_z_iso_inv (MultiSortedSigToFunctor_test _ _ _ _ IC _ _ PC _ M c)).
+  3: apply (nat_z_iso_inv (MultiSortedSigToFunctor_test _ _ _ _ _ _ CC _ c)).
   apply (is_omega_cont_MultiSortedSigToFunctor' sort (hlevelntosn 2 _ Hsort_set) C TC BP BC CC _ d M).
 Defined.
