@@ -110,6 +110,22 @@ Section FixTheContext.
       repeat (apply BinProducts_functor_precat) ; exact BP.
   Defined.
 
+(** optimized version that does not introduce the terminal element in the singleton case: *)
+  Definition hat_exp_functor_list''
+             (xst : list (list sort × sort) × sort)
+    : functor [sortToC,sortToC] [sortToC,sortToC].
+  Proof.
+    induction xst as [xs t].
+    set (T := constant_functor [sortToC,sortToC] [sortToC,C]
+                               (constant_functor sortToC C TC)).
+    set (TT := (functor_composite T (post_comp_functor (hat_functor sort Hsort C CC t)))).
+    transparent assert (BPsortToC1 :  (BinProducts [sortToC, sortToC])).
+    { repeat (apply BinProducts_functor_precat); exact BP. }
+    set (XS := map  (fun ap => (hat_exp_functor_list'_piece (ap,,t))) xs).
+    exact (foldr1 (λ F G, BinProduct_of_functors BPsortToC1 F G) TT XS).
+  Defined.
+  (** in fact, [foldr1] should everywhere be replaced by [foldr1_map] *)
+
   Lemma MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
     functor [sortToC,sortToC] [sortToC,sortToC].
   Proof.
