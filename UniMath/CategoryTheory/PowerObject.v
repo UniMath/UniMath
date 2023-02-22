@@ -157,35 +157,23 @@ Proof.
     use path_to_ctr.
     cbn.
     unfold construction.
-    rewrite <-(BinProductOfArrows_compxid), assoc'.
+    rewrite 
+      <-BinProductOfArrows_idxcomp,
+      <-(BinProductOfArrows_compxid), assoc'.
     fold (construction h).
     rewrite
       (PowerObject_transpose_tri (construction h)),
-      assoc,
-      BinProductOfArrows_comp,
+      assoc.
+    rewrite BinProductOfArrows_comp,
       (id_right h'), <-(id_left h'),
       (id_left (PowerObject_transpose _)),
-      <-(id_right (PowerObject_transpose _)).
-    rewrite <-BinProductOfArrows_comp,
-      !assoc',
-      (PowerObject_transpose_tri
-        (h' ⨱ (identity (PowerObject_on_ob b)) · PowerObject_inPred b)),
-      assoc.
-    use cancel_postcomposition.
-    rewrite BinProductOfArrows_idxcomp.
-    use BinProductArrowUnique.
-    { rewrite
-        id_right,
-        BinProductOfArrowsPr1,
-        id_right.
-      apply idpath. }
-    rewrite
-      id_right,
-      id_left,
-      BinProductOfArrowsPr2.
-    use cancel_precomposition.
-    use cancel_postcomposition.
-    use path_to_ctr.
+      <-(id_right (PowerObject_transpose _)),
+      <-BinProductOfArrows_comp,
+      !assoc', id_left, id_right.
+    fold (construction h').
+    rewrite (PowerObject_transpose_tri (construction h')),
+      !assoc.
+    rewrite <-(PowerObject_transpose_tri (construction h')), <-(PowerObject_transpose_tri (construction h)).
     apply idpath.
 Defined.
 
