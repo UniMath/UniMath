@@ -259,7 +259,6 @@ Proof.
       intros g.
       use pathsinv0.
       use path_to_ctr.
-      use cancel_precomposition.
       apply idpath.
 Defined.
 
