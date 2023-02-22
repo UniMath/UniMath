@@ -175,7 +175,7 @@ Proof.
       !assoc.
     rewrite <-(PowerObject_transpose_tri (construction h')), <-(PowerObject_transpose_tri (construction h)).
     apply idpath.
-Defined.
+Qed.
 
 Definition PowerObject_functor : functor C^op C.
 Proof.
