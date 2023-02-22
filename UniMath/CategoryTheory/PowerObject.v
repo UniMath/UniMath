@@ -232,7 +232,7 @@ Proof.
     <-(PowerObject_transpose_tri f).
     cbn.
   apply idpath.
-Defined.
+Qed.
 
 Definition PowerObject_nattrans : nat_trans HomxO HomP.
 Proof.
