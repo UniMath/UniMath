@@ -322,8 +322,6 @@ Definition PowerObject_charname_nat_z_iso_tri {b : C} (f : C ⟦ b , Ω ⟧)
 Proof.
   rewrite (PowerObject_transpose_tri).
   cbn.
-  unfold PowerObject_nt_data, binproduct_nat_trans_pr1_data.
-  cbn.
   rewrite id_right.
   apply idpath.
 Defined.
