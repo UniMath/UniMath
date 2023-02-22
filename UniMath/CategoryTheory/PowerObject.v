@@ -123,7 +123,7 @@ Let construction {c b : C} (h : C ⟦b,c⟧):=
   the following diagram commute
   <<
                     h x id
-            b x Pc --------> c x PC
+            b x Pc --------> c x Pc
             |                  |
     id x Ph |                  | inPred c
             v                  v
