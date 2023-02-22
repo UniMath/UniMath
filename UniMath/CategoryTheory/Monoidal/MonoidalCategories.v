@@ -476,3 +476,431 @@ Proof.
 Qed.
 
 End coherence_lemmas.
+
+(** Accessors and notations for monoidal categories *)
+Declare Scope moncat.
+Local Open Scope moncat.
+
+Definition monoidal_cat_tensor_pt
+           {V : monoidal_cat}
+           (x y : V)
+  : V
+  := monoidal_cat_tensor V (x ,, y).
+
+Notation "x ⊗ y" :=  (monoidal_cat_tensor _ (x ,, y)) : moncat.
+
+Definition monoidal_cat_tensor_mor
+           {V : monoidal_cat}
+           {x₁ x₂ y₁ y₂ : V}
+           (f : x₁ --> x₂)
+           (g : y₁ --> y₂)
+  : x₁ ⊗ y₁ --> x₂ ⊗ y₂
+  := # (monoidal_cat_tensor V) (f #, g).
+
+Notation "f #⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31) : moncat.
+
+Notation "𝟙" := (monoidal_cat_unit _) : moncat. (* \b1 *)
+
+Section MonoidalCatAccessors.
+  Context {V : monoidal_cat}.
+
+  Definition tensor_id_id
+             (x y : V)
+    : identity x #⊗ identity y = identity (x ⊗ y).
+  Proof.
+    apply tensor_id.
+  Qed.
+
+  Definition tensor_comp_mor
+             {x₁ x₂ x₃ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : (f · f') #⊗ (g · g') = f #⊗ g · f' #⊗ g'.
+  Proof.
+    apply tensor_comp.
+  Qed.
+
+  Definition tensor_comp_id_l
+             {x y₁ y₂ y₃ : V}
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : (identity x) #⊗ (g · g') = (identity x) #⊗ g · (identity x) #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_l_id_l
+             {x₁ x₂ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : f #⊗ (g · g') = (identity _) #⊗ g · f #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_l_id_r
+             {x₁ x₂ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : f #⊗ (g · g') = f #⊗ g · (identity _) #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_id_r
+             {x₁ x₂ x₃ y : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+    : (f · f') #⊗ (identity y) = f #⊗ (identity y) · f' #⊗ (identity y).
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_r_id_l
+             {x₁ x₂ x₃ y₁ y₂ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂)
+    : (f · f') #⊗ g = f #⊗ (identity _) · f' #⊗ g.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_r_id_r
+             {x₁ x₂ x₃ y₁ y₂ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂)
+    : (f · f') #⊗ g = f #⊗ g · f' #⊗ (identity _).
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_split
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  Proof.
+    refine (_ @ tensor_comp_mor _ _ _ _).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_split'
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ g = f #⊗ identity _ · identity _ #⊗ g.
+  Proof.
+    refine (_ @ tensor_comp_mor _ _ _ _).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_swap
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ identity _ · identity _ #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  Proof.
+    rewrite <- tensor_split, <- tensor_split'.
+    apply idpath.
+  Qed.
+
+  Definition tensor_swap'
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : identity _ #⊗ g · f #⊗ identity _ = f #⊗ identity _ · identity _ #⊗ g.
+  Proof.
+    rewrite <- tensor_split, <- tensor_split'.
+    apply idpath.
+  Qed.
+
+  Definition mon_lunitor
+             (x : V)
+    : 𝟙 ⊗ x --> x
+    := monoidal_cat_left_unitor V x.
+
+  Definition tensor_lunitor
+             {x y : V}
+             (f : x --> y)
+    : identity _ #⊗ f · mon_lunitor y
+      =
+      mon_lunitor x · f.
+  Proof.
+    exact (nat_trans_ax (monoidal_cat_left_unitor V) x y f).
+  Qed.
+
+  Definition mon_linvunitor
+             (x : V)
+    : x --> 𝟙 ⊗ x
+    := nat_z_iso_inv (monoidal_cat_left_unitor V) x.
+
+  Definition tensor_linvunitor
+             {x y : V}
+             (f : x --> y)
+    : f · mon_linvunitor y
+      =
+      mon_linvunitor x · identity _ #⊗ f.
+  Proof.
+    exact (nat_trans_ax (nat_z_iso_inv (monoidal_cat_left_unitor V)) x y f).
+  Qed.
+
+  Definition mon_lunitor_linvunitor
+             (x : V)
+    : mon_lunitor x · mon_linvunitor x = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_inv_after_z_iso (_ ,, pr2 (monoidal_cat_left_unitor V) x)).
+  Qed.
+
+  Definition mon_linvunitor_lunitor
+             (x : V)
+    : mon_linvunitor x · mon_lunitor x = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_after_z_iso_inv (_ ,, pr2 (monoidal_cat_left_unitor V) x)).
+  Qed.
+
+  Definition mon_runitor
+             (x : V)
+    : x ⊗ 𝟙 --> x
+    := monoidal_cat_right_unitor V x.
+
+  Definition tensor_runitor
+             {x y : V}
+             (f : x --> y)
+    : f #⊗ identity _ · mon_runitor y
+      =
+      mon_runitor x · f.
+  Proof.
+    exact (nat_trans_ax (monoidal_cat_right_unitor V) x y f).
+  Qed.
+
+  Definition mon_rinvunitor
+             (x : V)
+    : x --> x ⊗ 𝟙
+    := nat_z_iso_inv (monoidal_cat_right_unitor V) x.
+
+  Definition tensor_rinvunitor
+             {x y : V}
+             (f : x --> y)
+    : f · mon_rinvunitor y
+      =
+      mon_rinvunitor x · f #⊗ identity _.
+  Proof.
+    exact (nat_trans_ax (nat_z_iso_inv (monoidal_cat_right_unitor V)) x y f).
+  Qed.
+
+  Definition mon_runitor_rinvunitor
+             (x : V)
+    : mon_runitor x · mon_rinvunitor x = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_inv_after_z_iso (_ ,, pr2 (monoidal_cat_right_unitor V) x)).
+  Qed.
+
+  Definition mon_rinvunitor_runitor
+             (x : V)
+    : mon_rinvunitor x · mon_runitor x = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_after_z_iso_inv (_ ,, pr2 (monoidal_cat_right_unitor V) x)).
+  Qed.
+
+  Definition mon_lassociator
+             (x y z : V)
+    : (x ⊗ y) ⊗ z --> x ⊗ (y ⊗ z)
+    := monoidal_cat_associator V ((x ,, y) ,, z).
+
+  Definition tensor_lassociator
+             {x₁ x₂ y₁ y₂ z₁ z₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+             (h : z₁ --> z₂)
+    : (f #⊗ g) #⊗ h · mon_lassociator _ _ _
+      =
+      mon_lassociator _ _ _ · f #⊗ (g #⊗ h).
+  Proof.
+    exact (nat_trans_ax
+             (monoidal_cat_associator V)
+             ((x₁ ,, y₁) ,, z₁) ((x₂ ,, y₂) ,, z₂)
+             ((f ,, g) ,, h)).
+  Qed.
+
+  Definition mon_rassociator
+             (x y z : V)
+    : x ⊗ (y ⊗ z) --> (x ⊗ y) ⊗ z
+    := nat_z_iso_inv (monoidal_cat_associator V) ((x ,, y) ,, z).
+
+  Definition tensor_rassociator
+             {x₁ x₂ y₁ y₂ z₁ z₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+             (h : z₁ --> z₂)
+    : f #⊗ (g #⊗ h) · mon_rassociator _ _ _
+      =
+      mon_rassociator _ _ _ · (f #⊗ g) #⊗ h.
+  Proof.
+    exact (nat_trans_ax
+             (nat_z_iso_inv (monoidal_cat_associator V))
+             ((x₁ ,, y₁) ,, z₁) ((x₂ ,, y₂) ,, z₂)
+             ((f ,, g) ,, h)).
+  Qed.
+
+  Definition mon_lassociator_rassociator
+             (x y z : V)
+    : mon_lassociator x y z · mon_rassociator x y z = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_inv_after_z_iso
+             (_ ,, pr2 (monoidal_cat_associator V)
+                ((x ,, y) ,, z))).
+  Qed.
+
+  Definition mon_rassociator_lassociator
+             (x y z : V)
+    : mon_rassociator x y z · mon_lassociator x y z = identity _.
+  Proof.
+    cbn.
+    exact (z_iso_after_z_iso_inv
+             (_ ,, pr2 (monoidal_cat_associator V)
+                ((x ,, y) ,, z))).
+  Qed.
+
+  Definition mon_triangle
+             (x y : V)
+    : mon_runitor x #⊗ identity y
+      =
+      mon_lassociator x 𝟙 y · (identity x #⊗ mon_lunitor y).
+  Proof.
+    exact (monoidal_cat_triangle_eq V x y).
+  Qed.
+
+  Definition mon_inv_triangle
+             (x y : V)
+    : identity x #⊗ mon_linvunitor y
+      =
+      mon_rinvunitor x #⊗ identity y · mon_lassociator x 𝟙 y.
+  Proof.
+    refine (!_).
+    use (z_iso_inv_on_right
+           _ _ _
+           (functor_on_z_iso
+              (monoidal_cat_tensor V)
+              (precatbinprod_z_iso
+                 (nat_z_iso_pointwise_z_iso (monoidal_cat_right_unitor V) x)
+                 (identity_z_iso y)))).
+    use (z_iso_inv_on_left
+           _ _ _ _
+           (functor_on_z_iso
+              (monoidal_cat_tensor V)
+              (precatbinprod_z_iso
+                 (identity_z_iso x)
+                 (nat_z_iso_pointwise_z_iso (monoidal_cat_left_unitor V) y)))).
+    exact (mon_triangle x y).
+  Qed.
+
+  Definition mon_lunitor_triangle
+             (x y : V)
+    : mon_lassociator 𝟙 x y · mon_lunitor (x ⊗ y)
+      =
+      mon_lunitor x #⊗ identity y.
+  Proof.
+    exact (left_unitor_of_tensor x y).
+  Qed.
+
+  Definition mon_linvunitor_triangle
+             (x y : V)
+    : mon_linvunitor x #⊗ identity y · mon_lassociator 𝟙 x y
+      =
+      mon_linvunitor (x ⊗ y).
+  Proof.
+    exact (left_unitor_inv_of_tensor x y).
+  Qed.
+
+  Definition mon_runitor_triangle
+             (x y : V)
+    : mon_rassociator x y 𝟙 · mon_runitor (x ⊗ y)
+      =
+      identity x #⊗ mon_runitor y.
+  Proof.
+    etrans.
+    {
+      apply maponpaths.
+      apply right_unitor_of_tensor.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      refine (maponpaths (λ z, z · _) _).
+      apply mon_rassociator_lassociator.
+    }
+    apply id_left.
+  Qed.
+
+  Definition mon_rinvunitor_triangle
+             (x y : V)
+    : identity x #⊗ mon_rinvunitor y · mon_rassociator x y 𝟙
+      =
+      mon_rinvunitor (x ⊗ y).
+  Proof.
+    etrans.
+    {
+      refine (maponpaths (λ z, z · _) _).
+      exact (right_unitor_inv_of_tensor x y).
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply mon_lassociator_rassociator.
+    }
+    apply id_right.
+  Qed.
+
+  Definition mon_runitor_I_mon_lunitor_I
+    : mon_runitor 𝟙 = mon_lunitor 𝟙.
+  Proof.
+    refine (!_).
+    exact left_unitor_right_unitor_of_unit.
+  Qed.
+
+  Definition mon_lunitor_I_mon_runitor_I
+    : mon_lunitor 𝟙 = mon_runitor 𝟙.
+  Proof.
+    rewrite mon_runitor_I_mon_lunitor_I.
+    apply idpath.
+  Qed.
+
+  Definition mon_rinvunitor_I_mon_linvunitor_I
+    : mon_rinvunitor 𝟙 = mon_linvunitor 𝟙.
+  Proof.
+    cbn.
+    refine (_ @ id_left _).
+    use (z_iso_inv_on_left _ _ _ _ (_ ,, pr2 (monoidal_cat_left_unitor V) 𝟙)).
+    cbn.
+    refine (!_).
+    use (z_iso_inv_on_right _ _ _ (_ ,, pr2 (monoidal_cat_right_unitor V) 𝟙)).
+    cbn.
+    rewrite id_right.
+    exact mon_lunitor_I_mon_runitor_I.
+  Qed.
+
+  Definition mon_linvunitor_I_mon_rinvunitor_I
+    : mon_linvunitor 𝟙 = mon_rinvunitor 𝟙.
+  Proof.
+    rewrite mon_rinvunitor_I_mon_linvunitor_I.
+    apply idpath.
+  Qed.
+End MonoidalCatAccessors.

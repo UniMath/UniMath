@@ -66,6 +66,7 @@ DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
 
 Core/Examples/StructuredCategories.v
+DisplayedBicats/Examples/EnrichedCats.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
@@ -324,3 +325,6 @@ OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
 
 PseudoFunctors/DisplayedUniversalArrow.v
+
+RezkCompletions/BicatToLocalUnivalentBicat.v
+RezkCompletions/RezkCompletionOfBicategory.v

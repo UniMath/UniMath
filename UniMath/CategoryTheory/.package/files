@@ -24,6 +24,7 @@ categories/CategoryOfSetCategories.v
 opp_precat.v
 OppositeCategory/Core.v
 Groupoids.v
+ZigZag.v
 ProductCategory.v
 PrecategoryBinProduct.v
 categories/HSET/Core.v
@@ -110,6 +111,7 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
 rezk_completion.v
+RezkCompletion.v
 UnitorsAndAssociatorsForEndofunctors.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -191,6 +193,8 @@ ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
+
+Connected.v
 
 categories/CartesianCubicalSets.v
 
@@ -291,12 +295,42 @@ Monoidal/Examples/SetWithSubset.v
 Enriched/Enriched.v
 Enriched/ChangeOfBase.v
 Enriched/Opposite.v
+Enriched/Enrichment.v
+Enriched/UnderlyingCategory.v
+Enriched/EnrichmentEquiv.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
 GrothendieckConstruction/Projection.v
 GrothendieckConstruction/IsOpfibration.v
 GrothendieckConstruction/IsPullback.v
+
+# Twosided displayed categories
+TwoSidedDisplayedCats/TwoSidedDispCat.v
+TwoSidedDisplayedCats/Isos.v
+TwoSidedDisplayedCats/Univalence.v
+TwoSidedDisplayedCats/Discrete.v
+TwoSidedDisplayedCats/Total.v
+TwoSidedDisplayedCats/TwoSidedFibration.v
+TwoSidedDisplayedCats/Fiber.v
+
+TwoSidedDisplayedCats/DisplayedFunctor.v
+TwoSidedDisplayedCats/DisplayedNatTrans.v
+
+TwoSidedDisplayedCats/Examples/Constant.v
+TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
+TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
+
+TwoSidedDisplayedCats/Examples/Arrow.v
+TwoSidedDisplayedCats/Examples/Bimodules.v
+TwoSidedDisplayedCats/Examples/Comma.v
+TwoSidedDisplayedCats/Examples/IsoComma.v
+TwoSidedDisplayedCats/Examples/Lenses.v
+TwoSidedDisplayedCats/Examples/Product.v
+TwoSidedDisplayedCats/Examples/Profunctor.v
+TwoSidedDisplayedCats/Examples/Reindex.v
+TwoSidedDisplayedCats/Examples/Relations.v
+TwoSidedDisplayedCats/Examples/Spans.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
