@@ -9,7 +9,7 @@
  specialize that to obtain an enrichment for slice categories.
 
  Let's be more specific. Suppose that we have a category `C` and an
- object `x` in `C`. To construct the slice category `C/x`, we take the
+ object `x` in `C`. To construct the slice category `C/x` we take the
  category of dialgebras between the identity and the functor that is
  constantly `x`. As such, the objects of this category are pairs of an
  object `a` in `C` together with a morphism `a --> x`. As such, this
@@ -17,7 +17,22 @@
  said for morphisms.
 
  Note that we assume that the monoidal category `V` has equalizers and
- that the unit is terminal.
+ that the unit is terminal. The reason for that, is because of how
+ morphisms in the slice category are defined. If we have two objects
+ `f : a --> x` and `g : b --> x` in the slice `C/x`, then a morphism
+ from `f` to `g` consists of a morphism `h : a --> b` such that we have
+ `f = g · h`. Equalizers are used to o encode the commutativity
+ requirement. If one were to define it concretely, one would take the
+ equalizer of the following diagram
+ ```
+               h ↦ h · g
+             ------------>
+    a --> b                a --> x
+             ----> 𝟙 ---->
+                      f
+ ```
+ Instead of this concrete definition, we reuse that we already defined
+ the enriched category of dialgebras.
 
  Contents
  1. Enrichment for slice categories
