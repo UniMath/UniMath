@@ -290,7 +290,6 @@ Proof.
   use make_is_z_isomorphism.
   + intro phi.
     cbn in c, phi.
-    change (setquot (z_iso_eqrel (C:=Subobjectscategory c))).
     use setquotpr.
     use (PullbackSubobject PB _ phi).
     use (Subobjectscategory_ob (true O)).
