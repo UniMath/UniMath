@@ -303,11 +303,9 @@ Proof.
   + generalize c.
     use post_whisker_z_iso_is_z_iso.
     use op_nt_is_z_iso.
-    induction idxT_nat_z_iso as [idxT_nattrans Th].
-    exact Th.
+    use pr2_nat_z_iso.
   + generalize c.
-    induction PowerObject_nat_z_iso_Tfixed as [nattrans Th].
-    exact Th.
+    use (pr2_nat_z_iso PowerObject_nat_z_iso_Tfixed).
 Defined.
 
 Definition PowerObject_charname_nat_z_iso : nat_z_iso (contra_homSet_functor Ω) (functor_fix_fst_arg C^op C^op hset_category HomP T).
