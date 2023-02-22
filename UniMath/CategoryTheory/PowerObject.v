@@ -204,9 +204,8 @@ Definition HomP : functor (category_binproduct C^op C^op) hset_category
 
 Definition PowerObject_nt_data : nat_trans_data HomxO HomP.
 Proof.
-  intros ab f.
-  use PowerObject_transpose.
-  exact f.
+  intro ab.
+  exact PowerObject_transpose.
 Defined.
 
 Theorem PowerObject_nt_is_nat_trans : is_nat_trans HomxO HomP PowerObject_nt_data.
