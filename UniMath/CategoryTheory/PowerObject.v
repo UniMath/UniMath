@@ -217,29 +217,22 @@ Proof.
   apply pathsinv0.
   use path_to_ctr.
   cbn.
+  rewrite id_right.
+  rewrite <-BinProductOfArrows_idxcomp,
+    !assoc'.
+  rewrite <-(PowerObject_transpose_tri).
+  rewrite !assoc,
+    BinProductOfArrows_comp,
+    id_left, id_right.
   rewrite
-    id_right,
     (PowerObject_transpose_tri f),
     assoc,
     BinProductOfArrows_comp,
-    id_right.
-  use (pathscomp0(b := (identity b') ⨱ (a'a · (PowerObject_transpose f))·
-  b'b ⨱ (identity (_))·
-  (PowerObject_inPred b)
-  )).
-  { use cancel_postcomposition.
+    id_right,
+    <-(PowerObject_transpose_tri f).
     cbn.
-    rewrite 
-      BinProductOfArrows_comp,
-      id_right,
-      id_left.
-    apply idpath. }
-  apply pathsinv0.
-  rewrite <-(PowerObject_transpose_tri f), <-BinProductOfArrows_idxcomp, !assoc'.
-  use cancel_precomposition.
-  use pathsinv0.
-  use PowerObject_transpose_tri.
-Qed.
+  apply idpath.
+Defined.
 
 Definition PowerObject_nattrans : nat_trans HomxO HomP.
 Proof.
