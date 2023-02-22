@@ -157,7 +157,7 @@ Proof.
     use path_to_ctr.
     cbn.
     unfold construction.
-    rewrite 
+    rewrite
       <-BinProductOfArrows_idxcomp,
       <-(BinProductOfArrows_compxid), assoc'.
     fold (construction h).
