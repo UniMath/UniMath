@@ -209,9 +209,9 @@ End Sorted_Option_Functor.
 (** Sorted option functor for lists *)
 Definition option_list (xs : list sort) : [sortToC,sortToC].
 Proof.
-(* This should be foldr1 in order to avoid composing with the
+(* This should be [foldr1] or [foldr1_map] in order to avoid composing with the
    identity functor on the right in the base case *)
-use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+use (foldr1_map (λ F G, F ∙ G) (functor_identity _) sorted_option_functor xs).
 Defined.
 
 
@@ -243,10 +243,9 @@ Proof.
 (* If the list is empty we output the constant functor *)
 set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
-set (XS := map exp_functor xs).
-(* This should be foldr1 in order to avoid composing with the
+(* This should be [foldr1] or [foldr1_map] in order to avoid composing with the
    constant functor in the base case *)
-exact (foldr1 (λ F G, BinProduct_of_functors BPC F G) T XS).
+exact (foldr1_map (λ F G, BinProduct_of_functors BPC F G) T exp_functor xs).
 Defined.
 
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
