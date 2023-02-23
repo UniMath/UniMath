@@ -123,7 +123,7 @@ Let construction {c b : C} (h : C ⟦b,c⟧):=
   the following diagram commute
   <<
                     h x id
-            b x Pc --------> c x PC
+            b x Pc --------> c x Pc
             |                  |
     id x Ph |                  | inPred c
             v                  v
@@ -157,37 +157,25 @@ Proof.
     use path_to_ctr.
     cbn.
     unfold construction.
-    rewrite <-(BinProductOfArrows_compxid), assoc'.
+    rewrite
+      <-BinProductOfArrows_idxcomp,
+      <-(BinProductOfArrows_compxid), assoc'.
     fold (construction h).
     rewrite
       (PowerObject_transpose_tri (construction h)),
-      assoc,
-      BinProductOfArrows_comp,
+      assoc.
+    rewrite BinProductOfArrows_comp,
       (id_right h'), <-(id_left h'),
       (id_left (PowerObject_transpose _)),
-      <-(id_right (PowerObject_transpose _)).
-    rewrite <-BinProductOfArrows_comp,
-      !assoc',
-      (PowerObject_transpose_tri
-        (h' ⨱ (identity (PowerObject_on_ob b)) · PowerObject_inPred b)),
-      assoc.
-    use cancel_postcomposition.
-    rewrite BinProductOfArrows_idxcomp.
-    use BinProductArrowUnique.
-    { rewrite
-        id_right,
-        BinProductOfArrowsPr1,
-        id_right.
-      apply idpath. }
-    rewrite
-      id_right,
-      id_left,
-      BinProductOfArrowsPr2.
-    use cancel_precomposition.
-    use cancel_postcomposition.
-    use path_to_ctr.
+      <-(id_right (PowerObject_transpose _)),
+      <-BinProductOfArrows_comp,
+      !assoc', id_left, id_right.
+    fold (construction h').
+    rewrite (PowerObject_transpose_tri (construction h')),
+      !assoc.
+    rewrite <-(PowerObject_transpose_tri (construction h')), <-(PowerObject_transpose_tri (construction h)).
     apply idpath.
-Defined.
+Qed.
 
 Definition PowerObject_functor : functor C^op C.
 Proof.
@@ -216,9 +204,8 @@ Definition HomP : functor (category_binproduct C^op C^op) hset_category
 
 Definition PowerObject_nt_data : nat_trans_data HomxO HomP.
 Proof.
-  intros ab f.
-  use PowerObject_transpose.
-  exact f.
+  intro ab.
+  exact PowerObject_transpose.
 Defined.
 
 Theorem PowerObject_nt_is_nat_trans : is_nat_trans HomxO HomP PowerObject_nt_data.
@@ -230,28 +217,21 @@ Proof.
   apply pathsinv0.
   use path_to_ctr.
   cbn.
+  rewrite id_right.
+  rewrite <-BinProductOfArrows_idxcomp,
+    !assoc'.
+  rewrite <-(PowerObject_transpose_tri).
+  rewrite !assoc,
+    BinProductOfArrows_comp,
+    id_left, id_right.
   rewrite
-    id_right,
     (PowerObject_transpose_tri f),
     assoc,
     BinProductOfArrows_comp,
-    id_right.
-  use (pathscomp0(b := (identity b') ⨱ (a'a · (PowerObject_transpose f))·
-  b'b ⨱ (identity (_))·
-  (PowerObject_inPred b)
-  )).
-  { use cancel_postcomposition.
+    id_right,
+    <-(PowerObject_transpose_tri f).
     cbn.
-    rewrite 
-      BinProductOfArrows_comp,
-      id_right,
-      id_left.
-    apply idpath. }
-  apply pathsinv0.
-  rewrite <-(PowerObject_transpose_tri f), <-BinProductOfArrows_idxcomp, !assoc'.
-  use cancel_precomposition.
-  use pathsinv0.
-  use PowerObject_transpose_tri.
+  apply idpath.
 Qed.
 
 Definition PowerObject_nattrans : nat_trans HomxO HomP.
@@ -279,7 +259,6 @@ Proof.
       intros g.
       use pathsinv0.
       use path_to_ctr.
-      use cancel_precomposition.
       apply idpath.
 Defined.
 
@@ -324,11 +303,9 @@ Proof.
   + generalize c.
     use post_whisker_z_iso_is_z_iso.
     use op_nt_is_z_iso.
-    induction idxT_nat_z_iso as [idxT_nattrans Th].
-    exact Th.
+    use pr2_nat_z_iso.
   + generalize c.
-    induction PowerObject_nat_z_iso_Tfixed as [nattrans Th].
-    exact Th.
+    use (pr2_nat_z_iso PowerObject_nat_z_iso_Tfixed).
 Defined.
 
 Definition PowerObject_charname_nat_z_iso : nat_z_iso (contra_homSet_functor Ω) (functor_fix_fst_arg C^op C^op hset_category HomP T).
@@ -344,8 +321,6 @@ Definition PowerObject_charname_nat_z_iso_tri {b : C} (f : C ⟦ b , Ω ⟧)
     = (BinProductPr1 C (Prod b T) · f).
 Proof.
   rewrite (PowerObject_transpose_tri).
-  cbn.
-  unfold PowerObject_nt_data, binproduct_nat_trans_pr1_data.
   cbn.
   rewrite id_right.
   apply idpath.
