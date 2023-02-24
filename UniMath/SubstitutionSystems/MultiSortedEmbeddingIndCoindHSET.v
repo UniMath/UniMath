@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
@@ -51,7 +52,7 @@ Section A.
   Local Definition σcoind
     := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort_set HSET TerminalHSET InitialHSET
          BinProductsHSET BinCoproductsHSET ProductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
-         propcoproducts_commute_binproductsHSET I_coproduct_distribute_over_omega_limits_HSET sig.
+         propcoproducts_commute_binproductsHSET I_coproduct_distribute_over_omega_limits_HSET sig is_univalent_HSET.
 
   Local Definition Tcoind : [sortToHSET, sortToHSET] := pr1 σcoind.
 

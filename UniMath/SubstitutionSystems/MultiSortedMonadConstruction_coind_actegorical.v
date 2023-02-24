@@ -13,6 +13,7 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -29,6 +30,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
@@ -426,7 +428,7 @@ Section monad.
   Let Id_H := Id_H sortToC BCsortToC.
 
   (** Construction of terminal coalgebra for the omega-continuous signature functor with lax lineator *)
-  Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) :
+  Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
     Terminal (CoAlg_category (Id_H (MultiSortedSigToFunctor sig))).
   Proof.
     use limCoAlgTerminal.
@@ -449,35 +451,37 @@ Section monad.
         }
 
         set (q := functor_category_ω_limits_distribute_over_I_coproducts sortToC  (bool,, isasetbool) HcoCsortToC CP'' CP'_distr sortToC).
-        apply (ω_limits_distribute_over_I_coproducts_independent_of_product _ _ q).
+        use (ω_limits_distribute_over_I_coproducts_independent_of_product _ _ _ q).
+        do 2 apply is_univalent_functor_category.
+        apply Cuniv.
       + exact (is_omega_cont_MultiSortedSigToFunctor sig).
     - apply HcoCsortToC1.
   Defined.
 
-  Definition coindGHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) :
+  Definition coindGHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
     ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor sig) (MultiSortedSigToStrengthFromSelfCAT sig).
   Proof.
     use (terminal_coalg_to_ghss (MultiSortedSigToStrengthFromSelfCAT sig) BCsortToC1).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
-    - exact (pr1 (coindCodatatypeOfMultisortedBindingSig_CAT sig)).
-    - exact (pr2 (coindCodatatypeOfMultisortedBindingSig_CAT sig)).
+    - exact (pr1 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
+    - exact (pr2 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
   Defined.
 
   (** the associated Sigma-monoid *)
-  Definition coindSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig).
+  Definition coindSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) : SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig).
   Proof.
     apply ghhs_to_sigma_monoid.
-    exact (coindGHSSOfMultiSortedSig_CAT sig).
+    exact (coindGHSSOfMultiSortedSig_CAT sig Cuniv).
   Defined.
 
   (** the associated monad *)
-  Definition coindMonadOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : Monad sortToC.
+  Definition coindMonadOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) : Monad sortToC.
   Proof.
     use monoid_to_monad_CAT.
     use SigmaMonoid_to_monoid.
     - exact (MultiSortedSigToFunctor sig).
     - exact (MultiSortedSigToStrengthFromSelfCAT sig).
-    - exact (coindSigmaMonoidOfMultiSortedSig_CAT sig).
+    - exact (coindSigmaMonoidOfMultiSortedSig_CAT sig Cuniv).
   Defined.
 
 End monad.
@@ -494,7 +498,7 @@ Section InstanceHSET.
 
   Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
   Proof.
-    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ sig).
+    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ sig _).
     - apply TerminalHSET.
     - apply InitialHSET.
     - apply BinProductsHSET.
@@ -504,6 +508,7 @@ Section InstanceHSET.
     - apply LimsHSET_of_shape.
     - apply propcoproducts_commute_binproductsHSET.
     - apply I_coproduct_distribute_over_omega_limits_HSET.
+    - apply is_univalent_HSET.
   Defined.
 
 End InstanceHSET.
