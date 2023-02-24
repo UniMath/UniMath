@@ -92,203 +92,93 @@ Section ToBeMoved.
       Check pr1 cc.
       Search lim. *)
 
+  Lemma isaprop_isCoproduct
+        {C : category} {I : UU}
+        {i : I -> C} {x : C}
+        (j : ∏ i0 : I, C ⟦ i i0, x ⟧)
+    : isaprop (isCoproduct I C i x j).
+  Proof.
+    repeat (apply impred; intro).
+    apply isapropiscontr.
+  Qed.
+
+  Definition z_iso_from_coproduct_to_coproduct
+             {C : category} {I : UU}
+             {ind : I -> C}
+             (CC CC' : Coproduct I C ind) : Isos.z_iso (pr11 CC) (pr11 CC').
+  Proof.
+    use Isos.make_z_iso.
+    - apply CoproductArrow, CoproductIn.
+    - apply CoproductArrow, CoproductIn.
+    - split.
+      + etrans. 1: apply postcompWithCoproductArrow.
+        apply pathsinv0, Coproduct_endo_is_identity.
+        intro.
+        etrans.
+        1: apply CoproductInCommutes.
+        apply CoproductInCommutes.
+      + etrans. 1: apply postcompWithCoproductArrow.
+        apply pathsinv0, Coproduct_endo_is_identity.
+        intro.
+        etrans.
+        1: apply CoproductInCommutes.
+        apply CoproductInCommutes.
+  Defined.
+
+  Definition eq_Coproduct
+             {C : category}
+             {I : UU}
+             {ind : I -> C}
+             (C1 C2 : Coproduct I C ind)
+             (q : pr11 C1  = pr11 C2)
+             (e : ∏ i : I, CoproductIn I C C2 i = CoproductIn I C C1 i · pr1 (Univalence.idtoiso q))
+  : C1 = C2.
+  Proof.
+    use subtypePath.
+    { intro ; apply isaprop_isCoproduct. }
+    use total2_paths_f.
+    - exact q.
+    - rewrite transportf_sec_constant.
+      apply funextsec ; intro i.
+      rewrite <- Univalence.idtoiso_postcompose.
+      exact (! e i).
+  Defined.
+
+  Lemma isaprop_Coproducts
+        {C : category} (Cuniv : Univalence.is_univalent C) (I : UU)
+    : isaprop (Coproducts I C).
+  Proof.
+
+
+    use invproofirrelevance.
+    intros C1 C2.
+    apply funextsec ; intro ind.
+    use eq_Coproduct.
+    - refine (Univalence.isotoid _ Cuniv _).
+      apply z_iso_from_coproduct_to_coproduct.
+    - intro.
+      rewrite Univalence.idtoiso_isotoid ; cbn.
+      apply pathsinv0, CoproductInCommutes.
+  Qed.
 
   Lemma ω_limits_distribute_over_I_coproducts_independent_of_product
         {C : category} {I : SET}
+        (Cuniv : Univalence.is_univalent C)
         {l : Lims_of_shape conat_graph C}
         (p q : Coproducts (pr1 I) C)
     : ω_limits_distribute_over_I_coproducts C I l p
       -> ω_limits_distribute_over_I_coproducts C I l q.
   Proof.
     intro distr.
-    intro ind.
-    use Isos.make_is_z_isomorphism.
-    - refine (_ · pr1 (distr ind) · _).
-      + use limOfArrows.
-        * intro.
-          use CoproductOfArrows.
-          intro ; apply identity.
-        * abstract
-            (intros n m e ;
-             simpl ;
-             refine (precompWithCoproductArrow
-                       _ _ _ _ _ _
-                       @ _
-                       @ ! precompWithCoproductArrow _ _ _ _ _ _) ;
 
-             use CoproductArrowUnique ; intro;
-             refine (CoproductInCommutes _ _ _  (q (λ i0 : pr1 I, pr1 (ind i0) n)) _ _ _ @ _) ;
-             refine (id_left _ @ _) ;
-             apply maponpaths ; apply pathsinv0, id_left
-            ).
-      + use CoproductOfArrows.
-        intro ; apply identity.
-    - split.
-      + set (pf := pr12 (distr ind)).
-
-        rewrite ! assoc.
-
-        transparent assert (ii : (Isos.is_z_isomorphism (CoproductOfArrows (pr1 I) C (coproduct_of_limit C l p ind) (coproduct_of_limit C l q ind)
-                                                                           (λ i : pr1 I, identity (pr11 (l (ind i))))))).
-        {
-          apply GeneralLemmas.CoproductOfArrowsIsos.
-          intro ; apply Isos.identity_is_z_iso.
-        }
-
-        use (Isos.z_iso_inv_to_right _ _ _ _ (_,,ii)).
-        etrans.
-        2: apply pathsinv0, id_left.
-        etrans.
-        2: { cbn. apply idpath. }
-
-        etrans.
-        1: {
-          apply maponpaths_2.
-          apply postCompWithLimOfArrows.
-        }
-        clear ii.
-
-        apply pathsinv0.
-        use (Isos.z_iso_inv_on_left _ _ _ _ (_,, (distr ind : Isos.is_z_isomorphism _))).
-        simpl.
-
-        apply pathsinv0, limArrowUnique.
-        intro n.
-        simpl.
-
-        etrans.
-        2: apply pathsinv0, precompWithCoproductArrow.
-        cbn.
-
-        use CoproductArrowUnique.
-        intro i.
-        cbn.
-        etrans.
-        1: apply assoc.
-        etrans.
-        1: {
-          apply maponpaths_2.
-          etrans.
-          1: apply assoc.
-          apply maponpaths_2.
-          apply (CoproductOfArrowsIn _ _  (coproduct_of_limit C l q ind) (coproduct_of_limit C l p ind)).
-        }
-        cbn.
-        etrans.
-        1: apply maponpaths_2, maponpaths_2, id_left.
-        etrans.
-        2: apply maponpaths, pathsinv0, id_left.
-
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: {
-          apply maponpaths.
-          exact (limArrowCommutes  (limit_of_coproduct C l p ind) _ (limit_of_coproduct_as_cone_of_coproduct_to_limit C l p ind) n).
-        }
-        apply (CoproductInCommutes _ _ _  (coproduct_of_limit C l p ind)).
-      + set (pf := pr22 (distr ind)).
-
-        rewrite ! assoc'.
-
-        transparent assert (ii : (Isos.is_z_isomorphism (limOfArrows (limit_of_coproduct C l q ind) (limit_of_coproduct C l p ind)
-    (λ u : vertex conat_graph,
-     CoproductOfArrows (pr1 I) C (q (λ i : pr1 I, pr1 (ind i) u)) (p (λ i : pr1 I, pr1 (ind i) u))
-       (λ i : pr1 I, identity (pr1 (ind i) u)))
-    (ω_limits_distribute_over_I_coproducts_independent_of_product_subproof C I p q ind)))).
-        {
-          apply isLim_is_z_iso.
-          intros c cc.
-          use tpair.
-          - use tpair.
-            + use limArrow.
-              use make_cone.
-              * intro n.
-                refine (pr1 cc n · _).
-                use CoproductOfArrows.
-                intro ; apply identity.
-              * intros n m e.
-                cbn.
-                etrans.
-                1: apply assoc'.
-                etrans.
-                1: {
-                  apply maponpaths.
-                  apply precompWithCoproductArrow.
-                }
-                cbn.
-                admit.
-            + admit.
-          - cbn.
-            admit.
-
-            (* apply GeneralLemmas.CoproductOfArrowsIsos.
-          intro ; apply Isos.identity_is_z_iso. *)
-        }
-
-        apply pathsinv0.
-        use (Isos.z_iso_inv_to_left _ _ _ (_,,(ii : Isos.is_z_isomorphism _))).
-        cbn.
-        clear ii.
-        etrans.
-        1: apply id_right.
-
-        etrans.
-        2: {
-          apply maponpaths.
-          apply pathsinv0, postcompWithCoproductArrow.
-        }
-
-        apply pathsinv0.
-        apply (Isos.z_iso_inv_on_right _ _ _ (_,, (distr ind : Isos.is_z_isomorphism _))).
-
-        etrans.
-        2: {
-          apply pathsinv0.
-          apply postCompWithLimArrow.
-        }
-
-        use limArrowUnique.
-        intro n.
-
-        etrans.
-        1: apply  postcompWithCoproductArrow.
-
-        apply pathsinv0.
-        use CoproductArrowUnique.
-        intro i.
-
-        etrans.
-        2: {
-          do 2 apply maponpaths_2.
-          apply pathsinv0, id_left.
-        }
-
-        etrans.
-        2: apply assoc.
-        etrans.
-        2: {
-          apply maponpaths, pathsinv0.
-          apply (limArrowCommutes  (limit_of_coproduct C l q ind)).
-        }
-
-        etrans.
-        2: {
-          apply pathsinv0.
-          apply (CoproductInCommutes _ _ _  (coproduct_of_limit C l q ind)).
-        }
-
-        cbn.
-
-
-
-
-
-
-
-
-
-  Admitted.
+    transparent assert (pq : (p = q)).
+    {
+      apply isaprop_Coproducts.
+      exact Cuniv.
+    }
+    induction pq.
+    exact distr.
+  Qed.
 
   Definition BinProduct_of_functors_BinProducts_of_shape
              {C D : category}
