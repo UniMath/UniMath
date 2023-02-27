@@ -1510,7 +1510,6 @@ Section EnrichedKleisli.
   (**
    5. The functor is fully faithful
    *)
-  (*
   Section FullyFaithfulToKleisli.
     Context (x y : C).
 
@@ -1545,19 +1544,19 @@ Section EnrichedKleisli.
 
        we have
 
-         #M (η M x · f) · μ M y
+         η M x · (#M f · μ M y)
          =
          f
        *)
-      pose (p := maponpaths (enriched_from_arr E) (@Monad_law2 _ M y)).
-      rewrite enriched_from_arr_id in p.
-      rewrite enriched_from_arr_comp in p.
-      rewrite (functor_enrichment_from_arr EM) in p.
-      cbn in p.
       rewrite !assoc'.
+      (*
+       η M x · (#M f · μ M y)
+       =
+       (η M x · #M f) · μ M y
+       *)
       etrans.
       {
-        apply maponpaths.
+        do 2 apply maponpaths.
         rewrite !assoc.
         etrans.
         {
@@ -1566,19 +1565,6 @@ Section EnrichedKleisli.
         }
         rewrite !assoc'.
         apply maponpaths.
-      (*
-      rewrite !assoc'.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        rewrite !assoc.
-        do 2 apply maponpaths_2.
-        apply tensor_rinvunitor.
-      }
-      rewrite !assoc'.
-      etrans.
-      {
-        do 3 apply maponpaths.
         rewrite !assoc.
         etrans.
         {
@@ -1586,20 +1572,18 @@ Section EnrichedKleisli.
           refine (!(tensor_split' _ _) @ _).
           apply tensor_split.
         }
-        cbn.
         rewrite !assoc'.
         apply maponpaths.
         apply enrichment_assoc.
       }
-      cbn.
       etrans.
       {
         do 2 apply maponpaths.
         rewrite !assoc.
         do 2 apply maponpaths_2.
+        rewrite !assoc'.
         etrans.
         {
-          rewrite !assoc'.
           apply maponpaths.
           etrans.
           {
@@ -1624,20 +1608,152 @@ Section EnrichedKleisli.
         }
         apply id_right.
       }
-      cbn.
-
-        cbn.
-        rewrite
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        apply tensor_split'.
+      }
+      rewrite !assoc'.
+      (*
+       (η M x · #M f) · μ M y
+       =
+       (f · η M y) · μ M y
+       *)
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        rewrite !assoc'.
         etrans.
         {
           do 2 apply maponpaths.
-
-
-
-      unfold
+          exact (!(tensor_comp_id_l _ _)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          exact (!(tensor_comp_id_l _ _)).
+        }
+        refine (!(tensor_comp_id_l _ _) @ _).
+        apply maponpaths.
+        rewrite !assoc.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          apply tensor_rinvunitor.
+        }
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !assoc.
+          apply maponpaths_2.
+          exact (!(tensor_split' _ _)).
+        }
+        rewrite !assoc.
+        exact (unit_of_monad_enrichment EM x (M y)).
+      }
       cbn.
+      (*
+       (f · η M y) · μ M y
+       =
+       f · (η M y · μ M y)
        *)
-    Admitted.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply tensor_comp_id_l.
+        }
+        rewrite !assoc'.
+        apply maponpaths.
+        apply enrichment_assoc'.
+      }
+      (*
+       f · (η M y · μ M y)
+       =
+       f · id
+       *)
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths_2.
+          rewrite !assoc'.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              apply tensor_comp_id_l.
+            }
+            rewrite !assoc'.
+            etrans.
+            {
+              apply maponpaths.
+              apply tensor_rassociator.
+            }
+            rewrite !assoc.
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths_2.
+              apply mon_inv_triangle.
+            }
+            rewrite !assoc'.
+            etrans.
+            {
+              apply maponpaths.
+              apply mon_lassociator_rassociator.
+            }
+            apply id_right.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(tensor_comp_id_r _ _)).
+          }
+          refine (!(tensor_comp_id_r _ _) @ _).
+          apply maponpaths_2.
+          rewrite !assoc.
+          etrans.
+          {
+            apply maponpaths_2.
+            apply tensor_rinvunitor.
+          }
+          rewrite mon_rinvunitor_I_mon_linvunitor_I.
+          rewrite !assoc'.
+          apply maponpaths.
+          exact (!(tensor_split' _ _)).
+        }
+        refine (!(tensor_comp_id_r _ _) @ _).
+        apply maponpaths_2.
+        pose (p := maponpaths (enriched_from_arr E) (@Monad_law1 _ M y)).
+        rewrite enriched_from_arr_id in p.
+        rewrite enriched_from_arr_comp in p.
+        cbn in p.
+        exact p.
+      }
+      (*
+       f · id = f
+       *)
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_left.
+      }
+      apply mon_linvunitor_lunitor.
+    Qed.
 
     Local Lemma functor_to_kleisli_cat_enrichment_inv_left
       : functor_to_kleisli_cat_enrichment_inv
@@ -1659,8 +1775,131 @@ Section EnrichedKleisli.
       unfold functor_to_kleisli_cat_enrichment_inv.
       cbn.
       rewrite !assoc'.
+      pose (dialgebra_enrichment_mor_incl_eq
+              V HV
+              EM (functor_id_enrichment E)
+              (μ M x) (μ M y))
+        as p.
+      unfold dialgebra_enrichment_mor_right in p.
+      cbn in p.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite !assoc.
+          do 2 apply maponpaths_2.
+          apply tensor_linvunitor.
+        }
+        rewrite !assoc'.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          rewrite !assoc.
+          apply maponpaths_2.
+          refine (!(tensor_comp_mor _ _ _ _) @ _).
+          rewrite id_left.
+          apply maponpaths.
+          apply (functor_enrichment_comp EM).
+        }
+        etrans.
+        {
+          do 2 apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            refine (!_).
+            apply mon_linvunitor_triangle.
+          }
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite !assoc.
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths.
+            apply tensor_comp_l_id_r.
+          }
+          rewrite !assoc.
+          apply maponpaths_2.
+          refine (!_).
+          apply tensor_lassociator.
+        }
+        rewrite !assoc'.
+        etrans.
+        {
+          do 4 apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            apply enrichment_assoc'.
+          }
+          rewrite !assoc.
+          apply maponpaths_2.
+          etrans.
+          {
+            apply maponpaths_2.
+            apply mon_lassociator_rassociator.
+          }
+          apply id_left.
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        rewrite !assoc'.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          exact (!(tensor_comp_mor _ _ _ _)).
+        }
+        rewrite id_right.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          exact (!(tensor_comp_mor _ _ _ _)).
+        }
+        rewrite id_left.
+        etrans.
+        {
+          apply maponpaths.
+          exact (!(tensor_comp_mor _ _ _ _)).
+        }
+        rewrite id_left.
+        etrans.
+        {
+          apply maponpaths.
+          apply tensor_split'.
+        }
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!_).
+        apply tensor_rinvunitor.
+      }
+      rewrite !assoc.
+      etrans.
+      {
+        do 3 apply maponpaths_2.
+        refine (_ @ !p).
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply tensor_linvunitor.
+        }
+        rewrite !assoc'.
+        apply maponpaths.
+        refine (!_).
+        apply tensor_split.
+      }
       refine (_ @ id_right _).
+      rewrite !assoc'.
       apply maponpaths.
+      clear p.
+      unfold dialgebra_enrichment_mor_left ; cbn.
       (*
        For all
 
@@ -1668,13 +1907,12 @@ Section EnrichedKleisli.
 
        we have
 
-         #M (η M x · f) · μ M y
+         #M (η M x) · (μ M x · f)
          =
          f
        *)
-      pose (unit_of_monad_enrichment EM x y).
-      cbn in p.
-      (*
+      rewrite id_left.
+      rewrite !assoc'.
       etrans.
       {
         do 2 apply maponpaths.
@@ -1682,7 +1920,7 @@ Section EnrichedKleisli.
         etrans.
         {
           do 2 apply maponpaths_2.
-          apply tensor_linvunitor.
+          apply tensor_rinvunitor.
         }
         rewrite !assoc'.
         apply maponpaths.
@@ -1690,17 +1928,91 @@ Section EnrichedKleisli.
         etrans.
         {
           apply maponpaths_2.
-          refine (!(tensor_comp_mor _ _ _ _) @ _).
-          rewrite id_left.
-          apply tensor_split'.
+          refine (!(tensor_split' _ _) @ _).
+          apply tensor_split.
         }
-
-
-      pose (unit_of_monad_enrichment EM x y).
+        rewrite !assoc'.
+        apply maponpaths.
+        apply enrichment_assoc.
+      }
+      pose (p := maponpaths (enriched_from_arr E) (@Monad_law2 _ M x)).
+      rewrite enriched_from_arr_id in p.
+      rewrite enriched_from_arr_comp in p.
+      rewrite (functor_enrichment_from_arr EM) in p.
       cbn in p.
-      Check Monad_law1.
-       *)
-    Admitted.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        rewrite !assoc.
+        do 2 apply maponpaths_2.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          exact (!(tensor_id_id _ _)).
+        }
+        apply tensor_lassociator.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        do 3 apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (!_).
+          apply mon_rinvunitor_triangle.
+        }
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply mon_rassociator_lassociator.
+        }
+        apply id_right.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          exact (!(tensor_comp_id_l _ _)).
+        }
+        etrans.
+        {
+          apply maponpaths_2.
+          exact (!(tensor_comp_id_l _ _)).
+        }
+        refine (!(tensor_comp_id_l _ _) @ _).
+        apply maponpaths.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          apply tensor_rinvunitor.
+        }
+        rewrite mon_rinvunitor_I_mon_linvunitor_I.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !assoc.
+          apply maponpaths_2.
+          exact (!(tensor_split' _ _)).
+        }
+        rewrite !assoc.
+        exact p.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply enrichment_id_right.
+      }
+      apply mon_rinvunitor_runitor.
+    Qed.
   End FullyFaithfulToKleisli.
 
   Definition fully_faithful_functor_to_kleisli_cat_enrichment
@@ -1713,5 +2025,4 @@ Section EnrichedKleisli.
       + exact (functor_to_kleisli_cat_enrichment_inv_right x y).
       + exact (functor_to_kleisli_cat_enrichment_inv_left x y).
   Defined.
-   *)
 End EnrichedKleisli.
