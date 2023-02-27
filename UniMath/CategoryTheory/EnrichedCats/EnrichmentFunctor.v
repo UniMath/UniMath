@@ -10,6 +10,7 @@
  2. Fully faithful functors
  3. The enriched identity functor
  4. The composition of enriched functors
+ 5. The constant functor
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -332,7 +333,7 @@ Proof.
 Defined.
 
 (**
-
+ 5. The constant functor
  *)
 Definition functor_constant_enrichment
            {V : monoidal_cat}

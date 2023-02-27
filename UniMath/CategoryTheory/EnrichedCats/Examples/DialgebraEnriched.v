@@ -104,7 +104,6 @@ Section EnrichedDialgebras.
                 (dialgebra_enrichment_mor_right f g))).
   Qed.
 
-
   Definition dialgebra_enrichment_mor_eq_of_mor
              {x y : C₁}
              (f : F x --> G x)

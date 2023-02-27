@@ -33,6 +33,7 @@
  1. Enrichments of categories
  2. Equality of enrichments
  3. Faithfulness
+ 4. Composition operations
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -460,3 +461,638 @@ Definition faithful_moncat
      (∏ (a : 𝟙 --> x), a · f = a · g)
      →
      f = g.
+
+(**
+ 4. Composition operations
+ *)
+Definition precomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {x y : C}
+           (z : C)
+           (f : x --> y)
+  : E ⦃ y , z ⦄ --> E ⦃ x , z ⦄
+  := mon_rinvunitor _
+     · (id _ #⊗ enriched_from_arr E f)
+     · enriched_comp E x y z.
+
+Definition precomp_arr_id
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           (x y : C)
+  : precomp_arr E _ (identity x) = identity (E ⦃ x , y ⦄).
+Proof.
+  unfold precomp_arr.
+  rewrite enriched_from_arr_id.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    refine (!_).
+    apply enrichment_id_right.
+  }
+  apply mon_rinvunitor_runitor.
+Qed.
+
+Definition precomp_arr_comp
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {w x y z : C}
+           (f : w --> x)
+           (g : x --> y)
+  : precomp_arr E z (f · g) = precomp_arr E z g · precomp_arr E z f.
+Proof.
+  unfold precomp_arr.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite enriched_from_arr_comp.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply tensor_comp_id_l.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply enrichment_assoc'.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_comp_id_l.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply tensor_rassociator.
+  }
+  etrans.
+  {
+    rewrite !assoc.
+    do 2 apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_inv_triangle.
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply mon_lassociator_rassociator.
+    }
+    apply id_right.
+  }
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (!(tensor_comp_mor _ _ _ _)).
+  }
+  refine (!(tensor_comp_mor _ _ _ _) @ _).
+  rewrite !id_left, !id_right.
+  refine (tensor_split' _ _ @ _).
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply tensor_rinvunitor.
+  }
+  rewrite !assoc.
+  refine (!_).
+  refine (tensor_comp_id_r _ _ @ _).
+  apply maponpaths_2.
+  refine (tensor_comp_id_r _ _ @ _).
+  refine (!_).
+  etrans.
+  {
+    apply tensor_rinvunitor.
+  }
+  apply maponpaths_2.
+  refine (!(mon_rinvunitor_triangle _ _) @ _).
+  rewrite mon_rinvunitor_I_mon_linvunitor_I.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply mon_inv_triangle.
+  }
+  rewrite !assoc'.
+  refine (_ @ id_right _).
+  apply maponpaths.
+  apply mon_lassociator_rassociator.
+Qed.
+
+Definition enriched_id_precomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {x y : C}
+           (f : x --> y)
+  : enriched_id E y · precomp_arr E _ f
+    =
+    enriched_from_arr E f.
+Proof.
+  unfold precomp_arr.
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_rinvunitor.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!(tensor_split' _ _) @ _).
+    apply tensor_split.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply enrichment_id_left.
+    }
+    apply tensor_lunitor.
+  }
+  rewrite !assoc.
+  refine (_ @ id_left _).
+  apply maponpaths_2.
+  rewrite mon_lunitor_I_mon_runitor_I.
+  apply mon_rinvunitor_runitor.
+Qed.
+
+Definition enriched_from_arr_precomp
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {x y z : C}
+           (f : x --> y)
+           (g : y --> z)
+  : enriched_from_arr E g · precomp_arr E _ f
+    =
+    enriched_from_arr E (f · g).
+Proof.
+  unfold precomp_arr.
+  rewrite enriched_from_arr_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply tensor_split'.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  rewrite mon_linvunitor_I_mon_rinvunitor_I.
+  apply tensor_rinvunitor.
+Qed.
+
+Definition enriched_comp_precomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {w x y z : C}
+           (f : w --> x)
+  : enriched_comp E x y z · precomp_arr E z f
+    =
+    (id _ #⊗ precomp_arr E y f) · enriched_comp E w y z.
+Proof.
+  unfold precomp_arr.
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_rinvunitor.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(tensor_split' _ _) @ _).
+      apply tensor_split.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    apply enrichment_assoc.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (_ @ !(tensor_comp_id_l _ _)).
+  apply maponpaths_2.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      exact (!(tensor_id_id _ _)).
+    }
+    apply tensor_lassociator.
+  }
+  rewrite !assoc.
+  refine (_ @ !(tensor_comp_id_l _ _)).
+  apply maponpaths_2.
+  etrans.
+  {
+    apply maponpaths_2.
+    refine (!_).
+    apply mon_rinvunitor_triangle.
+  }
+  rewrite !assoc'.
+  refine (_ @ id_right _).
+  apply maponpaths.
+  apply mon_rassociator_lassociator.
+Qed.
+
+Definition postcomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {y z : C}
+           (x : C)
+           (f : y --> z)
+  : E ⦃ x , y ⦄ --> E ⦃ x , z ⦄
+  := mon_linvunitor _
+     · (enriched_from_arr E f #⊗ identity _)
+     · enriched_comp E x y z.
+
+Definition postcomp_arr_id
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           (x y : C)
+  : postcomp_arr E _ (identity y) = identity (E ⦃ x , y ⦄).
+Proof.
+  unfold postcomp_arr.
+  rewrite enriched_from_arr_id.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    refine (!_).
+    apply enrichment_id_left.
+  }
+  apply mon_linvunitor_lunitor.
+Qed.
+
+Definition postcomp_arr_comp
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {w x y z : C}
+           (f : x --> y)
+           (g : y --> z)
+  : postcomp_arr E w (f · g) = postcomp_arr E w f · postcomp_arr E w g.
+Proof.
+  unfold postcomp_arr.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite enriched_from_arr_comp.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply tensor_comp_id_r.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply enrichment_assoc.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_comp_id_r.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply tensor_lassociator.
+  }
+  etrans.
+  {
+    rewrite !assoc.
+    do 2 apply maponpaths_2.
+    rewrite mon_linvunitor_I_mon_rinvunitor_I.
+    refine (!_).
+    apply mon_inv_triangle.
+  }
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (!(tensor_comp_mor _ _ _ _)).
+  }
+  refine (!(tensor_comp_mor _ _ _ _) @ _).
+  rewrite !id_left, !id_right.
+  refine (tensor_split _ _ @ _).
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply tensor_linvunitor.
+  }
+  rewrite !assoc.
+  refine (!_).
+  refine (tensor_comp_id_l _ _ @ _).
+  apply maponpaths_2.
+  refine (tensor_comp_id_l _ _ @ _).
+  refine (!_).
+  etrans.
+  {
+    apply tensor_linvunitor.
+  }
+  apply maponpaths_2.
+  refine (!(mon_linvunitor_triangle _ _) @ _).
+  rewrite mon_linvunitor_I_mon_rinvunitor_I.
+  refine (!_).
+  apply mon_inv_triangle.
+Qed.
+
+Definition enriched_id_postcomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {x y : C}
+           (f : x --> y)
+  : enriched_id E x · postcomp_arr E _ f
+    =
+    enriched_from_arr E f.
+Proof.
+  unfold postcomp_arr.
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_linvunitor.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!(tensor_split _ _) @ _).
+    apply tensor_split'.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply enrichment_id_right.
+    }
+    apply tensor_runitor.
+  }
+  rewrite !assoc.
+  refine (_ @ id_left _).
+  apply maponpaths_2.
+  rewrite mon_runitor_I_mon_lunitor_I.
+  apply mon_linvunitor_lunitor.
+Qed.
+
+Definition enriched_from_arr_postcomp
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {x y z : C}
+           (f : x --> y)
+           (g : y --> z)
+  : enriched_from_arr E f · postcomp_arr E _ g
+    =
+    enriched_from_arr E (f · g).
+Proof.
+  unfold postcomp_arr.
+  rewrite enriched_from_arr_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply tensor_split.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  apply tensor_linvunitor.
+Qed.
+
+Definition enriched_comp_postcomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {w x y z : C}
+           (f : y --> z)
+  : enriched_comp E w x y · postcomp_arr E w f
+    =
+    (postcomp_arr E x f #⊗ id _) · enriched_comp E w x z.
+Proof.
+  unfold postcomp_arr.
+  rewrite !assoc.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    apply tensor_linvunitor.
+  }
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(tensor_split _ _) @ _).
+      apply tensor_split'.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    apply enrichment_assoc'.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (_ @ !(tensor_comp_id_r _ _)).
+  apply maponpaths_2.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (!(tensor_id_id _ _)).
+    }
+    apply tensor_rassociator.
+  }
+  rewrite !assoc.
+  refine (_ @ !(tensor_comp_id_r _ _)).
+  apply maponpaths_2.
+  etrans.
+  {
+    apply maponpaths_2.
+    refine (!_).
+    apply mon_linvunitor_triangle.
+  }
+  rewrite !assoc'.
+  refine (_ @ id_right _).
+  apply maponpaths.
+  apply mon_lassociator_rassociator.
+Qed.
+
+Definition precomp_postcomp_arr
+           {C : category}
+           {V : monoidal_cat}
+           (E : enrichment C V)
+           {w x y z : C}
+           (f : w --> x)
+           (g : y --> z)
+  : precomp_arr E y f · postcomp_arr E w g
+    =
+    postcomp_arr E x g · precomp_arr E z f.
+Proof.
+  unfold precomp_arr, postcomp_arr.
+  rewrite !assoc'.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply tensor_linvunitor.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(tensor_split _ _) @ _).
+      apply tensor_split'.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    apply enrichment_assoc'.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        exact (!(tensor_id_id _ _)).
+      }
+      apply tensor_rassociator.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply mon_linvunitor_triangle.
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply mon_lassociator_rassociator.
+    }
+    apply id_right.
+  }
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (!(tensor_split _ _) @ _).
+      apply tensor_split'.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(tensor_split _ _) @ _).
+      apply tensor_split'.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (!(tensor_split _ _) @ _).
+    apply tensor_split'.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    refine (!_).
+    apply tensor_rinvunitor.
+  }
+  rewrite !assoc'.
+  apply maponpaths.
+  etrans.
+  {
+    apply maponpaths.
+    refine (!_).
+    apply tensor_comp_id_r.
+  }
+  etrans.
+  {
+    refine (!_).
+    apply tensor_rinvunitor.
+  }
+  rewrite !assoc'.
+  apply idpath.
+Qed.

@@ -15,7 +15,7 @@
 
  Note that the construction of the bicategories of enriched
  categories as a displayed bicategory, provides some explanation
- of what are notion of enrichment means. With the usual definition
+ of what the notion of enrichment means. With the usual definition
  of enriched category, one has a pseudofunctor `V-Cat -> Cat`,
  which sends every enriched category to its underlying category.
  The projection pseudofunctor of the displayed bicategory defined

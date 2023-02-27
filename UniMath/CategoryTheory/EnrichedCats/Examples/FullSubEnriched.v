@@ -113,4 +113,12 @@ Section FullSub.
            rewrite id_right ;
            apply idpath).
   Defined.
+
+  Definition fullsub_inclusion_enrichment_fully_faithful
+    : fully_faithful_enriched_functor
+        fullsub_inclusion_enrichment.
+  Proof.
+    intros x y.
+    apply is_z_isomorphism_identity.
+  Defined.
 End FullSub.

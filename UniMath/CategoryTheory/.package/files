@@ -303,11 +303,21 @@ EnrichedCats/Enriched/Opposite.v
 EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
+EnrichedCats/Examples/HomFunctor.v
+EnrichedCats/Examples/FunctorCategory.v
+
+EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
 EnrichedCats/Examples/FullSubEnriched.v
+EnrichedCats/Examples/ImageEnriched.v
 EnrichedCats/Examples/DialgebraEnriched.v
 EnrichedCats/Examples/SliceEnriched.v
 EnrichedCats/Examples/EilenbergMooreEnriched.v
+
+EnrichedCats/Examples/ChangeOfBase.v
+
+EnrichedCats/Examples/KleisliEnriched.v
+EnrichedCats/Examples/UnivalentKleisliEnriched.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
