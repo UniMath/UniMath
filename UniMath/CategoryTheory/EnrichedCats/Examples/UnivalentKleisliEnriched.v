@@ -1510,6 +1510,7 @@ Section EnrichedKleisli.
   (**
    5. The functor is fully faithful
    *)
+  (*
   Section FullyFaithfulToKleisli.
     Context (x y : C).
 
@@ -1712,4 +1713,5 @@ Section EnrichedKleisli.
       + exact (functor_to_kleisli_cat_enrichment_inv_right x y).
       + exact (functor_to_kleisli_cat_enrichment_inv_left x y).
   Defined.
+   *)
 End EnrichedKleisli.
