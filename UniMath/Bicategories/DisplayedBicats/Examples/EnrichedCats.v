@@ -38,7 +38,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Enriched.Enrichment.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
+Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -53,6 +55,10 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -98,7 +104,7 @@ Section EnrichedCats.
   Proof.
     simple refine (_ ,, _).
     - exact disp_cat_data_of_enriched_cats.
-    - exact (λ C₁ C₂ F G τ E₁ E₂ EF EG, nat_trans_enrichment τ EF EG).
+    - exact (λ C₁ C₂ F G τ E₁ E₂ EF EG, nat_trans_enrichment (pr1 τ) EF EG).
   Defined.
 
   Definition disp_prebicat_ops_of_enriched_cats
@@ -432,10 +438,7 @@ Section EnrichedCats.
     Proof.
       intros x y.
       cbn.
-      unfold functor_comp_enrichment_data.
-      cbn.
       unfold from_enrichment_path_functor_data.
-      unfold functor_id_enrichment_data.
       unfold from_enrichment_path_functor_inv_data.
       rewrite !z_iso_inv_after_z_iso.
       rewrite !enriched_from_arr_id.
@@ -470,10 +473,7 @@ Section EnrichedCats.
     Proof.
       intros x y.
       cbn.
-      unfold functor_comp_enrichment_data.
-      cbn.
       unfold from_enrichment_path_functor_data.
-      unfold functor_id_enrichment_data.
       unfold from_enrichment_path_functor_inv_data.
       rewrite !z_iso_inv_after_z_iso.
       rewrite !enriched_from_arr_id.
@@ -508,10 +508,7 @@ Section EnrichedCats.
     Proof.
       intros x y.
       cbn.
-      unfold functor_comp_enrichment_data.
-      cbn.
       unfold from_enrichment_path_functor_data.
-      unfold functor_id_enrichment_data.
       unfold from_enrichment_path_functor_inv_data.
       rewrite !enriched_from_arr_id.
       rewrite !assoc'.
@@ -546,10 +543,7 @@ Section EnrichedCats.
     Proof.
       intros x y.
       cbn.
-      unfold functor_comp_enrichment_data.
-      cbn.
       unfold from_enrichment_path_functor_data.
-      unfold functor_id_enrichment_data.
       unfold from_enrichment_path_functor_inv_data.
       rewrite !enriched_from_arr_id.
       rewrite !assoc'.
@@ -630,9 +624,6 @@ Section EnrichedCats.
     Proof.
       pose (p := η x y).
       cbn in p.
-      unfold functor_comp_enrichment_data in p.
-      unfold functor_id_enrichment_data in p.
-      cbn in p.
       rewrite !enriched_from_arr_id in p.
       rewrite !assoc' in p.
       assert (mon_rinvunitor _
@@ -688,9 +679,6 @@ Section EnrichedCats.
       : pr1 F₂ x y · pr1 F₁ x y = identity _.
     Proof.
       pose (p := ε x y).
-      cbn in p.
-      unfold functor_comp_enrichment_data in p.
-      unfold functor_id_enrichment_data in p.
       cbn in p.
       rewrite !enriched_from_arr_id in p.
       rewrite !assoc' in p.
@@ -901,5 +889,93 @@ Section EnrichedCats.
          use subtypePath ;
          [ intro ; apply isaprop_is_functor_enrichment | ] ;
          apply idpath).
+  Defined.
+
+  Definition bicat_of_enriched_cats
+    : bicat
+    := total_bicat disp_bicat_of_enriched_cats.
+
+  Definition is_univalent_2_1_bicat_of_enriched_cats
+    : is_univalent_2_1 bicat_of_enriched_cats.
+  Proof.
+    use total_is_univalent_2_1.
+    - exact univalent_cat_is_univalent_2_1.
+    - exact disp_univalent_2_1_enriched_cats.
+  Defined.
+
+  Definition is_univalent_2_0_bicat_of_enriched_cats
+             (HV : is_univalent V)
+    : is_univalent_2_0 bicat_of_enriched_cats.
+  Proof.
+    use total_is_univalent_2_0.
+    - exact univalent_cat_is_univalent_2_0.
+    - use disp_univalent_2_0_enriched_cats.
+      exact HV.
+  Defined.
+
+  Definition is_univalent_2_bicat_of_enriched_cats
+             (HV : is_univalent V)
+    : is_univalent_2 bicat_of_enriched_cats.
+  Proof.
+    split.
+    - exact (is_univalent_2_0_bicat_of_enriched_cats HV).
+    - exact is_univalent_2_1_bicat_of_enriched_cats.
+  Defined.
+
+  Definition underlying_cat
+    : psfunctor bicat_of_enriched_cats bicat_of_univ_cats
+    := pr1_psfunctor _.
+
+  Definition eq_2cell_enriched
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             {τ₁ τ₂ : F ==> G}
+             (p : ∏ x, pr11 τ₁ x = pr11 τ₂ x)
+    : τ₁ = τ₂.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_nat_trans_enrichment.
+    }
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    exact p.
+  Qed.
+
+  Definition from_is_invertible_2cell_enriched
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             (τ : invertible_2cell F G)
+    : nat_z_iso (pr1 F) (pr1 G).
+  Proof.
+    use invertible_2cell_to_nat_z_iso.
+    exact (_ ,, psfunctor_is_iso underlying_cat τ).
+  Defined.
+
+  Definition make_is_invertible_2cell_enriched
+             (HV : faithful_moncat V)
+             {E₁ E₂ : bicat_of_enriched_cats}
+             {F G : E₁ --> E₂}
+             (τ : F ==> G)
+             (Hτ : is_nat_z_iso (pr11 τ))
+    : is_invertible_2cell τ.
+  Proof.
+    use make_is_invertible_2cell.
+    - simple refine (_ ,, _).
+      + exact (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ))).
+      + apply (faithful_moncat_nat_trans_enrichment
+                 HV
+                 (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ)))).
+    - abstract
+        (use eq_2cell_enriched ;
+         intro x ;
+         apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+    - abstract
+        (use eq_2cell_enriched ;
+         intro x ;
+         apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
   Defined.
 End EnrichedCats.

@@ -5,8 +5,8 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Enriched.Enriched.
-Require Import UniMath.CategoryTheory.Enriched.Enrichment.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 
 Opaque mon_lunitor mon_linvunitor.
 Opaque mon_runitor mon_rinvunitor.

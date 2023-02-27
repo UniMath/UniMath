@@ -292,12 +292,22 @@ Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 
-Enriched/Enriched.v
-Enriched/ChangeOfBase.v
-Enriched/Opposite.v
-Enriched/Enrichment.v
-Enriched/UnderlyingCategory.v
-Enriched/EnrichmentEquiv.v
+EnrichedCats/Enrichment.v
+EnrichedCats/EnrichmentFunctor.v
+EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/EnrichmentMonad.v
+
+EnrichedCats/Enriched/Enriched.v
+EnrichedCats/Enriched/ChangeOfBase.v
+EnrichedCats/Enriched/Opposite.v
+EnrichedCats/Enriched/UnderlyingCategory.v
+EnrichedCats/Enriched/EnrichmentEquiv.v
+
+EnrichedCats/Examples/UnitEnriched.v
+EnrichedCats/Examples/FullSubEnriched.v
+EnrichedCats/Examples/DialgebraEnriched.v
+EnrichedCats/Examples/SliceEnriched.v
+EnrichedCats/Examples/EilenbergMooreEnriched.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
