@@ -28,7 +28,6 @@ SimplifiedHSS/SubstitutionSystems_Summary.v
 LamHSET.v
 SimplifiedHSS/LamHSET.v
 BindingSigToMonad.v
-BindingSigToMonad_actegorical.v
 SimplifiedHSS/BindingSigToMonad.v
 LamFromBindingSig.v
 SimplifiedHSS/LamFromBindingSig.v
@@ -42,7 +41,6 @@ MultiSorted.v
 MultiSortedMonadConstruction.v
 SimplifiedHSS/MultiSortedMonadConstruction.v
 MultiSorted_alt.v
-MultiSorted_actegorical.v
 MultiSortedMonadConstruction_alt.v
 SimplifiedHSS/MultiSortedMonadConstruction_alt.v
 MonadicSubstitution_alt.v
@@ -62,8 +60,7 @@ EquivalenceSignaturesWithActegoryMorphisms.v
 EquivalenceLaxLineatorsHomogeneousCase.v
 SigmaMonoids.v
 ConstructionOfGHSS.v
-
-MultiSortedMonadConstruction_actegorical.v
+BindingSigToMonad_actegorical.v
 
 ContinuitySignature/GeneralLemmas.v
 ContinuitySignature/CommutingOfOmegaLimitsAndCoproducts.v
@@ -71,5 +68,7 @@ ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v
 ContinuitySignature/MultiSortedSignatureFunctorEquivalence.v
 ContinuitySignature/InstantiateHSET.v
 
+MultiSorted_actegorical.v
+MultiSortedMonadConstruction_actegorical.v
 MultiSortedMonadConstruction_coind_actegorical.v
 MultiSortedEmbeddingIndCoindHSET.v
