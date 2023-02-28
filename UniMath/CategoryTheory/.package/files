@@ -209,6 +209,8 @@ DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
 DisplayedCats/Constructions.v
 
+DisplayedCats/Examples/Relations.v
+
 FunctorAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
