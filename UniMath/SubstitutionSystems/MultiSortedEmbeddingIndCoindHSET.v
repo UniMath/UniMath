@@ -32,27 +32,27 @@ Local Open Scope cat.
 
 Section A.
 
-  Context (sort : UU) (Hsort_set : isaset sort) (sig : MultiSortedSig sort).
+  Context (sort : UU) (Hsort : isofhlevel 3 sort) (*(Hsort_set : isaset sort)*) (sig : MultiSortedSig sort).
 
-  Let Hsort := hlevelntosn 2 _ Hsort_set.
+  (* Let Hsort := hlevelntosn 2 _ Hsort_set. *)
 
   Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
 
-  Let θHSET := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrengthFromSelfCAT sort Hsort SET
+  Let θHSET := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
                  TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET sig.
 
   Local Definition Initialσind := InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET InitialHSET
                                     BinProductsHSET BinCoproductsHSET ProductsHSET CoproductsHSET
-                                    (Exponentials_functor_HSET sortToHSET) (ColimsHSET_of_shape nat_graph) sig.
+                                    (expSortToHSET1 sort Hsort) (ColimsHSET_of_shape nat_graph) sig.
 
   Local Definition σind : SigmaMonoid θHSET := pr1 Initialσind.
 
   Local Definition Tind : [sortToHSET, sortToHSET] := pr1 σind.
 
   Local Definition σcoind
-    := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort_set HSET TerminalHSET InitialHSET
-         BinProductsHSET BinCoproductsHSET ProductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
-         propcoproducts_commute_binproductsHSET I_coproduct_distribute_over_omega_limits_HSET sig is_univalent_HSET.
+    := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET sig is_univalent_HSET.
 
   Local Definition Tcoind : [sortToHSET, sortToHSET] := pr1 σcoind.
 

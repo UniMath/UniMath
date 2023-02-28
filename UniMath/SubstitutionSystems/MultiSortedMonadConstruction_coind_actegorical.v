@@ -60,6 +60,7 @@ Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ConstructionOfGHSS.
 Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.MultiSortedSignatureFunctorEquivalence.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
@@ -362,7 +363,7 @@ End Upstream.
 
 Section MBindingSig.
 
-Context (sort : UU) (Hsort_set : isaset sort) (C : category).
+Context (sort : UU) (* (Hsort_set : isaset sort) *) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
@@ -373,7 +374,7 @@ Context (TC : Terminal C) (IC : Initial C)
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
-Let Hsort := hlevelntosn 2 _ Hsort_set.
+(* Let Hsort := hlevelntosn 2 _ Hsort_set. *)
 
 (** Define the discrete category of sorts *)
 Let sort_cat : category := path_pregroupoid sort Hsort.
@@ -388,7 +389,7 @@ Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 (* Assumptions needed to prove ω-continuity of the functor *)
 Context (HcoC : Lims_of_shape conat_graph C)
- (HCcommuteBP : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p))))
+ (* (HCcommuteBP : propcoproducts_commute_binproducts C BP (λ p : hProp, CC p (isasetaprop (pr2 p)))) *)
  (HCcommuteCC : ∏ I : SET, ω_limits_distribute_over_I_coproducts C I HcoC (CC (pr1 I) (pr2 I))).
 
 
@@ -412,24 +413,24 @@ Section monad.
     apply LimsFunctorCategory_of_shape, HcoCsortToC.
   Defined.
 
-  Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 
-  Local Definition is_omega_cont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
-    is_omega_cont (MultiSortedSigToFunctor M) :=
-    is_omega_cont_MultiSortedSigToFunctor sort Hsort_set C TC IC
-                                          BP BC PC CC M HcoC HCcommuteBP HCcommuteCC.
+  Local Definition is_omega_cont_MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
+    is_omega_cont (MultiSortedSigToFunctor' M) :=
+    is_omega_cont_MultiSortedSigToFunctor' sort Hsort C TC
+                                          BP BC CC HcoC HCcommuteCC M.
 
   Context (sortToC_exp : Exponentials (BinProducts_functor_precat [path_pregroupoid sort Hsort, C] C BP)).
 
-  Local Definition MultiSortedSigToStrengthFromSelfCAT : ∏ M : MultiSortedSig sort,
-        MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor M)
-    := MultiSortedSigToStrengthFromSelfCAT sort Hsort C TC BP BC CC.
+  Local Definition MultiSortedSigToStrength' : ∏ M : MultiSortedSig sort,
+        MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
+    := MultiSortedSigToStrength' sort Hsort C TC BP BC CC.
 
   Let Id_H := Id_H sortToC BCsortToC.
 
   (** Construction of terminal coalgebra for the omega-continuous signature functor with lax lineator *)
   Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
-    Terminal (CoAlg_category (Id_H (MultiSortedSigToFunctor sig))).
+    Terminal (CoAlg_category (Id_H (MultiSortedSigToFunctor' sig))).
   Proof.
     use limCoAlgTerminal.
     - exact TCsortToC1.
@@ -454,21 +455,21 @@ Section monad.
         use (ω_limits_distribute_over_I_coproducts_independent_of_product _ _ _ q).
         do 2 apply is_univalent_functor_category.
         apply Cuniv.
-      + exact (is_omega_cont_MultiSortedSigToFunctor sig).
+      + exact (is_omega_cont_MultiSortedSigToFunctor' sig).
     - apply HcoCsortToC1.
   Defined.
 
   Definition coindGHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
-    ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor sig) (MultiSortedSigToStrengthFromSelfCAT sig).
+    ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
   Proof.
-    use (terminal_coalg_to_ghss (MultiSortedSigToStrengthFromSelfCAT sig) BCsortToC1).
+    use (terminal_coalg_to_ghss (MultiSortedSigToStrength' sig) BCsortToC1).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
     - exact (pr1 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
     - exact (pr2 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
   Defined.
 
   (** the associated Sigma-monoid *)
-  Definition coindSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) : SigmaMonoid (MultiSortedSigToStrengthFromSelfCAT sig).
+  Definition coindSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) : SigmaMonoid (MultiSortedSigToStrength' sig).
   Proof.
     apply ghhs_to_sigma_monoid.
     exact (coindGHSSOfMultiSortedSig_CAT sig Cuniv).
@@ -479,8 +480,8 @@ Section monad.
   Proof.
     use monoid_to_monad_CAT.
     use SigmaMonoid_to_monoid.
-    - exact (MultiSortedSigToFunctor sig).
-    - exact (MultiSortedSigToStrengthFromSelfCAT sig).
+    - exact (MultiSortedSigToFunctor' sig).
+    - exact (MultiSortedSigToStrength' sig).
     - exact (coindSigmaMonoidOfMultiSortedSig_CAT sig Cuniv).
   Defined.
 
@@ -490,23 +491,20 @@ End MBindingSig.
 
 Section InstanceHSET.
 
-  Context (sort : UU) (Hsort_set : isaset sort).
+  Context (sort : UU)  (Hsort : isofhlevel 3 sort) (*(Hsort_set : isaset sort)*).
 
-  Let Hsort := hlevelntosn 2 _ Hsort_set.
+  (* Let Hsort := hlevelntosn 2 _ Hsort_set.*)
 
   Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
 
   Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
   Proof.
-    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort_set HSET _ _ _ _ _ _ _ _ _ sig _).
+    intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ sig _).
     - apply TerminalHSET.
-    - apply InitialHSET.
     - apply BinProductsHSET.
     - apply BinCoproductsHSET.
-    - apply ProductsHSET.
     - apply CoproductsHSET.
     - apply LimsHSET_of_shape.
-    - apply propcoproducts_commute_binproductsHSET.
     - apply I_coproduct_distribute_over_omega_limits_HSET.
     - apply is_univalent_HSET.
   Defined.

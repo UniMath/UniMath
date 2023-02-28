@@ -209,7 +209,7 @@ Section FixTheContext.
           * exact IHinst.
     Defined.
 
-    Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
+    Lemma is_omega_cocont_MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
       is_omega_cocont (MultiSortedSigToFunctor' M).
     Proof.
       apply is_omega_cocont_coproduct_of_functors.

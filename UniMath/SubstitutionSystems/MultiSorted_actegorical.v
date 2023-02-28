@@ -249,13 +249,15 @@ Section strength_through_actegories.
     apply δCCCATEndo.
   Defined.
 
+  (* commented for reasons of upstream time consumption - no longer needed since we can get everything with [MultiSortedSigToFunctor']
+
   Definition MultiSortedSigToStrengthFromSelfCAT (M : MultiSortedSig sort) :
     pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor M).
   Proof.
     apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree.
     apply MultiSortedSigToStrengthCAT.
   Defined.
-
+   *)
 
 
   (* can the following be preserved somehow?
