@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -459,6 +460,12 @@ Section Currying.
     - exact currying_biajd_unit_counit.
     - exact currying_biajd_triangle_l_law.
     - exact currying_biajd_triangle_r_law.
+  Defined.
+
+  Definition currying_hom_equivalence (C E : category) :
+    equivalence_of_cats [C, [B0:category,E]] [category_binproduct C B0, E].
+  Proof.
+    apply (biadj_hom_equivalence currying_biajd).
   Defined.
 
 End Currying.

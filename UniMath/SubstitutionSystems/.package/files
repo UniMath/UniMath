@@ -70,3 +70,6 @@ ContinuitySignature/CommutingOfOmegaLimitsAndCoproducts.v
 ContinuitySignature/ContinuityOfMultiSortedSigToFunctor.v
 ContinuitySignature/MultiSortedSignatureFunctorEquivalence.v
 ContinuitySignature/InstantiateHSET.v
+
+MultiSortedMonadConstruction_coind_actegorical.v
+MultiSortedEmbeddingIndCoindHSET.v

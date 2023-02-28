@@ -552,6 +552,7 @@ Qed.
 
 End vertex.
 
+
 Lemma binproduct_nat_trans_univ_prop (A : [C, D])
   (f : (A --> (F:[C,D]))) (g : A --> (G:[C,D])) :
    ∏
@@ -615,9 +616,104 @@ Proof.
   apply functor_precat_binproduct_cone.
 Defined.
 
-
 End def_functor_pointwise_binprod.
 
+Section BinProduct_of_functors_commutative.
+
+  Context (C D : category) (BD : BinProducts D) (F G : functor C D).
+
+Definition BinProduct_of_functors_commutes_data :
+  nat_trans_data (BinProduct_of_functors C D BD F G) (BinProduct_of_functors C D BD G F).
+Proof.
+  intro c.
+  use BinProductArrow.
+  - apply BinProductPr2.
+  - apply BinProductPr1.
+Defined.
+
+Definition BinProduct_of_functors_commutes_invdata :
+  nat_trans_data (BinProduct_of_functors C D BD G F) (BinProduct_of_functors C D BD F G).
+Proof.
+  intro c.
+  use BinProductArrow.
+  - apply BinProductPr2.
+  - apply BinProductPr1.
+Defined.
+
+Lemma BinProduct_of_functors_commutes_is_inverse (c: C) :
+  is_inverse_in_precat (BinProduct_of_functors_commutes_data c) (BinProduct_of_functors_commutes_invdata c).
+Proof.
+  split.
+  - apply BinProductArrowsEq.
+    + rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply BinProductPr1Commutes. }
+      etrans.
+      { apply BinProductPr2Commutes. }
+      apply pathsinv0, id_left.
+    + rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply BinProductPr2Commutes. }
+      etrans.
+      { apply BinProductPr1Commutes. }
+      apply pathsinv0, id_left.
+  - apply BinProductArrowsEq.
+    + rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply BinProductPr1Commutes. }
+      etrans.
+      { apply BinProductPr2Commutes. }
+      apply pathsinv0, id_left.
+    + rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply BinProductPr2Commutes. }
+      etrans.
+      { apply BinProductPr1Commutes. }
+      apply pathsinv0, id_left.
+Qed.
+
+Lemma BinProduct_of_functors_commutes_law : is_nat_trans _ _ BinProduct_of_functors_commutes_data.
+Proof.
+  intros c c' f.
+  cbn.
+  unfold BinProduct_of_functors_mor.
+  etrans.
+  2: { apply pathsinv0, postcompWithBinProductArrow. }
+  apply BinProductArrowUnique.
+  - rewrite assoc'.
+    etrans.
+    { apply maponpaths.
+      apply BinProductPr1Commutes. }
+    etrans.
+    { apply BinProductOfArrowsPr2. }
+    apply idpath.
+  - rewrite assoc'.
+    etrans.
+    { apply maponpaths.
+      apply BinProductPr2Commutes. }
+    etrans.
+    { apply BinProductOfArrowsPr1. }
+    apply idpath.
+Qed.
+
+Definition BinProduct_of_functors_commutes :
+  nat_z_iso (BinProduct_of_functors C D BD F G) (BinProduct_of_functors C D BD G F).
+Proof.
+  use tpair.
+  - use tpair.
+    + exact BinProduct_of_functors_commutes_data.
+    + exact BinProduct_of_functors_commutes_law.
+  - intro c.
+    use tpair.
+    { apply BinProduct_of_functors_commutes_invdata. }
+    apply BinProduct_of_functors_commutes_is_inverse.
+Defined.
+
+End BinProduct_of_functors_commutative.
 
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
 Section BinProduct_from_iso.
@@ -726,16 +822,16 @@ Arguments isBinProduct' _ _ _ _ _ : clear implicits.
 (** ** Terminal object as the unit (up to isomorphism) of binary products *)
 
 (** [T × x ≅ x]*)
-Lemma terminal_binprod_unit_l {C : category}
+Lemma terminal_binprod_unit_l_z {C : category}
       (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
+  ∏ x : C, is_z_isomorphism (BinProductPr2 C (BC T x)).
 Proof.
-  intros x.
-  use is_iso_qinv.
-  apply BinProductArrow.
-  - (** The unique [x -> T] *)
-    apply TerminalArrow.
-  - apply identity.
+  intro x.
+  use tpair.
+  - apply BinProductArrow.
+    + (** The unique [x -> T] *)
+      apply TerminalArrow.
+    + apply identity.
   - (** These are inverses *)
     unfold is_inverse_in_precat.
     split; [|apply BinProductPr2Commutes].
@@ -746,18 +842,28 @@ Proof.
     + exact (id_right _ @ !id_left _).
 Defined.
 
-(** [x × T ≅ x]*)
-
-Lemma terminal_binprod_unit_r {C : category}
+Lemma terminal_binprod_unit_l {C : category}
       (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
+  ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
 Proof.
   intros x.
   use is_iso_qinv.
-  apply BinProductArrow.
-  - apply identity.
-  - (** The unique [x -> T] *)
-    apply TerminalArrow.
+  - exact (pr1 (terminal_binprod_unit_l_z T BC x)).
+  - exact (pr2 (terminal_binprod_unit_l_z T BC x)).
+Defined.
+
+(** [x × T ≅ x]*)
+
+Lemma terminal_binprod_unit_r_z {C : category}
+      (T : Terminal C) (BC : BinProducts C) :
+  ∏ x : C, is_z_isomorphism (BinProductPr1 C (BC x T)).
+Proof.
+  intros x.
+  use tpair.
+  - apply BinProductArrow.
+    + apply identity.
+    + (** The unique [x -> T] *)
+      apply TerminalArrow.
   - (** These are inverses *)
     unfold is_inverse_in_precat.
     split; [|apply BinProductPr1Commutes].
@@ -767,6 +873,68 @@ Proof.
     + exact (id_right _ @ !id_left _).
     + apply TerminalArrowEq.
 Defined.
+
+Lemma terminal_binprod_unit_r {C : category}
+      (T : Terminal C) (BC : BinProducts C) :
+  ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
+Proof.
+  intros x.
+  use is_iso_qinv.
+  - exact (pr1 (terminal_binprod_unit_r_z T BC x)).
+  - exact (pr2 (terminal_binprod_unit_r_z T BC x)).
+Defined.
+
+Section BinProduct_of_functors_with_terminal.
+
+Context (C D : category) (HD : BinProducts D) (TD : Terminal D) (F : functor C D).
+
+Definition terminal_BinProduct_of_functors_unit_l_data :
+  nat_trans_data (BinProduct_of_functors C D HD (constant_functor C D TD) F) F.
+Proof.
+  intro c. exact (BinProductPr2 D (HD TD (F c))).
+Defined.
+
+Lemma terminal_BinProduct_of_functors_unit_l_law :
+  is_nat_trans _ _ terminal_BinProduct_of_functors_unit_l_data.
+Proof.
+  intros c c' f.
+  apply BinProductOfArrowsPr2.
+Qed.
+
+Definition terminal_BinProduct_of_functors_unit_l  :
+  nat_z_iso (BinProduct_of_functors _ _ HD (constant_functor _ _ TD) F) F.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact terminal_BinProduct_of_functors_unit_l_data.
+    + exact terminal_BinProduct_of_functors_unit_l_law.
+  - intro c. apply terminal_binprod_unit_l_z.
+Defined.
+
+Definition terminal_BinProduct_of_functors_unit_r_data :
+  nat_trans_data (BinProduct_of_functors C D HD F (constant_functor C D TD)) F.
+Proof.
+  intro c. exact (BinProductPr1 D (HD (F c) TD)).
+Defined.
+
+Lemma terminal_BinProduct_of_functors_unit_r_law :
+  is_nat_trans _ _ terminal_BinProduct_of_functors_unit_r_data.
+Proof.
+  intros c c' f.
+  apply BinProductOfArrowsPr1.
+Qed.
+
+Definition terminal_BinProduct_of_functors_unit_r  :
+  nat_z_iso (BinProduct_of_functors _ _ HD F (constant_functor _ _ TD)) F.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact terminal_BinProduct_of_functors_unit_r_data.
+    + exact terminal_BinProduct_of_functors_unit_r_law.
+  - intro c. apply terminal_binprod_unit_r_z.
+Defined.
+
+End BinProduct_of_functors_with_terminal.
 
 (**
  In a univalent category, the type of binary products on a given diagram

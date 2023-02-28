@@ -61,6 +61,8 @@ Section FixACategory.
  Qed. (* > 16 times faster than for
 [EquivalenceSignaturesWithActegoryMorphisms.action_in_actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action] *)
 
+ (* commented for reasons of time consumption (easily more than 3 minutes compilation time)
+
 Local Lemma lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
    lineator_data Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
      lineator_data Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
@@ -79,16 +81,18 @@ Proof.
     set (ldinst := ld Z F).
     cbn in ldinst.
     exact ldinst.
-  - abstract (intro ld; apply idpath).
+  - abstract (intro ld; (* apply funextsec; intro; simpl; apply funextsec; intro; *) apply idpath).
   - abstract (intro ld; apply idpath). (* both cases are very slow *)
 Defined. (* 57s on modern Intel machine *)
+*)
+
+(* commented for reasons of time consumption (easily more than 30 minutes compilation time) - no longer needed with the modified definition [MultiSortedSigToStrength'] of signature functor
 
  Local Lemma lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
    lineator_lax Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
      lineator_lax Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
        (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
  Proof.
-(* Admitted. (* commented for reasons of time consumption *) *)
    use (weqbandf (lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree H)).
    intro ld.
    use weqimplimpl.
@@ -146,7 +150,8 @@ Defined. (* 57s on modern Intel machine *)
        assert (Hypunitor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr222 Hyps x)) c);
        cbn; cbn in Hypunitor_inst;
          exact Hypunitor_inst).
- Defined. (* instantaneous, but the abstracted parts require 26min on a modern Intel machine *)
-(* *)
+ Defined. (* instantaneous, but the abstracted parts require 26-42min on a modern Intel machine, depending on if UniMath master was merged *)
+
+*)
 
 End FixACategory.
