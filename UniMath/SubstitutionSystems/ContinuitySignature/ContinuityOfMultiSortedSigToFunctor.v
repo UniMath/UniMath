@@ -80,10 +80,10 @@ Section FixTheContext.
   Section DefinitionOfMultiSortedSigToFunctorPrime.
 
   Definition hat_exp_functor_list'_piece
-             (xst : (list sort × sort) × sort)
+             (xt : (list sort × sort) × sort)
     : functor [sortToC,sortToC] [sortToC,sortToC].
   Proof.
-    induction xst as [[si s] t].
+    induction xt as [[si s] t].
     set (op_f := option_list sort Hsort C TC BC CC si).
     refine (functor_composite (pre_comp_functor op_f) _).
     set (prs := projSortToC sort Hsort C s).
@@ -125,7 +125,7 @@ Section FixTheContext.
     exact (foldr1_map (λ F G, BinProduct_of_functors sortToC1_binproducts F G) TT HH xs).
   Defined.
 
-  Lemma MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
+  Definition MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
     functor [sortToC,sortToC] [sortToC,sortToC].
   Proof.
     use (coproduct_of_functors (ops sort M)).
@@ -144,8 +144,8 @@ Section FixTheContext.
     Context (expSortToC1 : Exponentials BPC1) (** this requires exponentials in a higher space than before *)
       (HC : Colims_of_shape nat_graph C).
 
-    Local Lemma is_omega_cocont_hat_exp_functor_list'_piece  (xst : (list sort × sort) × sort) :
-      is_omega_cocont (hat_exp_functor_list'_piece xst).
+    Local Lemma is_omega_cocont_hat_exp_functor_list'_piece  (xt : (list sort × sort) × sort) :
+      is_omega_cocont (hat_exp_functor_list'_piece xt).
     Proof.
       apply is_omega_cocont_functor_composite.
       - apply is_omega_cocont_pre_composition_functor.

@@ -387,6 +387,7 @@ End ActegoryMorphismFromLiftedDistributivity.
 
 End FixAnObject.
 
+Arguments liftedstrength_from_δ _ _ {_} _.
 Arguments lifteddistributivity _ : clear implicits.
 Arguments lifteddistributivity_data _ : clear implicits.
 
@@ -845,6 +846,9 @@ End CompositionOfLiftedDistributivities.
 End LiftedDistributivity.
 
 End LiftedLineatorAndLiftedDistributivity.
+
+Arguments lifteddistributivity {_} _ {_} _ {_} _ _.
+Arguments lifteddistributivity_data {_} _ {_ _} _.
 
 Section PointwiseOperationsOnLinearFunctors.
 

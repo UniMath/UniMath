@@ -60,11 +60,12 @@ Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.SelfActionInCATWhiskeredElementary.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
-
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
 
 Local Open Scope cat.
 
@@ -164,6 +165,13 @@ Section strength_through_actegories.
   Proof.
     use lifted_coprod_distributor.
     use actegory_from_precomp_CAT_coprod_distributor.
+  Defined.
+
+  Local Definition δCCCATfromSelf (M : MultiSortedSig sort) :
+    actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_FromSelf.
+  Proof.
+    use lifted_coprod_distributor.
+    use SelfActCAT_CAT_coprod_distributor.
   Defined.
 
   Definition lifteddistrCAT_option_functor (s : sort) :
@@ -266,8 +274,56 @@ Section strength_through_actegories.
     apply idpath.
   Qed.
   (** however, the computational behaviour of the lineator will not be available *)
-*)
+   *)
 
+
+  (** *** we now adapt the definitions to [MultiSortedSigToFunctor'] *)
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  Local Definition hat_exp_functor_list'_optimized : list (list sort × sort) × sort -> sortToC2
+    := hat_exp_functor_list'_optimized sort Hsort C TC BP BC CC.
+  Local Definition hat_exp_functor_list'_piece : (list sort × sort) × sort -> sortToC2
+    := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
+
+  Definition StrengthCAT_hat_exp_functor_list'_piece (xt : (list sort × sort) × sort) :
+    pointedstrengthfromselfaction_CAT (hat_exp_functor_list'_piece xt).
+  Proof.
+    unfold hat_exp_functor_list'_piece, ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_piece.
+    use comp_lineator_lax.
+    2: { refine (liftedstrength_from_δ Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
+                   _ (SelfActCAT sortToC)).
+         exact (lifteddistrCAT_option_list (pr1 (pr1 xt))).
+    }
+    use lifted_lax_lineator.
+    apply (lax_lineator_postcomp_SelfActCAT).
+    Defined.
+
+  Definition StrengthCAT_hat_exp_functor_list'_optimized (xst : list (list sort × sort) × sort) :
+    pointedstrengthfromselfaction_CAT (hat_exp_functor_list'_optimized xst).
+  Proof.
+    induction xst as [xs t].
+    induction xs as [[|n] xs].
+    - induction xs.
+      use lifted_lax_lineator.
+      use comp_lineator_lax. (* the next two lines go through [actegory_from_precomp_CAT] *)
+      2: { apply constconst_functor_lax_lineator. }
+      apply lax_lineator_postcomp_SelfActCAT_alt.
+    - induction n as [|n IH].
+      + induction xs as [m []].
+        apply StrengthCAT_hat_exp_functor_list'_piece.
+      + induction xs as [m [k xs]].
+        apply (lax_lineator_binprod Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf).
+        * apply StrengthCAT_hat_exp_functor_list'_piece.
+        * exact (IH (k,,xs)).
+  Defined.
+
+  Definition MultiSortedSigToStrength' (M : MultiSortedSig sort) :
+    pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor' M).
+  Proof.
+    unfold MultiSortedSigToFunctor', ContinuityOfMultiSortedSigToFunctor.MultiSortedSigToFunctor'.
+    set (Hyps := λ (op : ops M), StrengthCAT_hat_exp_functor_list'_optimized (arity M op)).
+    apply (lax_lineator_coprod Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf Hyps (CoproductsMultiSortedSig M)).
+    apply δCCCATfromSelf.
+  Defined.
 
 End strength_through_actegories.
 

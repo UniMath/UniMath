@@ -125,9 +125,9 @@ Section FixACategory.
   Defined.
 
   Local Definition ptdlifteddistributivity_CAT (G : functor C C) :=
-    lifteddistributivity Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)(v0:=G).
+    lifteddistributivity Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) G.
   Local Definition ptdlifteddistributivity_CAT_data (G : functor C C) :=
-    lifteddistributivity_data Mon_endo_CAT (F:=pr1_category (coslice_cat_disp endoCAT I_{Mon_endo_CAT}))(v0:=G).
+    lifteddistributivity_data Mon_endo_CAT (F:=pr1_category (coslice_cat_disp endoCAT I_{Mon_endo_CAT})) G.
 
   Section ConstConst.
 
