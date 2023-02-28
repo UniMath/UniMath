@@ -108,71 +108,65 @@ Local Notation "'{⋅}' B" := (SingletonArrow B)(at level 8).
 Local Definition auxpb {X B:C} (b:C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap BinProd B).
 Proof.
   use make_Pullback.
-    + exact X.
-    + use BinProductArrow.
-      - exact b.
-      - exact (identity X).
-    + exact b.
-    + use BinProductArrowsEq.
-      - rewrite !assoc',
-          !BinProductOfArrowsPr1.
-        simpl.
-        unfold diagonalMap'.
-        now rewrite BinProductPr1Commutes,
-          assoc,
-          BinProductPr1Commutes.
-      - rewrite !assoc',
-          !BinProductOfArrowsPr2.
-        simpl.
-        unfold diagonalMap'.
-        now rewrite BinProductPr2Commutes,
-          assoc,
-          BinProductPr2Commutes,
-          id_left, id_right.
-    + use make_isPullback.
-      intros Y y1 y2 r.
-      set (y11 := (y1 · (BinProductPr1 _ (BinProd B X)))).
-      set (y12 := (y1 · (BinProductPr2 _ (BinProd B X)))).
-      (* rewrite (BinProductArrowEta _ _ _ _ _ y1). *)
-      assert (r1 := maponpaths (λ f, compose f (BinProductPr1 C (BinProd B B))) r).
-      assert (r2 := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B B))) r).
-      simpl in r1, r2.
-      unfold diagonalMap' in r1, r2.
-      rewrite
-        !assoc',
-        BinProductOfArrowsPr1,
-        BinProductPr1Commutes,
-        !id_right
-        in r1.
-      rewrite
-        !assoc',
-        BinProductOfArrowsPr2,
-        BinProductPr2Commutes,
-        !id_right,
-        assoc in r2.
-      fold y11 in r1.
-      fold y12 in r2.
-      use make_iscontr.
-      - split with y12.
-        use (tpair _ _ r2).
-        rewrite precompWithBinProductArrow.
-        use pathsinv0.
-        use BinProductArrowUnique.
-        * now rewrite r2, <-r1.
-        * now rewrite id_right.
-      - intro t.
-        induction t as (t,(tri1,tri2)).
-        use subtypePath.
-        * unfold isPredicate.
-          intro.
-          use isofhleveldirprod.
-          ++ use homset_property. ++ use homset_property.
-        * cbn.
-          assert (Ts := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B X))) tri1).
-          simpl in Ts.
-          rewrite assoc', BinProductPr2Commutes, id_right in Ts.
-          fold y12 in Ts.
-          exact Ts.
+  + exact X.
+  + use BinProductArrow.
+    - exact b.
+    - exact (identity X).
+  + exact b.
+  + simpl.
+    rewrite postcompWithBinProductArrow.
+    use pathsinv0.
+    use BinProductArrowUnique.
+    - rewrite !assoc'.
+      unfold diagonalMap'.
+      now rewrite BinProductPr1Commutes.
+    - rewrite !assoc'.
+      unfold diagonalMap'.
+      now rewrite BinProductPr2Commutes, id_left, id_right.
+  + use make_isPullback.
+    intros Y y1 y2 r.
+    set (y11 := (y1 · (BinProductPr1 _ (BinProd B X)))).
+    set (y12 := (y1 · (BinProductPr2 _ (BinProd B X)))).
+    (* rewrite (BinProductArrowEta _ _ _ _ _ y1). *)
+    assert (r1 := maponpaths (λ f, compose f (BinProductPr1 C (BinProd B B))) r).
+    assert (r2 := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B B))) r).
+    simpl in r1, r2.
+    unfold diagonalMap' in r1, r2.
+    rewrite
+      !assoc',
+      BinProductOfArrowsPr1,
+      BinProductPr1Commutes,
+      !id_right
+      in r1.
+    rewrite
+      !assoc',
+      BinProductOfArrowsPr2,
+      BinProductPr2Commutes,
+      !id_right,
+      assoc in r2.
+    fold y11 in r1.
+    fold y12 in r2.
+    use make_iscontr.
+    - split with y12.
+      use (tpair _ _ r2).
+      rewrite precompWithBinProductArrow.
+      use pathsinv0.
+      use BinProductArrowUnique.
+      * now rewrite r2, <-r1.
+      * now rewrite id_right.
+    - intro t.
+      induction t as (t,(tri1,tri2)).
+      use subtypePath.
+      * unfold isPredicate.
+        intro.
+        use isofhleveldirprod.
+        ++ use homset_property. ++ use homset_property.
+      * cbn.
+        assert (Ts := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B X))) tri1).
+        simpl in Ts.
+        rewrite assoc', BinProductPr2Commutes, id_right in Ts.
+        fold y12 in Ts.
+        exact Ts.
 Defined.
 
 Lemma SingletonArrow_isMonic (B:C) : isMonic ({⋅} B).
