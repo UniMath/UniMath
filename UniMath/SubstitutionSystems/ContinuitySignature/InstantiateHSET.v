@@ -102,7 +102,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
   Defined.
 
   Local Lemma dmor_distribute_over_transport_ω
-        {I : UU} (Iset : isaset I)
+        {I : UU}
         (J : I -> nat -> hSet)
         (Jmor : ∏ i : I, ∏ n : nat, J i (S n) -> J i n)
         (f0 : nat -> I)
@@ -164,7 +164,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
 
 
     induction h.
-    exact (dmor_distribute_over_transport_ω (pr2 I) J Jmor f0 f' m p').
+    exact (dmor_distribute_over_transport_ω J Jmor f0 f' m p').
   Defined.
 
   Definition I_coproduct_distribute_over_omega_limits_HSET (I : HSET)
