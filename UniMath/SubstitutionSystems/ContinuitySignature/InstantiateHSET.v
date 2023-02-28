@@ -101,7 +101,21 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     - exact (q' n @ IHn).
   Defined.
 
-  Local Lemma TODO_JOKER (A : UU) : A. Proof. Admitted.
+  Local Lemma dmor_distribute_over_transport_ω
+        {I : UU}
+        (J : I -> nat -> hSet)
+        (Jmor : ∏ i : I, ∏ n : nat, J i (S n) -> J i n)
+        (f0 : nat -> I)
+        (f : ∏ n : nat, J (f0 n) n)
+        (m : nat)
+        (p : ∏ n : nat, f0 n = f0 0)
+    : Jmor (f0 0) m (transportf (λ i : I, J i (S m)) (p (S m)) (f (S m)))
+      = transportf (λ i : I, J i m) (p (S m)) (Jmor (f0 (S m)) _ (f (S m))).
+  Proof.
+    induction (p (S m)).
+    apply idpath.
+  Qed.
+
   Definition I_coproduct_distribute_over_omega_limit_HSET_inverse
              {I : HSET} (ind : pr1 I → cochain SET)
     :  SET ⟦ pr11 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind),
@@ -133,9 +147,24 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
       exact (! q0).
     }
 
-    unfold q'.
-    clear q0 q' q.
-    apply TODO_JOKER.
+    set (J := λ i n, (pr1 (ind i) n)).
+    transparent assert (Jmor : (∏ (i : pr1 I) (n : nat), pr1 (J i (S n)) → pr1 (J i n))).
+    {
+      intros i0 n0.
+      use (dmor (ind i0)).
+      apply idpath.
+    }
+
+    set (f0 := λ n0, pr1 (f n0)).
+    transparent assert (f' : (∏ n : nat, pr1 (J (f0 n) n))).
+    { exact (λ n0, pr2 (f n0)). }
+
+    transparent assert (p' : (∏ n : nat, f0 n = f0 0)).
+    { exact (test ind (f,,p)). }
+
+
+    induction h.
+    exact (dmor_distribute_over_transport_ω J Jmor f0 f' m p').
   Defined.
 
   Definition I_coproduct_distribute_over_omega_limits_HSET (I : HSET)
