@@ -155,18 +155,11 @@ Proof.
       use make_iscontr.
       - split with y12.
         use (tpair _ _ r2).
-        use BinProductArrowsEq.
-        * fold y11.
-          now rewrite
-            assoc',
-            BinProductPr1Commutes,
-            r2,
-            r1.
-        * fold y12.
-          now rewrite
-            assoc',
-            BinProductPr2Commutes,
-            id_right.
+        rewrite precompWithBinProductArrow.
+        use pathsinv0.
+        use BinProductArrowUnique.
+        * now rewrite r2, <-r1.
+        * now rewrite id_right.
       - intro t.
         induction t as (t,(tri1,tri2)).
         use subtypePath.
