@@ -550,10 +550,10 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
 
    Context (sδ : parameterized_distributivity).
 
-   Let δ_triangle_eq := pr1 (pr2 sδ).
-   Let δ_pentagon_eq := pr2 (pr2 sδ).
-   Let actionA := action_from_alt Mon_V A FA.
-   Let actionA' := action_from_alt Mon_V A' FA'.
+   Let δ_triangle_eq : param_distr_triangle_eq (pr1 sδ) := pr1 (pr2 sδ).
+   Let δ_pentagon_eq : param_distr_pentagon_eq (pr1 sδ) := pr2 (pr2 sδ).
+   Let actionA : action Mon_V A := action_from_alt Mon_V A FA.
+   Let actionA' : action Mon_V A':= action_from_alt Mon_V A' FA'.
 
    Definition strength_nat_from_alt_aux_dom :
      actionbased_strength_dom actionA' F ⟹ uncurry_functor _ _ _ param_distributivity_dom.

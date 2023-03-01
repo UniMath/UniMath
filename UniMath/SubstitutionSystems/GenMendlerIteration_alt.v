@@ -56,8 +56,8 @@ Context {C : category} (IC : Initial C)
 
 Local Notation "0" := (InitialObject IC).
 
-Let AF := FunctorAlg F.
-Let chnF := initChain IC F.
+Let AF : category := FunctorAlg F.
+Let chnF : chain C := initChain IC F.
 Let μF_Initial : Initial AF := colimAlgInitial IC HF (CC chnF).
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).

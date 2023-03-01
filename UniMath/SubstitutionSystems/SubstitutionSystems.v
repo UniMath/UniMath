@@ -331,7 +331,7 @@ Arguments bracket_parts {_} _ _ .
   Local Notation τ := (tau_from_alg H).
 
   Let θ : PrestrengthForSignature H := theta H.
-  Let Id_H := Id_H H.
+  Let Id_H : [C, C] ⟶ [C, C] := Id_H H.
 
 (** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
 Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket H θ T.

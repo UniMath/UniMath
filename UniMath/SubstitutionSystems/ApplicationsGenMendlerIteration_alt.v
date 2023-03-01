@@ -56,9 +56,10 @@ Section A.
 
   Context {a : A} {d : D} (α : A ⟦ (K d) ⊗_{G} a , a ⟧).
 
-  Let iniChd := (initChain OC (leftwhiskering_functor F d)).
+  Let iniChd : chain C := (initChain OC (leftwhiskering_functor F d)).
 
-  Let μFd := (InitialObject (colimAlgInitial OC (omegaF d) (chC iniChd))).
+  Let μFd : category_FunctorAlg (leftwhiskering_functor F d)
+      := (InitialObject (colimAlgInitial OC (omegaF d) (chC iniChd))).
 
   Definition statement_Thm47 : UU :=
         ∃! (β : A ⟦ J (carrier μFd) , a ⟧),
@@ -134,7 +135,8 @@ Section B.
   Definition statement_Lemma_48 : UU
     := statement_Thm47 (D:=C)(B:=C)(A:=C) OC chC omegaF (* omegaG *) (K:=functor_identity C) G h (a:=c)(d:=z) γ.
 
-  Let cc := chC (initChain OC (leftwhiskering_functor F z)).
+  Let cc : ColimCocone (initChain OC (leftwhiskering_functor F z))
+      := chC (initChain OC (leftwhiskering_functor F z)).
 
   Local Lemma statement_Lemma_48_ok : statement_Lemma_48 =
          ∃! β : C ⟦ colim cc ⊗_{ Mon_V} p, c ⟧,

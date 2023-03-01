@@ -117,8 +117,9 @@ Local Definition sortToC2 := [sortToC1, sortToC1].
 Local Definition sortToCC := [sortToC, C].
 Local Definition sortToC1C := [sortToC1, sortToCC].
 
-Let ops := ops sort.
-Let arity := arity sort.
+Let ops : MultiSortedSig sort → hSet := ops sort.
+Let arity : ∏ M : MultiSortedSig sort, MultiSorted_alt.ops sort M → list (list sort × sort) × sort
+    := arity sort.
 
 
 Local Definition sorted_option_functor := sorted_option_functor sort Hsort C TC BC CC.
@@ -157,7 +158,7 @@ Section strength_through_actegories.
   Local Definition pointedstrengthfromselfaction_CAT :=
     lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
-  Let ptdlifteddistributivity_CAT (G : sortToC1) :=
+  Let ptdlifteddistributivity_CAT (G : sortToC1) : UU :=
         BindingSigToMonad_actegorical.ptdlifteddistributivity_CAT G.
 
   Local Definition δCCCATEndo (M : MultiSortedSig sort) :

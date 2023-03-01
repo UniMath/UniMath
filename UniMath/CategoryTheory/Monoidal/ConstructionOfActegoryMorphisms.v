@@ -904,7 +904,8 @@ Section PointwiseBinaryProductOfLinearFunctors.
         BinProductOfArrows _ (BPD _ _) (BPD _ _) (ll1 v c) (ll2 v c)).
   Defined.
 
-  Let cll := binprod_functor_lax_lineator Mon_V BPD ActD.
+  Let cll : lineator_lax Mon_V (actegory_binprod Mon_V ActD ActD) ActD (binproduct_functor BPD)
+      := binprod_functor_lax_lineator Mon_V BPD ActD.
 
   Lemma lineator_laxlaws_binprod: lineator_laxlaws Mon_V ActC ActD FF lineator_data_binprod.
   Proof.
@@ -1015,7 +1016,8 @@ Section PointwiseBinaryCoproductOfLinearFunctors.
     exact (δ v (F1 c) (F2 c) · (BinCoproductOfArrows _ (BCD _ _) (BCD _ _) (ll1 v c) (ll2 v c))).
   Defined.
 
-  Let δll := bincoprod_functor_lineator Mon_V BCD ActD δ.
+  Let δll : lineator Mon_V (actegory_binprod Mon_V ActD ActD) ActD (bincoproduct_functor BCD)
+      := bincoprod_functor_lineator Mon_V BCD ActD δ.
 
   Lemma lineator_laxlaws_bincoprod
     : lineator_laxlaws Mon_V ActC ActD FF lineator_data_bincoprod.
@@ -1131,7 +1133,8 @@ Section PointwiseCoproductOfLinearFunctors.
     exact (δ v (fun i => F i c) · (CoproductOfArrows I _ (CD _) (CD _) (fun i => ll i v c))).
   Defined.
 
-  Let δll := coprod_functor_lineator Mon_V CD ActD δ.
+  Let δll : lineator Mon_V (actegory_power Mon_V I ActD) ActD (coproduct_functor I CD)
+      := coprod_functor_lineator Mon_V CD ActD δ.
 
   Lemma lineator_laxlaws_coprod
     : lineator_laxlaws Mon_V ActC ActD FF lineator_data_coprod.

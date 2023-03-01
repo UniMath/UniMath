@@ -24,10 +24,10 @@ Section Category_of_Monoids.
   Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
   Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
 
-  Let I := monoidal_unit M.
-  Let lu := (monoidal_leftunitordata M).
-  Let ru := (monoidal_rightunitordata M).
-  Let α := (monoidal_associatordata M).
+  Let I : C := monoidal_unit M.
+  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
+  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
+  Let α : associator_data M := monoidal_associatordata M.
 
   Definition monoid_data (x : C) : UU
     := C⟦x ⊗ x, x⟧ × C⟦I, x⟧.
@@ -179,7 +179,7 @@ Section Category_of_Monoids.
   Definition category_of_monoids_in_monoidal_cat : category
     := total_category monoid_disp_cat.
 
-  Let MON := category_of_monoids_in_monoidal_cat.
+  Let MON : category := category_of_monoids_in_monoidal_cat.
 
   Definition monoid_carrier
              (X : MON)

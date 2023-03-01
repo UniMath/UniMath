@@ -82,8 +82,8 @@ Section TerminalCoalgebraToGHSS.
     exact (BinCoproductArrow (CP _ _) (f · out · #I_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
   Defined.
 
-  Let η := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
-  Let τ := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
+  Let η : V⟦I_{Mon_V}, t⟧ := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
+  Let τ : V⟦H t, t⟧ := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
 
   Lemma ητ_is_out_inv : BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ = out_inv.
   Proof.
@@ -269,15 +269,15 @@ Section InitialAlgebraToGHSS.
 
   Context (IV : Initial V) (CV : Colims_of_shape nat_graph V) (HH : is_omega_cocont H).
 
-  Let AF := FunctorAlg I_H.
-  Let chnF := initChain IV I_H.
+  Let AF : category := FunctorAlg I_H.
+  Let chnF : chain V := initChain IV I_H.
 
   Let t_Initial : Initial AF := colimAlgInitial IV (ActionScenarioForGenMendlerIteration_alt.HF CP H HH I_{Mon_V})  (CV chnF).
   Let t : V := alg_carrier _ (InitialObject t_Initial).
   Let α : I_H t --> t := alg_map I_H (pr1 t_Initial).
 
-  Let η := BinCoproductIn1 (CP _ _) · α.
-  Let τ := BinCoproductIn2 (CP _ _) · α.
+  Let η : V⟦constant_functor V V I_{Mon_V} t, t⟧:= BinCoproductIn1 (CP _ _) · α.
+  Let τ : V⟦H t, t⟧ := BinCoproductIn2 (CP _ _) · α.
 
   (** a more comfortable presentation of the standard iteration scheme *)
   Definition Iteration_I_H (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av) : ∃! h : V⟦t,av⟧, τ · h = # H h · aτ × η · h = aη.
@@ -361,7 +361,7 @@ Section InitialAlgebraToGHSS.
   Defined.
 
   Let σ : SigmaMonoid θ := ghhs_to_sigma_monoid θ initial_alg_to_ghss.
-  Let μ : V ⟦ pr1 σ ⊗_{ Mon_V} pr1 σ, pr1 σ ⟧ := pr11 (pr212 σ).
+  Let μ : V⟦pr1 σ ⊗_{Mon_V} pr1 σ, pr1 σ⟧ := pr11 (pr212 σ).
 
   Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.
   Proof.

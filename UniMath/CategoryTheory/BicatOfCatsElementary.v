@@ -1,6 +1,10 @@
 (** the constituents of the bicategory of categories without using the package [Bicategories];
     all is expressed with reference to the functor categories
 
+this is useful for developments that are inspired by bicategorical insights but that are spelt out
+in elementary form, so as to avoid dependency on the package [Bicategories], in particular used
+in examples of whiskered monoidal categories and actegories and in the package [SubstitutionSystems]
+
 author: Ralph Matthes 2023
 *)
 
@@ -14,7 +18,6 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-(* Require Import UniMath.CategoryTheory.HorizontalComposition. *)
 
 Local Open Scope cat.
 
@@ -48,7 +51,7 @@ Definition rassociator_CAT {C D E F : category} (X : [C, D]) (Y : [D, E]) (Z : [
     [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
     := nat_trans_id (functor_composite (functor_composite X Y) Z).
 
-Definition vcomp2_CAT {C D : category} (F G H : [C, D]) : [C,D]⟦F, G⟧ -> [C,D]⟦G, H⟧ -> [C,D]⟦F, H⟧.
+Definition vcomp2_CAT {C D : category} {F G H : [C, D]} : [C,D]⟦F, G⟧ -> [C,D]⟦G, H⟧ -> [C,D]⟦F, H⟧.
 Proof.
   intros α β. exact (nat_trans_comp _ _ _ α β).
 Defined.

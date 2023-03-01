@@ -268,8 +268,8 @@ Section FixACategory.
 (* From here on all constructions need these hypotheses *)
   Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
-  Let BPC2 := BinProducts_functor_precat C C BPC.
-  Let BCC2 := BinCoproducts_functor_precat C C BCC.
+  Let BPC2 : BinProducts [C, C] := BinProducts_functor_precat C C BPC.
+  Let BCC2 : BinCoproducts [C, C] := BinCoproducts_functor_precat C C BCC.
 
   (** [nat] to a Signature *)
   Definition Arity_to_functor (TC : Terminal C) (xs : list nat) : functor [C, C] [C, C].
@@ -334,8 +334,8 @@ Section FixACategory.
     apply idpath.
   Qed.
 
-  Let Id_H := Id_H C BCC.
-  Let constprod_functor1 := constprod_functor1 BPC2.
+  Let Id_H : [C, C] ⟶ [C, C] → [C, C] ⟶ [C, C] := Id_H C BCC.
+  Let constprod_functor1 : [C, C] → [C, C] ⟶ [C, C] := constprod_functor1 BPC2.
 
   Lemma is_omega_cocont_BindingSigToFunctor
     (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)

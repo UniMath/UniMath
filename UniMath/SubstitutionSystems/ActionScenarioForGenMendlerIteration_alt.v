@@ -41,8 +41,8 @@ Section FixAFunctor.
 
   Context (F : functor C C) (HF : is_omega_cocont F).
 
-  Let AF := FunctorAlg F.
-  Let chnF := initChain IC F.
+  Let AF : category := FunctorAlg F.
+  Let chnF : chain C := initChain IC F.
   Let μF_Initial : Initial AF := colimAlgInitial IC HF (CC chnF).
   Let μF : C := alg_carrier _ (InitialObject μF_Initial).
   Let α : F μF --> μF := alg_map F (pr1 μF_Initial).
@@ -67,8 +67,8 @@ Section Const_H_AsFunctor.
 
   Let Const_plus_H (c : C) : functor C C := GeneralizedSubstitutionSystems.Const_plus_H H CP c.
 
-  Let AF := FunctorAlg (Const_plus_H c0).
-  Let chnF := initChain IC (Const_plus_H c0).
+  Let AF : category := FunctorAlg (Const_plus_H c0).
+  Let chnF : chain C := initChain IC (Const_plus_H c0).
 
   Local Lemma HF : is_omega_cocont (Const_plus_H c0).
   Proof.
@@ -81,8 +81,8 @@ Section Const_H_AsFunctor.
   Let μF : C := alg_carrier _ (InitialObject μF_Initial).
   Let α : Const_plus_H c0 μF --> μF := alg_map (Const_plus_H c0) (pr1 μF_Initial).
 
-  Let η := BinCoproductIn1 (CP _ _) · α.
-  Let τ := BinCoproductIn2 (CP _ _) · α.
+  Let η : C⟦constant_functor C C c0 μF, μF⟧ := BinCoproductIn1 (CP _ _) · α.
+  Let τ : C⟦H μF, μF⟧ := BinCoproductIn2 (CP _ _) · α.
 
   Context (y : C) (θ : lineator_lax Mon_V Act Act H) (ρ : H y --> y) (f : v ⊗_{Act} c0 --> y).
 
@@ -215,7 +215,8 @@ Section Const_H_AsFunctor.
 
   Local Definition θ'_data := fun (c : C) => δ v c0 (H c) · BinCoproductOfArrows _ (CP _ _) (CP _ _) f (θ v c).
 
-  Let δll := bincoprod_functor_lineator Mon_V CP Act δ.
+  Let δll : lineator Mon_V (ProductActegory.actegory_binprod Mon_V Act Act) Act
+    (bincoproduct_functor CP) := bincoprod_functor_lineator Mon_V CP Act δ.
 
   Local Lemma θ'_data_is_nat_trans : is_nat_trans ((Const_plus_H c0) ∙ L) (L ∙ (Const_plus_H y)) θ'_data.
   Proof.

@@ -22,14 +22,16 @@ Local Open Scope cat.
 Section MonoidToMonad.
 
   Context {C : category}.
-  Let ENDO := monoidal_of_endofunctors C.
-  Let MON := category_of_monoids_in_monoidal_cat ENDO.
+
+  Let ENDO : category := cat_of_endofunctors C.
+  Let M_ENDO : monoidal ENDO := monoidal_of_endofunctors C.
+  Let MON : category := category_of_monoids_in_monoidal_cat M_ENDO.
 
   Context (M : MON).
 
-  Let x := monoid_carrier _ M.
-  Let η := monoid_unit _ M.
-  Let μ := monoid_multiplication _ M.
+  Let x : ENDO := monoid_carrier _ M.
+  Let η : ENDO ⟦ monoidal_unit M_ENDO, x ⟧ := monoid_unit _ M.
+  Let μ : ENDO ⟦ x ⊗_{M_ENDO} x, x⟧ := monoid_multiplication _ M.
 
   Definition monoid_to_monad_multiplication : functor_with_μ C.
   Proof.

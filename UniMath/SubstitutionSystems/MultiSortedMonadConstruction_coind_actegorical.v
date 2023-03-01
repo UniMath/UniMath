@@ -426,7 +426,7 @@ Section monad.
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
     := MultiSortedSigToStrength' sort Hsort C TC BP BC CC.
 
-  Let Id_H := Id_H sortToC BCsortToC.
+  Let Id_H : sortToC2 → sortToC2 := Id_H sortToC BCsortToC.
 
   (** Construction of terminal coalgebra for the omega-continuous signature functor with lax lineator *)
   Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
