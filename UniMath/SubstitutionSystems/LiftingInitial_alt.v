@@ -490,7 +490,7 @@ use tpair.
   exact (a · b).
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;
             unfold yoneda_objects_ob; simpl; unfold compose; simpl;
-            apply nat_trans_eq; [apply homset_property |]; simpl; intros ?;
+            apply nat_trans_eq; [apply homset_property |]; simpl; intro;
             apply assoc').
 Defined.
 

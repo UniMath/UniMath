@@ -349,7 +349,7 @@ Section CompositionOfLaxLineators.
 
   Lemma comp_lineator_laxlaws : lineator_laxlaws comp_lineator_data.
   Proof.
-    split4; intros ?; unfold comp_lineator_data; intros; cbn.
+    split4; intro; unfold comp_lineator_data; intros; cbn.
     - etrans.
       2: { rewrite assoc'. apply maponpaths. apply functor_comp. }
       etrans.

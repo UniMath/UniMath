@@ -569,7 +569,7 @@ Proof.
       * apply (PullbackArrow_PullbackPr1 Pb).
   - cbn.
     intro t. apply subtypePath.
-    intros ? . apply isapropdirprod; apply hsC.
+    intro. apply isapropdirprod; apply hsC.
     destruct t as [t Ht].
     cbn; apply PullbackArrowUnique.
     + apply (pr2 Ht).
@@ -753,7 +753,7 @@ Proof.
         }
   - cbn. intro t.
     apply subtypePath.
-    + intros ? . apply isapropdirprod; apply hsC.
+    + intro. apply isapropdirprod; apply hsC.
     + cbn.
       destruct t as [t Ht]; cbn in *.
       apply z_iso_inv_on_left.
@@ -989,7 +989,7 @@ Proof.
       rewrite TX; clear TX.
       unfold umor; rewrite umorPr2. apply idpath.
   - cbn. intro t. apply subtypePath ; [
-        intros ?; apply isapropdirprod; apply hsD | cbn ].
+        intro; apply isapropdirprod; apply hsD | cbn ].
     destruct t as [t [Htx Hty]]; cbn.
     apply (pre_comp_with_z_iso_is_inj i).
     rewrite assoc. rewrite z_iso_inv_after_z_iso.

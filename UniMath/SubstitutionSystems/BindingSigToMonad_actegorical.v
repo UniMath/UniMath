@@ -141,18 +141,18 @@ Section FixACategory.
       - intros Ze c'. cbn.
         apply nat_trans_id.
       - split4.
-        + intros ?; intros. apply (nat_trans_eq C).
+        + intro; intros. apply (nat_trans_eq C).
           intro c'.
           apply idpath.
-        + intros ?; intros. apply (nat_trans_eq C).
+        + intro; intros. apply (nat_trans_eq C).
           intro c'.
           apply idpath.
-        + intros ?; intros. apply (nat_trans_eq C).
+        + intro; intros. apply (nat_trans_eq C).
           intro c'.
           cbn.
           repeat rewrite id_right.
           apply idpath.
-        + intros ?; intros. apply (nat_trans_eq C).
+        + intro; intros. apply (nat_trans_eq C).
           intro c'.
           apply idpath.
     Defined.

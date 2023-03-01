@@ -227,7 +227,7 @@ Proof.
     + intros ? ? f; exact (free_monoidfun f).
   - split.
     + (** Identity axiom *)
-      intros ?.
+      intro.
       abstract (apply monoidfun_paths, funextfun; intro; apply map_idfun).
     + (** Composition axiom *)
       intros ? ? ? ? ?.
@@ -244,7 +244,7 @@ Definition monoid_free_forgetful_unit :
             (functor_composite monoid_free_functor monoid_forgetful_functor).
 Proof.
   use make_nat_trans.
-  - intros ?; exact singleton.
+  - intro; exact singleton.
   - intros ? ? ?.
     abstract (apply funextfun; intro; reflexivity).
 Defined.
@@ -275,7 +275,7 @@ Definition monoid_free_forgetful_counit :
             (functor_identity _).
 Proof.
   use make_nat_trans.
-  - intros ?.
+  - intro.
     use tpair.
     + intro; apply iterop_list_mon; assumption.
     + split.

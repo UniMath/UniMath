@@ -114,7 +114,7 @@ Lemma lax_lineator_postcomp_actegories_from_precomp_laws :
   lineator_laxlaws (Mon_endo c0) (actegory_from_precomp c0 d0) (actegory_from_precomp c0 e0)
     (post_comp c0 g) lax_lineator_postcomp_actegories_from_precomp_data.
 Proof.
-  split4; intros ?; intros; cbn; unfold lax_lineator_postcomp_actegories_from_precomp_data.
+  split4; intro; intros; cbn; unfold lax_lineator_postcomp_actegories_from_precomp_data.
   - apply rwhisker_lwhisker.
   - apply pathsinv0, rwhisker_rwhisker.
   - apply inverse_pentagon_7.

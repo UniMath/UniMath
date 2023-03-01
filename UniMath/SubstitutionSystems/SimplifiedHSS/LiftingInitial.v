@@ -618,7 +618,7 @@ Proof.
     unfold compose;
     simpl;
     apply nat_trans_eq; [ apply homset_property |];
-    simpl; intros ?; apply assoc').
+    simpl; intro; apply assoc').
 Defined.
 
 Lemma ishssMor_InitAlg (T' : hss CP H) :

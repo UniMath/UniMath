@@ -153,23 +153,23 @@ Section LineatorForPostcomposition.
       lax_lineator_postcomp_actegories_from_precomp_CAT_data.
   Proof.
     split4.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq E).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq E).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq E).
       intro c.
       cbn.
       do 3 rewrite id_left.
       apply functor_id.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq E).
       intro c.
       cbn.
@@ -197,10 +197,10 @@ Section LineatorForConstConstFunctor.
     lineator_laxlaws _ _ _  _ constconst_functor_lax_lineator_data.
   Proof.
     split4.
-    - intros ?; intros; apply (nat_trans_eq E); intro c; apply idpath.
-    - intros ?; intros; apply (nat_trans_eq E); intro c; apply idpath.
-    - intros ?; intros; apply (nat_trans_eq E); intro c. apply pathsinv0, id_right.
-    - intros ?; intros; apply (nat_trans_eq E); intro c. apply id_right.
+    - intro; intros; apply (nat_trans_eq E); intro c; apply idpath.
+    - intro; intros; apply (nat_trans_eq E); intro c; apply idpath.
+    - intro; intros; apply (nat_trans_eq E); intro c. apply pathsinv0, id_right.
+    - intro; intros; apply (nat_trans_eq E); intro c. apply id_right.
   Qed.
 
   Definition constconst_functor_lax_lineator : lineator_lax (Mon_endo C)

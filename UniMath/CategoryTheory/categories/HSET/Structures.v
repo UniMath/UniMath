@@ -332,9 +332,9 @@ Section kernel_pair_Set.
     - exact hcompat.
     - simpl.
       apply funextfun.
-      intros ?.
+      intro.
       apply univ_surj_ax.
-    - intros ?. apply has_homsets_HSET.
+    - intro. apply has_homsets_HSET.
     - intros ??; simpl.
       apply funextfun.
       use univ_surj_unique.

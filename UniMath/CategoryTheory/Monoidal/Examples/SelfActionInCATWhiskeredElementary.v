@@ -51,23 +51,23 @@ Section LineatorForPostcomposition.
       lax_lineator_postcomp_SelfActCAT_data.
   Proof.
     split4.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       do 3 rewrite id_left.
       apply functor_id.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
@@ -98,23 +98,23 @@ Section LineatorForPostcomposition_alt.
       lax_lineator_postcomp_SelfActCAT_alt_data.
   Proof.
     split4.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       rewrite id_left; apply id_right.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.
       do 3 rewrite id_left.
       apply functor_id.
-    - intros ?; intros.
+    - intro; intros.
       apply (nat_trans_eq C).
       intro c.
       cbn.

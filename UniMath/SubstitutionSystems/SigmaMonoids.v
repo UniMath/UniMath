@@ -93,8 +93,8 @@ Section SigmaMonoid.
   Lemma SigmaMonoid_to_monoid_laws : is_functor SigmaMonoid_to_monoid_data.
   Proof.
     split.
-    - intros ?. apply idpath.
-    - intros ?; intros. apply idpath.
+    - intro. apply idpath.
+    - intro; intros. apply idpath.
   Qed.
 
   Definition SigmaMonoid_to_monoid : functor SigmaMonoid MON :=

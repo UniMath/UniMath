@@ -64,9 +64,9 @@ Section LiftedLaxLineator.
                                      (lifted_actegory Mon_V ActD Mon_W U) H lifted_lax_lineator_data.
   Proof.
     split4.
-    - intros ?; intros. apply (lineator_linnatleft _ _ _ _ ll).
-    - intros ?; intros. apply (lineator_linnatright _ _ _ _ ll).
-    - intros ?; intros. cbn. unfold lifted_lax_lineator_data, lifted_actor_data.
+    - intro; intros. apply (lineator_linnatleft _ _ _ _ ll).
+    - intro; intros. apply (lineator_linnatright _ _ _ _ ll).
+    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_actor_data.
       etrans.
       2: { repeat rewrite assoc'. apply maponpaths.
            rewrite assoc.
@@ -80,7 +80,7 @@ Section LiftedLaxLineator.
            apply maponpaths.
            apply functor_comp. }
       apply idpath.
-    - intros ?; intros. cbn. unfold lifted_lax_lineator_data, lifted_action_unitor_data.
+    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_action_unitor_data.
       etrans.
       2: { apply maponpaths.
            apply (lineator_preservesunitor _ _ _ _ ll). }
@@ -400,7 +400,7 @@ Arguments lifteddistributivity_data _ : clear implicits.
 
   Lemma unit_lifteddistributivity_nat: lifteddistributivity_nat unit_lifteddistributivity_data.
   Proof.
-    intros ?; intros. unfold unit_lifteddistributivity_data.
+    intro; intros. unfold unit_lifteddistributivity_data.
     cbn.
     etrans.
     { rewrite assoc.
@@ -413,7 +413,7 @@ Arguments lifteddistributivity_data _ : clear implicits.
 
   Lemma unit_lifteddistributivity_tensor: lifteddistributivity_tensor unit_lifteddistributivity_data.
   Proof.
-    intros ?; intros. unfold lifteddistributivity_tensor_body, unit_lifteddistributivity_data.
+    intro; intros. unfold lifteddistributivity_tensor_body, unit_lifteddistributivity_data.
     etrans.
     2: { do 2 apply cancel_postcomposition.
          etrans.

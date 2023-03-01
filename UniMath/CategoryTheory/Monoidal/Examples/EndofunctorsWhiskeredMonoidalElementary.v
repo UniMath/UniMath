@@ -37,11 +37,11 @@ Section FixACategory.
   Definition monendocat_tensor_laws : is_bifunctor monendocat_tensor_data.
   Proof.
     split5.
-    - intros ?; apply lwhisker_id2_CAT.
-    - intros ?; intros; apply id2_rwhisker_CAT.
-    - intros ?; intros; apply pathsinv0, lwhisker_vcomp_CAT.
-    - intros ?; intros; apply pathsinv0, rwhisker_vcomp_CAT.
-    - intros ?; intros; apply vcomp_whisker_CAT.
+    - intro; apply lwhisker_id2_CAT.
+    - intro; intros; apply id2_rwhisker_CAT.
+    - intro; intros; apply pathsinv0, lwhisker_vcomp_CAT.
+    - intro; intros; apply pathsinv0, rwhisker_vcomp_CAT.
+    - intro; intros; apply vcomp_whisker_CAT.
   Qed. (* Defined. *)
 
   Definition monendocat_tensor : tensor [C, C] :=
@@ -52,12 +52,12 @@ Section FixACategory.
     use make_monoidal_data.
     - exact monendocat_tensor.
     - exact (id1_CAT C).
-    - intros ?; apply lunitor_CAT.
-    - intros ?; apply linvunitor_CAT.
-    - intros ?; apply runitor_CAT.
-    - intros ?; apply rinvunitor_CAT.
-    - intros ?; apply rassociator_CAT.
-    - intros ?; apply lassociator_CAT.
+    - intro; apply lunitor_CAT.
+    - intro; apply linvunitor_CAT.
+    - intro; apply runitor_CAT.
+    - intro; apply rinvunitor_CAT.
+    - intro; apply rassociator_CAT.
+    - intro; apply lassociator_CAT.
   Defined.
 
   Local Definition MD := monendocat_monoidal_data.
@@ -65,23 +65,23 @@ Section FixACategory.
   Local Lemma monendocat_leftunitor_law: leftunitor_law lu_{MD} luinv_{MD}.
   Proof.
     split.
-    - intros ?; intros; apply vcomp_lunitor_CAT.
-    - intros ?; apply lunitor_CAT_pointwise_is_z_iso.
+    - intro; intros; apply vcomp_lunitor_CAT.
+    - intro; apply lunitor_CAT_pointwise_is_z_iso.
   Qed.
 
   Local Lemma monendocat_rightunitor_law : rightunitor_law ru_{MD} ruinv_{MD}.
   Proof.
     split.
-    - intros ?; intros; apply vcomp_runitor_CAT.
-    - intros ?; apply runitor_CAT_pointwise_is_z_iso.
+    - intro; intros; apply vcomp_runitor_CAT.
+    - intro; apply runitor_CAT_pointwise_is_z_iso.
   Qed.
 
   Local Lemma monendocat_associator_law : associator_law α_{MD} αinv_{MD}.
   Proof.
     split4.
-    - intros ?; intros; apply lwhisker_lwhisker_rassociator_CAT.
-    - intros ?; intros; apply pathsinv0, rwhisker_rwhisker_alt_CAT.
-    - intros ?; intros; apply rwhisker_lwhisker_rassociator_CAT.
+    - intro; intros; apply lwhisker_lwhisker_rassociator_CAT.
+    - intro; intros; apply pathsinv0, rwhisker_rwhisker_alt_CAT.
+    - intro; intros; apply rwhisker_lwhisker_rassociator_CAT.
     - split.
       + apply (pr22 (lassociator_CAT_pointwise_is_z_iso _ _ _)).
       + apply lassociator_CAT_pointwise_is_z_iso.
@@ -89,12 +89,12 @@ Section FixACategory.
 
   Local Lemma monendocat_triangle_identity : triangle_identity lu_{MD} ru_{MD} α_{MD}.
   Proof.
-    intros ?; intros. apply lunitor_lwhisker_CAT.
+    intro; intros. apply lunitor_lwhisker_CAT.
   Qed.
 
   Local Lemma monendocat_pentagon_identity : pentagon_identity α_{MD}.
   Proof.
-    intros ?; intros. apply rassociator_rassociator_CAT.
+    intro; intros. apply rassociator_rassociator_CAT.
   Qed.
 
   Definition monendocat_monoidal : monoidal [C, C].

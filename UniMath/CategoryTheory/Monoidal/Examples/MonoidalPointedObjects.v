@@ -76,7 +76,7 @@ Defined.
 
 Lemma monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor : is_disp_bifunctor monoidal_pointed_objects_disp_tensor_data.
 Proof.
-  split5; intros ?; intros; apply V.
+  split5; intro; intros; apply V.
 Qed.
 
 Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
@@ -185,7 +185,7 @@ Defined.
 
 Lemma monoidal_pointed_objects_disp_laws : disp_monoidal_laws monoidal_pointed_objects_disp_data.
 Proof.
-  repeat split; try intros ?; intros; apply V.
+  repeat split; try intro; intros; apply V.
 Qed.
 
 Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V
@@ -196,12 +196,12 @@ Definition monoidal_pointed_objects : monoidal (coslice_cat_total V I_{Mon_V})
 
 Definition forget_monoidal_pointed_objects_data : fmonoidal_data monoidal_pointed_objects Mon_V (pr1_category cosliced).
 Proof.
-  split; try intros ?; intros; apply identity.
+  split; try intro; intros; apply identity.
 Defined.
 
 Lemma forget_monoidal_pointed_objects_laxlaws : fmonoidal_laxlaws forget_monoidal_pointed_objects_data.
 Proof.
-  split5; intros ?; intros.
+  split5; intro; intros.
   - rewrite id_left; apply id_right.
   - rewrite id_left; apply id_right.
   - do 2 rewrite id_right. cbn.
@@ -219,7 +219,7 @@ Definition forget_monoidal_pointed_objects_monoidal_stronglaws :
   fmonoidal_stronglaws (fmonoidal_preservestensordata forget_monoidal_pointed_objects_lax_monoidal)
     (fmonoidal_preservesunit forget_monoidal_pointed_objects_lax_monoidal).
 Proof.
-  split; try intros ?; intros; apply identity_is_z_iso.
+  split; try intro; intros; apply identity_is_z_iso.
 Defined.
 
 Definition forget_monoidal_pointed_objects_monoidal : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced) :=
