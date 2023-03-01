@@ -17,7 +17,7 @@ Extended by: Langston Barrett (@siddharthist), 2018
 - Terminal object as the unit (up to isomorphism) of binary products
 - Definition of the "associative" z-isomorphism [BinProduct_assoc]
 - Definition of the diagonal map [diagonalMap]
-  
+
  *)
 
 Require Import UniMath.Foundations.PartD.
@@ -842,6 +842,7 @@ Proof.
     + exact (id_right _ @ !id_left _).
 Defined.
 
+(*
 Lemma terminal_binprod_unit_l {C : category}
       (T : Terminal C) (BC : BinProducts C) :
   ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
@@ -851,6 +852,7 @@ Proof.
   - exact (pr1 (terminal_binprod_unit_l_z T BC x)).
   - exact (pr2 (terminal_binprod_unit_l_z T BC x)).
 Defined.
+*)
 
 (** [x × T ≅ x]*)
 
@@ -874,6 +876,7 @@ Proof.
     + apply TerminalArrowEq.
 Defined.
 
+(*
 Lemma terminal_binprod_unit_r {C : category}
       (T : Terminal C) (BC : BinProducts C) :
   ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
@@ -883,6 +886,7 @@ Proof.
   - exact (pr1 (terminal_binprod_unit_r_z T BC x)).
   - exact (pr2 (terminal_binprod_unit_r_z T BC x)).
 Defined.
+*)
 
 Section BinProduct_of_functors_with_terminal.
 
@@ -1289,7 +1293,7 @@ Section diagonalMap.
       (maponpaths (λ f, compose f (BinProductPr1 C (P B B))) p)).
     unfold diagonalMap' in p'.
     rewrite !assoc', BinProductPr1Commutes , !id_right in p'.
-    exact p'.  
+    exact p'.
   Qed.
 
   Definition diagonalMap : Monic _ B (BinProductObject C (P B B)).

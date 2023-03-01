@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
 
-Section A.
+Section FixACategory.
 
   Context {C : category}.
 
@@ -91,4 +91,4 @@ Section MonadToMonoid.
 
 End MonadToMonoid.
 
-End A.
+End FixACategory.

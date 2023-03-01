@@ -197,11 +197,9 @@ Section Instantiation_To_Bicategory_Of_Categories.
 
 Lemma actegoryfromprecomp_actions_equal : actegoryfromprecomp_actions_equal_statement.
 Proof.
-  cbn.
-  use total2_paths_f.
-  { apply idpath. }
-  cbn.
-  apply isaprop_is_bifunctor.
+  apply subtypePath.
+  { intro. apply isaprop_is_bifunctor. }
+  apply idpath. (* very slow *)
 Qed. (* very slow *)
 
 (*

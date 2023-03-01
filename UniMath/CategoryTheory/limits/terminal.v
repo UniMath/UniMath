@@ -168,35 +168,35 @@ Section TerminalFunctorCat.
 
 Variables (C D : category) (ID : Terminal D).
 
-Definition Terminal_functor_precat : Terminal [C,D].
+(* Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
 - use make_functor.
   + use tpair.
     * intros c; apply (TerminalObject ID).
-    * simpl; intros a b f; apply (TerminalArrow ID).
-  + split.
-    * intro a; apply TerminalEndo_is_identity.
-    * intros a b c f g; apply pathsinv0, TerminalArrowUnique.
+    * intros a b f; apply (TerminalArrow ID).
+  + abstract (split; [intro a; apply TerminalEndo_is_identity |
+                      intros a b c f g; apply pathsinv0, TerminalArrowUnique]).
 - intros F.
   use tpair.
-  + use make_nat_trans; simpl.
+  + use make_nat_trans.
     * intro a; apply TerminalArrow.
-    * intros a b f; simpl.
-      rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
-      apply TerminalArrowUnique.
+    * abstract (intros a b f; simpl;
+                rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right;
+                apply TerminalArrowUnique).
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
+*)
 
-Definition Terminal_functor_precat_alt : Terminal [C,D].
+Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
 - exact (constant_functor _ _ ID).
 - intros F.
   use tpair.
-  + use make_nat_trans; simpl.
+  + use make_nat_trans.
     * intro a; apply TerminalArrow.
-    * intros a b f; apply TerminalArrowEq.
+    * abstract (intros a b f; apply TerminalArrowEq).
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 

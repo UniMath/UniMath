@@ -352,7 +352,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
   Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
-  Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat_alt _ _ TC.
+  Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
 
 
   Lemma sortToC_hasbinproducts

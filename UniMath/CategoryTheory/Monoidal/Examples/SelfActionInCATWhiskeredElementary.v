@@ -75,7 +75,7 @@ Section LineatorForPostcomposition.
       apply functor_id.
   Qed.
 
-  (** the following definition may not be usable because of its tigght typing *)
+  (** the following definition may not be usable because of its tight typing *)
   Definition lax_lineator_postcomp_SelfActCAT :
     lineator_lax (Mon_endo C) (SelfActCAT C) (SelfActCAT C) (post_comp_functor G) :=
     _,,lax_lineator_postcomp_SelfActCAT_laws.

@@ -467,7 +467,7 @@ Section PointedObjectFixpointMonoidal.
               ]).
   Defined.
 
-
+(** TODO: separate data and their verification that should be opaque *)
   Definition ptdob_to_ptdptdob_fmonoidal_stronglaws
     : fmonoidal_stronglaws (fmonoidal_preservestensordata ptdob_to_ptdptdob_fmonoidal_lax)
                            (fmonoidal_preservesunit ptdob_to_ptdptdob_fmonoidal_lax).

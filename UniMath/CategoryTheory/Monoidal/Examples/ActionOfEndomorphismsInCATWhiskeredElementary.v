@@ -102,8 +102,8 @@ Definition action_in_actegory_from_precomp_CAT_as_self_action :
   actegory_action (Mon_endo C) (actegory_from_precomp_CAT C C) =
     actegory_action (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C)).
 Proof.
-  use total2_paths_f.
-  2: { apply isaprop_is_bifunctor. }
+  apply subtypePath.
+  { intro; apply isaprop_is_bifunctor. }
   apply idpath.
 Defined.
 
@@ -226,6 +226,7 @@ Section BinaryCoproduct.
     apply precomp_bincoprod_distributor_data.
   Defined.
 
+  (** a sanity check *)
   Goal ∏ F G1 G2 c, pr1 (actegory_from_precomp_CAT_bincoprod_distributor_data F G1 G2) c = identity _.
   Proof.
     intros.

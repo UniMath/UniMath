@@ -169,15 +169,16 @@ Defined.
 
 Lemma terminalcoalgebra_is_z_iso : is_z_isomorphism α.
 Proof.
-  exists α'.
-  split.
-  - exact αα'_idA.
-  - exact α'α_idFA.
+  use make_is_z_isomorphism.
+  - exact α'.
+  - split.
+    + exact αα'_idA.
+    + exact α'α_idFA.
 Defined.
 
 Definition terminalcoalgebra_z_iso : z_iso A (F A) := α,, terminalcoalgebra_is_z_iso.
 
-Definition terminalcoalgebra_iso : iso A (F A) := z_iso_to_iso terminalcoalgebra_z_iso.
+(* Definition terminalcoalgebra_iso : iso A (F A) := z_iso_to_iso terminalcoalgebra_z_iso. *)
 
 End Lambek_dual.
 

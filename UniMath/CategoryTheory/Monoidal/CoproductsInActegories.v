@@ -38,16 +38,18 @@ Section BinaryCoproduct.
 
   Context {C : category} (BCP : BinCoproducts C) (Act : actegory Mon_V C).
 
-  Definition actegory_bincoprod_antidistributor := bifunctor_bincoprod_antidistributor BCP BCP Act.
+  Definition actegory_bincoprod_antidistributor : ∏ (a : V) (c c' : C),
+      BCP (leftwhiskering_functor Act a c) (leftwhiskering_functor Act a c') --> leftwhiskering_functor Act a (BCP c c')
+    := bifunctor_bincoprod_antidistributor BCP BCP Act.
 
-  Lemma actegory_bincoprod_antidistributor_nat_left (v : V) (cd1 cd2 : category_binproduct C C) (g : category_binproduct C C ⟦ cd1, cd2 ⟧) :
+  Lemma actegory_bincoprod_antidistributor_nat_left (v : V) (cd1 cd2 : category_binproduct C C) (g : cd1 --> cd2) :
     actegory_bincoprod_antidistributor v (pr1 cd1) (pr2 cd1) · v ⊗^{Act}_{l} #(bincoproduct_functor BCP) g =
     #(bincoproduct_functor BCP) (v ⊗^{actegory_binprod Mon_V Act Act}_{l} g) · actegory_bincoprod_antidistributor v (pr1 cd2) (pr2 cd2).
   Proof.
     apply bincoprod_antidistributor_nat_left.
   Qed.
 
-  Lemma actegory_bincoprod_antidistributor_nat_right (v1 v2 : V) (cd : category_binproduct C C) (f : V ⟦ v1, v2 ⟧) :
+  Lemma actegory_bincoprod_antidistributor_nat_right (v1 v2 : V) (cd : category_binproduct C C) (f : v1 --> v2) :
     actegory_bincoprod_antidistributor v1 (pr1 cd) (pr2 cd) · f ⊗^{ Act}_{r} bincoproduct_functor BCP cd  =
     #(bincoproduct_functor BCP) (f ⊗^{ actegory_binprod Mon_V Act Act}_{r} cd) · actegory_bincoprod_antidistributor v2 (pr1 cd) (pr2 cd).
   Proof.
@@ -218,7 +220,7 @@ Section Coproduct.
   Definition actegory_coprod_antidistributor := bifunctor_coprod_antidistributor CP CP Act.
 
   Lemma actegory_coprod_antidistributor_nat_left (v : V)
-    (cs1 cs2 : power_category I C) (g : power_category I C ⟦ cs1, cs2 ⟧) :
+    (cs1 cs2 : power_category I C) (g : cs1 --> cs2) :
     actegory_coprod_antidistributor v cs1 · v ⊗^{Act}_{l} #(coproduct_functor I CP) g =
       #(coproduct_functor I CP) (v ⊗^{actegory_power Mon_V I Act}_{l} g) ·
         actegory_coprod_antidistributor v cs2.
@@ -227,8 +229,8 @@ Section Coproduct.
   Qed.
 
   Lemma actegory_coprod_antidistributor_nat_right (v1 v2 : V)
-    (cs : power_category I C) (f : V ⟦ v1, v2 ⟧) :
-    actegory_coprod_antidistributor v1 cs · f ⊗^{ Act}_{r} coproduct_functor I CP cs  =
+    (cs : power_category I C) (f : v1 --> v2) :
+    actegory_coprod_antidistributor v1 cs · f ⊗^{Act}_{r} coproduct_functor I CP cs  =
       #(coproduct_functor I CP) (f ⊗^{actegory_power Mon_V I Act}_{r} cs) ·
         actegory_coprod_antidistributor v2 cs.
   Proof.
