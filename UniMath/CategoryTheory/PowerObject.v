@@ -1,5 +1,5 @@
-(** ** 
-  Following Saunders Mac Lane & Ieke Moerdijk 
+(** **
+  Following Saunders Mac Lane & Ieke Moerdijk
   Sheaves in Geometry and Logic - A First Introduction to Topos theory.
   Chapter IV.1
 
@@ -278,8 +278,7 @@ Definition idxT_nattrans := binproduct_nat_trans_pr1 C C Prod (functor_identity 
 Theorem idxT_is_nat_z_iso : is_nat_z_iso idxT_nattrans.
 Proof.
   intro c.
-  use is_z_iso_from_is_iso.
-  use (terminal_binprod_unit_r T Prod).
+  use (terminal_binprod_unit_r_z T Prod).
 Defined.
 
 Definition idxT_nat_z_iso := (make_nat_z_iso _ _ (idxT_nattrans) (idxT_is_nat_z_iso)).

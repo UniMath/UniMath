@@ -842,20 +842,7 @@ Proof.
     + exact (id_right _ @ !id_left _).
 Defined.
 
-(*
-Lemma terminal_binprod_unit_l {C : category}
-      (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
-Proof.
-  intros x.
-  use is_iso_qinv.
-  - exact (pr1 (terminal_binprod_unit_l_z T BC x)).
-  - exact (pr2 (terminal_binprod_unit_l_z T BC x)).
-Defined.
-*)
-
 (** [x × T ≅ x]*)
-
 Lemma terminal_binprod_unit_r_z {C : category}
       (T : Terminal C) (BC : BinProducts C) :
   ∏ x : C, is_z_isomorphism (BinProductPr1 C (BC x T)).
@@ -875,18 +862,6 @@ Proof.
     + exact (id_right _ @ !id_left _).
     + apply TerminalArrowEq.
 Defined.
-
-(*
-Lemma terminal_binprod_unit_r {C : category}
-      (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
-Proof.
-  intros x.
-  use is_iso_qinv.
-  - exact (pr1 (terminal_binprod_unit_r_z T BC x)).
-  - exact (pr2 (terminal_binprod_unit_r_z T BC x)).
-Defined.
-*)
 
 Section BinProduct_of_functors_with_terminal.
 
