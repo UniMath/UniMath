@@ -4,27 +4,26 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.categories.preorder_categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-(* Define a preorder category over the natural numbers *)
-Definition nat_po_category : category := po_category (make_po natleh (@istransnatleh ,, isreflnatleh)).
+Require Import UniMath.ArnoudsThesis.FiniteSetSkeleton.
 
 Local Open Scope cat.
 
 Section AlgebraicTheoryData.
 
-  Definition algebraic_theory_data := ∑ (T: nat_po_category ⟶ HSET),
+  Definition algebraic_theory_data := ∑ (T: finite_set_skeleton_category ⟶ HSET),
     (∏ {n}, stn n → (T n : hSet)) × (∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)).
 
-  Definition make_algebraic_theory_data (T: nat_po_category ⟶ HSET) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
+  Definition make_algebraic_theory_data (T: finite_set_skeleton_category ⟶ HSET) (proj: ∏ {n}, stn n → (T n : hSet)) (comp: ∏ {m n}, (T n : hSet) → (stn n → (T m : hSet)) → (T m : hSet)) : algebraic_theory_data.
   Proof.
     exact (T ,, (proj ,, comp)).
   Defined.
 
   Variable T : algebraic_theory_data.
 
-  Definition f_T (d : algebraic_theory_data) : (nat_po_category ⟶ HSET) := pr1 d.
+  Definition f_T (d : algebraic_theory_data) : (finite_set_skeleton_category ⟶ HSET) := pr1 d.
   Coercion f_T : algebraic_theory_data >-> functor.
 
   Local Definition pr : ∏ {n}, stn n → (T n : hSet) := pr1 (pr2 T).
@@ -55,8 +54,8 @@ Section AlgebraicTheoryData.
 
   (* Define naturality of the composition in the first argument *)
   Definition comp_is_natural_l : Prop := ∏
-    (s t n : nat_po_category)
-    (f: nat_po_category⟦s, t⟧)
+    (s t n : finite_set_skeleton_category)
+    (f: finite_set_skeleton_category⟦s, t⟧)
     (f_s : (T s : hSet))
     (f_n : stn s → (T n : hSet)),
     unit.
@@ -74,8 +73,8 @@ Section AlgebraicTheoryData.
 
   (* Define naturality of the composition in the second argument *)
   Definition comp_is_natural_r := ∏
-    (m s t : nat_po_category)
-    (f: nat_po_category⟦s, t⟧)
+    (m s t : finite_set_skeleton_category)
+    (f: finite_set_skeleton_category⟦s, t⟧)
     (f_m : (T m : hSet))
     (f_s : stn m → (T s : hSet)),
       ((comp f_m (λ x, #T f (f_s x))) = (#T f) (comp f_m f_s)).
@@ -125,12 +124,12 @@ Section AlgebraicTheoryMorphismData.
   Variable F : algebraic_theory_morphism_data T T'.
 
   Definition preserves_projections : Prop := ∏
-    (n : nat_po_category)
+    (n : finite_set_skeleton_category)
     (i : stn n),
       ((F : nat_trans _ _) n (pr T i)) = (pr T' i).
 
   Definition preserves_composition : Prop := ∏
-    (m n : nat_po_category)
+    (m n : finite_set_skeleton_category)
     (f_m : (T m : hSet))
     (f_n : stn m → (T n : hSet)),
     ((F : nat_trans _ _) n (comp T f_m f_n)) = (comp T' ((F : nat_trans _ _) m f_m) (λ i, (F : nat_trans _ _) n (f_n i))).
@@ -212,5 +211,18 @@ Section AlgebraicTheoryCategory.
     - intros ?.
       exact (isasetaprop (ispredicate_is_algebraic_theory_morphism _)).
   Defined.
+
+  (* Definition algebraic_theory_univalent_category : univalent_category.
+  Proof.
+    use tpair.
+    - exact algebraic_theory_category.
+    - simpl.
+      intros a b.
+      simpl in a, b.
+      unfold algebraic_theory in a, b.
+      apply isweqinclandsurj.
+      + intros f x x'.
+        simpl.
+  Defined. *)
 
 End AlgebraicTheoryCategory.
