@@ -8,9 +8,14 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
 Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerFunctors.
+Require Import UniMath.CategoryTheory.DaggerCategories.Core.Transformations.
 Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerIsos.
+Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerUnivalence.
 Require Import UniMath.CategoryTheory.DaggerCategories.DaggerFunctorCategory.
 
 Local Open Scope cat.
@@ -24,6 +29,16 @@ Section WeakDaggerEquivalences.
     : UU
     := ∏ d : D, ∃ c : C, unitary dagD (F c) d.
 
+  Lemma isaprop_is_unitarily_eso
+        {C D : category} {dagC : dagger C} {dagD : dagger D}
+        {F : functor C D}
+        (dagF : is_dagger_functor dagC dagD F)
+    : isaprop (is_unitarily_eso dagF).
+  Proof.
+    apply impred_isaprop ; intro.
+    apply isapropishinh.
+  Qed.
+
   Definition is_weak_dagger_equiv
              {C D : category} {dagC : dagger C} {dagD : dagger D}
              {F : functor C D}
@@ -31,17 +46,33 @@ Section WeakDaggerEquivalences.
     : UU
     := is_unitarily_eso dagF × fully_faithful F.
 
+  Lemma isaprop_is_weak_dagger_equiv
+        {C D : category} {dagC : dagger C} {dagD : dagger D}
+        {F : functor C D}
+        (dagF : is_dagger_functor dagC dagD F)
+    : isaprop (is_weak_dagger_equiv dagF).
+  Proof.
+    apply isapropdirprod.
+    - apply isaprop_is_unitarily_eso.
+    - apply isaprop_fully_faithful.
+  Qed.
+
 End WeakDaggerEquivalences.
 
-Section WeakDaggerEquivToUnitaryDaggerFunctorCat.
+Section DaggerEquivalences.
 
-  Definition weak_dagger_equiv_to_unitarily_iso_of_dagger_functor_cats
-             {C D : category} (dagC : dagger C) (dagD : dagger D)
+  Definition is_unitarily_split_eso
+             {C D : category} {dagC : dagger C} {dagD : dagger D}
              {F : functor C D}
-             {dagF : is_dagger_functor dagC dagD F}
-             (wF : is_weak_dagger_equiv dagF)
-    : nat.
-  Proof.
-  Admitted.
+             (dagF : is_dagger_functor dagC dagD F)
+    : UU
+    := ∏ d : D, ∑ c : C, unitary dagD (F c) d.
 
-End WeakDaggerEquivToUnitaryDaggerFunctorCat.
+  Definition is_dagger_equiv
+             {C D : category} {dagC : dagger C} {dagD : dagger D}
+             {F : functor C D}
+             (dagF : is_dagger_functor dagC dagD F)
+    : UU
+    := is_unitarily_split_eso dagF × fully_faithful F.
+
+End DaggerEquivalences.
