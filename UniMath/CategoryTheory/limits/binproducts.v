@@ -46,7 +46,7 @@ Local Open Scope cat.
 (** ** Definition of binary products *)
 Section binproduct_def.
 
-Variable C : category.
+Context (C : category).
 
 Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) : UU :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
@@ -212,8 +212,7 @@ End binproduct_def.
 
 Section BinProducts.
 
-Variable C : category.
-Variable CC : BinProducts C.
+Context (C : category) (CC : BinProducts C).
 
 Definition BinProductOfArrows_comp (a b c d x y : C) (f : a --> c) (f' : b --> d) (g : c --> x) (g' : d --> y)
   : BinProductOfArrows _ (CC c d) (CC a b) f f' ·
@@ -243,7 +242,7 @@ Lemma BinProductOfArrows_idxcomp {a b c d : C} (f:C⟦ b, c ⟧) (g:C⟦ c, d �
   BinProductOfArrows _ (CC _ _) (CC _ _)(identity a) (f·g).
 Proof.
   now rewrite BinProductOfArrows_comp, id_right.
-Defined.
+Qed.
 
 Lemma BinProductOfArrows_compxid {a b c d : C} (f:C⟦ b, c ⟧) (g:C⟦ c, d ⟧)
   :   BinProductOfArrows _ (CC c a) (CC b a) f (identity a) ·
@@ -252,7 +251,7 @@ Lemma BinProductOfArrows_compxid {a b c d : C} (f:C⟦ b, c ⟧) (g:C⟦ c, d �
       BinProductOfArrows _ (CC _ _) (CC _ _) (f·g) (identity a).
 Proof.
   now rewrite BinProductOfArrows_comp, id_right.
-Defined.
+Qed.
 
 Lemma BinProductOfArrows_id {a b:C}
   : BinProductOfArrows _ (CC a b) (CC a b) (identity a) (identity b)
@@ -263,14 +262,13 @@ Proof.
   use BinProductArrowUnique.
   + now rewrite id_left, id_right.
   + now rewrite id_left, id_right.
-Defined.
+Qed.
+
 End BinProducts.
 
 Section BinProduct_unique.
 
-Variable C : category.
-Variable CC : BinProducts C.
-Variables a b : C.
+Context (C : category) (CC : BinProducts C) (a b : C).
 
 Lemma BinProduct_endo_is_identity (P : BinProduct _ a b)
   (k : BinProductObject _ P --> BinProductObject _ P)
@@ -293,7 +291,7 @@ End BinProduct_unique.
 
 Section BinProducts_from_Lims.
 
-Variables (C : category).
+Context (C : category).
 
 Definition two_graph : graph := (bool,,λ _ _,empty).
 
@@ -306,7 +304,7 @@ Defined.
 Definition Binproduct {a b c : C} (f : c --> a) (g : c --> b) :
   cone (binproduct_diagram a b) c.
 Proof.
-use make_cone; simpl.
+use make_cone.
 + intros x; induction x; assumption.
 + abstract (intros x y e; destruct e).
 Defined.
@@ -314,13 +312,13 @@ Defined.
 Lemma BinProducts_from_Lims : Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 intros H a b.
-set (LC := H (binproduct_diagram a b)); simpl.
+set (LC := H (binproduct_diagram a b)).
 use make_BinProduct.
 + apply (lim LC).
 + apply (limOut LC true).
 + apply (limOut LC false).
-+ apply (make_isBinProduct C); simpl; intros c f g.
-  use unique_exists; simpl.
++ apply (make_isBinProduct C); intros c f g.
+  use unique_exists.
   - apply limArrow, (Binproduct f g).
   - abstract (split;
       [ apply (limArrowCommutes LC c (Binproduct f g) true)
@@ -333,9 +331,10 @@ End BinProducts_from_Lims.
 
 Section test.
 
-Variable C : category.
-Variable H : BinProducts C.
+  Context (C : category) (H : BinProducts C).
+
 Arguments BinProductObject [C] c d {_}.
+
 Local Notation "c 'x' d" := (BinProductObject  c d )(at level 5).
 (*
 Check (λ c d : C, c x d).
@@ -354,7 +353,7 @@ Proof.
 use tpair.
 - intros p.
   apply (BinProductObject _ (PC (pr1 p) (pr2 p))).
-- simpl; intros p q f.
+- intros p q f.
   apply (BinProductOfArrows _ (PC (pr1 q) (pr2 q))
                            (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
 Defined.
@@ -388,8 +387,7 @@ Definition BinProduct_of_functors_alt {C D : category} (HD : BinProducts D)
     zero morphism. *)
 Section BinProduct_zeroarrow.
 
-  Variable C : category.
-  Variable Z : Zero C.
+  Context (C : category) (Z : Zero C).
 
   Lemma BinProductArrowZero {x y z: C} {BP : BinProduct C x y} (f : z --> x) (g : z --> y) :
     f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinProductArrow C BP f g = ZeroArrow Z _ _ .
@@ -407,13 +405,11 @@ End BinProduct_zeroarrow.
 (** Goal: lift binary products from the target (pre)category to the functor (pre)category *)
 Section def_functor_pointwise_binprod.
 
-Variable C D : category.
-Variable HD : BinProducts D.
+Context (C D : category) (HD : BinProducts D).
 
 Section BinProduct_of_functors.
 
-Variables F G : functor C D.
-
+Context (F G : functor C D).
 
 Local Notation "c ⊗ d" := (BinProductObject _ (HD c d)).
 
@@ -456,7 +452,7 @@ Lemma BinProduct_of_functors_alt_eq_BinProduct_of_functors :
   BinProduct_of_functors_alt HD F G = BinProduct_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Definition binproduct_nat_trans_pr1_data : ∏ c, BinProduct_of_functors c --> F c
   := λ c : C, BinProductPr1 _ (HD (F c) (G c)).
@@ -498,9 +494,7 @@ Section vertex.
 
 (** The product morphism of a diagram with vertex [A] *)
 
-Variable A : functor C D.
-Variable f : A ⟹ F.
-Variable g : A ⟹ G.
+Context (A : functor C D) (f : A ⟹ F) (g : A ⟹ G).
 
 Definition binproduct_nat_trans_data : ∏ c,  A c --> BinProduct_of_functors c.
 Proof.
@@ -554,7 +548,7 @@ End vertex.
 
 
 Lemma binproduct_nat_trans_univ_prop (A : [C, D])
-  (f : (A --> (F:[C,D]))) (g : A --> (G:[C,D])) :
+  (f : A --> (F:[C,D])) (g : A --> (G:[C,D])) :
    ∏
    t : ∑ fg : A --> (BinProduct_of_functors:[C,D]),
        fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D]) --> F) = f
@@ -604,7 +598,6 @@ use make_BinProduct.
     exists (tpair _ (binproduct_nat_trans A f g)
              (make_dirprod (binproduct_nat_trans_Pr1Commutes _ _ _ )
                           (binproduct_nat_trans_Pr2Commutes _ _ _ ))).
-    simpl.
     apply binproduct_nat_trans_univ_prop.
 Defined.
 
@@ -703,12 +696,12 @@ Qed.
 Definition BinProduct_of_functors_commutes :
   nat_z_iso (BinProduct_of_functors C D BD F G) (BinProduct_of_functors C D BD G F).
 Proof.
-  use tpair.
-  - use tpair.
+  use make_nat_z_iso.
+  - use make_nat_trans.
     + exact BinProduct_of_functors_commutes_data.
     + exact BinProduct_of_functors_commutes_law.
   - intro c.
-    use tpair.
+    use make_is_z_isomorphism.
     { apply BinProduct_of_functors_commutes_invdata. }
     apply BinProduct_of_functors_commutes_is_inverse.
 Defined.
@@ -718,7 +711,7 @@ End BinProduct_of_functors_commutative.
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
 Section BinProduct_from_iso.
 
-  Variable C : category.
+  Context (C : category).
 
   Local Lemma iso_to_isBinProduct_comm {x y z : C} (BP : BinProduct C x y)
         (i : iso z (BinProductObject C BP)) (w : C) (f : w --> x) (g : w --> y) :
@@ -755,13 +748,12 @@ Section BinProduct_from_iso.
     (* Arrow *)
     - exact ((BinProductArrow C BP f g) · (iso_inv_from_iso i)).
     (* Commutativity *)
-    - exact (iso_to_isBinProduct_comm BP i w f g).
+    - abstract (exact (iso_to_isBinProduct_comm BP i w f g)).
     (* Equality of equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply C. apply C.
+    - abstract (intro; apply isapropdirprod; apply C).
     (* Uniqueness *)
-    - intros y0 T. exact (iso_to_isBinProduct_unique BP i w f g y0 T).
+    - abstract (intros y0 T; exact (iso_to_isBinProduct_unique BP i w f g y0 T)).
   Defined.
-  Opaque iso_to_isBinProduct.
 
   Definition iso_to_BinProduct {x y z : C} (BP : BinProduct C x y)
              (i : iso z (BinProductObject C BP)) :
@@ -822,45 +814,55 @@ Arguments isBinProduct' _ _ _ _ _ : clear implicits.
 (** ** Terminal object as the unit (up to isomorphism) of binary products *)
 
 (** [T × x ≅ x]*)
-Lemma terminal_binprod_unit_l_z {C : category}
-      (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_z_isomorphism (BinProductPr2 C (BC T x)).
+Lemma terminal_binprod_unit_l_z_aux {C : category} (T : Terminal C) (BC : BinProducts C) (x : C) :
+  is_inverse_in_precat (BinProductPr2 C (BC T x))
+    (BinProductArrow C (BC T x) (TerminalArrow T x) (identity x)).
 Proof.
-  intro x.
-  use tpair.
+  unfold is_inverse_in_precat.
+  split; [|apply BinProductPr2Commutes].
+  refine (precompWithBinProductArrow _ _ _ _ _ @ _).
+  refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+  apply maponpaths_12.
+  - apply TerminalArrowEq.
+  - exact (id_right _ @ !id_left _).
+Qed.
+
+Lemma terminal_binprod_unit_l_z {C : category}
+      (T : Terminal C) (BC : BinProducts C) (x : C) :
+  is_z_isomorphism (BinProductPr2 C (BC T x)).
+Proof.
+  use make_is_z_isomorphism.
   - apply BinProductArrow.
     + (** The unique [x -> T] *)
       apply TerminalArrow.
     + apply identity.
-  - (** These are inverses *)
-    unfold is_inverse_in_precat.
-    split; [|apply BinProductPr2Commutes].
-    refine (precompWithBinProductArrow _ _ _ _ _ @ _).
-    refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
-    apply maponpaths_12.
-    + apply TerminalArrowEq.
-    + exact (id_right _ @ !id_left _).
+  - apply terminal_binprod_unit_l_z_aux.
 Defined.
 
 (** [x × T ≅ x]*)
-Lemma terminal_binprod_unit_r_z {C : category}
-      (T : Terminal C) (BC : BinProducts C) :
-  ∏ x : C, is_z_isomorphism (BinProductPr1 C (BC x T)).
+Lemma terminal_binprod_unit_r_z_aux {C : category} (T : Terminal C) (BC : BinProducts C) (x : C) :
+  is_inverse_in_precat (BinProductPr1 C (BC x T)) (BinProductArrow C (BC x T) (identity x)
+                                                     (TerminalArrow T x)).
 Proof.
-  intros x.
-  use tpair.
+  unfold is_inverse_in_precat.
+  split; [|apply BinProductPr1Commutes].
+  refine (precompWithBinProductArrow _ _ _ _ _ @ _).
+  refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+  apply maponpaths_12.
+  - exact (id_right _ @ !id_left _).
+  - apply TerminalArrowEq.
+Qed.
+
+Lemma terminal_binprod_unit_r_z {C : category}
+      (T : Terminal C) (BC : BinProducts C) (x : C) :
+  is_z_isomorphism (BinProductPr1 C (BC x T)).
+Proof.
+  use make_is_z_isomorphism.
   - apply BinProductArrow.
     + apply identity.
     + (** The unique [x -> T] *)
       apply TerminalArrow.
-  - (** These are inverses *)
-    unfold is_inverse_in_precat.
-    split; [|apply BinProductPr1Commutes].
-    refine (precompWithBinProductArrow _ _ _ _ _ @ _).
-    refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
-    apply maponpaths_12.
-    + exact (id_right _ @ !id_left _).
-    + apply TerminalArrowEq.
+  - apply terminal_binprod_unit_r_z_aux.
 Defined.
 
 Section BinProduct_of_functors_with_terminal.
@@ -883,8 +885,8 @@ Qed.
 Definition terminal_BinProduct_of_functors_unit_l  :
   nat_z_iso (BinProduct_of_functors _ _ HD (constant_functor _ _ TD) F) F.
 Proof.
-  use tpair.
-  - use tpair.
+  use make_nat_z_iso.
+  - use make_nat_trans.
     + exact terminal_BinProduct_of_functors_unit_l_data.
     + exact terminal_BinProduct_of_functors_unit_l_law.
   - intro c. apply terminal_binprod_unit_l_z.
@@ -906,8 +908,8 @@ Qed.
 Definition terminal_BinProduct_of_functors_unit_r  :
   nat_z_iso (BinProduct_of_functors _ _ HD F (constant_functor _ _ TD)) F.
 Proof.
-  use tpair.
-  - use tpair.
+  use make_nat_z_iso.
+  - use make_nat_trans.
     + exact terminal_BinProduct_of_functors_unit_r_data.
     + exact terminal_BinProduct_of_functors_unit_r_law.
   - intro c. apply terminal_binprod_unit_r_z.
@@ -942,7 +944,7 @@ Proof.
     use pathsdirprod ; cbn ; use z_iso_inv_on_right.
     + exact e₁.
     + exact e₂.
-Defined.
+Qed.
 
 Section IsoBinProduct.
   Context {C : category}
@@ -988,6 +990,7 @@ Section IsoBinProduct.
     - exact g.
     - exact iso_between_BinProduct_eq.
   Defined.
+
 End IsoBinProduct.
 
 Definition isaprop_BinProduct
@@ -1103,6 +1106,7 @@ Section BinProductOfIsos.
     - exact fg_inv.
     - exact binproduct_of_z_iso_inv.
   Defined.
+
 End BinProductOfIsos.
 
 (*
@@ -1141,54 +1145,59 @@ Section BinProduct_assoc_z_iso.
       - exact (identity c).
   Defined.
 
-  Lemma BinProduct_assoc_is_z_iso : is_z_isomorphism (BinProduct_assoc_mor).
+  Lemma BinProduct_assoc_is_inverse : is_inverse_in_precat BinProduct_assoc_mor BinProduct_assoc_invmor.
+  Proof.
+    use make_is_inverse_in_precat.
+    - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
+      use BinProductArrowsEq.
+      * now rewrite
+          id_left,
+          assoc',
+          BinProductPr1Commutes,
+          assoc,
+          BinProductPr1Commutes,
+          BinProductOfArrowsPr1,
+          id_right.
+      * now rewrite
+          id_left,
+          assoc',
+          BinProductPr2Commutes,
+          postcompWithBinProductArrow,
+          id_right,
+          BinProductOfArrowsPr2,
+          <-precompWithBinProductArrow,
+          <-(id_left (BinProductPr1 C Pbc)),
+          <-(id_left (BinProductPr2 C Pbc)),
+          <-BinProductArrowEta,
+          id_right.
+    - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
+      use BinProductArrowsEq.
+      * now rewrite
+          id_left,
+          assoc',
+          BinProductPr1Commutes,
+          postcompWithBinProductArrow,
+          id_right,
+          BinProductOfArrowsPr1,
+          <-precompWithBinProductArrow,
+          <-(id_left (BinProductPr1 C Pab)),
+          <-(id_left (BinProductPr2 C Pab)),
+          <-BinProductArrowEta, id_right.
+      * now rewrite
+          id_left,
+          assoc',
+          BinProductPr2Commutes,
+          assoc,
+          BinProductPr2Commutes,
+          BinProductOfArrowsPr2,
+          id_right.
+  Qed.
+
+  Definition BinProduct_assoc_is_z_iso : is_z_isomorphism (BinProduct_assoc_mor).
   Proof.
     use make_is_z_isomorphism.
     + exact BinProduct_assoc_invmor.
-    + use make_is_inverse_in_precat.
-      - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
-        use BinProductArrowsEq.
-        * now rewrite
-            id_left,
-            assoc',
-            BinProductPr1Commutes,
-            assoc,
-            BinProductPr1Commutes,
-            BinProductOfArrowsPr1,
-            id_right.
-        * now rewrite
-            id_left,
-            assoc',
-            BinProductPr2Commutes,
-            postcompWithBinProductArrow,
-            id_right,
-            BinProductOfArrowsPr2,
-            <-precompWithBinProductArrow,
-            <-(id_left (BinProductPr1 C Pbc)),
-            <-(id_left (BinProductPr2 C Pbc)),
-            <-BinProductArrowEta,
-            id_right.
-      - unfold BinProduct_assoc_mor, BinProduct_assoc_invmor.
-        use BinProductArrowsEq.
-        * now rewrite
-            id_left,
-            assoc',
-            BinProductPr1Commutes,
-            postcompWithBinProductArrow,
-            id_right,
-            BinProductOfArrowsPr1,
-            <-precompWithBinProductArrow,
-            <-(id_left (BinProductPr1 C Pab)),
-            <-(id_left (BinProductPr2 C Pab)),
-            <-BinProductArrowEta, id_right.
-        * now rewrite
-            id_left,
-            assoc',
-            BinProductPr2Commutes,
-            assoc,
-            BinProductPr2Commutes,
-            BinProductOfArrowsPr2,
-            id_right.
+    + exact BinProduct_assoc_is_inverse.
   Defined.
 
   Definition BinProduct_assoc : z_iso (BinProductObject C Pa_bc) (BinProductObject C Pab_c).
@@ -1201,10 +1210,12 @@ Section BinProduct_assoc_z_iso.
 End BinProduct_assoc_z_iso.
 
 Section BinProduct_OfArrows_assoc.
+
   Context {C : category}
   (P : BinProducts C)
   {a a' b b' c c' : C}
   (f : C ⟦ a', a ⟧) (g : C ⟦ b', b ⟧) (h : C ⟦ c', c ⟧).
+
   Let Pbc := P b c.
   Let Pa_bc := P a (BinProductObject _ Pbc).
   Let Pab := P a b.
@@ -1215,13 +1226,8 @@ Section BinProduct_OfArrows_assoc.
   Let Pab_c' := P (BinProductObject _ Pab') c'.
 
   Lemma BinProduct_OfArrows_assoc
-  : BinProductOfArrows _ Pa_bc Pa_bc' f
-      (BinProductOfArrows _ Pbc Pbc' g h) ·
-    (BinProduct_assoc P a b c) =
-    (BinProduct_assoc P a' b' c') ·
-    BinProductOfArrows _ Pab_c Pab_c'
-      (BinProductOfArrows _ Pab Pab' f g)
-      h.
+  : BinProductOfArrows _ Pa_bc Pa_bc' f (BinProductOfArrows _ Pbc Pbc' g h) · (BinProduct_assoc P a b c) =
+    (BinProduct_assoc P a' b' c') · BinProductOfArrows _ Pab_c Pab_c' (BinProductOfArrows _ Pab Pab' f g) h.
   Proof.
     unfold BinProduct_assoc, BinProduct_assoc_mor.
     simpl.
@@ -1245,7 +1251,7 @@ Section BinProduct_OfArrows_assoc.
         !BinProductOfArrowsPr2, !BinProductPr2Commutes,
         !assoc',
         !BinProductOfArrowsPr2.
-  Defined.
+  Qed.
 
 End BinProduct_OfArrows_assoc.
 
