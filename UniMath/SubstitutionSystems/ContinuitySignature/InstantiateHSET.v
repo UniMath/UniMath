@@ -76,7 +76,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     apply LimConeHSET.
   Defined.
 
-  Lemma test {I : HSET} (ind : pr1 I → cochain SET)
+  Lemma cochain_on_n_is_zero {I : HSET} (ind : pr1 I → cochain SET)
         (f : pr111 (limit_of_coproduct SET HSET_ω_limits (CoproductsHSET (pr1 I) (pr2 I)) ind))
     : ∏ n : nat, pr1 (pr1 f n) = pr1 (pr1 f 0).
   Proof.
@@ -123,7 +123,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
   Proof.
     intros [f p].
     exists (pr1 (f 0)).
-    exists (λ n, transportf (λ u, pr1 (dob (ind u) n)) ((test ind (f,,p) n)) (pr2 (f n))).
+    exists (λ n, transportf (λ u, pr1 (dob (ind u) n)) ((cochain_on_n_is_zero ind (f,,p) n)) (pr2 (f n))).
     intros n m h.
 
     etrans.
@@ -136,8 +136,8 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     cbn.
 
     set (q := base_paths (pr1 (f n),, pr2 (ind (pr1 (f n))) n m h (pr2 (f n))) (f m) (p n m h) @
-                         test ind (f,, p) m).
-    set (q' := test ind (f,,p) n).
+                         cochain_on_n_is_zero ind (f,, p) m).
+    set (q' := cochain_on_n_is_zero ind (f,,p) n).
 
     assert (q0 : q = q').
     { apply (pr2 I). }
@@ -160,7 +160,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
     { exact (λ n0, pr2 (f n0)). }
 
     transparent assert (p' : (∏ n : nat, f0 n = f0 0)).
-    { exact (test ind (f,,p)). }
+    { exact (cochain_on_n_is_zero ind (f,,p)). }
 
 
     induction h.
@@ -191,7 +191,7 @@ Section OmegaLimitsCommutingWithCoproductsHSET.
         use total2_paths_f.
         * apply funextsec ; intro n.
           use total2_paths_f.
-          { exact (! test ind (f,,p) n). }
+          { exact (! cochain_on_n_is_zero ind (f,,p) n). }
           cbn.
           etrans.
           1: apply (transport_f_f (λ x : pr1 I, pr1 (pr1 (ind x) n))).

@@ -8,6 +8,13 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 
 Require Import UniMath.CategoryTheory.limits.coproducts.
 
+
+(** only for the last constructions that should be moved to [CategoryTheory.Chains.Omegacontfunctors] *)
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Chains.All.
+
+
 Local Open Scope cat.
 
 Definition CoproductOfArrowsIsos
@@ -116,10 +123,6 @@ Defined.
 The following lemmas has to be moved accordingly,
 e.g. in the file CategoryTheory.Chains.Omegacontfunctors
  *)
-
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Chains.All.
 Lemma nat_trans_preserve_cone
       {A B : category}
       {F G : functor A B}
