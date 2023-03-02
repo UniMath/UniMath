@@ -140,23 +140,10 @@ Section FixACategory.
       use tpair.
       - intros Ze c'. cbn.
         apply nat_trans_id.
-      - split4.
-        + intro; intros. apply (nat_trans_eq C).
-          intro c'.
-          apply idpath.
-        + intro; intros. apply (nat_trans_eq C).
-          intro c'.
-          apply idpath.
-        + intro; intros. apply (nat_trans_eq C).
-          intro c'.
-          cbn.
-          repeat rewrite id_right.
-          apply idpath.
-        + intro; intros. apply (nat_trans_eq C).
-          intro c'.
-          apply idpath.
+      - abstract (split4; (intro; intros; apply (nat_trans_eq C); intro c');
+                  try (apply idpath);
+                  cbn; repeat rewrite id_right; apply idpath).
     Defined.
-    (* should be better opacified *)
 
   End ConstConst.
 

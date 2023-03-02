@@ -54,7 +54,7 @@ Section FixAFunctor.
   Context (IL : isInitial C (v ⊗_{Act} (InitialObject IC))) (HL : is_omega_cocont L).
 
   Definition SpecialGenMendlerIterationWithActegory (θ' : F ∙ L ⟹ L ∙ G) :
-    ∃! h : C ⟦v ⊗_{Act} μF, y⟧, v ⊗^{Act}_{l} α · h = θ' μF · #G h · ρ'
+    ∃! h : v ⊗_{Act} μF --> y, v ⊗^{Act}_{l} α · h = θ' μF · #G h · ρ'
     := SpecialGenMendlerIteration IC CC F HF y L IL HL G ρ' θ'.
 
 End FixAFunctor.
@@ -81,8 +81,8 @@ Section Const_H_AsFunctor.
   Let μF : C := alg_carrier _ (InitialObject μF_Initial).
   Let α : Const_plus_H c0 μF --> μF := alg_map (Const_plus_H c0) (pr1 μF_Initial).
 
-  Let η : C⟦constant_functor C C c0 μF, μF⟧ := BinCoproductIn1 (CP _ _) · α.
-  Let τ : C⟦H μF, μF⟧ := BinCoproductIn2 (CP _ _) · α.
+  Let η : constant_functor C C c0 μF --> μF := BinCoproductIn1 (CP _ _) · α.
+  Let τ : H μF --> μF := BinCoproductIn2 (CP _ _) · α.
 
   Context (y : C) (θ : lineator_lax Mon_V Act Act H) (ρ : H y --> y) (f : v ⊗_{Act} c0 --> y).
 
@@ -112,7 +112,7 @@ Section Const_H_AsFunctor.
     v ⊗^{Act}_{l} α · h = δ v c0 (H μF) · BinCoproductOfArrows _ (CP _ _) (CP _ _) f (θ v μF) ·
                             #(Const_plus_H y) h · BinCoproductArrow (CP _ _) (identity y) ρ.
 
-  Local Lemma charpropequivsingleeq (h : C ⟦v ⊗_{Act} μF, y⟧) :
+  Local Lemma charpropequivsingleeq (h : v ⊗_{Act} μF --> y) :
     charprop_SpecialGenMendlerIterationWithActegoryAndStrength h <-> singleeq_SpecialGenMendlerIterationWithActegoryAndStrength h.
   Proof.
     split.
@@ -170,7 +170,7 @@ Section Const_H_AsFunctor.
         exact Hsingle'.
   Qed.
 
-  Local Lemma instanceequivsingle (h : C ⟦v ⊗_{Act} μF, y⟧) :
+  Local Lemma instanceequivsingle (h : v ⊗_{Act} μF --> y) :
     instance_SpecialGenMendlerIterationWithActegory h <-> singleeq_SpecialGenMendlerIterationWithActegoryAndStrength h.
   Proof.
     split.
@@ -246,7 +246,7 @@ Section Const_H_AsFunctor.
   Local Definition θ' : (Const_plus_H c0) ∙ L ⟹ L ∙ (Const_plus_H y) := _,, θ'_data_is_nat_trans.
 
   Definition SpecialGenMendlerIterationWithActegoryAndStrength :
-    ∃! h : C ⟦v ⊗_{Act} μF, y⟧, charprop_SpecialGenMendlerIterationWithActegoryAndStrength h.
+    ∃! h : v ⊗_{Act} μF --> y, charprop_SpecialGenMendlerIterationWithActegoryAndStrength h.
   Proof.
     simple refine (iscontrretract _ _ _ (SpecialGenMendlerIterationWithActegory
                                            (Const_plus_H c0) HF y (Const_plus_H y)

@@ -463,8 +463,8 @@ End AA.
    apply weqfibtototal.
    intro H.
    cbn.
-   apply idweq. (* very slow *)
- Defined. (* very slow *)
+   exact (idweq _). (* slow *)
+ Defined. (* slow *)
 
  (* a direct proof without going through weqSignatureLaxMorphismActegories:
  Lemma weqSignatureLaxMorphismActegories_alt_alt :
