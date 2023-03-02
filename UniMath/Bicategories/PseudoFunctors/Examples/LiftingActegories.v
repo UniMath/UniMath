@@ -26,9 +26,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-
-Import PseudoFunctor.Notations.
-
+Require Import UniMath.Bicategories.DisplayedBicats.DispBuilders.
 
 Local Open Scope cat.
 
@@ -40,9 +38,11 @@ Section PseudofunctorFromLifting.
   Let dBV : disp_bicat bicat_of_cats := bidisp_actbicat_disp_bicat Mon_V.
   Let dBW : disp_bicat bicat_of_cats := bidisp_actbicat_disp_bicat Mon_W.
 
-  Definition lifting_actegories_disp_psfunctor_data : disp_psfunctor_data dBV dBW (id_psfunctor _).
+  Definition lifting_actegories_disp_psfunctor : disp_psfunctor dBV dBW (id_psfunctor _).
   Proof.
-    use make_disp_psfunctor_data.
+    use make_disp_psfunctor.
+    - apply actbicat_disp_2cells_isaprop.
+    - apply actbicat_disp_locally_groupoid.
     - intros C Act.
       exact (lifted_actegory Mon_V Act Mon_W U).
     - intros C D H ActC ActD ll.
@@ -50,31 +50,17 @@ Section PseudofunctorFromLifting.
     - intros C D H K ξ ActC ActD Hl Kl islntξ.
       apply preserves_linearity_lifted_lax_lineator.
       exact islntξ.
-    - abstract (intros C ActC; use tpair;
-        [ intros w c;
-          cbn;
-          rewrite bifunctor_leftid;
-          do 2 rewrite id_left;
-          apply idpath
-        | apply actbicat_disp_locally_groupoid]).
-    - abstract (intros C D E H K ActC ActD ActE Hl Kl;
-                use tpair;
-                [ intros w c;
-                  cbn;
-                  rewrite bifunctor_leftid;
-                  rewrite id_left, id_right;
-                  apply idpath
-                | apply actbicat_disp_locally_groupoid]).
+    - abstract (intros C ActC w c;
+                cbn;
+                rewrite bifunctor_leftid;
+                do 2 rewrite id_left;
+                apply idpath).
+    - abstract (intros C D E H K ActC ActD ActE Hl Kl w c;
+        cbn;
+        rewrite bifunctor_leftid;
+        rewrite id_left, id_right;
+        apply idpath).
   Defined.
-
-  Lemma lifting_actegories_disp_psfunctor_laws :
-    is_disp_psfunctor dBV dBW (id_psfunctor _) lifting_actegories_disp_psfunctor_data.
-  Proof.
-    split7; red; intros; apply actbicat_disp_2cells_isaprop.
-  Qed.
-
-  Definition lifting_actegories_disp_psfunctor : disp_psfunctor dBV dBW (id_psfunctor _)
-    := lifting_actegories_disp_psfunctor_data,,lifting_actegories_disp_psfunctor_laws.
 
   Definition lifting_actegories_psfunctor : psfunctor (actbicat Mon_V) (actbicat Mon_W)
     := total_psfunctor dBV dBW (id_psfunctor _) lifting_actegories_disp_psfunctor.
