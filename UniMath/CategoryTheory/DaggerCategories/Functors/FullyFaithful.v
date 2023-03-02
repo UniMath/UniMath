@@ -1,4 +1,5 @@
-(* In this file, we have formalized some results on fully faithful functors between (the underlying categories) of dagger categories *)
+(* In this file, we have formalized the result that a fully faithful functor into a dagger category induces a unique dagger on the domain such that the functor is dagger preserving.
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -10,12 +11,31 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerFunctors.
 
 Local Open Scope cat.
 
-(* TODO::Has to be renamed and moved *)
-Lemma bla {C D : category} {F : functor C D} (ff : fully_faithful F)
+
+Local Lemma functor_on_fully_faithful_inv_hom {C D : category} {F : functor C D} (ff : fully_faithful F)
     : ∏ (x y : C) (f : D⟦F x, F y⟧),
-      # F (invmap (weq_from_fully_faithful ff _ _) f) = f.
+      # F (fully_faithful_inv_hom ff x y f) = f.
 Proof.
-Admitted.
+  intros x y f.
+
+  set (fandf := fully_faithful_implies_full_and_faithful _ _ _ ff).
+  set (fu := pr1 fandf).
+  set(f_f := fu x y f).
+
+  transparent assert (pp : hProp).
+  {
+    exists (# F (fully_faithful_inv_hom ff x y f) = f).
+    apply homset_property.
+  }
+
+  use (factor_through_squash_hProp pp _ f_f).
+  clear f_f ; intro f_f.
+  refine (_ @ pr2 f_f).
+  apply (maponpaths (# F)).
+  refine (_ @ homotinvweqweq (weq_from_fully_faithful ff x y) (pr1 f_f)).
+  apply maponpaths.
+  exact (! (pr2 f_f)).
+Qed.
 
 Section FullyFaithful.
 
@@ -49,10 +69,10 @@ Section FullyFaithful.
       etrans.
       2: apply pathsinv0, functor_comp.
       etrans.
-      2: apply maponpaths_2, pathsinv0, bla.
-      apply maponpaths, pathsinv0, bla.
+      2: apply maponpaths_2, pathsinv0, functor_on_fully_faithful_inv_hom.
+      apply maponpaths, pathsinv0, functor_on_fully_faithful_inv_hom.
     - etrans.
-      1: apply maponpaths, bla.
+      1: apply maponpaths, functor_on_fully_faithful_inv_hom.
       apply dagger_to_law_idemp.
   Qed.
 
@@ -70,7 +90,7 @@ Section FullyFaithful.
     : is_dagger_functor (fully_faithful_reflect_dagger dagD ff) dagD F.
   Proof.
     intros x y f.
-    apply bla.
+    apply functor_on_fully_faithful_inv_hom.
   Qed.
 
   Lemma fully_faithful_reflect_dagger_uniquely
