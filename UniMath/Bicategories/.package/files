@@ -66,7 +66,6 @@ DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
 
 Core/Examples/StructuredCategories.v
-DisplayedBicats/Examples/EnrichedCats.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
@@ -154,6 +153,7 @@ DisplayedBicats/DispPseudofunctor.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
 DisplayedBicats/Examples/KleisliTriple.v
+DisplayedBicats/Examples/EnrichedCats.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
@@ -169,6 +169,7 @@ Monads/Examples/MonadsInBicatOfCats.v
 Monads/Examples/MonadsInOp1Bicat.v
 Monads/Examples/MonadsInOp2Bicat.v
 Monads/Examples/MonadsInTotalBicat.v
+Monads/Examples/MonadsInBicatOfEnrichedCats.v
 Monads/DistributiveLaws.v
 Monads/MixedDistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
@@ -195,6 +196,7 @@ Monads/MonadToAdjunction.v
 Limits/Examples/OneTypesLimits.v
 Limits/Examples/BicatOfCatsLimits.v
 Limits/Examples/BicatOfUnivCatsLimits.v
+Limits/Examples/BicatOfEnrichedCatsLimits.v
 Limits/Examples/OpCellBicatLimits.v
 Limits/Examples/UnivGroupoidsLimits.v
 Limits/Examples/SliceBicategoryLimits.v
@@ -223,6 +225,7 @@ Morphisms/Examples/MorphismsInOneTypes.v
 Morphisms/Examples/EsosInBicatOfUnivCats.v
 Morphisms/Examples/MorphismsInSliceBicat.v
 Morphisms/Examples/MorphismsInStructuredCat.v
+Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v
