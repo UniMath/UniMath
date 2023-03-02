@@ -159,7 +159,7 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
 DisplayedBicats/Examples/MonadsLax.v
-
+PseudoFunctors/Examples/LiftingActegories.v
 PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v

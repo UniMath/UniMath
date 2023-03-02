@@ -51,8 +51,11 @@ Section LiftedLineatorAndLiftedDistributivity.
 
 Section LiftedLaxLineator.
 
-  Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D) {H : functor C D}
-    (ll : lineator_lax Mon_V ActC ActD H).
+  Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D).
+
+Section OnFunctors.
+
+  Context {H : functor C D} (ll : lineator_lax Mon_V ActC ActD H).
 
   Definition lifted_lax_lineator_data : lineator_data Mon_W (lifted_actegory Mon_V ActC Mon_W U)
                                                             (lifted_actegory Mon_V ActD Mon_W U) H.
@@ -98,6 +101,23 @@ Section LiftedLaxLineator.
   Definition lifted_lax_lineator : lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U)
                                                       (lifted_actegory Mon_V ActD Mon_W U) H :=
     _,,lifted_lax_lineator_laws.
+
+End OnFunctors.
+
+Section OnNaturalTransformations.
+
+  Context {H : functor C D} (Hl : lineator_lax Mon_V ActC ActD H)
+    {K : functor C D} (Kl : lineator_lax Mon_V ActC ActD K)
+    {ξ : H ⟹ K} (islntξ : is_linear_nat_trans Hl Kl ξ).
+
+  Lemma preserves_linearity_lifted_lax_lineator :
+    is_linear_nat_trans (lifted_lax_lineator Hl) (lifted_lax_lineator Kl) ξ.
+  Proof.
+    intros w c.
+    apply islntξ.
+  Qed.
+
+End OnNaturalTransformations.
 
 End LiftedLaxLineator.
 
