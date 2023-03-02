@@ -643,6 +643,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/DispModification.v](Bicategories/DisplayedBicats/DispModification.v)
    - [DisplayedBicats/DispBiequivalence.v](Bicategories/DisplayedBicats/DispBiequivalence.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)
+   - [PseudoFunctors/Examples/LiftingActegories.v](Bicategories/PseudoFunctors/Examples/LiftingActegories.v)
    - [PseudoFunctors/Examples/MonadInclusion.v](Bicategories/PseudoFunctors/Examples/MonadInclusion.v)
    - [Monads/Examples/AdjunctionToMonad.v](Bicategories/Monads/Examples/AdjunctionToMonad.v)
    - [Monads/Examples/ToMonadInCat.v](Bicategories/Monads/Examples/ToMonadInCat.v)
