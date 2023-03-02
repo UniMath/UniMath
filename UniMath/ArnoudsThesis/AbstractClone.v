@@ -45,15 +45,6 @@ End AbstractCloneData.
 
 Section AbstractClone.
 
-Lemma ispredicate_is_algebraic_theory : isPredicate is_algebraic_theory.
-Proof.
-  intros ?.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intros);
-    try apply setproperty.
-Qed.
-
-Definition algebraic_theory := total2 is_algebraic_theory.
   Definition is_abstract_clone (C: abstract_clone_data) :=
     (comp_project_component C) ×
     (comp_identity_projections C) ×
