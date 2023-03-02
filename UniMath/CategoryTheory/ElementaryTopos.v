@@ -527,6 +527,8 @@ Proof.
     h_sq.
 Qed.
 
+Opaque isBinProduct_Pullback. (* this is crucial for the following proof to go through *)
+
 Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
 Proof.
   intros a f.
