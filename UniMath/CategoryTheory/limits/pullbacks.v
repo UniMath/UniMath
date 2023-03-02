@@ -307,22 +307,22 @@ Proof.
            exact (pr2 (pr2 (pr1 rt))).
    }
   exists (tpair _ awe (make_dirprod Hawe1 Hawe2)).
-  intro t.
-  apply subtypePath.
-  - intro a0. apply isapropdirprod;
-    apply C.
-  - simpl. destruct t as [t [Ht1 Ht2]].
-    simpl in *.
-    apply PullbackArrowUnique.
-    + assumption.
-    + apply PullbackArrowUnique.
-      * rewrite <- Ht1.
-        repeat rewrite <- assoc.
-        rewrite H2.
-        apply idpath.
-      * rewrite <- assoc.
-        assumption.
-Qed.
+  abstract ( intro t;
+  apply subtypePath;
+    [ intro a0; apply isapropdirprod; apply C
+    | destruct t as [t [Ht1 Ht2]];
+      apply PullbackArrowUnique;
+      [ assumption
+      | apply PullbackArrowUnique;
+        [ rewrite <- Ht1;
+          repeat rewrite <- assoc;
+          rewrite H2;
+          apply idpath
+        | rewrite <- assoc;
+          assumption ]
+      ]
+    ]).
+Defined.
 
 End pullback_lemma.
 
