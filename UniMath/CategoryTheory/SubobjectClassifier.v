@@ -268,8 +268,7 @@ Proof.
       * exact (PullbackSqrCommutes pbl).
     - use (isPullbackGluedSquare
       (isPullback_Pullback pbr)
-      (isPullback_Pullback pbl)).
-      use homset_property. }
+      (isPullback_Pullback pbl)). }
     use (isPullback_mor_paths' _ _ _ _ _ (isPullback_Pullback pb_glued)).
     - apply idpath.
     - apply idpath.

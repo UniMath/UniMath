@@ -1563,7 +1563,7 @@ Section ExactCategoryFacts.
     clear e' e s q.
     apply (squash_to_hProp hc); clear hc; intros [D [k ic]].
     apply (squash_to_hProp (to_hasBinDirectSums D C)); intros DC.
-    assert (PB := is_symmetric_isPullback (homset_property M) _ (MapPlusIdentityToPullback k C BC DC)).
+    assert (PB := is_symmetric_isPullback _ (MapPlusIdentityToPullback k C BC DC)).
     assert (co := CokernelPlusIdentity i k C BC DC ic).
     assert (es := ExactSequenceFromMono _ _ co); clear co.
     assert (t : i · to_In1 BC = ToBinDirectSum BC i 0).

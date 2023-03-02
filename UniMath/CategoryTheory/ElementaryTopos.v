@@ -217,12 +217,11 @@ Proof.
   set (pbr := subobject_classifier_pullback Ω (diagonalMap BinProd B)).
   set (pbl := auxpb b).
   set (pbl' := auxpb b').
-  set (pb := pullback_glue_pullback C (homset_property C) pbr pbl).
-  set (pb' := pullback_glue_pullback C (homset_property C) pbr pbl').
+  set (pb := pullback_glue_pullback C pbr pbl).
+  set (pb' := pullback_glue_pullback C pbr pbl').
   fold δ B in pb, pb'.
   transparent assert (pb'' : (Pullback ((identity B) ⨱ b' · δ B) Ω)). {
     use (Pullback_mor_paths q).
-    + use homset_property.
     + exact Ω.
     + apply idpath.
     + exact pb.

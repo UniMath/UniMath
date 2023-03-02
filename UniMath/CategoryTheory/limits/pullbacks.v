@@ -37,8 +37,7 @@ Local Open Scope cat.
 (** Definition of pullbacks *)
 Section def_pb.
 
-  Context (C : precategory).
-  Context (hsC : has_homsets C).
+  Context (C : category).
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2· g) : UU :=
@@ -313,7 +312,7 @@ Proof.
   intro t.
   apply subtypePath.
   - intro a0. apply isapropdirprod;
-    apply hsC.
+    apply C.
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -447,14 +446,14 @@ Section monic_pb.
 End monic_pb.
 
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
-Arguments isPullbackGluedSquare [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _] _ _ [_ _ _] _.
+Arguments isPullbackGluedSquare [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _] _ _ [_ _ _] _.
 
 
 (** * Criteria for existence of pullbacks. *)
 Section pb_criteria.
 
   Variable C : category.
-  Let hs : has_homsets C := homset_property C.
+  (* Let hs : has_homsets C := homset_property C. *)
 
   Definition Pullback_from_Equalizer_BinProduct_eq (X Y Z : C)
              (f : X --> Z) (g : Y --> Z) (BinProd : BinProduct C X Y)
@@ -493,7 +492,7 @@ Section pb_criteria.
     exact (BinProductPr2Commutes C _ _ BinProd _ h k).
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply isapropdirprod. apply hs. apply hs.
+    intros y. apply isapropdirprod; apply C.
 
     (* Uniqueness *)
     intros y H. induction H as [t p]. apply EqualizerInsEq. apply BinProductArrowsEq.
@@ -543,7 +542,7 @@ Section lemmas_on_pullbacks.
 >>
 *)
 
-Context {C : precategory} (hsC : has_homsets C).
+Context {C : category}.
 Context {a b c d : C}.
 Context {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}.
 Variable H : h · f = k · g.
@@ -569,7 +568,7 @@ Proof.
       * apply (PullbackArrow_PullbackPr1 Pb).
   - cbn.
     intro t. apply subtypePath.
-    intro. apply isapropdirprod; apply hsC.
+    intro. apply isapropdirprod; apply C.
     destruct t as [t Ht].
     cbn; apply PullbackArrowUnique.
     + apply (pr2 Ht).
@@ -620,9 +619,9 @@ Definition weq_section_from_diagonal (isPb : isPullback H)
 Proof.
   exists (section_from_diagonal isPb).
   apply (isweq_iso _ (diagonal_from_section isPb )).
-  - abstract (intro x; apply subtypePath; [intro; apply hsC  |];
+  - abstract (intro x; apply subtypePath; [intro; apply C  |];
               apply (PullbackArrow_PullbackPr2 (make_Pullback H isPb) )).
-  - abstract (intro y; apply subtypePath; [intro; apply hsC |];
+  - abstract (intro y; apply subtypePath; [intro; apply C |];
               destruct y as [y t2];
               apply pathsinv0, PullbackArrowUnique; [
                 apply t2 |
@@ -680,7 +679,7 @@ Proof.
       ).
   - abstract (
     intro t; apply subtypePath;
-              [ intro; apply isapropdirprod; apply hsC
+              [ intro; apply isapropdirprod; apply C
               |
               simpl; apply PullbackArrowUnique; [
                 apply (pr1 (pr2 t))
@@ -753,7 +752,7 @@ Proof.
         }
   - cbn. intro t.
     apply subtypePath.
-    + intro. apply isapropdirprod; apply hsC.
+    + intro. apply isapropdirprod; apply C.
     + cbn.
       destruct t as [t Ht]; cbn in *.
       apply z_iso_inv_on_left.
@@ -771,7 +770,7 @@ End lemmas_on_pullbacks.
 Definition switchPullback {C:category} {A B D:C} {f : A --> D} {g : B --> D} (pb : Pullback f g) : Pullback g f.
 Proof.
   induction pb as [[P [r s]] [e ip]]; simpl in e.
-  use (make_Pullback (!e) (is_symmetric_isPullback (homset_property C) _ ip)).
+  use (make_Pullback (!e) (is_symmetric_isPullback _ ip)).
 Defined.
 
 (** In this section we prove that the pullback of a z_iso is a
@@ -834,8 +833,7 @@ Proof.
     use PullbackSqrCommutes.
   }
   use (make_Pullback (p1:=h) (p2:=(i' · (PullbackPr2 pb))) H').
-  use (isPullback_z_iso_of_morphisms _ (PullbackSqrCommutes pb)).
-  - use homset_property.
+  use (isPullback_z_iso_of_morphisms (PullbackSqrCommutes pb)).
   - exact xi.
   - exact xi'.
   - exact Hi.
@@ -845,8 +843,7 @@ Defined.
 (** * A fully faithful functor reflects limits *)
 Section functor_on_square.
 
-Variables C D : precategory.
-Variable hsC : has_homsets C.
+Variables C D : category.
 Variable F : functor C D.
 
 Section isPullback_if_functor_on_square_is.
@@ -908,7 +905,7 @@ Proof.
   - simpl.
     intro t.
     apply subtypePath.
-    + intro kkkk. apply isapropdirprod; apply hsC.
+    + intro kkkk. apply isapropdirprod; apply C.
     + simpl.
       use (invmaponpathsweq (make_weq _ (Fff _ _ ))).
       simpl.
@@ -1048,8 +1045,8 @@ Section pullbacks_pointwise.
 >>
 *)
 
-Context {C D : precategory} (hsD : has_homsets D).
-Let CD := [C, D, hsD].
+Context {C D : category}.
+Let CD := [C, D].
 Context {F G H J : CD}.
 Context {a : CD ⟦G, F⟧}{b : CD ⟦H, F⟧}{c : CD⟦J,G⟧}{d : CD⟦J, H⟧}.
 
@@ -1090,12 +1087,12 @@ use unique_exists.
 - use tpair.
   + intro x; apply (g T E h k Hhk).
   + apply is_nat_trans_g.
-- abstract (split; apply (nat_trans_eq hsD); intro x;
+- abstract (split; apply (nat_trans_eq D); intro x;
            [ apply (PullbackArrow_PullbackPr1 (make_Pullback (T x)))
            | apply (PullbackArrow_PullbackPr2 (make_Pullback (T x))) ]).
 - abstract (intro; apply isapropdirprod; apply functor_category_has_homsets).
 - abstract (intros t [h1 h2]; destruct h as [h Hh];
-            apply (nat_trans_eq hsD); intro x; apply PullbackArrowUnique;
+            apply (nat_trans_eq D); intro x; apply PullbackArrowUnique;
             [ apply (nat_trans_eq_pointwise h1) | apply (nat_trans_eq_pointwise h2) ]).
 Defined.
 
@@ -1307,8 +1304,7 @@ End pullbacks_functor_category.
 
 Section pullback_up_to_iso.
 
-  Context {C : precategory}.
-  Context {hs : has_homsets C}.
+  Context {C : category}.
 
   Local Lemma isPullback_up_to_z_iso_eq {a' a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2 · g) (i : z_iso a a') :
@@ -1333,9 +1329,7 @@ Section pullback_up_to_iso.
     - cbn. split.
       + exact (PullbackArrow_PullbackPr1 Pb e h k (isPullback_up_to_z_iso_eq f g h k Hk i)).
       + exact (PullbackArrow_PullbackPr2 Pb e h k (isPullback_up_to_z_iso_eq f g h k Hk i)).
-    - intros y. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+    - intros y. apply isapropdirprod; apply C.
     - intros y X. cbn in X.
       eapply PullbackArrowUnique.
       + exact (dirprod_pr1 X).
@@ -1346,8 +1340,7 @@ End pullback_up_to_iso.
 
 Section pullback_paths.
 
-  Context {C : precategory}.
-  Context {hs : has_homsets C}.
+  Context {C : category}.
 
   Lemma isPullback_mor_paths {a b c d : C} {f1 f2 : b --> a} {g1 g2 : c --> a} {p11 p21 : d --> b}
         {p12 p22 : d --> c} (e1 : f1 = f2) (e2 : g1 = g2) (e3 : p11 = p21) (e4 : p12 = p22)
@@ -1355,7 +1348,7 @@ Section pullback_paths.
         (iPb : isPullback (*f1 g1 p11 p12*) H1) : isPullback (*f2 g2 p21 p22*) H2.
   Proof.
     induction e1, e2, e3, e4.
-    assert (e5 : H1 = H2) by apply hs.
+    assert (e5 : H1 = H2) by apply C.
     induction e5.
     exact iPb.
   Qed.
@@ -1387,8 +1380,8 @@ Section pullback_paths.
 
 End pullback_paths.
 
-Lemma induced_precategory_reflects_pullbacks {M : precategory} {X:Type} (j : X -> ob M)
-      {a b c d : induced_precategory M j}
+Lemma induced_precategory_reflects_pullbacks {M : category} {X:Type} (j : X -> ob M)
+      {a b c d : induced_category M j}
       (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
       (H : p1 · f = p2 · g) :
   @isPullback _ _ _ _ _

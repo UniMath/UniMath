@@ -62,7 +62,7 @@ If f is an Epi, then pr2 is an Epi, [AbelianPushoutEpi2], and if g is an Epi, th
 Section pushout_monic_pullback_epi.
 
   Context {A : AbelianPreCat}.
-  Let hs : has_homsets A := homset_property A.
+  (* Let hs : has_homsets A := homset_property A. *)
 
   Local Opaque Abelian.Equalizer.
   Local Opaque Abelian.Coequalizer.
@@ -174,11 +174,9 @@ Section pushout_monic_pullback_epi.
                      (g · (to_In2 DS)))).
     set (i := z_iso_from_Pushout_to_Pushout Po Po').
     use isPullback_up_to_z_iso.
-    - exact hs.
     - exact Po'.
     - exact i.
     - use isPullback_mor_paths.
-      + exact hs.
       + exact (PushoutIn1 Po').
       + exact (PushoutIn2 Po').
       + exact f.
@@ -210,9 +208,7 @@ Section pushout_monic_pullback_epi.
              cbn. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
              rewrite assoc. rewrite assoc. apply pathsinv0.
              use CoequalizerEqAr.
-        * intros y0. apply isapropdirprod.
-          -- apply hs.
-          -- apply hs.
+        * intros y0. apply isapropdirprod; apply (homset_property A).
         * intros y0 X. cbn in X.
           use (KernelArrowisMonic (to_Zero A) K). rewrite KernelCommutes. exact (dirprod_pr1 X).
   Qed.
@@ -222,7 +218,6 @@ Section pushout_monic_pullback_epi.
   Proof.
     set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout _ (isPushout_Pushout Po))).
     use is_symmetric_isPullback.
-    - exact hs.
     - exact (! (PushoutSqrCommutes _ )).
     - exact (AbelianPushoutMonicisPullback1 g f Po').
   Qed.
@@ -286,7 +281,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPullbackEpi1 {x y z : A} (f : x --> z) (g : Epi A y z) (Pb : Pullback f g) :
     Epis.isEpi (PullbackPr1 Pb).
   Proof.
-    set (Pb' := make_Pullback _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
+    set (Pb' := make_Pullback _ (is_symmetric_isPullback _ (isPullback_Pullback Pb))).
     use (AbelianPullbackEpi2 g f Pb').
   Qed.
 
@@ -361,9 +356,7 @@ Section pushout_monic_pullback_epi.
              cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
              rewrite <- assoc. rewrite <- assoc. apply pathsinv0.
              use EqualizerEqAr.
-        * intros y0. apply isapropdirprod.
-          -- apply hs.
-          -- apply hs.
+        * intros y0. apply isapropdirprod; apply (homset_property A).
         * intros y0 X. cbn in X.
           use (CokernelArrowisEpi (to_Zero A) CK). rewrite CokernelCommutes. exact (dirprod_pr1 X).
   Qed.
@@ -371,7 +364,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPullbackEpiisPushout2 {x y z : A} (f : x --> z) (g : Epi A y z) (Pb : Pullback f g) :
     isPushout (PullbackPr1 Pb) (PullbackPr2 Pb) f g (PullbackSqrCommutes Pb).
   Proof.
-    set (Pb' := make_Pullback  _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
+    set (Pb' := make_Pullback  _ (is_symmetric_isPullback _ (isPullback_Pullback Pb))).
     use is_symmetric_isPushout.
     - exact (! (PullbackSqrCommutes _ )).
     - exact (AbelianPullbackEpiisPushout1 g f Pb').
