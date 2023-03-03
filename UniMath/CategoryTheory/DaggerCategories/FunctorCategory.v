@@ -173,44 +173,58 @@ Section Univalence.
           | apply isaprop_is_unitary]).
   Defined.
 
+  Lemma unitary_functor_eq_to_unitary_functors_naturality
+        (p : unitary_functors_eq)
+    : is_nat_trans F G (λ c : pr11 C, pr1 (pr1 p c)).
+  Proof.
+    intros c1 c2 f.
+    apply pathsinv0.
+    etrans.
+    1: apply maponpaths, (pr2 p).
+    etrans.
+    1: apply assoc.
+    apply maponpaths_2.
+    etrans.
+    1: apply assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2, (pr1 p).
+  Qed.
+
   Definition unitary_functors_eq_to_unitary_functors
     : unitary_functors_eq -> unitary_functors.
   Proof.
     intros [p q].
     use tpair.
     - apply (make_nat_trans _ _ (λ c, pr1 (p c))).
-      intros c1 c2 f.
-      apply pathsinv0.
-      etrans.
-      1: apply maponpaths, q.
-      etrans.
-      1: apply assoc.
-      apply maponpaths_2.
-      etrans.
-      1: apply assoc.
-      refine (_ @ id_left _).
-      apply maponpaths_2, p.
-    - intro ; apply p.
+      exact (unitary_functor_eq_to_unitary_functors_naturality (p,,q)).
+    - abstract (intro ; apply p).
   Defined.
+
+  Lemma unitary_functors_eq_from_unitary_functors_naturality
+        (α : unitary_functors)
+    : ∏ (x y : C) (f : C ⟦ x, y ⟧), # G f = dagD (F x) (G x) ((pr1 α) x) · # F f · (pr1 α) y.
+  Proof.
+    intros c1 c2 f.
+    apply pathsinv0.
+    etrans.
+    1: apply assoc'.
+    etrans.
+    1: apply maponpaths, (pr21 α).
+    etrans.
+    1: apply assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2, (pr2 α).
+  Qed.
 
   Definition unitary_functors_eq_from_unitary_functors
     : unitary_functors -> unitary_functors_eq.
   Proof.
     intros [α p].
-      use tpair.
-      + intro c.
-        exists (α c).
-        apply p.
-      + intros c1 c2 f.
-        apply pathsinv0.
-        etrans.
-        1: apply assoc'.
-        etrans.
-        1: apply maponpaths, (pr2 α).
-        etrans.
-        1: apply assoc.
-        refine (_ @ id_left _).
-        apply maponpaths_2, p.
+    use tpair.
+    + intro c.
+      exists (α c).
+      apply p.
+    + exact (unitary_functors_eq_from_unitary_functors_naturality (α,,p)).
   Defined.
 
   Lemma unitary_functors_eq_equiv_unitary_functors_inv_law1
@@ -219,7 +233,8 @@ Section Univalence.
   Proof.
     intro.
     use total2_paths_f.
-    - apply idpath.
+    - apply funextsec ; intro.
+      apply unitary_eq, idpath.
     - repeat (apply funextsec ; intro).
       apply homset_property.
   Qed.
@@ -351,47 +366,68 @@ Section Univalence.
     - apply pathsinv0; apply id_right.
   Qed.
 
-    Definition equality_equiv_functors_eq_data
+  Definition equality_to_functors_eq_data
+    : pr1 F = pr1 G -> functors_eq_data.
+  Proof.
+    intro p.
+    exists (λ c, eqtohomot (base_paths _ _ p) c).
+    abstract (
+        intros x y f ;
+        refine (! eqtohomot (eqtohomot (eqtohomot (fiber_paths p) x) y) f @ _) ;
+        etrans ; [
+          apply transport_of_dagger_functor_map_is_pointwise
+        | apply double_transport_idtodaggeriso]
+      ).
+  Defined.
+
+  Definition equality_from_functors_eq_data
+    : functors_eq_data → pr1 F = pr1 G.
+  Proof.
+    intros [p q].
+    use total2_paths_f.
+    - apply funextsec ; intro ; apply p.
+    - abstract(
+          repeat (apply funextsec ; intro) ;
+          rewrite transport_of_dagger_functor_map_is_pointwise ;
+          rewrite double_transport_idtodaggeriso ;
+          rewrite toforallpaths_funextsec ;
+          exact (! q _ _ _)
+        ).
+  Defined.
+
+  Lemma equality_equiv_functors_eq_data_inv_law1
+    : ∏ x : pr1 F = pr1 G, equality_from_functors_eq_data (equality_to_functors_eq_data x) = x.
+  Proof.
+    intro.
+    apply functor_eq_eq_from_functor_ob_eq'.
+    etrans.
+    1: apply base_total2_paths.
+    apply (invmaponpathsweq (weqtoforallpaths _ _ _)).
+    simpl.
+    rewrite toforallpaths_funextsec.
+    apply funextsec; intro ; apply idpath.
+  Qed.
+
+  Lemma equality_equiv_functors_eq_data_inv_law2
+    : ∏ y : functors_eq_data, equality_to_functors_eq_data (equality_from_functors_eq_data y) = y.
+  Proof.
+    intros [p q].
+    use total2_paths_f.
+    - apply funextsec ; intro.
+      apply equality_on_objects_from_functor_equality.
+    - apply proofirrelevance.
+      do 3 (apply impred_isaprop ; intro).
+      apply homset_property.
+  Qed.
+
+  Definition equality_equiv_functors_eq_data
     : pr1 F = pr1 G ≃ functors_eq_data.
   Proof.
     use weq_iso.
-    - intro p.
-      exists (λ c, eqtohomot (base_paths _ _ p) c).
-      abstract (
-          intros x y f ;
-          refine (! eqtohomot (eqtohomot (eqtohomot (fiber_paths p) x) y) f @ _) ;
-          etrans ; [
-              apply transport_of_dagger_functor_map_is_pointwise
-          | apply double_transport_idtodaggeriso]
-        ).
-    - intros [p q].
-      use total2_paths_f.
-      + apply funextsec ; intro ; apply p.
-      + abstract(
-            repeat (apply funextsec ; intro) ;
-            rewrite transport_of_dagger_functor_map_is_pointwise ;
-            rewrite double_transport_idtodaggeriso ;
-            rewrite toforallpaths_funextsec ;
-            exact (! q _ _ _)
-          ).
-    - intro.
-      cbn.
-      apply functor_eq_eq_from_functor_ob_eq'.
-      etrans.
-      1: apply base_total2_paths.
-      apply (invmaponpathsweq (weqtoforallpaths _ _ _)).
-      simpl.
-      rewrite toforallpaths_funextsec.
-      apply funextsec; intro ; apply idpath.
-    - intros [p q].
-      use total2_paths_f.
-      2: {
-        apply proofirrelevance.
-        do 3 (apply impred_isaprop ; intro).
-        apply homset_property.
-      }
-      apply funextsec ; intro.
-      apply equality_on_objects_from_functor_equality.
+    - exact equality_to_functors_eq_data.
+    - exact equality_from_functors_eq_data.
+    - exact equality_equiv_functors_eq_data_inv_law1.
+    - exact equality_equiv_functors_eq_data_inv_law2.
   Defined.
 
   Local Definition id_pr1_to_pr11_id
