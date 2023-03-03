@@ -180,8 +180,8 @@ Section Univalence.
       exists (pr11 α).
       intro c.
       split.
-      + exact (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ (pr12 α))) c).
-      + exact (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ (pr22 α))) c).
+      + exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr12 α))) c).
+      + exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr22 α))) c).
     - intro α.
       use total2_paths_f.
       + use (nat_trans_eq (pr2 D)).
@@ -323,10 +323,10 @@ Section Univalence.
   Proof.
     use weq_iso.
     - intro p.
-      exists (λ c, toforallpaths _ _ _ (base_paths _ _ p) c).
+      exists (λ c, eqtohomot (base_paths _ _ p) c).
       abstract (
           intros x y f ;
-          refine (! toforallpaths _ _ _ (toforallpaths _ _ _ (toforallpaths _ _ _ (fiber_paths p) x) y) f @ _) ;
+          refine (! eqtohomot (eqtohomot (eqtohomot (fiber_paths p) x) y) f @ _) ;
           etrans ; [
               apply transport_of_dagger_functor_map_is_pointwise
           | apply double_transport_idtodaggeriso]
@@ -346,7 +346,7 @@ Section Univalence.
       apply functor_eq_eq_from_functor_ob_eq'.
       etrans.
       1: apply base_total2_paths.
-      apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
+      apply (invmaponpathsweq (weqtoforallpaths _ _ _)).
       simpl.
       rewrite toforallpaths_funextsec.
       apply funextsec; intro ; apply idpath.

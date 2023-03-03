@@ -173,12 +173,12 @@ Section SET_as_full_sub_of_REL.
       + intro q.
         use (factor_through_squash_hProp (eqset x1 x2) _ q).
         clear q ; intro q.
-        refine (! toforallpaths _ _ _ (pr12 i) x1 @ _ @ pr22 q).
+        refine (! eqtohomot (pr12 i) x1 @ _ @ pr22 q).
         apply (maponpaths (pr1 i)).
         exact (pr12 q).
       + intro p ; induction p.
         apply hinhpr.
-        exact (f x1 ,, idpath _ ,, toforallpaths _ _ _ (pr12 i) x1).
+        exact (f x1 ,, idpath _ ,, eqtohomot (pr12 i) x1).
   Qed.
 
   Definition invertiblefunction_to_invertiblerelation
@@ -208,14 +208,14 @@ Section Isos.
   Proof.
     intros x y p.
 
-    set (t := toforallpaths _ _ _ (toforallpaths _ _ _ (pr12 i) x) x).
+    set (t := eqtohomot (eqtohomot (pr12 i) x) x).
     set (q := path_to_fun (X := eq_set x x) (! (base_paths _ _ t)) (idpath x)).
     use (factor_through_squash_hProp _ _ q).
     clear q ; intro q.
 
     assert (q0 : pr1 q = y).
     {
-      set (ty := toforallpaths _ _ _ (toforallpaths _ _ _ (pr22 i) (pr1 q)) y).
+      set (ty := eqtohomot (eqtohomot (pr22 i) (pr1 q)) y).
       use (path_to_fun (base_paths _ _ ty)).
       apply hinhpr.
       exists x.
@@ -246,7 +246,7 @@ Section Isos.
       r x y1 -> r x y2 -> y1 = y2.
   Proof.
     intros x y1 y2 r1 r2.
-    set (q' := base_paths _ _ (toforallpaths _ _ _ (toforallpaths _ _ _ (pr22 p) y1) y2)).
+    set (q' := base_paths _ _ (eqtohomot (eqtohomot (pr22 p) y1) y2)).
     apply (path_to_fun q').
     apply hinhpr.
     exists x.
@@ -275,7 +275,7 @@ Section Isos.
   Proof.
     intro x.
     set (q := pr12 p).
-    set (q' := base_paths _ _ (toforallpaths _ _ _ ((toforallpaths _ _ _ q) x) x)).
+    set (q' := base_paths _ _ (eqtohomot ((eqtohomot q) x) x)).
 
     set (w := (eqweqmap q')).
     set (y := invmap w (idpath _)).
