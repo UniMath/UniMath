@@ -376,7 +376,7 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (* Let Hsort := hlevelntosn 2 _ Hsort_set. *)
 
-(** Define the discrete category of sorts *)
+(** Define the category of sorts *)
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)

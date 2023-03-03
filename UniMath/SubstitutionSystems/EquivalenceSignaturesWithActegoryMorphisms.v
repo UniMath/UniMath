@@ -462,7 +462,6 @@ End AA.
    apply (weqcomp weqSignatureLaxMorphismActegories).
    apply weqfibtototal.
    intro H.
-   cbn.
    exact (idweq _). (* slow *)
  Defined. (* slow *)
 

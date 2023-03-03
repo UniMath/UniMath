@@ -72,8 +72,8 @@ Section TerminalCoalgebraToGHSS.
   Let out_inv : I_H t --> t := inv_from_z_iso out_z_iso.
 
   Definition terminal_coalg_to_ghss_step_term
-             {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
-    : V ⟦ Z ⊗_{Act} t, I_H (CP (Z ⊗_{Act} t) t) ⟧.
+             {Z : PtdV} (f : pr1 Z --> t)
+    : Z ⊗_{Act} t --> I_H (CP (Z ⊗_{Act} t) t).
   Proof.
     refine (Z ⊗^{Act}_{l} out · _).
     refine (δ _ _ _ · _).
@@ -82,17 +82,17 @@ Section TerminalCoalgebraToGHSS.
     exact (BinCoproductArrow (CP _ _) (f · out · #I_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
   Defined.
 
-  Let η : V⟦I_{Mon_V}, t⟧ := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
-  Let τ : V⟦H t, t⟧ := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
+  Let η : I_{Mon_V} --> t := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
+  Let τ : H t --> t := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
 
   Lemma ητ_is_out_inv : BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ = out_inv.
   Proof.
     apply pathsinv0, BinCoproductArrowEta.
   Qed.
 
-  Local Definition ϕ {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
+  Local Definition ϕ {Z : PtdV} (f : pr1 Z --> t)
     := terminal_coalg_to_ghss_step_term f.
-  Local Definition Corec_ϕ {Z : PtdV} (f : V⟦ pr1 Z, t ⟧)
+  Local Definition Corec_ϕ {Z : PtdV} (f : pr1 Z --> t)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
   Local Lemma changing_the_constant_Const_plus_H (x y v w : V)
@@ -139,7 +139,7 @@ Section TerminalCoalgebraToGHSS.
   Qed.
 
   Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
-    {Z : PtdV} (f : V⟦ pr1 Z, t ⟧) (h : V⟦ Z ⊗_{Act} t, t ⟧) :
+    {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h <->
       gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
@@ -276,61 +276,77 @@ Section InitialAlgebraToGHSS.
   Let t : V := alg_carrier _ (InitialObject t_Initial).
   Let α : I_H t --> t := alg_map I_H (pr1 t_Initial).
 
-  Let η : V⟦constant_functor V V I_{Mon_V} t, t⟧:= BinCoproductIn1 (CP _ _) · α.
-  Let τ : V⟦H t, t⟧ := BinCoproductIn2 (CP _ _) · α.
+  Let η : constant_functor V V I_{Mon_V} t --> t := BinCoproductIn1 (CP _ _) · α.
+  Let τ : H t --> t := BinCoproductIn2 (CP _ _) · α.
 
   (** a more comfortable presentation of the standard iteration scheme *)
-  Definition Iteration_I_H (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av) : ∃! h : V⟦t,av⟧, τ · h = # H h · aτ × η · h = aη.
+
+
+  Lemma Iteration_I_H_aux1 (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av)
+    (aα := av,, BinCoproductArrow (CP I_{ Mon_V} (H av)) aη aτ)
+    (h : t --> pr1 aα) : pr21 t_Initial -->[ h] pr2 aα → τ · h = # H h · aτ × η · h = aη.
+  Proof.
+    intro Hyp.
+    cbn in Hyp.
+    split.
+    + apply (maponpaths (fun x => BinCoproductIn2 _ · x)) in Hyp.
+      rewrite assoc in Hyp.
+      etrans.
+      { exact Hyp. }
+      etrans.
+      { apply maponpaths.
+        apply precompWithBinCoproductArrow. }
+      apply BinCoproductIn2Commutes.
+    + apply (maponpaths (fun x => BinCoproductIn1 _ · x)) in Hyp.
+      rewrite assoc in Hyp.
+      etrans.
+      { exact Hyp. }
+      etrans.
+      { apply maponpaths.
+        apply precompWithBinCoproductArrow. }
+      cbn.
+      rewrite id_left.
+      apply BinCoproductIn1Commutes.
+  Qed.
+
+  Lemma Iteration_I_H_aux2 (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av)
+    (aα := av,, BinCoproductArrow (CP I_{ Mon_V} (H av)) aη aτ) (h : t --> av) :
+    τ · h = # H h · aτ → η · h = aη → pr21 t_Initial -->[ h] pr2 aα.
+  Proof.
+    intros Hyp1 Hyp2.
+    cbn.
+    etrans.
+    { apply cancel_postcomposition.
+      apply BinCoproductArrowEta. }
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
+    + cbn. rewrite id_left. exact Hyp2.
+    + cbn. exact Hyp1.
+  Qed.
+
+  Definition Iteration_I_H (av : V) (aη : I_{Mon_V} --> av) (aτ : H av --> av) :
+    ∃! h : t --> av, τ · h = # H h · aτ × η · h = aη.
   Proof.
     transparent assert (aα : (ob AF)).
     { use tpair.
       - exact av.
-      - cbn. unfold BinCoproduct_of_functors_ob, constant_functor.
-        cbn.
-        exact (BinCoproductArrow (CP _ _) aη aτ).
+      - exact (BinCoproductArrow (CP _ _) aη aτ).
     }
     simple refine (iscontrretract _ _ _ (pr2 t_Initial aα)).
     - intros [h Hyp].
       exists h.
-      cbn in Hyp.
-      split.
-      + apply (maponpaths (fun x => BinCoproductIn2 _ · x)) in Hyp.
-        rewrite assoc in Hyp.
-        etrans.
-        { exact Hyp. }
-        etrans.
-        { apply maponpaths.
-          apply precompWithBinCoproductArrow. }
-        apply BinCoproductIn2Commutes.
-      + apply (maponpaths (fun x => BinCoproductIn1 _ · x)) in Hyp.
-        rewrite assoc in Hyp.
-        etrans.
-        { exact Hyp. }
-        etrans.
-        { apply maponpaths.
-          apply precompWithBinCoproductArrow. }
-        cbn.
-        rewrite id_left.
-        apply BinCoproductIn1Commutes.
+      apply Iteration_I_H_aux1.
+      exact Hyp.
     - intros [h [Hyp1 Hyp2]].
       exists h.
-      cbn.
-      etrans.
-      { apply cancel_postcomposition.
-        apply BinCoproductArrowEta. }
-      etrans.
-      { apply postcompWithBinCoproductArrow. }
-      etrans.
-      2: { apply pathsinv0, precompWithBinCoproductArrow. }
-      apply maponpaths_12.
-      + cbn. rewrite id_left. exact Hyp2.
-      + cbn. exact Hyp1.
-    - intros [h Hyp].
-      use total2_paths_f.
-      + apply idpath.
-      + apply isapropdirprod; apply V.
+      apply Iteration_I_H_aux2.
+      + exact Hyp1.
+      + exact Hyp2.
+    - abstract (intros [h Hyp]; use total2_paths_f; [ apply idpath | apply isapropdirprod; apply V]).
   Defined.
-
 
   Context (initial_annihilates : ∏ (v : V), isInitial V (v ⊗_{Mon_V} (InitialObject IV))).
   Context (left_whiskering_omega_cocont : ∏ (v : V), is_omega_cocont (leftwhiskering_functor Mon_V v)).
@@ -361,7 +377,7 @@ Section InitialAlgebraToGHSS.
   Defined.
 
   Let σ : SigmaMonoid θ := ghhs_to_sigma_monoid θ initial_alg_to_ghss.
-  Let μ : V⟦pr1 σ ⊗_{Mon_V} pr1 σ, pr1 σ⟧ := pr11 (pr212 σ).
+  Let μ : pr1 σ ⊗_{Mon_V} pr1 σ --> pr1 σ := pr11 (pr212 σ).
 
   Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.
   Proof.

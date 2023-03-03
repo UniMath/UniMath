@@ -62,7 +62,6 @@ Section CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
           -- apply (pr2 p).
           -- cbn.
              induction (pr1 (pr2 p (pr1 ix) (pr1 iy))).
-             rewrite idpath_transportf.
              apply idpath.
   Defined.
 
