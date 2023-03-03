@@ -1,4 +1,8 @@
-(** In this file, we show how any monoid in the monoidal category of endofunctors is a monad **)
+(** In this file, we show that the monoids in the monoidal category of endofunctors correspond to the monads.
+
+TODO: establish an equivalence of types
+
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -19,13 +23,15 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
 
-Section MonoidToMonad.
+Section FixTheContext.
 
   Context {C : category}.
 
   Let ENDO : category := cat_of_endofunctors C.
   Let M_ENDO : monoidal ENDO := monoidal_of_endofunctors C.
   Let MON : category := category_of_monoids_in_monoidal_cat M_ENDO.
+
+  Section MonoidToMonadOb.
 
   Context (M : MON).
 
@@ -65,4 +71,75 @@ Section MonoidToMonad.
   Definition monoid_to_monad : Monad C
     := _ ,, monoid_to_monoid_laws.
 
-End MonoidToMonad.
+End MonoidToMonadOb.
+
+Section MonadToMonoidOb.
+
+  Context (M : Monad C).
+
+  Let x : ENDO := M : functor _ _.
+  Let η : ENDO ⟦ monoidal_unit M_ENDO, x ⟧ := η M.
+  Let μ : ENDO ⟦ x ⊗_{M_ENDO} x, x⟧ := μ M.
+
+  Definition monad_to_monoid_data : monoid_data M_ENDO x := μ ,, η.
+
+  Lemma monad_to_monoid_laws : monoid_laws M_ENDO monad_to_monoid_data.
+  Proof.
+    repeat split; apply (nat_trans_eq C); intro c; cbn.
+    - apply Monad_law2.
+    - apply Monad_law1.
+    - rewrite id_left. apply pathsinv0, Monad_law3.
+  Qed.
+
+  Definition monad_to_monoid : MON := x ,, monad_to_monoid_data ,, monad_to_monoid_laws.
+
+End MonadToMonoidOb.
+
+Section MonoidToMonadMor.
+
+  Context (M N : MON) (f : M --> N).
+
+  Lemma monoid_to_monad_mor_laws : Monad_Mor_laws (pr1 f : monoid_to_monad M ⟹ monoid_to_monad N).
+  Proof.
+    split.
+    - intro c.
+      set (t := pr12 f).
+      apply pathsinv0.
+      etrans.
+      2: { exact (eqtohomot (base_paths _ _ t) c). }
+      rewrite bifunctor_equalwhiskers.
+      apply idpath.
+    - intro c.
+      set (t := pr22 f).
+      exact (eqtohomot (base_paths _ _ t) c).
+  Qed.
+
+  Definition monoid_to_monad_mor : category_Monad C ⟦monoid_to_monad M, monoid_to_monad N⟧
+    := pr1 f ,, monoid_to_monad_mor_laws.
+
+End MonoidToMonadMor.
+
+Section MonadToMonoidMor.
+
+  Context (M N : Monad C) (f : category_Monad C ⟦M, N⟧).
+
+  Lemma monad_to_monoid_mor_laws : pr2 (monad_to_monoid M) -->[ pr1 f] pr2 (monad_to_monoid N).
+  Proof.
+    split.
+    - red. rewrite bifunctor_equalwhiskers.
+      apply (nat_trans_eq C); intro c.
+      apply pathsinv0, Monad_Mor_μ.
+    - apply (nat_trans_eq C); intro c.
+      apply Monad_Mor_η.
+  Qed.
+
+  Definition monad_to_monoid_mor : monad_to_monoid M --> monad_to_monoid N
+    := pr1 f ,, monad_to_monoid_mor_laws.
+
+End MonadToMonoidMor.
+
+(*
+  Definition monoid_equiv_monoid : MON ≃ Monad C.
+*)
+
+End FixTheContext.
