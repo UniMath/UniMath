@@ -527,7 +527,7 @@ Proof.
     h_sq.
 Qed.
 
-Opaque isBinProduct_Pullback. (* this is crucial for the following proof to go through *)
+(* Opaque isBinProduct_Pullback. *)
 
 Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
 Proof.
@@ -549,7 +549,7 @@ Proof.
       use (MonicisMonic _ (Subobject_Monic (G0 b c))).
       use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,c ⨉ b)))).
       unfold hset_z_iso_equiv.
-      cbn - [BinProd G0 Subobject_mor].
+      cbn - [BinProd G0 Subobject_mor isBinProduct_Pullback]. (** [isBinProduct_Pullback] is crucial here *)
       fold BinProd.
       assert (p : identity c ⨱ (identity b) = identity (c ⨉ b) ).
       { use pathsinv0.
