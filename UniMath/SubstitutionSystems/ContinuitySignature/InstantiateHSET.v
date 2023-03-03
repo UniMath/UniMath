@@ -54,7 +54,7 @@ Section CoproductsIndexedOverHPropCommutesWithBinproductsInSET.
       exact (pr2 ix,,pr2 iy).
     - split.
       + apply funextsec ; intro ixy.
-        use total2_paths_f ; apply idpath.
+        apply idpath.
       + apply funextsec ; intros [ix iy].
         use total2_paths_f.
         * apply idpath.
