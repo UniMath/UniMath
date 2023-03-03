@@ -10,9 +10,9 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 
 Require Import UniMath.CategoryTheory.Groupoids.
 
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerIsos.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerUnivalence.
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
+Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
 
 Local Open Scope cat.
 

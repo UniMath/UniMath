@@ -4,7 +4,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
 
 Local Open Scope cat.
 

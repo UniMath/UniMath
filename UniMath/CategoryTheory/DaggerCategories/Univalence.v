@@ -7,8 +7,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerIsos.
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
 
 Local Open Scope cat.
 

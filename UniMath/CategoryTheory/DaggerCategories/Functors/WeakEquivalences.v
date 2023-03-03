@@ -11,12 +11,12 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerFunctors.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.Transformations.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerIsos.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerUnivalence.
-Require Import UniMath.CategoryTheory.DaggerCategories.DaggerFunctorCategory.
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
+Require Import UniMath.CategoryTheory.DaggerCategories.Transformations.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
+Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
+Require Import UniMath.CategoryTheory.DaggerCategories.FunctorCategory.
 
 Local Open Scope cat.
 

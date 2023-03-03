@@ -375,16 +375,16 @@ PowerObject.v
 ElementaryTopos.v
 
 # Dagger categories
-DaggerCategories/Core/DaggerCategories.v
-DaggerCategories/Core/DaggerIsos.v
-DaggerCategories/Core/DaggerUnivalence.v
-DaggerCategories/Core/DaggerFunctors.v
-DaggerCategories/Core/Transformations.v
+DaggerCategories/Categories.v
+DaggerCategories/Unitary.v
+DaggerCategories/Univalence.v
+DaggerCategories/Functors.v
+DaggerCategories/Transformations.v
 
-DaggerCategories/DaggerFunctorCategory.v
+DaggerCategories/FunctorCategory.v
 
 DaggerCategories/Examples/Groupoids.v
 DaggerCategories/Examples/Relations.v
 
-DaggerCategories/Functors/DaggerWeakEquivalences.v
+DaggerCategories/Functors/WeakEquivalences.v
 DaggerCategories/Functors/FullyFaithful.v

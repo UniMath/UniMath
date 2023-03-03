@@ -11,11 +11,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerCategories.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerFunctors.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.Transformations.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerIsos.
-Require Import UniMath.CategoryTheory.DaggerCategories.Core.DaggerUnivalence.
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
+Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
+Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
+Require Import UniMath.CategoryTheory.DaggerCategories.Transformations.
 
 Local Open Scope cat.
 
@@ -55,7 +55,8 @@ Defined.
 (* To be moved inside DaggerUnivalence *)
 Local Lemma idtodaggeriso_is_idtoiso {C : category} (dagC : dagger C)
       {x y : C} (p : x = y)
-  : pr1 (idtodaggeriso dagC x y p) = (* pr1 (Univalence.idtoiso p). *) dagC y x (pr1 (idtodaggeriso dagC y x (! p))).
+  : pr1 (idtodaggeriso dagC x y p)
+    = dagC y x (pr1 (idtodaggeriso dagC y x (! p))).
 Proof.
   induction p.
   apply pathsinv0, dagger_to_law_id.
