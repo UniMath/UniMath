@@ -52,32 +52,6 @@ Proof.
     apply C'.
 Defined.
 
-(* To be moved inside DaggerUnivalence *)
-Local Lemma idtodaggeriso_is_idtoiso {C : category} (dagC : dagger C)
-      {x y : C} (p : x = y)
-  : pr1 (idtodaggeriso dagC x y p)
-    = dagC y x (pr1 (idtodaggeriso dagC y x (! p))).
-Proof.
-  induction p.
-  apply pathsinv0, dagger_to_law_id.
-Qed.
-
-Local Lemma idtodaggeriso_is_idtoiso_idpath {C : category} (dagC : dagger C)
-      (x : C)
-  : pr1 (idtodaggeriso dagC x x (idpath x))
-    = identity x.
-Proof.
-  apply idpath.
-Qed.
-
-Local Lemma idtoiso_of_pathsinv_is_dagger_of_idtoiso {C : category} (dagC : dagger C)
-      {x y : C} (p : x = y)
-  : pr1 (Univalence.idtoiso (! p)) = dagC x y (pr1 (Univalence.idtoiso p)).
-Proof.
-  induction p.
-  apply pathsinv0, dagger_to_law_id.
-Qed.
-
 Local Lemma equality_of_composition
       {C : category} {x y z : C} (f1 f2 : C⟦x,y⟧) (g1 g2 : C⟦y,z⟧)
   : f1 = f2 -> g1 = g2 -> f1 · g1 = f2 · g2.
@@ -255,7 +229,7 @@ Section Univalence.
       refine (pr2 p x y f @ _).
       do 2 apply maponpaths_2.
       etrans.
-      1: apply (idtodaggeriso_is_idtoiso dagD).
+      1: apply (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
       do 3 apply maponpaths.
       apply pathsinv0inv0.
     - intros p.
@@ -267,7 +241,7 @@ Section Univalence.
         * apply maponpaths_2.
           cbn.
           etrans.
-          2: apply pathsinv0, (idtodaggeriso_is_idtoiso dagD).
+          2: apply pathsinv0, (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
           do 2 apply maponpaths.
           etrans.
           1: apply pathsinv0, (idtodaggeriso_daggerisotoid u).

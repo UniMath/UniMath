@@ -57,3 +57,32 @@ Section DaggerUnivalence.
   Qed.
 
 End DaggerUnivalence.
+
+Section Lemmas.
+
+  Lemma idtodaggeriso_is_dagger_of_idtodaggeriso {C : category} (dagC : dagger C)
+        {x y : C} (p : x = y)
+    : pr1 (idtodaggeriso dagC x y p)
+      = dagC y x (pr1 (idtodaggeriso dagC y x (! p))).
+  Proof.
+    induction p.
+    apply pathsinv0, dagger_to_law_id.
+  Qed.
+
+  Local Lemma idtodaggeriso_is_idtoiso_idpath {C : category} (dagC : dagger C)
+        (x : C)
+    : pr1 (idtodaggeriso dagC x x (idpath x))
+      = identity x.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma idtoiso_of_pathsinv_is_dagger_of_idtoiso {C : category} (dagC : dagger C)
+        {x y : C} (p : x = y)
+    : pr1 (Univalence.idtoiso (! p)) = dagC x y (pr1 (Univalence.idtoiso p)).
+  Proof.
+    induction p.
+    apply pathsinv0, dagger_to_law_id.
+  Qed.
+
+End Lemmas.
