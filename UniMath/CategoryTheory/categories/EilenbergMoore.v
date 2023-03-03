@@ -308,6 +308,16 @@ Section EilenbergMooreUMP1.
     intro.
     apply identity_is_z_iso.
   Defined.
+
+  Definition functor_to_eilenberg_moore_cat_pr_nat_z_iso
+    : nat_z_iso
+        (functor_to_eilenberg_moore_cat ∙ eilenberg_moore_pr m)
+        F.
+  Proof.
+    use make_nat_z_iso.
+    - exact functor_to_eilenberg_moore_cat_pr.
+    - exact functor_to_eilenberg_moore_cat_pr_is_nat_z_iso.
+  Defined.
 End EilenbergMooreUMP1.
 
 (**

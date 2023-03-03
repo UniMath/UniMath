@@ -621,6 +621,18 @@ Proof.
   reflexivity.
 Defined.
 
+Definition functor_on_fully_faithful_inv_hom
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : fully_faithful F)
+           {x y : C₁}
+           (f : F x --> F y)
+  : #F (fully_faithful_inv_hom HF x y f) = f.
+Proof.
+  unfold fully_faithful_inv_hom.
+  exact (homotweqinvweq (weq_from_fully_faithful HF x y) f).
+Qed.
+
 Lemma fully_faithful_inv_identity (C D : precategory_data) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) :
          FF^-1 (identity (F a)) = identity _.
