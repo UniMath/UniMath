@@ -583,10 +583,10 @@ Section FunctorsIntoEndofunctorCategory.
   Proof.
     repeat (use tpair).
     + intro ; intro ; apply functor_id.
-    + abstract (exact (λ d c, toforallpaths _ _ _ (maponpaths pr1 (functor_id F c)) d)).
+    + abstract (exact (λ d c, eqtohomot (maponpaths pr1 (functor_id F c)) d)).
     + intro ; intros ; apply functor_comp.
     + abstract (intro ; intros;
-      exact (toforallpaths _ _ _ (maponpaths pr1 (functor_comp F f1 f2)) b)).
+      exact (eqtohomot (maponpaths pr1 (functor_comp F f1 f2)) b)).
     + abstract (intro ; intros;
       exact (! pr2 (#F f) b1 b2 g)).
   Defined. (** needs to be defined for [bifunctor_from_to] *)

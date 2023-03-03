@@ -262,10 +262,10 @@ Section A.
     split.
     - set (p := BinProductPr1Commutes [C,D] _ _  (make_BinProduct [C, D] F1 F2 P P1 P2 P_prod)).
       set (p' := p _ (binproduct_nat_trans_pr1 C D BP F1 F2) (binproduct_nat_trans_pr2 C D BP F1 F2)).
-      exact (toforallpaths _ _ _ (base_paths _ _ p') c).
+      exact (eqtohomot (base_paths _ _ p') c).
     - set (p := BinProductPr2Commutes [C,D] _ _  (make_BinProduct [C, D] F1 F2 P P1 P2 P_prod)).
       set (p' := p _ (binproduct_nat_trans_pr1 C D BP F1 F2) (binproduct_nat_trans_pr2 C D BP F1 F2)).
-      exact (toforallpaths _ _ _ (base_paths _ _ p') c).
+      exact (eqtohomot (base_paths _ _ p') c).
   Defined.
 
   Definition post_comp_functor_preserves_binproduct

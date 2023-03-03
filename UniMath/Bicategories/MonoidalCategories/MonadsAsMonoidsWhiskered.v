@@ -50,13 +50,13 @@ Section MonoidToMonad.
     repeat split.
     - intro c.
       set (t := monoid_right_unit_law _ M).
-      exact (toforallpaths _ _ _ (base_paths _ _ t) c).
+      exact (eqtohomot (base_paths _ _ t) c).
     - intro c.
       set (t := monoid_left_unit_law _ M).
-      exact (toforallpaths _ _ _ (base_paths _ _ t) c).
+      exact (eqtohomot (base_paths _ _ t) c).
     - intro c.
       set (t := monoid_assoc_law _ M).
-      refine (! (toforallpaths _ _ _ (base_paths _ _ t) c) @ _).
+      refine (! (eqtohomot (base_paths _ _ t) c) @ _).
       etrans.
       1: apply assoc'.
       apply id_left.

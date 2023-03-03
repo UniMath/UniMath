@@ -282,7 +282,7 @@ Section TensorFunctorProperties.
     : is_nat_trans_tensor TC TD FF GG α.
   Proof.
     intros x y.
-    exact (toforallpaths _ _ _ (base_paths _ _ p) (x,y)).
+    exact (eqtohomot (base_paths _ _ p) (x,y)).
   Qed.
 
   Lemma is_nat_trans_tensor_from_characterization
@@ -1027,7 +1027,7 @@ Section AssociatorMonoidalProperty.
   Proof.
     intros x y z.
     simpl.
-    set (t := toforallpaths _ _ _ (base_paths _ _ FFF) ((x,y),z)).
+    set (t := eqtohomot (base_paths _ _ FFF) ((x,y),z)).
     simpl in t.
     rewrite ! (functor_id TD) in t.
     rewrite ! id_left in t.

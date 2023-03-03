@@ -103,25 +103,25 @@ Defined. (* 57s on modern Intel machine *)
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypnatleft_inst := toforallpaths _ _ _ (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
+       assert (Hypnatleft_inst := eqtohomot (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
        cbn; cbn in Hypnatleft_inst;
          exact Hypnatleft_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypnatright_inst := toforallpaths _ _ _ (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
+       assert (Hypnatright_inst := eqtohomot (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
        cbn; cbn in Hypnatright_inst;
          exact Hypnatright_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypactor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr122 Hyps v w x)) c);
+       assert (Hypactor_inst := eqtohomot (maponpaths pr1 (pr122 Hyps v w x)) c);
        cbn; cbn in Hypactor_inst;
          exact Hypactor_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypunitor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr222 Hyps x)) c);
+       assert (Hypunitor_inst := eqtohomot (maponpaths pr1 (pr222 Hyps x)) c);
        cbn; cbn in Hypunitor_inst;
          exact Hypunitor_inst).
    - intro Hyps.
@@ -129,25 +129,25 @@ Defined. (* 57s on modern Intel machine *)
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypnatleft_inst := toforallpaths _ _ _ (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
+       assert (Hypnatleft_inst := eqtohomot (maponpaths pr1 (pr1 Hyps v x1 x2 g)) c);
        cbn; cbn in Hypnatleft_inst;
          exact Hypnatleft_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypnatright_inst := toforallpaths _ _ _ (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
+       assert (Hypnatright_inst := eqtohomot (maponpaths pr1 (pr12 Hyps v1 v2 x f)) c);
        cbn; cbn in Hypnatright_inst;
          exact Hypnatright_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypactor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr122 Hyps v w x)) c);
+       assert (Hypactor_inst := eqtohomot (maponpaths pr1 (pr122 Hyps v w x)) c);
        cbn; cbn in Hypactor_inst;
          exact Hypactor_inst).
      + abstract (intro; intros;
        apply (nat_trans_eq C);
        intro c;
-       assert (Hypunitor_inst := toforallpaths _ _ _ (maponpaths pr1 (pr222 Hyps x)) c);
+       assert (Hypunitor_inst := eqtohomot (maponpaths pr1 (pr222 Hyps x)) c);
        cbn; cbn in Hypunitor_inst;
          exact Hypunitor_inst).
  Defined. (* instantaneous, but the abstracted parts require 26-42min on a modern Intel machine, depending on if UniMath master was merged *)
