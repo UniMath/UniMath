@@ -278,7 +278,7 @@ Proof.
   - use SingletonPred.
 Defined.
 
-Let name_true (b c : C) : C ⟦ T, PowerObject_on_ob P b ⟧.
+Let name_true (b : C) : C ⟦ T, PowerObject_on_ob P b ⟧.
 Proof.
   use (PowerObject_charname_nat_z_iso P).
   exact (TerminalArrow T b · true Ω).
@@ -298,13 +298,13 @@ Proof.
   { exact (PowerObject_on_ob P b). }
   { use Subobjectscategory_ob.
     - exact T.
-    - exact (name_true b c).
+    - exact (name_true b).
     - use from_terminal_isMonic.
   }
   - use u.
 Defined.
 
-Local Lemma G0_Sqr (b c : C) : (Subobject_mor (G0 b c) · (u b c) = (TerminalArrow T _ ) · (name_true b c)).
+Local Lemma G0_Sqr (b c : C) : (Subobject_mor (G0 b c) · (u b c) = (TerminalArrow T _ ) · (name_true b)).
 Proof.
   cbn.
   rewrite PullbackSqrCommutes.
@@ -354,7 +354,7 @@ Proof.
     induction p'.
     rewrite assoc.
     rewrite BinProductOfArrows_idxcomp.
-    assert (p : ((TerminalArrow T _ ) · (name_true b c) = Subobject_mor (G0 b c) · (u b c))).
+    assert (p : ((TerminalArrow T _ ) · (name_true b) = Subobject_mor (G0 b c) · (u b c))).
     { cbn.
       rewrite PullbackSqrCommutes.
       repeat use cancel_postcomposition.
@@ -445,9 +445,9 @@ Proof.
   use PullbackArrow.
   + exact (h f).
   + use TerminalArrow.
-  + assert (p : name_true b c = Subobject_mor
-    (Subobjectscategory_ob (name_true b c)
-        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b c)))). {cbn. apply idpath. }
+  + assert (p : name_true b = Subobject_mor
+    (Subobjectscategory_ob (name_true b)
+        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). {cbn. apply idpath. }
     induction p.
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
     simpl.
