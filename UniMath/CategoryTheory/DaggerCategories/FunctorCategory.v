@@ -150,47 +150,53 @@ Section Univalence.
     use weq_iso.
     - intro α.
       exists (make_dagger_transformation dagC dagD _ _ (pr1 α : nat_trans (pr1 (F,,dagF)) (pr1 (G,,dagG)))).
-      split ; apply dagger_transformation_equality ; intro c ; apply (pr2 α c).
+      abstract (split ; apply dagger_transformation_equality ; intro c ; apply (pr2 α c)).
     - intro α.
       exists (pr11 α).
-      intro c.
-      split.
-      + exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr12 α))) c).
-      + exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr22 α))) c).
-    - intro α.
-      use total2_paths_f.
-      + use (nat_trans_eq (pr2 D)).
-        intro ; apply idpath.
-      + use proofirrelevance.
-        apply impred_isaprop ; intro.
-        apply Isos.isaprop_is_inverse_in_precat.
-    - intro α.
-      use total2_paths_f.
-      + apply dagger_transformation_equality.
-        intro ; apply idpath.
-      + apply isaprop_is_unitary.
+      abstract (
+          intro c ;
+          split ;
+          [ exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr12 α))) c)
+          | exact (eqtohomot (base_paths _ _ (base_paths _ _ (pr22 α))) c) ]).
+    - abstract (
+          intro α ;
+          use total2_paths_f ;
+          [ use (nat_trans_eq (pr2 D)) ; intro ; apply idpath
+          | use proofirrelevance ;
+            apply impred_isaprop ; intro ;
+            apply Isos.isaprop_is_inverse_in_precat]).
+    - abstract (
+          intro α ;
+          use total2_paths_f ;
+          [ apply dagger_transformation_equality ;
+            intro ; apply idpath
+          | apply isaprop_is_unitary]).
   Defined.
 
-  Definition unitary_functors_eq_equiv_unitary_functors
-    : unitary_functors_eq ≃ unitary_functors.
+  Definition unitary_functors_eq_to_unitary_functors
+    : unitary_functors_eq -> unitary_functors.
   Proof.
-    use weq_iso.
-    - intros [p q].
-      use tpair.
-      + apply (make_nat_trans _ _ (λ c, pr1 (p c))).
-        intros c1 c2 f.
-        apply pathsinv0.
-        etrans.
-        1: apply maponpaths, q.
-        etrans.
-        1: apply assoc.
-        apply maponpaths_2.
-        etrans.
-        1: apply assoc.
-        refine (_ @ id_left _).
-        apply maponpaths_2, p.
-      + intro ; apply p.
-    - intros [α p].
+    intros [p q].
+    use tpair.
+    - apply (make_nat_trans _ _ (λ c, pr1 (p c))).
+      intros c1 c2 f.
+      apply pathsinv0.
+      etrans.
+      1: apply maponpaths, q.
+      etrans.
+      1: apply assoc.
+      apply maponpaths_2.
+      etrans.
+      1: apply assoc.
+      refine (_ @ id_left _).
+      apply maponpaths_2, p.
+    - intro ; apply p.
+  Defined.
+
+  Definition unitary_functors_eq_from_unitary_functors
+    : unitary_functors -> unitary_functors_eq.
+  Proof.
+    intros [α p].
       use tpair.
       + intro c.
         exists (α c).
@@ -205,65 +211,117 @@ Section Univalence.
         1: apply assoc.
         refine (_ @ id_left _).
         apply maponpaths_2, p.
-    - intro.
-      use total2_paths_f.
-      + apply idpath.
-      + repeat (apply funextsec ; intro).
-        apply homset_property.
-    - intro.
-      use total2_paths_f.
-      + use (nat_trans_eq (pr2 D)).
-        intro ; apply idpath.
-      + apply funextsec ; intro.
-        apply Isos.isaprop_is_inverse_in_precat.
   Defined.
+
+  Lemma unitary_functors_eq_equiv_unitary_functors_inv_law1
+    :  ∏ x : unitary_functors_eq,
+        unitary_functors_eq_from_unitary_functors (unitary_functors_eq_to_unitary_functors x) = x.
+  Proof.
+    intro.
+    use total2_paths_f.
+    - apply idpath.
+    - repeat (apply funextsec ; intro).
+      apply homset_property.
+  Qed.
+
+  Lemma unitary_functors_eq_equiv_unitary_functors_inv_law2
+    :  ∏ y : unitary_functors,
+        unitary_functors_eq_to_unitary_functors (unitary_functors_eq_from_unitary_functors y) = y.
+  Proof.
+    intro.
+    use total2_paths_f.
+    - use (nat_trans_eq (pr2 D)).
+      intro ; apply idpath.
+    - apply funextsec ; intro.
+      apply Isos.isaprop_is_inverse_in_precat.
+  Qed.
+
+  Definition unitary_functors_eq_equiv_unitary_functors
+    : unitary_functors_eq ≃ unitary_functors.
+  Proof.
+    use weq_iso.
+    - exact unitary_functors_eq_to_unitary_functors.
+    - exact unitary_functors_eq_from_unitary_functors.
+    - exact unitary_functors_eq_equiv_unitary_functors_inv_law1.
+    - exact unitary_functors_eq_equiv_unitary_functors_inv_law2.
+  Defined.
+
+  Definition functors_eq_data_to_unitary_functors_eq
+             (u : is_univalent_dagger dagD)
+    : functors_eq_data -> unitary_functors_eq.
+  Proof.
+    intro p.
+    exists (λ c, idtodaggeriso dagD _ _ (pr1 p c)).
+    intros x y f.
+    refine (pr2 p x y f @ _).
+    do 2 apply maponpaths_2.
+    etrans.
+    1: apply (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
+    do 3 apply maponpaths.
+    apply pathsinv0inv0.
+  Defined.
+
+  Definition functors_eq_data_from_unitary_functors_eq
+             (u : is_univalent_dagger dagD)
+    : unitary_functors_eq -> functors_eq_data.
+  Proof.
+    intros p.
+    use tpair.
+    - intro c ; apply u ; exact (pr1 p c).
+    - intros x y f.
+      refine (pr2 p x y f @ _).
+      apply equality_of_composition.
+      + apply maponpaths_2.
+        cbn.
+        etrans.
+        2: apply pathsinv0, (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
+        do 2 apply maponpaths.
+        etrans.
+        1: apply pathsinv0, (idtodaggeriso_daggerisotoid u).
+        apply maponpaths.
+        apply pathsinv0, pathsinv0inv0.
+      + cbn.
+        apply maponpaths.
+        apply pathsinv0, idtodaggeriso_daggerisotoid.
+  Defined.
+
+  Lemma functors_eq_data_equiv_unitary_functors_eq_inv_law1
+        (u : is_univalent_dagger dagD)
+    :   ∏ x : functors_eq_data,
+        functors_eq_data_from_unitary_functors_eq u (functors_eq_data_to_unitary_functors_eq u x) = x.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    - apply funextsec ; intro.
+      apply daggerisotoid_idtodaggeriso.
+    - repeat (apply funextsec ; intro).
+      apply homset_property.
+  Qed.
+
+  Lemma functors_eq_data_equiv_unitary_functors_eq_inv_law2
+        (u : is_univalent_dagger dagD)
+    :   ∏ y : unitary_functors_eq,
+        functors_eq_data_to_unitary_functors_eq u (functors_eq_data_from_unitary_functors_eq u y) = y.
+  Proof.
+    intro p.
+    use total2_paths_f.
+    - apply funextsec ; intro.
+      use total2_paths_f.
+      + apply maponpaths, idtodaggeriso_daggerisotoid.
+      + apply isaprop_is_unitary.
+    - repeat (apply funextsec ; intro).
+      apply homset_property.
+  Qed.
 
   Definition functors_eq_data_equiv_unitary_functors_eq
              (u : is_univalent_dagger dagD)
     : functors_eq_data ≃ unitary_functors_eq.
   Proof.
     use weq_iso.
-    - intro p.
-      exists (λ c, idtodaggeriso dagD _ _ (pr1 p c)).
-      intros x y f.
-      refine (pr2 p x y f @ _).
-      do 2 apply maponpaths_2.
-      etrans.
-      1: apply (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
-      do 3 apply maponpaths.
-      apply pathsinv0inv0.
-    - intros p.
-      use tpair.
-      + intro c ; apply u ; exact (pr1 p c).
-      + intros x y f.
-        refine (pr2 p x y f @ _).
-        apply equality_of_composition.
-        * apply maponpaths_2.
-          cbn.
-          etrans.
-          2: apply pathsinv0, (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
-          do 2 apply maponpaths.
-          etrans.
-          1: apply pathsinv0, (idtodaggeriso_daggerisotoid u).
-          apply maponpaths.
-          apply pathsinv0, pathsinv0inv0.
-        * cbn.
-          apply maponpaths.
-          apply pathsinv0, idtodaggeriso_daggerisotoid.
-    - intro p.
-      use total2_paths_f.
-      + apply funextsec ; intro.
-        apply daggerisotoid_idtodaggeriso.
-      + repeat (apply funextsec ; intro).
-        apply homset_property.
-    - intro p.
-      use total2_paths_f.
-      + apply funextsec ; intro.
-        use total2_paths_f.
-        * apply maponpaths, idtodaggeriso_daggerisotoid.
-        * apply isaprop_is_unitary.
-      + repeat (apply funextsec ; intro).
-        apply homset_property.
+    - exact (functors_eq_data_to_unitary_functors_eq u).
+    - exact (functors_eq_data_from_unitary_functors_eq u).
+    - exact (functors_eq_data_equiv_unitary_functors_eq_inv_law1 u).
+    - exact (functors_eq_data_equiv_unitary_functors_eq_inv_law2 u).
   Defined.
 
   Lemma transport_of_dagger_functor_map_is_pointwise
@@ -291,7 +349,7 @@ Section Univalence.
     intermediate_path (identity _ · f).
     - apply pathsinv0; apply id_left.
     - apply pathsinv0; apply id_right.
-  Defined.
+  Qed.
 
     Definition equality_equiv_functors_eq_data
     : pr1 F = pr1 G ≃ functors_eq_data.
