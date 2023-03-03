@@ -11,7 +11,7 @@ Require Import UniMath.ArnoudsThesis.FiniteSetSkeleton.
 
 Local Open Scope cat.
 
-Section AlgebraicTheoryData.
+Section AlgebraicTheory.
 
   Definition algebraic_theory_data := ∑ (T: finite_set_skeleton_category ⟶ HSET),
     (T 1 : hSet) × (∏ {m n}, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet)).
@@ -21,23 +21,21 @@ Section AlgebraicTheoryData.
     exact (T ,, e ,, comp).
   Defined.
 
-  Variable T : algebraic_theory_data.
-
   Definition f_T (d : algebraic_theory_data) : (finite_set_skeleton_category ⟶ HSET) := pr1 d.
   Coercion f_T : algebraic_theory_data >-> functor.
 
-  Definition e : (T 1 : hSet) := pr12 T.
+  Definition e {T : algebraic_theory_data} : (T 1 : hSet) := pr12 T.
 
-  Definition comp: ∏ {m n}, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet) := pr2 (pr2 T).
+  Definition comp {T : algebraic_theory_data} : ∏ {m n}, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet) := pr2 (pr2 T).
 
-  Definition pr {n} (i : stn n) : (T n : hSet) := #T (λ (x : stn 1), i) e.
+  Definition pr {T : algebraic_theory_data} {n : nat} (i : stn n) : (T n : hSet) := #T (λ (x : stn 1), i) e.
 
   Notation "f • g" :=
     (comp f g)
     (at level 50).
 
   (* Define the associativity property of the algebraic theory *)
-  Definition comp_is_assoc : Prop := ∏
+  Definition comp_is_assoc (T : algebraic_theory_data) : Prop := ∏
     (l m n : nat)
     (f_l : (T l : hSet))
     (f_m : stn l → (T m : hSet))
@@ -45,28 +43,24 @@ Section AlgebraicTheoryData.
       (f_l • f_m) • f_n = f_l • (λ t_l, (f_m t_l) • f_n).
 
   (* Define the unitality property of the algebraic theory *)
-  Definition comp_is_unital : Prop := ∏
+  Definition comp_is_unital (T : algebraic_theory_data) : Prop := ∏
     (n : nat)
     (f : (T n : hSet)),
       e • (λ _, f) = f.
 
   (* Define the compatibility of the projection function with composition *)
-  Definition comp_identity_projections : Prop := ∏
+  Definition comp_identity_projections (T : algebraic_theory_data) : Prop := ∏
     (n : nat)
     (f : (T n : hSet)),
       f • (λ i, pr i) = f.
 
   (* Define naturality of the composition in the first argument *)
-  Definition comp_is_natural_l : Prop := ∏
+  Definition comp_is_natural_l (T : algebraic_theory_data) : Prop := ∏
     (m m' n : finite_set_skeleton_category)
     (a : finite_set_skeleton_category⟦m, m'⟧)
     (f : (T m : hSet))
     (g : stn m' → (T n : hSet)),
     (#T a f) • g = f • (λ i, g (a i)).
-    
-End AlgebraicTheoryData.
-
-Section AlgebraicTheory.
 
   Definition is_algebraic_theory (T : algebraic_theory_data) :=
       (comp_is_assoc T) ×
@@ -96,13 +90,13 @@ Section AlgebraicTheory.
   Definition algebraic_theory_data_from_algebraic_theory : algebraic_theory -> algebraic_theory_data := pr1.
   Coercion algebraic_theory_data_from_algebraic_theory : algebraic_theory >-> algebraic_theory_data.
 
-  Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : (T m : hSet)) : #T a f = comp T f (λ i, pr T (a i)).
+  Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : (T m : hSet)) : #T a f = comp f (λ i, pr (a i)).
   Proof.
     rewrite <- (pr1 (pr222 T) n (#T a f)).
     apply T.
   Qed.
 
-  Lemma comp_project_component (T : algebraic_theory) (m n : nat) (i : stn m) (f : (stn m → (T n : hSet))) : comp T (pr T i) f = f i.
+  Lemma comp_project_component (T : algebraic_theory) (m n : nat) (i : stn m) (f : (stn m → (T n : hSet))) : comp (pr i) f = f i.
   Proof.
     unfold pr.
     rewrite (pr2 (pr222 T)).
@@ -115,7 +109,7 @@ Section AlgebraicTheory.
     (a: finite_set_skeleton_category⟦n, n'⟧)
     (f : (T m : hSet))
     (g : stn m → (T n : hSet)) :
-      comp T f (λ i, #T a (g i)) = #T a (comp T f g).
+      comp f (λ i, #T a (g i)) = #T a (comp f g).
   Proof.
     rewrite functor_uses_projections.
     rewrite (pr12 T).
