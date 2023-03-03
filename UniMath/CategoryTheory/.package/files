@@ -209,8 +209,6 @@ DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
 DisplayedCats/Constructions.v
 
-DisplayedCats/Examples/Relations.v
-
 FunctorAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
@@ -249,6 +247,8 @@ Core.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
+
+categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategoriesWhiskered.v
