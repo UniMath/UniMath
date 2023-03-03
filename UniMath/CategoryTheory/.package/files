@@ -363,8 +363,8 @@ DaggerCategories/Core/Transformations.v
 
 DaggerCategories/DaggerFunctorCategory.v
 
-DaggerCategories/Examples/groupoids.v
-DaggerCategories/Examples/relations.v
+DaggerCategories/Examples/Groupoids.v
+DaggerCategories/Examples/Relations.v
 
 DaggerCategories/Functors/DaggerWeakEquivalences.v
 DaggerCategories/Functors/FullyFaithful.v
