@@ -90,13 +90,13 @@ Section AlgebraicTheory.
   Definition algebraic_theory_data_from_algebraic_theory : algebraic_theory -> algebraic_theory_data := pr1.
   Coercion algebraic_theory_data_from_algebraic_theory : algebraic_theory >-> algebraic_theory_data.
 
-  Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : (T m : hSet)) : #T a f = comp f (λ i, pr (a i)).
+  Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : (T m : hSet)) : #T a f = f • (λ i, pr (a i)).
   Proof.
     rewrite <- (pr1 (pr222 T) n (#T a f)).
     apply T.
   Qed.
 
-  Lemma comp_project_component (T : algebraic_theory) (m n : nat) (i : stn m) (f : (stn m → (T n : hSet))) : comp (pr i) f = f i.
+  Lemma comp_project_component (T : algebraic_theory) (m n : nat) (i : stn m) (f : (stn m → (T n : hSet))) : (pr i) • f = f i.
   Proof.
     unfold pr.
     rewrite (pr2 (pr222 T)).
@@ -109,7 +109,7 @@ Section AlgebraicTheory.
     (a: finite_set_skeleton_category⟦n, n'⟧)
     (f : (T m : hSet))
     (g : stn m → (T n : hSet)) :
-      comp f (λ i, #T a (g i)) = #T a (comp f g).
+      f • (λ i, #T a (g i)) = #T a (f • g).
   Proof.
     rewrite functor_uses_projections.
     rewrite (pr12 T).
@@ -132,13 +132,13 @@ Section AlgebraicTheoryMorphismData.
   Definition preserves_projections : Prop := ∏
     (n : finite_set_skeleton_category)
     (i : stn n),
-      ((F : nat_trans _ _) n (pr T i)) = (pr T' i).
+      ((F : nat_trans _ _) n (pr i)) = (pr i).
 
   Definition preserves_composition : Prop := ∏
     (m n : finite_set_skeleton_category)
     (f_m : (T m : hSet))
     (f_n : stn m → (T n : hSet)),
-    ((F : nat_trans _ _) n (comp T f_m f_n)) = (comp T' ((F : nat_trans _ _) m f_m) (λ i, (F : nat_trans _ _) n (f_n i))).
+    ((F : nat_trans _ _) n (comp f_m f_n)) = (comp ((F : nat_trans _ _) m f_m) (λ i, (F : nat_trans _ _) n (f_n i))).
 
 End AlgebraicTheoryMorphismData.
 
