@@ -48,12 +48,12 @@ Section B.
   Lemma make_isBinProduct'
         {C : category} {x y : C}
         (Pxy : BinProduct _ x y)
-    : ∏ z : C, ∏ (zx : C⟦z,x⟧) (zy : C⟦z,y⟧),
+        (z : C) (zx : C⟦z,x⟧) (zy : C⟦z,y⟧) :
         (∑ i : is_z_isomorphism (BinProductArrow C Pxy zx zy),
             pr1 i · zx = BinProductPr1 _ Pxy × pr1 i · zy = BinProductPr2 _ Pxy)
           -> isBinProduct C x y z zx zy.
   Proof.
-    intros z zx zy [i [px py]].
+    intros [i [px py]].
     use make_isBinProduct.
     intros c f g.
     use tpair.
@@ -90,10 +90,9 @@ Section B.
 
   Definition coproducts_commute_binproducts_mor
              {C : category} (BP : BinProducts C) {I : UU}
-             (CP : Coproducts I C)
-    : ∏ x y : C, C⟦CP (λ p : I, BP x y), BP (CP (λ p : I, x)) (CP (λ p : I, y))⟧.
+             (CP : Coproducts I C) (x y : C)
+    : C⟦CP (λ p : I, BP x y), BP (CP (λ p : I, x)) (CP (λ p : I, y))⟧.
   Proof.
-    intros x y.
     use BinProductArrow ; use CoproductOfArrows.
     - exact (λ i, BinProductPr1 C (BP x y)).
     - exact (λ i, BinProductPr2 C (BP x y)).
@@ -246,9 +245,9 @@ Section A.
              {P1 : [C, D] ⟦ P, F1 ⟧}
              {P2 : [C, D] ⟦ P, F2 ⟧}
              (P_prod : isBinProduct [C, D] F1 F2 P P1 P2)
-    : BinProducts D -> ∏ c: C, isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c).
+             (BP : BinProducts D) (c : C)
+    : isBinProduct D (pr1 F1 c) (pr1 F2 c) (pr1 P c) (pr1 P1 c) (pr1 P2 c).
   Proof.
-    intros BP c.
     use make_isBinProduct'.
     { apply BP. }
 

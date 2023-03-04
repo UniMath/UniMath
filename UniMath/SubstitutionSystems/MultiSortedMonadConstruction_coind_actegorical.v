@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 (** for the additions in 2023 *)
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
@@ -76,7 +77,7 @@ Section ToBeMoved.
              {C : category} {g : graph} {d : diagram g C}
              (CC : LimCone d)
              (c : C) (cc : cone d c)
-    : (∏  v : vertex g, Isos.is_z_isomorphism (pr1 cc v)) -> Isos.is_z_isomorphism (limArrow CC c cc).
+    : (∏  v : vertex g, is_z_isomorphism (pr1 cc v)) -> is_z_isomorphism (limArrow CC c cc).
   Proof.
     intro iv.
     apply isLim_is_z_iso.
@@ -89,7 +90,7 @@ Section ToBeMoved.
         Search lim.
 
 
-    use Isos.make_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - unfold cone in cc.
 
       Check pr1 cc.
@@ -108,9 +109,9 @@ Section ToBeMoved.
   Definition z_iso_from_coproduct_to_coproduct
              {C : category} {I : UU}
              {ind : I -> C}
-             (CC CC' : Coproduct I C ind) : Isos.z_iso (pr11 CC) (pr11 CC').
+             (CC CC' : Coproduct I C ind) : z_iso (pr11 CC) (pr11 CC').
   Proof.
-    use Isos.make_z_iso.
+    use make_z_iso.
     - apply CoproductArrow, CoproductIn.
     - apply CoproductArrow, CoproductIn.
     - split.
