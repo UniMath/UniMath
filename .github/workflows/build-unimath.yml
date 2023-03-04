@@ -90,15 +90,15 @@ jobs:
                          --cache=enabled --error-reporting=twice
             endGroup
 
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
+
       - uses: actions/cache/save@v3
         if: always()
         with:
           path: dune-cache
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
-
-      - name: Revert permissions
-        if: ${{ always() }}
-        run: sudo chown -R 1001:116 .
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (currently 8.16.1). Build files are cached.
@@ -193,13 +193,12 @@ jobs:
                          --cache=enabled --error-reporting=twice
             endGroup
 
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
 
       - uses: actions/cache/save@v3
         if: always ()
         with:
           path: dune-cache
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
-
-      - name: Revert permissions
-        if: ${{ always() }}
-        run: sudo chown -R 1001:116 .
