@@ -5,14 +5,16 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Section AbstractClone.
 
   Definition abstract_clone_data := ∑ (C : nat → hSet),
-    (∏ n, stn n → C n) × (∏ m n, C m → (stn m → C n) → C n).
+    (∏ {n}, stn n → C n) × (∏ {m n}, C m → (stn m → C n) → C n).
 
   Definition make_abstract_clone_data
     (C : nat → hSet)
-    (pr : ∏ n, stn n → C n)
-    (comp : ∏ m n, C m → (stn m → C n) → C n)
-    : abstract_clone_data
-    := (C ,, pr ,, comp).
+    (pr : ∏ {n}, stn n → C n)
+    (comp : ∏ {m n}, C m → (stn m → C n) → C n)
+    : abstract_clone_data.
+  Proof.
+    exact (C ,, pr ,, comp).
+  Defined.
 
   Local Definition indexed_set := nat → hSet.
   Definition f_C (C0 : abstract_clone_data) : indexed_set := pr1 C0.
@@ -25,11 +27,13 @@ Section AbstractClone.
     (comp f g)
     (at level 50).
 
+  Definition reindex {C : abstract_clone_data} {m n : nat} (a : stn m → stn n) : (C : indexed_set) m → (C : indexed_set) n := (λ f, f • (λ i, pr (a i))).
+
   (* Define the unitality property of the algebraic theory *)
   Definition comp_project_component (C : abstract_clone_data) : Prop := ∏
     (m n : nat)
     (i : stn m)
-    (f : stn m → (C : indexed_set) m),
+    (f : stn m → (C : indexed_set) n),
       (pr i) • f = f i.
 
   (* Define the compatibility of the projection function with composition *)
