@@ -70,7 +70,6 @@ Section DaggerIsosInREL.
       unfold REL_dagger_structure.
 
       unfold is_inverse_in_precat.
-      Check unique_image_to_inverse_law_in_REL.
       cbn.
       split ; do 2 (apply funextsec ; intro).
       + apply unique_image_to_inverse_law_in_REL.

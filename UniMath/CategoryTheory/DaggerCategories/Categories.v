@@ -92,7 +92,7 @@ Section DaggerCategories.
     : dag _ _ f = dag _ _ g -> f = g.
   Proof.
     intro p.
-    refine (_ @ maponpaths (pr1 dag y x) p @ _).
+    refine (_ @ maponpaths (dag y x) p @ _).
     - apply pathsinv0, dagger_to_law_idemp.
     - apply dagger_to_law_idemp.
   Qed.
