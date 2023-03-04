@@ -65,8 +65,7 @@ jobs:
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
-            UniMath-${{ runner.os }}-coq-
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
 
       - name: Build UniMath
         uses: coq-community/docker-coq-action@v1
@@ -160,8 +159,8 @@ jobs:
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}
-            ${{ matrix.satellite }}-coq
+            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-
+
 
       - name: Build ${{ matrix.satellite }}
         uses: coq-community/docker-coq-action@v1
