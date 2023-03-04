@@ -65,8 +65,7 @@ jobs:
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
-            UniMath-${{ runner.os }}-coq-
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
 
       - name: Build UniMath
         uses: coq-community/docker-coq-action@v1
@@ -128,15 +127,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        satellite: [SetHITs, largecatmodules, GrpdHITs]
+        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
         coq-version: [latest, dev]
         ocaml-version: [4.14-flambda]
-        # Once TypeTheory compiles with 8.16 remove the following section and
-        # add TypeTheory to matrix.satellite above.
-        include:
-          - satellite: TypeTheory
-            coq-version: 8.15
-            ocaml-version: 4.14-flambda
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
@@ -160,8 +153,8 @@ jobs:
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}
-            ${{ matrix.satellite }}-coq
+            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-
+
 
       - name: Build ${{ matrix.satellite }}
         uses: coq-community/docker-coq-action@v1
