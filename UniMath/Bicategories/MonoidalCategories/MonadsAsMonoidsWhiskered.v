@@ -1,7 +1,5 @@
 (** In this file, we show that the monoids in the monoidal category of endofunctors correspond to the monads.
 
-TODO: establish an equivalence of types
-
 *)
 
 Require Import UniMath.Foundations.All.
@@ -95,6 +93,23 @@ Section MonadToMonoidOb.
 
 End MonadToMonoidOb.
 
+  Definition monoid_equiv_monoid : MON ≃ Monad C.
+  Proof.
+    use weq_iso.
+    - apply monoid_to_monad.
+    - apply monad_to_monoid.
+    - abstract (intro M;
+                use total2_paths_f;
+                [apply idpath |
+                  use total2_paths_f;
+                  [apply idpath |
+                    apply isaprop_monoid_laws]]).
+    - abstract (intro M;
+                use total2_paths_f;
+                [apply idpath |
+                  apply isaprop_Monad_laws]).
+  Defined.
+
 Section MonoidToMonadMor.
 
   Context (M N : MON) (f : M --> N).
@@ -137,9 +152,5 @@ Section MonadToMonoidMor.
     := pr1 f ,, monad_to_monoid_mor_laws.
 
 End MonadToMonoidMor.
-
-(*
-  Definition monoid_equiv_monoid : MON ≃ Monad C.
-*)
 
 End FixTheContext.
