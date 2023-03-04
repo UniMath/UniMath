@@ -21,12 +21,6 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 
-
-(*
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
-*)
 Local Open Scope cat.
 
 Definition cat_prebicat_nouniv_data
@@ -52,7 +46,7 @@ Defined.
 
 Lemma cat_prebicat_nouniv_laws : prebicat_laws cat_prebicat_nouniv_data.
 Proof.
-  repeat split; cbn.
+  split21; cbn.
   - intros C D F G η.
     apply nat_trans_eq; try apply D.
     intros ; cbn.

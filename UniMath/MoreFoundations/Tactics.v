@@ -62,3 +62,24 @@ Proof. intros. exact (f ig). Defined.
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
+
+Ltac split3 := split; [| split].
+Ltac split4 := split; [| split3].
+Ltac split5 := split; [| split4].
+Ltac split6 := split; [| split5].
+Ltac split7 := split; [| split6].
+Ltac split8 := split; [| split7].
+Ltac split9 := split; [| split8].
+Ltac split10 := split; [| split9].
+Ltac split11 := split; [| split10].
+Ltac split12 := split; [| split11].
+Ltac split13 := split; [| split12].
+Ltac split14 := split; [| split13].
+Ltac split15 := split; [| split14].
+Ltac split16 := split; [| split15].
+Ltac split17 := split; [| split16].
+Ltac split18 := split; [| split17].
+Ltac split19 := split; [| split18].
+Ltac split20 := split; [| split19].
+Ltac split21 := split; [| split20].
+(** this allows to decompose a goal for [prebicat_laws] *)

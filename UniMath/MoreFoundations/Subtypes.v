@@ -253,8 +253,8 @@ Section Complement.
     subtype_union f ≡ totalsubtype _.
   Proof.
     intros has_S has_neg_S x; use make_dirprod.
-    - intros ?; exact tt.
-    - intros ?.
+    - intro; exact tt.
+    - intro.
       induction (lem (S x)).
       + apply hinhpr.
         exists (pr1 has_S).

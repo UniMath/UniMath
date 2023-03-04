@@ -10,10 +10,9 @@ authors: Ralph Matthes, Kobe Wullaert 2022
  *)
 
 
-Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.MoreFoundations.PartA.
-
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -34,22 +33,27 @@ Section A.
 
 Context {V : category} (Mon_V : monoidal V).
 
-Definition actegory_with_canonical_self_action: actegory Mon_V V.
+Definition actegory_with_canonical_self_action_data: actegory_data Mon_V V.
 Proof.
-  use tpair.
-  - use make_actegory_data.
-    + exact (monoidal_tensor Mon_V).
-    + exact (lu_{Mon_V}).
-    + exact (luinv_{Mon_V}).
-    + exact (α_{Mon_V}).
-    + exact (αinv_{Mon_V}).
-  - split; [| split; [| split]].
-    + apply monoidal_leftunitorlaw.
-    + apply monoidal_associatorlaw.
-    + apply monoidal_triangleidentity.
-    + apply monoidal_pentagonidentity.
+  use make_actegory_data.
+  - exact (monoidal_tensor Mon_V).
+  - exact (lu_{Mon_V}).
+  - exact (luinv_{Mon_V}).
+  - exact (α_{Mon_V}).
+  - exact (αinv_{Mon_V}).
 Defined.
 
+Lemma actegory_with_canonical_self_action_laws: actegory_laws Mon_V actegory_with_canonical_self_action_data.
+Proof.
+  split; [| split; [| split]].
+  - apply monoidal_leftunitorlaw.
+  - apply monoidal_associatorlaw.
+  - apply monoidal_triangleidentity.
+  - apply monoidal_pentagonidentity.
+Qed.
+
+Definition actegory_with_canonical_self_action: actegory Mon_V V :=
+  actegory_with_canonical_self_action_data,,actegory_with_canonical_self_action_laws.
 
 Context {C : category} (Act : actegory Mon_V C)
   {W : category} (Mon_W : monoidal W).
@@ -112,8 +116,8 @@ Defined.
 
 Lemma lifted_actegory_laws: actegory_laws Mon_W lifted_actegory_data.
 Proof.
-  split; [| split; [| split]]. (* splits into the 4 main goals *)
-  - repeat split.
+  split4. (* splits into the 4 main goals *)
+  - split3.
     + intros x y f. cbn. unfold lifted_action_unitor_data.
       etrans.
       2: {
@@ -154,7 +158,7 @@ Proof.
       rewrite bifunctor_rightid.
       rewrite id_left.
       exact (pr2 (actegory_unitorisolaw Mon_V Act x)).
-  - repeat split.
+  - split4.
     + intros v w z z' h.
       cbn.
       unfold lifted_actor_data.
@@ -185,38 +189,39 @@ Proof.
       apply maponpaths.
       apply preserves_tensorinv_nat_left.
       exact (fmonoidal_preservestensornatleft U).
-    + cbn.
-      unfold lifted_actor_data.
-      unfold lifted_actorinv_data.
-      etrans. {
-        rewrite assoc'.
-        apply maponpaths.
-        rewrite assoc.
-        apply maponpaths_2.
-        exact (pr1 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
-      }
-      rewrite id_left.
-      refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
-      etrans. {
-        apply maponpaths.
-        exact (pr22 (fmonoidal_preservestensorstrongly U v w)).
-      }
-      apply bifunctor_rightid.
-    + cbn.
-      unfold lifted_actor_data.
-      unfold lifted_actorinv_data.
-      etrans. {
-        rewrite assoc'.
-        apply maponpaths.
-        rewrite assoc.
-        apply maponpaths_2.
+    + split.
+      * cbn.
+        unfold lifted_actor_data.
+        unfold lifted_actorinv_data.
+        etrans. {
+          rewrite assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply maponpaths_2.
+          exact (pr1 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
+        }
+        rewrite id_left.
         refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
-        apply maponpaths.
-        exact (pr12 (fmonoidal_preservestensorstrongly U v w)).
-      }
-      rewrite bifunctor_rightid.
-      rewrite id_left.
-      exact (pr2 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
+        etrans. {
+          apply maponpaths.
+          exact (pr22 (fmonoidal_preservestensorstrongly U v w)).
+        }
+        apply bifunctor_rightid.
+      * cbn.
+        unfold lifted_actor_data.
+        unfold lifted_actorinv_data.
+        etrans. {
+          rewrite assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply maponpaths_2.
+          refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
+          apply maponpaths.
+          exact (pr12 (fmonoidal_preservestensorstrongly U v w)).
+        }
+        rewrite bifunctor_rightid.
+        rewrite id_left.
+        exact (pr2 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
   - intros v y.
     cbn.
     unfold lifted_actor_data.

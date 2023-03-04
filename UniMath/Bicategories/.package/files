@@ -159,7 +159,6 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
 DisplayedBicats/Examples/MonadsLax.v
-
 PseudoFunctors/Examples/MonadInclusion.v
 
 Monads/Examples/AdjunctionToMonad.v
@@ -209,6 +208,7 @@ MonoidalCategories/BicatOfWhiskeredMonCatsFinalObject.v
 Morphisms/Monadic.v
 MonoidalCategories/MonoidalDialgebrasInserters.v
 MonoidalCategories/BicatOfActegoriesFinalObject.v
+MonoidalCategories/MonadsAsMonoidsWhiskered.v
 Monads/Examples/MonadsInStructuredCategories.v
 
 Limits/ProductEquivalences.v
@@ -258,6 +258,7 @@ DisplayedBicats/DispToFiberEquivalence.v
 DisplayedBicats/DispBuilders.v
 DisplayedBicats/Examples/MonadKtripleBiequiv.v
 DisplayedBicats/Examples/PointedGroupoid.v
+PseudoFunctors/Examples/LiftingActegories.v
 WkCatEnrichment/prebicategory.v
 WkCatEnrichment/Notations.v
 WkCatEnrichment/whiskering.v

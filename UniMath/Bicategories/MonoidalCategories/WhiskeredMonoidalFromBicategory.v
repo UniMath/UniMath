@@ -60,27 +60,32 @@ Definition category_from_bicat_and_ob: category := precategory_from_bicat_and_ob
 
 Local Notation EndC := category_from_bicat_and_ob.
 
-Definition tensor_from_bicat_and_ob: tensor category_from_bicat_and_ob.
+Definition tensor_data_from_bicat_and_ob: bifunctor_data category_from_bicat_and_ob category_from_bicat_and_ob category_from_bicat_and_ob.
 Proof.
-  use make_bifunctor.
-  - use make_bifunctor_data.
-    + intros a b. exact (a · b).
-    + intros a b1 b2 β. exact (lwhisker _ β).
-    + intros b a1 a2 α. exact (rwhisker _ α).
-  - red; repeat split; red; cbn.
-    + apply lwhisker_id2.
-    + intros; apply id2_rwhisker.
-    + intros; apply pathsinv0, lwhisker_vcomp.
-    + intros; apply pathsinv0, rwhisker_vcomp.
-    + intros; apply vcomp_whisker.
+  use make_bifunctor_data.
+  - intros a b. exact (a · b).
+  - intros a b1 b2 β. exact (lwhisker _ β).
+  - intros b a1 a2 α. exact (rwhisker _ α).
 Defined.
 
-Local Notation tensor := tensor_from_bicat_and_ob.
+(** we explicitly do not opacify the following definition: *)
+Definition tensor_laws_from_bicat_and_ob: is_bifunctor tensor_data_from_bicat_and_ob.
+Proof.
+  red; repeat split; red; cbn.
+  - apply lwhisker_id2.
+  - intros; apply id2_rwhisker.
+  - intros; apply pathsinv0, lwhisker_vcomp.
+  - intros; apply pathsinv0, rwhisker_vcomp.
+  - intros; apply vcomp_whisker.
+Defined.
+
+Definition tensor_from_bicat_and_ob: tensor category_from_bicat_and_ob :=
+  make_bifunctor tensor_data_from_bicat_and_ob tensor_laws_from_bicat_and_ob.
 
 Definition monoidal_data_from_bicat_and_ob: monoidal_data category_from_bicat_and_ob.
 Proof.
   use make_monoidal_data.
-  - exact tensor.
+  - exact tensor_from_bicat_and_ob.
   - exact (id₁ c0).
   - red; intros; apply lunitor.
   - red; intros; apply linvunitor.
@@ -92,21 +97,21 @@ Defined.
 
 Local Definition MD := monoidal_data_from_bicat_and_ob.
 
-Local Definition leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD} luinv_{MD}.
+Local Lemma leftunitor_law_from_bicat_and_ob: leftunitor_law lu_{MD} luinv_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_lunitor.
   - apply is_invertible_2cell_lunitor.
-Defined.
+Qed.
 
-Local Definition rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD} ruinv_{MD}.
+Local Lemma rightunitor_law_from_bicat_and_ob: rightunitor_law ru_{MD} ruinv_{MD}.
 Proof.
   split; red; cbn.
   - apply vcomp_runitor.
   - apply is_invertible_2cell_runitor.
-Defined.
+Qed.
 
-Local Definition associator_law_from_bicat_and_ob: associator_law α_{MD} αinv_{MD}.
+Local Lemma associator_law_from_bicat_and_ob: associator_law α_{MD} αinv_{MD}.
 Proof.
   repeat split; try red; cbn.
   - apply lwhisker_lwhisker_rassociator.
@@ -114,7 +119,7 @@ Proof.
   - apply rwhisker_lwhisker_rassociator.
   - apply is_invertible_2cell_rassociator.
   - apply is_invertible_2cell_rassociator.
-Defined.
+Qed.
 
 Local Lemma triangle_identity_from_bicat_and_ob: triangle_identity lu_{MD} ru_{MD} α_{MD}.
 Proof.

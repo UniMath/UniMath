@@ -576,6 +576,18 @@ Proof.
   apply is_functor_bindelta_pair_functor_data.
 Defined.
 
+Definition bindelta_pair_functor_alt {C D E : category}
+  (F : C ⟶ D) (G : C ⟶ E) : C ⟶ (D × E) := functor_composite (bindelta_functor C) (pair_functor F G).
+
+Lemma bindelta_pair_functor_alt_eq_bindelta_pair_functor {C D E : category}
+  (F : C ⟶ D) (G : C ⟶ E) :
+  bindelta_pair_functor_alt F G = bindelta_pair_functor F G.
+Proof.
+  apply functor_eq.
+    - apply (D × E).
+    - apply idpath.
+Qed.
+
 (** Projections of `bindelta_pair_functor` *)
 Definition bindelta_pair_pr1_data
            {C₁ C₂ C₃ : category}

@@ -23,6 +23,9 @@ Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
@@ -43,10 +46,10 @@ Local Open Scope cat.
 
 Section A.
 
-  Context (C D D' : category).
+ Context (C D D' : category).
 
-  Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
-  Local Definition domain_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
+ Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
+ Local Definition domain_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
     := ActionBasedStrengthOnHomsInBicat.ab_strength_domain_action(C:=bicat_of_cats) C D' (ActionBasedStrengthOnHomsInBicat.forget C).
  Local Definition target_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D)
     := ActionBasedStrengthOnHomsInBicat.ab_strength_target_action(C:=bicat_of_cats) C D (ActionBasedStrengthOnHomsInBicat.forget C).
@@ -60,33 +63,63 @@ Section A.
    - apply roundtrip2_ob_as_equality.
  Defined.
 
- (* Local Definition endo : category := [C,C]. would not be okay for convertibility *)
+(* Local Definition endo : category := [C,C]. would not be okay for convertibility *)
  Local Definition endofrombicat : category := ActionOfEndomorphismsInBicatWhiskered.endocat(C:=bicat_of_cats) C.
  Local Definition Mon_endo : monoidal endofrombicat := ActionOfEndomorphismsInBicatWhiskered.Mon_endo(C:=bicat_of_cats) C.
- Local Definition ptdendo : category := coslice_cat_total (ActionOfEndomorphismsInBicatWhiskered.endocat(C:=bicat_of_cats) C)
-                                          I_{Mon_endo}.
+ Local Definition ptdendo : category := coslice_cat_total endofrombicat I_{Mon_endo}.
  Local Definition Mon_ptdendo : monoidal ptdendo
    := monoidal_pointed_objects Mon_endo.
 
  Local Definition actegoryPtdEndosOnFunctors (E : category) : actegory Mon_ptdendo [C,E]
-   := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
+   := lifted_actegory Mon_endo (actegoryfromprecomp C E) Mon_ptdendo
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
+
+ (* not possible without some transparent proofs
+ Local Lemma actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
+   actegoryPtdEndosOnFunctors C = actegory_with_canonical_pointed_action Mon_endo.
+ Proof.
+   unfold actegoryPtdEndosOnFunctors.
+   unfold actegoryfromprecomp.
+   rewrite actegory_from_precomp_as_self_action.
+   apply idpath.
+ Qed.
+*)
+
+ Local Lemma action_in_actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
+   actegory_action Mon_ptdendo (actegoryPtdEndosOnFunctors C) =
+     actegory_action Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo).
+ Proof.
+   use total2_paths_f.
+   2: { apply WhiskeredBifunctors.isaprop_is_bifunctor. }
+   cbn.
+   apply idpath.
+ Qed. (* slow *)
+
+ (*
+ Local Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (F : functor [C, C] [C, C]) :
+   lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors C) (actegoryPtdEndosOnFunctors C) F ≃
+     lineator_lax Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo)
+       (actegory_with_canonical_pointed_action Mon_endo) F.
+ Proof.
+   use weqfibtototal. (* not seen to terminate *)
+ *)
+
 
  Section AA.
 
-   Context (H : [C, D'] ⟶ [C, D]).
+ Context (H : [C, D'] ⟶ [C, D]).
 
-   Lemma functor_comp_id_lax_specialized (F F' : C ⟶ D') (α: F ⟹ F') (β: F' ⟹ F)
-     : nat_trans_comp α β  = nat_trans_id F -> nat_trans_comp (#H α) (#H β) =  nat_trans_id (pr1 (H F)).
-   Proof.
-     intro e.
-     intermediate_path (#H (nat_trans_id F)).
-     - rewrite <- e.
-       change ( (# H α) · (# H β) = # H ((α:[C,D']⟦ F, F' ⟧) · (β:[C,D']⟦ F', F ⟧)) ).
-       apply (! functor_comp _ _ _).
-     - apply functor_id_id.
-       apply idpath.
-   Qed.
+ Lemma functor_comp_id_lax_specialized (F F' : C ⟶ D') (α: F ⟹ F') (β: F' ⟹ F)
+   : nat_trans_comp α β  = nat_trans_id F -> nat_trans_comp (#H α) (#H β) =  nat_trans_id (pr1 (H F)).
+ Proof.
+   intro e.
+   intermediate_path (#H (nat_trans_id F)).
+   - rewrite <- e.
+     change ( (# H α) · (# H β) = # H ((α:[C,D']⟦ F, F' ⟧) · (β:[C,D']⟦ F', F ⟧)) ).
+     apply (! functor_comp _ _ _).
+   - apply functor_id_id.
+     apply idpath.
+ Qed.
 
  Lemma weqABStrengthLaxMorphismActegories :
    actionbased_strength Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')
@@ -413,6 +446,7 @@ Section A.
 
 End AA.
 
+
  Lemma weqSignatureLaxMorphismActegories :
    Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) ([C, D'],,actegoryPtdEndosOnFunctors D') ([C, D],,actegoryPtdEndosOnFunctors D).
  Proof.
@@ -422,4 +456,56 @@ End AA.
    apply weqABStrengthLaxMorphismActegories.
  Defined.
 
+ Lemma weqSignatureLaxMorphismActegories_alt :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
+ Proof.
+   apply (weqcomp weqSignatureLaxMorphismActegories).
+   apply weqfibtototal.
+   intro H.
+   exact (idweq _). (* slow *)
+ Defined. (* slow *)
+
+ (* a direct proof without going through weqSignatureLaxMorphismActegories:
+ Lemma weqSignatureLaxMorphismActegories_alt_alt :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
+ Proof.
+   apply (weqcomp weqSignatureABStrength).
+   apply weqfibtototal.
+   intro H.
+   apply weqABStrengthLaxMorphismActegories. (* very slow *)
+ Defined. (* very slow *)
+*)
+
 End A.
+
+Section HomogeneousCase.
+
+ Context (C : category).
+ (** this part can be resurrected with some transparent proofs, or hopefully by moving to pointed tensorial strength that is not instantiated from bicategories *)
+ (*
+ Corollary weqSignatureLaxMorphismActegoriesHomogeneous :
+   Signature C C C ≃ ∑ H : endofrombicat C ⟶ endofrombicat C, pointedtensorialstrength (Mon_endo C) H.
+ Proof.
+   eapply weqcomp.
+   { apply weqSignatureLaxMorphismActegories_alt. }
+   cbn.
+   apply weqfibtototal.
+   intro H.
+   unfold pointedtensorialstrength.
+   rewrite (actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action C).
+   apply idweq.
+ Defined.
+
+ Corollary weqSignatureLaxMorphismActegoriesHomogeneous_alt :
+   Signature C C C ≃ ∑ H : [C, C] ⟶ [C, C], pointedtensorialstrength (Mon_endo C) H.
+ Proof.
+   cbn.
+   apply (weqcomp weqSignatureLaxMorphismActegoriesHomogeneous).
+   apply weqfibtototal.
+   intro H.
+   apply idweq.
+ Defined.
+  *)
+
+
+End HomogeneousCase.

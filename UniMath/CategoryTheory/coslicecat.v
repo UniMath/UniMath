@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 (* Require Import UniMath.Foundations.Propositions. *)
 (* Require Import UniMath.Foundations.Sets. *)
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -91,6 +92,8 @@ Proof.
   * apply assoc'.
 Defined.
 
+(** that the previous Lemma is defined was done on purpose in 2018 - is it still appropriate? *)
+
 Definition coslice_precat : precategory :=
   (_,,is_precategory_coslice_precat_data).
 
@@ -110,23 +113,34 @@ Section coslice_cat_displayed.
 
 Context (C : category) (x : C).
 
+
+Definition coslice_cat_disp_ob_mor : disp_cat_ob_mor C.
+Proof.
+  use make_disp_cat_ob_mor.
+  - intro a. exact (x --> a).
+  - intros a b f g h. exact (f · h = g).
+Defined.
+
+Lemma coslice_cat_disp_id_comp : disp_cat_id_comp C coslice_cat_disp_ob_mor.
+Proof.
+  split.
+  - intros a f.
+    apply id_right.
+  - intros a1 a2 a3 h h' f1 f2 f3 Hyph Hyph'.
+    etrans.
+    { apply assoc. }
+    etrans.
+    { apply cancel_postcomposition, Hyph. }
+    exact Hyph'.
+Qed.
+
 Definition coslice_cat_disp : disp_cat C.
 Proof.
   use tpair.
   - use tpair.
-    + use make_disp_cat_ob_mor.
-      * intro a. exact (x --> a).
-      * intros a b f g h. exact (f · h = g).
-    + split.
-      * intros a f.
-        apply id_right.
-      * intros a1 a2 a3 h h' f1 f2 f3 Hyph Hyph'.
-        cbn.
-        rewrite assoc.
-        rewrite Hyph.
-        exact Hyph'.
-  - repeat split; intros; try apply C.
-    apply isasetaprop; apply C.
+    + exact coslice_cat_disp_ob_mor.
+    + exact coslice_cat_disp_id_comp.
+  - abstract (split4; intros; [apply C | apply C | apply C | apply isasetaprop; apply C]).
 Defined.
 
 Definition coslice_cat_total : category := total_category coslice_cat_disp.

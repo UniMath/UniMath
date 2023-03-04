@@ -199,3 +199,19 @@ Qed.
 
 
 End Monoidal_Structure_on_Endofunctors.
+
+(*
+Section InFunctorCategories.
+
+  Context {C D E F : category}.
+
+  Definition α_functors_funcat (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
+    [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
+    := nat_trans_id ((X ∙ Y) ∙ Z).
+
+  Definition α_functors_funcat_inv (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :
+    [C, F] ⟦functor_compose X (functor_compose Y Z), functor_compose (functor_compose X Y) Z⟧
+    := nat_trans_id ((X ∙ Y) ∙ Z).
+
+End InFunctorCategories.
+*)

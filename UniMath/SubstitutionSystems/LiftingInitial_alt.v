@@ -40,7 +40,7 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -136,7 +136,7 @@ Local Lemma aux_iso_1_is_nat_trans :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (runitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt; intro c; simpl.
@@ -157,7 +157,7 @@ Definition aux_iso_1
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functors (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (runitor_CAT (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_is_nat_trans.
 Defined.
@@ -172,7 +172,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (lunitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt; intro c; simpl.
@@ -193,7 +193,7 @@ Local Definition aux_iso_1_inv
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functors (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (lunitor_CAT (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_inv_is_nat_trans.
 Defined.
@@ -490,7 +490,7 @@ use tpair.
   exact (a · b).
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;
             unfold yoneda_objects_ob; simpl; unfold compose; simpl;
-            apply nat_trans_eq; [apply homset_property |]; simpl; intros ?;
+            apply nat_trans_eq; [apply homset_property |]; simpl; intro;
             apply assoc').
 Defined.
 

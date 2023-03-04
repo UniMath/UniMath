@@ -194,7 +194,7 @@ Section TheConstruction.
       apply maponpaths.
       apply nat_trans_ax.
     - assert (aux := pr2 X).
-      cbn in aux.
+      red in aux.
       unfold fmonoidal_preservesunit in aux.
       rewrite <- aux.
       repeat rewrite assoc'.

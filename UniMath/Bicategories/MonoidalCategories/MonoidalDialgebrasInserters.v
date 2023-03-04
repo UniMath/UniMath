@@ -259,7 +259,7 @@ Section FixTwoMonoidalFunctors.
            - apply bifunctor_rightid.
       }
       apply pathsinv0, id_left.
-    - cbn.
+    - red. cbn.
       unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit, fmonoidal_preservesunit.
       rewrite id_left.
       apply id_right.
@@ -341,7 +341,7 @@ Section FixTwoMonoidalFunctors.
       do 2 rewrite id_left in aux.
       exact aux.
     - use total2_paths_f; [cbn | apply (pr1 Mon_W)].
-      assert (aux := pr22 α). cbn in aux.
+      assert (aux := pr22 α). red in aux; cbn in aux.
       unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit in aux.
       do 2 rewrite id_left in aux.
       exact aux.

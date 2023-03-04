@@ -2178,11 +2178,11 @@ Defined.
 
     Context (G : A ⟶ A').
 
-    Local Definition precompG := pre_composition_functor _ A' A' G.
-    Local Definition postcompG {C: category} := post_composition_functor C A A' G.
+    Local Definition precompG : [A', A'] ⟶ [A, A'] := pre_composition_functor _ A' A' G.
+    Local Definition postcompG {C: category} : [C, A] ⟶ [C, A'] := post_composition_functor C A A' G.
 
-    Let H := param_distributivity_dom Mon_V _ _ FA' G.
-    Let H' := param_distributivity_codom Mon_V _ _ FA G.
+    Let H : Mon_V ⟶ [A, A'] := param_distributivity_dom Mon_V _ _ FA' G.
+    Let H': Mon_V ⟶ [A, A'] := param_distributivity_codom Mon_V _ _ FA G.
 
     Definition montrafotarget_disp: disp_cat Mon_V :=
       trafotargetbicat_disp(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.
