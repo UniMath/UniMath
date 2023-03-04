@@ -16,15 +16,6 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
 
 Local Open Scope cat.
 
-Local Lemma z_iso_inv_eq {C : category} {x y : C}
-      (f : C⟦x,y⟧) (g h : C⟦y,x⟧)
-  : is_inverse_in_precat f g -> is_inverse_in_precat f h -> g = h.
-Proof.
-  intros pg ph.
-  apply (inv_z_iso_unique' _ _ _ (f ,, h ,, ph)).
-  apply pg.
-Qed.
-
 Section GroupoidsAsDaggers.
 
   Context (C : groupoid).
@@ -32,21 +23,21 @@ Section GroupoidsAsDaggers.
   Definition GRP_dagger_structure : dagger_structure C.
   Proof.
     intros x y f.
-    exact (pr1 (z_iso_inv (_ ,, pr2 C x y f))).
+    exact (pr1 (z_iso_inv (_ ,, groupoid_is_pregroupoid C x y f))).
   Defined.
 
   Lemma GRP_dagger_laws : dagger_laws GRP_dagger_structure.
   Proof.
-    repeat split ; intro ; intros ; use z_iso_inv_eq.
+    repeat split ; intro ; intros ; use inverse_unique_precat.
     - exact (identity x).
-    - apply (pr2 C).
+    - apply groupoid_is_pregroupoid.
     - apply is_inverse_in_precat_identity.
     - exact (f · g).
-    - apply (pr2 C).
-    - apply is_inverse_in_precat_comp ; apply (pr2 C).
-    - apply (pr2 C x y f).
-    - apply (pr2 C).
-    - apply is_inverse_in_precat_inv ; apply (pr2 C).
+    - apply groupoid_is_pregroupoid.
+    - apply is_inverse_in_precat_comp ; apply groupoid_is_pregroupoid.
+    - apply groupoid_is_pregroupoid ; exact f.
+    - apply groupoid_is_pregroupoid.
+    - apply is_inverse_in_precat_inv ; apply groupoid_is_pregroupoid.
   Qed.
 
   Definition GRP_dagger : dagger C
@@ -63,7 +54,7 @@ Section UnivalenceOfGroupoids.
     : unitary (GRP_dagger C) x y.
   Proof.
     exists (morphism_from_z_iso _ _ f).
-    apply (pr2 C x y f).
+    apply groupoid_is_pregroupoid.
   Defined.
 
   Definition dagger_univalence_to_univalence
