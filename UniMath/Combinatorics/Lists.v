@@ -220,11 +220,9 @@ Proof.
   revert xs.
   induction xs as [[|n] xs].
   - induction xs.
-    rewrite foldr1_map_nil. rewrite map_nil. rewrite foldr1_nil. (* these steps could be done by cbn *)
     apply idpath.
   - induction n as [|n IH].
     + induction xs as [m []].
-      change (1,, m,, tt) with (cons m nil). rewrite foldr1_map_cons_nil. rewrite map_cons. rewrite map_nil. rewrite foldr1_cons_nil. (* these steps could all be done by cbn *)
       apply idpath.
     + induction xs as [m [k xs]].
       assert (IHinst := IH (k,,xs)).

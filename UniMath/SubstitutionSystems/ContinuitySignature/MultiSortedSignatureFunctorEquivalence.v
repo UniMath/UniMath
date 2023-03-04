@@ -699,8 +699,8 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
       {
         induction xs as [[|n] xs].
-        - induction xs. unfold exp_functor_list at 1. rewrite foldr1_map_cons_nil.
-          unfold exp_functor_list at 1. rewrite foldr1_map_nil.
+        - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
+          unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
           apply nat_z_iso_inv.
           exact (terminal_BinProduct_of_functors_unit_l _ _ BPC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
         - induction xs.
