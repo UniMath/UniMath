@@ -56,8 +56,8 @@ Context {C : category} (IC : Initial C)
 
 Local Notation "0" := (InitialObject IC).
 
-Let AF := FunctorAlg F.
-Let chnF := initChain IC F.
+Let AF : category := FunctorAlg F.
+Let chnF : chain C := initChain IC F.
 Let μF_Initial : Initial AF := colimAlgInitial IC HF (CC chnF).
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
@@ -112,7 +112,7 @@ induction n as [|n IHn].
 + change (pr1 (Pow (S (S n))) _ z) with (ψ (iter_functor F (S n) 0) (Pow (S n) _ z)).
   assert (H : dmor LchnF (idpath (S (S n))) · ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
               ψ (iter_functor F n 0) (dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) _ z)).
-  { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))). }
+  { apply pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))). }
   now rewrite H, IHn.
 Qed.
 
@@ -157,7 +157,7 @@ induction n.
   apply (InitialArrowUnique ILD).
 - rewrite e_comm, functor_comp, <- assoc, Hh.
   assert (H : # L (# F (e n)) · ψ μF h = ψ (iter_functor F n 0) (# L (e n) · h)).
-  { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }
+  { apply pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (e n))). }
   now rewrite H, IHn.
 Qed.
 
@@ -174,7 +174,7 @@ assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n
    [apply cancel_postcomposition; rewrite <-assoc;  apply maponpaths, H''|].
   rewrite id_right.
   assert (H1 : # L (# F (e n)) · ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) · preIt)).
-  { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }
+  { apply pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (e n))). }
   etrans; [ apply H1|].
   now rewrite H.
 }
@@ -272,11 +272,11 @@ Proof.
 apply path_to_ctr.
 assert (Φ_is_nat := nat_trans_ax Φ).
 assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
-assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It X L IL HL ψ)).
+assert (Φ_is_nat_inst2 := eqtohomot Φ_is_nat_inst1 (It X L IL HL ψ)).
 unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
 simpl.
 rewrite <- Φ_is_nat_inst2.
-assert (H_inst :=  toforallpaths _ _ _ H (It X L IL HL ψ)).
+assert (H_inst :=  eqtohomot H (It X L IL HL ψ)).
 unfold compose in H_inst; simpl in H_inst.
 rewrite <- H_inst.
 apply maponpaths.

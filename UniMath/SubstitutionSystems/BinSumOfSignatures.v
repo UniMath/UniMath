@@ -70,8 +70,8 @@ Definition H : functor [C, D'] [C, D] := BinCoproduct_of_functors _ _ CCD H1 H2.
 Local Definition θ_ob_fun (X : [C, D']) (Z : category_Ptd C) :
    ∏ c : C,
     (functor_composite_data (pr1 Z)
-     (BinCoproduct_of_functors_data C D CD (H1 X) (H2 X))) c
-   --> (BinCoproduct_of_functors_data C D CD (H1 (functor_composite (pr1 Z) X))
+     (BinCoproduct_of_functors C D CD (H1 X) (H2 X))) c
+   --> (BinCoproduct_of_functors C D CD (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.

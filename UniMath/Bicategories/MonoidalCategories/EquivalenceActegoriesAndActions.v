@@ -205,9 +205,9 @@ Section ActegoryFromObject.
     - (* Here we use that the unit is strongly preserved, that is,
          we use that the equation that expresses that the
          unit preserving morphism is invertible *)
-      apply (toforallpaths _ _ _ (base_paths _ _ (pr222 action_fmon_strong))).
+      apply (eqtohomot (base_paths _ _ (pr222 action_fmon_strong))).
     - (* Idem as previous bullet point *)
-      apply (toforallpaths _ _ _ (base_paths _ _ (pr122 action_fmon_strong))).
+      apply (eqtohomot (base_paths _ _ (pr122 action_fmon_strong))).
     - intro ; intros.
       (* Here we use that the tensor preserving morphism is an isomorphism,
          i.e. we use the equation that expresses the invertibility *)
@@ -217,15 +217,15 @@ Section ActegoryFromObject.
             (pr12 action_fmon_lax)
             (pr122 action_fmon_lax)
             (pr1 action_fmon_strong)).
-      exact (! (toforallpaths _ _ _ (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
+      exact (! (eqtohomot (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
     - intros w v1 v2 c f.
-      exact (toforallpaths _ _ _ (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
+      exact (eqtohomot (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
+    - apply (eqtohomot (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
+    - apply (eqtohomot (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
     - intros v c.
       cbn.
       assert (plu := preserves_leftunitality'' (_,,pr222 C) v).
-      assert (pluc := toforallpaths _ _ _ (base_paths _ _ plu) c).
+      assert (pluc := eqtohomot (base_paths _ _ plu) c).
       refine (_ @ pluc).
       clear pluc ; clear plu.
       cbn.
@@ -234,7 +234,7 @@ Section ActegoryFromObject.
     - intro ; intros.
       cbn.
       unfold actor_from_object.
-      assert (t := ! toforallpaths _ _ _ (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
+      assert (t := ! eqtohomot (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
       cbn in t.
       rewrite id_right in t.
       set (αisov'vw := z_iso_inv (z_iso_from_associator_iso Mon_V v' v w)).
@@ -254,7 +254,7 @@ Section ActegoryFromObject.
         etrans.
         2: {
           apply maponpaths_2.
-          assert (bla := toforallpaths _ _ _ (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
+          assert (bla := eqtohomot (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
           rewrite functor_comp in bla.
           exact (! bla).
         }
@@ -573,18 +573,18 @@ Section FromActionInCatToActegories.
     - intros v c1 c2 g.
       exact (pr2 (pr112 f v) c1 c2 g).
     - intros v w c g.
-      exact (toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c).
+      exact (eqtohomot (base_paths _ _ (pr212 f v w g)) c).
     - intros v w c.
       induction f as [f [δ [tri pent]]].
-      assert (tt := toforallpaths _ _ _ (base_paths _ _ (pent w v)) c).
+      assert (tt := eqtohomot (base_paths _ _ (pent w v)) c).
       cbn in tt.
       rewrite ! id_left in tt.
       transparent assert (z_iso_ptwvFc
                : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 f c)))
              ).
       { exists (pr11 (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 f c)).
-        exists (toforallpaths _ _ _ (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exists (eqtohomot (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exact (eqtohomot (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
       }
       assert (tt' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_ptwvFc) _ _ (! tt)).
       etrans. {
@@ -604,7 +604,7 @@ Section FromActionInCatToActegories.
         apply maponpaths.
         rewrite (! functor_comp f _ _).
         apply maponpaths.
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
+        exact (eqtohomot (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
       }
       simpl.
       rewrite functor_id.
@@ -612,15 +612,15 @@ Section FromActionInCatToActegories.
     - (* preserves_unitor *)
       intro c.
       induction f as [F [δ [tri pent]]].
-      assert (tric := toforallpaths _ _ _ (base_paths _ _ tri) c).
+      assert (tric := eqtohomot (base_paths _ _ tri) c).
       cbn in tric.
       rewrite ! id_left in tric.
       transparent assert (z_iso_puFc
                            : (is_z_isomorphism ( pr1 (fmonoidal_preservesunit (pr22 a2)) (pr1 F c)))).
       {
         exists (pr11 (fmonoidal_preservesunitstrongly (pr22 a2))(pr1 F c)).
-        exists (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
+        exists (eqtohomot (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
+        exact (eqtohomot (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
       }
       assert (tric' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_puFc) _ _ (! tric)).
       etrans. { apply maponpaths_2 ; exact tric'. }
@@ -633,7 +633,7 @@ Section FromActionInCatToActegories.
       }
       etrans. {
         do 2 apply maponpaths.
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a1))) c).
+        exact (eqtohomot (base_paths _ _ (pr122 (pr222 a1))) c).
       }
       rewrite (functor_id F _).
       apply id_right.
@@ -665,7 +665,7 @@ Section FromActionInCatToActegories.
     - intros a1 a2 f g α.
       exists (pr1 α).
       intros v a.
-      exact (toforallpaths _ _ _ (base_paths _ _ (pr2 α v)) a).
+      exact (eqtohomot (base_paths _ _ (pr2 α v)) a).
     - intro a.
       use tpair.
       + exists (λ c, identity c).

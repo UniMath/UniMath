@@ -1,6 +1,6 @@
 (**
 
-This file contains a fomalization of multisorted binding signatures:
+This file contains a formalization of multisorted binding signatures:
 
 - Definition of multisorted binding signatures ([MultiSortedSig])
 - Construction of a functor from a multisorted binding signature
@@ -9,8 +9,9 @@ This file contains a fomalization of multisorted binding signatures:
   signature ([MultiSortedSigToSignature])
 - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cocont_MultiSortedSigToFunctor])
-- Construction of a monad on Set/sort from a multisorted signature
-  ([MultiSortedSigToMonad])
+
+The construction of a monad on Set/sort from a multisorted signature
+is now found in [UniMath.SubstitutionSystems.MultiSortedMonadConstruction].
 
 
 Written by: Anders Mörtberg, 2016. The formalization follows a note
@@ -58,13 +59,9 @@ Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
 Local Open Scope cat.
@@ -468,51 +465,4 @@ Defined.
 End omega_cocont.
 
 
-(** * Construction of a monad from a multisorted signature *)
-Section monad.
-
-Let Id_H := Id_H (HSET / sort) (BinCoproducts_HSET_slice sort).
-
-(* ** Construction of initial algebra for a signature with strength on Set / sort *)
-Definition SignatureInitialAlgebraSetSort
-  (H : Signature HSET_over_sort HSET_over_sort HSET_over_sort) (Hs : is_omega_cocont H) :
-  Initial (FunctorAlg (Id_H H)).
-Proof.
-use colimAlgInitial.
-- apply Initial_functor_precat, Initial_slice_precat, InitialHSET.
-- apply (is_omega_cocont_Id_H), Hs.
-- apply ColimsFunctorCategory_of_shape, slice_precat_colims_of_shape,
-        ColimsHSET_of_shape.
-Defined.
-
-Let HSS := @hss_category _ (BinCoproducts_HSET_slice sort).
-
-(* ** Multisorted signature to a HSS *)
-Definition MultiSortedSigToHSS (sig : MultiSortedSig) :
-  HSS (MultiSortedSigToSignature sig).
-Proof.
-apply SignatureToHSS.
-+ apply Initial_slice_precat, InitialHSET.
-+ apply slice_precat_colims_of_shape, ColimsHSET_of_shape.
-+ apply is_omega_cocont_MultiSortedSigToSignature.
-  apply slice_precat_colims_of_shape, ColimsHSET_of_shape.
-Defined.
-
-(* The above HSS is initial *)
-Definition MultiSortedSigToHSSisInitial (sig : MultiSortedSig) :
-  isInitial _ (MultiSortedSigToHSS sig).
-Proof.
-now unfold MultiSortedSigToHSS, SignatureToHSS; destruct InitialHSS.
-Qed.
-
-(** ** Function from multisorted binding signatures to monads *)
-Definition MultiSortedSigToMonad (sig : MultiSortedSig) : Monad (HSET / sort).
-Proof.
-use Monad_from_hss.
-- apply BinCoproducts_HSET_slice.
-- apply (MultiSortedSigToSignature sig).
-- apply MultiSortedSigToHSS.
-Defined.
-
-End monad.
 End MBindingSig.

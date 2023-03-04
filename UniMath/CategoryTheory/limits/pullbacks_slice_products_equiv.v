@@ -115,10 +115,10 @@ Section pullbacks_slice_products_equiv.
     induction P as [[P [l r]] [Peq PisPull]].
     apply (invmaponpathsincl pr1).
     { apply isinclpr1.
-      intros ?.
+      intro.
       apply isofhleveltotal2.
       + apply C.
-      + intros ?.
+      + intro.
         apply isaprop_isPullback.
     }
     reflexivity.
@@ -133,7 +133,7 @@ Section pullbacks_slice_products_equiv.
     induction P as [[[P h] [[l leq] [r req]]] PisProd].
     apply (invmaponpathsincl pr1).
     { apply isinclpr1.
-      intros ?.
+      intro.
       apply isaprop_isBinProduct.
     }
     simpl in *.

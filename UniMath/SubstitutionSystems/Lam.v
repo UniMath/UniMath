@@ -41,7 +41,6 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -163,7 +162,7 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
+Local Definition helper_to: (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -173,7 +172,7 @@ Proof.
          apply idpath).
 Defined.
 
-Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
+Local Definition helper_from: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -186,12 +185,12 @@ Defined.
 (** this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
 (* maybe a better definition somewhere above could make this iso superfluous *)
 (* maybe don't need iso, but only morphism *)
-Local Definition bla : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC _ Lam).
+Local Definition bracket_property_for_LamE_algebra_on_Lam_helper : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC _ Lam).
 Proof.
   unfold iso.
-  exists bla'.
+  exists helper_to.
   apply is_iso_from_is_z_iso.
-  exists bla'_inv.
+  exists helper_from.
   abstract (
    split; [
     apply (invmap (eq_ptd_mor _ _));
@@ -212,7 +211,7 @@ Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :
    [C, C]⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
-  exact (fbracket LamHSS (f · bla)).
+  exact (fbracket LamHSS (f · bracket_property_for_LamE_algebra_on_Lam_helper)).
 Defined.
 
 (** Main lemma: our "model" for the flatten arity in pure lambda calculus is compatible with substitution *)
@@ -223,20 +222,20 @@ Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
    bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
   (* Could we have this in a more declarative style? *)
-  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f · bla)))).
+  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f · bracket_property_for_LamE_algebra_on_Lam_helper)))).
   apply parts_from_whole in Hyp.
   apply whole_from_parts.
   split.
   - (* the "easy" eta part *)
     apply pr1 in Hyp.
-    apply (maponpaths (λ x, x · #U (inv_from_iso bla))) in Hyp.
+    apply (maponpaths (λ x, x · #U (inv_from_iso bracket_property_for_LamE_algebra_on_Lam_helper))) in Hyp.
     rewrite <- functor_comp in Hyp.
     rewrite <- assoc in Hyp.
     rewrite iso_inv_after_iso in Hyp.
     rewrite id_right in Hyp.
     etrans; [ exact Hyp |].
     clear Hyp.
-    fold (fbracket LamHSS (f · bla)).
+    fold (fbracket LamHSS (f · bracket_property_for_LamE_algebra_on_Lam_helper)).
     unfold fbracket_for_LamE_algebra_on_Lam.
     match goal with |[ |- _· _ · ?h = _  ] =>
          assert (idness : h = nat_trans_id _) end.
@@ -271,7 +270,7 @@ Proof.
     (* this proof did not work with pointedness but with brute force *)
   - (* now the difficult case of the domain-specific constructors *)
     destruct Hyp as [_ Hyp2].
-    fold (fbracket LamHSS (f · bla)) in Hyp2.
+    fold (fbracket LamHSS (f · bracket_property_for_LamE_algebra_on_Lam_helper)) in Hyp2.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply nat_trans_eq_alt.
     intro c.
@@ -310,7 +309,7 @@ Proof.
        after some opacification, at least *)
       Opaque fbracket.
       Opaque LamHSS.
-      set (X := f · bla).
+      set (X := f · bracket_property_for_LamE_algebra_on_Lam_helper).
 
       assert (TT := compute_fbracket C CC Lam_S LamHSS(Z:=Z)).
       simpl in *.
@@ -422,25 +421,19 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
  :
    ∏
    t : ∑
-       h : [C, C]
-           ⟦ functor_composite (U Z)
-               (` LamE_algebra_on_Lam),
-           `LamE_algebra_on_Lam ⟧,
+       h,
        bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f h,
    t =
    tpair
-     (λ h : [C, C]
-            ⟦ functor_composite (U Z)
-                (` LamE_algebra_on_Lam),
-            `LamE_algebra_on_Lam ⟧,
+     (λ h,
       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f h)
      (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
 Proof.
   intro t.
   apply subtypePath.
   - intro; apply (isaset_nat_trans (homset_property C)).
-  - simpl.
-    destruct t as [t Ht]; simpl.
+  - cbn.
+    destruct t as [t Ht]; cbn.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply (fbracket_unique LamHSS).
     split.
@@ -448,10 +441,10 @@ Proof.
       apply nat_trans_eq_alt.
       intro c.
       assert (HT := nat_trans_eq_pointwise H1 c).
-      simpl.
+      cbn.
       rewrite id_right.
       etrans; [ apply HT |].
-      simpl. repeat rewrite assoc. apply cancel_postcomposition.
+      cbn. repeat rewrite assoc. apply cancel_postcomposition.
       apply BinCoproductIn1Commutes.
     + apply parts_from_whole in Ht. destruct Ht as [_ H2].
       apply nat_trans_eq_alt.
@@ -484,7 +477,7 @@ Proof.
       etrans. { apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes. }
 
       etrans. { apply maponpaths. apply assoc'. }
-      simpl. do 2 apply maponpaths.
+      cbn. do 2 apply maponpaths.
       apply BinCoproductIn1Commutes.
 Qed.
 

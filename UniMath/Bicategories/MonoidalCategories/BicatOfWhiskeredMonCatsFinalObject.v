@@ -65,7 +65,7 @@ Proof.
     + split; red; intros; exists (idpath tt); abstract (split; apply isasetunit).
   - intros x xx f g ff gg.
     red; cbn; red; cbn.
-    split; intros; apply isasetunit.
+    split; red; intros; apply isasetunit.
 Defined.
 
 Definition bifinal_moncats : bifinal_obj monbicat.

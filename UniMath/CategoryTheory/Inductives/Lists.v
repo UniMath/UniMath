@@ -421,30 +421,30 @@ use tpair.
         - intros n; exact (BinCoproductIn2 (PC x (dob hF n)) · pr1 cc n).
         -   abstract (
             intros m n e; destruct e; simpl;
-            destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+            destruct cc as [f hf]; simpl in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor;
+            unfold constcoprod_functor; cbn;
             apply pathsinv0; etrans; [apply BinCoproductOfArrowsIn2|]; apply idpath). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
-    destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-    simpl; intro n; unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor in *;
+    destruct cc as [f hf]; simpl in *;
+    simpl; intro n; unfold constcoprod_functor; cbn;
     etrans; [apply precompWithBinCoproductArrow |]; apply pathsinv0, BinCoproductArrowUnique; red in hf;
     [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
       etrans; [| apply IHn]; unfold constant_functor; simpl; rewrite <- (hf n _ (idpath _)), assoc;
-      unfold constant_functor; simpl; unfold BinCoproduct_of_functors_mor; apply pathsinv0;
+      unfold constant_functor; simpl; apply pathsinv0;
       etrans; [apply cancel_postcomposition; apply BinCoproductOfArrowsIn1 |]; now rewrite id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
       rewrite p0; simpl; now apply maponpaths, hf]).
 - abstract (
-      destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+      destruct cc as [f hf]; simpl in *;
       intro t; apply subtypePath; simpl;
       [  intro g; apply impred; intro; apply C
        | destruct t as [t p]; destruct ccL as [t0 p0]; unfold is_cocone_mor in *;
-         unfold constcoprod_functor, BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
+         unfold constcoprod_functor; destruct t0 as [t0 p1]; simpl;
          apply BinCoproductArrowUnique;
          [  unfold coconeIn in p; simpl in p;
-            rewrite <- (p 0), assoc; unfold BinCoproduct_of_functors_mor;
+            rewrite <- (p 0), assoc;
             apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn1 |]; apply id_left
          |  use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
                                 coconeIn L v · x0 = BinCoproductIn2 (PC x (dob hF v)) · f v := _ in _);

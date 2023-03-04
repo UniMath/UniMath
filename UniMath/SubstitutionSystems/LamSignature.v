@@ -24,7 +24,7 @@ Contents :
 
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -37,11 +37,9 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -245,12 +243,10 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -272,12 +268,10 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -292,7 +286,6 @@ Proof.
 *)
   simpl.
   apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
-  unfold BinCoproduct_of_functors_ob.
   unfold constant_functor.
 (*
   destruct Z as [Z e].
@@ -312,7 +305,6 @@ Proof.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   apply maponpaths.
-  unfold BinCoproduct_of_functors_mor.
   etrans.
   { apply precompWithBinCoproductArrow. }
   etrans; [| apply (!(postcompWithBinCoproductArrow _ _ _ _ _)) ].
@@ -400,7 +392,6 @@ Proof.
   intro c.
   simpl.
   unfold constant_functor.
-  unfold BinCoproduct_of_functors_ob.
   simpl.
   rewrite assoc.
   unfold Abs_θ_data_data. simpl.
@@ -409,13 +400,12 @@ Proof.
   2: { apply cancel_postcomposition.
        apply functor_comp. }
   rewrite (nat_trans_ax α).
-  unfold BinCoproduct_of_functors_ob.
   rewrite <- assoc.
   apply maponpaths.
   etrans.
   { apply pathsinv0, functor_comp. }
   apply maponpaths.
-  unfold BinCoproduct_of_functors_mor, constant_functor_data.
+  unfold constant_functor_data.
   simpl.
   etrans; [ apply precompWithBinCoproductArrow |].
   rewrite id_left.
@@ -501,14 +491,12 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functors_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  set (h:= nat_trans_comp (linvunitor_CAT (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
   set (F1' := pr1 (pr2 (left_unit_as_nat_z_iso _ _) (pr1 XZ))).
   set (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
   set (h' :=  F1' · F2').
-  set (obsolete := nat_trans_comp (α_functors_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
-  set (F3' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((pr1 (pr2 XZ),, pr1 XZ),, pr1 XZ))).
-  unfold MonoidalCategories.assoc_right, MonoidalCategories.assoc_left in F3'.
-  unfold precategory_binproduct_unassoc, pair_functor, functorial_composition in F3'.
+  set (obsolete := nat_trans_comp (lassociator_CAT (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (F3' := rassociator_CAT (pr12 XZ) (pr1 XZ) (pr1 XZ)).
   set (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
   exact (F3' · F4').
 Defined.

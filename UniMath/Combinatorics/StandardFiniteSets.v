@@ -2257,7 +2257,7 @@ Proof.
       apply iscontraprop1.
       * apply isaset_hfiber; apply isasetstn.
       * use subtypePath.
-        ** intros ?. apply isasetstn.
+        ** intro. apply isasetstn.
         ** induction j as [j e]. induction j' as [j' e']. simpl.
            apply (invmaponpathsincl f'' (pr2 f'')).
            apply (base_paths _ _ (e @ !e')). }

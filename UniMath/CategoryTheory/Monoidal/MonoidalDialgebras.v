@@ -544,8 +544,8 @@ Section FixTwoMonoidalFunctors.
 
     Context (α : F ⟹ G) (ismnt : is_mon_nat_trans Fm Gm α).
 
-    Let ismnt_tensor := pr1 ismnt.
-    Let ismnt_unit := pr2 ismnt.
+    Let ismnt_tensor : is_mon_nat_trans_tensorlaw Fm Gm α := pr1 ismnt.
+    Let ismnt_unit : is_mon_nat_trans_unitlaw Fm Gm α := pr2 ismnt.
 
     Lemma monnattrans_to_monoidal_section_data :
       smonoidal_data V dialgebra_disp_monoidal (nat_trans_to_section F G α).
@@ -691,7 +691,8 @@ Section FixTwoMonoidalFunctors.
         apply (pr12 (fmonoidal_preservestensorstrongly Fm (pr1 a) (pr1 a'))). }
       rewrite id_left.
       apply idpath.
-    + unfold fmonoidal_preservesunit. cbn.
+    + unfold is_mon_nat_trans_unitlaw.
+      unfold fmonoidal_preservesunit. cbn.
       unfold fmonoidal_preservesunit.
       unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit.
       cbn.
