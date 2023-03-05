@@ -6,7 +6,7 @@ Primary Author: Daniel @Skantz (November 2022)
   With much help from, and thanks to, Peter LeFanu Lumsdaine
 *)
 
-(** * NOTE: This file depends on Coq.Init.Logic. *)
+(** * TODO NOTE: This file depends on Coq.Init.Logic. *)
 Require Import Coq.Init.Logic.
 
 Require Import UniMath.Foundations.PartA.
