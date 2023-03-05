@@ -1,4 +1,4 @@
-(* In this file, we have formalized the (correct) notion of isomorphisms of dagger categories, the so called unitary morphisms.
+(* In this file, we have formalized the (correct) notion of isomorphisms in dagger categories, the so called unitary morphisms.
 Notice that this definition is different compared to (non-dagger) categories, therefore, we can not reuse is_z_isomorphism. *)
 
 Require Import UniMath.Foundations.All.
