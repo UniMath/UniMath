@@ -18,7 +18,7 @@ October 2015 - January 2016
 
 *)
 
-(** *NOTE: This file depends on Coq.Init.Logic. *)
+(** * TODO NOTE: This file depends on Coq.Init.Logic. *)
 Require Import Coq.Init.Logic.
 
 Require Import UniMath.Foundations.PartD.
