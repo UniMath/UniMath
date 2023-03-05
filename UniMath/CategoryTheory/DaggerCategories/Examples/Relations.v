@@ -32,8 +32,8 @@ Section RelationsAsDaggers.
       use weqimplimpl.
       + exact (λ p, ! p).
       + exact (λ p, ! p).
-      + apply Relations.eq_set.
-      + apply Relations.eq_set.
+      + apply eqset.
+      + apply eqset.
     - use (invweq (weqeqweqhProp _ _)).
       use weqimplimpl.
       + intro p.

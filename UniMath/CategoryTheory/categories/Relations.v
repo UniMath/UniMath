@@ -26,13 +26,6 @@ Section Relations.
   Definition hrel (X Y : hSet) : UU := X -> Y -> hProp.
   Identity Coercion idhrel : hrel >-> Funclass.
 
-  Local Definition eq_set {X : hSet} (x y : X)
-    : hProp.
-  Proof.
-    exists (x = y).
-    apply (pr2 X).
-  Defined.
-
   Definition REL_precategory_ob_mor
     : precategory_ob_mor
     := make_precategory_ob_mor hSet hrel.
@@ -40,7 +33,7 @@ Section Relations.
   Definition REL_precategory_id_comp
     : precategory_id_comp REL_precategory_ob_mor.
   Proof.
-    exists (λ _ x1 x2, eq_set x1 x2).
+    exists (λ _ x1 x2, eqset x1 x2).
     exact (λ X Y Z r1 r2 x z, ∃ y : pr1 Y, r1 x y × r2 y z).
   Defined.
 
@@ -209,7 +202,7 @@ Section Isos.
     intros x y p.
 
     set (t := eqtohomot (eqtohomot (pr12 i) x) x).
-    set (q := path_to_fun (X := eq_set x x) (! (base_paths _ _ t)) (idpath x)).
+    set (q := path_to_fun (X := eqset x x) (! (base_paths _ _ t)) (idpath x)).
     use (factor_through_squash_hProp _ _ q).
     clear q ; intro q.
 
@@ -308,7 +301,7 @@ Section Isos.
              (py : (∏ y : Y, ∃! x : X, r x y))
              (px : ∏ x: X, ∃! y : Y, r x y)
              (x1 x2 : X)
-    : (∃ y : pr1 Y, r x1 y × r x2 y) = eq_set x1 x2.
+    : (∃ y : pr1 Y, r x1 y × r x2 y) = eqset x1 x2.
   Proof.
     apply hPropUnivalence.
       + intro q.
