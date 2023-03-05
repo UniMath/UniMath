@@ -52,15 +52,6 @@ Proof.
     apply C'.
 Defined.
 
-Local Lemma equality_of_composition
-      {C : category} {x y z : C} (f1 f2 : C⟦x,y⟧) (g1 g2 : C⟦y,z⟧)
-  : f1 = f2 -> g1 = g2 -> f1 · g1 = f2 · g2.
-Proof.
-  intros p q.
-  induction p ; induction q.
-  apply idpath.
-Qed.
-
 Section DaggerFunctorCategories.
 
   Context {C D : category}
@@ -285,7 +276,7 @@ Section Univalence.
     - intro c ; apply u ; exact (pr1 p c).
     - intros x y f.
       refine (pr2 p x y f @ _).
-      apply equality_of_composition.
+      apply maponpaths_compose.
       + apply maponpaths_2.
         cbn.
         etrans.

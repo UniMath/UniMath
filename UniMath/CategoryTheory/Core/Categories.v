@@ -278,6 +278,13 @@ Proof.
   apply maponpaths.
 Defined.
 
+Lemma maponpaths_compose
+      {C : category} {x y z : C} (f1 f2 : C⟦x,y⟧) (g1 g2 : C⟦y,z⟧)
+  : f1 = f2 -> g1 = g2 -> f1 · g1 = f2 · g2.
+Proof.
+  exact (λ p q, maponpaths_12 compose p q).
+Qed.
+
 (** Any equality on objects a and b induces a morphism from a to b *)
 
 Definition idtomor {C : precategory_data}
