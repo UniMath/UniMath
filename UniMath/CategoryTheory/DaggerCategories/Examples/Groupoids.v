@@ -1,4 +1,6 @@
-(* Any groupoid becomes a †-category by defining f^† := f^-1 *)
+(* Any groupoid becomes a †-category by defining f^† := f^-1
+Furthermore, a groupoid is dagger univalent if and only if it is univalent.
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -7,6 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 
 Require Import UniMath.CategoryTheory.Groupoids.
 
@@ -73,26 +76,26 @@ Section UnivalenceOfGroupoids.
   Defined.
 
   Lemma idtodagger_as_idtoiso_pointwise {x y : C} (p : x = y)
-    : idtodaggeriso (GRP_dagger C) x y p = z_iso_is_unitary x y (Univalence.idtoiso p).
+    : idtodaggeriso (GRP_dagger C) x y p = z_iso_is_unitary x y (idtoiso p).
   Proof.
-    apply (unitary_eq (idtodaggeriso (GRP_dagger C) x y p) (univalence_to_dagger_univalence (Univalence.idtoiso p))).
+    apply (unitary_eq (idtodaggeriso (GRP_dagger C) x y p) (univalence_to_dagger_univalence (idtoiso p))).
     induction p ; apply idpath.
   Defined.
 
   Lemma idtoiso_as_idtodagger_pointwise {x y : C} (p : x = y)
-    : Univalence.idtoiso p = dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p).
+    : idtoiso p = dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p).
   Proof.
-    apply (z_iso_eq (Univalence.idtoiso p) (dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p))).
+    apply (z_iso_eq (idtoiso p) (dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p))).
     induction p ; apply idpath.
   Defined.
 
   Definition groupoid_univalence_equiv_dagger_univalence
-    : Univalence.is_univalent C ≃ is_univalent_dagger (GRP_dagger C).
+    : is_univalent C ≃ is_univalent_dagger (GRP_dagger C).
   Proof.
     use weqimplimpl.
     - intros u x y.
-      apply (isweqhomot' (λ p, z_iso_is_unitary x y (Univalence.idtoiso p))).
-      + apply (twooutof3c (Univalence.idtoiso (a := x) (b := y)) (z_iso_is_unitary x y)).
+      apply (isweqhomot' (λ p, z_iso_is_unitary x y (idtoiso p))).
+      + apply (twooutof3c (idtoiso (a := x) (b := y)) (z_iso_is_unitary x y)).
         * apply u.
         * apply z_iso_is_unitary.
       + apply (λ p, ! idtodagger_as_idtoiso_pointwise p).
@@ -102,7 +105,7 @@ Section UnivalenceOfGroupoids.
         * apply u.
         * apply (invweq (z_iso_is_unitary _ _)).
       + apply (λ p, ! idtoiso_as_idtodagger_pointwise p).
-    - apply Univalence.isaprop_is_univalent.
+    - apply isaprop_is_univalent.
     - apply isaprop_is_univalent_dagger.
   Qed.
 

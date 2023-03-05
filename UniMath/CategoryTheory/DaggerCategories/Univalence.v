@@ -22,6 +22,11 @@ Section DaggerUnivalence.
     exact (unitary_id dag x).
   Defined.
 
+  Definition idtodaggermor {C : category} (dag : dagger C)
+             {x y : C} (p : x = y)
+             : C⟦x,y⟧
+    := pr1 (idtodaggeriso dag _ _ p).
+
   Definition is_univalent_dagger {C : category} (dag : dagger C)
     : UU
     := ∏ x y, isweq (idtodaggeriso dag x y).
@@ -56,6 +61,16 @@ Section DaggerUnivalence.
     apply (homotweqinvweq (make_weq _ (u x y))).
   Qed.
 
+  Lemma idtodaggermor_daggerisotoid
+        {C : category} {dag : dagger C}
+        (u : is_univalent_dagger dag) {x y : C}
+        (p : unitary dag x y)
+    : idtodaggermor dag (daggerisotoid u p) = pr1 p.
+  Proof.
+    apply (maponpaths pr1).
+    apply idtodaggeriso_daggerisotoid.
+  Qed.
+
 End DaggerUnivalence.
 
 Section Lemmas.
@@ -69,12 +84,36 @@ Section Lemmas.
     apply pathsinv0, dagger_to_law_id.
   Qed.
 
-  Local Lemma idtodaggeriso_is_idtoiso_idpath {C : category} (dagC : dagger C)
+  Lemma idtodaggermor_is_dagger_of_idtodaggermor {C : category} (dagC : dagger C)
+        {x y : C} (p : x = y)
+    : idtodaggermor dagC p = dagC y x (idtodaggermor dagC (! p)).
+  Proof.
+    induction p.
+    apply pathsinv0, dagger_to_law_id.
+  Qed.
+
+  Lemma idtodaggeriso_idpath_is_id {C : category} (dagC : dagger C)
         (x : C)
     : pr1 (idtodaggeriso dagC x x (idpath x))
       = identity x.
   Proof.
     apply idpath.
+  Qed.
+
+  Lemma idtodaggermor_idpath_is_id {C : category} (dagC : dagger C)
+        (x : C)
+    : pr1 (idtodaggeriso dagC x x (idpath x))
+      = identity x.
+  Proof.
+    apply idpath. (* exact (idtodaggeriso_idpath_is_id dagC x *)
+  Qed.
+
+  Lemma idtomor_is_dagger_of_idtomor_of_pathsinv0 {C : category} (dagC : dagger C)
+        {x y : C} (p : x = y)
+    : idtomor _ _ p = dagC _ _ (idtomor _ _ (! p)).
+  Proof.
+    induction p.
+    apply pathsinv0, dagger_to_law_id.
   Qed.
 
   Lemma idtoiso_of_pathsinv_is_dagger_of_idtoiso {C : category} (dagC : dagger C)

@@ -133,7 +133,7 @@ Section Univalence.
     : UU
     := ∑ p : (∏ x : C, (pr11 F x) = (pr11 G x)),
         ∏ (x y : pr11 C) (f : (pr11 C)⟦x,y⟧),
-        #G f = pr1 (idtodaggeriso dagD _ _ (! p x)) · #F f · pr1 (idtodaggeriso dagD _ _ (p y)).
+        #G f = idtodaggermor dagD (! p x) · #F f · idtodaggermor dagD (p y).
 
   Definition unitary_functors_equiv_unitary
     : unitary_functors ≃ unitary (dagger_functor_cat_structure dagC dagD) (F,,dagF) (G,,dagG).
@@ -286,9 +286,7 @@ Section Univalence.
         1: apply pathsinv0, (idtodaggeriso_daggerisotoid u).
         apply maponpaths.
         apply pathsinv0, pathsinv0inv0.
-      + cbn.
-        apply maponpaths.
-        apply pathsinv0, idtodaggeriso_daggerisotoid.
+      + apply pathsinv0, idtodaggermor_daggerisotoid.
   Defined.
 
   Lemma functors_eq_data_equiv_unitary_functors_eq_inv_law1
