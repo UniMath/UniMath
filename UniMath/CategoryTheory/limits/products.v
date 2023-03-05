@@ -33,7 +33,7 @@ Local Open Scope cat.
 (** * Definition of indexed products of objects in a precategory *)
 Section product_def.
 
-Variable (I : UU) (C : category).
+Context (I : UU) (C : category).
 
 Definition isProduct (c : ∏ (i : I), C) (p : C)
   (pi : ∏ i, p --> c i) :=
@@ -143,7 +143,7 @@ End product_def.
 
 Section Products.
 
-Variables (I : UU) (C : category) (CC : Products I C).
+Context (I : UU) (C : category) (CC : Products I C).
 
 Definition ProductOfArrows_comp (a b c : ∏ (i : I), C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i)
@@ -159,9 +159,7 @@ End Products.
 
 Section Product_unique.
 
-Variables (I : UU) (C : category).
-Variable CC : Products I C.
-Variables a : ∏ (i : I), C.
+Context (I : UU) (C : category) (CC : Products I C) (a : ∏ (i : I), C).
 
 Lemma Product_endo_is_identity (P : Product _ _ a)
   (k : ProductObject _ _ P --> ProductObject _ _ P)
@@ -189,7 +187,7 @@ Proof.
 use tpair.
 - intros p.
   apply (ProductObject _ _ (PC p)).
-- simpl; intros p q f.
+- intros p q f.
   exact (ProductOfArrows _ _ _ _ f).
 Defined.
 
@@ -214,12 +212,11 @@ Definition product_of_functors_alt
 (** * Products lift to functor categories *)
 Section def_functor_pointwise_prod.
 
-Variables (I : UU) (C D : category).
-Variable HD : Products I D.
+Context(I : UU) (C D : category) (HD : Products I D).
 
 Section product_of_functors.
 
-Variables F : I -> functor C D.
+Context (F : I -> functor C D).
 
 Definition product_of_functors_ob (c : C) : D :=
   ProductObject _ _ (HD (λ i, F i c)).
@@ -259,7 +256,7 @@ Lemma product_of_functors_alt_eq_product_of_functors :
   product_of_functors_alt _ HD F = product_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Definition product_nat_trans_pr_data i (c : C) :
   D ⟦ product_of_functors c, (F i) c ⟧ :=
@@ -279,8 +276,7 @@ Section vertex.
 
 (** The product morphism of a diagram with vertex [A] *)
 
-Variable A : functor C D.
-Variable f : ∏ i, nat_trans A (F i).
+Context (A : functor C D) (f : ∏ i, nat_trans A (F i)).
 
 Definition product_nat_trans_data c :
   A c --> product_of_functors c:=
@@ -335,7 +331,7 @@ End def_functor_pointwise_prod.
 (** * Products from limits *)
 Section products_from_limits.
 
-Variables (I : UU) (C : category).
+Context (I : UU) (C : category).
 
 Definition I_graph : graph := (I,,λ _ _,empty).
 

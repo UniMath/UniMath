@@ -615,3 +615,13 @@ Notation "[ C , D ]" := (functor_category C D) : cat.
 Declare Scope Cat.
 Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : Cat.
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
+
+Definition functor_compose {A B C : category} (F : ob [A, B])
+      (G : ob [B , C]) : ob [A , C] :=
+   functor_composite F G.
+(*
+Local Notation "G 'O' F '{' hsB  hsC '}'" :=
+        (functor_compose hsB hsC F G) (at level 200).
+Local Notation "G 'o' F '{' hsB  hsC '}'" :=
+        (functor_compose hsB hsC  F G : functor _ _ ) (at level 200).
+ *)

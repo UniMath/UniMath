@@ -137,7 +137,7 @@ Section Lemmas.
     (∏ i, f i = g (transportf stn p i))
     -> transportf (Vector X) p f = g.
   Proof.
-    intros ?.
+    intro.
     induction p.
     apply funextfun.
     assumption.
@@ -150,7 +150,7 @@ Section Lemmas.
   Definition vector_stn_proofirrelevance {vec : Vector X n}
             {i j : stn n} : (stntonat _ i = stntonat _ j) -> vec i = vec j.
   Proof.
-    intros ?.
+    intro.
     apply maponpaths, isinjstntonat; assumption.
   Defined.
 End Lemmas.

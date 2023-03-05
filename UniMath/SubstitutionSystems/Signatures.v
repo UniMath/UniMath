@@ -34,11 +34,15 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
+Require Import UniMath.SubstitutionSystems.Notation.
+
+
+(** only needed for Section [homogeneous_case]: *)
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
-Require Import UniMath.SubstitutionSystems.Notation.
+
 
 Local Open Scope subsys.
 
@@ -116,7 +120,7 @@ Section Strength_law_1_intensional.
 (** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : [C, D'],
-           θ (X ⊗ (id_Ptd C)) · # H (λ_functors _) = λ_functors _.
+           θ (X ⊗ (id_Ptd C)) · # H (lunitor_CAT _) = lunitor_CAT _.
 
 (** the following naturally-looking definition is often not suitable to work with *)
 Definition θ_Strength1_int_nicer : UU
@@ -136,7 +140,6 @@ Proof.
   rewrite T.
   etrans.
   { apply maponpaths.
-    unfold λ_functors.
     apply (functor_id H X). }
   apply id_right.
 Qed.
@@ -148,7 +151,6 @@ Proof.
   etrans.
   2: { apply pathsinv0.
        apply maponpaths.
-       unfold λ_functors.
        apply (functor_id H X). }
   apply pathsinv0.
   apply id_right.
@@ -170,10 +172,7 @@ Proof.
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
-  assert (X0 : λ_functors X = identity (X : [C, D'])).
-  { apply nat_trans_eq_alt; intros; apply idpath. }
-  rewrite X0 in T2.
-  apply T2.
+  exact T2.
 Qed.
 
 (* practically the same proof works in the opposite direction *)
@@ -186,10 +185,7 @@ Proof.
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
-  assert (X0 : λ_functors X = identity (X : [C, D'])).
-  { apply nat_trans_eq_alt; intros; apply idpath. }
-  rewrite X0.
-  apply T2.
+  exact T2.
 Qed.
 
 End Strength_law_1_intensional.
@@ -206,8 +202,8 @@ Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D']) (Z Z' : Ptd),
-      θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
-        (α_functors (U Z) (U Z') (H X) :
+      θ (X ⊗ (Z p• Z')) · #H (rassociator_CAT (U Z) (U Z') X )  =
+        (lassociator_CAT (U Z) (U Z') (H X) :
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
@@ -235,7 +231,7 @@ Proof.
   cbn. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  assert (functor_comp_H := functor_comp H (α_functors (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H (rassociator_CAT (pr1 Z) (pr1 Z') X)
            (a : functor_compose (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   cbn in functor_comp_H_c.
@@ -254,7 +250,7 @@ Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
   assert (TXZZ'_inst := T X Z Z' (functor_compose (U Z)
-          (functor_composite (U Z') X)) (α_functors (pr1 Z) (pr1 Z') X)).
+          (functor_composite (U Z') X)) (lassociator_CAT (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0.
   { apply TXZZ'_inst. }
   clear T TXZZ'_inst.
@@ -279,11 +275,11 @@ Qed.
 
 Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
-        (α_functors (U Z) (U Z') (H X) :
+        (lassociator_CAT (U Z) (U Z') (H X) :
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
              θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
-             #H (α_functors_inv (U Z) (U Z') X ).
+             #H (lassociator_CAT (U Z) (U Z') X ).
 
 
 Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
@@ -291,7 +287,7 @@ Proof.
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(α_functors_pointwise_is_z_iso D' (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
   assumption.
 Qed.
@@ -300,7 +296,7 @@ Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer ->
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(α_functors_pointwise_is_z_iso D' (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply (z_iso_inv_to_right _ _ _ _ auxiso).
   assumption.
 Qed.
@@ -309,7 +305,7 @@ Definition θ_Strength2_int_nicest : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
       θ (X ⊗ Z') •• (U Z) ·
         θ ((functor_compose (U Z') X) ⊗ Z) ·
-        #H (α_functors_inv (U Z) (U Z') X ).
+        #H (lassociator_CAT (U Z) (U Z') X ).
 
 Lemma θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer: θ_Strength2_int_nicest -> θ_Strength2_int_nicer.
 Proof.
@@ -322,7 +318,6 @@ Proof.
        rewrite assoc.
        exact HypX. }
   apply pathsinv0.
-  unfold α_functors.
   apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))).
 Qed.
 
@@ -334,7 +329,6 @@ Proof.
   etrans. { exact HypX. }
   etrans.
   { do 2 apply cancel_postcomposition.
-    unfold α_functors.
     apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))). }
   apply idpath.
 Qed.
@@ -485,10 +479,6 @@ Section homogeneous_case.
 
 Context (C : category).
 
-Local Definition ptd := monoidal_cat_of_pointedfunctors C.
-Local Definition endo := monoidal_cat_of_endofunctors C.
-Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
-
 Local Lemma auxH1 (H : functor [C, C] [C, C]) (X : functor C C) :
   # H
     (nat_trans_comp
@@ -518,6 +508,10 @@ Proof.
   rewrite id_right.
   apply functor_id.
 Qed.
+
+Local Definition ptd := monoidal_cat_of_pointedfunctors C.
+Local Definition endo := monoidal_cat_of_endofunctors C.
+Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
 
 Section relative_strength_instantiates_to_signature.
 

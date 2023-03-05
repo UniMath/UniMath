@@ -1,6 +1,6 @@
 (* In this file we show that for any category C,
-   the monoidal category of pointedfunctors of C is equivalent to
-   the monoidal category of pointed-objects in the monoidal category of pointed functors of C.
+   the monoidal category of pointed functors of C is equivalent to
+   the monoidal category of monoidal-pointed objects in the monoidal category of pointed functors of C.
 
    By equivalence, we mean that these two monoidal categories
    are (internally) equivalent as objects in the bicategory of monoidal categories
@@ -34,7 +34,7 @@ Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMono
 (* The notion of internal adjoint equivalences in a bicategory is defined in: *)
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
-(* The necessairy bicategories *)
+(* The necessary bicategories *)
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 

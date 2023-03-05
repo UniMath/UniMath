@@ -1847,8 +1847,8 @@ Defined.
 
     Context (G : A ⟶ A').
 
-    Let H := param_distributivity'_dom(FA':=FA') A A' G.
-    Let H' := param_distributivity'_codom(FA:=FA) A A' G.
+    Let H : V ⟶ [A, A'] := param_distributivity'_dom(FA':=FA') A A' G.
+    Let H' : V ⟶ [A, A'] := param_distributivity'_codom(FA:=FA) A A' G.
 
     Goal H = Main.H(C:=bicat_of_cats)(FA':=FA') G.
     Proof.
@@ -1884,9 +1884,9 @@ Defined.
     Section IntoMonoidalSection.
 
       Context (δs : parameterized_distributivity' Mon_V A A' FAm FA'm G).
-      Let δ := pr1 δs.
-      Let δtr_eq := pr12 δs.
-      Let δpe_eq := pr22 δs.
+      Let δ : parameterized_distributivity'_nat A A' G := pr1 δs.
+      Let δtr_eq : param_distr'_triangle_eq Mon_V A A' FAm FA'm G (pr1 δs) := pr12 δs.
+      Let δpe_eq : param_distr'_pentagon_eq Mon_V A A' FAm FA'm G (pr1 δs) := pr22 δs.
 
       Definition montrafotarget_section_disp : section_disp montrafotarget_disp
         := nat_trans_to_section_bicat(C0:=V)(C:=bicat_of_cats) A A' H H' δ.

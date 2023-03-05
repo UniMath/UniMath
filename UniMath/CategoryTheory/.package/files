@@ -11,6 +11,7 @@ Core/Prelude.v
 
 FunctorCategory.v
 whiskering.v
+BicatOfCatsElementary.v
 
 DisplayedCats/Core.v
 DisplayedCats/Isos.v
@@ -98,7 +99,6 @@ CommaCategories.v
 NNO.v
 Subcategory/Limits.v
 EpiFacts.v
-exponentials.v
 categories/Type/Core.v
 categories/Type/MonoEpiIso.v
 SimplicialSets.v
@@ -118,11 +118,12 @@ HorizontalComposition.v
 PointedFunctorsComposition.v
 ArrowCategory.v
 RightKanExtension.v
-slicecat.v
 coslicecat.v
-limits/pullbacks_slice_products_equiv.v
 catiso.v
 CategoryEquality.v
+exponentials.v
+slicecat.v
+limits/pullbacks_slice_products_equiv.v
 Additive.v
 Abelian.v
 category_binops.v
@@ -255,6 +256,7 @@ Monoidal/MonoidalCategoriesWhiskered.v
 Monoidal/Actegories.v
 Monoidal/CartesianMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalFunctorsWhiskered.v
+Monoidal/Examples/EndofunctorsWhiskeredMonoidalElementary.v
 Monoidal/WhiskeredDisplayedBifunctors.v
 Monoidal/DisplayedMonoidalWhiskered.v
 Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
@@ -262,12 +264,20 @@ Monoidal/TotalDisplayedMonoidalWhiskered.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/ConstructionOfActegories.v
 Monoidal/MorphismsOfActegories.v
+Monoidal/ProductActegory.v
+Monoidal/ProductsInActegories.v
+Monoidal/CoproductsInActegories.v
+Monoidal/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
+Monoidal/Examples/SelfActionInCATWhiskeredElementary.v
+Monoidal/ConstructionOfActegoryMorphisms.v
 Monoidal/ActionBasedStrongMonads.v
 Monoidal/MonoidalSectionsWhiskered.v
 Monoidal/BraidedMonoidalCategoriesWhiskered.v
 Monoidal/ClosedMonoidalCategoriesWhiskered.v
 Monoidal/MonoidalCategoriesReordered.v
 Monoidal/MonoidalDialgebras.v
+Monoidal/CategoriesOfMonoidsWhiskered.v
+Monoidal/Examples/MonadsAsMonoidsWhiskeredElementary.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v

@@ -651,8 +651,14 @@ Section MonoidalNaturalTransformations.
     {F G : functor C D} (Fm : fmonoidal_lax M N F) (Gm : fmonoidal_lax M N G)
     (α : F ⟹ G).
 
-  Definition is_mon_nat_trans : UU :=
-    (∏ (a a' : C), fmonoidal_preservestensordata Fm a a' · α (a ⊗_{M} a') = α a ⊗^{N} α a' · fmonoidal_preservestensordata Gm a a') × fmonoidal_preservesunit Fm · α I_{M} = fmonoidal_preservesunit Gm.
+  Definition is_mon_nat_trans_tensorlaw : UU
+    := ∏ (a a' : C), fmonoidal_preservestensordata Fm a a' · α (a ⊗_{M} a') =
+                       α a ⊗^{N} α a' · fmonoidal_preservestensordata Gm a a'.
+
+  Definition is_mon_nat_trans_unitlaw : UU
+    := fmonoidal_preservesunit Fm · α I_{M} = fmonoidal_preservesunit Gm.
+
+  Definition is_mon_nat_trans : UU := is_mon_nat_trans_tensorlaw × is_mon_nat_trans_unitlaw.
 
   Lemma isaprop_is_mon_nat_trans : isaprop is_mon_nat_trans.
   Proof.

@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -75,40 +76,40 @@ Definition binproductleft_map_laws: psfunctor_laws binproductleft_map_data.
 Proof.
   repeat split; red; cbn.
   - intros A A' F.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro ab. cbn. apply idpath.
   - intros A A' F1 F2 F3 α β.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro ab. cbn.
     apply pathsdirprod.
     * apply idpath.
     * apply pathsinv0, id_left.
   - intros A B F.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro ab. cbn.
     apply pathsdirprod.
     * do 2 rewrite id_right. apply pathsinv0, functor_id.
     * do 2 rewrite id_right. apply idpath.
   - intros A B F.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro ab. cbn.
     apply pathsdirprod; do 2 rewrite id_right; apply idpath.
   - intros A1 A2 A3 A4 F G H.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro a1b. cbn.
     apply pathsdirprod.
     * do 3 rewrite id_left. rewrite id_right.
       apply pathsinv0, functor_id.
     * apply idpath.
   - intros A1 A2 A3 F G1 G2 β.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro a1b. cbn.
     apply pathsdirprod.
     * rewrite id_left, id_right.
       apply idpath.
     * apply idpath.
   - intros A1 A2 A3 F1 F2 G α.
-    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
+    apply (nat_trans_eq (homset_property (productwithfixedelement _))).
     intro a1b. cbn.
     apply pathsdirprod.
     * rewrite id_left, id_right.
@@ -129,7 +130,7 @@ Proof.
         -- intros ab ab' fg.
            cbn.
            apply pathsdirprod; rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (productwithfixedelement _));
+      * split; apply (nat_trans_eq (homset_property (productwithfixedelement _)));
           intro ab; cbn; apply pathsdirprod; apply id_left.
     + intros A1 A2 A3 F G.
       use tpair.
@@ -138,7 +139,7 @@ Proof.
         -- intros a1b a1b' fg.
            cbn.
            apply pathsdirprod; rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (productwithfixedelement _));
+      * split; apply (nat_trans_eq (homset_property (productwithfixedelement _)));
           intro a1b; cbn; apply pathsdirprod; apply id_left.
 Defined.
 
@@ -168,7 +169,7 @@ Proof.
     use make_nat_trans.
     + intro G. cbn. apply ρ_functors_inv.
     + intros G G' α.
-      apply nat_trans_eq; try apply (homset_property B).
+      apply (nat_trans_eq (homset_property _)).
       intro a.
       cbn.
       rewrite id_left; apply id_right.
@@ -178,7 +179,7 @@ Proof.
       cbn.
       apply α_functors.
     + intros G G' α. cbn.
-      apply nat_trans_eq; try apply (homset_property B3).
+      apply (nat_trans_eq (homset_property _)).
       intro a.
       cbn.
       rewrite id_left; apply id_right.
@@ -188,45 +189,45 @@ Definition functorcategoryright_map_laws: psfunctor_laws functorcategoryright_ma
 Proof.
   repeat split; red; cbn.
   - intros B B' F.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property B').
+    apply (nat_trans_eq (homset_property _)).
     intro a. apply idpath.
   - intros B B' F1 F2 F3 β1 β2.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property B').
+    apply (nat_trans_eq (homset_property _)).
     intro a. apply idpath.
   - intros B B' F.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property B').
+    apply (nat_trans_eq (homset_property _)).
     intro a.
     cbn.
     do 2 rewrite id_right; apply pathsinv0, functor_id.
   - intros B B' F.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property B').
+    apply (nat_trans_eq (homset_property _)).
     intro a.
     cbn.
     do 2 rewrite id_right; apply idpath.
   - intros B1 B2 B3 B4 F1 F2 F3.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property B4).
+    apply (nat_trans_eq (homset_property _)).
     intro a.
     cbn. do 3 rewrite id_left. rewrite id_right. apply pathsinv0, functor_id.
   - intros B C D F H1 H2 γ.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property D).
+    apply (nat_trans_eq (homset_property _)).
     intro a.
     cbn. rewrite id_right; apply id_left.
   - intros B C D F1 F2 H β.
-    apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+    apply (nat_trans_eq (homset_property (functor_category _ _))).
     intro G.
-    apply nat_trans_eq; try exact (homset_property D).
+    apply (nat_trans_eq (homset_property _)).
     intro a.
     cbn. rewrite id_right; apply id_left.
 Defined.
@@ -243,22 +244,22 @@ Proof.
         -- intro G.
            cbn. apply ρ_functors.
         -- intros G G' α.
-           apply nat_trans_eq; try exact (homset_property B).
+           apply (nat_trans_eq (homset_property _)).
            intro a.
            cbn. rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (functor_category _ _));
-          intro G; cbn; apply nat_trans_eq; try exact (homset_property B); intro a; apply id_left.
+      * split; apply (nat_trans_eq (homset_property (functor_category _ _)));
+          intro G; cbn; apply (nat_trans_eq (homset_property _)); intro a; apply id_left.
     + intros B1 B2 B3 F H.
       use tpair.
       * use make_nat_trans.
         -- intro G.
            cbn. apply α_functors_inv.
         -- intros G G' α.
-           apply nat_trans_eq; try exact (homset_property B3).
+           apply (nat_trans_eq (homset_property _)).
            intro a.
            cbn. rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (functor_category _ _));
-          intro G; cbn; apply nat_trans_eq; try exact (homset_property B3); intro a; apply id_left.
+      * split; apply (nat_trans_eq (homset_property (functor_category _ _)));
+          intro G; cbn; apply (nat_trans_eq (homset_property _)); intro a; apply id_left.
 Defined.
 
 End FunctorCategoryWithFixedSource.
@@ -292,7 +293,7 @@ Section Currying.
                    --- do 2 rewrite id_right. apply functor_id.
                    --- rewrite id_left. apply id_right.
           --  intros a a' g. cbn.
-              apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
+              apply (nat_trans_eq (homset_property (productwithfixedelement _ _))).
               cbn. intro b.
               apply pathsdirprod.
               ++ rewrite id_left. apply id_right.
@@ -310,22 +311,22 @@ Section Currying.
   Proof.
     repeat split.
     - intros A A' F F' α.
-      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      apply (nat_trans_eq (homset_property (functor_category _ _))).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
+      apply (nat_trans_eq (homset_property (productwithfixedelement _ _))).
       intro b. cbn.
       apply pathsdirprod.
       + rewrite id_left. apply id_right.
       + apply idpath.
     - intro A.
-      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      apply (nat_trans_eq (homset_property (functor_category _ _))).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
+      apply (nat_trans_eq (homset_property (productwithfixedelement _ _))).
       intro b. cbn. apply idpath.
     - intros A1 A2 A3 F G.
-      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      apply (nat_trans_eq (homset_property (functor_category _ _))).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
+      apply (nat_trans_eq (homset_property (productwithfixedelement _ _))).
       intro b. cbn.
       apply pathsdirprod.
       + do 6 rewrite id_right. rewrite id_left. apply pathsinv0, functor_id.
@@ -364,15 +365,15 @@ Section Currying.
   Proof.
     repeat split.
     - intros A A' F F' α.
-      apply nat_trans_eq; try exact (homset_property A').
+      apply (nat_trans_eq (homset_property _)).
       intro Gb. induction Gb as [G b]. cbn.
       do 2 rewrite functor_id. do 2 rewrite id_left. apply id_right.
     - intro A.
-      apply nat_trans_eq; try exact (homset_property A).
+      apply (nat_trans_eq (homset_property _)).
       intro Gb. induction Gb as [G b]. cbn.
       do 5 rewrite id_left. rewrite id_right. apply pathsinv0, functor_id.
     - intros A1 A2 A3 F H.
-      apply nat_trans_eq; try exact (homset_property A3).
+      apply (nat_trans_eq (homset_property _)).
       intro Gb. induction Gb as [G b]. cbn.
       do 7 rewrite id_right.
       do 3 rewrite functor_id.
@@ -413,7 +414,7 @@ Section Currying.
         change (is_z_isomorphism aux).
         apply identity_is_z_iso.
     - intros A A' F.
-      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
+      apply (nat_trans_eq (homset_property (productwithfixedelement _ _))).
       intro ab. cbn.
       apply pathsdirprod.
       + rewrite functor_id. repeat rewrite id_left. apply idpath.
@@ -434,7 +435,7 @@ Section Currying.
           -- intros b b' g.
              cbn. rewrite id_left, id_right. apply id_right.
         * intros G G' β.
-          apply nat_trans_eq; try exact (homset_property A).
+          apply (nat_trans_eq (homset_property _)).
           intro b.
           cbn. rewrite id_right. apply cancel_postcomposition. apply functor_id.
       + intro G.
@@ -442,9 +443,9 @@ Section Currying.
         intro b. cbn.
         apply identity_is_z_iso.
     - intros A A' F.
-      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      apply (nat_trans_eq (homset_property (functor_category _ _))).
       intro G. cbn.
-      apply nat_trans_eq; try exact (homset_property A').
+      apply (nat_trans_eq (homset_property _)).
       intro b.
       cbn.
       repeat rewrite id_left.
@@ -459,6 +460,12 @@ Section Currying.
     - exact currying_biajd_unit_counit.
     - exact currying_biajd_triangle_l_law.
     - exact currying_biajd_triangle_r_law.
+  Defined.
+
+  Definition currying_hom_equivalence (C E : category) :
+    equivalence_of_cats [C, [B0:category,E]] [category_binproduct C B0, E].
+  Proof.
+    apply (biadj_hom_equivalence currying_biajd).
   Defined.
 
 End Currying.

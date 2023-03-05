@@ -52,7 +52,7 @@ Definition tree_induction (T:Tree) (x:T) (P:T->Type)
   ∏ z, P z.
 Proof.
   assert(d_ind : ∏ n z, mt_dist _ x z = n -> P z).
-  { intros ?.
+  { intro.
     induction n as [|n IH].
     { intros. assert (k:x=z).
       { apply mt_anti. assumption. } destruct k. assumption. }

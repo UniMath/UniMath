@@ -38,7 +38,7 @@ Lemma InitialArrowUnique {C : precategory} {I : Initial C} {a : C} (f : C⟦Init
   f = InitialArrow I _.
 Proof.
 exact (pr2 (pr2 I _ ) _ ).
-Defined.
+Qed.
 
 Lemma InitialEndo_is_identity {C : precategory} {O : Initial C} (f : O --> O) : f = identity O.
 Proof.
@@ -70,7 +70,7 @@ Proof.
 Defined.
 
 Definition ziso_Initials {C : precategory} (O O' : Initial C) : z_iso O O' :=
-   (InitialArrow O O',,isziso_from_Initial_to_Initial O O').
+   InitialArrow O O',,isziso_from_Initial_to_Initial O O'.
 
 Definition hasInitial {C : precategory} : UU := ishinh (Initial C).
 
@@ -88,8 +88,7 @@ Arguments make_Initial {_} _ _.
 (** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
 
-  Variable C : category.
-  Hypothesis H : is_univalent C.
+  Context (C : category) (H : is_univalent C).
 
 Lemma isaprop_Initial : isaprop (Initial C).
 Proof.
@@ -117,8 +116,8 @@ Section Initial_and_EmptyCoprod.
     intros b.
     assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
-    apply (make_iscontr (CoproductArrow _ _ X H)); intros t.
-    apply CoproductArrowUnique; intros i; apply (fromempty i).
+    apply (make_iscontr (CoproductArrow _ _ X H)).
+    abstract (intros t; apply CoproductArrowUnique; intros i; apply (fromempty i)).
   Defined.
 
 End Initial_and_EmptyCoprod.
@@ -164,25 +163,17 @@ End Initial_and_EmptyCoprod.
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.
 
-Variables (C D : category) (ID : Initial D).
+Context (C D : category) (ID : Initial D).
 
 Definition Initial_functor_precat : Initial [C, D].
 Proof.
 use make_Initial.
-- use make_functor.
-  + use tpair.
-    * intros c; apply (InitialObject ID).
-    * simpl; intros a b f; apply (InitialArrow ID).
-  + split.
-    * intro a; apply InitialEndo_is_identity.
-    * intros a b c f g; apply pathsinv0, InitialArrowUnique.
+- exact (constant_functor _ _ ID).
 - intros F.
   use tpair.
-  + use make_nat_trans; simpl.
+  + use make_nat_trans.
     * intro a; apply InitialArrow.
-    * intros a b f; simpl.
-      rewrite (InitialEndo_is_identity (InitialArrow ID ID)), id_left.
-      now apply pathsinv0, InitialArrowUnique.
+    * abstract (intros a b f; apply InitialArrowEq).
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply InitialArrowUnique).
 Defined.
 
@@ -193,7 +184,7 @@ Section epis_initial.
 
 Context {C : precategory} (IC : Initial C).
 
-Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
+Lemma to_initial_isEpi (a : C) (f : a --> IC) : isEpi f.
 Proof.
 apply make_isEpi; intros b g h H.
 now apply InitialArrowEq.
