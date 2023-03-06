@@ -251,7 +251,10 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategories.v
+Monoidal/SymmetricMonoidalCategories.v
+Monoidal/ClosedMonoidalCategories.v
 Monoidal/MonoidalFunctors.v
+Monoidal/CategoriesOfMonoids.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/DisplayedMonoidal.v
@@ -262,6 +265,9 @@ Monoidal/Examples/CartesianMonoidal.v
 Monoidal/Examples/DisplayedCartesianMonoidal.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/EndofunctorsMonoidal.v
+Monoidal/Examples/MonoidalDialgebras.v
+
+Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 
 Actegories/Actegories.v
 Actegories/ConstructionOfActegories.v
@@ -293,12 +299,12 @@ MonoidalOld/Examples/SelfActionInCATWhiskeredElementary.v
 MonoidalOld/ConstructionOfActegoryMorphisms.v
 MonoidalOld/ActionBasedStrongMonads.v
 MonoidalOld/MonoidalSectionsWhiskered.v
-# DONE SO FAR
 MonoidalOld/BraidedMonoidalCategoriesWhiskered.v
 MonoidalOld/ClosedMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalCategoriesReordered.v
 MonoidalOld/MonoidalDialgebras.v
 MonoidalOld/CategoriesOfMonoidsWhiskered.v
+# DONE SO FAR
 MonoidalOld/Examples/MonadsAsMonoidsWhiskeredElementary.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
