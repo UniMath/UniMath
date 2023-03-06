@@ -252,9 +252,11 @@ categories/Universal_Algebra/EqAlgebras.v
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategories.v
 
-MonoidalOld/WhiskeredBifunctors.v
-MonoidalOld/MonoidalCategoriesWhiskered.v
-MonoidalOld/Actegories.v
+Actegories/Actegories.v
+
+MonoidalOld/WhiskeredBifunctors.v # YES
+MonoidalOld/MonoidalCategoriesWhiskered.v # YES
+MonoidalOld/Actegories.v # YES
 MonoidalOld/CartesianMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalFunctorsWhiskered.v
 MonoidalOld/Examples/EndofunctorsWhiskeredMonoidalElementary.v
