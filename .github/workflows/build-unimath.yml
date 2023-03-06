@@ -58,15 +58,15 @@ jobs:
       # Grab the cache if available and extract it to dune-cache/. We tell dune
       # to use $(pwd)/dune-cache/ in the custom_script when initiating the
       # docker run.
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
+        id: cache
         with:
           path: dune-cache
           # Example key: UniMath-Linux-coq-8.16-123456789-10
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
-            UniMath-${{ runner.os }}-coq-
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
 
       - name: Build UniMath
         uses: coq-community/docker-coq-action@v1
@@ -89,9 +89,16 @@ jobs:
             opam exec -- dune build -j 2 --display=short \
                          --cache=enabled --error-reporting=twice
             endGroup
+
       - name: Revert permissions
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
+
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: dune-cache
+          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (currently 8.16.1). Build files are cached.
@@ -108,7 +115,8 @@ jobs:
           coqc --version
           dune --version
 
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
+        id: cache
         with:
           path: dune-cache
           key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
@@ -121,6 +129,12 @@ jobs:
           export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
           dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
+      - uses: actions/cache/save@v3
+        if: always ()
+        with:
+          path: dune-cache
+          key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
+
   # Build the satellites in parallel using docker-coq images with the latest
   # stable patch-release of Coq 8.16, except for TypeTheory, which is built
   # using the latest stable 8.15 release.
@@ -128,15 +142,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        satellite: [SetHITs, largecatmodules, GrpdHITs]
+        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
         coq-version: [latest, dev]
         ocaml-version: [4.14-flambda]
-        # Once TypeTheory compiles with 8.16 remove the following section and
-        # add TypeTheory to matrix.satellite above.
-        include:
-          - satellite: TypeTheory
-            coq-version: 8.15
-            ocaml-version: 4.14-flambda
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
@@ -153,15 +161,15 @@ jobs:
 
       # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
       # the custom_script below.
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
+        id: cache
         with:
           path: dune-cache
           # Example key: SetHITs-coq-8.15-123456789-10
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}
-            ${{ matrix.satellite }}-coq
+            ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-
 
       - name: Build ${{ matrix.satellite }}
         uses: coq-community/docker-coq-action@v1
@@ -184,6 +192,13 @@ jobs:
             opam exec -- dune build -j 2 Satellite --display=short \
                          --cache=enabled --error-reporting=twice
             endGroup
+
       - name: Revert permissions
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
+
+      - uses: actions/cache/save@v3
+        if: always ()
+        with:
+          path: dune-cache
+          key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
