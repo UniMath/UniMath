@@ -1054,3 +1054,233 @@ Section InverseMonoidalNaturalTransformation.
       apply (!(pr2 ismnt)).
   Qed.
 End InverseMonoidalNaturalTransformation.
+
+Local Open Scope moncat.
+
+Definition lax_monoidal_functor
+           (V₁ V₂ : monoidal_cat)
+  : UU
+  := ∑ (F : V₁ ⟶ V₂), fmonoidal_lax V₁ V₂ F.
+
+Coercion lax_monoidal_functor_to_functor
+         {V₁ V₂ : monoidal_cat}
+         (F : lax_monoidal_functor V₁ V₂)
+  : V₁ ⟶ V₂
+  := pr1 F.
+
+Definition strong_monoidal_functor
+           (V₁ V₂ : monoidal_cat)
+  : UU
+  := ∑ (F : V₁ ⟶ V₂), fmonoidal V₁ V₂ F.
+
+Coercion strong_monoidal_functor_to_lax_monoidal_functor
+         {V₁ V₂ : monoidal_cat}
+         (F : strong_monoidal_functor V₁ V₂)
+  : lax_monoidal_functor V₁ V₂
+  := pr1 F ,, pr12 F.
+
+Definition mon_functor_unit
+           {V₁ V₂ : monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+  : I_{ V₂ } --> F (I_{ V₁ })
+  := pr212 F.
+
+Definition mon_functor_tensor
+           {V₁ V₂ : monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+           (x y : V₁)
+  : F x ⊗ F y --> F(x ⊗ y)
+  := pr112 F x y.
+
+Section MonoidalFunctorAccessors.
+  Context {V₁ V₂ : monoidal_cat}
+          (F : lax_monoidal_functor V₁ V₂).
+
+  Definition tensor_mon_functor_tensor
+             {x₁ x₂ y₁ y₂ : V₁}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : #F f #⊗ #F g · mon_functor_tensor F x₂ y₂
+      =
+      mon_functor_tensor F x₁ y₁ · #F (f #⊗ g).
+  Proof.
+  Admitted.
+
+  Definition mon_functor_lassociator
+             (x y z : V₁)
+    : mon_functor_tensor F x y #⊗ identity (F z)
+      · mon_functor_tensor F (x ⊗ y) z
+      · #F (mon_lassociator x y z)
+      =
+      mon_lassociator (F x) (F y) (F z)
+      · identity (F x) #⊗ mon_functor_tensor F y z
+      · mon_functor_tensor F x (y ⊗ z).
+  Proof.
+  Admitted.
+
+  Definition mon_functor_rassociator
+             (x y z : V₁)
+    : mon_rassociator (F x) (F y) (F z)
+      · mon_functor_tensor F x y #⊗ identity (F z)
+      · mon_functor_tensor F (x ⊗ y) z
+      =
+      identity (F x) #⊗ mon_functor_tensor F y z
+      · mon_functor_tensor F x (y ⊗ z)
+      · #F (mon_rassociator x y z).
+  Proof.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(id_left _) @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        apply mon_rassociator_lassociator.
+      }
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      refine (!_).
+      apply mon_functor_lassociator.
+    }
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    refine (!(functor_comp _ _ _) @ _ @ functor_id _ _).
+    apply maponpaths.
+    apply mon_lassociator_rassociator.
+  Qed.
+
+  Definition mon_functor_lunitor
+             (x : V₁)
+    : mon_lunitor (F x)
+      =
+      mon_functor_unit F #⊗ identity (F x)
+      · mon_functor_tensor F 𝟙 x
+      · #F (mon_lunitor x).
+  Proof.
+  Admitted.
+
+  Definition mon_functor_linvunitor
+             (x : V₁)
+    : #F (mon_linvunitor x)
+      =
+      mon_linvunitor (F x)
+      · mon_functor_unit F #⊗ identity (F x)
+      · mon_functor_tensor F 𝟙 x.
+  Proof.
+    refine (!(id_left _) @ _).
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply mon_linvunitor_lunitor.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_functor_lunitor.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    refine (!(functor_comp _ _ _) @ _ @ functor_id _ _).
+    apply maponpaths.
+    apply mon_lunitor_linvunitor.
+  Qed.
+
+  Definition mon_functor_runitor
+             (x : V₁)
+    : mon_runitor (F x)
+      =
+      identity (F x) #⊗ mon_functor_unit F
+      · mon_functor_tensor F x 𝟙
+      · #F (mon_runitor x).
+  Proof.
+  Admitted.
+
+  Definition mon_functor_rinvunitor
+             (x : V₁)
+    : #F (mon_rinvunitor x)
+      =
+      mon_rinvunitor (F x)
+      · identity (F x) #⊗ mon_functor_unit F
+      · mon_functor_tensor F x 𝟙.
+  Proof.
+    refine (!(id_left _) @ _).
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply mon_rinvunitor_runitor.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_functor_runitor.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    refine (!(functor_comp _ _ _) @ _ @ functor_id _ _).
+    apply maponpaths.
+    apply mon_runitor_rinvunitor.
+  Qed.
+End MonoidalFunctorAccessors.
+
+Section StrongMonoidalFunctorAccessors.
+  Context {V₁ V₂ : monoidal_cat}
+          (F : strong_monoidal_functor V₁ V₂).
+
+  Definition strong_functor_unit_inv
+    : F (I_{ V₁ }) --> I_{ V₂ }.
+  Proof.
+  Admitted.
+
+  Definition strong_functor_unit_inv_unit
+    : strong_functor_unit_inv · mon_functor_unit F = identity _.
+  Proof.
+  Admitted.
+
+  Definition strong_functor_unit_unit_inv
+    : mon_functor_unit F · strong_functor_unit_inv = identity _.
+  Proof.
+  Admitted.
+
+  Definition strong_functor_tensor_inv
+             (x y : V₁)
+    : F(x ⊗ y) --> F x ⊗ F y.
+  Proof.
+  Admitted.
+
+  Definition strong_functor_tensor_inv_tensor
+             (x y : V₁)
+    : strong_functor_tensor_inv x y · mon_functor_tensor F x y = identity _.
+  Proof.
+  Admitted.
+
+  Definition strong_functor_tensor_tensor_inv
+             (x y : V₁)
+    : mon_functor_tensor F x y · strong_functor_tensor_inv x y = identity _.
+  Proof.
+  Admitted.
+
+  Definition tensor_strong_functor_tensor_inv
+             {x₁ x₂ y₁ y₂ : V₁}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : strong_functor_tensor_inv x₁ y₁ · #F f #⊗ #F g
+      =
+      #F (f #⊗ g) · strong_functor_tensor_inv x₂ y₂.
+  Proof.
+  Admitted.
+End StrongMonoidalFunctorAccessors.
