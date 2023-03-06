@@ -253,7 +253,10 @@ Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v
 
+Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
+
 Monoidal/Examples/CartesianMonoidal.v
+Monoidal/Examples/EndofunctorsMonoidal.v
 
 Actegories/Actegories.v
 
@@ -262,9 +265,9 @@ MonoidalOld/MonoidalCategoriesWhiskered.v
 MonoidalOld/Actegories.v
 MonoidalOld/CartesianMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalFunctorsWhiskered.v
-# DONE SO FAR
 MonoidalOld/Examples/EndofunctorsWhiskeredMonoidalElementary.v
 MonoidalOld/WhiskeredDisplayedBifunctors.v
+# DONE SO FAR
 MonoidalOld/DisplayedMonoidalWhiskered.v
 MonoidalOld/DisplayedCartesianMonoidalCategoriesWhiskered.v
 MonoidalOld/TotalDisplayedMonoidalWhiskered.v
