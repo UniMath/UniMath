@@ -18,7 +18,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.

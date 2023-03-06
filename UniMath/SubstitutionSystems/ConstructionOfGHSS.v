@@ -28,14 +28,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ActionScenarioForGenMendlerIteration_alt.
@@ -415,14 +414,14 @@ Section InitialAlgebraToGHSS.
                   apply (pr12 Hμη). }
              repeat rewrite assoc.
              apply cancel_postcomposition.
-             rewrite bifunctor_equalwhiskers.
+             rewrite (bifunctor_equalwhiskers Mon_V).
              unfold functoronmorphisms2.
              rewrite assoc.
              etrans.
              { apply cancel_postcomposition.
                apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
              rewrite auxη.
-             apply pathsinv0, bifunctor_equalwhiskers.
+             apply pathsinv0, (bifunctor_equalwhiskers Mon_V).
           -- change (t ⊗^{Mon_V}_{l} τ · (h ⊗^{ Mon_V} h · aμ) = θ (t,, η) t · # H (h ⊗^{ Mon_V} h · aμ) · aτ).
              etrans.
              2: { apply cancel_postcomposition.
@@ -450,12 +449,12 @@ Section InitialAlgebraToGHSS.
                   apply (functor_comp (leftwhiskering_functor Mon_V av)). }
              rewrite <- auxτ.
              etrans.
-             { rewrite bifunctor_equalwhiskers.
+             { rewrite (bifunctor_equalwhiskers Mon_V).
                unfold functoronmorphisms2.
                rewrite assoc.
                apply cancel_postcomposition.
                apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
-             apply pathsinv0, bifunctor_equalwhiskers.
+             apply pathsinv0, (bifunctor_equalwhiskers Mon_V).
         * apply pathsinv0, path_to_ctr.
           red; split.
           -- change (t ⊗^{Mon_V}_{l} η · (μ · h) = ru^{ Mon_V }_{ t} · h).

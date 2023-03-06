@@ -33,17 +33,17 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.limits.terminal.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Opaque mon_linvunitor mon_rinvunitor.
-
 Section UnitEnrichment.
   Context (V : monoidal_cat)
-          (HV : isTerminal V 𝟙).
+          (HV : isTerminal V (I_{V})).
 
   (**
    1. The enrichment of the unit category
@@ -52,7 +52,7 @@ Section UnitEnrichment.
     : enrichment_data unit_category V.
   Proof.
     simple refine (_ ,, _ ,, _ ,, _ ,, _).
-    - exact (λ _ _, 𝟙).
+    - exact (λ _ _, I_{V}).
     - exact (λ _, identity _).
     - exact (λ _ _ _, mon_lunitor _).
     - exact (λ _ _ _, identity _).

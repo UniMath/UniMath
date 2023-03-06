@@ -13,9 +13,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 

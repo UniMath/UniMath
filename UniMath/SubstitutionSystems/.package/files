@@ -5,6 +5,7 @@ SumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v
 SimplifiedHSS/SubstitutionSystems.v
+SignaturesEquivRelativeStrength.v
 GeneralizedSubstitutionSystems.v
 MonadsFromSubstitutionSystems.v
 SimplifiedHSS/MonadsFromSubstitutionSystems.v
