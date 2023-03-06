@@ -292,7 +292,7 @@ Proof.
     refine (maponpaths (fun f => f · _) (enriched_functor_on_comp F _ _ _) @ _).
     refine (_ @ !maponpaths (fun f => f · _) (tensor_comp _ _ _ _ _)).
 
-    (* Get ridentity of the common prefix *)
+    (* Get rid of the common prefix *)
     refine (_ @ assoc _ _ _).
     refine (!assoc _ _ _ @ _).
     apply (maponpaths (fun f => _ · f)).
