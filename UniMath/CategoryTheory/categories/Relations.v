@@ -23,12 +23,12 @@ Local Open Scope cat.
 
 Section Relations.
 
-  Definition hrel (X Y : hSet) : UU := X -> Y -> hProp.
-  Identity Coercion idhrel : hrel >-> Funclass.
+  Definition bin_hrel (X Y : hSet) : UU := X -> Y -> hProp.
+  Identity Coercion idbin_hrel : bin_hrel >-> Funclass.
 
   Definition REL_precategory_ob_mor
     : precategory_ob_mor
-    := make_precategory_ob_mor hSet hrel.
+    := make_precategory_ob_mor hSet bin_hrel.
 
   Definition REL_precategory_id_comp
     : precategory_id_comp REL_precategory_ob_mor.
@@ -149,16 +149,16 @@ End Relations.
 
 Section SET_as_full_sub_of_REL.
 
-  Definition function_to_hrel
+  Definition function_to_bin_hrel
              {X Y : hSet} (f : X -> Y)
-    : hrel X Y
+    : bin_hrel X Y
     := λ x y, eqset (f x) y.
 
   Lemma invertiblefunction_to_invertiblerelation_laws
         {X Y : hSet}
         {f : X → Y}
         (i : is_z_isomorphism (C := HSET) f)
-    : (function_to_hrel f : REL⟦_,_⟧) · function_to_hrel (pr1 i) = identity (C := REL) X.
+    : (function_to_bin_hrel f : REL⟦_,_⟧) · function_to_bin_hrel (pr1 i) = identity (C := REL) X.
   Proof.
     apply funextsec ; intro x1.
       apply funextsec ; intro x2.
@@ -177,9 +177,9 @@ Section SET_as_full_sub_of_REL.
   Definition invertiblefunction_to_invertiblerelation
              {X Y : hSet} {f : X -> Y}
              (i : is_z_isomorphism (C := HSET) f)
-    : is_z_isomorphism (C := REL) (function_to_hrel f).
+    : is_z_isomorphism (C := REL) (function_to_bin_hrel f).
   Proof.
-    apply (make_is_z_isomorphism (C := REL) _ (function_to_hrel (pr1 i))).
+    apply (make_is_z_isomorphism (C := REL) _ (function_to_bin_hrel (pr1 i))).
     split.
     - exact (invertiblefunction_to_invertiblerelation_laws i).
     - exact (invertiblefunction_to_invertiblerelation_laws (is_z_iso_inv_from_z_iso ((_ ,, i) : z_iso (C := HSET) _ _))).
@@ -195,7 +195,7 @@ End SET_as_full_sub_of_REL.
 Section Isos.
 
   Lemma inverse_swap_relation
-             {X Y : hSet} {r : hrel X Y}
+             {X Y : hSet} {r : bin_hrel X Y}
              (i : is_z_isomorphism (C := REL) r)
     : ∏ (x : X) (y : Y), r x y -> pr1 i y x.
   Proof.
@@ -222,7 +222,7 @@ Section Isos.
   Qed.
 
   Lemma inverse_swap_relation_iff
-             {X Y : hSet} {r : hrel X Y}
+             {X Y : hSet} {r : bin_hrel X Y}
              (i : is_z_isomorphism (C := REL) r)
     : ∏ (x : X) (y : Y), r x y <-> pr1 i y x.
   Proof.
@@ -233,7 +233,7 @@ Section Isos.
   Qed.
 
   Definition invertible_relation_is_injective
-             {X Y : hSet} {r : hrel X Y}
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : ∏ (x : X) (y1 y2 : Y),
       r x y1 -> r x y2 -> y1 = y2.
@@ -248,8 +248,8 @@ Section Isos.
     exact (inverse_swap_relation p _ _ r1).
   Qed.
 
-  Definition hrel_is_z_iso_to_image_isaprop
-             {X Y : hSet} {r : hrel X Y}
+  Definition bin_hrel_is_z_iso_to_image_isaprop
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : ∏ x : X, isaprop (∑ y : Y, r x y).
   Proof.
@@ -261,8 +261,8 @@ Section Isos.
       exact p.
   Qed.
 
-  Definition hrel_is_z_iso_to_image
-             {X Y : hSet} {r : hrel X Y}
+  Definition bin_hrel_is_z_iso_to_image
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : ∏ x : X, ∑ y : Y, r x y.
   Proof.
@@ -273,31 +273,31 @@ Section Isos.
     set (w := (eqweqmap q')).
     set (y := invmap w (idpath _)).
 
-    use (factor_through_squash_hProp (_ ,, hrel_is_z_iso_to_image_isaprop p x) _ y).
+    use (factor_through_squash_hProp (_ ,, bin_hrel_is_z_iso_to_image_isaprop p x) _ y).
     intro v.
     exact (pr1 v ,, pr12 v).
   Defined.
 
-  Definition hrel_is_z_iso_to_function
-             {X Y : hSet} {r : hrel X Y}
+  Definition bin_hrel_is_z_iso_to_function
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : X -> Y
-    := λ x, pr1 (hrel_is_z_iso_to_image p x).
+    := λ x, pr1 (bin_hrel_is_z_iso_to_image p x).
 
   Definition is_z_iso_in_REL_to_unique_image
-             {X Y : hSet} (r : hrel X Y)
+             {X Y : hSet} (r : bin_hrel X Y)
     : is_z_isomorphism (C := REL) r
       -> (∏ x: X, ∃! y : Y, r x y).
   Proof.
     intro i.
     intro x.
-    exists (hrel_is_z_iso_to_image i x).
+    exists (bin_hrel_is_z_iso_to_image i x).
     intro.
-    apply (hrel_is_z_iso_to_image_isaprop i x).
+    apply (bin_hrel_is_z_iso_to_image_isaprop i x).
   Defined.
 
   Definition unique_image_to_inverse_law_in_REL
-             {X Y : hSet} {r : hrel X Y}
+             {X Y : hSet} {r : bin_hrel X Y}
              (py : (∏ y : Y, ∃! x : X, r x y))
              (px : ∏ x: X, ∃! y : Y, r x y)
              (x1 x2 : X)
@@ -317,7 +317,7 @@ Section Isos.
   Qed.
 
   Definition unique_image_to_is_z_iso_in_REL
-             {X Y : hSet} (r : hrel X Y)
+             {X Y : hSet} (r : bin_hrel X Y)
     : (∏ x: X, ∃! y : Y, r x y) × (∏ y : Y, ∃! x : X, r x y)
       -> is_z_isomorphism (C := REL) r.
   Proof.
@@ -342,7 +342,7 @@ Section Isos.
   Qed.
 
   Definition is_z_iso_in_REL_simplified
-             {X Y : hSet} (r : hrel X Y)
+             {X Y : hSet} (r : bin_hrel X Y)
     : is_z_isomorphism (C := REL) r
       <-> (∏ x: X, ∃! y : Y, r x y) × (∏ y : Y, ∃! x : X, r x y).
   Proof.
@@ -365,71 +365,71 @@ Section Isos.
     - apply unique_image_to_is_z_iso_in_REL.
   Qed.
 
-  Definition hrel_is_z_iso_to_equality_inverse_law
-             {X Y : hSet} {r : hrel X Y}
+  Definition bin_hrel_is_z_iso_to_equality_inverse_law
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
-    : ∏ x : X, pr1 (hrel_is_z_iso_to_image (is_z_iso_inv_from_z_iso (r,, p : z_iso (C := REL) X Y)) (pr1 (hrel_is_z_iso_to_image p x))) = x.
+    : ∏ x : X, pr1 (bin_hrel_is_z_iso_to_image (is_z_iso_inv_from_z_iso (r,, p : z_iso (C := REL) X Y)) (pr1 (bin_hrel_is_z_iso_to_image p x))) = x.
   Proof.
     intro x.
 
     use (invertible_relation_is_injective (pr2 (z_iso_inv ((r,,p) : z_iso (C := REL) X Y)))).
-    - exact (hrel_is_z_iso_to_function p x).
-    - exact (pr2 (hrel_is_z_iso_to_image (is_z_iso_inv_from_z_iso ((r,, p) : z_iso (C := REL) _ _))  (pr1 (hrel_is_z_iso_to_image p x)))).
+    - exact (bin_hrel_is_z_iso_to_function p x).
+    - exact (pr2 (bin_hrel_is_z_iso_to_image (is_z_iso_inv_from_z_iso ((r,, p) : z_iso (C := REL) _ _))  (pr1 (bin_hrel_is_z_iso_to_image p x)))).
     - apply inverse_swap_relation_iff.
-      exact (pr2 (hrel_is_z_iso_to_image p x)).
+      exact (pr2 (bin_hrel_is_z_iso_to_image p x)).
   Qed.
 
-  Definition hrel_is_z_iso_to_equality
-             {X Y : hSet} {r : hrel X Y}
+  Definition bin_hrel_is_z_iso_to_equality
+             {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : z_iso (C := HSET) X Y.
   Proof.
     set (j := (r ,, p : z_iso (C := REL) X Y)).
     set (i := is_z_iso_inv_from_z_iso j).
     use make_z_iso.
-    - exact (hrel_is_z_iso_to_function p).
-    - exact (hrel_is_z_iso_to_function i).
+    - exact (bin_hrel_is_z_iso_to_function p).
+    - exact (bin_hrel_is_z_iso_to_function i).
     - abstract (split ; (apply funextsec ; intro) ;
-        [ apply hrel_is_z_iso_to_equality_inverse_law | apply (hrel_is_z_iso_to_equality_inverse_law i)]).
+        [ apply bin_hrel_is_z_iso_to_equality_inverse_law | apply (bin_hrel_is_z_iso_to_equality_inverse_law i)]).
   Defined.
 
-  Lemma hrel_z_iso_equiv_hset_z_iso_law
+  Lemma bin_hrel_z_iso_equiv_hset_z_iso_law
         {X Y : hSet}
         (i : z_iso (C := HSET) X Y)
-    : hrel_is_z_iso_to_function (invertiblefunction_to_invertiblerelation (pr2 i)) = pr1 i.
+    : bin_hrel_is_z_iso_to_function (invertiblefunction_to_invertiblerelation (pr2 i)) = pr1 i.
   Proof.
     apply funextsec ; intro x.
-    exact (base_paths _ _ (pr1 (hrel_is_z_iso_to_image_isaprop (invertiblefunction_to_invertiblerelation (pr2 i)) x  (hrel_is_z_iso_to_image (invertiblefunction_to_invertiblerelation (pr2 i)) x) (pr1 i x ,, idpath _)))).
+    exact (base_paths _ _ (pr1 (bin_hrel_is_z_iso_to_image_isaprop (invertiblefunction_to_invertiblerelation (pr2 i)) x  (bin_hrel_is_z_iso_to_image (invertiblefunction_to_invertiblerelation (pr2 i)) x) (pr1 i x ,, idpath _)))).
   Qed.
 
-  Lemma hrel_z_iso_equiv_hset_z_iso_law'
+  Lemma bin_hrel_z_iso_equiv_hset_z_iso_law'
         {X Y : hSet} (i : z_iso (C := REL) X Y)
-    : function_to_hrel (hrel_is_z_iso_to_function (pr2 i)) = pr1 i.
+    : function_to_bin_hrel (bin_hrel_is_z_iso_to_function (pr2 i)) = pr1 i.
   Proof.
     apply funextsec ; intro x.
     apply funextsec ; intro y.
 
-    set (q := hrel_is_z_iso_to_image_isaprop (pr2 i) x (hrel_is_z_iso_to_image (pr2 i) x)).
+    set (q := bin_hrel_is_z_iso_to_image_isaprop (pr2 i) x (bin_hrel_is_z_iso_to_image (pr2 i) x)).
     apply hPropUnivalence.
     - intro p.
       induction p.
-      exact (pr2 (hrel_is_z_iso_to_image (pr2 i) x)).
+      exact (pr2 (bin_hrel_is_z_iso_to_image (pr2 i) x)).
     - intro p.
-      set (c := hrel_is_z_iso_to_image_isaprop (pr2 i) x (hrel_is_z_iso_to_image (pr2 i) x) (y,,p)).
+      set (c := bin_hrel_is_z_iso_to_image_isaprop (pr2 i) x (bin_hrel_is_z_iso_to_image (pr2 i) x) (y,,p)).
       exact (base_paths _ _ (pr1 c)).
   Qed.
 
-  Definition hrel_z_iso_equiv_hset_z_iso
+  Definition bin_hrel_z_iso_equiv_hset_z_iso
              (X Y : hSet)
     : z_iso (C := HSET) X Y ≃ z_iso (C := REL) X Y.
   Proof.
     use weq_iso.
     - exact (λ i, z_iso_in_SET_to_z_iso_in_REL i).
-    - exact (λ i, hrel_is_z_iso_to_equality (pr2 i)).
+    - exact (λ i, bin_hrel_is_z_iso_to_equality (pr2 i)).
     - intro ;
-        apply z_iso_eq, hrel_z_iso_equiv_hset_z_iso_law.
+        apply z_iso_eq, bin_hrel_z_iso_equiv_hset_z_iso_law.
     - intro ;
-        apply z_iso_eq, hrel_z_iso_equiv_hset_z_iso_law'.
+        apply z_iso_eq, bin_hrel_z_iso_equiv_hset_z_iso_law'.
   Defined.
 
 End Isos.
@@ -440,7 +440,7 @@ Section Univalence.
   Proof.
     intros X Y.
     use weqhomot.
-    - exact (hrel_z_iso_equiv_hset_z_iso X Y ∘ make_weq _ (is_univalent_HSET X Y))%weq.
+    - exact (bin_hrel_z_iso_equiv_hset_z_iso X Y ∘ make_weq _ (is_univalent_HSET X Y))%weq.
     - intro p ; induction p.
       use (z_iso_eq (C := REL)).
       do 2 (apply funextsec ; intro).
