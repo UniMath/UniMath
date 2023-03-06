@@ -390,6 +390,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Displayed/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/Displayed/WhiskeredDisplayedBifunctors.v)
    - [Monoidal/Displayed/DisplayedMonoidal.v](CategoryTheory/Monoidal/Displayed/DisplayedMonoidal.v)
    - [Monoidal/Displayed/TotalDisplayedMonoidal.v](CategoryTheory/Monoidal/Displayed/TotalDisplayedMonoidal.v)
+   - [Monoidal/Displayed/MonoidalSections.v](CategoryTheory/Monoidal/Displayed/MonoidalSections.v)
    - [Monoidal/Examples/CartesianMonoidal.v](CategoryTheory/Monoidal/Examples/CartesianMonoidal.v)
    - [Monoidal/Examples/DisplayedCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/DisplayedCartesianMonoidal.v)
    - [Monoidal/Examples/MonoidalPointedObjects.v](CategoryTheory/Monoidal/Examples/MonoidalPointedObjects.v)
