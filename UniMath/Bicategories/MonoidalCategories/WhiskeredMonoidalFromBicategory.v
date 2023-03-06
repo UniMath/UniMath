@@ -11,9 +11,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Unitors.
 
@@ -79,8 +79,9 @@ Proof.
   - intros; apply vcomp_whisker.
 Defined.
 
-Definition tensor_from_bicat_and_ob: tensor category_from_bicat_and_ob :=
-  make_bifunctor tensor_data_from_bicat_and_ob tensor_laws_from_bicat_and_ob.
+Definition tensor_from_bicat_and_ob
+  : bifunctor category_from_bicat_and_ob category_from_bicat_and_ob category_from_bicat_and_ob
+  := make_bifunctor tensor_data_from_bicat_and_ob tensor_laws_from_bicat_and_ob.
 
 Definition monoidal_data_from_bicat_and_ob: monoidal_data category_from_bicat_and_ob.
 Proof.
@@ -145,7 +146,7 @@ Qed.
 Definition monoidal_from_bicat_and_ob: monoidal category_from_bicat_and_ob.
 Proof.
   exists monoidal_data_from_bicat_and_ob.
-  red.
+  exists (pr2 (tensor_from_bicat_and_ob)).
   exists leftunitor_law_from_bicat_and_ob.
   exists rightunitor_law_from_bicat_and_ob.
   exists associator_law_from_bicat_and_ob.

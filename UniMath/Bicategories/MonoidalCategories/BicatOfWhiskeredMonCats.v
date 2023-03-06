@@ -28,9 +28,9 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -87,8 +87,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid y).
+           - cbn in *.
+             apply (bifunctor_rightid y).
       }
       rewrite id_left.
       apply id_right.
@@ -98,8 +100,10 @@ Section TheConstruction.
       etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid y).
+           - cbn in *.
+             apply (bifunctor_rightid y).
       }
       apply pathsinv0, id_left.
     - rewrite functor_id.
@@ -108,8 +112,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid y).
+           - cbn in *.
+             apply (bifunctor_rightid y).
       }
       apply id_right.
     - rewrite id_right.
@@ -117,8 +123,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid y).
+           - cbn in *.
+             apply (bifunctor_rightid y).
       }
       rewrite functor_id.
       apply pathsinv0, id_left.
@@ -127,8 +135,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid y).
+           - cbn in *.
+             apply (bifunctor_rightid y).
       }
       do 2 rewrite id_left.
       apply id_right.
@@ -137,8 +147,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid z).
+           - cbn in *.
+             apply (bifunctor_rightid z).
       }
       rewrite id_right.
       rewrite id_left.
@@ -152,8 +164,10 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in *.
+             apply (bifunctor_leftid z).
+           - cbn in *.
+             apply (bifunctor_rightid z).
       }
       rewrite id_right.
       rewrite id_left.
@@ -167,9 +181,12 @@ Section TheConstruction.
     - etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_comp.
-           - apply bifunctor_leftcomp.
-           - apply bifunctor_rightcomp.
-           - apply bifunctor_equalwhiskers.
+           - cbn in *.
+             apply (bifunctor_leftcomp y).
+           - cbn in *.
+             apply (bifunctor_rightcomp y).
+           - cbn in *.
+             apply (bifunctor_equalwhiskers y).
       }
       rewrite assoc.
       etrans.
