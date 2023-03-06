@@ -2,7 +2,7 @@
 
  Closed monoidal categories
 
- A closed monoidal category is one for which tensoring with a fix object has a
+ A closed monoidal category is one for which tensoring with a fixed object has a
  right adjoint. Depending on whether the monoidal category is symmetric or not,
  there are different variations of this definition. If the monoidal category is
  not symmetric, then there are two variations, namely left closed and right
