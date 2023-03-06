@@ -14,26 +14,26 @@ Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCa
 
 Section MonoidalCategoriesReordered0.
 
-  Definition lunitor0_nattrans {C : category} (T : tensor C) (I : C) : UU
+  Definition lunitor0_nattrans {C : category} (T : bifunctor C C C) (I : C) : UU
     := ∑ lu : leftunitor_data T I, leftunitor_nat lu.
 
-  Definition lunitor0 {C : category} (T : tensor C) (I : C) : UU
+  Definition lunitor0 {C : category} (T : bifunctor C C C) (I : C) : UU
     := ∑ lu : lunitor0_nattrans T I, ∑ lui : leftunitorinv_data T I, leftunitor_iso_law (pr1 lu) lui.
 
-  Definition runitor0_nattrans {C : category} (T : tensor C) (I : C) : UU
+  Definition runitor0_nattrans {C : category} (T : bifunctor C C C) (I : C) : UU
     := ∑ ru : rightunitor_data T I, rightunitor_nat ru.
-  Definition runitor0 {C : category} (T : tensor C) (I : C) : UU
+  Definition runitor0 {C : category} (T : bifunctor C C C) (I : C) : UU
     := ∑ ru : runitor0_nattrans T I, ∑ rui : rightunitorinv_data T I, rightunitor_iso_law (pr1 ru) rui.
 
 
-  Definition associator0_nattrans {C : category} (T : tensor C) : UU
+  Definition associator0_nattrans {C : category} (T : bifunctor C C C) : UU
     := ∑ ass : associator_data T,
         associator_nat_leftwhisker ass × associator_nat_rightwhisker ass × associator_nat_leftrightwhisker ass.
-  Definition associator0 {C : category} (T : tensor C) : UU
+  Definition associator0 {C : category} (T : bifunctor C C C) : UU
     := ∑ ass : associator0_nattrans T, ∑ assi : associatorinv_data T, associator_iso_law (pr1 ass) assi.
 
   Definition monstruct0 (C : category) : UU
-    := ∑ T : tensor C, ∑ I : C, ∑ lu : lunitor0 T I, ∑ ru : runitor0 T I, ∑ ass : associator0 T,
+    := ∑ T : bifunctor C C C, ∑ I : C, ∑ lu : lunitor0 T I, ∑ ru : runitor0 T I, ∑ ass : associator0 T,
                 triangle_identity (pr11 lu) (pr11 ru) (pr11 ass) × pentagon_identity (pr11 ass).
 
   Definition moncats0 : UU := ∑ C : category, monstruct0 C.
@@ -92,7 +92,7 @@ End EquivalenceMonoidalCategoriesReordered0WithMonstructs.
 
 Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
 
-  Definition lunitors_equiv {C : category} (T : tensor C) (I : C)
+  Definition lunitors_equiv {C : category} (T : bifunctor C C C) (I : C)
     :   lunitor0 T I ≃ left_unitor (bifunctor_to_functorfromproductcat T) I.
   Proof.
     use weqtotal2.
@@ -128,7 +128,7 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
     use (weqtotaltoforall (X := C) (λ x,  C ⟦ x, bifunctor_on_objects T I x ⟧)).
   Defined.
 
-  Definition runitors_equiv {C : category} (T : tensor C) (I : C)
+  Definition runitors_equiv {C : category} (T : bifunctor C C C) (I : C)
     :   runitor0 T I ≃ right_unitor (bifunctor_to_functorfromproductcat T) I.
   Proof.
     use weqtotal2.
@@ -164,7 +164,7 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
     use (weqtotaltoforall (X := C) (λ x,  C ⟦ x , bifunctor_on_objects T x I ⟧)).
   Defined.
 
-  Definition associators_equiv {C : category} (T : tensor C)
+  Definition associators_equiv {C : category} (T : bifunctor C C C)
     : associator0 T ≃ associator (bifunctor_to_functorfromproductcat T).
   Proof.
     use weqtotal2.
@@ -182,8 +182,31 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
         + intro assnat.
           (* show we get natural transformation *)
           do 3 intro.
-          use (! associator_nat2 _ _ _ _ _ _) ; apply assnat.
-
+          cbn.
+          unfold functoronmorphisms1.
+          cbn.
+          rewrite !assoc.
+          rewrite (pr12 assnat).
+          rewrite !assoc'.
+          refine (!_).
+          etrans. {
+            apply maponpaths.
+            rewrite (bifunctor_leftcomp T).
+            rewrite !assoc.
+            rewrite (pr22 assnat).
+            apply idpath.
+          }
+          etrans. {
+            apply cancel_precomposition.
+            rewrite assoc'.
+            apply cancel_precomposition.
+            apply (pr1 assnat).
+          }
+          rewrite !assoc.
+          apply cancel_postcomposition.
+          apply pathsinv0.
+          rewrite (bifunctor_rightcomp T).
+          apply idpath.
         + intro assnattrans.
           (* show we get the three naturality laws of the associator *)
           repeat split.

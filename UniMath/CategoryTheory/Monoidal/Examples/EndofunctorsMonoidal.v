@@ -44,7 +44,7 @@ Section FixACategory.
     - intro; intros; apply vcomp_whisker_CAT.
   Qed. (* Defined. *)
 
-  Definition monendocat_tensor : tensor [C, C] :=
+  Definition monendocat_tensor : bifunctor [C, C] [C, C] [C, C] :=
     make_bifunctor monendocat_tensor_data monendocat_tensor_laws.
 
   Definition monendocat_monoidal_data : monoidal_data [C, C].
@@ -100,6 +100,7 @@ Section FixACategory.
   Definition monendocat_monoidal : monoidal [C, C].
   Proof.
     exists monendocat_monoidal_data.
+    exists monendocat_tensor_laws.
     exists monendocat_leftunitor_law.
     exists monendocat_rightunitor_law.
     exists monendocat_associator_law.

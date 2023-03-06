@@ -611,12 +611,12 @@ End LiftedStrength.
       assert (Hc := H c). clear H.
       cbn in Hc.
       unfold TotalDisplayedMonoidal.total_unit, lifted_action_unitor_data in Hc. cbn in Hc.
-      do 2 rewrite bifunctor_rightid in Hc. do 2 rewrite id_left in Hc.
+      do 2 rewrite (bifunctor_rightid M) in Hc. do 2 rewrite id_left in Hc.
       exact Hc.
     - intros H c.
       cbn.
       unfold TotalDisplayedMonoidal.total_unit, lifted_action_unitor_data. cbn.
-      do 2 rewrite bifunctor_rightid. do 2 rewrite id_left.
+      do 2 rewrite (bifunctor_rightid M). do 2 rewrite id_left.
       apply H.
     - apply impred; intro c. apply C.
     - apply impred; intro c. apply C.
@@ -634,12 +634,12 @@ End LiftedStrength.
       assert (Hinst := H v w x). clear H.
       cbn in Hinst.
       unfold lifted_actor_data in Hinst. cbn in Hinst.
-      do 2 rewrite bifunctor_rightid in Hinst. do 2 rewrite id_left in Hinst.
+      do 2 rewrite (bifunctor_rightid M) in Hinst. do 2 rewrite id_left in Hinst.
       exact Hinst.
     - intros H v w x.
       cbn.
       unfold lifted_actor_data. cbn.
-      do 2 rewrite bifunctor_rightid. do 2 rewrite id_left.
+      do 2 rewrite (bifunctor_rightid M). do 2 rewrite id_left.
       apply H.
     - do 3 (apply impred; intro). apply C.
     - do 3 (apply impred; intro). apply C.

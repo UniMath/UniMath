@@ -76,7 +76,7 @@ Section GeneralConstruction.
   Qed.
 
   (** the following is merely a variant of [binproduct_functor] *)
-  Definition tensorfrombinprod: tensor C.
+  Definition tensorfrombinprod : bifunctor C C C.
   Proof.
     use make_bifunctor.
     - exact tensorfrombinprod_data.
@@ -381,6 +381,7 @@ Section GeneralConstruction.
   Definition cartesianmonoidalcat: monoidal C.
   Proof.
     exists cartesianmonoidalcat_data.
+    exists is_bifunctor_tensorfrombinprod_data.
     exists leftunitor_law_from_binprod.
     exists rightunitor_law_from_binprod.
     exists associator_law_from_binprod.

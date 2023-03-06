@@ -245,7 +245,7 @@ Proof.
       apply maponpaths_2.
       rewrite assoc.
       apply maponpaths_2.
-      rewrite (! bifunctor_leftcomp _ _ _ _ _ _ _).
+      rewrite (! bifunctor_leftcomp Mon_V _ _ _ _ _ _).
       apply maponpaths.
       exact (pr22 (fmonoidal_preservesunitstrongly U)).
     }

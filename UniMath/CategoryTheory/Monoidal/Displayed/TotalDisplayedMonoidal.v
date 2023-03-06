@@ -144,7 +144,7 @@ Section MonoidalTotalCategory.
              {D : disp_cat C}
              {M : monoidal C}
              (DT : disp_tensor D M)
-    : tensor T(D)
+    : bifunctor T(D) T(D) T(D)
     := (total_tensor_data DT
         ,, total_leftidax DT
         ,, total_rightidax DT
@@ -506,10 +506,11 @@ Section MonoidalTotalCategory.
              (DM : disp_monoidal D M)
     : monoidal_laws (total_monoidaldata DM).
   Proof.
-    split with (total_leftunitor_law (disp_monoidal_leftunitorlaw DM)).
-    split with (total_rightunitor_law (disp_monoidal_rightunitorlaw DM)).
-    split with (total_associator_law (disp_monoidal_associatorlaw DM)).
-    split with (total_triangleidentity (disp_monoidal_triangleidentity DM)).
+    exists (pr2 (total_tensor DM)).
+    exists (total_leftunitor_law (disp_monoidal_leftunitorlaw DM)).
+    exists (total_rightunitor_law (disp_monoidal_rightunitorlaw DM)).
+    exists (total_associator_law (disp_monoidal_associatorlaw DM)).
+    exists (total_triangleidentity (disp_monoidal_triangleidentity DM)).
     exact (total_pentagonidentity (disp_monoidal_pentagonidentity DM)).
   Qed.
 

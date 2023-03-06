@@ -725,7 +725,7 @@ Section CompositionOfLiftedDistributivities.
     etrans.
     { repeat rewrite assoc.
       do 3 apply cancel_postcomposition.
-      apply bifunctor_equalwhiskers. }
+      apply (bifunctor_equalwhiskers Mon_V). }
     unfold functoronmorphisms2.
     etrans.
     2: { repeat rewrite assoc.

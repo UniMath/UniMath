@@ -6,10 +6,10 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
 Section MonoidalStructReordered.
 
-  Definition tensor_unit (C : category) : UU := tensor C × C.
+  Definition tensor_unit (C : category) : UU := bifunctor C C C × C.
   Definition tensor_unit_to_tensor {C : category} (tu : tensor_unit C)
-    : tensor C := pr1 tu.
-  Coercion tensor_unit_to_tensor : tensor_unit >-> tensor.
+    : bifunctor C C C := pr1 tu.
+  Coercion tensor_unit_to_tensor : tensor_unit >-> bifunctor.
   Definition tensor_unit_to_unit {C : category} (tu : tensor_unit C)
     : ob C := pr2 tu.
   Coercion tensor_unit_to_unit : tensor_unit >-> ob.
@@ -243,6 +243,7 @@ Section ReorderingMonStructEquivalence.
     set (tuua := monoidal_struct_to_tensor_unit_unitors_associator M).
     set (tu := tensor_unit_unitors_associator_to_tensor_unit tuua).
     set (ui := (monoidal_struct_to_unitorsassociator_inverses M)).
+    exists (pr2 (pr111 M)).
     exists (laxleftunitor_to_lunitor_nat _ ,, lax_monoidal_leftunitor_inverse_to_inverse_law _).
     exists (laxrightunitor_to_runitor_nat _ ,, lax_monoidal_rightunitor_inverse_to_inverse_law _).
     split.

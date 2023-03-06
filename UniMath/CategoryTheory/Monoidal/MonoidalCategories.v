@@ -52,59 +52,59 @@ Import BifunctorNotations.
 Section A.
 
 (** Data **)
-Definition tensor (C : category) : UU :=
-  bifunctor C C C.
-Identity Coercion tensorintobifunctor : tensor >-> bifunctor.
+Definition tensor_data (C : category) : UU :=
+  bifunctor_data C C C.
+Identity Coercion tensorintobifunctor : tensor_data >-> bifunctor_data.
 
 Definition leftunitor_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
            (I : C)
   : UU
   := ∏ (x : C), C⟦I ⊗_{T} x, x⟧.
 
 Definition leftunitorinv_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
            (I : C)
   : UU
   := ∏ (x : C), C⟦x, I ⊗_{T} x⟧.
 
 Definition rightunitor_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
            (I : C)
   : UU
   := ∏ (x : C), C⟦x ⊗_{T} I, x⟧.
 
 Definition rightunitorinv_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
            (I : C)
   : UU
   := ∏ (x : C), C⟦x, x ⊗_{T} I⟧.
 
 Definition associator_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
   : UU
   := ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
 
 Definition associatorinv_data
            {C : category}
-           (T : tensor C)
+           (T : tensor_data C)
   : UU
   := ∏ (x y z : C), C ⟦x ⊗_{T} (y ⊗_{T} z), (x ⊗_{T} y) ⊗_{T} z⟧.
 
 Definition monoidal_data (C : category): UU :=
-    ∑ (T : tensor C) (I : C),
+    ∑ (T : tensor_data C) (I : C),
     (leftunitor_data T I) × (leftunitorinv_data T I) ×
     (rightunitor_data T I) × (rightunitorinv_data T I) ×
     (associator_data T) × (associatorinv_data T).
 
 Definition make_monoidal_data
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
            (luinv : leftunitorinv_data T I)
@@ -115,8 +115,8 @@ Definition make_monoidal_data
   : monoidal_data C
   := (T,,I,,lu,,luinv,,ru,,ruinv,,α,,αinv).
 
-Definition monoidal_tensor {C : category} (MD : monoidal_data C) : tensor C := pr1 MD.
-Coercion monoidal_tensor : monoidal_data >-> tensor.
+Definition monoidal_tensor_data {C : category} (MD : monoidal_data C) : tensor_data C := pr1 MD.
+Coercion monoidal_tensor_data : monoidal_data >-> tensor_data.
 
 Definition monoidal_unit {C : category} (MD : monoidal_data C) : C := pr12 MD.
 Notation "I_{ MD }" := (monoidal_unit MD).
@@ -166,7 +166,7 @@ Notation "αinv_{ MD }" := (monoidal_associatorinvdata MD).
 (** Axioms **)
 Definition leftunitor_nat
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
   : UU
@@ -174,7 +174,7 @@ Definition leftunitor_nat
 
 Definition leftunitorinv_nat
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (luinv : leftunitorinv_data T I)
   : UU
@@ -182,7 +182,7 @@ Definition leftunitorinv_nat
 
 Definition leftunitor_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
            (luinv : leftunitorinv_data T I)
@@ -191,7 +191,7 @@ Definition leftunitor_iso_law
 
 Definition leftunitor_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
            (luinv : leftunitorinv_data T I)
@@ -200,7 +200,7 @@ Definition leftunitor_law
 
 Definition leftunitorlaw_nat
             {C : category}
-            {T : tensor C}
+            {T : tensor_data C}
             {I : C}
             {lu : leftunitor_data T I}
             {luinv : leftunitorinv_data T I}
@@ -210,7 +210,7 @@ Definition leftunitorlaw_nat
 
 Definition leftunitorlaw_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            {lu : leftunitor_data T I}
            {luinv : leftunitorinv_data T I}
@@ -220,7 +220,7 @@ Definition leftunitorlaw_iso_law
 
 Definition rightunitor_nat
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (ru : rightunitor_data T I)
   : UU
@@ -228,7 +228,7 @@ Definition rightunitor_nat
 
 Definition rightunitorinv_nat
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (ruinv : rightunitorinv_data T I)
   : UU
@@ -236,7 +236,7 @@ Definition rightunitorinv_nat
 
 Definition rightunitor_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (ru : rightunitor_data T I)
            (ruinv : rightunitorinv_data T I)
@@ -245,7 +245,7 @@ Definition rightunitor_iso_law
 
 Definition rightunitor_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (ru : rightunitor_data T I)
            (ruinv : rightunitorinv_data T I)
@@ -254,7 +254,7 @@ Definition rightunitor_law
 
 Definition rightunitorlaw_nat
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            {ru : rightunitor_data T I}
            {ruinv : rightunitorinv_data T I}
@@ -264,7 +264,7 @@ Definition rightunitorlaw_nat
 
 Definition rightunitorlaw_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            {ru : rightunitor_data T I}
            {ruinv : rightunitorinv_data T I}
@@ -274,7 +274,7 @@ Definition rightunitorlaw_iso_law
 
 Definition associator_nat_leftwhisker
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
   : UU
   := ∏ (x y z z' : C) (h : C⟦z,z'⟧),
@@ -284,7 +284,7 @@ Definition associator_nat_leftwhisker
 
 Definition associator_nat_rightwhisker
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
   : UU
   := ∏ (x x' y z : C) (f : C⟦x,x'⟧),
@@ -294,7 +294,7 @@ Definition associator_nat_rightwhisker
 
 Definition associator_nat_leftrightwhisker
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
   : UU
   := ∏ (x y y' z : C) (g : C⟦y,y'⟧),
@@ -302,69 +302,9 @@ Definition associator_nat_leftrightwhisker
      =
      ((x ⊗^{ T}_{l} g) ⊗^{ T}_{r} z) · (α x y' z).
 
-Lemma associator_nat1
-      {C : category}
-      {T : tensor C}
-      {α : associator_data T}
-      (αnl : associator_nat_leftwhisker α)
-      (αnr : associator_nat_rightwhisker α)
-      (αnlr : associator_nat_leftrightwhisker α)
-      {x x' y y' z z' : C}
-      (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧)
-  : (α x y z)
-    · ((f ⊗^{ T}_{r} (y ⊗_{ T} z))
-    · (x' ⊗^{ T}_{l} ((g ⊗^{ T}_{r} z) · (y' ⊗^{ T}_{l} h))))
-    =
-    (((f ⊗^{ T}_{r} y)
-    · (x' ⊗^{ T}_{l} g))  ⊗^{ T}_{r} z)
-      · ((x' ⊗_{ T} y') ⊗^{ T}_{l} h) · (α x' y' z').
-Proof.
-  rewrite assoc.
-  rewrite αnr.
-  rewrite assoc'.
-  etrans. {
-    apply cancel_precomposition.
-    rewrite (bifunctor_leftcomp T).
-    rewrite assoc.
-    rewrite αnlr.
-    apply idpath.
-  }
-
-  etrans. {
-    apply cancel_precomposition.
-    rewrite assoc'.
-    apply cancel_precomposition.
-    apply αnl.
-  }
-  rewrite assoc.
-  rewrite assoc.
-  apply cancel_postcomposition.
-  apply pathsinv0.
-  rewrite bifunctor_rightcomp.
-  apply idpath.
-Qed.
-
-Lemma associator_nat2
-      {C : category}
-      {T : tensor C}
-      {α : associator_data T}
-      (αnl : associator_nat_leftwhisker α)
-      (αnr : associator_nat_rightwhisker α)
-      (αnlr : associator_nat_leftrightwhisker α)
-      {x x' y y' z z' : C} (f : C⟦x,x'⟧)
-      (g : C⟦y,y'⟧) (h : C⟦z,z'⟧)
-  : (α x y z) · (f ⊗^{T} (g ⊗^{T} h))
-    =
-    ((f ⊗^{T} g) ⊗^{T} h) · (α x' y' z').
-Proof.
-  intros.
-  unfold functoronmorphisms1.
-  exact (associator_nat1 αnl αnr αnlr f g h).
-Qed.
-
 Definition associator_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
            (αinv : associatorinv_data T)
   : UU
@@ -372,7 +312,7 @@ Definition associator_iso_law
 
 Definition associator_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
            (αinv : associatorinv_data T)
   : UU
@@ -381,7 +321,7 @@ Definition associator_law
 
 Definition associatorlaw_natleft
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {α : associator_data T}
            {αinv : associatorinv_data T}
            (αl : associator_law α αinv)
@@ -390,7 +330,7 @@ Definition associatorlaw_natleft
 
 Definition associatorlaw_natright
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {α : associator_data T}
            {αinv : associatorinv_data T}
            (αl : associator_law α αinv)
@@ -399,7 +339,7 @@ Definition associatorlaw_natright
 
 Definition associatorlaw_natleftright
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {α : associator_data T}
            {αinv : associatorinv_data T}
            (αl : associator_law α αinv)
@@ -408,7 +348,7 @@ Definition associatorlaw_natleftright
 
 Definition associatorlaw_iso_law
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {α : associator_data T}
            {αinv : associatorinv_data T}
            (αl : associator_law α αinv)
@@ -417,7 +357,7 @@ Definition associatorlaw_iso_law
 
 Definition triangle_identity
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
            (ru : rightunitor_data T I)
@@ -428,7 +368,7 @@ Definition triangle_identity
 (** more triangle laws that are redundant in the axiomatisation *)
 Definition triangle_identity'
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (lu : leftunitor_data T I)
            (α : associator_data T)
@@ -437,7 +377,7 @@ Definition triangle_identity'
 
 Definition triangle_identity''
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            {I : C}
            (ru : rightunitor_data T I)
            (α : associator_data T)
@@ -446,7 +386,7 @@ Definition triangle_identity''
 
 Definition pentagon_identity
            {C : category}
-           {T : tensor C}
+           {T : tensor_data C}
            (α : associator_data T)
   : UU
   := ∏ (w x y z : C),
@@ -458,7 +398,8 @@ Definition monoidal_laws
            {C : category}
            (MD : monoidal_data C)
   : UU
-  := (leftunitor_law lu_{MD} luinv_{MD})
+  := is_bifunctor MD
+     × (leftunitor_law lu_{MD} luinv_{MD})
      × (rightunitor_law ru_{MD} ruinv_{MD})
      × (associator_law α_{MD} αinv_{MD})
      × (triangle_identity lu_{MD} ru_{MD} α_{MD})
@@ -472,11 +413,23 @@ Coercion monoidal_mondata : monoidal >-> monoidal_data.
 
 Definition monoidal_monlaws {C : category} (M : monoidal C) : monoidal_laws M := pr2 M.
 
+Definition monoidal_tensor_is_bifunctor
+           {C : category}
+           (M : monoidal C)
+  : is_bifunctor M
+  := pr12 M.
+
+Coercion monoidal_tensor
+         {C : category}
+         (M : monoidal C)
+  : bifunctor C C C
+  := _ ,, monoidal_tensor_is_bifunctor M.
+
 Definition monoidal_leftunitorlaw
            {C : category}
            (M : monoidal C)
   : leftunitor_law lu_{M} luinv_{M}
-  := pr1 (monoidal_monlaws M).
+  := pr12 (monoidal_monlaws M).
 
 Definition monoidal_leftunitornat
            {C : category}
@@ -507,7 +460,7 @@ Definition monoidal_rightunitorlaw
            {C : category}
            (M : monoidal C)
   : rightunitor_law ru_{M} ruinv_{M}
-  := pr12 (monoidal_monlaws M).
+  := pr122 (monoidal_monlaws M).
 
 Definition monoidal_rightunitornat
            {C : category}
@@ -538,7 +491,7 @@ Definition monoidal_associatorlaw
            {C : category}
            (M : monoidal C)
   : associator_law α_{M} αinv_{M}
-  := pr122 (monoidal_monlaws M).
+  := pr1 (pr222 (monoidal_monlaws M)).
 
 Definition monoidal_associatornatleft
            {C : category}
@@ -564,17 +517,69 @@ Definition monoidal_associatorisolaw
   : associator_iso_law α_{M} αinv_{M}
   := associatorlaw_iso_law (monoidal_associatorlaw M).
 
+Lemma associator_nat1
+      {C : category}
+      (M : monoidal C)
+      {x x' y y' z z' : C}
+      (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧)
+  : (monoidal_associatordata M x y z)
+    · ((f ⊗^{M}_{r} (y ⊗_{M} z))
+    · (x' ⊗^{M}_{l} ((g ⊗^{M}_{r} z) · (y' ⊗^{M}_{l} h))))
+    =
+    (((f ⊗^{M}_{r} y)
+    · (x' ⊗^{M}_{l} g))  ⊗^{M}_{r} z)
+      · ((x' ⊗_{M} y') ⊗^{M}_{l} h) · (monoidal_associatordata M x' y' z').
+Proof.
+  rewrite assoc.
+  rewrite (monoidal_associatornatright M).
+  rewrite assoc'.
+  etrans. {
+    apply cancel_precomposition.
+    rewrite (bifunctor_leftcomp M).
+    rewrite assoc.
+    rewrite (monoidal_associatornatleftright M).
+    apply idpath.
+  }
+
+  etrans. {
+    apply cancel_precomposition.
+    rewrite assoc'.
+    apply cancel_precomposition.
+    apply (monoidal_associatornatleft M).
+  }
+  rewrite assoc.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  rewrite (bifunctor_rightcomp M).
+  apply idpath.
+Qed.
+
+Lemma associator_nat2
+      {C : category}
+      (M : monoidal C)
+      {x x' y y' z z' : C} (f : C⟦x,x'⟧)
+      (g : C⟦y,y'⟧) (h : C⟦z,z'⟧)
+  : (monoidal_associatordata M x y z) · (f ⊗^{M} (g ⊗^{M} h))
+    =
+    ((f ⊗^{M} g) ⊗^{M} h) · (monoidal_associatordata M x' y' z').
+Proof.
+  intros.
+  unfold functoronmorphisms1.
+  exact (associator_nat1 M f g h).
+Qed.
+
 Definition monoidal_triangleidentity
            {C : category}
            (M : monoidal C)
   : triangle_identity lu_{M} ru_{M} α_{M}
-  := pr1 (pr222 (monoidal_monlaws M)).
+  := pr12 (pr222 (monoidal_monlaws M)).
 
 Definition monoidal_pentagonidentity
            {C : category}
            (M : monoidal C)
   : pentagon_identity α_{M}
-  := pr2 (pr222 (monoidal_monlaws M)).
+  := pr22 (pr222 (monoidal_monlaws M)).
 
 Lemma isaprop_monoidal_laws {C : category} (M : monoidal_data C)
   : isaprop (monoidal_laws M).
@@ -602,7 +607,9 @@ Proof.
 Qed.
 
 Lemma leftunitor_nat_z_iso {C : category} (M : monoidal C)
-  : nat_z_iso (leftwhiskering_functor M I_{M}) (functor_identity C).
+  : nat_z_iso
+      (leftwhiskering_functor M I_{M})
+      (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.
@@ -613,7 +620,9 @@ Proof.
 Defined.
 
 Definition rightunitor_nat_z_iso {C : category} (M : monoidal C)
-  : nat_z_iso (rightwhiskering_functor M I_{M}) (functor_identity C).
+  : nat_z_iso
+      (rightwhiskering_functor M I_{M})
+      (functor_identity C).
 Proof.
   use make_nat_z_iso.
   - use make_nat_trans.
@@ -695,9 +704,6 @@ Proof.
   unfold make_is_z_isomorphism.
   unfold pr1.
   apply associator_nat1.
-  - exact (monoidal_associatornatleft M).
-  - exact (monoidal_associatornatright M).
-  - exact (monoidal_associatornatleftright M).
 Qed.
 
 Lemma monoidal_associatorinv_nat2
@@ -727,7 +733,6 @@ Proof.
   set (luixy := functor_on_z_iso (leftwhiskering_functor M x) luiy).
   set (ruix := make_z_iso _ _ (monoidal_rightunitorisolaw M x)).
   set (ruixy := functor_on_z_iso (rightwhiskering_functor M y) ruix).
-
   apply pathsinv0.
   apply (z_iso_inv_on_right _ _ _ ruixy).
   apply (z_iso_inv_on_left _ _ _ _ luixy).
@@ -743,12 +748,12 @@ Lemma monoidal_triangle_identity_inv_alt
 Proof.
   transparent assert (auxiso1 : (z_iso (x ⊗_{ M} y) (x ⊗_{ M} (I_{ M} ⊗_{ M} y)))).
   { exists (x ⊗^{M}_{l} (luinv_{M} y)).
-    apply is_z_iso_leftwhiskering_z_iso.
+    apply (is_z_iso_leftwhiskering_z_iso M).
     exists (lu_{ M} y).
     split; apply monoidal_leftunitorisolaw. }
   transparent assert (auxiso2 : (z_iso (x ⊗_{ M} y) ((x ⊗_{ M} I_{ M}) ⊗_{ M} y))).
   { exists (ruinv_{ M} x ⊗^{ M}_{r} y).
-    apply is_z_iso_rightwhiskering_z_iso.
+    apply (is_z_iso_rightwhiskering_z_iso M).
     exists (ru_{ M} x).
     split; apply monoidal_rightunitorisolaw. }
   apply pathsinv0, (z_iso_inv_on_left _ _ _ _ (z_iso_from_associator_iso M _ _ _)).
@@ -802,7 +807,7 @@ Proof.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     apply cancel_precomposition.
-    apply bifunctor_leftid.
+    apply (bifunctor_leftid M).
   }
   etrans. {
     apply cancel_postcomposition.
@@ -826,7 +831,7 @@ Proof.
     apply maponpaths.
     apply (pr2 (pr2 (z_iso_from_associator_iso M w x y))).
   }
-  apply bifunctor_rightid.
+  apply (bifunctor_rightid M).
 Qed.
 
 End A.
@@ -886,6 +891,16 @@ Section OppositeMonoidal.
   Definition monoidal_opp_laws : monoidal_laws monoidal_opp_data.
   Proof.
     repeat split.
+    - intro ; intros.
+      apply (bifunctor_leftid M).
+    - intro ; intros.
+      apply (bifunctor_rightid M).
+    - intro ; intros.
+      apply (bifunctor_leftcomp M).
+    - intro ; intros.
+      apply (bifunctor_rightcomp M).
+    - intro ; intros.
+      exact (!(bifunctor_equalwhiskers M _ _ _ _ f g)).
     - intro ; intros ; apply monoidal_leftunitorinvnat.
     - apply (monoidal_leftunitorisolaw M).
     - apply (monoidal_leftunitorisolaw M).
@@ -918,7 +933,7 @@ Section EquivalenceFromTensorWithUnit.
   Definition ladjunction_data_from_tensor_with_unit
     : adjunction_data C C.
   Proof.
-    exists (leftwhiskering_functor (monoidal_tensor M) I_{M}).
+    exists (leftwhiskering_functor M I_{M}).
     exists (functor_identity C).
     use tpair.
     - apply (nat_z_iso_inv (leftunitor_nat_z_iso M)).
@@ -937,7 +952,7 @@ Section EquivalenceFromTensorWithUnit.
   Definition radjunction_data_from_tensor_with_unit
     : adjunction_data C C.
   Proof.
-    exists (rightwhiskering_functor (monoidal_tensor M) I_{M}).
+    exists (rightwhiskering_functor M I_{M}).
     exists (functor_identity C).
     use tpair.
     - apply (nat_z_iso_inv (rightunitor_nat_z_iso M)).
@@ -954,27 +969,27 @@ Section EquivalenceFromTensorWithUnit.
   Defined.
 
   Lemma leftwhiskering_fullyfaithful
-    : fully_faithful (leftwhiskering_functor (monoidal_tensor M) I_{M}).
+    : fully_faithful (leftwhiskering_functor M I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
     exact (adjointificiation lequivalence_from_tensor_with_unit).
   Defined.
 
   Lemma rightwhiskering_fullyfaithful
-    : fully_faithful (rightwhiskering_functor (monoidal_tensor M) I_{M}).
+    : fully_faithful (rightwhiskering_functor M I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
     exact (adjointificiation requivalence_from_tensor_with_unit).
   Defined.
 
   Lemma leftwhiskering_faithful
-    : faithful (leftwhiskering_functor (monoidal_tensor M) I_{M}).
+    : faithful (leftwhiskering_functor M I_{M}).
   Proof.
     exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ leftwhiskering_fullyfaithful)).
   Defined.
 
   Lemma rightwhiskering_faithful
-    : faithful (rightwhiskering_functor (monoidal_tensor M) I_{M}).
+    : faithful (rightwhiskering_functor M I_{M}).
   Proof.
     exact (pr2 (fully_faithful_implies_full_and_faithful _ _ _ rightwhiskering_fullyfaithful)).
   Defined.
@@ -992,7 +1007,7 @@ Section UnitorsCoincide.
     ((α_{M} I_{M} I_{M} x) ⊗^{M}_{r} y) · ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) =
     (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
   Proof.
-    refine (! bifunctor_rightcomp _ _ _ _ _ _ _ @ _).
+    refine (! bifunctor_rightcomp M _ _ _ _ _ _ @ _).
     apply maponpaths.
     apply (monoidal_triangleidentity M I_{M} x).
   Qed.
@@ -1084,7 +1099,7 @@ Section UnitorsCoincide.
     3: { apply leftwhiskering_faithful. }
     apply pathsinv0.
     refine (right_whisker_with_lunitor' _ _ @ _).
-    apply bifunctor_leftcomp.
+    apply (bifunctor_leftcomp (monoidal_tensor M)).
   Qed.
 
   Definition monoidal_triangleidentity' := right_whisker_with_lunitor.
@@ -1178,7 +1193,7 @@ Section MonoidalSwapped.
   Import MonoidalNotations.
 
   Definition tensor_swapped {V : category} (Mon_V : monoidal V)
-    : tensor V.
+    : tensor_data V.
   Proof.
     repeat (use tpair).
     - intros v w.
@@ -1187,11 +1202,6 @@ Section MonoidalSwapped.
       exact (f ⊗^{Mon_V}_{r} v).
     - intros v w1 w2 f.
       exact (v ⊗^{Mon_V}_{l} f).
-    - intro ; intro ; apply bifunctor_rightid.
-    - intro ; intro ; apply bifunctor_leftid.
-    - intro ; intros ; apply bifunctor_rightcomp.
-    - intro ; intros ; apply bifunctor_leftcomp.
-    - intro ; intros ; apply (! bifunctor_equalwhiskers _ _ _ _ _ _ _).
   Defined.
 
   Definition monoidal_swapped_data {V : category} (Mon_V : monoidal V)
@@ -1211,6 +1221,11 @@ Section MonoidalSwapped.
     : monoidal_laws (monoidal_swapped_data Mon_V).
   Proof.
     repeat split.
+    - intro ; intro ; apply (bifunctor_rightid Mon_V).
+    - intro ; intro ; apply (bifunctor_leftid Mon_V).
+    - intro ; intros ; apply (bifunctor_rightcomp Mon_V).
+    - intro ; intros ; apply (bifunctor_leftcomp Mon_V).
+    - intro ; intros ; apply (! bifunctor_equalwhiskers Mon_V _ _ _ _ _ _).
     - intro ; intros ; apply monoidal_rightunitornat.
     - apply monoidal_rightunitorisolaw.
     - apply monoidal_rightunitorisolaw.
@@ -1312,8 +1327,8 @@ Section MonoidalCatAccessors.
     : identity x #⊗ identity y = identity (x ⊗ y).
   Proof.
     apply bifunctor_distributes_over_id.
-    - apply bifunctor_leftid.
-    - apply bifunctor_rightid.
+    - apply (bifunctor_leftid V).
+    - apply (bifunctor_rightid V).
   Qed.
 
   Definition tensor_comp_mor
@@ -1323,9 +1338,9 @@ Section MonoidalCatAccessors.
     : (f · f') #⊗ (g · g') = f #⊗ g · f' #⊗ g'.
   Proof.
     use bifunctor_distributes_over_comp.
-    - apply bifunctor_leftcomp.
-    - apply bifunctor_rightcomp.
-    - apply bifunctor_equalwhiskers.
+    - apply (bifunctor_leftcomp V).
+    - apply (bifunctor_rightcomp V).
+    - apply (bifunctor_equalwhiskers V).
   Qed.
 
   Definition tensor_comp_id_l
@@ -1452,7 +1467,7 @@ Section MonoidalCatAccessors.
     unfold functoronmorphisms1.
     refine (_ @ id_left _).
     apply maponpaths_2.
-    apply bifunctor_rightid.
+    apply (bifunctor_rightid V).
   Qed.
 
   Definition mon_linvunitor
@@ -1474,7 +1489,7 @@ Section MonoidalCatAccessors.
     refine (!(id_left _) @ _).
     apply maponpaths_2.
     refine (!_).
-    apply bifunctor_rightid.
+    apply (bifunctor_rightid V).
   Qed.
 
   Definition mon_lunitor_linvunitor
@@ -1509,7 +1524,7 @@ Section MonoidalCatAccessors.
     unfold functoronmorphisms1.
     refine (_ @ id_right _).
     apply maponpaths.
-    apply bifunctor_leftid.
+    apply (bifunctor_leftid V).
   Qed.
 
   Definition mon_rinvunitor
@@ -1531,7 +1546,7 @@ Section MonoidalCatAccessors.
     refine (!(id_right _) @ _).
     apply maponpaths.
     refine (!_).
-    apply bifunctor_leftid.
+    apply (bifunctor_leftid V).
   Qed.
 
   Definition mon_runitor_rinvunitor
@@ -1606,14 +1621,14 @@ Section MonoidalCatAccessors.
       unfold functoronmorphisms1.
       refine (_ @ id_right _).
       apply maponpaths.
-      apply bifunctor_leftid.
+      apply (bifunctor_leftid V).
     - apply maponpaths.
       unfold monoidal_cat_tensor_mor.
       unfold functoronmorphisms1.
       refine (!(id_left _) @ _).
       apply maponpaths_2.
       refine (!_).
-      apply bifunctor_rightid.
+      apply (bifunctor_rightid V).
   Qed.
 
   Definition mon_inv_triangle
@@ -1637,7 +1652,7 @@ Section MonoidalCatAccessors.
     refine (!(id_right _) @ _).
     apply maponpaths.
     refine (!_).
-    apply bifunctor_leftid.
+    apply (bifunctor_leftid V).
   Qed.
 
   Definition mon_linvunitor_triangle

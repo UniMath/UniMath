@@ -48,7 +48,7 @@ Proof.
   unfold functoronmorphisms1.
   rewrite assoc'.
   apply maponpaths.
-  apply pathsinv0, bifunctor_leftcomp.
+  apply pathsinv0, (bifunctor_leftcomp Mon_V).
 Qed.
 
 Lemma monoidal_pointed_objects_disp_tensor_data_aux2 (v v' w : V) (f : V ⟦ v, v' ⟧)
@@ -59,11 +59,11 @@ Proof.
   rewrite assoc'.
   apply maponpaths.
   rewrite <- Hypf.
-  do 2 rewrite bifunctor_equalwhiskers.
+  do 2 rewrite (bifunctor_equalwhiskers Mon_V).
   unfold functoronmorphisms2.
   rewrite assoc'.
   apply maponpaths.
-  apply pathsinv0, bifunctor_rightcomp.
+  apply pathsinv0, (bifunctor_rightcomp Mon_V).
 Qed.
 
 Definition monoidal_pointed_objects_disp_tensor_data
@@ -97,7 +97,7 @@ Proof.
   split6.
   - intros v pv. cbn.
     unfold functoronmorphisms1.
-    rewrite bifunctor_rightid.
+    rewrite (bifunctor_rightid Mon_V).
     rewrite id_left.
     rewrite assoc'.
     rewrite monoidal_leftunitornat.
@@ -105,7 +105,7 @@ Proof.
     rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
     apply id_left.
   - intros v pv. cbn.
-    rewrite bifunctor_equalwhiskers.
+    rewrite (bifunctor_equalwhiskers Mon_V).
     unfold functoronmorphisms2.
     rewrite bifunctor_rightid.
     rewrite id_right.
@@ -113,7 +113,7 @@ Proof.
     apply idpath.
   - intros v pv. cbn.
     unfold functoronmorphisms1.
-    rewrite bifunctor_leftid.
+    rewrite (bifunctor_leftid Mon_V).
     rewrite id_right.
     rewrite assoc'.
     rewrite monoidal_rightunitornat.
@@ -123,7 +123,7 @@ Proof.
     apply id_left.
   - intros v pv. cbn.
     unfold functoronmorphisms1.
-    rewrite bifunctor_leftid.
+    rewrite (bifunctor_leftid Mon_V).
     rewrite id_right.
     rewrite <- monoidal_rightunitorinvnat.
     apply cancel_postcomposition.
@@ -133,15 +133,15 @@ Proof.
     rewrite assoc'.
     apply maponpaths.
     unfold functoronmorphisms1.
-    repeat rewrite bifunctor_rightcomp.
-    repeat rewrite bifunctor_leftcomp.
-    repeat rewrite assoc'.
+    rewrite !(bifunctor_rightcomp Mon_V).
+    rewrite !(bifunctor_leftcomp Mon_V).
+    rewrite !assoc'.
     rewrite <- monoidal_associatornatleft.
-    repeat rewrite assoc.
+    rewrite !assoc.
     apply cancel_postcomposition.
-    repeat rewrite assoc'.
-    rewrite <- monoidal_associatornatleftright.
-    repeat rewrite assoc.
+    rewrite !assoc'.
+    rewrite <- (monoidal_associatornatleftright Mon_V).
+    rewrite !assoc.
     apply cancel_postcomposition.
     apply (z_iso_inv_to_right _ _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
     cbn.
@@ -149,32 +149,32 @@ Proof.
     2: { rewrite assoc'.
          apply maponpaths.
          apply pathsinv0, monoidal_triangle_identity_inv. }
-    repeat rewrite <- bifunctor_rightcomp.
+    rewrite <- !(bifunctor_rightcomp Mon_V).
     apply maponpaths.
     rewrite unitorsinv_coincide_on_unit.
     apply monoidal_rightunitorinvnat.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
     apply maponpaths.
-    repeat rewrite bifunctor_equalwhiskers.
+    rewrite !(bifunctor_equalwhiskers Mon_V).
     unfold functoronmorphisms2.
-    repeat rewrite bifunctor_rightcomp.
-    repeat rewrite bifunctor_leftcomp.
-    repeat rewrite assoc'.
-    rewrite monoidal_associatorinvnatright.
-    repeat rewrite assoc.
+    rewrite !(bifunctor_rightcomp Mon_V).
+    rewrite !(bifunctor_leftcomp Mon_V).
+    rewrite !assoc'.
+    rewrite (monoidal_associatorinvnatright Mon_V).
+    rewrite !assoc.
     apply cancel_postcomposition.
-    repeat rewrite assoc'.
-    rewrite monoidal_associatorinvnatleftright.
-    repeat rewrite assoc.
+    rewrite !assoc'.
+    rewrite (monoidal_associatorinvnatleftright Mon_V).
+    rewrite !assoc.
     apply cancel_postcomposition.
     etrans.
     2: { rewrite unitorsinv_coincide_on_unit.
          apply maponpaths.
          apply monoidal_triangle_identity_inv. }
-    repeat rewrite assoc.
+    rewrite assoc.
     apply cancel_postcomposition.
-    repeat rewrite <- bifunctor_leftcomp.
+    rewrite <- !(bifunctor_leftcomp Mon_V).
     apply maponpaths.
     apply monoidal_leftunitorinvnat.
 Qed.
@@ -212,11 +212,11 @@ Proof.
   - rewrite id_left; apply id_right.
   - rewrite id_left; apply id_right.
   - do 2 rewrite id_right. cbn.
-    rewrite bifunctor_leftid.
-    rewrite bifunctor_rightid.
+    rewrite (bifunctor_leftid Mon_V).
+    rewrite (bifunctor_rightid Mon_V).
     rewrite id_right; apply id_left.
-  - cbn. rewrite bifunctor_rightid. rewrite id_left. apply id_left.
-  - cbn. rewrite bifunctor_leftid. rewrite id_left. apply id_left.
+  - cbn. rewrite (bifunctor_rightid Mon_V). rewrite id_left. apply id_left.
+  - cbn. rewrite (bifunctor_leftid Mon_V). rewrite id_left. apply id_left.
 Qed.
 
 Definition forget_monoidal_pointed_objects_lax_monoidal
@@ -418,16 +418,16 @@ Section PointedObjectFixpointMonoidal.
     repeat split ; (intro ; intros ; use total2_paths_f ; [ cbn | apply homset_property ]).
     - rewrite id_left ; apply id_right.
     - rewrite id_left ; apply id_right.
-    - rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+    - rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       rewrite ! id_left.
       rewrite ! id_right.
       apply idpath.
     - rewrite id_right.
-      rewrite bifunctor_rightid.
+      rewrite (bifunctor_rightid Mon_V).
       apply id_left.
     - rewrite id_right.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_leftid Mon_V).
       apply id_left.
   Qed.
 
@@ -439,18 +439,18 @@ Section PointedObjectFixpointMonoidal.
     - apply homset_property.
     - rewrite id_left ; apply id_right.
     - apply homset_property.
-    - rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+    - rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       rewrite ! id_left.
       rewrite ! id_right.
       apply idpath.
     - apply homset_property.
     - rewrite id_right.
-      rewrite bifunctor_rightid.
+      rewrite (bifunctor_rightid Mon_V).
       apply id_left.
     - apply homset_property.
     - rewrite id_right.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_leftid Mon_V).
       apply id_left.
     - apply homset_property.
   Qed.

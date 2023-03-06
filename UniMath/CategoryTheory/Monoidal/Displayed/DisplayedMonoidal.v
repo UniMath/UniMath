@@ -411,9 +411,7 @@ Section DisplayedMonoidalCategories.
        transportb
          _
          (associator_nat2
-            (associatorlaw_natleft (monoidal_associatorlaw M))
-            (associatorlaw_natright (monoidal_associatorlaw M))
-            (associatorlaw_natleftright (monoidal_associatorlaw M))
+            M
             f g h)
          (((ff ⊗⊗^{DT} gg) ⊗⊗^{DT} hh) ;; dα _ _ _ xx2 yy2 zz2).
   Proof.

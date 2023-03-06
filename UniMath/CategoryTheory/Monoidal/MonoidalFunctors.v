@@ -679,7 +679,7 @@ Section MonoidalFunctors.
   Proof.
     intro x.
     unfold functoronmorphisms1.
-    rewrite bifunctor_leftid.
+    rewrite (bifunctor_leftid N).
     rewrite id_right.
     apply plu.
   Qed.
@@ -698,7 +698,7 @@ Section MonoidalFunctors.
   Proof.
     intro x.
     unfold functoronmorphisms1.
-    rewrite bifunctor_rightid.
+    rewrite (bifunctor_rightid N).
     rewrite id_left.
     apply pru.
   Qed.
@@ -725,9 +725,9 @@ Section MonoidalFunctors.
       rewrite assoc'.
       apply maponpaths.
       unfold functoronmorphisms1.
-      do 2 rewrite bifunctor_leftid.
+      do 2 rewrite (bifunctor_leftid N).
       do 2 rewrite id_right.
-      rewrite <- bifunctor_rightcomp.
+      rewrite <- (bifunctor_rightcomp N).
       apply maponpaths.
       apply (fmonoidal_preservesunitstrongly Fm).
     }
@@ -809,16 +809,16 @@ Section MonoidalFunctors.
     - rewrite id_left. apply id_right.
     - rewrite id_left. apply id_right.
     - do 2 rewrite id_right.
-      rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_rightid M).
+      rewrite (bifunctor_leftid M).
       rewrite id_right.
       apply id_left.
-    -  rewrite id_right.
-       rewrite bifunctor_rightid.
-       apply id_left.
     - rewrite id_right.
-       rewrite bifunctor_leftid.
-       apply id_left.
+      rewrite (bifunctor_rightid M).
+      apply id_left.
+    - rewrite id_right.
+      rewrite (bifunctor_leftid M).
+      apply id_left.
   Qed.
 
   Definition identity_fmonoidal_lax
@@ -891,8 +891,8 @@ Section MonoidalFunctors.
       unfold fmonoidal_preservestensordata in auxF.
       assert (auxG := fmonoidal_preservesassociativity Gm (F x) (F y) (F z)).
       unfold fmonoidal_preservestensordata in auxG.
-      rewrite bifunctor_leftcomp.
-      rewrite bifunctor_rightcomp.
+      rewrite (bifunctor_leftcomp O).
+      rewrite (bifunctor_rightcomp O).
       etrans.
       2: { repeat rewrite assoc. apply cancel_postcomposition.
            repeat rewrite assoc'. do 2 apply maponpaths.
@@ -919,7 +919,7 @@ Section MonoidalFunctors.
       unfold fmonoidal_preservesunit, fmonoidal_preservestensordata in auxF, auxG.
       etrans; [| exact auxG].
       clear auxG.
-      rewrite bifunctor_rightcomp.
+      rewrite (bifunctor_rightcomp O).
       rewrite <- auxF.
       clear auxF.
       do 2 rewrite functor_comp.
@@ -933,7 +933,7 @@ Section MonoidalFunctors.
       unfold fmonoidal_preservesunit, fmonoidal_preservestensordata in auxF, auxG.
       etrans; [| exact auxG].
       clear auxG.
-      rewrite bifunctor_leftcomp.
+      rewrite (bifunctor_leftcomp O).
       rewrite <- auxF.
       clear auxF.
       do 2 rewrite functor_comp.
@@ -1123,7 +1123,7 @@ Section InverseMonoidalNaturalTransformation.
     - intros x y.
       cbn.
       unfold fmonoidal_preservestensordata.
-      set (aux := (_,, is_z_iso_bifunctor_z_iso (monoidal_tensor N) _ _ (isnziα x) (isnziα y)) : z_iso _ _).
+      set (aux := (_,, is_z_iso_bifunctor_z_iso N _ _ (isnziα x) (isnziα y)) : z_iso _ _).
       apply pathsinv0, (z_iso_inv_on_right _ _ _ aux).
       rewrite assoc.
       apply (z_iso_inv_on_left _ _ _ _ (_,,isnziα (x ⊗_{ M} y))).

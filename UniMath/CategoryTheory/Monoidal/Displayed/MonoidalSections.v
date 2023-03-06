@@ -154,7 +154,7 @@ Section MonoidalSections.
       lu^{ M }_{ x}.
   Proof.
     rewrite assoc'.
-    rewrite bifunctor_rightid.
+    rewrite (bifunctor_rightid M).
     rewrite id_left.
     apply id_left.
   Qed.
@@ -185,7 +185,7 @@ Section MonoidalSections.
     use total2_paths_b.
     - cbn.
       rewrite assoc'.
-      rewrite bifunctor_rightid.
+      rewrite (bifunctor_rightid M).
       rewrite id_left.
       apply id_left.
     - cbn.
@@ -204,7 +204,7 @@ Section MonoidalSections.
       ru^{ M }_{ x}.
   Proof.
     rewrite assoc'.
-    rewrite bifunctor_leftid.
+    rewrite (bifunctor_leftid M).
     rewrite id_left.
     apply id_left.
   Qed.
@@ -235,7 +235,7 @@ Section MonoidalSections.
     use total2_paths_b.
     - cbn.
       rewrite assoc'.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_leftid M).
       rewrite id_left.
       apply id_left.
     - cbn.
@@ -255,11 +255,11 @@ Section MonoidalSections.
       α^{ M }_{ x, y, z} · x ⊗^{ M}_{l} identity (y ⊗_{ M} z) · identity (x ⊗_{ M} (y ⊗_{ M} z)).
   Proof.
     rewrite assoc'.
-    rewrite bifunctor_leftid.
+    rewrite (bifunctor_leftid M).
     rewrite id_left.
     rewrite id_right.
     rewrite id_right.
-    rewrite bifunctor_rightid.
+    rewrite (bifunctor_rightid M).
     apply id_left.
   Qed.
 
@@ -285,11 +285,11 @@ Section MonoidalSections.
     use total2_paths_b.
     - cbn.
       rewrite assoc'.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_leftid M).
       rewrite id_right.
       rewrite id_right.
       rewrite id_left.
-      rewrite bifunctor_rightid.
+      rewrite (bifunctor_rightid M).
       apply id_left.
     - cbn.
       rewrite spa.

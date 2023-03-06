@@ -110,8 +110,8 @@ Section Category_of_Monoids.
     - refine (_ @ ! id_right _).
       etrans. {
         apply maponpaths_2, bifunctor_distributes_over_id.
-        apply bifunctor_leftid.
-        apply bifunctor_rightid.
+        apply (bifunctor_leftid M).
+        apply (bifunctor_rightid M).
       }
       apply id_left.
     - apply id_right.
@@ -127,9 +127,9 @@ Section Category_of_Monoids.
     - etrans. {
         apply maponpaths_2.
         apply bifunctor_distributes_over_comp.
-        apply bifunctor_leftcomp.
-        apply bifunctor_rightcomp.
-        apply bifunctor_equalwhiskers.
+        apply (bifunctor_leftcomp M).
+        apply (bifunctor_rightcomp M).
+        apply (bifunctor_equalwhiskers M).
       }
       etrans.
       1: apply assoc'.

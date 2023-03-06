@@ -77,11 +77,11 @@ Section FixTwoMonoidalFunctors.
     repeat rewrite assoc.
     apply cancel_postcomposition.
     etrans.
-    { rewrite bifunctor_equalwhiskers. unfold functoronmorphisms2.
+    { rewrite (bifunctor_equalwhiskers W). unfold functoronmorphisms2.
       repeat rewrite assoc'.
       do 2 apply maponpaths.
-      apply bifunctor_equalwhiskers. }
-    rewrite bifunctor_equalwhiskers.
+      apply (bifunctor_equalwhiskers W). }
+    rewrite (bifunctor_equalwhiskers W).
     unfold functoronmorphisms2.
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -96,7 +96,7 @@ Section FixTwoMonoidalFunctors.
     clear aux.
     do 2 rewrite assoc'.
     apply maponpaths.
-    do 2 rewrite <- bifunctor_leftcomp.
+    do 2 rewrite <- (bifunctor_leftcomp W).
     apply maponpaths.
     exact Hyp'.
   Qed.
@@ -116,7 +116,7 @@ Section FixTwoMonoidalFunctors.
     { unfold functoronmorphisms1.
       repeat rewrite assoc'.
       do 2 apply maponpaths.
-      apply pathsinv0, bifunctor_equalwhiskers. }
+      apply pathsinv0, (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms1.
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -131,7 +131,7 @@ Section FixTwoMonoidalFunctors.
     clear aux.
     do 2 rewrite assoc'.
     apply maponpaths.
-    do 2 rewrite <- bifunctor_rightcomp.
+    do 2 rewrite <- (bifunctor_rightcomp W).
     apply maponpaths.
     exact Hyp.
   Qed.
@@ -163,7 +163,7 @@ Section FixTwoMonoidalFunctors.
   Proof.
     intros a f.
     cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
-    rewrite bifunctor_equalwhiskers. unfold functoronmorphisms2.
+    rewrite (bifunctor_equalwhiskers W). unfold functoronmorphisms2.
     rewrite bifunctor_rightcomp.
     set (aux1 := fmonoidal_preservesleftunitality Gm a).
     etrans.
@@ -176,7 +176,7 @@ Section FixTwoMonoidalFunctors.
     set (aux2 := fmonoidal_preservesleftunitality Fm a).
     etrans.
     { rewrite assoc. apply cancel_postcomposition.
-      apply pathsinv0, bifunctor_equalwhiskers. }
+      apply pathsinv0, (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms1.
     rewrite assoc'.
     etrans.
@@ -187,7 +187,7 @@ Section FixTwoMonoidalFunctors.
     rewrite <- aux2. clear aux2.
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    rewrite <- bifunctor_rightcomp.
+    rewrite <- (bifunctor_rightcomp W).
     etrans.
     { apply cancel_postcomposition.
       apply maponpaths.
@@ -203,7 +203,7 @@ Section FixTwoMonoidalFunctors.
     rewrite <- (fmonoidal_preservesleftunitalityinv Gm).
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    rewrite bifunctor_equalwhiskers.
+    rewrite (bifunctor_equalwhiskers W).
     unfold functoronmorphisms2.
     rewrite bifunctor_rightcomp.
     repeat rewrite assoc.
@@ -222,12 +222,12 @@ Section FixTwoMonoidalFunctors.
     rewrite assoc.
     etrans.
     2: { apply cancel_postcomposition.
-         apply pathsinv0, bifunctor_equalwhiskers. }
+         apply pathsinv0, (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms2.
     rewrite assoc'.
     etrans.
     2: { apply maponpaths.
-         rewrite <- bifunctor_rightcomp.
+         rewrite <- (bifunctor_rightcomp W).
          apply maponpaths.
          apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
     rewrite bifunctor_rightid.
@@ -239,7 +239,7 @@ Section FixTwoMonoidalFunctors.
     intros a f.
     cbn. unfold dialgebra_disp_unit, dialgebra_disp_tensor_op.
     unfold functoronmorphisms1.
-    rewrite bifunctor_leftcomp.
+    rewrite (bifunctor_leftcomp W).
     set (aux1 := fmonoidal_preservesrightunitality Gm a).
     etrans.
     { repeat rewrite assoc'. do 3 apply maponpaths.
@@ -251,7 +251,7 @@ Section FixTwoMonoidalFunctors.
     set (aux2 := fmonoidal_preservesrightunitality Fm a).
     etrans.
     { rewrite assoc. apply cancel_postcomposition.
-      apply bifunctor_equalwhiskers. }
+      apply (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms2.
     rewrite assoc'.
     etrans.
@@ -262,7 +262,7 @@ Section FixTwoMonoidalFunctors.
     rewrite <- aux2. clear aux2.
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    rewrite <- bifunctor_leftcomp.
+    rewrite <- (bifunctor_leftcomp W).
     etrans.
     { apply cancel_postcomposition.
       apply maponpaths.
@@ -279,7 +279,7 @@ Section FixTwoMonoidalFunctors.
     repeat rewrite assoc.
     apply cancel_postcomposition.
     unfold functoronmorphisms1.
-    rewrite bifunctor_leftcomp.
+    rewrite (bifunctor_leftcomp W).
     repeat rewrite assoc.
     apply cancel_postcomposition.
     rewrite <- (fmonoidal_preservesrightunitalityinv Fm).
@@ -296,12 +296,12 @@ Section FixTwoMonoidalFunctors.
     rewrite assoc.
     etrans.
     2: { apply cancel_postcomposition.
-         apply bifunctor_equalwhiskers. }
+         apply (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms1.
     rewrite assoc'.
     etrans.
     2: { apply maponpaths.
-         rewrite <- bifunctor_leftcomp.
+         rewrite <- (bifunctor_leftcomp W).
          apply maponpaths.
          apply pathsinv0, (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
     rewrite bifunctor_leftid.
@@ -313,7 +313,7 @@ Section FixTwoMonoidalFunctors.
     intros a1 a2 a3 f1 f2 f3.
     cbn. unfold dialgebra_disp_tensor_op.
     etrans.
-    { rewrite bifunctor_equalwhiskers.
+    { rewrite (bifunctor_equalwhiskers W).
       unfold functoronmorphisms2.
       rewrite bifunctor_rightcomp.
       repeat rewrite assoc'.
@@ -324,7 +324,7 @@ Section FixTwoMonoidalFunctors.
     apply cancel_postcomposition.
     etrans.
     2: { unfold functoronmorphisms1 at 1.
-         rewrite bifunctor_leftcomp.
+         rewrite (bifunctor_leftcomp W).
          apply idpath. }
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -345,16 +345,16 @@ Section FixTwoMonoidalFunctors.
     { exists (pr1 (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{ W}_{r} F a3).
       exists (fmonoidal_preservestensordata Fm a1 a2 ⊗^{ W}_{r} F a3).
       split.
-      - rewrite <- bifunctor_rightcomp.
+      - rewrite <- (bifunctor_rightcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
-        apply bifunctor_rightid.
-      - rewrite <- bifunctor_rightcomp.
+        apply (bifunctor_rightid W).
+      - rewrite <- (bifunctor_rightcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
-        apply bifunctor_rightid.
+        apply (bifunctor_rightid W).
     }
     apply pathsinv0, (z_iso_inv_to_left _ _ _ aux1).
     cbn.
@@ -371,8 +371,8 @@ Section FixTwoMonoidalFunctors.
       apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 _)). }
     rewrite id_right.
     etrans.
-    2: { rewrite assoc. apply cancel_postcomposition. apply bifunctor_equalwhiskers. }
-    etrans; [| apply (associator_nat2 (monoidal_associatornatleft _) (monoidal_associatornatright _) (monoidal_associatornatleftright _))].
+    2: { rewrite assoc. apply cancel_postcomposition. apply (bifunctor_equalwhiskers W). }
+    etrans; [| apply (associator_nat2 W)].
     repeat rewrite assoc'.
     apply maponpaths.
     unfold functoronmorphisms1 at 2.
@@ -382,21 +382,21 @@ Section FixTwoMonoidalFunctors.
     { exists (G a1 ⊗^{ W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
       exists (G a1 ⊗^{ W}_{l} fmonoidal_preservestensordata Fm a2 a3).
       split.
-      - rewrite <- bifunctor_leftcomp.
+      - rewrite <- (bifunctor_leftcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
-        apply bifunctor_leftid.
-      - rewrite <- bifunctor_leftcomp.
+        apply (bifunctor_leftid W).
+      - rewrite <- (bifunctor_leftcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
-        apply bifunctor_leftid.
+        apply (bifunctor_leftid W).
     }
     apply (z_iso_inv_to_right _ _ _ _ aux2).
     cbn.
     clear aux2.
-    apply pathsinv0, bifunctor_equalwhiskers.
+    apply pathsinv0, (bifunctor_equalwhiskers W).
   Qed.
 
   Lemma dialgebra_disp_associatorinv_data : disp_associatorinv_data dialgebra_disp_tensor.
@@ -405,7 +405,7 @@ Section FixTwoMonoidalFunctors.
     cbn. unfold dialgebra_disp_tensor_op.
     etrans.
     { unfold functoronmorphisms1 at 1.
-      rewrite bifunctor_leftcomp.
+      rewrite (bifunctor_leftcomp W).
       repeat rewrite assoc'.
       do 3 apply maponpaths.
       rewrite assoc.
@@ -413,7 +413,7 @@ Section FixTwoMonoidalFunctors.
     repeat rewrite assoc.
     apply cancel_postcomposition.
     etrans.
-    2: { rewrite bifunctor_equalwhiskers.
+    2: { rewrite (bifunctor_equalwhiskers W).
          unfold functoronmorphisms2.
          rewrite bifunctor_rightcomp.
          apply idpath. }
@@ -427,7 +427,7 @@ Section FixTwoMonoidalFunctors.
       apply cancel_postcomposition.
       rewrite assoc'.
       apply maponpaths.
-      apply bifunctor_equalwhiskers. }
+      apply (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms2 at 1.
     repeat rewrite assoc'.
     apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm _ _)).
@@ -436,16 +436,16 @@ Section FixTwoMonoidalFunctors.
     { exists (F a1 ⊗^{ W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
       exists (F a1 ⊗^{ W}_{l} fmonoidal_preservestensordata Fm a2 a3).
       split.
-      - rewrite <- bifunctor_leftcomp.
+      - rewrite <- (bifunctor_leftcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
-        apply bifunctor_leftid.
-      - rewrite <- bifunctor_leftcomp.
+        apply (bifunctor_leftid W).
+      - rewrite <- (bifunctor_leftcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
-        apply bifunctor_leftid.
+        apply (bifunctor_leftid W).
     }
     apply pathsinv0, (z_iso_inv_to_left _ _ _ aux1).
     cbn.
@@ -462,14 +462,14 @@ Section FixTwoMonoidalFunctors.
       apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm _ a3)). }
     rewrite id_right.
     etrans.
-    2: { rewrite assoc. apply cancel_postcomposition. apply pathsinv0, bifunctor_equalwhiskers. }
+    2: { rewrite assoc. apply cancel_postcomposition. apply pathsinv0, (bifunctor_equalwhiskers W). }
     rewrite <- bifunctor_equalwhiskers.
     etrans.
     2: { apply pathsinv0, (monoidal_associatorinv_nat2 W). }
     repeat rewrite assoc'.
     apply maponpaths.
     etrans.
-    2: { apply pathsinv0, bifunctor_equalwhiskers. }
+    2: { apply pathsinv0, (bifunctor_equalwhiskers W). }
     unfold functoronmorphisms2.
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -477,21 +477,21 @@ Section FixTwoMonoidalFunctors.
     { exists (pr1 (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{ W}_{r} G a3).
       exists (fmonoidal_preservestensordata Fm a1 a2 ⊗^{ W}_{r} G a3).
       split.
-      - rewrite <- bifunctor_rightcomp.
+      - rewrite <- (bifunctor_rightcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
-        apply bifunctor_rightid.
-      - rewrite <- bifunctor_rightcomp.
+        apply (bifunctor_rightid W).
+      - rewrite <- (bifunctor_rightcomp W).
         etrans.
         { apply maponpaths.
           apply (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
-        apply bifunctor_rightid.
+        apply (bifunctor_rightid W).
     }
     apply (z_iso_inv_to_right _ _ _ _ aux2).
     cbn.
     clear aux2.
-    apply bifunctor_equalwhiskers.
+    apply (bifunctor_equalwhiskers W).
   Qed.
 
   Definition dialgebra_disp_monoidal_data : disp_monoidal_data base_disp V.
