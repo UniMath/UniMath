@@ -6,7 +6,7 @@
  right adjoint. Depending on whether the monoidal category is symmetric or not,
  there are different variations of this definition. If the monoidal category is
  not symmetric, then there are two variations, namely left closed and right
- closed, and there difference is whether we look at an adjoint for tensoring with
+ closed, and their difference is whether we look at an adjoint for tensoring with
  an object on the left or on the right. For symmetric monoidal categories, these
  two definitions coincide.
 
