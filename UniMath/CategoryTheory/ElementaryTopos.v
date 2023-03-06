@@ -400,44 +400,44 @@ Let h {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) := PowerObject_transpose P ((z_iso_i
 Local Lemma h_sq {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) : f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
 Proof.
   use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (b ⨉ a,,c)))).
-    simpl. fold BinProd.
-    rewrite <-!BinProductOfArrows_idxcomp, !assoc'.
-    use (pathscomp0 (b := ((identity c) ⨱ f · KroneckerDelta c))).
+  simpl. fold BinProd.
+  rewrite <-!BinProductOfArrows_idxcomp, !assoc'.
+  use (pathscomp0 (b := ((identity c) ⨱ f · KroneckerDelta c))).
+  { use cancel_precomposition.
+    apply pathsinv0.
+    use PowerObject_transpose_tri. }
+  unfold v.
+  use pathsinv0.
+  use (pathscomp0(b:=
+    ((identity c) ⨱ ((identity b) ⨱ (h f)) ·
+    ((BinProduct_assoc BinProd c b (PowerObject_on_ob P c ⨉ b)) ·
+    PowerObject_inPred P c ⨉ b)))).
     { use cancel_precomposition.
-      apply pathsinv0.
-      use PowerObject_transpose_tri. }
-    unfold v.
-    use pathsinv0.
-    use (pathscomp0(b:=
-      ((identity c) ⨱ ((identity b) ⨱ (h f)) ·
-      ((BinProduct_assoc BinProd c b (PowerObject_on_ob P c ⨉ b)) ·
-      PowerObject_inPred P c ⨉ b)))).
-      { use cancel_precomposition.
-        use pathsinv0.
-        use (PowerObject_transpose_tri P). }
-    use (pathscomp0 (b := (
-      ((BinProduct_assoc BinProd c b a
-      ))·
-      ((identity c) ⨱ (identity b)) ⨱ (h f) ·
-      PowerObject_inPred P (BinProductObject C (BinProd c b))
-    ))).
-    { rewrite !assoc.
-      use cancel_postcomposition.
-      simpl.
-      use BinProduct_OfArrows_assoc. }
-    use pathsinv0.
-    rewrite !assoc'.
-    use z_iso_inv_to_left.
-    use pathsinv0.
-    rewrite BinProductOfArrows_id.
-    use (pathscomp0(b := (z_iso_inv
-      (BinProduct_assoc BinProd c b a)
-      · (identity c) ⨱ f · δ c))).
-    { unfold h.
       use pathsinv0.
-      use PowerObject_transpose_tri. }
-    rewrite !assoc.
-    apply idpath.
+      use (PowerObject_transpose_tri P). }
+  use (pathscomp0 (b := (
+    ((BinProduct_assoc BinProd c b a
+    ))·
+    ((identity c) ⨱ (identity b)) ⨱ (h f) ·
+    PowerObject_inPred P (BinProductObject C (BinProd c b))
+  ))).
+  { rewrite !assoc.
+    use cancel_postcomposition.
+    simpl.
+    use BinProduct_OfArrows_assoc. }
+  use pathsinv0.
+  rewrite !assoc'.
+  use z_iso_inv_to_left.
+  use pathsinv0.
+  rewrite BinProductOfArrows_id.
+  use (pathscomp0(b := (z_iso_inv
+    (BinProduct_assoc BinProd c b a)
+    · (identity c) ⨱ f · δ c))).
+  { unfold h.
+    use pathsinv0.
+    use PowerObject_transpose_tri. }
+  rewrite !assoc.
+  apply idpath.
 Qed.
 
 Let g (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) : C ⟦ a, Subobject_dom (G0 b c) ⟧.
