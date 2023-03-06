@@ -1207,7 +1207,7 @@ Section MonoidalSwapped.
     exact (λ v1 v2 v3, α_{Mon_V} v3 v2 v1).
   Defined.
 
-  Definition monoidal_swapped_laws {V : category} (Mon_V : monoidal V)
+  Lemma monoidal_swapped_laws {V : category} (Mon_V : monoidal V)
     : monoidal_laws (monoidal_swapped_data Mon_V).
   Proof.
     repeat split.
