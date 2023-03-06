@@ -206,7 +206,7 @@ Section EnrichedDialgebras.
   Definition dialgebra_enrichment_id
              {x : C₁}
              (f : F x --> G x)
-    : I_{ V } --> dialgebra_enrichment_mor f f.
+    : I_{V} --> dialgebra_enrichment_mor f f.
   Proof.
     use EqualizerIn.
     - exact (enriched_id E₁ x).
@@ -502,7 +502,7 @@ Section EnrichedDialgebras.
              {g : F y --> G y}
              (h : x --> y)
              (p : f · # G h = # F h · g)
-    : I_{ V } --> dialgebra_enrichment_mor f g.
+    : I_{V} --> dialgebra_enrichment_mor f g.
   Proof.
     use EqualizerIn.
     - exact (enriched_from_arr E₁ h).
@@ -526,7 +526,7 @@ Section EnrichedDialgebras.
              {x y : C₁}
              {f : F x --> G x}
              {g : F y --> G y}
-             (h : I_{ V } --> dialgebra_enrichment_mor f g)
+             (h : I_{V} --> dialgebra_enrichment_mor f g)
     :  x --> y
     := enriched_to_arr E₁ (h · dialgebra_enrichment_mor_incl _ _).
 
@@ -534,7 +534,7 @@ Section EnrichedDialgebras.
              {x y : C₁}
              {f : F x --> G x}
              {g : F y --> G y}
-             (h : I_{ V } --> dialgebra_enrichment_mor f g)
+             (h : I_{V} --> dialgebra_enrichment_mor f g)
     : f · # G (dialgebra_enrichment_to_arr_mor h)
       =
       # F (dialgebra_enrichment_to_arr_mor h) · g.

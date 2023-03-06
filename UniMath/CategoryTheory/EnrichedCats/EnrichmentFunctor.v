@@ -335,7 +335,7 @@ Defined.
  *)
 Definition functor_constant_enrichment
            {V : monoidal_cat}
-           (HV : isTerminal V (I_{ V }))
+           (HV : isTerminal V (I_{V}))
            {C₁ C₂ : category}
            (a : C₂)
            (E₁ : enrichment C₁ V)

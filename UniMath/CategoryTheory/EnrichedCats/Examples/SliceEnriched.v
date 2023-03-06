@@ -65,7 +65,7 @@ Local Open Scope moncat.
 
 Section EnrichedSlice.
   Context (V : monoidal_cat)
-          (HV𝟙 : isTerminal V (I_{ V }))
+          (HV𝟙 : isTerminal V (I_{V}))
           (HV : Equalizers V)
           {C : category}
           (E : enrichment C V)

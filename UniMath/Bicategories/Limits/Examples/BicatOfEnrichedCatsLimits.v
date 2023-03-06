@@ -72,7 +72,7 @@ Section LimitsEnrichedCats.
    univalent enriched unit category.
    *)
   Section FinalObject.
-    Context (HV : isTerminal V (I_{ V })).
+    Context (HV : isTerminal V (I_{V})).
 
     Let enriched_bifinal : bicat_of_enriched_cats V
       := unit_category ,, unit_enrichment V HV.

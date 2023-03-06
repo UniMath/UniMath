@@ -57,13 +57,13 @@ Definition enrichment_data
            (V : monoidal_cat)
   : UU
   := ∑ (arr : C → C → V),
-     (∏ (x : C), I_{ V } --> arr x x)
+     (∏ (x : C), I_{V} --> arr x x)
      ×
      (∏ (x y z : C), arr y z ⊗ arr x y --> arr x z)
      ×
-     (∏ (x y : C), x --> y → I_{ V } --> arr x y)
+     (∏ (x y : C), x --> y → I_{V} --> arr x y)
      ×
-     (∏ (x y : C), I_{ V } --> arr x y → x --> y).
+     (∏ (x y : C), I_{V} --> arr x y → x --> y).
 
 Definition arr_enrichment_data
            {C : precategory_data}
@@ -80,7 +80,7 @@ Definition enriched_id
            {V : monoidal_cat}
            (E : enrichment_data C V)
            (x : C)
-  : I_{ V } --> E ⦃ x , x ⦄
+  : I_{V} --> E ⦃ x , x ⦄
   := pr12 E x.
 
 Definition enriched_comp
@@ -97,7 +97,7 @@ Definition enriched_from_arr
            (E : enrichment_data C V)
            {x y : C}
            (f : x --> y)
-  : I_{ V } --> E ⦃ x , y ⦄
+  : I_{V} --> E ⦃ x , y ⦄
   := pr1 (pr222 E) x y f.
 
 Definition enriched_to_arr
@@ -105,7 +105,7 @@ Definition enriched_to_arr
            {V : monoidal_cat}
            (E : enrichment_data C V)
            {x y : C}
-           (f : I_{ V } --> E ⦃ x , y ⦄)
+           (f : I_{V} --> E ⦃ x , y ⦄)
   : x --> y
   := pr2 (pr222 E) x y f.
 
@@ -137,7 +137,7 @@ Definition enrichment_laws
       =
       f)
      ×
-     (∏ (x y : C) (f : I_{ V } --> E ⦃ x , y ⦄),
+     (∏ (x y : C) (f : I_{V} --> E ⦃ x , y ⦄),
       enriched_from_arr E (enriched_to_arr E f)
       =
       f)
@@ -152,7 +152,7 @@ Definition enrichment_laws
       =
       enriched_to_arr
         E
-        (mon_linvunitor I_{ V }
+        (mon_linvunitor I_{V}
          · (enriched_from_arr E g #⊗ enriched_from_arr E f)
          · enriched_comp E x y z)).
 
@@ -247,7 +247,7 @@ Section EnrichmentLaws.
 
   Definition enriched_from_to_arr
              {x y : C}
-             (f : I_{ V } --> E ⦃ x , y ⦄)
+             (f : I_{V} --> E ⦃ x , y ⦄)
     : enriched_from_arr E (enriched_to_arr E f)
       =
       f.
@@ -284,7 +284,7 @@ Section EnrichmentLaws.
       =
       enriched_to_arr
         E
-        (mon_linvunitor I_{ V }
+        (mon_linvunitor I_{V}
          · (enriched_from_arr E g #⊗ enriched_from_arr E f)
          · enriched_comp E x y z).
   Proof.
@@ -299,7 +299,7 @@ Section EnrichmentLaws.
         E
         (f · g)
       =
-      mon_linvunitor I_{ V }
+      mon_linvunitor I_{V}
       · (enriched_from_arr E g #⊗ enriched_from_arr E f)
       · enriched_comp E x y z.
   Proof.
@@ -380,7 +380,7 @@ Definition enrichment_data_hom_path_help
       =
       enriched_from_arr E₂ f)
      ×
-     (∏ (x y : C) (f : I_{ V } --> E₁ ⦃ x , y ⦄),
+     (∏ (x y : C) (f : I_{V} --> E₁ ⦃ x , y ⦄),
       enriched_to_arr E₁ f
       =
       enriched_to_arr E₂ (f · fs x y)).
@@ -456,7 +456,7 @@ Definition faithful_moncat
   : UU
   := ∏ (x y : V)
        (f g : x --> y),
-     (∏ (a : I_{ V } --> x), a · f = a · g)
+     (∏ (a : I_{V} --> x), a · f = a · g)
      →
      f = g.
 

@@ -43,7 +43,7 @@ Local Open Scope moncat.
 
 Section UnitEnrichment.
   Context (V : monoidal_cat)
-          (HV : isTerminal V (I_{ V })).
+          (HV : isTerminal V (I_{V})).
 
   (**
    1. The enrichment of the unit category
@@ -52,7 +52,7 @@ Section UnitEnrichment.
     : enrichment_data unit_category V.
   Proof.
     simple refine (_ ,, _ ,, _ ,, _ ,, _).
-    - exact (λ _ _, I_{ V }).
+    - exact (λ _ _, I_{V}).
     - exact (λ _, identity _).
     - exact (λ _ _ _, mon_lunitor _).
     - exact (λ _ _ _, identity _).

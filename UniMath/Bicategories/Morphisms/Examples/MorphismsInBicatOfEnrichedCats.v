@@ -73,7 +73,7 @@ Section MorphismsEnrichedCats.
   Qed.
 
   Definition enriched_cat_faithful_1cell_is_faithful
-             (HV : isTerminal V (I_{ V }))
+             (HV : isTerminal V (I_{V}))
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
              (HF : faithful_1cell F)
@@ -119,7 +119,7 @@ Section MorphismsEnrichedCats.
   Qed.
 
   Definition enriched_cat_faithful_weq_faithful_1cell
-             (HV : isTerminal V (I_{ V }))
+             (HV : isTerminal V (I_{V}))
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
     : faithful (pr1 F) ≃ faithful_1cell F.
@@ -325,7 +325,7 @@ Section MorphismsEnrichedCats.
    Defined.
 
    Definition enriched_cat_conservative_1cell_to_conservative
-              (HV : isTerminal V (I_{ V }))
+              (HV : isTerminal V (I_{V}))
               (HV' : faithful_moncat V)
               {E₁ E₂ : bicat_of_enriched_cats V}
               {F : E₁ --> E₂}
@@ -364,7 +364,7 @@ Section MorphismsEnrichedCats.
    Qed.
 
    Definition enriched_cat_conservative_weq_conservative_1cell
-              (HV : isTerminal V (I_{ V }))
+              (HV : isTerminal V (I_{V}))
               (HV' : faithful_moncat V)
               {E₁ E₂ : bicat_of_enriched_cats V}
               (F : E₁ --> E₂)
@@ -381,7 +381,7 @@ Section MorphismsEnrichedCats.
    4. Discrete 1-cells
    *)
   Definition enriched_cat_discretee_weq_discrete_1cell
-             (HV : isTerminal V (I_{ V }))
+             (HV : isTerminal V (I_{V}))
              (HV' : faithful_moncat V)
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
