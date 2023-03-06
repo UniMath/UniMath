@@ -1,3 +1,12 @@
+(*********************************************************************************
+
+ Displayed whiskered bifunctors
+
+ The goal is to define displayed monoidal categories, and for that we use the same
+ style as for monoidal categories. As such, we need to define the notion of a
+ displayed whiskered bifunctor. This is needed for the tensor functor.
+
+ *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
