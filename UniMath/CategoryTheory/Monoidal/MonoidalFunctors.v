@@ -952,84 +952,123 @@ Section MonoidalFunctors.
     : fmonoidal_lax M O (F ∙ G)
     := comp_fmonoidal_data Fm Gm ,, comp_fmonoidal_laxlaws Fm Gm.
 
-  Definition comp_fmonoidal_stronglaws
-             {C D E : category}
-             {M : monoidal C} {N : monoidal D} {O : monoidal E}
-             {F : C ⟶ D} {G : D ⟶ E}
-             (Fm : fmonoidal M N F) (Gm : fmonoidal N O G)
-    : fmonoidal_stronglaws
-        (fmonoidal_preservestensordata (comp_fmonoidal_lax Fm Gm))
-        (fmonoidal_preservesunit (comp_fmonoidal_lax Fm Gm)).
-  Proof.
-    split.
-    - intros x y.
-      use tpair.
-      + exact (#G (pr1 (fmonoidal_preservestensorstrongly Fm x y))
-               · pr1 (fmonoidal_preservestensorstrongly Gm (F x) (F y))).
-      + split.
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            rewrite <- functor_comp.
-            apply maponpaths.
-            apply (pr12 (fmonoidal_preservestensorstrongly Fm x y)). }
-          rewrite functor_id.
-          rewrite id_left.
-          apply (pr12 (fmonoidal_preservestensorstrongly Gm (F x) (F y))).
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            apply (pr22 (fmonoidal_preservestensorstrongly Gm (F x) (F y))). }
-          rewrite id_left.
-          rewrite <- functor_comp.
-          etrans.
-          { apply maponpaths.
-            apply (pr22 (fmonoidal_preservestensorstrongly Fm x y)). }
-          apply functor_id.
-    - use tpair.
-      + exact (#G (pr1 (fmonoidal_preservesunitstrongly Fm))
-               · pr1 (fmonoidal_preservesunitstrongly Gm)).
-      + split.
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            rewrite <- functor_comp.
-            apply maponpaths.
-            apply (pr12 (fmonoidal_preservesunitstrongly Fm)). }
-          rewrite functor_id.
-          rewrite id_left.
-          apply (pr12 (fmonoidal_preservesunitstrongly Gm)).
-        * cbn.
-          etrans.
-          { repeat rewrite assoc'.
-            apply maponpaths.
-            rewrite assoc.
-            apply cancel_postcomposition.
-            apply (pr22 (fmonoidal_preservesunitstrongly Gm)). }
-          rewrite id_left.
-          rewrite <- functor_comp.
-          etrans.
-          { apply maponpaths.
-            apply (pr22 (fmonoidal_preservesunitstrongly Fm)). }
-          apply functor_id.
-  Defined.
+  Section CompStrongMonoidal.
+    Context {C D E : category}
+            {M : monoidal C} {N : monoidal D} {O : monoidal E}
+            {F : C ⟶ D} {G : D ⟶ E}
+            (Fm : fmonoidal M N F) (Gm : fmonoidal N O G).
 
-  Definition comp_fmonoidal
-             {C D E : category}
-             {M : monoidal C} {N : monoidal D} {O : monoidal E}
-             {F : C ⟶ D} {G : D ⟶ E}
-             (Fm : fmonoidal M N F) (Gm : fmonoidal N O G)
-    : fmonoidal M O (F ∙ G)
-    := comp_fmonoidal_lax Fm Gm ,, comp_fmonoidal_stronglaws Fm Gm.
+    Let comp_fmnoidal_unit_inv
+      : G (F I_{ M}) --> I_{ O}
+      := #G (pr1 (fmonoidal_preservesunitstrongly Fm))
+         · pr1 (fmonoidal_preservesunitstrongly Gm).
+
+    Let comp_fmonoidal_tensor_inv
+        (x y : C)
+      : G (F (x ⊗_{ M } y)) --> G (F x) ⊗_{ O } G (F y)
+      := #G (pr1 (fmonoidal_preservestensorstrongly Fm x y))
+         · pr1 (fmonoidal_preservestensorstrongly Gm (F x) (F y)).
+
+    Lemma comp_fmonoidal_tensor_inv_laws
+          (x y : C)
+      : is_inverse_in_precat
+          (fmonoidal_preservestensordata (comp_fmonoidal_lax Fm Gm) x y)
+          (comp_fmonoidal_tensor_inv x y).
+    Proof.
+      unfold comp_fmonoidal_tensor_inv.
+      split.
+      - cbn.
+        etrans.
+        {
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          rewrite <- functor_comp.
+          apply maponpaths.
+          apply (pr12 (fmonoidal_preservestensorstrongly Fm x y)).
+        }
+        rewrite functor_id.
+        rewrite id_left.
+        apply (pr12 (fmonoidal_preservestensorstrongly Gm (F x) (F y))).
+      - cbn.
+        etrans.
+        {
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          apply (pr22 (fmonoidal_preservestensorstrongly Gm (F x) (F y))).
+        }
+        rewrite id_left.
+        rewrite <- functor_comp.
+        etrans.
+        {
+          apply maponpaths.
+          apply (pr22 (fmonoidal_preservestensorstrongly Fm x y)).
+        }
+        apply functor_id.
+    Qed.
+
+    Lemma comp_fmonoidal_unit_inv_laws
+      : is_inverse_in_precat
+          (fmonoidal_preservesunit (comp_fmonoidal_lax Fm Gm))
+          comp_fmnoidal_unit_inv.
+    Proof.
+      unfold comp_fmnoidal_unit_inv.
+      split.
+      - cbn.
+        etrans.
+        {
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          rewrite <- functor_comp.
+          apply maponpaths.
+          apply (pr12 (fmonoidal_preservesunitstrongly Fm)).
+        }
+        rewrite functor_id.
+        rewrite id_left.
+        apply (pr12 (fmonoidal_preservesunitstrongly Gm)).
+      - cbn.
+        etrans.
+        {
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite assoc.
+          apply cancel_postcomposition.
+          apply (pr22 (fmonoidal_preservesunitstrongly Gm)).
+        }
+        rewrite id_left.
+        rewrite <- functor_comp.
+        etrans.
+        {
+          apply maponpaths.
+          apply (pr22 (fmonoidal_preservesunitstrongly Fm)).
+        }
+        apply functor_id.
+    Qed.
+
+    Definition comp_fmonoidal_stronglaws
+      : fmonoidal_stronglaws
+          (fmonoidal_preservestensordata (comp_fmonoidal_lax Fm Gm))
+          (fmonoidal_preservesunit (comp_fmonoidal_lax Fm Gm)).
+    Proof.
+      split.
+      - intros x y.
+        use make_is_z_isomorphism.
+        + exact (comp_fmonoidal_tensor_inv x y).
+        + exact (comp_fmonoidal_tensor_inv_laws x y).
+      - use make_is_z_isomorphism.
+        + exact comp_fmnoidal_unit_inv.
+        + exact comp_fmonoidal_unit_inv_laws.
+    Defined.
+
+    Definition comp_fmonoidal
+      : fmonoidal M O (F ∙ G)
+      := comp_fmonoidal_lax Fm Gm ,, comp_fmonoidal_stronglaws.
+  End CompStrongMonoidal.
 End MonoidalFunctors.
 
 (**
