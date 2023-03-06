@@ -157,7 +157,7 @@ Section MonoidalFunctors.
              (pu : preserves_unit M N F)
     : UU
     := ∏ (x : C),
-       (pu ⊗^{ N}_{r} F x) · (pt I_{ M} x) · (# F lu^{ M }_{ x})
+       (pu ⊗^{ N}_{r} F x) · (pt I_{M} x) · (# F lu^{ M }_{ x})
        =
        lu^{ N }_{ F x}.
 
@@ -170,7 +170,7 @@ Section MonoidalFunctors.
          (pu : preserves_unit M N F)
     : UU
     := ∏ (x : C),
-       luinv^{ N }_{ F x} · (pu ⊗^{ N}_{r} F x) · (pt I_{ M} x)
+       luinv^{ N }_{ F x} · (pu ⊗^{ N}_{r} F x) · (pt I_{M} x)
        =
        # F luinv^{ M }_{ x}.
 
@@ -183,7 +183,7 @@ Section MonoidalFunctors.
              (pu : preserves_unit M N F)
     : UU
     := ∏ (x : C),
-       ((F x ⊗^{ N}_{l} pu) · (pt x I_{ M}) · (# F ru^{ M }_{ x})
+       ((F x ⊗^{ N}_{l} pu) · (pt x I_{M}) · (# F ru^{ M }_{ x})
        =
        ru^{ N }_{ F x}).
 
@@ -196,7 +196,7 @@ Section MonoidalFunctors.
              (pu : preserves_unit M N F)
     : UU
     := ∏ (x : C),
-       ruinv^{ N }_{ F x} · F x ⊗^{ N}_{l} pu · pt x I_{ M}
+       ruinv^{ N }_{ F x} · F x ⊗^{ N}_{l} pu · pt x I_{M}
        =
        # F ruinv^{ M }_{ x}.
 
@@ -959,7 +959,7 @@ Section MonoidalFunctors.
             (Fm : fmonoidal M N F) (Gm : fmonoidal N O G).
 
     Let comp_fmnoidal_unit_inv
-      : G (F I_{ M}) --> I_{ O}
+      : G (F I_{M}) --> I_{O}
       := #G (pr1 (fmonoidal_preservesunitstrongly Fm))
          · pr1 (fmonoidal_preservesunitstrongly Gm).
 
@@ -1165,7 +1165,7 @@ Coercion strong_monoidal_functor_to_lax_monoidal_functor
 Definition mon_functor_unit
            {V₁ V₂ : monoidal_cat}
            (F : lax_monoidal_functor V₁ V₂)
-  : I_{ V₂ } --> F (I_{ V₁ })
+  : I_{V₂} --> F (I_{V₁})
   := pr212 F.
 
 Definition mon_functor_tensor
@@ -1242,7 +1242,7 @@ Section MonoidalFunctorAccessors.
     : mon_lunitor (F x)
       =
       mon_functor_unit F #⊗ identity (F x)
-      · mon_functor_tensor F (I_{ V₁ }) x
+      · mon_functor_tensor F (I_{V₁}) x
       · #F (mon_lunitor x).
   Proof.
   Admitted.
@@ -1253,7 +1253,7 @@ Section MonoidalFunctorAccessors.
       =
       mon_linvunitor (F x)
       · mon_functor_unit F #⊗ identity (F x)
-      · mon_functor_tensor F (I_{ V₁ }) x.
+      · mon_functor_tensor F (I_{V₁}) x.
   Proof.
     refine (!(id_left _) @ _).
     etrans.
@@ -1283,7 +1283,7 @@ Section MonoidalFunctorAccessors.
     : mon_runitor (F x)
       =
       identity (F x) #⊗ mon_functor_unit F
-      · mon_functor_tensor F x (I_{ V₁ })
+      · mon_functor_tensor F x (I_{V₁})
       · #F (mon_runitor x).
   Proof.
   Admitted.
@@ -1294,7 +1294,7 @@ Section MonoidalFunctorAccessors.
       =
       mon_rinvunitor (F x)
       · identity (F x) #⊗ mon_functor_unit F
-      · mon_functor_tensor F x (I_{ V₁ }).
+      · mon_functor_tensor F x (I_{V₁}).
   Proof.
     refine (!(id_left _) @ _).
     etrans.
@@ -1325,7 +1325,7 @@ Section StrongMonoidalFunctorAccessors.
           (F : strong_monoidal_functor V₁ V₂).
 
   Definition strong_functor_unit_inv
-    : F (I_{ V₁ }) --> I_{ V₂ }.
+    : F (I_{V₁}) --> I_{V₂}.
   Proof.
   Admitted.
 
