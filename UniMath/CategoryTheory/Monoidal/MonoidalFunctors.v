@@ -1203,7 +1203,7 @@ Section MonoidalFunctorAccessors.
     : mon_lunitor (F x)
       =
       mon_functor_unit F #⊗ identity (F x)
-      · mon_functor_tensor F 𝟙 x
+      · mon_functor_tensor F (I_{ V₁ }) x
       · #F (mon_lunitor x).
   Proof.
   Admitted.
@@ -1214,7 +1214,7 @@ Section MonoidalFunctorAccessors.
       =
       mon_linvunitor (F x)
       · mon_functor_unit F #⊗ identity (F x)
-      · mon_functor_tensor F 𝟙 x.
+      · mon_functor_tensor F (I_{ V₁ }) x.
   Proof.
     refine (!(id_left _) @ _).
     etrans.
@@ -1244,7 +1244,7 @@ Section MonoidalFunctorAccessors.
     : mon_runitor (F x)
       =
       identity (F x) #⊗ mon_functor_unit F
-      · mon_functor_tensor F x 𝟙
+      · mon_functor_tensor F x (I_{ V₁ })
       · #F (mon_runitor x).
   Proof.
   Admitted.
@@ -1255,7 +1255,7 @@ Section MonoidalFunctorAccessors.
       =
       mon_rinvunitor (F x)
       · identity (F x) #⊗ mon_functor_unit F
-      · mon_functor_tensor F x 𝟙.
+      · mon_functor_tensor F x (I_{ V₁ }).
   Proof.
     refine (!(id_left _) @ _).
     etrans.

@@ -310,7 +310,7 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
   Defined.
 
   Definition moncats0_equiv_uncurried
-    : moncats0 ≃ MonoidalCategories.monoidal_cat.
+    : moncats0 ≃ monoidal_cat.
   Proof.
     apply weqfibtototal.
     intro C.

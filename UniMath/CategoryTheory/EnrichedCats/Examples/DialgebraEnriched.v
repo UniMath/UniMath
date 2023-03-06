@@ -526,7 +526,7 @@ Section EnrichedDialgebras.
              {x y : C₁}
              {f : F x --> G x}
              {g : F y --> G y}
-             (h : 𝟙 --> dialgebra_enrichment_mor f g)
+             (h : I_{ V } --> dialgebra_enrichment_mor f g)
     :  x --> y
     := enriched_to_arr E₁ (h · dialgebra_enrichment_mor_incl _ _).
 
@@ -534,7 +534,7 @@ Section EnrichedDialgebras.
              {x y : C₁}
              {f : F x --> G x}
              {g : F y --> G y}
-             (h : 𝟙 --> dialgebra_enrichment_mor f g)
+             (h : I_{ V } --> dialgebra_enrichment_mor f g)
     : f · # G (dialgebra_enrichment_to_arr_mor h)
       =
       # F (dialgebra_enrichment_to_arr_mor h) · g.

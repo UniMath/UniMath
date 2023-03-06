@@ -1302,8 +1302,6 @@ Definition monoidal_cat_tensor_mor
 
 Notation "f #⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31) : moncat.
 
-Notation "𝟙" := (monoidal_unit _) : moncat. (* \b1 *)
-
 Section MonoidalCatAccessors.
   Context {V : monoidal_cat}.
 
@@ -1438,7 +1436,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_lunitor
              (x : V)
-    : 𝟙 ⊗ x --> x
+    : I_{ V } ⊗ x --> x
     := monoidal_leftunitordata V x.
 
   Definition tensor_lunitor
@@ -1459,7 +1457,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_linvunitor
              (x : V)
-    : x --> 𝟙 ⊗ x
+    : x --> I_{ V } ⊗ x
     := monoidal_leftunitorinvdata V x.
 
   Definition tensor_linvunitor
@@ -1495,7 +1493,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_runitor
              (x : V)
-    : x ⊗ 𝟙 --> x
+    : x ⊗ I_{ V } --> x
     := monoidal_rightunitordata V x.
 
   Definition tensor_runitor
@@ -1516,7 +1514,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_rinvunitor
              (x : V)
-    : x --> x ⊗ 𝟙
+    : x --> x ⊗ I_{ V }
     := monoidal_rightunitorinvdata V x.
 
   Definition tensor_rinvunitor
@@ -1601,7 +1599,7 @@ Section MonoidalCatAccessors.
              (x y : V)
     : mon_runitor x #⊗ identity y
       =
-      mon_lassociator x 𝟙 y · (identity x #⊗ mon_lunitor y).
+      mon_lassociator x I_{ V } y · (identity x #⊗ mon_lunitor y).
   Proof.
     refine (_ @ !(monoidal_triangleidentity V x y) @ _).
     - unfold monoidal_cat_tensor_mor.
@@ -1622,14 +1620,14 @@ Section MonoidalCatAccessors.
              (x y : V)
     : identity x #⊗ mon_linvunitor y
       =
-      mon_rinvunitor x #⊗ identity y · mon_lassociator x 𝟙 y.
+      mon_rinvunitor x #⊗ identity y · mon_lassociator x (I_{ V }) y.
   Proof.
     refine (!_).
   Admitted.
 
   Definition mon_lunitor_triangle
              (x y : V)
-    : mon_lassociator 𝟙 x y · mon_lunitor (x ⊗ y)
+    : mon_lassociator (I_{ V }) x y · mon_lunitor (x ⊗ y)
       =
       mon_lunitor x #⊗ identity y.
   Proof.
@@ -1644,7 +1642,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_linvunitor_triangle
              (x y : V)
-    : mon_linvunitor x #⊗ identity y · mon_lassociator 𝟙 x y
+    : mon_linvunitor x #⊗ identity y · mon_lassociator (I_{ V }) x y
       =
       mon_linvunitor (x ⊗ y).
   Proof.
@@ -1652,7 +1650,7 @@ Section MonoidalCatAccessors.
 
   Definition mon_runitor_triangle
              (x y : V)
-    : mon_rassociator x y 𝟙 · mon_runitor (x ⊗ y)
+    : mon_rassociator x y (I_{ V }) · mon_runitor (x ⊗ y)
       =
       identity x #⊗ mon_runitor y.
   Proof.
@@ -1660,28 +1658,28 @@ Section MonoidalCatAccessors.
 
   Definition mon_rinvunitor_triangle
              (x y : V)
-    : identity x #⊗ mon_rinvunitor y · mon_rassociator x y 𝟙
+    : identity x #⊗ mon_rinvunitor y · mon_rassociator x y (I_{ V })
       =
       mon_rinvunitor (x ⊗ y).
   Proof.
   Admitted.
 
   Definition mon_runitor_I_mon_lunitor_I
-    : mon_runitor 𝟙 = mon_lunitor 𝟙.
+    : mon_runitor (I_{ V }) = mon_lunitor (I_{ V }).
   Proof.
     refine (!_).
     apply unitors_coincide_on_unit.
   Qed.
 
   Definition mon_lunitor_I_mon_runitor_I
-    : mon_lunitor 𝟙 = mon_runitor 𝟙.
+    : mon_lunitor (I_{ V }) = mon_runitor (I_{ V }).
   Proof.
     rewrite mon_runitor_I_mon_lunitor_I.
     apply idpath.
   Qed.
 
   Definition mon_rinvunitor_I_mon_linvunitor_I
-    : mon_rinvunitor 𝟙 = mon_linvunitor 𝟙.
+    : mon_rinvunitor (I_{ V }) = mon_linvunitor (I_{ V }).
   Proof.
     cbn.
     refine (!_).
@@ -1689,7 +1687,7 @@ Section MonoidalCatAccessors.
   Qed.
 
   Definition mon_linvunitor_I_mon_rinvunitor_I
-    : mon_linvunitor 𝟙 = mon_rinvunitor 𝟙.
+    : mon_linvunitor (I_{ V }) = mon_rinvunitor (I_{ V }).
   Proof.
     rewrite mon_rinvunitor_I_mon_linvunitor_I.
     apply idpath.

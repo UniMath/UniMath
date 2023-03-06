@@ -85,7 +85,7 @@ Section HomFunctor.
    *)
   Definition enriched_id_nat_trans_data
     : nat_trans_data
-        (constant_functor (core C) V 𝟙)
+        (constant_functor (core C) V (I_{ V }))
         (core_diag C ∙ enriched_hom_functor)
     := λ x, enriched_id E x.
 
