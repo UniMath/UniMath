@@ -498,62 +498,57 @@ Qed.
 Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
 Proof.
   intros a f.
-  use make_iscontr.
-  + use tpair.
-    - exact (g c b a f).
-    - use g_tri.
-  + intro g'.
-    induction g' as (g', g_tri').
-    use subtypePath.
-    - unfold isPredicate.
-      intros.
-      use homset_property.
-    - cbn.
-      simpl in g_tri'.
-      unfold BinProduct_of_functors_mor in g_tri'.
-      simpl in g_tri'.
-      use (MonicisMonic _ (Subobject_Monic (G0 b c))).
-      use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,c ⨉ b)))).
-      unfold hset_z_iso_equiv.
-      cbn - [BinProd G0 Subobject_mor].
-      fold BinProd.
-      assert (p : identity c ⨱ (identity b) = identity (c ⨉ b) ).
-      { use pathsinv0.
-        use BinProductArrowUnique.
-        + now rewrite id_left, id_right.
-        + now rewrite id_left, id_right. }
-      induction p.
-      use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).
-      rewrite !assoc.
-      use (pathscomp0(b:=(identity c) ⨱ ((identity b)
-      ⨱ (g' · Subobject_mor (G0 b c)))·
-      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _ )).
-      { use cancel_postcomposition.
-        use pathsinv0.
-        use (BinProduct_OfArrows_assoc BinProd). }
+  use unique_exists.
+  + exact (g c b a f).
+  + use g_tri.
+  + intro.
+    use homset_property.
+  + intros g' g_tri'. 
+    simpl in g_tri'.
+    unfold BinProduct_of_functors_mor in g_tri'.
+    simpl in g_tri'.
+    use (MonicisMonic _ (Subobject_Monic (G0 b c))).
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,c ⨉ b)))).
+    unfold hset_z_iso_equiv.
+    cbn - [BinProd G0 Subobject_mor].
+    fold BinProd.
+    assert (p : identity c ⨱ (identity b) = identity (c ⨉ b) ).
+    { use pathsinv0.
+      use BinProductArrowUnique.
+      + now rewrite id_left, id_right.
+      + now rewrite id_left, id_right. }
+    induction p.
+    use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).
+    rewrite !assoc.
+    use (pathscomp0(b:=(identity c) ⨱ ((identity b)
+    ⨱ (g' · Subobject_mor (G0 b c)))·
+    BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _ )).
+    { use cancel_postcomposition.
       use pathsinv0.
-      use (pathscomp0(b:=(identity c) ⨱ ((identity b)
-      ⨱ ((g c b a f) · Subobject_mor (G0 b c)))·
-      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _)).
-      { use cancel_postcomposition.
-        use pathsinv0.
-        use (BinProduct_OfArrows_assoc BinProd). }
-      rewrite !assoc'.
-      use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  ( (PowerObject_nat_z_iso P)) (b⨉a,,c)))).
-      unfold hset_z_iso_equiv.
-      cbn - [BinProd G0 Subobject_mor BinProduct_assoc].
-      unfold PowerObject_nt_data.
-      rewrite !PowerObject_transpose_precomp.
-      fold (v b c).
+      use (BinProduct_OfArrows_assoc BinProd). }
+    use pathsinv0.
+    use (pathscomp0(b:=(identity c) ⨱ ((identity b)
+    ⨱ ((g c b a f) · Subobject_mor (G0 b c)))·
+    BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _)).
+    { use cancel_postcomposition.
       use pathsinv0.
-      rewrite <-!(BinProductOfArrows_idxcomp _ BinProd _ (Subobject_mor _)).
-      rewrite !assoc'.
-      rewrite <-!ev_tri.
-      rewrite !assoc.
-      use cancel_postcomposition.
-      rewrite <-g_tri.
-      apply pathsinv0.
-      use g_tri'.
+      use (BinProduct_OfArrows_assoc BinProd). }
+    rewrite !assoc'.
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  ( (PowerObject_nat_z_iso P)) (b⨉a,,c)))).
+    unfold hset_z_iso_equiv.
+    cbn - [BinProd G0 Subobject_mor BinProduct_assoc].
+    unfold PowerObject_nt_data.
+    rewrite !PowerObject_transpose_precomp.
+    fold (v b c).
+    use pathsinv0.
+    rewrite <-!(BinProductOfArrows_idxcomp _ BinProd _ (Subobject_mor _)).
+    rewrite !assoc'.
+    rewrite <-!ev_tri.
+    rewrite !assoc.
+    use cancel_postcomposition.
+    rewrite <-g_tri.
+    apply pathsinv0.
+    use g_tri'.
 Defined.
 
 Definition Exponentials_from_Topos : Exponentials (BinProd).
