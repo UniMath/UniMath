@@ -998,8 +998,9 @@ Section UnitorsCoincide.
     apply lemma2'.
   Qed.
 
-  Local Lemma right_whisker_with_lunitor' (x y : C) :
-    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
+  Local Lemma right_whisker_with_lunitor' (x y : C)
+    : I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
+      =
       I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
   Proof.
     refine (lemma3 x y @ _).
@@ -1063,7 +1064,7 @@ Section UnitorsCoincide.
   Qed.
 
   Lemma lunitor_preserves_leftwhiskering_with_unit
-    :  lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
+    : lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
   Proof.
     apply pathsinv0.
     set (lun := monoidal_leftunitornat M _ _ (lu_{M} (I_{M}))).
@@ -1223,3 +1224,424 @@ Section MonoidalLaws.
     exact (! (left_whisker_with_runitor M) x y).
   Qed.
 End MonoidalLaws.
+
+(** Accessors and notations for monoidal categories *)
+Declare Scope moncat.
+Local Open Scope moncat.
+
+Definition monoidal_cat : UU := ∑ (C : category), monoidal C.
+
+Coercion monoidal_cat_to_cat (V : monoidal_cat) : category := pr1 V.
+Coercion monoidal_cat_to_monoidal (V : monoidal_cat) : monoidal V := pr2 V.
+
+Definition monoidal_cat_tensor_pt
+           {V : monoidal_cat}
+           (x y : V)
+  : V
+  := x ⊗_{ pr2 V } y.
+
+Notation "x ⊗ y" :=  (monoidal_cat_tensor_pt x y) : moncat.
+
+Definition monoidal_cat_tensor_mor
+           {V : monoidal_cat}
+           {x₁ x₂ y₁ y₂ : V}
+           (f : x₁ --> x₂)
+           (g : y₁ --> y₂)
+  : x₁ ⊗ y₁ --> x₂ ⊗ y₂
+  := f ⊗^{ pr2 V } g.
+
+Notation "f #⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31) : moncat.
+
+Notation "𝟙" := (monoidal_unit _) : moncat. (* \b1 *)
+
+Section MonoidalCatAccessors.
+  Context {V : monoidal_cat}.
+
+  Import MonoidalNotations.
+
+  Definition tensor_id_id
+             (x y : V)
+    : identity x #⊗ identity y = identity (x ⊗ y).
+  Proof.
+    apply bifunctor_distributes_over_id.
+    - apply bifunctor_leftid.
+    - apply bifunctor_rightid.
+  Qed.
+
+  Definition tensor_comp_mor
+             {x₁ x₂ x₃ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : (f · f') #⊗ (g · g') = f #⊗ g · f' #⊗ g'.
+  Proof.
+    use bifunctor_distributes_over_comp.
+    - apply bifunctor_leftcomp.
+    - apply bifunctor_rightcomp.
+    - apply bifunctor_equalwhiskers.
+  Qed.
+
+  Definition tensor_comp_id_l
+             {x y₁ y₂ y₃ : V}
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : (identity x) #⊗ (g · g') = (identity x) #⊗ g · (identity x) #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_l_id_l
+             {x₁ x₂ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : f #⊗ (g · g') = (identity _) #⊗ g · f #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_l_id_r
+             {x₁ x₂ y₁ y₂ y₃ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂) (g' : y₂ --> y₃)
+    : f #⊗ (g · g') = f #⊗ g · (identity _) #⊗ g'.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_id_r
+             {x₁ x₂ x₃ y : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+    : (f · f') #⊗ (identity y) = f #⊗ (identity y) · f' #⊗ (identity y).
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_r_id_l
+             {x₁ x₂ x₃ y₁ y₂ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂)
+    : (f · f') #⊗ g = f #⊗ (identity _) · f' #⊗ g.
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Definition tensor_comp_r_id_r
+             {x₁ x₂ x₃ y₁ y₂ : V}
+             (f : x₁ --> x₂) (f' : x₂ --> x₃)
+             (g : y₁ --> y₂)
+    : (f · f') #⊗ g = f #⊗ g · f' #⊗ (identity _).
+  Proof.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_split
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  Proof.
+    refine (_ @ tensor_comp_mor _ _ _ _).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_split'
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ g = f #⊗ identity _ · identity _ #⊗ g.
+  Proof.
+    refine (_ @ tensor_comp_mor _ _ _ _).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Definition tensor_swap
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : f #⊗ identity _ · identity _ #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  Proof.
+    rewrite <- tensor_split, <- tensor_split'.
+    apply idpath.
+  Qed.
+
+  Definition tensor_swap'
+             {x₁ x₂ y₁ y₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+    : identity _ #⊗ g · f #⊗ identity _ = f #⊗ identity _ · identity _ #⊗ g.
+  Proof.
+    rewrite <- tensor_split, <- tensor_split'.
+    apply idpath.
+  Qed.
+
+  Definition mon_lunitor
+             (x : V)
+    : 𝟙 ⊗ x --> x
+    := monoidal_leftunitordata V x.
+
+  Definition tensor_lunitor
+             {x y : V}
+             (f : x --> y)
+    : identity _ #⊗ f · mon_lunitor y
+      =
+      mon_lunitor x · f.
+  Proof.
+    refine (_ @ pr1 (monoidal_leftunitorlaw V) x y f).
+    apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    apply bifunctor_rightid.
+  Qed.
+
+  Definition mon_linvunitor
+             (x : V)
+    : x --> 𝟙 ⊗ x
+    := monoidal_leftunitorinvdata V x.
+
+  Definition tensor_linvunitor
+             {x y : V}
+             (f : x --> y)
+    : f · mon_linvunitor y
+      =
+      mon_linvunitor x · identity _ #⊗ f.
+  Proof.
+    refine (!(monoidal_leftunitorinvnat V x y f) @ _).
+    apply maponpaths.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_left _) @ _).
+    apply maponpaths_2.
+    refine (!_).
+    apply bifunctor_rightid.
+  Qed.
+
+  Definition mon_lunitor_linvunitor
+             (x : V)
+    : mon_lunitor x · mon_linvunitor x = identity _.
+  Proof.
+    exact (pr1 (monoidal_leftunitorisolaw V x)).
+  Qed.
+
+  Definition mon_linvunitor_lunitor
+             (x : V)
+    : mon_linvunitor x · mon_lunitor x = identity _.
+  Proof.
+    exact (pr2 (monoidal_leftunitorisolaw V x)).
+  Qed.
+
+  Definition mon_runitor
+             (x : V)
+    : x ⊗ 𝟙 --> x
+    := monoidal_rightunitordata V x.
+
+  Definition tensor_runitor
+             {x y : V}
+             (f : x --> y)
+    : f #⊗ identity _ · mon_runitor y
+      =
+      mon_runitor x · f.
+  Proof.
+    refine (_ @ pr1 (monoidal_rightunitorlaw V) x y f).
+    apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply bifunctor_leftid.
+  Qed.
+
+  Definition mon_rinvunitor
+             (x : V)
+    : x --> x ⊗ 𝟙
+    := monoidal_rightunitorinvdata V x.
+
+  Definition tensor_rinvunitor
+             {x y : V}
+             (f : x --> y)
+    : f · mon_rinvunitor y
+      =
+      mon_rinvunitor x · f #⊗ identity _.
+  Proof.
+    refine (!(monoidal_rightunitorinvnat V x y f) @ _).
+    apply maponpaths.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    apply bifunctor_leftid.
+  Qed.
+
+  Definition mon_runitor_rinvunitor
+             (x : V)
+    : mon_runitor x · mon_rinvunitor x = identity _.
+  Proof.
+    exact (pr1 (monoidal_rightunitorisolaw V x)).
+  Qed.
+
+  Definition mon_rinvunitor_runitor
+             (x : V)
+    : mon_rinvunitor x · mon_runitor x = identity _.
+  Proof.
+    exact (pr2 (monoidal_rightunitorisolaw V x)).
+  Qed.
+
+  Definition mon_lassociator
+             (x y z : V)
+    : (x ⊗ y) ⊗ z --> x ⊗ (y ⊗ z)
+    := α_{ V } x y z.
+
+  Definition tensor_lassociator
+             {x₁ x₂ y₁ y₂ z₁ z₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+             (h : z₁ --> z₂)
+    : (f #⊗ g) #⊗ h · mon_lassociator _ _ _
+      =
+      mon_lassociator _ _ _ · f #⊗ (g #⊗ h).
+  Proof.
+  Admitted.
+
+  Definition mon_rassociator
+             (x y z : V)
+    : x ⊗ (y ⊗ z) --> (x ⊗ y) ⊗ z
+    := αinv_{ V } x y z.
+
+  Definition tensor_rassociator
+             {x₁ x₂ y₁ y₂ z₁ z₂ : V}
+             (f : x₁ --> x₂)
+             (g : y₁ --> y₂)
+             (h : z₁ --> z₂)
+    : f #⊗ (g #⊗ h) · mon_rassociator _ _ _
+      =
+      mon_rassociator _ _ _ · (f #⊗ g) #⊗ h.
+  Proof.
+    exact (monoidal_associatorinv_nat2 V f g h).
+  Qed.
+
+  Definition mon_lassociator_rassociator
+             (x y z : V)
+    : mon_lassociator x y z · mon_rassociator x y z = identity _.
+  Proof.
+    exact (pr1 (monoidal_associatorisolaw V x y z)).
+  Qed.
+
+  Definition mon_rassociator_lassociator
+             (x y z : V)
+    : mon_rassociator x y z · mon_lassociator x y z = identity _.
+  Proof.
+    exact (pr2 (monoidal_associatorisolaw V x y z)).
+  Qed.
+
+  Definition mon_triangle
+             (x y : V)
+    : mon_runitor x #⊗ identity y
+      =
+      mon_lassociator x 𝟙 y · (identity x #⊗ mon_lunitor y).
+  Proof.
+    refine (_ @ !(monoidal_triangleidentity V x y) @ _).
+    - unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply bifunctor_leftid.
+    - apply maponpaths.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      refine (!(id_left _) @ _).
+      apply maponpaths_2.
+      refine (!_).
+      apply bifunctor_rightid.
+  Qed.
+
+  Definition mon_inv_triangle
+             (x y : V)
+    : identity x #⊗ mon_linvunitor y
+      =
+      mon_rinvunitor x #⊗ identity y · mon_lassociator x 𝟙 y.
+  Proof.
+    refine (!_).
+  Admitted.
+
+  Definition mon_lunitor_triangle
+             (x y : V)
+    : mon_lassociator 𝟙 x y · mon_lunitor (x ⊗ y)
+      =
+      mon_lunitor x #⊗ identity y.
+  Proof.
+    refine (right_whisker_with_lunitor V x y @ _).
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    apply bifunctor_leftid.
+  Qed.
+
+  Definition mon_linvunitor_triangle
+             (x y : V)
+    : mon_linvunitor x #⊗ identity y · mon_lassociator 𝟙 x y
+      =
+      mon_linvunitor (x ⊗ y).
+  Proof.
+  Admitted.
+
+  Definition mon_runitor_triangle
+             (x y : V)
+    : mon_rassociator x y 𝟙 · mon_runitor (x ⊗ y)
+      =
+      identity x #⊗ mon_runitor y.
+  Proof.
+  Admitted.
+
+  Definition mon_rinvunitor_triangle
+             (x y : V)
+    : identity x #⊗ mon_rinvunitor y · mon_rassociator x y 𝟙
+      =
+      mon_rinvunitor (x ⊗ y).
+  Proof.
+  Admitted.
+
+  Definition mon_runitor_I_mon_lunitor_I
+    : mon_runitor 𝟙 = mon_lunitor 𝟙.
+  Proof.
+    refine (!_).
+    apply unitors_coincide_on_unit.
+  Qed.
+
+  Definition mon_lunitor_I_mon_runitor_I
+    : mon_lunitor 𝟙 = mon_runitor 𝟙.
+  Proof.
+    rewrite mon_runitor_I_mon_lunitor_I.
+    apply idpath.
+  Qed.
+
+  Definition mon_rinvunitor_I_mon_linvunitor_I
+    : mon_rinvunitor 𝟙 = mon_linvunitor 𝟙.
+  Proof.
+    cbn.
+    refine (!_).
+    apply unitorsinv_coincide_on_unit.
+  Qed.
+
+  Definition mon_linvunitor_I_mon_rinvunitor_I
+    : mon_linvunitor 𝟙 = mon_rinvunitor 𝟙.
+  Proof.
+    rewrite mon_rinvunitor_I_mon_linvunitor_I.
+    apply idpath.
+  Qed.
+End MonoidalCatAccessors.
