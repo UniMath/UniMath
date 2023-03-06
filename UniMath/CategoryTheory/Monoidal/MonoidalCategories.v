@@ -1,7 +1,36 @@
+(***************************************************************************
+
+ Monoidal categories
+
+ In this file, we define the notion of monoidal category. In addition, we
+ prove the important laws for monoidal categories.
+
+ The main definition in this file, takes a so-called displayed approach.
+ More specifically, we define the notion of a monoidal structure on a
+ category. For this notion, we define suitable accessors and we prove the
+ laws. Finally, we also provide a bundled notion of monoidal category, which
+ is a category together with a monoidal structure for it. The necessary
+ accessors and laws are derived from the other notion.
+
+ In this file, we use a whiskered approach. This means that we have two
+ operations to tensor with morphisms: a left and a right whiskering. Both of
+ these take an object and a morphism and input and they return a morphism as
+ output.
+
+ Contents
+ 1. Monoidal structures
+ 2. Opposite monoidal category
+ 3. Equivalences from the tensor and unit
+ 4. The unitors coincide
+ 5. Swapping the tensor
+ 6. More monoidal laws
+ 7. Bundled approach to monoidal categories
+
+ ***************************************************************************)
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -17,6 +46,9 @@ Local Open Scope cat.
 
 Import BifunctorNotations.
 
+(**
+ 1. Monoidal structures
+ *)
 Section A.
 
 (** Data **)
@@ -815,6 +847,9 @@ Module MonoidalNotations.
   Notation "αinv^{ M }_{ x , y , z }" := (monoidal_associatorinvdata M x y z) : cat.
 End MonoidalNotations.
 
+(**
+ 2. Opposite monoidal category
+ *)
 Section OppositeMonoidal.
   Context {C : category} (M : monoidal C).
 
@@ -872,6 +907,9 @@ Section OppositeMonoidal.
     := monoidal_opp_data ,, monoidal_opp_laws.
 End OppositeMonoidal.
 
+(**
+ 3. Equivalences from the tensor and unit
+ *)
 Section EquivalenceFromTensorWithUnit.
   Context {C : category} (M : monoidal C).
 
@@ -942,6 +980,9 @@ Section EquivalenceFromTensorWithUnit.
   Defined.
 End EquivalenceFromTensorWithUnit.
 
+(**
+ 4. The unitors coincide
+ *)
 Section UnitorsCoincide.
   Context {C : category} (M : monoidal C).
 
@@ -1130,6 +1171,9 @@ Section UnitorsCoincideAlternative.
   Qed.
 End UnitorsCoincideAlternative.
 
+(**
+ 5. Swapping the tensor
+ *)
 Section MonoidalSwapped.
   Import MonoidalNotations.
 
@@ -1192,6 +1236,9 @@ Section MonoidalSwapped.
     := monoidal_swapped_data Mon_V ,, monoidal_swapped_laws Mon_V.
 End MonoidalSwapped.
 
+(**
+ 6. More monoidal laws
+ *)
 Section MonoidalLaws.
   Import MonoidalNotations.
 
@@ -1225,6 +1272,9 @@ Section MonoidalLaws.
   Qed.
 End MonoidalLaws.
 
+(**
+ 7. Bundled approach to monoidal categories
+ *)
 (** Accessors and notations for monoidal categories *)
 Declare Scope moncat.
 Local Open Scope moncat.
