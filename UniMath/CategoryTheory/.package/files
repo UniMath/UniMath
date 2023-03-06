@@ -251,8 +251,10 @@ categories/Universal_Algebra/EqAlgebras.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategories.v
-Monoidal/SymmetricMonoidalCategories.v
-Monoidal/ClosedMonoidalCategories.v
+
+Monoidal/Structure/SymmetricMonoidalCategories.v
+Monoidal/Structure/ClosedMonoidalCategories.v
+
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 
