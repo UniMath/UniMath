@@ -249,6 +249,9 @@ Core.v
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
 
+Monoidal/WhiskeredBifunctors.v
+Monoidal/MonoidalCategories.v
+
 MonoidalOld/WhiskeredBifunctors.v
 MonoidalOld/MonoidalCategoriesWhiskered.v
 MonoidalOld/Actegories.v

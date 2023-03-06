@@ -384,6 +384,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Core.v](CategoryTheory/Core.v)
    - [categories/Universal_Algebra/Algebras.v](CategoryTheory/categories/Universal_Algebra/Algebras.v)
    - [categories/Universal_Algebra/EqAlgebras.v](CategoryTheory/categories/Universal_Algebra/EqAlgebras.v)
+   - [Monoidal/WhiskeredBifunctors.v](CategoryTheory/Monoidal/WhiskeredBifunctors.v)
+   - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
    - [MonoidalOld/WhiskeredBifunctors.v](CategoryTheory/MonoidalOld/WhiskeredBifunctors.v)
    - [MonoidalOld/MonoidalCategoriesWhiskered.v](CategoryTheory/MonoidalOld/MonoidalCategoriesWhiskered.v)
    - [MonoidalOld/Actegories.v](CategoryTheory/MonoidalOld/Actegories.v)
