@@ -268,6 +268,17 @@ Monoidal/Examples/EndofunctorsMonoidal.v
 Monoidal/Examples/MonoidalDialgebras.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
+Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
+Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
+Monoidal/AlternativeDefinitions/MonoidalCategoriesCurried.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorsTensored.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorsCurried.v
+Monoidal/AlternativeDefinitions/AugmentedSimplexCategory.v
+Monoidal/AlternativeDefinitions/DisplayedMonoidalTensored.v
+Monoidal/AlternativeDefinitions/DisplayedMonoidalCurried.v
+Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v
+Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v
+Monoidal/AlternativeDefinitions/TotalDisplayedMonoidalCurried.v
 
 Actegories/Actegories.v
 Actegories/ConstructionOfActegories.v
@@ -304,7 +315,6 @@ MonoidalOld/ClosedMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalCategoriesReordered.v
 MonoidalOld/MonoidalDialgebras.v
 MonoidalOld/CategoriesOfMonoidsWhiskered.v
-# DONE SO FAR
 MonoidalOld/Examples/MonadsAsMonoidsWhiskeredElementary.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
@@ -399,6 +409,8 @@ RepresentableFunctors/Representation.v
 RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
+
+# DONE SO FAR
 
 # Monoidal Rezk Completion
 MonoidalOld/MonoidalFunctorCategory.v
