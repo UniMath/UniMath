@@ -34,10 +34,10 @@ Require Import UniMath.Bicategories.Limits.Inserters.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 
 
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalDialgebras.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalDialgebras.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.

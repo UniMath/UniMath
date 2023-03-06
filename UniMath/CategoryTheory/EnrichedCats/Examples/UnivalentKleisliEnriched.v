@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Examples.EilenbergMooreEnrich
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.KleisliEnriched.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
 Require Import UniMath.CategoryTheory.limits.equalizers.

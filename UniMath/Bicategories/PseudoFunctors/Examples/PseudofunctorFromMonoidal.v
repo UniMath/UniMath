@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.

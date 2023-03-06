@@ -27,15 +27,15 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.CategoriesOfMonoidsWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
 
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ActionScenarioForGenMendlerIteration_alt.

@@ -8,14 +8,14 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
 Import BifunctorNotations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.CategoriesOfMonoidsWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 

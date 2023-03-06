@@ -36,12 +36,12 @@ Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
 
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
 
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 

@@ -25,9 +25,9 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.DisplayedMonoidal.
 
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.

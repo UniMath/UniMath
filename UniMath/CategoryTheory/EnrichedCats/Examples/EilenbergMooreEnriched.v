@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.terminal.

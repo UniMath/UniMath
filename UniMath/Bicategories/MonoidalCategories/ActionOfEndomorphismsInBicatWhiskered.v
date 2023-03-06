@@ -11,14 +11,14 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -26,7 +26,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
 
 Import Bicat.Notations.
 Import BifunctorNotations.

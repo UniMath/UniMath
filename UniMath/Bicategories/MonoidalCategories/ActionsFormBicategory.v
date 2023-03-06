@@ -14,8 +14,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.

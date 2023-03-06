@@ -10,10 +10,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
-Require Import UniMath.CategoryTheory.Monoidal.EquivalenceWhiskeredNonCurriedMonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesReordered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.MonoidalOld.EquivalenceWhiskeredNonCurriedMonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesReordered.
 
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.

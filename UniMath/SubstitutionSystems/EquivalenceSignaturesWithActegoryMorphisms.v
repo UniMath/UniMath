@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
@@ -23,18 +23,18 @@ Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.

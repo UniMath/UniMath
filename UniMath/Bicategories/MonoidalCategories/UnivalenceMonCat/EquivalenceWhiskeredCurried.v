@@ -5,10 +5,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesReordered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesReordered.
+Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
 
