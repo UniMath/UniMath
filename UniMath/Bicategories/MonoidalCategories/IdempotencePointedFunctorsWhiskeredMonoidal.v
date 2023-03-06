@@ -16,18 +16,18 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.TotalDisplayedMonoidalWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalDisplayedMonoidal.
 Require Import UniMath.CategoryTheory.coslicecat.
 
 Require Import UniMath.Bicategories.Core.Bicat.
 
 (* The monoidal categories of endofunctors that we compare are defined in the following files: *)
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
@@ -138,8 +138,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
               use total2_paths_f ;
               [
                 simpl ;
-                rewrite bifunctor_leftid ;
-                rewrite bifunctor_rightid ;
+                rewrite (bifunctor_leftid Mon_V) ;
+                rewrite (bifunctor_rightid Mon_V) ;
                 rewrite ! id_right ;
                 apply idpath
               | apply homset_property
@@ -154,8 +154,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
                 use total2_paths_f ;
                 [
                   simpl ;
-                  rewrite bifunctor_leftid ;
-                  rewrite bifunctor_rightid ;
+                  rewrite (bifunctor_leftid Mon_V) ;
+                  rewrite (bifunctor_rightid Mon_V) ;
                   rewrite ! id_right ;
                   apply idpath
                 | apply homset_property
@@ -204,8 +204,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
       use total2_paths_f.
       2: { apply homset_property. }
       simpl.
-      rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       apply idpath.
     - use total2_paths_f.
       2: { apply homset_property. }
@@ -227,8 +227,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
       use total2_paths_f.
       2: { apply homset_property. }
       simpl.
-      rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       rewrite ! id_right.
       apply idpath.
     - use total2_paths_f.
