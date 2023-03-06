@@ -1,3 +1,24 @@
+(***************************************************************************
+
+ Monoidal functors
+
+ In this file, we define the several notions of functors between monoidal
+ categories. Again we use a displayed approach where we define notions such
+ as lax monoidal structures on functors. We also provide examples, such as
+ the identity and composition. In the end, we provide bundled versions of
+ these defintions.
+
+ Contents
+ 1. Lax monoidal functors
+ 2. Strong monoidal functors
+ 3. Strict monoidal functors
+ 4. The identity is strong monoidal
+ 5. Composition preserves lax/strongly monoidal functors
+ 6. Monoidal natural transformations
+ 7. Inverses of monoidal natural transformations
+ 8. Bundled versions
+
+ ***************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -54,7 +75,9 @@ End local_helper_lemmas.
 
 
 Section MonoidalFunctors.
-
+  (**
+   1. Lax monoidal functors
+   *)
   (** (Weak) Monoidal functors **)
   (* Monoidal functor data *)
 
@@ -517,6 +540,9 @@ Section MonoidalFunctors.
     : UU
     := preserves_tensor_strongly pt × preserves_unit_strongly pu.
 
+  (**
+   2. Strong monoidal functors
+   *)
   Definition fmonoidal
              {C D : category}
              (M : monoidal C)
@@ -714,6 +740,9 @@ Section MonoidalFunctors.
     apply id_left.
   Qed.
 
+  (**
+   3. Strict monoidal functors
+   *)
   (* Strictly preserving monoidal functors *)
   Definition preserves_tensor_strictly
              {C D : category}
@@ -757,7 +786,10 @@ Section MonoidalFunctors.
     use (iso_stable_under_equalitytransportf (pr2 pus) (is_z_isomorphism_identity I_{N})).
   Defined.
 
-(** towards a bicategory of monoidal categories *)
+  (**
+   4. The identity is strong monoidal
+   *)
+  (** towards a bicategory of monoidal categories *)
   Definition identity_fmonoidal_data
              {C : category}
              (M : monoidal C)
@@ -813,6 +845,9 @@ Section MonoidalFunctors.
     : fmonoidal M M (functor_identity C)
     := identity_fmonoidal_lax M ,, identity_fmonoidal_stronglaws M.
 
+  (**
+   5. Composition preserves lax/strongly monoidal functors
+   *)
   Definition comp_fmonoidal_data
              {C D E : category}
              {M : monoidal C} {N : monoidal D} {O : monoidal E}
@@ -997,6 +1032,9 @@ Section MonoidalFunctors.
     := comp_fmonoidal_lax Fm Gm ,, comp_fmonoidal_stronglaws Fm Gm.
 End MonoidalFunctors.
 
+(**
+ 6. Monoidal natural transformations
+ *)
 Section MonoidalNaturalTransformations.
 
   Context {C D : category}
@@ -1026,6 +1064,9 @@ Section MonoidalNaturalTransformations.
   Qed.
 End MonoidalNaturalTransformations.
 
+(**
+ 7. Inverses of monoidal natural transformations
+ *)
 Section InverseMonoidalNaturalTransformation.
   Context {C D : category}
           {M : monoidal C} {N : monoidal D}
@@ -1057,6 +1098,9 @@ End InverseMonoidalNaturalTransformation.
 
 Local Open Scope moncat.
 
+(**
+ 8. Bundled versions
+ *)
 Definition lax_monoidal_functor
            (V₁ V₂ : monoidal_cat)
   : UU
