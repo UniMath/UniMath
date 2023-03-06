@@ -316,11 +316,11 @@ EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
 EnrichedCats/EnrichmentMonad.v
 
-EnrichedCats/Enriched/Enriched.v
-EnrichedCats/Enriched/ChangeOfBase.v
-EnrichedCats/Enriched/Opposite.v
-EnrichedCats/Enriched/UnderlyingCategory.v
-EnrichedCats/Enriched/EnrichmentEquiv.v
+# EnrichedCats/Enriched/Enriched.v
+# EnrichedCats/Enriched/ChangeOfBase.v
+# EnrichedCats/Enriched/Opposite.v
+# EnrichedCats/Enriched/UnderlyingCategory.v
+# EnrichedCats/Enriched/EnrichmentEquiv.v
 
 EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/FunctorCategory.v

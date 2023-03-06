@@ -25,12 +25,10 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_rinvunitor mon_linvunitor.
 
 Section ImageEnriched.
   Context {V : monoidal_cat}

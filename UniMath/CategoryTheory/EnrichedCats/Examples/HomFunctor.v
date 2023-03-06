@@ -33,7 +33,9 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -47,7 +49,7 @@ Section HomFunctor.
    1. The enriched hom functor
    *)
   Definition enriched_hom_functor_data
-    : functor_data (C^op ⊠ C) V.
+    : functor_data (category_binproduct C^op C) V.
   Proof.
     use make_functor_data.
     - exact (λ x, E ⦃ pr1 x , pr2 x ⦄).
@@ -71,7 +73,7 @@ Section HomFunctor.
   Qed.
 
   Definition enriched_hom_functor
-    : C^op ⊠ C ⟶ V.
+    : category_binproduct C^op C ⟶ V.
   Proof.
     use make_functor.
     - exact enriched_hom_functor_data.
@@ -114,7 +116,7 @@ Section HomFunctor.
   Qed.
 
   Definition enriched_id_nat_trans
-    : constant_functor _ V 𝟙 ⟹ core_diag _ ∙ enriched_hom_functor.
+    : constant_functor _ V (I_{ V }) ⟹ core_diag _ ∙ enriched_hom_functor.
   Proof.
     use make_nat_trans.
     - exact enriched_id_nat_trans_data.
@@ -124,8 +126,9 @@ Section HomFunctor.
   (**
    3. The transformation that is pointwise the enriched composition
    *)
+  (*
   Definition enriched_comp_nat_trans_left_functor
-    : C^op ⊠ core C ⊠ C ⟶ V
+    : category_binproduct (category_binproduct C^op (core C)) C ⟶ V
     := bindelta_pair_functor
          (bindelta_pair_functor
             (pr1_functor _ _ ∙ pr2_functor _ _ ∙ functor_core_op _)
@@ -277,4 +280,5 @@ Section HomFunctor.
     - exact enriched_comp_nat_trans_data.
     - exact enriched_comp_nat_trans_laws.
   Defined.
+   *)
 End HomFunctor.

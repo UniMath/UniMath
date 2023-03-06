@@ -48,13 +48,13 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Opaque mon_linvunitor mon_rinvunitor mon_rassociator fully_faithful_inv_hom.
+Opaque fully_faithful_inv_hom.
 
 Section ChangeOfBase.
   Context {V₁ V₂ : monoidal_cat}
@@ -163,14 +163,14 @@ Section ChangeOfBase.
             refine (!_).
             apply functor_id.
           }
-          apply tensor_mon_functor_tensor.
+          apply (tensor_mon_functor_tensor F).
         }
         etrans.
         {
           rewrite !assoc.
           do 2 apply maponpaths_2.
           refine (!_).
-          apply mon_functor_lassociator.
+          apply (mon_functor_lassociator F).
         }
         etrans.
         {
@@ -203,7 +203,7 @@ Section ChangeOfBase.
               refine (!_).
               apply functor_id.
             }
-            apply tensor_mon_functor_tensor.
+            apply (tensor_mon_functor_tensor F).
           }
           rewrite !assoc'.
           rewrite <- functor_comp.
@@ -265,7 +265,7 @@ Section ChangeOfBase.
             do 3 apply maponpaths.
             rewrite !assoc.
             apply maponpaths_2.
-            apply tensor_mon_functor_tensor.
+            apply (tensor_mon_functor_tensor F).
           }
           rewrite !assoc'.
           rewrite <- functor_comp.
@@ -290,7 +290,7 @@ Section ChangeOfBase.
           {
             apply maponpaths_2.
             refine (!_).
-            apply mon_functor_linvunitor.
+            apply (mon_functor_linvunitor F).
           }
           rewrite <- functor_comp.
           rewrite !assoc.
@@ -338,7 +338,7 @@ Section ChangeOfBase.
         etrans.
         {
           apply maponpaths_2.
-          apply tensor_mon_functor_tensor.
+          apply (tensor_mon_functor_tensor F).
         }
         rewrite !assoc'.
         rewrite <- !functor_comp.
@@ -399,7 +399,7 @@ Section ChangeOfBase.
         etrans.
         {
           apply maponpaths_2.
-          apply tensor_mon_functor_tensor.
+          apply (tensor_mon_functor_tensor F).
         }
         rewrite !assoc'.
         rewrite <- functor_comp.
@@ -410,7 +410,7 @@ Section ChangeOfBase.
         rewrite !assoc.
         apply maponpaths_2.
         refine (!_).
-        apply mon_functor_rinvunitor.
+        apply (mon_functor_rinvunitor F).
       }
       refine (!_).
       etrans.
@@ -427,7 +427,7 @@ Section ChangeOfBase.
         etrans.
         {
           apply maponpaths_2.
-          apply tensor_mon_functor_tensor.
+          apply (tensor_mon_functor_tensor F).
         }
         rewrite !assoc'.
         rewrite <- functor_comp.
@@ -438,7 +438,7 @@ Section ChangeOfBase.
         rewrite !assoc.
         apply maponpaths_2.
         refine (!_).
-        apply mon_functor_linvunitor.
+        apply (mon_functor_linvunitor F).
       }
       rewrite <- !functor_comp.
       apply maponpaths.

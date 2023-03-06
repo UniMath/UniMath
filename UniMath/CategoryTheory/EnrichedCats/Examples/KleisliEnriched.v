@@ -22,14 +22,12 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor mon_rinvunitor mon_rassociator.
 
 Section EnrichedKleisli.
   Context {V : monoidal_cat}
@@ -1406,18 +1404,7 @@ Section EnrichedKleisli.
       }
       rewrite <- !tensor_comp_mor.
       rewrite !id_left.
-      etrans.
-      {
-        apply maponpaths.
-        refine (!_).
-        apply tensor_comp_mor.
-      }
-      etrans.
-      {
-        refine (!_).
-        apply tensor_comp_mor.
-      }
-      rewrite !id_right.
+      rewrite id_right.
       etrans.
       {
         do 2 apply maponpaths.
@@ -1471,7 +1458,6 @@ Section EnrichedKleisli.
     - exact Kleisli_cat_monad_enrichment_data.
     - exact Kleisli_cat_monad_enrichment_laws.
   Defined.
-
 
   Definition Left_Kleisli_functor_enrichment_laws
     : @is_functor_enrichment

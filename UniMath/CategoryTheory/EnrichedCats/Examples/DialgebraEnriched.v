@@ -30,13 +30,13 @@ Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.limits.equalizers.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor mon_rinvunitor.
 
 Section EnrichedDialgebras.
   Context (V : monoidal_cat)
@@ -206,7 +206,7 @@ Section EnrichedDialgebras.
   Definition dialgebra_enrichment_id
              {x : C₁}
              (f : F x --> G x)
-    : 𝟙 --> dialgebra_enrichment_mor f f.
+    : I_{ V } --> dialgebra_enrichment_mor f f.
   Proof.
     use EqualizerIn.
     - exact (enriched_id E₁ x).
@@ -502,7 +502,7 @@ Section EnrichedDialgebras.
              {g : F y --> G y}
              (h : x --> y)
              (p : f · # G h = # F h · g)
-    : 𝟙 --> dialgebra_enrichment_mor f g.
+    : I_{ V } --> dialgebra_enrichment_mor f g.
   Proof.
     use EqualizerIn.
     - exact (enriched_from_arr E₁ h).

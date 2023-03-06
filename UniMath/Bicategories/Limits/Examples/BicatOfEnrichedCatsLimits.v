@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
@@ -53,10 +53,10 @@ Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
 
+Import MonoidalNotations.
+
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor mon_rinvunitor.
 
 Section LimitsEnrichedCats.
   Context (V : monoidal_cat).
@@ -72,7 +72,7 @@ Section LimitsEnrichedCats.
    univalent enriched unit category.
    *)
   Section FinalObject.
-    Context (HV : isTerminal V 𝟙).
+    Context (HV : isTerminal V (I_{ V })).
 
     Let enriched_bifinal : bicat_of_enriched_cats V
       := unit_category ,, unit_enrichment V HV.

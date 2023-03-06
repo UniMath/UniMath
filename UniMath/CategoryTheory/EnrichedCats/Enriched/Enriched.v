@@ -12,16 +12,19 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
 Local Open Scope cat.
 
+Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
+Notation "( c , d )" := (make_catbinprod c d).
+Notation "( f #, g )" := (catbinprodmor f g).
 
 Section aux.
 
-Lemma bifunctor_on_morphisms_comm {A B C : category} (F : A ⊠ B ⟶ C) {a a' : A} {b b' : B} (f : a --> a') (g : b --> b') : #F (f #, id _) · #F (id _ #, g) = #F (id _ #, g) · #F (f #, id _).
+Lemma bifunctor_on_morphisms_comm {A B C : category} (F : A ⊠ B ⟶ C) {a a' : A} {b b' : B} (f : a --> a') (g : b --> b') : #F (f #, identity _) · #F (identity _ #, g) = #F (identity _ #, g) · #F (f #, identity _).
 Proof.
   rewrite <- !functor_comp.
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
@@ -29,7 +32,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma bifunctor_comp_left {A B C : category} (F : A ⊠ B ⟶ C) {a a' a'' : A} {b : B} (f : a --> a') (g : a' --> a'') : #F (f · g #, id b) = #F (f #, id _) · #F (g #, id _).
+Lemma bifunctor_comp_left {A B C : category} (F : A ⊠ B ⟶ C) {a a' a'' : A} {b : B} (f : a --> a') (g : a' --> a'') : #F (f · g #, identity b) = #F (f #, identity _) · #F (g #, identity _).
 Proof.
   rewrite <- (functor_comp F).
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
@@ -37,7 +40,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma bifunctor_comp_right {A B C : category} (F : A ⊠ B ⟶ C) {a : A} {b b' b'' : B} (f : b --> b') (g : b' --> b'') : #F (id a #, f · g) = #F (id _ #, f) · #F (id _ #, g).
+Lemma bifunctor_comp_right {A B C : category} (F : A ⊠ B ⟶ C) {a : A} {b b' b'' : B} (f : b --> b') (g : b' --> b'') : #F (identity a #, f · g) = #F (identity _ #, f) · #F (identity _ #, g).
 Proof.
   rewrite <- (functor_comp F).
   change ((?x #, ?y) · (?z #, ?w)) with (x · z #, y · w).
@@ -79,7 +82,7 @@ Section Def.
   Definition enriched_cat_ob    (d : enriched_precat_data) : UU := pr1 d.
   Definition enriched_cat_mor   {d : enriched_precat_data} :
     enriched_cat_ob d -> enriched_cat_ob d -> ob Mon_V := pr1 (pr2 d).
-  Definition enriched_cat_id    {d : enriched_precat_data} :
+  Definition enriched_cat_identity    {d : enriched_precat_data} :
     ∏ x : enriched_cat_ob d, I --> enriched_cat_mor x x := pr1 (pr2 (pr2 d)).
   Definition enriched_cat_comp {d : enriched_precat_data} (x y z : enriched_cat_ob d) :
     enriched_cat_mor y z ⊗ enriched_cat_mor x y --> enriched_cat_mor x z :=
@@ -108,7 +111,7 @@ Section Def.
 <<
           (C(c, d) ⊗ C(b, c)) ⊗ C(a, b) --------> C(c, d) ⊗ (C(b, c) ⊗ C(a, b))
                         |                                        |
-                ∘ ⊗ id  |                                id ⊗ ∘  |
+                ∘ ⊗ identity  |                                identity ⊗ ∘  |
                         V                                        V
                 C(b, d) ⊗ C(a, b) -----> C(a, d) <------ C(c, d) ⊗ C(a, c)
 >>
@@ -140,8 +143,8 @@ Section Def.
     Definition enriched_id_ax : UU :=
       ∏ a b : enriched_cat_ob e,
         dirprod
-          (enriched_cat_id b #⊗ (identity _) · enriched_cat_comp a b b = pr1 l_unitor _)
-          ((identity _ #⊗ enriched_cat_id a) · enriched_cat_comp a a b = pr1 r_unitor _).
+          (enriched_cat_identity b #⊗ (identity _) · enriched_cat_comp a b b = pr1 l_unitor _)
+          ((identity _ #⊗ enriched_cat_identity a) · enriched_cat_comp a a b = pr1 r_unitor _).
 
 
   End Axioms.
@@ -159,9 +162,9 @@ Section Def.
     tpair _ d (make_dirprod idax assocax).
 
   (** Accessors *)
-  Definition enriched_id_left {A : enriched_precat} (a b : A) : enriched_cat_id b #⊗ (identity _) · enriched_cat_comp a b b = pr1 l_unitor _ := pr1 (pr1 (pr2 A) _ _).
+  Definition enriched_id_left {A : enriched_precat} (a b : A) : enriched_cat_identity b #⊗ (identity _) · enriched_cat_comp a b b = pr1 l_unitor _ := pr1 (pr1 (pr2 A) _ _).
 
-  Definition enriched_id_right {A : enriched_precat} (a b : A) : (identity _ #⊗ enriched_cat_id a) · enriched_cat_comp a a b = pr1 r_unitor _ := pr2 (pr1 (pr2 A) _ _).
+  Definition enriched_id_right {A : enriched_precat} (a b : A) : (identity _ #⊗ enriched_cat_identity a) · enriched_cat_comp a a b = pr1 r_unitor _ := pr2 (pr1 (pr2 A) _ _).
 
   Definition enriched_assoc {A : enriched_precat} (a b c d : A) : (enriched_cat_comp b c d #⊗ (identity _)) · enriched_cat_comp a _ _ = pr1 α ((_, _) , _) · ((identity _ #⊗ enriched_cat_comp _ _ _) · enriched_cat_comp _ _ _) := pr2 (pr2 A) a b c d.
 
@@ -199,7 +202,7 @@ Section Functors.
 
     Definition enriched_functor_unit_ax : UU :=
       ∏ a : enriched_cat_ob D,
-        enriched_cat_id a · #F a a = enriched_cat_id (F a).
+        enriched_cat_identity a · #F a a = enriched_cat_identity (F a).
 
     Definition enriched_functor_comp_ax : UU :=
       ∏ a b c : enriched_cat_ob D,
@@ -246,12 +249,12 @@ Proof.
     + intro a.
       exact a.
     + intros x y.
-      exact (id _).
+      exact (identity _).
   - intro a.
     apply id_right.
   - abstract (intros a b c;
     simpl;
-    rewrite (functor_id tensor);
+    rewrite (functor_identity tensor);
     rewrite id_left, id_right;
     reflexivity).
 Defined.
@@ -289,7 +292,7 @@ Proof.
     refine (maponpaths (fun f => f · _) (enriched_functor_on_comp F _ _ _) @ _).
     refine (_ @ !maponpaths (fun f => f · _) (tensor_comp _ _ _ _ _)).
 
-    (* Get rid of the common prefix *)
+    (* Get ridentity of the common prefix *)
     refine (_ @ assoc _ _ _).
     refine (!assoc _ _ _ @ _).
     apply (maponpaths (fun f => _ · f)).
@@ -316,9 +319,9 @@ Proof.
       apply homset_property.
 Defined.
 
-Let nat_trans_ax_l_unitor_inv {x y : Mon_V} (f : x --> y) : f · nat_z_iso_to_trans_inv l_unitor _ = nat_z_iso_to_trans_inv l_unitor _ · (id I #⊗ f) := (nat_trans_ax (nat_z_iso_to_trans_inv l_unitor) _ _ _).
+Let nat_trans_ax_l_unitor_inv {x y : Mon_V} (f : x --> y) : f · nat_z_iso_to_trans_inv l_unitor _ = nat_z_iso_to_trans_inv l_unitor _ · (identity I #⊗ f) := (nat_trans_ax (nat_z_iso_to_trans_inv l_unitor) _ _ _).
 
-Let nat_trans_ax_r_unitor_inv {x y : Mon_V} (f : x --> y) : f · nat_z_iso_to_trans_inv r_unitor _ = nat_z_iso_to_trans_inv r_unitor _ · (f #⊗ id I) := (nat_trans_ax (nat_z_iso_to_trans_inv r_unitor) _ _ _).
+Let nat_trans_ax_r_unitor_inv {x y : Mon_V} (f : x --> y) : f · nat_z_iso_to_trans_inv r_unitor _ = nat_z_iso_to_trans_inv r_unitor _ · (f #⊗ identity I) := (nat_trans_ax (nat_z_iso_to_trans_inv r_unitor) _ _ _).
 
 Let nat_trans_ax_α {x x' y y' z z' : Mon_V} (f : x --> x') (g : y --> y') (h : z --> z') : ((f #⊗ g) #⊗ h) · α ((_, _), _) = α ((_, _), _) · (f #⊗ (g #⊗ h)) := nat_trans_ax α _ _ ((_ #, _) #, _).
 
@@ -326,11 +329,11 @@ Section UnderlyingMorphisms.
 
 Definition underlying_morphism {A : enriched_precat} (x y : A) := I --> enriched_cat_mor x y.
 
-Definition precompose_underlying_morphism {A : enriched_precat} {x y : A} (z : A) (f : underlying_morphism x y) : enriched_cat_mor y z --> enriched_cat_mor x z := (nat_z_iso_to_trans_inv r_unitor _ · (id _ #⊗ f) · enriched_cat_comp _ _ _).
+Definition precompose_underlying_morphism {A : enriched_precat} {x y : A} (z : A) (f : underlying_morphism x y) : enriched_cat_mor y z --> enriched_cat_mor x z := (nat_z_iso_to_trans_inv r_unitor _ · (identity _ #⊗ f) · enriched_cat_comp _ _ _).
 
-Definition postcompose_underlying_morphism {A : enriched_precat} (x : A) {y z : A} (f : underlying_morphism y z) : enriched_cat_mor x y --> enriched_cat_mor x z := (nat_z_iso_to_trans_inv l_unitor _ · (f #⊗ id _) · enriched_cat_comp _ _ _).
+Definition postcompose_underlying_morphism {A : enriched_precat} (x : A) {y z : A} (f : underlying_morphism y z) : enriched_cat_mor x y --> enriched_cat_mor x z := (nat_z_iso_to_trans_inv l_unitor _ · (f #⊗ identity _) · enriched_cat_comp _ _ _).
 
-Definition precompose_identity {A : enriched_precat} {x y : A} : precompose_underlying_morphism _ (enriched_cat_id x) = id enriched_cat_mor x y.
+Definition precompose_identity {A : enriched_precat} {x y : A} : precompose_underlying_morphism _ (enriched_cat_identity x) = identity enriched_cat_mor x y.
 Proof.
   unfold precompose_underlying_morphism.
   rewrite assoc'.
@@ -338,7 +341,7 @@ Proof.
   apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 r_unitor _))).
 Qed.
 
-Definition postcompose_identity {A : enriched_precat} {x y : A} : postcompose_underlying_morphism _ (enriched_cat_id y) = id enriched_cat_mor x y.
+Definition postcompose_identity {A : enriched_precat} {x y : A} : postcompose_underlying_morphism _ (enriched_cat_identity y) = identity enriched_cat_mor x y.
 Proof.
   unfold postcompose_underlying_morphism.
   rewrite assoc'.
@@ -346,7 +349,7 @@ Proof.
   apply (is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat (pr2 l_unitor _))).
 Qed.
 
-Lemma precompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism w x) : (# tensor (id _ #, precompose_underlying_morphism y f) · enriched_cat_comp w y z = enriched_cat_comp x y z · precompose_underlying_morphism z f)%cat.
+Lemma precompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism w x) : (# tensor (identity _ #, precompose_underlying_morphism y f) · enriched_cat_comp w y z = enriched_cat_comp x y z · precompose_underlying_morphism z f)%cat.
 Proof.
   unfold precompose_underlying_morphism.
   rewrite !assoc.
@@ -360,7 +363,7 @@ Proof.
   rewrite !(bifunctor_comp_right tensor).
   do 2 apply cancel_postcomposition.
   rewrite assoc'.
-  rewrite <- (functor_id tensor).
+  rewrite <- (functor_identity tensor).
   apply pathsinv0.
   etrans.
   {
@@ -373,7 +376,7 @@ Proof.
   apply right_unitor_inv_of_tensor.
 Qed.
 
-Lemma enriched_cat_comp_underlying_morphism_middle {A : enriched_precat} {w x y z : A} (f : underlying_morphism x y) : (# tensor (id _ #, postcompose_underlying_morphism w f) · enriched_cat_comp w y z = #tensor (precompose_underlying_morphism z f #, id _) · enriched_cat_comp w x z)%cat.
+Lemma enriched_cat_comp_underlying_morphism_middle {A : enriched_precat} {w x y z : A} (f : underlying_morphism x y) : (# tensor (identity _ #, postcompose_underlying_morphism w f) · enriched_cat_comp w y z = #tensor (precompose_underlying_morphism z f #, identity _) · enriched_cat_comp w x z)%cat.
 Proof.
   unfold precompose_underlying_morphism, postcompose_underlying_morphism.
   rewrite !(bifunctor_comp_left tensor), !(bifunctor_comp_right tensor).
@@ -393,7 +396,7 @@ Proof.
   apply monoidal_cat_triangle_eq_inv.
 Qed.
 
-Lemma postcompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism y z) : (# tensor (postcompose_underlying_morphism x f #, id _) · enriched_cat_comp w x z = enriched_cat_comp w x y · postcompose_underlying_morphism w f)%cat.
+Lemma postcompose_underlying_morphism_enriched_cat_comp {A : enriched_precat} {w x y z : A} (f : underlying_morphism y z) : (# tensor (postcompose_underlying_morphism x f #, identity _) · enriched_cat_comp w x z = enriched_cat_comp w x y · postcompose_underlying_morphism w f)%cat.
 Proof.
   unfold postcompose_underlying_morphism.
   rewrite !assoc.
@@ -413,7 +416,7 @@ Proof.
     apply nat_trans_ax_α.
   }
   rewrite assoc.
-  rewrite (functor_id tensor).
+  rewrite (functor_identity tensor).
   apply cancel_postcomposition.
   apply left_unitor_inv_of_tensor.
 Qed.
@@ -431,7 +434,7 @@ Proof.
   apply (transportb (λ h, _ · h · _ = _) (nat_trans_ax_α _ _ _)).
   simpl.
   rewrite assoc.
-  rewrite (functor_id tensor).
+  rewrite (functor_identity tensor).
   rewrite assoc'.
   apply (transportb (λ h, h · _ = _) (left_unitor_inv_of_tensor _ _)).
   apply (transportb (λ h, _ · h = _) (bifunctor_on_morphisms_comm tensor _ _)).
@@ -456,7 +459,7 @@ Proof.
   rewrite enriched_assoc.
   rewrite !assoc.
   do 2 apply cancel_postcomposition.
-  rewrite <- (functor_id tensor).
+  rewrite <- (functor_identity tensor).
   rewrite !assoc'.
   apply cancel_precomposition.
   do 2 rewrite assoc.
@@ -526,7 +529,7 @@ Proof.
   rewrite !assoc.
   do 2 apply cancel_postcomposition.
   rewrite assoc'.
-  rewrite <- (functor_id tensor).
+  rewrite <- (functor_identity tensor).
   apply (transportb (λ h, _ = _ · h) (nat_trans_ax_α _ _ _)).
   rewrite assoc.
   apply cancel_postcomposition.
@@ -727,7 +730,7 @@ Proof.
   - intros.
     exact (monoidal_cat_unit Mon_V).
   - intros.
-    exact (id _).
+    exact (identity _).
   - intros.
     exact (monoidal_cat_left_unitor Mon_V _).
 Defined.
@@ -737,9 +740,9 @@ Proof.
   use make_enriched_precat.
   - exact unit_enriched_precat_data.
   - split; cbn.
-    + abstract (rewrite (functor_id (monoidal_cat_tensor Mon_V));
+    + abstract (rewrite (functor_identity (monoidal_cat_tensor Mon_V));
       apply id_left).
-    + abstract (rewrite (functor_id (monoidal_cat_tensor Mon_V));
+    + abstract (rewrite (functor_identity (monoidal_cat_tensor Mon_V));
       rewrite id_left;
       apply left_unitor_right_unitor_of_unit).
   - abstract (intros a b c d;
@@ -774,7 +777,7 @@ Proof.
   intros t t' t''.
   induction t, t', t''.
   cbn.
-  apply (@pathscomp0 _ _ (# tensor ((id _ #, enriched_cat_id a) · (enriched_cat_id a #, id _)) · enriched_cat_comp a a a) _)%cat.
+  apply (@pathscomp0 _ _ (# tensor ((identity _ #, enriched_cat_identity a) · (enriched_cat_identity a #, identity _)) · enriched_cat_comp a a a) _)%cat.
   - rewrite (functor_comp tensor).
     rewrite assoc'.
     rewrite (enriched_id_left a).

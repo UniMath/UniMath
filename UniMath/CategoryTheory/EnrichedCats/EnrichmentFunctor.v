@@ -19,13 +19,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
-Opaque mon_lunitor mon_linvunitor.
-Opaque mon_runitor mon_rinvunitor.
-Opaque mon_lassociator mon_rassociator.
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -337,7 +335,7 @@ Defined.
  *)
 Definition functor_constant_enrichment
            {V : monoidal_cat}
-           (HV : isTerminal V 𝟙)
+           (HV : isTerminal V (I_{ V }))
            {C₁ C₂ : category}
            (a : C₂)
            (E₁ : enrichment C₁ V)

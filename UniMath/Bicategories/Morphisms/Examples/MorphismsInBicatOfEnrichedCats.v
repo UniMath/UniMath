@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
@@ -39,10 +39,10 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
 
+Import MonoidalNotations.
+
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor mon_rinvunitor.
 
 (**
  1. Faithful 1-cells
@@ -73,7 +73,7 @@ Section MorphismsEnrichedCats.
   Qed.
 
   Definition enriched_cat_faithful_1cell_is_faithful
-             (HV : isTerminal V 𝟙)
+             (HV : isTerminal V (I_{ V }))
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
              (HF : faithful_1cell F)
@@ -119,7 +119,7 @@ Section MorphismsEnrichedCats.
   Qed.
 
   Definition enriched_cat_faithful_weq_faithful_1cell
-             (HV : isTerminal V 𝟙)
+             (HV : isTerminal V (I_{ V }))
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
     : faithful (pr1 F) ≃ faithful_1cell F.
@@ -325,7 +325,7 @@ Section MorphismsEnrichedCats.
    Defined.
 
    Definition enriched_cat_conservative_1cell_to_conservative
-              (HV : isTerminal V 𝟙)
+              (HV : isTerminal V (I_{ V }))
               (HV' : faithful_moncat V)
               {E₁ E₂ : bicat_of_enriched_cats V}
               {F : E₁ --> E₂}
@@ -364,7 +364,7 @@ Section MorphismsEnrichedCats.
    Qed.
 
    Definition enriched_cat_conservative_weq_conservative_1cell
-              (HV : isTerminal V 𝟙)
+              (HV : isTerminal V (I_{ V }))
               (HV' : faithful_moncat V)
               {E₁ E₂ : bicat_of_enriched_cats V}
               (F : E₁ --> E₂)
@@ -381,7 +381,7 @@ Section MorphismsEnrichedCats.
    4. Discrete 1-cells
    *)
   Definition enriched_cat_discretee_weq_discrete_1cell
-             (HV : isTerminal V 𝟙)
+             (HV : isTerminal V (I_{ V }))
              (HV' : faithful_moncat V)
              {E₁ E₂ : bicat_of_enriched_cats V}
              (F : E₁ --> E₂)
