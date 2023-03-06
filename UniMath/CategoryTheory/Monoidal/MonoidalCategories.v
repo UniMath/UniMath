@@ -14,7 +14,7 @@
 
  In this file, we use a whiskered approach. This means that we have two
  operations to tensor with morphisms: a left and a right whiskering. Both of
- these take an object and a morphism and input and they return a morphism as
+ these take an object and a morphism as input and they return a morphism as
  output.
 
  Contents
