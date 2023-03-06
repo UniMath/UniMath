@@ -264,6 +264,13 @@ Monoidal/Examples/EndofunctorsMonoidal.v
 
 Actegories/Actegories.v
 Actegories/ConstructionOfActegories.v
+Actegories/MorphismsOfActegories.v
+Actegories/ProductActegory.v
+Actegories/ProductsInActegories.v
+Actegories/CoproductsInActegories.v
+Actegories/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
+Actegories/Examples/SelfActionInCATWhiskeredElementary.v
+Actegories/ConstructionOfActegoryMorphisms.v
 
 MonoidalOld/WhiskeredBifunctors.v
 MonoidalOld/MonoidalCategoriesWhiskered.v
@@ -275,7 +282,6 @@ MonoidalOld/WhiskeredDisplayedBifunctors.v
 MonoidalOld/DisplayedMonoidalWhiskered.v
 MonoidalOld/DisplayedCartesianMonoidalCategoriesWhiskered.v
 MonoidalOld/TotalDisplayedMonoidalWhiskered.v
-# DONE SO FAR
 MonoidalOld/ConstructionOfActegories.v
 MonoidalOld/MorphismsOfActegories.v
 MonoidalOld/ProductActegory.v
@@ -285,6 +291,7 @@ MonoidalOld/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
 MonoidalOld/Examples/SelfActionInCATWhiskeredElementary.v
 MonoidalOld/ConstructionOfActegoryMorphisms.v
 MonoidalOld/ActionBasedStrongMonads.v
+# DONE SO FAR
 MonoidalOld/MonoidalSectionsWhiskered.v
 MonoidalOld/BraidedMonoidalCategoriesWhiskered.v
 MonoidalOld/ClosedMonoidalCategoriesWhiskered.v
