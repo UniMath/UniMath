@@ -445,7 +445,6 @@ Proof.
   - exact (univalence_iso (pr2 F) (pr2 G) u).
   - intro p.
     induction p.
-    Search total2_paths_f.
     use subtypePath.
     { intro ; apply isaprop_is_unitary. }
     use subtypePath.
