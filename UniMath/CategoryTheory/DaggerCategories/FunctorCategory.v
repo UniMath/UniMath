@@ -89,8 +89,8 @@ Section DaggerFunctorCategories.
     : (∏ x : C, pr11 α x = pr11 β x) -> α = β.
   Proof.
     intro p.
-    use total2_paths_f.
-    2: apply isapropunit.
+    use subtypePath.
+    { intro ; apply isapropunit. }
     apply (nat_trans_eq D).
     exact p.
   Qed.
@@ -118,11 +118,6 @@ Section Univalence.
           (dagF : is_dagger_functor dagC dagD F)
           (dagG : is_dagger_functor dagC dagD G).
 
-  Local Definition unitary_functors
-    : UU
-    := ∑ α : nat_trans F G,
-        (∏ x : C, Isos.is_inverse_in_precat (α x) (dagD _ _ (α x))).
-
   Local Definition unitary_functors_eq
     : UU
     := ∑ p : (∏ x : pr11 C, unitary dagD (F x) (G x)),
@@ -136,7 +131,7 @@ Section Univalence.
         #G f = idtodaggermor dagD (! p x) · #F f · idtodaggermor dagD (p y).
 
   Definition unitary_functors_equiv_unitary
-    : unitary_functors ≃ unitary (dagger_functor_cat_structure dagC dagD) (F,,dagF) (G,,dagG).
+    : unitary_functors dagF dagG ≃ unitary (dagger_functor_cat_structure dagC dagD) (F,,dagF) (G,,dagG).
   Proof.
     use weq_iso.
     - intro α.
@@ -169,20 +164,16 @@ Section Univalence.
     : is_nat_trans F G (λ c : pr11 C, pr1 (pr1 p c)).
   Proof.
     intros c1 c2 f.
-    apply pathsinv0.
-    etrans.
-    1: apply maponpaths, (pr2 p).
-    etrans.
-    1: apply assoc.
+    refine (_ @ maponpaths (compose _) (! pr2 p _ _ _)).
+    refine (_ @ assoc' _ _ _).
     apply maponpaths_2.
-    etrans.
-    1: apply assoc.
-    refine (_ @ id_left _).
-    apply maponpaths_2, (pr1 p).
+    refine (_ @ assoc' _ _ _).
+    refine (! id_left _ @ _).
+    apply maponpaths_2, pathsinv0, (pr1 p).
   Qed.
 
   Definition unitary_functors_eq_to_unitary_functors
-    : unitary_functors_eq -> unitary_functors.
+    : unitary_functors_eq -> unitary_functors dagF dagG.
   Proof.
     intros [p q].
     use tpair.
@@ -192,23 +183,20 @@ Section Univalence.
   Defined.
 
   Lemma unitary_functors_eq_from_unitary_functors_naturality
-        (α : unitary_functors)
+        (α : unitary_functors dagF dagG)
     : ∏ (x y : C) (f : C ⟦ x, y ⟧), # G f = dagD (F x) (G x) ((pr1 α) x) · # F f · (pr1 α) y.
   Proof.
     intros c1 c2 f.
     apply pathsinv0.
-    etrans.
-    1: apply assoc'.
-    etrans.
-    1: apply maponpaths, (pr21 α).
-    etrans.
-    1: apply assoc.
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths (compose _) (pr21 α _ _ _) @ _).
+    refine (assoc _ _ _ @ _).
     refine (_ @ id_left _).
     apply maponpaths_2, (pr2 α).
   Qed.
 
   Definition unitary_functors_eq_from_unitary_functors
-    : unitary_functors -> unitary_functors_eq.
+    : unitary_functors dagF dagG -> unitary_functors_eq.
   Proof.
     intros [α p].
     use tpair.
@@ -231,7 +219,7 @@ Section Univalence.
   Qed.
 
   Lemma unitary_functors_eq_equiv_unitary_functors_inv_law2
-    :  ∏ y : unitary_functors,
+    :  ∏ y : unitary_functors dagF dagG,
         unitary_functors_eq_to_unitary_functors (unitary_functors_eq_from_unitary_functors y) = y.
   Proof.
     intro.
@@ -243,7 +231,7 @@ Section Univalence.
   Qed.
 
   Definition unitary_functors_eq_equiv_unitary_functors
-    : unitary_functors_eq ≃ unitary_functors.
+    : unitary_functors_eq ≃ unitary_functors dagF dagG.
   Proof.
     use weq_iso.
     - exact unitary_functors_eq_to_unitary_functors.
@@ -262,7 +250,7 @@ Section Univalence.
     refine (pr2 p x y f @ _).
     do 2 apply maponpaths_2.
     etrans.
-    1: apply (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
+    { apply (idtodaggeriso_is_dagger_of_idtodaggeriso dagD). }
     do 3 apply maponpaths.
     apply pathsinv0inv0.
   Defined.
@@ -278,14 +266,11 @@ Section Univalence.
       refine (pr2 p x y f @ _).
       apply maponpaths_compose.
       + apply maponpaths_2.
-        cbn.
-        etrans.
-        2: apply pathsinv0, (idtodaggeriso_is_dagger_of_idtodaggeriso dagD).
+        refine (_ @ ! idtodaggeriso_is_dagger_of_idtodaggeriso dagD _).
         do 2 apply maponpaths.
         etrans.
-        1: apply pathsinv0, (idtodaggeriso_daggerisotoid u).
-        apply maponpaths.
-        apply pathsinv0, pathsinv0inv0.
+        * apply pathsinv0, (idtodaggeriso_daggerisotoid u).
+        * apply maponpaths, pathsinv0, pathsinv0inv0.
       + apply pathsinv0, idtodaggermor_daggerisotoid.
   Defined.
 
@@ -389,8 +374,7 @@ Section Univalence.
   Proof.
     intro.
     apply functor_eq_eq_from_functor_ob_eq'.
-    etrans.
-    1: apply base_total2_paths.
+    refine (base_total2_paths _ @ _).
     apply (invmaponpathsweq (weqtoforallpaths _ _ _)).
     simpl.
     rewrite toforallpaths_funextsec.
@@ -461,10 +445,11 @@ Proof.
   - exact (univalence_iso (pr2 F) (pr2 G) u).
   - intro p.
     induction p.
-    use total2_paths_f.
-    2: apply isaprop_is_unitary.
-    use total2_paths_f.
-    2: apply isapropunit.
+    Search total2_paths_f.
+    use subtypePath.
+    { intro ; apply isaprop_is_unitary. }
+    use subtypePath.
+    { intro ; apply isapropunit. }
     apply (nat_trans_eq (pr2 D)).
     intro ; apply idpath.
 Qed.

@@ -58,21 +58,20 @@ Section FullyFaithful.
   Proof.
     repeat split ; intro ; intros ; use invmap_eq.
     - etrans.
-      1: apply maponpaths, functor_id.
+      { apply maponpaths, functor_id. }
       etrans.
-      1: apply dagger_to_law_id.
+      { apply dagger_to_law_id. }
       apply pathsinv0, functor_id.
     - etrans.
-      1: apply maponpaths, functor_comp.
+      { apply maponpaths, functor_comp. }
       etrans.
-      1: apply dagger_to_law_comp.
+      { apply dagger_to_law_comp. }
       etrans.
-      2: apply pathsinv0, functor_comp.
-      etrans.
-      2: apply maponpaths_2, pathsinv0, functor_on_fully_faithful_inv_hom.
-      apply maponpaths, pathsinv0, functor_on_fully_faithful_inv_hom.
+      { apply maponpaths, pathsinv0, (functor_on_fully_faithful_inv_hom ff). }
+      refine (_ @ ! functor_comp _ _ _).
+      apply maponpaths_2, pathsinv0, functor_on_fully_faithful_inv_hom.
     - etrans.
-      1: apply maponpaths, functor_on_fully_faithful_inv_hom.
+      { apply maponpaths, functor_on_fully_faithful_inv_hom. }
       apply dagger_to_law_idemp.
   Qed.
 
@@ -101,14 +100,11 @@ Section FullyFaithful.
   Proof.
     exists (fully_faithful_reflect_dagger dagD ff ,, fully_faithful_is_dagger_functor dagD ff).
     intro dag.
-
-    use total2_paths_f.
-    2: apply isaprop_is_dagger_functor.
-    use total2_paths_f.
-    2: apply isaprop_dagger_laws.
-    apply funextsec ; intro c.
-    apply funextsec ; intro d.
-    apply funextsec ; intro f.
+    use subtypePath.
+    { intro ; apply isaprop_is_dagger_functor. }
+    use subtypePath.
+    { intro ; apply isaprop_dagger_laws. }
+    do 3 (apply funextsec ; intro).
     apply pathsweq1.
     apply (pr2 dag).
   Defined.

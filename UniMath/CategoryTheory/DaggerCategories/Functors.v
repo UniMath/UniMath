@@ -43,9 +43,7 @@ Section DaggerFunctors.
     : is_dagger_functor dagC dagE (functor_composite F G).
   Proof.
     intros x y f.
-    cbn.
-    etrans.
-    1: apply maponpaths, dF.
+    refine (maponpaths #G (dF _ _ _) @ _).
     apply dG.
   Qed.
 
@@ -62,11 +60,10 @@ Section DaggerFunctors.
     : pr11 F = pr11 G -> F = G.
   Proof.
     intro p.
-    use total2_paths_f.
-    2: apply isaprop_is_dagger_functor.
-    use functor_eq.
-    - apply homset_property.
-    - exact p.
+    use subtypePath.
+    { intro ; apply isaprop_is_dagger_functor. }
+    use (functor_eq _ _ (homset_property D)).
+    exact p.
   Defined.
 
   Definition dagger_functor_to_functor

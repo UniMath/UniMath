@@ -70,26 +70,26 @@ Section UnitaryMorphisms.
   Proof.
     split.
     - etrans.
-      1: apply maponpaths, dagger_to_law_comp.
+      { apply maponpaths, dagger_to_law_comp. }
       etrans.
-      1: apply assoc.
+      { apply assoc. }
       etrans.
-      1: apply maponpaths_2, assoc'.
+      { apply maponpaths_2, assoc'. }
       etrans.
-      1: apply maponpaths_2, maponpaths, gg.
+      { apply maponpaths_2, maponpaths, gg. }
       etrans.
-      1: apply maponpaths_2, id_right.
+      { apply maponpaths_2, id_right. }
       apply ff.
     - etrans.
-      1: apply maponpaths_2, dagger_to_law_comp.
+      { apply maponpaths_2, dagger_to_law_comp. }
       etrans.
-      1: apply assoc.
+      { apply assoc. }
       etrans.
-      1: apply maponpaths_2, assoc'.
+      { apply maponpaths_2, assoc'. }
       etrans.
-      1: apply maponpaths_2, maponpaths, ff.
+      { apply maponpaths_2, maponpaths, ff. }
       etrans.
-      1: apply maponpaths_2, id_right.
+      { apply maponpaths_2, id_right. }
       apply gg.
   Qed.
 
@@ -102,11 +102,11 @@ Section UnitaryMorphisms.
     split.
     - refine (! dagger_to_law_comp dag y x y (pr1 dag x y f) f @ _).
       etrans.
-      1: apply maponpaths, ff.
+      { apply maponpaths, ff. }
       apply dagger_to_law_id.
     - refine (! dagger_to_law_comp dag x y x f (pr1 dag x y f) @ _).
       etrans.
-      1: apply maponpaths, ff.
+      { apply maponpaths, ff. }
       apply dagger_to_law_id.
   Qed.
 

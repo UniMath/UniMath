@@ -1,7 +1,9 @@
-(* No special notion of 'dagger natural transformation' is required,
-   because the following definition will give the a functor category
-   between dagger categories, restricted to the dagger functors,
-   the structure of a dagger category:
+(* No special notion of 'dagger natural transformation' is required.
+   However, some concepts are defined in terms of natural transformations.
+   1. The category of dagger functors and natural transformations has the structure of dagger category.
+      The dagger of a natural transformation is given by taking the dagger objectwise.
+      This is called the 'dagger adjoint'.
+   2. A unitary morphism in the dagger functor category is given by a natural isomorphism whose inverse is given objectwise by the dagger [unitary_functors].
 *)
 
 Require Import UniMath.Foundations.All.
@@ -41,21 +43,14 @@ Section DaggerAdjoint.
 
     apply (dagger_injective dagD).
 
-    etrans.
-    1: apply dagger_to_law_comp.
-    etrans.
-    2: apply pathsinv0, dagger_to_law_comp.
+    refine (dagger_to_law_comp _ _ _ _ _ _ @ _ @ ! dagger_to_law_comp _ _ _ _ _ _).
 
-    etrans.
-    1: apply maponpaths_2, dagger_to_law_idemp.
-    etrans.
-    2: apply maponpaths, pathsinv0, dagger_to_law_idemp.
+    refine (maponpaths_2 compose (dagger_to_law_idemp _ _ _ _) _ @ _).
+    refine (_ @ ! maponpaths_12 compose  (idpath _) (dagger_to_law_idemp _ _ _ _)).
 
-    simpl in F, G.
-    etrans.
-    1: apply maponpaths, pathsinv0, dagG.
-    etrans.
-    2: apply maponpaths_2, dagF.
+    refine (! maponpaths (compose (α x')) (dagG _ _ f) @ _).
+    refine (_ @ maponpaths_12 compose (dagF _ _ f) (idpath _)).
+
     apply pathsinv0, (pr2 α).
   Qed.
 
@@ -70,3 +65,17 @@ Section DaggerAdjoint.
     := _ ,, dagger_adjoint_is_nat_trans dagF dagG α.
 
 End DaggerAdjoint.
+
+Section UnitaryFunctors.
+
+  Definition unitary_functors
+             {C D : category}
+             {dagC : dagger C} {dagD : dagger D}
+             {F G : functor C D}
+             (dagF : is_dagger_functor dagC dagD F)
+             (dagG : is_dagger_functor dagC dagD G)
+    : UU
+    := ∑ α : nat_trans F G,
+        (∏ x : C, Isos.is_inverse_in_precat (α x) (dagD _ _ (α x))).
+
+End UnitaryFunctors.
