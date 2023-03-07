@@ -196,7 +196,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
       apply maponpaths.
       repeat rewrite assoc.
       apply cancel_postcomposition.
-      apply pathsinv0, bifunctor_equalwhiskers.
+      apply pathsinv0, (bifunctor_equalwhiskers ActV).
     - etrans.
       { repeat rewrite assoc.
         do 2 apply cancel_postcomposition.

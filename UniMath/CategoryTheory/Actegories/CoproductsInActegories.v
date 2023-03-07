@@ -155,13 +155,13 @@ Section BinaryCoproduct.
       apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
       rewrite assoc'.
       apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
-      apply bincoprod_antidistributor_nat_left.
+      apply (bincoprod_antidistributor_nat_left _ _ Act).
     - red.
       intros v1 v2 cd f.
       apply (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
       rewrite assoc'.
       apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
-      apply bincoprod_antidistributor_nat_right.
+      apply (bincoprod_antidistributor_nat_right _ _ Act).
     - red.
       intros v w cd.
       apply pathsinv0, (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).

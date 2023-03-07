@@ -11,17 +11,17 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 
 Local Open Scope cat.
 

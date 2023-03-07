@@ -39,9 +39,11 @@ Require Import UniMath.SubstitutionSystems.Notation.
 
 
 (** only needed for Section [homogeneous_case]: *)
+(* TODO RM
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
+*)
 
 
 Local Open Scope subsys.
@@ -509,6 +511,7 @@ Proof.
   apply functor_id.
 Qed.
 
+(* TODO RM
 Local Definition ptd := monoidal_cat_of_pointedfunctors C.
 Local Definition endo := monoidal_cat_of_endofunctors C.
 Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
@@ -650,7 +653,7 @@ Section strength_in_signature_is_a_relative_strength.
   Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).
 
 End strength_in_signature_is_a_relative_strength.
-
+*)
 End homogeneous_case.
 
 Arguments PrestrengthForSignature {_ _ _} _ .

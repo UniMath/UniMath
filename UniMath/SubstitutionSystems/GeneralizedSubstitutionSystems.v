@@ -9,16 +9,16 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.CategoriesOfMonoidsWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 
 Local Open Scope cat.
@@ -249,7 +249,7 @@ Section hss.
     - etrans.
       2: { rewrite assoc.
            apply cancel_postcomposition.
-           apply bifunctor_equalwhiskers. }
+           apply (bifunctor_equalwhiskers Mon_V). }
       unfold functoronmorphisms1.
       etrans.
       2: { rewrite assoc'.
@@ -335,7 +335,7 @@ Section hss.
     rewrite assoc.
     etrans.
     2: { apply cancel_postcomposition.
-         apply bifunctor_equalwhiskers. }
+         apply (bifunctor_equalwhiskers Mon_V). }
     unfold functoronmorphisms1.
     rewrite assoc'.
     etrans.
@@ -376,8 +376,8 @@ Section hss.
       repeat rewrite assoc.
       apply cancel_postcomposition.
       cbn.
-      apply bifunctor_equalwhiskers.
-  Time Qed. (* slow *)
+      apply (bifunctor_equalwhiskers Mon_V).
+  Qed.
 
   Definition gh_squared : PtdV := Ptd_from_ghss ⊗_{Mon_PtdV} Ptd_from_ghss.
 
@@ -393,7 +393,7 @@ Section hss.
     2: { apply pathsinv0, ghss_second_monoidlaw_aux. }
     rewrite assoc.
     apply cancel_postcomposition.
-    apply bifunctor_equalwhiskers.
+    apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
   Definition μ_2_Ptd : gh_squared --> Ptd_from_ghss := μ_2,,μ_2_is_Ptd_mor.
@@ -408,7 +408,7 @@ Section hss.
                      (actegory_with_canonical_pointed_action Mon_V)
                      (actegory_with_canonical_pointed_action Mon_V)
                      H θ gh_squared Ptd_from_ghss gh μ_2_Ptd).
-    simpl in aux. (* simpl not cbn *)
+    simpl in aux. (* simpl not cbn for efficiency of Qed *)
     etrans.
     { exact aux. }
     apply idpath.
@@ -425,7 +425,7 @@ Section hss.
         etrans.
         2: { rewrite assoc.
              apply cancel_postcomposition.
-             apply bifunctor_equalwhiskers. }
+             apply (bifunctor_equalwhiskers Mon_V). }
         unfold functoronmorphisms1.
         etrans.
         2: { rewrite assoc'.
@@ -449,7 +449,7 @@ Section hss.
         do 2 rewrite assoc.
         apply cancel_postcomposition.
         cbn.
-        apply bifunctor_equalwhiskers.
+        apply (bifunctor_equalwhiskers Mon_V).
     - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
       apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
       split.
@@ -461,7 +461,7 @@ Section hss.
              rewrite <- monoidal_associatornatleft.
              rewrite assoc'.
              apply maponpaths.
-             apply bifunctor_leftcomp. }
+             apply (bifunctor_leftcomp Mon_V). }
         etrans.
         2: { apply cancel_postcomposition.
              do 2 apply maponpaths.
@@ -499,13 +499,13 @@ Section hss.
         etrans.
         { repeat rewrite assoc'.
           apply maponpaths.
-          do 2 rewrite <- bifunctor_leftcomp.
+          do 2 rewrite <- (bifunctor_leftcomp Mon_V).
           apply maponpaths.
           rewrite assoc.
           apply (gfbracket_τ(Z:=Ptd_from_ghss)).
         }
         cbn.
-        rewrite bifunctor_leftcomp.
+        rewrite (bifunctor_leftcomp Mon_V).
         repeat rewrite assoc.
         apply cancel_postcomposition.
         apply monoidal_associatornatleft.

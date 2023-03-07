@@ -878,7 +878,7 @@ Section OppositeMonoidal.
 
   Definition monoidal_opp_data : monoidal_data C^op.
   Proof.
-    exists monoidal_opp_tensor.
+    exists monoidal_opp_tensor_data.
     exists I_{M}.
     exists luinv_{M}.
     exists lu_{M}.

@@ -17,11 +17,11 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
-Import MonoidalNotations.
-
 Local Open Scope cat.
 
 Section FixACategory.
+
+  Import MonoidalNotations.
 
   Context (C : category).
 
@@ -107,4 +107,5 @@ Section FixACategory.
     exists monendocat_triangle_identity.
     exact monendocat_pentagon_identity.
   Defined.
+
 End FixACategory.

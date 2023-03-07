@@ -264,11 +264,14 @@ Monoidal/Displayed/DisplayedMonoidal.v
 Monoidal/Displayed/TotalDisplayedMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
 
+Monoidal/Examples/EndofunctorsMonoidalElementary.v
+Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/CartesianMonoidal.v
 Monoidal/Examples/DisplayedCartesianMonoidal.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/EndofunctorsMonoidal.v
 Monoidal/Examples/MonoidalDialgebras.v
+
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
@@ -289,8 +292,8 @@ Actegories/MorphismsOfActegories.v
 Actegories/ProductActegory.v
 Actegories/ProductsInActegories.v
 Actegories/CoproductsInActegories.v
-Actegories/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
-Actegories/Examples/SelfActionInCATWhiskeredElementary.v
+Actegories/Examples/ActionOfEndomorphismsInCATElementary.v
+Actegories/Examples/SelfActionInCATElementary.v
 Actegories/ConstructionOfActegoryMorphisms.v
 
 MonoidalOld/WhiskeredBifunctors.v
@@ -298,7 +301,6 @@ MonoidalOld/MonoidalCategoriesWhiskered.v
 MonoidalOld/Actegories.v
 MonoidalOld/CartesianMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalFunctorsWhiskered.v
-MonoidalOld/Examples/EndofunctorsWhiskeredMonoidalElementary.v
 MonoidalOld/WhiskeredDisplayedBifunctors.v
 MonoidalOld/DisplayedMonoidalWhiskered.v
 MonoidalOld/DisplayedCartesianMonoidalCategoriesWhiskered.v
@@ -309,7 +311,6 @@ MonoidalOld/ProductActegory.v
 MonoidalOld/ProductsInActegories.v
 MonoidalOld/CoproductsInActegories.v
 MonoidalOld/Examples/ActionOfEndomorphismsInCATWhiskeredElementary.v
-MonoidalOld/Examples/SelfActionInCATWhiskeredElementary.v
 MonoidalOld/ConstructionOfActegoryMorphisms.v
 MonoidalOld/ActionBasedStrongMonads.v
 MonoidalOld/MonoidalSectionsWhiskered.v
@@ -318,7 +319,6 @@ MonoidalOld/ClosedMonoidalCategoriesWhiskered.v
 MonoidalOld/MonoidalCategoriesReordered.v
 MonoidalOld/MonoidalDialgebras.v
 MonoidalOld/CategoriesOfMonoidsWhiskered.v
-MonoidalOld/Examples/MonadsAsMonoidsWhiskeredElementary.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v

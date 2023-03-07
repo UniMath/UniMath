@@ -86,7 +86,7 @@ Definition tensor_from_bicat_and_ob
 Definition monoidal_data_from_bicat_and_ob: monoidal_data category_from_bicat_and_ob.
 Proof.
   use make_monoidal_data.
-  - exact tensor_from_bicat_and_ob.
+  - exact tensor_data_from_bicat_and_ob.
   - exact (id₁ c0).
   - red; intros; apply lunitor.
   - red; intros; apply linvunitor.
