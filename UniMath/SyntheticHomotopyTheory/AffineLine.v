@@ -265,7 +265,7 @@ Proof.
   { intro. apply invweq. unfold H,J,maponsec1. simple refine (weqonsec _ _ w _).
     intro i. simple refine (weqonpaths2 _ _ _).
     { exact (invweq (l0 i)). }
-    { unfold l0. rewrite (k0 i). reflexivity. }
+    { unfold l0. apply eqweqmap_ap'. }
     { unfold IH'. unfold weqcomp; simpl.
       rewrite (homotinvweqweq (l0 i)). reflexivity. } }
   exact (pr2 (ℤBiRecursion_weq IH') (e #' q)).
