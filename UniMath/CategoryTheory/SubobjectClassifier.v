@@ -132,28 +132,24 @@ Section balanced.
       apply idpath.
     + use make_isEqualizer.
       intros x h q.
-      use make_iscontr.
-      - use tpair.
-        * assert (p : c' = PullbackObject  (subobject_classifier_pullback O f_asMonic)).
-          { apply idpath. }
-          rewrite p.
-          use (PullbackArrow _ _ h (TerminalArrow T x)).
-          rewrite q, assoc.
-          use cancel_postcomposition.
-          use TerminalArrowUnique.
-        * simpl.
-          assert (p : f = PullbackPr1  (subobject_classifier_pullback O f_asMonic)).
-          { apply idpath. }
-          rewrite p.
-          rewrite (PullbackArrow_PullbackPr1 ((subobject_classifier_pullback O
-          f_asMonic))).
-          apply idpath.
+      use unique_exists.
+      - assert (p : c' = PullbackObject  (subobject_classifier_pullback O f_asMonic)).
+        { apply idpath. }
+        rewrite p.
+        use (PullbackArrow _ _ h (TerminalArrow T x)).
+        rewrite q, assoc.
+        use cancel_postcomposition.
+        use TerminalArrowUnique.
+      - simpl.
+        assert (p : f = PullbackPr1  (subobject_classifier_pullback O f_asMonic)).
+        { apply idpath. }
+        rewrite p.
+        rewrite (PullbackArrow_PullbackPr1 ((subobject_classifier_pullback O
+        f_asMonic))).
+        apply idpath.
       - intro t.
-        induction t as (t,t_tri).
-        use subtypePath. {
-          unfold isPredicate.
-          intro.
-          use homset_property. }
+        use homset_property.
+      - intros t t_tri.
         simpl.
         use (PullbackArrowUnique' _ _ _ (subobject_classifier_pullback O
         f_asMonic)).
