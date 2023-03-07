@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 
@@ -42,11 +42,11 @@ Context (Mon_V : monoidal_cat).
 
 Local Definition I := I_{Mon_V}.
 Local Definition tensor := monoidal_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)).
+Notation "X ⊗ Y" := (tensor (X ,, Y)).
 
 Section ActionBasedStrengths_Definition.
 
-Context {A A': category}.
+  Context {A A': category}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
 Local Definition ϱ := act_ϱ actn.

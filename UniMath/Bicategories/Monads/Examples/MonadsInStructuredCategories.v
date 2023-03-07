@@ -29,9 +29,9 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
 Require Import UniMath.Bicategories.Monads.Examples.MonadsInBicatOfCats.
 Require Import UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
 (**
