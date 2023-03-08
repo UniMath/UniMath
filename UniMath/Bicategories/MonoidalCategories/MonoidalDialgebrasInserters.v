@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
@@ -249,7 +250,7 @@ Section FixTwoMonoidalFunctors.
     split.
     - intros x y.
       cbn.
-      unfold TotalDisplayedMonoidal.projection_preserves_tensordata, fmonoidal_preservestensordata.
+      unfold projection_preserves_tensordata, fmonoidal_preservestensordata.
       rewrite id_left.
       rewrite id_right.
       etrans.
@@ -262,7 +263,7 @@ Section FixTwoMonoidalFunctors.
       }
       apply pathsinv0, id_left.
     - red. cbn.
-      unfold TotalDisplayedMonoidal.projection_preserves_unit, fmonoidal_preservesunit.
+      unfold projection_preserves_unit, fmonoidal_preservesunit.
       rewrite id_left.
       apply id_right.
   Defined.
@@ -339,12 +340,12 @@ Section FixTwoMonoidalFunctors.
     split.
     - intros x y. use total2_paths_f; [cbn | apply (pr1 Mon_W)].
       assert (aux := pr12 α x y). cbn in aux.
-      unfold TotalDisplayedMonoidal.projection_preserves_tensordata in aux.
+      unfold projection_preserves_tensordata in aux.
       do 2 rewrite id_left in aux.
       exact aux.
     - use total2_paths_f; [cbn | apply (pr1 Mon_W)].
       assert (aux := pr22 α). red in aux; cbn in aux.
-      unfold TotalDisplayedMonoidal.projection_preserves_unit in aux.
+      unfold projection_preserves_unit in aux.
       do 2 rewrite id_left in aux.
       exact aux.
   Qed.
