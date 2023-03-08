@@ -25,8 +25,8 @@ Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -38,10 +38,10 @@ Local Open Scope cat.
 
 Section A.
 
-Context (Mon_V : monoidal_cat).
+Context (Mon_V : MonoidalCategoriesTensored.monoidal_cat).
 
-Local Definition I := I_{Mon_V}.
-Local Definition tensor := monoidal_tensor Mon_V.
+Local Definition I := monoidal_cat_unit Mon_V.
+Local Definition tensor := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X ,, Y)).
 
 Section ActionBasedStrengths_Definition.

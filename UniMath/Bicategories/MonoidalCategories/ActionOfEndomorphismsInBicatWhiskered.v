@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -77,7 +77,8 @@ Defined.
 
 Lemma actegory_from_precomp_laws : actegory_laws Mon_endo actegory_from_precomp_data.
 Proof.
-  split4.
+  split5.
+  - exact action_from_precomp_laws.
   - split.
     + intros f g β. cbn. apply vcomp_lunitor.
     + split.
@@ -136,9 +137,10 @@ Context (c0 : ob C).
 Definition action_in_actegory_from_precomp_as_self_action :
   actegory_action (Mon_endo c0) (actegory_from_precomp c0 c0) = actegory_action (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)).
 Proof.
-  change (pr11 (actegory_from_precomp c0 c0) = pr11 (actegory_with_canonical_self_action (Mon_endo c0))).
-  use total2_paths_f.
-  2: { apply isaprop_is_bifunctor. }
+  use subtypePath.
+  {
+    intro ; apply isaprop_is_bifunctor.
+  }
   apply idpath.
 Defined.
 
@@ -167,7 +169,18 @@ Lemma lax_lineators_for_actegory_from_precomp_and_self_action_agree (F : functor
     lineator_lax (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0))
       (actegory_with_canonical_self_action (Mon_endo c0)) F.
 Proof.
-  apply idpath. (* very slow: 63s on a modern Intel machine *)
+  assert (actegory_with_canonical_self_action (Mon_endo c0)
+          =
+          actegory_from_precomp c0 c0).
+  {
+    use subtypePath.
+    {
+      intro ; apply isaprop_actegory_laws.
+    }
+    apply idpath.
+  }
+  rewrite X.
+  apply idpath.
 Qed. (* 44s on a modern Intel machine *)
 (** in fact, we need this with lifted actegories everywhere *)
 
@@ -190,17 +203,17 @@ Section Instantiation_To_Bicategory_Of_Categories.
   Qed.
 
   (* Transparent action_from_precomp_CAT_laws. *)
-
   Definition actegoryfromprecomp_actions_equal_statement : UU :=
-    actegory_action (monendocat_monoidal C) (actegory_from_precomp_CAT C D) =
-      actegory_action (monendocat_monoidal C) actegoryfromprecomp. (* slow *)
+    actegory_action (monendocat_monoidal C) (actegory_from_precomp_CAT C D)
+    =
+    actegory_action _ actegoryfromprecomp.
 
 Lemma actegoryfromprecomp_actions_equal : actegoryfromprecomp_actions_equal_statement.
 Proof.
   apply subtypePath.
   { intro. apply isaprop_is_bifunctor. }
-  apply idpath. (* very slow *)
-Qed. (* very slow *)
+  apply idpath.
+Qed.
 
 (*
 (** on the way to what we really need is the following convertibility: *)
