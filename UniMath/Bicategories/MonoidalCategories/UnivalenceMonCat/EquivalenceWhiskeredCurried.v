@@ -5,10 +5,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesReordered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesReordered.
 
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
 
@@ -18,8 +18,8 @@ Section TensorEquivalence.
 
   Local Definition ctensor (C : category) := CurriedMonoidalCategories.tensor C.
   Identity Coercion ctensor_to_tensor: ctensor >-> CurriedMonoidalCategories.tensor.
-  Local Definition wtensor (C : category) := MonoidalCategoriesWhiskered.tensor C.
-  Identity Coercion wtensor_to_tensor: wtensor >-> MonoidalCategoriesWhiskered.tensor.
+  Local Definition wtensor (C : category) := bifunctor C C C.
+  Identity Coercion wtensor_to_tensor: wtensor >-> bifunctor.
 
   Context {C : category}.
 
@@ -188,67 +188,109 @@ Section MonoidalCategoryEquivalence.
     intro α.
 
     apply weqimplimpl.
-    {
-      intro αnat.
+    - intro αnat.
       repeat split.
-      - intros x y z1 z2 h.
+      + intros x y z1 z2 h.
         refine (αnat x x y y z1 z2 (identity x) (identity y) h @ _).
         apply cancel_postcomposition.
         rewrite tensor_id.
         apply idpath.
-      - intros x1 x2 y z f.
+      + intros x1 x2 y z f.
         refine (_ @ αnat x1 x2 y y z z f (identity y) (identity z)).
         apply cancel_precomposition.
         rewrite tensor_id.
         apply idpath.
-      - intros x y1 y2 z g.
+      + intros x y1 y2 z g.
         apply (αnat x x y1 y2 z z (identity x) g (identity z)).
-    }
-    {
-      intro αnat.
+    - intro αnat.
       intro ; intros.
-      refine (_ @ (associator_nat2 (pr1 αnat) (pr12 αnat) (pr22 αnat) f g h) @ _).
-      - simpl.
-        unfold functoronmorphisms1.
-        apply cancel_precomposition.
-
+      etrans.
+      {
+        apply maponpaths.
         etrans.
-        2: {
-          apply maponpaths.
-          apply maponpaths.
+        {
+          etrans.
+          {
+            apply maponpaths_2.
+            exact (!(id_left _)).
+          }
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_right _)).
+          }
           apply tensor_comp.
         }
-        rewrite id_left.
-        rewrite id_right.
-
-        refine (_ @ tensor_comp _ _ _ _ _ _ _ _ _ _ _).
-        rewrite id_right.
-        apply maponpaths.
-        apply (! id_left _).
-      - simpl.
-        unfold functoronmorphisms1.
-        apply cancel_postcomposition.
-        cbn.
-
-
-        etrans. {
-          apply cancel_postcomposition.
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            exact (!(id_left _)).
+          }
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_right _)).
+          }
+          apply tensor_comp.
+        }
+        etrans.
+        {
           apply maponpaths_2.
-          apply (! tensor_comp _ _ _ _ _ _ _ _ _ _ _).
+          exact (!(id_left _)).
         }
-        rewrite id_right.
-        rewrite id_left.
-        etrans. {
-          apply (! tensor_comp _ _ _ _ _ _ _ _ _ _ _).
-        }
-        rewrite id_right.
+        apply tensor_comp.
+      }
+      rewrite !assoc.
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        exact (pr1 αnat x y z z' h).
+      }
+      cbn.
+      rewrite !assoc'.
+      etrans.
+      {
         apply maponpaths.
-        apply id_left.
-    }
-    {
-      repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
-    }
-    repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
+        rewrite !assoc.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (pr22 αnat x y y' z' g).
+        }
+        cbn.
+        rewrite !assoc'.
+        apply maponpaths.
+        apply (pr12 αnat x x' y' z' f).
+      }
+      cbn.
+      rewrite !assoc.
+      apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        apply tensor_comp.
+      }
+      etrans.
+      {
+        refine (!_).
+        apply tensor_comp.
+      }
+      rewrite !id_left, !id_right.
+      apply maponpaths_2.
+      etrans.
+      {
+        refine (!_).
+        apply tensor_comp.
+      }
+      rewrite id_left, id_right.
+      apply idpath.
+    - repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
+    - repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
   Defined.
 
   Lemma isaprop_lax_monoidal_leftunitor_inverse {C : category}
@@ -356,15 +398,15 @@ Section MonoidalCategoryEquivalence.
     := invmap (cmon_equiv_monreordered C) M.
 
   Definition cmon_equiv_wmon (C : category)
-    : CurriedMonoidalCategories.mon_structure C ≃ MonoidalCategoriesWhiskered.monoidal C
+    : CurriedMonoidalCategories.mon_structure C ≃ monoidal C
     := (monoidal_struct_equiv_monoidal C ∘ cmon_equiv_monreordered C)%weq.
 
   Definition cmonoidal_to_wmonoidal
              {C : category} (M : CurriedMonoidalCategories.mon_structure C)
-    : MonoidalCategoriesWhiskered.monoidal C := cmon_equiv_wmon C M.
+    : monoidal C := cmon_equiv_wmon C M.
 
   Definition wmonoidal_to_cmonoidal
-             {C : category} (M : MonoidalCategoriesWhiskered.monoidal C)
+             {C : category} (M : monoidal C)
     : CurriedMonoidalCategories.mon_structure C
     := invmap (cmon_equiv_wmon C) M.
 
@@ -378,16 +420,16 @@ Section MonoidalFunctorEquivalence.
 
   Definition cmonfunctor : UU := CurriedMonoidalCategories.functor_lax_monoidal F MC MD.
   Definition wmonfunctordata : UU
-    := MonoidalFunctorsWhiskered.fmonoidal_data
+    := fmonoidal_data
          (cmonoidal_to_wmonoidal MC)
          (cmonoidal_to_wmonoidal MD)
          F.
 
   Definition wmonfunctorlaws (MF : wmonfunctordata)
-    := MonoidalFunctorsWhiskered.fmonoidal_laxlaws MF.
+    := fmonoidal_laxlaws MF.
 
   Definition wmonfunctor : UU
-    := MonoidalFunctorsWhiskered.fmonoidal_lax
+    := fmonoidal_lax
          (cmonoidal_to_wmonoidal MC)
          (cmonoidal_to_wmonoidal MD)
          F.
@@ -535,7 +577,7 @@ Section StrongMonoidalFunctorEquivalence.
 
   Definition csmonfunctor : UU := CurriedMonoidalCategories.functor_strong_monoidal F MC MD.
   Definition wsmonfunctor : UU
-    := MonoidalFunctorsWhiskered.fmonoidal
+    := fmonoidal
          (cmonoidal_to_wmonoidal MC)
          (cmonoidal_to_wmonoidal MD)
          F.
@@ -551,7 +593,8 @@ Section StrongMonoidalFunctorEquivalence.
     apply weqimplimpl.
     - intro csmf.
       split.
-      + do 2 intro ; apply (pr2 csmf).
+      + do 2 intro.
+        apply (pr2 csmf).
       + apply (pr1 csmf).
     - intro csmf.
       split.

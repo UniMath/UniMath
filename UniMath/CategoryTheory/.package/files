@@ -287,6 +287,7 @@ Monoidal/AlternativeDefinitions/DisplayedMonoidalCurried.v
 Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v
 Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v
 Monoidal/AlternativeDefinitions/TotalDisplayedMonoidalCurried.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorCategory.v
 
 Actegories/Actegories.v
 Actegories/ConstructionOfActegories.v

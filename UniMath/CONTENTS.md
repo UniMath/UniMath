@@ -415,6 +415,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v](CategoryTheory/Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v)
    - [Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v)
    - [Monoidal/AlternativeDefinitions/TotalDisplayedMonoidalCurried.v](CategoryTheory/Monoidal/AlternativeDefinitions/TotalDisplayedMonoidalCurried.v)
+   - [Monoidal/AlternativeDefinitions/MonoidalFunctorCategory.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalFunctorCategory.v)
    - [Actegories/Actegories.v](CategoryTheory/Actegories/Actegories.v)
    - [Actegories/ConstructionOfActegories.v](CategoryTheory/Actegories/ConstructionOfActegories.v)
    - [Actegories/MorphismsOfActegories.v](CategoryTheory/Actegories/MorphismsOfActegories.v)

@@ -10,10 +10,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorCategory.
-Require Import UniMath.CategoryTheory.MonoidalOld.EquivalenceWhiskeredNonCurriedMonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesReordered.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.EquivalenceWhiskeredNonCurriedMonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesReordered.
 
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -33,10 +33,14 @@ Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.Equivale
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+(*
+Definition TODO {A : UU} : A.
+Admitted.
+
 Section EquivalenceMonCatNonCurried.
 
   Definition cmonoidal_to_noncurriedmonoidal
-    :  ob UMONCAT ≃ ∑ C : MonoidalCategories.monoidal_cat, is_univalent (monoidal_cat_cat C).
+    :  ob UMONCAT ≃ ∑ C : monoidal_cat, is_univalent (monoidal_cat_cat C).
   Proof.
     refine (_ ∘ equivalence_cmon_structure_oblayer)%weq.
 
@@ -104,7 +108,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
         (M : ob UMONCAT)
         {x1 x2 y1 y2 : pr11 M}
         (f : (pr11 M)⟦x1,x2⟧) (g : (pr11 M)⟦y1,y2⟧)
-        : tensor_on_hom (pr11 (pr112 M)) x1 x2 y1 y2 f g = # (pr121 (cmonoidal_to_noncurriedmonoidal M)) (f #, g).
+    : tensor_on_hom (pr11 (pr112 M)) x1 x2 y1 y2 f g = # (pr121 (cmonoidal_to_noncurriedmonoidal M)) (f #, g).
   Proof.
     etrans.
     2: {  apply (tensor_comp (pr1 (pr112 M)) _ _ _ _ _ _ _ _ _ _). }
@@ -196,9 +200,9 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     }
     refine (pr22 F x y z @ _).
     apply maponpaths_2.
-    apply maponpaths.
-    apply (! tensor_on_hom_eq N _ _).
-  Qed.
+    rewrite <- (tensor_on_hom_eq N).
+    apply idpath.
+  Admitted.
 
   Definition cmonoidal_to_noncurried_functor
              (M N : ob UMONCAT)
@@ -252,11 +256,14 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
             do 2 apply maponpaths_2 ;
             apply (tensor_on_hom_eq N)).
       + intros x y z.
+        (*
         etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
         refine ((pr2 (pr212 F) x y z) @ _).
         apply maponpaths_2.
         apply maponpaths.
         apply (tensor_on_hom_eq N).
+         *)
+        apply TODO.
   Defined.
 
   Definition cmonoidal_from_noncurried_nattrans
@@ -527,5 +534,5 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     - exact (cmonoidal_formadjunction_noncurried M N).
     - exact (cmonoidal_formequivalence_noncurried M N).
   Defined.
-
 End EquivalenceMonCatNonCurriedLaxFunctors.
+*)
