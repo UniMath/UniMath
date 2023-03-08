@@ -23,11 +23,11 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.DisplayedMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalDisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.

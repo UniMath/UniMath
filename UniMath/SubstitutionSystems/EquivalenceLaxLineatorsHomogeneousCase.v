@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.

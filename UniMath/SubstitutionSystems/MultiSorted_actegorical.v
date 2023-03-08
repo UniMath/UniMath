@@ -52,7 +52,7 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
 
 (** for the additions in 2023 *)
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.

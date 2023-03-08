@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsI
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.

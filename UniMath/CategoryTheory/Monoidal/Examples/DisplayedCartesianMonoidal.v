@@ -26,9 +26,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 
 Local Open Scope cat.

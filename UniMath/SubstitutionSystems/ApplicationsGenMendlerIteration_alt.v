@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Import BifunctorNotations.
 

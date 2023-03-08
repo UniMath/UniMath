@@ -252,18 +252,18 @@ categories/Universal_Algebra/EqAlgebras.v
 categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
-Monoidal/MonoidalCategories.v
+Monoidal/Categories.v
 
 Monoidal/Structure/Cartesian.v
 Monoidal/Structure/Symmetric.v
 Monoidal/Structure/Closed.v
 
-Monoidal/MonoidalFunctors.v
+Monoidal/Functors.v
 Monoidal/CategoriesOfMonoids.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
-Monoidal/Displayed/DisplayedMonoidal.v
-Monoidal/Displayed/TotalDisplayedMonoidal.v
+Monoidal/Displayed/Monoidal.v
+Monoidal/Displayed/TotalMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
 
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
@@ -273,7 +273,6 @@ Monoidal/Examples/DisplayedCartesianMonoidal.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/EndofunctorsMonoidal.v
 Monoidal/Examples/MonoidalDialgebras.v
-
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
@@ -380,13 +379,6 @@ RepresentableFunctors/Test.v
 # DONE SO FAR
 
 # Monoidal Rezk Completion
-# MonoidalOld/MonoidalFunctorCategory.v
-# MonoidalOld/RezkCompletion/LiftedTensor.v
-# MonoidalOld/RezkCompletion/LiftedTensorUnit.v
-# MonoidalOld/RezkCompletion/LiftedUnitors.v
-# MonoidalOld/RezkCompletion/LiftedAssociator.v
-# MonoidalOld/RezkCompletion/LiftedMonoidal.v
-# MonoidalOld/RezkCompletion/MonoidalRezkCompletion.v
 
 PowerObject.v
 ElementaryTopos.v

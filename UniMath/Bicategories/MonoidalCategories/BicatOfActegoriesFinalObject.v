@@ -37,8 +37,8 @@ Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
