@@ -4,16 +4,13 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 
-Opaque mon_lunitor mon_linvunitor.
-Opaque mon_runitor mon_rinvunitor.
-Opaque mon_lassociator mon_rassociator.
-
 Local Open Scope cat.
 Local Open Scope moncat.
+Import MonoidalNotations.
 
 Section EnrichedMors.
   Context (V : monoidal_cat)
@@ -24,7 +21,7 @@ Section EnrichedMors.
   Proof.
     use make_precategory_ob_mor.
     - exact C.
-    - exact (λ x y, 𝟙 --> enriched_cat_mor x y).
+    - exact (λ x y, I_{V} --> enriched_cat_mor x y).
   Defined.
 
   Definition underlying_precategory_data_enriched
@@ -32,8 +29,8 @@ Section EnrichedMors.
   Proof.
     use make_precategory_data.
     - exact underlying_precategory_ob_mor_enriched.
-    - exact (λ x , enriched_cat_id x).
-    - exact (λ x y z f g, mon_linvunitor 𝟙 · g #⊗ f · enriched_cat_comp x y z).
+    - exact (λ x , enriched_cat_identity x).
+    - exact (λ x y z f g, mon_linvunitor _ · g #⊗ f · enriched_cat_comp x y z).
   Defined.
 
   Definition underlying_precategory_enriched_laws
@@ -56,7 +53,7 @@ Section EnrichedMors.
       etrans.
       {
         apply maponpaths_2.
-        exact (mon_linvunitor_lunitor 𝟙).
+        exact (mon_linvunitor_lunitor _).
       }
       apply id_left.
     - cbn ; intros x y f.
@@ -73,7 +70,7 @@ Section EnrichedMors.
       etrans.
       {
         apply maponpaths_2.
-        exact (mon_linvunitor_lunitor 𝟙).
+        exact (mon_linvunitor_lunitor _).
       }
       apply id_left.
     - cbn ; intros w x y z f g h.
@@ -112,7 +109,7 @@ Section EnrichedMors.
       etrans.
       {
         apply maponpaths_2.
-        exact (!(tensor_linvunitor (mon_linvunitor 𝟙))).
+        exact (!(tensor_linvunitor (mon_linvunitor _))).
       }
       rewrite !assoc'.
       etrans.
@@ -124,17 +121,14 @@ Section EnrichedMors.
       }
       rewrite !assoc'.
       rewrite <- tensor_lassociator.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        exact (!(tensor_lassociator (id 𝟙) g f)).
-      }
       apply maponpaths.
       rewrite !assoc.
-      apply maponpaths_2.
-      rewrite <- !tensor_comp_mor.
-      rewrite id_left, id_right.
-      apply idpath.
+      rewrite <- tensor_comp_mor.
+      rewrite id_left.
+      rewrite tensor_comp_r_id_r.
+      rewrite !assoc'.
+      apply maponpaths.
+      apply tensor_lassociator.
   Qed.
 
   Definition underlying_precategory_enriched
@@ -159,7 +153,7 @@ Section EnrichedMors.
   Proof.
     simple refine (_ ,, _ ,, _ ,, _ ,, _).
     - exact (λ x y, enriched_cat_mor x y).
-    - exact (λ x , enriched_cat_id x).
+    - exact (λ x , enriched_cat_identity x).
     - exact (λ x y z, enriched_cat_comp x y z).
     - exact (λ x y f, f).
     - exact (λ x y f, f).

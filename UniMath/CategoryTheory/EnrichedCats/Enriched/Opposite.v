@@ -1,19 +1,22 @@
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
 
 Local Open Scope cat.
+Local Open Scope moncat.
+Import MonoidalNotations.
 
 Section Opposite.
 
 Context {Mon_V : monoidal_cat}.
 
-Definition opposite_enriched_precat (A : enriched_precat Mon_V) : enriched_precat (swapping_of_monoidal_cat Mon_V).
+Definition opposite_enriched_precat (A : enriched_precat Mon_V) : enriched_precat (_ ,, monoidal_swapped Mon_V).
 Proof.
   use make_enriched_precat.
   - use make_enriched_precat_data.
@@ -22,19 +25,47 @@ Proof.
       exact (enriched_cat_mor y x).
     + intro x.
       simpl.
-      exact (enriched_cat_id x).
+      exact (enriched_cat_identity x).
     + intros x y z.
-      simpl.
-      apply enriched_cat_comp.
+      exact (enriched_cat_comp z y x).
   - split; simpl in a, b; simpl.
-    + apply (@enriched_id_right _ A).
-    + apply (@enriched_id_left _ A).
-  - abstract (intros a b c d;
-    simpl;
-    change (is_z_isomorphism_mor ?x) with (inv_from_z_iso (_,,x));
-    apply pathsinv0;
-    apply z_iso_inv_on_right;
-    apply (@enriched_assoc _ A)).
+    + refine (_ @ enriched_id_right b a).
+      apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
+    + refine (_ @ enriched_id_left b a).
+      apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
+  - intros a b c d ; cbn.
+    refine (!(id_left _) @ _).
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (!(mon_rassociator_lassociator _ _ _)).
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (_ @ !(enriched_assoc d c b a) @ _).
+    + apply maponpaths.
+      apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
+    + apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
 Defined.
 
 Definition opposite_enriched_functor {A B : enriched_precat Mon_V} (F : enriched_functor A B) : enriched_functor (opposite_enriched_precat A) (opposite_enriched_precat B).
@@ -50,7 +81,13 @@ Proof.
     apply enriched_functor_on_identity.
   - intros x y z.
     cbn.
-    apply enriched_functor_on_comp.
+    refine (enriched_functor_on_comp F z y x @ _).
+    apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    cbn.
+    rewrite whiskerscommutes ; [ apply idpath | ].
+    apply (pr2 Mon_V).
 Defined.
 
 (* note the direction *)
@@ -62,7 +99,21 @@ Proof.
   - intros x y.
     cbn.
     apply pathsinv0.
-    apply (enriched_nat_trans_ax a).
+    refine (_ @ enriched_nat_trans_ax a y x @ _).
+    + apply maponpaths.
+      unfold precompose_underlying_morphism, postcompose_underlying_morphism.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite <- whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
+    + apply maponpaths.
+      unfold precompose_underlying_morphism, postcompose_underlying_morphism.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn.
+      rewrite <- whiskerscommutes ; [ apply idpath | ].
+      apply (pr2 Mon_V).
 Defined.
 
 End Opposite.

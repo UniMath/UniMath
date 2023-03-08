@@ -14,15 +14,14 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.UnderlyingCategory.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor.
+Import MonoidalNotations.
 
 Section EnrichmentToEnrichedCat.
   Context {V : monoidal_cat}
@@ -77,9 +76,9 @@ Definition cat_with_enrichment_alt_data_help
      ×
      (∏ (x y z : ob), mor x y → mor y z → mor x z)
      ×
-     (∏ (x y : ob), mor x y → 𝟙 --> arr x y)
+     (∏ (x y : ob), mor x y → I_{V} --> arr x y)
      ×
-     (∏ (x y : ob), 𝟙 --> arr x y → mor x y).
+     (∏ (x y : ob), I_{V} --> arr x y → mor x y).
 
 Definition path_cat_with_enrichment_alt_data_help_lemma
            {V : monoidal_cat}
@@ -106,7 +105,7 @@ Definition path_cat_with_enrichment_alt_data_help_lemma
                  (pr1 (pr222 E₁)) _ _ g
                  =
                  (pr1 (pr222 E₂)) _ _ (transportf (λ T, T x y) p g))
-           (q₄ : ∏ (x y : ob) (g : 𝟙 --> arr x y),
+           (q₄ : ∏ (x y : ob) (g : I_{V} --> arr x y),
                  transportf (λ T, T x y) p (pr2 (pr222 E₁) _ _ g)
                  =
                  pr2 (pr222 E₂) _ _ g)
@@ -187,7 +186,7 @@ Definition path_cat_with_enrichment_alt_data_help
                  (pr1 (pr222 E₁)) _ _ g
                  =
                  (pr1 (pr222 E₂)) _ _ (f _ _ g))
-           (p₄ : ∏ (x y : ob) (g : 𝟙 --> arr x y),
+           (p₄ : ∏ (x y : ob) (g : I_{V} --> arr x y),
                  f _ _ (pr2 (pr222 E₁) _ _ g)
                  =
                  pr2 (pr222 E₂) _ _ g)
@@ -218,7 +217,7 @@ Definition cat_with_enrichment_alt_data
   : UU
   := ∑ (ob : UU)
        (arr : ob -> ob -> V),
-     (∏ (x : ob), 𝟙 --> arr x x)
+     (∏ (x : ob), I_{V} --> arr x x)
      ×
      (∏ (x y z : ob), arr y z ⊗ arr x y --> arr x z)
      ×
