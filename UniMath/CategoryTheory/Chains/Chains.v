@@ -93,8 +93,9 @@ destruct j.
     * destruct p; simpl.
       destruct (natlehchoice4 _ _ Hij); [destruct (isirreflnatlth _ h0)|].
       apply cancel_postcomposition, maponpaths, isasetnat.
-  + generalize Hij; rewrite p; intros H.
-    destruct (isirreflnatlth _ H).
+  + generalize Hij; rewrite p in Hij.
+    intros H; destruct(isirreflnatlth (S j)).
+    rewrite p in H; exact H.
 Qed.
 
 (** Construct the chain:

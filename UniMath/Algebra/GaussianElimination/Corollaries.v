@@ -1,3 +1,4 @@
+
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Nat.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -349,7 +350,8 @@ Section BackSubZero.
     + rewrite eq; intros contr_neq.
       contradiction (nonzeroax _ (pathsinv0 contr_neq)).
     + destruct (fldchoice0 (v j)) as [contr_eq | ?].
-      * now rewrite contr_eq in neq.
+      * rewrite contr_eq in neq.
+        contradiction.
       * contradiction.
   Defined.
 
@@ -730,7 +732,8 @@ Section Inverse.
         apply (@matrix_inverse_to_right_and_left_inverse F _ B),
           gauss_clear_all_rows_matrix_invertible. }
       pose (contr_eq := @left_invertible_upper_triangular_to_diagonal_all_nonzero _ _ ut isinvprod idx).
-      now rewrite isnotz in contr_eq.
+      rewrite isnotz in contr_eq.
+      contradiction.
   Defined.
 
 End Inverse.
