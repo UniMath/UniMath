@@ -67,7 +67,7 @@ Definition action_from_precomp : bifunctor endocat homcat homcat :=
 
 Definition actegory_from_precomp_data : actegory_data Mon_endo homcat.
 Proof.
-  exists action_from_precomp.
+  exists (pr1 action_from_precomp).
   split4.
   - intro f. apply lunitor.
   - intro f. apply linvunitor.
