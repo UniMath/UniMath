@@ -249,6 +249,8 @@ Core.v
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
 
+categories/Relations.v
+
 Monoidal/WhiskeredBifunctors.v
 Monoidal/MonoidalCategories.v
 
@@ -426,3 +428,18 @@ MonoidalOld/RezkCompletion/MonoidalRezkCompletion.v
 
 PowerObject.v
 ElementaryTopos.v
+
+# Dagger categories
+DaggerCategories/Categories.v
+DaggerCategories/Unitary.v
+DaggerCategories/Univalence.v
+DaggerCategories/Functors.v
+DaggerCategories/Transformations.v
+
+DaggerCategories/FunctorCategory.v
+
+DaggerCategories/Examples/Groupoids.v
+DaggerCategories/Examples/Relations.v
+
+DaggerCategories/Functors/WeakEquivalences.v
+DaggerCategories/Functors/FullyFaithful.v
