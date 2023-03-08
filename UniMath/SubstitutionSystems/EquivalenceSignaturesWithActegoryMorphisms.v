@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
@@ -23,18 +23,18 @@ Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
@@ -48,7 +48,8 @@ Section A.
 
  Context (C D D' : category).
 
- Local Definition Mon_endo' : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
+ Local Definition Mon_endo' : MonoidalCategoriesTensored.monoidal_cat
+   := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
  Local Definition domain_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
     := ActionBasedStrengthOnHomsInBicat.ab_strength_domain_action(C:=bicat_of_cats) C D' (ActionBasedStrengthOnHomsInBicat.forget C).
  Local Definition target_action : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D)
@@ -268,7 +269,7 @@ Section A.
          intro f.
          cbn.
          do 2 rewrite post_whisker_identity.
-         unfold TotalDisplayedMonoidalWhiskered.total_unit.
+         unfold TotalDisplayedMonoidal.total_unit.
          apply (nat_trans_eq D).
          intro x.
          cbn.
@@ -356,7 +357,7 @@ Section A.
          clear Hypunitorinst0.
          cbn in Hypunitorinst.
          rewrite id_right in Hypunitorinst.
-         unfold TotalDisplayedMonoidalWhiskered.total_unit in Hypunitorinst.
+         unfold TotalDisplayedMonoidal.total_unit in Hypunitorinst.
          etrans.
          2: { exact Hypunitorinst. }
          clear Hypunitorinst.
@@ -462,7 +463,7 @@ End AA.
    apply (weqcomp weqSignatureLaxMorphismActegories).
    apply weqfibtototal.
    intro H.
-   exact (idweq _). (* slow *)
+   exact (idweq _).
  Defined. (* slow *)
 
  (* a direct proof without going through weqSignatureLaxMorphismActegories:
