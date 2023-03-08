@@ -35,17 +35,17 @@ Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegoryMorphisms.
-Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.CategoriesOfMonoidsWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonadsAsMonoidsWhiskeredElementary.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
+Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 

@@ -313,7 +313,7 @@ Arguments lineator_linstrongly {_ _ _ _ _} _ _ _.
     - rewrite id_left. apply id_right.
     - rewrite id_left. apply id_right.
     - rewrite id_right.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_leftid Act).
       rewrite id_right.
       apply id_left.
     - apply id_left.
@@ -368,7 +368,7 @@ Section CompositionOfLaxLineators.
       apply lineator_linnatright.
     - assert (auxF := lineator_preservesactor Fl v w x).
       assert (auxG := lineator_preservesactor Gl v w (F x)).
-      rewrite bifunctor_leftcomp.
+      rewrite (bifunctor_leftcomp ActE).
       etrans.
       2: { repeat rewrite assoc. apply cancel_postcomposition.
            repeat rewrite assoc'. do 2 apply maponpaths.
@@ -488,7 +488,7 @@ Section TransformationsOfActegories.
     intros v c.
     rewrite id_right.
     etrans.
-    2: { apply cancel_postcomposition. apply pathsinv0, bifunctor_leftid. }
+    2: { apply cancel_postcomposition. apply pathsinv0, (bifunctor_leftid ActD). }
     apply pathsinv0, id_left.
   Qed.
 
@@ -501,7 +501,7 @@ Section TransformationsOfActegories.
   Proof.
     intros v x.
     cbn.
-    rewrite bifunctor_leftcomp.
+    rewrite (bifunctor_leftcomp ActD).
     rewrite assoc.
     etrans.
     { apply cancel_postcomposition.

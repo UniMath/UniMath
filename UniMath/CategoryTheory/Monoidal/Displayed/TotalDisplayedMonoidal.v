@@ -152,7 +152,7 @@ Section MonoidalTotalCategory.
         ,, total_rightcompax DT
         ,, total_functoronmorphisms_are_equal DT).
 
-  Local Notation Tt := total_tensor.
+  Local Notation Tt := total_tensor_data.
 
   Definition total_unit
              {C : category}
@@ -263,7 +263,7 @@ Section MonoidalTotalCategory.
     : monoidal_data T(D).
   Proof.
     use make_monoidal_data.
-    - exact (total_tensor DM).
+    - exact (total_tensor_data DM).
     - exact (total_unit DM dI_{DM}).
     - exact (total_leftunitordata dlu^{DM}).
     - exact (total_leftunitorinvdata dluinv^{DM}).

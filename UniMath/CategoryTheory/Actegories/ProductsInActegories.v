@@ -79,10 +79,10 @@ Section BinaryProduct.
       2: { apply pathsinv0, postcompWithBinProductArrow. }
       apply maponpaths_12.
       + etrans.
-        { apply bifunctor_equalwhiskers. }
+        { apply (bifunctor_equalwhiskers Act). }
         apply idpath.
       + etrans.
-        { apply bifunctor_equalwhiskers. }
+        { apply (bifunctor_equalwhiskers Act). }
         apply idpath.
     - red.
       intros v w cd.

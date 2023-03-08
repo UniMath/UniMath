@@ -31,35 +31,35 @@ Section A.
 Context {V : category} (Mon_V : monoidal V). (** given the monoidal category that acts upon categories *)
 
 (** Data **)
-Definition action (C : category) : UU :=
-  bifunctor V C C.
-Identity Coercion actionintobifunctor : action >-> bifunctor.
+Definition action_data (C : category) : UU :=
+  bifunctor_data V C C.
+Identity Coercion actionintobifunctor : action_data >-> bifunctor_data.
 
 (** the following widens the concept of left unitor of a monoidal category, a right unitor is not appropriate for actions *)
-Definition action_unitor_data {C : category} (A : action C) : UU :=
+Definition action_unitor_data {C : category} (A : action_data C) : UU :=
   ∏ (x : C), C⟦I_{Mon_V} ⊗_{A} x, x⟧.
 
-Definition action_unitorinv_data {C : category} (A : action C) : UU :=
+Definition action_unitorinv_data {C : category} (A : action_data C) : UU :=
   ∏ (x : C), C⟦x, I_{Mon_V} ⊗_{A} x⟧.
 
-Definition actor_data {C : category} (A : action C) : UU :=
+Definition actor_data {C : category} (A : action_data C) : UU :=
   ∏ (v w : V) (x : C), C ⟦(v ⊗_{Mon_V} w) ⊗_{A} x, v ⊗_{A} (w ⊗_{A} x)⟧.
 
-Definition actorinv_data {C : category} (A : action C) : UU :=
+Definition actorinv_data {C : category} (A : action_data C) : UU :=
   ∏ (v w : V) (x : C), C ⟦v ⊗_{A} (w ⊗_{A} x), (v ⊗_{Mon_V} w) ⊗_{A} x⟧.
 
 Definition actegory_data (C : category) : UU :=
-    ∑ A : action C,
+    ∑ A : action_data C,
         (action_unitor_data A) × (action_unitorinv_data A) ×
            (actor_data A) × (actorinv_data A).
 
-Definition make_actegory_data {C : category} {A : action C}
+Definition make_actegory_data {C : category} {A : action_data C}
   (au : action_unitor_data A) (auinv : action_unitorinv_data A)
   (aα : actor_data A) (aαinv : actorinv_data A) : actegory_data C
   := (A,,au,,auinv,,aα,,aαinv).
 
-Definition actegory_action {C : category} (AD : actegory_data C) : action C := pr1 AD.
-Coercion actegory_action : actegory_data >-> action.
+Definition actegory_action_data {C : category} (AD : actegory_data C) : action_data C := pr1 AD.
+Coercion actegory_action_data : actegory_data >-> action_data.
 
 Definition actegory_unitordata {C : category} (AD : actegory_data C) : action_unitor_data AD
   := pr1 (pr2 AD).
@@ -79,111 +79,72 @@ Notation "aαinv_{ AD }" := (actegory_actorinvdata AD).
 
 
 (** Axioms **)
-Definition action_unitor_nat {C : category} {A : action C} (au : action_unitor_data A) : UU :=
+Definition action_unitor_nat {C : category} {A : action_data C} (au : action_unitor_data A) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  I_{Mon_V} ⊗^{A}_{l} f · au y = au x · f.
 
-Definition action_unitorinv_nat {C : category} {A : action C} (auinv : action_unitorinv_data A) : UU :=
+Definition action_unitorinv_nat {C : category} {A : action_data C} (auinv : action_unitorinv_data A) : UU :=
   ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  auinv x · I_{Mon_V} ⊗^{A}_{l} f = f · auinv y.
 
-Definition action_unitor_iso_law {C : category} {A : action C} (au : action_unitor_data A) (auinv : action_unitorinv_data A) : UU :=
+Definition action_unitor_iso_law {C : category} {A : action_data C} (au : action_unitor_data A) (auinv : action_unitorinv_data A) : UU :=
   ∏ (x : C), is_inverse_in_precat (au x) (auinv x).
 
-Definition action_unitor_law {C : category} {A : action C} (au : action_unitor_data A) (auinv : action_unitorinv_data A) : UU :=
+Definition action_unitor_law {C : category} {A : action_data C} (au : action_unitor_data A) (auinv : action_unitorinv_data A) : UU :=
   action_unitor_nat au × action_unitor_iso_law au auinv.
 
-Definition action_unitorlaw_nat {C : category} {A : action C} {au : action_unitor_data A} {auinv : action_unitorinv_data A}
+Definition action_unitorlaw_nat {C : category} {A : action_data C} {au : action_unitor_data A} {auinv : action_unitorinv_data A}
   (aul : action_unitor_law au auinv) : action_unitor_nat au := pr1 aul.
 
-Definition action_unitorlaw_iso_law {C : category} {A : action C} {au : action_unitor_data A} {auinv : action_unitorinv_data A}
+Definition action_unitorlaw_iso_law {C : category} {A : action_data C} {au : action_unitor_data A} {auinv : action_unitorinv_data A}
   (aul : action_unitor_law au auinv) : action_unitor_iso_law au auinv := pr2 aul.
 
-Definition actor_nat_leftwhisker {C : category} {A : action C} (aα : actor_data A) : UU
+Definition actor_nat_leftwhisker {C : category} {A : action_data C} (aα : actor_data A) : UU
   := ∏ (v w : V) (z z' : C) (h : C⟦z,z'⟧),
     (aα v w z) · (v ⊗^{A}_{l} (w ⊗^{A}_{l} h)) = ((v ⊗_{Mon_V} w) ⊗^{A}_{l} h) · (aα v w z').
 
-Definition actor_nat_rightwhisker {C : category} {A : action C} (aα : actor_data A) : UU
+Definition actor_nat_rightwhisker {C : category} {A : action_data C} (aα : actor_data A) : UU
   := ∏ (v v' w : V) (z : C) (f : V⟦v,v'⟧),
     (aα v w z) · (f ⊗^{A}_{r} (w ⊗_{A} z)) = ((f ⊗^{Mon_V}_{r} w) ⊗^{A}_{r} z) · (aα v' w z).
 
-Definition actor_nat_leftrightwhisker {C : category} {A : action C} (aα : actor_data A) : UU
+Definition actor_nat_leftrightwhisker {C : category} {A : action_data C} (aα : actor_data A) : UU
   := ∏ (v w w' : V) (z : C) (g : V⟦w,w'⟧),
     (aα v w z) · (v ⊗^{A}_{l} (g ⊗^{A}_{r} z)) = ((v ⊗^{Mon_V}_{l} g) ⊗^{A}_{r} z) · (aα v w' z).
 
-Lemma actor_nat1 {C : category} {A : action C} {aα : actor_data A} (aαnl : actor_nat_leftwhisker aα)
-  (aαnr : actor_nat_rightwhisker aα) (aαnlr : actor_nat_leftrightwhisker aα)
-  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
-  (aα v w z) · ((f ⊗^{A}_{r} (w ⊗_{A} z)) · (v' ⊗^{A}_{l} ((g ⊗^{A}_{r} z) · (w' ⊗^{A}_{l} h)))) =
-    (((f ⊗^{Mon_V}_{r} w) · (v' ⊗^{Mon_V}_{l} g))  ⊗^{A}_{r} z) · ((v' ⊗_{Mon_V} w') ⊗^{A}_{l} h) · (aα v' w' z').
-Proof.
-  rewrite assoc.
-  rewrite aαnr.
-  rewrite assoc'.
-  etrans. {
-    apply cancel_precomposition.
-    rewrite (bifunctor_leftcomp A).
-    rewrite assoc.
-    rewrite aαnlr.
-    apply idpath.
-  }
 
-  etrans. {
-    apply cancel_precomposition.
-    rewrite assoc'.
-    apply cancel_precomposition.
-    apply aαnl.
-  }
-  rewrite assoc.
-  rewrite assoc.
-  apply cancel_postcomposition.
-  apply pathsinv0.
-  rewrite (bifunctor_rightcomp A).
-  apply idpath.
-Qed.
-
-Lemma actor_nat2 {C : category} {A : action C} {aα : actor_data A} (aαnl : actor_nat_leftwhisker aα)
-  (aαnr : actor_nat_rightwhisker aα) (aαnlr : actor_nat_leftrightwhisker aα)
-  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
-  (aα v w z) · (f ⊗^{A} (g ⊗^{A} h)) = ((f ⊗^{Mon_V} g) ⊗^{A} h) · (aα v' w' z').
-Proof.
-  intros.
-  unfold functoronmorphisms1.
-  exact (actor_nat1 aαnl aαnr aαnlr f g h).
-Qed.
-
-Definition actor_iso_law {C : category} {A : action C} (aα : actor_data A) (aαinv : actorinv_data A) : UU
+Definition actor_iso_law {C : category} {A : action_data C} (aα : actor_data A) (aαinv : actorinv_data A) : UU
   := ∏ (v w : V) (z : C), is_inverse_in_precat (aα v w z) (aαinv v w z).
 
-Definition actor_law {C : category} {A : action C} (aα : actor_data A) (aαinv : actorinv_data A) : UU :=
+Definition actor_law {C : category} {A : action_data C} (aα : actor_data A) (aαinv : actorinv_data A) : UU :=
   (actor_nat_leftwhisker aα) × (actor_nat_rightwhisker aα) ×
     (actor_nat_leftrightwhisker aα) × (actor_iso_law aα aαinv).
 
-Definition actorlaw_natleft {C : category} {A : action C} {aα : actor_data A} {aαinv : actorinv_data A}
+Definition actorlaw_natleft {C : category} {A : action_data C} {aα : actor_data A} {aαinv : actorinv_data A}
   (aαl : actor_law aα aαinv) : actor_nat_leftwhisker aα := pr1 aαl.
-Definition actorlaw_natright {C : category} {A : action C} {aα : actor_data A} {aαinv : actorinv_data A}
+Definition actorlaw_natright {C : category} {A : action_data C} {aα : actor_data A} {aαinv : actorinv_data A}
   (aαl : actor_law aα aαinv) : actor_nat_rightwhisker aα := pr1 (pr2 aαl).
-Definition actorlaw_natleftright {C : category} {A : action C} {aα : actor_data A} {aαinv : actorinv_data A}
+Definition actorlaw_natleftright {C : category} {A : action_data C} {aα : actor_data A} {aαinv : actorinv_data A}
   (aαl : actor_law aα aαinv) : actor_nat_leftrightwhisker aα := pr1 (pr2 (pr2 aαl)).
-Definition actorlaw_iso_law {C : category} {A : action C} {aα : actor_data A} {aαinv : actorinv_data A}
+Definition actorlaw_iso_law {C : category} {A : action_data C} {aα : actor_data A} {aαinv : actorinv_data A}
   (aαl : actor_law aα aαinv) : actor_iso_law aα aαinv := pr2 (pr2 (pr2 aαl)).
 
 Definition actegory_triangle_identity {C : category}
-           {A : action C}
+           {A : action_data C}
            (au : action_unitor_data A)
            (aα : actor_data A)
   := ∏ (v : V) (y : C), (aα v I_{Mon_V} y) · (v ⊗^{A}_{l} (au y)) = (ru_{Mon_V} v) ⊗^{A}_{r} y.
 
 Definition actegory_triangle_identity' {C : category}
-           {A : action C}
+           {A : action_data C}
            (au : action_unitor_data A)
            (aα : actor_data A)
     := ∏ (v : V) (y : C), (aα I_{Mon_V} v y) · (au (v ⊗_{A} y)) = (lu_{Mon_V} v) ⊗^{A}_{r} y.
 
-Definition actegory_pentagon_identity {C : category} {A : action C} (aα : actor_data A) : UU :=
+Definition actegory_pentagon_identity {C : category} {A : action_data C} (aα : actor_data A) : UU :=
   ∏ (w v v' : V) (z : C),
     ((α_{Mon_V} w v v') ⊗^{A}_{r} z) · (aα w (v ⊗_{Mon_V} v') z) · (w ⊗^{A}_{l} (aα v v' z)) =
       (aα (w⊗_{Mon_V} v) v' z) · (aα w v (v' ⊗_{A} z)).
 
 Definition actegory_laws {C : category} (AD : actegory_data C) : UU :=
+  is_bifunctor AD ×
   (action_unitor_law au_{AD} auinv_{AD}) × (actor_law aα_{AD} aαinv_{AD}) ×
     (actegory_triangle_identity au_{AD} aα_{AD}) × (actegory_pentagon_identity aα_{AD}).
 
@@ -195,7 +156,16 @@ Coercion actegory_actdata : actegory >-> actegory_data.
 
 Definition actegory_actlaws {C : category} (Act : actegory C) : actegory_laws Act := pr2 Act.
 
-Definition actegory_unitorlaw {C : category} (Act : actegory C) : action_unitor_law au_{Act} auinv_{Act} := pr1 (actegory_actlaws Act).
+Definition actegory_action_is_bifunctor {C : category} (Act : actegory C) : is_bifunctor Act
+  := pr12 Act.
+
+Coercion actegory_action
+         {C : category}
+         (Act : actegory C)
+  : bifunctor V C C
+  := _ ,, actegory_action_is_bifunctor Act.
+
+Definition actegory_unitorlaw {C : category} (Act : actegory C) : action_unitor_law au_{Act} auinv_{Act} := pr12 (actegory_actlaws Act).
 Definition actegory_unitornat {C : category} (Act : actegory C) : action_unitor_nat au_{Act} := action_unitorlaw_nat (actegory_unitorlaw Act).
 Definition actegory_unitorisolaw {C : category} (Act : actegory C) : action_unitor_iso_law au_{Act} auinv_{Act} := action_unitorlaw_iso_law (actegory_unitorlaw Act).
 
@@ -209,14 +179,54 @@ Proof.
   apply pathsinv0, actegory_unitornat.
 Qed.
 
-Definition actegory_actorlaw {C : category} (Act : actegory C) : actor_law aα_{Act} aαinv_{Act} := pr12 (actegory_actlaws Act).
+Definition actegory_actorlaw {C : category} (Act : actegory C) : actor_law aα_{Act} aαinv_{Act} := pr122 (actegory_actlaws Act).
 Definition actegory_actornatleft {C : category} (Act : actegory C) : actor_nat_leftwhisker aα_{Act} := actorlaw_natleft (actegory_actorlaw Act).
 Definition actegory_actornatright {C : category} (Act : actegory C) : actor_nat_rightwhisker aα_{Act} := actorlaw_natright (actegory_actorlaw Act).
 Definition actegory_actornatleftright {C : category} (Act : actegory C) : actor_nat_leftrightwhisker aα_{Act} := actorlaw_natleftright (actegory_actorlaw Act).
 Definition actegory_actorisolaw {C : category} (Act : actegory C) : actor_iso_law aα_{Act} aαinv_{Act} := actorlaw_iso_law (actegory_actorlaw Act).
 
-Definition actegory_triangleidentity {C : category} (Act : actegory C) : actegory_triangle_identity au_{Act} aα_{Act} := pr1 (pr22 (actegory_actlaws Act)).
-Definition actegory_pentagonidentity {C : category} (Act : actegory C) : actegory_pentagon_identity aα_{Act} := pr2 (pr22 (actegory_actlaws Act)).
+Lemma actor_nat1 {C : category} (Act : actegory C)
+  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
+  (actegory_actordata Act v w z) · ((f ⊗^{Act}_{r} (w ⊗_{Act} z)) · (v' ⊗^{Act}_{l} ((g ⊗^{Act}_{r} z) · (w' ⊗^{Act}_{l} h)))) =
+    (((f ⊗^{Mon_V}_{r} w) · (v' ⊗^{Mon_V}_{l} g))  ⊗^{Act}_{r} z) · ((v' ⊗_{Mon_V} w') ⊗^{Act}_{l} h) · (actegory_actordata Act v' w' z').
+Proof.
+  rewrite assoc.
+  rewrite (actegory_actornatright Act).
+  rewrite assoc'.
+  etrans. {
+    apply cancel_precomposition.
+    rewrite (bifunctor_leftcomp Act).
+    rewrite assoc.
+    rewrite (actegory_actornatleftright Act).
+    apply idpath.
+  }
+
+  etrans. {
+    apply cancel_precomposition.
+    rewrite assoc'.
+    apply cancel_precomposition.
+    apply (actegory_actornatleft Act).
+  }
+  rewrite assoc.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  rewrite (bifunctor_rightcomp Act).
+  apply idpath.
+Qed.
+
+Lemma actor_nat2 {C : category}  (Act : actegory C)
+  {v v' w w' : V} {z z' : C} (f : V⟦v,v'⟧) (g : V⟦w,w'⟧) (h : C⟦z,z'⟧) :
+  (actegory_actordata Act v w z) · (f ⊗^{Act} (g ⊗^{Act} h)) =
+    ((f ⊗^{Mon_V} g) ⊗^{Act} h) · (actegory_actordata Act v' w' z').
+Proof.
+  intros.
+  unfold functoronmorphisms1.
+  exact (actor_nat1 Act f g h).
+Qed.
+
+Definition actegory_triangleidentity {C : category} (Act : actegory C) : actegory_triangle_identity au_{Act} aα_{Act} := pr1 (pr222 (actegory_actlaws Act)).
+Definition actegory_pentagonidentity {C : category} (Act : actegory C) : actegory_pentagon_identity aα_{Act} := pr2 (pr222 (actegory_actlaws Act)).
 
 Lemma isaprop_actegory_laws {C : category} (AD : actegory_data C)
   : isaprop (actegory_laws AD).
@@ -290,9 +300,6 @@ Proof.
   unfold make_is_z_isomorphism.
   unfold pr1.
   apply actor_nat1.
-  - exact (actegory_actornatleft Act).
-  - exact (actegory_actornatright Act).
-  - exact (actegory_actornatleftright Act).
 Qed.
 
 Lemma actorinv_nat2 {C : category} (Act : actegory C)
@@ -345,7 +352,7 @@ Proof.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     apply cancel_precomposition.
-    apply bifunctor_leftid.
+    apply (bifunctor_leftid Act).
   }
   etrans. {
     apply cancel_postcomposition.
@@ -369,7 +376,7 @@ Proof.
     apply maponpaths.
     apply (pr2 (pr2 (z_iso_from_associator_iso Mon_V w v u))).
   }
-  apply bifunctor_rightid.
+  apply (bifunctor_rightid Act).
 Qed.
 
 End A.
@@ -441,7 +448,7 @@ Section SecondTriangleEquality.
     (α_{Mon_V} I_{Mon_V} I_{Mon_V} v) ⊗^{Act}_{r} x · (I_{ Mon_V} ⊗^{ Mon_V}_{l} lu^{ Mon_V }_{ v}) ⊗^{ Act}_{r} x =
       (ru^{ Mon_V }_{ I_{ Mon_V}} ⊗^{ Mon_V}_{r} v) ⊗^{ Act}_{r} x.
   Proof.
-    refine (! bifunctor_rightcomp _ _ _ _ _ _ _ @ _).
+    refine (! bifunctor_rightcomp Act _ _ _ _ _ _ @ _).
     apply maponpaths.
     apply (monoidal_triangleidentity Mon_V I_{Mon_V} v).
   Qed.
@@ -526,7 +533,7 @@ Section SecondTriangleEquality.
     3: { apply (leftwhiskering_faithful_action(V:=V)). }
     apply pathsinv0.
     refine (right_whisker_with_action_unitor' _ _ @ _).
-    apply bifunctor_leftcomp.
+    apply (bifunctor_leftcomp Act).
   Qed.
 
   Definition actegory_triangleidentity' := right_whisker_with_action_unitor.

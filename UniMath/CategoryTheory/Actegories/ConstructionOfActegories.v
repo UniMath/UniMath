@@ -36,7 +36,7 @@ Context {V : category} (Mon_V : monoidal V).
 Definition actegory_with_canonical_self_action_data: actegory_data Mon_V V.
 Proof.
   use make_actegory_data.
-  - exact (monoidal_tensor Mon_V).
+  - exact (monoidal_tensor_data Mon_V).
   - exact (lu_{Mon_V}).
   - exact (luinv_{Mon_V}).
   - exact (α_{Mon_V}).
@@ -45,7 +45,8 @@ Defined.
 
 Lemma actegory_with_canonical_self_action_laws: actegory_laws Mon_V actegory_with_canonical_self_action_data.
 Proof.
-  split; [| split; [| split]].
+  split5.
+  - apply monoidal_tensor_is_bifunctor.
   - apply monoidal_leftunitorlaw.
   - apply monoidal_associatorlaw.
   - apply monoidal_triangleidentity.
@@ -70,35 +71,33 @@ Defined.
 
 Lemma lifted_action_data_is_bifunctor: is_bifunctor lifted_action_data.
 Proof.
-  repeat split; red; intros; cbn.
-  - apply bifunctor_leftid.
-  - rewrite functor_id. apply bifunctor_rightid.
-  - apply bifunctor_leftcomp.
-  - rewrite functor_comp. apply bifunctor_rightcomp.
-  - apply bifunctor_equalwhiskers.
+  split5; red; intros; cbn.
+  - apply (bifunctor_leftid Act).
+  - rewrite functor_id. apply (bifunctor_rightid Act).
+  - apply (bifunctor_leftcomp Act).
+  - rewrite functor_comp. apply (bifunctor_rightcomp Act).
+  - apply (bifunctor_equalwhiskers Act).
 Qed.
 
-Definition lifted_action: action(V:=W) C := lifted_action_data,,lifted_action_data_is_bifunctor.
-
-Definition lifted_action_unitor_data : action_unitor_data Mon_W lifted_action.
+Definition lifted_action_unitor_data : action_unitor_data Mon_W lifted_action_data.
 Proof.
   intro x.
   exact (pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Act}_{r} x · au^{Act}_{x}).
 Defined.
 
-Definition lifted_action_unitorinv_data : action_unitorinv_data Mon_W lifted_action.
+Definition lifted_action_unitorinv_data : action_unitorinv_data Mon_W lifted_action_data.
 Proof.
   intro x.
   exact (auinv^{Act}_{x} · fmonoidal_preservesunit U ⊗^{Act}_{r} x).
 Defined.
 
-Definition lifted_actor_data : actor_data Mon_W lifted_action.
+Definition lifted_actor_data : actor_data Mon_W lifted_action_data.
 Proof.
   intros v w x.
   exact (pr1 (fmonoidal_preservestensorstrongly U v w) ⊗^{Act}_{r} x · aα^{Act}_{F v,F w,x}).
 Defined.
 
-Definition lifted_actorinv_data : actorinv_data Mon_W lifted_action.
+Definition lifted_actorinv_data : actorinv_data Mon_W lifted_action_data.
 Proof.
   intros v w x.
   exact (aαinv^{Act}_{F v,F w,x} · fmonoidal_preservestensordata U v w ⊗^{Act}_{r} x).
@@ -107,7 +106,7 @@ Defined.
 Definition lifted_actegory_data: actegory_data Mon_W C.
 Proof.
   use make_actegory_data.
-  - exact lifted_action.
+  - exact lifted_action_data.
   - exact lifted_action_unitor_data.
   - exact lifted_action_unitorinv_data.
   - exact lifted_actor_data.
@@ -116,7 +115,8 @@ Defined.
 
 Lemma lifted_actegory_laws: actegory_laws Mon_W lifted_actegory_data.
 Proof.
-  split4. (* splits into the 4 main goals *)
+  split5. (* splits into the 5 main goals *)
+  - exact lifted_action_data_is_bifunctor.
   - split3.
     + intros x y f. cbn. unfold lifted_action_unitor_data.
       etrans.
@@ -166,7 +166,7 @@ Proof.
       rewrite (actegory_actornatleft Mon_V Act (F v) (F w) z z' h).
       do 2 rewrite assoc.
       apply maponpaths_2.
-      apply bifunctor_equalwhiskers.
+      apply (bifunctor_equalwhiskers Act).
     + intros v v' w z f.
       cbn.
       unfold lifted_actor_data.
@@ -227,7 +227,7 @@ Proof.
     unfold lifted_actor_data.
     unfold lifted_action_unitor_data.
     rewrite assoc'.
-    rewrite bifunctor_leftcomp.
+    rewrite (bifunctor_leftcomp Act).
     etrans. {
       apply maponpaths.
       rewrite assoc.
@@ -235,8 +235,10 @@ Proof.
       apply (actegory_actornatleftright Mon_V Act).
     }
     rewrite assoc'.
-    rewrite (actegory_triangleidentity Mon_V Act (F v) y).
-    do 2 rewrite (! bifunctor_rightcomp _ _ _ _ _ _ _).
+    etrans.
+    { do 2 apply maponpaths.
+      apply (actegory_triangleidentity Mon_V Act (F v) y). }
+    do 2 rewrite (! bifunctor_rightcomp Act _ _ _ _ _ _).
     apply maponpaths.
     rewrite (! fmonoidal_preservesrightunitality U v).
     etrans. {
@@ -276,7 +278,7 @@ Proof.
       exact (actegory_pentagonidentity Mon_V Act (F w) (F v) (F v') z).
     }
 
-    rewrite bifunctor_leftcomp.
+    rewrite (bifunctor_leftcomp Act).
     rewrite assoc'.
     etrans. {
       apply maponpaths.

@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
@@ -62,7 +62,7 @@ Definition action_from_precomp_CAT : bifunctor [C, C] [C, D] [C, D] :=
 
 Definition actegory_from_precomp_CAT_data : actegory_data Mon_endo [C, D].
 Proof.
-  exists action_from_precomp_CAT.
+  exists action_from_precomp_CAT_data.
   split4.
   - intro f. apply lunitor_CAT.
   - intro f. apply linvunitor_CAT.
@@ -72,7 +72,8 @@ Defined.
 
 Lemma actegory_from_precomp_CAT_laws : actegory_laws Mon_endo actegory_from_precomp_CAT_data.
 Proof.
-  split4.
+  split5.
+  - exact action_from_precomp_CAT_laws.
   - split3.
     + intros f g β. apply vcomp_lunitor_CAT.
     + apply lunitor_linvunitor_CAT.

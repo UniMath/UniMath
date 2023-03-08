@@ -52,15 +52,15 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
 
 (** for the additions in 2023 *)
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.CoproductsInActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegoryMorphisms.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.SelfActionInCATWhiskeredElementary.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
+Require Import UniMath.CategoryTheory.Actegories.Examples.SelfActionInCATElementary.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.

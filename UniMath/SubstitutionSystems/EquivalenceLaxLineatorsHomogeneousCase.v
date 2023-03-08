@@ -13,14 +13,14 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.EndofunctorsWhiskeredMonoidalElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.ActionOfEndomorphismsInCATWhiskeredElementary.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.Actegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.MonoidalOld.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
-Require Import UniMath.CategoryTheory.MonoidalOld.Examples.MonoidalPointedObjects.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 
 Import MonoidalNotations.

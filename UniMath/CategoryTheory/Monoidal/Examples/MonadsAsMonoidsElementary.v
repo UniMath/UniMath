@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.

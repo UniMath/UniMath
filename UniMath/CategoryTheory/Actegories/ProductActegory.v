@@ -51,23 +51,31 @@ Section OneProduct.
   Proof.
     red; repeat split.
     * intros v cd.
-      apply dirprodeq; apply bifunctor_leftid.
+      apply dirprodeq.
+      - apply (bifunctor_leftid ActC).
+      - apply (bifunctor_leftid ActD).
     * intros cd v.
-      apply dirprodeq; apply bifunctor_rightid.
+      apply dirprodeq.
+      - apply (bifunctor_rightid ActC).
+      - apply (bifunctor_rightid ActD).
     * intros v cd1 cd2 cd3 fg1 fg2.
-      apply dirprodeq; apply bifunctor_leftcomp.
+      apply dirprodeq.
+      - apply (bifunctor_leftcomp ActC).
+      - apply (bifunctor_leftcomp ActD).
     * intros cd v1 v2 v3 h1 h2.
-      apply dirprodeq; apply bifunctor_rightcomp.
+      apply dirprodeq.
+      - apply (bifunctor_rightcomp ActC).
+      - apply (bifunctor_rightcomp ActD).
     * intros v1 v2 cd1 cd2 h fg.
-      apply dirprodeq; apply bifunctor_equalwhiskers.
+      apply dirprodeq.
+      - apply (bifunctor_equalwhiskers ActC).
+      - apply (bifunctor_equalwhiskers ActD).
   Qed.
-
-  Definition actegory_binprod_action : action(V:=V) CD := _,,actegory_binprod_action_data_is_bifunctor.
 
   Definition actegory_binprod_data : actegory_data Mon_V CD.
   Proof.
     use make_actegory_data.
-    - exact actegory_binprod_action.
+    - exact actegory_binprod_action_data.
     - intros cd.
       exact (catbinprodmor (au_{ActC} _) (au_{ActD} _)).
     - intros cd.
@@ -80,17 +88,19 @@ Section OneProduct.
 
   Lemma actegory_binprod_laws : actegory_laws Mon_V actegory_binprod_data.
   Proof.
-    red; repeat split; try red; intros.
-    - apply dirprodeq; apply actegory_unitornat.
-    - apply dirprodeq; apply actegory_unitorisolaw.
-    - apply dirprodeq; apply actegory_unitorisolaw.
-    - apply dirprodeq; apply actegory_actornatleft.
-    - apply dirprodeq; apply actegory_actornatright.
-    - apply dirprodeq; apply actegory_actornatleftright.
-    - apply dirprodeq; apply actegory_actorisolaw.
-    - apply dirprodeq; apply actegory_actorisolaw.
-    - apply dirprodeq; apply actegory_triangleidentity.
-    - apply dirprodeq; apply actegory_pentagonidentity.
+    split.
+    + exact actegory_binprod_action_data_is_bifunctor.
+    + red; repeat split; try red; intros.
+      - apply dirprodeq; apply actegory_unitornat.
+      - apply dirprodeq; apply actegory_unitorisolaw.
+      - apply dirprodeq; apply actegory_unitorisolaw.
+      - apply dirprodeq; apply actegory_actornatleft.
+      - apply dirprodeq; apply actegory_actornatright.
+      - apply dirprodeq; apply actegory_actornatleftright.
+      - apply dirprodeq; apply actegory_actorisolaw.
+      - apply dirprodeq; apply actegory_actorisolaw.
+      - apply dirprodeq; apply actegory_triangleidentity.
+      - apply dirprodeq; apply actegory_pentagonidentity.
   Qed.
 
   Definition actegory_binprod : actegory Mon_V CD := _,,actegory_binprod_laws.
@@ -261,23 +271,21 @@ Definition actegory_prod_action_data : bifunctor_data V PC PC.
   Proof.
     red; repeat split.
     * intros v cs.
-      apply funextsec; intro i; apply bifunctor_leftid.
+      apply funextsec; intro i; apply (bifunctor_leftid (ActC i)).
     * intros cs v.
-      apply funextsec; intro i; apply bifunctor_rightid.
+      apply funextsec; intro i; apply (bifunctor_rightid (ActC i)).
     * intros v cs1 cs2 cs3 fs1 fs2.
-      apply funextsec; intro i; apply bifunctor_leftcomp.
+      apply funextsec; intro i; apply (bifunctor_leftcomp (ActC i)).
     * intros cs v1 v2 v3 h1 h2.
-      apply funextsec; intro i; apply bifunctor_rightcomp.
+      apply funextsec; intro i; apply (bifunctor_rightcomp (ActC i)).
     * intros v1 v2 cs1 cs2 h fs.
-      apply funextsec; intro i; apply bifunctor_equalwhiskers.
+      apply funextsec; intro i; apply (bifunctor_equalwhiskers (ActC i)).
   Qed.
-
-  Definition actegory_prod_action : action(V:=V) PC := _,,actegory_prod_action_data_is_bifunctor.
 
   Definition actegory_prod_data : actegory_data Mon_V PC.
   Proof.
     use make_actegory_data.
-    - exact actegory_prod_action.
+    - exact actegory_prod_action_data.
     - intros cs.
       intro i. apply au_{ActC i}.
     - intros cs.
@@ -290,17 +298,19 @@ Definition actegory_prod_action_data : bifunctor_data V PC PC.
 
   Lemma actegory_prod_laws : actegory_laws Mon_V actegory_prod_data.
   Proof.
-    red; repeat split; try red; intros; apply funextsec; intro i.
-    - apply actegory_unitornat.
-    - apply actegory_unitorisolaw.
-    - apply actegory_unitorisolaw.
-    - apply actegory_actornatleft.
-    - apply actegory_actornatright.
-    - apply actegory_actornatleftright.
-    - apply actegory_actorisolaw.
-    - apply actegory_actorisolaw.
-    - apply actegory_triangleidentity.
-    - apply actegory_pentagonidentity.
+    split.
+    + exact actegory_prod_action_data_is_bifunctor.
+    + red; repeat split; try red; intros; apply funextsec; intro i.
+      - apply actegory_unitornat.
+      - apply actegory_unitorisolaw.
+      - apply actegory_unitorisolaw.
+      - apply actegory_actornatleft.
+      - apply actegory_actornatright.
+      - apply actegory_actornatleftright.
+      - apply actegory_actorisolaw.
+      - apply actegory_actorisolaw.
+      - apply actegory_triangleidentity.
+      - apply actegory_pentagonidentity.
   Qed.
 
   Definition actegory_prod : actegory Mon_V PC := _,,actegory_prod_laws.
