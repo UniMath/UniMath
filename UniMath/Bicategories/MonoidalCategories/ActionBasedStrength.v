@@ -374,7 +374,7 @@ Section The_Laws.
     (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
         directly afterwards *)
   Definition param_distr_triangle_eq_variant0_RHS :
-    [A, A'] ⟦ precompF (FA' (MonoidalFunctors.I_C Mon_V)), postcompF (FA (MonoidalFunctors.I_C Mon_V)) ⟧ :=
+    [A, A'] ⟦ precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V)), postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V)) ⟧ :=
     # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
 
     Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
@@ -384,7 +384,7 @@ Section The_Laws.
       # precompF (strong_monoidal_functor_ϵ_inv FA').
 
     Definition postwhisker_with_ϵ_inv_z_iso :
-      z_iso (postcompF (FA (MonoidalFunctors.I_C Mon_V))) (postcompF (MonoidalFunctors.I_D Mon_EndA)).
+      z_iso (postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V))) (postcompF (MonoidalFunctorsTensored.I_D Mon_EndA)).
     Proof.
       apply functor_on_z_iso.
       use tpair.
@@ -394,7 +394,7 @@ Section The_Laws.
     Defined.
 
     Definition prewhisker_with_ϵ_inv_z_iso :
-      z_iso (precompF (FA' (MonoidalFunctors.I_C Mon_V))) (precompF (MonoidalFunctors.I_D Mon_EndA')).
+      z_iso (precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V))) (precompF (MonoidalFunctorsTensored.I_D Mon_EndA')).
     Proof.
       apply functor_on_z_iso.
       use tpair.

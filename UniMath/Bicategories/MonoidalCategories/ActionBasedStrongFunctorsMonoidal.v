@@ -25,9 +25,9 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.DisplayedMonoidalTensored.
 
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
@@ -455,8 +455,8 @@ Section Main.
       refine (vcomp2 t1 _).
       refine (vcomp2 _ t2).
       apply (vcomp2(g:=G)).
-      - unfold MonoidalFunctors.I_D. cbn. apply runitor.
-      - unfold MonoidalFunctors.I_D. cbn. apply linvunitor.
+      - apply runitor.
+      - apply linvunitor.
     Defined.
 
     Definition montrafotargetbicat_disp_unit: montrafotargetbicat_disp I :=
@@ -587,7 +587,7 @@ Section Main.
     Defined.
 
     Definition lwhisker_with_ϵ_inv2cell (v : Mon_V):
-      invertible_2cell (FA' v · id₁ a0') (FA' v · FA' (MonoidalFunctors.I_C Mon_V)).
+      invertible_2cell (FA' v · id₁ a0') (FA' v · FA' (MonoidalFunctorsTensored.I_C Mon_V)).
     Proof.
       use make_invertible_2cell.
       - exact (FA' v ◃ lax_monoidal_functor_ϵ FA').
@@ -1973,9 +1973,9 @@ Section Main.
 
       (** we come to an important element of the whole construction - the triangle law enters here *)
       Lemma lmf_from_param_distr_bicat_ε_aux:
-        pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat)
-        -->[ id pr1 (MonoidalFunctors.I_D montrafotargetbicat_moncat)]
-        pr2 (lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V)).
+        pr2 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat)
+        -->[ id pr1 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat)]
+        pr2 (lmf_from_param_distr_bicat_functor (MonoidalFunctorsTensored.I_C Mon_V)).
       Proof.
         unfold mor_disp. unfold trafotargetbicat_disp. hnf.
         do 2 rewrite functor_id.
@@ -1985,8 +1985,8 @@ Section Main.
       Qed.
 
       Definition lmf_from_param_distr_bicat_ε:
-        pr1 montrafotargetbicat_moncat ⟦ MonoidalFunctors.I_D montrafotargetbicat_moncat,
-                                         lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V) ⟧ :=
+        pr1 montrafotargetbicat_moncat ⟦ MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat,
+                                         lmf_from_param_distr_bicat_functor (MonoidalFunctorsTensored.I_C Mon_V) ⟧ :=
         (identity _),, lmf_from_param_distr_bicat_ε_aux.
 
       (** we come to the crucial element of the whole construction - the pentagon law enters here *)
@@ -2073,8 +2073,8 @@ Section Main.
 
       (* now similar but not identical code to above for triangle *)
       Lemma smf_from_param_distr_bicat_is_strong1_aux:
-        pr2 (lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V)) -->[id I]
-        pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat).
+        pr2 (lmf_from_param_distr_bicat (MonoidalFunctorsTensored.I_C Mon_V)) -->[id I]
+        pr2 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat).
       Proof.
         unfold mor_disp. unfold trafotargetbicat_disp. hnf.
         do 2 rewrite functor_id.
@@ -2083,8 +2083,8 @@ Section Main.
       Qed.
 
       Definition smf_from_param_distr_bicat_is_strong1_inv: pr1 montrafotargetbicat_moncat
-        ⟦ lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V),
-          MonoidalFunctors.I_D montrafotargetbicat_moncat ⟧.
+        ⟦ lmf_from_param_distr_bicat (MonoidalFunctorsTensored.I_C Mon_V),
+          MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat ⟧.
       Proof.
         exists (identity I).
         apply smf_from_param_distr_bicat_is_strong1_aux.

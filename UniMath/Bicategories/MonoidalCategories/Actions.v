@@ -247,7 +247,6 @@ Section Alternative_Definition.
     assert (Hunital1inst := Hunital1 a).
     cbn in Hunital1inst.
     rewrite id_right in Hunital1inst.
-    unfold MonoidalFunctors.λ_C in Hunital1inst.
     apply pathsinv0.
     transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
     { apply functor_on_is_z_isomorphism.

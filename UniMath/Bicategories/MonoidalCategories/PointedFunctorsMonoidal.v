@@ -26,8 +26,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategories.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 
 Local Open Scope cat.
