@@ -256,18 +256,14 @@ Section def_equalizers.
     + apply idpath.
     + use make_isEqualizer.
       intros x h p.
-      use make_iscontr.
-      - split with h.
-        use id_right.
-      - intro t.
-        induction t as (t,t_tri).
-        use subtypePath.
-        * unfold isPredicate.
-          intro.
-          use homset_property.
-        * cbn.
-          rewrite <-(id_right t).
-          exact t_tri.
+      use unique_exists.
+      - exact h.
+      - use id_right.
+      - intro.
+        use homset_property.
+      - intros t t_tri.
+        rewrite <-(id_right t).
+        exact t_tri.
   Defined.
 
   (* The equalizer is a z-isomorphism if f = g *)
