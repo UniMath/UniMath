@@ -21,13 +21,13 @@ Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.MonoidalOld.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.TotalDisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.MonoidalOld.MonoidalSectionsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalDisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
@@ -531,7 +531,7 @@ Section Main.
           (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π'.
     Proof.
       intro Hyp'.
-      rewrite <- when_bifunctor_becomes_leftwhiskering.
+      rewrite <- (when_bifunctor_becomes_leftwhiskering Mon_V).
       change (montrafotargetbicat_disp v) in η.
       exact (montrafotargetbicat_tensor_comp_aux v w v w' (identity v) g η π η π' (id_disp η) Hyp').
     Qed.
@@ -543,7 +543,7 @@ Section Main.
           (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π.
     Proof.
       intro Hyp.
-      rewrite <- when_bifunctor_becomes_rightwhiskering.
+      rewrite <- (when_bifunctor_becomes_rightwhiskering Mon_V).
       change (montrafotargetbicat_disp w) in π.
       exact (montrafotargetbicat_tensor_comp_aux v w v' w f (identity w) η π η' π Hyp (id_disp π)).
     Qed.

@@ -102,7 +102,7 @@ Section TheConstruction.
       do 2 rewrite id_right.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       apply pathsinv0, id_left.
     - intros C D F ActC ActD lin v c.
       cbn.
@@ -111,7 +111,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       apply id_right.
     - intros C D F ActC ActD lin v c.
       cbn.
@@ -120,7 +120,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       rewrite functor_id.
       apply pathsinv0, id_left.
     - intros C D F ActC ActD lin v c.
@@ -130,7 +130,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       do 2 rewrite id_left.
       apply id_right.
       (** now towards composition *)
@@ -141,7 +141,7 @@ Section TheConstruction.
       unfold comp_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActC4). }
       rewrite id_right.
       rewrite id_left.
       repeat rewrite assoc'.
@@ -154,7 +154,7 @@ Section TheConstruction.
       unfold comp_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActC4). }
       rewrite id_right.
       rewrite id_left.
       repeat rewrite assoc'.
@@ -164,7 +164,7 @@ Section TheConstruction.
       cbn.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftcomp. }
+           apply pathsinv0, (bifunctor_leftcomp ActD). }
       rewrite assoc.
       etrans.
       { apply cancel_postcomposition.
