@@ -30,6 +30,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 
 Require Import UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
@@ -269,7 +270,7 @@ Section A.
          intro f.
          cbn.
          do 2 rewrite post_whisker_identity.
-         unfold TotalDisplayedMonoidal.total_unit.
+         unfold total_unit.
          apply (nat_trans_eq D).
          intro x.
          cbn.
@@ -357,7 +358,7 @@ Section A.
          clear Hypunitorinst0.
          cbn in Hypunitorinst.
          rewrite id_right in Hypunitorinst.
-         unfold TotalDisplayedMonoidal.total_unit in Hypunitorinst.
+         unfold total_unit in Hypunitorinst.
          etrans.
          2: { exact Hypunitorinst. }
          clear Hypunitorinst.
