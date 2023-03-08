@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
@@ -610,12 +611,12 @@ End LiftedStrength.
     - intros H c.
       assert (Hc := H c). clear H.
       cbn in Hc.
-      unfold TotalDisplayedMonoidal.total_unit, lifted_action_unitor_data in Hc. cbn in Hc.
+      unfold total_unit, lifted_action_unitor_data in Hc. cbn in Hc.
       do 2 rewrite (bifunctor_rightid M) in Hc. do 2 rewrite id_left in Hc.
       exact Hc.
     - intros H c.
       cbn.
-      unfold TotalDisplayedMonoidal.total_unit, lifted_action_unitor_data. cbn.
+      unfold total_unit, lifted_action_unitor_data. cbn.
       do 2 rewrite (bifunctor_rightid M). do 2 rewrite id_left.
       apply H.
     - apply impred; intro c. apply C.
