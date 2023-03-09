@@ -379,9 +379,13 @@ RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
 
-# DONE SO FAR
-
 # Monoidal Rezk Completion
+Monoidal/RezkCompletion/LiftedTensor.v
+Monoidal/RezkCompletion/LiftedTensorUnit.v
+Monoidal/RezkCompletion/LiftedUnitors.v
+Monoidal/RezkCompletion/LiftedAssociator.v
+Monoidal/RezkCompletion/LiftedMonoidal.v
+Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 
 PowerObject.v
 ElementaryTopos.v
