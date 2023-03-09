@@ -17,7 +17,7 @@ Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBica
 Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
