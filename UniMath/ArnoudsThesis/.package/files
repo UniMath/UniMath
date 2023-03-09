@@ -1,3 +1,4 @@
 FiniteSetSkeleton.v
-AlgebraicTheory.v
+AlgebraicBase.v
 AbstractClone.v
+AlgebraicTheory.v
