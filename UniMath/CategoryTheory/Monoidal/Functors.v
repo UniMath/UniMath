@@ -1187,7 +1187,25 @@ Section MonoidalFunctorAccessors.
       =
       mon_functor_tensor F x₁ y₁ · #F (f #⊗ g).
   Proof.
-  Admitted.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply (fmonoidal_preservestensornatleft (pr2 F)).
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply (fmonoidal_preservestensornatright (pr2 F)).
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite <- functor_comp.
+    apply idpath.
+  Qed.
 
   Definition mon_functor_lassociator
              (x y z : V₁)
@@ -1199,7 +1217,23 @@ Section MonoidalFunctorAccessors.
       · identity (F x) #⊗ mon_functor_tensor F y z
       · mon_functor_tensor F x (y ⊗ z).
   Proof.
-  Admitted.
+    refine (_ @ fmonoidal_preservesassociativity (pr2 F) x y z @ _).
+    - apply maponpaths_2.
+      apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply (bifunctor_leftid V₂).
+    - apply maponpaths_2.
+      apply maponpaths.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      refine (!(id_left _) @ _).
+      apply maponpaths_2.
+      refine (!_).
+      apply (bifunctor_rightid V₂).
+  Qed.
 
   Definition mon_functor_rassociator
              (x y z : V₁)
@@ -1245,7 +1279,15 @@ Section MonoidalFunctorAccessors.
       · mon_functor_tensor F (I_{V₁}) x
       · #F (mon_lunitor x).
   Proof.
-  Admitted.
+    refine (!(fmonoidal_preservesleftunitality (pr2 F) x) @ _).
+    do 2 apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    apply (bifunctor_leftid V₂).
+  Qed.
 
   Definition mon_functor_linvunitor
              (x : V₁)
@@ -1286,7 +1328,15 @@ Section MonoidalFunctorAccessors.
       · mon_functor_tensor F x (I_{V₁})
       · #F (mon_runitor x).
   Proof.
-  Admitted.
+    refine (!(fmonoidal_preservesrightunitality (pr2 F) x) @ _).
+    do 2 apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_left _) @ _).
+    apply maponpaths_2.
+    refine (!_).
+    apply (bifunctor_rightid V₂).
+  Qed.
 
   Definition mon_functor_rinvunitor
              (x : V₁)
@@ -1327,35 +1377,41 @@ Section StrongMonoidalFunctorAccessors.
   Definition strong_functor_unit_inv
     : F (I_{V₁}) --> I_{V₂}.
   Proof.
-  Admitted.
+    exact (inv_from_z_iso (_ ,, fmonoidal_preservesunitstrongly (pr2 F))).
+  Defined.
 
   Definition strong_functor_unit_inv_unit
     : strong_functor_unit_inv · mon_functor_unit F = identity _.
   Proof.
-  Admitted.
+    apply z_iso_after_z_iso_inv.
+  Qed.
 
   Definition strong_functor_unit_unit_inv
     : mon_functor_unit F · strong_functor_unit_inv = identity _.
   Proof.
-  Admitted.
+    apply (z_iso_inv_after_z_iso (_ ,, fmonoidal_preservesunitstrongly (pr2 F))).
+  Qed.
 
   Definition strong_functor_tensor_inv
              (x y : V₁)
     : F(x ⊗ y) --> F x ⊗ F y.
   Proof.
-  Admitted.
+    exact (inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly (pr2 F) x y)).
+  Defined.
 
   Definition strong_functor_tensor_inv_tensor
              (x y : V₁)
     : strong_functor_tensor_inv x y · mon_functor_tensor F x y = identity _.
   Proof.
-  Admitted.
+    apply z_iso_after_z_iso_inv.
+  Qed.
 
   Definition strong_functor_tensor_tensor_inv
              (x y : V₁)
     : mon_functor_tensor F x y · strong_functor_tensor_inv x y = identity _.
   Proof.
-  Admitted.
+    apply (z_iso_inv_after_z_iso (_ ,, fmonoidal_preservestensorstrongly (pr2 F) x y)).
+  Qed.
 
   Definition tensor_strong_functor_tensor_inv
              {x₁ x₂ y₁ y₂ : V₁}
@@ -1365,5 +1421,10 @@ Section StrongMonoidalFunctorAccessors.
       =
       #F (f #⊗ g) · strong_functor_tensor_inv x₂ y₂.
   Proof.
-  Admitted.
+    use z_iso_inv_on_right ; cbn.
+    rewrite !assoc.
+    use z_iso_inv_on_left ; cbn.
+    refine (!_).
+    apply (tensor_mon_functor_tensor F).
+  Qed.
 End StrongMonoidalFunctorAccessors.
