@@ -40,6 +40,8 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
+Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
+
 Section HomFunctor.
   Context {V : monoidal_cat}
           {C : category}
@@ -126,8 +128,7 @@ Section HomFunctor.
   (**
    3. The transformation that is pointwise the enriched composition
    *)
-  (*
-  Definition enriched_comp_nat_trans_left_functor
+Definition enriched_comp_nat_trans_left_functor
     : category_binproduct (category_binproduct C^op (core C)) C ⟶ V
     := bindelta_pair_functor
          (bindelta_pair_functor
@@ -280,5 +281,4 @@ Section HomFunctor.
     - exact enriched_comp_nat_trans_data.
     - exact enriched_comp_nat_trans_laws.
   Defined.
-   *)
 End HomFunctor.

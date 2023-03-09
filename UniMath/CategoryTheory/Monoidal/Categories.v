@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
@@ -1577,7 +1578,9 @@ Section MonoidalCatAccessors.
       =
       mon_lassociator _ _ _ · f #⊗ (g #⊗ h).
   Proof.
-  Admitted.
+    refine (!_).
+    apply associator_nat2.
+  Qed.
 
   Definition mon_rassociator
              (x y z : V)
@@ -1638,7 +1641,30 @@ Section MonoidalCatAccessors.
       mon_rinvunitor x #⊗ identity y · mon_lassociator x (I_{V}) y.
   Proof.
     refine (!_).
-  Admitted.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (_ @ !(monoidal_triangle_identity_inv V x y)).
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply (bifunctor_leftid V).
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply mon_rassociator_lassociator.
+    }
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite (whiskerscommutes V).
+    - apply maponpaths.
+      refine (!_).
+      apply (bifunctor_rightid V).
+    - apply (bifunctor_equalwhiskers V).
+  Qed.
 
   Definition mon_lunitor_triangle
              (x y : V)
@@ -1661,7 +1687,27 @@ Section MonoidalCatAccessors.
       =
       mon_linvunitor (x ⊗ y).
   Proof.
-  Admitted.
+    refine (!(id_right _) @ _).
+    etrans.
+    {
+      apply maponpaths.
+      exact (!(mon_lunitor_linvunitor _)).
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply mon_lunitor_triangle.
+    }
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    rewrite <- tensor_comp_id_r.
+    rewrite mon_linvunitor_lunitor.
+    apply tensor_id_id.
+  Qed.
 
   Definition mon_runitor_triangle
              (x y : V)
@@ -1669,7 +1715,25 @@ Section MonoidalCatAccessors.
       =
       identity x #⊗ mon_runitor y.
   Proof.
-  Admitted.
+    etrans.
+    {
+      apply maponpaths.
+      exact (!(left_whisker_with_runitor V x y)).
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_rassociator_lassociator.
+    }
+    rewrite id_left.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    refine (!(id_left _) @ _).
+    apply maponpaths_2.
+    refine (!_).
+    apply (bifunctor_rightid V).
+  Qed.
 
   Definition mon_rinvunitor_triangle
              (x y : V)
@@ -1677,7 +1741,27 @@ Section MonoidalCatAccessors.
       =
       mon_rinvunitor (x ⊗ y).
   Proof.
-  Admitted.
+    refine (!(id_right _) @ _).
+    etrans.
+    {
+      apply maponpaths.
+      exact (!(mon_runitor_rinvunitor _)).
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply mon_runitor_triangle.
+    }
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    rewrite <- tensor_comp_id_l.
+    rewrite mon_rinvunitor_runitor.
+    apply tensor_id_id.
+  Qed.
 
   Definition mon_runitor_I_mon_lunitor_I
     : mon_runitor (I_{V}) = mon_lunitor (I_{V}).
@@ -1708,3 +1792,32 @@ Section MonoidalCatAccessors.
     apply idpath.
   Qed.
 End MonoidalCatAccessors.
+
+Definition monoidal_cat_tensor_data
+           (V : monoidal_cat)
+  : functor_data (category_binproduct V V) V.
+Proof.
+  use make_functor_data.
+  - exact (λ x, pr1 x ⊗ pr2 x).
+  - exact (λ x y f, pr1 f #⊗ pr2 f).
+Defined.
+
+Proposition is_functor_monoidal_cat_tensor
+            (V : monoidal_cat)
+  : is_functor (monoidal_cat_tensor_data V).
+Proof.
+  split.
+  - intro x ; cbn.
+    apply tensor_id_id.
+  - intros x y z f g ; cbn.
+    apply tensor_comp_mor.
+Qed.
+
+Definition monoidal_cat_tensor
+           (V : monoidal_cat)
+  : category_binproduct V V ⟶ V.
+Proof.
+  use make_functor.
+  - exact (monoidal_cat_tensor_data V).
+  - exact (is_functor_monoidal_cat_tensor V).
+Defined.
