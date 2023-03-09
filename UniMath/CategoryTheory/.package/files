@@ -267,8 +267,6 @@ Monoidal/Displayed/TotalMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
 
 Monoidal/Examples/SetCartesianMonoidal.v
-Monoidal/Examples/PointedSetCartesianMonoidal.v
-Monoidal/Examples/SetWithSubset.v
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/CartesianMonoidal.v
@@ -276,6 +274,8 @@ Monoidal/Examples/DisplayedCartesianMonoidal.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/EndofunctorsMonoidal.v
 Monoidal/Examples/MonoidalDialgebras.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
