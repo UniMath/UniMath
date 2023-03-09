@@ -266,6 +266,9 @@ Monoidal/Displayed/Monoidal.v
 Monoidal/Displayed/TotalMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
 
+Monoidal/Examples/SetCartesianMonoidal.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/CartesianMonoidal.v
