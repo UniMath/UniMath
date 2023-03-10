@@ -18,8 +18,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 
 Local Open Scope cat.
@@ -247,7 +247,6 @@ Section Alternative_Definition.
     assert (Hunital1inst := Hunital1 a).
     cbn in Hunital1inst.
     rewrite id_right in Hunital1inst.
-    unfold MonoidalFunctors.λ_C in Hunital1inst.
     apply pathsinv0.
     transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
     { apply functor_on_is_z_isomorphism.

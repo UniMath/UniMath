@@ -8,7 +8,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat.
 
@@ -63,19 +63,19 @@ Proof.
   split. { intros. apply assoc. }
 
   (* 3. Whiskering and identities. *)
-  split. { intros ? ? ? f g. apply bifunctor_leftid. }
-  split. { intros ? ? ? f g. apply bifunctor_rightid. }
+  split. { intros ? ? ? f g. apply (bifunctor_leftid M). }
+  split. { intros ? ? ? f g. apply (bifunctor_rightid M). }
 
   (* 4. Left whiskering vertical composition. *)
   split. {
     intros ? ? ? f g h i x y.
-    apply pathsinv0, bifunctor_leftcomp.
+    apply pathsinv0, (bifunctor_leftcomp M).
   }
 
   (* 5. Right whiskering vertical composition. *)
   split. {
     intros ? ? ? f g h i x y.
-    apply pathsinv0, bifunctor_rightcomp.
+    apply pathsinv0, (bifunctor_rightcomp M).
   }
 
   (* 6 and 7. Vertical composition and unitors. *)
@@ -118,7 +118,7 @@ Proof.
   split. {
     intros.
     cbn.
-    apply bifunctor_equalwhiskers.
+    apply (bifunctor_equalwhiskers M).
   }
 
   (* 12. Left unitor invertible. *)

@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.HorizontalComposition. *)
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
 
 Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
