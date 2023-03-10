@@ -71,18 +71,19 @@ Section AbstractCloneAlgebraicTheory.
     use make_is_algebraic_theory.
     - split.
       + intro.
-        apply funextsec2.
+        apply funextfun.
         intro.
         apply H2.
       + intro.
         intros.
-        apply funextsec2.
+        apply funextfun.
         intro.
         unfold Tmor, compose.
         simpl.
         unfold reindex, funcomp.
         rewrite H3.
-        apply maponpaths, funextsec2.
+        apply maponpaths, funextfun.
+        intro.
         symmetry.
         apply H1.
     - apply H3.
@@ -92,7 +93,7 @@ Section AbstractCloneAlgebraicTheory.
     - intro.
       intros.
       rewrite <- H2.
-      apply maponpaths, funextsec2.
+      apply maponpaths, funextfun.
       intro.
       apply H1.
     - intro.
@@ -100,7 +101,7 @@ Section AbstractCloneAlgebraicTheory.
       unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBase.comp.
       simpl.
       rewrite H3.
-      apply maponpaths, funextsec2.
+      apply maponpaths, funextfun.
       intro.
       apply H1.
   Qed.
@@ -119,7 +120,7 @@ Section AbstractCloneAlgebraicTheory.
       simpl.
       assert (H1 : (λ (_ : stn 1), firstelement) = identity (1 : finite_set_skeleton_category)).
       {
-        apply funextsec2.
+        apply funextfun.
         intro i.
         apply (subtypePairEquality (λ _, (isasetbool _ _))).
         exact (!(natlth1tois0 _ (pr2 i))).
@@ -131,7 +132,7 @@ Section AbstractCloneAlgebraicTheory.
       rewrite H2.
       apply idpath.
     - rewrite idpath_transportf.
-      repeat (apply funextsec2; intro).
+      repeat (apply funextsec; intro).
       symmetry.
       apply functor_uses_projections.
   Qed.
@@ -141,10 +142,10 @@ Section AbstractCloneAlgebraicTheory.
     use abstract_clone_eq.
     - apply idpath.
     - rewrite idpath_transportf.
-      repeat (apply funextsec2; intro).
+      repeat (apply funextfun; intro).
       apply idpath.
     - rewrite idpath_transportf.
-      repeat (apply funextsec2; intro).
+      repeat (apply funextsec; intro).
       apply (pr12 C).
   Qed.
 
