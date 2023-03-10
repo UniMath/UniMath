@@ -1,4 +1,9 @@
-(** Categories of monoids for monoidal categories **)
+(** Categories of monoids for monoidal categories
+
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log --follow -- UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v
+
+*)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.

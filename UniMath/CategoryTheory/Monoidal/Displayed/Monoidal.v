@@ -5,6 +5,9 @@
  In this file, we define the notion of a displayed monoidal category. The style of
  the definition is similar to the definition of a monoidal category.
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/DisplayedMonoidalWhiskered.v
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

@@ -18,6 +18,10 @@
  7. Inverses of monoidal natural transformations
  8. Bundled versions
 
+
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/MonoidalFunctorsWhiskered.v
+
  ***************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

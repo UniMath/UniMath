@@ -26,6 +26,9 @@
  6. More monoidal laws
  7. Bundled approach to monoidal categories
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/MonoidalCategoriesWhiskered.v
+
  ***************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.

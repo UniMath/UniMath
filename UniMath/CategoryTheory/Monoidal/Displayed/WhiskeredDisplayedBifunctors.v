@@ -6,6 +6,9 @@
  style as for monoidal categories. As such, we need to define the notion of a
  displayed whiskered bifunctor. This is needed for the tensor functor.
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/WhiskeredDisplayedBifunctors.v
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

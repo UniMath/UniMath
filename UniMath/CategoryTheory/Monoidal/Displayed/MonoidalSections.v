@@ -5,6 +5,9 @@
  A section on a displayed monoidal category is data and properties such that we
  can construct a lax/strong monoidal functor from the base to the total category.
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/MonoidalSectionsWhiskered.v
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

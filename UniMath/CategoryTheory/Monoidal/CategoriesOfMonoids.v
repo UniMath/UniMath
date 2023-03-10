@@ -1,4 +1,10 @@
-(** In this file, the category of monoids internal to a monoidal category is defined **)
+(** In this file, the category of monoids internal to a monoidal category is defined
+
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoidsWhiskered.v
+(git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoids.v gives information on a prior development for the "tensored" format of monoidal categories)
+
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

@@ -5,6 +5,9 @@
  In this file, we show that the total category of a displayed monoidal category is
  again a monoidal category.
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/TotalDisplayedMonoidalWhiskered.v
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

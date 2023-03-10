@@ -9,6 +9,10 @@
  1. Construction of cartesian monoidal categories
  2. Set as cartesian monoidal category
 
+
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.v
+
  ********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

@@ -6,6 +6,9 @@
  1. Braided monoidal categories
  2. Symmetric monoidal categories
 
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/BraidedMonoidalCategoriesWhiskered.v
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
