@@ -96,17 +96,22 @@ Section AlgebraicTheory.
 
   Lemma algebraic_theory_eq
     (X Y : algebraic_theory)
-    (H1 : pr11 X = pr11 Y)
-    (H2 : transportf _ H1 (pr121 X) = (pr121 Y))
+    (H1 : pr111 X = pr111 Y)
+    (H2 : transportf _ H1 (pr211 X) = pr211 Y)
+    (H3 : transportf (λ (T : nat → hSet), T 1) H1 (pr121 X) = (pr121 Y))
+    (H4 : transportf (λ (T : nat → hSet), ∏ m n, (stn m → stn n) → T m → T n) H1 (pr221 X) = (pr221 Y))
     : X = Y.
   Proof.
-    destruct X as [[Xbase Xpr] HX].
-    destruct Y as [[Ybase Ypr] HY].
-    use (subtypePairEquality' _ (isaprop_is_abstract_clone _)).
-    use total2_paths2_f; repeat assumption.
+    destruct X as [[[Xf Xcomp] [Xe Xmor]] HX].
+    destruct Y as [[[Yf Ycomp] [Ye Ymor]] HY].
+    simpl in H1, H2, H3, H4.
+    induction H1, H2, H3, H4.
+    use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
+    repeat use total2_paths2_f;
+      apply idpath.
   Qed.
 
-  (* Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : T m) : Tmor a f = f • (λ i, pr (a i)).
+  Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : T m) : Tmor a f = f • (λ i, pr (a i)).
   Proof.
     rewrite <- (pr12 (pr222 T) n (Tmor a f)).
     apply T.
@@ -120,7 +125,7 @@ Section AlgebraicTheory.
   Qed.
 
   (* The composition is natural in the second argument *)
-  Lemma comp_is_natural_r (T : algebraic_theory)
+  (* Lemma comp_is_natural_r (T : algebraic_theory)
     (m n n' : finite_set_skeleton_category)
     (a: finite_set_skeleton_category⟦n, n'⟧)
     (f : T m)

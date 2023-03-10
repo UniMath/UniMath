@@ -9,7 +9,7 @@ Local Open Scope algebraic_theory.
 Section AbstractClone.
 
   Definition abstract_clone_data := ∑ (B: algebraic_base),
-    (∏ {n}, stn n → B n).
+    (∏ n, stn n → B n).
 
   Definition make_abstract_clone_data
     (C : algebraic_base)
@@ -19,8 +19,8 @@ Section AbstractClone.
     exact (C ,, pr).
   Defined.
 
-  Definition algebraic_base_from_abstract_clone_data (C : abstract_clone_data) : algebraic_base := pr1 C.
-  Coercion algebraic_base_from_abstract_clone_data : abstract_clone_data >-> algebraic_base.
+  Definition algebraic_base_from_abstract_clone (C : abstract_clone_data) : algebraic_base := pr1 C.
+  Coercion algebraic_base_from_abstract_clone : abstract_clone_data >-> algebraic_base.
 
   Definition pr {C : abstract_clone_data} {n : nat} := pr2 C n.
 
@@ -78,18 +78,16 @@ Section AbstractClone.
     (X Y : abstract_clone)
     (H1 : pr111 X = pr111 Y)
     (H2 : transportf _ H1 (pr211 X) = (pr211 Y))
+    (H3 : transportf (λ (T : nat → hSet), (∏ n, stn n → T n)) H1 (pr21 X) = (pr21 Y))
     : X = Y.
   Proof.
     destruct X as [[[Xf Xcomp] Xpr] HX].
     destruct Y as [[[Yf Ycomp] Ypr] HY].
+    simpl in H1, H2, H3.
+    induction H1, H2, H3.
     use (subtypePairEquality' _ (isaprop_is_abstract_clone _)).
-    use total2_paths2_f.
-    - use total2_paths2_f.
-      + assumption.
-      + assumption.
-    -
-    repeat use total2_paths2_f; repeat assumption.
-    simpl.
+    repeat use total2_paths2_f;
+      apply idpath.
   Qed.
 
 End AbstractClone.
