@@ -30,6 +30,12 @@ Section UnitaryMorphisms.
     : UU
     := ∑ f : C⟦x,y⟧, is_unitary dag f.
 
+  Definition unitary_to_mor
+             {C : category} {dag : dagger_structure C}
+             {x y : C} (u : unitary dag x y)
+    : C⟦x,y⟧ := pr1 u.
+  Coercion unitary_to_mor : unitary >-> precategory_morphisms.
+
   Lemma isaset_unitary
         {C : category} (dag : dagger_structure C) (x y : C)
     : isaset (unitary dag x y).
@@ -61,7 +67,7 @@ Section UnitaryMorphisms.
               | refine (id_right _ @ _) ; apply dagger_to_law_id ]).
   Defined.
 
-  Definition unitary_comp
+  Definition is_unitary_comp
              {C : category} {dag : dagger C}
              {x y z : C}
              {f : C⟦x,y⟧} (ff : is_unitary dag f)
@@ -92,6 +98,14 @@ Section UnitaryMorphisms.
       { apply maponpaths_2, id_right. }
       apply gg.
   Qed.
+
+  Definition unitary_comp
+             {C : category} {dag : dagger C}
+             {x y z : C}
+             (f : unitary dag x y)
+             (g : unitary dag y z)
+    : unitary dag x z
+    := _ ,, is_unitary_comp (pr2 f) (pr2 g).
 
   Definition unitary_inv_is_unitary
              {C : category} {dag : dagger C}

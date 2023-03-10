@@ -76,7 +76,7 @@ Proof.
   apply (fully_faithful_reflects_is_unitary dagF ff c c' (fully_faithful_inv_hom ff c c' (pr1 u))).
   set (p := ! maponpaths (is_unitary dagD) (functor_on_fully_faithful_inv_hom ff _ _ (pr1 u))).
   exact (path_to_fun p (pr2 u)).
-Qed.
+Defined.
 
 Section FullyFaithful.
 
