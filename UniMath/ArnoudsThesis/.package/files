@@ -3,3 +3,4 @@ AlgebraicBase.v
 AbstractClone.v
 AlgebraicTheory.v
 AbstractCloneAlgebraicTheory.v
+EndomorphismTheory.v
