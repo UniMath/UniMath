@@ -6,8 +6,10 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
 Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
 
 Local Open Scope cat.
 
@@ -35,6 +37,45 @@ Proof.
   refine (_ @ homotinvweqweq (weq_from_fully_faithful ff x y) (pr1 f_f)).
   apply maponpaths.
   exact (! (pr2 f_f)).
+Qed.
+
+Lemma fully_faithful_reflects_is_unitary {C D : category}
+      {dagC : dagger C} {dagD : dagger D}
+      {F : functor C D}
+      (dagF : is_dagger_functor dagC dagD F)
+      (ff : fully_faithful F)
+  : ∏ c c' : C, ∏ f : C⟦c,c'⟧, is_unitary dagD (#F f) -> is_unitary dagC f.
+Proof.
+  intros c c' f u.
+  set (i := pr2 (fully_faithful_reflects_iso_proof _ _ _ ff c c' (Isos.make_z_iso _ _ u))).
+  cbn in i.
+  split.
+  - refine (_ @ pr1 i).
+    use maponpaths_compose.
+    + apply pathsinv0, homotinvweqweq.
+    + refine (! homotinvweqweq  (weq_from_fully_faithful ff c' c) (dagC _ _ f) @ _).
+      apply maponpaths.
+      apply dagF.
+  - refine (_ @ pr2 i).
+    use maponpaths_compose.
+    + refine (! homotinvweqweq  (weq_from_fully_faithful ff c' c) (dagC _ _ f) @ _).
+      apply maponpaths.
+      apply dagF.
+    + apply pathsinv0, homotinvweqweq.
+Qed.
+
+Lemma fully_faithful_reflects_unitary {C D : category}
+      {dagC : dagger C} {dagD : dagger D}
+      {F : functor C D}
+      (dagF : is_dagger_functor dagC dagD F)
+      (ff : fully_faithful F)
+  : ∏ c c' : C, unitary dagD (F c) (F c') -> unitary dagC c c'.
+Proof.
+  intros c c' u.
+  exists (fully_faithful_inv_hom ff c c' (pr1 u)).
+  apply (fully_faithful_reflects_is_unitary dagF ff c c' (fully_faithful_inv_hom ff c c' (pr1 u))).
+  set (p := ! maponpaths (is_unitary dagD) (functor_on_fully_faithful_inv_hom ff _ _ (pr1 u))).
+  exact (path_to_fun p (pr2 u)).
 Qed.
 
 Section FullyFaithful.
