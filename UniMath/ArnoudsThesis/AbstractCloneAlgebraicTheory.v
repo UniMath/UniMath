@@ -150,13 +150,11 @@ Section AbstractCloneAlgebraicTheory.
 
   Lemma algebraic_theory_weq_abstract_clone : abstract_clone ≃ algebraic_theory.
   Proof.
-    apply Equivalence_to_weq.
-    use makeEquivalence.
-    - exact algebraic_theory_from_abstract_clone.
+    use (algebraic_theory_from_abstract_clone ,, _).
+    use isweq_iso.
     - exact abstract_clone_from_algebraic_theory.
-    - exact algebraic_theory_id.
     - exact abstract_clone_id.
-    - intros C.
+    - exact algebraic_theory_id.
   Qed.
 
 End AbstractCloneAlgebraicTheory.
