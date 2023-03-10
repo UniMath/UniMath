@@ -248,6 +248,7 @@ Core.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
+categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v

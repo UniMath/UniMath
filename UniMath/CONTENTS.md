@@ -384,6 +384,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Core.v](CategoryTheory/Core.v)
    - [categories/Universal_Algebra/Algebras.v](CategoryTheory/categories/Universal_Algebra/Algebras.v)
    - [categories/Universal_Algebra/EqAlgebras.v](CategoryTheory/categories/Universal_Algebra/EqAlgebras.v)
+   - [categories/Relations.v](CategoryTheory/categories/Relations.v)
    - [Monoidal/WhiskeredBifunctors.v](CategoryTheory/Monoidal/WhiskeredBifunctors.v)
    - [Monoidal/Categories.v](CategoryTheory/Monoidal/Categories.v)
    - [Monoidal/Structure/Cartesian.v](CategoryTheory/Monoidal/Structure/Cartesian.v)
@@ -428,7 +429,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Actegories/Examples/SelfActionInCATElementary.v](CategoryTheory/Actegories/Examples/SelfActionInCATElementary.v)
    - [Actegories/ConstructionOfActegoryMorphisms.v](CategoryTheory/Actegories/ConstructionOfActegoryMorphisms.v)
    - [Actegories/ActionBasedStrongMonads.v](CategoryTheory/Actegories/ActionBasedStrongMonads.v)
-
    - [DisplayedCats/MoreFibrations/Prefibrations.v](CategoryTheory/DisplayedCats/MoreFibrations/Prefibrations.v)
    - [DisplayedCats/MoreFibrations/CartesiannessOfComposites.v](CategoryTheory/DisplayedCats/MoreFibrations/CartesiannessOfComposites.v)
    - [DisplayedCats/MoreFibrations/FibrationsCharacterisation.v](CategoryTheory/DisplayedCats/MoreFibrations/FibrationsCharacterisation.v)
