@@ -1195,3 +1195,18 @@ Section Precomp_with_dagger_weak_equiv.
   Qed.
 
 End Precomp_with_dagger_weak_equiv.
+
+Lemma Precomp_of_dagger_weak_equiv_is_dagger_weak_equiv
+      {C D E : category}
+      {dagC : dagger C} {dagD : dagger D}
+      {H : functor C D}
+      {dagH : is_dagger_functor dagC dagD H}
+      (wH : is_weak_dagger_equiv dagH)
+      {dagE : dagger E}
+      (univE : is_univalent_dagger dagE)
+  : is_weak_dagger_equiv (dagger_pre_composition_functor_is_dagger_functor dagH dagE).
+Proof.
+  split.
+  - exact (Precomp_is_unitarily_eso _ wH univE).
+  - exact (Precomp_is_ff _ wH).
+Qed.
