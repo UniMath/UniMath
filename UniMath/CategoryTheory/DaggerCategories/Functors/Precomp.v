@@ -543,7 +543,8 @@ Section Precomp_with_dagger_weak_equiv.
     exact (pr11 (Y_iscontr b b' f)).
   Defined.
 
-  Local Notation "'G' f" := (pr11 (Y_iscontr _ _ f)) (at level 3).
+  Definition G {x y : D} (f : D⟦x,y⟧)
+    := (pr11 (Y_iscontr _ _ f)).
 
   (** The above data is indeed functorial. *)
 
@@ -735,6 +736,7 @@ Section Precomp_with_dagger_weak_equiv.
         set (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
         set (H'' := base_paths _ _ H').
         simpl in H'.
+        unfold G.
         rewrite <- H'.
         apply idpath.
       }
@@ -848,6 +850,7 @@ Section Precomp_with_dagger_weak_equiv.
                tpair _ (unitary_inv (k b' a0' h0') · #F l0' · k b'' a0'' h0'') PR2 :
                Y f').
         set (H' := pr2 (Y_iscontr b' b'' f') Gbrtilde).
+        unfold G.
         rewrite <- (base_paths _ _ H').
         apply idpath.
       }
@@ -956,10 +959,13 @@ Section Precomp_with_dagger_weak_equiv.
         set (Gbrtilde :=
                tpair _ (unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'') PR2 :
                Y (f · f')).
+        unfold G.
         rewrite <- (pr2 (Y_iscontr b b'' (f · f')) Gbrtilde).
         apply idpath.
       }
       clear PR2.
+      fold (G (f · f')).
+      fold (G (f)) (G f').
       rewrite HGf, HGf'.
       intermediate_path (unitary_inv (k b a0 h0)· #F l0· (k b' a0' h0'·
                                                             unitary_inv (k b' a0' h0'))· #F l0'· k b'' a0'' h0'').
@@ -1090,7 +1096,10 @@ Section Precomp_with_dagger_weak_equiv.
                     PSIf : Y (#H f)).
     set (Ycontr := pr2 (Y_iscontr _ _ (#(pr1 H) f)) Ybla).
     set (Ycontr2 := base_paths _ _ Ycontr); simpl in *.
+    change (H a0) with (pr1 H a0).
+    change (H a0') with (pr1 H a0').
     change (G (#H f)) with (G (#(pr1 H) f)).
+    change (#H f) with (# (pr1 H) f).
     rewrite <- Ycontr2.
     repeat rewrite assoc.
     etrans.
@@ -1126,35 +1135,49 @@ Section Precomp_with_dagger_weak_equiv.
 
     transparent assert (rhs : (Y (dagD x y f))).
     {
-      exists (dagE (Go x) (Go y) G f).
+      exists (dagE (Go x) (Go y) (G f)).
       intros c h c' h' l p.
 
-      (* G f is the unique morphism in Y_contr f *)
-
-      refine (Y_inhab_proof y x (dagD _ _ f) c h c' h'  _ _ _ _ _ p @ _).
-      clear p.
-      apply maponpaths.
-      cbn.
-
-      use unitary_inv_to_right.
-      { exact dagE. }
+      apply (dagger_injective dagE).
+      do 2 rewrite dagger_to_law_comp.
+      rewrite dagger_to_law_idemp.
+      rewrite <- dagF.
+      apply unitary_inv_on_left.
       { apply k. }
-      rewrite <- dagger_to_law_comp.
 
+      unfold G.
 
+      set (p0 := pr21 (Y_iscontr _ _ (dagD _ _ f)) _ h _ h' l p).
+      rewrite assoc'.
 
+      assert (pf : # H (dagC c c' l) · h = h' · f).
+      {
+        rewrite dagH.
+        apply (dagger_injective dagD).
+        do 2 rewrite dagger_to_law_comp.
+        rewrite dagger_to_law_idemp.
+        use unitary_inv_on_left.
+        { apply h'. }
+        rewrite assoc'.
+        rewrite p.
+        rewrite assoc.
+        etrans.
+        2: apply maponpaths_2, pathsinv0, (pr22 h).
+        apply pathsinv0, id_left.
+      }
 
-
-
-
-
-
-
-      admit.
+      etrans.
+      2: {
+        apply maponpaths, pathsinv0.
+        exact (pr21 (Y_iscontr _ _ f) _ h' _ h (dagC _ _ l) pf).
+      }
+      rewrite assoc.
+      etrans.
+      2: apply maponpaths_2, pathsinv0, k.
+      apply pathsinv0, id_left.
     }
     exact (base_paths _ _ (! pr2 (Y_iscontr _ _ (dagD x y f)) rhs)).
-  Admitted.
-
+  Qed.
 
   End IntermediateProp.
 
