@@ -74,6 +74,15 @@ Proof.
   apply pathsinv0, dagF.
 Qed.
 
+Lemma dagger_of_idtodaggeriso
+      {C : category} (dag : dagger C)
+      {x y : C} (p : x = y)
+  : pr1 dag _ _ (pr1 (idtodaggeriso dag _ _ p)) = pr1 (idtodaggeriso dag _ _ (! p)).
+Proof.
+  induction p.
+  apply dagger_to_law_id.
+Qed.
+
 Section Precomp_dagger_functor.
 
   Context {C D E : category}
@@ -177,7 +186,7 @@ Section Precomp_with_dagger_weak_equiv.
 
   Lemma X_aux_type_center_of_contr_proof
         (b : D) (anot : C) (hnot : unitary dagD (H anot) b) :
-    ∏ (t t' : total2 (λ a :  C, unitary dagD (H a) b))
+    ∏ (t t' : ∑ a :  C, unitary dagD (H a) b)
       (f : pr1 t --> pr1 t'),
       #H f· pr12 t' = pr12 t ->
       #F f·
@@ -340,13 +349,13 @@ Section Precomp_with_dagger_weak_equiv.
      contraction of [Y f]. *)
 
   Local Definition Y {b b' : D} (f : b --> b') :=
-    total2 (fun g : Go b --> Go b' =>
+    ∑ g : Go b --> Go b',
               ∏ a : C,
                 ∏ h : unitary _ (H a) b,
                   ∏ a' : C,
                     ∏ h' : unitary _ (H a') b',
                       ∏ l : a --> a',
-                        #H l · h' = h · f -> #F l · k b' a' h' = k b a h · g).
+                        #H l · h' = h · f -> #F l · k b' a' h' = k b a h · g.
 
   Lemma Y_inhab_proof (b b' : D) (f : b --> b') (a0 : C) (h0 : unitary _ (H a0) b)
         (a0' : C) (h0' : unitary _ (H a0') b') :
@@ -514,7 +523,7 @@ Section Precomp_with_dagger_weak_equiv.
     iscontr (Y f).
   Proof.
     assert (HH : isaprop (iscontr (Y f))).
-    apply isapropiscontr.
+    { apply isapropiscontr. }
     apply (pr1 wH b (tpair (λ x, isaprop x) (iscontr (Y f)) HH)).
     intros [a0 h0].
     apply (pr1 wH b' (tpair (λ x, isaprop x) (iscontr (Y f)) HH)).
@@ -531,10 +540,10 @@ Section Precomp_with_dagger_weak_equiv.
   Proof.
     exists Go.
     intros b b' f.
-    exact (pr1 (pr1 (Y_iscontr b b' f))).
+    exact (pr11 (Y_iscontr b b' f)).
   Defined.
 
-  Local Notation "'G' f" := (pr1 (pr1 (Y_iscontr _ _ f))) (at level 3).
+  Local Notation "'G' f" := (pr11 (Y_iscontr _ _ f)) (at level 3).
 
   (** The above data is indeed functorial. *)
 
@@ -689,21 +698,35 @@ Section Precomp_with_dagger_weak_equiv.
         }
 
         rewrite <- functor_comp.
-        (* rewrite star5, functor_comp, functor_on_unitary_inv.
+        etrans.
+        2: {
+          apply maponpaths_2, maponpaths.
+          refine (! star5 @ _).
+          apply maponpaths_2.
+          apply (Isos.inverse_unique_precat _ _ m) ; apply m.
+        }
         clear star5.
-        assert (star4 :
-                 unitary_inv (dagger_functor_on_unitary F m')· k b' a0' h0'
+
+        rewrite functor_comp.
+        etrans.
+        2: {
+          apply maponpaths_2, maponpaths.
+          exact (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+
+        assert (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b' a0' h0'
                  = k b' a' h' ).
-        { apply z_iso_inv_on_right.
+        {
+          apply unitary_inv_on_right.
+          { apply dagger_functor_on_unitary. }
           set (ssss' := base_paths _ _ ssss).
           apply pathsinv0.
           simpl in ssss'. simpl.
           apply ssss'; clear ssss'.
         }
         rewrite <- assoc.
-        rewrite star4.
-        apply idpath. *)
-        admit.
+        apply maponpaths.
+        apply pathsinv0, star4.
       }
       assert (HGf : G f = unitary_inv (k b a0 h0) · #F l0 · k b' a0' h0').
       {
@@ -790,23 +813,34 @@ Section Precomp_with_dagger_weak_equiv.
         }
         repeat rewrite assoc.
         rewrite sss''. clear sss'' sss' sss.
-        rewrite dagger_functor_on_unitary_inv.
-        (*
-           rewrite <- functor_comp.
-        rewrite star5. clear star5 sssss.
-        rewrite functor_comp, functor_on_unitary_inv.
-        assert (star4 :
-                 unitary_inv (dagger_functor_on_unitary F m')· k b'' a0'' h0''
+        etrans.
+        2: {
+          do 2 apply maponpaths_2.
+          exact (! dagger_functor_on_unitary_inv_on_ob dagF _ _ m).
+        }
+        rewrite <- functor_comp.
+        etrans.
+        2: apply maponpaths_2, maponpaths, pathsinv0, star5.
+        clear star5 sssss.
+        rewrite functor_comp.
+        etrans.
+        2: {
+          apply maponpaths_2, maponpaths.
+          exact (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+
+        assert (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b'' a0'' h0''
                  = k b'' a'' h'' ).
-        { apply z_iso_inv_on_right.
+        {
+          apply unitary_inv_on_right.
+          { apply dagger_functor_on_unitary. }
           set (ssss' := base_paths _ _ ssss).
           apply pathsinv0.
           simpl in *; apply ssss'.
         }
         rewrite <- assoc.
-        rewrite star4.
-        apply idpath. *)
-        admit.
+        apply maponpaths.
+        exact (! star4).
       }
       assert (HGf' : G f' = unitary_inv (k b' a0' h0') · #F l0' · k b'' a0'' h0'').
       {
@@ -893,26 +927,38 @@ Section Precomp_with_dagger_weak_equiv.
 
         repeat rewrite assoc.
         rewrite sss''. clear sss'' sss' sss.
-      (* rewrite dagger_functor_on_unitary_inv.
-      rewrite <- functor_comp.
-      rewrite star5. clear star5 sssss.
-      rewrite functor_comp, functor_on_unitary_inv.
-      assert (star4 :
-               unitary_inv (dagger_functor_on_unitary F m')· k b'' a0'' h0''
-               = k b'' a'' h'' ).
-      { apply z_iso_inv_on_right, pathsinv0, (base_paths _ _ ssss). }
-      rewrite <- assoc.
-      rewrite star4.
-      apply idpath. *)
-        admit.
+        etrans.
+        2: {
+          do 2 apply maponpaths_2.
+          exact (! dagger_functor_on_unitary_inv_on_ob dagF _ _ m).
+        }
+        rewrite <- functor_comp.
+        etrans.
+        2: apply maponpaths_2, maponpaths, (! star5).
+        clear star5 sssss.
+        rewrite functor_comp.
+        etrans.
+        2: {
+          apply maponpaths_2, maponpaths.
+          exact (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+        assert (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b'' a0'' h0'' = k b'' a'' h'').
+        {
+          apply unitary_inv_on_right, pathsinv0, (base_paths _ _ ssss).
+          apply dagger_functor_on_unitary.
+        }
+        rewrite <- assoc.
+        apply maponpaths.
+        exact (! star4).
       }
-      assert (HGff' : G (f · f') =
-                        unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'').
-      { set (Gbrtilde :=
+      assert (HGff' : G (f · f') = unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'').
+      {
+        set (Gbrtilde :=
                tpair _ (unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'') PR2 :
                Y (f · f')).
         rewrite <- (pr2 (Y_iscontr b b'' (f · f')) Gbrtilde).
-        apply idpath. }
+        apply idpath.
+      }
       clear PR2.
       rewrite HGf, HGf'.
       intermediate_path (unitary_inv (k b a0 h0)· #F l0· (k b' a0' h0'·
@@ -933,21 +979,13 @@ Section Precomp_with_dagger_weak_equiv.
         apply idpath.
       }
       now repeat rewrite <- assoc.
+  Qed.
 
-  (* Qed. *) Admitted.
 
-
-(** We call the functor [GG] ... *)
+  (** We call the functor [GG] ... *)
 
   Definition GG : functor D E := tpair _ preimage_functor_data
                                        is_functor_preimage_functor_data.
-
-  Lemma GG_is_dagger_functor
-    : is_dagger_functor dagD dagE GG.
-  Proof.
-
-
-  Admitted.
 
   (** ** [G] is the preimage of [F] under [ _ O H] *)
 
@@ -956,7 +994,7 @@ Section Precomp_with_dagger_weak_equiv.
    This allows to prove [G (H a) = F a]. *)
 
   Lemma qF (a0 : C) :
-    ∏ (t t' : total2 (λ a :  C, unitary dagD (H a) (H a0)))
+    ∏ (t t' : ∑ a :  C, unitary dagD (H a) (H a0))
       (f : pr1 t --> pr1 t'),
       #H f· pr2 t' = pr2 t ->
       #F f· #F (fH^-1 (pr2 t')) =
@@ -1059,7 +1097,8 @@ Section Precomp_with_dagger_weak_equiv.
     {
       do 3 apply maponpaths_2.
       refine (_ @ idpath (identity _)).
-      admit.
+      generalize (phi a0).
+      intro p ; induction p ; apply id_right.
     }
 
     rewrite id_left.
@@ -1068,11 +1107,54 @@ Section Precomp_with_dagger_weak_equiv.
     {
       apply maponpaths.
       refine (_ @ idpath (identity _)).
-      admit.
+      rewrite dagger_of_idtodaggeriso.
+      etrans.
+      { apply maponpaths_2, idtodaggeriso_is_dagger_of_idtodaggeriso. }
+      refine (_ @ pr22 (idtodaggeriso dagE _ _ (phi a0'))).
+      rewrite pathsinv0inv0.
+      apply maponpaths.
+      generalize (phi a0').
+      intro p ; induction p ; apply idpath.
     }
     apply id_right.
-    (* Qed. *)
+  Qed.
+
+  Lemma GG_is_dagger_functor
+    : is_dagger_functor dagD dagE GG.
+  Proof.
+    intros x y f.
+
+    transparent assert (rhs : (Y (dagD x y f))).
+    {
+      exists (dagE (Go x) (Go y) G f).
+      intros c h c' h' l p.
+
+      (* G f is the unique morphism in Y_contr f *)
+
+      refine (Y_inhab_proof y x (dagD _ _ f) c h c' h'  _ _ _ _ _ p @ _).
+      clear p.
+      apply maponpaths.
+      cbn.
+
+      use unitary_inv_to_right.
+      { exact dagE. }
+      { apply k. }
+      rewrite <- dagger_to_law_comp.
+
+
+
+
+
+
+
+
+
+
+      admit.
+    }
+    exact (base_paths _ _ (! pr2 (Y_iscontr _ _ (dagD x y f)) rhs)).
   Admitted.
+
 
   End IntermediateProp.
 
