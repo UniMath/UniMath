@@ -340,6 +340,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [YonedaBinproducts.v](CategoryTheory/YonedaBinproducts.v)
    - [ExponentiationLeftAdjoint.v](CategoryTheory/ExponentiationLeftAdjoint.v)
    - [Connected.v](CategoryTheory/Connected.v)
+   - [LeftKanExtension.v](CategoryTheory/LeftKanExtension.v)
    - [categories/CartesianCubicalSets.v](CategoryTheory/categories/CartesianCubicalSets.v)
    - [OppositeCategory/OppositeAdjunction.v](CategoryTheory/OppositeCategory/OppositeAdjunction.v)
    - [OppositeCategory/OppositeOfFunctorCategory.v](CategoryTheory/OppositeCategory/OppositeOfFunctorCategory.v)
