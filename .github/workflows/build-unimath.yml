@@ -41,6 +41,8 @@ jobs:
 
   # Build the current PR/branch with the latest stable release of Coq.
   build-Unimath-ubuntu:
+    permissions:
+      actions: write
     strategy:
       fail-fast: false
       matrix:
