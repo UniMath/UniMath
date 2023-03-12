@@ -208,7 +208,7 @@ jobs:
             endGroup
 
       - name: Revert permissions
-        if: ${{ always() }}
+        if: always ()
         run: sudo chown -R 1001:116 .
 
       - uses: actions/cache/save@v3
