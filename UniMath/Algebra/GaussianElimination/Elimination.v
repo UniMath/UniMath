@@ -6,8 +6,6 @@ Primary Author: Daniel @Skantz (November 2022)
   With much help from, and thanks to, Peter LeFanu Lumsdaine
 *)
 
-(** * TODO NOTE: This file depends on Coq.Init.Logic. *)
-Require Import Coq.Init.Logic.
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.NaturalNumbers.
@@ -345,8 +343,8 @@ Section LeadingEntry.
     - now rewrite dualelement_2x.
     - apply dualelement_lt_comp'.
       rewrite dualelement_2x.
-      replace (dualelement entry) with i; try assumption.
-      now rewrite (@leading_entry_compute_eq _ _ _ entry eq compeq).
+      rewrite <- (@leading_entry_compute_eq _ _ _ entry eq compeq).
+      exact i_gt_i'.
     - exact (pr2 (dualelement i')).
   Defined.
 
@@ -623,14 +621,15 @@ Section Gauss.
       2 : { now apply issymm_natneq, natgthtoneq. }
       apply pathsinv0, maponpaths_2.
       etrans.
-      { replace (fldmultinv' (@matrix_mult F _ _ _ _ mat k_i k_j)%ring)
-          with (fldmultinv' (mat k_i k_j)%ring); try reflexivity.
-        set (f := @gauss_clear_column_as_left_matrix_inv0 m n).
+      { set (f := @gauss_clear_column_as_left_matrix_inv0 m n).
         unfold gauss_clear_column_as_left_matrix in f.
         set (lt' := (istransnatlth _ _ _ (natgthsnn iter) p)).
         change iter with (pr1 (make_stn _ iter lt')).
         change (istransnatlth _ _ _ _ p) with (make_stn _ iter lt').
-        rewrite f; try reflexivity; apply isreflnatleh.
+        rewrite (f (make_stn _ iter lt') _ _ _ _ (isreflnatleh k_i)).
+        change (pr1 (make_stn _ iter lt')) with iter.
+        change (make_stn _ iter lt') with (istransnatlth _ _ _ _ p) .
+        reflexivity.
       }
       apply maponpaths_1, maponpaths_2.
       rewrite IH.
@@ -943,8 +942,7 @@ Section Gauss.
         * apply natgthtogeh in k_le_r.
           apply (istransnatleh gt k_le_r).
         * now apply natgehtonegnatlth in absurd.
-    - unfold gauss_clear_column.
-      rewrite nat_rect_step.
+    - rewrite nat_rect_step.
       unfold gauss_clear_column_step'.
       destruct (natgthorleh _ _) as [gt | leh].
       2 : { unfold gauss_clear_column_step.
@@ -956,11 +954,6 @@ Section Gauss.
       }
       destruct (stn_eq_or_neq _ _) as [contr_eq | ?].
       { rewrite contr_eq in k_le_r. contradiction (isirreflnatgth _ k_le_r). }
-      replace _ with (gauss_clear_column_step k_i k_j r mat r).
-      { rewrite gauss_clear_column_step_eq; unfold gauss_clear_column_step'.
-        destruct (stn_eq_or_neq _ _) as [contr_eq | ?]; try reflexivity.
-        rewrite contr_eq in k_le_r; contradiction (isirreflnatgth _ k_le_r).
-      }
       assert (interchange :
          gauss_clear_column_step k_i k_j (sep,, p)
           (gauss_clear_column mat k_i k_j (sep,, p')) r
@@ -988,10 +981,15 @@ Section Gauss.
         - rewrite gauss_clear_column_inv1; try reflexivity;
           apply isreflnatleh.
       }
-      rewrite <- (@gauss_clear_column_inv0 m n k_i k_j (sep,, p')).
-      2: { rewrite eq; apply isreflnatleh. }
+      pose (@gauss_clear_column_inv0 m n k_i k_j (sep,, p')) as p1.
+      change (istransnatlth _ _ _ (natgthsnn _) p) with p'.
       rewrite <- (stn_eq_2 _ _ eq p) in interchange |- *.
-      now rewrite <- interchange.
+      do 2 rewrite gauss_clear_column_step_eq in interchange.
+      rewrite gauss_clear_column_step_eq in *; unfold gauss_clear_column_step' in *.
+      destruct (stn_eq_or_neq _ _) as [contr_eq | ?]; try reflexivity.
+      { rewrite contr_eq in k_le_r; contradiction (isirreflnatgth _ k_le_r). }
+      unfold gauss_clear_column in interchange, p1 |-; rewrite interchange.
+      rewrite p1; rewrite (stn_eq_2 _ _ eq p); now try apply isreflnatleh.
   Defined.
 
   Lemma gauss_clear_column_inv3

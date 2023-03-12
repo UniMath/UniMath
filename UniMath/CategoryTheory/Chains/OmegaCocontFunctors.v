@@ -51,6 +51,9 @@ This file contains proofs that the following functors are (omega-)cocontinuous:
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 *)
 
+(** * TODO NOTE: This file depends on Coq.Init.Logic. *)
+Require Import Coq.Init.Logic.
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
