@@ -10,7 +10,7 @@ on:
   schedule:
     # Based on https://github.com/marketplace/actions/set-up-ocaml
     # Prime the caches every Monday
-    - cron: '0 1 * * MON'
+    - cron: '0 12 * * MON'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,14 +59,13 @@ jobs:
       # to use $(pwd)/dune-cache/ in the custom_script when initiating the
       # docker run.
       - uses: actions/cache/restore@v3
-        id: cache
+        id: unimath-cache
         with:
           path: dune-cache
-          # Example key: UniMath-Linux-coq-8.16-123456789-10
-          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
-          restore-keys: |
-            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
+          # What about UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.ref }} ?
+          # so keys are: UniMath....ref/pull/1466/merge and
+          #              UniMath....ref/branch/master
+          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
 
       - name: Build UniMath
         uses: coq-community/docker-coq-action@v1
@@ -91,27 +90,41 @@ jobs:
             endGroup
 
       - name: Revert permissions
-        if: ${{ always() }}
+        if: always ()
         run: sudo chown -R 1001:116 .
+
+      - name: Remove old cache
+        if: steps.unimath-cache.outputs.cache-hit == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh extension install actions/gh-actions-cache
+          REPO=${{ github.repository }}
+          REF=${{ github.ref }}
+          KEY=${{ github.unimath-cache.key }}
+
+          set +e
+          echo "Deleting old cache..."
+          gh actions-cache delete $KEY -R $REPO -B $REF --confirm
+          echo "Done."
 
       - uses: actions/cache/save@v3
         if: always()
         with:
           path: dune-cache
-          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (currently 8.16.1). Build files are cached.
   build-macos:
     name: Build on macOS (Coq 8.16)
-
+    if: false
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install Coq
         run: |
           brew install coq ocaml-findlib dune
-
           coqc --version
           dune --version
 
@@ -139,6 +152,7 @@ jobs:
   # stable patch-release of Coq 8.16, except for TypeTheory, which is built
   # using the latest stable 8.15 release.
   build-satellites:
+    if: false
     strategy:
       fail-fast: false
       matrix:
