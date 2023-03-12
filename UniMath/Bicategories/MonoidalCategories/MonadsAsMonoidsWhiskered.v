@@ -9,13 +9,13 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Import BifunctorNotations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoidsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
@@ -122,7 +122,7 @@ Section MonoidToMonadMor.
       apply pathsinv0.
       etrans.
       2: { exact (eqtohomot (base_paths _ _ t) c). }
-      rewrite bifunctor_equalwhiskers.
+      rewrite (bifunctor_equalwhiskers M_ENDO).
       apply idpath.
     - intro c.
       set (t := pr22 f).
@@ -141,7 +141,8 @@ Section MonadToMonoidMor.
   Lemma monad_to_monoid_mor_laws : pr2 (monad_to_monoid M) -->[ pr1 f] pr2 (monad_to_monoid N).
   Proof.
     split.
-    - red. rewrite bifunctor_equalwhiskers.
+    - red.
+      rewrite (bifunctor_equalwhiskers M_ENDO).
       apply (nat_trans_eq C); intro c.
       apply pathsinv0, Monad_Mor_μ.
     - apply (nat_trans_eq C); intro c.

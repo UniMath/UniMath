@@ -1,15 +1,12 @@
 (** an elementary direct construction of the monoidal category
-
     one can also instantiate the construction of cartesian monoidal categories
     [UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.SET_cartesian_monoidal] *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
-
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 
@@ -34,11 +31,13 @@ Section SetIsCartesianMonoidal.
     repeat split.
   Qed.
 
+  (*
   Definition SET_cart_tensor : tensor SET := (SET_cart_tensor_data,, SET_cart_tensor_laws).
+   *)
   Definition SET_cart_monoidal_data : monoidal_data SET.
   Proof.
     use make_monoidal_data.
-    - exact (SET_cart_tensor).
+    - exact SET_cart_tensor_data.
     - exact (unit,, isasetunit).
     - exact (λ _ y, pr2 y).
     - exact (λ _ y, (tt,, y)).
@@ -54,9 +53,11 @@ Section SetIsCartesianMonoidal.
 
   Lemma SET_cart_monoidal_laws : monoidal_laws SET_cart_monoidal_data.
   Proof.
-    repeat split.
-    - apply funextsec; intro a; induction a as [t a]; induction t; apply idpath.
-    - apply funextsec; intro a; induction a as [a t]; induction t; apply idpath.
+    split.
+    - exact SET_cart_tensor_laws.
+    - repeat split.
+      + apply funextsec; intro a; induction a as [t a]; induction t; apply idpath.
+      + apply funextsec; intro a; induction a as [a t]; induction t; apply idpath.
   Qed.
 
 

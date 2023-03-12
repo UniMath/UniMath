@@ -5,12 +5,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
-
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -18,8 +17,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedCartesianMonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.DisplayedCartesianMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 
 Local Open Scope cat.
 
