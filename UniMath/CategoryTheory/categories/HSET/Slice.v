@@ -18,6 +18,7 @@ October 2015 - January 2016
 
 *)
 
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -112,12 +113,11 @@ use make_Product.
   - abstract(simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
     apply funextsec; intro i; apply subtypePath; [intros w; apply setproperty|];
-    destruct f as [f Hf]; cbn in *;
-    rewrite y2;
-    simpl;
-    rewrite idpath_transportf;
-    rewrite <- Hy;
-    reflexivity).
+    destruct f as [f Hf];
+    unfold hfiber;
+    rewrite transportf_sec_constant, transportf_total2;
+    simpl; rewrite transportf_const;
+    now rewrite <- Hy).
 Defined.
 
 End products_set_slice.

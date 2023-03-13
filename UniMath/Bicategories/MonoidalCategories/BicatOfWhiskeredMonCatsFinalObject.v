@@ -26,7 +26,7 @@ Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 
@@ -36,15 +36,15 @@ Definition unit_monoidal : monoidal (pr1 unit_category).
 Proof.
   use tpair.
   - use tpair.
-    + use tpair.
-      * use make_bifunctor_data.
-        -- exact (fun _ _ => tt).
-        -- intros. apply idpath.
-        -- intros. apply idpath.
-      * abstract (repeat split).
+    + use make_bifunctor_data.
+      * exact (fun _ _ => tt).
+      * intros. apply idpath.
+      * intros. apply idpath.
     + exists tt.
       repeat split; intro x; induction x; apply isapropunit.
-  - abstract (
+  - split.
+    + abstract (repeat split).
+    + abstract (
         do 2 (split; [split; red; intros; [apply isasetunit | split; apply isasetunit] |]);
         split;
         [ do 3 (split; [red; intros; apply isasetunit |]);
@@ -65,7 +65,7 @@ Proof.
     + split; red; intros; exists (idpath tt); abstract (split; apply isasetunit).
   - intros x xx f g ff gg.
     red; cbn; red; cbn.
-    split; intros; apply isasetunit.
+    split; red; intros; apply isasetunit.
 Defined.
 
 Definition bifinal_moncats : bifinal_obj monbicat.

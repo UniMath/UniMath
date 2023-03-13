@@ -51,6 +51,7 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction.
 
 Local Open Scope cat.
 

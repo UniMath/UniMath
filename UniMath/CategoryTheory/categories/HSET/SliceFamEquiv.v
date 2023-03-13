@@ -75,7 +75,7 @@ Section set_slice_fam_equiv.
       apply funextsec; intro p;
         apply (invmaponpathsincl pr1); simpl;
           try (apply isofhlevelfpr1;
-               intros ?; apply setproperty);
+               intro; apply setproperty);
           repeat (unfold hfiber; rewrite transportf_total2; simpl);
           repeat (rewrite transportf_const);
           reflexivity.
@@ -169,7 +169,7 @@ Section set_slice_fam_equiv.
     apply funextsec. intro a.
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
-      intros ?.
+      intro.
       apply setproperty.
     + reflexivity.
   Qed.
@@ -213,7 +213,7 @@ Section set_slice_fam_equiv.
       intro f.
       apply (invmaponpathsincl pr1).
     - apply isofhlevelfpr1.
-      intros ?.
+      intro.
       apply setproperty.
     - simpl.
       unfold hfiber. rewrite transportf_total2.

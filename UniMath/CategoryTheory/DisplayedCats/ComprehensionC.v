@@ -64,8 +64,8 @@ Proof.
       apply z_iso_disp_postcomp.
     + exists (transportf _ (id_right _)).
       apply isweqtransportf.
-  - intros ?; apply homsets_disp.
-  - intros ?; apply homsets_disp.
+  - intro; apply homsets_disp.
+  - intro; apply homsets_disp.
   - simpl. intros gg.
     (* Better, if [weq_pathscomp0] existed:
       apply weq_to_iff, weq_pathscomp0. *)

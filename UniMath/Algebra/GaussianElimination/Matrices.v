@@ -485,9 +485,13 @@ Section Nil_Matrices.
   Lemma nil_matrix_invertible {n : nat} (A : Matrix R 0 0): matrix_inverse A.
   Proof.
     exists identity_matrix.
-    use tpair;
-      rewrite matrunax2; apply funextfun; intros i;
-      apply (@iscontr_nil_row_matrix _ 0); assumption.
+    use tpair.
+    - etrans. apply matrunax2.
+      apply funextfun; intro i.
+      now apply(@iscontr_nil_row_matrix _ 0).
+    - etrans. apply matlunax2.
+      apply funextfun; intro.
+      now apply (@iscontr_nil_row_matrix _ 0).
   Defined.
 
 End Nil_Matrices.

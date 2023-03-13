@@ -87,7 +87,7 @@ Proof.
   apply isweqcontrprop. apply HP.
   apply isofhleveltotal2.
   - apply isapropunit.
-  - intros ?. apply (@isaprop_is_z_iso_disp _ (disp_full_sub C P)).
+  - intro. apply (@isaprop_is_z_iso_disp _ (disp_full_sub C P)).
 Defined.
 
 End full_subcat.

@@ -45,8 +45,8 @@ An elementary topos is a category which has:
   -) Subobject Classifier
 *)
 
-Definition is_Topos (C:category) :=
-  ∑ (PB : Pullbacks C) (T : Terminal C) (Ω: subobject_classifier T),
+Definition is_Topos (C : category) :=
+  ∑ (PB : Pullbacks C) (T : Terminal C) (Ω : subobject_classifier T),
     (PowerObject (BinProductsFromPullbacks PB T) Ω).
 
 Definition Topos := ∑ (C:category), is_Topos C.
@@ -70,13 +70,13 @@ Defined.
 
 Section ToposAccessor.
 
-Context (C:Topos).
+Context (C : Topos).
 
 Definition Topos_category : category := pr1 C.
-Definition Topos_Pullbacks : Pullbacks (Topos_category) := pr1 (pr2 C).
-Definition Topos_Terminal : Terminal (Topos_category) := pr1 (pr2 (pr2 C)).
+Definition Topos_Pullbacks : Pullbacks Topos_category := pr1 (pr2 C).
+Definition Topos_Terminal : Terminal Topos_category := pr1 (pr2 (pr2 C)).
 Definition Topos_SubobjectClassifier : subobject_classifier (Topos_Terminal) := pr1 (pr2 (pr2 (pr2 C))).
-Definition Topos_BinProducts : BinProducts (Topos_category) := BinProductsFromPullbacks (Topos_Pullbacks) (Topos_Terminal).
+Definition Topos_BinProducts : BinProducts Topos_category := BinProductsFromPullbacks (Topos_Pullbacks) (Topos_Terminal).
 Definition Topos_PowerObject : PowerObject (Topos_BinProducts) (Topos_SubobjectClassifier) := pr2 (pr2 (pr2 (pr2 C))).
 
 End ToposAccessor.
@@ -90,7 +90,7 @@ Let T := Topos_Terminal C.
 Let PB := Topos_Pullbacks C.
 Let BinProd := Topos_BinProducts C.
 Let P := Topos_PowerObject C.
-Let Ω := (Topos_SubobjectClassifier C).
+Let Ω := Topos_SubobjectClassifier C.
 Local Notation "c ⨉ d"
   := (BinProductObject C (BinProd c d))(at level 5).
   (*\bigtimes*)
@@ -104,7 +104,7 @@ the chraracteristic morphis of the [diagonalMap],
 The [SingletonArrow] is defined as
 the [PowerObject_transpose] of the [KroneckerDelta]*)
 
-Definition KroneckerDelta (B:C) : C⟦ B ⨉ B , Ω⟧.
+Definition KroneckerDelta (B : C) : C⟦ B ⨉ B , Ω⟧.
 Proof.
   use characteristic_morphism.
   + exact B.
@@ -112,7 +112,7 @@ Proof.
 Defined.
 Local Notation "'δ' B" := (KroneckerDelta B)(at level 8).
 
-Definition SingletonArrow (B:C) : C⟦ B , (PowerObject_on_ob P) B⟧.
+Definition SingletonArrow (B : C) : C⟦ B , (PowerObject_on_ob P) B⟧.
 Proof.
   use PowerObject_transpose.
   use KroneckerDelta.
@@ -122,7 +122,7 @@ Local Notation "'{⋅}' B" := (SingletonArrow B)(at level 8).
 (*Proof that [SingletonArrow] is Monic and
   definition of his characteristic map [SingletonPred]*)
 
-Local Definition auxpb {X B:C} (b:C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap BinProd B).
+Local Definition auxpb {X B: C} (b: C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap BinProd B).
 Proof.
   use make_Pullback.
   + exact X.
@@ -185,7 +185,7 @@ Proof.
         exact Ts.
 Defined.
 
-Lemma SingletonArrow_isMonic (B:C) : isMonic ({⋅} B).
+Lemma SingletonArrow_isMonic (B: C) : isMonic ({⋅} B).
 Proof.
   use make_isMonic.
   intros X b b' p.
@@ -219,16 +219,15 @@ Proof.
   set (pbr := subobject_classifier_pullback Ω (diagonalMap BinProd B)).
   set (pbl := auxpb b).
   set (pbl' := auxpb b').
-  set (pb := pullback_glue_pullback C (homset_property C) pbr pbl).
-  set (pb' := pullback_glue_pullback C (homset_property C) pbr pbl').
+  set (pb := pullback_glue_pullback C pbr pbl).
+  set (pb' := pullback_glue_pullback C pbr pbl').
   fold δ B in pb, pb'.
   transparent assert (pb'' : (Pullback ((identity B) ⨱ b' · δ B) Ω)). {
     use (Pullback_mor_paths q (idpath _)).
-    + use homset_property.
-    + exact pb.
+    exact pb.
   }
   induction (pullbackiso _ pb' pb'') as (h,(h_tri1,h_tri2)).
-  cbn in h, h_tri1.
+  cbn - [BinProd] in h, h_tri1.
   rewrite (precompWithBinProductArrow _ (BinProd B X)) in h_tri1.
   assert (h_tri11 := (maponpaths (λ f, compose f (BinProductPr1 C (BinProd B X))) h_tri1)).
   cbn beta in h_tri11.
@@ -240,9 +239,9 @@ Proof.
   exact h_tri11.
 Defined.
 
-Definition SingletonArrow_Monic (B:C) := make_Monic C (SingletonArrow B) (SingletonArrow_isMonic B).
+Definition SingletonArrow_Monic (B: C) := make_Monic C (SingletonArrow B) (SingletonArrow_isMonic B).
 
-Definition SingletonPred (B:C) : C ⟦ PowerObject_on_ob P B , Ω ⟧.
+Definition SingletonPred (B: C) : C ⟦ PowerObject_on_ob P B , Ω ⟧.
 Proof.
   use characteristic_morphism.
   { exact B. }
@@ -331,17 +330,13 @@ Qed.
   the bottom distorted square is the definition of name_true.
   Every square commutes.
   We define [ev] as the [PullbackArrow] of the right-hand square
-*)
-Let ev (b c: C) : C ⟦ b ⨉ (Subobject_dom (G0 b c)), c ⟧.
+ *)
+
+Local Definition ev_aux (b c: C) :
+  (identity b) ⨱ (Subobject_mor (G0 b c)) · v b c · characteristic_morphism Ω (SingletonArrow_Monic c) =
+  (identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c))) · TerminalArrow T (BinProd b T) · Ω.
 Proof.
-  assert (p : PullbackObject (subobject_classifier_pullback Ω (SingletonArrow_Monic c)) = c).
-  { apply idpath. }
-  induction p.
-  use PullbackArrow.
-  - exact ((identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c)).
-  - exact ((identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c)))·
-      (TerminalArrow T _)).
-  - rewrite assoc'.
+  rewrite assoc'.
     assert (p :
       (identity b) ⨱ (u b c) · PowerObject_inPred P b =
       v b c · characteristic_morphism Ω (SingletonArrow_Monic c)).
@@ -357,9 +352,22 @@ Proof.
     rewrite !assoc.
     use cancel_postcomposition.
     use TerminalArrowUnique.
+Qed.
+
+Let ev (b c: C) : C ⟦ b ⨉ (Subobject_dom (G0 b c)), c ⟧.
+Proof.
+  assert (p : PullbackObject (subobject_classifier_pullback Ω (SingletonArrow_Monic c)) = c).
+  { apply idpath. }
+  induction p.
+  use PullbackArrow.
+  - exact ((identity _) ⨱ (Subobject_mor (G0 b c)) · (v b c)).
+  - exact ((identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c)))·
+      (TerminalArrow T _)).
+  - apply ev_aux.
 Defined.
 
-Local Lemma ev_tri (b c : C) : (ev b c · SingletonArrow_Monic c = (identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c)).
+Local Lemma ev_tri (b c : C) : ev b c · SingletonArrow_Monic c =
+                                 (identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c).
 Proof.
   use (PullbackArrow_PullbackPr1 (subobject_classifier_pullback Ω (SingletonArrow_Monic c))).
 Qed.
@@ -382,9 +390,12 @@ Qed.
     but as a morphism C ⟦ (c x b) x a , Ω ⟧
     (so we need to precompose [BinProduct_assoc])
 *)
-Let h {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) := PowerObject_transpose P ((z_iso_inv (BinProduct_assoc BinProd c b a))·(identity c)⨱f ·(δ c)).
+Let h {c b a : C} (f: C ⟦ b ⨉ a, c ⟧)
+    := PowerObject_transpose P ((z_iso_inv (BinProduct_assoc BinProd c b a)) ·
+                                  (identity c) ⨱ f · (δ c)).
 
-Local Lemma h_sq {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) : f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
+Local Lemma h_sq {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) :
+  f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
 Proof.
   use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (b ⨉ a,,c)))).
   simpl. fold BinProd.
@@ -411,12 +422,13 @@ Proof.
   use PowerObject_transpose_tri.
 Qed.
 
-Let g (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) : C ⟦ a, Subobject_dom (G0 b c) ⟧.
+Local Lemma g_aux (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) : h f · u b c =
+  TerminalArrow T a
+  · Subobject_mor
+      (Subobjectscategory_ob (name_true b)
+         (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b))).
 Proof.
-  use PullbackArrow.
-  + exact (h f).
-  + use TerminalArrow.
-  + assert (p : name_true b = Subobject_mor
+  assert (p : name_true b = Subobject_mor
     (Subobjectscategory_ob (name_true b)
         (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
     induction p.
@@ -442,10 +454,18 @@ Proof.
     rewrite !assoc.
     use cancel_postcomposition.
     use h_sq.
+Qed.
+
+Let g (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) : C ⟦ a, Subobject_dom (G0 b c) ⟧.
+Proof.
+  use PullbackArrow.
+  + exact (h f).
+  + use TerminalArrow.
+  + apply g_aux.
 Defined.
 
-Local Lemma h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) :
-  (g c b a f · Subobject_mor (G0 b c) = h f).
+Local Lemma h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧): (g c b a f
+· Subobject_mor (G0 b c) = h f).
 Proof.
   use PullbackArrow_PullbackPr1.
 Qed.
@@ -462,6 +482,8 @@ Proof.
     h_sq.
 Qed.
 
+(* Opaque isBinProduct_Pullback. *)
+
 Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
 Proof.
   intros a f.
@@ -477,7 +499,7 @@ Proof.
     use (MonicisMonic _ (Subobject_Monic (G0 b c))).
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,c ⨉ b)))).
     unfold hset_z_iso_equiv.
-    cbn - [BinProd G0 Subobject_mor].
+    cbn - [BinProd G0 Subobject_mor isBinProduct_Pullback].
     fold BinProd.
     rewrite <-BinProductOfArrows_id.
     use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).

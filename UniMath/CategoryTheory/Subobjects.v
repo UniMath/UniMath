@@ -37,7 +37,6 @@ Local Open Scope cat.
 Section def_subobjects.
 
   Context {C : category}.
-  Let hsC : has_homsets C := homset_property C.
 
   Definition Subobjectscategory (c : C) : category :=
     slice_cat (subcategory_of_monics C)
@@ -357,7 +356,6 @@ Proof.
       - use (isPullbackGluedSquare
           (isPullback_Pullback pb)
           (isPullback_Pullback pbpb)).
-        use homset_property.
     }
     use make_z_iso_in_Subobjectscategory.
     - cbn.

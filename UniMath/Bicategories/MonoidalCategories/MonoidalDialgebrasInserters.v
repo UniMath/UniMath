@@ -35,9 +35,10 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalDialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
@@ -126,7 +127,7 @@ Section FixTwoMonoidalFunctors.
           -- cbn. unfold dialgebra_disp_tensor_op, fmonoidal_preservestensordata.
              repeat rewrite assoc'.
              match goal with | [ |- _ = ?HR1 · _]  => set (R1 := HR1) end.
-             transparent assert (auxiso : (z_iso (pr11 Fm (pr11 Hm (x ⊗_{ pr12 Mon_U : tensor (pr1 Mon_U)} y)))
+             transparent assert (auxiso : (z_iso (pr11 Fm (pr11 Hm (x ⊗_{ pr12 Mon_U} y)))
                                              (pr11 Fm (pr11 Hm x ⊗_{ pr12 Mon_V} pr11 Hm y)))).
              { exists R1.
                exists ((# (pr11 Fm))%Cat (fmonoidal_preservestensordata (pr12 Hm) x y)).
@@ -151,7 +152,7 @@ Section FixTwoMonoidalFunctors.
              cbn.
              repeat rewrite assoc.
              match goal with | [ |- _ = _ · ?HR4 ]  => set (R4 := HR4) end.
-             transparent assert (auxiso' : (z_iso (pr11 Gm (pr11 Hm (x ⊗_{ pr12 Mon_U : tensor (pr1 Mon_U)} y)))
+             transparent assert (auxiso' : (z_iso (pr11 Gm (pr11 Hm (x ⊗_{ pr12 Mon_U} y)))
                                              (pr11 Gm (pr11 Hm x ⊗_{ pr12 Mon_V} pr11 Hm y)))).
              { exists R4.
                exists ((# (pr11 Gm))%Cat (fmonoidal_preservestensordata (pr12 Hm) x y)).
@@ -249,18 +250,20 @@ Section FixTwoMonoidalFunctors.
     split.
     - intros x y.
       cbn.
-      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata, fmonoidal_preservestensordata.
+      unfold projection_preserves_tensordata, fmonoidal_preservestensordata.
       rewrite id_left.
       rewrite id_right.
       etrans.
       2: { apply cancel_postcomposition.
            apply pathsinv0, bifunctor_distributes_over_id.
-           - apply bifunctor_leftid.
-           - apply bifunctor_rightid.
+           - cbn in Mon_V.
+             apply (bifunctor_leftid (pr2 Mon_V)).
+           - cbn in Mon_V.
+             apply (bifunctor_rightid (pr2 Mon_V)).
       }
       apply pathsinv0, id_left.
-    - cbn.
-      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit, fmonoidal_preservesunit.
+    - red. cbn.
+      unfold projection_preserves_unit, fmonoidal_preservesunit.
       rewrite id_left.
       apply id_right.
   Defined.
@@ -337,12 +340,12 @@ Section FixTwoMonoidalFunctors.
     split.
     - intros x y. use total2_paths_f; [cbn | apply (pr1 Mon_W)].
       assert (aux := pr12 α x y). cbn in aux.
-      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_tensordata in aux.
+      unfold projection_preserves_tensordata in aux.
       do 2 rewrite id_left in aux.
       exact aux.
     - use total2_paths_f; [cbn | apply (pr1 Mon_W)].
-      assert (aux := pr22 α). cbn in aux.
-      unfold TotalDisplayedMonoidalWhiskered.projection_preserves_unit in aux.
+      assert (aux := pr22 α). red in aux; cbn in aux.
+      unfold projection_preserves_unit in aux.
       do 2 rewrite id_left in aux.
       exact aux.
   Qed.
