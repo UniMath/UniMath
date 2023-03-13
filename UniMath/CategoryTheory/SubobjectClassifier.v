@@ -126,9 +126,8 @@ Section balanced.
     + rewrite
         subobject_classifier_square_commutes,
         assoc.
-      rewrite (TerminalArrowUnique T _
-        (f_asMonic·  TerminalArrow T c)).
-      apply idpath.
+      use cancel_postcomposition.
+      use TerminalArrowEq.
     + use make_isEqualizer.
       intros x h q.
       use unique_exists.
