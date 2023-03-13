@@ -479,12 +479,7 @@ Proof.
     unfold hset_z_iso_equiv.
     cbn - [BinProd G0 Subobject_mor].
     fold BinProd.
-    assert (p : identity c ⨱ (identity b) = identity (c ⨉ b) ).
-    { use pathsinv0.
-      use BinProductArrowUnique.
-      + now rewrite id_left, id_right.
-      + now rewrite id_left, id_right. }
-    induction p.
+    rewrite <-BinProductOfArrows_id.
     use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).
     rewrite !assoc.
     use (pathscomp0(b:=(identity c) ⨱ ((identity b)
