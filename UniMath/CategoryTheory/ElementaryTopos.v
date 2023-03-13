@@ -342,25 +342,15 @@ Proof.
   - exact ((identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c)))·
       (TerminalArrow T _)).
   - rewrite assoc'.
-    assert (p' :
+    assert (p :
       (identity b) ⨱ (u b c) · PowerObject_inPred P b =
       v b c · characteristic_morphism Ω (SingletonArrow_Monic c)).
-    { now rewrite
-        (PowerObject_transpose_tri P
-          (v b c · characteristic_morphism Ω (SingletonArrow_Monic c))). }
-    induction p'.
-    rewrite assoc.
-    rewrite BinProductOfArrows_idxcomp.
-    assert (p : ((TerminalArrow T _ ) · (name_true b) = Subobject_mor (G0 b c) · (u b c))).
-    { cbn.
-      rewrite PullbackSqrCommutes.
-      repeat use cancel_postcomposition.
-      use pathsinv0.
-      use TerminalArrowUnique. }
+    { use pathsinv0.
+      use (PowerObject_transpose_tri P). }
     induction p.
-    rewrite !assoc'.
-    rewrite <-BinProductOfArrows_idxcomp.
-    rewrite !assoc'.
+    rewrite assoc, BinProductOfArrows_idxcomp.
+    rewrite G0_Sqr.
+    rewrite !assoc', <-BinProductOfArrows_idxcomp, !assoc'.
     use cancel_precomposition.
     unfold name_true.
     rewrite (PowerObject_charname_nat_z_iso_tri(b:=b) P).
