@@ -246,9 +246,7 @@ Definition SingletonPred (B:C) : C ⟦ PowerObject_on_ob P B , Ω ⟧.
 Proof.
   use characteristic_morphism.
   { exact B. }
-  use make_Monic.
-  + exact (SingletonArrow B).
-  + exact (SingletonArrow_isMonic B).
+  use SingletonArrow_Monic.
 Defined.
 End KroneckerDelta.
 
