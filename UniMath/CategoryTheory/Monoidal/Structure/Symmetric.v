@@ -2,9 +2,13 @@
 
  Braided and symmetric monoidal categories
 
+ Braided and symmetric monoidal categories are classes of monoidal categories in
+ which tensoring is commutative in a coherent way.
+
  Contents
  1. Braided monoidal categories
  2. Symmetric monoidal categories
+ 3. Accesors for symmetric monoidal categories
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
 git log -- UniMath/CategoryTheory/Monoidal/BraidedMonoidalCategoriesWhiskered.v
@@ -20,14 +24,15 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Local Open Scope cat.
+Local Open Scope moncat.
+
+Import BifunctorNotations.
+Import MonoidalNotations.
 
 Section BraidedSymmetricMonoidalCategories.
 
-  Import BifunctorNotations.
-  Import MonoidalNotations.
-
   (**
-
+   1. Braided monoidal categories
    *)
   Definition braiding_data {C : category} (M : monoidal C) : UU
     := ∏ x y : C, C⟦x ⊗_{M} y, y ⊗_{M} x⟧.
@@ -91,6 +96,85 @@ Section BraidedSymmetricMonoidalCategories.
              (B Binv : braiding_data M)
     : UU
     := braiding_law_naturality B × braiding_iso B Binv × braiding_law_hexagon B.
+
+  Definition braiding_laws_one_hexagon
+             {C : category}
+             {M : monoidal C}
+             (B : braiding_data M)
+    : UU
+    := braiding_law_naturality B × braiding_iso B B × braiding_law_hexagon1 B.
+
+  Definition braiding_laws_one_hexagon_braiding_z_iso
+             {C : category}
+             {M : monoidal C}
+             {B : braiding_data M}
+             (H : braiding_laws_one_hexagon B)
+             (x y : C)
+    : z_iso (x ⊗_{M} y) (y ⊗_{M} x).
+  Proof.
+    use make_z_iso.
+    - exact (B x y).
+    - exact (B y x).
+    - abstract (split ; apply H).
+  Defined.
+
+  Proposition braiding_laws_one_hexagon_to_braiding_laws
+              {C : category}
+              {M : monoidal C}
+              {B : braiding_data M}
+              (H : braiding_laws_one_hexagon B)
+    : braiding_laws B B.
+  Proof.
+    split4.
+    - split.
+      + exact (pr11 H).
+      + exact (pr21 H).
+    - exact (pr12 H).
+    - exact (pr22 H).
+    - intros x y z.
+      pose (pr22 H z x y).
+      rewrite !assoc'.
+      use (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso M _ _ _)).
+      cbn.
+      use (z_iso_inv_on_right _ _ _ (braiding_laws_one_hexagon_braiding_z_iso H _ _)).
+      cbn.
+      refine (!(id_right _) @ _).
+      use (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso M _ _ _)).
+      cbn.
+      rewrite !assoc.
+      rewrite p.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        do 2 apply maponpaths_2.
+        refine (!(bifunctor_leftcomp M _ _ _ _ (B z y) (B y z)) @ _).
+        etrans.
+        {
+          apply maponpaths.
+          apply H.
+        }
+        apply (bifunctor_leftid M).
+      }
+      rewrite id_left.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        apply (monoidal_associatorisolaw M).
+      }
+      rewrite id_left.
+      refine (!(bifunctor_rightcomp M _ _ _ _ (B z x) (B x z)) @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply H.
+      }
+      apply (bifunctor_rightid M).
+  Qed.
 
   Lemma isaprop_braiding_laws
         {C : category} {M : monoidal C}
@@ -202,3 +286,372 @@ Section BraidedSymmetricMonoidalCategories.
     : nat_z_iso _ _
     := symmetric_whiskers_swap_nat_trans B x,, symmetric_whiskers_swap_is_nat_iso B x.
 End BraidedSymmetricMonoidalCategories.
+
+(**
+ 3. Accesors for symmetric monoidal categories
+ *)
+Definition sym_monoidal_cat
+  : UU
+  := ∑ (V : monoidal_cat), symmetric V.
+
+Coercion sym_monoidal_cat_to_monoidal_cat
+         (V : sym_monoidal_cat)
+  : monoidal_cat
+  := pr1 V.
+
+Definition sym_mon_cat_laws_tensored
+           (V : monoidal_cat)
+           (c : ∏ (x y : V), x ⊗ y --> y ⊗ x)
+  : UU
+  := (∏ (x y : V), c x y · c y x = identity _)
+     ×
+     (∏ (x₁ x₂ y₁ y₂ : V)
+        (f : x₁ --> x₂)
+        (g : y₁ --> y₂),
+      f #⊗ g · c x₂ y₂
+      =
+      c x₁ y₁ · g #⊗ f)
+     ×
+     (∏ (x y z : V),
+      mon_lassociator x y z
+      · c x (y ⊗ z)
+      · mon_lassociator y z x
+      =
+      c x y #⊗ identity z
+      · mon_lassociator y x z
+      · identity y #⊗ c x z).
+
+Section BuilderTensored.
+  Context (V : monoidal_cat)
+          (c : ∏ (x y : V), x ⊗ y --> y ⊗ x)
+          (Hc : sym_mon_cat_laws_tensored V c).
+
+  Definition make_braiding_laws
+    : braiding_laws c c.
+  Proof.
+    use braiding_laws_one_hexagon_to_braiding_laws.
+    repeat split.
+    - intros x y₁ y₂ g.
+      pose (pr12 Hc x x y₁ y₂ (identity x) g).
+      unfold monoidal_cat_tensor_mor in p.
+      unfold functoronmorphisms1 in p.
+      rewrite (bifunctor_leftid V) in p.
+      rewrite (bifunctor_rightid V) in p.
+      rewrite id_left, id_right in p.
+      exact (!p).
+    - intros x₁ x₂ y f.
+      pose (pr12 Hc x₁ x₂ y y f (identity y)).
+      unfold monoidal_cat_tensor_mor in p.
+      unfold functoronmorphisms1 in p.
+      rewrite (bifunctor_leftid V) in p.
+      rewrite (bifunctor_rightid V) in p.
+      rewrite id_left, id_right in p.
+      exact (!p).
+    - exact (pr1 Hc x y).
+    - exact (pr1 Hc y x).
+    - intros x y z.
+      pose (pr22 Hc x y z).
+      refine (p @ _).
+      rewrite !assoc'.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite (bifunctor_leftid V).
+      rewrite (bifunctor_rightid V).
+      rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition make_symmetric
+    : symmetric V.
+  Proof.
+    refine (c ,, _).
+    exact make_braiding_laws.
+  Defined.
+End BuilderTensored.
+
+Section Accessors.
+  Context (V : sym_monoidal_cat).
+
+  Definition sym_mon_braiding
+             (x y : V)
+    : x ⊗ y --> y ⊗ x
+    := monoidal_braiding_data (pr2 V) x y.
+
+  Proposition sym_mon_braiding_inv
+              (x y : V)
+    : sym_mon_braiding x y · sym_mon_braiding y x = identity _.
+  Proof.
+    exact (pr1 (pr1 (pr222 V) x y)).
+  Qed.
+
+  Definition is_z_isomorphism_sym_mon_braiding
+             (x y : V)
+    : is_z_isomorphism (sym_mon_braiding x y).
+  Proof.
+    use make_is_z_isomorphism.
+    - exact (sym_mon_braiding y x).
+    - abstract
+        (split ; apply sym_mon_braiding_inv).
+  Defined.
+
+  Definition sym_mon_braiding_z_iso
+             (x y : V)
+    : z_iso (x ⊗ y) (y ⊗ x)
+    := sym_mon_braiding x y ,, is_z_isomorphism_sym_mon_braiding x y.
+
+  Proposition tensor_sym_mon_braiding
+              {x₁ x₂ y₁ y₂ : V}
+              (f : x₁ --> x₂)
+              (g : y₁ --> y₂)
+    : f #⊗ g · sym_mon_braiding x₂ y₂
+      =
+      sym_mon_braiding x₁ y₁ · g #⊗ f.
+  Proof.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply (pr1 (pr122 V) x₂ y₁ y₂ g).
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply (pr2 (pr122 V) x₁ x₂ y₁ f).
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (!_).
+    use (bifunctor_equalwhiskers V).
+  Qed.
+
+  Proposition sym_mon_hexagon_lassociator
+              (x y z : V)
+    : mon_lassociator x y z
+      · sym_mon_braiding x (y ⊗ z)
+      · mon_lassociator y z x
+      =
+      sym_mon_braiding x y #⊗ identity z
+      · mon_lassociator y x z
+      · identity y #⊗ sym_mon_braiding x z.
+  Proof.
+    pose (pr12 (pr222 V) x y z) as p.
+    refine (p @ _).
+    rewrite !assoc'.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite (bifunctor_leftid V).
+    rewrite (bifunctor_rightid V).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Proposition sym_mon_tensor_lassociator
+              (x y z : V)
+    : sym_mon_braiding x (y ⊗ z)
+      =
+      mon_rassociator x y z
+      · sym_mon_braiding x y #⊗ identity z
+      · mon_lassociator y x z
+      · identity y #⊗ sym_mon_braiding x z
+      · mon_rassociator y z x.
+  Proof.
+    refine (!_).
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- sym_mon_hexagon_lassociator.
+      rewrite !assoc'.
+      rewrite mon_lassociator_rassociator.
+      rewrite id_right.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite mon_rassociator_lassociator.
+    apply id_left.
+  Qed.
+
+  Proposition sym_mon_tensor_lassociator'
+              (x y z : V)
+    : sym_mon_braiding x y #⊗ identity z
+      =
+      mon_lassociator x y z
+      · sym_mon_braiding x (y ⊗ z)
+      · mon_lassociator y z x
+      · identity y #⊗ sym_mon_braiding z x
+      · mon_rassociator y x z.
+  Proof.
+    rewrite (sym_mon_hexagon_lassociator x y z).
+    rewrite !assoc'.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_l.
+      rewrite sym_mon_braiding_inv.
+      rewrite tensor_id_id.
+      apply id_left.
+    }
+    apply mon_lassociator_rassociator.
+  Qed.
+
+  Proposition sym_mon_hexagon_rassociator
+              (x y z : V)
+    : mon_rassociator x y z
+      · sym_mon_braiding (x ⊗ y) z
+      · mon_rassociator z x y
+      =
+      identity x #⊗ sym_mon_braiding y z
+      · mon_rassociator x z y
+      · sym_mon_braiding x z #⊗ identity y.
+  Proof.
+    pose (pr22 (pr222 V) x y z) as p.
+    refine (p @ _).
+    rewrite !assoc'.
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite (bifunctor_leftid V).
+    rewrite (bifunctor_rightid V).
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Proposition sym_mon_tensor_rassociator
+              (x y z : V)
+    : sym_mon_braiding (x ⊗ y) z
+      =
+      mon_lassociator x y z
+      · identity x #⊗ sym_mon_braiding y z
+      · mon_rassociator x z y
+      · sym_mon_braiding x z #⊗ identity y
+      · mon_lassociator z x y.
+  Proof.
+    refine (!_).
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- sym_mon_hexagon_rassociator.
+      rewrite !assoc'.
+      rewrite mon_rassociator_lassociator.
+      rewrite id_right.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite mon_lassociator_rassociator.
+    apply id_left.
+  Qed.
+
+  Proposition sym_mon_braiding_lunitor
+              (x : V)
+    : sym_mon_braiding x (I_{V}) · mon_lunitor x = mon_runitor x.
+  Proof.
+    refine (!(id_right _) @ _ @ id_left _).
+    rewrite <- mon_rinvunitor_runitor.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_rinvunitor.
+    rewrite tensor_comp_id_r.
+    rewrite sym_mon_tensor_lassociator'.
+    rewrite !assoc'.
+    rewrite <- mon_lunitor_triangle.
+    etrans.
+    {
+      do 5 apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_rassociator_lassociator.
+      apply id_left.
+    }
+    rewrite <- mon_rinvunitor_triangle.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_rassociator_lassociator.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite tensor_sym_mon_braiding.
+    rewrite !assoc'.
+    refine (_ @ sym_mon_braiding_inv _ _).
+    apply maponpaths.
+    rewrite tensor_lunitor.
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite mon_lunitor_triangle.
+    rewrite <- tensor_comp_id_r.
+    rewrite mon_lunitor_I_mon_runitor_I.
+    rewrite mon_rinvunitor_runitor.
+    apply tensor_id_id.
+  Qed.
+
+  Proposition sym_mon_braiding_runitor
+              (x : V)
+    : sym_mon_braiding (I_{V}) x · mon_runitor x = mon_lunitor x.
+  Proof.
+    rewrite <- sym_mon_braiding_lunitor.
+    rewrite !assoc.
+    rewrite sym_mon_braiding_inv.
+    apply id_left.
+  Qed.
+
+  Proposition sym_mon_braiding_rinvunitor
+              (x : V)
+    : mon_rinvunitor x · sym_mon_braiding x (I_{V}) = mon_linvunitor x.
+  Proof.
+    refine (!(id_right _) @ _ @ id_left _).
+    rewrite <- mon_lunitor_linvunitor.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite sym_mon_braiding_lunitor.
+    apply mon_rinvunitor_runitor.
+  Qed.
+
+  Proposition sym_mon_braiding_linvunitor
+              (x : V)
+    : mon_linvunitor x · sym_mon_braiding (I_{V}) x = mon_rinvunitor x.
+  Proof.
+    refine (!(id_right _) @ _ @ id_left _).
+    rewrite <- mon_runitor_rinvunitor.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite sym_mon_braiding_runitor.
+    apply mon_linvunitor_lunitor.
+  Qed.
+
+  Proposition sym_mon_braiding_id
+    : sym_mon_braiding I_{V} I_{V} = identity (I_{V} ⊗ I_{V}).
+  Proof.
+    refine (_ @ mon_runitor_rinvunitor _).
+    rewrite <- sym_mon_braiding_lunitor.
+    rewrite !assoc'.
+    rewrite mon_lunitor_I_mon_runitor_I.
+    rewrite mon_runitor_rinvunitor.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+End Accessors.
