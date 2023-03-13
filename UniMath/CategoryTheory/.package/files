@@ -405,7 +405,5 @@ DaggerCategories/Examples/Fullsub.v
 
 DaggerCategories/Functors/WeakEquivalences.v
 DaggerCategories/Functors/FullyFaithful.v
-<<<<<<< HEAD
+
 DaggerCategories/Functors/Factorization.v
-=======
->>>>>>> origin/master
