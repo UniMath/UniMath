@@ -517,10 +517,8 @@ Proof.
   use left_adjoint_from_partial.
   + intro c.
     exact (Subobject_dom (G0 b c)).
-  + intro c.
-    exact (ev b c).
-  + intro c.
-    use (universality b c).
+  + exact (ev b).
+  + exact (universality b).
 Defined.
 
 End Exponentials.
