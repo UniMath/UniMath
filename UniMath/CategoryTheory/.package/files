@@ -407,3 +407,4 @@ DaggerCategories/Functors/WeakEquivalences.v
 DaggerCategories/Functors/FullyFaithful.v
 
 DaggerCategories/Functors/Factorization.v
+DaggerCategories/Functors/Precomp.v

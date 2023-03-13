@@ -511,6 +511,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DaggerCategories/Functors/WeakEquivalences.v](CategoryTheory/DaggerCategories/Functors/WeakEquivalences.v)
    - [DaggerCategories/Functors/FullyFaithful.v](CategoryTheory/DaggerCategories/Functors/FullyFaithful.v)
    - [DaggerCategories/Functors/Factorization.v](CategoryTheory/DaggerCategories/Functors/Factorization.v)
+   - [DaggerCategories/Functors/Precomp.v](CategoryTheory/DaggerCategories/Functors/Precomp.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Bicategories](Bicategories/README.md)
    - [Core/Bicat.v](Bicategories/Core/Bicat.v)
