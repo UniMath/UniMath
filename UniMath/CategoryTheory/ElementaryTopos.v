@@ -51,6 +51,23 @@ Definition is_Topos (C:category) :=
 
 Definition Topos := ∑ (C:category), is_Topos C.
 
+Definition make_isTopos {C:category} (PB : Pullbacks C) (T : Terminal C)
+  (Ω: subobject_classifier T) (P: PowerObject (BinProductsFromPullbacks PB T) Ω)
+  : is_Topos C.
+Proof.
+  split with PB.
+  split with T.
+  split with Ω.
+  exact P.
+Defined.
+
+Definition make_Topos {C:category} (is: is_Topos C)
+  : Topos.
+Proof.
+  split with C.
+  exact is.
+Defined.
+
 Section ToposAccessor.
 
 Context (C:Topos).
