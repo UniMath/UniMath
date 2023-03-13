@@ -34,8 +34,6 @@ Local Open Scope cat.
 Section OppositePseudofunctor.
   Context (V : sym_monoidal_cat).
 
-  Local Notation "∁" := (bicat_of_enriched_cats V). (* \C *)
-
   Definition op_enriched_psfunctor_data
     : psfunctor_data
         (op2_bicat (bicat_of_enriched_cats V))
@@ -119,7 +117,7 @@ Section OppositePseudofunctor.
   Defined.
 
   Definition op_enriched_psfunctor
-    : psfunctor (op2_bicat ∁) ∁.
+    : psfunctor (op2_bicat (bicat_of_enriched_cats V)) (bicat_of_enriched_cats V).
   Proof.
     use make_psfunctor.
     - exact op_enriched_psfunctor_data.

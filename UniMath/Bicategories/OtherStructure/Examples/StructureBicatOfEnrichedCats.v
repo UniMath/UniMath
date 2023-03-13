@@ -50,8 +50,6 @@ Local Open Scope cat.
 Section DualityInvolutionEnriched.
   Context (V : sym_monoidal_cat).
 
-  Local Notation "∁" := (bicat_of_enriched_cats V). (* \C *)
-
   Definition bicat_of_enriched_cat_duality_unit_data
     : pstrans_data
         (id_psfunctor (bicat_of_enriched_cats V))
