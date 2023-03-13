@@ -182,7 +182,6 @@ Proof.
         assert (Ts := maponpaths (λ f, compose f (BinProductPr2 C (BinProd B X))) tri1).
         simpl in Ts.
         rewrite assoc', BinProductPr2Commutes, id_right in Ts.
-        fold y12 in Ts.
         exact Ts.
 Defined.
 
