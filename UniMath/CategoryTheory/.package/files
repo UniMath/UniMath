@@ -143,6 +143,8 @@ PseudoElements.v
 FiveLemma.v
 LatticeObject.v
 Actions.v
+PowerObject.v
+ElementaryTopos.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
@@ -386,9 +388,6 @@ Monoidal/RezkCompletion/LiftedUnitors.v
 Monoidal/RezkCompletion/LiftedAssociator.v
 Monoidal/RezkCompletion/LiftedMonoidal.v
 Monoidal/RezkCompletion/MonoidalRezkCompletion.v
-
-PowerObject.v
-ElementaryTopos.v
 
 # Dagger categories
 DaggerCategories/Categories.v
