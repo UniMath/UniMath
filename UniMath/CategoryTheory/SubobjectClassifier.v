@@ -139,7 +139,8 @@ Section balanced.
         use cancel_postcomposition.
         use TerminalArrowUnique.
       - simpl.
-        assert (p : f = PullbackPr1  (subobject_classifier_pullback O f_asMonic)).
+        assert (p : f =
+          PullbackPr1 (subobject_classifier_pullback O f_asMonic)).
         { apply idpath. }
         rewrite p.
         rewrite (PullbackArrow_PullbackPr1 ((subobject_classifier_pullback O
