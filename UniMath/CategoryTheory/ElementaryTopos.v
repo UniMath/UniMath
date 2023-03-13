@@ -228,27 +228,13 @@ Proof.
     + exact pb.
   }
   induction (pullbackiso _ pb' pb'') as (h,(h_tri1,h_tri2)).
+  cbn in h, h_tri1.
+  rewrite (precompWithBinProductArrow _ (BinProd B X)) in h_tri1.
   assert (h_tri11 := (maponpaths (λ f, compose f (BinProductPr1 C (BinProd B X))) h_tri1)).
   cbn beta in h_tri11.
-  rewrite assoc' in h_tri11.
-  assert (aux : BinProductArrow C (BinProd B X) b (identity X) =
-    PullbackPr1 pb'').
-  { apply idpath. }
-  assert (aux2 : BinProductArrow C (BinProd B X) b' (identity X) =
-    PullbackPr1 pb').
-  { apply idpath. }
-  induction aux, aux2 in h_tri11.
   rewrite !BinProductPr1Commutes in h_tri11.
   assert (h_tri12 := (maponpaths (λ f, compose f (BinProductPr2 C (BinProd B X))) h_tri1)).
   cbn beta in h_tri12.
-  rewrite assoc' in h_tri12.
-  assert (aux : BinProductArrow C (BinProd B X) b (identity X) =
-    PullbackPr1 pb'').
-  { apply idpath. }
-  assert (aux2 : BinProductArrow C (BinProd B X) b' (identity X)
-  = PullbackPr1 pb').
-  { apply idpath. }
-  induction aux, aux2 in h_tri12.
   rewrite !BinProductPr2Commutes, id_right in h_tri12.
   rewrite h_tri12, id_left in h_tri11.
   exact h_tri11.
