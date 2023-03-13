@@ -193,9 +193,8 @@ Proof.
     rewrite (PowerObject_transpose_tri P (δ B)).
     fold BinProd.
     rewrite !assoc, !BinProductOfArrows_idxcomp.
-    use (maponpaths (hset_z_iso_equiv _ _
-      (nat_z_iso_pointwise_z_iso  ( nat_z_iso_inv
-        (PowerObject_nat_z_iso P)) (X,,B)))).
+    use (maponpaths (( nat_z_iso_inv
+    (PowerObject_nat_z_iso P)) (X,,B))).
     exact p.
   }
   (** Consider this diagram
