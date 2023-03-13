@@ -322,7 +322,8 @@ Proof.
       * use TerminalArrowUnique.
 Defined.
 
-Lemma SubobjectClassifier_nat_z_iso : nat_z_iso (SubObj_Functor C PB) (contra_homSet_functor O).
+Definition SubobjectClassifier_nat_z_iso :
+  nat_z_iso (SubObj_Functor C PB) (contra_homSet_functor O).
 Proof.
   use make_nat_z_iso.
   + exact SubobjectClassifier_nat_trans.
