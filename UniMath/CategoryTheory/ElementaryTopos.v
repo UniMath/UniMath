@@ -223,10 +223,8 @@ Proof.
   set (pb' := pullback_glue_pullback C (homset_property C) pbr pbl').
   fold δ B in pb, pb'.
   transparent assert (pb'' : (Pullback ((identity B) ⨱ b' · δ B) Ω)). {
-    use (Pullback_mor_paths q).
+    use (Pullback_mor_paths q (idpath _)).
     + use homset_property.
-    + exact Ω.
-    + apply idpath.
     + exact pb.
   }
   induction (pullbackiso _ pb' pb'') as (h,(h_tri1,h_tri2)).
