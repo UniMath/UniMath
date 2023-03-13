@@ -482,16 +482,16 @@ Proof.
     rewrite <-BinProductOfArrows_id.
     use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).
     rewrite !assoc.
-    use (pathscomp0(b:=(identity c) ⨱ ((identity b)
-    ⨱ (g' · Subobject_mor (G0 b c)))·
-    BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _ )).
+    intermediate_path (
+      (identity c) ⨱ ((identity b) ⨱ (g' · Subobject_mor (G0 b c)))·
+      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _).
     { use cancel_postcomposition.
       use pathsinv0.
       use (BinProduct_OfArrows_assoc BinProd). }
     use pathsinv0.
-    use (pathscomp0(b:=(identity c) ⨱ ((identity b)
-    ⨱ ((g c b a f) · Subobject_mor (G0 b c)))·
-    BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _)).
+    intermediate_path (
+      (identity c) ⨱ ((identity b) ⨱ ((g c b a f) · Subobject_mor (G0 b c)))·
+      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _).
     { use cancel_postcomposition.
       use pathsinv0.
       use (BinProduct_OfArrows_assoc BinProd). }
