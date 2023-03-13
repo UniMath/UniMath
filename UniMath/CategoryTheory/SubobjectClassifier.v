@@ -119,7 +119,6 @@ Section balanced.
   {c' c : C} (f : C⟦ c' , c ⟧) (f_isM : isMonic f) (f_isE : isEpi f).
 
   Local Definition f_asMonic := make_Monic _ f f_isM.
-  Local Definition f_asEpi := make_Epi _ f f_isE.
 
   Local Definition f_asEqualizer : Equalizer (characteristic_morphism O f_asMonic) (TerminalArrow T c · (true O)).
   Proof.
