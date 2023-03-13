@@ -143,9 +143,9 @@ Section balanced.
           PullbackPr1 (subobject_classifier_pullback O f_asMonic)).
         { apply idpath. }
         rewrite p.
-        rewrite (PullbackArrow_PullbackPr1 ((subobject_classifier_pullback O
-        f_asMonic))).
-        apply idpath.
+        use (PullbackArrow_PullbackPr1
+          ((subobject_classifier_pullback O
+          f_asMonic))).
       - intro t.
         use homset_property.
       - intros t t_tri.
