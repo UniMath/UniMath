@@ -10,7 +10,7 @@
   - Effective epis ([EffectiveEpis_HSET])
   - Split epis with axiom of choice ([SplitEpis_HSET])
   - Forgetful [functor] to [type_precat]
-  - HSET is a topos [is_Topos_HSET]
+  - HSET is a topos [Topos_Structure_HSET]
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -609,9 +609,9 @@ Proof.
       * apply propproperty.
 Defined.
 
-Definition is_Topos_HSET : is_Topos HSET.
+Definition Topos_Structure_HSET : Topos_Structure HSET.
   Proof.
-    use make_isTopos.
+    use make_Topos_Structure.
     + exact PullbacksHSET.
     + exact TerminalHSET.
     + exact subobject_classifier_HSET.

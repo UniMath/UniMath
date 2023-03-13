@@ -45,15 +45,15 @@ An elementary topos is a category which has:
   -) Subobject Classifier
 *)
 
-Definition is_Topos (C : category) :=
+Definition Topos_Structure (C : category) :=
   ∑ (PB : Pullbacks C) (T : Terminal C) (Ω : subobject_classifier T),
     (PowerObject (BinProductsFromPullbacks PB T) Ω).
 
-Definition Topos := ∑ (C:category), is_Topos C.
+Definition Topos := ∑ (C:category), Topos_Structure C.
 
-Definition make_isTopos {C:category} (PB : Pullbacks C) (T : Terminal C)
+Definition make_Topos_Structure {C:category} (PB : Pullbacks C) (T : Terminal C)
   (Ω: subobject_classifier T) (P: PowerObject (BinProductsFromPullbacks PB T) Ω)
-  : is_Topos C.
+  : Topos_Structure C.
 Proof.
   split with PB.
   split with T.
@@ -61,11 +61,11 @@ Proof.
   exact P.
 Defined.
 
-Definition make_Topos {C:category} (is: is_Topos C)
+Definition make_Topos {C:category} (str: Topos_Structure C)
   : Topos.
 Proof.
   split with C.
-  exact is.
+  exact str.
 Defined.
 
 Section ToposAccessor.
