@@ -406,16 +406,9 @@ Proof.
   use pathsinv0.
   rewrite !assoc'.
   use z_iso_inv_to_left.
-  use pathsinv0.
+  rewrite assoc.
   rewrite BinProductOfArrows_id.
-  use (pathscomp0(b := (z_iso_inv
-    (BinProduct_assoc BinProd c b a)
-    · (identity c) ⨱ f · δ c))).
-  { unfold h.
-    use pathsinv0.
-    use PowerObject_transpose_tri. }
-  rewrite !assoc.
-  apply idpath.
+  use PowerObject_transpose_tri.
 Qed.
 
 Let g (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) : C ⟦ a, Subobject_dom (G0 b c) ⟧.
