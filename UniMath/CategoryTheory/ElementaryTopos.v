@@ -366,7 +366,7 @@ Qed.
 
 (*UNIVERSALITY
   Given f : C ⟦ b x a , c ⟧ we need to show
-  there is a unique g : C ⟦ a , c^b ⟧ such that f = ev·(id x g)
+  there is a unique g : C ⟦ a , c^b ⟧ such that f = (id x g)·ev
 
   we define such g as the [PullbackArrow] the following diagram
   <<
@@ -376,7 +376,7 @@ Qed.
               G0 |                 | name_true
          h       v                 v
       a --->P (c x b) ----------> Pb
-                     id x name_true
+                        u b c
   >>
   where h is the transpose of ((id c) x f)·(δ c)
     but as a morphism C ⟦ (c x b) x a , Ω ⟧
