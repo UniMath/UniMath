@@ -444,8 +444,8 @@ Proof.
     use h_sq.
 Defined.
 
-Local Lemma h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧): (g c b a f
-· Subobject_mor (G0 b c) = h f).
+Local Lemma h_tri {c b a : C} (f: C ⟦ b ⨉ a, c ⟧) :
+  (g c b a f · Subobject_mor (G0 b c) = h f).
 Proof.
   use PullbackArrow_PullbackPr1.
 Qed.
