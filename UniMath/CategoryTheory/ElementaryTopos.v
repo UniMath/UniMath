@@ -1,8 +1,8 @@
-(** ** 
-  Following Saunders Mac Lane & Ieke Moerdijk 
+(** **
+  Following Saunders Mac Lane & Ieke Moerdijk
   Sheaves in Geometry and Logic - A First Introduction to Topos theory.
   Chapter IV.1 and IV.2
-  
+
   Contents :
   - definition of elementary topos ([Topos]) as a category which has:
     -) finite limits meaning:
@@ -470,7 +470,7 @@ Proof.
   + use g_tri.
   + intro.
     use homset_property.
-  + intros g' g_tri'. 
+  + intros g' g_tri'.
     simpl in g_tri'.
     unfold BinProduct_of_functors_mor in g_tri'.
     simpl in g_tri'.
