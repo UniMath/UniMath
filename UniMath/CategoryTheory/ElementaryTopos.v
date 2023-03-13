@@ -423,26 +423,22 @@ Proof.
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
     simpl.
     fold BinProd.
-    rewrite <-BinProductOfArrows_idxcomp, !assoc'.
-    unfold u.
-    use (pathscomp0 (b:= (identity b) ⨱ (h f)
-    ·(v b c · SingletonPred c))).
+    rewrite <-!BinProductOfArrows_idxcomp, !assoc'.
+    intermediate_path ((identity b) ⨱ (h f) ·
+    (v b c · SingletonPred c)).
     { use cancel_precomposition.
-      now rewrite (PowerObject_transpose_tri P (v b c · SingletonPred c)). }
+      use pathsinv0.
+      use PowerObject_transpose_tri. }
     use pathsinv0.
-    rewrite <-BinProductOfArrows_idxcomp.
-    rewrite !assoc'.
-    unfold name_true.
-    use (pathscomp0 (b:=((identity b) ⨱ (TerminalArrow T a)
-    · (BinProductPr1 C (BinProd b T) · ((TerminalArrow T b · Ω)))))).
+    intermediate_path ((identity b) ⨱ (TerminalArrow T a)
+    · (BinProductPr1 C (BinProd b T) · ((TerminalArrow T b · Ω)))).
     { use cancel_precomposition.
       use PowerObject_charname_nat_z_iso_tri. }
-    use (pathscomp0 (b := f · SingletonArrow_Monic c · SingletonPred c)). {
+    intermediate_path (f · SingletonArrow_Monic c · SingletonPred c).
+    {
       rewrite !assoc', subobject_classifier_square_commutes, !assoc.
       use cancel_postcomposition.
-      rewrite TerminalArrowUnique.
-      use TerminalArrowUnique.
-    }
+      use TerminalArrowEq. }
     rewrite !assoc.
     use cancel_postcomposition.
     use h_sq.
