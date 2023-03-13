@@ -12,12 +12,12 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
@@ -52,12 +52,12 @@ Section PseudofunctorFromLifting.
       exact islntξ.
     - abstract (intros C ActC w c;
                 cbn;
-                rewrite bifunctor_leftid;
+                rewrite (bifunctor_leftid (actegory_action _ ActC));
                 do 2 rewrite id_left;
                 apply idpath).
     - abstract (intros C D E H K ActC ActD ActE Hl Kl w c;
         cbn;
-        rewrite bifunctor_leftid;
+        rewrite (bifunctor_leftid (actegory_action _ ActE)) ;
         rewrite id_left, id_right;
         apply idpath).
   Defined.

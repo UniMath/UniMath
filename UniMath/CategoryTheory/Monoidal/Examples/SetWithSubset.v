@@ -14,14 +14,15 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalSectionsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 
 Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.SetCartesianMonoidal.
 
 Section SetWithSubset.
 
@@ -75,7 +76,7 @@ End SetWithSubset.
 Section SetWithSubsetMonoidal.
 
   Definition SS_disp_cat_tensor_data
-    : disp_bifunctor_data SET_cartesian_monoidal SS_disp_cat SS_disp_cat SS_disp_cat.
+    : disp_bifunctor_data SET_cart_monoidal SS_disp_cat SS_disp_cat SS_disp_cat.
   Proof.
     exists (λ _ _ U V, subtypesdirprod U V).
     split.
@@ -118,10 +119,10 @@ Section SetWithSubsetMonoidal.
     repeat split; red; intros; apply isaprop_hsubtype_preserving.
   Qed.
 
-  Definition SS_disp_cat_tensor : disp_tensor SS_disp_cat SET_cartesian_monoidal
+  Definition SS_disp_cat_tensor : disp_tensor SS_disp_cat SET_cart_monoidal
     := SS_disp_cat_tensor_data,, SS_disp_cat_tensor_laws.
 
-  Definition SS_disp_monoidal_data : disp_monoidal_data SS_disp_cat SET_cartesian_monoidal.
+  Definition SS_disp_monoidal_data : disp_monoidal_data SS_disp_cat SET_cart_monoidal.
   Proof.
     exists (SS_disp_cat_tensor).
     exists (totalsubtype (pr1 unitHSET)).
@@ -181,25 +182,29 @@ Section SetWithSubsetMonoidal.
     repeat split ; try (intro ; intros) ; apply isaprop_hsubtype_preserving.
   Qed.
 
-  Definition SS_disp_monoidal : disp_monoidal SS_disp_cat SET_cartesian_monoidal
+  Definition SS_disp_monoidal : disp_monoidal SS_disp_cat SET_cart_monoidal
     := SS_disp_monoidal_data,, SS_disp_monoidal_laws.
 
-  Definition total_subset_section_monoidal_data : smonoidal_data SET_cartesian_monoidal SS_disp_monoidal total_subset_section .
+  Definition total_subset_section_monoidal_data
+    : smonoidal_data SET_cart_monoidal SS_disp_monoidal total_subset_section.
   Proof.
     use tpair.
     - exact (λ _ _ _ _, tt).
     - exact (λ _ _, tt).
   Defined.
 
-  Definition total_subset_section_monoidal_ax : smonoidal_laxlaws _ _ total_subset_section_monoidal_data.
+  Definition total_subset_section_monoidal_ax
+    : smonoidal_laxlaws _ _ total_subset_section_monoidal_data.
   Proof.
     repeat split ; repeat (intro ; intros ; apply isaprop_hsubtype_preserving).
   Qed.
 
-  Definition total_subset_section_monoidal_lax : smonoidal_lax SET_cartesian_monoidal SS_disp_monoidal total_subset_section
+  Definition total_subset_section_monoidal_lax
+    : smonoidal_lax SET_cart_monoidal SS_disp_monoidal total_subset_section
     := total_subset_section_monoidal_data,, total_subset_section_monoidal_ax.
 
-  Definition total_subset_section_monoidal : smonoidal SET_cartesian_monoidal SS_disp_monoidal total_subset_section.
+  Definition total_subset_section_monoidal
+    : smonoidal SET_cart_monoidal SS_disp_monoidal total_subset_section.
   Proof.
     exists (total_subset_section_monoidal_lax).
     use tpair.

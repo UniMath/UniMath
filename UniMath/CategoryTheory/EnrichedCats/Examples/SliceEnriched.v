@@ -54,16 +54,18 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.terminal.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
 Section EnrichedSlice.
   Context (V : monoidal_cat)
-          (HV𝟙 : isTerminal V 𝟙)
+          (HV𝟙 : isTerminal V (I_{V}))
           (HV : Equalizers V)
           {C : category}
           (E : enrichment C V)
