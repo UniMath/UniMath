@@ -1,10 +1,11 @@
-(** ** 
-  Following Saunders Mac Lane & Ieke Moerdijk 
+(** **
+  Following Saunders Mac Lane & Ieke Moerdijk
   Sheaves in Geometry and Logic - A First Introduction to Topos theory.
   Chapter IV.1
 
   Contents :
   - The definition of [PowerObject];
+  - The derivation of [PowerObject] from [Exponentials];
 	-	The definition of [PowerObject_functor];
 	-	The derivation of [PowerObject_nat_z_iso],
       the natural (in a and b) (z-)isomorphism from Hom(b x a , Omega) to Hom(a,P b)
@@ -28,6 +29,8 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
 
@@ -64,6 +67,43 @@ Section PowerObject_def.
   Defined.
 
 End PowerObject_def.
+
+Section PowerObject_from_exponentials.
+Context {C:category} {T:Terminal C} (Prod : BinProducts C) (Ω : subobject_classifier T) (Exp : Exponentials Prod).
+
+Let ExpFun (c:C) := right_adjoint (Exp c).
+Let ExpEv (c:C) := counit_from_left_adjoint (Exp c).
+Let ExpUnit (c:C) := unit_from_left_adjoint (Exp c).
+Let ExpAdj (c:C) := pr2 (Exp c).
+
+Definition PowerObject_from_exponentials : PowerObject Prod Ω.
+Proof.
+  use make_PowerObject.
+  + intro b.
+    exact (ExpFun b Ω).
+  + intro b.
+    use (ExpEv b).
+  + (*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[right_adjoint_from_partial]]*)
+    intros c b f.
+    use make_iscontr.
+    - split with
+        (φ_adj (ExpAdj b) f).
+      use pathsinv0.
+      use (pathscomp0 (b:=(φ_adj_inv (ExpAdj b) (φ_adj (ExpAdj b) f)))).
+      * apply idpath.
+      * use φ_adj_inv_after_φ_adj.
+    - intros (t,tis).
+      use subtypePath.
+      * intro.
+        use homset_property.
+      * use (invmaponpathsweq (invweq (adjunction_hom_weq (ExpAdj b) c Ω))).
+        cbn.
+        rewrite φ_adj_inv_after_φ_adj.
+        use pathsinv0.
+        use tis.
+Defined.
+
+End PowerObject_from_exponentials.
 
 Section ContextAndNotaions.
 
