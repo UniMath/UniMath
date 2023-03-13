@@ -286,7 +286,7 @@ Lemma subst_slice_eqn_ok {Γ: HSET_over_sort} (N : wellsorted_in Γ) {s : sort}
 Proof.
   unfold subst_slice_eqn.
   rewrite subst_slice_ok.
-  now rewrite H.
+  now induction H.
 Qed.
 
 
