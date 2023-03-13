@@ -158,8 +158,7 @@ Section balanced.
 
   Local Lemma path_from_fepi : (characteristic_morphism O f_asMonic) = (TerminalArrow T c · (true O)).
   Proof.
-    use (EpiisEpi _ f_asEpi).
-    cbn.
+    use f_isE.
     assert (p : f = f_asMonic). {apply idpath. }
     rewrite p.
     rewrite (subobject_classifier_square_commutes O f_asMonic).
