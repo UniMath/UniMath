@@ -502,14 +502,12 @@ Proof.
     unfold PowerObject_nt_data.
     rewrite !PowerObject_transpose_precomp.
     fold (v b c).
-    use pathsinv0.
     rewrite <-!(BinProductOfArrows_idxcomp _ BinProd _ (Subobject_mor _)).
     rewrite !assoc'.
     rewrite <-!ev_tri.
     rewrite !assoc.
     use cancel_postcomposition.
     rewrite <-g_tri.
-    apply pathsinv0.
     use g_tri'.
 Defined.
 
