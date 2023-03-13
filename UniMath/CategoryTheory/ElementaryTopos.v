@@ -418,7 +418,7 @@ Proof.
   + use TerminalArrow.
   + assert (p : name_true b = Subobject_mor
     (Subobjectscategory_ob (name_true b)
-        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). {cbn. apply idpath. }
+        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
     induction p.
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
     simpl.
