@@ -165,8 +165,7 @@ Section balanced.
     rewrite (subobject_classifier_square_commutes O f_asMonic).
     rewrite assoc.
     use cancel_postcomposition.
-    apply pathsinv0.
-    use TerminalArrowUnique.
+    use TerminalArrowEq.
   Qed.
 
   Theorem subobject_classifier_balanced : (is_z_isomorphism f).
