@@ -408,3 +408,5 @@ DaggerCategories/Functors/FullyFaithful.v
 
 DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
+
+DaggerCategories/catiso.v
