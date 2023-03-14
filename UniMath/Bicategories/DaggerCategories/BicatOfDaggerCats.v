@@ -1,4 +1,4 @@
-(* In this file, we construct the bicategory of dagger categories using displayed bicategories and we show that the displayed bicategory is univalent. *)
+(* In this file, we construct the bicategory DAG of dagger categories as a displayed bicategory (over CAT) and we show that the displayed bicategory is univalent. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -72,8 +72,7 @@ Section Destructors.
   Definition DAG_to_cat (C : DAG) : category := pr1 C.
   Coercion DAG_to_cat : ob >-> category.
 
-  (* Don't know why the coercion doesn't work *)
-  Definition DAG_to_dagger (C : DAG) : dagger (DAG_to_cat C) := pr2 C.
+  Definition DAG_to_dagger (C : DAG) : dagger C := pr2 C.
 
 End Destructors.
 
@@ -97,65 +96,6 @@ End DaggerFunctorCategories.
 
 Section DagDisplayedUnivalence.
 
-  Lemma isaprop_DAG_disp_left_adjoint_data
-        {a b : CAT} {f : CAT⟦ a, b ⟧}
-        (l : left_adjoint_data f) {aa : DAG_disp_bicat a} {bb : DAG_disp_bicat b}
-        (ff : aa -->[ f] bb)
-    : isaprop (disp_left_adjoint_data l ff).
-  Proof.
-    unfold disp_left_adjoint_data.
-    use isaproptotal2.
-    - intro ; apply isapropdirprod ; apply isapropunit.
-    - intro ; intros ; apply isaprop_is_dagger_functor.
-  Qed.
-
-  Lemma isaprop_DAG_disp_left_adjoint_axioms
-        {a b : CAT} {f : CAT⟦ a, b ⟧}
-        {j : left_adjoint f} {aa : DAG_disp_bicat a} {bb : DAG_disp_bicat b}
-        {ff : aa -->[ f] bb}
-        (jj : disp_left_adjoint_data j ff)
-    : isaprop (disp_left_adjoint_axioms j jj).
-  Proof.
-    apply isapropdirprod ; apply isasetaprop, isapropunit.
-  Qed.
-
-  Lemma isaprop_DAG_disp_left_equivalence_axioms
-        {a b : CAT} {f : CAT⟦ a, b ⟧}
-        {j : left_equivalence f} {aa : DAG_disp_bicat a} {bb : DAG_disp_bicat b}
-        {ff : aa -->[ f] bb}
-        (jj : disp_left_adjoint_data j ff)
-    : isaprop (disp_left_equivalence_axioms j jj).
-  Proof.
-    apply isapropdirprod ; apply isaprop_is_disp_invertible_2cell.
-  Qed.
-
-  Lemma isaprop_disp_left_adjoint_equivalence_DAG
-        {C D : DAG}
-        {f : adjoint_equivalence (pr1 C) (pr1 D)}
-        (ff : Core.mor_disp (pr2 C) (pr2 D) f)
-    : isaprop (disp_left_adjoint_equivalence f ff).
-  Proof.
-    use isaproptotal2.
-    - intro.
-      apply isapropdirprod.
-      + apply isaprop_DAG_disp_left_adjoint_axioms.
-      + apply isaprop_DAG_disp_left_equivalence_axioms.
-    - do 4 intro.
-      apply isaprop_DAG_disp_left_adjoint_data.
-  Qed.
-
-  Lemma isaprop_disp_adjoint_equivalence_DAG
-        {C D : DAG}
-        {f : adjoint_equivalence (pr1 C) (pr1 D)}
-        (ff : Core.mor_disp (pr2 C) (pr2 D) f)
-    : isaprop (disp_adjoint_equivalence f (pr2 C) (pr2 D)).
-  Proof.
-    exact (isaprop_total2
-             (_ ,, isaprop_is_dagger_functor _ _ _)
-             (λ _ , _ ,, isaprop_disp_left_adjoint_equivalence_DAG _)
-          ).
-  Qed.
-
   Lemma DAG_disp_univalent_2_0 : disp_univalent_2_0 DAG_disp_bicat.
   Proof.
     intros C1 C2 p dag1 dag2.
@@ -168,7 +108,8 @@ Section DagDisplayedUnivalence.
       apply (pr1 a _).
     - intro ; apply isaset_dagger.
     - intro a.
-      apply (isaprop_disp_adjoint_equivalence_DAG (C := C ,, udag1) (D := C ,, udag2) a).
+      apply (isaprop_disp_adjoint_equivalence_cell_unit_bicat a)
+      ; apply isaprop_is_dagger_functor.
   Qed.
 
   Lemma DAG_disp_univalent_2_1 : disp_univalent_2_1 DAG_disp_bicat.
@@ -190,10 +131,6 @@ End DagDisplayedUnivalence.
 Section Constructors.
 
   Definition make_dagger_category
-             {C : category} (d : dagger C)
-    : ob DAG := C ,, d.
-
-  Definition make_dagger_category'
              {C : category}
              {d : dagger_structure C}
              (dl : dagger_laws d)
@@ -212,7 +149,7 @@ Section Constructors.
              {F : functor C D}
              {dagC : dagger C} {dagD : dagger D}
              (dagF : is_dagger_functor dagC dagD F)
-    : DAG⟦make_dagger_category dagC, make_dagger_category dagD⟧
+    : DAG⟦C ,, dagC, D ,, dagD⟧
     := F ,, dagF.
 
   Definition make_dagger_transformation
@@ -222,7 +159,7 @@ Section Constructors.
              {dagC : dagger C} {dagD : dagger D}
              (dagF : is_dagger_functor dagC dagD F)
              (dagG : is_dagger_functor dagC dagD G)
-    : (hom (make_dagger_category dagC) (make_dagger_category dagD))
+    : (hom (C := DAG) (C,,dagC) (D,,dagD))
         ⟦make_dagger_functor dagF, make_dagger_functor dagG⟧
     := α ,, tt.
 
@@ -234,7 +171,7 @@ Section Constructors.
              (dagG : is_dagger_functor dagC dagD G)
              {α : nat_trans_data F G}
              (αn : is_nat_trans _ _ α)
-    : (hom (make_dagger_category dagC) (make_dagger_category dagD))
+    : (hom (C := DAG) (C,,dagC) (D,,dagD))
         ⟦make_dagger_functor dagF, make_dagger_functor dagG⟧
     := make_nat_trans _ _ α αn ,, tt.
 
