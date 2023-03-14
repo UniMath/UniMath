@@ -15,7 +15,6 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
 Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
 Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
 Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
-Require Import UniMath.CategoryTheory.DaggerCategories.Functors.WeakEquivalences.
 
 Local Open Scope cat.
 
