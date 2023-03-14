@@ -158,10 +158,10 @@ Section DagDisplayedUnivalence.
 
   Lemma DAG_disp_univalent_2_0 : disp_univalent_2_0 DAG_disp_bicat.
   Proof.
+    intros C1 C2 p dag1 dag2.
     use fiberwise_univalent_2_0_to_disp_univalent_2_0.
     intros C udag1 udag2.
     apply isweqimplimpl.
-
     - intro a.
       apply dagger_equality.
       repeat (apply funextsec ; intro).
