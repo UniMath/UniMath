@@ -119,7 +119,7 @@ PointedFunctorsComposition.v
 ArrowCategory.v
 RightKanExtension.v
 coslicecat.v
-catiso.v
+CatIso.v
 CategoryEquality.v
 exponentials.v
 slicecat.v
@@ -410,4 +410,4 @@ DaggerCategories/Functors/FullyFaithful.v
 DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
-DaggerCategories/catiso.v
+DaggerCategories/CatIso.v

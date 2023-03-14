@@ -37,7 +37,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 (* for Section [ExponentialsCarriedThroughAdjointEquivalence] *)
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.limits.Preservation.
-Require Import UniMath.CategoryTheory.catiso.
+Require Import UniMath.CategoryTheory.CatIso.
 Require Import UniMath.CategoryTheory.CategoryEquality.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 

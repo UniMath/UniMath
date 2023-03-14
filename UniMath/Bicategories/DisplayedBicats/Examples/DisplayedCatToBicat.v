@@ -6,6 +6,7 @@
 (* ----------------------------------------------------------------------------------- *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -288,4 +289,82 @@ Proof.
   use make_disp_locally_groupoid.
   - intro; intros; exact tt.
   - exact (disp_2cells_isaprop_cell_unit_bicat D).
+Qed.
+
+Lemma isaprop_disp_left_adjoint_data_cell_unit_bicat
+      {C : bicat}
+      {D : disp_cat_data C}
+      {a b : C} {f : C⟦ a, b ⟧}
+      (l : left_adjoint_data f)
+      {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
+      (ff : aa -->[ f] bb)
+  : isaprop (bb -->[ left_adjoint_right_adjoint l] aa)
+    -> isaprop (disp_left_adjoint_data l ff).
+Proof.
+  intro p.
+  use isaproptotal2.
+  - intro ; apply isapropdirprod ; apply isapropunit.
+  - intro ; intros ; apply p.
+Qed.
+
+Lemma isaprop_disp_left_adjoint_axioms_cell_unit_bicat
+  {C : bicat}
+  {D : disp_cat_data C}
+  {a b : C} {f : C⟦ a, b ⟧}
+  (j : left_adjoint f)
+  {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
+  {ff : aa -->[ f] bb}
+  (jj : disp_left_adjoint_data j ff)
+  : isaprop (disp_left_adjoint_axioms j jj).
+Proof.
+  apply isapropdirprod ; apply isasetaprop, isapropunit.
+Qed.
+
+(* To be moved more upstream *)
+Lemma isaprop_disp_left_equivalence_axioms
+  {C : bicat}
+  {D : disp_cat_data C}
+  {a b : C}
+  {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
+  {f : C⟦ a, b ⟧}
+  {j : left_equivalence f}
+  {ff : aa -->[ f] bb}
+  (jj : disp_left_adjoint_data j ff)
+    : isaprop (disp_left_equivalence_axioms j jj).
+  Proof.
+    apply isapropdirprod ; apply isaprop_is_disp_invertible_2cell.
+  Qed.
+
+Lemma isaprop_disp_left_adjoint_equivalence_cell_unit_bicat
+  {C : bicat}
+  {D : disp_cat_data C}
+  {a b : C}
+  {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
+  (f : adjoint_equivalence a b)
+  (ff : Core.mor_disp aa bb f)
+  : isaprop (bb -->[ left_adjoint_right_adjoint f] aa)
+    -> isaprop (disp_left_adjoint_equivalence f ff).
+Proof.
+  intro p.
+  use isaproptotal2.
+  - intro.
+    apply isapropdirprod.
+    + apply isaprop_disp_left_adjoint_axioms_cell_unit_bicat.
+    + apply isaprop_disp_left_equivalence_axioms.
+  - do 4 intro.
+    apply isaprop_disp_left_adjoint_data_cell_unit_bicat, p.
+Qed.
+
+Lemma isaprop_disp_adjoint_equivalence_cell_unit_bicat
+  {C : bicat}
+  {D : disp_cat_data C}
+  {a b : C}
+  {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
+  {f : adjoint_equivalence a b}
+  (ff : Core.mor_disp aa bb f)
+  : isaprop (bb -->[left_adjoint_right_adjoint f] aa)
+    -> isaprop (aa -->[ f] bb)
+    -> isaprop (disp_adjoint_equivalence f aa bb).
+Proof.
+  exact (λ p q, isaprop_total2 (_,,q) (λ _ , _ ,, isaprop_disp_left_adjoint_equivalence_cell_unit_bicat _ _ p)).
 Qed.
