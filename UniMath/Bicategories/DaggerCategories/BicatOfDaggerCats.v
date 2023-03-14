@@ -130,28 +130,6 @@ End DagDisplayedUnivalence.
 
 Section Constructors.
 
-  Definition make_dagger_category
-             {C : category}
-             {d : dagger_structure C}
-             (dl : dagger_laws d)
-    : ob DAG := C ,, d ,, dl.
-
-  Definition make_dagger_laws
-             {C : category} {d : dagger_structure C}
-             (lid : dagger_law_id d)
-             (lcomp : dagger_law_comp d)
-             (lidemp : dagger_law_idemp d)
-    : dagger_laws d
-    := lid ,, lcomp ,, lidemp.
-
-  Definition make_dagger_functor
-             {C D : category}
-             {F : functor C D}
-             {dagC : dagger C} {dagD : dagger D}
-             (dagF : is_dagger_functor dagC dagD F)
-    : DAG⟦C ,, dagC, D ,, dagD⟧
-    := F ,, dagF.
-
   Definition make_dagger_transformation
              {C D : category}
              {F G : functor C D}

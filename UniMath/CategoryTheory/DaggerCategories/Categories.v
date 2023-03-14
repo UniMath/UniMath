@@ -130,4 +130,10 @@ Section DaggerCategories.
         apply q.
   Defined.
 
+  Definition make_dagger_category
+    {C : category}
+    {d : dagger_structure C}
+    (dl : dagger_laws d)
+    : dagger_category := C ,, d ,, dl.
+
 End DaggerCategories.
