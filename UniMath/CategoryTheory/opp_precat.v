@@ -361,3 +361,207 @@ Definition rm_op_ob {C : category} (cop : ob C^op) : ob C := cop.
 Definition op_mor {C : category} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b⟧ := f.
 
 Definition rm_op_mor {C : category} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.
+
+(** Functoriality of taking the opposite *)
+Definition functor_identity_op
+           (C : category)
+  : functor_identity (C^op)
+    ⟹
+    functor_opp (functor_identity C).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity x).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition is_nat_z_iso_functor_identity_op
+           (C : category)
+  : is_nat_z_iso (functor_identity_op C).
+Proof.
+  intros x.
+  apply is_z_isomorphism_identity.
+Defined.
+
+Definition functor_identity_op_nat_z_iso
+           (C : category)
+  : nat_z_iso
+      (functor_identity (C^op))
+      (functor_opp (functor_identity C)).
+Proof.
+  use make_nat_z_iso.
+  - exact (functor_identity_op C).
+  - exact (is_nat_z_iso_functor_identity_op C).
+Defined.
+
+Definition functor_comp_op
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₂ ⟶ C₃)
+  : functor_opp F ∙ functor_opp G ⟹ functor_opp (F ∙ G).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity _).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition is_nat_z_iso_functor_comp_op
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₂ ⟶ C₃)
+  : is_nat_z_iso (functor_comp_op F G).
+Proof.
+  intros x.
+  apply is_z_isomorphism_identity.
+Defined.
+
+Definition functor_comp_op_nat_z_iso
+           {C₁ C₂ C₃ : category}
+           (F : C₁ ⟶ C₂)
+           (G : C₂ ⟶ C₃)
+  : nat_z_iso
+      (functor_opp F ∙ functor_opp G)
+      (functor_opp (F ∙ G)).
+Proof.
+  use make_nat_z_iso.
+  - exact (functor_comp_op F G).
+  - exact (is_nat_z_iso_functor_comp_op F G).
+Defined.
+
+(** It forms a duality involution *)
+Definition op_unit_nat_trans
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : functor_identity _ ∙ functor_opp (functor_opp F)
+    ⟹
+    F ∙ functor_identity _.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity (F x)).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition op_unit_nat_z_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : nat_z_iso
+      (functor_identity _ ∙ functor_opp (functor_opp F))
+      (F ∙ functor_identity _).
+Proof.
+  use make_nat_z_iso.
+  - exact (op_unit_nat_trans F).
+  - intro.
+    apply identity_is_z_iso.
+Defined.
+
+Definition op_unit_inv_nat_trans
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : functor_identity _ ∙ F
+    ⟹
+    functor_opp (functor_opp F) ∙ functor_identity _.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity (F x)).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition op_unit_inv_nat_z_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : nat_z_iso
+      (functor_identity _ ∙ F)
+      (functor_opp (functor_opp F) ∙ functor_identity _).
+Proof.
+  use make_nat_z_iso.
+  - exact (op_unit_inv_nat_trans F).
+  - intro.
+    apply identity_is_z_iso.
+Defined.
+
+Definition op_triangle_nat_trans
+           (C : category)
+  : functor_identity _ ⟹ functor_opp (functor_identity C).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity x).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition op_triangle_nat_z_iso
+           (C : category)
+  : nat_z_iso
+      (functor_identity _)
+      (functor_opp (functor_identity C)).
+Proof.
+  use make_nat_z_iso.
+  - exact (op_triangle_nat_trans C).
+  - intro.
+    apply identity_is_z_iso.
+Defined.
+
+Definition op_unit_unit_inv_nat_trans
+           (C : category)
+  : nat_trans
+      (functor_identity C)
+      (functor_identity C ∙ functor_identity ((C^op)^op)).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity x).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition op_unit_unit_inv_nat_z_iso
+           (C : category)
+  : nat_z_iso
+      (functor_identity C)
+      (functor_identity C ∙ functor_identity ((C^op)^op)).
+Proof.
+  use make_nat_z_iso.
+  - exact (op_unit_unit_inv_nat_trans C).
+  - intro.
+    apply identity_is_z_iso.
+Defined.
+
+Definition op_unit_inv_unit_nat_trans
+           (C : category)
+  : nat_trans
+      (functor_identity ((C^op)^op) ∙ functor_identity C)
+      (functor_identity ((C^op)^op)).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, identity x).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_left, id_right ;
+       apply idpath).
+Defined.
+
+Definition op_unit_inv_unit_nat_z_iso
+           (C : category)
+  : nat_z_iso
+      (functor_identity ((C^op)^op) ∙ functor_identity C)
+      (functor_identity ((C^op)^op)).
+Proof.
+  use make_nat_z_iso.
+  - exact (op_unit_inv_unit_nat_trans C).
+  - intro.
+    apply identity_is_z_iso.
+Defined.
