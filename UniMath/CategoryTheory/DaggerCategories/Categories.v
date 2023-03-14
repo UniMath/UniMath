@@ -105,4 +105,29 @@ Section DaggerCategories.
     : dagger_laws d
     := lid ,, lcomp ,, lidemp.
 
+  Definition dagger_category : UU
+    := ∑ C : category, dagger C.
+
+  Definition dagger_category_to_cat (C : dagger_category)
+    : category := pr1 C.
+  Coercion dagger_category_to_cat : dagger_category >-> category.
+
+  Definition dag (C : dagger_category) : dagger C
+    := pr2 C.
+
+  Lemma dagger_category_equality (C1 C2 : dagger_category)
+    : ∏ p : precategory_data_from_precategory C1 = precategory_data_from_precategory C2,
+        (∏ x y : C2, ∏ f : C2⟦x,y⟧,
+              pr1 (transportf dagger (category_eq C1 C2 p) (dag C1)) x y f = dag C2 x y f)
+      -> C1 = C2.
+  Proof.
+    intros p q.
+    use total2_paths_f.
+    - exact (category_eq _ _ p).
+    - use subtypePath.
+      + intro ; apply isaprop_dagger_laws.
+      + do 3 (apply funextsec ; intro).
+        apply q.
+  Defined.
+
 End DaggerCategories.
