@@ -71,34 +71,6 @@ Local Open Scope cat.
 (**
  1. Duality involution on categories
  *)
-Definition op_unit_nat_trans
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : functor_identity C₁ ∙ functor_opp (functor_opp F)
-    ⟹
-    F ∙ functor_identity C₂.
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity (F x)).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition op_unit_nat_z_iso
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : nat_z_iso
-      (functor_identity C₁ ∙ functor_opp (functor_opp F))
-      (F ∙ functor_identity C₂).
-Proof.
-  use make_nat_z_iso.
-  - exact (op_unit_nat_trans F).
-  - intro.
-    apply identity_is_z_iso.
-Defined.
-
 Definition op_unit_data
   : pstrans_data
       (id_psfunctor _)
@@ -130,34 +102,6 @@ Proof.
   use make_pstrans.
   - exact op_unit_data.
   - exact op_unit_is_pstrans.
-Defined.
-
-Definition op_unit_inv_nat_trans
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : functor_identity _ ∙ F
-    ⟹
-    functor_opp (functor_opp F) ∙ functor_identity _.
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity (F x)).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition op_unit_inv_nat_z_iso
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : nat_z_iso
-      (functor_identity _ ∙ F)
-      (functor_opp (functor_opp F) ∙ functor_identity _).
-Proof.
-  use make_nat_z_iso.
-  - exact (op_unit_inv_nat_trans F).
-  - intro.
-    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_inv_data
@@ -193,30 +137,6 @@ Proof.
   - exact op_unit_inv_is_pstrans.
 Defined.
 
-Definition op_triangle_nat_trans
-           (C : category)
-  : functor_identity _ ⟹ functor_opp (functor_identity C).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity x).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition op_triangle_nat_z_iso
-           (C : category)
-  : nat_z_iso
-      (functor_identity _)
-      (functor_opp (functor_identity C)).
-Proof.
-  use make_nat_z_iso.
-  - exact (op_triangle_nat_trans C).
-  - intro.
-    apply identity_is_z_iso.
-Defined.
-
 Definition op_triangle
            (C : op2_bicat bicat_of_univ_cats)
   : invertible_2cell
@@ -225,32 +145,6 @@ Definition op_triangle
 Proof.
   use nat_z_iso_to_invertible_2cell.
   exact (op_triangle_nat_z_iso _).
-Defined.
-
-Definition op_unit_unit_inv_nat_trans
-           (C : category)
-  : nat_trans
-      (functor_identity C)
-      (functor_identity C ∙ functor_identity ((C^op)^op)).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity x).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition op_unit_unit_inv_nat_z_iso
-           (C : category)
-  : nat_z_iso
-      (functor_identity C)
-      (functor_identity C ∙ functor_identity ((C^op)^op)).
-Proof.
-  use make_nat_z_iso.
-  - exact (op_unit_unit_inv_nat_trans C).
-  - intro.
-    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_unit_inv_data
@@ -284,32 +178,6 @@ Proof.
   use make_invertible_modification.
   - exact op_unit_unit_inv_data.
   - exact op_unit_unit_inv_is_modif.
-Defined.
-
-Definition op_unit_inv_unit_nat_trans
-           (C : category)
-  : nat_trans
-      (functor_identity ((C^op)^op) ∙ functor_identity C)
-      (functor_identity ((C^op)^op)).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity x).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition op_unit_inv_unit_nat_z_iso
-           (C : category)
-  : nat_z_iso
-      (functor_identity ((C^op)^op) ∙ functor_identity C)
-      (functor_identity ((C^op)^op)).
-Proof.
-  use make_nat_z_iso.
-  - exact (op_unit_inv_unit_nat_trans C).
-  - intro.
-    apply identity_is_z_iso.
 Defined.
 
 Definition op_unit_inv_unit_data
