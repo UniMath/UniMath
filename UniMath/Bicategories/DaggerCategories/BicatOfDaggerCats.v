@@ -58,7 +58,7 @@ Section BicatOfDaggerCategories.
 
   Definition is_dagger_univalent (D : DAG)
     : UU
-    := is_univalent_dagger (pr2 D).
+    := is_univalent_dagger (dagger_category_to_dagger D).
 
   Definition UDAG_disp_bicat : disp_bicat DAG
     := disp_fullsubbicat DAG (λ D, is_dagger_univalent D).
