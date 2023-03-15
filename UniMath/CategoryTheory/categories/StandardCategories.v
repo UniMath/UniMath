@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.CatIso.
+Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 

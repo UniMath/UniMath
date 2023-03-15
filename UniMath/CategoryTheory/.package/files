@@ -119,7 +119,7 @@ PointedFunctorsComposition.v
 ArrowCategory.v
 RightKanExtension.v
 coslicecat.v
-CatIso.v
+catiso.v
 CategoryEquality.v
 exponentials.v
 slicecat.v

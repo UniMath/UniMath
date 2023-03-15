@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.CatIso.
+Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 

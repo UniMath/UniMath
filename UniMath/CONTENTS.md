@@ -270,7 +270,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ArrowCategory.v](CategoryTheory/ArrowCategory.v)
    - [RightKanExtension.v](CategoryTheory/RightKanExtension.v)
    - [coslicecat.v](CategoryTheory/coslicecat.v)
-   - [CatIso.v](CategoryTheory/CatIso.v)
+   - [catiso.v](CategoryTheory/catiso.v)
    - [CategoryEquality.v](CategoryTheory/CategoryEquality.v)
    - [exponentials.v](CategoryTheory/exponentials.v)
    - [slicecat.v](CategoryTheory/slicecat.v)

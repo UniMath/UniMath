@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
-Require Import UniMath.CategoryTheory.CatIso.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 

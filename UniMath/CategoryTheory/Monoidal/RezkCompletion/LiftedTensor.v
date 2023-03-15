@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
-Require Import UniMath.CategoryTheory.CatIso.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
