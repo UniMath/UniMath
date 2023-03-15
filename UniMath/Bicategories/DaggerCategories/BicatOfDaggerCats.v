@@ -138,7 +138,7 @@ Section Constructors.
              (dagF : is_dagger_functor dagC dagD F)
              (dagG : is_dagger_functor dagC dagD G)
     : (hom (C := DAG) (C,,dagC) (D,,dagD))
-        ⟦make_dagger_functor dagF, make_dagger_functor dagG⟧
+        ⟦make_dagger_functor _ _  dagF, make_dagger_functor _ _ dagG⟧
     := α ,, tt.
 
   Definition make_dagger_transformation'
@@ -150,7 +150,7 @@ Section Constructors.
              {α : nat_trans_data F G}
              (αn : is_nat_trans _ _ α)
     : (hom (C := DAG) (C,,dagC) (D,,dagD))
-        ⟦make_dagger_functor dagF, make_dagger_functor dagG⟧
+        ⟦make_dagger_functor _ _ dagF, make_dagger_functor _ _ dagG⟧
     := make_nat_trans _ _ α αn ,, tt.
 
 End Constructors.

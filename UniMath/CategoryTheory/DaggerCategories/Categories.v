@@ -112,13 +112,18 @@ Section DaggerCategories.
     : category := pr1 C.
   Coercion dagger_category_to_cat : dagger_category >-> category.
 
-  Definition dag (C : dagger_category) : dagger C
+  Definition dagger_category_to_dagger (C : dagger_category) : dagger C
     := pr2 C.
+  Coercion dagger_category_to_dagger : dagger_category >-> dagger.
+
+  Definition dag (C : dagger_category) {x y : C} (f : C⟦x,y⟧)
+    : C⟦y,x⟧ := dagger_category_to_dagger C _ _ f.
+  Notation "{ f }_{ C }^†" := (dag C f).
 
   Lemma dagger_category_equality (C1 C2 : dagger_category)
     : ∏ p : precategory_data_from_precategory C1 = precategory_data_from_precategory C2,
         (∏ x y : C2, ∏ f : C2⟦x,y⟧,
-              pr1 (transportf dagger (category_eq C1 C2 p) (dag C1)) x y f = dag C2 x y f)
+              pr1 (transportf dagger (category_eq C1 C2 p) C1) x y f = {f}_{C2}^†)
       -> C1 = C2.
   Proof.
     intros p q.

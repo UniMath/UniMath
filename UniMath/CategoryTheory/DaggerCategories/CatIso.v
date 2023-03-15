@@ -25,7 +25,7 @@ Defined.
 Definition daggercatiso (C D : dagger_category)
   : UU
   := ∑ i : catiso C D,
-      is_dagger_functor (dag C) (dag D) i.
+      is_dagger_functor C D i.
 
 Definition daggercatiso_is_path_cat
            (C D : dagger_category)
