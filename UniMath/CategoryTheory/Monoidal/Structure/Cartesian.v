@@ -8,7 +8,7 @@
  Contents
  1. Cartesan monoidal categories
  2. Cartesian monoidal categories are symmetric
- 2. Cocartesian monoidal categories
+ 3. Cocartesian monoidal categories
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
