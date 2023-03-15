@@ -64,4 +64,7 @@ Section SetIsCartesianMonoidal.
   Definition SET_cart_monoidal : monoidal SET
     := (SET_cart_monoidal_data,, SET_cart_monoidal_laws).
 
+  Definition SET_monoidal_cat
+    : monoidal_cat
+    := SET ,, SET_cart_monoidal.
 End SetIsCartesianMonoidal.
