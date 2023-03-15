@@ -209,8 +209,6 @@ Chains/Cochains.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
-DisplayedCats/Examples/Posets.v
-DisplayedCats/Examples/StructureWithProd.v
 DisplayedCats/Constructions.v
 
 FunctorAlgebras.v
@@ -233,6 +231,8 @@ DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
+DisplayedCats/Examples/Posets.v
+DisplayedCats/Examples/StructureWithProd.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
