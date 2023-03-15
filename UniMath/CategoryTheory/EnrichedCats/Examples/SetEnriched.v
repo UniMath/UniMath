@@ -6,7 +6,7 @@
  is the category of sets. In this file, we show that enrichments
  over the category of sets exist and that they are unique. From
  that, we conclude that the notions of category, functor, and
- nautlra transformations are equivalent to their enrichment
+ natural transformations are equivalent to their enrichment
  counterpart if we look at enrichments over the category of sets.
 
  Contents
