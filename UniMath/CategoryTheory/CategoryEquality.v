@@ -252,7 +252,6 @@ Definition catiso_is_path_cat
            (C D : category)
   : C = D ≃ catiso C D.
 Proof.
-  About catiso_is_path_precat.
   refine (catiso_is_path_precat _ _ (homset_property D) ∘ _)%weq.
   refine (path_sigma_hprop _ _ _ _).
   apply isaprop_has_homsets.
