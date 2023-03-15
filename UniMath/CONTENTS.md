@@ -372,7 +372,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/Examples/UnitalBinop.v](CategoryTheory/DisplayedCats/Examples/UnitalBinop.v)
-   - [DisplayedCats/Examples/Posets.v](CategoryTheory/DisplayedCats/Examples/Posets.v)
+   - [DisplayedCats/Examples/CategoryOfPosets.v](CategoryTheory/DisplayedCats/Examples/CategoryOfPosets.v)
    - [DisplayedCats/Examples/StructureWithProd.v](CategoryTheory/DisplayedCats/Examples/StructureWithProd.v)
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)

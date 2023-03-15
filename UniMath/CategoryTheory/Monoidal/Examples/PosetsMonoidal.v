@@ -4,7 +4,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Posets.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 

@@ -233,7 +233,7 @@ DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
-DisplayedCats/Examples/Posets.v
+DisplayedCats/Examples/CategoryOfPosets.v
 DisplayedCats/Examples/StructureWithProd.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
