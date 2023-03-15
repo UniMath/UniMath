@@ -13,15 +13,6 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
 
 Local Open Scope cat.
 
-Local Definition catiso_is_path_cat
-           (C D : category)
-  : C = D ≃ catiso C D.
-Proof.
-  refine (catiso_is_path_precat _ _ (homset_property D) ∘ _)%weq.
-  refine (path_sigma_hprop _ _ _ _).
-  apply isaprop_has_homsets.
-Defined.
-
 Definition daggercatiso (C D : dagger_category)
   : UU
   := ∑ i : catiso C D,

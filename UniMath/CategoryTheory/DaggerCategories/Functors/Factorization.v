@@ -110,7 +110,7 @@ Section ImageFactorization.
     split ; (use subtypePath ; [intro ; apply isapropunit |]) ; apply (pr2 c).
   Qed.
 
-  Definition factorization_dont_know_a_name
+  Definition factorization_full_dagger_inclusion_equal
     :  functor_full_dagger_img ∙ sub_precategory_inclusion D (full_sub_precategory P) = F.
   Proof.
     apply (functor_eq  _ _ (pr2 D)).
@@ -134,7 +134,7 @@ Section ImageFactorization.
     exists (inclusion_is_dagger_functor _ _).
     exists functor_full_img_is_unitarily_eso.
     exists (fully_faithful_sub_precategory_inclusion _ _).
-    apply factorization_dont_know_a_name.
+    apply factorization_full_dagger_inclusion_equal.
   Defined.
 
 End ImageFactorization.
