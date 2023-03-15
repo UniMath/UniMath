@@ -57,12 +57,6 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 
 Local Open Scope cat.
 
-Definition homset
-           {C : category}
-           (x y : C)
-  : hSet
-  := x --> y ,, homset_property C x y.
-
 Section FixAStructure.
   Context (P : hset_struct).
 
