@@ -209,6 +209,46 @@ Section CartesianSymmetric.
       apply idpath.
   Qed.
 
+  Proposition mon_lunitor_pr1
+              (x y : M)
+    : mon_lunitor (x ⊗ y) · semi_cart_tensor_pr1 M_cart _ _
+      =
+      identity _ #⊗ semi_cart_tensor_pr1 M_cart _ _ · mon_lunitor x.
+  Proof.
+    rewrite tensor_lunitor.
+    apply idpath.
+  Qed.
+
+  Proposition mon_lunitor_pr2
+              (x y : M)
+    : mon_lunitor (x ⊗ y) · semi_cart_tensor_pr2 M_cart _ _
+      =
+      identity _ #⊗ semi_cart_tensor_pr2 M_cart _ _ · mon_lunitor y.
+  Proof.
+    rewrite tensor_lunitor.
+    apply idpath.
+  Qed.
+
+  Proposition mon_runitor_pr1
+              (x y : M)
+    : mon_runitor (x ⊗ y) · semi_cart_tensor_pr1 M_cart _ _
+      =
+      semi_cart_tensor_pr1 M_cart _ _ #⊗ identity _ · mon_runitor x.
+  Proof.
+    rewrite tensor_runitor.
+    apply idpath.
+  Qed.
+
+  Proposition mon_runitor_pr2
+              (x y : M)
+    : mon_runitor (x ⊗ y) · semi_cart_tensor_pr2 M_cart _ _
+      =
+      semi_cart_tensor_pr2 M_cart _ _ #⊗ identity _ · mon_runitor y.
+  Proof.
+    rewrite tensor_runitor.
+    apply idpath.
+  Qed.
+
   Proposition mon_lassociator_pr1
               (x y z : M)
     : mon_lassociator x y z · semi_cart_tensor_pr1 M_cart _ _

@@ -463,6 +463,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Examples/DialgebraEnriched.v](CategoryTheory/EnrichedCats/Examples/DialgebraEnriched.v)
    - [EnrichedCats/Examples/SliceEnriched.v](CategoryTheory/EnrichedCats/Examples/SliceEnriched.v)
    - [EnrichedCats/Examples/EilenbergMooreEnriched.v](CategoryTheory/EnrichedCats/Examples/EilenbergMooreEnriched.v)
+   - [EnrichedCats/Examples/ProductEnriched.v](CategoryTheory/EnrichedCats/Examples/ProductEnriched.v)
    - [EnrichedCats/Examples/ChangeOfBase.v](CategoryTheory/EnrichedCats/Examples/ChangeOfBase.v)
    - [EnrichedCats/Examples/KleisliEnriched.v](CategoryTheory/EnrichedCats/Examples/KleisliEnriched.v)
    - [EnrichedCats/Examples/UnivalentKleisliEnriched.v](CategoryTheory/EnrichedCats/Examples/UnivalentKleisliEnriched.v)

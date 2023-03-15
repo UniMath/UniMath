@@ -340,6 +340,7 @@ EnrichedCats/Examples/ImageEnriched.v
 EnrichedCats/Examples/DialgebraEnriched.v
 EnrichedCats/Examples/SliceEnriched.v
 EnrichedCats/Examples/EilenbergMooreEnriched.v
+EnrichedCats/Examples/ProductEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
 
