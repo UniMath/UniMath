@@ -4,7 +4,7 @@
 
  In this file, we look at categories enriched over a notion of
  structured sets. The notion of structured sets in consideration
- here, is designed so that structures are preserved under product
+ here is designed so that structures are preserved under product
  and the unit set has a structure. As such, we have a cartesian
  monoidal category of structured sets (`StructuresMonoidal.v`).
 
