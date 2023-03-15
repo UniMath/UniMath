@@ -57,6 +57,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [GraphPaths.v](Combinatorics/GraphPaths.v)
    - [Equivalence_Relations.v](Combinatorics/Equivalence_Relations.v)
    - [OrderedSets.v](Combinatorics/OrderedSets.v)
+   - [Posets.v](Combinatorics/Posets.v)
    - [WellFoundedRelations.v](Combinatorics/WellFoundedRelations.v)
    - [WellOrderedSets.v](Combinatorics/WellOrderedSets.v)
    - [ZFstructures.v](Combinatorics/ZFstructures.v)
