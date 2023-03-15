@@ -341,7 +341,7 @@ Lemma isaprop_disp_left_adjoint_equivalence_cell_unit_bicat
   {a b : C}
   {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
   (f : adjoint_equivalence a b)
-  (ff : Core.mor_disp aa bb f)
+  (ff : aa -->[ f ] bb)
   : isaprop (bb -->[ left_adjoint_right_adjoint f] aa)
     -> isaprop (disp_left_adjoint_equivalence f ff).
 Proof.
@@ -361,7 +361,7 @@ Lemma isaprop_disp_adjoint_equivalence_cell_unit_bicat
   {a b : C}
   {aa : (disp_cell_unit_bicat D) a} {bb : (disp_cell_unit_bicat D) b}
   {f : adjoint_equivalence a b}
-  (ff : Core.mor_disp aa bb f)
+  (ff : aa -->[ f ] bb)
   : isaprop (bb -->[left_adjoint_right_adjoint f] aa)
     -> isaprop (aa -->[ f] bb)
     -> isaprop (disp_adjoint_equivalence f aa bb).
