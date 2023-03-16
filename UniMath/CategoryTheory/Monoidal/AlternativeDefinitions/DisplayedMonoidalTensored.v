@@ -274,8 +274,8 @@ Section DispCartProdOfFunctors.
       + use G'. apply (pr2 dd').
     - cbn. intros aa' aa'' xx' yy' ff' gg'.
       use make_dirprod.
-      + apply #G. apply (pr1 gg').
-      +  apply #G'. apply (pr2 gg').
+      + apply ♯G. apply (pr1 gg').
+      +  apply ♯G'. apply (pr2 gg').
   Defined.
 
   Lemma disp_pair_functor_axioms :
@@ -563,7 +563,7 @@ Section disp_fix_fst_arg.
   Definition disp_functor_fix_fst_arg_mor {b₁ b₂ : B} {f : b₁ --> b₂} {db₁ : DB b₁} {db₂ : DB b₂} (ff : db₁ -->[f] db₂)
     : FF (a,,b₁) (da,,db₁) -->[ (# F (identity _ #,f))%cat ] FF (a,,b₂) (da,,db₂).
   Proof.
-    apply #FF.
+    apply ♯FF.
     apply (id_disp _ ,, ff).
   Defined.
 
@@ -759,7 +759,7 @@ Section section_tensor.
         transportf
           (mor_disp _ _ )
           (id_left _ )
-          (α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f'))).
+          (α _ _ ;; ♯ TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f'))).
 
   Definition monoidal_tensor_section : UU
     := ∑ (α : monoidal_tensor_section_data), monoidal_tensor_section_natural α.
@@ -782,7 +782,7 @@ Section section_tensor.
         transportf
           (mor_disp _ _ )
           (id_left _ )
-          (pr1 α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))
+          (pr1 α _ _ ;; ♯TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))
     := pr2 α _ _ _ _ f f'.
 
   Definition monoidal_tensor_ax'
@@ -800,7 +800,7 @@ Section section_tensor.
             transportf
               (mor_disp _ _ )
               (id_left _ )
-              (pr1 α _ _ ;; #TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))).
+              (pr1 α _ _ ;; ♯TT (section_disp_on_morphisms S f ⊠⊠' (section_disp_on_morphisms S f')))).
   Proof.
     apply transportf_transpose_right.
     etrans. 2 : { apply monoidal_tensor_ax. }

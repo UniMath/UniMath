@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 Section LiftedUnit.
@@ -101,10 +102,10 @@ Section LiftedUnit.
              (GG1 : functor_unit_disp_cat ID IE G1)
              (GG2 : functor_unit_disp_cat ID IE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    : isincl (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff).
+    : isincl (λ ff : GG1 -->[ β] GG2, ♯ HU ff).
   Proof.
     do 3 intro.
-    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff) y)).
+    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, ♯ HU ff) y)).
     {
       use isaset_hfiber ; use isasetaprop ; apply homset_property.
     }
@@ -123,7 +124,7 @@ Section LiftedUnit.
              (GG1 : functor_unit_disp_cat ID IE G1)
              (GG2 : functor_unit_disp_cat ID IE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    :   issurjective (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff).
+    :   issurjective (λ ff : GG1 -->[ β] GG2, ♯ HU ff).
   Proof.
     intro βHH.
     apply hinhpr.

@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 Section TensorRezk.
@@ -203,10 +204,10 @@ Section TensorRezk.
              (GG1 : functor_tensor_disp_cat TD TE G1)
              (GG2 : functor_tensor_disp_cat TD TE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    : isincl (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff).
+    : isincl (λ ff : GG1 -->[ β] GG2, ♯ HT ff).
   Proof.
     do 3 intro.
-    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff) y)).
+    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, ♯ HT ff) y)).
     {
       use isaset_hfiber ; use isasetaprop ; apply isaprop_is_nat_trans_tensor.
     }
@@ -225,7 +226,7 @@ Section TensorRezk.
              (GG1 : functor_tensor_disp_cat TD TE G1)
              (GG2 : functor_tensor_disp_cat TD TE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    :   issurjective (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff).
+    :   issurjective (λ ff : GG1 -->[ β] GG2, ♯ HT ff).
   Proof.
     intro βHH.
     apply hinhpr.
