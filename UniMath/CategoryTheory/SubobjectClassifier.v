@@ -119,7 +119,6 @@ Section balanced.
   {c' c : C} (f : C⟦ c' , c ⟧) (f_isM : isMonic f) (f_isE : isEpi f).
 
   Local Definition f_asMonic := make_Monic _ f f_isM.
-  Local Definition f_asEpi := make_Epi _ f f_isE.
 
   Local Definition f_asEqualizer : Equalizer (characteristic_morphism O f_asMonic) (TerminalArrow T c · (true O)).
   Proof.
@@ -127,33 +126,29 @@ Section balanced.
     + rewrite
         subobject_classifier_square_commutes,
         assoc.
-      rewrite (TerminalArrowUnique T _
-        (f_asMonic·  TerminalArrow T c)).
-      apply idpath.
+      use cancel_postcomposition.
+      use TerminalArrowEq.
     + use make_isEqualizer.
       intros x h q.
-      use make_iscontr.
-      - use tpair.
-        * assert (p : c' = PullbackObject  (subobject_classifier_pullback O f_asMonic)).
-          { apply idpath. }
-          rewrite p.
-          use (PullbackArrow _ _ h (TerminalArrow T x)).
-          rewrite q, assoc.
-          use cancel_postcomposition.
-          use TerminalArrowUnique.
-        * simpl.
-          assert (p : f = PullbackPr1  (subobject_classifier_pullback O f_asMonic)).
-          { apply idpath. }
-          rewrite p.
-          rewrite (PullbackArrow_PullbackPr1 ((subobject_classifier_pullback O
+      use unique_exists.
+      - assert (p : c' = PullbackObject  (subobject_classifier_pullback O f_asMonic)).
+        { apply idpath. }
+        rewrite p.
+        use (PullbackArrow _ _ h (TerminalArrow T x)).
+        rewrite q, assoc.
+        use cancel_postcomposition.
+        use TerminalArrowUnique.
+      - simpl.
+        assert (p : f =
+          PullbackPr1 (subobject_classifier_pullback O f_asMonic)).
+        { apply idpath. }
+        rewrite p.
+        use (PullbackArrow_PullbackPr1
+          ((subobject_classifier_pullback O
           f_asMonic))).
-          apply idpath.
       - intro t.
-        induction t as (t,t_tri).
-        use subtypePath. {
-          unfold isPredicate.
-          intro.
-          use homset_property. }
+        use homset_property.
+      - intros t t_tri.
         simpl.
         use (PullbackArrowUnique' _ _ _ (subobject_classifier_pullback O
         f_asMonic)).
@@ -163,15 +158,13 @@ Section balanced.
 
   Local Lemma path_from_fepi : (characteristic_morphism O f_asMonic) = (TerminalArrow T c · (true O)).
   Proof.
-    use (EpiisEpi _ f_asEpi).
-    cbn.
+    use f_isE.
     assert (p : f = f_asMonic). {apply idpath. }
     rewrite p.
     rewrite (subobject_classifier_square_commutes O f_asMonic).
     rewrite assoc.
     use cancel_postcomposition.
-    apply pathsinv0.
-    use TerminalArrowUnique.
+    use TerminalArrowEq.
   Qed.
 
   Theorem subobject_classifier_balanced : (is_z_isomorphism f).
@@ -327,7 +320,8 @@ Proof.
       * use TerminalArrowUnique.
 Defined.
 
-Lemma SubobjectClassifier_nat_z_iso : nat_z_iso (SubObj_Functor C PB) (contra_homSet_functor O).
+Definition SubobjectClassifier_nat_z_iso :
+  nat_z_iso (SubObj_Functor C PB) (contra_homSet_functor O).
 Proof.
   use make_nat_z_iso.
   + exact SubobjectClassifier_nat_trans.

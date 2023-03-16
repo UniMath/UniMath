@@ -253,7 +253,7 @@ Proof.
   now rewrite BinProductOfArrows_comp, id_right.
 Qed.
 
-Lemma BinProductOfArrows_id {a b:C}
+Lemma BinProductOfArrows_id (a b:C)
   : BinProductOfArrows _ (CC a b) (CC a b) (identity a) (identity b)
     = identity _ .
 Proof.
