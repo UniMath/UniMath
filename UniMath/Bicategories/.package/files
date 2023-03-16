@@ -335,3 +335,5 @@ PseudoFunctors/DisplayedUniversalArrow.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
+
+DaggerCategories/BicatOfDaggerCats.v

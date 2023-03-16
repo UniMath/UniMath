@@ -409,6 +409,12 @@ DaggerCategories/FunctorCategory.v
 
 DaggerCategories/Examples/Groupoids.v
 DaggerCategories/Examples/Relations.v
+DaggerCategories/Examples/Fullsub.v
 
 DaggerCategories/Functors/WeakEquivalences.v
 DaggerCategories/Functors/FullyFaithful.v
+
+DaggerCategories/Functors/Factorization.v
+DaggerCategories/Functors/Precomp.v
+
+DaggerCategories/CatIso.v
