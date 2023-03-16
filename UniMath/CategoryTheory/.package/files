@@ -233,6 +233,8 @@ DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
+DisplayedCats/Examples/CategoryOfPosets.v
+DisplayedCats/Examples/StructureWithProd.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
@@ -256,9 +258,9 @@ categories/Relations.v
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
 
-Monoidal/Structure/Cartesian.v
 Monoidal/Structure/Symmetric.v
 Monoidal/Structure/Closed.v
+Monoidal/Structure/Cartesian.v
 
 Monoidal/Functors.v
 Monoidal/CategoriesOfMonoids.v
@@ -271,6 +273,8 @@ Monoidal/Displayed/MonoidalSections.v
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/CartesianMonoidal.v
 Monoidal/Examples/DisplayedCartesianMonoidal.v
+Monoidal/Examples/PosetsMonoidal.v
+Monoidal/Examples/StructuresMonoidal.v
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/MonoidalPointedObjects.v
@@ -324,6 +328,9 @@ EnrichedCats/Enriched/Opposite.v
 EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
+EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/PosetEnriched.v
+EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/FunctorCategory.v
 
@@ -335,6 +342,7 @@ EnrichedCats/Examples/ImageEnriched.v
 EnrichedCats/Examples/DialgebraEnriched.v
 EnrichedCats/Examples/SliceEnriched.v
 EnrichedCats/Examples/EilenbergMooreEnriched.v
+EnrichedCats/Examples/ProductEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
 
