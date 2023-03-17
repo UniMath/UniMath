@@ -56,17 +56,17 @@ Section GeneralConstruction.
     - intros c1 c2. exact (BinProductObject _ (CP c1 c2)).
     - intros b c1 c2 g.
       use BinProductOfArrows.
-      + exact (identity _).
+      + apply identity.
       + exact g.
     - intros b1 b2 c f.
       use BinProductOfArrows.
       + exact f.
-      + exact (identity _).
+      + apply identity.
   Defined.
 
   Lemma is_bifunctor_tensorfrombinprod_data : is_bifunctor tensorfrombinprod_data.
   Proof.
-    repeat split; red; cbn ; unfold prod_lwhisker, prod_rwhisker.
+    repeat split; red; cbn.
     - intros b c.
       apply pathsinv0, BinProduct_endo_is_identity.
       + now rewrite BinProductOfArrowsPr1, id_right.
@@ -82,7 +82,7 @@ Section GeneralConstruction.
     - intros b1 b2 c1 c2 f g.
       unfold functoronmorphisms1, functoronmorphisms2.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       do 2 rewrite BinProductOfArrows_comp.
       do 2 rewrite id_right.
       do 2 rewrite id_left.
@@ -173,7 +173,7 @@ Section GeneralConstruction.
     repeat split.
     - intros a b c1 c2 h.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -206,7 +206,7 @@ Section GeneralConstruction.
           apply idpath.
     - intros a1 a2 b c f.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -242,7 +242,7 @@ Section GeneralConstruction.
           apply idpath.
     - intros a b1 b2 c g.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -314,7 +314,7 @@ Section GeneralConstruction.
   Local Lemma triangle_identity_from_binprod: triangle_identity lu_{MD} ru_{MD} α_{MD}.
   Proof.
     intros b c.
-    cbn ; unfold prod_lwhisker, prod_rwhisker.
+    cbn.
     rewrite postcompWithBinProductArrow.
     apply pathsinv0, BinProductArrowUnique.
     - rewrite BinProductOfArrowsPr1.
@@ -328,7 +328,7 @@ Section GeneralConstruction.
   Local Lemma pentagon_identity_from_binprod: pentagon_identity α_{MD}.
   Proof.
     intros a b c d.
-    cbn ; unfold prod_lwhisker, prod_rwhisker.
+    cbn.
     etrans.
     { rewrite <- assoc.
       rewrite postcompWithBinProductArrow.
@@ -425,7 +425,7 @@ Section GeneralConstruction.
     - unfold semi_cart_tensor_pr1 ; cbn.
       unfold monoidal_cat_tensor_mor.
       unfold functoronmorphisms1.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       rewrite !assoc'.
       rewrite BinProductOfArrowsPr1.
       rewrite id_right.
@@ -435,7 +435,7 @@ Section GeneralConstruction.
     - unfold semi_cart_tensor_pr2 ; cbn.
       unfold monoidal_cat_tensor_mor.
       unfold functoronmorphisms1.
-      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      cbn.
       rewrite !assoc'.
       rewrite BinProductOfArrowsPr2.
       rewrite id_right.
