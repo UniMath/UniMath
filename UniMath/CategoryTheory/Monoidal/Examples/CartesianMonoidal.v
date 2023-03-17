@@ -7,7 +7,9 @@
 
  Contents
  1. Construction of cartesian monoidal categories
- 2. Set as cartesian monoidal category
+ 2. Properties of cartesian monoidal categories
+ 3. Cartesian closed categories
+ 4. Set as cartesian monoidal category
 
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
@@ -18,8 +20,12 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -31,6 +37,10 @@ Local Open Scope cat.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
+
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 (**
  1. Construction of cartesian monoidal categories
@@ -45,18 +55,18 @@ Section GeneralConstruction.
     use make_bifunctor_data.
     - intros c1 c2. exact (BinProductObject _ (CP c1 c2)).
     - intros b c1 c2 g.
-      apply BinProductOfArrows.
-      + apply identity.
+      use BinProductOfArrows.
+      + exact (identity _).
       + exact g.
     - intros b1 b2 c f.
-      apply BinProductOfArrows.
+      use BinProductOfArrows.
       + exact f.
-      + apply identity.
+      + exact (identity _).
   Defined.
 
   Lemma is_bifunctor_tensorfrombinprod_data : is_bifunctor tensorfrombinprod_data.
   Proof.
-    repeat split; red; cbn.
+    repeat split; red; cbn ; unfold prod_lwhisker, prod_rwhisker.
     - intros b c.
       apply pathsinv0, BinProduct_endo_is_identity.
       + now rewrite BinProductOfArrowsPr1, id_right.
@@ -72,7 +82,7 @@ Section GeneralConstruction.
     - intros b1 b2 c1 c2 f g.
       unfold functoronmorphisms1, functoronmorphisms2.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
       do 2 rewrite BinProductOfArrows_comp.
       do 2 rewrite id_right.
       do 2 rewrite id_left.
@@ -163,7 +173,7 @@ Section GeneralConstruction.
     repeat split.
     - intros a b c1 c2 h.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -196,7 +206,7 @@ Section GeneralConstruction.
           apply idpath.
     - intros a1 a2 b c f.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -232,7 +242,7 @@ Section GeneralConstruction.
           apply idpath.
     - intros a b1 b2 c g.
       unfold leftwhiskering_on_morphisms, rightwhiskering_on_morphisms.
-      cbn.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
       rewrite postcompWithBinProductArrow.
       etrans.
       2: { apply pathsinv0, precompWithBinProductArrow. }
@@ -304,7 +314,7 @@ Section GeneralConstruction.
   Local Lemma triangle_identity_from_binprod: triangle_identity lu_{MD} ru_{MD} α_{MD}.
   Proof.
     intros b c.
-    cbn.
+    cbn ; unfold prod_lwhisker, prod_rwhisker.
     rewrite postcompWithBinProductArrow.
     apply pathsinv0, BinProductArrowUnique.
     - rewrite BinProductOfArrowsPr1.
@@ -318,7 +328,7 @@ Section GeneralConstruction.
   Local Lemma pentagon_identity_from_binprod: pentagon_identity α_{MD}.
   Proof.
     intros a b c d.
-    cbn.
+    cbn ; unfold prod_lwhisker, prod_rwhisker.
     etrans.
     { rewrite <- assoc.
       rewrite postcompWithBinProductArrow.
@@ -382,7 +392,7 @@ Section GeneralConstruction.
           apply id_right.
   Qed.
 
-  Definition cartesianmonoidalcat: monoidal C.
+  Definition cartesian_monoidal : monoidal C.
   Proof.
     exists cartesianmonoidalcat_data.
     exists is_bifunctor_tensorfrombinprod_data.
@@ -392,14 +402,95 @@ Section GeneralConstruction.
     exists triangle_identity_from_binprod.
     exact pentagon_identity_from_binprod.
   Defined.
+
+  Definition cartesian_monoidalcat
+    : monoidal_cat
+    := C ,, cartesian_monoidal.
+
+  (**
+   2. Properties of cartesian monoidal categories
+   *)
+  Proposition is_semicartesian_cartesian_monoidalcat
+    : is_semicartesian cartesian_monoidalcat.
+  Proof.
+    exact (pr2 terminal).
+  Defined.
+
+  Proposition is_cartesian_cartesian_monoidalcat
+    : is_cartesian cartesian_monoidalcat.
+  Proof.
+    refine (is_semicartesian_cartesian_monoidalcat ,, _).
+    intros x y ; cbn.
+    use (isBinProduct_eq_arrow _ _ (pr2 (CP x y))).
+    - unfold semi_cart_tensor_pr1 ; cbn.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      rewrite !assoc'.
+      rewrite BinProductOfArrowsPr1.
+      rewrite id_right.
+      rewrite BinProductOfArrowsPr1.
+      rewrite id_right.
+      apply idpath.
+    - unfold semi_cart_tensor_pr2 ; cbn.
+      unfold monoidal_cat_tensor_mor.
+      unfold functoronmorphisms1.
+      cbn ; unfold prod_lwhisker, prod_rwhisker.
+      rewrite !assoc'.
+      rewrite BinProductOfArrowsPr2.
+      rewrite id_right.
+      rewrite BinProductOfArrowsPr2.
+      rewrite id_right.
+      apply idpath.
+  Qed.
+
+  Definition symmetric_cartesian_monoidalcat
+    : symmetric cartesian_monoidalcat.
+  Proof.
+    use cartesian_to_symmetric.
+    exact is_cartesian_cartesian_monoidalcat.
+  Defined.
+
+  (**
+   3. Cartesian closed categories
+   *)
+  Definition sym_mon_closed_cartesian_cat
+             (expC : Exponentials CP)
+    : sym_mon_closed_cat.
+  Proof.
+    use make_sym_mon_closed_cat.
+    - exact (cartesian_monoidalcat ,, symmetric_cartesian_monoidalcat).
+    - exact (exp expC).
+    - exact (exp_eval_alt expC).
+    - exact (λ _ _ _ f, exp_lam_alt expC f).
+    - abstract
+        (cbn ;
+         unfold monoidal_cat_tensor_mor ;
+         unfold functoronmorphisms1 ;
+         cbn ;
+         intros x y z f ;
+         refine (_ @ exp_beta_alt expC f) ;
+         apply maponpaths_2 ;
+         apply prod_lwhisker_rwhisker).
+    - abstract
+        (intros x y z f ; cbn in * ;
+         unfold monoidal_cat_tensor_mor ;
+         unfold functoronmorphisms1 ;
+         cbn ;
+         refine (exp_eta_alt expC f @ _) ;
+         apply maponpaths ;
+         apply maponpaths_2 ;
+         refine (!_) ;
+         apply prod_lwhisker_rwhisker).
+  Defined.
 End GeneralConstruction.
 
 (**
- 2. Set as cartesian monoidal category
+ 4. Set as cartesian monoidal category
  *)
 Definition SET_cartesian_monoidal : monoidal SET.
 Proof.
-  apply cartesianmonoidalcat.
+  apply cartesian_monoidal.
   - apply BinProductsHSET.
   - apply TerminalHSET.
 Defined.

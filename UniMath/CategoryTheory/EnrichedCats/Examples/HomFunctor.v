@@ -128,7 +128,7 @@ Section HomFunctor.
   (**
    3. The transformation that is pointwise the enriched composition
    *)
-Definition enriched_comp_nat_trans_left_functor
+  Definition enriched_comp_nat_trans_left_functor
     : category_binproduct (category_binproduct C^op (core C)) C ⟶ V
     := bindelta_pair_functor
          (bindelta_pair_functor

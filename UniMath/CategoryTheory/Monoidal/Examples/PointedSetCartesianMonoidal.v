@@ -107,7 +107,7 @@ Section PointedSetCategory.
 
   Definition PS_cat_cart_monoidal_via_cartesian : monoidal ptset_cat.
   Proof.
-    use cartesianmonoidalcat.
+    use cartesian_monoidal.
     - apply (total_category_Binproducts _ BinProductsHSET ptset_dispBinproducts).
     - apply (total_category_Terminal _ TerminalHSET ptset_dispTerminal).
   Defined.

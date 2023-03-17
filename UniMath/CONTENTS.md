@@ -454,6 +454,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Enriched/UnderlyingCategory.v](CategoryTheory/EnrichedCats/Enriched/UnderlyingCategory.v)
    - [EnrichedCats/Enriched/EnrichmentEquiv.v](CategoryTheory/EnrichedCats/Enriched/EnrichmentEquiv.v)
    - [EnrichedCats/Examples/SetEnriched.v](CategoryTheory/EnrichedCats/Examples/SetEnriched.v)
+   - [EnrichedCats/Examples/SelfEnriched.v](CategoryTheory/EnrichedCats/Examples/SelfEnriched.v)
    - [EnrichedCats/Examples/PosetEnriched.v](CategoryTheory/EnrichedCats/Examples/PosetEnriched.v)
    - [EnrichedCats/Examples/StructureEnriched.v](CategoryTheory/EnrichedCats/Examples/StructureEnriched.v)
    - [EnrichedCats/Examples/HomFunctor.v](CategoryTheory/EnrichedCats/Examples/HomFunctor.v)

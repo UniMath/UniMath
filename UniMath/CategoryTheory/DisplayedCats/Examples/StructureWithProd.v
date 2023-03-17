@@ -20,20 +20,29 @@
  from which we conclude the univalence of the category of
  structured sets.
 
+ We also give conditions under which one can deduce that the
+ category of structured sets is cartesian closed. These conditions
+ say that we have a structure on the set of structure preserving
+ functions and that application and lambda abstraction are
+ structure-preserving maps.
+
  Contents
  1. Definition of the structures
  2. The corresponding displayed category
  3. The total category
  4. Transporting structures
+ 5. Cartesian closedness
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -255,6 +264,21 @@ Section Projections.
     : mor_hset_struct P PX PY (λ x, y).
   Proof.
     exact (pr2 (pr222 (pr222 (pr222 P))) X Y PX PY y).
+  Qed.
+
+  Proposition hset_struct_pointwise
+              {X Y Z : hSet}
+              {PX : P X}
+              {PY : P Y}
+              {PZ : P Z}
+              (f : X × Z → Y)
+              (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
+              (z : Z)
+    : mor_hset_struct P PX PY (λ x : X, f (x ,, z)).
+  Proof.
+    exact (hset_struct_comp
+             (hset_struct_pair (hset_struct_id PX) (hset_struct_const PX PZ z))
+             Pf).
   Qed.
 End Projections.
 
@@ -626,3 +650,149 @@ Section SetStructure.
     exact H.
   Qed.
 End SetStructure.
+
+(**
+ 5. Cartesian closedness
+ *)
+Definition struct_fun
+           {P : hset_struct}
+           {X Y : hSet}
+           (PX : P X)
+           (PY : P Y)
+  : UU
+  := ∑ (f : X → Y), mor_hset_struct P PX PY f.
+
+Definition struct_fun_to_fun
+           {P : hset_struct}
+           {X Y : hSet}
+           {PX : P X}
+           {PY : P Y}
+           (f : struct_fun PX PY)
+  : X → Y
+  := pr1 f.
+
+Coercion struct_fun_to_fun : struct_fun >-> Funclass.
+
+Definition struct_fun_hSet
+           {P : hset_struct}
+           {X Y : hSet}
+           (PX : P X)
+           (PY : P Y)
+  : hSet.
+Proof.
+  use (make_hSet (struct_fun PX PY)).
+  use isaset_total2.
+  - apply funspace_isaset.
+    apply setproperty.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_hset_struct_on_mor.
+Defined.
+
+Definition closed_under_fun_data
+           (P : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+     P (struct_fun_hSet PX PY).
+
+Definition closed_under_fun_laws
+           {P : hset_struct}
+           (Pfun : closed_under_fun_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct
+        P
+        (hset_struct_prod P PX (Pfun _ _ PX PY))
+        PY
+        (λ xf, pr12 xf (pr1 xf)))
+     ×
+     (∏ (X Y Z : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (PZ : P Z)
+        (f : X × Z → Y)
+        (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f),
+      mor_hset_struct
+        P
+        PZ (Pfun _ _ PX PY)
+        (λ z, _ ,, hset_struct_pointwise P f Pf z)).
+
+Definition closed_under_fun
+           (P : hset_struct)
+  : UU
+  := ∑ (Pfun : closed_under_fun_data P), closed_under_fun_laws Pfun.
+
+Definition closed_under_fun_to_data
+           {P : hset_struct}
+           (Pfun : closed_under_fun P)
+           {X Y : hSet}
+           (PX : P X)
+           (PY : P Y)
+  : P (struct_fun_hSet PX PY)
+  := pr1 Pfun X Y PX PY.
+
+Coercion closed_under_fun_to_data : closed_under_fun >-> Funclass.
+
+Section ClosedUnderFunLaws.
+  Context {P : hset_struct}
+          (Pfun : closed_under_fun P).
+
+  Proposition closed_under_fun_eval
+              {X Y : hSet}
+              (PX : P X)
+              (PY : P Y)
+    : mor_hset_struct
+        P
+        (hset_struct_prod P PX (Pfun _ _ PX PY))
+        PY
+        (λ xf, pr12 xf (pr1 xf)).
+  Proof.
+    exact (pr12 Pfun X Y PX PY).
+  Qed.
+
+  Proposition closed_under_fun_lam
+              {X Y Z : hSet}
+              {PX : P X}
+              {PY : P Y}
+              {PZ : P Z}
+              (f : X × Z → Y)
+              (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
+    : mor_hset_struct
+        P
+        PZ (Pfun _ _ PX PY)
+        (λ z, _ ,, hset_struct_pointwise P f Pf z).
+  Proof.
+    exact (pr22 Pfun X Y Z PX PY PZ f Pf).
+  Qed.
+End ClosedUnderFunLaws.
+
+Definition Exponentials_struct
+           (P : hset_struct)
+           (Pfun : closed_under_fun P)
+  : Exponentials (BinProducts_category_of_hset_struct P).
+Proof.
+  intros PX.
+  use left_adjoint_from_partial.
+  - exact (λ PY, _ ,, Pfun _ _ (pr2 PX) (pr2 PY)).
+  - exact (λ PY, _ ,, closed_under_fun_eval Pfun _ _).
+  - refine (λ Y Z f, _).
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros g₁ g₂ ;
+         use subtypePath ; [ intro ; apply homset_property | ] ;
+         use eq_mor_hset_struct ; intro z ;
+         use eq_mor_hset_struct ; intro x ;
+         refine (!(eqtohomot (maponpaths pr1 (pr2 g₁)) (x ,, z)) @ _) ;
+         exact (eqtohomot (maponpaths pr1 (pr2 g₂)) (x ,, z))).
+    + simple refine (_ ,, _).
+      * exact (_ ,, closed_under_fun_lam Pfun (pr1 f) (pr2 f)).
+      * abstract
+          (use eq_mor_hset_struct ;
+           intro x ; cbn ;
+           apply idpath).
+Defined.

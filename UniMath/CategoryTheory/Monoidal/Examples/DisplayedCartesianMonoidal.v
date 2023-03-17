@@ -1,16 +1,11 @@
 (** **********************************************************
-
 Ralph Matthes
-
 2022
 *)
 
 (** **********************************************************
-
 Contents :
-
 - constructs a displayed monoidal category that is displayed over a cartesian monoidal category with the displayed tensor and displayed unit coming from displayed binary products and displayed terminal objects
-
  ************************************************************)
 
 
@@ -43,7 +38,7 @@ Section FixADisplayedCategory.
   Context {C : category} (CP : BinProducts C) (terminal : Terminal C)
     (D : disp_cat C) (dP : dispBinProducts D CP) (dterminal : dispTerminal D terminal).
 
-  Local Definition M : monoidal C := cartesianmonoidalcat C CP terminal.
+  Local Definition M : monoidal C := cartesian_monoidal C CP terminal.
 
   Definition DCM_tensor_data : disp_bifunctor_data M D D D.
   Proof.

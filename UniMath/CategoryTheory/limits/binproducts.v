@@ -1285,3 +1285,101 @@ Section diagonalMap.
   Defined.
 
 End diagonalMap.
+
+Section ProductFunctions.
+  Context {C : category}
+          (prodC : BinProducts C).
+
+  Definition prod_swap
+             (x y : C)
+    : prodC x y --> prodC y x.
+  Proof.
+    use BinProductArrow.
+    - apply BinProductPr2.
+    - apply BinProductPr1.
+  Defined.
+
+  Definition prod_lwhisker
+             {x₁ x₂ : C}
+             (f : x₁ --> x₂)
+             (y : C)
+    : prodC x₁ y --> prodC x₂ y.
+  Proof.
+    use BinProductOfArrows.
+    - exact f.
+    - exact (identity _).
+  Defined.
+
+  Definition prod_rwhisker
+             (x : C)
+             {y₁ y₂ : C}
+             (g : y₁ --> y₂)
+    : prodC x y₁ --> prodC x y₂.
+  Proof.
+    use BinProductOfArrows.
+    - exact (identity _).
+    - exact g.
+  Defined.
+
+  Proposition prod_lwhisker_rwhisker
+              {x₁ x₂ : C}
+              {y₁ y₂ : C}
+              (f : x₁ --> x₂)
+              (g : y₁ --> y₂)
+    : prod_lwhisker f _ · prod_rwhisker _ g
+      =
+      BinProductOfArrows _ _ _ f g.
+  Proof.
+    unfold prod_lwhisker, prod_rwhisker.
+    rewrite BinProductOfArrows_comp.
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Proposition prod_swap_swap
+              (x y : C)
+    : prod_swap x y · prod_swap y x = identity _.
+  Proof.
+    use BinProductArrowsEq.
+    - unfold prod_swap.
+      rewrite !assoc'.
+      rewrite !id_left.
+      rewrite BinProductPr1Commutes.
+      rewrite BinProductPr2Commutes.
+      apply idpath.
+    - unfold prod_swap.
+      rewrite !assoc'.
+      rewrite !id_left.
+      rewrite BinProductPr2Commutes.
+      rewrite BinProductPr1Commutes.
+      apply idpath.
+  Qed.
+
+  Proposition BinProductOfArrows_swap
+              {x₁ x₂ : C}
+              {y₁ y₂ : C}
+              (f : x₁ --> x₂)
+              (g : y₁ --> y₂)
+    : BinProductOfArrows C (prodC _ _) (prodC _ _) f g · prod_swap x₂ y₂
+      =
+      prod_swap x₁ y₁ · BinProductOfArrows C _ _ g f.
+  Proof.
+    use BinProductArrowsEq.
+    - unfold prod_swap.
+      rewrite !assoc'.
+      rewrite BinProductPr1Commutes.
+      rewrite BinProductOfArrowsPr2.
+      rewrite BinProductOfArrowsPr1.
+      rewrite !assoc.
+      rewrite BinProductPr1Commutes.
+      apply idpath.
+    - unfold prod_swap.
+      rewrite !assoc'.
+      rewrite BinProductPr2Commutes.
+      rewrite BinProductOfArrowsPr2.
+      rewrite BinProductOfArrowsPr1.
+      rewrite !assoc.
+      rewrite BinProductPr2Commutes.
+      apply idpath.
+  Qed.
+End ProductFunctions.

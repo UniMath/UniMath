@@ -1794,6 +1794,42 @@ Section MonoidalCatAccessors.
     rewrite mon_rinvunitor_I_mon_linvunitor_I.
     apply idpath.
   Qed.
+
+  Proposition mon_lassociator_lassociator
+              {w x y z : V}
+    : mon_lassociator (w ⊗ x) y z
+      · mon_lassociator w x (y ⊗ z)
+      =
+      mon_lassociator w x y #⊗ identity z
+      · mon_lassociator w (x ⊗ y) z
+      · identity w #⊗ mon_lassociator x y z.
+  Proof.
+    refine (!(monoidal_pentagonidentity V w x y z) @ _).
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite (bifunctor_rightid V).
+    rewrite (bifunctor_leftid V).
+    rewrite !id_left, id_right.
+    apply idpath.
+  Qed.
+
+  Proposition mon_rassociator_rassociator
+              {w x y z : V}
+    : mon_rassociator w x (y ⊗ z)
+      · mon_rassociator (w ⊗ x) y z
+      =
+      identity w #⊗ mon_rassociator x y z
+      · mon_rassociator w (x ⊗ y) z
+      · mon_rassociator w x y #⊗ identity z.
+  Proof.
+    refine (!(monoidal_pentagon_identity_inv V w x y z) @ _).
+    unfold monoidal_cat_tensor_mor.
+    unfold functoronmorphisms1.
+    rewrite (bifunctor_rightid V).
+    rewrite (bifunctor_leftid V).
+    rewrite !id_left, id_right.
+    apply idpath.
+  Qed.
 End MonoidalCatAccessors.
 
 Definition monoidal_cat_tensor_data

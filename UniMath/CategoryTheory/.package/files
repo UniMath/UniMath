@@ -329,6 +329,7 @@ EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
 EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/SelfEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v

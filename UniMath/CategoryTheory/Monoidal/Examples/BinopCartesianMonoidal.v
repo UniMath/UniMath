@@ -77,7 +77,7 @@ Section BinopCategory.
 
   Definition Binop_cat_cart_monoidal_via_cartesian : monoidal Binop_cat.
   Proof.
-    use cartesianmonoidalcat.
+    use cartesian_monoidal.
     - apply (total_category_Binproducts _ BinProductsHSET Binop_dispBinproducts).
     - apply (total_category_Terminal _ TerminalHSET Binop_dispTerminal).
   Defined.
