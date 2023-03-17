@@ -257,6 +257,7 @@ categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
 Monoidal/Structure/Closed.v

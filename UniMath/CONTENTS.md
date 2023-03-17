@@ -393,6 +393,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/Relations.v](CategoryTheory/categories/Relations.v)
    - [Monoidal/WhiskeredBifunctors.v](CategoryTheory/Monoidal/WhiskeredBifunctors.v)
    - [Monoidal/Categories.v](CategoryTheory/Monoidal/Categories.v)
+   - [Monoidal/StrongMonad.v](CategoryTheory/Monoidal/StrongMonad.v)
    - [Monoidal/Structure/Symmetric.v](CategoryTheory/Monoidal/Structure/Symmetric.v)
    - [Monoidal/Structure/Closed.v](CategoryTheory/Monoidal/Structure/Closed.v)
    - [Monoidal/Structure/Cartesian.v](CategoryTheory/Monoidal/Structure/Cartesian.v)
