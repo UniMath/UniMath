@@ -4,14 +4,7 @@
 - Category of flds
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

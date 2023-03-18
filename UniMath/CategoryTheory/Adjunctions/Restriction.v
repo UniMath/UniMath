@@ -4,7 +4,6 @@
   - Restriction of an adjunction to an equivalence
  *)
 
-Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

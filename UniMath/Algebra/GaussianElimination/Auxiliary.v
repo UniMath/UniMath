@@ -5,7 +5,6 @@
   Primary Author: Daniel @Skantz (November 2022)
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Combinatorics.Maybe.
@@ -13,7 +12,6 @@ Require Import UniMath.Combinatorics.Maybe.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.Algebra.RigsAndRings.
 
 (** Results of this file are required for the [Elimination] subpackage but aren’t specifically part of the topic; probably could/should be upstreamed within [UniMath] *)
 

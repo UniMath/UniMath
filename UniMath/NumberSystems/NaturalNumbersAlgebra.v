@@ -1,7 +1,6 @@
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.NegativePropositions.
 
 Require Export UniMath.Algebra.Archimedean.

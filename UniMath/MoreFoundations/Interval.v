@@ -1,6 +1,5 @@
 (** * A construction of the interval using propositional truncation *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.NullHomotopies.
 Require Import UniMath.MoreFoundations.Notations.
 

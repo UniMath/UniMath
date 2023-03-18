@@ -6,7 +6,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
@@ -45,7 +44,6 @@ Qed.
 (* Alternative version, kept here for comparison purposes.  *)
 
 (*
-Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Definition eqalg_disp : disp_cat (shSet_category σ).
 Proof.

@@ -2,12 +2,9 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.MoreFoundations.Orders.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Algebra.ConstructiveStructures.
-Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 

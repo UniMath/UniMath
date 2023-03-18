@@ -30,7 +30,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 (* The following are used for examples *)

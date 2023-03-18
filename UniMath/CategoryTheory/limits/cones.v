@@ -5,8 +5,6 @@ precategory is a univalent_category if C is ([is_univalent_CONE]).
 
 Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA.

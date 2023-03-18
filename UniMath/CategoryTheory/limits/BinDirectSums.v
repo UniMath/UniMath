@@ -5,20 +5,12 @@
 - Quotient has binary direct sums
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
 
-Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.zero.

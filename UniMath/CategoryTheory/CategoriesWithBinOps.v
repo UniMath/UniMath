@@ -1,13 +1,9 @@
 (** ** Precategories such that spaces of morphisms have a binary operation *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Open Scope cat.

@@ -6,7 +6,6 @@ Written by: Anders Mörtberg, 2017
 
 *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -30,7 +29,6 @@ Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSorted.

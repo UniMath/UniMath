@@ -14,12 +14,10 @@ On the nLab, there are definitions which describe when functors forget propertie
 https://ncatlab.org/nlab/show/stuff%2C+structure%2C+property#definitions
 With this terminology, we can argue why the first approach adds the unit as a property while in the second approach it is added as structure.
  *)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.

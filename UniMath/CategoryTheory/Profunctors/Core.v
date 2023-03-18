@@ -21,8 +21,6 @@
 
  *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

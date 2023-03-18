@@ -10,7 +10,6 @@ author: Ralph Matthes 2023
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.

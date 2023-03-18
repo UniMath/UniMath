@@ -1,9 +1,7 @@
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Monoids.
 
 (** ** Contents
 - The ring of endomorphisms of an abelian group

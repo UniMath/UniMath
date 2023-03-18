@@ -4,27 +4,18 @@ Author: Ralph Matthes 2022
 
  *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
-Require Import UniMath.Bicategories.MonoidalCategories.Actions.
-Require Import UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
-Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicat.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
-Require Import UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
-Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
-Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 
@@ -36,7 +27,6 @@ Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
-Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 

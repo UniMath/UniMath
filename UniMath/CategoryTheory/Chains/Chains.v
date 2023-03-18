@@ -4,13 +4,11 @@ Chains are diagrams of the form X₀ → X₁ → ⋯.
 
 Authors: Anders Mörtberg and Benedikt Ahrens, 2015-2016
  *)
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.

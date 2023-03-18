@@ -9,13 +9,7 @@
 
 Require Export UniMath.Tactics.EnsureStructuredProofs.
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.Algebra.Monoids.
 
 Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 25 *)
 

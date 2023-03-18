@@ -1,7 +1,5 @@
-Require Import UniMath.Foundations.All.
 
 Require Import UniMath.MoreFoundations.Sets.
-Require Import UniMath.MoreFoundations.QuotientSet.
 Require Import UniMath.MoreFoundations.Subtypes.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -12,7 +10,6 @@ Require Import UniMath.CategoryTheory.limits.Filtered.
 Require Import UniMath.CategoryTheory.limits.StandardDiagrams.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.KFiniteTypes.
 Require Import UniMath.Combinatorics.KFiniteSubtypes.
 

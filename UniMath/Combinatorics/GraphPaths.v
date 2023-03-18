@@ -1,5 +1,4 @@
 (** Author: Floris van Doorn, december 2017 *)
-Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.MoreFoundations.Subtypes.
 
 (** Graphs.

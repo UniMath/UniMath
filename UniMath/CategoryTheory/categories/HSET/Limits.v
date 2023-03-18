@@ -19,17 +19,14 @@ October 2015 - January 2016
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.PartA. (* flip *)
+ (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.WeakEquivalences.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -241,7 +238,6 @@ Defined.
 
 (** *** Pullbacks from general limits [PullbacksHSET_from_Lims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.pullbacks.
 
 Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
 Proof.
@@ -323,7 +319,6 @@ Defined.
 
 (** ** Equalizers from general limits [EqualizersHSET_from_Lims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.equalizers.
 
 Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
 Proof.

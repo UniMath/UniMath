@@ -2,7 +2,6 @@
     one can also instantiate the construction of cartesian monoidal categories
     [UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.SET_cartesian_monoidal] *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.

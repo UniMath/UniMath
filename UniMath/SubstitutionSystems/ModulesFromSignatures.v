@@ -15,7 +15,6 @@ The proof of initiality in the category of "weak" heterogeneous substitution sys
 as the one one already proved formally for the standard notion of heterogeneous substitution system.
 
 *)
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.

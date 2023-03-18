@@ -13,8 +13,6 @@
     - Analogue to [isweq_iso]: [is_iso_qinv]
  *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 

@@ -11,7 +11,6 @@ Written by Ralph Matthes, 2017.
 *)
 
 Require Export UniMath.Tactics.EnsureStructuredProofs.
-(* Require Import UniMath.Foundations.PartD. *)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 

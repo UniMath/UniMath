@@ -1,7 +1,4 @@
 Require UniMath.Algebra.IteratedBinaryOperations.
-Require UniMath.Foundations.NaturalNumbers.
-Require UniMath.Algebra.IteratedBinaryOperations.
-Require UniMath.Combinatorics.FiniteSets.
 
 Module Test_assoc.
 

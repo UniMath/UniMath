@@ -1,6 +1,4 @@
 (** A direct definition of finite ordered products by using products *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.

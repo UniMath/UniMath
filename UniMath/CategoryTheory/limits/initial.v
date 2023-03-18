@@ -7,8 +7,6 @@ Direct definition of initial object together with:
 - Initial element in a functor precategory ([Initial_functor_precat])
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
@@ -124,7 +122,7 @@ End Initial_and_EmptyCoprod.
 
 (* Section Initial_from_Colims. *)
 
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+(*  *)
 
 (* Variable C : precategory. *)
 

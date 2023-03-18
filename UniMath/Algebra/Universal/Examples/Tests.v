@@ -1,10 +1,8 @@
 (** * Several tests for univeral algebra operations. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.Combinatorics.MoreLists.
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 Require Import UniMath.Algebra.Universal.Examples.Nat.
 Require Import UniMath.Algebra.Universal.Examples.Bool.

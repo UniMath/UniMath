@@ -1,7 +1,6 @@
 (** * Heterogeneous vectors. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Export UniMath.Combinatorics.Vectors.
 

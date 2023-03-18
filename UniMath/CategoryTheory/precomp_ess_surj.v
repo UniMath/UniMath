@@ -18,11 +18,8 @@ Contents : Precomposition with a fully faithful and
 ************************************************************)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Univalence.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

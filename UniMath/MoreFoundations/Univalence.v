@@ -1,7 +1,6 @@
 (** * Additional results about univalence *)
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.PartA.
 
 (** Funextsec and toforallpaths are mutually inverses *)

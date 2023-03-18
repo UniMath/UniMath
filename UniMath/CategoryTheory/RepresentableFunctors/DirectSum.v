@@ -3,15 +3,8 @@
     Recall that X is a family of objects in a category, and the map from the
     sum to the product is an isomorphism, then the sum is called a direct sum. *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import
-        UniMath.Foundations.Sets
         UniMath.Combinatorics.FiniteSets
         UniMath.CategoryTheory.RepresentableFunctors.Representation
         UniMath.CategoryTheory.RepresentableFunctors.Precategories.

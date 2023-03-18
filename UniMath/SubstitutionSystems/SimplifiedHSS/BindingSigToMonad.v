@@ -49,7 +49,6 @@ Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
 Local Open Scope cat.

@@ -20,11 +20,9 @@
         3. K-finite types.
  *)
 
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.FiniteSets.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Local Open Scope stn.
 

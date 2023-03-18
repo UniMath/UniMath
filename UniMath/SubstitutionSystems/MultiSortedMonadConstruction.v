@@ -11,14 +11,11 @@ written by Benedikt Ahrens and Ralph Matthes, and is also inspired by
 discussions with them and Vladimir Voevodsky.
 
 *)
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -33,10 +30,8 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
-Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 

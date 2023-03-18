@@ -7,14 +7,11 @@
   https://github.com/kristinas/hinitiality by Langston Barrett (@siddharthist).
  *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Univalence.
-Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Induction.FunctorAlgebras_legacy.
 Require Import UniMath.Induction.PolynomialFunctors.
-Require Import UniMath.Induction.W.Core.
 
 Local Open Scope Cat.
 

@@ -9,19 +9,14 @@
 *)
 
 Require Import UniMath.Foundations.PartA.
-Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 (* Exponentials *)
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Require Import UniMath.CategoryTheory.categories.Type.Core.
-Require Import UniMath.CategoryTheory.categories.Type.Limits.
 
 (** ** Exponentials *)
 

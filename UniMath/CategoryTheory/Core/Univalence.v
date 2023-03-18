@@ -11,7 +11,6 @@
     interplay with composition, transport etc.
  *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.

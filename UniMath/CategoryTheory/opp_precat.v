@@ -15,8 +15,6 @@ Contents : Definition of opposite category and functor
 
 ************************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.All.
 

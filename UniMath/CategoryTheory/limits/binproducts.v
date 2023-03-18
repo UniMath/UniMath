@@ -20,8 +20,6 @@ Extended by: Langston Barrett (@siddharthist), 2018
 
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA.

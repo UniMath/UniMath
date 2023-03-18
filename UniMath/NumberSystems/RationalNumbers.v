@@ -15,7 +15,6 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Export UniMath.NumberSystems.Integers .
 

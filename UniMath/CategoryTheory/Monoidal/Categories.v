@@ -30,7 +30,6 @@ Note: after refactoring on March 10, 2023, the prior Git history of this develop
 git log -- UniMath/CategoryTheory/Monoidal/MonoidalCategoriesWhiskered.v
 
  ***************************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 

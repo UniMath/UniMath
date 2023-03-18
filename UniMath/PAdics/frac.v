@@ -9,7 +9,6 @@
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
 (** * I. The field of fractions for an integrable domain with an apartness relation *)

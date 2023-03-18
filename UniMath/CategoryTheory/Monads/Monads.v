@@ -22,8 +22,6 @@ Extended by: Ralph Matthes, 2017 (Section MonadsUsingCoproducts)
 
 ************************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.

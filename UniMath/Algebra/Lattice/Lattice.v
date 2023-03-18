@@ -36,7 +36,6 @@ Define new lattices using:
 *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
 (** ** Definition *)

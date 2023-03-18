@@ -15,9 +15,7 @@ Author: Langston Barrett (@siddharthist), Feb 2018
   - Contravariant ([contra_hom_functor])
 *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.UnivalenceAxiom.
-Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
 Require Import UniMath.CategoryTheory.Core.Categories.

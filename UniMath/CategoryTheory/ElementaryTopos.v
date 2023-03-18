@@ -25,13 +25,11 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.
-Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Subobjects.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 
 Local Open Scope cat.

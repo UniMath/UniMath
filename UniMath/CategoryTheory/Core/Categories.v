@@ -11,8 +11,6 @@
   - categories: hom-types are sets [category]
  *)
 
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Notations.

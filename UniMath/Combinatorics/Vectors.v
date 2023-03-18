@@ -2,7 +2,6 @@
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Foundations.NaturalNumbers.
 
 Local Open Scope nat.
 Local Open Scope stn.

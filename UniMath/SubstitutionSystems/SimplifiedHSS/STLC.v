@@ -9,7 +9,6 @@ the file is identical to the homonymous file in the parent directory, except for
 
 *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -33,7 +32,6 @@ Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSorted.

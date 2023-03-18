@@ -6,14 +6,8 @@
     Much of this material is copied near-verbatim from the results for
     sets. *)
 
-Require Import UniMath.Foundations.UnivalenceAxiom.
 
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 
-Require Import UniMath.CategoryTheory.categories.Type.Core.
 Require Import UniMath.CategoryTheory.categories.Type.MonoEpiIso.
 
 Local Open Scope cat.

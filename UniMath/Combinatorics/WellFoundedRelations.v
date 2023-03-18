@@ -15,7 +15,6 @@
 
 *)
 
-Require Import UniMath.Foundations.All.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Import UniMath.MoreFoundations.Univalence.
 

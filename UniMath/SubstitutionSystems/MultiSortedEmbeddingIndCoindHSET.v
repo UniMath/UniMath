@@ -6,11 +6,8 @@ author: Ralph Matthes 2023
 *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -19,12 +16,10 @@ Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
-Require UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
 

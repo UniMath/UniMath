@@ -7,8 +7,6 @@ inductive types.
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 

@@ -5,7 +5,6 @@ This file contains the definition of the signature of monoids and the way to tur
 a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.
 *)
 
-Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Monoids.
 

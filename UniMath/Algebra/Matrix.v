@@ -5,13 +5,8 @@ Operations on vectors and matrices.
 Author: Langston Barrett (@siddharthist) (March 2018)
 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.Combinatorics.FiniteSequences.
-Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
-Require Import UniMath.Algebra.RigsAndRings.
 
 (** ** Contents
 

@@ -12,8 +12,6 @@ Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.

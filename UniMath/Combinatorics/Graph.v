@@ -5,7 +5,6 @@
     Revised June 2019
  ********************************************************************************* *)
 
-Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Propositions.
 
 (** ** Pregraphs. *)

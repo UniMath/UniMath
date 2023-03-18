@@ -1,6 +1,5 @@
 (** ** More results on types of ordering *)
 
-Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.MoreFoundations.Sets.
 
 

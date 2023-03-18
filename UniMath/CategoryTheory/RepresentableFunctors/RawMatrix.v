@@ -6,11 +6,6 @@
        sum decompositions. *)
 
 Require Import
-        UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Core.Categories
-        UniMath.CategoryTheory.Core.Isos
-        UniMath.CategoryTheory.Core.Functors
-        UniMath.CategoryTheory.Core.NaturalTransformations
         UniMath.CategoryTheory.RepresentableFunctors.Representation
         UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 Local Open Scope cat.

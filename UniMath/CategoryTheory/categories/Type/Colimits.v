@@ -9,14 +9,11 @@ Author: Langston Barrett (@siddharthist), Feb 2018
   - Binary coproducts ([BinCoproductsType])
 *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Require Import UniMath.CategoryTheory.categories.Type.Core.
 

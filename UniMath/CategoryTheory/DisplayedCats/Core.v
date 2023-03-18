@@ -29,16 +29,8 @@ Contents:
 
 (* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total cats stay here, or also be split out? *)
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 Local Open Scope type_scope.
 

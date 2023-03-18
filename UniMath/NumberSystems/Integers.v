@@ -16,9 +16,7 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.NegativePropositions.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.NumberSystems.NaturalNumbersAlgebra.

@@ -1,6 +1,5 @@
 (** * Equivalences *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Tactics.
 

@@ -5,16 +5,8 @@ Background on vectors, for [Algebra.GaussianElimination.Elimination]
 Author: Daniel @Skantz (September 2022)
 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Nat.
-Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.Algebra.Matrix.
 

@@ -2,11 +2,8 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaki *)
 
-Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Topology.Filters.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Section Open.

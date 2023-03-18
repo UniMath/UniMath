@@ -5,7 +5,6 @@
 - Split epis
 *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.MoreFoundations.Tactics.
 

@@ -1,6 +1,4 @@
-Require UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Algebra.Groups.
-Require UniMath.MoreFoundations.DecidablePropositions.
 Require UniMath.MoreFoundations.NegativePropositions.
 
 Module Test_nat.
@@ -70,8 +68,6 @@ Module Test_nat.
 End Test_nat.
 
 
-Require UniMath.Algebra.IteratedBinaryOperations.
-Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.NumberSystems.NaturalNumbersAlgebra.
 
 Module Test_finsum.

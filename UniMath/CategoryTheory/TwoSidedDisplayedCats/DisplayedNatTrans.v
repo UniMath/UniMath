@@ -17,16 +17,12 @@
  7. Postwhiskering
 
  **********************************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 
 Local Open Scope cat.

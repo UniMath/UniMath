@@ -4,7 +4,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 
-Require Import UniMath.CategoryTheory.limits.cones.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.Chains.Chains.

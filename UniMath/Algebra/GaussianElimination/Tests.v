@@ -1,18 +1,11 @@
-Require Import UniMath.Algebra.GaussianElimination.Elimination.
 Require Import UniMath.Algebra.GaussianElimination.RowOps.
 
 Require Import UniMath.Algebra.Matrix.
 
-Require Import UniMath.Combinatorics.Maybe.
-Require Import UniMath.Combinatorics.FiniteSequences.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.Algebra.Archimedean.
-Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
-Require Import UniMath.Algebra.RigsAndRings.
 
 (** Observing/testing the extent that it is
     possible to compute some of the Elimination material.

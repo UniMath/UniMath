@@ -18,23 +18,16 @@ October 2015 - January 2016
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.PartA. (* flip *)
-Require Import UniMath.MoreFoundations.Tactics.
+ (* flip *)
 Require Import UniMath.MoreFoundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.

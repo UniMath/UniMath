@@ -4,11 +4,9 @@
    Goal: two precategories are equal iff we have an isomorphism between them.
    We use a chain of equivalences. Each step refines the data a bit.                   *)
 (* ----------------------------------------------------------------------------------- *)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.

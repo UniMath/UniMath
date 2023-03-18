@@ -16,11 +16,9 @@ Note: after refactoring on March 10, 2023, the prior Git history of this develop
 git log -- UniMath/CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.v
 
  ********************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.exponentials.
+
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.

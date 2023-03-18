@@ -2,13 +2,8 @@
 (** Author: Catherine LELAY. Oct 2015 - *)
 
 Require Export UniMath.Algebra.Groups.
-Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Orders.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
-Require Import UniMath.RealNumbers.Sets.
-Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
 Local Open Scope NR_scope.

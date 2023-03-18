@@ -16,13 +16,11 @@ Author: Langston Barrett (@siddharthist)
 
 *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Combinatorics.FiniteSets.
 
 (* Basics *)
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
 
 (* HSET *)
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
@@ -31,7 +29,6 @@ Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
 (* Lemmas about forming (full) subcategories *)
-Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 
 (* Limits *)

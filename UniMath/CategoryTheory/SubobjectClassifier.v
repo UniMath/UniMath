@@ -11,15 +11,11 @@
         induced by a subobject classifier
 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.PartB.
-Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
@@ -29,7 +25,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
 
 
 Local Open Scope cat.

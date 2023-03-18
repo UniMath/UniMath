@@ -2,10 +2,7 @@
 
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Foundations.Sets.
 
 (** ** Contents
 - Definitions

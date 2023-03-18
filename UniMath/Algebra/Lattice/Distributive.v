@@ -1,6 +1,5 @@
 (** * Distributive lattices *)
 
-Require Import UniMath.Foundations.Preamble.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Lattice.Lattice.

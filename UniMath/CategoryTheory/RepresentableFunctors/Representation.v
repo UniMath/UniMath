@@ -1,12 +1,4 @@
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import
-        UniMath.CategoryTheory.opp_precat
-        UniMath.CategoryTheory.yoneda
-        UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
         UniMath.CategoryTheory.RepresentableFunctors.Bifunctor

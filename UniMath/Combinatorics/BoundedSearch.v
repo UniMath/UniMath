@@ -7,9 +7,6 @@ If [ P ] is a decidable predicate on the natural numbers, then from the existenc
 number satisfying [ P ], we can find a natural number satisfying [ P ].
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Propositions.
 
 Section constr_indef_descr.

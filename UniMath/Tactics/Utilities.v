@@ -4,9 +4,9 @@
 
 (** Imports *)
 
-Require Import UniMath.Foundations.PartD
-               UniMath.Foundations.Propositions
-               UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Arguments tpair {_ _} _ _.
 

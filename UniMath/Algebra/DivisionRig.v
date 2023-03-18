@@ -13,7 +13,6 @@ Require Export UniMath.Foundations.Sets.
 Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Definition of a DivRig *)
 

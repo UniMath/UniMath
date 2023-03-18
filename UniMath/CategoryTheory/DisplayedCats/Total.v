@@ -1,7 +1,6 @@
 
 (** * Total Categories and Total Functors *)
 
-Require Import UniMath.Foundations.Sets.
 
 (* Needed for pr1_issurjective *)
 Require Import UniMath.MoreFoundations.AxiomOfChoice.

@@ -11,7 +11,7 @@ Require Import UniMath.Combinatorics.Graph.
 
 (** NB: pregraph is the same as precategory_ob_mor. *)
 
-Require UniMath.CategoryTheory.Core.Univalence.  (* double_transport *)
+  (* double_transport *)
 Require UniMath.CategoryTheory.Core.Functors.    (* functor_data_eq *)
 
 (** Should be moved in Combinatorics/Graph.v,

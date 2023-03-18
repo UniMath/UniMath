@@ -13,7 +13,6 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

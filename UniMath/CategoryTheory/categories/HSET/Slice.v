@@ -19,16 +19,11 @@ October 2015 - January 2016
 *)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.PartA. (* flip *)
-Require Import UniMath.MoreFoundations.Tactics.
+ (* flip *)
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -73,7 +68,7 @@ Section products_set_slice.
 (* The following is an experiment which computes what the product in Set/X
    should be from the one in [X,Set] using the equivalence between Set/X
    and [X,Set] *)
-(* Require Import UniMath.CategoryTheory.categories.HSET.SliceFamEquiv. *)
+(*  *)
 
 (* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
 (* Proof. *)

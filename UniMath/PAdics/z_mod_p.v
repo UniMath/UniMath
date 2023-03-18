@@ -10,7 +10,6 @@
 
 Require Import UniMath.PAdics.lemmas.
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.Foundations.Preamble.
 
 Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 10 *)
 

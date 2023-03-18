@@ -2,14 +2,8 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.Propositions.
-Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Univalence.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Combinatorics.OrderedSets.
 
 Import UniMath.MoreFoundations.PartA.
 

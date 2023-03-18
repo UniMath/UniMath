@@ -1,6 +1,5 @@
 (** * Complements *)
 
-Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Lattice.Lattice.

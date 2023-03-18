@@ -18,7 +18,6 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Induction.FunctorAlgebras_legacy.
-Require Import UniMath.Induction.FunctorCoalgebras_legacy.
 Require Import UniMath.CategoryTheory.categories.Type.Core.
 
 Section PolynomialFunctors.

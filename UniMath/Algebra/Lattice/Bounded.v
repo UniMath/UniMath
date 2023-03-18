@@ -1,9 +1,6 @@
 (** * Bounded lattices *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Propositions.
 
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Lattice.Lattice.
 

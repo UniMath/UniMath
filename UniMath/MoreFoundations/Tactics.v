@@ -27,7 +27,6 @@ Ltac hSet_induction f e := generalize f; apply hSet_rect; intro e; clear f.
    use this tactic -- it will add the type to the context in simplified form. *)
 Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
 
-Require Import UniMath.Foundations.Sets UniMath.Foundations.UnivalenceAxiom.
 
 Definition post_cat {X} {x y z:X} {p:y = z} : x = y -> x = z.
 Proof. intros q. exact (pathscomp0 q p). Defined.

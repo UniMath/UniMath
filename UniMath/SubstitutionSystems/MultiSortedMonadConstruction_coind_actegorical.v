@@ -3,19 +3,15 @@
 author: Ralph Matthes 2023
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -24,12 +20,10 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
@@ -43,26 +37,14 @@ Require Import UniMath.CategoryTheory.Chains.CoAdamek.
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
-Require Import UniMath.CategoryTheory.Actegories.Actegories.
-Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
-Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
-Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
-Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.
-Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
-Require UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
-Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ConstructionOfGHSS.
-Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
-Require Import UniMath.SubstitutionSystems.ContinuitySignature.MultiSortedSignatureFunctorEquivalence.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
 

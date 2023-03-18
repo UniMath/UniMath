@@ -1,19 +1,13 @@
 (* A full sub-category of a dagger category is again a dagger category. *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
 
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
-Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
-Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
 Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
 
 Local Open Scope cat.

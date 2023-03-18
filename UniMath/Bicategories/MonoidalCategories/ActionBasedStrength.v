@@ -9,7 +9,6 @@
   Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength, another general definition in the spirit of Janelidze and Kelly
 **)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -18,7 +17,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
@@ -29,8 +27,6 @@ Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCa
 Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
-Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Import MonoidalNotations.
 

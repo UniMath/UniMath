@@ -8,9 +8,7 @@ In particular, it aims to formalise some of the results of Pataraia, Dacar, Baue
 Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.Algebra.Dcpo.
 
 Local Open Scope poset. (* for ≤, < *)

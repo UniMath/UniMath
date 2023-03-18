@@ -7,14 +7,11 @@
   - Composition of enriched functors
  *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Core.Isos.
 
 Local Open Scope cat.
 Local Open Scope moncat.

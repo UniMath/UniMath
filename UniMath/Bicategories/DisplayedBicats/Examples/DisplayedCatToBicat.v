@@ -5,18 +5,11 @@
     from it. The 2-cells are from the unit type.                                       *)
 (* ----------------------------------------------------------------------------------- *)
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Examples.Initial.
-Require Import UniMath.Bicategories.Core.Examples.Final.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
-Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 
 Local Open Scope cat.

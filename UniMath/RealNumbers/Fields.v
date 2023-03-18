@@ -1,7 +1,6 @@
 (** * Additional theorems about fields *)
 
 Require Export UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
 Lemma isapropmultinvpair :

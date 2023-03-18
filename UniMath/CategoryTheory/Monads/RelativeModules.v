@@ -12,7 +12,6 @@
 (** Written by: Marco Maggesi (started March 2018)                                     *)
 (* ----------------------------------------------------------------------------------- *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

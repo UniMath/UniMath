@@ -1,10 +1,8 @@
 (** * Heyting algebras *)
 
-Require Import UniMath.Foundations.Preamble.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
 
 Section Def.
 

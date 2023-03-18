@@ -1,8 +1,6 @@
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
 Require Export UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.UnivalenceAxiom.
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Notations.
 
 Local Open Scope transport.

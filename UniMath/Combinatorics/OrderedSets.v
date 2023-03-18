@@ -1,7 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Combinatorics.FiniteSets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Local Open Scope poset.

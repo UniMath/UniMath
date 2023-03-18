@@ -2,7 +2,6 @@
 
 (** * Metric trees *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Nat.
 Import UniMath.MoreFoundations.Nat.Discern.
 Require Import UniMath.MoreFoundations.Notations.

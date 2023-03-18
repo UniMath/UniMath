@@ -7,16 +7,9 @@
 - Free/forgetful adjunction
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.Algebra.Free_Monoids_and_Groups.
-Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

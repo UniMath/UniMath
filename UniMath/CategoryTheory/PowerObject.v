@@ -14,7 +14,6 @@
       the natural (z-)isomorphism from Hom(- , Omega) to Hom(1,P(-)) obtained from the one above choosing a = T (T is the Terminal Object);
 *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -27,7 +26,6 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.

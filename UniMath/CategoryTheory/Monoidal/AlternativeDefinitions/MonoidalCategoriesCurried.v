@@ -21,7 +21,6 @@ The properties of a monoidal category are the following:
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
 Local Open Scope cat.

@@ -18,8 +18,8 @@ Section [ExponentialsCarriedThroughAdjointEquivalence] added by Ralph Matthes in
 
 ************************************************************)
 
-Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -28,7 +28,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 
 (* for Section [ExponentialsCarriedThroughAdjointEquivalence] *)

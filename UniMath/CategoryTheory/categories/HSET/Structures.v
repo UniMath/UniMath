@@ -19,26 +19,19 @@ October 2015 - January 2016
 *)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.PartA. (* flip *)
-Require Import UniMath.MoreFoundations.Sets. (* hProp_set *)
-Require Import UniMath.MoreFoundations.Tactics.
+ (* flip *)
+ (* hProp_set *)
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.NNO.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.categories.Type.Core.
-Require Import UniMath.CategoryTheory.categories.Type.MonoEpiIso.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.

@@ -7,14 +7,8 @@
 - Quotient of PreAdditive
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.PartA.
 
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -22,7 +16,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.opp_precat.

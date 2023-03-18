@@ -1,6 +1,5 @@
 (** * Lattice structure on [boolset] *)
 
-Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Bool.
 
 Require Import UniMath.Algebra.BinaryOperations.

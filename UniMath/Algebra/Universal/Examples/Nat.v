@@ -5,9 +5,7 @@ This file contains the definition of the signature of natural numbers with zero 
 the algebras of natural numbers and booleans and the morphism between them.
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.MoreLists.
 
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.

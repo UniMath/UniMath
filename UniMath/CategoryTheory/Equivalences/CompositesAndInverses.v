@@ -11,7 +11,6 @@
 
 (** Ported from UniMath/TypeTheory, could use more cleanup *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.PartA.

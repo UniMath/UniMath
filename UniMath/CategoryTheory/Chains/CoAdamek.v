@@ -6,10 +6,6 @@ omega-continuous functors which is used to construct coinductive types.
 Written by: Kobe Wullaert, 2022
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Propositions.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -20,7 +16,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 
-Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
 
 Local Open Scope cat.

@@ -17,7 +17,6 @@ Author: Langston Barrett (@siddharthist)
  *)
 
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.MoreFoundations.Notations.
 
 Local Open Scope logic.
 Local Open Scope ring.

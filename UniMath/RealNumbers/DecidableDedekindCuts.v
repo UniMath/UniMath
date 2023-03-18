@@ -3,11 +3,7 @@
 (** Additional results about Dedekind cuts which cannot be proved *)
 (** without decidability *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.RealNumbers.Prelim.
-Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 

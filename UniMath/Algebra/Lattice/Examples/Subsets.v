@@ -1,9 +1,5 @@
 (** * Lattice of subsets *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Sets.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.MoreFoundations.Subtypes.
 

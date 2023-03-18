@@ -1,8 +1,6 @@
 (** * Lemmas on transport of morphisms *)
 
-Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.UnivalenceAxiom.
-Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.

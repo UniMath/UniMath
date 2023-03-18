@@ -1,14 +1,6 @@
-Require Import UniMath.Foundations.Preamble.
-Require UniMath.Combinatorics.Lists.
-Require UniMath.Combinatorics.StandardFiniteSets.
-Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.FiniteSequences.
-Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.OrderedSets.
-Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.BoundedSearch.
-Require UniMath.MoreFoundations.DecidablePropositions.
-Require UniMath.MoreFoundations.NegativePropositions.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.MoreFoundations.NegativePropositions.

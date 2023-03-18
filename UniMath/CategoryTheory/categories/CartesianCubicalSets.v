@@ -37,7 +37,6 @@ Require Import UniMath.CategoryTheory.ExponentiationLeftAdjoint.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 

@@ -7,7 +7,6 @@
 author: Ralph Matthes, 2023
  *)
 
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.MoreFoundations.All.
@@ -15,7 +14,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -37,12 +35,10 @@ Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
-Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.
@@ -51,18 +47,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
-Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ConstructionOfGHSS.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 
-Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
 Local Open Scope cat.

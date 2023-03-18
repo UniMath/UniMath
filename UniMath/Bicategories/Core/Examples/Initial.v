@@ -6,17 +6,12 @@
 (* ----------------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.AdjointUnique.
 
 Local Open Scope cat.
 

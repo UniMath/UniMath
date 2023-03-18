@@ -13,12 +13,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Unitors.
-Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Export UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Export UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Require Export UniMath.Bicategories.DisplayedBicats.DispAdjunctions.

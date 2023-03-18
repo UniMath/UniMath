@@ -21,9 +21,6 @@
 - A Abelian -> A^op Abelian
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids.
 
@@ -44,10 +41,6 @@ Require Import UniMath.CategoryTheory.limits.pushouts.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.Opp.
 
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
-Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Import UniMath.CategoryTheory.PreAdditive.
 
 Local Open Scope cat.
 

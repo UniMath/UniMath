@@ -36,8 +36,6 @@
  2. Prove equivalence of rings as one-object categories
  *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.CategoryTheory.Core.Categories.

@@ -1,6 +1,5 @@
 (** * Booleans *)
 
-Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Sets.
 
 Definition andb : bool -> bool -> bool.

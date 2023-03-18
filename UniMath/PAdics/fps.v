@@ -10,7 +10,6 @@
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.NumberSystems.Integers.
 
 (** ** I. Summation in a commutative ring *)

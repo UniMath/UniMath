@@ -13,11 +13,7 @@ Written by Benedikt Ahrens and Anders Mörtberg, 2015-2016
 
 *****************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Propositions.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

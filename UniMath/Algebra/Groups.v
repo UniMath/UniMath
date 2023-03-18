@@ -30,7 +30,6 @@
 *)
 
 Require Import UniMath.MoreFoundations.Orders.
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.

@@ -14,7 +14,6 @@
  7. The equalizer of posets
 
  *****************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 (**

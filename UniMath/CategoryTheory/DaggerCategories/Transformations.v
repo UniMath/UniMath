@@ -6,7 +6,6 @@
    2. A unitary morphism in the dagger functor category is given by a natural isomorphism whose inverse is given objectwise by the dagger [unitary_functors].
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

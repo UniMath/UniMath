@@ -17,11 +17,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Induction.FunctorCoalgebras_legacy.
-Require Import UniMath.CategoryTheory.categories.Type.Core.
 
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
-Require Import UniMath.Induction.M.Uniqueness.
 
 (**
     The construction is called a refinement: as input we take any final coalgebra

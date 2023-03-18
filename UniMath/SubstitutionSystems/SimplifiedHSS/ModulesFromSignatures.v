@@ -19,7 +19,6 @@ version for simplified notion of HSS by Ralph Matthes (2022, 2023)
 the file is identical to the homonymous file in the parent directory, except for importing files from the present directory
 
 *)
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.

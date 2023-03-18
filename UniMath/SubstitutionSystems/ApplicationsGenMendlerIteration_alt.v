@@ -8,23 +8,17 @@ formulation of Theorem 4.7 inspired by code provided by Ambroise Lafont availabl
 2022
  *)
 
-Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Adamek.
-Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.

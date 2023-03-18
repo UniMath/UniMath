@@ -14,8 +14,6 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 *)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.

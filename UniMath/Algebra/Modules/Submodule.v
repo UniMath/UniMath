@@ -2,7 +2,6 @@
 
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 

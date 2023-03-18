@@ -7,7 +7,6 @@ Direct definition of terminal object together with:
 
 
 *)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -122,9 +121,9 @@ End Terminal_and_EmptyProd.
 
 (* Section Terminal_from_Lims. *)
 
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
-(* Require Import UniMath.CategoryTheory.limits.graphs.limits. *)
-(* Require Import UniMath.CategoryTheory.opp_precat. *)
+(*  *)
+(*  *)
+(*  *)
 
 (* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)
 

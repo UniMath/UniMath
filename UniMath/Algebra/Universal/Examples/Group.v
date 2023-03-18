@@ -5,9 +5,7 @@
   a group (as defined in [UniMath.Algebra.Groups]) into an algebra.
 *)
 
-Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.MoreLists.
 Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.Algebra.Universal.EqAlgebras.
