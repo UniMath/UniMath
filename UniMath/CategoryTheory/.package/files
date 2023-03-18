@@ -257,6 +257,7 @@ categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
 Monoidal/Structure/Closed.v
@@ -329,6 +330,7 @@ EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
 EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/SelfEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
