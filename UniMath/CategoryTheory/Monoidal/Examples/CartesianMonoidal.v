@@ -18,6 +18,7 @@ git log -- UniMath/CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.
  ********************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
