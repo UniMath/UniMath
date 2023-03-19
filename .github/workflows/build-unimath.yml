@@ -103,7 +103,7 @@ jobs:
       - name: Remove old cache
         if: steps.unimath-cache.outputs.cache-hit == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.UNIMATH_ACTION_TOKEN }}
         run: |
           gh extension install actions/gh-actions-cache
           REPO=${{ github.repository }}
