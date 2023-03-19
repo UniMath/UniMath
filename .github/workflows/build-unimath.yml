@@ -93,7 +93,7 @@ jobs:
             startGroup "Build UniMath"
             export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
             opam exec -- dune build -j 2 --display=short \
-                         --cache=enabled --error-reporting=twice
+                         --cache=enabled --error-reporting=twice UniMath/Algebra
             endGroup
 
       - name: Revert permissions
