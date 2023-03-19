@@ -20,8 +20,6 @@ October 2015 - January 2016
 *)
 
 Require Import UniMath.Foundations.Sets.
-
- (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.WeakEquivalences.
 

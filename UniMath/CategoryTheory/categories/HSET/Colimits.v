@@ -18,8 +18,6 @@ October 2015 - January 2016
 
 *)
 
-
- (* flip *)
 Require Import UniMath.MoreFoundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

@@ -20,7 +20,7 @@ October 2015 - January 2016
 
 
 
- (* flip *)
+
  (* hProp_set *)
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
