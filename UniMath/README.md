@@ -84,8 +84,27 @@ semantics is more likely to be rigorously verifiable and portable to new proof
 checking systems, and we follow a style of coding designed to render proofs
 less fragile and to make the files have a more uniform and pleasing appearance.
 
-* Constructing identifiers:
-    * form the identifier by concatenating English words or existing identifiers, separating them by underscores
+* Identifiers and function names
+  * Form identifiers by concatenating English words or existing identifiers in
+    lower case, separating them by underscores.
+  * Unless it impedes clarity or goes against common practice avoid using
+    abbreviations.
+  * In some parts of the library uppercase is used for bundled mathematical
+    objects (e.g. `Pullback`, `Topos`).  It is sometimes justified to introduce
+    new identifiers using this naming scheme.  The following guidelines should
+    then be applied:
+    * Identifiers with capital letters must not use underscores to separate
+      words, they must use `CamelCase`.
+    * Only use `CamelCase` when it is already used in the parts of the library
+      you are working in or there is some compelling reason for it to be
+      introduced.
+    * Do not use `CamelCase` for intermediary structures.  Example: if
+      `CamelCase`contains a data part and a property part then name these
+      `camel_case_data` and `is_camel_case`, do not call them `CamelCaseData`
+      and `IsCamelCase`.
+    * Capital letters must _never_ occur in function names.  Name your functions
+      `make_camel_case` and `camel_case_property`, not `make_CamelCase` and
+      `CamelCase_property`.
 * Do not use `Admitted` or introduce new axioms.
 * Do not use `apply` with a term that needs no additional arguments filled in,
   because using `exact` would be clearer.
