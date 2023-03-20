@@ -78,6 +78,7 @@ Section AbstractCloneAlgebraicTheory.
         intros.
         apply funextfun.
         intro.
+        simpl.
         unfold Tmor, compose.
         simpl.
         unfold reindex, funcomp.
