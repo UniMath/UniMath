@@ -2,7 +2,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.ArnoudsThesis.AlgebraicBase.
+Require Import UniMath.AlgebraicTheories.AlgebraicBase.
 
 Local Open Scope algebraic_theory.
 

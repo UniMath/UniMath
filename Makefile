@@ -27,7 +27,7 @@ PACKAGES += HomologicalAlgebra
 PACKAGES += AlgebraicGeometry
 PACKAGES += Paradoxes
 PACKAGES += Induction
-PACKAGES += ArnoudsThesis
+PACKAGES += AlgebraicTheories
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no

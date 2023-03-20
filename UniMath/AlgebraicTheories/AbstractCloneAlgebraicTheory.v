@@ -5,9 +5,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Require Import UniMath.ArnoudsThesis.AlgebraicTheory.
-Require Import UniMath.ArnoudsThesis.AbstractClone.
-Require Import UniMath.ArnoudsThesis.FiniteSetSkeleton.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheory.
+Require Import UniMath.AlgebraicTheories.AbstractClone.
+Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
 Local Open Scope cat.
 

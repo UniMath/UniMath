@@ -4,10 +4,10 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.products.
 
-Require Import UniMath.ArnoudsThesis.AlgebraicBase.
-Require Import UniMath.ArnoudsThesis.AlgebraicTheory.
-Require Import UniMath.ArnoudsThesis.AbstractClone.
-Require Import UniMath.ArnoudsThesis.AbstractCloneAlgebraicTheory.
+Require Import UniMath.AlgebraicTheories.AlgebraicBase.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheory.
+Require Import UniMath.AlgebraicTheories.AbstractClone.
+Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
 
 Local Open Scope cat.
 

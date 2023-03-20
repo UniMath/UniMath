@@ -853,6 +853,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [M/Chains.v](Induction/M/Chains.v)
    - [M/ComputationalM.v](Induction/M/ComputationalM.v)
    - [All.v](Induction/All.v)
-## Package ArnoudsThesis
-   - [FiniteSetSkeleton.v](ArnoudsThesis/FiniteSetSkeleton.v)
-   - [All.v](ArnoudsThesis/All.v)
+## Package AlgebraicTheories
+   - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
+   - [All.v](AlgebraicTheories/All.v)

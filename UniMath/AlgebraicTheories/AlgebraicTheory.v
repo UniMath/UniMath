@@ -7,8 +7,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Require Import UniMath.ArnoudsThesis.FiniteSetSkeleton.
-Require Import UniMath.ArnoudsThesis.AlgebraicBase.
+Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
+Require Import UniMath.AlgebraicTheories.AlgebraicBase.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theory.
