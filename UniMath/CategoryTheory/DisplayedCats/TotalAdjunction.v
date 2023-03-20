@@ -22,9 +22,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
-Local Open Scope cat.
-Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
+Local Open Scope type_scope.
+Local Open Scope cat.
+
 
 Section TotalFunctorCompositeIdentity.
 
@@ -146,11 +147,11 @@ Section TotalAdjunction.
       }
       clear p.
 
-      assert (q : (# (left_functor F))%Cat
+      assert (q : (# (left_functor F))
    (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))
  · (identity (left_functor F (right_functor F (left_functor F (pr1 x))))
     · (ε (left_functor F (pr1 x)) · identity (left_functor F (pr1 x)))) =
-                    (# (left_functor F))%Cat (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
+                    (# (left_functor F)) (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
       {
         rewrite ! id_left.
         now rewrite ! id_right.
@@ -158,13 +159,13 @@ Section TotalAdjunction.
 
       use pathscomp0.
       {
-        exact (transportb _ q  (# (left_adj_over FF) (unit_over FF (pr1 x) (pr2 x)) ;; counit_over FF (left_functor F (pr1 x)) (left_adj_over FF (pr1 x) (pr2 x)))).
+        exact (transportb _ q  (♯ (left_adj_over FF) (unit_over FF (pr1 x) (pr2 x)) ;; counit_over FF (left_functor F (pr1 x)) (left_adj_over FF (pr1 x) (pr2 x)))).
       }
 
       +  cbn.
          etrans. { apply mor_disp_transportf_prewhisker. }
 
-         assert (hh : (# (left_functor F))%Cat
+         assert (hh : (# (left_functor F))
    (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))
  · ε (left_functor F (pr1 x)) =
                         (# (left_functor F))%Cat (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
@@ -177,7 +178,7 @@ Section TotalAdjunction.
 
          assert (h : (maponpaths
        (compose
-          ((# (left_functor F))%Cat
+          ((# (left_functor F))
              (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))))
        (! (id_left (ε (left_functor F (pr1 x)) · identity (left_functor F (pr1 x))) @
                    id_right (ε (left_functor F (pr1 x)))))) = hh @ ! q).
@@ -299,7 +300,7 @@ Section TotalAdjunction.
       }
 
 
-      assert (q :  id_disp (RR (pr1 x) (pr2 x)) ;; (ηη (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x)) ;; id_disp (RR (left_functor F (right_functor F (pr1 x))) (LL (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x))))) ;; # RR (counit_over FF (pr1 x) (pr2 x)) = transportb _ qq ( unit_over FF (right_functor F (pr1 x)) (right_adj_over FF (pr1 x) (pr2 x)) ;; # (right_adj_over FF) (counit_over FF (pr1 x) (pr2 x)))).
+      assert (q :  id_disp (RR (pr1 x) (pr2 x)) ;; (ηη (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x)) ;; id_disp (RR (left_functor F (right_functor F (pr1 x))) (LL (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x))))) ;; ♯ RR (counit_over FF (pr1 x) (pr2 x)) = transportb _ qq ( unit_over FF (right_functor F (pr1 x)) (right_adj_over FF (pr1 x) (pr2 x)) ;; ♯ (right_adj_over FF) (counit_over FF (pr1 x) (pr2 x)))).
       {
         rewrite id_left_disp.
         rewrite id_right_disp.
