@@ -3,8 +3,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
@@ -30,6 +28,8 @@ Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
 Definition Tmor {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m → T n := pr22 T m n.
 
 Definition pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := Tmor (λ (x : stn 1), i) e.
+
+Definition algebraic_theory_data_to_functor_data (T : algebraic_theory_data) : functor_data finite_set_skeleton_category HSET := make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T).
 
 (* Define the associativity property of the algebraic theory *)
 Definition comp_is_assoc (T : algebraic_theory_data) : Prop := ∏
@@ -60,7 +60,7 @@ Definition comp_is_natural_l (T : algebraic_theory_data) : Prop := ∏
   (Tmor a f) • g = f • (λ i, g (a i)).
 
 Definition is_algebraic_theory (T : algebraic_theory_data) :=
-    (is_functor (make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T))) ×
+    (is_functor (algebraic_theory_data_to_functor_data T)) ×
     (comp_is_assoc T) ×
     (comp_is_unital T) ×
     (comp_identity_projections T) ×
@@ -68,7 +68,7 @@ Definition is_algebraic_theory (T : algebraic_theory_data) :=
 
 Definition make_is_algebraic_theory
   {T : algebraic_theory_data}
-  (H1 : (is_functor (make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T))))
+  (H1 : (is_functor (algebraic_theory_data_to_functor_data T)))
   (H2 : comp_is_assoc T)
   (H3 : comp_is_unital T)
   (H4 : comp_identity_projections T)
@@ -108,6 +108,8 @@ Proof.
   repeat use total2_paths2_f;
     apply idpath.
 Qed.
+
+Definition algebraic_theory_to_functor (T : algebraic_theory) : finite_set_skeleton_category ⟶ HSET := make_functor (algebraic_theory_data_to_functor_data T) (pr12 T).
 
 (* Properties of algebraic theories *)
 Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : T m) : Tmor a f = f • (λ i, pr (a i)).
