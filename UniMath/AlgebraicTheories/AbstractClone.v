@@ -62,7 +62,7 @@ Lemma isaprop_is_abstract_clone (C : abstract_clone_data) : isaprop (is_abstract
 Proof.
   repeat apply isapropdirprod;
     repeat (apply impred_isaprop; intros);
-    try apply setproperty.
+    apply setproperty.
 Qed.
 
 Definition abstract_clone := total2 is_abstract_clone.
