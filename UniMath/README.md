@@ -102,9 +102,10 @@ less fragile and to make the files have a more uniform and pleasing appearance.
       `CamelCase`contains a data part and a property part then name these
       `camel_case_data` and `is_camel_case`, do not call them `CamelCaseData`
       and `IsCamelCase`.
-    * Capital letters must _never_ occur in function names.  Name your functions
+    * Upper-case letters should not be used in function names unless there is
+      specific good reason to do so.  In general name your functions
       `make_camel_case` and `camel_case_property`, not `make_CamelCase` and
-      `CamelCase_property`.
+      `CamelCase_property`, even if the object is called `CamelCase`.
 * Do not use `Admitted` or introduce new axioms.
 * Do not use `apply` with a term that needs no additional arguments filled in,
   because using `exact` would be clearer.
