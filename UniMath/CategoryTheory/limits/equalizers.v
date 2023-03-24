@@ -18,6 +18,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 
@@ -355,3 +356,68 @@ Section Equalizers'.
   Qed.
 
 End Equalizers'.
+
+(**
+ Equalizers are closed under iso
+ *)
+Definition isEqualizer_z_iso
+           {C : category}
+           {e₁ e₂ x y : C}
+           {f g : x --> y}
+           {p₁ : e₁ --> x}
+           {q₁ : p₁ · f = p₁ · g}
+           {p₂ : e₂ --> x}
+           {q₂ : p₂ · f = p₂ · g}
+           (H : isEqualizer f g p₁ q₁)
+           (h : z_iso e₂ e₁)
+           (r : p₂ = h · p₁)
+  : isEqualizer f g p₂ q₂.
+Proof.
+  intros a k s.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply homset_property | ] ;
+       use (cancel_z_iso _ _ h) ;
+       use (isEqualizerInsEq H) ;
+       rewrite !assoc' ;
+       rewrite <- !r ;
+       exact (pr2 φ₁ @ !(pr2 φ₂))).
+  - refine (EqualizerIn (make_Equalizer _ _ _ _ H) _ k s · inv_from_z_iso h ,, _).
+    abstract
+      (rewrite r ;
+       rewrite !assoc' ;
+       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+       refine (maponpaths (λ z, _ · (z · _)) (z_iso_after_z_iso_inv h) @ _) ;
+       rewrite id_left ;
+       apply (EqualizerCommutes (make_Equalizer _ _ _ _ H))).
+Defined.
+
+(**
+ In univalent categories, equalizers are unique up to equality
+ *)
+Proposition isaprop_Equalizer
+            {C : category}
+            (HC : is_univalent C)
+            {x y : C}
+            (f g : x --> y)
+  : isaprop (Equalizer f g).
+Proof.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
+    intro.
+    use (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
+    - apply homset_property.
+    - simpl.
+      repeat (use impred ; intro).
+      apply isapropiscontr.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use z_iso_from_Equalizer_to_Equalizer.
+  - rewrite transportf_isotoid ; cbn.
+    apply EqualizerCommutes.
+Qed.

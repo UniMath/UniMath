@@ -447,6 +447,29 @@ Section StandardFunctions.
     : x --> y ⊸ x ⊗ y
     := internal_lam (identity _).
 
+  Definition internal_swap_arg
+             (v₁ v₂ w : V)
+    : v₁ ⊸ w ⊸ v₂ --> w ⊸ v₁ ⊸ v₂
+    := internal_lam
+         (internal_lam
+            (mon_lassociator _ _ _
+             · identity _ #⊗ sym_mon_braiding _ _ _
+             · mon_rassociator _ _ _
+             · internal_eval _ _ #⊗ identity _
+             · internal_eval _ _)).
+
+  Definition internal_curry
+             (v₁ v₂ v₃ : V)
+    : v₁ ⊗ v₂ ⊸ v₃ --> v₁ ⊸ v₂ ⊸ v₃
+    := internal_lam (internal_lam (mon_lassociator _ _ _ · internal_eval _ _)).
+
+  Definition internal_uncurry
+             (v₁ v₂ v₃ : V)
+    : v₁ ⊸ v₂ ⊸ v₃ --> v₁ ⊗ v₂ ⊸ v₃
+    := internal_lam (mon_rassociator _ _ _
+                     · internal_eval _ _ #⊗ identity _
+                     · internal_eval _ _).
+
   Proposition internal_funext
               (w x y : V)
               (f g : w --> x ⊸ y)
@@ -834,6 +857,76 @@ Section StandardFunctions.
       rewrite internal_beta.
       apply id_right.
     }
+    apply idpath.
+  Qed.
+
+  Proposition internal_curry_uncurry
+              (v₁ v₂ v₃ : V)
+    : internal_curry v₁ v₂ v₃ · internal_uncurry v₁ v₂ v₃ = identity _.
+  Proof.
+    use internal_funext.
+    intros w h.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_uncurry.
+    rewrite internal_beta.
+    rewrite tensor_split.
+    rewrite <- tensor_id_id.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      unfold internal_curry.
+      rewrite !internal_beta.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite mon_rassociator_lassociator.
+    apply id_right.
+  Qed.
+
+  Proposition internal_uncurry_curry
+              (v₁ v₂ v₃ : V)
+    : internal_uncurry v₁ v₂ v₃ · internal_curry v₁ v₂ v₃ = identity _.
+  Proof.
+    use internal_funext.
+    intros w₁ h₁.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_curry.
+    rewrite internal_beta.
+    use internal_funext.
+    intros w₂ h₂.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    rewrite internal_beta.
+    rewrite !assoc.
+    rewrite tensor_lassociator.
+    rewrite tensor_split.
+    rewrite !assoc'.
+    unfold internal_uncurry.
+    rewrite internal_beta.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_lassociator.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_rassociator.
+      apply id_left.
+    }
+    rewrite <- !tensor_comp_mor.
+    rewrite id_right.
     apply idpath.
   Qed.
 End StandardFunctions.

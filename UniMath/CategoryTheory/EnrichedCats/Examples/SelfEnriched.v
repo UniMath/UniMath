@@ -70,6 +70,120 @@ Section SelfEnrichment.
     - exact self_enrichment_laws.
   Defined.
 
+  Proposition self_enrichment_postcomp
+              {w x y : V}
+              (f : x --> y)
+    : postcomp_arr self_enrichment w f
+      =
+      internal_lam (internal_eval _ _ · f).
+  Proof.
+    use internal_funext.
+    intros a h.
+    unfold postcomp_arr ; cbn.
+    rewrite !tensor_comp_r_id_r.
+    etrans.
+    {
+      rewrite !assoc'.
+      unfold internal_comp.
+      rewrite !internal_beta.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_lassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite tensor_id_id.
+        rewrite !assoc.
+        rewrite <- tensor_split'.
+        rewrite tensor_split.
+        rewrite !assoc'.
+        unfold internal_from_arr.
+        rewrite internal_beta.
+        rewrite !assoc.
+        rewrite tensor_lunitor.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lunitor_triangle.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_comp_mor.
+      rewrite id_right.
+      rewrite mon_linvunitor_lunitor.
+      apply idpath.
+    }
+    refine (!_).
+    etrans.
+    {
+      rewrite tensor_split.
+      rewrite !assoc'.
+      rewrite internal_beta.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply idpath.
+  Qed.
+
+  Proposition self_enrichment_precomp
+              {x y z : V}
+              (f : x --> y)
+    : precomp_arr self_enrichment z f
+      =
+      internal_lam (identity _ #⊗ f · internal_eval _ _).
+  Proof.
+    use internal_funext.
+    intros a h.
+    unfold precomp_arr ; cbn.
+    rewrite !tensor_comp_r_id_r.
+    etrans.
+    {
+      rewrite !assoc'.
+      unfold internal_comp.
+      rewrite !internal_beta.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_lassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_comp_id_l.
+        unfold internal_from_arr.
+        rewrite internal_beta.
+        rewrite tensor_comp_id_l.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- mon_triangle.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_comp_mor.
+      rewrite id_right.
+      rewrite mon_rinvunitor_runitor.
+      apply idpath.
+    }
+    refine (!_).
+    etrans.
+    {
+      rewrite tensor_split.
+      rewrite !assoc'.
+      rewrite internal_beta.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply idpath.
+  Qed.
+
   (**
    2. Strong monad to enriched monad
    *)

@@ -33,6 +33,30 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Import MonoidalNotations.
 
+Proposition set_faithful_moncat
+  : faithful_moncat SET_monoidal_cat.
+Proof.
+  intros X Y f g p.
+  use funextsec.
+  intro x.
+  exact (eqtohomot (p (λ _, x)) tt).
+Qed.
+
+Proposition set_conservative_moncat
+  : conservative_moncat SET_monoidal_cat.
+Proof.
+  intros X Y f Hf.
+  use (hset_equiv_is_z_iso _ _ (_ ,, _)).
+  use isweq_iso.
+  - exact (λ y, invmap (_ ,, Hf) (λ _, y) tt).
+  - abstract
+      (intros x ;
+       exact (eqtohomot (homotinvweqweq (_ ,, Hf) (λ _, x)) tt)).
+  - abstract
+      (intros y ;
+       exact (eqtohomot (homotweqinvweq (_ ,, Hf) (λ _, y)) tt)).
+Defined.
+
 (**
  1. Enrichments over sets are unique for categories
  *)
