@@ -631,7 +631,7 @@ Section Maybe.
   Proof.
     destruct e as [? | u].
     - apply ii1. apply negpathsii1ii2.
-    - apply ii2. rewrite u; exists.
+    - apply ii2. now induction u.
   Defined.
 
   Definition maybe_choice'
@@ -640,7 +640,7 @@ Section Maybe.
   Proof.
     destruct e as [x | u].
     - apply ii1. exists x; reflexivity.
-    - apply ii2. rewrite u; exists.
+    - apply ii2. now induction u.
   Defined.
 
   Definition from_maybe
@@ -650,7 +650,7 @@ Section Maybe.
      destruct m as [x | u].
      - exact x.
      - contradiction p.
-       now rewrite u.
+       now induction u.
   Defined.
 
 End Maybe.

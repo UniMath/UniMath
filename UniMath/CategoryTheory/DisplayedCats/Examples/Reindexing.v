@@ -36,6 +36,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 (** ** Reindexing *)
@@ -129,7 +130,7 @@ Definition transportf_reindex
            {xx : D(F x)} {yy : D(F y)}
            {f g : x --> y}
            (p : f = g)
-           (ff : xx -->[ (# F)%Cat f] yy)
+           (ff : xx -->[# F f] yy)
   : transportf
       (@mor_disp
          C'
@@ -145,7 +146,7 @@ Definition transportf_reindex
          D
          _ _
          xx yy)
-      (maponpaths (#F)%Cat p)
+      (maponpaths (# F) p)
       ff.
 Proof.
   induction p ; apply idpath.
@@ -886,7 +887,7 @@ Definition lift_functor_into_reindex_data
 Proof.
   simple refine (_ ,, _).
   - exact (λ x xx, FF x xx).
-  - exact (λ x y xx yy f ff, #FF ff)%mor_disp.
+  - exact (λ x y xx yy f ff, ♯ FF ff).
 Defined.
 
 Definition lift_functor_into_reindex_axioms
@@ -1459,7 +1460,7 @@ Section ReindexOfDispFunctor.
   Proof.
     simple refine (_ ,, _).
     - exact (λ x xx, G (F x) xx).
-    - exact (λ x y xx yy f ff, #G ff).
+    - exact (λ x y xx yy f ff, ♯ G ff).
   Defined.
 
   Definition reindex_of_disp_functor_axioms

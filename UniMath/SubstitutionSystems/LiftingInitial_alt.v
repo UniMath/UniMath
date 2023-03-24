@@ -215,7 +215,7 @@ rewrite id_left, id_right.
 apply nat_trans_eq_alt; intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); try apply idpath.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply nat_trans_eq_alt; intro c; simpl.
@@ -447,7 +447,7 @@ rewrite id_left, id_right.
 apply nat_trans_eq_alt; intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); try apply idpath.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply nat_trans_eq_alt; intro c; simpl.
@@ -518,7 +518,7 @@ intermediate_path (pr1 (pr1 X)).
   set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
-  intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
+  intermediate_path (Φ _ (fbracket InitHSS f)); try apply idpath.
   etrans; [| apply T5 ]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)

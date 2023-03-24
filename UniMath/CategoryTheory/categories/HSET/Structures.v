@@ -10,6 +10,7 @@
   - Effective epis ([EffectiveEpis_HSET])
   - Split epis with axiom of choice ([SplitEpis_HSET])
   - Forgetful [functor] to [type_precat]
+  - HSET is a topos [Topos_Structure_HSET]
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -46,10 +47,13 @@ Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.EpiFacts.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
+Require Import UniMath.CategoryTheory.ElementaryTopos.
+Require Import UniMath.CategoryTheory.PowerObject.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
 Local Open Scope cat.
 
@@ -604,3 +608,20 @@ Proof.
       * apply propproperty.
       * apply propproperty.
 Defined.
+
+Definition Topos_Structure_HSET : Topos_Structure HSET.
+  Proof.
+    use make_Topos_Structure.
+    + exact PullbacksHSET.
+    + exact TerminalHSET.
+    + exact subobject_classifier_HSET.
+    + use PowerObject_from_exponentials.
+      assert (p : (BinProductsFromPullbacks PullbacksHSET TerminalHSET) = BinProductsHSET).
+      { use proofirrelevance.
+        use impredtwice.
+        repeat intro.
+        use isaprop_BinProduct.
+        use is_univalent_HSET. }
+      rewrite p.
+      use Exponentials_HSET.
+  Defined.

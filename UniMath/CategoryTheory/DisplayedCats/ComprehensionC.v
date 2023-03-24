@@ -31,7 +31,7 @@ Definition is_cartesian_disp_functor
   {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
 := ∏  (c c' : C) (f : c' --> c)
       (d : D c) (d' : D c') (ff : d' -->[f] d),
-  is_cartesian ff -> is_cartesian (#FF ff).
+  is_cartesian ff -> is_cartesian (♯ FF ff).
 
 
 (* TODO: upstream *)
@@ -97,7 +97,7 @@ Lemma cartesian_functor_from_fibration
     {C C' : category} {F : functor C C'}
     {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     (H : forall (c c' : C) (f : c' --> c) (d : D c),
-      ∥ total2 (fun ff : cartesian_lift d f => is_cartesian (#FF ff)) ∥)
+      ∥ total2 (fun ff : cartesian_lift d f => is_cartesian (♯ FF ff)) ∥)
   : is_cartesian_disp_functor FF.
 Proof.
   intros c c' f d d' ff ff_cart.
@@ -137,7 +137,7 @@ Lemma cartesian_functor_from_cleaving
     {C C' : category} {F : functor C C'}
     {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     (clD : cleaving D)
-    (H : forall c c' f d, is_cartesian (# FF (clD c c' f d)))
+    (H : forall c c' f d, is_cartesian (♯ FF (clD c c' f d)))
   : is_cartesian_disp_functor FF.
 Proof.
   apply cartesian_functor_from_fibration.

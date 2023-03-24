@@ -10,6 +10,7 @@ CGraph.v
 GraphPaths.v
 Equivalence_Relations.v
 OrderedSets.v
+Posets.v
 WellFoundedRelations.v
 WellOrderedSets.v
 ZFstructures.v
