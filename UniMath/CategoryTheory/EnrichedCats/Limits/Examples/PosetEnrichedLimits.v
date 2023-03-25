@@ -2,6 +2,13 @@
 
  Limits in categories enriched over posets
 
+ If we have a category enriched over posets, then we can
+ characterize terminal objects, products, and equalizers using
+ elementary terms. Such a category has a terminal object if and
+ only if the underlying category has a terminal object. For
+ products and equalizers, we also demand that the arrow coming
+ from the universal property is monotone.
+
  Contents
  1. Terminal object
  2. Products
@@ -18,7 +25,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.PosetEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.
-Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedProducts.
+Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedEqualizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.

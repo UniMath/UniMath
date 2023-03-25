@@ -1,5 +1,27 @@
 (*****************************************************************
 
+ Coequalizers in enriched categories
+
+ In this file, we define coequalizers in enriched categories. In
+ addition, we show that they give rise to coequalizers in the
+ underlying categories, and we show several properties of them.
+
+ One way to formulate the universal property of coequalizers, is
+ by expressing them as a natural bijection between two homsets.
+ A morphism from the coequalizer of `f : x --> y` and
+ `g : x --> y` to some `z` is the same a morphism `y --> z` that
+ makes a certain diagram commute. For enriched categories, we
+ formulate this universal property in the monoidal category `V`.
+
+ Contents
+ 1. Cones of enriched coequalizers
+ 2. Coequalizers in an enriched category
+ 3. Being an coequalizer is a proposition
+ 4. Coequalizers in the underlying category
+ 5. Builders for coequalizers
+ 6. Coequalizers are closed under iso
+ 7. Enriched categories with products
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

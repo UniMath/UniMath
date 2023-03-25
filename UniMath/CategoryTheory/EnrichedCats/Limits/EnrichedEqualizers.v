@@ -1,5 +1,25 @@
 (*****************************************************************
 
+ Enriched equalizers
+
+ We define the notion of equalizers in the enriched setting. To
+ do so, we formulate the universal property for equalizers in
+ arbitrary monoidal categories rather than just set. Whereas cones
+ for cones we can use the same definition, we need to reformulate
+ the universal property to take the enrichment into account. The
+ idea here is the same as for terminal objects and for binary
+ products.
+
+ Content
+ 1. Cones of enriched equalizers
+ 2. Equalizers in an enriched category
+ 3. Being an equalizer is a proposition
+ 4. Equalizers in the underlying category
+ 5. Builders for equalizers
+ 6. Equalizers are closed under iso
+ 7. Equalizers are isomorphic
+ 8. Enriched categories with products
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -471,7 +491,7 @@ Section EnrichedEqualizer.
 End EnrichedEqualizer.
 
 (**
- 7. Enriched categories with products
+ 8. Enriched categories with products
  *)
 Definition enrichment_equalizers
            {V : monoidal_cat}

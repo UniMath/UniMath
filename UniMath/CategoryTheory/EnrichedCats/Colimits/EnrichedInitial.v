@@ -2,6 +2,27 @@
 
  Initial objects in enriched categories
 
+ We define the notion of initial objects in the context of
+ enriched category theory. In ordinary category theory, an object
+ is called initial if there is a unique morphism to every object
+ in the category. To translate this concept to enriched category
+ theory, we need to phrase this universal property in an arbitrary
+ monoidal category instead of for sets.
+
+ The idea is as follows. We want to say that an object `x` is
+ initial. For every `y`, we have an object `C ⟦ x , y ⟧` in the
+ monoidal category `V`. Then `x` is initial if this hom-object
+ is a terminal object in `V`.
+
+ Contents
+ 1. Initial objects in an enriched category
+ 2. Being initial is a proposition
+ 3. Accessors for initial objects
+ 4. Builders for initial objects
+ 5. Being initial is closed under iso
+ 6. Initial objects are isomorphic
+ 7. Enriched categories with a terminal object
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

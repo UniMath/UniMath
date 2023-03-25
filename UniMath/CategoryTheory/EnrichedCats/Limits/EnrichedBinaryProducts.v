@@ -1,5 +1,32 @@
 (*****************************************************************
 
+ Enriched binary products
+
+ In this file, we define binary products in the enriched setting.
+ For ordinary categories, we can formulate the universal property
+ of products via hom-sets. More specifically, the product `a × b`
+ of `a` and `b` satisfies the following universal property: for
+ every `z`, we have a natural isomorphism from `z --> a × b` to
+ `(z --> a) × (z --> b)`. From this natural isomorphism, we can
+ deduce that a cone for the product consists of an object `z`
+ together with projections `z --> a` and `z --> b`, and that
+ to give a map `z --> a × b`, it suffices to give `z --> a` and
+ `z --> b`.
+
+ To define enriched products, we formulate this universal property
+ in monoidal categories. More specifically, we say that the hom
+ object `z --> a × b` is the product of `z --> a` and `z --> b`.
+
+ Content
+ 1. Cones of enriched products
+ 2. Binary products in an enriched category
+ 3. Being a binary product is a proposition
+ 4. Binary products in the underlying category
+ 5. Builders for binary products
+ 6. Products are closed under iso
+ 7. Products are isomorphic
+ 8. Enriched categories with products
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -22,7 +49,7 @@ Section EnrichedProducts.
           (x y : C).
 
   (**
-   1. Cones of enriched products
+   1. Cones of enriched binary products
    *)
   Definition enriched_binary_prod_cone
     : UU
@@ -524,7 +551,7 @@ Section EnrichedProducts.
 End EnrichedProducts.
 
 (**
- 7. Enriched categories with products
+ 8. Enriched categories with products
  *)
 Definition enrichment_binary_prod
            {V : monoidal_cat}

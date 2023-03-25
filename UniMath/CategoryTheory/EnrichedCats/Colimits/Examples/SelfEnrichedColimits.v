@@ -2,6 +2,8 @@
 
  Colimits in self enriched categories
 
+ We construct colimits in self enriched categories.
+
  Contents
  1. Copowers
 
@@ -15,6 +17,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
 Local Open Scope moncat.

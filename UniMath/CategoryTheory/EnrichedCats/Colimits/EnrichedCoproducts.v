@@ -1,5 +1,27 @@
 (*****************************************************************
 
+ Coproducts in enriched categories
+
+ In this file, we define the notion of coproducts for enriched
+ categories. The idea is the same as for initial objects: we need
+ to express the universal property in the arbitrary monoidal
+ categories instead of just set.
+
+ Let `x` and `y` be objects of a category `C` enriched over `V`.
+ The coproduct `x + y` satisfies the following universal property:
+ for every `z`, the hom object `C ⟦ x + y , z ⟧` is the product
+ of the hom objects `C ⟦ x , z ⟧` and `C ⟦ y , z ⟧`.
+
+ Contents
+ 1. Cocones of enriched coproducts
+ 2. Binary products in an enriched category
+ 3. Being a binary coproduct is a proposition
+ 4. Binary products in the underlying category
+ 5. Builders for binary coproducts
+ 6. Coproducts are closed under iso
+ 7. Coproducts are isomorphic
+ 8. Enriched categories with coproducts
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -23,7 +45,7 @@ Section EnrichedCoproducts.
           (x y : C).
 
   (**
-   1. Cones of enriched coproducts
+   1. Cocones of enriched coproducts
    *)
   Definition enriched_binary_coprod_cocone
     : UU
@@ -535,7 +557,7 @@ Section EnrichedCoproducts.
 End EnrichedCoproducts.
 
 (**
- 7. Enriched categories with coproducts
+ 8. Enriched categories with coproducts
  *)
 Definition enrichment_binary_coprod
            {V : monoidal_cat}

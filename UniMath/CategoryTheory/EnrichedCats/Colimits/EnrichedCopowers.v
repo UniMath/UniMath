@@ -1,5 +1,37 @@
 (*****************************************************************
 
+ Copowers
+
+ We define the notion of copowers in the setting of enriched
+ category theory. In ordinary category theory, all colimits can be
+ constructed from so-called conical colimits (colimits of a
+ functor). However, this is not necessarily the case for enriched
+ category theory. Instead, a more general class of colimits is
+ studied, called weighted colimits.
+
+ One example of a weighted colimits that is not a conical colimit,
+ is the copower. Suppose that `V` is a symmetric monoidal closed
+ category and that `C` is enriched over `V`. Given two objects
+ `v : V` and `x : C`, the copower is defined by the following
+ natural isomorphism
+
+   C ⟦ v ⊙ x , y ⟧ ≅ v ⊸ C ⟦ x , y ⟧
+
+ where `⊸` denotes the internal hom of `V`.
+
+ If we were looking at categories enriched over sets, then the
+ copower of a set `X` with the object `x` would be the coproduct
+ consisting of a copy of `x` for every member of `X`.
+
+ Contents
+ 1. Cocones of copowers
+ 2. Copowers in an enriched category
+ 3. Being a copower is a proposition
+ 4. Accessors for copowers
+ 5. Builders for copowers
+ 6. Copowers are closed under iso
+ 7. Enriched categories with copowers
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -26,7 +58,7 @@ Section EnrichedCopowers.
           (x : C).
 
   (**
-   1. Cones of copowers
+   1. Cocones of copowers
    *)
   Definition copower_cocone
     : UU
@@ -73,7 +105,7 @@ Section EnrichedCopowers.
     := _ ,, Ha w.
 
   (**
-   3. Being aco power is a proposition
+   3. Being a copower is a proposition
    *)
   Proposition isaprop_is_copower_enriched
               (a : copower_cocone)
@@ -263,7 +295,7 @@ Section EnrichedCopowers.
 End EnrichedCopowers.
 
 (**
- 6. Enriched categories with copowers
+ 7. Enriched categories with copowers
  *)
 Definition enrichment_copower
            {V : sym_mon_closed_cat}

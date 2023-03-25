@@ -330,7 +330,7 @@ EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
 EnrichedCats/Limits/EnrichedTerminal.v
-EnrichedCats/Limits/EnrichedProducts.v
+EnrichedCats/Limits/EnrichedBinaryProducts.v
 EnrichedCats/Limits/EnrichedEqualizers.v
 EnrichedCats/Limits/EnrichedPowers.v
 
@@ -363,6 +363,7 @@ EnrichedCats/Examples/UnivalentKleisliEnriched.v
 
 EnrichedCats/Limits/Examples/PosetEnrichedLimits.v
 EnrichedCats/Limits/Examples/SelfEnrichedLimits.v
+EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v

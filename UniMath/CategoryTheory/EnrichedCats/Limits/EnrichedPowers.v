@@ -1,5 +1,27 @@
 (*****************************************************************
 
+ Powers in enriched categories
+
+ Let `C` be a category enriched over `V`. If we have an object
+ `x : C` and an object `v : V`, then the power `v ⋔ x` informally
+ represents a `v`-indexed product of `x`. More precisely, the
+ power satisfies the following universal property
+
+   z --> v ⋔ x ≅ v ⊸ (z --> x)
+
+ where `⊸` denotes the internal hom of `V`. If we look at
+ categories enriched over sets, then the power is indeed such a
+ product.
+
+ Content
+ 1. Cones of powers
+ 2. Powers in an enriched category
+ 3. Being a power is a proposition
+ 4. Accessors for powers
+ 5. Builders for powers
+ 6. Powers are closed under iso
+ 7. Enriched categories with powers
+
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -296,7 +318,7 @@ Section EnrichedPowers.
 End EnrichedPowers.
 
 (**
- 6. Enriched categories with powers
+ 7. Enriched categories with powers
  *)
 Definition enrichment_power
            {V : sym_mon_closed_cat}
