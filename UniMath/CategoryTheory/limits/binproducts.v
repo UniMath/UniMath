@@ -20,13 +20,8 @@ Extended by: Langston Barrett (@siddharthist), 2018
 
  *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.WeakEquivalences.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -1383,3 +1378,54 @@ Section ProductFunctions.
       apply idpath.
   Qed.
 End ProductFunctions.
+
+(**
+ Binary products are closed under iso
+ *)
+Definition isBinProduct_z_iso
+           {C : category}
+           {x y a₁ a₂ : C}
+           {p₁ : a₁ --> x}
+           {q₁ : a₁ --> y}
+           {p₂ : a₂ --> x}
+           {q₂ : a₂ --> y}
+           (H : isBinProduct C x y a₁ p₁ q₁)
+           (f : z_iso a₂ a₁)
+           (r₁ : p₂ = f · p₁)
+           (r₂ : q₂ = f · q₁)
+  : isBinProduct C x y a₂ p₂ q₂.
+Proof.
+  intros w h₁ h₂.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       use (cancel_z_iso _ _ f) ;
+       use (BinProductArrowsEq _ _ _ (make_BinProduct _ _ _ _ _ _ H)) ;
+       [ cbn ;
+         rewrite !assoc' ;
+         rewrite <- !r₁ ;
+         exact (pr12 φ₁ @ !(pr12 φ₂))
+       | cbn ;
+         rewrite !assoc' ;
+         rewrite <- !r₂ ;
+         exact (pr22 φ₁ @ !(pr22 φ₂)) ]).
+  - simple refine (_ ,, _ ,, _).
+    + exact (BinProductArrow _ (make_BinProduct _ _ _ _ _ _ H) h₁ h₂ · inv_from_z_iso f).
+    + abstract
+        (rewrite r₁ ;
+         rewrite !assoc' ;
+         rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+         rewrite z_iso_after_z_iso_inv ;
+         rewrite id_left ;
+         apply BinProductPr1Commutes).
+    + abstract
+        (cbn ;
+         rewrite r₂ ;
+         rewrite !assoc' ;
+         rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+         rewrite z_iso_after_z_iso_inv ;
+         rewrite id_left ;
+         apply (BinProductPr2Commutes _ _ _ (make_BinProduct _ _ _ _ _ _ H))).
+Defined.

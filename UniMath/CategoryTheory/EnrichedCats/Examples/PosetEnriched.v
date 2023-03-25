@@ -62,7 +62,7 @@ Qed.
 Definition poset_enrichment_data
            (C : category)
   : UU
-  := ∏ (x y : C), PartialOrder (x --> y ,, homset_property C x y).
+  := ∏ (x y : C), PartialOrder (homset x y).
 
 Definition poset_enrichment_laws
            {C : category}

@@ -34,6 +34,7 @@
  2. Equality of enrichments
  3. Faithfulness
  4. Composition operations
+ 5. Transport lemmas
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -42,6 +43,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.covyoneda.
+Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Import MonoidalNotations.
@@ -459,6 +462,71 @@ Definition faithful_moncat
      (∏ (a : I_{V} --> x), a · f = a · g)
      →
      f = g.
+
+Proposition isaprop_faithful_moncat
+            (V : monoidal_cat)
+  : isaprop (faithful_moncat V).
+Proof.
+  repeat (use impred ; intro).
+  apply homset_property.
+Qed.
+
+Proposition faithful_weq_covyoneda_faithful
+            (V : monoidal_cat)
+  : faithful_moncat V ≃ faithful (covyoneda V (I_{V})).
+Proof.
+  use weqimplimpl.
+  - intros HV x y f.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    apply HV.
+    intros g.
+    exact (eqtohomot (pr2 φ₁ @ !(pr2 φ₂)) g).
+  - intros HV x y f g H.
+    use (invmaponpathsincl _ (HV x y) f g).
+    use funextsec.
+    exact H.
+  - apply isaprop_faithful_moncat.
+  - apply isaprop_faithful.
+Qed.
+
+Definition conservative_moncat
+           (V : monoidal_cat)
+  : UU
+  := ∏ (x y : V)
+       (f : x --> y),
+     isweq (λ (a : I_{V} --> x), a · f)
+     →
+     is_z_isomorphism f.
+
+Proposition isaprop_conservative_moncat
+            (V : monoidal_cat)
+  : isaprop (conservative_moncat V).
+Proof.
+  repeat (use impred ; intro).
+  apply isaprop_is_z_isomorphism.
+Qed.
+
+Proposition conservative_weq_covyoneda_conservative
+            (V : monoidal_cat)
+  : conservative_moncat V ≃ conservative (covyoneda V (I_{V})).
+Proof.
+  use weqimplimpl.
+  - intros HV x y f Hf.
+    apply HV.
+    exact (hset_z_iso_is_equiv _ _ (_ ,, Hf)).
+  - intros HV x y f Hf.
+    apply HV.
+    use (hset_equiv_is_z_iso _ _ (_ ,, _)).
+    exact Hf.
+  - apply isaprop_conservative_moncat.
+  - apply isaprop_conservative.
+Qed.
 
 (**
  4. Composition operations
@@ -1092,5 +1160,176 @@ Proof.
     apply tensor_rinvunitor.
   }
   rewrite !assoc'.
+  apply idpath.
+Qed.
+
+Definition postcomp_arr_is_z_iso
+           {V : monoidal_cat}
+           {C : category}
+           (E : enrichment C V)
+           (w : C)
+           {x y : C}
+           (f : x --> y)
+           (Hf : is_z_isomorphism f)
+  : is_z_isomorphism (postcomp_arr E w f).
+Proof.
+  pose (f_iso := make_z_iso _ _ Hf).
+  use make_is_z_isomorphism.
+  - exact (postcomp_arr E w (inv_from_z_iso f_iso)).
+  - split.
+    + abstract
+        (rewrite <- postcomp_arr_comp ;
+         rewrite <- postcomp_arr_id ;
+         apply maponpaths ;
+         apply (z_iso_inv_after_z_iso f_iso)).
+    + abstract
+        (rewrite <- postcomp_arr_comp ;
+         rewrite <- postcomp_arr_id ;
+         apply maponpaths ;
+         apply (z_iso_after_z_iso_inv f_iso)).
+Defined.
+
+Definition postcomp_arr_z_iso
+           {V : monoidal_cat}
+           {C : category}
+           (E : enrichment C V)
+           (w : C)
+           {x y : C}
+           (f : z_iso x y)
+  : z_iso (E ⦃ w , x ⦄) (E ⦃ w , y ⦄).
+Proof.
+  refine (postcomp_arr E w f ,, _).
+  use postcomp_arr_is_z_iso.
+  exact (pr2 f).
+Defined.
+
+Definition precomp_arr_is_z_iso
+           {V : monoidal_cat}
+           {C : category}
+           (E : enrichment C V)
+           (z : C)
+           {x y : C}
+           (f : x --> y)
+           (Hf : is_z_isomorphism f)
+  : is_z_isomorphism (precomp_arr E z f).
+Proof.
+  pose (f_iso := make_z_iso _ _ Hf).
+  use make_is_z_isomorphism.
+  - exact (precomp_arr E z (inv_from_z_iso f_iso)).
+  - split.
+    + abstract
+        (rewrite <- precomp_arr_comp ;
+         rewrite <- precomp_arr_id ;
+         apply maponpaths ;
+         apply (z_iso_after_z_iso_inv f_iso)).
+    + abstract
+        (rewrite <- precomp_arr_comp ;
+         rewrite <- precomp_arr_id ;
+         apply maponpaths ;
+         apply (z_iso_inv_after_z_iso f_iso)).
+Defined.
+
+Definition precomp_arr_z_iso
+           {V : monoidal_cat}
+           {C : category}
+           (E : enrichment C V)
+           (z : C)
+           {x y : C}
+           (f : z_iso x y)
+  : z_iso (E ⦃ y , z ⦄) (E ⦃ x , z ⦄).
+Proof.
+  refine (precomp_arr E z f ,, _).
+  use precomp_arr_is_z_iso.
+  exact (pr2 f).
+Defined.
+
+(**
+ 5. Transport lemmas
+ *)
+Proposition transportf_enriched_arr_l
+            {V : monoidal_cat}
+            {C : category}
+            (E : enrichment C V)
+            {x₁ x₂ : C}
+            (p : x₁ = x₂)
+            (y : C)
+            (f : I_{V} --> E ⦃ x₁ , y ⦄)
+  : transportf
+      (λ (x : C), I_{V} --> E ⦃ x , y ⦄)
+      p
+      f
+    =
+    enriched_from_arr E (idtoiso (!p) · enriched_to_arr E f).
+Proof.
+  induction p ; cbn.
+  rewrite id_left.
+  rewrite enriched_from_to_arr.
+  apply idpath.
+Qed.
+
+Proposition transportf_enriched_arr_r
+            {V : monoidal_cat}
+            {C : category}
+            (E : enrichment C V)
+            (x : C)
+            {y₁ y₂ : C}
+            (p : y₁ = y₂)
+            (f : I_{ V} --> E ⦃ x , y₁ ⦄)
+  : transportf
+      (λ (y : C), I_{V} --> E ⦃ x , y ⦄)
+      p
+      f
+    =
+    enriched_from_arr E (enriched_to_arr E f · idtoiso p).
+Proof.
+  induction p ; cbn.
+  rewrite id_right.
+  rewrite enriched_from_to_arr.
+  apply idpath.
+Qed.
+
+Proposition transportf_enriched_l
+            {V : monoidal_cat}
+            {C : category}
+            (E : enrichment C V)
+            {x₁ x₂ : C}
+            (p : x₁ = x₂)
+            {y : C}
+            {v : V}
+            (f : v --> E ⦃ x₁ , y ⦄)
+  : transportf
+      (λ (x : C), v --> E ⦃ x , y ⦄)
+      p
+      f
+    =
+    f · precomp_arr E y (idtoiso (!p)).
+Proof.
+  induction p ; cbn.
+  rewrite precomp_arr_id.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Proposition transportf_enriched_r
+            {V : monoidal_cat}
+            {C : category}
+            (E : enrichment C V)
+            (x : C)
+            {y₁ y₂ : C}
+            (p : y₁ = y₂)
+            (v : V)
+            (f : v --> E ⦃ x , y₁ ⦄)
+  : transportf
+      (λ (y : C), v --> E ⦃ x , y ⦄)
+      p
+      f
+    =
+    f · postcomp_arr E x (idtoiso p).
+Proof.
+
+Proof.
+  induction p ; cbn.
+  rewrite postcomp_arr_id.
+  rewrite id_right.
   apply idpath.
 Qed.
