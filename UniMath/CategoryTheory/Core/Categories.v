@@ -164,6 +164,12 @@ Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
 Coercion homset_property (C : category) : has_homsets C := pr2 C.
 
+Definition homset
+           {C : category}
+           (x y : C)
+  : hSet
+  := x --> y ,, homset_property C x y.
+
 Definition makecategory
     (obj : UU)
     (mor : obj -> obj -> UU)

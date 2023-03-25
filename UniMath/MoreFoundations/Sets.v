@@ -233,3 +233,64 @@ Proof.
   apply isapropimpl.
   now apply pr2.
 Qed.
+
+(**
+ Useful functions for when using univalence of sets
+ *)
+Definition univalence_hSet
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : X = Y
+  := invmap (hSet_univalence _ _) w.
+
+Definition hSet_univalence_map_univalence_hSet
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : hSet_univalence_map X Y (univalence_hSet w) = w.
+Proof.
+  exact (homotweqinvweq (hSet_univalence _ _) w).
+Defined.
+
+Definition hSet_univalence_univalence_hSet_map
+           {X Y : hSet}
+           (p : X = Y)
+  : univalence_hSet (hSet_univalence_map X Y p) = p.
+Proof.
+  exact (homotinvweqweq (hSet_univalence _ _) p).
+Qed.
+
+Definition univalence_hSet_idweq
+           (X : hSet)
+  : univalence_hSet (idweq X) = idpath X.
+Proof.
+  refine (_ @ hSet_univalence_univalence_hSet_map (idpath _)).
+  apply maponpaths.
+  apply idpath.
+Defined.
+
+Definition hSet_univalence_map_inv
+           {X Y : hSet}
+           (p : X = Y)
+  : hSet_univalence_map _ _ (!p) = invweq (hSet_univalence_map _ _ p).
+Proof.
+  induction p.
+  cbn.
+  use subtypePath.
+  {
+    intro.
+    apply isapropisweq.
+  }
+  apply idpath.
+Qed.
+
+Definition univalence_hSet_inv
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : !(univalence_hSet w) = univalence_hSet (invweq w).
+Proof.
+  refine (!(hSet_univalence_univalence_hSet_map _) @ _).
+  apply maponpaths.
+  rewrite hSet_univalence_map_inv.
+  rewrite hSet_univalence_map_univalence_hSet.
+  apply idpath.
+Qed.

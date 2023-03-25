@@ -18,11 +18,8 @@ Section [ExponentialsCarriedThroughAdjointEquivalence] added by Ralph Matthes in
 
 ************************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -488,3 +485,132 @@ Section AlternativeWithUnivalence.
   Defined.
 
 End AlternativeWithUnivalence.
+
+(**
+ Accessors for exponentials
+ *)
+Section AccessorsExponentials.
+  Context {C : category}
+          {prodC : BinProducts C}
+          (expC : Exponentials prodC).
+
+  Definition exp
+             (x y : C)
+    : C
+    := pr1 (expC x) y.
+
+  Definition exp_eval
+             (x y : C)
+    : prodC x (exp x y) --> y
+    := counit_from_are_adjoints (pr2 (expC x)) y.
+
+  Definition exp_eval_alt
+             (x y : C)
+    : prodC (exp x y) x --> y
+    := prod_swap prodC _ _ · exp_eval x y.
+
+  Definition exp_lam
+             {x y z : C}
+             (f : prodC y x --> z)
+    : x --> exp y z
+    := unit_from_are_adjoints (pr2 (expC y)) x · # (pr1 (expC y)) f.
+
+  Definition exp_lam_alt
+             {x y z : C}
+             (f : prodC z x --> y)
+    : z --> exp x y
+    := exp_lam (prod_swap prodC _ _ · f).
+
+  Proposition exp_beta
+              {x y z : C}
+              (f : prodC y x --> z)
+    : BinProductOfArrows _ _ _ (identity _) (exp_lam f)
+      · exp_eval _ _
+      =
+      f.
+  Proof.
+    unfold exp_lam.
+    rewrite <- BinProductOfArrows_idxcomp.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      exact (nat_trans_ax
+              (counit_from_are_adjoints (pr2 (expC y)))
+              _
+              _
+              f).
+    }
+    cbn.
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    apply (triangle_id_left_ad (pr2 (expC y))).
+  Qed.
+
+  Proposition exp_beta_alt
+              {x y z : C}
+              (f : prodC z x --> y)
+    : BinProductOfArrows _ _ _ (exp_lam_alt f) (identity x)
+      · exp_eval_alt x y
+      =
+      f.
+  Proof.
+    unfold exp_eval_alt.
+    rewrite !assoc.
+    rewrite BinProductOfArrows_swap.
+    unfold exp_lam_alt.
+    rewrite !assoc'.
+    rewrite exp_beta.
+    rewrite !assoc.
+    rewrite prod_swap_swap.
+    apply id_left.
+  Qed.
+
+  Proposition exp_eta
+              {x y z : C}
+              (f : z --> exp x y)
+    : f
+      =
+      exp_lam (BinProductOfArrows C _ _ (identity x) f · exp_eval x y).
+  Proof.
+    unfold exp_lam.
+    rewrite functor_comp.
+    rewrite !assoc.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (!(nat_trans_ax
+                 (unit_from_are_adjoints (pr2 (expC x)))
+                 _
+                 _
+                 f)).
+    }
+    refine (_ @ id_right _).
+    rewrite !assoc'.
+    apply maponpaths.
+    exact (triangle_id_right_ad (pr2 (expC x)) _).
+  Qed.
+
+  Proposition exp_eta_alt
+              {x y z : C}
+              (f : z --> exp x y)
+    : f
+      =
+      exp_lam_alt (BinProductOfArrows C _ _ f (identity x) · exp_eval_alt x y).
+  Proof.
+    refine (exp_eta _ @ _).
+    unfold exp_lam_alt.
+    apply maponpaths.
+    unfold exp_eval_alt.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite BinProductOfArrows_swap.
+    rewrite !assoc.
+    rewrite prod_swap_swap.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+End AccessorsExponentials.

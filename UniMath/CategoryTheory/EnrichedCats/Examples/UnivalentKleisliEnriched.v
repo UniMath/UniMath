@@ -36,15 +36,13 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Examples.EilenbergMooreEnrich
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.KleisliEnriched.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Opaque mon_linvunitor mon_rinvunitor mon_rassociator.
 
 Section EnrichedKleisli.
   Context {V : monoidal_cat}
@@ -1526,7 +1524,7 @@ Section EnrichedKleisli.
       : functor_to_kleisli_cat_enrichment_data x y
         · functor_to_kleisli_cat_enrichment_inv
         =
-        id _.
+        identity _.
     Proof.
       unfold functor_to_kleisli_cat_enrichment_inv.
       cbn.
@@ -1759,7 +1757,7 @@ Section EnrichedKleisli.
       : functor_to_kleisli_cat_enrichment_inv
         · functor_to_kleisli_cat_enrichment_data x y
         =
-        id _.
+        identity _.
     Proof.
       use (dialgebra_enrichment_mor_eq_of_mor
              V HV

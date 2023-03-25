@@ -9,6 +9,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
@@ -20,6 +21,11 @@ Require Import UniMath.CategoryTheory.DaggerCategories.FunctorCategory.
 
 Local Open Scope cat.
 
+Definition unitary_to_z_iso
+      {C : category} {dag : dagger C} {x y : C} (u : unitary dag x y)
+  : z_iso x y
+  := make_z_iso _ _ (pr2 u).
+
 Section WeakDaggerEquivalences.
 
   Definition is_unitarily_eso
@@ -28,6 +34,20 @@ Section WeakDaggerEquivalences.
              (dagF : is_dagger_functor dagC dagD F)
     : UU
     := ∏ d : D, ∃ c : C, unitary dagD (F c) d.
+
+  Definition is_unitarily_eso_is_eso
+             {C D : category} {dagC : dagger C} {dagD : dagger D}
+             {F : functor C D}
+             (dagF : is_dagger_functor dagC dagD F)
+    : is_unitarily_eso dagF -> essentially_surjective F.
+  Proof.
+    intros p d.
+    use (factor_through_squash_hProp _ _ (p d)).
+    clear p ; intro p.
+    apply hinhpr.
+    exists (pr1 p).
+    exact (unitary_to_z_iso (pr2 p)).
+  Qed.
 
   Lemma isaprop_is_unitarily_eso
         {C D : category} {dagC : dagger C} {dagD : dagger D}

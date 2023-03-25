@@ -190,7 +190,7 @@ Definition is_cartesian_disp_functor
   {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
 := ∏  (c c' : C) (f : c' --> c)
       (d : D c) (d' : D c') (ff : d' -->[f] d),
-   is_cartesian ff -> is_cartesian (#FF ff).
+   is_cartesian ff -> is_cartesian (♯ FF ff).
 
 Definition disp_functor_identity_is_cartesian_disp_functor
            {C : category}
@@ -639,7 +639,7 @@ Proof.
         intros x y f; cbn in *;
         apply funextsec; intro d;
         apply path_to_ctr;
-        apply #a;
+        apply ♯a;
         apply (pr2 (iscontrpr1 (unique_lift f _ )))
       ).
 Defined.
@@ -1083,7 +1083,7 @@ Definition is_opcartesian_disp_functor
         (d : D c)
         (d' : D c')
         (ff : d' -->[f] d),
-     is_opcartesian ff -> is_opcartesian (#FF ff).
+     is_opcartesian ff -> is_opcartesian (♯ FF ff).
 
 Definition disp_functor_identity_is_opcartesian_disp_functor
            {C : category}
@@ -1823,7 +1823,7 @@ Section CartesianFactorisationDispFunctor.
                (transportb
                   (λ z, _ -->[ z ] _)
                   (nat_trans_ax α _ _ f)
-                  (pr12 (HD₁ (G x) (F x) (α x) (GG x xx)) ;; #GG ff)%mor_disp)).
+                  (pr12 (HD₁ (G x) (F x) (α x) (GG x xx)) ;; ♯ GG ff))).
   Defined.
 
   Definition cartesian_factorisation_disp_functor_axioms
@@ -2019,7 +2019,7 @@ Section OpCartesianFactorisationDispFunctor.
                (transportf
                   (λ z, _ -->[ z ] _)
                   (nat_trans_ax α _ _ f)
-                  (#FF ff
+                  (♯ FF ff
                    ;;
                    mor_of_opcartesian_lift
                      _

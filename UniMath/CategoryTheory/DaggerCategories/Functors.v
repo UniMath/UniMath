@@ -81,4 +81,12 @@ Section DaggerFunctors.
     : is_dagger_functor dagC dagD F
     := pr2 F.
 
+  Definition make_dagger_functor
+    {C D : category}
+    {F : functor C D}
+    {dagC : dagger C} {dagD : dagger D}
+    (dagF : is_dagger_functor dagC dagD F)
+    : dagger_functor dagC dagD
+    := F ,, dagF.
+
 End DaggerFunctors.

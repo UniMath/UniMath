@@ -30,6 +30,12 @@ Section UnitaryMorphisms.
     : UU
     := ∑ f : C⟦x,y⟧, is_unitary dag f.
 
+  Definition unitary_to_mor
+             {C : category} {dag : dagger_structure C}
+             {x y : C} (u : unitary dag x y)
+    : C⟦x,y⟧ := pr1 u.
+  Coercion unitary_to_mor : unitary >-> precategory_morphisms.
+
   Lemma isaset_unitary
         {C : category} (dag : dagger_structure C) (x y : C)
     : isaset (unitary dag x y).
@@ -61,7 +67,7 @@ Section UnitaryMorphisms.
               | refine (id_right _ @ _) ; apply dagger_to_law_id ]).
   Defined.
 
-  Definition unitary_comp
+  Lemma is_unitary_comp
              {C : category} {dag : dagger C}
              {x y z : C}
              {f : C⟦x,y⟧} (ff : is_unitary dag f)
@@ -93,7 +99,15 @@ Section UnitaryMorphisms.
       apply gg.
   Qed.
 
-  Definition unitary_inv_is_unitary
+  Definition unitary_comp
+             {C : category} {dag : dagger C}
+             {x y z : C}
+             (f : unitary dag x y)
+             (g : unitary dag y z)
+    : unitary dag x z
+    := _ ,, is_unitary_comp (pr2 f) (pr2 g).
+
+  Lemma unitary_inv_is_unitary
              {C : category} {dag : dagger C}
              {x y : C} {f : C⟦x,y⟧}
              (ff : is_unitary dag f)
@@ -128,3 +142,37 @@ Section UnitaryMorphisms.
   Qed.
 
 End UnitaryMorphisms.
+
+Section EquationalReasoningLemmas.
+
+  Context {C : category} (dag : dagger C).
+
+  Lemma unitary_inv_to_left {a b c : C}
+        (f : C⟦ a, b ⟧) (g : C⟦b, c⟧) (h : C⟦ a, c ⟧)
+    : is_unitary dag f -> dag _ _ f · h = g → h = f · g.
+  Proof.
+    exact (λ u p, z_iso_inv_to_left _ _ _ (make_z_iso _ _ (_,,pr2 u)) _ _ p).
+  Qed.
+
+  Lemma unitary_inv_on_left {a b c : C}
+        (f : C⟦ a, b ⟧) (g : C⟦b, c⟧) (h : C⟦ a, c ⟧)
+    : is_unitary dag g -> h = f · g → f = h · dag _ _ g.
+  Proof.
+    exact (λ u p, z_iso_inv_on_left _ _ _ _ (make_z_iso _ _ (_,,pr2 u)) _ p).
+  Qed.
+
+  Lemma unitary_inv_on_right {a b c : C}
+        (f : C⟦ a, b ⟧) (g : C⟦b, c⟧) (h : C⟦ a, c ⟧)
+    : is_unitary dag f ->  h = f · g → dag _ _ f · h = g.
+  Proof.
+    exact (λ u p, z_iso_inv_on_right _ _ _ (make_z_iso _ _ (_,,pr2 u)) _ _ p).
+  Qed.
+
+  Lemma unitary_inv_to_right {a b c : C}
+        (f : C⟦ a, b ⟧) (g : C⟦b, c⟧) (h : C⟦ a, c ⟧)
+    : is_unitary dag g ->   f = h · dag _ _ g → f · g = h.
+  Proof.
+    exact (λ u p, z_iso_inv_to_right _ _ _ _ (make_z_iso _ _ (_,,pr2 u)) _ p).
+  Qed.
+
+End EquationalReasoningLemmas.

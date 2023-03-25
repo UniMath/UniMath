@@ -42,11 +42,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
-Opaque mon_lunitor mon_linvunitor.
-Opaque mon_runitor mon_rinvunitor.
-Opaque mon_lassociator mon_rassociator.
+Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -59,13 +57,13 @@ Definition enrichment_data
            (V : monoidal_cat)
   : UU
   := ∑ (arr : C → C → V),
-     (∏ (x : C), 𝟙 --> arr x x)
+     (∏ (x : C), I_{V} --> arr x x)
      ×
      (∏ (x y z : C), arr y z ⊗ arr x y --> arr x z)
      ×
-     (∏ (x y : C), x --> y → 𝟙 --> arr x y)
+     (∏ (x y : C), x --> y → I_{V} --> arr x y)
      ×
-     (∏ (x y : C), 𝟙 --> arr x y → x --> y).
+     (∏ (x y : C), I_{V} --> arr x y → x --> y).
 
 Definition arr_enrichment_data
            {C : precategory_data}
@@ -82,7 +80,7 @@ Definition enriched_id
            {V : monoidal_cat}
            (E : enrichment_data C V)
            (x : C)
-  : 𝟙 --> E ⦃ x , x ⦄
+  : I_{V} --> E ⦃ x , x ⦄
   := pr12 E x.
 
 Definition enriched_comp
@@ -99,7 +97,7 @@ Definition enriched_from_arr
            (E : enrichment_data C V)
            {x y : C}
            (f : x --> y)
-  : 𝟙 --> E ⦃ x , y ⦄
+  : I_{V} --> E ⦃ x , y ⦄
   := pr1 (pr222 E) x y f.
 
 Definition enriched_to_arr
@@ -107,7 +105,7 @@ Definition enriched_to_arr
            {V : monoidal_cat}
            (E : enrichment_data C V)
            {x y : C}
-           (f : 𝟙 --> E ⦃ x , y ⦄)
+           (f : I_{V} --> E ⦃ x , y ⦄)
   : x --> y
   := pr2 (pr222 E) x y f.
 
@@ -139,7 +137,7 @@ Definition enrichment_laws
       =
       f)
      ×
-     (∏ (x y : C) (f : 𝟙 --> E ⦃ x , y ⦄),
+     (∏ (x y : C) (f : I_{V} --> E ⦃ x , y ⦄),
       enriched_from_arr E (enriched_to_arr E f)
       =
       f)
@@ -154,7 +152,7 @@ Definition enrichment_laws
       =
       enriched_to_arr
         E
-        (mon_linvunitor 𝟙
+        (mon_linvunitor I_{V}
          · (enriched_from_arr E g #⊗ enriched_from_arr E f)
          · enriched_comp E x y z)).
 
@@ -249,7 +247,7 @@ Section EnrichmentLaws.
 
   Definition enriched_from_to_arr
              {x y : C}
-             (f : 𝟙 --> E ⦃ x , y ⦄)
+             (f : I_{V} --> E ⦃ x , y ⦄)
     : enriched_from_arr E (enriched_to_arr E f)
       =
       f.
@@ -286,7 +284,7 @@ Section EnrichmentLaws.
       =
       enriched_to_arr
         E
-        (mon_linvunitor 𝟙
+        (mon_linvunitor I_{V}
          · (enriched_from_arr E g #⊗ enriched_from_arr E f)
          · enriched_comp E x y z).
   Proof.
@@ -301,7 +299,7 @@ Section EnrichmentLaws.
         E
         (f · g)
       =
-      mon_linvunitor 𝟙
+      mon_linvunitor I_{V}
       · (enriched_from_arr E g #⊗ enriched_from_arr E f)
       · enriched_comp E x y z.
   Proof.
@@ -382,7 +380,7 @@ Definition enrichment_data_hom_path_help
       =
       enriched_from_arr E₂ f)
      ×
-     (∏ (x y : C) (f : 𝟙 --> E₁ ⦃ x , y ⦄),
+     (∏ (x y : C) (f : I_{V} --> E₁ ⦃ x , y ⦄),
       enriched_to_arr E₁ f
       =
       enriched_to_arr E₂ (f · fs x y)).
@@ -458,7 +456,7 @@ Definition faithful_moncat
   : UU
   := ∏ (x y : V)
        (f g : x --> y),
-     (∏ (a : 𝟙 --> x), a · f = a · g)
+     (∏ (a : I_{V} --> x), a · f = a · g)
      →
      f = g.
 
@@ -474,7 +472,7 @@ Definition precomp_arr
            (f : x --> y)
   : E ⦃ y , z ⦄ --> E ⦃ x , z ⦄
   := mon_rinvunitor _
-     · (id _ #⊗ enriched_from_arr E f)
+     · (identity _ #⊗ enriched_from_arr E f)
      · enriched_comp E x y z.
 
 Definition precomp_arr_id
@@ -675,7 +673,7 @@ Definition enriched_comp_precomp_arr
            (f : w --> x)
   : enriched_comp E x y z · precomp_arr E z f
     =
-    (id _ #⊗ precomp_arr E y f) · enriched_comp E w y z.
+    (identity _ #⊗ precomp_arr E y f) · enriched_comp E w y z.
 Proof.
   unfold precomp_arr.
   rewrite !assoc.
@@ -922,7 +920,7 @@ Definition enriched_comp_postcomp_arr
            (f : y --> z)
   : enriched_comp E w x y · postcomp_arr E w f
     =
-    (postcomp_arr E x f #⊗ id _) · enriched_comp E w x z.
+    (postcomp_arr E x f #⊗ identity _) · enriched_comp E w x z.
 Proof.
   unfold postcomp_arr.
   rewrite !assoc.
