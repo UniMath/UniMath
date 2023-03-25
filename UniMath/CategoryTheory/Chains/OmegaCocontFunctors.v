@@ -51,8 +51,6 @@ This file contains proofs that the following functors are (omega-)cocontinuous:
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 *)
 
-(** * TODO NOTE: This file depends on Coq.Init.Logic. *)
-Require Import Coq.Init.Logic.
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -1006,8 +1004,9 @@ destruct (natlthorgeh i j) as [h|h].
         apply cancel_postcomposition, maponpaths_12; try apply idpath.
         now rewrite <- (chain_mor_right h1 h2). }
       { destruct h; unfold fun_gt; simpl.
-        generalize h1; clear h1.
-        rewrite h2; intro h1.
+        destruct (!h2).
+        assert (eq: h2 = (idpath _)). { apply isasetnat. }
+        rewrite eq.
         apply cancel_postcomposition.
         apply maponpaths_12; try apply idpath; simpl.
         destruct (natlehchoice4 j j h1); [destruct (isirreflnatlth _ h)|].
