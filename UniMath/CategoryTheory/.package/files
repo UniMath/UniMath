@@ -335,7 +335,7 @@ EnrichedCats/Limits/EnrichedEqualizers.v
 EnrichedCats/Limits/EnrichedPowers.v
 
 EnrichedCats/Colimits/EnrichedInitial.v
-EnrichedCats/Colimits/EnrichedCoproducts.v
+EnrichedCats/Colimits/EnrichedBinaryCoproducts.v
 EnrichedCats/Colimits/EnrichedCoequalizers.v
 EnrichedCats/Colimits/EnrichedCopowers.v
 

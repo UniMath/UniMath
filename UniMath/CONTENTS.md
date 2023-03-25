@@ -459,7 +459,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Limits/EnrichedEqualizers.v](CategoryTheory/EnrichedCats/Limits/EnrichedEqualizers.v)
    - [EnrichedCats/Limits/EnrichedPowers.v](CategoryTheory/EnrichedCats/Limits/EnrichedPowers.v)
    - [EnrichedCats/Colimits/EnrichedInitial.v](CategoryTheory/EnrichedCats/Colimits/EnrichedInitial.v)
-   - [EnrichedCats/Colimits/EnrichedCoproducts.v](CategoryTheory/EnrichedCats/Colimits/EnrichedCoproducts.v)
+   - [EnrichedCats/Colimits/EnrichedBinaryCoproducts.v](CategoryTheory/EnrichedCats/Colimits/EnrichedBinaryCoproducts.v)
    - [EnrichedCats/Colimits/EnrichedCoequalizers.v](CategoryTheory/EnrichedCats/Colimits/EnrichedCoequalizers.v)
    - [EnrichedCats/Colimits/EnrichedCopowers.v](CategoryTheory/EnrichedCats/Colimits/EnrichedCopowers.v)
    - [EnrichedCats/Examples/SetEnriched.v](CategoryTheory/EnrichedCats/Examples/SetEnriched.v)
