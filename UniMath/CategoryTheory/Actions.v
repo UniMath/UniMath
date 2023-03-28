@@ -336,7 +336,7 @@ Proof.
   - intros funct.
     apply functor_eq; [apply homset_property|].
     use functor_data_eq.
-    + intros ?.
+    + intro.
       exact (!(pr2 iscontrunit _)).
     + intros c1 c2 ?.
       (** Compare to proof of [contr_cat_hom_weq] *)

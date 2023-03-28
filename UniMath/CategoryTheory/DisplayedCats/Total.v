@@ -337,9 +337,9 @@ Section Total_Functors.
              {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D' D)
     : functor_data (total_category D') (total_category D).
   Proof.
-    use tpair.
+    use make_functor_data.
     - intros xx. exists (F (pr1 xx)). exact (FF _ (pr2 xx)).
-    - intros xx yy ff. exists (# F (pr1 ff))%cat. exact (# FF (pr2 ff)).
+    - intros xx yy ff. exists (# F (pr1 ff))%cat. exact (♯ FF (pr2 ff)).
   Defined.
 
   Definition total_functor_axioms {C' C} {F}

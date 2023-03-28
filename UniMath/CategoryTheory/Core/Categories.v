@@ -164,6 +164,12 @@ Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
 Coercion homset_property (C : category) : has_homsets C := pr2 C.
 
+Definition homset
+           {C : category}
+           (x y : C)
+  : hSet
+  := x --> y ,, homset_property C x y.
+
 Definition makecategory
     (obj : UU)
     (mor : obj -> obj -> UU)
@@ -277,6 +283,13 @@ Lemma cancel_precomposition (C : precategory_data) (a b c: C)
 Proof.
   apply maponpaths.
 Defined.
+
+Lemma maponpaths_compose
+      {C : category} {x y z : C} (f1 f2 : C⟦x,y⟧) (g1 g2 : C⟦y,z⟧)
+  : f1 = f2 -> g1 = g2 -> f1 · g1 = f2 · g2.
+Proof.
+  exact (λ p q, maponpaths_12 compose p q).
+Qed.
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 

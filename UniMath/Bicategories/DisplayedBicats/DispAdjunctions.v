@@ -527,8 +527,8 @@ Proof.
   exists (left_adjoint_data_total_to_disp ff).
   use isweq_iso.
   - exact (left_adjoint_data_disp_to_total ff).
-  - intros ?. reflexivity.
-  - intros ?. reflexivity.
+  - intro. reflexivity.
+  - intro. reflexivity.
 Defined.
 
 (** The equivalence for adjunction laws *)
@@ -622,7 +622,7 @@ Proof.
   - apply isofhleveltotal2; try intro; apply cellset_property.
   - apply isofhleveltotal2.
     { apply isofhleveltotal2; try intro; apply cellset_property. }
-    intros ?.
+    intro.
     apply isofhleveltotal2; try intro; apply disp_cellset_property.
 Defined.
 
@@ -726,7 +726,7 @@ Proof.
   - apply isapropdirprod; apply isaprop_is_invertible_2cell.
   - apply isofhleveltotal2.
     { apply isapropdirprod; apply isaprop_is_invertible_2cell. }
-    intros ?.
+    intro.
     apply isapropdirprod; apply isaprop_is_disp_invertible_2cell.
 Defined.
 

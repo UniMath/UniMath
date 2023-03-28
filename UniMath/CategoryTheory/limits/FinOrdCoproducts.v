@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
+Local Open Scope stn.
 
 (** Definition of finite ordered coproducts. *)
 Section def_FinOrdCoproducts.
@@ -40,13 +41,13 @@ Section FinOrdCoproduct_criteria.
     intros a.
     use (make_Coproduct _ _ _ I
                             (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (make_isCoproduct _ _ C).
-    intros c g. use unique_exists.
-
-    apply (InitialArrow I c).
-    intros i. apply (fromempty (weqstn0toempty i)).
-    intros y. apply impred_isaprop. intros t. apply C.
-    intros y X. apply InitialArrowUnique.
+    intros c g.
+    use unique_exists.
+    - apply (InitialArrow I c).
+    - intros i. apply (fromempty (weqstn0toempty i)).
+    - intro; apply impred_isaprop.
+      intro; apply homset_property.
+    - intros. apply InitialArrowUnique.
   Defined.
 
   (** Case n = 1 of the theorem. *)
@@ -73,135 +74,66 @@ Section FinOrdCoproduct_criteria.
     intros y X. rewrite <- (X stn1ob). apply pathsinv0. apply id_left.
   Defined.
 
+  Local Definition coproducts_stn_unit {n : nat}
+    (Ncoprods : Coproducts (⟦ n ⟧) C)
+    (BinCoprods : BinCoproducts C)
+    : Coproducts (⟦ n ⟧ ⨿ unit) C.
+  Proof.
+    intro t.
+    set (N := Ncoprods (t ∘ inl)%functions).
+    set (E := t (inr tt)).
+    set (B := BinCoprods (CoproductObject _ _ N) E).
+    use make_Coproduct.
+    - exact(BinCoproductObject B).
+    - apply coprod_rect.
+      + exact(λ k : ⟦ n ⟧, CoproductIn _ C N k · BinCoproductIn1 B).
+      + exact(unit_rect _ (BinCoproductIn2 B)).
+    - intros Q q.
+      use unique_exists.
+      + apply BinCoproductArrow.
+        * apply CoproductArrow.
+          exact(q ∘ inl)%functions.
+        * exact(q (inr tt)).
+      + use coprod_rect.
+        * intros k.
+          etrans. { apply assoc'. }
+          etrans.
+          {
+            apply maponpaths.
+            apply BinCoproductIn1Commutes.
+          }
+          use CoproductInCommutes.
+        * apply unit_rect.
+          apply BinCoproductIn2Commutes.
+      + abstract(intros; apply impred_isaprop; intro; apply homset_property).
+      + intros f fcommutes.
+        apply BinCoproductArrowUnique.
+        * apply CoproductArrowUnique; intro k.
+          etrans. { apply assoc. }
+          exact(fcommutes (inl k)).
+        * exact(fcommutes (inr tt)).
+  Defined.
+
+  Local Definition coproducts_stn_Sn
+    (n : nat)
+    (stncoprods : Coproducts (⟦ n ⟧ ⨿ unit) C)
+    : Coproducts (⟦ S n ⟧) C.
+  Proof.
+    set(w := (weqdnicoprod n lastelement)).
+    set(q := invmap (univalence _ _) w).
+    exact(transportf (fun X : UU => Coproducts X C) q stncoprods).
+  Defined.
+
   (** Finite ordered coproducts from initial and binary coproducts. *)
   Theorem FinOrdCoproducts_from_Initial_and_BinCoproducts :
     Initial C -> BinCoproducts C -> FinOrdCoproducts C.
   Proof.
-    intros I BinCoprods. unfold FinOrdCoproducts. intros n. induction n as [|n IHn].
+    intros I BinCoprods n.
+    induction n as [|n IHn].
 
-    (* Case n = 0 *)
-    apply (InitialToCoproduct I).
-
-    (* General case. *)
-    intros a.
-    set (a1 := λ (i : stn n), a (dni_lastelement i)).
-    set (Cone1 := IHn a1).
-    set (a2 := (λ _ : stn 1, a lastelement)).
-    set (Cone2 := ObjectToCoproduct a2). (* Case n = 1 *)
-    set (Cone1In := CoproductIn _ _ Cone1).
-    set (Cone2In := CoproductIn _ _ Cone2).
-    set (BinCone := BinCoprods (CoproductObject (stn n) C Cone1)
-                               (CoproductObject (stn 1) C Cone2)).
-    set (in1 := BinCoproductIn1 BinCone).
-    set (in2 := BinCoproductIn2 BinCone).
-    set (m1 := λ i1 : stn n, (Cone1In i1) · in1).
-    set (m2 := λ i2 : stn 1, (Cone2In i2) · in2).
-
-    use (make_Coproduct (stn (S n)) C a (BinCoproductObject BinCone) _).
-
-    (* Construction of the arrows from a i to BinCone *)
-    intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
-    exact (idtoiso (maponpaths a (dni_lastelement_eq n i a0))
-                   · m1 (make_stn n (pr1 i) a0)).
-    exact (idtoiso (maponpaths a (lastelement_eq n i b))
-                   ·  m2 (invweq(weqstn1tounit) tt)).
-
-    (* Construction of isCoproduct. *)
-    use (make_isCoproduct _ _ C).
-
-    intros c g.
-    set (g1 := λ i : stn n, g(dni_lastelement i)).
-    set (ar1 := CoproductArrow _ _ Cone1 g1).
-    set (com1 := BinCoproductIn1Commutes  _ _ _ BinCone c ar1
-                                          (g lastelement)).
-    set (com2 := BinCoproductIn2Commutes _ _ _ BinCone c ar1
-                                         (g lastelement)).
-    set (com3 := CoproductInCommutes _ _ _ Cone1 _ g1).
-    set (com4 := CoproductInCommutes _ _ _ Cone2 _
-                                     (λ _ : stn 1, g lastelement)).
-
-    use (unique_exists).
-
-    (* Construction of the unique arrow from BinCone to c. *)
-    use (BinCoproductArrow BinCone).
-    use (CoproductArrow _ _ Cone1). intros i. exact (g (dni_lastelement i)).
-    use (CoproductArrow _ _ Cone2). intros i. exact (g lastelement).
-
-    (* First commutativity. *)
-    intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)) as [a0|b].
-    rewrite (dni_lastelement_eq n i a0). repeat rewrite <- assoc.
-    apply remove_id_left. apply idpath.
-
-    unfold m1. unfold in1. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (λ f : _, Cone1In (make_stn n (pr1 i) a0) · f)
-                                com1)).
-    fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
-
-
-    (* Second commutativity. *)
-    rewrite (lastelement_eq n i b). repeat rewrite <- assoc.
-    apply remove_id_left. apply idpath.
-
-    unfold m2. unfold in2. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (λ f : _, Cone2In lastelement · f) com2)).
-    rewrite com4. apply idpath.
-
-
-    (* Equality on equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply C.
-
-    (* Uniqueness *)
-    unfold coprod_rect. intros k X.
-    apply BinCoproductArrowUnique.
-
-
-    (* From stn n *)
-    apply CoproductArrowUnique.
-    intros i. rewrite <- (X (dni_lastelement i)). rewrite assoc.
-    apply cancel_postcomposition.
-    induction (natlehchoice4 (pr1 (dni_lastelement i)) n
-                             (pr2 (dni_lastelement i))) as [a0|b].
-    unfold m1. rewrite assoc. unfold in1.
-    apply cancel_postcomposition.
-    unfold Cone1In. apply pathsinv0.
-
-    set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
-                                                         a0)).
-    use (pathscomp0 _ (CoproductIn_idtoiso (stn n) C (a ∘ dni_lastelement)%functions Cone1
-                                           e)).
-    apply cancel_postcomposition.
-    apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
-    rewrite <- (maponpathscomp _ a).
-    apply maponpaths. apply isasetstn.
-
-    (* This is false because of b *)
-    apply fromempty. induction i as [i i'].
-    cbn in b. induction (!b).
-    apply (isirreflnatlth _ i').
-
-
-    (* From stn 1 *)
-    apply CoproductArrowUnique.
-    intros i. rewrite <- (X lastelement). rewrite assoc.
-    apply cancel_postcomposition.
-    induction (natlehchoice4 (pr1 lastelement) n (pr2 lastelement)) as [a0|b].
-
-    (* This case is false because of a0 *)
-    apply fromempty. cbn in a0. apply (isirreflnatlth _ a0).
-
-    apply pathsinv0. unfold m2. rewrite assoc. unfold in2.
-    apply cancel_postcomposition. unfold Cone2In.
-
-    (* This case makes sense *)
-    set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
-    use (pathscomp0 _ (CoproductIn_idtoiso (stn 1) C
-                                           (λ _ : _, a lastelement)
-                                           Cone2 e)).
-    apply cancel_postcomposition.
-    apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
-    fold (@funcomp (stn 1) _ _ (λ _ : stn 1, lastelement) a).
-    rewrite <- (maponpathscomp (λ _ : stn 1, lastelement) a).
-    apply maponpaths. apply isasetstn.
+    - exact(InitialToCoproduct I). (* Case n = 0 *)
+    - apply coproducts_stn_Sn.
+      exact(coproducts_stn_unit IHn BinCoprods).
   Defined.
 
 End FinOrdCoproduct_criteria.

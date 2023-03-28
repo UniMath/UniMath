@@ -54,17 +54,18 @@ Section Disp_Functor.
     := pr2 FF x y xx yy f ff.
 
   Local Open Scope mor_disp_scope.
-  Notation "# F" := (disp_functor_on_morphisms F)
+  (* To input ♯ using agda-mode type \# or \sharp *)
+  Notation "♯ F" := (disp_functor_on_morphisms F)
                       (at level 3) : mor_disp_scope.
 
   Definition disp_functor_axioms {C' C : category} {F : functor C' C}
              {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor_data F D' D)
     :=  (∏ x (xx : D' x),
-          # FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx)))
+          ♯ FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx)))
           × (∏ x y z (xx : D' x) yy zz (f : x --> y) (g : y --> z)
                (ff : xx -->[f] yy) (gg : yy -->[g] zz),
-              # FF (ff ;; gg)
-              = transportb _ (functor_comp F f g) (# FF ff ;; # FF gg)).
+              ♯ FF (ff ;; gg)
+              = transportb _ (functor_comp F f g) (♯ FF ff ;; ♯ FF gg)).
 
   Lemma isaprop_disp_functor_axioms {C' C : category} {F : functor C' C}
         {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor_data F D' D)
@@ -91,15 +92,15 @@ Section Disp_Functor.
   Definition disp_functor_id {C' C} {F} {D' : disp_cat C'} {D : disp_cat C}
              (FF : disp_functor F D' D)
              {x} (xx : D' x)
-    : # FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx))
+    : ♯ FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx))
     := pr1 (pr2 FF) x xx.
 
   Definition disp_functor_comp {C' C} {F} {D' : disp_cat C'} {D : disp_cat C}
              (FF : disp_functor F D' D)
              {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
              (ff : xx -->[f] yy) (gg : yy -->[g] zz)
-    : # FF (ff ;; gg)
-      = transportb _ (functor_comp F f g) (# FF ff ;; # FF gg)
+    : ♯ FF (ff ;; gg)
+      = transportb _ (functor_comp F f g) (♯ FF ff ;; ♯ FF gg)
     := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
 
   (** variant access function *)
@@ -107,8 +108,8 @@ Section Disp_Functor.
              (FF : disp_functor F D' D)
              {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
              (ff : xx -->[f] yy) (gg : yy -->[g] zz)
-    : transportf _ (functor_comp F f g) (# FF (ff ;; gg))
-      = # FF ff ;; # FF gg.
+    : transportf _ (functor_comp F f g) (♯ FF (ff ;; gg))
+      = ♯ FF ff ;; ♯ FF gg.
   Proof.
     apply transportf_pathsinv0.
     apply pathsinv0, disp_functor_comp.
@@ -122,9 +123,9 @@ Section Disp_Functor.
         (xx' : D' x') (xx : D' x)
         (ff : xx' -->[ f' ] xx)
     :
-    # FF (transportf _ p ff)
+    ♯ FF (transportf _ p ff)
     =
-      transportf _ (maponpaths (#F)%cat p) (#FF ff) .
+      transportf _ (maponpaths (# F) p) (♯FF ff).
   Proof.
     induction p.
     apply idpath.
@@ -141,7 +142,7 @@ Section Disp_Functor.
   Proof.
     use tpair.
     + intros x xx. exact (FF' _ (FF _ xx)).
-    + intros x y xx yy f ff. exact (# FF' (# FF ff)).
+    + intros x y xx yy f ff. exact (♯ FF' (♯ FF ff)).
   Defined.
 
   Lemma disp_functor_composite_axioms
@@ -205,8 +206,8 @@ Section Disp_Functor.
           (ff : xx -->[f] yy)
           (Hff : is_z_iso_disp f ff)
       : transportf _ (functor_on_inv_from_z_iso F f)
-                   (# FF (inv_mor_disp_from_z_iso Hff))
-        ;; # FF ff
+                   (♯ FF (inv_mor_disp_from_z_iso Hff))
+        ;; ♯ FF ff
         = transportb _ (z_iso_after_z_iso_inv _) (id_disp _).
     Proof.
       etrans. apply mor_disp_transportf_postwhisker.
@@ -226,9 +227,9 @@ Section Disp_Functor.
           {x y} {xx : D x} {yy} {f : z_iso x y}
           (ff : xx -->[f] yy)
           (Hff : is_z_iso_disp f ff)
-      : # FF ff
+      : ♯ FF ff
         ;; transportf _ (functor_on_inv_from_z_iso F f)
-                      (# FF (inv_mor_disp_from_z_iso Hff))
+                      (♯ FF (inv_mor_disp_from_z_iso Hff))
         =
           transportb _ (z_iso_inv_after_z_iso (functor_on_z_iso _ _)) (id_disp (FF x xx)).
     Proof.
@@ -251,10 +252,10 @@ Section Disp_Functor.
                (FF : disp_functor F D D')
                {x y} {xx : D x} {yy} {f : z_iso x y}
                {ff : xx -->[f] yy} (Hff : is_z_iso_disp f ff)
-      : is_z_iso_disp (functor_on_z_iso F f) (# FF ff).
+      : is_z_iso_disp (functor_on_z_iso F f) (♯ FF ff).
     Proof.
       exists (transportf _ (functor_on_inv_from_z_iso F f)
-                    (# FF (inv_mor_disp_from_z_iso Hff))); split.
+                    (♯ FF (inv_mor_disp_from_z_iso Hff))); split.
       - apply disp_functor_on_z_iso_disp_aux1.
       - apply disp_functor_on_z_iso_disp_aux2.
     Defined.
@@ -278,7 +279,7 @@ Section Disp_Functor.
                {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D')
       :=
       ∏ x y (xx : D x) (yy : D y) (f : x --> y),
-        isweq (fun ff : xx -->[f] yy => # FF ff).
+        isweq (fun ff : xx -->[f] yy => ♯ FF ff).
 
     Section ff_reflects_isos.
 
@@ -298,8 +299,8 @@ Section Disp_Functor.
       (* TODO: add a general version [disp_functor_ff_inv_transportf], where the transportf on the LHS is arbitrary. *)
       Lemma disp_functor_ff_inv_transportf
             {x y : C} {f f' : x --> y} (e : f = f')
-            {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
-        : disp_functor_ff_inv (transportf _ (maponpaths (# F )%cat e) ff)
+            {xx : D x} {yy : D y} (ff : FF _ xx -->[#F f] FF _ yy)
+        : disp_functor_ff_inv (transportf _ (maponpaths (# F) e) ff)
           =
             transportf _ e (disp_functor_ff_inv ff).
       Proof.
@@ -320,7 +321,7 @@ Section Disp_Functor.
       (* TODO: move the transport to the RHS. *)
       Lemma disp_functor_ff_inv_compose {x y z : C} {f : x --> y} {g : y --> z}
             {xx} {yy} {zz}
-            (ff : FF _ xx -->[(#F)%cat f] FF _ yy) (gg : FF _ yy -->[(#F)%cat g] FF _ zz)
+            (ff : FF _ xx -->[#F f] FF _ yy) (gg : FF _ yy -->[#F g] FF _ zz)
         : disp_functor_ff_inv (transportb _ (functor_comp F _ _ ) (ff ;; gg))
           = disp_functor_ff_inv ff ;; disp_functor_ff_inv gg.
       Proof.
@@ -334,7 +335,7 @@ Section Disp_Functor.
 
       Definition disp_functor_ff_reflects_isos
                  {x y} {xx : D x} {yy : D y} {f : z_iso x y}
-                 (ff : xx -->[f] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (# FF ff))
+                 (ff : xx -->[f] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (♯ FF ff))
         : is_z_iso_disp _ ff.
       Proof.
         set (FFffinv := inv_mor_disp_from_z_iso isiso).
@@ -381,8 +382,12 @@ End Disp_Functor.
 
 (* Redeclare notations globally: *)
 
-Notation "# F" := (disp_functor_on_morphisms F)
+Local Open Scope mor_disp_scope.
+Notation "♯ F" := (disp_functor_on_morphisms F)
                     (at level 3) : mor_disp_scope.
+
+#[deprecated(note="Use '♯' (input: \# or \sharp) instead.")]
+Notation "# F" := ♯ F (only parsing) : mor_disp_scope.
 
 (** Operations on displayed functors/transformations over the identity *)
 Section CompDispFunctorOverIdentity.
@@ -396,7 +401,7 @@ Section CompDispFunctorOverIdentity.
   Proof.
     simple refine (_ ,, _).
     - exact (λ x xx, GG x (FF x xx)).
-    - exact (λ x y xx yy f ff, (#GG (#FF ff))%mor_disp).
+    - exact (λ x y xx yy f ff, (♯GG (♯FF ff))).
   Defined.
 
   Definition disp_functor_over_id_composite_axioms
@@ -414,7 +419,7 @@ Section CompDispFunctorOverIdentity.
         exact (disp_functor_comp FF ff gg).
       }
       cbn.
-      exact (disp_functor_comp GG (#FF ff) (#FF gg)).
+      exact (disp_functor_comp GG (♯ FF ff) (♯ FF gg)).
   Qed.
 
   Definition disp_functor_over_id_composite

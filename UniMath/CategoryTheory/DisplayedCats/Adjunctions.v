@@ -53,11 +53,11 @@ Section DispHomSetIso_from_Adjunction.
 
   Definition homset_conj_inv {c : C} {c' : C'} (g : C⟦c, G c'⟧) (d : D c) (d' : D' c') :
       (d -->[g] GG _ d') -> (FF _ d -->[#F g ·  ε _] d') :=
-    λ alpha, comp_disp (# FF alpha) (εε _ _).
+    λ alpha, comp_disp (♯ FF alpha) (εε _ _).
 
   Definition homset_conj' {c : C} {c' : C'} (f : C'⟦F c, c'⟧) (d : D c) (d' : D' c') :
      (FF _ d -->[f] d') -> (d -->[η _ · #G f] GG _ d') :=
-    λ beta, comp_disp (ηη _ _) (# GG beta).
+    λ beta, comp_disp (ηη _ _) (♯ GG beta).
 
   Definition homset_conj'_inv {c : C} {c' : C'} (f : C'⟦F c, c'⟧) (d : D c) (d' : D' c') :
     (d -->[η _ · #G f] GG _ d') -> (FF _ d -->[f] d').
@@ -83,7 +83,7 @@ Section DispHomSetIso_from_Adjunction.
       {f : C⟦c'', c⟧} {d : D c} {d' : D' c'} {d'' : D c''}
       (gg : d -->[g] GG _ d') (ff : d'' -->[f] d) :
     homset_conj_inv _ _ _ (ff ;; gg)  =
-    transportb _ (φ_adj_inv_natural_precomp A _ _ g _ f) (# FF ff ;; homset_conj_inv _ _ _ gg).
+    transportb _ (φ_adj_inv_natural_precomp A _ _ g _ f) (♯ FF ff ;; homset_conj_inv _ _ _ gg).
   Proof.
     unfold homset_conj_inv.
     rewrite disp_functor_comp.
@@ -97,7 +97,7 @@ Section DispHomSetIso_from_Adjunction.
     Lemma homset_conj_inv_natural_postcomp {c : C} {c' : C'} {g : C⟦c, G c'⟧} {c'' : C'}
       {f : C'⟦c', c''⟧} {d : D c} {d' : D' c'} {d'' : D' c''}
       (gg : d -->[g] GG _ d') (ff : d' -->[f] d'') :
-    homset_conj_inv _ _ _ (gg ;; # GG ff)  =
+    homset_conj_inv _ _ _ (gg ;; ♯ GG ff)  =
     transportb _ (φ_adj_inv_natural_postcomp A _ _ g _ f) (homset_conj_inv _ _ _ gg ;; ff).
   Proof.
     unfold homset_conj_inv.
@@ -117,7 +117,7 @@ Section DispHomSetIso_from_Adjunction.
   Lemma homset_conj'_natural_precomp {c : C} {c' : C'} {f : C'⟦F c, c'⟧} {c'' : C}
         {k : C⟦c'', c⟧} {d : D c} {d' : D' c'} {d'' : D c''}
         (ff : FF _ d -->[f] d') (kk : d'' -->[k] d) :
-    homset_conj' _ _ _ (# FF kk ;; ff) =
+    homset_conj' _ _ _ (♯ FF kk ;; ff) =
     transportb _ (φ_adj_natural_precomp A _ _ f _ k) (kk ;; homset_conj' _ _ _ ff).
   Proof.
     unfold homset_conj'.
@@ -138,7 +138,7 @@ Section DispHomSetIso_from_Adjunction.
         {k : C'⟦c', c''⟧} {d : D c} {d' : D' c'} {d'' : D' c''}
         (ff : FF _ d -->[f] d') (kk : d' -->[k] d'') :
     homset_conj' _ _ _ (ff ;; kk) =
-    transportb _ (φ_adj_natural_postcomp A _ _ f _ k) (homset_conj' _ _ _ ff ;; # GG kk).
+      transportb _ (φ_adj_natural_postcomp A _ _ f _ k) (homset_conj' _ _ _ ff ;; ♯ GG kk).
   Proof.
     unfold homset_conj'.
     rewrite disp_functor_comp.
@@ -162,7 +162,7 @@ Section DispHomSetIso_from_Adjunction.
     cbn.
     rewrite transport_f_b.
     (* Note : there should probably be an accessor function for this *)
-    assert (triangle1 : # FF (ηη c d);; εε (F c) (FF c d) =
+    assert (triangle1 : ♯ FF (ηη c d);; εε (F c) (FF c d) =
                         transportb _ (triangle_id_left_ad A c ) (id_disp _))
       by (exact ((pr1 (pr2 X)) c d)).
     cbn in triangle1.
@@ -188,7 +188,7 @@ Section DispHomSetIso_from_Adjunction.
     unfold homset_conj'.
     cbn.
     rewrite transport_f_b.
-    assert (triangle2 : (ηη (G c') (GG c' d');; # GG (εε c' d')) =
+    assert (triangle2 : (ηη (G c') (GG c' d');; ♯ GG (εε c' d')) =
        transportb _ (triangle_id_right_ad A c') (id_disp _)) by (exact (pr2 (pr2 X) c' d')).
     cbn in triangle2.
     rewrite triangle2.
@@ -284,12 +284,12 @@ Proof.
       rewrite <- p.
       rewrite eq2.
       rewrite transport_f_b.
-      intermediate_path (transportf _ (idpath _ ) (# FF gg;; εε c' d';; ff)).
+      intermediate_path (transportf _ (idpath _ ) (♯ FF gg;; εε c' d';; ff)).
       * apply idpath.
       * apply maponpaths_2, homset_property.
     + intro p.
       set (equiv1 := homset_conj'_after_conj_inv _ h).
-      set (equiv2 := homset_conj'_after_conj_inv _ (gg;; # GG ff)).
+      set (equiv2 := homset_conj'_after_conj_inv _ (gg;; ♯ GG ff)).
       unfold homset_conj' in equiv1, equiv2.
       rewrite <- equiv1.
       rewrite <- equiv2.

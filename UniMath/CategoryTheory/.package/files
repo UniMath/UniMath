@@ -11,6 +11,7 @@ Core/Prelude.v
 
 FunctorCategory.v
 whiskering.v
+BicatOfCatsElementary.v
 
 DisplayedCats/Core.v
 DisplayedCats/Isos.v
@@ -98,7 +99,6 @@ CommaCategories.v
 NNO.v
 Subcategory/Limits.v
 EpiFacts.v
-exponentials.v
 categories/Type/Core.v
 categories/Type/MonoEpiIso.v
 SimplicialSets.v
@@ -118,11 +118,12 @@ HorizontalComposition.v
 PointedFunctorsComposition.v
 ArrowCategory.v
 RightKanExtension.v
-slicecat.v
 coslicecat.v
-limits/pullbacks_slice_products_equiv.v
 catiso.v
 CategoryEquality.v
+exponentials.v
+slicecat.v
+limits/pullbacks_slice_products_equiv.v
 Additive.v
 Abelian.v
 category_binops.v
@@ -142,6 +143,8 @@ PseudoElements.v
 FiveLemma.v
 LatticeObject.v
 Actions.v
+PowerObject.v
+ElementaryTopos.v
 Monads/KTriples.v
 Monads/Kleisli.v
 Monads/KTriplesEquiv.v
@@ -195,6 +198,7 @@ YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
 
 Connected.v
+LeftKanExtension.v
 
 categories/CartesianCubicalSets.v
 
@@ -229,6 +233,8 @@ DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
+DisplayedCats/Examples/CategoryOfPosets.v
+DisplayedCats/Examples/StructureWithProd.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
@@ -247,25 +253,61 @@ Core.v
 
 categories/Universal_Algebra/Algebras.v
 categories/Universal_Algebra/EqAlgebras.v
+categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
-Monoidal/MonoidalCategoriesWhiskered.v
-Monoidal/Actegories.v
-Monoidal/CartesianMonoidalCategoriesWhiskered.v
-Monoidal/MonoidalFunctorsWhiskered.v
-Monoidal/WhiskeredDisplayedBifunctors.v
-Monoidal/DisplayedMonoidalWhiskered.v
-Monoidal/DisplayedCartesianMonoidalCategoriesWhiskered.v
-Monoidal/TotalDisplayedMonoidalWhiskered.v
+Monoidal/Categories.v
+Monoidal/StrongMonad.v
+
+Monoidal/Structure/Symmetric.v
+Monoidal/Structure/Closed.v
+Monoidal/Structure/Cartesian.v
+
+Monoidal/Functors.v
+Monoidal/CategoriesOfMonoids.v
+
+Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
+Monoidal/Displayed/Monoidal.v
+Monoidal/Displayed/TotalMonoidal.v
+Monoidal/Displayed/MonoidalSections.v
+
+Monoidal/Examples/SetCartesianMonoidal.v
+Monoidal/Examples/CartesianMonoidal.v
+Monoidal/Examples/DisplayedCartesianMonoidal.v
+Monoidal/Examples/PosetsMonoidal.v
+Monoidal/Examples/StructuresMonoidal.v
+Monoidal/Examples/EndofunctorsMonoidalElementary.v
+Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/MonoidalPointedObjects.v
-Monoidal/ConstructionOfActegories.v
-Monoidal/MorphismsOfActegories.v
-Monoidal/ActionBasedStrongMonads.v
-Monoidal/MonoidalSectionsWhiskered.v
-Monoidal/BraidedMonoidalCategoriesWhiskered.v
-Monoidal/ClosedMonoidalCategoriesWhiskered.v
-Monoidal/MonoidalCategoriesReordered.v
-Monoidal/MonoidalDialgebras.v
+Monoidal/Examples/MonoidalDialgebras.v
+Monoidal/Examples/PointedSetCartesianMonoidal.v
+Monoidal/Examples/BinopCartesianMonoidal.v
+Monoidal/Examples/SetWithSubset.v
+
+Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
+Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
+Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
+Monoidal/AlternativeDefinitions/MonoidalCategoriesCurried.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorsTensored.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorsCurried.v
+Monoidal/AlternativeDefinitions/AugmentedSimplexCategory.v
+Monoidal/AlternativeDefinitions/DisplayedMonoidalTensored.v
+Monoidal/AlternativeDefinitions/DisplayedMonoidalCurried.v
+Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v
+Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v
+Monoidal/AlternativeDefinitions/TotalDisplayedMonoidalCurried.v
+Monoidal/AlternativeDefinitions/MonoidalFunctorCategory.v
+
+Actegories/Actegories.v
+Actegories/ConstructionOfActegories.v
+Actegories/MorphismsOfActegories.v
+Actegories/ProductActegory.v
+Actegories/ProductsInActegories.v
+Actegories/CoproductsInActegories.v
+Actegories/Examples/ActionOfEndomorphismsInCATElementary.v
+Actegories/Examples/SelfActionInCATElementary.v
+Actegories/ConstructionOfActegoryMorphisms.v
+Actegories/ActionBasedStrongMonads.v
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
@@ -273,31 +315,55 @@ DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
 DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
 DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 
-Monoidal/MonoidalCategories.v
-Monoidal/EquivalenceWhiskeredNonCurriedMonoidalCategories.v
-Monoidal/MonoidalCategoriesCurried.v
-Monoidal/MonoidalFunctors.v
-Monoidal/MonoidalFunctorsCurried.v
-Monoidal/AugmentedSimplexCategory.v
-Monoidal/DisplayedMonoidal.v
-Monoidal/DisplayedMonoidalCurried.v
-Monoidal/CategoriesOfMonoids.v
-Monoidal/BraidedMonoidalCategories.v
-Monoidal/TotalDisplayedMonoidalCurried.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
-Monoidal/Examples/SetCartesianMonoidal.v
-Monoidal/Examples/PointedSetCartesianMonoidal.v
-Monoidal/Examples/BinopCartesianMonoidal.v
-Monoidal/Examples/SetWithSubset.v
+EnrichedCats/Enrichment.v
+EnrichedCats/EnrichmentFunctor.v
+EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/EnrichmentMonad.v
 
-Enriched/Enriched.v
-Enriched/ChangeOfBase.v
-Enriched/Opposite.v
-Enriched/Enrichment.v
-Enriched/UnderlyingCategory.v
-Enriched/EnrichmentEquiv.v
+EnrichedCats/Enriched/Enriched.v
+EnrichedCats/Enriched/ChangeOfBase.v
+EnrichedCats/Enriched/Opposite.v
+EnrichedCats/Enriched/UnderlyingCategory.v
+EnrichedCats/Enriched/EnrichmentEquiv.v
+
+EnrichedCats/Limits/EnrichedTerminal.v
+EnrichedCats/Limits/EnrichedBinaryProducts.v
+EnrichedCats/Limits/EnrichedEqualizers.v
+EnrichedCats/Limits/EnrichedPowers.v
+
+EnrichedCats/Colimits/EnrichedInitial.v
+EnrichedCats/Colimits/EnrichedBinaryCoproducts.v
+EnrichedCats/Colimits/EnrichedCoequalizers.v
+EnrichedCats/Colimits/EnrichedCopowers.v
+
+EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/SelfEnriched.v
+EnrichedCats/Examples/PosetEnriched.v
+EnrichedCats/Examples/StructureEnriched.v
+EnrichedCats/Examples/HomFunctor.v
+EnrichedCats/Examples/FunctorCategory.v
+
+EnrichedCats/Examples/OppositeEnriched.v
+EnrichedCats/Examples/EmptyEnriched.v
+EnrichedCats/Examples/UnitEnriched.v
+EnrichedCats/Examples/FullSubEnriched.v
+EnrichedCats/Examples/ImageEnriched.v
+EnrichedCats/Examples/DialgebraEnriched.v
+EnrichedCats/Examples/SliceEnriched.v
+EnrichedCats/Examples/EilenbergMooreEnriched.v
+EnrichedCats/Examples/ProductEnriched.v
+
+EnrichedCats/Examples/ChangeOfBase.v
+
+EnrichedCats/Examples/KleisliEnriched.v
+EnrichedCats/Examples/UnivalentKleisliEnriched.v
+
+EnrichedCats/Limits/Examples/PosetEnrichedLimits.v
+EnrichedCats/Limits/Examples/SelfEnrichedLimits.v
+EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v
 
 GrothendieckConstruction/TotalCategory.v
 GrothendieckConstruction/IsosInTotal.v
@@ -341,7 +407,6 @@ RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
 
 # Monoidal Rezk Completion
-Monoidal/MonoidalFunctorCategory.v
 Monoidal/RezkCompletion/LiftedTensor.v
 Monoidal/RezkCompletion/LiftedTensorUnit.v
 Monoidal/RezkCompletion/LiftedUnitors.v
@@ -349,5 +414,23 @@ Monoidal/RezkCompletion/LiftedAssociator.v
 Monoidal/RezkCompletion/LiftedMonoidal.v
 Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 
-PowerObject.v
-ElementaryTopos.v
+# Dagger categories
+DaggerCategories/Categories.v
+DaggerCategories/Unitary.v
+DaggerCategories/Univalence.v
+DaggerCategories/Functors.v
+DaggerCategories/Transformations.v
+
+DaggerCategories/FunctorCategory.v
+
+DaggerCategories/Examples/Groupoids.v
+DaggerCategories/Examples/Relations.v
+DaggerCategories/Examples/Fullsub.v
+
+DaggerCategories/Functors/WeakEquivalences.v
+DaggerCategories/Functors/FullyFaithful.v
+
+DaggerCategories/Functors/Factorization.v
+DaggerCategories/Functors/Precomp.v
+
+DaggerCategories/CatIso.v

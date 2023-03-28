@@ -24,8 +24,8 @@ Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 Section RezkLeftUnitor.
@@ -191,7 +192,7 @@ Section RezkLeftUnitor.
     intro ; intros.
     apply isweqinclandsurj.
     - do 3 intro.
-      assert (p : isaset ( hfiber (λ ff : unit, (# precompLU)%mor_disp ff) y0)).
+      assert (p : isaset ( hfiber (λ ff : unit, ♯ precompLU ff) y0)).
       {
         use isaset_hfiber ; use isasetaprop ; apply isapropunit.
       }
@@ -429,7 +430,7 @@ Section RezkRightUnitor.
     intro ; intros.
     apply isweqinclandsurj.
     - do 3 intro.
-      assert (p : isaset ( hfiber (λ ff : unit, (# precompRU)%mor_disp ff) y0)).
+      assert (p : isaset ( hfiber (λ ff : unit, ♯ precompRU ff) y0)).
       {
         use isaset_hfiber ; use isasetaprop ; apply isapropunit.
       }

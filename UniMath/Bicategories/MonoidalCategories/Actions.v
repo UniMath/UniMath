@@ -18,8 +18,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 
 Local Open Scope cat.
@@ -146,11 +146,15 @@ Section Alternative_Definition.
   Let ϵ : functor_identity A ⟹ (FF I: functor A A)
     := lax_monoidal_functor_ϵ FF.
   Let ϵ_inv : (FF I: functor A A) ⟹ functor_identity A := strong_monoidal_functor_ϵ_inv FF.
-  Let μ := lax_monoidal_functor_μ FF.
-  Let ϵ_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso FF.
-  Let μ_is_nat_z_iso := strong_monoidal_functor_μ_is_nat_z_iso FF.
-  Let FFunital := lax_monoidal_functor_unital FF.
-  Let FFassoc := lax_monoidal_functor_assoc FF.
+  Let μ : monoidal_functor_map Mon_V Mon_EndA FF := lax_monoidal_functor_μ FF.
+  Let ϵ_is_z_iso : is_z_isomorphism (lax_monoidal_functor_ϵ FF)
+      := strong_monoidal_functor_ϵ_is_z_iso FF.
+  Let μ_is_nat_z_iso : is_nat_z_iso (lax_monoidal_functor_μ FF)
+      := strong_monoidal_functor_μ_is_nat_z_iso FF.
+  Let FFunital : monoidal_functor_unitality Mon_V Mon_EndA FF (lax_monoidal_functor_ϵ FF)
+                  (lax_monoidal_functor_μ FF) := lax_monoidal_functor_unital FF.
+  Let FFassoc : monoidal_functor_associativity Mon_V Mon_EndA FF (lax_monoidal_functor_μ FF)
+      := lax_monoidal_functor_assoc FF.
 
   Local Definition odot : functor (category_binproduct A Mon_V) A := uncurry_functor _ _ _ FF.
 
@@ -243,7 +247,6 @@ Section Alternative_Definition.
     assert (Hunital1inst := Hunital1 a).
     cbn in Hunital1inst.
     rewrite id_right in Hunital1inst.
-    unfold MonoidalFunctors.λ_C in Hunital1inst.
     apply pathsinv0.
     transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
     { apply functor_on_is_z_isomorphism.

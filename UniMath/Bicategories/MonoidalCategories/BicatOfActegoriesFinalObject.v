@@ -37,11 +37,11 @@ Require Import UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
 Require Import UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 
@@ -58,20 +58,21 @@ Definition unit_actegory : actegory Mon_V (pr1 unit_category).
 Proof.
   use tpair.
   - use tpair.
-    + use tpair.
-      * use make_bifunctor_data.
-        -- exact (fun _ _ => tt).
-        -- intros. apply idpath.
-        -- intros. apply idpath.
-      * abstract (repeat split).
+    + use make_bifunctor_data.
+      * exact (fun _ _ => tt).
+      * intros. apply idpath.
+      * intros. apply idpath.
     + cbn.
       repeat split; intro x; induction x; apply isapropunit.
   - cbn.
-    abstract (split; [| split; [| split]];
-    [red; split; red; intros; [apply isasetunit | split; apply isasetunit] |
-     red; do 3 (split; [red; intros; apply isasetunit |]); split; apply isasetunit |
-     red; intros; apply isasetunit |
-     red; intros; apply isasetunit]).
+    split.
+    + repeat split; intro x; induction x; apply isapropunit.
+    + cbn.
+      abstract (split; [| split; [| split]];
+                [red; split; red; intros; [apply isasetunit | split; apply isasetunit] |
+                  red; do 3 (split; [red; intros; apply isasetunit |]); split; apply isasetunit |
+                  red; intros; apply isasetunit |
+                  red; intros; apply isasetunit]).
 Defined.
 
 
