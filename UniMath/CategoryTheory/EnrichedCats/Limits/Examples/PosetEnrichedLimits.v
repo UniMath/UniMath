@@ -9,10 +9,23 @@
  products and equalizers, we also demand that the arrow coming
  from the universal property is monotone.
 
+ To construct powers in a category `C` enriched over posets, we
+ assume that we have a poset `P` and an object `x` of `C`. To
+ construct the power, we take a product of `x` indexed by the
+ underlying set of `P`. As such, `C` must have 'large enough'
+ products, because otherwise, this product cannot be constructed.
+ Note that for powers, we do not construct an equivalence between
+ the elementary version and the enriched version. The reason for
+ that, is that for the elementary version, we assume that `C` has
+ products of all diagrams indexed by the underlying set of a poset
+ `P`. However, for powers, we only need such products for constant
+ diagrams. As such, our elementary version is actually stronger.
+
  Contents
  1. Terminal object
  2. Products
  3. Equalizers
+ 4. Powers
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -31,9 +44,12 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
 Local Open Scope cat.
@@ -644,5 +660,126 @@ Section PosetEnrichmentLimits.
     - apply make_poset_enrichment_equalizers.
     - apply (isaprop_enrichment_equalizers HC).
     - apply (isaprop_poset_enrichment_equalizers HC).
+  Defined.
+
+  (**
+   4. Powers
+   *)
+  Definition poset_enrichment_pows
+    : UU
+    := ∑ (prods : ∏ (P : poset_sym_mon_closed_cat), Products (pr11 P) C),
+       ∏ (P : poset_sym_mon_closed_cat)
+         (x : C),
+       is_monotone (pr2 P) (E (prods P (λ _, x)) x) (ProductPr _ _ (prods P (λ _, x)))
+       ×
+       (∏ (y : C),
+        is_monotone
+          (monotone_function_PartialOrder
+             (pr2 P)
+             (E y x))
+          (E y (prods P (λ _, x)))
+          (λ f, ProductArrow _ _ (prods P (λ _, x)) (pr1 f))).
+
+  Section PosetEnrichmentPowersAccessors.
+    Context (HE : poset_enrichment_pows).
+
+    Definition poset_pows_prod
+               (P : poset_sym_mon_closed_cat)
+               (x : C)
+      : Product (pr11 P) C (λ _, x)
+      := pr1 HE P (λ _, x).
+
+    Definition poset_pows_pr
+               {P : poset_sym_mon_closed_cat}
+               {x : C}
+               (i : pr11 P)
+      : poset_pows_prod P x --> x
+      := ProductPr _ _ (poset_pows_prod P x) i.
+
+    Proposition poset_pows_monotone_pr
+                (P : poset_sym_mon_closed_cat)
+                (x : C)
+      : is_monotone
+          (pr2 P)
+          (E (poset_pows_prod P x) x)
+          poset_pows_pr.
+    Proof.
+      exact (pr1 (pr2 HE P x)).
+    Qed.
+
+    Proposition poset_pows_monotone_product_arr
+                (P : poset_sym_mon_closed_cat)
+                (x y : C)
+      : is_monotone
+          (monotone_function_PartialOrder
+             (pr2 P)
+             (E y x))
+          (E y (poset_pows_prod P x))
+          (λ f, ProductArrow _ _ (poset_pows_prod P x) (pr1 f)).
+    Proof.
+      exact (pr2 (pr2 HE P x) y).
+    Qed.
+  End PosetEnrichmentPowersAccessors.
+
+  Section PosetEnrichmentPowers.
+    Context (HE : poset_enrichment_pows)
+            (P : poset_sym_mon_closed_cat)
+            (x : C).
+
+    Let pow : Product _ C (λ _, x) := poset_pows_prod HE P x.
+    Let pow_pr : ∏ (_ : pr11 P), pow --> x := λ i, poset_pows_pr HE i.
+
+    Definition poset_power_cone
+      : power_cone E' P x.
+    Proof.
+      simple refine (_ ,, _).
+      - exact pow.
+      - simple refine (_ ,, _).
+        + exact pow_pr.
+        + exact (poset_pows_monotone_pr HE P x).
+    Defined.
+
+    Definition poset_power_map
+               (y : C)
+      : P ⊸ (E' ⦃ y, x ⦄) --> E' ⦃ y, poset_power_cone ⦄.
+    Proof.
+      simple refine (_ ,, _).
+      - intro f.
+        exact (ProductArrow _ _ pow (pr1 f)).
+      - exact (poset_pows_monotone_product_arr HE P x y).
+    Defined.
+
+    Definition poset_power_is_power
+      : is_power_enriched E' P x poset_power_cone.
+    Proof.
+      use make_is_power_enriched.
+      - exact poset_power_map.
+      - abstract
+          (intro y ;
+           use eq_monotone_function ;
+           intro f ;
+           cbn in f ;
+           use ProductArrow_eq ;
+           intro i ;
+           apply (ProductPrCommutes _ _ _ pow)).
+      - abstract
+          (intro y ;
+           use eq_monotone_function ;
+           intro f ;
+           use eq_monotone_function ;
+           intro i ;
+           cbn ;
+           apply (ProductPrCommutes _ _ _ pow)).
+    Defined.
+  End PosetEnrichmentPowers.
+
+  Definition poset_enrichment_powers_from_products
+             (HE : poset_enrichment_pows)
+    : enrichment_power E'.
+  Proof.
+    intros P x.
+    simple refine (_ ,, _).
+    - exact (poset_power_cone HE P x).
+    - apply poset_power_is_power.
   Defined.
 End PosetEnrichmentLimits.

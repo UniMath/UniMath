@@ -48,17 +48,20 @@ Definition Products := ∏ (ci : ∏ i, C), Product ci.
 Definition hasProducts := ∏ (ci : ∏ i, C), ∥ Product ci ∥.
 
 Definition ProductObject {c : ∏ i, C} (P : Product c) : C := pr1 (pr1 P).
-Definition ProductPr {c : ∏ i, C} (P : Product c) : ∏ i, ProductObject P --> c i :=
+
+Coercion ProductObject : Product >-> ob.
+
+Definition ProductPr {c : ∏ i, C} (P : Product c) : ∏ i, P --> c i :=
   pr2 (pr1 P).
 
 Definition isProduct_Product {c : ∏ i, C} (P : Product c) :
-   isProduct c (ProductObject P) (ProductPr P).
+   isProduct c P (ProductPr P).
  Proof.
   exact (pr2 P).
 Defined.
 
 Definition ProductArrow {c : ∏ i, C} (P : Product c) {a : C} (f : ∏ i, a --> c i)
-  : a --> ProductObject P.
+  : a --> P.
 Proof.
   apply (pr1 (pr1 (isProduct_Product P _ f))).
 Defined.
@@ -79,7 +82,7 @@ Proof.
 Qed.
 
 Lemma ProductArrowUnique (c : ∏ i, C) (P : Product c) (x : C)
-    (f : ∏ i, x --> c i) (k : x --> ProductObject P)
+    (f : ∏ i, x --> c i) (k : x --> P)
     (Hk : ∏ i, k · ProductPr P i = f i) : k = ProductArrow P f.
 Proof.
   set (H' := pr2 (isProduct_Product P _ f) (k,,Hk)).
@@ -102,15 +105,29 @@ intros H c cc; apply H.
 Defined.
 
 Lemma ProductArrowEta (c : ∏ i, C) (P : Product c) (x : C)
-    (f : x --> ProductObject P) :
+    (f : x --> P) :
     f = ProductArrow P (λ i, f · ProductPr P i).
 Proof.
   now apply ProductArrowUnique.
 Qed.
 
+Proposition ProductArrow_eq
+            {d : I → C}
+            (w : C)
+            (x : Product d)
+            (f g : w --> x)
+            (p : ∏ (i : I), f · ProductPr x i = g · ProductPr x i)
+  : f = g.
+Proof.
+  refine (ProductArrowEta _ _ _ _ @ _ @ !(ProductArrowEta _ _ _ _)).
+  apply maponpaths.
+  use funextsec.
+  exact p.
+Qed.
+
 Definition ProductOfArrows {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
     (Pa : Product a) (f : ∏ i, a i --> c i) :
-      ProductObject Pa --> ProductObject Pc :=
+      Pa --> Pc :=
     ProductArrow Pc (λ i, ProductPr Pa i · f i).
 
 Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
@@ -162,7 +179,7 @@ Section Product_unique.
 Context (I : UU) (C : category) (CC : Products I C) (a : ∏ (i : I), C).
 
 Lemma Product_endo_is_identity (P : Product _ _ a)
-  (k : ProductObject _ _ P --> ProductObject _ _ P)
+  (k : P --> P)
   (H1 : ∏ i, k · ProductPr _ _ P i = ProductPr _ _ P i)
   : identity _ = k.
 Proof.
@@ -219,7 +236,7 @@ Section product_of_functors.
 Context (F : I -> functor C D).
 
 Definition product_of_functors_ob (c : C) : D :=
-  ProductObject _ _ (HD (λ i, F i c)).
+  HD (λ i, F i c).
 
 Definition product_of_functors_mor (c c' : C) (f : c --> c') :
   product_of_functors_ob c --> product_of_functors_ob c' :=
