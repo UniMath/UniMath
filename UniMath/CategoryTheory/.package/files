@@ -363,8 +363,10 @@ EnrichedCats/Examples/ChangeOfBase.v
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v
 
+EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v
 EnrichedCats/Limits/Examples/PosetEnrichedLimits.v
 EnrichedCats/Limits/Examples/SelfEnrichedLimits.v
+EnrichedCats/Colimits/Examples/OppositeEnrichedColimits.v
 EnrichedCats/Colimits/Examples/PosetEnrichedColimits.v
 EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v
 

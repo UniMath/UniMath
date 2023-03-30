@@ -357,6 +357,35 @@ Section Equalizers'.
 
 End Equalizers'.
 
+Definition isEqualizer_eq
+           {C : category}
+           {e x y : C}
+           {f g f' g' : x --> y}
+           {i i' : e --> x}
+           (p : i · f = i · g)
+           (q : i' · f' = i' · g')
+           (s₁ : f = f')
+           (s₂ : g = g')
+           (s₃ : i = i')
+           (He : isEqualizer f g i p)
+  : isEqualizer f' g' i' q.
+Proof.
+  intros w h r.
+  use iscontraprop1.
+  - abstract
+      (induction s₁, s₂, s₃ ;
+       apply (isapropifcontr (He w h r))).
+  - simple refine (_ ,, _).
+    + refine (EqualizerIn (make_Equalizer _ _ _ _ He) _ h _).
+      abstract
+        (induction s₁, s₂ ;
+         exact r).
+    + abstract
+        (cbn ;
+         induction s₁, s₂, s₃ ;
+         apply (EqualizerCommutes (make_Equalizer _ _ _ _ He))).
+Defined.
+
 (**
  Equalizers are closed under iso
  *)

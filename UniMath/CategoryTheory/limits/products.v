@@ -501,3 +501,32 @@ Proof.
     rewrite ProductPrCommutes.
     apply idpath.
 Qed.
+
+Definition isProduct_eq_arrow
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           {ys : C}
+           {π π' : ∏ (j : J), ys --> D j}
+           (q : ∏ (j : J), π j = π' j)
+           (H : isProduct J C D ys π)
+  : isProduct J C D ys π'.
+Proof.
+  intros w f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; use impred ; intro ; apply homset_property | ] ;
+       use (ProductArrow_eq _ _ _ (make_Product _ _ _ _ _ H)) ;
+       intro j ; cbn ;
+       rewrite !q ;
+       exact (pr2 φ₁ j @ !(pr2 φ₂ j))).
+  - simple refine (_ ,, _).
+    + exact (ProductArrow _ _ (make_Product _ _ _ _ _ H) f).
+    + abstract
+        (cbn ;
+         intro j ;
+         rewrite <- q ;
+         apply (ProductPrCommutes _ _ _ (make_Product _ _ _ _ _ H))).
+Defined.
