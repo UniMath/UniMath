@@ -12,11 +12,8 @@ Written by: Anders Mörtberg 2016
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -427,3 +424,80 @@ Proof.
        rewrite id_left ;
        apply ProductPrCommutes).
 Defined.
+
+(**
+ Products are unique
+ *)
+Definition eq_Product
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (prod₁ prod₂ : Product J C D)
+           (q : ProductObject _ _ prod₁ = ProductObject _ _ prod₂)
+           (e : ∏ (j : J),
+                ProductPr _ _ prod₁ j
+                =
+                idtoiso q · ProductPr _ _ prod₂ j)
+  : prod₁ = prod₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - exact q.
+  - rewrite transportf_sec_constant.
+    use funextsec.
+    intro j.
+    rewrite <- !idtoiso_precompose.
+    rewrite !idtoiso_inv.
+    use z_iso_inv_on_right.
+    exact (e j).
+Qed.
+
+Definition z_iso_between_Product
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (prod₁ prod₂ : Product J C D)
+  : z_iso prod₁ prod₂.
+Proof.
+  use make_z_iso.
+  - exact (ProductArrow _ _  prod₂ (ProductPr _ _ prod₁)).
+  - exact (ProductArrow _ _  prod₁ (ProductPr _ _ prod₂)).
+  - split.
+    + abstract
+        (use ProductArrow_eq ;
+         intro j ;
+         rewrite !assoc' ;
+         rewrite !ProductPrCommutes ;
+         rewrite id_left ;
+         apply idpath).
+    + abstract
+        (use ProductArrow_eq ;
+         intro j ;
+         rewrite !assoc' ;
+         rewrite !ProductPrCommutes ;
+         rewrite id_left ;
+         apply idpath).
+Defined.
+
+Definition isaprop_Product
+           {C : category}
+           (HC : is_univalent C)
+           (J : UU)
+           (D : J → C)
+  : isaprop (Product J C D).
+Proof.
+  use invproofirrelevance.
+  intros p₁ p₂.
+  use eq_Product.
+  - refine (isotoid _ HC _).
+    apply z_iso_between_Product.
+  - rewrite idtoiso_isotoid ; cbn.
+    intro j.
+    rewrite ProductPrCommutes.
+    apply idpath.
+Qed.
