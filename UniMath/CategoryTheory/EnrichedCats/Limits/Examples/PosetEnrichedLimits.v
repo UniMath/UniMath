@@ -23,7 +23,7 @@
 
  Contents
  1. Terminal object
- 2. Products
+ 2. Binary products
  3. Equalizers
  4. Powers
  5. Type indexed products
@@ -109,7 +109,7 @@ Section PosetEnrichmentLimits.
   Defined.
 
   (**
-   2. Products
+   2. Binary products
    *)
   Definition poset_enrichment_binary_prod
     : UU

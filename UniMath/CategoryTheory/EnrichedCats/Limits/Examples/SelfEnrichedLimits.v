@@ -8,7 +8,7 @@
 
  Contents
  1. Terminal object
- 2. Products
+ 2. Binary products
  3. Equalizers
  4. Powers
  5. Type indexed products
@@ -68,7 +68,7 @@ Section SelfEnrichmentLimits.
     := pr1 HV ,, self_enrichment_is_terminal_enriched _ (pr2 HV).
 
   (**
-   2. Products
+   2. Binary products
    *)
   Section SelfEnrichmentProduct.
     Context {v₁ v₂ w : V}

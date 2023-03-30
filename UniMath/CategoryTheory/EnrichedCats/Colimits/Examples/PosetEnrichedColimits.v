@@ -1,31 +1,25 @@
 (*****************************************************************
 
- Limits in categories enriched over posets
+ Colimits in categories enriched over posets
 
  If we have a category enriched over posets, then we can
- characterize terminal objects, products, and equalizers using
- elementary terms. Such a category has a terminal object if and
- only if the underlying category has a terminal object. For
- products and equalizers, we also demand that the arrow coming
+ characterize colimits using elementary terms. The
+ characterization is similar for products: the initial object is
+ inherited from the underlying category, while for coproducts and
+ coequalizer, we need to demand that the arrow coming
  from the universal property is monotone.
 
- To construct powers in a category `C` enriched over posets, we
+ To construct copowers in a category `C` enriched over posets, we
  assume that we have a poset `P` and an object `x` of `C`. To
- construct the power, we take a product of `x` indexed by the
+ construct the copower, we take a coproduct of `x` indexed by the
  underlying set of `P`. As such, `C` must have 'large enough'
- products, because otherwise, this product cannot be constructed.
- Note that for powers, we do not construct an equivalence between
- the elementary version and the enriched version. The reason for
- that, is that for the elementary version, we assume that `C` has
- products of all diagrams indexed by the underlying set of a poset
- `P`. However, for powers, we only need such products for constant
- diagrams. As such, our elementary version is actually stronger.
+ coproducts, because otherwise, this product cannot be constructed.
 
  Contents
- 1. Terminal object
- 2. Products
- 3. Equalizers
- 4. Powers
+ 1. Initial object
+ 2. Binary coroducts
+ 3. Coqualizers
+ 4. Copowers
  5. Type indexed coproducts
 
  *****************************************************************)
@@ -138,7 +132,7 @@ Section PosetEnrichmentColimits.
   Defined.
 
   (**
-   2. Coproducts
+   2. Binary coproducts
    *)
   Definition poset_enrichment_binary_coprod
     : UU
@@ -425,7 +419,7 @@ Section PosetEnrichmentColimits.
   Defined.
 
   (**
-   3. Coqualizers
+   3. Coequalizers
    *)
   Definition poset_enrichment_coequalizers
     : UU
@@ -818,7 +812,7 @@ Section PosetEnrichmentColimits.
   Defined.
 
   (**
-   5. Type indexed products
+   5. Type indexed coproducts
    *)
   Section TypeIndexedCoproducts.
     Context (J : UU).

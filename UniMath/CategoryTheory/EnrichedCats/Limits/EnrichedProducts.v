@@ -1,13 +1,18 @@
 (*****************************************************************
 
- Enriched binary products
+ Type indexed enriched products
+
+ In this file, we define the type indexed products in enriched
+ categories. The definition foollows the same ideas as the
+ definition for enriched binary, and the only difference is that
+ we index the product by a type.
 
  Content
  1. Cones of enriched products
- 2. Binary products in an enriched category
- 3. Being a binary product is a proposition
- 4. Binary products in the underlying category
- 5. Builders for binary products
+ 2. Products in an enriched category
+ 3. Being a product is a proposition
+ 4. Products in the underlying category
+ 5. Builders for products
  6. Products are closed under iso
  7. Products are isomorphic
  8. Enriched categories with products
@@ -112,7 +117,7 @@ Section EnrichedProducts.
   Qed.
 
   (**
-   4. Binary products in the underlying category
+   4. Products in the underlying category
    *)
   Section InUnderlying.
     Context {a : enriched_prod_cone}

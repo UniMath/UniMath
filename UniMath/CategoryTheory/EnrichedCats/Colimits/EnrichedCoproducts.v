@@ -1,16 +1,21 @@
 (*****************************************************************
 
- Enriched products
+ Type indexed enriched coproducts
+
+ In this file, we define type indexed coproducts for enriched
+ categories. The ideas are similar as for binary coproducts; the
+ only difference being that instead of having two summands, the
+ summands are indexed by a type.
 
  Content
- 1. Cones of enriched products
- 2. Binary products in an enriched category
- 3. Being a binary product is a proposition
- 4. Binary products in the underlying category
- 5. Builders for binary products
- 6. Products are closed under iso
- 7. Products are isomorphic
- 8. Enriched categories with products
+ 1. Cocones of enriched coproducts
+ 2. Coproducts in an enriched category
+ 3. Being a coproduct is a proposition
+ 4. Coproducts in the underlying category
+ 5. Builders for coproducts
+ 6. Coproducts are closed under iso
+ 7. Coproducts are isomorphic
+ 8. Enriched categories with coproducts
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
