@@ -15,4 +15,8 @@ Notation "f • g" :=
   (comp f g)
   (at level 50) : algebraic_theory.
 
-Definition make_algebraic_base (B : nat → hSet) (comp : ∏ m n, B m → (stn m → B n) → B n) : algebraic_base := (B ,, comp).
+Definition make_algebraic_base
+  (B : nat → hSet)
+  (comp : ∏ m n, B m → (stn m → B n) → B n)
+  : algebraic_base
+  := (B ,, comp).

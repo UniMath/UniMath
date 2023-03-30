@@ -9,20 +9,19 @@ Proof.
   - use make_precategory_data.
     + use make_precategory_ob_mor.
       * exact nat.
-      * intros m n.
-        exact ((stn m) → (stn n)).
-    + intros ?.
+      * exact (λ m n, stn m → stn n).
+    + intro.
       exact (λ i, i).
-    + intros ? ? ?.
+    + do 3 intro.
       exact (λ f g, g ∘ f).
-  - repeat split.
+  - do 3 split.
 Defined.
 
 Definition finite_set_skeleton_category : category.
 Proof.
   use make_category.
   - exact finite_set_skeleton_precat.
-  - intros ? ?.
+  - do 2 intro.
     simpl.
     apply funspace_isaset.
     apply isasetstn.

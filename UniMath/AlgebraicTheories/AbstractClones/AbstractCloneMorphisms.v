@@ -29,21 +29,39 @@ Definition make_is_abstract_clone_morphism {C C'}
   (H1 : preserves_composition F)
   (H2 : preserves_projections F) : is_abstract_clone_morphism F := (H1 ,, H2).
 
-Lemma isaprop_is_abstract_clone_morphism {C C'} (F : abstract_clone_morphism_data C C') : isaprop (is_abstract_clone_morphism F).
+Lemma isaprop_is_abstract_clone_morphism
+  {C C'}
+  (F : abstract_clone_morphism_data C C')
+  : isaprop (is_abstract_clone_morphism F).
 Proof.
   repeat apply isapropdirprod;
     repeat (apply impred_isaprop; intros);
     apply setproperty.
 Qed.
 
-Definition abstract_clone_morphism (C C' : abstract_clone_data) := total2 (@is_abstract_clone_morphism C C').
+Definition abstract_clone_morphism
+  (C C' : abstract_clone_data)
+  := total2 (@is_abstract_clone_morphism C C').
 
-Definition make_abstract_clone_morphism {C C'} (F : abstract_clone_morphism_data C C') (H : is_abstract_clone_morphism F) : abstract_clone_morphism C C' := (F ,, H).
+Definition make_abstract_clone_morphism
+  {C C'}
+  (F : abstract_clone_morphism_data C C')
+  (H : is_abstract_clone_morphism F)
+  : abstract_clone_morphism C C'
+  := (F ,, H).
 
-Definition abstract_clone_morphism_to_function {C C'} (F : abstract_clone_morphism C C') : ∏ n, C n → C' n := pr1 F.
+Definition abstract_clone_morphism_to_function
+  {C C'}
+  (F : abstract_clone_morphism C C')
+  : ∏ n, C n → C' n
+  := pr1 F.
 Coercion abstract_clone_morphism_to_function : abstract_clone_morphism >-> Funclass.
 
-Definition abstract_clone_morphism_eq {C C'} (F F' : abstract_clone_morphism C C') (H1 : ∏ n f, pr1 F n f = pr1 F' n f) : F = F'.
+Definition abstract_clone_morphism_eq 
+  {C C'} 
+  (F F' : abstract_clone_morphism C C') 
+  (H1 : ∏ n f, pr1 F n f = pr1 F' n f)
+  : F = F'.
 Proof.
   use (subtypePairEquality' _ (isaprop_is_abstract_clone_morphism _)).
   apply funextsec.

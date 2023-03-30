@@ -12,83 +12,96 @@ Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Local Open Scope cat.
 
 (* The function from algebraic theories to abstract clones *)
-Definition abstract_clone_data_from_algebraic_theory : algebraic_theory → abstract_clone_data.
+Definition abstract_clone_data_from_algebraic_theory
+  (T : algebraic_theory)
+  : abstract_clone_data.
 Proof.
-  intros T.
   use make_abstract_clone_data.
-  - apply T. 
+  - exact T. 
   - intros.
     apply AlgebraicTheories.pr.
     assumption.
 Defined.
 
-Lemma is_abstract_clone_from_algebraic_theory (T : algebraic_theory) : is_abstract_clone (abstract_clone_data_from_algebraic_theory T).
+Lemma is_abstract_clone_from_algebraic_theory
+  (T : algebraic_theory)
+  : is_abstract_clone (abstract_clone_data_from_algebraic_theory T).
 Proof.
   use make_is_abstract_clone. 
-  - intros m n.
+  - do 2 intro.
     apply AlgebraicTheories.comp_project_component.
-  - apply (pr12 (pr222 T)).
-  - apply (pr122 T).
+  - exact (pr12 (pr222 T)).
+  - exact (pr122 T).
 Qed.
 
-Definition abstract_clone_from_algebraic_theory : algebraic_theory → abstract_clone := (λ T, (make_abstract_clone (abstract_clone_data_from_algebraic_theory T) (is_abstract_clone_from_algebraic_theory T))).
+Definition abstract_clone_from_algebraic_theory
+  (T : algebraic_theory)
+  : abstract_clone
+  := make_abstract_clone
+    (abstract_clone_data_from_algebraic_theory T)
+    (is_abstract_clone_from_algebraic_theory T).
 
 (* The function from abstract clones to algebraic theories *)
-Definition algebraic_theory_data_from_abstract_clone : abstract_clone → algebraic_theory_data.
+Definition algebraic_theory_data_from_abstract_clone
+  (C : abstract_clone)
+  : algebraic_theory_data.
 Proof.
-  intros C.
   use make_algebraic_theory_data.
-  - apply C.
+  - exact C.
   - exact (AbstractClones.pr firstelement).
   - exact (λ _ _ a f, reindex a f).
 Defined.
 
-Lemma is_algebraic_theory_from_abstract_clone (C : abstract_clone) : is_algebraic_theory (algebraic_theory_data_from_abstract_clone C).
+Lemma is_algebraic_theory_from_abstract_clone
+  (C : abstract_clone)
+  : is_algebraic_theory (algebraic_theory_data_from_abstract_clone C).
 Proof.
-  destruct (pr2 C) as [H1 [H2 H3]].
   use make_is_algebraic_theory.
   - split.
     + intro.
       apply funextfun.
       intro.
-      apply H2.
-    + intro.
-      intros.
+      apply C.
+    + do 5 intro.
       apply funextfun.
       intro.
       simpl.
       unfold Tmor, compose.
       simpl.
       unfold reindex, funcomp.
-      rewrite H3.
+      rewrite (pr222 C).
       apply maponpaths, funextfun.
       intro.
       symmetry.
-      apply H1.
-  - apply H3.
-  - intro.
-    intros.
-    apply H1.
-  - intro.
-    intros.
-    rewrite <- H2.
+      apply C.
+  - apply C.
+  - do 2 intro.
+    apply C.
+  - do 2 intro.
+    rewrite <- (pr122 C).
     apply maponpaths, funextfun.
     intro.
-    apply H1.
-  - intro.
-    intros.
+    apply C.
+  - do 6 intro.
     unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBases.comp.
     simpl.
-    rewrite H3.
+    rewrite (pr222 C).
     apply maponpaths, funextfun.
     intro.
-    apply H1.
+    apply C.
 Qed.
 
-Definition algebraic_theory_from_abstract_clone : abstract_clone → algebraic_theory := (λ C, make_algebraic_theory (algebraic_theory_data_from_abstract_clone C) (is_algebraic_theory_from_abstract_clone C)).
+Definition algebraic_theory_from_abstract_clone
+  (C : abstract_clone)
+  : algebraic_theory
+  := make_algebraic_theory
+    (algebraic_theory_data_from_abstract_clone C)
+    (is_algebraic_theory_from_abstract_clone C).
 
 (* Prove the weak equality *)
-Local Lemma algebraic_theory_id (T : algebraic_theory) : (algebraic_theory_from_abstract_clone (abstract_clone_from_algebraic_theory T)) = T.
+Local Lemma algebraic_theory_id 
+  (T : algebraic_theory) : 
+  algebraic_theory_from_abstract_clone (abstract_clone_from_algebraic_theory T) = T.
 Proof.
   use algebraic_theory_eq.
   - apply idpath.
@@ -111,20 +124,21 @@ Proof.
     rewrite H2.
     apply idpath.
   - rewrite idpath_transportf.
-    repeat (apply funextsec; intro).
+    do 4 (apply funextsec; intro).
     symmetry.
     apply functor_uses_projections.
 Qed.
 
-Local Lemma abstract_clone_id (C : abstract_clone) : (abstract_clone_from_algebraic_theory (algebraic_theory_from_abstract_clone C)) = C.
+Local Lemma abstract_clone_id
+  (C : abstract_clone)
+  : abstract_clone_from_algebraic_theory (algebraic_theory_from_abstract_clone C) = C.
 Proof.
   use abstract_clone_eq.
   - apply idpath.
   - rewrite idpath_transportf.
-    repeat (apply funextfun; intro).
     apply idpath.
   - rewrite idpath_transportf.
-    repeat (apply funextsec; intro).
+    do 2 (apply funextsec; intro).
     apply (pr12 C).
 Qed.
 

@@ -12,7 +12,7 @@ Local Open Scope cat.
 Local Open Scope algebraic_theory.
 
 Definition algebraic_theory_data := ∑ (T : algebraic_base),
-  (T 1) × (∏ {m n : nat}, (stn m → stn n) → T m → T n).
+  (T 1) × (∏ (m n : nat), (stn m → stn n) → T m → T n).
 
 Definition make_algebraic_theory_data (T : algebraic_base)
   (e : T 1) (Tmor : ∏ {m n : nat}, (stn m → stn n) → T m → T n) : algebraic_theory_data.
@@ -20,7 +20,10 @@ Proof.
   exact (T ,, e ,, Tmor).
 Defined.
 
-Definition algebraic_base_from_algebraic_theory_data (d : algebraic_theory_data) : algebraic_base := pr1 d.
+Definition algebraic_base_from_algebraic_theory_data
+  (d : algebraic_theory_data)
+  : algebraic_base
+  := pr1 d.
 Coercion algebraic_base_from_algebraic_theory_data : algebraic_theory_data >-> algebraic_base.
 
 Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
@@ -29,7 +32,10 @@ Definition Tmor {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m �
 
 Definition pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := Tmor (λ (x : stn 1), i) e.
 
-Definition algebraic_theory_data_to_functor_data (T : algebraic_theory_data) : functor_data finite_set_skeleton_category HSET := make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T).
+Definition algebraic_theory_data_to_functor_data
+  (T : algebraic_theory_data)
+  : functor_data finite_set_skeleton_category HSET
+  := make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T).
 
 (* Define the associativity property of the algebraic theory *)
 Definition comp_is_assoc (T : algebraic_theory_data) : Prop := ∏
@@ -80,16 +86,21 @@ Proof.
   - apply isaprop_is_functor.
     apply SET.
   - repeat apply isapropdirprod;
-      repeat (apply impred_isaprop; intros);
-      try apply isapropisfunctor;
-      try apply setproperty.
+      repeat (apply impred_isaprop; intro);
+      apply setproperty.
 Qed.
 
 Definition algebraic_theory := total2 is_algebraic_theory.
 
-Definition make_algebraic_theory (T : algebraic_theory_data) (H : is_algebraic_theory T) : algebraic_theory := (T ,, H).
+Definition make_algebraic_theory
+  (T : algebraic_theory_data)
+  (H : is_algebraic_theory T)
+  : algebraic_theory
+  := (T ,, H).
 
-Definition algebraic_theory_data_from_algebraic_theory : algebraic_theory -> algebraic_theory_data := pr1.
+Definition algebraic_theory_data_from_algebraic_theory
+  : algebraic_theory -> algebraic_theory_data
+  := pr1.
 Coercion algebraic_theory_data_from_algebraic_theory : algebraic_theory >-> algebraic_theory_data.
 
 Lemma algebraic_theory_eq
@@ -97,7 +108,11 @@ Lemma algebraic_theory_eq
   (H1 : pr111 X = pr111 Y)
   (H2 : transportf _ H1 (pr211 X) = pr211 Y)
   (H3 : transportf (λ (T : nat → hSet), T 1) H1 (pr121 X) = (pr121 Y))
-  (H4 : transportf (λ (T : nat → hSet), ∏ m n, (stn m → stn n) → T m → T n) H1 (pr221 X) = (pr221 Y))
+  (H4 : transportf
+    (λ (T : nat → hSet), ∏ m n, (stn m → stn n) → T m → T n)
+    H1
+    (pr221 X) = (pr221 Y)
+  )
   : X = Y.
 Proof.
   destruct X as [[[Xf Xcomp] [Xe Xmor]] HX].
@@ -105,20 +120,34 @@ Proof.
   simpl in H1, H2, H3, H4.
   induction H1, H2, H3, H4.
   use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
-  repeat use total2_paths2_f;
-    apply idpath.
+  apply idpath.
 Qed.
 
-Definition algebraic_theory_to_functor (T : algebraic_theory) : finite_set_skeleton_category ⟶ HSET := make_functor (algebraic_theory_data_to_functor_data T) (pr12 T).
+Definition algebraic_theory_to_functor
+  (T : algebraic_theory)
+  : finite_set_skeleton_category ⟶ HSET
+  := make_functor
+    (algebraic_theory_data_to_functor_data T)
+    (pr12 T).
 
 (* Properties of algebraic theories *)
-Lemma functor_uses_projections (T : algebraic_theory) (m n : finite_set_skeleton_category) (a : finite_set_skeleton_category⟦m, n⟧) (f : T m) : Tmor a f = f • (λ i, pr (a i)).
+Lemma functor_uses_projections
+  (T : algebraic_theory)
+  (m n : finite_set_skeleton_category)
+  (a : finite_set_skeleton_category⟦m, n⟧)
+  (f : T m)
+  : Tmor a f = f • (λ i, pr (a i)).
 Proof.
   rewrite <- (pr12 (pr222 T) n (Tmor a f)).
   apply T.
 Qed.
 
-Lemma comp_project_component (T : algebraic_theory) (m n : nat) (i : stn m) (f : (stn m → T n)) : (pr i) • f = f i.
+Lemma comp_project_component
+  (T : algebraic_theory)
+  (m n : nat)
+  (i : stn m)
+  (f : stn m → T n)
+  : (pr i) • f = f i.
 Proof.
   unfold pr.
   rewrite (pr22 (pr222 T)).
@@ -137,7 +166,7 @@ Proof.
   rewrite (pr122 T).
   apply maponpaths.
   apply funextsec2.
-  intros i.
+  intro.
   rewrite functor_uses_projections.
   apply idpath.
 Qed.

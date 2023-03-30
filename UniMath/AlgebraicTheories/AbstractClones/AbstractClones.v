@@ -22,7 +22,12 @@ Coercion algebraic_base_from_abstract_clone : abstract_clone_data >-> algebraic_
 
 Definition pr {C : abstract_clone_data} {n : nat} := pr2 C n.
 
-Definition reindex {C : abstract_clone_data} {m n : nat} (a : stn m → stn n) : C m → C n := (λ f, f • (λ i, pr (a i))).
+Definition reindex
+  {C : abstract_clone_data}
+  {m n : nat}
+  (a : stn m → stn n)
+  : C m → C n
+  := (λ f, f • (λ i, pr (a i))).
 
 (* Define the unitality property of the algebraic theory *)
 Definition comp_project_component (C : abstract_clone_data) : Prop := ∏
@@ -67,7 +72,11 @@ Qed.
 
 Definition abstract_clone := total2 is_abstract_clone.
 
-Definition make_abstract_clone (T : abstract_clone_data) (H : is_abstract_clone T) : abstract_clone := (T ,, H).
+Definition make_abstract_clone
+  (T : abstract_clone_data)
+  (H : is_abstract_clone T)
+  : abstract_clone
+  := (T ,, H).
 
 Definition abstract_clone_data_from_abstract_clone : abstract_clone -> abstract_clone_data := pr1.
 Coercion abstract_clone_data_from_abstract_clone : abstract_clone >-> abstract_clone_data.
@@ -79,11 +88,11 @@ Lemma abstract_clone_eq
   (H3 : transportf (λ (T : nat → hSet), (∏ n, stn n → T n)) H1 (pr21 X) = (pr21 Y))
   : X = Y.
 Proof.
+  (* Is it possible to do this proof without destruct? *)
   destruct X as [[[Xf Xcomp] Xpr] HX].
   destruct Y as [[[Yf Ycomp] Ypr] HY].
   simpl in H1, H2, H3.
   induction H1, H2, H3.
   use (subtypePairEquality' _ (isaprop_is_abstract_clone _)).
-  repeat use total2_paths2_f;
-    apply idpath.
+  apply idpath.
 Qed.
