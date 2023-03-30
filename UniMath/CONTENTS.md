@@ -967,4 +967,12 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Induction/All.v)
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
+   - [AlgebraicBases.v](AlgebraicTheories/AlgebraicBases.v)
+   - [AbstractClones/AbstractClones.v](AlgebraicTheories/AbstractClones/AbstractClones.v)
+   - [AbstractClones/AbstractCloneMorphisms.v](AlgebraicTheories/AbstractClones/AbstractCloneMorphisms.v)
+   - [AbstractClones/AbstractCloneCategory.v](AlgebraicTheories/AbstractClones/AbstractCloneCategory.v)
+   - [AlgebraicTheories/AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories/AlgebraicTheories.v)
+   - [AlgebraicTheories/AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheories/AlgebraicTheoryMorphisms.v)
+   - [AbstractCloneAlgebraicTheory.v](AlgebraicTheories/AbstractCloneAlgebraicTheory.v)
+   - [examples/EndomorphismTheory.v](AlgebraicTheories/examples/EndomorphismTheory.v)
    - [All.v](AlgebraicTheories/All.v)
