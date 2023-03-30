@@ -26,6 +26,7 @@
  2. Products
  3. Equalizers
  4. Powers
+ 5. Type indexed coproducts
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -39,6 +40,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.PosetEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.
+Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoproducts.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoequalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -49,6 +51,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -148,7 +151,7 @@ Section PosetEnrichmentColimits.
        E _ _ (BinCoproductArrow (BC x₁ x₂) f g)
              (BinCoproductArrow (BC x₁ x₂) f' g').
 
-  Proposition isaprop_poset_enrichment_coprod
+  Proposition isaprop_poset_enrichment_binary_coprod
               (HC : is_univalent C)
     : isaprop poset_enrichment_binary_coprod.
   Proof.
@@ -162,26 +165,26 @@ Section PosetEnrichmentColimits.
   Section PosetEnrichedCoprodAccessors.
     Context (EBC : poset_enrichment_binary_coprod).
 
-    Definition poset_enrichment_obj_coprod
+    Definition poset_enrichment_obj_binary_coprod
                (x y : C)
       : C
       := pr1 EBC x y.
 
     Definition poset_enrichment_obj_in1
                (x y : C)
-      : x --> poset_enrichment_obj_coprod x y
+      : x --> poset_enrichment_obj_binary_coprod x y
       := BinCoproductIn1 (pr1 EBC x y).
 
     Definition poset_enrichment_obj_in2
                (x y : C)
-      : y --> poset_enrichment_obj_coprod x y
+      : y --> poset_enrichment_obj_binary_coprod x y
       := BinCoproductIn2 (pr1 EBC x y).
 
     Definition poset_enrichment_obj_sum
                {z x y : C}
                (f : x --> z)
                (g : y --> z)
-      : poset_enrichment_obj_coprod x y --> z
+      : poset_enrichment_obj_binary_coprod x y --> z
       := BinCoproductArrow (pr1 EBC x y) f g.
 
     Proposition poset_enrichment_obj_in1_sum
@@ -206,9 +209,9 @@ Section PosetEnrichmentColimits.
       apply BinCoproductIn2Commutes.
     Qed.
 
-    Proposition poset_enrichment_coprod_arr_eq
+    Proposition poset_enrichment_binary_coprod_arr_eq
                 {w x y : C}
-                {f g : poset_enrichment_obj_coprod x y --> w}
+                {f g : poset_enrichment_obj_binary_coprod x y --> w}
                 (p : poset_enrichment_obj_in1 x y · f
                      =
                      poset_enrichment_obj_in1 x y · g)
@@ -222,9 +225,9 @@ Section PosetEnrichmentColimits.
       - exact q.
     Qed.
 
-    Definition poset_enrichment_coprod_pair
+    Definition poset_enrichment_binary_coprod_pair
                (x y z : C)
-      : E' ⦃ x , z ⦄ ⊗ (E' ⦃ y , z ⦄) --> E' ⦃ poset_enrichment_obj_coprod x y , z⦄.
+      : E' ⦃ x , z ⦄ ⊗ (E' ⦃ y , z ⦄) --> E' ⦃ poset_enrichment_obj_binary_coprod x y , z ⦄.
     Proof.
       simple refine (_ ,, _).
       - exact (λ fg, poset_enrichment_obj_sum (pr1 fg) (pr2 fg)).
@@ -243,7 +246,7 @@ Section PosetEnrichmentColimits.
       : enriched_binary_coprod_cocone E' x y.
     Proof.
       use make_enriched_binary_coprod_cocone.
-      - exact (poset_enrichment_obj_coprod EBC x y).
+      - exact (poset_enrichment_obj_binary_coprod EBC x y).
       - exact (enriched_from_arr E' (poset_enrichment_obj_in1 EBC x y)).
       - exact (enriched_from_arr E' (poset_enrichment_obj_in2 EBC x y)).
     Defined.
@@ -253,7 +256,7 @@ Section PosetEnrichmentColimits.
     Proof.
       use make_is_binary_coprod_enriched.
       - intros z P f g.
-        refine (_ · poset_enrichment_coprod_pair _ _ _ _).
+        refine (_ · poset_enrichment_binary_coprod_pair _ _ _ _).
         simple refine (_ ,, _).
         + exact (prodtofuntoprod (pr1 f ,, pr1 g)).
         + apply prodtofun_is_monotone.
@@ -273,7 +276,7 @@ Section PosetEnrichmentColimits.
           (intros z P φ₁ φ₂ q₁ q₂ ;
            use eq_monotone_function ;
            intro w ;
-           use poset_enrichment_coprod_arr_eq ;
+           use poset_enrichment_binary_coprod_arr_eq ;
            [ exact (eqtohomot (maponpaths (λ f, pr1 f) q₁) w)
            | exact (eqtohomot (maponpaths (λ f, pr1 f) q₂) w) ]).
     Defined.
@@ -398,7 +401,7 @@ Section PosetEnrichmentColimits.
     Qed.
   End ToPosetCoproduct.
 
-  Definition to_poset_enrichment_coprod
+  Definition to_poset_enrichment_binary_coprod
              (EP : enrichment_binary_coprod E')
     : poset_enrichment_binary_coprod.
   Proof.
@@ -415,10 +418,10 @@ Section PosetEnrichmentColimits.
     : enrichment_binary_coprod E' ≃ poset_enrichment_binary_coprod.
   Proof.
     use weqimplimpl.
-    - apply to_poset_enrichment_coprod.
+    - apply to_poset_enrichment_binary_coprod.
     - apply make_poset_enrichment_binary_coprod.
     - apply (isaprop_enrichment_binary_coprod HC).
-    - apply (isaprop_poset_enrichment_coprod HC).
+    - apply (isaprop_poset_enrichment_binary_coprod HC).
   Defined.
 
   (**
@@ -813,4 +816,242 @@ Section PosetEnrichmentColimits.
     - exact (poset_copower_cocone HE P x).
     - apply poset_copower_is_copower.
   Defined.
+
+  (**
+   5. Type indexed products
+   *)
+  Section TypeIndexedCoproducts.
+    Context (J : UU).
+
+    Definition poset_enrichment_coprod
+      : UU
+      := ∑ (PC : Coproducts J C),
+         ∏ (x : C)
+           (ys : J → C)
+           (fs₁ : ∏ (j : J), ys j --> x)
+           (fs₂ : ∏ (j : J), ys j --> x)
+           (q : ∏ (j : J), E _ _ (fs₁ j) (fs₂ j)),
+         E _ _ (CoproductArrow _ _ (PC ys) fs₁)
+               (CoproductArrow _ _ (PC ys) fs₂).
+
+    Proposition isaprop_poset_enrichment_coprod
+                (HC : is_univalent C)
+      : isaprop poset_enrichment_coprod.
+    Proof.
+      simple refine (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
+      - repeat (use impred ; intro).
+        apply isaprop_Coproduct.
+        exact HC.
+      - repeat (use impred ; intro).
+        apply propproperty.
+    Qed.
+
+    Section PosetEnrichedCoprodAccessors.
+      Context (EC : poset_enrichment_coprod).
+
+      Definition poset_enrichment_obj_coprod
+                 (ys : J → C)
+        : C
+        := pr1 EC ys.
+
+      Definition poset_enrichment_obj_coprod_in
+                 (ys : J → C)
+                 (j : J)
+        : ys j --> poset_enrichment_obj_coprod ys
+        := CoproductIn _ _ (pr1 EC ys) j.
+
+      Definition poset_enrichment_obj_coprod_sum
+                 {x : C}
+                 {ys : J → C}
+                 (fs : ∏ (j : J), ys j --> x)
+        : poset_enrichment_obj_coprod ys --> x
+        := CoproductArrow _ _ (pr1 EC ys) fs.
+
+      Proposition poset_enrichment_obj_coprod_in_sum
+                  {x : C}
+                  {ys : J → C}
+                  (fs : ∏ (j : J), ys j --> x)
+                  (j : J)
+        : poset_enrichment_obj_coprod_in ys j · poset_enrichment_obj_coprod_sum fs
+          =
+          fs j.
+      Proof.
+        apply CoproductInCommutes.
+      Qed.
+
+      Proposition poset_enrichment_coprod_arr_eq
+                  {x : C}
+                  {ys : J → C}
+                  {f g : poset_enrichment_obj_coprod ys --> x}
+                  (p : ∏ (j : J),
+                       poset_enrichment_obj_coprod_in ys j · f
+                       =
+                       poset_enrichment_obj_coprod_in ys j · g)
+        : f = g.
+      Proof.
+        use (CoproductArrow_eq _ _ _ (pr1 EC ys)).
+        exact p.
+      Qed.
+
+      Definition poset_enrichment_coprod_pair
+                 (x : C)
+                 (ys : J → C)
+        : Products_category_of_posets J (λ j, E' ⦃ ys j , x ⦄)
+          -->
+          E' ⦃ poset_enrichment_obj_coprod ys , x ⦄.
+      Proof.
+        simple refine (_ ,, _).
+        - exact (λ fs, poset_enrichment_obj_coprod_sum (λ j, fs j)).
+        - intros fs₁ fs₂ p.
+          apply (pr2 EC).
+          exact p.
+      Defined.
+    End PosetEnrichedCoprodAccessors.
+
+    Section PosetCoprod.
+      Context (EC : poset_enrichment_coprod)
+              (ys : J → C).
+
+      Definition make_poset_enriched_coprod_cocone
+        : enriched_coprod_cocone E' ys.
+      Proof.
+        use make_enriched_coprod_cocone.
+        - exact (poset_enrichment_obj_coprod EC ys).
+        - exact (λ j, enriched_from_arr E' (poset_enrichment_obj_coprod_in EC ys j)).
+      Defined.
+
+      Definition poset_enrichment_coprod_is_coprod
+        : is_coprod_enriched E' ys make_poset_enriched_coprod_cocone.
+      Proof.
+        use make_is_coprod_enriched.
+        - intros z P fs.
+          refine (_ · poset_enrichment_coprod_pair _ _ _).
+          simple refine (_ ,, _).
+          + exact (λ x j, pr1 (fs j) x).
+          + abstract
+              (use is_monotone_depfunction_poset_pair ;
+               intro j ;
+               exact (pr2 (fs j))).
+        - abstract
+            (intros z P f g ;
+             use eq_monotone_function ;
+             intros w ; cbn ;
+             apply poset_enrichment_obj_coprod_in_sum).
+        - abstract
+            (intros z P φ₁ φ₂ q ;
+             use eq_monotone_function ;
+             intro w ;
+             use poset_enrichment_coprod_arr_eq ;
+             intro j ;
+             exact (eqtohomot (maponpaths (λ f, pr1 f) (q j)) w)).
+      Defined.
+    End PosetCoprod.
+
+    Definition make_poset_enrichment_coprod
+               (EC : poset_enrichment_coprod)
+      : enrichment_coprod E' J
+      := λ ys,
+         make_poset_enriched_coprod_cocone EC ys
+         ,,
+         poset_enrichment_coprod_is_coprod EC ys.
+
+    Section ToPosetCoproduct.
+      Context (EP : enrichment_coprod E' J)
+              {x : C}
+              (ys : J → C).
+
+      Let prod : poset_sym_mon_closed_cat
+        := Products_category_of_posets J (λ j, E' ⦃ ys j , x ⦄).
+
+      Let prod_pr : ∏ (j : J), prod --> E' ⦃ ys j , x ⦄
+          := λ j, _ ,, is_monotone_depfunction_poset_pr _ _ _.
+
+      Definition poset_to_underlying_coprod_map
+                 (fs : ∏ (j : J), ys j --> x)
+        : underlying_Coproduct E' ys (pr2 (EP ys)) --> x
+        := pr1 (ProductArrow
+                  J
+                  category_of_posets
+                  (is_coprod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                  prod_pr)
+             fs.
+
+      Proposition poset_to_underlying_coprod_map_pr
+                  (fs : ∏ (j : J), ys j --> x)
+                  (j : J)
+        : enriched_coprod_cocone_in E' ys (pr1 (EP ys)) j
+          · poset_to_underlying_coprod_map fs
+          =
+          fs j.
+      Proof.
+        exact (eqtohomot
+                 (maponpaths
+                    pr1
+                    (ProductPrCommutes
+                       J category_of_posets _
+                       (is_coprod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                       _
+                       prod_pr
+                       j))
+                 fs).
+      Qed.
+
+      Proposition poset_to_underlying_coprod_map_monotone
+                  {φ ψ : ∏ (j : J), ys j --> x}
+                  (p : ∏ (j : J), E (ys j) x (φ j) (ψ j))
+        : E _ _ (poset_to_underlying_coprod_map φ)
+                (poset_to_underlying_coprod_map ψ).
+      Proof.
+        exact (pr2 (@ProductArrow
+                      _ _ _
+                      (is_coprod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                      prod
+                      prod_pr)
+                 φ
+                 ψ
+                 p).
+      Qed.
+
+      Proposition poset_to_underlying_coprod_map_eq
+                  (fs : ∏ (j : J), ys j --> x)
+        : CoproductArrow _ C (underlying_Coproduct E' ys (pr2 (EP ys))) fs
+          =
+          poset_to_underlying_coprod_map fs.
+      Proof.
+        use is_coprod_enriched_arrow_eq.
+        - exact (pr2 (EP ys)).
+        - intro j.
+          refine (_ @ !(poset_to_underlying_coprod_map_pr fs j)).
+          apply (CoproductInCommutes
+                   _ C
+                   _
+                   (underlying_Coproduct E' ys (pr2 (EP ys)))
+                   _
+                   fs).
+      Qed.
+    End ToPosetCoproduct.
+
+    Definition to_poset_enrichment_coprod
+               (EP : enrichment_coprod E' J)
+      : poset_enrichment_coprod.
+    Proof.
+      simple refine (_ ,, _).
+      - exact (λ ys, underlying_Coproduct E' ys (pr2 (EP ys))).
+      - abstract
+          (intros x ys fs₁ fs₂ p ;
+           rewrite !poset_to_underlying_coprod_map_eq ;
+           apply (poset_to_underlying_coprod_map_monotone EP _ p)).
+    Defined.
+
+    Definition poset_enrichment_prod_weq
+               (HC : is_univalent C)
+      : enrichment_coprod E' J ≃ poset_enrichment_coprod.
+    Proof.
+      use weqimplimpl.
+      - apply to_poset_enrichment_coprod.
+      - apply make_poset_enrichment_coprod.
+      - apply (isaprop_enrichment_coprod HC).
+      - apply (isaprop_poset_enrichment_coprod HC).
+    Defined.
+  End TypeIndexedCoproducts.
 End PosetEnrichmentColimits.
