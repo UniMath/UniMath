@@ -4,9 +4,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicBase.
-Require Import UniMath.AlgebraicTheories.AbstractClone.
-Require Import UniMath.AlgebraicTheories.AbstractCloneMorphism.
+Require Import UniMath.AlgebraicTheories.AlgebraicBases.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
 
 Definition id_morphism_data (C : abstract_clone_data) : abstract_clone_morphism_data C C := λ _ x, x.
 

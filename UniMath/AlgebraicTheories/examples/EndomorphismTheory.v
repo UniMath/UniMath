@@ -4,9 +4,9 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.products.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicBase.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheory.
-Require Import UniMath.AlgebraicTheories.AbstractClone.
+Require Import UniMath.AlgebraicTheories.AlgebraicBases.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
 
 Local Open Scope cat.

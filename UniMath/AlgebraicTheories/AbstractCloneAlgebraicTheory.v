@@ -5,8 +5,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicTheory.
-Require Import UniMath.AlgebraicTheories.AbstractClone.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
 Local Open Scope cat.
@@ -18,7 +18,7 @@ Proof.
   use make_abstract_clone_data.
   - apply T. 
   - intros.
-    apply AlgebraicTheory.pr.
+    apply AlgebraicTheories.pr.
     assumption.
 Defined.
 
@@ -26,7 +26,7 @@ Lemma is_abstract_clone_from_algebraic_theory (T : algebraic_theory) : is_abstra
 Proof.
   use make_is_abstract_clone. 
   - intros m n.
-    apply AlgebraicTheory.comp_project_component.
+    apply AlgebraicTheories.comp_project_component.
   - apply (pr12 (pr222 T)).
   - apply (pr122 T).
 Qed.
@@ -39,7 +39,7 @@ Proof.
   intros C.
   use make_algebraic_theory_data.
   - apply C.
-  - exact (AbstractClone.pr firstelement).
+  - exact (AbstractClones.pr firstelement).
   - exact (λ _ _ a f, reindex a f).
 Defined.
 
@@ -77,7 +77,7 @@ Proof.
     apply H1.
   - intro.
     intros.
-    unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBase.comp.
+    unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBases.comp.
     simpl.
     rewrite H3.
     apply maponpaths, funextfun.
@@ -95,7 +95,7 @@ Proof.
   - apply idpath.
   - rewrite idpath_transportf.
     simpl.
-    unfold AlgebraicTheory.pr, e.
+    unfold AlgebraicTheories.pr, e.
     simpl.
     assert (H1 : (λ (_ : stn 1), firstelement) = identity (1 : finite_set_skeleton_category)).
     {

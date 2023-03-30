@@ -1,8 +1,10 @@
 FiniteSetSkeleton.v
-AlgebraicBase.v
-AbstractClone.v
-AbstractCloneMorphism.v
-AlgebraicTheory.v
-AlgebraicTheoryMorphism.v
+AlgebraicBases.v
+AbstractClones/AbstractClones.v
+AbstractClones/AbstractCloneMorphisms.v
+AbstractClones/AbstractCloneCategory.v
+AlgebraicTheories/AlgebraicTheories.v
+AlgebraicTheories/AlgebraicTheoryMorphisms.v
+
 AbstractCloneAlgebraicTheory.v
-EndomorphismTheory.v
+examples/EndomorphismTheory.v

@@ -6,7 +6,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AlgebraicBase.
+Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theory.

@@ -2,8 +2,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicBase.
-Require Import UniMath.AlgebraicTheories.AbstractClone.
+Require Import UniMath.AlgebraicTheories.AlgebraicBases.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 
 Local Open Scope algebraic_theory.
 
