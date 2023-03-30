@@ -178,7 +178,7 @@ Section PosetEnrichmentLimits.
       apply BinProductPr2Commutes.
     Qed.
 
-    Proposition poset_enrichment_arr_eq
+    Proposition poset_enrichment_prod_arr_eq
                 {w x y : C}
                 {f g : w --> poset_enrichment_obj_prod x y}
                 (p : f · poset_enrichment_obj_pr1 x y
@@ -245,7 +245,7 @@ Section PosetEnrichmentLimits.
           (intros z P φ₁ φ₂ q₁ q₂ ;
            use eq_monotone_function ;
            intro w ;
-           use poset_enrichment_arr_eq ;
+           use poset_enrichment_prod_arr_eq ;
            [ exact (eqtohomot (maponpaths (λ f, pr1 f) q₁) w)
            | exact (eqtohomot (maponpaths (λ f, pr1 f) q₂) w) ]).
     Defined.

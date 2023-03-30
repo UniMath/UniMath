@@ -385,3 +385,45 @@ use make_Product.
 Defined.
 
 End products_from_limits.
+
+(**
+ Products are closed under iso
+ *)
+Definition isProduct_z_iso
+           {C : category}
+           {J : UU}
+           (D : J → C)
+           {x y : C}
+           (h : z_iso x y)
+           (px : ∏ (j : J), x --> D j)
+           (py : ∏ (j : J), y --> D j)
+           (Hx : isProduct J _ D x px)
+           (q : ∏ (j : J), py j = inv_from_z_iso h · px j)
+  : isProduct J _ D y py.
+Proof.
+  use make_isProduct.
+  {
+    apply homset_property.
+  }
+  intros z f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; use impred ; intro ; apply homset_property | ] ;
+       use (cancel_z_iso _ _ (z_iso_inv h)) ;
+       use (ProductArrow_eq _ _ _ (make_Product _ _ _ _ _ Hx)) ; cbn ;
+       intro j ;
+       rewrite !assoc' ;
+       rewrite <- q ;
+       exact (pr2 φ₁ j @ !(pr2 φ₂ j))).
+  - refine (ProductArrow _ _ (make_Product _ _ _ _ _ Hx) f · h ,, _).
+    abstract
+      (intro j ;
+       rewrite !assoc' ;
+       rewrite q ;
+       rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+       rewrite z_iso_inv_after_z_iso ;
+       rewrite id_left ;
+       apply ProductPrCommutes).
+Defined.

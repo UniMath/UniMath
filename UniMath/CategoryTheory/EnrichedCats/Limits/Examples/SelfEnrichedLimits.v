@@ -11,6 +11,7 @@
  2. Products
  3. Equalizers
  4. Powers
+ 5. Type indexed products
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -20,6 +21,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.
+Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedProducts.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedEqualizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -28,6 +30,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.limits.products.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -791,5 +794,86 @@ Section SelfEnrichmentLimits.
   Definition self_enrichment_powers
     : enrichment_power (self_enrichment V)
     := λ v₁ v₂,
-       self_enrichment_power_cone v₁ v₂ ,, is_power_self_enrichment_power_cone v₁ v₂.
+      self_enrichment_power_cone v₁ v₂
+      ,,
+      is_power_self_enrichment_power_cone v₁ v₂.
+
+  (**
+   5. Type indexed products
+   *)
+  Section SelfEnrichmentProduct.
+    Context {J : UU}
+            {D : J → V}
+            (prod : Product J V D).
+
+    Definition self_enrichment_prod_cone
+      : enriched_prod_cone (self_enrichment V) D.
+    Proof.
+      use make_enriched_prod_cone.
+      - exact prod.
+      - exact (λ j,
+               enriched_from_arr
+                 (self_enrichment V)
+                 (ProductPr _ _ prod j)).
+    Defined.
+
+    Definition self_enrichment_is_product
+      : is_prod_enriched
+          (self_enrichment V)
+          D
+          self_enrichment_prod_cone.
+    Proof.
+      use make_is_prod_enriched.
+      - exact (λ v₁ v₂ f,
+               internal_lam
+                 (ProductArrow
+                    _ _
+                    prod
+                    (λ j, f j #⊗ identity _ · internal_eval _ _))).
+      - abstract
+          (intros v₁ v₂ f j ; cbn ;
+           rewrite self_enrichment_postcomp ;
+           use internal_funext ;
+           intros a h ;
+           rewrite tensor_comp_r_id_r ;
+           rewrite !assoc' ;
+           rewrite internal_beta ;
+           rewrite tensor_split ;
+           rewrite !assoc' ;
+           rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+           rewrite internal_beta ;
+           rewrite internal_to_from_arr ;
+           rewrite ProductPrCommutes ;
+           rewrite !assoc ;
+           rewrite <- tensor_split ;
+           apply idpath).
+      - abstract
+          (intros v₁ v₂ φ₁ φ₂ p ; cbn in * ;
+           use internal_funext ;
+           intros a h ;
+           use (ProductArrow_eq _ _ _ prod) ;
+           intro j ;
+           pose (q := maponpaths (λ z, z #⊗ identity _ · internal_eval _ _) (p j)) ;
+           cbn in q ;
+           rewrite !self_enrichment_postcomp in q ;
+           rewrite !tensor_comp_id_r in q ;
+           rewrite !assoc' in q ;
+           rewrite !internal_beta in q ;
+           rewrite !internal_to_from_arr in q ;
+           rewrite (tensor_split φ₁ h) ;
+           rewrite (tensor_split φ₂ h) ;
+           rewrite !assoc' ;
+           rewrite q ;
+           apply idpath).
+    Defined.
+  End SelfEnrichmentProduct.
+
+  Definition self_enrichment_prod
+             (J : UU)
+             (PV : Products J V)
+    : enrichment_prod (self_enrichment V) J
+    := λ D,
+       self_enrichment_prod_cone (PV D)
+       ,,
+       self_enrichment_is_product (PV D).
 End SelfEnrichmentLimits.

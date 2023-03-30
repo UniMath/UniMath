@@ -97,6 +97,19 @@ Proof.
   now apply CoproductArrowUnique.
 Qed.
 
+Proposition CoproductArrow_eq
+            {d : I → C}
+            (z : C)
+            (x : Coproduct d)
+            (f g : x --> z)
+            (p : ∏ (i : I), CoproductIn x i · f = CoproductIn x i · g)
+  : f = g.
+Proof.
+  refine (CoproductArrowEta _ _ _ _ @ _ @ !(CoproductArrowEta _ _ _ _)).
+  apply maponpaths.
+  use funextsec.
+  exact p.
+Qed.
 
 Definition CoproductOfArrows {a : I -> C} (CCab : Coproduct a) {c : I -> C}
     (CCcd : Coproduct c) (f : ∏ i, a i --> c i) :

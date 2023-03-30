@@ -30,6 +30,7 @@
  2. Binary coproducts
  3. Coequalizers
  4. Copowers
+ 5. Type indexed coproducts
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -41,6 +42,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.
+Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoproducts.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoequalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
@@ -50,6 +52,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.limits.Preservation.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -514,4 +517,118 @@ Section SelfEnrichmentColimits.
        self_enrichment_copower_cocone v₁ v₂
        ,,
        self_enrichment_is_copower v₁ v₂.
+
+  (**
+   5. Type indexed coproducts
+   *)
+  Section SelfEnrichmentTypeCoproduct.
+    Context {J : UU}
+            {D : J → V}
+            (coprod : Coproduct J V D).
+
+    Let ι : ∏ (j : J), I_{V} --> D j ⊸ coprod
+      := λ j,
+         enriched_from_arr
+           (self_enrichment V)
+           (CoproductIn _ _ coprod j).
+
+    Definition self_enriched_coprod_cocone
+      : enriched_coprod_cocone (self_enrichment V) D.
+    Proof.
+      use make_enriched_coprod_cocone.
+      - exact coprod.
+      - exact ι.
+    Defined.
+
+    Definition self_enriched_is_coprod_weq_path
+               {w z : V}
+               (f : ∏ (j : J), z --> D j ⊸ w)
+               (fs : z --> coprod ⊸ w)
+               (j : J)
+      : (fs · precomp_arr
+                (self_enrichment V)
+                w
+                (internal_to_arr (internal_from_arr (CoproductIn J V coprod j)))
+         =
+         f j)
+        ≃
+        (identity z #⊗ CoproductIn J V coprod j
+         · (fs #⊗ identity coprod · internal_eval coprod w)
+         =
+         f j #⊗ identity (D j) · internal_eval (D j) w).
+    Proof.
+      rewrite internal_to_from_arr.
+      rewrite self_enrichment_precomp.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      use weqimplimpl.
+      - intro p.
+        pose (maponpaths (λ z, z #⊗ identity _ · internal_eval _ _) p) as q.
+        cbn in q.
+        rewrite tensor_comp_id_r in q.
+        rewrite !assoc' in q.
+        rewrite internal_beta in q.
+        rewrite !assoc in q.
+        rewrite <- tensor_split' in q.
+        exact q.
+      - intro p.
+        use internal_funext.
+        intros a h.
+        rewrite tensor_comp_r_id_r.
+        rewrite !assoc'.
+        rewrite internal_beta.
+        rewrite !assoc.
+        rewrite (tensor_split fs h).
+        rewrite (tensor_split (f j) h).
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_split'.
+        exact p.
+      - apply homset_property.
+      - apply homset_property.
+    Qed.
+
+    Definition self_enriched_is_coprod_weq
+               {w z : V}
+               (f : ∏ (j : J), z --> D j ⊸ w)
+      : (∑ (fs : z --> coprod ⊸ w),
+         ∏ (j : J),
+         fs · precomp_arr (self_enrichment V) w (internal_to_arr (ι j)) = f j)
+        ≃
+        (∑ (fs : z ⊗ coprod --> w),
+         ∏ (j : J),
+         identity z #⊗ CoproductIn _ _ coprod j · fs
+         =
+         f j #⊗ identity _ · internal_eval (D j) w).
+    Proof.
+      use weqtotal2.
+      - exact (internal_hom_equiv z coprod w).
+      - intro fs ; cbn -[ι].
+        use weqonsecfibers.
+        intro j.
+        apply self_enriched_is_coprod_weq_path.
+    Defined.
+
+    Definition self_enriched_is_coprod
+      : is_coprod_enriched (self_enrichment V) D self_enriched_coprod_cocone.
+    Proof.
+      intros w z f.
+      use (iscontrweqb (self_enriched_is_coprod_weq f)).
+      apply (left_adjoint_preserves_coproduct
+               _
+               (sym_mon_closed_left_tensor_left_adjoint V z)
+                _ _ _ _
+               (pr2 coprod)).
+    Defined.
+  End SelfEnrichmentTypeCoproduct.
+
+  Definition self_enrichment_coprod
+             (J : UU)
+             (HV : Coproducts J V)
+    : enrichment_coprod (self_enrichment V) J
+    := λ D,
+       self_enriched_coprod_cocone (HV D)
+       ,,
+       self_enriched_is_coprod (HV D).
 End SelfEnrichmentColimits.
