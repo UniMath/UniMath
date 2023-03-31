@@ -72,10 +72,8 @@ Section EndomorphismAlgebraicTheory.
     use make_abstract_clone_data.
     - use make_algebraic_base.
       + intro n.
-        use make_hSet.
-        * exact (C⟦power_function_set n, X⟧).
-        * apply C. 
-      + intros ? ? f g.
+        use (homset (power_function_set n) X).
+      + intros m n f g.
         exact (f ∘ (induced_map g)).
     - exact power_function_projection.
   Defined.
