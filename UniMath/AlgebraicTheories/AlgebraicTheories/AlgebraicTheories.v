@@ -29,7 +29,7 @@ Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
 
 Definition Tmor {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m → T n := pr22 T m n.
 
-Definition pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := Tmor (λ (x : stn 1), i) e.
+Definition theory_pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := Tmor (λ (x : stn 1), i) e.
 
 Definition algebraic_theory_data_to_functor_data
   (T : algebraic_theory_data)
@@ -54,7 +54,7 @@ Definition comp_is_unital (T : algebraic_theory_data) : UU := ∏
 Definition comp_identity_projections (T : algebraic_theory_data) : UU := ∏
   (n : nat)
   (f : T n),
-    f • (λ i, pr i) = f.
+    f • (λ i, theory_pr i) = f.
 
 (* Define naturality of the composition in the first argument *)
 Definition comp_is_natural_l (T : algebraic_theory_data) : UU := ∏
@@ -134,7 +134,7 @@ Lemma functor_uses_projections
   (m n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, n⟧)
   (f : T m)
-  : Tmor a f = f • (λ i, pr (a i)).
+  : Tmor a f = f • (λ i, theory_pr (a i)).
 Proof.
   rewrite <- (pr12 (pr222 T) n (Tmor a f)).
   apply T.
@@ -145,9 +145,9 @@ Lemma comp_project_component
   (m n : nat)
   (i : stn m)
   (f : stn m → T n)
-  : (pr i) • f = f i.
+  : (theory_pr i) • f = f i.
 Proof.
-  unfold pr.
+  unfold theory_pr.
   rewrite (pr22 (pr222 T)).
   apply T.
 Qed.

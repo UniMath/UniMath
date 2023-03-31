@@ -25,7 +25,7 @@ Definition algebraic_theory_morphism_data_to_nat_trans_data
 Definition preserves_projections {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
   (n : finite_set_skeleton_category)
   (i : stn n),
-    (F n (pr i)) = (pr i).
+    (F n (theory_pr i)) = (theory_pr i).
 
 Definition preserves_composition {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
   (m n : finite_set_skeleton_category)

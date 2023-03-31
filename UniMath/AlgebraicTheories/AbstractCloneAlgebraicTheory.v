@@ -19,7 +19,7 @@ Proof.
   use make_abstract_clone_data.
   - exact T. 
   - intros.
-    apply AlgebraicTheories.pr.
+    apply theory_pr.
     assumption.
 Defined.
 
@@ -48,7 +48,7 @@ Definition algebraic_theory_data_from_abstract_clone
 Proof.
   use make_algebraic_theory_data.
   - exact C.
-  - exact (AbstractClones.pr firstelement).
+  - exact (clone_pr firstelement).
   - exact (λ _ _ a f, reindex a f).
 Defined.
 
@@ -108,7 +108,7 @@ Proof.
   - apply idpath.
   - rewrite idpath_transportf.
     simpl.
-    unfold AlgebraicTheories.pr, e.
+    unfold theory_pr, e.
     simpl.
     assert (H1 : (λ (_ : stn 1), firstelement) = identity (1 : finite_set_skeleton_category)).
     {

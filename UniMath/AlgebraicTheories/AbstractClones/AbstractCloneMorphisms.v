@@ -18,7 +18,7 @@ Definition preserves_composition {C C'} (F : abstract_clone_morphism_data C C') 
 Definition preserves_projections {C C'} (F : abstract_clone_morphism_data C C') := ∏
     (n : nat)
     (i : stn n),
-    F _ (@pr C n i) = @pr C' n i.
+    F _ (@clone_pr C n i) = @clone_pr C' n i.
 
 Definition is_abstract_clone_morphism {C C'} (F : abstract_clone_morphism_data C C') :=
     preserves_composition F ×

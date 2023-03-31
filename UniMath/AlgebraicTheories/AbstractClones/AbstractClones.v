@@ -19,27 +19,29 @@ Defined.
 
 Coercion algebraic_base_from_abstract_clone (C : abstract_clone_data) : algebraic_base := pr1 C.
 
-Definition pr {C : abstract_clone_data} {n : nat} := pr2 C n.
+Definition clone_pr {C : abstract_clone_data} {n}
+  : stn n → C n
+  := pr2 C n.
 
 Definition reindex
   {C : abstract_clone_data}
   {m n : nat}
   (a : stn m → stn n)
   : C m → C n
-  := (λ f, f • (λ i, pr (a i))).
+  := (λ f, f • (λ i, clone_pr (a i))).
 
 (* Define the unitality property of the algebraic theory *)
 Definition comp_project_component (C : abstract_clone_data) : UU := ∏
   (m n : nat)
   (i : stn m)
   (f : stn m → C n),
-    (pr i) • f = f i.
+    (clone_pr i) • f = f i.
 
 (* Define the compatibility of the projection function with composition *)
 Definition comp_identity_projections (C : abstract_clone_data) : UU := ∏
   (n : nat)
   (f : C n),
-    f • (λ i, pr i) = f.
+    f • (λ i, clone_pr i) = f.
 
 (* Define the associativity property of the algebraic theory *)
 Definition comp_is_assoc (C : abstract_clone_data) : UU := ∏
