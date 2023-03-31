@@ -8,9 +8,11 @@
  3. Preservation of pullbacks
  4. Preservation of initial objects
  5. Preservation of binary coproducts
- 6. Adjunctions and preservation
- 6.1 Right adjoints preserve limits
- 6.2 Left adjoints preserve colimits
+ 6. Preservation of coequalizers
+ 7. Preservation of coproducts
+ 8. Adjunctions and preservation
+ 8.1 Right adjoints preserve limits
+ 8.2 Left adjoints preserve colimits
 
  *********************************************************)
 Require Import UniMath.Foundations.All.
@@ -24,6 +26,8 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
@@ -414,7 +418,162 @@ Proof.
 Defined.
 
 (**
- 6. Adjunctions and preservation
+ 6. Preservation of coequalizers
+ *)
+Definition preserves_coequalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y c : C₁)
+       (f g : x --> y)
+       (h : y --> c)
+       (p : f · h = g · h)
+       (Fp : #F f · #F h = #F g · #F h),
+     isCoequalizer f g h p
+     →
+     isCoequalizer (#F f) (#F g) (#F h) Fp.
+
+Definition identity_preserves_coequalizer
+           (C : category)
+  : preserves_coequalizer (functor_identity C)
+  := λ _ _ _ _ _ _ _ _ Hx, Hx.
+
+Definition composition_preserves_coequalizer
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           (HF : preserves_coequalizer F)
+           (HG : preserves_coequalizer G)
+  : preserves_coequalizer (F ∙ G).
+Proof.
+  intros ? ? ? ? ? ? ? ? Hx.
+  use HG.
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite p ;
+       apply idpath).
+  - use HF.
+    + exact p.
+    + exact Hx.
+Defined.
+
+Definition isaprop_preserves_coequalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : isaprop (preserves_coequalizer F).
+Proof.
+  repeat (use impred ; intro).
+  use isapropiscontr.
+Qed.
+
+Definition preserves_chosen_coequalizer
+           {C₁ C₂ : category}
+           (HC₁ : Coequalizers C₁)
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f g : x --> y)
+       (p : # F f · # F (CoequalizerArrow (HC₁ x y f g))
+            =
+            # F g · # F (CoequalizerArrow (HC₁ x y f g))),
+     isCoequalizer
+       (#F f)
+       (#F g)
+       (#F (CoequalizerArrow (HC₁ x y f g)))
+       p.
+
+Definition preserves_bincoproduct_if_preserves_coequalizers
+           {C₁ C₂ : category}
+           (HC₁ : Coequalizers C₁)
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_chosen_coequalizer HC₁ F)
+  : preserves_coequalizer F.
+Proof.
+  intros x y c f g h p Fp Hz.
+  use (Coequalizer_eq_ar
+            _
+            _
+            _
+            (pr22 (z_iso_to_Coequalizer
+                     (make_Coequalizer _ _ _ _ (HF x y f g _))
+                     (z_iso_inv
+                        (functor_on_z_iso
+                           F
+                           (z_iso_between_Coequalizer
+                              (make_Coequalizer _ _ _ _ Hz)
+                              (HC₁ x y f g))))))) ; cbn.
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite CoequalizerCommutes ;
+       apply idpath).
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite CoequalizerEqAr ;
+       apply idpath).
+Defined.
+
+(**
+ 7. Preservation of coproducts
+ *)
+Definition preserves_coproduct
+           (J : UU)
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (D : J → C₁)
+       (c : C₁)
+       (ι : ∏ (j : J), D j --> c),
+     isCoproduct J C₁ D c ι
+     →
+     isCoproduct J C₂ (λ j, F (D j)) (F c) (λ j, #F (ι j)).
+
+Definition identity_preserves_coproduct
+           (C : category)
+           (J : UU)
+  : preserves_coproduct J (functor_identity C)
+  := λ _ _ _ Hx, Hx.
+
+Definition composition_preserves_coproduct
+           (J : UU)
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           (HF : preserves_coproduct J F)
+           (HG : preserves_coproduct J G)
+  : preserves_coproduct J (F ∙ G).
+Proof.
+  intros ? ? ? Hx.
+  apply HG.
+  apply HF.
+  exact Hx.
+Defined.
+
+Definition isaprop_preserves_coproduct
+           (J : UU)
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : isaprop (preserves_coproduct J F).
+Proof.
+  repeat (use impred ; intro).
+  use isapropiscontr.
+Qed.
+
+Definition preserves_chosen_coproduct
+           (J : UU)
+           {C₁ C₂ : category}
+           (HC₁ : Coproducts J C₁)
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (D : J → C₁),
+     isCoproduct
+       J
+       C₂
+       (λ j, F(D j))
+       (F (HC₁ D))
+       (λ j, #F (CoproductIn _ _ (HC₁ D) j)).
+
+(**
+ 8. Adjunctions and preservation
  *)
 Section AdjunctionPreservation.
   Context {C₁ C₂ : category}
@@ -440,7 +599,7 @@ Section AdjunctionPreservation.
   Qed.
 
   (**
-   6.1 Right adjoints preserve limits
+   8.1 Right adjoints preserve limits
    *)
   Definition right_adjoint_preserves_terminal
     : preserves_terminal R.
@@ -696,7 +855,7 @@ Section AdjunctionPreservation.
   Qed.
 
   (**
-   6.2 Left adjoints preserve colimits
+   8.2 Left adjoints preserve colimits
    *)
   Definition left_adjoint_preserves_initial
     : preserves_initial L.
@@ -789,5 +948,119 @@ Section AdjunctionPreservation.
         refine (_ @ id_left _).
         apply maponpaths_2.
         apply triangle_1_help.
+  Qed.
+
+  Definition left_adjoint_preserves_coproduct
+             (J : UU)
+    : preserves_coproduct J L.
+  Proof.
+    intros D c ι Hc x f.
+    pose (S := make_Coproduct _ _ _ _ _ Hc).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros g₁ g₂.
+      use subtypePath.
+      {
+        intro ; use impred ; intro ; apply homset_property.
+      }
+      refine (!(id_left _) @ _ @ id_left _).
+      rewrite <- !triangle_1_help.
+      rewrite !assoc'.
+      refine (maponpaths (λ z, _ · z) (!(nat_trans_ax ε _ _ (pr1 g₁))) @ _).
+      refine (_ @ maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ (pr1 g₂))).
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+      apply maponpaths.
+      use (CoproductArrow_eq _ _ _ S).
+      intro j.
+      rewrite !assoc.
+      refine (maponpaths (λ z, z · _) (nat_trans_ax η _ _ _) @ _).
+      refine (_ @ maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ _))).
+      rewrite !assoc'.
+      apply maponpaths.
+      refine (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+      apply maponpaths.
+      exact (pr2 g₁ j @ !(pr2 g₂ j)).
+    - simple refine (_ ,, _).
+      + exact (#L (CoproductArrow _ _ S (λ j, η (D j) · #R (f j))) · ε x).
+      + intro j ; cbn -[η].
+        rewrite !assoc.
+        rewrite <- (functor_comp L).
+        rewrite (CoproductInCommutes _ _ _  S).
+        rewrite functor_comp.
+        rewrite !assoc'.
+        refine (maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ (f j)) @ _).
+        rewrite !assoc.
+        refine (_ @ id_left _).
+        apply maponpaths_2.
+        apply triangle_1_help.
+  Qed.
+
+  Definition left_adjoint_preserves_coequalizer
+    : preserves_coequalizer L.
+  Proof.
+    intros x y c f g h p Fp Hc z k q.
+    pose (Coeq := make_Coequalizer _ _ _ _ Hc).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro ; apply homset_property.
+      }
+      refine (!(id_left _) @ _ @ id_left _).
+      rewrite <- !triangle_1_help.
+      rewrite !assoc'.
+      refine (maponpaths (λ z, _ · z) (!(nat_trans_ax ε _ _ (pr1 φ₁))) @ _).
+      refine (_ @ maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ (pr1 φ₂))).
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+      apply maponpaths.
+      use (isCoequalizerOutsEq (pr22 Coeq)).
+      rewrite !assoc.
+      refine (maponpaths (λ z, z · _) (nat_trans_ax η _ _ _) @ _).
+      refine (_ @ maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ _))).
+      rewrite !assoc'.
+      apply maponpaths.
+      refine (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+      apply maponpaths.
+      exact (pr2 φ₁ @ !(pr2 φ₂)).
+    - simple refine (_ ,, _).
+      + refine (#L _ · ε z).
+        refine (CoequalizerOut Coeq _ (η y · #R k) _).
+        abstract
+          (rewrite !assoc ;
+           etrans ;
+           [ apply maponpaths_2 ;
+             exact (nat_trans_ax η _ _ f)
+           | ] ;
+           refine (!_) ;
+           etrans ;
+           [ apply maponpaths_2 ;
+             exact (nat_trans_ax η _ _ g)
+           | ] ;
+           cbn -[η] ;
+           rewrite !assoc' ;
+           rewrite <- !functor_comp ;
+           rewrite <- q ;
+           apply idpath).
+      + cbn -[η].
+        rewrite !assoc.
+        rewrite <- functor_comp.
+        rewrite (CoequalizerCommutes Coeq).
+        rewrite functor_comp.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (nat_trans_ax ε _ _ k).
+        }
+        cbn -[η].
+        rewrite !assoc.
+        refine (_ @ id_left _).
+        apply maponpaths_2.
+        exact (triangle_1_help y).
   Qed.
 End AdjunctionPreservation.

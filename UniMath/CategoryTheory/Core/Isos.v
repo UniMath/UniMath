@@ -970,3 +970,22 @@ Proof.
   refine (maponpaths (fun z => z · g) HH @ _).
   apply id_left.
 Qed.
+
+Definition is_z_isomorphism_path
+           {C : category}
+           {x y : C}
+           {f f' : x --> y}
+           (p : f = f')
+           (Hf : is_z_isomorphism f)
+  : is_z_isomorphism f'.
+Proof.
+  use make_is_z_isomorphism.
+  - exact (inv_from_z_iso (_ ,, Hf)).
+  - split.
+    + abstract
+        (rewrite <- p ;
+         apply (z_iso_inv_after_z_iso (_ ,, Hf))).
+    + abstract
+        (rewrite <- p ;
+         apply (z_iso_after_z_iso_inv (_ ,, Hf))).
+Defined.

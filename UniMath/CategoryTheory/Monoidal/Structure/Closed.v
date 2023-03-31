@@ -411,6 +411,91 @@ Section Accessors.
   Qed.
 End Accessors.
 
+Definition sym_mon_closed_left_tensor_left_adjoint_universal
+           (V : sym_mon_closed_cat)
+           (x y : V)
+  : is_universal_arrow_from
+      (monoidal_left_tensor x)
+      y
+      (x ⊸ y)
+      (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+Proof.
+  intros z f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply homset_property | ] ;
+       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
+       apply maponpaths ;
+       refine (!(id_left _) @ _ @ id_left _) ;
+       rewrite <- !sym_mon_braiding_inv ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       rewrite !assoc ;
+       rewrite <- !tensor_sym_mon_braiding ;
+       rewrite !assoc' ;
+       exact (!(pr2 φ₁) @ pr2 φ₂)).
+  - refine (internal_lam (sym_mon_braiding V z x · f) ,, _).
+    abstract
+      (cbn -[sym_mon_braiding] ;
+       rewrite !assoc ;
+       rewrite tensor_sym_mon_braiding ;
+       rewrite !assoc' ;
+       rewrite internal_beta ;
+       rewrite !assoc ;
+       rewrite sym_mon_braiding_inv ;
+       rewrite id_left ;
+       apply idpath).
+Defined.
+
+Definition sym_mon_closed_left_tensor_left_adjoint
+           (V : sym_mon_closed_cat)
+           (x : V)
+  : is_left_adjoint (monoidal_left_tensor x).
+Proof.
+  use left_adjoint_from_partial.
+  - exact (λ y, x ⊸ y).
+  - exact (λ y, sym_mon_braiding V _ _ · internal_eval _ _).
+  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x).
+Defined.
+
+Definition sym_mon_closed_left_tensor_right_adjoint_universal
+           (V : sym_mon_closed_cat)
+           (x y : V)
+  : is_universal_arrow_from
+      (monoidal_right_tensor x)
+      y
+      (x ⊸ y)
+      (internal_eval x y).
+Proof.
+  intros z f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply homset_property | ] ;
+       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
+       apply maponpaths ;
+       exact (!(pr2 φ₁) @ pr2 φ₂)).
+  - refine (internal_lam f ,, _).
+    abstract
+      (cbn ;
+       rewrite internal_beta ;
+       apply idpath).
+Defined.
+
+Definition sym_mon_closed_right_tensor_left_adjoint
+           (V : sym_mon_closed_cat)
+           (x : V)
+  : is_left_adjoint (monoidal_right_tensor x).
+Proof.
+  use left_adjoint_from_partial.
+  - exact (λ y, x ⊸ y).
+  - exact (λ y, internal_eval _ _).
+  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x).
+Defined.
+
 (**
  3. Standard functions
  *)
@@ -929,4 +1014,26 @@ Section StandardFunctions.
     rewrite id_right.
     apply idpath.
   Qed.
+
+  Definition internal_hom_equiv
+             (x y z : V)
+    : (x --> y ⊸ z) ≃ (x ⊗ y --> z).
+  Proof.
+    use weq_iso.
+    - exact (λ f, f #⊗ identity y · internal_eval y z).
+    - exact (λ f, internal_lam f).
+    - abstract
+        (intro f ; cbn ;
+         use internal_funext ;
+         intros w h ;
+         rewrite tensor_split ;
+         rewrite !assoc' ;
+         rewrite internal_beta ;
+         rewrite !assoc ;
+         rewrite <- tensor_split ;
+         apply idpath).
+    - abstract
+        (intro f ; cbn ;
+         apply internal_beta).
+  Defined.
 End StandardFunctions.
