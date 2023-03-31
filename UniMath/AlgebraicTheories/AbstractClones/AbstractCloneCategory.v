@@ -8,16 +8,10 @@ Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
 
-Definition id_morphism_data
-(C : abstract_clone_data)
-: abstract_clone_morphism_data C C
-:= λ _ x, x.
-
-Lemma id_is_morphism (C : abstract_clone_data) : is_abstract_clone_morphism (id_morphism_data C).
+Lemma id_is_morphism (C : abstract_clone_data) : is_abstract_clone_morphism (λ n (x : C n), x).
 Proof.
   use make_is_abstract_clone_morphism.
-  - unfold id_morphism_data.
-    repeat intro.
+  - repeat intro.
     apply maponpaths, funextfun.
     intro.
     apply idpath.
@@ -25,32 +19,36 @@ Proof.
     apply idpath.
 Qed.
 
-Definition comp_morphism_data
-  {C C' C''}
-  (f : abstract_clone_morphism_data C C')
-  (g : abstract_clone_morphism_data C' C'') : abstract_clone_morphism_data C C''
-  := (λ n, (g n ∘ f n)).
+Definition id_morphism
+  (C : abstract_clone_data)
+  : abstract_clone_morphism C C
+  := make_abstract_clone_morphism _ (id_is_morphism C).
 
 Lemma comp_is_morphism
   {C C' C''}
   (f : abstract_clone_morphism C C')
   (g : abstract_clone_morphism C' C'')
-  : is_abstract_clone_morphism (comp_morphism_data f g).
+  : is_abstract_clone_morphism (λ n, (g n ∘ f n)).
 Proof.
   use make_is_abstract_clone_morphism.
-  - unfold comp_morphism_data.
-    repeat intro.
+  - repeat intro.
     simpl.
     rewrite (pr12 f), (pr12 g).
     apply maponpaths, funextfun.
     intro.
     apply idpath.
   - repeat intro.
-    unfold comp_morphism_data.
     simpl.
     rewrite (pr22 f), (pr22 g).
     apply idpath.
 Qed.
+
+Definition comp_morphism
+  {C C' C''}
+  (f : abstract_clone_morphism C C')
+  (g : abstract_clone_morphism C' C'')
+  : abstract_clone_morphism C C''
+  := make_abstract_clone_morphism _ (comp_is_morphism f g).
 
 Definition abstract_clone_precategory_data : precategory_data.
 Proof.
@@ -59,10 +57,10 @@ Proof.
     + exact abstract_clone.
     + exact abstract_clone_morphism.
   - simpl.
-    exact (λ C, make_abstract_clone_morphism (id_morphism_data C) (id_is_morphism C)).
+    exact id_morphism.
   - simpl.
-    intros ? ? ? f g.
-    use (make_abstract_clone_morphism (comp_morphism_data f g) (comp_is_morphism f g)).
+    intros ? ? ?.
+    exact comp_morphism.
 Defined.
 
 Lemma abstract_clone_is_precategory : is_precategory abstract_clone_precategory_data.
