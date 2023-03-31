@@ -149,4 +149,4 @@ Proof.
   - exact abstract_clone_from_algebraic_theory.
   - exact abstract_clone_id.
   - exact algebraic_theory_id.
-Qed.
+Defined.
