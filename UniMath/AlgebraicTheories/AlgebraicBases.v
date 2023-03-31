@@ -1,3 +1,5 @@
+(** * Algebraic bases, bundling the data that algebraic theories and abstract clones have in common *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
