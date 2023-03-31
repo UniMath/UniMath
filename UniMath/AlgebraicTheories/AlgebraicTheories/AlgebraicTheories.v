@@ -37,7 +37,7 @@ Definition algebraic_theory_data_to_functor_data
   := make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T).
 
 (* Define the associativity property of the algebraic theory *)
-Definition comp_is_assoc (T : algebraic_theory_data) : Prop := ∏
+Definition comp_is_assoc (T : algebraic_theory_data) : UU := ∏
   (l m n : nat)
   (f_l : T l)
   (f_m : stn l → T m)
@@ -45,19 +45,19 @@ Definition comp_is_assoc (T : algebraic_theory_data) : Prop := ∏
     (f_l • f_m) • f_n = f_l • (λ t_l, (f_m t_l) • f_n).
 
 (* Define the unitality property of the algebraic theory *)
-Definition comp_is_unital (T : algebraic_theory_data) : Prop := ∏
+Definition comp_is_unital (T : algebraic_theory_data) : UU := ∏
   (n : nat)
   (f : T n),
     e • (λ _, f) = f.
 
 (* Define the compatibility of the projection function with composition *)
-Definition comp_identity_projections (T : algebraic_theory_data) : Prop := ∏
+Definition comp_identity_projections (T : algebraic_theory_data) : UU := ∏
   (n : nat)
   (f : T n),
     f • (λ i, pr i) = f.
 
 (* Define naturality of the composition in the first argument *)
-Definition comp_is_natural_l (T : algebraic_theory_data) : Prop := ∏
+Definition comp_is_natural_l (T : algebraic_theory_data) : UU := ∏
   (m m' n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, m'⟧)
   (f : T m)

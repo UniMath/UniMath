@@ -22,12 +22,12 @@ Definition algebraic_theory_morphism_data_to_nat_trans_data
     (algebraic_theory_data_to_functor_data T')
   := F.
 
-Definition preserves_projections {T T'} (F : algebraic_theory_morphism_data T T') : Prop := ∏
+Definition preserves_projections {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
   (n : finite_set_skeleton_category)
   (i : stn n),
     (F n (pr i)) = (pr i).
 
-Definition preserves_composition {T T'} (F : algebraic_theory_morphism_data T T') : Prop := ∏
+Definition preserves_composition {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
   (m n : finite_set_skeleton_category)
   (f_m : T m)
   (f_n : stn m → T n),
@@ -36,7 +36,7 @@ Definition preserves_composition {T T'} (F : algebraic_theory_morphism_data T T'
 Definition is_algebraic_theory_morphism
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism_data T T')
-  : Prop :=
+  : UU :=
     is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F) ×
     preserves_projections F ×
     preserves_composition F.

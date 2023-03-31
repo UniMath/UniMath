@@ -29,20 +29,20 @@ Definition reindex
   := (λ f, f • (λ i, pr (a i))).
 
 (* Define the unitality property of the algebraic theory *)
-Definition comp_project_component (C : abstract_clone_data) : Prop := ∏
+Definition comp_project_component (C : abstract_clone_data) : UU := ∏
   (m n : nat)
   (i : stn m)
   (f : stn m → C n),
     (pr i) • f = f i.
 
 (* Define the compatibility of the projection function with composition *)
-Definition comp_identity_projections (C : abstract_clone_data) : Prop := ∏
+Definition comp_identity_projections (C : abstract_clone_data) : UU := ∏
   (n : nat)
   (f : C n),
     f • (λ i, pr i) = f.
 
 (* Define the associativity property of the algebraic theory *)
-Definition comp_is_assoc (C : abstract_clone_data) : Prop := ∏
+Definition comp_is_assoc (C : abstract_clone_data) : UU := ∏
   (l m n : nat)
   (f_l : C l)
   (f_m : stn l → C m)
