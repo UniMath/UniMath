@@ -15,7 +15,7 @@ Definition comp {B : algebraic_base} {m n : nat} : (B m → (stn m → B n) → 
 
 Notation "f • g" :=
   (comp f g)
-  (at level 50) : algebraic_theory.
+  (at level 35) : algebraic_theory.
 
 Definition make_algebraic_base
   (B : nat → hSet)
