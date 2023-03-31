@@ -7,4 +7,5 @@ AlgebraicTheories/AlgebraicTheories.v
 AlgebraicTheories/AlgebraicTheoryMorphisms.v
 
 AbstractCloneAlgebraicTheory.v
+examples/OnePointTheory.v
 examples/EndomorphismTheory.v
