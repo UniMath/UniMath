@@ -17,8 +17,7 @@ Proof.
   exact (C ,, pr).
 Defined.
 
-Definition algebraic_base_from_abstract_clone (C : abstract_clone_data) : algebraic_base := pr1 C.
-Coercion algebraic_base_from_abstract_clone : abstract_clone_data >-> algebraic_base.
+Coercion algebraic_base_from_abstract_clone (C : abstract_clone_data) : algebraic_base := pr1 C.
 
 Definition pr {C : abstract_clone_data} {n : nat} := pr2 C n.
 
@@ -78,8 +77,7 @@ Definition make_abstract_clone
   : abstract_clone
   := (T ,, H).
 
-Definition abstract_clone_data_from_abstract_clone : abstract_clone -> abstract_clone_data := pr1.
-Coercion abstract_clone_data_from_abstract_clone : abstract_clone >-> abstract_clone_data.
+Coercion abstract_clone_data_from_abstract_clone (C : abstract_clone) : abstract_clone_data := pr1 C.
 
 Lemma abstract_clone_eq
   (X Y : abstract_clone)

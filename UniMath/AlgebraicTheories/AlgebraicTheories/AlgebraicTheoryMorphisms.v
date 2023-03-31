@@ -71,13 +71,11 @@ Definition make_algebraic_theory_morphism
   : algebraic_theory_morphism T T'
   := (F ,, H).
 
-Definition algebraic_theory_morphism_to_algebraic_theory_morphism_data 
+Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data 
   {T T'} 
   (F : algebraic_theory_morphism T T')
   : algebraic_theory_morphism_data T T'
   := pr1 F.
-Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
-  : algebraic_theory_morphism >-> algebraic_theory_morphism_data.
 
 Definition algebraic_theory_morphism_to_nat_trans 
   {T T'} 

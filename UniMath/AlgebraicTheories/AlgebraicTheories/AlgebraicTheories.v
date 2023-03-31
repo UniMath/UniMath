@@ -20,11 +20,10 @@ Proof.
   exact (T ,, e ,, Tmor).
 Defined.
 
-Definition algebraic_base_from_algebraic_theory_data
+Coercion algebraic_base_from_algebraic_theory_data
   (d : algebraic_theory_data)
   : algebraic_base
   := pr1 d.
-Coercion algebraic_base_from_algebraic_theory_data : algebraic_theory_data >-> algebraic_base.
 
 Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
 
@@ -98,10 +97,9 @@ Definition make_algebraic_theory
   : algebraic_theory
   := (T ,, H).
 
-Definition algebraic_theory_data_from_algebraic_theory
-  : algebraic_theory -> algebraic_theory_data
-  := pr1.
-Coercion algebraic_theory_data_from_algebraic_theory : algebraic_theory >-> algebraic_theory_data.
+Coercion algebraic_theory_data_from_algebraic_theory (T : algebraic_theory)
+  : algebraic_theory_data
+  := pr1 T.
 
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
