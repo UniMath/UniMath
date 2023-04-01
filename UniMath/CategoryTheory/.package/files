@@ -87,6 +87,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
+limits/Ends.v
 
 limits/Examples/CategoryProductLimits.v
 limits/Examples/CategoryOfSetcategoriesLimits.v
@@ -333,13 +334,17 @@ EnrichedCats/Limits/EnrichedTerminal.v
 EnrichedCats/Limits/EnrichedBinaryProducts.v
 EnrichedCats/Limits/EnrichedProducts.v
 EnrichedCats/Limits/EnrichedEqualizers.v
+EnrichedCats/Limits/EnrichedConicalLimits.v
 EnrichedCats/Limits/EnrichedPowers.v
+EnrichedCats/Limits/EnrichedLimits.v
 
 EnrichedCats/Colimits/EnrichedInitial.v
 EnrichedCats/Colimits/EnrichedBinaryCoproducts.v
 EnrichedCats/Colimits/EnrichedCoproducts.v
 EnrichedCats/Colimits/EnrichedCoequalizers.v
+EnrichedCats/Colimits/EnrichedConicalColimits.v
 EnrichedCats/Colimits/EnrichedCopowers.v
+EnrichedCats/Colimits/EnrichedColimits.v
 
 EnrichedCats/Examples/SetEnriched.v
 EnrichedCats/Examples/SelfEnriched.v
