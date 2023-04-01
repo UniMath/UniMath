@@ -62,7 +62,7 @@ Qed.
 Definition algebraic_theory_morphism
   (T T' : algebraic_theory)
   : UU
-  := total2 (@is_algebraic_theory_morphism T T').
+  := ∑ F : algebraic_theory_morphism_data T T', is_algebraic_theory_morphism F.
 
 Definition make_algebraic_theory_morphism 
   {T T' : algebraic_theory} 

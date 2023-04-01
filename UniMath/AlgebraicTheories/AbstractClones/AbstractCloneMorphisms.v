@@ -41,7 +41,7 @@ Qed.
 
 Definition abstract_clone_morphism
   (C C' : abstract_clone_data)
-  := total2 (@is_abstract_clone_morphism C C').
+  := ∑ F : abstract_clone_morphism_data C C', is_abstract_clone_morphism F.
 
 Definition make_abstract_clone_morphism
   {C C'}

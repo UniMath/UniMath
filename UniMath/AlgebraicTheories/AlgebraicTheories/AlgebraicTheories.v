@@ -89,7 +89,7 @@ Proof.
       apply setproperty.
 Qed.
 
-Definition algebraic_theory := total2 is_algebraic_theory.
+Definition algebraic_theory := ∑ T, is_algebraic_theory T.
 
 Definition make_algebraic_theory
   (T : algebraic_theory_data)

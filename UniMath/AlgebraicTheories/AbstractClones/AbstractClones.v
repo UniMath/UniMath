@@ -71,7 +71,7 @@ Proof.
     apply setproperty.
 Qed.
 
-Definition abstract_clone := total2 is_abstract_clone.
+Definition abstract_clone := ∑ C, is_abstract_clone C.
 
 Definition make_abstract_clone
   (T : abstract_clone_data)
