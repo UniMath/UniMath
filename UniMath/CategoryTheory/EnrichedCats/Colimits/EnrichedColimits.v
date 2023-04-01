@@ -8,7 +8,7 @@
  actually the correct notion of colimit in this setting.
 
  Contents
- 1. Colones of enriched colimits
+ 1. Cocones of enriched colimits
  2. Colimits in an enriched category
  3. Being a colimit is a proposition
  4. Instances of colimits
