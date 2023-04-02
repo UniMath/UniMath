@@ -551,9 +551,32 @@ Section StandardFunctions.
   Definition internal_uncurry
              (v₁ v₂ v₃ : V)
     : v₁ ⊸ v₂ ⊸ v₃ --> v₁ ⊗ v₂ ⊸ v₃
-    := internal_lam (mon_rassociator _ _ _
-                     · internal_eval _ _ #⊗ identity _
-                     · internal_eval _ _).
+    := internal_lam
+         (mon_rassociator _ _ _
+          · internal_eval _ _ #⊗ identity _
+          · internal_eval _ _).
+
+  Definition internal_precomp
+             {x₁ x₂ : V}
+             (f : x₁ --> x₂)
+             (y : V)
+    : x₂ ⊸ y --> x₁ ⊸ y
+    := internal_lam (identity _ #⊗ f · internal_eval _ _).
+
+  Definition internal_postcomp
+             (x : V)
+             {y₁ y₂ : V}
+             (g : y₁ --> y₂)
+    : x ⊸ y₁ --> x ⊸ y₂
+    := internal_lam (internal_eval _ _ · g).
+
+  Definition internal_pre_post_comp
+             {x₁ x₂ : V}
+             (f : x₁ --> x₂)
+             {y₁ y₂ : V}
+             (g : y₁ --> y₂)
+    : x₂ ⊸ y₁ --> x₁ ⊸ y₂
+    := internal_lam (identity _ #⊗ f · internal_eval _ _ · g).
 
   Proposition internal_funext
               (w x y : V)
@@ -1036,4 +1059,177 @@ Section StandardFunctions.
         (intro f ; cbn ;
          apply internal_beta).
   Defined.
+
+  Proposition internal_precomp_id
+              (x y : V)
+    : internal_precomp (identity x) y = identity _.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite assoc'.
+    unfold internal_precomp.
+    rewrite internal_beta.
+    rewrite tensor_id_id.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Proposition internal_precomp_comp
+              {x₁ x₂ x₃ : V}
+              (f₁ : x₁ --> x₂)
+              (f₂ : x₂ --> x₃)
+              (y : V)
+    : internal_precomp (f₁ · f₂) y
+      =
+      internal_precomp f₂ y · internal_precomp f₁ y.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_precomp.
+    rewrite !internal_beta.
+    refine (!_).
+    rewrite tensor_split.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_split'.
+    rewrite tensor_split.
+    rewrite !assoc'.
+    rewrite internal_beta.
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_l.
+    apply idpath.
+  Qed.
+
+  Proposition internal_postcomp_id
+              (x y : V)
+    : internal_postcomp x (identity y) = identity _.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite assoc'.
+    unfold internal_postcomp.
+    rewrite internal_beta.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Proposition internal_postcomp_comp
+              (x : V)
+              {y₁ y₂ y₃ : V}
+              (g₁ : y₁ --> y₂)
+              (g₂ : y₂ --> y₃)
+    : internal_postcomp x (g₁ · g₂)
+      =
+      internal_postcomp x g₁ · internal_postcomp x g₂.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_postcomp.
+    rewrite !internal_beta.
+    refine (!_).
+    rewrite tensor_split.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite internal_beta.
+    apply idpath.
+  Qed.
+
+  Proposition internal_pre_post_comp_as_pre_post_comp
+              {x₁ x₂ : V}
+              (f : x₁ --> x₂)
+              {y₁ y₂ : V}
+              (g : y₁ --> y₂)
+    : internal_pre_post_comp f g
+      =
+      internal_precomp f y₁ · internal_postcomp x₁ g.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_precomp, internal_postcomp, internal_pre_post_comp.
+    rewrite !internal_beta.
+    refine (!_).
+    rewrite tensor_split.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite internal_beta.
+    apply idpath.
+  Qed.
+
+  Proposition internal_pre_post_comp_as_post_pre_comp
+              {x₁ x₂ : V}
+              (f : x₁ --> x₂)
+              {y₁ y₂ : V}
+              (g : y₁ --> y₂)
+    : internal_pre_post_comp f g
+      =
+      internal_postcomp x₂ g · internal_precomp f y₂.
+  Proof.
+    use internal_funext.
+    intros a h.
+    rewrite tensor_split.
+    rewrite tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_precomp, internal_postcomp, internal_pre_post_comp.
+    rewrite !internal_beta.
+    refine (!_).
+    rewrite tensor_split.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_split'.
+    rewrite tensor_split.
+    rewrite !assoc'.
+    rewrite internal_beta.
+    apply idpath.
+  Qed.
+
+  Proposition internal_pre_post_comp_id
+              (x y : V)
+    : internal_pre_post_comp (identity x) (identity y)
+      =
+      identity _.
+  Proof.
+    rewrite internal_pre_post_comp_as_pre_post_comp.
+    rewrite internal_precomp_id.
+    rewrite internal_postcomp_id.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
+  Proposition internal_pre_post_comp_comp
+              {x₁ x₂ x₃ : V}
+              (f₁ : x₁ --> x₂)
+              (f₂ : x₂ --> x₃)
+              {y₁ y₂ y₃ : V}
+              (g₁ : y₁ --> y₂)
+              (g₂ : y₂ --> y₃)
+    : internal_pre_post_comp (f₁ · f₂) (g₁ · g₂)
+      =
+      internal_pre_post_comp f₂ g₁ · internal_pre_post_comp f₁ g₂.
+  Proof.
+    rewrite !internal_pre_post_comp_as_pre_post_comp.
+    rewrite internal_precomp_comp.
+    rewrite internal_postcomp_comp.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- internal_pre_post_comp_as_pre_post_comp.
+    rewrite <- internal_pre_post_comp_as_post_pre_comp.
+    apply idpath.
+  Qed.
 End StandardFunctions.
