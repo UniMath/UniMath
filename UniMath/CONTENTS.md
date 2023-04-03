@@ -977,4 +977,5 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/OnePointTheory.v](AlgebraicTheories/examples/OnePointTheory.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/examples/ProjectionsTheory.v)
    - [Examples/EndomorphismTheory.v](AlgebraicTheories/examples/EndomorphismTheory.v)
+   - [Examples/FreeMonoidTheory.v](AlgebraicTheories/examples/FreeMonoidTheory.v)
    - [All.v](AlgebraicTheories/All.v)

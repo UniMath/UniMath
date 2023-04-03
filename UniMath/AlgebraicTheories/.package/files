@@ -10,3 +10,4 @@ AbstractCloneAlgebraicTheory.v
 Examples/OnePointTheory.v
 Examples/ProjectionsTheory.v
 Examples/EndomorphismTheory.v
+Examples/FreeMonoidTheory.v
