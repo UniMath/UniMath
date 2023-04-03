@@ -97,6 +97,27 @@ Proof.
     + intros x xs IH. now rewrite !map_cons, !iterop_list_mon_step, IH.
 Defined.
 
+Lemma free_monoid_extend_funcomp2
+  {X Y Z : hSet}
+  (f: (X → free_monoid Y))
+  (g: (Y → free_monoid Z))
+  : (free_monoid_extend g) ∘ (free_monoid_extend f) ~ free_monoid_extend (λ x, free_monoid_extend g (f x)).
+Proof.
+  unfold homot.
+  simpl.
+  apply list_ind.
+  - apply idpath.
+  - intros x xs IH.
+    do 2 rewrite map_cons.
+    rewrite (iterop_list_mon_step (f _)).
+    rewrite (iterop_list_mon_step (iterop_list_mon (map g _))).
+    simpl.
+    rewrite map_concatenate.
+    rewrite (iterop_list_mon_concatenate (map g _)).
+    apply maponpaths.
+    exact IH.
+Qed.
+
 (** Functoriality of the [free_monoidfun] *)
 Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X -> Y) (g : Y -> Z) :
   (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.

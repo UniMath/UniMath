@@ -18,14 +18,12 @@ Proof.
   - use make_algebraic_base.
     + intro n.
       use tpair.
-      * exact (free_monoid (_ ,, isasetstn n)).
+      * exact (free_monoid (stnset n)).
       * apply isasetmonoid.
     + intros m n f g.
-      eapply free_monoid_universal_property; swap 1 2.
-      * exact f.
-      * exact g.
+      exact (free_monoid_extend (λ i : stnset m, g i) f).
   - intros n i.
-    apply (free_monoid_unit (i : pr1hSet (_ ,, isasetstn n))).
+    exact (free_monoid_unit (i : stnset n)).
 Defined.
 
 Lemma free_monoid_is_clone : is_abstract_clone free_monoid_clone_data.
@@ -34,22 +32,9 @@ Proof.
   - intros m n i f.
     apply idpath.
   - intros n f.
-    apply (free_monoid_extend_comp (idmonoidiso (free_monoid (_ ,, isasetstn n)))).
+    apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
   - intros l m n f_l f_m f_n.
-    simpl.
-    revert f_l.
-    apply list_ind.
-    + apply idpath.
-    + intros x xs IH.
-      repeat rewrite map_cons.
-      rewrite (iterop_list_mon_step (f_m _)).
-      rewrite (iterop_list_mon_step (iterop_list_mon (map f_n _))).
-      simpl.
-      rewrite map_concatenate.
-      rewrite (iterop_list_mon_concatenate (map f_n _)).
-      simpl.
-      apply maponpaths.
-      exact IH.
+    exact (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n f_l).
 Qed.
 
 Definition free_monoid_theory
