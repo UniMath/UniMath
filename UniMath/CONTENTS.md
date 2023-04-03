@@ -975,5 +975,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [AlgebraicTheories/AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheories/AlgebraicTheoryMorphisms.v)
    - [AbstractCloneAlgebraicTheory.v](AlgebraicTheories/AbstractCloneAlgebraicTheory.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/examples/OnePointTheory.v)
+   - [Examples/ProjectionsTheory.v](AlgebraicTheories/examples/ProjectionsTheory.v)
    - [Examples/EndomorphismTheory.v](AlgebraicTheories/examples/EndomorphismTheory.v)
    - [All.v](AlgebraicTheories/All.v)

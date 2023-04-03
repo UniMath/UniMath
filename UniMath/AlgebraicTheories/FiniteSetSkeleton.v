@@ -22,7 +22,6 @@ Proof.
   use make_category.
   - exact finite_set_skeleton_precat.
   - do 2 intro.
-    simpl.
     apply funspace_isaset.
     apply isasetstn.
 Defined.

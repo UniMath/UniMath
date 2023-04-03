@@ -8,4 +8,5 @@ AlgebraicTheories/AlgebraicTheoryMorphisms.v
 
 AbstractCloneAlgebraicTheory.v
 Examples/OnePointTheory.v
+Examples/ProjectionsTheory.v
 Examples/EndomorphismTheory.v
