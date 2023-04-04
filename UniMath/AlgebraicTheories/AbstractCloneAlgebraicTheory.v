@@ -66,7 +66,7 @@ Proof.
       apply funextfun.
       intro.
       simpl.
-      unfold Tmor, compose.
+      unfold T_on_morphisms, compose.
       simpl.
       unfold reindex, funcomp.
       rewrite abstract_clone_comp_is_assoc.
@@ -83,7 +83,7 @@ Proof.
     intro.
     apply abstract_clone_comp_project_component.
   - do 6 intro.
-    unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBases.comp.
+    unfold T_on_morphisms, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBases.comp.
     simpl.
     rewrite (abstract_clone_comp_is_assoc C).
     apply maponpaths, funextfun.
@@ -108,7 +108,7 @@ Proof.
   - apply idpath.
   - rewrite idpath_transportf.
     simpl.
-    unfold theory_pr, e.
+    unfold theory_pr, id_pr.
     simpl.
     assert (H1 : (λ (_ : stn 1), firstelement) = identity (1 : finite_set_skeleton_category)).
     {

@@ -15,9 +15,9 @@ Definition algebraic_theory_data := ∑ (T : algebraic_base),
   (T 1) × (∏ (m n : nat), (stn m → stn n) → T m → T n).
 
 Definition make_algebraic_theory_data (T : algebraic_base)
-  (e : T 1) (Tmor : ∏ {m n : nat}, (stn m → stn n) → T m → T n) : algebraic_theory_data.
+  (id_pr : T 1) (T_on_morphisms : ∏ {m n : nat}, (stn m → stn n) → T m → T n) : algebraic_theory_data.
 Proof.
-  exact (T ,, e ,, Tmor).
+  exact (T ,, id_pr ,, T_on_morphisms).
 Defined.
 
 Coercion algebraic_base_from_algebraic_theory_data
@@ -25,16 +25,16 @@ Coercion algebraic_base_from_algebraic_theory_data
   : algebraic_base
   := pr1 T.
 
-Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
+Definition id_pr {T : algebraic_theory_data} : T 1 := pr12 T.
 
-Definition Tmor {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m → T n := pr22 T m n.
+Definition T_on_morphisms {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m → T n := pr22 T m n.
 
-Definition theory_pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := Tmor (λ (x : stn 1), i) e.
+Definition theory_pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := T_on_morphisms (λ (x : stn 1), i) id_pr.
 
 Definition algebraic_theory_data_to_functor_data
   (T : algebraic_theory_data)
   : functor_data finite_set_skeleton_category HSET
-  := make_functor_data (T : finite_set_skeleton_category → HSET) (@Tmor T).
+  := make_functor_data (T : finite_set_skeleton_category → HSET) (@T_on_morphisms T).
 
 (* Define the associativity property of the algebraic theory *)
 Definition comp_is_assoc (T : algebraic_theory_data) : UU := ∏
@@ -48,7 +48,7 @@ Definition comp_is_assoc (T : algebraic_theory_data) : UU := ∏
 Definition comp_is_unital (T : algebraic_theory_data) : UU := ∏
   (n : nat)
   (f : T n),
-    e • (λ _, f) = f.
+    id_pr • (λ _, f) = f.
 
 (* Define the compatibility of the projection function with composition *)
 Definition comp_identity_projections (T : algebraic_theory_data) : UU := ∏
@@ -62,7 +62,7 @@ Definition comp_is_natural_l (T : algebraic_theory_data) : UU := ∏
   (a : finite_set_skeleton_category⟦m, m'⟧)
   (f : T m)
   (g : stn m' → T n),
-  (Tmor a f) • g = f • (λ i, g (a i)).
+  (T_on_morphisms a f) • g = f • (λ i, g (a i)).
 
 Definition is_algebraic_theory (T : algebraic_theory_data) :=
     (is_functor (algebraic_theory_data_to_functor_data T)) ×
@@ -152,9 +152,9 @@ Lemma functor_uses_projections
   (m n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, n⟧)
   (f : T m)
-  : Tmor a f = f • (λ i, theory_pr (a i)).
+  : T_on_morphisms a f = f • (λ i, theory_pr (a i)).
 Proof.
-  rewrite <- (algebraic_theory_comp_identity_projections _ _ (Tmor _ _)).
+  rewrite <- (algebraic_theory_comp_identity_projections _ _ (T_on_morphisms _ _)).
   apply algebraic_theory_comp_is_natural_l.
 Qed.
 
@@ -176,7 +176,7 @@ Lemma comp_is_natural_r (T : algebraic_theory)
   (a: finite_set_skeleton_category⟦n, n'⟧)
   (f : T m)
   (g : stn m → T n)
-  : f • (λ i, Tmor a (g i)) = Tmor a (f • g).
+  : f • (λ i, T_on_morphisms a (g i)) = T_on_morphisms a (f • g).
 Proof.
   rewrite functor_uses_projections.
   rewrite algebraic_theory_comp_is_assoc.
