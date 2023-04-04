@@ -14,57 +14,8 @@ Local Open Scope cat.
 Section EndomorphismAlgebraicTheory.
 
   Context {C : category}.
-  Variable (finite_products: ∏ (n : nat), Products (stn n) C).
+  Context {C_finite_products : finite_products C}.
   Variable (X : C).
-
-  (* Helper definitions *)
-  Local Definition power_function (n : nat) : Product (stn n) C _ := finite_products n (λ _, X).
-
-  Local Definition power_function_set (n : nat) : ob C := pr11 (power_function n).
-
-  Local Definition power_function_projection
-    (n : nat)
-    (i : stn n)
-    : C ⟦ power_function_set n, X ⟧
-    := pr21 (power_function n) i.
-
-  Local Definition power_function_is_product
-    (n : nat)
-    : isProduct _ C _ (power_function_set n) _
-    := pr2 (power_function n).
-
-  Local Definition full_induced_map 
-    {Y : C} 
-    {n : nat} 
-    (projections : stn n → C ⟦ Y, X ⟧) : 
-    (∑ fap: C⟦Y, power_function_set n⟧, ∏ i, fap · (power_function_projection n i) = projections i)
-    := (pr1 (power_function_is_product _ _ projections)).
-
-  Local Definition induced_map 
-    {Y : C} 
-    {n : nat} 
-    (projections : stn n → C ⟦ Y, X ⟧)
-    : C⟦Y, power_function_set n⟧ := 
-    (pr1 (full_induced_map projections)).
-
-  Local Definition induced_map_commutes 
-    {Y : C} 
-    {n : nat} 
-    (projections : stn n → C ⟦ Y, X ⟧) 
-    (i : stn n) : 
-    (induced_map projections) · (power_function_projection n i) = projections i
-    := (pr2 (full_induced_map projections) i).
-
-  Local Definition induced_map_equals 
-    {Y : C} 
-    {n : nat} 
-    (g : C⟦Y, power_function_set n⟧)
-    : g = induced_map (λ i, (power_function_projection n i) ∘ g).
-  Proof.
-    pose (postprojections := (λ i, g · (power_function_projection n i))).
-    pose (map_is_unique := pr2 (power_function_is_product _ _ postprojections)).
-    exact (maponpaths pr1 (map_is_unique (g ,, (λ _, idpath _)))).
-  Defined.
 
   (* Construct an algebraic theory as an abstract clone *)
   Definition endomorphism_clone_data : abstract_clone_data.
@@ -72,36 +23,37 @@ Section EndomorphismAlgebraicTheory.
     use make_abstract_clone_data.
     - use make_algebraic_base.
       + intro n.
-        use (homset (power_function_set n) X).
+        pose (power := ProductObject _ _ (C_finite_products n (λ _, X))).
+        exact (homset power X).
       + intros m n f g.
-        exact (f ∘ (induced_map g)).
-    - exact power_function_projection.
+        exact (f ∘ (ProductArrow _ _ _ g)).
+    - intro n.
+      apply ProductPr.
   Defined.
 
   Definition endomorphism_is_clone : is_abstract_clone endomorphism_clone_data.
   Proof.
     use make_is_abstract_clone.
     - do 4 intro.
-      apply induced_map_commutes.
+      exact (ProductPrCommutes _ _ _ _ _ _ _).
     - do 2 intro.
       rewrite <- id_left.
       apply (maponpaths (λ x, x · _)).
-      rewrite (induced_map_equals (identity _)).
-      apply maponpaths.
-      apply funextfun.
+      rewrite (ProductArrowEta _ _ _ _ _ (identity _)).
+      apply maponpaths, funextfun.
       intro.
       symmetry.
       apply id_left.
-    - intros ? ? ? f_l f_m f_n.
+    - intros l m n f_l f_m f_n.
       simpl.
       rewrite assoc.
       apply (maponpaths (λ f, f · f_l)).
-      rewrite (induced_map_equals (_ · _)).
+      rewrite (ProductArrowEta _ _ _ _ _ (_ · _)).
       apply maponpaths, funextfun.
       intro.
       rewrite assoc'.
       apply maponpaths.
-      apply full_induced_map.
+      exact (ProductPrCommutes _ _ _ _ _ _ _).
   Qed.
 
   Definition endomorphism_theory : algebraic_theory
