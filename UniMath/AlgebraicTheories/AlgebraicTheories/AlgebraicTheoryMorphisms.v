@@ -14,6 +14,12 @@ Local Open Scope cat.
 
 Definition algebraic_theory_morphism_data (T T' : algebraic_theory_data) := ∏ n, T n → T' n.
 
+Definition algebraic_theory_morphism_data_to_function {T T'} (F : algebraic_theory_morphism_data T T')
+  : ∏ n, T n → T' n
+  := F.
+
+Coercion algebraic_theory_morphism_data_to_function : algebraic_theory_morphism_data >-> Funclass.
+
 Definition algebraic_theory_morphism_data_to_nat_trans_data
   {T T'}
   (F : algebraic_theory_morphism_data T T')
@@ -77,16 +83,22 @@ Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
   : algebraic_theory_morphism_data T T'
   := pr1 F.
 
+Definition algebraic_theory_morphism_is_nat_trans {T T'} (F : algebraic_theory_morphism T T') : is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F) := pr12 F.
+
+Definition algebraic_theory_morphism_preserves_projections {T T'} (F : algebraic_theory_morphism T T') : preserves_projections F := pr122 F.
+
+Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr222 F.
+
 Definition algebraic_theory_morphism_to_nat_trans 
   {T T'} 
   (F : algebraic_theory_morphism T T')
   : (algebraic_theory_to_functor T) ⟹ (algebraic_theory_to_functor T')
-  := make_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F) (pr12 F).
+  := make_nat_trans _ _ _ (algebraic_theory_morphism_is_nat_trans F).
 
 Lemma algebraic_theory_morphism_eq 
   {T T'} 
   (F F' : algebraic_theory_morphism T T') 
-  (H1 : ∏ n f, pr1 F n f = pr1 F' n f)
+  (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
   use (subtypePairEquality' _ (isaprop_is_algebraic_theory_morphism _)).

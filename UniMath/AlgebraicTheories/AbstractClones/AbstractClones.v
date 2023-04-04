@@ -81,6 +81,18 @@ Definition make_abstract_clone
 
 Coercion abstract_clone_data_from_abstract_clone (C : abstract_clone) : abstract_clone_data := pr1 C.
 
+Definition abstract_clone_comp_project_component (C : abstract_clone)
+  : comp_project_component C
+  := pr12 C.
+
+Definition abstract_clone_comp_identity_projections (C : abstract_clone)
+  : comp_identity_projections C
+  := pr122 C.
+
+Definition abstract_clone_comp_is_assoc (C : abstract_clone)
+  : comp_is_assoc C
+  := pr222 C.
+
 Lemma abstract_clone_eq
   (X Y : abstract_clone)
   (H1 : pr111 X = pr111 Y)

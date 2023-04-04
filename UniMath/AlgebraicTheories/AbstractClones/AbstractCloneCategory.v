@@ -33,13 +33,15 @@ Proof.
   use make_is_abstract_clone_morphism.
   - repeat intro.
     simpl.
-    rewrite (pr12 f), (pr12 g).
+    rewrite (abstract_clone_morphism_preserves_composition f).
+    rewrite (abstract_clone_morphism_preserves_composition g).
     apply maponpaths, funextfun.
     intro.
     apply idpath.
   - repeat intro.
     simpl.
-    rewrite (pr22 f), (pr22 g).
+    rewrite (abstract_clone_morphism_preserves_projections f).
+    rewrite (abstract_clone_morphism_preserves_projections g).
     apply idpath.
 Qed.
 

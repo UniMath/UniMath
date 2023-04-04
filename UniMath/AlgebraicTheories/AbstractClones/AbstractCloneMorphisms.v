@@ -9,6 +9,11 @@ Local Open Scope algebraic_theory.
 
 Definition abstract_clone_morphism_data (C C' : abstract_clone_data) := ∏ n, C n → C' n.
 
+Definition abstract_clone_morphism_data_to_function {C C'} (F : abstract_clone_morphism_data C C')
+  : ∏ n, C n → C' n
+  := F.
+Coercion abstract_clone_morphism_data_to_function : abstract_clone_morphism_data >-> Funclass.
+
 Definition preserves_composition {C C'} (F : abstract_clone_morphism_data C C') := ∏
     (m n : nat)
     (f : C m)
@@ -50,17 +55,21 @@ Definition make_abstract_clone_morphism
   : abstract_clone_morphism C C'
   := (F ,, H).
 
-Definition abstract_clone_morphism_to_function
+Coercion abstract_clone_morphism_to_function
   {C C'}
   (F : abstract_clone_morphism C C')
-  : ∏ n, C n → C' n
+  : abstract_clone_morphism_data C C'
   := pr1 F.
-Coercion abstract_clone_morphism_to_function : abstract_clone_morphism >-> Funclass.
+
+(* Without pr1 F, the implicit coercion will cause errors in, for example, AbstractCloneCategory. It is not clear why. *)
+Definition abstract_clone_morphism_preserves_composition {C C'} (F : abstract_clone_morphism C C') : preserves_composition (pr1 F) := pr12 F. 
+
+Definition abstract_clone_morphism_preserves_projections {C C'} (F : abstract_clone_morphism C C') : preserves_projections (pr1 F) := pr22 F.
 
 Definition abstract_clone_morphism_eq 
   {C C'} 
   (F F' : abstract_clone_morphism C C') 
-  (H1 : ∏ n f, pr1 F n f = pr1 F' n f)
+  (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
   use (subtypePairEquality' _ (isaprop_is_abstract_clone_morphism _)).

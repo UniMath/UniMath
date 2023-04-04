@@ -21,9 +21,9 @@ Proof.
 Defined.
 
 Coercion algebraic_base_from_algebraic_theory_data
-  (d : algebraic_theory_data)
+  (T : algebraic_theory_data)
   : algebraic_base
-  := pr1 d.
+  := pr1 T.
 
 Definition e {T : algebraic_theory_data} : T 1 := pr12 T.
 
@@ -101,6 +101,26 @@ Coercion algebraic_theory_data_from_algebraic_theory (T : algebraic_theory)
   : algebraic_theory_data
   := pr1 T.
 
+Definition algebraic_theory_is_functor (T : algebraic_theory) :
+  is_functor (algebraic_theory_data_to_functor_data T)
+  := pr12 T.
+
+Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :
+  comp_is_assoc T
+  := pr122 T.
+
+Definition algebraic_theory_comp_is_unital (T : algebraic_theory)
+  : comp_is_unital T
+  := pr1 (pr222 T).
+
+Definition algebraic_theory_comp_identity_projections (T : algebraic_theory)
+  : comp_identity_projections T
+  := pr12 (pr222 T).
+
+Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
+  : comp_is_natural_l T
+  := pr22 (pr222 T).
+
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
   (H1 : pr111 X = pr111 Y)
@@ -124,9 +144,7 @@ Qed.
 Definition algebraic_theory_to_functor
   (T : algebraic_theory)
   : finite_set_skeleton_category ⟶ HSET
-  := make_functor
-    (algebraic_theory_data_to_functor_data T)
-    (pr12 T).
+  := make_functor _ (algebraic_theory_is_functor T).
 
 (* Properties of algebraic theories *)
 Lemma functor_uses_projections
@@ -136,8 +154,8 @@ Lemma functor_uses_projections
   (f : T m)
   : Tmor a f = f • (λ i, theory_pr (a i)).
 Proof.
-  rewrite <- (pr12 (pr222 T) n (Tmor a f)).
-  apply T.
+  rewrite <- (algebraic_theory_comp_identity_projections _ _ (Tmor _ _)).
+  apply algebraic_theory_comp_is_natural_l.
 Qed.
 
 Lemma comp_project_component
@@ -148,8 +166,8 @@ Lemma comp_project_component
   : (theory_pr i) • f = f i.
 Proof.
   unfold theory_pr.
-  rewrite (pr22 (pr222 T)).
-  apply T.
+  rewrite algebraic_theory_comp_is_natural_l.
+  apply algebraic_theory_comp_is_unital.
 Qed.
 
 (* The composition is natural in the second argument *)
@@ -157,11 +175,11 @@ Lemma comp_is_natural_r (T : algebraic_theory)
   (m n n' : finite_set_skeleton_category)
   (a: finite_set_skeleton_category⟦n, n'⟧)
   (f : T m)
-  (g : stn m → T n) :
-    f • (λ i, Tmor a (g i)) = Tmor a (f • g).
+  (g : stn m → T n)
+  : f • (λ i, Tmor a (g i)) = Tmor a (f • g).
 Proof.
   rewrite functor_uses_projections.
-  rewrite (pr122 T).
+  rewrite algebraic_theory_comp_is_assoc.
   apply maponpaths.
   apply funextsec2.
   intro.

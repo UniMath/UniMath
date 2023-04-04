@@ -25,6 +25,4 @@ Qed.
 
 Definition projections_theory
   : algebraic_theory
-  := pr1weq
-    algebraic_theory_weq_abstract_clone
-    (make_abstract_clone _ projections_is_clone).
+  := algebraic_theory_weq_abstract_clone (make_abstract_clone _ projections_is_clone).

@@ -30,8 +30,8 @@ Proof.
   use make_is_abstract_clone. 
   - do 2 intro.
     apply AlgebraicTheories.comp_project_component.
-  - exact (pr12 (pr222 T)).
-  - exact (pr122 T).
+  - apply algebraic_theory_comp_identity_projections.
+  - apply algebraic_theory_comp_is_assoc.
 Qed.
 
 Definition abstract_clone_from_algebraic_theory
@@ -61,7 +61,7 @@ Proof.
     + intro.
       apply funextfun.
       intro.
-      apply C.
+      apply abstract_clone_comp_identity_projections.
     + do 5 intro.
       apply funextfun.
       intro.
@@ -69,26 +69,26 @@ Proof.
       unfold Tmor, compose.
       simpl.
       unfold reindex, funcomp.
-      rewrite (pr222 C).
+      rewrite abstract_clone_comp_is_assoc.
       apply maponpaths, funextfun.
       intro.
       symmetry.
-      apply C.
-  - apply C.
+      apply abstract_clone_comp_project_component.
+  - apply abstract_clone_comp_is_assoc.
   - do 2 intro.
-    apply C.
+    apply abstract_clone_comp_project_component.
   - do 2 intro.
-    rewrite <- (pr122 C).
+    rewrite <- abstract_clone_comp_identity_projections.
     apply maponpaths, funextfun.
     intro.
-    apply C.
+    apply abstract_clone_comp_project_component.
   - do 6 intro.
     unfold Tmor, algebraic_theory_data_from_abstract_clone, reindex, AlgebraicBases.comp.
     simpl.
-    rewrite (pr222 C).
+    rewrite (abstract_clone_comp_is_assoc C).
     apply maponpaths, funextfun.
     intro.
-    apply C.
+    apply abstract_clone_comp_project_component.
 Qed.
 
 Definition algebraic_theory_from_abstract_clone
@@ -115,10 +115,10 @@ Proof.
       apply funextfun.
       intro i.
       apply (subtypePairEquality (λ _, (isasetbool _ _))).
-      exact (!(natlth1tois0 _ (pr2 i))).
+      exact (!(natlth1tois0 _ (stnlt i))).
     }
     rewrite H1.
-    pose (H2 := pr112 T).
+    pose (H2 := pr1 (algebraic_theory_is_functor T)).
     unfold functor_idax in H2.
     simpl in H2.
     rewrite H2.
@@ -139,7 +139,7 @@ Proof.
     apply idpath.
   - rewrite idpath_transportf.
     do 2 (apply funextsec; intro).
-    apply (pr12 C).
+    apply abstract_clone_comp_project_component.
 Qed.
 
 Lemma algebraic_theory_weq_abstract_clone : abstract_clone ≃ algebraic_theory.

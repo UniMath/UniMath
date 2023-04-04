@@ -94,20 +94,17 @@ Section EndomorphismAlgebraicTheory.
       apply id_left.
     - intros ? ? ? f_l f_m f_n.
       simpl.
-      rewrite (pr122 (C : precategory)).
+      rewrite assoc.
       apply (maponpaths (λ f, f · f_l)).
       rewrite (induced_map_equals (_ · _)).
       apply maponpaths, funextfun.
       intro.
-      rewrite (pr222 (C : precategory)).
+      rewrite assoc'.
       apply maponpaths.
       apply full_induced_map.
   Qed.
 
-  Definition endomorphism_theory : algebraic_theory.
-  Proof.
-    apply (pr1weq algebraic_theory_weq_abstract_clone).
-    exact (make_abstract_clone endomorphism_clone_data endomorphism_is_clone).
-  Defined.
+  Definition endomorphism_theory : algebraic_theory
+    := algebraic_theory_weq_abstract_clone (make_abstract_clone _ endomorphism_is_clone).
 
 End EndomorphismAlgebraicTheory.

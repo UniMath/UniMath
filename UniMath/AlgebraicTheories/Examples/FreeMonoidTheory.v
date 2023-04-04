@@ -34,11 +34,10 @@ Proof.
   - intros n f.
     apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
   - intros l m n f_l f_m f_n.
-    apply (maponpaths (λ x, pr1 x f_l) (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n)).
+    apply (maponpaths (λ x, pr1monoidfun _ _ x f_l)
+      (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n)).
 Qed.
 
 Definition free_monoid_theory
   : algebraic_theory
-  := pr1weq
-    algebraic_theory_weq_abstract_clone
-    (make_abstract_clone _ free_monoid_is_clone).
+  := algebraic_theory_weq_abstract_clone (make_abstract_clone _ free_monoid_is_clone).

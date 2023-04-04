@@ -29,6 +29,4 @@ Qed.
 
 Definition one_point_theory
   : algebraic_theory
-  := pr1weq
-    algebraic_theory_weq_abstract_clone
-    (make_abstract_clone _ one_point_is_clone).
+  := algebraic_theory_weq_abstract_clone (make_abstract_clone _ one_point_is_clone).
