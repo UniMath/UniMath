@@ -34,7 +34,7 @@ Proof.
   - intros n f.
     apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
   - intros l m n f_l f_m f_n.
-    exact (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n f_l).
+    apply (maponpaths (λ x, pr1 x f_l) (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n)).
 Qed.
 
 Definition free_monoid_theory

@@ -101,21 +101,10 @@ Lemma free_monoid_extend_funcomp2
   {X Y Z : hSet}
   (f: (X → free_monoid Y))
   (g: (Y → free_monoid Z))
-  : (free_monoid_extend g) ∘ (free_monoid_extend f) ~ free_monoid_extend (λ x, free_monoid_extend g (f x)).
+  : monoidfuncomp (free_monoid_extend f) (free_monoid_extend g) = free_monoid_extend (λ x, free_monoid_extend g (f x)).
 Proof.
-  unfold homot.
-  simpl.
-  apply list_ind.
-  - apply idpath.
-  - intros x xs IH.
-    do 2 rewrite map_cons.
-    rewrite (iterop_list_mon_step (f _)).
-    rewrite (iterop_list_mon_step (iterop_list_mon (map g _))).
-    simpl.
-    rewrite map_concatenate.
-    rewrite (iterop_list_mon_concatenate (map g _)).
-    apply maponpaths.
-    exact IH.
+  apply (invmaponpathsweq (invweq (free_monoid_universal_property _ _)) _ _).
+  now apply idpath.
 Qed.
 
 (** Functoriality of the [free_monoidfun] *)
