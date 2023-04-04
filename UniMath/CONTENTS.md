@@ -968,11 +968,11 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
    - [AlgebraicBases.v](AlgebraicTheories/AlgebraicBases.v)
+   - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
+   - [AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheoryMorphisms.v)
    - [AbstractClones/AbstractClones.v](AlgebraicTheories/AbstractClones/AbstractClones.v)
    - [AbstractClones/AbstractCloneMorphisms.v](AlgebraicTheories/AbstractClones/AbstractCloneMorphisms.v)
    - [AbstractClones/AbstractCloneCategory.v](AlgebraicTheories/AbstractClones/AbstractCloneCategory.v)
-   - [AlgebraicTheories/AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories/AlgebraicTheories.v)
-   - [AlgebraicTheories/AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheories/AlgebraicTheoryMorphisms.v)
    - [AbstractCloneAlgebraicTheory.v](AlgebraicTheories/AbstractCloneAlgebraicTheory.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)

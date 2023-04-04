@@ -8,7 +8,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
 Local Open Scope cat.
 

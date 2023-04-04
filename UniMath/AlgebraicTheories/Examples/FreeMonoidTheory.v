@@ -7,7 +7,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
 
