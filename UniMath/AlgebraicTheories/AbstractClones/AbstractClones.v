@@ -95,16 +95,18 @@ Definition abstract_clone_comp_is_assoc (C : abstract_clone)
 
 Lemma abstract_clone_eq
   (X Y : abstract_clone)
-  (H1 : pr111 X = pr111 Y)
-  (H2 : transportf _ H1 (pr211 X) = (pr211 Y))
-  (H3 : transportf (λ (T : nat → hSet), (∏ n, stn n → T n)) H1 (pr21 X) = (pr21 Y))
+  (H1 : (X : nat → hSet) = (Y : nat → hSet))
+  (H2 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
+  (H3 : transportf (λ (T : nat → hSet), (∏ n, stn n → T n)) H1 (@clone_pr X) = (@clone_pr Y))
   : X = Y.
 Proof.
-  (* Is it possible to do this proof without destruct? *)
-  destruct X as [[[Xf Xcomp] Xpr] HX].
-  destruct Y as [[[Yf Ycomp] Ypr] HY].
-  simpl in H1, H2, H3.
-  induction H1, H2, H3.
   use (subtypePairEquality' _ (isaprop_is_abstract_clone _)).
-  apply idpath.
+  use total2_paths_f.
+  - exact (total2_paths_f H1 H2).
+  - rewrite (@transportf_total2_paths_f
+        (nat → hSet)
+        (λ C, ∏ m n, C m → (stn m → C n) → C n)
+        (λ C, ∏ n, stn n → C n)
+      ).
+    exact H3.
 Qed.

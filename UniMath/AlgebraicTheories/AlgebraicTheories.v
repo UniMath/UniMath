@@ -123,22 +123,26 @@ Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
 
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
-  (H1 : pr111 X = pr111 Y)
-  (H2 : transportf _ H1 (pr211 X) = pr211 Y)
-  (H3 : transportf (λ (T : nat → hSet), T 1) H1 (pr121 X) = (pr121 Y))
+  (H1 : (X : nat → hSet) = (Y : nat → hSet))
+  (H2 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
+  (H3 : transportf (λ (T : nat → hSet), T 1) H1 id_pr = id_pr)
   (H4 : transportf
     (λ (T : nat → hSet), ∏ m n, (stn m → stn n) → T m → T n)
     H1
-    (pr221 X) = (pr221 Y)
+    (@T_on_morphisms X) = (@T_on_morphisms Y)
   )
   : X = Y.
 Proof.
-  destruct X as [[[Xf Xcomp] [Xe Xmor]] HX].
-  destruct Y as [[[Yf Ycomp] [Ye Ymor]] HY].
-  simpl in H1, H2, H3, H4.
-  induction H1, H2, H3, H4.
   use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
-  apply idpath.
+  use total2_paths_f.
+  - exact (total2_paths_f H1 H2).
+  - rewrite (@transportf_total2_paths_f
+        (nat → hSet)
+        (λ C, ∏ m n, C m → (stn m → C n) → C n)
+        (λ T, T 1 × (∏ m n : nat, ((⟦ m ⟧)%stn → (⟦ n ⟧)%stn) → T m → T n))
+      ).
+    rewrite (transportf_dirprod (nat → hSet) _ _ ((pr111 X) ,, pr21 X) ((pr111 Y) ,, pr21 Y)).
+    exact (pathsdirprod H3 H4).
 Qed.
 
 Definition algebraic_theory_to_functor
