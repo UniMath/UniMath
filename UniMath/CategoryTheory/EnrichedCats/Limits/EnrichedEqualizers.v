@@ -18,7 +18,7 @@
  5. Builders for equalizers
  6. Equalizers are closed under iso
  7. Equalizers are isomorphic
- 8. Enriched categories with products
+ 8. Enriched categories with equalizers
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -491,7 +491,7 @@ Section EnrichedEqualizer.
 End EnrichedEqualizer.
 
 (**
- 8. Enriched categories with products
+ 8. Enriched categories with equalizers
  *)
 Definition enrichment_equalizers
            {V : monoidal_cat}

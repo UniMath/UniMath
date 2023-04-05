@@ -12,11 +12,8 @@ Written by: Anders Mörtberg 2016
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -50,17 +47,20 @@ Definition Products := ∏ (ci : ∏ i, C), Product ci.
 Definition hasProducts := ∏ (ci : ∏ i, C), ∥ Product ci ∥.
 
 Definition ProductObject {c : ∏ i, C} (P : Product c) : C := pr1 (pr1 P).
-Definition ProductPr {c : ∏ i, C} (P : Product c) : ∏ i, ProductObject P --> c i :=
+
+Coercion ProductObject : Product >-> ob.
+
+Definition ProductPr {c : ∏ i, C} (P : Product c) : ∏ i, P --> c i :=
   pr2 (pr1 P).
 
 Definition isProduct_Product {c : ∏ i, C} (P : Product c) :
-   isProduct c (ProductObject P) (ProductPr P).
+   isProduct c P (ProductPr P).
  Proof.
   exact (pr2 P).
 Defined.
 
 Definition ProductArrow {c : ∏ i, C} (P : Product c) {a : C} (f : ∏ i, a --> c i)
-  : a --> ProductObject P.
+  : a --> P.
 Proof.
   apply (pr1 (pr1 (isProduct_Product P _ f))).
 Defined.
@@ -81,7 +81,7 @@ Proof.
 Qed.
 
 Lemma ProductArrowUnique (c : ∏ i, C) (P : Product c) (x : C)
-    (f : ∏ i, x --> c i) (k : x --> ProductObject P)
+    (f : ∏ i, x --> c i) (k : x --> P)
     (Hk : ∏ i, k · ProductPr P i = f i) : k = ProductArrow P f.
 Proof.
   set (H' := pr2 (isProduct_Product P _ f) (k,,Hk)).
@@ -104,15 +104,29 @@ intros H c cc; apply H.
 Defined.
 
 Lemma ProductArrowEta (c : ∏ i, C) (P : Product c) (x : C)
-    (f : x --> ProductObject P) :
+    (f : x --> P) :
     f = ProductArrow P (λ i, f · ProductPr P i).
 Proof.
   now apply ProductArrowUnique.
 Qed.
 
+Proposition ProductArrow_eq
+            {d : I → C}
+            (w : C)
+            (x : Product d)
+            (f g : w --> x)
+            (p : ∏ (i : I), f · ProductPr x i = g · ProductPr x i)
+  : f = g.
+Proof.
+  refine (ProductArrowEta _ _ _ _ @ _ @ !(ProductArrowEta _ _ _ _)).
+  apply maponpaths.
+  use funextsec.
+  exact p.
+Qed.
+
 Definition ProductOfArrows {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
     (Pa : Product a) (f : ∏ i, a i --> c i) :
-      ProductObject Pa --> ProductObject Pc :=
+      Pa --> Pc :=
     ProductArrow Pc (λ i, ProductPr Pa i · f i).
 
 Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
@@ -170,7 +184,7 @@ Section Product_unique.
 Context (I : UU) (C : category) (CC : Products I C) (a : ∏ (i : I), C).
 
 Lemma Product_endo_is_identity (P : Product _ _ a)
-  (k : ProductObject _ _ P --> ProductObject _ _ P)
+  (k : P --> P)
   (H1 : ∏ i, k · ProductPr _ _ P i = ProductPr _ _ P i)
   : identity _ = k.
 Proof.
@@ -227,7 +241,7 @@ Section product_of_functors.
 Context (F : I -> functor C D).
 
 Definition product_of_functors_ob (c : C) : D :=
-  ProductObject _ _ (HD (λ i, F i c)).
+  HD (λ i, F i c).
 
 Definition product_of_functors_mor (c c' : C) (f : c --> c') :
   product_of_functors_ob c --> product_of_functors_ob c' :=
@@ -376,3 +390,151 @@ use make_Product.
 Defined.
 
 End products_from_limits.
+
+(**
+ Products are closed under iso
+ *)
+Definition isProduct_z_iso
+           {C : category}
+           {J : UU}
+           (D : J → C)
+           {x y : C}
+           (h : z_iso x y)
+           (px : ∏ (j : J), x --> D j)
+           (py : ∏ (j : J), y --> D j)
+           (Hx : isProduct J _ D x px)
+           (q : ∏ (j : J), py j = inv_from_z_iso h · px j)
+  : isProduct J _ D y py.
+Proof.
+  use make_isProduct.
+  {
+    apply homset_property.
+  }
+  intros z f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; use impred ; intro ; apply homset_property | ] ;
+       use (cancel_z_iso _ _ (z_iso_inv h)) ;
+       use (ProductArrow_eq _ _ _ (make_Product _ _ _ _ _ Hx)) ; cbn ;
+       intro j ;
+       rewrite !assoc' ;
+       rewrite <- q ;
+       exact (pr2 φ₁ j @ !(pr2 φ₂ j))).
+  - refine (ProductArrow _ _ (make_Product _ _ _ _ _ Hx) f · h ,, _).
+    abstract
+      (intro j ;
+       rewrite !assoc' ;
+       rewrite q ;
+       rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+       rewrite z_iso_inv_after_z_iso ;
+       rewrite id_left ;
+       apply ProductPrCommutes).
+Defined.
+
+(**
+ Products are unique
+ *)
+Definition eq_Product
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (prod₁ prod₂ : Product J C D)
+           (q : ProductObject _ _ prod₁ = ProductObject _ _ prod₂)
+           (e : ∏ (j : J),
+                ProductPr _ _ prod₁ j
+                =
+                idtoiso q · ProductPr _ _ prod₂ j)
+  : prod₁ = prod₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - exact q.
+  - rewrite transportf_sec_constant.
+    use funextsec.
+    intro j.
+    rewrite <- !idtoiso_precompose.
+    rewrite !idtoiso_inv.
+    use z_iso_inv_on_right.
+    exact (e j).
+Qed.
+
+Definition z_iso_between_Product
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (prod₁ prod₂ : Product J C D)
+  : z_iso prod₁ prod₂.
+Proof.
+  use make_z_iso.
+  - exact (ProductArrow _ _  prod₂ (ProductPr _ _ prod₁)).
+  - exact (ProductArrow _ _  prod₁ (ProductPr _ _ prod₂)).
+  - split.
+    + abstract
+        (use ProductArrow_eq ;
+         intro j ;
+         rewrite !assoc' ;
+         rewrite !ProductPrCommutes ;
+         rewrite id_left ;
+         apply idpath).
+    + abstract
+        (use ProductArrow_eq ;
+         intro j ;
+         rewrite !assoc' ;
+         rewrite !ProductPrCommutes ;
+         rewrite id_left ;
+         apply idpath).
+Defined.
+
+Definition isaprop_Product
+           {C : category}
+           (HC : is_univalent C)
+           (J : UU)
+           (D : J → C)
+  : isaprop (Product J C D).
+Proof.
+  use invproofirrelevance.
+  intros p₁ p₂.
+  use eq_Product.
+  - refine (isotoid _ HC _).
+    apply z_iso_between_Product.
+  - rewrite idtoiso_isotoid ; cbn.
+    intro j.
+    rewrite ProductPrCommutes.
+    apply idpath.
+Qed.
+
+Definition isProduct_eq_arrow
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           {ys : C}
+           {π π' : ∏ (j : J), ys --> D j}
+           (q : ∏ (j : J), π j = π' j)
+           (H : isProduct J C D ys π)
+  : isProduct J C D ys π'.
+Proof.
+  intros w f.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; use impred ; intro ; apply homset_property | ] ;
+       use (ProductArrow_eq _ _ _ (make_Product _ _ _ _ _ H)) ;
+       intro j ; cbn ;
+       rewrite !q ;
+       exact (pr2 φ₁ j @ !(pr2 φ₂ j))).
+  - simple refine (_ ,, _).
+    + exact (ProductArrow _ _ (make_Product _ _ _ _ _ H) f).
+    + abstract
+        (cbn ;
+         intro j ;
+         rewrite <- q ;
+         apply (ProductPrCommutes _ _ _ (make_Product _ _ _ _ _ H))).
+Defined.

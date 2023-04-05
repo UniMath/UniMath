@@ -1830,6 +1830,64 @@ Section MonoidalCatAccessors.
     rewrite !id_left, id_right.
     apply idpath.
   Qed.
+
+  Definition monoidal_left_tensor_data
+             (x : V)
+    : functor_data V V.
+  Proof.
+    use make_functor_data.
+    - exact (λ y, x ⊗ y).
+    - exact (λ y₁ y₂ f, identity x #⊗ f).
+  Defined.
+
+  Proposition is_functor_monoidal_left_tensor
+              (x : V)
+    : is_functor (monoidal_left_tensor_data x).
+  Proof.
+    split.
+    - intros y ; cbn.
+      apply tensor_id_id.
+    - intros y₁ y₂ y₃ f g ; cbn.
+      apply tensor_comp_id_l.
+  Qed.
+
+  Definition monoidal_left_tensor
+             (x : V)
+    : V ⟶ V.
+  Proof.
+    use make_functor.
+    - exact (monoidal_left_tensor_data x).
+    - exact (is_functor_monoidal_left_tensor x).
+  Defined.
+
+  Definition monoidal_right_tensor_data
+             (y : V)
+    : functor_data V V.
+  Proof.
+    use make_functor_data.
+    - exact (λ x, x ⊗ y).
+    - exact (λ x₁ x₂ f, f #⊗ identity y).
+  Defined.
+
+  Proposition is_functor_monoidal_right_tensor
+              (y : V)
+    : is_functor (monoidal_right_tensor_data y).
+  Proof.
+    split.
+    - intros x ; cbn.
+      apply tensor_id_id.
+    - intros x₁ x₂ x₃ f g ; cbn.
+      apply tensor_comp_id_r.
+  Qed.
+
+  Definition monoidal_right_tensor
+             (y : V)
+    : V ⟶ V.
+  Proof.
+    use make_functor.
+    - exact (monoidal_right_tensor_data y).
+    - exact (is_functor_monoidal_right_tensor y).
+  Defined.
 End MonoidalCatAccessors.
 
 Definition monoidal_cat_tensor_data

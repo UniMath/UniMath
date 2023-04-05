@@ -12,6 +12,7 @@
  5. Examples of monotone functions
  6. The poset of monotone functions
  7. The equalizer of posets
+ 8. Type indexed products of posets
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -358,3 +359,53 @@ Section Equalizer.
     exact q.
   Qed.
 End Equalizer.
+
+(**
+ 8. Type indexed products of posets
+ *)
+Definition depfunction_poset
+           {X : UU}
+           (Y : X → hSet)
+           (RY : ∏ (x : X), PartialOrder (Y x))
+  : PartialOrder (forall_hSet Y).
+Proof.
+  use make_PartialOrder.
+  - exact (λ f g, ∀ (x : X), RY x (f x) (g x)).
+  - repeat split.
+    + abstract
+        (intros f g h p q x ;
+         exact (trans_PartialOrder (RY x) (p x) (q x))).
+    + abstract
+        (intros f x ;
+         exact (refl_PartialOrder (RY x) (f x))).
+    + abstract
+        (intros f g p q ;
+         use funextsec ;
+         intro x ;
+         exact (antisymm_PartialOrder (RY x) (p x) (q x))).
+Defined.
+
+Proposition is_monotone_depfunction_poset_pr
+            {X : UU}
+            (Y : X → hSet)
+            (RY : ∏ (x : X), PartialOrder (Y x))
+            (x : X)
+  : is_monotone (depfunction_poset Y RY) (RY x) (λ f, f x).
+Proof.
+  intros f g p.
+  exact (p x).
+Qed.
+
+Proposition is_monotone_depfunction_poset_pair
+            {W : hSet}
+            {X : UU}
+            {Y : X → hSet}
+            {RW : PartialOrder W}
+            {RY : ∏ (x : X), PartialOrder (Y x)}
+            (fs : ∏ (x : X), W → Y x)
+            (Hfs : ∏ (x : X), is_monotone RW (RY x) (fs x))
+  : is_monotone RW (depfunction_poset Y RY) (λ w x, fs x w).
+Proof.
+  intros w₁ w₂ p x.
+  exact (Hfs x _ _ p).
+Qed.

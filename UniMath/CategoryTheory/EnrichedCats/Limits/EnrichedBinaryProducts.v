@@ -603,19 +603,19 @@ Proof.
       apply is_binary_prod_enriched_arrow_pr2.
 Qed.
 
-Definition cat_with_enrichment_product
+Definition cat_with_enrichment_binary_prod
            (V : monoidal_cat)
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_binary_prod C.
 
-Coercion cat_with_enrichment_product_to_cat_with_enrichment
+Coercion cat_with_enrichment_binary_prod_to_cat_with_enrichment
          {V : monoidal_cat}
-         (C : cat_with_enrichment_product V)
+         (C : cat_with_enrichment_binary_prod V)
   : cat_with_enrichment V
   := pr1 C.
 
-Definition products_of_cat_with_enrichment
+Definition binary_prod_of_cat_with_enrichment
            {V : monoidal_cat}
-           (C : cat_with_enrichment_product V)
+           (C : cat_with_enrichment_binary_prod V)
   : enrichment_binary_prod C
   := pr2 C.

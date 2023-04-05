@@ -1128,3 +1128,28 @@ Defined.
 *)
 
 End co.
+
+(**
+ Equality of arrows into limits
+ *)
+Definition arr_to_LimCone_eq
+           {C : category}
+           {g : graph}
+           {D : diagram g C}
+           (l : LimCone D)
+           {x : C}
+           {f₁ f₂ : x --> pr11 l}
+           (p : ∏ (i : vertex g), f₁ · limOut l i = f₂ · limOut l i)
+  : f₁ = f₂.
+Proof.
+  refine (limArrowEta _ _ _ @ _ @ !(limArrowEta _ _ _)).
+  apply maponpaths.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    apply homset_property.
+  }
+  use funextsec.
+  exact p.
+Qed.

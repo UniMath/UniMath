@@ -10,7 +10,7 @@
  Contents
  1. The category of posets
  2. Terminal object
- 3. Binary products
+ 3. Binary products and type indexed products
  4. Equalizers
  5. Exponentials
 
@@ -31,6 +31,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
@@ -148,6 +149,34 @@ Proof.
   use total_category_Binproducts.
   - exact BinProductsHSET.
   - exact dispBinProducts_poset_disp_cat.
+Defined.
+
+Definition Products_category_of_posets
+           (J : UU)
+  : Products J category_of_posets.
+Proof.
+  intro D.
+  use make_Product.
+  - exact (_ ,, depfunction_poset _ (λ j, pr2 (D j))).
+  - exact (λ j, _ ,, is_monotone_depfunction_poset_pr _ _ j).
+  - intros R f.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; use impred ; intro ; apply homset_property | ] ;
+         use eq_monotone_function ;
+         intro  x ;
+         use funextsec ;
+         intro j ;
+         exact (eqtohomot (maponpaths pr1 (pr2 φ₁ j @ !(pr2 φ₂ j))) x)).
+    + simple refine (_ ,, _).
+      * exact (_ ,, is_monotone_depfunction_poset_pair (λ j, pr1 (f j)) (λ j, pr2 (f j))).
+      * abstract
+          (intro j ;
+           use eq_monotone_function ; cbn ;
+           intro x ;
+           apply idpath).
 Defined.
 
 (**

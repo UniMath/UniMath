@@ -87,6 +87,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
+limits/Ends.v
 
 limits/Examples/CategoryProductLimits.v
 limits/Examples/CategoryOfSetcategoriesLimits.v
@@ -329,18 +330,25 @@ EnrichedCats/Enriched/Opposite.v
 EnrichedCats/Enriched/UnderlyingCategory.v
 EnrichedCats/Enriched/EnrichmentEquiv.v
 
+EnrichedCats/Examples/SelfEnriched.v
+
 EnrichedCats/Limits/EnrichedTerminal.v
 EnrichedCats/Limits/EnrichedBinaryProducts.v
+EnrichedCats/Limits/EnrichedProducts.v
 EnrichedCats/Limits/EnrichedEqualizers.v
+EnrichedCats/Limits/EnrichedConicalLimits.v
 EnrichedCats/Limits/EnrichedPowers.v
+EnrichedCats/Limits/EnrichedLimits.v
 
 EnrichedCats/Colimits/EnrichedInitial.v
 EnrichedCats/Colimits/EnrichedBinaryCoproducts.v
+EnrichedCats/Colimits/EnrichedCoproducts.v
 EnrichedCats/Colimits/EnrichedCoequalizers.v
+EnrichedCats/Colimits/EnrichedConicalColimits.v
 EnrichedCats/Colimits/EnrichedCopowers.v
+EnrichedCats/Colimits/EnrichedColimits.v
 
 EnrichedCats/Examples/SetEnriched.v
-EnrichedCats/Examples/SelfEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
@@ -361,8 +369,11 @@ EnrichedCats/Examples/ChangeOfBase.v
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v
 
+EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v
 EnrichedCats/Limits/Examples/PosetEnrichedLimits.v
 EnrichedCats/Limits/Examples/SelfEnrichedLimits.v
+EnrichedCats/Colimits/Examples/OppositeEnrichedColimits.v
+EnrichedCats/Colimits/Examples/PosetEnrichedColimits.v
 EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v
 
 GrothendieckConstruction/TotalCategory.v
