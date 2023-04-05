@@ -27,7 +27,7 @@ Section EndomorphismAlgebraicTheory.
         exact (homset power X).
       + intros m n f g.
         exact (f ∘ (ProductArrow _ _ _ g)).
-    - intro n.
+    - intro.
       apply ProductPr.
   Defined.
 

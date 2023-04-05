@@ -187,6 +187,5 @@ Proof.
   apply maponpaths.
   apply funextsec2.
   intro.
-  rewrite functor_uses_projections.
-  apply idpath.
+  now rewrite functor_uses_projections.
 Qed.

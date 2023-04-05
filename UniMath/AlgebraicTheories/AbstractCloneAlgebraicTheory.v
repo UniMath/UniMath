@@ -107,9 +107,9 @@ Proof.
   - apply idpath.
   - apply idpath.
   - rewrite idpath_transportf.
+    unfold id_pr.
     simpl.
-    unfold theory_pr, id_pr.
-    simpl.
+    unfold theory_pr.
     assert (H1 : (λ (_ : stn 1), firstelement) = identity (1 : finite_set_skeleton_category)).
     {
       apply funextfun.
@@ -121,8 +121,7 @@ Proof.
     pose (H2 := pr1 (algebraic_theory_is_functor T)).
     unfold functor_idax in H2.
     simpl in H2.
-    rewrite H2.
-    apply idpath.
+    now rewrite H2.
   - rewrite idpath_transportf.
     do 4 (apply funextsec; intro).
     symmetry.
@@ -135,8 +134,7 @@ Local Lemma abstract_clone_id
 Proof.
   use abstract_clone_eq.
   - apply idpath.
-  - rewrite idpath_transportf.
-    apply idpath.
+  - now rewrite idpath_transportf.
   - rewrite idpath_transportf.
     do 2 (apply funextsec; intro).
     apply abstract_clone_comp_project_component.

@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -18,13 +19,10 @@ Lemma one_point_is_clone : is_abstract_clone one_point_clone_data.
 Proof.
   use make_is_abstract_clone.
   - intros m n i f.
-    induction (f i).
-    apply idpath.
+    now induction (f i).
   - intros n f.
-    induction f.
-    apply idpath.
-  - intros l m n f_l f_m f_n.
-    apply idpath.
+    now induction f.
+  - now do 6 intro.
 Qed.
 
 Definition one_point_theory

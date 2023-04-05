@@ -11,9 +11,9 @@ Proof.
       * exact nat.
       * exact (λ m n, stn m → stn n).
     + intro.
-      exact (λ i, i).
+      exact (idfun _).
     + do 3 intro.
-      exact (λ f g, g ∘ f).
+      exact funcomp.
   - do 3 split.
 Defined.
 

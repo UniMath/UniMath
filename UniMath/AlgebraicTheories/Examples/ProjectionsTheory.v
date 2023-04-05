@@ -1,5 +1,6 @@
 (** * The initial algebraic theory, with T n = {1, ..., n} and pr i = i *)
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
@@ -18,9 +19,8 @@ Definition projections_clone_data
 
 Lemma projections_is_clone : is_abstract_clone projections_clone_data.
 Proof.
-  use make_is_abstract_clone;
-    repeat intro;
-    apply idpath.
+  now use make_is_abstract_clone;
+    repeat intro.
 Qed.
 
 Definition projections_theory

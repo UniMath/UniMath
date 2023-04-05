@@ -29,8 +29,7 @@ Defined.
 Lemma free_monoid_is_clone : is_abstract_clone free_monoid_clone_data.
 Proof.
   use make_is_abstract_clone.
-  - intros m n i f.
-    apply idpath.
+  - now do 4 intro.
   - intros n f.
     apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
   - intros l m n f_l f_m f_n.

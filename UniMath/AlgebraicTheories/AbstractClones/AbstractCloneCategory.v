@@ -11,12 +11,10 @@ Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
 Lemma id_is_morphism (C : abstract_clone_data) : is_abstract_clone_morphism (λ n (x : C n), x).
 Proof.
   use make_is_abstract_clone_morphism.
-  - repeat intro.
+  - do 4 intro.
     apply maponpaths, funextfun.
-    intro.
-    apply idpath.
-  - repeat intro.
-    apply idpath.
+    now intro.
+  - now do 2 intro.
 Qed.
 
 Definition id_morphism
@@ -31,18 +29,16 @@ Lemma comp_is_morphism
   : is_abstract_clone_morphism (λ n, (g n ∘ f n)).
 Proof.
   use make_is_abstract_clone_morphism.
-  - repeat intro.
+  - do 4 intro.
     simpl.
     rewrite (abstract_clone_morphism_preserves_composition f).
     rewrite (abstract_clone_morphism_preserves_composition g).
     apply maponpaths, funextfun.
-    intro.
-    apply idpath.
-  - repeat intro.
+    now intro.
+  - do 2 intro.
     simpl.
-    rewrite (abstract_clone_morphism_preserves_projections f).
-    rewrite (abstract_clone_morphism_preserves_projections g).
-    apply idpath.
+    now rewrite (abstract_clone_morphism_preserves_projections f),
+      (abstract_clone_morphism_preserves_projections g).
 Qed.
 
 Definition comp_morphism
@@ -61,17 +57,16 @@ Proof.
   - simpl.
     exact id_morphism.
   - simpl.
-    intros ? ? ?.
+    do 3 intro.
     exact comp_morphism.
 Defined.
 
 Lemma abstract_clone_is_precategory : is_precategory abstract_clone_precategory_data.
 Proof.
-  use make_is_precategory;
+  now use make_is_precategory;
     intros;
     apply abstract_clone_morphism_eq;
-    intros;
-    apply idpath.
+    intros.
 Defined.
 
 Definition abstract_clone_precategory
@@ -89,7 +84,7 @@ Proof.
     apply funspace_isaset.
     simpl.
     apply (C' n).
-  - intros.
+  - intro.
     exact (isasetaprop (isaprop_is_abstract_clone_morphism _)).
 Qed.
 
