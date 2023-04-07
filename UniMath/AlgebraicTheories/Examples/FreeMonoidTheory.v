@@ -14,7 +14,6 @@ Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
 Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
 
-Local Open Scope multmonoid_scope.
 Local Open Scope algebraic_theory.
 Local Open Scope vec_scope.
 
@@ -52,7 +51,8 @@ Definition free_monoid_theory
   : algebraic_theory
   := algebraic_theory_weq_abstract_clone free_monoid_clone.
 
-Definition setwithbinop_from_free_monoid_algebra (A : abstract_clone_algebra free_monoid_clone)
+Definition free_monoid_clone_algebra_to_setwithbinop
+  (A : abstract_clone_algebra free_monoid_clone)
   : setwithbinop.
 Proof.
   use make_setwithbinop.
@@ -65,65 +65,54 @@ Proof.
     + exact (weqvecfun _ [(a ; b)]).
 Defined.
 
-Definition empty_list {X : UU} : (stn 0 → X) := (λ i, (fromempty (negnatlthn0 _ (stnlt i)))).
-
-Definition free_monoid_algebra_unit (A : abstract_clone_algebra free_monoid_clone)
-  : setwithbinop_from_free_monoid_algebra A
-  := (@action free_monoid_clone _ 0 1 empty_list).
-
-Definition lift_constant {C : abstract_clone_data} (n : nat) (f : C 0) : C n := f • empty_list.
-
-Lemma transport_constants
+Local Lemma move_action_through_weqvecfun
   {A : abstract_clone_algebra free_monoid_clone}
-  (n : nat)
-  (f : free_monoid_clone 0)
-  (a : stn n → A)
-  : action f empty_list = action (lift_constant n f) a.
-Proof.
-  unfold lift_constant.
-  rewrite abstract_clone_algebra_action_is_assoc.
-  apply maponpaths, funextfun.
-  intro i.
-  exact (fromempty (negnatlthn0 _ (stnlt i))).
-Qed.
-
-Lemma move_action_through_weqvecfun {A : abstract_clone_algebra free_monoid_clone} {n f g} (h : stn n → A)
+  {n : nat}
+  {f g : free_monoid_clone n}
+  (h : stn n → A)
   : weqvecfun _ [( action f h ; action g h )] = λ i, action (weqvecfun _  [(f ; g)] i) h.
 Proof.
   now apply (invmaponpathsweq (invweq (weqvecfun _))).
 Qed.
 
-Lemma free_monoid_algebra_op_is_assoc (A : abstract_clone_algebra free_monoid_clone)
-  : isassoc (@op (setwithbinop_from_free_monoid_algebra A)).
+Lemma free_monoid_clone_algebra_to_setwithbinop_op_is_assoc
+  (A : abstract_clone_algebra free_monoid_clone)
+  : isassoc (@op (free_monoid_clone_algebra_to_setwithbinop A)).
 Proof.
   intros a b c.
-  unfold op, setwithbinop_from_free_monoid_algebra, make_setwithbinop.
+  unfold op, free_monoid_clone_algebra_to_setwithbinop, make_setwithbinop.
   pose (f := weqvecfun _ [(a ; b ; c)]).
   pose (Hf := λ i Hi,
     !(abstract_clone_algebra_action_projects_component _ _ (make_stn 3 i Hi) f)).
   rewrite pr2_of_pair,
     (Hf 0 (idpath true) : a = _),
-    (Hf 1%nat (idpath true) : b = _),
+    (Hf 1 (idpath true) : b = _),
     (Hf 2 (idpath true) : c = _).
   now do 4 (rewrite move_action_through_weqvecfun, <- abstract_clone_algebra_action_is_assoc).
 Qed.
 
-Lemma free_monoid_algebra_op_is_unital (A : abstract_clone_algebra free_monoid_clone) 
-  : isunital (@op (setwithbinop_from_free_monoid_algebra A)).
+Lemma free_monoid_clone_algebra_to_setwithbinop_op_is_unital
+  (A : abstract_clone_algebra free_monoid_clone) 
+  : isunital (@op (free_monoid_clone_algebra_to_setwithbinop A)).
 Proof.
-  use (free_monoid_algebra_unit A ,, (_ ,, _));
-    unfold islunit, isrunit;
+  exists (action (C := free_monoid_clone) (unel _) (weqvecfun _ [()])).
+  use tpair;
     intro;
-    unfold free_monoid_algebra_unit, op, setwithbinop_from_free_monoid_algebra, make_setwithbinop;
+    unfold op, free_monoid_clone_algebra_to_setwithbinop, make_setwithbinop;
     now rewrite pr2_of_pair,
       <- (abstract_clone_algebra_action_projects_component _ _ (make_stn 1 0 (idpath true)) (λ _, x)),
-      (transport_constants 1 _ (λ _, x)),
+      <- (lift_constant_action 1 _ (λ _, x)),
       move_action_through_weqvecfun,
       <- abstract_clone_algebra_action_is_assoc.
 Qed.
 
-Lemma free_monoid_algebra_op_is_monoidop (A : abstract_clone_algebra free_monoid_clone)
-  : ismonoidop (@op (setwithbinop_from_free_monoid_algebra A)).
+Lemma free_monoid_clone_algebra_to_setwithbinop_op_is_monoidop
+  (A : abstract_clone_algebra free_monoid_clone)
+  : ismonoidop (@op (free_monoid_clone_algebra_to_setwithbinop A)).
 Proof.
-  exact (free_monoid_algebra_op_is_assoc A ,, free_monoid_algebra_op_is_unital A).
+  exact (free_monoid_clone_algebra_to_setwithbinop_op_is_assoc A ,, free_monoid_clone_algebra_to_setwithbinop_op_is_unital A).
 Qed.
+
+Definition free_monoid_clone_algebra_to_monoid (A : abstract_clone_algebra free_monoid_clone)
+  : monoid
+  := (free_monoid_clone_algebra_to_setwithbinop A ,, free_monoid_clone_algebra_to_setwithbinop_op_is_monoidop A).

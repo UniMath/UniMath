@@ -1,6 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
@@ -116,4 +117,19 @@ Proof.
       (λ A, C n → (stn n → A) → A)
     ).
     apply H2.
+Qed.
+
+Lemma lift_constant_action
+  {C : abstract_clone_data}
+  {A : abstract_clone_algebra C}
+  (n : nat)
+  (f : C 0)
+  (a : stn n → A)
+  : action (lift_constant n f) a = action f (weqvecfun _ vnil).
+Proof.
+  unfold lift_constant.
+  rewrite abstract_clone_algebra_action_is_assoc.
+  apply maponpaths, funextfun.
+  intro i.
+  exact (fromempty (negnatlthn0 _ (stnlt i))).
 Qed.
