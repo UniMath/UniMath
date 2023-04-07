@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -340,3 +341,32 @@ Section HSET_Structures.
     equiv_Equalizers2 HSET EqualizersHSET_from_Lims.
 
 End HSET_Structures.
+
+(**
+ Concrete construction of equalizers of sets
+ *)
+Definition Equalizers_in_HSET
+  : Equalizers HSET.
+Proof.
+  intros X Y f g ; cbn in *.
+  simple refine ((_ ,, _) ,, _ ,, _).
+  - exact (∑ (x : X), hProp_to_hSet (eqset (f x) (g x)))%set.
+  - exact (λ x, pr1 x).
+  - abstract
+      (use funextsec ;
+       intro z ; cbn ;
+       exact (pr2 z)).
+  - intros W h p.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply homset_property | ] ;
+         use funextsec ;
+         intro w ;
+         use subtypePath ; [ intro ; apply setproperty | ] ;
+         exact (eqtohomot (pr2 φ₁ @ !(pr2 φ₂)) w)).
+    + simple refine (_ ,, _).
+      * exact (λ w, h w ,, eqtohomot p w).
+      * apply idpath.
+Defined.
