@@ -20,32 +20,27 @@
  from which we conclude the univalence of the category of
  structured sets.
 
- We also give conditions under which one can deduce that the
- category of structured sets is cartesian closed. These conditions
- say that we have a structure on the set of structure preserving
- functions and that application and lambda abstraction are
- structure-preserving maps.
+ We also give conditions that guarantee the category of structures
+ is a cartesian category.
 
  Contents
  1. Definition of the structures
  2. The corresponding displayed category
  3. The total category
  4. Transporting structures
- 5. Cartesian closedness
+ 5. Cartesian structures
+ 6. Transport laws for cartesian structures
+ 7. Terminal object and products from cartesian structures
 
  *****************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
@@ -59,14 +54,7 @@ Local Open Scope cat.
 Definition hset_struct_data
   : UU
   := ∑ (P : hSet → UU),
-     (∏ (X Y : hSet), P X → P Y → (X → Y) → UU)
-     ×
-     P unitHSET
-     ×
-     (∏ (X Y : hSet)
-        (PX : P X)
-        (PY : P Y),
-     P (X × Y)%set).
+     (∏ (X Y : hSet), P X → P Y → (X → Y) → UU).
 
 Definition hset_struct_data_to_fam (P : hset_struct_data) : hSet → UU
   := pr1 P.
@@ -80,20 +68,7 @@ Definition mor_hset_struct
            (PY : P Y)
            (f : X → Y)
   : UU
-  := pr12 P X Y PX PY f.
-
-Definition hset_struct_unit
-           (P : hset_struct_data)
-  : P unitHSET
-  := pr122 P.
-
-Definition hset_struct_prod
-           (P : hset_struct_data)
-           {X Y : hSet}
-           (PX : P X)
-           (PY : P Y)
-  : P (X × Y)%set
-  := pr222 P X Y PX PY.
+  := pr2 P X Y PX PY f.
 
 Definition hset_struct_laws
            (P : hset_struct_data)
@@ -124,37 +99,7 @@ Definition hset_struct_laws
         (PX PX' : P X),
       mor_hset_struct P PX PX' (λ x, x)
       → mor_hset_struct P PX' PX (λ x, x)
-      → PX = PX')
-     ×
-     (∏ (X : hSet)
-        (PX : P X),
-      mor_hset_struct P PX (hset_struct_unit P) (λ _ : X, tt))
-     ×
-     (∏ (X Y : hSet)
-        (PX : P X)
-        (PY : P Y),
-      mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1)
-     ×
-     (∏ (X Y : hSet)
-        (PX : P X)
-        (PY : P Y),
-      mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2)
-     ×
-     (∏ (W X Y : hSet)
-        (PW : P W)
-        (PX : P X)
-        (PY : P Y)
-        (f : W → X)
-        (g : W → Y)
-        (Mf : mor_hset_struct P PW PX f)
-        (Mg : mor_hset_struct P PW PY g),
-       mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g)))
-     ×
-     (∏ (X Y : hSet)
-        (PX : P X)
-        (PY : P Y)
-        (y : Y),
-      mor_hset_struct P PX PY (λ x, y)).
+      → PX = PX').
 
 Definition hset_struct
   : UU
@@ -213,72 +158,7 @@ Section Projections.
               (Mf' : mor_hset_struct P PX' PX (λ x, x))
     : PX = PX'.
   Proof.
-    exact (pr122 (pr222 P) X PX PX' Mf Mf').
-  Qed.
-
-  Proposition hset_struct_to_unit
-              {X : hSet}
-              (PX : P X)
-    : mor_hset_struct P PX (hset_struct_unit P) (λ _ : X, tt).
-  Proof.
-    exact (pr1 (pr222 (pr222 P)) X PX).
-  Qed.
-
-  Proposition hset_struct_pr1
-              {X Y : hSet}
-              (PX : P X)
-              (PY : P Y)
-    : mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1.
-  Proof.
-    exact (pr12 (pr222 (pr222 P)) X Y PX PY).
-  Qed.
-
-  Proposition hset_struct_pr2
-              {X Y : hSet}
-              (PX : P X)
-              (PY : P Y)
-    : mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2.
-  Proof.
-    exact (pr122 (pr222 (pr222 P)) X Y PX PY).
-  Qed.
-
-  Proposition hset_struct_pair
-              {W X Y : hSet}
-              {PW : P W}
-              {PX : P X}
-              {PY : P Y}
-              {f : W → X}
-              {g : W → Y}
-              (Mf : mor_hset_struct P PW PX f)
-              (Mg : mor_hset_struct P PW PY g)
-    : mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g)).
-  Proof.
-    exact (pr1 (pr222 (pr222 (pr222 P))) W X Y PW PX PY f g Mf Mg).
-  Qed.
-
-  Proposition hset_struct_const
-              {X Y : hSet}
-              (PX : P X)
-              (PY : P Y)
-              (y : Y)
-    : mor_hset_struct P PX PY (λ x, y).
-  Proof.
-    exact (pr2 (pr222 (pr222 (pr222 P))) X Y PX PY y).
-  Qed.
-
-  Proposition hset_struct_pointwise
-              {X Y Z : hSet}
-              {PX : P X}
-              {PY : P Y}
-              {PZ : P Z}
-              (f : X × Z → Y)
-              (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
-              (z : Z)
-    : mor_hset_struct P PX PY (λ x : X, f (x ,, z)).
-  Proof.
-    exact (hset_struct_comp
-             (hset_struct_pair (hset_struct_id PX) (hset_struct_const PX PZ z))
-             Pf).
+    exact (pr22 (pr222 P) X PX PX' Mf Mf').
   Qed.
 End Projections.
 
@@ -305,39 +185,6 @@ Section SetStructure.
     - exact (isaset_hset_struct_on_set P).
     - exact (λ X PX PX' Mf Mf', hset_struct_standard P Mf Mf').
   Qed.
-
-  Definition dispTerminal_hset_disp_struct
-    : dispTerminal hset_struct_disp_cat TerminalHSET.
-  Proof.
-    refine (hset_struct_unit P ,, _).
-    intros X PX.
-    use iscontraprop1.
-    - apply isaprop_hset_struct_on_mor.
-    - exact (hset_struct_to_unit P PX).
-  Defined.
-
-  Definition dispBinProducts_hset_disp_struct
-    : dispBinProducts hset_struct_disp_cat BinProductsHSET.
-  Proof.
-    intros X Y PX PY.
-    simple refine ((_ ,, (_ ,, _)) ,, _).
-    - exact (hset_struct_prod P PX PY).
-    - exact (hset_struct_pr1 P PX PY).
-    - exact (hset_struct_pr2 P PX PY).
-    - intros W f g PW Mf Mg ; cbn.
-      use iscontraprop1.
-      + abstract
-          (use isaproptotal2 ;
-           [ intro ;
-            apply isapropdirprod ; apply hset_struct_disp_cat
-           | ] ;
-           intros ;
-           apply isaprop_hset_struct_on_mor).
-      + simple refine (_ ,, _ ,, _).
-        * exact (hset_struct_pair P Mf Mg).
-        * apply isaprop_hset_struct_on_mor.
-        * apply isaprop_hset_struct_on_mor.
-  Defined.
 
   (**
    3. The total category
@@ -367,22 +214,6 @@ Section SetStructure.
     use is_univalent_total_category.
     - exact is_univalent_HSET.
     - exact is_univalent_disp_hset_struct_disp_cat.
-  Defined.
-
-  Definition Terminal_category_of_hset_struct
-    : Terminal category_of_hset_struct.
-  Proof.
-    use total_category_Terminal.
-    - exact TerminalHSET.
-    - exact dispTerminal_hset_disp_struct.
-  Defined.
-
-  Definition BinProducts_category_of_hset_struct
-    : BinProducts category_of_hset_struct.
-  Proof.
-    use total_category_Binproducts.
-    - exact BinProductsHSET.
-    - exact dispBinProducts_hset_disp_struct.
   Defined.
 
   (**
@@ -494,6 +325,124 @@ Section SetStructure.
              (f : X₁ × X₂ → X₃)
     : Y₁ × Y₂ → Y₃
     := λ y, w₃ (f (invmap w₁ (pr1 y) ,, invmap w₂ (pr2 y))).
+End SetStructure.
+
+(**
+ 5. Cartesian structures
+ *)
+Definition hset_cartesian_struct_data
+  : UU
+  := ∑ (P : hset_struct),
+     P unitHSET
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+     P (X × Y)%set).
+
+Coercion hset_cartesian_struct_datat_to_struct
+         (P : hset_cartesian_struct_data)
+  : hset_struct
+  := pr1 P.
+
+Definition hset_struct_unit
+           (P : hset_cartesian_struct_data)
+  : P unitHSET
+  := pr12 P.
+
+Definition hset_struct_prod
+           (P : hset_cartesian_struct_data)
+           {X Y : hSet}
+           (PX : P X)
+           (PY : P Y)
+  : P (X × Y)%set
+  := pr22 P X Y PX PY.
+
+Definition hset_cartesian_struct_laws
+           (P : hset_cartesian_struct_data)
+  : UU
+  := (∏ (X : hSet)
+        (PX : P X),
+      mor_hset_struct P PX (hset_struct_unit P) (λ _ : X, tt))
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1)
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2)
+     ×
+     (∏ (W X Y : hSet)
+        (PW : P W)
+        (PX : P X)
+        (PY : P Y)
+        (f : W → X)
+        (g : W → Y)
+        (Mf : mor_hset_struct P PW PX f)
+        (Mg : mor_hset_struct P PW PY g),
+       mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g))).
+
+Definition hset_cartesian_struct
+  : UU
+  := ∑ (P : hset_cartesian_struct_data), hset_cartesian_struct_laws P.
+
+Coercion hset_cartesian_struct_to_data
+         (P : hset_cartesian_struct)
+  : hset_cartesian_struct_data
+  := pr1 P.
+
+Section Projections.
+  Context (P : hset_cartesian_struct).
+
+  Proposition hset_struct_to_unit
+              {X : hSet}
+              (PX : P X)
+    : mor_hset_struct P PX (hset_struct_unit P) (λ _ : X, tt).
+  Proof.
+    exact (pr12 P X PX).
+  Qed.
+
+  Proposition hset_struct_pr1
+              {X Y : hSet}
+              (PX : P X)
+              (PY : P Y)
+    : mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1.
+  Proof.
+    exact (pr122 P X Y PX PY).
+  Qed.
+
+  Proposition hset_struct_pr2
+              {X Y : hSet}
+              (PX : P X)
+              (PY : P Y)
+    : mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2.
+  Proof.
+    exact (pr1 (pr222 P) X Y PX PY).
+  Qed.
+
+  Proposition hset_struct_pair
+              {W X Y : hSet}
+              {PW : P W}
+              {PX : P X}
+              {PY : P Y}
+              {f : W → X}
+              {g : W → Y}
+              (Mf : mor_hset_struct P PW PX f)
+              (Mg : mor_hset_struct P PW PY g)
+    : mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g)).
+  Proof.
+    exact (pr2 (pr222 P) W X Y PW PX PY f g Mf Mg).
+  Qed.
+End Projections.
+
+(**
+ 6. Transport laws for cartesian structures
+ *)
+Section TransportCartesian.
+  Context (P : hset_cartesian_struct).
 
   Definition transportf_struct_mor_prod_via_transportf
              {X₁ X₂ X₃ Y₁ Y₂ Y₃ : hSet}
@@ -536,9 +485,9 @@ Section SetStructure.
         P
         (hset_struct_prod
            P
-           (transportf_struct_weq w₁ PX₁)
-           (transportf_struct_weq w₂ PX₂))
-        (transportf_struct_weq w₃ PX₃)
+           (transportf_struct_weq P w₁ PX₁)
+           (transportf_struct_weq P w₂ PX₂))
+        (transportf_struct_weq P w₃ PX₃)
         (transportf_mor_weq_prod w₁ w₂ w₃ f).
   Proof.
     pose (transportf_struct_mor_prod_via_transportf
@@ -571,9 +520,9 @@ Section SetStructure.
         P
         (hset_struct_prod
            P
-           (transportf_struct_weq w₁ PX₁)
-           (transportf_struct_weq w₂ PX₂))
-        (transportf_struct_weq w₃ PX₃)
+           (transportf_struct_weq P w₁ PX₁)
+           (transportf_struct_weq P w₂ PX₂))
+        (transportf_struct_weq P w₃ PX₃)
         g.
   Proof.
     refine (transportf
@@ -606,7 +555,7 @@ Section SetStructure.
     : mor_hset_struct
         P
         PX
-        (transportf_struct_weq w PX)
+        (transportf_struct_weq P w PX)
         w.
   Proof.
     pose (transportf_struct_weq_on_weq_transportf
@@ -637,7 +586,7 @@ Section SetStructure.
              (PX : P X)
     : mor_hset_struct
         P
-        (transportf_struct_weq w PX)
+        (transportf_struct_weq P w PX)
         PX
         (invmap w).
   Proof.
@@ -649,150 +598,60 @@ Section SetStructure.
     rewrite hSet_univalence_map_univalence_hSet in H.
     exact H.
   Qed.
-End SetStructure.
+End TransportCartesian.
 
 (**
- 5. Cartesian closedness
+ 7. Terminal object and products from cartesian structures
  *)
-Definition struct_fun
-           {P : hset_struct}
-           {X Y : hSet}
-           (PX : P X)
-           (PY : P Y)
-  : UU
-  := ∑ (f : X → Y), mor_hset_struct P PX PY f.
+Section TerminalAndProductCartesian.
+  Context (P : hset_cartesian_struct).
 
-Definition struct_fun_to_fun
-           {P : hset_struct}
-           {X Y : hSet}
-           {PX : P X}
-           {PY : P Y}
-           (f : struct_fun PX PY)
-  : X → Y
-  := pr1 f.
-
-Coercion struct_fun_to_fun : struct_fun >-> Funclass.
-
-Definition struct_fun_hSet
-           {P : hset_struct}
-           {X Y : hSet}
-           (PX : P X)
-           (PY : P Y)
-  : hSet.
-Proof.
-  use (make_hSet (struct_fun PX PY)).
-  use isaset_total2.
-  - apply funspace_isaset.
-    apply setproperty.
-  - intro.
-    apply isasetaprop.
-    apply isaprop_hset_struct_on_mor.
-Defined.
-
-Definition closed_under_fun_data
-           (P : hset_struct)
-  : UU
-  := ∏ (X Y : hSet)
-       (PX : P X)
-       (PY : P Y),
-     P (struct_fun_hSet PX PY).
-
-Definition closed_under_fun_laws
-           {P : hset_struct}
-           (Pfun : closed_under_fun_data P)
-  : UU
-  := (∏ (X Y : hSet)
-        (PX : P X)
-        (PY : P Y),
-      mor_hset_struct
-        P
-        (hset_struct_prod P PX (Pfun _ _ PX PY))
-        PY
-        (λ xf, pr12 xf (pr1 xf)))
-     ×
-     (∏ (X Y Z : hSet)
-        (PX : P X)
-        (PY : P Y)
-        (PZ : P Z)
-        (f : X × Z → Y)
-        (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f),
-      mor_hset_struct
-        P
-        PZ (Pfun _ _ PX PY)
-        (λ z, _ ,, hset_struct_pointwise P f Pf z)).
-
-Definition closed_under_fun
-           (P : hset_struct)
-  : UU
-  := ∑ (Pfun : closed_under_fun_data P), closed_under_fun_laws Pfun.
-
-Definition closed_under_fun_to_data
-           {P : hset_struct}
-           (Pfun : closed_under_fun P)
-           {X Y : hSet}
-           (PX : P X)
-           (PY : P Y)
-  : P (struct_fun_hSet PX PY)
-  := pr1 Pfun X Y PX PY.
-
-Coercion closed_under_fun_to_data : closed_under_fun >-> Funclass.
-
-Section ClosedUnderFunLaws.
-  Context {P : hset_struct}
-          (Pfun : closed_under_fun P).
-
-  Proposition closed_under_fun_eval
-              {X Y : hSet}
-              (PX : P X)
-              (PY : P Y)
-    : mor_hset_struct
-        P
-        (hset_struct_prod P PX (Pfun _ _ PX PY))
-        PY
-        (λ xf, pr12 xf (pr1 xf)).
+  Definition dispTerminal_hset_disp_struct
+    : dispTerminal (hset_struct_disp_cat P) TerminalHSET.
   Proof.
-    exact (pr12 Pfun X Y PX PY).
-  Qed.
-
-  Proposition closed_under_fun_lam
-              {X Y Z : hSet}
-              {PX : P X}
-              {PY : P Y}
-              {PZ : P Z}
-              (f : X × Z → Y)
-              (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
-    : mor_hset_struct
-        P
-        PZ (Pfun _ _ PX PY)
-        (λ z, _ ,, hset_struct_pointwise P f Pf z).
-  Proof.
-    exact (pr22 Pfun X Y Z PX PY PZ f Pf).
-  Qed.
-End ClosedUnderFunLaws.
-
-Definition Exponentials_struct
-           (P : hset_struct)
-           (Pfun : closed_under_fun P)
-  : Exponentials (BinProducts_category_of_hset_struct P).
-Proof.
-  intros PX.
-  use left_adjoint_from_partial.
-  - exact (λ PY, _ ,, Pfun _ _ (pr2 PX) (pr2 PY)).
-  - exact (λ PY, _ ,, closed_under_fun_eval Pfun _ _).
-  - refine (λ Y Z f, _).
+    refine (hset_struct_unit P ,, _).
+    intros X PX.
     use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros g₁ g₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         use eq_mor_hset_struct ; intro z ;
-         use eq_mor_hset_struct ; intro x ;
-         refine (!(eqtohomot (maponpaths pr1 (pr2 g₁)) (x ,, z)) @ _) ;
-         exact (eqtohomot (maponpaths pr1 (pr2 g₂)) (x ,, z))).
-    + simple refine (_ ,, _).
-      * exact (_ ,, closed_under_fun_lam Pfun (pr1 f) (pr2 f)).
-      * abstract
-          (use eq_mor_hset_struct ;
-           intro x ; cbn ;
-           apply idpath).
-Defined.
+    - apply isaprop_hset_struct_on_mor.
+    - exact (hset_struct_to_unit P PX).
+  Defined.
+
+  Definition dispBinProducts_hset_disp_struct
+    : dispBinProducts (hset_struct_disp_cat P) BinProductsHSET.
+  Proof.
+    intros X Y PX PY.
+    simple refine ((_ ,, (_ ,, _)) ,, _).
+    - exact (hset_struct_prod P PX PY).
+    - exact (hset_struct_pr1 P PX PY).
+    - exact (hset_struct_pr2 P PX PY).
+    - intros W f g PW Mf Mg ; cbn.
+      use iscontraprop1.
+      + abstract
+          (use isaproptotal2 ;
+           [ intro ;
+            apply isapropdirprod ; apply hset_struct_disp_cat
+           | ] ;
+           intros ;
+           apply isaprop_hset_struct_on_mor).
+      + simple refine (_ ,, _ ,, _).
+        * exact (hset_struct_pair P Mf Mg).
+        * apply isaprop_hset_struct_on_mor.
+        * apply isaprop_hset_struct_on_mor.
+  Defined.
+
+  Definition Terminal_category_of_hset_struct
+    : Terminal (category_of_hset_struct P).
+  Proof.
+    use total_category_Terminal.
+    - exact TerminalHSET.
+    - exact dispTerminal_hset_disp_struct.
+  Defined.
+
+  Definition BinProducts_category_of_hset_struct
+    : BinProducts (category_of_hset_struct P).
+  Proof.
+    use total_category_Binproducts.
+    - exact BinProductsHSET.
+    - exact dispBinProducts_hset_disp_struct.
+  Defined.
+End TerminalAndProductCartesian.

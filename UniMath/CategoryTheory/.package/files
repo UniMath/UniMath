@@ -62,7 +62,6 @@ limits/terminal.v
 limits/zero.v
 limits/bincoproducts.v
 limits/binproducts.v
-DisplayedCats/Binproducts.v
 
 limits/graphs/bincoproducts.v
 limits/graphs/binproducts.v
@@ -88,6 +87,8 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
 limits/Ends.v
+
+DisplayedCats/Binproducts.v
 
 limits/Examples/CategoryProductLimits.v
 limits/Examples/CategoryOfSetcategoriesLimits.v
@@ -235,7 +236,9 @@ DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v
-DisplayedCats/Examples/StructureWithProd.v
+DisplayedCats/Structures/CartesianStructure.v
+DisplayedCats/Structures/StructureLimitsAndColimits.v
+DisplayedCats/Structures/ExamplesOfStructures.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
@@ -371,9 +374,11 @@ EnrichedCats/Examples/UnivalentKleisliEnriched.v
 
 EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v
 EnrichedCats/Limits/Examples/PosetEnrichedLimits.v
+EnrichedCats/Limits/Examples/StructureEnrichedLimits.v
 EnrichedCats/Limits/Examples/SelfEnrichedLimits.v
 EnrichedCats/Colimits/Examples/OppositeEnrichedColimits.v
 EnrichedCats/Colimits/Examples/PosetEnrichedColimits.v
+EnrichedCats/Colimits/Examples/StructureEnrichedColimits.v
 EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v
 
 GrothendieckConstruction/TotalCategory.v
