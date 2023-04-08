@@ -12,6 +12,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 
@@ -301,3 +302,31 @@ Defined.
 
 (** Make the C not implicit for Coequalizers *)
 Arguments Coequalizers : clear implicits.
+
+(**
+ In univalent categories, equalizers are unique up to equality
+ *)
+Proposition isaprop_Coequalizer
+            {C : category}
+            (HC : is_univalent C)
+            {x y : C}
+            (f g : x --> y)
+  : isaprop (Coequalizer f g).
+Proof.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
+    intro.
+    use (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
+    - apply homset_property.
+    - simpl.
+      repeat (use impred ; intro).
+      apply isapropiscontr.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use z_iso_between_Coequalizer.
+  - rewrite transportf_isotoid' ; cbn.
+    apply CoequalizerCommutes.
+Qed.
