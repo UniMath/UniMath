@@ -9,7 +9,7 @@
 
  The notion of structure that we consider, consists of:
  - For every hSet, a set of structures on that set
- - For every function, a proposition that represents wheter this
+ - For every function, a proposition that represents whether this
    function preserves the structure.
  The notion of structure must be closed under product and there
  must be a structure for the unit set. We also require that
