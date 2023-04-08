@@ -25,6 +25,8 @@ Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+
 Local Open Scope cat.
 
 (** * Definition of indexed products of objects in a precategory *)
@@ -170,6 +172,12 @@ now rewrite assoc, ProductOfArrowsPr, assoc.
 Qed.
 
 End Products.
+
+Section finite_products.
+
+  Definition finite_products (C : category) := ∏ (n : nat), Products (stn n) C.
+
+End finite_products.
 
 Section Product_unique.
 
