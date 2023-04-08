@@ -422,6 +422,7 @@ Section StructureEnrichmentColimits.
       simple refine (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
       - repeat (use impred ; intro).
         apply isaprop_Coequalizer.
+        exact HC.
       - repeat (use impred ; intro).
         apply isaprop_hset_struct_on_mor.
     Qed.
