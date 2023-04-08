@@ -116,3 +116,27 @@ Qed.
 Definition free_monoid_clone_algebra_to_monoid (A : abstract_clone_algebra free_monoid_clone)
   : monoid
   := (free_monoid_clone_algebra_to_setwithbinop A ,, free_monoid_clone_algebra_to_setwithbinop_op_is_monoidop A).
+
+Definition monoid_to_free_monoid_clone_algebra_data (M : monoid)
+  : abstract_clone_algebra_data free_monoid_clone.
+Proof.
+  use make_abstract_clone_algebra_data.
+  - exact M.
+  - intros n f m.
+    exact (free_monoid_extend (X := stnset n) m f).
+Defined.
+
+Lemma monoid_to_is_free_monoid_clone_algebra (M : monoid)
+  : is_abstract_clone_algebra (monoid_to_free_monoid_clone_algebra_data M).
+Proof.
+  use make_is_abstract_clone_algebra.
+  - now do 3 intro.
+  - intros m n f g a.
+    now rewrite (idpath _ : action f (λ _, action _ a) =
+      free_monoid_extend (X := stnset m) (λ _, free_monoid_extend (X := stnset n) _ _) _),
+      <- free_monoid_extend_funcomp2.
+Qed.
+
+Definition monoid_to_free_monoid_clone_algebra (M : monoid)
+  : abstract_clone_algebra free_monoid_clone
+  := make_abstract_clone_algebra _ (monoid_to_is_free_monoid_clone_algebra M).
