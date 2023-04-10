@@ -176,9 +176,7 @@ Proof.
       do 2 rewrite abstract_clone_algebra_action_is_assoc.
       now rewrite <- (move_action_through_weqvecfun (A := A) x0),
         <- Haction,
-        (idpath _ : weqvecfun (A := A) 2 _ = weqvecfun (A := A') 2 _),
-        (idpath _ : free_monoid_unit i = clone_pr (C := free_monoid_clone) i),
-        (abstract_clone_algebra_action_projects_component A _ _ _).
+        (abstract_clone_algebra_action_projects_component A _ _ _ : action (free_monoid_unit i : free_monoid_clone n) _ = _).
 Qed.
 
 Definition monoid_weq_free_monoid_clone_algebra
