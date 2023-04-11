@@ -990,6 +990,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheoryMorphisms.v)
    - [AbstractClones/AbstractClones.v](AlgebraicTheories/AbstractClones/AbstractClones.v)
    - [AbstractClones/AbstractCloneMorphisms.v](AlgebraicTheories/AbstractClones/AbstractCloneMorphisms.v)
+   - [AbstractClones/AbstractCloneAlgebras.v](AlgebraicTheories/AbstractClones/AbstractCloneAlgebras.v)
    - [AbstractClones/AbstractCloneCategory.v](AlgebraicTheories/AbstractClones/AbstractCloneCategory.v)
    - [AbstractCloneAlgebraicTheory.v](AlgebraicTheories/AbstractCloneAlgebraicTheory.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
