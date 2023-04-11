@@ -39,8 +39,8 @@ Proof.
   - intros n f.
     apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
   - intros l m n f_l f_m f_n.
-    apply (maponpaths (λ x, pr1monoidfun _ _ x f_l)
-      (@free_monoid_extend_funcomp2 (stnset l) _ _ f_m f_n)).
+    exact (maponpaths (λ x, pr1monoidfun _ _ x f_l)
+      (free_monoid_extend_funcomp2 (X := stnset l) f_m f_n)).
 Qed.
 
 Definition free_monoid_clone
@@ -77,15 +77,15 @@ Qed.
 
 Lemma free_monoid_clone_algebra_to_setwithbinop_op_is_assoc
   (A : abstract_clone_algebra free_monoid_clone)
-  : isassoc (@op (free_monoid_clone_algebra_to_setwithbinop A)).
+  : isassoc (op (X := free_monoid_clone_algebra_to_setwithbinop A)).
 Proof.
   intros a b c.
-  unfold op, free_monoid_clone_algebra_to_setwithbinop, make_setwithbinop.
   pose (f := weqvecfun _ [(a ; b ; c)]).
   pose (Hf := λ i Hi,
     !(abstract_clone_algebra_action_projects_component _ _ (make_stn 3 i Hi) f)).
-  rewrite pr2_of_pair,
-    (Hf 0 (idpath true) : a = _),
+  do 4 rewrite (idpath _ : op (X := (free_monoid_clone_algebra_to_setwithbinop A)) _ _
+    = action _ _).
+  rewrite (Hf 0 (idpath true) : a = _),
     (Hf 1 (idpath true) : b = _),
     (Hf 2 (idpath true) : c = _).
   now do 4 (rewrite move_action_through_weqvecfun, <- abstract_clone_algebra_action_is_assoc).
@@ -96,26 +96,28 @@ Definition free_monoid_clone_algebra_to_unit (A : abstract_clone_algebra free_mo
   := action (C := free_monoid_clone) (unel _) (weqvecfun _ [()]).
 
 Lemma free_monoid_clone_algebra_to_isunit (A : abstract_clone_algebra free_monoid_clone)
-  : isunit (@op (free_monoid_clone_algebra_to_setwithbinop A)) (free_monoid_clone_algebra_to_unit A).
+  : isunit
+    (op (X := free_monoid_clone_algebra_to_setwithbinop A))
+    (free_monoid_clone_algebra_to_unit A).
 Proof.
   use tpair;
-    intro;
-    now rewrite (idpath _ : op (X := free_monoid_clone_algebra_to_setwithbinop A) _ _ = action (C := free_monoid_clone) _ _),
-      (idpath _ : free_monoid_clone_algebra_to_unit A = action _ _),
-      <- (abstract_clone_algebra_action_projects_component _ _ (make_stn 1 0 (idpath true)) (λ _, x)),
-      <- (lift_constant_action 1 _ (λ _, x)),
+    intro x;
+    now rewrite (idpath _ : op (X := free_monoid_clone_algebra_to_setwithbinop A) _ _
+        = action (C := free_monoid_clone) _ _),
+      <- (abstract_clone_algebra_action_projects_component _ _ (make_stn 1 0 (idpath _)) (λ _, x)),
+      <- (lift_constant_action 1 _ (λ _, x) : _ = free_monoid_clone_algebra_to_unit A),
       move_action_through_weqvecfun,
       <- abstract_clone_algebra_action_is_assoc.
 Qed.
 
 Definition free_monoid_clone_algebra_to_setwithbinop_op_is_unital
   (A : abstract_clone_algebra free_monoid_clone) 
-  : isunital (@op (free_monoid_clone_algebra_to_setwithbinop A))
+  : isunital (op (X := free_monoid_clone_algebra_to_setwithbinop A))
   := _ ,, free_monoid_clone_algebra_to_isunit A.
 
 Definition free_monoid_clone_algebra_to_setwithbinop_op_is_monoidop
   (A : abstract_clone_algebra free_monoid_clone)
-  : ismonoidop (@op (free_monoid_clone_algebra_to_setwithbinop A))
+  : ismonoidop (op (X := free_monoid_clone_algebra_to_setwithbinop A))
   := free_monoid_clone_algebra_to_setwithbinop_op_is_assoc A ,,
     free_monoid_clone_algebra_to_setwithbinop_op_is_unital A.
 
@@ -139,8 +141,8 @@ Proof.
   use make_is_abstract_clone_algebra.
   - now do 3 intro.
   - intros m n f g a.
-    now rewrite (idpath _ : action f (λ _, action _ a) =
-      free_monoid_extend (X := stnset m) (λ _, free_monoid_extend (X := stnset n) _ _) _),
+    now rewrite (idpath _ : action f (λ _, action _ a)
+      = free_monoid_extend (X := stnset m) (λ _, free_monoid_extend (X := stnset n) _ _) _),
       <- free_monoid_extend_funcomp2.
 Qed.
 
@@ -162,11 +164,11 @@ Proof.
   - intro n.
     rewrite idpath_transportf.
     apply funextfun.
-    intro x.
+    intro f.
     apply funextfun.
-    intro x0.
+    intro a.
     pose (A' := monoid_to_free_monoid_clone_algebra (free_monoid_clone_algebra_to_monoid A)).
-    apply (list_ind (λ x, action (A := A') x x0 = action (A := A) x x0)).
+    apply (list_ind (λ x, action (A := A') x a = action (A := A) x a)).
     + exact (!(lift_constant_action (A := A) _ (unel _) _)).
     + intros i xs Haction.
       rewrite (idpath _ : cons i xs = (op
@@ -174,11 +176,16 @@ Proof.
         (free_monoid_unit (make_stn 2 1 (idpath true) : stnset _))
       : free_monoid_clone 2) • (weqvecfun _ [((free_monoid_unit i) ; xs)])).
       do 2 rewrite abstract_clone_algebra_action_is_assoc.
-      now rewrite <- (move_action_through_weqvecfun (A := A) x0),
+      now rewrite <- (move_action_through_weqvecfun (A := A) a),
         <- Haction,
-        (abstract_clone_algebra_action_projects_component A _ _ _ : action (free_monoid_unit i : free_monoid_clone n) _ = _).
+        (abstract_clone_algebra_action_projects_component A _ _ _ :
+          action (free_monoid_unit i : free_monoid_clone n) _ = _).
 Qed.
 
 Definition monoid_weq_free_monoid_clone_algebra
   : monoid ≃ (abstract_clone_algebra free_monoid_clone)
-  := weq_iso monoid_to_free_monoid_clone_algebra free_monoid_clone_algebra_to_monoid monoid_to_free_monoid_clone_algebra_and_back free_monoid_clone_algebra_to_monoid_and_back.
+  := weq_iso
+    monoid_to_free_monoid_clone_algebra
+    free_monoid_clone_algebra_to_monoid
+    monoid_to_free_monoid_clone_algebra_and_back
+    free_monoid_clone_algebra_to_monoid_and_back.
