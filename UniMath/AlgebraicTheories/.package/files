@@ -10,6 +10,7 @@ AbstractClones/AbstractCloneAlgebras.v
 AbstractClones/AbstractCloneCategory.v
 
 AbstractCloneAlgebraicTheory.v
+AbstractCloneAlgebraEndomorphism.v
 
 Examples/OnePointTheory.v
 Examples/ProjectionsTheory.v

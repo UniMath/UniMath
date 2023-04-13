@@ -30,7 +30,7 @@ Definition action {C : abstract_clone_data} {A : abstract_clone_algebra_data C} 
 Definition action_projects_component {C : abstract_clone_data} (A : abstract_clone_algebra_data C)
   : UU
   := ∏ 
-    {n : nat}
+    (n : nat)
     (i : stn n)
     (a : stn n → A)
     , action (clone_pr i) a = a i.
@@ -38,7 +38,7 @@ Definition action_projects_component {C : abstract_clone_data} (A : abstract_clo
 Definition action_is_assoc {C : abstract_clone_data} (A : abstract_clone_algebra_data C)
   : UU
   := ∏ 
-    {m n : nat}
+    (m n : nat)
     (f : C m)
     (g : stn m → C n)
     (a : stn n → A)
@@ -101,7 +101,7 @@ Lemma abstract_clone_algebra_eq
   {C : abstract_clone_data}
   (A B : abstract_clone_algebra C)
   (H1 : (pr1hSet A) = (pr1hSet B))
-  (H2 : ∏ {n}, transportf (λ A, C n → (stn n → A) → A) H1 action = action)
+  (H2 : ∏ n, transportf (λ A, C n → (stn n → A) → A) H1 action = action)
   : A = B.
 Proof.
   use (subtypePairEquality' _ (is_abstract_clone_algebra_isaprop _)).

@@ -6,7 +6,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
-Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
+(* Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory. *)
 
 Local Open Scope algebraic_theory.
 
