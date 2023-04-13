@@ -3,6 +3,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -14,7 +16,7 @@ Local Open Scope cat.
 Section EndomorphismAlgebraicTheory.
 
   Context {C : category}.
-  Context {C_finite_products : finite_products C}.
+  Context (C_finite_products : finite_products C).
   Variable (X : C).
 
   (* Construct an algebraic theory as an abstract clone *)
@@ -56,7 +58,15 @@ Section EndomorphismAlgebraicTheory.
       exact (ProductPrCommutes _ _ _ _ _ _ _).
   Qed.
 
+  Definition endomorphism_clone : abstract_clone
+    := make_abstract_clone _ endomorphism_is_clone.
+
   Definition endomorphism_theory : algebraic_theory
-    := algebraic_theory_weq_abstract_clone (make_abstract_clone _ endomorphism_is_clone).
+    := algebraic_theory_weq_abstract_clone endomorphism_clone.
 
 End EndomorphismAlgebraicTheory.
+
+Definition set_endomorphism_clone
+  (X : hSet)
+  : abstract_clone
+  := endomorphism_clone (λ n, ProductsHSET (stn n)) (X : ob HSET).

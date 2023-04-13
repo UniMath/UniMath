@@ -1,38 +1,11 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
-(* Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory. *)
-
-Definition set_endomorphism_clone_data (X : hSet)
-  : abstract_clone_data.
-Proof.
-  use make_abstract_clone_data.
-  - use make_algebraic_base.
-    + intro n.
-      apply (make_hSet ((stn n → X) → X)).
-      apply funspace_isaset.
-      apply setproperty.
-    + intros m n f g x.
-      exact (f (λ i, g i x)).
-  - intros n i x.
-    exact (x i).
-Defined.
-
-Lemma set_endomorphism_is_clone (X : hSet)
-  : is_abstract_clone (set_endomorphism_clone_data X).
-Proof.
-  use make_is_abstract_clone;
-    now repeat intro.
-Qed.
-
-Definition set_endomorphism_clone (X : hSet)
-  : abstract_clone
-  := make_abstract_clone _ (set_endomorphism_is_clone X).
+Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 
 Definition algebra_to_abstract_clone_morphism_data
   {C : abstract_clone}
@@ -102,7 +75,7 @@ Qed.
 
 Lemma abstract_clone_morphism_to_algebra_and_back
   {C : abstract_clone}
-  (y : ∑ X, abstract_clone_morphism C (set_endomorphism_clone_data X))
+  (y : ∑ X, abstract_clone_morphism C (set_endomorphism_clone X))
   : pr1 y ,, algebra_to_abstract_clone_morphism (abstract_clone_morphism_to_algebra (pr2 y)) = y.
 Proof.
   use total2_paths2_f.
