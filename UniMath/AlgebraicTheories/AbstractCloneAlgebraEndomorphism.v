@@ -8,8 +8,6 @@ Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
 (* Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory. *)
 
-Local Open Scope algebraic_theory.
-
 Definition set_endomorphism_clone_data (X : hSet)
   : abstract_clone_data.
 Proof.
@@ -91,22 +89,34 @@ Definition abstract_clone_morphism_to_algebra
   : abstract_clone_algebra C
   := make_abstract_clone_algebra _ (abstract_clone_morphism_to_is_algebra F).
 
-Lemma algebra_weq_abstract_clone_morphism
+Lemma algebra_to_abstract_clone_morphism_and_back
   {C : abstract_clone}
-  : abstract_clone_algebra C ≃ ∑ X, abstract_clone_morphism C (set_endomorphism_clone X). 
+  (A : abstract_clone_algebra C)
+  : abstract_clone_morphism_to_algebra (algebra_to_abstract_clone_morphism A) = A.
 Proof.
-  use weq_iso.
-  - exact (λ A, (A : hSet) ,, algebra_to_abstract_clone_morphism A).
-  - intro X.
-    exact (abstract_clone_morphism_to_algebra (pr2 X)).
-  - intro X.
-    use abstract_clone_algebra_eq.
-    + apply idpath.
-    + now intro.
-  - intro F.
-    use total2_paths2_f.
-    + apply idpath.
-    + rewrite idpath_transportf.
-      apply abstract_clone_morphism_eq.
-      now do 2 intro.
+  simpl.
+  use abstract_clone_algebra_eq.
+  + apply idpath.
+  + now intro.
 Qed.
+
+Lemma abstract_clone_morphism_to_algebra_and_back
+  {C : abstract_clone}
+  (y : ∑ X, abstract_clone_morphism C (set_endomorphism_clone_data X))
+  : pr1 y ,, algebra_to_abstract_clone_morphism (abstract_clone_morphism_to_algebra (pr2 y)) = y.
+Proof.
+  use total2_paths2_f.
+  + apply idpath.
+  + rewrite idpath_transportf.
+    apply abstract_clone_morphism_eq.
+    now do 2 intro.
+Qed.
+
+Definition algebra_weq_abstract_clone_morphism
+  {C : abstract_clone}
+  : abstract_clone_algebra C ≃ ∑ X, abstract_clone_morphism C (set_endomorphism_clone X)
+  := weq_iso
+    (λ (A : abstract_clone_algebra C), (A : hSet) ,, algebra_to_abstract_clone_morphism A)
+    (λ X, abstract_clone_morphism_to_algebra (pr2 X))
+    algebra_to_abstract_clone_morphism_and_back
+    abstract_clone_morphism_to_algebra_and_back.
