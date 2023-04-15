@@ -111,7 +111,7 @@ Proof.
 Qed.
 
 Definition free_monoid_clone_algebra_to_setwithbinop_op_is_unital
-  (A : abstract_clone_algebra free_monoid_clone) 
+  (A : abstract_clone_algebra free_monoid_clone)
   : isunital (op (X := free_monoid_clone_algebra_to_setwithbinop A))
   := _ ,, free_monoid_clone_algebra_to_isunit A.
 

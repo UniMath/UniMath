@@ -29,7 +29,7 @@ Definition action {C : abstract_clone_data} {A : abstract_clone_algebra_data C} 
 
 Definition action_projects_component {C : abstract_clone_data} (A : abstract_clone_algebra_data C)
   : UU
-  := ∏ 
+  := ∏
     (n : nat)
     (i : stn n)
     (a : stn n → A)
@@ -37,13 +37,13 @@ Definition action_projects_component {C : abstract_clone_data} (A : abstract_clo
 
 Definition action_is_assoc {C : abstract_clone_data} (A : abstract_clone_algebra_data C)
   : UU
-  := ∏ 
+  := ∏
     (m n : nat)
     (f : C m)
     (g : stn m → C n)
     (a : stn n → A)
     , action (f • g) a = action f (λ i, action (g i) a).
-  
+
 Definition is_abstract_clone_algebra {C : abstract_clone_data} (A : abstract_clone_algebra_data C)
   : UU
   :=
