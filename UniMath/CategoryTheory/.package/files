@@ -239,6 +239,7 @@ DisplayedCats/Examples/CategoryOfPosets.v
 DisplayedCats/Structures/CartesianStructure.v
 DisplayedCats/Structures/StructureLimitsAndColimits.v
 DisplayedCats/Structures/ExamplesOfStructures.v
+DisplayedCats/Structures/StructuresSmashProduct.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
@@ -287,6 +288,7 @@ Monoidal/Examples/MonoidalDialgebras.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
+Monoidal/Examples/SmashProductMonoidal.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v

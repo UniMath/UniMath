@@ -1,50 +1,17 @@
 (*****************************************************************
 
- Structures on sets
+ Examples of structures
 
- In this file, we look at a particular class of structures on the
- category of set that is closed under products and the terminal
- object. Key in this development are displayed categories and the
- structure identity principle.
-
- The notion of structure that we consider, consists of:
- - For every hSet, a set of structures on that set
- - For every function, a proposition that represents whether this
-   function preserves the structure.
- The notion of structure must be closed under product and there
- must be a structure for the unit set. We also require that
- structure-preserving maps are closed under identity, composition,
- constant functions, and pairing. We also require that projections
- and the map to the unit set are structure preserving. The final
- requirement is the notion of 'standardness' (see the HoTT book),
- from which we conclude the univalence of the category of
- structured sets.
-
- We also give conditions under which one can deduce that the
- category of structured sets is cartesian closed. These conditions
- say that we have a structure on the set of structure preserving
- functions and that application and lambda abstraction are
- structure-preserving maps.
+ In this file, we construct several classes of structured sets,
+ and we prove some properties about them.
 
  Contents
- 1. Definition of the structures
- 2. The corresponding displayed category
- 3. The total category
- 4. Transporting structures
- 5. Cartesian structures
- 6. Transport laws for cartesian structures
- 7. Terminal object and products from cartesian structures
- 8. Cartesian closed structures
- 9. Equalizers of structures
- 10. Coequalizers
- 11. Type indexed products
- 12. Pointed structures
- 13. Examples of structures
- 13.1. Sets
- 13.2. Pointed sets
- 13.3. Posets
- 13.4. Pointed posets
- 13.5. Posets with a minimum element
+ 1. Sets
+ 2. Pointed sets
+ 3. Posets
+ 4. Pointed posets
+ 5. Posets with a minimum element
+ 6. Algebras on a monad
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -59,16 +26,48 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
 
-(**
- 13. Examples of structures
- *)
+Definition PartialOrder_boolset
+  : PartialOrder boolset.
+Proof.
+  use make_PartialOrder.
+  - exact (λ b₁ b₂, if b₁ then if b₂ then htrue else hfalse else htrue).
+  - repeat split.
+    + abstract
+        (intros b₁ b₂ b₃ p q ;
+         induction b₁, b₂, b₃ ; induction p ; induction q ;
+         apply tt).
+    + abstract
+        (intros b ;
+         induction b ; exact tt).
+    + abstract
+        (intros b₁ b₂ p q ;
+         induction b₁, b₂ ; induction p ; induction q ;
+         apply idpath).
+Defined.
+
+Definition bottom_PartialOrder_boolset
+  : bottom_element PartialOrder_boolset.
+Proof.
+  refine (false ,, _).
+  abstract
+    (intro b ;
+     induction b ; cbn ;
+     exact tt).
+Defined.
+
+Definition pointed_PartialOrder_boolset
+  : pointed_PartialOrder boolset
+  := PartialOrder_boolset
+     ,,
+     bottom_PartialOrder_boolset.
 
 (**
- 13.1. Sets
+ 1. Sets
  *)
 Definition struct_plain_hset_data
   : hset_struct_data.
@@ -151,7 +150,7 @@ Proof.
 Defined.
 
 (**
- 13.2. Pointed sets
+ 2. Pointed sets
  *)
 Definition struct_pointed_hset_data
   : hset_struct_data.
@@ -235,12 +234,181 @@ Proof.
        exact pq).
 Defined.
 
+Definition pointed_struct_pointed_hset_data
+  : pointed_hset_struct_data struct_pointed_hset
+  := λ X x, x.
+
+Proposition pointed_struct_pointed_hset_laws
+  : pointed_hset_struct_laws pointed_struct_pointed_hset_data.
+Proof.
+  split.
+  - intros X Y PX PY ; cbn.
+    apply idpath.
+  - intros X Y f PX PY Pf ; cbn in *.
+    exact Pf.
+Qed.
+
 Definition pointed_struct_pointed_hset
   : pointed_hset_struct struct_pointed_hset
-  := (λ X x, x) ,, λ X Y x y, idpath _.
+  := pointed_struct_pointed_hset_data ,, pointed_struct_pointed_hset_laws.
+
+Definition pointed_struct_pointed_hset_with_smash_data
+  : hset_struct_with_smash_data
+      cartesian_struct_pointed_hset
+      pointed_struct_pointed_hset.
+Proof.
+  split.
+  - exact false.
+  - exact (λ X Y x y, setquotpr _ (x ,, y)).
+Defined.
+
+Proposition pointed_struct_pointed_hset_with_smash_laws
+  : hset_struct_with_smash_laws
+      pointed_struct_pointed_hset_with_smash_data.
+Proof.
+  repeat split.
+  - intros X Y x y f pf g pg.
+    cbn in *.
+    unfold pointed_hset_struct_unit_map.
+    rewrite pf.
+    apply idpath.
+  - intro y.
+    use iscompsetquotpr.
+    apply hinhpr.
+    use inr.
+    unfold product_point_coordinate ; cbn.
+    unfold pointed_struct_pointed_hset_data.
+    split.
+    + exact (inl (idpath _)).
+    + exact (inl (idpath _)).
+  - intro x.
+    use iscompsetquotpr.
+    apply hinhpr.
+    use inr.
+    unfold product_point_coordinate ; cbn.
+    unfold pointed_struct_pointed_hset_data.
+    split.
+    + exact (inr (idpath _)).
+    + exact (inr (idpath _)).
+  - intros Z z h Ph hp₁ hp₂ hp₃ ; cbn in *.
+    exact Ph.
+Qed.
+
+Definition pointed_struct_pointed_hset_with_smash
+  : hset_struct_with_smash
+      cartesian_struct_pointed_hset
+      pointed_struct_pointed_hset.
+Proof.
+  use make_hset_struct_with_smash.
+  - exact pointed_struct_pointed_hset_with_smash_data.
+  - exact pointed_struct_pointed_hset_with_smash_laws.
+Defined.
+
+Definition pointed_struct_pointed_hset_with_smash_closed_pointed
+  : hset_struct_with_smash_closed_pointed
+      pointed_struct_pointed_hset_with_smash.
+Proof.
+  refine ((λ X Y x y, (λ _, y) ,, idpath _) ,, _).
+  intro ; intros.
+  apply idpath.
+Defined.
+
+Proposition pointed_struct_pointed_hset_with_smash_adj_laws
+  : hset_struct_with_smash_closed_adj_laws
+      pointed_struct_pointed_hset_with_smash_closed_pointed.
+Proof.
+  split.
+  - intros X Y Z f.
+    induction X as [ X x ].
+    induction Y as [ Y y ].
+    induction Z as [ Z z ].
+    induction f as [ f p ].
+    cbn in *.
+    exact (eqtohomot (maponpaths pr1 p) y).
+  - intros X Y Z f.
+    induction X as [ X x ].
+    induction Y as [ Y y ].
+    induction Z as [ Z z ].
+    induction f as [ f p ].
+    use subtypePath.
+    {
+      intro.
+      apply setproperty.
+    }
+    use funextsec.
+    intro a.
+    refine (_ @ p).
+    refine (maponpaths f _).
+    use iscompsetquotpr.
+    apply hinhpr ; cbn.
+    use inr.
+    unfold product_point_coordinate ; cbn.
+    unfold pointed_struct_pointed_hset_data.
+    split ; use inl ; apply idpath.
+Qed.
+
+Definition pointed_struct_pointed_hset_with_smash_adj
+  : hset_struct_with_smash_closed_adj
+      pointed_struct_pointed_hset_with_smash
+  := pointed_struct_pointed_hset_with_smash_closed_pointed
+     ,,
+     pointed_struct_pointed_hset_with_smash_adj_laws.
+
+Proposition pointed_struct_pointed_hset_with_smash_laws_enrich
+  : hset_struct_with_smash_closed_laws_enrich
+      pointed_struct_pointed_hset_with_smash_adj.
+Proof.
+  split.
+  - intros X Y Z.
+    induction X as [ X x ].
+    induction Y as [ Y y ].
+    induction Z as [ Z z ].
+    use subtypePath.
+    {
+      intro ; apply setproperty.
+    }
+    use funextsec.
+    use setquotunivprop'.
+    {
+      intro ; apply setproperty.
+    }
+    intro xz.
+    cbn in *.
+    apply idpath.
+  - intros X Y Z.
+    induction X as [ X x ].
+    induction Y as [ Y y ].
+    induction Z as [ Z z ].
+    use subtypePath.
+    {
+      intro ; apply setproperty.
+    }
+    use funextsec.
+    intro a.
+    use subtypePath.
+    {
+      intro ; apply setproperty.
+    }
+    use funextsec.
+    intro b.
+    cbn in *.
+    apply idpath.
+Qed.
+
+Definition pointed_struct_pointed_hset_with_smash_closed
+  : hset_struct_with_smash_closed
+  := cartesian_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset_with_smash
+     ,,
+     pointed_struct_pointed_hset_with_smash_adj
+     ,,
+     pointed_struct_pointed_hset_with_smash_laws_enrich.
 
 (**
- 13.3. Posets
+ 3. Posets
  *)
 Definition struct_poset_data
   : hset_struct_data.
@@ -328,7 +496,7 @@ Proof.
 Defined.
 
 (**
- 13.4. Pointed posets
+ 4. Pointed posets
  *)
 Definition struct_pointed_poset_data
   : hset_struct_data.
@@ -429,15 +597,63 @@ Proof.
          exact Hfs).
 Defined.
 
-Definition pointed_struct_pointed_poset
-  : pointed_hset_struct struct_pointed_poset.
+Definition pointed_struct_pointed_poset_data
+  : pointed_hset_struct_data struct_pointed_poset
+  := λ X RX, ⊥_{RX}.
+
+Proposition pointed_struct_pointed_poset_laws
+  : pointed_hset_struct_laws pointed_struct_pointed_poset_data.
 Proof.
-  simple refine ((λ X RX, ⊥_{RX}) ,, λ X Y RX RY, _).
-  apply constant_is_strict_and_monotone.
-Defined.
+  split.
+  - intros X Y RX RY.
+    apply constant_is_strict_and_monotone.
+  - intros X Y f PX PY Pf ; cbn in *.
+    apply Pf.
+Qed.
+
+Definition pointed_struct_pointed_poset
+  : pointed_hset_struct struct_pointed_poset
+  := pointed_struct_pointed_poset_data ,, pointed_struct_pointed_poset_laws.
+
+Definition struct_pointed_poset_with_smash_data
+  : hset_struct_with_smash_data
+      cartesian_struct_pointed_poset
+      pointed_struct_pointed_poset.
+Proof.
+  refine (_ ,, _).
+  - exact pointed_PartialOrder_boolset.
+  - intros X Y PX PY.
+Admitted.
+
+Definition struct_pointed_poset_with_smash
+  : hset_struct_with_smash
+      cartesian_struct_pointed_poset
+      pointed_struct_pointed_poset.
+Proof.
+  simple refine (_ ,, _).
+  - unfold hset_struct_with_smash_data.
+
+Definition pointed_struct_pointed_poset_with_smash_closed
+  : hset_struct_with_smash_closed.
+Proof.
+  refine (cartesian_struct_pointed_poset
+            ,,
+            pointed_struct_pointed_poset
+            ,,
+            _).
+  := cartesian_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset_with_smash
+     ,,
+     pointed_struct_pointed_hset_with_smash_adj
+     ,,
+     pointed_struct_pointed_hset_with_smash_laws_enrich.
+
 
 (**
- 13.5. Posets with a minimum element
+ 5. Posets with a minimum element
  *)
 Definition struct_poset_with_min_el_data
   : hset_struct_data.
@@ -500,6 +716,9 @@ Definition cartesian_struct_poset_with_min_el
      ,,
      cartesian_struct_poset_with_min_el_laws.
 
+(**
+ 6. Algebras on a monad
+ *)
 Section MonadToStruct.
   Context (M : Monad SET).
 
