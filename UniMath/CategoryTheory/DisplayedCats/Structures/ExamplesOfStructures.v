@@ -615,6 +615,64 @@ Definition pointed_struct_pointed_poset
   : pointed_hset_struct struct_pointed_poset
   := pointed_struct_pointed_poset_data ,, pointed_struct_pointed_poset_laws.
 
+Proposition pointed_poset_smash_eqrel_equiv
+            {X Y : hSet}
+            (PX : pointed_PartialOrder X)
+            (PY : pointed_PartialOrder Y)
+            (xy₁ xy₂ : X × Y)
+  : smash_eqrel cartesian_struct_pointed_poset pointed_struct_pointed_poset PX PY xy₁ xy₂
+    <->
+    @downward_closed_to_eqrel (X × Y)%set (smash_set PX PY) xy₁ xy₂.
+Proof.
+  induction xy₁ as [ x₁ y₁ ].
+  induction xy₂ as [ x₂ y₂ ].
+  split.
+  - use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro p.
+    unfold product_point_coordinate in p.
+    cbn in p.
+    unfold pointed_struct_pointed_poset_data in p.
+    apply hinhpr.
+    induction p as [ p | p ].
+    + exact (inl p).
+    + apply inr.
+      split.
+      * exact (hinhpr (pr1 p)).
+      * exact (hinhpr (pr2 p)).
+  - use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro p.
+    unfold smash_set in p ; cbn in p.
+    induction p as [ p | p ].
+    + exact (hinhpr (inl p)).
+    + assert (p₁ := pr1 p).
+      revert p₁.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      intros p₁.
+      assert (p₂ := pr2 p).
+      revert p₂.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      intros p₂.
+      apply hinhpr.
+      apply inr.
+      unfold product_point_coordinate ; cbn.
+      unfold pointed_struct_pointed_poset_data.
+      split.
+      * exact p₁.
+      * exact p₂.
+Qed.
+
 Definition struct_pointed_poset_with_smash_data
   : hset_struct_with_smash_data
       cartesian_struct_pointed_poset
@@ -623,34 +681,294 @@ Proof.
   refine (_ ,, _).
   - exact pointed_PartialOrder_boolset.
   - intros X Y PX PY.
-Admitted.
+    use (pointed_quotient_poset
+             (prod_pointed_PartialOrder PX PY)
+             (smash_set PX PY)
+             (smash_set_downward_closd PX PY)).
+    exact (pointed_poset_smash_eqrel_equiv PX PY).
+Defined.
+
+Proposition struct_pointed_poset_with_smash_laws
+  : hset_struct_with_smash_laws
+      struct_pointed_poset_with_smash_data.
+Proof.
+  repeat split.
+  - intros x y p .
+    unfold pointed_hset_struct_unit_map ; cbn.
+    unfold pointed_struct_pointed_poset_data.
+    assert (q := pr1 Pf x y p) ; cbn in q.
+    induction (f x), (f y).
+    + apply Pg.
+      exact p.
+    + induction q.
+    + apply (pr2 PY).
+    + apply (pr2 PY).
+  - unfold pointed_hset_struct_unit_map.
+    cbn.
+    unfold pointed_struct_pointed_poset_data.
+    induction (f ⊥_{PX}).
+    + apply Pg.
+    + apply idpath.
+  - intros x₁ x₂ p ; cbn.
+    apply hinhpr.
+    use inr.
+    refine (p ,, _).
+    apply refl_PartialOrder.
+  - use iscompsetquotpr ; cbn.
+    apply hinhpr.
+    use inr.
+    unfold product_point_coordinate ; cbn.
+    unfold pointed_struct_pointed_poset_data.
+    split.
+    + exact (inl (idpath _)).
+    + exact (inl (idpath _)).
+  - intros y₁ y₂ p ; cbn.
+    apply hinhpr.
+    use inr.
+    exact (refl_PartialOrder (pr1 PX) x ,, p).
+  - use iscompsetquotpr ; cbn.
+    apply hinhpr.
+    use inr.
+    unfold product_point_coordinate ; cbn.
+    unfold pointed_struct_pointed_poset_data.
+    split.
+    + exact (inr (idpath _)).
+    + exact (inr (idpath _)).
+  - intros xy₁ xy₂ p ; cbn.
+    apply hinhpr.
+    use inr.
+    exact p.
+  - use setquotunivprop'.
+    {
+      intro.
+      repeat (use impred ; intro).
+      apply propproperty.
+    }
+    intros xy₁.
+    use setquotunivprop'.
+    {
+      intro.
+      repeat (use impred ; intro).
+      apply propproperty.
+    }
+    intros xy₂.
+    induction xy₁ as [ x₁ y₁ ].
+    induction xy₂ as [ x₂ y₂ ] ; cbn.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro p.
+    induction p as [ p | p].
+    + revert p.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      intro p.
+      induction p as [ p | p ] ; rewrite p.
+      * assert (h ⊥_{PX} y₁ = ⊥_{PZ}) as q.
+        {
+          refine (!(hp₂ (⊥_{PX}) y₁) @ _).
+          apply (pr2 Ph).
+        }
+        rewrite q.
+        apply (pr2 PZ).
+      * assert (h x₁ ⊥_{PY} = ⊥_{PZ}) as q.
+        {
+          refine (hp₂ x₁ (⊥_{PY}) @ _).
+          apply (pr2 Ph).
+        }
+        rewrite q.
+        apply (pr2 PZ).
+    + exact (pr1 Ph (x₁ ,, y₁) (x₂ ,, y₂) p).
+  - apply (pr2 Ph).
+Qed.
 
 Definition struct_pointed_poset_with_smash
   : hset_struct_with_smash
       cartesian_struct_pointed_poset
-      pointed_struct_pointed_poset.
+      pointed_struct_pointed_poset
+  := struct_pointed_poset_with_smash_data
+     ,,
+     struct_pointed_poset_with_smash_laws.
+
+Definition struct_pointed_poset_with_smash_closed_pointed_data
+  : hset_struct_with_smash_closed_data
+      struct_pointed_poset_with_smash
+  := λ X Y PX PY, strict_and_monotone_pointed_PartialOrder PX PY.
+
+Proposition struct_pointed_poset_with_smash_closed_pointed_laws
+  : hset_struct_with_smash_closed_pointed_laws
+      struct_pointed_poset_with_smash_closed_pointed_data.
 Proof.
-  simple refine (_ ,, _).
-  - unfold hset_struct_with_smash_data.
+  intros X Y PX PY x.
+  apply idpath.
+Qed.
+
+Definition struct_pointed_poset_with_smash_closed_pointed
+  : hset_struct_with_smash_closed_pointed
+      struct_pointed_poset_with_smash
+  := struct_pointed_poset_with_smash_closed_pointed_data
+     ,,
+     struct_pointed_poset_with_smash_closed_pointed_laws.
+
+Proposition struct_pointed_poset_with_smash_adj_laws
+  : hset_struct_with_smash_closed_adj_laws
+      struct_pointed_poset_with_smash_closed_pointed.
+Proof.
+  split.
+  - intros PX PY PZ f.
+    induction PX as [ X RX ].
+    induction PY as [ Y RY ].
+    induction PZ as [ Z RZ ].
+    induction f as [ f Hf ].
+    split.
+    + use setquotunivprop'.
+      {
+        intro.
+        repeat (use impred ; intro).
+        apply propproperty.
+      }
+      intros xy₁.
+      use setquotunivprop'.
+      {
+        intro.
+        repeat (use impred ; intro).
+        apply propproperty.
+      }
+      intros xy₂.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      cbn in *.
+      induction xy₁ as [ x₁ y₁ ], xy₂ as [ x₂ y₂ ].
+      intro p.
+      induction p as [ p | p ].
+      * revert p.
+        use factor_through_squash.
+        {
+          apply propproperty.
+        }
+        cbn.
+        intro p.
+        induction p as [ p | p ].
+        ** assert (pr1 (f x₁) y₁ = ⊥_{RZ}) as r.
+           {
+             rewrite p.
+             exact (eqtohomot (maponpaths pr1 (pr2 Hf)) y₁).
+           }
+           rewrite r.
+           apply (pr2 RZ).
+        ** assert (pr1 (f x₁) y₁ = ⊥_{RZ}) as r.
+           {
+             rewrite p.
+             apply (pr2 (f x₁)).
+           }
+           rewrite r.
+           apply (pr2 RZ).
+      * cbn ; cbn in p.
+        refine (trans_PartialOrder RZ _ _).
+        ** exact (pr12 (f x₁) _ _ (pr2 p)).
+        ** exact (pr1 Hf _ _ (pr1 p) y₂).
+    + cbn.
+      etrans.
+      {
+        apply maponpaths_2.
+        exact (pr2 Hf).
+      }
+      apply idpath.
+  - intros PX PY PZ f.
+    induction PX as [ X RX ].
+    induction PY as [ Y RY ].
+    induction PZ as [ Z RZ ].
+    induction f as [ f Hf ].
+    split.
+    + intros x₁ x₂ p y.
+      apply (pr1 Hf).
+      cbn in *.
+      apply hinhpr.
+      use inr.
+      refine (p ,, _).
+      apply refl_PartialOrder.
+    + use eq_strict_and_monotone_function.
+      intro y.
+      cbn.
+      refine (_ @ pr2 Hf).
+      apply maponpaths.
+      use iscompsetquotpr.
+      apply hinhpr.
+      use inr.
+      unfold product_point_coordinate ; cbn.
+      unfold pointed_struct_pointed_poset_data.
+      split.
+      * exact (inl (idpath _)).
+      * exact (inl (idpath _)).
+Qed.
+
+Definition struct_pointed_poset_with_smash_adj
+  : hset_struct_with_smash_closed_adj
+      struct_pointed_poset_with_smash
+  := struct_pointed_poset_with_smash_closed_pointed
+     ,,
+     struct_pointed_poset_with_smash_adj_laws.
+
+Proposition struct_pointed_poset_with_smash_laws_enrich
+  : hset_struct_with_smash_closed_laws_enrich
+      struct_pointed_poset_with_smash_adj.
+Proof.
+  split.
+  - intros PX PY PZ.
+    induction PX as [ X RX ].
+    induction PY as [ Y RY ].
+    induction PZ as [ Z RZ ].
+    split.
+    + intros f₁ f₂ p.
+      use setquotunivprop'.
+      {
+        intro.
+        apply propproperty.
+      }
+      intros xz.
+      induction xz as [ x z ].
+      cbn in *.
+      apply p.
+    + use eq_strict_and_monotone_function.
+      use setquotunivprop'.
+      {
+        intro.
+        apply setproperty.
+      }
+      intro x ; cbn in *.
+      apply idpath.
+  - intros PX PY PZ.
+    induction PX as [ X RX ].
+    induction PY as [ Y RY ].
+    induction PZ as [ Z RZ ].
+    split.
+    + intros f₁ f₂ p x y.
+      cbn in *.
+      apply p.
+    + use eq_strict_and_monotone_function.
+      intro x.
+      use eq_strict_and_monotone_function.
+      intro z.
+      cbn.
+      apply idpath.
+Qed.
 
 Definition pointed_struct_pointed_poset_with_smash_closed
-  : hset_struct_with_smash_closed.
-Proof.
-  refine (cartesian_struct_pointed_poset
-            ,,
-            pointed_struct_pointed_poset
-            ,,
-            _).
-  := cartesian_struct_pointed_hset
+  : hset_struct_with_smash_closed
+  := cartesian_struct_pointed_poset
      ,,
-     pointed_struct_pointed_hset
+     pointed_struct_pointed_poset
      ,,
-     pointed_struct_pointed_hset_with_smash
+     struct_pointed_poset_with_smash
      ,,
-     pointed_struct_pointed_hset_with_smash_adj
+     struct_pointed_poset_with_smash_adj
      ,,
-     pointed_struct_pointed_hset_with_smash_laws_enrich.
-
+     struct_pointed_poset_with_smash_laws_enrich.
 
 (**
  5. Posets with a minimum element

@@ -135,6 +135,54 @@ Proof.
   - apply setproperty.
 Qed.
 
+Definition strict_and_monotone_function
+           {X Y : hSet}
+           (RX : pointed_PartialOrder X)
+           (RY : pointed_PartialOrder Y)
+  : UU
+  := ∑ (f : X → Y), is_strict_and_monotone RX RY f.
+
+Definition strict_and_monotone_function_set
+           {X Y : hSet}
+           (RX : pointed_PartialOrder X)
+           (RY : pointed_PartialOrder Y)
+  : hSet.
+Proof.
+  use make_hSet.
+  - exact (strict_and_monotone_function RX RY).
+  - abstract
+      (use isaset_total2 ;
+       [ use funspace_isaset ;
+         apply Y
+       | intro f ;
+         apply isasetaprop ;
+         apply isaprop_is_strict_and_monotone ]).
+Defined.
+
+Definition strict_and_monotone_function_to_fun
+           {X Y : hSet}
+           {RX : pointed_PartialOrder X}
+           {RY : pointed_PartialOrder Y}
+           (f : strict_and_monotone_function RX RY)
+  : X → Y
+  := pr1 f.
+
+Coercion strict_and_monotone_function_to_fun
+  : strict_and_monotone_function >-> Funclass.
+
+Proposition eq_strict_and_monotone_function
+            {X Y : hSet}
+            {RX : pointed_PartialOrder X}
+            {RY : pointed_PartialOrder Y}
+            {f g : strict_and_monotone_function RX RY}
+            (p : ∏ (x : X), f x = g x)
+  : f = g.
+Proof.
+  use subtypePath ; [ intro ; apply isaprop_is_strict_and_monotone | ].
+  use funextsec.
+  exact p.
+Qed.
+
 (**
  4. Equality of pointed posets
  *)
@@ -444,3 +492,46 @@ Proof.
   - apply p.
   - apply q.
 Defined.
+
+(**
+ 9. Function spaces of pointed posets
+ *)
+Section FunctionPoset.
+  Context {X Y : hSet}
+          (PX : pointed_PartialOrder X)
+          (PY : pointed_PartialOrder Y).
+
+  Definition strict_and_monotone_PartialOrder
+    : PartialOrder (strict_and_monotone_function_set PX PY).
+  Proof.
+    simple refine (_ ,, _) ; cbn.
+    - exact (λ f g, ∀ (x : X), PY (f x) (g x)).
+    - refine ((_ ,, _) ,, _).
+      + abstract
+          (intros f g h p q x ;
+           exact (trans_PartialOrder PY (p x) (q x))).
+      + abstract
+          (intros f x ;
+           exact (refl_PartialOrder PY (f x))).
+      + abstract
+          (intros f g p q ;
+           use eq_strict_and_monotone_function ;
+           intro x ;
+           exact (antisymm_PartialOrder PY (p x) (q x))).
+  Defined.
+
+  Definition strict_and_monotone_PartialOrder_bottom
+    : bottom_element strict_and_monotone_PartialOrder.
+  Proof.
+    refine ((_ ,, constant_is_strict_and_monotone PX PY) ,, _).
+    abstract
+      (intros f x ; cbn ;
+       apply (pr2 PY)).
+  Defined.
+
+  Definition strict_and_monotone_pointed_PartialOrder
+    : pointed_PartialOrder (strict_and_monotone_function_set PX PY)
+    := strict_and_monotone_PartialOrder
+       ,,
+       strict_and_monotone_PartialOrder_bottom.
+End FunctionPoset.
