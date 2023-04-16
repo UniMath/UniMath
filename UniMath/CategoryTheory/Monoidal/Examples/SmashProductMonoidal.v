@@ -308,6 +308,13 @@ Section StructureSmashProduct.
   (**
    4. The associators
    *)
+
+  (**
+   Note: `hset_struct_smash_prod_lassociator_mor` is used to prove
+   that the associator is structure preserving, whereas
+   `hset_struct_smash_prod_lassociator_mor_alt_fun` is used for
+   calculations.
+   *)
   Definition hset_struct_smash_unlam
              {X Y Z : ∁}
              (f : X --> Y -->* Z)
@@ -561,6 +568,12 @@ Section StructureSmashProduct.
                 (pr2 (hset_struct_smash_prod_lassociator_mor X Y Z)))).
   Defined.
 
+  (**
+   Note: `hset_struct_smash_prod_rassociator_mor` is used to prove
+   that the associator is structure preserving, whereas
+   `hset_struct_smash_prod_rassociator_mor_alt_fun` is used for
+   calculations.
+   *)
   Definition hset_struct_smash_prod_rassociator_mor
              (X Y Z : ∁)
     : X ∧* (Y ∧* Z) --> (X ∧* Y) ∧* Z.
