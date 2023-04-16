@@ -238,8 +238,8 @@ DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v
 DisplayedCats/Structures/CartesianStructure.v
 DisplayedCats/Structures/StructureLimitsAndColimits.v
-DisplayedCats/Structures/ExamplesOfStructures.v
 DisplayedCats/Structures/StructuresSmashProduct.v
+DisplayedCats/Structures/ExamplesOfStructures.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
