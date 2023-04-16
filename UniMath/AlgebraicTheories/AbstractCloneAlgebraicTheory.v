@@ -17,7 +17,7 @@ Definition abstract_clone_data_from_algebraic_theory
   : abstract_clone_data.
 Proof.
   use make_abstract_clone_data.
-  - exact T. 
+  - exact T.
   - intros.
     apply theory_pr.
     assumption.
@@ -27,7 +27,7 @@ Lemma is_abstract_clone_from_algebraic_theory
   (T : algebraic_theory)
   : is_abstract_clone (abstract_clone_data_from_algebraic_theory T).
 Proof.
-  use make_is_abstract_clone. 
+  use make_is_abstract_clone.
   - do 2 intro.
     apply AlgebraicTheories.comp_project_component.
   - apply algebraic_theory_comp_identity_projections.
@@ -99,8 +99,8 @@ Definition algebraic_theory_from_abstract_clone
     (is_algebraic_theory_from_abstract_clone C).
 
 (* Prove the weak equality *)
-Local Lemma algebraic_theory_id 
-  (T : algebraic_theory) : 
+Local Lemma algebraic_theory_id
+  (T : algebraic_theory) :
   algebraic_theory_from_abstract_clone (abstract_clone_from_algebraic_theory T) = T.
 Proof.
   use algebraic_theory_eq.

@@ -1,6 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 
@@ -110,3 +111,5 @@ Proof.
       ).
     exact H3.
 Qed.
+
+Definition lift_constant {C : abstract_clone_data} (n : nat) (f : C 0) : C n := f • (weqvecfun _ vnil).
