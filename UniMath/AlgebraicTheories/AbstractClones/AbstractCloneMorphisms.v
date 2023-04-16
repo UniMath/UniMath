@@ -62,13 +62,13 @@ Coercion abstract_clone_morphism_to_function
   := pr1 F.
 
 (* Without pr1 F, the implicit coercion will cause errors in, for example, AbstractCloneCategory. It is not clear why. *)
-Definition abstract_clone_morphism_preserves_composition {C C'} (F : abstract_clone_morphism C C') : preserves_composition (pr1 F) := pr12 F. 
+Definition abstract_clone_morphism_preserves_composition {C C'} (F : abstract_clone_morphism C C') : preserves_composition (pr1 F) := pr12 F.
 
 Definition abstract_clone_morphism_preserves_projections {C C'} (F : abstract_clone_morphism C C') : preserves_projections (pr1 F) := pr22 F.
 
-Definition abstract_clone_morphism_eq 
-  {C C'} 
-  (F F' : abstract_clone_morphism C C') 
+Definition abstract_clone_morphism_eq
+  {C C'}
+  (F F' : abstract_clone_morphism C C')
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.

@@ -6,6 +6,7 @@ AlgebraicTheoryMorphisms.v
 
 AbstractClones/AbstractClones.v
 AbstractClones/AbstractCloneMorphisms.v
+AbstractClones/AbstractCloneAlgebras.v
 AbstractClones/AbstractCloneCategory.v
 
 AbstractCloneAlgebraicTheory.v
@@ -14,3 +15,5 @@ Examples/OnePointTheory.v
 Examples/ProjectionsTheory.v
 Examples/EndomorphismTheory.v
 Examples/FreeMonoidTheory.v
+
+AbstractCloneAlgebraEndomorphism.v
