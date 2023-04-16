@@ -15,6 +15,7 @@
  6. The equalizer of pointed posets
  7. Type indexed products of pointed posets
  8. Posets with a minimal element
+ 9. Function spaces of pointed posets
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.

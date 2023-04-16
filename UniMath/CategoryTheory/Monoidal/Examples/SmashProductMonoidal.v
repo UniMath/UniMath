@@ -1,3 +1,24 @@
+(*****************************************************************
+
+ Monoidal category from smash products
+
+ We show that every notion of structure that supports a smash
+ product, gives rise to a symmetric monoidal closed category. Note
+ that in the construction, we give two (equivalent) definitions
+ for both of the associators. One of the two definition is
+ convenient for calculation, while the other is better for proving
+ that it is a structure preserving map.
+
+ Contents
+ 1. Tensor operation
+ 2. Unitors
+ 3. The braiding
+ 4. The associators
+ 5. The monoidal structure
+ 6. It is symmetric
+ 7. It is closed
+
+ *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -18,6 +39,9 @@ Section StructureSmashProduct.
 
   Local Notation "∁" := (category_of_hset_struct P).
 
+  (**
+   1. Tensor operation
+   *)
   Definition hset_struct_smash_prod_mor_r
              (PX : ∁)
              {PY₁ PY₂ : ∁}
@@ -163,6 +187,9 @@ Section StructureSmashProduct.
     - exact (λ Y X₁ X₂ f, hset_struct_smash_prod_mor_l Y f).
   Defined.
 
+  (**
+   2. Unitors
+   *)
   Definition hset_struct_smash_prod_lunitor
     : leftunitor_data
         smash_product_tensor_data
@@ -239,6 +266,9 @@ Section StructureSmashProduct.
     - apply hset_struct_with_smash_setquotpr_l.
   Defined.
 
+  (**
+   3. The braiding
+   *)
   Definition smash_product_monoidal_cat_braiding
              (X Y : category_of_hset_struct P)
     : X ∧* Y --> Y ∧* X.
@@ -275,6 +305,9 @@ Section StructureSmashProduct.
       + apply hset_struct_pr1.
   Defined.
 
+  (**
+   4. The associators
+   *)
   Definition hset_struct_smash_unlam
              {X Y Z : ∁}
              (f : X --> Y -->* Z)
@@ -776,6 +809,9 @@ Section StructureSmashProduct.
                 (pr2 (hset_struct_smash_prod_rassociator_mor X Y Z)))).
   Defined.
 
+  (**
+   5. The monoidal structure
+   *)
   Definition smash_product_monoidal_data
     : monoidal_data (category_of_hset_struct P).
   Proof.
@@ -1098,6 +1134,9 @@ Section StructureSmashProduct.
        ,,
        smash_product_monoidal_laws.
 
+  (**
+   6. It is symmetric
+   *)
   Proposition smash_product_monoidal_cat_symmetric_laws
     : sym_mon_cat_laws_tensored
         smash_product_monoidal_cat
@@ -1164,6 +1203,9 @@ Section StructureSmashProduct.
        ,,
        smash_product_monoidal_cat_symmetric.
 
+  (**
+   7. It is closed
+   *)
   Definition smash_product_sym_mon_closed_cat
     : sym_mon_closed_cat.
   Proof.
