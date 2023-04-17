@@ -509,7 +509,7 @@ Definition section_nat_trans_disp_axioms
     {C : category}
     {D : disp_cat C} 
     {F F': section_disp D}
-    (nt : section_nat_trans_disp_data F F') :=
+    (nt : section_nat_trans_disp_data F F') : UU :=
   ∏ x x' (f : x --> x'), 
       transportf _
       (id_right _ @ !(id_left _)) 
@@ -520,13 +520,14 @@ Definition section_nat_trans_disp
     {C : category}
     {D : disp_cat C} 
     (F F': section_disp D) : UU :=
-  total2 (@section_nat_trans_disp_axioms C D F F').
+  ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
 
 Definition section_nt_disp_data_from_section_nt_disp
     {C : category}
     {D : disp_cat C} 
     {F F': section_disp D}
     (nt : section_nat_trans_disp F F')
+    : section_nat_trans_disp_data F F'
   := pr1 nt.
     
 Definition section_nat_trans_data_from_section_nat_trans_disp_funclass 
@@ -543,7 +544,8 @@ Definition section_nt_disp_axioms_from_section_nt_disp
     {D : disp_cat C} 
     {F F': section_disp D}
     (nt : section_nat_trans_disp F F')
-    := pr2 nt.
+    : section_nat_trans_disp_axioms nt
+  := pr2 nt.
 
 Definition section_nat_trans_data
     {C : category}
