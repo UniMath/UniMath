@@ -9,8 +9,8 @@
  1. Sets
  2. Pointed sets
  3. Posets
- 4. Pointed posets
- 5. Posets with a minimum element
+ 4. Pointed posets with strict functions
+ 5. Pointed posets with monotone functions
  6. Algebras on a monad
 
  *****************************************************************)
@@ -30,41 +30,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashPr
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
-
-Definition PartialOrder_boolset
-  : PartialOrder boolset.
-Proof.
-  use make_PartialOrder.
-  - exact (λ b₁ b₂, if b₁ then if b₂ then htrue else hfalse else htrue).
-  - repeat split.
-    + abstract
-        (intros b₁ b₂ b₃ p q ;
-         induction b₁, b₂, b₃ ; induction p ; induction q ;
-         apply tt).
-    + abstract
-        (intros b ;
-         induction b ; exact tt).
-    + abstract
-        (intros b₁ b₂ p q ;
-         induction b₁, b₂ ; induction p ; induction q ;
-         apply idpath).
-Defined.
-
-Definition bottom_PartialOrder_boolset
-  : bottom_element PartialOrder_boolset.
-Proof.
-  refine (false ,, _).
-  abstract
-    (intro b ;
-     induction b ; cbn ;
-     exact tt).
-Defined.
-
-Definition pointed_PartialOrder_boolset
-  : pointed_PartialOrder boolset
-  := PartialOrder_boolset
-     ,,
-     bottom_PartialOrder_boolset.
 
 (**
  1. Sets
@@ -496,9 +461,9 @@ Proof.
 Defined.
 
 (**
- 4. Pointed posets
+ 4. Pointed posets with strict functions
  *)
-Definition struct_pointed_poset_data
+Definition struct_pointed_poset_strict_data
   : hset_struct_data.
 Proof.
   simple refine (_ ,, _).
@@ -506,8 +471,8 @@ Proof.
   - exact (λ X Y PX PY f, is_strict_and_monotone PX PY f).
 Defined.
 
-Definition struct_pointed_poset_laws
-  : hset_struct_laws struct_pointed_poset_data.
+Definition struct_pointed_poset_strict_laws
+  : hset_struct_laws struct_pointed_poset_strict_data.
 Proof.
   split5.
   - intro X.
@@ -530,23 +495,23 @@ Proof.
   - intros X Y Z PX PY PZ f g Pf Pg.
     exact (comp_is_strict_and_monotone Pf Pg).
   - intros X PX PX' p q ; cbn in *.
-    exact (eq_pointed_PartialOrder p q).
+    exact (eq_pointed_PartialOrder_strict_and_monotone p q).
 Qed.
 
-Definition struct_pointed_poset
+Definition struct_pointed_poset_strict
   : hset_struct
-  := struct_pointed_poset_data ,, struct_pointed_poset_laws.
+  := struct_pointed_poset_strict_data ,, struct_pointed_poset_strict_laws.
 
-Definition cartesian_struct_pointed_poset_data
+Definition cartesian_struct_pointed_poset_strict_data
   : hset_cartesian_struct_data
-  := struct_pointed_poset
+  := struct_pointed_poset_strict
      ,,
      unit_pointed_PartialOrder
      ,,
      λ X Y PX PY, prod_pointed_PartialOrder PX PY.
 
-Definition cartesian_struct_pointed_poset_laws
-  : hset_cartesian_struct_laws cartesian_struct_pointed_poset_data.
+Definition cartesian_struct_pointed_poset_strict_laws
+  : hset_cartesian_struct_laws cartesian_struct_pointed_poset_strict_data.
 Proof.
   refine (_ ,, _ ,, _ ,, _).
   - intros X PX ; cbn in *.
@@ -562,12 +527,14 @@ Proof.
     exact (prodtofun_is_strict_and_monotone Pf Pg).
 Qed.
 
-Definition cartesian_struct_pointed_poset
+Definition cartesian_struct_pointed_poset_strict
   : hset_cartesian_struct
-  := cartesian_struct_pointed_poset_data ,, cartesian_struct_pointed_poset_laws.
+  := cartesian_struct_pointed_poset_strict_data
+     ,,
+     cartesian_struct_pointed_poset_strict_laws.
 
-Definition equalizers_struct_pointed_poset
-  : hset_equalizer_struct struct_pointed_poset.
+Definition equalizers_struct_pointed_poset_strict
+  : hset_equalizer_struct struct_pointed_poset_strict.
 Proof.
   simple refine (_ ,, _).
   - intros X Y f g PX PY Pf Pg.
@@ -581,9 +548,9 @@ Proof.
          exact (Equalizer_map_strict_and_monotone Pf Pg PW Ph (eqtohomot q))).
 Defined.
 
-Definition type_products_struct_pointed_poset
+Definition type_products_struct_pointed_poset_strict
            (I : UU)
-  : hset_struct_type_prod struct_pointed_poset I.
+  : hset_struct_type_prod struct_pointed_poset_strict I.
 Proof.
   simple refine (_ ,, _).
   - exact (λ D fs, depfunction_pointed_poset _ fs).
@@ -597,12 +564,13 @@ Proof.
          exact Hfs).
 Defined.
 
-Definition pointed_struct_pointed_poset_data
-  : pointed_hset_struct_data struct_pointed_poset
+Definition pointed_struct_pointed_poset_strict_data
+  : pointed_hset_struct_data struct_pointed_poset_strict
   := λ X RX, ⊥_{RX}.
 
-Proposition pointed_struct_pointed_poset_laws
-  : pointed_hset_struct_laws pointed_struct_pointed_poset_data.
+Proposition pointed_struct_pointed_poset_strict_laws
+  : pointed_hset_struct_laws
+      pointed_struct_pointed_poset_strict_data.
 Proof.
   split.
   - intros X Y RX RY.
@@ -611,16 +579,22 @@ Proof.
     apply Pf.
 Qed.
 
-Definition pointed_struct_pointed_poset
-  : pointed_hset_struct struct_pointed_poset
-  := pointed_struct_pointed_poset_data ,, pointed_struct_pointed_poset_laws.
+Definition pointed_struct_pointed_poset_strict
+  : pointed_hset_struct struct_pointed_poset_strict
+  := pointed_struct_pointed_poset_strict_data
+     ,,
+     pointed_struct_pointed_poset_strict_laws.
 
-Proposition pointed_poset_smash_eqrel_equiv
+Proposition pointed_poset_strict_smash_eqrel_equiv
             {X Y : hSet}
             (PX : pointed_PartialOrder X)
             (PY : pointed_PartialOrder Y)
             (xy₁ xy₂ : X × Y)
-  : smash_eqrel cartesian_struct_pointed_poset pointed_struct_pointed_poset PX PY xy₁ xy₂
+  : smash_eqrel
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict
+      PX PY
+      xy₁ xy₂
     <->
     @downward_closed_to_eqrel (X × Y)%set (smash_set PX PY) xy₁ xy₂.
 Proof.
@@ -634,7 +608,7 @@ Proof.
     intro p.
     unfold product_point_coordinate in p.
     cbn in p.
-    unfold pointed_struct_pointed_poset_data in p.
+    unfold pointed_struct_pointed_poset_strict_data in p.
     apply hinhpr.
     induction p as [ p | p ].
     + exact (inl p).
@@ -667,16 +641,16 @@ Proof.
       apply hinhpr.
       apply inr.
       unfold product_point_coordinate ; cbn.
-      unfold pointed_struct_pointed_poset_data.
+      unfold pointed_struct_pointed_poset_strict_data.
       split.
       * exact p₁.
       * exact p₂.
 Qed.
 
-Definition struct_pointed_poset_with_smash_data
+Definition struct_pointed_poset_strict_with_smash_data
   : hset_struct_with_smash_data
-      cartesian_struct_pointed_poset
-      pointed_struct_pointed_poset.
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict.
 Proof.
   refine (_ ,, _).
   - exact pointed_PartialOrder_boolset.
@@ -685,17 +659,17 @@ Proof.
              (prod_pointed_PartialOrder PX PY)
              (smash_set PX PY)
              (smash_set_downward_closd PX PY)).
-    exact (pointed_poset_smash_eqrel_equiv PX PY).
+    exact (pointed_poset_strict_smash_eqrel_equiv PX PY).
 Defined.
 
-Proposition struct_pointed_poset_with_smash_laws
+Proposition struct_pointed_poset_strict_with_smash_laws
   : hset_struct_with_smash_laws
-      struct_pointed_poset_with_smash_data.
+      struct_pointed_poset_strict_with_smash_data.
 Proof.
   repeat split.
   - intros x y p .
     unfold pointed_hset_struct_unit_map ; cbn.
-    unfold pointed_struct_pointed_poset_data.
+    unfold pointed_struct_pointed_poset_strict_data.
     assert (q := pr1 Pf x y p) ; cbn in q.
     induction (f x), (f y).
     + apply Pg.
@@ -705,7 +679,7 @@ Proof.
     + apply (pr2 PY).
   - unfold pointed_hset_struct_unit_map.
     cbn.
-    unfold pointed_struct_pointed_poset_data.
+    unfold pointed_struct_pointed_poset_strict_data.
     induction (f ⊥_{PX}).
     + apply Pg.
     + apply idpath.
@@ -718,7 +692,7 @@ Proof.
     apply hinhpr.
     use inr.
     unfold product_point_coordinate ; cbn.
-    unfold pointed_struct_pointed_poset_data.
+    unfold pointed_struct_pointed_poset_strict_data.
     split.
     + exact (inl (idpath _)).
     + exact (inl (idpath _)).
@@ -730,7 +704,7 @@ Proof.
     apply hinhpr.
     use inr.
     unfold product_point_coordinate ; cbn.
-    unfold pointed_struct_pointed_poset_data.
+    unfold pointed_struct_pointed_poset_strict_data.
     split.
     + exact (inr (idpath _)).
     + exact (inr (idpath _)).
@@ -785,37 +759,37 @@ Proof.
   - apply (pr2 Ph).
 Qed.
 
-Definition struct_pointed_poset_with_smash
+Definition struct_pointed_poset_strict_with_smash
   : hset_struct_with_smash
-      cartesian_struct_pointed_poset
-      pointed_struct_pointed_poset
-  := struct_pointed_poset_with_smash_data
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict
+  := struct_pointed_poset_strict_with_smash_data
      ,,
-     struct_pointed_poset_with_smash_laws.
+     struct_pointed_poset_strict_with_smash_laws.
 
-Definition struct_pointed_poset_with_smash_closed_pointed_data
+Definition struct_pointed_poset_strict_with_smash_closed_pointed_data
   : hset_struct_with_smash_closed_data
-      struct_pointed_poset_with_smash
+      struct_pointed_poset_strict_with_smash
   := λ X Y PX PY, strict_and_monotone_pointed_PartialOrder PX PY.
 
-Proposition struct_pointed_poset_with_smash_closed_pointed_laws
+Proposition struct_pointed_poset_strict_with_smash_closed_pointed_laws
   : hset_struct_with_smash_closed_pointed_laws
-      struct_pointed_poset_with_smash_closed_pointed_data.
+      struct_pointed_poset_strict_with_smash_closed_pointed_data.
 Proof.
   intros X Y PX PY x.
   apply idpath.
 Qed.
 
-Definition struct_pointed_poset_with_smash_closed_pointed
+Definition struct_pointed_poset_strict_with_smash_closed_pointed
   : hset_struct_with_smash_closed_pointed
-      struct_pointed_poset_with_smash
-  := struct_pointed_poset_with_smash_closed_pointed_data
+      struct_pointed_poset_strict_with_smash
+  := struct_pointed_poset_strict_with_smash_closed_pointed_data
      ,,
-     struct_pointed_poset_with_smash_closed_pointed_laws.
+     struct_pointed_poset_strict_with_smash_closed_pointed_laws.
 
-Proposition struct_pointed_poset_with_smash_adj_laws
+Proposition struct_pointed_poset_strict_with_smash_adj_laws
   : hset_struct_with_smash_closed_adj_laws
-      struct_pointed_poset_with_smash_closed_pointed.
+      struct_pointed_poset_strict_with_smash_closed_pointed.
 Proof.
   split.
   - intros PX PY PZ f.
@@ -901,22 +875,22 @@ Proof.
       apply hinhpr.
       use inr.
       unfold product_point_coordinate ; cbn.
-      unfold pointed_struct_pointed_poset_data.
+      unfold pointed_struct_pointed_poset_strict_data.
       split.
       * exact (inl (idpath _)).
       * exact (inl (idpath _)).
 Qed.
 
-Definition struct_pointed_poset_with_smash_adj
+Definition struct_pointed_poset_strict_with_smash_adj
   : hset_struct_with_smash_closed_adj
-      struct_pointed_poset_with_smash
-  := struct_pointed_poset_with_smash_closed_pointed
+      struct_pointed_poset_strict_with_smash
+  := struct_pointed_poset_strict_with_smash_closed_pointed
      ,,
-     struct_pointed_poset_with_smash_adj_laws.
+     struct_pointed_poset_strict_with_smash_adj_laws.
 
-Proposition struct_pointed_poset_with_smash_laws_enrich
+Proposition struct_pointed_poset_strict_with_smash_laws_enrich
   : hset_struct_with_smash_closed_laws_enrich
-      struct_pointed_poset_with_smash_adj.
+      struct_pointed_poset_strict_with_smash_adj.
 Proof.
   split.
   - intros PX PY PZ.
@@ -958,31 +932,31 @@ Proof.
       apply idpath.
 Qed.
 
-Definition pointed_struct_pointed_poset_with_smash_closed
+Definition pointed_struct_pointed_poset_strict_with_smash_closed
   : hset_struct_with_smash_closed
-  := cartesian_struct_pointed_poset
+  := cartesian_struct_pointed_poset_strict
      ,,
-     pointed_struct_pointed_poset
+     pointed_struct_pointed_poset_strict
      ,,
-     struct_pointed_poset_with_smash
+     struct_pointed_poset_strict_with_smash
      ,,
-     struct_pointed_poset_with_smash_adj
+     struct_pointed_poset_strict_with_smash_adj
      ,,
-     struct_pointed_poset_with_smash_laws_enrich.
+     struct_pointed_poset_strict_with_smash_laws_enrich.
 
 (**
- 5. Posets with a minimum element
+ 5. Pointed posets with monotone functions
  *)
-Definition struct_poset_with_min_el_data
+Definition struct_pointed_poset_data
   : hset_struct_data.
 Proof.
   simple refine (_ ,, _).
-  - exact (λ X, PartialOrder_with_min_el X).
+  - exact (λ X, pointed_PartialOrder X).
   - exact (λ X Y PX PY f, is_monotone PX PY f).
 Defined.
 
-Definition struct_poset_with_min_el_laws
-  : hset_struct_laws struct_poset_with_min_el_data.
+Definition struct_pointed_poset_laws
+  : hset_struct_laws struct_pointed_poset_data.
 Proof.
   split5.
   - intro X.
@@ -990,7 +964,7 @@ Proof.
     + apply isaset_PartialOrder.
     + intro PX.
       apply isasetaprop.
-      apply propproperty.
+      apply isaprop_bottom_element.
   - intros X Y PX PY f.
     apply isaprop_is_monotone.
   - intros X PX.
@@ -998,23 +972,23 @@ Proof.
   - intros X Y Z PX PY PZ f g Pf Pg.
     exact (comp_is_monotone Pf Pg).
   - intros X PX PX' p q ; cbn in *.
-    exact (eq_PartialOrder_with_min_el p q).
+    exact (eq_pointed_PartialOrder_monotone p q).
 Qed.
 
-Definition struct_poset_with_min_el
+Definition struct_pointed_poset
   : hset_struct
-  := struct_poset_with_min_el_data ,, struct_poset_with_min_el_laws.
+  := struct_pointed_poset_data ,, struct_pointed_poset_laws.
 
-Definition cartesian_struct_poset_with_min_el_data
+Definition cartesian_struct_pointed_poset_data
   : hset_cartesian_struct_data
-  := struct_poset_with_min_el
+  := struct_pointed_poset
      ,,
-     unit_PartialOrder_with_min_el
+     unit_pointed_PartialOrder
      ,,
-     λ X Y PX PY, prod_PartialOrder_with_min_el PX PY.
+     λ X Y PX PY, prod_pointed_PartialOrder PX PY.
 
-Definition cartesian_struct_poset_with_min_el_laws
-  : hset_cartesian_struct_laws cartesian_struct_poset_with_min_el_data.
+Definition cartesian_struct_pointed_poset_laws
+  : hset_cartesian_struct_laws cartesian_struct_pointed_poset_data.
 Proof.
   refine (_ ,, _ ,, _ ,, _).
   - intros X PX ; cbn in *.
@@ -1028,11 +1002,11 @@ Proof.
     exact (prodtofun_is_monotone Pf Pg).
 Qed.
 
-Definition cartesian_struct_poset_with_min_el
+Definition cartesian_struct_pointed_poset
   : hset_cartesian_struct
-  := cartesian_struct_poset_with_min_el_data
+  := cartesian_struct_pointed_poset_data
      ,,
-     cartesian_struct_poset_with_min_el_laws.
+     cartesian_struct_pointed_poset_laws.
 
 (**
  6. Algebras on a monad
