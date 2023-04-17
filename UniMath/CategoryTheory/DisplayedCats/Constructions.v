@@ -583,6 +583,25 @@ Definition section_nat_trans
     : nat_trans (section_functor F) (section_functor F') :=
   section_nat_trans_data nt,, section_nat_trans_axioms nt.
 
+Definition section_nat_trans_id
+    {C : category}
+    {D : disp_cat C}
+    (F : section_disp D)
+    : section_nat_trans_disp F F.
+Proof.
+  use tpair.
+  - intro.
+    exact (id_disp _).
+  - simpl.
+    intros x x' f.
+
+    rewrite id_left_disp, id_right_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+Defined.
+
 End Section_transformation.
 
 (** * Sigmas of displayed (pre)categories *)
