@@ -515,6 +515,17 @@ Definition section_nat_trans_disp_axioms
       (id_right _ @ !(id_left _)) 
       (section_disp_on_morphisms F f ;; nt x') =
     nt x ;; section_disp_on_morphisms F' f.
+    
+Lemma isaprop_section_nat_trans_disp_axioms 
+    {C : category}
+    {D : disp_cat C} 
+    {F F': section_disp D}
+    (nt : section_nat_trans_disp_data F F') :
+  isaprop (section_nat_trans_disp_axioms nt).
+Proof.
+  do 3 (apply impred; intro).
+  apply homsets_disp.
+Qed.
 
 Definition section_nat_trans_disp 
     {C : category}
