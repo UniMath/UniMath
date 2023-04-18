@@ -98,9 +98,10 @@ Proof.
 Defined.
 
 Lemma free_monoid_extend_funcomp2
-  {X Y Z : hSet}
+  {X Y : hSet}
+  {Z : monoid}
   (f: (X → free_monoid Y))
-  (g: (Y → free_monoid Z))
+  (g: (Y → Z))
   : monoidfuncomp (free_monoid_extend f) (free_monoid_extend g) = free_monoid_extend (λ x, free_monoid_extend g (f x)).
 Proof.
   apply (invmaponpathsweq (invweq (free_monoid_universal_property _ _)) _ _).

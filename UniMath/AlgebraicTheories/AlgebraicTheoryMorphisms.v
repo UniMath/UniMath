@@ -47,14 +47,14 @@ Definition is_algebraic_theory_morphism
     preserves_projections F ×
     preserves_composition F.
 
-Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory} 
+Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory}
   (F : algebraic_theory_morphism_data T T')
   (H1 : is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F))
   (H2 : preserves_projections F)
   (H3 : preserves_composition F) := (H1 ,, H2 ,, H3).
 
-Lemma isaprop_is_algebraic_theory_morphism 
-  {T T' : algebraic_theory} 
+Lemma isaprop_is_algebraic_theory_morphism
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism_data T T')
   : isaprop (is_algebraic_theory_morphism F).
 Proof.
@@ -70,15 +70,15 @@ Definition algebraic_theory_morphism
   : UU
   := ∑ F : algebraic_theory_morphism_data T T', is_algebraic_theory_morphism F.
 
-Definition make_algebraic_theory_morphism 
-  {T T' : algebraic_theory} 
-  (F : algebraic_theory_morphism_data T T') 
+Definition make_algebraic_theory_morphism
+  {T T' : algebraic_theory}
+  (F : algebraic_theory_morphism_data T T')
   (H : is_algebraic_theory_morphism F)
   : algebraic_theory_morphism T T'
   := (F ,, H).
 
-Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data 
-  {T T'} 
+Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
+  {T T'}
   (F : algebraic_theory_morphism T T')
   : algebraic_theory_morphism_data T T'
   := pr1 F.
@@ -89,15 +89,15 @@ Definition algebraic_theory_morphism_preserves_projections {T T'} (F : algebraic
 
 Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr222 F.
 
-Definition algebraic_theory_morphism_to_nat_trans 
-  {T T'} 
+Definition algebraic_theory_morphism_to_nat_trans
+  {T T'}
   (F : algebraic_theory_morphism T T')
   : (algebraic_theory_to_functor T) ⟹ (algebraic_theory_to_functor T')
   := make_nat_trans _ _ _ (algebraic_theory_morphism_is_nat_trans F).
 
-Lemma algebraic_theory_morphism_eq 
-  {T T'} 
-  (F F' : algebraic_theory_morphism T T') 
+Lemma algebraic_theory_morphism_eq
+  {T T'}
+  (F F' : algebraic_theory_morphism T T')
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
