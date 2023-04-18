@@ -554,7 +554,7 @@ Definition section_nat_trans_data
     (nt : section_nat_trans_disp F F') :
       nat_trans_data (section_functor F) (section_functor F').
 Proof.
-  intro.
+  intro x.
   exists (identity _).
   exact (nt x).
 Defined.
@@ -573,7 +573,7 @@ Proof.
     rewrite <- (section_nt_disp_axioms_from_section_nt_disp nt).
     apply transportf_paths.
     apply homset_property.
-Defined.
+Qed.
 
 Definition section_nat_trans
     {C : category}
