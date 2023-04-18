@@ -689,6 +689,27 @@ Proof.
   apply homset_property.
 Qed.
 
+Definition section_nat_trans_assoc
+    {C : category}
+    {D : disp_cat C}
+    {F1 F2 F3 F4: section_disp D}
+    (F12 : section_nat_trans_disp F1 F2)
+    (F23 : section_nat_trans_disp F2 F3)
+    (F34 : section_nat_trans_disp F3 F4) :
+  section_nat_trans_comp F12 (section_nat_trans_comp F23 F34) = section_nat_trans_comp (section_nat_trans_comp F12 F23) F34.
+Proof.
+  use section_nat_trans_eq.
+  intro x.
+  simpl.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite mor_disp_transportf_prewhisker.
+  do 2 rewrite transport_f_f.
+  rewrite assoc_disp.
+  rewrite transport_f_b.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
 End Section_transformation.
 
 (** * Sigmas of displayed (pre)categories *)
