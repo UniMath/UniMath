@@ -350,6 +350,11 @@ Definition hset_struct_unit
   : P unitHSET
   := pr12 P.
 
+Definition hset_struct_unit_ob
+           (P : hset_cartesian_struct_data)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_unit P.
+
 Definition hset_struct_prod
            (P : hset_cartesian_struct_data)
            {X Y : hSet}
@@ -357,6 +362,12 @@ Definition hset_struct_prod
            (PY : P Y)
   : P (X × Y)%set
   := pr22 P X Y PX PY.
+
+Definition hset_struct_prod_ob
+           {P : hset_cartesian_struct_data}
+           (PX PY : category_of_hset_struct P)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_prod P (pr2 PX) (pr2 PY).
 
 Definition hset_cartesian_struct_laws
            (P : hset_cartesian_struct_data)

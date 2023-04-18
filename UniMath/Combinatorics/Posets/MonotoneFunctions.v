@@ -45,11 +45,11 @@ Definition monotone_function
   : UU
   := ∑ (f : X₁ → X₂), is_monotone R₁ R₂ f.
 
-Definition  monotone_function_to_function
-            {X₁ X₂ : hSet}
-            {R₁ : PartialOrder X₁}
-            {R₂ : PartialOrder X₂}
-            (f : monotone_function R₁ R₂)
+Definition monotone_function_to_function
+           {X₁ X₂ : hSet}
+           {R₁ : PartialOrder X₁}
+           {R₂ : PartialOrder X₂}
+           (f : monotone_function R₁ R₂)
   : X₁ → X₂
   := pr1 f.
 

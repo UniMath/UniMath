@@ -10,6 +10,7 @@
  3. The product of posets
  4. Type indexed products of posets
  5. The equalizer of posets
+ 6. The booleans as partial order
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -148,3 +149,25 @@ Section Equalizer.
          exact (antisymm_PartialOrder RX p q)).
   Defined.
 End Equalizer.
+
+(**
+ 6. The booleans as partial order
+ *)
+Definition PartialOrder_boolset
+  : PartialOrder boolset.
+Proof.
+  use make_PartialOrder.
+  - exact (λ b₁ b₂, if b₁ then if b₂ then htrue else hfalse else htrue).
+  - repeat split.
+    + abstract
+        (intros b₁ b₂ b₃ p q ;
+         induction b₁, b₂, b₃ ; induction p ; induction q ;
+         apply tt).
+    + abstract
+        (intros b ;
+         induction b ; exact tt).
+    + abstract
+        (intros b₁ b₂ p q ;
+         induction b₁, b₂ ; induction p ; induction q ;
+         apply idpath).
+Defined.

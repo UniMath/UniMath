@@ -14,7 +14,7 @@
  5. Examples of strict and monotone functions
  6. The equalizer of pointed posets
  7. Type indexed products of pointed posets
- 8. Posets with a minimal element
+ 8. Function spaces of pointed posets
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -30,6 +30,32 @@ Definition bottom_element
            (RX : PartialOrder X)
   : UU
   := ∑ (x : X), ∏ (y : X), RX x y.
+
+Proposition bottom_element_eq
+            {X : hSet}
+            (RX : PartialOrder X)
+            (b₁ b₂ : bottom_element RX)
+  : b₁ = b₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    use impred ; intro.
+    apply propproperty.
+  }
+  use (antisymm_PartialOrder RX).
+  - apply b₁.
+  - apply b₂.
+Qed.
+
+Proposition isaprop_bottom_element
+            {X : hSet}
+            (RX : PartialOrder X)
+  : isaprop (bottom_element RX).
+Proof.
+  use invproofirrelevance.
+  exact (bottom_element_eq RX).
+Qed.
 
 Definition pointed_PartialOrder
            (X : hSet)
@@ -94,6 +120,22 @@ Proof.
     + apply pointed_PartialOrder_min_point.
 Defined.
 
+Definition bottom_PartialOrder_boolset
+  : bottom_element PartialOrder_boolset.
+Proof.
+  refine (false ,, _).
+  abstract
+    (intro b ;
+     induction b ; cbn ;
+     exact tt).
+Defined.
+
+Definition pointed_PartialOrder_boolset
+  : pointed_PartialOrder boolset
+  := PartialOrder_boolset
+     ,,
+     bottom_PartialOrder_boolset.
+
 (**
  3. Strict and monotone functions
  *)
@@ -135,6 +177,54 @@ Proof.
   - apply setproperty.
 Qed.
 
+Definition strict_and_monotone_function
+           {X Y : hSet}
+           (RX : pointed_PartialOrder X)
+           (RY : pointed_PartialOrder Y)
+  : UU
+  := ∑ (f : X → Y), is_strict_and_monotone RX RY f.
+
+Definition strict_and_monotone_function_set
+           {X Y : hSet}
+           (RX : pointed_PartialOrder X)
+           (RY : pointed_PartialOrder Y)
+  : hSet.
+Proof.
+  use make_hSet.
+  - exact (strict_and_monotone_function RX RY).
+  - abstract
+      (use isaset_total2 ;
+       [ use funspace_isaset ;
+         apply Y
+       | intro f ;
+         apply isasetaprop ;
+         apply isaprop_is_strict_and_monotone ]).
+Defined.
+
+Definition strict_and_monotone_function_to_fun
+           {X Y : hSet}
+           {RX : pointed_PartialOrder X}
+           {RY : pointed_PartialOrder Y}
+           (f : strict_and_monotone_function RX RY)
+  : X → Y
+  := pr1 f.
+
+Coercion strict_and_monotone_function_to_fun
+  : strict_and_monotone_function >-> Funclass.
+
+Proposition eq_strict_and_monotone_function
+            {X Y : hSet}
+            {RX : pointed_PartialOrder X}
+            {RY : pointed_PartialOrder Y}
+            {f g : strict_and_monotone_function RX RY}
+            (p : ∏ (x : X), f x = g x)
+  : f = g.
+Proof.
+  use subtypePath ; [ intro ; apply isaprop_is_strict_and_monotone | ].
+  use funextsec.
+  exact p.
+Qed.
+
 (**
  4. Equality of pointed posets
  *)
@@ -154,26 +244,34 @@ Proof.
   apply idpath.
 Qed.
 
-Proposition eq_pointed_PartialOrder
+Proposition eq_pointed_PartialOrder_monotone
+            {X : hSet}
+            {PX PX' : pointed_PartialOrder X}
+            (p : is_monotone PX PX' (λ x, x))
+            (q : is_monotone PX' PX (λ x, x))
+  : PX = PX'.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_bottom_element.
+  }
+  use eq_PartialOrder.
+  - apply p.
+  - apply q.
+Qed.
+
+Proposition eq_pointed_PartialOrder_strict_and_monotone
             {X : hSet}
             {PX PX' : pointed_PartialOrder X}
             (p : is_strict_and_monotone PX PX' (λ x, x))
             (q : is_strict_and_monotone PX' PX (λ x, x))
   : PX = PX'.
 Proof.
-  use total2_paths_f.
-  - use eq_PartialOrder.
-    + apply p.
-    + apply q.
-  - use subtypePath.
-    {
-      intro.
-      use impred ; intro.
-      apply propproperty.
-    }
-    rewrite transportf_bottom_element.
-    apply p.
-Defined.
+  use eq_pointed_PartialOrder_monotone.
+  - apply p.
+  - apply q.
+Qed.
 
 (**
  5. Examples of strict and monotone functions
@@ -388,59 +486,44 @@ Proof.
 Qed.
 
 (**
- 8. Posets with a minimal element
+ 8. Function spaces of pointed posets
  *)
-Definition PartialOrder_with_min_el
-           (X : hSet)
-  : UU
-  := ∑ (RX : PartialOrder X), ∃ (x : X), ∏ (y : X), RX x y.
+Section FunctionPoset.
+  Context {X Y : hSet}
+          (PX : pointed_PartialOrder X)
+          (PY : pointed_PartialOrder Y).
 
-Coercion PartialOrder_with_min_el_to_Partial_order
-         {X : hSet}
-         (RX : PartialOrder_with_min_el X)
-  : PartialOrder X
-  := pr1 RX.
+  Definition strict_and_monotone_PartialOrder
+    : PartialOrder (strict_and_monotone_function_set PX PY).
+  Proof.
+    simple refine (_ ,, _) ; cbn.
+    - exact (λ f g, ∀ (x : X), PY (f x) (g x)).
+    - refine ((_ ,, _) ,, _).
+      + abstract
+          (intros f g h p q x ;
+           exact (trans_PartialOrder PY (p x) (q x))).
+      + abstract
+          (intros f x ;
+           exact (refl_PartialOrder PY (f x))).
+      + abstract
+          (intros f g p q ;
+           use eq_strict_and_monotone_function ;
+           intro x ;
+           exact (antisymm_PartialOrder PY (p x) (q x))).
+  Defined.
 
-Definition unit_PartialOrder_with_min_el
-  : PartialOrder_with_min_el unitset
-  := unit_PartialOrder ,, hinhpr (tt ,, (λ _, tt)).
+  Definition strict_and_monotone_PartialOrder_bottom
+    : bottom_element strict_and_monotone_PartialOrder.
+  Proof.
+    refine ((_ ,, constant_is_strict_and_monotone PX PY) ,, _).
+    abstract
+      (intros f x ; cbn ;
+       apply (pr2 PY)).
+  Defined.
 
-Definition prod_PartialOrder_with_min_el
-           {X Y : hSet}
-           (RX : PartialOrder_with_min_el X)
-           (RY : PartialOrder_with_min_el Y)
-  : PartialOrder_with_min_el (X × Y)%set.
-Proof.
-  refine (prod_PartialOrder RX RY ,, _).
-  use (factor_through_squash _ _ (pr2 RX)).
-  {
-    apply propproperty.
-  }
-  intros mX.
-  use (factor_through_squash _ _ (pr2 RY)).
-  {
-    apply propproperty.
-  }
-  intros mY.
-  apply hinhpr.
-  refine ((pr1 mX ,, pr1 mY) ,, λ y, _ ,, _).
-  - exact (pr2 mX (pr1 y)).
-  - exact (pr2 mY (pr2 y)).
-Defined.
-
-Proposition eq_PartialOrder_with_min_el
-            {X : hSet}
-            {PX PX' : PartialOrder_with_min_el X}
-            (p : is_monotone PX PX' (λ x, x))
-            (q : is_monotone PX' PX (λ x, x))
-  : PX = PX'.
-Proof.
-  use subtypePath.
-  {
-    intro.
-    apply propproperty.
-  }
-  use eq_PartialOrder.
-  - apply p.
-  - apply q.
-Defined.
+  Definition strict_and_monotone_pointed_PartialOrder
+    : pointed_PartialOrder (strict_and_monotone_function_set PX PY)
+    := strict_and_monotone_PartialOrder
+       ,,
+       strict_and_monotone_PartialOrder_bottom.
+End FunctionPoset.
