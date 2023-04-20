@@ -1,191 +1,214 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AlgebraicBases.
+
+Declare Scope algebraic_theories.
 
 Local Open Scope cat.
-Local Open Scope algebraic_theory.
+Local Open Scope algebraic_theories.
 
-Definition algebraic_theory_data := ∑ (T : algebraic_base),
-  (T 1) × (∏ (m n : nat), (stn m → stn n) → T m → T n).
+Definition base_functor
+  : UU
+  := finite_set_skeleton_category ⟶ HSET.
 
-Definition make_algebraic_theory_data (T : algebraic_base)
-  (id_pr : T 1) (T_on_morphisms : ∏ {m n : nat}, (stn m → stn n) → T m → T n) : algebraic_theory_data.
-Proof.
-  exact (T ,, id_pr ,, T_on_morphisms).
-Defined.
+Coercion base_functor_to_functor (T : base_functor) : finite_set_skeleton_category ⟶ HSET := T.
 
-Coercion algebraic_base_from_algebraic_theory_data
-  (T : algebraic_theory_data)
-  : algebraic_base
-  := pr1 T.
+Definition pointed_functor
+  : UU
+  := ∑ (T : base_functor), (T 1 : hSet).
 
-Definition id_pr {T : algebraic_theory_data} : T 1 := pr12 T.
+Coercion pointed_functor_to_base_functor (T : pointed_functor) : base_functor := pr1 T.
 
-Definition T_on_morphisms {T : algebraic_theory_data} {m n} : (stn m → stn n) → T m → T n := pr22 T m n.
+Definition id_pr {T : pointed_functor} : (T 1 : hSet) := pr2 T.
 
-Definition theory_pr {T : algebraic_theory_data} {n : nat} (i : stn n) : T n := T_on_morphisms (λ (x : stn 1), i) id_pr.
+(* Accessor for the projections *)
+Definition pr {T : pointed_functor} {n : nat} (i : stn n) : (T n : hSet) := # T (λ _, i) id_pr.
 
-Definition algebraic_theory_data_to_functor_data
-  (T : algebraic_theory_data)
-  : functor_data finite_set_skeleton_category HSET
-  := make_functor_data (T : finite_set_skeleton_category → HSET) (@T_on_morphisms T).
+Definition algebraic_theory_data
+  : UU
+  := ∑ (T : pointed_functor), ∏ m n, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet).
 
-(* Define the associativity property of the algebraic theory *)
+Coercion algebraic_theory_data_to_pointed_functor (T : algebraic_theory_data) : pointed_functor := pr1 T.
+
+(* Accessor for the composition *)
+Definition comp {T : algebraic_theory_data} {m n : nat} : ((T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet)) := pr2 T m n.
+
+Notation "f • g" :=
+  (comp f g)
+  (at level 35) : algebraic_theories.
+
 Definition comp_is_assoc (T : algebraic_theory_data) : UU := ∏
   (l m n : nat)
-  (f_l : T l)
-  (f_m : stn l → T m)
-  (f_n : stn m → T n),
+  (f_l : (T l : hSet))
+  (f_m : stn l → T m : hSet)
+  (f_n : stn m → T n : hSet),
     (f_l • f_m) • f_n = f_l • (λ t_l, (f_m t_l) • f_n).
 
-(* Define the unitality property of the algebraic theory *)
 Definition comp_is_unital (T : algebraic_theory_data) : UU := ∏
   (n : nat)
-  (f : T n),
+  (f : (T n : hSet)),
     id_pr • (λ _, f) = f.
 
-(* Define the compatibility of the projection function with composition *)
 Definition comp_identity_projections (T : algebraic_theory_data) : UU := ∏
   (n : nat)
-  (f : T n),
-    f • (λ i, theory_pr i) = f.
+  (f : (T n : hSet)),
+    f • (λ i, pr i) = f.
 
-(* Define naturality of the composition in the first argument *)
 Definition comp_is_natural_l (T : algebraic_theory_data) : UU := ∏
   (m m' n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, m'⟧)
-  (f : T m)
-  (g : stn m' → T n),
-  (T_on_morphisms a f) • g = f • (λ i, g (a i)).
+  (f : (T m : hSet))
+  (g : stn m' → T n : hSet),
+  (# T a f) • g = f • (λ i, g (a i)).
 
-Definition is_algebraic_theory (T : algebraic_theory_data) :=
-    (is_functor (algebraic_theory_data_to_functor_data T)) ×
-    (comp_is_assoc T) ×
-    (comp_is_unital T) ×
-    (comp_identity_projections T) ×
-    (comp_is_natural_l T).
+Definition is_algebraic_theory (T : algebraic_theory_data) : UU :=
+  comp_is_assoc T ×
+  comp_is_unital T ×
+  comp_identity_projections T ×
+  comp_is_natural_l T.
+
+Definition algebraic_theory : UU := ∑ (T : algebraic_theory_data), is_algebraic_theory T.
+
+Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory) : algebraic_theory_data := pr1 T.
+
+(* Constructors for the algebraic theory type *)
+Definition make_algebraic_theory_data
+  (T : base_functor)
+  (id_pr : (T 1 : hSet))
+  (comp : ∏ m n, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
+  : algebraic_theory_data
+  := ((T ,, id_pr) ,, comp).
 
 Definition make_is_algebraic_theory
-  {T : algebraic_theory_data}
-  (H1 : (is_functor (algebraic_theory_data_to_functor_data T)))
-  (H2 : comp_is_assoc T)
-  (H3 : comp_is_unital T)
-  (H4 : comp_identity_projections T)
-  (H5 : comp_is_natural_l T) : is_algebraic_theory T := (H1 ,, H2 ,, H3 ,, H4 ,, H5).
-
-Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
-Proof.
-  apply isapropdirprod.
-  - apply isaprop_is_functor.
-    apply SET.
-  - repeat apply isapropdirprod;
-      repeat (apply impred_isaprop; intro);
-      apply setproperty.
-Qed.
-
-Definition algebraic_theory := ∑ T, is_algebraic_theory T.
+  (T : algebraic_theory_data)
+  (H1 : comp_is_assoc T)
+  (H2 : comp_is_unital T)
+  (H3 : comp_identity_projections T)
+  (H4 : comp_is_natural_l T)
+  : is_algebraic_theory T
+  := (H1 ,, H2 ,, H3 ,, H4).
 
 Definition make_algebraic_theory
   (T : algebraic_theory_data)
   (H : is_algebraic_theory T)
   : algebraic_theory
-  := (T ,, H).
+  := T ,, H.
 
-Coercion algebraic_theory_data_from_algebraic_theory (T : algebraic_theory)
-  : algebraic_theory_data
-  := pr1 T.
+(* Definition make_algebraic_theory'
+  (C : abstract_clone)
+  := abstract_clone_to_algebraic_theory C. *)
 
-Definition algebraic_theory_is_functor (T : algebraic_theory) :
-  is_functor (algebraic_theory_data_to_functor_data T)
-  := pr12 T.
+Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
+Proof.
+  repeat apply isapropdirprod;
+    repeat (apply impred_isaprop; intro);
+    apply setproperty.
+Qed.
 
 Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :
   comp_is_assoc T
-  := pr122 T.
+  := pr12 T.
 
 Definition algebraic_theory_comp_is_unital (T : algebraic_theory)
   : comp_is_unital T
-  := pr1 (pr222 T).
+  := pr122 T.
 
 Definition algebraic_theory_comp_identity_projections (T : algebraic_theory)
   : comp_identity_projections T
-  := pr12 (pr222 T).
+  := pr1 (pr222 T).
 
 Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
   : comp_is_natural_l T
-  := pr22 (pr222 T).
+  := pr2 (pr222 T).
 
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
   (H1 : (X : nat → hSet) = (Y : nat → hSet))
-  (H2 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
+  (H2 : transportf (λ T : nat → hSet, ∏ m n : nat, (stn m → stn n) → T m → T n) H1 (@functor_on_morphisms _ _ X) = (@functor_on_morphisms _ _ Y))
   (H3 : transportf (λ (T : nat → hSet), T 1) H1 id_pr = id_pr)
-  (H4 : transportf
-    (λ (T : nat → hSet), ∏ m n, (stn m → stn n) → T m → T n)
-    H1
-    (@T_on_morphisms X) = (@T_on_morphisms Y)
-  )
+  (H4 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
   : X = Y.
 Proof.
   use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
   use total2_paths_f.
-  - exact (total2_paths_f H1 H2).
-  - rewrite (@transportf_total2_paths_f
-        (nat → hSet)
-        (λ C, ∏ m n, C m → (stn m → C n) → C n)
-        (λ T, T 1 × (∏ m n : nat, ((⟦ m ⟧)%stn → (⟦ n ⟧)%stn) → T m → T n))
+  - use total2_paths_f.
+    + apply (functor_eq _ _ (homset_property HSET)).
+      exact (total2_paths_f H1 H2).
+    + unfold functor_eq.
+      rewrite (@transportf_total2_paths_f
+        (functor_data finite_set_skeleton_category HSET)
+        (λ T, is_functor T)
+        (λ T, T 1 : hSet)
       ).
-    rewrite (transportf_dirprod (nat → hSet) _ _ ((pr111 X) ,, pr21 X) ((pr111 Y) ,, pr21 Y)).
-    exact (pathsdirprod H3 H4).
+      rewrite (@transportf_total2_paths_f
+        (nat → hSet)
+        (λ T, ∏ m n, (stn m → stn n) → T m → T n)
+        (λ T, T 1)
+      ).
+      exact H3.
+  - unfold functor_eq.
+    rewrite (@transportf_total2_paths_f
+      base_functor
+      (λ T, T 1 : hSet)
+      (λ (T : base_functor), ∏ m n : nat, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
+    ).
+    rewrite (@transportf_total2_paths_f
+      (functor_data finite_set_skeleton_category HSET)
+      (λ T, is_functor T)
+      (λ (T : functor_data _ _), ∏ m n : nat, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
+    ).
+    rewrite (@transportf_total2_paths_f
+      (nat → hSet)
+      (λ T, ∏ m n, (stn m → stn n) → T m → T n)
+      (λ (T : nat → hSet), ∏ m n : nat, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
+    ).
+    exact H4.
 Qed.
 
-Definition algebraic_theory_to_functor
-  (T : algebraic_theory)
-  : finite_set_skeleton_category ⟶ HSET
-  := make_functor _ (algebraic_theory_is_functor T).
+Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet)) : (T n : hSet) := f • (weqvecfun _ vnil).
+
 
 (* Properties of algebraic theories *)
+
 Lemma functor_uses_projections
   (T : algebraic_theory)
   (m n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, n⟧)
-  (f : T m)
-  : T_on_morphisms a f = f • (λ i, theory_pr (a i)).
+  (f : T m : hSet)
+  : #T a f = f • (λ i, pr (a i)).
 Proof.
-  rewrite <- (algebraic_theory_comp_identity_projections _ _ (T_on_morphisms _ _)).
+  rewrite <- (algebraic_theory_comp_identity_projections _ _ (#T _ _)).
   apply algebraic_theory_comp_is_natural_l.
 Qed.
 
-Lemma comp_project_component
+Lemma comp_projects_component
   (T : algebraic_theory)
   (m n : nat)
   (i : stn m)
-  (f : stn m → T n)
-  : (theory_pr i) • f = f i.
+  (f : stn m → T n : hSet)
+  : (pr i) • f = f i.
 Proof.
-  unfold theory_pr.
+  unfold pr.
   rewrite algebraic_theory_comp_is_natural_l.
   apply algebraic_theory_comp_is_unital.
 Qed.
 
-(* The composition is natural in the second argument *)
 Lemma comp_is_natural_r (T : algebraic_theory)
   (m n n' : finite_set_skeleton_category)
   (a: finite_set_skeleton_category⟦n, n'⟧)
-  (f : T m)
-  (g : stn m → T n)
-  : f • (λ i, T_on_morphisms a (g i)) = T_on_morphisms a (f • g).
+  (f : (T m : hSet))
+  (g : stn m → (T n : hSet))
+  : f • (λ i, #T a (g i)) = #T a (f • g).
 Proof.
   rewrite functor_uses_projections.
   rewrite algebraic_theory_comp_is_assoc.
-  apply maponpaths.
-  apply funextsec2.
+  apply maponpaths, funextfun.
   intro.
-  now rewrite functor_uses_projections.
+  apply functor_uses_projections.
 Qed.

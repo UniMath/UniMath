@@ -24,13 +24,6 @@ Definition clone_pr {C : abstract_clone_data} {n}
   : stn n → C n
   := pr2 C n.
 
-Definition reindex
-  {C : abstract_clone_data}
-  {m n : nat}
-  (a : stn m → stn n)
-  : C m → C n
-  := (λ f, f • (λ i, clone_pr (a i))).
-
 (* Define the unitality property of the algebraic theory *)
 Definition comp_project_component (C : abstract_clone_data) : UU := ∏
   (m n : nat)
@@ -65,13 +58,6 @@ Definition make_is_abstract_clone
   : is_abstract_clone C
   := (H1 ,, H2 ,, H3).
 
-Lemma isaprop_is_abstract_clone (C : abstract_clone_data) : isaprop (is_abstract_clone C).
-Proof.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intros);
-    apply setproperty.
-Qed.
-
 Definition abstract_clone := ∑ C, is_abstract_clone C.
 
 Definition make_abstract_clone
@@ -93,23 +79,3 @@ Definition abstract_clone_comp_identity_projections (C : abstract_clone)
 Definition abstract_clone_comp_is_assoc (C : abstract_clone)
   : comp_is_assoc C
   := pr222 C.
-
-Lemma abstract_clone_eq
-  (X Y : abstract_clone)
-  (H1 : (X : nat → hSet) = (Y : nat → hSet))
-  (H2 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
-  (H3 : transportf (λ (T : nat → hSet), (∏ n, stn n → T n)) H1 (@clone_pr X) = (@clone_pr Y))
-  : X = Y.
-Proof.
-  use (subtypePairEquality' _ (isaprop_is_abstract_clone _)).
-  use total2_paths_f.
-  - exact (total2_paths_f H1 H2).
-  - rewrite (@transportf_total2_paths_f
-        (nat → hSet)
-        (λ C, ∏ m n, C m → (stn m → C n) → C n)
-        (λ C, ∏ n, stn n → C n)
-      ).
-    exact H3.
-Qed.
-
-Definition lift_constant {C : abstract_clone_data} (n : nat) (f : C 0) : C n := f • (weqvecfun _ vnil).
