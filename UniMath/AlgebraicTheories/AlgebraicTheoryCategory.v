@@ -11,59 +11,12 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-Definition base_nat_trans
-  (T T' : base_functor)
-  : UU
-  := T ⟹ T'.
-
-Coercion base_nat_trans_to_nat_trans
-  (T T' : base_functor)
-  (F : base_nat_trans T T')
-  : T ⟹ T'
-  := F.
-
-Definition pointed_functor_morphism
-  (T T' : pointed_functor)
-  : UU
-  := ∑ (F : T ⟹ T'), F _ id_pr = id_pr.
-
-Coercion pointed_functor_morphism_to_nat_trans {T T' : pointed_functor} (F : pointed_functor_morphism T T') : nat_trans T T' := pr1 F.
-
-Definition algebraic_theory_data_morphism
-  (T T' : algebraic_theory_data)
-  : UU
-  := ∑ (F : pointed_functor_morphism T T'), ∏ m n f g, (F n (f • g)) = (F m f) • (λ i, F n (g i)).
-
-Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism {T T' : algebraic_theory_data} (F : algebraic_theory_data_morphism T T') : pointed_functor_morphism T T' := pr1 F.
-
-Definition algebraic_theory_morphism
-  (T T' : algebraic_theory)
-  : UU
-  := algebraic_theory_data_morphism T T'.
-
-(* Constructors for the algebraic theory morphism type *)
-
-
-(* Defininig an algebraic theory morphism in another way *)
-(* Definition make_algebraic_theory_morphism'
-  (T T: )
-  (C : abstract_clone_morphism)
-  := abstract_clone_to_algebraic_theory. *)
-
-
-(* Accessors for the properties of an algebraic theory *)
-
-(* Accessors for the properties of an algebraic theory morphism *)
-
-
-(* Definitions for the categories *)
 Definition base_functor_category
   : category
   := [finite_set_skeleton_category, HSET].

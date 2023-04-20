@@ -7,93 +7,84 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
 Local Open Scope cat.
+Local Open Scope algebraic_theories.
 
-Definition algebraic_theory_morphism_data (T T' : algebraic_theory_data) := ∏ n, T n → T' n.
+Definition base_nat_trans
+  (T T' : base_functor)
+  : UU
+  := T ⟹ T'.
 
-Definition algebraic_theory_morphism_data_to_function {T T'} (F : algebraic_theory_morphism_data T T')
-  : ∏ n, T n → T' n
+Coercion base_nat_trans_to_nat_trans
+  (T T' : base_functor)
+  (F : base_nat_trans T T')
+  : T ⟹ T'
   := F.
 
-Coercion algebraic_theory_morphism_data_to_function : algebraic_theory_morphism_data >-> Funclass.
+Definition preserves_id_pr {T T' : pointed_functor} (F : base_nat_trans T T') : UU := (F _ id_pr) = id_pr.
 
-Definition algebraic_theory_morphism_data_to_nat_trans_data
-  {T T'}
-  (F : algebraic_theory_morphism_data T T')
-  : nat_trans_data
-    (algebraic_theory_data_to_functor_data T)
-    (algebraic_theory_data_to_functor_data T')
-  := F.
+Definition pointed_functor_morphism
+  (T T' : pointed_functor)
+  : UU
+  := ∑ (F : base_nat_trans T T'), preserves_id_pr F.
 
-Definition preserves_projections {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
-  (n : finite_set_skeleton_category)
-  (i : stn n),
-    (F n (theory_pr i)) = (theory_pr i).
+Coercion pointed_functor_morphism_to_nat_trans {T T' : pointed_functor} (F : pointed_functor_morphism T T') : nat_trans T T' := pr1 F.
 
-Definition preserves_composition {T T'} (F : algebraic_theory_morphism_data T T') : UU := ∏
-  (m n : finite_set_skeleton_category)
-  (f_m : T m)
-  (f_n : stn m → T n),
-  (F n (comp f_m f_n)) = (comp (F m f_m) (λ i, F n (f_n i))).
+Definition preserves_composition {T T' : algebraic_theory_data} (F : base_nat_trans T T') : UU := ∏
+  (m n : nat)
+  (f_m : (T m : hSet))
+  (f_n : stn m → (T n : hSet)),
+  (F _ (f_m • f_n)) = ((F m f_m) • (λ i, F _ (f_n i))).
+
+Definition algebraic_theory_data_morphism
+  (T T' : algebraic_theory_data)
+  : UU
+  := ∑ (F : pointed_functor_morphism T T'), preserves_composition F.
+
+Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism {T T' : algebraic_theory_data} (F : algebraic_theory_data_morphism T T') : pointed_functor_morphism T T' := pr1 F.
+
+Definition algebraic_theory_morphism
+  (T T' : algebraic_theory)
+  : UU
+  := algebraic_theory_data_morphism T T'.
+
+Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism {T T' : algebraic_theory} (F : algebraic_theory_morphism T T') : algebraic_theory_data_morphism T T' := pr1 F.
 
 Definition is_algebraic_theory_morphism
-  {T T' : algebraic_theory}
-  (F : algebraic_theory_morphism_data T T')
+  {T T' : algebraic_theory_data}
+  (F : base_nat_trans T T')
   : UU :=
-    is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F) ×
-    preserves_projections F ×
+    preserves_id_pr F ×
     preserves_composition F.
 
 Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory}
-  (F : algebraic_theory_morphism_data T T')
-  (H1 : is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F))
-  (H2 : preserves_projections F)
-  (H3 : preserves_composition F) := (H1 ,, H2 ,, H3).
+  (F : base_nat_trans T T')
+  (H1 : preserves_id_pr F)
+  (H2 : preserves_composition F) := (H1 ,, H2).
 
 Lemma isaprop_is_algebraic_theory_morphism
   {T T' : algebraic_theory}
-  (F : algebraic_theory_morphism_data T T')
+  (F : base_nat_trans T T')
   : isaprop (is_algebraic_theory_morphism F).
 Proof.
   intro.
   repeat apply isapropdirprod;
     repeat (apply impred_isaprop; intro);
-    try apply funspace_isaset;
     apply setproperty.
 Qed.
 
-Definition algebraic_theory_morphism
-  (T T' : algebraic_theory)
-  : UU
-  := ∑ F : algebraic_theory_morphism_data T T', is_algebraic_theory_morphism F.
-
 Definition make_algebraic_theory_morphism
   {T T' : algebraic_theory}
-  (F : algebraic_theory_morphism_data T T')
+  (F : base_nat_trans T T')
   (H : is_algebraic_theory_morphism F)
   : algebraic_theory_morphism T T'
-  := (F ,, H).
+  := ((F ,, pr1 H) ,, pr2 H).
 
-Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
-  {T T'}
-  (F : algebraic_theory_morphism T T')
-  : algebraic_theory_morphism_data T T'
-  := pr1 F.
+Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr21 F.
 
-Definition algebraic_theory_morphism_is_nat_trans {T T'} (F : algebraic_theory_morphism T T') : is_nat_trans _ _ (algebraic_theory_morphism_data_to_nat_trans_data F) := pr12 F.
-
-Definition algebraic_theory_morphism_preserves_projections {T T'} (F : algebraic_theory_morphism T T') : preserves_projections F := pr122 F.
-
-Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr222 F.
-
-Definition algebraic_theory_morphism_to_nat_trans
-  {T T'}
-  (F : algebraic_theory_morphism T T')
-  : (algebraic_theory_to_functor T) ⟹ (algebraic_theory_to_functor T')
-  := make_nat_trans _ _ _ (algebraic_theory_morphism_is_nat_trans F).
+Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr2 F.
 
 Lemma algebraic_theory_morphism_eq
   {T T'}
@@ -101,7 +92,11 @@ Lemma algebraic_theory_morphism_eq
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
-  use (subtypePairEquality' _ (isaprop_is_algebraic_theory_morphism _)).
-  do 2 (apply funextsec; intro).
-  apply H1.
+  repeat use subtypePairEquality'.
+  - do 2 (apply funextsec; intro).
+    apply H1.
+  - apply isaprop_is_nat_trans, homset_property.
+  - apply setproperty.
+  - repeat (apply impred_isaprop; intro).
+    apply setproperty.
 Qed.
