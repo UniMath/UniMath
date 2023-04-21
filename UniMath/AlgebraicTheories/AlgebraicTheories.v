@@ -100,10 +100,6 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
-(* Definition make_algebraic_theory'
-  (C : abstract_clone)
-  := abstract_clone_to_algebraic_theory C. *)
-
 Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
 Proof.
   repeat apply isapropdirprod;
