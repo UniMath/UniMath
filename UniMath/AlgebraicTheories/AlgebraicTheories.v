@@ -100,6 +100,97 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
+(* An alternative way of defining algebraic theories *)
+Section MakeAlgebraicTheory'.
+
+  Local Definition theory'_to_functor_data
+    (C : nat → hSet)
+    (pr' : ∏ n, stn n → C n)
+    (comp' : ∏ m n, C m → (stn m → C n) → C n)
+    : functor_data finite_set_skeleton_category HSET.
+  Proof.
+    use make_functor_data.
+    - exact C.
+    - exact (λ _ _ a f, comp' _ _ f (λ i, pr' _ (a i))).
+  Defined.
+
+  Local Lemma theory'_to_is_functor
+    {C : nat → hSet}
+    {pr' : ∏ n, stn n → C n}
+    {comp' : ∏ m n, C m → (stn m → C n) → C n}
+    (projects_component : ∏ m n i f, comp' m n (pr' _ i) f = f i)
+    (identity_projections : ∏ n f, comp' n n f (pr' n) = f)
+    (is_assoc : ∏ l m n f g h, comp' m n (comp' l m f g) h = comp' _ _ f (λ i, comp' _ _ (g i) h))
+    : is_functor (theory'_to_functor_data C pr' comp').
+  Proof.
+    apply tpair.
+    - intro.
+      apply funextfun.
+      intro.
+      apply identity_projections.
+    - do 5 intro.
+      apply funextfun.
+      intro.
+      rewrite (is_assoc _ _ _ _ _ _ : (_ · (# (theory'_to_functor_data C pr' comp') g)) _ = _).
+      apply (maponpaths (comp' a c x)), funextfun.
+      intro.
+      symmetry.
+      apply projects_component.
+  Qed.
+
+  Local Definition theory'_to_algebraic_theory_data
+    {C : nat → hSet}
+    {pr' : ∏ n, stn n → C n}
+    {comp' : ∏ m n, C m → (stn m → C n) → C n}
+    (projects_component : ∏ m n i f, comp' m n (pr' _ i) f = f i)
+    (identity_projections : ∏ n f, comp' n n f (pr' n) = f)
+    (is_assoc : ∏ l m n f g h, comp' m n (comp' l m f g) h = comp' _ _ f (λ i, comp' _ _ (g i) h))
+    : algebraic_theory_data.
+  Proof.
+    use make_algebraic_theory_data.
+    - exact (make_functor _ (theory'_to_is_functor projects_component identity_projections is_assoc)).
+    - exact (pr' _ firstelement).
+    - exact comp'.
+  Defined.
+
+  Local Lemma theory'_to_is_algebraic_theory
+    {C : nat → hSet}
+    {pr' : ∏ n, stn n → C n}
+    {comp' : ∏ m n, C m → (stn m → C n) → C n}
+    (projects_component : ∏ m n i f, comp' m n (pr' _ i) f = f i)
+    (identity_projections : ∏ n f, comp' n n f (pr' n) = f)
+    (is_assoc : ∏ l m n f g h, comp' m n (comp' l m f g) h = comp' _ _ f (λ i, comp' _ _ (g i) h))
+    : is_algebraic_theory (theory'_to_algebraic_theory_data projects_component identity_projections is_assoc).
+  Proof.
+    use make_is_algebraic_theory.
+    - exact is_assoc.
+    - do 2 intro.
+      apply projects_component.
+    - do 2 intro.
+      rewrite <- (identity_projections _).
+      apply maponpaths, funextfun.
+      intro.
+      apply projects_component.
+    - do 6 intro.
+      simpl.
+      rewrite is_assoc.
+      apply maponpaths, funextfun.
+      intro.
+      apply projects_component.
+  Qed.
+
+  Definition make_algebraic_theory'
+    (C : nat → hSet)
+    (pr' : ∏ n, stn n → C n)
+    (comp' : ∏ m n, C m → (stn m → C n) → C n)
+    (projects_component : ∏ m n i f, comp' m n (pr' _ i) f = f i)
+    (identity_projections : ∏ n f, comp' n n f (pr' n) = f)
+    (is_assoc : ∏ l m n f g h, comp' m n (comp' l m f g) h = comp' _ _ f (λ i, comp' _ _ (g i) h))
+    : algebraic_theory
+    := make_algebraic_theory _ (theory'_to_is_algebraic_theory projects_component identity_projections is_assoc).
+
+End MakeAlgebraicTheory'.
+
 Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
 Proof.
   repeat apply isapropdirprod;
