@@ -8,7 +8,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
@@ -83,10 +83,10 @@ Definition make_algebraic_theory_morphism
   : algebraic_theory_morphism T T'
   := ((F ,, pr1 H) ,, pr2 H).
 
-Section MakeAlgebraicTheoryMorphisms'.
-  Lemma abstract_clone_morphism_to_is_nat_trans
+Section MakeAlgebraicTheoryMorphisms2.
+  Lemma algebraic_theory_morphism'_to_is_nat_trans
     {T T' : algebraic_theory}
-    (F : abstract_clone_morphism T T')
+    (F : algebraic_theory_morphism' T T')
     : is_nat_trans T T' F.
   Proof.
     intros n n' a.
@@ -95,40 +95,40 @@ Section MakeAlgebraicTheoryMorphisms'.
     unfold compose.
     simpl.
     do 2 rewrite (algebraic_theory_functor_uses_projections).
-    use ((abstract_clone_morphism_preserves_composition _ _ _ _ _) @ _).
+    use ((algebraic_theory_morphism'_preserves_composition _ _ _ _ _) @ _).
     apply maponpaths, funextfun.
     intro.
-    apply abstract_clone_morphism_preserves_projections.
+    apply algebraic_theory_morphism'_preserves_projections.
   Qed.
 
-  Definition abstract_clone_morphism_to_base_nat_trans
+  Definition algebraic_theory_morphism'_to_base_nat_trans
     {T T' : algebraic_theory}
-    (F : abstract_clone_morphism T T')
+    (F : algebraic_theory_morphism' T T')
     : base_nat_trans T T'
-    := make_nat_trans _ _ _ (abstract_clone_morphism_to_is_nat_trans F).
+    := make_nat_trans _ _ _ (algebraic_theory_morphism'_to_is_nat_trans F).
 
-  Lemma abstract_clone_morphism_to_is_algebraic_theory_morphism
+  Lemma algebraic_theory_morphism'_to_is_algebraic_theory_morphism
     {T T' : algebraic_theory}
-    (F : abstract_clone_morphism T T')
-    : is_algebraic_theory_morphism (abstract_clone_morphism_to_base_nat_trans F).
+    (F : algebraic_theory_morphism' T T')
+    : is_algebraic_theory_morphism (algebraic_theory_morphism'_to_base_nat_trans F).
   Proof.
     use make_is_algebraic_theory_morphism.
     - unfold preserves_id_pr.
       simpl.
       do 2 rewrite algebraic_theory_id_pr_is_pr.
-      apply abstract_clone_morphism_preserves_projections.
-    - exact (abstract_clone_morphism_preserves_composition F).
+      apply algebraic_theory_morphism'_preserves_projections.
+    - exact (algebraic_theory_morphism'_preserves_composition F).
   Qed.
 
   Definition make_algebraic_theory_morphism'
     {T T' : algebraic_theory}
-    (F : abstract_clone_morphism_data T T')
-    (H : is_abstract_clone_morphism F)
+    (F : algebraic_theory_morphism'_data T T')
+    (H : is_algebraic_theory_morphism' F)
     : algebraic_theory_morphism T T'
     := make_algebraic_theory_morphism
       _
-      (abstract_clone_morphism_to_is_algebraic_theory_morphism (make_abstract_clone_morphism F H)).
-End MakeAlgebraicTheoryMorphisms'.
+      (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (make_algebraic_theory_morphism' F H)).
+End MakeAlgebraicTheoryMorphisms2.
 
 Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr21 F.
 
