@@ -233,8 +233,7 @@ Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet)
 
 
 (* Properties of algebraic theories *)
-
-Lemma functor_uses_projections
+Lemma algebraic_theory_functor_uses_projections
   (T : algebraic_theory)
   (m n : finite_set_skeleton_category)
   (a : finite_set_skeleton_category⟦m, n⟧)
@@ -245,7 +244,7 @@ Proof.
   apply algebraic_theory_comp_is_natural_l.
 Qed.
 
-Lemma comp_projects_component
+Lemma algebraic_theory_comp_projects_component
   (T : algebraic_theory)
   (m n : nat)
   (i : stn m)
@@ -257,16 +256,16 @@ Proof.
   apply algebraic_theory_comp_is_unital.
 Qed.
 
-Lemma comp_is_natural_r (T : algebraic_theory)
+Lemma algebraic_theory_comp_is_natural_r (T : algebraic_theory)
   (m n n' : finite_set_skeleton_category)
   (a: finite_set_skeleton_category⟦n, n'⟧)
   (f : (T m : hSet))
   (g : stn m → (T n : hSet))
   : f • (λ i, #T a (g i)) = #T a (f • g).
 Proof.
-  rewrite functor_uses_projections.
+  rewrite algebraic_theory_functor_uses_projections.
   rewrite algebraic_theory_comp_is_assoc.
   apply maponpaths, funextfun.
   intro.
-  apply functor_uses_projections.
+  apply algebraic_theory_functor_uses_projections.
 Qed.
