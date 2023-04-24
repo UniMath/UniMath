@@ -6,7 +6,7 @@ AlgebraicTheoryMorphisms.v
 
 AbstractClones/AbstractClones.v
 AbstractClones/AbstractCloneMorphisms.v
-AbstractClones/AbstractCloneAlgebras.v
+AlgebraicTheoryAlgebras.v
 AbstractClones/AbstractCloneCategory.v
 
 AbstractCloneAlgebraicTheory.v
