@@ -269,3 +269,19 @@ Proof.
   intro.
   apply algebraic_theory_functor_uses_projections.
 Qed.
+
+Lemma algebraic_theory_id_pr_is_pr (T : algebraic_theory)
+  : id_pr = pr (T := T) (@firstelement 0).
+Proof.
+  unfold pr.
+  assert (H : identity (1 : finite_set_skeleton_category) = (λ _, firstelement)).
+  {
+    apply funextfun.
+    intros i.
+    use (subtypePairEquality' _ (isasetbool _ _)).
+    apply natlth1tois0.
+    apply stnlt.
+  }
+  rewrite <- H.
+  now rewrite (functor_id T).
+Qed.
