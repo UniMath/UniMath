@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 
 Declare Scope algebraic_theories.
 
@@ -102,64 +102,64 @@ Definition make_algebraic_theory
   := T ,, H.
 
 Section MakeAlgebraicTheory'.
-  Definition abstract_clone_to_functor_data (C : abstract_clone)
+  Definition algebraic_theory'_to_functor_data (C : algebraic_theory')
     : functor_data finite_set_skeleton_category HSET.
   Proof.
     use make_functor_data.
     - exact C.
-    - exact (λ _ _ a f, clone_comp f (λ i, clone_pr (a i))).
+    - exact (λ _ _ a f, comp' f (λ i, pr' (a i))).
   Defined.
 
-  Lemma abstract_clone_to_is_functor (C : abstract_clone)
-    : is_functor (abstract_clone_to_functor_data C).
+  Lemma algebraic_theory'_to_is_functor (C : algebraic_theory')
+    : is_functor (algebraic_theory'_to_functor_data C).
   Proof.
     apply tpair.
     - intro.
       apply funextfun.
       intro.
-      apply abstract_clone_comp_identity_projections.
+      apply algebraic_theory'_comp_identity_projections.
     - do 5 intro.
       apply funextfun.
       intro.
-      rewrite (abstract_clone_comp_is_assoc _ _ _ _ _ _ _ : (_ · (# (abstract_clone_to_functor_data C) g)) _ = _).
-      apply (maponpaths (clone_comp x)), funextfun.
+      rewrite (algebraic_theory'_comp_is_assoc _ _ _ _ _ _ _ : (_ · (# (algebraic_theory'_to_functor_data C) g)) _ = _).
+      apply (maponpaths (comp' x)), funextfun.
       intro.
       symmetry.
-      apply abstract_clone_comp_project_component.
+      apply algebraic_theory'_comp_project_component.
   Qed.
 
-  Definition abstract_clone_to_algebraic_theory_data (C : abstract_clone)
+  Definition algebraic_theory'_to_algebraic_theory_data (C : algebraic_theory')
     : algebraic_theory_data.
   Proof.
     use make_algebraic_theory_data.
-    - exact (make_functor _ (abstract_clone_to_is_functor C)).
-    - exact (clone_pr firstelement).
-    - exact (λ _ _, clone_comp).
+    - exact (make_functor _ (algebraic_theory'_to_is_functor C)).
+    - exact (pr' firstelement).
+    - exact (λ _ _, comp').
   Defined.
 
-  Lemma abstract_clone_to_is_algebraic_theory (C : abstract_clone)
-    : is_algebraic_theory (abstract_clone_to_algebraic_theory_data C).
+  Lemma algebraic_theory'_to_is_algebraic_theory (C : algebraic_theory')
+    : is_algebraic_theory (algebraic_theory'_to_algebraic_theory_data C).
   Proof.
     use make_is_algebraic_theory.
-    - apply abstract_clone_comp_is_assoc.
+    - apply algebraic_theory'_comp_is_assoc.
     - do 2 intro.
-      apply abstract_clone_comp_project_component.
+      apply algebraic_theory'_comp_project_component.
     - do 2 intro.
-      rewrite <- abstract_clone_comp_identity_projections.
+      rewrite <- algebraic_theory'_comp_identity_projections.
       apply maponpaths, funextfun.
       intro.
-      apply abstract_clone_comp_project_component.
+      apply algebraic_theory'_comp_project_component.
     - do 6 intro.
       simpl.
-      rewrite (abstract_clone_comp_is_assoc C).
+      rewrite (algebraic_theory'_comp_is_assoc C).
       apply maponpaths, funextfun.
       intro.
-      apply abstract_clone_comp_project_component.
+      apply algebraic_theory'_comp_project_component.
   Qed.
 
-  Definition make_algebraic_theory' (C : abstract_clone_data) (H : is_abstract_clone C)
+  Definition make_algebraic_theory' (C : algebraic_theory'_data) (H : is_algebraic_theory' C)
     : algebraic_theory
-    := make_algebraic_theory _ (abstract_clone_to_is_algebraic_theory (make_abstract_clone C H)).
+    := make_algebraic_theory _ (algebraic_theory'_to_is_algebraic_theory (C ,, H)).
 End MakeAlgebraicTheory'.
 
 Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
