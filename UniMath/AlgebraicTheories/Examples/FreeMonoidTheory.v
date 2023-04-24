@@ -8,30 +8,48 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
+Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
 Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
+Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
 
-Local Open Scope algebraic_theories.
+Local Open Scope algebraic_theory.
 Local Open Scope vec_scope.
 
-Definition free_monoid_theory : algebraic_theory.
+(* Construct an algebraic theory as an abstract clone *)
+Definition free_monoid_clone_data : abstract_clone_data.
 Proof.
-  use make_algebraic_theory'.
-  - intro n.
-    use tpair.
-    * exact (free_monoid (stnset n)).
-    * apply isasetmonoid.
+  use make_abstract_clone_data.
+  - use make_algebraic_base.
+    + intro n.
+      use tpair.
+      * exact (free_monoid (stnset n)).
+      * apply isasetmonoid.
+    + intros m n f g.
+      exact (free_monoid_extend (λ i : stnset m, g i) f).
   - intros n i.
     exact (free_monoid_unit (i : stnset n)).
-  - intros m n f g.
-    exact (free_monoid_extend (λ i : stnset m, g i) f).
-  - abstract now do 4 intro.
-  - abstract (intros n f;
-    apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n))))).
-  - abstract (intros l m n f_l f_m f_n;
-    exact (maponpaths (λ x, pr1monoidfun _ _ x f_l)
-      (free_monoid_extend_funcomp2 (X := stnset l) f_m f_n))).
 Defined.
+
+Lemma free_monoid_is_clone : is_abstract_clone free_monoid_clone_data.
+Proof.
+  use make_is_abstract_clone.
+  - now do 4 intro.
+  - intros n f.
+    apply (free_monoid_extend_comp (idmonoidiso (free_monoid (stnset n)))).
+  - intros l m n f_l f_m f_n.
+    exact (maponpaths (λ x, pr1monoidfun _ _ x f_l)
+      (free_monoid_extend_funcomp2 (X := stnset l) f_m f_n)).
+Qed.
+
+Definition free_monoid_clone
+  : abstract_clone
+  := make_abstract_clone _ free_monoid_is_clone.
+
+Definition free_monoid_theory
+  : algebraic_theory
+  := algebraic_theory_weq_abstract_clone free_monoid_clone.
 
 Definition free_monoid_clone_algebra_to_setwithbinop
   (A : abstract_clone_algebra free_monoid_clone)
