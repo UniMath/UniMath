@@ -14,6 +14,13 @@ Definition algebraic_theory_algebra_data
   : UU
   := ∑ (A : hSet), ∏ (n : nat), (T n : hSet) → (stn n → A) → A.
 
+Definition make_algebraic_theory_algebra_data
+  {T : algebraic_theory_data}
+  (A : hSet)
+  (action : ∏ (n : nat), (T n : hSet) → (stn n → A) → A)
+  : algebraic_theory_algebra_data T
+  := (A ,, action).
+
 Coercion algebraic_theory_algebra_data_to_hset
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra_data T)
@@ -159,4 +166,15 @@ Proof.
   apply maponpaths, funextfun.
   intro i.
   exact (fromempty (negnatlthn0 _ (stnlt i))).
+Qed.
+
+Lemma algebraic_theory_algebra_projects_component
+  {T : algebraic_theory}
+  (A : algebraic_theory_algebra T)
+  : ∏ n i (a : stn n → A), action (pr i) a = a i.
+Proof.
+  intros.
+  unfold pr.
+  rewrite algebraic_theory_algebra_is_natural.
+  apply algebraic_theory_algebra_is_unital.
 Qed.

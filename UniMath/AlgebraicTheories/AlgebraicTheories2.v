@@ -63,12 +63,6 @@ Definition make_is_algebraic_theory'
 
 Definition algebraic_theory' := ∑ C, is_algebraic_theory' C.
 
-Definition make_algebraic_theory'
-  (T : algebraic_theory'_data)
-  (H : is_algebraic_theory' T)
-  : algebraic_theory'
-  := (T ,, H).
-
 Coercion algebraic_theory'_data_from_algebraic_theory' (C : algebraic_theory') : algebraic_theory'_data := pr1 C.
 
 Definition algebraic_theory'_comp_project_component (C : algebraic_theory')

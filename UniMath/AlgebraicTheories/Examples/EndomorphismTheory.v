@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 
 Local Open Scope cat.
 
@@ -17,9 +17,9 @@ Section EndomorphismAlgebraicTheory.
   Context (C_finite_products : finite_products C).
   Variable (X : C).
 
-  Definition endomorphism_clone_data : abstract_clone_data.
+  Definition endomorphism_theory'_data : algebraic_theory'_data.
   Proof.
-    use make_abstract_clone_data.
+    use make_algebraic_theory'_data.
     - intro n.
       pose (power := ProductObject _ _ (C_finite_products n (λ _, X))).
       exact (homset power X).
@@ -29,9 +29,9 @@ Section EndomorphismAlgebraicTheory.
       exact (f ∘ (ProductArrow _ _ _ g)).
   Defined.
 
-  Definition endomorphism_is_clone : is_abstract_clone endomorphism_clone_data.
+  Definition endomorphism_is_theory' : is_algebraic_theory' endomorphism_theory'_data.
   Proof.
-    use make_is_abstract_clone.
+    use make_is_algebraic_theory'.
     - do 4 intro.
       exact (ProductPrCommutes _ _ _ _ _ _ _).
     - do 2 intro.
@@ -43,7 +43,7 @@ Section EndomorphismAlgebraicTheory.
       symmetry.
       apply id_left.
     - intros l m n f_l f_m f_n.
-      unfold clone_comp.
+      unfold comp'.
       simpl.
       rewrite assoc.
       apply (maponpaths (λ f, f · f_l)).
@@ -56,7 +56,7 @@ Section EndomorphismAlgebraicTheory.
   Qed.
 
   Definition endomorphism_theory : algebraic_theory
-    := make_algebraic_theory' _ endomorphism_is_clone.
+    := make_algebraic_theory' _ endomorphism_is_theory'.
 
 End EndomorphismAlgebraicTheory.
 

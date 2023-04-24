@@ -4,21 +4,21 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 
 Local Open Scope vec_scope.
 
 Definition one_point_clone_data
-  : abstract_clone_data
-  := make_abstract_clone_data
+  : algebraic_theory_data
+  := make_algebraic_theory_data
       (λ _, (unit ,, isasetunit))
       (λ _ _, tt)
       (λ _ _ _ _, tt).
 
-Lemma one_point_is_clone : is_abstract_clone one_point_clone_data.
+Lemma one_point_is_clone : is_algebraic_theory one_point_clone_data.
 Proof.
-  use make_is_abstract_clone.
+  use make_is_algebraic_theory.
   - intros m n i f.
     now induction (f i).
   - intros n f.
@@ -31,13 +31,13 @@ Definition one_point_theory
   := make_algebraic_theory' _ one_point_is_clone.
 
 Lemma one_point_clone_algebra_is_trivial
-  : ∏ (A : abstract_clone_algebra one_point_clone), A ≃ unit.
+  : ∏ (A : algebraic_theory_algebra one_point_clone), A ≃ unit.
 Proof.
   intro A.
   apply weqcontrtounit.
   use tpair.
   - use (action (tt : one_point_clone 0) (weqvecfun 0 vnil)).
   - intro a.
-    rewrite <- (abstract_clone_algebra_action_projects_component _ _ (make_stn 1 0 (idpath _)) (λ _, a) : _ = a).
+    rewrite <- (algebraic_theory_algebra_action_projects_component _ _ (make_stn 1 0 (idpath _)) (λ _, a) : _ = a).
     exact (lift_constant_action _ _ _).
 Qed.
