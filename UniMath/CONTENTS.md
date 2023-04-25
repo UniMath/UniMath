@@ -985,13 +985,12 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Induction/All.v)
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
-   - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
    - [AlgebraicTheories2.v](AlgebraicTheories/AlgebraicTheories2.v)
-   - [AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheoryMorphisms.v)
+   - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
    - [AlgebraicTheoryMorphisms2.v](AlgebraicTheories/AlgebraicTheoryMorphisms2.v)
+   - [AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheoryMorphisms.v)
    - [AlgebraicTheoryCategory.v](AlgebraicTheories/AlgebraicTheoryCategory.v)
    - [AlgebraicTheoryAlgebras.v](AlgebraicTheories/AlgebraicTheoryAlgebras.v)
-   - [AlgebraicTheoryAlgebras2.v](AlgebraicTheories/AlgebraicTheoryAlgebras2.v)
    - [AlgebraicTheoryAlgebraMorphisms.v](AlgebraicTheories/AlgebraicTheoryAlgebraMorphisms.v)
    - [AlgebraicTheoryAlgebraCategory.v](AlgebraicTheories/AlgebraicTheoryAlgebraCategory.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
@@ -999,4 +998,4 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/EndomorphismTheory.v](AlgebraicTheories/Examples/EndomorphismTheory.v)
    - [Examples/FreeMonoidTheory.v](AlgebraicTheories/Examples/FreeMonoidTheory.v)
    - [AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v](AlgebraicTheories/AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v)
-
+   - [All.v](AlgebraicTheories/All.v)

@@ -1,12 +1,11 @@
 FiniteSetSkeleton.v
 
-AlgebraicTheories.v
 AlgebraicTheories2.v
-AlgebraicTheoryMorphisms.v
+AlgebraicTheories.v
 AlgebraicTheoryMorphisms2.v
+AlgebraicTheoryMorphisms.v
 AlgebraicTheoryCategory.v
 AlgebraicTheoryAlgebras.v
-AlgebraicTheoryAlgebras2.v
 AlgebraicTheoryAlgebraMorphisms.v
 AlgebraicTheoryAlgebraCategory.v
 
