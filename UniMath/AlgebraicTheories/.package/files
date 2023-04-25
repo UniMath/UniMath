@@ -1,19 +1,18 @@
 FiniteSetSkeleton.v
-AlgebraicBases.v
 
 AlgebraicTheories.v
+AlgebraicTheories2.v
 AlgebraicTheoryMorphisms.v
-
-AbstractClones/AbstractClones.v
-AbstractClones/AbstractCloneMorphisms.v
+AlgebraicTheoryMorphisms2.v
+AlgebraicTheoryCategory.v
 AlgebraicTheoryAlgebras.v
-AbstractClones/AbstractCloneCategory.v
-
-AbstractCloneAlgebraicTheory.v
+AlgebraicTheoryAlgebras2.v
+AlgebraicTheoryAlgebraMorphisms.v
+AlgebraicTheoryAlgebraCategory.v
 
 Examples/OnePointTheory.v
 Examples/ProjectionsTheory.v
 Examples/EndomorphismTheory.v
 Examples/FreeMonoidTheory.v
 
-AbstractCloneAlgebraEndomorphism.v
+AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v
