@@ -127,7 +127,7 @@ Section MakeAlgebraicTheoryMorphisms2.
     : algebraic_theory_morphism T T'
     := make_algebraic_theory_morphism
       _
-      (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (make_algebraic_theory_morphism' F H)).
+      (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (F ,, H)).
 End MakeAlgebraicTheoryMorphisms2.
 
 Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr21 F.

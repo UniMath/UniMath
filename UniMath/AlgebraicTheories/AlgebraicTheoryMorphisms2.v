@@ -48,13 +48,6 @@ Definition algebraic_theory_morphism'
   (T T' : algebraic_theory_data)
   := ∑ F : algebraic_theory_morphism'_data T T', is_algebraic_theory_morphism' F.
 
-Definition make_algebraic_theory_morphism'
-  {T T'}
-  (F : algebraic_theory_morphism'_data T T')
-  (H : is_algebraic_theory_morphism' F)
-  : algebraic_theory_morphism' T T'
-  := (F ,, H).
-
 Coercion algebraic_theory_morphism'_to_function
   {T T'}
   (F : algebraic_theory_morphism' T T')
