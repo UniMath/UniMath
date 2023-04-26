@@ -17,7 +17,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.DisplayedCats.natural_transformation.
 Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
 Require Import UniMath.CategoryTheory.ModelCategories.Retract.
 
