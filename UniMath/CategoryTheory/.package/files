@@ -211,6 +211,8 @@ Chains/Chains.v
 Chains/Cochains.v
 
 DisplayedCats/Examples/Opposite.v
+DisplayedCats/Examples/Arrow.v
+DisplayedCats/Examples/Three.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
 DisplayedCats/Constructions.v
@@ -452,3 +454,11 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+ModelCategories/Retract.v
+ModelCategories/MorphismClass.v
+ModelCategories/WFS.v
+ModelCategories/WeakEquivalences.v
+ModelCategories/ModelCategories.v
+ModelCategories/NWFS.v
+ModelCategories/NWFSisWFS.v

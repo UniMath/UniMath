@@ -355,6 +355,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Chains/Chains.v](CategoryTheory/Chains/Chains.v)
    - [Chains/Cochains.v](CategoryTheory/Chains/Cochains.v)
    - [DisplayedCats/Examples/Opposite.v](CategoryTheory/DisplayedCats/Examples/Opposite.v)
+   - [DisplayedCats/Examples/Arrow.v](CategoryTheory/DisplayedCats/Examples/Arrow.v)
+   - [DisplayedCats/Examples/Three.v](CategoryTheory/DisplayedCats/Examples/Three.v)
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
    - [DisplayedCats/Constructions.v](CategoryTheory/DisplayedCats/Constructions.v)
