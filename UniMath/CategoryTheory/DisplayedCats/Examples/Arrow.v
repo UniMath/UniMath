@@ -10,9 +10,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-From Model Require Import morphism_class.
-From Model.model Require Import wfs.
-
 Local Open Scope cat.
 Local Open Scope mor_disp.
 

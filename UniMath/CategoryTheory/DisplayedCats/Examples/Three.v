@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-From Model Require Import arrow.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
