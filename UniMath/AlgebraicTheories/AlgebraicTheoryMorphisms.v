@@ -49,7 +49,7 @@ Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism {T T' : alge
 Definition algebraic_theory_morphism
   (T T' : algebraic_theory)
   : UU
-  := algebraic_theory_data_morphism T T'.
+  := ∑ X : algebraic_theory_data_morphism T T', unit.
 
 Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism {T T' : algebraic_theory} (F : algebraic_theory_morphism T T') : algebraic_theory_data_morphism T T' := pr1 F.
 
@@ -81,7 +81,7 @@ Definition make_algebraic_theory_morphism
   (F : base_nat_trans T T')
   (H : is_algebraic_theory_morphism F)
   : algebraic_theory_morphism T T'
-  := ((F ,, pr1 H) ,, pr2 H).
+  := (((F ,, pr1 H) ,, pr2 H) ,, tt).
 
 Section MakeAlgebraicTheoryMorphisms2.
   Lemma algebraic_theory_morphism'_to_is_nat_trans
@@ -130,9 +130,9 @@ Section MakeAlgebraicTheoryMorphisms2.
       (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (F ,, H)).
 End MakeAlgebraicTheoryMorphisms2.
 
-Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr21 F.
+Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr211 F.
 
-Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr2 F.
+Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr21 F.
 
 Lemma algebraic_theory_morphism_preserves_projections {T T'} (F : algebraic_theory_morphism T T') {n : nat} (i : stn n) : F _ (pr i) = pr i.
 Proof.
@@ -155,4 +155,5 @@ Proof.
   - apply setproperty.
   - repeat (apply impred_isaprop; intro).
     apply setproperty.
+  - exact isapropunit.
 Qed.
