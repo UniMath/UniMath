@@ -32,8 +32,8 @@ Definition projections_theory_algebra_data (A : hSet)
 Lemma projections_theory_algebra_is_algebra (A : hSet)
   : is_algebraic_theory_algebra (projections_theory_algebra_data A).
 Proof.
-  use make_is_algebraic_theory_algebra;
-    now repeat intro.
+  now use make_is_algebraic_theory_algebra;
+    repeat intro.
 Qed.
 
 Definition projections_theory_algebra (A : hSet)

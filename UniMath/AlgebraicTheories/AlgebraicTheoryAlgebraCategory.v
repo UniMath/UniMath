@@ -36,18 +36,18 @@ Proof.
     pose (F := pr1 Y : algebraic_theory_morphism _ _).
     pose (G := pr2 Y : A → A').
     exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
-  - intros A A' action action' F.
+  - intros.
     repeat (apply impred_isaprop; intro).
     apply setproperty.
-  - intros x action n f a.
-    pose (A := pr2 x : hSet).
-    assert (H : pr2 (identity x) = identity (A : HSET)).
+  - intros X action n f a.
+    pose (A := pr2 X : hSet).
+    assert (H : pr2 (identity X) = identity (A : HSET)).
     + apply (eqtohomot (transportf_const _ (A → A))).
     + now rewrite H.
-  - intros x x' x'' action action' action'' y y' Gcommutes G'commutes n f a.
-    pose (A := pr2 x : hSet).
-    pose (A' := pr2 x' : hSet).
-    pose (A'' := pr2 x'' : hSet).
+  - intros X X' X'' action action' action'' y y' Gcommutes G'commutes n f a.
+    pose (A := pr2 X : hSet).
+    pose (A' := pr2 X' : hSet).
+    pose (A'' := pr2 X'' : hSet).
     pose (G := pr2 y : A → A').
     pose (G' := pr2 y' : A' → A'').
     assert (H : pr2 (y · y') = (G : HSET⟦A, A'⟧) · G').
@@ -64,8 +64,8 @@ Definition algebraic_theory_algebra_data_full_cat : category
 Definition algebraic_theory_algebra_full_disp_cat : disp_cat algebraic_theory_algebra_data_full_cat.
 Proof.
   use disp_struct.
-  - intro x.
-    pose (A := make_algebraic_theory_algebra_data (pr21 x) (pr2 x)).
+  - intro X.
+    pose (A := make_algebraic_theory_algebra_data (pr21 X) (pr2 X)).
     exact (is_algebraic_theory_algebra A).
   - exact (λ _ _ _ _ _, unit).
   - intros.

@@ -146,7 +146,7 @@ Proof.
     use subtypePairEquality'.
     + rewrite transportf_sec_constant.
       apply funextsec.
-      intro n.
+      intro.
       rewrite transportf_sec_constant.
       apply funextsec.
       intro.

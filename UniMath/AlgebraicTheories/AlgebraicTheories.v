@@ -118,11 +118,11 @@ Section MakeAlgebraicTheory'.
       apply funextfun.
       intro.
       apply algebraic_theory'_comp_identity_projections.
-    - do 5 intro.
+    - intros l m n f g.
       apply funextfun.
-      intro.
+      intro h.
       rewrite (algebraic_theory'_comp_is_assoc _ _ _ _ _ _ _ : (_ · (# (algebraic_theory'_to_functor_data C) g)) _ = _).
-      apply (maponpaths (comp' x)), funextfun.
+      apply (maponpaths (comp' h)), funextfun.
       intro.
       symmetry.
       apply algebraic_theory'_comp_project_component.
@@ -277,7 +277,7 @@ Proof.
   assert (H : identity (1 : finite_set_skeleton_category) = (λ _, firstelement)).
   {
     apply funextfun.
-    intros i.
+    intro.
     use (subtypePairEquality' _ (isasetbool _ _)).
     apply natlth1tois0.
     apply stnlt.

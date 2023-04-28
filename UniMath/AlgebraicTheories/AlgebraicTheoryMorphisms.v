@@ -89,16 +89,17 @@ Section MakeAlgebraicTheoryMorphisms2.
     (F : algebraic_theory_morphism' T T')
     : is_nat_trans T T' F.
   Proof.
-    intros n n' a.
+    do 3 intro.
     apply funextfun.
-    intro f.
+    intro.
     unfold compose.
     simpl.
     do 2 rewrite (algebraic_theory_functor_uses_projections).
-    use ((algebraic_theory_morphism'_preserves_composition _ _ _ _ _) @ _).
-    apply maponpaths, funextfun.
-    intro.
-    apply algebraic_theory_morphism'_preserves_projections.
+    etrans.
+    - apply algebraic_theory_morphism'_preserves_composition.
+    - apply maponpaths, funextfun.
+      intro.
+      apply algebraic_theory_morphism'_preserves_projections.
   Qed.
 
   Definition algebraic_theory_morphism'_to_base_nat_trans

@@ -50,9 +50,8 @@ Proof.
     repeat (apply impred_isaprop; intro).
     apply setproperty.
   - now intros.
-  - intros T T' T'' Tdata T'data T''data F F' Fdata F'data.
+  - intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g.
     cbn.
-    intros.
     now rewrite Fdata, F'data.
 Defined.
 

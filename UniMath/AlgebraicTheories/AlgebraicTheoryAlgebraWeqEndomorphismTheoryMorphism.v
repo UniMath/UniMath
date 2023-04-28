@@ -50,10 +50,10 @@ Lemma algebraic_theory_morphism_to_is_algebra
   : is_algebraic_theory_algebra (algebraic_theory_morphism_to_algebra_data F).
 Proof.
   use make_is_algebraic_theory_algebra'.
-  - intros m n f g a.
+  - do 5 intro.
     simpl.
     now rewrite (algebraic_theory_morphism_preserves_composition F).
-  - intros n i a.
+  - do 3 intro.
     simpl.
     now rewrite (algebraic_theory_morphism_preserves_projections F).
 Qed.
