@@ -90,38 +90,38 @@ Qed.
 
 Definition algebraic_theory_algebra
   (T : algebraic_theory_data)
-  := ∑ (A : algebraic_theory_algebra_data T), is_algebraic_theory_algebra A.
+  := ∑ (A : hSet) (action : ∏ (n : nat), (T n : hSet) → (stn n → A) → A), is_algebraic_theory_algebra (make_algebraic_theory_algebra_data A action).
 
 Definition make_algebraic_theory_algebra
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra_data T)
   (H : is_algebraic_theory_algebra A)
   : algebraic_theory_algebra T
-  := (A ,, H).
+  := (pr1 A ,, pr2 A ,, H).
 
 Coercion algebraic_theory_algebra_to_algebraic_theory_algebra_data
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra T)
   : algebraic_theory_algebra_data T
-  := pr1 A.
+  := make_algebraic_theory_algebra_data (pr1 A) (pr12 A).
 
 Definition algebraic_theory_algebra_is_assoc
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra T)
   : is_assoc A
-  := pr12 A.
+  := pr122 A.
 
 Definition algebraic_theory_algebra_is_unital
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra T)
   : is_unital A
-  := pr122 A.
+  := pr1 (pr222 A).
 
 Definition algebraic_theory_algebra_is_natural
   {T : algebraic_theory_data}
   (A : algebraic_theory_algebra T)
   : is_natural A
-  := pr222 A.
+  := pr2 (pr222 A).
 
 Lemma isaprop_is_algebraic_theory_algebra
   {T : algebraic_theory_data}
@@ -140,16 +140,18 @@ Lemma algebraic_theory_algebra_eq
   (H2 : ∏ n f, transportf (λ (X : hSet), (stn n → X) → X) H1 (action f) = action f)
   : A = B.
 Proof.
-  use (subtypePairEquality' _ (isaprop_is_algebraic_theory_algebra _)).
   use total2_paths_f.
   - exact H1.
-  - rewrite transportf_sec_constant.
-    apply funextsec.
-    intro n.
-    rewrite transportf_sec_constant.
-    apply funextsec.
-    intro.
-    apply H2.
+  - rewrite transportf_total2.
+    use subtypePairEquality'.
+    + rewrite transportf_sec_constant.
+      apply funextsec.
+      intro n.
+      rewrite transportf_sec_constant.
+      apply funextsec.
+      intro.
+      apply H2.
+    + exact (isaprop_is_algebraic_theory_algebra _).
 Qed.
 
 (* Properties of algebraic theory algebras *)

@@ -1,5 +1,5 @@
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -16,7 +16,7 @@ Definition algebraic_theory_algebra_morphism
   {T : algebraic_theory_data}
   (A A' : algebraic_theory_algebra_data T)
   : UU
-  := ∑ (F : A → A'), preserves_action F.
+  := ∑ (F : A → A') (H : preserves_action F), unit.
 
 Definition algebraic_theory_algebra_morphism_to_function
   {T : algebraic_theory_data}
@@ -33,4 +33,4 @@ Definition algebraic_theory_algebra_morphism_preserves_action
   {A A' : algebraic_theory_algebra_data T}
   (F : algebraic_theory_algebra_morphism A A')
   : preserves_action F
-  := pr2 F.
+  := pr12 F.
