@@ -390,7 +390,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Structures/CartesianStructure.v](CategoryTheory/DisplayedCats/Structures/CartesianStructure.v)
    - [DisplayedCats/Structures/StructureLimitsAndColimits.v](CategoryTheory/DisplayedCats/Structures/StructureLimitsAndColimits.v)
    - [DisplayedCats/Structures/StructuresSmashProduct.v](CategoryTheory/DisplayedCats/Structures/StructuresSmashProduct.v)
-<<<<<<< HEAD
    - [DisplayedCats/Examples/AlgebraStructures.v](CategoryTheory/DisplayedCats/Examples/AlgebraStructures.v)
    - [DisplayedCats/Examples/DCPOStructures.v](CategoryTheory/DisplayedCats/Examples/DCPOStructures.v)
    - [DisplayedCats/Examples/PointedDCPOStructures.v](CategoryTheory/DisplayedCats/Examples/PointedDCPOStructures.v)
@@ -399,9 +398,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples/PointedSetStructures.v](CategoryTheory/DisplayedCats/Examples/PointedSetStructures.v)
    - [DisplayedCats/Examples/PosetStructures.v](CategoryTheory/DisplayedCats/Examples/PosetStructures.v)
    - [DisplayedCats/Examples/SetStructures.v](CategoryTheory/DisplayedCats/Examples/SetStructures.v)
-=======
-   - [DisplayedCats/Structures/ExamplesOfStructures.v](CategoryTheory/DisplayedCats/Structures/ExamplesOfStructures.v)
->>>>>>> 1716c078b00c18dcabf63f671e414d7ba33cb23c
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
