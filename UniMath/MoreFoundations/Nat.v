@@ -442,6 +442,16 @@ Proof.
   rewrite natpluscomm. exact a.
 Qed.
 
+Theorem nat_le_diff
+        {n m : ℕ}
+        (p : n ≤ m)
+  : ∑ (k : ℕ), n + k = m.
+Proof.
+  exists (m - n).
+  rewrite natpluscomm.
+  exact (minusplusnmm _ _ p).
+Qed.
+
 (*
 Local Variables:
 compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"

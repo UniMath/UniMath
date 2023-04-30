@@ -127,7 +127,7 @@ Section Projections.
     : isaprop (mor_hset_struct P PX PY f).
   Proof.
     exact (pr122 P X Y PX PY f).
-  Qed.
+  Defined.
 
   Proposition hset_struct_id
               {X : hSet}
