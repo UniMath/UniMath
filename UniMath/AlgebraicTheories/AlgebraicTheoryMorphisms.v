@@ -24,14 +24,18 @@ Coercion base_nat_trans_to_nat_trans
   : T ⟹ T'
   := F.
 
-Definition preserves_id_pr {T T' : pointed_functor} (F : base_nat_trans T T') : UU := (F _ id_pr) = id_pr.
+Definition preserves_id_pr {T T' : pointed_functor} (F : base_nat_trans T T')
+  : UU
+  := (F _ id_pr) = id_pr.
 
 Definition pointed_functor_morphism
   (T T' : pointed_functor)
   : UU
   := ∑ (F : base_nat_trans T T'), preserves_id_pr F.
 
-Coercion pointed_functor_morphism_to_nat_trans {T T' : pointed_functor} (F : pointed_functor_morphism T T') : nat_trans T T' := pr1 F.
+Coercion pointed_functor_morphism_to_nat_trans {T T'} (F : pointed_functor_morphism T T')
+  : nat_trans T T'
+  := pr1 F.
 
 Definition preserves_composition {T T' : algebraic_theory_data} (F : base_nat_trans T T') : UU := ∏
   (m n : nat)
@@ -44,14 +48,22 @@ Definition algebraic_theory_data_morphism
   : UU
   := ∑ (F : pointed_functor_morphism T T'), preserves_composition F.
 
-Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism {T T' : algebraic_theory_data} (F : algebraic_theory_data_morphism T T') : pointed_functor_morphism T T' := pr1 F.
+Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism
+  {T T'}
+  (F : algebraic_theory_data_morphism T T')
+  : pointed_functor_morphism T T'
+  := pr1 F.
 
 Definition algebraic_theory_morphism
   (T T' : algebraic_theory)
   : UU
   := ∑ X : algebraic_theory_data_morphism T T', unit.
 
-Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism {T T' : algebraic_theory} (F : algebraic_theory_morphism T T') : algebraic_theory_data_morphism T T' := pr1 F.
+Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism
+  {T T'}
+  (F : algebraic_theory_morphism T T')
+  : algebraic_theory_data_morphism T T'
+  := pr1 F.
 
 Definition is_algebraic_theory_morphism
   {T T' : algebraic_theory_data}
@@ -131,11 +143,24 @@ Section MakeAlgebraicTheoryMorphisms2.
       (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (F ,, H)).
 End MakeAlgebraicTheoryMorphisms2.
 
-Definition algebraic_theory_morphism_preserves_id_pr {T T'} (F : algebraic_theory_morphism T T') : preserves_id_pr F := pr211 F.
+Definition algebraic_theory_morphism_preserves_id_pr
+  {T T'}
+  (F : algebraic_theory_morphism T T')
+  : preserves_id_pr F
+  := pr211 F.
 
-Definition algebraic_theory_morphism_preserves_composition {T T'} (F : algebraic_theory_morphism T T') : preserves_composition F := pr21 F.
+Definition algebraic_theory_morphism_preserves_composition
+  {T T'}
+  (F : algebraic_theory_morphism T T')
+  : preserves_composition F
+  := pr21 F.
 
-Lemma algebraic_theory_morphism_preserves_projections {T T'} (F : algebraic_theory_morphism T T') {n : nat} (i : stn n) : F _ (pr i) = pr i.
+Lemma algebraic_theory_morphism_preserves_projections
+  {T T'}
+  (F : algebraic_theory_morphism T T')
+  {n : nat}
+  (i : stn n)
+  : F _ (pr i) = pr i.
 Proof.
   unfold pr.
   rewrite <- (algebraic_theory_morphism_preserves_id_pr F).

@@ -7,9 +7,12 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
 Local Open Scope algebraic_theories.
 
-Definition algebraic_theory_morphism'_data (T T' : algebraic_theory_data) := ∏ n, (T n : hSet) → (T' n : hSet).
+Definition algebraic_theory_morphism'_data (T T' : algebraic_theory_data) : UU
+  := ∏ n, (T n : hSet) → (T' n : hSet).
 
-Definition algebraic_theory_morphism'_data_to_function {T T'} (F : algebraic_theory_morphism'_data T T')
+Definition algebraic_theory_morphism'_data_to_function
+  {T T'}
+  (F : algebraic_theory_morphism'_data T T')
   : ∏ n, (T n : hSet) → (T' n : hSet)
   := F.
 Coercion algebraic_theory_morphism'_data_to_function : algebraic_theory_morphism'_data >-> Funclass.
@@ -54,7 +57,14 @@ Coercion algebraic_theory_morphism'_to_function
   : algebraic_theory_morphism'_data T T'
   := pr1 F.
 
-(* Without pr1 F, the implicit coercion will cause errors in, for example, AbstractCloneTategory. It is not clear why. *)
-Definition algebraic_theory_morphism'_preserves_composition {T T'} (F : algebraic_theory_morphism' T T') : preserves_composition F := pr12 F.
+Definition algebraic_theory_morphism'_preserves_composition
+  {T T'}
+  (F : algebraic_theory_morphism' T T')
+  : preserves_composition F
+  := pr12 F.
 
-Definition algebraic_theory_morphism'_preserves_projections {T T'} (F : algebraic_theory_morphism' T T') : preserves_projections F := pr22 F.
+Definition algebraic_theory_morphism'_preserves_projections
+  {T T'}
+  (F : algebraic_theory_morphism' T T')
+  : preserves_projections F
+  := pr22 F.

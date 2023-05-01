@@ -35,10 +35,14 @@ Definition algebraic_theory_data
   : UU
   := ∑ (T : pointed_functor), ∏ m n, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet).
 
-Coercion algebraic_theory_data_to_pointed_functor (T : algebraic_theory_data) : pointed_functor := pr1 T.
+Coercion algebraic_theory_data_to_pointed_functor (T : algebraic_theory_data)
+  : pointed_functor
+  := pr1 T.
 
 (* Accessor for the composition *)
-Definition comp {T : algebraic_theory_data} {m n : nat} : ((T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet)) := pr2 T m n.
+Definition comp {T : algebraic_theory_data} {m n : nat}
+  : ((T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
+  := pr2 T m n.
 
 Notation "f • g" :=
   (comp f g)
@@ -76,7 +80,9 @@ Definition is_algebraic_theory (T : algebraic_theory_data) : UU :=
 
 Definition algebraic_theory : UU := ∑ (T : algebraic_theory_data), is_algebraic_theory T.
 
-Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory) : algebraic_theory_data := pr1 T.
+Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory)
+  : algebraic_theory_data
+  := pr1 T.
 
 (* Constructors for the algebraic theory type *)
 Definition make_algebraic_theory_data
@@ -121,7 +127,8 @@ Section MakeAlgebraicTheory'.
     - intros l m n f g.
       apply funextfun.
       intro h.
-      rewrite (algebraic_theory'_comp_is_assoc _ _ _ _ _ _ _ : (_ · (# (algebraic_theory'_to_functor_data C) g)) _ = _).
+      rewrite (algebraic_theory'_comp_is_assoc _ _ _ _ _ _ _
+        : (_ · (# (algebraic_theory'_to_functor_data C) g)) _ = _).
       apply (maponpaths (comp' h)), funextfun.
       intro.
       symmetry.
@@ -188,9 +195,11 @@ Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
   (H1 : (X : nat → hSet) = (Y : nat → hSet))
-  (H2 : transportf (λ T : nat → hSet, ∏ m n : nat, (stn m → stn n) → T m → T n) H1 (@functor_on_morphisms _ _ X) = (@functor_on_morphisms _ _ Y))
+  (H2 : transportf (λ T : nat → hSet, ∏ m n : nat, (stn m → stn n) → T m → T n) H1
+    (@functor_on_morphisms _ _ X) = (@functor_on_morphisms _ _ Y))
   (H3 : transportf (λ (T : nat → hSet), T 1) H1 id_pr = id_pr)
-  (H4 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1 (@comp X) = (@comp Y))
+  (H4 : transportf (λ (T : nat → hSet), ∏ m n : nat, T m → (stn m → T n) → T n) H1
+    (@comp X) = (@comp Y))
   : X = Y.
 Proof.
   use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
@@ -229,8 +238,9 @@ Proof.
     exact H4.
 Qed.
 
-Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet)) : (T n : hSet) := f • (weqvecfun _ vnil).
-
+Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet))
+  : (T n : hSet)
+  := f • (weqvecfun _ vnil).
 
 (* Properties of algebraic theories *)
 Lemma algebraic_theory_functor_uses_projections
@@ -279,8 +289,7 @@ Proof.
     apply funextfun.
     intro.
     use (subtypePairEquality' _ (isasetbool _ _)).
-    apply natlth1tois0.
-    apply stnlt.
+    exact (natlth1tois0 _ (stnlt x)).
   }
   rewrite <- H.
   now rewrite (functor_id T).

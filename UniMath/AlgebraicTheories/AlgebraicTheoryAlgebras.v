@@ -90,7 +90,8 @@ Qed.
 
 Definition algebraic_theory_algebra
   (T : algebraic_theory_data)
-  := ∑ (A : hSet) (action : ∏ (n : nat), (T n : hSet) → (stn n → A) → A), is_algebraic_theory_algebra (make_algebraic_theory_algebra_data A action).
+  := ∑ (A : hSet) (action : ∏ (n : nat), (T n : hSet) → (stn n → A) → A),
+    is_algebraic_theory_algebra (make_algebraic_theory_algebra_data A action).
 
 Definition make_algebraic_theory_algebra
   {T : algebraic_theory_data}

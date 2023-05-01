@@ -79,7 +79,8 @@ Qed.
 Lemma algebraic_theory_morphism_to_algebra_and_back
   {T : algebraic_theory}
   (y : ∑ X, algebraic_theory_morphism T (set_endomorphism_theory X))
-  : pr1 y ,, algebra_to_algebraic_theory_morphism (algebraic_theory_morphism_to_algebra (pr2 y)) = y.
+  : pr1 y ,, algebra_to_algebraic_theory_morphism (algebraic_theory_morphism_to_algebra (pr2 y))
+    = y.
 Proof.
   use total2_paths2_f.
   + apply idpath.
