@@ -34,3 +34,13 @@ Definition algebraic_theory_algebra_morphism_preserves_action
   (F : algebraic_theory_algebra_morphism A A')
   : preserves_action F
   := pr12 F.
+
+Lemma isaprop_preserves_action
+  {T : algebraic_theory_data}
+  {A A' : algebraic_theory_algebra_data T}
+  (F : A → A')
+  : isaprop (preserves_action F).
+Proof.
+  repeat (apply impred_isaprop; intro).
+  apply setproperty.
+Qed.
