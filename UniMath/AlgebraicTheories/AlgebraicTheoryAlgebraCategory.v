@@ -116,6 +116,20 @@ Proof.
   apply isasetunit.
 Qed.
 
+Lemma concat_displayed_cartesian_morphisms
+  {C C' : category}
+  (D := disp_cartesian C C')
+  {c c' c'' : C}
+  {F : C⟦c, c'⟧} {F' : C⟦c', c''⟧}
+  {A : D c} {A' : D c'} {A'' : D c''}
+  (G : A -->[F] A') (G' : A' -->[F'] A'')
+  : (G ;; G') = G · G'.
+Proof.
+  unfold comp_disp.
+  simpl.
+  now rewrite (unit_equality_is_idpath F' F _).
+Qed.
+
 Definition algebra_cleaving_algebra_data
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T' T)
@@ -181,30 +195,6 @@ Proof.
   abstract (do 3 intro; now rewrite (pr12 G')).
 Defined.
 
-Lemma concat_displayed_algebra_morphisms
-  {C C' : category}
-  {D : disp_cat (cartesian C C')}
-  {D' : disp_cat (total_category D)}
-  (E := sigma_disp_cat (sigma_disp_cat D'))
-  {c c' c'' : C}
-  {A : E c}
-  {A' : E c'}
-  {A'' : E c''}
-  {F : C⟦c', c⟧}
-  {F' : C⟦c'', c'⟧}
-  (G' : A'' -->[F'] A')
-  (G : A' -->[F] A)
-  : pr1 (G' ;; G) = (pr1 G') · (pr1 G).
-Proof.
-  simpl.
-  unfold comp_disp.
-  simpl.
-  unfold transportb, comp_disp.
-  simpl.
-  now rewrite (transportf_paths _ (unit_equality_is_idpath F F' _)),
-    idpath_transportf.
-Qed.
-
 Definition algebra_lift
   {T T' T'' : algebraic_theory}
   {A : algebraic_theory_algebra T}
@@ -216,7 +206,7 @@ Definition algebra_lift
 Proof.
   exists (algebra_cleaving_induced_morphism F F' G').
   apply displayed_algebra_morphism_eq.
-  exact (concat_displayed_algebra_morphisms (algebra_cleaving_induced_morphism _ _ _) _).
+  exact (concat_displayed_cartesian_morphisms _ _).
 Defined.
 
 Lemma algebra_lift_is_unique
@@ -231,7 +221,7 @@ Proof.
   intro.
   apply subtypePairEquality'.
   + apply displayed_algebra_morphism_eq.
-    exact (!concat_displayed_algebra_morphisms _ _ @ maponpaths _ (pr2 t)).
+    exact (!concat_displayed_cartesian_morphisms (pr11 t) _ @ maponpaths _ (pr2 t)).
   + apply homsets_disp.
 Qed.
 
