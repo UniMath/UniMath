@@ -153,7 +153,7 @@ Lemma free_monoid_theory_algebra_to_monoid_and_back
   (A : algebraic_theory_algebra free_monoid_theory)
   : monoid_to_free_monoid_theory_algebra (free_monoid_theory_algebra_to_monoid A) = A.
 Proof.
-  use (algebraic_theory_algebra_eq).
+  use algebraic_theory_algebra_eq.
   - apply idpath.
   - intros n f.
     rewrite idpath_transportf.
