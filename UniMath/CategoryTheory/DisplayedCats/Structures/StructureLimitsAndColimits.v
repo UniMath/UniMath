@@ -667,10 +667,17 @@ Definition pointed_hset_struct_laws
            {P : hset_struct}
            (Pt : pointed_hset_struct_data P)
   : UU
-  := ∏ (X Y : hSet)
-       (PX : P X)
-       (PY : P Y),
-     mor_hset_struct P PX PY (λ _, hset_struct_point Pt PY).
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PX PY (λ _, hset_struct_point Pt PY))
+     ×
+     (∏ (X Y : hSet)
+        (f : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f),
+      f (hset_struct_point Pt PX) = hset_struct_point Pt PY).
 
 Definition pointed_hset_struct
            (P : hset_struct)
@@ -683,11 +690,26 @@ Coercion pointed_hset_struct_to_data
   : pointed_hset_struct_data P
   := pr1 Pt.
 
-Definition pointed_hset_struct_const
-           {P : hset_struct}
-           (Pt : pointed_hset_struct P)
-           {X Y : hSet}
-           (PX : P X)
-           (PY : P Y)
-  : mor_hset_struct P PX PY (λ _, hset_struct_point Pt PY)
-  := pr2 Pt X Y PX PY.
+Proposition pointed_hset_struct_const
+            {P : hset_struct}
+            (Pt : pointed_hset_struct P)
+            {X Y : hSet}
+            (PX : P X)
+            (PY : P Y)
+  : mor_hset_struct P PX PY (λ _, hset_struct_point Pt PY).
+Proof.
+  exact (pr12 Pt X Y PX PY).
+Qed.
+
+Proposition pointed_hset_struct_preserve_point
+            {P : hset_struct}
+            (Pt : pointed_hset_struct P)
+            {X Y : hSet}
+            {f : X → Y}
+            {PX : P X}
+            {PY : P Y}
+            (Pf : mor_hset_struct P PX PY f)
+  : f (hset_struct_point Pt PX) = hset_struct_point Pt PY.
+Proof.
+  exact (pr22 Pt X Y f PX PY Pf).
+Qed.
