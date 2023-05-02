@@ -993,6 +993,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [AlgebraicTheoryAlgebras.v](AlgebraicTheories/AlgebraicTheoryAlgebras.v)
    - [AlgebraicTheoryAlgebraMorphisms.v](AlgebraicTheories/AlgebraicTheoryAlgebraMorphisms.v)
    - [AlgebraicTheoryAlgebraCategory.v](AlgebraicTheories/AlgebraicTheoryAlgebraCategory.v)
+   - [AlgebraicTheoryAlgebraFibration.v](AlgebraicTheories/AlgebraicTheoryAlgebraFibration.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [Examples/EndomorphismTheory.v](AlgebraicTheories/Examples/EndomorphismTheory.v)
