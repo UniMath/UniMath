@@ -6,6 +6,11 @@ Created: November 2018
 
 Refactored: January 2019
 
+****************************************************************************
+Note: a newer and different implementation of DCPOs and fixed point theorems
+can be found in Combinatorics/DCPO.
+****************************************************************************
+
 *******************************************************************************)
 
 (** * Directed complete posets and least fixed points *)
