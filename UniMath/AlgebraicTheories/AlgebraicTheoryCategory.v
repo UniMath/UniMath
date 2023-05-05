@@ -83,8 +83,7 @@ Proof.
   - intro.
     apply setproperty.
   - intro.
-    assert (H : isaprop (z_iso id_pr id_pr')); [ | apply H].
-    use (isaprop_total2 (make_hProp _ _) (λ _, (_ ,, isaprop_is_z_isomorphism _))).
+    apply z_iso_eq.
     apply setproperty.
 Qed.
 
@@ -103,8 +102,7 @@ Proof.
     do 4 (apply impred_isaset; intro).
     apply setproperty.
   - intro.
-    assert (H : isaprop (z_iso comp comp')); [ | apply H].
-    use (isaprop_total2 (make_hProp _ _) (λ _, (_ ,, isaprop_is_z_isomorphism _))).
+    apply z_iso_eq.
     do 4 (apply impred_isaprop; intro).
     apply setproperty.
 Qed.
