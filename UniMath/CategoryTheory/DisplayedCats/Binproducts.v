@@ -14,12 +14,14 @@ Contents :
 
  ************************************************************)
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
@@ -515,5 +517,653 @@ Section FixDispCat.
         * apply dispTerminalArrowUnique.
   Defined.
 
+  (**
+   Displayed equalizers
+   *)
+  Definition is_disp_Equalizer
+             {x y : C}
+             {f g : x --> y}
+             (e : Equalizer f g)
+             {xx : D x}
+             {yy : D y}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (ee : D e)
+             (ar_e : ee -->[ EqualizerArrow e ] xx)
+             (pp : transportf
+                     (λ z, _ -->[ z ] _)
+                     (EqualizerEqAr e)
+                     (ar_e ;; ff)
+                   =
+                   ar_e ;; gg)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (h : w --> x)
+         (hh : ww -->[ h ] xx)
+         (q : h · f = h · g)
+         (qq : transportf
+                 (λ z, _ -->[ z ] _)
+                 q
+                 (hh ;; ff)
+               =
+               hh ;; gg),
+       ∃! (ii : ww -->[ EqualizerIn e w h q ] ee),
+       transportf
+         (λ z, _ -->[ z ] _)
+         (EqualizerCommutes e w h q)
+         (ii ;; ar_e)
+       =
+       hh.
 
+  Definition disp_Equalizer
+             {x y : C}
+             {f g : x --> y}
+             {xx : D x}
+             {yy : D y}
+             (ff : xx -->[ f ] yy)
+             (gg : xx -->[ g ] yy)
+             (e : Equalizer f g)
+    : UU
+    := ∑ (ee : D e)
+         (ar_e : ee -->[ EqualizerArrow e ] xx)
+         (pp : transportf
+                 (λ z, _ -->[ z ] _)
+                 (EqualizerEqAr e)
+                 (ar_e ;; ff)
+               =
+               ar_e ;; gg),
+       is_disp_Equalizer e ee ar_e pp.
+
+  Definition disp_Equalizers
+             (EC : Equalizers C)
+    : UU
+    := ∏ (x y : C)
+         (f g : x --> y)
+         (xx : D x)
+         (yy : D y)
+         (ff : xx -->[ f ] yy)
+         (gg : xx -->[ g ] yy),
+       disp_Equalizer ff gg (EC x y f g).
+
+  Section TotalEqualizer.
+    Context {x y : C}
+            {f g : x --> y}
+            {xx : D x}
+            {yy : D y}
+            (ff : xx -->[ f ] yy)
+            (gg : xx -->[ g ] yy)
+            (e : Equalizer f g)
+            (ee : disp_Equalizer ff gg e).
+
+    Let t_x : total_category D
+      := x ,, xx.
+
+    Let t_y : total_category D
+      := y ,, yy.
+
+    Let t_f : t_x --> t_y
+      := f ,, ff.
+
+    Let t_g : t_x --> t_y
+      := g ,, gg.
+
+    Let t_e : total_category D
+      := _ ,, pr1 ee.
+
+    Let t_i : t_e --> t_x
+      := _ ,, pr12 ee.
+
+    Proposition total_Equalizer_path
+      : t_i · t_f = t_i · t_g.
+    Proof.
+      use total2_paths_f.
+      - apply EqualizerEqAr.
+      - apply (pr122 ee).
+    Qed.
+
+    Section TotalEqualizerUMP.
+      Context {w : C}
+              {ww : D w}
+              {h : w --> x}
+              (hh : ww -->[ h ] xx).
+
+      Let t_w : total_category D
+        := w ,, ww.
+
+      Let t_h : t_w --> t_x
+        := h ,, hh.
+
+      Context (t_q : t_h · t_f = t_h · t_g).
+
+      Let q : h · f = h · g
+        := base_paths _ _ t_q.
+
+      Let qq
+        : transportf
+            (λ z, _ -->[ z ] _)
+            q
+            (hh ;; ff)
+          = hh ;; gg
+       := fiber_paths t_q.
+
+      Proposition total_Equalizer_unique
+        : isaprop
+            (∑ (φ : t_w --> t_e), φ · t_i = t_h).
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply homset_property.
+        }
+        use total2_paths_f.
+        - use EqualizerInsEq.
+          exact (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+        - assert (r : pr11 φ₂ = EqualizerIn e w h q).
+          {
+            exact (isEqualizerInUnique
+                     _ _ _ _
+                     (pr22 e)
+                     _ _ _
+                     (pr11 φ₂)
+                     (maponpaths pr1 (pr2 φ₂))).
+          }
+          rewrite <- (transportbfinv
+                        (λ z, _ -->[ z ] _)
+                        r
+                        (pr21 φ₂)).
+          rewrite <- (transportbfinv
+                        (λ z, _ -->[ z ] _)
+                        r
+                        (transportf _ _ _)).
+          apply maponpaths.
+          use (maponpaths
+                 pr1
+                 (proofirrelevance
+                    _
+                    (isapropifcontr
+                       (pr222 ee w ww h hh q qq))
+                    (transportf _ _ _ ,, _)
+                    (transportf _ _ _ ,, _))).
+          + cbn.
+            rewrite mor_disp_transportf_postwhisker.
+            rewrite !transport_f_f.
+            rewrite mor_disp_transportf_postwhisker.
+            rewrite !transport_f_f.
+            refine (_ @ fiber_paths (pr2 φ₁)).
+            apply maponpaths_2.
+            apply homset_property.
+          + cbn.
+            rewrite mor_disp_transportf_postwhisker.
+            rewrite transport_f_f.
+            refine (_ @ fiber_paths (pr2 φ₂)).
+            apply maponpaths_2.
+            apply homset_property.
+      Qed.
+
+      Definition total_EqualizerIn
+        : t_w --> t_e.
+      Proof.
+        refine (EqualizerIn e w h q ,, _).
+        exact (pr11 (pr222 ee w ww h hh q qq)).
+      Defined.
+
+      Proposition total_EqualizerIn_commutes
+        : total_EqualizerIn · t_i = t_h.
+      Proof.
+        use total2_paths_f.
+        - apply EqualizerCommutes.
+        - exact (pr21 (pr222 ee w ww h hh q qq)).
+      Defined.
+    End TotalEqualizerUMP.
+
+    Definition total_Equalizer
+      : @Equalizer
+          (total_category D)
+          t_x t_y
+          t_f t_g.
+    Proof.
+      use make_Equalizer.
+      - exact t_e.
+      - exact t_i.
+      - exact total_Equalizer_path.
+      - intros w h q.
+        use iscontraprop1.
+        + apply total_Equalizer_unique.
+          exact q.
+        + simple refine (_ ,, _).
+          * exact (total_EqualizerIn (pr2 h) q).
+          * exact (total_EqualizerIn_commutes (pr2 h) q).
+    Defined.
+  End TotalEqualizer.
+
+  Definition total_Equalizers
+             (EC : Equalizers C)
+             (DC : disp_Equalizers EC)
+    : Equalizers (total_category D).
+  Proof.
+    intros x y f g.
+    exact (total_Equalizer
+             (pr2 f)
+             (pr2 g)
+             (EC _ _ (pr1 f) (pr1 g))
+             (DC _ _ _ _ _ _ (pr2 f) (pr2 g))).
+  Defined.
+
+  (**
+   Displayed coequalizers
+   *)
+  Definition is_disp_Coequalizer
+             {x y : C}
+             {f g : x --> y}
+             (e : Coequalizer f g)
+             {xx : D x}
+             {yy : D y}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (ee : D e)
+             (ar_e : yy -->[ CoequalizerArrow e ] ee)
+             (pp : transportf
+                     (λ z, _ -->[ z ] _)
+                     (CoequalizerEqAr e)
+                     (ff ;; ar_e)
+                   =
+                   gg ;; ar_e)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (h : y --> w)
+         (hh : yy -->[ h ] ww)
+         (q : f · h = g · h)
+         (qq : transportf
+                 (λ z, _ -->[ z ] _)
+                 q
+                 (ff ;; hh)
+               =
+               gg ;; hh),
+       ∃! (ii : ee -->[ CoequalizerOut e w h q ] ww),
+       transportf
+         (λ z, _ -->[ z ] _)
+         (CoequalizerCommutes e w h q)
+         (ar_e ;; ii)
+       =
+       hh.
+
+  Definition disp_Coequalizer
+             {x y : C}
+             {f g : x --> y}
+             {xx : D x}
+             {yy : D y}
+             (ff : xx -->[ f ] yy)
+             (gg : xx -->[ g ] yy)
+             (e : Coequalizer f g)
+    : UU
+    := ∑ (ee : D e)
+         (ar_e : yy -->[ CoequalizerArrow e ] ee)
+         (pp : transportf
+                 (λ z, _ -->[ z ] _)
+                 (CoequalizerEqAr e)
+                 (ff ;; ar_e)
+               =
+               gg ;; ar_e),
+       is_disp_Coequalizer e ee ar_e pp.
+
+  Definition disp_Coequalizers
+             (DC : Coequalizers C)
+    : UU
+    := ∏ (x y : C)
+         (f g : x --> y)
+         (xx : D x)
+         (yy : D y)
+         (ff : xx -->[ f ] yy)
+         (gg : xx -->[ g ] yy),
+       disp_Coequalizer ff gg (DC x y f g).
+
+  Section TotalCoequalizer.
+    Context {x y : C}
+            {f g : x --> y}
+            {xx : D x}
+            {yy : D y}
+            (ff : xx -->[ f ] yy)
+            (gg : xx -->[ g ] yy)
+            (e : Coequalizer f g)
+            (ee : disp_Coequalizer ff gg e).
+
+    Let t_x : total_category D
+      := x ,, xx.
+
+    Let t_y : total_category D
+      := y ,, yy.
+
+    Let t_f : t_x --> t_y
+      := f ,, ff.
+
+    Let t_g : t_x --> t_y
+      := g ,, gg.
+
+    Let t_e : total_category D
+      := _ ,, pr1 ee.
+
+    Let t_i : t_y --> t_e
+      := _ ,, pr12 ee.
+
+    Proposition total_Coequalizer_path
+      : t_f · t_i = t_g · t_i.
+    Proof.
+      use total2_paths_f.
+      - apply CoequalizerEqAr.
+      - apply (pr122 ee).
+    Qed.
+
+    Section TotalCoequalizerUMP.
+      Context {w : C}
+              {ww : D w}
+              {h : y --> w}
+              (hh : yy -->[ h ] ww).
+
+      Let t_w : total_category D
+        := w ,, ww.
+
+      Let t_h : t_y --> t_w
+        := h ,, hh.
+
+      Context (t_q : t_f · t_h = t_g · t_h).
+
+      Let q : f · h = g · h
+        := base_paths _ _ t_q.
+
+      Let qq
+        : transportf
+            (λ z, _ -->[ z ] _)
+            q
+            (ff ;; hh)
+          = gg ;; hh
+       := fiber_paths t_q.
+
+      Proposition total_Coequalizer_unique
+        : isaprop
+            (∑ (φ : t_e --> t_w), t_i · φ = t_h).
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply homset_property.
+        }
+        use total2_paths_f.
+        - use CoequalizerOutsEq.
+          exact (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+        - assert (r : pr11 φ₂ = CoequalizerOut e w h q).
+          {
+            exact (isCoequalizerOutUnique
+                     _ _ _ _
+                     (pr22 e)
+                     _ _ _
+                     (pr11 φ₂)
+                     (maponpaths pr1 (pr2 φ₂))).
+          }
+          rewrite <- (transportbfinv
+                        (λ z, _ -->[ z ] _)
+                        r
+                        (pr21 φ₂)).
+          rewrite <- (transportbfinv
+                        (λ z, _ -->[ z ] _)
+                        r
+                        (transportf _ _ _)).
+          apply maponpaths.
+          use (maponpaths
+                 pr1
+                 (proofirrelevance
+                    _
+                    (isapropifcontr
+                       (pr222 ee w ww h hh q qq))
+                    (transportf _ _ _ ,, _)
+                    (transportf _ _ _ ,, _))).
+          + cbn.
+            rewrite mor_disp_transportf_prewhisker.
+            rewrite !transport_f_f.
+            rewrite mor_disp_transportf_prewhisker.
+            rewrite !transport_f_f.
+            refine (_ @ fiber_paths (pr2 φ₁)).
+            apply maponpaths_2.
+            apply homset_property.
+          + cbn.
+            rewrite mor_disp_transportf_prewhisker.
+            rewrite transport_f_f.
+            refine (_ @ fiber_paths (pr2 φ₂)).
+            apply maponpaths_2.
+            apply homset_property.
+      Qed.
+
+      Definition total_CoequalizerOut
+        : t_e --> t_w.
+      Proof.
+        refine (CoequalizerOut e w h q ,, _).
+        exact (pr11 (pr222 ee w ww h hh q qq)).
+      Defined.
+
+      Proposition total_CoequalizerOut_commutes
+        : t_i · total_CoequalizerOut = t_h.
+      Proof.
+        use total2_paths_f.
+        - apply CoequalizerCommutes.
+        - exact (pr21 (pr222 ee w ww h hh q qq)).
+      Defined.
+    End TotalCoequalizerUMP.
+
+    Definition total_Coequalizer
+      : @Coequalizer
+          (total_category D)
+          t_x t_y
+          t_f t_g.
+    Proof.
+      use make_Coequalizer.
+      - exact t_e.
+      - exact t_i.
+      - exact total_Coequalizer_path.
+      - intros w h q.
+        use iscontraprop1.
+        + apply total_Coequalizer_unique.
+          exact q.
+        + simple refine (_ ,, _).
+          * exact (total_CoequalizerOut (pr2 h) q).
+          * exact (total_CoequalizerOut_commutes (pr2 h) q).
+    Defined.
+  End TotalCoequalizer.
+
+  Definition total_Coequalizers
+             (EC : Coequalizers C)
+             (DC : disp_Coequalizers EC)
+    : Coequalizers (total_category D).
+  Proof.
+    intros x y f g.
+    exact (total_Coequalizer
+             (pr2 f)
+             (pr2 g)
+             (EC _ _ (pr1 f) (pr1 g))
+             (DC _ _ _ _ _ _ (pr2 f) (pr2 g))).
+  Defined.
+
+  (**
+   Type-indexed products
+   *)
+  Section FixType.
+    Context (I : UU).
+
+    Definition disp_isProduct
+               {d : I → C}
+               (dd : ∏ (i : I), D (d i))
+               (p : Product I C d)
+               (pp : D p)
+               (ππ : ∏ (i : I), pp -->[ ProductPr _ _ p i ] dd i)
+      : UU
+      := ∏ (w : C)
+           (ww : D w)
+           (f : ∏ (i : I), w --> d i)
+           (ff : ∏ (i : I), ww -->[ f i ] dd i),
+         ∃! (hh : ww -->[ ProductArrow _ _ p f ] pp),
+         ∏ (i : I),
+         transportf
+           (λ z, _ -->[ z ] _)
+           (ProductPrCommutes _ _ _ p _ f i)
+           (hh ;; ππ i)
+         =
+         ff i.
+
+    Definition disp_Product
+               {d : I → C}
+               (dd : ∏ (i : I), D (d i))
+               (p : Product I C d)
+      : UU
+      := ∑ (pp : D p)
+           (ππ : ∏ (i : I), pp -->[ ProductPr _ _ p i ] dd i),
+         disp_isProduct dd p pp ππ.
+
+    Definition disp_Products
+               (PC : Products I C)
+      : UU
+      := ∏ (d : I → C)
+           (dd : ∏ (i : I), D (d i)),
+         disp_Product dd (PC d).
+
+    Section TotalProduct.
+      Context (d_dd : I → total_category D).
+
+      Let d : I → C
+        := λ i, pr1 (d_dd i).
+
+      Let dd : ∏ (i : I), D (d i)
+        := λ i, pr2 (d_dd i).
+
+      Context (p : Product I C d)
+              (pp : disp_Product dd p).
+
+      Definition total_category_Product
+        : total_category D
+        := _ ,, pr1 pp.
+
+      Definition total_category_ProductPr
+                 (i : I)
+        : total_category_Product --> d_dd i
+        := _ ,, pr12 pp i.
+
+      Section TotalProductUMP.
+        Context {w : C}
+                (ww : D w)
+                {f : ∏ (i : I), w --> d i}
+                (ff : ∏ (i : I), ww -->[ f i ] dd i).
+
+        Let t_w : total_category D
+          := w ,, ww.
+
+        Let t_f : ∏ (i : I), t_w --> d_dd i
+          := λ i, f i ,, ff i.
+
+        Proposition total_category_ProductUnique
+          : isaprop
+              (∑ (φ : t_w --> total_category_Product),
+               ∏ (i : I), φ · total_category_ProductPr i = t_f i).
+        Proof.
+          use invproofirrelevance.
+          intros φ₁ φ₂.
+          use subtypePath.
+          {
+            intro.
+            use impred ; intro.
+            apply homset_property.
+          }
+          use total2_paths_f.
+          - use ProductArrow_eq.
+            intro i.
+            exact (maponpaths pr1 (pr2 φ₁ i @ !(pr2 φ₂ i))).
+          - assert (r : pr11 φ₂ = ProductArrow _ _ p f).
+            {
+              use ProductArrow_eq.
+              intro i.
+              refine (maponpaths pr1 (pr2 φ₂ i) @ _).
+              cbn.
+              rewrite ProductPrCommutes.
+              apply idpath.
+            }
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            apply maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr22 pp w ww f ff))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + cbn.
+              intro i.
+              rewrite mor_disp_transportf_postwhisker.
+              rewrite !transport_f_f.
+              rewrite mor_disp_transportf_postwhisker.
+              rewrite !transport_f_f.
+              refine (_ @ fiber_paths (pr2 φ₁ i)).
+              apply maponpaths_2.
+              apply homset_property.
+            + cbn.
+              intro i.
+              rewrite mor_disp_transportf_postwhisker.
+              rewrite transport_f_f.
+              refine (_ @ fiber_paths (pr2 φ₂ i)).
+              apply maponpaths_2.
+              apply homset_property.
+        Qed.
+
+        Definition total_category_ProductArrow
+          : t_w --> total_category_Product
+          := _ ,, pr11 (pr22 pp w ww f ff).
+
+        Proposition total_category_ProductPrCommutes
+                    (i : I)
+          : total_category_ProductArrow · total_category_ProductPr i
+            =
+            t_f i.
+        Proof.
+          use total2_paths_f.
+          - exact (ProductPrCommutes _ _ _ p _ _ i).
+          - exact (pr21 (pr22 pp w ww f ff) i).
+        Qed.
+      End TotalProductUMP.
+
+      Definition total_category_isProduct
+        : isProduct
+            _ _ _
+            total_category_Product
+            total_category_ProductPr.
+      Proof.
+        intros w f.
+        use iscontraprop1.
+        - apply total_category_ProductUnique.
+        - simple refine (_ ,, _).
+          + exact (total_category_ProductArrow (pr2 w) (λ i, pr2 (f i))).
+          + exact (total_category_ProductPrCommutes (pr2 w) (λ i, pr2 (f i))).
+      Defined.
+    End TotalProduct.
+
+    Definition total_Products
+               (PC : Products I C)
+               (DC : disp_Products PC)
+      : Products I (total_category D).
+    Proof.
+      intros d.
+      use make_Product.
+      - exact (total_category_Product d _ (DC _ _)).
+      - exact (total_category_ProductPr d _ (DC _ _)).
+      - apply total_category_isProduct.
+    Defined.
+  End FixType.
 End FixDispCat.

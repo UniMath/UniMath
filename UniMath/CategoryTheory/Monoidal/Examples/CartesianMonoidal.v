@@ -422,27 +422,29 @@ Section GeneralConstruction.
     refine (is_semicartesian_cartesian_monoidalcat ,, _).
     intros x y ; cbn.
     use (isBinProduct_eq_arrow _ _ (pr2 (CP x y))).
-    - unfold semi_cart_tensor_pr1 ; cbn.
-      unfold monoidal_cat_tensor_mor.
-      unfold functoronmorphisms1.
-      cbn.
-      rewrite !assoc'.
-      rewrite BinProductOfArrowsPr1.
-      rewrite id_right.
-      rewrite BinProductOfArrowsPr1.
-      rewrite id_right.
-      apply idpath.
-    - unfold semi_cart_tensor_pr2 ; cbn.
-      unfold monoidal_cat_tensor_mor.
-      unfold functoronmorphisms1.
-      cbn.
-      rewrite !assoc'.
-      rewrite BinProductOfArrowsPr2.
-      rewrite id_right.
-      rewrite BinProductOfArrowsPr2.
-      rewrite id_right.
-      apply idpath.
-  Qed.
+    - abstract
+        (unfold semi_cart_tensor_pr1 ; cbn ;
+         unfold monoidal_cat_tensor_mor ;
+         unfold functoronmorphisms1 ;
+         cbn ;
+         rewrite !assoc' ;
+         rewrite BinProductOfArrowsPr1 ;
+         rewrite id_right ;
+         rewrite BinProductOfArrowsPr1 ;
+         rewrite id_right ;
+         apply idpath).
+    - abstract
+        (unfold semi_cart_tensor_pr2 ; cbn ;
+         unfold monoidal_cat_tensor_mor ;
+         unfold functoronmorphisms1 ;
+         cbn ;
+         rewrite !assoc' ;
+         rewrite BinProductOfArrowsPr2 ;
+         rewrite id_right ;
+         rewrite BinProductOfArrowsPr2 ;
+         rewrite id_right ;
+         apply idpath).
+  Defined.
 
   Definition symmetric_cartesian_monoidalcat
     : symmetric cartesian_monoidalcat.

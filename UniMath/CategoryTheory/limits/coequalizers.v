@@ -7,12 +7,12 @@ Direct implementation of coequalizers together with:
 Written by Tomi Pannila
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 
@@ -224,5 +224,109 @@ Section def_coequalizers.
 
 End def_coequalizers.
 
+Definition Coequalizer_eq_ar
+           {C : category}
+           {x y c : C}
+           {f g : x --> y}
+           {e₁ e₂ : y --> c}
+           (p : e₁ = e₂)
+           (q₁ : f · e₁ = g · e₁)
+           (q₂ : f · e₂ = g · e₂)
+           (H : isCoequalizer f g e₁ q₁)
+  : isCoequalizer f g e₂ q₂.
+Proof.
+  induction p.
+  use (isCoequalizer_path H).
+  apply homset_property.
+Defined.
+
+Definition z_iso_to_Coequalizer
+           {C : category}
+           {x y c₂ : C}
+           {f g : x --> y}
+           (c₁ : Coequalizer f g)
+           (h : z_iso c₁ c₂)
+  : Coequalizer f g.
+Proof.
+  use make_Coequalizer.
+  - exact c₂.
+  - exact (CoequalizerArrow c₁ · h).
+  - abstract
+      (rewrite !assoc ;
+       rewrite CoequalizerEqAr ;
+       apply idpath).
+  - intros w k q.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply homset_property | ] ;
+         use (cancel_z_iso' h) ;
+         use (isCoequalizerOutsEq (pr22 c₁)) ;
+         rewrite !assoc ;
+         exact (pr2 φ₁ @ !(pr2 φ₂))).
+    + refine (inv_from_z_iso h · CoequalizerOut c₁ w k q ,, _).
+      abstract
+        (rewrite !assoc' ;
+         rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+         rewrite z_iso_inv_after_z_iso ;
+         rewrite id_left ;
+         rewrite CoequalizerCommutes ;
+         apply idpath).
+Defined.
+
+Definition z_iso_between_Coequalizer
+           {C : category}
+           {x y : C}
+           {f g : x --> y}
+           (c₁ c₂ : Coequalizer f g)
+  : z_iso c₁ c₂.
+Proof.
+  use make_z_iso.
+  - exact (CoequalizerOut c₁ c₂ (CoequalizerArrow c₂) (CoequalizerEqAr c₂)).
+  - exact (CoequalizerOut c₂ c₁ (CoequalizerArrow c₁) (CoequalizerEqAr c₁)).
+  - split.
+    + abstract
+        (use (isCoequalizerOutsEq (pr22 c₁)) ;
+         rewrite id_right ;
+         rewrite !assoc ;
+         rewrite !CoequalizerCommutes ;
+         apply idpath).
+    + abstract
+        (use (isCoequalizerOutsEq (pr22 c₂)) ;
+         rewrite id_right ;
+         rewrite !assoc ;
+         rewrite !CoequalizerCommutes ;
+         apply idpath).
+Defined.
+
 (** Make the C not implicit for Coequalizers *)
 Arguments Coequalizers : clear implicits.
+
+(**
+ In univalent categories, equalizers are unique up to equality
+ *)
+Proposition isaprop_Coequalizer
+            {C : category}
+            (HC : is_univalent C)
+            {x y : C}
+            (f g : x --> y)
+  : isaprop (Coequalizer f g).
+Proof.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
+    intro.
+    use (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
+    - apply homset_property.
+    - simpl.
+      repeat (use impred ; intro).
+      apply isapropiscontr.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use z_iso_between_Coequalizer.
+  - rewrite transportf_isotoid' ; cbn.
+    apply CoequalizerCommutes.
+Qed.

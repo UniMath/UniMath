@@ -13,11 +13,8 @@ Extended by Ralph Matthes 2023 for the distributors
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -97,6 +94,19 @@ Proof.
   now apply CoproductArrowUnique.
 Qed.
 
+Proposition CoproductArrow_eq
+            {d : I → C}
+            (z : C)
+            (x : Coproduct d)
+            (f g : x --> z)
+            (p : ∏ (i : I), CoproductIn x i · f = CoproductIn x i · g)
+  : f = g.
+Proof.
+  refine (CoproductArrowEta _ _ _ _ @ _ @ !(CoproductArrowEta _ _ _ _)).
+  apply maponpaths.
+  use funextsec.
+  exact p.
+Qed.
 
 Definition CoproductOfArrows {a : I -> C} (CCab : Coproduct a) {c : I -> C}
     (CCcd : Coproduct c) (f : ∏ i, a i --> c i) :
@@ -475,3 +485,85 @@ Section DistributionForPrecompositionFunctor.
     _,,precomp_coprod_distributor_law.
 
 End DistributionForPrecompositionFunctor.
+
+(**
+ Coproducts are unique
+ *)
+Definition eq_Coproduct
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (coprod₁ coprod₂ : Coproduct J C D)
+           (q : CoproductObject _ _ coprod₁ = CoproductObject _ _ coprod₂)
+           (e : ∏ (j : J),
+                CoproductIn _ _ coprod₁ j
+                =
+                CoproductIn _ _ coprod₂ j · idtoiso (!q))
+  : coprod₁ = coprod₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - exact q.
+  - rewrite transportf_sec_constant.
+    use funextsec.
+    intro j.
+    rewrite <- !idtoiso_postcompose.
+    pose (p := e j).
+    rewrite !idtoiso_inv in p.
+    refine (maponpaths (λ z, z · _) p @ _).
+    rewrite !assoc'.
+    refine (_ @  id_right _).
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+Qed.
+
+Definition z_iso_between_Coproduct
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (coprod₁ coprod₂ : Coproduct J C D)
+  : z_iso coprod₁ coprod₂.
+Proof.
+  use make_z_iso.
+  - exact (CoproductArrow _ _ coprod₁ (CoproductIn _ _ coprod₂)).
+  - exact (CoproductArrow _ _ coprod₂ (CoproductIn _ _ coprod₁)).
+  - split.
+    + abstract
+        (use CoproductArrow_eq ;
+         intro j ;
+         rewrite !assoc ;
+         rewrite !CoproductInCommutes ;
+         rewrite id_right ;
+         apply idpath).
+    + abstract
+        (use CoproductArrow_eq ;
+         intro j ;
+         rewrite !assoc ;
+         rewrite !CoproductInCommutes ;
+         rewrite id_right ;
+         apply idpath).
+Defined.
+
+Definition isaprop_Coproduct
+           {C : category}
+           (HC : is_univalent C)
+           (J : UU)
+           (D : J → C)
+  : isaprop (Coproduct J C D).
+Proof.
+  use invproofirrelevance.
+  intros p₁ p₂.
+  use eq_Coproduct.
+  - refine (isotoid _ HC _).
+    apply z_iso_between_Coproduct.
+  - intro j.
+    rewrite idtoiso_inv.
+    rewrite idtoiso_isotoid ; cbn.
+    rewrite CoproductInCommutes.
+    apply idpath.
+Qed.

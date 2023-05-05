@@ -140,6 +140,50 @@ Section OppositeEnriched.
   Definition op_enrichment
     : enrichment (C^opp) V
     := op_enrichment_data ,, op_enrichment_laws.
+
+  Proposition op_enrichment_precomp
+              (w : C)
+              {x y : C}
+              (f : x --> y)
+    : precomp_arr op_enrichment w f
+      =
+      postcomp_arr E w f.
+  Proof.
+    unfold precomp_arr, postcomp_arr ; cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_sym_mon_braiding.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite sym_mon_braiding_rinvunitor.
+    apply idpath.
+  Qed.
+
+  Proposition op_enrichment_postcomp
+              {x y : C}
+              (f : x --> y)
+              (z : C)
+    : postcomp_arr op_enrichment z f
+      =
+      precomp_arr E z f.
+  Proof.
+    unfold precomp_arr, postcomp_arr ; cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_sym_mon_braiding.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite sym_mon_braiding_linvunitor.
+    apply idpath.
+  Qed.
 End OppositeEnriched.
 
 (**

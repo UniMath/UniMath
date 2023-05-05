@@ -47,7 +47,8 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.StructureWithProd.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
@@ -58,7 +59,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Local Open Scope cat.
 
 Section FixAStructure.
-  Context (P : hset_struct).
+  Context (P : hset_cartesian_closed_struct).
 
   (**
    1. The monoidal category is faithful

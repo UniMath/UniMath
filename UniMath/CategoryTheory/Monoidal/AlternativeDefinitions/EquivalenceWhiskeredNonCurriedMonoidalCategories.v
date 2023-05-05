@@ -164,6 +164,132 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
     use (weqtotaltoforall (X := C) (λ x,  C ⟦ x , bifunctor_on_objects T x I ⟧)).
   Defined.
 
+  Lemma nat_trans_associator_leftwhisker
+    {C : category} {T : bifunctor C C C} {ass : associator_data T}
+    (assnattrans : is_nat_trans
+      (assoc_left (bifunctor_to_functorfromproductcat T))
+      (assoc_right (bifunctor_to_functorfromproductcat T))
+      (λ xyz, ass (pr11 xyz) (pr21 xyz) (pr2 xyz)))
+    : associator_nat_leftwhisker ass.
+  Proof.
+    intros x y z1 z2 h.
+    set (t := ! assnattrans _ _ ((id x #, id y) #, h)).
+    simpl in t.
+    unfold functoronmorphisms1 in t.
+    refine (_ @ t @ _).
+    {
+      etrans.
+      2: { apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
+      etrans.
+      2: { apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
+      apply maponpaths.
+
+      etrans.
+      2: { do 2 apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
+      etrans.
+      2: {
+        do 2 apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
+      etrans.
+      2: { do 2 apply maponpaths ; apply (! id_left _). }
+      apply  (! id_left _).
+    }
+
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      etrans. {
+        apply maponpaths.
+        etrans. { apply maponpaths ; apply bifunctor_leftid. }
+        etrans. { apply id_right. }
+        apply bifunctor_rightid.
+      }
+      apply bifunctor_rightid.
+    }
+    etrans. { apply assoc'. }
+    apply id_left.
+  Qed.
+
+  Lemma nat_trans_associator_rightwhisker
+    {C : category} {T : bifunctor C C C} {ass : associator_data T}
+    (assnattrans : is_nat_trans
+      (assoc_left (bifunctor_to_functorfromproductcat T))
+      (assoc_right (bifunctor_to_functorfromproductcat T))
+      (λ xyz, ass (pr11 xyz) (pr21 xyz) (pr2 xyz)))
+    : associator_nat_rightwhisker ass.
+  Proof.
+    intros x1 x2 y z f.
+    set (t := ! assnattrans _ _ ((f #, id y) #, id z)).
+    simpl in t.
+    unfold functoronmorphisms1 in t.
+    refine (_ @ t @ _).
+    {
+      etrans.
+      2: { apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
+      etrans.
+      2: {
+        apply maponpaths ; apply maponpaths_2.
+        apply (! when_bifunctor_becomes_rightwhiskering _ _ _).
+      }
+      apply maponpaths.
+
+      etrans.
+      2: { do 2 apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
+      etrans.
+      2: {
+        do 2 apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
+      etrans.
+      2: { do 2 apply maponpaths ; apply (! id_left _). }
+      etrans.
+      2: { do 2 apply maponpaths ; apply (! bifunctor_leftid _ _ _). }
+      etrans.
+      2: {
+        apply maponpaths.
+        apply (! bifunctor_leftid _ _ _).
+      }
+      apply  (! id_right _).
+    }
+
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply maponpaths.
+      etrans. { apply maponpaths ; apply bifunctor_leftid. }
+      apply id_right.
+    }
+    etrans. {
+      apply maponpaths_2 ; apply maponpaths.
+      apply bifunctor_leftid.
+    }
+
+    etrans. { apply assoc'. }
+    apply maponpaths.
+    apply id_left.
+  Qed.
+
+  Lemma nat_trans_associator_leftrightwhisker
+    {C : category} {T : bifunctor C C C} {ass : associator_data T}
+    (assnattrans : is_nat_trans
+      (assoc_left (bifunctor_to_functorfromproductcat T))
+      (assoc_right (bifunctor_to_functorfromproductcat T))
+      (λ xyz, ass (pr11 xyz) (pr21 xyz) (pr2 xyz)))
+    : associator_nat_leftrightwhisker ass.
+  Proof.
+    intros x y1 y2 z g.
+    set (t := ! assnattrans _ _ ((id x #, g) #, id z)).
+    simpl in t.
+    refine (_ @ t @ _).
+    {
+      etrans.
+      2: { do 2 apply maponpaths ; apply (! when_bifunctor_becomes_rightwhiskering _ _ _). }
+      apply maponpaths.
+      apply (! when_bifunctor_becomes_leftwhiskering _ _ _).
+    }
+    etrans.
+    { do 2 apply maponpaths_2 ; apply when_bifunctor_becomes_leftwhiskering. }
+    apply maponpaths_2.
+    apply when_bifunctor_becomes_rightwhiskering.
+  Qed.
+
   Definition associators_equiv {C : category} (T : bifunctor C C C)
     : associator0 T ≃ associator (bifunctor_to_functorfromproductcat T).
   Proof.
@@ -207,106 +333,11 @@ Section EquivalenceMonoidalCategoriesReordered0WithUncurried.
           apply pathsinv0.
           rewrite (bifunctor_rightcomp T).
           apply idpath.
-        + intro assnattrans.
-          (* show we get the three naturality laws of the associator *)
-          repeat split.
-          * intros x y z1 z2 h.
-            set (t := ! assnattrans _ _ ((id x #, id y) #, h)).
-            simpl in t.
-            unfold functoronmorphisms1 in t.
-            refine (_ @ t @ _).
-            {
-              etrans.
-              2: { apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
-              etrans.
-              2: { apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
-              apply maponpaths.
-
-              etrans.
-              2: { do 2 apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
-              etrans.
-              2: {
-                do 2 apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
-              etrans.
-              2: { do 2 apply maponpaths ; apply (! id_left _). }
-              apply  (! id_left _).
-            }
-
-            etrans.
-            {
-              do 2 apply maponpaths_2.
-              etrans. {
-                apply maponpaths.
-                etrans. { apply maponpaths ; apply bifunctor_leftid. }
-                etrans. { apply id_right. }
-                apply bifunctor_rightid.
-              }
-              apply bifunctor_rightid.
-            }
-            etrans. { apply assoc'. }
-            apply id_left.
-          * intros x1 x2 y z f.
-            set (t := ! assnattrans _ _ ((f #, id y) #, id z)).
-            simpl in t.
-            unfold functoronmorphisms1 in t.
-            refine (_ @ t @ _).
-            {
-              etrans.
-              2: { apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
-              etrans.
-              2: {
-                apply maponpaths ; apply maponpaths_2.
-                apply (! when_bifunctor_becomes_rightwhiskering _ _ _).
-              }
-              apply maponpaths.
-
-              etrans.
-              2: { do 2 apply maponpaths ; apply maponpaths_2 ; apply when_bifunctor_becomes_rightwhiskering. }
-              etrans.
-              2: {
-                do 2 apply maponpaths ; apply maponpaths_2 ; use (! bifunctor_distributes_over_id _ _ _ _) ; apply T. }
-              etrans.
-              2: { do 2 apply maponpaths ; apply (! id_left _). }
-              etrans.
-              2: { do 2 apply maponpaths ; apply (! bifunctor_leftid _ _ _). }
-              etrans.
-              2: {
-                apply maponpaths.
-                apply (! bifunctor_leftid _ _ _).
-              }
-              apply  (! id_right _).
-            }
-
-            etrans.
-            {
-              do 2 apply maponpaths_2.
-              apply maponpaths.
-              etrans. { apply maponpaths ; apply bifunctor_leftid. }
-              apply id_right.
-            }
-            etrans. {
-              apply maponpaths_2 ; apply maponpaths.
-              apply bifunctor_leftid.
-            }
-
-            etrans. { apply assoc'. }
-            apply maponpaths.
-            apply id_left.
-          * intros x y1 y2 z g.
-            set (t := ! assnattrans _ _ ((id x #, g) #, id z)).
-            simpl in t.
-            refine (_ @ t @ _).
-            {
-              etrans.
-              2: { do 2 apply maponpaths ; apply (! when_bifunctor_becomes_rightwhiskering _ _ _). }
-              apply maponpaths.
-              apply (! when_bifunctor_becomes_leftwhiskering _ _ _).
-            }
-            etrans.
-            { do 2 apply maponpaths_2 ; apply when_bifunctor_becomes_leftwhiskering. }
-            apply maponpaths_2.
-            apply when_bifunctor_becomes_rightwhiskering.
-
+        + abstract exact (λ assnattrans,
+              (nat_trans_associator_leftwhisker assnattrans) ,,
+              (nat_trans_associator_rightwhisker assnattrans) ,,
+              (nat_trans_associator_leftrightwhisker assnattrans)
+            ).
         + intro ; repeat (apply isapropdirprod) ; repeat (apply impred_isaprop ; intro) ; apply homset_property.
         + intro. repeat (apply impred_isaprop ; intro) ; apply homset_property.
     }
