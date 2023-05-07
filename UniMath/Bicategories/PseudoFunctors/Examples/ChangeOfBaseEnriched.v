@@ -16,9 +16,6 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
@@ -28,7 +25,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
@@ -39,7 +35,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Section ChangeOfBase.
   Context {V₁ V₂ : monoidal_cat}
           (F : strong_monoidal_functor V₁ V₂)
-          (HF : fully_faithful F).
+          (HF : fully_faithful_on_points F).
 
   Definition change_of_base_disp_psfunctor_data
     : disp_psfunctor_data

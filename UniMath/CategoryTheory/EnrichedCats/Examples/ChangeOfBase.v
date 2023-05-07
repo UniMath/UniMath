@@ -22,7 +22,7 @@
 
  To guarantee that the change of base actually gives rise to a
  univalent category, we make two assumptions:
- - The functor `F` is fully faithful
+ - The functor `F` is fully faithful on morphisms from the unit
  - The functor `F` is a strong monoidal functor
  Using these assumptions, the underlying category of the change
  of base remains the same: the only thing that changes, is the
@@ -33,11 +33,12 @@
  and natural transformations.
 
  Contents
- 1. Change of base: enrichment for categories
- 2. Change of base: enrichment for functors
- 3. Change of base: enrichment for natural transformations
- 4. Change of base on the identity
- 5. Change of base on composition
+ 1. Functors that are fully faithful on global points
+ 2. Change of base: enrichment for categories
+ 3. Change of base: enrichment for functors
+ 4. Change of base: enrichment for natural transformations
+ 5. Change of base on the identity
+ 6. Change of base on composition
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -53,18 +54,58 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
+Import MonoidalNotations.
+
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Opaque fully_faithful_inv_hom.
+(**
+ 1. Functors that are fully faithful on global points
+ *)
+Definition fully_faithful_on_points
+           {V₁ V₂ : monoidal_cat}
+           (F : V₁ ⟶ V₂)
+  : UU
+  := ∏ (x : V₁), isweq (λ (f : I_{V₁} --> x), #F f).
+
+Definition fully_faithful_on_points_inv_hom
+           {V₁ V₂ : monoidal_cat}
+           {F : V₁ ⟶ V₂}
+           (HF : fully_faithful_on_points F)
+           {x : V₁}
+           (f : F I_{V₁} --> F x)
+  : I_{V₁} --> x
+  := invmap (make_weq _ (HF x)) f.
+
+Proposition functor_on_fully_faithful_on_points_inv_hom
+            {V₁ V₂ : monoidal_cat}
+            {F : V₁ ⟶ V₂}
+            (HF : fully_faithful_on_points F)
+            {x : V₁}
+            (f : F I_{V₁} --> F x)
+  : #F (fully_faithful_on_points_inv_hom HF f) = f.
+Proof.
+  exact (homotweqinvweq (make_weq _ (HF x)) f).
+Qed.
+
+Proposition fully_faithful_on_points_inv_hom_on_functor
+            {V₁ V₂ : monoidal_cat}
+            {F : V₁ ⟶ V₂}
+            (HF : fully_faithful_on_points F)
+            {x : V₁}
+            (f : I_{V₁} --> x)
+  : fully_faithful_on_points_inv_hom HF (#F f) = f.
+Proof.
+  exact (homotinvweqweq (make_weq _ (HF x)) f).
+Qed.
 
 Section ChangeOfBase.
   Context {V₁ V₂ : monoidal_cat}
           (F : strong_monoidal_functor V₁ V₂)
-          (HF : fully_faithful F).
+          (HF : fully_faithful_on_points F).
 
   (**
-   1. Change of base: enrichment for categories
+   2. Change of base: enrichment for categories
    *)
   Section Enrichment.
     Context {C : category}
@@ -81,9 +122,8 @@ Section ChangeOfBase.
       - exact (λ x y f,
                enriched_to_arr
                  E
-                 (fully_faithful_inv_hom
+                 (fully_faithful_on_points_inv_hom
                     HF
-                    _ _
                     (strong_functor_unit_inv F · f))).
     Defined.
 
@@ -224,11 +264,11 @@ Section ChangeOfBase.
           }
           apply id_left.
         }
-        rewrite fully_faithful_inv_hom_is_inv.
+        rewrite fully_faithful_on_points_inv_hom_on_functor.
         apply enriched_to_from_arr.
       - intros x y f ; cbn.
         rewrite enriched_from_to_arr.
-        rewrite functor_on_fully_faithful_inv_hom.
+        rewrite functor_on_fully_faithful_on_points_inv_hom.
         rewrite assoc.
         refine (_ @ id_left _).
         apply maponpaths_2.
@@ -245,7 +285,7 @@ Section ChangeOfBase.
           }
           apply id_left.
         }
-        rewrite fully_faithful_inv_hom_is_inv.
+        rewrite fully_faithful_on_points_inv_hom_on_functor.
         apply enriched_to_arr_id.
       - intros x y z f g ; cbn.
         refine (enriched_to_arr_comp E f g @ _).
@@ -298,7 +338,7 @@ Section ChangeOfBase.
           rewrite !assoc.
           apply idpath.
         }
-        apply fully_faithful_inv_hom_is_inv.
+        apply fully_faithful_on_points_inv_hom_on_functor.
     Qed.
 
     Definition change_of_base_enrichment
@@ -311,7 +351,7 @@ Section ChangeOfBase.
   End Enrichment.
 
   (**
-   2. Change of base: enrichment for functors
+   3. Change of base: enrichment for functors
    *)
   Section EnrichmentFunctor.
     Context {C₁ C₂ : category}
@@ -367,7 +407,7 @@ Section ChangeOfBase.
   End EnrichmentFunctor.
 
   (**
-   3. Change of base: enrichment for natural transformations
+   4. Change of base: enrichment for natural transformations
    *)
   Definition change_of_base_nat_trans_enrichment
              {C₁ C₂ : category}
@@ -448,7 +488,7 @@ Section ChangeOfBase.
   Qed.
 
   (**
-   4. Change of base on the identity
+   5. Change of base on the identity
    *)
   Definition change_of_base_enrichment_identity
              {C : univalent_category}
@@ -567,7 +607,7 @@ Section ChangeOfBase.
   Qed.
 
   (**
-   5. Change of base on composition
+   6. Change of base on composition
    *)
   Definition change_of_base_enrichment_comp
              {C₁ C₂ C₃ : univalent_category}

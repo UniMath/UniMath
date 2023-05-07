@@ -330,3 +330,27 @@ Proof.
   - rewrite transportf_isotoid' ; cbn.
     apply CoequalizerCommutes.
 Qed.
+
+(**
+ A reflexive coequalizer is a coequalizer of two morphisms that
+ have a common section. Reflexive coequalizers occur in the
+ study of colimits of the Eilenberg-Moore category. More
+ specifically, if a monad `M` preserves a class of colimits,
+ then the Eilenberg-Moore category has such colimits. However,
+ often monads do not preserve all colimits, but only reflexive
+ coequalizers. The nice thing about reflexive coequalizers is
+ that an Eilenberg-Moore category over a cocomplete category
+ is itself cocomplete if and only if it has reflexive
+ coequalizers. As such, it suffices to check whether a monad
+ preserves reflexive coequalizers in order to guarantee the
+ cocompleteness of the Eilenberg-Moore category.
+ *)
+Definition reflexive_coequalizers
+           (C : category)
+  : UU
+  := ∏ (x y : C)
+       (f g : x --> y)
+       (h : y --> x)
+       (pf : h · f = identity _)
+       (pg : h · g = identity _),
+     Coequalizer f g.

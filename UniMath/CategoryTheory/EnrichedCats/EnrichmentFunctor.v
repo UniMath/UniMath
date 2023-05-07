@@ -11,6 +11,7 @@
  3. The enriched identity functor
  4. The composition of enriched functors
  5. The constant functor
+ 6. Lemmas for pre- and postcomposition
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -377,3 +378,60 @@ Proof.
        apply maponpaths_2 ;
        apply (@TerminalArrowEq _ (_ ,, HV))).
 Defined.
+
+(**
+ 6. Lemmas for pre- and postcomposition
+ *)
+Definition functor_enrichment_precomp_arr
+           {V : monoidal_cat}
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (FE : functor_enrichment F E₁ E₂)
+           {w x y : C₁}
+           (f : w --> x)
+  : FE x y · precomp_arr E₂ (F y) (#F f)
+    =
+    precomp_arr E₁ y f · FE w y.
+Proof.
+  unfold precomp_arr.
+  rewrite !assoc.
+  rewrite tensor_rinvunitor.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite <- tensor_split'.
+  rewrite (functor_enrichment_from_arr FE).
+  rewrite tensor_comp_l_id_l.
+  rewrite !assoc'.
+  rewrite functor_enrichment_comp.
+  apply idpath.
+Qed.
+
+Definition functor_enrichment_postcomp_arr
+           {V : monoidal_cat}
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (FE : functor_enrichment F E₁ E₂)
+           {x y z : C₁}
+           (f : y --> z)
+  : FE x y · postcomp_arr E₂ (F x) (#F f)
+    =
+    postcomp_arr E₁ x f · FE x z.
+Proof.
+  unfold postcomp_arr.
+  rewrite !assoc.
+  rewrite tensor_linvunitor.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite <- tensor_split.
+  rewrite (functor_enrichment_from_arr FE).
+  rewrite tensor_comp_r_id_l.
+  rewrite !assoc'.
+  rewrite functor_enrichment_comp.
+  apply idpath.
+Qed.
