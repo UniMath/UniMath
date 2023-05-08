@@ -255,6 +255,8 @@ DisplayedCats/StreetOpFibration.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
 
+limits/Examples/AlgebraStructuresColimits.v
+
 categories/Dialgebras.v
 categories/CatIsoInserter.v
 categories/EilenbergMoore.v

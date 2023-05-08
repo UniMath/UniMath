@@ -405,6 +405,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/StreetOpFibration.v](CategoryTheory/DisplayedCats/StreetOpFibration.v)
    - [DisplayedCats/TotalCategoryFacts.v](CategoryTheory/DisplayedCats/TotalCategoryFacts.v)
    - [DisplayedCats/TotalAdjunction.v](CategoryTheory/DisplayedCats/TotalAdjunction.v)
+   - [limits/Examples/AlgebraStructuresColimits.v](CategoryTheory/limits/Examples/AlgebraStructuresColimits.v)
    - [categories/Dialgebras.v](CategoryTheory/categories/Dialgebras.v)
    - [categories/CatIsoInserter.v](CategoryTheory/categories/CatIsoInserter.v)
    - [categories/EilenbergMoore.v](CategoryTheory/categories/EilenbergMoore.v)

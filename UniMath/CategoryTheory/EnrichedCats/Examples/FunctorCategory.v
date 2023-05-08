@@ -70,8 +70,6 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Opaque construction_of_ends.
-
 Section EnrichedFunctorCategory.
   Context {V : monoidal_cat}
           {C₁ C₂ : category}
