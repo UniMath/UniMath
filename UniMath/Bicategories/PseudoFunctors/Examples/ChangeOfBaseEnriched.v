@@ -35,7 +35,7 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Section ChangeOfBase.
   Context {V₁ V₂ : monoidal_cat}
           (F : strong_monoidal_functor V₁ V₂)
-          (HF : fully_faithful_on_points F).
+          (HF : preserve_underlying F).
 
   Definition change_of_base_disp_psfunctor_data
     : disp_psfunctor_data
