@@ -1,3 +1,9 @@
+(*
+  These objects are known by many names: algebraic theories, abstract clones, cartesian operads
+  and lawvere theories. This file defines them, gives two ways of constructing them, gives
+  corresponding accessors of the data and some derived properties and provides an equality lemma.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

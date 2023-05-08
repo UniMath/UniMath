@@ -1,4 +1,8 @@
-(** * The initial algebraic theory, with T n = {1, ..., n} and pr i = i *)
+(*
+  Define the initial algebraic theory given by T(n) = {0, ..., n-1} and pr i = i and show that every
+  set can be an algebra for this theory.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

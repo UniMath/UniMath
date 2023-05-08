@@ -1,3 +1,7 @@
+(*
+  Defines a type for passing data to make_algebraic_theory_morphism' in AlgebraicTheoryMorphisms.v.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

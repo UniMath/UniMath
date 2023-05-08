@@ -1,3 +1,5 @@
+(* Defines the univalent category of algebraic theories. *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -77,7 +79,7 @@ Lemma is_univalent_pointed_functor_cat
 Proof.
   apply (is_univalent_total_category (is_univalent_functor_category _ _ is_univalent_HSET)).
   apply is_univalent_disp_iff_fibers_are_univalent.
-  intros T id_pr id_pr'.
+  do 3 intro.
   use isweq_iso.
   - exact pr1.
   - intro.
@@ -114,3 +116,7 @@ Proof.
   apply disp_full_sub_univalent.
   exact isaprop_is_algebraic_theory.
 Qed.
+
+Definition algebraic_theory_univalent_category
+  : univalent_category
+  := make_univalent_category _ is_univalent_algebraic_theory_cat.

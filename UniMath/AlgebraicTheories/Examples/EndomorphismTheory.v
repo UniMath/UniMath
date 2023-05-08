@@ -1,3 +1,8 @@
+(*
+  Defines the endomorphism theory of an object X in some category with products, given by
+  T(n) = (X^n → X). Also gives a specialization for X a set.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

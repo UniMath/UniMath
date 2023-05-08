@@ -1,3 +1,8 @@
+(*
+  Define the terminal algebraic theory given by T(n) = unit
+  and show that its only algebra is the unit type.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

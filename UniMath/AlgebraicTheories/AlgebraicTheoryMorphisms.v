@@ -1,3 +1,8 @@
+(*
+  Defines morphisms of algebraic theories, gives two ways of constructing them, gives corresponding
+  accessors for the data and properties and provides an equality lemma.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.

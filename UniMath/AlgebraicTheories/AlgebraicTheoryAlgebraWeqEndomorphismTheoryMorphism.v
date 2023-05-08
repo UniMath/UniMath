@@ -1,3 +1,8 @@
+(*
+  Shows that, given an algebraic theory T, there is an equivalence between its algebras and tuples
+  of a set X and a morphism from T to the endomorphism theory on X.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.

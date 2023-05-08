@@ -1,3 +1,5 @@
+(* Defines a type for passing data to make_algebraic_theory' in AlgebraicTheories.v. *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

@@ -1,3 +1,8 @@
+(*
+  Defines algebraic theory algebras with accessors for the data, some properties and two
+  constructors for is_algebraic_theory_algebra.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
