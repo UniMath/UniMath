@@ -168,7 +168,7 @@ Definition strong_fully_faithful_to_preserve_underlying
            (HF : fully_faithful F)
   : preserve_underlying F.
 Proof.
-  use strong_fully_faithful_on_pointsto_preserve_underlying.
+  use strong_fully_faithful_on_points_to_preserve_underlying.
   intro v.
   apply HF.
 Defined.
