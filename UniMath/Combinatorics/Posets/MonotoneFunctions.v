@@ -169,6 +169,7 @@ Proposition prodtofun_is_monotone
 Proof.
   exact (λ x y p, Hf _ _ p ,, Hg _ _ p).
 Qed.
+
 Proposition Equalizer_pr1_monotone
             {X : hSet}
             (RX : PartialOrder X)
@@ -182,6 +183,14 @@ Proof.
   intros x y p.
   exact p.
 Qed.
+
+Definition Equalizer_monotone_function
+           {X Y : hSet}
+           (RX : PartialOrder X)
+           (RY : PartialOrder Y)
+           (f g : X → Y)
+  : monotone_function (Equalizer_order RX Y f g) RX
+  := (λ z, pr1 z) ,, Equalizer_pr1_monotone RX Y f g.
 
 Proposition Equalizer_map_monotone
             {X : hSet}
