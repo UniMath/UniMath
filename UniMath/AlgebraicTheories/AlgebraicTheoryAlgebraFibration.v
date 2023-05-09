@@ -20,17 +20,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-Lemma unit_equality_is_idpath
-  {C : precategory}
-  {T T' T'' : C}
-  (F : C⟦T', T⟧)
-  (F' : C⟦T'', T'⟧)
-  (H :  # (functor_to_unit C) F' · # (functor_to_unit C) F = # (functor_to_unit C) (F' · F))
-  : H = idpath _.
-Proof.
-  apply isasetunit.
-Qed.
-
 Lemma concat_displayed_cartesian_morphisms
   {C C' : category}
   (D := disp_cartesian C C')
@@ -42,7 +31,11 @@ Lemma concat_displayed_cartesian_morphisms
 Proof.
   unfold comp_disp.
   simpl.
-  now rewrite (unit_equality_is_idpath F' F _).
+  unfold transportb.
+  rewrite transportf_set.
+  - apply idpath.
+  - apply isasetaprop,
+      isasetunit.
 Qed.
 
 Definition algebra_cleaving_algebra_data
