@@ -239,7 +239,14 @@ DisplayedCats/Examples/CategoryOfPosets.v
 DisplayedCats/Structures/CartesianStructure.v
 DisplayedCats/Structures/StructureLimitsAndColimits.v
 DisplayedCats/Structures/StructuresSmashProduct.v
-DisplayedCats/Structures/ExamplesOfStructures.v
+DisplayedCats/Examples/AlgebraStructures.v
+DisplayedCats/Examples/DCPOStructures.v
+DisplayedCats/Examples/PointedDCPOStructures.v
+DisplayedCats/Examples/PointedPosetStrict.v
+DisplayedCats/Examples/PointedPosetStructures.v
+DisplayedCats/Examples/PointedSetStructures.v
+DisplayedCats/Examples/PosetStructures.v
+DisplayedCats/Examples/SetStructures.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
