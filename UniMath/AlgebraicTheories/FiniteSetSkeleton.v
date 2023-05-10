@@ -1,3 +1,5 @@
+(* Defines the full subcategory of SET, consisting of the sets {0, ..., n-1} and their functions. *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
