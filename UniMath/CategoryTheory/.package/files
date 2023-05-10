@@ -336,6 +336,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/EnrichmentAdjunction.v
 EnrichedCats/EnrichmentMonad.v
 
 EnrichedCats/Enriched/Enriched.v

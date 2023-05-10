@@ -474,6 +474,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Enrichment.v](CategoryTheory/EnrichedCats/Enrichment.v)
    - [EnrichedCats/EnrichmentFunctor.v](CategoryTheory/EnrichedCats/EnrichmentFunctor.v)
    - [EnrichedCats/EnrichmentTransformation.v](CategoryTheory/EnrichedCats/EnrichmentTransformation.v)
+   - [EnrichedCats/EnrichmentAdjunction.v](CategoryTheory/EnrichedCats/EnrichmentAdjunction.v)
    - [EnrichedCats/EnrichmentMonad.v](CategoryTheory/EnrichedCats/EnrichmentMonad.v)
    - [EnrichedCats/Enriched/Enriched.v](CategoryTheory/EnrichedCats/Enriched/Enriched.v)
    - [EnrichedCats/Enriched/ChangeOfBase.v](CategoryTheory/EnrichedCats/Enriched/ChangeOfBase.v)
