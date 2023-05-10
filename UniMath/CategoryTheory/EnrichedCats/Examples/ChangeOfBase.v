@@ -21,23 +21,29 @@
  general give rise to a univalent category.
 
  To guarantee that the change of base actually gives rise to a
- univalent category, we make two assumptions:
- - The functor `F` is fully faithful
- - The functor `F` is a strong monoidal functor
- Using these assumptions, the underlying category of the change
- of base remains the same: the only thing that changes, is the
- enrichment. As such, univalence of the change of base follows
- directly from the univalence of the original category.
+ univalent category, we define a notion of preserving the
+ underlying category (`preserve_underlying`), and this is
+ sufficient to construct the desired assumptions. As such,
+ univalence of the change of base follows directly from the
+ univalence of the original category.
+
+ We also show that functors that satisfy the following two
+ conditions preserve the underlying category:
+ - The functor is fully faithful on morphisms from the unit
+ - The functor is a strong monoidal functor
 
  We also discuss the action of the change of base on functors
  and natural transformations.
 
  Contents
- 1. Change of base: enrichment for categories
- 2. Change of base: enrichment for functors
- 3. Change of base: enrichment for natural transformations
- 4. Change of base on the identity
- 5. Change of base on composition
+ 1. Functors that preserve the underlying category
+ 1.1. The definition of such functors
+ 1.2. Conditions that imply preservation of the underlying category
+ 2. Change of base: enrichment for categories
+ 3. Change of base: enrichment for functors
+ 4. Change of base: enrichment for natural transformations
+ 5. Change of base on the identity
+ 6. Change of base on composition
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -53,18 +59,127 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
+Import MonoidalNotations.
+
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Opaque fully_faithful_inv_hom.
+(**
+ 1. Functors that preserve the underlying category
+ *)
+
+(**
+ 1.1. The definition of such functors
+ *)
+Definition preserve_underlying_data
+           {V₁ V₂ : monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+  : UU
+  := ∏ (v : V₁), I_{V₂} --> F v → I_{V₁} --> v.
+
+Definition preserves_underlying_laws
+           {V₁ V₂ : monoidal_cat}
+           {F : lax_monoidal_functor V₁ V₂}
+           (Fv : preserve_underlying_data F)
+  : UU
+  := (∏ (v : V₁)
+        (f : I_{V₂} --> F v),
+      mon_functor_unit F · #F (Fv v f) = f)
+     ×
+     (∏ (v : V₁)
+        (f : I_{V₁} --> v),
+      Fv v (mon_functor_unit F · #F f) = f).
+
+Definition preserve_underlying
+           {V₁ V₂ : monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+  : UU
+  := ∑ (Fv : preserve_underlying_data F), preserves_underlying_laws Fv.
+
+Definition make_preserve_underlying
+           {V₁ V₂ : monoidal_cat}
+           {F : lax_monoidal_functor V₁ V₂}
+           (Fv : preserve_underlying_data F)
+           (HFv : preserves_underlying_laws Fv)
+  : preserve_underlying F
+  := Fv ,, HFv.
+
+Definition preserve_underlying_to_data
+           {V₁ V₂ : monoidal_cat}
+           {F : lax_monoidal_functor V₁ V₂}
+           (Fv : preserve_underlying F)
+           (v : V₁)
+  : I_{V₂} --> F v → I_{V₁} --> v
+  := pr1 Fv v.
+
+Coercion preserve_underlying_to_data : preserve_underlying >-> Funclass.
+
+Section Laws.
+  Context {V₁ V₂ : monoidal_cat}
+          {F : lax_monoidal_functor V₁ V₂}
+          (Fv : preserve_underlying F).
+
+  Proposition preserve_underlying_right_inv
+              {v : V₁}
+              (f : I_{V₂} --> F v)
+    : mon_functor_unit F · #F (Fv v f) = f.
+  Proof.
+    exact (pr12 Fv v f).
+  Qed.
+
+  Proposition preserve_underlying_left_inv
+              {v : V₁}
+              (f : I_{V₁} --> v)
+    : Fv v (mon_functor_unit F · #F f) = f.
+  Proof.
+    exact (pr22 Fv v f).
+  Qed.
+End Laws.
+
+(**
+ 1.2. Conditions that imply preservation of the underlying category
+ *)
+Definition strong_fully_faithful_on_points_to_preserve_underlying
+           {V₁ V₂ : monoidal_cat}
+           {F : strong_monoidal_functor V₁ V₂}
+           (HF : ∏ (x : V₁), isweq (λ (f : I_{V₁} --> x), #F f))
+  : preserve_underlying F.
+Proof.
+  use make_preserve_underlying.
+  - exact (λ v f, invmap (make_weq _ (HF v)) (strong_functor_unit_inv F · f)).
+  - split.
+    + abstract
+        (intros v f ;
+         refine (maponpaths (λ z, _ · z) (homotweqinvweq (make_weq _ (HF v)) _) @ _) ;
+         rewrite !assoc ;
+         rewrite strong_functor_unit_unit_inv ;
+         apply id_left).
+    + abstract
+        (intros v f ;
+         rewrite !assoc ;
+         rewrite strong_functor_unit_inv_unit ;
+         rewrite id_left ;
+         apply (homotinvweqweq (make_weq _ (HF v)) _)).
+Defined.
+
+Definition strong_fully_faithful_to_preserve_underlying
+           {V₁ V₂ : monoidal_cat}
+           {F : strong_monoidal_functor V₁ V₂}
+           (HF : fully_faithful F)
+  : preserve_underlying F.
+Proof.
+  use strong_fully_faithful_on_points_to_preserve_underlying.
+  intro v.
+  apply HF.
+Defined.
 
 Section ChangeOfBase.
   Context {V₁ V₂ : monoidal_cat}
-          (F : strong_monoidal_functor V₁ V₂)
-          (HF : fully_faithful F).
+          (F : lax_monoidal_functor V₁ V₂)
+          (Fv : preserve_underlying F).
 
   (**
-   1. Change of base: enrichment for categories
+   2. Change of base: enrichment for categories
    *)
   Section Enrichment.
     Context {C : category}
@@ -81,10 +196,7 @@ Section ChangeOfBase.
       - exact (λ x y f,
                enriched_to_arr
                  E
-                 (fully_faithful_inv_hom
-                    HF
-                    _ _
-                    (strong_functor_unit_inv F · f))).
+                 (Fv _ f)).
     Defined.
 
     Definition change_of_base_enrichment_laws
@@ -213,92 +325,45 @@ Section ChangeOfBase.
         }
         apply idpath.
       - intros x y f ; cbn.
-        rewrite !assoc.
-        etrans.
-        {
-          do 2 apply maponpaths.
-          etrans.
-          {
-            apply maponpaths_2.
-            exact (strong_functor_unit_inv_unit F).
-          }
-          apply id_left.
-        }
-        rewrite fully_faithful_inv_hom_is_inv.
-        apply enriched_to_from_arr.
+        refine (_ @ enriched_to_from_arr E f).
+        apply maponpaths.
+        apply preserve_underlying_left_inv.
       - intros x y f ; cbn.
         rewrite enriched_from_to_arr.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite assoc.
-        refine (_ @ id_left _).
-        apply maponpaths_2.
-        exact (strong_functor_unit_unit_inv F).
+        apply preserve_underlying_right_inv.
       - intros x ; cbn.
-        rewrite !assoc.
-        etrans.
-        {
-          do 2 apply maponpaths.
-          etrans.
-          {
-            apply maponpaths_2.
-            exact (strong_functor_unit_inv_unit F).
-          }
-          apply id_left.
-        }
-        rewrite fully_faithful_inv_hom_is_inv.
-        apply enriched_to_arr_id.
+        refine (_ @ enriched_to_arr_id E _).
+        apply maponpaths.
+        apply preserve_underlying_left_inv.
       - intros x y z f g ; cbn.
         refine (enriched_to_arr_comp E f g @ _).
         apply maponpaths.
         refine (!_).
+        rewrite tensor_comp_l_id_l.
+        rewrite !assoc.
+        rewrite <- tensor_linvunitor.
+        rewrite !assoc'.
         etrans.
         {
-          apply maponpaths.
+          do 2 apply maponpaths.
+          rewrite tensor_comp_r_id_l.
           rewrite !assoc'.
           etrans.
           {
             do 2 apply maponpaths.
-            apply maponpaths_2.
-            apply tensor_comp_mor.
-          }
-          rewrite !assoc'.
-          etrans.
-          {
-            do 3 apply maponpaths.
             rewrite !assoc.
-            apply maponpaths_2.
-            apply (tensor_mon_functor_tensor F).
+            rewrite tensor_mon_functor_tensor.
+            rewrite !assoc'.
+            rewrite <- functor_comp.
+            apply idpath.
           }
-          rewrite !assoc'.
+          rewrite !assoc.
+          rewrite <- mon_functor_linvunitor.
           rewrite <- functor_comp.
-          rewrite !assoc.
-          etrans.
-          {
-            do 3 apply maponpaths_2.
-            apply tensor_linvunitor.
-          }
-          rewrite !assoc'.
-          etrans.
-          {
-            apply maponpaths.
-            rewrite !assoc.
-            do 2 apply maponpaths_2.
-            refine (!(tensor_comp_l_id_l _ _ _) @ _).
-            apply maponpaths.
-            apply strong_functor_unit_inv_unit.
-          }
-          rewrite !assoc.
-          etrans.
-          {
-            apply maponpaths_2.
-            refine (!_).
-            apply (mon_functor_linvunitor F).
-          }
-          rewrite <- functor_comp.
-          rewrite !assoc.
           apply idpath.
         }
-        apply fully_faithful_inv_hom_is_inv.
+        rewrite preserve_underlying_left_inv.
+        apply idpath.
     Qed.
 
     Definition change_of_base_enrichment
@@ -311,7 +376,7 @@ Section ChangeOfBase.
   End Enrichment.
 
   (**
-   2. Change of base: enrichment for functors
+   3. Change of base: enrichment for functors
    *)
   Section EnrichmentFunctor.
     Context {C₁ C₂ : category}
@@ -367,7 +432,7 @@ Section ChangeOfBase.
   End EnrichmentFunctor.
 
   (**
-   3. Change of base: enrichment for natural transformations
+   4. Change of base: enrichment for natural transformations
    *)
   Definition change_of_base_nat_trans_enrichment
              {C₁ C₂ : category}
@@ -448,7 +513,7 @@ Section ChangeOfBase.
   Qed.
 
   (**
-   4. Change of base on the identity
+   5. Change of base on the identity
    *)
   Definition change_of_base_enrichment_identity
              {C : univalent_category}
@@ -567,7 +632,7 @@ Section ChangeOfBase.
   Qed.
 
   (**
-   5. Change of base on composition
+   6. Change of base on composition
    *)
   Definition change_of_base_enrichment_comp
              {C₁ C₂ C₃ : univalent_category}

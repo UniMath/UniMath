@@ -35,6 +35,7 @@
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -207,6 +208,10 @@ Section SetStructure.
     use funextsec.
     exact p.
   Qed.
+
+  Definition underlying_of_hset_struct
+    : category_of_hset_struct ⟶ HSET
+    := pr1_category _.
 
   Definition is_univalent_category_of_hset_struct
     : is_univalent category_of_hset_struct.

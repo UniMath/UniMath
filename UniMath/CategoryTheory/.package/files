@@ -255,6 +255,8 @@ DisplayedCats/StreetOpFibration.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
 
+limits/Examples/AlgebraStructuresColimits.v
+
 categories/Dialgebras.v
 categories/CatIsoInserter.v
 categories/EilenbergMoore.v
@@ -363,6 +365,7 @@ EnrichedCats/Colimits/EnrichedColimits.v
 EnrichedCats/Examples/SetEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
+EnrichedCats/Examples/SmashStructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/FunctorCategory.v
 

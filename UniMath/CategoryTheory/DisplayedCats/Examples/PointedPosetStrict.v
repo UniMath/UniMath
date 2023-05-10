@@ -247,6 +247,12 @@ Proposition struct_pointed_poset_strict_with_smash_laws
       struct_pointed_poset_strict_with_smash_data.
 Proof.
   repeat split.
+  - intros b₁ b₂ p ; cbn in p.
+    induction b₁, b₂.
+    + apply refl_PartialOrder.
+    + induction p.
+    + apply pointed_PartialOrder_min_point.
+    + apply refl_PartialOrder.
   - intros x y p .
     unfold pointed_hset_struct_unit_map ; cbn.
     unfold pointed_struct_pointed_poset_strict_data.

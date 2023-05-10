@@ -8,7 +8,7 @@
  3. Preservation of pullbacks
  4. Preservation of initial objects
  5. Preservation of binary coproducts
- 6. Preservation of coequalizers
+ 6. Preservation of (reflexive) coequalizers
  7. Preservation of coproducts
  8. Adjunctions and preservation
  8.1 Right adjoints preserve limits
@@ -418,7 +418,7 @@ Proof.
 Defined.
 
 (**
- 6. Preservation of coequalizers
+ 6. Preservation of (reflexive) coequalizers
  *)
 Definition preserves_coequalizer
            {C₁ C₂ : category}
@@ -482,7 +482,7 @@ Definition preserves_chosen_coequalizer
        (#F (CoequalizerArrow (HC₁ x y f g)))
        p.
 
-Definition preserves_bincoproduct_if_preserves_coequalizers
+Definition preserves_coequalizer_if_preserves_chosen
            {C₁ C₂ : category}
            (HC₁ : Coequalizers C₁)
            (F : C₁ ⟶ C₂)
@@ -502,6 +502,114 @@ Proof.
                            (z_iso_between_Coequalizer
                               (make_Coequalizer _ _ _ _ Hz)
                               (HC₁ x y f g))))))) ; cbn.
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite CoequalizerCommutes ;
+       apply idpath).
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite CoequalizerEqAr ;
+       apply idpath).
+Defined.
+
+Definition preserves_reflexive_coequalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y c : C₁)
+       (f g : x --> y)
+       (s : y --> x)
+       (pf : s · f = identity _)
+       (pg : s · g = identity _)
+       (h : y --> c)
+       (p : f · h = g · h)
+       (Fp : #F f · #F h = #F g · #F h),
+     isCoequalizer f g h p
+     →
+     isCoequalizer (#F f) (#F g) (#F h) Fp.
+
+Definition identity_preserves_reflexive_coequalizer
+           (C : category)
+  : preserves_coequalizer (functor_identity C)
+  := λ _ _ _ _ _ _ _ _ Hx, Hx.
+
+Definition composition_preserves_reflexive_coequalizer
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           (HF : preserves_reflexive_coequalizer F)
+           (HG : preserves_reflexive_coequalizer G)
+  : preserves_reflexive_coequalizer (F ∙ G).
+Proof.
+  intros x y c f g s pf pg h p Fp Hx.
+  use (HG (F x) (F y) (F c) (#F f) (#F g) (#F s) _ _ (#F h)).
+  - abstract
+      (rewrite <- functor_comp ;
+       rewrite pf ;
+       apply functor_id).
+  - abstract
+      (rewrite <- functor_comp ;
+       rewrite pg ;
+       apply functor_id).
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite p ;
+       apply idpath).
+  - use (HF x y c f g s _ _ h).
+    + exact pf.
+    + exact pg.
+    + exact p.
+    + exact Hx.
+Defined.
+
+Definition isaprop_preserves_reflexive_coequalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : isaprop (preserves_reflexive_coequalizer F).
+Proof.
+  repeat (use impred ; intro).
+  use isapropiscontr.
+Qed.
+
+Definition preserves_chosen_reflexive_coequalizer
+           {C₁ C₂ : category}
+           (HC₁ : reflexive_coequalizers C₁)
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f g : x --> y)
+       (s : y --> x)
+       (pf : s · f = identity _)
+       (pg : s · g = identity _)
+       (p : # F f · # F (CoequalizerArrow (HC₁ x y f g s pf pg))
+            =
+            # F g · # F (CoequalizerArrow (HC₁ x y f g s pf pg))),
+     isCoequalizer
+       (#F f)
+       (#F g)
+       (#F (CoequalizerArrow (HC₁ x y f g s pf pg)))
+       p.
+
+Definition preserves_reflexive_coequalizers_if_chosen
+           {C₁ C₂ : category}
+           (HC₁ : reflexive_coequalizers C₁)
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_chosen_reflexive_coequalizer HC₁ F)
+  : preserves_reflexive_coequalizer F.
+Proof.
+  intros x y c f g s pf pg h p Fp Hz.
+  use (Coequalizer_eq_ar
+            _
+            _
+            _
+            (pr22 (z_iso_to_Coequalizer
+                     (make_Coequalizer _ _ _ _ (HF x y f g s pf pg _))
+                     (z_iso_inv
+                        (functor_on_z_iso
+                           F
+                           (z_iso_between_Coequalizer
+                              (make_Coequalizer _ _ _ _ Hz)
+                              (HC₁ x y f g s pf pg))))))) ; cbn.
   - abstract
       (rewrite <- !functor_comp ;
        rewrite CoequalizerCommutes ;

@@ -21,14 +21,8 @@ Extended by Ralph Matthes, 2023
 
 *********************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.WeakEquivalences.
-
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -652,6 +646,36 @@ use make_Coproduct.
               apply (maponpaths pr1 (pr2 uniqex (h1,,(h2 true,,h2 false))))).
 Defined.
 
+Definition BinCoproducts_from_Coproducts
+           {C : category}
+           (HC : Coproducts bool C)
+  : BinCoproducts C.
+Proof.
+  intros x y.
+  use make_BinCoproduct.
+  - exact (HC (λ b, if b then x else y)).
+  - exact (CoproductIn _ _ _ true).
+  - exact (CoproductIn _ _ _ false).
+  - intros w g₁ g₂.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+         use CoproductArrow_eq ;
+         intro b ;
+         induction b ; [ exact (pr12 φ₁ @ !(pr12 φ₂)) | ] ;
+         exact (pr22 φ₁ @ !(pr22 φ₂))).
+    + simple refine (_ ,, _ ,, _).
+      * refine (CoproductArrow _ _ _ _).
+        intro b ; induction b.
+        ** exact g₁.
+        ** exact g₂.
+      * abstract
+          (exact (CoproductInCommutes _ _ _ _ _ _ true)).
+      * abstract
+          (exact (CoproductInCommutes _ _ _ _ _ _ false)).
+Defined.
 End CoproductsBool.
 
 Section functors.

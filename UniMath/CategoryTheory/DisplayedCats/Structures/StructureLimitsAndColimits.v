@@ -713,3 +713,23 @@ Proposition pointed_hset_struct_preserve_point
 Proof.
   exact (pr22 Pt X Y f PX PY Pf).
 Qed.
+
+Proposition transportf_hset_struct_point
+            {P : hset_cartesian_struct}
+            (Pt : pointed_hset_struct P)
+            {X Y : hSet}
+            (p : X ≃ Y)
+            (PX : P X)
+  : hset_struct_point
+      Pt
+      (transportf
+         P
+         (univalence_hSet p)
+         PX)
+    =
+      p (hset_struct_point Pt PX).
+Proof.
+  exact (!(pointed_hset_struct_preserve_point
+             Pt
+             (transportf_struct_weq_on_weq P p PX))).
+Qed.

@@ -1043,6 +1043,33 @@ Proof.
   apply mon_lassociator_rassociator.
 Qed.
 
+Proposition precomp_postcomp_arr_assoc
+            {C : category}
+            {V : monoidal_cat}
+            (E : enrichment C V)
+            {w x y z : C}
+            (f : x --> y)
+  : (precomp_arr E z f #⊗ identity _) · enriched_comp E w x z
+    =
+    (identity _ #⊗ postcomp_arr E w f) · enriched_comp E _ _ _.
+Proof.
+  unfold precomp_arr.
+  rewrite !tensor_comp_id_r.
+  rewrite !assoc'.
+  rewrite enrichment_assoc.
+  rewrite !assoc.
+  apply maponpaths_2.
+  unfold postcomp_arr.
+  rewrite !tensor_comp_id_l.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  rewrite tensor_lassociator.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite mon_inv_triangle.
+  apply idpath.
+Qed.
+
 Definition precomp_postcomp_arr
            {C : category}
            {V : monoidal_cat}
