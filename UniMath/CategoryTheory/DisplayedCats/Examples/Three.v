@@ -54,13 +54,16 @@ Proof.
     (* middle map of composite is composite of middle maps *)
     exists (f0 · g0).
     split.
-    * rewrite assoc, H0, <- assoc.
-      etrans. apply maponpaths.
-      exact K0.
-      now rewrite assoc.
-    * rewrite <- assoc, <- K1, assoc, assoc.
-      apply cancel_postcomposition.
-      exact H1.
+    * abstract (
+        rewrite assoc, H0, <- assoc;
+        etrans; [apply maponpaths; exact K0|];
+        now rewrite assoc
+      ).
+    * abstract (
+        rewrite <- assoc, <- K1, assoc, assoc;
+        apply cancel_postcomposition;
+        exact H1
+      ).
 Defined.
 
 Definition three_data : disp_cat_data _ :=
@@ -105,7 +108,7 @@ Proof.
     * apply homset_property.
     * intro.
       apply isasetdirprod; apply isasetaprop; apply homset_property.    
-Defined.
+Qed.
 
 Definition three_disp : disp_cat (arrow C) :=
     (three_data,, three_axioms).

@@ -14,10 +14,10 @@ Definition weq_of_iso_ax {M : category} (W : morphism_class M) :=
 Definition weq_comp_ax {M : category} (W : morphism_class M) :=
     ∀ x y z (f : x --> y) (g : y --> z), (W _ _) f ⇒ (W _ _) g ⇒ (W _ _) (g ∘ f).
 Definition weq_cancel_left_ax {M : category} (W : morphism_class M) :=
-    ∀ {x y z} {f : x --> y} {g : y --> z}, (W _ _) f ⇒ (W _ _) (g ∘ f) ⇒ (W _ _) g.
+    ∀ (x y z) (f : x --> y) (g : y --> z), (W _ _) f ⇒ (W _ _) (g ∘ f) ⇒ (W _ _) g.
 Definition weq_cancel_right_ax {M : category} (W : morphism_class M) :=
-    ∀ {x y z} {f : x --> y} {g : y --> z}, (W _ _) g ⇒ (W _ _) (g ∘ f) ⇒ (W _ _) f.
-
+    ∀ (x y z) (f : x --> y) (g : y --> z), (W _ _) g ⇒ (W _ _) (g ∘ f) ⇒ (W _ _) f.
+    
 Definition is_weak_equivalences {M : category} (W : morphism_class M) :=
     weq_of_iso_ax W × weq_comp_ax W × weq_cancel_left_ax W × weq_cancel_right_ax W.
 
@@ -42,6 +42,6 @@ Proof.
     repeat apply isapropdirprod; 
     do 4 (apply impred_isaprop; intro);
     apply propproperty.
-Defined.
+Qed.
 
 End weakeqv.

@@ -26,17 +26,22 @@ Proof.
   - simpl.
     intros xx' yy' g h ff'.
     exact (pr1 ff' · h = g · pr2 ff').
-  - simpl.
-    intros.
-    use homset_property.
-  - simpl. 
-    intros.
-    now rewrite id_left, id_right.
-  - simpl.
-    intros.
-    rewrite assoc, <- X.
-    symmetry.
-    now rewrite <- assoc, <- X0, assoc.
+  - abstract (
+      intros;
+      use homset_property
+    ).
+  - abstract (
+      simpl;
+      intros;
+      now rewrite id_left, id_right
+    ).
+  - abstract (
+      simpl;
+      intros;
+      rewrite assoc, <- X;
+      symmetry;
+      now rewrite <- assoc, <- X0, assoc
+    ).
 Defined.
 
 Definition arrow : category := total_category arrow_disp.
