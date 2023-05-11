@@ -220,7 +220,7 @@ Defined.
 (* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L55 *)
 (* No counterpart in MCAT, (□(I□), I□) is a WFS *)
 Lemma wfs_of_factorization {M : category} (I : morphism_class M) 
-  (h : ∀ (x y) (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (llp (rlp I) _ _ g) × (rlp I _ _ h) × (h ∘ g = f)) :
+  (h : ∀ (x y : M) (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (llp (rlp I) _ _ g) × (rlp I _ _ h) × (h ∘ g = f)) :
   is_wfs (llp (rlp I)) (rlp I).
 Proof.
   use make_is_wfs.
@@ -238,8 +238,8 @@ Defined.
 In MCAT, the statement is in reference of a single morphism, not a whole class
 *)
 Lemma retract_argument {M : category} {L' : morphism_class M} (w : wfs M)
-  (H : ∀ (x y) (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (L' _ _) g × (wfs_R w _ _) h × h ∘ g = f) :
-  ∏ (a b) (f : a --> b), (wfs_L w _ _) f -> ∃ (x' y') (f' : x' --> y') (r : retract f' f), (L' _ _) f'.
+  (H : ∀ (x y : M) (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (L' _ _) g × (wfs_R w _ _) h × h ∘ g = f) :
+  ∏ (a b : M) (f : a --> b), (wfs_L w _ _) f -> ∃ (x' y') (f' : x' --> y') (r : retract f' f), (L' _ _) f'.
 Proof.
   intros a b f hf.
 
