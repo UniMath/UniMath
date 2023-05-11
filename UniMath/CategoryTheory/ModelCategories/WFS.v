@@ -238,8 +238,8 @@ Defined.
 In MCAT, the statement is in reference of a single morphism, not a whole class
 *)
 Lemma retract_argument {M : category} {L' : morphism_class M} (w : wfs M)
-  (H : ∀ (x y : M) (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (L' _ _) g × (wfs_R w _ _) h × h ∘ g = f) :
-  ∏ (a b : M) (f : a --> b), (wfs_L w _ _) f -> ∃ (x' y') (f' : x' --> y') (r : retract f' f), (L' _ _) f'.
+  (H : ∀ x y (f : x --> y), ∃ z (g : x --> z) (h : z --> y), (L' _ _) g × (wfs_R w _ _) h × h ∘ g = f) :
+  ∏ (a b : M) (f : a --> b), (wfs_L w _ _) f -> ∃ x' y' (f' : x' --> y') (r : retract f' f), (L' _ _) f'.
 Proof.
   intros a b f hf.
 
