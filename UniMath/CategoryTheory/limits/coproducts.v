@@ -9,13 +9,12 @@ Direct implementation of indexed coproducts together with:
 
 Written by: Anders Mörtberg 2016
 
+Extended by Ralph Matthes 2023 for the distributors
+
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -25,13 +24,14 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
 (** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
 
-Variables (I : UU) (C : category).
+Context (I : UU) (C : category).
 
 Definition isCoproduct (a : I -> C) (co : C)
   (ia : ∏ i, a i --> co) :=
@@ -46,6 +46,8 @@ Definition Coproducts := ∏ (a : I -> C), Coproduct a.
 Definition hasCoproducts :=  ∏ (a : I -> C), ∥ Coproduct a ∥.
 
 Definition CoproductObject {a : I -> C} (CC : Coproduct a) : C := pr1 (pr1 CC).
+Coercion CoproductObject : Coproduct >-> ob.
+
 Definition CoproductIn {a : I -> C} (CC : Coproduct a): ∏ i, a i --> CoproductObject CC :=
   pr2 (pr1 CC).
 
@@ -92,6 +94,19 @@ Proof.
   now apply CoproductArrowUnique.
 Qed.
 
+Proposition CoproductArrow_eq
+            {d : I → C}
+            (z : C)
+            (x : Coproduct d)
+            (f g : x --> z)
+            (p : ∏ (i : I), CoproductIn x i · f = CoproductIn x i · g)
+  : f = g.
+Proof.
+  refine (CoproductArrowEta _ _ _ _ @ _ @ !(CoproductArrowEta _ _ _ _)).
+  apply maponpaths.
+  use funextsec.
+  exact p.
+Qed.
 
 Definition CoproductOfArrows {a : I -> C} (CCab : Coproduct a) {c : I -> C}
     (CCcd : Coproduct c) (f : ∏ i, a i --> c i) :
@@ -107,7 +122,7 @@ Proof.
 Qed.
 
 Definition make_Coproduct (a : I -> C) (c : C) (f : ∏ i, a i --> c) :
-   isCoproduct _ _ f →  Coproduct a.
+   isCoproduct _ _ f → Coproduct a.
 Proof.
 intro H.
 use tpair.
@@ -118,7 +133,7 @@ Defined.
 Definition make_isCoproduct (hsC : has_homsets C) (a : I -> C) (co : C)
   (f : ∏ i, a i --> co) : (∏ (c : C) (g : ∏ i, a i --> c),
                                   ∃! k : C ⟦co, c⟧, ∏ i, f i · k = g i)
-   →    isCoproduct a co f.
+   → isCoproduct a co f.
 Proof.
   intros H c cc.
   apply H.
@@ -151,13 +166,13 @@ apply pathsinv0.
 eapply pathscomp0; [apply CoproductArrowEta|].
 apply pathsinv0, CoproductArrowUnique; intro i; apply pathsinv0.
 now rewrite id_right, H1.
-Defined.
+Qed.
 
 End coproduct_def.
 
 Section Coproducts.
 
-Variables (I : UU) (C : category) (CC : Coproducts I C).
+Context (I : UU) (C : category) (CC : Coproducts I C).
 
 (* Lemma CoproductArrow_eq (f f' : a --> c) (g g' : b --> c) *)
 (*   : f = f' → g = g' → *)
@@ -197,15 +212,15 @@ Definition coproduct_functor (I : UU) {C : category}
   (PC : Coproducts I C) : functor (power_category I C) C.
 Proof.
 apply (tpair _ (coproduct_functor_data _ PC)).
-split.
-  - intro x; simpl; apply pathsinv0, Coproduct_endo_is_identity.
-    now intro i; rewrite CoproductOfArrowsIn, id_left.
-  - now intros x y z f g; simpl; rewrite CoproductOfArrows_comp .
+abstract (split;
+          [intro x; simpl; apply pathsinv0, Coproduct_endo_is_identity;
+           now intro i; rewrite CoproductOfArrowsIn, id_left
+          | now intros x y z f g; simpl; rewrite CoproductOfArrows_comp]).
 Defined.
 
 End functors.
 
-(* The copropuct of a family of functors *)
+(* The coproduct of a family of functors *)
 (* This is the old and not so good definition as it is unnecessarily complicated, also the proof
    that it is omega-cocontinuous requires that C has products *)
 Definition coproduct_of_functors_alt_old (I : UU) {C D : category}
@@ -214,7 +229,7 @@ Definition coproduct_of_functors_alt_old (I : UU) {C D : category}
      (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
 
-(** The copropuct of a family of functors *)
+(** The coproduct of a family of functors *)
 Definition coproduct_of_functors_alt (I : UU) {C D : category}
   (HD : Coproducts I D) (F : ∏ (i : I), functor C D)
   := functor_composite (tuple_functor F) (coproduct_functor _ HD).
@@ -223,12 +238,11 @@ Definition coproduct_of_functors_alt (I : UU) {C D : category}
 (** * Coproducts lift to functor categories *)
 Section def_functor_pointwise_coprod.
 
-Variables (I : UU) (C D : category).
-Variable HD : Coproducts I D.
+Context (I : UU) (C D : category) (HD : Coproducts I D).
 
 Section coproduct_of_functors.
 
-Variables (F : I -> functor C D).
+Context (F : I -> functor C D).
 
 Definition coproduct_of_functors_ob (c : C) : D
   := CoproductObject _ _ (HD (λ i, F i c)).
@@ -269,13 +283,13 @@ Lemma coproduct_of_functors_alt_old_eq_coproduct_of_functors :
   coproduct_of_functors_alt_old _ HD F = coproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
   coproduct_of_functors_alt _ HD F = coproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Definition coproduct_nat_trans_in_data i (c : C) :
   D ⟦ (F i) c, coproduct_of_functors c ⟧ :=
@@ -293,12 +307,10 @@ Definition coproduct_nat_trans_in i : nat_trans (F i) coproduct_of_functors :=
 
 Section vertex.
 
-Variable A : functor C D.
-Variable f : ∏ i, nat_trans (F i) A.
+Context (A : functor C D) (f : ∏ i, nat_trans (F i) A).
 
-Definition coproduct_nat_trans_data c :
-  coproduct_of_functors c --> A c :=
-    CoproductArrow _ _ _ (λ i, f i c).
+Definition coproduct_nat_trans_data c : coproduct_of_functors c --> A c
+  := CoproductArrow _ _ _ (λ i, f i c).
 
 Lemma is_nat_trans_coproduct_nat_trans_data :
   is_nat_trans _ _ coproduct_nat_trans_data.
@@ -351,7 +363,7 @@ End def_functor_pointwise_coprod.
 (** * Coproducts from colimits *)
 Section coproducts_from_colimits.
 
-Variables (I : UU) (C : category).
+Context (I : UU) (C : category).
 
 Definition I_graph : graph := (I,,λ _ _,empty).
 
@@ -385,3 +397,173 @@ use make_Coproduct.
 Defined.
 
 End coproducts_from_colimits.
+
+Section DistributionThroughFunctor.
+
+  Context {I : UU} {C D : category}
+    (CPC : Coproducts I C) (CPD : Coproducts I D) (F : functor C D).
+
+  Definition coprod_antidistributor (cs : power_category I C):
+    CPD (fun i => F (cs i)) --> F (CPC cs).
+  Proof.
+    use CoproductArrow; intro i; apply (#F). apply CoproductIn.
+  Defined.
+
+  Lemma coprod_antidistributor_nat (cs1 cs2 : power_category I C) (g : power_category I C ⟦ cs1, cs2 ⟧) :
+    coprod_antidistributor cs1 · #F (#(coproduct_functor I CPC) g) =
+    #(coproduct_functor I CPD) (#(family_functor I (fun _ => F)) g) · coprod_antidistributor cs2.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths.
+    apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, functor_comp. }
+    etrans.
+    2: { cbn. apply functor_comp. }
+    apply maponpaths.
+    apply CoproductInCommutes.
+  Qed.
+
+   (** axiomatize extra requirements *)
+
+  Definition coprod_distributor_data : UU := ∏ (cs : power_category I C),
+     F (CPC cs) --> CPD (fun i => F (cs i)).
+
+  Identity Coercion coprod_distributor_data_funclass: coprod_distributor_data >-> Funclass.
+
+  Definition coprod_distributor_iso_law (δ : coprod_distributor_data) : UU :=
+    ∏ (cs : power_category I C), is_inverse_in_precat (δ cs) (coprod_antidistributor cs).
+
+  Definition coprod_distributor : UU := ∑ δ : coprod_distributor_data, coprod_distributor_iso_law δ.
+
+  Definition coprod_distributor_to_data (δ : coprod_distributor) : coprod_distributor_data := pr1 δ.
+  Coercion coprod_distributor_to_data : coprod_distributor >-> coprod_distributor_data.
+
+End DistributionThroughFunctor.
+
+Section DistributionForPrecompositionFunctor.
+
+  Context {I : UU} {A B C : category} (CPC : Coproducts I C) (H : functor A B).
+
+  Let CPAC : Coproducts I [A,C] := Coproducts_functor_precat I A C CPC.
+  Let CPBC : Coproducts I [B,C] := Coproducts_functor_precat I B C CPC.
+  Let precomp : functor [B,C] [A,C] := pre_composition_functor A B C H.
+
+  Definition precomp_coprod_distributor_data : coprod_distributor_data CPBC CPAC precomp.
+  Proof.
+    intro Gs.
+    apply nat_trans_id.
+  Defined.
+
+  Lemma precomp_coprod_distributor_law :
+    coprod_distributor_iso_law _ _ _ precomp_coprod_distributor_data.
+  Proof.
+    intros Gs.
+    split.
+    - apply (nat_trans_eq C).
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, Coproduct_endo_is_identity.
+      intro i.
+      unfold coproduct_nat_trans_data.
+      cbn in Gs.
+      apply (CoproductInCommutes I C (λ i0 : I, Gs i0 (H c)) (CPC _) _
+               (λ i0 : I, coproduct_nat_trans_in_data I B C CPC Gs i0 (H c)) i).
+    - etrans.
+      { apply postcompWithCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, CoproductArrowEta. }
+      apply maponpaths; apply funextsec; intro i;
+        (rewrite id_right; apply (nat_trans_eq C); intro c; apply id_right).
+  Qed.
+
+  Definition precomp_coprod_distributor : coprod_distributor CPBC CPAC precomp :=
+    _,,precomp_coprod_distributor_law.
+
+End DistributionForPrecompositionFunctor.
+
+(**
+ Coproducts are unique
+ *)
+Definition eq_Coproduct
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (coprod₁ coprod₂ : Coproduct J C D)
+           (q : CoproductObject _ _ coprod₁ = CoproductObject _ _ coprod₂)
+           (e : ∏ (j : J),
+                CoproductIn _ _ coprod₁ j
+                =
+                CoproductIn _ _ coprod₂ j · idtoiso (!q))
+  : coprod₁ = coprod₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - exact q.
+  - rewrite transportf_sec_constant.
+    use funextsec.
+    intro j.
+    rewrite <- !idtoiso_postcompose.
+    pose (p := e j).
+    rewrite !idtoiso_inv in p.
+    refine (maponpaths (λ z, z · _) p @ _).
+    rewrite !assoc'.
+    refine (_ @  id_right _).
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+Qed.
+
+Definition z_iso_between_Coproduct
+           {C : category}
+           {J : UU}
+           {D : J → C}
+           (coprod₁ coprod₂ : Coproduct J C D)
+  : z_iso coprod₁ coprod₂.
+Proof.
+  use make_z_iso.
+  - exact (CoproductArrow _ _ coprod₁ (CoproductIn _ _ coprod₂)).
+  - exact (CoproductArrow _ _ coprod₂ (CoproductIn _ _ coprod₁)).
+  - split.
+    + abstract
+        (use CoproductArrow_eq ;
+         intro j ;
+         rewrite !assoc ;
+         rewrite !CoproductInCommutes ;
+         rewrite id_right ;
+         apply idpath).
+    + abstract
+        (use CoproductArrow_eq ;
+         intro j ;
+         rewrite !assoc ;
+         rewrite !CoproductInCommutes ;
+         rewrite id_right ;
+         apply idpath).
+Defined.
+
+Definition isaprop_Coproduct
+           {C : category}
+           (HC : is_univalent C)
+           (J : UU)
+           (D : J → C)
+  : isaprop (Coproduct J C D).
+Proof.
+  use invproofirrelevance.
+  intros p₁ p₂.
+  use eq_Coproduct.
+  - refine (isotoid _ HC _).
+    apply z_iso_between_Coproduct.
+  - intro j.
+    rewrite idtoiso_inv.
+    rewrite idtoiso_isotoid ; cbn.
+    rewrite CoproductInCommutes.
+    apply idpath.
+Qed.

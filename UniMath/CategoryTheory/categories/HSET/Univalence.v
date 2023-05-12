@@ -19,9 +19,6 @@ Local Open Scope cat.
 
 (** ** HSET is a univalent_category. *)
 
-Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
-   tpair _ _ (univalenceAxiom X X').
-
 Definition hset_id_weq_z_iso (A B : ob HSET) :
   (A = B) ≃ (z_iso A B) :=
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_weq_z_iso A B).

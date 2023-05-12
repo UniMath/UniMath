@@ -40,7 +40,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 
 Local Open Scope cat.
 
@@ -462,7 +462,7 @@ Section third_monad_law_with_assoc.
 Lemma third_monad_law_from_hss :
   (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) · μ_2
   =
-  (α_functors _ _ _ : functor_compose _ _  --> _) · (μ_2 •• `T) · μ_2.
+  (rassociator_CAT _ _ _) · (μ_2 •• `T) · μ_2.
 Proof.
   intermediate_path μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.

@@ -27,16 +27,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 
-Definition functor_compose {A B C : category} (F : ob [A, B])
-      (G : ob [B , C]) : ob [A , C] :=
-   functor_composite F G.
-
-(*
-Local Notation "G 'O' F '{' hsB  hsC '}'" :=
-        (functor_compose hsB hsC F G) (at level 200).
-Local Notation "G 'o' F '{' hsB  hsC '}'" :=
-        (functor_compose hsB hsC  F G : functor _ _ ) (at level 200).
-*)
 (** * Whiskering: Composition of a natural transformation with a functor *)
 
 (** Prewhiskering *)
@@ -253,4 +243,23 @@ Defined.
 (* Variation with more implicit arguments *)
 Definition post_comp_functor {A B C : category} :
   [B, C] → [A, B] ⟶ [A, C] :=
-    post_composition_functor _ _ _.
+  post_composition_functor _ _ _.
+
+
+Lemma pre_whisker_nat_z_iso
+      {C D E : category} (F : functor C D)
+      {G1 G2 : functor D E} (α : nat_z_iso G1 G2)
+  : nat_z_iso (functor_composite F G1) (functor_composite F G2).
+Proof.
+  exists (pre_whisker F α).
+  exact (pre_whisker_on_nat_z_iso F α (pr2 α)).
+Defined.
+
+Lemma post_whisker_nat_z_iso
+      {C D E : category}
+      {G1 G2 : functor C D} (α : nat_z_iso G1 G2) (F : functor D E)
+  : nat_z_iso (functor_composite G1 F) (functor_composite G2 F).
+Proof.
+  exists (post_whisker α F).
+  exact (post_whisker_z_iso_is_z_iso α F (pr2 α)).
+Defined.

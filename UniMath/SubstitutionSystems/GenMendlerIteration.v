@@ -24,6 +24,7 @@ Contents :
 
 ************************************************************)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -41,7 +42,7 @@ Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+Local Notation "↓ f" := (mor_from_algebra_mor _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
 (** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)
@@ -112,7 +113,7 @@ Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
   assert (ψ_is_nat_inst1 := ψ_is_nat _ _ h).
   (* assert (ψ_is_nat_inst2 := aux0 _ _ _ _ f ψ_is_nat_inst1). *)
-  assert (ψ_is_nat_inst2 := toforallpaths _ _ _ ψ_is_nat_inst1 f).
+  assert (ψ_is_nat_inst2 := eqtohomot ψ_is_nat_inst1 f).
   apply ψ_is_nat_inst2.
 Qed.
 
@@ -280,11 +281,11 @@ Section fusion_law.
     apply path_to_ctr.
     assert (Φ_is_nat := nat_trans_ax Φ).
     assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
-    assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It X L is_left_adj_L ψ)).
+    assert (Φ_is_nat_inst2 := eqtohomot Φ_is_nat_inst1 (It X L is_left_adj_L ψ)).
     unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
     simpl.
     rewrite <- Φ_is_nat_inst2.
-    assert (H_inst :=  toforallpaths _ _ _ H (It X L is_left_adj_L ψ)).
+    assert (H_inst :=  eqtohomot H (It X L is_left_adj_L ψ)).
     unfold compose in H_inst; simpl in H_inst.
     rewrite <- H_inst.
     apply maponpaths.

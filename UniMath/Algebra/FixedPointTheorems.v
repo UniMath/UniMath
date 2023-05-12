@@ -6,6 +6,12 @@ This file aims to state and develop various fixed-point theorems on posets; in p
 In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .
 
 Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
+
+****************************************************************************
+Note: a newer and different implementation of DCPOs and fixed point theorems
+can be found in Combinatorics/DCPO.
+****************************************************************************
+
 *)
 
 Require Import UniMath.Foundations.All.
@@ -168,14 +174,6 @@ Proof.
   use H_forall. intros x A_x. apply (proof_by_contradiction H_LEM).
   use (negexists_to_forallneg_restricted H_nex); assumption.
 Defined.
-
-Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
-  := fun x => A x ∨ B x.
-
-Notation "A ∪ B" := (subtype_binaryunion A B)
-                              (at level 40, left associativity) : subtype.
-  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
-  (* in agda-input method, type \cup or ∪ *)
 
 Definition subtype_binaryintersection {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∧ B x.

@@ -4,6 +4,7 @@
     February 2018
  ********************************************************************************* *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -642,9 +643,9 @@ Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b}
   : x = z • inv_y^-1 -> x • y = z.
 Proof.
   intro H1.
-  etrans. apply maponpaths_2. apply H1.
-  etrans. apply vassocl.
-  etrans. apply maponpaths. apply (vcomp_linv inv_y).
+  etrans. { apply maponpaths_2. apply H1. }
+  etrans. { apply vassocl. }
+  etrans. { apply maponpaths. apply (vcomp_linv inv_y). }
   apply id2_right.
 Qed.
 
@@ -653,9 +654,9 @@ Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b}
   : y = inv_x^-1 • z -> x • y = z.
 Proof.
   intro H1.
-  etrans. apply maponpaths. apply H1.
-  etrans. apply vassocr.
-  etrans. apply maponpaths_2. apply (vcomp_rinv inv_x).
+  etrans. { apply maponpaths. apply H1. }
+  etrans. { apply vassocr. }
+  etrans. { apply maponpaths_2. apply (vcomp_rinv inv_x). }
   apply id2_left.
 Qed.
 
@@ -668,8 +669,8 @@ Proof.
   etrans. { apply H1. }
   etrans. 2: apply vassocr.
   apply pathsinv0.
-  etrans. apply maponpaths.
-  apply vcomp_linv.
+  etrans. { apply maponpaths.
+            apply vcomp_linv. }
   apply id2_right.
 Qed.
 
@@ -682,8 +683,8 @@ Proof.
   etrans. { apply H1. }
   etrans. 2: apply vassocl.
   apply pathsinv0.
-  etrans. apply maponpaths_2.
-  apply (vcomp_rinv inv_y).
+  etrans. { apply maponpaths_2.
+            apply (vcomp_rinv inv_y). }
   apply id2_left.
 Qed.
 
@@ -741,7 +742,7 @@ Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
 Proof.
   use lhs_left_invert_cell.
-  apply is_invertible_2cell_rassociator.
+  { apply is_invertible_2cell_rassociator. }
   cbn.
   apply pathsinv0.
   apply runitor_rwhisker.
@@ -821,11 +822,11 @@ Lemma hcomp_rassoc {a b c d : C}
     rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
 Proof.
   use lhs_right_invert_cell.
-  apply is_invertible_2cell_rassociator.
+  { apply is_invertible_2cell_rassociator. }
   etrans; [ | apply vassocr ].
   apply pathsinv0.
   use lhs_left_invert_cell.
-  apply is_invertible_2cell_rassociator.
+  { apply is_invertible_2cell_rassociator. }
   apply hcomp_lassoc.
 Qed.
 
@@ -887,16 +888,17 @@ Lemma rwhisker_lwhisker_rassociator
 Proof.
   apply (vcomp_lcancel (lassociator f g i)).
   { apply  is_invertible_2cell_lassociator. }
-  etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
-  etrans. apply id2_left.
-
+  etrans.
+  { etrans; [ apply vassocr |].
+    apply maponpaths_2. apply lassociator_rassociator. }
+  etrans; [ apply id2_left |].
   apply (vcomp_rcancel (lassociator f h i)).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
-  etrans. apply vassocl.
-  etrans. apply maponpaths. apply vassocl.
-  etrans. do 2 apply maponpaths. apply  rassociator_lassociator.
-  etrans. apply maponpaths. apply id2_right.
+  etrans; [ apply vassocl |].
+  etrans. { apply maponpaths. apply vassocl. }
+  etrans. { do 2 apply maponpaths. apply rassociator_lassociator. }
+  etrans. { apply maponpaths. apply id2_right. }
   apply pathsinv0, rwhisker_lwhisker.
 Qed.
 
@@ -907,16 +909,17 @@ Lemma lwhisker_lwhisker_rassociator (a b c d : C) (f : C⟦a, b⟧)
 Proof.
   apply (vcomp_lcancel (lassociator f g h)).
   { apply  is_invertible_2cell_lassociator. }
-  etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
-  etrans. apply id2_left.
-
+  etrans.
+  { etrans; [ apply vassocr |].
+    apply maponpaths_2. apply lassociator_rassociator. }
+  etrans; [ apply id2_left |].
   apply (vcomp_rcancel (lassociator f g i)).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
-  etrans. apply vassocl.
-  etrans. apply maponpaths. apply vassocl.
-  etrans. do 2 apply maponpaths. apply  rassociator_lassociator.
-  etrans. apply maponpaths. apply id2_right.
+  etrans; [ apply vassocl |].
+  etrans. { apply maponpaths. apply vassocl. }
+  etrans. { do 2 apply maponpaths. apply rassociator_lassociator. }
+  etrans. { apply maponpaths. apply id2_right. }
   apply pathsinv0, lwhisker_lwhisker.
 Qed.
 
@@ -969,7 +972,7 @@ Proof.
     etrans. { apply maponpaths_2, lassociator_rassociator. }
     apply id2_left. }
   etrans.
-  apply lassociator_rassociator.
+  { apply lassociator_rassociator. }
   apply pathsinv0.
   etrans.
   { apply maponpaths.
@@ -980,20 +983,21 @@ Proof.
     apply id2_left.
   }
   etrans.
-  apply vassocl.
+  { apply vassocl. }
   etrans.
-  apply maponpaths.
+  { apply maponpaths.
+    etrans.
+    { apply vassocr. }
+    etrans.
+    { apply maponpaths_2.
+      apply lassociator_rassociator. }
+    apply id2_left.
+  }
   etrans.
-  apply vassocr.
+  { apply lwhisker_vcomp. }
   etrans.
-  apply maponpaths_2.
-  apply lassociator_rassociator.
-  apply id2_left.
-  etrans.
-  apply lwhisker_vcomp.
-  etrans.
-  apply maponpaths.
-  apply lassociator_rassociator.
+  { apply maponpaths.
+    apply lassociator_rassociator. }
   apply lwhisker_id2.
 Qed.
 
@@ -1085,6 +1089,43 @@ Definition hcomp_functor
     ⟶
     hom a c
   := make_functor hcomp_functor_data is_functor_hcomp.
+
+(** and the two whiskering functors separately so as to avoid [category_binproduct] *)
+
+Definition lwhisker_functor_data (f : C⟦a, b⟧)
+  : functor_data (hom b c) (hom a c).
+Proof.
+  exists (fun g => f · g).
+  exact (fun g1 g2 x => f ◃ x).
+Defined.
+
+Lemma is_functor_lwhisker (f : C⟦a, b⟧) : is_functor (lwhisker_functor_data f).
+Proof.
+  split; red; cbn.
+  - intro g. apply lwhisker_id2.
+  - intros g1 g2 g3 x y. apply pathsinv0, lwhisker_vcomp.
+Qed.
+
+Definition lwhisker_functor (f : C⟦a, b⟧) : functor (hom b c) (hom a c)
+  := make_functor (lwhisker_functor_data f) (is_functor_lwhisker f).
+
+Definition rwhisker_functor_data (g : C⟦b, c⟧)
+  : functor_data (hom a b) (hom a c).
+Proof.
+  exists (fun f => f · g).
+  exact (fun f1 f2 x => x ▹ g).
+Defined.
+
+Lemma is_functor_rwhisker (g : C⟦b, c⟧) : is_functor (rwhisker_functor_data g).
+Proof.
+  split; red; cbn.
+  - intro f. apply id2_rwhisker.
+  - intros f1 f2 f3 x y. apply pathsinv0, rwhisker_vcomp.
+Qed.
+
+Definition rwhisker_functor (g : C⟦b, c⟧) : functor (hom a b) (hom a c)
+  := make_functor (rwhisker_functor_data g) (is_functor_rwhisker g).
+
 
 End hcomp_functor.
 

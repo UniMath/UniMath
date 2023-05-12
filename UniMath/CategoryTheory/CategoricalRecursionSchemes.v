@@ -566,7 +566,7 @@ Proof.
     intro h.
     unfold algebra_mor.
     use tpair.
-    + exact (#H h).
+    + exact (#H (pr1 h)).
     + apply lifting_from_distr_law_data_aux.
 Defined.
 
@@ -577,7 +577,9 @@ Proof.
     unfold lifting_from_distr_law_data.
     cbn.
     UniMath.MoreFoundations.Tactics.show_id_type.
-    apply algebra_mor_eq.
+    use total2_paths_f.
+    2: { apply homset_property. }
+
     (*Locate algebra_mor_eq.*)
 (*    + assumption. *)
     cbn.
@@ -586,7 +588,8 @@ Proof.
     unfold lifting_from_distr_law_data.
     cbn.
     UniMath.MoreFoundations.Tactics.show_id_type.
-    apply algebra_mor_eq.
+    use total2_paths_f.
+    2: { apply homset_property. }
     cbn.
     apply functor_comp.
 Qed.
@@ -627,7 +630,7 @@ Lemma liftings_from_distr_laws_compose {C C' C'': category}
 Proof.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply functor_eq.
-  { apply (has_homsets_FunctorAlg _ ). }
+  { apply homset_property. }
   simpl.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   get_sides_of_eq.
@@ -705,7 +708,7 @@ Section AdjointFolds.
 
 (* the conclusion of the following theorem is done after the example of [UniMath.SubstitutionSystems.GenMendlerIteration], and its proof is divided in the same way *)
 
-Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+Local Notation "↓ f" := (mor_from_algebra_mor _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
 
@@ -742,9 +745,8 @@ Proof.
   - red.
     unfold traho_of_Hinze_Wu.
     rewrite φ_adj_after_φ_adj_inv.
-    apply algebra_mor_commutes.
+    apply (algebra_mor_commutes _ _ _ (InitialArrow μDD_Initial (lifting_from_distr_law_data_on_ob τ (AlgConstr B b)))).
 Defined.
-
 
 Lemma traho_of_Hinze_Wu_ok : #L inDD · traho_of_Hinze_Wu =
                              nat_trans_data_from_nat_trans σ μDD · # CC traho_of_Hinze_Wu · b.
@@ -807,9 +809,9 @@ Proof.
   intro Hyp.
   set (aux := InitialArrowUnique μDD_Initial _ (φ_adj_h_x x Hyp)).
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-  set (aux' := mor_from_algebra_mor _ _ _ (φ_adj_h_x x Hyp)).
+  set (aux' := mor_from_algebra_mor _ (φ_adj_h_x x Hyp)).
   simpl in aux'.
-  change (φ_adj h x) with (mor_from_algebra_mor _ _ _ (φ_adj_h_x x Hyp)).
+  change (φ_adj h x) with (mor_from_algebra_mor _ (φ_adj_h_x x Hyp)).
   rewrite aux.
   apply idpath.
 Qed.

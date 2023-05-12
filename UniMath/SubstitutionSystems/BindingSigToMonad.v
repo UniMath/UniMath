@@ -65,7 +65,7 @@ Definition BindingSigIsaset (s : BindingSig) : isaset (BindingSigIndex s) :=
 Definition BindingSigMap (s : BindingSig) : BindingSigIndex s -> list nat :=
   pr2 (pr2 s).
 
-Definition mkBindingSig {I : UU} (h : isaset I) (f : I -> list nat) : BindingSig := (I,,h,,f).
+Definition make_BindingSig {I : UU} (h : isaset I) (f : I -> list nat) : BindingSig := (I,,h,,f).
 
 (** Sum of binding signatures *)
 Definition SumBindingSig : BindingSig -> BindingSig -> BindingSig.

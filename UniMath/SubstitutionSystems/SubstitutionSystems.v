@@ -38,7 +38,6 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -332,7 +331,7 @@ Arguments bracket_parts {_} _ _ .
   Local Notation τ := (tau_from_alg H).
 
   Let θ : PrestrengthForSignature H := theta H.
-  Let Id_H := Id_H H.
+  Let Id_H : [C, C] ⟶ [C, C] := Id_H H.
 
 (** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
 Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket H θ T.
@@ -610,13 +609,13 @@ Proof.
   assert (X:=pr2 β).
   assert (X':= nat_trans_eq_pointwise X c).
   simpl in *.
-  eapply pathscomp0. apply maponpaths. apply X'.
+  etrans. { apply maponpaths. apply X'. }
   unfold coproduct_nat_trans_in1_data.
   repeat rewrite assoc.
   unfold coproduct_nat_trans_data.
-  eapply pathscomp0.
-  apply cancel_postcomposition.
-  apply BinCoproductIn1Commutes.
+  etrans.
+  { apply cancel_postcomposition.
+    apply BinCoproductIn1Commutes. }
   simpl.
   repeat rewrite <- assoc.
   apply id_left.
@@ -759,13 +758,13 @@ Proof.
   intros Z f.
   eapply pathscomp0; [apply assoc|].
   (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
-  eapply pathscomp0.
-    apply cancel_postcomposition.
-    apply isbracketMor_hssMor.
+  etrans.
+  { apply cancel_postcomposition.
+    apply isbracketMor_hssMor. }
   rewrite <- assoc.
-  eapply pathscomp0.
-    apply maponpaths.
-    apply isbracketMor_hssMor.
+  etrans.
+  { apply maponpaths.
+    apply isbracketMor_hssMor. }
   rewrite assoc.
   rewrite functor_comp.
   rewrite assoc.

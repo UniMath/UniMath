@@ -164,8 +164,6 @@ apply BinCoproductArrow_eq_cor.
   apply (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).
 Qed.
 
-Transparent is_omega_cocont_treeFunctor.
-
 Definition pr1foldr_algmor : algebra_mor _ Tree_alg Tree_alg :=
   tpair _ _ isalghom_pr1foldr.
 
@@ -174,10 +172,12 @@ Proof.
 now rewrite (@InitialEndo_is_identity _ treeFunctor_Initial pr1foldr_algmor).
 Qed.
 
+Transparent is_omega_cocont_treeFunctor.
+
 Lemma treeInd l : P l.
 Proof.
 assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
-  apply (toforallpaths _ _ _ (!pr1foldr_algmor_identity) l).
+  apply (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
 rewrite <- H.
 apply (pr2 (foldr P'HSET P0' Pc' l)).
 Defined.

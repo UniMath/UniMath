@@ -191,9 +191,6 @@ Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C D D')
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C D PD) x)) :
   is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
-  destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
-  destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
-  unfold H.
   apply is_omega_cocont_BinProduct_of_functors; try assumption.
   apply (BinProducts_functor_precat _ _ PC).
 Defined.

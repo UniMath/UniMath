@@ -5,8 +5,8 @@
  ********************************************************************************* *)
 
 (* =================================================================================== *)
-(* Every (pre)bicategory of UniMath.CategoryTheory.Bicat is a                          *)
-(* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                          *)
+(* Every (pre)bicategory of UniMath.Bicategories.Core.Bicat is a                          *)
+(* (pre)bicategory of UniMath.Bicategories.WkCatEnrichment.                          *)
 (* =================================================================================== *)
 
 (* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
@@ -89,8 +89,7 @@ Lemma bicate_transfs :
   (∏ a b : bicate_id_comp, left_unitor_trans_type a b) ×
   (∏ a b : bicate_id_comp, right_unitor_trans_type a b).
 Proof.
-  repeat split.
-  red. cbn.
+  repeat split; red; cbn.
   - exact lassociator_transf.
   - exact lunitor_transf.
   - exact runitor_transf.

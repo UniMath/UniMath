@@ -206,14 +206,14 @@ Lemma natsummationplusshift { R : commring } ( upper : nat )
 Proof.
   intros.
   destruct upper.
-  unfold natsummation0.
-  simpl.
-  apply ( ringassoc1 R ).
-  rewrite (natsummationshift0 ( S upper ) f ).
-  rewrite ( ringcomm1 R _ ( f 0%nat ) ).
-  rewrite ( ringassoc1 R ).
-  rewrite natsummationplusdistr.
-  apply idpath.
+  - unfold natsummation0.
+    simpl.
+    apply ( ringassoc1 R ).
+  - rewrite (natsummationshift0 ( S upper ) f ).
+    rewrite ( ringcomm1 R _ ( f 0%nat ) ).
+    rewrite ( ringassoc1 R ).
+    rewrite natsummationplusdistr.
+    apply idpath.
 Defined.
 
 Close Scope hz_scope.
@@ -1587,7 +1587,7 @@ Proof.
     destruct ( isdecisbndqdec Q isdec' ( S k ) ) as [ l | r ].
     + apply fromempty.
       apply ( k'' k ).
-      apply natlthnsn.
+      { apply natlthnsn. }
       intro j.
       unfold P in k'. unfold neq in k'.
       apply k'.
@@ -1798,7 +1798,7 @@ Proof.
     0%hz ).
     assert ( natlth m n ) as u.
     + apply ( istransnatlth _ ( S m ) _ ).
-      apply natlthnsn.
+      { apply natlthnsn. }
       assumption.
     + rewrite ( IHm u ).
       rewrite hzqrand0q.

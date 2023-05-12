@@ -1,3 +1,4 @@
+(* Require Export UniMath.Tactics.EnsureStructuredProofs. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -5,10 +6,19 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
-(* This import is included because in the end we want to show that
-   bifunctors are equivalent to functors coming out of a product category
+(** This import is included because in the end we want to show that
+    bifunctors are equivalent to functors coming out of a product category
 *)
 Require Import  UniMath.CategoryTheory.PrecategoryBinProduct.
+(** the following are needed for the connection with functors into the functor category *)
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+
+(** the following are needed for the distribution of (binary) coproducts *)
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.ProductCategory.
+
 
 Open Scope cat.
 
@@ -50,7 +60,7 @@ Section Bifunctor.
   Definition bifunctor_rightcompax (F : bifunctor_data) :=
     ∏ (b : B) (a1 a2 a3 : A) (f1 : A⟦a1,a2⟧) (f2 : A⟦a2,a3⟧), (f1 · f2) ⊗^{F}_{r} b = (f1 ⊗^{F}_{r} b) · (f2 ⊗^{F}_{r} b).
 
-  Lemma leftwhiskering_functor (F : bifunctor_data) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) (a : A): functor B C.
+  Lemma leftwhiskering_functor_pre (F : bifunctor_data) (bli : bifunctor_leftidax F) (blc : bifunctor_leftcompax F) (a : A): functor B C.
   Proof.
     use make_functor.
     - use tpair.
@@ -66,7 +76,7 @@ Section Bifunctor.
         exact (blc a b1 b2 b3 g2 g3).
   Defined.
 
-  Lemma rightwhiskering_functor (F : bifunctor_data) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) (b : B) : functor A C.
+  Lemma rightwhiskering_functor_pre (F : bifunctor_data) (bri : bifunctor_rightidax F) (brc : bifunctor_rightcompax F) (b : B) : functor A C.
   Proof.
     use make_functor.
     - use tpair.
@@ -154,6 +164,12 @@ Section Bifunctor.
 
   Definition bifunctor_equalwhiskers (F : bifunctor) : functoronmorphisms_are_equal F := pr2 (pr2 (pr2 (pr2 (isbifunctor_from_bifunctor F)))).
 
+  Definition leftwhiskering_functor (F : bifunctor) (a : A) : functor B C :=
+    leftwhiskering_functor_pre F (bifunctor_leftid F) (bifunctor_leftcomp F) a.
+
+  Definition rightwhiskering_functor (F : bifunctor) (b : B) : functor A C :=
+    rightwhiskering_functor_pre F (bifunctor_rightid F) (bifunctor_rightcomp F) b.
+
   Lemma when_bifunctor_becomes_leftwhiskering (F : bifunctor) (a : A) {b1 b2 : B} (g: B⟦b1, b2⟧):
     identity a ⊗^{ F } g = a ⊗^{F}_{l} g.
   Proof.
@@ -197,6 +213,14 @@ Section Bifunctor.
         * apply bifunctor_leftid.
         * apply bifunctor_rightid.
   Defined.
+
+  Definition is_z_iso_leftwhiskering_z_iso (F : bifunctor) (a : A) {b1 b2 : B} (g : B⟦b1,b2⟧)
+    (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (a ⊗^{ F }_{l} g) :=
+    pr2 (functor_on_z_iso (leftwhiskering_functor F a) (g,,g_is_z_iso)).
+
+  Definition is_z_iso_rightwhiskering_z_iso (F : bifunctor) {a1 a2 : A} (b : B) (f : A⟦a1,a2⟧)
+    (f_is_z_iso : is_z_isomorphism f) : is_z_isomorphism (f ⊗^{ F }_{r} b) :=
+    pr2 (functor_on_z_iso (rightwhiskering_functor F b) (f,,f_is_z_iso)).
 
 End Bifunctor.
 
@@ -249,8 +273,8 @@ Section Bifunctors.
       etrans.
       { apply pathsinv0, functor_comp. }
       rewrite whiskerscommutes.
-      apply functor_comp.
-      apply bifunctor_equalwhiskers.
+      + apply functor_comp.
+      + apply bifunctor_equalwhiskers.
   Qed.
 
   Definition compose_bifunctor_with_functor {A B C D : category} (F : bifunctor A B C) (G : functor C D)
@@ -385,12 +409,12 @@ Section FunctorsFromProductCategory.
   Proof.
     split.
     - intro ; apply bifunctor_distributes_over_id.
-      exact (bifunctor_leftid F).
-      exact (bifunctor_rightid F).
+      + exact (bifunctor_leftid F).
+      + exact (bifunctor_rightid F).
     - intro ; intros ; apply bifunctor_distributes_over_comp.
-      exact (bifunctor_leftcomp F).
-      exact (bifunctor_rightcomp F).
-      exact (bifunctor_equalwhiskers F).
+      + exact (bifunctor_leftcomp F).
+      + exact (bifunctor_rightcomp F).
+      + exact (bifunctor_equalwhiskers F).
   Qed.
 
   Definition bifunctor_to_functorfromproductcat {C D E : category}
@@ -509,3 +533,216 @@ Section FunctorsFromProductCategory.
   Defined.
 
 End FunctorsFromProductCategory.
+
+Section FunctorsIntoEndofunctorCategory.
+
+  Import BifunctorNotations.
+
+  Definition bifunctor_to_functorintoendofunctorcat_data
+    {C D E : category} (F : bifunctor C D E)
+    : functor_data C [D,E].
+  Proof.
+    use make_functor_data.
+    - exact (λ c, leftwhiskering_functor F c).
+    - intros c1 c2 f.
+      exists (λ d, f ⊗^{F}_{r} d).
+      abstract (exact (λ d1 d2 g, ! bifunctor_equalwhiskers F c1 c2 d1 d2 f g)). (** abstract needs [apply E] in [bifunctor_from_to] *)
+  Defined.
+
+  Lemma bifunctor_to_functorintoendofunctorcat_data_is_functor
+    {C D E : category} (F : bifunctor C D E)
+    : is_functor (bifunctor_to_functorintoendofunctorcat_data F).
+  Proof.
+    use tpair.
+    + intro c.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightid.
+    + intros c1 c2 c3 f g.
+      use nat_trans_eq.
+      { apply homset_property. }
+      intro ; apply bifunctor_rightcomp.
+  Qed.
+
+  Definition bifunctor_to_functorintoendofunctorcat
+    {C D E : category} (F : bifunctor C D E)
+    : functor C [D,E] := _,,bifunctor_to_functorintoendofunctorcat_data_is_functor F.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat
+    {C D E : category} (F : functor C [D,E])
+    : bifunctor_data C D E.
+  Proof.
+    exists (λ c d, pr1 (F c) d).
+    exists (λ c d1 d2 g, #(pr1 (F c)) g).
+    exact (λ d c1 c2 f, pr1 (#F f) d).
+  Defined.
+
+  Definition bifunctor_data_from_functorintoendofunctorcat_is_bifunctor
+    {C D E : category} (F : functor C [D,E])
+    : is_bifunctor (bifunctor_data_from_functorintoendofunctorcat F).
+  Proof.
+    repeat (use tpair).
+    + intro ; intro ; apply functor_id.
+    + abstract (exact (λ d c, eqtohomot (maponpaths pr1 (functor_id F c)) d)).
+    + intro ; intros ; apply functor_comp.
+    + abstract (intro ; intros;
+      exact (eqtohomot (maponpaths pr1 (functor_comp F f1 f2)) b)).
+    + abstract (intro ; intros;
+      exact (! pr2 (#F f) b1 b2 g)).
+  Defined. (** needs to be defined for [bifunctor_from_to] *)
+
+
+  Definition bifunctor_from_functorintoendofunctorcat
+        {C D E : category} (F : functor C [D,E])
+    : bifunctor C D E := _,,bifunctor_data_from_functorintoendofunctorcat_is_bifunctor F.
+
+  Lemma bifunctor_to_from {C D E : category} (F : bifunctor C D E)
+    : bifunctor_from_functorintoendofunctorcat (bifunctor_to_functorintoendofunctorcat F) = F.
+  Proof.
+    use total2_paths_f.
+    2: { apply isaprop_is_bifunctor. }
+    apply idpath.
+  Qed.
+
+  Lemma bifunctor_from_to {C D E : category} (F : functor C [D,E])
+    : bifunctor_to_functorintoendofunctorcat (bifunctor_from_functorintoendofunctorcat F) = F.
+  Proof.
+    use functor_eq.
+    { apply homset_property. }
+    use total2_paths_f.
+    { cbn. apply idpath. }
+    cbn.
+    repeat (apply funextsec ; intro).
+    use total2_paths_f.
+    { apply idpath. }
+    repeat (apply funextsec ; intro).
+    apply E.
+    (* more precisely, it could be: apply pathsinv0inv0. *)
+  Qed.
+
+  Lemma bifunctor_equiv_functorintoendofunctorcat (C D E : category)
+    : bifunctor C D E ≃ functor C [D,E].
+  Proof.
+    use weq_iso.
+    { apply bifunctor_to_functorintoendofunctorcat. }
+    { apply bifunctor_from_functorintoendofunctorcat. }
+    { intro ; apply bifunctor_to_from. }
+    { intro ; apply bifunctor_from_to. }
+  Defined.
+
+End FunctorsIntoEndofunctorCategory.
+
+Section DistributionOfBinaryCoproducts.
+  Import BifunctorNotations.
+
+  Context {A C D : category} (BCPC : BinCoproducts C) (BCPD : BinCoproducts D) (F : bifunctor A C D).
+
+  Definition bifunctor_bincoprod_antidistributor (a : A) (c c' : C) :=
+    bincoprod_antidistributor BCPC BCPD (leftwhiskering_functor F a) c c'.
+
+  Lemma bincoprod_antidistributor_nat_left (a : A) (cc'1 cc'2 : category_binproduct C C)
+    (g : category_binproduct C C ⟦ cc'1, cc'2 ⟧) :
+    bifunctor_bincoprod_antidistributor a (pr1 cc'1) (pr2 cc'1) · a ⊗^{F}_{l} #(bincoproduct_functor BCPC) g =
+      #(bincoproduct_functor BCPD) (#(pair_functor (leftwhiskering_functor F a) (leftwhiskering_functor F a)) g) ·
+        bifunctor_bincoprod_antidistributor a (pr1 cc'2) (pr2 cc'2).
+  Proof.
+    apply bincoprod_antidistributor_nat.
+  Qed.
+
+  Lemma bincoprod_antidistributor_nat_right (a1 a2 : A) (cc' : category_binproduct C C) (f : A ⟦ a1, a2 ⟧) :
+    bifunctor_bincoprod_antidistributor a1 (pr1 cc') (pr2 cc') · f ⊗^{F}_{r} bincoproduct_functor BCPC cc'  =
+      #(bincoproduct_functor BCPD) (catbinprodmor (f ⊗^{F}_{r} (pr1 cc')) (f ⊗^{F}_{r} (pr2 cc'))) ·
+        bifunctor_bincoprod_antidistributor a2 (pr1 cc') (pr2 cc').
+  Proof.
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
+    - etrans.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
+    - etrans.
+      { apply pathsinv0, bifunctor_equalwhiskers. }
+      apply idpath.
+  Qed.
+
+
+  Definition bifunctor_bincoprod_distributor_data : UU :=
+    ∏ (a : A), bincoprod_distributor_data BCPC BCPD (leftwhiskering_functor F a).
+
+  Identity Coercion bifunctor_bincoprod_distributor_data_funclass: bifunctor_bincoprod_distributor_data >-> Funclass.
+
+  Definition bifunctor_bincoprod_distributor_iso_law (δ : bifunctor_bincoprod_distributor_data) : UU
+    := ∏ (a : A), bincoprod_distributor_iso_law BCPC BCPD (leftwhiskering_functor F a) (δ a).
+
+  Definition bifunctor_bincoprod_distributor : UU := ∑ δ : bifunctor_bincoprod_distributor_data,
+        bifunctor_bincoprod_distributor_iso_law δ.
+
+  Definition bifunctor_bincoprod_distributor_to_data (δ : bifunctor_bincoprod_distributor) :
+    bifunctor_bincoprod_distributor_data := pr1 δ.
+  Coercion bifunctor_bincoprod_distributor_to_data :
+    bifunctor_bincoprod_distributor >-> bifunctor_bincoprod_distributor_data.
+
+End DistributionOfBinaryCoproducts.
+
+Section DistributionOfCoproducts.
+  Import BifunctorNotations.
+
+  Context {I : UU} {A C D : category} (CPC : Coproducts I C) (CPD : Coproducts I D)
+    (F : bifunctor A C D).
+
+  Definition bifunctor_coprod_antidistributor (a : A) (cs : power_category I C) :=
+    coprod_antidistributor CPC CPD (leftwhiskering_functor F a) cs.
+
+  Lemma coprod_antidistributor_nat_left (a : A) (cs1 cs2 : power_category I C)
+    (g : power_category I C ⟦ cs1, cs2 ⟧) :
+    bifunctor_coprod_antidistributor a cs1 · a ⊗^{F}_{l} #(coproduct_functor I CPC) g =
+      #(coproduct_functor I CPD) (#(family_functor I (fun _ => leftwhiskering_functor F a)) g) ·
+        bifunctor_coprod_antidistributor a cs2.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths.
+    apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, (functor_comp (leftwhiskering_functor F a)). }
+    etrans.
+    2: { cbn. apply (functor_comp (leftwhiskering_functor F a)). }
+    apply maponpaths.
+    apply CoproductInCommutes.
+  Qed.
+
+  Lemma coprod_antidistributor_nat_right (a1 a2 : A) (cs : power_category I C) (f : A ⟦ a1, a2 ⟧) :
+    bifunctor_coprod_antidistributor a1 cs · f ⊗^{F}_{r} coproduct_functor I CPC cs  =
+    #(coproduct_functor I CPD) (fun i => f ⊗^{F}_{r} (cs i)) · bifunctor_coprod_antidistributor a2 cs.
+  Proof.
+    etrans.
+    { apply postcompWithCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithCoproductArrow. }
+    apply maponpaths; apply funextsec; intro i.
+    etrans.
+    { apply pathsinv0, bifunctor_equalwhiskers. }
+    apply idpath.
+  Qed.
+
+  Definition bifunctor_coprod_distributor_data : UU :=
+    ∏ (a : A), coprod_distributor_data CPC CPD (leftwhiskering_functor F a).
+
+  Identity Coercion bifunctor_coprod_distributor_data_funclass: bifunctor_coprod_distributor_data >-> Funclass.
+
+  Definition bifunctor_coprod_distributor_iso_law (δ : bifunctor_coprod_distributor_data) : UU
+    := ∏ (a : A), coprod_distributor_iso_law CPC CPD (leftwhiskering_functor F a) (δ a).
+
+  Definition bifunctor_coprod_distributor : UU := ∑ δ : bifunctor_coprod_distributor_data,
+        bifunctor_coprod_distributor_iso_law δ.
+
+  Definition bifunctor_coprod_distributor_to_data (δ : bifunctor_coprod_distributor) :
+    bifunctor_coprod_distributor_data := pr1 δ.
+  Coercion bifunctor_coprod_distributor_to_data :
+    bifunctor_coprod_distributor >-> bifunctor_coprod_distributor_data.
+
+End DistributionOfCoproducts.

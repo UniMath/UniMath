@@ -40,6 +40,7 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
 
 Local Open Scope logic.
 
@@ -1487,6 +1488,22 @@ Proof.
   - apply is.
   - apply isl.
 Defined.
+
+Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
+      (Hgt : ispartbinophrel Y gt) :
+  isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
+Proof.
+  intros H.
+  split ; [ | split].
+  - apply istransabmonoidfracrel, (istrans_isStrongOrder H).
+  - apply iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabmonoidfracrel, (isirrefl_isStrongOrder H).
+Defined.
+Opaque isStrongOrder_abmonoidfrac.
+
+Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X)
+           (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
+  abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).
 
 Lemma isantisymmnegabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (isl : isantisymmneg L) : isantisymmneg (abmonoidfracrel X A is).

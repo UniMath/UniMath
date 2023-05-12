@@ -215,7 +215,7 @@ Section Fiber_Functors.
       use tpair.
       - apply (λ xx', FF xx').
       - intros xx' xx ff.
-        apply (transportf _ (functor_id _ _ ) (# FF ff)).
+        apply (transportf _ (functor_id _ _ ) (♯ FF ff)).
     Defined.
 
     Lemma is_functor_fiber_functor : is_functor fiber_functor_data.

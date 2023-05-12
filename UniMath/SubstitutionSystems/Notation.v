@@ -12,19 +12,7 @@ SubstitutionSystems
 ************************************************************)
 
 
-(** **********************************************************
-
-Contents :
-
--    Definition of heterogeneous substitution systems
--    Various lemmas about the substitution ("bracket") operation
--    Definition of precategory of substitution systems
-
-
-
-************************************************************)
-
-
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.

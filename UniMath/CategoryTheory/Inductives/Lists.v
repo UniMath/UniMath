@@ -48,7 +48,7 @@ Let listFunctor : functor HSET HSET := pr1 L_A.
 Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 L_A.
 
 Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor).
+  Initial (category_FunctorAlg listFunctor).
 Proof.
 apply (colimAlgInitial InitialHSET is_omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
@@ -147,7 +147,7 @@ Defined.
 Opaque is_omega_cocont_listFunctor.
 
 Lemma isalghom_pr1foldr :
-  is_algebra_mor _ List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
+  is_algebra_mor listFunctor List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
 - apply funextfun; intro x; induction x.
@@ -156,12 +156,18 @@ apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
 
+(* Transparent is_omega_cocont_listFunctor. *)
+
+Definition pr1foldr_algmor : algebra_mor listFunctor List_alg List_alg.
+Proof.
+  use tpair.
+  - exact (λ l, pr1 (foldr P'HSET P0' Pc' l)).
+  - hnf. apply isalghom_pr1foldr.
+Defined.
+
 Transparent is_omega_cocont_listFunctor.
 
-Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
-  tpair _ _ isalghom_pr1foldr.
-
-Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
+Lemma pr1foldr_algmor_identity : identity List_alg = pr1foldr_algmor.
 Proof.
 now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
@@ -169,8 +175,8 @@ Qed.
 (** The induction principle for lists *)
 Lemma listInd l : P l.
 Proof.
-assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
-  apply (toforallpaths _ _ _ (!pr1foldr_algmor_identity) l).
+  assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
+  apply (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
 rewrite <- H.
 apply (pr2 (foldr P'HSET P0' Pc' l)).
 Defined.
@@ -415,30 +421,30 @@ use tpair.
         - intros n; exact (BinCoproductIn2 (PC x (dob hF n)) · pr1 cc n).
         -   abstract (
             intros m n e; destruct e; simpl;
-            destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+            destruct cc as [f hf]; simpl in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor;
+            unfold constcoprod_functor; cbn;
             apply pathsinv0; etrans; [apply BinCoproductOfArrowsIn2|]; apply idpath). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
-    destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-    simpl; intro n; unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor in *;
+    destruct cc as [f hf]; simpl in *;
+    simpl; intro n; unfold constcoprod_functor; cbn;
     etrans; [apply precompWithBinCoproductArrow |]; apply pathsinv0, BinCoproductArrowUnique; red in hf;
     [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
       etrans; [| apply IHn]; unfold constant_functor; simpl; rewrite <- (hf n _ (idpath _)), assoc;
-      unfold constant_functor; simpl; unfold BinCoproduct_of_functors_mor; apply pathsinv0;
+      unfold constant_functor; simpl; apply pathsinv0;
       etrans; [apply cancel_postcomposition; apply BinCoproductOfArrowsIn1 |]; now rewrite id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
       rewrite p0; simpl; now apply maponpaths, hf]).
 - abstract (
-      destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+      destruct cc as [f hf]; simpl in *;
       intro t; apply subtypePath; simpl;
       [  intro g; apply impred; intro; apply C
        | destruct t as [t p]; destruct ccL as [t0 p0]; unfold is_cocone_mor in *;
-         unfold constcoprod_functor, BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
+         unfold constcoprod_functor; destruct t0 as [t0 p1]; simpl;
          apply BinCoproductArrowUnique;
          [  unfold coconeIn in p; simpl in p;
-            rewrite <- (p 0), assoc; unfold BinCoproduct_of_functors_mor;
+            rewrite <- (p 0), assoc;
             apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn1 |]; apply id_left
          |  use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
                                 coconeIn L v · x0 = BinCoproductIn2 (PC x (dob hF v)) · f v := _ in _);
@@ -473,7 +479,7 @@ apply (is_omega_cocont_functor_composite).
 Defined.
 
 Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor).
+  Initial (category_FunctorAlg listFunctor).
 Proof.
 apply (colimAlgInitial InitialHSET omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
@@ -586,7 +592,7 @@ Qed.
 Lemma listInd l : P l.
 Proof.
 assert (H : pr1 (foldr P'HSET P0' Pc' l) = l).
-  apply (toforallpaths _ _ _ (!pr1foldr_algmor_identity) l).
+  apply (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
 rewrite <- H.
 apply (pr2 (foldr P'HSET P0' Pc' l)).
 Defined.

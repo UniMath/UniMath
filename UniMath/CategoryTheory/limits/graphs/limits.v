@@ -484,6 +484,34 @@ Proof.
 now intros d; apply LimFunctorCone.
 Defined.
 
+Lemma pointwise_Lim_is_isLimFunctor
+  {A C : category} {g : graph}
+  (d : diagram g [A,C]) (G : [A,C]) (cG : cone d G)
+  (H : ∏ a, isLimCone _ _ (cone_pointwise d G cG a)) :
+  isLimCone d G cG.
+Proof.
+ set (CC a := make_LimCone _ _ _ (H a)).
+ set (D' := LimFunctorCone _ CC).
+ use is_z_iso_isLim.
+ - apply D'.
+ - use tpair.
+   + use make_nat_trans.
+     * intros a; apply identity.
+     * abstract (
+           intros a b f; rewrite id_left, id_right;
+           apply pathsinv0 ;
+           apply (limArrowUnique (CC b) (lim (CC a))) ; intro u ; cbn ;
+           now rewrite <- (nat_trans_ax (coneOut cG u))
+         ).
+   + abstract (split;
+               [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
+                 apply pathsinv0, (limArrowUnique (CC x)); intros v;
+                 now rewrite id_left
+               | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
+                 apply pathsinv0, (limArrowUnique (CC x)); intro u;
+                 now rewrite id_left]).
+Defined.
+
 Section map.
 
 Context {C D : category} (F : functor C D).
@@ -678,7 +706,7 @@ Qed.
 Definition isLimCone_LimCone {g : graph} {d : diagram g C^op}
     (CC : LimCone d)
   : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
-  := isColimCocone_ColimCocone CC.
+  := isColimCocone_from_ColimCocone CC.
 
 Definition limArrow {g : graph} {d : diagram g C^op} (CC : LimCone d)
   (c : C) (cc : cone d c) : C⟦c, lim CC⟧.
@@ -1100,3 +1128,28 @@ Defined.
 *)
 
 End co.
+
+(**
+ Equality of arrows into limits
+ *)
+Definition arr_to_LimCone_eq
+           {C : category}
+           {g : graph}
+           {D : diagram g C}
+           (l : LimCone D)
+           {x : C}
+           {f₁ f₂ : x --> pr11 l}
+           (p : ∏ (i : vertex g), f₁ · limOut l i = f₂ · limOut l i)
+  : f₁ = f₂.
+Proof.
+  refine (limArrowEta _ _ _ @ _ @ !(limArrowEta _ _ _)).
+  apply maponpaths.
+  use subtypePath.
+  {
+    intro.
+    repeat (use impred ; intro).
+    apply homset_property.
+  }
+  use funextsec.
+  exact p.
+Qed.

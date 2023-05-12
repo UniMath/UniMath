@@ -43,6 +43,13 @@ Definition make_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
 Definition diagram (g : graph) (C : precategory) : UU :=
   ∑ (f : vertex g -> C), ∏ (a b : vertex g), edge a b -> C⟦f a, f b⟧.
 
+Definition make_diagram {g : graph} {C : precategory}
+  (f : vertex g -> C)
+  (P : (∏ (a b : vertex g),
+         edge a b -> C⟦f a, f b⟧))
+  : diagram g C
+  := (f ,, P).
+
 Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :=
   pr1 d.
 
@@ -107,6 +114,14 @@ Definition is_cocone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C
            (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), coconeIn cc1 v · x = coconeIn cc2 v.
 
+Lemma isaprop_is_cocone_mor {C : category} {g : graph} {d : diagram g C}
+  {c1 : C} (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (f : c1 --> c2)
+  : isaprop (is_cocone_mor cc1 cc2 f).
+Proof.
+  apply impred_isaprop ; intro.
+  apply homset_property.
+Qed.
+
 (** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
@@ -157,18 +172,14 @@ repeat (apply impred; intro).
 apply isapropiscontr.
 Qed.
 
-Definition isColimCocone_ColimCocone {C : precategory} {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) :
-  isColimCocone d (colim CC) (tpair _ (colimIn CC) (colimInCommutes CC)) := pr2 CC.
-
 Definition colimArrow {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_ColimCocone CC c cc)).
+  (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_from_ColimCocone CC c cc)).
 
 Lemma colimArrowCommutes {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (cc : cocone d c) (u : vertex g) :
   colimIn CC u · colimArrow CC c cc = coconeIn cc u.
 Proof.
-exact ((pr2 (pr1 (isColimCocone_ColimCocone CC _ cc))) u).
+exact ((pr2 (pr1 (isColimCocone_from_ColimCocone CC _ cc))) u).
 Qed.
 
 Lemma colimArrowUnique {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
@@ -661,3 +672,55 @@ Proof.
 Qed.
 
 End mapcocone_functor_composite.
+
+(**
+ Some functions to construct morphisms using colimits
+ *)
+Definition colim_mor
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           (g : ∏ (v : vertex G), dob D v --> y)
+           (p : forms_cocone D g)
+  : colim c --> y
+  := pr11 (pr2 c y (make_cocone g p)).
+
+Definition colim_mor_commute
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           (g : ∏ (v : vertex G), dob D v --> y)
+           (p : forms_cocone D g)
+           (v : vertex G)
+  : colimIn c v · colim_mor c y g p = g v
+  := pr21 (pr2 c y (make_cocone g p)) v.
+
+Definition colim_mor_eq
+           {C : category}
+           {G : graph}
+           {D : diagram G C}
+           (c : ColimCocone D)
+           (y : C)
+           {f₁ f₂ : colim c --> y}
+           (H : ∏ (v : vertex G), colimIn c v · f₁ = colimIn c v · f₂)
+  : f₁ = f₂.
+Proof.
+  assert (forms_cocone D (λ v : vertex G, colimIn c v · f₂)) as Hf₂.
+  {
+    unfold forms_cocone.
+    cbn.
+    unfold dmor.
+    intros.
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply colimInCommutes.
+  }
+  pose (pr2 (pr2 c y (make_cocone (λ v, colimIn c v · f₂) Hf₂)) (f₁ ,, H)) as p.
+  refine (maponpaths pr1 p @ _).
+  pose (pr2 (pr2 c y (make_cocone (λ v, colimIn c v · f₂) Hf₂)) (f₂ ,, λ _, idpath _)) as q.
+  exact (!(maponpaths pr1 q)).
+Qed.

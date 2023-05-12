@@ -51,6 +51,7 @@ This file contains proofs that the following functors are (omega-)cocontinuous:
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 *)
 
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -977,7 +978,7 @@ destruct (natlthorgeh i j) as [h|h].
     rewrite BinProductOfArrows_comp, id_left.
     eapply pathscomp0; [apply BinProductOfArrows_comp|].
     rewrite id_right.
-    apply maponpaths_12; trivial; rewrite id_left; simpl.
+    apply maponpaths_12; try apply idpath; rewrite id_left; simpl.
     destruct (natlehchoice4 i j h0) as [h1|h1].
     + apply cancel_postcomposition, maponpaths, maponpaths, isasetbool.
     + destruct h1; destruct (isirreflnatlth _ h).
@@ -992,7 +993,7 @@ destruct (natlthorgeh i j) as [h|h].
       eapply pathscomp0; [apply cancel_postcomposition, BinProductOfArrows_comp|].
       rewrite id_left, id_right.
       apply cancel_postcomposition,
-        (maponpaths_12 (BinProductOfArrows _ _ _)); trivial.
+        (maponpaths_12 (BinProductOfArrows _ _ _)); try apply idpath.
       simpl; destruct (natlehchoice4 i i h0) as [h1|h1]; [destruct (isirreflnatlth _ h1)|].
       apply maponpaths, maponpaths, isasetnat.
   * destruct (natgehchoice i j h) as [h1|h1].
@@ -1000,13 +1001,14 @@ destruct (natlthorgeh i j) as [h|h].
       { unfold fun_gt; rewrite assoc.
         eapply pathscomp0; [eapply cancel_postcomposition, BinProductOfArrows_comp|].
         rewrite id_right.
-        apply cancel_postcomposition, maponpaths_12; trivial.
+        apply cancel_postcomposition, maponpaths_12; try apply idpath.
         now rewrite <- (chain_mor_right h1 h2). }
       { destruct h; unfold fun_gt; simpl.
-        generalize h1; clear h1.
-        rewrite h2; intro h1.
+        destruct (!h2).
+        assert (eq: h2 = (idpath _)). { apply isasetnat. }
+        rewrite eq.
         apply cancel_postcomposition.
-        apply maponpaths_12; trivial; simpl.
+        apply maponpaths_12; try apply idpath; simpl.
         destruct (natlehchoice4 j j h1); [destruct (isirreflnatlth _ h)|].
         apply maponpaths, maponpaths, isasetnat. }
     + destruct h1; destruct (negnatgehnsn _ h0).
@@ -1130,14 +1132,14 @@ Proof.
             unfold f, fun_gt.
             eapply pathscomp0; [apply BinProductOfArrows_comp|].
             rewrite id_left, id_right.
-            apply (maponpaths_12 (BinProductOfArrows _ _ _)); trivial; simpl.
+            apply (maponpaths_12 (BinProductOfArrows _ _ _)); try apply idpath; simpl.
             destruct (natlehchoice4 i i h0); [destruct (isirreflnatlth _ h1)|].
             apply maponpaths, maponpaths, isasetnat.
        }
     * destruct p, h.
       destruct (natlthorgeh i (S i)); [|destruct (negnatgehnsn _ h)].
       apply cancel_postcomposition; unfold f, fun_lt.
-      apply maponpaths_12; trivial; simpl.
+      apply maponpaths_12; try apply idpath; simpl.
       destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
       assert (H : idpath (S i) = maponpaths S p). apply isasetnat.
       now rewrite H.
@@ -1193,7 +1195,7 @@ Proof.
       apply pathsinv0.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
       rewrite !id_left, id_right.
-      apply maponpaths_12; trivial.
+      apply maponpaths_12; try apply idpath.
       apply (maponpaths pr1 (chain_mor_coconeIn cAB LM ccLM i j h)).
     * destruct (natgehchoice i j h).
       { unfold fun_gt; rewrite <- (p i), !assoc.

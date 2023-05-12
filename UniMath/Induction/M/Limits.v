@@ -68,7 +68,7 @@ Section StandardLimitHomot.
     refine (transport_lemma _ @ _).
     apply funextsec; intro u; apply funextsec; intro v; apply funextsec; intro ed.
     rewrite toforallpaths_funextsec.
-    replace (pr2 y u v ed) with (idpath _ @ (pr2 y u v ed)) by reflexivity.
+    change (pr2 y u v ed) with (idpath _ @ (pr2 y u v ed)).
     refine (_ @ maponpaths (λ p, p @ _) (pathsinv0l (maponpaths _ (pr1 h u)))).
     refine (_ @ (path_assoc (! maponpaths _ _) (maponpaths _ _) _)).
     rewrite maponpathsinv0.

@@ -48,6 +48,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 
 Local Open Scope cat.
@@ -146,7 +147,7 @@ This grammar then gives 6 operations, to the left as Vladimir's restricted
 (** The multisorted signature of CC-S *)
 Definition CCS_Sig : MultiSortedSig sort.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - exact (stn 6,,isasetstn 6).
 - apply six_rec.
   + exact ((([],,ty) :: (cons el [],,ty) :: nil),,ty).

@@ -23,20 +23,26 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require UniMath.CategoryTheory.PointedFunctors.
 Require UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
+Require Import UniMath.CategoryTheory.coslicecat.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 
-  Context (C : category).
+Section A.
+Context (C : category).
 
+  (*
   Definition pointedfunctors_disp_cat : disp_cat (cat_of_endofunctors C).
   Proof.
     use disp_struct.
@@ -107,3 +113,17 @@ Local Open Scope cat.
     pointedfunctors_disp_moncat_data ,, pointedfunctors_disp_moncat_laws.
 
   Definition pointedfunctors_moncat : monoidal pointedfunctors_cat := total_monoidal pointedfunctors_disp_moncat.
+   *)
+
+Definition pointedfunctors_disp_cat : disp_cat (cat_of_endofunctors C)
+  := coslice_cat_disp (cat_of_endofunctors C) I_{monoidal_of_endofunctors C}.
+
+Definition pointedfunctors_cat : category := total_category pointedfunctors_disp_cat.
+Definition pointedfunctors_disp_moncat : disp_monoidal pointedfunctors_disp_cat
+                                                       (monoidal_of_endofunctors C)
+  := monoidal_pointed_objects_disp (monoidal_of_endofunctors C).
+
+Definition pointedfunctors_moncat : monoidal pointedfunctors_cat
+  := total_monoidal pointedfunctors_disp_moncat.
+
+End A.

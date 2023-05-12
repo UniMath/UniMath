@@ -10,6 +10,7 @@
   - Pushouts from colimits [PushoutsHSET_from_Colims]
   - Initial object [InitialHSET]
     - Initial object from colimits [InitialHSET_from_Colims]
+  - Every set is the colimit of its finite subsets [is_colimit_finite_subsets_cocone]
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -38,6 +39,9 @@ Require Import UniMath.CategoryTheory.limits.initial.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
+(* For colimits of finite subsets. *)
+Require Import UniMath.Combinatorics.FiniteSets.
+Require Import UniMath.MoreFoundations.Subtypes.
 Local Open Scope cat.
 
 (** ** General colimits [ColimsHSET] *)
@@ -51,8 +55,7 @@ Local Definition cobase : UU := ∑ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  make_hProp (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
-            (isapropishinh _).
+    ∥(∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb)∥.
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
 
@@ -294,4 +297,169 @@ Require UniMath.CategoryTheory.limits.graphs.initial.
 Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
   apply initial.Initial_from_Colims, ColimsHSET_of_shape.
+Defined.
+
+Section finite_subsets.
+  (* This section proves that every set is the colimit of its finite subsets
+     by showing that it satisfies the universal property. *)
+
+  Local Open Scope subtype.
+  Local Open Scope logic.
+
+  Definition finite_subsets_graph (X : hSet) : graph.
+  Proof.
+    use make_graph.
+    - exact(finite_subset X).
+    - exact(λ (A B : finite_subset X), A ⊆ B).
+  Defined.
+
+  Definition finite_subsets_diagram (X : hSet)
+    : diagram (finite_subsets_graph X) HSET.
+  Proof.
+    use make_diagram.
+    - exact(λ (A : finite_subset X), carrier_subset A).
+    - exact(λ (A B : finite_subset X)
+              (E : A ⊆ B),
+             subtype_inc E).
+  Defined.
+
+  (* Construct the cocone with apex X over the finite subsets diagram
+     with injections taken to be the projections from the carriers of the subsets. *)
+  Definition finite_subsets_cocone (X : hSet)
+    : cocone (finite_subsets_diagram X) X.
+  Proof.
+    use make_cocone.
+    - exact(λ (A : finite_subset X), pr1carrier A).
+    - red ; intros ; apply idpath.
+  Defined.
+
+  (* Every set is the colimit of its finite subsets. *)
+  Definition is_colimit_finite_subsets_cocone (X : hSet)
+    : isColimCocone (finite_subsets_diagram X) X (finite_subsets_cocone X).
+  Proof.
+    set (D := finite_subsets_diagram X).
+    intros Y CC.
+    (* Construct the unique cocone morphism X --> Y by mapping x : X to
+       whatever coconeIn CC maps the unique inhabitant of {x} to. *)
+    use unique_exists.
+    - exact(λ (x : X), coconeIn CC (finite_singleton x) singleton_point).
+    - intros A.
+      apply funextfun ; intro a.
+
+      (* {a} ⊆ A *)
+      set (a_in_A := finite_singleton_is_in (A : finite_subset X) a).
+
+      (* {a} -⊆-> A ---> Y commutes with {a} -(inj)-> Y by the cocone property of CC. *)
+      assert(p : dmor D a_in_A · coconeIn CC A = coconeIn CC (finite_singleton (pr1 a)))
+        by apply coconeInCommutes.
+
+      apply(eqtohomot (!p)).
+    - intro ; apply isaprop_is_cocone_mor.
+    - intros f fmor.
+      apply funextfun ; intro x.
+      exact(eqtohomot (fmor (finite_singleton x)) singleton_point).
+  Defined.
+
+End finite_subsets.
+
+(**
+ Concrete construction of coequalizers of sets
+ *)
+Section HSETCoequalizer.
+  Context {X Y : hSet}
+          (f g : X → Y).
+
+  Definition coequalizer_eqrel
+    : eqrel Y.
+  Proof.
+    use make_eqrel.
+    - exact (eqrel_from_hrel (λ y₁ y₂, ∃ (x : X) , f x = y₁ × g x = y₂)).
+    - apply iseqrel_eqrel_from_hrel.
+  Defined.
+
+  Definition coequalizer_hSet
+    : hSet
+    := setquotinset coequalizer_eqrel.
+
+  Definition coequalizer_map_hSet
+    : Y → coequalizer_hSet
+    := setquotpr coequalizer_eqrel.
+
+  Proposition coequalizer_eq_hSet
+              (x : X)
+    : coequalizer_map_hSet (f x)
+      =
+      coequalizer_map_hSet (g x).
+  Proof.
+    apply iscompsetquotpr.
+    use eqrel_impl.
+    apply hinhpr.
+    exists x.
+    split.
+    - apply idpath.
+    - apply idpath.
+  Qed.
+
+  Lemma coequalizer_out_hSet_equality
+        (Z : hSet)
+        (h : Y → Z)
+        (p : ∏ (x : X), h(f x) = h(g x))
+    : iscomprelfun coequalizer_eqrel h.
+  Proof.
+    intros y₁ y₂ q.
+    cbn in *.
+    use (q (make_eqrel (λ y₁ y₂, make_hProp (h y₁ = h y₂) _) _)).
+    - apply setproperty.
+    - repeat split.
+      + exact (λ _ _ _ r₁ r₂, r₁ @ r₂).
+      + exact (λ _ _ r, !r).
+    - intros x y ; cbn.
+      use factor_through_squash.
+      {
+        apply setproperty.
+      }
+      intros r.
+      rewrite <- (pr12 r).
+      rewrite <- (pr22 r).
+      apply p.
+  Qed.
+
+  Definition coequalizer_out_hSet
+             {Z : hSet}
+             (h : Y → Z)
+             (p : ∏ (x : X), h(f x) = h(g x))
+    : coequalizer_hSet → Z.
+  Proof.
+    use setquotuniv.
+    - exact h.
+    - exact (coequalizer_out_hSet_equality Z h p).
+  Defined.
+End HSETCoequalizer.
+
+Definition Coequalizers_HSET
+  : Coequalizers HSET.
+Proof.
+  intros X Y f g.
+  use make_Coequalizer.
+  - exact (coequalizer_hSet f g).
+  - exact (coequalizer_map_hSet f g).
+  - abstract
+      (use funextsec ;
+       intro x ;
+       cbn ;
+       exact (coequalizer_eq_hSet f g x)).
+  - intros Z h p.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply homset_property | ] ;
+         use funextsec ;
+         use setquotunivprop' ; [ intro ; apply setproperty | ] ;
+         intro x ; cbn ;
+         exact (eqtohomot (pr2 φ₁ @ !(pr2 φ₂)) x)).
+    + simple refine (_ ,, _).
+      * exact (coequalizer_out_hSet f g h (eqtohomot p)).
+      * abstract
+          (apply idpath).
 Defined.

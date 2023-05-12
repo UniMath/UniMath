@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
@@ -31,7 +31,6 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-
 
 Import Bicat.Notations.
 
@@ -281,7 +280,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
                                               (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C).
   Proof.
     use tpair.
-    - apply (mk_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
+    - apply (make_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
                        (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C)
                        functor_ptd_forget_alt (nat_trans_id _) aux).
       + abstract

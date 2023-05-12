@@ -11,21 +11,18 @@ Direct implementation of binary coproducts togther with:
 - Binary coproducts from colimits ([BinCoproducts_from_Colims])
 - Equivalent universal property: (A --> C) × (B --> C) ≃ (A + B --> C)
 - The type of coproducts on a given diagram is a proposition
+- Associativity
+- Distribution over a functor
 
 Written by Benedikt Ahrens, March 2015
 Extended by Anders Mörtberg and Tomi Pannila, 2016
 Extended by Langston Barrett (@siddharthist), 2018
+Extended by Ralph Matthes, 2023
 
 *********************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.WeakEquivalences.
-
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -37,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.ProductCategory.
 
 Local Open Scope cat.
@@ -46,7 +44,7 @@ Local Open Scope cat.
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
 
-Variable C : category.
+Context (C : category).
 
 Definition isBinCoproduct (a b co : C) (ia : a --> co) (ib : b --> co) :=
   ∏ (c : C) (f : a --> c) (g : b --> c),
@@ -231,7 +229,7 @@ Proof.
   { apply proofirrelevancecontr. apply H'. }
   apply pathsinv0.
   apply (base_paths _ _ X').
-Defined.
+Qed.
 
 Definition from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
   : BinCoproductObject CC --> BinCoproductObject CC'.
@@ -239,11 +237,10 @@ Proof.
   apply (BinCoproductArrow CC  (BinCoproductIn1 _ ) (BinCoproductIn2 _ )).
 Defined.
 
-
-Lemma is_z_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
-  : is_z_isomorphism (from_BinCoproduct_to_BinCoproduct CC CC').
+Lemma is_inverse_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b) :
+  is_inverse_in_precat (from_BinCoproduct_to_BinCoproduct CC CC')
+    (from_BinCoproduct_to_BinCoproduct CC' CC).
 Proof.
-  exists (from_BinCoproduct_to_BinCoproduct CC' CC).
   split; simpl.
   - apply pathsinv0.
     apply BinCoproduct_endo_is_identity.
@@ -261,6 +258,13 @@ Proof.
       repeat rewrite BinCoproductIn1Commutes; apply idpath.
     + rewrite assoc; unfold from_BinCoproduct_to_BinCoproduct.
       repeat rewrite BinCoproductIn2Commutes; apply idpath.
+Qed.
+
+Lemma is_z_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
+  : is_z_isomorphism (from_BinCoproduct_to_BinCoproduct CC CC').
+Proof.
+  exists (from_BinCoproduct_to_BinCoproduct CC' CC).
+  apply is_inverse_from_BinCoproduct_to_BinCoproduct.
 Defined.
 
 Definition z_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
@@ -280,19 +284,7 @@ Arguments BinCoproductIn2 [_ _ _] _.
 
 Section coproduct_unique.
 
-  Variable C : category.
-Hypothesis H : is_univalent C.
-
-Variables a b : C.
-
-(* TODO: upstream *)
-Lemma transportf_isotoid' (c d d': C) (p : z_iso d d') (f : c --> d) :
-  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
-Proof.
-  rewrite <- idtoiso_postcompose.
-  rewrite idtoiso_isotoid.
-  apply idpath.
-Defined.
+Context (C : category) (H : is_univalent C) (a b : C).
 
 Lemma isaprop_BinCoproduct : isaprop (BinCoproduct a b).
 Proof.
@@ -317,13 +309,9 @@ Qed.
 
 End coproduct_unique.
 
-
-
 Section BinCoproducts.
 
-Variable C : category.
-Variable CC : BinCoproducts C.
-Variables a b c d x y : C.
+Context (C : category) (CC : BinCoproducts C) (a b c d x y : C).
 
 Lemma BinCoproductArrow_eq_cor (f f' : BinCoproductObject (CC a b) --> c)
   : BinCoproductIn1 _· f = BinCoproductIn1 _· f' → BinCoproductIn2 _· f = BinCoproductIn2 _· f' →
@@ -565,7 +553,7 @@ Definition BinCoproductOfArrows_comp (f : a --> c) (f' : b --> d) (g : c --> x) 
   : BinCoproductOfArrows _ (CC a b) (CC c d) f f' ·
     BinCoproductOfArrows _ (CC _ _) (CC _ _) g g'
     =
-    BinCoproductOfArrows _ (CC _ _) (CC _ _)(f · g) (f' · g').
+    BinCoproductOfArrows _ (CC _ _) (CC _ _) (f · g) (f' · g').
 Proof.
   apply BinCoproductArrowUnique.
   - rewrite assoc.
@@ -598,7 +586,7 @@ End BinCoproducts.
 (** * Binary coproducts from colimits *)
 Section BinCoproducts_from_Colims.
 
-Variables (C : category).
+Context (C : category).
 
 Definition two_graph : graph := (bool,,λ _ _,empty).
 
@@ -611,7 +599,7 @@ Defined.
 Definition BinCoprod {a b c : C} (ac : a --> c) (bc : b --> c) :
    cocone (bincoproduct_diagram a b) c.
 Proof.
-use make_cocone; simpl.
+use make_cocone.
 + intros x; induction x; assumption.
 + abstract (intros x y e; destruct e).
 Defined.
@@ -619,13 +607,13 @@ Defined.
 Lemma BinCoproducts_from_Colims : Colims_of_shape two_graph C -> BinCoproducts C.
 Proof.
 intros H a b.
-set (CC := H (bincoproduct_diagram a b)); simpl.
+set (CC := H (bincoproduct_diagram a b)).
 use make_BinCoproduct.
 + apply (colim CC).
 + apply (colimIn CC true).
 + apply (colimIn CC false).
-+ apply (make_isBinCoproduct _ C); simpl; intros c f g.
-  use unique_exists; simpl.
++ apply (make_isBinCoproduct _ C); intros c f g.
+  use unique_exists.
   - apply colimArrow, (BinCoprod f g).
   - abstract (split;
       [ apply (colimArrowCommutes CC c (BinCoprod f g) true)
@@ -647,15 +635,47 @@ use make_Coproduct.
 - apply (HC (H true) (H false)).
 - induction i; apply (pr1 (HC (H true) (H false))).
 - use (make_isCoproduct _ _ C); intros c f.
-  induction (pr2 (HC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
+  set (uniqex := pr2 (HC (H true) (H false)) c (f true) (f false)).
+  (* induction (pr2 (HC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4]. *)
   use unique_exists.
-  + apply x1.
-  + cbn; induction i; assumption.
-  + intros x; apply impred; intros; apply C.
-  + intros h1 h2.
-    apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
+  + exact (pr1 (pr1 uniqex)).
+  + abstract (cbn; induction i;
+              [exact (pr1 (pr2 (pr1 uniqex))) | exact (pr2 (pr2 (pr1 uniqex)))]).
+  + abstract (intros x; apply impred; intros; apply C).
+  + abstract (intros h1 h2;
+              apply (maponpaths pr1 (pr2 uniqex (h1,,(h2 true,,h2 false))))).
 Defined.
 
+Definition BinCoproducts_from_Coproducts
+           {C : category}
+           (HC : Coproducts bool C)
+  : BinCoproducts C.
+Proof.
+  intros x y.
+  use make_BinCoproduct.
+  - exact (HC (λ b, if b then x else y)).
+  - exact (CoproductIn _ _ _ true).
+  - exact (CoproductIn _ _ _ false).
+  - intros w g₁ g₂.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+         use CoproductArrow_eq ;
+         intro b ;
+         induction b ; [ exact (pr12 φ₁ @ !(pr12 φ₂)) | ] ;
+         exact (pr22 φ₁ @ !(pr22 φ₂))).
+    + simple refine (_ ,, _ ,, _).
+      * refine (CoproductArrow _ _ _ _).
+        intro b ; induction b.
+        ** exact g₁.
+        ** exact g₂.
+      * abstract
+          (exact (CoproductInCommutes _ _ _ _ _ _ true)).
+      * abstract
+          (exact (CoproductInCommutes _ _ _ _ _ _ false)).
+Defined.
 End CoproductsBool.
 
 Section functors.
@@ -666,7 +686,7 @@ Proof.
 use tpair.
 - intros p.
   apply (BinCoproductObject (PC (pr1 p) (pr2 p))).
-- simpl; intros p q f.
+- intros p q f.
   apply (BinCoproductOfArrows _ (PC (pr1 p) (pr2 p))
                              (PC (pr1 q) (pr2 q)) (pr1 f) (pr2 f)).
 Defined.
@@ -688,16 +708,16 @@ Definition bincoproduct_functor {C : category} (PC : BinCoproducts C)
   : functor (category_binproduct C C) C
   := make_functor _ (is_functor_bincoproduct_functor_data PC).
 
-(* Defines the copropuct of two functors *)
+(* Defines the coproduct of two functors *)
 Definition BinCoproduct_of_functors_alt {C D : category}
            (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
     tuple_functor (λ b, bool_rect (λ _, C ⟶ D) F G b) ∙
     coproduct_functor bool (CoproductsBool HD).
 
-(* Defines the copropuct of two functors by:
+(* Defines the coproduct of two functors by:
     x -> (x,x) -> (F x,G x) -> F x + G x
 
-  For a direct and equal definition see FunctorsPointwiseBinCoproduct.v
+  For a direct and equal definition see FunctorsPointwiseBinCoproduct.v (seems obsolete)
 
   Above is a slightly simpler definition
 *)
@@ -707,13 +727,12 @@ Definition BinCoproduct_of_functors_alt2 {C D : category}
 
 End functors.
 
-(** In the following section we show that if the morphism to components are
+(** In the following section we show that if the morphisms to components are
     zero, then the unique morphism factoring through the bincoproduct is the
     zero morphism. *)
 Section BinCoproduct_zeroarrow.
 
-  Variable C : category.
-  Variable Z : Zero C.
+  Context (C : category) (Z : Zero C).
 
   Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproduct x y} (f : x --> z) (g : y --> z) :
     f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinCoproductArrow BP f g = ZeroArrow Z _ _ .
@@ -731,12 +750,11 @@ End BinCoproduct_zeroarrow.
 
 Section def_functor_pointwise_coprod.
 
-Variable C D : category.
-Variable HD : BinCoproducts D.
+Context (C D : category) (HD : BinCoproducts D).
 
 Section BinCoproduct_of_functors.
 
-Variables F G : functor C D.
+Context (F G : functor C D).
 
 Local Notation "c ⊗ d" := (BinCoproductObject (HD c d)).
 
@@ -802,19 +820,19 @@ Lemma BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors :
   BinCoproduct_of_functors_alt2 HD F G = BinCoproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors :
   BinCoproduct_of_functors_alt HD F G = BinCoproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt2 :
   BinCoproduct_of_functors_alt  HD F G = BinCoproduct_of_functors_alt2 HD F G.
 Proof.
 now apply (functor_eq _ _ D).
-Defined.
+Qed.
 
 Definition coproduct_nat_trans_in1_data : ∏ c, F c --> BinCoproduct_of_functors c
   := λ c : C, BinCoproductIn1 (HD (F c) (G c)).
@@ -863,9 +881,7 @@ Section vertex.
 
 (** The coproduct morphism of a diagram with vertex [A] *)
 
-Variable A : functor C D.
-Variable f : F ⟹ A.
-Variable g : G ⟹ A.
+Context (A : functor C D) (f : F ⟹ A) (g : G ⟹ A).
 
 Definition coproduct_nat_trans_data : ∏ c, BinCoproduct_of_functors c --> A c.
 Proof.
@@ -972,7 +988,6 @@ Proof.
      exists (tpair _ (coproduct_nat_trans A f g)
              (make_dirprod (coproduct_nat_trans_In1Commutes _ _ _ )
                           (coproduct_nat_trans_In2Commutes _ _ _ ))).
-     simpl.
      apply coproduct_nat_trans_univ_prop.
 Defined.
 
@@ -1014,7 +1029,7 @@ End generalized_option_functors.
 (** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
 Section BinCoproduct_from_z_iso.
 
-  Variable C : category.
+  Context (C : category).
 
   Local Lemma z_iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct x y)
         (i : z_iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) :
@@ -1056,11 +1071,10 @@ Section BinCoproduct_from_z_iso.
     (* Commutativity *)
     - exact (z_iso_to_isBinCoproduct_comm BP i w f g).
     (* Equality on equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply C. apply C.
+    - abstract (intros y0; apply isapropdirprod; apply C).
     (* Uniqueness *)
-    - intros y0 T. exact (z_iso_to_isBinCoproduct_unique BP i w f g y0 T).
-  Defined.
-  Opaque z_iso_to_isBinCoproduct.
+    - abstract (intros y0 T; exact (z_iso_to_isBinCoproduct_unique BP i w f g y0 T)).
+  Qed.
 
   Definition z_iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct x y)
              (i : z_iso z (BinCoproductObject BP)) :
@@ -1108,7 +1122,7 @@ Section EquivalentDefinition.
     intros isBCP ? fg.
     unfold hfiber, precomp_with_injections.
     apply (@iscontrweqf (∑ u : C ⟦ co, c ⟧, i1 · u = pr1 fg × i2 · u = pr2 fg)).
-    - use weqfibtototal; intros to_prod; cbn.
+    - use weqfibtototal; intros to_prod.
       apply invweq, pathsdirprodweq.
     - exact (isBCP c (pr1 fg) (pr2 fg)). (* apply universal property *)
   Defined.
@@ -1167,10 +1181,10 @@ Section BinCoproductOfIsos.
   Let fg_inv : BinCoproductObject Pcd --> BinCoproductObject Pab
     := BinCoproductOfArrows _ _ _ (inv_from_z_iso f) (inv_from_z_iso g).
 
-  Definition bincoproduct_of_z_iso_inv
+  Lemma bincoproduct_of_z_iso_inv
     : is_inverse_in_precat fg fg_inv.
   Proof.
-    split ; use BinCoproductArrowsEq ; unfold fg, fg_inv.
+    split; use BinCoproductArrowsEq; unfold fg, fg_inv.
     - rewrite !assoc.
       rewrite BinCoproductOfArrowsIn1.
       rewrite !assoc'.
@@ -1213,4 +1227,268 @@ Section BinCoproductOfIsos.
     - exact fg_inv.
     - exact bincoproduct_of_z_iso_inv.
   Defined.
+
 End BinCoproductOfIsos.
+
+Section AssociativityOfBinaryCoproduct.
+
+  Context {C : category} (BCP : BinCoproducts C).
+
+  Definition bincoprod_associator_data (c d e : C) : BCP (BCP c d) e --> BCP c (BCP d e).
+  Proof.
+    use BinCoproductArrow.
+    - use BinCoproductOfArrows.
+      + exact (identity c).
+      + apply BinCoproductIn1.
+    - refine (_ · BinCoproductIn2 _).
+      apply BinCoproductIn2.
+  Defined.
+
+  Definition bincoprod_associatorinv_data (c d e : C) : BCP c (BCP d e) --> BCP (BCP c d) e.
+  Proof.
+    use BinCoproductArrow.
+    - refine (_ · BinCoproductIn1 _).
+      apply BinCoproductIn1.
+    - use BinCoproductOfArrows.
+      + apply BinCoproductIn2.
+      + exact (identity e).
+  Defined.
+
+  Lemma bincoprod_associator_inverses (c d e : C) :
+    is_inverse_in_precat (bincoprod_associator_data c d e) (bincoprod_associatorinv_data c d e).
+  Proof.
+    split.
+    + apply pathsinv0, BinCoproduct_endo_is_identity.
+      * rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductIn1Commutes. }
+        use BinCoproductArrowsEq.
+        -- repeat rewrite assoc.
+           etrans.
+           { apply cancel_postcomposition.
+             apply BinCoproductIn1Commutes. }
+           rewrite id_left.
+           etrans.
+           { apply BinCoproductIn1Commutes. }
+           apply idpath.
+        -- repeat rewrite assoc.
+           etrans.
+           { apply cancel_postcomposition.
+             apply BinCoproductIn2Commutes. }
+           etrans.
+           { rewrite assoc'.
+             apply maponpaths.
+             apply BinCoproductIn2Commutes. }
+           apply BinCoproductOfArrowsIn1.
+      * rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductIn2Commutes. }
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinCoproductIn2Commutes. }
+        rewrite BinCoproductOfArrowsIn2.
+        apply id_left.
+    + apply pathsinv0, BinCoproduct_endo_is_identity.
+      * rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductIn1Commutes. }
+        etrans.
+        { rewrite assoc'.
+          apply maponpaths.
+          apply BinCoproductIn1Commutes. }
+        rewrite BinCoproductOfArrowsIn1.
+        apply id_left.
+      * rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductIn2Commutes. }
+        use BinCoproductArrowsEq.
+        -- repeat rewrite assoc.
+           etrans.
+           { apply cancel_postcomposition.
+             apply BinCoproductOfArrowsIn1. }
+           etrans.
+           { rewrite assoc'.
+             apply maponpaths.
+             apply BinCoproductIn1Commutes. }
+           apply BinCoproductOfArrowsIn2.
+        -- repeat rewrite assoc.
+           etrans.
+           { apply cancel_postcomposition.
+             apply BinCoproductOfArrowsIn2. }
+           rewrite id_left.
+           etrans.
+           { apply BinCoproductIn2Commutes. }
+           apply idpath.
+  Qed.
+
+  Definition bincoprod_associator (c d e : C) : z_iso (BCP (BCP c d) e) (BCP c (BCP d e))
+    := bincoprod_associator_data c d e,,
+         bincoprod_associatorinv_data c d e,,
+         bincoprod_associator_inverses c d e.
+
+End AssociativityOfBinaryCoproduct.
+
+Section DistributionThroughFunctor.
+
+  Context {C D : category} (BCPC : BinCoproducts C) (BCPD : BinCoproducts D) (F : functor C D).
+
+  Definition bincoprod_antidistributor (c c' : C) :
+    BCPD (F c) (F c') --> F (BCPC c c').
+  Proof.
+    use BinCoproductArrow; apply #F; [apply BinCoproductIn1 | apply BinCoproductIn2 ].
+  Defined.
+
+  Lemma bincoprod_antidistributor_nat
+    (cc'1 cc'2 : category_binproduct C C) (g : category_binproduct C C ⟦ cc'1, cc'2 ⟧) :
+    bincoprod_antidistributor (pr1 cc'1) (pr2 cc'1) · #F (#(bincoproduct_functor BCPC) g) =
+    #(bincoproduct_functor BCPD) (#(pair_functor F F) g) · bincoprod_antidistributor (pr1 cc'2) (pr2 cc'2).
+  Proof.
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, precompWithBinCoproductArrow. }
+    apply maponpaths_12.
+    - etrans.
+      { apply pathsinv0, functor_comp. }
+      etrans.
+      2: { apply functor_comp. }
+      apply maponpaths.
+      apply BinCoproductIn1Commutes.
+    - etrans.
+      { apply pathsinv0, functor_comp. }
+      etrans.
+      2: { apply functor_comp. }
+      apply maponpaths.
+      apply BinCoproductIn2Commutes.
+  Qed.
+
+   Lemma bincoprod_antidistributor_commutes_with_associativity_of_coproduct (c d e : C) :
+    #(bincoproduct_functor BCPD) (catbinprodmor (bincoprod_antidistributor c d) (identity (F e))) ·
+      bincoprod_antidistributor (BCPC c d) e ·
+      #F (bincoprod_associator_data BCPC c d e) =
+    bincoprod_associator_data BCPD (F c) (F d) (F e) ·
+      #(bincoproduct_functor BCPD) (catbinprodmor (identity (F c)) (bincoprod_antidistributor d e)) ·
+      bincoprod_antidistributor c (BCPC d e).
+  Proof.
+    etrans.
+    { apply cancel_postcomposition.
+      apply precompWithBinCoproductArrow. }
+    etrans.
+    { apply postcompWithBinCoproductArrow. }
+    etrans.
+    2: { rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, precompWithBinCoproductArrow. }
+    etrans.
+    2: { apply pathsinv0, postcompWithBinCoproductArrow. }
+    apply maponpaths_12.
+    - etrans.
+      2: { apply pathsinv0, precompWithBinCoproductArrow. }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        etrans.
+        { apply pathsinv0, functor_comp. }
+        apply maponpaths.
+        apply BinCoproductIn1Commutes.
+      }
+      etrans.
+      { cbn. apply postcompWithBinCoproductArrow. }
+      apply maponpaths_12.
+      + cbn.
+        do 2 rewrite id_left.
+        etrans.
+        { apply pathsinv0, functor_comp. }
+        apply maponpaths.
+        rewrite BinCoproductOfArrowsIn1.
+        apply id_left.
+      + cbn.
+        etrans.
+        { apply pathsinv0, functor_comp. }
+        etrans.
+        { apply maponpaths.
+          apply BinCoproductOfArrowsIn2. }
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductIn1Commutes. }
+        apply functor_comp.
+    - etrans.
+      { cbn. rewrite id_left.
+        apply pathsinv0, functor_comp. }
+      etrans.
+      2: { rewrite assoc'.
+           apply maponpaths.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      cbn.
+      rewrite assoc.
+      etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, BinCoproductIn2Commutes. }
+      etrans.
+      { apply maponpaths.
+        apply BinCoproductIn2Commutes. }
+      apply functor_comp.
+  Qed.
+
+(** axiomatize extra requirements *)
+
+  Definition bincoprod_distributor_data : UU := ∏ (c c' : C),
+      F (BCPC c c') --> BCPD (F c) (F c').
+
+  Identity Coercion bincoprod_distributor_data_funclass: bincoprod_distributor_data >-> Funclass.
+
+  Definition bincoprod_distributor_iso_law (δ : bincoprod_distributor_data) : UU :=
+    ∏ (c c' : C), is_inverse_in_precat (δ c c') (bincoprod_antidistributor c c').
+
+  Definition bincoprod_distributor : UU := ∑ δ : bincoprod_distributor_data, bincoprod_distributor_iso_law δ.
+
+  Definition bincoprod_distributor_to_data (δ : bincoprod_distributor) : bincoprod_distributor_data := pr1 δ.
+  Coercion bincoprod_distributor_to_data : bincoprod_distributor >-> bincoprod_distributor_data.
+
+End DistributionThroughFunctor.
+
+Section DistributionForPrecompositionFunctor.
+
+  Context {A B C : category} (BCPC : BinCoproducts C) (H : functor A B).
+
+  Let BCPAC : BinCoproducts [A,C] := BinCoproducts_functor_precat A C BCPC.
+  Let BCPBC : BinCoproducts [B,C] := BinCoproducts_functor_precat B C BCPC.
+  Let precomp : functor [B,C] [A,C] := pre_composition_functor A B C H.
+
+  Definition precomp_bincoprod_distributor_data :  bincoprod_distributor_data BCPBC BCPAC precomp.
+  Proof.
+    intros G1 G2.
+    apply nat_trans_id.
+  Defined.
+
+  Lemma precomp_bincoprod_distributor_law :
+    bincoprod_distributor_iso_law _ _ _ precomp_bincoprod_distributor_data.
+  Proof.
+    intros F G.
+    split.
+    - apply (nat_trans_eq C).
+      intro c.
+      cbn.
+      rewrite id_left.
+      apply pathsinv0, BinCoproduct_endo_is_identity.
+      + apply BinCoproductIn1Commutes.
+      + apply BinCoproductIn2Commutes.
+    - etrans.
+      { apply postcompWithBinCoproductArrow. }
+      etrans.
+      2: { apply pathsinv0, BinCoproductArrowEta. }
+      apply maponpaths_12;
+        (rewrite id_right; apply (nat_trans_eq C); intro c; apply id_right).
+  Qed.
+
+  Definition precomp_bincoprod_distributor :  bincoprod_distributor BCPBC BCPAC precomp :=
+    _,,precomp_bincoprod_distributor_law.
+
+
+End DistributionForPrecompositionFunctor.

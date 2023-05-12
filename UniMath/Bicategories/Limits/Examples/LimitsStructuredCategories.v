@@ -65,7 +65,7 @@ Local Open Scope cat.
  1. Limits of categories with a terminal objects
  *)
 Definition disp_bifinal_univ_cat_with_terminal_obj
-  : disp_bifinal_obj disp_bicat_terminal_obj (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_terminal_obj bifinal_cats.
 Proof.
   use subbicat_disp_final.
   - exact terminal_unit_category.
@@ -77,7 +77,7 @@ Definition bifinal_obj_univ_cat_with_terminal_obj
   : bifinal_obj univ_cat_with_terminal_obj.
 Proof.
   use subbicat_final.
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact terminal_unit_category.
   - intros C.
     apply functor_to_unit_preserves_terminal.
@@ -192,7 +192,7 @@ Defined.
  2. Limits of categories with products
  *)
 Definition disp_bifinal_obj_univ_cat_with_binprod
-  : disp_bifinal_obj disp_bicat_binprod (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_binprod bifinal_cats.
 Proof.
   use subbicat_disp_final.
   - exact binproduct_unit_category.
@@ -204,7 +204,7 @@ Definition bifinal_obj_univ_cat_with_binprod
   : bifinal_obj univ_cat_with_binprod.
 Proof.
   use subbicat_final.
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact binproduct_unit_category.
   - intro.
     apply functor_to_unit_preserves_binproduct.
@@ -335,7 +335,7 @@ Defined.
  3. Limits of categories with pullbacks
  *)
 Definition disp_bifinal_obj_univ_cat_with_pb
-  : disp_bifinal_obj disp_bicat_pullback (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_pullback bifinal_cats.
 Proof.
   use subbicat_disp_final.
   - exact pullbacks_unit_category.
@@ -347,7 +347,7 @@ Definition bifinal_obj_univ_cat_with_pb
   : bifinal_obj univ_cat_with_pb.
 Proof.
   use subbicat_final.
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact pullbacks_unit_category.
   - intro.
     apply functor_to_unit_preserves_pullback.
@@ -478,7 +478,7 @@ Defined.
  4. Limits of categories with finite limits
  *)
 Definition disp_bifinal_obj_univ_cat_with_finlim
-  : disp_bifinal_obj disp_bicat_finlim (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_finlim bifinal_cats.
 Proof.
   use disp_dirprod_bifinal.
   - exact disp_bifinal_univ_cat_with_terminal_obj.
@@ -494,7 +494,7 @@ Proof.
     + apply disp_2cells_isaprop_subbicat.
   - intros.
     exact ((tt ,, tt) ,, (tt ,, tt)).
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact disp_bifinal_obj_univ_cat_with_finlim.
 Defined.
 
@@ -554,7 +554,7 @@ Defined.
  5. Limits of categories with initial objects
  *)
 Definition disp_bifinal_obj_univ_cat_with_initial
-  : disp_bifinal_obj disp_bicat_initial_obj (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_initial_obj bifinal_cats.
 Proof.
   use subbicat_disp_final.
   - exact initial_unit_category.
@@ -566,7 +566,7 @@ Definition bifinal_obj_univ_cat_with_initial
   : bifinal_obj univ_cat_with_initial.
 Proof.
   use subbicat_final.
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact initial_unit_category.
   - intro C.
     apply functor_to_unit_preserves_initial.
@@ -689,7 +689,7 @@ Defined.
  6. Limits of categories with coproducts
  *)
 Definition disp_bifinal_obj_univ_cat_with_bincoprod
-  : disp_bifinal_obj disp_bicat_bincoprod (_ ,, bifinal_cats).
+  : disp_bifinal_obj disp_bicat_bincoprod bifinal_cats.
 Proof.
   use subbicat_disp_final.
   - exact bincoproduct_unit_category.
@@ -701,7 +701,7 @@ Definition bifinal_obj_univ_cat_with_bincoprod
   : bifinal_obj univ_cat_with_bincoprod.
 Proof.
   use subbicat_final.
-  - exact (_ ,, bifinal_cats).
+  - exact bifinal_cats.
   - exact bincoproduct_unit_category.
   - intro C.
     apply functor_to_unit_preserves_bincoproduct.

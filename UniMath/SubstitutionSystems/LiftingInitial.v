@@ -50,7 +50,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -118,7 +118,7 @@ Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (runitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt.
@@ -147,7 +147,7 @@ Definition aux_iso_1 (Z : Ptd)
 Proof.
   use tpair.
   - intro X.
-    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functors (U Z))
+    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (runitor_CAT (U Z))
             (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_is_nat_trans Z).
 Defined.
@@ -162,7 +162,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (lunitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt.
@@ -189,7 +189,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
 Proof.
   use tpair.
   - intro X.
-    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functors (U Z))
+    exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (lunitor_CAT (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_inv_is_nat_trans Z).
 Defined.
@@ -307,10 +307,10 @@ Proof.
     unfold coproduct_nat_trans_in1_data ; simpl.
     repeat rewrite <- assoc .
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    unfold λ_functors; simpl.
+    simpl.
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    unfold ρ_functors; simpl.
+    simpl.
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
     rewrite (@id_left EndC).
@@ -322,7 +322,7 @@ Proof.
   - rewrite <- h_eq1'_inst.
     clear h_eq1'_inst.
     apply BinCoproductIn1Commutes_left_in_ctx_dir.
-    unfold λ_functors, nat_trans_id; simpl.
+    unfold nat_trans_id; simpl.
     rewrite id_left.
     repeat rewrite (id_left EndEndC).
     repeat rewrite (id_left EndC).
@@ -448,12 +448,12 @@ Proof.
       unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
       rewrite <- @assoc in h'_eq1_inst.
       etrans.
-      eapply pathsinv0. exact h'_eq1_inst.
+      { eapply pathsinv0; exact h'_eq1_inst. }
       clear h'_eq1_inst.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       apply BinCoproductIn1Commutes_right_dir.
-        apply idpath.
+      apply idpath.
     + destruct h'_eq as [_ h'_eq2]. (*clear h'_eq2.*)
       assert (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
         clear h'_eq2.
@@ -615,7 +615,7 @@ Proof.
     unfold compose;
     simpl;
     apply nat_trans_eq; [ apply homset_property |];
-    simpl; intros ?; apply assoc').
+    simpl; intro; apply assoc').
 Defined.
 
 Lemma ishssMor_InitAlg (T' : hss CP H) :
@@ -710,7 +710,7 @@ Proof.
             assert (Hyp := τ_part_of_alg_mor _ CP _ _ _ (InitialArrow IA (pr1 T'))).
             assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
             simpl in Hyp_c.
-            eapply pathscomp0. eapply pathsinv0. exact Hyp_c.
+            etrans; [ eapply pathsinv0; exact Hyp_c |].
             clear Hyp_c.
             apply maponpaths.
             apply pathsinv0.

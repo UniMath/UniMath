@@ -15,7 +15,8 @@
  2. The univalence
  3. Projections and constructions
  4. Invertible 2-cells
- 5. Underlying pseudofunctor
+ 5. Equivalences of monads
+ 6. Underlying pseudofunctor
 
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -32,6 +33,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Projection.
@@ -752,7 +754,7 @@ Section MonadMapProjections.
   Definition mnd_mor_unit
     : linvunitor _ • (unit_of_mnd m₁ ▹ _)
       =
-        rinvunitor _ • (_ ◃ unit_of_mnd m₂) • mnd_mor_endo
+      rinvunitor _ • (_ ◃ unit_of_mnd m₂) • mnd_mor_endo
     := pr1 (pr212 f).
 
   Definition mnd_mor_mu
@@ -949,7 +951,420 @@ Proof.
 Defined.
 
 (**
- 5. Underlying pseudofunctor
+ 5. Equivalences of monads
+ *)
+Section ToEquivalence.
+  Context {B : bicat}
+          {x : B}
+          {mx mx' : disp_mnd B x}
+          (m₁ := x,, mx : mnd B)
+          (m₂ := x,, mx' : mnd B)
+          (Hl : mx -->[ id₁ x ] mx').
+
+  Let l : m₁ --> m₂ := id₁ x ,, Hl.
+
+  Context (Hγ : is_invertible_2cell (mnd_mor_endo l)).
+
+  Definition to_equivalence_mnd_help_right_adj_data
+    : mnd_mor_data m₂ m₁.
+  Proof.
+    use make_mnd_mor_data.
+    - exact (id₁ x).
+    - exact (lunitor _
+             • rinvunitor _
+             • Hγ^-1
+             • lunitor _
+             • rinvunitor _).
+  Defined.
+
+  Definition to_equivalence_mnd_help_right_adj_laws
+    : mnd_mor_laws to_equivalence_mnd_help_right_adj_data.
+  Proof.
+    split.
+    - cbn.
+      rewrite !vassocl.
+      rewrite lunitor_V_id_is_left_unit_V_id.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rinvunitor_natural.
+        rewrite <- rwhisker_hcomp.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lunitor_runitor_identity.
+      rewrite runitor_rinvunitor.
+      rewrite id2_left.
+      apply maponpaths.
+      do 2 (use vcomp_move_R_Mp ; [ is_iso | ]) ; cbn.
+      rewrite linvunitor_natural.
+      rewrite rinvunitor_natural.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp.
+      rewrite lunitor_V_id_is_left_unit_V_id.
+      refine (_ @ mnd_mor_unit l).
+      rewrite <- lunitor_V_id_is_left_unit_V_id.
+      apply idpath.
+    - cbn.
+      rewrite <- !lwhisker_vcomp.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocr.
+      do 3 (use vcomp_move_L_Mp ; [ is_iso | ]) ; cbn.
+      rewrite !vassocl.
+      etrans.
+      {
+        do 13 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_runitor.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite linvunitor_natural.
+        rewrite <- lwhisker_hcomp.
+        rewrite !vassocl.
+        apply maponpaths.
+        exact (!(mnd_mor_mu l)).
+      }
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite vcomp_lunitor.
+        rewrite !vassocl.
+        rewrite rinvunitor_natural.
+        rewrite <- rwhisker_hcomp.
+        apply idpath.
+      }
+      rewrite <- lunitor_triangle.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      rewrite <- rinvunitor_triangle.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            rewrite !vassocr.
+            do 12 apply maponpaths_2.
+            rewrite rwhisker_hcomp.
+            rewrite <- triangle_r_inv.
+            rewrite <- lwhisker_hcomp.
+            apply idpath.
+          }
+          rewrite lwhisker_vcomp.
+          rewrite linvunitor_lunitor.
+          rewrite lwhisker_id2.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocl.
+        do 4 apply maponpaths.
+        rewrite !vassocr.
+        rewrite rinvunitor_triangle.
+        rewrite rinvunitor_runitor.
+        rewrite id2_left.
+        rewrite linvunitor_assoc.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rassociator_lassociator.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      cbn.
+      rewrite !vassocr.
+      rewrite !rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite !lwhisker_vcomp.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite vcomp_whisker.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        do 2 apply maponpaths_2.
+        apply maponpaths.
+        rewrite !vassocl.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            rewrite !vassocr.
+            rewrite lunitor_linvunitor.
+            apply id2_left.
+          }
+          apply vcomp_linv.
+        }
+        apply id2_right.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        apply maponpaths_2.
+        rewrite rwhisker_hcomp.
+        rewrite <- triangle_r_inv.
+        rewrite <- lwhisker_hcomp.
+        apply idpath.
+      }
+      rewrite !lwhisker_vcomp.
+      apply maponpaths.
+      refine (_ @ id2_right _).
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lunitor_linvunitor.
+        apply id2_left.
+      }
+      apply vcomp_linv.
+  Qed.
+
+  Definition to_equivalence_mnd_help_right_adj
+    : m₂ --> m₁.
+  Proof.
+    use make_mnd_mor.
+    - exact to_equivalence_mnd_help_right_adj_data.
+    - exact to_equivalence_mnd_help_right_adj_laws.
+  Defined.
+
+  Definition to_equivalence_mnd_help_equiv_unit_data
+    : mnd_cell_data
+        (id₁ m₁)
+        (l · to_equivalence_mnd_help_right_adj)
+    := linvunitor _.
+
+  Definition to_equivalence_mnd_help_equiv_unit_is_mnd_cell
+    : is_mnd_cell to_equivalence_mnd_help_equiv_unit_data.
+  Proof.
+    unfold is_mnd_cell, to_equivalence_mnd_help_equiv_unit_data ; cbn.
+    rewrite !vassocr.
+    refine (!_).
+    rewrite <- linvunitor_assoc.
+    rewrite lwhisker_hcomp.
+    rewrite <- linvunitor_natural.
+    rewrite !vassocl.
+    rewrite linvunitor_assoc.
+    rewrite !vassocl.
+    etrans.
+    {
+      do 6 apply maponpaths.
+      rewrite !vassocr.
+      rewrite rassociator_lassociator.
+      rewrite id2_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 4 apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite rwhisker_hcomp.
+      rewrite <- rinvunitor_natural.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite !vassocr.
+      rewrite lunitor_linvunitor.
+      rewrite id2_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_linv.
+      rewrite id2_left.
+      apply idpath.
+    }
+    do 2 apply maponpaths.
+    rewrite <- rinvunitor_triangle.
+    rewrite !vassocl.
+    rewrite lassociator_rassociator.
+    rewrite id2_right.
+    rewrite lunitor_V_id_is_left_unit_V_id.
+    apply idpath.
+  Qed.
+
+  Definition to_equivalence_mnd_help_equiv_unit
+    : id₁ m₁ ==> l · to_equivalence_mnd_help_right_adj.
+  Proof.
+    use make_mnd_cell.
+    - exact to_equivalence_mnd_help_equiv_unit_data.
+    - exact to_equivalence_mnd_help_equiv_unit_is_mnd_cell.
+  Defined.
+
+  Definition to_equivalence_mnd_help_equiv_counit_data
+    : mnd_cell_data
+        (to_equivalence_mnd_help_right_adj · l)
+        (id₁ m₂)
+    := lunitor _.
+
+  Definition to_equivalence_mnd_help_equiv_counit_is_mnd_cell
+    : is_mnd_cell to_equivalence_mnd_help_equiv_counit_data.
+  Proof.
+    unfold is_mnd_cell, to_equivalence_mnd_help_equiv_counit_data ; cbn.
+    rewrite <- !rwhisker_vcomp.
+    rewrite !vassocl.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite lunitor_triangle.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    rewrite <- lunitor_triangle.
+    rewrite !vassocr.
+    rewrite rassociator_lassociator.
+    rewrite id2_left.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite rwhisker_vcomp.
+    rewrite rinvunitor_runitor.
+    rewrite id2_right.
+    rewrite !rwhisker_vcomp.
+    use vcomp_move_L_Mp ; [ is_iso | ] ; cbn.
+    rewrite !vassocl.
+    rewrite vcomp_runitor.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite runitor_rinvunitor.
+      rewrite id2_left.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    rewrite vcomp_rinv.
+    apply id2_left.
+  Qed.
+
+  Definition to_equivalence_mnd_help_equiv_counit
+    : to_equivalence_mnd_help_right_adj · l ==> id₁ m₂.
+  Proof.
+    use make_mnd_cell.
+    - exact to_equivalence_mnd_help_equiv_counit_data.
+    - exact to_equivalence_mnd_help_equiv_counit_is_mnd_cell.
+  Defined.
+
+  Definition to_equivalence_mnd_help_equiv_data
+    : left_adjoint_data l
+    := to_equivalence_mnd_help_right_adj
+       ,,
+       (to_equivalence_mnd_help_equiv_unit
+       ,,
+       to_equivalence_mnd_help_equiv_counit).
+
+  Definition to_equivalence_mnd_help_equiv_axioms
+    : left_equivalence_axioms to_equivalence_mnd_help_equiv_data.
+  Proof.
+    split ; use is_invertible_mnd_2cell ; cbn.
+    - unfold to_equivalence_mnd_help_equiv_unit_data.
+      is_iso.
+    - unfold to_equivalence_mnd_help_equiv_counit_data.
+      is_iso.
+  Defined.
+
+  Definition to_equivalence_mnd_help_equiv
+    : left_equivalence l
+    := to_equivalence_mnd_help_equiv_data
+       ,,
+       to_equivalence_mnd_help_equiv_axioms.
+End ToEquivalence.
+
+Definition to_equivalence_mnd_help
+           {B : bicat}
+           (HB : is_univalent_2_0 B)
+           {x y : B}
+           (l : adjoint_equivalence x y)
+           {mx : disp_mnd B x}
+           {my : disp_mnd B y}
+           (m₁ := x ,, mx : mnd B)
+           (m₂ := y ,, my : mnd B)
+           (Hl : mx -->[ l ] my)
+           (ml := pr1 l ,, Hl : m₁ --> m₂)
+           (Hγ : is_invertible_2cell (mnd_mor_endo ml))
+  : left_adjoint_equivalence ml.
+Proof.
+  revert x y l mx my m₁ m₂ Hl ml Hγ.
+  use (J_2_0 HB).
+  intros x mx mx' m₁ m₂ Hl ml Hγ.
+  use equiv_to_adjequiv.
+  exact (to_equivalence_mnd_help_equiv Hl Hγ).
+Defined.
+
+Definition to_equivalence_mnd
+           {B : bicat}
+           (HB : is_univalent_2_0 B)
+           {m₁ m₂ : mnd B}
+           (l : m₁ --> m₂)
+           (Hl : left_adjoint_equivalence (pr1 l))
+           (Hγ : is_invertible_2cell (mnd_mor_endo l))
+  : left_adjoint_equivalence l.
+Proof.
+  exact (to_equivalence_mnd_help
+           HB
+           (pr1 l ,, Hl)
+           (pr2 l)
+           Hγ).
+Defined.
+
+(**
+ 6. Underlying pseudofunctor
  *)
 Definition und_mnd
            (B : bicat)

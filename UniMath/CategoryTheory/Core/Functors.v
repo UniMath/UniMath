@@ -194,6 +194,15 @@ Proof.
   - apply functor_id.
 Defined.
 
+Lemma functor_comp_id (A B : precategory) (G : functor A B) (a a' : A) (f : a --> a') (g : a' --> a)
+  : f · g = identity _ -> #G f · #G g = identity _ .
+Proof.
+  intro e.
+  intermediate_path (#G (identity a )).
+  - rewrite <- e. apply (! functor_comp _ _ _).
+  - apply functor_id_id.
+    apply idpath.
+Qed.
 
 
 
@@ -395,6 +404,22 @@ Proof.
   apply id_left.
 Qed.
 
+Lemma idtoiso_functor_precompose'
+      {C₁ C₂ : category}
+      (F : C₁ ⟶ C₂)
+      {y : C₂}
+      {x₁ x₂ : C₁}
+      (p : x₁ = x₂)
+      (f : y --> F x₁)
+  : f · idtoiso (maponpaths (λ z, F z) p)
+    =
+      transportf (λ z, y --> F z) p f.
+Proof.
+  induction p.
+  cbn.
+  apply id_right.
+Qed.
+
 Definition transportf_functor_isotoid
            {C₁ C₂ : category}
            (HC₁ : is_univalent C₁)
@@ -413,6 +438,27 @@ Proof.
   rewrite <- idtoiso_functor_precompose.
   rewrite maponpaths_idtoiso.
   rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+Lemma transportf_functor_isotoid'
+      {C₁ C₂ : category}
+      (HC₁ : is_univalent C₁)
+      (F : C₁ ⟶ C₂)
+      {y : C₂}
+      {x₁ x₂ : C₁}
+      (i : z_iso x₁ x₂)
+      (f : y --> F x₁)
+  : transportf
+      (λ z, y --> F z)
+      (isotoid _ HC₁ i)
+      f
+    =
+      f · #F i.
+Proof.
+  rewrite <- idtoiso_functor_precompose'.
+  rewrite maponpaths_idtoiso.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
@@ -574,6 +620,18 @@ Proof.
   apply invmap_eq.
   reflexivity.
 Defined.
+
+Definition functor_on_fully_faithful_inv_hom
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : fully_faithful F)
+           {x y : C₁}
+           (f : F x --> F y)
+  : #F (fully_faithful_inv_hom HF x y f) = f.
+Proof.
+  unfold fully_faithful_inv_hom.
+  exact (homotweqinvweq (weq_from_fully_faithful HF x y) f).
+Qed.
 
 Lemma fully_faithful_inv_identity (C D : precategory_data) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) :
@@ -946,13 +1004,9 @@ Defined.
 Lemma isaprop_full_and_faithful (C D : precategory_data) (F : functor C D) :
    isaprop (full_and_faithful F).
 Proof.
-  apply isofhleveldirprod.
-  apply impred; intro.
-  apply impred; intro.
-  apply impred; intro.
-  simpl. repeat (apply impred; intro).
-  apply isapropishinh.
-  apply isaprop_faithful.
+  apply isapropdirprod.
+  - apply isaprop_full.
+  - apply isaprop_faithful.
 Qed.
 
 

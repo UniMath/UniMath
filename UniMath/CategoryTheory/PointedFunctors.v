@@ -52,7 +52,7 @@ Lemma eq_ptd_mor {F G : ptd_obj} (a b : ptd_mor F G)
 Proof.
   apply subtypeInjectivity.
   intro x.
-  apply impred; intros ?.
+  apply impred; intro.
   apply homset_property.
 Defined.
 

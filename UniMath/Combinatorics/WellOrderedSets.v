@@ -28,7 +28,7 @@ Local Open Scope wosubset.
 
 Definition TotalOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isTotalOrder R).
 
-Definition TOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_set S).
+Definition TOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_subset S).
 
 Definition TOSubset (X:hSet) : UU := TOSubset_set X.
 
@@ -37,7 +37,7 @@ Definition TOSubset_to_subtype {X:hSet} : TOSubset X -> hsubtype X
 
 Coercion TOSubset_to_subtype : TOSubset >-> hsubtype.
 
-Local Definition TOSrel {X:hSet} (S : TOSubset X) : hrel (carrier_set S) := pr12 S.
+Local Definition TOSrel {X:hSet} (S : TOSubset X) : hrel (carrier_subset S) := pr12 S.
 
 Notation "s ≤ s'" := (TOSrel _ s s') : tosubset.
 
@@ -49,12 +49,12 @@ Definition TOanti {X:hSet} (S : TOSubset X) : isantisymm (TOSrel S) := pr2 (pr12
 
 Definition TOrefl {X:hSet} (S : TOSubset X) : isrefl (TOSrel S) := pr211 (pr22 S).
 
-Definition TOeq_to_refl {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, s = t ⇒ s ≤ t.
+Definition TOeq_to_refl {X:hSet} (S : TOSubset X) : ∀ s t : carrier_subset S, s = t ⇒ s ≤ t.
 Proof.
   intros s t e. induction e. apply TOrefl.
 Defined.
 
-Definition TOeq_to_refl_1 {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, pr1 s = pr1 t ⇒ s ≤ t.
+Definition TOeq_to_refl_1 {X:hSet} (S : TOSubset X) : ∀ s t : carrier_subset S, pr1 s = pr1 t ⇒ s ≤ t.
 Proof.
   intros s t e. induction (subtypePath_prop e). apply TOrefl.
 Defined.
@@ -174,7 +174,7 @@ Defined.
     equivalence. *)
 
 Definition TOSubset_plus_point_rel {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
-  hrel (carrier_set (subtype_plus S z)).
+  hrel (carrier_subset (subtype_plus S z)).
 Proof.
   intros [s i] [t j]. unfold subtype_plus in i,j. change hPropset.
   use (squash_to_hSet_2' _ _ i j); clear i j.
@@ -339,7 +339,7 @@ Definition isWellOrder {X : hSet} (R : hrel X) : hProp := isTotalOrder R ∧ has
 
 Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isWellOrder R).
 
-Definition WOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), WellOrdering (carrier_set S).
+Definition WOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), WellOrdering (carrier_subset S).
 
 Definition WOSubset (X:hSet) : UU := WOSubset_set X.
 
@@ -347,7 +347,7 @@ Definition WOSubset_to_subtype {X:hSet} : WOSubset X -> hsubtype X
   := pr1.
 
 Definition WOSrel {X:hSet} (S : WOSubset X)
-  : hrel (carrier_set (WOSubset_to_subtype S))
+  : hrel (carrier_subset (WOSubset_to_subtype S))
   := pr12 S.
 
 Definition WOStotal {X:hSet} (S : WOSubset X) : isTotalOrder (WOSrel S) := pr122 S.
@@ -357,7 +357,7 @@ Definition WOSubset_to_TOSubset {X:hSet} : WOSubset X -> TOSubset X
 
 Coercion WOSubset_to_TOSubset : WOSubset >-> TOSubset.
 
-Definition WOSwo {X:hSet} (S : WOSubset X) : WellOrdering (carrier_set S) := pr2 S.
+Definition WOSwo {X:hSet} (S : WOSubset X) : WellOrdering (carrier_subset S) := pr2 S.
 
 Notation "s ≤ s'" := (WOSrel _ s s') : wosubset.
 
@@ -491,7 +491,7 @@ Proof.
           change (v=w ≃ (S,, v ≼ S,, w ∧ S,, w ≼ S,, v)).
           induction v as [v i], w as [w j].
           intermediate_weq (v=w)%type.
-          { apply subtypeInjectivity. change (isPredicate (λ R : hrel (carrier_set S), isWellOrder R)).
+          { apply subtypeInjectivity. change (isPredicate (λ R : hrel (carrier_subset S), isWellOrder R)).
             intros R. apply propproperty. }
           apply weqimplimpl.
           { intros p. induction p. split.
@@ -506,7 +506,7 @@ Proof.
                 { intros s s' le. exact le. }
                 { intros s t Ss St le. exact St. } } } }
           { simpl. unfold WOSrel. simpl. intros [[a [b _]] [d [e _]]].
-            assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
+            assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_subset S), subtype_inc f x = x).
             { intros f s. apply subtypePath_prop. reflexivity. }
             apply funextfun; intros s. apply funextfun; intros t.
             apply hPropUnivalence.
@@ -656,7 +656,7 @@ Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → WOSubset X)
   := ∀ i j : I, wosub_comparable (S i) (S j).
 
 Lemma common_index {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (i : I) (x : carrier_set (⋃ (λ i, S i))) :
+      (chain : is_wosubset_chain S) (i : I) (x : carrier_subset (⋃ (λ i, S i))) :
    ∃ j, S i ≼ S j ∧ S j (pr1 x).
 Proof.
   induction x as [x xinU]. apply (squash_to_hProp xinU); intros [k xinSk].
@@ -671,7 +671,7 @@ Proof.
 Defined.
 
 Lemma common_index2 {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (x y : carrier_set (⋃ (λ i, S i))) :
+      (chain : is_wosubset_chain S) (x y : carrier_subset (⋃ (λ i, S i))) :
    ∃ i, S i (pr1 x) ∧ S i (pr1 y).
 Proof.
   induction x as [x j], y as [y k]. change (∃ i, S i x ∧ S i y).
@@ -687,7 +687,7 @@ Proof.
 Defined.
 
 Lemma common_index3 {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (x y z : carrier_set (⋃ (λ i, S i))) :
+      (chain : is_wosubset_chain S) (x y z : carrier_subset (⋃ (λ i, S i))) :
    ∃ i, S i (pr1 x) ∧ S i (pr1 y) ∧ S i (pr1 z).
 Proof.
   induction x as [x j], y as [y k], z as [z l]. change (∃ i, S i x ∧ S i y ∧ S i z).
@@ -734,7 +734,7 @@ Defined.
 
 Definition chain_union_rel {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S) :
-  hrel (carrier_set (⋃ (λ i, S i))).
+  hrel (carrier_subset (⋃ (λ i, S i))).
 Proof.
   intros x y.
   change (hPropset). simple refine (squash_to_hSet _ _ (common_index2 chain x y)).
@@ -744,7 +744,7 @@ Defined.
 
 Definition chain_union_rel_eqn {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S)
-           (x y : carrier_set (⋃ (λ i, S i)))
+           (x y : carrier_subset (⋃ (λ i, S i)))
            i (s : S i (pr1 x)) (t : S i (pr1 y)) :
   chain_union_rel chain x y = WOSrel (S i) (pr1 x,,s) (pr1 y,,t).
 Proof.
@@ -1026,7 +1026,7 @@ Proof.
         { now apply subtypePath_prop. }
         induction e. clear W'c'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
-          assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
+          assert (Q := @tot_nge_to_le (carrier_subset C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
           now apply(h1'' Q).
         - use (TOeq_to_refl C). apply subtypePath_prop. simpl. exact (!k). }
       assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
@@ -1035,8 +1035,8 @@ Proof.
         { now apply subtypePath_prop. }
         induction e. clear W'c'. induction w as [v Wv].
         assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
-        assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
-        apply (@tot_nle_iff_gt (carrier_set C) (TOSrel C) (pr122 C)).
+        assert (Q := @tot_nge_to_le (carrier_subset C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_subset C) (TOSrel C) (pr122 C)).
         split.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 c)%type in e'.
@@ -1048,7 +1048,7 @@ Proof.
         { now apply subtypePath_prop. }
         induction e. clear W'd'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
-          assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
+          assert (Q := @tot_nge_to_le (carrier_subset D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
           now apply(h1'' Q).
         - use (TOeq_to_refl D). apply subtypePath_prop. simpl. exact (!k @ cd1). }
       assert (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
@@ -1057,8 +1057,8 @@ Proof.
         { now apply subtypePath_prop. }
         induction e. clear W'd'. induction w as [v Wv].
         assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
-        assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
-        apply (@tot_nle_iff_gt (carrier_set D) (TOSrel D) (pr122 D)).
+        assert (Q := @tot_nge_to_le (carrier_subset D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_subset D) (TOSrel D) (pr122 D)).
         split.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 d)%type in e'.
@@ -1254,7 +1254,7 @@ Proof.
   induction W as [W R'].
   change (∏ x : X, W x)%type in all.
   change (WellOrdering X).
-  assert (e : X = carrier_set W).
+  assert (e : X = carrier_subset W).
   { apply (invmap (hSet_univalence _ _)). apply invweq. apply weqpr1.
     intros x.
     simpl in all.

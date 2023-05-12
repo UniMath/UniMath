@@ -264,15 +264,6 @@ Definition z_iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone 
   : z_iso (BinCoproductObject CC) (BinCoproductObject CC')
   := make_z_iso' _ (is_z_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
-Lemma transportf_isotoid' (c d d': C) (p : z_iso d d') (f : c --> d) :
-  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
-Proof.
-  rewrite <- idtoiso_postcompose.
-  rewrite idtoiso_isotoid.
-  apply idpath.
-Defined.
-
-
 (* should be an instance of a lemma about colimits *)
 (*
 Lemma isaprop_BinCoproductCocone : isaprop (BinCoproductCocone a b).

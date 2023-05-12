@@ -144,33 +144,6 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma forall_isotid (A : category) (a_is : is_univalent A)
-      (a a' : A) (P : z_iso a a' -> UU)
-  : (∏ e, P (idtoiso e)) → ∏ i, P i.
-Proof.
-  intros H i.
-  rewrite <- (idtoiso_isotoid _ a_is).
-  apply H.
-Defined.
-
-Lemma transportf_isotoid_functor
-      (A X : category) (H : is_univalent A)
-      (K : functor A X)
-      (a a' : A) (p : z_iso a a') (b : X) (f : K a --> b)
-  : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_z_iso p) · f.
-Proof.
-  rewrite functor_on_inv_from_z_iso. simpl. cbn.
-  generalize p.
-  apply forall_isotid.
-  - apply H.
-  - intro e. induction e.
-    cbn.
-    rewrite functor_id.
-    rewrite id_left.
-    rewrite isotoid_identity_iso.
-    apply idpath.
-Defined.
-
 Lemma inv_from_z_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : z_iso (F a) (F b))
   : inv_from_z_iso
@@ -205,7 +178,7 @@ Section CwFRepresentation.
   Proof.
     apply pathsinv0.
     etrans. 2: apply yy_natural.
-    etrans. apply yy_comp_nat_trans.
+    etrans. { apply yy_comp_nat_trans. }
     apply maponpaths, e.
   Qed.
 
@@ -271,7 +244,7 @@ Section CwFRepresentation.
         cbn in XR'.
         assert (XR'':= toforallpaths _ _  _ XR').
         cbn in XR''.
-        etrans. apply XR''.
+        etrans. { apply XR''. }
         apply id_left.
       + unfold TT; clear TT.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
@@ -284,14 +257,14 @@ Section CwFRepresentation.
         }
         etrans.
         {
-          apply (transportf_isotoid_functor C (functor_category _ SET)).
+          apply (@transportf_functor_isotoid C (functor_category _ SET)).
         }
         rewrite inv_from_z_iso_iso_from_fully_faithful_reflection.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful
                                       (yoneda_fully_faithful _) ΓA' ΓA )).
-        etrans. apply maponpaths_2. apply XX.
+        etrans. { apply maponpaths_2. apply XX. }
         clear XX.
-        etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
+        etrans. { apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath. }
         pose (XR' := PullbackArrow_PullbackPr2
                        (make_Pullback _ isP)
                        (yoneda_objects C ΓA')

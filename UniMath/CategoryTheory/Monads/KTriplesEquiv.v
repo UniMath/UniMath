@@ -535,7 +535,7 @@ Section Adjunction.
     set (aux := pr2 is_catiso).
     exact (invweq (make_weq _ aux)).
   Defined.
-(** This is the main result of [UniMath.CategoryTheory.Monad.Kleisli]. *)
+(** This is the main result of [UniMath.CategoryTheory.Monads.Kleisli]. *)
 
 
 End Adjunction.

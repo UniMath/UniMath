@@ -986,3 +986,36 @@ Section DialgebraEquivalence.
     : adj_equivalence_of_cats dialgebra_equivalence_of_cats_functor
     := adjointificiation dialgebra_equivalence_of_cats.
 End DialgebraEquivalence.
+
+
+Section DiAlgebraCoercions.
+
+  Context {C₁ C₂ : category}
+          {F G : C₁ ⟶ C₂}.
+
+  Definition dialgebra_carrier (x : dialgebra F G)
+    : ob C₁ := pr1 x.
+  Definition dialgebra_map (x : dialgebra F G)
+    : C₂⟦F (dialgebra_carrier x), G (dialgebra_carrier x)⟧ := pr2 x.
+
+  Definition mor_from_dialgebra_mor {x y : dialgebra F G} (f : (dialgebra F G)⟦x,y⟧)
+    :  C₁ ⟦ dialgebra_carrier x, dialgebra_carrier y ⟧ := pr1 f.
+
+  Lemma dialgebra_mor_commutes {x y : dialgebra F G} (f : (dialgebra F G)⟦x,y⟧)
+    :  (dialgebra_map x) · # G (mor_from_dialgebra_mor f)
+       = # F (mor_from_dialgebra_mor f) · (dialgebra_map y).
+  Proof.
+    exact (pr2 f).
+  Qed.
+
+End DiAlgebraCoercions.
+
+Section AlgebrasAndCoalgebras.
+
+  Definition FunctorAlg {C : category} (F : functor C C) : category
+    := dialgebra F (functor_identity C).
+
+  Definition CoAlg_category {C : category} (F : functor C C) : category
+    := dialgebra (functor_identity C) F.
+
+End AlgebrasAndCoalgebras.

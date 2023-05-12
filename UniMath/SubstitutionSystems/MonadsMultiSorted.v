@@ -10,6 +10,7 @@ Written by Ralph Matthes, 2017.
 
 *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 (* Require Import UniMath.Foundations.PartD. *)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -285,7 +286,7 @@ Lemma subst_slice_eqn_ok {Γ: HSET_over_sort} (N : wellsorted_in Γ) {s : sort}
 Proof.
   unfold subst_slice_eqn.
   rewrite subst_slice_ok.
-  now rewrite H.
+  now induction H.
 Qed.
 
 

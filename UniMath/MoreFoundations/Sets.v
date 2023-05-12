@@ -9,6 +9,7 @@ Require Export UniMath.Foundations.Sets.
   - Other universal properties for [setquot]
   - The equivalence relation of being in the same fiber
   - Subsets
+  - Binary relations
  *)
 
 Local Open Scope logic.
@@ -72,6 +73,9 @@ Proof.
   intros x x' r. exact (Hg _ _ (Hf x x' r)).
 Defined.
 
+Definition fun_hrel_comp {X Y : UU} (f : X → Y) (gt : hrel Y) : hrel X :=
+  λ x y : X, gt (f x) (f y).
+
 (** ** Other universal properties for [setquot] *)
 
 Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
@@ -106,10 +110,6 @@ Proof.
   exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
 
-Definition setcoprod (X Y : hSet) : hSet :=
-  make_hSet (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
-
-
 (** ** The equivalence relation of being in the same fiber *)
 
 Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
@@ -124,12 +124,6 @@ Proof.
 Defined.
 
 (** ** Subsets *)
-
-Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
-  make_hSet (carrier Hsub) (isaset_carrier_subset _ Hsub).
-
-Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
-  x,, Hx.
 
 Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
 
@@ -212,3 +206,91 @@ Proof.
   induction e.
   apply eqrelrefl.
 Defined.
+
+
+(** * Additional lemmas on binary relations *)
+
+Lemma isaprop_isirrefl {X : UU} (rel : hrel X) :
+  isaprop (isirrefl rel).
+Proof.
+  apply impred_isaprop ; intro.
+  now apply isapropneg.
+Qed.
+Lemma isaprop_issymm {X : UU} (rel : hrel X) :
+  isaprop (issymm rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply isapropimpl.
+  now apply pr2.
+Qed.
+Lemma isaprop_iscotrans {X : UU} (rel : hrel X) :
+  isaprop (iscotrans rel).
+Proof.
+  apply impred_isaprop ; intro x.
+  apply impred_isaprop ; intro y.
+  apply impred_isaprop ; intro z.
+  apply isapropimpl.
+  now apply pr2.
+Qed.
+
+(**
+ Useful functions for when using univalence of sets
+ *)
+Definition univalence_hSet
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : X = Y
+  := invmap (hSet_univalence _ _) w.
+
+Definition hSet_univalence_map_univalence_hSet
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : hSet_univalence_map X Y (univalence_hSet w) = w.
+Proof.
+  exact (homotweqinvweq (hSet_univalence _ _) w).
+Defined.
+
+Definition hSet_univalence_univalence_hSet_map
+           {X Y : hSet}
+           (p : X = Y)
+  : univalence_hSet (hSet_univalence_map X Y p) = p.
+Proof.
+  exact (homotinvweqweq (hSet_univalence _ _) p).
+Qed.
+
+Definition univalence_hSet_idweq
+           (X : hSet)
+  : univalence_hSet (idweq X) = idpath X.
+Proof.
+  refine (_ @ hSet_univalence_univalence_hSet_map (idpath _)).
+  apply maponpaths.
+  apply idpath.
+Defined.
+
+Definition hSet_univalence_map_inv
+           {X Y : hSet}
+           (p : X = Y)
+  : hSet_univalence_map _ _ (!p) = invweq (hSet_univalence_map _ _ p).
+Proof.
+  induction p.
+  cbn.
+  use subtypePath.
+  {
+    intro.
+    apply isapropisweq.
+  }
+  apply idpath.
+Qed.
+
+Definition univalence_hSet_inv
+           {X Y : hSet}
+           (w : X ≃ Y)
+  : !(univalence_hSet w) = univalence_hSet (invweq w).
+Proof.
+  refine (!(hSet_univalence_univalence_hSet_map _) @ _).
+  apply maponpaths.
+  rewrite hSet_univalence_map_inv.
+  rewrite hSet_univalence_map_univalence_hSet.
+  apply idpath.
+Qed.

@@ -156,9 +156,14 @@ Section complexes_homotopies.
     use tpair.
     - use tpair.
       + intros f g. induction f as [f1 f2]. induction g as [g1 g2].
-        use (squash_to_prop f2). apply propproperty. intros f3.
-        use (squash_to_prop g2). apply propproperty. intros g3.
-        induction f3 as [f3 f4]. induction g3 as [g3 g4].
+        use (squash_to_prop f2).
+        { apply propproperty. }
+        intros f3.
+        use (squash_to_prop g2).
+        { apply propproperty. }
+        intros g3.
+        induction f3 as [f3 f4].
+        induction g3 as [g3 g4].
         use hinhpr. cbn.
         use tpair.
         * intros i.
@@ -217,7 +222,9 @@ Section complexes_homotopies.
           rewrite transport_target_ZeroArrow.
           rewrite ZeroArrow_comp_right. rewrite transport_target_ZeroArrow.
           rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. apply idpath.
-    - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
+    - intros f H. use (squash_to_prop H).
+      { apply propproperty. }
+      intros H'. clear H.
       induction H' as [homot eq]. use hinhpr.
       use tpair.
       + intros i. exact (grinv (to_abgr (C1 i) (C2 (i - 1))) (homot i)).
@@ -269,7 +276,9 @@ Section complexes_homotopies.
     ∏ (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g · f).
   Proof.
     intros g.
-    use (squash_to_prop H). apply propproperty. intros HH.
+    use (squash_to_prop H).
+    { apply propproperty. }
+    intros HH.
     use hinhpr.
     induction HH as [homot eq].
     use tpair.
@@ -287,7 +296,9 @@ Section complexes_homotopies.
     ∏ (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f · g).
   Proof.
     intros g.
-    use (squash_to_prop H). apply propproperty. intros HH.
+    use (squash_to_prop H).
+    { apply propproperty. }
+    intros HH.
     use hinhpr.
     induction HH as [homot eq].
     use tpair.

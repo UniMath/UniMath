@@ -19,32 +19,34 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
-Require UniMath.Bicategories.Core.Bicat.
-Require UniMath.Bicategories.Core.Examples.BicatOfCats.
+Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+
+Import MonoidalNotations.
 
 Local Open Scope cat.
 
 Section A.
 
-Context (Mon_V : monoidal_cat).
+Context (Mon_V : MonoidalCategoriesTensored.monoidal_cat).
 
 Local Definition I := monoidal_cat_unit Mon_V.
 Local Definition tensor := monoidal_cat_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)).
+Notation "X ⊗ Y" := (tensor (X ,, Y)).
 
 Section ActionBasedStrengths_Definition.
 
-Context {A A': category}.
+  Context {A A': category}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
 Local Definition ϱ := act_ϱ actn.
@@ -372,7 +374,7 @@ Section The_Laws.
     (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
         directly afterwards *)
   Definition param_distr_triangle_eq_variant0_RHS :
-    [A, A'] ⟦ precompF (FA' (MonoidalFunctors.I_C Mon_V)), postcompF (FA (MonoidalFunctors.I_C Mon_V)) ⟧ :=
+    [A, A'] ⟦ precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V)), postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V)) ⟧ :=
     # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
 
     Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
@@ -382,7 +384,7 @@ Section The_Laws.
       # precompF (strong_monoidal_functor_ϵ_inv FA').
 
     Definition postwhisker_with_ϵ_inv_z_iso :
-      z_iso (postcompF (FA (MonoidalFunctors.I_C Mon_V))) (postcompF (MonoidalFunctors.I_D Mon_EndA)).
+      z_iso (postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V))) (postcompF (MonoidalFunctorsTensored.I_D Mon_EndA)).
     Proof.
       apply functor_on_z_iso.
       use tpair.
@@ -392,7 +394,7 @@ Section The_Laws.
     Defined.
 
     Definition prewhisker_with_ϵ_inv_z_iso :
-      z_iso (precompF (FA' (MonoidalFunctors.I_C Mon_V))) (precompF (MonoidalFunctors.I_D Mon_EndA')).
+      z_iso (precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V))) (precompF (MonoidalFunctorsTensored.I_D Mon_EndA')).
     Proof.
       apply functor_on_z_iso.
       use tpair.
@@ -550,10 +552,10 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
 
    Context (sδ : parameterized_distributivity).
 
-   Let δ_triangle_eq := pr1 (pr2 sδ).
-   Let δ_pentagon_eq := pr2 (pr2 sδ).
-   Let actionA := action_from_alt Mon_V A FA.
-   Let actionA' := action_from_alt Mon_V A' FA'.
+   Let δ_triangle_eq : param_distr_triangle_eq (pr1 sδ) := pr1 (pr2 sδ).
+   Let δ_pentagon_eq : param_distr_pentagon_eq (pr1 sδ) := pr2 (pr2 sδ).
+   Let actionA : action Mon_V A := action_from_alt Mon_V A FA.
+   Let actionA' : action Mon_V A':= action_from_alt Mon_V A' FA'.
 
    Definition strength_nat_from_alt_aux_dom :
      actionbased_strength_dom actionA' F ⟹ uncurry_functor _ _ _ param_distributivity_dom.
@@ -647,6 +649,7 @@ End A.
 
 Section Alternative_Definition_Whiskered.
   Import BifunctorNotations.
+  Import MonoidalNotations.
 
   Context {V : category}.
   Context (Mon_V : monoidal V).
@@ -679,8 +682,8 @@ Section Param_Distr.
    *)
 
   (** the definitions that force full compatibility with the bicategorical scenario *)
-  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A')) F.
-  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (UniMath.Bicategories.Core.Bicat.hcomp_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A')) F.
+  Local Definition precomp'F := UniMath.Bicategories.Core.Bicat.lwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A') F.
+  Local Definition postcomp'F {C: category} := UniMath.Bicategories.Core.Bicat.rwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A') F.
 
   (** a parameterized form of distributivity as strength *)
   Definition param_distributivity'_dom : functor V [A, A'] :=

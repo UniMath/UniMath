@@ -1,187 +1,29 @@
-(** * Additionnals theorems for Sets.v *)
+(** * Additional theorems for Sets.v *)
 
 (** Previous theorems about hSet and order *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Sets.
-
 Require Export UniMath.Foundations.Sets
                UniMath.MoreFoundations.QuotientSet.
+
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
+
 Require Import UniMath.Algebra.BinaryOperations
-               UniMath.Algebra.Apartness.
+               UniMath.Algebra.Apartness
+               UniMath.Algebra.Lattice.Lattice.
 
-(** ** Additional definitions *)
+(** * Partially-defined inverse functions *)
 
-Definition unop (X : UU) := X → X.
-
-Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
+Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X) :=
   ∏ (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
-Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
+Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X) :=
   ∏ (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
-Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X)  :=
+Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : carrier_subset exinv -> X)  :=
   islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
-(** ** Properties of [po] *)
-
-Section po_pty.
-
-Context {X : UU}.
-Context (R : po X).
-
-Definition istrans_po : istrans R :=
-  pr1 (pr2 R).
-Definition isrefl_po : isrefl R :=
-  pr2 (pr2 R).
-
-End po_pty.
-
-(** ** Strong Order *)
-
-Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
-Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
-Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
-  tpair (λ R : hrel X, isStrongOrder R ) R is.
-Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
-Coercion  pr1StrongOrder : StrongOrder >-> hrel.
-
-Section so_pty.
-
-Context {X : UU}.
-Context (R : StrongOrder X).
-
-Definition istrans_StrongOrder : istrans R :=
-  pr1 (pr2 R).
-Definition iscotrans_StrongOrder : iscotrans R :=
-  pr1 (pr2 (pr2 R)).
-Definition isirrefl_StrongOrder : isirrefl R :=
-  pr2 (pr2 (pr2 R)).
-
-End so_pty.
-
-Definition isStrongOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
-  isStrongOrder L → isStrongOrder (quotrel is).
-Proof.
-  intros H.
-  repeat split.
-  - apply istransquotrel, (pr1 H).
-  - apply iscotransquotrel, (pr1 (pr2 H)).
-  - apply isirreflquotrel, (pr2 (pr2 H)).
-Defined.
-
-(** ** Reverse orderse *)
-(** or how easily define ge x y := le x y *)
-
-Definition hrel_reverse {X : UU} (l : hrel X) := λ x y, l y x.
-
-Lemma istrans_reverse {X : UU} (l : hrel X) :
-  istrans l → istrans (hrel_reverse l).
-Proof.
-  intros Hl x y z Hxy Hyz.
-  now apply (Hl z y x).
-Qed.
-
-Lemma isrefl_reverse {X : UU} (l : hrel X) :
-  isrefl l → isrefl (hrel_reverse l).
-Proof.
-  intros Hl x.
-  now apply Hl.
-Qed.
-
-Lemma ispreorder_reverse {X : UU} (l : hrel X) :
-  ispreorder l → ispreorder (hrel_reverse l).
-Proof.
-  intros H.
-  split.
-  now apply istrans_reverse, (pr1 H).
-  now apply isrefl_reverse, (pr2 H).
-Qed.
-Definition po_reverse {X : UU} (l : po X) :=
-  make_po (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
-Lemma po_reverse_correct {X : UU} (l : po X) :
-  ∏ x y : X, po_reverse l x y = l y x.
-Proof.
-  intros x y.
-  now apply paths_refl.
-Qed.
-
-Lemma issymm_reverse {X : UU} (l : hrel X) :
-  issymm l → issymm (hrel_reverse l).
-Proof.
-  intros Hl x y.
-  now apply Hl.
-Qed.
-
-Lemma iseqrel_reverse {X : UU} (l : hrel X) :
-  iseqrel l → iseqrel (hrel_reverse l).
-Proof.
-  intros H.
-  split.
-  now apply ispreorder_reverse, (pr1 H).
-  now apply issymm_reverse, (pr2 H).
-Qed.
-Definition eqrel_reverse {X : UU} (l : eqrel X) :=
-  make_eqrel (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
-Lemma eqrel_reverse_correct {X : UU} (l : eqrel X) :
-  ∏ x y : X, eqrel_reverse l x y = l y x.
-Proof.
-  intros x y.
-  now apply paths_refl.
-Qed.
-
-Lemma isirrefl_reverse {X : UU} (l : hrel X) :
-  isirrefl l → isirrefl (hrel_reverse l).
-Proof.
-  intros Hl x.
-  now apply Hl.
-Qed.
-Lemma iscotrans_reverse {X : UU} (l : hrel X) :
-  iscotrans l -> iscotrans (hrel_reverse l).
-Proof.
-  intros Hl x y z H.
-  now apply islogeqcommhdisj, Hl.
-Qed.
-
-Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
-  isStrongOrder l → isStrongOrder (hrel_reverse l).
-Proof.
-  intros H.
-  repeat split.
-  now apply istrans_reverse, (pr1 H).
-  now apply iscotrans_reverse, (pr1 (pr2 H)).
-  now apply isirrefl_reverse, (pr2 (pr2 H)).
-Qed.
-Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
-  pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
-Lemma StrongOrder_reverse_correct {X : UU} (l : StrongOrder X) :
-  ∏ x y : X, StrongOrder_reverse l x y = l y x.
-Proof.
-  intros x y.
-  now apply paths_refl.
-Qed.
-
-Lemma isasymm_reverse {X : UU} (l : hrel X) :
-  isasymm l → isasymm (hrel_reverse l).
-Proof.
-  intros Hl x y.
-  now apply Hl.
-Qed.
-
-Lemma iscoasymm_reverse {X : UU} (l : hrel X) :
-  iscoasymm l → iscoasymm (hrel_reverse l).
-Proof.
-  intros Hl x y.
-  now apply Hl.
-Qed.
-
-Lemma istotal_reverse {X : UU} (l : hrel X) :
-  istotal l → istotal (hrel_reverse l).
-Proof.
-  intros Hl x y.
-  now apply Hl.
-Qed.
-
-(** ** Effectively Ordered *)
-(** An alternative of total orders *)
+(** * Effective Orders *)
+(** An alternative to total orders *)
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
   dirprod ((ispreorder le) × (isStrongOrder lt))
@@ -214,7 +56,7 @@ Arguments EOge_rel {X} x y: simpl never.
 
 Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   let R := pr2 X in
-  pairStrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
+  make_StrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
 Definition EOlt_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOlt.
 Arguments EOlt_rel {X} x y: simpl never.
@@ -266,17 +108,17 @@ Definition istrans_EOle:
 
 Definition isirrefl_EOgt:
   ∏ x : X, ¬ (x > x)
-  := isirrefl_StrongOrder EOgt.
+  := isirrefl_isStrongOrder EOgt.
 Definition istrans_EOgt:
   ∏ x y z : X, x > y -> y > z -> x > z
-  := istrans_StrongOrder EOgt.
+  := istrans_isStrongOrder EOgt.
 
 Definition isirrefl_EOlt:
   ∏ x : X, ¬ (x < x)
-  := isirrefl_StrongOrder EOlt.
+  := isirrefl_isStrongOrder EOlt.
 Definition istrans_EOlt:
   ∏ x y z : X, x < y -> y < z -> x < z
-  := istrans_StrongOrder EOlt.
+  := istrans_isStrongOrder EOlt.
 
 Lemma EOlt_le :
   ∏ x y : X, x < y -> x <= y.

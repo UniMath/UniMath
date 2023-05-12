@@ -137,7 +137,7 @@ Section Lemmas.
     (∏ i, f i = g (transportf stn p i))
     -> transportf (Vector X) p f = g.
   Proof.
-    intros ?.
+    intro.
     induction p.
     apply funextfun.
     assumption.
@@ -150,7 +150,7 @@ Section Lemmas.
   Definition vector_stn_proofirrelevance {vec : Vector X n}
             {i j : stn n} : (stntonat _ i = stntonat _ j) -> vec i = vec j.
   Proof.
-    intros ?.
+    intro.
     apply maponpaths, isinjstntonat; assumption.
   Defined.
 End Lemmas.
@@ -337,13 +337,6 @@ Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
   intros. unfold nil. apply maponpaths. apply isapropifcontr. apply iscontr_vector_0.
-Defined.
-
-Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
-  transportf P e p = p.
-(* move upstream *)
-Proof. induction (pr1 ((setproperty _) _ _ (idpath _) e)).
-       reflexivity.
 Defined.
 
 (* induction principle for contractible types, as a warmup *)

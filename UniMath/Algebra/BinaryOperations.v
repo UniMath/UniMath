@@ -27,6 +27,7 @@
   - Subobjects
   - Quotient objects
   - Direct products
+ - Infinitary operations
 *)
 
 
@@ -55,7 +56,19 @@ Definition unop (X : UU) : UU := X -> X.
 
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x x0).
 
+Definition lcancel {X : UU} {opp : binop X} {x : X} (H_x : islcancelable opp x) (y z : X) :
+  opp x y = opp x z -> y = z.
+Proof.
+  apply invmaponpathsincl, H_x.
+Defined.
+
 Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x0 x).
+
+Definition rcancel {X : UU} {opp : binop X} {x : X} (H_x : isrcancelable opp x) (y z : X) :
+  opp y x = opp z x -> y = z.
+Proof.
+  apply (invmaponpathsincl (fun y => opp y x)), H_x.
+Defined.
 
 Definition iscancelable {X : UU} (opp : binop X) (x : X) : UU :=
   (islcancelable opp x) × (isrcancelable opp x).
@@ -99,6 +112,14 @@ Proof.
   intros.
   repeat rewrite isa; exact (idpath _).
 Qed.
+
+(** cancellativity *)
+
+Definition isrcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, isrcancelable opp x.
+
+Definition islcancellative {X : UU} (opp : binop X) : UU :=
+  ∏ x:X, islcancelable opp x.
 
 (** *)
 
@@ -2100,6 +2121,16 @@ Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU
   dirprod (∏ a b c : X, S c -> R a b -> R (op c a) (op c b))
           (∏ a b c : X, S c -> R a b -> R (op a c) (op b c)).
 
+Lemma isaprop_ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) :
+  isaprop (ispartbinophrel S R).
+Proof.
+  apply isapropdirprod ;
+  apply impred_isaprop ; intros a ;
+  apply impred_isaprop ; intros b ;
+  apply impred_isaprop ; intros c ;
+  apply isapropimpl, isapropimpl, propproperty.
+Defined.
+
 Definition isbinoptoispartbinop {X : setwithbinop} (S : hsubtype X) (L : hrel X)
            (d2 : isbinophrel L) : ispartbinophrel S L.
 Proof.
@@ -2887,6 +2918,16 @@ Proof.
            (λ xy xy' : dirprod X Y, make_dirprod (op1 (pr1 xy) (pr1 xy')) (op1 (pr2 xy) (pr2 xy')))
            (λ xy xy' : dirprod X Y, make_dirprod (op2 (pr1 xy) (pr1 xy'))
                                                  (op2 (pr2 xy) (pr2 xy')))).
+Defined.
+
+
+(** ** Infinitary operations *)
+
+(** Limit a more general infinitary operation to a binary operation *)
+
+Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I -> X) -> X) : binop X.
+Proof.
+  intros x y; exact (op _ (bool_rect (fun _ => X) x y)).
 Defined.
 
 (* End of file *)

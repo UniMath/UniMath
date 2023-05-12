@@ -93,8 +93,9 @@ destruct j.
     * destruct p; simpl.
       destruct (natlehchoice4 _ _ Hij); [destruct (isirreflnatlth _ h0)|].
       apply cancel_postcomposition, maponpaths, isasetnat.
-  + generalize Hij; rewrite p; intros H.
-    destruct (isirreflnatlth _ H).
+  + generalize Hij; rewrite p in Hij.
+    intros H; destruct(isirreflnatlth (S j)).
+    rewrite p in H; exact H.
 Qed.
 
 (** Construct the chain:
@@ -112,7 +113,7 @@ induction m as [|m IHm]; simpl.
 - exact (# F IHm).
 Defined.
 
-(** ** Definition of (ω-)(co)continuous functors *)
+(** ** Definition of (ω-)cocontinuous functors *)
 
 Section cocont.
 
@@ -122,22 +123,11 @@ Definition is_cocont : UU :=
   ∏ (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
     preserves_colimit F d L cc.
 
-Definition is_cont : UU :=
-  ∏ (g : graph) (d : diagram g C) (L : C) (cc : cone d L),
-    preserves_limit F d L cc.
-
 Definition is_omega_cocont : UU :=
   ∏ (c : chain C) (L : C) (cc : cocone c L),
-  preserves_colimit F c L cc.
-
-Definition is_omega_cont {C D : category} (F : functor C D) : UU :=
-  ∏ (c : chain C) (L : C) (cc : cone c L),
-  preserves_limit F c L cc.
+    preserves_colimit F c L cc.
 
 End cocont.
 
 Definition omega_cocont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cocont F.
-
-Definition omega_cont_functor (C D : category) : UU :=
-  ∑ (F : functor C D), is_omega_cont F.

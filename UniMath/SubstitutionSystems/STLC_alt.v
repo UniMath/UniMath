@@ -45,6 +45,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 
 Local Open Scope cat.
@@ -96,7 +97,7 @@ Defined.
 (** The signature of the simply typed lambda calculus *)
 Definition STLC_Sig : MultiSortedSig sort.
 Proof.
-use mkMultiSortedSig.
+use make_MultiSortedSig.
 - apply ((sort × sort) + (sort × sort))%set.
 - intros H; induction H as [st|st]; induction st as [s t].
   + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).

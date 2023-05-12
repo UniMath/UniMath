@@ -65,6 +65,8 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.Orders.
 Require Export UniMath.Algebra.Monoids.
 
 Local Open Scope logic.
@@ -1915,7 +1917,7 @@ Defined.
 Opaque isinvringrigtoringmultgt.
 
 
-(** **** Realations and the canonical homomorphism to the ring associated with a rig (ring of differences) *)
+(** **** Relations and the canonical homomorphism to the ring associated with a rig (ring of differences) *)
 
 Definition iscomptoringdiff (X : rig) {L : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) L) :
   iscomprelrelfun L (rigtoringrel X is0) (toringdiff X) := iscomptoabgrdiff (rigaddabmonoid X) is0.
@@ -2743,8 +2745,18 @@ Proof.
            (ringmultabmonoid X) S (ispartbinopcommringfracgt X S is0 is1 is2) is' isd).
 Defined.
 
+Lemma StrongOrder_correct_commrngfrac (X : commring) (Y : @subabmonoid (ringmultabmonoid X))
+      (gt : StrongOrder X)
+      Hgt Hle Hmult Hpos :
+  commringfracgt X Y (R := gt) Hle Hmult Hpos = StrongOrder_abmonoidfrac Y gt Hgt.
+Proof.
+  apply funextfun ; intros x.
+  apply funextfun ; intros y.
+  apply (maponpaths (λ H, abmonoidfracrel (ringmultabmonoid X) Y H x y)).
+  apply isaprop_ispartbinophrel.
+Defined.
 
-(** **** Realations and the canonical homomorphism to the ring of fractions *)
+(** **** Relations and the canonical homomorphism to the ring of fractions *)
 
 Definition iscomptocommringfrac (X : commring) (S : @submonoid (ringmultabmonoid X)) {L : hrel X}
            (is0 : @isbinophrel (rigaddabmonoid X) L) (is1 : isringmultgt X L)

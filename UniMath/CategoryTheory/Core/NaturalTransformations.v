@@ -381,6 +381,9 @@ Definition nat_z_iso_to_trans {C D : precategory_data} {F G : C ⟶ D} (μ : nat
 
 Coercion nat_z_iso_to_trans : nat_z_iso >-> nat_trans.
 
+Definition pr2_nat_z_iso {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) : is_nat_z_iso μ :=
+  pr2 μ.
+
 Definition nat_z_iso_pointwise_z_iso {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) (c: C): z_iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
 
 (* ⁻¹ *)
@@ -462,3 +465,49 @@ Defined.
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
+
+(* Commutativity of functors expressed as natural isomorphisms *)
+
+Lemma nat_z_iso_functor_comp_assoc
+      {C1 C2 C3 C4 : category}
+      (F1 : functor C1 C2)
+      (F2 : functor C2 C3)
+      (F3 : functor C3 C4)
+  : nat_z_iso (F1 ∙ (F2 ∙ F3)) ((F1 ∙ F2) ∙ F3).
+Proof.
+  use make_nat_z_iso.
+  - exists (λ _, identity _).
+    abstract (intro ; intros ; exact (id_right _ @ ! id_left _)).
+  - intro.
+    exists (identity _).
+    abstract (split ; apply id_right).
+Defined.
+
+Lemma functor_commutes_with_id
+      {C D : category} (F : functor C D)
+  : nat_z_iso (F ∙ functor_identity D) (functor_identity C ∙ F).
+Proof.
+  use make_nat_z_iso.
+  - exists (λ _, identity _).
+    abstract (intro ; intros ; exact (id_right _ @ ! id_left _)).
+  - intro.
+    exists (identity _).
+    abstract (split ; apply id_right).
+Defined.
+
+Lemma nat_z_iso_comp_assoc
+      {C D : category} {F1 F2 F3 F4 : functor C D}
+      (α1 : nat_z_iso F1 F2)
+      (α2 : nat_z_iso F2 F3)
+      (α3 : nat_z_iso F3 F4)
+  : nat_z_iso_comp α1 (nat_z_iso_comp α2 α3)
+    = nat_z_iso_comp (nat_z_iso_comp α1 α2) α3.
+Proof.
+  use total2_paths_f.
+  2: { apply isaprop_is_nat_z_iso. }
+
+  use nat_trans_eq.
+  { apply homset_property. }
+  intro.
+  apply assoc.
+Qed.

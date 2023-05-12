@@ -40,7 +40,7 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -136,7 +136,7 @@ Local Lemma aux_iso_1_is_nat_trans :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (runitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt; intro c; simpl.
@@ -157,7 +157,7 @@ Definition aux_iso_1
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functors (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (runitor_CAT (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_is_nat_trans.
 Defined.
@@ -172,7 +172,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans :
       BinCoproductOfArrows [C, C]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (lunitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
   intros X X' α.
   apply nat_trans_eq_alt; intro c; simpl.
@@ -193,7 +193,7 @@ Local Definition aux_iso_1_inv
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functors (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (lunitor_CAT (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_inv_is_nat_trans.
 Defined.
@@ -215,7 +215,7 @@ rewrite id_left, id_right.
 apply nat_trans_eq_alt; intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); try apply idpath.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply nat_trans_eq_alt; intro c; simpl.
@@ -447,7 +447,7 @@ rewrite id_left, id_right.
 apply nat_trans_eq_alt; intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); try apply idpath.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply nat_trans_eq_alt; intro c; simpl.
@@ -490,7 +490,7 @@ use tpair.
   exact (a · b).
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;
             unfold yoneda_objects_ob; simpl; unfold compose; simpl;
-            apply nat_trans_eq; [apply homset_property |]; simpl; intros ?;
+            apply nat_trans_eq; [apply homset_property |]; simpl; intro;
             apply assoc').
 Defined.
 
@@ -518,7 +518,7 @@ intermediate_path (pr1 (pr1 X)).
   set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
-  intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
+  intermediate_path (Φ _ (fbracket InitHSS f)); try apply idpath.
   etrans; [| apply T5 ]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)

@@ -25,9 +25,9 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.DisplayedMonoidalTensored.
 
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
@@ -455,8 +455,8 @@ Section Main.
       refine (vcomp2 t1 _).
       refine (vcomp2 _ t2).
       apply (vcomp2(g:=G)).
-      - unfold MonoidalFunctors.I_D. cbn. apply runitor.
-      - unfold MonoidalFunctors.I_D. cbn. apply linvunitor.
+      - apply runitor.
+      - apply linvunitor.
     Defined.
 
     Definition montrafotargetbicat_disp_unit: montrafotargetbicat_disp I :=
@@ -587,7 +587,7 @@ Section Main.
     Defined.
 
     Definition lwhisker_with_ϵ_inv2cell (v : Mon_V):
-      invertible_2cell (FA' v · id₁ a0') (FA' v · FA' (MonoidalFunctors.I_C Mon_V)).
+      invertible_2cell (FA' v · id₁ a0') (FA' v · FA' (MonoidalFunctorsTensored.I_C Mon_V)).
     Proof.
       use make_invertible_2cell.
       - exact (FA' v ◃ lax_monoidal_functor_ϵ FA').
@@ -1939,7 +1939,7 @@ Section Main.
     Qed.
 
     Definition montrafotargetbicat_moncat: monoidal_cat :=
-      mk_monoidal_cat montrafotargetbicat_cat
+      make_monoidal_cat montrafotargetbicat_cat
                       montrafotargetbicat_tensor
                       montrafotargetbicat_unit
                       montrafotargetbicat_left_unitor
@@ -1973,9 +1973,9 @@ Section Main.
 
       (** we come to an important element of the whole construction - the triangle law enters here *)
       Lemma lmf_from_param_distr_bicat_ε_aux:
-        pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat)
-        -->[ id pr1 (MonoidalFunctors.I_D montrafotargetbicat_moncat)]
-        pr2 (lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V)).
+        pr2 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat)
+        -->[ id pr1 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat)]
+        pr2 (lmf_from_param_distr_bicat_functor (MonoidalFunctorsTensored.I_C Mon_V)).
       Proof.
         unfold mor_disp. unfold trafotargetbicat_disp. hnf.
         do 2 rewrite functor_id.
@@ -1985,8 +1985,8 @@ Section Main.
       Qed.
 
       Definition lmf_from_param_distr_bicat_ε:
-        pr1 montrafotargetbicat_moncat ⟦ MonoidalFunctors.I_D montrafotargetbicat_moncat,
-                                         lmf_from_param_distr_bicat_functor (MonoidalFunctors.I_C Mon_V) ⟧ :=
+        pr1 montrafotargetbicat_moncat ⟦ MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat,
+                                         lmf_from_param_distr_bicat_functor (MonoidalFunctorsTensored.I_C Mon_V) ⟧ :=
         (identity _),, lmf_from_param_distr_bicat_ε_aux.
 
       (** we come to the crucial element of the whole construction - the pentagon law enters here *)
@@ -2064,7 +2064,7 @@ Section Main.
       Qed.
 
       Definition lmf_from_param_distr_bicat: lax_monoidal_functor Mon_V montrafotargetbicat_moncat :=
-        mk_lax_monoidal_functor _ _
+        make_lax_monoidal_functor _ _
                                 lmf_from_param_distr_bicat_functor
                                 lmf_from_param_distr_bicat_ε
                                 lmf_from_param_distr_bicat_μ
@@ -2073,8 +2073,8 @@ Section Main.
 
       (* now similar but not identical code to above for triangle *)
       Lemma smf_from_param_distr_bicat_is_strong1_aux:
-        pr2 (lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V)) -->[id I]
-        pr2 (MonoidalFunctors.I_D montrafotargetbicat_moncat).
+        pr2 (lmf_from_param_distr_bicat (MonoidalFunctorsTensored.I_C Mon_V)) -->[id I]
+        pr2 (MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat).
       Proof.
         unfold mor_disp. unfold trafotargetbicat_disp. hnf.
         do 2 rewrite functor_id.
@@ -2083,8 +2083,8 @@ Section Main.
       Qed.
 
       Definition smf_from_param_distr_bicat_is_strong1_inv: pr1 montrafotargetbicat_moncat
-        ⟦ lmf_from_param_distr_bicat (MonoidalFunctors.I_C Mon_V),
-          MonoidalFunctors.I_D montrafotargetbicat_moncat ⟧.
+        ⟦ lmf_from_param_distr_bicat (MonoidalFunctorsTensored.I_C Mon_V),
+          MonoidalFunctorsTensored.I_D montrafotargetbicat_moncat ⟧.
       Proof.
         exists (identity I).
         apply smf_from_param_distr_bicat_is_strong1_aux.
@@ -2178,11 +2178,11 @@ Defined.
 
     Context (G : A ⟶ A').
 
-    Local Definition precompG := pre_composition_functor _ A' A' G.
-    Local Definition postcompG {C: category} := post_composition_functor C A A' G.
+    Local Definition precompG : [A', A'] ⟶ [A, A'] := pre_composition_functor _ A' A' G.
+    Local Definition postcompG {C: category} : [C, A] ⟶ [C, A'] := post_composition_functor C A A' G.
 
-    Let H := param_distributivity_dom Mon_V _ _ FA' G.
-    Let H' := param_distributivity_codom Mon_V _ _ FA G.
+    Let H : Mon_V ⟶ [A, A'] := param_distributivity_dom Mon_V _ _ FA' G.
+    Let H': Mon_V ⟶ [A, A'] := param_distributivity_codom Mon_V _ _ FA G.
 
     Definition montrafotarget_disp: disp_cat Mon_V :=
       trafotargetbicat_disp(C0:=Mon_V)(C:=bicat_of_cats) A A' H H'.

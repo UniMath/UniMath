@@ -12,6 +12,7 @@
 - Change of triangles in octahedral axiom
 *)
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -1216,8 +1217,13 @@ Section comp_zero.
   Proof.
     set (D2 := TrivialDTri PT (Ob1 D)).
     set (Ext' := DExt PT D2 D (identity (Ob1 D)) (Mor1 D) (idpath _)).
-    use (squash_to_prop Ext'). apply to_has_homsets. intros Ext. clear Ext'.
-    set (M := TExtMor Ext). use (pathscomp0 (MPComm2 M)). cbn. apply ZeroArrow_comp_left.
+    use (squash_to_prop Ext').
+    - apply to_has_homsets.
+    - intros Ext. clear Ext'.
+      set (M := TExtMor Ext).
+      use (pathscomp0 (MPComm2 M)).
+      cbn.
+      apply ZeroArrow_comp_left.
   Qed.
 
   Lemma DTriCompZero' (D : @DTri PT) : Mor2 D · Mor3 D = ZeroArrow (to_Zero PT) _ _.

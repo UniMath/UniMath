@@ -174,7 +174,7 @@ Arguments RelMonad_data {C} {D} J.
 Arguments RelMonad {C} {D} J.
 
 
-(** analogue of [UniMath.CategoryTheory.functor_categories.functor_eq_eq_from_functor_ob_eq] *)
+(** analogue of [UniMath.CategoryTheory.Core.Functors.functor_eq_eq_from_functor_ob_eq] *)
 Definition relmonad_eq_eq_from_relmonad_ob_eq {C: precategory_data} {D: precategory} (hs: has_homsets D)
            {J : functor C D} (R R' : RelMonad J) (p q : R = R')
     (H : base_paths _ _ (base_paths _ _ p) =
@@ -884,23 +884,6 @@ Proof.
              (R_functor R') isor) with (isotoid _ (is_univalent_functor_category C D H) isor).
   apply (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
 Defined.
-
-
-(** the following lemma should also be put upstream *)
-Lemma transportb_isotoid (C : category) (H : is_univalent C)
-   (a b b' : ob C) (p : z_iso b b') (f : a --> b') :
- transportb (λ b0 : C, a --> b0) (isotoid C H p) f = f · inv_from_z_iso p.
-Proof.
-  apply pathsinv0.
-  apply transportb_transpose_right.
-  change (precategory_morphisms a) with (λ b0 : C, a --> b0).
-  rewrite transportf_isotoid'.
-  rewrite <- assoc.
-  rewrite z_iso_after_z_iso_inv.
-  apply id_right.
-Qed.
-
-
 
 Definition bind_relmonadmor_eq_from_relmonadmor_z_iso {C : precategory_data} {D : category}
            (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
