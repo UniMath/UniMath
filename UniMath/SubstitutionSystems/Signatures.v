@@ -17,7 +17,7 @@ Contents :
 
 -    Definition of signatures
 -    Proof that two forms of strength laws are equivalent
-
+-    (Part on relation with relative strength moved into separate file in 2023)
 
 ************************************************************)
 
@@ -34,10 +34,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
-Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
-Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
-Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Open Scope subsys.
@@ -116,7 +113,7 @@ Section Strength_law_1_intensional.
 (** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : [C, D'],
-           θ (X ⊗ (id_Ptd C)) · # H (λ_functors _) = λ_functors _.
+           θ (X ⊗ (id_Ptd C)) · # H (lunitor_CAT _) = lunitor_CAT _.
 
 (** the following naturally-looking definition is often not suitable to work with *)
 Definition θ_Strength1_int_nicer : UU
@@ -136,7 +133,6 @@ Proof.
   rewrite T.
   etrans.
   { apply maponpaths.
-    unfold λ_functors.
     apply (functor_id H X). }
   apply id_right.
 Qed.
@@ -148,7 +144,6 @@ Proof.
   etrans.
   2: { apply pathsinv0.
        apply maponpaths.
-       unfold λ_functors.
        apply (functor_id H X). }
   apply pathsinv0.
   apply id_right.
@@ -170,10 +165,7 @@ Proof.
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
-  assert (X0 : λ_functors X = identity (X : [C, D'])).
-  { apply nat_trans_eq_alt; intros; apply idpath. }
-  rewrite X0 in T2.
-  apply T2.
+  exact T2.
 Qed.
 
 (* practically the same proof works in the opposite direction *)
@@ -186,10 +178,7 @@ Proof.
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
-  assert (X0 : λ_functors X = identity (X : [C, D'])).
-  { apply nat_trans_eq_alt; intros; apply idpath. }
-  rewrite X0.
-  apply T2.
+  exact T2.
 Qed.
 
 End Strength_law_1_intensional.
@@ -206,8 +195,8 @@ Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D']) (Z Z' : Ptd),
-      θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
-        (α_functors (U Z) (U Z') (H X) :
+      θ (X ⊗ (Z p• Z')) · #H (rassociator_CAT (U Z) (U Z') X )  =
+        (lassociator_CAT (U Z) (U Z') (H X) :
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
@@ -235,7 +224,7 @@ Proof.
   cbn. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  assert (functor_comp_H := functor_comp H (α_functors (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H (rassociator_CAT (pr1 Z) (pr1 Z') X)
            (a : functor_compose (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   cbn in functor_comp_H_c.
@@ -254,7 +243,7 @@ Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
   assert (TXZZ'_inst := T X Z Z' (functor_compose (U Z)
-          (functor_composite (U Z') X)) (α_functors (pr1 Z) (pr1 Z') X)).
+          (functor_composite (U Z') X)) (lassociator_CAT (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0.
   { apply TXZZ'_inst. }
   clear T TXZZ'_inst.
@@ -279,11 +268,11 @@ Qed.
 
 Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
-        (α_functors (U Z) (U Z') (H X) :
+        (lassociator_CAT (U Z) (U Z') (H X) :
           [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
              θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
-             #H (α_functors_inv (U Z) (U Z') X ).
+             #H (lassociator_CAT (U Z) (U Z') X ).
 
 
 Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
@@ -291,7 +280,7 @@ Proof.
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(α_functors_pointwise_is_z_iso D' (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
   assumption.
 Qed.
@@ -300,7 +289,7 @@ Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer ->
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').
-  set (auxiso := functor_on_z_iso H (_,,(α_functors_pointwise_is_z_iso D' (U Z) (U Z') X))).
+  set (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
   apply (z_iso_inv_to_right _ _ _ _ auxiso).
   assumption.
 Qed.
@@ -309,7 +298,7 @@ Definition θ_Strength2_int_nicest : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
       θ (X ⊗ Z') •• (U Z) ·
         θ ((functor_compose (U Z') X) ⊗ Z) ·
-        #H (α_functors_inv (U Z) (U Z') X ).
+        #H (lassociator_CAT (U Z) (U Z') X ).
 
 Lemma θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer: θ_Strength2_int_nicest -> θ_Strength2_int_nicer.
 Proof.
@@ -322,7 +311,6 @@ Proof.
        rewrite assoc.
        exact HypX. }
   apply pathsinv0.
-  unfold α_functors.
   apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))).
 Qed.
 
@@ -334,7 +322,6 @@ Proof.
   etrans. { exact HypX. }
   etrans.
   { do 2 apply cancel_postcomposition.
-    unfold α_functors.
     apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))). }
   apply idpath.
 Qed.
@@ -480,184 +467,6 @@ Proof.
 Qed.
 
 End fix_a_category.
-
-Section homogeneous_case.
-
-Context (C : category).
-
-Local Definition ptd := monoidal_cat_of_pointedfunctors C.
-Local Definition endo := monoidal_cat_of_endofunctors C.
-Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor C.
-
-Local Lemma auxH1 (H : functor [C, C] [C, C]) (X : functor C C) :
-  # H
-    (nat_trans_comp
-       (X
-        ∘ nat_z_iso_to_trans_inv
-            (make_nat_z_iso (functor_identity C) (functor_identity C)
-               (nat_trans_id (functor_identity_data C))
-               (is_nat_z_iso_nat_trans_id (functor_identity C))))
-       (nat_trans_id (pr1 X) ø functor_identity_data C)) =
-  identity (H (functor_identity C ∙ X)).
-Proof.
-  apply functor_id_id.
-  apply nat_trans_eq_alt; intro c.
-  cbn.
-  rewrite id_right.
-  apply functor_id.
-Qed.
-
-Local Lemma auxH2aux (X : functor C C) (Z Z': precategory_Ptd C):
-  nat_trans_comp
-       (X ∘ identity (functor_compose (pr1 Z) (pr1 Z')))
-       (identity(C:=[C, C]) (X) ø (pr1 (functor_compose (pr1 Z) (pr1 Z')))) =
-    identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X).
-Proof.
-  apply nat_trans_eq; try apply homset_property; intro c.
-  cbn.
-  rewrite id_right.
-  apply functor_id.
-Qed.
-
-Section relative_strength_instantiates_to_signature.
-
-  Context (H : functor [C, C] [C, C])
-          (rs : rel_strength forget H).
-
-  Local Definition ϛ : rel_strength_nat forget H := pr1 rs.
-
-  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq forget H ϛ
-    := pr1 (pr2 rs).
-
-  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq forget H ϛ
-    := pr2 (pr2 rs).
-
-  Local Definition θ : θ_source C C C H ⟹ θ_target C C C H
-    := pre_whisker binswap_pair_functor ϛ.
-
-  Lemma signature_from_rel_strength_laws : θ_Strength1_int C C C H θ ×
-                                           θ_Strength2_int C C C H θ.
-  Proof.
-    split; red.
-    - intro X.
-      cbn.
-      apply nat_trans_eq_alt; intro c.
-      cbn.
-      assert (Hyp := nat_trans_eq_weq (homset_property C) _ _ (ϛ_pentagon_eq X) c).
-      cbn in Hyp.
-      rewrite (functor_id (H X)) in Hyp.
-      do 2 rewrite id_left in Hyp.
-      etrans; [| exact Hyp].
-      clear Hyp.
-      rewrite <- assoc.
-      apply maponpaths.
-      etrans.
-      { apply pathsinv0.
-        apply id_left. }
-      apply cancel_postcomposition.
-      apply pathsinv0.
-      apply (nat_trans_eq_weq (homset_property C) _ _ (auxH1 H X) c).
-    - intros X Z Z'.
-      cbn.
-      apply nat_trans_eq; try apply homset_property; intro c.
-      cbn.
-      rewrite id_left.
-      assert (Hyp := nat_trans_eq_weq (homset_property C) _ _ (ϛ_rectangle_eq Z Z' X) c).
-      cbn in Hyp.
-      do 2 rewrite functor_id in Hyp.
-      rewrite (functor_id (H X)) in Hyp.
-      do 2 rewrite id_right in Hyp.
-      do 2 rewrite id_left in Hyp.
-      etrans; [| exact Hyp ].
-      clear Hyp.
-      apply cancel_postcomposition.
-      etrans.
-      { apply pathsinv0. apply id_right. }
-      apply maponpaths.
-      apply pathsinv0.
-      etrans.
-      { use (maponpaths (fun x => pr1 (# H x) c)).
-        + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
-        + apply auxH2aux.
-      }
-      rewrite functor_id.
-      apply idpath.
-  Qed.
-
-  Definition signature_from_rel_strength : Signature C C C.
-  Proof.
-    exists H. exists θ.
-    exact signature_from_rel_strength_laws.
-  Defined.
-
-End relative_strength_instantiates_to_signature.
-
-Section strength_in_signature_is_a_relative_strength.
-
-  Context (sig : Signature C C C).
-
-  Local Definition H := pr1 sig.
-  Local Definition θ' := pr1 (pr2 sig).
-  Local Definition ϛ' : rel_strength_nat forget H := pre_whisker binswap_pair_functor θ'.
-
-  Local Definition θ'_strength_law1 := Sig_strength_law1 _ _ _ sig.
-  Local Definition θ'_strength_law2 := Sig_strength_law2 _ _ _ sig.
-
-  Lemma rel_strength_from_signature_laws : rel_strength_pentagon_eq forget H ϛ' ×
-                                           rel_strength_rectangle_eq forget H ϛ'.
-  Proof.
-    split.
-    - intro X.
-      apply nat_trans_eq_alt; intro c.
-      cbn.
-      assert (Hyp := nat_trans_eq_weq (homset_property C) _ _ (θ'_strength_law1 X) c).
-      cbn in Hyp.
-      fold θ' H in Hyp.
-      rewrite (functor_id (H X)).
-      do 2 rewrite id_left.
-      etrans; [| exact Hyp ].
-      clear Hyp.
-      rewrite <- assoc.
-      apply maponpaths.
-      apply pathsinv0.
-      etrans.
-      { apply pathsinv0.
-        apply id_left. }
-      apply cancel_postcomposition.
-      apply pathsinv0.
-      apply (nat_trans_eq_weq (homset_property C) _ _ (auxH1 H X) c).
-    - intros Z Z' X.
-      apply nat_trans_eq_alt; intro c.
-      cbn.
-      unfold PointedFunctorsComposition.ptd_compose.
-      rewrite functorial_composition_post_pre.
-      assert (Hyp := nat_trans_eq_weq (homset_property C) _ _ (θ'_strength_law2 X Z Z') c).
-      cbn in Hyp.
-      fold θ' H in Hyp.
-      do 2 rewrite functor_id.
-      do 2 rewrite id_right.
-      rewrite (functor_id (H X)).
-      do 2 rewrite id_left.
-      rewrite id_left in Hyp.
-      etrans; [| exact Hyp ].
-      clear Hyp.
-      apply cancel_postcomposition.
-      etrans; [| apply id_right ].
-      apply maponpaths.
-      (** now identical reasoning as in [signature_from_rel_strength_laws] *)
-      etrans.
-      { use (maponpaths (fun x => pr1 (# H x) c)).
-        + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
-        + apply auxH2aux. }
-      rewrite functor_id.
-      apply idpath.
-  Qed.
-
-  Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).
-
-End strength_in_signature_is_a_relative_strength.
-
-End homogeneous_case.
 
 Arguments PrestrengthForSignature {_ _ _} _ .
 Arguments StrengthForSignature {_ _ _} _ .

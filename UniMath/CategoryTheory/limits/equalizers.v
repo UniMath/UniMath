@@ -4,6 +4,8 @@ Direct implementation of equalizers together with:
 
 - Definition
 - Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])
+- Proof that the equalizer arrow of equal morphism
+  is an isomorphism ([z_iso_Equalizer_of_same_map])
 - Alternative universal property
 
 Written by Tomi Pannila
@@ -16,6 +18,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 
@@ -245,6 +248,32 @@ Section def_equalizers.
     exact (make_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 
+  (*Definition of the trivial equalizer of f and f*)
+  Definition identity_asEqualizer {y z : C} (f : y --> z) : (Equalizer f f).
+  Proof.
+    use make_Equalizer.
+    + exact y.
+    + exact (identity y).
+    + apply idpath.
+    + use make_isEqualizer.
+      intros x h p.
+      use unique_exists.
+      - exact h.
+      - use id_right.
+      - intro.
+        use homset_property.
+      - intros t t_tri.
+        rewrite <-(id_right t).
+        exact t_tri.
+  Defined.
+
+  (* The equalizer is a z-isomorphism if f = g *)
+  Lemma z_iso_Equalizer_of_same_map {y z : C} {f g : y --> z} (E : Equalizer f g) (p:f = g) : is_z_isomorphism (EqualizerArrow E).
+  Proof.
+    induction p.
+    use (make_is_z_isomorphism _ (from_Equalizer_to_Equalizer (identity_asEqualizer f) E)).
+    use z_iso_from_Equalizer_to_Equalizer_inverses.
+  Defined.
 
 End def_equalizers.
 
@@ -327,3 +356,97 @@ Section Equalizers'.
   Qed.
 
 End Equalizers'.
+
+Definition isEqualizer_eq
+           {C : category}
+           {e x y : C}
+           {f g f' g' : x --> y}
+           {i i' : e --> x}
+           (p : i · f = i · g)
+           (q : i' · f' = i' · g')
+           (s₁ : f = f')
+           (s₂ : g = g')
+           (s₃ : i = i')
+           (He : isEqualizer f g i p)
+  : isEqualizer f' g' i' q.
+Proof.
+  intros w h r.
+  use iscontraprop1.
+  - abstract
+      (induction s₁, s₂, s₃ ;
+       apply (isapropifcontr (He w h r))).
+  - simple refine (_ ,, _).
+    + refine (EqualizerIn (make_Equalizer _ _ _ _ He) _ h _).
+      abstract
+        (induction s₁, s₂ ;
+         exact r).
+    + abstract
+        (cbn ;
+         induction s₁, s₂, s₃ ;
+         apply (EqualizerCommutes (make_Equalizer _ _ _ _ He))).
+Defined.
+
+(**
+ Equalizers are closed under iso
+ *)
+Definition isEqualizer_z_iso
+           {C : category}
+           {e₁ e₂ x y : C}
+           {f g : x --> y}
+           {p₁ : e₁ --> x}
+           {q₁ : p₁ · f = p₁ · g}
+           {p₂ : e₂ --> x}
+           {q₂ : p₂ · f = p₂ · g}
+           (H : isEqualizer f g p₁ q₁)
+           (h : z_iso e₂ e₁)
+           (r : p₂ = h · p₁)
+  : isEqualizer f g p₂ q₂.
+Proof.
+  intros a k s.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply homset_property | ] ;
+       use (cancel_z_iso _ _ h) ;
+       use (isEqualizerInsEq H) ;
+       rewrite !assoc' ;
+       rewrite <- !r ;
+       exact (pr2 φ₁ @ !(pr2 φ₂))).
+  - refine (EqualizerIn (make_Equalizer _ _ _ _ H) _ k s · inv_from_z_iso h ,, _).
+    abstract
+      (rewrite r ;
+       rewrite !assoc' ;
+       rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+       refine (maponpaths (λ z, _ · (z · _)) (z_iso_after_z_iso_inv h) @ _) ;
+       rewrite id_left ;
+       apply (EqualizerCommutes (make_Equalizer _ _ _ _ H))).
+Defined.
+
+(**
+ In univalent categories, equalizers are unique up to equality
+ *)
+Proposition isaprop_Equalizer
+            {C : category}
+            (HC : is_univalent C)
+            {x y : C}
+            (f g : x --> y)
+  : isaprop (Equalizer f g).
+Proof.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
+    intro.
+    use (isaprop_total2 (_ ,, _) (λ _, (_ ,, _))).
+    - apply homset_property.
+    - simpl.
+      repeat (use impred ; intro).
+      apply isapropiscontr.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use z_iso_from_Equalizer_to_Equalizer.
+  - rewrite transportf_isotoid ; cbn.
+    apply EqualizerCommutes.
+Qed.

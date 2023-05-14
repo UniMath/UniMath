@@ -73,7 +73,7 @@ Section DisplayedAdjunction.
              (FF := left_adj_over X)
              (ηη := unit_over X)
              (εε := counit_over X) : UU
-    := ∏ x xx, #FF (ηη x xx) ;;  εε _ (FF _ xx)
+    := ∏ x xx, ♯ FF (ηη x xx) ;;  εε _ (FF _ xx)
                = transportb _ (triangle_id_left_ad A x ) (id_disp _) .
 
   Definition triangle_2_statement_over
@@ -82,7 +82,7 @@ Section DisplayedAdjunction.
              (GG := right_adj_over AA)
              (ηη := unit_over AA)
              (εε := counit_over AA) : UU
-    := ∏ x xx, ηη _ (GG x xx) ;; # GG (εε _ xx)
+    := ∏ x xx, ηη _ (GG x xx) ;; ♯ GG (εε _ xx)
                = transportb _ (triangle_id_right_ad A _ ) (id_disp _).
 
   Definition form_disp_adjunction {C C' : category}
@@ -294,7 +294,7 @@ Section DisplayedEquivalences.
         etrans. apply assoc_disp.
         eapply transportf_bind.
         etrans. eapply cancel_postcomposition_disp.
-          exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+          exact (disp_nat_trans_ax η (♯ GG (ε x yy))). (*2*)
         eapply transportf_bind.
         etrans. apply assoc_disp_var.
         eapply transportf_bind.
@@ -371,7 +371,7 @@ Section Constructions.
   (** * Constructions on and of displayed equivalences *)
 
   (** ** Full + faithful + ess split => equivalence *)
-
+  Local Open Scope cat.
   Section Equiv_from_ff_plus_ess_split.
     (* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
@@ -386,23 +386,23 @@ Section Constructions.
     (** *** Utility lemmas from fullness+faithfulness *)
 
     (* TODO: inline throughout? *)
-    Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[ (# F)%Cat f] FF y yy
+    Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[#F f] FF y yy
         := disp_functor_ff_weq _ FF_ff xx yy f.
-    Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[ (# F)%Cat f] FF y yy → xx -->[ f] yy
+    Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[#F f] FF y yy → xx -->[ f] yy
         := @disp_functor_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
     (* TODO: once [disp_functor_ff_transportf_gen] is done, replace this with that. *)
     Lemma FFinv_transportf
           {x y : C} {f f' : x --> y} (e : f = f')
-          {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
-      : FFinv (transportf (λ f', _ -->[ (#F)%Cat f'] _ ) e ff) = transportf _ e (FFinv ff).
+          {xx : D x} {yy : D y} (ff : FF _ xx -->[#F f] FF _ yy)
+      : FFinv (transportf (λ f', _ -->[#F f'] _ ) e ff) = transportf _ e (FFinv ff).
     Proof.
       destruct e. apply idpath.
     Qed.
 
     Definition disp_functor_ff_reflects_isos
                {x y} {xx : D x} {yy : D y} {f : z_iso x y}
-               (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (# FF ff))
+               (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (♯ FF ff))
       : is_z_iso_disp _ ff.
     Proof.
       set (FFffinv := inv_mor_disp_from_z_iso isiso).
@@ -522,7 +522,7 @@ Definition triangle_1_statement_over_id  {C} {D D' : disp_cat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= ∏ x xx, #FF ( η x xx) ;;  ε _ (FF _ xx)
+:= ∏ x xx, ♯ FF ( η x xx) ;;  ε _ (FF _ xx)
             = transportb _ (id_left _ ) (id_disp _) .
 
 Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
@@ -531,7 +531,7 @@ Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= ∏ x xx, η _ (GG x xx) ;; # GG (ε _ xx)
+:= ∏ x xx, η _ (GG x xx) ;; ♯ GG (ε _ xx)
            = transportb _ (id_left _ ) (id_disp _).
 
 Definition form_disp_adjunction_id {C} {D D' : disp_cat C}
@@ -733,7 +733,7 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+        exact (disp_nat_trans_ax η (♯ GG (ε x yy))). (*2*)
       eapply transportf_bind.
       etrans. apply assoc_disp_var.
       eapply transportf_bind.
@@ -825,7 +825,7 @@ Qed.
 
 Definition disp_functor_id_ff_reflects_isos
   {x y} {xx : D' x} {yy : D' y} {f : z_iso x y}
-  (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (# FF ff))
+  (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (♯ FF ff))
   : is_z_iso_disp _ ff.
 Proof.
   use (disp_functor_ff_reflects_isos FF FF_ff).
@@ -1174,7 +1174,7 @@ Lemma inv_triangle_1_statement_over_id
 Proof.
   intros x xx. cbn.
         set (XR:= @z_iso_disp_precomp).
-        set (Gepsxxx := (#GG (ε x xx))).
+        set (Gepsxxx := (♯ GG (ε x xx))).
         set (RG := @disp_functor_on_is_z_iso_disp _ _ (functor_identity C)).
         specialize (RG _ _ GG).
         specialize (RG _ _ _ _ (identity_z_iso _ )  (ε x xx)).

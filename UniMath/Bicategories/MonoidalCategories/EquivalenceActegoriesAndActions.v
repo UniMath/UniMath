@@ -12,11 +12,11 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActionsInBicat.
@@ -73,12 +73,12 @@ Section ActegoryToObject.
         exact (pr2 (actegory_actorisolaw Mon_V act x (monoidal_unit Mon_V) x0)).
       }
       rewrite id_right.
-      rewrite (! bifunctor_leftcomp _ _ _ _ _ _ _).
+      rewrite (! bifunctor_leftcomp act _ _ _ _ _ _).
       etrans. {
         apply maponpaths.
         apply actegory_unitorisolaw.
       }
-      apply bifunctor_leftid.
+      apply (bifunctor_leftid act).
     - set (tri := actegory_triangleidentity' Mon_V act x x0).
       rewrite (! tri).
       rewrite assoc.
@@ -196,36 +196,40 @@ Section ActegoryFromObject.
   Lemma actegory_laws_from_object
     : actegory_laws (monoidal_swapped Mon_V) actegory_data_from_object.
   Proof.
-    repeat split.
-    - intro ; intros.
-      (* That the monoidal unit is strongly preserved, means that we have
-         a morphism in the category of endofunctors on C,
-         i.e. a natural transformation, hence, we use this naturality *)
-      apply (pr212 action_fmon_strong).
-    - (* Here we use that the unit is strongly preserved, that is,
-         we use that the equation that expresses that the
-         unit preserving morphism is invertible *)
-      apply (toforallpaths _ _ _ (base_paths _ _ (pr222 action_fmon_strong))).
-    - (* Idem as previous bullet point *)
-      apply (toforallpaths _ _ _ (base_paths _ _ (pr122 action_fmon_strong))).
-    - intro ; intros.
-      (* Here we use that the tensor preserving morphism is an isomorphism,
-         i.e. we use the equation that expresses the invertibility *)
-      exact (! pr21 (pr1 action_fmon_strong w v) z z' h).
-    - intros v1 v2 w c f.
-      set (fmon_strong_preserves_tensor_inv := preservestensor_inv_is_nattrans
-            (pr12 action_fmon_lax)
-            (pr122 action_fmon_lax)
-            (pr1 action_fmon_strong)).
-      exact (! (toforallpaths _ _ _ (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
-    - intros w v1 v2 c f.
-      exact (toforallpaths _ _ _ (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
-    - apply (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
+    split5.
+    - apply bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
+    - repeat split.
+      + intro ; intros.
+        (* That the monoidal unit is strongly preserved, means that we have
+           a morphism in the category of endofunctors on C,
+           i.e. a natural transformation, hence, we use this naturality *)
+        apply (pr212 action_fmon_strong).
+      + (* Here we use that the unit is strongly preserved, that is,
+           we use that the equation that expresses that the
+           unit preserving morphism is invertible *)
+        apply (eqtohomot (base_paths _ _ (pr222 action_fmon_strong))).
+      + (* Idem as previous bullet point *)
+        apply (eqtohomot (base_paths _ _ (pr122 action_fmon_strong))).
+    - repeat split.
+      + intro ; intros.
+        (* That the monoidal unit is strongly preserved, means that we have
+           a morphism in the category of endofunctors on C,
+           i.e. a natural transformation, hence, we use this naturality *)
+        exact (! pr21 (pr1 action_fmon_strong w v) z z' h).
+      + intros v1 v2 w c f.
+        set (fmon_strong_preserves_tensor_inv := preservestensor_inv_is_nattrans
+              (pr12 action_fmon_lax)
+              (pr122 action_fmon_lax)
+              (pr1 action_fmon_strong)).
+        exact (! (eqtohomot (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
+      + intros w v1 v2 c f.
+        exact (eqtohomot (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
+      + apply (eqtohomot (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
+      + apply (eqtohomot (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
     - intros v c.
       cbn.
       assert (plu := preserves_leftunitality'' (_,,pr222 C) v).
-      assert (pluc := toforallpaths _ _ _ (base_paths _ _ plu) c).
+      assert (pluc := eqtohomot (base_paths _ _ plu) c).
       refine (_ @ pluc).
       clear pluc ; clear plu.
       cbn.
@@ -234,15 +238,15 @@ Section ActegoryFromObject.
     - intro ; intros.
       cbn.
       unfold actor_from_object.
-      assert (t := ! toforallpaths _ _ _ (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
+      assert (t := ! eqtohomot (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
       cbn in t.
       rewrite id_right in t.
       set (αisov'vw := z_iso_inv (z_iso_from_associator_iso Mon_V v' v w)).
       rewrite assoc' in t.
       assert (pf:  (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' (v ⊗_{ Mon_V} w))) z
-                                     · pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v w)) (pr1 ((pr12 C) v') z))
-               =  pr1 (# (pr12 C) (monoidal_associatorinvdata Mon_V v' v w)) z · (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong (v' ⊗_{ Mon_V} v) w)) z
-                                                                                      · # (pr1 ((pr12 C) w)) (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' v)) z))).
+                      · pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v w)) (pr1 ((pr12 C) v') z))
+                   =  pr1 (# (pr12 C) (monoidal_associatorinvdata Mon_V v' v w)) z · (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong (v' ⊗_{ Mon_V} v) w)) z
+                                                                                        · # (pr1 ((pr12 C) w)) (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' v)) z))).
       {
         etrans.
         2: {
@@ -254,7 +258,7 @@ Section ActegoryFromObject.
         etrans.
         2: {
           apply maponpaths_2.
-          assert (bla := toforallpaths _ _ _ (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
+          assert (bla := eqtohomot (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
           rewrite functor_comp in bla.
           exact (! bla).
         }
@@ -471,15 +475,16 @@ Section FromActegoriesToActionsInCat.
     - intro a.
       use tpair.
       + apply nat_trans_id.
-      + abstract (intro v;
-                  use nat_trans_eq;
-                  [apply homset_property |
-                    intro c;
-                    cbn ;
-                    unfold identity_lineator_data ;
-                    rewrite ! id_left ;
-                    rewrite id_right ;
-                    apply (! bifunctor_leftid _ _ _)]).
+      + abstract
+          (intro v;
+           use nat_trans_eq;
+           [apply homset_property | ] ;
+           intro c;
+           cbn ;
+           unfold identity_lineator_data ;
+           rewrite ! id_left ;
+           rewrite id_right ;
+           apply (! bifunctor_leftid (_ ,, pr122 a) _ _)).
     - intros a1 a2 a3 f g.
       use tpair.
       {  simpl. apply nat_trans_id. }
@@ -488,7 +493,7 @@ Section FromActegoriesToActionsInCat.
                 [apply homset_property |
                   intro c;
                   cbn;
-                  rewrite bifunctor_leftid;
+                  rewrite (bifunctor_leftid (_ ,, pr122 a3));
                   rewrite ! id_left;
                   rewrite ! id_right;
                   apply idpath]).
@@ -520,7 +525,7 @@ Section FromActegoriesToActionsInCat.
           intro.
           cbn.
           rewrite ! id_right.
-          apply (! bifunctor_leftid _ _ _).
+          apply (! bifunctor_leftid (_ ,, pr122 a) _ _).
       + use tpair ; use equality_of_2cells_in_ACTI ; intro ; apply id_right.
     - intro ; intros.
       use tpair.
@@ -533,7 +538,7 @@ Section FromActegoriesToActionsInCat.
           simpl.
           rewrite ! id_right.
           rewrite ! id_left.
-          rewrite bifunctor_leftid.
+          rewrite (bifunctor_leftid (_ ,, pr122 c)).
           apply (! id_left _).
       + use tpair ; use equality_of_2cells_in_ACTI ; intro ; apply id_right.
   Qed.
@@ -573,18 +578,18 @@ Section FromActionInCatToActegories.
     - intros v c1 c2 g.
       exact (pr2 (pr112 f v) c1 c2 g).
     - intros v w c g.
-      exact (toforallpaths _ _ _ (base_paths _ _ (pr212 f v w g)) c).
+      exact (eqtohomot (base_paths _ _ (pr212 f v w g)) c).
     - intros v w c.
       induction f as [f [δ [tri pent]]].
-      assert (tt := toforallpaths _ _ _ (base_paths _ _ (pent w v)) c).
+      assert (tt := eqtohomot (base_paths _ _ (pent w v)) c).
       cbn in tt.
       rewrite ! id_left in tt.
       transparent assert (z_iso_ptwvFc
                : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 f c)))
              ).
       { exists (pr11 (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 f c)).
-        exists (toforallpaths _ _ _ (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exists (eqtohomot (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        exact (eqtohomot (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
       }
       assert (tt' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_ptwvFc) _ _ (! tt)).
       etrans. {
@@ -604,7 +609,7 @@ Section FromActionInCatToActegories.
         apply maponpaths.
         rewrite (! functor_comp f _ _).
         apply maponpaths.
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
+        exact (eqtohomot (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
       }
       simpl.
       rewrite functor_id.
@@ -612,15 +617,15 @@ Section FromActionInCatToActegories.
     - (* preserves_unitor *)
       intro c.
       induction f as [F [δ [tri pent]]].
-      assert (tric := toforallpaths _ _ _ (base_paths _ _ tri) c).
+      assert (tric := eqtohomot (base_paths _ _ tri) c).
       cbn in tric.
       rewrite ! id_left in tric.
       transparent assert (z_iso_puFc
                            : (is_z_isomorphism ( pr1 (fmonoidal_preservesunit (pr22 a2)) (pr1 F c)))).
       {
         exists (pr11 (fmonoidal_preservesunitstrongly (pr22 a2))(pr1 F c)).
-        exists (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
+        exists (eqtohomot (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
+        exact (eqtohomot (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
       }
       assert (tric' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_puFc) _ _ (! tric)).
       etrans. { apply maponpaths_2 ; exact tric'. }
@@ -633,7 +638,7 @@ Section FromActionInCatToActegories.
       }
       etrans. {
         do 2 apply maponpaths.
-        exact (toforallpaths _ _ _ (base_paths _ _ (pr122 (pr222 a1))) c).
+        exact (eqtohomot (base_paths _ _ (pr122 (pr222 a1))) c).
       }
       rewrite (functor_id F _).
       apply id_right.
@@ -665,7 +670,7 @@ Section FromActionInCatToActegories.
     - intros a1 a2 f g α.
       exists (pr1 α).
       intros v a.
-      exact (toforallpaths _ _ _ (base_paths _ _ (pr2 α v)) a).
+      exact (eqtohomot (base_paths _ _ (pr2 α v)) a).
     - intro a.
       use tpair.
       + exists (λ c, identity c).
@@ -873,7 +878,7 @@ Section ActionInCatEquivActegories.
         [
           rewrite id_left ;
           rewrite id_right ;
-          rewrite bifunctor_leftid ;
+          rewrite (bifunctor_leftid (_ ,, pr122 a)) ;
           apply (! id_right _)
         |
           rewrite id_left ; apply idpath ]).
@@ -901,7 +906,7 @@ Section ActionInCatEquivActegories.
               simpl ;
               rewrite functor_id ;
               rewrite ! id_right ;
-              rewrite bifunctor_leftid ;
+              rewrite (bifunctor_leftid (_ ,, pr122 a2));
               rewrite ! id_left ;
               apply idpath
             ).
@@ -921,7 +926,7 @@ Section ActionInCatEquivActegories.
                   simpl ;
                   rewrite functor_id ;
                   rewrite ! id_right ;
-                  rewrite bifunctor_leftid ;
+                  rewrite (bifunctor_leftid (_ ,, pr122 a2)) ;
                   rewrite ! id_left ;
                   apply idpath
                 ).
@@ -1014,7 +1019,7 @@ Section ActionInCatEquivActegories.
     - abstract (
           intro ; intros ;
           cbn ;
-          rewrite bifunctor_leftid ;
+          rewrite (bifunctor_leftid (_ ,, pr122 x)) ;
           rewrite ! id_left ;
           rewrite ! id_right ;
           apply idpath
@@ -1038,7 +1043,7 @@ Section ActionInCatEquivActegories.
           cbn ;
           unfold comp_lineator_data ;
           simpl ;
-          rewrite bifunctor_leftid ;
+          rewrite (bifunctor_leftid (_ ,, pr122 a2)) ;
           rewrite ! id_left ;
           rewrite functor_id ;
           rewrite id_right ;
@@ -1056,7 +1061,7 @@ Section ActionInCatEquivActegories.
           cbn ;
           unfold comp_lineator_data ;
           simpl ;
-          rewrite bifunctor_leftid ;
+          rewrite (bifunctor_leftid (_ ,, pr122 a2)) ;
           rewrite ! id_left ;
           rewrite functor_id ;
           apply idpath
@@ -1236,7 +1241,7 @@ Section ActionInCatEquivActegories.
           -- abstract (
                  intro ; intros ;
                  cbn ;
-                 rewrite bifunctor_leftid ;
+                 rewrite (bifunctor_leftid (_ ,, pr122 x)) ;
                  rewrite ! id_left ;
                  apply (! id_right _)
                ).
@@ -1263,7 +1268,7 @@ Section ActionInCatEquivActegories.
           -- abstract (
                  intro ; intros ;
                  simpl ;
-                 rewrite bifunctor_leftid ;
+                 rewrite (bifunctor_leftid (_ ,, pr122 x)) ;
                  apply id_right
                ).
         * abstract (
@@ -1395,7 +1400,7 @@ Section ActionInCatEquivActegories.
       + abstract (
             intro ; intros ;
             simpl ;
-            rewrite bifunctor_leftid ;
+            rewrite (bifunctor_leftid (_ ,, pr122 a)) ;
             apply (! id_left _)
           ).
   Defined.
@@ -1456,7 +1461,7 @@ Section ActionInCatEquivActegories.
             unfold comp_lineator_data ;
             unfold identity_lineator_data ;
             cbn ;
-            rewrite bifunctor_leftid ;
+            rewrite (bifunctor_leftid (_ ,, pr122 x)) ;
             apply id_right
           ).
     - abstract (

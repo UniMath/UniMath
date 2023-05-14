@@ -1,3 +1,4 @@
+
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Nat.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -154,9 +155,9 @@ Section BackSub.
       apply maponpaths, funextfun; intros i'.
       destruct (stn_eq_or_neq i' (row)) as [eq | neq].
       2 : { now rewrite back_sub_step_inv1. }
-      replace (mat i i') with (@ringunel1 F).
-      2 : { rewrite is_ut; try reflexivity; now rewrite eq. }
-      now do 2 rewrite (@rigmult0x F).
+      rewrite is_ut. 2: { rewrite eq. assumption. }
+      do 2 rewrite (@rigmult0x F).
+      apply idpath.
     - rewrite (stn_eq _ _ eq)
       , back_sub_step_inv0; try assumption.
       now rewrite H.
@@ -349,7 +350,8 @@ Section BackSubZero.
     + rewrite eq; intros contr_neq.
       contradiction (nonzeroax _ (pathsinv0 contr_neq)).
     + destruct (fldchoice0 (v j)) as [contr_eq | ?].
-      * now rewrite contr_eq in neq.
+      * rewrite contr_eq in neq.
+        contradiction.
       * contradiction.
   Defined.
 
@@ -654,7 +656,7 @@ Section Inverse.
     rewrite matrix_mult_assoc in invmat.
     assert (eq : (C ** A ** D) = (A ** D ** C)).
     { unfold CA in invmat. unfold D, CA.
-      rewrite matrix_mult_assoc. rewrite invmat.
+      rewrite matrix_mult_assoc, invmat.
       pose (left_inv_eq_right := @matrix_left_inverse_equals_right_inverse).
       apply pathsinv0.
       pose (gauss_mat_invertible := inv).
@@ -662,9 +664,12 @@ Section Inverse.
       destruct gauss_mat_invertible as [gauss_mat gauss_mat_invertible].
       pose (left_inv_eq_right_app
         := left_inv_eq_right F n _ n C gauss_mat ((A ** D),, invmat)).
-      replace (@matrix_mult F _ _ A _ (_ _)) with (pr1 gauss_mat); simpl.
-      - now apply gauss_mat.
-      - now rewrite left_inv_eq_right_app.
+      set (constr := (upper_triangular_right_inverse_construction
+        (@matrix_mult F _ _ C _ A))).
+      assert (eq: (@matrix_mult F _ _ A n constr) = (pr1 gauss_mat)).
+      { apply pathsinv0. apply (left_inv_eq_right_app). }
+      rewrite eq.
+      apply gauss_mat.
     }
     refine (_ @ invmat); rewrite <- matrix_mult_assoc; refine (!eq @ _).
     apply matrix_mult_assoc.
@@ -714,11 +719,13 @@ Section Inverse.
         pose (B_rinv := @make_matrix_right_inverse F _ _ n B (A ** C) BAC_id).
         pose (linv := @matrix_right_inverse_implies_left _ _ C B_rinv).
         pose (eq := @matrix_left_inverse_equals_right_inverse F n _ n B linv ((A ** C),, BAC_id)).
-        replace (A ** C) with (pr1 B_rinv); try reflexivity.
-        rewrite (pr2 B_rinv).
-        replace (pr1 B_rinv) with (pr1 linv); try assumption.
-        2: {now rewrite eq. }
-        now rewrite (pr2 linv).
+        etrans.
+        { change (@matrix_mult F _ _ A _ C) with (pr1 B_rinv).
+          rewrite (pr2 B_rinv); reflexivity. }
+        change (pr1 (@matrix_mult F _ _ A _ C,, BAC_id))
+          with (@matrix_mult F _ _ A _ C) in *.
+        rewrite <- eq, (pr2 linv).
+        apply idpath.
       }
       simpl in * |- ;
       now rewrite <- BAC_id, <- linv_eq.
@@ -730,7 +737,8 @@ Section Inverse.
         apply (@matrix_inverse_to_right_and_left_inverse F _ B),
           gauss_clear_all_rows_matrix_invertible. }
       pose (contr_eq := @left_invertible_upper_triangular_to_diagonal_all_nonzero _ _ ut isinvprod idx).
-      now rewrite isnotz in contr_eq.
+      rewrite isnotz in contr_eq.
+      contradiction.
   Defined.
 
 End Inverse.

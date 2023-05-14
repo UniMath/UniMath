@@ -1,6 +1,6 @@
 (* In this file we show that for any category C,
-   the monoidal category of pointedfunctors of C is equivalent to
-   the monoidal category of pointed-objects in the monoidal category of pointed functors of C.
+   the monoidal category of pointed functors of C is equivalent to
+   the monoidal category of monoidal-pointed objects in the monoidal category of pointed functors of C.
 
    By equivalence, we mean that these two monoidal categories
    are (internally) equivalent as objects in the bicategory of monoidal categories
@@ -17,11 +17,11 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.coslicecat.
 
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -34,7 +34,7 @@ Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMono
 (* The notion of internal adjoint equivalences in a bicategory is defined in: *)
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 
-(* The necessairy bicategories *)
+(* The necessary bicategories *)
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
 
@@ -138,8 +138,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
               use total2_paths_f ;
               [
                 simpl ;
-                rewrite bifunctor_leftid ;
-                rewrite bifunctor_rightid ;
+                rewrite (bifunctor_leftid Mon_V) ;
+                rewrite (bifunctor_rightid Mon_V) ;
                 rewrite ! id_right ;
                 apply idpath
               | apply homset_property
@@ -154,8 +154,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
                 use total2_paths_f ;
                 [
                   simpl ;
-                  rewrite bifunctor_leftid ;
-                  rewrite bifunctor_rightid ;
+                  rewrite (bifunctor_leftid Mon_V) ;
+                  rewrite (bifunctor_rightid Mon_V) ;
                   rewrite ! id_right ;
                   apply idpath
                 | apply homset_property
@@ -204,8 +204,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
       use total2_paths_f.
       2: { apply homset_property. }
       simpl.
-      rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       apply idpath.
     - use total2_paths_f.
       2: { apply homset_property. }
@@ -227,8 +227,8 @@ Section PointedFunctorsIdempotentGeneralMonoidalCats.
       use total2_paths_f.
       2: { apply homset_property. }
       simpl.
-      rewrite bifunctor_rightid.
-      rewrite bifunctor_leftid.
+      rewrite (bifunctor_rightid Mon_V).
+      rewrite (bifunctor_leftid Mon_V).
       rewrite ! id_right.
       apply idpath.
     - use total2_paths_f.

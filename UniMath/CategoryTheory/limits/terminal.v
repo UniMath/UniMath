@@ -38,7 +38,7 @@ Lemma TerminalArrowUnique {T : Terminal} {a : C} (f : C⟦a,TerminalObject T⟧)
   f = TerminalArrow T _.
 Proof.
 exact (pr2 (pr2 T _ ) _ ).
-Defined.
+Qed.
 
 Lemma TerminalEndo_is_identity {T : Terminal} (f : T --> T) : f = identity T.
 Proof.
@@ -69,7 +69,7 @@ Proof.
 Defined.
 
 Definition z_iso_Terminals (T T' : Terminal) : z_iso T T' :=
-  (TerminalArrow T' T,,isziso_from_Terminal_to_Terminal T' T) .
+  TerminalArrow T' T,,isziso_from_Terminal_to_Terminal T' T.
 
 Definition hasTerminal := ishinh Terminal.
 
@@ -86,8 +86,7 @@ Arguments make_Terminal {_} _ _.
 
 Section Terminal_Unique.
 
-Variable C : category.
-Hypothesis H : is_univalent C.
+Context (C : category) (H : is_univalent C).
 
 Lemma isaprop_Terminal : isaprop (Terminal C).
 Proof.
@@ -115,8 +114,8 @@ Section Terminal_and_EmptyProd.
     intros a.
     assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
-    apply (make_iscontr (ProductArrow _ _ X H)); intros t.
-    apply ProductArrowUnique; intros i; apply (fromempty i).
+    apply (make_iscontr (ProductArrow _ _ X H)).
+    abstract (intros t; apply ProductArrowUnique; intros i; apply (fromempty i)).
   Defined.
 
 End Terminal_and_EmptyProd.
@@ -166,25 +165,17 @@ End Terminal_and_EmptyProd.
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
-Variables (C D : category) (ID : Terminal D).
+Context (C D : category) (ID : Terminal D).
 
 Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
-- use make_functor.
-  + use tpair.
-    * intros c; apply (TerminalObject ID).
-    * simpl; intros a b f; apply (TerminalArrow ID).
-  + split.
-    * intro a; apply TerminalEndo_is_identity.
-    * intros a b c f g; apply pathsinv0, TerminalArrowUnique.
+- exact (constant_functor _ _ ID).
 - intros F.
   use tpair.
-  + use make_nat_trans; simpl.
+  + use make_nat_trans.
     * intro a; apply TerminalArrow.
-    * intros a b f; simpl.
-      rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
-      apply TerminalArrowUnique.
+    * abstract (intros a b f; apply TerminalArrowEq).
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
@@ -195,7 +186,7 @@ Section monics_terminal.
 
 Context {C : category} (TC : Terminal C).
 
-Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
+Lemma from_terminal_isMonic (a : C) (f : TC --> a) : isMonic f.
 Proof.
 apply make_isMonic; intros b g h H.
 now apply TerminalArrowEq.

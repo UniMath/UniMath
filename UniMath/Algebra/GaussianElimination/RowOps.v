@@ -433,11 +433,16 @@ Section Switch_Row.
     intros m_eq.
     unfold switch_row.
     apply funextfun. intros i'.
-    destruct (stn_eq_or_neq _ _) as [eq | neq];
-      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      try rewrite eq; try rewrite eq';
-      try rewrite m_eq; try reflexivity.
-  Defined.
+    destruct (stn_eq_or_neq _ _) as [eq | neq].
+    - destruct (stn_eq_or_neq _ _) as [eq' | neq'].
+      + now apply maponpaths.
+      + etrans. apply m_eq.
+        now apply maponpaths.
+    - destruct (stn_eq_or_neq _ _) as [eq | cec].
+      + cbn. etrans. apply(!m_eq).
+        apply maponpaths, (!eq).
+      + apply idpath.
+  Qed.
 
   Lemma switch_row_equal_entries
     {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
@@ -446,10 +451,15 @@ Section Switch_Row.
   Proof.
     intros j m_eq r3.
     unfold switch_row.
-    destruct (stn_eq_or_neq _ _) as [eq | neq];
-      destruct (stn_eq_or_neq _ _) as [eq' | neq'];
-      try rewrite eq; try rewrite eq';
-      try rewrite m_eq; reflexivity.
-  Defined.
+    destruct (stn_eq_or_neq _ _) as [eq | neq].
+    - destruct (stn_eq_or_neq _ _) as [eq' | neq']; cbn.
+      + now apply maponpaths_2.
+      + etrans. apply m_eq.
+        now apply maponpaths_2.
+    - destruct (stn_eq_or_neq _ _) as [eq | cec]; cbn.
+      + etrans. apply(!m_eq).
+        now apply maponpaths_2.
+      + apply idpath.
+  Qed.
 
 End Switch_Row.

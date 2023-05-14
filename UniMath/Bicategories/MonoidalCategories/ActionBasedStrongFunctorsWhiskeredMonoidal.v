@@ -21,13 +21,13 @@ Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.TotalDisplayedMonoidalWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalSectionsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.Actions.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
@@ -531,7 +531,7 @@ Section Main.
           (G ◃ # FA' (v ⊗^{ Mon_V}_{l} g)) • param_distr_bicat_pentagon_eq_body_variant_RHS v w' η π'.
     Proof.
       intro Hyp'.
-      rewrite <- when_bifunctor_becomes_leftwhiskering.
+      rewrite <- (when_bifunctor_becomes_leftwhiskering Mon_V).
       change (montrafotargetbicat_disp v) in η.
       exact (montrafotargetbicat_tensor_comp_aux v w v w' (identity v) g η π η π' (id_disp η) Hyp').
     Qed.
@@ -543,7 +543,7 @@ Section Main.
           (G ◃ # FA' (f ⊗^{ Mon_V}_{r} w)) • param_distr_bicat_pentagon_eq_body_variant_RHS v' w η' π.
     Proof.
       intro Hyp.
-      rewrite <- when_bifunctor_becomes_rightwhiskering.
+      rewrite <- (when_bifunctor_becomes_rightwhiskering Mon_V).
       change (montrafotargetbicat_disp w) in π.
       exact (montrafotargetbicat_tensor_comp_aux v w v' w f (identity w) η π η' π Hyp (id_disp π)).
     Qed.
@@ -1847,8 +1847,8 @@ Defined.
 
     Context (G : A ⟶ A').
 
-    Let H := param_distributivity'_dom(FA':=FA') A A' G.
-    Let H' := param_distributivity'_codom(FA:=FA) A A' G.
+    Let H : V ⟶ [A, A'] := param_distributivity'_dom(FA':=FA') A A' G.
+    Let H' : V ⟶ [A, A'] := param_distributivity'_codom(FA:=FA) A A' G.
 
     Goal H = Main.H(C:=bicat_of_cats)(FA':=FA') G.
     Proof.
@@ -1884,9 +1884,9 @@ Defined.
     Section IntoMonoidalSection.
 
       Context (δs : parameterized_distributivity' Mon_V A A' FAm FA'm G).
-      Let δ := pr1 δs.
-      Let δtr_eq := pr12 δs.
-      Let δpe_eq := pr22 δs.
+      Let δ : parameterized_distributivity'_nat A A' G := pr1 δs.
+      Let δtr_eq : param_distr'_triangle_eq Mon_V A A' FAm FA'm G (pr1 δs) := pr12 δs.
+      Let δpe_eq : param_distr'_pentagon_eq Mon_V A A' FAm FA'm G (pr1 δs) := pr22 δs.
 
       Definition montrafotarget_section_disp : section_disp montrafotarget_disp
         := nat_trans_to_section_bicat(C0:=V)(C:=bicat_of_cats) A A' H H' δ.

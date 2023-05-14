@@ -43,8 +43,8 @@ Section Disp_Nat_Trans.
     forall (x' x : C') (f : x' --> x)
       (xx' : D' x') (xx : D' x)
       (ff : xx' -->[ f ] xx),
-      # R'  ff ;; b _ xx =
-        transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff).
+      ♯ R'  ff ;; b _ xx =
+        transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; ♯ R ff).
 
   Lemma isaprop_disp_nat_trans_axioms
         {C' C : category}
@@ -102,8 +102,8 @@ Section Disp_Nat_Trans.
              {xx' : D' x'}
              {xx : D' x}
              (ff : xx' -->[ f ] xx):
-    # R'  ff ;; b _ xx =
-      transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff)
+    ♯ R'  ff ;; b _ xx =
+      transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; ♯ R ff)
     :=
     pr2 b _ _ f _ _ ff.
 
@@ -121,8 +121,8 @@ Section Disp_Nat_Trans.
         {xx' : D' x'}
         {xx : D' x}
         (ff : xx' -->[ f ] xx):
-    b _ xx' ;; # R ff =
-      transportf _ (nat_trans_ax a _ _ f) (# R'  ff ;; b _ xx).
+    b _ xx' ;; ♯ R ff =
+      transportf _ (nat_trans_ax a _ _ f) (♯ R'  ff ;; b _ xx).
   Proof.
     apply pathsinv0, transportf_pathsinv0.
     apply pathsinv0, disp_nat_trans_ax.
@@ -421,7 +421,7 @@ Section Utilities.
         (disp_functor_composite FF₂ GG).
   Proof.
     use tpair.
-    - exact (λ x xx, # GG (nn x xx)).
+    - exact (λ x xx, ♯ GG (nn x xx)).
     - abstract
         (intros x y f xx yy ff ; cbn ;
          rewrite <- !(disp_functor_comp_var GG) ;
@@ -450,7 +450,7 @@ Section CompDispNatTransOverId.
             transportf
               (λ z, _ -->[ z ] _)
               _
-              (α x xx ;; β x xx)%mor_disp).
+              (α x xx ;; β x xx)).
     abstract
       (cbn ;
        apply id_left).
@@ -520,7 +520,7 @@ Section PreWhiskDispNatTransOverId.
     : disp_nat_trans_axioms disp_nat_trans_over_id_prewhisker_data.
   Proof.
     intros x y f xx yy ff ; cbn.
-    exact (disp_nat_trans_ax α (#FF ff)%mor_disp).
+    exact (disp_nat_trans_ax α (♯ FF ff)).
   Qed.
 
   Definition disp_nat_trans_over_id_prewhisker
@@ -547,7 +547,7 @@ Section PreWhiskDispNatTransOverId.
         (nat_trans_id _)
         (disp_functor_composite FF₁ GG)
         (disp_functor_composite FF₂ GG)
-    := λ x xx, (#GG (α x xx))%mor_disp.
+    := λ x xx, (♯ GG (α x xx)).
 
   Definition disp_nat_trans_over_id_postwhisker_axioms
     : disp_nat_trans_axioms disp_nat_trans_over_id_postwhisker_data.
@@ -556,7 +556,7 @@ Section PreWhiskDispNatTransOverId.
     etrans.
     {
       refine (!_).
-      exact (disp_functor_comp_var GG (# FF₁ ff) (α y yy)).
+      exact (disp_functor_comp_var GG (♯ FF₁ ff) (α y yy)).
     }
     etrans.
     {
@@ -639,8 +639,8 @@ Section PointwiseInverse.
     }
     assert (transportf
               (mor_disp (FF x xx) (GG y yy)) (nat_trans_ax (nat_trans_id F) x y f)
-              (# FF ff;; pr1 αα y yy) =
-            pr1 αα x xx;; # GG ff)
+              (♯ FF ff;; pr1 αα y yy) =
+            pr1 αα x xx;; ♯ GG ff)
       as X.
     {
       apply transportf_transpose_left.

@@ -504,7 +504,7 @@ Section Total_invertible_2cells.
   Proof.
     eapply weqcomp. {
       apply weqfibtototal.
-      intros ?. apply is_invertible_total_to_disp_weq. }
+      intro. apply is_invertible_total_to_disp_weq. }
     eapply weqcomp. {
       apply weqinvweq.
       apply weqtotal2asstol. }

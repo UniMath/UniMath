@@ -23,12 +23,11 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.BicatOfCatsElementary.
 Require Import UniMath.SubstitutionSystems.Notation.
+
 Local Open Scope subsys.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
+
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
 Local Open Scope cat.
@@ -67,11 +66,11 @@ Variable δ : δ_source ⟹ δ_target.
 (* Should be ρ_G^-1 ∘ λ_G ? *)
 Definition δ_law1 : UU := δ (id_Ptd C) = identity G.
 Let D' Ze Ze' :=
-  nat_trans_comp (α_functors (pr1 Ze) (pr1 Ze') G)
- (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
- (nat_trans_comp (α_functors_inv (pr1 Ze) G (pr1 Ze'))
- (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
-                 (α_functors G (pr1 Ze) (pr1 Ze'))))).
+  nat_trans_comp (rassociator_CAT (pr1 Ze) (pr1 Ze') G)
+ (nat_trans_comp (lwhisker_CAT (pr1 Ze) (δ Ze'))
+ (nat_trans_comp (lassociator_CAT (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (rwhisker_CAT (pr1 Ze') (δ Ze))
+                 (rassociator_CAT G (pr1 Ze) (pr1 Ze'))))).
 Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 
 (** the following variant is more suitable for communication about the results *)
@@ -154,14 +153,10 @@ Definition θ_from_δ_mor (XZe : [C, C] ⊠ Ptd) :
   [C, C] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-  set (F1 := α_functors G Z X).
-  set (F1' := pr1 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G,, Z),, X)).
-  set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
-  set (F2' := # (post_comp_functor X) (δ G DL (pr2 XZe))).
-  set (F3 := α_functors_inv Z G X).
-  set (F3' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((Z,, G),, X))).
-  set (obsolete := nat_trans_comp F3 (nat_trans_comp F2 F1)).
-  exact (F3' · (F2' · F1')).
+  set (F1 := rassociator_CAT G Z X).
+  set (F2 := rwhisker_CAT X (δ G DL (pr2 XZe))).
+  set (F3 := lassociator_CAT Z G X).
+  exact (F3 · (F2 · F1)).
 Defined.
 
 Lemma is_nat_trans_θ_from_δ_mor :
@@ -226,18 +221,12 @@ Section δ_mul.
                                                         pr1 (δ_target (functor_compose G1 G2)) Ze⟧.
 Proof.
   set (Z := pr1 Ze).
-  set (F1 := α_functors_inv Z G1 G2).
-  set (F1' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((Z,, G1),, G2))).
-  set (F2 := post_whisker (δ G1 DL1 Ze) G2).
-  set (F2' := # (post_comp_functor G2) (δ G1 DL1 Ze)).
-  set (F3 := α_functors G1 Z G2).
-  set (F3' := pr1 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G1,, Z),, G2)).
-  set (F4 := pre_whisker (pr1 G1) (δ G2 DL2 Ze)).
-  set (F4' := # (pre_comp_functor G1) (δ G2 DL2 Ze)).
-  set (F5 := α_functors_inv G1 G2 Z).
-  set (F5' := pr1 (pr2 (monoidal_cat_associator (monoidal_cat_of_endofunctors _)) ((G1,, G2),, Z))).
-  set (obsolete := nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
-  exact (F1' · (F2' · (F3' · (F4' · F5')))).
+  set (F1 := lassociator_CAT Z G1 G2).
+  set (F2 := rwhisker_CAT G2 (δ G1 DL1 Ze)).
+  set (F3 := rassociator_CAT G1 Z G2).
+  set (F4 := lwhisker_CAT G1 (δ G2 DL2 Ze)).
+  set (F5 := lassociator_CAT G1 G2 Z).
+  exact (F1 · (F2 · (F3 · (F4 · F5)))).
 Defined.
 
 Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (functor_compose G1 G2))
@@ -542,12 +531,9 @@ Let GH : functor [C, D'] [C, E] := functor_composite H (post_comp_functor G).
 Definition Gθ_mor (XZe : [C, D'] ⊠ Ptd) : [C, E] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe) : [C, C]).
-  set (F1 := α_functors_inv Z (H X) G).
-  set (F1' := pr1 (pr2 (associativity_as_nat_z_iso _ _ _ _) ((Z,, (H X:[C, D])),, G))).
-  set (F2 := post_whisker (θ XZe) G).
-  set (F2' := # (post_comp_functor G) (θ XZe)).
-  set (obsolete := nat_trans_comp F1 F2).
-  exact (F1' · F2').
+  set (F1 := lassociator_CAT Z (H X) G).
+  set (F2 := rwhisker_CAT G (θ XZe)).
+  exact (F1 · F2).
 Defined.
 
 Lemma is_nat_trans_Gθ_mor : is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.

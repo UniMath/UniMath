@@ -84,5 +84,9 @@ Section HomFunctors.
   Definition cov_hom_functor : functor C type_precat :=
     functor_fix_fst_arg (opp_precat C) _ _ hom_functor c.
 
+  (** ** Contravariant [contra_hom_functor] *)
+
+  Definition contra_hom_functor : functor (opp_precat C) type_precat :=
+    functor_fix_snd_arg (opp_precat C) _ _ hom_functor c.
 
 End HomFunctors.

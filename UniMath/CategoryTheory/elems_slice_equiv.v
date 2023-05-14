@@ -200,7 +200,7 @@ Section elems_slice_equiv.
       apply funextsec; intro p;
         apply (invmaponpathsincl pr1);
         try (apply isofhlevelfpr1;
-             intros ?; apply setproperty).
+             intro; apply setproperty).
     + exact (eqtohomot ((pr1 Qisfunct) x) (pr1 p)).
     + exact (eqtohomot ((pr2 Qisfunct) x y z f g) (pr1 p)).
   Qed.
@@ -228,7 +228,7 @@ Section elems_slice_equiv.
     apply funextsec; intros [p peq].
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
-      intros ?.
+      intro.
       apply setproperty.
     + simpl.
       destruct peq.
@@ -254,7 +254,7 @@ Section elems_slice_equiv.
       apply funextsec; intros [p peq];
       apply (invmaponpathsincl pr1);
       try (apply isofhlevelfpr1;
-           intros ?;
+           intro;
                   apply setproperty);
       simpl;
       unfold hfiber;
@@ -331,7 +331,7 @@ Section elems_slice_equiv.
       apply funextsec; intros x.
       apply (invmaponpathsincl pr1).
       apply isofhlevelfpr1;
-        intros ?;
+        intro;
                apply setproperty.
       induction (!feq).
       apply (total2_paths2_f (idpath _)).
@@ -349,7 +349,7 @@ Section elems_slice_equiv.
     apply funextsec; intros q.
     apply (invmaponpathsincl pr1).
     apply isofhlevelfpr1;
-      intros ?;
+      intro;
              apply setproperty.
     simpl. unfold hfiber.
     rewrite transportf_total2; simpl.
@@ -371,7 +371,7 @@ Section elems_slice_equiv.
       intros [x'' t].
       apply (invmaponpathsincl pr1).
       apply isofhlevelfpr1;
-        intros ?;
+        intro;
                exact (pr2 (@eqset
                              ((slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p'))) _ _)).
       assert (eq_id : base_paths (p',, x'') (p',, x') (maponpaths pr1 t) = idpath p').

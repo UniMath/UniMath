@@ -1,12 +1,9 @@
 (***********************************************************************
-
  Left Kan extensions
-
  In this file, we define left Kan extensions of functors. In addition,
  we construct a left adjoint to the precomposition functor. To define
  the left Kan extension, we use the pointwise formula for it, which
  defines it as a conical colimit.
-
  Contents
  1. Pointwise definition of the left Kan extension
  1.1. Action on objects
@@ -24,7 +21,6 @@
  4.3. The counit
  4.4. The triangles
  4.5. The adjunction
-
  ***********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -44,7 +40,6 @@ Local Open Scope cat.
 
 (**
  1. Pointwise definition of the left Kan extension
-
  Note: we assume `C₁` below to be small.
  *)
 Section LeftKanExtension.
@@ -150,7 +145,7 @@ Section LeftKanExtension.
       use colim_mor_eq.
       intros v.
       rewrite id_right.
-      rewrite lan_mor_colimIn.
+      refine (lan_mor_colimIn (identity x) (pr11 v) (pr2 v) _ @ _).
       rewrite id_right.
       apply idpath.
     - intros x y z f g.

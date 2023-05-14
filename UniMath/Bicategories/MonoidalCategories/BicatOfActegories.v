@@ -30,11 +30,11 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorsWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 
-Require Import UniMath.CategoryTheory.Monoidal.Actegories.
-Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Actegories.Actegories.
+Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -102,7 +102,7 @@ Section TheConstruction.
       do 2 rewrite id_right.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       apply pathsinv0, id_left.
     - intros C D F ActC ActD lin v c.
       cbn.
@@ -111,7 +111,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       apply id_right.
     - intros C D F ActC ActD lin v c.
       cbn.
@@ -120,7 +120,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       rewrite functor_id.
       apply pathsinv0, id_left.
     - intros C D F ActC ActD lin v c.
@@ -130,7 +130,7 @@ Section TheConstruction.
       unfold identity_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActD). }
       do 2 rewrite id_left.
       apply id_right.
       (** now towards composition *)
@@ -141,7 +141,7 @@ Section TheConstruction.
       unfold comp_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActC4). }
       rewrite id_right.
       rewrite id_left.
       repeat rewrite assoc'.
@@ -154,7 +154,7 @@ Section TheConstruction.
       unfold comp_lineator_data.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftid. }
+           apply pathsinv0, (bifunctor_leftid ActC4). }
       rewrite id_right.
       rewrite id_left.
       repeat rewrite assoc'.
@@ -164,7 +164,7 @@ Section TheConstruction.
       cbn.
       etrans.
       2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_leftcomp. }
+           apply pathsinv0, (bifunctor_leftcomp ActD). }
       rewrite assoc.
       etrans.
       { apply cancel_postcomposition.
