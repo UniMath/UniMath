@@ -20,53 +20,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
-(** MOVE??? *)
-Definition inv_equality_by_case_equality_by_case
-           {A B : UU}
-           {x y : A ⨿ B}
-           (p : x = y)
-  : @inv_equality_by_case A B x y (equality_by_case p) = p.
-Proof.
-  induction x, y, p ; apply idpath.
-Defined.
-
-Definition inl_eq_weq
-           {A B : UU}
-           (a₁ a₂ : A)
-  : @inl A B a₁ = inl a₂ ≃ a₁ = a₂.
-Proof.
-  use make_weq.
-  - apply ii1_injectivity.
-  -  use isweq_iso.
-     + exact (maponpaths inl).
-     + abstract
-         (intro p ;
-          exact (@inv_equality_by_case_equality_by_case A B (inl a₁) (inl a₂) p)).
-     + abstract
-         (intro p ;
-          induction p ;
-          apply idpath).
-Defined.
-
-Definition inr_eq_weq
-           {A B : UU}
-           (b₁ b₂ : B)
-  : @inr A B b₁ = inr b₂ ≃ b₁ = b₂.
-Proof.
-  use make_weq.
-  - apply ii2_injectivity.
-  -  use isweq_iso.
-     + exact (maponpaths inr).
-     + abstract
-         (intro p ;
-          exact (@inv_equality_by_case_equality_by_case A B (inr b₁) (inr b₂) p)).
-     + abstract
-         (intro p ;
-          induction p ;
-          apply idpath).
-Defined.
-(**)
-
 (**
  1. Definition of sums of categories
  *)
@@ -309,14 +262,15 @@ Proof.
   - use weqhomot.
     + exact (inl_iso x₁ x₂
              ∘ make_weq _ (HC₁ x₁ x₂)
-             ∘ inl_eq_weq x₁ x₂)%weq.
+             ∘ paths_inl_inl_equiv x₁ x₂)%weq.
     + abstract
         (intro p ;
          use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          cbn -[equality_by_case] ;
-         refine (@idtoiso_in_bincoprod_inl C₁ C₂ _ _ (ii1_injectivity x₁ x₂ p) @ _) ;
+         refine (@idtoiso_in_bincoprod_inl C₁ C₂ _ _
+                                           (paths_inl_inl_equiv _ _ _) @ _) ;
          do 2 apply maponpaths ;
-         apply (@inv_equality_by_case_equality_by_case C₁ C₂ (inl x₁) (inl x₂) p)).
+         apply (homotinvweqweq (paths_inl_inl_equiv _ _))).
   - use isweq_iso.
     + exact (λ f, fromempty (pr1 f)).
     + intro p ; cbn.
@@ -332,14 +286,15 @@ Proof.
   - use weqhomot.
     + exact (inr_iso y₁ y₂
              ∘ make_weq _ (HC₂ y₁ y₂)
-             ∘ inr_eq_weq y₁ y₂)%weq.
+             ∘ paths_inr_inr_equiv y₁ y₂)%weq.
     + abstract
         (intro p ;
          use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
          cbn -[equality_by_case] ;
-         refine (@idtoiso_in_bincoprod_inr C₁ C₂ _ _ (ii2_injectivity y₁ y₂ p) @ _) ;
+         refine (@idtoiso_in_bincoprod_inr C₁ C₂ _ _
+                                           (paths_inr_inr_equiv _ _ _) @ _) ;
          do 2 apply maponpaths ;
-         apply (@inv_equality_by_case_equality_by_case C₁ C₂ (inr y₁) (inr y₂) p)).
+         apply (homotinvweqweq (paths_inr_inr_equiv _ _))).
 Defined.
 
 Definition bincoprod_of_univalent_category
