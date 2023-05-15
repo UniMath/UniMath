@@ -37,7 +37,7 @@ jobs:
       - name: Run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
-          time make -k sanity-checks
+          time make -k sanity-checks || time make sanity-checks
 
   # Build the current PR/branch with the latest stable release of Coq.
   build-Unimath-ubuntu:
