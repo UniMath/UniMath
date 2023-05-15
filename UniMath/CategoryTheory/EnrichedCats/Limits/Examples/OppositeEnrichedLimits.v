@@ -92,6 +92,11 @@ Section OppositeLimits.
     Defined.
   End OppositeBinaryProducts.
 
+  Definition opposite_enrichment_binary_prod
+             (H : enrichment_binary_coprod E)
+    : enrichment_binary_prod E'
+    := λ x y, opposite_binary_prod_enriched (H x y).
+
   (**
    3. Equalizers
    *)
@@ -182,3 +187,11 @@ Proof.
      rewrite sym_mon_braiding_inv ;
      apply id_left).
 Defined.
+
+Definition opposite_enrichment_power
+           {V : sym_mon_closed_cat}
+           {C : category}
+           (E : enrichment C V)
+           (HE : enrichment_copower E)
+  : enrichment_power (op_enrichment V E)
+  := λ v x, pr1 (HE v x) ,, opposite_power_enriched _ _ (pr2 (HE v x)).
