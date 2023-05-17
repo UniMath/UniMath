@@ -210,7 +210,8 @@ Section CopowerFunctor.
                EC
                v₁ r
                (pr2 (copowC v₁ r))
-               (internal_postcomp _ (mor_of_copow_ob v₂ r)))).
+               (internal_postcomp _ (mor_of_copow_ob v₂ r))))
+      as p.
     cbn in p.
     unfold internal_postcomp in p.
     rewrite !internal_beta in p.
