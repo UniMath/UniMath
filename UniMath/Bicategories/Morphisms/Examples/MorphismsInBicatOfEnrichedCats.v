@@ -28,6 +28,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentAdjunction.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.UnitEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -36,8 +37,11 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
+Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
 
 Import MonoidalNotations.
 
@@ -392,3 +396,49 @@ Section MorphismsEnrichedCats.
     - exact (enriched_cat_conservative_weq_conservative_1cell HV HV' F).
   Qed.
 End MorphismsEnrichedCats.
+
+(**
+
+ *)
+Definition adjunction_enrichment_weq
+           {V : monoidal_cat}
+           (E₁ E₂ : bicat_of_enriched_cats V)
+           (L : adjunction (pr1 E₁) (pr1 E₂))
+  : disp_adjunction L (pr2 E₁) (pr2 E₂)
+    ≃
+    adjunction_enrichment
+      (adjunction_weq_adjunction_univ_cats (pr1 E₁) (pr1 E₂) L)
+      (pr2 E₁) (pr2 E₂).
+Proof.
+  use weq_iso.
+  - exact (λ LL, pr1 LL ,, pr112 LL ,, pr1 (pr212 LL) ,, pr2 (pr212 LL)).
+  - refine (λ LL,
+            left_adjoint_enrichment LL
+            ,,
+            (right_adjoint_enrichment LL
+             ,,
+             (adjoint_unit_enrichment LL
+              ,,
+              adjoint_counit_enrichment LL))
+            ,,
+            _).
+    abstract (split ; apply disp_2cell_isapprop_enriched_cats).
+  - abstract
+      (intro LL ;
+       refine (maponpaths (λ z, _ ,, z) _) ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply disp_cellset_property | ] ;
+       apply idpath).
+  - abstract
+      (intro LL ;
+       apply idpath).
+Defined.
+
+Definition adjunction_enriched_cats_weq_enriched_adjunction
+           {V : monoidal_cat}
+           (E₁ E₂ : bicat_of_enriched_cats V)
+  : adjunction E₁ E₂ ≃ enriched_adjunction (pr2 E₁) (pr2 E₂)
+  := (weqtotal2
+        (adjunction_weq_adjunction_univ_cats
+           (pr1 E₁) (pr1 E₂))
+        (adjunction_enrichment_weq _ _)
+      ∘ adjunction_total_disp_weq _ _)%weq.

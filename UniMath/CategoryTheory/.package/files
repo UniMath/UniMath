@@ -336,6 +336,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/EnrichmentAdjunction.v
 EnrichedCats/EnrichmentMonad.v
 
 EnrichedCats/Enriched/Enriched.v
@@ -361,6 +362,7 @@ EnrichedCats/Colimits/EnrichedCoequalizers.v
 EnrichedCats/Colimits/EnrichedConicalColimits.v
 EnrichedCats/Colimits/EnrichedCopowers.v
 EnrichedCats/Colimits/EnrichedColimits.v
+EnrichedCats/Colimits/CopowerFunctor.v
 
 EnrichedCats/Examples/SetEnriched.v
 EnrichedCats/Examples/PosetEnriched.v

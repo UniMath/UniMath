@@ -24,6 +24,7 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
@@ -530,4 +531,74 @@ Proof.
          refine (maponpaths (λ z, _ ,, z) _) ;
          use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
          apply idpath).
+Defined.
+
+Definition adjunction_from_adjunction_univ_cats
+           {C₁ C₂ : bicat_of_univ_cats}
+  : Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂
+    →
+    CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂).
+Proof.
+  intros L.
+  simple refine ((_ ,, (_ ,, (_ ,, _))) ,, (_ ,, _)).
+  - exact (arrow_of_adjunction L).
+  - exact (internal_right_adjoint L).
+  - exact (left_adjoint_unit (left_adjoint_of_adjunction L)).
+  - exact (left_adjoint_counit (left_adjoint_of_adjunction L)).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr122 L) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr222 L) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+Defined.
+
+Definition adjunction_to_adjunction_univ_cats
+           {C₁ C₂ : bicat_of_univ_cats}
+  : CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂)
+    →
+    Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂.
+Proof.
+  intros L.
+  simple refine (_ ,, ((_ ,, (_ ,, _)) ,, (_ ,, _))).
+  - exact (pr11 L).
+  - exact (pr121 L).
+  - exact (pr1 (pr221 L)).
+  - exact (pr2 (pr221 L)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr12 L x)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr22 L x)).
+Defined.
+
+Definition adjunction_weq_adjunction_univ_cats
+           (C₁ C₂ : bicat_of_univ_cats)
+  : Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂
+    ≃
+    CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂).
+Proof.
+  use weq_iso.
+  - exact adjunction_from_adjunction_univ_cats.
+  - exact adjunction_to_adjunction_univ_cats.
+  - abstract
+      (intro L ;
+       use subtypePath ;
+       [ use isaprop_left_adjoint ; exact univalent_cat_is_univalent_2_1 | ] ;
+       apply idpath).
+  - abstract
+      (intro L ;
+       use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
+       apply idpath).
 Defined.
