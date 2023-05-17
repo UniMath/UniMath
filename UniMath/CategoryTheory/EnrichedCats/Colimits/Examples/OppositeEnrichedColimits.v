@@ -92,6 +92,11 @@ Section OppositeColimits.
     Defined.
   End OppositeBinaryCoproducts.
 
+  Definition opposite_enrichment_binary_coprod
+             (H : enrichment_binary_prod E)
+    : enrichment_binary_coprod E'
+    := λ x y, opposite_binary_coprod_enriched (H x y).
+
   (**
    3. Coequalizers
    *)
@@ -178,3 +183,11 @@ Proof.
      rewrite internal_beta ;
      apply idpath).
 Defined.
+
+Definition opposite_enrichment_copower
+           {V : sym_mon_closed_cat}
+           {C : category}
+           (E : enrichment C V)
+           (HE : enrichment_power E)
+  : enrichment_copower (op_enrichment V E)
+  := λ v x, pr1 (HE v x) ,, opposite_copower_enriched _ _ (pr2 (HE v x)).
