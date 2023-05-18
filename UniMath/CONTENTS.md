@@ -155,6 +155,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Tests.v](NumberSystems/Tests.v)
    - [All.v](NumberSystems/All.v)
 ## Package [SyntheticHomotopyTheory](SyntheticHomotopyTheory/README.md)
+   - [Coproduct.v](SyntheticHomotopyTheory/Coproduct.v)
    - [Halfline.v](SyntheticHomotopyTheory/Halfline.v)
    - [AffineLine.v](SyntheticHomotopyTheory/AffineLine.v)
    - [Circle.v](SyntheticHomotopyTheory/Circle.v)
