@@ -105,7 +105,7 @@ distclean:: build/CoqMakefile.make
 
 WARNING_FLAGS := -notation-overridden
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -noinit -indices-matter -type-in-type -w '\'"$(WARNING_FLAGS)"\''
+OTHERFLAGS += -noinit -indices-matter -w '\'"$(WARNING_FLAGS)"\''
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -285,10 +285,8 @@ isolate-bug: sub/coq-tools/find-bug.py
 	rm -f $(ISOLATED_BUG_FILE) &&										\
 	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath					\
 		--arg " -indices-matter"									\
-		--arg " -type-in-type"										\
 		--arg " -noinit"										\
 		--arg " -indices-matter"									\
-		--arg " -type-in-type"										\
 		--arg " -w"											\
 		--arg " -notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"	\
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
