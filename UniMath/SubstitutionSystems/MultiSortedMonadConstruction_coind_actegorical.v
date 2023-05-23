@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** the coinductive analogue of [MultiSortedMonadConstruction_actegorical]
 
 author: Ralph Matthes 2023

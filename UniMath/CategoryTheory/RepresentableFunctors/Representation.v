@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.

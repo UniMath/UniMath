@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Direct definition of binary direct sum using preadditive categories. *)
 (** ** Contents
 - Definition of binary direct sums (also known as biproducts)

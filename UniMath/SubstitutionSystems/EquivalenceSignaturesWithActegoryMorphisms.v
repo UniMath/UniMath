@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Links signatures to lax morphisms in suitable actegories, by exploiting the already established link with action-based strength (in the non-whiskered setting)
 
 Author: Ralph Matthes 2022

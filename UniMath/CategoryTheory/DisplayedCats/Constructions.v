@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 (** Some important constructions on displayed categories
 

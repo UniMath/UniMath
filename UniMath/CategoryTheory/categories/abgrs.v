@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of abelian groups *)
 (** ** Contents
 - Precategory of abelian groups

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** **********************************************************
 Contents:
         - Definition of left modules ([LModule R]) over a monad [R] on [C]

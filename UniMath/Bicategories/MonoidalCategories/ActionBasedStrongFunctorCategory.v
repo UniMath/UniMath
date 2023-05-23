@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** organizes the (action-based) strong functors between two fixed categories into a category
 
 Author: Ralph Matthes 2021

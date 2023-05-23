@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* -*- coding: utf-8 -*- *)
 
 Require Export UniMath.CategoryTheory.Core.Categories. (* export its coercions, especially *)

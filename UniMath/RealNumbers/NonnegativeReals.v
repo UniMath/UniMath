@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 

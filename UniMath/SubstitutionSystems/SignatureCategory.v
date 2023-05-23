@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 Definition of the category of signatures with strength ([Signature_category]) with

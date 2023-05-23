@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Coequalizers defined in terms of colimits *)
 (** ** Contents
 - Definition of coequalizers

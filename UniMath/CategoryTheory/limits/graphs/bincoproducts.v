@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ******************************************
 
 Binary coproducts defined as a colimit

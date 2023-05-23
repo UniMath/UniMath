@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * A library about decidable Real Numbers *)
 (** Author: Catherine LELAY. Oct 2015 - *)
 

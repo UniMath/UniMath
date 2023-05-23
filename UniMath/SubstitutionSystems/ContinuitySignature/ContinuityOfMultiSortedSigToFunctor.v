@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cont_MultiSortedSigToFunctor]) *)
 

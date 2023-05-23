@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Exact category prerequisite tests *)
 
 Require Export UniMath.Foundations.All.

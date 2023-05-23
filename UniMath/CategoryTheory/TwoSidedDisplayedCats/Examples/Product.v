@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**********************************************************************************
 
  The product via two-sided displayed categories

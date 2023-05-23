@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Definition of preadditive categories. *)
 (** ** Contents
 - Definition of preadditive categories [PreAdditive]

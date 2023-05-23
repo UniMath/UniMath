@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Pullbacks defined in terms of limits *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

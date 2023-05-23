@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** this file is a follow-up of [Multisorted_alt], where the semantic signatures [Signature] are replaced by functors with tensorial strength
 
     the concept of binding signatures is inherited, as well as the reasoning about omega-cocontinuity
