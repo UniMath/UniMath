@@ -6,7 +6,7 @@ Require Export Coq.Init.Notations.
 From Coq Require Export Ltac.
 (* get the tactics *)
 
-Export Unset Universe Checking.
+#[export] Unset Universe Checking.
 
 (** Notations *)
 
