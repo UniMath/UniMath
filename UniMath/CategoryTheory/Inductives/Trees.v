@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 Definition of binary trees ([Tree]) implemented similarily to lists as the initial algebra of the

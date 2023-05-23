@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**********************************************************************************
 
  Composing a two-sided displayed category with a displayed category

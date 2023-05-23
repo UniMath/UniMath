@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ****************************************************************************
 
 The category of elements of a functor "F : C ⟶ HSET"

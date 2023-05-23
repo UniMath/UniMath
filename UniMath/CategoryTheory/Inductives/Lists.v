@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 This file contains formalizations of lists. First over sets as the initial algebra of the list
