@@ -19,6 +19,8 @@ numbers from the univalent perspecive. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
 
+#[local] Unset Universe Checking.
+
 (** ** Inductive types [le] with values in [UU].
 
 This part is included for illustration purposes only. In practice it is easier

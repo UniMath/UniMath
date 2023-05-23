@@ -1,6 +1,8 @@
 Require Export UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Tactics.
 
+#[local] Unset Universe Checking.
+
 Lemma retract_dec {X Y} (f : X -> Y) (g : Y -> X) (h : f ∘ g ~ idfun Y) : isdeceq X -> isdeceq Y.
 Proof.
   intros i y y'. induction (i (g y) (g y')) as [eq|ne].

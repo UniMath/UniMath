@@ -6,6 +6,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
 
+#[local] Unset Universe Checking.
+
 Local Open Scope nat.
 
 Definition ℕ := nat.

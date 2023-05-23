@@ -5,6 +5,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
 
+#[local] Unset Universe Checking.
+
 (** ** Paths over paths in families of types *)
 
 Local Set Implicit Arguments.

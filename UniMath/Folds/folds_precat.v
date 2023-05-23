@@ -18,6 +18,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+#[local] Unset Universe Checking.
+
 (** * The definition of a FOLDS precategory *)
 
 (** ** Objects and a dependent type of morphisms *)

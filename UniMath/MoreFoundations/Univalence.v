@@ -4,6 +4,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.PartA.
 
+#[local] Unset Universe Checking.
+
 (** Funextsec and toforallpaths are mutually inverses *)
 Lemma funextsec_toforallpaths {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :
   ∏ (h : f = g), funextsec _  _ _ (toforallpaths _ _ _ h) = h.
