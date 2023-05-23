@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Fibered algebras
 
   Described in "Homotopy-initial algebras in type theory" by Steve Awodey,

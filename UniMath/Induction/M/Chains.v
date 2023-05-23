@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Limits of chains and cochains in the precategory of types *)
 
 Require Import UniMath.Foundations.PartD.

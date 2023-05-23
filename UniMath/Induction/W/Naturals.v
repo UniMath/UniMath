@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Natural numbers
 
     The natural numbers are a motivating example of W-types, and one of the only
