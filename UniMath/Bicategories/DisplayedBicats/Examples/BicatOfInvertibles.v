@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*************************************************************************
 
  Bicat of invertible 2-cells

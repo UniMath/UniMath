@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*************************************************************************************
 
  Lax and oplax slice bicategories

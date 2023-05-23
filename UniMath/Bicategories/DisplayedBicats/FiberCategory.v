@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ******************************************************************************* *)
 (** * Fiber category of a displayed bicategory whose displayed 2-cells form a
       proposition. In addition, we ask the displayed bicategory to be locally

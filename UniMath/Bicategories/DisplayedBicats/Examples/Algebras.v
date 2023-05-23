@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 Lax algebras on a pseudofunctor.
 Morphisms are 2-cells which witness a certain diagram commutes. Since this 2-cell is not necessarily invertible, these are lax algebras.

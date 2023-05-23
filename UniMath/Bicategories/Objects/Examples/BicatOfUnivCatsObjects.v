@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************
 
  Characterizations of (co)cartesian univalent categories

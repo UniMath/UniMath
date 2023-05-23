@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************************
 
  Every display map bicategory gives rise to a displayed bicategory

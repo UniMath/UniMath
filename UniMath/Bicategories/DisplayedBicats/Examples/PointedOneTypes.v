@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 The univalent bicategory of pointed 1-types.
 *)

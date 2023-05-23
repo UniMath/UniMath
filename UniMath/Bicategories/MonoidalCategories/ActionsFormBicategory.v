@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Constructs the bicategory of actions, strong action-based functors and their natural transformations
 
 The construction goes through a displayed bicategory over the bicategoy of (small) categories.

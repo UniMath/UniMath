@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 Dependent product of diplayed bicategories.
 If we have a type `J` and a family indexed by `J` of displayed bicategories on `J`,

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*
 This is the first of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.
 In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:
