@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
   Generalisation of the concept of actions, over monoidal categories.
 

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Equalizers defined in terms of limits *)
 (** ** Contents
 - Definition of equalizers

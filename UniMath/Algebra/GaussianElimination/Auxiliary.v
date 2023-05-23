@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Matrices
 
   Miscellaneous background lemmas for [GaussianElimination.Elimination]

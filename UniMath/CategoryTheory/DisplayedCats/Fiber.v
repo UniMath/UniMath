@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.MoreFoundations.PartA.

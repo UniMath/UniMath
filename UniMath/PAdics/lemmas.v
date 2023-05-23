@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** *Fixing notation, terminology and basic lemmas *)
 
 (** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)

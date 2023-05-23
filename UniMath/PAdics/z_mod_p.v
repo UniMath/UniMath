@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** *Integers mod p *)
 
 (** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Univalent FOLDS
 
     Benedikt Ahrens, following notes by Michael Shulman

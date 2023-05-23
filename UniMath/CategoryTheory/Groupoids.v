@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Groupoids
 
   Author: Langston Barrett (@siddharthist), March 2018 *)

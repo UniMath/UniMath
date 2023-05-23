@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 Local Unset Kernel Term Sharing.
 
 (** * Construction of affine lines

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Definition of appartness relation *)
 (** Catherine Lelay. Sep. 2015 *)
 

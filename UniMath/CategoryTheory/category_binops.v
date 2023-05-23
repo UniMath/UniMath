@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* The category of sets with binary operations. *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

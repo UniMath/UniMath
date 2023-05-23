@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Rings category *)
 (** ** Contents
 - Precategory of rings

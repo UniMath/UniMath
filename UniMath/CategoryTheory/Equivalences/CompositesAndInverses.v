@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Composition and inverses of (adjoint) equivalences of precategories *)
 
 (** ** Contents

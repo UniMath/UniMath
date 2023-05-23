@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Full sub(pre)categories
 
 Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)

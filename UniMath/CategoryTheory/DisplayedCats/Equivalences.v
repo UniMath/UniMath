@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 (**  “Displayed equivalences” of displayed categories. *)
 

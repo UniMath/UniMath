@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
 Require Export UniMath.Foundations.NaturalNumbers.

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Bounded lattices *)
 
 Require Import UniMath.MoreFoundations.Tactics.

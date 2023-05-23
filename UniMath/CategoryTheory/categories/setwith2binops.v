@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of setswith2binops *)
 (** ** Contents
 - setwith2binops precategory

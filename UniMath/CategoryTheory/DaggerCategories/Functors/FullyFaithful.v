@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* In this file, we have formalized the result that a fully faithful functor into a dagger category induces a unique dagger on the domain such that the functor is dagger preserving.
 *)
 

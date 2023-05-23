@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of grs *)
 (** ** Contents
 - Precategory of grs

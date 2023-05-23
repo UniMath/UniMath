@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
 Require Import UniMath.Algebra.Groups.
 (** ** Contents

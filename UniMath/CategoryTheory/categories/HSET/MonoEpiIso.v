@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Characterizations of monos, epis, and isos in [HSET] *)
 
 (** ** Contents

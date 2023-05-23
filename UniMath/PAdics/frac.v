@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** *The Heyting field of fractions for an apartness domain *)
 
 (** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)

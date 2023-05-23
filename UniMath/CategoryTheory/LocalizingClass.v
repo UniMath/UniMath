@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Localizing class *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

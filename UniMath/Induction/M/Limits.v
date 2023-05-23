@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Limits in the precategory of types
 
   This is a partial reconstruction of the results of "Homotopy limits in type

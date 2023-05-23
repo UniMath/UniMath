@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** This file provides a direct formalizatoin of Girard's paradox, as explained in Martin-Lof's 1972
 "An intuitionistic theory of types". It can serve as a test as to whether the version of Coq being
 used is (in the most obvious way) inconsistent. **)

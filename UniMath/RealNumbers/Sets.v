@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Additional theorems for Sets.v *)
 
 (** Previous theorems about hSet and order *)

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Finite sets. Vladimir Voevodsky . Apr. - Sep. 2011.
 
     This file contains the definition and main properties of finite sets. In the

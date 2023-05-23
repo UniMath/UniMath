@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Example on monoids. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**

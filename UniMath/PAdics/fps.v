@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** *Formal Power Series *)
 
 (** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)

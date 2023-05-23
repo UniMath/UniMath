@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ******************************************************************************* *)
 (** * Displayed bicategories
     Benedikt Ahrens, Marco Maggesi

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Coslice categories
 
 Author: Langston Barrett (@siddharthist), March 2018

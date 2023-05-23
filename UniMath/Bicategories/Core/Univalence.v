@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ******************************************************************************* *)
 (** * Univalence for bicategories
     Benedikt Ahrens, Marco Maggesi

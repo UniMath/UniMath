@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of intdoms *)
 (** ** Contents
 - Precategory of intdoms

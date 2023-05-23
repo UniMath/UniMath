@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Terms for a given signature. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**

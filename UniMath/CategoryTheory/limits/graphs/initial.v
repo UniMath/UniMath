@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Definition of initial object as a colimit *)
 
 Require Import UniMath.Foundations.PartD.

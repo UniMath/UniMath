@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*
   Defines the algebraic theory given by T(n) the free monoid on n generators and shows that the type
   of its algebras is equivalent to the type of monoids.

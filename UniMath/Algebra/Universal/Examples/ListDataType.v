@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Example of lists *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
