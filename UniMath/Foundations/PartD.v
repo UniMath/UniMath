@@ -60,6 +60,8 @@ Only one universe is used and never as a type.
 
 Require Export UniMath.Foundations.PartC.
 
+#[local] Unset Universe Checking.
+
 (** ** Sections of "double fibration" [(P : T -> UU) (PP : ∏ t : T, P t -> UU)] and pairs of sections *)
 
 (** *** General case *)

@@ -32,6 +32,8 @@ consequences of univalence, rather than the theorems giving the implications.
 
 Require Export UniMath.Foundations.PartB.
 
+#[local] Unset Universe Checking.
+
 (* everything related to eta correction is obsolete *)
 
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.

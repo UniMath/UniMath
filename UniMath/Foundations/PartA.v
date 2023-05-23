@@ -120,10 +120,7 @@ Tomi Pannila 2016.
  - Fiber sequences and homotopy fiber squares
  *)
 
-
-
-
-
+#[local] Unset Universe Checking.
 
 (** ** Preamble *)
 

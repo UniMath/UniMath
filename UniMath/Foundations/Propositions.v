@@ -63,6 +63,8 @@ preferred choice in this situation.
 
 Require Export UniMath.Foundations.PartD.
 
+#[local] Unset Universe Checking.
+
 (** Universe structure *)
 
 (* Definition UU0 := UU. *)

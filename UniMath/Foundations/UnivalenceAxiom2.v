@@ -2,6 +2,8 @@
 
 Require Import UniMath.Foundations.PartD.
 
+#[local] Unset Universe Checking.
+
 Lemma isaprop_univalenceStatement : isaprop univalenceStatement.
 Proof.
   unfold univalenceStatement.

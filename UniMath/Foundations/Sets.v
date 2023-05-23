@@ -75,6 +75,7 @@ moment without the Type in Type patch.
 
 Require Export UniMath.Foundations.Propositions.
 
+#[local] Unset Universe Checking.
 
 
 
