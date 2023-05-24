@@ -148,6 +148,60 @@ Definition sigma_disp_z_iso_weq
     ∘ (total_z_iso_equiv (D := sigma_disp_cat) (x ,, xxx) (y ,, yyy)).
 
 
+Definition sigma_equality_to_equality
+  {x y}
+  {xxx : sigma_disp_cat x}
+  {yyy : sigma_disp_cat y}
+  (H : (∑ (H1 : x = y), transportf _ H1 xxx = yyy))
+  : (∑ (H1 : (x ,, pr1 xxx) = (y ,, pr1 yyy)), transportf _ H1 (pr2 xxx) = (pr2 yyy)).
+Proof.
+  induction H as [H1 H2], H1, H2.
+  now use tpair.
+Defined.
+
+Definition equality_to_sigma_equality
+  {xx yy}
+  {xxx : E xx}
+  {yyy : E yy}
+  (H : (∑ (H1 : xx = yy), transportf _ H1 xxx = yyy))
+  : (∑ (H1 : pr1 xx = pr1 yy), transportf _ H1 ((pr2 xx ,, xxx) : sigma_disp_cat _) = (pr2 yy ,, yyy)).
+Proof.
+  induction H as [H1 H2], H1, H2.
+  now use tpair.
+Defined.
+
+Lemma sigma_equality_to_equality_and_back
+  {x y}
+  {xxx : sigma_disp_cat x}
+  {yyy : sigma_disp_cat y}
+  (H : (∑ (H1 : x = y), transportf _ H1 xxx = yyy))
+  : equality_to_sigma_equality (sigma_equality_to_equality H) = H.
+Proof.
+  now induction H as [H1 H2], H1, H2.
+Qed.
+
+Lemma equality_to_sigma_equality_and_back
+  {xx yy}
+  {xxx : E xx}
+  {yyy : E yy}
+  (H : (∑ (H1 : xx = yy), transportf _ H1 xxx = yyy))
+  : sigma_equality_to_equality (equality_to_sigma_equality H) = H.
+Proof.
+  now induction H as [H1 H2], H1, H2.
+Qed.
+
+Definition equality_weq
+  {x y xx yy}
+  (xxx : E (x ,, xx))
+  (yyy : E (y ,, yy))
+  : (∑ (H1 : x = y), transportf _ H1 (xx ,, xxx : sigma_disp_cat _) = (yy ,, yyy))
+  ≃ (∑ (H1 : (x ,, xx) = (y ,, yy)), transportf _ H1 xxx = yyy)
+  := weq_iso
+    _
+    _
+    sigma_equality_to_equality_and_back
+    equality_to_sigma_equality_and_back.
+
 (** ** Univalence *)
 
 Local Open Scope hide_transport_scope.
