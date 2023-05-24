@@ -368,6 +368,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
    - [DisplayedCats/Constructions.v](CategoryTheory/DisplayedCats/Constructions.v)
+   - [DisplayedCats/Examples/Sigma.v](CategoryTheory/DisplayedCats/Examples/Sigma.v)
    - [FunctorAlgebras.v](CategoryTheory/FunctorAlgebras.v)
    - [Chains/Adamek.v](CategoryTheory/Chains/Adamek.v)
    - [Chains/CoAdamek.v](CategoryTheory/Chains/CoAdamek.v)
