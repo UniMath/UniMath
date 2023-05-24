@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
+Local Open Scope weq_scope.
 
 (** * Sigmas of displayed (pre)categories *)
 Section Sigma.
