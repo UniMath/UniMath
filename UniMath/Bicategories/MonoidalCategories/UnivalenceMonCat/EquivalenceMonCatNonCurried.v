@@ -222,7 +222,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
   Defined.
 
 
-  Definition cmonoidal_from_noncurried_functor_functor_tensorunitcat (M N : ob UMONCAT)
+  Definition cmonoidal_from_noncurried_functor_tensorunit (M N : ob UMONCAT)
       (M' := pr1 (cmonoidal_to_noncurriedmonoidal M))
       (N' := pr1 (cmonoidal_to_noncurriedmonoidal N))
     : UMONCAT ⟦ M, N ⟧
@@ -242,13 +242,29 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     + apply (pr2 (pr112 F)).
   Defined.
 
+  Definition cmonoidal_from_noncurried_functor_associator (M N : ob UMONCAT)
+      (F : UMONCAT ⟦ M, N ⟧)
+    : functor_ass_disp_cat
+        (monoidal_cat_associator _) (monoidal_cat_associator _)
+        (cmonoidal_from_noncurried_functor_tensorunit M N F).
+  Proof.
+    intros x y z.
+  (*
+        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
+        refine ((pr2 (pr212 F) x y z) @ _).
+        apply maponpaths_2.
+        apply maponpaths.
+        apply (tensor_on_hom_eq N).
+   *)
+  Admitted.
+
   Definition cmonoidal_from_noncurried_functor (M N : ob UMONCAT)
     :  UMONCAT ⟦ M, N ⟧
        → LaxMonoidalFunctorCat (pr1 (cmonoidal_to_noncurriedmonoidal M))
                                (pr1 (cmonoidal_to_noncurriedmonoidal N)).
   Proof.
     intro F.
-    exists (cmonoidal_from_noncurried_functor_functor_tensorunitcat M N F).
+    exists (cmonoidal_from_noncurried_functor_tensorunit M N F).
     repeat split.
     - abstract (
             intro x ;
@@ -260,15 +276,9 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
             refine (! (pr21 (pr212 F) x) @ _) ;
             do 2 apply maponpaths_2 ;
             apply (tensor_on_hom_eq N)).
-    - apply TODO.
-      (*
-intros x y z.
-        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
-        refine ((pr2 (pr212 F) x y z) @ _).
-        apply maponpaths_2.
-        apply maponpaths.
-        apply (tensor_on_hom_eq N).
-       *)
+    - apply cmonoidal_from_noncurried_functor_associator.
+    (* TODO: possibly inline [cmonoidal_from_noncurried_functor_associator]
+       once completed, but check how it affects typechecking time here. *)
   Defined.
 
   Definition cmonoidal_from_noncurried_nattrans
