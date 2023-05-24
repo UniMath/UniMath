@@ -147,6 +147,34 @@ Definition sigma_disp_z_iso_weq
     ∘ (weq_ff_functor_on_z_iso total_sigma_functor_fully_faithful (x ,, xxx) (y ,, yyy))
     ∘ (total_z_iso_equiv (D := sigma_disp_cat) (x ,, xxx) (y ,, yyy)).
 
+(*
+An attempt at turning the equivalence above into an equivalence that preserves the base iso, which would be more suitable for our purpose.
+
+Definition sigma_disp_z_iso_weq2
+  {x y}
+  {xxx : sigma_disp_cat x}
+  {yyy : sigma_disp_cat y}
+  (f : z_iso x y)
+  : (z_iso_disp f xxx yyy) ≃ (∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy)).
+Proof.
+  use weq_iso.
+  - intro fff.
+    pose (gg := (sigma_disp_z_iso_weq xxx yyy (f ,, fff))).
+    assert (pr111 gg = pr1 f).
+    {
+      cbn.
+
+    }
+    cbn in gg.
+    use tpair.
+    + (* Impossible, since we don't necessarily preserve f *)
+      use total_z_iso.
+      * exact f.
+      *
+      simpl.
+    exists ()
+Defined. *)
+
 (** ** Equivalence of equalities *)
 
 Definition sigma_equality_to_equality
@@ -269,6 +297,29 @@ Proof.
   - simpl.
     apply (isaprop_is_z_isomorphism (C := total_category E)).
 Qed.
+
+(*
+  An attempt to prove that this way of transporting preserves the base iso, which should allow us to actually use this for univalence
+
+Lemma transport_iso_preserves_form
+  {xx yy}
+  {xxx : E xx}
+  {yyy : E yy}
+  {ff}
+  (fff : z_iso_disp ff xxx yyy)
+  {H1 : is_z_isomorphism (pr11 ff)}
+  {H2 : is_z_iso_disp (D := sigma_disp_cat) (pr11 ff ,, H1) ((pr21 ff ,, pr1 fff) : ((_ ,, _) : sigma_disp_cat _) -->[_] (_ ,, _))}
+  : (transport_iso fff) = ((pr11 ff ,, H1) ,, (((pr21 ff ,, pr1 fff) : ((_ ,, _) : sigma_disp_cat _) -->[_] (_ ,, _)) ,, H2)).
+Proof.
+  use total2_paths_f.
+  - now use (subtypePairEquality' _ (isaprop_is_z_isomorphism _)).
+  - use (subtypePairEquality' _ (isaprop_is_z_iso_disp _ _)).
+    use total2_paths_f.
+    + simpl.
+      apply idpath.
+    apply idpath.
+Qed.
+*)
 
 (** ** Univalence *)
 
