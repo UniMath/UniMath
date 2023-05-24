@@ -74,6 +74,42 @@ Qed.
 Definition sigma_disp_cat : disp_cat C
   := (_ ,, sigma_disp_cat_axioms).
 
+(** ** Equivalence between the total categories *)
+Definition total_sigma_disp_cat_adjunction_data
+  : adjunction_data (total_category (sigma_disp_cat)) (total_category E).
+Proof.
+  use make_adjunction_data.
+  - use make_functor.
+    + use make_functor_data.
+      * exact (λ x, (pr1 x ,, _) ,, pr22 x).
+      * exact (λ _ _ f, (pr1 f ,, _) ,, pr22 f).
+    + abstract (use tpair; now repeat intro).
+  - use make_functor.
+    + use make_functor_data.
+      * exact (λ x, _ ,, pr21 x ,, pr2 x).
+      * exact (λ _ _ f, _ ,, pr21 f ,, pr2 f).
+    + abstract (use tpair; now repeat intro).
+  - use make_nat_trans.
+    + exact identity.
+    + abstract (do 3 intro; now rewrite id_left, id_right).
+  - use make_nat_trans.
+    + exact identity.
+    + abstract (do 3 intro; now rewrite id_left, id_right).
+Defined.
+
+Lemma total_sigma_disp_cat_forms_equivalence
+  : forms_equivalence total_sigma_disp_cat_adjunction_data.
+Proof.
+  exact (make_forms_equivalence
+    total_sigma_disp_cat_adjunction_data
+    is_z_isomorphism_identity
+    is_z_isomorphism_identity).
+Qed.
+
+Definition equivalence_total_sigma_disp_cat
+  : equivalence_of_cats (total_category sigma_disp_cat) (total_category E)
+  := make_equivalence_of_cats _ total_sigma_disp_cat_forms_equivalence.
+
 Definition sigmapr1_disp_functor_data
   : disp_functor_data (functor_identity C) sigma_disp_cat D.
 Proof.
