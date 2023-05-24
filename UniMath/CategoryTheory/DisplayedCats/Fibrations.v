@@ -1,5 +1,4 @@
 #[local] Unset Universe Checking.
-#[local] Unset Universe Checking.
 (** Definitions of various kinds of _fibrations_, using displayed categories. *)
 
 Require Import UniMath.Foundations.Sets.

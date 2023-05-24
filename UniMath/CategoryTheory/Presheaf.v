@@ -1,5 +1,4 @@
 #[local] Unset Universe Checking.
-#[local] Unset Universe Checking.
 (** ****************************************************************************
 
 Theory about set-valued presheaves. We write PreShv C for [C^op,HSET].

@@ -1,5 +1,4 @@
 #[local] Unset Universe Checking.
-#[local] Unset Universe Checking.
 (** *************************************************************************
 
 Definition and theory about subobjects of an object c
