@@ -117,7 +117,7 @@ Proof.
   apply idpath.
 Qed.
 
-(** ** Transport of the isomorphisms *)
+(** ** Equivalence of iso's via the total categories *)
 
 Definition total_sigma_functor
   : functor (total_category sigma_disp_cat) (total_category E).
@@ -147,6 +147,7 @@ Definition sigma_disp_z_iso_weq
     ∘ (weq_ff_functor_on_z_iso total_sigma_functor_fully_faithful (x ,, xxx) (y ,, yyy))
     ∘ (total_z_iso_equiv (D := sigma_disp_cat) (x ,, xxx) (y ,, yyy)).
 
+(** ** Equivalence of equalities *)
 
 Definition sigma_equality_to_equality
   {x y}
@@ -201,6 +202,73 @@ Definition equality_weq
     _
     sigma_equality_to_equality_and_back
     equality_to_sigma_equality_and_back.
+
+(** ** One-way transport of iso's *)
+
+Lemma sigma_mor_eq
+  {x y xx yy f ff gg}
+  {xxx : E (x ,, xx)}
+  {yyy : E (y ,, yy)}
+  {fff ggg}
+  {H1 : f = f}
+  {H2 : ff = gg}
+  (H3 : transportf (λ qq, mor_disp xxx yyy (f,, qq)) H2 fff = ggg)
+  : (ff ,, fff)
+  = transportb
+    (mor_disp (D := sigma_disp_cat) ((xx ,, xxx)) (yy ,, yyy))
+    H1
+    (gg ,, ggg).
+Proof.
+  induction H2, H3.
+  use total2_paths_f.
+  - unfold transportb.
+    now rewrite (transportf_set _ _ _ (homset_property _ _ _)).
+  - unfold transportb.
+    use (functtransportf _ _ _ _ @ _).
+    use (_ @ !(pr2_transportf_sigma_disp _ _)).
+    apply (maponpaths (λ H, transportf _ H _)).
+    apply homset_property.
+Qed.
+
+Definition sigma_functor
+  : disp_functor (pr1_category D) E sigma_disp_cat.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (λ d e, pr2 d ,, e).
+    + exact (λ _ _ _ _ ff fff, pr2 ff ,, fff).
+  - abstract (
+      use tpair;
+      repeat intro;
+      now use sigma_mor_eq
+    ).
+Defined.
+
+Definition transport_iso
+  {xx yy} {xxx : E xx} {yyy} {ff : z_iso xx yy}
+  (fff : z_iso_disp ff xxx yyy)
+  : (∑ f, z_iso_disp f (sigma_functor _ xxx) (sigma_functor _ yyy))
+  := functor_on_z_iso (pr1_category D) ff ,, disp_functor_on_z_iso_disp sigma_functor fff.
+
+(* Proof that both ways of transporting iso's are equivalent *)
+Lemma iso_transports_eq
+  {xx yy}
+  {xxx : E xx}
+  {yyy : E yy}
+  {ff : z_iso xx yy}
+  (fff : z_iso_disp ff xxx yyy)
+  : transport_iso fff = invmap (sigma_disp_z_iso_weq (pr2 xx ,, xxx) (pr2 yy ,, yyy)) (ff ,, fff).
+Proof.
+  apply pathsweq1.
+  simpl.
+  use (!(pathsweq1 _ _ _ _)).
+  simpl.
+  use subtypePairEquality'.
+  - simpl.
+    apply idpath.
+  - simpl.
+    apply (isaprop_is_z_isomorphism (C := total_category E)).
+Qed.
 
 (** ** Univalence *)
 
