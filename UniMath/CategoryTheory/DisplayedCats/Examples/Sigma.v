@@ -74,42 +74,6 @@ Qed.
 Definition sigma_disp_cat : disp_cat C
   := (_ ,, sigma_disp_cat_axioms).
 
-(** ** Equivalence between the total categories *)
-Definition total_sigma_disp_cat_adjunction_data
-  : adjunction_data (total_category (sigma_disp_cat)) (total_category E).
-Proof.
-  use make_adjunction_data.
-  - use make_functor.
-    + use make_functor_data.
-      * exact (λ x, (pr1 x ,, _) ,, pr22 x).
-      * exact (λ _ _ f, (pr1 f ,, _) ,, pr22 f).
-    + abstract (use tpair; now repeat intro).
-  - use make_functor.
-    + use make_functor_data.
-      * exact (λ x, _ ,, pr21 x ,, pr2 x).
-      * exact (λ _ _ f, _ ,, pr21 f ,, pr2 f).
-    + abstract (use tpair; now repeat intro).
-  - use make_nat_trans.
-    + exact identity.
-    + abstract (do 3 intro; now rewrite id_left, id_right).
-  - use make_nat_trans.
-    + exact identity.
-    + abstract (do 3 intro; now rewrite id_left, id_right).
-Defined.
-
-Lemma total_sigma_disp_cat_forms_equivalence
-  : forms_equivalence total_sigma_disp_cat_adjunction_data.
-Proof.
-  exact (make_forms_equivalence
-    total_sigma_disp_cat_adjunction_data
-    is_z_isomorphism_identity
-    is_z_isomorphism_identity).
-Qed.
-
-Definition equivalence_total_sigma_disp_cat
-  : equivalence_of_cats (total_category sigma_disp_cat) (total_category E)
-  := make_equivalence_of_cats _ total_sigma_disp_cat_forms_equivalence.
-
 Definition sigmapr1_disp_functor_data
   : disp_functor_data (functor_identity C) sigma_disp_cat D.
 Proof.
@@ -152,6 +116,36 @@ Proof.
   apply (homsets_disp _ _ _ _ _ _ (idpath _)).
   apply idpath.
 Qed.
+
+(** ** Transport of the isomorphisms *)
+
+Definition total_sigma_functor
+  : functor (total_category sigma_disp_cat) (total_category E).
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    + exact (λ x, (pr1 x ,, _) ,, pr22 x).
+    + exact (λ _ _ f, (pr1 f ,, _) ,, pr22 f).
+  - abstract (use tpair; now repeat intro).
+Defined.
+
+Lemma total_sigma_functor_fully_faithful : fully_faithful total_sigma_functor.
+Proof.
+  do 2 intro.
+  use isweq_iso.
+  - exact (λ f, _ ,, pr21 f ,, pr2 f).
+  - now intro.
+  - now intro.
+Qed.
+
+Definition sigma_disp_z_iso_weq
+  {x y}
+  (xxx : sigma_disp_cat x)
+  (yyy : sigma_disp_cat y)
+  : (∑ f, z_iso_disp f xxx yyy) ≃ (∑ f, z_iso_disp f (pr2 xxx) (pr2 yyy))
+  :=  (invweq (total_z_iso_equiv (D := E) ((x ,, pr1 xxx) ,, pr2 xxx) ((y ,, pr1 yyy) ,, pr2 yyy)))
+    ∘ (weq_ff_functor_on_z_iso total_sigma_functor_fully_faithful (x ,, xxx) (y ,, yyy))
+    ∘ (total_z_iso_equiv (D := sigma_disp_cat) (x ,, xxx) (y ,, yyy)).
 
 
 (** ** Univalence *)
