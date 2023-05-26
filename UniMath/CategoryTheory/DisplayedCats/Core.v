@@ -300,7 +300,9 @@ Proof.
   apply mor_disp_transportf_prewhisker.
 Qed.
 
-Lemma assoc4_disp {C: category} {D: disp_cat C} {a b c d e: C} {da: D a} {db: D b} {dc: D c} {dd: D d} {de: D e} {f: a--> b} {g: b --> c} {h: c --> d} {i: d --> e} (df: da -->[f] db) (dg: db -->[g] dc) (dh: dc -->[h] dd) (di: dd -->[i] de)
+Lemma assoc4_disp {C: category} {D: disp_cat C} {a b c d e: C} 
+{da: D a} {db: D b} {dc: D c} {dd: D d} {de: D e} {f: a--> b} {g: b --> c} {h: c --> d} {i: d --> e} 
+(df: da -->[f] db) (dg: db -->[g] dc) (dh: dc -->[h] dd) (di: dd -->[i] de)
   : df ;; dg ;; dh ;; di = transportb _ (assoc4 C  a b c d e f g h i) (df ;; (dg ;; dh) ;; di).
 Proof.
   rewrite assoc_disp.
@@ -312,8 +314,11 @@ Proof.
   apply homset_property.
 Qed.
 
-Lemma id_conjugation_disp {C: category} {D: disp_cat C} {a b: C} {da: D a} {db: D b} {f: a--> b} {g: b --> a} {x: b --> b} (df: da -->[f] db) (dg: db -->[g] da) (dx: db -->[x] db) (e0: x = identity _) (e1 : f · g = identity _)
-  : dx = transportb _ e0 (id_disp _) -> df ;; dg = transportb _ e1 (id_disp _) -> df ;; dx ;;dg = transportb _ (id_conjugation f g x e0 e1) (id_disp _).
+Lemma id_conjugation_disp {C: category} {D: disp_cat C} {a b: C} 
+{da: D a} {db: D b} {f: a--> b} {g: b --> a} {x: b --> b} 
+(df: da -->[f] db) (dg: db -->[g] da) (dx: db -->[x] db) (e0: x = identity _) (e1 : f · g = identity _)
+  : dx = transportb _ e0 (id_disp _) -> df ;; dg = transportb _ e1 (id_disp _) -> 
+    df ;; dx ;;dg = transportb _ (id_conjugation f g x e0 e1) (id_disp _).
 Proof.
   intros H H'.
   rewrite H. unfold transportb.
