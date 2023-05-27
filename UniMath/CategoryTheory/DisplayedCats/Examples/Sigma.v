@@ -179,53 +179,45 @@ Defined. *)
 (** ** Equivalence of equalities *)
 
 Definition sigma_equality_to_equality
-  {x y}
-  {xxx : sigma_disp_cat x}
-  {yyy : sigma_disp_cat y}
-  (H : (∑ (H1 : x = y), transportf _ H1 xxx = yyy))
-  : (∑ (H1 : (x ,, pr1 xxx) = (y ,, pr1 yyy)), transportf _ H1 (pr2 xxx) = (pr2 yyy)).
+  {x y H1 xxx yyy}
+  (H2 : transportf sigma_disp_cat H1 xxx = yyy)
+  : ∑ (H2' : transportf D H1 (pr1 xxx) = pr1 yyy), transportf E (total2_paths_f (s := (x ,, pr1 xxx)) (s' := (y ,, pr1 yyy)) H1 H2') (pr2 xxx) = (pr2 yyy).
 Proof.
-  induction H as [H1 H2], H1, H2.
+  induction H1, H2.
   now use tpair.
 Defined.
 
 Definition equality_to_sigma_equality
-  {xx yy}
-  {xxx : E xx}
-  {yyy : E yy}
-  (H : (∑ (H1 : xx = yy), transportf _ H1 xxx = yyy))
-  : (∑ (H1 : pr1 xx = pr1 yy), transportf _ H1 ((pr2 xx ,, xxx) : sigma_disp_cat _) = (pr2 yy ,, yyy)).
+  {x y H1 xx yy xxx yyy}
+  (H2 : ∑ (H2 : transportf D H1 xx = yy), transportf E (total2_paths_f (s := (x ,, xx)) (s' := (y ,, yy)) H1 H2) xxx = yyy)
+  : transportf sigma_disp_cat H1 (xx ,, xxx) = (yy ,, yyy).
 Proof.
-  induction H as [H1 H2], H1, H2.
-  now use tpair.
+  now induction H1, H2 as [H2 H3], H2, H3.
 Defined.
 
 Lemma sigma_equality_to_equality_and_back
   {x y}
+  {H1}
   {xxx : sigma_disp_cat x}
   {yyy : sigma_disp_cat y}
-  (H : (∑ (H1 : x = y), transportf _ H1 xxx = yyy))
-  : equality_to_sigma_equality (sigma_equality_to_equality H) = H.
+  (H2 : transportf sigma_disp_cat H1 xxx = yyy)
+  : equality_to_sigma_equality (sigma_equality_to_equality H2) = H2.
 Proof.
-  now induction H as [H1 H2], H1, H2.
+  now induction H1, H2.
 Qed.
 
 Lemma equality_to_sigma_equality_and_back
-  {xx yy}
-  {xxx : E xx}
-  {yyy : E yy}
-  (H : (∑ (H1 : xx = yy), transportf _ H1 xxx = yyy))
-  : sigma_equality_to_equality (equality_to_sigma_equality H) = H.
+  {x y xx yy H1 xxx yyy}
+  (H2 : ∑ (H2 : transportf D H1 xx = yy), transportf E (total2_paths_f (s := (x ,, xx)) (s' := (y ,, yy)) H1 H2) xxx = yyy)
+  : sigma_equality_to_equality (equality_to_sigma_equality H2) = H2.
 Proof.
-  now induction H as [H1 H2], H1, H2.
+  now induction H1, H2 as [H2 H3], H2, H3.
 Qed.
 
 Definition equality_weq
-  {x y xx yy}
-  (xxx : E (x ,, xx))
-  (yyy : E (y ,, yy))
-  : (∑ (H1 : x = y), transportf _ H1 (xx ,, xxx : sigma_disp_cat _) = (yy ,, yyy))
-  ≃ (∑ (H1 : (x ,, xx) = (y ,, yy)), transportf _ H1 xxx = yyy)
+  {x y H1 xxx yyy}
+  : (transportf sigma_disp_cat H1 xxx = yyy)
+  ≃ (∑ H2', transportf E (total2_paths_f (s := (x ,, _)) (s' := (y ,, _)) _ _) (pr2 xxx) = pr2 yyy)
   := weq_iso
     _
     _
