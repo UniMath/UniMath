@@ -150,6 +150,50 @@ Definition sigma_disp_z_iso_weq
 
 (*
 An attempt at turning the equivalence above into an equivalence that preserves the base iso, which would be more suitable for our purpose.
+*)
+
+Definition sigma_iso_to_iso
+  {x y}
+  {xxx : sigma_disp_cat x}
+  {yyy : sigma_disp_cat y}
+  (f : z_iso x y)
+  (fff : z_iso_disp f xxx yyy)
+  : ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy).
+Proof.
+  pose (w := (total_z_iso_equiv (x ,, pr1 xxx) (y ,, pr1 yyy))).
+  pose (ggg' := sigma_disp_z_iso_weq xxx yyy (f ,, fff)).
+  pose (gg' := pr1 ggg').
+  pose (g := pr1 (invweq w gg') : z_iso x y).
+  pose (gg := pr2 (invweq w gg') : z_iso_disp g (pr1 xxx) (pr1 yyy)).
+  pose (ggg := transportf _ (!(homotweqinvweq _ _) : gg' = w (g ,, gg)) (pr2 ggg') : z_iso_disp _ (pr2 xxx) (pr2 yyy)).
+  assert (Hgf : g = f).
+  {
+    abstract exact (subtypePairEquality' (idpath _) (isaprop_is_z_isomorphism _)).
+  }
+  assert (Hggff : w (g ,, gg) = total_z_iso (xx := (_ ,, _)) (yy := (_ ,, _)) f (transportf (λ g0, z_iso_disp g0 _ _) Hgf gg)).
+  {
+    abstract
+    (apply (maponpaths w : _ = (f ,, _) → _);
+    use total2_paths_f; [exact Hgf | apply idpath]).
+  }
+  use (transportf (λ g0, z_iso_disp g0 (pr1 xxx) (pr1 yyy)) Hgf gg ,, transportf (λ gg0, z_iso_disp gg0 _ _) Hggff ggg).
+Defined.
+
+Definition iso_to_sigma_iso
+  {x y}
+  {xxx : sigma_disp_cat x}
+  {yyy : sigma_disp_cat y}
+  (f : z_iso x y)
+  (fff : ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy))
+  : z_iso_disp f xxx yyy.
+Proof.
+  pose (w := (total_z_iso_equiv (x ,, pr1 xxx) (y ,, pr1 yyy))).
+  pose (ggg' := pr1weq (invweq (sigma_disp_z_iso_weq xxx yyy)) (w (f ,, pr1 fff) ,, pr2 fff)).
+  pose (g := pr1 ggg').
+  pose (ggg := pr2 ggg' : z_iso_disp g xxx yyy).
+  use (transportf (λ g0, z_iso_disp g0 xxx yyy) _ ggg).
+  abstract exact (subtypePairEquality' (idpath _) (isaprop_is_z_isomorphism _)).
+Defined.
 
 Definition sigma_disp_z_iso_weq2
   {x y}
@@ -158,12 +202,14 @@ Definition sigma_disp_z_iso_weq2
   (f : z_iso x y)
   : (z_iso_disp f xxx yyy) ≃ (∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy)).
 Proof.
+  pose (w := (total_z_iso_equiv (x ,, pr1 xxx) (y ,, pr1 yyy))).
   use weq_iso.
-  - intro fff.
-    pose (gg := (sigma_disp_z_iso_weq xxx yyy (f ,, fff))).
-    assert (pr111 gg = pr1 f).
-    {
-      cbn.
+  - apply sigma_iso_to_iso.
+  - apply iso_to_sigma_iso.
+  - intro.
+    use (subtypePairEquality' _ (isaprop_is_z_iso_disp f x0)).
+    (* Just horrible *)
+Abort.
 
     }
     cbn in gg.
