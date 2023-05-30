@@ -376,7 +376,7 @@ Proof.
   exact is_z_iso.
 Defined.
 
-Lemma nat_z_iso_id {C D:precategory_data} (F: C ⟶ D): nat_z_iso F F.
+Lemma nat_z_iso_id {C D:category} (F: C ⟶ D): nat_z_iso F F.
 Proof.
   apply (make_nat_z_iso F F (nat_trans_id F)).
   intro c. 
