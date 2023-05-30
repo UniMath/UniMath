@@ -376,6 +376,14 @@ Proof.
   exact is_z_iso.
 Defined.
 
+Lemma nat_z_iso_id {C D:precategory_data} (F: C ⟶ D): nat_z_iso F F.
+Proof.
+  apply (make_nat_z_iso F F (nat_trans_id F)).
+  intro c. 
+  exists (identity (F c)).
+  split; apply id_left.
+Defined.
+
 Definition nat_z_iso_to_trans {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) : F ⟹ G :=
   pr1 μ.
 
