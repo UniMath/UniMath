@@ -787,50 +787,59 @@ Coercion disp_nat_z_iso_to_trans : disp_nat_z_iso >-> disp_nat_trans.
 
 Local Open Scope mor_disp.
 
-Definition disp_nat_z_iso_to_trans_inv {α: nat_z_iso F G}
+Lemma disp_nat_z_iso_to_trans_inv_data {α: nat_z_iso F G}
 (β :disp_nat_z_iso DF DG α)
-  : disp_nat_trans (nat_z_iso_to_trans_inv α) DG DF.
+: disp_nat_trans_data (nat_z_iso_to_trans_inv α) DG DF.
 Proof.
-  use tpair.
-  - intros c d.
-    exact (pr1 (pr2 β c d)).
-  - intros a b f x y Df.
-    set (eq_nat_trans := nat_trans_ax (nat_z_iso_to_trans_inv α) a b f).
-    apply (postcomp_with_z_iso_disp_is_inj _ _ (pr2 β b y)).
-    etrans. apply assoc_disp_var.
-    apply PartA.transportf_transpose_left.
-    etrans. apply (maponpaths _ (pr1 (pr2 (pr2 β b y)))).
-    etrans. apply mor_disp_transportf_prewhisker.
-    apply PartA.transportf_transpose_left.
-    etrans. apply id_right_disp.
-    apply pathsinv0.
-    etrans. apply transport_b_b.
-    etrans. apply transport_b_b.
-    apply PartA.transportf_transpose_left.
-    etrans. apply assoc_disp_var.
-    apply PartA.transportf_transpose_left.
-    etrans. apply (maponpaths _ ((pr2 (pr1 β)) a b f x y Df)).
-    etrans. apply mor_disp_transportf_prewhisker.
-    apply PartA.transportf_transpose_left.
-    etrans. apply assoc_disp.
-    apply PartA.transportf_transpose_left.
-    etrans. apply (maponpaths (λ Dg, Dg ;;  ♯ DG Df) 
-                   (pr1 (pr2 (pr2 β a x)))).
-    etrans. apply mor_disp_transportf_postwhisker.
-    apply PartA.transportf_transpose_left.
-    etrans. apply id_left_disp.
-    apply pathsinv0.
-    etrans. apply transport_b_b.
-    etrans. apply transport_b_b.
-    etrans. apply transport_b_b.
-    etrans. apply transport_b_b.
-    etrans. apply transport_b_b.
-    apply two_arg_paths.
-    * apply uip.
-      apply homset_property.
-    * reflexivity.
+  intros c d.
+  exact (pr1 (pr2 β c d)).
 Defined.
 
+Lemma disp_nat_z_iso_to_trans_inv_axioms {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+: disp_nat_trans_axioms (disp_nat_z_iso_to_trans_inv_data β).
+Proof.
+  intros a b f x y Df.
+  set (eq_nat_trans := nat_trans_ax (nat_z_iso_to_trans_inv α) a b f).
+  apply (postcomp_with_z_iso_disp_is_inj _ _ (pr2 β b y)).
+  etrans. apply assoc_disp_var.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths _ (pr1 (pr2 (pr2 β b y)))).
+  etrans. apply mor_disp_transportf_prewhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply id_right_disp.
+  apply pathsinv0.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  apply PartA.transportf_transpose_left.
+  etrans. apply assoc_disp_var.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths _ ((pr2 (pr1 β)) a b f x y Df)).
+  etrans. apply mor_disp_transportf_prewhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply assoc_disp.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths (λ Dg, Dg ;;  ♯ DG Df) 
+                 (pr1 (pr2 (pr2 β a x)))).
+  etrans. apply mor_disp_transportf_postwhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply id_left_disp.
+  apply pathsinv0.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  apply two_arg_paths.
+  * apply uip.
+    apply homset_property.
+  * reflexivity.
+Qed.
+
+Definition disp_nat_z_iso_to_trans_inv {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+  : disp_nat_trans (nat_z_iso_to_trans_inv α) DG DF
+  := (disp_nat_z_iso_to_trans_inv_data β,, disp_nat_z_iso_to_trans_inv_axioms β).
 
 Local Open Scope cat.
 
