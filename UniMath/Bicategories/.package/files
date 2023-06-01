@@ -4,7 +4,6 @@ Core/Invertible_2cells.v
 Morphisms/Adjunctions.v
 Morphisms/FullyFaithful.v
 Morphisms/DiscreteMorphisms.v
-Morphisms/ExtensionsAndLiftings.v
 
 Core/Examples/OpMorBicat.v
 Morphisms/Examples/MorphismsInOp1Bicat.v
@@ -18,6 +17,7 @@ Core/AdjointUnique.v
 Core/UnivalenceOp.v
 Core/Discreteness.v
 
+Morphisms/ExtensionsAndLiftings.v
 Morphisms/InternalStreetFibration.v
 Morphisms/InternalStreetOpFibration.v
 
