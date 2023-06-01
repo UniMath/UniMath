@@ -1,3 +1,30 @@
+(***********************************************************************
+
+ Reindexing displayed bicategories over the bicategory of categories
+
+ We prove that every displayed bicategory on the bicategory of
+ (not necessarily univalent) categories gives rise to a displayed
+ bicategory on the bicategory of univalent categories. This construction
+ keeps the displayed objects/1-cells/2-cells to be the same, and thus
+ the composition/identities are inherited as well.
+
+ For displayed categories, we have a reindexing operator: if we have a
+ displayed category `D` over `C₂` and a functor `F : C₁ ⟶ C₂`, then we
+ get a displayed category `F^* D` over `C₁` and a displayed functor
+ `FF : F^* D ⟶ D` over `F`. The construction we discuss in this file, is
+ a special case of the bicategorical analogue of this operation where we
+ use the inclusion.
+
+ Hence, we look at two constructions:
+ 1. The reindexed displayed bicategory [disp_bicat_on_cat_to_univ_cat]
+ 2. The displayed pseudofunctor [disp_psfunctor_on_cat_to_univ_cat]
+
+ Contents
+ 1. The reindexed displayed bicategory
+ 2. Properties of the reindexed displayed bicategory
+ 3. The displayed pseudofunctor over the inclusion
+
+ ***********************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -20,6 +47,9 @@ Local Open Scope cat.
 Section DispBicatOnCats.
   Context (D : disp_bicat bicat_of_cats).
 
+  (**
+   1. The reindexed displayed bicategory
+   *)
   Definition disp_cat_ob_mor_on_cat_to_univ_cat
     : disp_cat_ob_mor bicat_of_univ_cats.
   Proof.
@@ -181,6 +211,9 @@ Section DispBicatOnCats.
       apply (pr2 D).
   Defined.
 
+  (**
+   2. Properties of the reindexed displayed bicategory
+   *)
   Proposition disp_2cells_isaprop_disp_bicat_on_cat_to_univ_cat
               (HD : disp_2cells_isaprop D)
     : disp_2cells_isaprop disp_bicat_on_cat_to_univ_cat.
@@ -249,6 +282,9 @@ Section DispBicatOnCats.
          apply idpath).
   Defined.
 
+  (**
+   3. The displayed pseudofunctor over the inclusion
+   *)
   Definition disp_psfunctor_data_on_cat_to_univ_cat
     : disp_psfunctor_data
         disp_bicat_on_cat_to_univ_cat

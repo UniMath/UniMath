@@ -3,7 +3,8 @@
  Inclusion of univalent categories into categories
 
  In this file, we define the inclusion pseudofunctor from the bicategory
- of univalent categories to the bicategory of categories.
+ of univalent categories to the bicategory of categories. The relevant
+ definition is [univ_cats_to_cats].
 
  ***********************************************************************)
 Require Import UniMath.MoreFoundations.All.

@@ -2,6 +2,32 @@
 
  Extensions and liftings in bicategories
 
+ A fundamental notion in category theory is that of a Kan extension. These
+ come in various flavors, among which are global Kan extensions and absolute
+ Kan extensions. In this file, we define various notions of Kan extensions
+ internal to arbitrary bicategories.
+
+ One nice aspect of this approach is that there is one unifying definition
+ for all variations. By instantiating the notion of left Kan extensions to
+ various bicategories, we can recover other variations of extensions. This
+ is summarized in the following table:
+
+ Notion of Kan extension/lifting  | Corresponding bicategory
+ -----------------------------------------------------------
+ Left Kan extension               | B
+ Left lifting                     | B^op
+ Right Kan extension              | B^co
+ Right lifting                    | B^coop
+
+ Concretely, left Kan extensions in `B^op` are the same as left liftings in
+ `B`, and the same for the other rows.
+
+ We also define when 1-cells preserve left Kan extensions, and using that,
+ we define the notion of absolute Kan extensions.
+
+ An overview of these definitions can be found in:
+   Yoneda structures from 2-toposes by Mark Weber
+
  Contents:
  1. Left extensions
  2. Left liftings

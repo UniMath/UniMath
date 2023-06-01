@@ -12,9 +12,7 @@
  The idea of this proof as follows: a directed set in the
  coproduct of `X` and `Y` is either a directed set in `X` or a
  directed set in `Y`. The main statement for this is proven in
- ```
- directed_set_all_inl_or_all_inr
- ```
+ [directed_set_all_inl_or_all_inr].
  It says that either every value of the directed set is in `X`
  or that every value is in `Y`. We can determine in which of
  these cases we are by looking at the element of the directed
@@ -23,22 +21,18 @@
  to use propositional truncations, because they are necessary to
  make use of directedness.
 
- The statement `directed_set_all_inl_or_all_inr` gives us two
+ The statement [directed_set_all_inl_or_all_inr] gives us two
  cases to consider, and these are treated similarly. In the first
  case, we construct a directed set in `X`:
- ```
- all_inl_directed_set_to_left
- ```
+ [all_inl_directed_set_to_left]
  while in the second case, we construct a directed set in `Y`:
- ```
- all_inr_directed_set_to_right
- ```
+ [all_inr_directed_set_to_right].
  We also prove that the least upperbound of these directed sets
  correspond to the least upperbound of the original directed set.
 
  Afterwards, we prove two statements:
- 1. `directed_set_coproduct_with_eq`
- 2. `directed_set_coproduct`
+ 1. [directed_set_coproduct_with_eq]
+ 2. [directed_set_coproduct]
  These collect all the facts about directed sets in the
  coproduct. The first is a bit stronger, because it also gives
  equality between members of the two directed sets.
