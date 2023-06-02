@@ -596,7 +596,7 @@ Section RightLifting.
       : k ==> h
       := invmap (make_weq _ (Hτ k)) θ.
 
-    Proposition is_rightt_lifting_lift_left
+    Proposition is_right_lifting_lift_left
                 {k : z --> y}
                 (θ : k ==> h)
       : is_right_lifting_lift ((θ ▹ g) • τ) = θ.
