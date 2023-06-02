@@ -423,6 +423,19 @@ Proof.
   - apply (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
 Defined.
 
+ Lemma nat_z_iso_inv_id {C D : category} {F : C ⟶ D}
+  : nat_z_iso_inv (nat_z_iso_id F) = nat_z_iso_id F.
+Proof.
+  use total2_paths_f.
+  - use total2_paths_f.
+      * reflexivity.
+      * apply proofirrelevance.
+        apply isaprop_is_nat_trans.
+        apply homset_property.
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
+
 Definition is_nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D} {μ : F ⟹ G} {ν : G ⟹ H}
            (isμ: is_nat_z_iso μ) (isν: is_nat_z_iso ν) : is_nat_z_iso (nat_trans_comp F G H μ ν).
 Proof.
@@ -442,6 +455,25 @@ Defined.
 
 Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
+Lemma comp_nat_z_iso_id_left {C D:category} {F G:functor C D} (α: nat_z_iso F G)
+  :nat_z_iso_comp (nat_z_iso_id F) α = α.
+Proof.
+  induction α as (α, α_is_nat_z_iso).
+  use total2_paths_f; cbn.
+  - exact (nat_trans_comp_id_left (pr2 D) F G α).
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
+
+Lemma comp_nat_z_iso_id_right {C D:category} {F G:functor C D} (α: nat_z_iso F G)
+  :nat_z_iso_comp α (nat_z_iso_id G) = α.
+Proof.
+  induction α as (α, α_is_nat_z_iso).
+  use total2_paths_f; cbn.
+  - exact (nat_trans_comp_id_right (pr2 D) F G α).
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
 
 
  Lemma is_nat_z_iso_nat_trans_id {C D : precategory} (F :functor_data C D): is_nat_z_iso (nat_trans_id F).
