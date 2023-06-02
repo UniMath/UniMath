@@ -17,6 +17,7 @@ Core/AdjointUnique.v
 Core/UnivalenceOp.v
 Core/Discreteness.v
 
+Morphisms/ExtensionsAndLiftings.v
 Morphisms/InternalStreetFibration.v
 Morphisms/InternalStreetOpFibration.v
 
@@ -116,6 +117,7 @@ PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
+PseudoFunctors/Examples/BicatOfCatToUnivCat.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
@@ -160,6 +162,7 @@ DisplayedBicats/DispBiequivalence.v
 
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
+DisplayedBicats/Examples/DispBicatOnCatToUniv.v
 PseudoFunctors/Examples/MonadInclusion.v
 PseudoFunctors/Examples/OpFunctorEnriched.v
 

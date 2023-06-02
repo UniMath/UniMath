@@ -22,6 +22,7 @@
  3. Coequalizers
  4. Type indexed products
  5. Pointed structures
+ 6. Binary coproducts
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -32,6 +33,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
@@ -733,3 +735,135 @@ Proof.
              Pt
              (transportf_struct_weq_on_weq P p PX))).
 Qed.
+
+(**
+ 6. Binary coproducts
+ *)
+Definition hset_binary_coprod_struct_data
+           (P : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+     P (BinCoproductObject (BinCoproductsHSET X Y)).
+
+Definition hset_struct_binary_coprod
+           {P : hset_struct}
+           (EP : hset_binary_coprod_struct_data P)
+           {X Y : hSet}
+           (PX : P X)
+           (PY : P Y)
+  : P (BinCoproductObject (BinCoproductsHSET X Y))
+  := EP X Y PX PY.
+
+Definition hset_binary_coprod_struct_laws
+           {P : hset_struct}
+           (EP : hset_binary_coprod_struct_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PX (hset_struct_binary_coprod EP PX PY) inl)
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PY (hset_struct_binary_coprod EP PX PY) inr)
+     ×
+     (∏ (X Y Z : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (PZ : P Z)
+        (f : X → Z)
+        (g : Y → Z)
+        (Pf : mor_hset_struct P PX PZ f)
+        (Pg : mor_hset_struct P PY PZ g),
+      mor_hset_struct P (hset_struct_binary_coprod EP PX PY) PZ (sumofmaps f g)).
+
+Definition hset_binary_coprod_struct
+           (P : hset_struct)
+  : UU
+  := ∑ (EP : hset_binary_coprod_struct_data P), hset_binary_coprod_struct_laws EP.
+
+Coercion hset_binary_coprod_struct_to_data
+         {P : hset_struct}
+         (EP : hset_binary_coprod_struct P)
+  : hset_binary_coprod_struct_data P
+  := pr1 EP.
+
+Section BinaryCoprodLaws.
+  Context {P : hset_struct}
+          (EP : hset_binary_coprod_struct P).
+
+  Proposition hset_binary_coprod_struct_inl
+              {X Y : hSet}
+              (PX : P X)
+              (PY : P Y)
+    : mor_hset_struct P PX (hset_struct_binary_coprod EP PX PY) inl.
+  Proof.
+    exact (pr12 EP X Y PX PY).
+  Qed.
+
+  Proposition hset_binary_coprod_struct_inr
+              {X Y : hSet}
+              (PX : P X)
+              (PY : P Y)
+    : mor_hset_struct P PY (hset_struct_binary_coprod EP PX PY) inr.
+  Proof.
+    exact (pr122 EP X Y PX PY).
+  Qed.
+
+  Proposition hset_binary_coprod_struct_sumofmaps
+              {X Y Z : hSet}
+              {PX : P X}
+              {PY : P Y}
+              {PZ : P Z}
+              {f : X → Z}
+              {g : Y → Z}
+              (Pf : mor_hset_struct P PX PZ f)
+              (Pg : mor_hset_struct P PY PZ g)
+    : mor_hset_struct P (hset_struct_binary_coprod EP PX PY) PZ (sumofmaps f g).
+  Proof.
+    exact (pr222 EP X Y Z PX PY PZ f g Pf Pg).
+  Qed.
+End BinaryCoprodLaws.
+
+Definition disp_BinCoproducts_hset_disp_struct
+           {P : hset_struct}
+           (EP : hset_binary_coprod_struct P)
+  : disp_BinCoproducts
+      (hset_struct_disp_cat P)
+      BinCoproductsHSET.
+Proof.
+  intros X Y PX PY.
+  simple refine (_ ,, _ ,, _ ,, _).
+  - exact (hset_struct_binary_coprod EP PX PY).
+  - exact (hset_binary_coprod_struct_inl EP PX PY).
+  - exact (hset_binary_coprod_struct_inr EP PX PY).
+  - intros W PW f Pf g Pg.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ;
+         [ intro ;
+           apply isapropdirprod ;
+           apply isasetaprop ;
+           apply isaprop_hset_struct_on_mor
+         | ] ;
+         apply isaprop_hset_struct_on_mor).
+    + simple refine (_ ,, _ ,, _).
+      * exact (hset_binary_coprod_struct_sumofmaps EP Pf Pg).
+      * apply isaprop_hset_struct_on_mor.
+      * apply isaprop_hset_struct_on_mor.
+Defined.
+
+Definition BinCoproducts_category_of_hset_struct
+           {P : hset_struct}
+           (EP : hset_binary_coprod_struct P)
+  : BinCoproducts (category_of_hset_struct P).
+Proof.
+  use total_BinCoproducts.
+  - exact BinCoproductsHSET.
+  - exact (disp_BinCoproducts_hset_disp_struct EP).
+Defined.

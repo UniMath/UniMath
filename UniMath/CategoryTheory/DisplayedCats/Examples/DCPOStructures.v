@@ -11,6 +11,7 @@
  2. Cartesian structure of DCPOs
  3. Function spaces of DCPOs
  4. Limits of DCPOs
+ 5. Binary coproducts of DCPOs
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -20,6 +21,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
@@ -156,4 +158,29 @@ Proof.
                   (λ i, D i ,, DD i)
                   (W ,, DW)
                   (λ i, fs i ,, Hfs i))).
+Defined.
+
+(**
+ 5. Binary coproducts of DCPOs
+ *)
+Definition binary_coproducts_struct_dcpo
+  : hset_binary_coprod_struct struct_dcpo.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ X Y PX PY, coproduct_dcpo_struct (X ,, PX) (Y ,, PY)).
+  - simple refine (_ ,, _ ,, _) ; cbn.
+    + abstract
+        (intros X Y PX PY ; cbn ;
+         exact (is_scott_continuous_inl (X ,, PX) (Y ,, PY))).
+    + abstract
+        (intros X Y PX PY ; cbn ;
+         exact (is_scott_continuous_inr (X ,, PX) (Y ,, PY))).
+    + abstract
+        (intros X Y Z PX PY PZ f g Pf Pg ;
+         exact (@is_scott_continuous_sumofmaps
+                  (X ,, PX)
+                  (Y ,, PY)
+                  (Z ,, PZ)
+                  f Pf
+                  g Pg)).
 Defined.
