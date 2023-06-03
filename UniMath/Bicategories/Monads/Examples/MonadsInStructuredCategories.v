@@ -50,8 +50,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, TC).
-    + exact (MT ,, tt).
+    + exact (TC ,, tt).
+    + exact (tt ,, MT).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -72,8 +72,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, BC).
-    + exact (MB ,, tt).
+    + exact (BC ,, tt).
+    + exact (tt ,, MB).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -94,8 +94,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, PC).
-    + exact (MP ,, tt).
+    + exact (PC ,, tt).
+    + exact (tt ,, MP).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -118,8 +118,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact ((tt ,, TC) ,, (tt ,, PC)).
-    + exact ((MT ,, tt) ,, (MP ,, tt)).
+    + exact ((TC ,, tt) ,, (PC ,, tt)).
+    + exact ((tt ,, MT) ,, (tt ,, MP)).
     + cbn.
       exact ((tt ,, tt) ,, (tt ,, tt)).
     + cbn.
@@ -142,8 +142,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, IC).
-    + exact (MI ,, tt).
+    + exact (IC ,, tt).
+    + exact (tt ,, MI).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -164,8 +164,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, SC).
-    + exact (MS ,, tt).
+    + exact (SC ,, tt).
+    + exact (tt ,, MS).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
