@@ -533,6 +533,17 @@ Definition section_nat_trans_disp
     (F F': section_disp D) : UU :=
   ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
 
+Lemma isaset_section_nat_trans_disp
+    {C : category}
+    {D : disp_cat C} 
+    (F F': section_disp D) : 
+  isaset (section_nat_trans_disp F F').
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply impred. intro t. apply homsets_disp.
+  - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
+Defined.
+
 Definition section_nt_disp_data_from_section_nt_disp
     {C : category}
     {D : disp_cat C}
