@@ -112,6 +112,7 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
+WeakEquivalences.v
 rezk_completion.v
 RezkCompletion.v
 UnitorsAndAssociatorsForEndofunctors.v
