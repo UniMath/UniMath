@@ -351,32 +351,6 @@ End MakeDisplayedLeftUniversalArrowIfGroupoidalAndProp.
 
 Section MakeDisplayedLeftUniversalArrowIfContractible.
 
-  (* To be moved in UniMath/Bicategories/DisplayedBicats/DispBicat.v *)
-  Definition disp_2cells_iscontr
-    {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
-    := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
-         (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
-      iscontr (disp_2cells x ff gg).
-
-  Definition disp_2cells_isaprop_from_disp_2cells_iscontr
-    {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
-    : disp_2cells_iscontr D -> disp_2cells_isaprop D.
-  Proof.
-    intro c ; intro ; intros.
-    apply isapropifcontr.
-    apply c.
-  Qed.
-
-  Definition disp_2cells_isgroupoid_from_disp_2cells_iscontr
-    {B : bicat} (D : disp_bicat B)
-    : disp_2cells_iscontr D -> disp_locally_groupoid D.
-  Proof.
-    intro c ; intro ; intros.
-    simple refine (_ ,, _).
-    - apply c.
-    - split; apply isapropifcontr, c.
-  Qed.
-
   Context {B1 B2 : bicat}
           {R : psfunctor B1 B2}
           (LUR : left_universal_arrow R)

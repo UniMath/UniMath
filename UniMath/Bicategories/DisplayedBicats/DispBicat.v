@@ -1596,6 +1596,25 @@ Proof.
   exact HD.
 Defined.
 
+Definition disp_2cells_isaprop_from_disp_2cells_iscontr
+  {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
+  : disp_2cells_iscontr D -> disp_2cells_isaprop D.
+Proof.
+  intro c ; intro ; intros.
+  apply isapropifcontr.
+  apply c.
+Qed.
+
+Definition disp_2cells_isgroupoid_from_disp_2cells_iscontr
+  {B : bicat} (D : disp_bicat B)
+  : disp_2cells_iscontr D -> disp_locally_groupoid D.
+Proof.
+  intro c ; intro ; intros.
+  simple refine (_ ,, _).
+  - apply c.
+  - split; apply isapropifcontr, c.
+Qed.
+
 Section HomDisplayedCategory.
   Context {B : bicat}
           {D : disp_bicat B}.
