@@ -1542,7 +1542,13 @@ Definition disp_2cells_isaprop
            {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
   := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
        (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
-     isaprop (disp_2cells x ff gg).
+    isaprop (disp_2cells x ff gg).
+
+Definition disp_2cells_iscontr
+           {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
+  := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
+       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
+     iscontr (disp_2cells x ff gg).
 
 Definition disp_locally_groupoid
            {B : bicat} (D : disp_bicat B)
