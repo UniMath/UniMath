@@ -23,6 +23,7 @@
  4. Type indexed products
  5. Pointed structures
  6. Binary coproducts
+ 7. Set-indexed coproducts
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -34,6 +35,7 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
@@ -866,4 +868,123 @@ Proof.
   use total_BinCoproducts.
   - exact BinCoproductsHSET.
   - exact (disp_BinCoproducts_hset_disp_struct EP).
+Defined.
+
+(**
+ 7. Set-indexed coproducts
+ *)
+Definition hset_struct_set_coprod_data
+           (P : hset_struct)
+           (I : hSet)
+  : UU
+  := ∏ (D : I → hSet)
+       (PD : ∏ (i : I), P (D i)),
+     P (∑ (i : I), D i)%set.
+
+Definition hset_struct_set_coprod_laws
+           {P : hset_struct}
+           {I : hSet}
+           (HP : hset_struct_set_coprod_data P I)
+  : UU
+  := (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (i : I),
+      mor_hset_struct P (PD i) (HP D PD) (λ d, i ,, d))
+     ×
+     (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (W : hSet)
+        (PW : P W)
+        (fs : ∏ (i : I), D i → W)
+        (Pfs : ∏ (i : I), mor_hset_struct P (PD i) PW (fs i)),
+      mor_hset_struct P (HP D PD) PW (λ id, fs (pr1 id) (pr2 id))).
+
+Definition hset_struct_set_coprod
+           (P : hset_struct)
+           (I : hSet)
+  : UU
+  := ∑ (P : hset_struct_set_coprod_data P I), hset_struct_set_coprod_laws P.
+
+Definition hset_struct_set_coprod_to_data
+           {P : hset_struct}
+           {I : hSet}
+           (HP : hset_struct_set_coprod P I)
+           {D : I → hSet}
+           (PD : ∏ (i : I), P (D i))
+  : P (∑ (i : I), D i)%set
+  := pr1 HP D PD.
+
+Coercion hset_struct_set_coprod_to_data : hset_struct_set_coprod >-> Funclass.
+
+Definition hset_struct_set_coprod_ob
+           {P : hset_struct}
+           {I : hSet}
+           (EP : hset_struct_set_coprod P I)
+           (D : I → hSet)
+           (PD : ∏ (i : I), P (D i))
+  : category_of_hset_struct P
+  := _ ,, EP D PD.
+
+Section Projections.
+  Context {P : hset_struct}
+          {I : hSet}
+          (HP : hset_struct_set_coprod P I).
+
+  Proposition hset_struct_set_coprod_in
+              {D : I → hSet}
+              (PD : ∏ (i : I), P (D i))
+              (i : I)
+    : mor_hset_struct P (PD i) (HP D PD) (λ d, i ,, d).
+  Proof.
+    exact (pr12 HP D PD i).
+  Qed.
+
+  Proposition hset_struct_set_coprod_sum
+              {D : I → hSet}
+              (PD : ∏ (i : I), P (D i))
+              {W : hSet}
+              (PW : P W)
+              {fs : ∏ (i : I), D i → W}
+              (Pfs : ∏ (i : I), mor_hset_struct P (PD i) PW (fs i))
+    : mor_hset_struct P (HP D PD) PW (λ id, fs (pr1 id) (pr2 id)).
+  Proof.
+    exact (pr22 HP D PD W PW fs Pfs).
+  Qed.
+End Projections.
+
+Definition dispCoproducts_hset_struct
+           {P : hset_struct}
+           {I : hSet}
+           (HP : hset_struct_set_coprod P I)
+  : disp_Coproducts (hset_struct_disp_cat P) I (CoproductsHSET I (pr2 I)).
+Proof.
+  intros D DD.
+  simple refine (_ ,, (_ ,, _)).
+  - exact (HP D DD).
+  - exact (hset_struct_set_coprod_in HP DD).
+  - intros W PW fs Hf.
+    use iscontraprop1.
+    + abstract
+        (use isaproptotal2 ;
+         [ intro ;
+           use impred ; intro ;
+           apply hset_struct_disp_cat
+         | ] ;
+         intros ;
+         apply isaprop_hset_struct_on_mor).
+    + simple refine (_ ,, _).
+      * exact (hset_struct_set_coprod_sum HP _ _ Hf).
+      * intro i.
+        apply isaprop_hset_struct_on_mor.
+Defined.
+
+Definition Coproducts_category_of_hset_struct_set_coprod
+           {P : hset_struct}
+           {I : hSet}
+           (HP : hset_struct_set_coprod P I)
+  : Coproducts I (category_of_hset_struct P).
+Proof.
+  use total_Coproducts.
+  - exact (CoproductsHSET I (pr2 I)).
+  - exact (dispCoproducts_hset_struct HP).
 Defined.

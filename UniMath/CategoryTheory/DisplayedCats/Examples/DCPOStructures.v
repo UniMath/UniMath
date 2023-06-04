@@ -12,6 +12,7 @@
  3. Function spaces of DCPOs
  4. Limits of DCPOs
  5. Binary coproducts of DCPOs
+ 6. Set-indexed coproducts of DCPOs
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -183,4 +184,27 @@ Proof.
                   (Z ,, PZ)
                   f Pf
                   g Pg)).
+Defined.
+
+(**
+ 6. Set-indexed coproducts of DCPOs
+ *)
+Definition set_coproducts_struct_dcpo
+           (I : hSet)
+  : hset_struct_set_coprod struct_dcpo I.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ Y PY, coproduct_set_dcpo_struct (λ i, Y i ,, PY i)).
+  - simple refine (_ ,, _) ; cbn.
+    + abstract
+        (intros Y PY ; cbn ;
+         exact (is_scott_continuous_incl (λ i, Y i ,, PY i))).
+    + abstract
+        (refine (λ Y PY W PW f Pf, _) ;
+         exact (@is_scott_continuous_set_coproduct_map
+                  I
+                  (λ i, Y i ,, PY i)
+                  (W ,, PW)
+                  f
+                  Pf)).
 Defined.
