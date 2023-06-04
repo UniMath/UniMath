@@ -44,6 +44,25 @@ Definition is_scott_continuous
         (Hx : is_least_upperbound DX D x),
       is_least_upperbound DY (λ i, f(D i)) (f x)).
 
+Definition is_strict_scott_continuous
+           {X Y : hSet}
+           (DX : dcppo_struct X)
+           (DY : dcppo_struct Y)
+           (f : X → Y)
+  : UU
+  := is_scott_continuous DX DY f
+     ×
+     f (pointed_PartialOrder_to_point DX) = pointed_PartialOrder_to_point DY.
+
+Coercion is_strict_scott_continuous_to_scott_continuous
+         {X Y : hSet}
+         {DX : dcppo_struct X}
+         {DY : dcppo_struct Y}
+         {f : X → Y}
+         (Hf : is_strict_scott_continuous DX DY f)
+  : is_scott_continuous DX DY f
+  := pr1 Hf.
+
 (**
  2. Accessors for scott continuity
  *)
@@ -57,6 +76,18 @@ Proof.
   use isapropdirprod.
   - apply isaprop_is_monotone.
   - apply propproperty.
+Qed.
+
+Proposition isaprop_is_strict_scott_continuous
+            {X Y : hSet}
+            (DX : dcppo_struct X)
+            (DY : dcppo_struct Y)
+            (f : X → Y)
+  : isaprop (is_strict_scott_continuous DX DY f).
+Proof.
+  use isapropdirprod.
+  - apply isaprop_is_scott_continuous.
+  - apply setproperty.
 Qed.
 
 Proposition is_scott_continuous_monotone
@@ -136,6 +167,17 @@ Proof.
   - apply dcpo_struct_lub.
 Qed.
 
+Proposition is_strict_scott_continuous_on_bot
+            {X Y : hSet}
+            {DX : dcppo_struct X}
+            {DY : dcppo_struct Y}
+            {f : X → Y}
+            (Hf : is_strict_scott_continuous DX DY f)
+  : f (pointed_PartialOrder_to_point DX) = pointed_PartialOrder_to_point DY.
+Proof.
+  exact (pr2 Hf).
+Qed.
+
 (**
  3. Examples of Scott continuous maps
  *)
@@ -149,6 +191,16 @@ Proof.
     exact p.
   - intros I D HD x Hx.
     exact Hx.
+Qed.
+
+Proposition id_is_strict_scott_continuous
+            {X : hSet}
+            (DX : dcppo_struct X)
+  : is_strict_scott_continuous DX DX (λ x, x).
+Proof.
+  split.
+  - apply id_is_scott_continuous.
+  - apply idpath.
 Qed.
 
 Proposition comp_is_scott_continuous
@@ -172,6 +224,23 @@ Proof.
     + exact (is_directed_comp _ (pr1 Df) HD).
     + use (is_scott_continuous_lub Df HD).
       exact Hx.
+Qed.
+
+Proposition comp_is_strict_scott_continuous
+            {X Y Z : hSet}
+            {DX : dcppo_struct X}
+            {DY : dcppo_struct Y}
+            {DZ : dcppo_struct Z}
+            {f : X → Y}
+            {g : Y → Z}
+            (Df : is_strict_scott_continuous DX DY f)
+            (Dg : is_strict_scott_continuous DY DZ g)
+  : is_strict_scott_continuous DX DZ (λ x, g(f x)).
+Proof.
+  split.
+  - exact (comp_is_scott_continuous Df Dg).
+  - rewrite (is_strict_scott_continuous_on_bot Df).
+    exact (is_strict_scott_continuous_on_bot Dg).
 Qed.
 
 Proposition is_scott_continuous_constant
@@ -200,6 +269,20 @@ Proof.
         apply propproperty.
       }
       exact Hz.
+Qed.
+
+Proposition is_strict_scott_continuous_constant
+            {X Y : hSet}
+            (DX : dcppo_struct X)
+            (DY : dcppo_struct Y)
+  : is_strict_scott_continuous
+      DX
+      DY
+      (λ _, pointed_PartialOrder_to_point DY).
+Proof.
+  split.
+  - apply is_scott_continuous_constant.
+  - apply idpath.
 Qed.
 
 (**
@@ -244,6 +327,28 @@ Proof.
   - exact (is_scott_continuous_monotone H₂).
 Qed.
 
+Proposition eq_dcppo_strict_struct
+            {X : hSet}
+            (DX DX' : dcppo_struct X)
+            (H₁ : is_strict_scott_continuous DX DX' (λ x, x))
+            (H₂ : is_strict_scott_continuous DX' DX (λ x, x))
+  : DX = DX'.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_bottom_element.
+  }
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_directed_complete_poset.
+  }
+  use eq_PartialOrder.
+  - exact (is_scott_continuous_monotone H₁).
+  - exact (is_scott_continuous_monotone H₂).
+Qed.
+
 (**
  5. Bundled approach
  *)
@@ -251,6 +356,17 @@ Definition scott_continuous_map
            (X Y : dcpo)
   : UU
   := ∑ (f : X → Y), is_scott_continuous X Y f.
+
+Definition strict_scott_continuous_map
+           (X Y : dcppo)
+  : UU
+  := ∑ (f : X → Y), is_strict_scott_continuous X Y f.
+
+Coercion strict_scott_continuous_map_to_scott_continuous_map
+         {X Y : dcppo}
+         (f : strict_scott_continuous_map X Y)
+  : scott_continuous_map X Y
+  := pr1 f ,, pr12 f.
 
 (**
  6. Accessors and builders for the bundled approach
@@ -345,4 +461,56 @@ Proof.
                x
                Hx).
   - apply is_least_upperbound_dcpo_comp_lub.
+Qed.
+
+Definition strict_scott_continuous_map_to_fun
+           {X Y : dcppo}
+           (f : strict_scott_continuous_map X Y)
+           (x : X)
+  : Y
+  := pr1 f x.
+
+Coercion strict_scott_continuous_map_to_fun
+  : strict_scott_continuous_map >-> Funclass.
+
+Proposition eq_strict_scott_continuous_map
+            {X Y : dcppo}
+            {f g : strict_scott_continuous_map X Y}
+            (p : ∏ (x : X), f x = g x)
+  : f = g.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_strict_scott_continuous.
+  }
+  use funextsec.
+  exact p.
+Qed.
+
+Section MakeStrictScottContinuous.
+  Context {X Y : dcppo}
+          (f : X → Y)
+          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ≤ x₂ → f x₁ ≤ f x₂)
+          (Hf₂ : ∏ (D : directed_set X), f (⨆ D) = ⨆_{D} (f ,, Hf₁))
+          (Hf₃ : f ⊥_{X} = ⊥_{Y}).
+
+  Definition make_is_strict_scott_continuous
+    : is_strict_scott_continuous X Y f.
+  Proof.
+    split.
+    - use is_scott_continuous_chosen_lub.
+      + exact Hf₁.
+      + intros I D HD.
+        exact (Hf₂ (I ,, (D ,, HD))).
+    - exact Hf₃.
+  Qed.
+End MakeStrictScottContinuous.
+
+Proposition strict_scott_continuous_map_on_point
+            {X Y : dcppo}
+            (f : strict_scott_continuous_map X Y)
+  : f ⊥_{X} = ⊥_{Y}.
+Proof.
+  exact (pr22 f).
 Qed.

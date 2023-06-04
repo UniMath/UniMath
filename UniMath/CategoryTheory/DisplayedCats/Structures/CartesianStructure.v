@@ -221,6 +221,14 @@ Section SetStructure.
     - exact is_univalent_disp_hset_struct_disp_cat.
   Defined.
 
+  Definition univalent_category_of_hset_struct
+    : univalent_category.
+  Proof.
+    use make_univalent_category.
+    - exact category_of_hset_struct.
+    - exact is_univalent_category_of_hset_struct.
+  Defined.
+
   (**
    4. Transporting structures
    *)

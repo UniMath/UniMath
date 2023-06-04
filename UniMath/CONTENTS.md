@@ -396,6 +396,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples/AlgebraStructures.v](CategoryTheory/DisplayedCats/Examples/AlgebraStructures.v)
    - [DisplayedCats/Examples/DCPOStructures.v](CategoryTheory/DisplayedCats/Examples/DCPOStructures.v)
    - [DisplayedCats/Examples/PointedDCPOStructures.v](CategoryTheory/DisplayedCats/Examples/PointedDCPOStructures.v)
+   - [DisplayedCats/Examples/PointedDCPOStrict.v](CategoryTheory/DisplayedCats/Examples/PointedDCPOStrict.v)
    - [DisplayedCats/Examples/PointedPosetStrict.v](CategoryTheory/DisplayedCats/Examples/PointedPosetStrict.v)
    - [DisplayedCats/Examples/PointedPosetStructures.v](CategoryTheory/DisplayedCats/Examples/PointedPosetStructures.v)
    - [DisplayedCats/Examples/PointedSetStructures.v](CategoryTheory/DisplayedCats/Examples/PointedSetStructures.v)
