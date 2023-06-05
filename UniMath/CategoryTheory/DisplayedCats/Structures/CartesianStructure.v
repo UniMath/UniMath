@@ -23,6 +23,16 @@
  We also give conditions that guarantee the category of structures
  is a cartesian category.
 
+ Finally, we look at structures for which we have a section on the
+ corresponding displayed category. This gives the following
+ requirements:
+ - For every set `X`, we have a structure `PX` on `X`
+ - Every map `f : X → Y` is a structure preserving map from `PX`
+   to `PY`
+ - If we have a set `X` with a structure `S` on it, then the
+   identity is a structure preserving map from `PX` to `S`.
+ This gives a left adjoint of the forgetful functor.
+
  Contents
  1. Definition of the structures
  2. The corresponding displayed category
@@ -31,12 +41,15 @@
  5. Cartesian structures
  6. Transport laws for cartesian structures
  7. Terminal object and products from cartesian structures
+ 8. Sections of structures
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -679,3 +692,153 @@ Section TerminalAndProductCartesian.
     - exact dispBinProducts_hset_disp_struct.
   Defined.
 End TerminalAndProductCartesian.
+
+(**
+ 8. Sections of structures
+ *)
+Definition discrete_hset_struct_data
+           (P : hset_struct)
+  : UU
+  := ∑ (PX : ∏ (X : hSet), P X),
+     ∏ (X Y : hSet)
+       (f : X → Y),
+     mor_hset_struct P (PX X) (PX Y) f.
+
+Definition discrete_hset_struct_data_ob
+           {P : hset_struct}
+           (PX : discrete_hset_struct_data P)
+           (X : hSet)
+  : P X
+  := pr1 PX X.
+
+Coercion discrete_hset_struct_data_ob : discrete_hset_struct_data >-> Funclass.
+
+Proposition discrete_hset_struct_data_mor
+            {P : hset_struct}
+            (PX : discrete_hset_struct_data P)
+            {X Y : hSet}
+            (f : X → Y)
+  : mor_hset_struct P (PX X) (PX Y) f.
+Proof.
+  exact (pr2 PX X Y f).
+Qed.
+
+Definition discrete_hset_struct_laws
+           {P : hset_struct}
+           (PX : discrete_hset_struct_data P)
+  : UU
+  := ∏ (Z : hSet)
+       (PZ : P Z),
+     mor_hset_struct P (PX Z) PZ (λ z, z).
+
+Definition discrete_hset_struct
+           (P : hset_struct)
+  : UU
+  := ∑ (PX : discrete_hset_struct_data P),
+     discrete_hset_struct_laws PX.
+
+Coercion discrete_hset_struct_to_data
+         {P : hset_struct}
+         (PX : discrete_hset_struct P)
+  : discrete_hset_struct_data P
+  := pr1 PX.
+
+Definition discrete_hset_struct_counit
+           {P : hset_struct}
+           (PX : discrete_hset_struct P)
+           {Z : hSet}
+           (PZ : P Z)
+  : mor_hset_struct P (PX Z) PZ (λ z, z)
+  := pr2 PX Z PZ.
+
+Definition make_discrete_hset_struct
+           (P : hset_struct)
+           (PX : ∏ (X : hSet), P X)
+           (Pf : ∏ (X Y : hSet)
+                   (f : X → Y),
+                 mor_hset_struct P (PX X) (PX Y) f)
+           (Pη : ∏ (Z : hSet)
+                   (PZ : P Z),
+                 mor_hset_struct P (PX Z) PZ (λ z, z))
+  : discrete_hset_struct P
+  := (PX ,, Pf) ,, Pη.
+
+Section DiscreteHSetStructSection.
+  Context {P : hset_struct}
+          (PX : discrete_hset_struct P).
+
+  Definition discrete_hset_struct_section_data
+    : section_disp_data (hset_struct_disp_cat P).
+  Proof.
+    refine ((λ X, PX X) ,, λ X Y f, _).
+    exact (discrete_hset_struct_data_mor PX f).
+  Defined.
+
+  Proposition discrete_hset_struct_section_axioms
+    : section_disp_axioms discrete_hset_struct_section_data.
+  Proof.
+    split.
+    - intros X ; cbn.
+      apply isaprop_hset_struct_on_mor.
+    - intros X Y Z f g ; cbn.
+      apply isaprop_hset_struct_on_mor.
+  Qed.
+
+  Definition discrete_hset_struct_section
+    : section_disp (hset_struct_disp_cat P).
+  Proof.
+    simple refine (_ ,, _).
+    - exact discrete_hset_struct_section_data.
+    - exact discrete_hset_struct_section_axioms.
+  Defined.
+
+  Definition discrete_hset_struct_to_are_adjoint_unit
+    : functor_identity _
+      ⟹
+      section_functor discrete_hset_struct_section ∙ underlying_of_hset_struct P.
+  Proof.
+    use make_nat_trans.
+    - exact (λ X, identity _).
+    - abstract
+        (intros X Y f ; cbn ;
+         apply idpath).
+  Defined.
+
+  Definition discrete_hset_struct_to_are_adjoint_counit
+    : underlying_of_hset_struct P ∙ section_functor discrete_hset_struct_section
+      ⟹
+      functor_identity _.
+  Proof.
+    use make_nat_trans.
+    - exact (λ X, identity _ ,, discrete_hset_struct_counit PX (pr2 X)).
+    - abstract
+        (intros X Y f ;
+         use eq_mor_hset_struct ;
+         intro x ; cbn ;
+         apply idpath).
+  Defined.
+
+  Definition discrete_hset_struct_to_are_adjoint
+    : are_adjoints
+        (section_functor discrete_hset_struct_section)
+        (underlying_of_hset_struct P).
+  Proof.
+    simple refine ((_ ,, _) ,, (_ ,, _)).
+    - exact discrete_hset_struct_to_are_adjoint_unit.
+    - exact discrete_hset_struct_to_are_adjoint_counit.
+    - abstract
+        (intro X ;
+         use eq_mor_hset_struct ;
+         intro x ; cbn ;
+         apply idpath).
+    - abstract
+        (intro ; cbn ;
+         apply idpath).
+  Defined.
+
+  Definition discrete_hset_struct_to_is_left_adjoint
+    : is_right_adjoint (underlying_of_hset_struct P)
+    := section_functor discrete_hset_struct_section
+       ,,
+       discrete_hset_struct_to_are_adjoint.
+End DiscreteHSetStructSection.

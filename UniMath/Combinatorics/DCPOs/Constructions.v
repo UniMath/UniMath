@@ -5,6 +5,10 @@
  In this file, we define numerous constructions on DCPOs. These
  constructions show that the category of DCPOs is complete.
 
+ In addition, we show that every set gives rise to a discrete
+ DCPO, whose underlying set is the given set and whose order is
+ given by the identity relation.
+
  Contents
  1. The unit DCPO
  2. Binary products of DCPOs
@@ -16,6 +20,7 @@
  2.6. Lemmas on upperbounds in the product
  3. Equalizers
  4. Type indexed products
+ 5. Discrete DCPOs
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -825,4 +830,149 @@ Proof.
   - use funextsec.
     intro.
     apply strict_scott_continuous_map_on_point.
+Qed.
+
+(**
+ 5. Discrete DCPOs
+ *)
+Section DiscreteDCPO.
+  Context (A : hSet).
+
+  Definition directed_complete_poset_discrete_partial_order
+    : directed_complete_poset (discrete_partial_order A).
+  Proof.
+    intros I D HD.
+    assert (h := is_directed_el HD).
+    revert h.
+    use factor_through_squash.
+    {
+      apply isaprop_lub.
+    }
+    intro i.
+    use make_lub.
+    - exact (D i).
+    - split.
+      + intros j ; cbn.
+        assert (h := is_directed_top HD i j).
+        revert h.
+        use factor_through_squash.
+        {
+          apply setproperty.
+        }
+        cbn.
+        intros k.
+        induction k as [ k [ p q ]].
+        rewrite p, q.
+        apply idpath.
+      + intros a p ; cbn in *.
+        apply p.
+  Defined.
+
+  Definition discrete_dcpo_struct
+    : dcpo_struct A
+    := discrete_partial_order A
+       ,,
+       directed_complete_poset_discrete_partial_order.
+
+  Definition discrete_dcpo
+    : dcpo
+    := A ,, discrete_dcpo_struct.
+End DiscreteDCPO.
+
+Definition monotone_function_discrete_dcpo
+           {A B : hSet}
+           (f : A → B)
+  : monotone_function (discrete_dcpo A) (discrete_dcpo B).
+Proof.
+  refine (f ,, _).
+  abstract
+    (exact (λ x₁ x₂ p, maponpaths f p)).
+Defined.
+
+Definition discrete_dcpo_mor
+           {A B : hSet}
+           (f : A → B)
+  : is_scott_continuous (discrete_dcpo A) (discrete_dcpo B) f.
+Proof.
+  use make_is_scott_continuous.
+  - exact (pr2 (monotone_function_discrete_dcpo f)).
+  - intros D.
+    enough ((⨆_{ D} monotone_function_discrete_dcpo f)
+            ≤
+            f (⨆ D))
+      as H.
+    {
+      exact (!H).
+    }
+    use dcpo_lub_is_least.
+    intro i.
+    apply (monotone_function_discrete_dcpo f).
+    use (less_than_dcpo_lub D (D i) i).
+    apply refl_dcpo.
+Qed.
+
+Definition monotone_function_discrete_dcpo_counit
+           (A : dcpo)
+  : monotone_function (discrete_dcpo A) A.
+Proof.
+  refine (idfun _ ,, _).
+  abstract
+    (cbn ;
+     intros x₁ x₂ p ;
+     induction p ;
+     apply refl_dcpo).
+Defined.
+
+Definition discrete_dcpo_counit
+           (A : dcpo)
+  : is_scott_continuous (discrete_dcpo A) A (λ z, z).
+Proof.
+  use make_is_scott_continuous.
+  - exact (pr2 (monotone_function_discrete_dcpo_counit A)).
+  - intro D.
+    use antisymm_dcpo.
+    + cbn.
+      pose (@dcpo_lub_is_least
+               (discrete_dcpo A)
+               D
+               (⨆_{D} (monotone_function_discrete_dcpo_counit A)))
+        as p.
+      rewrite p.
+      * apply refl_dcpo.
+      * intro i.
+        use antisymm_dcpo.
+        ** exact (@less_than_dcpo_lub
+                    A
+                    (directed_set_comp
+                       (monotone_function_discrete_dcpo_counit A)
+                       D)
+                    (D i)
+                    i
+                    (refl_dcpo _)).
+        ** use dcpo_lub_is_least.
+           intro j.
+           cbn.
+           assert (h := directed_set_top D i j).
+           revert h.
+           use factor_through_squash.
+           {
+             apply propproperty.
+           }
+           cbn.
+           intros k.
+           induction k as [ k [ r r' ]].
+           rewrite r, r'.
+           apply refl_dcpo.
+    + use dcpo_lub_is_least.
+      intro i ; cbn.
+      pose (@less_than_dcpo_lub
+              (discrete_dcpo A)
+              D
+              (D i)
+              i
+              (refl_dcpo _))
+        as p.
+      cbn in p.
+      rewrite p.
+      apply refl_dcpo.
 Qed.

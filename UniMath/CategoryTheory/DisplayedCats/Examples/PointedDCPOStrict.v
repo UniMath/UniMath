@@ -1,10 +1,15 @@
 (*****************************************************************
 
- The category of pointed posets and strict functions
+ The category of DCPPOs and strict functions
 
- We construct the category of pointed posets and strict monotone
- functions as a category of structured sets. In addition, we show
- that this category is monoidal closed via the smash product.
+ We construct the category of DCPPos and strict Scott continuous
+ functions as a category of structured sets. We show that this
+ category has the following structure
+ - A terminal object ([Terminal_DCPPO_strict])
+ - Binary products ([BinProducts_DCPPO_strict])
+ - Products indexed by types ([Products_DCPPO_strict])
+ - Equalizers ([Equalizers_DCPPO_strict])
+ - An initial object ([Initial_DCPPO_strict])
 
  Contents
  1. Structures of dcppos with strict functions
@@ -16,6 +21,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.DCPOs.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -74,6 +80,10 @@ Definition struct_dcppo_strict
 Definition DCPPO_strict
   : univalent_category
   := univalent_category_of_hset_struct struct_dcppo_strict.
+
+Definition DCPPO_strict_underlying
+  : DCPPO_strict ⟶ SET
+  := underlying_of_hset_struct struct_dcppo_strict.
 
 (**
  2. The cartesian structure of dcppos
