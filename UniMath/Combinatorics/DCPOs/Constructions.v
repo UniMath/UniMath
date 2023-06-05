@@ -48,6 +48,10 @@ Proof.
            exact tt).
 Defined.
 
+Definition unit_dcpo
+  : dcpo
+  := _ ,, unit_dcpo_struct.
+
 Definition unit_dcppo_struct
   : dcppo_struct unitset.
 Proof.
@@ -58,6 +62,10 @@ Proof.
      cbn ;
      exact tt).
 Defined.
+
+Definition unit_dcppo
+  : dcppo
+  := _ ,, unit_dcppo_struct.
 
 Proposition is_scott_continuous_to_unit
             {X : hSet}
@@ -159,6 +167,11 @@ Definition prod_dcpo
            (X Y : dcpo)
   : dcpo
   := _ ,, prod_dcpo_struct X Y.
+
+Definition prod_dcppo
+           (X Y : dcppo)
+  : dcppo
+  := _ ,, prod_dcppo_struct X Y.
 
 Notation "X × Y" := (prod_dcpo X Y) : dcpo.
 
