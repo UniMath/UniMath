@@ -5,6 +5,18 @@
  We consider two ways of constructing subbicategories. One by selecting
  1-cells and one by selecting both 0-cells and 1-cells.
 
+ In the second construction (subbicategories by selecting both 0-cells
+ and 1-cells) there are two type families: `P₀` on the objects and `P₁`
+ on the 1-cells. For a well-behaved constructions, both type families
+ should be pointwise propositions. We can use this to guarantee that the
+ resulting bicategory is univalent ([is_univalent_2_subbicat]), although
+ we also need that the original bicategory is univalent. In addition, to
+ guaranteee that the resulting bicategory is actually a subbicategory of
+ the original once, we do want both `P₀` and `P₁` to be propositions. If,
+ for example, we choose `P₀` to be the type of booleans for every object
+ and `P₁` the unit type, then the resulting bicategory has two copies of
+ every object, and this is not a subbicategory of the original one.
+
  Contents
  1. Subbicategory by selecting 1-cells
  2. Subbicategory by selecting both 0-cells and 1-cells
@@ -15,11 +27,13 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
