@@ -20,6 +20,11 @@
  In this file, we define these different bicategories. The interest for these
  bicategories come from how the Rezk completion interacts with these notions.
 
+ Note that [disp_bicat_chosen_terminal_obj] is defined as a subbicategory of the
+ bicategory of categories, even though terminal objects are in general only unique
+ up to equality in univalent categories. We use this construction more as a shortcut
+ to obtain the desired definition.
+
  Contents
  1. Categories with a chosen terminal object
  2. Categories that have a terminal object
