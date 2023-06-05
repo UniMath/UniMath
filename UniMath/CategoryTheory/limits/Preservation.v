@@ -87,6 +87,52 @@ Proof.
               (z_iso_Terminals HC₁ (make_Terminal _ Hx)))).
 Defined.
 
+Definition preserves_chosen_terminal_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (T₁ : Terminal C₁)
+           (T₂ : Terminal C₂)
+  : UU
+  := ∥ F T₁ = T₂ ∥.
+
+Proposition identity_preserves_chosen_terminal_eq
+            {C : category}
+            (T : Terminal C)
+  : preserves_chosen_terminal_eq (functor_identity C) T T.
+Proof.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_terminal_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {T₁ : Terminal C₁}
+            {T₂ : Terminal C₂}
+            {T₃ : Terminal C₃}
+            (HF : preserves_chosen_terminal_eq F T₁ T₂)
+            (HG : preserves_chosen_terminal_eq G T₂ T₃)
+  : preserves_chosen_terminal_eq (F ∙ G) T₁ T₃.
+Proof.
+  revert HF.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro p.
+  revert HG.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro q.
+  cbn.
+  apply hinhpr.
+  rewrite p, q.
+  apply idpath.
+Qed.
+
 (**
  2. Preservation of binary products
  *)
