@@ -71,11 +71,12 @@ Section LocallyContr.
 
   Let D' := (disp_bicat_on_cat_to_univ_cat D).
 
-  Let RR := (disp_psfunctor_on_cat_to_univ_cat D (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
+  Let RR := (disp_psfunctor_on_cat_to_univ_cat D
+               (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
 
   Let LL0 := λ C,  (pr1 (pr1 LUR C)).
 
-  Context (LL : ∏ C : category, D C → D (LL0 C)). (* RC preserves structure *)
+  Context (LL : ∏ C : category, D C → D (LL0 C)).
   Context (ηη :  ∏ (C : category) (CC : D C), CC -->[ (pr12 LUR) C] LL C CC).
   Context (extension_preserve_structure :
             ∏ (C1 : category) (CC1 : pr1 D C1) (C2 : univalent_category) (CC2 : D (pr1 C2))
@@ -148,8 +149,6 @@ Section LocallyContrWeakEquivalences.
 
 End LocallyContrWeakEquivalences.
 
-(*** This section can only be done when Niels's PR has been merged.
-***)
 Section BicatOfCategoriesWithTerminalHasRezkCompletion.
 
   Let UnivCat := bicat_of_univ_cats.
@@ -161,7 +160,8 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
 
   Let D := disp_bicat_have_terminal_obj.
 
-  Lemma HD : disp_2cells_iscontr D.
+  Lemma disp_2cells_is_contr_have_terminal_obj
+    : disp_2cells_iscontr D.
   Proof.
     intro ; intros.
     exists (tt,,tt).
@@ -169,7 +169,8 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
     use total2_paths_f ; apply iscontrunit.
   Qed.
 
-  Let RR := (disp_psfunctor_on_cat_to_univ_cat D (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
+  Let RR := (disp_psfunctor_on_cat_to_univ_cat D
+               (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_have_terminal_obj)).
 
   Lemma isaprop_isTerminal
     {C : category} (x : C)
@@ -201,18 +202,12 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
       use weak_equiv_preserves_terminal.
       apply η_weak_equiv.
     - intros C1 C2 C3 F G H α C1_term C2_term C3_term Gw.
-      simpl.
       intros [t Fpterm].
       exists tt.
       intros x2 x2_is_term.
-
-      set (x1 := eso_from_weak_equiv _ Gw x2).
-      use (factor_through_squash _ _ x1).
+      use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
       { apply isaprop_isTerminal. }
-      clear x1.
-      intros [x1 i].
-
-      intro y3.
+      intros [x1 i] y3.
       use (iscontrweqb' (Y :=  (pr1 C3⟦y3, H(G x1)⟧))).
       + use (iscontrweqb' (Y := (pr1 C3⟦y3, F x1⟧))).
         * use (Fpterm _ _).
@@ -223,6 +218,66 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
       + apply z_iso_comp_left_weq.
         apply functor_on_z_iso.
         exact (z_iso_inv i).
+  Defined.
+
+End BicatOfCategoriesWithTerminalHasRezkCompletion.
+
+Section BicatOfCategoriesWithTerminalHasRezkCompletion.
+
+  Let UnivCat := bicat_of_univ_cats.
+  Let Cat := bicat_of_cats.
+  Let R := univ_cats_to_cats.
+  Context (LUR : left_universal_arrow R).
+  Let η := (pr12 LUR).
+  Context (η_weak_equiv : ∏ C : category, is_weak_equiv (η C)).
+
+  Let D := disp_bicat_chosen_terminal_obj.
+
+  Lemma disp_2cells_is_contr_chosen_terminal_obj
+    : disp_2cells_iscontr D.
+  Proof.
+    intro ; intros.
+    exists (tt,,tt).
+    intro.
+    use total2_paths_f ; apply iscontrunit.
+  Qed.
+
+  Let RR := (disp_psfunctor_on_cat_to_univ_cat D
+               (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_chosen_terminal_obj)).
+
+  Definition cat_with_chosen_terminal_obj_has_RezkCompletion
+    : disp_left_universal_arrow LUR RR.
+  Proof.
+    use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
+    - exact η_weak_equiv.
+    - intros C1 C2 C2_univ F Fw C1_term.
+      refine (_ ,, tt).
+      set (t := weak_equiv_preserves_chosen_terminal _ Fw (pr1 C1_term)).
+      exact (F (pr11 C1_term) ,, t).
+    - intros C C1_term.
+      refine (tt ,, _).
+      apply hinhpr.
+      apply idpath.
+    - intros C1 C2 C3 F G H α C1_term C2_term C3_term Gw.
+      intros [t Fpterm].
+      exists tt.
+      use (factor_through_squash _ _ Fpterm).
+      { apply isapropishinh. }
+      intro p.
+
+      set (Gpterm := weak_equiv_preserves_chosen_terminal_eq _ Gw (pr2 C2) (pr1 C1_term) (pr1 C2_term)).
+      use (factor_through_squash _ _ Gpterm).
+      { apply isapropishinh. }
+      intro q.
+
+      apply hinhpr.
+      refine (_ @ p).
+      etrans. {
+        apply maponpaths, (! q).
+      }
+      apply C3.
+      simpl in C1_term
+      ; exact (_ ,, pr2 α (pr1 C1_term)).
   Defined.
 
 End BicatOfCategoriesWithTerminalHasRezkCompletion.

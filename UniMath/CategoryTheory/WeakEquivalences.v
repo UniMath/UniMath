@@ -136,15 +136,6 @@ Section WeakEquivalencePreservations.
     - exact x_is_t.
   Qed.
 
-  (* This definition is the one provided by Niels in his PR on subbicats. *)
-  Definition preserves_chosen_terminal_eq
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-           (T₁ : Terminal C₁)
-           (T₂ : Terminal C₂)
-  : UU
-    := ∥ F T₁ = T₂ ∥.
-
   Definition weak_equiv_preserves_chosen_terminal_eq
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F
