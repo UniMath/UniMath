@@ -1,3 +1,17 @@
+(*
+In this file, we construct displayed universal arrows over the inclusion UnivCat to Cat (with left biadjoint the Rezk completion).
+
+Contents:
+1. LocallyContr:
+   A make constructor for a displayed universal arrow.
+2. LocallyContrWeakEquivalences:
+   A make constructor for a displayed universal arrow in terms of weak equivalences.
+3. BicatOfCategoriesWithTerminalHasRezkCompletion:
+   A construction of the Rezk completion of categories equipped with a terminal object (up to propositional truncation).
+4. BicatOfCategoriesWithChosenTerminalHasRezkCompletion:
+   A construction of the Rezk completion of categories equipped with a chosen terminal object.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -222,7 +236,7 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
 
 End BicatOfCategoriesWithTerminalHasRezkCompletion.
 
-Section BicatOfCategoriesWithTerminalHasRezkCompletion.
+Section BicatOfCategoriesWithChosenTerminalHasRezkCompletion.
 
   Let UnivCat := bicat_of_univ_cats.
   Let Cat := bicat_of_cats.
@@ -280,4 +294,4 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
       ; exact (_ ,, pr2 α (pr1 C1_term)).
   Defined.
 
-End BicatOfCategoriesWithTerminalHasRezkCompletion.
+End BicatOfCategoriesWithChosenTerminalHasRezkCompletion.
