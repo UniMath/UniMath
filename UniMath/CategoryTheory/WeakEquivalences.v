@@ -40,16 +40,6 @@ Section WeakEquivalences.
     - apply isaprop_fully_faithful.
   Qed.
 
-  (* TO BE MOVED IN THE SAME PLACE AS IDENTITY_functor_is_fully_faithful *)
-  Lemma identity_functor_is_essentially_surjective (C : category)
-    : essentially_surjective (functor_identity C).
-  Proof.
-    intro x.
-    apply hinhpr.
-    exists x.
-    apply identity_z_iso.
-  Qed.
-
   Lemma id_is_weak_equiv
     (C : category)
     : is_weak_equiv (functor_identity C).
