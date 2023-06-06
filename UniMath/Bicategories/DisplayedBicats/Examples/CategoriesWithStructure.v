@@ -28,6 +28,7 @@
  Contents
  1. Categories with a chosen terminal object
  2. Categories that have a terminal object
+ 3. Each type of 2-cells in the bicategory of categories with a terminal object (chosen/have) is contractible.
 
  ************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -86,3 +87,22 @@ Defined.
 Definition cat_with_terminal_obj
   : bicat
   := total_bicat disp_bicat_have_terminal_obj.
+
+(* Homotopy levels of each type of 2-cells *)
+Lemma disp_2cells_is_contr_have_terminal_obj
+  : disp_2cells_iscontr disp_bicat_have_terminal_obj.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+Lemma disp_2cells_is_contr_chosen_terminal_obj
+  : disp_2cells_iscontr disp_bicat_chosen_terminal_obj.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
