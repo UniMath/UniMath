@@ -332,8 +332,10 @@ Proof.
   - intros c' d'.
     induction d' as (c,(p,d)).
     destruct p. cbn.
-    rewrite (disp_functor_id DG). cbn.
-    rewrite (functor_id F c). cbn.
+    etrans. apply functtransportf.
+    etrans. apply (maponpaths _ (disp_functor_id DG d)).
+    etrans. apply transport_f_b.
+    unfold transportb.
     apply two_arg_paths.
     * apply uip.
       apply homset_property.
@@ -342,10 +344,12 @@ Proof.
     induction Df' as (f,(pf,Df)).
     induction Dg' as (g,(pg,Dg)).
     destruct pf, pg.  cbn.
-    rewrite (disp_functor_comp DG). cbn.
+    etrans. apply functtransportf.
+    rewrite (disp_functor_comp DG).
     destruct (pr1 (pr2 x')), (pr1 (pr2 z')). cbn.
     destruct (pr1 (pr2 y')). cbn.
-    rewrite (functor_comp F f g). cbn.
+    etrans. apply transport_f_b.
+    unfold transportb.
     apply two_arg_paths.
     * apply uip.
       apply homset_property.
