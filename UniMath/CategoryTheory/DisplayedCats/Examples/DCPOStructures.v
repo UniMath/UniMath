@@ -12,16 +12,22 @@
  3. Function spaces of DCPOs
  4. Limits of DCPOs
  5. Binary coproducts of DCPOs
+ 6. Set-indexed coproducts of DCPOs
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.DCPOs.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
@@ -58,6 +64,10 @@ Defined.
 Definition struct_dcpo
   : hset_struct
   := struct_dcpo_data ,, struct_dcpo_laws.
+
+Definition DCPO
+  : univalent_category
+  := univalent_category_of_hset_struct struct_dcpo.
 
 (**
  2. Cartesian structure of DCPOs
@@ -160,6 +170,27 @@ Proof.
                   (λ i, fs i ,, Hfs i))).
 Defined.
 
+Definition Terminal_DCPO
+  : Terminal DCPO
+  := Terminal_category_of_hset_struct cartesian_struct_dcpo.
+
+Definition BinProducts_DCPO
+  : BinProducts DCPO
+  := BinProducts_category_of_hset_struct cartesian_struct_dcpo.
+
+Definition Products_DCPO
+           (I : UU)
+  : Products I DCPO
+  := Products_category_of_hset_struct_type_prod (type_products_struct_dcpo I).
+
+Definition Equalizers_DCPO
+  : Equalizers DCPO
+  := Equalizers_category_of_hset_struct equalizers_struct_dcpo.
+
+Definition Exponentials_DCPO
+  : Exponentials BinProducts_DCPO
+  := Exponentials_struct cartesian_closed_struct_dcpo.
+
 (**
  5. Binary coproducts of DCPOs
  *)
@@ -184,3 +215,35 @@ Proof.
                   f Pf
                   g Pg)).
 Defined.
+
+Definition BinCoproducts_DCPO
+  : BinCoproducts DCPO
+  := BinCoproducts_category_of_hset_struct binary_coproducts_struct_dcpo.
+
+(**
+ 6. Set-indexed coproducts of DCPOs
+ *)
+Definition set_coproducts_struct_dcpo
+           (I : hSet)
+  : hset_struct_set_coprod struct_dcpo I.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ Y PY, coproduct_set_dcpo_struct (λ i, Y i ,, PY i)).
+  - simple refine (_ ,, _) ; cbn.
+    + abstract
+        (intros Y PY ; cbn ;
+         exact (is_scott_continuous_incl (λ i, Y i ,, PY i))).
+    + abstract
+        (refine (λ Y PY W PW f Pf, _) ;
+         exact (@is_scott_continuous_set_coproduct_map
+                  I
+                  (λ i, Y i ,, PY i)
+                  (W ,, PW)
+                  f
+                  Pf)).
+Defined.
+
+Definition Coproducts_DCPO
+           (I : hSet)
+  : Coproducts I DCPO
+  := Coproducts_category_of_hset_struct_set_coprod (set_coproducts_struct_dcpo I).

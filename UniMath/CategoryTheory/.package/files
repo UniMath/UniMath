@@ -243,6 +243,7 @@ DisplayedCats/Structures/StructuresSmashProduct.v
 DisplayedCats/Examples/AlgebraStructures.v
 DisplayedCats/Examples/DCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStructures.v
+DisplayedCats/Examples/PointedDCPOStrict.v
 DisplayedCats/Examples/PointedPosetStrict.v
 DisplayedCats/Examples/PointedPosetStructures.v
 DisplayedCats/Examples/PointedSetStructures.v

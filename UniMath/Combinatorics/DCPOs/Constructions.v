@@ -219,6 +219,20 @@ Proof.
       * exact (pr2 (is_least_upperbound_is_upperbound Hx i)).
 Qed.
 
+Proposition is_strict_scott_continuous_dirprod_pr1
+            {X Y : hSet}
+            (DX : dcppo_struct X)
+            (DY : dcppo_struct Y)
+  : is_strict_scott_continuous
+      (prod_dcppo_struct DX DY)
+      DX
+      dirprod_pr1.
+Proof.
+  split.
+  - apply is_scott_continuous_dirprod_pr1.
+  - apply idpath.
+Qed.
+
 Definition dirprod_pr1_scott_continuous_map
            (X Y : dcpo)
   : scott_continuous_map (X × Y) X
@@ -273,6 +287,20 @@ Proof.
       * exact (Hy' i).
 Qed.
 
+Proposition is_strict_scott_continuous_dirprod_pr2
+            {X Y : hSet}
+            (DX : dcppo_struct X)
+            (DY : dcppo_struct Y)
+  : is_strict_scott_continuous
+      (prod_dcppo_struct DX DY)
+      DY
+      dirprod_pr2.
+Proof.
+  split.
+  - apply is_scott_continuous_dirprod_pr2.
+  - apply idpath.
+Qed.
+
 Definition dirprod_pr2_scott_continuous_map
            (X Y : dcpo)
   : scott_continuous_map (X × Y) Y
@@ -323,6 +351,27 @@ Proof.
                (pr2 xy)).
         intro i.
         exact (pr2 (Hxy i)).
+Qed.
+
+Proposition is_strict_scott_continuous_prodtofun
+            {W X Y : hSet}
+            {DW : dcppo_struct W}
+            {DX : dcppo_struct X}
+            {DY : dcppo_struct Y}
+            {f : W → X}
+            (Hf : is_strict_scott_continuous DW DX f)
+            {g : W → Y}
+            (Hg : is_strict_scott_continuous DW DY g)
+  : is_strict_scott_continuous
+      DW
+      (prod_dcppo_struct DX DY)
+      (prodtofuntoprod (f ,, g)).
+Proof.
+  split.
+  - exact (is_scott_continuous_prodtofun Hf Hg).
+  - use pathsdirprod.
+    + apply Hf.
+    + apply Hg.
 Qed.
 
 Definition pair_scott_continuous
@@ -505,7 +554,7 @@ Section Equalizers.
     := _ ,, equalizer_dcpo_struct.
 
   Proposition is_scott_continuous_equalizer_pr1
-    : is_scott_continuous (pr2 equalizer_dcpo) (pr2 X) pr1.
+    : is_scott_continuous equalizer_dcpo X pr1.
   Proof.
     use make_is_scott_continuous.
     - exact (Equalizer_pr1_monotone X Y f g).
@@ -526,8 +575,8 @@ Section Equalizers.
               (h : scott_continuous_map W X)
               (p : (λ w : W, f (h w)) = (λ w : W, g (h w)))
     : is_scott_continuous
-        (pr2 W)
-        (pr2 equalizer_dcpo)
+        W
+        equalizer_dcpo
         (λ w, h w ,, eqtohomot p w).
   Proof.
     use make_is_scott_continuous.
@@ -551,6 +600,53 @@ Section Equalizers.
         apply refl_dcpo.
   Qed.
 End Equalizers.
+
+Section EqualizersDCPPO.
+  Context {X Y : dcppo}
+          (f g : strict_scott_continuous_map X Y).
+
+  Definition equalizer_dcppo_struct
+    : dcppo_struct (∑ (x : X), hProp_to_hSet (f x = g x)%logic)%set.
+  Proof.
+    simple refine (equalizer_dcpo_struct f g ,, (⊥_{X} ,, _) ,, _).
+    - abstract
+        (cbn ;
+         refine (strict_scott_continuous_map_on_point f @ !_) ;
+         apply (strict_scott_continuous_map_on_point g)).
+    - abstract
+        (cbn ;
+         intros xp ;
+         apply is_min_bottom_dcppo).
+  Defined.
+
+  Proposition is_strict_scott_continuous_equalizer_pr1
+    : is_strict_scott_continuous equalizer_dcppo_struct X pr1.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (is_scott_continuous_equalizer_pr1 f g).
+    - apply idpath.
+  Qed.
+
+  Proposition is_strict_scott_continuous_equalizer_map
+              {W : dcppo}
+              (h : strict_scott_continuous_map W X)
+              (p : (λ w : W, f (h w)) = (λ w : W, g (h w)))
+    : is_strict_scott_continuous
+        W
+        equalizer_dcppo_struct
+        (λ w, h w ,, eqtohomot p w).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (is_scott_continuous_equalizer_map f g h p).
+    - use subtypePath.
+      {
+        intro.
+        apply propproperty.
+      }
+      cbn.
+      apply strict_scott_continuous_map_on_point.
+  Qed.
+End EqualizersDCPPO.
 
 (**
  4. Type indexed products
@@ -668,3 +764,52 @@ Section TypeIndexedProductsDCPO.
         apply refl_dcpo.
   Qed.
 End TypeIndexedProductsDCPO.
+
+Definition depfunction_dcppo_struct
+           {I : UU}
+           (D : I → dcppo)
+  : dcppo_struct (∏ y, D y)%set.
+Proof.
+  simple refine (depfunction_dcpo_struct (λ i, D i) ,, _ ,, _).
+  - exact (λ i, ⊥_{ D i }).
+  - abstract
+      (intros f i ; cbn ;
+       apply is_min_bottom_dcppo).
+Defined.
+
+Definition depfunction_dcppo
+           {I : UU}
+           (D : I → dcppo)
+  : dcppo
+  := _ ,, depfunction_dcppo_struct D.
+
+Proposition is_strict_scott_continuous_depfunction_pr
+            {I : UU}
+            (D : I → dcppo)
+            (i : I)
+  : is_strict_scott_continuous
+      (depfunction_dcppo_struct D)
+      (D i)
+      (λ f, f i).
+Proof.
+  simple refine (_ ,, _).
+  - exact (is_scott_continuous_depfunction_pr D i).
+  - apply idpath.
+Qed.
+
+Proposition is_strict_scott_continuous_depfunction_map
+            {I : UU}
+            (D : I → dcppo)
+            {W : dcppo}
+            (fs : ∏ (i : I), strict_scott_continuous_map W (D i))
+  : is_strict_scott_continuous
+      W
+      (depfunction_dcppo  D)
+      (λ w i, fs i w).
+Proof.
+  simple refine (_ ,, _).
+  - exact (is_scott_continuous_depfunction_map D fs).
+  - use funextsec.
+    intro.
+    apply strict_scott_continuous_map_on_point.
+Qed.
