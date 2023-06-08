@@ -17,7 +17,7 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
-DisplayedCats/Reindexing_forward.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
