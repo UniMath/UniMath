@@ -116,6 +116,18 @@ Section Disp_Functor.
   Defined.
 
   (** Useful transport lemma for [disp_functor]. *)
+   
+ Lemma disp_functor_eq {C C':category} {F: functor C C'} {D:disp_cat C} {D':disp_cat C'} 
+ (DF DF': disp_functor F D D')
+  : pr1 DF = pr1 DF' -> DF = DF'.
+ Proof.
+  intro H.
+  apply (total2_paths_f H).
+  apply proofirrelevance.
+  apply isaprop_disp_functor_axioms.
+ Defined.
+   
+   
   Lemma disp_functor_transportf {C' C : category}
         {D' : disp_cat C'} {D : disp_cat C}
         (F : functor C' C) (FF : disp_functor F D' D)
