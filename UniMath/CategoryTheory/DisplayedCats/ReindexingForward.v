@@ -273,16 +273,16 @@ Defined.
 
 Local Open Scope mor_disp. 
 
-Definition axioms_reindexing_forward_functor: disp_functor_axioms data_functor_reindexing_f.
+Definition axioms_reindexing_forward_functor: disp_functor_axioms data_functor_reindexing_forward.
 Proof.
   use tpair.
   - intros a x.
-    apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_f) (id_disp x)) 
+       apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (id_disp x)) 
                                     (id_disp (data_functor_reindexing_forward a x)) 
                                     (idpath _)).
     exact (idpath (id_disp x)).
   - intros a b c x y z f g Df Dg.
-    apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_f) (Df;;Dg))
+       apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (Df;;Dg))
                                     (♯ data_functor_reindexing_forward Df ;; ♯ data_functor_reindexing_forward Dg)
                                     (idpath _)).
     exact (idpath (Df;;Dg)).
