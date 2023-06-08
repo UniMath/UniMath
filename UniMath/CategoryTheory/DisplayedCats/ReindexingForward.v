@@ -1,7 +1,8 @@
 
-(* Pushout for displayed categories and the universal property that it respects.*)
+(* reindexing forward (reindexig_f) for displayed categories 
+    and the universal property that it respects.*)
 
-(*    D -- functor pushout --> pushout *)
+(*    D -- functor reindexing_forward --> reindexing_forward *)
 (*    ↓            ↓             ↓     *)
 (*    C ---------- F ----------> C'    *)
 
@@ -42,12 +43,12 @@ Defined.
 
 Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45): cat. 
 
-Declare Scope pushout_scope.
-Notation  "↙ x" := (pr1 x)  (at level 0):pushout_scope. 
-Notation  "← x" := (pr2 (pr2 x)) (at level 0):pushout_scope.
-Notation "¤ x" := (pr1(pr2 x)) (at level 0):pushout_scope.
+Declare Scope reindexing_forward_scope.
+Notation  "↙ x" := (pr1 x)  (at level 0):reindexing_forward_scope. 
+Notation  "← x" := (pr2 (pr2 x)) (at level 0):reindexing_forward_scope.
+Notation "¤ x" := (pr1(pr2 x)) (at level 0):reindexing_forward_scope.
 
-(* Recreate base objects from an object x' over c' of the pushout *)
+(* Recreate base objects from an object x' over c' of the reindexing_forward *)
 (*  x:= (← x') -----?-----> x' =: (↙ x', ¤ x', ← x') *)
 (*    ↓                     ↓                        *)
 (*  c:= (↙ x') -----F-----> c'                       *)
@@ -55,17 +56,17 @@ Notation "¤ x" := (pr1(pr2 x)) (at level 0):pushout_scope.
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-Section pushout.
-Local Open Scope pushout_scope.
+Section reindexing_forward.
+Local Open Scope reindexing_forward_scope.
 
 Context {C C':category} (D :disp_cat C) (F :functor C C').
 
-(*    D -- functor pushout --> pushout *)
+(*    D -- functor reindexing_forward --> reindexing_forward *)
 (*    ↓            ↓             ↓     *)
 (*    C ---------- F ----------> C'    *)
 
 
-Definition pushout_ob_mor : disp_cat_ob_mor C'.
+Definition reindexing_forward_ob_mor : disp_cat_ob_mor C'.
 Proof.
   use make_disp_cat_ob_mor.
   - exact (λ c', ∑c:C,(F c=c' × ob_disp D c)).
@@ -76,9 +77,9 @@ Proof.
 Defined.
 
 
-(* Some lemmas to create the theorem to caracterize the equality of pushout morphisms*)
-Lemma pr1_transportf_pushout {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-{x' :ob_disp pushout_ob_mor a'} {y' :ob_disp pushout_ob_mor b'} 
+(* Some lemmas to create the theorem to caracterize the equality of reindexing_forward morphisms*)
+Lemma pr1_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
+{x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'} 
 {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'}
     : ∏(p: g'=f'), ↙ Df'= ↙ Dg' → 
         ↙ Df' = ↙ (transportf _ p  Dg').
@@ -90,14 +91,14 @@ Proof.
   exact e.
 Qed.
    
-Lemma pr1_pr2_transportf_pushout {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-{x' :ob_disp pushout_ob_mor a'} {y' :ob_disp pushout_ob_mor b'}
+Lemma pr1_pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
+{x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
 {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'} (e:↙ Dg' =↙ Df') 
     : ∏ p: f' = g',
         ¤ (transportf _ p Df') = 
         transportf (λ f0:C ⟦↙ x',↙ y'⟧, 
             transportf_mor (¤ x') (¤ y') (# F f0)=g') 
-                (pr1_transportf_pushout p e) 
+                (pr1_transportf_reindexing_forward p e) 
                     (¤ Dg'). 
 Proof.
   intro.
@@ -109,13 +110,13 @@ Proof.
   apply homset_property.
 Qed.    
 
-Lemma pr2_pr2_transportf_pushout {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-{x' :ob_disp pushout_ob_mor a'} {y' :ob_disp pushout_ob_mor b'}
+Lemma pr2_pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
+{x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
 {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'} (e:↙ Df' =↙ Dg') 
     : ∏ p: f' = g',
     ← Dg' = transportf _ e (← Df') ->
         ← (transportf _ p Df') = 
-       transportf _ (pr1_transportf_pushout p (!e)) (← Dg'). 
+       transportf _ (pr1_transportf_reindexing_forward p (!e)) (← Dg'). 
 Proof.
   intros p H.
   rewrite H.
@@ -129,8 +130,8 @@ Proof.
 Qed.
 
 
-Lemma pr2_transportf_pushout {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-{x' :ob_disp pushout_ob_mor a'} {y' :ob_disp pushout_ob_mor b'}
+Lemma pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
+{x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
 {Df' : x' -->[ f'] y'} 
    : ∏ p: f' = g', 
         pr2 (transportf _ p Df') =
@@ -144,31 +145,31 @@ Qed.
 
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-(*Theorem about the equality of pushout morphisms*)
-Theorem pushout_paths_f_mor {a' b':C'} 
-{x' :ob_disp pushout_ob_mor a'}
-{y' :ob_disp pushout_ob_mor b'}
+(*Theorem about the equality of reindexing_forward morphisms*)
+Theorem reindexing_forward_paths_f_mor {a' b':C'} 
+{x' :ob_disp reindexing_forward_ob_mor a'}
+{y' :ob_disp reindexing_forward_ob_mor b'}
 {f': C' ⟦ a', b' ⟧} {g': C' ⟦ a', b' ⟧} {p:g'=f'}
 (Df' : x' -->[ f'] y') (Dg' : x' -->[ g'] y') (e:↙ Dg' = ↙ Df')
     :← Df' = transportf _ e (← Dg')
         -> (Df'=transportf _ p Dg').
 Proof.
   intro H.
-  apply (total2_paths_f (pr1_transportf_pushout p (!e))).
+  apply (total2_paths_f (pr1_transportf_reindexing_forward p (!e))).
   cbn; cbn in e, H.
-  rewrite (pr2_transportf_pushout p).
+  rewrite (pr2_transportf_reindexing_forward p).
   rewrite transportf_dirprod.
-  rewrite (pr1_pr2_transportf_pushout (!e)).
+  rewrite (pr1_pr2_transportf_reindexing_forward (!e)).
   apply maponpaths.
-  rewrite (pr2_pr2_transportf_pushout e p H).
-  rewrite <- (pr1_transportf_pushout p (!e)).
+  rewrite (pr2_pr2_transportf_reindexing_forward e p H).
+  rewrite <- (pr1_transportf_reindexing_forward p (!e)).
   cbn.
   exact (idpath (← Df')). 
 Qed.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-Lemma pushout_id {c': C'} {x' : ob_disp pushout_ob_mor c'}
+Lemma reindexing_forward_id {c': C'} {x' : ob_disp reindexing_forward_ob_mor c'}
     : identity c' = transportf_mor (¤ x') (¤ x') (# F (identity (↙ x'))).
 Proof.
   destruct (¤ x').
@@ -178,9 +179,9 @@ Proof.
 Defined.
 
 
-Lemma pushout_comp {a' b' c': C'} 
-{x' : ob_disp pushout_ob_mor a'} {y' : ob_disp pushout_ob_mor b'}
-{z' : ob_disp pushout_ob_mor c'} {f':C' ⟦ a', b' ⟧} {g':C' ⟦ b', c' ⟧}
+Lemma reindexing_forward_comp {a' b' c': C'} 
+{x' : ob_disp reindexing_forward_ob_mor a'} {y' : ob_disp reindexing_forward_ob_mor b'}
+{z' : ob_disp reindexing_forward_ob_mor c'} {f':C' ⟦ a', b' ⟧} {g':C' ⟦ b', c' ⟧}
 {Df':  x' -->[ f'] y'} {Dg': y' -->[ g'] z'}
     :f' · g' = transportf_mor (¤ x') (¤ z') (# F (↙ Df' · ↙ Dg')).
 Proof.
@@ -190,42 +191,42 @@ Proof.
   apply functor_comp.
 Defined.
 
-Definition pushout_id_comp : disp_cat_id_comp C' pushout_ob_mor.
+Definition reindexing_forward_id_comp : disp_cat_id_comp C' reindexing_forward_ob_mor.
 Proof.
   use tpair.
   - intros c' x'.
     exists (identity (↙ x')).
     use tpair.
-    * apply (! pushout_id). 
+    * apply (! reindexing_forward_id). 
     * cbn.
       exact (id_disp (← x')).
   - intros a' b' c' f' g' x' y' z'.
     intros Df' Dg'.
     exists ((↙ Df')·(↙ Dg')). 
     use tpair. 
-    * apply (! pushout_comp).
+    * apply (! reindexing_forward_comp).
     * cbn.
       exact (comp_disp (← Df') (← Dg')).
 Defined.
 
 
-Definition pushout_disp_cat_data : disp_cat_data C'
-    := (pushout_ob_mor,, pushout_id_comp).
+Definition reindexing_forward_disp_cat_data : disp_cat_data C'
+    := (reindexing_forward_ob_mor,, reindexing_forward_id_comp).
 
 
 Local Open Scope mor_disp. 
 
-Definition pushout_disp_cat_axioms : disp_cat_axioms C' pushout_disp_cat_data.
+Definition reindexing_forward_disp_cat_axioms : disp_cat_axioms C' reindexing_forward_disp_cat_data.
 Proof.
   repeat apply tpair.
   - intros a' b' f' x' y' Df'.
-    apply (pushout_paths_f_mor (id_disp x' ;; Df') Df' (! id_left (↙ Df'))).
+    apply (reindexing_forward_paths_f_mor (id_disp x' ;; Df') Df' (! id_left (↙ Df'))).
     exact (id_left_disp (← Df')).
   - intros a' b' f' x' y' Df'.
-    apply (pushout_paths_f_mor (Df';; id_disp y') Df' (! id_right (↙ Df'))).
+    apply (reindexing_forward_paths_f_mor (Df';; id_disp y') Df' (! id_right (↙ Df'))).
     exact (id_right_disp (← Df')).
   - intros a' b' c' d' f' g' h' x' y' z' w' Df' Dg' Dh'.
-    apply (pushout_paths_f_mor (Df' ;; (Dg' ;; Dh')) (Df' ;; Dg' ;; Dh') 
+    apply (reindexing_forward_paths_f_mor (Df' ;; (Dg' ;; Dh')) (Df' ;; Dg' ;; Dh') 
                                         (! assoc (↙ Df') (↙ Dg') (↙ Dh') )).
     exact (assoc_disp (← Df') (← Dg') (← Dh')).
   - intros a' b' f' x' y'.
@@ -241,28 +242,28 @@ Qed.
 Local Close Scope mor_disp. 
 
 
-Local Close Scope pushout_scope.
-End pushout.
+Local Close Scope reindexing_forward_scope.
+End reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-Definition pushout {C C':category}
+Definition reindexing_forward {C C':category}
 (D:disp_cat C) (F: functor C C') : disp_cat C'
-    := (pushout_disp_cat_data D F,, pushout_disp_cat_axioms D F).
+    := (reindexing_forward_disp_cat_data D F,, reindexing_forward_disp_cat_axioms D F).
 
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-Section functor_pushout.
+Section functor_reindexing_forward.
 
 Context {C C':category} (D :disp_cat C) (F :functor C C').
 
-(*    D -- functor pushout --> pushout *)
+(*    D -- functor reindexing_forward --> reindexing_forward *)
 (*    ↓            ↓             ↓     *)
 (*    C ---------- F ----------> C'    *)
 
 
-Definition data_functor_pushout : disp_functor_data F D (pushout D F).
+Definition data_functor_reindexing_forward : disp_functor_data F D (reindexing_forward D F).
 Proof.
   use tpair.
   - exact (λ (c:C) (d: D c), (c,, idpath (F c),,  d)).
@@ -272,37 +273,37 @@ Defined.
 
 Local Open Scope mor_disp. 
 
-Definition axioms_pushout_functor: disp_functor_axioms data_functor_pushout.
+Definition axioms_reindexing_forward_functor: disp_functor_axioms data_functor_reindexing_forward.
 Proof.
   use tpair.
   - intros a x.
-    apply (pushout_paths_f_mor D F (♯ (data_functor_pushout) (id_disp x)) 
-                                    (id_disp (data_functor_pushout a x)) 
+       apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (id_disp x)) 
+                                    (id_disp (data_functor_reindexing_forward a x)) 
                                     (idpath _)).
     exact (idpath (id_disp x)).
   - intros a b c x y z f g Df Dg.
-    apply (pushout_paths_f_mor D F (♯ (data_functor_pushout) (Df;;Dg))
-                                    (♯ data_functor_pushout Df ;; ♯ data_functor_pushout Dg)
+       apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (Df;;Dg))
+                                    (♯ data_functor_reindexing_forward Df ;; ♯ data_functor_reindexing_forward Dg)
                                     (idpath _)).
     exact (idpath (Df;;Dg)).
 Qed.
 
 Local Close Scope mor_disp. 
-End functor_pushout.
+End functor_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-Definition functor_pushout {C C':category} (D:disp_cat C) (F:functor C C')
-  : disp_functor F D (pushout D F)
-  := (data_functor_pushout D F,, axioms_pushout_functor D F).
+Definition functor_reindexing_forward {C C':category} (D:disp_cat C) (F:functor C C')
+  : disp_functor F D (reindexing_forward D F)
+  := (data_functor_reindexing_forward D F,, axioms_reindexing_forward_functor D F).
 
  
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-Section functor_universal_property_pushout.
+Section functor_universal_property_reindexing_forward.
 
 Context {C C' C'': category} {D:disp_cat C} {F: functor C C'}.
-Let D' := pushout D F. Let DF := functor_pushout D F.
+Let D' := reindexing_forward D F. Let DF := functor_reindexing_forward D F.
 Context (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'').
 
 (*      ---------------- DG ---------------->     *)
@@ -310,9 +311,9 @@ Context (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'
 (*    ↓    ↓      ↓             ↓             ↓   *)
 (*    C -- F  --> C' ---------- H ----------> C'' *)
 
-Local Open Scope pushout_scope.
+Local Open Scope reindexing_forward_scope.
 
-Definition data_functor_univ_prop_pushout: disp_functor_data H D' D''.
+Definition data_functor_univ_prop_reindexing_forward: disp_functor_data H D' D''.
 Proof.
   use tpair.
   - intros c' d'.
@@ -323,10 +324,10 @@ Proof.
     exact ((♯ DG (← Df'))%mor_disp).
 Defined.
 
-Local Close Scope pushout_scope.
+Local Close Scope reindexing_forward_scope.
 
-Definition axioms_functor_univ_prop_pushout
-    : disp_functor_axioms data_functor_univ_prop_pushout.
+Definition axioms_functor_univ_prop_reindexing_forward
+    : disp_functor_axioms data_functor_univ_prop_reindexing_forward.
 Proof.
   use tpair.
   - intros c' d'.
@@ -357,25 +358,25 @@ Proof.
 Qed.
 
 
-End functor_universal_property_pushout.
+End functor_universal_property_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-Definition functor_univ_prop_pushout {C C' C'': category} {D:disp_cat C} {F: functor C C'}
+Definition functor_univ_prop_reindexing_forward {C C' C'': category} {D:disp_cat C} {F: functor C C'}
 (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'')
-    : disp_functor H (pushout D F) D''
-  := (data_functor_univ_prop_pushout H D'' DG,,
-        axioms_functor_univ_prop_pushout H D'' DG).
+    : disp_functor H (reindexing_forward D F) D''
+  := (data_functor_univ_prop_reindexing_forward H D'' DG,,
+        axioms_functor_univ_prop_reindexing_forward H D'' DG).
 
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-Section unicity_universal_property_pushout.
+Section unicity_universal_property_reindexing_forward.
 
 Context {C C' C'': category} {D:disp_cat C} {F: functor C C'}.
-Let D' := pushout D F. Let DF := functor_pushout D F.
+Let D' := reindexing_forward D F. Let DF := functor_reindexing_forward D F.
 Context (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'').
-Let DH := functor_univ_prop_pushout H D'' DG.
+Let DH := functor_univ_prop_reindexing_forward H D'' DG.
 
 (* Here we prove the unicity of DH*)
 (*      -------- DG -------->     *)
@@ -384,14 +385,14 @@ Let DH := functor_univ_prop_pushout H D'' DG.
 (*    C -- F  --> C' -- H  --> C'' *)
 
 
-Definition univ_prop_pushout_eq : 
+Definition univ_prop_reindexing_forward_eq : 
         disp_functor_composite DF DH= DG.
 Proof.
   apply disp_functor_eq.
   reflexivity.
 Defined.
 
-Definition univ_prop_pushout : 
+Definition univ_prop_reindexing_forward : 
   disp_nat_z_iso (DF ◦ DH) DG (nat_z_iso_id (F ∙ H)).
 Proof.
   - repeat use tpair.
@@ -412,7 +413,7 @@ Proof.
 Defined.
          
 
-Local Open Scope pushout_scope.
+Local Open Scope reindexing_forward_scope.
 
 (*Lemma to use the fact that the total functor of DF is invertible*)
 Definition DF_inv_mor (DM DN: disp_functor H D' D'') (c':C') (d':D' c') 
@@ -505,7 +506,7 @@ Proof.
   - apply DH0_DH1_is_disp_nat_z_iso.
 Defined.
 
-Theorem unicity_univ_prop_pushout : 
+Theorem unicity_univ_prop_reindexing_forward : 
   ∏ DH' :disp_functor H D' D'',
   disp_nat_z_iso (disp_functor_composite DF DH') DG (nat_z_iso_id (F ∙ H)) ->
    disp_nat_z_iso DH' DH (nat_z_iso_id H).
@@ -515,12 +516,12 @@ Proof.
   apply (transportf _ (comp_nat_z_iso_id_left (nat_z_iso_id (F ∙ H)))).
   apply (disp_nat_z_iso_comp µ').
   apply (transportf _ nat_z_iso_inv_id).
-  exact (disp_nat_z_iso_inv univ_prop_pushout).
+  exact (disp_nat_z_iso_inv univ_prop_reindexing_forward).
 Defined.
 
 Local Close Scope mor_disp. 
-Local Close Scope pushout_scope.
-End unicity_universal_property_pushout.
+Local Close Scope reindexing_forward_scope.
+End unicity_universal_property_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
