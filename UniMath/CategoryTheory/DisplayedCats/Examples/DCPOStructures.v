@@ -279,4 +279,4 @@ Defined.
 
 Definition is_right_adjoint_DCPO_underlying
   : is_right_adjoint DCPO_underlying
-  := discrete_hset_struct_to_is_left_adjoint discrete_dcpo_struct.
+  := discrete_hset_struct_to_is_right_adjoint discrete_dcpo_struct.

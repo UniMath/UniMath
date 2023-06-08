@@ -836,7 +836,7 @@ Section DiscreteHSetStructSection.
          apply idpath).
   Defined.
 
-  Definition discrete_hset_struct_to_is_left_adjoint
+  Definition discrete_hset_struct_to_is_right_adjoint
     : is_right_adjoint (underlying_of_hset_struct P)
     := section_functor discrete_hset_struct_section
        ,,
