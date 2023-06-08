@@ -189,7 +189,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Isos.v](CategoryTheory/DisplayedCats/Isos.v)
    - [DisplayedCats/Functors.v](CategoryTheory/DisplayedCats/Functors.v)
    - [DisplayedCats/NaturalTransformations.v](CategoryTheory/DisplayedCats/NaturalTransformations.v)
-   - [DisplayedCats/Reindexing_forward.v](CategoryTheory/DisplayedCats/Pushfoward.v)
+   - [DisplayedCats/Reindexing_forward.v](CategoryTheory/DisplayedCats/Reindexing_forward.v)
    - [DisplayedCats/Univalence.v](CategoryTheory/DisplayedCats/Univalence.v)
    - [DisplayedCats/Total.v](CategoryTheory/DisplayedCats/Total.v)
    - [DisplayedCats/Fiber.v](CategoryTheory/DisplayedCats/Fiber.v)
