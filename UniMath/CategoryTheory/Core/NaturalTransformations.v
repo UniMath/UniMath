@@ -379,7 +379,7 @@ Defined.
 Lemma nat_z_iso_id {C D:category} (F: C ⟶ D): nat_z_iso F F.
 Proof.
   apply (make_nat_z_iso F F (nat_trans_id F)).
-  intro c. 
+  intro c.
   exists (identity (F c)).
   split; apply id_left.
 Defined.
@@ -484,6 +484,25 @@ Proof.
 Defined.
 
 End nat_trans.
+
+Definition to_constant_nat_trans
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (y : C₂)
+           (fs : ∏ (x : C₁), F x --> y)
+           (ps : ∏ (x₁ x₂ : C₁)
+                   (g : x₁ --> x₂),
+                 # F g · fs x₂ = fs x₁)
+  : nat_trans F (constant_functor C₁ C₂ y).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, fs x).
+  - abstract
+      (intros x₁ x₂ g ; cbn ;
+       rewrite id_right ;
+       rewrite ps ;
+       apply idpath).
+Defined.
 
 Definition constant_nat_trans
            (C₁ : category)
