@@ -703,6 +703,58 @@ Defined.
 
 End BinProduct_of_functors_commutative.
 
+
+Section PairNatTrans.
+  Context {C₁ C₂ C₃ : category}
+          {F : C₁ ⟶ C₂}
+          {G₁ G₂ G₃ : C₂ ⟶ C₃}
+          (H : BinProducts C₃)
+          (η₁ : F ∙ G₁ ⟹ F ∙ G₂)
+          (η₂ : F ∙ G₁ ⟹ F ∙ G₃).
+
+  Local Definition pair_nat_trans_data
+    : nat_trans_data (F ∙ G₁) (F ∙ BinProduct_of_functors C₂ C₃ H G₂ G₃).
+  Proof.
+    intros x.
+    apply (BinProductArrow).
+    - exact (η₁ x).
+    - exact (η₂ x).
+  Defined.
+
+  Definition pair_nat_trans_is_nat_trans
+    : is_nat_trans
+        (F ∙ G₁)
+        (F ∙ BinProduct_of_functors C₂ C₃ H G₂ G₃)
+        pair_nat_trans_data.
+  Proof.
+    intros x y f ; cbn.
+    refine (precompWithBinProductArrow _ _ _ _ _ @ _).
+    pose (pr2 η₁ x y f) as p.
+    pose (pr2 η₂ x y f) as q.
+    cbn in p, q.
+    refine (_ @ _).
+    {
+      apply maponpaths.
+      exact q.
+    }
+    refine (_ @ _).
+    {
+      apply maponpaths_2.
+      exact p.
+    }
+    unfold BinProduct_of_functors_mor, BinProductOfArrows, BinProductPr1, BinProductPr2.
+    exact (!(postcompWithBinProductArrow _ _ _ _ _ _ _)).
+  Qed.
+
+  Definition pair_nat_trans
+    : F ∙ G₁ ⟹ F ∙ (BinProduct_of_functors _ _ H G₂ G₃).
+  Proof.
+    use make_nat_trans.
+    - exact pair_nat_trans_data.
+    - exact pair_nat_trans_is_nat_trans.
+  Defined.
+End PairNatTrans.
+
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
 Section BinProduct_from_iso.
 

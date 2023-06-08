@@ -11,6 +11,7 @@
  4. Type indexed products of posets
  5. The equalizer of posets
  6. The booleans as partial order
+ 7. Discrete partial orders
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -171,3 +172,32 @@ Proof.
          induction b₁, b₂ ; induction p ; induction q ;
          apply idpath).
 Defined.
+
+(**
+ 7. Discrete partial orders
+ *)
+Section DiscretePartialOrder.
+  Context (A : hSet).
+
+  Definition discrete_hrel
+    : hrel A
+    := λ x y, (x = y)%logic.
+
+  Proposition isPartialOrder_discrete_hrel
+    : isPartialOrder discrete_hrel.
+  Proof.
+    refine ((_ ,, _) ,, _).
+    - intros x y z p q.
+      exact (p @ q).
+    - exact (λ x, idpath _).
+    - exact (λ x y p q, p).
+  Qed.
+
+  Definition discrete_partial_order
+    : PartialOrder A.
+  Proof.
+    use make_PartialOrder.
+    - exact discrete_hrel.
+    - exact isPartialOrder_discrete_hrel.
+  Defined.
+End DiscretePartialOrder.
