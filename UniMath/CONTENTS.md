@@ -879,6 +879,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [RezkCompletions/RezkCompletionOfBicategory.v](Bicategories/RezkCompletions/RezkCompletionOfBicategory.v)
    - [DaggerCategories/BicatOfDaggerCats.v](Bicategories/DaggerCategories/BicatOfDaggerCats.v)
    - [All.v](Bicategories/All.v)
+   - [DoubleCategories/Core/DoubleCategories.v](DoubleCategories/Core/DoubleCategories.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [GrothendieckGroup.v](Ktheory/GrothendieckGroup.v)
    - [All.v](Ktheory/All.v)
