@@ -471,6 +471,7 @@ Coercion predoublecategory_hor_sq_from_predoublecategory_sq_hor_ver_data:
       (sqq f0 (g0 ·v h0) (g1 ·v h1) f2) 
       := pr2 (pr2 C) a0 a1 b0 b1 c0 c1 f0 f1 f2 g0 h0 g1 h1.
   
+End Vertical_Composition_Squares.
 
 Notation "α ·sqv β" := (ver_sq_compose α β) (at level 60).
 Notation "α ∘sqv β" := (ver_sq_compose α β) (at level 60).
