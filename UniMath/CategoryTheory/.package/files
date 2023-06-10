@@ -466,3 +466,6 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+#Double Categories
+DoubleCategories/Core/DoubleCategories.v
