@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Fully faithful functors and equivalences
 
 Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)

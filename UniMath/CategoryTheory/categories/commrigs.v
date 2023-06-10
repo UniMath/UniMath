@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of commrigs *)
 (** ** Contents
 - Precategory of commrigs

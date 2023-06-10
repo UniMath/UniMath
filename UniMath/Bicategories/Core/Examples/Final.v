@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ----------------------------------------------------------------------------------- *)
 (** ** Final bicategory and proof that it's univalent.
 

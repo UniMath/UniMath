@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
 Require Import UniMath.MoreFoundations.Tactics.

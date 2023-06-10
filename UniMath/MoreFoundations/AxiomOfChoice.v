@@ -3,6 +3,8 @@
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.MoreFoundations.Sets.
 
+#[local] Unset Universe Checking.
+
 (** ** Preliminaries  *)
 
 Lemma pr1_issurjective {X : UU} {P : X -> UU} :

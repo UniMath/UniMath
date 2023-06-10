@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 Bequivalence between 1-types and univalent groupoids
  *)

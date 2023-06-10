@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ******************************************************************************* *)
 (** * Bicategory of graphs
     Benedikt Ahrens, Marco Maggesi

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************
 
  Enrichment over structured sets

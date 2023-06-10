@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Other structures in [HSET] *)
 
 (** ** Contents

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Catherine Lelay. Sep. 2015 *)
 
 Unset Kernel Term Sharing.

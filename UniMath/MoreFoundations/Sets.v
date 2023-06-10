@@ -3,6 +3,8 @@
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Foundations.Sets.
 
+#[local] Unset Universe Checking.
+
 (** ** Contents
 
   - (More entries need to be added here...)

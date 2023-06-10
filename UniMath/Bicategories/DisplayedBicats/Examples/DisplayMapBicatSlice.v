@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
  Slice bicategories of display map bicategories
 

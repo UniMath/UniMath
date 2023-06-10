@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * HSET is a univalent_category ([is_univalent_HSET]) *)
 
 Require Import UniMath.Foundations.PartD.

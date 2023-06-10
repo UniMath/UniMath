@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************
 
  Opposites of displayed categories

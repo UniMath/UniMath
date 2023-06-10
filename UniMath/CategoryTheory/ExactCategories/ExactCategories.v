@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Exact categories *)
 
 (** ** Contents

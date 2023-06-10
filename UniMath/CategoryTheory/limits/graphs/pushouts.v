@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Pushouts defined in terms of colimits *)
 (** ** Contents
 - Definition of pushouts

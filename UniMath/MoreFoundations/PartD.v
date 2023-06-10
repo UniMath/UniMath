@@ -1,5 +1,7 @@
 Require Export UniMath.Foundations.All.
 
+#[local] Unset Universe Checking.
+
 Lemma eqweqmap_transportb {T U: Type} (p: T = U) :
  (λ u:U, eqweqmap (! p) u) = transportb (λ X:Type, X) p.
 Proof.

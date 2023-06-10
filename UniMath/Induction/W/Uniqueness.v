@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Uniqueness of W-types
 
     W-types are unique up to propositional equality.

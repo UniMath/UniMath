@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** adaptation to whiskered notions by Ralph Matthes 2022 *)
 
 Require Import UniMath.Foundations.All.

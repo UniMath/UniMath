@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Finite sequences
 
 Vectors and matrices defined in March 2018 by Langston Barrett (@siddharthist).

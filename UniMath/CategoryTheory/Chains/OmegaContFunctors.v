@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * ω-cocontinuous functors
 
 This file contains theory about (omega-) continuous functors, i.e. functors

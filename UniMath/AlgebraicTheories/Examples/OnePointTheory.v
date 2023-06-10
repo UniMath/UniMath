@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*
   Define the terminal algebraic theory given by T(n) = unit
   and show that its only algebra is the unit type.

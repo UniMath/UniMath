@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Foundations.Sets.

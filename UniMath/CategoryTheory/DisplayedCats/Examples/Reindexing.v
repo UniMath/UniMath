@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*******************************************************************
 
  Results on the reindexing displayed category

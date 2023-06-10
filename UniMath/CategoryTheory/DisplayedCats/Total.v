@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 (** * Total Categories and Total Functors *)
 

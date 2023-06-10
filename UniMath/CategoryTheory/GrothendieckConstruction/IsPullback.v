@@ -25,6 +25,8 @@ Require Import UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.
 Require Import UniMath.CategoryTheory.GrothendieckConstruction.Projection.
 Require Import UniMath.CategoryTheory.GrothendieckConstruction.IsosInTotal.
 
+#[local] Unset Universe Checking.
+
 Local Open Scope cat.
 
 Section PullbackFromTotal.

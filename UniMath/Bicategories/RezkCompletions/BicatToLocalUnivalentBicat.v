@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*
 In this file, it is shown how any bicategory is weakly biequivalent to a locally univalent bicategory.
 From any bicategory B, we construct a locally univalent bicategory LRB "local Rezk completion of B", which is defined by the following data:

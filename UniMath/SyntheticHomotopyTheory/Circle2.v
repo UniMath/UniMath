@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
   In this file we formalize the approach of Marc Bezem and Ulrik Buchholtz for proving that the type

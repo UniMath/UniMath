@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** This file defines two category structures on well-ordered sets:
 
 1. This first where the morphisms are maps that preserve the ordering and initial segments

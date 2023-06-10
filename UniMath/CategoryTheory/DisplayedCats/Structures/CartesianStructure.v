@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************
 
  Structures on sets

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Algebra I. Part B.  Monoids, abelian monoids. Vladimir Voevodsky. Aug. 2011 - . *)
 
 (** ** Contents

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** This file is meant to provide an equivalence between the displayed categories on a base category and the functors into the base category.
 For now it only contains the construction of a displayed category from a functor. *)
 

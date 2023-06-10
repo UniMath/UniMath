@@ -1,5 +1,7 @@
 Require Export UniMath.MoreFoundations.Notations.
 
+#[local] Unset Universe Checking.
+
 (** ** An alternative proof of [total2_paths_equiv] *)
 
 Theorem total2_paths_equiv' {A : UU} (B : A -> UU) (x y : ∑ x, B x) :

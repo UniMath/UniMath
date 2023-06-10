@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************
 
  Limits and colimits of structures

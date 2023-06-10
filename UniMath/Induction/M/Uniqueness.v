@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Uniqueness of M-types
 
     M-types are unique up to propositional equality.

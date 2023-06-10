@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* The category REL of (homotopy) relations:
    1. The objects are sets
    2. The morphisms are relations of sets

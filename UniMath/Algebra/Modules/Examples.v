@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Authors Langston Barrett (@siddharthist), November-December 2017 *)
 
 Require Import UniMath.Algebra.Modules.Core.

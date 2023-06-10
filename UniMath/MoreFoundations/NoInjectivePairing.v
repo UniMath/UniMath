@@ -1,6 +1,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Univalence.
 
+#[local] Unset Universe Checking.
+
 (** We prove that the following lemma ("injective pairing") is inconsistent with univalence: *)
 Definition injective_pairing_statement :=
   ∏ A (B : A → UU) a (b b' : B a),

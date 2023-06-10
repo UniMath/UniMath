@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************
 
  Colimits in categories enriched over structures

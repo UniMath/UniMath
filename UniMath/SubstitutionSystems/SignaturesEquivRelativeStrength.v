@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** material that was previously located in [Signatures.v]
 
 the relation between (semantic) signatures and relative strength (considered in TYPES 2015 post-proceedings paper

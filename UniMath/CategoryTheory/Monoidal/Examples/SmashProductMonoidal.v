@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (*****************************************************************
 
  Monoidal category from smash products

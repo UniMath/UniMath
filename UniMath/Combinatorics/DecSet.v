@@ -7,6 +7,8 @@ property [isdeceq X], just like an [hSet] is a type X endowed with the property 
 
 Require Import UniMath.Foundations.PartB.
 
+#[local] Unset Universe Checking.
+
 Definition decSet: UU := ∑ (X: UU), isdeceq X.
 
 Definition make_decSet (X: UU) (i: isdeceq X): decSet := X,, i.

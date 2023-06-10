@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************
 
  Morphisms in structured categories

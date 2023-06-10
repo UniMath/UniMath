@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** A direct definition of finite ordered coproducts by using coproducts *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

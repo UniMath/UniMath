@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Algebra.RigsAndRings.

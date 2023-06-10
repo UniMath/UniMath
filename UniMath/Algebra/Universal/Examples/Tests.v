@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Several tests for univeral algebra operations. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 

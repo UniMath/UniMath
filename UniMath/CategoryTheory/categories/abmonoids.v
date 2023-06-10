@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of abmonoids *)
 (** ** Contents
 - Precategory of abmonoids

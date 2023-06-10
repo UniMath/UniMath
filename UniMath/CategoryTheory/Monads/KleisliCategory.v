@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** **********************************************************
 Contents:
         - Definition of the Kleisli category of a monad.

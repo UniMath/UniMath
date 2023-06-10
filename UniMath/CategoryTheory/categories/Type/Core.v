@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * The precategory of types
 
 This file defines the precategory of types in a fixed universe ([type_precat])

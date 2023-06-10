@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Binary product of (pre)categories
 
   Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine

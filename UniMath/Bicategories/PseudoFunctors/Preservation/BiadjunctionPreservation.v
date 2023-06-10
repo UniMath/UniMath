@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************
 
  Preservation of biinitial and bifinal objects by biadjoints

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Terminal object defined as a limit *)
 
 Require Import UniMath.Foundations.PartD.

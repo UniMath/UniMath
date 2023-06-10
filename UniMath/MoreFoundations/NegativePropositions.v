@@ -1,5 +1,7 @@
 Require Export UniMath.Foundations.All.
 
+#[local] Unset Universe Checking.
+
 (** *** Propositions equivalent to negations of propositions *)
 
 Definition negProp P := ∑ Q, isaprop Q × (¬P <-> Q).

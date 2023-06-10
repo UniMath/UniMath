@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Lemmas on transport of morphisms *)
 
 Require Import UniMath.Foundations.PartA.

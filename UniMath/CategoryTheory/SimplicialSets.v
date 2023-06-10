@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Homotopy theory of simplicial sets.
 
 Vladimir Voevodsky

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of monoids *)
 (** ** Contents
 - Precategory of monoids

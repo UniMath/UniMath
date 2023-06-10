@@ -28,6 +28,8 @@ can be found in Combinatorics/DCPO.
 
 Require Import UniMath.Foundations.All.
 
+#[local] Unset Universe Checking.
+
 Local Open Scope poset. (* So we can write ≤ *)
 
 (** ** Least upper bounds *)

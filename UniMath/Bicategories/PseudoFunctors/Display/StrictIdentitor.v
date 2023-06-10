@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** The second layer of the construction of the bicategory of strict pseudofunctors consists of three parts.
     Second part: we add a 2-cell witnessing the strict preservation of the identity.
  *)

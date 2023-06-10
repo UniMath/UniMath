@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Undercategories *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

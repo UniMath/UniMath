@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Refinement of M-types
 
     M-types can be refined to satisfy the right definitional equalities.

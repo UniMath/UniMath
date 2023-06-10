@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 Syntax of PCF as a multisorted binding signature.

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Standard finite sets . Vladimir Voevodsky . Apr. - Sep. 2011 .
 
 This file contains main constructions related to the standard finite sets defined as the initial intervals of [ nat ] and their properties . *)

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Category of [hSet]s
 
 Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman

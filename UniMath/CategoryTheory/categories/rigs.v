@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Rigs category *)
 (** ** Contents
 - Precategory of rigs

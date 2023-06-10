@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Signatures for universal algebra. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (*

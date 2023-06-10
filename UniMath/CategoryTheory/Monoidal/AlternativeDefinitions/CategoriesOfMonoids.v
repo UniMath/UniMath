@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Categories of monoids for monoidal categories
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via

@@ -14,6 +14,8 @@
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 
+#[local] Unset Universe Checking.
+
 (** ** Weak equivalence between identity types in [HLevel] and [U] *)
 
 (** To show that HLevel(n) is of hlevel n + 1, we need to show that

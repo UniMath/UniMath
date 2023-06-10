@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** the concept of morphism between actegories that is a functor between the
     categories acted upon that is compatible with the action structures
 

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 (** * The slice displayed category
 

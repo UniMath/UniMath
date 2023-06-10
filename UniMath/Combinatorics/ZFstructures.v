@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**** ZF Structures
 
     Dimitris Tsementzis (@dimtsem), Feb. 2018

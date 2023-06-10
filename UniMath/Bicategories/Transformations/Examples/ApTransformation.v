@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 Each homotopy between functions give rise to a pseudotransformation
  *)

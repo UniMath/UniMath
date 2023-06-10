@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************
 
  Preservation of products by right biadjoints

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 This file contains a formalization of multisorted binding signatures:

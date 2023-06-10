@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* ******************************************************************************* *)
 (** * Yoneda Lemma
     Niccolo Veltri, Niels van der Weide

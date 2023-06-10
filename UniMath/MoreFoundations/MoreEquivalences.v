@@ -4,6 +4,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Equivalences.
 
+#[local] Unset Universe Checking.
+
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros [f r].
   unfold isweq in r.

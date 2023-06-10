@@ -3,6 +3,8 @@ Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
+#[local] Unset Universe Checking.
+
 Local Open Scope logic.
 Local Open Scope type.
 

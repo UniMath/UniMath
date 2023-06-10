@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 Monads as a bicategory. The construction has 3 layers.
 In the first layer: we take algebras on the identity functor.

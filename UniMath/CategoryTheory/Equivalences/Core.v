@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ** Equivalence of categories
 
 Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)

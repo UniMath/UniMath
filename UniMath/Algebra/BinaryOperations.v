@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Algebra 1. Part A. Generalities. Vladimir Voevodsky. Aug. 2011 -. *)
 (** ** Contents
 - Sets with one and two binary operations

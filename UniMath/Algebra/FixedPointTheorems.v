@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 
 (** * Fixed-point theorems on posets
 

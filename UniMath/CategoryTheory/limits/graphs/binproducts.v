@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Binary products via limits *)
 
 Require Import UniMath.Foundations.PartD.

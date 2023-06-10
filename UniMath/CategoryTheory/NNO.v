@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 Definition natural number objects (NNO's)

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (***********************************************************************
  Left Kan extensions
  In this file, we define left Kan extensions of functors. In addition,

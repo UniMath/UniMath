@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Constructs the actegory with the action of the endomorphisms on [C] by precomposition on a fixed functor category with source category [C]
 
    a general construction is available for bicategories and a fixed object therein

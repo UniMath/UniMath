@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** *** direct sums
 
     Recall that X is a family of objects in a category, and the map from the

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * A library about decidable Dedekind Cuts *)
 (** Author: Catherine LELAY. Oct 2015 - *)
 (** Additional results about Dedekind cuts which cannot be proved *)

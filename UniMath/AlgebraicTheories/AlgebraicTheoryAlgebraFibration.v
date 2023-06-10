@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* Shows that algebraic theory algebras are fibered over algebraic theories. *)
 
 Require Import UniMath.Foundations.All.

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Categories
 
   Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman

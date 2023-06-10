@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (******************************************************************************************
 
  The displayed bicategory of functors into categories

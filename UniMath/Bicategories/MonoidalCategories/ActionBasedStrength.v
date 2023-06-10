@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
   Definition of tensorial strength between actions over monoidal categories, as introduced
   under the name C-categories and C-functors (for C a monoidal category) by Bodo Pareigis (1977).

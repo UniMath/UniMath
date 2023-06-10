@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (* In this file, we construct the bicategory DAG of dagger categories as a displayed bicategory (over CAT) and we show that the displayed bicategory is univalent. *)
 
 Require Import UniMath.Foundations.All.

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Functor category as a displayed category
 *)
 Require Import UniMath.Foundations.PartD.

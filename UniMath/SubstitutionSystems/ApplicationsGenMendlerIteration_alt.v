@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** proves Theorem 4.7 in Fiore & Saville, List Objects with Algebraic Structures, FSCD'17
 
     also instantiates it to present a variant of Lemma 4.8 in that paper

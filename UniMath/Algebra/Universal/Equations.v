@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Equations over a signature and equational theories *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**

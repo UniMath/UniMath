@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 
 Syntax of the calculus of constructions as in Streicher

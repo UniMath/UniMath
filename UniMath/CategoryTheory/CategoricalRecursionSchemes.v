@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Author : Hichem Saghrouni
 Internship at IRIT, 2018
 Under the supervision of Ralph Matthes

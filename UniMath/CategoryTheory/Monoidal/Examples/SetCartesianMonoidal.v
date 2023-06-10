@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** an elementary direct construction of the monoidal category
     one can also instantiate the construction of cartesian monoidal categories
     [UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.SET_cartesian_monoidal] *)

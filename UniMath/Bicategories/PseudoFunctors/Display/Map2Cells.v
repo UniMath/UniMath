@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.
     First part: we add an action of 1-cells.
  *)

@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Free algebras. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**

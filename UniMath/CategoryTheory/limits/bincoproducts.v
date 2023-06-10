@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** ******************************************
 
 Direct implementation of binary coproducts togther with:

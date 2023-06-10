@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
 /A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
 

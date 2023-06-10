@@ -1,5 +1,7 @@
 Require Export UniMath.Foundations.PartD.
 
+#[local] Unset Universe Checking.
+
 Goal ∑ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 Goal ∏ i j k, i+j+k = (i+j)+k. intros. apply idpath. Defined.
 Goal ∏ n, 1+n = S n. intros. apply idpath. Defined.

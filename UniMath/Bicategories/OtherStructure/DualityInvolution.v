@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (**
  Duality involutions of bicategories
 

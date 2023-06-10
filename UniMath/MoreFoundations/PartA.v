@@ -2,6 +2,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
+#[local] Unset Universe Checking.
+
 (** * Generalisations of [maponpaths]
 
 The following are a uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].

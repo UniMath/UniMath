@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** Displayed monoidal categories
 
 Author: Benedikt Ahrens 2021

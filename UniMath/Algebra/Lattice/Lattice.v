@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * Lattice *)
 (** Catherine Lelay. Nov. 2016 - *)
 (**

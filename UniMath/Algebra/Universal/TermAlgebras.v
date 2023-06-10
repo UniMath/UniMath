@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * The ground term algebra and the proof it is initial. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 

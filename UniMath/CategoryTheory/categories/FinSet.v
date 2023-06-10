@@ -1,3 +1,4 @@
+#[local] Unset Universe Checking.
 (** * The category of finite sets
 
 Author: Langston Barrett (@siddharthist)
