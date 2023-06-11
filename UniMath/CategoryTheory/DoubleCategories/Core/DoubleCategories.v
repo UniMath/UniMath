@@ -455,7 +455,7 @@ Definition predoublecategory_hor_sq_from_predoublecategory_sq_hor_ver_data (C : 
 Coercion predoublecategory_hor_sq_from_predoublecategory_sq_hor_ver_data:
     predoublecategory_sq_hor_ver_data >-> predoublecategory_hor_sq.
     
-    Definition get_ver_sq_identity {C : predoublecategory_sq_hor_ver_data}
+Definition get_ver_sq_identity {C : predoublecategory_sq_hor_ver_data}
       : (∏ (a b : C) (f: a -h-> b), (get_predoublecat_sq C a b a b f (ver_identity a) (ver_identity b) f))
       := pr1 (pr2 C).
     
