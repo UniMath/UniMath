@@ -592,7 +592,7 @@ Definition und_ver_cat_ob (C: predoublecategory_hor_sq) : UU :=
     ∑ (a b : C), a -v-> b. 
      
 Definition get_und_ver_cat_ob {C: predoublecategory_hor_sq} {a b : C} (f: a -v-> b) : und_ver_cat_ob C 
-    :=  (a,, (b,, f)).  
+    := (a,, (b,, f)).  
 
 Definition get_und_ver_cat_ob_mor {C: predoublecategory_hor_sq} (c d : und_ver_cat_ob C) : UU := 
       ∑ (g: (pr1 c) -h-> (pr1 d)) (k: (pr12 c) -h-> (pr12 d)), (sqq g (pr22 c) (pr22 d) k ).
