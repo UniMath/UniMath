@@ -564,7 +564,7 @@ Section Pre_Double_Categories. (*Finally we define double categories by adding a
 Definition has_sq_hor_homsets (C : predoublecategory_hor_sq) : UU := 
   ∏ (a b c d : C) (g: a -v-> c) (h: b -v-> d), isaset (hom_sq_between_ver C g h).
 
-  Definition doublecategory_hor_sq := ∑ C:predoublecategory_hor_sq, has_sq_hor_homsets C.
+Definition doublecategory_hor_sq := ∑ C:predoublecategory_hor_sq, has_sq_hor_homsets C.
   
   Definition make_doublecategory_hor_sq C h : doublecategory_hor_sq := C,,h.
   
