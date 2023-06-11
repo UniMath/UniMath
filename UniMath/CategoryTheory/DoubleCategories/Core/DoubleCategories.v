@@ -88,7 +88,7 @@ Definition predoublecategory_hor_precat_data : UU
 Definition predoublecategory_ob_mor_data_from_predoublecategory_hor_precat_data (C: predoublecategory_hor_precat_data) : 
   predoublecategory_ob_mor_data := pr1 C.
 
-  Coercion predoublecategory_ob_mor_data_from_predoublecategory_hor_precat_data :
+Coercion predoublecategory_ob_mor_data_from_predoublecategory_hor_precat_data :
   predoublecategory_hor_precat_data >->  predoublecategory_ob_mor_data. 
 
 Definition hor_identity {C : predoublecategory_hor_precat_data} 
