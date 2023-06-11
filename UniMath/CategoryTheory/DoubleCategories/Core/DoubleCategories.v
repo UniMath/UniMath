@@ -73,7 +73,7 @@ Section Underlying_Horizontal_Category.
 2)  Define everything from scratch.
     This one is much more pain, but offers a more straightforward path for generalization.
 
-I wrote the first and kept it in a separate file. The second one is kept here.
+For future purposes I took the first approach.
 *)
 
 Definition predoublecategory_hor_id_comp  (C : predoublecategory_ob_mor_data): UU (* Horizontal category data*)
