@@ -346,7 +346,7 @@ Definition is_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) : UU 
     (γ: sqq h0 mc md h1),
     hor_trans_assoc_sq (α ·sqh (β ·sqh γ)) = (α ·sqh β) ·sqh γ) .
 
-  Definition predoublecategory_hor_sq: UU := total2 is_predoublecategory_hor_sq. 
+Definition predoublecategory_hor_sq: UU := total2 is_predoublecategory_hor_sq. 
   (* Double Graph with Squares horizontal morphism and square composition + axioms*)
 
   Definition make_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) (H : is_predoublecategory_hor_sq C)
