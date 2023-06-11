@@ -128,7 +128,7 @@ Definition get_id_hor_left (C : predoublecategory_hor) :
           hor_identity a ·h f = f := pr112 C.
 
 Definition id_hor_left {C : predoublecategory_hor} {a b : C} (f: a -h-> b) : hor_identity a ·h f = f 
-  :=  get_id_hor_left C a b f.
+  := get_id_hor_left C a b f.
   
 Definition get_id_hor_right (C : predoublecategory_hor) :
   ∏ (a b : C) (f : a -h-> b),
