@@ -400,7 +400,7 @@ End Horizontal_Composition_Squares.
 Notation "α ·sqh β" := (hor_sq_compose α β) (at level 60).
 Notation "α ∘sqh β" := (hor_sq_compose α β) (at level 60).
 
-Section Special_Iso_Squares. (* Define special iso squres which are necessary for the vertical composition *)
+Section Special_Iso_Squares. (* Define special iso squares which are necessary for the vertical composition *)
 
 Definition get_predoublecat_sq_special {C: predoublecategory_ob_mor_sq_data} {a b : C} (g: a -v-> b) (h: a -v-> b): UU 
   := sqq (hor_identity a) g h (hor_identity b).
