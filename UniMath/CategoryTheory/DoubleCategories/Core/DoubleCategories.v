@@ -178,7 +178,8 @@ Notation "f ·h g" := (hor_compose f g) (at level 60).
 Notation "g ∘h f" := (hor_compose f g) (at level 60).
 
 Section Underlying_Vertical_Composition. 
-(* In this section we describe the vertical composition, which does not give us a category.*)
+(* In this section we describe the vertical composition, which does not give us a category.
+   This builds on the data and axioms of the horizontal composition structure. *)
 
 Definition predoublecategory_ver_id_comp (C : predoublecategory_hor) : UU (* Vertical composition data *)
   :=
@@ -286,14 +287,14 @@ predoublecategory_ob_mor_sq_data := pr1 C.
 Coercion predoublecategory_ob_mor_sq_data_from_predoublecategory_sq_hor_data :
     predoublecategory_sq_hor_data >-> predoublecategory_ob_mor_sq_data.
     
-    Definition get_hor_sq_identity {C : predoublecategory_sq_hor_data}
+Definition get_hor_sq_identity {C : predoublecategory_sq_hor_data}
       : (∏ (a b : C) (f: a -v-> b), (sqq (hor_identity a) f f (hor_identity b)))
       := pr1 (pr2 C).
     
-    Definition hor_sq_identity {C : predoublecategory_sq_hor_data} {a b: C} (f: a -v-> b) : 
+Definition hor_sq_identity {C : predoublecategory_sq_hor_data} {a b: C} (f: a -v-> b) : 
       (sqq (hor_identity a) f f (hor_identity b)) := get_hor_sq_identity a b f.
     
-    Definition hor_sq_compose {C : predoublecategory_sq_hor_data} 
+Definition hor_sq_compose {C : predoublecategory_sq_hor_data} 
     { a0 a1 b0 b1 c0 c1 : C }
     {f0: a0 -v-> a1} {f1: b0 -v-> b1} {f2: c0 -v-> c1} {g0: a0 -h-> b0} {h0: b0 -h-> c0} {g1: a1 -h-> b1} {h1: b1 -h-> c1}
       : (sqq g0 f0 f1 g1) →
@@ -349,33 +350,33 @@ Definition is_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) : UU 
 Definition predoublecategory_hor_sq: UU := total2 is_predoublecategory_hor_sq. 
   (* Double Graph with Squares horizontal morphism and square composition + axioms*)
 
-  Definition make_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) (H : is_predoublecategory_hor_sq C)
+Definition make_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) (H : is_predoublecategory_hor_sq C)
     : predoublecategory_hor_sq
     := tpair _ C H.
   
-  Definition predoublecategory_sq_hor_data_from_predoublecategory_hor_sq (C : predoublecategory_hor_sq) :
+Definition predoublecategory_sq_hor_data_from_predoublecategory_hor_sq (C : predoublecategory_hor_sq) :
   predoublecategory_sq_hor_data := pr1 C.
-  Coercion predoublecategory_sq_hor_data_from_predoublecategory_hor_sq : predoublecategory_hor_sq >-> predoublecategory_sq_hor_data.
+Coercion predoublecategory_sq_hor_data_from_predoublecategory_hor_sq : predoublecategory_hor_sq >-> predoublecategory_sq_hor_data.
      
-  Definition get_id_hor_sq_left (C : predoublecategory_hor_sq) :
+Definition get_id_hor_sq_left (C : predoublecategory_hor_sq) :
   ∏ (a b c d : pr1 C) (f : a -h-> b) (g : a -v-> c) (h : b -v-> d) (k : c -h-> d) 
       (α : sqq f g h k), hor_trans_id_left_sq ((hor_sq_identity g) ·sqh α) = α := pr12 C.
 
-  Definition id_hor_sq_left {C : predoublecategory_hor_sq}  
+Definition id_hor_sq_left {C : predoublecategory_hor_sq}  
   {a b c d : pr1 C} {f : a -h-> b} {g : a -v-> c} {h : b -v-> d} {k : c -h-> d} (α : sqq f g h k)
     : hor_trans_id_left_sq ((hor_sq_identity g) ·sqh α) = α
     := get_id_hor_sq_left C a b c d f g h k α.
 
-  Definition get_id_hor_sq_right (C : predoublecategory_hor_sq) :
+Definition get_id_hor_sq_right (C : predoublecategory_hor_sq) :
   ∏ (a b c d : pr1 C) (f : a -h-> b) (g : a -v-> c) (h : b -v-> d) (k : c -h-> d) 
     (α : sqq f g h k), hor_trans_id_right_sq (α ·sqh (hor_sq_identity h)) = α := pr122 C.
   
-  Definition id_hor_sq_right {C : predoublecategory_hor_sq}  
+Definition id_hor_sq_right {C : predoublecategory_hor_sq}  
   {a b c d : pr1 C} {f : a -h-> b} {g : a -v-> c} {h : b -v-> d} {k : c -h-> d} (α : sqq f g h k)
     : hor_trans_id_right_sq (α ·sqh (hor_sq_identity h)) = α
     := get_id_hor_sq_right C a b c d f g h k α.
   
-  Definition get_assoc_sq_hor (C : predoublecategory_hor_sq) :
+Definition get_assoc_sq_hor (C : predoublecategory_hor_sq) :
   ∏ (a0 b0 c0 d0 a1 b1 c1 d1 : C ) 
     (f0: a0 -h-> b0) (g0: b0 -h-> c0) (h0: c0 -h-> d0) 
     (f1: a1 -h-> b1) (g1: b1 -h-> c1) (h1: c1 -h-> d1) 
@@ -385,7 +386,7 @@ Definition predoublecategory_hor_sq: UU := total2 is_predoublecategory_hor_sq.
     (γ: sqq h0 mc md h1),
     hor_trans_assoc_sq (α ·sqh (β ·sqh γ)) = (α ·sqh β) ·sqh γ := pr222 C.
   
-    Definition assoc_sq_hor {C : predoublecategory_hor_sq}  
+Definition assoc_sq_hor {C : predoublecategory_hor_sq}  
     {a0 b0 c0 d0 a1 b1 c1 d1 : pr1 C} {f0: a0 -h-> b0} {g0: b0 -h-> c0} {h0: c0 -h-> d0} 
       {f1: a1 -h-> b1} {g1: b1 -h-> c1} {h1: c1 -h-> d1} 
       {ma: a0 -v-> a1} {mb: b0 -v-> b1} {mc: c0 -v-> c1} {md: d0 -v-> d1}
@@ -566,12 +567,11 @@ Definition has_sq_hor_homsets (C : predoublecategory_hor_sq) : UU :=
 
 Definition doublecategory_hor_sq := ∑ C:predoublecategory_hor_sq, has_sq_hor_homsets C.
   
-  Definition make_doublecategory_hor_sq C h : doublecategory_hor_sq := C,,h.
+Definition make_doublecategory_hor_sq C h : doublecategory_hor_sq := C,,h.
   
-  Definition doublecategory_hor_sq_to_predoublecategory_hor_sq : doublecategory_hor_sq -> predoublecategory_hor_sq := pr1.
+Definition doublecategory_hor_sq_to_predoublecategory_hor_sq : doublecategory_hor_sq -> predoublecategory_hor_sq := pr1.
 
-
-  Definition predoublecategory : UU := 
+Definition predoublecategory : UU := 
     ∑ (C:predoublecategory_sq_hor_ver_unit_assoc_data), 
     ( (predoublecategory_ver_left_unitor_naturality C) ×
     (predoublecategory_ver_right_unitor_naturality C) ×
