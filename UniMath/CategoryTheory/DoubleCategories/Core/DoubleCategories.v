@@ -73,7 +73,8 @@ Section Underlying_Horizontal_Category.
 2)  Define everything from scratch.
     This one is much more pain, but offers a more straightforward path for generalization.
 
-For future purposes I took the first approach.
+For future purposes I took the first approach. 
+Here the definition of category involves associativity in both directions, similar to the original formalization of categories,
 *)
 
 Definition predoublecategory_hor_id_comp  (C : predoublecategory_ob_mor_data): UU (* Horizontal category data*)
