@@ -880,36 +880,94 @@ Section DiscreteDCPO.
     := A ,, discrete_dcpo_struct.
 End DiscreteDCPO.
 
+Proposition discrete_dcpo_lub
+            {A : hSet}
+            (D : directed_set (discrete_dcpo A))
+            (i : D)
+  : ⨆ D = D i.
+Proof.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    intro j.
+    cbn.
+    assert (H := directed_set_top D i j).
+    revert H.
+    use factor_through_squash.
+    {
+      apply setproperty.
+    }
+    cbn ; intros H.
+    induction H as [ k [ p q ]].
+    rewrite p, q.
+    apply idpath.
+  - use less_than_dcpo_lub.
+    + exact i.
+    + apply refl_dcpo.
+Qed.
+
 Definition monotone_function_discrete_dcpo
-           {A B : hSet}
-           (f : A → B)
-  : monotone_function (discrete_dcpo A) (discrete_dcpo B).
+           {A : hSet}
+           (X : dcpo)
+           (f : A → X)
+  : monotone_function (discrete_dcpo A) X.
 Proof.
   refine (f ,, _).
   abstract
-    (exact (λ x₁ x₂ p, maponpaths f p)).
+    (intros x₁ x₂ p ;
+     induction p ;
+     apply refl_dcpo).
 Defined.
+
+Proposition is_scott_continuous_map_from_discrete_dcpo
+            {A : hSet}
+            {X : dcpo}
+            (f : A → X)
+  : is_scott_continuous (pr2 (discrete_dcpo A)) (pr2 X) f.
+Proof.
+  use make_is_scott_continuous.
+  - apply (pr2 (monotone_function_discrete_dcpo X f)).
+  - intros D.
+    assert (H := directed_set_el D).
+    revert H.
+    use factor_through_squash.
+    {
+      apply setproperty.
+    }
+    cbn ; intros i.
+    rewrite (discrete_dcpo_lub D i).
+    use antisymm_dcpo.
+    + use less_than_dcpo_lub.
+      * exact i.
+      * cbn.
+        apply refl_dcpo.
+    + use dcpo_lub_is_least.
+      intro j ; cbn.
+      cbn in *.
+      assert (H := directed_set_top D i j).
+      revert H.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      cbn ; intros H.
+      induction H as [ k [ p q ]].
+      rewrite p, q.
+      apply refl_dcpo.
+Qed.
+
+Definition map_from_discrete_dcpo
+           {A : hSet}
+           {X : dcpo}
+           (f : A → X)
+  : scott_continuous_map (discrete_dcpo A) X
+  := f ,, is_scott_continuous_map_from_discrete_dcpo f.
 
 Definition discrete_dcpo_mor
            {A B : hSet}
            (f : A → B)
   : is_scott_continuous (discrete_dcpo A) (discrete_dcpo B) f.
 Proof.
-  use make_is_scott_continuous.
-  - exact (pr2 (monotone_function_discrete_dcpo f)).
-  - intros D.
-    enough ((⨆_{ D} monotone_function_discrete_dcpo f)
-            ≤
-            f (⨆ D))
-      as H.
-    {
-      exact (!H).
-    }
-    use dcpo_lub_is_least.
-    intro i.
-    apply (monotone_function_discrete_dcpo f).
-    use (less_than_dcpo_lub D (D i) i).
-    apply refl_dcpo.
+  apply is_scott_continuous_map_from_discrete_dcpo.
 Qed.
 
 Definition monotone_function_discrete_dcpo_counit
