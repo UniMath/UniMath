@@ -166,6 +166,7 @@ Section DualityInvolutionEnriched.
       exact (!(functor_id _ _)).
       Opaque comp_psfunctor.
   Qed.
+  Transparent comp_psfunctor.
 
   Definition bicat_of_enriched_cat_duality_unit_inv
     : pstrans
