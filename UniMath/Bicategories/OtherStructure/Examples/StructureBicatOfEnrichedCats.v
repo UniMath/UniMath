@@ -144,23 +144,28 @@ Section DualityInvolutionEnriched.
   Proposition bicat_of_enriched_cat_duality_unit_inv_is_pstrans
     : is_pstrans bicat_of_enriched_cat_duality_unit_inv_data.
   Proof.
-    repeat split.
+    simple refine (_ ,, _ ,, _).
     - intros E₁ E₂ F G α ; simpl.
       use eq_2cell_enriched.
       intro x ; cbn.
       rewrite id_left, id_right.
       apply idpath.
-    - intros E ; simpl.
+    - intros E.
+      Opaque comp_psfunctor.
       use eq_2cell_enriched.
+      Transparent comp_psfunctor.
       intros x ; cbn.
       rewrite !id_left.
       apply idpath.
-    - intros E₁ E₂ E₃ F G ; simpl.
+    - intros E₁ E₂ E₃ F G.
+      Opaque comp_psfunctor.
       use eq_2cell_enriched.
+      Transparent comp_psfunctor.
       intros x ; cbn.
       rewrite !id_left, !id_right.
       exact (!(functor_id _ _)).
-  Admitted.
+      Opaque comp_psfunctor.
+  Qed.
 
   Definition bicat_of_enriched_cat_duality_unit_inv
     : pstrans
