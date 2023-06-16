@@ -74,10 +74,10 @@ Section FixAFunctor.
 
     Lemma ϕ_for_cia_has_equivalent_characteristic_formula
       (x : C) (e : x --> CP (F x) (alg_carrier _ Xinv)) (h : C ⟦ x, alg_carrier F Xinv ⟧) :
-      primitive_corecursion_characteristic_formula CP (ϕ_for_cia x e) h <->
+      primitive_corecursion_characteristic_formula CP (ϕ_for_cia x e) h ≃
         cia_characteristic_formula Xinv e h.
     Proof.
-      split.
+      apply weqimplimpl.
       - intro H.
         red in H; red.
         apply pathsinv0 in H.
@@ -132,6 +132,8 @@ Section FixAFunctor.
           rewrite BinCoproductIn2Commutes.
           rewrite functor_id.
           apply pathsinv0, id_right.
+      - apply C.
+      - apply isaprop_cia_characteristic_formula.
     Qed.
 
     Definition cia_from_terminal_coalgebra : cia Xinv.

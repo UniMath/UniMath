@@ -183,10 +183,10 @@ Section TerminalCoalgebraToGHSS.
 
   Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
     {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
-    primitive_corecursion_characteristic_formula CP (ϕ f) h <->
+    primitive_corecursion_characteristic_formula CP (ϕ f) h ≃
       gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
-    split.
+    apply weqimplimpl.
     - intro Hcorec.
       apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
       red.
@@ -286,6 +286,8 @@ Section TerminalCoalgebraToGHSS.
         apply maponpaths.
         apply (pr222 out_z_iso). }
       apply id_right.
+    - apply V.
+    - apply isaprop_gbracket_property_parts.
   Qed.
 
   Definition terminal_coalg_to_ghss : ghss Mon_V H θ.
