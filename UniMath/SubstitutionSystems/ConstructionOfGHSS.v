@@ -122,8 +122,9 @@ Section TerminalCoalgebraToGHSS.
            apply pathsinv0, BinCoproductOfArrowsIn2. }
       apply idpath.
   Qed.
-  (** This clarifies that in the proof below, primitive corecursion could be replaced by only exploiting
-      that [out_inv] is a completely iterative algebra. *)
+  (** This clarifies that in the proof below, primitive corecursion can be replaced by only
+      exploiting that [out_inv] is a completely iterative algebra (cia), see the alternative
+      proof further below. The lemma itself is not used in the sequel. *)
 
   Let η : I_{Mon_V} --> t := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
   Let τ : H t --> t := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
@@ -138,6 +139,7 @@ Section TerminalCoalgebraToGHSS.
   Local Definition Corec_ϕ {Z : PtdV} (f : pr1 Z --> t)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
+  (** a hand-crafted auxiliary lemma *)
   Local Lemma changing_the_constant_Const_plus_H (x y v w : V)
     (f : v --> w) (fm : w --> v) (g : x --> Const_plus_H y w) (fmf : fm · f = identity _) :
     # (Const_plus_H x) f · BinCoproductArrow (CP _ _) g (BinCoproductIn2 _) =
@@ -307,6 +309,124 @@ Section TerminalCoalgebraToGHSS.
       + apply isaprop_gbracket_property_parts.
   Defined.
 
+  (** the alternative proof through cia *)
+  Lemma terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula
+    {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
+    cia_characteristic_formula CP I_H
+      (CompletelyIterativeAlgebras.Xinv _ _ isTerminalνH)
+      (terminal_coalg_to_ghss_equation_morphism f) h ≃
+      gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
+  Proof.
+    apply weqimplimpl.
+    - intro Hcia.
+      apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
+      red.
+      red in Hcia.
+      rewrite ητ_is_out_inv.
+      etrans.
+      { apply maponpaths.
+        exact Hcia. }
+      clear Hcia.
+      unfold terminal_coalg_to_ghss_equation_morphism.
+      etrans.
+      { repeat rewrite assoc'.
+        apply maponpaths.
+        repeat rewrite assoc.
+        do 5 apply cancel_postcomposition.
+        etrans.
+        { apply pathsinv0, (functor_comp (leftwhiskering_functor Act Z)). }
+        etrans.
+        { apply maponpaths.
+          apply (pr222 out_z_iso). }
+        apply (functor_id (leftwhiskering_functor Act Z)).
+      }
+      rewrite id_left.
+      etrans.
+      { repeat rewrite assoc.
+        do 4 apply cancel_postcomposition.
+        apply (pr2 δ). }
+      rewrite id_left.
+      repeat rewrite assoc'.
+      apply maponpaths.
+      unfold GeneralizedSubstitutionSystems.Const_plus_H. cbn.
+      unfold BinCoproduct_of_functors_mor.
+      rewrite precompWithBinCoproductArrow.
+      etrans.
+      2: { apply pathsinv0, precompWithBinCoproductArrow. }
+      rewrite postcompWithBinCoproductArrow.
+      apply maponpaths_12.
+      + rewrite assoc'.
+        rewrite BinCoproductIn2Commutes.
+        do 2 rewrite id_right.
+        apply pathsinv0, id_left.
+      + repeat rewrite assoc'.
+        etrans.
+        { apply maponpaths.
+          apply BinCoproductIn1Commutes. }
+        rewrite assoc.
+        etrans.
+        { apply cancel_postcomposition.
+          apply BinCoproductOfArrowsIn2. }
+        rewrite assoc'.
+        apply idpath.
+    - intro Hghss.
+      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hghss.
+      red.
+      red in Hghss.
+      rewrite ητ_is_out_inv in Hghss.
+      rewrite assoc' in Hghss.
+      apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly
+                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hghss.
+      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hghss.
+      etrans.
+      { exact Hghss. }
+      clear Hghss.
+      unfold terminal_coalg_to_ghss_equation_morphism.
+      repeat rewrite assoc'.
+      do 3 apply maponpaths.
+      unfold GeneralizedSubstitutionSystems.Const_plus_H. cbn.
+      unfold BinCoproduct_of_functors_mor.
+      rewrite precompWithBinCoproductArrow.
+      etrans.
+      { apply precompWithBinCoproductArrow. }
+      rewrite postcompWithBinCoproductArrow.
+      apply maponpaths_12.
+      + rewrite assoc'.
+        rewrite BinCoproductIn2Commutes.
+        do 2 rewrite id_right.
+        apply id_left.
+      + repeat rewrite assoc'.
+        etrans.
+        2: { apply maponpaths.
+             apply pathsinv0, BinCoproductIn1Commutes. }
+        rewrite assoc.
+        etrans.
+        2: { apply cancel_postcomposition.
+             apply pathsinv0, BinCoproductOfArrowsIn2. }
+        rewrite assoc'.
+        apply idpath.
+    - apply V.
+    - apply isaprop_gbracket_property_parts.
+  Qed.
+  (** this proof is a bit shorter and does not need the hand-crafted auxiliary lemma [changing_the_constant_Const_plus_H] *)
+
+  Definition terminal_coalg_to_ghss_alt : ghss Mon_V H θ.
+  Proof.
+    exists t.
+    exists η.
+    exists τ.
+    intros Z f.
+    simple refine (iscontrretract _ _ _ (cia_from_terminal_coalgebra CP I_H
+      _ isTerminalνH _ (terminal_coalg_to_ghss_equation_morphism f))).
+    - intros [h Hyp].
+      exists h. apply terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+    - intros [h Hyp].
+      exists h. apply terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+    - intros [h Hyp].
+      use total2_paths_f.
+      + apply idpath.
+      + apply isaprop_gbracket_property_parts.
+  Defined.
 
 End TerminalCoalgebraToGHSS.
 
