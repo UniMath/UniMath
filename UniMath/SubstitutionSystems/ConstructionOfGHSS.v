@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Adamek.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.CompletelyIterativeAlgebras.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -80,6 +81,49 @@ Section TerminalCoalgebraToGHSS.
     refine (# (Const_plus_H (pr1 Z)) (BinCoproductIn1 (CP _ t)) · _).
     exact (BinCoproductArrow (CP _ _) (f · out · #I_H (BinCoproductIn2 (CP _ _))) (BinCoproductIn2 _)).
   Defined.
+
+  (** an alternative route through completely iterative algebras *)
+  Definition terminal_coalg_to_ghss_equation_morphism
+             {Z : PtdV} (f : pr1 Z --> t)
+    : Z ⊗_{Act} t --> CP (I_H (Z ⊗_{Act} t)) t.
+  Proof.
+    refine (Z ⊗^{Act}_{l} out · _).
+    refine (δ _ _ _ · _).
+    refine (BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} _) (pr1 θ Z t) · _).
+    refine (BinCoproductArrow (CP _ _) _ _).
+    - refine (f · _).
+      apply BinCoproductIn2.
+    - refine (BinCoproductIn2 (CP _ _) · _).
+      apply BinCoproductIn1.
+  Defined.
+
+  Lemma terminal_coalg_to_ghss_equation_morphism_is_factor
+    {Z : PtdV} (f : pr1 Z --> t)
+    :  terminal_coalg_to_ghss_step_term f =
+         CompletelyIterativeAlgebras.ϕ_for_cia CP I_H νH isTerminalνH
+           (Z ⊗_{Act} t) (terminal_coalg_to_ghss_equation_morphism f).
+  Proof.
+    unfold terminal_coalg_to_ghss_step_term, CompletelyIterativeAlgebras.ϕ_for_cia, terminal_coalg_to_ghss_equation_morphism.
+    repeat rewrite assoc'.
+    do 3 apply maponpaths.
+    unfold Const_plus_H, GeneralizedSubstitutionSystems.Const_plus_H. cbn. unfold BinCoproduct_of_functors_mor.
+    etrans.
+    { apply precompWithBinCoproductArrow. }
+    rewrite postcompWithBinCoproductArrow.
+    apply maponpaths_12.
+    - cbn. rewrite id_left.
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite BinCoproductIn2Commutes.
+      apply idpath.
+    - etrans.
+      2: { repeat rewrite assoc'.
+           rewrite BinCoproductIn1Commutes.
+           apply pathsinv0, BinCoproductOfArrowsIn2. }
+      apply idpath.
+  Qed.
+  (** This clarifies that in the proof below, primitive corecursion could be replaced by only exploiting
+      that [out_inv] is a completely iterative algebra. *)
 
   Let η : I_{Mon_V} --> t := BinCoproductIn1 (CP I_{Mon_V} (H t)) · out_inv.
   Let τ : H t --> t := BinCoproductIn2 (CP I_{Mon_V} (H t)) · out_inv.
