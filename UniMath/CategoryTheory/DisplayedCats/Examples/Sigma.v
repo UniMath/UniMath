@@ -254,7 +254,6 @@ Defined.
 (** ** Univalence *)
 
 (* Local Open Scope hide_transport_scope. *)
-
 Lemma is_univalent_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
   : is_univalent_disp sigma_disp_cat.
 Proof.
@@ -262,32 +261,21 @@ Proof.
   intros x xx yy.
   use weqhomot.
   - induction xx as [xx xxx], yy as [yy yyy].
-    (* TODO: a pure transport lemma; maybe break out? *)
     pose (i := λ (ee : xx = yy), (total2_paths2_f (idpath x) ee)).
-    assert (H1 : (xx,, xxx : sigma_disp_cat _) ╝ yy,, yyy
-      ≃ (∑ ee, transportf E (i ee) xxx = yyy)).
-    {
-      apply weqfibtototal.
+    refine (
+      weqcomp (Y := (xx,, xxx : sigma_disp_cat x) ╝ yy,, yyy) _
+      (weqcomp (Y := ∑ ee : xx = yy, z_iso_disp (@total_z_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy) _
+      (weqcomp (Y := ∑ ff, (z_iso_disp (total_z_iso _ ff) xxx yyy)) _ _
+    ))).
+    + apply total2_paths_equiv.
+    + apply weqfibtototal.
       intro ee.
       induction (ee : xx = yy).
-      apply idweq.
-    }
-    (* TODO: maybe break out this lemma on [idtoiso]? *)
-    assert (H2 : (∑ ee, z_iso_disp (idtoiso (C := total_category _) (i ee)) xxx yyy) ≃ ∑ ee : xx = yy, z_iso_disp (@total_z_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
-    {
-      apply weqfibtototal.
-      intro ee.
-      refine ((transportf (λ I, z_iso_disp I xxx yyy) _) ,, (isweqtransportf (λ I, z_iso_disp I _ _) _)).
-      induction ee.
-      now apply (z_iso_eq (C := total_category D)).
-    }
-    exact (
-      (invweq (sigma_disp_z_iso_equiv (xxx := (_ ,, _)) (yyy := (_ ,, _)) _))
-      ∘ (weqfp (make_weq _ (DD _ _ (idpath _) _ _)) _)
-      ∘ H2
-      ∘ (weqfibtototal _ _ (λ _, make_weq _ (EE _ _ _ _ _)))
-      ∘ H1
-      ∘ total2_paths_equiv _ _ _).
+      refine (weqcomp (Y := z_iso_disp (idtoiso (C := total_category _) (i (idpath _))) xxx yyy) _ _).
+      * exact (make_weq (λ ee, idtoiso_disp (idpath _) ee) (EE _ _ _ _ _)).
+      * now refine (make_weq _ (isweqtransportf (λ I, z_iso_disp I _ _) (z_iso_eq _ _ _))).
+    + exact (weqfp (make_weq _ (DD _ _ (idpath _) _ _)) _).
+    + exact (invweq (sigma_disp_z_iso_equiv (xxx := (_ ,, _)) (yyy := (_ ,, _)) _)).
   - assert (lemma2 : ∏ i i' (e : i = i') ii,
       pr1 (transportf (λ _, z_iso_disp _ (pr2 xx) (pr2 yy)) e ii)
       = transportf _ (maponpaths pr1 e) (pr1 ii)).
