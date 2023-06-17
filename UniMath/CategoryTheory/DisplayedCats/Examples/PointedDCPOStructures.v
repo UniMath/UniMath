@@ -5,7 +5,9 @@
  We construct the category of pointed DCPOs and Scott continuous
  functions (not necessarily strict). Note that since we do not
  look at strict functions, the resulting category does not have
- all limits and colimits
+ all limits and colimits. However, it has a terminal object,
+ binary products, and it is cartesian closed. In addition, it has
+ products indexed by arbitrary types.
 
  Contents
  1. Pointed DCPO structures
@@ -16,6 +18,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.DCPOs.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -63,6 +66,10 @@ Definition struct_dcppo
 Definition DCPPO
   : univalent_category
   := univalent_category_of_hset_struct struct_dcppo.
+
+Definition DCPPO_underlying
+  : DCPPO ⟶ SET
+  := underlying_of_hset_struct struct_dcppo.
 
 (**
  2. Cartesian structure of pointed DCPOs

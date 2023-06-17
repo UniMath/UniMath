@@ -1,23 +1,31 @@
 (*****************************************************************
 
- The category of pointed posets and strict functions
+ The category of DCPPOs and strict functions
 
- We construct the category of pointed posets and strict monotone
- functions as a category of structured sets. In addition, we show
- that this category is monoidal closed via the smash product.
+ We construct the category of DCPPos and strict Scott continuous
+ functions as a category of structured sets. We show that this
+ category has the following structure
+ - A terminal object ([Terminal_DCPPO_strict])
+ - Binary products ([BinProducts_DCPPO_strict])
+ - Products indexed by types ([Products_DCPPO_strict])
+ - Equalizers ([Equalizers_DCPPO_strict])
+ - An initial object ([Initial_DCPPO_strict])
 
  Contents
  1. Structures of dcppos with strict functions
  2. The cartesian structure of dcppos
+ 3. Structure on the category of DCPPOs
  4. Dcppos form a pointed structure
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.DCPOs.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -73,6 +81,10 @@ Definition DCPPO_strict
   : univalent_category
   := univalent_category_of_hset_struct struct_dcppo_strict.
 
+Definition DCPPO_strict_underlying
+  : DCPPO_strict ⟶ SET
+  := underlying_of_hset_struct struct_dcppo_strict.
+
 (**
  2. The cartesian structure of dcppos
  *)
@@ -105,7 +117,7 @@ Definition cartesian_struct_dcppo_strict
      cartesian_struct_dcppo_strict_laws.
 
 (**
- 3. Limits of pointed posets
+ 3. Structure on the category of DCPPOs
  *)
 Definition equalizers_struct_dcppo_strict
   : hset_equalizer_struct struct_dcppo_strict.
@@ -150,6 +162,45 @@ Proof.
                   (λ i, fs i ,, Hfs i))).
 Defined.
 
+Definition Terminal_DCPPO_strict
+  : Terminal DCPPO_strict
+  := Terminal_category_of_hset_struct cartesian_struct_dcppo_strict.
+
+Definition BinProducts_DCPPO_strict
+  : BinProducts DCPPO_strict
+  := BinProducts_category_of_hset_struct cartesian_struct_dcppo_strict.
+
+Definition Equalizers_DCPPO_strict
+  : Equalizers DCPPO_strict
+  := Equalizers_category_of_hset_struct equalizers_struct_dcppo_strict.
+
+Definition Products_DCPPO_strict
+           (I : UU)
+  : Products I DCPPO_strict
+  := Products_category_of_hset_struct_type_prod
+       (type_products_struct_dcppo_strict I).
+
+Definition Initial_DCPPO_strict
+  : Initial DCPPO_strict.
+Proof.
+  use make_Initial.
+  - exact unit_dcppo.
+  - intros Y.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros f₁ f₂ ;
+         use (@eq_strict_scott_continuous_map unit_dcppo Y f₁ f₂) ;
+         intro x ;
+         induction x ;
+         refine (@strict_scott_continuous_map_on_point unit_dcppo _ f₁ @ !_) ;
+         exact (@strict_scott_continuous_map_on_point unit_dcppo _ f₂)).
+    + refine ((λ _, ⊥_{Y}) ,, _).
+      abstract
+        (cbn ;
+         apply is_strict_scott_continuous_constant).
+Defined.
+
 (**
  4. Dcppos form a pointed structure
  *)
@@ -173,24 +224,3 @@ Definition pointed_struct_dcppo_strict
   := pointed_struct_dcppo_strict_data
      ,,
      pointed_struct_dcppo_strict_laws.
-
-(**
- 3. Structure on the category of DCPPOs
- *)
-Definition Terminal_DCPPO_strict
-  : Terminal DCPPO_strict
-  := Terminal_category_of_hset_struct cartesian_struct_dcppo_strict.
-
-Definition BinProducts_DCPPO_strict
-  : BinProducts DCPPO_strict
-  := BinProducts_category_of_hset_struct cartesian_struct_dcppo_strict.
-
-Definition Equalizers_DCPPO_strict
-  : Equalizers DCPPO_strict
-  := Equalizers_category_of_hset_struct equalizers_struct_dcppo_strict.
-
-Definition Products_DCPPO_strict
-           (I : UU)
-  : Products I DCPPO_strict
-  := Products_category_of_hset_struct_type_prod
-       (type_products_struct_dcppo_strict I).

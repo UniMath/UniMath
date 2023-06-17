@@ -14,6 +14,7 @@
  4. Structure-identity
  5. Bundled approach
  6. Accessors and builders for the bundled approach
+ 7. Examples of Scott continuous maps (bundled)
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -514,3 +515,43 @@ Proposition strict_scott_continuous_map_on_point
 Proof.
   exact (pr22 f).
 Qed.
+
+(**
+ 7. Examples of Scott continuous maps (bundled)
+ *)
+Definition id_scott_continuous_map
+           (X : dcpo)
+  : scott_continuous_map X X
+  := (λ x, x) ,, id_is_scott_continuous X.
+
+Definition comp_scott_continuous_map
+           {X Y Z : dcpo}
+           (f : scott_continuous_map X Y)
+           (g : scott_continuous_map Y Z)
+  : scott_continuous_map X Z
+  := (λ x, g(f x)) ,, comp_is_scott_continuous (pr2 f) (pr2 g).
+
+Definition constant_scott_continuous_map
+           (X : dcpo)
+           {Y : dcpo}
+           (y : Y)
+  : scott_continuous_map X Y
+  := (λ x, y) ,, is_scott_continuous_constant _ _ _.
+
+Definition id_strict_scott_continuous_map
+           (X : dcppo)
+  : strict_scott_continuous_map X X
+  := (λ x, x) ,, id_is_strict_scott_continuous X.
+
+Definition comp_strict_scott_continuous_map
+           {X Y Z : dcppo}
+           (f : strict_scott_continuous_map X Y)
+           (g : strict_scott_continuous_map Y Z)
+  : strict_scott_continuous_map X Z
+  := (λ x, g(f x)) ,, comp_is_strict_scott_continuous (pr2 f) (pr2 g).
+
+Definition constant_strict_scott_continuous_map
+           (X : dcppo)
+           {Y : dcppo}
+  : strict_scott_continuous_map X Y
+  := (λ x, ⊥_{Y}) ,, is_strict_scott_continuous_constant _ _.

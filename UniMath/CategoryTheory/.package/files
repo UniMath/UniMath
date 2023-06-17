@@ -17,6 +17,7 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
@@ -466,3 +467,6 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+#Double Categories
+DoubleCategories/Core/DoubleCategories.v
