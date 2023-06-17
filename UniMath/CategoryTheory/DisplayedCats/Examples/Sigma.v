@@ -1,10 +1,10 @@
-
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
@@ -225,7 +225,7 @@ Definition iso_to_sigma_iso
   : z_iso_disp f xxx yyy
   := _ ,, _ ,, iso_to_sigma_is_disp_inverse fff.
 
-Definition iso_weq
+Definition sigma_disp_z_iso_equiv
   {x y}
   {xxx : sigma_disp_cat x}
   {yyy : sigma_disp_cat y}
@@ -251,133 +251,58 @@ Proof.
     ).
 Defined.
 
-(** ** Equivalence of equalities *)
-
-Definition sigma_equality_to_equality
-  {x y H1 xxx yyy}
-  (H2 : transportf sigma_disp_cat H1 xxx = yyy)
-  : ∑ (H2' : transportf D H1 (pr1 xxx) = pr1 yyy), transportf E (total2_paths_f (s := (x ,, pr1 xxx)) (s' := (y ,, pr1 yyy)) H1 H2') (pr2 xxx) = (pr2 yyy).
-Proof.
-  induction H1, H2.
-  now use tpair.
-Defined.
-
-Definition equality_to_sigma_equality
-  {x y H1 xx yy xxx yyy}
-  (H2 : ∑ (H2 : transportf D H1 xx = yy), transportf E (total2_paths_f (s := (x ,, xx)) (s' := (y ,, yy)) H1 H2) xxx = yyy)
-  : transportf sigma_disp_cat H1 (xx ,, xxx) = (yy ,, yyy).
-Proof.
-  now induction H1, H2 as [H2 H3], H2, H3.
-Defined.
-
-Lemma sigma_equality_to_equality_and_back
-  {x y}
-  {H1}
-  {xxx : sigma_disp_cat x}
-  {yyy : sigma_disp_cat y}
-  (H2 : transportf sigma_disp_cat H1 xxx = yyy)
-  : equality_to_sigma_equality (sigma_equality_to_equality H2) = H2.
-Proof.
-  now induction H1, H2.
-Qed.
-
-Lemma equality_to_sigma_equality_and_back
-  {x y xx yy H1 xxx yyy}
-  (H2 : ∑ (H2 : transportf D H1 xx = yy), transportf E (total2_paths_f (s := (x ,, xx)) (s' := (y ,, yy)) H1 H2) xxx = yyy)
-  : sigma_equality_to_equality (equality_to_sigma_equality H2) = H2.
-Proof.
-  now induction H1, H2 as [H2 H3], H2, H3.
-Qed.
-
-Definition equality_weq
-  {x y H1 xxx yyy}
-  : (transportf sigma_disp_cat H1 xxx = yyy)
-  ≃ (∑ H2', transportf E (total2_paths_f (s := (x ,, _)) (s' := (y ,, _)) _ _) (pr2 xxx) = pr2 yyy)
-  := weq_iso
-    _
-    _
-    sigma_equality_to_equality_and_back
-    equality_to_sigma_equality_and_back.
-
-(*
-  An attempt to prove that this way of transporting preserves the base iso, which should allow us to actually use this for univalence
-
-Lemma transport_iso_preserves_form
-  {xx yy}
-  {xxx : E xx}
-  {yyy : E yy}
-  {ff}
-  (fff : z_iso_disp ff xxx yyy)
-  {H1 : is_z_isomorphism (pr11 ff)}
-  {H2 : is_z_iso_disp (D := sigma_disp_cat) (pr11 ff ,, H1) ((pr21 ff ,, pr1 fff) : ((_ ,, _) : sigma_disp_cat _) -->[_] (_ ,, _))}
-  : (transport_iso fff) = ((pr11 ff ,, H1) ,, (((pr21 ff ,, pr1 fff) : ((_ ,, _) : sigma_disp_cat _) -->[_] (_ ,, _)) ,, H2)).
-Proof.
-  use total2_paths_f.
-  - now use (subtypePairEquality' _ (isaprop_is_z_isomorphism _)).
-  - use (subtypePairEquality' _ (isaprop_is_z_iso_disp _ _)).
-    use total2_paths_f.
-    + simpl.
-      apply idpath.
-    apply idpath.
-Qed.
-*)
-
 (** ** Univalence *)
 
 (* Local Open Scope hide_transport_scope. *)
 
-(*
 Lemma is_univalent_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
   : is_univalent_disp sigma_disp_cat.
 Proof.
   apply is_univalent_disp_from_fibers.
   intros x xx yy.
   use weqhomot.
-  - destruct xx as [xx xxx], yy as [yy yyy].
-     use (@weqcomp _ (∑ ee : xx = yy, transportf (λ r, E (x,,r)) ee xxx = yyy) _ _ _).
-      refine (total2_paths_equiv _ _ _).
-    set (i := fun (ee : xx = yy) => (total2_paths2 (idpath _) ee)).
-    apply @weqcomp with
-        (∑ ee : xx = yy, transportf _ (i ee) xxx = yyy).
-      apply weqfibtototal; intros ee.
-      refine (_ ,, isweqpathscomp0l _ _).
-      (* TODO: a pure transport lemma; maybe break out? *)
-      destruct ee; apply idpath.
-    apply @weqcomp with (∑ ee : xx = yy,
-             iso_disp (@idtoiso (total_category _) (_,,_) (_,,_) (i ee)) xxx yyy).
-      apply weqfibtototal; intros ee.
-      exists (fun (eee : transportf _ (i ee) xxx = yyy) => idtoiso_disp _ eee).
-      apply EE.
-    apply @weqcomp with (∑ ee : xx = yy, iso_disp
-         (@total_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
-      apply weqfibtototal; intros ee.
-      use tpair.
-        refine (transportf (λ I, iso_disp I xxx yyy) _).
-        unfold i.
-      (* TODO: maybe break out this lemma on [idtoiso]? *)
-      (* Note: [abstract] here is to speed up a [cbn] below. *)
-        destruct ee. abstract (apply eq_iso, idpath).
-      exact (isweqtransportf (λ I, iso_disp I xxx yyy) _).
-    apply (@weqcomp _ (∑ f : iso_disp (identity_iso x) xx yy,
-                      (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
-      refine (weqfp (make_weq _ _) _). refine (DD _ _ (idpath _) _ _).
-    apply (sigma_disp_iso_equiv (_,,_) (_,,_) _).
-  - assert (lemma2 : forall i i' (e : i = i') ii,
-                 pr1 (transportf (λ i, iso_disp i (pr2 xx) (pr2 yy)) e ii)
-                 = transportf _ (maponpaths pr1 e) (pr1 ii)).
-      intros; destruct e; apply idpath.
-    intros ee; apply eq_iso_disp.
-    destruct ee, xx as [xx xxx]; cbn.
+  - induction xx as [xx xxx], yy as [yy yyy].
+    (* TODO: a pure transport lemma; maybe break out? *)
+    pose (i := λ (ee : xx = yy), (total2_paths2_f (idpath x) ee)).
+    assert (H1 : (xx,, xxx : sigma_disp_cat _) ╝ yy,, yyy
+      ≃ (∑ ee, transportf E (i ee) xxx = yyy)).
+    {
+      apply weqfibtototal.
+      intro ee.
+      induction (ee : xx = yy).
+      apply idweq.
+    }
+    (* TODO: maybe break out this lemma on [idtoiso]? *)
+    assert (H2 : (∑ ee, z_iso_disp (idtoiso (C := total_category _) (i ee)) xxx yyy) ≃ ∑ ee : xx = yy, z_iso_disp (@total_z_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
+    {
+      apply weqfibtototal.
+      intro ee.
+      refine ((transportf (λ I, z_iso_disp I xxx yyy) _) ,, (isweqtransportf (λ I, z_iso_disp I _ _) _)).
+      induction ee.
+      now apply (z_iso_eq (C := total_category D)).
+    }
+    exact (
+      (invweq (sigma_disp_z_iso_equiv (xxx := (_ ,, _)) (yyy := (_ ,, _)) _))
+      ∘ (weqfp (make_weq _ (DD _ _ (idpath _) _ _)) _)
+      ∘ H2
+      ∘ (weqfibtototal _ _ (λ _, make_weq _ (EE _ _ _ _ _)))
+      ∘ H1
+      ∘ total2_paths_equiv _ _ _).
+  - assert (lemma2 : ∏ i i' (e : i = i') ii,
+      pr1 (transportf (λ _, z_iso_disp _ (pr2 xx) (pr2 yy)) e ii)
+      = transportf _ (maponpaths pr1 e) (pr1 ii)).
+    {
+      intros i i' e.
+      now induction e.
+    }
+    intro ee.
+    apply eq_z_iso_disp.
+    induction ee.
+    cbn.
     apply maponpaths.
-    etrans. cbn in lemma2.
-    (* This [match] is to supply the 3rd argument of [lemma2], without referring to the identifier auto-generated by [abstract] above. *)
-    match goal with |[ |- pr1 (transportf _ ?H _) = _ ]
-      => apply (lemma2 _ _ H _) end.
-    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
-    etrans. use maponpaths. apply eq_iso, idpath.
-      apply isaset_iso, homset_property.
-   apply (@homset_property (total_category _) (_,,_) (_,,_)).
+    refine (lemma2 _ (total_z_iso _ (identity_z_iso_disp _)) _ _ @ _).
+    refine (maponpaths_2 (y' := idpath _) _ _ _).
+    apply (homset_property (total_category D) _ _).
 Qed.
-*)
 
 End Sigma.
