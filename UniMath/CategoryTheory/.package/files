@@ -17,6 +17,7 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
@@ -112,8 +113,6 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 PrecompEquivalence.v
-rezk_completion.v
-RezkCompletion.v
 UnitorsAndAssociatorsForEndofunctors.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -123,6 +122,9 @@ RightKanExtension.v
 coslicecat.v
 catiso.v
 CategoryEquality.v
+WeakEquivalences.v
+rezk_completion.v
+RezkCompletion.v
 exponentials.v
 slicecat.v
 limits/pullbacks_slice_products_equiv.v
@@ -243,6 +245,7 @@ DisplayedCats/Structures/StructuresSmashProduct.v
 DisplayedCats/Examples/AlgebraStructures.v
 DisplayedCats/Examples/DCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStructures.v
+DisplayedCats/Examples/PointedDCPOStrict.v
 DisplayedCats/Examples/PointedPosetStrict.v
 DisplayedCats/Examples/PointedPosetStructures.v
 DisplayedCats/Examples/PointedSetStructures.v
@@ -465,3 +468,6 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+#Double Categories
+DoubleCategories/Core/DoubleCategories.v

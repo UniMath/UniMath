@@ -5,6 +5,18 @@
  We consider two ways of constructing subbicategories. One by selecting
  1-cells and one by selecting both 0-cells and 1-cells.
 
+ In the second construction (subbicategories by selecting both 0-cells
+ and 1-cells) there are two type families: `P₀` on the objects and `P₁`
+ on the 1-cells. For a well-behaved constructions, both type families
+ should be pointwise propositions. We can use this to guarantee that the
+ resulting bicategory is univalent ([is_univalent_2_subbicat]), although
+ we also need that the original bicategory is univalent. In addition, to
+ guaranteee that the resulting bicategory is actually a subbicategory of
+ the original once, we do want both `P₀` and `P₁` to be propositions. If,
+ for example, we choose `P₀` to be the type of booleans for every object
+ and `P₁` the unit type, then the resulting bicategory has two copies of
+ every object, and this is not a subbicategory of the original one.
+
  Contents
  1. Subbicategory by selecting 1-cells
  2. Subbicategory by selecting both 0-cells and 1-cells
@@ -15,11 +27,13 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -167,25 +181,33 @@ End Sub1CellBicategory.
 Section SubBicategory.
   Context {B : bicat}
           (P₀ : B → UU)
-          (P₁ : ∏ (x y : B), x --> y -> UU)
-          (P₁id : ∏ (x : B), P₁ _ _ (id₁ x))
-          (P₁comp : ∏ (x y z : B) (f : x --> y) (g : y --> z),
-              P₁  _ _ f → P₁ _ _ g → P₁ _ _ (f · g)).
+          (P₁ : ∏ (x y : B), P₀ x → P₀ y → x --> y -> UU)
+          (P₁id : ∏ (x : B) (Px : P₀ x), P₁ _ _ Px Px (id₁ x))
+          (P₁comp : ∏ (x y z : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (Pz : P₀ z)
+                      (f : x --> y) (g : y --> z),
+              P₁  _ _ Px Py f
+              → P₁ _ _ Py Pz g
+              → P₁ _ _ Px Pz (f · g)).
 
   Definition disp_subbicat : disp_bicat B
     := sigma_bicat
-         B
-         (disp_sub1cell_bicat B P₁ P₁id P₁comp)
-         (disp_fullsubbicat
-            (total_bicat (disp_sub1cell_bicat B P₁ P₁id P₁comp))
-            (λ z, P₀ (pr1 z))).
+         _
+         _
+         (disp_sub1cell_bicat
+            (total_bicat (disp_fullsubbicat B P₀))
+            (λ x y f, P₁ (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f))
+            (λ x, P₁id (pr1 x) (pr2 x))
+            (λ x y z f g Pf Pg, P₁comp _ _ _ _ _ _ _ _ Pf Pg)).
 
   Definition disp_2cells_isaprop_subbicat
     : disp_2cells_isaprop disp_subbicat.
   Proof.
     apply disp_2cells_isaprop_sigma.
-    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_2cells_isaprop_fullsubbicat.
+    - apply disp_2cells_isaprop_sub1cell_bicat.
   Defined.
 
   Definition disp_locally_groupoid_subbicat
@@ -194,50 +216,58 @@ Section SubBicategory.
   Proof.
     use disp_locally_groupoid_sigma.
     - exact HB.
-    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_2cells_isaprop_fullsubbicat.
-    - apply disp_locally_groupoid_sub1cell_bicat.
+    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_locally_groupoid_fullsubbicat.
+    - apply disp_locally_groupoid_sub1cell_bicat.
   Defined.
 
   Definition disp_subbicat_univalent_2_1
-             (HP₁ : ∏ (x y : B) (f : x --> y), isaprop (P₁ x y f))
+             (HP₁ : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --> y),
+                    isaprop (P₁ x y Px Py f))
     : disp_univalent_2_1 disp_subbicat.
   Proof.
     use sigma_disp_univalent_2_1_with_props.
-    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_2cells_isaprop_fullsubbicat.
-    - apply disp_sub1cell_univalent_2_1.
-      exact HP₁.
+    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_fullsubbicat_univalent_2_1.
+    - apply disp_sub1cell_univalent_2_1.
+      intros.
+      apply HP₁.
   Defined.
 
   Definition disp_subbicat_univalent_2_0
              (HB : is_univalent_2 B)
              (HP₀ : ∏ (x : B), isaprop (P₀ x))
-             (HP₁ : ∏ (x y : B) (f : x --> y), isaprop (P₁ x y f))
+             (HP₁ : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --> y),
+                    isaprop (P₁ x y Px Py f))
     : disp_univalent_2_0 disp_subbicat.
   Proof.
     use sigma_disp_univalent_2_0_with_props.
     - exact HB.
-    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_2cells_isaprop_fullsubbicat.
-    - apply disp_sub1cell_univalent_2_1.
-      exact HP₁.
+    - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_fullsubbicat_univalent_2_1.
-    - apply disp_locally_groupoid_sub1cell_bicat.
+    - apply disp_sub1cell_univalent_2_1.
+      intros.
+      apply HP₁.
     - apply disp_locally_groupoid_fullsubbicat.
-    - apply disp_sub1cell_univalent_2_0.
-      + apply HB.
-      + exact HP₁.
+    - apply disp_locally_groupoid_sub1cell_bicat.
     - use disp_univalent_2_0_fullsubbicat.
-      + use total_is_univalent_2.
-        * apply disp_sub1cell_univalent_2.
-          ** apply HB.
-          ** exact HP₁.
-        * exact HB.
-      + intro.
-        apply HP₀.
+      + exact HB.
+      + exact HP₀.
+    - apply disp_sub1cell_univalent_2_0.
+      + use total_is_univalent_2_1.
+        * apply HB.
+        * apply disp_fullsubbicat_univalent_2_1.
+      + intros.
+        apply HP₁.
   Defined.
 
   Definition subbicat
@@ -318,7 +348,11 @@ Section SubBicategory.
 
   Definition is_univalent_2_1_subbicat
              (HB : is_univalent_2_1 B)
-             (HP₁ : ∏ (x y : B) (f : x --> y), isaprop (P₁ x y f))
+             (HP₁ : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --> y),
+                    isaprop (P₁ x y Px Py f))
     : is_univalent_2_1 subbicat.
   Proof.
     use total_is_univalent_2_1.
@@ -330,7 +364,11 @@ Section SubBicategory.
   Definition is_univalent_2_0_subbicat
              (HB : is_univalent_2 B)
              (HP₀ : ∏ (x : B), isaprop (P₀ x))
-             (HP₁ : ∏ (x y : B) (f : x --> y), isaprop (P₁ x y f))
+             (HP₁ : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --> y),
+                    isaprop (P₁ x y Px Py f))
     : is_univalent_2_0 subbicat.
   Proof.
     use total_is_univalent_2_0.
@@ -344,7 +382,11 @@ Section SubBicategory.
   Definition is_univalent_2_subbicat
              (HB : is_univalent_2 B)
              (HP₀ : ∏ (x : B), isaprop (P₀ x))
-             (HP₁ : ∏ (x y : B) (f : x --> y), isaprop (P₁ x y f))
+             (HP₁ : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --> y),
+                    isaprop (P₁ x y Px Py f))
     : is_univalent_2 subbicat.
   Proof.
     split.

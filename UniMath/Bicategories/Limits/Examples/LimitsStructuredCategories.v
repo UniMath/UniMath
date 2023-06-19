@@ -87,15 +87,15 @@ Definition disp_has_binprod_univ_cat_with_terminal_obj
   : disp_has_binprod disp_bicat_terminal_obj has_binprod_bicat_of_univ_cats.
 Proof.
   use subbicat_disp_binprod.
-  - exact (λ C₁ C₂, terminal_category_binproduct (pr22 C₁) (pr22 C₂)).
+  - exact (λ C₁ C₂, terminal_category_binproduct (pr12 C₁) (pr12 C₂)).
   - intros C₁ C₂.
     apply pr1_preserves_terminal.
   - intros C₁ C₂.
     apply pr2_preserves_terminal.
   - intros C₁ C₂ q.
     apply preserves_terminal_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition has_binprod_univ_cat_with_terminal_obj
@@ -104,15 +104,15 @@ Proof.
   use subbicat_binprod.
   - exact has_binprod_bicat_of_univ_cats.
   - exact univalent_cat_is_univalent_2.
-  - exact (λ C₁ C₂, terminal_category_binproduct (pr22 C₁) (pr22 C₂)).
+  - exact (λ C₁ C₂, terminal_category_binproduct (pr12 C₁) (pr12 C₂)).
   - intros C₁ C₂.
     apply pr1_preserves_terminal.
   - intros C₁ C₂.
     apply pr2_preserves_terminal.
   - intros C₁ C₂ q.
     apply preserves_terminal_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition disp_has_pb_univ_cat_with_terminal_obj
@@ -122,24 +122,24 @@ Proof.
   - exact (λ C₁ C₂ C₃ F G,
            terminal_category_iso_comma
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G,
            iso_comma_pr1_preserves_terminal
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G,
            iso_comma_pr2_preserves_terminal
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G q,
            iso_comma_ump1_preserves_terminal
              _ _
-             (pr12 G)
-             _ (pr12 (pb_cone_pr1 q))
-             _ (pr12 (pb_cone_pr2 q))
+             (pr22 G)
+             _ (pr22 (pb_cone_pr1 q))
+             _ (pr22 (pb_cone_pr2 q))
              _).
 Defined.
 
@@ -152,24 +152,24 @@ Proof.
   - exact (λ C₁ C₂ C₃ F G,
            terminal_category_iso_comma
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G,
            iso_comma_pr1_preserves_terminal
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G,
            iso_comma_pr2_preserves_terminal
              _ _
-             (pr12 F) (pr12 G)
-             (pr22 C₁) (pr22 C₂)).
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
   - exact (λ C₁ C₂ C₃ F G q,
            iso_comma_ump1_preserves_terminal
              _ _
-             (pr12 G)
-             _ (pr12 (pb_cone_pr1 q))
-             _ (pr12 (pb_cone_pr2 q))
+             (pr22 G)
+             _ (pr22 (pb_cone_pr1 q))
+             _ (pr22 (pb_cone_pr2 q))
              _).
 Defined.
 
@@ -180,12 +180,12 @@ Proof.
   - exact has_em_bicat_of_univ_cats.
   - exact univalent_cat_is_univalent_2.
   - exact (λ m,
-           terminal_eilenberg_moore_cat _ (pr22 (ob_of_mnd m))).
+           terminal_eilenberg_moore_cat _ (pr12 (ob_of_mnd m))).
   - exact (λ m,
-           eilenberg_moore_pr_preserves_terminal _ (pr22 (ob_of_mnd m))).
+           eilenberg_moore_pr_preserves_terminal _ (pr12 (ob_of_mnd m))).
   - intros m q.
     use functor_to_eilenberg_moore_cat_preserves_terminal.
-    exact (pr12 (mor_of_mnd_mor (mor_of_em_cone m q))).
+    exact (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
 Defined.
 
 (**
@@ -216,20 +216,20 @@ Proof.
   use subbicat_disp_binprod.
   - intros C₁ C₂.
     apply binproducts_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_binproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_binproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_binproduct_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition has_binprod_univ_cat_with_binprod
@@ -240,20 +240,20 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂.
     apply binproducts_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_binproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_binproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_binproduct_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition disp_has_pb_univ_cat_with_binprod
@@ -262,27 +262,27 @@ Proof.
   use subbicat_disp_has_pb.
   - intros C₁ C₂ C₃ F G.
     apply binproducts_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_binproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_binproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_binproduct.
-    + exact (pr12 G).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 G).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_pb_univ_cat_with_binprod
@@ -293,27 +293,27 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂ C₃ F G.
     apply binproducts_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_binproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_binproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_binproduct.
-    + exact (pr12 G).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 G).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_em_univ_cat_with_binprod
@@ -323,12 +323,12 @@ Proof.
   - exact has_em_bicat_of_univ_cats.
   - exact univalent_cat_is_univalent_2.
   - exact (λ m,
-           BinProducts_eilenberg_moore_cat _ (pr22 (ob_of_mnd m))).
+           BinProducts_eilenberg_moore_cat _ (pr12 (ob_of_mnd m))).
   - exact (λ m,
-           eilenberg_moore_pr_preserves_binproduct _ (pr22 (ob_of_mnd m))).
+           eilenberg_moore_pr_preserves_binproduct _ (pr12 (ob_of_mnd m))).
   - intros m q.
     use functor_to_eilenberg_moore_cat_preserves_binproduct.
-    exact (pr12 (mor_of_mnd_mor (mor_of_em_cone m q))).
+    exact (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
 Defined.
 
 (**
@@ -359,20 +359,20 @@ Proof.
   use subbicat_disp_binprod.
   - intros C₁ C₂.
     apply pullbacks_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_pullback.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_pullback.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_pullback_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition has_binprod_univ_cat_with_pb
@@ -383,20 +383,20 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂.
     apply pullbacks_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_pullback.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_pullback.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_pullback_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition disp_has_pb_univ_cat_with_pb
@@ -405,27 +405,27 @@ Proof.
   use subbicat_disp_has_pb.
   - intros C₁ C₂ C₃ F G.
     apply pullbacks_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_pullback.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_pullback.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_pullback.
-    + exact (pr12 G).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 G).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_pb_univ_cat_with_pb
@@ -436,27 +436,27 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂ C₃ F G.
     apply pullbacks_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_pullback.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_pullback.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_pullback.
-    + exact (pr12 G).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 G).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_em_univ_cat_with_pb
@@ -466,12 +466,12 @@ Proof.
   - exact has_em_bicat_of_univ_cats.
   - exact univalent_cat_is_univalent_2.
   - exact (λ m,
-           Pullbacks_eilenberg_moore _ (pr22 (ob_of_mnd m))).
+           Pullbacks_eilenberg_moore _ (pr12 (ob_of_mnd m))).
   - exact (λ m,
-           eilenberg_moore_pr_preserves_pullback _ (pr22 (ob_of_mnd m))).
+           eilenberg_moore_pr_preserves_pullback _ (pr12 (ob_of_mnd m))).
   - intros m q.
     use functor_to_eilenberg_moore_cat_preserves_pullback.
-    exact (pr12 (mor_of_mnd_mor (mor_of_em_cone m q))).
+    exact (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
 Defined.
 
 (**
@@ -576,15 +576,15 @@ Definition disp_has_binprod_univ_cat_with_initial
   : disp_has_binprod disp_bicat_initial_obj has_binprod_bicat_of_univ_cats.
 Proof.
   use subbicat_disp_binprod.
-  - exact (λ C₁ C₂, initial_category_binproduct (pr22 C₁) (pr22 C₂)).
+  - exact (λ C₁ C₂, initial_category_binproduct (pr12 C₁) (pr12 C₂)).
   - intros C₁ C₂.
     apply pr1_preserves_initial.
   - intros C₁ C₂.
     apply pr2_preserves_initial.
   - intros C₁ C₂ q.
     apply preserves_initial_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition has_binprod_univ_cat_with_initial
@@ -593,15 +593,15 @@ Proof.
   use subbicat_binprod.
   - exact has_binprod_bicat_of_univ_cats.
   - exact univalent_cat_is_univalent_2.
-  - exact (λ C₁ C₂, initial_category_binproduct (pr22 C₁) (pr22 C₂)).
+  - exact (λ C₁ C₂, initial_category_binproduct (pr12 C₁) (pr12 C₂)).
   - intros C₁ C₂.
     apply pr1_preserves_initial.
   - intros C₁ C₂.
     apply pr2_preserves_initial.
   - intros C₁ C₂ q.
     apply preserves_initial_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition disp_has_pb_univ_cat_with_initial
@@ -610,27 +610,27 @@ Proof.
   use subbicat_disp_has_pb.
   - intros C₁ C₂ C₃ F G.
     apply initial_category_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 F).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_pb_univ_cat_with_initial
@@ -641,27 +641,27 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂ C₃ F G.
     apply initial_category_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_initial.
-    + exact (pr12 F).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 F).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_em_univ_cat_with_initial
@@ -673,16 +673,16 @@ Proof.
   - refine (λ m,
             initial_eilenberg_moore_cat
               _
-              (pr22 (ob_of_mnd m))
+              (pr12 (ob_of_mnd m))
               _).
-    exact (pr12 (endo_of_mnd m)).
+    exact (pr22 (endo_of_mnd m)).
   - refine (λ m,
-            eilenberg_moore_pr_preserves_initial _ (pr22 (ob_of_mnd m)) _).
-    exact (pr12 (endo_of_mnd m)).
+            eilenberg_moore_pr_preserves_initial _ (pr12 (ob_of_mnd m)) _).
+    exact (pr22 (endo_of_mnd m)).
   - intros m q.
     use functor_to_eilenberg_moore_cat_preserves_initial.
-    + exact (pr12 (endo_of_mnd m)).
-    + exact (pr12 (mor_of_mnd_mor (mor_of_em_cone m q))).
+    + exact (pr22 (endo_of_mnd m)).
+    + exact (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
 Defined.
 
 (**
@@ -713,20 +713,20 @@ Proof.
   use subbicat_disp_binprod.
   - intros C₁ C₂.
     apply bincoproducts_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_bincoproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_bincoproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_bincoproduct_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition has_binprod_univ_cat_with_bincoprod
@@ -737,20 +737,20 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂.
     apply bincoproducts_in_product_category.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr1_preserves_bincoproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂.
     apply pr2_preserves_bincoproduct.
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ q.
     apply preserves_bincoproduct_bindelta_pair_functor.
-    + exact (pr12 (binprod_cone_pr1 q)).
-    + exact (pr12 (binprod_cone_pr2 q)).
+    + exact (pr22 (binprod_cone_pr1 q)).
+    + exact (pr22 (binprod_cone_pr2 q)).
 Defined.
 
 Definition disp_has_pb_univ_cat_with_bincoprod
@@ -759,27 +759,27 @@ Proof.
   use subbicat_disp_has_pb.
   - intros C₁ C₂ C₃ F G.
     apply bincoproducts_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 F).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_pb_univ_cat_with_bincoprod
@@ -790,27 +790,27 @@ Proof.
   - exact univalent_cat_is_univalent_2.
   - intros C₁ C₂ C₃ F G.
     apply bincoproducts_in_iso_comma.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr1_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G.
     apply iso_comma_pr2_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 G).
-    + exact (pr22 C₁).
-    + exact (pr22 C₂).
+    + exact (pr22 F).
+    + exact (pr22 G).
+    + exact (pr12 C₁).
+    + exact (pr12 C₂).
   - intros C₁ C₂ C₃ F G q.
     apply iso_comma_ump1_preserves_bincoproduct.
-    + exact (pr12 F).
-    + exact (pr12 (pb_cone_pr1 q)).
-    + exact (pr12 (pb_cone_pr2 q)).
+    + exact (pr22 F).
+    + exact (pr22 (pb_cone_pr1 q)).
+    + exact (pr22 (pb_cone_pr2 q)).
 Defined.
 
 Definition has_em_univ_cat_with_bincoprod
@@ -822,14 +822,14 @@ Proof.
   - refine (λ m,
             bincoproducts_eilenberg_moore
               _
-              (pr22 (ob_of_mnd m))
+              (pr12 (ob_of_mnd m))
               _).
-    exact (pr12 (endo_of_mnd m)).
+    exact (pr22 (endo_of_mnd m)).
   - refine (λ m,
-            eilenberg_moore_pr_preserves_bincoproduct _ (pr22 (ob_of_mnd m)) _).
-    exact (pr12 (endo_of_mnd m)).
+            eilenberg_moore_pr_preserves_bincoproduct _ (pr12 (ob_of_mnd m)) _).
+    exact (pr22 (endo_of_mnd m)).
   - intros m q.
     use functor_to_eilenberg_moore_cat_preserves_bincoproduct.
-    + exact (pr12 (endo_of_mnd m)).
-    + exact (pr12 (mor_of_mnd_mor (mor_of_em_cone m q))).
+    + exact (pr22 (endo_of_mnd m)).
+    + exact (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
 Defined.

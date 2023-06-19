@@ -46,9 +46,9 @@ Definition disp_bicat_terminal_obj
 Proof.
   use disp_subbicat.
   - exact (λ C, Terminal (pr1 C)).
-  - exact (λ C₁ C₂ F, preserves_terminal F).
-  - exact (λ C, identity_preserves_terminal _).
-  - exact (λ _ _ _ _ _ HF HG, composition_preserves_terminal HF HG).
+  - exact (λ C₁ C₂ _ _ F, preserves_terminal F).
+  - exact (λ C _, identity_preserves_terminal _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_terminal HF HG).
 Defined.
 
 Definition univ_cat_with_terminal_obj
@@ -115,9 +115,9 @@ Definition disp_bicat_binprod
 Proof.
   use disp_subbicat.
   - exact (λ C, BinProducts (pr1 C)).
-  - exact (λ C₁ C₂ F, preserves_binproduct F).
-  - exact (λ C, identity_preserves_binproduct _).
-  - exact (λ _ _ _ _ _ HF HG, composition_preserves_binproduct HF HG).
+  - exact (λ C₁ C₂ _ _ F, preserves_binproduct F).
+  - exact (λ C _, identity_preserves_binproduct _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_binproduct HF HG).
 Defined.
 
 Definition univ_cat_with_binprod
@@ -186,9 +186,9 @@ Definition disp_bicat_pullback
 Proof.
   use disp_subbicat.
   - exact (λ C, Pullbacks (pr1 C)).
-  - exact (λ C₁ C₂ F, preserves_pullback F).
-  - exact (λ C, identity_preserves_pullback _).
-  - exact (λ _ _ _ _ _ HF HG, composition_preserves_pullback HF HG).
+  - exact (λ C₁ C₂ _ _ F, preserves_pullback F).
+  - exact (λ C _, identity_preserves_pullback _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_pullback HF HG).
 Defined.
 
 Definition univ_cat_with_pb
@@ -318,9 +318,9 @@ Definition disp_bicat_initial_obj
 Proof.
   use disp_subbicat.
   - exact (λ C, Initial (pr1 C)).
-  - exact (λ C₁ C₂ F, preserves_initial F).
-  - exact (λ C, identity_preserves_initial _).
-  - exact (λ _ _ _ _ _ HF HG, composition_preserves_initial HF HG).
+  - exact (λ C₁ C₂ _ _ F, preserves_initial F).
+  - exact (λ C _, identity_preserves_initial _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_initial HF HG).
 Defined.
 
 Definition univ_cat_with_initial
@@ -387,9 +387,9 @@ Definition disp_bicat_bincoprod
 Proof.
   use disp_subbicat.
   - exact (λ C, BinCoproducts (pr1 C)).
-  - exact (λ C₁ C₂ F, preserves_bincoproduct F).
-  - exact (λ C, identity_preserves_bincoproduct _).
-  - exact (λ _ _ _ _ _ HF HG, composition_preserves_bincoproduct HF HG).
+  - exact (λ C₁ C₂ _ _ F, preserves_bincoproduct F).
+  - exact (λ C _, identity_preserves_bincoproduct _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_bincoproduct HF HG).
 Defined.
 
 Definition univ_cat_with_bincoprod
