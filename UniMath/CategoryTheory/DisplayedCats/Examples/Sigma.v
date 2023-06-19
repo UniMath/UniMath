@@ -118,19 +118,25 @@ Proof.
   apply idpath.
 Qed.
 
+(** ** Univalence *)
+(** *** Characterization of the isos of sigma_disp_cat *)
 Lemma E_mor_eq
   {x y xx yy}
   {xxx : E (x ,, xx)}
   {yyy : E (y ,, yy)}
+  (xxx' := (xx ,, xxx) : sigma_disp_cat _)
+  (yyy' := (yy ,, yyy) : sigma_disp_cat _)
   (f : z_iso x y)
   (g := inv_from_z_iso f)
   {ff gg fff ggg}
-  {H1 : compose (C := total_category D) (a := (_ ,, _)) (b := (_ ,, _)) (c := (_ ,, _)) (pr1 f ,, ff) (g ,, gg) = identity ((x ,, xx) : total_category _)}
-  (H2 : comp_disp (D := sigma_disp_cat) (xx := (xx ,, xxx)) (yy := (yy ,, yyy)) (zz := (xx ,, xxx)) (ff ,, fff) (gg ,, ggg) = transportb _ (pr122 f) (id_disp ((xx ,, xxx) : sigma_disp_cat _)))
+  {H1 : compose (C := total_category D) (a := (_ ,, _)) (b := (_ ,, _)) (c := (_ ,, _))
+    (z_iso_mor f ,, ff) (g ,, gg) = identity _}
+  (H2 : comp_disp (D := sigma_disp_cat) (xx := (xx ,, xxx)) (yy := (yy ,, yyy)) (zz := (xx ,, xxx))
+    (ff ,, fff) (gg ,, ggg) = transportb _ (z_iso_inv_after_z_iso f) (id_disp _))
   : fff ;; ggg = transportb _ H1 (id_disp _).
 Proof.
   induction (total2_paths_equiv _ _ _ H2) as [H3 H4].
-  use (transportb_transpose_right (e := H3) H4 @ _).
+  refine (transportb_transpose_right (e := H3) H4 @ _).
   unfold transportb.
   simpl.
   apply transportf_transpose_right.
@@ -149,19 +155,19 @@ Definition sigma_iso_to_iso
   {yyy : sigma_disp_cat y}
   (f : z_iso x y)
   (fff : z_iso_disp f xxx yyy)
-  : ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy).
+  : ∑ ff, z_iso_disp (total_z_iso f ff (xx := (_ ,, _)) (yy := (_ ,, _))) (pr2 xxx) (pr2 yyy).
 Proof.
   use tpair.
   - repeat use tpair.
-    + exact (pr11 fff).
-    + exact (pr112 fff).
-    + abstract exact (maponpaths pr1 (pr122 fff) @ pr1_transportf_sigma_disp _ _).
-    + abstract exact (maponpaths pr1 (pr222 fff) @ pr1_transportf_sigma_disp _ _).
+    + exact (pr1 (mor_disp_from_z_iso fff)).
+    + exact (pr1 (inv_mor_disp_from_z_iso fff)).
+    + abstract exact (maponpaths _ (z_iso_disp_after_inv_mor fff) @ pr1_transportf_sigma_disp _ _).
+    + abstract exact (maponpaths _ (inv_mor_after_z_iso_disp fff) @ pr1_transportf_sigma_disp _ _).
   - repeat use tpair.
-    + exact (pr21 fff).
-    + exact (pr212 fff).
-    + exact (E_mor_eq (z_iso_inv f) (pr122 fff)).
-    + exact (E_mor_eq f (pr222 fff)).
+    + exact (pr2 (mor_disp_from_z_iso fff)).
+    + exact (pr2 (inv_mor_disp_from_z_iso fff)).
+    + exact (E_mor_eq (z_iso_inv f) (z_iso_disp_after_inv_mor fff)).
+    + exact (E_mor_eq f (inv_mor_after_z_iso_disp fff)).
 Defined.
 
 Lemma sigma_mor_eq
@@ -169,29 +175,20 @@ Lemma sigma_mor_eq
   {xxx : sigma_disp_cat x}
   {yyy : sigma_disp_cat y}
   {fff : xxx -->[f] yyy}
-  {ggg : yyy -->[g] xxx}
-  {H1 : f · g = identity x}
-  (H2 : pr1 fff ;; pr1 ggg = transportb (mor_disp (pr1 xxx) (pr1 xxx)) H1 (id_disp (pr1 xxx)))
-  (H3 : pr2 fff ;; pr2 ggg =
-    transportb (mor_disp (pr2 xxx) (pr2 xxx))
-    (total2_paths_b (s := ((f ,, pr1 fff) : total_category D ⟦(_ ,, _), (_ ,, _)⟧) · ((g ,, pr1 ggg) : total_category D ⟦(_ ,, _), (_ ,, _)⟧)) (s' := identity ((_,, _) : total_category D)) H1 H2)
-    (id_disp (pr2 xxx)))
-  : fff ;; ggg =
-  transportb (mor_disp xxx xxx) H1 (id_disp xxx).
+  {ggg : xxx -->[g] yyy}
+  {H1 : f = g}
+  {H2}
+  (H3 : pr2 fff = transportb _ (total2_paths_b (s := (_ ,, _)) (s' := (_ ,, _)) H1 H2) (pr2 ggg))
+  : fff = transportb _ H1 ggg.
 Proof.
   use total2_paths_f.
-  - unfold transportb.
-    rewrite pr1_transportf_sigma_disp.
-    exact H2.
-  - use (maponpaths _ H3 @ _).
-    unfold transportb.
-    rewrite pr2_transportf_sigma_disp.
-    rewrite (functtransportf _ _ (internal_paths_rew_r _ _ _ _ _ _)).
+  - refine (H2 @ !_).
+    apply pr1_transportf_sigma_disp.
+  - refine (maponpaths _ H3 @ _ @ !(pr2_transportf_sigma_disp _ _)).
+    refine (functtransportf _ _ _ _ @ _).
     apply transportf_transpose_right.
-    rewrite transport_b_f,
-      transport_f_f.
-    apply transportf_set,
-      (homset_property (total_category _)).
+    refine (transport_b_f _ _ _ _ @ transport_f_f _ _ _ _ @ _).
+    exact (transportf_set _ _ _ (homset_property (total_category _) (_ ,, _) (_ ,, _))).
 Qed.
 
 Definition iso_to_sigma_is_disp_inverse
@@ -199,20 +196,22 @@ Definition iso_to_sigma_is_disp_inverse
   {xxx : sigma_disp_cat x}
   {yyy : sigma_disp_cat y}
   {f : z_iso x y}
-  (fff : ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy))
-  : is_disp_inverse (D := sigma_disp_cat) f (pr11 fff,, pr12 fff) (pr121 fff,, pr122 fff).
+  (fff : ∑ ff, z_iso_disp (total_z_iso f ff (xx := (_ ,, _)) (yy := (_ ,, _))) (pr2 xxx) (pr2 yyy))
+  : is_disp_inverse (D := sigma_disp_cat) (z_iso_is_inverse_in_precat f)
+    (mor_disp_from_z_iso (pr1 fff) ,, mor_disp_from_z_iso (pr2 fff))
+    (inv_mor_disp_from_z_iso (pr1 fff) ,, inv_mor_disp_from_z_iso (pr2 fff)).
 Proof.
   use tpair;
     use sigma_mor_eq.
-  - exact (pr1 (pr221 fff)).
-  - use (pr1 (pr222 fff) @ _).
+  - exact (z_iso_disp_after_inv_mor (pr1 fff)).
+  - refine (z_iso_disp_after_inv_mor (pr2 fff) @ _).
     apply transportf_transpose_right.
-    use (transport_b_b _ _ _ _ @ _).
+    refine (transport_b_b _ _ _ _ @ _).
     exact (transportf_set _ _ _ (homset_property _ _ _)).
-  - exact (pr2 (pr221 fff)).
-  - use (pr2 (pr222 fff) @ _).
+  - exact (inv_mor_after_z_iso_disp (pr1 fff)).
+  - refine (inv_mor_after_z_iso_disp (pr2 fff) @ _).
     apply transportf_transpose_right.
-    use (transport_b_b _ _ _ _ @ _).
+    refine (transport_b_b _ _ _ _ @ _).
     exact (transportf_set _ _ _ (homset_property _ _ _)).
 Qed.
 
@@ -221,7 +220,7 @@ Definition iso_to_sigma_iso
   {xxx : sigma_disp_cat x}
   {yyy : sigma_disp_cat y}
   (f : z_iso x y)
-  (fff : ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy))
+  (fff : ∑ ff, z_iso_disp (total_z_iso f ff (xx := (_ ,, _)) (yy := (_ ,, _))) (pr2 xxx) (pr2 yyy))
   : z_iso_disp f xxx yyy
   := _ ,, _ ,, iso_to_sigma_is_disp_inverse fff.
 
@@ -231,7 +230,7 @@ Definition sigma_disp_z_iso_equiv
   {yyy : sigma_disp_cat y}
   (f : z_iso x y)
   : z_iso_disp f xxx yyy
-  ≃ ∑ (ff : z_iso_disp f (pr1 xxx) (pr1 yyy)), z_iso_disp (total_z_iso f ff (xx := (x ,, pr1 xxx)) (yy := (y ,, pr1 yyy))) (pr2 xxx) (pr2 yyy).
+  ≃ ∑ ff, z_iso_disp (total_z_iso f ff (xx := (_ ,, _)) (yy := (_ ,, _))) (pr2 xxx) (pr2 yyy).
 Proof.
   use weq_iso.
   - exact (sigma_iso_to_iso f).
@@ -242,18 +241,18 @@ Proof.
       now use (total2_paths_f (idpath _))
     ).
   - abstract (
-      intro fff;
-      use (total2_paths_f (subtypePairEquality' (idpath _) (isaprop_is_z_iso_disp _ _) : pr1 (sigma_iso_to_iso _ (iso_to_sigma_iso f fff)) = _));
+      intro;
+      use (total2_paths_f (subtypePairEquality' (idpath _) (isaprop_is_z_iso_disp _ _)
+        : pr1 (sigma_iso_to_iso _ (iso_to_sigma_iso f _)) = _));
       use (subtypePairEquality' _ (isaprop_is_z_iso_disp _ _));
-      use (pr1_transportf (B := λ ff, (pr2 xxx) -->[_ ,, pr1 ff] _) _ _ @ _);
-      use (functtransportf _ _ _ _ @ _);
+      refine (pr1_transportf (B := λ ff, (pr2 xxx) -->[_ ,, pr1 ff] _) _ _ @ _);
+      refine (functtransportf _ _ _ _ @ _);
       exact (transportf_set _ _ _ (homset_property _ _ _))
     ).
 Defined.
 
-(** ** Univalence *)
-
 (* Local Open Scope hide_transport_scope. *)
+(** *** The univalence proof *)
 Lemma is_univalent_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
   : is_univalent_disp sigma_disp_cat.
 Proof.
