@@ -222,6 +222,14 @@ Section DispBicatOnCats.
     apply HD.
   Qed.
 
+  Proposition disp_2cells_iscontr_disp_bicat_on_cat_to_univ_cat
+              (HD : disp_2cells_iscontr D)
+    : disp_2cells_iscontr disp_bicat_on_cat_to_univ_cat.
+  Proof.
+    intros C₁ C₂ F G τ CC₁ CC₂ FF GG.
+    apply HD.
+  Qed.
+
   Proposition disp_locally_groupoid_bicat_on_cat_to_univ_cat
               (HD : disp_locally_groupoid D)
     : disp_locally_groupoid disp_bicat_on_cat_to_univ_cat.

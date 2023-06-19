@@ -27,6 +27,14 @@ Context {C : precategory}.
 
 Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
+Lemma isaprop_isTerminal (b : C)
+  : isaprop (isTerminal b).
+Proof.
+  apply impred_isaprop
+  ; intro
+  ; apply isapropiscontr.
+Qed.
+
 Definition Terminal : UU := ∑ a, isTerminal a.
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
@@ -93,10 +101,7 @@ Proof.
   apply invproofirrelevance.
   intros T T'.
   apply (total2_paths_f (isotoid _ H (z_iso_Terminals T T')) ).
-  apply proofirrelevance.
-  unfold isTerminal.
-  apply impred.
-  intro t ; apply isapropiscontr.
+  apply isaprop_isTerminal.
 Qed.
 
 End Terminal_Unique.
