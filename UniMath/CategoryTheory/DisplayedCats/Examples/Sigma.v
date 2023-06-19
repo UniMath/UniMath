@@ -261,22 +261,23 @@ Proof.
   intros x xx yy.
   use weqhomot.
   - induction xx as [xx xxx], yy as [yy yyy].
-    pose (i := λ (ee : xx = yy), (total2_paths2_f (idpath x) ee)).
     refine (
       weqcomp (Y := (xx,, xxx : sigma_disp_cat x) ╝ yy,, yyy) _
-      (weqcomp (Y := ∑ ee : xx = yy, z_iso_disp (@total_z_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy) _
+      (weqcomp (Y := ∑ ee : xx = yy, z_iso_disp
+        (@total_z_iso _ D (_ ,, _) (_ ,, _) _ (idtoiso_disp (idpath _) ee)) xxx yyy) _
       (weqcomp (Y := ∑ ff, (z_iso_disp (total_z_iso _ ff) xxx yyy)) _ _
     ))).
     + apply total2_paths_equiv.
     + apply weqfibtototal.
       intro ee.
       induction (ee : xx = yy).
-      refine (weqcomp (Y := z_iso_disp (idtoiso (C := total_category _) (i (idpath _))) xxx yyy) _ _).
+      refine (weqcomp (Y := z_iso_disp (idtoiso (C := total_category _)
+        (total2_paths2_f (idpath x) (idpath _))) xxx yyy) _ _).
       * exact (make_weq (λ ee, idtoiso_disp (idpath _) ee) (EE _ _ _ _ _)).
       * now refine (make_weq _ (isweqtransportf (λ I, z_iso_disp I _ _) (z_iso_eq _ _ _))).
     + exact (weqfp (make_weq _ (DD _ _ (idpath _) _ _)) _).
     + exact (invweq (sigma_disp_z_iso_equiv (xxx := (_ ,, _)) (yyy := (_ ,, _)) _)).
-  - assert (lemma2 : ∏ i i' (e : i = i') ii,
+  - assert (lemma1 : ∏ i i' (e : i = i') ii,
       pr1 (transportf (λ _, z_iso_disp _ (pr2 xx) (pr2 yy)) e ii)
       = transportf _ (maponpaths pr1 e) (pr1 ii)).
     {
@@ -287,10 +288,9 @@ Proof.
     apply eq_z_iso_disp.
     induction ee.
     cbn.
-    apply maponpaths.
-    refine (lemma2 _ (total_z_iso _ (identity_z_iso_disp _)) _ _ @ _).
+    refine (maponpaths _ (lemma1 _ (total_z_iso _ (identity_z_iso_disp _)) _ _ @ _)).
     refine (maponpaths_2 (y' := idpath _) _ _ _).
-    apply (homset_property (total_category D) _ _).
+    apply homset_property.
 Qed.
 
 End Sigma.
