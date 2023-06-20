@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
