@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -608,6 +609,22 @@ Definition disp_cartesian : disp_cat C
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
 Definition cartesian : category := total_category disp_cartesian.
+
+Lemma cartesian_is_binproduct
+  : cartesian = category_binproduct C C'.
+Proof.
+  apply subtypePairEquality';
+    [ | apply isaprop_has_homsets].
+  apply subtypePairEquality';
+    [ | apply isaprop_is_precategory, has_homsets_precategory_binproduct; apply homset_property].
+  use total2_paths_f.
+  - apply idpath.
+  - use total2_paths_f;
+    [| rewrite transportf_const];
+    repeat (apply funextsec; intro);
+    (use total2_paths_f; [apply idpath | ]);
+    exact (transportf_set _ _ _ (isasetaprop (isasetunit _ _)) @ idpath _).
+Qed.
 
 End cartesian_product_pb.
 
