@@ -237,14 +237,13 @@ Proof.
   - exact (iso_to_sigma_iso f).
   - abstract (
       intro;
-      use (subtypePairEquality' _ (isaprop_is_z_iso_disp _ _));
-      now use (total2_paths_f (idpath _))
+      apply eq_z_iso_disp;
+      now use total2_paths_f
     ).
   - abstract (
       intro;
-      use (total2_paths_f (subtypePairEquality' (idpath _) (isaprop_is_z_iso_disp _ _)
-        : pr1 (sigma_iso_to_iso _ (iso_to_sigma_iso f _)) = _));
-      use (subtypePairEquality' _ (isaprop_is_z_iso_disp _ _));
+      use total2_paths_f;
+      [now apply eq_z_iso_disp | apply eq_z_iso_disp];
       refine (pr1_transportf (B := λ ff, (pr2 xxx) -->[_ ,, pr1 ff] _) _ _ @ _);
       refine (functtransportf _ _ _ _ @ _);
       exact (transportf_set _ _ _ (homset_property _ _ _))
