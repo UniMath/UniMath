@@ -24,6 +24,8 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebraMorphisms.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
@@ -149,9 +151,7 @@ Proof.
   unfold algebraic_theory_algebra_disp_cat.
   repeat use is_univalent_sigma_disp.
   - apply is_univalent_reindex_disp_cat.
-    refine (pr2 (is_univalent_disp_iff_fibers_are_univalent _) _).
-    intro.
-    rewrite disp_over_unit_fiber_equals_cat.
+    apply is_univalent_disp_disp_over_unit.
     exact is_univalent_HSET.
   - exact is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat.
   - exact is_univalent_disp_algebraic_theory_algebra_full_disp_cat.
