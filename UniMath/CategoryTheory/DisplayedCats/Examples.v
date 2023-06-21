@@ -599,6 +599,31 @@ Qed.
 
 Definition disp_over_unit : disp_cat _ := _ ,, disp_over_unit_axioms.
 
+Lemma is_univalent_disp_disp_over_unit
+  (HC : is_univalent C)
+  : is_univalent_disp disp_over_unit.
+Proof.
+  intros a b e aa bb.
+  induction e.
+  assert (H : isweq (λ (f : z_iso aa bb), (morphism_from_z_iso _ _ f ,, inv_from_z_iso f ,, z_iso_after_z_iso_inv f ,, z_iso_inv_after_z_iso f) : z_iso_disp (identity_z_iso a) aa bb)).
+  {
+    use isweq_iso.
+    - exact (λ (f : z_iso_disp (identity_z_iso a) aa bb), (make_z_iso (mor_disp_from_z_iso f) (inv_mor_disp_from_z_iso f) (inv_mor_after_z_iso_disp f ,, z_iso_disp_after_inv_mor f))).
+    - intro.
+      apply z_iso_eq.
+      apply idpath.
+    - intro.
+      apply eq_z_iso_disp.
+      apply idpath.
+  }
+  use weqhomot.
+  - exact (weqcomp (make_weq _ (HC _ _)) (make_weq _ H)).
+  - intro ee.
+    induction ee.
+    apply eq_z_iso_disp.
+    apply idpath.
+Qed.
+
 End over_terminal_category.
 
 Lemma disp_over_unit_fiber_equals_cat
